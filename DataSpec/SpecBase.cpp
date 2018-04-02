@@ -231,7 +231,7 @@ static bool IsPathSong(const hecl::ProjectPath& path)
     return true;
 }
 
-bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok)
+bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass)
 {
     if (!checkPathPrefix(path))
         return false;
@@ -247,10 +247,19 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.openBlend(asBlend))
             return false;
-        if (conn.getBlendType() != hecl::blender::BlendType::None)
-            return true;
+        hecl::blender::BlendType type = conn.getBlendType();
+        if (type != hecl::blender::BlendType::None)
+            return cookPass < 0 ||
+                   (cookPass == 0 && type == hecl::blender::BlendType::Mesh) || // CMDL only
+                   (cookPass == 1 && type != hecl::blender::BlendType::Mesh);   // Non-CMDL only
+        return false;
     }
-    else if (hecl::IsPathPNG(path))
+
+    /* Non-CMDLs shall not pass */
+    if (cookPass == 0)
+        return false;
+
+    if (hecl::IsPathPNG(path))
     {
         return true;
     }
@@ -430,12 +439,18 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
         hecl::ProjectPath asGlob = in.getWithExtension(_S(".*"), true);
         hecl::blender::DataStream ds = conn.beginData();
         hecl::blender::Actor actor = ds.compileActorCharacterOnly();
+        auto actNames = ds.getActionNames();
+        ds.close();
 
         auto doSubtype = [&](Actor::Subtype& sub)
         {
             if (sub.armature >= 0)
             {
-                pathsOut.push_back(sub.mesh);
+                if (hecl::IsPathBlend(sub.mesh))
+                {
+                    flattenDependenciesBlend(sub.mesh, pathsOut, btok);
+                    pathsOut.push_back(sub.mesh);
+                }
 
                 hecl::SystemStringConv chSysName(sub.name);
                 pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR")));
@@ -446,7 +461,11 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
                 for (const auto& overlay : sub.overlayMeshes)
                 {
                     hecl::SystemStringConv ovelaySys(overlay.first);
-                    pathsOut.push_back(overlay.second);
+                    if (hecl::IsPathBlend(overlay.second))
+                    {
+                        flattenDependenciesBlend(overlay.second, pathsOut, btok);
+                        pathsOut.push_back(overlay.second);
+                    }
                     pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
                                                             ovelaySys.c_str() + _S(".CSKR")));
                 }
@@ -458,7 +477,6 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
         else if (charIdx < actor.subtypes.size())
             doSubtype(actor.subtypes[charIdx]);
 
-        auto actNames = ds.getActionNames();
         for (const auto& act : actNames)
         {
             hecl::SystemStringConv actSysName(act);
@@ -468,7 +486,6 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
             if (evntPath.isFile())
                 pathsOut.push_back(evntPath);
         }
-        ds.close();
 
         hecl::ProjectPath yamlPath = asGlob.getWithExtension(_S(".yaml"), true);
         if (yamlPath.isFile())
@@ -577,7 +594,8 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
                                  const std::vector<urde::SObjectTag>& buildList,
                                  const hecl::Database::DataSpecEntry* entry,
                                  bool fast, const hecl::MultiProgressPrinter& progress,
-                                 athena::io::FileWriter& pakOut)
+                                 athena::io::FileWriter& pakOut,
+                                 const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData)
 {
     fileIndex.reserve(buildList.size());
     int loadIdx = 0;
@@ -589,6 +607,23 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
 
         fileIndex.emplace_back();
         auto& thisIdx = fileIndex.back();
+
+        if (tag.type == FOURCC('MLVL'))
+        {
+            auto search = mlvlData.find(tag.id);
+            if (search == mlvlData.end())
+                Log.report(logvisor::Fatal, _S("Unable to find MLVL %08X"), tag.id.Value());
+
+            std::get<0>(thisIdx) = pakOut.position();
+            std::get<1>(thisIdx) = ROUND_UP_32(search->second.size());
+            std::get<2>(thisIdx) = false;
+            pakOut.writeUBytes(search->second.data(), search->second.size());
+            for (atUint64 i = search->second.size() ; i < std::get<1>(thisIdx) ; ++i)
+                pakOut.writeUByte(0xff);
+
+            continue;
+        }
+
         hecl::ProjectPath path = pathFromTag(tag);
         hecl::ProjectPath cooked = getCookedPath(path, true);
         athena::io::FileReader r(cooked.getAbsolutePath());
@@ -646,6 +681,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     athena::io::FileWriter pakOut(outPath.getAbsolutePath());
     std::vector<urde::SObjectTag> buildList;
     atUint64 resTableOffset = 0;
+    std::unordered_map<urde::CAssetId, std::vector<uint8_t>> mlvlData;
 
     if (path.getPathType() == hecl::ProjectPath::Type::File &&
         !hecl::StrCmp(path.getLastComponent().data(), _S("!world.blend"))) /* World PAK */
@@ -656,7 +692,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
             cp->waitUntilComplete();
         progress.startNewLine();
         hecl::ProjectPath cooked = getCookedPath(path, true);
-        buildWorldPakList(path, cooked, btok, pakOut, buildList, resTableOffset);
+        buildWorldPakList(path, cooked, btok, pakOut, buildList, resTableOffset, mlvlData);
         if (int64_t rem = pakOut.position() % 32)
             for (int64_t i=0 ; i<32-rem ; ++i)
                 pakOut.writeUByte(0xff);
@@ -671,9 +707,10 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         /* Build name list */
         for (const auto& item : buildList)
         {
-            auto search = m_catalogTagToName.find(item);
-            if (search != m_catalogTagToName.end())
-                nameList.emplace_back(item, search->second);
+            auto search = m_catalogTagToNames.find(item);
+            if (search != m_catalogTagToNames.end())
+                for (const auto& name : search->second)
+                    nameList.emplace_back(item, name);
         }
 
         /* Write resource list structure */
@@ -703,9 +740,10 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
         /* Build name list */
         for (const auto& item : buildList)
         {
-            auto search = m_catalogTagToName.find(item);
-            if (search != m_catalogTagToName.end())
-                nameList.emplace_back(item, search->second);
+            auto search = m_catalogTagToNames.find(item);
+            if (search != m_catalogTagToNames.end())
+                for (const auto& name : search->second)
+                    nameList.emplace_back(item, name);
         }
 
         /* Write resource list structure */
@@ -718,24 +756,26 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     /* Async cook resource list if using ClientProcess */
     if (cp)
     {
-        std::unordered_set<urde::SObjectTag> addedTags;
-        addedTags.reserve(buildList.size());
-
         Log.report(logvisor::Info, _S("Validating resources"));
         progress.setMainIndeterminate(true);
-        for (auto& tag : buildList)
+        for (int i=0 ; i<entry->m_numCookPasses ; ++i)
         {
-            if (addedTags.find(tag) != addedTags.end())
-                continue;
-            addedTags.insert(tag);
-
-            hecl::ProjectPath depPath = pathFromTag(tag);
-            if (!depPath)
+            std::unordered_set<urde::SObjectTag> addedTags;
+            addedTags.reserve(buildList.size());
+            for (auto& tag : buildList)
             {
-                Log.report(logvisor::Fatal, _S("Unable to resolve %.4s %08X"),
-                           tag.type.getChars(), tag.id.Value());
+                if (addedTags.find(tag) != addedTags.end())
+                    continue;
+                addedTags.insert(tag);
+
+                hecl::ProjectPath depPath = pathFromTag(tag);
+                if (!depPath)
+                {
+                    Log.report(logvisor::Fatal, _S("Unable to resolve %.4s %08X"),
+                               tag.type.getChars(), tag.id.Value());
+                }
+                m_project.cookPath(depPath, progress, false, false, fast, entry, cp, i);
             }
-            m_project.cookPath(depPath, progress, false, false, fast, entry, cp);
         }
         progress.setMainIndeterminate(false);
         cp->waitUntilComplete();
@@ -745,7 +785,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     /* Write resource data and build file index */
     std::vector<std::tuple<size_t, size_t, bool>> fileIndex;
     Log.report(logvisor::Info, _S("Copying data into %s"), outPath.getRelativePath().data());
-    copyBuildListData(fileIndex, buildList, entry, fast, progress, pakOut);
+    copyBuildListData(fileIndex, buildList, entry, fast, progress, pakOut, mlvlData);
 
     /* Write file index */
     writePakFileIndex(pakOut, buildList, fileIndex, resTableOffset);
@@ -833,7 +873,7 @@ void SpecBase::clearTagCache()
     m_tagToPath.clear();
     m_pathToTag.clear();
     m_catalogNameToTag.clear();
-    m_catalogTagToName.clear();
+    m_catalogTagToNames.clear();
 }
 
 hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const
@@ -1030,7 +1070,8 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath,
         {
             std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
             m_catalogNameToTag[pLower] = pathTag;
-            m_catalogTagToName[pathTag] = p.first;
+            m_catalogTagToNames[pathTag].insert(p.first);
+
             WriteNameTag(nameWriter, pathTag, p.first);
 #if 0
             fprintf(stderr, "%s %s %08X\n",
@@ -1315,7 +1356,7 @@ void SpecBase::backgroundIndexProc()
                 {
                     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
                     m_catalogNameToTag.reserve(nameReader.getRootNode()->m_mapChildren.size());
-                    m_catalogTagToName.reserve(nameReader.getRootNode()->m_mapChildren.size());
+                    m_catalogTagToNames.reserve(nameReader.getRootNode()->m_mapChildren.size());
                     for (const auto& child : nameReader.getRootNode()->m_mapChildren)
                     {
                         unsigned long id = strtoul(child.second->m_scalarString.c_str(), nullptr, 16);
@@ -1325,7 +1366,7 @@ void SpecBase::backgroundIndexProc()
                             std::string chLower = child.first;
                             std::transform(chLower.cbegin(), chLower.cend(), chLower.begin(), tolower);
                             m_catalogNameToTag[chLower] = search->first;
-                            m_catalogTagToName[search->first] = child.first;
+                            m_catalogTagToNames[search->first].insert(child.first);
                             WriteNameTag(nameWriter, search->first, child.first);
                         }
                     }
@@ -1342,7 +1383,7 @@ void SpecBase::backgroundIndexProc()
     if (oidsTag)
     {
         m_catalogNameToTag["mp1originalids"] = oidsTag;
-        m_catalogTagToName[oidsTag] = "MP1OriginalIDs";
+        m_catalogTagToNames[oidsTag].insert("MP1OriginalIDs");
     }
 
     Log.report(logvisor::Info, _S("Background index of '%s' started"), getOriginalSpec().m_name.data());

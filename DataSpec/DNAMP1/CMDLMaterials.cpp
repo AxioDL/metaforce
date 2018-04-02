@@ -933,8 +933,11 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                                 int uvCount,
                                 bool lightmapUVs,
                                 bool matrixSkinning,
-                                atUint32 setIdxIn)
+                                std::unordered_map<uint64_t, int>& uniqueMap)
 {
+    XXH64_state_t xxHash;
+    XXH64_reset(&xxHash, 0);
+
     if (gx.m_kcolorCount)
     {
         flags.setKonstValuesEnabled(true);
@@ -1010,6 +1013,8 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
     }
     flags.setTextureSlots(texFlags);
 
+    XXH64_update(&xxHash, &flags.flags, sizeof(flags.flags));
+
     vaFlags.setPosition(GX::INDEX16);
     vaFlags.setNormal(GX::INDEX16);
 
@@ -1052,17 +1057,27 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
             vaFlags.setTex6MatIdx(GX::DIRECT);
     }
 
-    groupIdx = setIdxIn;
+    XXH64_update(&xxHash, &vaFlags.vaFlags, sizeof(vaFlags.vaFlags));
 
+    XXH64_update(&xxHash, &gx.m_kcolorCount, sizeof(gx.m_kcolorCount));
     for (unsigned i=0 ; i<gx.m_kcolorCount ; ++i)
+    {
         konstColors.emplace_back(gx.m_kcolors[i]);
+        XXH64_update(&xxHash, &gx.m_kcolors[i].num, sizeof(gx.m_kcolors[i].num));
+    }
 
     blendDstFac = BlendFactor(gx.m_blendDst);
+    XXH64_update(&xxHash, &gx.m_blendDst, sizeof(gx.m_blendDst));
     blendSrcFac = BlendFactor(gx.m_blendSrc);
+    XXH64_update(&xxHash, &gx.m_blendSrc, sizeof(gx.m_blendSrc));
     if (flags.samusReflectionIndirectTexture())
+    {
         indTexSlot.push_back(textureIdxs.size());
+        XXH64_update(&xxHash, &indTexSlot.back(), sizeof(indTexSlot.back()));
+    }
 
     colorChannelCount = 1;
+    XXH64_update(&xxHash, &colorChannelCount, sizeof(colorChannelCount));
     colorChannels.emplace_back();
     ColorChannel& ch = colorChannels.back();
     for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
@@ -1074,6 +1089,8 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                 stage.m_alpha[c] == hecl::Backend::GX::CA_RASA)
             {
                 ch.setLighting(true);
+                uint8_t one = 1;
+                XXH64_update(&xxHash, &one, sizeof(one));
                 break;
             }
         if (ch.lighting())
@@ -1083,6 +1100,7 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
     ch.setAttenuationFn(GX::AF_SPOT);
 
     tevStageCount = gx.m_tevCount;
+    XXH64_update(&xxHash, &tevStageCount, sizeof(tevStageCount));
     tevStages.reserve(gx.m_tevCount);
     for (unsigned i=0 ; i<gx.m_tevCount ; ++i)
     {
@@ -1110,9 +1128,18 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
         target.setAlphaOpOutReg(stage.m_aRegOut);
         target.setKColorIn(stage.m_kColor);
         target.setKAlphaIn(stage.m_kAlpha);
+
+        XXH64_update(&xxHash, &target.ciFlags, sizeof(target.ciFlags));
+        XXH64_update(&xxHash, &target.aiFlags, sizeof(target.aiFlags));
+        XXH64_update(&xxHash, &target.ccFlags, sizeof(target.ccFlags));
+        XXH64_update(&xxHash, &target.acFlags, sizeof(target.acFlags));
+        XXH64_update(&xxHash, &target.kaInput, sizeof(target.kaInput));
+        XXH64_update(&xxHash, &target.kcInput, sizeof(target.kcInput));
+        XXH64_update(&xxHash, &target.rascInput, sizeof(target.rascInput));
     }
 
     tcgCount = gx.m_tcgCount;
+    XXH64_update(&xxHash, &tcgCount, sizeof(tcgCount));
     for (unsigned i=0 ; i<gx.m_tcgCount ; ++i)
     {
         const hecl::Backend::GX::TexCoordGen& tcg = gx.m_tcgs[i];
@@ -1123,6 +1150,8 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
         target.setMtx(tcg.m_mtx);
         target.setNormalize(tcg.m_norm);
         target.setPostMtx(tcg.m_pmtx);
+
+        XXH64_update(&xxHash, &target.flags, sizeof(target.flags));
     }
 
     uvAnimsSize = 4;
@@ -1140,6 +1169,8 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                 found = true;
                 ++uvAnimsCount;
                 uvAnims.emplace_back(tcg.m_gameFunction, tcg.m_gameArgs);
+                XXH64_update(&xxHash, tcg.m_gameFunction.data(), sizeof(tcg.m_gameFunction.size()));
+                XXH64_update(&xxHash, &tcg.m_gameArgs, sizeof(tcg.m_gameArgs));
                 size_t tmpUvAnimsSize = uvAnimsSize;
                 uvAnims.back().binarySize(tmpUvAnimsSize);
                 uvAnimsSize = tmpUvAnimsSize;
@@ -1149,6 +1180,15 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
         if (!found)
             break;
     }
+
+    XXH64_update(&xxHash, &uvAnimsSize, sizeof(uvAnimsSize));
+    XXH64_update(&xxHash, &uvAnimsCount, sizeof(uvAnimsCount));
+
+    uint64_t hash = XXH64_digest(&xxHash);
+    auto hashSearch = uniqueMap.find(hash);
+    if (hashSearch == uniqueMap.end())
+        hashSearch = uniqueMap.insert(std::make_pair(hash, uniqueMap.size())).first;
+    uniqueIdx = hashSearch->second;
 }
 
 HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,

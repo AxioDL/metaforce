@@ -621,8 +621,8 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
 
     ((uint32_t*)data)[0] = hecl::SBig(format);
     data += 4;
-    ((uint16_t*)data)[0] = hecl::SBig(uint16_t(numEntries));
-    ((uint16_t*)data)[1] = hecl::SBig(uint16_t(1));
+    ((uint16_t*)data)[0] = hecl::SBig(uint16_t(1));
+    ((uint16_t*)data)[1] = hecl::SBig(uint16_t(numEntries));
     data += 4;
 
     switch (format)
@@ -1415,7 +1415,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
                   width >= 4 && height >= 4;
 
     /* Read into mip0 image buffer */
-    for (int r=height-1 ; r>=0 ; --r)
+    for (int r=0 ; r<height ; ++r)
     {
         if (colorType == PNG_COLOR_TYPE_RGB)
         {
@@ -1545,6 +1545,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
         filterHeight = height;
         const uint8_t* rgbaIn = bufOut.get();
         uint8_t* blocksOut = compOut.get();
+        memset(blocksOut, 0, compLen);
         for (size_t i=0 ; i<numMips ; ++i)
         {
             int thisLen = squish::GetStorageRequirements(filterWidth, filterHeight, squish::kDxt1);
@@ -1563,10 +1564,15 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
         int filterHeight = height;
         compLen = bufLen;
         if (colorType == PNG_COLOR_TYPE_PALETTE)
+        {
+            if (nPaletteEntries == 16)
+                compLen /= 2;
             compLen += 8 + nPaletteEntries * 2;
+        }
         compOut.reset(new uint8_t[compLen]);
         const uint8_t* rgbaIn = bufOut.get();
         uint8_t* dataOut = compOut.get();
+        memset(dataOut, 0, compLen);
         for (size_t i=0 ; i<numMips ; ++i)
         {
             switch (colorType)

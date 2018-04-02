@@ -41,9 +41,7 @@ struct MLVL : BigDNA
 
         Value<atUint32> attachedAreaCount;
         Vector<atUint16, AT_DNA_COUNT(attachedAreaCount)> attachedAreas;
-        Value<atUint32> padding;
 
-        Value<atUint32> depCount;
         struct Dependency : BigDNA
         {
             AT_DECL_DNA_YAML
@@ -52,8 +50,13 @@ struct MLVL : BigDNA
 
             Dependency() = default;
             Dependency(const UniqueID32& idin, const hecl::FourCC& fcc)
-            : id(idin), type(fcc) {}
+                : id(idin), type(fcc) {}
         };
+
+        Value<atUint32> lazyDepCount;
+        Vector<Dependency, AT_DNA_COUNT(lazyDepCount)> lazyDeps;
+
+        Value<atUint32> depCount;
         Vector<Dependency, AT_DNA_COUNT(depCount)> deps;
 
         Value<atUint32> depLayerCount;
@@ -85,6 +88,7 @@ struct MLVL : BigDNA
         {
             MLVL::Area& areaLast = areas.back();
             areaLast.attachedAreaCount = areaLast.attachedAreas.size();
+            areaLast.lazyDepCount = areaLast.lazyDeps.size();
             areaLast.depCount = areaLast.deps.size();
             areaLast.depLayerCount = areaLast.depLayers.size();
             areaLast.dockCount = areaLast.docks.size();

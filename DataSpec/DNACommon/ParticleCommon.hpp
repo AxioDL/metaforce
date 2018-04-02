@@ -820,7 +820,7 @@ struct UVEConstant : IUVElement
 {
     AT_DECL_EXPLICIT_DNA_YAML
     AT_SUBDECL_DNA
-    IDType tex;
+    CastIDToZero<IDType> tex;
     const char* ClassID() const {return "CNST";}
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
@@ -834,7 +834,7 @@ struct UVEAnimTexture : IUVElement
 {
     AT_DECL_EXPLICIT_DNA_YAML
     AT_SUBDECL_DNA
-    IDType tex;
+    CastIDToZero<IDType> tex;
     IntElementFactory tileW;
     IntElementFactory tileH;
     IntElementFactory strideW;

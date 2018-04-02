@@ -950,6 +950,7 @@ struct SpecMP1 : SpecBase
             {
                 DNADGRP::DGRP<UniqueID32> dgrp;
                 dgrp.read(reader);
+                dgrp.validateDeps();
                 DNADGRP::WriteDGRP(dgrp, out);
             }
             else if (!classStr.compare(DNAFont::FONT<UniqueID32>::DNAType()))
@@ -1188,7 +1189,8 @@ struct SpecMP1 : SpecBase
                            hecl::blender::Token& btok,
                            athena::io::FileWriter& w,
                            std::vector<urde::SObjectTag>& listOut,
-                           atUint64& resTableOffset)
+                           atUint64& resTableOffset,
+                           std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData)
     {
         DNAMP1::MLVL mlvl;
         {
@@ -1200,8 +1202,17 @@ struct SpecMP1 : SpecBase
 
         size_t count = 5;
         for (const auto& area : mlvl.areas)
-            for (const auto& dep : area.deps)
-                ++count;
+        {
+            auto lazyIt = area.lazyDeps.cbegin();
+            auto it = area.deps.cbegin();
+            while (it != area.deps.cend())
+            {
+                if (it->id != lazyIt->id)
+                    ++count;
+                ++lazyIt;
+                ++it;
+            }
+        }
         listOut.reserve(count);
 
         urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_S(".*"), true), btok);
@@ -1218,7 +1229,7 @@ struct SpecMP1 : SpecBase
         nameEnt.name = parentDir.getLastComponentUTF8();
         nameEnt.write(w);
 
-        for (const auto& area : mlvl.areas)
+        for (auto& area : mlvl.areas)
         {
             urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(area.areaNameId));
             if (nameTag)
@@ -1228,6 +1239,33 @@ struct SpecMP1 : SpecBase
             urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
             if (areaTag)
                 listOut.push_back(areaTag);
+
+            std::vector<DNAMP1::MLVL::Area::Dependency> strippedDeps;
+            strippedDeps.reserve(area.deps.size());
+            std::vector<atUint32> strippedDepLayers;
+            strippedDepLayers.reserve(area.depLayers.size());
+            auto lazyIt = area.lazyDeps.cbegin();
+            auto it = area.deps.cbegin();
+            auto layerIt = area.depLayers.cbegin();
+            while (it != area.deps.cend())
+            {
+                if (it - area.deps.cbegin() == *layerIt)
+                {
+                    strippedDepLayers.push_back(atUint32(strippedDeps.size()));
+                    ++layerIt;
+                }
+                if (it->id != lazyIt->id)
+                    strippedDeps.push_back(*it);
+                ++lazyIt;
+                ++it;
+            }
+
+            area.lazyDepCount = 0;
+            area.lazyDeps.clear();
+            area.depCount = strippedDeps.size();
+            area.deps = std::move(strippedDeps);
+            area.depLayerCount = strippedDepLayers.size();
+            area.depLayers = std::move(strippedDepLayers);
         }
 
         urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(mlvl.worldNameId));
@@ -1301,6 +1339,15 @@ struct SpecMP1 : SpecBase
             ent.size = 0;
             ent.offset = 0;
             ent.write(w);
+        }
+
+        {
+            std::vector<uint8_t>& mlvlOut = mlvlData[worldTag.id];
+            size_t mlvlSize = 0;
+            mlvl.binarySize(mlvlSize);
+            mlvlOut.resize(mlvlSize);
+            athena::io::MemoryWriter w(&mlvlOut[0], mlvlSize);
+            mlvl.write(w);
         }
     }
 
@@ -1429,13 +1476,13 @@ struct SpecMP1 : SpecBase
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1 = {
-    _S("MP1"sv), _S("Data specification for original Metroid Prime engine"sv), _S(".pak"sv),
+    _S("MP1"sv), _S("Data specification for original Metroid Prime engine"sv), _S(".pak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> std::unique_ptr<hecl::Database::IDataSpec> {
         return std::make_unique<SpecMP1>(&SpecEntMP1, project, false);
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1PC = {
-    _S("MP1-PC"sv), _S("Data specification for PC-optimized Metroid Prime engine"sv), _S(".upak"sv),
+    _S("MP1-PC"sv), _S("Data specification for PC-optimized Metroid Prime engine"sv), _S(".upak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool) -> std::unique_ptr<hecl::Database::IDataSpec> {
         if (tool != hecl::Database::DataSpecTool::Extract)
             return std::make_unique<SpecMP1>(&SpecEntMP1PC, project, true);
@@ -1443,5 +1490,5 @@ hecl::Database::DataSpecEntry SpecEntMP1PC = {
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1ORIG = {
-    _S("MP1-ORIG"sv), _S("Data specification for unmodified Metroid Prime resources"sv), {}, {}};
+    _S("MP1-ORIG"sv), _S("Data specification for unmodified Metroid Prime resources"sv), {}, 2, {}};
 }

@@ -140,8 +140,8 @@ struct ANCS : BigDNA
             };
             std::vector<Effect> effects;
 
-            UniqueID32 cmdlOverlay;
-            UniqueID32 cskrOverlay;
+            UniqueID32Zero cmdlOverlay;
+            UniqueID32Zero cskrOverlay;
 
             std::vector<atUint32> animIdxs;
         };

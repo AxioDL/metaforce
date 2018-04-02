@@ -65,7 +65,7 @@ bool CMDL::Cook(const hecl::ProjectPath& outPath,
                 const hecl::ProjectPath& inPath,
                 const DNACMDL::Mesh& mesh)
 {
-    if (mesh.skins.size())
+    if (!mesh.skins.empty())
     {
         DNACMDL::Mesh skinMesh = mesh.getContiguousSkinningVersion();
         if (!DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1, 2>(outPath, inPath, skinMesh))

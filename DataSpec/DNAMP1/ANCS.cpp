@@ -432,9 +432,9 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
     writer.writeUint16Big(sectionCount);
 
     writer.writeString(name);
-    cmdl.UniqueID32::write(writer);
-    cskr.UniqueID32::write(writer);
-    cinf.UniqueID32::write(writer);
+    cmdl.write(writer);
+    cskr.write(writer);
+    cinf.write(writer);
 
     writer.writeUint32Big(animations.size());
     writer.enumerate(animations);
@@ -472,8 +472,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.UniqueID32::write(writer);
-        cskrOverlay.UniqueID32::write(writer);
+        cmdlOverlay.write(writer);
+        cskrOverlay.write(writer);
     }
 
     if (sectionCount > 4)
@@ -1157,8 +1157,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         ch.cmdl = UniqueID32{};
         ch.cskr = UniqueID32{};
         ch.cinf = UniqueID32{};
-        ch.cmdlOverlay = UniqueID32{};
-        ch.cskrOverlay = UniqueID32{};
+        ch.cmdlOverlay = UniqueID32Zero{};
+        ch.cskrOverlay = UniqueID32Zero{};
 
         hecl::SystemStringConv chSysName(ch.name);
         ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR"));

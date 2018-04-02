@@ -55,7 +55,7 @@ struct PlayerActor : IScriptObject
         actorParameters.depIDs(pathsOut);
     }
 
-    void gatherBulkDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherLazyDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
         animationParameters.depANCSAll(pathsOut);
     }

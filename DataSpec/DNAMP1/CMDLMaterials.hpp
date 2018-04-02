@@ -130,7 +130,7 @@ struct MaterialSet : BigDNA
             }
         } vaFlags;
         const VAFlags& getVAFlags() const {return vaFlags;}
-        Value<atUint32> groupIdx;
+        Value<atUint32> uniqueIdx;
 
         Vector<atUint32, AT_DNA_COUNT(flags.konstValuesEnabled())> konstCount;
         Vector<GX::Color, AT_DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;
@@ -291,7 +291,7 @@ struct MaterialSet : BigDNA
                  int uvCount,
                  bool lightmapUVs,
                  bool matrixSkinning,
-                 atUint32 grpIdx);
+                 std::unordered_map<uint64_t, int>& uniqueMap);
     };
     Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 

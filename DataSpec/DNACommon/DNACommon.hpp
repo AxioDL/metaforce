@@ -223,6 +223,15 @@ public:
     static constexpr size_t BinarySize() {return 4;}
 };
 
+/** PAK 32-bit Unique ID - writes zero when invalid */
+class UniqueID32Zero : public UniqueID32
+{
+public:
+    AT_DECL_DNA_YAML
+    Delete __d2;
+    using UniqueID32::UniqueID32;
+};
+
 class AuxiliaryID32 : public UniqueID32
 {
     const hecl::SystemChar* m_auxStr;
@@ -351,6 +360,10 @@ public:
 
     static constexpr size_t BinarySize() {return 16;}
 };
+
+/** Casts ID type to its null-zero equivalent */
+template <class T>
+using CastIDToZero = typename std::conditional_t<std::is_same_v<T, UniqueID32>, UniqueID32Zero, T>;
 
 /** Word Bitmap reader/writer */
 class WordBitmap

@@ -24,6 +24,8 @@ struct Header : BigDNA
     {
         AT_DECL_DNA
         Value<atUint32> flags = 0;
+        bool skinned() const {return (flags & 0x1) != 0;}
+        void setSkinned(bool val) {flags &= ~0x1; flags |= val;}
         bool shortNormals() const {return (flags & 0x2) != 0;}
         void setShortNormals(bool val) {flags &= ~0x2; flags |= val << 1;}
         bool shortUVs() const {return (flags & 0x4) != 0;}

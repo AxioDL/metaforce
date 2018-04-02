@@ -17,9 +17,28 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) DGRP : Bi
         AT_DECL_DNA_YAML
         DNAFourCC type;
         Value<IDType> id;
+
+        bool validate() const
+        {
+            if (!id.operator bool())
+                return false;
+            hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
+            return path && !path.isNone();
+        }
     };
 
     Vector<ObjectTag, AT_DNA_COUNT(dependCount)> depends;
+
+    void validateDeps()
+    {
+        std::vector<ObjectTag> newDeps;
+        newDeps.reserve(depends.size());
+        for (const ObjectTag& tag : depends)
+            if (tag.validate())
+                newDeps.push_back(tag);
+        depends = std::move(newDeps);
+        dependCount = atUint32(depends.size());
+    }
 };
 
 template <class IDType>

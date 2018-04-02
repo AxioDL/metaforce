@@ -142,6 +142,22 @@ std::string UniqueID32::toString() const
     return std::string(buf);
 }
 
+template <>
+void UniqueID32Zero::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
+{UniqueID32::Enumerate<BigDNA::Read>(reader);}
+template <>
+void UniqueID32Zero::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
+{writer.writeUint32Big(*this ? m_id : 0);}
+template <>
+void UniqueID32Zero::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
+{UniqueID32::Enumerate<BigDNA::ReadYaml>(reader);}
+template <>
+void UniqueID32Zero::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer)
+{UniqueID32::Enumerate<BigDNA::WriteYaml>(writer);}
+template <>
+void UniqueID32Zero::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{UniqueID32::Enumerate<BigDNA::BinarySize>(s);}
+
 AuxiliaryID32& AuxiliaryID32::operator=(const hecl::ProjectPath& path)
 {
     assign(path.ensureAuxInfo(m_auxStr).hash().val32());

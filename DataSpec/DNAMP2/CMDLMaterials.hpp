@@ -31,7 +31,7 @@ struct MaterialSet : BigDNA
         const VAFlags& getVAFlags() const {return vaFlags;}
         Value<atUint32> unk0; /* MP2 only */
         Value<atUint32> unk1; /* MP2 only */
-        Value<atUint32> groupIdx;
+        Value<atUint32> uniqueIdx;
 
         Vector<atUint32, AT_DNA_COUNT(flags.konstValuesEnabled())> konstCount;
         Vector<GX::Color, AT_DNA_COUNT(flags.konstValuesEnabled() ? konstCount[0] : 0)> konstColors;

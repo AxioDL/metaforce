@@ -1893,7 +1893,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr)
     }
 
     UpdateCameraState(mgr);
-    UpdateMorphBallState(input, mgr);
+    UpdateMorphBallState(input.DeltaTime(), input, mgr);
     UpdateCameraTimers(input.DeltaTime(), input);
     UpdateFootstepSounds(input, mgr, input.DeltaTime());
     x2a8_timeSinceJump += input.DeltaTime();
@@ -3291,7 +3291,47 @@ void CPlayer::UpdateCameraTimers(float dt, const CFinalInput& input)
         x29c_fallCameraTimer += dt;
 }
 
-void CPlayer::UpdateMorphBallState(const CFinalInput&, CStateManager& mgr) {}
+void CPlayer::UpdateMorphBallState(float dt, const CFinalInput& input, CStateManager& mgr)
+{
+    if (!ControlMapper::GetPressInput(ControlMapper::ECommands::Morph, input))
+        return;
+    switch (x2f8_morphBallState)
+    {
+    case EPlayerMorphBallState::Unmorphed:
+        if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::MorphBall) &&
+            CanEnterMorphBallState(mgr, 0.f))
+        {
+            x574_morphTime = 0.f;
+            x578_morphDuration = 1.f;
+            TransitionToMorphBallState(dt, mgr);
+        }
+        else
+        {
+            CSfxHandle hnd = CSfxManager::SfxStart(1781, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            ApplySubmergedPitchBend(hnd);
+        }
+        break;
+    case EPlayerMorphBallState::Morphed:
+    {
+        zeus::CVector3f posDelta;
+        if (CanLeaveMorphBallState(mgr, posDelta))
+        {
+            SetTranslation(x34_transform.origin + posDelta);
+            x574_morphTime = 0.f;
+            x578_morphDuration = 1.f;
+            TransitionFromMorphBallState(mgr);
+        }
+        else
+        {
+            CSfxHandle hnd = CSfxManager::SfxStart(1781, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            ApplySubmergedPitchBend(hnd);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
 
 CFirstPersonCamera& CPlayer::GetFirstPersonCamera(CStateManager& mgr)
 {

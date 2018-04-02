@@ -523,7 +523,7 @@ public:
     void UpdateCameraState(CStateManager& mgr);
     void UpdateDebugCamera(CStateManager& mgr);
     void UpdateCameraTimers(float dt, const CFinalInput& input);
-    void UpdateMorphBallState(const CFinalInput&, CStateManager& mgr);
+    void UpdateMorphBallState(float dt, const CFinalInput&, CStateManager& mgr);
     CFirstPersonCamera& GetFirstPersonCamera(CStateManager& mgr);
     void UpdateGunTransform(const zeus::CVector3f&, CStateManager& mgr);
     void UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManager& mgr);

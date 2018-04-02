@@ -24,7 +24,7 @@ struct ANIM : BigDNA
         std::vector<DNAANIM::Channel> channels;
         std::vector<std::vector<DNAANIM::Value>> chanKeys;
         float mainInterval = 0.0;
-        UniqueID32 evnt;
+        UniqueID32Zero evnt;
         bool looping = false;
 
         void sendANIMToBlender(hecl::blender::PyOutStream&, const DNAANIM::RigInverter<CINF>& rig) const;
@@ -59,7 +59,7 @@ struct ANIM : BigDNA
         {
             AT_DECL_DNA
             Value<atUint32> scratchSize;
-            UniqueID32 evnt;
+            UniqueID32Zero evnt;
             Value<atUint32> unk0 = 1;
             Value<float> duration;
             Value<float> interval;

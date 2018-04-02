@@ -602,7 +602,7 @@ struct SpecMP3 : SpecBase
 hecl::Database::DataSpecEntry SpecEntMP3
 (
     _S("MP3"sv),
-    _S("Data specification for original Metroid Prime 3 engine"sv), _S(".pak"sv),
+    _S("Data specification for original Metroid Prime 3 engine"sv), _S(".pak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
     -> std::unique_ptr<hecl::Database::IDataSpec> {return std::make_unique<SpecMP3>(&SpecEntMP3, project, false);}
 );
@@ -610,7 +610,7 @@ hecl::Database::DataSpecEntry SpecEntMP3
 hecl::Database::DataSpecEntry SpecEntMP3PC =
 {
     _S("MP3-PC"sv),
-    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv), _S(".upak"sv),
+    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv), _S(".upak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
     -> std::unique_ptr<hecl::Database::IDataSpec>
     {
@@ -624,7 +624,7 @@ hecl::Database::DataSpecEntry SpecEntMP3ORIG =
 {
     _S("MP3-ORIG"sv),
     _S("Data specification for unmodified Metroid Prime 3 resources"sv),
-    {}, {}
+    {}, 2, {}
 };
 
 }

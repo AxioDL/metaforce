@@ -79,24 +79,24 @@ struct LayerResources
 {
     BulkResources& bulkResources;
     std::unordered_map<hecl::Hash, std::pair<size_t, size_t>> addedPaths;
-    std::vector<std::vector<hecl::ProjectPath>> layerPaths;
+    std::vector<std::vector<std::pair<hecl::ProjectPath, bool>>> layerPaths;
     std::unordered_set<hecl::Hash> addedSharedPaths;
-    std::vector<hecl::ProjectPath> sharedPaths;
+    std::vector<std::pair<hecl::ProjectPath, bool>> sharedPaths;
     LayerResources(BulkResources& bulkResources) : bulkResources(bulkResources) {}
     void beginLayer()
     {
         layerPaths.resize(layerPaths.size() + 1);
     }
-    void addSharedPath(const hecl::ProjectPath& path)
+    void addSharedPath(const hecl::ProjectPath& path, bool lazy)
     {
         auto search = addedSharedPaths.find(path.hash());
         if (search == addedSharedPaths.cend())
         {
-            sharedPaths.push_back(path);
+            sharedPaths.emplace_back(path, lazy);
             addedSharedPaths.insert(path.hash());
         }
     }
-    void addPath(const hecl::ProjectPath& path)
+    void addPath(const hecl::ProjectPath& path, bool lazy)
     {
         auto search = addedPaths.find(path.hash());
         if (search != addedPaths.cend())
@@ -105,22 +105,22 @@ struct LayerResources
                 return;
             else
             {
-                hecl::ProjectPath& toMove = layerPaths[search->second.first][search->second.second];
-                addSharedPath(toMove);
-                toMove.clear();
+                auto& toMove = layerPaths[search->second.first][search->second.second];
+                addSharedPath(toMove.first, toMove.second);
+                toMove.first.clear();
             }
         }
         else
         {
-            layerPaths.back().push_back(path);
+            layerPaths.back().emplace_back(path, lazy);
             addedPaths.insert(std::make_pair(path.hash(),
                 std::make_pair(layerPaths.size() - 1, layerPaths.back().size() - 1)));
         }
     }
-    void addBulkPath(const hecl::ProjectPath& path, size_t areaIdx)
+    void addBulkPath(const hecl::ProjectPath& path, size_t areaIdx, bool lazy)
     {
         if (bulkResources.addBulkPath(path, areaIdx))
-            addPath(path);
+            addPath(path, lazy);
     }
 };
 
@@ -293,7 +293,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             {
                 g_ThreadBlenderToken.reset(&btok);
                 std::vector<hecl::ProjectPath> depPaths;
-                std::vector<hecl::ProjectPath> bulkPaths;
+                std::vector<hecl::ProjectPath> lazyPaths;
                 for (std::unique_ptr<IScriptObject>& obj : layer.objects)
                 {
                     if (obj->type == int(urde::EScriptObjectType::MemoryRelay))
@@ -325,14 +325,14 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                     }
 
                     obj->gatherDependencies(depPaths);
-                    obj->gatherBulkDependencies(bulkPaths);
+                    obj->gatherLazyDependencies(lazyPaths);
                 }
 
                 /* Cull duplicate paths and add typed hash to list */
                 for (const hecl::ProjectPath& path : depPaths)
-                    layerResources.addBulkPath(path, areaIdx);
-                for (const hecl::ProjectPath& path : bulkPaths)
-                    layerResources.addBulkPath(path, areaIdx);
+                    layerResources.addBulkPath(path, areaIdx, false);
+                for (const hecl::ProjectPath& path : lazyPaths)
+                    layerResources.addBulkPath(path, areaIdx, true);
             }
 
             hecl::SystemUTF8Conv layerU8(layerName);
@@ -349,16 +349,22 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
         /* Build deplist */
         MLVL::Area& areaOut = mlvl.areas.back();
-        for (const std::vector<hecl::ProjectPath>& layer : layerResources.layerPaths)
+        for (const std::vector<std::pair<hecl::ProjectPath, bool>>& layer : layerResources.layerPaths)
         {
             areaOut.depLayers.push_back(areaOut.deps.size());
-            for (const hecl::ProjectPath& path : layer)
+            for (const std::pair<hecl::ProjectPath, bool>& path : layer)
             {
-                if (path)
+                if (path.first)
                 {
-                    urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
+                    urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first, btok);
                     if (tag.id.IsValid())
+                    {
+                        if (path.second)
+                            areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
+                        else
+                            areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
                         areaOut.deps.emplace_back(tag.id.Value(), tag.type);
+                    }
                 }
             }
         }
@@ -377,19 +383,28 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             ds.close();
 
             for (const hecl::ProjectPath& path : texs)
-                layerResources.addSharedPath(path);
+                layerResources.addSharedPath(path, false);
 
-            for (const hecl::ProjectPath& path : layerResources.sharedPaths)
+            for (const std::pair<hecl::ProjectPath, bool>& path : layerResources.sharedPaths)
             {
-                urde::SObjectTag tag = g_curSpec->buildTagFromPath(path, btok);
+                urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first, btok);
                 if (tag.id.IsValid())
+                {
+                    if (path.second)
+                        areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
+                    else
+                        areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
                     areaOut.deps.emplace_back(tag.id.Value(), tag.type);
+                }
             }
 
             hecl::ProjectPath pathPath(areaPath.getParentPath(), _S("!path.blend"));
             urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath, btok);
             if (pathTag.id.IsValid())
+            {
                 areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
+                areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
+            }
         }
 
         ++areaIdx;

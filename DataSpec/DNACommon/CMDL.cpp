@@ -775,9 +775,9 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                     size_t normCount = secSizes[s] / 6;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
-                        float x = reader.readInt16Big() / 16834.0f;
-                        float y = reader.readInt16Big() / 16834.0f;
-                        float z = reader.readInt16Big() / 16834.0f;
+                        float x = reader.readInt16Big() / 16384.0f;
+                        float y = reader.readInt16Big() / 16384.0f;
+                        float z = reader.readInt16Big() / 16384.0f;
                         os.format("norm_list.append((%f,%f,%f))\n",
                                   x, y, z);
                     }
@@ -1218,13 +1218,18 @@ static void WriteDLVal(W& writer, GX::AttrType type, atUint32 val)
 template <class MaterialSet, class SurfaceHeader, atUint32 Version>
 bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const Mesh& mesh)
 {
+    bool skinned = !mesh.skins.empty();
+
     Header head;
     head.magic = 0xDEADBABE;
     head.version = Version;
+    head.flags.setSkinned(skinned);
+    head.flags.setShortNormals(!skinned);
+    head.flags.setShortUVs(true); /* This just means there's an (empty) short UV section */
     head.aabbMin = mesh.aabbMin.val;
     head.aabbMax = mesh.aabbMax.val;
     head.matSetCount = mesh.materialSets.size();
-    head.secCount = head.matSetCount + 5 + mesh.surfaces.size();
+    head.secCount = head.matSetCount + 6 + mesh.surfaces.size();
     head.secSizes.reserve(head.secCount);
 
     /* Lengths of padding to insert while writing */
@@ -1238,6 +1243,8 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         hecl::Frontend::Frontend FE;
         for (const std::vector<Material>& mset : mesh.materialSets)
         {
+            std::unordered_map<uint64_t, int> uniqueMatMap;
+
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
             std::vector<hecl::ProjectPath> texPaths;
@@ -1245,7 +1252,6 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             setBackends.reserve(mset.size());
 
             size_t endOff = 0;
-            atUint32 nextGroupIdx = 0;
             for (const Material& mat : mset)
             {
                 std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
@@ -1254,25 +1260,9 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
                 hecl::Backend::GX& matGX = setBackends.back();
                 matGX.reset(matIR, FE.getDiagnostics());
 
-                atUint32 groupIdx = -1;
-                if (matSets.size() == 1)
-                {
-                    for (size_t i=0 ; i<setBackends.size()-1 ; ++i)
-                    {
-                        const hecl::Backend::GX& other = setBackends[i];
-                        if (matGX == other)
-                        {
-                            groupIdx = i;
-                            break;
-                        }
-                    }
-                    if (groupIdx == -1)
-                        groupIdx = nextGroupIdx++;
-                }
-
                 targetMSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  false, false, groupIdx);
+                                                  false, false, uniqueMatMap);
 
                 targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
@@ -1317,7 +1307,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
     paddingSizes.push_back(secSz32 - secSz);
 
     /* Vertex Normals */
-    secSz = mesh.norm.size() * 12;
+    secSz = mesh.norm.size() * (skinned ? 12 : 6);
     secSz32 = ROUND_UP_32(secSz);
     if (secSz32 == 0)
         secSz32 = 32;
@@ -1337,6 +1327,12 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
     secSz32 = ROUND_UP_32(secSz);
     if (secSz32 == 0)
         secSz32 = 32;
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
+
+    /* LUV coords */
+    secSz = 0;
+    secSz32 = ROUND_UP_32(secSz);
     head.secSizes.push_back(secSz32);
     paddingSizes.push_back(secSz32 - secSz);
 
@@ -1388,7 +1384,21 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
     /* Vertex Normals */
     for (const atVec3f& norm : mesh.norm)
-        writer.writeVec3fBig(norm);
+    {
+        if (skinned)
+        {
+            writer.writeVec3fBig(norm);
+        }
+        else
+        {
+            for (int i = 0; i < 3; ++i)
+            {
+                int tmpV = int(norm.vec[i] * 16384.f);
+                tmpV = zeus::clamp(-32768, tmpV, 32767);
+                writer.writeInt16Big(atInt16(tmpV));
+            }
+        }
+    }
     writer.fill(atUint8(0), *padIt);
     ++padIt;
 
@@ -1404,6 +1414,10 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
     /* UV coords */
     for (const atVec2f& uv : mesh.uv)
         writer.writeVec2fBig(uv);
+    writer.fill(atUint8(0), *padIt);
+    ++padIt;
+
+    /* LUV coords */
     writer.fill(atUint8(0), *padIt);
     ++padIt;
 
@@ -1435,7 +1449,9 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         header.reflectionNormal = surf.reflectionNormal;
         header.write(writer);
 
-        writer.writeUByte(prim);
+        /* VAT0 = float normals, float UVs
+         * VAT1 = short normals, float UVs */
+        writer.writeUByte(prim | (skinned ? 0x0 : 0x1));
         writer.writeUint16Big(surf.verts.size());
 
         for (const Mesh::Surface::Vert& vert : surf.verts)
@@ -1680,6 +1696,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
     MaterialSet matSet;
     {
         MaterialPool matPool;
+        std::unordered_map<uint64_t, int> uniqueMatMap;
 
         size_t surfCount = 0;
         for (const Mesh& mesh : meshes)
@@ -1690,7 +1707,6 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
         size_t endOff = 0;
         std::vector<hecl::ProjectPath> texPaths;
         std::vector<hecl::Backend::GX> setBackends;
-        atUint32 nextGroupIdx = 0;
         for (const Mesh& mesh : meshes)
         {
             if (mesh.materialSets.size())
@@ -1727,25 +1743,12 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
                     hecl::Backend::GX& matGX = setBackends.back();
                     matGX.reset(matIR, FE.getDiagnostics());
 
-                    atUint32 groupIdx = -1;
-                    for (size_t i=0 ; i<setBackends.size()-1 ; ++i)
-                    {
-                        const hecl::Backend::GX& other = setBackends[i];
-                        if (matGX == other)
-                        {
-                            groupIdx = i;
-                            break;
-                        }
-                    }
-                    if (groupIdx == -1)
-                        groupIdx = nextGroupIdx++;
-
                     auto lightmapped = mat.iprops.find("retro_lightmapped");
                     bool lm = lightmapped != mat.iprops.cend() && lightmapped->second != 0;
 
                     matSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  lm, false, groupIdx);
+                                                  lm, false, uniqueMatMap);
 
                     matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);
@@ -1834,7 +1837,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
                 zeus::CVector3f preXfNorm = (meshXf.basis * zeus::CVector3f(v)).normalized();
                 for (int i=0 ; i<3 ; ++i)
                 {
-                    int tmpV = int(preXfNorm[i] * 16834.f);
+                    int tmpV = int(preXfNorm[i] * 16384.f);
                     tmpV = zeus::clamp(-32768, tmpV, 32767);
                     w.writeInt16Big(atInt16(tmpV));
                 }
@@ -1904,8 +1907,8 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
         for (const Mesh::Surface& surf : mesh.surfaces)
         {
             size_t matIdx = *matIt++;
-            const typename MaterialSet::Material::VAFlags& vaFlags =
-                matSet.materials.at(matIdx).getVAFlags();
+            const typename MaterialSet::Material& mat = matSet.materials.at(matIdx);
+            const typename MaterialSet::Material::VAFlags& vaFlags = mat.getVAFlags();
             size_t vertSz = vaFlags.vertDLSize();
 
             SurfaceHeader header;
@@ -1927,7 +1930,9 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
             header.write(w);
 
-            w.writeUByte(prim);
+            /* VAT1 = short normals, float UVs
+             * VAT2 = short normals, short UVs */
+            w.writeUByte(prim | (mat.flags.lightmapUVArray() ? 0x2 : 0x1));
             w.writeUint16Big(surf.verts.size());
 
             for (const Mesh::Surface::Vert& vert : surf.verts)

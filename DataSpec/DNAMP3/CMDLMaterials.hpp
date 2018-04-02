@@ -42,7 +42,7 @@ struct MaterialSet : BigDNA
                 void setShadowOccluderMesh(bool enabled) {flags &= ~0x100; flags |= atUint32(enabled) << 8;}
                 bool lightmapUVArray() const {return false;} /* For polymorphic compatibility with MP1/2 */
             } flags;
-            Value<atUint32> groupIdx;
+            Value<atUint32> uniqueIdx;
             Value<atUint32> unk1;
             VAFlags vaFlags;
             Value<atUint32> unk2;

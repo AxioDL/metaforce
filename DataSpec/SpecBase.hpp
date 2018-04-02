@@ -41,7 +41,7 @@ struct SpecBase : hecl::Database::IDataSpec
     bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
     void doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress);
 
-    bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok);
+    bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass);
     const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
                                                           const hecl::Database::DataSpecEntry* oldEntry,
                                                           hecl::blender::Token& btok) const;
@@ -145,7 +145,8 @@ struct SpecBase : hecl::Database::IDataSpec
                                    hecl::blender::Token& btok,
                                    athena::io::FileWriter& w,
                                    std::vector<urde::SObjectTag>& listOut,
-                                   atUint64& resTableOffset) {}
+                                   atUint64& resTableOffset,
+                                   std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) {}
     virtual void buildPakList(hecl::blender::Token& btok,
                               athena::io::FileWriter& w,
                               const std::vector<urde::SObjectTag>& list,
@@ -198,7 +199,7 @@ protected:
     std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
     std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
     std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
-    std::unordered_map<urde::SObjectTag, std::string> m_catalogTagToName;
+    std::unordered_map<urde::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
     void clearTagCache();
 
     hecl::blender::Token m_backgroundBlender;
@@ -227,7 +228,8 @@ protected:
                            const std::vector<urde::SObjectTag>& buildList,
                            const hecl::Database::DataSpecEntry* entry,
                            bool fast, const hecl::MultiProgressPrinter& progress,
-                           athena::io::FileWriter& pakOut);
+                           athena::io::FileWriter& pakOut,
+                           const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
 
 protected:
     std::unique_ptr<nod::DiscBase> m_disc;
