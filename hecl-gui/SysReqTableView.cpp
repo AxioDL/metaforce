@@ -184,7 +184,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
         case 2:
             return m_memorySize >= 0xC0000000;
         case 3:
-            return m_freeDiskSpace >= qint64(16) * 1000 * 1000 * 1000;
+            return m_freeDiskSpace >= qint64(5) * 1000 * 1000 * 1000;
         case 4:
 #ifdef __APPLE__
             return m_macosMajor > 10 || m_macosMinor >= 9;
@@ -215,7 +215,7 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const
             case 2:
                 return QStringLiteral("3 GiB");
             case 3:
-                return QStringLiteral("16 GB (MP1)");
+                return QStringLiteral("5 GB (MP1)");
             case 4:
 #ifdef __APPLE__
                 return QStringLiteral("macOS 10.9");
