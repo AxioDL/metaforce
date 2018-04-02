@@ -564,6 +564,7 @@ private:
     unsigned addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
                             TexGenSrc src, TexMtx mtx, bool norm, PTTexMtx pmtx);
     TEVStage& addTEVStage(Diagnostics& diag, const SourceLocation& loc);
+    TEVStage& addAlphaTEVStage(Diagnostics& diag, const SourceLocation& loc);
     TraceResult RecursiveTraceColor(const IR& ir, Diagnostics& diag,
                                     const IR::Instruction& inst,
                                     bool swizzleAlpha=false);

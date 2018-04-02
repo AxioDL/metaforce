@@ -195,7 +195,11 @@ void MultiProgressPrinter::DoPrint()
                 }
             }
 
-            if (m_mainIndeterminate)
+            if (m_mainIndeterminate
+#ifndef _WIN32
+                && m_termInfo.xtermColor
+#endif
+                )
             {
                 DrawIndeterminateBar();
                 hecl::Printf(_S("\n"));
@@ -248,7 +252,11 @@ void MultiProgressPrinter::DoPrint()
         }
         m_dirty = false;
     }
-    else if (m_mainIndeterminate)
+    else if (m_mainIndeterminate
+#ifndef _WIN32
+             && m_termInfo.xtermColor
+#endif
+            )
     {
         m_termInfo.width = (hecl::GuiMode ? 120 : std::max(80, hecl::ConsoleWidth()));
         MoveCursorUp(m_curProgLines);

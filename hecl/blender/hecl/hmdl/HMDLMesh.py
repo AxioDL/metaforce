@@ -55,7 +55,8 @@ class VertPool:
 
         # Per-loop pool attributes
         for f in bm.faces:
-            lightmapped = material_slots[f.material_index].material['retro_lightmapped']
+            lightmapped = f.material_index < len(material_slots) and \
+                material_slots[f.material_index].material['retro_lightmapped']
             for l in f.loops:
                 if rna_loops:
                     nf = rna_loops[l.index].normal.copy().freeze()

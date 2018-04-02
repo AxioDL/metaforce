@@ -388,11 +388,11 @@ public:
 
 static void VisitFile(const ProjectPath& path, bool force, bool fast,
                       std::vector<std::unique_ptr<IDataSpec>>& specInsts,
-                      CookProgress& progress, ClientProcess* cp)
+                      CookProgress& progress, ClientProcess* cp, int cookPass)
 {
     for (auto& spec : specInsts)
     {
-        if (spec->canCook(path, hecl::blender::SharedBlenderToken))
+        if (spec->canCook(path, hecl::blender::SharedBlenderToken, cookPass))
         {
             if (cp)
             {
@@ -425,7 +425,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
 static void VisitDirectory(const ProjectPath& dir,
                            bool recursive, bool force, bool fast,
                            std::vector<std::unique_ptr<IDataSpec>>& specInsts,
-                           CookProgress& progress, ClientProcess* cp)
+                           CookProgress& progress, ClientProcess* cp, int cookPass)
 {
     if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _S('.'))
         return;
@@ -448,7 +448,7 @@ static void VisitDirectory(const ProjectPath& dir,
         if (child.second.getPathType() == ProjectPath::Type::File)
         {
             progress.changeFile(child.first.c_str(), progNum++/progDenom);
-            VisitFile(child.second, force, fast, specInsts, progress, cp);
+            VisitFile(child.second, force, fast, specInsts, progress, cp, cookPass);
         }
     }
     progress.reportDirComplete();
@@ -462,7 +462,7 @@ static void VisitDirectory(const ProjectPath& dir,
             {
             case ProjectPath::Type::Directory:
             {
-                VisitDirectory(child.second, recursive, force, fast, specInsts, progress, cp);
+                VisitDirectory(child.second, recursive, force, fast, specInsts, progress, cp, cookPass);
                 break;
             }
             default: break;
@@ -473,7 +473,7 @@ static void VisitDirectory(const ProjectPath& dir,
 
 bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter& progress,
                        bool recursive, bool force, bool fast, const DataSpecEntry* spec,
-                       ClientProcess* cp)
+                       ClientProcess* cp, int cookPass)
 {
     /* Construct DataSpec instances for cooking */
     if (spec)
@@ -501,12 +501,12 @@ bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter
     case ProjectPath::Type::Glob:
     {
         cookProg.changeFile(path.getLastComponent().data(), 0.f);
-        VisitFile(path, force, fast, m_cookSpecs, cookProg, cp);
+        VisitFile(path, force, fast, m_cookSpecs, cookProg, cp, cookPass);
         break;
     }
     case ProjectPath::Type::Directory:
     {
-        VisitDirectory(path, recursive, force, fast, m_cookSpecs, cookProg, cp);
+        VisitDirectory(path, recursive, force, fast, m_cookSpecs, cookProg, cp, cookPass);
         break;
     }
     default: break;

@@ -168,8 +168,9 @@ public:
     {
         hecl::MultiProgressPrinter printer(true);
         hecl::ClientProcess cp(&printer, m_info.verbosityLevel);
-        for (const hecl::ProjectPath& path : m_selectedItems)
-            m_useProj->cookPath(path, printer, m_recursive, m_info.force, m_fast, m_spec, &cp);
+        for (int i=0 ; i<m_spec->m_numCookPasses ; ++i)
+            for (const hecl::ProjectPath& path : m_selectedItems)
+                m_useProj->cookPath(path, printer, m_recursive, m_info.force, m_fast, m_spec, &cp, i);
         cp.waitUntilComplete();
         return 0;
     }

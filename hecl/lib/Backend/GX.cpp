@@ -78,6 +78,18 @@ GX::TEVStage& GX::addTEVStage(Diagnostics& diag, const SourceLocation& loc)
     return newTEV;
 }
 
+GX::TEVStage& GX::addAlphaTEVStage(Diagnostics& diag, const SourceLocation& loc)
+{
+    ++m_alphaTraceStage;
+    while (m_tevCount < m_alphaTraceStage + 1)
+    {
+        TEVStage& stage = addTEVStage(diag, loc);
+        stage.m_color[3] = CC_CPREV;
+        stage.m_alpha[3] = CA_APREV;
+    }
+    return m_tevs[m_alphaTraceStage];
+}
+
 unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, TexMtx mtx,
                                   bool normalize, PTTexMtx pmtx)
 {
@@ -431,10 +443,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             unsigned mapIdx = unsigned(mapImm.vec[0]);
 
             int foundStage = -1;
-            for (int i=0 ; i<int(m_tevCount) ; ++i)
+            for (int i=m_alphaTraceStage+1 ; i<int(m_tevCount) ; ++i)
             {
                 TEVStage& testStage = m_tevs[i];
-                if (testStage.m_texMapIdx == mapIdx && i > m_alphaTraceStage)
+                if (testStage.m_texMapIdx == mapIdx)
                 {
                     foundStage = i;
                     break;
@@ -449,7 +461,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 return TraceResult(&stage);
             }
 
-            TEVStage& newStage = addTEVStage(diag, inst.m_loc);
+            TEVStage& newStage = addAlphaTEVStage(diag, inst.m_loc);
             newStage.m_color[3] = CC_CPREV;
 
             newStage.m_texMapIdx = mapIdx;
@@ -480,6 +492,8 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         const atVec4f& vec = inst.m_loadImm.m_immVec;
         if (vec.vec[0] == 0.f)
             return TraceResult(CA_ZERO);
+        else if (vec.vec[0] == 1.f)
+            return TraceResult(TEV_KASEL_1);
         unsigned idx = addKAlpha(diag, inst.m_loc, vec.vec[0]);
         return TraceResult(TevKAlphaSel(TEV_KASEL_K0_A + idx));
     }
@@ -566,7 +580,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
                      bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
-                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                TEVStage& stage = addAlphaTEVStage(diag, inst.m_loc);
                 stage.m_alpha[0] = aTrace.tevAlphaArg;
                 stage.m_alpha[3] = bTrace.tevAlphaArg;
                 stage.m_kAlpha = newKAlpha;
@@ -614,7 +628,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
                      bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
-                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                TEVStage& stage = addAlphaTEVStage(diag, inst.m_loc);
                 stage.m_alpha[0] = aTrace.tevAlphaArg;
                 stage.m_alpha[3] = bTrace.tevAlphaArg;
                 stage.m_kAlpha = newKAlpha;
@@ -649,7 +663,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             else if (aTrace.type == TraceResult::Type::TEVAlphaArg &&
                      bTrace.type == TraceResult::Type::TEVAlphaArg)
             {
-                TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                TEVStage& stage = addAlphaTEVStage(diag, inst.m_loc);
                 stage.m_color[3] = CC_CPREV;
                 stage.m_alpha[1] = aTrace.tevAlphaArg;
                 stage.m_alpha[2] = bTrace.tevAlphaArg;
@@ -664,7 +678,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 {
                     if (a->m_aRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                    TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                    TEVStage& stage = addAlphaTEVStage(diag, inst.m_loc);
                     stage.m_alpha[1] = CA_APREV;
                     stage.m_alpha[2] = bTrace.tevAlphaArg;
                     stage.m_kAlpha = newKAlpha;
@@ -684,7 +698,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
                 {
                     if (b->m_aRegOut != TEVPREV)
                         diag.reportBackendErr(inst.m_loc, "unable to modify TEV stage for multiply combine");
-                    TEVStage& stage = addTEVStage(diag, inst.m_loc);
+                    TEVStage& stage = addAlphaTEVStage(diag, inst.m_loc);
                     stage.m_alpha[1] = aTrace.tevAlphaArg;
                     stage.m_alpha[2] = CA_APREV;
                     stage.m_kAlpha = newKAlpha;
@@ -765,14 +779,48 @@ void GX::reset(const IR& ir, Diagnostics& diag)
     /* Follow Color Chain */
     const IR::Instruction& colorRoot =
     ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
-    RecursiveTraceColor(ir, diag, colorRoot);
+    TraceResult result = RecursiveTraceColor(ir, diag, colorRoot);
+    switch (result.type)
+    {
+    case TraceResult::Type::TEVColorArg:
+    {
+        TEVStage& stage = addTEVStage(diag, colorRoot.m_loc);
+        stage.m_color[3] = result.tevColorArg;
+        break;
+    }
+    case TraceResult::Type::TEVKColorSel:
+    {
+        TEVStage& stage = addTEVStage(diag, colorRoot.m_loc);
+        stage.m_color[3] = CC_KONST;
+        stage.m_kColor = result.tevKColorSel;
+        break;
+    }
+    default: break;
+    }
 
     /* Follow Alpha Chain */
     if (rootCall.m_call.m_argInstIdxs.size() > 1)
     {
         const IR::Instruction& alphaRoot =
         ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(1));
-        RecursiveTraceAlpha(ir, diag, alphaRoot);
+        TraceResult result = RecursiveTraceAlpha(ir, diag, alphaRoot);
+        switch (result.type)
+        {
+        case TraceResult::Type::TEVAlphaArg:
+        {
+            TEVStage& stage = addAlphaTEVStage(diag, alphaRoot.m_loc);
+            stage.m_alpha[3] = result.tevAlphaArg;
+            break;
+        }
+        case TraceResult::Type::TEVKAlphaSel:
+        {
+            TEVStage& stage = addAlphaTEVStage(diag, alphaRoot.m_loc);
+            stage.m_alpha[3] = CA_KONST;
+            stage.m_kAlpha = result.tevKAlphaSel;
+            break;
+        }
+        default: break;
+        }
 
         /* Ensure Alpha reaches end of chain */
         if (m_alphaTraceStage >= 0)
