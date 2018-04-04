@@ -50,7 +50,8 @@ unsigned GX::addTexCoordGen(Diagnostics& diag, const SourceLocation& loc,
     for (unsigned i=0 ; i<m_tcgCount ; ++i)
     {
         TexCoordGen& tcg = m_tcgs[i];
-        if (tcg.m_src == src && tcg.m_mtx == mtx && tcg.m_norm && tcg.m_pmtx)
+        if (tcg.m_src == src && tcg.m_mtx == mtx &&
+            tcg.m_norm == norm && tcg.m_pmtx == pmtx)
             return i;
     }
     if (m_tcgCount >= 8)
@@ -112,8 +113,9 @@ unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Ins
 
     /* Otherwise treat as game-specific function */
     const IR::Instruction& tcgSrcInst = inst.getChildInst(ir, 0);
+    bool doNorm = normalize || tcgName.back() == 'N';
     unsigned idx = RecursiveTraceTexGen(ir, diag, tcgSrcInst, TexMtx(TEXMTX0 + m_texMtxCount * 3),
-                                        normalize || tcgName.back() == 'N', PTTexMtx(PTTEXMTX0 + m_texMtxCount * 3));
+                                        doNorm, doNorm ? PTTexMtx(PTTEXMTX0 + m_texMtxCount * 3) : PTIDENTITY);
     GX::TexCoordGen& tcg = m_tcgs[idx];
     m_texMtxRefs[m_texMtxCount] = &tcg;
     ++m_texMtxCount;
@@ -201,11 +203,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         if (aTrace.type == TraceResult::Type::TEVStage &&
             bTrace.type == TraceResult::Type::TEVStage &&
             getStageIdx(aTrace.tevStage) > getStageIdx(bTrace.tevStage))
-        {
-            TraceResult tmp = aTrace;
-            aTrace = bTrace;
-            bTrace = tmp;
-        }
+            std::swap(aTrace, bTrace);
 
         TevKColorSel newKColor = TEV_KCSEL_1;
         if (aTrace.type == TraceResult::Type::TEVKColorSel &&
@@ -514,6 +512,10 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
             aTrace = RecursiveTraceAlpha(ir, diag, aInst);
             bTrace = RecursiveTraceAlpha(ir, diag, bInst);
         }
+        if (aTrace.type == TraceResult::Type::TEVStage &&
+            bTrace.type == TraceResult::Type::TEVStage &&
+            getStageIdx(aTrace.tevStage) > getStageIdx(bTrace.tevStage))
+            std::swap(aTrace, bTrace);
 
         TevKAlphaSel newKAlpha = TEV_KASEL_1;
         if (aTrace.type == TraceResult::Type::TEVKAlphaSel &&

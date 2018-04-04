@@ -168,6 +168,50 @@ def animin_loop(globals):
                 pt.interpolation = 'LINEAR'
                 pt.co = (key_data[0], key_data[1])
 
+def writelight(obj):
+    wmtx = obj.matrix_world
+    writepipebuf(struct.pack('ffffffffffffffff',
+                             wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
+                             wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
+                             wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
+                             wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
+    writepipebuf(struct.pack('fff', obj.data.color[0], obj.data.color[1], obj.data.color[2]))
+
+    type = 2
+    spotCutoff = 0.0
+    hasFalloff = False
+    castShadow = False
+    if obj.data.type == 'POINT':
+        type = 2
+        hasFalloff = True
+        castShadow = obj.data.shadow_method != 'NOSHADOW'
+    elif obj.data.type == 'SPOT':
+        type = 3
+        hasFalloff = True
+        spotCutoff = obj.data.spot_size
+        castShadow = obj.data.shadow_method != 'NOSHADOW'
+    elif obj.data.type == 'SUN':
+        type = 1
+        castShadow = obj.data.shadow_method != 'NOSHADOW'
+
+    constant = 1.0
+    linear = 0.0
+    quadratic = 0.0
+    if hasFalloff:
+        if obj.data.falloff_type == 'INVERSE_COEFFICIENTS':
+            constant = obj.data.constant_coefficient
+            linear = obj.data.linear_coefficient
+            quadratic = obj.data.quadratic_coefficient
+
+    layer = 0
+    if 'retro_layer' in obj.data.keys():
+        layer = obj.data['retro_layer']
+
+    writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
+                             castShadow))
+
+    writepipestr(obj.name.encode())
+
 # Command loop for reading data from blender
 def dataout_loop():
     writepipestr(b'READY')
@@ -295,11 +339,15 @@ def dataout_loop():
 
         elif cmdargs[0] == 'LIGHTCOMPILEALL':
             writepipestr(b'OK')
-            lampCount = 0;
+            lampCount = 0
+            firstSpot = None
             for obj in bpy.context.scene.objects:
                 if obj.type == 'LAMP':
                     lampCount += 1
+                    if firstSpot is None and obj.data.type == 'SPOT':
+                        firstSpot = obj
 
+            # Ambient
             world = bpy.context.scene.world
             ambient_energy = 0.0
             ambient_color = None
@@ -312,6 +360,9 @@ def dataout_loop():
 
             writepipebuf(struct.pack('I', lampCount))
 
+            if firstSpot is not None:
+                writelight(firstSpot)
+
             if ambient_energy:
                 writepipebuf(struct.pack('ffffffffffffffff',
                 1.0, 0.0, 0.0, 0.0,
@@ -322,50 +373,10 @@ def dataout_loop():
                 writepipebuf(struct.pack('IIfffffb', 0, 0, ambient_energy, 0.0, 1.0, 0.0, 0.0, False))
                 writepipestr(b'AMBIENT')
 
+            # Lamp objects
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LAMP':
-                    wmtx = obj.matrix_world
-                    writepipebuf(struct.pack('ffffffffffffffff',
-                    wmtx[0][0], wmtx[0][1], wmtx[0][2], wmtx[0][3],
-                    wmtx[1][0], wmtx[1][1], wmtx[1][2], wmtx[1][3],
-                    wmtx[2][0], wmtx[2][1], wmtx[2][2], wmtx[2][3],
-                    wmtx[3][0], wmtx[3][1], wmtx[3][2], wmtx[3][3]))
-                    writepipebuf(struct.pack('fff', obj.data.color[0], obj.data.color[1], obj.data.color[2]))
-
-                    type = 2
-                    spotCutoff = 0.0
-                    hasFalloff = False
-                    castShadow = False
-                    if obj.data.type == 'POINT':
-                        type = 2
-                        hasFalloff = True
-                        castShadow = obj.data.shadow_method != 'NOSHADOW'
-                    elif obj.data.type == 'SPOT':
-                        type = 3
-                        hasFalloff = True
-                        spotCutoff = obj.data.spot_size
-                        castShadow = obj.data.shadow_method != 'NOSHADOW'
-                    elif obj.data.type == 'SUN':
-                        type = 1
-                        castShadow = obj.data.shadow_method != 'NOSHADOW'
-
-                    constant = 1.0
-                    linear = 0.0
-                    quadratic = 0.0
-                    if hasFalloff:
-                        if obj.data.falloff_type == 'INVERSE_COEFFICIENTS':
-                            constant = obj.data.constant_coefficient
-                            linear = obj.data.linear_coefficient
-                            quadratic = obj.data.quadratic_coefficient
-
-                    layer = 0
-                    if 'retro_layer' in obj.data.keys():
-                        layer = obj.data['retro_layer']
-
-                    writepipebuf(struct.pack('IIfffffb', layer, type, obj.data.energy, spotCutoff, constant, linear, quadratic,
-                                                         castShadow))
-
-                    writepipestr(obj.name.encode())
+                if obj != firstSpot and obj.type == 'LAMP':
+                    writelight(obj)
 
         elif cmdargs[0] == 'GETTEXTURES':
             writepipestr(b'OK')
