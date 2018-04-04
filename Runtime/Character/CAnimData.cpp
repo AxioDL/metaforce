@@ -1031,10 +1031,10 @@ zeus::CAABox CAnimData::GetBoundingBox() const
         return x108_aabb;
 
     CAnimTreeEffectiveContribution contrib = x1f8_animRoot->GetContributionOfHighestInfluence();
-    auto search = std::find_if(aabbList.cbegin(), aabbList.cend(),
-                               [&](const std::pair<std::string, zeus::CAABox>& other) -> bool {
-        return contrib.x4_name == other.first;
-    });
+    auto search =
+        rstl::binary_find(aabbList.cbegin(), aabbList.cend(), contrib.x4_name,
+                          [](const std::pair<std::string, zeus::CAABox>& other) ->
+                             const std::string& { return other.first; });
     if (search == aabbList.cend())
         return x108_aabb;
 

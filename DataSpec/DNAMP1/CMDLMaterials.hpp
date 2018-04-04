@@ -217,6 +217,9 @@ struct MaterialSet : BigDNA
             void setKColorIn(GX::TevKColorSel val) {kcInput = val;}
             GX::TevKAlphaSel kAlphaIn() const {return GX::TevKAlphaSel(kaInput);}
             void setKAlphaIn(GX::TevKAlphaSel val) {kaInput = val;}
+
+            GX::ChannelID rasIn() const {return GX::ChannelID(rascInput);}
+            void setRASIn(GX::ChannelID id) {rascInput = id;}
         };
         Vector<TEVStage, AT_DNA_COUNT(tevStageCount)> tevStages;
         struct TEVStageTexInfo : BigDNA
@@ -290,8 +293,7 @@ struct MaterialSet : BigDNA
                  int colorCount,
                  int uvCount,
                  bool lightmapUVs,
-                 bool matrixSkinning,
-                 std::unordered_map<uint64_t, int>& uniqueMap);
+                 bool matrixSkinning);
     };
     Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
 

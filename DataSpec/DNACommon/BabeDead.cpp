@@ -22,29 +22,33 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
         return;
     case BabeDeadLight::LightType::Directional:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SUN')\n"
+                  "lamp.color = (%f,%f,%f)\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l,
+                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
                   light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         return;
     case BabeDeadLight::LightType::Custom:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'POINT')\n"
+                  "lamp.color = (%f,%f,%f)\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l, light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
+                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
+                  light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         break;
     case BabeDeadLight::LightType::Spot:
     case BabeDeadLight::LightType::Spot2:
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'SPOT')\n"
+                  "lamp.color = (%f,%f,%f)\n"
                   "lamp.spot_size = %.6g\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l,
+                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
                   zeus::degToRad(light.spotCutoff),
                   light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
@@ -127,18 +131,18 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender:
              lightIn.linear > lightIn.quadratic)
     {
         lightOut.falloff = BabeDeadLight::Falloff::Linear;
-        lightOut.q = 1.f / (lightIn.linear / 250.f);
+        lightOut.q = 250.f / lightIn.linear;
     }
     else if (lightIn.quadratic > lightIn.constant &&
              lightIn.quadratic > lightIn.linear)
     {
         lightOut.falloff = BabeDeadLight::Falloff::Quadratic;
-        lightOut.q = 1.f / (lightIn.quadratic / 25000.f);
+        lightOut.q = 25000.f / lightIn.quadratic;
     }
     else
     {
         lightOut.falloff = BabeDeadLight::Falloff::Constant;
-        lightOut.q = 1.f / (lightIn.constant / 2.f);
+        lightOut.q = 2.f / lightIn.constant;
     }
 
     lightOut.color = lightIn.color;

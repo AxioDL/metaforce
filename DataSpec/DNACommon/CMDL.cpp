@@ -1243,8 +1243,6 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         hecl::Frontend::Frontend FE;
         for (const std::vector<Material>& mset : mesh.materialSets)
         {
-            std::unordered_map<uint64_t, int> uniqueMatMap;
-
             matSets.emplace_back();
             MaterialSet& targetMSet = matSets.back();
             std::vector<hecl::ProjectPath> texPaths;
@@ -1262,7 +1260,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
                 targetMSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  false, false, uniqueMatMap);
+                                                  false, false);
 
                 targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
@@ -1353,7 +1351,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
         if (surf.verts.size() > 65536)
             LogDNACommon.report(logvisor::Fatal, "GX DisplayList overflow");
-        size_t secSz = 68 + surf.verts.size() * vertSz;
+        size_t secSz = 67 + surf.verts.size() * vertSz;
         secSz32 = ROUND_UP_32(secSz);
         if (secSz32 == 0)
             secSz32 = 32;
@@ -1445,7 +1443,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         SurfaceHeader header;
         header.centroid = surf.centroid;
         header.matIdx = surf.materialIdx;
-        header.dlSize = ROUND_UP_32(4 + surf.verts.size() * vertSz);
+        header.dlSize = ROUND_UP_32(3 + surf.verts.size() * vertSz);
         header.reflectionNormal = surf.reflectionNormal;
         header.write(writer);
 
@@ -1477,8 +1475,6 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
             WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
             WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
         }
-
-        writer.writeUByte(0);
 
         writer.fill(atUint8(0), *padIt);
         ++padIt;
@@ -1696,7 +1692,6 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
     MaterialSet matSet;
     {
         MaterialPool matPool;
-        std::unordered_map<uint64_t, int> uniqueMatMap;
 
         size_t surfCount = 0;
         for (const Mesh& mesh : meshes)
@@ -1748,7 +1743,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
 
                     matSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
                                                   mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  lm, false, uniqueMatMap);
+                                                  lm, false);
 
                     matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);
@@ -1914,7 +1909,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
             SurfaceHeader header;
             header.centroid = meshXf * zeus::CVector3f(surf.centroid);
             header.matIdx = matIdx;
-            header.dlSize = ROUND_UP_32(4 + surf.verts.size() * vertSz);
+            header.dlSize = ROUND_UP_32(3 + surf.verts.size() * vertSz);
             header.reflectionNormal = (meshXf.basis * zeus::CVector3f(surf.reflectionNormal)).normalized();
             header.aabbSz = 24;
             zeus::CAABox aabb(zeus::CVector3f(surf.aabbMin), zeus::CVector3f(surf.aabbMax));
@@ -1924,7 +1919,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
 
             size_t secSz = 0;
             header.binarySize(secSz);
-            secSz += 4 + surf.verts.size() * vertSz;
+            secSz += 3 + surf.verts.size() * vertSz;
             secSz = ROUND_UP_32(secSz);
             secsOut.emplace_back(secSz, 0);
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
@@ -1958,8 +1953,6 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
                 WriteDLVal(w, vaFlags.tex5(), vert.iUv[5]);
                 WriteDLVal(w, vaFlags.tex6(), vert.iUv[6]);
             }
-
-            w.writeUByte(0);
         }
     }
 

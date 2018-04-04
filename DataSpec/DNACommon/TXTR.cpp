@@ -603,7 +603,7 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
         }
     }
 
-    uint32_t format = 0; /* Default IA8 */
+    uint32_t format = 2; /* Default RGB5A3 */
     for (int e=0 ; e<pngNumEntries ; ++e)
     {
         png_sPLT_entryp ent = &cEntries[e];
@@ -672,7 +672,7 @@ static uint8_t* EncodePaletteSPLT(png_structp png, png_infop info, int numEntrie
         for (int e=0 ; e<numEntries ; ++e)
         {
             uint16_t texel = 0;
-            if (cEntries[e].alpha == 0xff)
+            if (cEntries && cEntries[e].alpha == 0xff)
             {
                 texel |= 0x8000;
                 if (e < pngNumEntries)
@@ -1321,7 +1321,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     {
         Log.report(logvisor::Error, "image must be 4x4 or larger");
         fclose(inf);
-        png_destroy_read_struct(&pngRead, nullptr, nullptr);
+        png_destroy_read_struct(&pngRead, &info, nullptr);
         return false;
     }
 

@@ -1163,10 +1163,24 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         hecl::SystemStringConv chSysName(ch.name);
         ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR"));
 
+        int subtypeIdx = 0;
+        ch.animAABBs.clear();
         for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
             if (!sub.name.compare(ch.name))
             {
+                /* Add subtype AABBs */
+                ch.animAABBs.reserve(actor.actions.size());
+                for (const DNAANCS::Action& act : actor.actions)
+                {
+                    const auto& sourceAABB = act.subtypeAABBs[subtypeIdx];
+                    ch.animAABBs.emplace_back();
+                    auto& destAABB = ch.animAABBs.back();
+                    destAABB.name = act.name;
+                    destAABB.aabb[0] = sourceAABB.first.val;
+                    destAABB.aabb[1] = sourceAABB.second.val;
+                }
+
                 if (sub.armature >= 0)
                 {
                     const DNAANCS::Armature& arm = actor.armatures[sub.armature];
@@ -1180,11 +1194,17 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                         ch.cskrOverlay = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
                                                               overlaySys.c_str() + _S(".CSKR"));
                     }
-
-                    break;
                 }
+
+                break;
             }
+            ++subtypeIdx;
         }
+
+        std::sort(ch.animAABBs.begin(), ch.animAABBs.end(),
+                  [](const ANCS::CharacterSet::CharacterInfo::ActionAABB& a,
+                     const ANCS::CharacterSet::CharacterInfo::ActionAABB& b)
+                  { return a.name < b.name; });
     }
 
     /* Set Animation Resource IDs */
