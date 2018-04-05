@@ -55,7 +55,7 @@ extern const std::pair<int, const SGameOption*> GameOptionsRegistry[];
 class CPersistentOptions
 {
     friend class CGameState;
-    u8 x0_[98] = {};
+    u8 x0_nesState[98] = {};
     bool x68_[64] = {};
     std::vector<std::pair<CAssetId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
     u32 xbc_autoMapperKeyState = 0;
@@ -112,7 +112,7 @@ public:
 
     void PutTo(CBitStreamWriter& w) const;
 
-    u8* GetNESState() { return x0_; }
+    u8* GetNESState() { return x0_nesState; }
 };
 
 /** Options tracked per game session */

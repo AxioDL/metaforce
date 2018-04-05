@@ -316,7 +316,7 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
                                         FPercent updatePercent,
                                         ProcessType parentPid)
 {
-    Log.report(logvisor::Info, "Started!");
+    //Log.report(logvisor::Info, "Started!");
 
     size_t featureCount = modelCount + entities.size();
     renderCache.m_lightMetaBit = featureCount;
@@ -385,6 +385,6 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb,
 
     w.seekAlign32();
 
-    Log.report(logvisor::Info, "Finished!");
+    //Log.report(logvisor::Info, "Finished!");
     return dataOut;
 }

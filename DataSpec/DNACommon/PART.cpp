@@ -362,7 +362,7 @@ void GPSM<IDType>::_write(typename WriteYaml::StreamT& w) const
     if (x30_31_RSOP)
         w.writeBool("RSOP", true);
     if (x48_MBSP)
-        if (auto rec = w.enterSubRecord("MPSB"))
+        if (auto rec = w.enterSubRecord("MBSP"))
             x48_MBSP.write(w);
     if (x4c_SIZE)
         if (auto rec = w.enterSubRecord("SIZE"))

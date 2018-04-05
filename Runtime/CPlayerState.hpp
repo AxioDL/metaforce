@@ -123,7 +123,7 @@ private:
     float x1c_visorTransitionFactor = 0.2f;
     EPlayerSuit x20_currentSuit = EPlayerSuit::Power;
     rstl::reserved_vector<CPowerUp, 41> x24_powerups;
-    rstl::reserved_vector<std::pair<CAssetId, float>, 846> x170_scanTimes;
+    std::vector<std::pair<CAssetId, float>> x170_scanTimes;
     std::pair<u32, u32> x180_scanCompletionRate = {};
     CStaticInterference x188_staticIntf;
 public:
@@ -178,7 +178,7 @@ public:
     void SetFiringComboBeam(bool f) { x0_25_firingComboBeam = f; }
     void InitializeScanTimes();
     CStaticInterference& GetStaticInterference() { return x188_staticIntf; }
-    const rstl::reserved_vector<std::pair<CAssetId, float>, 846>& GetScanTimes() const { return x170_scanTimes; }
+    const std::vector<std::pair<CAssetId, float>>& GetScanTimes() const { return x170_scanTimes; }
     CPlayerState();
     CPlayerState(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& stream);

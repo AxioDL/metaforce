@@ -62,7 +62,7 @@ const std::pair<int, const SGameOption*> GameOptionsRegistry[] =
 CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
 {
     for (int b=0 ; b<98 ; ++b)
-        x0_[b] = stream.ReadEncoded(8);
+        x0_nesState[b] = stream.ReadEncoded(8);
 
     for (int b=0 ; b<64 ; ++b)
         x68_[b] = stream.ReadEncoded(8);
@@ -108,7 +108,7 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)
 void CPersistentOptions::PutTo(CBitStreamWriter& w) const
 {
     for (int b=0 ; b<98 ; ++b)
-        w.WriteEncoded(x0_[b], 8);
+        w.WriteEncoded(x0_nesState[b], 8);
 
     for (int b=0 ; b<64 ; ++b)
         w.WriteEncoded(x68_[b], 8);

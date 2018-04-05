@@ -2254,10 +2254,10 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
                 x84c_player->Teleport(lookXf, *this, true);
             }
 
-            if (!g_GameState->x228_25_deferPowerupInit)
+            if (!g_GameState->x228_25_initPowerupsAtFirstSpawn)
                 break;
 
-            g_GameState->x228_25_deferPowerupInit = false;
+            g_GameState->x228_25_initPowerupsAtFirstSpawn = false;
             for (int i = 0; i < int(CPlayerState::EItemType::Max); ++i)
             {
                 CPlayerState::EItemType iType = CPlayerState::EItemType(i);
