@@ -28,10 +28,16 @@ void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
     m_entries.reserve(count);
     m_firstEntries.clear();
     m_firstEntries.reserve(count);
+    std::vector<Entry> entries;
+    entries.reserve(count);
     for (atUint32 e=0 ; e<count ; ++e)
     {
-        Entry entry;
-        entry.read(reader);
+        entries.emplace_back();
+        entries.back().read(reader);
+    }
+    for (atUint32 e=0 ; e<count ; ++e)
+    {
+        Entry& entry = entries[e];
         if (entry.compressed && m_useLzo)
             entry.compressed = 2;
 
@@ -40,6 +46,18 @@ void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
         {
             m_firstEntries.push_back(entry.id);
             m_entries[entry.id] = std::move(entry);
+        }
+        else
+        {
+            /* Find next MREA to record which area has dupes */
+            for (atUint32 e2=e+1 ; e2<count ; ++e2)
+            {
+                Entry& entry2 = entries[e2];
+                if (entry2.type != FOURCC('MREA'))
+                    continue;
+                m_dupeMREAs.insert(entry2.id);
+                break;
+            }
         }
     }
 

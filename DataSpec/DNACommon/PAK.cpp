@@ -775,6 +775,16 @@ void PAKRouter<BRIDGETYPE>::enumerateResources(const std::function<bool(const En
             return;
 }
 
+template <class BRIDGETYPE>
+bool PAKRouter<BRIDGETYPE>::mreaHasDupeResources(const IDType& id) const
+{
+    const PAKType* pak = m_pak.get();
+    if (!pak)
+        LogDNACommon.report(logvisor::Fatal,
+        "PAKRouter::enterPAKBridge() must be called before PAKRouter::mreaHasDupeResources()");
+    return pak->mreaHasDupeResources(id);
+}
+
 template class PAKRouter<DNAMP1::PAKBridge>;
 template class PAKRouter<DNAMP2::PAKBridge>;
 template class PAKRouter<DNAMP3::PAKBridge>;

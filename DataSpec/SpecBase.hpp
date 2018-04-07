@@ -201,7 +201,7 @@ protected:
     std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
     std::unordered_map<urde::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
     void clearTagCache();
-
+    
     hecl::blender::Token m_backgroundBlender;
     std::thread m_backgroundIndexTh;
     std::mutex m_backgroundIndexMutex;
@@ -231,7 +231,6 @@ protected:
                            athena::io::FileWriter& pakOut,
                            const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
 
-protected:
     std::unique_ptr<nod::DiscBase> m_disc;
     bool m_isWii;
     bool m_standalone;

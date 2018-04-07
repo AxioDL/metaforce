@@ -45,6 +45,16 @@ struct AFSM : public BigDNA
         athena::io::ToYAMLStream(afsm, writer);
         return true;
     }
+
+    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    {
+        AFSM afsm;
+        athena::io::FileReader reader(inPath.getAbsolutePath());
+        athena::io::FromYAMLStream(afsm, reader);
+        athena::io::FileWriter ws(outPath.getAbsolutePath());
+        afsm.write(ws);
+        return true;
+    }
 };
 }
 

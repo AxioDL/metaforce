@@ -930,7 +930,6 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
                                 const std::vector<hecl::ProjectPath>& texPathsIn,
                                 std::vector<hecl::ProjectPath>& texPathsOut,
                                 int colorCount,
-                                int uvCount,
                                 bool lightmapUVs,
                                 bool matrixSkinning)
 {

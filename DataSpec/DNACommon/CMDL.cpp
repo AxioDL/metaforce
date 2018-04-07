@@ -1259,8 +1259,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
                 matGX.reset(matIR, FE.getDiagnostics());
 
                 targetMSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
-                                                  mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  false, false);
+                                                  mesh.colorLayerCount, false, false);
 
                 targetMSet.materials.back().binarySize(endOff);
                 targetMSet.head.addMaterialEndOff(endOff);
@@ -1742,8 +1741,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
                     bool lm = lightmapped != mat.iprops.cend() && lightmapped->second != 0;
 
                     matSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths,
-                                                  mesh.colorLayerCount, mesh.uvLayerCount,
-                                                  lm, false);
+                                                  mesh.colorLayerCount, lm, false);
 
                     matSet.materials.back().binarySize(endOff);
                     matSet.head.addMaterialEndOff(endOff);

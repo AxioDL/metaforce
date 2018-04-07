@@ -18,6 +18,7 @@
 #include "DNAMP1/MAPA.hpp"
 #include "DNAMP1/PATH.hpp"
 #include "DNAMP1/FRME.hpp"
+#include "DNAMP1/AFSM.hpp"
 #include "DNACommon/ATBL.hpp"
 #include "DNACommon/FONT.hpp"
 #include "DNACommon/PART.hpp"
@@ -178,6 +179,8 @@ struct SpecMP1 : SpecBase
     std::unique_ptr<uint8_t[]> m_dolBuf;
 
     IDRestorer<UniqueID32> m_idRestorer;
+
+    std::unordered_map<hecl::Hash, hecl::blender::Matrix4f> m_mreaPathToXF;
 
     void setThreadProject()
     {
@@ -525,6 +528,8 @@ struct SpecMP1 : SpecBase
                 return true;
             else if (!strcmp(classType, "ATBL"))
                 return true;
+            else if (!strcmp(classType, DNAMP1::AFSM::DNAType()))
+                return true;
             else if (!strcmp(classType, "MP1OriginalIDs"))
                 return true;
             return false;
@@ -721,6 +726,11 @@ struct SpecMP1 : SpecBase
                     resTag.type = SBIG('ATBL');
                     return true;
                 }
+                else if (!strcmp(className, DataSpec::DNAMP1::AFSM::DNAType()))
+                {
+                    resTag.type = SBIG('AFSM');
+                    return true;
+                }
                 else if (!strcmp(className, "MP1OriginalIDs"))
                 {
                     resTag.type = SBIG('OIDS');
@@ -821,6 +831,34 @@ struct SpecMP1 : SpecBase
         }
     }
 
+    void buildAreaXFs(hecl::blender::Token& btok)
+    {
+        hecl::blender::Connection& conn = btok.getBlenderConnection();
+        for (const auto& ent : m_workPath.enumerateDir())
+        {
+            if (ent.m_isDir)
+            {
+                hecl::ProjectPath pakPath(m_workPath, ent.m_name);
+                for (const auto& ent2 : pakPath.enumerateDir())
+                {
+                    if (ent2.m_isDir)
+                    {
+                        hecl::ProjectPath wldPath(pakPath, ent2.m_name + _S("/!world.blend"));
+                        if (wldPath.isFile())
+                        {
+                            if (!conn.openBlend(wldPath))
+                                continue;
+                            hecl::blender::DataStream ds = conn.beginData();
+                            hecl::blender::World world = ds.compileWorld();
+                            for (const auto& area : world.areas)
+                                m_mreaPathToXF[area.path.hash()] = area.transform;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                   hecl::blender::Token& btok, FCookProgress progress)
     {
@@ -851,7 +889,14 @@ struct SpecMP1 : SpecBase
 
         ds.close();
 
-        DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights, btok, m_pc);
+        if (m_mreaPathToXF.empty())
+            buildAreaXFs(btok);
+
+        const hecl::blender::Matrix4f* xf = nullptr;
+        auto xfSearch = m_mreaPathToXF.find(in.getParentPath().hash());
+        if (xfSearch != m_mreaPathToXF.cend())
+            xf = &xfSearch->second;
+        DNAMP1::MREA::Cook(out, in, meshCompiles, *colMesh, lights, btok, xf, m_pc);
     }
 
     void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
@@ -1073,6 +1118,10 @@ struct SpecMP1 : SpecBase
             {
                 DNAAudio::ATBL::Cook(in, out);
             }
+            else if (!classStr.compare(DNAMP1::AFSM::DNAType()))
+            {
+                DNAMP1::AFSM::Cook(in, out);
+            }
             else if (!classStr.compare("MP1OriginalIDs"))
             {
                 OriginalIDs::Cook(in, out);
@@ -1229,14 +1278,27 @@ struct SpecMP1 : SpecBase
         nameEnt.name = parentDir.getLastComponentUTF8();
         nameEnt.write(w);
 
+        std::unordered_set<urde::CAssetId> addedTags;
         for (auto& area : mlvl.areas)
         {
+            urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
+
+            bool dupeRes = false;
+            if (hecl::ProjectPath areaDir = pathFromTag(areaTag).getParentPath())
+                dupeRes = hecl::ProjectPath(areaDir, _S("!duperes")).isFile();
+
             urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(area.areaNameId));
             if (nameTag)
                 listOut.push_back(nameTag);
             for (const auto& dep : area.deps)
-                listOut.push_back({dep.type, originalToNew(dep.id)});
-            urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
+            {
+                urde::CAssetId newId = originalToNew(dep.id);
+                if (dupeRes || addedTags.find(newId) == addedTags.end())
+                {
+                    listOut.push_back({dep.type, newId});
+                    addedTags.insert(newId);
+                }
+            }
             if (areaTag)
                 listOut.push_back(areaTag);
 

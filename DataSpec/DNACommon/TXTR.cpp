@@ -20,7 +20,7 @@ static int CountBits(uint32_t n)
 
 /* Box filter algorithm (for mipmapping) */
 static void BoxFilter(const uint8_t* input, unsigned chanCount,
-                      unsigned inWidth, unsigned inHeight, uint8_t* output)
+                      unsigned inWidth, unsigned inHeight, uint8_t* output, bool dxt1)
 {
     unsigned mipWidth = 1;
     unsigned mipHeight = 1;
@@ -45,7 +45,9 @@ static void BoxFilter(const uint8_t* input, unsigned chanCount,
                 tmp += input[(in1LineBase+(x*2+1))*chanCount+c];
                 tmp += input[(in2LineBase+(x*2))*chanCount+c];
                 tmp += input[(in2LineBase+(x*2+1))*chanCount+c];
-                out[c] = tmp / 4;
+                out[c] = uint8_t(tmp / 4);
+                if (c == 3 && dxt1)
+                    out[c] = uint8_t(out[c] ? 0xff : 0x0);
             }
         }
     }
@@ -1513,7 +1515,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
         unsigned filterHeight = height;
         for (size_t i=1 ; i<numMips ; ++i)
         {
-            BoxFilter(filterIn, nComps, filterWidth, filterHeight, filterOut);
+            BoxFilter(filterIn, nComps, filterWidth, filterHeight, filterOut, doDXT1);
             filterIn += filterWidth * filterHeight * nComps;
             filterWidth /= 2;
             filterHeight /= 2;
@@ -1847,7 +1849,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
         unsigned filterHeight = height;
         for (size_t i=1 ; i<numMips ; ++i)
         {
-            BoxFilter(filterIn, nComps, filterWidth, filterHeight, filterOut);
+            BoxFilter(filterIn, nComps, filterWidth, filterHeight, filterOut, doDXT1);
             filterIn += filterWidth * filterHeight * nComps;
             filterWidth /= 2;
             filterHeight /= 2;

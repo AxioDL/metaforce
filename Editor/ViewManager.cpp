@@ -237,7 +237,7 @@ void ViewManager::init(boo::IApplication* app)
         {
             hecl::SystemString rootPath(root.getAbsolutePath());
             hecl::Sstat theStat;
-            if (!hecl::Stat((rootPath + _S("/out/MP1/!original_ids.upak")).c_str(), &theStat) &&
+            if (!hecl::Stat((rootPath + _S("/out/files/Metroid1.upak")).c_str(), &theStat) &&
                 S_ISREG(theStat.st_mode))
                 m_deferedProject = rootPath + _S("/out");
         }

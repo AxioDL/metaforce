@@ -117,21 +117,29 @@ void CResFactory::CancelBuild(const SObjectTag& tag)
 
 void CResFactory::LoadOriginalIDs(CSimplePool& sp)
 {
-    //m_origIds = sp.GetObj("MP1OriginalIDs");
+#if RUNTIME_ORIGINAL_IDS
+    m_origIds = sp.GetObj("MP1OriginalIDs");
+#endif
 }
 
 CAssetId CResFactory::TranslateOriginalToNew(CAssetId id) const
 {
+#if RUNTIME_ORIGINAL_IDS
+    return m_origIds->TranslateOriginalToNew(id);
+#else
     /* The packager will have restored these ahead of time */
     return id;
-    //return m_origIds->TranslateOriginalToNew(id);
+#endif
 }
 
 CAssetId CResFactory::TranslateNewToOriginal(CAssetId id) const
 {
+#if RUNTIME_ORIGINAL_IDS
+    return m_origIds->TranslateNewToOriginal(id);
+#else
     /* The packager will have restored these ahead of time */
     return id;
-    //return m_origIds->TranslateNewToOriginal(id);
+#endif
 }
 
 }

@@ -291,7 +291,6 @@ struct MaterialSet : BigDNA
                  const std::vector<hecl::ProjectPath>& texPathsIn,
                  std::vector<hecl::ProjectPath>& texPathsOut,
                  int colorCount,
-                 int uvCount,
                  bool lightmapUVs,
                  bool matrixSkinning);
     };

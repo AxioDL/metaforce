@@ -57,6 +57,13 @@ private:
     size_t m_posInBuf = 0;
     boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
+    //void* x4_loadBuf;
+    //void* x8_rom;
+    //void* xc_state;
+    //OSModuleInfo* x10_module = x4_loadBuf;
+    //void* x14_bss;
+    //void* x18_prgram;
+    //void* x1c_wram;
     bool x20_gameOver = false;
     u8 x21_passwordFromNES[18];
     EPasswordEntryState x34_passwordEntryState = EPasswordEntryState::NotPasswordScreen;

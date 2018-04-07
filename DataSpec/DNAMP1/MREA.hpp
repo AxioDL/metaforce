@@ -131,6 +131,7 @@ struct MREA
                      const ColMesh& cMesh,
                      const std::vector<Light>& lights,
                      hecl::blender::Token& btok,
+                     const hecl::blender::Matrix4f* xf,
                      bool pc);
 };
 

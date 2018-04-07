@@ -423,6 +423,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
                 const ColMesh& cMesh,
                 const std::vector<Light>& lights,
                 hecl::blender::Token& btok,
+                const hecl::blender::Matrix4f* xf,
                 bool pc)
 {
     /* Discover area layers */
@@ -450,9 +451,18 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
     Header head = {};
     head.magic = 0xDEADBEEF;
     head.version = pc ? 0x1000F : 0xF;
-    head.localToWorldMtx[0].vec[0] = 1.f;
-    head.localToWorldMtx[1].vec[1] = 1.f;
-    head.localToWorldMtx[2].vec[2] = 1.f;
+    if (xf)
+    {
+        head.localToWorldMtx[0] = xf->val[0];
+        head.localToWorldMtx[1] = xf->val[1];
+        head.localToWorldMtx[2] = xf->val[2];
+    }
+    else
+    {
+        head.localToWorldMtx[0].vec[0] = 1.f;
+        head.localToWorldMtx[1].vec[1] = 1.f;
+        head.localToWorldMtx[2].vec[2] = 1.f;
+    }
     head.meshCount = meshes.size();
     head.geomSecIdx = 0;
     head.arotSecIdx = secCount++;

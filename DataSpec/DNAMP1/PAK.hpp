@@ -49,10 +49,14 @@ struct PAK : BigDNA
     std::unordered_map<UniqueID32, Entry> m_entries;
     std::vector<UniqueID32> m_firstEntries;
     std::unordered_map<std::string, UniqueID32> m_nameMap;
+    std::unordered_set<UniqueID32> m_dupeMREAs;
 
     const Entry* lookupEntry(const UniqueID32& id) const;
     const Entry* lookupEntry(std::string_view name) const;
     std::string bestEntryName(const Entry& entry, bool& named) const;
+
+    bool mreaHasDupeResources(const UniqueID32& id) const
+    { return m_dupeMREAs.find(id) != m_dupeMREAs.cend(); }
 
     using IDType = UniqueID32;
 };

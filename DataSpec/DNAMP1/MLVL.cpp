@@ -51,6 +51,8 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
             w.enumerate<atUint32>("memrelays", relayIds);
             w.finish(&fw);
         }
+        if (pakRouter.mreaHasDupeResources(area.areaMREAId))
+            athena::io::FileWriter(hecl::ProjectPath(areaDir, _S("!duperes")).getAbsolutePath());
         areaIdx++;
     }
 
@@ -60,32 +62,16 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
 }
 
-struct BulkResources
-{
-    std::unordered_map<hecl::Hash, size_t> addedBulkPaths;
-    bool addBulkPath(const hecl::ProjectPath& path, size_t areaIdx)
-    {
-        auto search = addedBulkPaths.find(path.hash());
-        if (search == addedBulkPaths.cend())
-        {
-            addedBulkPaths.insert(std::make_pair(path.hash(), areaIdx));
-            return true;
-        }
-        return false;
-    }
-};
-
 struct LayerResources
 {
-    BulkResources& bulkResources;
-    std::unordered_map<hecl::Hash, std::pair<size_t, size_t>> addedPaths;
+    std::unordered_set<hecl::Hash> addedPaths;
     std::vector<std::vector<std::pair<hecl::ProjectPath, bool>>> layerPaths;
     std::unordered_set<hecl::Hash> addedSharedPaths;
     std::vector<std::pair<hecl::ProjectPath, bool>> sharedPaths;
-    LayerResources(BulkResources& bulkResources) : bulkResources(bulkResources) {}
     void beginLayer()
     {
         layerPaths.resize(layerPaths.size() + 1);
+        addedPaths.clear();
     }
     void addSharedPath(const hecl::ProjectPath& path, bool lazy)
     {
@@ -99,28 +85,11 @@ struct LayerResources
     void addPath(const hecl::ProjectPath& path, bool lazy)
     {
         auto search = addedPaths.find(path.hash());
-        if (search != addedPaths.cend())
-        {
-            if (search->second.first == layerPaths.size() - 1)
-                return;
-            else
-            {
-                auto& toMove = layerPaths[search->second.first][search->second.second];
-                addSharedPath(toMove.first, toMove.second);
-                toMove.first.clear();
-            }
-        }
-        else
+        if (search == addedPaths.cend())
         {
             layerPaths.back().emplace_back(path, lazy);
-            addedPaths.insert(std::make_pair(path.hash(),
-                std::make_pair(layerPaths.size() - 1, layerPaths.back().size() - 1)));
+            addedPaths.insert(path.hash());
         }
-    }
-    void addBulkPath(const hecl::ProjectPath& path, size_t areaIdx, bool lazy)
-    {
-        if (bulkResources.addBulkPath(path, areaIdx))
-            addPath(path, lazy);
     }
 };
 
@@ -144,19 +113,18 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
     size_t areaIdx = 0;
     size_t nameOffset = 0;
-    BulkResources bulkResources;
     for (const World::Area& area : wld.areas)
     {
         if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
             continue;
 
-        hecl::ProjectPath areaPath(area.path, _S("/!area.blend"));
+        hecl::ProjectPath areaPath(area.path, _S("!area.blend"));
         if (!areaPath.isFile())
             continue;
 
         Log.report(logvisor::Info, _S("Visiting %s"), area.path.getRelativePath().data());
 
-        hecl::ProjectPath memRelayPath(area.path, _S("/!memoryrelays.yaml"));
+        hecl::ProjectPath memRelayPath(area.path, _S("!memoryrelays.yaml"));
 
         std::vector<atUint32> memRelays;
 
@@ -175,7 +143,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         bool areaInit = false;
 
         size_t layerIdx = 0;
-        LayerResources layerResources(bulkResources);
+        LayerResources layerResources;
         for (const hecl::DirectoryEnumerator::Entry& e : dEnum)
         {
             hecl::SystemString layerName;
@@ -220,7 +188,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 mlvl.areas.emplace_back();
                 MLVL::Area& areaOut = mlvl.areas.back();
 
-                hecl::ProjectPath namePath(area.path, _S("/!name.yaml"));
+                hecl::ProjectPath namePath(area.path, _S("!name.yaml"));
                 if (namePath.isFile())
                     areaOut.areaNameId = namePath;
 
@@ -232,7 +200,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 areaOut.areaMREAId = areaPath;
                 areaOut.areaId = 0xffffffff;
 
-                hecl::ProjectPath memIdPath(area.path, _S("/!memoryid.yaml"));
+                hecl::ProjectPath memIdPath(area.path, _S("!memoryid.yaml"));
                 if (memIdPath.isFile())
                 {
                     athena::io::FileReader fr(memIdPath.getAbsolutePath());
@@ -330,9 +298,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
                 /* Cull duplicate paths and add typed hash to list */
                 for (const hecl::ProjectPath& path : depPaths)
-                    layerResources.addBulkPath(path, areaIdx, false);
+                    layerResources.addPath(path, false);
                 for (const hecl::ProjectPath& path : lazyPaths)
-                    layerResources.addBulkPath(path, areaIdx, true);
+                    layerResources.addPath(path, true);
             }
 
             hecl::SystemUTF8Conv layerU8(layerName);
@@ -346,6 +314,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
             ++layerIdx;
         }
+
+        if (!areaInit)
+            Log.report(logvisor::Info, _S("No layer directories for area %s"), area.path.getRelativePath().data());
 
         /* Build deplist */
         MLVL::Area& areaOut = mlvl.areas.back();

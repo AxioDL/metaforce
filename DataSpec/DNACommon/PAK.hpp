@@ -232,6 +232,8 @@ public:
     hecl::ProjectPath getAreaLayerCooked(const IDType& areaId, int layerIdx, bool& activeOut) const;
 
     void enumerateResources(const std::function<bool(const EntryType*)>& func);
+
+    bool mreaHasDupeResources(const IDType& id) const;
 };
 
 }
