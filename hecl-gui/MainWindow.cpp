@@ -339,25 +339,27 @@ void MainWindow::enableOperations()
 bool MainWindow::isPackageComplete() const
 {
     return
-        QFile::exists(m_path + "/out/MP1/!original_ids.upak") &&
-        QFile::exists(m_path + "/out/MP1/AudioGrp.upak") &&
-        QFile::exists(m_path + "/out/MP1/GGuiSys.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid1.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid2.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid3.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid4.upak") &&
-        QFile::exists(m_path + "/out/MP1/metroid5.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid6.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid7.upak") &&
-        QFile::exists(m_path + "/out/MP1/Metroid8.upak") &&
-        QFile::exists(m_path + "/out/MP1/MidiData.upak") &&
-        QFile::exists(m_path + "/out/MP1/MiscData.upak") &&
-        QFile::exists(m_path + "/out/MP1/NoARAM.upak") &&
-        QFile::exists(m_path + "/out/MP1/SamGunFx.upak") &&
-        QFile::exists(m_path + "/out/MP1/SamusGun.upak") &&
-        QFile::exists(m_path + "/out/MP1/SlideShow.upak") &&
-        QFile::exists(m_path + "/out/MP1/TestAnim.upak") &&
-        QFile::exists(m_path + "/out/MP1/Tweaks.upak");
+#if RUNTIME_ORIGINAL_IDS
+        QFile::exists(m_path + "/out/files/!original_ids.upak") &&
+#endif
+        QFile::exists(m_path + "/out/files/AudioGrp.upak") &&
+        QFile::exists(m_path + "/out/files/GGuiSys.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid1.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid2.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid3.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid4.upak") &&
+        QFile::exists(m_path + "/out/files/metroid5.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid6.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid7.upak") &&
+        QFile::exists(m_path + "/out/files/Metroid8.upak") &&
+        QFile::exists(m_path + "/out/files/MidiData.upak") &&
+        QFile::exists(m_path + "/out/files/MiscData.upak") &&
+        QFile::exists(m_path + "/out/files/NoARAM.upak") &&
+        QFile::exists(m_path + "/out/files/SamGunFx.upak") &&
+        QFile::exists(m_path + "/out/files/SamusGun.upak") &&
+        QFile::exists(m_path + "/out/files/SlideShow.upak") &&
+        QFile::exists(m_path + "/out/files/TestAnim.upak") &&
+        QFile::exists(m_path + "/out/files/Tweaks.upak");
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage)
