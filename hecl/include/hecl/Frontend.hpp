@@ -238,11 +238,11 @@ struct IRNode
     IRNode(Kind kind, std::string&& str, IRNode&& node, const SourceLocation& loc)
         : kind(kind), str(std::move(str)), left(new IRNode(std::move(node))), loc(loc) {}
 
-    std::string toString() const { return fmt(0); }
+    std::string toString(bool stripUVAnims = false) const { return fmt(0, stripUVAnims); }
 
 private:
     static std::string rep(int n, std::string_view s);
-    std::string fmt(int level) const;
+    std::string fmt(int level, bool stripUVAnims) const;
     std::string describe() const;
 };
 

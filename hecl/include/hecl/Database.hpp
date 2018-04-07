@@ -20,6 +20,8 @@
 
 #include "hecl.hpp"
 
+#define RUNTIME_ORIGINAL_IDS 0
+
 namespace hecl
 {
 class ClientProcess;

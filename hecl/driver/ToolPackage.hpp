@@ -26,12 +26,14 @@ class ToolPackage final : public ToolBase
     {
         if (!hecl::StrCmp(path.getLastComponent().data(), _S("!world.blend")))
             AddSelectedItem(path);
+#if RUNTIME_ORIGINAL_IDS
         else if (!hecl::StrCmp(path.getLastComponent().data(), _S("!original_ids.yaml")))
         {
             auto pathComps = path.getPathComponents();
             if (pathComps.size() == 2 && pathComps[0] != _S("out"))
                 AddSelectedItem(path);
         }
+#endif
     }
 
     void FindSelectedItems(const hecl::ProjectPath& path, bool checkGeneral)

@@ -26,13 +26,29 @@ std::string IRNode::rep(int n, std::string_view s)
     return buf;
 }
 
-std::string IRNode::fmt(int level) const
+std::string IRNode::fmt(int level, bool stripUVAnims) const
 {
     std::string buf;
     auto indent = rep(level, "\t"sv);
     switch (kind)
     {
     case Kind::Call:
+        if (stripUVAnims && (str == "Texture" || str == "TextureN") && children.size() >= 2)
+        {
+            auto it = children.begin();
+            IRNode& uvNode = const_cast<IRNode&>(*++it);
+            if (uvNode.str != "UV" && uvNode.str != "Normal" && uvNode.str != "View")
+            {
+                std::string replacementName(str);
+                if (uvNode.str.back() == 'N' && replacementName.back() != 'N')
+                    replacementName += 'N';
+                IRNode replacementNode(Kind::Call, std::move(replacementName),
+                                       std::move(uvNode.children), loc);
+                auto ret = replacementNode.fmt(level, false);
+                uvNode.children = std::move(replacementNode.children);
+                return ret;
+            }
+        }
         buf.append(indent);
         buf.append("Call "sv).append(str);
         if (!children.empty())
@@ -40,7 +56,7 @@ std::string IRNode::fmt(int level) const
             buf.append(" {\n"sv);
             for (const IRNode& n : children)
             {
-                buf.append(n.fmt(level + 1));
+                buf.append(n.fmt(level + 1, stripUVAnims));
                 buf.append("\n"sv);
             }
             buf.append(indent);
@@ -54,15 +70,15 @@ std::string IRNode::fmt(int level) const
     case Kind::Binop:
         buf.append(indent);
         buf.append("Binop "sv).append(OpToStr(op)).append(" {\n"sv);
-        buf.append(left->fmt(level + 1)).append("\n"sv);
-        buf.append(right->fmt(level + 1)).append("\n"sv);
+        buf.append(left->fmt(level + 1, stripUVAnims)).append("\n"sv);
+        buf.append(right->fmt(level + 1, stripUVAnims)).append("\n"sv);
         buf.append(indent).append("}"sv);
         break;
     case Kind::Swizzle:
         buf.append(indent);
         buf.append("Swizzle \""sv).append(str);
         buf.append("\" {\n"sv);
-        buf.append(left->fmt(level + 1)).append("\n"sv);
+        buf.append(left->fmt(level + 1, stripUVAnims)).append("\n"sv);
         buf.append(indent).append("}"sv);
         break;
     default:

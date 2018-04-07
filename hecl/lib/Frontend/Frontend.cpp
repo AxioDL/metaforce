@@ -239,12 +239,14 @@ void IR::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& sz)
 
 IR Frontend::compileSource(std::string_view source, std::string_view diagName)
 {
-    Hash hash(source);
     m_diag.reset(diagName, source);
     m_parser.reset(source);
     auto insts = m_parser.parse();
     IR ir;
-    ir.m_hash = hash.val64();
+    std::string stripString;
+    if (!insts.empty())
+        stripString = insts.front().toString(true);
+    ir.m_hash = Hash(stripString).val64();
     for (auto& inst : insts)
         ir.addInstruction(inst, 0);
     return ir;

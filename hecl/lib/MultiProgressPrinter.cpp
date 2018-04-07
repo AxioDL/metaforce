@@ -2,7 +2,7 @@
 
 #define BOLD "\033[1m"
 #define NORMAL "\033[0m"
-#define PREV_LINE "\033[%dF"
+#define PREV_LINE "\r\033[%dA"
 #define HIDE_CURSOR "\033[?25l"
 #define SHOW_CURSOR "\033[?25h"
 

@@ -81,6 +81,7 @@ struct Action;
 struct Bone;
 struct PathMesh;
 struct Matrix3f;
+struct Matrix4f;
 struct PoolSkinIndex;
 
 extern class Token SharedBlenderToken;
