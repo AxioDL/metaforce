@@ -497,12 +497,19 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os,
           "\n"
           "    return face, ret_mesh\n"
           "\n"
-          "def expand_lightmap_triangle(uva, uvb, uvc):\n"
+          "def expand_lightmap_triangle(lightmap_tri_tracker, uva, uvb, uvc):\n"
           "    result = ([uva[0],uva[1]], [uvb[0],uvb[1]], [uvc[0],uvc[1]])\n"
+          "    inst = 0\n"
+          "    if uva in lightmap_tri_tracker:\n"
+          "        inst = lightmap_tri_tracker[uva]\n"
+          "    lightmap_tri_tracker[uva] = inst + 1\n"
           "    if uva == uvb:\n"
           "        result[1][0] += 0.005\n"
           "    if uva == uvc:\n"
           "        result[2][1] -= 0.005\n"
+          "    if inst & 0x1 and uva == uvb and uva == uvc:\n"
+          "        result[0][0] += 0.005\n"
+          "        result[0][1] -= 0.005\n"
           "    return result\n"
           "\n";
 
@@ -619,7 +626,9 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
           "od_list = []\n"
           "\n"
           "orig_pidx_lay = bm.verts.layers.int.new('CMDLOriginalPosIdxs')\n"
-          "orig_nidx_lay = bm.loops.layers.int.new('CMDLOriginalNormIdxs')\n";
+          "orig_nidx_lay = bm.loops.layers.int.new('CMDLOriginalNormIdxs')\n"
+          "\n"
+          "lightmap_tri_tracker = {}\n";
 
     if (rp.first)
         os << "dvert_lay = bm.verts.layers.deform.verify()\n";
@@ -908,7 +917,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                                     for (unsigned j=0 ; j<matUVCount ; ++j)
                                     {
                                         if (j==0 && matShortUVs)
-                                            os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
+                                            os.format("    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], suv_list[%u])\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
@@ -942,7 +951,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                                     for (unsigned j=0 ; j<matUVCount ; ++j)
                                     {
                                         if (j==0 && matShortUVs)
-                                            os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
+                                            os.format("    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], suv_list[%u])\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
                                                       "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
@@ -988,7 +997,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                                 for (unsigned j=0 ; j<matUVCount ; ++j)
                                 {
                                     if (j==0 && matShortUVs)
-                                        os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
+                                        os.format("    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], suv_list[%u])\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",
@@ -1034,7 +1043,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                                 for (unsigned j=0 ; j<matUVCount ; ++j)
                                 {
                                     if (j==0 && matShortUVs)
-                                        os.format("    uv_tri = expand_lightmap_triangle(suv_list[%u], suv_list[%u], suv_list[%u])\n"
+                                        os.format("    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], suv_list[%u])\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[0]\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[1]\n"
                                                   "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = uv_tri[2]\n",

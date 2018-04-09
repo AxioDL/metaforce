@@ -35,6 +35,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
         os.format("lamp = bpy.data.lamps.new('LAMP_%01u_%03u', 'POINT')\n"
                   "lamp.color = (%f,%f,%f)\n"
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
+                  "lamp.shadow_soft_size = 1.0\n"
                   "lamp.shadow_method = '%s'\n"
                   "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
@@ -47,6 +48,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
+                  "lamp.shadow_soft_size = 0.5\n"
                   "lamp.shadow_method = '%s'\n"
                   "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
                   zeus::degToRad(light.spotCutoff),
@@ -77,7 +79,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
     switch (light.falloff)
     {
     case BabeDeadLight::Falloff::Constant:
-        os << "falloff_node.inputs[0].default_value *= 75.0\n"
+        os << "falloff_node.inputs[0].default_value *= 150.0\n"
               "lamp.node_tree.links.new(falloff_node.outputs[2], lamp.node_tree.nodes['Emission'].inputs[1])\n";
         if (light.q > FLT_EPSILON)
             os.format("lamp.constant_coefficient = 2.0 / %f\n", light.q);
