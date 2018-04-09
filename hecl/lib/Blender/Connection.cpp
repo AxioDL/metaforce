@@ -265,7 +265,8 @@ static bool RegFileExists(const hecl::SystemChar* path)
 Connection::Connection(int verbosityLevel)
 {
 #if !WINDOWS_STORE
-    BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
+    if (hecl::VerbosityLevel >= 1)
+        BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
 
     /* Put hecl_blendershell.py in temp dir */
     const SystemChar* TMPDIR = GetTmpDir();
@@ -2401,7 +2402,8 @@ void Token::shutdown()
     {
         m_conn->quitBlender();
         m_conn.reset();
-        BlenderLog.report(logvisor::Info, "Blender Shutdown Successful");
+        if (hecl::VerbosityLevel >= 1)
+            BlenderLog.report(logvisor::Info, "Blender Shutdown Successful");
     }
 }
 

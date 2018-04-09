@@ -1,11 +1,11 @@
 import bpy, struct
 from mathutils import Vector
 
-def build_dock_connections():
+def build_dock_connections(scene):
     areas = []
     docks = []
 
-    for obj in sorted(bpy.context.scene.objects, key=lambda x: x.name):
+    for obj in sorted(scene.objects, key=lambda x: x.name):
         if obj.type == 'MESH' and obj.parent is None:
             dock_list = []
             for ch in obj.children:
@@ -36,7 +36,7 @@ def build_dock_connections():
 
 # Cook
 def cook(writebuf):
-    areas, dock_conns = build_dock_connections()
+    areas, dock_conns = build_dock_connections(bpy.context.scene)
     writebuf(struct.pack('I', len(areas)))
     for area in areas:
         obj = area[0]
