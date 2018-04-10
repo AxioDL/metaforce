@@ -27,7 +27,7 @@
 #define MWM_FUNC_CLOSE        (1L<<5)
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
+static glXCreateContextAttribsARBProc glXCreateContextAttribsARB = nullptr;
 
 static const int ContextAttribList[7][7] =
 {
@@ -69,7 +69,7 @@ static const int ContextAttribList[7][7] =
 };
 
 static bool s_glxError;
-static int ctxErrorHandler(Display *dpy, XErrorEvent *ev)
+static int ctxErrorHandler(Display */*dpy*/, XErrorEvent */*ev*/)
 {
     s_glxError = true;
     return 0;
@@ -77,8 +77,8 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev)
 
 static logvisor::Module Log("visigen-xlib");
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file,
-                      const char*, int line, const char* fmt, ...)
+static void AthenaExc(athena::error::Level level, const char* /*file*/,
+                      const char*, int /*line*/, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -93,9 +93,9 @@ static void UpdatePercent(float percent)
 {
     XLockDisplay(xDisp);
     char title[256];
-    snprintf(title, 256, "VISIGen [%g%%]", percent * 100.f);
+    snprintf(title, 256, "VISIGen [%g%%]", double(percent * 100.f));
     XChangeProperty(xDisp, windowId, XA_WM_NAME, XA_STRING, 8,
-                    PropModeReplace, (unsigned char*)title, strlen(title));
+                    PropModeReplace, reinterpret_cast<unsigned char*>(title), int(strlen(title)));
     XUnlockDisplay(xDisp);
 }
 
@@ -125,7 +125,7 @@ int main(int argc, const char** argv)
     }
 
     /* Open Xlib Display */
-    xDisp = XOpenDisplay(0);
+    xDisp = XOpenDisplay(nullptr);
     if (!xDisp)
     {
         Log.report(logvisor::Error, "Can't open X display");
@@ -146,7 +146,7 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    int selVisualId = -1;
+    VisualID selVisualId = 0;
     GLXFBConfig selFBConfig = nullptr;
     for (int i=0 ; i<numFBConfigs ; ++i)
     {
@@ -161,10 +161,10 @@ int main(int argc, const char** argv)
         if (doubleBuffer)
             continue;
 
-        if (colorSize >= 32 && depthSize >= 24)
+        if (colorSize >= 32 && depthSize >= 24 && visualId != 0)
         {
             selFBConfig = config;
-            selVisualId = visualId;
+            selVisualId = VisualID(visualId);
             break;
         }
     }
@@ -218,8 +218,8 @@ int main(int argc, const char** argv)
 
     if (!glXCreateContextAttribsARB)
     {
-        glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
-                glXGetProcAddressARB((const GLubyte*)"glXCreateContextAttribsARB");
+        glXCreateContextAttribsARB = reinterpret_cast<glXCreateContextAttribsARBProc>(
+                glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB")));
         if (!glXCreateContextAttribsARB)
         {
             Log.report(logvisor::Error, "unable to resolve glXCreateContextAttribsARB");
@@ -230,7 +230,7 @@ int main(int argc, const char** argv)
     s_glxError = false;
     XErrorHandler oldHandler = XSetErrorHandler(ctxErrorHandler);
     GLXContext glxCtx = nullptr;
-    for (int attribIdx=0 ; attribIdx<std::extent<decltype(ContextAttribList)>::value ; ++attribIdx)
+    for (uint32_t attribIdx=0 ; attribIdx<std::extent<decltype(ContextAttribList)>::value ; ++attribIdx)
     {
         glxCtx = glXCreateContextAttribsARB(xDisp, selFBConfig, nullptr, True, ContextAttribList[attribIdx]);
         if (glxCtx)
@@ -253,12 +253,12 @@ int main(int argc, const char** argv)
 
     struct
     {
-        unsigned long flags;
-        unsigned long functions;
-        unsigned long decorations;
-        long inputMode;
-        unsigned long status;
-    } wmHints = {0};
+        unsigned long flags  = 0;
+        unsigned long functions = 0;
+        unsigned long decorations = 0;
+        long inputMode = 0;
+        unsigned long status = 0;
+    } wmHints;
 
     Atom motifWmHints = XInternAtom(xDisp, "_MOTIF_WM_HINTS", True);
     if (motifWmHints)
@@ -266,7 +266,7 @@ int main(int argc, const char** argv)
         wmHints.flags = MWM_HINTS_DECORATIONS | MWM_HINTS_FUNCTIONS;
         wmHints.decorations |= MWM_DECOR_BORDER | MWM_DECOR_TITLE | MWM_DECOR_MINIMIZE | MWM_DECOR_MENU;
         wmHints.functions  |= MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE;
-        XChangeProperty(xDisp, windowId, motifWmHints, motifWmHints, 32, PropModeReplace, (unsigned char*)&wmHints, 5);
+        XChangeProperty(xDisp, windowId, motifWmHints, motifWmHints, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&wmHints), 5);
     }
 
     /* SIGINT will be used to cancel main thread when client thread ends
@@ -311,7 +311,7 @@ int main(int argc, const char** argv)
         exitEvent.type = ClientMessage;
         exitEvent.window = windowId;
         exitEvent.format = 32;
-        XSendEvent(xDisp, windowId, 0, 0, (XEvent*)&exitEvent);
+        XSendEvent(xDisp, windowId, 0, 0, reinterpret_cast<XEvent*>(&exitEvent));
         XFlush(xDisp);
         XUnlockDisplay(xDisp);
     });
@@ -323,10 +323,10 @@ int main(int argc, const char** argv)
         fd_set fds;
         FD_ZERO(&fds);
         FD_SET(x11Fd, &fds);
-        if (pselect(x11Fd+1, &fds, NULL, NULL, NULL, &origmask) < 0)
+        if (pselect(x11Fd+1, &fds, nullptr, nullptr, nullptr, &origmask) < 0)
         {
             /* SIGINT/SIGUSR2 handled here */
-            if (errno == EINTR)
+            if (errno == EINTR || errno == SIGUSR2)
                 break;
         }
 
@@ -344,6 +344,7 @@ int main(int argc, const char** argv)
     }
 
     renderer.Terminate();
+    pthread_cancel(clientThread.native_handle());
     if (clientThread.joinable())
         clientThread.join();
 
