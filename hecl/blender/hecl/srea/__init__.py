@@ -301,14 +301,10 @@ def tex_node_from_node(node):
     if node.type == 'TEXTURE':
         return node
     elif node.type == 'MIX_RGB':
-        if node.inputs[1].is_linked:
-            ret = image_from_node(node.inputs[1].links[0].from_node)
-            if ret:
-                return ret
-        if node.inputs[2].is_linked:
-            ret = image_from_node(node.inputs[2].links[0].from_node)
-            if ret:
-                return ret
+        if node.inputs[1].is_linked and node.inputs[1].links[0].from_node.type == 'TEXTURE':
+            return node.inputs[1].links[0].from_node
+        if node.inputs[2].is_linked and node.inputs[2].links[0].from_node.type == 'TEXTURE':
+            return node.inputs[2].links[0].from_node
     return None
 
 # Delete existing cycles nodes and convert from GLSL nodes
@@ -379,20 +375,28 @@ def initialize_nodetree_cycles(mat, area_data):
                 mapping = nt.nodes.new('ShaderNodeUVMap')
                 gridder.place_node(mapping, 1)
                 mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
-                nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
-                nt.links.new(diffuse_image_node.outputs[0], mixrgb_node.inputs[2])
+                nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
+                light_path = nt.nodes.new('ShaderNodeLightPath')
+                gridder.place_node(light_path, 2)
+                mixrgb_reflect = nt.nodes.new('ShaderNodeMixRGB')
+                gridder.place_node(mixrgb_reflect, 2)
+                nt.links.new(light_path.outputs['Is Reflection Ray'], mixrgb_reflect.inputs[0])
+                mixrgb_reflect.inputs[1].default_value = (1.0,1.0,1.0,1.0)
+                nt.links.new(diffuse_image_node.outputs[0], mixrgb_reflect.inputs[2])
+                nt.links.new(mixrgb_reflect.outputs[0], diffuse.inputs[0])
+                nt.links.new(mixrgb_reflect.outputs[0], mixrgb_node.inputs[2])
                 if nt.nodes['Output'].inputs[1].is_linked:
                     nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mix_shader.inputs[0])
                     nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mixrgb_node.inputs[0])
                 nt.links.new(mixrgb_node.outputs[0], transp.inputs[0])
-                nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
 
     else:
         # Classify connected opaque textures
         chain = recursive_build_material_chain(nt.nodes['Output'])
         if chain:
+            diffuse = None
+            emissive = None
             diffuse_soc, emissive_soc = get_de_sockets(chain)
-            emissive_soc = None
             if diffuse_soc:
                 tex_node = tex_node_from_node(diffuse_soc.node)
                 if tex_node and tex_node.inputs[0].links[0].from_socket.name == 'UV':
@@ -402,21 +406,37 @@ def initialize_nodetree_cycles(mat, area_data):
                     mapping = nt.nodes.new('ShaderNodeUVMap')
                     gridder.place_node(mapping, 1)
                     mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
+                    nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
+                    light_path = nt.nodes.new('ShaderNodeLightPath')
+                    gridder.place_node(light_path, 2)
+                    mixrgb_reflect = nt.nodes.new('ShaderNodeMixRGB')
+                    gridder.place_node(mixrgb_reflect, 2)
+                    nt.links.new(light_path.outputs['Is Reflection Ray'], mixrgb_reflect.inputs[0])
+                    mixrgb_reflect.inputs[1].default_value = (1.0,1.0,1.0,1.0)
+                    nt.links.new(diffuse_image_node.outputs[0], mixrgb_reflect.inputs[2])
                     diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
                     gridder.place_node(diffuse, 2)
-                    nt.links.new(diffuse_image_node.outputs[0], diffuse.inputs[0])
-                    nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
+                    nt.links.new(mixrgb_reflect.outputs[0], diffuse.inputs[0])
                 else:
                     diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
                     gridder.place_node(diffuse, 2)
             if emissive_soc:
-                emissive = nt.nodes.new('ShaderNodeEmission')
-                gridder.place_node(emissive, 2)
-                nt.links.new(emissive_soc, emissive.inputs[0])
+                tex_node = tex_node_from_node(emissive_soc.node)
+                if tex_node and tex_node.inputs[0].links[0].from_socket.name == 'UV':
+                    emissive_image_node = nt.nodes.new('ShaderNodeTexImage')
+                    gridder.place_node(emissive_image_node, 1)
+                    emissive_image_node.image = tex_node.texture.image
+                    mapping = nt.nodes.new('ShaderNodeUVMap')
+                    gridder.place_node(mapping, 1)
+                    mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
+                    nt.links.new(mapping.outputs[0], emissive_image_node.inputs[0])
+                    emissive = nt.nodes.new('ShaderNodeEmission')
+                    gridder.place_node(emissive, 2)
+                    nt.links.new(emissive_image_node.outputs[0], emissive.inputs[0])
 
             material_output = nt.nodes.new('ShaderNodeOutputMaterial')
             gridder.place_node(material_output, 3)
-            if diffuse_soc and emissive_soc:
+            if diffuse and emissive:
                 shader_add = nt.nodes.new('ShaderNodeAddShader')
                 gridder.place_node(shader_add, 2)
                 nt.links.new(diffuse.outputs[0], shader_add.inputs[0])

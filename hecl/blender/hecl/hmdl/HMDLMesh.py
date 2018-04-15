@@ -191,6 +191,10 @@ class VertPool:
         sp = struct.pack('I', self.get_skin_idx(loop.vert))
         writebuf(sp)
 
+    def null_loop_out(self, writebuf):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', 0xffffffff))
+
     def loop_out_map(self, writebuf, loop):
         writebuf(struct.pack('B', 1))
         writebuf(struct.pack('I', self.get_pos_idx(loop.vert)))
@@ -346,8 +350,7 @@ def write_out_surface(writebuf, output_mode, vert_pool, island_faces, mat_idx):
                     out_count = sl[2]
             island_faces = max_island_faces
             if prev_loop_emit:
-                vert_pool.loop_out(writebuf, prev_loop_emit)
-                vert_pool.loop_out(writebuf, max_sl[0])
+                vert_pool.null_loop_out(writebuf)
             for loop in max_sl:
                 vert_pool.loop_out(writebuf, loop)
                 prev_loop_emit = loop

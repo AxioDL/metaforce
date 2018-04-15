@@ -1,4 +1,9 @@
 if(NOT WINDOWS_STORE)
+if(TARGET nod)
+  include_directories(${NOD_INCLUDE_DIR})
+  add_definitions(-DHECL_HAS_NOD=1)
+endif()
+
 add_executable(hecl main.cpp
     ToolBase.hpp
     ToolPackage.hpp
@@ -6,6 +11,7 @@ add_executable(hecl main.cpp
     ToolInit.hpp
     ToolHelp.hpp
     ToolCook.hpp
+    ToolImage.hpp
     ToolSpec.hpp
     ../DataSpecRegistry.hpp)
 if(COMMAND add_sanitizers)

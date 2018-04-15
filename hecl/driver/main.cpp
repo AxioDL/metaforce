@@ -26,6 +26,7 @@ logvisor::Module LogModule("hecl::Driver");
 #include "ToolExtract.hpp"
 #include "ToolCook.hpp"
 #include "ToolPackage.hpp"
+#include "ToolImage.hpp"
 #include "ToolHelp.hpp"
 
 /* Static reference to dataspec additions
@@ -49,12 +50,17 @@ static void printHelp(const hecl::SystemChar* pname)
         hecl::Printf(_S("" BOLD "HECL" NORMAL ""));
     else
         hecl::Printf(_S("HECL"));
-#if HECL_GIT
-    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
-#elif HECL_VER
-    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s extract|init|add|remove|group|cook|clean|package|help\n"), pname);
+#if HECL_HAS_NOD
+#  define TOOL_LIST "extract|init|cook|package|image|help"
 #else
-    hecl::Printf(_S("\nUsage: %s extract|init|cook|package|help\n"), pname);
+#  define TOOL_LIST "extract|init|cook|package|help"
+#endif
+#if HECL_GIT
+    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+#elif HECL_VER
+    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+#else
+    hecl::Printf(_S("\nUsage: %s " TOOL_LIST "\n"), pname);
 #endif
 }
 
@@ -266,6 +272,10 @@ int main(int argc, const char** argv)
         tool.reset(new ToolCook(info));
     else if (toolName == _S("package") || toolName == _S("pack"))
         tool.reset(new ToolPackage(info));
+#if HECL_HAS_NOD
+    else if (toolName == _S("image"))
+        tool.reset(new ToolImage(info));
+#endif
     else if (toolName == _S("help"))
         tool.reset(new ToolHelp(info));
     else

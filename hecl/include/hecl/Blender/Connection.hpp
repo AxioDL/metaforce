@@ -227,12 +227,12 @@ struct Mesh
         /** Vertex indexing data (all primitives joined as degenerate tri-strip) */
         struct Vert
         {
-            uint32_t iPos;
-            uint32_t iNorm;
-            uint32_t iColor[4] = {uint32_t(-1)};
-            uint32_t iUv[8] = {uint32_t(-1)};
-            uint32_t iSkin;
-            uint32_t iBankSkin = -1;
+            uint32_t iPos = 0xffffffff;
+            uint32_t iNorm = 0xffffffff;
+            uint32_t iColor[4] = {0xffffffff};
+            uint32_t iUv[8] = {0xffffffff};
+            uint32_t iSkin = 0xffffffff;
+            uint32_t iBankSkin = 0xffffffff;
 
             Vert(Connection& conn, const Mesh& parent);
             bool operator==(const Vert& other) const;

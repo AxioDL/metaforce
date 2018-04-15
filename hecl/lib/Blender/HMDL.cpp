@@ -67,6 +67,12 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
         size_t iboStart = iboData.size();
         for (const Surface::Vert& v : surf.verts)
         {
+            if (v.iPos == 0xffffffff)
+            {
+                iboData.push_back(0xffffffff);
+                continue;
+            }
+            
             size_t ti = 0;
             bool found = false;
             for (const std::pair<const Surface*, const Surface::Vert*>& tv : vertPool)

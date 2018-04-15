@@ -1073,6 +1073,8 @@ Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfPro
             SkinBanks::Bank& bank = skinBanks.banks[surf.skinBankIdx];
             for (Surface::Vert& vert : surf.verts)
             {
+                if (vert.iPos == 0xffffffff)
+                    continue;
                 for (uint32_t i=0 ; i<bank.m_skinIdxs.size() ; ++i)
                 {
                     if (bank.m_skinIdxs[i] == vert.iSkin)
@@ -1101,6 +1103,8 @@ Mesh Mesh::getContiguousSkinningVersion() const
         {
             for (Surface::Vert& vert : surf.verts)
             {
+                if (vert.iPos == 0xffffffff)
+                    continue;
                 if (vert.iSkin == i)
                 {
                     auto key = std::make_pair(vert.iPos, vert.iNorm);
@@ -1194,6 +1198,8 @@ Mesh::Surface::Surface(Connection& conn, Mesh& parent, int skinSlotCount)
 Mesh::Surface::Vert::Vert(Connection& conn, const Mesh& parent)
 {
     conn._readBuf(&iPos, 4);
+    if (iPos == 0xffffffff)
+        return;
     conn._readBuf(&iNorm, 4);
     for (uint32_t i=0 ; i<parent.colorLayerCount ; ++i)
         conn._readBuf(&iColor[i], 4);
@@ -1282,6 +1288,8 @@ uint32_t Mesh::SkinBanks::addSurface(const Mesh& mesh, const Surface& surf, int 
             done = true;
             for (const Surface::Vert& v : surf.verts)
             {
+                if (v.iPos == 0xffffffff)
+                    continue;
                 if (!VertInBank(bank.m_skinIdxs, v.iSkin) && !VertInBank(toAdd, v.iSkin))
                 {
                     toAdd.push_back(v.iSkin);
