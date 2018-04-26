@@ -52,6 +52,7 @@ protected:
     TLockedToken<CTexture> x24_texObj; // Used to be auto_ptr
     float GetT(bool invert) const;
 public:
+    virtual ~CCameraFilterPassBase() = default;
     virtual void Update(float dt)=0;
     virtual void SetFilter(EFilterType type, EFilterShape shape,
                            float time, const zeus::CColor& color, CAssetId txtr)=0;

@@ -731,6 +731,11 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
     m_nextFogVolumeFilter = m_fogVolumeFilters.end();
 }
 
+CBooRenderer::~CBooRenderer()
+{
+    g_Renderer = nullptr;
+}
+
 void CBooRenderer::AddWorldSurfaces(CBooModel& model)
 {
     CBooSurface* surf = model.x3c_firstSortedSurface;

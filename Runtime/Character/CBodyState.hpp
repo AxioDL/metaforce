@@ -13,6 +13,7 @@ class CActor;
 class CBodyState
 {
 public:
+    virtual ~CBodyState() = default;
     virtual bool IsInAir(const CBodyController&) const { return false; }
     virtual bool IsDead() const { return false; }
     virtual bool IsDying() const { return false; }

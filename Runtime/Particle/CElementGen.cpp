@@ -435,7 +435,7 @@ void CElementGen::UpdateExistingParticles()
 
     x25c_activeParticleCount = 0;
     CParticleGlobals::SetEmitterTime(x74_curFrame);
-    CParticleGlobals::g_particleAccessParameters = nullptr;
+    CParticleGlobals::g_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
 
     for (auto it = x30_particles.begin(); it != x30_particles.end();)
     {
@@ -1276,7 +1276,7 @@ void CElementGen::RenderLines()
             m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
             m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
         }
-        else
+        else if (widt)
         {
             float width = 1.f;
             widt->GetValue(0, width);

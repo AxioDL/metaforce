@@ -59,7 +59,6 @@ struct Application : boo::IApplicationCallback
     hecl::Runtime::FileStoreManager m_fileMgr;
     hecl::CVarManager m_cvarManager;
     hecl::CVarCommons m_cvarCommons;
-    hecl::Console m_console;
     std::unique_ptr<ViewManager> m_viewManager;
 
     bool m_running = true;
@@ -67,12 +66,9 @@ struct Application : boo::IApplicationCallback
     Application() :
         m_fileMgr(_S("urde")),
         m_cvarManager(m_fileMgr),
-        m_cvarCommons(m_cvarManager),
-        m_console(&m_cvarManager)
+        m_cvarCommons(m_cvarManager)
     {
-        //hecl::Console::RegisterLogger(&m_console);
         m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
-        m_console.registerCommand("quit", "Quits application instantly", "", std::bind(&Application::quit, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     virtual ~Application() = default;
@@ -146,11 +142,6 @@ struct Application : boo::IApplicationCallback
     bool getDeepColor() const
     {
         return m_cvarCommons.getDeepColor();
-    }
-
-    void quit(hecl::Console* con = nullptr, const std::vector<std::string>& arg = std::vector<std::string>())
-    {
-        m_running = false;
     }
 };
 

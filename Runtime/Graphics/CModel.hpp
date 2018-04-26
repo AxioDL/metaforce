@@ -201,6 +201,7 @@ private:
     static CBooModel* g_LastModelCached;
 
     static bool g_DummyTextures;
+    static bool g_RenderModelBlack;
 
 public:
     ~CBooModel();
@@ -269,6 +270,7 @@ public:
     static void DisableShadowMaps();
 
     static void SetDummyTextures(bool b) { g_DummyTextures = b; }
+    static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
 };
 
 class CModel

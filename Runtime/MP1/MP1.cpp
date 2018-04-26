@@ -57,6 +57,12 @@
 
 #include <discord-rpc.h>
 
+namespace hecl
+{
+    extern CVar* com_enableCheats;
+    extern CVar* com_developer;
+};
+
 namespace urde
 {
 URDE_DECL_SPECIALIZE_SHADER(CParticleSwooshShaders)
@@ -357,6 +363,16 @@ void CGameGlobalObjects::AddPaksAndFactories()
     }
 }
 
+CGameGlobalObjects::~CGameGlobalObjects()
+{
+    g_ResFactory = nullptr;
+    g_SimplePool = nullptr;
+    g_CharFactoryBuilder = nullptr;
+    g_AiFuncMap = nullptr;
+    g_GameState = nullptr;
+    g_TweakManager = nullptr;
+}
+
 void CMain::AddWorldPaks()
 {
     CResLoader* loader = g_ResFactory->GetResLoader();
@@ -431,6 +447,60 @@ void CMain::EnsureWorldPakReady(CAssetId mlvl)
     /* TODO: Schedule resource list load for World Pak containing mlvl */
 }
 
+void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
+{
+    if (!hecl::com_developer->toBoolean())
+    {
+        console->report(hecl::Console::Level::Info, "Cheats are only available in developer mode");
+        return;
+    }
+
+    if (!hecl::com_enableCheats->toBoolean())
+    {
+        console->report(hecl::Console::Level::Info, "Cheats are not enabled");
+        return;
+    }
+
+    if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
+        return;
+
+    std::string type = args[0];
+    athena::utility::tolower(type);
+    console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
+    std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
+    if (type == "all")
+    {
+        for (u32 item = 0; item < u32(CPlayerState::EItemType::Max); ++item)
+        {
+            pState->ReInitalizePowerUp(CPlayerState::EItemType(item),
+                                       CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
+            pState->IncrPickup(CPlayerState::EItemType(item),
+                               CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
+        }
+        pState->IncrPickup(CPlayerState::EItemType::HealthRefill, 99999);
+    }
+    else if (type == "missile")
+    {
+        s32 missiles = 250;
+        if (args.size() == 2)
+        {
+            missiles = s32(strtol(args[1].c_str(), nullptr, 10));
+            missiles = zeus::clamp(-250, missiles, 250);
+        }
+
+        u32 curCap = pState->GetItemCapacity(CPlayerState::EItemType::Missiles);
+        if (missiles > 0 && curCap < u32(missiles))
+        {
+            u32 tmp = ((u32(missiles) / 5) + (missiles % 5)) * 5;
+            pState->ReInitalizePowerUp(CPlayerState::EItemType::Missiles, tmp);
+        }
+        if (missiles > 0)
+            pState->IncrPickup(CPlayerState::EItemType::Missiles, u32(missiles));
+        else
+            pState->DecrPickup(CPlayerState::EItemType::Missiles, zeus::clamp(0u, u32(abs(missiles)), pState->GetItemAmount(CPlayerState::EItemType::Missiles)));
+    }
+}
+
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 {
     bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
@@ -486,8 +556,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG)
     {
         if (CPlayerState* pState = g_GameState->GetPlayerState().get())
         {
-            u32 itemPercent = u32(std::ceil(pState->CalculateItemCollectionRate() * 100.f /
-                                            pState->GetPickupTotal()));
+            u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
             if (DiscordItemPercent != itemPercent)
             {
                 DiscordItemPercent = itemPercent;
@@ -534,6 +603,9 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_cvarMgr = cvarMgr;
     m_console = std::make_unique<hecl::Console>(m_cvarMgr);
     m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
+    m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2));
+
+
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks(m_cvarMgr);
@@ -672,6 +744,7 @@ void CMain::ShutdownSubsystems()
 
 void CMain::Shutdown()
 {
+    m_console->unregisterCommand("Give");
     x164_archSupport.reset();
     ShutdownSubsystems();
     TShader<CParticleSwooshShaders>::Shutdown();

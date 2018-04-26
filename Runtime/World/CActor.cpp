@@ -40,7 +40,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xd0_thermalMag = params.x64_thermalMag;
     xd8_nonLoopingSfxHandles.resize(2);
     xe4_27_notInSortedLists = true;
-    xe4_28_ = true;
+    xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;
     xe4_31_lightsDirty = true;
     xe5_27_useInSortedLists = true;
@@ -542,7 +542,7 @@ void CActor::SetRotation(const zeus::CQuaternion &q)
 {
     x34_transform = q.toTransform(x34_transform.origin);
     xe4_27_notInSortedLists = true;
-    xe4_28_ = true;
+    xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;
 }
 
@@ -550,7 +550,7 @@ void CActor::SetTranslation(const zeus::CVector3f& tr)
 {
     x34_transform.origin = tr;
     xe4_27_notInSortedLists = true;
-    xe4_28_ = true;
+    xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;
 }
 
@@ -558,7 +558,7 @@ void CActor::SetTransform(const zeus::CTransform& tr)
 {
     x34_transform = tr;
     xe4_27_notInSortedLists = true;
-    xe4_28_ = true;
+    xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;
 }
 

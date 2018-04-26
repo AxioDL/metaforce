@@ -102,12 +102,13 @@ public:
 private:
 
     static const u32 PowerUpMaxValues[41];
+    static const char* PowerUpNames[41];
     struct CPowerUp
     {
-        int x0_amount = 0;
-        int x4_capacity = 0;
+        u32 x0_amount = 0;
+        u32 x4_capacity = 0;
         CPowerUp() {}
-        CPowerUp(int amount, int capacity) : x0_amount(amount), x4_capacity(capacity) {}
+        CPowerUp(u32 amount, u32 capacity) : x0_amount(amount), x4_capacity(capacity) {}
     };
     union
     {
@@ -161,12 +162,12 @@ public:
     bool HasPowerUp(EItemType type) const;
     u32 GetItemCapacity(EItemType type) const;
     u32 GetItemAmount(EItemType type) const;
-    void DecrPickup(EItemType type, s32 amount);
-    void IncrPickup(EItemType type, s32 amount);
-    void ResetAndIncrPickUp(EItemType type, s32 amount);
+    void DecrPickup(EItemType type, u32 amount);
+    void IncrPickup(EItemType type, u32 amount);
+    void ResetAndIncrPickUp(EItemType type, u32 amount);
     static float GetEnergyTankCapacity() { return 100.f; }
     static float GetBaseHealthCapacity() { return 99.f; }
-    float CalculateHealth(u32 health);
+    float CalculateHealth();
     void ReInitalizePowerUp(EItemType type, u32 capacity);
     void InitializePowerUp(EItemType type, u32 capacity);
     u32 GetLogScans() const { return x180_scanCompletionRate.first; }
@@ -182,6 +183,7 @@ public:
     CPlayerState();
     CPlayerState(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& stream);
+    static u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[u32(type)]; }
 
 };
 }
