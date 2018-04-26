@@ -32,6 +32,14 @@ void Console::registerCommand(std::string_view name, std::string_view helpText, 
         m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func)};
 }
 
+void Console::unregisterCommand(std::string_view name)
+{
+    std::string lowName = name.data();
+    athena::utility::tolower(lowName);
+    if (m_commands.find(lowName) != m_commands.end())
+        m_commands.erase(m_commands.find(lowName));
+}
+
 void Console::executeString(const std::string& str)
 {
     if (str.empty())

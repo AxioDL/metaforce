@@ -80,6 +80,7 @@ private:
 public:
     Console(CVarManager*);
     void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);
+    void unregisterCommand(std::string_view name);
 
     void executeString(const std::string& strToExec);
 
