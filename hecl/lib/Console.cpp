@@ -24,12 +24,12 @@ Console::Console(CVarManager* cvarMgr)
 
 }
 
-void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func)
+void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func, SConsoleCommand::ECommandFlags cmdFlags)
 {
     std::string lowName = name.data();
     athena::utility::tolower(lowName);
     if (m_commands.find(lowName) == m_commands.end())
-        m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func)};
+        m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func), cmdFlags};
 }
 
 void Console::unregisterCommand(std::string_view name)
@@ -65,7 +65,21 @@ void Console::executeString(const std::string& str)
         std::string lowComName = commandName;
         athena::utility::tolower(lowComName);
         if (m_commands.find(lowComName) != m_commands.end())
+        {
+            const SConsoleCommand& cmd = m_commands[lowComName];
+            if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean())
+            {
+                report(Level::Error, "This command can only be executed in developer mode", commandName.c_str());
+                return;
+            }
+
+            if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Cheat) && !com_enableCheats->toBoolean())
+            {
+                report(Level::Error, "This command can only be executed with cheats enabled", commandName.c_str());
+                return;
+            }
             m_commands[lowComName].m_func(this, args);
+        }
         else
             report(Level::Error, "Command '%s' is not valid!", commandName.c_str());
     }
@@ -266,8 +280,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         m_cursorPosition = -1;
         m_commandHistory.insert(m_commandHistory.begin(), m_commandString);
         m_commandString.clear();
-        //m_showCursor = true;
-        //m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
     case boo::ESpecialKey::Left:
@@ -280,8 +294,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         else
             m_cursorPosition--;
 
-        //m_showCursor = true;
-        //m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
     case boo::ESpecialKey::Right:
@@ -303,8 +317,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         else
             m_cursorPosition++;
 
-        //        m_showCursor = true;
-        //        m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
 

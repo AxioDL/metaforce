@@ -14,11 +14,19 @@ class CVarManager;
 class CVar;
 struct SConsoleCommand
 {
+    enum class ECommandFlags
+    {
+        Normal = 0,
+        Cheat = (1 << 0),
+        Developer = (1 << 1)
+    };
     std::string m_displayName;
     std::string m_helpString;
     std::string m_usage;
     std::function<void(class Console*, const std::vector<std::string>&)> m_func;
+    ECommandFlags m_flags;
 };
+ENABLE_BITWISE_ENUM(SConsoleCommand::ECommandFlags)
 
 class Console
 {
@@ -77,9 +85,11 @@ private:
     CVar* m_conHeight;
     float m_cachedConSpeed;
     float m_cachedConHeight;
+    bool m_showCursor = true;
+    float m_cursorTime = 0.f;
 public:
     Console(CVarManager*);
-    void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func);
+    void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string>&)>&& func, SConsoleCommand::ECommandFlags cmdFlags = SConsoleCommand::ECommandFlags::Normal);
     void unregisterCommand(std::string_view name);
 
     void executeString(const std::string& strToExec);

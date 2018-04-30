@@ -3,7 +3,9 @@
 #include <athena/FileWriter.hpp>
 #include <athena/Utility.hpp>
 #include <hecl/Runtime.hpp>
+#include <hecl/hecl.hpp>
 #include <memory>
+#include <regex>
 
 namespace hecl
 {
@@ -12,6 +14,7 @@ CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 
+static const std::regex cmdLineRegex("\\+(\\w+)=([\\w\\.\\-]+)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
@@ -269,11 +272,42 @@ bool CVarManager::restartRequired() const
     return false;
 }
 
+void CVarManager::parseCommandLine(const std::vector<SystemString>& args)
+{
+    bool oldDeveloper = suppressDeveloper();
+    std::string developerName = com_developer->name().data();
+    ToLower(developerName);
+    for (const SystemString& arg : args)
+    {
+        if (arg[0] == _S('+'))
+        {
+            std::string tmp = SystemUTF8Conv(arg).c_str();
+
+            std::smatch matches;
+            if (std::regex_match(tmp, matches, cmdLineRegex))
+            {
+                std::string cvarName = matches[1].str();
+                std::string cvarValue = matches[2].str();
+                if (CVar* cv = findCVar(cvarName))
+                {
+                    cv->fromLiteralToType(cvarValue);
+                    hecl::ToLower(cvarName);
+                    if (developerName == cvarName)
+                        /* Make sure we're not overriding developer mode when we restore */
+                        oldDeveloper = com_developer->toBoolean();
+                }
+            }
+        }
+    }
+
+    restoreDeveloper(oldDeveloper);
+}
+
 bool CVarManager::suppressDeveloper()
 {
     bool oldDeveloper = com_developer->toBoolean();
     CVarUnlocker unlock(com_developer);
-    com_developer->fromBoolean(false);
+    com_developer->fromBoolean(true);
 
     return oldDeveloper;
 }
