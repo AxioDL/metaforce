@@ -52,6 +52,7 @@ extern class CInGameTweakManagerBase* g_TweakManager;
 extern class CBooRenderer* g_Renderer;
 extern class CStringTable* g_MainStringTable;
 extern class CInputGenerator* g_InputGenerator;
+extern class CStateManager* g_StateManager;
 
 #if USE_DOWNCAST_TWEAKS
 using ITweakGame = DataSpec::DNAMP1::CTweakGame;

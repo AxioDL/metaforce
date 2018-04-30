@@ -118,6 +118,8 @@ struct Application : boo::IApplicationCallback
             }
         }
 
+        m_cvarManager.parseCommandLine(app->getArgs());
+
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
         Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);

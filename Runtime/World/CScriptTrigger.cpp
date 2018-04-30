@@ -218,7 +218,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                 if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None)
                 {
                     InhabitantAdded(*cam, mgr);
-                    //SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
+                    SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
                 }
             }
         }
@@ -226,12 +226,12 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
 
     if (sendInside)
     {
-        //SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
+        SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
     }
 
     if (sendExited)
     {
-        //SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
+        SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
         if (x148_27_deactivateOnExited)
         {
             mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()),
@@ -242,7 +242,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
 
 std::list<CScriptTrigger::CObjectTracker>& CScriptTrigger::GetInhabitants() { return xe8_inhabitants; }
 
-rstl::optional_object<zeus::CAABox> CScriptTrigger::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptTrigger::GetTouchBounds() const
 {
     if (x30_24_active)
         return {GetTriggerBoundsWR()};
@@ -319,7 +319,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr)
                 }
             }
 
-            //SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+            SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
 
             if (x148_26_deactivateOnEntered)
             {

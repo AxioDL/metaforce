@@ -29,7 +29,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
     void Render(const CStateManager&) const;
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
 };
 

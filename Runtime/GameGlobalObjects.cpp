@@ -18,6 +18,7 @@ class CInGameTweakManagerBase* g_TweakManager = nullptr;
 class CBooRenderer* g_Renderer = nullptr;
 class CStringTable* g_MainStringTable = nullptr;
 class CInputGenerator* g_InputGenerator = nullptr;
+class CStateManager* g_StateManager = nullptr;
 
 ITweakGame*   g_tweakGame = nullptr;
 ITweakPlayer* g_tweakPlayer = nullptr;

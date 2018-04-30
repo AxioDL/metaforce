@@ -17,7 +17,7 @@ public:
     struct SRayResult
     {
         zeus::CPlane x0_plane;
-        rstl::optional_object<CCollisionSurface> x10_surface;
+        std::experimental::optional<CCollisionSurface> x10_surface;
         float x3c_t;
     };
 

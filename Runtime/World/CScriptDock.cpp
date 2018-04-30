@@ -167,7 +167,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     }
 }
 
-rstl::optional_object<zeus::CAABox> CScriptDock::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptDock::GetTouchBounds() const
 {
     if (x264_dockState == EDockState::Three)
         return {};
@@ -196,7 +196,7 @@ void CScriptDock::SetDockReference(CStateManager& mgr, s32 ref)
     x268_24_dockReferenced = true;
 }
 
-s32 CScriptDock::GetDockReference(CStateManager& mgr) const
+s32 CScriptDock::GetDockReference(const CStateManager& mgr) const
 {
     return mgr.GetWorld()->GetAreaAlways(x260_area)->GetDock(x25c_dock)->GetReferenceCount();
 }

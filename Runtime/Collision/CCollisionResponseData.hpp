@@ -46,9 +46,9 @@ class CCollisionResponseData
 {
     static const EWeaponCollisionResponseTypes skWorldMaterialTable[32];
     static const s32 kInvalidSFX;
-    std::vector<rstl::optional_object<TLockedToken<CGenDescription>>> x0_generators;
+    std::vector<std::experimental::optional<TLockedToken<CGenDescription>>> x0_generators;
     std::vector<s32> x10_sfx;
-    std::vector<rstl::optional_object<TLockedToken<CDecalDescription>>> x20_decals;
+    std::vector<std::experimental::optional<TLockedToken<CDecalDescription>>> x20_decals;
     float x30_RNGE;
     float x34_FOFF;
 
@@ -59,8 +59,8 @@ class CCollisionResponseData
     bool CheckAndAddResourceToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool);
 public:
     CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
-    const rstl::optional_object<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes) const;
-    const rstl::optional_object<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
+    const std::experimental::optional<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes) const;
+    const std::experimental::optional<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
     s32 GetSoundEffectId(EWeaponCollisionResponseTypes) const;
     static EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);
     static bool ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes);

@@ -129,7 +129,7 @@ void CScriptVisorGoo::Render(const CStateManager& mgr) const
     // Empty
 }
 
-rstl::optional_object<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const
 {
     return {};
 }

@@ -91,7 +91,7 @@ private:
     CAssetId x1bc_;
     CAssetId x1c0_;
     CAssetId x1c4_;
-    rstl::optional_object<zeus::CAABox> x1c8_;
+    std::experimental::optional<zeus::CAABox> x1c8_;
     union
     {
         struct

@@ -122,7 +122,7 @@ public:
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                const CDamageInfo&) const;
-    virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    virtual std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     virtual void Touch(CActor&, CStateManager&);
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float) const;

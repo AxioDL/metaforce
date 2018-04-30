@@ -39,14 +39,14 @@ public:
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
     void CleanUp() {}
     zeus::CPlane GetPlane(const CStateManager&) const;
     TAreaId GetDestinationAreaId() const { return x260_area; }
     s32 GetDockId() const { return x25c_dock; }
     void SetDockReference(CStateManager& mgr, s32);
-    s32 GetDockReference(CStateManager& mgr) const;
+    s32 GetDockReference(const CStateManager& mgr) const;
     TAreaId GetCurrentConnectedAreaId(const CStateManager&) const;
     void UpdateAreaActivateFlags(CStateManager&);
     bool HasPointCrossedDock(const CStateManager&, const zeus::CVector3f&) const;

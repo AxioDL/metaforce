@@ -193,7 +193,7 @@ CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CV
     return CActor::GetCollisionResponseType(v1, v2, wMode, w);
 }
 
-rstl::optional_object<zeus::CAABox> CScriptActor::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const
 {
     if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid))
         return {CPhysicsActor::GetBoundingBox()};

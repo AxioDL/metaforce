@@ -501,6 +501,14 @@ CGameArea::~CGameArea()
         while (!Invalidate(nullptr)) {}
 }
 
+bool CGameArea::IsFinishedOccluding() const
+{
+    if (x12c_postConstructed->x10dc_occlusionState != EOcclusionState::Occluded)
+        return true;
+
+    return x12c_postConstructed->x1108_27_;
+}
+
 std::pair<std::unique_ptr<u8[]>, s32> CGameArea::IGetScriptingMemoryAlways() const
 {
     return GetScriptingMemoryAlways(*this);

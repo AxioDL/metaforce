@@ -1035,6 +1035,7 @@ void CElementGen::RenderModels()
         CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
         int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+        CParticleGlobals::g_particleAccessParameters = &x60_advValues[i];
         CVectorElement* pmop = desc->x6c_x58_PMOP.get();
         if (pmop)
             pmop->GetValue(partFrame, pmopVec);
@@ -1936,10 +1937,10 @@ bool CElementGen::IsSystemDeletable() const
     return false;
 }
 
-rstl::optional_object<zeus::CAABox> CElementGen::GetBounds() const
+std::experimental::optional<zeus::CAABox> CElementGen::GetBounds() const
 {
     if (GetParticleCountAll() == 0)
-        return {};
+        return std::experimental::nullopt;
     else
         return {x2f0_systemBounds};
 }

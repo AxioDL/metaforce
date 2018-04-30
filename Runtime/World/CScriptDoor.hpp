@@ -17,10 +17,12 @@ public:
         Ready,
     };
 
+    float x258_;
     float x25c_;
     EDoorAnimType x260_doorState = EDoorAnimType::Open;
     zeus::CAABox x264_;
-    TUniqueId x27c_partner = kInvalidUniqueId;
+    TUniqueId x27c_partner1 = kInvalidUniqueId;
+    TUniqueId x27e_partner2 = kInvalidUniqueId;
     TUniqueId x280_ = kInvalidUniqueId;
     TUniqueId x282_dockId = kInvalidUniqueId;
     zeus::CAABox x284_modelBounds;
@@ -67,7 +69,7 @@ public:
     void OpenDoor(TUniqueId, CStateManager&);
     u32 GetDoorOpenCondition(CStateManager& mgr);
     void SetDoorAnimation(EDoorAnimType);
-    rstl::optional_object<zeus::CAABox> GetProjectileBounds() const;
+    std::experimental::optional<zeus::CAABox> GetProjectileBounds() const;
 };
 
 }

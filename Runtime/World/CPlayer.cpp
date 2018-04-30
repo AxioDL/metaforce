@@ -1058,7 +1058,7 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const
     return false;
 }
 
-rstl::optional_object<zeus::CAABox> CPlayer::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CPlayer::GetTouchBounds() const
 {
     if (x2f8_morphBallState == EPlayerMorphBallState::Morphed)
     {

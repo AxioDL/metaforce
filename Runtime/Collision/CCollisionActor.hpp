@@ -49,7 +49,7 @@ public:
     zeus::CVector3f GetOrbitPosition(const CStateManager &) const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
     zeus::CTransform GetPrimitiveTransform() const;
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void SetDamageVulnerability(const CDamageVulnerability& vuln);
     const zeus::CVector3f& GetBoxSize() const { return x260_boxSize; }
     TUniqueId GetOwnerId() const { return x25c_owner; }

@@ -19,7 +19,7 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
                                      const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& damage,
                                      TUniqueId uid, TAreaId aid, TUniqueId owner, TUniqueId homingTarget,
                                      EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                                     const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                                     const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
                                      u16 visorSfx, bool sendCollideMsg)
 : CGameProjectile(active, desc, "GameProjectile", type, xf, excludeMat, damage, uid, aid,
                   owner, homingTarget, attribs, underwater, scale, visorParticle, visorSfx, sendCollideMsg),

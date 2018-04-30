@@ -179,7 +179,7 @@ CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* re
     }
 }
 
-const rstl::optional_object<TLockedToken<CGenDescription>>&
+const std::experimental::optional<TLockedToken<CGenDescription>>&
 CCollisionResponseData::GetParticleDescription(EWeaponCollisionResponseTypes type) const
 {
     if (x0_generators[u32(type)])
@@ -211,7 +211,7 @@ CCollisionResponseData::GetParticleDescription(EWeaponCollisionResponseTypes typ
     return x0_generators[u32(type)];
 }
 
-const rstl::optional_object<TLockedToken<CDecalDescription>>&
+const std::experimental::optional<TLockedToken<CDecalDescription>>&
 CCollisionResponseData::GetDecalDescription(EWeaponCollisionResponseTypes type) const
 {
     return x20_decals[u32(type)];

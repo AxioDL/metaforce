@@ -124,7 +124,7 @@ CCharacterFactory::CreateCharacter(int charIdx, bool loop,
         const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj
             ({FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
-    rstl::optional_object<TToken<CMorphableSkinnedModel>> iceModel;
+    std::experimental::optional<TToken<CMorphableSkinnedModel>> iceModel;
     if (charInfo.GetIceModelId().IsValid() &&
         charInfo.GetIceSkinRulesId().IsValid())
         iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj

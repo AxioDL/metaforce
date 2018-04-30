@@ -54,7 +54,8 @@
 #include "Audio/CMidiManager.hpp"
 #include "CDependencyGroup.hpp"
 #include "MP1OriginalIDs.hpp"
-
+#include "CStateManager.hpp"
+#include "World/CPlayer.hpp"
 #include <discord-rpc.h>
 
 namespace hecl
@@ -449,18 +450,6 @@ void CMain::EnsureWorldPakReady(CAssetId mlvl)
 
 void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
 {
-    if (!hecl::com_developer->toBoolean())
-    {
-        console->report(hecl::Console::Level::Info, "Cheats are only available in developer mode");
-        return;
-    }
-
-    if (!hecl::com_enableCheats->toBoolean())
-    {
-        console->report(hecl::Console::Level::Info, "Cheats are not enabled");
-        return;
-    }
-
     if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
         return;
 
@@ -499,6 +488,28 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
         else
             pState->DecrPickup(CPlayerState::EItemType::Missiles, zeus::clamp(0u, u32(abs(missiles)), pState->GetItemAmount(CPlayerState::EItemType::Missiles)));
     }
+}
+
+void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)
+{
+    if (!g_StateManager || args.size() < 3)
+        return;
+
+    zeus::CVector3f loc;
+    for (u32 i = 0; i < 3; ++i)
+        loc[i] = strtof(args[i].c_str(), nullptr);
+
+    zeus::CTransform xf = g_StateManager->Player()->GetTransform();
+    xf.origin = loc;
+
+    if (args.size() == 6)
+    {
+        zeus::CVector3f angle;
+        for (u32 i = 0; i < 3; ++i)
+            angle[i] = zeus::degToRad(strtof(args[i + 3].c_str(), nullptr));
+        xf.setRotation(zeus::CMatrix3f(zeus::CQuaternion(angle)));
+    }
+    g_StateManager->Player()->Teleport(xf, *g_StateManager, false);
 }
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
@@ -603,7 +614,8 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_cvarMgr = cvarMgr;
     m_console = std::make_unique<hecl::Console>(m_cvarMgr);
     m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
-    m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2));
+    m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
+    m_console->registerCommand("Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv, std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2), (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
 
 
     InitializeSubsystems(storeMgr);

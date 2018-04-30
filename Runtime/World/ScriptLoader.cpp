@@ -639,7 +639,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
     FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
-    rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
+    std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
     if (dclnType)
     {
         dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));
@@ -1000,7 +1000,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
     if (animType != SBIG('ANCS'))
         return nullptr;
 
-    rstl::optional_object<CStaticRes> abdomenRes;
+    std::experimental::optional<CStaticRes> abdomenRes;
     if (flavor == CPatterned::EFlavorType::One)
         abdomenRes.emplace(CStaticRes(abdomen, scale));
 

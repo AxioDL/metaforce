@@ -15,9 +15,6 @@ namespace rstl
 static logvisor::Module Log("rstl");
 #endif
 
-template <typename T>
-using optional_object = std::experimental::optional<T>;
-
 /**
  * @brief Base vector backed by statically-allocated array
  */

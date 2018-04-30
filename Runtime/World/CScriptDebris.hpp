@@ -40,7 +40,7 @@ public:
                   bool, bool, bool, bool);
 
     void Accept(IVisitor& visitor);
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
 
     void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
 };

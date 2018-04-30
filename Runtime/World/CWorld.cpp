@@ -741,4 +741,17 @@ void CWorld::AddGlobalSound(const CSfxHandle& hnd)
         return;
     xc8_globalSfxHandles.push_back(hnd);
 }
+
+bool CWorld::AreSkyNeedsMet() const
+{
+    if (!x70_26_skyboxActive)
+        return true;
+    if (xb4_skyboxOverride && xb4_skyboxOverride->IsLoaded(0))
+        return true;
+    if (xa4_skyboxWorldLoaded && xa4_skyboxWorldLoaded->IsLoaded(0))
+        return true;
+    if (x94_skyboxWorld && x94_skyboxWorld->IsLoaded(0))
+        return true;
+    return false;
+}
 }

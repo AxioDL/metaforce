@@ -1150,7 +1150,7 @@ bool CParticleSwoosh::IsSystemDeletable() const
     return true;
 }
 
-rstl::optional_object<zeus::CAABox> CParticleSwoosh::GetBounds() const
+std::experimental::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const
 {
     if (GetParticleCount() <= 1)
     {

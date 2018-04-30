@@ -31,7 +31,7 @@ public:
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void Touch(CActor&, CStateManager&);
     float GetUpPitch() const { return x124_upPitch; }
     float GetDownPitch() const { return x128_downPitch; }

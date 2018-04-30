@@ -30,7 +30,7 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
     void Render(const CStateManager&) const {}
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     bool GetInUse(TUniqueId uid) const;
 };
 }

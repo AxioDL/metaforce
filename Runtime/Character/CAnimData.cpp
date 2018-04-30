@@ -45,7 +45,7 @@ CAnimData::CAnimData(CAssetId id,
                      int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout,
                      const TToken<CSkinnedModel>& model,
-                     const rstl::optional_object<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const std::experimental::optional<TToken<CMorphableSkinnedModel>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx,
                      const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
@@ -651,7 +651,7 @@ void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const
 }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const rstl::optional_object<CVertexMorphEffect>& morphEffect,
+                       const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                        const float* morphMagnitudes)
 {
     SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
@@ -660,7 +660,7 @@ void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
 
 void CAnimData::SetupRender(CSkinnedModel& model,
                             const CModelFlags& drawFlags,
-                            const rstl::optional_object<CVertexMorphEffect>& morphEffect,
+                            const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                             const float* morphMagnitudes)
 {
     if (!x220_30_poseBuilt)
@@ -949,7 +949,7 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
                                  const CModelFlags& drawFlags,
-                                 const rstl::optional_object<CVertexMorphEffect>& morphEffect,
+                                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                                  const float* morphMagnitudes)
 {
     model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
