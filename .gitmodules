@@ -39,4 +39,4 @@
 	url = https://github.com/jackoalan/fixNES.git
 [submodule "Editor/locale"]
 	path = Editor/locale
-	url = ssh://gitlab@git.axiodl.com/AxioDL/urde-translations.git
+	url = ../urde-translations.git
