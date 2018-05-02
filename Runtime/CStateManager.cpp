@@ -360,7 +360,7 @@ TAreaId CStateManager::GetVisAreaId() const
                                                      CMaterialFilter::EFilterType::Include), nullptr);
     for (TUniqueId id : nearList)
         if (TCastToConstPtr<CScriptDock> dock = GetObjectById(id))
-            if (dock->GetDestinationAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
+            if (dock->GetAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
                 return dock->GetCurrentConnectedAreaId(*this);
 
     return curArea;

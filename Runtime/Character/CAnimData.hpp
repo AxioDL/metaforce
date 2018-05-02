@@ -114,13 +114,13 @@ private:
     std::shared_ptr<CTransitionManager> x1fc_transMgr;
 
     float x200_speedScale = 1.f;
-    u32 x204_charIdx;
+    s32 x204_charIdx;
     u16 x208_defaultAnim;
     u32 x20c_passedBoolCount = 0;
     u32 x210_passedIntCount = 0;
     u32 x214_passedParticleCount = 0;
     u32 x218_passedSoundCount = 0;
-    u32 x21c_particleLightIdx = 0;
+    s32 x21c_particleLightIdx = 0;
 
     union
     {
@@ -251,7 +251,7 @@ public:
     u32 GetPassedParticlePOICount() const { return x214_passedParticleCount; }
     u32 GetPassedSoundPOICount() const { return x218_passedSoundCount; }
 
-    u32 GetCharacterIndex() const { return x204_charIdx; }
+    s32 GetCharacterIndex() const { return x204_charIdx; }
 };
 
 }

@@ -422,7 +422,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
 
     CModelData data;
     if (animType == SBIG('ANCS'))
-        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
+        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), false);
     else
         data = CStaticRes(staticId, head.x40_scale);
 
@@ -483,7 +483,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
         return nullptr;
 
     CModelData mData =
-        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), false);
     if (collisionExtent.isZero())
         aabb = mData.GetBounds(head.x10_transform.getRotation());
 
@@ -648,7 +648,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
 
     CModelData data;
     if (animType == SBIG('ANCS'))
-        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+        data = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
     else
         data = CStaticRes(staticId, head.x40_scale);
 
@@ -681,7 +681,7 @@ CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propC
     bool acoustics = in.readBool();
     bool worldSfx = in.readBool();
     bool allowDuplicates = in.readBool();
-    u32 pitch = in.readUint32Big();
+    s32 pitch = in.readInt32Big();
 
     if (soundId < 0)
         return nullptr;
@@ -804,7 +804,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
     if (animType != SBIG('ANCS'))
         return nullptr;
 
-    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, true, aParms.GetInitialAnimation());
+    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
 
     return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
                                   f1, w1, dInfo, w2, w3, w4, w5);
@@ -1335,7 +1335,7 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
     if (animType != SBIG('ANCS'))
         return nullptr;
 
-    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, true, aParms.GetInitialAnimation());
+    CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, aParms.GetInitialAnimation(), true);
     CModelData mData(res);
     return new MP1::CWarWasp(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, flavor, collider,
                              damageInfo1, actorParms, weaponDesc, damageInfo2, particle, w1);
@@ -1592,7 +1592,7 @@ CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    if (!EnsurePropertyCount(propCount, 6, "Parasite"))
+    if (!EnsurePropertyCount(propCount, 25, "Parasite"))
         return nullptr;
 
     std::string name = mgr.HashInstanceName(in);
@@ -1629,7 +1629,7 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
         return nullptr;
     const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
     CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
-    return nullptr; //return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, )
+    return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo /*TODO: Finish */);
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

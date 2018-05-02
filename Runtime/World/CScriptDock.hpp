@@ -43,7 +43,7 @@ public:
     void Touch(CActor&, CStateManager&);
     void CleanUp() {}
     zeus::CPlane GetPlane(const CStateManager&) const;
-    TAreaId GetDestinationAreaId() const { return x260_area; }
+    TAreaId GetAreaId() const { return x260_area; }
     s32 GetDockId() const { return x25c_dock; }
     void SetDockReference(CStateManager& mgr, s32);
     s32 GetDockReference(const CStateManager& mgr) const;

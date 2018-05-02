@@ -495,6 +495,8 @@ void CBooModel::DisableAllLights()
 
 void CBooModel::RemapMaterialData(SShader& shader)
 {
+    if (!shader.m_geomLayout)
+        return;
     x4_matSet = &shader.m_matSet;
     m_geomLayout = &*shader.m_geomLayout;
     m_matSetIdx = shader.m_matSetIdx;
@@ -507,6 +509,8 @@ void CBooModel::RemapMaterialData(SShader& shader)
 void CBooModel::RemapMaterialData(SShader& shader,
     const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
 {
+    if (!shader.m_geomLayout)
+        return;
     x4_matSet = &shader.m_matSet;
     m_geomLayout = &*shader.m_geomLayout;
     m_matSetIdx = shader.m_matSetIdx;

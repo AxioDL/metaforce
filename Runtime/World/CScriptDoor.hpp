@@ -11,14 +11,13 @@ class CScriptDoor : public CPhysicsActor
 public:
     enum class EDoorAnimType
     {
-        None = -1,
         Open,
         Close,
         Ready,
     };
 
-    float x258_;
-    float x25c_;
+    float x258_animLen;
+    float x25c_animTime;
     EDoorAnimType x260_doorState = EDoorAnimType::Open;
     zeus::CAABox x264_;
     TUniqueId x27c_partner1 = kInvalidUniqueId;
@@ -26,32 +25,15 @@ public:
     TUniqueId x280_ = kInvalidUniqueId;
     TUniqueId x282_dockId = kInvalidUniqueId;
     zeus::CAABox x284_modelBounds;
-
     zeus::CVector3f x29c_;
-    union
-    {
-        struct
-        {
-            bool x2a0_25_ : 1;
-            bool x2a0_26_ : 1;
-        };
-        u32 dummy1 = 0;
-    };
 
-    union
-    {
-        struct
-        {
-            bool x2a8_24_ : 1;
-            bool x2a8_25_ : 1;
-            bool x2a8_26_useConservativeCameraDistance : 1;
-            bool x2a8_27_ : 1;
-            bool x2a8_28_ : 1;
-            bool x2a8_29_ballDoor : 1;
-            bool x2a8_30_ : 1;
-        };
-        u32 dummy2 = 0;
-    };
+    bool x2a8_24_ : 1;
+    bool x2a8_25_ : 1;
+    bool x2a8_26_isOpen : 1;
+    bool x2a8_27_ : 1;
+    bool x2a8_28_ : 1;
+    bool x2a8_29_ballDoor : 1;
+    bool x2a8_30_ : 1;
 public:
     CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info,
                 const zeus::CTransform&, CModelData&&, const CActorParameters&,
@@ -62,14 +44,15 @@ public:
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
     void Think(float, CStateManager& mgr);
-    void AddToRenderer(const zeus::CFrustum&, CStateManager& mgr);
-    void Render(const CStateManager&) {}
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const;
+    void Render(const CStateManager&) const {}
     void ForceClosed(CStateManager&);
     bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
     void OpenDoor(TUniqueId, CStateManager&);
     u32 GetDoorOpenCondition(CStateManager& mgr);
     void SetDoorAnimation(EDoorAnimType);
     std::experimental::optional<zeus::CAABox> GetProjectileBounds() const;
+    bool IsOpen() const { return x2a8_26_isOpen; }
 };
 
 }

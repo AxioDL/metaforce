@@ -30,11 +30,11 @@ protected:
     u32 x24_index;
     bool x28_;
     float x2c_weight;
-    u32 x30_charIdx = -1;
-    u32 x34_flags;
+    s32 x30_charIdx = -1;
+    s32 x34_flags;
 public:
     CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time,
-             u32 index, bool, float weight, u32 charIdx, u32 flags);
+             u32 index, bool, float weight, s32 charIdx, s32 flags);
     CPOINode(CInputStream& in);
     virtual ~CPOINode() = default;
 
@@ -44,8 +44,8 @@ public:
     EPOIType GetPoiType() const { return x18_type; }
     u32 GetIndex() const {return x24_index;}
     float GetWeight() const { return x2c_weight; }
-    u32 GetCharacterIndex() const { return x30_charIdx; }
-    u32 GetFlags() const { return x34_flags; }
+    s32 GetCharacterIndex() const { return x30_charIdx; }
+    s32 GetFlags() const { return x34_flags; }
 
     bool operator>(const CPOINode& other) const;
     bool operator<(const CPOINode& other) const;

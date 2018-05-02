@@ -39,7 +39,7 @@ private:
     CAssetId xa8_cmdlOverlay = 0;
     CAssetId xac_cskrOverlay = 0;
 
-    std::vector<u32> xb0_animIdxs;
+    std::vector<s32> xb0_animIdxs;
 
 public:
     CCharacterInfo(CInputStream& in);
@@ -59,7 +59,7 @@ public:
     CAssetId GetIceSkinRulesId() const { return xac_cskrOverlay; }
 
     const CParticleResData& GetParticleResData() const { return x44_partRes; }
-    u32 GetAnimationIndex(u32 idx) const { return xb0_animIdxs.at(idx); }
+    s32 GetAnimationIndex(s32 idx) const { return xb0_animIdxs.at(idx); }
     const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
 };
 }

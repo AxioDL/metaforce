@@ -91,4 +91,10 @@ void CStateMachineState::Setup(const CStateMachine* machine)
 }
 
 std::string CStateMachineState::GetName() const { return {}; }
+
+CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms, CObjectReference *)
+{
+    return TToken<CStateMachine>::GetIObjObjectFor(std::make_unique<CStateMachine>(in));
+}
+
 }

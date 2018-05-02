@@ -79,7 +79,7 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
             std::vector<CEffectComponent>& comps = x98_effects.back().second;
             u32 compCount = in.readUint32Big();
             comps.reserve(compCount);
-            for (u32 j=0 ; j<compCount ; ++i)
+            for (u32 j=0 ; j<compCount ; ++j)
                 comps.emplace_back(in);
         }
     }
@@ -95,7 +95,7 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
         u32 aidxCount = in.readUint32Big();
         xb0_animIdxs.reserve(aidxCount);
         for (u32 i=0 ; i<aidxCount ; ++i)
-            xb0_animIdxs.push_back(in.readUint32Big());
+            xb0_animIdxs.push_back(in.readInt32Big());
     }
 }
 

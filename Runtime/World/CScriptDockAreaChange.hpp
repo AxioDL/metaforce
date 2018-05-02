@@ -11,6 +11,7 @@ class CScriptDockAreaChange : public CEntity
 public:
     CScriptDockAreaChange(TUniqueId, std::string_view, const CEntityInfo&, s32, bool);
 
+    void Think(float dt, CStateManager& mgr) { x30_24_active = true; CEntity::Think(dt, mgr); }
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };

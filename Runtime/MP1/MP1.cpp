@@ -48,6 +48,7 @@
 #include "AutoMapper/CMapWorld.hpp"
 #include "AutoMapper/CMapArea.hpp"
 #include "AutoMapper/CMapUniverse.hpp"
+#include "World/CStateMachine.hpp"
 #include "CScannableObjectInfo.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Audio/CSfxManager.hpp"
@@ -361,6 +362,7 @@ void CGameGlobalObjects::AddPaksAndFactories()
         fmgr->AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
         fmgr->AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
         fmgr->AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
+        fmgr->AddFactory(FOURCC('AFSM'), FFactoryFunc(FAiFiniteStateMachineFactory));
     }
 }
 

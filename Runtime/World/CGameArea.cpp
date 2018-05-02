@@ -450,7 +450,7 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
     u32 dockCount = in.readUint32Big();
     xcc_docks.reserve(dockCount);
     for (u32 i=0 ; i<dockCount ; ++i)
-        xcc_docks.emplace_back(in, xc_transform);
+        xcc_docks.push_back({in, xc_transform});
 
     ClearTokenList();
 
