@@ -276,7 +276,7 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args)
 {
     bool oldDeveloper = suppressDeveloper();
     std::string developerName = com_developer->name().data();
-    ToLower(developerName);
+    athena::utility::tolower(developerName);
     for (const SystemString& arg : args)
     {
         if (arg[0] == _S('+'))
@@ -291,7 +291,7 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args)
                 if (CVar* cv = findCVar(cvarName))
                 {
                     cv->fromLiteralToType(cvarValue);
-                    hecl::ToLower(cvarName);
+                    athena::utility::tolower(cvarName);
                     if (developerName == cvarName)
                         /* Make sure we're not overriding developer mode when we restore */
                         oldDeveloper = com_developer->toBoolean();

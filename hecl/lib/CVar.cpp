@@ -127,7 +127,7 @@ CVar::CVar(std::string_view name, int value, std::string_view help, CVar::EFlags
 std::string CVar::help() const
 {
     return std::string(m_help + (m_defaultValue != std::string() ? "\ndefault: " + m_defaultValue : "") +
-                       (isReadOnly() ? "[ReadOnly]" : ""));
+                       (isReadOnly() ? " [ReadOnly]" : ""));
 }
 
 atVec4f CVar::toVec4f(bool* isValid) const

@@ -124,7 +124,12 @@ void Console::report(Level level, const char* fmt, va_list list)
 {
     char tmp[2048];
     vsnprintf(tmp, 2048, fmt, list);
-    m_log.emplace_back(std::string(tmp), level);
+    std::vector<std::string> lines = athena::utility::split(tmp, '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("%s", line.c_str());
+        m_log.emplace_back(v, level);
+    }
     printf("%s\n", tmp);
 }
 
@@ -372,16 +377,24 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
 {
     char tmp[2048];
     vsnprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s", modName, tmp);
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(tmp, '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const wchar_t* format, va_list ap)
 {
     wchar_t tmp[2048];
     vswprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s", modName, athena::utility::wideToUtf8(tmp).c_str());
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum, const char* format, va_list ap)
@@ -396,8 +409,12 @@ void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level
 {
     wchar_t tmp[2048];
     vswprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, athena::utility::wideToUtf8(tmp).c_str(), file, linenum);
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, line.c_str(), file, linenum);
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::dumpLog()
