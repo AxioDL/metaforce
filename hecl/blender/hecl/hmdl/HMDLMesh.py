@@ -1,6 +1,20 @@
 import bpy, bmesh, operator, struct
 from mathutils import Vector
 
+# Function to quantize normals to 15-bit precision
+def quant_norm(n):
+    nf = n.copy()
+    for i in range(3):
+        nf[i] = int(nf[i] * 16384) / 16384.0
+    return nf.freeze()
+
+# Function to quantize lightmap UVs to 15-bit precision
+def quant_luv(n):
+    uf = n.copy()
+    for i in range(2):
+        uf[i] = int(uf[i] * 32768) / 32768.0
+    return uf.freeze()
+
 # Class for building unique sets of vertex attributes for VBO generation
 class VertPool:
 
@@ -45,7 +59,7 @@ class VertPool:
             if pf not in self.pos:
                 self.pos[pf] = len(self.pos)
             if not rna_loops:
-                nf = v.normal.copy().freeze()
+                nf = quant_norm(v.normal)
                 if nf not in self.norm:
                     self.norm[nf] = len(self.norm)
             if dlay:
@@ -59,7 +73,7 @@ class VertPool:
                 material_slots[f.material_index].material['retro_lightmapped']
             for l in f.loops:
                 if rna_loops:
-                    nf = rna_loops[l.index].normal.copy().freeze()
+                    nf = quant_norm(rna_loops[l.index].normal)
                     if nf not in self.norm:
                         self.norm[nf] = len(self.norm)
                 for cl in range(len(clays)):
@@ -69,7 +83,7 @@ class VertPool:
                 start_uvlay = 0
                 if use_luv and lightmapped:
                     start_uvlay = 1
-                    uf = l[luvlay].uv.copy().freeze()
+                    uf = quant_luv(l[luvlay].uv)
                     if uf not in self.luv:
                         self.luv[uf] = len(self.luv)
                 for ul in range(start_uvlay, len(ulays)):
@@ -128,9 +142,9 @@ class VertPool:
 
     def get_norm_idx(self, loop):
         if self.rna_loops:
-            nf = self.rna_loops[loop.index].normal.copy().freeze()
+            nf = quant_norm(self.rna_loops[loop.index].normal)
         else:
-            nf = loop.vert.normal.copy().freeze()
+            nf = quant_norm(loop.vert.normal)
         return self.norm[nf]
 
     def get_skin_idx(self, vert):
@@ -146,7 +160,7 @@ class VertPool:
     def get_uv_idx(self, loop, uidx):
         if self.luvlay is not None and uidx == 0:
             if self.material_slots[loop.face.material_index].material['retro_lightmapped']:
-                uf = loop[self.luvlay].uv.copy().freeze()
+                uf = quant_luv(loop[self.luvlay].uv)
                 return self.luv[uf]
         uf = loop[self.ulays[uidx]].uv.copy().freeze()
         return self.uv[uf]
@@ -309,36 +323,26 @@ def write_out_surface(writebuf, output_mode, vert_pool, island_faces, mat_idx):
 
     elif output_mode == 'TRISTRIPS':
         prev_loop_emit = None
-        out_count = 0
         while len(island_faces):
             sel_lists_local = []
-            restore_out_count = out_count
             for start_face in island_faces:
                 for l in start_face.loops:
-                    out_count = restore_out_count
                     island_local = list(island_faces)
-                    if out_count & 1:
-                        prev_loop = l.link_loop_prev
-                        loop = prev_loop.link_loop_prev
-                        sel_list = [l, prev_loop, loop]
-                        prev_loop = loop
-                    else:
-                        prev_loop = l.link_loop_next
-                        loop = prev_loop.link_loop_next
-                        sel_list = [l, prev_loop, loop]
-                    out_count += 3
+                    prev_loop = l.link_loop_next
+                    loop = prev_loop.link_loop_next
+                    sel_list = [l, prev_loop, loop]
                     island_local.remove(start_face)
                     while True:
                         if not prev_loop.edge.is_contiguous or prev_loop.edge.tag:
                             break
-                        loop, prev_loop = strip_next_loop(prev_loop, out_count)
+                        loop, prev_loop = strip_next_loop(prev_loop, len(sel_list))
                         face = loop.face
                         if face not in island_local:
                             break
                         sel_list.append(loop)
                         island_local.remove(face)
-                        out_count += 1
-                    sel_lists_local.append((sel_list, island_local, out_count))
+                    sel_lists_local.append((sel_list, island_local))
+
             max_count = 0
             max_sl = None
             max_island_faces = None
@@ -347,7 +351,6 @@ def write_out_surface(writebuf, output_mode, vert_pool, island_faces, mat_idx):
                     max_count = len(sl[0])
                     max_sl = sl[0]
                     max_island_faces = sl[1]
-                    out_count = sl[2]
             island_faces = max_island_faces
             if prev_loop_emit:
                 vert_pool.null_loop_out(writebuf)
