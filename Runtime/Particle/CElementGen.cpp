@@ -435,7 +435,7 @@ void CElementGen::UpdateExistingParticles()
 
     x25c_activeParticleCount = 0;
     CParticleGlobals::SetEmitterTime(x74_curFrame);
-    CParticleGlobals::g_particleAccessParameters = nullptr;
+    CParticleGlobals::g_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
 
     for (auto it = x30_particles.begin(); it != x30_particles.end();)
     {
@@ -1035,6 +1035,7 @@ void CElementGen::RenderModels()
         CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
         int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+        CParticleGlobals::g_particleAccessParameters = &x60_advValues[i];
         CVectorElement* pmop = desc->x6c_x58_PMOP.get();
         if (pmop)
             pmop->GetValue(partFrame, pmopVec);
@@ -1276,7 +1277,7 @@ void CElementGen::RenderLines()
             m_lineRenderer->AddVertex(p1, particle.x34_color, constWidth, {uvs.xMin, uvs.yMin});
             m_lineRenderer->AddVertex(p2, particle.x34_color, constWidth, {uvs.xMax, uvs.yMax});
         }
-        else
+        else if (widt)
         {
             float width = 1.f;
             widt->GetValue(0, width);
@@ -1936,10 +1937,10 @@ bool CElementGen::IsSystemDeletable() const
     return false;
 }
 
-rstl::optional_object<zeus::CAABox> CElementGen::GetBounds() const
+std::experimental::optional<zeus::CAABox> CElementGen::GetBounds() const
 {
     if (GetParticleCountAll() == 0)
-        return {};
+        return std::experimental::nullopt;
     else
         return {x2f0_systemBounds};
 }

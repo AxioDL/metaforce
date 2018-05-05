@@ -50,7 +50,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
     }
 }
 
-rstl::optional_object<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_; }
+std::experimental::optional<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_; }
 
 bool CScriptAiJumpPoint::GetInUse(TUniqueId uid) const
 {

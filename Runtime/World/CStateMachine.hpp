@@ -1,8 +1,11 @@
 #ifndef CSTATEMACHINE_HPP
 #define CSTATEMACHINE_HPP
 
-#include "RetroTypes.hpp"
 #include "CAiFuncMap.hpp"
+#include "IObj.hpp"
+#include "CToken.hpp"
+#include "IOStreams.hpp"
+#include "IObjFactory.hpp"
 
 namespace urde
 {
@@ -108,6 +111,9 @@ public:
     void GetRandom() const;
     float GetDelay() const;
 };
+
+CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
+                                   CObjectReference*);
 
 }
 

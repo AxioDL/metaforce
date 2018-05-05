@@ -228,7 +228,7 @@ public:
     const zeus::CColor& GetModulationColor() const;
     float GetGeneratorRate() const { return x98_generatorRate; }
     bool IsSystemDeletable() const;
-    rstl::optional_object<zeus::CAABox> GetBounds() const;
+    std::experimental::optional<zeus::CAABox> GetBounds() const;
     u32 GetParticleCount() const;
     bool SystemHasLight() const;
     CLight GetLight() const;

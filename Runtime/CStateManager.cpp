@@ -49,6 +49,7 @@
 #include "World/CScriptDoor.hpp"
 #include "Input/ControlMapper.hpp"
 #include "MP1/MP1.hpp"
+#include "GameGlobalObjects.hpp"
 
 #include <cmath>
 
@@ -209,6 +210,12 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     CGameCollision::InitCollision();
     ControlMapper::ResetCommandFilters();
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
+    g_StateManager = this;
+}
+
+CStateManager::~CStateManager()
+{
+    g_StateManager = nullptr;
 }
 
 void CStateManager::UpdateThermalVisor()
@@ -353,7 +360,7 @@ TAreaId CStateManager::GetVisAreaId() const
                                                      CMaterialFilter::EFilterType::Include), nullptr);
     for (TUniqueId id : nearList)
         if (TCastToConstPtr<CScriptDock> dock = GetObjectById(id))
-            if (dock->GetDestinationAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
+            if (dock->GetAreaId() == curArea && dock->HasPointCrossedDock(*this, camTranslation))
                 return dock->GetCurrentConnectedAreaId(*this);
 
     return curArea;
@@ -1460,7 +1467,7 @@ void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& p
     zeus::CVector3f delta = a2.GetTranslation() - pos;
     if (delta.magSquared() >= info.GetRadius() * info.GetRadius())
     {
-        rstl::optional_object<zeus::CAABox> bounds = a2.GetTouchBounds();
+        std::experimental::optional<zeus::CAABox> bounds = a2.GetTouchBounds();
         if (!bounds)
             return;
         if (CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))
@@ -1518,7 +1525,7 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
                                        EMaterialTypes::Character);
     static const CMaterialFilter filter(incList, exList, CMaterialFilter::EFilterType::IncludeExclude);
 
-    rstl::optional_object<zeus::CAABox> bounds = damagee.GetTouchBounds();
+    std::experimental::optional<zeus::CAABox> bounds = damagee.GetTouchBounds();
     if (!bounds)
         return false;
 
@@ -2098,7 +2105,7 @@ void CStateManager::CrossTouchActors()
         CActor& actor = static_cast<CActor&>(*ent);
         if (!actor.GetActive() || !actor.GetCallTouch())
             continue;
-        rstl::optional_object<zeus::CAABox> touchAABB = actor.GetTouchBounds();
+        std::experimental::optional<zeus::CAABox> touchAABB = actor.GetTouchBounds();
         if (!touchAABB)
             continue;
 
@@ -2115,7 +2122,7 @@ void CStateManager::CrossTouchActors()
             if (!ent2)
                 continue;
 
-            rstl::optional_object<zeus::CAABox> touchAABB2 = ent2->GetTouchBounds();
+            std::experimental::optional<zeus::CAABox> touchAABB2 = ent2->GetTouchBounds();
             if (!ent2->GetActive() || !touchAABB2)
                 continue;
 
@@ -2465,7 +2472,7 @@ void CStateManager::UpdateSortedLists()
 
 std::experimental::optional<zeus::CAABox> CStateManager::CalculateObjectBounds(const CActor& actor)
 {
-    rstl::optional_object<zeus::CAABox> bounds = actor.GetTouchBounds();
+    std::experimental::optional<zeus::CAABox> bounds = actor.GetTouchBounds();
     if (bounds)
     {
         zeus::CAABox aabb;

@@ -551,7 +551,7 @@ zeus::CVector3f CBallCamera::ConstrainYawAngle(const CPlayer& player, float dist
     {
         lookDir = player.GetMoveDir();
         TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(x3dc_tooCloseActorId);
-        if ((!door || !door->x2a8_26_useConservativeCameraDistance) &&
+        if ((!door || !door->x2a8_26_isOpen) &&
             (x400_state == EBallCameraState::Boost || x400_state == EBallCameraState::Chase))
             lookDir = player.GetLeaveMorphDir();
     }
@@ -1294,7 +1294,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
 
         if (TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(x3dc_tooCloseActorId))
         {
-            if (!door->x2a8_26_useConservativeCameraDistance)
+            if (!door->x2a8_26_isOpen)
             {
                 if (x400_state == EBallCameraState::Boost)
                 {
@@ -1454,7 +1454,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
         finalPos = ClampElevationToWater(finalPos, mgr);
         if (ballToCam2.magnitude() < 2.f && x3dc_tooCloseActorId != kInvalidUniqueId && x3e0_tooCloseActorDist < 5.f)
             if (TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(x3dc_tooCloseActorId))
-                if (!door->x2a8_26_useConservativeCameraDistance)
+                if (!door->x2a8_26_isOpen)
                     finalPos = GetTranslation();
 
         float backupZ = finalPos.z;
@@ -1770,7 +1770,7 @@ bool CBallCamera::IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr)
 {
     TCastToConstPtr<CScriptDoor> door =
         mgr.GetObjectById(mgr.GetCameraManager()->GetBallCamera()->x3dc_tooCloseActorId);
-    if (!door || door->x2a8_26_useConservativeCameraDistance)
+    if (!door || door->x2a8_26_isOpen)
         return false;
 
     auto tb = door->GetTouchBounds();
@@ -1820,14 +1820,14 @@ bool CBallCamera::ConstrainElevationAndDistance(float& elevation, float& distanc
             stretchFac = zeus::clamp(-1.f, std::fabs(x3e0_tooCloseActorDist / (3.f * distance)), 1.f);
             if (x3e0_tooCloseActorDist < 3.f * distance)
                 doorClose = true;
-            if (door->x2a8_26_useConservativeCameraDistance)
+            if (door->x2a8_26_isOpen)
                 newDistance = stretchFac * (distance - x468_conservativeDoorCamDistance) +
                     x468_conservativeDoorCamDistance;
             else
                 newDistance = stretchFac * (distance - 5.f) + 5.f;
             if (x18d_28_obtuseDirection)
                 newDistance *= 1.f + x308_speedFactor;
-            baseElevation = door->x2a8_26_useConservativeCameraDistance ? 0.75f : 1.5f;
+            baseElevation = door->x2a8_26_isOpen ? 0.75f : 1.5f;
             springSpeed = 4.f;
         }
     }

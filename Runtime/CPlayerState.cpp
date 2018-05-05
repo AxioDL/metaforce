@@ -14,7 +14,7 @@ const u32 CPlayerState::PowerUpMaxValues[41] =
     1, 1, 1, 14,  1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
-const char* PowerUpNames[41]=
+const char* CPlayerState::PowerUpNames[41]=
 {
     "Power Beam",
     "Ice Beam",
@@ -69,9 +69,14 @@ CPlayerState::CPlayerState()
 CPlayerState::CPlayerState(CBitStreamReader& stream)
 : x188_staticIntf(5)
 {
-    x4_enabledItems = stream.ReadEncoded(0x20);
-    u32 tmp = stream.ReadEncoded(0x20);
-    xc_health.SetHP(*reinterpret_cast<float*>(&tmp));
+    x4_enabledItems = u32(stream.ReadEncoded(0x20u));
+    union
+    {
+        float fHP;
+        u32 iHP;
+    } hp;
+    hp.iHP = u32(stream.ReadEncoded(0x20u));
+    xc_health.SetHP(hp.fHP);
     x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
     x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
     x24_powerups.resize(41);
@@ -80,8 +85,8 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
         if (PowerUpMaxValues[i] == 0)
             continue;
 
-        u32 a = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
-        u32 b = stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i]));
+        u32 a = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
+        u32 b = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
         x24_powerups[i] = CPowerUp(a, b);
     }
 
@@ -93,15 +98,20 @@ CPlayerState::CPlayerState(CBitStreamReader& stream)
         x170_scanTimes.emplace_back(state.first, time);
     }
 
-    x180_scanCompletionRate.first = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
-    x180_scanCompletionRate.second = stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100));
+    x180_scanCompletionRate.first = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100u)));
+    x180_scanCompletionRate.second = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(0x100u)));
 }
 
 void CPlayerState::PutTo(CBitStreamWriter& stream)
 {
     stream.WriteEncoded(x4_enabledItems, 32);
-    float hp = xc_health.GetHP();
-    stream.WriteEncoded(*reinterpret_cast<u32*>(&hp), 32);
+    union
+    {
+        float fHP;
+        u32 iHP;
+    } hp;
+    hp.fHP = xc_health.GetHP();
+    stream.WriteEncoded(hp.iHP, 32);
     stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
     stream.WriteEncoded(u32(x20_currentSuit), CBitStreamWriter::GetBitCount(4));
     for (u32 i = 0; i < x24_powerups.size(); ++i)
@@ -262,8 +272,8 @@ void CPlayerState::UpdateVisorTransition(float dt)
     if (x14_currentVisor == x18_transitioningVisor)
     {
         x1c_visorTransitionFactor += dt;
-        if (x1c_visorTransitionFactor > 0.2)
-            x1c_visorTransitionFactor = 0.2;
+        if (x1c_visorTransitionFactor > 0.2f)
+            x1c_visorTransitionFactor = 0.2f;
     }
     else
     {
@@ -338,7 +348,7 @@ u32 CPlayerState::GetItemAmount(CPlayerState::EItemType type) const
     return 0;
 }
 
-void CPlayerState::DecrPickup(CPlayerState::EItemType type, s32 amount)
+void CPlayerState::DecrPickup(CPlayerState::EItemType type, u32 amount)
 {
     if (type >= EItemType::Max)
         return;
@@ -347,12 +357,9 @@ void CPlayerState::DecrPickup(CPlayerState::EItemType type, s32 amount)
         x24_powerups[u32(type)].x0_amount -= amount;
 }
 
-void CPlayerState::IncrPickup(EItemType type, s32 amount)
+void CPlayerState::IncrPickup(EItemType type, u32 amount)
 {
     if (type >= EItemType::Max)
-        return;
-
-    if (amount < 0)
         return;
 
     switch(type)
@@ -376,31 +383,29 @@ void CPlayerState::IncrPickup(EItemType type, s32 amount)
     case EItemType::Newborn:
     {
         CPowerUp& pup = x24_powerups[u32(type)];
-        pup.x0_amount = std::min(pup.x0_amount + amount, pup.x4_capacity);
+        pup.x0_amount = std::min(pup.x0_amount + u32(amount), pup.x4_capacity);
 
         if (type == EItemType::EnergyTanks)
             IncrPickup(EItemType::HealthRefill, 9999);
         break;
     }
     case EItemType::HealthRefill:
-    {
-        float health = CalculateHealth(amount);
-        xc_health.SetHP(std::min(health, xc_health.GetHP() + amount));
-    }
+        xc_health.SetHP(std::min(amount + xc_health.GetHP(), CalculateHealth()));
+        [[fallthrough]];
     default:
         break;
     }
 }
 
-void CPlayerState::ResetAndIncrPickUp(CPlayerState::EItemType type, s32 amount)
+void CPlayerState::ResetAndIncrPickUp(CPlayerState::EItemType type, u32 amount)
 {
     x24_powerups[u32(type)].x0_amount = 0;
     IncrPickup(type, amount);
 }
 
-float CPlayerState::CalculateHealth(u32 health)
+float CPlayerState::CalculateHealth()
 {
-    return (GetBaseHealthCapacity() + (health * GetEnergyTankCapacity()));
+    return (GetEnergyTankCapacity() * x24_powerups[u32(EItemType::EnergyTanks)].x0_amount) + GetBaseHealthCapacity();
 }
 
 void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
@@ -408,8 +413,8 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
     if (type >= EItemType::Max)
         return;
 
-    CPowerUp& pup = x24_powerups[(u32)type];
-    pup.x4_capacity = zeus::clamp(u32(0), pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
+    CPowerUp& pup = x24_powerups[u32(type)];
+    pup.x4_capacity = zeus::clamp(0u, pup.x4_capacity + capacity, PowerUpMaxValues[u32(type)]);
     pup.x0_amount = std::min(pup.x0_amount, pup.x4_capacity);
     if (type >= EItemType::PowerSuit && type <= EItemType::PhazonSuit)
     {

@@ -18,9 +18,9 @@ class CWeaponDescription;
 class CProjectileTouchResult
 {
     TUniqueId x0_id;
-    rstl::optional_object<CRayCastResult> x4_result;
+    std::experimental::optional<CRayCastResult> x4_result;
 public:
-    CProjectileTouchResult(TUniqueId id, const rstl::optional_object<CRayCastResult>& result)
+    CProjectileTouchResult(TUniqueId id, const std::experimental::optional<CRayCastResult>& result)
     : x0_id(id), x4_result(result) {}
     TUniqueId GetActorId() const { return x0_id; }
     bool HasRayCastResult() const { return x4_result.operator bool(); }
@@ -30,7 +30,7 @@ public:
 class CGameProjectile : public CWeapon
 {
 protected:
-    rstl::optional_object<TLockedToken<CGenDescription>> x158_visorParticle;
+    std::experimental::optional<TLockedToken<CGenDescription>> x158_visorParticle;
     u16 x168_visorSfx;
     CProjectileWeapon x170_projectile;
     zeus::CVector3f x298_lastOrigin;
@@ -62,7 +62,7 @@ public:
                     EWeaponType wType, const zeus::CTransform& xf, EMaterialTypes excludeMat,
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                    const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                    const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
                     u16 visorSfx, bool sendCollideMsg);
 
     virtual void Accept(IVisitor &visitor);

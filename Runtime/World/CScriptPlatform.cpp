@@ -20,7 +20,7 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEn
                                  const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                                  const zeus::CAABox& aabb, float f1, bool, float f2, bool active,
                                  const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-                                 const rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
+                                 const std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
                                  bool, u32, u32)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakePlatformMaterialList(), aabb, SMoverData(15000.f),
                 actParms, 0.3f, 0.1f)
@@ -38,7 +38,7 @@ CScriptPlatform::CScriptPlatform(TUniqueId uid, std::string_view name, const CEn
 
 void CScriptPlatform::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-rstl::optional_object<zeus::CAABox> CScriptPlatform::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptPlatform::GetTouchBounds() const
 {
     if (x314_treeGroup)
         return {x314_treeGroup->CalculateAABox(GetTransform())};

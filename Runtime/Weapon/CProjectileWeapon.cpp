@@ -91,7 +91,7 @@ zeus::CVector3f CProjectileWeapon::GetTranslation() const
     return x14_localToWorldXf * (x44_localXf * x8c_projOffset + x80_localOffset) + x74_worldOffset;
 }
 
-rstl::optional_object<zeus::CAABox> CProjectileWeapon::GetBounds() const
+std::experimental::optional<zeus::CAABox> CProjectileWeapon::GetBounds() const
 {
     zeus::CAABox aabb;
     bool ret = false;
@@ -160,7 +160,7 @@ float CProjectileWeapon::GetAudibleRange() const
     return x4_weaponDesc->x94_COLR.m_res->GetAudibleRange();
 }
 
-rstl::optional_object<TLockedToken<CDecalDescription>>
+std::experimental::optional<TLockedToken<CDecalDescription>>
 CProjectileWeapon::GetDecalForCollision(EWeaponCollisionResponseTypes type) const
 {
     if (!x4_weaponDesc->x94_COLR)
@@ -175,7 +175,7 @@ u16 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type
     return u16(x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type));
 }
 
-rstl::optional_object<TLockedToken<CGenDescription>>
+std::experimental::optional<TLockedToken<CGenDescription>>
 CProjectileWeapon::CollisionOccured(EWeaponCollisionResponseTypes type, bool deflected, bool useTarget,
                                     const zeus::CVector3f& pos, const zeus::CVector3f& normal,
                                     const zeus::CVector3f& target)

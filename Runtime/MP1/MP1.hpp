@@ -101,6 +101,8 @@ public:
         g_TweakManager = &x150_tweakManager;
     }
 
+    ~CGameGlobalObjects();
+
     void PostInitialize()
     {
         AddPaksAndFactories();
@@ -260,6 +262,7 @@ private:
     std::vector<SObjectTag> m_warmupTags;
     std::vector<SObjectTag>::iterator m_warmupIt;
     bool m_needsWarmupClear = false;
+    bool m_doQuit = false;
 
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
     static void InitializeDiscord();
@@ -297,8 +300,8 @@ public:
 
     void MemoryCardInitializePump();
 
-    bool CheckReset() { return false; }
-    bool CheckTerminate() { return false; }
+    bool CheckReset() { return m_doQuit; }
+    bool CheckTerminate() { return m_doQuit; }
     void DrawDebugMetrics(double, CStopWatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
@@ -323,7 +326,11 @@ public:
     size_t GetExpectedIdSize() const { return sizeof(u32); }
     void quit(hecl::Console*, const std::vector<std::string>&)
     {
+        m_doQuit = true;
     }
+    void Give(hecl::Console*, const std::vector<std::string>&);
+    void Teleport(hecl::Console*, const std::vector<std::string>&);
+    hecl::Console* Console() const { return m_console.get(); }
 };
 
 }

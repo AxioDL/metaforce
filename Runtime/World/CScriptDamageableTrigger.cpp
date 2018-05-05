@@ -227,7 +227,7 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr)
     }
 }
 
-rstl::optional_object<zeus::CAABox> CScriptDamageableTrigger::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptDamageableTrigger::GetTouchBounds() const
 {
     if (!x30_24_active || !x300_24_notOccluded)
         return {};

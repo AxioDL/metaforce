@@ -18,6 +18,7 @@ public:
     {
         virtual boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                                               ShaderImp& filter)=0;
+        virtual ~IDataBindingFactory() = default;
     };
 
     static std::unique_ptr<IDataBindingFactory> m_bindFactory;

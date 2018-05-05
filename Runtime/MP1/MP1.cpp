@@ -48,14 +48,22 @@
 #include "AutoMapper/CMapWorld.hpp"
 #include "AutoMapper/CMapArea.hpp"
 #include "AutoMapper/CMapUniverse.hpp"
+#include "World/CStateMachine.hpp"
 #include "CScannableObjectInfo.hpp"
 #include "Audio/CAudioGroupSet.hpp"
 #include "Audio/CSfxManager.hpp"
 #include "Audio/CMidiManager.hpp"
 #include "CDependencyGroup.hpp"
 #include "MP1OriginalIDs.hpp"
-
+#include "CStateManager.hpp"
+#include "World/CPlayer.hpp"
 #include <discord-rpc.h>
+
+namespace hecl
+{
+    extern CVar* com_enableCheats;
+    extern CVar* com_developer;
+};
 
 namespace urde
 {
@@ -354,7 +362,18 @@ void CGameGlobalObjects::AddPaksAndFactories()
         fmgr->AddFactory(FOURCC('DPSC'), FFactoryFunc(FDecalDataFactory));
         fmgr->AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
         fmgr->AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
+        fmgr->AddFactory(FOURCC('AFSM'), FFactoryFunc(FAiFiniteStateMachineFactory));
     }
+}
+
+CGameGlobalObjects::~CGameGlobalObjects()
+{
+    g_ResFactory = nullptr;
+    g_SimplePool = nullptr;
+    g_CharFactoryBuilder = nullptr;
+    g_AiFuncMap = nullptr;
+    g_GameState = nullptr;
+    g_TweakManager = nullptr;
 }
 
 void CMain::AddWorldPaks()
@@ -431,6 +450,70 @@ void CMain::EnsureWorldPakReady(CAssetId mlvl)
     /* TODO: Schedule resource list load for World Pak containing mlvl */
 }
 
+void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
+{
+    if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
+        return;
+
+    std::string type = args[0];
+    athena::utility::tolower(type);
+    console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
+    std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
+    if (type == "all")
+    {
+        for (u32 item = 0; item < u32(CPlayerState::EItemType::Max); ++item)
+        {
+            pState->ReInitalizePowerUp(CPlayerState::EItemType(item),
+                                       CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
+            pState->IncrPickup(CPlayerState::EItemType(item),
+                               CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
+        }
+        pState->IncrPickup(CPlayerState::EItemType::HealthRefill, 99999);
+    }
+    else if (type == "missile")
+    {
+        s32 missiles = 250;
+        if (args.size() == 2)
+        {
+            missiles = s32(strtol(args[1].c_str(), nullptr, 10));
+            missiles = zeus::clamp(-250, missiles, 250);
+        }
+
+        u32 curCap = pState->GetItemCapacity(CPlayerState::EItemType::Missiles);
+        if (missiles > 0 && curCap < u32(missiles))
+        {
+            u32 tmp = ((u32(missiles) / 5) + (missiles % 5)) * 5;
+            pState->ReInitalizePowerUp(CPlayerState::EItemType::Missiles, tmp);
+        }
+        if (missiles > 0)
+            pState->IncrPickup(CPlayerState::EItemType::Missiles, u32(missiles));
+        else
+            pState->DecrPickup(CPlayerState::EItemType::Missiles, zeus::clamp(0u, u32(abs(missiles)), pState->GetItemAmount(CPlayerState::EItemType::Missiles)));
+    }
+}
+
+void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)
+{
+    if (!g_StateManager || args.size() < 3)
+        return;
+
+    zeus::CVector3f loc;
+    for (u32 i = 0; i < 3; ++i)
+        loc[i] = strtof(args[i].c_str(), nullptr);
+
+    zeus::CTransform xf = g_StateManager->Player()->GetTransform();
+    xf.origin = loc;
+
+    if (args.size() == 6)
+    {
+        zeus::CVector3f angle;
+        for (u32 i = 0; i < 3; ++i)
+            angle[i] = zeus::degToRad(strtof(args[i + 3].c_str(), nullptr));
+        xf.setRotation(zeus::CMatrix3f(zeus::CQuaternion(angle)));
+    }
+    g_StateManager->Player()->Teleport(xf, *g_StateManager, false);
+}
+
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 {
     bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
@@ -486,8 +569,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG)
     {
         if (CPlayerState* pState = g_GameState->GetPlayerState().get())
         {
-            u32 itemPercent = u32(std::ceil(pState->CalculateItemCollectionRate() * 100.f /
-                                            pState->GetPickupTotal()));
+            u32 itemPercent = pState->CalculateItemCollectionRate() * 100 / pState->GetPickupTotal();
             if (DiscordItemPercent != itemPercent)
             {
                 DiscordItemPercent = itemPercent;
@@ -534,6 +616,10 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_cvarMgr = cvarMgr;
     m_console = std::make_unique<hecl::Console>(m_cvarMgr);
     m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
+    m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
+    m_console->registerCommand("Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv, std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2), (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
+
+
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks(m_cvarMgr);
@@ -672,6 +758,7 @@ void CMain::ShutdownSubsystems()
 
 void CMain::Shutdown()
 {
+    m_console->unregisterCommand("Give");
     x164_archSupport.reset();
     ShutdownSubsystems();
     TShader<CParticleSwooshShaders>::Shutdown();

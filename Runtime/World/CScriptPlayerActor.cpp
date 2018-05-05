@@ -1,6 +1,8 @@
 #include "World/CScriptPlayerActor.hpp"
 #include "World/CActorParameters.hpp"
 #include "World/CLightParameters.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde
 {
@@ -24,6 +26,8 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
 
     SetActorLights(aParams.GetLightParameters().MakeActorLights());
+    xe7_29_actorActive = true;
+    x2e3_24_cameraMoveIntoAlpha = true;
 }
 
 void CScriptPlayerActor::Think(float, CStateManager&)
@@ -41,9 +45,11 @@ void CScriptPlayerActor::SetActive(bool active)
     xe7_29_actorActive = true;
 }
 
-void CScriptPlayerActor::PreRender(CStateManager&, const zeus::CFrustum&)
+void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
-
+    if (x2e8_.GetCharacterNodeId() == 3)
+        g_Renderer->AllocatePhazonSuitMaskTexture();
+    CScriptActor::PreRender(mgr, frustum);
 }
 
 void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const
@@ -53,7 +59,6 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum&, const CStateManage
 
 void CScriptPlayerActor::Render(const CStateManager& mgr) const
 {
-
 }
 
 void CScriptPlayerActor::TouchModels()

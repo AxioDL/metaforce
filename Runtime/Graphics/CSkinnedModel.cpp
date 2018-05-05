@@ -33,7 +33,7 @@ CSkinnedModel::CSkinnedModel(IObjectStore& store, CAssetId model,
 
 void CSkinnedModel::Calculate(const CPoseAsTransforms& pose,
                               const CModelFlags& drawFlags,
-                              const rstl::optional_object<CVertexMorphEffect>& morphEffect,
+                              const std::experimental::optional<CVertexMorphEffect>& morphEffect,
                               const float* morphMagnitudes)
 {
     if (morphEffect || g_PointGenFunc)

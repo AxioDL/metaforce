@@ -56,7 +56,8 @@ const std::pair<int, const SGameOption*> GameOptionsRegistry[] =
     {5, VisorOpts},
     {5, DisplayOpts},
     {4, SoundOpts},
-    {4, ControllerOpts}
+    {4, ControllerOpts},
+    {0, nullptr}
 };
 
 CPersistentOptions::CPersistentOptions(CBitStreamReader& stream)

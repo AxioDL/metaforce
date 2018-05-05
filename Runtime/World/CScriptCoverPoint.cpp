@@ -30,7 +30,7 @@ void CScriptCoverPoint::Think(float delta, CStateManager&)
     x11c_timeLeft -= delta;
 }
 
-rstl::optional_object<zeus::CAABox> CScriptCoverPoint::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptCoverPoint::GetTouchBounds() const
 {
     if (x100_touchBounds)
         return x100_touchBounds;

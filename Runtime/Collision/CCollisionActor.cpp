@@ -138,9 +138,9 @@ zeus::CTransform CCollisionActor::GetPrimitiveTransform() const
     return xf;
 }
 
-rstl::optional_object<zeus::CAABox> CCollisionActor::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CCollisionActor::GetTouchBounds() const
 {
-    rstl::optional_object<zeus::CAABox> aabox;
+    std::experimental::optional<zeus::CAABox> aabox;
     if (x258_primitiveType == EPrimitiveType::OBBTreeGroup)
         aabox = {x27c_obbTreeGroupPrimitive->CalculateAABox(x34_transform)};
     else if (x258_primitiveType == EPrimitiveType::AABox)

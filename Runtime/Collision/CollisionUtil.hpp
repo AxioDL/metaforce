@@ -47,6 +47,7 @@ bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, co
                        double& d, zeus::CVector3f& point, zeus::CVector3f& normal);
 bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, const zeus::CVector3f& dir,
                         double& d, zeus::CVector3f& point, zeus::CVector3f& normal);
+void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out);
 }
 }
 #endif // __URDE_COLLISIONUTIL_HPP__

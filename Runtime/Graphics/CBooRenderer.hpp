@@ -203,6 +203,7 @@ class CBooRenderer : public IRenderer
 
 public:
     CBooRenderer(IObjectStore& store, IFactory& resFac);
+    ~CBooRenderer();
 
     void AddWorldSurfaces(CBooModel& model);
 

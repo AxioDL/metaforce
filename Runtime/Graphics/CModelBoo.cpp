@@ -47,6 +47,7 @@ void CBooModel::KillCachedViewDepState()
 }
 
 bool CBooModel::g_DummyTextures = false;
+bool CBooModel::g_RenderModelBlack = false;
 
 zeus::CVector3f CBooModel::g_ReflectViewPos = {};
 
@@ -494,6 +495,8 @@ void CBooModel::DisableAllLights()
 
 void CBooModel::RemapMaterialData(SShader& shader)
 {
+    if (!shader.m_geomLayout)
+        return;
     x4_matSet = &shader.m_matSet;
     m_geomLayout = &*shader.m_geomLayout;
     m_matSetIdx = shader.m_matSetIdx;
@@ -506,6 +509,8 @@ void CBooModel::RemapMaterialData(SShader& shader)
 void CBooModel::RemapMaterialData(SShader& shader,
     const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
 {
+    if (!shader.m_geomLayout)
+        return;
     x4_matSet = &shader.m_matSet;
     m_geomLayout = &*shader.m_geomLayout;
     m_matSetIdx = shader.m_matSetIdx;
@@ -1095,10 +1100,18 @@ void CBooModel::DrawAlpha(const CModelFlags& flags,
                           const CSkinRules* cskr,
                           const CPoseAsTransforms* pose) const
 {
+    CModelFlags rFlags = flags;
+    /* Check if we're overriding with RenderModelBlack */
+    if (g_RenderModelBlack)
+    {
+        rFlags.m_extendedShader = EExtendedShader::SolidColor;
+        rFlags.x4_color = zeus::CColor::skBlack;
+    }
+
     if (TryLockTextures())
     {
-        UpdateUniformData(flags, cskr, pose);
-        DrawAlphaSurfaces(flags);
+        UpdateUniformData(rFlags, cskr, pose);
+        DrawAlphaSurfaces(rFlags);
     }
 }
 
@@ -1106,10 +1119,17 @@ void CBooModel::DrawNormal(const CModelFlags& flags,
                            const CSkinRules* cskr,
                            const CPoseAsTransforms* pose) const
 {
+    CModelFlags rFlags = flags;
+    /* Check if we're overriding with RenderModelBlack */
+    if (g_RenderModelBlack)
+    {
+        rFlags.m_extendedShader = EExtendedShader::SolidColor;
+        rFlags.x4_color = zeus::CColor::skBlack;
+    }
     if (TryLockTextures())
     {
-        UpdateUniformData(flags, cskr, pose);
-        DrawNormalSurfaces(flags);
+        UpdateUniformData(rFlags, cskr, pose);
+        DrawNormalSurfaces(rFlags);
     }
 }
 
@@ -1117,10 +1137,18 @@ void CBooModel::Draw(const CModelFlags& flags,
                      const CSkinRules* cskr,
                      const CPoseAsTransforms* pose) const
 {
+    CModelFlags rFlags = flags;
+    /* Check if we're overriding with RenderModelBlack */
+    if (g_RenderModelBlack)
+    {
+        rFlags.m_extendedShader = EExtendedShader::SolidColor;
+        rFlags.x4_color = zeus::CColor::skBlack;
+    }
+
     if (TryLockTextures())
     {
-        UpdateUniformData(flags, cskr, pose);
-        DrawSurfaces(flags);
+        UpdateUniformData(rFlags, cskr, pose);
+        DrawSurfaces(rFlags);
     }
 }
 

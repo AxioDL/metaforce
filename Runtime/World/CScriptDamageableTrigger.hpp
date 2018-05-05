@@ -62,7 +62,7 @@ public:
     const CDamageVulnerability* GetDamageVulnerability() const { return &x174_dVuln; }
     CHealthInfo* HealthInfo(CStateManager&) { return &x16c_hInfo; }
     void Think(float, CStateManager&);
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
 };
 }
 

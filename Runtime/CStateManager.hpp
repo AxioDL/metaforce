@@ -245,6 +245,7 @@ public:
                   const std::weak_ptr<CPlayerState>&,
                   const std::weak_ptr<CWorldTransManager>&,
                   const std::weak_ptr<CWorldLayerState>&);
+    ~CStateManager();
 
     u32 GetInputFrameIdx() const { return x8d4_inputFrameIdx; }
     bool RenderLast(TUniqueId);

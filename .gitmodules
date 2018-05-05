@@ -37,3 +37,6 @@
 [submodule "NESEmulator/fixNES"]
 	path = NESEmulator/fixNES
 	url = https://github.com/jackoalan/fixNES.git
+[submodule "Editor/locale"]
+	path = Editor/locale
+	url = ../urde-translations.git

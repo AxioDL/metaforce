@@ -207,6 +207,7 @@ public:
     bool HasGlobalSound(u16 id) const;
     void AddGlobalSound(const CSfxHandle& hnd);
     EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
+    bool AreSkyNeedsMet() const;
 };
 
 struct CWorldLayers

@@ -55,7 +55,7 @@ protected:
         {
             u8 xe4_24_nextNonLoopingSfxHandle : 3;
             bool xe4_27_notInSortedLists : 1;
-            bool xe4_28_ : 1;
+            bool xe4_28_transformDirty : 1;
             bool xe4_29_actorLightsDirty : 1;
             bool xe4_30_outOfFrustum : 1;
             bool xe4_31_lightsDirty : 1;
@@ -108,7 +108,7 @@ public:
     virtual void SetActive(bool active)
     {
         xe4_27_notInSortedLists = true;
-        xe4_28_ = true;
+        xe4_28_transformDirty = true;
         xe4_29_actorLightsDirty = true;
         xe7_29_actorActive = active;
         CEntity::SetActive(active);
@@ -122,7 +122,7 @@ public:
     virtual const CDamageVulnerability* GetDamageVulnerability() const;
     virtual const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                const CDamageInfo&) const;
-    virtual rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    virtual std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     virtual void Touch(CActor&, CStateManager&);
     virtual zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
     virtual zeus::CVector3f GetAimPosition(const CStateManager&, float) const;

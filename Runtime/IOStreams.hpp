@@ -18,9 +18,9 @@ struct CBitStreamReader : athena::io::MemoryReader
     u32 x1c_val = 0;
     u32 x20_bitOffset = 0;
 public:
-    static s32 GetBitCount(s32 maxVal)
+    static u32 GetBitCount(u32 maxVal)
     {
-        s32 ret = 0;
+        u32 ret = 0;
         while (maxVal != 0)
         {
             maxVal /= 2;

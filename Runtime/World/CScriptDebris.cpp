@@ -36,7 +36,7 @@ void CScriptDebris::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
-rstl::optional_object<zeus::CAABox> CScriptDebris::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptDebris::GetTouchBounds() const
 {
     return {};
 }

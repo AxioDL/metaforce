@@ -15,7 +15,7 @@ struct CBeamInfo
     CAssetId xc_;
     CAssetId x10_;
     CAssetId x14_;
-    u32 x18_;
+    s32 x18_;
     float x1c_;
     float x20_;
     float x24_;

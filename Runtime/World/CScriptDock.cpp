@@ -23,7 +23,7 @@ CMaterialList MakeDockMaterialList()
 CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CVector3f position, const zeus::CVector3f& extents, s32 dock, TAreaId area,
                          bool active, s32 dockReferenceCount, bool loadConnected)
-: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
+: CPhysicsActor(uid, true/*active*/, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
                 CModelData::CModelDataNull(), MakeDockMaterialList(), zeus::CAABox(-extents * 0.5f, extents * 0.5f),
                 SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f)
 , x258_dockReferenceCount(dockReferenceCount)
@@ -40,6 +40,7 @@ void CScriptDock::Accept(IVisitor& visitor)
 
 void CScriptDock::Think(float dt, CStateManager& mgr)
 {
+    x30_24_active = true;
     if (!GetActive())
     {
         UpdateAreaActivateFlags(mgr);
@@ -96,7 +97,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     case EScriptObjectMessage::Registered:
     {
         CGameArea* area = mgr.WorldNC()->GetArea(x260_area);
-        if (area->GetDockCount() <= x25c_dock)
+        if (area->GetDockCount() < x25c_dock)
             return;
         IGameArea::Dock* dock = area->DockNC(x25c_dock);
         if (!dock->IsReferenced())
@@ -147,6 +148,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         break;
     case EScriptObjectMessage::Increment:
         SetLoadConnected(mgr, true);
+        [[fallthrough]];
     case EScriptObjectMessage::Decrement:
     {
         TAreaId aid = x260_area;
@@ -155,7 +157,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             IGameArea::Dock* dock = mgr.WorldNC()->GetArea(x260_area)->DockNC(x25c_dock);
             aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
         }
-        else if (aid == 0 || (mgr.GetWorld()->GetNumAreas() <= aid || !mgr.WorldNC()->GetArea(aid)->GetActive()))
+        else if (aid == 0 || (aid >= mgr.GetWorld()->GetNumAreas() || !mgr.WorldNC()->GetArea(aid)->GetActive()))
             return;
         CWorld::PropogateAreaChain(CGameArea::EOcclusionState(msg == EScriptObjectMessage::Increment),
                                    mgr.WorldNC()->GetArea(aid), mgr.WorldNC());
@@ -167,7 +169,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     }
 }
 
-rstl::optional_object<zeus::CAABox> CScriptDock::GetTouchBounds() const
+std::experimental::optional<zeus::CAABox> CScriptDock::GetTouchBounds() const
 {
     if (x264_dockState == EDockState::Three)
         return {};
@@ -196,17 +198,17 @@ void CScriptDock::SetDockReference(CStateManager& mgr, s32 ref)
     x268_24_dockReferenced = true;
 }
 
-s32 CScriptDock::GetDockReference(CStateManager& mgr) const
+s32 CScriptDock::GetDockReference(const CStateManager& mgr) const
 {
     return mgr.GetWorld()->GetAreaAlways(x260_area)->GetDock(x25c_dock)->GetReferenceCount();
 }
 
 TAreaId CScriptDock::GetCurrentConnectedAreaId(const CStateManager& mgr) const
 {
-    if (mgr.GetWorld()->GetNumAreas() < x260_area)
+    if (x260_area >= mgr.GetWorld()->GetNumAreas())
         return kInvalidAreaId;
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x260_area);
-    if (area->GetDockCount() < x25c_dock)
+    if (x25c_dock >= area->GetDockCount())
         return kInvalidAreaId;
 
     const IGameArea::Dock* dock = area->GetDock(x25c_dock);

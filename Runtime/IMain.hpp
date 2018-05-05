@@ -10,6 +10,7 @@
 namespace hecl
 {
 class CVarManager;
+class Console;
 }
 
 namespace urde
@@ -51,6 +52,7 @@ public:
     virtual void SetFlowState(EFlowState) = 0;
     virtual size_t GetExpectedIdSize() const = 0;
     virtual void WarmupShaders() = 0;
+    virtual hecl::Console* Console() const = 0;
 };
 }
 

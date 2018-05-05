@@ -18,7 +18,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
-                                 const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                                 const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
                                  u16 visorSfx, bool sendCollideMsg)
 : CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(

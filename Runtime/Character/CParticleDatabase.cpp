@@ -263,7 +263,8 @@ void CParticleDatabase::AddToRendererClippedParticleGenMap(const std::map<std::s
 {
     for (auto& e : map)
     {
-        if (frustum.aabbFrustumTest(*e.second->GetBounds()))
+        auto bounds = e.second->GetBounds();
+        if (bounds && frustum.aabbFrustumTest(*bounds))
             e.second->AddToRenderer();
     }
 }
@@ -274,8 +275,11 @@ void CParticleDatabase::AddToRendererClippedParticleGenMapMasked(const std::map<
     for (auto& e : map)
     {
         if ((e.second->GetFlags() & mask) == target)
-            if (frustum.aabbFrustumTest(*e.second->GetBounds()))
+        {
+            auto bounds = e.second->GetBounds();
+            if (bounds && frustum.aabbFrustumTest(*bounds))
                 e.second->AddToRenderer();
+        }
     }
 }
 

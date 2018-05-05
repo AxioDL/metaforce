@@ -34,7 +34,7 @@ class CScriptPlatform : public CPhysicsActor
     CHealthInfo x28c_;
     CHealthInfo x294_;
     CDamageVulnerability x29c_;
-    rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
+    std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
     std::unique_ptr<CCollidableOBBTreeGroup> x314_treeGroup;
     std::vector<SRiders> x318_riders;
     std::vector<SRiders> x328_slaves1;
@@ -63,10 +63,10 @@ public:
     CScriptPlatform(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float, bool, float,
                     bool, const CHealthInfo& hInfo, const CDamageVulnerability& dInfo,
-                    const rstl::optional_object<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool, u32, u32);
+                    const std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool, u32, u32);
 
     void Accept(IVisitor& visitor);
-    rstl::optional_object<zeus::CAABox> GetTouchBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     bool IsRider(TUniqueId id) const;
     bool IsSlave(TUniqueId id) const;
     std::vector<SRiders>& GetX328() { return x328_slaves1; }

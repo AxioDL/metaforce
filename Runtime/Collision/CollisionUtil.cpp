@@ -4,7 +4,6 @@
 
 namespace urde::CollisionUtil
 {
-
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d)
 {
     zeus::CVector3f norm;
@@ -1236,4 +1235,8 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
     return true;
 }
 
+void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out)
+{
+
+}
 }

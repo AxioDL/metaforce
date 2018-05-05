@@ -9,7 +9,7 @@ namespace urde
 {
 
 CPOINode::CPOINode(std::string_view name, EPOIType type, const CCharAnimTime& time,
-                   u32 index, bool c, float weight, u32 e, u32 f)
+                   u32 index, bool c, float weight, s32 e, s32 f)
 : x4_(1),
   x8_name(name),
   x18_type(type),
@@ -29,8 +29,8 @@ CPOINode::CPOINode(CInputStream& in)
   x24_index(in.readUint32Big()),
   x28_(in.readBool()),
   x2c_weight(in.readFloatBig()),
-  x30_charIdx(in.readUint32Big()),
-  x34_flags(in.readUint32Big())
+  x30_charIdx(in.readInt32Big()),
+  x34_flags(in.readInt32Big())
 {}
 
 bool CPOINode::operator>(const CPOINode& other) const

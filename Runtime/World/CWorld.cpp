@@ -474,8 +474,8 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         return;
     x70_24_currentAreaNeedsAllocation = false;
     x68_curAreaId = aid;
-
-    while (CGameArea* toDeallocateAreas = x4c_chainHeads[0])
+    CGameArea* toDeallocateAreas = x4c_chainHeads[0];
+    while (toDeallocateAreas)
     {
         if (toDeallocateAreas->Invalidate(&mgr))
         {
@@ -485,13 +485,14 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         toDeallocateAreas = toDeallocateAreas->x130_next;
     }
 
-    while (CGameArea* aliveAreas = x4c_chainHeads[3])
+    CGameArea* aliveAreas = x4c_chainHeads[3];
+    while (aliveAreas)
     {
         MoveToChain(aliveAreas, EChain::AliveJudgement);
         aliveAreas = aliveAreas->x130_next;
     }
-
-    while (CGameArea* loadingAreas = x4c_chainHeads[2])
+    CGameArea* loadingAreas = x4c_chainHeads[2];
+    while (loadingAreas)
     {
         MoveToChain(loadingAreas, EChain::ToDeallocate);
         loadingAreas = loadingAreas->x130_next;
@@ -531,15 +532,16 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
             }
         }
     }
-
-    while (CGameArea* judgementArea = x4c_chainHeads[4])
+    CGameArea* judgementArea = x4c_chainHeads[4];
+    while (judgementArea)
     {
         MoveToChain(judgementArea, EChain::ToDeallocate);
         judgementArea = judgementArea->x130_next;
     }
 
     size_t toStreamCount = 0;
-    while (CGameArea* toDeallocateAreas = x4c_chainHeads[0])
+    toDeallocateAreas = x4c_chainHeads[0];
+    while (toDeallocateAreas)
     {
         toDeallocateAreas->RemoveStaticGeometry();
         toDeallocateAreas = toDeallocateAreas->x130_next;
@@ -740,5 +742,18 @@ void CWorld::AddGlobalSound(const CSfxHandle& hnd)
     if (xc8_globalSfxHandles.size() >= xc8_globalSfxHandles.capacity())
         return;
     xc8_globalSfxHandles.push_back(hnd);
+}
+
+bool CWorld::AreSkyNeedsMet() const
+{
+    if (!x70_26_skyboxActive)
+        return true;
+    if (xb4_skyboxOverride && xb4_skyboxOverride->IsLoaded(0))
+        return true;
+    if (xa4_skyboxWorldLoaded && xa4_skyboxWorldLoaded->IsLoaded(0))
+        return true;
+    if (x94_skyboxWorld && x94_skyboxWorld->IsLoaded(0))
+        return true;
+    return false;
 }
 }

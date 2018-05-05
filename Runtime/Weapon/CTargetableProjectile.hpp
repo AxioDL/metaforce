@@ -14,7 +14,7 @@ public:
                           const zeus::CTransform& xf, EMaterialTypes materials, const CDamageInfo& damage,
                           const CDamageInfo& damage2, TUniqueId uid, TAreaId aid, TUniqueId owner,
                           TUniqueId homingTarget, EProjectileAttrib attribs,
-                          const rstl::optional_object<TLockedToken<CGenDescription>>& visorParticle,
+                          const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
                           u16 visorSfx, bool sendCollideMsg);
 };
 
