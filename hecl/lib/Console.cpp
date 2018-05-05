@@ -24,12 +24,20 @@ Console::Console(CVarManager* cvarMgr)
 
 }
 
-void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func)
+void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage, const std::function<void(Console*, const std::vector<std::string> &)>&& func, SConsoleCommand::ECommandFlags cmdFlags)
 {
     std::string lowName = name.data();
     athena::utility::tolower(lowName);
     if (m_commands.find(lowName) == m_commands.end())
-        m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func)};
+        m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func), cmdFlags};
+}
+
+void Console::unregisterCommand(std::string_view name)
+{
+    std::string lowName = name.data();
+    athena::utility::tolower(lowName);
+    if (m_commands.find(lowName) != m_commands.end())
+        m_commands.erase(m_commands.find(lowName));
 }
 
 void Console::executeString(const std::string& str)
@@ -57,7 +65,21 @@ void Console::executeString(const std::string& str)
         std::string lowComName = commandName;
         athena::utility::tolower(lowComName);
         if (m_commands.find(lowComName) != m_commands.end())
+        {
+            const SConsoleCommand& cmd = m_commands[lowComName];
+            if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean())
+            {
+                report(Level::Error, "This command can only be executed in developer mode", commandName.c_str());
+                return;
+            }
+
+            if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Cheat) && !com_enableCheats->toBoolean())
+            {
+                report(Level::Error, "This command can only be executed with cheats enabled", commandName.c_str());
+                return;
+            }
             m_commands[lowComName].m_func(this, args);
+        }
         else
             report(Level::Error, "Command '%s' is not valid!", commandName.c_str());
     }
@@ -102,7 +124,12 @@ void Console::report(Level level, const char* fmt, va_list list)
 {
     char tmp[2048];
     vsnprintf(tmp, 2048, fmt, list);
-    m_log.emplace_back(std::string(tmp), level);
+    std::vector<std::string> lines = athena::utility::split(tmp, '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("%s", line.c_str());
+        m_log.emplace_back(v, level);
+    }
     printf("%s\n", tmp);
 }
 
@@ -258,8 +285,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         m_cursorPosition = -1;
         m_commandHistory.insert(m_commandHistory.begin(), m_commandString);
         m_commandString.clear();
-        //m_showCursor = true;
-        //m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
     case boo::ESpecialKey::Left:
@@ -272,8 +299,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         else
             m_cursorPosition--;
 
-        //m_showCursor = true;
-        //m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
     case boo::ESpecialKey::Right:
@@ -295,8 +322,8 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
         else
             m_cursorPosition++;
 
-        //        m_showCursor = true;
-        //        m_cursorTime = 0;
+        m_showCursor = true;
+        m_cursorTime = 0.f;
         break;
     }
 
@@ -350,16 +377,24 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
 {
     char tmp[2048];
     vsnprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s", modName, tmp);
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(tmp, '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const wchar_t* format, va_list ap)
 {
     wchar_t tmp[2048];
     vswprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s", modName, athena::utility::wideToUtf8(tmp).c_str());
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum, const char* format, va_list ap)
@@ -374,8 +409,12 @@ void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level
 {
     wchar_t tmp[2048];
     vswprintf(tmp, 2048, format, ap);
-    std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, athena::utility::wideToUtf8(tmp).c_str(), file, linenum);
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
+    for (const std::string& line : lines)
+    {
+        std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, line.c_str(), file, linenum);
+        m_con->m_log.emplace_back(v, Console::Level(severity));
+    }
 }
 
 void Console::dumpLog()

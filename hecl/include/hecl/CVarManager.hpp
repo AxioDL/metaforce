@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "CVar.hpp"
+#include "hecl/SystemChar.hpp"
 
 namespace hecl
 {
@@ -78,6 +79,8 @@ public:
 
     void setDeveloperMode(bool v, bool setDeserialized=false);
     bool restartRequired() const;
+
+    void parseCommandLine(const std::vector<SystemString>& args);
 private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);
