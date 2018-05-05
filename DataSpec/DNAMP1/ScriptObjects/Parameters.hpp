@@ -446,7 +446,8 @@ struct ActorParameters : BigDNA
 
     void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
     {
-        scannableParameters.depIDs(pathsOut);
+        // Scans aren't included as dependencies
+        //scannableParameters.depIDs(pathsOut);
         g_curSpec->flattenDependencies(xrayModel, pathsOut);
         g_curSpec->flattenDependencies(xraySkin, pathsOut);
         g_curSpec->flattenDependencies(thermalModel, pathsOut);

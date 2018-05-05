@@ -44,8 +44,7 @@ struct SurfaceHeader_1 : BigDNA
     AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
-    Value<atUint16> qDiv = 0x8000;
-    Value<atUint16> dlSize = 0;
+    Value<atUint32> dlSize = 0;
     Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
     Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
@@ -62,8 +61,7 @@ struct SurfaceHeader_2 : BigDNA
     AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
-    Value<atUint16> qDiv = 0x8000;
-    Value<atUint16> dlSize = 0;
+    Value<atUint32> dlSize = 0;
     Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
     Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;
@@ -82,8 +80,7 @@ struct SurfaceHeader_3 : BigDNA
     AT_DECL_EXPLICIT_DNA
     Value<atVec3f> centroid;
     Value<atUint32> matIdx = 0;
-    Value<atUint16> qDiv = 0x8000;
-    Value<atUint16> dlSize = 0;
+    Value<atUint32> dlSize = 0;
     Value<atUint32> idxStart = 0; /* Actually used by game to stash CCubeModel pointer */
     Value<atUint32> idxCount = 0; /* Actually used by game to stash next CCubeSurface pointer */
     Value<atUint32> aabbSz = 0;

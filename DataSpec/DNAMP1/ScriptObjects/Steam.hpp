@@ -34,7 +34,7 @@ struct Steam : IScriptObject
         }
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherLazyDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
         g_curSpec->flattenDependencies(texture, pathsOut);
     }

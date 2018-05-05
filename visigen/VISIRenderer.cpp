@@ -110,6 +110,9 @@ bool VISIRenderer::SetupShaders()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_aabbIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 20 * 4, AABBIdxs, GL_STATIC_DRAW);
 
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(0xffffffff);
+
     return true;
 }
 

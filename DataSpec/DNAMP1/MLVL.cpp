@@ -53,6 +53,20 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         }
         if (pakRouter.mreaHasDupeResources(area.areaMREAId))
             athena::io::FileWriter(hecl::ProjectPath(areaDir, _S("!duperes")).getAbsolutePath());
+
+        if (areaIdx == 0)
+        {
+            char path[256];
+            snprintf(path, 256, "/Users/jacko/Desktop/res/orig_%08X.txt", entry.id.toUint32());
+            FILE* fp = fopen(path, "w");
+            for (const auto& dep : area.deps)
+            {
+                hecl::ProjectPath depPath = pakRouter.getWorking(dep.id);
+                fprintf(fp, "%s\n", depPath.getRelativePathUTF8().data());
+            }
+            fclose(fp);
+        }
+
         areaIdx++;
     }
 

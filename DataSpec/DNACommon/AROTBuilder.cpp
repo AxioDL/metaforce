@@ -7,6 +7,7 @@ namespace DataSpec
 logvisor::Module Log("AROTBuilder");
 
 #define AROT_MAX_LEVEL 6
+#define AROT_MIN_MODELS 8
 #define COLLISION_MIN_NODE_TRIANGLES 16
 #define PATH_MIN_NODE_REGIONS 16
 
@@ -348,7 +349,7 @@ void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAA
 {
     /* Recursively split */
     BspNodeType rootType;
-    rootNode.addChild(0, 1, meshAabbs, fullAabb, rootType);
+    rootNode.addChild(0, AROT_MIN_MODELS, meshAabbs, fullAabb, rootType);
 
     /* Calculate indexing metrics */
     size_t totalNodeCount = 0;

@@ -1354,12 +1354,34 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
     /* Surfaces */
     size_t endOff = 0;
+    size_t firstSurfSec = head.secSizes.size();
     for (const Mesh::Surface& surf : mesh.surfaces)
     {
         size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
         if (surf.verts.size() > 65536)
             LogDNACommon.report(logvisor::Fatal, "GX DisplayList overflow");
-        size_t secSz = 67 + surf.verts.size() * vertSz;
+        size_t secSz = 64;
+        for (auto it = surf.verts.cbegin() ; it != surf.verts.cend() ;)
+        {
+            atUint16 vertCount = 0;
+            auto itEnd = surf.verts.cend();
+            for (auto it2 = it ; it2 != surf.verts.cend() ; ++it2, ++vertCount)
+                if (it2->iPos == 0xffffffff)
+                {
+                    if (vertCount == 3)
+                    {
+                        /* All primitives here on out are triangles */
+                        vertCount = atUint16((surf.verts.cend() - it + 1) * 3 / 4);
+                        break;
+                    }
+                    itEnd = it2;
+                    break;
+                }
+            secSz += 3 + vertCount * vertSz;
+            if (itEnd == surf.verts.cend())
+                break;
+            it = itEnd + 1;
+        }
         secSz32 = ROUND_UP_32(secSz);
         if (secSz32 == 0)
             secSz32 = 32;
@@ -1435,53 +1457,80 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
     ++padIt;
 
     /* Surfaces */
-    GX::Primitive prim;
+    GX::Primitive prim = GX::TRIANGLES;
     if (mesh.topology == hecl::HMDLTopology::Triangles)
         prim = GX::TRIANGLES;
     else if (mesh.topology == hecl::HMDLTopology::TriStrips)
         prim = GX::TRIANGLESTRIP;
     else
         LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
+    auto surfSizeIt = head.secSizes.begin() + firstSurfSec;
     for (const Mesh::Surface& surf : mesh.surfaces)
     {
         const typename MaterialSet::Material::VAFlags& vaFlags =
         matSets.at(0).materials.at(surf.materialIdx).getVAFlags();
-        size_t vertSz = vaFlags.vertDLSize();
 
         SurfaceHeader header;
         header.centroid = surf.centroid;
         header.matIdx = surf.materialIdx;
-        header.dlSize = ROUND_UP_32(3 + surf.verts.size() * vertSz);
+        header.dlSize = (*surfSizeIt++ - 64) | 0x80000000;
         header.reflectionNormal = surf.reflectionNormal;
         header.write(writer);
 
-        /* VAT0 = float normals, float UVs
-         * VAT1 = short normals, float UVs */
-        writer.writeUByte(prim | (skinned ? 0x0 : 0x1));
-        writer.writeUint16Big(surf.verts.size());
-
-        for (const Mesh::Surface::Vert& vert : surf.verts)
+        GX::Primitive usePrim = prim;
+        for (auto it = surf.verts.cbegin() ; it != surf.verts.cend() ;)
         {
-            atUint32 skinIdx = vert.iBankSkin * 3;
-            WriteDLVal(writer, vaFlags.pnMatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex0MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex1MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex2MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex3MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex4MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex5MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.tex6MatIdx(), skinIdx);
-            WriteDLVal(writer, vaFlags.position(), vert.iPos);
-            WriteDLVal(writer, vaFlags.normal(), vert.iNorm);
-            WriteDLVal(writer, vaFlags.color0(), vert.iColor[0]);
-            WriteDLVal(writer, vaFlags.color1(), vert.iColor[1]);
-            WriteDLVal(writer, vaFlags.tex0(), vert.iUv[0]);
-            WriteDLVal(writer, vaFlags.tex1(), vert.iUv[1]);
-            WriteDLVal(writer, vaFlags.tex2(), vert.iUv[2]);
-            WriteDLVal(writer, vaFlags.tex3(), vert.iUv[3]);
-            WriteDLVal(writer, vaFlags.tex4(), vert.iUv[4]);
-            WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
-            WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
+            atUint16 vertCount = 0;
+            auto itEnd = surf.verts.cend();
+            for (auto it2 = it ; it2 != surf.verts.cend() ; ++it2, ++vertCount)
+                if (it2->iPos == 0xffffffff)
+                {
+                    if (vertCount == 3)
+                    {
+                        /* All primitives here on out are triangles */
+                        usePrim = GX::TRIANGLES;
+                        vertCount = atUint16((surf.verts.cend() - it + 1) * 3 / 4);
+                        break;
+                    }
+                    itEnd = it2;
+                    break;
+                }
+
+            /* VAT0 = float normals, float UVs
+             * VAT1 = short normals, float UVs */
+            writer.writeUByte(usePrim | (skinned ? 0x0 : 0x1));
+            writer.writeUint16Big(vertCount);
+
+            for (auto it2 = it ; it2 != itEnd ; ++it2)
+            {
+                const Mesh::Surface::Vert& vert = *it2;
+                if (vert.iPos == 0xffffffff)
+                    continue;
+                atUint32 skinIdx = vert.iBankSkin * 3;
+                WriteDLVal(writer, vaFlags.pnMatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex0MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex1MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex2MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex3MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex4MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex5MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.tex6MatIdx(), skinIdx);
+                WriteDLVal(writer, vaFlags.position(), vert.iPos);
+                WriteDLVal(writer, vaFlags.normal(), vert.iNorm);
+                WriteDLVal(writer, vaFlags.color0(), vert.iColor[0]);
+                WriteDLVal(writer, vaFlags.color1(), vert.iColor[1]);
+                WriteDLVal(writer, vaFlags.tex0(), vert.iUv[0]);
+                WriteDLVal(writer, vaFlags.tex1(), vert.iUv[1]);
+                WriteDLVal(writer, vaFlags.tex2(), vert.iUv[2]);
+                WriteDLVal(writer, vaFlags.tex3(), vert.iUv[3]);
+                WriteDLVal(writer, vaFlags.tex4(), vert.iUv[4]);
+                WriteDLVal(writer, vaFlags.tex5(), vert.iUv[5]);
+                WriteDLVal(writer, vaFlags.tex6(), vert.iUv[6]);
+            }
+
+            if (itEnd == surf.verts.cend())
+                break;
+            it = itEnd + 1;
         }
 
         writer.fill(atUint8(0), *padIt);
@@ -1772,7 +1821,6 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
 
     /* Iterate meshes */
     auto matIt = surfToGlobalMats.cbegin();
-    int meshIdx = 0;
     for (const Mesh& mesh : meshes)
     {
         zeus::CTransform meshXf(mesh.sceneXf.val);
@@ -1808,7 +1856,28 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
                 matSet.materials.at(*smatIt++).getVAFlags();
             size_t vertSz = vaFlags.vertDLSize();
 
-            endOff += 96 + vertSz * surf.verts.size() + 4;
+            endOff += 96;
+            for (auto it = surf.verts.cbegin() ; it != surf.verts.cend() ;)
+            {
+                atUint16 vertCount = 0;
+                auto itEnd = surf.verts.cend();
+                for (auto it2 = it ; it2 != surf.verts.cend() ; ++it2, ++vertCount)
+                    if (it2->iPos == 0xffffffff)
+                    {
+                        if (vertCount == 3)
+                        {
+                            /* All primitives here on out are triangles */
+                            vertCount = atUint16((surf.verts.cend() - it + 1) * 3 / 4);
+                            break;
+                        }
+                        itEnd = it2;
+                        break;
+                    }
+                endOff += 3 + vertSz * vertCount;
+                if (itEnd == surf.verts.cend())
+                    break;
+                it = itEnd + 1;
+            }
             endOff = ROUND_UP_32(endOff);
             surfEndOffs.push_back(endOff);
         }
@@ -1899,24 +1968,27 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
         }
 
         /* Surfaces */
-        GX::Primitive prim;
+        GX::Primitive prim = GX::TRIANGLES;
         if (mesh.topology == hecl::HMDLTopology::Triangles)
             prim = GX::TRIANGLES;
         else if (mesh.topology == hecl::HMDLTopology::TriStrips)
             prim = GX::TRIANGLESTRIP;
         else
             LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
+        auto surfEndOffIt = surfEndOffs.begin();
+        size_t lastEndOff = 0;
         for (const Mesh::Surface& surf : mesh.surfaces)
         {
             size_t matIdx = *matIt++;
             const typename MaterialSet::Material& mat = matSet.materials.at(matIdx);
             const typename MaterialSet::Material::VAFlags& vaFlags = mat.getVAFlags();
-            size_t vertSz = vaFlags.vertDLSize();
 
             SurfaceHeader header;
             header.centroid = meshXf * zeus::CVector3f(surf.centroid);
             header.matIdx = matIdx;
-            header.dlSize = ROUND_UP_32(3 + surf.verts.size() * vertSz);
+            uint32_t dlSize = uint32_t(*surfEndOffIt - lastEndOff - 96);
+            header.dlSize = dlSize | 0x80000000;
+            lastEndOff = *surfEndOffIt++;
             header.reflectionNormal = (meshXf.basis * zeus::CVector3f(surf.reflectionNormal)).normalized();
             header.aabbSz = 24;
             zeus::CAABox aabb(zeus::CVector3f(surf.aabbMin), zeus::CVector3f(surf.aabbMax));
@@ -1926,39 +1998,66 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
 
             size_t secSz = 0;
             header.binarySize(secSz);
-            secSz += 3 + surf.verts.size() * vertSz;
+            secSz += dlSize;
             secSz = ROUND_UP_32(secSz);
             secsOut.emplace_back(secSz, 0);
             athena::io::MemoryWriter w(secsOut.back().data(), secsOut.back().size());
             header.write(w);
 
-            /* VAT1 = short normals, float UVs
-             * VAT2 = short normals, short UVs */
-            w.writeUByte(prim | (mat.flags.lightmapUVArray() ? 0x2 : 0x1));
-            w.writeUint16Big(surf.verts.size());
-
-            for (const Mesh::Surface::Vert& vert : surf.verts)
+            GX::Primitive usePrim = prim;
+            for (auto it = surf.verts.cbegin() ; it != surf.verts.cend() ;)
             {
-                atUint32 skinIdx = vert.iBankSkin * 3;
-                WriteDLVal(w, vaFlags.pnMatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex0MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex1MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex2MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex3MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex4MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex5MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.tex6MatIdx(), skinIdx);
-                WriteDLVal(w, vaFlags.position(), vert.iPos);
-                WriteDLVal(w, vaFlags.normal(), vert.iNorm);
-                WriteDLVal(w, vaFlags.color0(), vert.iColor[0]);
-                WriteDLVal(w, vaFlags.color1(), vert.iColor[1]);
-                WriteDLVal(w, vaFlags.tex0(), vert.iUv[0]);
-                WriteDLVal(w, vaFlags.tex1(), vert.iUv[1]);
-                WriteDLVal(w, vaFlags.tex2(), vert.iUv[2]);
-                WriteDLVal(w, vaFlags.tex3(), vert.iUv[3]);
-                WriteDLVal(w, vaFlags.tex4(), vert.iUv[4]);
-                WriteDLVal(w, vaFlags.tex5(), vert.iUv[5]);
-                WriteDLVal(w, vaFlags.tex6(), vert.iUv[6]);
+                atUint16 vertCount = 0;
+                auto itEnd = surf.verts.cend();
+                for (auto it2 = it ; it2 != surf.verts.cend() ; ++it2, ++vertCount)
+                    if (it2->iPos == 0xffffffff)
+                    {
+                        if (vertCount == 3)
+                        {
+                            /* All primitives here on out are triangles */
+                            usePrim = GX::TRIANGLES;
+                            vertCount = atUint16((surf.verts.cend() - it + 1) * 3 / 4);
+                            break;
+                        }
+                        itEnd = it2;
+                        break;
+                    }
+
+                /* VAT1 = short normals, float UVs
+                 * VAT2 = short normals, short UVs */
+                w.writeUByte(usePrim | (mat.flags.lightmapUVArray() ? 0x2 : 0x1));
+                w.writeUint16Big(vertCount);
+
+                for (auto it2 = it ; it2 != itEnd ; ++it2)
+                {
+                    const Mesh::Surface::Vert& vert = *it2;
+                    if (vert.iPos == 0xffffffff)
+                        continue;
+                    atUint32 skinIdx = vert.iBankSkin * 3;
+                    WriteDLVal(w, vaFlags.pnMatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex0MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex1MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex2MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex3MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex4MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex5MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.tex6MatIdx(), skinIdx);
+                    WriteDLVal(w, vaFlags.position(), vert.iPos);
+                    WriteDLVal(w, vaFlags.normal(), vert.iNorm);
+                    WriteDLVal(w, vaFlags.color0(), vert.iColor[0]);
+                    WriteDLVal(w, vaFlags.color1(), vert.iColor[1]);
+                    WriteDLVal(w, vaFlags.tex0(), vert.iUv[0]);
+                    WriteDLVal(w, vaFlags.tex1(), vert.iUv[1]);
+                    WriteDLVal(w, vaFlags.tex2(), vert.iUv[2]);
+                    WriteDLVal(w, vaFlags.tex3(), vert.iUv[3]);
+                    WriteDLVal(w, vaFlags.tex4(), vert.iUv[4]);
+                    WriteDLVal(w, vaFlags.tex5(), vert.iUv[5]);
+                    WriteDLVal(w, vaFlags.tex6(), vert.iUv[6]);
+                }
+
+                if (itEnd == surf.verts.cend())
+                    break;
+                it = itEnd + 1;
             }
         }
     }
@@ -2040,7 +2139,6 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
     /* Iterate meshes */
     auto matIt = surfToGlobalMats.cbegin();
-    int meshIdx = 0;
     for (const Mesh& mesh : meshes)
     {
         zeus::CTransform meshXf(mesh.sceneXf.val);
@@ -2151,10 +2249,8 @@ void SurfaceHeader_1::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
     centroid = reader.readVec3fBig();
     /* matIdx */
     matIdx = reader.readUint32Big();
-    /* qDiv */
-    qDiv = reader.readUint16Big();
     /* dlSize */
-    dlSize = reader.readUint16Big();
+    dlSize = reader.readUint32Big();
     /* idxStart */
     idxStart = reader.readUint32Big();
     /* idxCount */
@@ -2183,10 +2279,8 @@ void SurfaceHeader_1::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
     writer.writeVec3fBig(centroid);
     /* matIdx */
     writer.writeUint32Big(matIdx);
-    /* qDiv */
-    writer.writeUint16Big(qDiv);
     /* dlSize */
-    writer.writeUint16Big(dlSize);
+    writer.writeUint32Big(dlSize);
     /* idxStart */
     writer.writeUint32Big(idxStart);
     /* idxCount */
@@ -2220,10 +2314,8 @@ void SurfaceHeader_2::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
     centroid = reader.readVec3fBig();
     /* matIdx */
     matIdx = reader.readUint32Big();
-    /* qDiv */
-    qDiv = reader.readUint16Big();
     /* dlSize */
-    dlSize = reader.readUint16Big();
+    dlSize = reader.readUint32Big();
     /* idxStart */
     idxStart = reader.readUint32Big();
     /* idxCount */
@@ -2256,10 +2348,8 @@ void SurfaceHeader_2::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
     writer.writeVec3fBig(centroid);
     /* matIdx */
     writer.writeUint32Big(matIdx);
-    /* qDiv */
-    writer.writeUint16Big(qDiv);
     /* dlSize */
-    writer.writeUint16Big(dlSize);
+    writer.writeUint32Big(dlSize);
     /* idxStart */
     writer.writeUint32Big(idxStart);
     /* idxCount */
@@ -2297,10 +2387,8 @@ void SurfaceHeader_3::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
     centroid = reader.readVec3fBig();
     /* matIdx */
     matIdx = reader.readUint32Big();
-    /* qDiv */
-    qDiv = reader.readUint16Big();
     /* dlSize */
-    dlSize = reader.readUint16Big();
+    dlSize = reader.readUint32Big();
     /* idxStart */
     idxStart = reader.readUint32Big();
     /* idxCount */
@@ -2335,10 +2423,8 @@ void SurfaceHeader_3::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
     writer.writeVec3fBig(centroid);
     /* matIdx */
     writer.writeUint32Big(matIdx);
-    /* qDiv */
-    writer.writeUint16Big(qDiv);
     /* dlSize */
-    writer.writeUint16Big(dlSize);
+    writer.writeUint32Big(dlSize);
     /* idxStart */
     writer.writeUint32Big(idxStart);
     /* idxCount */

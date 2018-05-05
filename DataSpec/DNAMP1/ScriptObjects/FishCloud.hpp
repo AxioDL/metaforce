@@ -36,15 +36,15 @@ struct FishCloud : IScriptObject
     Value<atVec4f> unknown17; // CColor
     Value<bool> unknown18;
     Value<float> unknown19;
-    Value<atUint32> unknown20;
-    Value<atUint32> unknown21;
-    Value<atUint32> unknown22;
-    Value<atUint32> unknown23;
-    Value<atUint32> unknown24;
-    Value<atUint32> unknown25;
-    Value<atUint32> unknown26;
-    Value<atUint32> unknown27;
-    Value<atUint32> unknown28;
+    UniqueID32 deathParticle1;
+    Value<atUint32> deathParticle1Frames;
+    UniqueID32 deathParticle2;
+    Value<atUint32> deathParticle2Frames;
+    UniqueID32 deathParticle3;
+    Value<atUint32> deathParticle3Frames;
+    UniqueID32 deathParticle4;
+    Value<atUint32> deathParticle4Frames;
+    Value<atUint32> deathSFX;
     Value<bool> unknown29;
     Value<bool> unknown30;
 
@@ -56,12 +56,36 @@ struct FishCloud : IScriptObject
             ent->name = name + "_model";
         }
         animationParameters.nameANCS(pakRouter, name + "_animp");
+        if (deathParticle1)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle1);
+            ent->name = name + "_deathParticle1";
+        }
+        if (deathParticle2)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle2);
+            ent->name = name + "_deathParticle2";
+        }
+        if (deathParticle3)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle3);
+            ent->name = name + "_deathParticle3";
+        }
+        if (deathParticle4)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle4);
+            ent->name = name + "_deathParticle4";
+        }
     }
 
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
     {
         g_curSpec->flattenDependencies(model, pathsOut);
         animationParameters.depANCS(pathsOut);
+        g_curSpec->flattenDependencies(deathParticle1, pathsOut);
+        g_curSpec->flattenDependencies(deathParticle2, pathsOut);
+        g_curSpec->flattenDependencies(deathParticle3, pathsOut);
+        g_curSpec->flattenDependencies(deathParticle4, pathsOut);
     }
 };
 }

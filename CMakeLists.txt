@@ -141,6 +141,9 @@ endif()
 add_subdirectory(discord-rpc/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
 
+add_subdirectory(nod)
+set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
+
 set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)
@@ -194,9 +197,7 @@ include_directories(${BOO_SYS_INCLUDES})
 add_subdirectory(amuse)
 add_subdirectory(specter)
 set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
-add_subdirectory(nod)
 add_subdirectory(assetnameparser)
-set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
 add_definitions(-DZE_ATHENA_TYPES=1)
 set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}

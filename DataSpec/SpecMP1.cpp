@@ -90,8 +90,10 @@ struct OriginalIDs
         std::unordered_set<UniqueID32> addedIDs;
         std::vector<UniqueID32> originalIDs;
 
-        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) -> bool {
-            if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN') ||
+        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
+            if (ent->type == FOURCC('MLVL') ||
+                ent->type == FOURCC('SCAN') ||
+                ent->type == FOURCC('MREA') ||
                 IndividualOrigIDs.find(ent->id.toUint32()) != IndividualOrigIDs.end())
             {
                 if (addedIDs.find(ent->id) == addedIDs.cend())
@@ -1281,6 +1283,14 @@ struct SpecMP1 : SpecBase
         std::unordered_set<urde::CAssetId> addedTags;
         for (auto& area : mlvl.areas)
         {
+            FILE* fp = nullptr;
+            if (addedTags.empty())
+            {
+                char path[256];
+                snprintf(path, 256, "/Users/jacko/Desktop/res/new_%08X.txt", nameEnt.id.toUint32());
+                fp = fopen(path, "w");
+            }
+
             urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
 
             bool dupeRes = false;
@@ -1328,6 +1338,23 @@ struct SpecMP1 : SpecBase
             area.deps = std::move(strippedDeps);
             area.depLayerCount = strippedDepLayers.size();
             area.depLayers = std::move(strippedDepLayers);
+
+            if (fp)
+            {
+                //std::unordered_set<urde::CAssetId> tmpAddedTags;
+                for (const auto& dep : area.deps)
+                {
+                    urde::CAssetId newId = originalToNew(dep.id);
+                    //if (tmpAddedTags.find(newId) == tmpAddedTags.end())
+                    //{
+                        urde::SObjectTag tag(dep.type, originalToNew(dep.id));
+                        hecl::ProjectPath depPath = pathFromTag(tag);
+                        fprintf(fp, "%s\n", depPath.getRelativePathUTF8().data());
+                        //tmpAddedTags.insert(newId);
+                    //}
+                }
+                fclose(fp);
+            }
         }
 
         urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(mlvl.worldNameId));
