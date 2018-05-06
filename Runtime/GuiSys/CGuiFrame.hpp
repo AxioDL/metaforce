@@ -23,6 +23,8 @@ class CGuiFrame
 {
     friend class CGuiSys;
 private:
+    std::vector<CGuiLight*> m_indexedLights;
+
     CAssetId x0_id;
     u32 x4_ = 0;
     CGuiSys& x8_guiSys;
@@ -32,7 +34,6 @@ private:
     CGuiWidgetIdDB x18_idDB;
     std::vector<std::shared_ptr<CGuiWidget>> x2c_widgets;
     std::vector<std::shared_ptr<CGuiLight>> x3c_lights;
-    std::vector<CGuiLight*> m_indexedLights;
     int x4c_a;
     int x50_b;
     int x54_c;
