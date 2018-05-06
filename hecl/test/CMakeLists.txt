@@ -3,3 +3,6 @@ target_link_libraries(heclTest
     hecl-full hecl-blender-addon
     athena-core athena-libyaml xxhash logvisor boo
     ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
+if(COMMAND add_sanitizers)
+  add_sanitizers(heclTest)
+endif()
