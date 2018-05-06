@@ -49,6 +49,9 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     DownloadManager.hpp DownloadManager.cpp
     ExtractZip.hpp ExtractZip.cpp ${QUAZIP_SRCS}
     Common.hpp Common.cpp ${PLAT_SRCS} main.cpp)
+if(COMMAND add_sanitizers)
+  add_sanitizers(hecl-gui)
+endif()
 
 set_target_properties(hecl-gui PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
