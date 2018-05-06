@@ -523,7 +523,7 @@ void MainWindow::setTextTermFormatting(const QString& text)
 {
     m_inContinueNote = false;
 
-    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?F]+)([mlh]?))");
+    QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?FA]+)([mlh]?))");
     QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
     int offset = escapeSequenceExpression.indexIn(text);
     ReturnInsert(m_cursor, text.mid(0, offset));
@@ -542,7 +542,7 @@ void MainWindow::setTextTermFormatting(const QString& text)
                 ParseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
             }
         }
-        else if (captures.size() >= 2 && captures[1].endsWith('F'))
+        else if (captures.size() >= 2 && (captures[1].endsWith('F') || captures[1].endsWith('A')))
         {
             int lineCount = captures[1].chopped(1).toInt();
             if (!lineCount)
