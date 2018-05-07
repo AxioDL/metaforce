@@ -72,7 +72,7 @@ public:
     {
         TCachedToken<CMapArea> x0_area;
         EMapAreaList x10_list;
-        CMapAreaData* x14_next;
+        CMapAreaData* x14_next = nullptr;
     public:
         CMapAreaData(CAssetId areaRes, EMapAreaList list, CMapAreaData* next);
         void Lock() { x0_area.Lock(); }

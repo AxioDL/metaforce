@@ -85,6 +85,7 @@ void CScriptDamageableTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUnique
     case EScriptObjectMessage::Deactivate:
         if (x30_24_active && x300_25_alphaOut)
             return;
+        [[fallthrough]];
     case EScriptObjectMessage::Activate:
         if (!x30_24_active || x300_25_alphaOut)
         {
@@ -135,7 +136,7 @@ void CScriptDamageableTrigger::Render(const CStateManager& mgr) const
     CActor::Render(mgr);
 }
 
-void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const
+void CScriptDamageableTrigger::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const
 {
     if (x300_26_outOfFrustum)
         return;
@@ -184,10 +185,10 @@ float CScriptDamageableTrigger::GetPuddleAlphaScale() const
 
 void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr)
 {
-    if (!x30_24_active)
+    if (!GetActive())
         return;
 
-    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x4_areaId);
+    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
     CGameArea::EOcclusionState occState =
         area->IsPostConstructed() ? area->GetOcclusionState() : CGameArea::EOcclusionState::Occluded;
     x300_24_notOccluded = occState == CGameArea::EOcclusionState::Visible;
@@ -208,6 +209,7 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr)
 
             SetLinkedObjectAlpha(0.f, mgr);
             x300_25_alphaOut = false;
+            return;
         }
     }
     else
@@ -221,17 +223,17 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr)
         }
         if (x250_alphaTimer <= 0.75f)
             x250_alphaTimer += dt;
-        float objAlpha = GetPuddleAlphaScale();
-        x1e0_alpha = 0.2f * objAlpha;
-        SetLinkedObjectAlpha(objAlpha, mgr);
     }
+    float objAlpha = GetPuddleAlphaScale();
+    x1e0_alpha = 0.2f * objAlpha;
+    SetLinkedObjectAlpha(objAlpha, mgr);
 }
 
 std::experimental::optional<zeus::CAABox> CScriptDamageableTrigger::GetTouchBounds() const
 {
-    if (!x30_24_active || !x300_24_notOccluded)
-        return {};
-    return {zeus::CAABox(x14c_bounds.min + GetTranslation(), x14c_bounds.max + GetTranslation())};
+    if (x30_24_active && x300_24_notOccluded)
+        return {zeus::CAABox(x14c_bounds.min + GetTranslation(), x14c_bounds.max + GetTranslation())};
+    return {};
 }
 
 }

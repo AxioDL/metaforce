@@ -104,7 +104,7 @@ public:
 
     static s32 BitPosition(u64 flag)
     {
-        for (u32 i = 0; i < 63; ++i)
+        for (u32 i = 0; i < 64; ++i)
              if ((flag & (1ull << i)) != 0)
                  return i;
         return -1;

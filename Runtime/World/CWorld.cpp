@@ -488,14 +488,16 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
     CGameArea* aliveAreas = x4c_chainHeads[3];
     while (aliveAreas)
     {
-        MoveToChain(aliveAreas, EChain::AliveJudgement);
+        CGameArea* aliveArea = aliveAreas;
         aliveAreas = aliveAreas->x130_next;
+        MoveToChain(aliveArea, EChain::AliveJudgement);
     }
     CGameArea* loadingAreas = x4c_chainHeads[2];
     while (loadingAreas)
     {
-        MoveToChain(loadingAreas, EChain::ToDeallocate);
+        CGameArea* loadingArea = loadingAreas;
         loadingAreas = loadingAreas->x130_next;
+        MoveToChain(loadingArea, EChain::ToDeallocate);
     }
 
     CGameArea* area = x18_areas[aid].get();
@@ -532,11 +534,12 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
             }
         }
     }
-    CGameArea* judgementArea = x4c_chainHeads[4];
-    while (judgementArea)
+    CGameArea* judgementAreas = x4c_chainHeads[4];
+    while (judgementAreas)
     {
+        CGameArea* judgementArea = judgementAreas;
+        judgementAreas = judgementArea->x130_next;
         MoveToChain(judgementArea, EChain::ToDeallocate);
-        judgementArea = judgementArea->x130_next;
     }
 
     size_t toStreamCount = 0;

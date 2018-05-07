@@ -86,6 +86,7 @@ public:
     CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr);
     CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr);
     zeus::CAABox GetProjectileBounds() const;
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
 };
 }

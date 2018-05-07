@@ -50,7 +50,8 @@
 #include "Input/ControlMapper.hpp"
 #include "MP1/MP1.hpp"
 #include "GameGlobalObjects.hpp"
-
+#include "World/CScriptDoor.hpp"
+#include "World/CScriptDamageableTrigger.hpp"
 #include <cmath>
 
 namespace urde
@@ -1070,8 +1071,8 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
     if (dest && !dest->x30_26_scriptingBlocked)
     {
 #ifndef NDEBUG
-        LogModule.report(logvisor::Info, "Sending '%s' to '%s'",
-                         ScriptObjectMessageToStr(msg).data(), dest->GetName().data());
+        LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
+                        ScriptObjectMessageToStr(msg).data(), dest->GetName().data(), dest->GetUniqueId().id);
 #endif
         dest->AcceptScriptMsg(msg, src, *this);
     }
@@ -1089,8 +1090,8 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
     if (dst)
     {
 #ifndef NDEBUG
-        LogModule.report(logvisor::Info, "Sending '%s' to '%s'",
-                         ScriptObjectMessageToStr(msg).data(), dst->GetName().data());
+        LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
+                        ScriptObjectMessageToStr(msg).data(), dst->GetName().data(), dst->GetUniqueId().id);
 #endif
         dst->AcceptScriptMsg(msg, src, *this);
     }
@@ -1704,6 +1705,7 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     }
 
     float newHp = hInfo->GetHP() - mulDam;
+    hInfo->SetHP(newHp);
     bool significant = std::fabs(newHp - hInfo->GetHP()) >= 0.00001;
 
     if (player)

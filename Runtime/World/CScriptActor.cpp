@@ -14,7 +14,7 @@ namespace urde
 CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                            const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-                           const CActorParameters& actParms, bool looping, bool active, u32 shaderIdx, float xrayAlpha,
+                           const CActorParameters& actParms, bool looping, bool active, s32 shaderIdx, float xrayAlpha,
                            bool noThermalHotZ, bool castsShadow, bool scaleAdvancementDelta, bool materialFlag54)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), matList, aabb, SMoverData(mass), actParms, 0.3f, 0.1f)
 , x258_initialHealth(hInfo)

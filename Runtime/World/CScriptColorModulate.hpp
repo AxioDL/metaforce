@@ -12,10 +12,15 @@ class CScriptColorModulate : public CEntity
 public:
     enum class EBlendMode
     {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four,
     };
 
 private:
-    TUniqueId x34_ = kInvalidUniqueId;
+    TUniqueId x34_parent = kInvalidUniqueId;
     u32 x38_ = 0;
     float x3c_;
     zeus::CColor x40_;
@@ -29,8 +34,8 @@ private:
         {
             bool x54_24_ : 1;
             bool x54_25_ : 1;
-            bool x54_26_ : 1;
-            bool x54_27_ : 1;
+            bool x54_26_depthEqual : 1;
+            bool x54_27_depthUpdate : 1;
             bool x54_28_ : 1;
             bool x54_29_ : 1;
             bool x54_30_ : 1;
@@ -49,8 +54,8 @@ public:
     void Think(float, CStateManager &);
     CModelFlags CalculateFlags(const zeus::CColor&) const;
     void SetTargetFlags(CStateManager&, const CModelFlags&);
-    static void FadeOutHelper(CStateManager&, TUniqueId, float);
-    static void FadeInHelper(CStateManager&, TUniqueId, float);
+    static TUniqueId FadeOutHelper(CStateManager&, TUniqueId, float);
+    static TUniqueId FadeInHelper(CStateManager&, TUniqueId, float);
     void End(CStateManager&);
 };
 }

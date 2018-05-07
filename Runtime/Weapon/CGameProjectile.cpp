@@ -532,7 +532,14 @@ zeus::CAABox CGameProjectile::GetProjectileBounds() const
              std::min(x298_lastOrigin.z, GetTranslation().z) - x2a4_projExtent},
             {std::max(x298_lastOrigin.x, GetTranslation().x) + x2a4_projExtent,
              std::max(x298_lastOrigin.y, GetTranslation().y) + x2a4_projExtent,
-             std::max(x298_lastOrigin.z, GetTranslation().z) + x2a4_projExtent}};
+                    std::max(x298_lastOrigin.z, GetTranslation().z) + x2a4_projExtent}};
+}
+
+std::experimental::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const
+{
+    if (x2e4_24_active)
+        return {GetProjectileBounds()};
+    return {};
 }
 
 }

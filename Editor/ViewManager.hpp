@@ -50,6 +50,7 @@ class ViewManager : public specter::IViewManager
     std::unique_ptr<SplashScreen> m_splash;
     std::unique_ptr<RootSpace> m_rootSpace;
     specter::View* m_rootSpaceView = nullptr;
+    bool m_skipWait = false;
 
     class TestGameView : public specter::View
     {
@@ -93,6 +94,9 @@ class ViewManager : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->charKeyDown(cc, mkey, repeat);
+
+            if (cc == '\t')
+                m_vm.m_skipWait = true;
         }
 
         void charKeyUp(unsigned long cc, boo::EModifierKey mkey)
@@ -100,6 +104,9 @@ class ViewManager : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->charKeyUp(cc, mkey);
+
+            if (cc == '\t')
+                m_vm.m_skipWait = false;
         }
 
         void specialKeyDown(boo::ESpecialKey skey, boo::EModifierKey mkey, bool repeat)

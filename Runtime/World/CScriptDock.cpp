@@ -23,7 +23,7 @@ CMaterialList MakeDockMaterialList()
 CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CVector3f position, const zeus::CVector3f& extents, s32 dock, TAreaId area,
                          bool active, s32 dockReferenceCount, bool loadConnected)
-: CPhysicsActor(uid, true/*active*/, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
+: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
                 CModelData::CModelDataNull(), MakeDockMaterialList(), zeus::CAABox(-extents * 0.5f, extents * 0.5f),
                 SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f)
 , x258_dockReferenceCount(dockReferenceCount)
@@ -40,7 +40,6 @@ void CScriptDock::Accept(IVisitor& visitor)
 
 void CScriptDock::Think(float dt, CStateManager& mgr)
 {
-    x30_24_active = true;
     if (!GetActive())
     {
         UpdateAreaActivateFlags(mgr);
@@ -135,7 +134,7 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         for (CEntity* ent : lst)
         {
             TCastToPtr<CScriptDoor> door(ent);
-            if (door && !door->IsConnectedToArea(mgr, aid))
+            if (door && door->IsConnectedToArea(mgr, aid))
                 door->ForceClosed(mgr);
         }
     }
@@ -157,10 +156,10 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             IGameArea::Dock* dock = mgr.WorldNC()->GetArea(x260_area)->DockNC(x25c_dock);
             aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
         }
-        else if (aid == 0 || (aid >= mgr.GetWorld()->GetNumAreas() || !mgr.WorldNC()->GetArea(aid)->GetActive()))
-            return;
-        CWorld::PropogateAreaChain(CGameArea::EOcclusionState(msg == EScriptObjectMessage::Increment),
-                                   mgr.WorldNC()->GetArea(aid), mgr.WorldNC());
+
+        if (aid >= 0 && aid < mgr.GetWorld()->GetNumAreas() && mgr.WorldNC()->GetArea(aid)->GetActive())
+            CWorld::PropogateAreaChain(CGameArea::EOcclusionState(msg == EScriptObjectMessage::Increment),
+                                       mgr.WorldNC()->GetArea(aid), mgr.WorldNC());
     }
     break;
     default:

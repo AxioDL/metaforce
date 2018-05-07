@@ -614,17 +614,11 @@ void CGameArea::UpdateFog(float dt)
 
 void CGameArea::OtherAreaOcclusionChanged()
 {
-    if (GetPostConstructed()->x10e0_ == 3 && GetPostConstructed()->x10dc_occlusionState != EOcclusionState::Occluded)
+    if (GetPostConstructed()->x10e0_ == 3 && GetPostConstructed()->x10dc_occlusionState == EOcclusionState::Visible)
     {
-        bool unloaded = true;
-        bool transferred = true;
-#if 0
-        bool unloaded = UnloadAllloadedTextures();
-        bool transferred = TransferTokensToARAM();
-#endif
-        x12c_postConstructed->x1108_27_ = (unloaded && transferred);
+        x12c_postConstructed->x1108_27_ = false;
     }
-    else
+    else if (GetPostConstructed()->x10dc_occlusionState == EOcclusionState::Visible)
     {
         ReloadAllUnloadedTextures();
     }
@@ -647,10 +641,10 @@ void CGameArea::PingOcclusionState()
         unloaded = UnloadAllloadedTextures();
         transferred = TransferTokens();
 #endif
-        x12c_postConstructed->x1108_27_ = (unloaded && transferred);
-
-        x12c_postConstructed->x1108_26_ = true;
+        if (unloaded && transferred)
+            x12c_postConstructed->x1108_27_ = true;
     }
+    x12c_postConstructed->x1108_26_ = true;
 }
 
 void CGameArea::PreRender()

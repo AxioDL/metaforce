@@ -33,7 +33,7 @@ public:
     CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                  CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
                  const CMaterialList& matList, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-                 const CActorParameters& actParms, bool looping, bool active, u32 shaderIdx, float xrayAlpha,
+                 const CActorParameters& actParms, bool looping, bool active, s32 shaderIdx, float xrayAlpha,
                  bool noThermalHotZ, bool castsShadow, bool scaleAdvancementDelta, bool materialFlag54);
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

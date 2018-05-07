@@ -299,7 +299,8 @@ bool ViewManager::proc()
     gfxQ->execute();
     if (g_ResFactory)
         g_ResFactory->AsyncIdle();
-    m_mainWindow->waitForRetrace(m_voiceEngine.get());
+    if (!m_skipWait && hecl::com_developer->toBoolean())
+        m_mainWindow->waitForRetrace(m_voiceEngine.get());
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
     ++logvisor::FrameIndex;

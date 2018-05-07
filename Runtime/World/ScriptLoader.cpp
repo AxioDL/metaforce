@@ -40,6 +40,8 @@
 #include "CScriptPickupGenerator.hpp"
 #include "CScriptPlatform.hpp"
 #include "CScriptPlayerActor.hpp"
+#include "CFishCloud.hpp"
+#include "CFishCloudModifier.hpp"
 #include "CScriptPlayerHint.hpp"
 #include "CScriptPlayerStateChange.hpp"
 #include "CScriptPointOfInterest.hpp"
@@ -1629,7 +1631,8 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
         return nullptr;
     const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
     CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
-    return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo /*TODO: Finish */);
+    return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, 6, f1, f2, f3, f4, f5, f6, f7,
+                              f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, 0.f, b1, 0, CDamageVulnerability::NormalVulnerabilty(), MP1::CParasiteInfo(), -1, -1, -1, -1, -1, 0.f, aParms);
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1882,13 +1885,67 @@ CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in, 
 
 CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 36, "FishCloud"))
+        return nullptr;
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    bool b1 = in.readBool();
+    CAssetId w1(in);
+    CAnimationParameters animParms(in);
+    u32 w5 = u32(in.readFloatBig());
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    float f10 = in.readFloatBig();
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    float f13 = in.readFloatBig();
+    u32 w6 = in.readUint32Big();
+
+
+    if (!g_ResFactory->GetResourceTypeById(w1))
+        return nullptr;
+
+    zeus::CColor col = zeus::CColor::ReadRGBABig(in);
+    bool b2 = in.readBool();
+    float f14 = in.readFloatBig();
+    CAssetId w7 = in.readUint32Big();
+    u32 w8 = in.readUint32Big();
+    CAssetId w9 = in.readUint32Big();
+    u32 w10 = in.readUint32Big();
+    CAssetId w11 = in.readUint32Big();
+    u32 w12 = in.readUint32Big();
+    CAssetId w13 = in.readUint32Big();
+    u32 w14 = in.readUint32Big();
+    u32 w15 = in.readUint32Big();
+    bool b3 = in.readBool();
+    bool b4 = in.readBool();
+
+    CModelData mData(CStaticRes(w1, zeus::CVector3f::skOne));
+    CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::CVector3f::skOne, animParms.GetInitialAnimation(), true);
+    return new CFishCloud(mgr.AllocateUniqueId(), b1, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform, std::move(mData), animRes, w5,
+                          f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, w6, col, b2, f14, w7, w8, w9, w10, w11, w12, w13, w14, w15, b3, b4);
 }
 
 CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& in, int propCount,
                                              const CEntityInfo& info)
 {
-    return nullptr;
+    if (propCount < 6 || !EnsurePropertyCount(propCount, 7, "FishCloudModifier"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
+    bool b1 = in.readBool();
+    bool b2 = in.readBool();
+    bool b3 = propCount > 6 ? in.readBool() : false;
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    return new CFishCloudModifier(mgr.AllocateUniqueId(), b1, name, info, vec, b2, b3, f1, f2);
 }
 
 CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1977,7 +2034,7 @@ CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int pr
     float farProb = in.readFloatBig();
     zeus::CColor color;
     color.readRGBABig(in);
-    u32 sfx = in.readUint32Big();
+    s32 sfx = in.readInt32Big();
     bool forceShow = in.readBool();
 
     if (particle.IsValid() || electric.IsValid())
