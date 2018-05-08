@@ -117,18 +117,11 @@ class CGameArea : public IGameArea
 
     u32 xec_totalResourcesSize = 0;
 
-    union
-    {
-        struct
-        {
-            bool xf0_24_postConstructed : 1;
-            bool xf0_25_active : 1;
-            bool xf0_26_tokensReady : 1;
-            bool xf0_27_paused : 1;
-            bool xf0_28_validated : 1;
-        };
-        u32 _dummy = 0;
-    };
+    bool xf0_24_postConstructed : 1;
+    bool xf0_25_active : 1;
+    bool xf0_26_tokensReady : 1;
+    bool xf0_27_paused : 1;
+    bool xf0_28_validated : 1;
 
     enum class EPhase
     {
@@ -361,7 +354,7 @@ public:
     s32 GetDockCount() const { return xcc_docks.size(); }
     Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
-    bool IsPostConstructed() const { return xf0_24_postConstructed && x12c_postConstructed; }
+    bool IsPostConstructed() const { return xf0_24_postConstructed; }
     const CPostConstructed* GetPostConstructed() const
     {
         if (!x12c_postConstructed)

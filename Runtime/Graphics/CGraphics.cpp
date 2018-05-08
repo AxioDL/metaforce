@@ -507,8 +507,8 @@ float CGraphics::GetSecondsMod900()
 
 void CGraphics::TickRenderTimings()
 {
-    g_RenderTimings++;
-    g_DefaultSeconds = float(g_RenderTimings) / 60.f;
+    g_RenderTimings = (g_RenderTimings  + 1) % u32(900*60);
+    g_DefaultSeconds = g_RenderTimings / 60.f;
 }
 
 boo::IGraphicsDataFactory::Platform CGraphics::g_BooPlatform = boo::IGraphicsDataFactory::Platform::Null;

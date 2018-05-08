@@ -37,6 +37,8 @@ set(WORLD_SOURCES
     CScriptCounter.hpp CScriptCounter.cpp
     CScriptEffect.hpp CScriptEffect.cpp
     CScriptSteam.hpp CScriptSteam.cpp
+    CScriptRipple.hpp CScriptRipple.cpp
+    CScriptBallTrigger.hpp CScriptBallTrigger.cpp
     CScriptPlatform.hpp CScriptPlatform.cpp
     CScriptSound.hpp CScriptSound.cpp
     CScriptGenerator.hpp CScriptGenerator.cpp

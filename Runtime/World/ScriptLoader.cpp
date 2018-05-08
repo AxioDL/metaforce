@@ -53,7 +53,11 @@
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptSpecialFunction.hpp"
 #include "CScriptSteam.hpp"
+#include "CScriptRipple.hpp"
+#include "CScriptBallTrigger.hpp"
+#include "CScriptTargetingPoint.hpp"
 #include "CScriptStreamedMusic.hpp"
+#include "CScriptGunTurret.hpp"
 #include "CScriptSwitch.hpp"
 #include "CScriptTimer.hpp"
 #include "CScriptVisorFlare.hpp"
@@ -1789,17 +1793,43 @@ CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propC
 
 CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "Ripple"))
+        return nullptr;
+    std::string_view name = mgr.HashInstanceName(in);
+    zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    float mag = in.readFloatBig();
+    return new CScriptRipple(mgr.AllocateUniqueId(), name, info, center, active, mag);
 }
 
 CEntity* ScriptLoader::LoadBallTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 9, "BallTrigger"))
+        return nullptr;
+
+    std::string_view name = in.readString();
+    zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+
+    bool b1 = in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
+    bool b2 = in.readBool();
+    return new CScriptBallTrigger(mgr.AllocateUniqueId(), name, info, pos, scale, b1, f1, f2, f3, vec, b2);
 }
 
 CEntity* ScriptLoader::LoadTargetingPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "TargetingPoint"))
+        return nullptr;
+
+
+    SActorHead aHead = LoadActorHead(in, mgr);
+    bool active = in.readBool();
+
+    return new CScriptTargetingPoint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active);
 }
 
 CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2293,7 +2323,31 @@ CEntity* ScriptLoader::LoadRepulsor(CStateManager& mgr, CInputStream& in, int pr
 
 CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, CScriptGunTurretData::GetMinProperties(), "GunTurret"))
+        return nullptr;
+
+    std::string_view name = mgr.HashInstanceName(in);
+    CScriptGunTurret::ETurretComponent component = CScriptGunTurret::ETurretComponent(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f collisionExtent = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f collisionOffset = zeus::CVector3f::ReadBig(in);
+    CAnimationParameters animParms = LoadAnimationParameters(in);
+    CActorParameters actParms = LoadActorParameters(in);
+    CHealthInfo hInfo(in);
+    CDamageVulnerability dVuln(in);
+    CScriptGunTurretData turretData(in, propCount);
+
+    if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()))
+        return nullptr;
+
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+    zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
+
+    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+        aabb = mData.GetBounds(xf.getRotation());
+
+    return new CScriptGunTurret(mgr.AllocateUniqueId(), name, component, info, xf, std::move(mData), aabb, hInfo, dVuln, actParms, turretData);
 }
 
 CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
