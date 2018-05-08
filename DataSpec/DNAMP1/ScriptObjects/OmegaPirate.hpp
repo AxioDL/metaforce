@@ -134,7 +134,8 @@ struct OmegaPirate : IScriptObject
         animationParameters.nameANCS(pakRouter, name + "_animp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(particle1, pathsOut);
         g_curSpec->flattenDependencies(particle2, pathsOut);
@@ -149,8 +150,8 @@ struct OmegaPirate : IScriptObject
         g_curSpec->flattenDependencies(skin, pathsOut);
         g_curSpec->flattenDependencies(rig, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters1.depIDs(pathsOut);
-        actorParameters2.depIDs(pathsOut);
+        actorParameters1.depIDs(pathsOut, lazyOut);
+        actorParameters2.depIDs(pathsOut, lazyOut);
         animationParameters.depANCS(pathsOut);
     }
 

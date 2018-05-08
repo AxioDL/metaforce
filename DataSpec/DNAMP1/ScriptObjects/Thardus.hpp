@@ -178,7 +178,8 @@ struct Thardus : IScriptObject
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         for (int i=0 ; i<14 ; ++i)
             g_curSpec->flattenDependencies(models[i], pathsOut);
@@ -190,7 +191,7 @@ struct Thardus : IScriptObject
         g_curSpec->flattenDependencies(particle, pathsOut);
         g_curSpec->flattenDependencies(texture, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut, lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

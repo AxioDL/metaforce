@@ -33,7 +33,8 @@ struct ElectroMagneticPulse : IScriptObject
         }
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(particle, pathsOut);
     }

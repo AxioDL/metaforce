@@ -44,8 +44,8 @@ struct IScriptObject : BigDNAVYaml
     virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&,
                                  std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const {}
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
-    virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {}
-    virtual void gatherLazyDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {}
+    virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                                    std::vector<hecl::ProjectPath>& lazyOut) const {}
     virtual void gatherScans(std::vector<Scan>& scansOut) const {}
     virtual zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const { return {}; }
 };

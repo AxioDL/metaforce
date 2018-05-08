@@ -31,7 +31,8 @@ struct VisorFlare : IScriptObject
         flareDefinitions[4].nameIDs(pakRouter, name + "_flare5");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         for (int i=0 ; i<5 ; ++i)
             flareDefinitions[i].depIDs(pathsOut);

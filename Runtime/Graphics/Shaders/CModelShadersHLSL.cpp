@@ -48,7 +48,7 @@ static const char* LightingHLSL =
 "        ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
 "    }\n"
 "    \n"
-"    return saturate(ret);\n"
+"    return ret;\n"
 "}\n";
 
 static const char* LightingShadowHLSL =
@@ -108,7 +108,7 @@ static const char* LightingShadowHLSL =
 "        ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
 "    }\n"
 "    \n"
-"    return saturate(ret);\n"
+"    return ret;\n"
 "}\n";
 
 static const char* MainPostHLSL =

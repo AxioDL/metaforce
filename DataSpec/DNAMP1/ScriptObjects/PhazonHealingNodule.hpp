@@ -38,11 +38,12 @@ struct PhazonHealingNodule : IScriptObject
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(elsc, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut, lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

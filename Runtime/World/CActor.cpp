@@ -64,6 +64,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
             x64_modelData->x18_ambientColor = params.x0_lightParms.x18_noLightsAmbient;
         x64_modelData->x14_25_sortThermal = !params.x58_27_noSortThermal;
     }
+
     if (params.x40_scanParms.GetScanId().IsValid())
         x98_scanObjectInfo = g_SimplePool->GetObj(SObjectTag{FOURCC('SCAN'), params.x40_scanParms.GetScanId()});
 }

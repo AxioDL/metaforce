@@ -1030,8 +1030,10 @@ float CCompoundTargetReticle::CalculateClampedScale(const zeus::CVector3f& pos, 
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     zeus::CVector3f viewPos = cam->GetTransform().transposeRotate(pos - cam->GetTransform().origin);
-    float unclampedX = (cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos + zeus::CVector3f(scale, 0.f, 0.f)).x -
-                        cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos).x) * 640.f;
+    viewPos = zeus::CVector3f(viewPos.x, viewPos.z, -viewPos.y);
+    float realX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos).x;
+    float offsetX = cam->GetPerspectiveMatrix().multiplyOneOverW(viewPos + zeus::CVector3f(scale, 0.f, 0.f)).x;
+    float unclampedX = (offsetX - realX) * 640;
     return zeus::clamp(clampMin, unclampedX, clampMax) / unclampedX * scale;
 }
 

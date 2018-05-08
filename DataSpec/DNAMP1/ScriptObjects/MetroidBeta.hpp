@@ -72,7 +72,8 @@ struct MetroidBeta : IScriptObject
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(particle1, pathsOut);
         g_curSpec->flattenDependencies(particle2, pathsOut);
@@ -80,7 +81,7 @@ struct MetroidBeta : IScriptObject
         g_curSpec->flattenDependencies(particle4, pathsOut);
         g_curSpec->flattenDependencies(swhc, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut, lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

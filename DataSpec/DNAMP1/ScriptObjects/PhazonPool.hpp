@@ -54,7 +54,8 @@ struct PhazonPool : IScriptObject
         }
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(particle1, pathsOut);
         g_curSpec->flattenDependencies(particle2, pathsOut);

@@ -49,7 +49,7 @@ static const char* LightingGLSL =
 "        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0);\n"
 "    }\n"
 "    \n"
-"    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
+"    return ret;\n"
 "}\n";
 
 static const char* LightingShadowGLSL =
@@ -112,7 +112,7 @@ static const char* LightingShadowGLSL =
 "        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0);\n"
 "    }\n"
 "    \n"
-"    return clamp(ret, vec4(0.0,0.0,0.0,0.0), vec4(1.0,1.0,1.0,1.0));\n"
+"    return ret;\n"
 "}\n";
 
 static const char* MainPostGLSL =

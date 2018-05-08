@@ -29,7 +29,8 @@ struct ScriptBeam : IScriptObject
         beamInfo.nameIDs(pakRouter, name + "_beamInfo");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(wpsc, pathsOut);
         beamInfo.depIDs(pathsOut);

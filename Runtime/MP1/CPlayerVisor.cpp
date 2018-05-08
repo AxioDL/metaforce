@@ -72,8 +72,9 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
     CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     g_Renderer->SetViewportOrtho(true, 0.f, 4096.f);
 
+    float vpScale = g_Viewport.xc_height / 448.f;
     CGraphics::SetModelMatrix(
-        zeus::CTransform::Scale(x48_interpWindowDims.x * 17.f, 1.f, x48_interpWindowDims.y * 17.f));
+        zeus::CTransform::Scale(x48_interpWindowDims.x * 17.f * vpScale, 1.f, x48_interpWindowDims.y * 17.f * vpScale));
 
     x114_scanShield->Draw(CModelFlags(5, 0, 3, zeus::CColor::skClear));
 
@@ -116,7 +117,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
             float scale = CCompoundTargetReticle::CalculateClampedScale(scanPos, 1.f,
                 g_tweakTargeting->GetScanTargetClampMin(),
                 g_tweakTargeting->GetScanTargetClampMax(), mgr);
-            zeus::CTransform xf(zeus::CMatrix3f(scale), scanPos);
+            zeus::CTransform xf(zeus::CMatrix3f(scale) * camMtx.basis, scanPos);
 
             float scanRange = g_tweakPlayer->GetScanningRange();
             float farRange = g_tweakPlayer->GetScanMaxLockDistance() - scanRange;
@@ -276,7 +277,7 @@ void CPlayerVisor::UpdateScanWindow(float dt, const CStateManager& mgr)
             x30_prevState = x34_nextState;
             x34_nextState = desiredState;
             x38_windowInterpDuration =
-                (desiredState == EScanWindowState::Scan) ? g_tweakGui->GetScanSidesEndTime() - x3c_windowInterpTimer : 0.f;
+                (desiredState == EScanWindowState::Idle) ? g_tweakGui->GetScanSidesEndTime() - x3c_windowInterpTimer : 0.f;
             x3c_windowInterpTimer = x38_windowInterpDuration;
             if (mgr.GetPlayerState()->GetVisorTransitionFactor() == 1.f)
                 CSfxManager::SfxStart(1409, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);

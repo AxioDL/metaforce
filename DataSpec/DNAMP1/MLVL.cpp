@@ -293,8 +293,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                         }
                     }
 
-                    obj->gatherDependencies(depPaths);
-                    obj->gatherLazyDependencies(lazyPaths);
+                    obj->gatherDependencies(depPaths, lazyPaths);
                 }
 
                 /* Cull duplicate paths and add typed hash to list */

@@ -46,6 +46,36 @@ static CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale
     return {CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
+static uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * g_Viewport.x8_width / 640;
+}
+
+static uint32_t GetOrbitScreenBoxHalfExtentYScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * g_Viewport.xc_height / 448;
+}
+
+static uint32_t GetOrbitScreenBoxCenterXScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * g_Viewport.x8_width / 640;
+}
+
+static uint32_t GetOrbitScreenBoxCenterYScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * g_Viewport.xc_height / 448;
+}
+
+static uint32_t GetOrbitZoneIdealXScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitZoneIdealX(zone) * g_Viewport.x8_width / 640;
+}
+
+static uint32_t GetOrbitZoneIdealYScaled(int zone)
+{
+    return g_tweakPlayer->GetOrbitZoneIdealY(zone) * g_Viewport.xc_height / 448;
+}
+
 CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
                  const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
                  const CMaterialList& ml)
@@ -4465,8 +4495,8 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
     TUniqueId bestId = kInvalidUniqueId;
     float vpWHalf = g_Viewport.x8_width / 2;
     float vpHHalf = g_Viewport.xc_height / 2;
-    float boxLeft = (g_tweakPlayer->GetOrbitZoneIdealX(int(info)) - vpWHalf) / vpWHalf;
-    float boxTop = (g_tweakPlayer->GetOrbitZoneIdealY(int(info)) - vpHHalf) / vpHHalf;
+    float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWHalf) / vpWHalf;
+    float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHHalf) / vpHHalf;
     CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
     for (TUniqueId id : list)
@@ -4580,10 +4610,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
     TUniqueId bestId = kInvalidUniqueId;
     float vpWidthHalf = g_Viewport.x8_width / 2;
     float vpHeightHalf = g_Viewport.xc_height / 2;
-    float boxLeft = (g_tweakPlayer->GetOrbitZoneIdealX(int(info)) *
-                         g_Viewport.x8_width / 640 - vpWidthHalf) / vpWidthHalf;
-    float boxTop = (g_tweakPlayer->GetOrbitZoneIdealY(int(info)) *
-                        g_Viewport.xc_height / 448 - vpHeightHalf) / vpHeightHalf;
+    float boxLeft = (GetOrbitZoneIdealXScaled(int(info)) - vpWidthHalf) / vpWidthHalf;
+    float boxTop = (GetOrbitZoneIdealYScaled(int(info)) - vpHeightHalf) / vpHeightHalf;
 
     CFirstPersonCamera* fpCam = mgr.GetCameraManager()->GetFirstPersonCamera();
 
@@ -4803,10 +4831,10 @@ bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZ
     switch (type)
     {
     case EPlayerZoneType::Box:
-        return std::fabs(screenCoords.x - g_tweakPlayer->GetOrbitScreenBoxCenterX(int(zone))) <
-                   g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(int(zone)) &&
-               std::fabs(screenCoords.y - g_tweakPlayer->GetOrbitScreenBoxCenterY(int(zone))) <
-                   g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(int(zone)) &&
+        return std::fabs(screenCoords.x - GetOrbitScreenBoxCenterXScaled(int(zone))) <
+                   GetOrbitScreenBoxHalfExtentXScaled(int(zone)) &&
+               std::fabs(screenCoords.y - GetOrbitScreenBoxCenterYScaled(int(zone))) <
+                   GetOrbitScreenBoxHalfExtentYScaled(int(zone)) &&
                screenCoords.z < 1.f;
         break;
     case EPlayerZoneType::Ellipse:
@@ -4823,12 +4851,12 @@ bool CPlayer::WithinOrbitScreenEllipse(const zeus::CVector3f& screenCoords, EPla
     if (screenCoords.z >= 1.f)
         return false;
 
-    float heYSq = g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(int(zone));
+    float heYSq = GetOrbitScreenBoxHalfExtentYScaled(int(zone));
     heYSq *= heYSq;
-    float heXSq = g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(int(zone));
+    float heXSq = GetOrbitScreenBoxHalfExtentXScaled(int(zone));
     heXSq *= heXSq;
-    float tmpY = std::fabs(screenCoords.y - g_tweakPlayer->GetOrbitScreenBoxCenterY(int(zone)));
-    float tmpX = std::fabs(screenCoords.x - g_tweakPlayer->GetOrbitScreenBoxCenterX(int(zone)));
+    float tmpY = std::fabs(screenCoords.y - GetOrbitScreenBoxCenterYScaled(int(zone)));
+    float tmpX = std::fabs(screenCoords.x - GetOrbitScreenBoxCenterXScaled(int(zone)));
     return tmpX * tmpX <= (1.f - tmpY * tmpY / heYSq) * heXSq;
 }
 
@@ -5226,7 +5254,7 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(TUniqueId uid, CS
     if (uid == kInvalidUniqueId)
         return EOrbitValidationResult::InvalidTarget;
 
-    TCastToConstPtr<CActor> act = mgr.GetObjectById(x310_orbitTargetId);
+    TCastToConstPtr<CActor> act = mgr.GetObjectById(uid);
     if (!act || !act->GetIsTargetable() || !act->GetActive())
         return EOrbitValidationResult::InvalidTarget;
 

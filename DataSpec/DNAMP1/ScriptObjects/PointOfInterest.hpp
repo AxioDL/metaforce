@@ -23,9 +23,10 @@ struct PointOfInterest : IScriptObject
         scannableParameters.nameIDs(pakRouter, name + "_scanp");
     }
 
-    void gatherLazyDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
-        scannableParameters.depIDs(pathsOut);
+        scannableParameters.depIDs(lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

@@ -234,7 +234,8 @@ struct Ridley : IScriptObject
         ridleyStruct1.nameIDs(pakRouter, name + "_ridley1");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(particle, pathsOut);
         g_curSpec->flattenDependencies(model1, pathsOut);
@@ -255,7 +256,7 @@ struct Ridley : IScriptObject
         g_curSpec->flattenDependencies(wpsc4, pathsOut);
         g_curSpec->flattenDependencies(elsc, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut, lazyOut);
         ridleyStruct1.depIDs(pathsOut);
     }
 

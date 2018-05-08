@@ -303,7 +303,8 @@ struct MetroidPrimeStage1 : IScriptObject
             projectileInfo.nameIDs(pakRouter, name + "_projectileInfo");
         }
 
-        void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const
+        void depIDs(std::vector<hecl::ProjectPath>& pathsOut,
+                    std::vector<hecl::ProjectPath>& lazyOut) const
         {
             primeStruct2b.depIDs(pathsOut);
             g_curSpec->flattenDependencies(particle4, pathsOut);
@@ -314,7 +315,7 @@ struct MetroidPrimeStage1 : IScriptObject
             g_curSpec->flattenDependencies(wpsc1, pathsOut);
             g_curSpec->flattenDependencies(wpsc2, pathsOut);
             patternedInfo.depIDs(pathsOut);
-            actorParameters.depIDs(pathsOut);
+            actorParameters.depIDs(pathsOut, lazyOut);
             primeStruct4s[0].depIDs(pathsOut);
             primeStruct4s[1].depIDs(pathsOut);
             primeStruct4s[2].depIDs(pathsOut);
@@ -340,9 +341,10 @@ struct MetroidPrimeStage1 : IScriptObject
         massivePrimeStruct.nameIDs(pakRouter, name + "_massiveStruct");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
-        massivePrimeStruct.depIDs(pathsOut);
+        massivePrimeStruct.depIDs(pathsOut, lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

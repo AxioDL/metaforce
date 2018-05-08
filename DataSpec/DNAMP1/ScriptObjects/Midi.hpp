@@ -27,7 +27,8 @@ struct Midi : IScriptObject
         }
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath> &pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         // Dedicated PAK for this
         //g_curSpec->flattenDependencies(song, pathsOut);

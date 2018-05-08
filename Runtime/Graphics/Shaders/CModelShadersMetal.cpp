@@ -48,7 +48,7 @@ static const char* LightingMetal =
 "        ret += lu.lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
 "    }\n"
 "    \n"
-"    return saturate(ret);\n"
+"    return ret;\n"
 "}\n";
 
 static const char* LightingShadowMetal =
@@ -109,7 +109,7 @@ static const char* LightingShadowMetal =
 "        ret += lu.lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn.xyz));\n"
 "    }\n"
 "    \n"
-"    return saturate(ret);\n"
+"    return ret;\n"
 "}\n";
 
 static const char* MainPostMetal =

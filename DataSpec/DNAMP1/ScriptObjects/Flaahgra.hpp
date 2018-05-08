@@ -70,15 +70,16 @@ struct Flaahgra : IScriptObject
         animationParameters.nameANCS(pakRouter, name + "_animp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(wpsc1, pathsOut);
         g_curSpec->flattenDependencies(wpsc2, pathsOut);
         g_curSpec->flattenDependencies(particle, pathsOut);
         g_curSpec->flattenDependencies(dependencyGroup, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters1.depIDs(pathsOut);
-        actorParameters2.depIDs(pathsOut);
+        actorParameters1.depIDs(pathsOut, lazyOut);
+        actorParameters2.depIDs(pathsOut, lazyOut);
         animationParameters.depANCS(pathsOut);
     }
 

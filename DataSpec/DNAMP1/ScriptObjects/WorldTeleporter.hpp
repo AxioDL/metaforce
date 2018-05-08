@@ -60,7 +60,8 @@ struct WorldTeleporter : IScriptObject
         }
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(model1, pathsOut);
         g_curSpec->flattenDependencies(model2, pathsOut);

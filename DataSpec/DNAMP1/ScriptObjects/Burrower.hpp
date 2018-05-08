@@ -62,7 +62,8 @@ struct Burrower : IScriptObject
         actorParameters.nameIDs(pakRouter, name + "_actp");
     }
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const
+    void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                            std::vector<hecl::ProjectPath>& lazyOut) const
     {
         g_curSpec->flattenDependencies(wpsc, pathsOut);
         g_curSpec->flattenDependencies(particle1, pathsOut);
@@ -70,7 +71,7 @@ struct Burrower : IScriptObject
         g_curSpec->flattenDependencies(particle3, pathsOut);
         g_curSpec->flattenDependencies(particle4, pathsOut);
         patternedInfo.depIDs(pathsOut);
-        actorParameters.depIDs(pathsOut);
+        actorParameters.depIDs(pathsOut, lazyOut);
     }
 
     void gatherScans(std::vector<Scan>& scansOut) const

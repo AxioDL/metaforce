@@ -6,7 +6,7 @@
 namespace urde
 {
 
-CMaterialList MakeMaterialList()
+static CMaterialList MakeMaterialList()
 {
     return CMaterialList(EMaterialTypes::Scannable, EMaterialTypes::Trigger, EMaterialTypes::NonSolidDamageable,
                          EMaterialTypes::ExcludeFromLineOfSightTest);
