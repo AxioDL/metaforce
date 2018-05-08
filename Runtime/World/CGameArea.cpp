@@ -416,7 +416,11 @@ const zeus::CTransform& CDummyGameArea::IGetTM() const
 CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
 : x4_selfIdx(idx)
 {
+    xf0_24_postConstructed = false;
     xf0_25_active = true;
+    xf0_26_tokensReady = false;
+    xf0_27_paused  = false;
+    xf0_28_validated = false;
     x8_nameSTRG = in.readUint32Big();
     xc_transform.read34RowMajor(in);
     x3c_invTransform = xc_transform.inverse();
@@ -463,6 +467,12 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
 CGameArea::CGameArea(CAssetId mreaId)
 : x84_mrea(mreaId)
 {
+    xf0_24_postConstructed = false;
+    xf0_25_active = false;
+    xf0_26_tokensReady = false;
+    xf0_27_paused  = false;
+    xf0_28_validated = false;
+
     while (StartStreamingMainArea())
         for (auto& req : xf8_loadTransactions)
             req->WaitUntilComplete();
@@ -905,7 +915,7 @@ void CGameArea::AllocNewAreaData(int offset, int size)
 
 bool CGameArea::Invalidate(CStateManager* mgr)
 {
-    if (xf0_24_postConstructed)
+    if (!xf0_24_postConstructed)
     {
         ClearTokenList();
 

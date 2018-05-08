@@ -449,7 +449,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 
 bool CWorld::ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr)
 {
-    if (!area->xf0_24_postConstructed)
+    if (!area->IsPostConstructed())
     {
         MoveToChain(area, EChain::Loading);
         return true;
