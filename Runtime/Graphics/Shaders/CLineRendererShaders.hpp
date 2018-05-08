@@ -20,6 +20,7 @@ public:
                                             CLineRenderer& renderer,
                                             const boo::ObjToken<boo::IShaderPipeline>& pipeline,
                                             const boo::ObjToken<boo::ITexture>& texture)=0;
+        virtual ~IDataBindingFactory() = default;
     };
 
 private:

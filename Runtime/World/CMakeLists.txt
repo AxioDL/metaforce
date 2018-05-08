@@ -48,7 +48,6 @@ set(WORLD_SOURCES
     CScriptPickupGenerator.hpp CScriptPickupGenerator.cpp
     CScriptPointOfInterest.hpp CScriptPointOfInterest.cpp
     CScriptAreaAttributes.hpp CScriptAreaAttributes.cpp
-    CFishCloud.hpp CFishCloud.cpp
     CScriptVisorFlare.hpp CScriptVisorFlare.cpp
     CScriptWorldTeleporter.hpp CScriptWorldTeleporter.cpp
     CScriptCameraWaypoint.hpp CScriptCameraWaypoint.cpp
@@ -74,6 +73,8 @@ set(WORLD_SOURCES
     CScriptPlayerStateChange.hpp CScriptPlayerStateChange.cpp
     CScriptTargetingPoint.hpp CScriptTargetingPoint.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
+    CFishCloud.hpp CFishCloud.cpp
+    CFishCloudModifier.hpp CFishCloudModifier.cpp
     CScriptSwitch.hpp CScriptSwitch.cpp
     CWallWalker.hpp CWallWalker.cpp
     CWallCrawlerSwarm.hpp CWallCrawlerSwarm.cpp

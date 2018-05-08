@@ -74,12 +74,20 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count)
 bool CMapWorld::IsMapAreasStreaming() const
 {
     bool ret = false;
-    for (CMapAreaData* data = x10_listHeads[1] ; data ; data = data->NextMapAreaData())
+    CMapAreaData* data = x10_listHeads[1];
+    while (data != nullptr)
     {
         if (data->IsLoaded())
+        {
+            CMapAreaData* next = data->NextMapAreaData();
             const_cast<CMapWorld*>(this)->MoveMapAreaToList(data, EMapAreaList::Loaded);
+            data = next;
+        }
         else
+        {
+            data = data->NextMapAreaData();
             ret = true;
+        }
     }
     return ret;
 }

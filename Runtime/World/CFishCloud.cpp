@@ -1,5 +1,6 @@
 #include "CFishCloud.hpp"
 #include "CActorParameters.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -12,6 +13,31 @@ CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const 
                        CAssetId part3, u32 w5, CAssetId part4, u32 w6, u32 w7, bool b2, bool b3)
 : CActor(uid, active, name, info, xf, std::move(mData), {EMaterialTypes::NoStepLogic},
          CActorParameters::None(), kInvalidUniqueId)
+{
+
+}
+
+void CFishCloud::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
+void CFishCloud::RemoveRepulsor(TUniqueId)
+{
+
+}
+
+void CFishCloud::RemoveAttractor(TUniqueId)
+{
+
+}
+
+void CFishCloud::AddRepulsor(TUniqueId, float, float)
+{
+
+}
+
+void CFishCloud::AddAttractor(TUniqueId, float, float)
 {
 
 }

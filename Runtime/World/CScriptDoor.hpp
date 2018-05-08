@@ -22,18 +22,18 @@ public:
     zeus::CAABox x264_;
     TUniqueId x27c_partner1 = kInvalidUniqueId;
     TUniqueId x27e_partner2 = kInvalidUniqueId;
-    TUniqueId x280_ = kInvalidUniqueId;
+    TUniqueId x280_prevDoor = kInvalidUniqueId;
     TUniqueId x282_dockId = kInvalidUniqueId;
     zeus::CAABox x284_modelBounds;
     zeus::CVector3f x29c_;
 
-    bool x2a8_24_ : 1;
-    bool x2a8_25_ : 1;
+    bool x2a8_24_closing : 1;
+    bool x2a8_25_wasOpen : 1;
     bool x2a8_26_isOpen : 1;
-    bool x2a8_27_ : 1;
-    bool x2a8_28_ : 1;
+    bool x2a8_27_conditionsMet : 1;
+    bool x2a8_28_projectilesCollide : 1;
     bool x2a8_29_ballDoor : 1;
-    bool x2a8_30_ : 1;
+    bool x2a8_30_doClose : 1;
 public:
     CScriptDoor(TUniqueId, std::string_view name, const CEntityInfo& info,
                 const zeus::CTransform&, CModelData&&, const CActorParameters&,

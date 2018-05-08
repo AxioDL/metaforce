@@ -18,9 +18,13 @@ CScriptColorModulate::CScriptColorModulate(TUniqueId uid, std::string_view name,
 {
     x54_24_ = b1;
     x54_25_ = b2;
-    x54_26_ = b3;
-    x54_27_ = b4;
+    x54_26_depthEqual = b3;
+    x54_27_depthUpdate = b4;
     x54_28_ = b5;
+    x54_29_ = false;
+    x54_30_ = false;
+    x54_31_ = false;
+    x55_24_ = false;
 }
 
 void CScriptColorModulate::Accept(IVisitor& visitor)
@@ -31,7 +35,7 @@ void CScriptColorModulate::Accept(IVisitor& visitor)
 void CScriptColorModulate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr)
 {
     CEntity::AcceptScriptMsg(msg, objId, mgr);
-    return;
+
     if (!GetActive())
         return;
 
@@ -81,7 +85,6 @@ void CScriptColorModulate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId o
 
 void CScriptColorModulate::Think(float dt, CStateManager& mgr)
 {
-    return;
     if (!GetActive() || !x54_30_)
         return;
 
@@ -134,9 +137,121 @@ void CScriptColorModulate::Think(float dt, CStateManager& mgr)
     }
 }
 
-CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor &) const
+CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const
 {
-    return {};
+    CModelFlags ret;
+    if (x54_28_)
+    {
+        if (x48_blendMode == EBlendMode::Zero)
+        {
+            CModelFlags ret;
+            ret.x0_blendMode = 5;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = (x54_29_ << 1) | (x54_27_depthUpdate << 0) | 3 | 8;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::One)
+        {
+            CModelFlags ret;
+            ret.x0_blendMode = 7;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1 | 0x8;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::Two)
+        {
+            CModelFlags ret;
+            ret.x0_blendMode = 8;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1 | 0x8;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::Three)
+        {
+            CModelFlags ret;
+            ret.x0_blendMode = 1;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1 | 0x8;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::Four)
+        {
+            CModelFlags ret;
+            ret.x0_blendMode = 2;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1 | 0x8;
+            ret.x4_color = col;
+        }
+        else
+        {
+            ret.x2_flags = 3;
+            ret.x4_color = zeus::CColor::skWhite;
+        }
+    }
+    else
+    {
+        if (x48_blendMode == EBlendMode::Zero)
+        {
+            if (col == zeus::CColor::skWhite)
+            {
+                ret.x0_blendMode = 3;
+                ret.x1_matSetIdx = 0;
+                ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+                ret.x4_color = zeus::CColor::skWhite;
+            }
+            else
+            {
+                ret.x0_blendMode = 5;
+                ret.x1_matSetIdx = 0;
+                ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+                ret.x4_color = col;
+            }
+        }
+        else if (x48_blendMode == EBlendMode::One)
+        {
+            ret.x0_blendMode = 7;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::Two)
+        {
+            ret.x0_blendMode = 8;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+            ret.x4_color = col;
+        }
+        else if (x48_blendMode == EBlendMode::Three)
+        {
+            if (col == zeus::CColor::skWhite)
+            {
+                ret.x0_blendMode = 3;
+                ret.x1_matSetIdx = 0;
+                ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+                ret.x4_color = zeus::CColor::skWhite;
+            }
+            else
+            {
+                ret.x0_blendMode = 1;
+                ret.x1_matSetIdx = 0;
+                ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+                ret.x4_color = col;
+            }
+        }
+        else if (x48_blendMode == EBlendMode::Four)
+        {
+            ret.x0_blendMode = 2;
+            ret.x1_matSetIdx = 0;
+            ret.x2_flags = x54_26_depthEqual << 0 | x54_27_depthUpdate << 1;
+            ret.x4_color = col;
+        }
+        else
+        {
+            ret.x2_flags = 3;
+            ret.x4_color = zeus::CColor::skWhite;
+        }
+    }
+    return ret;
 }
 
 void CScriptColorModulate::SetTargetFlags(CStateManager& stateMgr, const CModelFlags& flags)
@@ -155,21 +270,47 @@ void CScriptColorModulate::SetTargetFlags(CStateManager& stateMgr, const CModelF
         }
     }
 
-    if (x34_ != kInvalidUniqueId)
+    if (x34_parent != kInvalidUniqueId)
     {
-        CEntity* ent = stateMgr.ObjectById(x34_);
+        CEntity* ent = stateMgr.ObjectById(x34_parent);
         if (CActor* act = TCastToPtr<CActor>(ent))
             act->SetDrawFlags(flags);
     }
 }
 
-void CScriptColorModulate::FadeOutHelper(CStateManager &, TUniqueId, float)
+TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, TUniqueId parent, float dt)
 {
+    TAreaId aId = mgr.GetNextAreaId();
+    if (const CEntity* ent = mgr.GetObjectById(parent))
+        aId = ent->GetAreaIdAlways();
+
+    TUniqueId ret = mgr.AllocateUniqueId();
+    CScriptColorModulate* colMod = new CScriptColorModulate(ret, "", CEntityInfo(aId, CEntity::NullConnectionList), zeus::CColor(1.f, 1.f, 1.f, 0.f), zeus::CColor(1.f, 1.f, 1.f, 1.f), EBlendMode::Zero, dt, 0.f, false, false, true, true, false, true);
+    mgr.AddObject(colMod);
+    colMod->x34_parent = parent;
+    colMod->x54_30_ = true;
+    colMod->x54_31_ = true;
+    colMod->x55_24_ = true;
+
+    colMod->Think(0.f, mgr);
+    return ret;
 }
 
-void CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId uid, float f1)
+TUniqueId CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId parent, float dt)
 {
+    TAreaId aId = mgr.GetNextAreaId();
+    if (const CEntity* ent = mgr.GetObjectById(parent))
+        aId = ent->GetAreaIdAlways();
 
+    TUniqueId ret = mgr.AllocateUniqueId();
+    CScriptColorModulate* colMod = new CScriptColorModulate(ret, "", CEntityInfo(aId, CEntity::NullConnectionList), zeus::CColor(1.f, 1.f, 1.f, 1.f), zeus::CColor(1.f, 1.f, 1.f, 0.f), EBlendMode::Zero, dt, 0.f, false, false, true, true, false, true);
+    mgr.AddObject(colMod);
+    colMod->x34_parent = parent;
+    colMod->x54_30_ = true;
+    colMod->x54_31_ = true;
+
+    colMod->Think(0.f, mgr);
+    return ret;
 }
 
 void CScriptColorModulate::End(CStateManager& stateMgr)
@@ -188,7 +329,7 @@ void CScriptColorModulate::End(CStateManager& stateMgr)
         SetTargetFlags(stateMgr, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
 
     if (x55_24_)
-        stateMgr.SendScriptMsgAlways(x34_, x8_uid, EScriptObjectMessage::Deactivate);
+        stateMgr.SendScriptMsgAlways(x34_parent, x8_uid, EScriptObjectMessage::Deactivate);
 
     CEntity::SendScriptMsgs(EScriptObjectState::MaxReached, stateMgr, EScriptObjectMessage::None);
 

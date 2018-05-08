@@ -16,7 +16,7 @@ namespace urde
 static CMaterialList MakeDoorMaterialList(bool open)
 {
     CMaterialList ret;
-    //ret.Add(EMaterialTypes::Solid);
+    ret.Add(EMaterialTypes::Solid);
     ret.Add(EMaterialTypes::Immovable);
     ret.Add(EMaterialTypes::Orbit);
     if (!open)
@@ -28,18 +28,18 @@ static CMaterialList MakeDoorMaterialList(bool open)
 CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                          const zeus::CVector3f& vec, const zeus::CAABox& aabb, bool active,
-                         bool open, bool b2, float animLen, bool ballDoor)
+                         bool open, bool projectilesCollide, float animLen, bool ballDoor)
     : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open),
                 aabb, SMoverData(1.f), actParms, 0.3f, 0.1f)
 {
     x258_animLen = animLen;
-    x2a8_24_ = false;
-    x2a8_25_ = open;
+    x2a8_24_closing = false;
+    x2a8_25_wasOpen = open;
     x2a8_26_isOpen = open;
-    x2a8_27_ = false;
-    x2a8_28_ = b2;
+    x2a8_27_conditionsMet = false;
+    x2a8_28_projectilesCollide = projectilesCollide;
     x2a8_29_ballDoor = ballDoor;
-    x2a8_30_ = false;
+    x2a8_30_doClose = false;
     x264_ = GetBoundingBox();
     x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
     x29c_ = vec;
@@ -77,18 +77,18 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 
         if (x2a8_26_isOpen)
         {
-            if (x27e_partner2 != kInvalidUniqueId)
-            {
-                if (CEntity* ent = mgr.ObjectById(x27e_partner2))
-                    mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
-            }
+//            if (x27e_partner2 != kInvalidUniqueId)
+//            {
+//                if (CEntity* ent = mgr.ObjectById(x27e_partner2))
+//                    mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
+//            }
             x2a8_26_isOpen = false;
             SetDoorAnimation(EDoorAnimType::Close);
             mgr.GetCameraManager()->GetBallCamera()->DoorClosing(GetUniqueId());
         }
-        else if (x2a8_27_)
+        else if (x2a8_27_conditionsMet)
         {
-            x2a8_27_ = false;
+            x2a8_27_conditionsMet = false;
             SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
         }
         break;
@@ -101,17 +101,17 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             {
                 if (x2a8_26_isOpen)
                     return;
-                x2a8_30_ = true;
+                x2a8_30_doClose = true;
                 mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
             }
         }
         else if (x2a8_26_isOpen)
         {
-            x2a8_30_ = true;
+            x2a8_30_doClose = true;
             if (TCastToPtr<CScriptDoor> door = mgr.ObjectById(x27e_partner2))
             {
                 mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
-                x2a8_30_ = true;
+                x2a8_30_doClose = true;
             }
             x2a8_26_isOpen = false;
             SetDoorAnimation(EDoorAnimType::Close);
@@ -128,15 +128,15 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         switch(doorCond)
         {
         case 1:
-            x2a8_27_ = true;
-            x280_ = uid;
+            x2a8_27_conditionsMet = true;
+            x280_prevDoor = uid;
             break;
         case 2:
             OpenDoor(uid, mgr);
             break;
         default:
-            x2a8_25_= false;
-            x2a8_24_ = true;
+            x2a8_25_wasOpen= false;
+            x2a8_24_closing = true;
             break;
         }
         break;
@@ -148,21 +148,21 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             if (conn.x4_msg == EScriptObjectMessage::Increment)
             {
                 TUniqueId dock = mgr.GetIdForScript(conn.x8_objId);
-                if (TCastToConstPtr<CScriptDock>(mgr.GetObjectById(dock)))
-                    x282_dockId = dock;
+                if (TCastToConstPtr<CScriptDock> d = mgr.GetObjectById(dock))
+                    x282_dockId = d->GetUniqueId();
             }
         }
         break;
     }
     case EScriptObjectMessage::SetToZero:
     {
-        x2a8_28_ = true;
+        x2a8_28_projectilesCollide = true;
         mgr.MapWorldInfo()->SetDoorVisited(mgr.GetEditorIdForUniqueId(GetUniqueId()), true);
         break;
     }
     case EScriptObjectMessage::SetToMax:
     {
-        x2a8_28_ = false;
+        x2a8_28_projectilesCollide = false;
         break;
     }
     default:
@@ -179,50 +179,44 @@ void CScriptDoor::Think(float dt, CStateManager& mgr)
     if (!x2a8_26_isOpen && x25c_animTime < 0.5f)
         x25c_animTime += dt;
 
-    if (x2a8_27_ && GetDoorOpenCondition(mgr) == 2)
+    if (x2a8_27_conditionsMet && GetDoorOpenCondition(mgr) == 2)
     {
-        x2a8_27_ = false;
-        OpenDoor(x280_, mgr);
+        x2a8_27_conditionsMet = false;
+        OpenDoor(x280_prevDoor, mgr);
     }
 
-    if (x2a8_24_)
+    if (x2a8_24_closing)
     {
-        x2a8_25_ = false;
+        x2a8_25_wasOpen = false;
         mgr.GetCameraManager()->GetBallCamera()->DoorClosed(GetUniqueId());
-        x2a8_28_ = false;
-        x2a8_24_ = false;
+        x2a8_28_projectilesCollide = false;
+        x2a8_24_closing = false;
         SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::Decrement);
         x25c_animTime = 0.f;
-        x2a8_30_ = false;
+        x2a8_30_doClose = false;
     }
 
     if (x2a8_26_isOpen && !x64_modelData->IsAnimating())
         RemoveMaterial(EMaterialTypes::Solid, EMaterialTypes::Occluder, EMaterialTypes::Orbit, EMaterialTypes::Scannable, mgr);
     else
     {
-        if (x2a8_25_ && !x64_modelData->IsAnimating())
+        if (x2a8_25_wasOpen && !x64_modelData->IsAnimating())
         {
-            x2a8_25_ = false;
+            x2a8_25_wasOpen = false;
             mgr.GetCameraManager()->GetBallCamera()->DoorClosed(GetUniqueId());
-            x2a8_28_ = false;
-            x2a8_27_ = false;
+            x2a8_28_projectilesCollide = false;
+            x2a8_27_conditionsMet = false;
             SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
         }
 
         if (GetScannableObjectInfo())
-            AddMaterial(/*EMaterialTypes::Solid, */EMaterialTypes::Metal, EMaterialTypes::Occluder, EMaterialTypes::Orbit, EMaterialTypes::Scannable, mgr);
+            AddMaterial(EMaterialTypes::Solid, EMaterialTypes::Metal, EMaterialTypes::Occluder, EMaterialTypes::Orbit, EMaterialTypes::Scannable, mgr);
         else
-            AddMaterial(/*EMaterialTypes::Solid, */EMaterialTypes::Metal, EMaterialTypes::Occluder, EMaterialTypes::Orbit, mgr);
+            AddMaterial(EMaterialTypes::Solid, EMaterialTypes::Metal, EMaterialTypes::Occluder, EMaterialTypes::Orbit, mgr);
     }
 
     if (x64_modelData->IsAnimating())
-    {
-        float f1 = x64_modelData->GetAnimationDuration(s32(x260_doorState));
-        float f0 = x258_animLen;
-        f0 = f1 / f0;
-        f1 = f0 * dt;
-        UpdateAnimation(f1, mgr, true);
-    }
+        UpdateAnimation((x64_modelData->GetAnimationDuration(s32(x260_doorState)) / x258_animLen) * dt, mgr, true);
 
     xe7_31_targetable = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
 }
@@ -239,7 +233,7 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
     if (x2a8_26_isOpen)
     {
         x2a8_26_isOpen = false;
-        x2a8_25_ = false;
+        x2a8_25_wasOpen = false;
 
         mgr.GetCameraManager()->GetBallCamera()->DoorClosing(x8_uid);
         mgr.GetCameraManager()->GetBallCamera()->DoorClosed(x8_uid);
@@ -248,13 +242,13 @@ void CScriptDoor::ForceClosed(CStateManager & mgr)
         SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
 
         x25c_animTime = 0.f;
-        x2a8_27_ = false;
-        x2a8_30_ = false;
+        x2a8_27_conditionsMet = false;
+        x2a8_30_doClose = false;
     }
-    else if (x2a8_27_)
+    else if (x2a8_27_conditionsMet)
     {
-        x2a8_27_ = false;
-        x2a8_30_ = false;
+        x2a8_27_conditionsMet = false;
+        x2a8_30_doClose = false;
         SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
     }
 }
@@ -283,8 +277,8 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     TEditorId eid = mgr.GetEditorIdForUniqueId(uid);
     mgr.MapWorldInfo()->SetDoorVisited(eid, true);
     x2a8_26_isOpen = true;
-    x2a8_25_ = true;
-    x2a8_27_ = false;
+    x2a8_25_wasOpen = true;
+    x2a8_27_conditionsMet = false;
 
     if (const CScriptDoor* door = TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid)))
         x27c_partner1 = door->GetUniqueId();
@@ -321,7 +315,10 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
             if (conn.x4_msg != EScriptObjectMessage::Open)
                 continue;
             if (TCastToConstPtr<CScriptDoor> door = mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)))
+            {
                 x27e_partner2 = door->GetUniqueId();
+                break;
+            }
         }
     }
 }
@@ -333,7 +330,7 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
     if (!dock)
         return 2;
 
-    if (x25c_animTime < 0.05f || x2a8_30_)
+    if (x25c_animTime < 0.05f || x2a8_30_doClose)
         return 1;
 
     TAreaId destArea = dock->GetAreaId();
@@ -368,19 +365,19 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
         if (!door || door->GetUniqueId() == GetUniqueId())
             continue;
 
-        if (door->GetAreaIdAlways() == GetAreaIdAlways() && door->x2a8_25_)
+        if (door->GetAreaIdAlways() == GetAreaIdAlways() && door->x2a8_25_wasOpen)
         {
             if (door->x282_dockId != kInvalidUniqueId)
                 return 1;
         }
     }
 
-    for (CGameArea::CConstChainIterator aliveArea = world->GetChainHead(EChain::Alive); aliveArea != CWorld::GetAliveAreasEnd(); ++aliveArea)
+    for (const CGameArea& aliveArea : *world)
     {
-        if (aliveArea->GetAreaId() == area->GetAreaId())
+        if (aliveArea.GetAreaId() == area->GetAreaId())
             continue;
 
-        if (!aliveArea->IsFinishedOccluding())
+        if (!aliveArea.IsFinishedOccluding())
             return 1;
     }
 
@@ -404,7 +401,7 @@ void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type)
 
 std::experimental::optional<zeus::CAABox> CScriptDoor::GetProjectileBounds() const
 {
-    if (x2a8_28_)
+    if (x2a8_28_projectilesCollide)
         return {{x284_modelBounds.min + GetTranslation(), x284_modelBounds.max + GetTranslation()}};
     return {};
 }
