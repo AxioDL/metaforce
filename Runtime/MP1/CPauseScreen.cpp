@@ -29,6 +29,12 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen,
     x7c_screens.resize(2);
 }
 
+CPauseScreen::~CPauseScreen()
+{
+    if (x60_loadTok)
+        x60_loadTok->PostCancelRequest();
+}
+
 std::unique_ptr<CPauseScreenBase> CPauseScreen::BuildPauseSubScreen(ESubScreen subscreen,
                                                                     const CStateManager& mgr,
                                                                     CGuiFrame& frame) const

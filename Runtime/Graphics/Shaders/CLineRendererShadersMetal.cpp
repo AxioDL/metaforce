@@ -173,6 +173,23 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);
 
+    m_texAlphaZ = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                        false, true, false, boo::CullMode::None);
+    m_texAdditiveZ = ctx.newShaderPipeline(VS_METAL_TEX, FS_METAL_TEX, nullptr, nullptr, m_texVtxFmt,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                           boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                           false, true, false, boo::CullMode::None);
+    m_noTexAlphaZ = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                          false, true, false, boo::CullMode::None);
+    m_noTexAdditiveZ = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                             boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                             false, true, false, boo::CullMode::None);
+
     return new struct MetalLineDataBindingFactory;
 }
 

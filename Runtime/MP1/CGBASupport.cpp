@@ -36,6 +36,12 @@ CGBASupport::CGBASupport()
     x30_dvdReq = AsyncRead(x2c_buffer.get(), x28_fileSize);
 }
 
+CGBASupport::~CGBASupport()
+{
+    if (x30_dvdReq)
+        x30_dvdReq->PostCancelRequest();
+}
+
 u8 CGBASupport::CalculateFusionJBusChecksum(const u8* data, size_t len)
 {
     u32 sum = -1;

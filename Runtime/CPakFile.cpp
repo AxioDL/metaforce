@@ -15,6 +15,12 @@ CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak)
     x28_27_stashedInARAM = false;
 }
 
+CPakFile::~CPakFile()
+{
+    if (x30_dvdReq)
+        x30_dvdReq->PostCancelRequest();
+}
+
 const SObjectTag* CPakFile::GetResIdByName(std::string_view name) const
 {
     for (const std::pair<std::string, SObjectTag>& p : x54_nameList)

@@ -73,8 +73,10 @@ public:
     boo::ObjToken<boo::IShaderDataBinding> m_shaderBind;
 
     CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
-                  EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture, bool additive);
-    CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture, bool additive);
+                  EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture,
+                  bool additive, bool zTest = false);
+    CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture,
+                  bool additive, bool zTest = false);
     CLineRenderer(CLineRenderer&&) = default;
 
     void Reset();

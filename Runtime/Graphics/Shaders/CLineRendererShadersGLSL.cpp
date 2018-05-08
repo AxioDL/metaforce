@@ -160,6 +160,23 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);
 
+    m_texAlphaZ = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                        false, true, false, boo::CullMode::None);
+    m_texAdditiveZ = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, 1, TexNames, 1, UniNames,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                           boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                           false, true, false, boo::CullMode::None);
+    m_noTexAlphaZ = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                          false, true, false, boo::CullMode::None);
+    m_noTexAdditiveZ = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                             boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                             false, true, false, boo::CullMode::None);
+
     return new struct OGLLineDataBindingFactory;
 }
 
@@ -234,6 +251,23 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);
+
+    m_texAlphaZ = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                        false, true, false, boo::CullMode::None);
+    m_texAdditiveZ = ctx.newShaderPipeline(VS_GLSL_TEX, FS_GLSL_TEX, m_texVtxFmt,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                           boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                           false, true, false, boo::CullMode::None);
+    m_noTexAlphaZ = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                          false, true, false, boo::CullMode::None);
+    m_noTexAdditiveZ = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                             boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                             false, true, false, boo::CullMode::None);
 
     return new struct VulkanLineDataBindingFactory;
 }

@@ -161,6 +161,27 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                             boo::Primitive::TriStrips, boo::ZTest::None,
                                             false, true, false, boo::CullMode::None);
 
+    m_texAlphaZ = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                        nullptr, m_texVtxFmt,
+                                        boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                        boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                        false, true, false, boo::CullMode::None);
+    m_texAdditiveZ = ctx.newShaderPipeline(VS_HLSL_TEX, FS_HLSL_TEX, nullptr, nullptr,
+                                           nullptr, m_texVtxFmt,
+                                           boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                           boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                           false, true, false, boo::CullMode::None);
+    m_noTexAlphaZ = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                          nullptr, m_noTexVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                          false, true, false, boo::CullMode::None);
+    m_noTexAdditiveZ = ctx.newShaderPipeline(VS_HLSL_NOTEX, FS_HLSL_NOTEX, nullptr, nullptr,
+                                             nullptr, m_noTexVtxFmt,
+                                             boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
+                                             boo::Primitive::TriStrips, boo::ZTest::LEqual,
+                                             false, true, false, boo::CullMode::None);
+
     return new struct HLSLLineDataBindingFactory;
 }
 

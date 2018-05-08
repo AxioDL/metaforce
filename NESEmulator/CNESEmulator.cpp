@@ -326,6 +326,8 @@ void CNESEmulator::DeinitializeEmulator()
 
 CNESEmulator::~CNESEmulator()
 {
+    if (m_dvdReq)
+        m_dvdReq->PostCancelRequest();
     if (EmulatorInst)
         DeinitializeEmulator();
     if (emuNesROM)

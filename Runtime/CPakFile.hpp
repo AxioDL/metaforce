@@ -70,6 +70,7 @@ private:
     void Warmup();
 public:
     CPakFile(std::string_view filename, bool buildDepList, bool worldPak);
+    ~CPakFile();
     const std::vector<std::pair<std::string, SObjectTag>>& GetNameList() const { return x54_nameList; }
     const std::vector<CAssetId>& GetDepList() const { return x64_depList; }
     const SObjectTag* GetResIdByName(std::string_view name) const;

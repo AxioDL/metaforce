@@ -185,7 +185,7 @@ struct CTweakGui final : ITweakGui
     Value<float> x364_;
 
     CTweakGui() = default;
-    CTweakGui(athena::io::IStreamReader& r) { this->read(r); }
+    CTweakGui(athena::io::IStreamReader& r) { this->read(r); FixupValues(); }
 
     float GetMapAlphaInterpolant() const { return x8_mapAlphaInterp; }
     float GetPauseBlurFactor() const { return xc_pauseBlurFactor; }

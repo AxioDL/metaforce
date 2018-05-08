@@ -38,8 +38,9 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
 
 bool CResFactory::PumpResource(SLoadingData& data)
 {
-    if (data.x8_dvdReq->IsComplete())
+    if (data.x8_dvdReq && data.x8_dvdReq->IsComplete())
     {
+        data.x8_dvdReq.reset();
         *data.xc_targetPtr =
             x5c_factoryMgr.MakeObjectFromMemory(data.x0_tag, std::move(data.x10_loadBuffer),
                                                 data.x14_resSize, data.m_compressed, data.x18_cvXfer,
@@ -109,7 +110,8 @@ void CResFactory::CancelBuild(const SObjectTag& tag)
     auto search = m_loadMap.find(tag);
     if (search != m_loadMap.end())
     {
-        search->second->x8_dvdReq->PostCancelRequest();
+        if (search->second->x8_dvdReq)
+            search->second->x8_dvdReq->PostCancelRequest();
         m_loadList.erase(search->second);
         m_loadMap.erase(search);
     }

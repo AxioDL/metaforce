@@ -81,6 +81,7 @@ CScanDisplay::CScanDisplay(const CGuiFrame& selHud)
     x0_dataDot = g_SimplePool->GetObj("TXTR_DataDot");
     for (int i=0 ; i<4 ; ++i)
         xbc_dataDots.emplace_back(x0_dataDot);
+    x170_paneStates.resize(4);
 }
 
 void CScanDisplay::ProcessInput(const CFinalInput& input)
@@ -340,10 +341,13 @@ void CScanDisplay::Update(float dt, float scanningTime)
             if (x1b4_scanComplete || x14_scannableInfo->GetCategory() == 0)
             {
                 xc_state = EScanState::ViewingScan;
+                x1b0_aPulse = x1a4_xAlpha = 1.f;
                 CSfxManager::SfxStart(1417, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
             else
             {
+                xc_state = EScanState::DownloadComplete;
+                x1b0_aPulse = x1a4_xAlpha = 1.f;
                 xa8_message->TextSupport().SetText(std::u16string(g_MainStringTable->GetString(29)) +
                 g_MainStringTable->GetString(x14_scannableInfo->GetCategory() + 30) +
                 g_MainStringTable->GetString(30));

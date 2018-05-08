@@ -495,6 +495,9 @@ CGameArea::CGameArea(CAssetId mreaId)
 
 CGameArea::~CGameArea()
 {
+    for (auto& lt : xf8_loadTransactions)
+        lt->PostCancelRequest();
+
     if (xf0_24_postConstructed)
         RemoveStaticGeometry();
     else

@@ -40,6 +40,7 @@ public:
     static void GlobalPoll();
 
     CGBASupport();
+    ~CGBASupport();
     bool PollResponse();
     void Update(float dt);
     bool IsReady();

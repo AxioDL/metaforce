@@ -25,6 +25,12 @@ CDummyWorld::CDummyWorld(CAssetId mlvlId, bool loadMap) : x4_loadMap(loadMap), x
     x30_loadToken = g_ResFactory->LoadResourceAsync(tag, x34_loadBuf.get());
 }
 
+CDummyWorld::~CDummyWorld()
+{
+    if (x30_loadToken)
+        x30_loadToken->PostCancelRequest();
+}
+
 CAssetId CDummyWorld::IGetWorldAssetId() const { return xc_mlvlId; }
 
 CAssetId CDummyWorld::IGetStringTableAssetId() const { return x10_strgId; }

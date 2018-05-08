@@ -109,6 +109,8 @@ class CRasterFont
             if (chr == xc_glyphs[i].first)
                 break;
 
+        if (i == xc_glyphs.size())
+            return nullptr;
         return &xc_glyphs[i].second;
     }
 

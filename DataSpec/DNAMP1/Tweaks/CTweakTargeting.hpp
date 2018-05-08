@@ -13,8 +13,8 @@ struct CTweakTargeting final : public ITweakTargeting
     Value<float> xc_currLockOnEnterDuration;
     Value<float> x10_currLockOnSwitchDuration;
     Value<float> x14_lockConfirmScale;
-    Value<float> x18_nextLockOnExitDuration;
-    Value<float> x1c_nextLockOnEnterDuration;
+    Value<float> x18_nextLockOnEnterDuration;
+    Value<float> x1c_nextLockOnExitDuration;
     Value<float> x20_nextLockOnSwitchDuration;
     Value<float> x24_seekerScale;
     Value<float> x28_seekerAngleSpeed;
@@ -157,8 +157,8 @@ struct CTweakTargeting final : public ITweakTargeting
     float GetCurrLockOnEnterDuration() const { return xc_currLockOnEnterDuration; }
     float GetCurrLockOnSwitchDuration() const { return x10_currLockOnSwitchDuration; }
     float GetLockConfirmScale() const { return x14_lockConfirmScale; }
-    float GetNextLockOnExitDuration() const { return x18_nextLockOnExitDuration; }
-    float GetNextLockOnEnterDuration() const { return x1c_nextLockOnEnterDuration; }
+    float GetNextLockOnEnterDuration() const { return x18_nextLockOnEnterDuration; }
+    float GetNextLockOnExitDuration() const { return x1c_nextLockOnExitDuration; }
     float GetNextLockOnSwitchDuration() const { return x20_nextLockOnSwitchDuration; }
     float GetSeekerScale() const { return x24_seekerScale; }
     float GetSeekerAngleSpeed() const { return x28_seekerAngleSpeed; }

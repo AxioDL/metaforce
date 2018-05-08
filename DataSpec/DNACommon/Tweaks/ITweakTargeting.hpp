@@ -11,8 +11,8 @@ struct ITweakTargeting : public ITweak
     virtual float GetCurrLockOnEnterDuration() const=0;
     virtual float GetCurrLockOnSwitchDuration() const=0;
     virtual float GetLockConfirmScale() const=0;
-    virtual float GetNextLockOnExitDuration() const=0;
     virtual float GetNextLockOnEnterDuration() const=0;
+    virtual float GetNextLockOnExitDuration() const=0;
     virtual float GetNextLockOnSwitchDuration() const=0;
     virtual float GetSeekerScale() const=0;
     virtual float GetSeekerAngleSpeed() const=0;

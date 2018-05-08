@@ -4674,7 +4674,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                         mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
                     {
                         rstl::reserved_vector<TUniqueId, 1024> nearList;
-                        TUniqueId bestId = kInvalidUniqueId;
+                        TUniqueId idOut = kInvalidUniqueId;
                         eyeToOrbit.normalize();
                         mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag,
                                           OccluderFilter, act.GetPtr());
@@ -4708,7 +4708,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
 
                         eyeToOrbit.normalize();
                         CRayCastResult result =
-                        mgr.RayWorldIntersection(bestId, eyePos, eyeToOrbit, eyeToOrbitMag,
+                        mgr.RayWorldIntersection(idOut, eyePos, eyeToOrbit, eyeToOrbitMag,
                                                  LineOfSightFilter, nearList);
                         if (result.IsInvalid())
                         {
@@ -4730,7 +4730,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                         if (posInBoxMagSq < minPosInBoxMagSq)
                         {
                             rstl::reserved_vector<TUniqueId, 1024> nearList;
-                            TUniqueId bestId = kInvalidUniqueId;
+                            TUniqueId idOut = kInvalidUniqueId;
                             eyeToOrbit.normalize();
                             mgr.BuildNearList(nearList, eyePos, eyeToOrbit, eyeToOrbitMag,
                                               OccluderFilter, act.GetPtr());
@@ -4765,7 +4765,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
 
                             eyeToOrbit.normalize();
                             CRayCastResult result =
-                                mgr.RayWorldIntersection(bestId, eyePos, eyeToOrbit, eyeToOrbitMag,
+                                mgr.RayWorldIntersection(idOut, eyePos, eyeToOrbit, eyeToOrbitMag,
                                                          LineOfSightFilter, nearList);
                             if (result.IsInvalid())
                             {
@@ -4960,6 +4960,8 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             }
             else
             {
+#else
+            m_deferredOrbitObject = ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input);
 #endif
                 if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitFar, input))
                     OrbitPoint(EPlayerOrbitType::Far, mgr);
@@ -4996,8 +4998,9 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             UpdateOrbitSelection(input, mgr);
             break;
         case EPlayerOrbitState::OrbitPoint:
-            if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
+            if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input) || m_deferredOrbitObject)
             {
+                m_deferredOrbitObject = false;
                 SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
                 if (x310_orbitTargetId != kInvalidUniqueId)
                 {
@@ -5033,8 +5036,9 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
             UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
             break;
         case EPlayerOrbitState::OrbitCarcass:
-            if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
+            if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input) || m_deferredOrbitObject)
             {
+                m_deferredOrbitObject = false;
                 SetOrbitTargetId(FindOrbitTargetId(mgr), mgr);
                 if (x310_orbitTargetId != kInvalidUniqueId)
                 {
@@ -5063,6 +5067,8 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr)
     {
         switch (x304_orbitState)
         {
+        case EPlayerOrbitState::NoOrbit:
+            break;
         case EPlayerOrbitState::OrbitObject:
             if (TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x310_orbitTargetId))
                 BreakGrapple(EPlayerOrbitRequest::Default, mgr);

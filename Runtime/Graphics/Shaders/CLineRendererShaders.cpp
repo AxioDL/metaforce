@@ -9,6 +9,12 @@ boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAdditive;
 boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlpha;
 boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAdditive;
 
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAlphaZ;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAdditiveZ;
+
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlphaZ;
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAdditiveZ;
+
 boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_texVtxFmt;
 boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_noTexVtxFmt;
 
@@ -57,6 +63,10 @@ void CLineRendererShaders::Shutdown()
     m_texAdditive.reset();
     m_noTexAlpha.reset();
     m_noTexAdditive.reset();
+    m_texAlphaZ.reset();
+    m_texAdditiveZ.reset();
+    m_noTexAlphaZ.reset();
+    m_noTexAdditiveZ.reset();
     m_texVtxFmt.reset();
     m_noTexVtxFmt.reset();
 }
@@ -64,22 +74,42 @@ void CLineRendererShaders::Shutdown()
 void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                   CLineRenderer& renderer,
                                                   const boo::ObjToken<boo::ITexture>& texture,
-                                                  bool additive)
+                                                  bool additive, bool zTest)
 {
     boo::ObjToken<boo::IShaderPipeline> pipeline;
-    if (texture)
+    if (zTest)
     {
-        if (additive)
-            pipeline = m_texAdditive;
+        if (texture)
+        {
+            if (additive)
+                pipeline = m_texAdditiveZ;
+            else
+                pipeline = m_texAlphaZ;
+        }
         else
-            pipeline = m_texAlpha;
+        {
+            if (additive)
+                pipeline = m_noTexAdditiveZ;
+            else
+                pipeline = m_noTexAlphaZ;
+        }
     }
     else
     {
-        if (additive)
-            pipeline = m_noTexAdditive;
+        if (texture)
+        {
+            if (additive)
+                pipeline = m_texAdditive;
+            else
+                pipeline = m_texAlpha;
+        }
         else
-            pipeline = m_noTexAlpha;
+        {
+            if (additive)
+                pipeline = m_noTexAdditive;
+            else
+                pipeline = m_noTexAlpha;
+        }
     }
 
     m_bindFactory->BuildShaderDataBinding(ctx, renderer, pipeline, texture);

@@ -64,6 +64,7 @@ private:
     void TransitionComplete();
 public:
     CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
+    ~CPauseScreen();
     void ProcessControllerInput(const CStateManager& mgr, const CFinalInput& input);
     void Update(float dt, const CStateManager& mgr, CRandom16& rand, CArchitectureQueue& archQueue);
     void PreDraw();

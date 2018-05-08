@@ -241,6 +241,7 @@ private:
     EPlayerZoneType x334_orbitType = EPlayerZoneType::Ellipse;
     u32 x338_ = 1;
     TUniqueId x33c_orbitNextTargetId = kInvalidUniqueId;
+    bool m_deferredOrbitObject = false;
     float x340_ = 0.f;
     std::vector<TUniqueId> x344_nearbyOrbitObjects;
     std::vector<TUniqueId> x354_onScreenOrbitObjects;

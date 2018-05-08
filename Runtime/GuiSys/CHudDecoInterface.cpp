@@ -199,6 +199,7 @@ void CHudDecoInterfaceScan::SetFrameColorValue(float v)
 void CHudDecoInterfaceScan::InitializeFlatFrame()
 {
     x10_loadedScanHudFlat = x4_scanHudFlat.GetObj();
+    x10_loadedScanHudFlat->SetMaxAspect(1.33f);
     x10_loadedScanHudFlat->GetFrameCamera()->SetO2WTransform(zeus::CTransform::Translate(x20c_camPos));
     x258_flat_basewidget_scanguage = x10_loadedScanHudFlat->FindWidget("basewidget_scanguage");
     x258_flat_basewidget_scanguage->SetVisibility(false, ETraversalMode::Children);

@@ -56,6 +56,7 @@ class CDummyWorld : public IWorld
     TAreaId x3c_curAreaId = kInvalidAreaId;
 public:
     CDummyWorld(CAssetId mlvlId, bool loadMap);
+    ~CDummyWorld();
     CAssetId IGetWorldAssetId() const;
     CAssetId IGetStringTableAssetId() const;
     CAssetId IGetSaveWorldAssetId() const;

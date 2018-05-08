@@ -59,9 +59,9 @@ CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer()
     {
         for (int i=0 ; i<2 ; ++i)
         {
-            m_lineRenderers[i].emplace(ctx, CLineRenderer::EPrimitiveMode::Lines, 8, nullptr, true);
+            m_lineRenderers[i].emplace(ctx, CLineRenderer::EPrimitiveMode::Lines, 8, nullptr, true, true);
             for (int j=0 ; j<4 ; ++j)
-                m_stripRenderers[i][j].emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true);
+                m_stripRenderers[i][j].emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
         }
         return true;
     });
@@ -415,13 +415,13 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
         nextTargetId = mgr.GetPlayer().GetOrbitTargetId();
     if (nextTargetId != xf2_nextTargetId)
     {
-        if (xf2_nextTargetId == kInvalidUniqueId)
+        if (nextTargetId == kInvalidUniqueId)
         {
             x194_nextGroupA = x174_nextGroupInterp;
             x1b4_nextGroupB = CTargetReticleRenderState(kInvalidUniqueId, 1.f,
                 (x20_prevState == EReticleState::XRay || x20_prevState == EReticleState::Thermal) ?
                 x100_laggingTargetPos : xf4_targetPos, 0.f, 1.f, true);
-            x1d4_nextGroupDur = x1d8_nextGroupTimer = g_tweakTargeting->GetNextLockOnEnterDuration();
+            x1d4_nextGroupDur = x1d8_nextGroupTimer = g_tweakTargeting->GetNextLockOnExitDuration();
             xf2_nextTargetId = nextTargetId;
         }
         else
@@ -430,7 +430,7 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
             x1b4_nextGroupB = CTargetReticleRenderState(nextTargetId, 1.f, zeus::CVector3f::skZero, 1.f,
                 IsGrappleTarget(nextTargetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, true);
             x1d4_nextGroupDur = x1d8_nextGroupTimer = xf2_nextTargetId == kInvalidUniqueId ?
-                                                      g_tweakTargeting->GetNextLockOnExitDuration() :
+                                                      g_tweakTargeting->GetNextLockOnEnterDuration() :
                                                       g_tweakTargeting->GetNextLockOnSwitchDuration();
             xf2_nextTargetId = nextTargetId;
         }

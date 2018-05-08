@@ -299,7 +299,7 @@ bool ViewManager::proc()
     gfxQ->execute();
     if (g_ResFactory)
         g_ResFactory->AsyncIdle();
-    if (!m_skipWait && hecl::com_developer->toBoolean())
+    if (!m_skipWait || !hecl::com_developer->toBoolean())
         m_mainWindow->waitForRetrace(m_voiceEngine.get());
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
