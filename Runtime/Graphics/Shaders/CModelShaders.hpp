@@ -29,6 +29,8 @@ enum EExtendedShader : uint8_t
     WorldShadow,
     ForcedAlphaNoCull,
     ForcedAdditiveNoCull,
+    ForcedAlphaNoZWrite,
+    ForcedAdditiveNoZWrite,
     ForcedAlphaNoCullNoZWrite,
     ForcedAdditiveNoCullNoZWrite
 };

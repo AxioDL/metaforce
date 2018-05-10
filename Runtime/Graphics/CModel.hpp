@@ -320,6 +320,7 @@ public:
     zeus::CVector3f GetPoolNormal(size_t idx) const;
     void ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) const;
+    void RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const;
 
     void _WarmupShaders();
     static void WarmupShaders(const SObjectTag& cmdlTag);

@@ -350,9 +350,9 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
                 IsGrappleTarget(targetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, false);
             x16c_currGroupDur = xf0_targetId == kInvalidUniqueId ? g_tweakTargeting->GetCurrLockOnExitDuration() :
                                 g_tweakTargeting->GetCurrLockOnSwitchDuration();
-            x170_currGroupTimer = x16c_currGroupDur;
-            xf0_targetId = targetId;
         }
+        x170_currGroupTimer = x16c_currGroupDur;
+        xf0_targetId = targetId;
     }
     if (x170_currGroupTimer > 0.f)
     {
@@ -581,7 +581,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
 
     zeus::CMatrix3f lockBreakXf;
     zeus::CColor lockBreakColor = zeus::CColor::skClear;
-    if (IsDamageOrbit(mgr.GetPlayer().GetOrbitRequest()) && x14c_currGroupB.GetFactor() == 0)
+    if (IsDamageOrbit(mgr.GetPlayer().GetOrbitRequest()) && x14c_currGroupB.GetFactor() == 0.f)
     {
         zeus::CMatrix3f lockBreakRM;
         for (int i=0 ; i<4 ; ++i)

@@ -281,7 +281,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
     m_instances.emplace_back();
     ModelInstance& newInst = m_instances.back();
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Build geometry uniform buffer if shared not available */
         boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
@@ -643,24 +643,47 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
                 extended = flags.m_noCull ? (flags.m_noZWrite ?
                                              EExtendedShader::ForcedAdditiveNoCullNoZWrite :
                                              EExtendedShader::ForcedAdditiveNoCull) :
-                           EExtendedShader::ForcedAdditive;
+                           (flags.m_noZWrite ?
+                            EExtendedShader::ForcedAdditiveNoZWrite :
+                            EExtendedShader::ForcedAdditive);
             else if (flags.x0_blendMode > 4)
                 extended = flags.m_noCull ? (flags.m_noZWrite ?
                                              EExtendedShader::ForcedAlphaNoCullNoZWrite :
                                              EExtendedShader::ForcedAlphaNoCull) :
-                           EExtendedShader::ForcedAlpha;
+                           (flags.m_noZWrite ?
+                            EExtendedShader::ForcedAlphaNoZWrite :
+                            EExtendedShader::ForcedAlpha);
             else
-                extended = EExtendedShader::Lighting;
+                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                                             EExtendedShader::ForcedAlphaNoCullNoZWrite :
+                                             EExtendedShader::ForcedAlphaNoCull) :
+                           (flags.m_noZWrite ?
+                            EExtendedShader::ForcedAlphaNoZWrite :
+                            EExtendedShader::Lighting);
+        }
+        else if (flags.m_noCull && flags.m_noZWrite)
+        {
+            /* Substitute no-cull,no-zwrite pipeline if available */
+            if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+                extended = EExtendedShader::ForcedAdditiveNoCullNoZWrite;
+            else
+                extended = EExtendedShader::ForcedAlphaNoCullNoZWrite;
         }
         else if (flags.m_noCull)
         {
             /* Substitute no-cull pipeline if available */
-            if (data.heclIr.m_blendDst == boo::BlendFactor::InvSrcAlpha)
-                extended = EExtendedShader::ForcedAlphaNoCull;
-            else if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+            if (data.heclIr.m_blendDst == boo::BlendFactor::One)
                 extended = EExtendedShader::ForcedAdditiveNoCull;
             else
-                extended = EExtendedShader::Lighting;
+                extended = EExtendedShader::ForcedAlphaNoCull;
+        }
+        else if (flags.m_noZWrite)
+        {
+            /* Substitute no-zwrite pipeline if available */
+            if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+                extended = EExtendedShader::ForcedAdditiveNoZWrite;
+            else
+                extended = EExtendedShader::ForcedAlphaNoZWrite;
         }
         else
         {
@@ -1357,7 +1380,7 @@ size_t CModel::GetPoolVertexOffset(size_t idx) const
 zeus::CVector3f CModel::GetPoolVertex(size_t idx) const
 {
     auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolVertexOffset(idx));
-    return {floats[0], floats[1], floats[2]};
+    return {floats};
 }
 
 size_t CModel::GetPoolNormalOffset(size_t idx) const
@@ -1368,7 +1391,7 @@ size_t CModel::GetPoolNormalOffset(size_t idx) const
 zeus::CVector3f CModel::GetPoolNormal(size_t idx) const
 {
     auto* floats = reinterpret_cast<const float*>(m_dynamicVertexData.get() + GetPoolNormalOffset(idx));
-    return {floats[0], floats[1], floats[2]};
+    return {floats};
 }
 
 void CModel::ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf,
@@ -1386,6 +1409,14 @@ void CModel::ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBu
         floats[4] = avn.second.y;
         floats[5] = avn.second.z;
     }
+    vertBuf->unmap();
+}
+
+void CModel::RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBuf) const
+{
+    size_t size = m_hmdlMeta.vertStride * m_hmdlMeta.vertCount;
+    u8* data = reinterpret_cast<u8*>(vertBuf->map(size));
+    memcpy(data, m_dynamicVertexData.get(), size);
     vertBuf->unmap();
 }
 

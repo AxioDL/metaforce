@@ -31,14 +31,14 @@ CEnergyProjectile::CEnergyProjectile(bool active, const TToken<CWeaponDescriptio
 
 void CEnergyProjectile::PlayImpactSound(const zeus::CVector3f& pos, EWeaponCollisionResponseTypes type)
 {
-    u16 sfxId = x170_projectile.GetSoundIdForCollision(type);
-    if (sfxId >= 0.f)
+    s32 sfxId = x170_projectile.GetSoundIdForCollision(type);
+    if (sfxId >= 0)
     {
         CAudioSys::C3DEmitterParmData parmData = {};
         parmData.x18_maxDist = x170_projectile.GetAudibleRange();
         parmData.x1c_distComp = x170_projectile.GetAudibleFallOff();
         parmData.x20_flags = 0x1; // Continuous parameter update
-        parmData.x24_sfxId = CSfxManager::TranslateSFXID(sfxId);
+        parmData.x24_sfxId = CSfxManager::TranslateSFXID(u16(sfxId));
         parmData.x26_maxVol = 1.f;
         parmData.x27_minVol = 0.16f;
         parmData.x29_prio = 0x7f;

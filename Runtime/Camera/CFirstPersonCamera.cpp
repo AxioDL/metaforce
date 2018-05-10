@@ -153,7 +153,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         const CActor* act = TCastToConstPtr<CActor>(mgr.GetObjectById(player->x310_orbitTargetId));
         if (act && act->GetMaterialList().HasMaterial(EMaterialTypes::Orbit))
         {
-            zeus::CVector3f v = player->x314_orbitPoint.y - eyePos;
+            zeus::CVector3f v = player->x314_orbitPoint - eyePos;
             if (v.canBeNormalized())
                 v.normalize();
 

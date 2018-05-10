@@ -723,6 +723,7 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const
     CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
     CModelFlags flags(0, 0, 1, zeus::CColor::skWhite);
+    flags.m_noZWrite = true;
     model->Draw(flags);
 
     CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);

@@ -39,9 +39,9 @@ void CSkinRules::TransformVerticesCPU(std::vector<std::pair<zeus::CVector3f, zeu
         {
             const zeus::CTransform& xf = pose.GetRestToAccumTransform(w.m_id);
             vertex += (xf * origVertex) * w.m_weight;
-            normal += (xf.basis.inverted().transposed() * origVertex) * w.m_weight;
+            normal += (xf.basis.inverted().transposed() * origNormal) * w.m_weight;
         }
-        vnOut[i] = std::make_pair(vertex, normal);
+        vnOut[i] = std::make_pair(vertex, normal.normalized());
     }
 }
 

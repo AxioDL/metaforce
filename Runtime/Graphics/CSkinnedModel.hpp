@@ -22,6 +22,7 @@ class CSkinnedModel
     TLockedToken<CSkinRules> x10_skinRules;
     TLockedToken<CCharLayoutInfo> x1c_layoutInfo;
     std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>> m_vertWorkspace;
+    bool m_modifiedVBO = false;
 public:
     enum class EDataOwnership
     {

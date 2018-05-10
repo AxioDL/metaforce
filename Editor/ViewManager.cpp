@@ -301,6 +301,8 @@ bool ViewManager::proc()
         g_ResFactory->AsyncIdle();
     if (!m_skipWait || !hecl::com_developer->toBoolean())
         m_mainWindow->waitForRetrace(m_voiceEngine.get());
+    else
+        m_voiceEngine->pumpAndMixVoices();
     CBooModel::ClearModelUniformCounters();
     CGraphics::TickRenderTimings();
     ++logvisor::FrameIndex;

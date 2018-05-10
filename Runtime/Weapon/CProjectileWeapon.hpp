@@ -78,7 +78,7 @@ public:
     float GetAudibleRange() const;
     std::experimental::optional<TLockedToken<CDecalDescription>>
     GetDecalForCollision(EWeaponCollisionResponseTypes type) const;
-    u16 GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
+    s32 GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
     std::experimental::optional<TLockedToken<CGenDescription>>
     CollisionOccured(EWeaponCollisionResponseTypes type, bool deflected, bool useTarget, const zeus::CVector3f& pos,
                      const zeus::CVector3f& normal, const zeus::CVector3f& target);

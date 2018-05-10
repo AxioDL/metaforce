@@ -53,7 +53,7 @@ public:
     bool xa4_EWTR = true;
     bool xa5_LWTR = true;
     bool xa6_SWTR = true;
-    s32 xa8_PJFX;
+    s32 xa8_PJFX = -1;
     std::unique_ptr<CRealElement> xac_RNGE;
     std::unique_ptr<CRealElement> xb0_FOFF;
 };

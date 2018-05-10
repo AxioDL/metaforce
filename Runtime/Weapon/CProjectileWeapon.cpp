@@ -168,11 +168,11 @@ CProjectileWeapon::GetDecalForCollision(EWeaponCollisionResponseTypes type) cons
     return x4_weaponDesc->x94_COLR.m_res->GetDecalDescription(type);
 }
 
-u16 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const
+s32 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const
 {
     if (!x4_weaponDesc->x94_COLR)
-        return 0xffff;
-    return u16(x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type));
+        return -1;
+    return x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type);
 }
 
 std::experimental::optional<TLockedToken<CGenDescription>>

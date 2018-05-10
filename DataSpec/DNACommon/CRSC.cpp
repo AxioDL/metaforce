@@ -245,29 +245,28 @@ void CRSM<IDType>::_write(athena::io::IStreamWriter& w) const
     w.writeBytes("CRSM", 4);
     for (const auto& pair : x0_generators)
     {
-        if (pair.second)
-        {
-            w.writeBytes(pair.first.toString().c_str(), 4);
-            pair.second.write(w);
-        }
+        w.writeBytes(pair.first.getChars(), 4);
+        pair.second.write(w);
     }
 
     for (const auto& pair : x10_sfx)
     {
+        w.writeBytes(pair.first.getChars(), 4);
         if (pair.second != ~0)
         {
-            w.writeBytes(pair.first.toString().c_str(), 4);
+            w.writeBytes("CNST", 4);
             w.writeUint32Big(pair.second);
+        }
+        else
+        {
+            w.writeBytes("NONE", 4);
         }
     }
 
     for (const auto& pair : x20_decals)
     {
-        if (pair.second)
-        {
-            w.writeBytes(pair.first.toString().c_str(), 4);
-            pair.second.write(w);
-        }
+        w.writeBytes(pair.first.getChars(), 4);
+        pair.second.write(w);
     }
 
     if (x30_RNGE != 50.f)

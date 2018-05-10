@@ -251,6 +251,18 @@ CModelShaders::GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat)
                               hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
                               hecl::Backend::CullMode::None, false, false, true);
 
+    /* Forced alpha shading without Z-write */
+    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
+                              hecl::Backend::CullMode::Original, true, false, true);
+
+    /* Forced additive shading without Z-write */
+    ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
+                              0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
+                              hecl::Backend::CullMode::Original, true, false, true);
+
     /* Forced alpha shading without culling or Z-write */
     ext.registerExtensionSlot({LightingHLSL, "LightingFunc"}, {MainPostHLSL, "MainPostFunc"},
                               0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,

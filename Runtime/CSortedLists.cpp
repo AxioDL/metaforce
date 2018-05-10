@@ -1,5 +1,7 @@
 #include "CSortedLists.hpp"
 #include "World/CActor.hpp"
+#include "Weapon/CEnergyProjectile.hpp"
+#include "TCastTo.hpp"
 
 namespace urde
 {
@@ -75,8 +77,10 @@ void CSortedListManager::MoveInList(ESortedList list, s16 idx)
             if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x4_box[int(list)] >=
                 AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x4_box[int(list)])
                 return;
-            AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[int(list)] = idx + 1;
+            AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[int(list)] = idx;
+            AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x1c_selfIdxs[int(list)] = idx + 1;
             std::swap(AccessElement(sl.x0_ids, idx), AccessElement(sl.x0_ids, idx + 1));
+            ++idx;
         }
     }
 }
@@ -110,7 +114,7 @@ void CSortedListManager::InsertInList(ESortedList list, SNode& node)
 
     /* Do insert */
     AccessElement(sl.x0_ids, insIdx) = node.x0_actor->GetUniqueId().Value();
-    node.x1c_selfIdxs[int(list)] = insIdx;
+    node.x1c_selfIdxs[int(list)] = s16(insIdx);
     ++sl.x800_size;
 }
 

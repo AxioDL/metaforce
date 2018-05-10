@@ -26,7 +26,6 @@ CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCamera
 {
     CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
                              {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
-    sAspect = float(g_Viewport.x8_width / g_Viewport.xc_height);
     sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
 
