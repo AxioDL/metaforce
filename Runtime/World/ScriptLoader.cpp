@@ -17,6 +17,7 @@
 #include "CScriptCameraHint.hpp"
 #include "CScriptCameraHintTrigger.hpp"
 #include "CScriptCameraPitchVolume.hpp"
+#include "CTeamAiMgr.hpp"
 #include "CScriptCameraShaker.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptColorModulate.hpp"
@@ -2440,7 +2441,12 @@ CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 8, "TeamAiMgr"))
+        return nullptr;
+
+    std::string_view name = mgr.HashInstanceName(in);
+    CTeamAiData data(in, propCount);
+    return new CTeamAiMgr(mgr.AllocateUniqueId(), name, info, data);
 }
 
 CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

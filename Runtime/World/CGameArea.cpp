@@ -696,7 +696,7 @@ void CGameArea::UpdateThermalVisor(float dt)
 void CGameArea::UpdateWeaponWorldLighting(float dt)
 {
     float newLightingLevel = x12c_postConstructed->x1128_worldLightingLevel;
-    if (x12c_postConstructed->x112c_xraySpeed != 0)
+    if (x12c_postConstructed->x112c_xraySpeed != 0.f)
     {
         float speed = dt * x12c_postConstructed->x112c_xraySpeed;
         if (std::fabs(x12c_postConstructed->x1130_xrayTarget - newLightingLevel) < speed)
