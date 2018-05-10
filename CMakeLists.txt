@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
+
 if(APPLE AND NOT CMAKE_OSX_SYSROOT)
   # If the Xcode SDK is lagging behind system version, CMake needs this done first
   execute_process(COMMAND xcrun --sdk macosx --show-sdk-path

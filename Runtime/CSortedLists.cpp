@@ -1,7 +1,5 @@
 #include "CSortedLists.hpp"
 #include "World/CActor.hpp"
-#include "Weapon/CEnergyProjectile.hpp"
-#include "TCastTo.hpp"
 
 namespace urde
 {

@@ -121,12 +121,6 @@ set_target_properties(urde PROPERTIES
 
 if (NOT WINDOWS_STORE)
   add_dependencies(urde visigen hecl)
-  add_custom_command(TARGET urde POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
-  add_custom_command(TARGET urde POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:hecl>)
-  add_custom_command(TARGET urde POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
 else()
   set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)
   # This should match the Package.appxmanifest
