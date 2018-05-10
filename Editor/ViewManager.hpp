@@ -55,11 +55,13 @@ class ViewManager : public specter::IViewManager
     class TestGameView : public specter::View
     {
         ViewManager& m_vm;
+        std::unique_ptr<specter::MultiLineTextView> m_debugText;
     public:
         TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent)
         : View(res, parent), m_vm(vm) {}
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
+        void think();
 
         void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey)
         {

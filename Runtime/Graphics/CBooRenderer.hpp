@@ -32,7 +32,7 @@ class Buckets
     friend class CBooRenderer;
 
     static rstl::reserved_vector<u16, 50> sBucketIndex;
-    static rstl::reserved_vector<CDrawable, 512>* sData;
+    static rstl::reserved_vector<CDrawable, 4096>* sData;
     static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* sBuckets;
     static rstl::reserved_vector<CDrawablePlaneObject, 8>* sPlaneObjectData;
     static rstl::reserved_vector<u16, 8>* sPlaneObjectBucket;

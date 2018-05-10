@@ -18,6 +18,8 @@
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Audio/CStreamAudioManager.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -44,11 +46,30 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
 {
     specter::View::resized(root, sub);
     urde::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
+    if (m_debugText)
+        m_debugText->resized(root, sub);
 }
 
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 {
     m_vm.m_projManager.mainDraw();
+    if (m_debugText && g_StateManager && g_StateManager->Player())
+        m_debugText->draw(gfxQ);
+}
+
+void ViewManager::TestGameView::think()
+{
+    if (!m_debugText)
+        m_debugText.reset(new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_heading18));
+
+    if (m_debugText && g_StateManager && g_StateManager->Player())
+    {
+        const CPlayer& pl = g_StateManager->GetPlayer();
+        zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
+        m_debugText->typesetGlyphs(hecl::Format("Player Position: x %f, y %f, z %f\n"
+                                                "       Quaternion: w %f, x %f, y %f, z %f\n", pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z,
+                                                plQ.w, plQ.x, plQ.y, plQ.z));
+    }
 }
 
 specter::View* ViewManager::BuildSpaceViews()
@@ -275,6 +296,8 @@ bool ViewManager::proc()
     m_rootView->internalThink();
     if (m_rootSpace)
         m_rootSpace->think();
+    if (m_testGameView)
+        m_testGameView->think();
     if (m_splash)
         m_splash->think();
 
