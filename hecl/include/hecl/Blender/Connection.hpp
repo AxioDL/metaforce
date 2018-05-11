@@ -304,11 +304,11 @@ struct ColMesh
         bool surfaceWeb;
         bool projPassthrough;
         bool solid;
-        bool u20;
+        bool noPlatformCollision;
         bool camPassthrough;
         bool surfaceWood;
         bool surfaceOrganic;
-        bool u24;
+        bool noEdgeCollision;
         bool surfaceRubber;
         bool seeThrough;
         bool scanPassthrough;

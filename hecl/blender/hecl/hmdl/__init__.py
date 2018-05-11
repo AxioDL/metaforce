@@ -286,11 +286,11 @@ def cookcol(writebuf, mesh_obj):
         surfaceWeb = prop_val_from_colmat('retro_surface_web', m)
         projPassthrough = prop_val_from_colmat('retro_projectile_passthrough', m)
         solid = prop_val_from_colmat('retro_solid', m)
-        u20 = prop_val_from_colmat('retro_u20', m)
+        noPlatformCollision = prop_val_from_colmat('retro_no_platform_collision', m)
         camPassthrough = prop_val_from_colmat('retro_camera_passthrough', m)
         surfaceWood = prop_val_from_colmat('retro_surface_wood', m)
         surfaceOrganic = prop_val_from_colmat('retro_surface_organic', m)
-        u24 = prop_val_from_colmat('retro_u24', m)
+        noEdgeCollision = prop_val_from_colmat('retro_no_edge_collision', m)
         surfaceRubber = prop_val_from_colmat('retro_surface_rubber', m)
         seeThrough = prop_val_from_colmat('retro_see_through', m)
         scanPassthrough = prop_val_from_colmat('retro_scan_passthrough', m)
@@ -307,8 +307,9 @@ def cookcol(writebuf, mesh_obj):
                  surfaceIce, pillar, surfaceMetalGrating, surfacePhazon, surfaceDirt, surfaceLava, surfaceSPMetal,
                  surfaceStoneRock, surfaceSnow, surfaceMudSlow, surfaceFabric, halfPipe, surfaceMud, surfaceGlass,
                  unused3, unused4, surfaceShield, surfaceSand, surfaceMothOrSeedOrganics, surfaceWeb, projPassthrough,
-                 solid, u20, camPassthrough, surfaceWood, surfaceOrganic, u24, surfaceRubber, seeThrough, scanPassthrough,
-                 aiPassthrough, ceiling, wall, floor, aiBlock, jumpNotAllowed, spiderBall, screwAttackWallJump))
+                 solid, noPlatformCollision, camPassthrough, surfaceWood, surfaceOrganic, noEdgeCollision, surfaceRubber,
+                 seeThrough, scanPassthrough, aiPassthrough, ceiling, wall, floor, aiBlock, jumpNotAllowed, spiderBall,
+                 screwAttackWallJump))
 
     # Send verts
     writebuf(struct.pack('I', len(copy_mesh.vertices)))

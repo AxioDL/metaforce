@@ -150,7 +150,7 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz)
         BlenderLog.report(logvisor::Fatal, strerror(errno));
         return 0;
     }
-    else if (readLen >= 4)
+    else if (readLen >= 9)
     {
         if (!memcmp(buf, "EXCEPTION", std::min(readLen, uint32_t(9))))
         {
@@ -187,7 +187,7 @@ size_t Connection::_readBuf(void* buf, size_t len)
         int ret = Read(m_readpipe[0], cBuf, len);
         if (ret < 0)
             goto err;
-        if (len >= 4)
+        if (len >= 9)
             if (!memcmp((char*) cBuf, "EXCEPTION", std::min(len, size_t(9))))
                 _blenderDied();
         readLen += ret;
@@ -1337,6 +1337,7 @@ ColMesh::ColMesh(Connection& conn)
     edges.reserve(count);
     for (uint32_t i=0 ; i<count ; ++i)
         edges.emplace_back(conn);
+
 
     conn._readBuf(&count, 4);
     trianges.reserve(count);
