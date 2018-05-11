@@ -58,7 +58,7 @@ protected:
             bool xe4_28_transformDirty : 1;
             bool xe4_29_actorLightsDirty : 1;
             bool xe4_30_outOfFrustum : 1;
-            bool xe4_31_lightsDirty : 1;
+            bool xe4_31_calculateLighting : 1;
             bool xe5_24_shadowEnabled : 1;
             bool xe5_25_shadowDirty : 1;
             bool xe5_26_muted : 1;

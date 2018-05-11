@@ -185,11 +185,11 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::blender::ColMesh& colMes
         dbMat.setSurfaceWeb(mat.surfaceWeb);
         dbMat.setProjectilePassthrough(mat.projPassthrough);
         dbMat.setSolid(mat.solid);
-        dbMat.setU20(mat.u20);
+        dbMat.setNoPlatformCollision(mat.noPlatformCollision);
         dbMat.setCameraPassthrough(mat.camPassthrough);
         dbMat.setSurfaceWood(mat.surfaceWood);
         dbMat.setSurfaceOrganic(mat.surfaceOrganic);
-        dbMat.setU24(mat.u24);
+        dbMat.setNoEdgeCollision(mat.noEdgeCollision);
         dbMat.setSurfaceRubber(mat.surfaceRubber);
         dbMat.setSeeThrough(mat.seeThrough);
         dbMat.setScanPassthrough(mat.scanPassthrough);

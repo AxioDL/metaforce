@@ -42,7 +42,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xe4_27_notInSortedLists = true;
     xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;
-    xe4_31_lightsDirty = true;
+    xe4_31_calculateLighting = true;
     xe5_27_useInSortedLists = true;
     xe5_28_callTouch = true;
     xe5_29_globalTimeProvider = params.x58_24_globalTimeProvider;
@@ -136,6 +136,8 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes)
     xe4_30_outOfFrustum = !planes.aabbFrustumTest(x9c_renderBounds);
     if (!xe4_30_outOfFrustum)
     {
+        xe7_28_worldLightingDirty = true;
+
         bool lightsDirty = false;
         if (xe4_29_actorLightsDirty)
         {
@@ -158,7 +160,7 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes)
             xe5_25_shadowDirty = false;
         }
 
-        if (xe4_31_lightsDirty && x90_actorLights)
+        if (xe4_31_calculateLighting && x90_actorLights)
         {
             zeus::CAABox bounds = x64_modelData->GetBounds(x34_transform);
             if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
@@ -739,7 +741,7 @@ SAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool ad
 void CActor::SetActorLights(std::unique_ptr<CActorLights>&& lights)
 {
     x90_actorLights = std::move(lights);
-    xe4_31_lightsDirty = true;
+    xe4_31_calculateLighting = true;
 }
 
 bool CActor::CanDrawStatic() const
@@ -765,7 +767,7 @@ void CActor::SetCalculateLighting(bool c)
     if (!x90_actorLights)
         x90_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero,
                                                          4, 4, false, false, false, 0.1f);
-    xe4_31_lightsDirty = c;
+    xe4_31_calculateLighting = c;
 }
 
 float CActor::GetAverageAnimVelocity(int anim) const

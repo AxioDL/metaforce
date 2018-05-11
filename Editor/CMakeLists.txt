@@ -120,6 +120,12 @@ set_target_properties(urde PROPERTIES
                       MACOSX_BUNDLE_BUNDLE_NAME "urde")
 
 if (NOT WINDOWS_STORE)
+  if(APPLE)
+    add_custom_command(TARGET urde POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:visigen> $<TARGET_FILE_DIR:urde>)
+    add_custom_command(TARGET urde POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:hecl> $<TARGET_FILE_DIR:urde>)
+  endif()
   add_dependencies(urde visigen hecl)
 else()
   set_property(TARGET urde PROPERTY VS_WINRT_COMPONENT TRUE)

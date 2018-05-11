@@ -19,7 +19,7 @@
       -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
       ..
     - ninja urde hecl visigen
-    - cd Editor
+    - cd Binaries
     - cp -R urde.app $CI_PROJECT_DIR/URDE.app
     - cd $CI_PROJECT_DIR
     - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
@@ -73,12 +73,12 @@ build:macos:avx2:
       -DURDE_VECTOR_ISA=$URDE_VECTOR_ISA
       ..
     - ninja urde hecl visigen
-    - cp Editor/urde $CI_PROJECT_DIR
-    - strip --strip-debug -o $CI_PROJECT_DIR/urde Editor/urde
+    - cp Binaries/urde $CI_PROJECT_DIR
+    - strip --strip-debug -o $CI_PROJECT_DIR/urde Binaries/urde
     - rm -r $CI_PROJECT_DIR/hecl
-    - strip --strip-debug -o $CI_PROJECT_DIR/hecl hecl/driver/hecl
+    - strip --strip-debug -o $CI_PROJECT_DIR/hecl Binaries/hecl
     - rm -r $CI_PROJECT_DIR/visigen
-    - strip --strip-debug -o $CI_PROJECT_DIR/visigen visigen/visigen
+    - strip --strip-debug -o $CI_PROJECT_DIR/visigen Binaries/visigen
   only:
     - release
   artifacts:
@@ -129,12 +129,12 @@ build:linux:avx2:
       -DURDE_VECTOR_ISA=%URDE_VECTOR_ISA%
       ..
     - ninja urde hecl visigen
-    - 'copy Editor\urde.exe "%CI_PROJECT_DIR%\urde.exe"'
-    - 'pdbcopy Editor\urde.pdb "%CI_PROJECT_DIR%\urde.pdb" -p'
-    - 'copy hecl\driver\hecl.exe "%CI_PROJECT_DIR%\hecl.exe"'
-    - 'pdbcopy hecl\driver\hecl.pdb "%CI_PROJECT_DIR%\hecl.pdb" -p'
-    - 'copy visigen\visigen.exe "%CI_PROJECT_DIR%\visigen.exe"'
-    - 'pdbcopy visigen\visigen.pdb "%CI_PROJECT_DIR%\visigen.pdb" -p'
+    - 'copy Binaries\urde.exe "%CI_PROJECT_DIR%\urde.exe"'
+    - 'pdbcopy Binaries\urde.pdb "%CI_PROJECT_DIR%\urde.pdb" -p'
+    - 'copy Binaries\hecl.exe "%CI_PROJECT_DIR%\hecl.exe"'
+    - 'pdbcopy Binaries\hecl.pdb "%CI_PROJECT_DIR%\hecl.pdb" -p'
+    - 'copy Binaries\visigen.exe "%CI_PROJECT_DIR%\visigen.exe"'
+    - 'pdbcopy Binaries\visigen.pdb "%CI_PROJECT_DIR%\visigen.pdb" -p'
   only:
     - release
   artifacts:

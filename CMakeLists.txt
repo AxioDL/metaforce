@@ -236,7 +236,6 @@ endif()
 unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
 if(GIT_FOUND)
-    message(STATUS "Found GIT: ${GIT_EXECUTABLE}")
     # Get the current working branch
     execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE )

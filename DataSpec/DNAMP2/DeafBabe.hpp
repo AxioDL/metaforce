@@ -99,10 +99,10 @@ struct DeafBabe : BigDNA
         void setSurfaceStoneRock(bool v) {}
         bool solid() const { return false; }
         void setSolid(bool v) {}
-        bool u20() const { return false; }
-        void setU20(bool v) { }
-        bool u24() const { return false; }
-        void setU24(bool v) { }
+        bool noPlatformCollision() const { return false; }
+        void setNoPlatformCollision(bool v) { }
+        bool noEdgeCollision() const { return false; }
+        void setNoEdgeCollision(bool v) { }
     };
 
     using Edge = DNAMP1::DeafBabe::Edge;

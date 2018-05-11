@@ -55,16 +55,16 @@ struct DeafBabe : BigDNA
         void setProjectilePassthrough(bool v) { material &= ~(1ull << 18); material |= (v << 18); }
         bool solid() const { return (material >> 19) & 1; }
         void setSolid(bool v) { material &= ~(1ull << 19); material |= (v << 19); }
-        bool u20() const { return (material >> 20) & 1; }
-        void setU20(bool v) { material &= ~(1ull << 20); material |= (v << 20); }
+        bool noPlatformCollision() const { return (material >> 20) & 1; }
+        void setNoPlatformCollision(bool v) { material &= ~(1ull << 20); material |= (v << 20); }
         bool cameraPassthrough() const { return (material >> 21) & 1; }
         void setCameraPassthrough(bool v) { material &= ~(1ull << 21); material |= (v << 21); }
         bool surfaceWood() const { return (material >> 22) & 1; }
         void setSurfaceWood(bool v) { material &= ~(1ull << 22); material |= (v << 22); }
         bool surfaceOrganic() const { return (material >> 23) & 1; }
         void setSurfaceOrganic(bool v) { material &= ~(1ull << 23); material |= (v << 23); }
-        bool u24() const { return (material >> 24) & 1; }
-        void setU24(bool v) { material &= ~(1ull << 24); material |= (v << 24); }
+        bool noEdgeCollision() const { return (material >> 24) & 1; }
+        void setNoEdgeCollision(bool v) { material &= ~(1ull << 24); material |= (v << 24); }
         bool flipFace() const { return (material >> 25) & 1; }
         void setFlipFace(bool v) { material &= ~(1ull << 25); material |= (v << 25); }
         bool seeThrough() const { return (material >> 26) & 1; }
