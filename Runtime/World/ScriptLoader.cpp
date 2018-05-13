@@ -1863,7 +1863,7 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
     bool solid = in.readBool();
     bool active = in.readBool();
     u32 flags = LoadParameterFlags(in);
-    bool w1 = in.readUint32Big() - 1;
+    CPlayerState::EBeamId beam = CPlayerState::EBeamId(in.readUint32Big() - 1);
 
     FourCC fcc = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
     if (!fcc || fcc != SBIG('ANCS'))
@@ -1884,7 +1884,7 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
                                   CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                                            animParms.GetInitialAnimation(), loop),
                                   CModelData::CModelDataNull(), aabox, true, list, mass, zMomentum, hInfo, dVuln,
-                                  actParms, loop, active, flags, w1);
+                                  actParms, loop, active, flags, beam);
 }
 
 CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

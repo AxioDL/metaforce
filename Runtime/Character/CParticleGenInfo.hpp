@@ -12,10 +12,10 @@ struct SObjectTag;
 class CParticleGen;
 class CStateManager;
 
-enum class EParticleGenState
+enum class EParticleGenType
 {
-    NotStarted,
-    Started
+    Normal,
+    Auxiliary
 };
 
 class CParticleGenInfo
@@ -32,12 +32,12 @@ class CParticleGenInfo
     bool x40_grabInitialData = false;
     zeus::CTransform x44_transform;
     zeus::CVector3f x74_offset;
-    EParticleGenState x80_state;
+    EParticleGenType x80_type;
 
 public:
     CParticleGenInfo(const SObjectTag& part, int frameCount, std::string_view boneName,
                      const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
-                     int flags, EParticleGenState state);
+                     int flags, EParticleGenType type);
 
     virtual ~CParticleGenInfo() = default;
     virtual void AddToRenderer() = 0;
@@ -77,8 +77,7 @@ public:
     float GetFinishTime() const { return x3c_finishTime; }
     float GetCurrentTime() const { return x20_curTime; }
     void SetCurrentTime(float t) { x20_curTime = t; }
-    EParticleGenState GetState() const { return x80_state; }
-    void SetState(EParticleGenState s) { x80_state = s; }
+    EParticleGenType GetType() const { return x80_type; }
 
     CParticleData::EParentedMode GetParentedMode() const { return x28_parentMode; }
     std::string_view GetLocatorName() const { return x10_boneName; }
@@ -93,7 +92,7 @@ public:
     CParticleGenInfoGeneric(const SObjectTag& part, const std::weak_ptr<CParticleGen>& system,
                             int frames, std::string_view boneName, const zeus::CVector3f& scale,
                             CParticleData::EParentedMode parentMode, int flags, CStateManager& stateMgr, TAreaId,
-                            int lightId, EParticleGenState state);
+                            int lightId, EParticleGenType state);
 
     void AddToRenderer();
     void Render();

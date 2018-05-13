@@ -493,6 +493,10 @@ SAdvancementResults CFBStreamedAnimReader::VAdvanceView(const CCharAnimTime& dt)
     {
         xc_curTime = CCharAnimTime();
         x7c_totals.SetTime(x108_bitLoader, xc_curTime);
+        x14_passedBoolCount = 0;
+        x18_passedIntCount = 0;
+        x1c_passedParticleCount = 0;
+        x20_passedSoundCount = 0;
         res.x0_remTime = dt;
         return res;
     }

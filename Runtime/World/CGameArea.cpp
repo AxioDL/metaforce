@@ -152,7 +152,8 @@ void CAreaRenderOctTree::Node::RecursiveBuildOverlaps(u32* bmpOut,
 {
     if (testAABB.intersects(curAABB))
     {
-        if (curAABB.inside(testAABB))
+        u32 childCount = GetChildCount(); // HACK: Always return the smallest set of intersections
+        if (curAABB.inside(testAABB) || childCount == 0)
         {
             const u32* bmp = &parent.x30_bitmaps[x0_bitmapIdx * parent.x14_bitmapWordCount];
             for (u32 c=0 ; c<parent.x14_bitmapWordCount ; ++c)
@@ -160,7 +161,6 @@ void CAreaRenderOctTree::Node::RecursiveBuildOverlaps(u32* bmpOut,
         }
         else
         {
-            u32 childCount = GetChildCount();
             for (u32 c=0 ; c<childCount ; ++c)
             {
                 zeus::CAABox childAABB = GetNodeBounds(curAABB, c);

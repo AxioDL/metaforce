@@ -12,14 +12,14 @@ namespace urde
 
 CParticleGenInfo::CParticleGenInfo(const SObjectTag& part, int frameCount, std::string_view boneName,
                                    const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
-                                   int flags, EParticleGenState state)
+                                   int flags, EParticleGenType type)
 : x4_part(part)
 , xc_seconds(frameCount / 60.f)
 , x10_boneName(boneName)
 , x28_parentMode(parentMode)
 , x2c_flags(flags)
 , x30_particleScale(scale)
-, x80_state(state)
+, x80_type(type)
 {
 }
 
@@ -43,7 +43,7 @@ CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part, const s
                                                  int frameCount, std::string_view boneName,
                                                  const zeus::CVector3f& scale, CParticleData::EParentedMode parentMode,
                                                  int flags, CStateManager& stateMgr, TAreaId areaId, int lightId,
-                                                 EParticleGenState state)
+                                                 EParticleGenType state)
 : CParticleGenInfo(part, frameCount, boneName, scale, parentMode, flags, state), x84_system(system)
 {
     if (lightId == -1)

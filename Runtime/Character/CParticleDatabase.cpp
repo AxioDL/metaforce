@@ -110,7 +110,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
         CParticleGenInfo& info = *it->second;
         if (info.GetIsActive())
         {
-            if (info.GetState() == EParticleGenState::NotStarted)
+            if (info.GetType() == EParticleGenType::Normal)
             {
                 CSegId segId = charInfo.GetSegIdFromString(info.GetLocatorName());
                 if (segId == 0xff)
@@ -188,16 +188,16 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
                 }
                 default: break;
                 }
+            }
 
-                float sec = (info.GetInactiveStartTime() == 0.f) ? 10000000.f : info.GetInactiveStartTime();
-                if (info.GetCurrentTime() > sec)
-                {
-                    info.SetIsActive(false);
-                    info.SetParticleEmission(false, stateMgr);
-                    info.MarkFinishTime();
-                    if (info.GetFlags() & 1)
-                        info.DestroyParticles();
-                }
+            float sec = (info.GetInactiveStartTime() == 0.f) ? 10000000.f : info.GetInactiveStartTime();
+            if (info.GetCurrentTime() > sec)
+            {
+                info.SetIsActive(false);
+                info.SetParticleEmission(false, stateMgr);
+                info.MarkFinishTime();
+                if (info.GetFlags() & 1)
+                    info.DestroyParticles();
             }
         }
 
@@ -404,7 +404,7 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(std::string_view name, int fl
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), "NOT_A_VALID_LOCATOR",
                                                                scaleVec, CParticleData::EParentedMode::Initial, flags, mgr, aid,
                                                                lightId + _getGraphicLightId(sys, *search->second),
-                                                               EParticleGenState::Started);
+                                                               EParticleGenType::Auxiliary);
 
             newGen->SetGlobalTranslation(data.GetTranslation(), mgr);
             newGen->SetIsGrabInitialData(false);
@@ -450,7 +450,7 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(),
                                                                scaleVec, data.GetParentedMode(), flags, mgr, aid,
                                                                lightId + _getGraphicLightId(sys, *search->second),
-                                                               EParticleGenState::NotStarted);
+                                                               EParticleGenType::Normal);
         }
         break;
     }
@@ -462,7 +462,7 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
             auto sys = std::make_shared<CParticleSwoosh>(*search->second, 0);
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(),
                                                                scaleVec, data.GetParentedMode(), flags, mgr, aid,
-                                                               -1, EParticleGenState::NotStarted);
+                                                               -1, EParticleGenType::Normal);
         }
         break;
     }
@@ -475,7 +475,7 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
             newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(),
                                                                scaleVec, data.GetParentedMode(), flags, mgr, aid,
                                                                lightId + _getGraphicLightId(sys, *search->second),
-                                                               EParticleGenState::NotStarted);
+                                                               EParticleGenType::Normal);
         }
         break;
     }

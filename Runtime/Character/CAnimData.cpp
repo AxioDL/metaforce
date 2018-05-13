@@ -863,8 +863,9 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale,
     if (suspendParticles)
         x120_particleDB.SuspendAllActiveEffects(stateMgr);
 
-    for (CParticlePOINode& node : g_ParticlePOINodes)
+    for (int i=0 ; i<x214_passedParticleCount ; ++i)
     {
+        CParticlePOINode& node = g_ParticlePOINodes[i];
         if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx)
         {
             x120_particleDB.AddParticleEffect(node.GetString(), node.GetFlags(), node.GetParticleData(),
@@ -897,8 +898,9 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
 
     if ((x220_28_ || x220_27_) && x210_passedIntCount > 0)
     {
-        for (CInt32POINode& node : g_Int32POINodes)
+        for (int i=0 ; i<x210_passedIntCount ; ++i)
         {
+            CInt32POINode& node = g_Int32POINodes[i];
             if (node.GetPoiType() == EPOIType::UserEvent)
             {
                 switch (EUserEventType(node.GetValue()))
