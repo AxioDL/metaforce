@@ -1321,7 +1321,10 @@ void CElementGen::RenderParticles()
     zeus::CTransform systemCameraMatrix = systemViewPointMatrix.inverse() * x22c_globalOrientation;
     systemViewPointMatrix = ((zeus::CTransform::Translate(xe8_globalTranslation) * x10c_globalScaleTransform) *
         systemViewPointMatrix) * x178_localScaleTransform;
-    CGraphics::SetModelMatrix(systemViewPointMatrix);
+    if (x26c_29_ORNT)
+        CGraphics::SetModelMatrix(systemViewPointMatrix * systemCameraMatrix);
+    else
+        CGraphics::SetModelMatrix(systemViewPointMatrix);
 
     CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
@@ -1397,6 +1400,34 @@ void CElementGen::RenderParticles()
     CParticleGlobals::SetEmitterTime(x74_curFrame);
     if (!x26c_30_MBLR)
     {
+#if 0
+        if (!desc->x44_28_x30_28_SORT && constUVs && !x26c_29_ORNT)
+        {
+            if (!desc->x50_x3c_ROTA)
+            {
+                if (!zeus::close_enough(x80_timeDeltaScale, 1.f))
+                {
+                    RenderBasicParticlesNoRotNoTS(systemCameraMatrix);
+                }
+                else
+                {
+                    RenderBasicParticlesNoRotTS(systemCameraMatrix);
+                }
+            }
+            else
+            {
+                if (!zeus::close_enough(x80_timeDeltaScale, 1.f))
+                {
+                    RenderBasicParticlesRotNoTS(systemCameraMatrix);
+                }
+                else
+                {
+                    RenderBasicParticlesRotTS(systemCameraMatrix);
+                }
+            }
+        }
+#endif
+
         switch (m_shaderClass)
         {
         case CElementGenShaders::EShaderClass::Tex:
@@ -1411,99 +1442,203 @@ void CElementGen::RenderParticles()
             Log.report(logvisor::Fatal, "unexpected particle shader class");
             break;
         }
-        for (int i=0 ; i<x30_particles.size() ; ++i)
-        {
-            int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
-            CParticle& particle = x30_particles[partIdx];
-            g_currentParticle = &particle;
 
-            int partFrame = x74_curFrame - particle.x28_startFrame - 1;
-            zeus::CVector3f viewPoint;
-            if (desc->x44_28_x30_28_SORT)
-                viewPoint = sortItems[i].x4_viewPoint;
-            else
-                viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) *
+        if (!x26c_29_ORNT)
+        {
+            for (int i = 0; i < x30_particles.size(); ++i)
+            {
+                int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+                CParticle& particle = x30_particles[partIdx];
+                g_currentParticle = &particle;
+
+                int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+                zeus::CVector3f viewPoint;
+                if (desc->x44_28_x30_28_SORT)
+                    viewPoint = sortItems[i].x4_viewPoint;
+                else
+                    viewPoint = systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) *
                                                       x80_timeDeltaScale + particle.x10_prevPos);
 
-            if (!constUVs)
-            {
-                CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-                CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
-                texr->GetValueUV(partFrame, uvs);
-            }
+                if (!constUVs)
+                {
+                    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+                    CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+                    texr->GetValueUV(partFrame, uvs);
+                }
 
-            float size = 0.5f * particle.x2c_lineLengthOrSize;
-            if (0.f == particle.x30_lineWidthOrRota)
-            {
-                switch (m_shaderClass)
+                float size = 0.5f * particle.x2c_lineLengthOrSize;
+                if (0.f == particle.x30_lineWidthOrRota)
                 {
-                case CElementGenShaders::EShaderClass::Tex:
+                    switch (m_shaderClass)
+                    {
+                    case CElementGenShaders::EShaderClass::Tex:
+                    {
+                        g_instTexData.emplace_back();
+                        SParticleInstanceTex& inst = g_instTexData.back();
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
+                        inst.color = particle.x34_color;
+                        inst.uvs[0] = {uvs.xMax, uvs.yMax};
+                        inst.uvs[1] = {uvs.xMin, uvs.yMax};
+                        inst.uvs[2] = {uvs.xMax, uvs.yMin};
+                        inst.uvs[3] = {uvs.xMin, uvs.yMin};
+                        break;
+                    }
+                    case CElementGenShaders::EShaderClass::NoTex:
+                    {
+                        g_instNoTexData.emplace_back();
+                        SParticleInstanceNoTex& inst = g_instNoTexData.back();
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
+                        inst.color = particle.x34_color;
+                        break;
+                    }
+                    default:
+                        break;
+                    }
+                }
+                else
                 {
-                    g_instTexData.emplace_back();
-                    SParticleInstanceTex& inst = g_instTexData.back();
-                    inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
-                    inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
-                    inst.color = particle.x34_color;
-                    inst.uvs[0] = {uvs.xMax, uvs.yMax};
-                    inst.uvs[1] = {uvs.xMin, uvs.yMax};
-                    inst.uvs[2] = {uvs.xMax, uvs.yMin};
-                    inst.uvs[3] = {uvs.xMin, uvs.yMin};
-                    break;
-                }
-                case CElementGenShaders::EShaderClass::NoTex:
-                {
-                    g_instNoTexData.emplace_back();
-                    SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                    inst.pos[0] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[1] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z + size, 1.f};
-                    inst.pos[2] = zeus::CVector4f{viewPoint.x + size, 0.f, viewPoint.z - size, 1.f};
-                    inst.pos[3] = zeus::CVector4f{viewPoint.x - size, 0.f, viewPoint.z - size, 1.f};
-                    inst.color = particle.x34_color;
-                    break;
-                }
-                default: break;
-                }
-            }
-            else
-            {
-                float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
-                float sinT = std::sin(theta) * size;
-                float cosT = std::cos(theta) * size;
+                    float theta = zeus::degToRad(particle.x30_lineWidthOrRota);
+                    float sinT = std::sin(theta) * size;
+                    float cosT = std::cos(theta) * size;
 
-                switch (m_shaderClass)
-                {
-                case CElementGenShaders::EShaderClass::Tex:
-                {
-                    g_instTexData.emplace_back();
-                    SParticleInstanceTex& inst = g_instTexData.back();
-                    inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
-                    inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
-                    inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
-                    inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
-                    inst.color = particle.x34_color;
-                    inst.uvs[0] = {uvs.xMax, uvs.yMax};
-                    inst.uvs[1] = {uvs.xMin, uvs.yMax};
-                    inst.uvs[2] = {uvs.xMax, uvs.yMin};
-                    inst.uvs[3] = {uvs.xMin, uvs.yMin};
-                    break;
-                }
-                case CElementGenShaders::EShaderClass::NoTex:
-                {
-                    g_instNoTexData.emplace_back();
-                    SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                    inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
-                    inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
-                    inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT), 1.f};
-                    inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT), 1.f};
-                    inst.color = particle.x34_color;
-                    break;
-                }
-                default: break;
+                    switch (m_shaderClass)
+                    {
+                    case CElementGenShaders::EShaderClass::Tex:
+                    {
+                        g_instTexData.emplace_back();
+                        SParticleInstanceTex& inst = g_instTexData.back();
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT),
+                                                      1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT),
+                                                      1.f};
+                        inst.color = particle.x34_color;
+                        inst.uvs[0] = {uvs.xMax, uvs.yMax};
+                        inst.uvs[1] = {uvs.xMin, uvs.yMax};
+                        inst.uvs[2] = {uvs.xMax, uvs.yMin};
+                        inst.uvs[3] = {uvs.xMin, uvs.yMin};
+                        break;
+                    }
+                    case CElementGenShaders::EShaderClass::NoTex:
+                    {
+                        g_instNoTexData.emplace_back();
+                        SParticleInstanceNoTex& inst = g_instNoTexData.back();
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, 0.f, viewPoint.z + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, 0.f, viewPoint.z + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), 0.f, viewPoint.z + (-cosT - sinT),
+                                                      1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), 0.f, viewPoint.z - (cosT - sinT),
+                                                      1.f};
+                        inst.color = particle.x34_color;
+                        break;
+                    }
+                    default:
+                        break;
+                    }
                 }
             }
         }
+        else
+        {
+            for (int i = 0; i < x30_particles.size(); ++i)
+            {
+                int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
+                CParticle& particle = x30_particles[partIdx];
+                g_currentParticle = &particle;
+
+                int partFrame = x74_curFrame - particle.x28_startFrame - 1;
+                zeus::CVector3f viewPoint = ((particle.x4_pos - particle.x10_prevPos) *
+                                            x80_timeDeltaScale + particle.x10_prevPos);
+                float width = !desc->x50_x3c_ROTA ? 1.f : particle.x30_lineWidthOrRota;
+                zeus::CVector3f dir;
+                if (particle.x1c_vel.canBeNormalized())
+                {
+                    dir = particle.x1c_vel.normalized();
+                }
+                else
+                {
+                    zeus::CVector3f delta = particle.x4_pos - particle.x10_prevPos;
+                    if (delta.canBeNormalized())
+                        dir = delta.normalized();
+                    else
+                        dir = zeus::CVector3f::skUp;
+                }
+
+                zeus::CVector3f foreVec = particle.x2c_lineLengthOrSize * dir;
+                zeus::CVector3f rightVec;
+                if (desc->x30_31_RSOP)
+                {
+                    rightVec = dir.cross(CGraphics::g_ViewMatrix.basis[1]);
+                    if (rightVec.canBeNormalized())
+                    {
+                        rightVec = rightVec.normalized() * (particle.x2c_lineLengthOrSize * width);
+                    }
+                    else
+                    {
+                        rightVec = dir.cross((CGraphics::g_ViewMatrix.origin - particle.x4_pos).normalized());
+                        if (rightVec.canBeNormalized())
+                        {
+                            rightVec = rightVec.normalized() * (particle.x2c_lineLengthOrSize * width);
+                        }
+                    }
+                }
+                else
+                {
+                    rightVec = foreVec.cross(CGraphics::g_ViewMatrix.basis[1]) * width;
+                }
+
+                if (!constUVs)
+                {
+                    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+                    CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+                    texr->GetValueUV(partFrame, uvs);
+                }
+
+                switch (m_shaderClass)
+                {
+                case CElementGenShaders::EShaderClass::Tex:
+                {
+                    g_instTexData.emplace_back();
+                    SParticleInstanceTex& inst = g_instTexData.back();
+                    viewPoint += rightVec * 0.5f;
+                    inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+                    inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+                    viewPoint -= rightVec;
+                    inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+                    inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+                    inst.color = particle.x34_color;
+                    inst.uvs[0] = {uvs.xMax, uvs.yMax};
+                    inst.uvs[1] = {uvs.xMin, uvs.yMax};
+                    inst.uvs[2] = {uvs.xMax, uvs.yMin};
+                    inst.uvs[3] = {uvs.xMin, uvs.yMin};
+                    break;
+                }
+                case CElementGenShaders::EShaderClass::NoTex:
+                {
+                    g_instNoTexData.emplace_back();
+                    SParticleInstanceNoTex& inst = g_instNoTexData.back();
+                    viewPoint += rightVec * 0.5f;
+                    inst.pos[0] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+                    inst.pos[1] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+                    viewPoint -= rightVec;
+                    inst.pos[2] = zeus::CVector4f{viewPoint + 0.5f * foreVec};
+                    inst.pos[3] = zeus::CVector4f{viewPoint - 0.5f * foreVec};
+                    inst.color = particle.x34_color;
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+        }
+
         switch (m_shaderClass)
         {
         case CElementGenShaders::EShaderClass::Tex:

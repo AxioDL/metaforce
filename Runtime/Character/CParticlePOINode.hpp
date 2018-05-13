@@ -14,7 +14,7 @@ class CParticlePOINode : public CPOINode
 public:
     CParticlePOINode();
     CParticlePOINode(CInputStream& in);
-    const CParticleData& GetParticleData() const {return x38_data;}
+    const CParticleData& GetParticleData() const { return x38_data; }
 
     static CParticlePOINode CopyNodeMinusStartTime(const CParticlePOINode& node,
                                                    const CCharAnimTime& startTime);

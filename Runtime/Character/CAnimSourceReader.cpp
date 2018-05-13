@@ -126,37 +126,36 @@ void CAnimSourceReaderBase::UpdatePOIStates()
     const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
     const std::vector<CSoundPOINode>& soundNodes = x4_sourceInfo->GetSoundPOIStream();
 
-    for (const CBoolPOINode& node : boolNodes)
+    while (x14_passedBoolCount < boolNodes.size() &&
+           boolNodes[x14_passedBoolCount].GetTime() <= xc_curTime)
     {
-        if (node.GetTime() > xc_curTime)
-            break;
-        if (node.GetIndex() != -1)
+        auto& node = boolNodes[x14_passedBoolCount];
+        if (node.GetIndex() >= 0)
             x24_boolStates[node.GetIndex()].second = node.GetValue();
         ++x14_passedBoolCount;
     }
 
-    for (const CInt32POINode& node : int32Nodes)
+    while (x18_passedIntCount < int32Nodes.size() &&
+           int32Nodes[x18_passedIntCount].GetTime() <= xc_curTime)
     {
-        if (node.GetTime() > xc_curTime)
-            break;
-        if (node.GetIndex() != -1)
+        auto& node = int32Nodes[x18_passedIntCount];
+        if (node.GetIndex() >= 0)
             x34_int32States[node.GetIndex()].second = node.GetValue();
         ++x18_passedIntCount;
     }
 
-    for (const CParticlePOINode& node : particleNodes)
+    while (x1c_passedParticleCount < particleNodes.size() &&
+           particleNodes[x1c_passedParticleCount].GetTime() <= xc_curTime)
     {
-        if (node.GetTime() > xc_curTime)
-            break;
-        if (node.GetIndex() != -1)
+        auto& node = particleNodes[x1c_passedParticleCount];
+        if (node.GetIndex() >= 0)
             x44_particleStates[node.GetIndex()].second = node.GetParticleData().GetParentedMode();
         ++x1c_passedParticleCount;
     }
 
-    for (const CSoundPOINode& node : soundNodes)
+    while (x20_passedSoundCount < soundNodes.size() &&
+           soundNodes[x20_passedSoundCount].GetTime() <= xc_curTime)
     {
-        if (node.GetTime() > xc_curTime)
-            break;
         ++x20_passedSoundCount;
     }
 }

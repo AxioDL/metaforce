@@ -38,8 +38,8 @@ struct EVNT : BigDNA
         Value<atUint32> idx;
         Value<bool> unk2;
         Value<float> weight;
-        Value<atUint32> unk4;
-        Value<atUint32> unk5;
+        Value<atUint32> charIdx;
+        Value<atUint32> flags;
     };
 
     struct BoolPOINode : POINode

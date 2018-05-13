@@ -1036,14 +1036,22 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->xe8_xd4_SSPO.reset(GetVectorElement(in));
             break;
         case SBIG('TEXR'):
-            fillDesc->x54_x40_TEXR.reset(GetTextureElement(in, resPool));
+        {
+            std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
+            if (tex->GetValueTexture(0))
+                fillDesc->x54_x40_TEXR = std::move(tex);
             break;
+        }
         case SBIG('SSWH'):
             fillDesc->xd4_xc0_SSWH = GetSwooshGeneratorDesc(in, resPool);
             break;
         case SBIG('TIND'):
-            fillDesc->x58_x44_TIND.reset(GetTextureElement(in, resPool));
+        {
+            std::unique_ptr<CUVElement> tex(GetTextureElement(in, resPool));
+            if (tex->GetValueTexture(0))
+                fillDesc->x58_x44_TIND = std::move(tex);
             break;
+        }
         case SBIG('VMD4'):
             fillDesc->x45_29_x31_31_VMD4 = GetBool(in);
             break;

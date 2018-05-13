@@ -647,7 +647,7 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time)
 
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const
 {
-    const_cast<CParticleDatabase&>(x120_particleDB).AddToRendererClipped(frustum);
+    x120_particleDB.AddToRendererClipped(frustum);
 }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
