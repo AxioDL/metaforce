@@ -59,7 +59,12 @@ public:
     }
 
     static CActorParameters None() { return CActorParameters(); }
-
+    CActorParameters HotInThermal(bool hot) const
+    {
+        CActorParameters ret = *this;
+        ret.x58_25_thermalHeat = hot;
+        return ret;
+    }
     void SetVisorParameters(const CVisorParameters& vParams) { x54_visorParms = vParams; }
     const CVisorParameters& GetVisorParameters() const { return x54_visorParms; }
     const CLightParameters& GetLightParameters() const { return x0_lightParms; }

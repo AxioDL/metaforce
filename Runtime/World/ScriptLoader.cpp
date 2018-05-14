@@ -574,8 +574,8 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
 
     SScaledActorHead head = LoadScaledActorHead(in, mgr);
 
-    CAssetId partId = in.readUint32Big();
-    CAssetId elscId = in.readUint32Big();
+    CAssetId partId(in);
+    CAssetId elscId(in);
     bool b1 = in.readBool();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
