@@ -134,4 +134,4 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId
 
     CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
-}
+} // namespace urde

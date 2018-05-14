@@ -20,9 +20,9 @@ CMaterialList MakeDockMaterialList()
     return list;
 }
 
-CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                         const zeus::CVector3f position, const zeus::CVector3f& extents, s32 dock, TAreaId area,
-                         bool active, s32 dockReferenceCount, bool loadConnected)
+CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f position,
+                         const zeus::CVector3f& extents, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
+                         bool loadConnected)
 : CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
                 CModelData::CModelDataNull(), MakeDockMaterialList(), zeus::CAABox(-extents * 0.5f, extents * 0.5f),
                 SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f)
@@ -33,10 +33,7 @@ CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo
     x268_25_loadConnected = loadConnected;
 }
 
-void CScriptDock::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CScriptDock::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptDock::Think(float dt, CStateManager& mgr)
 {
@@ -240,7 +237,7 @@ void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr)
 bool CScriptDock::HasPointCrossedDock(const CStateManager& mgr, const zeus::CVector3f& point) const
 {
     const zeus::CPlane plane = GetPlane(mgr);
-    return (plane.vec.dot(point) >= plane.d);
+    return (point.dot(plane.vec) < plane.d);
 }
 
 void CScriptDock::AreaLoaded(CStateManager& mgr) { SetLoadConnected(mgr, x268_25_loadConnected); }
@@ -254,4 +251,4 @@ void CScriptDock::SetLoadConnected(CStateManager& mgr, bool loadOther)
 
     dock->SetShouldLoadOther(dock->GetReferenceCount(), loadOther);
 }
-}
+} // namespace urde

@@ -47,7 +47,11 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
     specter::View::resized(root, sub);
     urde::CGraphics::SetViewportResolution({sub.size[0], sub.size[1]});
     if (m_debugText)
-        m_debugText->resized(root, sub);
+    {
+        boo::SWindowRect newSub = sub;
+        newSub.location[1] = 5 * m_vm.m_viewResources.pixelFactor();
+        m_debugText->resized(root, newSub);
+    }
 }
 
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
@@ -60,15 +64,48 @@ void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ)
 void ViewManager::TestGameView::think()
 {
     if (!m_debugText)
-        m_debugText.reset(new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_heading18));
+    {
+        m_debugText.reset(
+            new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_monoFont18));
+        boo::SWindowRect sub = subRect();
+        sub.location[1] = 5 * m_vm.m_viewResources.pixelFactor();
+        m_debugText->resized(rootView().subRect(), sub);
+    }
 
     if (m_debugText && g_StateManager && g_StateManager->Player())
     {
+        TLockedToken<CStringTable> tbl =
+            g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
         const CPlayer& pl = g_StateManager->GetPlayer();
         zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
-        m_debugText->typesetGlyphs(hecl::Format("Player Position: x %f, y %f, z %f\n"
-                                                "       Quaternion: w %f, x %f, y %f, z %f\n", pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z,
-                                                plQ.w, plQ.x, plQ.y, plQ.z));
+        const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+
+        const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+
+        std::string layerBits;
+        u32 totalActive = 0;
+        for (s32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i)
+        {
+            if (layerStates->IsLayerActive(aId, i))
+            {
+                ++totalActive;
+                layerBits += "1";
+            }
+            else
+                layerBits += "0";
+        }
+
+        m_debugText->typesetGlyphs(
+            hecl::Format("Player Position: x %f, y %f, z %f\n"
+                         "       Quaternion: w %f, x %f, y %f, z %f\n"
+                         "World: 0x%08X%s, Area: %i\n"
+                         "Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
+                         "Active Layer bits: %s\n",
+                         pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z, plQ.w, plQ.x, plQ.y,
+                         plQ.z, g_GameState->CurrentWorldAssetId().Value(),
+                         (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId,
+                         g_StateManager->GetAllObjectList().size(), layerStates->GetAreaLayerCount(aId), totalActive,
+                         layerBits.c_str()));
     }
 }
 
@@ -93,7 +130,7 @@ SplashScreen* ViewManager::SetupSplashView()
     return m_splash.get();
 }
 
-void ViewManager::RootSpaceViewBuilt(specter::View *view)
+void ViewManager::RootSpaceViewBuilt(specter::View* view)
 {
     std::vector<specter::View*>& cViews = m_rootView->accessContentViews();
     cViews.clear();
@@ -142,10 +179,13 @@ void ViewManager::DismissSplash()
 }
 
 ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarManager& cvarMgr)
-: m_fileStoreManager(fileMgr), m_cvarManager(cvarMgr), m_projManager(*this),
-  m_fontCache(fileMgr), m_translator(urde::SystemLocaleOrEnglish()),
-  m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().data())),
-  m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().data()))
+: m_fileStoreManager(fileMgr)
+, m_cvarManager(cvarMgr)
+, m_projManager(*this)
+, m_fontCache(fileMgr)
+, m_translator(urde::SystemLocaleOrEnglish())
+, m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().data()))
+, m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().data()))
 {
     Space::SpaceMenuNode::InitializeStrings(*this);
     char path[2048];
@@ -213,7 +253,8 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path)
         for (hecl::SystemString& pPath : m_recentFiles)
             fprintf(fp, "%s\n", hecl::SystemUTF8Conv(pPath).c_str());
         fclose(fp);
-    }}
+    }
+}
 
 void ViewManager::init(boo::IApplication* app)
 {
@@ -258,8 +299,7 @@ void ViewManager::init(boo::IApplication* app)
         {
             hecl::SystemString rootPath(root.getAbsolutePath());
             hecl::Sstat theStat;
-            if (!hecl::Stat((rootPath + _S("/out/files/Metroid1.upak")).c_str(), &theStat) &&
-                S_ISREG(theStat.st_mode))
+            if (!hecl::Stat((rootPath + _S("/out/files/Metroid1.upak")).c_str(), &theStat) && S_ISREG(theStat.st_mode))
                 m_deferedProject = rootPath + _S("/out");
         }
     }
@@ -310,7 +350,7 @@ bool ViewManager::proc()
 
     ++m_editorFrames;
     if (m_rootSpaceView && m_editorFrames <= 30)
-        m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1,1,1,0}, {1,1,1,1}, m_editorFrames / 30.0));
+        m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1, 1, 1, 0}, {1, 1, 1, 1}, m_editorFrames / 30.0));
 
     m_projManager.mainUpdate();
 
@@ -344,5 +384,4 @@ void ViewManager::stop()
     m_mainWindow->getCommandQueue()->stopRenderer();
 }
 
-}
-
+} // namespace urde

@@ -239,7 +239,7 @@ public:
     size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
     CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
     bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
-
+    void SetModelsUseLights(bool v) { x26d_26_modelsUseLights = v; }
     static void SetMoveRedToAlphaBuffer(bool);
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)

@@ -93,6 +93,7 @@ public:
             lights->SetAmbientColor(x18_noLightsAmbient);
         return std::unique_ptr<CActorLights>(lights);
     }
+    const zeus::CColor& GetNoLightsAmbient() const { return x18_noLightsAmbient; }
 };
 
 }

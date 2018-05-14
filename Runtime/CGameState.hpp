@@ -25,7 +25,10 @@ public:
     CWorldLayerState() = default;
     CWorldLayerState(CBitStreamReader& reader, const CSaveWorld& saveWorld);
 
-    bool IsLayerActive(int areaIdx, int layerIdx) const { return (x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1; }
+    bool IsLayerActive(int areaIdx, int layerIdx) const
+    {
+        return ((x0_areaLayers[areaIdx].m_layerBits >> layerIdx) & 1);
+    }
 
     void SetLayerActive(int areaIdx, int layerIdx, bool active)
     {
@@ -83,8 +86,7 @@ class CGameState
     u64 x210_cardSerial = 0;
     std::vector<u8> x218_backupBuf;
 
-    union
-    {
+    union {
         struct
         {
             bool x228_24_hardMode : 1;
@@ -137,6 +139,6 @@ public:
     };
     static GameFileStateInfo LoadGameFileState(const u8* data);
 };
-}
+} // namespace urde
 
 #endif // __URDE_CGAMESTATE_HPP__
