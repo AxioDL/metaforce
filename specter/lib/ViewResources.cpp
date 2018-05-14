@@ -4,8 +4,7 @@ namespace specter
 {
 static logvisor::Module Log("specter::ViewResources");
 
-void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
-                         const IThemeData* theme, float pf)
+void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, const IThemeData* theme, float pf)
 {
     if (!factory || !fcache || !theme)
         Log.report(logvisor::Fatal, "all arguments of ViewResources::init() must be non-null");
@@ -17,9 +16,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache,
 
     m_curveFont = fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
 
-    factory->commitTransaction(
-    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
-    {
+    factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
         switch (ctx.platform())
         {
 #if BOO_HAS_GL
@@ -62,17 +59,26 @@ void ViewResources::destroyResData()
 void ViewResources::prepFontCacheSync()
 {
     unsigned dpi = 72.f * m_pixelFactor;
-    if (m_fcacheInterrupt) return;
+    if (m_fcacheInterrupt)
+        return;
     m_mainFont = m_fcache->prepMainFont(AllCharFilter, false, 10.f, dpi);
-    if (m_fcacheInterrupt) return;
-    m_monoFont = m_fcache->prepMonoFont(AllCharFilter, false, 10.f, dpi);
-    if (m_fcacheInterrupt) return;
+    if (m_fcacheInterrupt)
+        return;
+    m_monoFont10 = m_fcache->prepMonoFont(AllCharFilter, false, 10.f, dpi);
+    if (m_fcacheInterrupt)
+        return;
+    m_monoFont18 = m_fcache->prepMonoFont(AllCharFilter, false, 18.f, dpi);
+    if (m_fcacheInterrupt)
+        return;
     m_heading14 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 14.f, dpi);
-    if (m_fcacheInterrupt) return;
+    if (m_fcacheInterrupt)
+        return;
     m_heading18 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 18.f, dpi);
-    if (m_fcacheInterrupt) return;
+    if (m_fcacheInterrupt)
+        return;
     m_titleFont = m_fcache->prepMainFont(LatinCharFilter, false, 36.f, dpi);
-    if (m_fcacheInterrupt) return;
+    if (m_fcacheInterrupt)
+        return;
     m_fcache->closeBuiltinFonts();
     m_fcacheReady = true;
 }
@@ -80,10 +86,7 @@ void ViewResources::prepFontCacheSync()
 void ViewResources::prepFontCacheAsync(boo::IWindow* window)
 {
     m_fcacheReady = false;
-    m_fcacheThread = std::thread([this, window]()
-    {
-        prepFontCacheSync();
-    });
+    m_fcacheThread = std::thread([this, window]() { prepFontCacheSync(); });
 }
 
 void ViewResources::resetPixelFactor(float pf)
@@ -94,9 +97,6 @@ void ViewResources::resetPixelFactor(float pf)
     prepFontCacheSync();
 }
 
-void ViewResources::resetTheme(const IThemeData* theme)
-{
-    m_theme = theme;
-}
+void ViewResources::resetTheme(const IThemeData* theme) { m_theme = theme; }
 
-}
+} // namespace specter

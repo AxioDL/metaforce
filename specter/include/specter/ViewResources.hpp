@@ -13,48 +13,48 @@ namespace specter
 class IThemeData
 {
 public:
-    virtual const zeus::CColor& uiText() const=0;
-    virtual const zeus::CColor& uiAltText() const=0;
-    virtual const zeus::CColor& fieldText() const=0;
-    virtual const zeus::CColor& fieldMarkedText() const=0;
-    virtual const zeus::CColor& selectedFieldText() const=0;
+    virtual const zeus::CColor& uiText() const = 0;
+    virtual const zeus::CColor& uiAltText() const = 0;
+    virtual const zeus::CColor& fieldText() const = 0;
+    virtual const zeus::CColor& fieldMarkedText() const = 0;
+    virtual const zeus::CColor& selectedFieldText() const = 0;
 
-    virtual const zeus::CColor& viewportBackground() const=0;
-    virtual const zeus::CColor& toolbarBackground() const=0;
-    virtual const zeus::CColor& tooltipBackground() const=0;
-    virtual const zeus::CColor& spaceBackground() const=0;
-    virtual const zeus::CColor& splashBackground() const=0;
-    virtual const zeus::CColor& splashErrorBackground() const=0;
+    virtual const zeus::CColor& viewportBackground() const = 0;
+    virtual const zeus::CColor& toolbarBackground() const = 0;
+    virtual const zeus::CColor& tooltipBackground() const = 0;
+    virtual const zeus::CColor& spaceBackground() const = 0;
+    virtual const zeus::CColor& splashBackground() const = 0;
+    virtual const zeus::CColor& splashErrorBackground() const = 0;
 
-    virtual const zeus::CColor& splash1() const=0;
-    virtual const zeus::CColor& splash2() const=0;
+    virtual const zeus::CColor& splash1() const = 0;
+    virtual const zeus::CColor& splash2() const = 0;
 
-    virtual const zeus::CColor& button1Inactive() const=0;
-    virtual const zeus::CColor& button2Inactive() const=0;
-    virtual const zeus::CColor& button1Hover() const=0;
-    virtual const zeus::CColor& button2Hover() const=0;
-    virtual const zeus::CColor& button1Press() const=0;
-    virtual const zeus::CColor& button2Press() const=0;
-    virtual const zeus::CColor& button1Disabled() const=0;
-    virtual const zeus::CColor& button2Disabled() const=0;
+    virtual const zeus::CColor& button1Inactive() const = 0;
+    virtual const zeus::CColor& button2Inactive() const = 0;
+    virtual const zeus::CColor& button1Hover() const = 0;
+    virtual const zeus::CColor& button2Hover() const = 0;
+    virtual const zeus::CColor& button1Press() const = 0;
+    virtual const zeus::CColor& button2Press() const = 0;
+    virtual const zeus::CColor& button1Disabled() const = 0;
+    virtual const zeus::CColor& button2Disabled() const = 0;
 
-    virtual const zeus::CColor& textfield1Inactive() const=0;
-    virtual const zeus::CColor& textfield2Inactive() const=0;
-    virtual const zeus::CColor& textfield1Hover() const=0;
-    virtual const zeus::CColor& textfield2Hover() const=0;
-    virtual const zeus::CColor& textfield1Disabled() const=0;
-    virtual const zeus::CColor& textfield2Disabled() const=0;
-    virtual const zeus::CColor& textfieldSelection() const=0;
-    virtual const zeus::CColor& textfieldMarkSelection() const=0;
+    virtual const zeus::CColor& textfield1Inactive() const = 0;
+    virtual const zeus::CColor& textfield2Inactive() const = 0;
+    virtual const zeus::CColor& textfield1Hover() const = 0;
+    virtual const zeus::CColor& textfield2Hover() const = 0;
+    virtual const zeus::CColor& textfield1Disabled() const = 0;
+    virtual const zeus::CColor& textfield2Disabled() const = 0;
+    virtual const zeus::CColor& textfieldSelection() const = 0;
+    virtual const zeus::CColor& textfieldMarkSelection() const = 0;
 
-    virtual const zeus::CColor& tableCellBg1() const=0;
-    virtual const zeus::CColor& tableCellBg2() const=0;
-    virtual const zeus::CColor& tableCellBgSelected() const=0;
+    virtual const zeus::CColor& tableCellBg1() const = 0;
+    virtual const zeus::CColor& tableCellBg2() const = 0;
+    virtual const zeus::CColor& tableCellBgSelected() const = 0;
 
-    virtual const zeus::CColor& scrollIndicator() const=0;
+    virtual const zeus::CColor& scrollIndicator() const = 0;
 
-    virtual const zeus::CColor& spaceTriangleShading1() const=0;
-    virtual const zeus::CColor& spaceTriangleShading2() const=0;
+    virtual const zeus::CColor& spaceTriangleShading1() const = 0;
+    virtual const zeus::CColor& spaceTriangleShading2() const = 0;
 };
 
 class DefaultThemeData : public IThemeData
@@ -103,48 +103,48 @@ class DefaultThemeData : public IThemeData
     zeus::CColor m_spaceTriangleShading2 = {0.5725, 0.5725, 0.5725, 1.0};
 
 public:
-    virtual const zeus::CColor& uiText() const {return m_uiText;}
-    virtual const zeus::CColor& uiAltText() const {return m_uiAltText;}
-    virtual const zeus::CColor& fieldText() const {return m_fieldText;}
-    virtual const zeus::CColor& fieldMarkedText() const {return m_fieldMarkedText;}
-    virtual const zeus::CColor& selectedFieldText() const {return m_selectedFieldText;}
+    virtual const zeus::CColor& uiText() const { return m_uiText; }
+    virtual const zeus::CColor& uiAltText() const { return m_uiAltText; }
+    virtual const zeus::CColor& fieldText() const { return m_fieldText; }
+    virtual const zeus::CColor& fieldMarkedText() const { return m_fieldMarkedText; }
+    virtual const zeus::CColor& selectedFieldText() const { return m_selectedFieldText; }
 
-    virtual const zeus::CColor& viewportBackground() const {return m_vpBg;}
-    virtual const zeus::CColor& toolbarBackground() const {return m_tbBg;}
-    virtual const zeus::CColor& tooltipBackground() const {return m_tooltipBg;}
-    virtual const zeus::CColor& spaceBackground() const {return m_spaceBg;}
-    virtual const zeus::CColor& splashBackground() const {return m_splashBg;}
-    virtual const zeus::CColor& splashErrorBackground() const {return m_splashErrorBg;}
+    virtual const zeus::CColor& viewportBackground() const { return m_vpBg; }
+    virtual const zeus::CColor& toolbarBackground() const { return m_tbBg; }
+    virtual const zeus::CColor& tooltipBackground() const { return m_tooltipBg; }
+    virtual const zeus::CColor& spaceBackground() const { return m_spaceBg; }
+    virtual const zeus::CColor& splashBackground() const { return m_splashBg; }
+    virtual const zeus::CColor& splashErrorBackground() const { return m_splashErrorBg; }
 
-    virtual const zeus::CColor& splash1() const {return m_splash1;}
-    virtual const zeus::CColor& splash2() const {return m_splash2;}
+    virtual const zeus::CColor& splash1() const { return m_splash1; }
+    virtual const zeus::CColor& splash2() const { return m_splash2; }
 
-    virtual const zeus::CColor& button1Inactive() const {return m_button1Inactive;}
-    virtual const zeus::CColor& button2Inactive() const {return m_button2Inactive;}
-    virtual const zeus::CColor& button1Hover() const {return m_button1Hover;}
-    virtual const zeus::CColor& button2Hover() const {return m_button2Hover;}
-    virtual const zeus::CColor& button1Press() const {return m_button1Press;}
-    virtual const zeus::CColor& button2Press() const {return m_button2Press;}
-    virtual const zeus::CColor& button1Disabled() const {return m_button1Disabled;}
-    virtual const zeus::CColor& button2Disabled() const {return m_button2Disabled;}
+    virtual const zeus::CColor& button1Inactive() const { return m_button1Inactive; }
+    virtual const zeus::CColor& button2Inactive() const { return m_button2Inactive; }
+    virtual const zeus::CColor& button1Hover() const { return m_button1Hover; }
+    virtual const zeus::CColor& button2Hover() const { return m_button2Hover; }
+    virtual const zeus::CColor& button1Press() const { return m_button1Press; }
+    virtual const zeus::CColor& button2Press() const { return m_button2Press; }
+    virtual const zeus::CColor& button1Disabled() const { return m_button1Disabled; }
+    virtual const zeus::CColor& button2Disabled() const { return m_button2Disabled; }
 
-    virtual const zeus::CColor& textfield1Inactive() const {return m_textfield1Inactive;}
-    virtual const zeus::CColor& textfield2Inactive() const {return m_textfield2Inactive;}
-    virtual const zeus::CColor& textfield1Hover() const {return m_textfield1Hover;}
-    virtual const zeus::CColor& textfield2Hover() const {return m_textfield2Hover;}
-    virtual const zeus::CColor& textfield1Disabled() const {return m_textfield1Disabled;}
-    virtual const zeus::CColor& textfield2Disabled() const {return m_textfield2Disabled;}
-    virtual const zeus::CColor& textfieldSelection() const {return m_textfieldSelection;}
-    virtual const zeus::CColor& textfieldMarkSelection() const {return m_textfieldMarkSelection;}
+    virtual const zeus::CColor& textfield1Inactive() const { return m_textfield1Inactive; }
+    virtual const zeus::CColor& textfield2Inactive() const { return m_textfield2Inactive; }
+    virtual const zeus::CColor& textfield1Hover() const { return m_textfield1Hover; }
+    virtual const zeus::CColor& textfield2Hover() const { return m_textfield2Hover; }
+    virtual const zeus::CColor& textfield1Disabled() const { return m_textfield1Disabled; }
+    virtual const zeus::CColor& textfield2Disabled() const { return m_textfield2Disabled; }
+    virtual const zeus::CColor& textfieldSelection() const { return m_textfieldSelection; }
+    virtual const zeus::CColor& textfieldMarkSelection() const { return m_textfieldMarkSelection; }
 
-    virtual const zeus::CColor& tableCellBg1() const {return m_tableCellBg1;}
-    virtual const zeus::CColor& tableCellBg2() const {return m_tableCellBg2;}
-    virtual const zeus::CColor& tableCellBgSelected() const {return m_tableCellBgSelected;}
+    virtual const zeus::CColor& tableCellBg1() const { return m_tableCellBg1; }
+    virtual const zeus::CColor& tableCellBg2() const { return m_tableCellBg2; }
+    virtual const zeus::CColor& tableCellBgSelected() const { return m_tableCellBgSelected; }
 
-    virtual const zeus::CColor& scrollIndicator() const {return m_scrollIndicator;}
+    virtual const zeus::CColor& scrollIndicator() const { return m_scrollIndicator; }
 
-    virtual const zeus::CColor& spaceTriangleShading1() const {return m_spaceTriangleShading1;}
-    virtual const zeus::CColor& spaceTriangleShading2() const {return m_spaceTriangleShading2;}
+    virtual const zeus::CColor& spaceTriangleShading1() const { return m_spaceTriangleShading1; }
+    virtual const zeus::CColor& spaceTriangleShading2() const { return m_spaceTriangleShading2; }
 };
 
 class ViewResources
@@ -169,7 +169,8 @@ public:
     Button::Resources m_buttonRes;
 
     specter::FontTag m_mainFont;
-    specter::FontTag m_monoFont;
+    specter::FontTag m_monoFont10;
+    specter::FontTag m_monoFont18;
 
     specter::FontTag m_heading14;
     specter::FontTag m_heading18;
@@ -206,16 +207,16 @@ public:
     void destroyResData();
     void prepFontCacheSync();
     void prepFontCacheAsync(boo::IWindow* window);
-    bool fontCacheReady() const {return m_fcacheReady;}
+    bool fontCacheReady() const { return m_fcacheReady; }
     void resetPixelFactor(float pixelFactor);
     void resetTheme(const IThemeData* theme);
 
     float m_pixelFactor = 0;
-    float pixelFactor() const {return m_pixelFactor;}
+    float pixelFactor() const { return m_pixelFactor; }
 
     const IThemeData* m_theme;
-    const IThemeData& themeData() const {return *m_theme;}
+    const IThemeData& themeData() const { return *m_theme; }
 };
-}
+} // namespace specter
 
 #endif // SPECTER_VIEWRESOURCES_HPP
