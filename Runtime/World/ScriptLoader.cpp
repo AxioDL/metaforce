@@ -1181,17 +1181,17 @@ CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, i
         return nullptr;
 
     std::string name = mgr.HashInstanceName(in);
-    s32 w1 = in.readInt32Big();
-    bool b1 = in.readBool();
-    float f1 = in.readFloatBig();
+    s32 animId = in.readInt32Big();
+    bool looping = in.readBool();
+    float lifetime = in.readFloatBig();
     bool active = in.readBool();
     u32 w2 = in.readUint32Big();
-    float f2 = in.readFloatBig();
+    float totalPlayback = in.readFloatBig();
 
-    if (w1 == -1)
+    if (animId == -1)
         return nullptr;
 
-    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), name, info, w1, b1, f1, false, w2, active, f2);
+    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), name, info, animId, looping, lifetime, false, w2, active, totalPlayback);
 }
 
 CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

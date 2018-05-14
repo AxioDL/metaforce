@@ -275,12 +275,14 @@ void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, const CStateMan
 
 void CScriptEffect::Render(const CStateManager& mgr) const
 {
-//    if (x138_actorLights)
-//        x138_actorLights->ActivateLights();
+    /* The following code is kept for reference, this is now performed in CElementGen
+    if (x138_actorLights)
+    x138_actorLights->ActivateLights();
+    */
     if (x104_particleSystem && x104_particleSystem->GetParticleCountAll() > 0)
     {
         g_NumParticlesRendered += x104_particleSystem->GetParticleCountAll();
-        x104_particleSystem->Render();
+        x104_particleSystem->Render(GetActorLights());
     }
 
     if (xf4_electric && xf4_electric->GetParticleCount() > 0)

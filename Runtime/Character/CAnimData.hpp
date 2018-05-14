@@ -252,6 +252,7 @@ public:
     u32 GetPassedSoundPOICount() const { return x218_passedSoundCount; }
 
     s32 GetCharacterIndex() const { return x204_charIdx; }
+    u16 GetDefaultAnimation() const { return x208_defaultAnim; }
 };
 
 }

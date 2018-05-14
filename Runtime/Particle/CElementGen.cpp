@@ -7,6 +7,7 @@
 #include "CParticleElectric.hpp"
 #include "Graphics/CModel.hpp"
 #include "Graphics/Shaders/CElementGenShaders.hpp"
+#include "Character/CActorLights.hpp"
 #include "CWarp.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
@@ -885,7 +886,7 @@ u32 CElementGen::GetSystemCount()
     return (ret + (x25c_activeParticleCount != 0));
 }
 
-void CElementGen::Render()
+void CElementGen::Render(const CActorLights* actorLights)
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
@@ -903,7 +904,7 @@ void CElementGen::Render()
     {
         SParticleModel& pmdl = desc->x5c_x48_PMDL;
         if (pmdl.m_found || desc->x45_24_x31_26_PMUS)
-            RenderModels();
+            RenderModels(actorLights);
 
         if (x26c_31_LINE)
             RenderLines();
@@ -914,7 +915,7 @@ void CElementGen::Render()
     CParticleGlobals::g_currentParticleSystem = prevSystem;
 }
 
-void CElementGen::RenderModels()
+void CElementGen::RenderModels(const CActorLights* actorLights)
 {
     CGenDescription* desc = x1c_genDesc.GetObj();
 
@@ -1134,6 +1135,8 @@ void CElementGen::RenderModels()
         else
         {
             CModel* model = desc->x5c_x48_PMDL.m_token.GetObj();
+            if (actorLights)
+                actorLights->ActivateLights(model->GetInstance());
             if (g_subtractBlend)
             {
                 model->Draw({5, 0, 1, zeus::CColor(1.f, 0.5f)});

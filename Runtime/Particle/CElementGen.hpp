@@ -23,6 +23,7 @@ class IGenDescription;
 class CGenDescription;
 class CParticleSwoosh;
 class CParticleElectric;
+class CActorLights;
 
 class CElementGen : public CParticleGen
 {
@@ -203,13 +204,13 @@ public:
     void SetCEXTValue(int i, float v) { x9c_cextValues[i] = v; }
 
     bool InternalUpdate(double);
-    void RenderModels();
+    void RenderModels(const CActorLights* actLights);
     void RenderLines();
     void RenderParticles();
     void RenderParticlesIndirectTexture();
 
     bool Update(double);
-    void Render();
+    void Render(const CActorLights* = nullptr);
     void SetOrientation(const zeus::CTransform&);
     void SetTranslation(const zeus::CVector3f&);
     void SetGlobalOrientation(const zeus::CTransform&);

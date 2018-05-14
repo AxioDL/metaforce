@@ -107,7 +107,7 @@ public:
     CParticleElectric(const TToken<CElectricDescription>& desc);
 
     bool Update(double);
-    void Render();
+    void Render(const CActorLights* = nullptr);
     void SetOrientation(const zeus::CTransform&);
     void SetTranslation(const zeus::CVector3f&);
     void SetGlobalOrientation(const zeus::CTransform&);

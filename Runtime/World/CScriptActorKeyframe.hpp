@@ -9,14 +9,14 @@ class CScriptActorKeyframe : public CEntity
 {
 private:
     s32 x34_animationId;
-    float x38_;
-    float x3c_;
-    float x40_;
+    float x38_initialLifetime;
+    float x3c_playbackRate;
+    float x40_lifetime;
     union {
         struct
         {
-            bool x44_24_ : 1;
-            bool x44_25_ : 1;
+            bool x44_24_looping : 1;
+            bool x44_25_disableUpdate : 1;
             bool x44_26_ : 1;
             bool x44_27_ : 1;
             bool x44_28_ : 1;

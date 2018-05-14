@@ -625,7 +625,7 @@ bool CParticleElectric::Update(double dt)
     return ret;
 }
 
-void CParticleElectric::Render()
+void CParticleElectric::Render(const CActorLights*)
 {
     if (x3e8_electricManagers.size())
     {
