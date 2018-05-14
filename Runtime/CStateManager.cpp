@@ -465,10 +465,10 @@ void CStateManager::TouchSky() const
 
 void CStateManager::TouchPlayerActor()
 {
-    if (xf6c_playerActor == kInvalidUniqueId)
+    if (xf6c_playerActorHead == kInvalidUniqueId)
         return;
-    if (CEntity* ent = ObjectById(xf6c_playerActor))
-        static_cast<CScriptPlayerActor*>(ent)->TouchModels();
+    if (CEntity* ent = ObjectById(xf6c_playerActorHead))
+        static_cast<CScriptPlayerActor*>(ent)->TouchModels(*this);
 }
 
 void CStateManager::DrawSpaceWarp(const zeus::CVector3f& v, float strength) const

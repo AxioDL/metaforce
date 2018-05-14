@@ -260,7 +260,7 @@ public:
         float x1130_xrayTarget = 1.f;
         float x1134_weaponWorldLightingSpeed = 0.f;
         float x1138_weaponWorldLightingTarget = 1.f;
-        u32 x113c_ = 0;
+        u32 x113c_playerActorsLoading = 0;
     };
 private:
     std::vector<std::pair<std::unique_ptr<u8[]>, int>> x110_mreaSecBufs;

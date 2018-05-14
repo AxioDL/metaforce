@@ -9,6 +9,7 @@
 #include "World/CWorld.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "Graphics/CSkinnedModel.hpp"
+#include "World/CScriptPlayerActor.hpp"
 
 namespace urde
 {
@@ -275,9 +276,40 @@ std::list<CActorModelParticles::CItem>::const_iterator CActorModelParticles::Fin
     return x0_items.cend();
 }
 
+std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindOrCreateSystem(CActor& act)
+{
+    if (act.GetPointGeneratorParticles())
+    {
+        for (auto it = x0_items.begin() ; it != x0_items.end() ; ++it)
+            if (it->x0_id == act.GetUniqueId())
+                return it;
+    }
+
+    act.SetPointGeneratorParticles(true);
+    return x0_items.emplace(x0_items.end(), act, *this);
+}
+
 void CActorModelParticles::StartIce(CActor& actor, CStateManager& mgr)
 {
 
+}
+
+void CActorModelParticles::AddRainSplashGenerator(CScriptPlayerActor& act, CStateManager& mgr, u32 maxSplashes,
+                                                  u32 genRate, float minZ)
+{
+    auto it = FindOrCreateSystem(act);
+    if (it->xd4_rainSplashGenerator)
+        return;
+
+    if (act.GetModelData() && !act.GetModelData()->IsNull())
+        it->xd4_rainSplashGenerator = std::make_unique<CRainSplashGenerator>(act.GetModelData()->GetScale(),
+                                                                             maxSplashes, genRate, minZ, 0.1875f);
+}
+
+void CActorModelParticles::RemoveRainSplashGenerator(CScriptPlayerActor& act)
+{
+     auto it = FindOrCreateSystem(act);
+     it->xd4_rainSplashGenerator.reset();
 }
 
 void CActorModelParticles::Render(const CActor& actor) const

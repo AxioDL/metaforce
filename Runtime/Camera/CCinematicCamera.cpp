@@ -215,7 +215,7 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr)
 
         if (x20c_lookAtId != kInvalidUniqueId)
             if (TCastToPtr<CScriptActor> act = mgr.ObjectById(x20c_lookAtId))
-                if (act->IsCameraMoveIntoAlpha())
+                if (act->IsPlayerActor())
                     act->SetDrawFlags({5, 0, 3, zeus::CColor(1.f, GetMoveOutofIntoAlpha())});
 
         x1ec_t += dt;
@@ -243,7 +243,7 @@ void CCinematicCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
                 TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
                 if (TCastToPtr<CScriptActor> act = mgr.ObjectById(id))
                 {
-                    if (act->IsCameraMoveIntoAlpha())
+                    if (act->IsPlayerActor())
                     {
                         x20c_lookAtId = id;
                         if (conn.x4_msg != EScriptObjectMessage::Deactivate &&
@@ -286,7 +286,7 @@ void CCinematicCamera::CalculateMoveOutofIntoEyePosition(bool outOfEye, CStateMa
     {
         if (TCastToConstPtr<CScriptActor> act = mgr.GetObjectById(x20c_lookAtId))
         {
-            if (act->IsCameraMoveIntoAlpha())
+            if (act->IsPlayerActor())
             {
                 if (const CModelData* mData = act->GetModelData())
                 {

@@ -356,7 +356,7 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
         return 1;
     }
 
-    if (area->GetPostConstructed()->x113c_ != 0)
+    if (area->GetPostConstructed()->x113c_playerActorsLoading != 0)
         return 1;
 
     for (CEntity* ent : mgr.GetPlatformAndDoorObjectList())

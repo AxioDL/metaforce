@@ -204,7 +204,7 @@ private:
     TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
     std::list<u32> xf54_;
-    TUniqueId xf6c_playerActor = kInvalidUniqueId;
+    TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
     u32 xf70_ = 0;
 
     TUniqueId xf74_lastTrigger = kInvalidUniqueId;
@@ -461,6 +461,8 @@ public:
         xf88_ = msg;
         xf8c_ = f1;
     }
+    TUniqueId GetPlayerActorHead() const { return xf6c_playerActorHead; }
+    void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
 
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

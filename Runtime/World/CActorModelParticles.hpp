@@ -17,6 +17,7 @@ class CElementGen;
 class CTexture;
 class CGenDescription;
 class CActor;
+class CScriptPlayerActor;
 
 class CActorModelParticles
 {
@@ -93,7 +94,11 @@ public:
     void Update(float dt, CStateManager& mgr);
     void SetupHook(TUniqueId uid);
     std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
+    std::list<CItem>::iterator FindOrCreateSystem(CActor& act);
     void StartIce(CActor& actor, CStateManager& mgr);
+    void AddRainSplashGenerator(CScriptPlayerActor& act, CStateManager& mgr, u32 maxSplashes,
+                                u32 genRate, float minZ);
+    void RemoveRainSplashGenerator(CScriptPlayerActor& act);
     void Render(const CActor& actor) const;
 };
 }

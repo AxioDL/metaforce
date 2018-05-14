@@ -283,6 +283,7 @@ public:
     void CheckTweakManagerDebugOptions() {}
     void SetMFGameBuilt(bool b) { x160_25_mfGameBuilt = b; }
     void SetScreenFading(bool b) { x160_26_screenFading = b; }
+    bool GetScreenFading() const { return x160_26_screenFading; }
 
     static void UpdateDiscordPresence(CAssetId worldSTRG = {});
 

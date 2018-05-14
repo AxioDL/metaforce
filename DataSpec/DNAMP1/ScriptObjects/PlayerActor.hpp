@@ -15,21 +15,21 @@ struct PlayerActor : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
-    Value<atVec3f> unknown1;
-    Value<atVec3f> scanOffset;
-    Value<float> unknown2;
-    Value<float> unknown3;
+    Value<atVec3f> boxExtents;
+    Value<atVec3f> boxOffset;
+    Value<float> mass;
+    Value<float> zMomentum;
     HealthInfo healthInfo;
     DamageVulnerability damageVulnerability;
     UniqueID32 model;
     AnimationParameters animationParameters;
     ActorParameters actorParameters;
-    Value<bool> unknown4;
-    Value<bool> unknown5;
-    Value<bool> unknown6;
-    Value<bool> unknown7;
+    Value<bool> loop;
+    Value<bool> snow;
+    Value<bool> solid;
+    Value<bool> active;
     PlayerParameters playerParameters;
-    Value<atUint32> unknown8;
+    Value<atUint32> beamId;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const

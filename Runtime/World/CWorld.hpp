@@ -170,6 +170,7 @@ public:
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
     void SetPauseState(bool paused);
+    void CyclePauseState();
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
     ~CWorld();

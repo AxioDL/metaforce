@@ -198,6 +198,8 @@ public:
     void SetModelData(std::unique_ptr<CModelData>&& mData);
     u8 GetFluidCounter() const { return xe6_24_fluidCounter; }
     TUniqueId GetFluidId() const { return xc4_fluidId; }
+    bool GetPointGeneratorParticles() const { return xe5_31_pointGeneratorParticles; }
+    void SetPointGeneratorParticles(bool s) { xe5_31_pointGeneratorParticles = s; }
 };
 }
 

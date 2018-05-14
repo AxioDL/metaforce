@@ -570,6 +570,15 @@ void CWorld::SetPauseState(bool paused)
     x70_25_paused = paused;
 }
 
+void CWorld::CyclePauseState()
+{
+    if (!x70_25_paused)
+    {
+        SetPauseState(true);
+        SetPauseState(false);
+    }
+}
+
 bool CWorld::ICheckWorldComplete() { return CheckWorldComplete(nullptr, kInvalidAreaId, -1); }
 
 std::string CWorld::IGetDefaultAudioTrack() const { return x84_defAudioTrack; }
