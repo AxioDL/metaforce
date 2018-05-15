@@ -345,7 +345,7 @@ public:
     void UpdateHintState(float dt);
     void PreThinkObjects(float dt);
     void MovePlatforms(float dt);
-    void MoveDoors(float dt);
+    void MoveActors(float dt);
     void CrossTouchActors();
     void Think(float dt);
     void PostUpdatePlayer(float dt);

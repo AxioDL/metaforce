@@ -1913,7 +1913,7 @@ void CStateManager::Update(float dt)
         if (!dying)
         {
             MovePlatforms(dt);
-            MoveDoors(dt);
+            MoveActors(dt);
         }
         ProcessPlayerInput();
         if (x904_gameState != EGameState::SoftPaused)
@@ -2064,7 +2064,7 @@ void CStateManager::MovePlatforms(float dt)
     }
 }
 
-void CStateManager::MoveDoors(float dt)
+void CStateManager::MoveActors(float dt)
 {
     for (CEntity* ent : GetPhysicsActorObjectList())
     {
@@ -2073,6 +2073,7 @@ void CStateManager::MoveDoors(float dt)
         CPhysicsActor& physActor = static_cast<CPhysicsActor&>(*ent);
         if (physActor.GetMass() == 0.f)
             continue;
+
         if (TCastToPtr<CAi> ai = physActor)
         {
             bool doThink = !xf94_29_cinematicPause;
@@ -2088,12 +2089,16 @@ void CStateManager::MoveDoors(float dt)
                     doThink = false;
             }
             if (!doThink)
+            {
                 SendScriptMsgAlways(ai->GetUniqueId(), kInvalidUniqueId,
                                     EScriptObjectMessage::SuspendedMove);
-            else if (x84c_player.get() != ent)
-                if (!GetPlatformAndDoorObjectList().IsPlatform(*ent))
-                    CGameCollision::Move(*this, physActor, dt, nullptr);
+                continue;
+            }
         }
+
+        if (x84c_player.get() != ent)
+            if (!GetPlatformAndDoorObjectList().IsPlatform(*ent))
+                CGameCollision::Move(*this, physActor, dt, nullptr);
     }
 }
 
