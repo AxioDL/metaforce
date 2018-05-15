@@ -19,7 +19,7 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name,
     x44_25_disableUpdate = b2;
     x44_26_ = w2;
     x44_27_ = w2;
-    x44_28_ = false;
+    x44_28_playing = false;
     x44_29_ = false;
 }
 
@@ -48,7 +48,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
                 }
             }
 
-            x44_28_ = true;
+            x44_28_playing = true;
             SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
         }
     }
@@ -63,7 +63,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
 
 void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
 {
-    if (!x44_25_disableUpdate || !x44_24_looping || !x44_27_ || !x44_28_ || x40_lifetime <= 0.f)
+    if (x44_25_disableUpdate || !x44_24_looping || !x44_27_ || !x44_28_playing || x40_lifetime <= 0.f)
     {
         CEntity::Think(dt, mgr);
         return;
@@ -76,7 +76,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
         return;
     }
 
-    x44_28_ = false;
+    x44_28_playing = false;
     for (const SConnection& conn : x20_conns)
     {
         if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg!= EScriptObjectMessage::Play)
@@ -135,6 +135,7 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
             }
         }
     }
-    /* TODO: Finish */
+    /* else if (TCastTo<CAi> ai = ent)
+     * TODO: Finish */
 }
 }

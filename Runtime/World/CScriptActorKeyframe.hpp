@@ -19,7 +19,7 @@ private:
             bool x44_25_disableUpdate : 1;
             bool x44_26_ : 1;
             bool x44_27_ : 1;
-            bool x44_28_ : 1;
+            bool x44_28_playing : 1;
             bool x44_29_ : 1;
         };
         u8 _dummy = 0;
