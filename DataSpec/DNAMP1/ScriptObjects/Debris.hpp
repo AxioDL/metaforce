@@ -15,20 +15,20 @@ struct Debris : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
-    Value<float> unknown1;
-    Value<atVec3f> unknown2;
-    Value<atVec4f> unknown3; // CColor
-    Value<float> unknown4;
-    Value<float> unknown5;
-    Value<float> unknown6;
-    Value<atUint32> unknown7;
-    Value<bool> unknown8;
+    Value<float> zImpulse;
+    Value<atVec3f> velocity;
+    DNAColor endsColor;
+    Value<float> mass;
+    Value<float> restitution;
+    Value<float> duration;
+    Value<atUint32> scaleType;
+    Value<bool> randomAngImpulse;
     UniqueID32 model;
     ActorParameters actorParameters;
     UniqueID32 particle;
-    Value<atVec3f> unknown9;
-    Value<bool> unknown10;
-    Value<bool> unknown11;
+    Value<atVec3f> particleScale;
+    Value<bool> b1;
+    Value<bool> active;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {

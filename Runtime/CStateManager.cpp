@@ -52,6 +52,7 @@
 #include "GameGlobalObjects.hpp"
 #include "World/CScriptDoor.hpp"
 #include "World/CScriptDamageableTrigger.hpp"
+#include "World/CScriptDebris.hpp"
 #include <cmath>
 
 namespace urde

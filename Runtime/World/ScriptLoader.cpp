@@ -706,8 +706,8 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int p
     std::string name = mgr.HashInstanceName(in);
 
     u32 spawnCount = in.readUint32Big();
-    bool reuseFollowers = in.readBool();
-    bool inheritXf = in.readBool();
+    bool noReuseFollowers = in.readBool();
+    bool noInheritXf = in.readBool();
 
     zeus::CVector3f offset = zeus::CVector3f::ReadBig(in);
 
@@ -715,7 +715,7 @@ CEntity* ScriptLoader::LoadGenerator(CStateManager& mgr, CInputStream& in, int p
     float minScale = in.readFloatBig();
     float maxScale = in.readFloatBig();
 
-    return new CScriptGenerator(mgr.AllocateUniqueId(), name, info, spawnCount, reuseFollowers, offset, inheritXf,
+    return new CScriptGenerator(mgr.AllocateUniqueId(), name, info, spawnCount, noReuseFollowers, offset, noInheritXf,
                                 active, minScale, maxScale);
 }
 
@@ -1140,27 +1140,28 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
         return nullptr;
 
     SScaledActorHead head = LoadScaledActorHead(in, mgr);
-    float f1 = in.readFloatBig();
-    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
-    zeus::CColor color;
-    color.readRGBABig(in);
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
-    float f4 = in.readFloatBig();
+    float zImpulse = in.readFloatBig();
+    zeus::CVector3f velocity = zeus::CVector3f::ReadBig(in);
+    zeus::CColor endsColor;
+    endsColor.readRGBABig(in);
+    float mass = in.readFloatBig();
+    float restitution = in.readFloatBig();
+    float duration = in.readFloatBig();
     CScriptDebris::EScaleType scaleType = CScriptDebris::EScaleType(in.readUint32Big());
-    bool b1 = in.readBool();
+    bool randomAngImpulse = in.readBool();
     CAssetId model = in.readUint32Big();
     CActorParameters aParams = LoadActorParameters(in);
-    CAssetId w3 = in.readUint32Big();
-    zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
+    CAssetId particleId = in.readUint32Big();
+    zeus::CVector3f particleScale = zeus::CVector3f::ReadBig(in);
+    bool b1 = in.readBool();
+    bool active = in.readBool();
 
     if (!g_ResFactory->GetResourceTypeById(model))
         return nullptr;
     return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
-                             CStaticRes(model, head.x40_scale), aParams, w3, v2, f1, v1, color, f2, f3, f4, scaleType,
-                             b2, b1, b3);
+                             CStaticRes(model, head.x40_scale), aParams, particleId, particleScale, zImpulse,
+                             velocity, endsColor, mass, restitution, duration, scaleType,
+                             b1, randomAngImpulse, active);
 }
 
 CEntity* ScriptLoader::LoadCameraShaker(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1706,27 +1707,27 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
 
     SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
 
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
-    float f4 = in.readFloatBig();
-    float f5 = in.readFloatBig();
-    float f6 = in.readFloatBig();
-    float f7 = in.readFloatBig();
-    float f8 = in.readFloatBig();
-    float f9 = in.readFloatBig();
+    float linConeAngle = in.readFloatBig();
+    float linMinMag = in.readFloatBig();
+    float linMaxMag = in.readFloatBig();
+    float angMinMag = in.readFloatBig();
+    float angMaxMag = in.readFloatBig();
+    float minDuration = in.readFloatBig();
+    float maxDuration = in.readFloatBig();
+    float colorInT = in.readFloatBig();
+    float colorOutT = in.readFloatBig();
 
-    zeus::CColor c1 = zeus::CColor::ReadRGBABig(in);
-    zeus::CColor c2 = zeus::CColor::ReadRGBABig(in);
+    zeus::CColor color = zeus::CColor::ReadRGBABig(in);
+    zeus::CColor endsColor = zeus::CColor::ReadRGBABig(in);
 
-    float f10 = in.readFloatBig();
+    float scaleOutT = in.readFloatBig();
 
-    zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f endScale = zeus::CVector3f::ReadBig(in);
 
-    float f11 = in.readFloatBig();
-    float f12 = in.readFloatBig();
+    float restitution = in.readFloatBig();
+    float downwardSpeed = in.readFloatBig();
 
-    zeus::CVector3f v2 = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f localOffset = zeus::CVector3f::ReadBig(in);
 
     CAssetId model = in.readUint32Big();
 
@@ -1734,34 +1735,36 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
 
     CAssetId particle1 = in.readUint32Big();
     zeus::CVector3f particle1Scale = zeus::CVector3f::ReadBig(in);
-    bool particle1B1 = in.readBool();
-    bool particle1B2 = in.readBool();
-    CScriptDebris::EOrientationType particle1W = CScriptDebris::EOrientationType(in.readUint32Big());
+    bool particle1GlobalTranslation = in.readBool();
+    bool deferDeleteTillParticle1Done = in.readBool();
+    CScriptDebris::EOrientationType particle1Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
     CAssetId particle2 = in.readUint32Big();
     zeus::CVector3f particle2Scale = zeus::CVector3f::ReadBig(in);
-    bool particle2B1 = in.readBool();
-    bool particle2B2 = in.readBool();
-    CScriptDebris::EOrientationType particle2W = CScriptDebris::EOrientationType(in.readUint32Big());
+    bool particle2GlobalTranslation = in.readBool();
+    bool deferDeleteTillParticle2Done = in.readBool();
+    CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
     CAssetId particle3 = in.readUint32Big();
     zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in);
-    CScriptDebris::EOrientationType particle3W = CScriptDebris::EOrientationType(in.readUint32Big());
+    CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
-    bool b1 = in.readBool();
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
-    bool b4 = in.readBool();
+    bool solid = in.readBool();
+    bool dieOnProjectile = in.readBool();
+    bool noBounce = in.readBool();
+    bool active = in.readBool();
 
     CModelData modelData;
     if (g_ResFactory->GetResourceTypeById(model))
         modelData = CModelData(CStaticRes(model, aHead.x40_scale));
 
     return new CScriptDebris(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(modelData),
-                             aParam, f1, f2, f3, f4, f5, f6, f7, f8, f9, c1, c2, f10, aHead.x40_scale, v1, f11, f12, v2,
-                             particle1, particle1Scale, particle1B1, particle1B2, particle1W, particle2, particle2Scale,
-                             particle2B1, particle2B2, particle2W, particle3, particle3Scale, particle3W, b1, b2, b3,
-                             b4);
+                             aParam, linConeAngle, linMinMag, linMaxMag, angMinMag, angMaxMag, minDuration, maxDuration,
+                             colorInT, colorOutT, color, endsColor, scaleOutT, aHead.x40_scale, endScale, restitution,
+                             downwardSpeed, localOffset, particle1, particle1Scale, particle1GlobalTranslation,
+                             deferDeleteTillParticle1Done, particle1Or, particle2, particle2Scale,
+                             particle2GlobalTranslation, deferDeleteTillParticle2Done, particle2Or, particle3,
+                             particle3Scale, particle3Or, solid, dieOnProjectile, noBounce, active);
 }
 
 CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

@@ -92,6 +92,8 @@ public:
     bool HasShadowLight() const { return x29c_shadowLightArrIdx != -1; }
     s32 GetShadowLightArrIndex() const { return x29c_shadowLightArrIdx; }
     s32 GetShadowLightIndex() const { return x2a0_shadowLightIdx; }
+    u32 GetAreaUpdateFramePeriod() const { return x2a8_areaUpdateFramePeriod; }
+    void SetAreaUpdateFramePeriod(u32 p) { x2a8_areaUpdateFramePeriod = p; }
 };
 
 }

@@ -13,8 +13,8 @@ class CScriptGenerator : public CEntity
     union {
         struct
         {
-            bool x38_24_reuseFollowers : 1;
-            bool x38_25_inheritTransform : 1;
+            bool x38_24_noReuseFollowers : 1;
+            bool x38_25_noInheritTransform : 1;
         };
         u8 dummy1 = 0;
     };
@@ -23,8 +23,9 @@ class CScriptGenerator : public CEntity
     float x4c_maxScale;
 
 public:
-    CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32, bool, const zeus::CVector3f&,
-                     bool, bool, float, float);
+    CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32 spawnCount,
+                     bool noReuseFollowers, const zeus::CVector3f& vec1, bool noInheritXf, bool active,
+                     float minScale, float maxScale);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);

@@ -11,49 +11,89 @@ class CScriptDebris : public CPhysicsActor
 public:
     enum class EScaleType
     {
+        NoScale,
+        EndsToZero
     };
 
     enum class EOrientationType
     {
+        NotOriented,
+        AlongVelocity,
+        ToObject,
+        AlongCollisionNormal
     };
 
 private:
-    zeus::CVector3f x258_;
-    zeus::CColor x264_;
-    float x26c_ = 0.f;
-    float x270_ = 0.f;
-    float x274_ = 0.f;
-    float x278_;
-    float x27c_;
-    bool x281_24_ : 1;
-    bool x281_25_ : 1;
-    bool x281_26_ : 1;
-    bool x281_27_ : 1;
-    bool x281_28_ : 1;
-    bool x281_29_ : 1;
-    bool x281_30_ : 1;
-    bool x281_31_ : 1;
-    bool x282_24_ : 1;
+    zeus::CVector3f x258_velocity;
+    zeus::CColor x264_color;
+    zeus::CColor x268_endsColor;
+    float x26c_zImpulse = 0.f;
+    float x270_curTime = 0.f;
+    float x274_duration = 0.f;
+    float x278_ooDuration = 0.f;
+    float x27c_restitution;
+    CScriptDebris::EScaleType x280_scaleType = CScriptDebris::EScaleType::NoScale;
+    union
+    {
+        struct
+        {
+            bool x281_24_randomAngImpulse : 1;
+            bool x281_25_particle1GlobalTranslation : 1;
+            bool x281_26_deferDeleteTillParticle1Done : 1;
+            bool x281_27_particle2GlobalTranslation : 1;
+            bool x281_28_deferDeleteTillParticle2Done : 1;
+            bool x281_29_particle3Active : 1;
+            bool x281_30_debrisExtended : 1;
+            bool x281_31_dieOnProjectile : 1;
+            bool x282_24_noBounce : 1;
+        };
+        u32 _dummy = 0;
+    };
+    EOrientationType x283_particleOrs[3] = {};
+    float x288_linConeAngle = 0.f;
+    float x28c_linMinMag = 0.f;
+    float x290_linMaxMag = 0.f;
+    float x294_angMinMag = 0.f;
+    float x298_angMaxMag = 0.f;
+    float x29c_minDuration = 0.f;
+    float x2a0_maxDuration = 0.f;
+    float x2a4_colorInT = 0.f;
+    float x2a8_colorOutT = 0.f;
+    float x2ac_scaleOutStartT = 0.f;
+    zeus::CVector3f x2b0_scale;
+    zeus::CVector3f x2bc_endScale;
     zeus::CVector3f x2c8_collisionNormal;
-    std::unique_ptr<CElementGen> x2d4_;
-    std::unique_ptr<CElementGen> x2d8_;
-    std::unique_ptr<CElementGen> x2dc_;
-    TReservedAverage<float, 8> x2e0_;
+    std::unique_ptr<CElementGen> x2d4_particleGens[3]; /* x2d4, x2d8, x2dc */
+    TReservedAverage<float, 8> x2e0_speedAvg;
 
 public:
-    CScriptDebris(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-                  const CActorParameters&, CAssetId, const zeus::CVector3f&, float, const zeus::CVector3f&,
-                  const zeus::CColor&, float, float, float, EScaleType, bool, bool, bool);
+    CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                  CModelData&& mData, const CActorParameters& aParams, CAssetId particleId,
+                  const zeus::CVector3f& particleScale, float zImpulse, const zeus::CVector3f& velocity,
+                  const zeus::CColor& endsColor, float mass, float restitution, float duration,
+                  EScaleType scaleType, bool b1, bool randomAngImpulse, bool active);
 
-    CScriptDebris(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
-                  const CActorParameters&, float, float, float, float, float, float, float, float, float,
-                  const zeus::CColor&, const zeus::CColor&, float, const zeus::CVector3f&, const zeus::CVector3f&,
-                  float, float, const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, bool, bool, EOrientationType,
-                  CAssetId, const zeus::CVector3f&, bool, bool, EOrientationType, CAssetId, const zeus::CVector3f&,
-                  EOrientationType, bool, bool, bool, bool);
+    CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
+                  CModelData&& mData, const CActorParameters& aParams, float linConeAngle, float linMinMag,
+                  float linMaxMag, float angMinMag, float angMaxMag, float minDuration, float maxDuration,
+                  float colorInT, float colorOutT, const zeus::CColor& color, const zeus::CColor& endsColor,
+                  float scaleOutStartT, const zeus::CVector3f& scale, const zeus::CVector3f& endScale,
+                  float restitution, float downwardSpeed, const zeus::CVector3f& localOffset,
+                  CAssetId particle1, const zeus::CVector3f& particle1Scale, bool particle1GlobalTranslation,
+                  bool deferDeleteTillParticle1Done, EOrientationType particle1Or,
+                  CAssetId particle2, const zeus::CVector3f& particle2Scale, bool particle2GlobalTranslation,
+                  bool deferDeleteTillParticle2Done, EOrientationType particle2Or,
+                  CAssetId particle3, const zeus::CVector3f& particle3Scale, EOrientationType particle3Or,
+                  bool solid, bool dieOnProjectile, bool noBounce, bool active);
 
     void Accept(IVisitor& visitor);
+    void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
+    void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+    void Think(float dt, CStateManager& mgr);
+    void Touch(CActor& other, CStateManager& mgr);
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+    void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
+    void Render(const CStateManager& mgr) const;
 
     void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
 };

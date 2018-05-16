@@ -102,7 +102,7 @@ void ViewManager::TestGameView::think()
                          "Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
                          "Active Layer bits: %s\n",
                          pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z, plQ.w, plQ.x, plQ.y,
-                         plQ.z, g_GameState->CurrentWorldAssetId().Value(),
+                         plQ.z, u32(g_GameState->CurrentWorldAssetId().Value()),
                          (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId,
                          g_StateManager->GetAllObjectList().size(), layerStates->GetAreaLayerCount(aId), totalActive,
                          layerBits.c_str()));

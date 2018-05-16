@@ -74,6 +74,7 @@ CENTITY_TYPES = (
     ('CScriptSpindleCamera', 'World/CScriptSpindleCamera.hpp'),
     ('CWallCrawlerSwarm', 'World/CWallCrawlerSwarm.hpp'),
     ('CWeapon', 'Weapon/CWeapon.hpp'),
+    ('CScriptDebris', 'World/CScriptDebris.hpp'),
 )
 
 def getqualified(tp):

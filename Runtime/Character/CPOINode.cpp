@@ -74,9 +74,11 @@ u32 _getPOIList(const CCharAnimTime& time,
         {
             u32 idx = iterator + ret;
             if (idx < capacity)
+            {
                 listOut[idx] = T::CopyNodeMinusStartTime(stream[passedCount], curTime);
+                ++ret;
+            }
             ++passedCount;
-            ++ret;
             if (passedCount < stream.size())
                 nodeTime = stream[passedCount].GetTime();
         }
@@ -97,13 +99,15 @@ u32 _getPOIList(const CCharAnimTime& time,
 
     for (u32 it = iterator ; it < stream.size() ; ++it)
     {
-        CCharAnimTime nodeTime = stream[ret].GetTime();
+        CCharAnimTime nodeTime = stream[it].GetTime();
         if (nodeTime > targetTime)
             return ret;
         u32 idx = iterator + ret;
-        if (idx < capacity)
-            listOut[idx] = T::CopyNodeMinusStartTime(stream[ret], curTime);
-        ++ret;
+        if (nodeTime >= curTime && idx < capacity)
+        {
+            listOut[idx] = T::CopyNodeMinusStartTime(stream[it], curTime);
+            ++ret;
+        }
     }
 
     return ret;
