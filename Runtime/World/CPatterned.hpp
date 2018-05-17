@@ -184,6 +184,9 @@ public:
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
     float GetDamageDuration() const { return x504_damageDur; }
+
+    const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
+    CBodyController* BodyController() { return x450_bodyController.get(); }
 };
 }
 

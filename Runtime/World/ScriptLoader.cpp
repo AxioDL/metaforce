@@ -1186,13 +1186,14 @@ CEntity* ScriptLoader::LoadActorKeyframe(CStateManager& mgr, CInputStream& in, i
     bool looping = in.readBool();
     float lifetime = in.readFloatBig();
     bool active = in.readBool();
-    u32 w2 = in.readUint32Big();
+    u32 fadeOut = in.readUint32Big();
     float totalPlayback = in.readFloatBig();
 
     if (animId == -1)
         return nullptr;
 
-    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), name, info, animId, looping, lifetime, false, w2, active, totalPlayback);
+    return new CScriptActorKeyframe(mgr.AllocateUniqueId(), name, info, animId, looping, lifetime, false,
+                                    fadeOut, active, totalPlayback);
 }
 
 CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2257,20 +2258,21 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
         return nullptr;
 
     std::string name = mgr.HashInstanceName(in);
-    zeus::CColor c1;
-    c1.readRGBABig(in);
-    zeus::CColor c2;
-    c2.readRGBABig(in);
-    CScriptColorModulate::EBlendMode bm = CScriptColorModulate::EBlendMode(in.readUint32Big());
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    bool b1 = in.readBool();
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
-    bool b4 = in.readBool();
-    bool b5 = in.readBool();
+    zeus::CColor colorA;
+    colorA.readRGBABig(in);
+    zeus::CColor colorB;
+    colorB.readRGBABig(in);
+    CScriptColorModulate::EBlendMode blendMode = CScriptColorModulate::EBlendMode(in.readUint32Big());
+    float timeA2B = in.readFloatBig();
+    float timeB2A = in.readFloatBig();
+    bool doReverse = in.readBool();
+    bool resetTargetWhenDone = in.readBool();
+    bool depthCompare = in.readBool();
+    bool depthUpdate = in.readBool();
+    bool depthBackwards = in.readBool();
     bool active = in.readBool();
-    return new CScriptColorModulate(mgr.AllocateUniqueId(), name, info, c1, c2, bm, f1, f2, b1, b2, b3, b4, b5, active);
+    return new CScriptColorModulate(mgr.AllocateUniqueId(), name, info, colorA, colorB, blendMode, timeA2B, timeB2A,
+                                    doReverse, resetTargetWhenDone, depthCompare, depthUpdate, depthBackwards, active);
 }
 
 CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount,

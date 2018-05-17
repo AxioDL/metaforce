@@ -2339,9 +2339,7 @@ void CStateManager::RemoveObject(TUniqueId uid)
     if (CEntity* ent = GetAllObjectList().GetValidObjectById(uid))
     {
         if (ent->GetEditorId() != kInvalidEditorId)
-        {
             x890_scriptIdMap.erase(ent->GetEditorId());
-        }
         if (ent->GetAreaIdAlways() != kInvalidAreaId)
         {
             CGameArea* area = x850_world->GetArea(ent->GetAreaIdAlways());

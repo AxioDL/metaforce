@@ -13,10 +13,10 @@ struct ActorKeyframe : IScriptObject
     AT_DECL_DNAV
     String<-1>      name;
     Value<atUint32> animationId;
-    Value<bool>     unknown1;
-    Value<float>    unknown2;
+    Value<bool>     looping;
+    Value<float>    lifetime;
     Value<bool>     active;
-    Value<atUint32> unknown3;
+    Value<atUint32> fadeOut;
     Value<float>    totalPlayback;
 };
 }

@@ -45,10 +45,10 @@ class CAdditiveAnimPlayback
     bool x14_active;
     float x18_weightTimer = 0.f;
     EAdditivePlaybackPhase x1c_phase = EAdditivePlaybackPhase::FadingIn;
-    bool x20_ = false;
+    bool x20_needsFadeOut = false;
 public:
     CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim, float weight, bool active,
-                          const CAdditiveAnimationInfo& info, bool b);
+                          const CAdditiveAnimationInfo& info, bool fadeOut);
 
     void AddToSegStatementSet(const CSegIdList& list, const CCharLayoutInfo&, CSegStatementSet&) const;
     void Update(float dt);
@@ -60,8 +60,8 @@ public:
     const std::shared_ptr<CAnimTreeNode>& GetAnim() const {return x8_anim;}
     std::shared_ptr<CAnimTreeNode>& GetAnim() {return x8_anim;}
     EAdditivePlaybackPhase GetPhase() const {return x1c_phase;}
-    void Set20(bool b) {x20_ = b;}
-    bool Get20() const {return x20_;}
+    void SetNeedsFadeOut(bool b) {x20_needsFadeOut = b;}
+    bool NeedsFadeOut() const {return x20_needsFadeOut;}
 };
 
 }

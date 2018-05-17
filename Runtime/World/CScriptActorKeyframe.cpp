@@ -2,13 +2,14 @@
 #include "CStateManager.hpp"
 #include "World/CScriptActor.hpp"
 #include "World/CScriptPlatform.hpp"
-#include "World/CAi.hpp"
+#include "World/CPatterned.hpp"
 #include "TCastTo.hpp"
 
 namespace urde
 {
 CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,
-                                           bool looping, float lifetime, bool b2, u32 w2, bool active, float totalPlayback)
+                                           bool looping, float lifetime, bool disableUpdate, u32 fadeOut, bool active,
+                                           float totalPlayback)
 : CEntity(uid, info, active, name)
 , x34_animationId(animId)
 , x38_initialLifetime(lifetime)
@@ -16,9 +17,9 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name,
 , x40_lifetime(lifetime)
 {
     x44_24_looping = looping;
-    x44_25_disableUpdate = b2;
-    x44_26_ = w2;
-    x44_27_ = w2;
+    x44_25_disableUpdate = disableUpdate;
+    x44_26_fadeOut = fadeOut;
+    x44_27_timedLoop = fadeOut;
     x44_28_playing = false;
     x44_29_ = false;
 }
@@ -63,7 +64,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
 
 void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
 {
-    if (x44_25_disableUpdate || !x44_24_looping || !x44_27_ || !x44_28_playing || x40_lifetime <= 0.f)
+    if (x44_25_disableUpdate || !x44_24_looping || !x44_27_timedLoop || !x44_28_playing || x40_lifetime <= 0.f)
     {
         CEntity::Think(dt, mgr);
         return;
@@ -94,12 +95,18 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
                     animData->EnableLooping(false);
             }
         }
-        else if (TCastToPtr<CAi> ai = ent)
+        else if (TCastToPtr<CPatterned> ai = ent)
         {
-            CAnimData* animData = act->ModelData()->AnimationData();
+            CAnimData* animData = ai->ModelData()->AnimationData();
             if (animData->IsAdditiveAnimation(x34_animationId))
+            {
                 animData->DelAdditiveAnimation(x34_animationId);
-            /* TODO: Finish */
+            }
+            else if (ai->GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Scripted &&
+                     animData->GetDefaultAnimation() == x34_animationId)
+            {
+                ai->BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
+            }
         }
     }
 
@@ -125,7 +132,7 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
             CAnimData* animData = act->ModelData()->AnimationData();
             if (animData->IsAdditiveAnimation(x34_animationId))
             {
-                animData->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_looping, x44_26_);
+                animData->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_looping, x44_26_fadeOut);
             }
             else
             {
@@ -135,7 +142,18 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
             }
         }
     }
-    /* else if (TCastTo<CAi> ai = ent)
-     * TODO: Finish */
+    else if (TCastToPtr<CPatterned> ai = ent)
+    {
+        CAnimData* animData = ai->ModelData()->AnimationData();
+        if (animData->IsAdditiveAnimation(x34_animationId))
+        {
+            animData->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_looping, x44_26_fadeOut);
+        }
+        else
+        {
+            ai->BodyController()->GetCommandMgr().DeliverCmd(
+                CBCScriptedCmd(x34_animationId, x44_24_looping, x44_27_timedLoop, x38_initialLifetime));
+        }
+    }
 }
 }

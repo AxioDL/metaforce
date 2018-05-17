@@ -7,11 +7,12 @@ namespace urde
 {
 
 CAdditiveAnimPlayback::CAdditiveAnimPlayback(const std::weak_ptr<CAnimTreeNode>& anim,
-                                             float weight, bool active, const CAdditiveAnimationInfo& info, bool b)
+                                             float weight, bool active, const CAdditiveAnimationInfo& info,
+                                             bool fadeOut)
 : x0_info(info), x8_anim(anim.lock()), xc_targetWeight(weight), x14_active(active)
 {
-    if (!active && b)
-        x20_ = true;
+    if (!active && fadeOut)
+        x20_needsFadeOut = true;
 }
 
 void CAdditiveAnimPlayback::AddToSegStatementSet(const CSegIdList& list,

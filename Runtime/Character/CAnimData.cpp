@@ -187,7 +187,7 @@ SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt)
     {
         it->second.Update(dt);
         CCharAnimTime timeRem = it->second.GetAnim()->VGetTimeRemaining();
-        if (timeRem.EpsilonZero() && it->second.Get20())
+        if (timeRem.EpsilonZero() && it->second.NeedsFadeOut())
             it->second.FadeOut();
         if (it->second.GetPhase() == EAdditivePlaybackPhase::FadedOut)
         {
@@ -252,7 +252,7 @@ void CAnimData::DelAdditiveAnimation(u32 idx)
     }
 }
 
-void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool b)
+void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool fadeOut)
 {
     u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
     for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)
@@ -263,7 +263,7 @@ void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool b)
         {
             anim.second.SetActive(active);
             anim.second.SetWeight(weight);
-            anim.second.Set20(!anim.second.IsActive() && b);
+            anim.second.SetNeedsFadeOut(!anim.second.IsActive() && fadeOut);
             return;
         }
     }
@@ -272,7 +272,7 @@ void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool b)
     GetAnimationManager()->GetAnimationTree(animIdx, CMetaAnimTreeBuildOrders::NoSpecialOrders());
 
     const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
-    x434_additiveAnims.emplace_back(std::make_pair(idx, CAdditiveAnimPlayback(node, weight, active, info, b)));
+    x434_additiveAnims.emplace_back(std::make_pair(idx, CAdditiveAnimPlayback(node, weight, active, info, fadeOut)));
 }
 
 float CAnimData::GetAdditiveAnimationWeight(u32 idx) const
@@ -330,7 +330,7 @@ CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnim
 
 void CAnimData::MultiplyPlaybackRate(float mul)
 {
-    x200_speedScale += mul;
+    x200_speedScale *= mul;
 }
 
 void CAnimData::SetPlaybackRate(float set)

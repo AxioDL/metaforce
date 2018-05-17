@@ -12,17 +12,17 @@ struct ColorModulate : IScriptObject
     AT_DECL_DNA_YAML
     AT_DECL_DNAV
     String<-1> name;
-    Value<atVec4f> unknown1;
-    Value<atVec4f> unknown2;
-    Value<atUint32> unknown3;
-    Value<float> unknown4;
-    Value<float> unknown5;
-    Value<bool> unknown6;
-    Value<bool> unknown7;
-    Value<bool> unknown8;
-    Value<bool> unknown9;
-    Value<bool> unknown10;
-    Value<bool> unknown11;
+    Value<atVec4f> colorA;
+    Value<atVec4f> colorB;
+    Value<atUint32> blendMode;
+    Value<float> timeA2B;
+    Value<float> timeB2A;
+    Value<bool> doReverse;
+    Value<bool> resetTargetWhenDone;
+    Value<bool> depthCompare;
+    Value<bool> depthUpdate;
+    Value<bool> depthBackwards;
+    Value<bool> active;
 };
 }
 
