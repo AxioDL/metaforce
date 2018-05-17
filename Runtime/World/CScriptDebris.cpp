@@ -396,7 +396,7 @@ void CScriptDebris::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
     if (t < x2a4_colorInT)
         t = x2a4_colorInT > 0.f ? 1.f - x270_curTime / (x274_duration * x2a4_colorInT) : 0.f;
     else if (t > x2a8_colorOutT)
-        t = (x270_curTime - x274_duration * x2a8_colorOutT) / x274_duration * (1.f - x2a8_colorOutT);
+        t = (x270_curTime - x274_duration * x2a8_colorOutT) / (x274_duration * (1.f - x2a8_colorOutT));
     else
         t = 0.f;
 

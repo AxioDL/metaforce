@@ -213,7 +213,7 @@ s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s
         for (int i=0 ; i<a ; ++i)
         {
             s16 id = AccessElement(xb000_sortedLists[int(la)].x0_ids, i);
-            if (AccessElement(x0_nodes, id).x1c_selfIdxs[lb] > aabb[int(lb)])
+            if (AccessElement(x0_nodes, id).x4_box[int(lb)] > aabb[int(lb)])
                 AddToLinkedList(id, headId, tailId);
         }
     }
@@ -222,7 +222,7 @@ s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s
         for (int i=d ; i<xb000_sortedLists[int(lb)].x800_size ; ++i)
         {
             s16 id = AccessElement(xb000_sortedLists[int(lb)].x0_ids, i);
-            if (AccessElement(x0_nodes, id).x1c_selfIdxs[la] < aabb[int(la)])
+            if (AccessElement(x0_nodes, id).x4_box[int(la)] < aabb[int(la)])
                 AddToLinkedList(id, headId, tailId);
         }
     }
@@ -246,16 +246,16 @@ s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s
     return headId;
 }
 
-void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& v1,
-                                       const zeus::CVector3f& v2, float f1, const CMaterialFilter& filter,
+void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& out, const zeus::CVector3f& pos,
+                                       const zeus::CVector3f& dir, float mag, const CMaterialFilter& filter,
                                        const CActor* actor) const
 {
-    if (f1 == 0.f)
-        f1 = 8000.f;
-    zeus::CVector3f mul = v2 * f1;
-    zeus::CVector3f sum = mul + v1;
-    zeus::CVector3f maxs(std::max(v1.z, sum.z), std::max(v1.y, sum.y), std::max(v1.x, sum.x));
-    zeus::CVector3f mins(std::min(sum.z, v1.z), std::min(sum.y, v1.y), std::min(sum.y, v1.y));
+    if (mag == 0.f)
+        mag = 8000.f;
+    zeus::CVector3f ray = dir * mag;
+    zeus::CVector3f sum = ray + pos;
+    zeus::CVector3f maxs(std::max(pos.z, sum.z), std::max(pos.y, sum.y), std::max(pos.x, sum.x));
+    zeus::CVector3f mins(std::min(sum.z, pos.z), std::min(sum.y, pos.y), std::min(sum.y, pos.y));
     BuildNearList(out, zeus::CAABox(mins, maxs), filter, actor);
 }
 

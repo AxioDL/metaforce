@@ -27,7 +27,7 @@ public:
 private:
     TUniqueId x34_parent = kInvalidUniqueId;
     EFadeState x38_fadeState = EFadeState::A2B;
-    float x3c_curTime;
+    float x3c_curTime = 0.f;
     zeus::CColor x40_colorA;
     zeus::CColor x44_colorB;
     EBlendMode x48_blendMode;
