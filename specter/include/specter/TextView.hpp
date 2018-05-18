@@ -60,6 +60,7 @@ public:
 
 private:
     size_t m_capacity;
+    size_t m_curSize = 0;
     hecl::VertexBufferPool<RenderGlyph>::Token m_glyphBuf;
     boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* OpenGL only */
     boo::ObjToken<boo::IShaderDataBinding> m_shaderBinding;

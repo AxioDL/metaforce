@@ -170,7 +170,6 @@ void MultiLineTextView::typesetGlyphs(std::string_view str,
     }
 
     m_width = 0;
-    m_lines.clear();
     size_t rem = str.size() + 1;
     const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
 
@@ -191,6 +190,7 @@ void MultiLineTextView::typesetGlyphs(std::string_view str,
     rem = str.size() + 1;
     it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
     const utf8proc_uint8_t* beginIt = it;
+    size_t lineIt = 0;
 
     while (rem)
     {
@@ -198,10 +198,12 @@ void MultiLineTextView::typesetGlyphs(std::string_view str,
         utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
         if (ch == '\n' || ch == '\0')
         {
-            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
-            m_lines.back()->typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
-            m_width = std::max(m_width, m_lines.back()->nominalWidth());
+            TextView& tv = (lineIt < m_lines.size()) ? *m_lines[lineIt] :
+            *m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
+            tv.typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
+            m_width = std::max(m_width, tv.nominalWidth());
             beginIt = it + 1;
+            ++lineIt;
         }
         rem -= sz;
         it += sz;
@@ -221,7 +223,6 @@ void MultiLineTextView::typesetGlyphs(std::wstring_view str,
     }
 
     m_width = 0;
-    m_lines.clear();
     size_t rem = str.size() + 1;
     auto it = str.cbegin();
 
@@ -238,15 +239,18 @@ void MultiLineTextView::typesetGlyphs(std::wstring_view str,
     rem = str.size() + 1;
     it = str.cbegin();
     auto beginIt = it;
+    size_t lineIt = 0;
 
     while (rem)
     {
         if (*it == L'\n' || *it == L'\0')
         {
-            m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
-            m_lines.back()->typesetGlyphs(std::wstring(beginIt, it), defaultColor);
-            m_width = std::max(m_width, m_lines.back()->nominalWidth());
+            TextView& tv = (lineIt < m_lines.size()) ? *m_lines[lineIt] :
+            *m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
+            tv.typesetGlyphs(std::wstring(beginIt, it), defaultColor);
+            m_width = std::max(m_width, tv.nominalWidth());
             beginIt = it + 1;
+            ++lineIt;
         }
         --rem;
         ++it;

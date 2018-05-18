@@ -300,7 +300,7 @@ void TextView::_commitResources(size_t capacity)
 {
     auto& res = rootView().viewRes();
     auto fontTex = m_fontAtlas.texture(res.m_factory);
-    View::commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    View::commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         buildResources(ctx, res);
 
@@ -409,7 +409,11 @@ void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultCo
 {
     UTF8Iterator it(str.begin());
     size_t charLen = str.size() ? std::min(it.countTo(str.end()), m_capacity) : 0;
-    _commitResources(charLen);
+    if (charLen > m_curSize)
+    {
+        m_curSize = charLen;
+        _commitResources(charLen);
+    }
 
     uint32_t lCh = -1;
     m_glyphs.clear();
@@ -478,7 +482,11 @@ void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultCo
 void TextView::typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor)
 {
     size_t charLen = std::min(str.size(), m_capacity);
-    _commitResources(charLen);
+    if (charLen > m_curSize)
+    {
+        m_curSize = charLen;
+        _commitResources(charLen);
+    }
 
     uint32_t lCh = -1;
     m_glyphs.clear();
