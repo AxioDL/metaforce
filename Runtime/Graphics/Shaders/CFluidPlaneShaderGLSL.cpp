@@ -571,8 +571,8 @@ CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPla
     const char* texNames[3] = {};
     std::string finalVS, finalFS;
     _BuildShader(finalVS, finalFS, nextTex, texNames, info);
-    const char* uniNames[] = {"FluidPlaneUniform"};
-    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), size_t(nextTex), texNames, 1, uniNames,
+    const char* uniNames[] = {"FluidPlaneUniform", "FluidPlaneUniform", "LightingUniform"};
+    return ctx.newShaderPipeline(finalVS.c_str(), finalFS.c_str(), size_t(nextTex), texNames, 3, uniNames,
                                  boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);

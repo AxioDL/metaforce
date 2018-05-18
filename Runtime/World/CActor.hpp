@@ -74,7 +74,7 @@ protected:
             u8 xe6_31_targetableVisorFlags : 4;
             bool xe7_27_enableRender : 1;
             bool xe7_28_worldLightingDirty : 1;
-            bool xe7_29_actorActive : 1;
+            bool xe7_29_drawEnabled : 1;
             bool xe7_30_doTargetDistanceTest : 1;
             bool xe7_31_targetable : 1;
         };
@@ -110,7 +110,7 @@ public:
         xe4_27_notInSortedLists = true;
         xe4_28_transformDirty = true;
         xe4_29_actorLightsDirty = true;
-        xe7_29_actorActive = active;
+        xe7_29_drawEnabled = active;
         CEntity::SetActive(active);
     }
     virtual void PreRender(CStateManager&, const zeus::CFrustum&);
@@ -184,7 +184,7 @@ public:
     const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
     CActorLights* ActorLights() { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
-    bool IsActorActive() const { return xe7_29_actorActive; }
+    bool IsActorActive() const { return xe7_29_drawEnabled; }
     void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo(const CStateManager& mgr) const

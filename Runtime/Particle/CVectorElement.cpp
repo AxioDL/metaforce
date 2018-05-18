@@ -66,12 +66,12 @@ CVECone::CVECone(CVectorElement* a, CRealElement* b)
 {
     zeus::CVector3f av;
     x4_direction->GetValue(0, av);
-    av.normalize();
-    if (av[0] > 0.8)
+    zeus::CVector3f avNorm = av.normalized();
+    if (avNorm.x > 0.8)
         xc_xVec = av.cross(zeus::CVector3f(0.f, 1.f, 0.f));
     else
         xc_xVec = av.cross(zeus::CVector3f(1.f, 0.f, 0.f));
-    x18_yVec = av.cross(xc_xVec);
+    x18_yVec = avNorm.cross(xc_xVec);
 }
 
 bool CVECone::GetValue(int frame, zeus::CVector3f& valOut) const

@@ -22,38 +22,43 @@ u32 CScriptEffect::g_NumParticlesRendered = 0;
 
 CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                              const zeus::CTransform& xf, const zeus::CVector3f& scale,
-                             CAssetId partId, CAssetId elscId, bool hotInThermal, bool b2, bool b3, bool active,
-                             bool b4, float f1, float f2, float f3, float f4, bool b5, float f5, float f6, float f7,
-                             bool b6, bool b7, bool b8, const CLightParameters& lParms, bool b9)
+                             CAssetId partId, CAssetId elscId, bool hotInThermal, bool noTimerUnlessAreaOccluded,
+                             bool rebuildSystemsOnActivate, bool active, bool useRateInverseCamDist,
+                             float rateInverseCamDist, float rateInverseCamDistRate, float duration,
+                             float durationResetWhileVisible, bool useRateCamDistRange, float rateCamDistRangeMin,
+                             float rateCamDistRangeMax, float rateCamDistRangeFarRate, bool combatVisorVisible,
+                             bool thermalVisorVisible, bool xrayVisorVisible, const CLightParameters& lParms,
+                             bool dieWhenSystemsDone)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(),
          CActorParameters::None().HotInThermal(hotInThermal), kInvalidUniqueId)
 , x10c_partId(partId)
-, x110_24_(active)
-, x110_25_(b2)
-, x110_26_(b3)
-, x110_27_(b4)
-, x110_28_(b6)
-, x110_29_(b7)
-, x110_30_(b8)
-, x110_31_(b8 && b7 && b6)
-, x111_24_(b5)
-, x111_25_(b9)
-, x111_26_canRender(false)
-, x114_(f1)
-, x118_(f1 * f1)
-, x11c_(f2)
-, x120_(f5)
-, x124_(f6)
-, x128_(f7)
-, x12c_(f3)
-, x130_(f3)
-, x134_(f4)
+, x114_rateInverseCamDist(rateInverseCamDist)
+, x118_rateInverseCamDistSq(rateInverseCamDist * rateInverseCamDist)
+, x11c_rateInverseCamDistRate(rateInverseCamDistRate)
+, x120_rateCamDistRangeMin(rateCamDistRangeMin)
+, x124_rateCamDistRangeMax(rateCamDistRangeMax)
+, x128_rateCamDistRangeFarRate(rateCamDistRangeFarRate)
+, x12c_remTime(duration)
+, x130_duration(duration)
+, x134_durationResetWhileVisible(durationResetWhileVisible)
 , x138_actorLights(lParms.MakeActorLights())
 {
+    x110_24_enable = active;
+    x110_25_noTimerUnlessAreaOccluded = noTimerUnlessAreaOccluded;
+    x110_26_rebuildSystemsOnActivate = rebuildSystemsOnActivate;
+    x110_27_useRateInverseCamDist = useRateInverseCamDist;
+    x110_28_combatVisorVisible = combatVisorVisible;
+    x110_29_thermalVisorVisible = thermalVisorVisible;
+    x110_30_xrayVisorVisible = xrayVisorVisible;
+    x110_31_anyVisorVisible = xrayVisorVisible && thermalVisorVisible && combatVisorVisible;
+    x111_24_useRateCamDistRange = useRateCamDistRange;
+    x111_25_dieWhenSystemsDone = dieWhenSystemsDone;
+    x111_26_canRender = false;
+
     if (partId.IsValid())
     {
         xf8_particleSystemToken = g_SimplePool->GetObj({FOURCC('PART'), partId});
-        x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken, CElementGen::EModelOrientationType::Normal, CElementGen::EOptionalSystemFlags::One));
+        x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken));
         zeus::CTransform newXf = xf;
         newXf.origin = zeus::CVector3f::skZero;
         x104_particleSystem->SetOrientation(newXf);
@@ -76,7 +81,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
         xf4_electric->SetLocalScale(scale);
         xf4_electric->SetParticleEmission(active);
     }
-    xe7_29_actorActive = true;
+    xe7_29_drawEnabled = true;
 }
 
 void CScriptEffect::Accept(IVisitor& visitor)
@@ -86,10 +91,12 @@ void CScriptEffect::Accept(IVisitor& visitor)
 
 void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    bool active = GetActive();
-    if (msg == EScriptObjectMessage::Activate)
+    bool oldActive = GetActive();
+
+    switch (msg)
     {
-        if (x110_26_)
+    case EScriptObjectMessage::Activate:
+        if (x110_26_rebuildSystemsOnActivate)
         {
             if (x104_particleSystem)
             {
@@ -101,7 +108,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
                 x104_particleSystem->SetOrientation(newXf);
                 x104_particleSystem->SetTranslation(GetTranslation());
                 x104_particleSystem->SetLocalScale(scale);
-                x104_particleSystem->SetParticleEmission(active);
+                x104_particleSystem->SetParticleEmission(oldActive);
                 x104_particleSystem->SetModulationColor(color);
                 x104_particleSystem->SetModelsUseLights(x138_actorLights != nullptr);
             }
@@ -116,33 +123,32 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
                 xf4_electric->SetOrientation(newXf);
                 xf4_electric->SetTranslation(GetTranslation());
                 xf4_electric->SetLocalScale(scale);
-                xf4_electric->SetParticleEmission(active);
+                xf4_electric->SetParticleEmission(oldActive);
                 xf4_electric->SetModulationColor(color);
             }
         }
-    }
-    else if (msg == EScriptObjectMessage::Registered)
-    {
+        break;
+    case EScriptObjectMessage::Registered:
         if (x104_particleSystem && x104_particleSystem->SystemHasLight())
         {
             x108_lightId = mgr.AllocateUniqueId();
-            mgr.AddObject(new CGameLight(x108_lightId, GetAreaIdAlways(), true, std::string("EffectPLight_") + GetName().data(), x34_transform,  GetUniqueId(), x104_particleSystem->GetLight(), x10c_partId.Value(), 1, 0.f));
+            mgr.AddObject(new CGameLight(x108_lightId, GetAreaIdAlways(), true,
+                          std::string("EffectPLight_") + GetName().data(), x34_transform,  GetUniqueId(),
+                          x104_particleSystem->GetLight(), x10c_partId.Value(), 1, 0.f));
         }
-    }
-    else if (msg == EScriptObjectMessage::Deleted)
-    {
+        break;
+    case EScriptObjectMessage::Deleted:
         if (x108_lightId != kInvalidUniqueId)
         {
             mgr.FreeScriptObject(x108_lightId);
             x108_lightId = kInvalidUniqueId;
         }
-    }
-    else if (msg == EScriptObjectMessage::InitializedInArea)
-    {
+        break;
+    case EScriptObjectMessage::InitializedInArea:
         for (const SConnection& conn : x20_conns)
         {
             if (!(conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Deactivate) ||
-                    !(conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Activate))
+                !(conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Activate))
                 continue;
 
             auto search = mgr.GetIdListForScript(conn.x8_objId);
@@ -152,14 +158,17 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
                     x13c_triggerId = it->second;
             }
         }
+        break;
+    default:
+        break;
     }
 
     CActor::AcceptScriptMsg(msg, uid, mgr);
 
-    TCastToPtr<CActor> act = mgr.ObjectById(x108_lightId);
-    mgr.SendScriptMsg(act, uid, msg);
+    TCastToPtr<CActor> light = mgr.ObjectById(x108_lightId);
+    mgr.SendScriptMsg(light, uid, msg);
 
-    if (active != GetActive())
+    if (oldActive != GetActive())
     {
         std::vector<TUniqueId> playIds;
         for (const SConnection& conn : x20_conns)
@@ -174,66 +183,46 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
 
         if (playIds.size() > 0)
         {
-            TCastToConstPtr<CActor> otherAct = mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
+            TCastToConstPtr<CActor> otherAct =
+                mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
             if (otherAct)
-                act->SetTransform(otherAct->GetTransform());
+                light->SetTransform(otherAct->GetTransform());
             else
-                act->SetTransform(GetTransform());
+                light->SetTransform(GetTransform());
         }
-        x110_24_ = true;
+        x110_24_enable = true;
         if (x104_particleSystem)
             x104_particleSystem->SetParticleEmission(GetActive());
         if (xf4_electric)
             xf4_electric->SetParticleEmission(GetActive());
 
         if (GetActive())
-            x12c_ = zeus::max(x12c_, x130_);
+            x12c_remTime = zeus::max(x12c_remTime, x130_duration);
     }
 }
 
 void CScriptEffect::PreRender(CStateManager& mgr, const zeus::CFrustum&)
 {
-    if (x110_27_ || x111_24_)
+    if (x110_27_useRateInverseCamDist || x111_24_useRateCamDistRange)
     {
-        float f31 = 1.f;
+        float genRate = 1.f;
         const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-        float f6 = cam->GetTranslation().y - GetTranslation().y;
-        float f4 = cam->GetTranslation().x - GetTranslation().x;
-        float f5 = cam->GetTranslation().z -  GetTranslation().z;
-        float f1 = (f6 * f6);
-        float f3 = (f5 * f5);
-        f1 = (f4 * f4) + f1;
-        f1 = f3 + f1;
+        float camMagSq = (cam->GetTranslation() - GetTranslation()).magSquared();
 
-        if (f1 <= 0.001f)
-            f3 = 0.f;
-        else if (f1 != 0.f)
-            f3 = f1 * zeus::sqrtF(f1);
-        if (x110_27_ && x118_ < f1)
+        float camMag = 0.f;
+        if (camMagSq > 0.001f)
+            camMag = std::sqrt(camMagSq);
+        if (x110_27_useRateInverseCamDist && camMagSq < x118_rateInverseCamDistSq)
+            genRate = (1.f - x11c_rateInverseCamDistRate) * (camMag / x114_rateInverseCamDist) +
+                x11c_rateInverseCamDistRate;
+        if (x111_24_useRateCamDistRange)
         {
-            float f0 = x114_;
-            float f2 = x11c_;
-            f0 = f3 / f0;
-            f1 = 1.f - f2;
-            f31 = f1 * f0 + f2;
-        }
-        if (x111_24_)
-        {
-            float f4 = x120_;
-            float f2 = x124_;
-            f1 = f3 - f4;
-            f2 = f2 - f4;
-
-            f1 = zeus::max(0.f, f1);
-            f1 = f1 / f2;
-            f2 = zeus::max(0.f, f1);
-            f1 = 1.f - f2;
-            float f0 = x128_;
-            f0 = f2 * f0;
-            f31 = f1 * f31 + f0;
+            float t = zeus::min(1.f, zeus::max(0.f, camMag - x120_rateCamDistRangeMin) /
+                (x124_rateCamDistRangeMax - x120_rateCamDistRangeMin));
+            genRate = (1.f - t) * genRate + t * x128_rateCamDistRangeFarRate;
         }
 
-        x104_particleSystem->SetGeneratorRate(f31);
+        x104_particleSystem->SetGeneratorRate(genRate);
     }
 
     if (!mgr.GetObjectById(x13c_triggerId))
@@ -244,29 +233,30 @@ void CScriptEffect::AddToRenderer(const zeus::CFrustum& frustum, const CStateMan
 {
     if (!x111_26_canRender)
     {
-        const_cast<CScriptEffect&>(*this).x12c_ = zeus::max(x12c_, x134_);
+        const_cast<CScriptEffect&>(*this).x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
         return;
     }
 
     if (!frustum.aabbFrustumTest(x9c_renderBounds))
         return;
-    const_cast<CScriptEffect&>(*this).x12c_ = zeus::max(x12c_, x134_);
+    const_cast<CScriptEffect&>(*this).x12c_remTime = zeus::max(x12c_remTime, x134_durationResetWhileVisible);
 
-    if (x110_31_)
+    if (x110_31_anyVisorVisible)
     {
         bool visible = false;
         const CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
         if (visor == CPlayerState::EPlayerVisor::Combat || visor == CPlayerState::EPlayerVisor::Scan)
-            visible = x110_28_;
+            visible = x110_28_combatVisorVisible;
         else if (visor == CPlayerState::EPlayerVisor::XRay)
-            visible = x110_30_;
+            visible = x110_30_xrayVisorVisible;
         else if (visor == CPlayerState::EPlayerVisor::Thermal)
-            visible = x110_29_;
+            visible = x110_29_thermalVisorVisible;
 
         if (visible && x138_actorLights)
         {
             const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-            const_cast<CScriptEffect&>(*this).x138_actorLights->BuildAreaLightList(mgr, *area, zeus::CAABox{x9c_renderBounds.center(), x9c_renderBounds.center()});
+            const_cast<CScriptEffect&>(*this).x138_actorLights->BuildAreaLightList(
+                mgr, *area, zeus::CAABox{x9c_renderBounds.center(), x9c_renderBounds.center()});
             const_cast<CScriptEffect&>(*this).x138_actorLights->BuildDynamicLightList(mgr, x9c_renderBounds);
         }
         EnsureRendered(mgr);
@@ -317,20 +307,21 @@ void CScriptEffect::Think(float dt, CStateManager& mgr)
         xe4_28_transformDirty = false;
     }
 
-    if (x110_25_)
+    if (x110_25_noTimerUnlessAreaOccluded)
     {
         const CGameArea* area = mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways());
-        bool visible = area->GetActive() ? bool(area->GetOcclusionState()) : false;
+        CGameArea::EOcclusionState visible = area->IsPostConstructed() ? area->GetOcclusionState() :
+            CGameArea::EOcclusionState::Occluded;
 
-        if (!visible || x12c_ <= 0.f)
+        if (visible == CGameArea::EOcclusionState::Occluded && x12c_remTime <= 0.f)
             return;
     }
-    else if (x12c_ <= 0.f)
+    else if (x12c_remTime <= 0.f)
         return;
 
-    x12c_ -= dt;
+    x12c_remTime -= dt;
 
-    if (x110_24_)
+    if (x110_24_enable)
     {
         if (x104_particleSystem)
         {
@@ -343,24 +334,24 @@ void CScriptEffect::Think(float dt, CStateManager& mgr)
             xf4_electric->Update(dt);
             g_NumParticlesUpdating += xf4_electric->GetParticleCount();
         }
-    }
 
-    if (x108_lightId != kInvalidUniqueId)
-    {
-        if (TCastToPtr<CGameLight> light = mgr.ObjectById(x108_lightId))
+        if (x108_lightId != kInvalidUniqueId)
         {
-            if (x30_24_active)
-                light->SetLight(x104_particleSystem->GetLight());
+            if (TCastToPtr<CGameLight> light = mgr.ObjectById(x108_lightId))
+            {
+                if (x30_24_active)
+                    light->SetLight(x104_particleSystem->GetLight());
+            }
         }
-    }
 
-    if (x111_25_)
-    {
-        x140_ += dt;
-        if (x140_ > 15.f || AreBothSystemsDeleteable())
+        if (x111_25_dieWhenSystemsDone)
         {
-            mgr.FreeScriptObject(GetUniqueId());
-            return;
+            x140_destroyDelayTimer += dt;
+            if (x140_destroyDelayTimer > 15.f || AreBothSystemsDeleteable())
+            {
+                mgr.FreeScriptObject(GetUniqueId());
+                return;
+            }
         }
     }
 

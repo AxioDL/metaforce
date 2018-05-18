@@ -35,7 +35,7 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
 
     SetActorLights(aParams.GetLightParameters().MakeActorLights());
-    xe7_29_actorActive = true;
+    xe7_29_drawEnabled = true;
     x2e3_24_isPlayerActor = true;
 }
 
@@ -411,7 +411,7 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
 void CScriptPlayerActor::SetActive(bool active)
 {
     CActor::SetActive(active);
-    xe7_29_actorActive = true;
+    xe7_29_drawEnabled = true;
 }
 
 void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)

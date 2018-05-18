@@ -24,7 +24,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 , x184_fov(fovy)
 {
 
-    xe7_29_actorActive = false;
+    xe7_29_drawEnabled = false;
 }
 
 void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
@@ -46,7 +46,7 @@ void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 void CGameCamera::SetActive(bool active)
 {
     CActor::SetActive(active);
-    xe7_29_actorActive = false;
+    xe7_29_drawEnabled = false;
 }
 
 zeus::CMatrix4f CGameCamera::GetPerspectiveMatrix() const

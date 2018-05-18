@@ -212,18 +212,17 @@ void CScriptDamageableTrigger::Think(float dt, CStateManager& mgr)
             return;
         }
     }
-    else
+    else if (x16c_hInfo.GetHP() <= 0.f && x30_24_active)
     {
-        if (x16c_hInfo.GetHP() <= 0.f && x30_24_active)
-        {
-            SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
-            RemoveMaterial(EMaterialTypes::Orbit, mgr);
-            x300_25_alphaOut = true;
-            x250_alphaTimer = 0.f;
-        }
-        if (x250_alphaTimer <= 0.75f)
-            x250_alphaTimer += dt;
+        SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+        RemoveMaterial(EMaterialTypes::Orbit, mgr);
+        x300_25_alphaOut = true;
+        x250_alphaTimer = 0.f;
     }
+
+    if (x250_alphaTimer <= 0.75f)
+        x250_alphaTimer += dt;
+
     float objAlpha = GetPuddleAlphaScale();
     x1e0_alpha = 0.2f * objAlpha;
     SetLinkedObjectAlpha(objAlpha, mgr);

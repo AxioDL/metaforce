@@ -152,7 +152,7 @@ void CScriptDebris::AddToRenderer(const zeus::CFrustum& frustum, const CStateMan
 static zeus::CVector3f debris_cone(CStateManager& mgr, float coneAng, float minMag, float maxMag)
 {
     float mag = mgr.GetActiveRandom()->Float() * (maxMag - minMag) + minMag;
-    float side = 1.f - (1.f - std::cos(zeus::degToRad(coneAng))) * mgr.GetActiveRandom()->Float();
+    float side = 1.f - (1.f - std::cos(zeus::degToRad(coneAng * 0.5f))) * mgr.GetActiveRandom()->Float();
     float hyp = std::max(0.f, 1.f - side * side);
     if (hyp != 0.f)
         hyp = std::sqrt(hyp);

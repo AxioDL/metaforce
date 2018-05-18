@@ -51,7 +51,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     xe6_29_renderParticleDBInside = true;
     xe6_31_targetableVisorFlags = params.GetVisorParameters().GetMask();
     xe7_27_enableRender = true;
-    xe7_29_actorActive = active;
+    xe7_29_drawEnabled = active;
     xe7_30_doTargetDistanceTest = true;
     xe7_31_targetable = true;
     if (x64_modelData)
@@ -77,11 +77,18 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     {
         if (!x30_24_active)
             xbc_time = CGraphics::GetSecondsMod900();
+        break;
     }
-    break;
-    case EScriptObjectMessage::Decrement:
+    case EScriptObjectMessage::Deactivate:
         RemoveEmitter();
         break;
+    case EScriptObjectMessage::Deleted: // 34
+    {
+        RemoveEmitter();
+        if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
+            x64_modelData->AnimationData()->GetParticleDB().DeleteAllLights(mgr);
+        break;
+    }
     case EScriptObjectMessage::Registered: // 33
     {
         if (x98_scanObjectInfo)
@@ -94,15 +101,14 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
             TAreaId aid = GetAreaId();
             x64_modelData->AnimationData()->InitializeEffects(mgr, aid, x64_modelData->GetScale());
         }
+        break;
     }
-    break;
-    case EScriptObjectMessage::Deleted: // 34
-    {
-        RemoveEmitter();
-        if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
-            x64_modelData->AnimationData()->GetParticleDB().DeleteAllLights(mgr);
-    }
-    break;
+    case EScriptObjectMessage::UpdateSplashInhabitant: // 37
+        SetInFluid(true, uid);
+        break;
+    case EScriptObjectMessage::RemoveSplashInhabitant: // 39
+        SetInFluid(false, kInvalidUniqueId);
+        break;
     case EScriptObjectMessage::InitializedInArea: // 35
     {
         for (const SConnection& conn : x20_conns)
@@ -114,14 +120,8 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
             if (act && xc6_nextDrawNode == kInvalidUniqueId)
                 xc6_nextDrawNode = act->GetUniqueId();
         }
+        break;
     }
-    break;
-    case EScriptObjectMessage::UpdateSplashInhabitant: // 37
-        SetInFluid(true, uid);
-        break;
-    case EScriptObjectMessage::RemoveSplashInhabitant: // 39
-        SetInFluid(false, kInvalidUniqueId);
-        break;
     default:
         break;
     }

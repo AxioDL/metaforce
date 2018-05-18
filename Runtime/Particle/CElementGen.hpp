@@ -176,6 +176,7 @@ public:
     boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 
     CGenDescription* GetDesc() {return x1c_genDesc.GetObj();}
+    const SObjectTag* GetDescTag() const {return x1c_genDesc.GetObjectTag();}
 
     static bool g_ParticleSystemInitialized;
     static int g_ParticleAliveCount;

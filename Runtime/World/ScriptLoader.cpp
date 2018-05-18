@@ -576,10 +576,10 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
 
     CAssetId partId(in);
     CAssetId elscId(in);
-    bool b1 = in.readBool();
-    bool b2 = in.readBool();
-    bool b3 = in.readBool();
-    bool b4 = in.readBool();
+    bool hotInThermal = in.readBool();
+    bool noTimerUnlessAreaOccluded = in.readBool();
+    bool rebuildSystemsOnActivate = in.readBool();
+    bool active = in.readBool();
 
     if (!partId.IsValid() && !elscId.IsValid())
         return nullptr;
@@ -587,24 +587,28 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
     if (!g_ResFactory->GetResourceTypeById(partId) && !g_ResFactory->GetResourceTypeById(elscId))
         return nullptr;
 
-    bool b5 = in.readBool();
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
-    float f4 = in.readFloatBig();
-    bool b6 = in.readBool();
-    float f5 = in.readFloatBig();
-    float f6 = in.readFloatBig();
-    float f7 = in.readFloatBig();
-    bool b7 = in.readBool();
-    bool b8 = in.readBool();
-    bool b9 = in.readBool();
-    bool b10 = in.readBool();
+    bool useRateInverseCamDist = in.readBool();
+    float rateInverseCamDist = in.readFloatBig();
+    float rateInverseCamDistRate = in.readFloatBig();
+    float duration = in.readFloatBig();
+    float durationResetWhileVisible = in.readFloatBig();
+    bool useRateCamDistRange = in.readBool();
+    float rateCamDistRangeMin = in.readFloatBig();
+    float rateCamDistRangeMax = in.readFloatBig();
+    float rateCamDistRangeFarRate = in.readFloatBig();
+    bool combatVisorVisible = in.readBool();
+    bool thermalVisorVisible = in.readBool();
+    bool xrayVisorVisible = in.readBool();
+    bool dieWhenSystemsDone = in.readBool();
 
     CLightParameters lParms = LoadLightParameters(in);
 
     return new CScriptEffect(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, head.x40_scale, partId,
-                             elscId, b1, b2, b3, b4, b5, f1, f2, f3, f4, b6, f5, f6, f7, b7, b8, b9, lParms, b10);
+                             elscId, hotInThermal, noTimerUnlessAreaOccluded, rebuildSystemsOnActivate, active,
+                             useRateInverseCamDist, rateInverseCamDist, rateInverseCamDistRate, duration,
+                             durationResetWhileVisible, useRateCamDistRange, rateCamDistRangeMin, rateCamDistRangeMax,
+                             rateCamDistRangeFarRate, combatVisorVisible, thermalVisorVisible, xrayVisorVisible,
+                             lParms, dieWhenSystemsDone);
 }
 
 CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

@@ -46,22 +46,9 @@ void CScriptActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    if (msg == EScriptObjectMessage::Reset)
+    switch (msg)
     {
-        x2e2_25_dead = false;
-        x260_currentHealth = x258_initialHealth;
-    }
-    else if (msg == EScriptObjectMessage::Increment && !GetActive())
-    {
-        mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
-        CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_alphaMax);
-    }
-    else if (msg == EScriptObjectMessage::Decrement)
-    {
-        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_alphaMin);
-    }
-    else if (msg == EScriptObjectMessage::InitializedInArea)
-    {
+    case EScriptObjectMessage::InitializedInArea:
         for (const SConnection& conn : x20_conns)
         {
             if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate)
@@ -80,6 +67,23 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
         if (x2e2_31_materialFlag54)
             CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
+        break;
+    case EScriptObjectMessage::Reset:
+        x2e2_25_dead = false;
+        x260_currentHealth = x258_initialHealth;
+        break;
+    case EScriptObjectMessage::Increment:
+        if (!GetActive())
+        {
+            mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
+            CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_alphaMax);
+        }
+        break;
+    case EScriptObjectMessage::Decrement:
+        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_alphaMin);
+        break;
+    default:
+        break;
     }
 
     CActor::AcceptScriptMsg(msg, uid, mgr);

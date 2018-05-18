@@ -758,7 +758,7 @@ void CStateManager::DrawWorld() const
         {
             if (TCastToPtr<CActor> actor = ent)
             {
-                if (!actor->xe7_29_actorActive)
+                if (!actor->xe7_29_drawEnabled)
                     continue;
                 TUniqueId actorId = actor->GetUniqueId();
                 if (!thermal && area.LookupPVSUniqueID(actorId) == actorId)
