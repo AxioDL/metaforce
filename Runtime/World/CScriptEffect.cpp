@@ -376,7 +376,7 @@ void CScriptEffect::CalculateRenderBounds()
 
     if (particleBounds || electricBounds)
     {
-        zeus::CAABox renderBounds = zeus::CAABox::skNullBox;
+        zeus::CAABox renderBounds = zeus::CAABox::skInvertedBox;
         if (particleBounds)
         {
             renderBounds.accumulateBounds(particleBounds->min);

@@ -632,6 +632,8 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
     if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
         return;
 
+    bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
+
     const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
     EExtendedShader extended = EExtendedShader::Flat;
     if (flags.m_extendedShader == EExtendedShader::Lighting)
@@ -640,28 +642,28 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
         {
             /* Override shader if originally opaque (typical for FRME models) */
             if (flags.x0_blendMode > 6)
-                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                extended = flags.m_noCull ? (noZWrite ?
                                              EExtendedShader::ForcedAdditiveNoCullNoZWrite :
                                              EExtendedShader::ForcedAdditiveNoCull) :
-                           (flags.m_noZWrite ?
+                           (noZWrite ?
                             EExtendedShader::ForcedAdditiveNoZWrite :
                             EExtendedShader::ForcedAdditive);
             else if (flags.x0_blendMode > 4)
-                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                extended = flags.m_noCull ? (noZWrite ?
                                              EExtendedShader::ForcedAlphaNoCullNoZWrite :
                                              EExtendedShader::ForcedAlphaNoCull) :
-                           (flags.m_noZWrite ?
+                           (noZWrite ?
                             EExtendedShader::ForcedAlphaNoZWrite :
                             EExtendedShader::ForcedAlpha);
             else
-                extended = flags.m_noCull ? (flags.m_noZWrite ?
+                extended = flags.m_noCull ? (noZWrite ?
                                              EExtendedShader::ForcedAlphaNoCullNoZWrite :
                                              EExtendedShader::ForcedAlphaNoCull) :
-                           (flags.m_noZWrite ?
+                           (noZWrite ?
                             EExtendedShader::ForcedAlphaNoZWrite :
                             EExtendedShader::Lighting);
         }
-        else if (flags.m_noCull && flags.m_noZWrite)
+        else if (flags.m_noCull && noZWrite)
         {
             /* Substitute no-cull,no-zwrite pipeline if available */
             if (data.heclIr.m_blendDst == boo::BlendFactor::One)
@@ -677,7 +679,7 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
             else
                 extended = EExtendedShader::ForcedAlphaNoCull;
         }
-        else if (flags.m_noZWrite)
+        else if (noZWrite)
         {
             /* Substitute no-zwrite pipeline if available */
             if (data.heclIr.m_blendDst == boo::BlendFactor::One)

@@ -65,7 +65,7 @@ zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) cons
 /* ORIGINAL 0-00 OFFSET: 8007E550 */
 void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr)
 {
-    switch(msg)
+    switch (msg)
     {
     case EScriptObjectMessage::Close:
     {
@@ -77,11 +77,9 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 
         if (x2a8_26_isOpen)
         {
-//            if (x27e_partner2 != kInvalidUniqueId)
-//            {
-//                if (CEntity* ent = mgr.ObjectById(x27e_partner2))
-//                    mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
-//            }
+            if (x27e_partner2 != kInvalidUniqueId)
+                if (CEntity* ent = mgr.ObjectById(x27e_partner2))
+                    mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
             x2a8_26_isOpen = false;
             SetDoorAnimation(EDoorAnimType::Close);
             mgr.GetCameraManager()->GetBallCamera()->DoorClosing(GetUniqueId());

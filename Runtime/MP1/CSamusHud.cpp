@@ -1784,6 +1784,7 @@ void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
     {
         if (info.IsFadeOutOnly())
         {
+            x558_messageTextTime = 1.f;
             if (!info.IsHintMemo() || !isWidgetVisible)
                 return;
             CSfxManager::SfxStart(1449, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);

@@ -184,7 +184,7 @@ public:
     const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
     CActorLights* ActorLights() { return x90_actorLights.get(); }
     bool CanDrawStatic() const;
-    bool IsActorActive() const { return xe7_29_drawEnabled; }
+    bool IsDrawEnabled() const { return xe7_29_drawEnabled; }
     void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }
     const CScannableObjectInfo* GetScannableObjectInfo() const;
     const CHealthInfo* GetHealthInfo(const CStateManager& mgr) const

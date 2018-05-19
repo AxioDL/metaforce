@@ -176,6 +176,9 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
     case EScriptObjectMessage::Play:
     {
+        if (xc_editorId.id == 0x00000223)
+            printf("");
+
         if (GetActive())
             PlaySound(mgr);
     }

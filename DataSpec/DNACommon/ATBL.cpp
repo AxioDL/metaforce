@@ -5,9 +5,9 @@ namespace DataSpec::DNAAudio
 
 bool ATBL::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    size_t idxCount = rs.length() / 2;
+    uint32_t idxCount = rs.readUint32Big();
     athena::io::YAMLDocWriter w("ATBL");
-    for (size_t i=0 ; i<idxCount ; ++i)
+    for (uint32_t i=0 ; i<idxCount ; ++i)
     {
         uint16_t idx = rs.readUint16Big();
         if (idx == 0xffff)
@@ -52,6 +52,7 @@ bool ATBL::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     athena::io::FileWriter w(outPath.getAbsolutePath());
     if (w.hasError())
         return false;
+    w.writeUint32Big(uint32_t(vecOut.size()));
     w.writeBytes(vecOut.data(), vecOut.size() * 2);
 
     return true;

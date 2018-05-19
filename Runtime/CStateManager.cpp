@@ -758,7 +758,7 @@ void CStateManager::DrawWorld() const
         {
             if (TCastToPtr<CActor> actor = ent)
             {
-                if (!actor->xe7_29_drawEnabled)
+                if (!actor->IsDrawEnabled())
                     continue;
                 TUniqueId actorId = actor->GetUniqueId();
                 if (!thermal && area.LookupPVSUniqueID(actorId) == actorId)
@@ -978,7 +978,7 @@ void CStateManager::PreRender()
                 {
                     if (TCastToPtr<CActor> act = ent)
                     {
-                        if (act->IsActorActive())
+                        if (act->IsDrawEnabled())
                         {
                             act->CalculateRenderBounds();
                             act->PreRender(*this, frustum);
