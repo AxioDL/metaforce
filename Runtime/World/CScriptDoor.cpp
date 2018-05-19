@@ -97,7 +97,7 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         {
             if (TCastToPtr<CScriptDoor> door = mgr.ObjectById(x27c_partner1))
             {
-                if (x2a8_26_isOpen)
+                if (!x2a8_26_isOpen)
                     return;
                 x2a8_30_doClose = true;
                 mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
@@ -147,7 +147,10 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             {
                 TUniqueId dock = mgr.GetIdForScript(conn.x8_objId);
                 if (TCastToConstPtr<CScriptDock> d = mgr.GetObjectById(dock))
+                {
                     x282_dockId = d->GetUniqueId();
+                    break;
+                }
             }
         }
         break;
@@ -334,6 +337,9 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
     TAreaId destArea = dock->GetAreaId();
     if (destArea < 0 || destArea >= mgr.GetWorld()->GetNumAreas())
         return 0;
+
+    if (!mgr.GetWorld()->GetAreaAlways(destArea)->IsPostConstructed())
+        return 1;
 
     if (!mgr.GetWorld()->AreSkyNeedsMet())
         return 1;
