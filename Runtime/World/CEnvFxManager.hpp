@@ -64,6 +64,10 @@ class CEnvFxManager
     float xb54_;
     TLockedToken<CGenDescription> xb58_envRainSplash;
     bool xb64_ = true;
+    TUniqueId xb68_envRainSplashId = kInvalidUniqueId;
+    bool xb6a_ = false;
+    u32 xb6c_ = 0;
+    u32 xb70_ = 0;
 
     void SetupSnowTevs();
     void SetupRainTevs();
@@ -80,6 +84,7 @@ public:
     void SetXB54(float f) { xb54_ = f; }
     bool GetX24() const { return x24_; }
     float GetRainMagnitude() const { return x30_rainMagnitude; }
+    void Cleanup();
 };
 
 }

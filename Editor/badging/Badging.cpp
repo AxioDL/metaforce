@@ -28,7 +28,7 @@ void InitializeBadging(specter::ViewResources& viewRes)
     if (uncompress(texels.get(), &destSz, URDE_BADGE + pos, URDE_BADGE_SZ - pos) != Z_OK)
         Log.report(logvisor::Fatal, "unable to decompress badge");
 
-    viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    viewRes.m_factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         specter::IconAtlas<1, 1> atlas;
 

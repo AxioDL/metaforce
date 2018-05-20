@@ -20,6 +20,7 @@ public:
             return;
         x0_rumbleGenerator.Stop(id, EIOPort::Zero);
     }
+    void HardStopAll() { x0_rumbleGenerator.HardStopAll(); }
     s16 Rumble(CStateManager& mgr, const zeus::CVector3f& pos, ERumbleFxId fx, float dist, ERumblePriority priority);
     s16 Rumble(CStateManager& mgr, ERumbleFxId fx, float gain, ERumblePriority priority);
 };

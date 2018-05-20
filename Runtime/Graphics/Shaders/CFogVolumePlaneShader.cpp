@@ -6,7 +6,7 @@ namespace urde
 void CFogVolumePlaneShader::CommitResources(size_t capacity)
 {
     m_vertCapacity = capacity;
-    CGraphics::CommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector4f), capacity);
         TShader<CFogVolumePlaneShader>::BuildShaderDataBinding(ctx, *this);

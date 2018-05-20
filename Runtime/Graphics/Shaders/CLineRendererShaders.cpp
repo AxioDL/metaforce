@@ -15,6 +15,8 @@ boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_texAdditiveZ;
 boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlphaZ;
 boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAdditiveZ;
 
+boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlphaZGEqual;
+
 boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_texVtxFmt;
 boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_noTexVtxFmt;
 
@@ -25,8 +27,8 @@ void CLineRendererShaders::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources(
+    [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
         {
@@ -67,6 +69,7 @@ void CLineRendererShaders::Shutdown()
     m_texAdditiveZ.reset();
     m_noTexAlphaZ.reset();
     m_noTexAdditiveZ.reset();
+    m_noTexAlphaZGEqual.reset();
     m_texVtxFmt.reset();
     m_noTexVtxFmt.reset();
 }
@@ -74,10 +77,15 @@ void CLineRendererShaders::Shutdown()
 void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                                                   CLineRenderer& renderer,
                                                   const boo::ObjToken<boo::ITexture>& texture,
-                                                  bool additive, bool zTest)
+                                                  bool additive, bool zTest, bool zGEqual)
 {
     boo::ObjToken<boo::IShaderPipeline> pipeline;
-    if (zTest)
+
+    if (zGEqual)
+    {
+        pipeline = m_noTexAlphaZGEqual;
+    }
+    else if (zTest)
     {
         if (texture)
         {

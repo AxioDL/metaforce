@@ -32,7 +32,8 @@ enum EExtendedShader : uint8_t
     ForcedAlphaNoZWrite,
     ForcedAdditiveNoZWrite,
     ForcedAlphaNoCullNoZWrite,
-    ForcedAdditiveNoCullNoZWrite
+    ForcedAdditiveNoCullNoZWrite,
+    DepthGEqualNoZWrite
 };
 
 class CModelShaders

@@ -83,6 +83,7 @@ class CMFGameLoader : public CMFGameLoaderBase
 
 public:
     CMFGameLoader();
+    ~CMFGameLoader();
     EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
     void Draw() const;
 };

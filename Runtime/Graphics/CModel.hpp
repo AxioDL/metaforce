@@ -271,6 +271,8 @@ public:
 
     static void SetDummyTextures(bool b) { g_DummyTextures = b; }
     static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
+
+    static void AssertAllFreed();
 };
 
 class CModel
@@ -285,8 +287,8 @@ class CModel
     std::vector<CBooSurface> x8_surfaces;
     std::vector<SShader> x18_matSets;
     std::unique_ptr<CBooModel> x28_modelInst;
-    CModel* x30_next = nullptr;
-    CModel* x34_prev = nullptr;
+    //CModel* x30_next = nullptr;
+    //CModel* x34_prev = nullptr;
     int x38_lastFrame;
 
     /* urde addition: boo! */

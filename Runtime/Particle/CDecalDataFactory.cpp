@@ -67,19 +67,19 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
             desc->x38_DMDL = CPF::GetModel(in, resPool);
             break;
         case SBIG('DLFT'):
-            desc->x48_DLFT.reset(CPF::GetIntElement(in));
+            desc->x48_DLFT = CPF::GetIntElement(in);
             break;
         case SBIG('DMOP'):
-            desc->x4c_DMOP.reset(CPF::GetVectorElement(in));
+            desc->x4c_DMOP = CPF::GetVectorElement(in);
             break;
         case SBIG('DMRT'):
-            desc->x50_DMRT.reset(CPF::GetVectorElement(in));
+            desc->x50_DMRT = CPF::GetVectorElement(in);
             break;
         case SBIG('DMSC'):
-            desc->x54_DMSC.reset(CPF::GetVectorElement(in));
+            desc->x54_DMSC = CPF::GetVectorElement(in);
             break;
         case SBIG('DMCL'):
-            desc->x58_DMCL.reset(CPF::GetColorElement(in));
+            desc->x58_DMCL = CPF::GetColorElement(in);
             break;
         case SBIG('DMAB'):
             desc->x5c_24_DMAB = CPF::GetBool(in);
@@ -106,27 +106,27 @@ void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool,
     {
     case SBIG('1LFT'):
     case SBIG('2LFT'):
-        quad.x0_LFT.reset(CPF::GetIntElement(in));
+        quad.x0_LFT = CPF::GetIntElement(in);
         break;
     case SBIG('1SZE'):
     case SBIG('2SZE'):
-        quad.x4_SZE.reset(CPF::GetRealElement(in));
+        quad.x4_SZE = CPF::GetRealElement(in);
         break;
     case SBIG('1ROT'):
     case SBIG('2ROT'):
-        quad.x8_ROT.reset(CPF::GetRealElement(in));
+        quad.x8_ROT = CPF::GetRealElement(in);
         break;
     case SBIG('1OFF'):
     case SBIG('2OFF'):
-        quad.xc_OFF.reset(CPF::GetVectorElement(in));
+        quad.xc_OFF = CPF::GetVectorElement(in);
         break;
     case SBIG('1CLR'):
     case SBIG('2CLR'):
-        quad.x10_CLR.reset(CPF::GetColorElement(in));
+        quad.x10_CLR = CPF::GetColorElement(in);
         break;
     case SBIG('1TEX'):
     case SBIG('2TEX'):
-        quad.x14_TEX.reset(CPF::GetTextureElement(in, resPool));
+        quad.x14_TEX = CPF::GetTextureElement(in, resPool);
         break;
     case SBIG('1ADD'):
     case SBIG('2ADD'):

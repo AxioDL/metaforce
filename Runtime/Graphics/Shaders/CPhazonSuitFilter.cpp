@@ -10,7 +10,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex)
     if (!m_dataBind || indTex != m_indTex)
     {
         m_indTex = indTex;
-        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_uniBufBlurX = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
             m_uniBufBlurY = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);

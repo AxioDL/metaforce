@@ -27,8 +27,8 @@ class CIEDeath : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIEDeath(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIEDeath(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -38,8 +38,8 @@ class CIEClamp : public CIntElement
     std::unique_ptr<CIntElement> x8_max;
     std::unique_ptr<CIntElement> xc_val;
 public:
-    CIEClamp(CIntElement* a, CIntElement* b, CIntElement* c)
-    : x4_min(a), x8_max(b), xc_val(c) {}
+    CIEClamp(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
+    : x4_min(std::move(a)), x8_max(std::move(b)), xc_val(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -49,8 +49,8 @@ class CIETimeChain : public CIntElement
     std::unique_ptr<CIntElement> x8_b;
     std::unique_ptr<CIntElement> xc_swFrame;
 public:
-    CIETimeChain(CIntElement* a, CIntElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_swFrame(c) {}
+    CIETimeChain(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -59,8 +59,8 @@ class CIEAdd : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIEAdd(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIEAdd(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -76,8 +76,8 @@ class CIEImpulse : public CIntElement
 {
     std::unique_ptr<CIntElement> x4_a;
 public:
-    CIEImpulse(CIntElement* a)
-    : x4_a(a) {}
+    CIEImpulse(std::unique_ptr<CIntElement>&& a)
+    : x4_a(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -85,8 +85,8 @@ class CIELifetimePercent : public CIntElement
 {
     std::unique_ptr<CIntElement> x4_percentVal;
 public:
-    CIELifetimePercent(CIntElement* a)
-    : x4_percentVal(a) {}
+    CIELifetimePercent(std::unique_ptr<CIntElement>&& a)
+    : x4_percentVal(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -95,8 +95,8 @@ class CIEInitialRandom : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIEInitialRandom(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIEInitialRandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -107,8 +107,9 @@ class CIEPulse : public CIntElement
     std::unique_ptr<CIntElement> xc_aVal;
     std::unique_ptr<CIntElement> x10_bVal;
 public:
-    CIEPulse(CIntElement* a, CIntElement* b, CIntElement* c, CIntElement* d)
-    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
+    CIEPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+             std::unique_ptr<CIntElement>&& c, std::unique_ptr<CIntElement>&& d)
+    : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -117,8 +118,8 @@ class CIEMultiply : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIEMultiply(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIEMultiply(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -130,8 +131,9 @@ class CIESampleAndHold : public CIntElement
     std::unique_ptr<CIntElement> x10_waitFramesMax;
     int x14_holdVal;
 public:
-    CIESampleAndHold(CIntElement* a, CIntElement* b, CIntElement* c)
-    : x4_sampleSource(a), xc_waitFramesMin(b), x10_waitFramesMax(c) {}
+    CIESampleAndHold(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+                     std::unique_ptr<CIntElement>&& c)
+    : x4_sampleSource(std::move(a)), xc_waitFramesMin(std::move(b)), x10_waitFramesMax(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -140,8 +142,8 @@ class CIERandom : public CIntElement
     std::unique_ptr<CIntElement> x4_min;
     std::unique_ptr<CIntElement> x8_max;
 public:
-    CIERandom(CIntElement* a, CIntElement* b)
-    : x4_min(a), x8_max(b) {}
+    CIERandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_min(std::move(a)), x8_max(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -149,8 +151,8 @@ class CIETimeScale : public CIntElement
 {
     std::unique_ptr<CRealElement> x4_a;
 public:
-    CIETimeScale(CRealElement* a)
-    : x4_a(a) {}
+    CIETimeScale(std::unique_ptr<CRealElement>&& a)
+    : x4_a(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -177,8 +179,8 @@ class CIEModulo : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIEModulo(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIEModulo(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 
@@ -187,8 +189,8 @@ class CIESubtract : public CIntElement
     std::unique_ptr<CIntElement> x4_a;
     std::unique_ptr<CIntElement> x8_b;
 public:
-    CIESubtract(CIntElement* a, CIntElement* b)
-    : x4_a(a), x8_b(b) {}
+    CIESubtract(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
 };
 

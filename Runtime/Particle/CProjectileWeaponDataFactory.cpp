@@ -43,34 +43,34 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
         switch (clsId)
         {
         case SBIG('IORN'):
-            desc->x0_IORN.reset(CPF::GetVectorElement(in));
+            desc->x0_IORN = CPF::GetVectorElement(in);
             break;
         case SBIG('IVEC'):
-            desc->x4_IVEC.reset(CPF::GetVectorElement(in));
+            desc->x4_IVEC = CPF::GetVectorElement(in);
             break;
         case SBIG('PSOV'):
-            desc->x8_PSOV.reset(CPF::GetVectorElement(in));
+            desc->x8_PSOV = CPF::GetVectorElement(in);
             break;
         case SBIG('PSVM'):
-            desc->xc_PSVM.reset(CPF::GetModVectorElement(in));
+            desc->xc_PSVM = CPF::GetModVectorElement(in);
             break;
         case SBIG('VMD2'):
             desc->x10_VMD2 = CPF::GetBool(in);
             break;
         case SBIG('PSLT'):
-            desc->x14_PSLT.reset(CPF::GetIntElement(in));
+            desc->x14_PSLT = CPF::GetIntElement(in);
             break;
         case SBIG('PSCL'):
-            desc->x18_PSCL.reset(CPF::GetVectorElement(in));
+            desc->x18_PSCL = CPF::GetVectorElement(in);
             break;
         case SBIG('PCOL'):
-            desc->x1c_PCOL.reset(CPF::GetColorElement(in));
+            desc->x1c_PCOL = CPF::GetColorElement(in);
             break;
         case SBIG('POFS'):
-            desc->x20_POFS.reset(CPF::GetVectorElement(in));
+            desc->x20_POFS = CPF::GetVectorElement(in);
             break;
         case SBIG('OFST'):
-            desc->x24_OFST.reset(CPF::GetVectorElement(in));
+            desc->x24_OFST = CPF::GetVectorElement(in);
             break;
         case SBIG('APSO'):
             desc->x28_APSO = CPF::GetBool(in);
@@ -94,7 +94,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             desc->x2e_AS13 = CPF::GetBool(in);
             break;
         case SBIG('TRAT'):
-            desc->x30_TRAT.reset(CPF::GetRealElement(in));
+            desc->x30_TRAT = CPF::GetRealElement(in);
             break;
         case SBIG('APSM'):
         {
@@ -151,10 +151,10 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
             break;
         }
         case SBIG('RNGE'):
-            desc->xac_RNGE.reset(CPF::GetRealElement(in));
+            desc->xac_RNGE = CPF::GetRealElement(in);
             break;
         case SBIG('FOFF'):
-            desc->xb0_FOFF.reset(CPF::GetRealElement(in));
+            desc->xb0_FOFF = CPF::GetRealElement(in);
             break;
         default:
         {

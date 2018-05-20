@@ -80,13 +80,13 @@ class CParticleDataFactory
     static SChildGeneratorDesc GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<CAssetId>& tracker);
     static SSwooshGeneratorDesc GetSwooshGeneratorDesc(CInputStream& in, CSimplePool* resPool);
     static SElectricGeneratorDesc GetElectricGeneratorDesc(CInputStream& in, CSimplePool* resPool);
-    static CUVElement* GetTextureElement(CInputStream& in, CSimplePool* resPool);
-    static CColorElement* GetColorElement(CInputStream& in);
-    static CModVectorElement* GetModVectorElement(CInputStream& in);
-    static CEmitterElement* GetEmitterElement(CInputStream& in);
-    static CVectorElement* GetVectorElement(CInputStream& in);
-    static CRealElement* GetRealElement(CInputStream& in);
-    static CIntElement* GetIntElement(CInputStream& in);
+    static std::unique_ptr<CUVElement> GetTextureElement(CInputStream& in, CSimplePool* resPool);
+    static std::unique_ptr<CColorElement> GetColorElement(CInputStream& in);
+    static std::unique_ptr<CModVectorElement> GetModVectorElement(CInputStream& in);
+    static std::unique_ptr<CEmitterElement> GetEmitterElement(CInputStream& in);
+    static std::unique_ptr<CVectorElement> GetVectorElement(CInputStream& in);
+    static std::unique_ptr<CRealElement> GetRealElement(CInputStream& in);
+    static std::unique_ptr<CIntElement> GetIntElement(CInputStream& in);
 
     static float GetReal(CInputStream& in);
     static s32 GetInt(CInputStream& in);

@@ -217,6 +217,25 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
 
 CStateManager::~CStateManager()
 {
+    x88c_rumbleManager->HardStopAll();
+    x880_envFxManager->Cleanup();
+    x900_activeRandom = &x8fc_random;
+    ClearGraveyard();
+    for (auto it = x808_objLists[0]->begin() ; it != x808_objLists[0]->end() ;)
+    {
+        CEntity* ent = *it;
+        ++it;
+        if (ent == x84c_player.get())
+            continue;
+        ent->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
+        RemoveObject(ent->GetUniqueId());
+        std::default_delete<CEntity>()(ent);
+    }
+    ClearGraveyard();
+    x84c_player->AcceptScriptMsg(EScriptObjectMessage::Deleted, kInvalidUniqueId, *this);
+    RemoveObject(x84c_player->GetUniqueId());
+    x84c_player.reset();
+    CCollisionPrimitive::Uninitialize();
     g_StateManager = nullptr;
 }
 
@@ -2207,8 +2226,7 @@ void CStateManager::ClearGraveyard()
     {
         CEntity* ent = GetAllObjectList().GetValidObjectById(id);
         RemoveObject(id);
-        if (ent)
-            std::default_delete<CEntity>()(ent);
+        std::default_delete<CEntity>()(ent);
     }
     x854_objectGraveyard.clear();
 }

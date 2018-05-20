@@ -79,7 +79,14 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         {
             if (x27e_partner2 != kInvalidUniqueId)
                 if (CEntity* ent = mgr.ObjectById(x27e_partner2))
+                {
+                    static int RecDepth = 0;
+                    if (RecDepth > 9)
+                        printf("");
+                    ++RecDepth;
                     mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
+                    --RecDepth;
+                }
             x2a8_26_isOpen = false;
             SetDoorAnimation(EDoorAnimType::Close);
             mgr.GetCameraManager()->GetBallCamera()->DoorClosing(GetUniqueId());
@@ -277,6 +284,8 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
     x2a8_26_isOpen = true;
     x2a8_25_wasOpen = true;
     x2a8_27_conditionsMet = false;
+    x27c_partner1 = kInvalidUniqueId;
+    x27e_partner2 = kInvalidUniqueId;
 
     if (const CScriptDoor* door = TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid)))
         x27c_partner1 = door->GetUniqueId();
@@ -292,12 +301,13 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr)
         for (CEntity* ent : mgr.GetPlatformAndDoorObjectList())
         {
             TCastToConstPtr<CScriptDoor> door = ent;
-            if (!door || door->GetUniqueId() == GetUniqueId())
+            if (!door || door->GetUniqueId() == uid)
                 continue;
 
-            if(TCastToConstPtr<CScriptDock> dock2 = mgr.GetObjectById(door->x282_dockId))
+            if (TCastToConstPtr<CScriptDock> dock2 = mgr.GetObjectById(door->x282_dockId))
             {
-                if (dock1->GetCurrentConnectedAreaId(mgr) == dock2->GetAreaId() && dock2->GetCurrentConnectedAreaId(mgr) == dock1->GetAreaId())
+                if (dock1->GetCurrentConnectedAreaId(mgr) == dock2->GetAreaId() &&
+                    dock2->GetCurrentConnectedAreaId(mgr) == dock1->GetAreaId())
                 {
                     x27e_partner2 = door->GetUniqueId();
                     mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Open);

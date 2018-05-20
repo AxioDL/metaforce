@@ -177,6 +177,11 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                              boo::Primitive::TriStrips, boo::ZTest::LEqual,
                                              false, true, false, boo::CullMode::None);
 
+    m_noTexAlphaZGEqual = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, 0, nullptr, 1, UniNames,
+                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                boo::Primitive::TriStrips, boo::ZTest::GEqual,
+                                                false, true, false, boo::CullMode::None);
+
     return new struct OGLLineDataBindingFactory;
 }
 
@@ -268,6 +273,11 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                              boo::BlendFactor::SrcAlpha, boo::BlendFactor::One,
                                              boo::Primitive::TriStrips, boo::ZTest::LEqual,
                                              false, true, false, boo::CullMode::None);
+
+    m_noTexAlphaZGEqual = ctx.newShaderPipeline(VS_GLSL_NOTEX, FS_GLSL_NOTEX, m_noTexVtxFmt,
+                                                boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                                boo::Primitive::TriStrips, boo::ZTest::GEqual,
+                                                false, true, false, boo::CullMode::None);
 
     return new struct VulkanLineDataBindingFactory;
 }

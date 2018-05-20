@@ -252,7 +252,7 @@ void CNESEmulator::InitializeEmulator()
     //mainLoopRuns *= ppuLinesTotal;
     mainLoopPos = mainLoopRuns;
 
-    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         // Nearest-neighbor FTW!
         m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw,

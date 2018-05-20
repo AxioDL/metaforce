@@ -99,7 +99,7 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
     if (CGraphics::g_BooFactory == nullptr)
         return nullptr;
 
-    CGraphics::CommitResources(
+    CGraphicsCommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
@@ -148,7 +148,7 @@ void CFluidPlaneShader::Cache::Clear()
 
 void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door)
 {
-    CGraphics::CommitResources(
+    CGraphicsCommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);

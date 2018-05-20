@@ -1607,7 +1607,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             alpha *= mapAlpha;
             zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
             modColor.a *= alpha;
-            CModelFlags flags(5, 0, 3 | 8 | 1, modColor);
+            CModelFlags flags(5, 0, 8 | 1, modColor); /* Depth GEqual */
+            flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
             x30_miniMapSamus->Draw(flags);
         }
         if (IsInMapperState(EAutoMapperState::MapScreen))

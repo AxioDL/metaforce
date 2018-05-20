@@ -36,6 +36,8 @@ private:
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAlphaZ;
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZ;
 
+    static boo::ObjToken<boo::IShaderPipeline> m_noTexAlphaZGEqual;
+
     static boo::ObjToken<boo::IVertexFormat> m_texVtxFmt;
     static boo::ObjToken<boo::IVertexFormat> m_noTexVtxFmt;
 
@@ -58,7 +60,8 @@ public:
     static void Initialize();
     static void Shutdown();
     static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CLineRenderer& renderer,
-                                       const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest);
+                                       const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest,
+                                       bool zGEqual);
 };
 
 }

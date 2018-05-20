@@ -74,7 +74,7 @@ private:
         CLineRenderer m_outline;
         DoorSurface(boo::IGraphicsDataFactory::Context& ctx)
         : m_surface(ctx, g_doorVbo, g_doorIbo),
-          m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false)
+          m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true)
         {}
     };
     std::experimental::optional<DoorSurface> m_doorSurface;

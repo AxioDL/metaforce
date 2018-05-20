@@ -198,7 +198,7 @@ static const char* TexNames[] = {"texY", "texU", "texV"};
 
 void CMoviePlayer::Initialize()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!ctx.bindingNeedsVertexFormat())
         {
@@ -426,7 +426,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
     /* All set for GPU resources */
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
         m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);

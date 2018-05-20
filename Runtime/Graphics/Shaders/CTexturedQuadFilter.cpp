@@ -15,7 +15,7 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<b
 {
     m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     tex->setClampMode(boo::TextureClampMode::ClampToEdge);
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 16);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -157,7 +157,7 @@ URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex)
 : CTexturedQuadFilter(tex)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);

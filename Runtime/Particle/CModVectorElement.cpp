@@ -99,8 +99,10 @@ bool CMVETimeChain::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& 
         return x4_a->GetValue(frame, pVel, pPos);
 }
 
-CMVEBounce::CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool f)
-: x4_planePoint(a), x8_planeNormal(b), xc_friction(c), x10_restitution(d), x14_planePrecomputed(false), x15_dieOnPenetrate(f), x24_planeD(0.0)
+CMVEBounce::CMVEBounce(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+                       std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e)
+: x4_planePoint(std::move(a)), x8_planeNormal(std::move(b)), xc_friction(std::move(c)),
+  x10_restitution(std::move(d)), x14_planePrecomputed(false), x15_dieOnPenetrate(e), x24_planeD(0.0)
 {
     if (x4_planePoint && x8_planeNormal && x4_planePoint->IsFastConstant() && x8_planeNormal->IsFastConstant())
     {

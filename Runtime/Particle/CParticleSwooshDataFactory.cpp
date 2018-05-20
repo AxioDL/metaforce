@@ -41,55 +41,55 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
         switch (clsId)
         {
         case SBIG('PSLT'):
-            desc->x0_PSLT.reset(CPF::GetIntElement(in));
+            desc->x0_PSLT = CPF::GetIntElement(in);
             break;
         case SBIG('TIME'):
-            desc->x4_TIME.reset(CPF::GetRealElement(in));
+            desc->x4_TIME = CPF::GetRealElement(in);
             break;
         case SBIG('LRAD'):
-            desc->x8_LRAD.reset(CPF::GetRealElement(in));
+            desc->x8_LRAD = CPF::GetRealElement(in);
             break;
         case SBIG('RRAD'):
-            desc->xc_RRAD.reset(CPF::GetRealElement(in));
+            desc->xc_RRAD = CPF::GetRealElement(in);
             break;
         case SBIG('LENG'):
-            desc->x10_LENG.reset(CPF::GetIntElement(in));
+            desc->x10_LENG = CPF::GetIntElement(in);
             break;
         case SBIG('COLR'):
-            desc->x14_COLR.reset(CPF::GetColorElement(in));
+            desc->x14_COLR = CPF::GetColorElement(in);
             break;
         case SBIG('SIDE'):
-            desc->x18_SIDE.reset(CPF::GetIntElement(in));
+            desc->x18_SIDE = CPF::GetIntElement(in);
             break;
         case SBIG('IROT'):
-            desc->x1c_IROT.reset(CPF::GetRealElement(in));
+            desc->x1c_IROT = CPF::GetRealElement(in);
             break;
         case SBIG('ROTM'):
-            desc->x20_ROTM.reset(CPF::GetRealElement(in));
+            desc->x20_ROTM = CPF::GetRealElement(in);
             break;
         case SBIG('POFS'):
-            desc->x24_POFS.reset(CPF::GetVectorElement(in));
+            desc->x24_POFS = CPF::GetVectorElement(in);
             break;
         case SBIG('IVEL'):
-            desc->x28_IVEL.reset(CPF::GetVectorElement(in));
+            desc->x28_IVEL = CPF::GetVectorElement(in);
             break;
         case SBIG('NPOS'):
-            desc->x2c_NPOS.reset(CPF::GetVectorElement(in));
+            desc->x2c_NPOS = CPF::GetVectorElement(in);
             break;
         case SBIG('VELM'):
-            desc->x30_VELM.reset(CPF::GetModVectorElement(in));
+            desc->x30_VELM = CPF::GetModVectorElement(in);
             break;
         case SBIG('VLM2'):
-            desc->x34_VLM2.reset(CPF::GetModVectorElement(in));
+            desc->x34_VLM2 = CPF::GetModVectorElement(in);
             break;
         case SBIG('SPLN'):
-            desc->x38_SPLN.reset(CPF::GetIntElement(in));
+            desc->x38_SPLN = CPF::GetIntElement(in);
             break;
         case SBIG('TEXR'):
-            desc->x3c_TEXR.reset(CPF::GetTextureElement(in, resPool));
+            desc->x3c_TEXR = CPF::GetTextureElement(in, resPool);
             break;
         case SBIG('TSPN'):
-            desc->x40_TSPN.reset(CPF::GetIntElement(in));
+            desc->x40_TSPN = CPF::GetIntElement(in);
             break;
         case SBIG('LLRD'):
             desc->x44_24_LLRD = CPF::GetBool(in);

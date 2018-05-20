@@ -43,52 +43,52 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
         switch (clsId)
         {
         case SBIG('LIFE'):
-            desc->x0_LIFE.reset(CPF::GetIntElement(in));
+            desc->x0_LIFE = CPF::GetIntElement(in);
             break;
         case SBIG('SLIF'):
-            desc->x4_SLIF.reset(CPF::GetIntElement(in));
+            desc->x4_SLIF = CPF::GetIntElement(in);
             break;
         case SBIG('GRAT'):
-            desc->x8_GRAT.reset(CPF::GetRealElement(in));
+            desc->x8_GRAT = CPF::GetRealElement(in);
             break;
         case SBIG('SCNT'):
-            desc->xc_SCNT.reset(CPF::GetIntElement(in));
+            desc->xc_SCNT = CPF::GetIntElement(in);
             break;
         case SBIG('SSEG'):
-            desc->x10_SSEG.reset(CPF::GetIntElement(in));
+            desc->x10_SSEG = CPF::GetIntElement(in);
             break;
         case SBIG('COLR'):
-            desc->x14_COLR.reset(CPF::GetColorElement(in));
+            desc->x14_COLR = CPF::GetColorElement(in);
             break;
         case SBIG('IEMT'):
-            desc->x18_IEMT.reset(CPF::GetEmitterElement(in));
+            desc->x18_IEMT = CPF::GetEmitterElement(in);
             break;
         case SBIG('FEMT'):
-            desc->x1c_FEMT.reset(CPF::GetEmitterElement(in));
+            desc->x1c_FEMT = CPF::GetEmitterElement(in);
             break;
         case SBIG('AMPL'):
-            desc->x20_AMPL.reset(CPF::GetRealElement(in));
+            desc->x20_AMPL = CPF::GetRealElement(in);
             break;
         case SBIG('AMPD'):
-            desc->x24_AMPD.reset(CPF::GetRealElement(in));
+            desc->x24_AMPD = CPF::GetRealElement(in);
             break;
         case SBIG('LWD1'):
-            desc->x28_LWD1.reset(CPF::GetRealElement(in));
+            desc->x28_LWD1 = CPF::GetRealElement(in);
             break;
         case SBIG('LWD2'):
-            desc->x2c_LWD2.reset(CPF::GetRealElement(in));
+            desc->x2c_LWD2 = CPF::GetRealElement(in);
             break;
         case SBIG('LWD3'):
-            desc->x30_LWD3.reset(CPF::GetRealElement(in));
+            desc->x30_LWD3 = CPF::GetRealElement(in);
             break;
         case SBIG('LCL1'):
-            desc->x34_LCL1.reset(CPF::GetColorElement(in));
+            desc->x34_LCL1 = CPF::GetColorElement(in);
             break;
         case SBIG('LCL2'):
-            desc->x38_LCL2.reset(CPF::GetColorElement(in));
+            desc->x38_LCL2 = CPF::GetColorElement(in);
             break;
         case SBIG('LCL3'):
-            desc->x3c_LCL3.reset(CPF::GetColorElement(in));
+            desc->x3c_LCL3 = CPF::GetColorElement(in);
             break;
         case SBIG('SSWH'):
             desc->x40_SSWH = CPF::GetSwooshGeneratorDesc(in, resPool);

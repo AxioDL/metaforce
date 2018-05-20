@@ -74,9 +74,9 @@ public:
 
     CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
                   EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture,
-                  bool additive, bool zTest = false);
+                  bool additive, bool zTest = false, bool zGEqual = false);
     CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjToken<boo::ITexture>& texture,
-                  bool additive, bool zTest = false);
+                  bool additive, bool zTest = false, bool zGEqual = false);
     CLineRenderer(CLineRenderer&&) = default;
 
     void Reset();

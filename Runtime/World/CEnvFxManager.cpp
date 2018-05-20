@@ -35,4 +35,12 @@ void CEnvFxManager::AreaLoaded()
         grid.x0_24_ = true;
 }
 
+void CEnvFxManager::Cleanup()
+{
+    xb68_envRainSplashId = kInvalidUniqueId;
+    xb6a_ = false;
+    xb6c_ = 0;
+    xb70_ = 0;
+}
+
 }

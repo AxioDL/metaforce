@@ -6,7 +6,7 @@ namespace urde
 
 CThermalColdFilter::CThermalColdFilter()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat);
 

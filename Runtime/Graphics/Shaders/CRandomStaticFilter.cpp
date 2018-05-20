@@ -9,7 +9,7 @@ namespace urde
 CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
 : m_cookieCutter(cookieCutter)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {

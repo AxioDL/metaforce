@@ -53,12 +53,9 @@ class CObjectReference
     /** Synchronous object-fetch, guaranteed to return complete object on-demand, blocking build if not ready */
     IObj* GetObject();
 
-    const SObjectTag& GetObjectTag() const
-    {
-        return x4_objTag;
-    }
-
 public:
+    const SObjectTag& GetObjectTag() const { return x4_objTag; }
+
     ~CObjectReference();
 };
 

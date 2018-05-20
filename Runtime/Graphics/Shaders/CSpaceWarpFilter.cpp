@@ -33,7 +33,7 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
 
 CSpaceWarpFilter::CSpaceWarpFilter()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         GenerateWarpRampTex(ctx);
         struct Vert

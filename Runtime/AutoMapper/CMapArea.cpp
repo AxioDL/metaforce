@@ -54,7 +54,7 @@ void CMapArea::PostConstruct()
         m_surfaces.back().PostConstruct(x44_buf.get(), index);
     }
 
-    CGraphics::CommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([this, &index](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
@@ -84,7 +84,8 @@ void CMapArea::PostConstruct()
                         u32 count = r.readUint32Big();
                         r.seek(count);
                         r.seekAlign4();
-                        linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count, nullptr, false);
+                        linePrims.emplace_back(ctx, CLineRenderer::EPrimitiveMode::LineStrip, count,
+                                               nullptr, false, false, true);
                     }
                 }
             }

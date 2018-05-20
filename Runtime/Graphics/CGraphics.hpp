@@ -334,10 +334,17 @@ public:
         return g_BooPlatformName;
     }
 
-    static void CommitResources(const boo::FactoryCommitFunc& commitFunc)
+    static void CommitResources(const boo::FactoryCommitFunc& commitFunc __BooTraceArgs)
     {
-        g_BooFactory->commitTransaction(commitFunc);
+        g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
     }
+
+#ifndef NDEBUG
+#define CGraphicsCommitResources(...) CGraphics::CommitResources(__VA_ARGS__, __FILE__, __LINE__)
+#else
+#define CGraphicsCommitResources(...) CGraphics::CommitResources(__VA_ARGS__)
+#endif
+
     static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding)
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);

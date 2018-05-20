@@ -234,7 +234,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
     maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!x26c_31_LINE)
         {

@@ -55,7 +55,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer()
 {
-    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         for (int i=0 ; i<2 ; ++i)
         {

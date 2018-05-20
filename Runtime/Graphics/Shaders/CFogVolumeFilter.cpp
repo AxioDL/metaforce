@@ -5,7 +5,7 @@ namespace urde
 
 CFogVolumeFilter::CFogVolumeFilter()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {

@@ -295,8 +295,8 @@ void CNESShader::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources(
+    [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
         {

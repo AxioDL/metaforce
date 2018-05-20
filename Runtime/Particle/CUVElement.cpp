@@ -5,18 +5,15 @@
 namespace urde
 {
 
-CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,
-                                 CIntElement* c, CIntElement* d, CIntElement* e, bool f)
-: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrames(e)
+CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& a,
+                                 std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c,
+                                 std::unique_ptr<CIntElement>&& d, std::unique_ptr<CIntElement>&& e, bool f)
+: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrames(std::move(e))
 {
     a->GetValue(0, x10_tileW);
-    delete a;
     b->GetValue(0, x14_tileH);
-    delete b;
     c->GetValue(0, x18_strideW);
-    delete c;
     d->GetValue(0, x1c_strideH);
-    delete d;
 
     int width = x4_tex.GetObj()->GetWidth();
     int height = x4_tex.GetObj()->GetHeight();

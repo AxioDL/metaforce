@@ -60,7 +60,7 @@ void CScriptDock::Think(float dt, CStateManager& mgr)
     else if (x264_dockState == EDockState::EnterNextArea)
     {
         CPlayer& player = mgr.GetPlayer();
-        if (HasPointCrossedDock(mgr, player.GetTransform().origin))
+        if (HasPointCrossedDock(mgr, player.GetTranslation()))
         {
             IGameArea::Dock* dock = mgr.WorldNC()->GetArea(mgr.GetNextAreaId())->DockNC(x25c_dock);
             TAreaId aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
@@ -237,7 +237,7 @@ void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr)
 bool CScriptDock::HasPointCrossedDock(const CStateManager& mgr, const zeus::CVector3f& point) const
 {
     const zeus::CPlane plane = GetPlane(mgr);
-    return (point.dot(plane.vec) < plane.d);
+    return (point.dot(plane.vec) >= plane.d);
 }
 
 void CScriptDock::AreaLoaded(CStateManager& mgr) { SetLoadConnected(mgr, x268_25_loadConnected); }

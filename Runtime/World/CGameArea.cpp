@@ -1230,7 +1230,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
         ++secIt;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Shared geometry uniform buffer - one for normal render, one for shadow render */
         for (int i=0 ; i<2 ; ++i)

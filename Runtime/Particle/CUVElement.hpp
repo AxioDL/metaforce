@@ -55,8 +55,9 @@ struct CUVEAnimTexture : public CUVElement
     std::unique_ptr<CIntElement> x28_cycleFrames;
     std::vector<SUVElementSet> x2c_uvElems;
 public:
-    CUVEAnimTexture(TToken<CTexture>&& tex, CIntElement* a, CIntElement* b,
-                    CIntElement* c, CIntElement* d, CIntElement* e, bool f);
+    CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+                    std::unique_ptr<CIntElement>&& c, std::unique_ptr<CIntElement>&& d,
+                    std::unique_ptr<CIntElement>&& e, bool f);
     TLockedToken<CTexture> GetValueTexture(int frame) const
     {
         return TLockedToken<CTexture>(x4_tex);

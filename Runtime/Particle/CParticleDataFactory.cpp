@@ -47,14 +47,16 @@ SParticleModel CParticleDataFactory::GetModel(CInputStream& in, CSimplePool* res
     return {resPool->GetObj({FOURCC('CMDL'), id}), true};
 }
 
-SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CAssetId res, CSimplePool* resPool, const std::vector<CAssetId>& tracker)
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CAssetId res, CSimplePool* resPool,
+                                                                const std::vector<CAssetId>& tracker)
 {
     if (std::count(tracker.cbegin(), tracker.cend(), res) == 0)
         return {resPool->GetObj({FOURCC('PART'), res}), true};
     return {};
 }
 
-SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool, const std::vector<CAssetId>& tracker)
+SChildGeneratorDesc CParticleDataFactory::GetChildGeneratorDesc(CInputStream& in, CSimplePool* resPool,
+                                                                const std::vector<CAssetId>& tracker)
 {
     FourCC clsId = GetClassID(in);
     if (clsId == SBIG('NONE'))
@@ -87,7 +89,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
     return {resPool->GetObj({FOURCC('ELSC'), id}), true};
 }
 
-CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool)
+std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
@@ -99,7 +101,7 @@ CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePoo
             return nullptr;
         CAssetId id = in.readUint32Big();
         TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
-        return new CUVEConstant(std::move(txtr));
+        return std::make_unique<CUVEConstant>(std::move(txtr));
     }
     case SBIG('ATEX'):
     {
@@ -107,21 +109,22 @@ CUVElement* CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePoo
         if (subId == SBIG('NONE'))
             return nullptr;
         CAssetId id = in.readUint32Big();
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CIntElement* c = GetIntElement(in);
-        CIntElement* d = GetIntElement(in);
-        CIntElement* e = GetIntElement(in);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetIntElement(in);
+        auto d = GetIntElement(in);
+        auto e = GetIntElement(in);
         bool f = GetBool(in);
         TToken<CTexture> txtr = resPool->GetObj({FOURCC('TXTR'), id});
-        return new CUVEAnimTexture(std::move(txtr), a, b, c, d, e, f);
+        return std::make_unique<CUVEAnimTexture>(std::move(txtr), std::move(std::move(a)), std::move(b), std::move(c),
+                                                 std::move(d), std::move(e), std::move(f));
     }
     default: break;
     }
     return nullptr;
 }
 
-CColorElement* CParticleDataFactory::GetColorElement(CInputStream& in)
+std::unique_ptr<CColorElement> CParticleDataFactory::GetColorElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
@@ -129,14 +132,14 @@ CColorElement* CParticleDataFactory::GetColorElement(CInputStream& in)
     case SBIG('KEYE'):
     case SBIG('KEYP'):
     {
-        return new CCEKeyframeEmitter(in);
+        return std::make_unique<CCEKeyframeEmitter>(in);
     }
     case SBIG('CNST'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
         if (a->IsConstant() && b->IsConstant() && c->IsConstant() && d->IsConstant())
         {
             float af, bf, cf, df;
@@ -144,162 +147,163 @@ CColorElement* CParticleDataFactory::GetColorElement(CInputStream& in)
             b->GetValue(0, bf);
             c->GetValue(0, cf);
             d->GetValue(0, df);
-            return new CCEFastConstant(af, bf, cf, df);
+            return std::make_unique<CCEFastConstant>(af, bf, cf, df);
         }
         else
         {
-            return new CCEConstant(a, b, c, d);
+            return std::make_unique<CCEConstant>(std::move(std::move(a)), std::move(b), std::move(c), std::move(d));
         }
     }
     case SBIG('CHAN'):
     {
-        CColorElement* a = GetColorElement(in);
-        CColorElement* b = GetColorElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CCETimeChain(a, b, c);
+        auto a = GetColorElement(in);
+        auto b = GetColorElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CCETimeChain>(std::move(std::move(a)), std::move(b), std::move(c));
     }
     case SBIG('CFDE'):
     {
-        CColorElement* a = GetColorElement(in);
-        CColorElement* b = GetColorElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CCEFadeEnd(a, b, c, d);
+        auto a = GetColorElement(in);
+        auto b = GetColorElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CCEFadeEnd>(std::move(std::move(a)), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('FADE'):
     {
-        CColorElement* a = GetColorElement(in);
-        CColorElement* b = GetColorElement(in);
-        CRealElement* c = GetRealElement(in);
-        return new CCEFade(a, b, c);
+        auto a = GetColorElement(in);
+        auto b = GetColorElement(in);
+        auto c = GetRealElement(in);
+        return std::make_unique<CCEFade>(std::move(std::move(a)), std::move(b), std::move(c));
     }
     case SBIG('PULS'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CColorElement* c = GetColorElement(in);
-        CColorElement* d = GetColorElement(in);
-        return new CCEPulse(a, b, c, d);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetColorElement(in);
+        auto d = GetColorElement(in);
+        return std::make_unique<CCEPulse>(std::move(std::move(a)), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('PCOL'):
     {
-        return new CCEParticleColor();
+        return std::make_unique<CCEParticleColor>();
     }
     default: break;
     }
     return nullptr;
 }
 
-CModVectorElement* CParticleDataFactory::GetModVectorElement(CInputStream& in)
+std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
     {
     case SBIG('IMPL'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
         bool e = GetBool(in);
-        return new CMVEImplosion(a, b, c, d, e);
+        return std::make_unique<CMVEImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('EMPL'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
         bool e = GetBool(in);
-        return new CMVEExponentialImplosion(a, b, c, d, e);
+        return std::make_unique<CMVEExponentialImplosion>(std::move(a), std::move(b), std::move(c),
+                                                          std::move(d), std::move(e));
     }
     case SBIG('CHAN'):
     {
-        CModVectorElement* a = GetModVectorElement(in);
-        CModVectorElement* b = GetModVectorElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CMVETimeChain(a, b, c);
+        auto a = GetModVectorElement(in);
+        auto b = GetModVectorElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CMVETimeChain>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('BNCE'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
         bool e = GetBool(in);
-        return new CMVEBounce(a, b, c, d, e);
+        return std::make_unique<CMVEBounce>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('CNST'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
         if (a->IsConstant() && b->IsConstant() && c->IsConstant())
         {
             float af, bf, cf;
             a->GetValue(0, af);
             b->GetValue(0, bf);
             c->GetValue(0, cf);
-            return new CMVEFastConstant(af, bf, cf);
+            return std::make_unique<CMVEFastConstant>(af, bf, cf);
         }
         else
         {
-            return new CMVEConstant(a, b, c);
+            return std::make_unique<CMVEConstant>(std::move(a), std::move(b), std::move(c));
         }
     }
     case SBIG('GRAV'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CMVEGravity(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CMVEGravity>(std::move(a));
     }
     case SBIG('EXPL'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CMVEExplode(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CMVEExplode>(std::move(a), std::move(b));
     }
     case SBIG('SPOS'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CMVESetPosition(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CMVESetPosition>(std::move(a));
     }
     case SBIG('LMPL'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
         bool e = GetBool(in);
-        return new CMVELinearImplosion(a, b, c, d, e);
+        return std::make_unique<CMVELinearImplosion>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('PULS'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CModVectorElement* c = GetModVectorElement(in);
-        CModVectorElement* d = GetModVectorElement(in);
-        return new CMVEPulse(a, b, c, d);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetModVectorElement(in);
+        auto d = GetModVectorElement(in);
+        return std::make_unique<CMVEPulse>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('WIND'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CMVEWind(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CMVEWind>(std::move(a), std::move(b));
     }
     case SBIG('SWRL'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CMVESwirl(a, b, c, d);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CMVESwirl>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     default: break;
     }
     return nullptr;
 }
 
-CEmitterElement* CParticleDataFactory::GetEmitterElement(CInputStream& in)
+std::unique_ptr<CEmitterElement> CParticleDataFactory::GetEmitterElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
@@ -309,405 +313,406 @@ CEmitterElement* CParticleDataFactory::GetEmitterElement(CInputStream& in)
         FourCC prop = GetClassID(in);
         if (prop == SBIG('ILOC'))
         {
-            CVectorElement* a = GetVectorElement(in);
+            auto a = GetVectorElement(in);
             prop = GetClassID(in);
             if (prop == SBIG('IVEC'))
             {
-                CVectorElement* b = GetVectorElement(in);
-                return new CEESimpleEmitter(a, b);
+                auto b = GetVectorElement(in);
+                return std::make_unique<CEESimpleEmitter>(std::move(a), std::move(b));
             }
         }
         return nullptr;
     }
     case SBIG('SEMR'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        return new CEESimpleEmitter(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        return std::make_unique<CEESimpleEmitter>(std::move(a), std::move(b));
     }
     case SBIG('SPHE'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        return new CVESphere(a, b, c);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        return std::make_unique<CVESphere>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('ASPH'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        CRealElement* e = GetRealElement(in);
-        CRealElement* f = GetRealElement(in);
-        CRealElement* g = GetRealElement(in);
-        return new CVEAngleSphere(a, b, c, d, e, f, g);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        auto e = GetRealElement(in);
+        auto f = GetRealElement(in);
+        auto g = GetRealElement(in);
+        return std::make_unique<CVEAngleSphere>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e),
+                                                std::move(f), std::move(g));
     }
     default: break;
     }
     return nullptr;
 }
 
-CVectorElement* CParticleDataFactory::GetVectorElement(CInputStream& in)
+std::unique_ptr<CVectorElement> CParticleDataFactory::GetVectorElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
     {
     case SBIG('CONE'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CVECone(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CVECone>(std::move(a), std::move(b));
     }
     case SBIG('CHAN'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CVETimeChain(a, b, c);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CVETimeChain>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('ANGC'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        CRealElement* e = GetRealElement(in);
-        return new CVEAngleCone(a, b, c, d, e);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        auto e = GetRealElement(in);
+        return std::make_unique<CVEAngleCone>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('ADD_'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        return new CVEAdd(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        return std::make_unique<CVEAdd>(std::move(a), std::move(b));
     }
     case SBIG('CCLU'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        CIntElement* c = GetIntElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CVECircleCluster(a, b, c, d);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        auto c = GetIntElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CVECircleCluster>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('CNST'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
         if (a->IsConstant() && b->IsConstant() && c->IsConstant())
         {
             float af, bf, cf;
             a->GetValue(0, af);
             b->GetValue(0, bf);
             c->GetValue(0, cf);
-            return new CVEFastConstant(af, bf, cf);
+            return std::make_unique<CVEFastConstant>(af, bf, cf);
         }
         else
         {
-            return new CVEConstant(a, b, c);
+            return std::make_unique<CVEConstant>(std::move(a), std::move(b), std::move(c));
         }
     }
     case SBIG('CIRC'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        CRealElement* e = GetRealElement(in);
-        return new CVECircle(a, b, c, d, e);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        auto e = GetRealElement(in);
+        return std::make_unique<CVECircle>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('KEYE'):
     case SBIG('KEYP'):
     {
-        return new CVEKeyframeEmitter(in);
+        return std::make_unique<CVEKeyframeEmitter>(in);
     }
     case SBIG('MULT'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        return new CVEMultiply(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        return std::make_unique<CVEMultiply>(std::move(a), std::move(b));
     }
     case SBIG('RTOV'):
     {
-        CRealElement* a = GetRealElement(in);
-        return new CVERealToVector(a);
+        auto a = GetRealElement(in);
+        return std::make_unique<CVERealToVector>(std::move(a));
     }
     case SBIG('PULS'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CVectorElement* c = GetVectorElement(in);
-        CVectorElement* d = GetVectorElement(in);
-        return new CVEPulse(a, b, c, d);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetVectorElement(in);
+        auto d = GetVectorElement(in);
+        return std::make_unique<CVEPulse>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('PVEL'):
     {
-        return new CVEParticleVelocity;
+        return std::make_unique<CVEParticleVelocity>();
     }
     case SBIG('PLCO'):
     {
-        return new CVEParticleColor;
+        return std::make_unique<CVEParticleColor>();
     }
     case SBIG('PLOC'):
     {
-        return new CVEParticleLocation;
+        return std::make_unique<CVEParticleLocation>();
     }
     case SBIG('PSOF'):
     {
-        return new CVEParticleSystemOrientationFront;
+        return std::make_unique<CVEParticleSystemOrientationFront>();
     }
     case SBIG('PSOU'):
     {
-        return new CVEParticleSystemOrientationUp;
+        return std::make_unique<CVEParticleSystemOrientationUp>();
     }
     case SBIG('PSOR'):
     {
-        return new CVEParticleSystemOrientationRight;
+        return std::make_unique<CVEParticleSystemOrientationRight>();
     }
     case SBIG('PSTR'):
     {
-        return new CVEParticleSystemTranslation;
+        return std::make_unique<CVEParticleSystemTranslation>();
     }
     case SBIG('SUB_'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        return new CVESubtract(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        return std::make_unique<CVESubtract>(std::move(a), std::move(b));
     }
     case SBIG('CTVC'):
     {
-        CColorElement* a = GetColorElement(in);
-        return new CVEColorToVector(a);
+        auto a = GetColorElement(in);
+        return std::make_unique<CVEColorToVector>(std::move(a));
     }
     default: break;
     }
     return nullptr;
 }
 
-CRealElement* CParticleDataFactory::GetRealElement(CInputStream& in)
+std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
     {
     case SBIG('LFTW'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CRELifetimeTween(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CRELifetimeTween>(std::move(a), std::move(b));
     }
     case SBIG('CNST'):
     {
         float a = GetReal(in);
-        return new CREConstant(a);
+        return std::make_unique<CREConstant>(std::move(a));
     }
     case SBIG('CHAN'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CRETimeChain(a, b, c);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CRETimeChain>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('ADD_'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CREAdd(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CREAdd>(std::move(a), std::move(b));
     }
     case SBIG('CLMP'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        return new CREClamp(a, b, c);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        return std::make_unique<CREClamp>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('KEYE'):
     case SBIG('KEYP'):
     {
-        return new CREKeyframeEmitter(in);
+        return std::make_unique<CREKeyframeEmitter>(in);
     }
     case SBIG('IRND'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CREInitialRandom(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CREInitialRandom>(std::move(a), std::move(b));
     }
     case SBIG('RAND'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CRERandom(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CRERandom>(std::move(a), std::move(b));
     }
     case SBIG('DOTP'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        CVectorElement* b = GetVectorElement(in);
-        return new CREDotProduct(a, b);
+        auto a = GetVectorElement(in);
+        auto b = GetVectorElement(in);
+        return std::make_unique<CREDotProduct>(std::move(a), std::move(b));
     }
     case SBIG('MULT'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CREMultiply(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CREMultiply>(std::move(a), std::move(b));
     }
     case SBIG('PULS'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CREPulse(a, b, c, d);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CREPulse>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('SCAL'):
     {
-        CRealElement* a = GetRealElement(in);
-        return new CRETimeScale(a);
+        auto a = GetRealElement(in);
+        return std::make_unique<CRETimeScale>(std::move(a));
     }
     case SBIG('RLPT'):
     {
-        CRealElement* a = GetRealElement(in);
-        return new CRELifetimePercent(a);
+        auto a = GetRealElement(in);
+        return std::make_unique<CRELifetimePercent>(std::move(a));
     }
     case SBIG('SINE'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        return new CRESineWave(a, b, c);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        return std::make_unique<CRESineWave>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('ISWT'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CREInitialSwitch(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CREInitialSwitch>(std::move(a), std::move(b));
     }
     case SBIG('CLTN'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CRECompareLessThan(a, b, c, d);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CRECompareLessThan>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('CEQL'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        return new CRECompareEquals(a, b, c, d);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        return std::make_unique<CRECompareEquals>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('PAP1'):
     {
-        return new CREParticleAccessParam1;
+        return std::make_unique<CREParticleAccessParam1>();
     }
     case SBIG('PAP2'):
     {
-        return new CREParticleAccessParam2;
+        return std::make_unique<CREParticleAccessParam2>();
     }
     case SBIG('PAP3'):
     {
-        return new CREParticleAccessParam3;
+        return std::make_unique<CREParticleAccessParam3>();
     }
     case SBIG('PAP4'):
     {
-        return new CREParticleAccessParam4;
+        return std::make_unique<CREParticleAccessParam4>();
     }
     case SBIG('PAP5'):
     {
-        return new CREParticleAccessParam5;
+        return std::make_unique<CREParticleAccessParam5>();
     }
     case SBIG('PAP6'):
     {
-        return new CREParticleAccessParam6;
+        return std::make_unique<CREParticleAccessParam6>();
     }
     case SBIG('PAP7'):
     {
-        return new CREParticleAccessParam7;
+        return std::make_unique<CREParticleAccessParam7>();
     }
     case SBIG('PAP8'):
     {
-        return new CREParticleAccessParam8;
+        return std::make_unique<CREParticleAccessParam8>();
     }
     case SBIG('PSLL'):
     {
-        return new CREParticleSizeOrLineLength;
+        return std::make_unique<CREParticleSizeOrLineLength>();
     }
     case SBIG('PRLW'):
     {
-        return new CREParticleRotationOrLineWidth;
+        return std::make_unique<CREParticleRotationOrLineWidth>();
     }
     case SBIG('SUB_'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CRESubtract(a, b);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CRESubtract>(std::move(a), std::move(b));
     }
     case SBIG('VMAG'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CREVectorMagnitude(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CREVectorMagnitude>(std::move(a));
     }
     case SBIG('VXTR'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CREVectorXToReal(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CREVectorXToReal>(std::move(a));
     }
     case SBIG('VYTR'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CREVectorYToReal(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CREVectorYToReal>(std::move(a));
     }
     case SBIG('VZTR'):
     {
-        CVectorElement* a = GetVectorElement(in);
-        return new CREVectorZToReal(a);
+        auto a = GetVectorElement(in);
+        return std::make_unique<CREVectorZToReal>(std::move(a));
     }
     case SBIG('CEXT'):
     {
-        CIntElement* a = GetIntElement(in);
-        return new CRECEXT(a);
+        auto a = GetIntElement(in);
+        return std::make_unique<CRECEXT>(std::move(a));
     }
     case SBIG('ITRL'):
     {
-        CIntElement* a = GetIntElement(in);
-        CRealElement* b = GetRealElement(in);
-        return new CREIntTimesReal(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetRealElement(in);
+        return std::make_unique<CREIntTimesReal>(std::move(a), std::move(b));
     }
     case SBIG('CRNG'):
     {
-        CRealElement* a = GetRealElement(in);
-        CRealElement* b = GetRealElement(in);
-        CRealElement* c = GetRealElement(in);
-        CRealElement* d = GetRealElement(in);
-        CRealElement* e = GetRealElement(in);
-        return new CREConstantRange(a, b, c, d, e);
+        auto a = GetRealElement(in);
+        auto b = GetRealElement(in);
+        auto c = GetRealElement(in);
+        auto d = GetRealElement(in);
+        auto e = GetRealElement(in);
+        return std::make_unique<CREConstantRange>(std::move(a), std::move(b), std::move(c), std::move(d), std::move(e));
     }
     case SBIG('GTCR'):
     {
-        CColorElement* a = GetColorElement(in);
-        return new CREGetComponentRed(a);
+        auto a = GetColorElement(in);
+        return std::make_unique<CREGetComponentRed>(std::move(a));
     }
     case SBIG('GTCG'):
     {
-        CColorElement* a = GetColorElement(in);
-        return new CREGetComponentGreen(a);
+        auto a = GetColorElement(in);
+        return std::make_unique<CREGetComponentGreen>(std::move(a));
     }
     case SBIG('GTCB'):
     {
-        CColorElement* a = GetColorElement(in);
-        return new CREGetComponentBlue(a);
+        auto a = GetColorElement(in);
+        return std::make_unique<CREGetComponentBlue>(std::move(a));
     }
     case SBIG('GTCA'):
     {
-        CColorElement* a = GetColorElement(in);
-        return new CREGetComponentAlpha(a);
+        auto a = GetColorElement(in);
+        return std::make_unique<CREGetComponentAlpha>(std::move(a));
     }
     default: break;
     }
     return nullptr;
 }
 
-CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
+std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& in)
 {
     FourCC clsId = GetClassID(in);
     switch (clsId)
@@ -715,110 +720,110 @@ CIntElement* CParticleDataFactory::GetIntElement(CInputStream& in)
     case SBIG('KEYE'):
     case SBIG('KEYP'):
     {
-        return new CIEKeyframeEmitter(in);
+        return std::make_unique<CIEKeyframeEmitter>(in);
     }
     case SBIG('DETH'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIEDeath(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIEDeath>(std::move(a), std::move(b));
     }
     case SBIG('CLMP'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CIEClamp(a, b, c);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CIEClamp>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('CHAN'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CIETimeChain(a, b, c);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CIETimeChain>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('ADD_'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIEAdd(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIEAdd>(std::move(a), std::move(b));
     }
     case SBIG('CNST'):
     {
         int a = GetInt(in);
-        return new CIEConstant(a);
+        return std::make_unique<CIEConstant>(std::move(a));
     }
     case SBIG('IMPL'):
     {
-        CIntElement* a = GetIntElement(in);
-        return new CIEImpulse(a);
+        auto a = GetIntElement(in);
+        return std::make_unique<CIEImpulse>(std::move(a));
     }
     case SBIG('ILPT'):
     {
-        CIntElement* a = GetIntElement(in);
-        return new CIELifetimePercent(a);
+        auto a = GetIntElement(in);
+        return std::make_unique<CIELifetimePercent>(std::move(a));
     }
     case SBIG('IRND'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIEInitialRandom(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIEInitialRandom>(std::move(a), std::move(b));
     }
     case SBIG('PULS'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CIntElement* c = GetIntElement(in);
-        CIntElement* d = GetIntElement(in);
-        return new CIEPulse(a, b, c, d);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetIntElement(in);
+        auto d = GetIntElement(in);
+        return std::make_unique<CIEPulse>(std::move(a), std::move(b), std::move(c), std::move(d));
     }
     case SBIG('MULT'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIEMultiply(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIEMultiply>(std::move(a), std::move(b));
     }
     case SBIG('SPAH'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        CIntElement* c = GetIntElement(in);
-        return new CIESampleAndHold(a, b, c);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        auto c = GetIntElement(in);
+        return std::make_unique<CIESampleAndHold>(std::move(a), std::move(b), std::move(c));
     }
     case SBIG('RAND'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIERandom(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIERandom>(std::move(a), std::move(b));
     }
     case SBIG('TSCL'):
     {
-        CRealElement* a = GetRealElement(in);
-        return new CIETimeScale(a);
+        auto a = GetRealElement(in);
+        return std::make_unique<CIETimeScale>(std::move(a));
     }
     case SBIG('GAPC'):
     {
-        return new CIEGetActiveParticleCount;
+        return std::make_unique<CIEGetActiveParticleCount>();
     }
     case SBIG('GTCP'):
     {
-        return new CIEGetCumulativeParticleCount;
+        return std::make_unique<CIEGetCumulativeParticleCount>();
     }
     case SBIG('GEMT'):
     {
-        return new CIEGetEmitterTime;
+        return std::make_unique<CIEGetEmitterTime>();
     }
     case SBIG('MODU'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIEModulo(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIEModulo>(std::move(a), std::move(b));
     }
     case SBIG('SUB_'):
     {
-        CIntElement* a = GetIntElement(in);
-        CIntElement* b = GetIntElement(in);
-        return new CIESubtract(a, b);
+        auto a = GetIntElement(in);
+        auto b = GetIntElement(in);
+        return std::make_unique<CIESubtract>(std::move(a), std::move(b));
     }
     default: break;
     }
@@ -861,19 +866,19 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
         switch (clsId)
         {
         case SBIG('PMCL'):
-            fillDesc->x78_x64_PMCL.reset(GetColorElement(in));
+            fillDesc->x78_x64_PMCL = GetColorElement(in);
             break;
         case SBIG('LFOR'):
-            fillDesc->x118_x104_LFOR.reset(GetRealElement(in));
+            fillDesc->x118_x104_LFOR = GetRealElement(in);
             break;
         case SBIG('IDTS'):
             fillDesc->xa4_x90_IDTS = GetChildGeneratorDesc(in, resPool, tracker);
             break;
         case SBIG('EMTR'):
-            fillDesc->x40_x2c_EMTR.reset(GetEmitterElement(in));
+            fillDesc->x40_x2c_EMTR = GetEmitterElement(in);
             break;
         case SBIG('COLR'):
-            fillDesc->x30_x24_COLR.reset(GetColorElement(in));
+            fillDesc->x30_x24_COLR = GetColorElement(in);
             break;
         case SBIG('CIND'):
             fillDesc->x45_30_x32_24_CIND = GetBool(in);
@@ -882,10 +887,10 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x44_26_x30_26_AAPH = GetBool(in);
             break;
         case SBIG('CSSD'):
-            fillDesc->xa0_x8c_CSSD.reset(GetIntElement(in));
+            fillDesc->xa0_x8c_CSSD = GetIntElement(in);
             break;
         case SBIG('GRTE'):
-            fillDesc->x2c_x20_GRTE.reset(GetRealElement(in));
+            fillDesc->x2c_x20_GRTE = GetRealElement(in);
             break;
         case SBIG('FXLL'):
             fillDesc->x44_25_x30_25_FXLL = GetBool(in);
@@ -904,64 +909,64 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             break;
         }
         case SBIG('ILOC'):
-            delete GetVectorElement(in);
+            GetVectorElement(in);
             break;
         case SBIG('IITS'):
             fillDesc->xb8_xa4_IITS = GetChildGeneratorDesc(in, resPool, tracker);
             break;
         case SBIG('IVEC'):
-            delete GetVectorElement(in);
+            GetVectorElement(in);
             break;
         case SBIG('LDIR'):
-            fillDesc->x110_xfc_LDIR.reset(GetVectorElement(in));
+            fillDesc->x110_xfc_LDIR = GetVectorElement(in);
             break;
         case SBIG('LCLR'):
-            fillDesc->x104_xf0_LCLR.reset(GetColorElement(in));
+            fillDesc->x104_xf0_LCLR = GetColorElement(in);
             break;
         case SBIG('LENG'):
-            fillDesc->x20_x14_LENG.reset(GetRealElement(in));
+            fillDesc->x20_x14_LENG = GetRealElement(in);
             break;
         case SBIG('MAXP'):
-            fillDesc->x28_x1c_MAXP.reset(GetIntElement(in));
+            fillDesc->x28_x1c_MAXP = GetIntElement(in);
             break;
         case SBIG('LOFF'):
-            fillDesc->x10c_xf8_LOFF.reset(GetVectorElement(in));
+            fillDesc->x10c_xf8_LOFF = GetVectorElement(in);
             break;
         case SBIG('LINT'):
-            fillDesc->x108_xf4_LINT.reset(GetRealElement(in));
+            fillDesc->x108_xf4_LINT = GetRealElement(in);
             break;
         case SBIG('LINE'):
             fillDesc->x44_24_x30_24_LINE = GetBool(in);
             break;
         case SBIG('LFOT'):
-            fillDesc->x114_x100_LFOT.reset(GetIntElement(in));
+            fillDesc->x114_x100_LFOT = GetIntElement(in);
             break;
         case SBIG('LIT_'):
             fillDesc->x44_29_x30_29_LIT_ = GetBool(in);
             break;
         case SBIG('LTME'):
-            fillDesc->x34_x28_LTME.reset(GetIntElement(in));
+            fillDesc->x34_x28_LTME = GetIntElement(in);
             break;
         case SBIG('LSLA'):
-            fillDesc->x11c_x108_LSLA.reset(GetRealElement(in));
+            fillDesc->x11c_x108_LSLA = GetRealElement(in);
             break;
         case SBIG('LTYP'):
-            fillDesc->x100_xec_LTYP.reset(GetIntElement(in));
+            fillDesc->x100_xec_LTYP = GetIntElement(in);
             break;
         case SBIG('NDSY'):
-            fillDesc->xb4_xa0_NDSY.reset(GetIntElement(in));
+            fillDesc->xb4_xa0_NDSY = GetIntElement(in);
             break;
         case SBIG('MBSP'):
-            fillDesc->x48_x34_MBSP.reset(GetIntElement(in));
+            fillDesc->x48_x34_MBSP = GetIntElement(in);
             break;
         case SBIG('MBLR'):
             fillDesc->x44_30_x31_24_MBLR = GetBool(in);
             break;
         case SBIG('NCSY'):
-            fillDesc->x9c_x88_NCSY.reset(GetIntElement(in));
+            fillDesc->x9c_x88_NCSY = GetIntElement(in);
             break;
         case SBIG('PISY'):
-            fillDesc->xc8_xb4_PISY.reset(GetIntElement(in));
+            fillDesc->xc8_xb4_PISY = GetIntElement(in);
             break;
         case SBIG('OPTS'):
             fillDesc->x45_31_x32_25_OPTS = GetBool(in);
@@ -970,70 +975,70 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x44_31_x31_25_PMAB = GetBool(in);
             break;
         case SBIG('SESD'):
-            fillDesc->xf8_xe4_SESD.reset(GetIntElement(in));
+            fillDesc->xf8_xe4_SESD = GetIntElement(in);
             break;
         case SBIG('SEPO'):
-            fillDesc->xfc_xe8_SEPO.reset(GetVectorElement(in));
+            fillDesc->xfc_xe8_SEPO = GetVectorElement(in);
             break;
         case SBIG('PSLT'):
-            fillDesc->xc_x0_PSLT.reset(GetIntElement(in));
+            fillDesc->xc_x0_PSLT = GetIntElement(in);
             break;
         case SBIG('PMSC'):
-            fillDesc->x74_x60_PMSC.reset(GetVectorElement(in));
+            fillDesc->x74_x60_PMSC = GetVectorElement(in);
             break;
         case SBIG('PMOP'):
-            fillDesc->x6c_x58_PMOP.reset(GetVectorElement(in));
+            fillDesc->x6c_x58_PMOP = GetVectorElement(in);
             break;
         case SBIG('PMDL'):
             fillDesc->x5c_x48_PMDL = GetModel(in, resPool);
             break;
         case SBIG('PMRT'):
-            fillDesc->x70_x5c_PMRT.reset(GetVectorElement(in));
+            fillDesc->x70_x5c_PMRT = GetVectorElement(in);
             break;
         case SBIG('POFS'):
-            fillDesc->x18_xc_POFS.reset(GetVectorElement(in));
+            fillDesc->x18_xc_POFS = GetVectorElement(in);
             break;
         case SBIG('PMUS'):
             fillDesc->x45_24_x31_26_PMUS = GetBool(in);
             break;
         case SBIG('PSIV'):
-            delete GetVectorElement(in);
+            GetVectorElement(in);
             break;
         case SBIG('ROTA'):
-            fillDesc->x50_x3c_ROTA.reset(GetRealElement(in));
+            fillDesc->x50_x3c_ROTA = GetRealElement(in);
             break;
         case SBIG('PSVM'):
-            delete GetModVectorElement(in);
+            GetModVectorElement(in);
             break;
         case SBIG('PSTS'):
-            fillDesc->x14_x8_PSTS.reset(GetRealElement(in));
+            fillDesc->x14_x8_PSTS = GetRealElement(in);
             break;
         case SBIG('PSOV'):
-            delete GetVectorElement(in);
+            GetVectorElement(in);
             break;
         case SBIG('PSWT'):
-            fillDesc->x10_x4_PSWT.reset(GetIntElement(in));
+            fillDesc->x10_x4_PSWT = GetIntElement(in);
             break;
         case SBIG('SEED'):
-            fillDesc->x1c_x10_SEED.reset(GetIntElement(in));
+            fillDesc->x1c_x10_SEED = GetIntElement(in);
             break;
         case SBIG('PMOO'):
             fillDesc->x45_25_x31_27_PMOO = GetBool(in);
             break;
         case SBIG('SSSD'):
-            fillDesc->xe4_xd0_SSSD.reset(GetIntElement(in));
+            fillDesc->xe4_xd0_SSSD = GetIntElement(in);
             break;
         case SBIG('SORT'):
             fillDesc->x44_28_x30_28_SORT = GetBool(in);
             break;
         case SBIG('SIZE'):
-            fillDesc->x4c_x38_SIZE.reset(GetRealElement(in));
+            fillDesc->x4c_x38_SIZE = GetRealElement(in);
             break;
         case SBIG('SISY'):
-            fillDesc->xcc_xb8_SISY.reset(GetIntElement(in));
+            fillDesc->xcc_xb8_SISY = GetIntElement(in);
             break;
         case SBIG('SSPO'):
-            fillDesc->xe8_xd4_SSPO.reset(GetVectorElement(in));
+            fillDesc->xe8_xd4_SSPO = GetVectorElement(in);
             break;
         case SBIG('TEXR'):
         {
@@ -1065,22 +1070,22 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x45_26_x31_28_VMD1 = GetBool(in);
             break;
         case SBIG('VEL4'):
-            fillDesc->x88_x74_VEL4.reset(GetModVectorElement(in));
+            fillDesc->x88_x74_VEL4 = GetModVectorElement(in);
             break;
         case SBIG('VEL3'):
-            fillDesc->x84_x70_VEL3.reset(GetModVectorElement(in));
+            fillDesc->x84_x70_VEL3 = GetModVectorElement(in);
             break;
         case SBIG('VEL2'):
-            fillDesc->x80_x6c_VEL2.reset(GetModVectorElement(in));
+            fillDesc->x80_x6c_VEL2 = GetModVectorElement(in);
             break;
         case SBIG('VEL1'):
-            fillDesc->x7c_x68_VEL1.reset(GetModVectorElement(in));
+            fillDesc->x7c_x68_VEL1 = GetModVectorElement(in);
             break;
         case SBIG('ZBUF'):
             fillDesc->x44_27_x30_27_ZBUF = GetBool(in);
             break;
         case SBIG('WIDT'):
-            fillDesc->x24_x18_WIDT.reset(GetRealElement(in));
+            fillDesc->x24_x18_WIDT = GetRealElement(in);
             break;
         case SBIG('ORNT'):
             fillDesc->x30_30_ORNT = GetBool(in);
@@ -1089,28 +1094,28 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
             fillDesc->x30_31_RSOP = GetBool(in);
             break;
         case SBIG('ADV1'):
-            fillDesc->x10c_ADV1.reset(GetRealElement(in));
+            fillDesc->x10c_ADV1 = GetRealElement(in);
             break;
         case SBIG('ADV2'):
-            fillDesc->x110_ADV2.reset(GetRealElement(in));
+            fillDesc->x110_ADV2 = GetRealElement(in);
             break;
         case SBIG('ADV3'):
-            fillDesc->x114_ADV3.reset(GetRealElement(in));
+            fillDesc->x114_ADV3 = GetRealElement(in);
             break;
         case SBIG('ADV4'):
-            fillDesc->x118_ADV4.reset(GetRealElement(in));
+            fillDesc->x118_ADV4 = GetRealElement(in);
             break;
         case SBIG('ADV5'):
-            fillDesc->x11c_ADV5.reset(GetRealElement(in));
+            fillDesc->x11c_ADV5 = GetRealElement(in);
             break;
         case SBIG('ADV6'):
-            fillDesc->x120_ADV6.reset(GetRealElement(in));
+            fillDesc->x120_ADV6 = GetRealElement(in);
             break;
         case SBIG('ADV7'):
-            fillDesc->x124_ADV7.reset(GetRealElement(in));
+            fillDesc->x124_ADV7 = GetRealElement(in);
             break;
         case SBIG('ADV8'):
-            fillDesc->x128_ADV8.reset(GetRealElement(in));
+            fillDesc->x128_ADV8 = GetRealElement(in);
             break;
         case SBIG('SELC'):
             fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
@@ -1134,11 +1139,13 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
 
         while (clsId != SBIG('_END') && !in.atEnd())
         {
-            switch(clsId)
+            switch (clsId)
             {
             case SBIG('BGCL'):
-                fillDesc->m_bevelGradient.reset(GetColorElement(in));
-            break;
+                fillDesc->m_bevelGradient = GetColorElement(in);
+                break;
+            default:
+                break;
             }
             clsId = GetClassID(in);
         }
@@ -1169,7 +1176,8 @@ CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in,
                                   CObjectReference* selfRef)
 {
     CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CGenDescription>::GetIObjObjectFor(std::unique_ptr<CGenDescription>(CParticleDataFactory::GetGeneratorDesc(in, sp)));
+    return TToken<CGenDescription>::GetIObjObjectFor(
+        std::unique_ptr<CGenDescription>(CParticleDataFactory::GetGeneratorDesc(in, sp)));
 }
 
 }

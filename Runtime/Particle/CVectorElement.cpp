@@ -61,8 +61,8 @@ bool CVEKeyframeEmitter::GetValue(int frame, zeus::CVector3f& valOut) const
     return false;
 }
 
-CVECone::CVECone(CVectorElement* a, CRealElement* b)
-: x4_direction(a), x8_magnitude(b)
+CVECone::CVECone(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b)
+: x4_direction(std::move(a)), x8_magnitude(std::move(b))
 {
     zeus::CVector3f av;
     x4_direction->GetValue(0, av);
@@ -136,8 +136,9 @@ bool CVEAdd::GetValue(int frame, zeus::CVector3f& valOut) const
     return false;
 }
 
-CVECircleCluster::CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntElement* c, CRealElement* d)
-: x4_a(a), x24_magnitude(d)
+CVECircleCluster::CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+                                   std::unique_ptr<CIntElement>&& c, std::unique_ptr<CRealElement>&& d)
+: x4_a(std::move(a)), x24_magnitude(std::move(d))
 {
     int cv;
     c->GetValue(0, cv);
@@ -151,9 +152,6 @@ CVECircleCluster::CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntEle
     else
         x8_xVec = bv.cross(zeus::CVector3f(1.f, 0.f, 0.f));
     x14_yVec = bv.cross(x8_xVec);
-
-    delete b;
-    delete c;
 }
 
 bool CVECircleCluster::GetValue(int frame, zeus::CVector3f& valOut) const
@@ -194,8 +192,11 @@ bool CVEFastConstant::GetValue(int frame, zeus::CVector3f& valOut) const
     return false;
 }
 
-CVECircle::CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
-: x4_direction(a), x20_angleConstant(c), x24_angleLinear(d), x28_radius(e)
+CVECircle::CVECircle(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+                     std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d,
+                     std::unique_ptr<CRealElement>&& e)
+: x4_direction(std::move(a)), x20_angleConstant(std::move(c)),
+  x24_angleLinear(std::move(d)), x28_radius(std::move(e))
 {
     zeus::CVector3f bv;
     b->GetValue(0, bv);
@@ -205,7 +206,6 @@ CVECircle::CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRea
     else
         x8_xVec = bv.cross(zeus::CVector3f(1.f, 0.f, 0.f));
     x14_yVec = bv.cross(x8_xVec);
-    delete b;
 }
 
 bool CVECircle::GetValue(int frame, zeus::CVector3f& valOut) const

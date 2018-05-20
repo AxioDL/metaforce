@@ -6,7 +6,7 @@ namespace urde
 CAABoxShader::CAABoxShader(bool zOnly)
 : m_zOnly(zOnly)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);

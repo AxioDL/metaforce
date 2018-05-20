@@ -12,7 +12,7 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
     {
         m_maxInsts = instances.size();
         m_tex = tex;
-        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Instance), m_maxInsts);
             m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);

@@ -112,7 +112,7 @@ void CTexture::BuildI4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -160,7 +160,7 @@ void CTexture::BuildI8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -209,7 +209,7 @@ void CTexture::BuildIA4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -258,7 +258,7 @@ void CTexture::BuildIA8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -366,7 +366,7 @@ void CTexture::BuildC4FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -410,7 +410,7 @@ void CTexture::BuildC8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -462,7 +462,7 @@ void CTexture::BuildRGB565FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -519,7 +519,7 @@ void CTexture::BuildRGB5A3FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -576,7 +576,7 @@ void CTexture::BuildRGBA8FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, buf.get(), texelCount * 4).get();
@@ -640,7 +640,7 @@ void CTexture::BuildDXT1FromGCN(CInputStream& in)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1,
                                         boo::TextureClampMode::Repeat, buf.get(), blockCount * 8).get();
@@ -656,7 +656,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length)
         Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")",
                    length, expectedSize);
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8,
                                         boo::TextureClampMode::Repeat, data, expectedSize).get();
@@ -671,7 +671,7 @@ void CTexture::BuildC8(const void* data, size_t length)
         Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")",
                    length, texelCount);
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
         const u8* paletteTexels = reinterpret_cast<const u8*>(data) + 4;
@@ -778,7 +778,7 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype)
             h /= 2;
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticArrayTexture(x4_w, x6_h, layerCount, x8_mips, boo::TextureFormat::RGBA8,
                                              boo::TextureClampMode::Repeat, buf.get(), texelCount * layerCount * 4).get();
@@ -788,7 +788,7 @@ void CTexture::BuildC8Font(const void* data, EFontType ftype)
 
 void CTexture::BuildDXT1(const void* data, size_t length)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT1,
                                         boo::TextureClampMode::Repeat, data, length).get();

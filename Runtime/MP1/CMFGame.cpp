@@ -319,6 +319,8 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader")
     }
 }
 
+CMFGameLoader::~CMFGameLoader() {}
+
 static const char* LoadDepPAKs[] =
 {
     "TestAnim",

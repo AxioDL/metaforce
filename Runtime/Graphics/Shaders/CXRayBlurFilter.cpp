@@ -9,7 +9,7 @@ namespace urde
 CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex)
 : m_paletteTex(tex), m_booTex(tex->GetPaletteTexture())
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {

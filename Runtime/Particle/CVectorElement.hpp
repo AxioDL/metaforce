@@ -29,7 +29,7 @@ class CVECone : public CVectorElement
     zeus::CVector3f xc_xVec;
     zeus::CVector3f x18_yVec;
 public:
-    CVECone(CVectorElement* a, CRealElement* b);
+    CVECone(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b);
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -39,8 +39,9 @@ class CVETimeChain : public CVectorElement
     std::unique_ptr<CVectorElement> x8_b;
     std::unique_ptr<CIntElement> xc_swFrame;
 public:
-    CVETimeChain(CVectorElement* a, CVectorElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_swFrame(c) {}
+    CVETimeChain(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+                 std::unique_ptr<CIntElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -52,8 +53,11 @@ class CVEAngleCone : public CVectorElement
     std::unique_ptr<CRealElement> x10_angleYRange;
     std::unique_ptr<CRealElement> x14_magnitude;
 public:
-    CVEAngleCone(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d, CRealElement* e)
-    : x4_angleXConstant(a), x8_angleYConstant(b), xc_angleXRange(c), x10_angleYRange(d), x14_magnitude(e) {}
+    CVEAngleCone(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
+                 std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d,
+                 std::unique_ptr<CRealElement>&& e)
+    : x4_angleXConstant(std::move(a)), x8_angleYConstant(std::move(b)),
+      xc_angleXRange(std::move(c)), x10_angleYRange(std::move(d)), x14_magnitude(std::move(e)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -62,8 +66,8 @@ class CVEAdd : public CVectorElement
     std::unique_ptr<CVectorElement> x4_a;
     std::unique_ptr<CVectorElement> x8_b;
 public:
-    CVEAdd(CVectorElement* a, CVectorElement* b)
-    : x4_a(a), x8_b(b) {}
+    CVEAdd(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -75,7 +79,8 @@ class CVECircleCluster : public CVectorElement
     float x20_deltaAngle;
     std::unique_ptr<CRealElement> x24_magnitude;
 public:
-    CVECircleCluster(CVectorElement* a, CVectorElement* b, CIntElement* c, CRealElement* d);
+    CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+                     std::unique_ptr<CIntElement>&& c, std::unique_ptr<CRealElement>&& d);
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -85,8 +90,8 @@ class CVEConstant : public CVectorElement
     std::unique_ptr<CRealElement> x8_b;
     std::unique_ptr<CRealElement> xc_c;
 public:
-    CVEConstant(CRealElement* a, CRealElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_c(c) {}
+    CVEConstant(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -108,7 +113,9 @@ class CVECircle : public CVectorElement
     std::unique_ptr<CRealElement> x24_angleLinear;
     std::unique_ptr<CRealElement> x28_radius;
 public:
-    CVECircle(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, CRealElement* e);
+    CVECircle(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+              std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d,
+              std::unique_ptr<CRealElement>&& e);
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -117,8 +124,8 @@ class CVEMultiply : public CVectorElement
     std::unique_ptr<CVectorElement> x4_a;
     std::unique_ptr<CVectorElement> x8_b;
 public:
-    CVEMultiply(CVectorElement* a, CVectorElement* b)
-    : x4_a(a), x8_b(b) {}
+    CVEMultiply(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -126,8 +133,8 @@ class CVERealToVector : public CVectorElement
 {
     std::unique_ptr<CRealElement> x4_a;
 public:
-    CVERealToVector(CRealElement* a)
-    : x4_a(a) {}
+    CVERealToVector(std::unique_ptr<CRealElement>&& a)
+    : x4_a(std::move(a)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -138,8 +145,9 @@ class CVEPulse : public CVectorElement
     std::unique_ptr<CVectorElement> xc_aVal;
     std::unique_ptr<CVectorElement> x10_bVal;
 public:
-    CVEPulse(CIntElement* a, CIntElement* b, CVectorElement* c, CVectorElement* d)
-    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
+    CVEPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+             std::unique_ptr<CVectorElement>&& c, std::unique_ptr<CVectorElement>&& d)
+    : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
 
@@ -190,8 +198,8 @@ class CVESubtract : public CVectorElement
     std::unique_ptr<CVectorElement> x4_a;
     std::unique_ptr<CVectorElement> x8_b;
 public:
-    CVESubtract(CVectorElement* a, CVectorElement* b)
-        : x4_a(a), x8_b(b)
+    CVESubtract(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
+        : x4_a(std::move(a)), x8_b(std::move(b))
     {}
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };
@@ -200,8 +208,8 @@ class CVEColorToVector : public CVectorElement
 {
     std::unique_ptr<CColorElement> x4_a;
 public:
-    CVEColorToVector(CColorElement* a)
-        : x4_a(a) {}
+    CVEColorToVector(std::unique_ptr<CColorElement>&& a)
+        : x4_a(std::move(a)) {}
 
     bool GetValue(int frame, zeus::CVector3f& valOut) const;
 };

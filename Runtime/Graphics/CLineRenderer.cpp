@@ -25,7 +25,7 @@ hecl::UniformBufferPool<CLineRenderer::SDrawUniform> CLineRenderer::s_uniformPoo
 CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
                              EPrimitiveMode mode, u32 maxVerts,
                              const boo::ObjToken<boo::ITexture>& texture,
-                             bool additive, bool zTest)
+                             bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts)
 {
     if (maxVerts < 2)
@@ -56,12 +56,12 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
 
     m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 
-    CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive, zTest);
+    CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive, zTest, zGEqual);
 }
 
 CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
                              const boo::ObjToken<boo::ITexture>& texture,
-                             bool additive, bool zTest)
+                             bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts)
 {
     if (maxVerts < 2)
@@ -92,9 +92,9 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
 
     m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
-        CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive, zTest);
+        CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive, zTest, zGEqual);
         return true;
     });
 }

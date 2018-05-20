@@ -19,6 +19,11 @@ bool CBooModel::g_DrawingOccluders = false;
 
 static CBooModel* g_FirstModel = nullptr;
 
+void CBooModel::AssertAllFreed()
+{
+    assert(g_FirstModel == nullptr && "Dangling CBooModels detected");
+}
+
 void CBooModel::ClearModelUniformCounters()
 {
     for (CBooModel* model = g_FirstModel ; model ; model = model->m_next)
@@ -281,7 +286,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
     m_instances.emplace_back();
     ModelInstance& newInst = m_instances.back();
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Build geometry uniform buffer if shared not available */
         boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
@@ -1197,8 +1202,8 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts,
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx],
-                                       m_staticVtxFmt, m_staticVbo, m_ibo,
-                                       m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
+                                           m_staticVtxFmt, m_staticVbo, m_ibo,
+                                           m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
     if (lockParent)
         ret->LockParent();
     return ret;
@@ -1275,7 +1280,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         matSet.BuildShaders(m_hmdlMeta);
     }
 
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Index buffer is always static */
         if (m_hmdlMeta.indexCount)

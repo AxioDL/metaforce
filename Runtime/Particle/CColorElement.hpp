@@ -29,8 +29,9 @@ class CCEConstant : public CColorElement
     std::unique_ptr<CRealElement> xc_c;
     std::unique_ptr<CRealElement> x10_d;
 public:
-    CCEConstant(CRealElement* a, CRealElement* b, CRealElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_c(c), x10_d(d) {}
+    CCEConstant(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
+                std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)), x10_d(std::move(d)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
@@ -49,8 +50,9 @@ class CCETimeChain : public CColorElement
     std::unique_ptr<CColorElement> x8_b;
     std::unique_ptr<CIntElement> xc_swFrame;
 public:
-    CCETimeChain(CColorElement* a, CColorElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_swFrame(c) {}
+    CCETimeChain(std::unique_ptr<CColorElement>&& a, std::unique_ptr<CColorElement>&& b,
+                 std::unique_ptr<CIntElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
@@ -61,8 +63,9 @@ class CCEFadeEnd : public CColorElement
     std::unique_ptr<CRealElement> xc_startFrame;
     std::unique_ptr<CRealElement> x10_endFrame;
 public:
-    CCEFadeEnd(CColorElement* a, CColorElement* b, CRealElement* c, CRealElement* d)
-    : x4_a(a), x8_b(b), xc_startFrame(c), x10_endFrame(d) {}
+    CCEFadeEnd(std::unique_ptr<CColorElement>&& a, std::unique_ptr<CColorElement>&& b,
+               std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_startFrame(std::move(c)), x10_endFrame(std::move(d)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
@@ -72,8 +75,9 @@ class CCEFade : public CColorElement
     std::unique_ptr<CColorElement> x8_b;
     std::unique_ptr<CRealElement> xc_endFrame;
 public:
-    CCEFade(CColorElement* a, CColorElement* b, CRealElement* c)
-    : x4_a(a), x8_b(b), xc_endFrame(c) {}
+    CCEFade(std::unique_ptr<CColorElement>&& a, std::unique_ptr<CColorElement>&& b,
+            std::unique_ptr<CRealElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_endFrame(std::move(c)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 
@@ -84,8 +88,9 @@ class CCEPulse : public CColorElement
     std::unique_ptr<CColorElement> xc_aVal;
     std::unique_ptr<CColorElement> x10_bVal;
 public:
-    CCEPulse(CIntElement* a, CIntElement* b, CColorElement* c, CColorElement* d)
-    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
+    CCEPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+             std::unique_ptr<CColorElement>&& c, std::unique_ptr<CColorElement>&& d)
+    : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 

@@ -16,8 +16,10 @@ class CMVEImplosion : public CModVectorElement
     std::unique_ptr<CRealElement> x10_minMag;
     bool x14_enableMinMag;
 public:
-    CMVEImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
-    : x4_implPoint(a), x8_magScale(b), xc_maxMag(c), x10_minMag(d), x14_enableMinMag(e) {}
+    CMVEImplosion(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b,
+                  std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e)
+    : x4_implPoint(std::move(a)), x8_magScale(std::move(b)), xc_maxMag(std::move(c)), x10_minMag(std::move(d)),
+      x14_enableMinMag(std::move(e)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -29,8 +31,10 @@ class CMVEExponentialImplosion : public CModVectorElement
     std::unique_ptr<CRealElement> x10_minMag;
     bool x14_enableMinMag;
 public:
-    CMVEExponentialImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
-    : x4_implPoint(a), x8_magScale(b), xc_maxMag(c), x10_minMag(d), x14_enableMinMag(e) {}
+    CMVEExponentialImplosion(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b,
+                             std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e)
+    : x4_implPoint(std::move(a)), x8_magScale(std::move(b)), xc_maxMag(std::move(c)), x10_minMag(std::move(d)),
+      x14_enableMinMag(std::move(e)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -42,8 +46,10 @@ class CMVELinearImplosion : public CModVectorElement
     std::unique_ptr<CRealElement> x10_minMag;
     bool x14_enableMinMag;
 public:
-    CMVELinearImplosion(CVectorElement* a, CRealElement* b, CRealElement* c, CRealElement* d, bool e)
-    : x4_implPoint(a), x8_magScale(b), xc_maxMag(c), x10_minMag(d), x14_enableMinMag(e) {}
+    CMVELinearImplosion(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b,
+                        std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e)
+    : x4_implPoint(std::move(a)), x8_magScale(std::move(b)), xc_maxMag(std::move(c)), x10_minMag(std::move(d)),
+      x14_enableMinMag(std::move(e)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -53,8 +59,9 @@ class CMVETimeChain : public CModVectorElement
     std::unique_ptr<CModVectorElement> x8_b;
     std::unique_ptr<CIntElement> xc_swFrame;
 public:
-    CMVETimeChain(CModVectorElement* a, CModVectorElement* b, CIntElement* c)
-    : x4_a(a), x8_b(b), xc_swFrame(c) {}
+    CMVETimeChain(std::unique_ptr<CModVectorElement>&& a, std::unique_ptr<CModVectorElement>&& b,
+                  std::unique_ptr<CIntElement>&& c)
+    : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -69,7 +76,8 @@ class CMVEBounce : public CModVectorElement
     zeus::CVector3f x18_planeValidatedNormal;
     float x24_planeD;
 public:
-    CMVEBounce(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d, bool e);
+    CMVEBounce(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+               std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d, bool e);
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -79,8 +87,9 @@ class CMVEConstant : public CModVectorElement
     std::unique_ptr<CRealElement> x8_y;
     std::unique_ptr<CRealElement> xc_z;
 public:
-    CMVEConstant(CRealElement* a, CRealElement* b, CRealElement* c)
-    : x4_x(a), x8_y(b), xc_z(c) {}
+    CMVEConstant(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
+                 std::unique_ptr<CRealElement>&& c)
+    : x4_x(std::move(a)), x8_y(std::move(b)), xc_z(std::move(c)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -97,8 +106,8 @@ class CMVEGravity : public CModVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
 public:
-    CMVEGravity(CVectorElement* a)
-    : x4_a(a) {}
+    CMVEGravity(std::unique_ptr<CVectorElement>&& a)
+    : x4_a(std::move(a)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -107,8 +116,8 @@ class CMVEExplode : public CModVectorElement
     std::unique_ptr<CRealElement> x4_a;
     std::unique_ptr<CRealElement> x8_b;
 public:
-    CMVEExplode(CRealElement* a, CRealElement* b)
-    : x4_a(a), x8_b(b) {}
+    CMVEExplode(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
+    : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -116,8 +125,8 @@ class CMVESetPosition : public CModVectorElement
 {
     std::unique_ptr<CVectorElement> x4_a;
 public:
-    CMVESetPosition(CVectorElement* a)
-    : x4_a(a) {}
+    CMVESetPosition(std::unique_ptr<CVectorElement>&& a)
+    : x4_a(std::move(a)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -128,8 +137,9 @@ class CMVEPulse : public CModVectorElement
     std::unique_ptr<CModVectorElement> xc_aVal;
     std::unique_ptr<CModVectorElement> x10_bVal;
 public:
-    CMVEPulse(CIntElement* a, CIntElement* b, CModVectorElement* c, CModVectorElement* d)
-    : x4_aDuration(a), x8_bDuration(b), xc_aVal(c), x10_bVal(d) {}
+    CMVEPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b,
+              std::unique_ptr<CModVectorElement>&& c, std::unique_ptr<CModVectorElement>&& d)
+    : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -138,8 +148,8 @@ class CMVEWind : public CModVectorElement
     std::unique_ptr<CVectorElement> x4_velocity;
     std::unique_ptr<CRealElement> x8_factor;
 public:
-    CMVEWind(CVectorElement* a, CRealElement* b)
-    : x4_velocity(a), x8_factor(b) {}
+    CMVEWind(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b)
+    : x4_velocity(std::move(a)), x8_factor(std::move(b)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 
@@ -150,8 +160,10 @@ class CMVESwirl : public CModVectorElement
     std::unique_ptr<CRealElement> xc_targetRadius;
     std::unique_ptr<CRealElement> x10_tangentialVelocity;
 public:
-    CMVESwirl(CVectorElement* a, CVectorElement* b, CRealElement* c, CRealElement* d)
-    : x4_helixPoint(a), x8_curveBinormal(b), xc_targetRadius(c), x10_tangentialVelocity(d) {}
+    CMVESwirl(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
+              std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
+    : x4_helixPoint(std::move(a)), x8_curveBinormal(std::move(b)),
+      xc_targetRadius(std::move(c)), x10_tangentialVelocity(std::move(d)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 

@@ -785,6 +785,7 @@ void CMain::Shutdown()
     CNESShader::Shutdown();
     CGraphics::ShutdownBoo();
     ShutdownDiscord();
+    CBooModel::AssertAllFreed();
 }
 
 boo::IWindow* CMain::GetMainWindow() const

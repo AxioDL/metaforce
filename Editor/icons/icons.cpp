@@ -28,7 +28,7 @@ void InitializeIcons(specter::ViewResources& viewRes)
     if (uncompress(texels.get(), &destSz, URDE_ICONS + pos, URDE_ICONS_SZ - pos) != Z_OK)
         Log.report(logvisor::Fatal, "unable to decompress icons");
 
-    viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    viewRes.m_factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         g_IconAtlas.initializeAtlas(ctx.newStaticTexture(width, height, mips,
                                                          boo::TextureFormat::RGBA8,

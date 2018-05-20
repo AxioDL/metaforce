@@ -190,6 +190,11 @@ CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo:
                                              boo::Primitive::TriStrips, boo::ZTest::LEqual,
                                              false, true, false, boo::CullMode::None);
 
+    m_noTexAlphaZGEqual = ctx.newShaderPipeline(VS_METAL_NOTEX, FS_METAL_NOTEX, nullptr, nullptr, m_noTexVtxFmt,
+                                          boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
+                                          boo::Primitive::TriStrips, boo::ZTest::GEqual,
+                                          false, true, false, boo::CullMode::None);
+
     return new struct MetalLineDataBindingFactory;
 }
 

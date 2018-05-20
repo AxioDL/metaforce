@@ -21,6 +21,7 @@ protected:
     CVParamTransfer x1c_paramXfer;
 public:
     CSimplePool(IFactory& factory);
+    ~CSimplePool();
     CToken GetObj(const SObjectTag&, const CVParamTransfer&);
     CToken GetObj(const SObjectTag&);
     CToken GetObj(std::string_view);

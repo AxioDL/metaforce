@@ -6,7 +6,7 @@ namespace urde
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
 : m_w(w), m_h(h)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);

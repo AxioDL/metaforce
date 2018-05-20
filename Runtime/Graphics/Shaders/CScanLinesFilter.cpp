@@ -6,7 +6,7 @@ namespace urde
 CScanLinesFilter::CScanLinesFilter(EFilterType type, bool even)
 : m_even(even)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CScanLinesFilter>::BuildShaderDataBinding(ctx, type, *this);

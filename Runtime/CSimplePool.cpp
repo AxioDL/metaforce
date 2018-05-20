@@ -9,6 +9,11 @@ CSimplePool::CSimplePool(IFactory& factory)
 : x18_factory(factory), x1c_paramXfer(new TObjOwnerParam<IObjectStore*>(this))
 {}
 
+CSimplePool::~CSimplePool()
+{
+    assert(x8_resources.empty() && "Dangling CSimplePool resources detected");
+}
+
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer)
 {
     if (!tag)
