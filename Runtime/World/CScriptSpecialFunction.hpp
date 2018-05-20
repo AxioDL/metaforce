@@ -54,11 +54,17 @@ public:
 
     enum class ESpinnerControllerMode
     {
+        Zero,
+        One,
     };
 
     struct SRingController
     {
-        SRingController(TUniqueId, float, bool);
+        TUniqueId x0_id;
+        float x4_;
+        bool x8_;
+        zeus::CVector3f xc_;
+        SRingController(TUniqueId uid, float f, bool b);
     };
 
 private:
@@ -77,14 +83,12 @@ private:
     s16 x170_;
     s16 x172_;
     s16 x174_;
-    u32 x178_ = 0;
+    CSfxHandle x178_sfxHandle;
     u32 x17c_;
     float x180_ = 0.f;
     std::vector<float> x184_;
     float x194_ = 0.f;
-    u32 x19c_ = 0;
-    u32 x1a0_ = 0;
-    u32 x1a4_ = 0;
+    std::vector<SRingController> x198_ringControllers;
     u32 x1a8_ = 2;
     zeus::CVector3f x1ac_ = zeus::CVector3f::skZero;
     bool x1b8_ = true;
@@ -97,17 +101,20 @@ private:
         struct
         {
             bool x1e4_24_ : 1;
-            bool x1e4_25_ : 1;
+            bool x1e4_25_spinnerCanMove : 1;
             bool x1e4_26_ : 1;
             bool x1e4_27_ : 1;
+            bool x1e4_28_frustumEntered : 1;
+            bool x1e4_29_frustumExited : 1;
+            bool x1e4_30_ : 1;
             bool x1e4_31_ : 1;
             bool x1e5_24_doSave : 1;
             bool x1e5_25_ : 1;
-            bool x1e5_26_ : 1;
+            bool x1e5_26_displayBillboard : 1;
         };
         u32 x1e4_dummy = 0;
     };
-    bool x1f0_ = false;
+    TLockedToken<CTexture> x1e8_; // Used to be optional
 public:
     CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
                            std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
@@ -129,11 +136,18 @@ public:
     void ThinkPlayerFollowLocator(float, CStateManager&);
     void ThinkSpinnerController(float, CStateManager&, ESpinnerControllerMode);
     void ThinkObjectFollowLocator(float, CStateManager&);
+    void ThinkObjectFollowObject(float, CStateManager&);
     void ThinkChaffTarget(float, CStateManager&);
     void ThinkActorScale(float, CStateManager&);
     void ThinkSaveStation(float, CStateManager&);
+    void ThinkRainSimulator(float, CStateManager&);
+    void ThinkAreaDamage(float, CStateManager&);
+    void ThinkPlayerInArea(float, CStateManager&);
 
     bool ShouldSkipCinematic(CStateManager& stateMgr) const;
+
+    void DeleteEmitter(const CSfxHandle& handle);
+    u32 GetSpecialEnding(const CStateManager&) const;
 };
 }
 

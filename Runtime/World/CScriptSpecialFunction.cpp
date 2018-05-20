@@ -6,6 +6,8 @@
 #include "GameGlobalObjects.hpp"
 #include "CGameState.hpp"
 #include "CStateManager.hpp"
+#include "IMain.hpp"
+#include "CPlayer.hpp"
 
 namespace urde
 {
@@ -41,10 +43,294 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptSpecialFunction::Think(float, CStateManager&) {}
+void CScriptSpecialFunction::Think(float dt, CStateManager& mgr)
+{
+    switch(xe8_function)
+    {
+    case ESpecialFunction::PlayerFollowLocator: ThinkPlayerFollowLocator(dt, mgr); break;
+    case ESpecialFunction::SpinnerController: ThinkSpinnerController(dt, mgr, ESpinnerControllerMode::Zero); break;
+    case ESpecialFunction::ShotSpinnerController: ThinkSpinnerController(dt, mgr, ESpinnerControllerMode::One); break;
+    case ESpecialFunction::ObjectFollowLocator: ThinkObjectFollowLocator(dt, mgr); break;
+    case ESpecialFunction::ObjectFollowObject: ThinkObjectFollowObject(dt, mgr); break;
+    case ESpecialFunction::ChaffTarget: ThinkChaffTarget(dt, mgr); break;
+    case ESpecialFunction::ViewFrustumTester:
+    {
+        if (x1e4_28_frustumEntered)
+        {
+            x1e4_28_frustumEntered = false;
+            SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+        }
+        if (x1e4_29_frustumExited)
+        {
+            x1e4_29_frustumExited = false;
+            SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
+        }
+        break;
+    }
+    case ESpecialFunction::SaveStation: ThinkSaveStation(dt, mgr); break;
+    case ESpecialFunction::IntroBossRingController: ThinkIntroBossRingController(dt, mgr); break;
+    case ESpecialFunction::RainSimulator: ThinkRainSimulator(dt, mgr); break;
+    case ESpecialFunction::AreaDamage: ThinkAreaDamage(dt, mgr); break;
+    case ESpecialFunction::ScaleActor: ThinkActorScale(dt, mgr); break;
+    case ESpecialFunction::PlayerInAreaRelay: ThinkPlayerInArea(dt, mgr); break;
+    case ESpecialFunction::Billboard:
+    {
+#if 0
+        if (x1f0_ && x1e8_->x10_ && x1e5_26_)
+        {
+            SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+            x1e5_26_ = false;
+        }
+#endif
+        break;
+    }
+    default: break;
+    }
+}
 
 void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
+    if (GetActive() && msg == EScriptObjectMessage::Deactivate && xe8_function == ESpecialFunction::Billboard)
+    {
+        mgr.SetPendingOnScreenTex(CAssetId(), zeus::CVector2i(), zeus::CVector2i());
+        if (x1e8_)
+            x1e8_ = TLockedToken<CTexture>();
+        x1e5_26_displayBillboard = false;
+    }
+    CActor::AcceptScriptMsg(msg, uid, mgr);
+
+    if (xe8_function == ESpecialFunction::ChaffTarget && msg == EScriptObjectMessage::InitializedInArea)
+        AddMaterial(EMaterialTypes::Target, mgr);
+
+    if (GetActive())
+    {
+        switch(xe8_function)
+        {
+        case ESpecialFunction::HUDFadeIn:
+        {
+            if (msg == EScriptObjectMessage::Action)
+                mgr.Player()->SetHudDisable(xfc_, 0.f, 0.5f);
+            break;
+        }
+        case ESpecialFunction::EscapeSequence:
+        {
+            if (msg == EScriptObjectMessage::Action && xfc_ >= 0.f)
+                mgr.ResetEscapeSequenceTimer(xfc_);
+            break;
+        }
+        case ESpecialFunction::SpinnerController:
+        {
+            switch(msg)
+            {
+            case EScriptObjectMessage::Stop:
+            {
+                x1e4_25_spinnerCanMove = false;
+                break;
+            }
+            case EScriptObjectMessage::Play:
+            {
+                x1e4_25_spinnerCanMove = true;
+                mgr.Player()->SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+                break;
+            }
+            case EScriptObjectMessage::Deactivate:
+                DeleteEmitter(x178_sfxHandle);
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+        case ESpecialFunction::ShotSpinnerController:
+        {
+            switch(msg)
+            {
+            case EScriptObjectMessage::Increment:
+            {
+                x16c_ = zeus::clamp(0.f, x16c_ + 1.f, 1.f);
+                SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
+                break;
+            }
+            case EScriptObjectMessage::SetToMax:
+            {
+                SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
+                break;
+            }
+            case EScriptObjectMessage::SetToZero:
+            {
+                x16c_ = -0.5f * x104_;
+                break;
+            }
+            default:
+                break;
+            }
+            break;
+        }
+        case ESpecialFunction::MapStation:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                mgr.MapWorldInfo()->SetMapStationUsed(true);
+                const_cast<CMapWorld&>(*mgr.WorldNC()->GetMapWorld()).RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
+            }
+            break;
+        }
+        case ESpecialFunction::MissileStation:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                CPlayerState& pState = *mgr.GetPlayerState().get();
+                pState.ResetAndIncrPickUp(CPlayerState::EItemType::Missiles, pState.GetItemCapacity(CPlayerState::EItemType::Missiles));
+            }
+            break;
+        }
+        case ESpecialFunction::PowerBombStation:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                CPlayerState& pState = *mgr.GetPlayerState().get();
+                pState.ResetAndIncrPickUp(CPlayerState::EItemType::PowerBombs, pState.GetItemCapacity(CPlayerState::EItemType::PowerBombs));
+            }
+            break;
+        }
+        case ESpecialFunction::SaveStation:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                g_GameState->GetPlayerState()->IncrPickup(CPlayerState::EItemType::EnergyTanks, 1);
+                if (g_GameState->GetCardSerial() == 0)
+                    SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
+                else
+                {
+                    mgr.DeferStateTransition(EStateManagerTransition::SaveGame);
+                    x1e5_24_doSave = true;
+                }
+            }
+            break;
+        }
+        case ESpecialFunction::IntroBossRingController:
+        {
+            if (x1a8_ != 3)
+            {
+                switch(msg)
+                {
+                case EScriptObjectMessage::Play:
+                {
+                    if (x1a8_ != 0)
+                        RingScramble(mgr);
+
+                    for (SRingController& cont : x198_ringControllers)
+                    {
+                        if (TCastToPtr<CActor> act = mgr.ObjectById(cont.x0_id))
+                            cont.xc_ = act->GetTransform().frontVector();
+                        else
+                            cont.xc_ = zeus::CVector3f::skForward;
+                    }
+
+                    x1a8_ = 3;
+                    break;
+                }
+                case EScriptObjectMessage::SetToZero:
+                {
+                    x1a8_ = 1;
+                    x1ac_ = GetTranslation() - mgr.GetPlayer().GetTranslation();
+                    x1ac_.z = 0.f;
+                    x1ac_.normalize();
+                    break;
+                }
+                case EScriptObjectMessage::Action:
+                {
+                    RingScramble(mgr);
+                    break;
+                }
+                case EScriptObjectMessage::InitializedInArea:
+                {
+                    x198_ringControllers.reserve(3);
+                    for (const SConnection& conn : x20_conns)
+                    {
+                        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
+                            continue;
+
+                        auto search = mgr.GetIdListForScript(conn.x8_objId);
+                        for (auto it = search.first; it != search.second; ++it)
+                        {
+                            if (TCastToPtr<CActor> act = mgr.ObjectById(it->second))
+                            {
+                                x198_ringControllers.push_back(SRingController(it->second, 0.f, false));
+                                act->RemoveMaterial(EMaterialTypes::Occluder, mgr);
+                            }
+                        }
+
+                        //std::sort(x198_ringControllers.begin(), x198_ringControllers.end());
+                        /* TODO: Finish */
+                    }
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+            break;
+        }
+        case ESpecialFunction::RadialDamage:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                CDamageInfo dInfo = x11c_damageInfo;
+                dInfo.SetRadius(xfc_);
+                mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), dInfo, CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
+            }
+            break;
+        }
+        case ESpecialFunction::BossEnergyBar:
+        {
+            if (msg == EScriptObjectMessage::Increment)
+                mgr.SetBossParams(uid, xfc_, u32(x100_) + 86);
+            else if (msg == EScriptObjectMessage::Decrement)
+                mgr.SetBossParams(kInvalidUniqueId, 0.f, 0);
+            break;
+        }
+        case ESpecialFunction::EndGame:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                switch(GetSpecialEnding(mgr))
+                {
+                case 0:
+                    g_Main->SetFlowState(EFlowState::WinBad);
+                    break;
+                case 1:
+                    g_Main->SetFlowState(EFlowState::WinGood);
+                    break;
+                case 2:
+                    g_Main->SetFlowState(EFlowState::WinBest);
+                    break;
+                }
+                mgr.SetShouldQuitGame(true);
+            }
+            break;
+        }
+        case ESpecialFunction::CinematicSkip:
+        {
+            if (msg == EScriptObjectMessage::Increment)
+            {
+                if (ShouldSkipCinematic(mgr))
+                    mgr.SetSkipCinematicSpecialFunction(GetUniqueId());
+            }
+            else if (msg == EScriptObjectMessage::Decrement)
+            {
+                mgr.SetSkipCinematicSpecialFunction(kInvalidUniqueId);
+                g_GameState->SystemOptions().SetCinematicState(mgr.GetWorld()->GetWorldAssetId(), GetEditorId(), true);
+
+            }
+            break;
+        }
+        case ESpecialFunction::ScriptLayerController:
+        {
+            break;
+        }
+        }
+    }
 }
 
 void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum&) {}
@@ -57,6 +343,56 @@ void CScriptSpecialFunction::SkipCinematic(CStateManager& stateMgr)
 {
     SendScriptMsgs(EScriptObjectState::Zero, stateMgr, EScriptObjectMessage::None);
     stateMgr.SetSkipCinematicSpecialFunction(kInvalidUniqueId);
+}
+
+void CScriptSpecialFunction::RingMoveCloser(CStateManager &, float)
+{
+
+}
+
+void CScriptSpecialFunction::RingMoveAway(CStateManager &, float)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkRingPuller(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::RingScramble(CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkIntroBossRingController(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkSpinnerController(float, CStateManager &, CScriptSpecialFunction::ESpinnerControllerMode)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkChaffTarget(float, CStateManager &)
+{
+
 }
 
 void CScriptSpecialFunction::ThinkActorScale(float dt, CStateManager& mgr)
@@ -97,8 +433,52 @@ void CScriptSpecialFunction::ThinkSaveStation(float, CStateManager& mgr)
     }
 }
 
+void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager &)
+{
+
+}
+
+void CScriptSpecialFunction::ThinkPlayerInArea(float, CStateManager &)
+{
+
+}
+
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const
 {
+#ifndef NDEBUG
+    return true;
+#else
     return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());
+#endif
 }
+
+void CScriptSpecialFunction::DeleteEmitter(const CSfxHandle& handle)
+{
+    if (handle)
+        CSfxManager::RemoveEmitter(handle);
+}
+
+u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const
+{
+    const u32 rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) / mgr.GetPlayerState()->GetPickupTotal();
+    if (rate < 75)
+        return 0;
+    else if (rate < 100)
+        return 1;
+    return 2;
+}
+
+CScriptSpecialFunction::SRingController::SRingController(TUniqueId uid, float f, bool b)
+    : x0_id(uid)
+    , x4_(f)
+    , x8_(b)
+{
+
+}
+
 }
