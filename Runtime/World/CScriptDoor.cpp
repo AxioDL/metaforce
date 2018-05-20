@@ -79,14 +79,7 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
         {
             if (x27e_partner2 != kInvalidUniqueId)
                 if (CEntity* ent = mgr.ObjectById(x27e_partner2))
-                {
-                    static int RecDepth = 0;
-                    if (RecDepth > 9)
-                        printf("");
-                    ++RecDepth;
                     mgr.SendScriptMsg(ent, GetUniqueId(), EScriptObjectMessage::Close);
-                    --RecDepth;
-                }
             x2a8_26_isOpen = false;
             SetDoorAnimation(EDoorAnimType::Close);
             mgr.GetCameraManager()->GetBallCamera()->DoorClosing(GetUniqueId());
