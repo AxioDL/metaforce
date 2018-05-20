@@ -211,7 +211,7 @@ CWorld::~CWorld()
     CScriptRoomAcoustics::DisableAuxCallbacks();
 }
 
-CAssetId CWorld::IGetWorldAssetId() const { return x8_mlvlId; }
+CAssetId CWorld::IGetWorldAssetId() const { return GetWorldAssetId(); }
 
 CAssetId CWorld::IGetStringTableAssetId() const { return xc_strgId; }
 

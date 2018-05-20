@@ -28,6 +28,7 @@ public:
     bool IsWorldVisible(TAreaId) const;
     bool IsAreaVisible(TAreaId) const;
     bool IsAnythingSet() const;
+    void SetMapStationUsed(bool val) { x38_mapStationUsed = val; }
 };
 }
 

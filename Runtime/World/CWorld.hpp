@@ -209,6 +209,7 @@ public:
     bool HasGlobalSound(u16 id) const;
     void AddGlobalSound(const CSfxHandle& hnd);
     EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
+    CAssetId GetWorldAssetId() const { return x8_mlvlId; }
     bool AreSkyNeedsMet() const;
 };
 

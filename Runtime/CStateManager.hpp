@@ -447,6 +447,12 @@ public:
     TUniqueId GetBossId() const { return xf18_bossId; }
     float GetTotalBossEnergy() const { return xf1c_totalBossEnergy; }
     u32 GetBossStringIdx() const { return xf20_bossStringIdx; }
+    void SetPendingOnScreenTex(CAssetId texId, const zeus::CVector2i& origin, const zeus::CVector2i& extent)
+    {
+        xef4_pendingScreenTex.x0_id = texId;
+        xef4_pendingScreenTex.x4_origin = origin;
+        xef4_pendingScreenTex.xc_extent = extent;
+    }
     const SOnScreenTex& GetPendingScreenTex() const { return xef4_pendingScreenTex; }
     void SetViewportScale(const zeus::CVector2f& scale) { xf2c_viewportScale = scale; }
     float GetThermalColdScale1() const { return xf24_thermColdScale1; }
