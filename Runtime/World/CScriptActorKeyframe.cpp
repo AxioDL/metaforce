@@ -95,6 +95,9 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
                     animData->EnableLooping(false);
             }
         }
+        // TODO: Re-enable this
+
+#if 0
         else if (TCastToPtr<CPatterned> ai = ent)
         {
             CAnimData* animData = ai->ModelData()->AnimationData();
@@ -108,6 +111,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
                 ai->BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
             }
         }
+#endif
     }
 
     CEntity::Think(dt, mgr);
@@ -142,6 +146,8 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
             }
         }
     }
+    // TODO: Re-enable this
+#if 0
     else if (TCastToPtr<CPatterned> ai = ent)
     {
         CAnimData* animData = ai->ModelData()->AnimationData();
@@ -155,5 +161,6 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
                 CBCScriptedCmd(x34_animationId, x44_24_looping, x44_27_timedLoop, x38_initialLifetime));
         }
     }
+#endif
 }
 }
