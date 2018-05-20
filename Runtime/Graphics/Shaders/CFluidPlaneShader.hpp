@@ -151,6 +151,8 @@ private:
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 
+    template <class F> static void _Shutdown();
+
     void PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door);
 public:
     CFluidPlaneShader(CFluidPlane::EFluidType type,
@@ -169,7 +171,7 @@ public:
     void prepareDraw(const RenderSetupInfo& info);
     void loadVerts(const std::vector<Vertex>& verts);
 
-    static void Shutdown() { _cache.Clear(); }
+    static void Shutdown();
 };
 
 }

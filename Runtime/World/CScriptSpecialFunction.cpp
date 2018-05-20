@@ -171,7 +171,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             if (msg == EScriptObjectMessage::Action)
             {
                 mgr.MapWorldInfo()->SetMapStationUsed(true);
-                const_cast<CMapWorld&>(*mgr.WorldNC()->GetMapWorld()).RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
+                const_cast<CMapWorld&>(*mgr.WorldNC()->GetMapWorld()).RecalculateWorldSphere
+                    (*mgr.MapWorldInfo(), *mgr.GetWorld());
             }
             break;
         }
@@ -180,7 +181,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             if (msg == EScriptObjectMessage::Action)
             {
                 CPlayerState& pState = *mgr.GetPlayerState().get();
-                pState.ResetAndIncrPickUp(CPlayerState::EItemType::Missiles, pState.GetItemCapacity(CPlayerState::EItemType::Missiles));
+                pState.ResetAndIncrPickUp(CPlayerState::EItemType::Missiles,
+                                          pState.GetItemCapacity(CPlayerState::EItemType::Missiles));
             }
             break;
         }
@@ -189,7 +191,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             if (msg == EScriptObjectMessage::Action)
             {
                 CPlayerState& pState = *mgr.GetPlayerState().get();
-                pState.ResetAndIncrPickUp(CPlayerState::EItemType::PowerBombs, pState.GetItemCapacity(CPlayerState::EItemType::PowerBombs));
+                pState.ResetAndIncrPickUp(CPlayerState::EItemType::PowerBombs,
+                                          pState.GetItemCapacity(CPlayerState::EItemType::PowerBombs));
             }
             break;
         }
@@ -278,7 +281,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             {
                 CDamageInfo dInfo = x11c_damageInfo;
                 dInfo.SetRadius(xfc_);
-                mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), dInfo, CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
+                mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), dInfo,
+                                       CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}));
             }
             break;
         }
@@ -294,7 +298,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         {
             if (msg == EScriptObjectMessage::Action)
             {
-                switch(GetSpecialEnding(mgr))
+                switch (GetSpecialEnding(mgr))
                 {
                 case 0:
                     g_Main->SetFlowState(EFlowState::WinBad);
@@ -329,6 +333,8 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         {
             break;
         }
+        default:
+            break;
         }
     }
 }
@@ -465,7 +471,8 @@ void CScriptSpecialFunction::DeleteEmitter(const CSfxHandle& handle)
 
 u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const
 {
-    const u32 rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) / mgr.GetPlayerState()->GetPickupTotal();
+    const u32 rate = (mgr.GetPlayerState()->CalculateItemCollectionRate() * 100) /
+        mgr.GetPlayerState()->GetPickupTotal();
     if (rate < 75)
         return 0;
     else if (rate < 100)

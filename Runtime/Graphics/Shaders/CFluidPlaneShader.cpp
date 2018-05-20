@@ -183,6 +183,36 @@ void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>
     });
 }
 
+void CFluidPlaneShader::Shutdown()
+{
+    _cache.Clear();
+    switch (CGraphics::g_BooFactory->platform())
+    {
+#if BOO_HAS_GL
+    case boo::IGraphicsDataFactory::Platform::OpenGL:
+        CFluidPlaneShader::_Shutdown<boo::GLDataFactory>();
+        break;
+#endif
+#if _WIN32
+    case boo::IGraphicsDataFactory::Platform::D3D11:
+    case boo::IGraphicsDataFactory::Platform::D3D12:
+        CFluidPlaneShader::_Shutdown<boo::ID3DDataFactory>();
+        break;
+#endif
+#if BOO_HAS_METAL
+    case boo::IGraphicsDataFactory::Platform::Metal:
+        CFluidPlaneShader::_Shutdown<boo::MetalDataFactory>();
+        break;
+#endif
+#if BOO_HAS_VULKAN
+    case boo::IGraphicsDataFactory::Platform::Vulkan:
+        CFluidPlaneShader::_Shutdown<boo::VulkanDataFactory>();
+        break;
+#endif
+    default: break;
+    }
+}
+
 CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
                                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,

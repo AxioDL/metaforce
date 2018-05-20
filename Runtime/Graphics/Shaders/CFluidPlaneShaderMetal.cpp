@@ -586,6 +586,12 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     return ret;
 }
 
+template <>
+void CFluidPlaneShader::_Shutdown<boo::MetalDataFactory>()
+{
+    s_vtxFmt.reset();
+}
+
 boo::ObjToken<boo::IShaderDataBinding> CFluidPlaneShader::BuildBinding(boo::MetalDataFactory::Context& ctx,
                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
 {

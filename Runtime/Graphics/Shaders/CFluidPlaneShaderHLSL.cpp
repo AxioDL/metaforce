@@ -558,6 +558,12 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
     return ret;
 }
 
+template <>
+void CFluidPlaneShader::_Shutdown<boo::ID3DDataFactory>()
+{
+    s_vtxFmt.reset();
+}
+
 boo::ObjToken<boo::IShaderDataBinding>
 CFluidPlaneShader::BuildBinding(boo::ID3DDataFactory::Context& ctx,
                                 const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)

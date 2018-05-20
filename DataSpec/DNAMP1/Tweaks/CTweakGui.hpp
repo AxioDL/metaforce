@@ -117,7 +117,7 @@ struct CTweakGui final : ITweakGui
     Value<float> x1f4_;
     Value<float> x1f8_;
     Value<float> x1fc_;
-    float x200_;
+    zeus::CColor x200_;
     float x204_xrayBlurScaleLinear = 0.0014f;
     float x208_xrayBlurScaleQuadratic = 0.0000525f;
     Value<float> x20c_;
@@ -314,9 +314,7 @@ struct CTweakGui final : ITweakGui
         xd8_ = zeus::degToRad(xd8_);
         xdc_ = zeus::degToRad(xdc_);
 
-        x200_ = x1f4_ * 0.25f;
-        x204_xrayBlurScaleLinear = x1f8_ * 0.25f;
-        x208_xrayBlurScaleQuadratic = x1fc_ * 0.25f;
+        x200_ = zeus::CColor(x1f4_ * 0.25f, x1f8_ * 0.25f, x1fc_ * 0.25f, 1.f);
 
         x210_scanSidesAngle = zeus::degToRad(x210_scanSidesAngle);
         x228_scanSidesEndTime = x220_scanSidesDuration + x224_scanSidesStartTime;

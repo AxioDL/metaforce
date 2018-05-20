@@ -578,6 +578,9 @@ CFluidPlaneShader::BuildShader(boo::GLDataFactory::Context& ctx, const SFluidPla
                                  boo::CullMode::None);
 }
 
+template <>
+void CFluidPlaneShader::_Shutdown<boo::GLDataFactory>() {}
+
 #if BOO_HAS_VULKAN
 static boo::ObjToken<boo::IVertexFormat> s_vtxFmt;
 
@@ -633,6 +636,13 @@ CFluidPlaneShader::BuildShader(boo::VulkanDataFactory::Context& ctx, const SFlui
                                  boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                                  boo::CullMode::None);
 }
+
+template <>
+void CFluidPlaneShader::_Shutdown<boo::VulkanDataFactory>()
+{
+    s_vtxFmt.reset();
+}
+
 #endif
 
 boo::ObjToken<boo::IShaderDataBinding>
