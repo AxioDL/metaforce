@@ -292,7 +292,7 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView,
     m_windowBgClear[3] = 0.0;
     m_line2Clear[3] = 0.0;
 
-    res.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    res.m_factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         buildResources(ctx, res);
         m_viewBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);

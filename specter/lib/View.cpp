@@ -374,7 +374,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
 {
-    res.m_factory->commitTransaction(commitFunc);
+    res.m_factory->BooCommitTransaction(commitFunc);
 }
 
 void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,

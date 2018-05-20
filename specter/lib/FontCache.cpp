@@ -649,7 +649,7 @@ boo::ObjToken<boo::ITextureSA> FontAtlas::texture(boo::IGraphicsDataFactory* gf)
         return {};
     if (m_tex)
         return m_tex;
-    gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    gf->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (m_subpixel)
             const_cast<boo::ObjToken<boo::ITextureSA>&>(m_tex) =

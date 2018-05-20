@@ -16,7 +16,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
 
     m_curveFont = fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
 
-    factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
+    factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
         switch (ctx.platform())
         {
 #if BOO_HAS_GL
