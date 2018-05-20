@@ -531,6 +531,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
                 break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
+                break;
             }
 
             boo::ObjToken<boo::IShaderPipeline> ret =
@@ -651,6 +654,9 @@ struct HLSLBackendFactory : IShaderBackendFactory
                 break;
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
+                break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
                 break;
             }
 

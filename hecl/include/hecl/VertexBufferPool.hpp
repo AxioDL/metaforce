@@ -80,8 +80,8 @@ private:
         void increment(VertexBufferPool& pool)
         {
             if (useCount.fetch_add(1) == 0)
-                buffer = pool.m_factory->newPoolBuffer(boo::BufferUse::Vertex,
-                                                       pool.m_stride, pool.m_countPerBucket);
+                buffer = pool.m_factory->BooNewPoolBuffer(boo::BufferUse::Vertex,
+                                                          pool.m_stride, pool.m_countPerBucket);
         }
 
         void decrement(VertexBufferPool& pool)

@@ -21,13 +21,11 @@ class CVarManager final
     template <typename T>
     CVar* _newCVar(std::string_view name, std::string_view help, const T& value, CVar::EFlags flags)
     {
-        CVar* ret(new CVar(name, value, help, flags, *this));
-        if (registerCVar(ret))
+        if (CVar* ret = registerCVar(std::make_unique<CVar>(name, value, help, flags, *this)))
         {
             deserialize(ret);
             return ret;
         }
-        delete ret;
         return nullptr;
     }
 
@@ -53,7 +51,7 @@ public:
     CVar* newCVar(std::string_view name, std::string_view help, int value, CVar::EFlags flags)
     { return _newCVar<int>(name, help, value, flags); }
 
-    bool registerCVar(CVar* cvar);
+    CVar* registerCVar(std::unique_ptr<CVar>&& cvar);
 
     CVar* findCVar(std::string_view name);
     template<class... _Args>
@@ -85,7 +83,7 @@ private:
     bool suppressDeveloper();
     void restoreDeveloper(bool oldDeveloper);
 
-    std::unordered_map<std::string, CVar*> m_cvars;
+    std::unordered_map<std::string, std::unique_ptr<CVar>> m_cvars;
 };
 
 }

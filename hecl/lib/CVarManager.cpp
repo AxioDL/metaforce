@@ -32,15 +32,16 @@ CVarManager::~CVarManager()
 {
 }
 
-bool CVarManager::registerCVar(CVar* cvar)
+CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar)
 {
     std::string tmp(cvar->name());
     athena::utility::tolower(tmp);
     if (m_cvars.find(tmp) != m_cvars.end())
-        return false;
+        return nullptr;
 
-    m_cvars[tmp] = cvar;
-    return true;
+    CVar* ret = cvar.get();
+    m_cvars[tmp] = std::move(cvar);
+    return ret;
 }
 
 CVar* CVarManager::findCVar(std::string_view name)
@@ -51,15 +52,15 @@ CVar* CVarManager::findCVar(std::string_view name)
     if (search == m_cvars.end())
         return nullptr;
 
-    return search->second;
+    return search->second.get();
 }
 
 std::vector<CVar*> CVarManager::archivedCVars() const
 {
     std::vector<CVar*> ret;
-    for (const std::pair<std::string, CVar*>& pair : m_cvars)
+    for (const auto& pair : m_cvars)
         if (pair.second->isArchive())
-            ret.push_back(pair.second);
+            ret.push_back(pair.second.get());
 
     return ret;
 }
@@ -67,8 +68,8 @@ std::vector<CVar*> CVarManager::archivedCVars() const
 std::vector<CVar*> CVarManager::cvars() const
 {
     std::vector<CVar*> ret;
-    for (const std::pair<std::string, CVar*>& pair : m_cvars)
-        ret.push_back(pair.second);
+    for (const auto& pair : m_cvars)
+        ret.push_back(pair.second.get());
 
     return ret;
 }
@@ -159,7 +160,7 @@ void CVarManager::serialize()
     if (m_useBinary)
     {
         CVarContainer container;
-        for (const std::pair<std::string, CVar*>& pair : m_cvars)
+        for (const auto& pair : m_cvars)
             if (pair.second->isArchive() || (pair.second->isInternalArchivable() &&
                 pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
                 container.cvars.push_back(*pair.second);
@@ -179,7 +180,7 @@ void CVarManager::serialize()
         r.close();
 
         docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
-        for (const std::pair<std::string, CVar*>& pair : m_cvars)
+        for (const auto& pair : m_cvars)
             if (pair.second->isArchive() || (pair.second->isInternalArchivable() &&
                 pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
                 docWriter.writeString(pair.second->name().data(), pair.second->toLiteral());
@@ -220,7 +221,7 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string> &args)
         return;
     }
 
-    CVar* cv = m_cvars[cvName];
+    const auto& cv = m_cvars[cvName];
     std::string value = args[1];
     auto it = args.begin() + 2;
     for (; it != args.end(); ++it)
@@ -246,7 +247,7 @@ void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)
         return;
     }
 
-    const CVar* cv = m_cvars[cvName];
+    const auto& cv = m_cvars[cvName];
     con->report(Console::Level::Info, "'%s' = '%s'", cv->name().data(), cv->value().c_str());
 }
 

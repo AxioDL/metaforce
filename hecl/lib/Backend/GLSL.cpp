@@ -529,6 +529,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
                 break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
+                break;
             }
 
             const char* ExtTexnames[8];
@@ -617,6 +620,9 @@ struct GLSLBackendFactory : IShaderBackendFactory
                 break;
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
+                break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
                 break;
             }
 
@@ -918,6 +924,9 @@ struct SPIRVBackendFactory : IShaderBackendFactory
                 break;
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
+                break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
                 break;
             }
 

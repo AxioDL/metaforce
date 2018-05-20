@@ -41,6 +41,7 @@ enum class ZTest : uint8_t
     LEqual,
     Greater,
     Equal,
+    GEqual,
     Original = 0xff
 };
 

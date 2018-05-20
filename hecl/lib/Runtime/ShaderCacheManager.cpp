@@ -399,7 +399,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             boo::ObjToken<boo::IShaderPipeline> build = buildFromCache(foundData, ctx);
@@ -419,7 +419,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         hecl::Frontend::IR ir = FE.compileSource(source, diagName);
         SCM_Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.data(), tag.val64());
@@ -446,7 +446,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             boo::ObjToken<boo::IShaderPipeline> build = buildFromCache(foundData, ctx);
@@ -466,7 +466,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         SCM_Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.data(), tag.val64());
         FE.getDiagnostics().reset(diagName);
@@ -507,7 +507,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, std::string_view s
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
@@ -524,7 +524,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, std::string_view s
 
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
 
-    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
         FE.getDiagnostics().reset(diagName);
@@ -555,7 +555,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
@@ -570,7 +570,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
         FE.getDiagnostics().reset(diagName);

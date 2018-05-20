@@ -562,6 +562,9 @@ struct MetalBackendFactory : IShaderBackendFactory
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
                 break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
+                break;
             }
 
             blobs.emplace_back();
@@ -651,6 +654,9 @@ struct MetalBackendFactory : IShaderBackendFactory
                 break;
             case hecl::Backend::ZTest::Equal:
                 zTest = boo::ZTest::Equal;
+                break;
+            case hecl::Backend::ZTest::GEqual:
+                zTest = boo::ZTest::GEqual;
                 break;
             }
 
