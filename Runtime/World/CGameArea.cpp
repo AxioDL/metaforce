@@ -963,6 +963,7 @@ bool CGameArea::Invalidate(CStateManager* mgr)
 
 void CGameArea::KillmAreaData()
 {
+    m_resolvedBufs.clear();
     x110_mreaSecBufs.clear();
 }
 
