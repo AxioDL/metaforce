@@ -12,7 +12,7 @@ RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* wind
 {
     window->setCallback(&m_events);
     boo::SWindowRect rect = window->getWindowFrame();
-    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool
+    commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         buildResources(ctx, res);
         m_splitMenuSystem.emplace(*this, ctx);
