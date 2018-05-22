@@ -17,7 +17,7 @@ public:
     };
 
     float x258_animLen;
-    float x25c_animTime;
+    float x25c_animTime = 0.f;
     EDoorAnimType x260_doorState = EDoorAnimType::Open;
     zeus::CAABox x264_;
     TUniqueId x27c_partner1 = kInvalidUniqueId;
@@ -25,7 +25,7 @@ public:
     TUniqueId x280_prevDoor = kInvalidUniqueId;
     TUniqueId x282_dockId = kInvalidUniqueId;
     zeus::CAABox x284_modelBounds;
-    zeus::CVector3f x29c_;
+    zeus::CVector3f x29c_orbitPos;
 
     bool x2a8_24_closing : 1;
     bool x2a8_25_wasOpen : 1;

@@ -472,8 +472,8 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
     CAnimationParameters aParms = LoadAnimationParameters(in);
     CActorParameters actParms = LoadActorParameters(in);
 
-    zeus::CVector3f v1;
-    v1.readBig(in);
+    zeus::CVector3f orbitPos;
+    orbitPos.readBig(in);
     zeus::CVector3f collisionExtent;
     collisionExtent.readBig(in);
     zeus::CVector3f offset;
@@ -504,7 +504,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
         isMorphballDoor = in.readBool();
 
     return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), actParms,
-                           v1, aabb, active, open, b3, animationLength, isMorphballDoor);
+                           orbitPos, aabb, active, open, b3, animationLength, isMorphballDoor);
 }
 
 CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

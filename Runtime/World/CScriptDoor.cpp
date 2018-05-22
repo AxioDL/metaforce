@@ -27,7 +27,7 @@ static CMaterialList MakeDoorMaterialList(bool open)
 
 CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
-                         const zeus::CVector3f& vec, const zeus::CAABox& aabb, bool active,
+                         const zeus::CVector3f& orbitPos, const zeus::CAABox& aabb, bool active,
                          bool open, bool projectilesCollide, float animLen, bool ballDoor)
     : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open),
                 aabb, SMoverData(1.f), actParms, 0.3f, 0.1f)
@@ -42,7 +42,7 @@ CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo
     x2a8_30_doClose = false;
     x264_ = GetBoundingBox();
     x284_modelBounds = x64_modelData->GetBounds(xf.getRotation());
-    x29c_ = vec;
+    x29c_orbitPos = orbitPos;
 
     xe6_27_thermalVisorFlags = 1;
     if (open)
@@ -59,7 +59,7 @@ void CScriptDoor::Accept(IVisitor& visitor)
 /* ORIGINAL 0-00 OFFSET: 8007F054 */
 zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) const
 {
-    return x34_transform.origin + x29c_;
+    return x34_transform.origin + x29c_orbitPos;
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007E550 */
@@ -123,7 +123,7 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             return;
 
         u32 doorCond = TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid)) ? 2 : GetDoorOpenCondition(mgr);
-        switch(doorCond)
+        switch (doorCond)
         {
         case 1:
             x2a8_27_conditionsMet = true;

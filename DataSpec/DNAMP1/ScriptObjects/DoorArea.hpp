@@ -17,7 +17,7 @@ struct DoorArea : IScriptObject
     Value<atVec3f> scale;
     AnimationParameters animationParameters;
     ActorParameters actorParameters;
-    Value<atVec3f> unknown1;
+    Value<atVec3f> orbitPos;
     Value<atVec3f> collisionExtent;
     Value<atVec3f> collisionOffset;
     Value<bool> unknown4;
