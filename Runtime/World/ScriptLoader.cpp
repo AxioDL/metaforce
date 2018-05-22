@@ -481,7 +481,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
 
     bool active = in.readBool();
     bool open = in.readBool();
-    bool b3 = in.readBool();
+    bool projectilesCollide = in.readBool();
     float animationLength = in.readFloatBig();
 
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, offset);
@@ -504,7 +504,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
         isMorphballDoor = in.readBool();
 
     return new CScriptDoor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), actParms,
-                           orbitPos, aabb, active, open, b3, animationLength, isMorphballDoor);
+                           orbitPos, aabb, active, open, projectilesCollide, animationLength, isMorphballDoor);
 }
 
 CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

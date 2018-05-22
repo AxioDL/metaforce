@@ -20,11 +20,11 @@ struct DoorArea : IScriptObject
     Value<atVec3f> orbitPos;
     Value<atVec3f> collisionExtent;
     Value<atVec3f> collisionOffset;
-    Value<bool> unknown4;
-    Value<bool> unknown5;
-    Value<bool> unknown6;
-    Value<float> unknown7;
-    Value<bool> unknown8;
+    Value<bool> active;
+    Value<bool> open;
+    Value<bool> projectilesCollide;
+    Value<float> animationLength;
+    Value<bool> isMorphballDoor;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
