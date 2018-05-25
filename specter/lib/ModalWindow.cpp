@@ -292,13 +292,13 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView,
     m_windowBgClear[3] = 0.0;
     m_line2Clear[3] = 0.0;
 
-    res.m_factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    res.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         buildResources(ctx, res);
         m_viewBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
         m_vertsBinding.init(ctx, res, 38, m_viewBlockBuf);
         return true;
-    });
+    } BooTrace);
 
     for (int i=0 ; i<4 ; ++i)
     {

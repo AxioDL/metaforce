@@ -23,7 +23,7 @@ void Toolbar::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const ITh
 }
 
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned units)
-: View(res, parentView), m_tbPos(tbPos), m_units(units),
+: View(res, parentView), m_units(units),
   m_nomGauge(res.pixelFactor() * SPECTER_TOOLBAR_GAUGE * units),
   m_padding(res.pixelFactor() * TOOLBAR_PADDING)
 {

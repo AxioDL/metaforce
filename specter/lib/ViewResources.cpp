@@ -16,7 +16,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
 
     m_curveFont = fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
 
-    factory->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
+    factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
         switch (ctx.platform())
         {
 #if BOO_HAS_GL
@@ -26,8 +26,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            init<boo::ID3DDataFactory::Context>(static_cast<boo::ID3DDataFactory::Context&>(ctx), *theme, fcache);
+            init<boo::D3DDataFactory::Context>(static_cast<boo::D3DDataFactory::Context&>(ctx), *theme, fcache);
             break;
 #endif
 #if BOO_HAS_METAL
@@ -44,7 +43,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
             Log.report(logvisor::Fatal, _S("unable to init view system for %s"), ctx.platformName());
         }
         return true;
-    });
+    } BooTrace);
 }
 
 void ViewResources::destroyResData()
@@ -86,7 +85,7 @@ void ViewResources::prepFontCacheSync()
 void ViewResources::prepFontCacheAsync(boo::IWindow* window)
 {
     m_fcacheReady = false;
-    m_fcacheThread = std::thread([this, window]() { prepFontCacheSync(); });
+    m_fcacheThread = std::thread([this]() { prepFontCacheSync(); });
 }
 
 void ViewResources::resetPixelFactor(float pf)

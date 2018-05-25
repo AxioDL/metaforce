@@ -96,7 +96,7 @@ public:
         void init(boo::GLDataFactory::Context& ctx, FontCache* fcache);
 #endif
 #if _WIN32
-        void init(boo::ID3DDataFactory::Context& ctx, FontCache* fcache);
+        void init(boo::D3DDataFactory::Context& ctx, FontCache* fcache);
 #endif
 #if BOO_HAS_METAL
         void init(boo::MetalDataFactory::Context& ctx, FontCache* fcache);

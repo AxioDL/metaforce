@@ -94,7 +94,7 @@ void View::Resources::init(boo::GLDataFactory::Context& ctx, const IThemeData& t
 
 #if _WIN32
 
-void View::Resources::init(boo::ID3DDataFactory::Context& ctx, const IThemeData& theme)
+void View::Resources::init(boo::D3DDataFactory::Context& ctx, const IThemeData& theme)
 {
     static const char* SolidVS =
     "struct VertData\n"
@@ -374,7 +374,7 @@ void View::draw(boo::IGraphicsCommandQueue* gfxQ)
 
 void View::commitResources(ViewResources& res, const boo::FactoryCommitFunc& commitFunc)
 {
-    res.m_factory->BooCommitTransaction(commitFunc);
+    res.m_factory->commitTransaction(commitFunc BooTrace);
 }
 
 void View::VertexBufferBindingSolid::init(boo::IGraphicsDataFactory::Context& ctx,

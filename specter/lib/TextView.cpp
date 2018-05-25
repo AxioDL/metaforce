@@ -90,7 +90,7 @@ void TextView::Resources::init(boo::GLDataFactory::Context& ctx, FontCache* fcac
 
 #if _WIN32
 
-void TextView::Resources::init(boo::ID3DDataFactory::Context& ctx, FontCache* fcache)
+void TextView::Resources::init(boo::D3DDataFactory::Context& ctx, FontCache* fcache)
 {
     m_fcache = fcache;
 

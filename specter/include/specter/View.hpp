@@ -209,7 +209,7 @@ public:
         void init(boo::GLDataFactory::Context& ctx, const IThemeData& theme);
 #endif
 #if _WIN32
-        void init(boo::ID3DDataFactory::Context& ctx, const IThemeData& theme);
+        void init(boo::D3DDataFactory::Context& ctx, const IThemeData& theme);
 #endif
 #if BOO_HAS_METAL
         void init(boo::MetalDataFactory::Context& ctx, const IThemeData& theme);

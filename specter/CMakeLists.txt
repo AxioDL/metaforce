@@ -66,7 +66,6 @@ list(APPEND SPECTER_HEADERS
 atdna(atdna_FontCache.cpp include/specter/FontCache.hpp)
 
 list(APPEND SPECTER_SOURCES
-     lib/specter.cpp
      lib/ViewResources.cpp
      lib/View.cpp
      lib/RootView.cpp
@@ -80,15 +79,10 @@ list(APPEND SPECTER_SOURCES
      lib/Space.cpp
      lib/Toolbar.cpp
      lib/Table.cpp
-     lib/Outliner.cpp
-     lib/Panel.cpp
      lib/Control.cpp
      lib/Button.cpp
      lib/TextField.cpp
-     lib/NumericField.cpp
      lib/Menu.cpp
-     lib/Node.cpp
-     lib/NodeSocket.cpp
      lib/PathButtons.cpp
      lib/FileBrowser.cpp
      lib/Icon.cpp

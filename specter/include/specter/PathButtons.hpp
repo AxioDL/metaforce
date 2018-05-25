@@ -47,7 +47,7 @@ class PathButtons : public ScrollView
     int m_pathButtonPending = -1;
     IPathButtonsBinding& m_binding;
     bool m_fillContainer;
-    struct PathButton : IButtonBinding
+    struct PathButton final : IButtonBinding
     {
         PathButtons& m_pb;
         size_t m_idx;

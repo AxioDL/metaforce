@@ -27,7 +27,6 @@ IconView::IconView(ViewResources& res, View& parentView, Icon& icon)
 void IconView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
 {
     m_viewVertBlock.setViewRect(root, sub);
-    float pf = rootView().viewRes().pixelFactor();
     m_viewVertBlock.m_mv[0][0] *= sub.size[0];
     m_viewVertBlock.m_mv[1][1] *= sub.size[1];
     View::resized(m_viewVertBlock, sub);

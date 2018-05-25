@@ -378,7 +378,7 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi,
             g.m_leftPadding = face->glyph->metrics.horiBearingX >> 6;
             g.m_advance = face->glyph->advance.x >> 6;
             g.m_verticalOffset = (face->glyph->metrics.horiBearingY - face->glyph->metrics.height) >> 6;
-            MemcpyRect(m_texmap.data(), &face->glyph->bitmap, m_fullTexmapLayers, curLineWidth, totalHeight);
+            MemcpyRect((RgbaPixel*)m_texmap.data(), &face->glyph->bitmap, m_fullTexmapLayers, curLineWidth, totalHeight);
             curLineWidth += width + 1;
             charcode = FT_Get_Next_Char(face, charcode, &gindex);
         }
@@ -649,7 +649,7 @@ boo::ObjToken<boo::ITextureSA> FontAtlas::texture(boo::IGraphicsDataFactory* gf)
         return {};
     if (m_tex)
         return m_tex;
-    gf->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    gf->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (m_subpixel)
             const_cast<boo::ObjToken<boo::ITextureSA>&>(m_tex) =
@@ -663,7 +663,7 @@ boo::ObjToken<boo::ITextureSA> FontAtlas::texture(boo::IGraphicsDataFactory* gf)
                                       m_texmap.data(), m_texmap.size());
         const_cast<std::vector<uint8_t>&>(m_texmap) = std::vector<uint8_t>();
         return true;
-    });
+    } BooTrace);
     return m_tex;
 }
 

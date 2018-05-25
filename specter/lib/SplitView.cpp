@@ -10,9 +10,9 @@ static logvisor::Module Log("specter::SplitView");
 
 static const zeus::RGBA32 Tex[3] =
 {
-    {0,0,0,64},
-    {0,0,0,255},
-    {255,255,255,64}
+    {{0,0,0,64}},
+    {{0,0,0,255}},
+    {{255,255,255,64}}
 };
 
 void SplitView::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)

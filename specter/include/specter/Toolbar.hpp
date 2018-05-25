@@ -27,7 +27,6 @@ public:
         Top
     };
 private:
-    Position m_tbPos;
     unsigned m_units;
     std::vector<std::vector<ViewChild<View*>>> m_children;
 

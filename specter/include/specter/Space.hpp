@@ -44,6 +44,7 @@ class Space : public View
         void mouseLeave(const boo::SWindowCoord&);
         void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
         void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+        using View::resized;
         void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, bool flip);
         void draw(boo::IGraphicsCommandQueue* gfxQ);
     };
