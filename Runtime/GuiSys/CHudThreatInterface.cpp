@@ -231,7 +231,7 @@ void CHudThreatInterface::Update(float dt)
             color.a = x48_warningLerpAlpha * xc_damagePulse;
             x68_textpane_threatwarning->SetColor(color);
         }
-        if (x68_textpane_threatwarning->GetGeometryColor().a)
+        if (x68_textpane_threatwarning->GetGeometryColor().a > 0.f)
             x68_textpane_threatwarning->SetIsVisible(true);
         else
             x68_textpane_threatwarning->SetIsVisible(false);
@@ -240,7 +240,7 @@ void CHudThreatInterface::Update(float dt)
     if (x4c_threatStatus == EThreatStatus::Damage)
         x50_warningColorLerp = std::min(x50_warningColorLerp + 2.f * dt, 1.f);
     else
-        x50_warningColorLerp = std::min(x50_warningColorLerp - 2.f * dt, 1.f);
+        x50_warningColorLerp = std::max(0.f, x50_warningColorLerp - 2.f * dt);
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CHudThreatInterface::CombatThreatBarCoordFunc(float t)
