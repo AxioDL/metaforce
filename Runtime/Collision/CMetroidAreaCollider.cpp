@@ -211,7 +211,8 @@ static zeus::CVector3f ClipRayToPlane(const zeus::CVector3f& a, const zeus::CVec
 bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts,
                                                zeus::CAABox& aabb)
 {
-    rstl::reserved_vector<zeus::CVector3f, 20> vecs[2];
+    /* FIXME: HACK: Increasing the size from 20 to 128 to give us more headroom, we should try and trim this back down to a more reasonable size */
+    rstl::reserved_vector<zeus::CVector3f, 128> vecs[2];
 
     g_CalledClip += 1;
     g_RejectedByClip -= 1;
@@ -224,8 +225,8 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
     int otherVecIdx = 1;
     for (int i=0 ; i<6 ; ++i)
     {
-        rstl::reserved_vector<zeus::CVector3f, 20>& vec = vecs[vecIdx];
-        rstl::reserved_vector<zeus::CVector3f, 20>& otherVec = vecs[otherVecIdx];
+        rstl::reserved_vector<zeus::CVector3f, 128>& vec = vecs[vecIdx];
+        rstl::reserved_vector<zeus::CVector3f, 128>& otherVec = vecs[otherVecIdx];
         otherVec.clear();
 
         bool inFrontOf = planes[i].pointToPlaneDist(vec.front()) >= 0.f;
@@ -245,7 +246,7 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
         otherVecIdx ^= 1;
     }
 
-    rstl::reserved_vector<zeus::CVector3f, 20>& accumVec = vecs[otherVecIdx ^ 1];
+    rstl::reserved_vector<zeus::CVector3f, 128>& accumVec = vecs[otherVecIdx ^ 1];
     for (const zeus::CVector3f& point : accumVec)
         aabb.accumulateBounds(point);
 
