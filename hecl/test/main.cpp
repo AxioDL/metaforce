@@ -135,7 +135,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
             std::shared_ptr<hecl::Runtime::ShaderPipelines> testShaderObj =
             shaderMgr.buildShader(testShaderTag, testShader, "testShader", *gfxF);
 
-            gfxF->BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+            gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
             {
                 boo::SWindowRect mainWindowRect = m_mainWindow->getWindowFrame();
                 renderTex = ctx.newRenderTexture(size_t(mainWindowRect.size[0]), size_t(mainWindowRect.size[1]),
@@ -187,7 +187,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
                 /* Assemble data binding */
                 binding = testData.newShaderDataBindng(ctx, testShaderObj->m_pipelines[0], 1, &vubo, nullptr, 1, &texture);
                 return true;
-            });
+            } BooTrace);
 
             /* Return control to main thread */
             innerLk.unlock();

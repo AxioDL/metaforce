@@ -80,8 +80,8 @@ private:
         void increment(UniformBufferPool& pool)
         {
             if (useCount.fetch_add(1) == 0)
-                buffer = pool.m_factory->BooNewPoolBuffer(boo::BufferUse::Uniform,
-                                                          pool.m_stride, pool.m_countPerBucket);
+                buffer = pool.m_factory->newPoolBuffer(boo::BufferUse::Uniform,
+                                                       pool.m_stride, pool.m_countPerBucket BooTrace);
         }
 
         void decrement(UniformBufferPool& pool)

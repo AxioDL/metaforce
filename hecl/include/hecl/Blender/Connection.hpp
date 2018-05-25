@@ -74,7 +74,6 @@ class PyOutStream : public std::ostream
 {
     friend class Connection;
     Connection* m_parent;
-    bool m_deleteOnError;
     struct StreamBuf : std::streambuf
     {
         PyOutStream& m_parent;

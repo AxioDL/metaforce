@@ -226,39 +226,7 @@ static inline SystemChar* Getcwd(SystemChar* buf, int maxlen)
 #endif
 }
 
-static SystemString GetcwdStr()
-{
-    /* http://stackoverflow.com/a/2869667 */
-    //const size_t ChunkSize=255;
-    //const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
-
-    SystemChar stackBuffer[255]; // Stack buffer for the "normal" case
-    if (Getcwd(stackBuffer, 255) != nullptr)
-        return SystemString(stackBuffer);
-    if (errno != ERANGE)
-    {
-        // It's not ERANGE, so we don't know how to handle it
-        LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
-        // Of course you may choose a different error reporting method
-    }
-    // Ok, the stack buffer isn't long enough; fallback to heap allocation
-    for (int chunks=2 ; chunks<10240 ; chunks++)
-    {
-        // With boost use scoped_ptr; in C++0x, use unique_ptr
-        // If you want to be less C++ but more efficient you may want to use realloc
-        std::unique_ptr<SystemChar[]> cwd(new SystemChar[255*chunks]);
-        if (Getcwd(cwd.get(), 255*chunks) != nullptr)
-            return SystemString(cwd.get());
-        if (errno != ERANGE)
-        {
-            // It's not ERANGE, so we don't know how to handle it
-            LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
-            // Of course you may choose a different error reporting method
-        }
-    }
-    LogModule.report(logvisor::Fatal, "Cannot determine the current path; the path is apparently unreasonably long");
-    return SystemString();
-}
+SystemString GetcwdStr();
 
 static inline bool IsAbsolute(SystemStringView path)
 {
@@ -634,10 +602,8 @@ public:
         size_t m_fileSz;
         bool m_isDir;
 
-    private:
-        friend class DirectoryEnumerator;
-        Entry(hecl::SystemString&& path, const hecl::SystemChar* name, size_t sz, bool isDir)
-        : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
+        Entry(const hecl::SystemString& path, const hecl::SystemChar* name, size_t sz, bool isDir)
+        : m_path(path), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
     };
 
 private:

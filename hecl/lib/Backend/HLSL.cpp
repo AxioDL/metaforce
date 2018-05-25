@@ -373,7 +373,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
         ComPtr<ID3DBlob> fragBlob;
         ComPtr<ID3DBlob> pipelineBlob;
         objOut =
-        static_cast<boo::ID3DDataFactory::Context&>(ctx).
+        static_cast<boo::D3DDataFactory::Context&>(ctx).
             newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                               ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                               tag.newVertexFormat(ctx),
@@ -469,7 +469,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             return nullptr;
 
         boo::ObjToken<boo::IShaderPipeline> ret =
-        static_cast<boo::ID3DDataFactory::Context&>(ctx).
+        static_cast<boo::D3DDataFactory::Context&>(ctx).
             newShaderPipeline(nullptr, nullptr,
                               ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                               tag.newVertexFormat(ctx),
@@ -537,7 +537,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             }
 
             boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::ID3DDataFactory::Context&>(ctx).
+            static_cast<boo::D3DDataFactory::Context&>(ctx).
                 newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
                                   ReferenceComPtr(thisPipeBlobs.vert), ReferenceComPtr(thisPipeBlobs.frag), ReferenceComPtr(thisPipeBlobs.pipeline),
                                   tag.newVertexFormat(ctx),
@@ -661,7 +661,7 @@ struct HLSLBackendFactory : IShaderBackendFactory
             }
 
             boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::ID3DDataFactory::Context&>(ctx).
+            static_cast<boo::D3DDataFactory::Context&>(ctx).
                 newShaderPipeline(nullptr, nullptr,
                                   ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
                                   tag.newVertexFormat(ctx),

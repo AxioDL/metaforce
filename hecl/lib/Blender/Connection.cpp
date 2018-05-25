@@ -388,7 +388,7 @@ Connection::Connection(int verbosityLevel)
         if (!CreateProcessW(blenderBin, cmdLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo))
         {
             LPWSTR messageBuffer = nullptr;
-            size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
             BlenderLog.report(logvisor::Fatal, L"unable to launch blender from %s: %s", blenderBin, messageBuffer);
         }
@@ -723,7 +723,6 @@ void Connection::deleteBlend()
 PyOutStream::PyOutStream(Connection* parent, bool deleteOnError)
 : std::ostream(&m_sbuf),
 m_parent(parent),
-m_deleteOnError(deleteOnError),
 m_sbuf(*this, deleteOnError)
 {
     m_parent->m_pyStreamActive = true;

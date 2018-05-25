@@ -75,9 +75,9 @@ void ClientProcess::Worker::proc()
     snprintf(thrName, 64, "HECL Client Worker %d", m_idx);
     logvisor::RegisterThreadName(thrName);
 
+    std::unique_lock<std::mutex> lk(m_proc.m_mutex);
     while (m_proc.m_running)
     {
-        std::unique_lock<std::mutex> lk(m_proc.m_mutex);
         if (!m_didInit)
         {
             m_proc.m_initCv.notify_one();
@@ -99,11 +99,12 @@ void ClientProcess::Worker::proc()
             break;
         m_proc.m_cv.wait(lk);
     }
+    lk.unlock();
     m_blendTok.shutdown();
 }
 
-ClientProcess::ClientProcess(const MultiProgressPrinter* progPrinter, int verbosityLevel)
-: m_progPrinter(progPrinter), m_verbosity(verbosityLevel)
+ClientProcess::ClientProcess(const MultiProgressPrinter* progPrinter)
+: m_progPrinter(progPrinter)
 {
 #if HECL_MULTIPROCESSOR
     const int cpuCount = GetCPUCount();

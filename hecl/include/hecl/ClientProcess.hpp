@@ -22,7 +22,6 @@ class ClientProcess
     const MultiProgressPrinter* m_progPrinter;
     int m_completedCooks = 0;
     int m_addedCooks = 0;
-    int m_verbosity;
 
 public:
     struct Transaction
@@ -38,7 +37,7 @@ public:
         virtual void run(blender::Token& btok)=0;
         Transaction(ClientProcess& parent, Type tp) : m_parent(parent), m_type(tp) {}
     };
-    struct BufferTransaction : Transaction
+    struct BufferTransaction final : Transaction
     {
         ProjectPath m_path;
         void* m_targetBuf;
@@ -51,7 +50,7 @@ public:
           m_path(path), m_targetBuf(target),
           m_maxLen(maxLen), m_offset(offset) {}
     };
-    struct CookTransaction : Transaction
+    struct CookTransaction final : Transaction
     {
         ProjectPath m_path;
         Database::IDataSpec* m_dataSpec;
@@ -64,7 +63,7 @@ public:
         : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec),
           m_force(force), m_fast(fast) {}
     };
-    struct LambdaTransaction : Transaction
+    struct LambdaTransaction final : Transaction
     {
         std::function<void(blender::Token&)> m_func;
         void run(blender::Token& btok);
@@ -91,7 +90,7 @@ private:
     static ThreadLocalPtr<ClientProcess::Worker> ThreadWorker;
 
 public:
-    ClientProcess(const MultiProgressPrinter* progPrinter=nullptr, int verbosityLevel=1);
+    ClientProcess(const MultiProgressPrinter* progPrinter=nullptr);
     ~ClientProcess() {shutdown();}
     std::shared_ptr<const BufferTransaction>
     addBufferTransaction(const hecl::ProjectPath& path, void* target,

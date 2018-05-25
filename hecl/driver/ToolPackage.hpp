@@ -201,7 +201,7 @@ public:
         if (continuePrompt())
         {
             hecl::MultiProgressPrinter printer(true);
-            hecl::ClientProcess cp(&printer, m_info.verbosityLevel);
+            hecl::ClientProcess cp(&printer);
             for (const hecl::ProjectPath& path : m_selectedItems)
             {
                 if (!m_useProj->packagePath(path, printer, m_fast, m_spec, &cp))

@@ -42,6 +42,7 @@ struct ProgrammableCommon : IBackend
     std::vector<TexCoordGen> m_tcgs;
     std::vector<size_t> m_texMtxRefs;
 
+    using IBackend::reset;
     void reset(const IR& ir, Diagnostics& diag, const char* backendName);
 
 private:

@@ -75,9 +75,6 @@ static void SIGINTHandler(int sig)
     exit(1);
 }
 
-/* SIGWINCH should do nothing */
-static void SIGWINCHHandler(int sig) {}
-
 static logvisor::Module AthenaLog("Athena");
 static void AthenaExc(athena::error::Level level, const char* file,
                       const char*, int line, const char* fmt, ...)
@@ -94,6 +91,8 @@ hecl::SystemString ExeDir;
 #if _WIN32
 int wmain(int argc, const wchar_t** argv)
 #else
+/* SIGWINCH should do nothing */
+static void SIGWINCHHandler(int sig) {}
 int main(int argc, const char** argv)
 #endif
 {

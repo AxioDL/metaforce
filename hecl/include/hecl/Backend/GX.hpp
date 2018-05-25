@@ -13,7 +13,7 @@
 namespace hecl::Backend
 {
 
-struct GX : IBackend
+struct GX final : IBackend
 {
     enum AttrType
     {

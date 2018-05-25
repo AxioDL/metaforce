@@ -141,7 +141,6 @@ ShaderCacheManager::ShaderCacheManager(const FileStoreManager& storeMgr,
 #endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
         m_factory.reset(_NewHLSLBackendFactory());
         break;
 #endif
@@ -399,7 +398,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             boo::ObjToken<boo::IShaderPipeline> build = buildFromCache(foundData, ctx);
@@ -409,7 +408,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
                 return true;
             }
             return false;
-        });
+        } BooTrace);
 
         if (ret->m_pipelines.size())
         {
@@ -419,7 +418,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         hecl::Frontend::IR ir = FE.compileSource(source, diagName);
         SCM_Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.data(), tag.val64());
@@ -428,7 +427,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, std::string_view source,
         addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, build));
         ret->m_pipelines.push_back(build);
         return true;
-    });
+    } BooTrace);
     m_pipelineLookup[tag] = ret;
     return ret;
 }
@@ -446,7 +445,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             boo::ObjToken<boo::IShaderPipeline> build = buildFromCache(foundData, ctx);
@@ -456,7 +455,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
                 return true;
             }
             return false;
-        });
+        } BooTrace);
 
         if (ret->m_pipelines.size())
         {
@@ -466,7 +465,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         SCM_Log.report(logvisor::Info, "building shader '%s' %016llX", diagName.data(), tag.val64());
         FE.getDiagnostics().reset(diagName);
@@ -474,7 +473,7 @@ ShaderCacheManager::buildShader(const ShaderTag& tag, const hecl::Frontend::IR& 
         addData(m_factory->buildShaderFromIR(tag, ir, FE.getDiagnostics(), ctx, build));
         ret->m_pipelines.push_back(build);
         return true;
-    });
+    } BooTrace);
     m_pipelineLookup[tag] = ret;
     return ret;
 }
@@ -507,12 +506,12 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, std::string_view s
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
             return ret->m_pipelines.size() != 0;
-        });
+        } BooTrace);
 
         if (ret->m_pipelines.size())
         {
@@ -524,7 +523,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, std::string_view s
 
     hecl::Frontend::IR ir = FE.compileSource(source, diagName);
 
-    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
         FE.getDiagnostics().reset(diagName);
@@ -537,7 +536,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, std::string_view s
                            ret->m_pipelines.size(), m_extensions.m_extensionSlots.size());
         addData(data);
         return true;
-    });
+    } BooTrace);
     m_pipelineLookup[tag] = ret;
     return ret;
 }
@@ -555,12 +554,12 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
     ShaderCachedData foundData = lookupData(tag);
     if (foundData)
     {
-        factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+        factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
             SCM_Log.report(logvisor::Info, "building cached shader '%s' %016llX", diagName.data(), tag.val64());
             ret->m_pipelines = buildExtendedFromCache(foundData, ctx);
             return ret->m_pipelines.size() != 0;
-        });
+        } BooTrace);
 
         if (ret->m_pipelines.size() != 0)
         {
@@ -570,7 +569,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
         SCM_Log.report(logvisor::Warning, "invalid cache read, rebuilding shader '%s'", diagName.data());
     }
 
-    factory.BooCommitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
+    factory.commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         ret->m_pipelines.reserve(m_extensions.m_extensionSlots.size());
         FE.getDiagnostics().reset(diagName);
@@ -583,7 +582,7 @@ ShaderCacheManager::buildExtendedShader(const ShaderTag& tag, const hecl::Fronte
                            ret->m_pipelines.size(), m_extensions.m_extensionSlots.size());
         addData(data);
         return true;
-    });
+    } BooTrace);
     m_pipelineLookup[tag] = ret;
     return ret;
 }
