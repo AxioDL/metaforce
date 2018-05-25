@@ -21,7 +21,7 @@ set(GUISYS_SOURCES
     CSplashScreen.hpp CSplashScreen.cpp
     CGuiCompoundWidget.hpp CGuiCompoundWidget.cpp
     CSaveableState.hpp CSaveableState.cpp
-    CDrawStringOptions.hpp CDrawStringOptions.cpp
+    CDrawStringOptions.hpp
     CRasterFont.hpp CRasterFont.cpp
     CGuiGroup.hpp CGuiGroup.cpp
     CGuiWidgetIdDB.hpp CGuiWidgetIdDB.cpp

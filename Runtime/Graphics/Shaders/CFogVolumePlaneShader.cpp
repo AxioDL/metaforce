@@ -6,12 +6,12 @@ namespace urde
 void CFogVolumePlaneShader::CommitResources(size_t capacity)
 {
     m_vertCapacity = capacity;
-    CGraphicsCommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector4f), capacity);
         TShader<CFogVolumePlaneShader>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CFogVolumePlaneShader::addFan(const zeus::CVector3f* verts, int numVerts)

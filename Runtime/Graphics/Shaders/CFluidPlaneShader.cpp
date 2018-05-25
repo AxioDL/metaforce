@@ -99,7 +99,7 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
     if (CGraphics::g_BooFactory == nullptr)
         return nullptr;
 
-    CGraphicsCommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
@@ -111,8 +111,7 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            slot = BuildShader(static_cast<boo::ID3DDataFactory::Context&>(ctx), info);
+            slot = BuildShader(static_cast<boo::D3DDataFactory::Context&>(ctx), info);
             break;
 #endif
 #if BOO_HAS_METAL
@@ -128,7 +127,7 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
         default: break;
         }
         return true;
-    });
+    } BooTrace);
 
     return slot;
 }
@@ -148,7 +147,7 @@ void CFluidPlaneShader::Cache::Clear()
 
 void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door)
 {
-    CGraphicsCommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
@@ -163,8 +162,7 @@ void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            m_dataBind = BuildBinding(static_cast<boo::ID3DDataFactory::Context&>(ctx), pipeline, door);
+            m_dataBind = BuildBinding(static_cast<boo::D3DDataFactory::Context&>(ctx), pipeline, door);
             break;
 #endif
 #if BOO_HAS_METAL
@@ -180,7 +178,7 @@ void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>
         default: break;
         }
         return true;
-    });
+    } BooTrace);
 }
 
 void CFluidPlaneShader::Shutdown()
@@ -195,8 +193,7 @@ void CFluidPlaneShader::Shutdown()
 #endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        CFluidPlaneShader::_Shutdown<boo::ID3DDataFactory>();
+        CFluidPlaneShader::_Shutdown<boo::D3DDataFactory>();
         break;
 #endif
 #if BOO_HAS_METAL

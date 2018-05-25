@@ -30,10 +30,10 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
   m_textColor(res.themeData().uiText()),
   m_textColorClear(m_textColor),
   m_newString(m_vm.translateOr("new_project", "New Project")),
-  m_newProjBind(*this),
   m_openString(m_vm.translateOr("open_project", "Open Project")),
-  m_openProjBind(*this),
   m_extractString(m_vm.translateOr("extract_game", "Extract Game")),
+  m_newProjBind(*this),
+  m_openProjBind(*this),
   m_extractProjBind(*this)
 {
     if (GIT_COMMIT_DATE[0] != '\0' &&

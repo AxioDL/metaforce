@@ -26,7 +26,7 @@ namespace urde
 {
 class SplashScreen;
 
-class ViewManager : public specter::IViewManager
+class ViewManager final : public specter::IViewManager
 {
     friend class ProjectManager;
     friend class Space;

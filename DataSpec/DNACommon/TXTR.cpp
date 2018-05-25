@@ -235,6 +235,7 @@ static void DecodeI4(png_structp png, png_infop info,
     }
 }
 
+#if 0
 static void EncodeI4(const uint8_t* rgbaIn, uint8_t* texels, int width, int height)
 {
     for (int y=height-1 ; y>=0 ; --y)
@@ -244,6 +245,7 @@ static void EncodeI4(const uint8_t* rgbaIn, uint8_t* texels, int width, int heig
         rgbaIn += width;
     }
 }
+#endif
 
 static void DecodeI8(png_structp png, png_infop info,
                      const uint8_t* texels, int width, int height)
@@ -291,6 +293,7 @@ static void DecodeIA4(png_structp png, png_infop info,
     }
 }
 
+#if 0
 static void EncodeIA4(const uint8_t* rgbaIn, uint8_t* texels, int width, int height)
 {
     for (int y=height-1 ; y>=0 ; --y)
@@ -304,6 +307,7 @@ static void EncodeIA4(const uint8_t* rgbaIn, uint8_t* texels, int width, int hei
         }
     }
 }
+#endif
 
 static void DecodeIA8(png_structp png, png_infop info,
                       const uint8_t* texels, int width, int height)
@@ -808,6 +812,7 @@ static void DecodeRGB565(png_structp png, png_infop info,
     }
 }
 
+#if 0
 static void EncodeRGB565(const uint8_t* rgbaIn, uint8_t* texels, int width, int height)
 {
     for (int y=height-1 ; y>=0 ; --y)
@@ -822,6 +827,7 @@ static void EncodeRGB565(const uint8_t* rgbaIn, uint8_t* texels, int width, int 
         rgbaIn += width * 3;
     }
 }
+#endif
 
 static void DecodeRGB5A3(png_structp png, png_infop info,
                          const uint8_t* texels, int width, int height)
@@ -855,6 +861,7 @@ static void DecodeRGB5A3(png_structp png, png_infop info,
     }
 }
 
+#if 0
 static void EncodeRGB5A3(const uint8_t* rgbaIn, uint8_t* texels, int width, int height)
 {
     for (int y=height-1 ; y>=0 ; --y)
@@ -881,6 +888,7 @@ static void EncodeRGB5A3(const uint8_t* rgbaIn, uint8_t* texels, int width, int 
         rgbaIn += width * 4;
     }
 }
+#endif
 
 static void DecodeRGBA8(png_structp png, png_infop info,
                         const uint8_t* texels, int width, int height)

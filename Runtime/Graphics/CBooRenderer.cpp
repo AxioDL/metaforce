@@ -712,7 +712,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
 
     m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
@@ -720,7 +720,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
         x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::Repeat, 1, 0);
         GenerateScanLinesVBO(ctx);
         return true;
-    });
+    } BooTrace);
     LoadThermoPalette();
     LoadBallFade();
     m_thermHotFilter.emplace();

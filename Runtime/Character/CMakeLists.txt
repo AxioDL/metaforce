@@ -18,7 +18,7 @@ set(CHARACTER_SOURCES
     CCharLayoutInfo.hpp CCharLayoutInfo.cpp
     CLayoutDescription.hpp
     CSegIdList.hpp CSegIdList.cpp
-    CSegId.hpp CSegId.cpp
+    CSegId.hpp
     TSegIdMap.hpp
     CIkChain.hpp CIkChain.cpp
     CSkinRules.hpp CSkinRules.cpp
@@ -30,7 +30,7 @@ set(CHARACTER_SOURCES
     CPASAnimState.hpp CPASAnimState.cpp
     CPASParmInfo.hpp CPASParmInfo.cpp
     CPASAnimInfo.hpp CPASAnimInfo.cpp
-    CPASAnimParm.hpp CPASAnimParm.cpp
+    CPASAnimParm.hpp
     CPASAnimParmData.hpp CPASAnimParmData.cpp
     CEffectComponent.hpp CEffectComponent.cpp
     CAnimation.hpp CAnimation.cpp

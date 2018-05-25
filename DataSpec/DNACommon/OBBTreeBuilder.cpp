@@ -102,7 +102,6 @@ static FittedOBB FitOBB(const ColMesh& mesh, const std::vector<int>& index)
     // mean location
     for (int i : index)
     {
-        const ColMesh::Triangle& T = mesh.trianges[i];
         std::unordered_set<uint32_t> verts = GetTriangleVerts(mesh, i);
         auto it = verts.begin();
         zeus::CVector3f p = mesh.verts[*it++].val;

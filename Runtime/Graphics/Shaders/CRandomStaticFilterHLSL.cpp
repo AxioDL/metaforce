@@ -132,7 +132,7 @@ struct CRandomStaticFilterD3DDataBindingFactory : TMultiBlendShader<CRandomStati
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            EFilterType type, CRandomStaticFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {g_Renderer->GetRandomStaticEntropyTex().get()};
@@ -143,7 +143,7 @@ struct CRandomStaticFilterD3DDataBindingFactory : TMultiBlendShader<CRandomStati
 };
 
 TMultiBlendShader<CRandomStaticFilter>::IDataBindingFactory*
-CRandomStaticFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CRandomStaticFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -171,7 +171,7 @@ CRandomStaticFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CRandomStaticFilter::Shutdown<boo::ID3DDataFactory>()
+void CRandomStaticFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_AlphaPipeline.reset();

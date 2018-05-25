@@ -83,68 +83,24 @@ static inline T bswap64(T val)
 
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-static inline int16_t SBig(int16_t val) {return bswap16(val);}
-static inline uint16_t SBig(uint16_t val) {return bswap16(val);}
-static inline int32_t SBig(int32_t val) {return bswap32(val);}
 static inline uint32_t SBig(uint32_t val) {return bswap32(val);}
-static inline int64_t SBig(int64_t val) {return bswap64(val);}
 static inline uint64_t SBig(uint64_t val) {return bswap64(val);}
-static inline float SBig(float val)
-{
-    int32_t ival = bswap32(*((int32_t*)(&val)));
-    return *((float*)(&ival));
-}
-static inline double SBig(double val)
-{
-    int64_t ival = bswap64(*((int64_t*)(&val)));
-    return *((double*)(&ival));
-}
 #ifndef SBIG
 #define SBIG(q) ( ( (q) & 0x000000FF ) << 24 | ( (q) & 0x0000FF00 ) <<  8 \
                 | ( (q) & 0x00FF0000 ) >>  8 | ( (q) & 0xFF000000 ) >> 24 )
 #endif
 
-static inline int16_t SLittle(int16_t val) {return val;}
-static inline uint16_t SLittle(uint16_t val) {return val;}
-static inline int32_t SLittle(int32_t val) {return val;}
-static inline uint32_t SLittle(uint32_t val) {return val;}
-static inline int64_t SLittle(int64_t val) {return val;}
-static inline uint64_t SLittle(uint64_t val) {return val;}
-static inline float SLittle(float val) {return val;}
-static inline double SLittle(double val) {return val;}
 #ifndef SLITTLE
 #define SLITTLE(q) (q)
 #endif
 #else
-static inline int16_t SLittle(int16_t val) {return bswap16(val);}
-static inline uint16_t SLittle(uint16_t val) {return bswap16(val);}
-static inline int32_t SLittle(int32_t val) {return bswap32(val);}
-static inline uint32_t SLittle(uint32_t val) {return bswap32(val);}
-static inline int64_t SLittle(int64_t val) {return bswap64(val);}
-static inline uint64_t SLittle(uint64_t val) {return bswap64(val);}
-static inline float SLittle(float val)
-{
-    int32_t ival = bswap32(*((int32_t*)(&val)));
-    return *((float*)(&ival));
-}
-static inline double SLittle(double val)
-{
-    int64_t ival = bswap64(*((int64_t*)(&val)));
-    return *((double*)(&ival));
-}
 #ifndef SLITTLE
 #define SLITTLE(q) ( ( (q) & 0x000000FF ) << 24 | ( (q) & 0x0000FF00 ) <<  8 \
                    | ( (q) & 0x00FF0000 ) >>  8 | ( (q) & 0xFF000000 ) >> 24 )
 #endif
 
-static inline int16_t SBig(int16_t val) {return val;}
-static inline uint16_t SBig(uint16_t val) {return val;}
-static inline int32_t SBig(int32_t val) {return val;}
 static inline uint32_t SBig(uint32_t val) {return val;}
-static inline int64_t SBig(int64_t val) {return val;}
 static inline uint64_t SBig(uint64_t val) {return val;}
-static inline float SBig(float val) {return val;}
-static inline double SBig(double val) {return val;}
 #ifndef SBIG
 #define SBIG(q) (q)
 #endif
@@ -197,7 +153,6 @@ enum class FileLockType
 
 #if IS_UCS2
 typedef wchar_t SystemChar;
-static inline size_t StrLen(const SystemChar* str) { return wcslen(str); }
 typedef std::wstring SystemString;
 #ifndef _S
 #define _S(val) L##val
@@ -205,22 +160,12 @@ typedef std::wstring SystemString;
 typedef struct _stat Sstat;
 #else
 typedef char SystemChar;
-static inline size_t StrLen(const SystemChar* str) { return strlen(str); }
 typedef std::string SystemString;
 #ifndef _S
 #define _S(val) val
 #endif
 typedef struct stat Sstat;
 #endif
-
-static inline int StrCmp(const SystemChar* str1, const SystemChar* str2)
-{
-#if IS_UCS2
-    return wcscmp(str1, str2);
-#else
-    return strcmp(str1, str2);
-#endif
-}
 
 static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None)
 {

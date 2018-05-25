@@ -27,6 +27,7 @@ class CPreAdvanceIndicator
     bool x0_isTime;
     CCharAnimTime x4_time;
     const char* xc_string;
+    /*
     u32 x10_;
     u32 x14_;
     u32 x18_;
@@ -39,6 +40,7 @@ class CPreAdvanceIndicator
     u32 x34_;
     u32 x38_;
     u16 x3c_;
+    */
 public:
     CPreAdvanceIndicator(const CCharAnimTime& time)
     : x0_isTime(true), x4_time(time) {}

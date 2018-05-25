@@ -22,7 +22,7 @@ public:
         CAssetId x8_wldRes;
         int xc_closestHex;
         float x10_flashPulse;
-        const CStateManager& x14_mgr;
+        //const CStateManager& x14_mgr;
         const zeus::CTransform& x18_model;
         const zeus::CTransform& x1c_view;
     public:
@@ -34,7 +34,7 @@ public:
           x8_wldRes(wldRes),
           xc_closestHex(closestHex),
           x10_flashPulse(flashPulse),
-          x14_mgr(mgr),
+          //x14_mgr(mgr),
           x18_model(model),
           x1c_view(view)
         {}

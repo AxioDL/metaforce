@@ -123,9 +123,9 @@ struct SpecMP3 : SpecBase
                     }
 
                     if (fe)
-                        m_fePaks.emplace_back(m_project, child, good);
+                        m_fePaks.emplace_back(child, good);
                     else
-                        m_paks.emplace_back(m_project, child, good);
+                        m_paks.emplace_back(child, good);
                 }
             }
 
@@ -410,9 +410,8 @@ struct SpecMP3 : SpecBase
                 auto pakName = hecl::SystemString(sysName.sys_str());
                 process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok)
                 {
-                    int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
                     m_pakRouter.extractResources(pak, force, btok,
-                    [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor)
+                    [&progress, &pakName](const hecl::SystemChar* substr, float factor)
                     {
                         progress.print(pakName.c_str(), substr, factor);
                     });
@@ -467,9 +466,8 @@ struct SpecMP3 : SpecBase
                 hecl::SystemString pakName(sysName.sys_str());
                 process.addLambdaTransaction([this, &progress, &pak, pakName, force](hecl::blender::Token& btok)
                 {
-                    int threadIdx = hecl::ClientProcess::GetThreadWorkerIdx();
                     m_fePakRouter.extractResources(pak, force, btok,
-                    [&progress, &pakName, threadIdx](const hecl::SystemChar* substr, float factor)
+                    [&progress, &pakName](const hecl::SystemChar* substr, float factor)
                     {
                         progress.print(pakName.c_str(), substr, factor);
                     });

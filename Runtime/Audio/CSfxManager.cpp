@@ -25,7 +25,6 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
     obj->reserve(count);
     for (u32 i=0 ; i<count ; ++i)
         obj->push_back(in.readUint16Big());
-    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
     return TToken<std::vector<s16>>::GetIObjObjectFor(std::move(obj));
 }
 

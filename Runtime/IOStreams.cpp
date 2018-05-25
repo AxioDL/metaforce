@@ -158,7 +158,8 @@ atUint64 CZipInputStream::readUBytesToBuf(void *buf, atUint64 len)
             x30_zstrm.avail_in = readSz;
             x30_zstrm.next_in = x24_compBuf.get();
         }
-        if (inflate(&x30_zstrm, Z_NO_FLUSH) != Z_OK)
+        int inflateRet = inflate(&x30_zstrm, Z_NO_FLUSH);
+        if (inflateRet != Z_OK)
             break;
     }
     return x30_zstrm.total_out;

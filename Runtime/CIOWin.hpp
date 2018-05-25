@@ -33,11 +33,6 @@ public:
     size_t GetNameHash() const { return m_nameHash; }
 };
 
-static bool operator==(std::shared_ptr<CIOWin> a, std::shared_ptr<CIOWin> b)
-{
-    return a.get() == b.get();
-}
-
 }
 
 #endif // __URDE_CIOWIN_HPP__

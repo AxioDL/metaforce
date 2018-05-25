@@ -53,7 +53,7 @@ struct CWorldShadowShaderD3DDataBindingFactory : TShader<CWorldShadowShader>::ID
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CWorldShadowShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
@@ -67,7 +67,7 @@ struct CWorldShadowShaderD3DDataBindingFactory : TShader<CWorldShadowShader>::ID
 };
 
 TShader<CWorldShadowShader>::IDataBindingFactory*
-CWorldShadowShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CWorldShadowShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -84,7 +84,7 @@ CWorldShadowShader::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CWorldShadowShader::Shutdown<boo::ID3DDataFactory>()
+void CWorldShadowShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

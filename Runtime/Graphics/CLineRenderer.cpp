@@ -92,11 +92,11 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
 
     m_uniformBuf = s_uniformPool.allocateBlock(CGraphics::g_BooFactory);
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         CLineRendererShaders::BuildShaderDataBinding(ctx, *this, texture, additive, zTest, zGEqual);
         return true;
-    });
+    } BooTrace);
 }
 
 rstl::reserved_vector<CLineRenderer::SDrawVertTex, 1024> CLineRenderer::g_StaticLineVertsTex = {};

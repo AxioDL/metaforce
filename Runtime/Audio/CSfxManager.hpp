@@ -60,11 +60,13 @@ public:
         zeus::CVector3f xc_;
         zeus::CVector3f x18_;
         zeus::CVector3f x24_;
+        /*
         float x30_ = 0.f;
         float x34_ = 0.f;
         float x38_ = 0.f;
         u32 x3c_ = 0;
         bool x40_ = false;
+        */
         bool x44_listenerActive = false;
         std::unordered_set<CSfxHandle> x48_handles;
     };

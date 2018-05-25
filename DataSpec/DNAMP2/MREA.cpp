@@ -208,7 +208,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
     drs.seek(egmcOffset, athena::Begin);
     UniqueID32 egmcId(drs);
     DNACommon::EGMC egmc;
-    bool hasEGMC = pakRouter.lookupAndReadDNA(egmcId, egmc);
+    pakRouter.lookupAndReadDNA(egmcId, egmc);
 
     drs.seek(0, athena::Begin);
 

@@ -54,7 +54,7 @@ public:
     void Update(float dt);
 
     bool AddWorkerWidget(CGuiWidget* worker);
-    CGuiWidget* GetWorkerWidget(int id);
+    CGuiWidget* GetWorkerWidget(int id) const;
 
     static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

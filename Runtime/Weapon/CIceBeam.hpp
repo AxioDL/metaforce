@@ -6,7 +6,7 @@
 namespace urde
 {
 
-class CIceBeam : public CGunWeapon
+class CIceBeam final : public CGunWeapon
 {
     TCachedToken<CGenDescription> x21c_iceSmoke;
     TCachedToken<CGenDescription> x228_ice2nd1;

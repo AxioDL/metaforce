@@ -123,7 +123,7 @@ struct HLSLLineDataBindingFactory : CLineRendererShaders::IDataBindingFactory
     }
 };
 
-CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
+CLineRendererShaders::IDataBindingFactory* CLineRendererShaders::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor VtxFmtTex[] =
     {

@@ -339,12 +339,6 @@ public:
         g_BooFactory->commitTransaction(commitFunc __BooTraceArgsUse);
     }
 
-#ifndef NDEBUG
-#define CGraphicsCommitResources(...) CGraphics::CommitResources(__VA_ARGS__, __FILE__, __LINE__)
-#else
-#define CGraphicsCommitResources(...) CGraphics::CommitResources(__VA_ARGS__)
-#endif
-
     static void SetShaderDataBinding(const boo::ObjToken<boo::IShaderDataBinding>& binding)
     {
         g_BooMainCommandQueue->setShaderDataBinding(binding);

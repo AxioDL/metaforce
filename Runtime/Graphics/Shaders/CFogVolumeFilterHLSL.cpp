@@ -93,7 +93,7 @@ struct CFogVolumeFilterD3DDataBindingFactory : TShader<CFogVolumeFilter>::IDataB
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CFogVolumeFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
         boo::ObjToken<boo::ITexture> texs[] = { CGraphics::g_SpareTexture.get(), CGraphics::g_SpareTexture.get(),
                                                 g_Renderer->GetFogRampTex().get() };
         int bindIdxs[] = {0, 1, 0};
@@ -111,7 +111,7 @@ struct CFogVolumeFilterD3DDataBindingFactory : TShader<CFogVolumeFilter>::IDataB
 };
 
 TShader<CFogVolumeFilter>::IDataBindingFactory*
-CFogVolumeFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CFogVolumeFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -129,7 +129,7 @@ CFogVolumeFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CFogVolumeFilter::Shutdown<boo::ID3DDataFactory>()
+void CFogVolumeFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_1WayPipeline.reset();

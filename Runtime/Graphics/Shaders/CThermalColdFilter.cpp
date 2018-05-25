@@ -6,7 +6,7 @@ namespace urde
 
 CThermalColdFilter::CThermalColdFilter()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_shiftTex = ctx.newDynamicTexture(8, 4, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat);
 
@@ -25,7 +25,7 @@ CThermalColdFilter::CThermalColdFilter()
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CThermalColdFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 
     setShift(0);
     setScale(0.f);

@@ -1470,6 +1470,7 @@ void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r)
         spawns.reserve(spawnCount);
         for (const auto& child : r.getCurNode()->m_seqChildren)
         {
+            (void)child;
             if (auto rec = r.enterSubRecord(nullptr))
             {
                 spawns.emplace_back();
@@ -1480,6 +1481,7 @@ void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r)
                     spawns.back().second.reserve(systemCount);
                     for (const auto& in : r.getCurNode()->m_seqChildren)
                     {
+                        (void)in;
                         spawns.back().second.emplace_back();
                         SpawnSystemKeyframeInfo& info = spawns.back().second.back();
                         if (auto rec = r.enterSubRecord(nullptr))

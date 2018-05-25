@@ -13,6 +13,7 @@ class CToken;
 class IObjectStore
 {
 public:
+    virtual ~IObjectStore() = default;
     virtual CToken GetObj(const SObjectTag&, const CVParamTransfer&)=0;
     virtual CToken GetObj(const SObjectTag&)=0;
     virtual CToken GetObj(std::string_view)=0;

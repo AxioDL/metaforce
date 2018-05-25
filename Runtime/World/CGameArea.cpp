@@ -296,7 +296,7 @@ static std::vector<SObjectTag> ReadDependencyList(CInputStream& in)
 std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& area)
 {
     SObjectTag tag = {SBIG('MREA'), area.IGetAreaAssetId()};
-    std::unique_ptr<u8[]> data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 0, 96));
+    std::unique_ptr<u8[]> data = g_ResFactory->LoadNewResourcePartSync(tag, 0, 96);
 
     if (*reinterpret_cast<u32*>(data.get()) != SBIG(0xDEADBEEF))
         return {};
@@ -326,7 +326,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
 
     u32 dataLen = ROUND_UP_32(header.secCount * 4);
 
-    data = std::move(g_ResFactory->LoadNewResourcePartSync(tag, 96, dataLen));
+    data = g_ResFactory->LoadNewResourcePartSync(tag, 96, dataLen);
 
     r = CMemoryInStream(data.get(), dataLen);
 
@@ -1231,7 +1231,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
         ++secIt;
     }
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Shared geometry uniform buffer - one for normal render, one for shadow render */
         for (int i=0 ; i<2 ; ++i)
@@ -1288,7 +1288,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
         }
 
         return true;
-    });
+    } BooTrace);
 
     for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts)
     {

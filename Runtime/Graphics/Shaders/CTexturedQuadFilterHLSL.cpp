@@ -142,7 +142,7 @@ struct CTexturedQuadFilterD3DDataBindingFactory : TMultiBlendShader<CTexturedQua
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            EFilterType type, CTexturedQuadFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
@@ -153,7 +153,7 @@ struct CTexturedQuadFilterD3DDataBindingFactory : TMultiBlendShader<CTexturedQua
 };
 
 TMultiBlendShader<CTexturedQuadFilter>::IDataBindingFactory*
-CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CTexturedQuadFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -185,7 +185,7 @@ CTexturedQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CTexturedQuadFilter::Shutdown<boo::ID3DDataFactory>()
+void CTexturedQuadFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_AlphaPipeline.reset();
@@ -221,7 +221,7 @@ struct CTexturedQuadFilterAlphaD3DDataBindingFactory : TMultiBlendShader<CTextur
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            EFilterType type, CTexturedQuadFilterAlpha& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {filter.m_booTex.get()};
@@ -232,7 +232,7 @@ struct CTexturedQuadFilterAlphaD3DDataBindingFactory : TMultiBlendShader<CTextur
 };
 
 TMultiBlendShader<CTexturedQuadFilterAlpha>::IDataBindingFactory*
-CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx)
+CTexturedQuadFilterAlpha::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -256,7 +256,7 @@ CTexturedQuadFilterAlpha::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CTexturedQuadFilterAlpha::Shutdown<boo::ID3DDataFactory>()
+void CTexturedQuadFilterAlpha::Shutdown<boo::D3DDataFactory>()
 {
     s_AVtxFmt.reset();
     s_AAlphaPipeline.reset();

@@ -32,7 +32,7 @@ struct CFogVolumePlaneShaderD3DDataBindingFactory : TShader<CFogVolumePlaneShade
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CFogVolumePlaneShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         for (int i=0 ; i<4 ; ++i)
             filter.m_dataBinds[i] = cctx.newShaderDataBinding(s_Pipelines[i], s_VtxFmt,
@@ -43,7 +43,7 @@ struct CFogVolumePlaneShaderD3DDataBindingFactory : TShader<CFogVolumePlaneShade
 };
 
 TShader<CFogVolumePlaneShader>::IDataBindingFactory*
-CFogVolumePlaneShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CFogVolumePlaneShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -66,7 +66,7 @@ CFogVolumePlaneShader::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CFogVolumePlaneShader::Shutdown<boo::ID3DDataFactory>()
+void CFogVolumePlaneShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipelines[0].reset();

@@ -10,7 +10,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex)
     if (!m_dataBind || indTex != m_indTex)
     {
         m_indTex = indTex;
-        CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_uniBufBlurX = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
             m_uniBufBlurY = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CVector4f), 1);
@@ -47,7 +47,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex)
 
             m_dataBind = TShader<CPhazonSuitFilter>::BuildShaderDataBinding(ctx, *this);
             return true;
-        });
+        } BooTrace);
     }
 
     SClipScreenRect rect;

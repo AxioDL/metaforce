@@ -7,16 +7,6 @@ namespace DataSpec::DNAMP1
 const std::vector<FourCC> skLanguages = {FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'),
                                          FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN')};
 
-static float u16stof(char16_t* str)
-{
-    char cstr[16];
-    int i;
-    for (i = 0; i < 15 && str[i] != u'\0'; ++i)
-        cstr[i] = str[i];
-    cstr[i] = '\0';
-    return strtof(cstr, nullptr);
-}
-
 static uint32_t ParseTag(const char16_t* str)
 {
     char parseStr[9];

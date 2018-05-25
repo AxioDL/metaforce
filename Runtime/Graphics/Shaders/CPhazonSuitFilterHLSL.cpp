@@ -173,7 +173,7 @@ struct CPhazonSuitFilterD3DDataBindingFactory : TShader<CPhazonSuitFilter>::IDat
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CPhazonSuitFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBufBlurX.get()};
         boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
@@ -225,7 +225,7 @@ struct CPhazonSuitFilterD3DDataBindingFactory : TShader<CPhazonSuitFilter>::IDat
 };
 
 TShader<CPhazonSuitFilter>::IDataBindingFactory*
-CPhazonSuitFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CPhazonSuitFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -254,7 +254,7 @@ CPhazonSuitFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CPhazonSuitFilter::Shutdown<boo::ID3DDataFactory>()
+void CPhazonSuitFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_BlurVtxFmt.reset();

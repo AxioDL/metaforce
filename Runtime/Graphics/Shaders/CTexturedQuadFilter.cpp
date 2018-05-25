@@ -15,13 +15,13 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, const boo::ObjToken<b
 {
     m_flipRect = CGraphics::g_BooFactory->platform() == boo::IGraphicsDataFactory::Platform::Vulkan;
     tex->setClampMode(boo::TextureClampMode::ClampToEdge);
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 16);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CTexturedQuadFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type,
@@ -157,13 +157,13 @@ URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type, const boo::ObjToken<boo::ITexture>& tex)
 : CTexturedQuadFilter(tex)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CTexturedQuadFilterAlpha>::BuildShaderDataBinding(ctx, type, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 CTexturedQuadFilterAlpha::CTexturedQuadFilterAlpha(EFilterType type,

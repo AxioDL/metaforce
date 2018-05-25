@@ -318,6 +318,7 @@ struct MaterialSet : BigDNA
             int stageIdx = 0;
             for (const Material::TEVStage& stage : mat.tevStages)
             {
+                (void)stage;
                 const Material::TEVStageTexInfo& texInfo = mat.tevStageTexInfo[stageIdx];
                 if (texInfo.texSlot == 0xff)
                 {

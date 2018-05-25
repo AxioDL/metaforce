@@ -7,7 +7,7 @@
 namespace urde
 {
 
-class CPhazonBeam : public CGunWeapon
+class CPhazonBeam final : public CGunWeapon
 {
     TCachedToken<CModel> x21c_phazonVeins;
     std::unique_ptr<CModelData> x224_phazonVeinsData;

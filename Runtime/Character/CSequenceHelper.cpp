@@ -101,7 +101,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals()
                 auto simp = node->Simplified();
                 if (simp)
                     node = CAnimTreeNode::Cast(std::move(*simp));
-                CCharAnimTime prevRemTime = remTime;
+                //CCharAnimTime prevRemTime = remTime;
                 remTime = res.x0_remTime;
                 /* This was originally accumulating uninitialized register values (stack variable misuse?) */
                 offset += res.x8_deltas.x0_posDelta;

@@ -82,7 +82,7 @@ struct D3DParticleSwooshDataBindingFactory : TShader<CParticleSwooshShaders>::ID
     }
 };
 
-TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor VtxFmt[] =
     {
@@ -130,7 +130,7 @@ TShader<CParticleSwooshShaders>::IDataBindingFactory* CParticleSwooshShaders::In
 }
 
 template <>
-void CParticleSwooshShaders::Shutdown<boo::ID3DDataFactory>()
+void CParticleSwooshShaders::Shutdown<boo::D3DDataFactory>()
 {
     m_vtxFormat.reset();
 

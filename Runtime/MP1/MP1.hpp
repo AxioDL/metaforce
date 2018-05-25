@@ -39,6 +39,8 @@
 #include "World/CScriptMazeNode.hpp"
 #include "hecl/Console.hpp"
 
+struct DiscordUser;
+
 namespace urde
 {
 class IFactory;
@@ -267,7 +269,7 @@ private:
     void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
     static void InitializeDiscord();
     static void ShutdownDiscord();
-    static void HandleDiscordReady();
+    static void HandleDiscordReady(const DiscordUser* request);
     static void HandleDiscordDisconnected(int errorCode, const char* message);
     static void HandleDiscordErrored(int errorCode, const char* message);
 

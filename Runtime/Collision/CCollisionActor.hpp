@@ -54,7 +54,7 @@ public:
     const zeus::CVector3f& GetBoxSize() const { return x260_boxSize; }
     TUniqueId GetOwnerId() const { return x25c_owner; }
     TUniqueId GetLastTouchedObject() const { return x2fc_lastTouched; }
-    zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager &);
+    zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager &) const;
     void SetExtendedTouchBounds(const zeus::CVector3f& boundExt) { x304_extendedTouchBounds = boundExt; }
     float GetSphereRadius() const { return x288_sphereRadius; }
 };

@@ -86,7 +86,7 @@ struct CThermalColdFilterD3DDataBindingFactory : TShader<CThermalColdFilter>::ID
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CThermalColdFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), filter.m_shiftTex.get()};
@@ -96,7 +96,7 @@ struct CThermalColdFilterD3DDataBindingFactory : TShader<CThermalColdFilter>::ID
     }
 };
 
-TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -112,7 +112,7 @@ TShader<CThermalColdFilter>::IDataBindingFactory* CThermalColdFilter::Initialize
 }
 
 template <>
-void CThermalColdFilter::Shutdown<boo::ID3DDataFactory>()
+void CThermalColdFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

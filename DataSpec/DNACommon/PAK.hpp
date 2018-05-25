@@ -186,6 +186,7 @@ public:
 
     void enterPAKBridge(const BRIDGETYPE& pakBridge);
 
+    using PAKRouterBase::getWorking;
     hecl::ProjectPath getWorking(const EntryType* entry,
                                  const ResExtractor<BRIDGETYPE>& extractor) const;
     hecl::ProjectPath getWorking(const EntryType* entry) const;

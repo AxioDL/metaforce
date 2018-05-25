@@ -65,7 +65,7 @@ struct CSpaceWarpFilterD3DDataBindingFactory : TShader<CSpaceWarpFilter>::IDataB
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CSpaceWarpFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), filter.m_warpTex.get()};
@@ -75,7 +75,7 @@ struct CSpaceWarpFilterD3DDataBindingFactory : TShader<CSpaceWarpFilter>::IDataB
     }
 };
 
-TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -91,7 +91,7 @@ TShader<CSpaceWarpFilter>::IDataBindingFactory* CSpaceWarpFilter::Initialize(boo
 }
 
 template <>
-void CSpaceWarpFilter::Shutdown<boo::ID3DDataFactory>()
+void CSpaceWarpFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

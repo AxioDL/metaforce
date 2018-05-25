@@ -23,7 +23,7 @@ public:
 private:
     hecl::ProjectPath m_path;
     Space::Class m_defaultClass = Space::Class::None;
-    EditorSpace* m_editingSpace = nullptr;
+    //EditorSpace* m_editingSpace = nullptr;
     std::vector<ViewerSpace*> m_viewingSpaces;
 public:
     static Space::Class DeduceDefaultSpaceClass(const hecl::ProjectPath& path);

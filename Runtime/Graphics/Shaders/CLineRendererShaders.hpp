@@ -48,7 +48,7 @@ public:
     static IDataBindingFactory* Initialize(boo::GLDataFactory::Context& ctx);
 #endif
 #if _WIN32
-    static IDataBindingFactory* Initialize(boo::ID3DDataFactory::Context& ctx);
+    static IDataBindingFactory* Initialize(boo::D3DDataFactory::Context& ctx);
 #endif
 #if BOO_HAS_METAL
     static IDataBindingFactory* Initialize(boo::MetalDataFactory::Context& ctx);

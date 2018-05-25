@@ -19,7 +19,7 @@ class CStaticAudioPlayer
     u32 x18_curSamp = 0;
     u32 x1c_loopStartSamp;
     u32 x20_loopEndSamp;
-    u32 x24_ = 0;
+    //u32 x24_ = 0;
     //std::unique_ptr<u8[]> x28_dmaLeft;
     //std::unique_ptr<u8[]> x30_dmaRight;
     std::vector<std::shared_ptr<IDvdRequest>> x38_dvdRequests;

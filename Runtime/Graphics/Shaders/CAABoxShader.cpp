@@ -6,13 +6,13 @@ namespace urde
 CAABoxShader::CAABoxShader(bool zOnly)
 : m_zOnly(zOnly)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CAABoxShader>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CAABoxShader::setAABB(const zeus::CAABox& aabb)

@@ -160,7 +160,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
 
     for (u32 i = 0; i < 128; i++)
         x0_[i] = stream.ReadEncoded(8);
-    u32 tsSeconds = stream.ReadEncoded(32);
+    //u32 tsSeconds = stream.ReadEncoded(32);
 
     x228_24_hardMode = stream.ReadEncoded(1);
     x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1);
@@ -173,7 +173,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx)
     xa0_playTime = conv.doub;
 
     x98_playerState = std::make_shared<CPlayerState>(stream);
-    float currentHealth = x98_playerState->GetHealthInfo().GetHP();
+    //float currentHealth = x98_playerState->GetHealthInfo().GetHP();
 
     x17c_gameOptions = CGameOptions(stream);
     x1f8_hintOptions = CHintOptions(stream);

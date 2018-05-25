@@ -4,7 +4,7 @@ set(COLLISION_SOURCES
     CGameCollision.hpp CGameCollision.cpp
     CCollisionResponseData.hpp CCollisionResponseData.cpp
     CCollisionInfo.hpp CCollisionInfo.cpp
-    CCollisionInfoList.hpp CCollisionInfoList.cpp
+    CCollisionInfoList.hpp
     CCollisionEdge.hpp CCollisionEdge.cpp
     CCollisionSurface.hpp CCollisionSurface.cpp
     InternalColliders.hpp InternalColliders.cpp
@@ -18,7 +18,7 @@ set(COLLISION_SOURCES
     CCollisionPrimitive.hpp CCollisionPrimitive.cpp
     CMaterialList.hpp
     CMaterialFilter.hpp CMaterialFilter.cpp
-    CInternalRayCastStructure.hpp CInternalRayCastStructure.cpp
+    CInternalRayCastStructure.hpp
     CRayCastResult.hpp CRayCastResult.cpp
     CCollisionActor.hpp CCollisionActor.cpp
     CCollisionActorManager.hpp CCollisionActorManager.cpp

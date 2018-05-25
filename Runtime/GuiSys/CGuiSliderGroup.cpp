@@ -118,7 +118,7 @@ bool CGuiSliderGroup::AddWorkerWidget(CGuiWidget* worker)
     return true;
 }
 
-CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id)
+CGuiWidget* CGuiSliderGroup::GetWorkerWidget(int id) const
 {
     if (id < 0 || id > 1)
         return nullptr;

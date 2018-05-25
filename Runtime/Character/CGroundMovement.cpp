@@ -803,7 +803,7 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
             {
                 if (actor.x15c_force.canBeNormalized())
                 {
-                    zeus::CVector3f prevForce = actor.x15c_force;
+                    //zeus::CVector3f prevForce = actor.x15c_force;
                     actor.x15c_force = CGroundMovement::CollisionDamping(actor.x15c_force,
                                                                          actor.x15c_force.normalized(),
                                                                          collisionNorm, 0.f, 1.f);

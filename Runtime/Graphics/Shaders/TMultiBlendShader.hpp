@@ -29,7 +29,7 @@ public:
         if (!CGraphics::g_BooFactory)
             return;
 
-        CGraphicsCommitResources(
+        CGraphics::CommitResources(
         [&](boo::IGraphicsDataFactory::Context& ctx)
         {
             switch (ctx.platform())
@@ -41,8 +41,7 @@ public:
 #endif
 #if _WIN32
             case boo::IGraphicsDataFactory::Platform::D3D11:
-            case boo::IGraphicsDataFactory::Platform::D3D12:
-                m_bindFactory.reset(ShaderImp::Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
+                m_bindFactory.reset(ShaderImp::Initialize(static_cast<boo::D3DDataFactory::Context&>(ctx)));
                 break;
 #endif
 #if BOO_HAS_METAL
@@ -58,7 +57,7 @@ public:
             default: break;
             }
             return true;
-        });
+        } BooTrace);
     }
 
     static void Shutdown()
@@ -72,8 +71,7 @@ public:
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            ShaderImp::template Shutdown<boo::ID3DDataFactory>();
+            ShaderImp::template Shutdown<boo::D3DDataFactory>();
             break;
 #endif
 #if BOO_HAS_METAL

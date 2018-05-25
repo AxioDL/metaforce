@@ -60,10 +60,8 @@ static bool GetNoShare(std::string_view name)
     return true;
 }
 
-PAKBridge::PAKBridge(hecl::Database::Project& project,
-                     const nod::Node& node,
-                     bool doExtract)
-: m_project(project), m_node(node), m_pak(false, GetNoShare(node.getName())), m_doExtract(doExtract)
+PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
+: m_node(node), m_pak(false, GetNoShare(node.getName())), m_doExtract(doExtract)
 {
     nod::AthenaPartReadStream rs(node.beginReadStream());
     m_pak.read(rs);

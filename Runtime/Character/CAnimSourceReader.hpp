@@ -68,6 +68,7 @@ public:
     s32 VGetInt32POIState(const char* name) const;
     CParticleData::EParentedMode VGetParticlePOIState(const char* name) const;
 
+    using IAnimReader::VGetOffset;
     virtual zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& b) const=0;
     virtual bool VSupportsReverseView() const=0;
     virtual SAdvancementResults VReverseView(const CCharAnimTime& time)=0;

@@ -12,7 +12,7 @@ class CAnimPlaybackParms
     s32   x4_animB = -1;
     float x8_blendWeight = 1.f;
     bool  xc_animating = true;
-    s32 x10_ = 0;
+    //s32 x10_ = 0;
     const zeus::CVector3f* x14_targetPos = nullptr;
     bool  x18_useLocator = false;
     const zeus::CQuaternion* x1c_deltaOrient = nullptr;

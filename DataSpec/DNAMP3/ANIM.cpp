@@ -516,8 +516,8 @@ void ANIM::ANIM1::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader)
         initBlock.push_back(reader.readInt16Big());
 
     atUint32 rawChannelCount = reader.readUint32Big();
-    atUint32 scratchSize1 = reader.readUint32Big();
-    atUint32 scratchSize2 = reader.readUint32Big();
+    reader.readUint32Big();
+    reader.readUint32Big();
 
     std::vector<atUint8> chanBitCounts;
     chanBitCounts.reserve(rawChannelCount);

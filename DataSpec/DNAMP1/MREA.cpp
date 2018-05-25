@@ -11,6 +11,8 @@
 #include "ScriptObjects/ScriptTypes.hpp"
 #include "hecl/Blender/Connection.hpp"
 
+#define DUMP_OCTREE 0
+
 extern hecl::SystemString ExeDir;
 
 namespace DataSpec::DNAMP1
@@ -76,6 +78,7 @@ UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs)
     return {rs};
 }
 
+#if DUMP_OCTREE
 /* Collision octree dumper */
 static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryReader& r,
                              BspNodeType type, const zeus::CAABox& aabb)
@@ -201,6 +204,7 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryR
                   pos.x, pos.y, pos.z, extent.x, extent.y, extent.z);
     }
 }
+#endif
 
 bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
@@ -517,7 +521,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
         AROTBuilder arotBuilder;
         arotBuilder.build(secs, fullAabb, meshAabbs, meshes);
 
-#if 0
+#if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
             return false;
@@ -588,7 +592,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
         DeafBabe collision = {};
         DeafBabeBuildFromBlender(collision, cMesh);
 
-#if 0
+#if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
             return false;

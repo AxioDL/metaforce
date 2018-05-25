@@ -96,7 +96,7 @@ struct CCameraBlurFilterD3DDataBindingFactory : TShader<CCameraBlurFilter>::IDat
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CCameraBlurFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
@@ -106,7 +106,7 @@ struct CCameraBlurFilterD3DDataBindingFactory : TShader<CCameraBlurFilter>::IDat
     }
 };
 
-TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -122,7 +122,7 @@ TShader<CCameraBlurFilter>::IDataBindingFactory* CCameraBlurFilter::Initialize(b
 }
 
 template <>
-void CCameraBlurFilter::Shutdown<boo::ID3DDataFactory>()
+void CCameraBlurFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

@@ -83,7 +83,6 @@ add_library(RuntimeCommon
             CResLoader.hpp CResLoader.cpp
             CDvdRequest.hpp
             CDvdFile.hpp CDvdFile.cpp
-            CVirtualDvdFile.hpp CVirtualDvdFile.cpp
             IObjectStore.hpp
             CSimplePool.hpp CSimplePool.cpp
             CGameOptions.hpp CGameOptions.cpp
@@ -96,7 +95,7 @@ add_library(RuntimeCommon
             GameObjectLists.hpp GameObjectLists.cpp
             CSortedLists.hpp CSortedLists.cpp
             CArchitectureMessage.hpp
-            CArchitectureQueue.hpp CArchitectureQueue.cpp
+            CArchitectureQueue.hpp
             IObj.hpp
             IVParamObj.hpp
             CTimeProvider.hpp CTimeProvider.cpp
@@ -109,7 +108,7 @@ add_library(RuntimeCommon
             CMFGameBase.hpp
             CInGameTweakManagerBase.hpp
             CPlayMovieBase.hpp
-            CGameDebug.hpp CGameDebug.cpp
+            CGameDebug.hpp
             CGameHintInfo.hpp CGameHintInfo.cpp
             rstl.hpp
             GameGlobalObjects.hpp GameGlobalObjects.cpp

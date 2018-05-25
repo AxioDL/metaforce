@@ -269,6 +269,7 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
     /* Animated UV transform matrices */
     for (const MaterialSet::Material& mat : matSet->materials)
     {
+        (void)mat;
         size_t thisSz = ROUND_UP_256(/*mat.uvAnims.size()*/ 8 * (sizeof(zeus::CMatrix4f) * 2));
         m_uvOffs.push_back(m_geomBufferSize);
         m_uvSizes.push_back(thisSz);
@@ -286,7 +287,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
     m_instances.emplace_back();
     ModelInstance& newInst = m_instances.back();
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Build geometry uniform buffer if shared not available */
         boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
@@ -460,7 +461,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
             }
         }
         return true;
-    });
+    } BooTrace);
 
     return &newInst;
 }
@@ -870,6 +871,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
                                      -flags.mbShadowBox.min.z) * CGraphics::g_GXModelView).toMatrix4f();
         for (const MaterialSet::Material& mat : matSet->materials)
         {
+            (void)mat;
             std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
             mtxs[0][0] = texMtx;
             mtxs[0][1] = MBShadowPost0;
@@ -1280,7 +1282,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         matSet.BuildShaders(m_hmdlMeta);
     }
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         /* Index buffer is always static */
         if (m_hmdlMeta.indexCount)
@@ -1306,7 +1308,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
         }
 
         return true;
-    });
+    } BooTrace);
 
     u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(surfInfo));
     x8_surfaces.reserve(surfCount);

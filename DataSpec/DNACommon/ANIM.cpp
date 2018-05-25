@@ -243,7 +243,7 @@ BitstreamReader::read(const atUint8* data,
             }
             case Channel::Type::KfHead:
             {
-                bool aBit = dequantizeBit(data);
+                dequantizeBit(data);
                 break;
             }
             case Channel::Type::RotationMP3:

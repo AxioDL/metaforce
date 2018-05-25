@@ -89,7 +89,7 @@ class SplashScreen : public specter::ModalWindow
             std::string m_text;
             const std::string* text() const {return &m_text;}
 
-            struct OpenRecentMenuItem : specter::IMenuNode
+            struct OpenRecentMenuItem final : specter::IMenuNode
             {
                 OpenRecentMenuRoot& m_parent;
 

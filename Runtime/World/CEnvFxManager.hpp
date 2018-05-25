@@ -27,7 +27,7 @@ enum class EPhazonType
 
 class CVectorFixed8_8
 {
-    u16 x0_[3];
+    //u16 x0_[3];
 };
 
 class CEnvFxManagerGrid

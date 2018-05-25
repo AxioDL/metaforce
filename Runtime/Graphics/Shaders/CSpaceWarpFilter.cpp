@@ -33,7 +33,7 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
 
 CSpaceWarpFilter::CSpaceWarpFilter()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         GenerateWarpRampTex(ctx);
         struct Vert
@@ -51,7 +51,7 @@ CSpaceWarpFilter::CSpaceWarpFilter()
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CSpaceWarpFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)

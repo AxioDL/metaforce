@@ -10,8 +10,8 @@ namespace urde
 
 void CABSAim::Start(CBodyController& bc, CStateManager& mgr)
 {
-    const CBCAdditiveAimCmd* cmd =
-        static_cast<const CBCAdditiveAimCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveAim));
+    //const CBCAdditiveAimCmd* cmd =
+    //    static_cast<const CBCAdditiveAimCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveAim));
     const CPASAnimState* aimState = bc.GetPASDatabase().GetAnimState(22);
 
     // Left, Right, Up, Down

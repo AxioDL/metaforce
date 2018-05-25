@@ -54,7 +54,7 @@ CFactoryFnReturn CFactoryMgr::MakeObjectFromMemory(const SObjectTag& tag, std::u
         {
             std::unique_ptr<CInputStream> compRead =
                 std::make_unique<athena::io::MemoryReader>(localBuf.get(), size);
-            u32 decompLen = compRead->readUint32Big();
+            compRead->readUint32Big();
             CZipInputStream r(std::move(compRead));
             return search->second(tag, r, paramXfer, selfRef);
         }

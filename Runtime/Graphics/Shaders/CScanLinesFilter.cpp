@@ -6,12 +6,12 @@ namespace urde
 CScanLinesFilter::CScanLinesFilter(EFilterType type, bool even)
 : m_even(even)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CScanLinesFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CScanLinesFilter::draw(const zeus::CColor& color)

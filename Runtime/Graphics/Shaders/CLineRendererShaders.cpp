@@ -27,7 +27,7 @@ void CLineRendererShaders::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    CGraphicsCommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
@@ -39,8 +39,7 @@ void CLineRendererShaders::Initialize()
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            m_bindFactory.reset(Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx)));
+            m_bindFactory.reset(Initialize(static_cast<boo::D3DDataFactory::Context&>(ctx)));
             break;
 #endif
 #if BOO_HAS_METAL
@@ -56,7 +55,7 @@ void CLineRendererShaders::Initialize()
         default: break;
         }
         return true;
-    });
+    } BooTrace);
 }
 
 void CLineRendererShaders::Shutdown()

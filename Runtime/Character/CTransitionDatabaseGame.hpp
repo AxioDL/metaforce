@@ -8,7 +8,7 @@ namespace urde
 class CTransition;
 class CHalfTransition;
 
-class CTransitionDatabaseGame : public CTransitionDatabase
+class CTransitionDatabaseGame final : public CTransitionDatabase
 {
     std::shared_ptr<IMetaTrans> x10_defaultTrans;
     std::vector<std::pair<std::pair<u32, u32>, std::shared_ptr<IMetaTrans>>> x14_transitions;

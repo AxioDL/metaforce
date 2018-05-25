@@ -109,7 +109,7 @@ static const char* ImgFS =
 "}\n";
 
 TMultiBlendShader<CTextSupportShader>::IDataBindingFactory*
-CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CTextSupportShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     boo::VertexElementDescriptor TextVtxVmt[] =
     {
@@ -169,7 +169,7 @@ CTextSupportShader::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CTextSupportShader::Shutdown<boo::ID3DDataFactory>()
+void CTextSupportShader::Shutdown<boo::D3DDataFactory>()
 {
     s_TextVtxFmt.reset();
     s_TextAlphaPipeline.reset();

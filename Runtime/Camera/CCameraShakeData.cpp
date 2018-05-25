@@ -149,11 +149,11 @@ float CCameraShakeData::GetMaxFMComponent() const
 CCameraShakeData CCameraShakeData::LoadCameraShakeData(CInputStream& in)
 {
     float xMag = in.readFloatBig();
-    float f2 = in.readFloatBig();
+    in.readFloatBig();
     float yMag = in.readFloatBig();
-    float f4 = in.readFloatBig();
+    in.readFloatBig();
     float zMag = in.readFloatBig();
-    float f6 = in.readFloatBig();
+    in.readFloatBig();
     float duration = in.readFloatBig();
 
     SCameraShakePoint xAM(0, 0.f, 0.f, duration, 2.f * xMag);

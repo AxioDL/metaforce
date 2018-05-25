@@ -12,7 +12,6 @@ extern logvisor::Module Log;
 /* MP3-specific, one-shot PAK traversal/extraction class */
 class PAKBridge
 {
-    hecl::Database::Project& m_project;
     const nod::Node& m_node;
     PAK m_pak;
 public:
@@ -21,9 +20,7 @@ public:
     std::unordered_map<UniqueID64, Level> m_levelDeps;
     hecl::SystemString m_levelString;
 
-    PAKBridge(hecl::Database::Project& project,
-              const nod::Node& node,
-              bool doExtract=true);
+    PAKBridge(const nod::Node& node, bool doExtract=true);
     void build();
     static ResExtractor<PAKBridge> LookupExtractor(const PAK& pak, const PAK::Entry& entry);
     std::string_view getName() const {return m_node.getName();}

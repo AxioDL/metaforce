@@ -57,6 +57,7 @@ BOO_GLSL_BINDING_HEAD
 "                    yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
 
+#if _WIN32
 static const char* VS_HLSL_YUV =
 "struct VertData\n"
 "{\n"
@@ -101,7 +102,9 @@ static const char* FS_HLSL_YUV =
 "                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
 "                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
+#endif
 
+#if BOO_HAS_METAL
 static const char* VS_METAL_YUV =
 "#include <metal_stdlib>\n"
 "using namespace metal;\n"
@@ -152,6 +155,7 @@ static const char* FS_METAL_YUV =
 "                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
 "                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
 "}\n";
+#endif
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -198,7 +202,7 @@ static const char* TexNames[] = {"texY", "texU", "texV"};
 
 void CMoviePlayer::Initialize()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!ctx.bindingNeedsVertexFormat())
         {
@@ -222,8 +226,7 @@ void CMoviePlayer::Initialize()
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            YUVShaderPipeline = static_cast<boo::ID3DDataFactory::Context&>(ctx).newShaderPipeline
+            YUVShaderPipeline = static_cast<boo::D3DDataFactory::Context&>(ctx).newShaderPipeline
                     (VS_HLSL_YUV, FS_HLSL_YUV, nullptr, nullptr, nullptr, YUVVTXFmt,
                      boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                      boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
@@ -248,7 +251,7 @@ void CMoviePlayer::Initialize()
         default: break;
         }
         return true;
-    });
+    } BooTrace);
 
     TjHandle = tjInitDecompress();
 }
@@ -426,7 +429,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         xa0_bufferQueue.reserve(xf0_preLoadFrames);
 
     /* All set for GPU resources */
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
         m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
@@ -489,7 +492,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 set.audioBuf.reset(new s16[x28_thpHead.maxAudioSamples * 2]);
         }
         return true;
-    });
+    } BooTrace);
 
     /* Temporary planar YUV decode buffer, resulting planes copied to Boo */
     m_yuvBuf.reset(new uint8_t[tjBufSizeYUV(x6c_videoInfo.width, x6c_videoInfo.height, TJ_420)]);

@@ -234,7 +234,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
     maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         if (!x26c_31_LINE)
         {
@@ -248,7 +248,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         }
         CElementGenShaders::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 CElementGen::~CElementGen()
@@ -382,6 +382,12 @@ void CElementGen::AccumulateBounds(zeus::CVector3f& pos, float size)
 
 void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame)
 {
+    if (activeParticleCount >= x60_advValues.size())
+    {
+        CParticleGlobals::g_particleAccessParameters = nullptr;
+        return;
+    }
+
     CGenDescription* desc = x1c_genDesc.GetObj();
 
     std::array<float, 8>& arr = x60_advValues[activeParticleCount];
@@ -436,7 +442,10 @@ void CElementGen::UpdateExistingParticles()
 
     x25c_activeParticleCount = 0;
     CParticleGlobals::SetEmitterTime(x74_curFrame);
-    CParticleGlobals::g_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
+    if (x25c_activeParticleCount < x60_advValues.size())
+        CParticleGlobals::g_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
+    else
+        CParticleGlobals::g_particleAccessParameters = nullptr;
 
     for (auto it = x30_particles.begin(); it != x30_particles.end();)
     {
@@ -1030,13 +1039,17 @@ void CElementGen::RenderModels(const CActorLights* actorLights)
 
         if (particle.x0_endFrame == -1)
         {
-            ++matrixIt;
+            if (x2c_orientType == EModelOrientationType::One)
+                ++matrixIt;
             continue;
         }
         CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
         int partFrame = x74_curFrame - particle.x28_startFrame - 1;
         CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
-        CParticleGlobals::g_particleAccessParameters = &x60_advValues[i];
+        if (i < x60_advValues.size())
+            CParticleGlobals::g_particleAccessParameters = &x60_advValues[i];
+        else
+            CParticleGlobals::g_particleAccessParameters = nullptr;
         CVectorElement* pmop = desc->x6c_x58_PMOP.get();
         if (pmop)
             pmop->GetValue(partFrame, pmopVec);
@@ -1154,7 +1167,8 @@ void CElementGen::RenderModels(const CActorLights* actorLights)
             }
         }
 
-        ++matrixIt;
+        if (x2c_orientType == EModelOrientationType::One)
+            ++matrixIt;
     }
 
     if (desc->x45_24_x31_26_PMUS)
@@ -1376,7 +1390,7 @@ void CElementGen::RenderParticles()
 
         std::sort(sortItems.begin(), sortItems.end(),
                   [](const CParticleListItem& a, const CParticleListItem& b) -> bool
-                  {return a.x4_viewPoint[1] >= b.x4_viewPoint[1];});
+                  {return a.x4_viewPoint[1] > b.x4_viewPoint[1];});
     }
 
     bool moveRedToAlphaBuffer = false;

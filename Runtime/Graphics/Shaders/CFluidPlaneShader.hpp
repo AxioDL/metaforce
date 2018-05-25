@@ -127,11 +127,11 @@ private:
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 #if _WIN32
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::ID3DDataFactory::Context& ctx,
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::D3DDataFactory::Context& ctx,
                                                            const SFluidPlaneShaderInfo& info);
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::ID3DDataFactory::Context& ctx,
+    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::D3DDataFactory::Context& ctx,
                                                            const SFluidPlaneDoorShaderInfo& info);
-    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::ID3DDataFactory::Context& ctx,
+    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::D3DDataFactory::Context& ctx,
                                                         const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
 #endif
 #if BOO_HAS_METAL

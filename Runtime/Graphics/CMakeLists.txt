@@ -84,8 +84,8 @@ set(GRAPHICS_SOURCES
     IRenderer.hpp
     IWeaponRenderer.hpp IWeaponRenderer.cpp
     CBooRenderer.hpp CBooRenderer.cpp
-    CDrawable.hpp CDrawable.cpp
-    CDrawablePlaneObject.hpp CDrawablePlaneObject.cpp
+    CDrawable.hpp
+    CDrawablePlaneObject.hpp
     CLineRenderer.hpp CLineRenderer.cpp
     CMetroidModelInstance.hpp
     CLight.hpp CLight.cpp
@@ -94,7 +94,7 @@ set(GRAPHICS_SOURCES
     CSkinnedModel.hpp CSkinnedModel.cpp
     CVertexMorphEffect.hpp CVertexMorphEffect.cpp
     CMoviePlayer.hpp CMoviePlayer.cpp
-    CGraphicsPalette.hpp CGraphicsPalette.cpp
+    CGraphicsPalette.hpp
     CPVSVisSet.hpp CPVSVisSet.cpp
     CPVSVisOctree.hpp CPVSVisOctree.cpp
     CPVSAreaSet.hpp CPVSAreaSet.cpp

@@ -57,7 +57,7 @@
 #include "MP1OriginalIDs.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
-#include <discord-rpc.h>
+#include <discord_rpc.h>
 
 namespace hecl
 {
@@ -590,7 +590,7 @@ void CMain::UpdateDiscordPresence(CAssetId worldSTRG)
     }
 }
 
-void CMain::HandleDiscordReady()
+void CMain::HandleDiscordReady(const DiscordUser* request)
 {
     DiscordLog.report(logvisor::Info, "Discord Ready");
 }

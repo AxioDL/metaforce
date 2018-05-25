@@ -6,7 +6,7 @@
 
 namespace urde
 {
-class CFluidPlaneDoor : public CFluidPlane
+class CFluidPlaneDoor final : public CFluidPlane
 {
     float xa0_tileSize;
     int xa4_tileSubdivisions;

@@ -72,7 +72,7 @@ struct CScanLinesFilterD3DDataBindingFactory : TMultiBlendShader<CScanLinesFilte
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            EFilterType type, CScanLinesFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> vbo = filter.m_even ?
             g_Renderer->GetScanLinesEvenVBO().get() : g_Renderer->GetScanLinesOddVBO().get();
@@ -84,7 +84,7 @@ struct CScanLinesFilterD3DDataBindingFactory : TMultiBlendShader<CScanLinesFilte
 };
 
 TMultiBlendShader<CScanLinesFilter>::IDataBindingFactory*
-CScanLinesFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CScanLinesFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -107,7 +107,7 @@ CScanLinesFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CScanLinesFilter::Shutdown<boo::ID3DDataFactory>()
+void CScanLinesFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_AlphaPipeline.reset();

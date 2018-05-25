@@ -39,7 +39,7 @@ struct SMREAHeader
     u32 arotSecIdx;
 };
 
-class CDummyGameArea : public IGameArea
+class CDummyGameArea final : public IGameArea
 {
     friend class CDummyWorld;
 
@@ -95,7 +95,7 @@ struct CAreaRenderOctTree
     void FindOverlappingModels(u32* out, const zeus::CAABox& testAABB) const;
 };
 
-class CGameArea : public IGameArea
+class CGameArea final : public IGameArea
 {
     friend class CWorld;
     friend class CStateManager;

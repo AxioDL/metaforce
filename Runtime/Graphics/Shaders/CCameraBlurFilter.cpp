@@ -5,13 +5,13 @@ namespace urde
 
 CCameraBlurFilter::CCameraBlurFilter()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CCameraBlurFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CCameraBlurFilter::draw(float amount, bool clearDepth)

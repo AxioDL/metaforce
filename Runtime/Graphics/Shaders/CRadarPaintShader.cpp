@@ -12,13 +12,13 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
     {
         m_maxInsts = instances.size();
         m_tex = tex;
-        CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Instance), m_maxInsts);
             m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);
             m_dataBind = TShader<CRadarPaintShader>::BuildShaderDataBinding(ctx, *this);
             return true;
-        });
+        } BooTrace);
     }
 
     zeus::CMatrix4f uniMtx = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();

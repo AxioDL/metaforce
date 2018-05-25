@@ -198,7 +198,7 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
             pttScale = g_tweakGame->GetFluidEnvBumpScale() * x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
 
         // Load GX_TEXMTX3 with identity
-        zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
+        nextTexMtx++;
         // Load GX_PTTEXMTX0 with scale of pttScale
         // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
 

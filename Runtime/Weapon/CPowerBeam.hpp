@@ -6,7 +6,7 @@
 namespace urde
 {
 
-class CPowerBeam : public CGunWeapon
+class CPowerBeam final : public CGunWeapon
 {
     enum class ESmokeState
     {

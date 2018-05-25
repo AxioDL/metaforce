@@ -168,7 +168,7 @@ static const zeus::CMatrix4f PlusOneZ(1.f, 0.f, 0.f, 0.f,
 
 static const zeus::CMatrix4f VulkanCorrect(1.f, 0.f, 0.f, 0.f,
                                            0.f, -1.f, 0.f, 0.f,
-                                           0.f, 0.f, 0.5f, 0.5f,
+                                           0.f, 0.f, 0.5f, 0.5f + FLT_EPSILON,
                                            0.f, 0.f, 0.f, 1.f);
 
 zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
@@ -210,7 +210,6 @@ zeus::CMatrix4f CGraphics::CalculatePerspectiveMatrix(float fovy, float aspect,
                                0.f, 0.f, -1.f, 0.f);
     }
     case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
     case boo::IGraphicsDataFactory::Platform::Metal:
     {
         zeus::CMatrix4f mat2(2.f * st.x14_near / rml, 0.f, rpl / rml, 0.f,
@@ -260,7 +259,6 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
                                    0.f, 0.f, -1.f, 0.f);
         }
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
         case boo::IGraphicsDataFactory::Platform::Metal:
         {
             zeus::CMatrix4f mat2(2.f * g_Proj.x14_near / rml, 0.f, rpl / rml, 0.f,
@@ -307,7 +305,6 @@ zeus::CMatrix4f CGraphics::GetPerspectiveProjectionMatrix(bool forRenderer)
                                    0.f, 0.f, 0.f, 1.f);
         }
         case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
         case boo::IGraphicsDataFactory::Platform::Metal:
         {
             zeus::CMatrix4f mat2(2.f / rml, 0.f, 0.f, -rpl / rml,
@@ -427,8 +424,8 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
     if (maxX2 <= 0 /* ViewportX origin */)
         return {};
 
-    int finalMinX = std::max(minX, 0 /* ViewportX origin */);
-    int finalMaxX = std::min(maxX, int(g_Viewport.x8_width));
+    //int finalMinX = std::max(minX, 0 /* ViewportX origin */);
+    //int finalMaxX = std::min(maxX, int(g_Viewport.x8_width));
 
 
     if (minY2 >= g_Viewport.xc_height)
@@ -439,8 +436,8 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
     if (maxY2 <= 0 /* ViewportY origin */)
         return {};
 
-    int finalMinY = std::max(minY, 0 /* ViewportY origin */);
-    int finalMaxY = std::min(maxY, int(g_Viewport.xc_height));
+    //int finalMinY = std::max(minY, 0 /* ViewportY origin */);
+    //int finalMaxY = std::min(maxY, int(g_Viewport.xc_height));
 
     int width = maxX2 - minX2;
     int height = maxY2 - minY2;
@@ -453,7 +450,7 @@ SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
 zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point)
 {
     zeus::CVector3f pt = g_GXModelView * point;
-    return GetPerspectiveProjectionMatrix(false).multiplyOneOverW(pt);
+    return GetPerspectiveProjectionMatrix(true).multiplyOneOverW(pt);
 }
 
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res)

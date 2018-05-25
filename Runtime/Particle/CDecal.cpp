@@ -32,7 +32,7 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
     else
         x5c_29_modelInvalid = true;
 
-    CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         for (int i=0 ; i<2 ; ++i)
         {
@@ -45,7 +45,7 @@ CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf
             CDecalShaders::BuildShaderDataBinding(ctx, decal);
         }
         return true;
-    });
+    } BooTrace);
 }
 
 bool CDecal::InitQuad(CQuadDecal& quad, const SQuadDescr& desc)

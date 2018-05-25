@@ -9,7 +9,7 @@ namespace urde
 CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex)
 : m_paletteTex(tex), m_booTex(tex->GetPaletteTexture())
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -26,7 +26,7 @@ CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex)
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CXRayBlurFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CXRayBlurFilter::draw(float amount)

@@ -9,7 +9,7 @@ endif()
 
 set(MP1_SOURCES
     CTweaks.hpp CTweaks.cpp
-    CInGameTweakManager.hpp CInGameTweakManager.cpp
+    CInGameTweakManager.hpp
     CGBASupport.hpp CGBASupport.cpp
     CMainFlow.hpp CMainFlow.cpp
     CMFGame.hpp CMFGame.cpp

@@ -64,6 +64,7 @@ public:
     const_iterator cend() const { return const_iterator(*this, -1); }
 
     CObjectList(EGameObjectList listEnum);
+    virtual ~CObjectList() = default;
 
     void AddObject(CEntity& entity);
     void RemoveObject(TUniqueId uid);

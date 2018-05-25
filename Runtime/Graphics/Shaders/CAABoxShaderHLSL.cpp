@@ -54,7 +54,7 @@ struct CAABoxShaderD3DDataBindingFactory : TShader<CAABoxShader>::IDataBindingFa
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CAABoxShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(filter.m_zOnly ? s_zOnlyPipeline : s_Pipeline, s_VtxFmt,
@@ -63,7 +63,7 @@ struct CAABoxShaderD3DDataBindingFactory : TShader<CAABoxShader>::IDataBindingFa
     }
 };
 
-TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -80,7 +80,7 @@ TShader<CAABoxShader>::IDataBindingFactory* CAABoxShader::Initialize(boo::ID3DDa
 }
 
 template <>
-void CAABoxShader::Shutdown<boo::ID3DDataFactory>()
+void CAABoxShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

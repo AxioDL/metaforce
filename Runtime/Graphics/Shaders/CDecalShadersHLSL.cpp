@@ -143,7 +143,7 @@ struct D3DDecalDataBindingFactory : TShader<CDecalShaders>::IDataBindingFactory
     }
 };
 
-TShader<CDecalShaders>::IDataBindingFactory* CDecalShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CDecalShaders>::IDataBindingFactory* CDecalShaders::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {
@@ -199,7 +199,7 @@ TShader<CDecalShaders>::IDataBindingFactory* CDecalShaders::Initialize(boo::ID3D
 }
 
 template <>
-void CDecalShaders::Shutdown<boo::ID3DDataFactory>()
+void CDecalShaders::Shutdown<boo::D3DDataFactory>()
 {
     m_vtxFormatTex.reset();
     m_vtxFormatNoTex.reset();

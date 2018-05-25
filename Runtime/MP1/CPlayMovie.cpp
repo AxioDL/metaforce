@@ -23,7 +23,7 @@ bool CPlayMovie::IsResultsScreen(EWhichMovie which)
 CPlayMovie::CPlayMovie(EWhichMovie which)
 : CPlayMovieBase("CPlayMovie", kMovies[int(which)]), x18_which(which)
 {
-
+    (void)x18_which;
 }
 
 

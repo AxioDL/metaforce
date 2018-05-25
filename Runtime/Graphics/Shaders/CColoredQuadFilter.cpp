@@ -5,7 +5,7 @@ namespace urde
 
 CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -21,7 +21,7 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CColoredQuadFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect)

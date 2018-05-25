@@ -9,7 +9,7 @@ namespace urde
 CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
 : m_cookieCutter(cookieCutter)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -26,7 +26,7 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TMultiBlendShader<CRandomStaticFilter>::BuildShaderDataBinding(ctx, type, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CRandomStaticFilter::draw(const zeus::CColor& color, float t)

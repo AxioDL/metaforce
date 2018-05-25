@@ -9,10 +9,10 @@ set(PARTICLE_SOURCES
     CUVElement.hpp CUVElement.cpp
     CEmitterElement.hpp CEmitterElement.cpp
     CParticleDataFactory.hpp CParticleDataFactory.cpp
-    CSwooshDescription.hpp CSwooshDescription.cpp
-    CElectricDescription.hpp CElectricDescription.cpp
-    CDecalDescription.hpp CDecalDescription.cpp
-    CWeaponDescription.hpp CWeaponDescription.cpp
+    CSwooshDescription.hpp
+    CElectricDescription.hpp
+    CDecalDescription.hpp
+    CWeaponDescription.hpp
     CDecalDataFactory.hpp CDecalDataFactory.cpp
     CElementGen.hpp CElementGen.cpp
     CParticleSwooshDataFactory.hpp CParticleSwooshDataFactory.cpp
@@ -24,7 +24,7 @@ set(PARTICLE_SOURCES
     CDecal.hpp CDecal.cpp
     CDecalManager.hpp CDecalManager.cpp
     CSpawnSystemKeyframeData.hpp CSpawnSystemKeyframeData.cpp
-    CWarp.hpp CWarp.cpp
+    CWarp.hpp
     CFlameWarp.hpp CFlameWarp.cpp
     CParticleGlobals.hpp CParticleGlobals.cpp
     ${PLAT_SRCS})

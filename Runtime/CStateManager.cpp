@@ -1208,7 +1208,7 @@ std::pair<std::multimap<TEditorId, TUniqueId>::const_iterator, std::multimap<TEd
 CStateManager::GetIdListForScript(TEditorId id) const
 {
     auto ret = x890_scriptIdMap.equal_range(id);
-    if (ret.first->first != id)
+    if (ret.first != x890_scriptIdMap.cend() && ret.first->first != id)
         ret.first = x890_scriptIdMap.cend();
     return ret;
 }

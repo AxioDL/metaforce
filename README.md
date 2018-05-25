@@ -55,18 +55,8 @@ Build / Debug / Run on Windows, macOS and Linux in a unified way.
 
 #### Visual Studio
 
-Using *Git Shell* with [GitHub for Windows](https://desktop.github.com/)
-
-Windows 7/8 users should run:
-
 ```sh
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug ../urde
-```
-
-Windows 10 users should run:
-
-```sh
-cmake -G "Visual Studio 14 2015 Win64" -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_BUILD_TYPE=Debug ../urde
+cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Debug ../urde
 ```
 
 Then open `urde.sln`

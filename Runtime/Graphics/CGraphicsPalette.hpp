@@ -32,7 +32,6 @@ public:
         u16 w = in.readUint16Big();
         u16 h = in.readUint16Big();
         x8_entryCount = w * h;
-        xc_entries[x8_entryCount];
 
         /* GX Tlut init here */
     }

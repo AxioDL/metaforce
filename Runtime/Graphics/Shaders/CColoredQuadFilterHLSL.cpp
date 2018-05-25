@@ -69,7 +69,7 @@ struct CColoredQuadFilterD3DDataBindingFactory : TMultiBlendShader<CColoredQuadF
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            EFilterType type, CColoredQuadFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         return cctx.newShaderDataBinding(SelectPipeline(type), s_VtxFmt,
@@ -79,7 +79,7 @@ struct CColoredQuadFilterD3DDataBindingFactory : TMultiBlendShader<CColoredQuadF
 };
 
 TMultiBlendShader<CColoredQuadFilter>::IDataBindingFactory*
-CColoredQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+CColoredQuadFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -102,7 +102,7 @@ CColoredQuadFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CColoredQuadFilter::Shutdown<boo::ID3DDataFactory>()
+void CColoredQuadFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_AlphaPipeline.reset();

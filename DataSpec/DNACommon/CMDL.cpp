@@ -1651,6 +1651,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
     size_t endOff = 0;
     for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
     {
+        (void)surf;
         head.secSizes.push_back(64);
         paddingSizes.push_back(0);
         endOff += 64;
@@ -2172,6 +2173,7 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
         size_t endOff = 0;
         for (const hecl::blender::HMDLBuffers::Surface& surf : bufs.m_surfaces)
         {
+            (void)surf;
             endOff += 96;
             surfEndOffs.push_back(endOff);
         }

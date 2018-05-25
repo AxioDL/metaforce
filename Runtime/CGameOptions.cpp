@@ -605,6 +605,7 @@ CHintOptions::CHintOptions(CBitStreamReader& stream)
     u32 hintIdx = 0;
     for (const auto& hint : hints)
     {
+        (void)hint;
         EHintState state = EHintState(stream.ReadEncoded(2));
         u32 timeBits = stream.ReadEncoded(32);
         float time = reinterpret_cast<float&>(timeBits);

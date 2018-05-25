@@ -6,14 +6,14 @@ namespace urde
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
 : m_w(w), m_h(h)
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         TShader<CWorldShadowShader>::BuildShaderDataBinding(ctx, *this);
         m_tex = ctx.newRenderTexture(m_w, m_h, boo::TextureClampMode::ClampToWhite, 1, 0);
         return true;
-    });
+    } BooTrace);
 }
 
 void CWorldShadowShader::bindRenderTarget()

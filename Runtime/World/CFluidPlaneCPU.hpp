@@ -8,7 +8,7 @@
 namespace urde
 {
 class CFluidUVMotion;
-class CFluidPlaneCPU : public CFluidPlane
+class CFluidPlaneCPU final : public CFluidPlane
 {
     class CTurbulence
     {

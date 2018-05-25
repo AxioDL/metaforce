@@ -100,7 +100,7 @@ struct SpecMP2 : SpecBase
                         }
                     }
 
-                    m_paks.emplace_back(m_project, child, good);
+                    m_paks.emplace_back(child, good);
                 }
             }
 

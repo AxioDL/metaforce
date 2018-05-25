@@ -52,7 +52,7 @@ struct CMapSurfaceShaderD3DDataBindingFactory : TShader<CMapSurfaceShader>::IDat
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CMapSurfaceShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         filter.m_dataBind = cctx.newShaderDataBinding(s_Pipeline, s_VtxFmt,
@@ -63,7 +63,7 @@ struct CMapSurfaceShaderD3DDataBindingFactory : TShader<CMapSurfaceShader>::IDat
 };
 
 TShader<CMapSurfaceShader>::IDataBindingFactory*
-CMapSurfaceShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CMapSurfaceShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -72,12 +72,12 @@ CMapSurfaceShader::Initialize(boo::ID3DDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, nullptr, s_VtxFmt,
         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-        boo::ZTest::None, false, true, false, boo::CullMode::Backface);
+        boo::ZTest::GEqual, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderD3DDataBindingFactory;
 }
 
 template <>
-void CMapSurfaceShader::Shutdown<boo::ID3DDataFactory>()
+void CMapSurfaceShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

@@ -7,7 +7,7 @@ namespace urde
 {
 class CAnimation;
 
-class CAnimationDatabaseGame : public CAnimationDatabase
+class CAnimationDatabaseGame final : public CAnimationDatabase
 {
     std::vector<std::shared_ptr<IMetaAnim>> x10_anims;
 public:

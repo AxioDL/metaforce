@@ -20,8 +20,8 @@ public:
                                                                          boo::ObjToken<boo::ITextureD> tex);
 #endif
 #if _WIN32
-    static void Initialize(boo::ID3DDataFactory::Context& ctx);
-    static boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::ID3DDataFactory::Context& ctx,
+    static void Initialize(boo::D3DDataFactory::Context& ctx);
+    static boo::ObjToken<boo::IShaderDataBinding> BuildShaderDataBinding(boo::D3DDataFactory::Context& ctx,
                                                                          boo::ObjToken<boo::IGraphicsBufferS> vbo,
                                                                          boo::ObjToken<boo::IGraphicsBufferD> uniBuf,
                                                                          boo::ObjToken<boo::ITextureD> tex);

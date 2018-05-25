@@ -81,8 +81,8 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
                  const CMaterialList& ml)
 : CPhysicsActor(uid, true, "CPlayer", CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), xf,
                 MakePlayerAnimRes(resId, playerScale), ml, aabb, SMoverData(mass), CActorParameters::None(), stepUp,
-                stepDown), x7d0_animRes(resId, 0, playerScale, 0, true), x2d8_fpBounds(aabb),
-  x7d8_beamScale(playerScale)
+                stepDown), x2d8_fpBounds(aabb), x7d0_animRes(resId, 0, playerScale, 0, true),
+                x7d8_beamScale(playerScale)
 {
     x490_gun.reset(new CPlayerGun(uid));
     x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
@@ -4489,7 +4489,6 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
                                                 EPlayerZoneInfo info, EPlayerZoneType zone, CStateManager& mgr) const
 {
     zeus::CVector3f eyePos = GetEyePosition();
-    zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
     float minEyeToAimMag = 10000.f;
     float minPosInBoxMagSq = 10000.f;
     TUniqueId bestId = kInvalidUniqueId;
@@ -4604,7 +4603,6 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                                            EPlayerZoneInfo info, CStateManager& mgr) const
 {
     zeus::CVector3f eyePos = GetEyePosition();
-    zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
     float minEyeToOrbitMag = 10000.f;
     float minPosInBoxMagSq = 10000.f;
     TUniqueId bestId = kInvalidUniqueId;

@@ -5,7 +5,7 @@ namespace urde
 
 CFogVolumeFilter::CFogVolumeFilter()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -22,7 +22,7 @@ CFogVolumeFilter::CFogVolumeFilter()
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CColor), 1);
         TShader<CFogVolumeFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CFogVolumeFilter::draw2WayPass(const zeus::CColor& color)

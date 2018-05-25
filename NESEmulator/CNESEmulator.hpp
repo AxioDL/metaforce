@@ -17,7 +17,7 @@ namespace MP1
 
 #define NUM_AUDIO_BUFFERS 10
 
-class CNESEmulator : public boo::IAudioVoiceCallback
+class CNESEmulator final : public boo::IAudioVoiceCallback
 {
 public:
     enum class EPasswordEntryState

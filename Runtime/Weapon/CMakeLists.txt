@@ -21,7 +21,7 @@ set(WEAPON_SOURCES
     CGameProjectile.hpp CGameProjectile.cpp
     CBeamProjectile.hpp CBeamProjectile.cpp
     CTargetableProjectile.hpp CTargetableProjectile.cpp
-    CBeamInfo.hpp CBeamInfo.cpp
+    CBeamInfo.hpp
     CPlasmaProjectile.hpp CPlasmaProjectile.cpp
     CEnergyProjectile.cpp CEnergyProjectile.cpp
     CProjectileWeapon.hpp CProjectileWeapon.cpp

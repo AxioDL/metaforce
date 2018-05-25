@@ -102,7 +102,7 @@ const CDamageVulnerability* CCollisionActor::GetDamageVulnerability(const zeus::
 
 void CCollisionActor::SetDamageVulnerability(const CDamageVulnerability& vuln) { x294_damageVuln = vuln; }
 
-zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateManager& mgr)
+zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateManager& mgr) const
 {
     const CGameCamera* gameCamera = static_cast<const CGameCamera*>(mgr.GetCameraManager()->GetCurrentCamera(mgr));
 

@@ -294,12 +294,12 @@ void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
     doorVerts[6].assign(.2f * -center.z,  center.y, 0.f);
     doorVerts[7].assign(.2f * -center.z,  center.y, 2.f * center.x);
 
-    CGraphicsCommitResources([](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx)
     {
         g_doorVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, skDoorVerts, 16, 8);
         g_doorIbo = ctx.newStaticBuffer(boo::BufferUse::Index, DoorIndices, 4, 24);
         return true;
-    });
+    } BooTrace);
 }
 
 void CMappableObject::Shutdown()

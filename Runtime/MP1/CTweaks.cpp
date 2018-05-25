@@ -28,14 +28,6 @@ namespace MP1
 
 static logvisor::Module Log("MP1::CTweaks");
 
-static const SObjectTag& IDFromFactory(CResFactory& factory, const char* name)
-{
-    const SObjectTag* tag = factory.GetResourceIdByName(name);
-    if (!tag)
-        Log.report(logvisor::Fatal, "Tweak Asset not found when loading... '%s'", name);
-    return *tag;
-}
-
 void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr)
 {
     std::experimental::optional<CMemoryInStream> strm;

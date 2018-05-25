@@ -21,14 +21,14 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
     {
         m_maxVerts = totalVerts;
         m_tex = tex;
-        CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+        CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), m_maxVerts);
             for (int i=0 ; i<3 ; ++i)
                 m_uniBuf[i] = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
             TShader<CEnergyBarShader>::BuildShaderDataBinding(ctx, *this);
             return true;
-        });
+        } BooTrace);
     }
 
     size_t vertIter = 0;

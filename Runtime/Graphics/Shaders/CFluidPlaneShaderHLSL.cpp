@@ -166,7 +166,7 @@ static const char* FSDoor =
 "}\n";
 
 boo::ObjToken<boo::IShaderPipeline>
-CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
+CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
     if (!s_vtxFmt)
     {
@@ -498,7 +498,7 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
 }
 
 boo::ObjToken<boo::IShaderPipeline>
-CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
+CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
 {
     if (!s_vtxFmt)
     {
@@ -559,13 +559,13 @@ CFluidPlaneShader::BuildShader(boo::ID3DDataFactory::Context& ctx, const SFluidP
 }
 
 template <>
-void CFluidPlaneShader::_Shutdown<boo::ID3DDataFactory>()
+void CFluidPlaneShader::_Shutdown<boo::D3DDataFactory>()
 {
     s_vtxFmt.reset();
 }
 
 boo::ObjToken<boo::IShaderDataBinding>
-CFluidPlaneShader::BuildBinding(boo::ID3DDataFactory::Context& ctx,
+CFluidPlaneShader::BuildBinding(boo::D3DDataFactory::Context& ctx,
                                 const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
 {
     boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };

@@ -445,6 +445,7 @@ void VISIRenderer::RenderPVSEntitiesAndLights(const std::function<void(int)>& pa
         idx = m_models.size();
         for (const Entity& ent : m_entities)
         {
+            (void)ent;
             if (m_queryBools[idx])
             {
                 GLint res;

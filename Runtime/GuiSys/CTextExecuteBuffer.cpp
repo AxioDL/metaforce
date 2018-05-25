@@ -79,7 +79,6 @@ std::list<CTextRenderBuffer> CTextExecuteBuffer::BuildRenderBufferPages(const ze
 
     for (auto it = x0_instList.begin() ; it != x0_instList.end() ;)
     {
-        const std::shared_ptr<CInstruction>& inst = *it;
         CTextRenderBuffer rbuf(CTextRenderBuffer::EMode::AllocTally, df);
 
         {

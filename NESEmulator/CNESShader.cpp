@@ -179,7 +179,7 @@ boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::G
 #endif
 
 #if _WIN32
-void CNESShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+void CNESShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -193,7 +193,7 @@ void CNESShader::Initialize(boo::ID3DDataFactory::Context& ctx)
                                        boo::ZTest::None, false, true, false, boo::CullMode::None);
 }
 
-boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::ID3DDataFactory::Context& ctx,
+boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::D3DDataFactory::Context& ctx,
                                                                           boo::ObjToken<boo::IGraphicsBufferS> vbo,
                                                                           boo::ObjToken<boo::IGraphicsBufferD> uniBuf,
                                                                           boo::ObjToken<boo::ITextureD> tex)
@@ -274,8 +274,7 @@ boo::ObjToken<boo::IShaderDataBinding> CNESShader::BuildShaderDataBinding(boo::I
 #endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
-        return BuildShaderDataBinding(static_cast<boo::ID3DDataFactory::Context&>(ctx), vbo, uniBuf, tex);
+        return BuildShaderDataBinding(static_cast<boo::D3DDataFactory::Context&>(ctx), vbo, uniBuf, tex);
 #endif
 #if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
@@ -295,7 +294,7 @@ void CNESShader::Initialize()
     if (!CGraphics::g_BooFactory)
         return;
 
-    CGraphicsCommitResources(
+    CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         switch (ctx.platform())
@@ -307,8 +306,7 @@ void CNESShader::Initialize()
 #endif
 #if _WIN32
             case boo::IGraphicsDataFactory::Platform::D3D11:
-        case boo::IGraphicsDataFactory::Platform::D3D12:
-            Initialize(static_cast<boo::ID3DDataFactory::Context&>(ctx));
+            Initialize(static_cast<boo::D3DDataFactory::Context&>(ctx));
             break;
 #endif
 #if BOO_HAS_METAL
@@ -324,7 +322,7 @@ void CNESShader::Initialize()
         default: break;
         }
         return true;
-    });
+    } BooTrace);
 }
 
 void CNESShader::Shutdown()

@@ -6,7 +6,7 @@
 namespace urde
 {
 
-class CPlasmaBeam : public CGunWeapon
+class CPlasmaBeam final : public CGunWeapon
 {
     TCachedToken<CGenDescription> x21c_plasma2nd1;
     std::unique_ptr<CElementGen> x228_chargeFx;

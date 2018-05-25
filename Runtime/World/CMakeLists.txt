@@ -19,14 +19,13 @@ set(WORLD_SOURCES
     CPathFindRegion.hpp CPathFindRegion.cpp
     CPathFindSearch.hpp CPathFindSearch.cpp
     CPathFindSpline.cpp
-    CPathFindDraw.hpp CPathFindDraw.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CEntity.hpp CEntity.cpp
     CPhysicsActor.hpp CPhysicsActor.cpp
     CWorldTransManager.hpp CWorldTransManager.cpp
     CEnvFxManager.hpp CEnvFxManager.cpp
     CActorModelParticles.hpp CActorModelParticles.cpp
-    CTeamAiTypes.hpp CTeamAiTypes.cpp
+    CTeamAiTypes.hpp
     ScriptObjectSupport.hpp ScriptObjectSupport.cpp
     ScriptLoader.hpp ScriptLoader.cpp
     CScriptActor.hpp CScriptActor.cpp
@@ -89,7 +88,7 @@ set(WORLD_SOURCES
     CScriptGunTurret.hpp CScriptGunTurret.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CTeamAiMgr.hpp CTeamAiMgr.cpp
-    CSnakeWeedSwarm.hpp CSnakeWeedSwarm.cpp
+    CSnakeWeedSwarm.hpp
     CScriptSpindleCamera.hpp CScriptSpindleCamera.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CScriptBeam.hpp CScriptBeam.cpp

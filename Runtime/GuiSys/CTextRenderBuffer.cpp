@@ -54,7 +54,7 @@ void CTextRenderBuffer::CommitResources()
     for (BooFontCharacters& chs : m_fontCharacters)
         chs.m_font->GetTexture();
 
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_uniBuf = CTextSupportShader::s_Uniforms.allocateBlock(CGraphics::g_BooFactory);
         auto uBufInfo = m_uniBuf.getBufferInfo();
@@ -167,7 +167,7 @@ void CTextRenderBuffer::CommitResources()
             }
         }
         return true;
-    });
+    } BooTrace);
 }
 
 void CTextRenderBuffer::SetMode(EMode mode)

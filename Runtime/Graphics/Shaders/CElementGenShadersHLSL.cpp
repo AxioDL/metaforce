@@ -262,7 +262,7 @@ struct D3DElementDataBindingFactory : TShader<CElementGenShaders>::IDataBindingF
     }
 };
 
-TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     static const boo::VertexElementDescriptor TexFmtTex[] =
     {
@@ -436,7 +436,7 @@ TShader<CElementGenShaders>::IDataBindingFactory* CElementGenShaders::Initialize
 }
 
 template <>
-void CElementGenShaders::Shutdown<boo::ID3DDataFactory>()
+void CElementGenShaders::Shutdown<boo::D3DDataFactory>()
 {
     m_vtxFormatTex.reset();
     m_vtxFormatIndTex.reset();

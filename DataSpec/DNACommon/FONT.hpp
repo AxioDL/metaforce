@@ -27,7 +27,7 @@ struct IGlyph : BigDNAVYaml
     float bottom() const { return m_glyphRect.bottom; }
     GlyphRect rect() const { return m_glyphRect; }
 
-    virtual int layer() { return 0; }
+    virtual atInt32 layer() const { return 0; }
     virtual atInt32 leftPadding() const=0;
     virtual atInt32 advance() const =0;
     virtual atInt32 rightPadding() const=0;

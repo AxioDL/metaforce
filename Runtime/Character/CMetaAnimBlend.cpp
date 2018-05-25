@@ -22,7 +22,7 @@ std::shared_ptr<CAnimTreeNode>
 CMetaAnimBlend::VGetAnimationTree(const CAnimSysContext& animSys,
                                   const CMetaAnimTreeBuildOrders& orders) const
 {
-    CMetaAnimTreeBuildOrders buildOrders = CMetaAnimTreeBuildOrders::NoSpecialOrders();
+    //CMetaAnimTreeBuildOrders buildOrders = CMetaAnimTreeBuildOrders::NoSpecialOrders();
     return {};
 }
 

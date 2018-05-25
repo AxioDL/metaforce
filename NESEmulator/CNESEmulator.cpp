@@ -65,7 +65,7 @@ enum {
 #endif
 };
 
-static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst);
+//static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst);
 
 static int emuFileType = FTYPE_UNK;
 static char emuFileName[1024];
@@ -82,11 +82,11 @@ bool doOverscan = false;
 bool nesPAL = false;
 bool nesEmuNSFPlayback = false;
 
-static bool inPause = false;
-static bool inOverscanToggle = false;
-static bool inResize = false;
-static bool inDiskSwitch = false;
-static bool inReset = false;
+//static bool inPause = false;
+//static bool inOverscanToggle = false;
+//static bool inResize = false;
+//static bool inDiskSwitch = false;
+//static bool inReset = false;
 
 #if DEBUG_HZ
 static int emuFrameStart = 0;
@@ -107,7 +107,7 @@ static int emuMainTotalElapsed = 0;
 
 static uint32_t linesToDraw = VISIBLE_LINES;
 static const uint32_t visibleImg = VISIBLE_DOTS*VISIBLE_LINES*4;
-static uint8_t scaleFactor = 2;
+//static uint8_t scaleFactor = 2;
 static bool emuSaveEnabled = false;
 static bool emuFdsHasSideB = false;
 static uint32_t mainLoopRuns;
@@ -252,7 +252,7 @@ void CNESEmulator::InitializeEmulator()
     //mainLoopRuns *= ppuLinesTotal;
     mainLoopPos = mainLoopRuns;
 
-    CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         // Nearest-neighbor FTW!
         m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw,
@@ -269,7 +269,7 @@ void CNESEmulator::InitializeEmulator()
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
         return true;
-    });
+    } BooTrace);
 
     //double useFreq = 223740;
     double useFreq = apuGetFrequency();
@@ -547,6 +547,7 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 #endif
 }
 
+#if 0
 static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst)
 {
     memcpy(dst, src, 0x38);
@@ -567,6 +568,7 @@ static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst)
     } while(cROMPos < 0xFFDC && cDiskPos < 0xFFFF);
     printf("%04x -> %04x\n", cROMPos, cDiskPos);
 }
+#endif
 
 void CNESEmulator::DecompressROM(u8* dataIn, u8* dataOut, u32 dataOutLen, u8 descrambleSeed,
                                  u32 checkDataLen, u32 checksumMagic)

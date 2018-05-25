@@ -24,7 +24,6 @@ specter::View* Space::buildSpaceView(specter::ViewResources& res)
         specter::View* sview = buildContentView(res);
         m_spaceView->setContentView(sview);
         specter::Toolbar& tb = *m_spaceView->toolbar();
-        const std::string* classStr = SpaceMenuNode::LookupClassString(m_class);
         specter::Icon* classIcon = SpaceMenuNode::LookupClassIcon(m_class);
         const zeus::CColor* classColor = SpaceMenuNode::LookupClassColor(m_class);
         m_spaceSelectButton.reset(new specter::Button(res, tb, &m_spaceSelectBind, "", classIcon,

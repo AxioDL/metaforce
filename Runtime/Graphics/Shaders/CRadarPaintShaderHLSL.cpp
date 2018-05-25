@@ -60,7 +60,7 @@ struct CRadarPaintShaderD3DDataBindingFactory : TShader<CRadarPaintShader>::IDat
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CRadarPaintShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
@@ -71,7 +71,7 @@ struct CRadarPaintShaderD3DDataBindingFactory : TShader<CRadarPaintShader>::IDat
 };
 
 TShader<CRadarPaintShader>::IDataBindingFactory*
-CRadarPaintShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CRadarPaintShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -94,7 +94,7 @@ CRadarPaintShader::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CRadarPaintShader::Shutdown<boo::ID3DDataFactory>()
+void CRadarPaintShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

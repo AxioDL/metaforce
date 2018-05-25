@@ -49,9 +49,9 @@ public:
     static Space* NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigReader& r);
     static RootSpace* NewRootSpaceFromConfigStream(ViewManager& vm, ConfigReader& r);
 
-    struct SpaceMenuNode : specter::IMenuNode
+    struct SpaceMenuNode final : specter::IMenuNode
     {
-        struct SubNodeData : specter::IMenuNode
+        struct SubNodeData final : specter::IMenuNode
         {
             Class m_cls;
             std::string m_key;
@@ -66,7 +66,7 @@ public:
         };
         static std::vector<SubNodeData> s_subNodeDats;
 
-        struct SubNode : specter::IMenuNode
+        struct SubNode final : specter::IMenuNode
         {
             Space& m_space;
             const SubNodeData& m_data;
@@ -402,7 +402,7 @@ public:
         AT_DECL_DNA_YAML
         AT_DECL_DNAV
     } m_state;
-    Space::State& spaceState() {return m_state;}
+    const Space::State& spaceState() const {return m_state;}
 
     bool usesToolbar() const {return true;}
     void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb)

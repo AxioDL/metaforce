@@ -54,7 +54,6 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
     {
         CRandom16 rnd(x88_seed1);
         u32 count = (x84_ >= 16 ? 16 : x84_);
-        zeus::CVector3f uVec = zeus::CVector3f::skUp;
         u32 idx = x80_;
         for (u32 i = 0; i < count; ++i)
         {

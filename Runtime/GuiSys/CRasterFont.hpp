@@ -86,6 +86,10 @@ public:
         : x0_(a), x1_(b), x4_(c), x8_fontSize(fontSize)
     {
         strcpy(xc_name, name);
+        (void)x0_;
+        (void)x1_;
+        (void)x4_;
+        (void)x8_fontSize;
     }
 };
 

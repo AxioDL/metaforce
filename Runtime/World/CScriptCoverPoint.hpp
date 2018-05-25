@@ -40,9 +40,9 @@ public:
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);
-    void AddToRenderer(const zeus::CFrustum &, CStateManager &) {}
+    void AddToRenderer(const zeus::CFrustum &, const CStateManager &) const {}
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
-    void Render(CStateManager &) {}
+    void Render(const CStateManager &) const {}
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void SetInUse(bool inUse);
     bool GetInUse(TUniqueId uid) const;

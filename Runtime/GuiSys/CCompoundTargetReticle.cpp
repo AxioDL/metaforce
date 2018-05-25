@@ -55,7 +55,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer()
 {
-    CGraphicsCommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         for (int i=0 ; i<2 ; ++i)
         {
@@ -64,7 +64,7 @@ CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer()
                 m_stripRenderers[i][j].emplace(ctx, CLineRenderer::EPrimitiveMode::LineStrip, 4, nullptr, true, true);
         }
         return true;
-    });
+    } BooTrace);
 }
 
 CCompoundTargetReticle::EReticleState CCompoundTargetReticle::GetDesiredReticleState(const CStateManager& mgr) const

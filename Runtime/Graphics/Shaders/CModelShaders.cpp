@@ -65,7 +65,6 @@ CModelShaders::GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat)
 #endif
 #if _WIN32
     case boo::IGraphicsDataFactory::Platform::D3D11:
-    case boo::IGraphicsDataFactory::Platform::D3D12:
         return GetShaderExtensionsHLSL(plat);
 #endif
 #if BOO_HAS_METAL

@@ -6,7 +6,7 @@
 namespace urde
 {
 
-class CWaveBeam : public CGunWeapon
+class CWaveBeam final : public CGunWeapon
 {
     TCachedToken<CWeaponDescription> x21c_waveBeam;
     TCachedToken<CElectricDescription> x228_wave2nd1;

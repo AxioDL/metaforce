@@ -6,7 +6,7 @@ namespace urde
 
 CThermalHotFilter::CThermalHotFilter()
 {
-    CGraphicsCommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -23,7 +23,7 @@ CThermalHotFilter::CThermalHotFilter()
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
         m_dataBind = TShader<CThermalHotFilter>::BuildShaderDataBinding(ctx, *this);
         return true;
-    });
+    } BooTrace);
 }
 
 void CThermalHotFilter::draw()

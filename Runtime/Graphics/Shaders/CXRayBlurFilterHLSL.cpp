@@ -102,7 +102,7 @@ struct CXRayBlurFilterD3DDataBindingFactory : TShader<CXRayBlurFilter>::IDataBin
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CXRayBlurFilter& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {filter.m_uniBuf.get()};
         boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), filter.m_booTex.get()};
@@ -112,7 +112,7 @@ struct CXRayBlurFilterD3DDataBindingFactory : TShader<CXRayBlurFilter>::IDataBin
     }
 };
 
-TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::ID3DDataFactory::Context& ctx)
+TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -128,7 +128,7 @@ TShader<CXRayBlurFilter>::IDataBindingFactory* CXRayBlurFilter::Initialize(boo::
 }
 
 template <>
-void CXRayBlurFilter::Shutdown<boo::ID3DDataFactory>()
+void CXRayBlurFilter::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();

@@ -11,11 +11,6 @@
 namespace urde
 {
 
-static const char* DecodeARAMFile(const char* name)
-{
-    return (strncmp(name, "aram:", 5) == 0 ? name + 5 : name);
-}
-
 enum class ESeekOrigin
 {
     Begin = 0,

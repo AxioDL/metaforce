@@ -96,7 +96,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
         if (x134_29_)
             return EMessageReturn::RemoveIOWinAndExit;
 
-        float dt = MakeMsg::GetParmTimerTick(msg).x4_parm;
+        //float dt = MakeMsg::GetParmTimerTick(msg).x4_parm;
 
         switch (x14_phase)
         {

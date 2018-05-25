@@ -19,10 +19,10 @@ void CIkChain::Deactivate()
 
 void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const zeus::CTransform& xf)
 {
-    const CHierarchyPoseBuilder& posBuilder = animData.GetPoseBuilder();
+    //const CHierarchyPoseBuilder& posBuilder = animData.GetPoseBuilder();
     x0_ = segId;
 
-    const TLockedToken<CCharLayoutInfo>& info = posBuilder.CharLayoutInfo();
+    //const TLockedToken<CCharLayoutInfo>& info = posBuilder.CharLayoutInfo();
 }
 
 void CIkChain::Solve(zeus::CQuaternion& q1, zeus::CQuaternion& q2, const zeus::CVector3f& vec)

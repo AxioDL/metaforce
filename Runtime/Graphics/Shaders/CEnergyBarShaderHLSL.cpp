@@ -61,7 +61,7 @@ struct CEnergyBarShaderD3DDataBindingFactory : TShader<CEnergyBarShader>::IDataB
     BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
                            CEnergyBarShader& filter)
     {
-        boo::ID3DDataFactory::Context& cctx = static_cast<boo::ID3DDataFactory::Context&>(ctx);
+        boo::D3DDataFactory::Context& cctx = static_cast<boo::D3DDataFactory::Context&>(ctx);
 
         boo::ObjToken<boo::IGraphicsBuffer> bufs[1];
         boo::ObjToken<boo::ITexture> texs[] = {filter.m_tex->GetBooTexture()};
@@ -77,7 +77,7 @@ struct CEnergyBarShaderD3DDataBindingFactory : TShader<CEnergyBarShader>::IDataB
 };
 
 TShader<CEnergyBarShader>::IDataBindingFactory*
-CEnergyBarShader::Initialize(boo::ID3DDataFactory::Context& ctx)
+CEnergyBarShader::Initialize(boo::D3DDataFactory::Context& ctx)
 {
     const boo::VertexElementDescriptor VtxVmt[] =
     {
@@ -93,7 +93,7 @@ CEnergyBarShader::Initialize(boo::ID3DDataFactory::Context& ctx)
 }
 
 template <>
-void CEnergyBarShader::Shutdown<boo::ID3DDataFactory>()
+void CEnergyBarShader::Shutdown<boo::D3DDataFactory>()
 {
     s_VtxFmt.reset();
     s_Pipeline.reset();
