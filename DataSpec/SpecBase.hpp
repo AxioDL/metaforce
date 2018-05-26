@@ -53,6 +53,8 @@ struct SpecBase : hecl::Database::IDataSpec
                    bool fast, hecl::blender::Token& btok, const hecl::MultiProgressPrinter& progress,
                    hecl::ClientProcess* cp);
 
+    void interruptCook();
+
     /* Extract handlers */
     virtual bool checkStandaloneID(const char* id) const=0;
     virtual bool checkFromStandaloneDisc(nod::DiscBase& disc,

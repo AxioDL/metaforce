@@ -5,6 +5,8 @@
 namespace urde
 {
 
+static logvisor::Module Log("CPathFindArea");
+
 CPFAreaOctree::CPFAreaOctree(CMemoryInStream& in)
 {
     x0_isLeaf = in.readUint32Big();
@@ -136,6 +138,10 @@ bool CPFOpenList::Test(CPFRegion* reg)
 CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len)
 {
     CMemoryInStream r(buf.get(), len);
+
+    u32 version = r.readUint32Big();
+    if (version != 4)
+        Log.report(logvisor::Fatal, "Unexpected PATH version %d, should be 4", version);
 
     u32 numNodes = r.readUint32Big();
     x140_nodes.reserve(numNodes);

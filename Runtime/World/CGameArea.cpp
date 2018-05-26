@@ -1313,22 +1313,19 @@ void CGameArea::VerifyTokenList(CStateManager& stateMgr)
     if (xac_deps2.empty())
         return;
 
-    u32 lastOff = 0;
-    int lidx = 0;
-    for (u32 off : xbc_layerDepOffsets)
+    auto end = xac_deps2.end();
+    for (int lidx = int(xbc_layerDepOffsets.size() - 1) ; lidx >= 0 ; --lidx)
     {
+        auto begin = xac_deps2.begin() + xbc_layerDepOffsets[lidx];
         if (stateMgr.LayerState()->IsLayerActive(x4_selfIdx, lidx))
         {
-            auto it = xac_deps2.begin() + lastOff;
-            auto end = xac_deps2.begin() + off;
-            for (; it != end ; ++it)
+            for (auto it = begin ; it != end ; ++it)
             {
                 xdc_tokens.push_back(g_SimplePool->GetObj(*it));
                 xdc_tokens.back().Lock();
             }
         }
-        lastOff = off;
-        ++lidx;
+        end = begin;
     }
 }
 

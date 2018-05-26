@@ -792,6 +792,11 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     pakOut.close();
 }
 
+void SpecBase::interruptCook()
+{
+    cancelBackgroundIndex();
+}
+
 hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const
 {
     const hecl::Database::DataSpecEntry* spec = &getOriginalSpec();
@@ -1269,6 +1274,10 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
     /* Enumerate all items */
     for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
     {
+        /* bail if cancelled by client */
+        if (!m_backgroundRunning)
+            break;
+
         hecl::ProjectPath path(dir, ent.m_name);
         if (ent.m_isDir)
             backgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level + 1);
@@ -1287,10 +1296,6 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
             /* Index the regular file */
             addFileToIndex(path, cacheWriter);
         }
-
-        /* bail if cancelled by client */
-        if (!m_backgroundRunning)
-            break;
     }
 }
 
@@ -1323,6 +1328,9 @@ void SpecBase::backgroundIndexProc()
                 size_t loadIdx = 0;
                 for (const auto& child : cacheReader.getRootNode()->m_mapChildren)
                 {
+                    if (!m_backgroundRunning)
+                        return;
+
                     const athena::io::YAMLNode& node = *child.second;
                     unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
                     hecl::FourCC type(node.m_seqChildren.at(0)->m_scalarString.c_str());

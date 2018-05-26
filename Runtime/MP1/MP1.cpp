@@ -363,6 +363,7 @@ void CGameGlobalObjects::AddPaksAndFactories()
         fmgr->AddFactory(FOURCC('MAPA'), FFactoryFunc(FMapAreaFactory));
         fmgr->AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
         fmgr->AddFactory(FOURCC('AFSM'), FFactoryFunc(FAiFiniteStateMachineFactory));
+        fmgr->AddFactory(FOURCC('PATH'), FMemFactoryFunc(FPathFindAreaFactory));
     }
 }
 

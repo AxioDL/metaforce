@@ -1313,7 +1313,7 @@ struct SpecMP1 : SpecBase
             auto layerIt = area.depLayers.cbegin();
             while (it != area.deps.cend())
             {
-                if (layerIt != area.depLayers.cend() && it - area.deps.cbegin() == *layerIt)
+                while (layerIt != area.depLayers.cend() && it - area.deps.cbegin() == *layerIt)
                 {
                     strippedDepLayers.push_back(atUint32(strippedDeps.size()));
                     ++layerIt;
