@@ -100,9 +100,10 @@ public:
         hecl::VerbosityLevel = info.verbosityLevel;
         hecl::GuiMode = info.gui;
     }
-    virtual ~ToolBase() {}
+    virtual ~ToolBase() = default;
     virtual hecl::SystemString toolName() const=0;
     virtual int run()=0;
+    virtual void cancel() {}
     inline operator bool() const {return m_good;}
 };
 

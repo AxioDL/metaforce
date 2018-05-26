@@ -137,10 +137,6 @@ public:
             FindSelectedItems({*m_useProj, _S("")}, true);
     }
 
-    ~ToolPackage()
-    {
-    }
-
     static void Help(HelpOutput& help)
     {
         help.secHead(_S("NAME"));
@@ -211,6 +207,11 @@ public:
         }
 
         return 0;
+    }
+
+    void cancel()
+    {
+        m_useProj->interruptCook();
     }
 };
 

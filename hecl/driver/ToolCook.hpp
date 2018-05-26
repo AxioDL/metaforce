@@ -174,6 +174,11 @@ public:
         cp.waitUntilComplete();
         return 0;
     }
+
+    void cancel()
+    {
+        m_useProj->interruptCook();
+    }
 };
 
 #endif // CTOOL_COOK

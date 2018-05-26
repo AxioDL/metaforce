@@ -122,6 +122,8 @@ public:
                            ClientProcess* cp=nullptr)
     {(void)path;}
 
+    virtual void interruptCook() {}
+
     const DataSpecEntry* getDataSpecEntry() const {return m_specEntry;}
 };
 

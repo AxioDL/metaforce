@@ -151,7 +151,7 @@ public:
                 hecl::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
             else
                 hecl::Printf(_S("NOTHING TO EXTRACT\n"));
-            return -1;
+            return 1;
         }
 
         if (XTERM_COLOR)

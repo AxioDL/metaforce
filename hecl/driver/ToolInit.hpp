@@ -46,11 +46,11 @@ public:
     int run()
     {
         if (!m_dir)
-            return -1;
+            return 1;
         size_t ErrorRef = logvisor::ErrorCount;
         hecl::Database::Project proj((hecl::ProjectRootPath(*m_dir)));
         if (logvisor::ErrorCount > ErrorRef)
-            return -1;
+            return 1;
         LogModule.report(logvisor::Info, _S("initialized project at '%s/.hecl'"), m_dir->c_str());
         return 0;
     }

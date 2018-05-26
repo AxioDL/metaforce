@@ -67,9 +67,13 @@ static void printHelp(const hecl::SystemChar* pname)
 /* Regex patterns */
 static const hecl::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
 
+static ToolBase* ToolPtr = nullptr;
+
 /* SIGINT will gracefully close blender connections and delete blends in progress */
 static void SIGINTHandler(int sig)
 {
+    if (ToolPtr)
+        ToolPtr->cancel();
     hecl::blender::Connection::Shutdown();
     logvisor::KillProcessTree();
     exit(1);
@@ -249,7 +253,7 @@ int main(int argc, const char** argv)
             system("PAUSE");
 #endif
             delete newProj;
-            return -1;
+            return 1;
         }
         project.reset(newProj);
         info.project = newProj;
@@ -296,7 +300,7 @@ int main(int argc, const char** argv)
 #if WIN_PAUSE
         system("PAUSE");
 #endif
-        return -1;
+        return 1;
     }
 
     if (info.verbosityLevel)
@@ -305,14 +309,16 @@ int main(int argc, const char** argv)
 
     /* Run tool */
     ErrorRef = logvisor::ErrorCount;
+    ToolPtr = tool.get();
     int retval = tool->run();
+    ToolPtr = nullptr;
     if (logvisor::ErrorCount > ErrorRef)
     {
         hecl::blender::Connection::Shutdown();
 #if WIN_PAUSE
         system("PAUSE");
 #endif
-        return -1;
+        return 1;
     }
 
     hecl::blender::Connection::Shutdown();

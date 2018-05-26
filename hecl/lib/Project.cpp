@@ -562,6 +562,8 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
 
 void Project::interruptCook()
 {
+    if (m_lastPackageSpec)
+        m_lastPackageSpec->interruptCook();
 }
 
 bool Project::cleanPath(const ProjectPath& path, bool recursive)
