@@ -75,7 +75,7 @@ CMapSurfaceShader::Initialize(boo::MetalDataFactory::Context& ctx)
     s_VtxFmt = ctx.newVertexFormat(1, VtxVmt);
     s_Pipeline = ctx.newShaderPipeline(VS, FS, nullptr, nullptr, s_VtxFmt,
         boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha, boo::Primitive::TriStrips,
-        boo::ZTest::None, false, true, false, boo::CullMode::Backface);
+        boo::ZTest::GEqual, false, true, false, boo::CullMode::Backface);
     return new CMapSurfaceShaderMetalDataBindingFactory;
 }
 

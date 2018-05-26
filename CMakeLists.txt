@@ -231,6 +231,8 @@ add_subdirectory(mpcksum)
 add_subdirectory(gbalink)
 add_subdirectory(visigen)
 
+add_dependencies(hecl visigen)
+
 find_package(Qt5Widgets)
 if (Qt5Widgets_FOUND)
     message(STATUS "Qt5 found, hecl-gui will be built")
