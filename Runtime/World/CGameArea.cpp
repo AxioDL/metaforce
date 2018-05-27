@@ -958,6 +958,7 @@ bool CGameArea::Invalidate(CStateManager* mgr)
     ClearTokenList();
     if (mgr)
         mgr->AreaUnloaded(GetAreaId());
+
     return true;
 }
 
