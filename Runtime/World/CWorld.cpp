@@ -557,25 +557,25 @@ void CWorld::TravelToArea(TAreaId aid, CStateManager& mgr, bool skipLoadOther)
         ++toStreamCount;
     }
 
-    if (!toStreamCount && otherLoadArea && !x70_25_paused)
+    if (!toStreamCount && otherLoadArea && !x70_25_loadPaused)
         otherLoadArea->StartStreamIn(mgr);
 
     x28_mapWorld->SetWhichMapAreasLoaded(*this, aid, 3);
 }
 
-void CWorld::SetPauseState(bool paused)
+void CWorld::SetLoadPauseState(bool paused)
 {
     for (auto it = GetChainHead(EChain::Loading) ; it != AliveAreasEnd() ; ++it)
-        it->SetPauseState(paused);
-    x70_25_paused = paused;
+        it->SetLoadPauseState(paused);
+    x70_25_loadPaused = paused;
 }
 
-void CWorld::CyclePauseState()
+void CWorld::CycleLoadPauseState()
 {
-    if (!x70_25_paused)
+    if (!x70_25_loadPaused)
     {
-        SetPauseState(true);
-        SetPauseState(false);
+        SetLoadPauseState(true);
+        SetLoadPauseState(false);
     }
 }
 

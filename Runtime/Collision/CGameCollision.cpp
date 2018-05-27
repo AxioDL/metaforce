@@ -19,7 +19,7 @@ namespace urde
 
 static float CollisionImpulseFiniteVsInfinite(float mass, float velNormDot, float restitution)
 {
-    return mass * ((1.f / restitution) * velNormDot);
+    return mass * -(1.f + restitution) * velNormDot;
 }
 
 static float CollisionImpulseFiniteVsFinite(float mass0, float mass1, float velNormDot, float restitution)

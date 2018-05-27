@@ -1838,8 +1838,8 @@ void CStateManager::SetGameState(EGameState state)
     if (x904_gameState == state)
         return;
 
-    if (state == EGameState::SoftPaused)
-        x850_world->SetPauseState(false);
+    if (x904_gameState == EGameState::SoftPaused)
+        x850_world->SetLoadPauseState(false);
 
     switch (state)
     {
@@ -1850,7 +1850,7 @@ void CStateManager::SetGameState(EGameState state)
     case EGameState::SoftPaused:
         if (!x88c_rumbleManager->IsDisabled())
             x88c_rumbleManager->SetDisabled(true);
-        x850_world->SetPauseState(true);
+        x850_world->SetLoadPauseState(true);
     default: break;
     }
 
@@ -2620,7 +2620,7 @@ void CStateManager::DeferStateTransition(EStateManagerTransition t)
     {
         if (xf90_deferredTransition != EStateManagerTransition::InGame)
         {
-            x850_world->SetPauseState(false);
+            x850_world->SetLoadPauseState(false);
             xf90_deferredTransition = EStateManagerTransition::InGame;
         }
     }
@@ -2628,7 +2628,7 @@ void CStateManager::DeferStateTransition(EStateManagerTransition t)
     {
         if (xf90_deferredTransition == EStateManagerTransition::InGame)
         {
-            x850_world->SetPauseState(true);
+            x850_world->SetLoadPauseState(true);
             xf90_deferredTransition = t;
         }
     }

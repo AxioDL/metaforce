@@ -122,7 +122,7 @@ enum class ERglAlphaOp
     XNor = 3
 };
 
-enum class ERglFogMode
+enum class ERglFogMode : uint32_t
 {
     None         = 0x00,
 
@@ -232,6 +232,7 @@ public:
 
     struct CFogState
     {
+        ERglFogMode m_mode;
         zeus::CColor m_color;
         float m_rangeScale = 0.f;
         float m_start = 4096.f;

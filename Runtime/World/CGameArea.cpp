@@ -419,7 +419,7 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
     xf0_24_postConstructed = false;
     xf0_25_active = true;
     xf0_26_tokensReady = false;
-    xf0_27_paused  = false;
+    xf0_27_loadPaused  = false;
     xf0_28_validated = false;
     x8_nameSTRG = in.readUint32Big();
     xc_transform.read34RowMajor(in);
@@ -470,7 +470,7 @@ CGameArea::CGameArea(CAssetId mreaId)
     xf0_24_postConstructed = false;
     xf0_25_active = false;
     xf0_26_tokensReady = false;
-    xf0_27_paused  = false;
+    xf0_27_loadPaused  = false;
     xf0_28_validated = false;
 
     while (StartStreamingMainArea())
@@ -552,11 +552,11 @@ const zeus::CTransform& CGameArea::IGetTM() const
     return xc_transform;
 }
 
-void CGameArea::SetPauseState(bool paused)
+void CGameArea::SetLoadPauseState(bool paused)
 {
     if (xf0_26_tokensReady)
         return;
-    xf0_27_paused = paused;
+    xf0_27_loadPaused = paused;
     if (!paused)
         return;
 
@@ -982,7 +982,7 @@ void CGameArea::CullDeadAreaRequests()
 
 void CGameArea::StartStreamIn(CStateManager& mgr)
 {
-    if (xf0_24_postConstructed || xf0_27_paused)
+    if (xf0_24_postConstructed || xf0_27_loadPaused)
         return;
 
     VerifyTokenList(mgr);

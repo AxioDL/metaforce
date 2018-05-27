@@ -130,7 +130,7 @@ void CScriptPlayerActor::PumpBeamModel(CStateManager& mgr)
         return;
     BuildBeamModelData();
     x314_beamModelData->Touch(mgr, 0);
-    mgr.WorldNC()->CyclePauseState();
+    mgr.WorldNC()->CycleLoadPauseState();
     x31c_beamModel = TLockedToken<CModel>();
     x354_27_beamModelLoading = false;
 }
@@ -148,7 +148,7 @@ void CScriptPlayerActor::PumpSuitModel(CStateManager& mgr)
         return;
 
     x320_suitModel->Touch(0);
-    mgr.WorldNC()->CyclePauseState();
+    mgr.WorldNC()->CycleLoadPauseState();
 
     bool didSetup = false;
     if (x354_26_deferOfflineModelData)

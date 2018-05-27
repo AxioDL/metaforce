@@ -142,7 +142,7 @@ void CPhysicsActor::SetMass(float mass)
         tensor = 1.0f / mass;
 
     xec_massRecip = tensor;
-    SetInertiaTensorScalar(mass * tensor);
+    SetInertiaTensorScalar(mass / 6.f);
 }
 
 void CPhysicsActor::SetAngularVelocityOR(const zeus::CAxisAngle& angVel)

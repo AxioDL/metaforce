@@ -73,6 +73,7 @@ static const char* FS =
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
+"    uint mode;\n"
 "    float4 color;\n"
 "    float indScale;\n"
 "    float start;\n"
@@ -151,6 +152,7 @@ static const char* FSDoor =
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
+"    uint mode;\n"
 "    float4 color;\n"
 "    float indScale;\n"
 "    float start;\n"

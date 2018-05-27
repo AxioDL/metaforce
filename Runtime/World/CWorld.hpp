@@ -137,7 +137,7 @@ private:
         struct
         {
             bool x70_24_currentAreaNeedsAllocation : 1;
-            bool x70_25_paused : 1;
+            bool x70_25_loadPaused : 1;
             bool x70_26_skyboxActive : 1;
             bool x70_27_skyboxVisible : 1;
         };
@@ -169,8 +169,8 @@ public:
     CGameArea::CConstChainIterator end() const { return GetAliveAreasEnd(); }
     bool ScheduleAreaToLoad(CGameArea* area, CStateManager& mgr);
     void TravelToArea(TAreaId aid, CStateManager& mgr, bool);
-    void SetPauseState(bool paused);
-    void CyclePauseState();
+    void SetLoadPauseState(bool paused);
+    void CycleLoadPauseState();
 
     CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId);
     ~CWorld();

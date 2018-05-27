@@ -120,7 +120,7 @@ class CGameArea final : public IGameArea
     bool xf0_24_postConstructed : 1;
     bool xf0_25_active : 1;
     bool xf0_26_tokensReady : 1;
-    bool xf0_27_paused : 1;
+    bool xf0_27_loadPaused : 1;
     bool xf0_28_validated : 1;
 
     enum class EPhase
@@ -285,7 +285,7 @@ public:
 
     bool IsFinishedOccluding() const;
     void ReadDependencyList();
-    void SetPauseState(bool paused);
+    void SetLoadPauseState(bool paused);
 
     std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const;
     TAreaId GetAreaId() const { return x4_selfIdx; }

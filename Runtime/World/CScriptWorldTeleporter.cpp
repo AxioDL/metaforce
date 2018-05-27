@@ -93,7 +93,7 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         case EScriptObjectMessage::SetToZero:
         {
             const auto& world = mgr.WorldNC();
-            world->SetPauseState(true);
+            world->SetLoadPauseState(true);
             CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
 
             if (g_ResFactory->GetResourceTypeById(currentWorld) == SBIG('MLVL'))

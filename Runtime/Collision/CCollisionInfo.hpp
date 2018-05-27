@@ -47,9 +47,9 @@ public:
     const CMaterialList& GetMaterialRight() const { return x40_materialRight; }
     zeus::CVector3f GetExtreme() const;
     void Swap();
-    zeus::CVector3f GetNormalLeft() const { return x48_normalLeft; }
-    zeus::CVector3f GetNormalRight() const { return x54_normalRight; }
-    zeus::CVector3f GetPoint() const { return x0_point; }
+    const zeus::CVector3f& GetNormalLeft() const { return x48_normalLeft; }
+    const zeus::CVector3f& GetNormalRight() const { return x54_normalRight; }
+    const zeus::CVector3f& GetPoint() const { return x0_point; }
 };
 
 }

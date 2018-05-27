@@ -70,17 +70,32 @@ void CGraphics::SetAmbientColor(const zeus::CColor& col)
 
 void CGraphics::SetFog(ERglFogMode mode, float startz, float endz, const zeus::CColor& color)
 {
-    if (mode == ERglFogMode::None)
+    g_Fog.m_mode = mode > ERglFogMode::PerspRevExp2 ? ERglFogMode(int(mode) - 8) : mode;
+    switch (g_Fog.m_mode)
+    {
+    case ERglFogMode::None:
     {
         g_Fog.m_start = 4096.f;
         g_Fog.m_rangeScale = 0.f;
+        break;
     }
-    else
+    case ERglFogMode::PerspRevExp:
+    case ERglFogMode::PerspRevExp2:
+    {
+        float userRange = endz - startz;
+        g_Fog.m_color = color;
+        g_Fog.m_start = endz;
+        g_Fog.m_rangeScale = 1.f / userRange;
+        break;
+    }
+    default:
     {
         float userRange = endz - startz;
         g_Fog.m_color = color;
         g_Fog.m_start = startz;
         g_Fog.m_rangeScale = 1.f / userRange;
+        break;
+    }
     }
 }
 

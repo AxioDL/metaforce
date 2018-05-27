@@ -1237,6 +1237,25 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
 
 void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out)
 {
+    if (in.GetCount() > 1)
+    {
+        zeus::CVector3f pointAccum, normAccum;
 
+        for (const CCollisionInfo& info : in)
+        {
+            pointAccum += info.GetPoint();
+            normAccum += info.GetNormalLeft();
+        }
+
+        if (normAccum.canBeNormalized())
+        {
+            out.Add(CCollisionInfo(pointAccum / float(in.GetCount()),
+                                   in.GetItem(0).GetMaterialRight(), in.GetItem(0).GetMaterialLeft(),
+                                   normAccum.normalized()), false);
+        }
+    }
+
+    for (const CCollisionInfo& info : in)
+        out.Add(info, false);
 }
 }

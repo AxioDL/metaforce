@@ -59,6 +59,7 @@ BOO_GLSL_BINDING_HEAD
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
+"    uint mode;\n"
 "    vec4 color;\n"
 "    float indScale;\n"
 "    float start;\n"
@@ -129,6 +130,7 @@ BOO_GLSL_BINDING_HEAD
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
+"    uint mode;\n"
 "    vec4 color;\n"
 "    float indScale;\n"
 "    float start;\n"
