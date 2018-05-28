@@ -13,6 +13,8 @@ struct ANIM : BigDNA
 {
     AT_DECL_EXPLICIT_DNA
 
+    static UniqueID32 GetEVNTId(athena::io::IStreamReader& r);
+
     struct IANIM : BigDNAV
     {
         Delete expl;

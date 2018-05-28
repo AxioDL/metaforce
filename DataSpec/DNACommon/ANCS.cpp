@@ -164,7 +164,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
 
         /* Get animation primitives */
         std::map<atUint32, AnimationResInfo<typename PAKRouter::IDType>> animResInfo;
-        ancs.getAnimationResInfo(animResInfo);
+        ancs.getAnimationResInfo(&pakRouter, animResInfo);
         for (const auto& id : animResInfo)
         {
             typename ANCSDNA::ANIMType anim;

@@ -249,7 +249,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
                 }
             }
             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
-            ancs.getAnimationResInfo(animInfo);
+            ancs.getAnimationResInfo(&pakRouter, animInfo);
             for (auto& ae : animInfo)
             {
                 PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);

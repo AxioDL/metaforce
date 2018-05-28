@@ -1053,6 +1053,28 @@ void ANCS::AnimationSet::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter&
     }
 }
 
+void ANCS::AnimationSet::MetaAnimPrimitive::
+gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                 std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+{
+    if (!pakRouter)
+    {
+        out[animIdx] = {animName, animId, UniqueID32(), false};
+        return;
+    }
+
+    const nod::Node* node;
+    const PAK::Entry* entry = pakRouter->lookupEntry(animId, &node, true);
+    if (!entry)
+    {
+        out[animIdx] = {animName, animId, UniqueID32(), false};
+        return;
+    }
+
+    PAKEntryReadStream rs = entry->beginReadStream(*node);
+    out[animIdx] = {animName, animId, ANIM::GetEVNTId(rs), false};
+}
+
 const char* ANCS::AnimationSet::DNAType()
 {
     return "urde::DNAMP1::ANCS::AnimationSet";
@@ -1095,7 +1117,7 @@ bool ANCS::Extract(const SpecBase& dataSpec,
 
     /* Extract EVNTs */
     std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animRes;
-    ancs.getAnimationResInfo(animRes);
+    ancs.getAnimationResInfo(&pakRouter, animRes);
     for (const auto& res : animRes)
     {
         if (res.second.evntId)

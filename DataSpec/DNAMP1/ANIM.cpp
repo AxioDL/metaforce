@@ -94,6 +94,28 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
     }
 }
 
+UniqueID32 ANIM::GetEVNTId(athena::io::IStreamReader& reader)
+{
+    atUint32 version = reader.readUint32Big();
+    switch (version)
+    {
+    case 0:
+    {
+        ANIM0 anim0;
+        anim0.read(reader);
+        return anim0.evnt;
+    }
+    case 2:
+    case 3:
+        reader.seek(4);
+        return reader.readUint32Big();
+    default:
+        Log.report(logvisor::Error, "unrecognized ANIM version");
+        break;
+    }
+    return {};
+}
+
 template <>
 void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader)
 {

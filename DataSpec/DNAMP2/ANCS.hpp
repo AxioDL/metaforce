@@ -204,16 +204,17 @@ struct ANCS : BigDNA
         }
     }
 
-    void getAnimationResInfo(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) const
+    void getAnimationResInfo(PAKRouter<PAKBridge>* pakRouter,
+                             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) const
     {
         out.clear();
         for (const DNAMP1::ANCS::AnimationSet::Animation& ai : animationSet.animations)
-            ai.metaAnim.m_anim->gatherPrimitives(out);
+            ai.metaAnim.m_anim->gatherPrimitives(nullptr, out);
         for (const DNAMP1::ANCS::AnimationSet::Transition& ti : animationSet.transitions)
             if (ti.metaTrans.m_trans)
-                ti.metaTrans.m_trans->gatherPrimitives(out);
+                ti.metaTrans.m_trans->gatherPrimitives(nullptr, out);
         if (animationSet.defaultTransition.m_trans)
-            animationSet.defaultTransition.m_trans->gatherPrimitives(out);
+            animationSet.defaultTransition.m_trans->gatherPrimitives(nullptr, out);
     }
 
     static bool Extract(const SpecBase& dataSpec,

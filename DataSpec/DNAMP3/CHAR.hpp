@@ -298,7 +298,8 @@ struct CHAR : BigDNA
             chOut.overlays.emplace_back(overlay.type, std::make_pair(overlay.cmdl, overlay.cskr));
     }
 
-    void getAnimationResInfo(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) const
+    void getAnimationResInfo(PAKRouter<PAKBridge>* pakRouter,
+                             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) const
     {
         out.clear();
         for (const AnimationInfo::Animation& ai : animationInfo.animations)

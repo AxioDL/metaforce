@@ -168,7 +168,8 @@ struct ANCS : BigDNA
             const char* m_typeStr;
             IMetaAnim(Type type, const char* typeStr)
             : m_type(type), m_typeStr(typeStr) {}
-            virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)=0;
+            virtual void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                          std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)=0;
             virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)=0;
         };
         struct MetaAnimFactory : BigDNA
@@ -188,10 +189,8 @@ struct ANCS : BigDNA
             Value<float> unk1;
             Value<atUint32> unk2;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
-            {
-                out[animIdx] = {animName, animId, UniqueID32(), false};
-            }
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out);
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
             {
@@ -209,10 +208,11 @@ struct ANCS : BigDNA
             Value<float> unkFloat;
             Value<atUint8> unk;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
-                animA.m_anim->gatherPrimitives(out);
-                animB.m_anim->gatherPrimitives(out);
+                animA.m_anim->gatherPrimitives(pakRouter, out);
+                animB.m_anim->gatherPrimitives(pakRouter, out);
             }
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
@@ -235,10 +235,11 @@ struct ANCS : BigDNA
             Value<float> unkFloat;
             Value<atUint8> unk;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
-                animA.m_anim->gatherPrimitives(out);
-                animB.m_anim->gatherPrimitives(out);
+                animA.m_anim->gatherPrimitives(pakRouter, out);
+                animB.m_anim->gatherPrimitives(pakRouter, out);
             }
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
@@ -264,10 +265,11 @@ struct ANCS : BigDNA
             };
             Vector<Child, AT_DNA_COUNT(animCount)> children;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
                 for (const auto& child : children)
-                    child.anim.m_anim->gatherPrimitives(out);
+                    child.anim.m_anim->gatherPrimitives(pakRouter, out);
             }
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
@@ -286,10 +288,11 @@ struct ANCS : BigDNA
             Value<atUint32> animCount;
             Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
                 for (const auto& child : children)
-                    child.m_anim->gatherPrimitives(out);
+                    child.m_anim->gatherPrimitives(pakRouter, out);
             }
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
@@ -322,7 +325,8 @@ struct ANCS : BigDNA
             const char* m_typeStr;
             IMetaTrans(Type type, const char* typeStr)
             : m_type(type), m_typeStr(typeStr) {}
-            virtual void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {}
+            virtual void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                          std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {}
             virtual bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {return true;}
         };
         struct MetaTransFactory : BigDNA
@@ -339,9 +343,10 @@ struct ANCS : BigDNA
             AT_DECL_DNAV
             MetaAnimFactory anim;
 
-            void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
+            void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
+                                  std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out)
             {
-                anim.m_anim->gatherPrimitives(out);
+                anim.m_anim->gatherPrimitives(pakRouter, out);
             }
 
             bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func)
@@ -432,28 +437,18 @@ struct ANCS : BigDNA
         }
     }
 
-    void getAnimationResInfo(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) const
+    void getAnimationResInfo(PAKRouter<PAKBridge>* pakRouter,
+                             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) const
     {
         out.clear();
         for (const AnimationSet::Animation& ai : animationSet.animations)
             if (AnimationSet::IMetaAnim* anim = ai.metaAnim.m_anim.get())
-                anim->gatherPrimitives(out);
+                anim->gatherPrimitives(pakRouter, out);
         for (const AnimationSet::Transition& ti : animationSet.transitions)
             if (AnimationSet::IMetaTrans* trans = ti.metaTrans.m_trans.get())
-                trans->gatherPrimitives(out);
+                trans->gatherPrimitives(pakRouter, out);
         if (AnimationSet::IMetaTrans* trans = animationSet.defaultTransition.m_trans.get())
-            trans->gatherPrimitives(out);
-        for (auto& anim : out)
-        {
-            for (const AnimationSet::AnimationResources& res : animationSet.animResources)
-            {
-                if (res.animId == anim.second.animId)
-                {
-                    anim.second.evntId = res.evntId;
-                    break;
-                }
-            }
-        }
+            trans->gatherPrimitives(pakRouter, out);
     }
 
     void enumeratePrimitives(const std::function<bool(AnimationSet::MetaAnimPrimitive& prim)>& func)
