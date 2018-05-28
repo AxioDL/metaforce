@@ -236,7 +236,9 @@ int WINAPIV main(Platform::Array<Platform::String^>^ params)
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 {
     int argc = 0;
-    const boo::SystemChar** argv = (const wchar_t**)(CommandLineToArgvW(lpCmdLine, &argc));
+    const boo::SystemChar** argv;
+    if (lpCmdLine[0])
+        argv = (const wchar_t**)(CommandLineToArgvW(lpCmdLine, &argc));
     static boo::SystemChar selfPath[1024];
     GetModuleFileNameW(nullptr, selfPath, 1024);
     static const boo::SystemChar* booArgv[32] = {};
@@ -246,7 +248,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int)
 
     if (IsClientLoggingEnabled(argc+1, booArgv))
         logvisor::CreateWin32Console();
-    return wmain(argc+1, booArgv);
+    return wmain(argc + 1, booArgv);
 }
 #endif
 
