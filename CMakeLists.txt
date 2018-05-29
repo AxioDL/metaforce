@@ -67,7 +67,7 @@ if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 
   # Link-time Code Generation for Release builds (excluding clang-cl)
-  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_C_FLAGS_RELEASE "/DNDEBUG /O2 /Oy /GL /Gy /MD")
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "/DNDEBUG /Zi /O2 /Oy- /GL /Gy /MD")
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "/LTCG")
