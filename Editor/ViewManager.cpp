@@ -96,11 +96,13 @@ void ViewManager::TestGameView::think()
         }
 
         m_debugText->typesetGlyphs(
-            hecl::Format("Player Position: x %f, y %f, z %f\n"
+            hecl::Format("Frame: %d\n"
+                         "Player Position: x %f, y %f, z %f\n"
                          "       Quaternion: w %f, x %f, y %f, z %f\n"
                          "World: 0x%08X%s, Area: %i\n"
                          "Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
                          "Active Layer bits: %s\n",
+                         g_StateManager->GetUpdateFrameIndex(),
                          pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z, plQ.w, plQ.x, plQ.y,
                          plQ.z, u32(g_GameState->CurrentWorldAssetId().Value()),
                          (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId,
@@ -336,8 +338,6 @@ bool ViewManager::proc()
     m_rootView->internalThink();
     if (m_rootSpace)
         m_rootSpace->think();
-    if (m_testGameView)
-        m_testGameView->think();
     if (m_splash)
         m_splash->think();
 
@@ -353,6 +353,9 @@ bool ViewManager::proc()
         m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1, 1, 1, 0}, {1, 1, 1, 1}, m_editorFrames / 30.0));
 
     m_projManager.mainUpdate();
+
+    if (m_testGameView)
+        m_testGameView->think();
 
     if (g_Renderer)
         g_Renderer->BeginScene();
