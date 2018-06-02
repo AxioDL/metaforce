@@ -62,8 +62,8 @@ public:
     void Think(float, CStateManager &);
     CModelFlags CalculateFlags(const zeus::CColor&) const;
     void SetTargetFlags(CStateManager&, const CModelFlags&);
-    static TUniqueId FadeOutHelper(CStateManager&, TUniqueId, float);
-    static TUniqueId FadeInHelper(CStateManager&, TUniqueId, float);
+    static TUniqueId FadeOutHelper(CStateManager& mgr, TUniqueId obj, float fadetime);
+    static TUniqueId FadeInHelper(CStateManager& mgr, TUniqueId obj, float fadetime);
     void End(CStateManager&);
 };
 }

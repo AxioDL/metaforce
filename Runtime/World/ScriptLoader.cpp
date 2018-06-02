@@ -209,17 +209,17 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         CAssetId infraModel = in.readUint32Big();
         CAssetId infraSkin = in.readUint32Big();
 
-        bool b1 = true;
+        bool globalTimeProvider = true;
         if (propCount > 7)
-            b1 = in.readBool();
+            globalTimeProvider = in.readBool();
 
-        float f1 = 1.f;
+        float fadeInTime = 1.f;
         if (propCount > 8)
-            f1 = in.readFloatBig();
+            fadeInTime = in.readFloatBig();
 
-        float f2 = 1.f;
+        float fadeOutTime = 1.f;
         if (propCount > 9)
-            f2 = in.readFloatBig();
+            fadeOutTime = in.readFloatBig();
 
         CVisorParameters vParms;
         if (propCount > 6)
@@ -229,17 +229,17 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (propCount > 10)
             thermalHeat = in.readBool();
 
-        bool b3 = false;
+        bool renderUnsorted = false;
         if (propCount > 11)
-            b3 = in.readBool();
+            renderUnsorted = in.readBool();
 
-        bool b4 = false;
+        bool noSortThermal = false;
         if (propCount > 12)
-            b4 = in.readBool();
+            noSortThermal = in.readBool();
 
-        float f3 = 1.f;
+        float thermalMag = 1.f;
         if (propCount > 13)
-            f3 = in.readFloatBig();
+            thermalMag = in.readFloatBig();
 
         std::pair<CAssetId, CAssetId> xray = {};
         if (g_ResFactory->GetResourceTypeById(xrayModel))
@@ -249,7 +249,8 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (g_ResFactory->GetResourceTypeById(infraModel))
             infra = {infraModel, infraSkin};
 
-        return CActorParameters(lParms, sParams, xray, infra, vParms, b1, thermalHeat, b3, b4);
+        return CActorParameters(lParms, sParams, xray, infra, vParms, globalTimeProvider, thermalHeat,
+                                renderUnsorted, noSortThermal, fadeInTime, fadeOutTime, thermalMag);
     }
     return CActorParameters::None();
 }

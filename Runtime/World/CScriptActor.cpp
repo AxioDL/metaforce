@@ -7,6 +7,7 @@
 #include "CScriptColorModulate.hpp"
 #include "Character/IAnimReader.hpp"
 #include "TCastTo.hpp"
+#include "CActorParameters.hpp"
 
 namespace urde
 {
@@ -20,6 +21,8 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
 , x258_initialHealth(hInfo)
 , x260_currentHealth(hInfo)
 , x268_damageVulnerability(dVuln)
+, x2d0_fadeInTime(actParms.x5c_fadeInTime)
+, x2d4_fadeOutTime(actParms.x60_fadeOutTime)
 , x2d8_shaderIdx(shaderIdx)
 , x2dc_xrayAlpha(xrayAlpha)
 {
@@ -76,11 +79,11 @@ void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
         if (!GetActive())
         {
             mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
-            CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_alphaMax);
+            CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_fadeInTime);
         }
         break;
     case EScriptObjectMessage::Decrement:
-        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_alphaMin);
+        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_fadeOutTime);
         break;
     default:
         break;

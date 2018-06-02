@@ -273,7 +273,7 @@ void CScriptColorModulate::SetTargetFlags(CStateManager& stateMgr, const CModelF
     }
 }
 
-TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, TUniqueId parent, float dt)
+TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, TUniqueId parent, float fadeTime)
 {
     TAreaId aId = mgr.GetNextAreaId();
     if (const CEntity* ent = mgr.GetObjectById(parent))
@@ -281,7 +281,7 @@ TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, TUniqueId pare
 
     TUniqueId ret = mgr.AllocateUniqueId();
     CScriptColorModulate* colMod = new CScriptColorModulate(ret, "", CEntityInfo(aId, CEntity::NullConnectionList),
-        zeus::CColor(1.f, 1.f, 1.f, 0.f), zeus::CColor(1.f, 1.f, 1.f, 1.f), EBlendMode::Alpha, dt, 0.f,
+        zeus::CColor(1.f, 1.f, 1.f, 1.f), zeus::CColor(1.f, 1.f, 1.f, 0.f), EBlendMode::Alpha, fadeTime, 0.f,
         false, false, true, true, false, true);
     mgr.AddObject(colMod);
     colMod->x34_parent = parent;
@@ -293,7 +293,7 @@ TUniqueId CScriptColorModulate::FadeOutHelper(CStateManager& mgr, TUniqueId pare
     return ret;
 }
 
-TUniqueId CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId parent, float dt)
+TUniqueId CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId parent, float fadeTime)
 {
     TAreaId aId = mgr.GetNextAreaId();
     if (const CEntity* ent = mgr.GetObjectById(parent))
@@ -301,7 +301,7 @@ TUniqueId CScriptColorModulate::FadeInHelper(CStateManager& mgr, TUniqueId paren
 
     TUniqueId ret = mgr.AllocateUniqueId();
     CScriptColorModulate* colMod = new CScriptColorModulate(ret, "", CEntityInfo(aId, CEntity::NullConnectionList),
-        zeus::CColor(1.f, 1.f, 1.f, 1.f), zeus::CColor(1.f, 1.f, 1.f, 0.f), EBlendMode::Alpha, dt, 0.f,
+        zeus::CColor(1.f, 1.f, 1.f, 0.f), zeus::CColor(1.f, 1.f, 1.f, 1.f), EBlendMode::Alpha, fadeTime, 0.f,
         false, false, true, true, false, true);
     mgr.AddObject(colMod);
     colMod->x34_parent = parent;

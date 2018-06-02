@@ -194,7 +194,7 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
     case EScriptObjectMessage::Activate:
     {
-        if(GetActive())
+        if (GetActive())
             x11c_24_playRequested = true;
     }
     break;
@@ -210,7 +210,7 @@ void CScriptSound::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
 
 void CScriptSound::PlaySound(CStateManager& mgr)
 {
-    if ((x11d_24_allowDuplicates || !xec_sfxHandle || !xec_sfxHandle->IsPlaying()) && !x11d_25_processedThisFrame)
+    if ((x11d_24_allowDuplicates || !xec_sfxHandle || xec_sfxHandle->IsClosed()) && !x11d_25_processedThisFrame)
     {
         x11d_25_processedThisFrame = true;
         if (x11c_26_nonEmitter)

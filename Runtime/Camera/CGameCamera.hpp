@@ -16,7 +16,7 @@ class CGameCamera : public CActor
 protected:
     TUniqueId xe8_watchedObject;
     zeus::CMatrix4f xec_perspectiveMatrix;
-    zeus::CTransform x12c_;
+    zeus::CTransform x12c_origXf;
     float x15c_currentFov;
     float x160_znear;
     float x164_zfar;
@@ -25,10 +25,10 @@ protected:
     bool x170_24_perspDirty : 1;
     bool x170_25_disablesInput : 1;
     float x174_delayTime = 0.f;
-    float x178_ = 0.f;
-    float x17c_ = 0.f;
-    float x180_;
-    float x184_fov;
+    float x178_perspInterpRemTime = 0.f;
+    float x17c_perspInterpDur = 0.f;
+    float x180_perspInterpStartFov;
+    float x184_perspInterpEndFov;
 public:
     CGameCamera(TUniqueId, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,

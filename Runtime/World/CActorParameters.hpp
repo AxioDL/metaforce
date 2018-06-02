@@ -12,6 +12,7 @@ class CActorParameters
 {
     friend class ScriptLoader;
     friend class CActor;
+    friend class CScriptActor;
     CLightParameters x0_lightParms;
     CScannableParameters x40_scanParms;
     std::pair<CAssetId, CAssetId> x44_xrayAssets = {};
@@ -28,8 +29,8 @@ class CActorParameters
         };
         u32 _dummy = 0;
     };
-    float x5c_ = 0.f;
-    float x60_ = 0.f;
+    float x5c_fadeInTime = 0.f;
+    float x60_fadeOutTime = 0.f;
     float x64_thermalMag = 0.f;
 
 public:
@@ -39,7 +40,8 @@ public:
                      const std::pair<CAssetId, CAssetId>& xrayAssets,
                      const std::pair<CAssetId, CAssetId>& thermalAssets,
                      const CVisorParameters& visorParms, bool globalTimeProvider, bool thermalHeat,
-                     bool renderUnsorted, bool noSortThermal)
+                     bool renderUnsorted, bool noSortThermal,
+                     float fadeInTime, float fadeOutTime, float thermalMag)
     : x0_lightParms(lightParms)
     , x40_scanParms(scanParms)
     , x44_xrayAssets(xrayAssets)
@@ -49,6 +51,9 @@ public:
     , x58_25_thermalHeat(thermalHeat)
     , x58_26_renderUnsorted(renderUnsorted)
     , x58_27_noSortThermal(noSortThermal)
+    , x5c_fadeInTime(fadeInTime)
+    , x60_fadeOutTime(fadeOutTime)
+    , x64_thermalMag(thermalMag)
     {
     }
     CActorParameters Scannable(const CScannableParameters& sParms) const

@@ -82,10 +82,11 @@ public:
         bool x14_25_isPlaying:1;
         bool x14_26_looped:1;
         bool x14_27_inArea:1;
-        bool x14_28_available:1;
+        bool x14_28_isReleased:1;
         bool x14_29_useAcoustics:1;
     protected:
         bool m_isEmitter:1;
+        bool m_isClosed:1;
     public:
         virtual ~CBaseSfxWrapper() = default;
         virtual void SetActive(bool v) { x14_24_isActive = v; }
@@ -112,15 +113,19 @@ public:
         virtual void SetReverb(float rev)=0;
         bool IsEmitter() const { return m_isEmitter; }
 
-        void Release() { x14_28_available = true; x4_timeRemaining = 15.f; }
-        bool Available() const { return x14_28_available; }
+        void Release() { x14_28_isReleased = true; x4_timeRemaining = 15.f; }
+        bool IsReleased() const { return x14_28_isReleased; }
+
+        void Close() { m_isClosed = true; }
+        bool IsClosed() const { return m_isClosed; }
 
         float GetTimeRemaining() const { return x4_timeRemaining; }
         void SetTimeRemaining(float t) { x4_timeRemaining = t; }
 
         CBaseSfxWrapper(bool looped, s16 prio, /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
         : x8_rank(0), xa_prio(prio), /*xc_handle(handle),*/ x10_area(area), x14_24_isActive(true), x14_25_isPlaying(false),
-          x14_26_looped(looped), x14_27_inArea(true), x14_28_available(false), x14_29_useAcoustics(useAcoustics) {}
+          x14_26_looped(looped), x14_27_inArea(true), x14_28_isReleased(false), m_isClosed(false),
+          x14_29_useAcoustics(useAcoustics) {}
     };
 
     class CSfxEmitterWrapper : public CBaseSfxWrapper

@@ -12,7 +12,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_watchedObject(watchedId)
-, x12c_(xf)
+, x12c_origXf(xf)
 , x15c_currentFov(fovy)
 , x160_znear(znear)
 , x164_zfar(zfar)
@@ -20,8 +20,8 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 , x16c_controllerIdx(controllerIdx)
 , x170_24_perspDirty(true)
 , x170_25_disablesInput(disableInput)
-, x180_(fovy)
-, x184_fov(fovy)
+, x180_perspInterpStartFov(fovy)
+, x184_perspInterpEndFov(fovy)
 {
 
     xe7_29_drawEnabled = false;
@@ -108,18 +108,19 @@ void CGameCamera::UpdatePerspective(float dt)
         return;
     }
 
-    if (x178_ <= 0.f)
+    if (x178_perspInterpRemTime <= 0.f)
         return;
 
-    x178_ -= dt;
-    if (x178_ > 0.f)
+    x178_perspInterpRemTime -= dt;
+    if (x178_perspInterpRemTime <= 0.f)
     {
-        x15c_currentFov = x184_fov;
+        x15c_currentFov = x184_perspInterpEndFov;
         x170_24_perspDirty = true;
     }
     else
     {
-        x15c_currentFov = zeus::clamp(0.f, (dt / x17c_), 1.f) + ((x180_ - x184_fov) * x184_fov);
+        x15c_currentFov = zeus::clamp(0.f, (x178_perspInterpRemTime / x17c_perspInterpDur), 1.f) *
+            (x180_perspInterpStartFov - x184_perspInterpEndFov) + x184_perspInterpEndFov;
         x170_24_perspDirty = true;
     }
 }
@@ -130,16 +131,16 @@ void CGameCamera::SetFovInterpolation(float start, float fov, float time, float 
     {
         x15c_currentFov = fov;
         x170_24_perspDirty = true;
-        x184_fov = fov;
-        x178_ = x174_delayTime = 0.f;
+        x184_perspInterpEndFov = fov;
+        x178_perspInterpRemTime = x174_delayTime = 0.f;
     }
     else
     {
         x174_delayTime = std::max(0.f, delayTime);
-        x17c_ = time;
-        x178_ = time;
-        x180_ = start;
-        x184_fov = fov;
+        x17c_perspInterpDur = time;
+        x178_perspInterpRemTime = time;
+        x180_perspInterpStartFov = start;
+        x184_perspInterpEndFov = fov;
         x15c_currentFov = start;
         x170_24_perspDirty = true;
     }
@@ -147,12 +148,12 @@ void CGameCamera::SetFovInterpolation(float start, float fov, float time, float 
 
 void CGameCamera::SkipFovInterpolation()
 {
-    if (x178_ > 0)
+    if (x178_perspInterpRemTime > 0)
     {
-        x15c_currentFov = x184_fov;
+        x15c_currentFov = x184_perspInterpEndFov;
         x170_24_perspDirty = true;
     }
 
-    x178_ = x174_delayTime = 0.f;
+    x178_perspInterpRemTime = x174_delayTime = 0.f;
 }
 }

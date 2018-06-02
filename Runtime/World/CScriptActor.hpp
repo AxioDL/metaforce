@@ -14,8 +14,8 @@ protected:
     CHealthInfo x258_initialHealth;
     CHealthInfo x260_currentHealth;
     CDamageVulnerability x268_damageVulnerability;
-    float x2d0_alphaMax;
-    float x2d4_alphaMin;
+    float x2d0_fadeInTime;
+    float x2d4_fadeOutTime;
     s32 x2d8_shaderIdx;
     float x2dc_xrayAlpha;
     TUniqueId x2e0_triggerId = kInvalidUniqueId;

@@ -401,14 +401,14 @@ struct ActorParameters : BigDNA
     UniqueID32   xraySkin;
     UniqueID32   thermalModel;
     UniqueID32   thermalSkin;
-    Value<bool>  unknown1;
-    Value<float> unknown2;
-    Value<float> unknown3;
+    Value<bool>  globalTimeProvider;
+    Value<float> fadeInTime;
+    Value<float> fadeOutTime;
     VisorParameters visorParameters;
     Value<bool>  thermalHeat;
-    Value<bool>  unknown4;
-    Value<bool>  unknown5;
-    Value<float> unknown6;
+    Value<bool>  renderUnsorted;
+    Value<bool>  noSortThermal;
+    Value<float> thermalMag;
 
     void addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
                          const UniqueID32& cinf) const

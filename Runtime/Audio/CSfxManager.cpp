@@ -217,6 +217,7 @@ void CSfxManager::KillAll(ESfxChannels chan)
         const CSfxHandle& handle = *it;
         handle->Stop();
         handle->Release();
+        handle->Close();
         it = chanObj.x48_handles.erase(it);
     }
 }
@@ -248,6 +249,7 @@ void CSfxManager::TurnOffChannel(ESfxChannels chan)
         else
         {
             handle->Stop();
+            handle->Close();
             it = chanObj.x48_handles.erase(it);
             continue;
         }
@@ -260,6 +262,7 @@ void CSfxManager::TurnOffChannel(ESfxChannels chan)
         if (!handle->IsLooped())
         {
             handle->Release();
+            handle->Close();
             it = chanObj.x48_handles.erase(it);
             continue;
         }
@@ -393,6 +396,7 @@ void CSfxManager::StopSound(const CSfxHandle& handle)
     handle->Stop();
     handle->Release();
     CSfxChannel& chanObj = m_channels[int(m_currentChannel)];
+    handle->Close();
     chanObj.x48_handles.erase(handle);
 }
 
@@ -500,6 +504,7 @@ void CSfxManager::StopAndRemoveAllEmitters()
             const CSfxHandle& handle = *it;
             handle->Stop();
             handle->Release();
+            handle->Close();
             it = chanObj.x48_handles.erase(it);
         }
     }
@@ -646,6 +651,7 @@ void CSfxManager::Update(float dt)
             {
                 handle->Stop();
                 m_doUpdate = true;
+                handle->Close();
                 it = chanObj.x48_handles.erase(it);
                 continue;
             }
@@ -675,6 +681,7 @@ void CSfxManager::Update(float dt)
             if (handle->IsPlaying())
             {
                 handle->Stop();
+                handle->Close();
                 chanObj.x48_handles.erase(handle);
             }
         }
@@ -684,6 +691,7 @@ void CSfxManager::Update(float dt)
             if (handle->IsPlaying() && !handle->IsInArea())
             {
                 handle->Stop();
+                handle->Close();
                 chanObj.x48_handles.erase(handle);
             }
         }
@@ -707,6 +715,7 @@ void CSfxManager::Update(float dt)
             handle->Stop();
             handle->Release();
             m_doUpdate = true;
+            handle->Close();
             it = chanObj.x48_handles.erase(it);
             continue;
         }

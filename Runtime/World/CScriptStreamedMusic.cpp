@@ -52,8 +52,9 @@ CScriptStreamedMusic::CScriptStreamedMusic(TUniqueId id, const CEntityInfo& info
   x45_fileIsDsp(IsDSPFile(fileName)), x46_loop(loop), x47_music(music),
   x48_fadeIn(fadeIn), x4c_fadeOut(fadeOut), x50_volume(volume)
 {
-    while (x34_fileName.find("/audio") != std::string::npos)
-        x34_fileName.replace(x34_fileName.find("/audio"), std::strlen("/audio"), "/Audio");
+    size_t pos;
+    while ((pos = x34_fileName.find("audio/")) != std::string::npos)
+        x34_fileName.replace(pos, 6, "Audio/");
 }
 
 void CScriptStreamedMusic::Stop(CStateManager& mgr)

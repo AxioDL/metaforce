@@ -509,7 +509,7 @@ private:
     std::string x60_fileName; // arg1
     union
     {
-        u8 dummy = 0;
+        u32 dummy = 0;
         struct
         {
             bool x70_24_unclaimed : 1;
