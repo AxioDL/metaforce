@@ -24,8 +24,8 @@ void CScriptStreamedMusic::StopStream(CStateManager& mgr)
 
 void CScriptStreamedMusic::StartStream(CStateManager& mgr)
 {
-    CStreamAudioManager::Start(!x46_loop, x34_fileName, x50_volume,
-                                        x47_music, x48_fadeIn, x4c_fadeOut);
+    CStreamAudioManager::Start(!x46_loop, x34_fileName, x50_volume / 127.f,
+                               x47_music, x48_fadeIn, x4c_fadeOut);
 }
 
 void CScriptStreamedMusic::TweakOverride(CStateManager& mgr)

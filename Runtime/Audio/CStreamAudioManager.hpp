@@ -20,7 +20,7 @@ class CStreamAudioManager
     static void StopAllStreams();
 
 public:
-    static void Start(bool oneshot, std::string_view fileName, u8 volume,
+    static void Start(bool oneshot, std::string_view fileName, float volume,
                       bool music, float fadeIn, float fadeOut);
     static void Stop(bool oneshot, std::string_view fileName);
     static void FadeBackIn(bool oneshot, float fadeTime);

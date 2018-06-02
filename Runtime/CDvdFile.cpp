@@ -14,8 +14,8 @@ class CFileDvdRequest : public IDvdRequest
     u32 m_len;
     ESeekOrigin m_whence;
     int m_offset;
-    bool m_cancel = false;
-    bool m_complete = false;
+    std::atomic_bool m_cancel = {false};
+    std::atomic_bool m_complete = {false};
     std::function<void(u32)> m_callback;
 public:
     ~CFileDvdRequest()
@@ -25,16 +25,16 @@ public:
 
     void WaitUntilComplete()
     {
-        while (!m_complete && !m_cancel)
+        while (!m_complete.load() && !m_cancel.load())
         {
             std::unique_lock<std::mutex> lk(CDvdFile::m_WaitMutex);
         }
     }
-    bool IsComplete() {return m_complete;}
+    bool IsComplete() {return m_complete.load();}
     void PostCancelRequest()
     {
         std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
-        m_cancel = true;
+        m_cancel.store(true);
     }
 
     EMediaType GetMediaType() const
@@ -47,7 +47,7 @@ public:
 
     void DoRequest()
     {
-        if (m_cancel)
+        if (m_cancel.load())
             return;
         u32 readLen;
         if (m_whence == ESeekOrigin::Cur && m_offset == 0)
@@ -61,7 +61,7 @@ public:
         }
         if (m_callback)
             m_callback(readLen);
-        m_complete = true;
+        m_complete.store(true);
     }
 };
 
@@ -69,12 +69,12 @@ std::thread CDvdFile::m_WorkerThread;
 std::mutex CDvdFile::m_WorkerMutex;
 std::condition_variable CDvdFile::m_WorkerCV;
 std::mutex CDvdFile::m_WaitMutex;
-bool CDvdFile::m_WorkerRun = false;
+std::atomic_bool CDvdFile::m_WorkerRun = {false};
 std::vector<std::shared_ptr<IDvdRequest>> CDvdFile::m_RequestQueue;
 void CDvdFile::WorkerProc()
 {
-    logvisor::RegisterThreadName("CDvdFile Thread");
-    while (m_WorkerRun)
+    logvisor::RegisterThreadName("CDvdFile");
+    while (m_WorkerRun.load())
     {
         std::unique_lock<std::mutex> lk(CDvdFile::m_WorkerMutex);
         while (CDvdFile::m_RequestQueue.size())
@@ -92,7 +92,7 @@ void CDvdFile::WorkerProc()
             swapQueue.clear();
             lk.lock();
         }
-        if (!m_WorkerRun)
+        if (!m_WorkerRun.load())
             break;
         m_WorkerCV.wait(lk);
     }
@@ -113,17 +113,17 @@ std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOr
 void CDvdFile::Initialize(const hecl::ProjectPath& path)
 {
     m_DvdRoot = path;
-    if (m_WorkerRun)
+    if (m_WorkerRun.load())
         return;
-    m_WorkerRun = true;
+    m_WorkerRun.store(true);
     m_WorkerThread = std::thread(WorkerProc);
 }
 
 void CDvdFile::Shutdown()
 {
-    if (!m_WorkerRun)
+    if (!m_WorkerRun.load())
         return;
-    m_WorkerRun = false;
+    m_WorkerRun.store(false);
     m_WorkerCV.notify_one();
     if (m_WorkerThread.joinable())
         m_WorkerThread.join();

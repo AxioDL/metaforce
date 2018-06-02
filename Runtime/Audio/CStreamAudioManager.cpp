@@ -41,7 +41,7 @@ struct SDSPStreamInfo
     u32 x4_sampleRate;
     u32 x8_headerSize = sizeof(dspadpcm_header);
     u32 xc_adpcmBytes;
-    u32 x10_loopFlag;
+    bool x10_loopFlag;
     u32 x14_loopStartByte;
     u32 x18_loopEndByte;
     s16 x1c_coef[8][2];
@@ -54,7 +54,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
 {
     bool x0_active;
     bool x1_oneshot;
-    u32 x4_ownerId;
+    s32 x4_ownerId;
     SDSPStream* x8_stereoLeft;
     SDSPStream* xc_companionRight;
     SDSPStreamInfo x10_info;
@@ -68,7 +68,7 @@ struct SDSPStream : boo::IAudioVoiceCallback
     u32 xd8_ringBytes = 0x11DC0; // 73152 4sec in ADPCM bytes
     u32 xdc_ringSamples = 0x1f410; // 128016 4sec in samples
     s8 xe0_curBuffer = -1;
-    u32 xe8_silent = true;
+    bool xe8_silent = true;
     u8 xec_readState = 0; // 0: NoRead 1: Read 2: ReadWrap
 
     std::experimental::optional<CDvdFile> m_file;
@@ -171,20 +171,22 @@ struct SDSPStream : boo::IAudioVoiceCallback
         return false;
     }
 
-    u32 m_curSample = 0;
-    u32 m_totalSamples = 0;
+    unsigned m_curSample = 0;
+    unsigned m_totalSamples = 0;
     s16 m_prev1 = 0;
     s16 m_prev2 = 0;
 
     void preSupplyAudio(boo::IAudioVoice&, double) {}
 
-    void decompressChunk(u32 readToSample, int16_t*& data)
+    unsigned decompressChunk(unsigned readToSample, int16_t*& data)
     {
-        auto sampDiv = std::div(m_curSample, 14);
+        unsigned startSamp = m_curSample;
+
+        auto sampDiv = std::div(int(m_curSample), int(14));
         if (sampDiv.rem)
         {
             unsigned samps = DSPDecompressFrameRanged(data, xd4_ringBuffer.get() + sampDiv.quot * 8,
-                                                      x10_info.x1c_coef, &m_prev1, &m_prev2, sampDiv.rem,
+                                                      x10_info.x1c_coef, &m_prev1, &m_prev2, unsigned(sampDiv.rem),
                                                       readToSample - m_curSample);
             m_curSample += samps;
             data += samps;
@@ -200,6 +202,8 @@ struct SDSPStream : boo::IAudioVoiceCallback
             data += samps;
             ++sampDiv.quot;
         }
+
+        return m_curSample - startSamp;
     }
 
     size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data)
@@ -217,43 +221,52 @@ struct SDSPStream : boo::IAudioVoiceCallback
             return frames;
         }
 
-        if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= xdc_ringSamples / 2))
+        unsigned halfRingSamples = xdc_ringSamples / 2;
+
+        size_t remFrames = frames;
+        while (remFrames)
         {
-            if (!BufferStream())
+            if (xec_readState != 2 || (xe0_curBuffer == 0 && m_curSample >= halfRingSamples))
             {
-                memset(data, 0, frames * 2);
-                return frames;
+                if (!BufferStream())
+                {
+                    memset(data, 0, remFrames * 2);
+                    return frames;
+                }
             }
-        }
 
-        u32 readToSample = m_curSample + frames;
-        if (!x10_info.x10_loopFlag)
-        {
-            m_totalSamples += frames;
-            u32 fileSamples = x10_info.xc_adpcmBytes * 14 / 8;
-            if (m_totalSamples >= fileSamples)
+            unsigned readToSample = std::min(m_curSample + unsigned(remFrames),
+                (m_curSample / halfRingSamples + 1) * halfRingSamples);
+
+            if (!x10_info.x10_loopFlag)
             {
-                u32 leftover = m_totalSamples - fileSamples;
-                readToSample -= leftover;
-                memset(data + frames - leftover, 0, leftover * 2);
-                StopStream();
+                m_totalSamples += remFrames;
+                size_t fileSamples = x10_info.xc_adpcmBytes * 14 / 8;
+                if (m_totalSamples >= fileSamples)
+                {
+                    size_t leftover = m_totalSamples - fileSamples;
+                    readToSample -= leftover;
+                    remFrames -= leftover;
+                    memset(data + remFrames, 0, leftover * 2);
+                    StopStream();
+                }
             }
-        }
 
-        u32 leftoverSamples = 0;
-        if (readToSample > xdc_ringSamples)
-        {
-            leftoverSamples = readToSample - xdc_ringSamples;
-            readToSample = xdc_ringSamples;
-        }
+            unsigned leftoverSamples = 0;
+            if (readToSample > xdc_ringSamples)
+            {
+                leftoverSamples = readToSample - xdc_ringSamples;
+                readToSample = xdc_ringSamples;
+            }
 
-        decompressChunk(readToSample, data);
+            remFrames -= decompressChunk(readToSample, data);
 
-        if (leftoverSamples)
-        {
-            BufferStream();
-            m_curSample = 0;
-            decompressChunk(leftoverSamples, data);
+            if (leftoverSamples)
+            {
+                BufferStream();
+                m_curSample = 0;
+                remFrames -= decompressChunk(leftoverSamples, data);
+            }
         }
 
         return frames;
@@ -294,14 +307,18 @@ struct SDSPStream : boo::IAudioVoiceCallback
             SDSPStream& stream = g_Streams[i];
             stream.m_booVoice.reset();
             stream.x0_active = false;
+            for (int j=0 ; j<2 ; ++j)
+                if (stream.m_readReqs[j])
+                {
+                    stream.m_readReqs[j]->PostCancelRequest();
+                    stream.m_readReqs[j].reset();
+                }
             stream.xd4_ringBuffer.reset();
-            stream.m_readReqs[0].reset();
-            stream.m_readReqs[1].reset();
             stream.m_file = std::experimental::nullopt;
         }
     }
 
-    static u32 PickFreeStream(SDSPStream*& streamOut, bool oneshot)
+    static s32 PickFreeStream(SDSPStream*& streamOut, bool oneshot)
     {
         for (int i=0 ; i<4 ; ++i)
         {
@@ -320,9 +337,9 @@ struct SDSPStream : boo::IAudioVoiceCallback
         return -1;
     }
 
-    static u32 FindStreamIdx(u32 id)
+    static s32 FindStreamIdx(s32 id)
     {
-        for (int i=0 ; i<4 ; ++i)
+        for (s32 i=0 ; i<4 ; ++i)
         {
             SDSPStream& stream = g_Streams[i];
             if (stream.x4_ownerId == id)
@@ -337,14 +354,14 @@ struct SDSPStream : boo::IAudioVoiceCallback
         if (!x0_active || xe8_silent)
             return;
         float coefs[8] = {};
-        coefs[int(boo::AudioChannel::FrontLeft)] = m_leftgain * vol * 0.7f;
-        coefs[int(boo::AudioChannel::FrontRight)] = m_rightgain * vol * 0.7f;
+        coefs[int(boo::AudioChannel::FrontLeft)] = m_leftgain * vol;
+        coefs[int(boo::AudioChannel::FrontRight)] = m_rightgain * vol;
         m_booVoice->setMonoChannelLevels(nullptr, coefs, true);
     }
 
-    static void UpdateVolume(u32 id, float vol)
+    static void UpdateVolume(s32 id, float vol)
     {
-        u32 idx = FindStreamIdx(id);
+        s32 idx = FindStreamIdx(id);
         if (idx == -1)
             return;
 
@@ -366,9 +383,9 @@ struct SDSPStream : boo::IAudioVoiceCallback
         x0_active = false;
     }
 
-    static void Silence(u32 id)
+    static void Silence(s32 id)
     {
-        u32 idx = FindStreamIdx(id);
+        s32 idx = FindStreamIdx(id);
         if (idx == -1)
             return;
 
@@ -387,9 +404,9 @@ struct SDSPStream : boo::IAudioVoiceCallback
         m_file = std::experimental::nullopt;
     }
 
-    static bool IsStreamActive(u32 id)
+    static bool IsStreamActive(s32 id)
     {
-        u32 idx = FindStreamIdx(id);
+        s32 idx = FindStreamIdx(id);
         if (idx == -1)
             return false;
 
@@ -397,9 +414,9 @@ struct SDSPStream : boo::IAudioVoiceCallback
         return stream.x0_active;
     }
 
-    static bool IsStreamAvailable(u32 id)
+    static bool IsStreamAvailable(s32 id)
     {
-        u32 idx = FindStreamIdx(id);
+        s32 idx = FindStreamIdx(id);
         if (idx == -1)
             return false;
 
@@ -407,10 +424,10 @@ struct SDSPStream : boo::IAudioVoiceCallback
         return !stream.x0_active;
     }
 
-    static u32 AllocateMono(const SDSPStreamInfo& info, float vol, bool oneshot)
+    static s32 AllocateMono(const SDSPStreamInfo& info, float vol, bool oneshot)
     {
         SDSPStream* stream;
-        u32 id = PickFreeStream(stream, oneshot);
+        s32 id = PickFreeStream(stream, oneshot);
         if (id == -1)
             return -1;
 
@@ -419,12 +436,12 @@ struct SDSPStream : boo::IAudioVoiceCallback
         return id;
     }
 
-    static u32 AllocateStereo(const SDSPStreamInfo& linfo,
+    static s32 AllocateStereo(const SDSPStreamInfo& linfo,
                               const SDSPStreamInfo& rinfo,
                               float vol, bool oneshot)
     {
         SDSPStream* lstream;
-        u32 lid = PickFreeStream(lstream, oneshot);
+        s32 lid = PickFreeStream(lstream, oneshot);
         if (lid == -1)
             return -1;
 
@@ -446,8 +463,12 @@ struct SDSPStream : boo::IAudioVoiceCallback
         m_file.emplace(x10_info.x0_fileName);
         if (!xd4_ringBuffer)
             DoAllocateStream();
-        m_readReqs[0].reset();
-        m_readReqs[1].reset();
+        for (int j=0 ; j<2 ; ++j)
+            if (m_readReqs[j])
+            {
+                m_readReqs[j]->PostCancelRequest();
+                m_readReqs[j].reset();
+            }
         x4c_vol = vol;
         m_leftgain = left;
         m_rightgain = right;
@@ -500,8 +521,8 @@ private:
     s8 x72_companionLeft = -1;
     float x73_volume = 0.f;
     bool x74_oneshot;
-    u32 x78_handleId = -1; // arg2
-    u32 x7c_streamId = -1;
+    s32 x78_handleId = -1; // arg2
+    s32 x7c_streamId = -1;
     std::shared_ptr<IDvdRequest> m_dvdReq;
     //DVDFileInfo x80_dvdHandle;
     static CDSPStreamManager g_Streams[4];
@@ -512,16 +533,16 @@ public:
         x70_24_unclaimed = true;
     }
 
-    CDSPStreamManager(std::string_view fileName, u32 handle, float volume, bool oneshot)
+    CDSPStreamManager(std::string_view fileName, s32 handle, float volume, bool oneshot)
     : x60_fileName(fileName), x73_volume(volume), x74_oneshot(oneshot), x78_handleId(handle)
     {
         if (!CDvdFile::FileExists(fileName))
             x70_24_unclaimed = true;
     }
 
-    static u32 FindUnclaimedStreamIdx()
+    static s32 FindUnclaimedStreamIdx()
     {
-        for (int i=0 ; i<4 ; ++i)
+        for (s32 i=0 ; i<4 ; ++i)
         {
             CDSPStreamManager& stream = g_Streams[i];
             if (stream.x70_24_unclaimed)
@@ -530,9 +551,9 @@ public:
         return -1;
     }
 
-    static bool FindUnclaimedStereoPair(u32& left, u32& right)
+    static bool FindUnclaimedStereoPair(s32& left, s32& right)
     {
-        u32 idx = FindUnclaimedStreamIdx();
+        s32 idx = FindUnclaimedStreamIdx();
 
         for (u32 i=0 ; i<4 ; ++i)
         {
@@ -548,9 +569,9 @@ public:
         return false;
     }
 
-    static u32 FindClaimedStreamIdx(u32 handle)
+    static s32 FindClaimedStreamIdx(s32 handle)
     {
-        for (int i=0 ; i<4 ; ++i)
+        for (s32 i=0 ; i<4 ; ++i)
         {
             CDSPStreamManager& stream = g_Streams[i];
             if (!stream.x70_24_unclaimed && stream.x78_handleId == handle)
@@ -559,9 +580,9 @@ public:
         return -1;
     }
 
-    static u32 GetFreeHandleId()
+    static s32 GetFreeHandleId()
     {
-        u32 handle;
+        s32 handle;
         bool good;
         do
         {
@@ -588,9 +609,9 @@ public:
         return handle;
     }
 
-    static EState GetStreamState(u32 handle)
+    static EState GetStreamState(s32 handle)
     {
-        u32 idx = FindClaimedStreamIdx(handle);
+        s32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
             return EState::Oneshot;
 
@@ -606,9 +627,9 @@ public:
         }
     }
 
-    static bool CanStop(u32 handle)
+    static bool CanStop(s32 handle)
     {
-        u32 idx = FindClaimedStreamIdx(handle);
+        s32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
             return true;
 
@@ -622,9 +643,9 @@ public:
         return !SDSPStream::IsStreamActive(stream.x7c_streamId);
     }
 
-    static bool IsStreamAvailable(u32 handle)
+    static bool IsStreamAvailable(s32 handle)
     {
-        u32 idx = FindClaimedStreamIdx(handle);
+        s32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
             return false;
 
@@ -638,7 +659,7 @@ public:
         return SDSPStream::IsStreamAvailable(stream.x7c_streamId);
     }
 
-    static void AllocateStream(u32 idx)
+    static void AllocateStream(s32 idx)
     {
         CDSPStreamManager& stream = g_Streams[idx];
         SDSPStreamInfo info(stream);
@@ -669,7 +690,7 @@ public:
 
     void HeaderReadComplete()
     {
-        u32 selfIdx = -1;
+        s32 selfIdx = -1;
         for (int i=0 ; i<4 ; ++i)
         {
             if (this == &g_Streams[i])
@@ -687,7 +708,7 @@ public:
 
         x70_26_headerReadState = 2;
 
-        u32 companion = -1;
+        s32 companion = -1;
         if (x72_companionLeft != -1)
             companion = x72_companionLeft;
         else if (x71_companionRight != -1)
@@ -780,17 +801,17 @@ public:
         m_dvdReq.reset();
     }
 
-    static u32 StartStreaming(std::string_view fileName, float volume, bool oneshot)
+    static s32 StartStreaming(std::string_view fileName, float volume, bool oneshot)
     {
         auto pipePos = fileName.find('|');
         if (pipePos == std::string::npos)
         {
             /* Mono stream */
-            u32 idx = FindUnclaimedStreamIdx();
+            s32 idx = FindUnclaimedStreamIdx();
             if (idx == -1)
                 return -1;
 
-            u32 handle = GetFreeHandleId();
+            s32 handle = GetFreeHandleId();
             CDSPStreamManager tmpStream(fileName, handle, volume, oneshot);
             if (tmpStream.x70_24_unclaimed)
                 return -1;
@@ -811,23 +832,23 @@ public:
         else
         {
             /* Stereo stream */
-            u32 leftIdx = 0;
-            u32 rightIdx = 0;
+            s32 leftIdx = 0;
+            s32 rightIdx = 0;
             if (!FindUnclaimedStereoPair(leftIdx, rightIdx))
                 return -1;
 
             std::string leftFile(fileName.begin(), fileName.begin() + pipePos);
             std::string rightFile(fileName.begin() + pipePos + 1, fileName.end());
 
-            u32 leftHandle = GetFreeHandleId();
-            u32 rightHandle = GetFreeHandleId();
+            s32 leftHandle = GetFreeHandleId();
+            s32 rightHandle = GetFreeHandleId();
             CDSPStreamManager tmpLeftStream(leftFile, leftHandle, volume, oneshot);
             CDSPStreamManager tmpRightStream(rightFile, rightHandle, volume, oneshot);
             if (tmpLeftStream.x70_24_unclaimed || tmpRightStream.x70_24_unclaimed)
                 return -1;
 
-            tmpLeftStream.x71_companionRight = rightIdx;
-            tmpRightStream.x72_companionLeft = leftIdx;
+            tmpLeftStream.x71_companionRight = s8(rightIdx);
+            tmpRightStream.x72_companionLeft = s8(leftIdx);
 
             CDSPStreamManager& leftStream = g_Streams[leftIdx];
             CDSPStreamManager& rightStream = g_Streams[rightIdx];
@@ -849,9 +870,9 @@ public:
         }
     }
 
-    static void StopStreaming(u32 handle)
+    static void StopStreaming(s32 handle)
     {
-        u32 idx = FindClaimedStreamIdx(handle);
+        s32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
             return;
 
@@ -873,9 +894,9 @@ public:
         stream = CDSPStreamManager();
     }
 
-    static void UpdateVolume(u32 handle, float volume)
+    static void UpdateVolume(s32 handle, float volume)
     {
-        u32 idx = FindClaimedStreamIdx(handle);
+        s32 idx = FindClaimedStreamIdx(handle);
         if (idx == -1)
             return;
 
@@ -955,13 +976,13 @@ struct SDSPPlayer
     float x14_volume = 0.f;
     float x18_fadeIn = 0.f;
     float x1c_fadeOut = 0.f;
-    u32 x20_internalHandle = -1;
+    s32 x20_internalHandle = -1;
     float x24_fadeFactor = 0.f;
     bool x28_music = true;
 
     SDSPPlayer() = default;
     SDSPPlayer(EPlayerState playing, std::string_view fileName, float volume,
-               float fadeIn, float fadeOut, u32 handle, bool music)
+               float fadeIn, float fadeOut, s32 handle, bool music)
     : x0_fileName(fileName), x10_playState(playing), x14_volume(volume),
       x18_fadeIn(fadeIn), x1c_fadeOut(fadeOut), x20_internalHandle(handle), x28_music(music) {}
 };
@@ -977,10 +998,8 @@ float CStreamAudioManager::GetTargetDSPVolume(float fileVol, bool music)
 }
 
 void CStreamAudioManager::Start(bool oneshot, std::string_view fileName,
-                                u8 volume, bool music, float fadeIn, float fadeOut)
+                                float volume, bool music, float fadeIn, float fadeOut)
 {
-    float fvol = volume / 127.f;
-
     SDSPPlayer& p = s_Players[oneshot];
     SDSPPlayer& qp = s_QueuedPlayers[oneshot];
 
@@ -988,7 +1007,7 @@ void CStreamAudioManager::Start(bool oneshot, std::string_view fileName,
         CStringExtras::CompareCaseInsensitive(fileName, p.x0_fileName))
     {
         /* Enque new stream */
-        qp = SDSPPlayer(EPlayerState::FadeIn, fileName, fvol, fadeIn, fadeOut, -1, music);
+        qp = SDSPPlayer(EPlayerState::FadeIn, fileName, volume, fadeIn, fadeOut, -1, music);
         Stop(oneshot, p.x0_fileName);
     }
     else if (p.x10_playState != EPlayerState::Stopped)
@@ -996,7 +1015,7 @@ void CStreamAudioManager::Start(bool oneshot, std::string_view fileName,
         /* Fade existing stream back in */
         p.x18_fadeIn = fadeIn;
         p.x1c_fadeOut = fadeOut;
-        p.x14_volume = fvol;
+        p.x14_volume = volume;
         if (p.x18_fadeIn <= FLT_EPSILON)
         {
             CDSPStreamManager::UpdateVolume(p.x20_internalHandle,
@@ -1022,12 +1041,12 @@ void CStreamAudioManager::Start(bool oneshot, std::string_view fileName,
         else
         {
             state = EPlayerState::Playing;
-            vol = fvol;
+            vol = volume;
         }
 
-        u32 handle = CDSPStreamManager::StartStreaming(fileName, GetTargetDSPVolume(vol, music), oneshot);
+        s32 handle = CDSPStreamManager::StartStreaming(fileName, GetTargetDSPVolume(vol, music), oneshot);
         if (handle != -1)
-            p = SDSPPlayer(state, fileName, fvol, fadeIn, fadeOut, handle, music);
+            p = SDSPPlayer(state, fileName, volume, fadeIn, fadeOut, handle, music);
     }
 }
 
@@ -1166,7 +1185,7 @@ void CStreamAudioManager::StopAllStreams()
 {
     for (int i=0 ; i<2 ; ++i)
     {
-        StopStreaming(i);
+        StopStreaming(bool(i));
         SDSPPlayer& p = s_Players[i];
         SDSPPlayer& qp = s_QueuedPlayers[i];
         p = SDSPPlayer();

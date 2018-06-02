@@ -1301,7 +1301,7 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
 
 void SpecBase::backgroundIndexProc()
 {
-    logvisor::RegisterThreadName("Resource Index Thread");
+    logvisor::RegisterThreadName("Resource Index");
 
     hecl::ProjectPath tagCachePath(m_project.getProjectCookedPath(getOriginalSpec()), _S("tag_cache.yaml"));
     hecl::ProjectPath nameCachePath(m_project.getProjectCookedPath(getOriginalSpec()), _S("name_cache.yaml"));

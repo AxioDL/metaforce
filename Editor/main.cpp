@@ -61,7 +61,7 @@ struct Application : boo::IApplicationCallback
     hecl::CVarCommons m_cvarCommons;
     std::unique_ptr<ViewManager> m_viewManager;
 
-    bool m_running = true;
+    std::atomic_bool m_running = {true};
 
     Application() :
         m_fileMgr(_S("urde")),
@@ -77,7 +77,7 @@ struct Application : boo::IApplicationCallback
     {
         initialize(app);
         m_viewManager->init(app);
-        while (m_running)
+        while (m_running.load())
         {
             if (!m_viewManager->proc())
                 break;
@@ -90,7 +90,7 @@ struct Application : boo::IApplicationCallback
     }
     void appQuitting(boo::IApplication*)
     {
-        m_running = false;
+        m_running.store(false);
     }
     void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>& paths)
     {
