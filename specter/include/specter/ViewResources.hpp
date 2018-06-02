@@ -179,8 +179,8 @@ public:
     specter::FontTag m_curveFont;
 
     std::thread m_fcacheThread;
-    bool m_fcacheInterrupt = false;
-    bool m_fcacheReady = false;
+    std::atomic_bool m_fcacheInterrupt = {false};
+    std::atomic_bool m_fcacheReady = {false};
 
     ViewResources() = default;
     ViewResources(const ViewResources& other) = delete;
@@ -198,7 +198,7 @@ public:
     {
         if (m_fcacheThread.joinable())
         {
-            m_fcacheInterrupt = true;
+            m_fcacheInterrupt.store(true);
             m_fcacheThread.join();
         }
     }
@@ -207,7 +207,7 @@ public:
     void destroyResData();
     void prepFontCacheSync();
     void prepFontCacheAsync(boo::IWindow* window);
-    bool fontCacheReady() const { return m_fcacheReady; }
+    bool fontCacheReady() const { return m_fcacheReady.load(); }
     void resetPixelFactor(float pixelFactor);
     void resetTheme(const IThemeData* theme);
 

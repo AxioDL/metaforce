@@ -58,33 +58,33 @@ void ViewResources::destroyResData()
 void ViewResources::prepFontCacheSync()
 {
     unsigned dpi = 72.f * m_pixelFactor;
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_mainFont = m_fcache->prepMainFont(AllCharFilter, false, 10.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_monoFont10 = m_fcache->prepMonoFont(AllCharFilter, false, 10.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_monoFont18 = m_fcache->prepMonoFont(AllCharFilter, false, 18.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_heading14 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 14.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_heading18 = m_fcache->prepMainFont(LatinAndJapaneseCharFilter, false, 18.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_titleFont = m_fcache->prepMainFont(LatinCharFilter, false, 36.f, dpi);
-    if (m_fcacheInterrupt)
+    if (m_fcacheInterrupt.load())
         return;
     m_fcache->closeBuiltinFonts();
-    m_fcacheReady = true;
+    m_fcacheReady.store(true);
 }
 
 void ViewResources::prepFontCacheAsync(boo::IWindow* window)
 {
-    m_fcacheReady = false;
+    m_fcacheReady.store(false);
     m_fcacheThread = std::thread([this]() { prepFontCacheSync(); });
 }
 
