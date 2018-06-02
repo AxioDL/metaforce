@@ -39,6 +39,15 @@
 #include "SystemChar.hpp"
 #include "FourCC.hpp"
 
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+#define HECL_NO_SANITIZE_THREAD __attribute__((no_sanitize("thread")))
+#endif
+#endif
+#ifndef HECL_NO_SANITIZE_THREAD
+#define HECL_NO_SANITIZE_THREAD
+#endif
+
 namespace hecl
 {
 namespace Database
