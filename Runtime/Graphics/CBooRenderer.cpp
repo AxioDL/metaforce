@@ -52,7 +52,7 @@ void Buckets::Sort()
     float delta = std::max(1.f, sMinMaxDistance[1] - sMinMaxDistance[0]);
     float pitch = 49.f / delta;
     for (auto it = sPlaneObjectData->begin() ; it != sPlaneObjectData->end() ; ++it)
-        if (sPlaneObjectBucket->size() < 8)
+        if (sPlaneObjectBucket->size() != sPlaneObjectBucket->capacity())
             sPlaneObjectBucket->push_back(s16(it - sPlaneObjectData->begin()));
 
     u32 precision = 50;
@@ -119,14 +119,14 @@ void Buckets::Sort()
             bucket.push_back(&drawable);
     }
 
-    int bucketIdx = sBuckets->size();
+    u16 bucketIdx = u16(sBuckets->size());
     for (auto it = sBuckets->rbegin() ; it != sBuckets->rend() ; ++it)
     {
         --bucketIdx;
+        sBucketIndex.push_back(bucketIdx);
         rstl::reserved_vector<CDrawable*, 128>& bucket = *it;
         if (bucket.size())
         {
-            sBucketIndex.push_back(bucketIdx);
             std::sort(bucket.begin(), bucket.end(),
             [](CDrawable* a, CDrawable* b) -> bool
             {
@@ -143,10 +143,12 @@ void Buckets::Sort()
     }
 }
 
-void Buckets::InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool invertTest,
+void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
                                 const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data)
 {
-    sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, dist, something, aabb, invertTest, plane, zOnly, data));
+    if (sPlaneObjectData->size() == sPlaneObjectData->capacity())
+        return;
+    sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, closeDist, farDist, aabb, invertTest, plane, zOnly, data));
 }
 
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
@@ -1039,9 +1041,20 @@ void CBooRenderer::AddParticleGen(const CParticleGen& gen)
     }
 }
 
-void CBooRenderer::AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)
+void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type)
 {
-
+    float closeDist = xb0_viewPlane.pointToPlaneDist(aabb.closestPointAlongVector(xb0_viewPlane.normal()));
+    float farDist = xb0_viewPlane.pointToPlaneDist(aabb.furthestPointAlongVector(xb0_viewPlane.normal()));
+    if (closeDist >= 0.f || farDist >= 0.f)
+    {
+        bool zOnly = plane.normal().isZero();
+        bool invert;
+        if (zOnly)
+            invert = CGraphics::g_ViewMatrix.origin.z >= plane.d;
+        else
+            invert = plane.pointToPlaneDist(CGraphics::g_ViewMatrix.origin) >= 0.f;
+        Buckets::InsertPlaneObject(closeDist, farDist, aabb, invert, plane, zOnly, EDrawableType(type + 2), obj);
+    }
 }
 
 void CBooRenderer::AddDrawable(const void* obj, const zeus::CVector3f& pos, const zeus::CAABox& aabb,

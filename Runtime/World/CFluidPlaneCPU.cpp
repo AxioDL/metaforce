@@ -198,7 +198,8 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
             pttScale = g_tweakGame->GetFluidEnvBumpScale() * x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
 
         // Load GX_TEXMTX3 with identity
-        nextTexMtx++;
+        zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
+        texMtx[0][0] = texMtx[1][1] = pttScale;
         // Load GX_PTTEXMTX0 with scale of pttScale
         // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
 
@@ -1080,6 +1081,7 @@ void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
             int yTiles = (info.x1_ySubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
             int xTiles = (info.x0_xSubdivs - 3) / CFluidPlaneCPURender::numSubdivisionsInTile + 1;
             int xTileStart = info.x28_tileX + info.x2e_tileY * info.x2a_gridDimX;
+            yMax = yMin;
             for (int curYTile=yTiles ; curYTile>0 ; --curYTile,
                  yMax += info.x14_tileSize, xTileStart += info.x2a_gridDimX)
             {

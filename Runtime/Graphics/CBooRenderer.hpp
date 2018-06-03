@@ -42,7 +42,7 @@ class Buckets
 public:
     static void Clear();
     static void Sort();
-    static void InsertPlaneObject(float dist, float something, const zeus::CAABox& aabb, bool invertTest,
+    static void InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
                                   const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data);
     static void Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype,
                        const void* data, const zeus::CPlane& plane, u16 extraSort);

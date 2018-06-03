@@ -37,15 +37,16 @@ static const char* VS =
 "VertToFrag main(in VertData v)\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.mvPos = mul(mv, float4(v.posIn.xyz, 1.0));\n"
+"    float4 pos = float4(v.posIn.xyz, 1.0);\n"
+"    vtf.mvPos = mul(mv, pos);\n"
 "    vtf.pos = mul(proj, vtf.mvPos);\n"
 "    vtf.mvNorm = mul(mvNorm, v.normalIn);\n"
 "    vtf.mvBinorm = mul(mvNorm, v.binormalIn);\n"
 "    vtf.mvTangent = mul(mvNorm, v.tangentIn);\n"
 "    vtf.color = v.colorIn;\n"
-"    vtf.uvs[0] = mul(texMtxs[0], v.posIn).xy;\n"
-"    vtf.uvs[1] = mul(texMtxs[1], v.posIn).xy;\n"
-"    vtf.uvs[2] = mul(texMtxs[2], v.posIn).xy;\n"
+"    vtf.uvs[0] = mul(texMtxs[0], pos).xy;\n"
+"    vtf.uvs[1] = mul(texMtxs[1], pos).xy;\n"
+"    vtf.uvs[2] = mul(texMtxs[2], pos).xy;\n"
 "%s" // Additional TCGs here
 "    return vtf;\n"
 "}\n";
@@ -209,22 +210,22 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
     if (info.m_hasBumpMap)
     {
         bumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[0], v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[0], pos).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(normalize(v.normalIn.xyz), 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
         envMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
     }
     if (info.m_hasLightmap)
     {
         lightmapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
     }
 
     switch (info.m_type)

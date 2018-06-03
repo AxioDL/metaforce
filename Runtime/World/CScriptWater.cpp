@@ -271,6 +271,11 @@ void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr)
     }
 }
 
+void CScriptWater::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
 void CScriptWater::Think(float dt, CStateManager& mgr)
 {
     if (!x30_24_active)
@@ -450,9 +455,7 @@ void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CState
 {
     if (!xe4_30_outOfFrustum)
     {
-        zeus::CPlane plane;
-        plane.vec = x34_transform.origin.normalized();
-        plane.d = x34_transform.origin.z + x130_bounds.max.z;
+        zeus::CPlane plane(zeus::CVector3f::skUp, x34_transform.origin.z + x130_bounds.max.z);
         zeus::CAABox renderBounds = GetSortingBounds(mgr);
         mgr.AddDrawableActorPlane(*this, plane, renderBounds);
     }
@@ -568,7 +571,7 @@ float CScriptWater::GetSplashEffectScale(float dt) const
         return kSplashScales[5];
 
     u32 idx = GetSplashIndex(dt);
-    float s = dt - zeus::floorF(dt * 3.f);
+    float s = dt - std::floor(dt * 3.f);
     return ((1.f - s) * (s * kSplashScales[idx * 2])) + kSplashScales[idx];
 }
 

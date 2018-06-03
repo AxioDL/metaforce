@@ -95,6 +95,7 @@ public:
                  const zeus::CColor& fogColor, CAssetId lightmapId, float unitsPerLightmapTexel, float alphaInTime,
                  float alphaOutTime, u32, u32, bool, s32, s32, std::unique_ptr<u32[]>&& u32Arr);
 
+    void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void PreRender(CStateManager &, const zeus::CFrustum &);

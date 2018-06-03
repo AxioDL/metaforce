@@ -33,15 +33,16 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
-"    vtf.mvPos = mv * vec4(posIn.xyz, 1.0);\n"
+"    vec4 pos = vec4(posIn.xyz, 1.0);\n"
+"    vtf.mvPos = mv * pos;\n"
 "    gl_Position = proj * vtf.mvPos;\n"
 "    vtf.mvNorm = mvNorm * normalIn;\n"
 "    vtf.mvBinorm = mvNorm * binormalIn;\n"
 "    vtf.mvTangent = mvNorm * tangentIn;\n"
 "    vtf.color = colorIn;\n"
-"    vtf.uvs[0] = (texMtxs[0] * posIn).xy;\n"
-"    vtf.uvs[1] = (texMtxs[1] * posIn).xy;\n"
-"    vtf.uvs[2] = (texMtxs[2] * posIn).xy;\n"
+"    vtf.uvs[0] = (texMtxs[0] * pos).xy;\n"
+"    vtf.uvs[1] = (texMtxs[1] * pos).xy;\n"
+"    vtf.uvs[2] = (texMtxs[2] * pos).xy;\n"
 "%s" // Additional TCGs here
 "}\n";
 
@@ -214,22 +215,22 @@ static void _BuildShader(std::string& finalVS, std::string& finalFS, int& nextTe
     if (info.m_hasBumpMap)
     {
         bumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[0] * posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[0] * pos).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[3] * posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[3] * vec4(normalize(normalIn.xyz), 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
         envMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * pos).xy;\n", nextTCG++, nextMtx++);
     }
     if (info.m_hasLightmap)
     {
         lightmapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * pos).xy;\n", nextTCG++, nextMtx++);
     }
 
     switch (info.m_type)

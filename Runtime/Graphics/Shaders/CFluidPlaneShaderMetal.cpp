@@ -46,15 +46,16 @@ static const char* VS =
 "                        constant FluidPlaneUniform& fu [[ buffer(2) ]])\n"
 "{\n"
 "    VertToFrag vtf;\n"
-"    vtf.mvPos = fu.mv * float4(v.posIn.xyz, 1.0);\n"
+"    float4 pos = float4(v.posIn.xyz, 1.0);\n"
+"    vtf.mvPos = fu.mv * pos;\n"
 "    vtf.pos = fu.proj * vtf.mvPos;\n"
 "    vtf.mvNorm = fu.mvNorm * v.normalIn;\n"
 "    vtf.mvBinorm = fu.mvNorm * v.binormalIn;\n"
 "    vtf.mvTangent = fu.mvNorm * v.tangentIn;\n"
 "    vtf.color = v.colorIn;\n"
-"    vtf.uv0 = (fu.texMtxs[0] * v.posIn).xy;\n"
-"    vtf.uv1 = (fu.texMtxs[1] * v.posIn).xy;\n"
-"    vtf.uv2 = (fu.texMtxs[2] * v.posIn).xy;\n"
+"    vtf.uv0 = (fu.texMtxs[0] * pos).xy;\n"
+"    vtf.uv1 = (fu.texMtxs[1] * pos).xy;\n"
+"    vtf.uv2 = (fu.texMtxs[2] * pos).xy;\n"
 "%s" // Additional TCGs here
 "    return vtf;\n"
 "}\n";
@@ -237,22 +238,22 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     if (info.m_hasBumpMap)
     {
         bumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[0] * v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[0] * pos).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[3] * v.posIn).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[3] * float4(normalize(v.normalIn.xyz), 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
         envMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * pos).xy;\n", nextTCG++, nextMtx++);
     }
     if (info.m_hasLightmap)
     {
         lightmapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * v.posIn).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[%d] * pos).xy;\n", nextTCG++, nextMtx++);
     }
 
     switch (info.m_type)

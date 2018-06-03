@@ -63,9 +63,9 @@ bool CVEAngleSphere::GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f&
     d = zeus::degToRad(d + ((0.5f * (f * rand->Float())) - f));
     e = zeus::degToRad(e + ((0.5f * (g * rand->Float())) - g));
 
-    float cosD = zeus::fastCosF(d);
-    pPos.x = a.x + (b * (-zeus::fastSinF(e) * cosD));
-    pPos.y = a.y + (b * zeus::fastSinF(d));
+    float cosD = std::cos(d);
+    pPos.x = a.x + (b * (-std::sin(e) * cosD));
+    pPos.y = a.y + (b * std::sin(d));
     pPos.z = a.z + (b * (cosD * cosD));
     zeus::CVector3f normVec = (pPos - a).normalized();
 

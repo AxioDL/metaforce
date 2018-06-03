@@ -8,6 +8,7 @@
 #include "CStateManager.hpp"
 #include "IMain.hpp"
 #include "CPlayer.hpp"
+#include "hecl/CVarManager.hpp"
 
 namespace urde
 {
@@ -456,11 +457,9 @@ void CScriptSpecialFunction::ThinkPlayerInArea(float, CStateManager &)
 
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const
 {
-#ifndef NDEBUG
-    return true;
-#else
+    if (hecl::com_developer->toBoolean())
+        return true;
     return g_GameState->SystemOptions().GetCinematicState(stateMgr.GetWorld()->IGetWorldAssetId(), GetEditorId());
-#endif
 }
 
 void CScriptSpecialFunction::DeleteEmitter(const CSfxHandle& handle)

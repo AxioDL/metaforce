@@ -29,8 +29,8 @@ CFluidUVMotion::CFluidUVMotion(float timeToWrap, float orientation)
 
 void CFluidUVMotion::CalculateFluidTextureOffset(float t, float offsets[3][2]) const
 {
-    float totalYOffset = (t * x4c_ooTimeToWrap) * zeus::fastCosF(x50_orientation);
-    float totalXOffset = (t * x4c_ooTimeToWrap) * zeus::fastSinF(x50_orientation);
+    float totalYOffset = t * x4c_ooTimeToWrap * std::cos(x50_orientation);
+    float totalXOffset = t * x4c_ooTimeToWrap * std::sin(x50_orientation);
 
     for (u32 i = 0 ; i<x0_fluidLayers.size() ; ++i)
     {
@@ -42,17 +42,23 @@ void CFluidUVMotion::CalculateFluidTextureOffset(float t, float offsets[3][2]) c
         float localX;
         switch(layer.x0_motion)
         {
-        case EFluidUVMotion::One:
+        case EFluidUVMotion::Linear:
         {
-            float angle = (M_PIF * 2) * cycleT;
-            localY = layer.xc_magnitude * zeus::fastSinF(angle);
-            localX = layer.xc_magnitude * zeus::fastCosF(angle);
+            localX = speedT;
+            localY = 0.f;
         }
         break;
-        case EFluidUVMotion::Two:
+        case EFluidUVMotion::Circular:
+        {
+            float angle = (M_PIF * 2) * cycleT;
+            localY = layer.xc_magnitude * std::sin(angle);
+            localX = layer.xc_magnitude * std::cos(angle);
+        }
+        break;
+        case EFluidUVMotion::Oscillate:
         {
             localY = 0.f;
-            localX = layer.xc_magnitude * zeus::fastCosF((M_PIF * 2) * cycleT);
+            localX = layer.xc_magnitude * std::cos((M_PIF * 2) * cycleT);
         }
         break;
         default:
@@ -60,10 +66,10 @@ void CFluidUVMotion::CalculateFluidTextureOffset(float t, float offsets[3][2]) c
             break;
         }
 
-        float x = localX * zeus::fastSinF(layer.x8_orientation) +
-            localY * zeus::fastCosF(layer.x8_orientation) + totalXOffset;
-        float y = localY * zeus::fastSinF(layer.x8_orientation) +
-            localX * zeus::fastCosF(layer.x8_orientation) + totalYOffset;
+        float x = localX * std::sin(layer.x8_orientation) +
+            localY * std::cos(layer.x8_orientation) + totalXOffset;
+        float y = localY * std::sin(layer.x8_orientation) +
+            localX * std::cos(layer.x8_orientation) + totalYOffset;
 
         offsets[i][0] = x - std::floor(x);
         offsets[i][1] = y - std::floor(y);

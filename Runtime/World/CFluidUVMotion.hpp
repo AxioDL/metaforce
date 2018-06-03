@@ -11,14 +11,14 @@ class CFluidUVMotion
 public:
     enum class EFluidUVMotion
     {
-        Zero,
-        One,
-        Two,
+        Linear,
+        Circular,
+        Oscillate,
     };
 
     struct SFluidLayerMotion
     {
-        EFluidUVMotion x0_motion = EFluidUVMotion::Zero;
+        EFluidUVMotion x0_motion = EFluidUVMotion::Linear;
         float x4_ooTimeToWrap = 0.16666667f;
         float x8_orientation = 0.f;
         float xc_magnitude = 1.f;
