@@ -458,7 +458,6 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
 
     std::string type = args[0];
     athena::utility::tolower(type);
-    console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
     std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
     if (type == "all")
     {
@@ -471,26 +470,49 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
         }
         pState->IncrPickup(CPlayerState::EItemType::HealthRefill, 99999);
     }
-    else if (type == "missile")
+    else
     {
-        s32 missiles = 250;
-        if (args.size() == 2)
+        CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
+        if (eType == CPlayerState::EItemType::Invalid)
         {
-            missiles = s32(strtol(args[1].c_str(), nullptr, 10));
-            missiles = zeus::clamp(-250, missiles, 250);
+            console->report(hecl::Console::Level::Info, "Invalid item %s", type.c_str());
+            return;
+        }
+        if (eType == CPlayerState::EItemType::HealthRefill)
+        {
+            pState->IncrPickup(eType, 9999);
+            console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
+            return;
         }
 
-        u32 curCap = pState->GetItemCapacity(CPlayerState::EItemType::Missiles);
-        if (missiles > 0 && curCap < u32(missiles))
+        s32 itemAmt = CPlayerState::GetPowerUpMaxValue(eType);
+        if (args.size() == 2)
         {
-            u32 tmp = ((u32(missiles) / 5) + (missiles % 5)) * 5;
-            pState->ReInitalizePowerUp(CPlayerState::EItemType::Missiles, tmp);
+            s32 itemMax = CPlayerState::GetPowerUpMaxValue(eType);
+            itemAmt = s32(strtol(args[1].c_str(), nullptr, 10));
+            itemAmt = zeus::clamp(-itemMax, itemAmt, itemMax);
         }
-        if (missiles > 0)
-            pState->IncrPickup(CPlayerState::EItemType::Missiles, u32(missiles));
+
+        u32 curCap = pState->GetItemCapacity(eType);
+        if (itemAmt > 0 && curCap < u32(itemAmt))
+        {
+            /* Handle special case with Missiles */
+            if (eType == CPlayerState::EItemType::Missiles)
+            {
+                u32 tmp = ((u32(itemAmt) / 5) + (itemAmt % 5)) * 5;
+                pState->ReInitalizePowerUp(eType, tmp);
+            }
+            else
+                pState->ReInitalizePowerUp(eType, itemAmt);
+        }
+
+        if (itemAmt > 0)
+            pState->IncrPickup(eType, u32(itemAmt));
         else
-            pState->DecrPickup(CPlayerState::EItemType::Missiles, zeus::clamp(0u, u32(abs(missiles)), pState->GetItemAmount(CPlayerState::EItemType::Missiles)));
+            pState->DecrPickup(eType, zeus::clamp(0u, u32(abs(itemAmt)), pState->GetItemAmount(eType)));
     }
+
+    console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
 }
 
 void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)

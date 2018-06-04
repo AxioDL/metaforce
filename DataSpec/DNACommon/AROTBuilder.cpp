@@ -8,7 +8,7 @@ logvisor::Module Log("AROTBuilder");
 
 #define AROT_MAX_LEVEL 6
 #define AROT_MIN_MODELS 8
-#define COLLISION_MIN_NODE_TRIANGLES 16
+#define COLLISION_MIN_NODE_TRIANGLES 8
 #define PATH_MIN_NODE_REGIONS 16
 
 static zeus::CAABox SplitAABB(const zeus::CAABox& aabb, int i)

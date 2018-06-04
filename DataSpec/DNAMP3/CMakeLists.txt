@@ -9,7 +9,8 @@ make_dnalist(liblist DNAMP3
              MREA
              SAVW
              CAUD
-             HINT)
+             HINT
+             SAND)
 set(DNAMP3_SOURCES
     DNAMP3.hpp DNAMP3.cpp
     PAK.cpp

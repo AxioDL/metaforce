@@ -100,7 +100,7 @@ public:
     };
 
 private:
-
+    static const std::unordered_map<std::string_view, EItemType> g_TypeNameMap;
     static const u32 PowerUpMaxValues[41];
     static const char* PowerUpNames[41];
     struct CPowerUp
@@ -184,7 +184,7 @@ public:
     CPlayerState(CBitStreamReader& stream);
     void PutTo(CBitStreamWriter& stream);
     static u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[u32(type)]; }
-
+    static EItemType ItemNameToType(std::string_view name);
 };
 }
 

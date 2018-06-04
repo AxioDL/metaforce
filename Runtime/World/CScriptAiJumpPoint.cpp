@@ -11,8 +11,8 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, con
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_(f1)
+, xec_touchBounds(xf.origin, xf.origin)
 {
-    xec_.emplace(xf.origin, xf.origin);
 }
 
 void CScriptAiJumpPoint::Accept(IVisitor& visitor)
@@ -50,7 +50,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
     }
 }
 
-std::experimental::optional<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_; }
+std::experimental::optional<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_touchBounds; }
 
 bool CScriptAiJumpPoint::GetInUse(TUniqueId uid) const
 {

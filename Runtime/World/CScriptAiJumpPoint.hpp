@@ -9,7 +9,7 @@ class CScriptAiJumpPoint : public CActor
 {
 private:
     float xe8_;
-    std::experimental::optional<zeus::CAABox> xec_;
+    zeus::CAABox xec_touchBounds;
     union {
         struct
         {
