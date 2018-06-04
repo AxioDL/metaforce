@@ -50,6 +50,11 @@ CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha, const zeus::
     return out;
 }
 
+/* Used to be part of locked cache
+ * These are too big for stack allocation */
+static CFluidPlaneCPURender::SHFieldSample lc_heights[46][46] = {};
+static u8 lc_flags[9][9] = {};
+
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                              const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
                              const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
@@ -86,10 +91,7 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                                                            CFluidPlaneCPURender::NormalMode::None,
                                                            0, 0, 0, 0, 0, 0, 0, nullptr);
 
-                CFluidPlaneCPURender::SHFieldSample heights[45][45];
-                u8 flags[9][9] = {};
-
-                RenderPatch(patchInfo, heights, flags, true, true, m_verts);
+                RenderPatch(patchInfo, lc_heights, lc_flags, true, true, m_verts);
             }
         }
     }

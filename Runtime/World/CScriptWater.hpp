@@ -58,7 +58,7 @@ private:
     std::unique_ptr<bool[]> x2d8_tileIntersects;
     std::unique_ptr<bool[]> x2dc_vertIntersects;
     std::unique_ptr<u8[]> x2e0_patchIntersects; // 0: all clear, 1: all intersect, 2: partial intersect
-    int x2e4_gridCellCount2 = 0;
+    int x2e4_computedGridCellCount = 0;
     union
     {
         struct

@@ -1043,8 +1043,10 @@ void CBooRenderer::AddParticleGen(const CParticleGen& gen)
 
 void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type)
 {
-    float closeDist = xb0_viewPlane.pointToPlaneDist(aabb.closestPointAlongVector(xb0_viewPlane.normal()));
-    float farDist = xb0_viewPlane.pointToPlaneDist(aabb.furthestPointAlongVector(xb0_viewPlane.normal()));
+    zeus::CVector3f closePoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());
+    zeus::CVector3f farPoint = aabb.furthestPointAlongVector(xb0_viewPlane.normal());
+    float closeDist = xb0_viewPlane.pointToPlaneDist(closePoint);
+    float farDist = xb0_viewPlane.pointToPlaneDist(farPoint);
     if (closeDist >= 0.f || farDist >= 0.f)
     {
         bool zOnly = plane.normal().isZero();

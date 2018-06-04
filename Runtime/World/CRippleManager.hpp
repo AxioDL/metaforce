@@ -9,20 +9,21 @@ namespace urde
 
 class CRippleManager
 {
-    float x0_ = 0.f;
+    float x0_maxTimeFalloff = 0.f;
     std::vector<CRipple> x4_ripples;
-    float x14_;
+    float x14_alpha;
 public:
-    CRippleManager(int maxRipples, float);
+    CRippleManager(int maxRipples, float alpha);
     void Init(int maxRipples);
-    void SetTime(float);
     std::vector<CRipple>& Ripples() { return x4_ripples; }
     const std::vector<CRipple>& GetRipples() const { return x4_ripples; }
     void Update(float dt);
     float GetLastRippleDeltaTime(TUniqueId rippler) const;
     void AddRipple(const CRipple& ripple);
-    void SetMaxTimeFalloff(float time);
-    float GetMaxTimeFalloff() const;
+    void SetMaxTimeFalloff(float time) { x0_maxTimeFalloff = time; }
+    float GetMaxTimeFalloff() const { return x0_maxTimeFalloff; }
+    void SetAlpha(float a) { x14_alpha = a; }
+    float GetAlpha() const { return x14_alpha; }
 };
 
 }

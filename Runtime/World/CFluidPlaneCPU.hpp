@@ -207,7 +207,7 @@ public:
 };
 
 void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
-                 const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+                 const CFluidPlaneCPURender::SHFieldSample (&heights)[46][46],
                  const u8 (&flags)[9][9], bool noRipples, bool flagIs1,
                  std::vector<CFluidPlaneShader::Vertex>& vOut);
 

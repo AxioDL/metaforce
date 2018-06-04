@@ -3,8 +3,8 @@
 namespace urde
 {
 
-CRippleManager::CRippleManager(int maxRipples, float f1)
-: x14_(f1)
+CRippleManager::CRippleManager(int maxRipples, float alpha)
+: x14_alpha(alpha)
 {
     Init(maxRipples);
 }
@@ -14,11 +14,6 @@ void CRippleManager::Init(int maxRipples)
     x4_ripples.resize(maxRipples, CRipple(kInvalidUniqueId, zeus::CVector3f::skZero, 0.f));
     for (CRipple& r : x4_ripples)
         r.SetTime(9999.f);
-}
-
-void CRippleManager::SetTime(float)
-{
-
 }
 
 void CRippleManager::Update(float dt)
@@ -43,17 +38,20 @@ float CRippleManager::GetLastRippleDeltaTime(TUniqueId rippler) const
 
 void CRippleManager::AddRipple(const CRipple& ripple)
 {
+    float maxTime = 0.f;
+    auto oldestRipple = x4_ripples.end();
+    for (auto it = x4_ripples.begin() ; it != x4_ripples.end() ; ++it)
+        if (it->GetTime() > maxTime)
+        {
+            oldestRipple = it;
+            maxTime = it->GetTime();
+        }
 
-}
-
-void CRippleManager::SetMaxTimeFalloff(float time)
-{
-
-}
-
-float CRippleManager::GetMaxTimeFalloff() const
-{
-    return 0.f;
+    if (oldestRipple != x4_ripples.end())
+    {
+        *oldestRipple = ripple;
+        x0_maxTimeFalloff = std::max(x0_maxTimeFalloff, ripple.GetTimeFalloff());
+    }
 }
 
 }

@@ -382,9 +382,8 @@ public:
         ++m_added;
         if (m_added > 3 && (m_added & 1) == 0)
         {
-            const VTX& last = m_vec.back();
             m_vec.reserve(m_vec.size() + 3);
-            m_vec.push_back(last);
+            m_vec.push_back(m_vec.back());
             m_vec.push_back(m_vec[m_start]);
         }
         m_vec.push_back(vert);
@@ -396,9 +395,8 @@ public:
         ++m_added;
         if (m_added > 3 && (m_added & 1) == 0)
         {
-            const VTX& last = m_vec.back();
             m_vec.reserve(m_vec.size() + 3);
-            m_vec.push_back(last);
+            m_vec.push_back(m_vec.back());
             m_vec.push_back(m_vec[m_start]);
         }
         m_vec.emplace_back(std::forward<_Args>(args)...);

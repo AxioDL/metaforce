@@ -103,10 +103,10 @@ void CScriptWater::SetupGrid(bool recomputeClipping)
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
     auto dimX = u32((triggerAABB.max.x - triggerAABB.min.x + x2c0_tileSize) / x2c0_tileSize);
     auto dimY = u32((triggerAABB.max.y - triggerAABB.min.y + x2c0_tileSize) / x2c0_tileSize);
-    x2e4_gridCellCount2 = x2cc_gridCellCount = (dimX + 1) * (dimY + 1);
+    x2e4_computedGridCellCount = x2cc_gridCellCount = (dimX + 1) * (dimY + 1);
     x2dc_vertIntersects.reset();
     if (!x2d8_tileIntersects || dimX != x2c4_gridDimX || dimY != x2c8_gridDimY)
-        x2d8_tileIntersects.reset(new bool[dimX * dimY]);
+        x2d8_tileIntersects.reset(new bool[x2cc_gridCellCount]);
     x2c4_gridDimX = dimX;
     x2c8_gridDimY = dimY;
     for (int i=0 ; i<x2c8_gridDimY ; ++i)
@@ -127,12 +127,12 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
 {
     if (x2e8_28_recomputeClipping)
     {
-        x2e4_gridCellCount2 = 0;
+        x2e4_computedGridCellCount = 0;
         x2dc_vertIntersects.reset();
         x2e8_28_recomputeClipping = false;
     }
 
-    if (x2e4_gridCellCount2 >= x2cc_gridCellCount)
+    if (x2e4_computedGridCellCount >= x2cc_gridCellCount)
         return;
 
     if (!x2dc_vertIntersects)
@@ -140,11 +140,12 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
     zeus::CAABox triggerBounds = GetTriggerBoundsWR();
     zeus::CVector3f basePos = triggerBounds.min;
     basePos.z = triggerBounds.max.z + 0.8f;
-    auto gridDiv = std::div(int(x2e4_gridCellCount2), int(x2c4_gridDimX + 1));
+    auto gridDiv = std::div(int(x2e4_computedGridCellCount), int(x2c4_gridDimX + 1));
     float yOffset = x2c0_tileSize * gridDiv.quot;
     float xOffset = x2c0_tileSize * gridDiv.rem;
     float mag = std::min(120.f, 2.f * (x130_bounds.max.z - x130_bounds.min.z) + 0.8f);
-    for (int i = x2e4_gridCellCount2; i < std::min(x2e4_gridCellCount2 + computeVerts, x2cc_gridCellCount); ++i)
+    for (int i = x2e4_computedGridCellCount;
+         i < std::min(x2e4_computedGridCellCount + computeVerts, x2cc_gridCellCount); ++i)
     {
         zeus::CVector3f pos = basePos;
         pos.x += xOffset;
@@ -159,12 +160,12 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
             gridDiv.rem = 0;
         }
     }
-    x2e4_gridCellCount2 += computeVerts;
-    if (x2e4_gridCellCount2 < x2cc_gridCellCount)
+    x2e4_computedGridCellCount += computeVerts;
+    if (x2e4_computedGridCellCount < x2cc_gridCellCount)
         return;
 
-    x2e4_gridCellCount2 = x2cc_gridCellCount;
-    x2d8_tileIntersects.reset(new bool[x2c4_gridDimX * x2c8_gridDimY]);
+    x2e4_computedGridCellCount = x2cc_gridCellCount;
+    x2d8_tileIntersects.reset(new bool[x2cc_gridCellCount]);
 
     for (int i = 0; i < x2c8_gridDimY; ++i)
     {
@@ -608,12 +609,12 @@ bool CScriptWater::CanRippleAtPoint(const zeus::CVector3f& point) const
     if (!x2d8_tileIntersects)
         return true;
 
-    auto xTile = int((point.x - GetTriggerBoundsOR().min.x) / x2c0_tileSize);
+    auto xTile = int((point.x - GetTriggerBoundsWR().min.x) / x2c0_tileSize);
     if (xTile < 0 || xTile >= x2c4_gridDimX)
         return false;
 
-    auto yTile = int((point.y - GetTriggerBoundsOR().min.y) / x2c0_tileSize);
-    if (xTile < 0 || xTile >= x2c8_gridDimY)
+    auto yTile = int((point.y - GetTriggerBoundsWR().min.y) / x2c0_tileSize);
+    if (yTile < 0 || yTile >= x2c8_gridDimY)
         return false;
 
     return x2d8_tileIntersects[yTile * x2c4_gridDimX + xTile];

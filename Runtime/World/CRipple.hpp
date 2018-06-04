@@ -15,7 +15,7 @@ private:
     float x14_timeFalloff = 2.f;
     float x18_distFalloff = 12.f;
     float x1c_frequency = 3.f;
-    float x20_ = 0.25f;
+    float x20_preAmplitude = 0.25f;
     float x24_amplitude = 0.00098039221f;
     float x28_ooTimeFalloff = 0.f;
     float x2c_ooDistFalloff = 0.f;

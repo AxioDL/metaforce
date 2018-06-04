@@ -200,6 +200,7 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
         // Load GX_TEXMTX3 with identity
         zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
         texMtx[0][0] = texMtx[1][1] = pttScale;
+        texMtx[3][0] = texMtx[3][1] = 0.5f;
         // Load GX_PTTEXMTX0 with scale of pttScale
         // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
 
@@ -314,7 +315,7 @@ static bool PrepareRipple(const CRipple& ripple, const CFluidPlaneCPURender::SPa
     return !(rippleOut.x14_gfromX > rippleOut.x18_gtoX || rippleOut.x1c_gfromY > rippleOut.x20_gtoY);
 }
 
-static void ApplyTurbulence(float t, CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], const u8 (&flags)[9][9],
+static void ApplyTurbulence(float t, CFluidPlaneCPURender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
                             const float sineWave[256], const CFluidPlaneCPURender::SPatchInfo& info,
                             const CFluidPlaneCPU& fluidPane, const zeus::CVector3f& areaCenter)
 {
@@ -348,7 +349,7 @@ static void ApplyTurbulence(float t, CFluidPlaneCPURender::SHFieldSample (&heigh
 }
 
 static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
-                        CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+                        CFluidPlaneCPURender::SHFieldSample (&heights)[46][46],
                         u8 (&flags)[9][9], const float sineWave[256], const CFluidPlaneCPURender::SPatchInfo& info)
 {
     float lookupT = 256.f * (1.f - rippleInfo.x0_ripple.GetTime() * rippleInfo.x0_ripple.GetOOTimeFalloff() *
@@ -421,7 +422,7 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
                         if (u8 val = CFluidPlaneManager::RippleValues[lifeIdx][int(divDist * f11)])
                         {
                             heights[k][l].height += val * rippleInfo.x0_ripple.GetAmplitude() *
-                                sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT)];
+                                sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() + lookupT) & 0xff];
                         }
                         else
                         {
@@ -475,7 +476,7 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
                             {
                                 heights[k][l].height += val * rippleInfo.x0_ripple.GetAmplitude() *
                                                     sineWave[int(divDist * rippleInfo.x0_ripple.GetLookupPhase() +
-                                                                     lookupT)];
+                                                                     lookupT) & 0xff];
                             }
                             else
                             {
@@ -498,7 +499,7 @@ static void ApplyRipple(const CFluidPlaneCPURender::SRippleInfo& rippleInfo,
 }
 
 static void ApplyRipples(const rstl::reserved_vector<CFluidPlaneCPURender::SRippleInfo, 32>& rippleInfos,
-                         CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], u8 (&flags)[9][9],
+                         CFluidPlaneCPURender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
                          const float sineWave[256], const CFluidPlaneCPURender::SPatchInfo& info)
 {
     for (const CFluidPlaneCPURender::SRippleInfo& rippleInfo : rippleInfos)
@@ -513,7 +514,7 @@ static void ApplyRipples(const rstl::reserved_vector<CFluidPlaneCPURender::SRipp
         flags[CFluidPlaneCPURender::numTilesInHField+1][i+1] |= 2;
 }
 
-static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], const u8 (&flags)[9][9],
+static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[46][46], const u8 (&flags)[9][9],
                                  const CFluidPlaneCPURender::SPatchInfo& info)
 {
     for (int i=1 ; i <= (info.x1_ySubdivs + CFluidPlaneCPURender::numSubdivisionsInTile - 2) /
@@ -587,7 +588,7 @@ static void UpdatePatchNoNormals(CFluidPlaneCPURender::SHFieldSample (&heights)[
     }
 }
 
-static void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (& heights)[45][45], const u8 (& flags)[9][9],
+static void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (& heights)[46][46], const u8 (& flags)[9][9],
                                    const CFluidPlaneCPURender::SPatchInfo& info)
 {
     float normalScale = -(2.f * info.x18_rippleResolution);
@@ -745,7 +746,7 @@ static void UpdatePatchWithNormals(CFluidPlaneCPURender::SHFieldSample (& height
 }
 
 static bool UpdatePatch(float time, const CFluidPlaneCPURender::SPatchInfo& info,
-                        CFluidPlaneCPURender::SHFieldSample (&heights)[45][45], u8 (&flags)[9][9],
+                        CFluidPlaneCPURender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
                         const CFluidPlaneCPU& fluidPane, const zeus::CVector3f& areaCenter,
                         const std::experimental::optional<CRippleManager>& rippleManager,
                         int fromX, int toX, int fromY, int toY)
@@ -776,7 +777,7 @@ static bool UpdatePatch(float time, const CFluidPlaneCPURender::SPatchInfo& info
     return false;
 }
 
-static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFieldSample (&heights)[46][46],
                                    const u8 (&flags)[9][9], int startYDiv,
                                    const CFluidPlaneCPURender::SPatchInfo& info,
                                    std::vector<CFluidPlaneShader::Vertex>& vOut)
@@ -790,7 +791,6 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
     float tileMid = info.x18_rippleResolution * midDiv;
     float yMin = curY;
     float yMid = curY + tileMid;
-    float xMin = info.x4_localMin.x;
 
     float curX = info.x4_localMin.x;
     int gridCell = info.x28_tileX + info.x2a_gridDimX * (info.x2e_tileY + yTile - 1);
@@ -853,7 +853,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
             for (; remSubdivs>0 ; --remSubdivs, ++curYDiv, curTileY+=info.x18_rippleResolution)
             {
                 size_t start = vOut.size();
-                float curTileX = xMin;
+                float curTileX = curX;
                 for (int v=0 ; v<stripDivCount ; ++v)
                 {
                     func(curTileX, curTileY, heights[curYDiv][i+v]);
@@ -900,7 +900,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                 {
                     int curYDiv0 = startYDiv;
                     int curYDiv1 = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
-                    float curTileX = xMin;
+                    float curTileX = curX;
                     for (int v=0 ; v<stripDivCount ; ++v)
                     {
                         int curXDiv = v * CFluidPlaneCPURender::numSubdivisionsInTile + i;
@@ -910,7 +910,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                                           samp0.MakeNormal(), samp0.MakeColor(info));
                         vOut.emplace_back(zeus::CVector3f(curTileX, yMin + info.x14_tileSize, samp1.height),
                                           samp1.MakeNormal(), samp1.MakeColor(info));
-                        curTileX += info.x18_rippleResolution;
+                        curTileX += info.x14_tileSize;
                     }
                     break;
                 }
@@ -918,7 +918,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                 {
                     int curYDiv0 = startYDiv;
                     int curYDiv1 = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
-                    float curTileX = xMin;
+                    float curTileX = curX;
                     for (int v=0 ; v<stripDivCount ; ++v)
                     {
                         int curXDiv = v * CFluidPlaneCPURender::numSubdivisionsInTile + i;
@@ -930,7 +930,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                         vOut.emplace_back(zeus::CVector3f(curTileX, yMin + info.x14_tileSize, samp1.height),
                                           samp1.MakeNormal(), samp1.MakeBinormal(), samp1.MakeTangent(),
                                           samp1.MakeColor(info));
-                        curTileX += info.x18_rippleResolution;
+                        curTileX += info.x14_tileSize;
                     }
                     break;
                 }
@@ -974,11 +974,11 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
                     break;
                 }
 
-                func(tileMid + xMin, yMid, heights[startYDiv+midDiv][i+midDiv]);
+                func(tileMid + curX, yMid, heights[startYDiv+midDiv][i+midDiv]);
 
                 int curXDiv = i;
                 int curYDiv = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
-                float curTileX = xMin;
+                float curTileX = curX;
                 float curTileY = yMin + info.x14_tileSize;
                 for (int v=0 ; v<(r19 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
                 {
@@ -989,7 +989,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
 
                 curXDiv = i + CFluidPlaneCPURender::numSubdivisionsInTile;
                 curYDiv = startYDiv + CFluidPlaneCPURender::numSubdivisionsInTile;
-                curTileX = xMin + info.x14_tileSize;
+                curTileX = curX + info.x14_tileSize;
                 curTileY = yMin + info.x14_tileSize;
                 for (int v=0 ; v<(r18 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
                 {
@@ -1000,7 +1000,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
 
                 curXDiv = i + CFluidPlaneCPURender::numSubdivisionsInTile;
                 curYDiv = startYDiv;
-                curTileX = xMin + info.x14_tileSize;
+                curTileX = curX + info.x14_tileSize;
                 curTileY = yMin;
                 for (int v=0 ; v<(r17 ? CFluidPlaneCPURender::numSubdivisionsInTile : 1) ; ++v)
                 {
@@ -1011,11 +1011,11 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
 
                 curXDiv = i;
                 curYDiv = startYDiv;
-                curTileX = xMin;
+                curTileX = curX;
                 curTileY = yMin;
                 if (r16)
                 {
-                    for (int v=0 ; v<CFluidPlaneCPURender::numSubdivisionsInTile ; ++v)
+                    for (int v=0 ; v<CFluidPlaneCPURender::numSubdivisionsInTile+1 ; ++v)
                     {
                         const CFluidPlaneCPURender::SHFieldSample& samp = heights[curYDiv+v][curXDiv];
                         func(curTileX, curTileY, samp);
@@ -1043,7 +1043,7 @@ static void RenderStripWithRipples(float curY, const CFluidPlaneCPURender::SHFie
 }
 
 void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
-                 const CFluidPlaneCPURender::SHFieldSample (&heights)[45][45],
+                 const CFluidPlaneCPURender::SHFieldSample (&heights)[46][46],
                  const u8 (&flags)[9][9], bool noRipples, bool flagIs1,
                  std::vector<CFluidPlaneShader::Vertex>& vOut)
 {
@@ -1153,9 +1153,10 @@ void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
                             size_t start = vOut.size();
                             for (int v = 0 ; v < nextXTile - curXTile + 1 ; ++v)
                             {
-                                vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f), zeus::CColor::skBlack);
+                                vOut.emplace_back(zeus::CVector3f(xMax, yMax, 0.f),
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
                                 vOut.emplace_back(zeus::CVector3f(xMax, yMax + info.x14_tileSize, 0.f),
-                                                  zeus::CColor::skBlack);
+                                                  zeus::CVector3f::skUp, zeus::CColor::skBlack);
                                 xMax += info.x14_tileSize;
                             }
                             CGraphics::DrawArray(start, vOut.size() - start);
@@ -1258,6 +1259,11 @@ void RenderPatch(const CFluidPlaneCPURender::SPatchInfo& info,
             RenderStripWithRipples(curY, heights, flags, startYDiv, info, vOut);
     }
 }
+
+/* Used to be part of locked cache
+ * These are too big for stack allocation */
+static CFluidPlaneCPURender::SHFieldSample lc_heights[46][46] = {};
+static u8 lc_flags[9][9] = {};
 
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
@@ -1375,12 +1381,9 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                     else
                         toY = info.x1_ySubdivs;
 
-                    CFluidPlaneCPURender::SHFieldSample heights[45][45];
-                    u8 flags[9][9] = {};
-
-                    bool noRipples = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, heights, flags,
+                    bool noRipples = UpdatePatch(mgr.GetFluidPlaneManager()->GetUVT(), info, lc_heights, lc_flags,
                                                  *this, areaCenter, rippleManager, fromX, toX, fromY, toY);
-                    RenderPatch(info, heights, flags, noRipples, renderFlags == 1, m_verts);
+                    RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1, m_verts);
                 }
             }
             curX += ripplePitch.x;
