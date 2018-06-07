@@ -15,8 +15,8 @@ private:
     float x14_timeFalloff = 2.f;
     float x18_distFalloff = 12.f;
     float x1c_frequency = 3.f;
-    float x20_preAmplitude = 0.25f;
-    float x24_amplitude = 0.00098039221f;
+    float x20_amplitude = 0.25f;
+    float x24_lookupAmplitude = 0.00098039221f;
     float x28_ooTimeFalloff = 0.f;
     float x2c_ooDistFalloff = 0.f;
     float x30_ooPhase = 0.f;
@@ -32,11 +32,13 @@ public:
     float GetTimeFalloff() const { return x14_timeFalloff; }
     TUniqueId GetUniqueId() const { return x0_id; }
     float GetFrequency() const { return x1c_frequency; }
-    float GetAmplitude() const { return x24_amplitude; }
+    float GetAmplitude() const { return x20_amplitude; }
+    float GetLookupAmplitude() const { return x24_lookupAmplitude; }
     float GetOODistanceFalloff() const { return x2c_ooDistFalloff; }
     float GetDistanceFalloff() const { return x18_distFalloff; }
     const zeus::CVector3f& GetCenter() const { return x8_center; }
     float GetOOTimeFalloff() const { return x28_ooTimeFalloff; }
+    float GetPhase() const { return x34_phase; }
     float GetLookupPhase() const { return x38_lookupPhase; }
 };
 }

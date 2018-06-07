@@ -256,7 +256,7 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
         {
             if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(sender))
             {
-                if (water->GetFluidPlane().GetFluidType() == CFluidPlane::EFluidType::PhazonFluid)
+                if (water->GetFluidPlane().GetFluidType() == EFluidType::PhazonFluid)
                 {
                     x835_24_canFirePhazon = true;
                     x835_25_inPhazonBeam = true;

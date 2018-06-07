@@ -6,6 +6,7 @@
 #include "World/CWorld.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "Camera/CGameCamera.hpp"
+#include "CFluidPlaneGPU.hpp"
 
 namespace urde
 {
@@ -22,10 +23,10 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
                            bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,
                            CAssetId bumpMap, CAssetId envMap, CAssetId envBumpMap, CAssetId unusedMap,
                            const zeus::CVector3f& bumpLightDir, float bumpScale, float morphInTime, float morphOutTime,
-                           bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
+                           bool active, EFluidType fluidType, bool b4, float alpha,
                            const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                            float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                           float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
+                           float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& insideFogColor,
                            CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
                            CAssetId visorRunoffParticle, CAssetId unmorphVisorRunoffparticle, s32 visorRunoffSfx,
                            s32 unmorphVisorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
@@ -44,8 +45,8 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
   x24c_unmorphVisorRunoffParticleId(unmorphVisorRunoffparticle),
   x260_visorRunoffSfx(CSfxManager::TranslateSFXID(visorRunoffSfx)),
   x262_unmorphVisorRunoffSfx(CSfxManager::TranslateSFXID(unmorphVisorRunoffSfx)),
-  x2a4_splashColor(splashColor), x2a8_fogColor(unkColor), x2ac_alphaInTime(alphaInTime), x2b0_alphaOutTime(alphaOutTime),
-  x2b4_alphaInRecip((alphaInTime != 0.f) ? 1.f / alphaInTime : 0.f),
+  x2a4_splashColor(splashColor), x2a8_insideFogColor(insideFogColor), x2ac_alphaInTime(alphaInTime),
+  x2b0_alphaOutTime(alphaOutTime), x2b4_alphaInRecip((alphaInTime != 0.f) ? 1.f / alphaInTime : 0.f),
   x2b8_alphaOutRecip((alphaOutTime != 0.f) ? 1.f / alphaOutTime : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
 {
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
@@ -56,14 +57,25 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
     x2e8_27_allowRender = allowRender;
     x2e8_28_recomputeClipping = true;
 
-    x1b4_fluidPlane = std::make_unique<CFluidPlaneCPU>(patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap,
-                                                       lightmapId, unitsPerLightmapTexel, tileSize, tileSubdivisions,
-                                                       fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot,
-                                                       turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
-                                                       turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
-                                                       specularMax, reflectionBlend, reflectionSize, rippleIntensity,
-                                                       x2cc_gridCellCount *
-                                                           ((std::max(u32(2), tileSubdivisions) * 4 + 2) * 4));
+    uint32_t maxPatchSize;
+    if (CGraphics::g_BooFactory->isTessellationSupported(maxPatchSize))
+        x1b4_fluidPlane = std::make_unique<CFluidPlaneGPU>(patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap,
+                                                           lightmapId, unitsPerLightmapTexel, tileSize, tileSubdivisions * 2,
+                                                           fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot,
+                                                           turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
+                                                           turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
+                                                           specularMax, reflectionBlend, reflectionSize, rippleIntensity,
+                                                           x2cc_gridCellCount *
+                                                           ((std::max(u32(2), tileSubdivisions * 2) * 4 + 2) * 4));
+    else
+        x1b4_fluidPlane = std::make_unique<CFluidPlaneCPU>(patternMap1, patternMap2, colorMap, bumpMap, envMap, envBumpMap,
+                                                           lightmapId, unitsPerLightmapTexel, tileSize, tileSubdivisions,
+                                                           fluidType, x2bc_alpha, bumpLightDir, bumpScale, uvMot,
+                                                           turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
+                                                           turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, specularMin,
+                                                           specularMax, reflectionBlend, reflectionSize, rippleIntensity,
+                                                           x2cc_gridCellCount *
+                                                               ((std::max(u32(2), tileSubdivisions) * 4 + 2) * 4));
     u32Arr.reset();
     x264_splashEffects.resize(3);
     if (x22c_splashParticle1Id.IsValid())

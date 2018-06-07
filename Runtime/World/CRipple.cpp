@@ -15,8 +15,8 @@ CRipple::CRipple(TUniqueId id, const zeus::CVector3f& center, float intensity)
         x14_timeFalloff = 0.5f * tmp + 1.5f;
         x18_distFalloff = 4.f * tmp + 8.f;
         x1c_frequency = 2.f + tmp;
-        x20_preAmplitude = 0.15f * tmp + 0.1f;
-        x24_amplitude = x20_preAmplitude / 255.f;
+        x20_amplitude = 0.15f * tmp + 0.1f;
+        x24_lookupAmplitude = x20_amplitude / 255.f;
     }
 
     x28_ooTimeFalloff = 1.f / x14_timeFalloff;

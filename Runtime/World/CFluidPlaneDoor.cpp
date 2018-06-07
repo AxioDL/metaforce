@@ -52,7 +52,7 @@ CFluidPlaneDoor::RenderSetup(const CStateManager& mgr, float alpha, const zeus::
 
 /* Used to be part of locked cache
  * These are too big for stack allocation */
-static CFluidPlaneCPURender::SHFieldSample lc_heights[46][46] = {};
+static CFluidPlaneRender::SHFieldSample lc_heights[46][46] = {};
 static u8 lc_flags[9][9] = {};
 
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
@@ -61,14 +61,15 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                              const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const
 {
     CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
-    CFluidPlaneCPURender::numSubdivisionsInTile = xa4_tileSubdivisions;
-    CFluidPlaneCPURender::numTilesInHField = 42 / xa4_tileSubdivisions;
-    CFluidPlaneCPURender::numSubdivisionsInHField = CFluidPlaneCPURender::numTilesInHField * xa4_tileSubdivisions;
+    CFluidPlaneRender::numSubdivisionsInTile = xa4_tileSubdivisions;
+    CFluidPlaneRender::numTilesInHField = 42 / xa4_tileSubdivisions;
+    CFluidPlaneRender::numSubdivisionsInHField = CFluidPlaneRender::numTilesInHField * xa4_tileSubdivisions;
     zeus::CVector2f centerPlane(aabb.center().x, aabb.center().y);
-    float patchSize = xa8_rippleResolution * CFluidPlaneCPURender::numSubdivisionsInHField;
+    float patchSize = xa8_rippleResolution * CFluidPlaneRender::numSubdivisionsInHField;
     float ooSubdivSize = 1.f / xa8_rippleResolution;
 
     m_verts.clear();
+    m_pVerts.clear();
     m_shader->prepareDraw(setupInfo);
 
     for (float curX = aabb.min.x ; curX < aabb.max.x ; curX += patchSize)
@@ -77,26 +78,27 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
         for (float curY = aabb.min.y ; curY < aabb.max.y ; curY += patchSize)
         {
             float remSubdivsY = (aabb.max.y - curY) * ooSubdivSize;
-            int remSubdivsXi = std::min(CFluidPlaneCPURender::numSubdivisionsInHField, int(remSubdivsX));
-            int remSubdivsYi = std::min(CFluidPlaneCPURender::numSubdivisionsInHField, int(remSubdivsY));
+            int remSubdivsXi = std::min(CFluidPlaneRender::numSubdivisionsInHField, int(remSubdivsX));
+            int remSubdivsYi = std::min(CFluidPlaneRender::numSubdivisionsInHField, int(remSubdivsY));
             zeus::CAABox aabb2(aabb.min, zeus::CVector3f(xa8_rippleResolution * remSubdivsXi + curX,
                                                          xa8_rippleResolution * remSubdivsYi + curY,
                                                          aabb.max.z));
             if (frustum.aabbFrustumTest(aabb2.getTransformedAABox(xf)))
             {
-                CFluidPlaneCPURender::SPatchInfo patchInfo(zeus::CVector3f(curX, curY, aabb.min.z),
+                CFluidPlaneRender::SPatchInfo patchInfo(zeus::CVector3f(curX, curY, aabb.min.z),
                                                            aabb2.max, xf.origin, xa8_rippleResolution,
                                                            xa0_tileSize, 0.f,
-                                                           CFluidPlaneCPURender::numSubdivisionsInHField,
-                                                           CFluidPlaneCPURender::NormalMode::None,
+                                                           CFluidPlaneRender::numSubdivisionsInHField,
+                                                           CFluidPlaneRender::NormalMode::None,
                                                            0, 0, 0, 0, 0, 0, 0, nullptr);
 
-                RenderPatch(patchInfo, lc_heights, lc_flags, true, true, m_verts);
+                RenderPatch(patchInfo, lc_heights, lc_flags, true, true, m_verts, m_pVerts);
             }
         }
     }
 
-    m_shader->loadVerts(m_verts);
+    m_shader->loadVerts(m_verts, m_pVerts);
+    m_shader->doneDrawing();
 }
 
 }

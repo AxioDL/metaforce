@@ -92,12 +92,18 @@ void CFluidPlaneManager::CreateSplash(TUniqueId splasher, CStateManager& mgr, co
     }
 }
 
+static bool g_RippleMapSetup = false;
 u8 CFluidPlaneManager::RippleValues[64][64] = {};
 u8 CFluidPlaneManager::RippleMins[64] = {};
 u8 CFluidPlaneManager::RippleMaxs[64] = {};
+boo::ObjToken<boo::ITextureS> CFluidPlaneManager::RippleMapTex;
 
 void CFluidPlaneManager::SetupRippleMap()
 {
+    if (g_RippleMapSetup)
+        return;
+    g_RippleMapSetup = true;
+
     float curX = 0.f;
     for (int i=0 ; i<64 ; ++i)
     {
@@ -142,6 +148,13 @@ void CFluidPlaneManager::SetupRippleMap()
         RippleMaxs[i] = valC;
         curX += (1.f / 63.f);
     }
+
+    CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx)
+    {
+        RippleMapTex = ctx.newStaticTexture(64, 64, 1, boo::TextureFormat::I8,
+                                            boo::TextureClampMode::ClampToBlack, RippleValues, 64 * 64);
+        return true;
+    } BooTrace);
 }
 
 }

@@ -62,7 +62,7 @@ struct Water : IScriptObject
     Value<float> turbulenceAmplitudeMax;
     Value<float> turbulenceAmplitudeMin;
     Value<atVec4f> splashColor;
-    Value<atVec4f> unkColor;
+    Value<atVec4f> insideFogColor;
     UniqueID32 splashParticle1;
     UniqueID32 splashParticle2;
     UniqueID32 splashParticle3;

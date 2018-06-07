@@ -118,6 +118,7 @@ set(WORLD_SOURCES
     CGameLight.hpp CGameLight.cpp
     CFluidPlane.hpp CFluidPlane.cpp
     CFluidPlaneCPU.hpp CFluidPlaneCPU.cpp
+    CFluidPlaneGPU.hpp CFluidPlaneGPU.cpp
     CFluidPlaneDoor.hpp CFluidPlaneDoor.cpp
     CRippleManager.hpp CRippleManager.cpp
     CRipple.hpp CRipple.cpp

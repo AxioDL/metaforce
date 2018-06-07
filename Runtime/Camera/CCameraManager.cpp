@@ -590,12 +590,12 @@ void CCameraManager::UpdateFog(float dt, CStateManager& mgr)
         {
             zeus::CVector2f zRange(GetCurrentCamera(mgr)->GetNearClipDistance(),
                                    CalculateFogDensity(mgr, water.GetPtr()));
-            x3c_fog.SetFogExplicit(ERglFogMode::PerspExp, water->GetFogColor(), zRange);
+            x3c_fog.SetFogExplicit(ERglFogMode::PerspExp, water->GetInsideFogColor(), zRange);
             if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
                 mgr.GetCameraFilterPass(4).DisableFilter(0.f);
             else
                 mgr.GetCameraFilterPass(4).SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen,
-                                                     0.f, water->GetFogColor(), {});
+                                                     0.f, water->GetInsideFogColor(), {});
         }
         xa0_26_inWater = true;
     }

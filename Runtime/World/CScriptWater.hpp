@@ -43,7 +43,7 @@ private:
     rstl::reserved_vector<std::experimental::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
     rstl::reserved_vector<u16, 3> x298_splashSounds;
     zeus::CColor x2a4_splashColor;
-    zeus::CColor x2a8_fogColor;
+    zeus::CColor x2a8_insideFogColor;
     float x2ac_alphaInTime;
     float x2b0_alphaOutTime;
     float x2b4_alphaInRecip;
@@ -83,10 +83,10 @@ public:
                  bool allowRender, CAssetId patternMap1, CAssetId patternMap2, CAssetId colorMap,
                  CAssetId bumpMap, CAssetId envMap, CAssetId envBumpMap, CAssetId unusedMap,
                  const zeus::CVector3f& bumpLightDir, float bumpScale, float morphInTime, float morphOutTime,
-                 bool active, CFluidPlane::EFluidType fluidType, bool b4, float alpha,
+                 bool active, EFluidType fluidType, bool b4, float alpha,
                  const CFluidUVMotion& uvMot, float turbSpeed, float turbDistance, float turbFreqMax,
                  float turbFreqMin, float turbPhaseMax, float turbPhaseMin, float turbAmplitudeMax,
-                 float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& unkColor,
+                 float turbAmplitudeMin, const zeus::CColor& splashColor, const zeus::CColor& insideFogColor,
                  CAssetId splashParticle1, CAssetId splashParticle2, CAssetId splashParticle3,
                  CAssetId visorRunoffParticle, CAssetId unmorphVisorRunoffparticle, s32 visorRunoffSfx,
                  s32 unmorphVisorRunoffSfx, s32 splashSfx1, s32 splashSfx2, s32 splashSfx3, float tileSize,
@@ -132,7 +132,7 @@ public:
     int GetPatchDimensionX() const { return x2d0_patchDimX; }
     int GetPatchDimensionY() const { return x2d4_patchDimY; }
     bool CanRippleAtPoint(const zeus::CVector3f& point) const;
-    const zeus::CColor& GetFogColor() const { return x2a8_fogColor; }
+    const zeus::CColor& GetInsideFogColor() const { return x2a8_insideFogColor; }
 };
 }
 

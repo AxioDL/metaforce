@@ -36,7 +36,7 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
   x14c_bounds(-extent * 0.5f, extent * 0.5f),
   x164_origHInfo(hInfo), x16c_hInfo(hInfo), x174_dVuln(dVuln), x1dc_faceFlag(faceFlag),
   x254_fluidPlane(patternTex1, patternTex2, colorTex, 1.f, 2,
-                  CFluidPlane::EFluidType::NormalWater, 1.f, CFluidUVMotion(6.f, 0.f))
+                  EFluidType::NormalWater, 1.f, CFluidUVMotion(6.f, 0.f))
 {
     x300_28_canOrbit = canOrbit == ECanOrbit::Orbit;
     if (x1dc_faceFlag & 0x1)

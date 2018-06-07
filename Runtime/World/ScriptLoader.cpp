@@ -1238,7 +1238,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     float morphInTime = in.readFloatBig();
     float morphOutTime = in.readFloatBig();
     bool active = in.readBool();
-    auto fluidType = CFluidPlane::EFluidType(in.readUint32Big());
+    auto fluidType = EFluidType(in.readUint32Big());
     bool b4 = in.readBool();
     float alpha = in.readFloatBig();
     CFluidUVMotion uvMotion = LoadFluidUVMotion(in);
@@ -1253,8 +1253,8 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     float turbAmplitudeMin = in.readFloatBig();
     zeus::CColor splashColor;
     splashColor.readRGBABig(in);
-    zeus::CColor unkColor;
-    unkColor.readRGBABig(in);
+    zeus::CColor insideFogColor;
+    insideFogColor.readRGBABig(in);
     CAssetId splashParticle1 = in.readUint32Big();
     CAssetId splashParticle2 = in.readUint32Big();
     CAssetId splashParticle3 = in.readUint32Big();
@@ -1312,7 +1312,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
                             thermalCold, displaySurface, patternMap1, patternMap2, colorMap, bumpMap, envMap,
                             envBumpMap, {}, bumpLightDir, bumpScale, morphInTime, morphOutTime, active, fluidType, b4,
                             alpha, uvMotion, turbSpeed, turbDistance, turbFreqMax, turbFreqMin, turbPhaseMax,
-                            turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, unkColor, splashParticle1,
+                            turbPhaseMin, turbAmplitudeMax, turbAmplitudeMin, splashColor, insideFogColor, splashParticle1,
                             splashParticle2, splashParticle3, visorRunoffParticle, unmorphVisorRunoffParticle,
                             visorRunoffSfx, unmorphVisorRunoffSfx, splashSfx1, splashSfx2, splashSfx3, tileSize,
                             tileSubdivisions, specularMin, specularMax, reflectionSize, rippleIntensity,

@@ -3,9 +3,21 @@
 
 #include "RetroTypes.hpp"
 #include "CRippleManager.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde
 {
+
+enum class EFluidType
+{
+    NormalWater,
+    PoisonWater,
+    Lava,
+    PhazonFluid,
+    Four,
+    ThickLava
+};
+
 class CStateManager;
 class CScriptWater;
 
@@ -45,6 +57,7 @@ public:
     static u8 RippleValues[64][64];
     static u8 RippleMins[64];
     static u8 RippleMaxs[64];
+    static boo::ObjToken<boo::ITextureS> RippleMapTex;
 
     CFluidPlaneManager();
     void StartFrame(bool);

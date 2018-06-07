@@ -783,6 +783,7 @@ void CMain::Shutdown()
     TMultiBlendShader<CScanLinesFilter>::Shutdown();
     TMultiBlendShader<CRandomStaticFilter>::Shutdown();
     CFluidPlaneShader::Shutdown();
+    CFluidPlaneManager::RippleMapTex.reset();
     CNESShader::Shutdown();
     CGraphics::ShutdownBoo();
     ShutdownDiscord();

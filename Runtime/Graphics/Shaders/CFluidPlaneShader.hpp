@@ -3,19 +3,22 @@
 
 #include "RetroTypes.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "Runtime/World/CFluidPlane.hpp"
 #include "CModelShaders.hpp"
 #include "boo/graphicsdev/GL.hpp"
 #include "boo/graphicsdev/D3D.hpp"
 #include "boo/graphicsdev/Metal.hpp"
 #include "boo/graphicsdev/Vulkan.hpp"
+#include "World/CFluidPlaneManager.hpp"
+#include "Graphics/CTexture.hpp"
+#include "CToken.hpp"
+#include "zeus/CAABox.hpp"
 
 namespace urde
 {
 
 struct SFluidPlaneShaderInfo
 {
-    CFluidPlane::EFluidType m_type;
+    EFluidType m_type;
     bool m_hasPatternTex1;
     bool m_hasPatternTex2;
     bool m_hasColorTex;
@@ -23,15 +26,16 @@ struct SFluidPlaneShaderInfo
     bool m_hasEnvMap;
     bool m_hasEnvBumpMap;
     bool m_hasLightmap;
+    bool m_tessellation;
     bool m_doubleLightmapBlend;
     bool m_additive;
 
-    SFluidPlaneShaderInfo(CFluidPlane::EFluidType type, bool hasPatternTex1, bool hasPatternTex2, bool hasColorTex,
+    SFluidPlaneShaderInfo(EFluidType type, bool hasPatternTex1, bool hasPatternTex2, bool hasColorTex,
                           bool hasBumpMap, bool hasEnvMap, bool hasEnvBumpMap, bool hasLightmap,
-                          bool doubleLightmapBlend, bool additive)
+                          bool tessellation, bool doubleLightmapBlend, bool additive)
     : m_type(type), m_hasPatternTex1(hasPatternTex1), m_hasPatternTex2(hasPatternTex2), m_hasColorTex(hasColorTex),
       m_hasBumpMap(hasBumpMap), m_hasEnvMap(hasEnvMap), m_hasEnvBumpMap(hasEnvBumpMap), m_hasLightmap(hasLightmap),
-      m_doubleLightmapBlend(doubleLightmapBlend), m_additive(additive)
+      m_tessellation(tessellation), m_doubleLightmapBlend(doubleLightmapBlend), m_additive(additive)
       {}
 };
 
@@ -70,6 +74,13 @@ public:
         : m_pos(position), m_norm(normal), m_binorm(binormal), m_tangent(tangent), m_color(color) {}
     };
 
+    struct PatchVertex
+    {
+        zeus::CVector4f m_pos;
+        float m_outerLevels[4] = {};
+        float m_innerLevels[4] = {};
+    };
+
     struct RenderSetupInfo
     {
         zeus::CMatrix4f texMtxs[6];
@@ -80,96 +91,145 @@ public:
     };
 
 private:
+    struct ShaderPair
+    {
+        boo::ObjToken<boo::IShaderPipeline> m_regular;
+        boo::ObjToken<boo::IShaderPipeline> m_tessellation;
+        void reset()
+        {
+            m_regular.reset();
+            m_tessellation.reset();
+        }
+    };
+
+    struct BindingPair
+    {
+        boo::ObjToken<boo::IShaderDataBinding> m_regular;
+        boo::ObjToken<boo::IShaderDataBinding> m_tessellation;
+    };
+
     class Cache
     {
-        boo::ObjToken<boo::IShaderPipeline> m_cache[1024] = {};
-        boo::ObjToken<boo::IShaderPipeline> m_doorCache[8] = {};
-        boo::ObjToken<boo::IShaderPipeline>&
+        ShaderPair m_cache[1024] = {};
+        ShaderPair m_doorCache[8] = {};
+        ShaderPair&
         CacheSlot(const SFluidPlaneShaderInfo& info, int i) { return m_cache[i]; }
-        boo::ObjToken<boo::IShaderPipeline>&
+        ShaderPair&
         CacheSlot(const SFluidPlaneDoorShaderInfo& info, int i) { return m_doorCache[i]; }
         static u16 MakeCacheKey(const SFluidPlaneShaderInfo& info);
         static u16 MakeCacheKey(const SFluidPlaneDoorShaderInfo& info);
     public:
         template<class T>
-        boo::ObjToken<boo::IShaderPipeline> GetOrBuildShader(const T& info);
+        ShaderPair GetOrBuildShader(const T& info);
         void Clear();
     };
     static Cache _cache;
+
+    struct Ripple
+    {
+        zeus::CVector4f center; // time, distFalloff
+        zeus::CVector4f params; // amplitude, lookupPhase, lookupTime
+    };
 
     struct Uniform
     {
         zeus::CMatrix4f m_mv;
         zeus::CMatrix4f m_mvNorm;
         zeus::CMatrix4f m_proj;
-        zeus::CMatrix4f m_texMtxs[9]; // Pad out to 768 bytes
+        zeus::CMatrix4f m_texMtxs[6];
+        Ripple m_ripple[20];
+        zeus::CVector4f m_colorMul;
+        zeus::CVector4f m_pad[3]; // rippleNormResolution, Pad out to 1280 bytes
         CModelShaders::LightingUniform m_lighting;
-        zeus::CVector3f m_pad; // Pad out to 768 bytes
+        zeus::CVector3f m_pad2; // Pad out to 768 bytes
     };
 
-    std::experimental::optional<TLockedToken<CTexture>> m_patternTex1;
-    std::experimental::optional<TLockedToken<CTexture>> m_patternTex2;
-    std::experimental::optional<TLockedToken<CTexture>> m_colorTex;
-    std::experimental::optional<TLockedToken<CTexture>> m_bumpMap;
-    std::experimental::optional<TLockedToken<CTexture>> m_envMap;
-    std::experimental::optional<TLockedToken<CTexture>> m_envBumpMap;
-    std::experimental::optional<TLockedToken<CTexture>> m_lightmap;
+    TLockedToken<CTexture> m_patternTex1;
+    TLockedToken<CTexture> m_patternTex2;
+    TLockedToken<CTexture> m_colorTex;
+    TLockedToken<CTexture> m_bumpMap;
+    TLockedToken<CTexture> m_envMap;
+    TLockedToken<CTexture> m_envBumpMap;
+    TLockedToken<CTexture> m_lightmap;
+    boo::ObjToken<boo::ITextureS> m_rippleMap;
     boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+    boo::ObjToken<boo::IGraphicsBufferD> m_pvbo;
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+    BindingPair m_dataBind;
+    int m_lastBind = -1;
 
 #if BOO_HAS_GL
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
-                                                           const SFluidPlaneShaderInfo& info);
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::GLDataFactory::Context& ctx,
-                                                           const SFluidPlaneDoorShaderInfo& info);
-    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::GLDataFactory::Context& ctx,
-                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
+    static ShaderPair BuildShader(boo::GLDataFactory::Context& ctx,
+                                  const SFluidPlaneShaderInfo& info);
+    static ShaderPair BuildShader(boo::GLDataFactory::Context& ctx,
+                                  const SFluidPlaneDoorShaderInfo& info);
+    BindingPair BuildBinding(boo::GLDataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 #if _WIN32
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::D3DDataFactory::Context& ctx,
-                                                           const SFluidPlaneShaderInfo& info);
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::D3DDataFactory::Context& ctx,
-                                                           const SFluidPlaneDoorShaderInfo& info);
-    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::D3DDataFactory::Context& ctx,
-                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
+    static ShaderPair BuildShader(boo::D3DDataFactory::Context& ctx,
+                                  const SFluidPlaneShaderInfo& info);
+    static ShaderPair BuildShader(boo::D3DDataFactory::Context& ctx,
+                                  const SFluidPlaneDoorShaderInfo& info);
+    BindingPair BuildBinding(boo::D3DDataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 #if BOO_HAS_METAL
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::MetalDataFactory::Context& ctx,
-                                                           const SFluidPlaneShaderInfo& info);
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::MetalDataFactory::Context& ctx,
-                                                           const SFluidPlaneDoorShaderInfo& info);
-    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::MetalDataFactory::Context& ctx,
-                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
+    static ShaderPair BuildShader(boo::MetalDataFactory::Context& ctx,
+                                  const SFluidPlaneShaderInfo& info);
+    static ShaderPair BuildShader(boo::MetalDataFactory::Context& ctx,
+                                  const SFluidPlaneDoorShaderInfo& info);
+    BindingPair BuildBinding(boo::MetalDataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 #if BOO_HAS_VULKAN
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::VulkanDataFactory::Context& ctx,
-                                                           const SFluidPlaneShaderInfo& info);
-    static boo::ObjToken<boo::IShaderPipeline> BuildShader(boo::VulkanDataFactory::Context& ctx,
-                                                           const SFluidPlaneDoorShaderInfo& info);
-    boo::ObjToken<boo::IShaderDataBinding> BuildBinding(boo::VulkanDataFactory::Context& ctx,
-                                                        const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door);
+    static ShaderPair BuildShader(boo::VulkanDataFactory::Context& ctx,
+                                  const SFluidPlaneShaderInfo& info);
+    static ShaderPair BuildShader(boo::VulkanDataFactory::Context& ctx,
+                                  const SFluidPlaneDoorShaderInfo& info);
+    BindingPair BuildBinding(boo::VulkanDataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 
     template <class F> static void _Shutdown();
 
-    void PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door);
+    void PrepareBinding(const ShaderPair& pipeline, u32 maxVertCount);
 public:
-    CFluidPlaneShader(CFluidPlane::EFluidType type,
-                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
-                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
-                      const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
-                      const std::experimental::optional<TLockedToken<CTexture>>& bumpMap,
-                      const std::experimental::optional<TLockedToken<CTexture>>& envMap,
-                      const std::experimental::optional<TLockedToken<CTexture>>& envBumpMap,
-                      const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
+    CFluidPlaneShader(EFluidType type,
+                      const TLockedToken<CTexture>& patternTex1,
+                      const TLockedToken<CTexture>& patternTex2,
+                      const TLockedToken<CTexture>& colorTex,
+                      const TLockedToken<CTexture>& bumpMap,
+                      const TLockedToken<CTexture>& envMap,
+                      const TLockedToken<CTexture>& envBumpMap,
+                      const TLockedToken<CTexture>& lightmap,
+                      const boo::ObjToken<boo::ITextureS>& rippleMap,
                       bool doubleLightmapBlend, bool additive, u32 maxVertCount);
-    CFluidPlaneShader(const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
-                      const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
-                      const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
+    CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1,
+                      const TLockedToken<CTexture>& patternTex2,
+                      const TLockedToken<CTexture>& colorTex,
                       u32 maxVertCount);
     void prepareDraw(const RenderSetupInfo& info);
-    void loadVerts(const std::vector<Vertex>& verts);
+    void prepareDraw(const RenderSetupInfo& info,
+                     const zeus::CVector3f& waterCenter,
+                     const CRippleManager& rippleManager,
+                     const zeus::CColor& colorMul,
+                     float rippleNormResolution);
+    void bindRegular()
+    {
+        if (m_lastBind != 0)
+        {
+            CGraphics::SetShaderDataBinding(m_dataBind.m_regular);
+            m_lastBind = 0;
+        }
+    }
+    bool bindTessellation()
+    {
+        if (m_lastBind != 1)
+        {
+            CGraphics::SetShaderDataBinding(m_dataBind.m_tessellation);
+            m_lastBind = 1;
+        }
+        return true;
+    }
+    void doneDrawing() { m_lastBind = -1; }
+    void loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts);
 
     static void Shutdown();
 };

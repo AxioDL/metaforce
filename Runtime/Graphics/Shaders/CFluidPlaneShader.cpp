@@ -1,4 +1,6 @@
 #include "CFluidPlaneShader.hpp"
+#include "World/CRipple.hpp"
+#include "World/CRippleManager.hpp"
 
 namespace urde
 {
@@ -11,9 +13,9 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
 
     switch (info.m_type)
     {
-    case CFluidPlane::EFluidType::NormalWater:
-    case CFluidPlane::EFluidType::PhazonFluid:
-    case CFluidPlane::EFluidType::Four:
+    case EFluidType::NormalWater:
+    case EFluidType::PhazonFluid:
+    case EFluidType::Four:
         if (info.m_hasLightmap)
         {
             ret |= 1 << 2;
@@ -29,7 +31,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
 
         break;
 
-    case CFluidPlane::EFluidType::PoisonWater:
+    case EFluidType::PoisonWater:
         ret |= 1;
 
         if (info.m_hasLightmap)
@@ -44,7 +46,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
 
         break;
 
-    case CFluidPlane::EFluidType::Lava:
+    case EFluidType::Lava:
         ret |= 2;
 
         if (info.m_hasBumpMap)
@@ -52,7 +54,7 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneShaderInfo& info)
 
         break;
 
-    case CFluidPlane::EFluidType::ThickLava:
+    case EFluidType::ThickLava:
         ret |= 3;
 
         if (info.m_hasBumpMap)
@@ -89,15 +91,15 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info
 }
 
 template<class T>
-boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
+CFluidPlaneShader::ShaderPair CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
 {
     u16 key = MakeCacheKey(info);
     auto& slot = CacheSlot(info, key);
-    if (slot)
+    if (slot.m_regular)
         return slot;
 
     if (CGraphics::g_BooFactory == nullptr)
-        return nullptr;
+        return {};
 
     CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
@@ -132,9 +134,9 @@ boo::ObjToken<boo::IShaderPipeline> CFluidPlaneShader::Cache::GetOrBuildShader(c
     return slot;
 }
 
-template boo::ObjToken<boo::IShaderPipeline>
+template CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info);
-template boo::ObjToken<boo::IShaderPipeline>
+template CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info);
 
 void CFluidPlaneShader::Cache::Clear()
@@ -145,34 +147,36 @@ void CFluidPlaneShader::Cache::Clear()
         p.reset();
 }
 
-void CFluidPlaneShader::PrepareBinding(const boo::ObjToken<boo::IShaderPipeline>& pipeline, u32 maxVertCount, bool door)
+void CFluidPlaneShader::PrepareBinding(const ShaderPair& pipeline, u32 maxVertCount)
 {
     CGraphics::CommitResources(
     [&](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
+        if (pipeline.m_tessellation)
+            m_pvbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(PatchVertex), maxVertCount);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
 
         switch (ctx.platform())
         {
 #if BOO_HAS_GL
         case boo::IGraphicsDataFactory::Platform::OpenGL:
-            m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline, door);
+            m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline);
             break;
 #endif
 #if _WIN32
         case boo::IGraphicsDataFactory::Platform::D3D11:
-            m_dataBind = BuildBinding(static_cast<boo::D3DDataFactory::Context&>(ctx), pipeline, door);
+            m_dataBind = BuildBinding(static_cast<boo::D3DDataFactory::Context&>(ctx), pipeline);
             break;
 #endif
 #if BOO_HAS_METAL
         case boo::IGraphicsDataFactory::Platform::Metal:
-            m_dataBind = BuildBinding(static_cast<boo::MetalDataFactory::Context&>(ctx), pipeline, door);
+            m_dataBind = BuildBinding(static_cast<boo::MetalDataFactory::Context&>(ctx), pipeline);
             break;
 #endif
 #if BOO_HAS_VULKAN
         case boo::IGraphicsDataFactory::Platform::Vulkan:
-            m_dataBind = BuildBinding(static_cast<boo::VulkanDataFactory::Context&>(ctx), pipeline, door);
+            m_dataBind = BuildBinding(static_cast<boo::VulkanDataFactory::Context&>(ctx), pipeline);
             break;
 #endif
         default: break;
@@ -210,14 +214,15 @@ void CFluidPlaneShader::Shutdown()
     }
 }
 
-CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& bumpMap,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& envMap,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& envBumpMap,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& lightmap,
+CFluidPlaneShader::CFluidPlaneShader(EFluidType type,
+                                     const TLockedToken<CTexture>& patternTex1,
+                                     const TLockedToken<CTexture>& patternTex2,
+                                     const TLockedToken<CTexture>& colorTex,
+                                     const TLockedToken<CTexture>& bumpMap,
+                                     const TLockedToken<CTexture>& envMap,
+                                     const TLockedToken<CTexture>& envBumpMap,
+                                     const TLockedToken<CTexture>& lightmap,
+                                     const boo::ObjToken<boo::ITextureS>& rippleMap,
                                      bool doubleLightmapBlend, bool additive, u32 maxVertCount)
 : m_patternTex1(patternTex1),
   m_patternTex2(patternTex2),
@@ -225,7 +230,8 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
   m_bumpMap(bumpMap),
   m_envMap(envMap),
   m_envBumpMap(envBumpMap),
-  m_lightmap(lightmap)
+  m_lightmap(lightmap),
+  m_rippleMap(rippleMap)
 {
     SFluidPlaneShaderInfo shaderInfo(type,
                                      m_patternTex1.operator bool(),
@@ -235,14 +241,15 @@ CFluidPlaneShader::CFluidPlaneShader(CFluidPlane::EFluidType type,
                                      m_envMap.operator bool(),
                                      m_envBumpMap.operator bool(),
                                      m_lightmap.operator bool(),
+                                     m_rippleMap.operator bool(),
                                      doubleLightmapBlend, additive);
-    boo::ObjToken<boo::IShaderPipeline> pipeline = _cache.GetOrBuildShader(shaderInfo);
-    PrepareBinding(pipeline, maxVertCount, false);
+    ShaderPair pipeline = _cache.GetOrBuildShader(shaderInfo);
+    PrepareBinding(pipeline, maxVertCount);
 }
 
-CFluidPlaneShader::CFluidPlaneShader(const std::experimental::optional<TLockedToken<CTexture>>& patternTex1,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& patternTex2,
-                                     const std::experimental::optional<TLockedToken<CTexture>>& colorTex,
+CFluidPlaneShader::CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1,
+                                     const TLockedToken<CTexture>& patternTex2,
+                                     const TLockedToken<CTexture>& colorTex,
                                      u32 maxVertCount)
 : m_patternTex1(patternTex1),
   m_patternTex2(patternTex2),
@@ -251,8 +258,8 @@ CFluidPlaneShader::CFluidPlaneShader(const std::experimental::optional<TLockedTo
     SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.operator bool(),
                                          m_patternTex2.operator bool(),
                                          m_colorTex.operator bool());
-    boo::ObjToken<boo::IShaderPipeline> pipeline = _cache.GetOrBuildShader(shaderInfo);
-    PrepareBinding(pipeline, maxVertCount, true);
+    ShaderPair pipeline = _cache.GetOrBuildShader(shaderInfo);
+    PrepareBinding(pipeline, maxVertCount);
 }
 
 void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info)
@@ -269,12 +276,56 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info)
     uni.m_lighting.mulColor = info.kColors[3];
     uni.m_lighting.fog.m_rangeScale = info.indScale;
     m_uniBuf->unmap();
-    CGraphics::SetShaderDataBinding(m_dataBind);
 }
 
-void CFluidPlaneShader::loadVerts(const std::vector<Vertex>& verts)
+void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info,
+                                    const zeus::CVector3f& waterCenter,
+                                    const CRippleManager& rippleManager,
+                                    const zeus::CColor& colorMul,
+                                    float rippleNormResolution)
+{
+    Uniform& uni = *reinterpret_cast<Uniform*>(m_uniBuf->map(sizeof(Uniform)));
+    uni.m_mv = CGraphics::g_GXModelView.toMatrix4f();
+    uni.m_mvNorm = info.normMtx;
+    uni.m_proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    for (int i=0 ; i<6 ; ++i)
+        uni.m_texMtxs[i] = info.texMtxs[i];
+    int i = 0;
+    for (const CRipple& ripple : rippleManager.GetRipples())
+    {
+        assert(i < 20 && "Too many ripples");
+        Ripple& rOut = uni.m_ripple[i++];
+        if (ripple.GetTime() >= ripple.GetTimeFalloff())
+        {
+            rOut.center.zeroOut();
+            rOut.params.zeroOut();
+            continue;
+        }
+        zeus::CVector3f localPos = ripple.GetCenter() - waterCenter;
+        rOut.center.x = localPos.x;
+        rOut.center.y = localPos.y;
+        rOut.center.z = ripple.GetTime() * ripple.GetOOTimeFalloff();
+        rOut.center.w = ripple.GetOODistanceFalloff();
+        rOut.params.x = ripple.GetAmplitude();
+        rOut.params.y = ripple.GetPhase();
+        rOut.params.z = (1.f - ripple.GetTime() * ripple.GetOOTimeFalloff() *
+                        ripple.GetOOTimeFalloff()) * ripple.GetFrequency();
+    }
+    uni.m_colorMul = colorMul;
+    uni.m_pad[0].x = rippleNormResolution;
+    uni.m_lighting.ActivateLights(info.lights);
+    for (i=0 ; i<3 ; ++i)
+        uni.m_lighting.colorRegs[i] = info.kColors[i];
+    uni.m_lighting.mulColor = info.kColors[3];
+    uni.m_lighting.fog.m_rangeScale = info.indScale;
+    m_uniBuf->unmap();
+}
+
+void CFluidPlaneShader::loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts)
 {
     m_vbo->load(verts.data(), verts.size() * sizeof(Vertex));
+    if (m_pvbo)
+        m_pvbo->load(pVerts.data(), pVerts.size() * sizeof(PatchVertex));
 }
 
 }

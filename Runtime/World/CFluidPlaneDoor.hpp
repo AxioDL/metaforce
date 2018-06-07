@@ -12,9 +12,6 @@ class CFluidPlaneDoor final : public CFluidPlane
     int xa4_tileSubdivisions;
     float xa8_rippleResolution;
 
-    mutable std::vector<CFluidPlaneShader::Vertex> m_verts;
-    mutable std::experimental::optional<CFluidPlaneShader> m_shader;
-
     CFluidPlaneShader::RenderSetupInfo
     RenderSetup(const CStateManager& mgr, float alpha, const zeus::CTransform& xf,
                 const zeus::CAABox& aabb, bool noNormals) const;

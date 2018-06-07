@@ -74,7 +74,7 @@ static const char* FS =
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
-"    uint mode;\n"
+"    int mode;\n"
 "    float4 color;\n"
 "    float indScale;\n"
 "    float start;\n"
@@ -91,13 +91,13 @@ static const char* FS =
 "    Fog fog;\n"
 "};\n"
 "\n"
-"static float4 LightingFunc(float4 mvPosIn, float4 mvNormIn)\n"
+"static float4 LightingFunc(float3 mvPosIn, float3 mvNormIn)\n"
 "{\n"
 "    float4 ret = ambient;\n"
 "    \n"
 "    for (int i=0 ; i<" _XSTR(URDE_MAX_LIGHTS) " ; ++i)\n"
 "    {\n"
-"        float3 delta = mvPosIn.xyz - lights[i].pos.xyz;\n"
+"        float3 delta = mvPosIn - lights[i].pos.xyz;\n"
 "        float dist = length(delta);\n"
 "        float angDot = clamp(dot(normalize(delta), lights[i].dir.xyz), 0.0, 1.0);\n"
 "        float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
@@ -106,10 +106,10 @@ static const char* FS =
 "        float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
 "                       lights[i].angAtt[1] * angDot +\n"
 "                       lights[i].angAtt[0];\n"
-"        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn.xyz), 0.0, 1.0);\n"
+"        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn), 0.0, 1.0);\n"
 "    }\n"
 "    \n"
-"    return clamp(ret, float4(0.0,0.0,0.0,0.0), float4(1.0,1.0,1.0,1.0));\n"
+"    return ret;\n"
 "}\n"
 "\n"
 "struct VertToFrag\n"
@@ -133,7 +133,7 @@ static const char* FS =
 "                      sampler samp [[ sampler(0) ]],\n"
 "                      constant LightingUniform& lu [[ buffer(4) ]]%s)\n" // Textures here
 "{\n"
-"    float4 lighting = LightingFunc(vtf.mvPos, normalize(vtf.mvNorm));\n"
+"    float4 lighting = LightingFunc(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n"
 "    float4 colorOut;\n"
 "%s" // Combiner expression here
 "    return colorOut;\n"
@@ -153,7 +153,7 @@ static const char* FSDoor =
 "};\n"
 "struct Fog\n" // Reappropriated for indirect texture scaling
 "{\n"
-"    uint mode;\n"
+"    int mode;\n"
 "    float4 color;\n"
 "    float indScale;\n"
 "    float start;\n"
@@ -243,7 +243,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[3] * float4(normalize(v.normalIn.xyz), 1.0)).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uv%d = (fu.texMtxs[3] * float4(v.normalIn.xyz, 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
@@ -316,7 +316,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
         {
             // Make previous stage indirect, mtx0
             combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
-                                     "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
+                                     "        float2(lu.fog.indScale, -lu.fog.indScale);\n", envBumpMapUv);
             combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uv2) * lighting;\n";
         }
         else if (info.m_hasEnvMap)
@@ -330,7 +330,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
             if (info.m_hasColorTex)
                 combiner += "    colorOut += colorTex.sample(samp, vtf.uv2) * lighting;\n";
             combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
-                                     "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
+                                     "        float2(lu.fog.indScale, -lu.fog.indScale);\n", envBumpMapUv);
             combiner += hecl::Format("    colorOut = mix(colorOut, envMap.sample(samp, indUvs + vtf.uv%d), lu.kColor1);\n",
                                      envMapUv);
         }
@@ -398,7 +398,7 @@ CFluidPlaneShader::BuildShader(boo::MetalDataFactory::Context& ctx, const SFluid
             {
                 // Make previous stage indirect, mtx0
                 combiner += hecl::Format("    float2 indUvs = (envBumpMap.sample(samp, vtf.uv%d).ra - float2(0.5, 0.5)) *\n"
-                                         "        float2(lu.fog.indScale, -lu.fog.indScale);", envBumpMapUv);
+                                         "        float2(lu.fog.indScale, -lu.fog.indScale);\n", envBumpMapUv);
                 combiner += "    colorOut += colorTex.sample(samp, indUvs + vtf.uv2) * lighting;\n";
             }
             else
