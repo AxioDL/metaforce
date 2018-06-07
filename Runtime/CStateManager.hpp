@@ -169,7 +169,7 @@ private:
     CRandom16 x8fc_random;
     CRandom16* x900_activeRandom = nullptr;
     EGameState x904_gameState = EGameState::Running;
-    u32 x908_ = 0;
+    u32 x908_loaderCount = 0;
     FScriptLoader x90c_loaderFuncs[int(EScriptObjectType::ScriptObjectTypeMAX)] = {};
 
     bool xab0_worldLoaded = false;

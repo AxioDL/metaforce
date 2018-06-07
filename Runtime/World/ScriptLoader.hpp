@@ -32,7 +32,6 @@ public:
     static CLightParameters LoadLightParameters(CInputStream& in);
     static CAnimationParameters LoadAnimationParameters(CInputStream& in);
     static CFluidUVMotion LoadFluidUVMotion(CInputStream& in);
-    static CCameraShakeData LoadCameraShakeData(CInputStream& in);
     static zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
                                                             const zeus::CVector3f& position);
 
@@ -135,7 +134,6 @@ public:
     static CEntity* LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* Load(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadGeemer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

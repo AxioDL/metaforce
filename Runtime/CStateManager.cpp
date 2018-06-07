@@ -79,7 +79,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x88c_rumbleManager = &x86c_stateManagerContainer->xf250_rumbleManager;
 
     g_Renderer->SetDrawableCallback(&CStateManager::RendererDrawCallback, this);
-
+    x908_loaderCount = int(EScriptObjectType::ScriptObjectTypeMAX);
     x90c_loaderFuncs[int(EScriptObjectType::Actor)] = ScriptLoader::LoadActor;
     x90c_loaderFuncs[int(EScriptObjectType::Waypoint)] = ScriptLoader::LoadWaypoint;
     x90c_loaderFuncs[int(EScriptObjectType::Door)] = ScriptLoader::LoadDoor;

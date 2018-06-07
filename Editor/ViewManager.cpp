@@ -66,48 +66,68 @@ void ViewManager::TestGameView::think()
     if (!m_debugText)
     {
         m_debugText.reset(
-            new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_monoFont18));
+                    new specter::MultiLineTextView(m_vm.m_viewResources, *this, m_vm.m_viewResources.m_monoFont18));
         boo::SWindowRect sub = subRect();
         sub.location[1] = 5 * m_vm.m_viewResources.pixelFactor();
         m_debugText->resized(rootView().subRect(), sub);
     }
 
-    if (m_debugText && g_StateManager && g_StateManager->Player())
+    if (m_debugText && g_StateManager)
     {
-        TLockedToken<CStringTable> tbl =
-            g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
-        const CPlayer& pl = g_StateManager->GetPlayer();
-        zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
-        const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+        std::string overlayText;
+        const hecl::CVar* showFrameIdx = hecl::CVarManager::instance()->findCVar("debugOverlay.showFrameCounter");
+        const hecl::CVar* playerInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.playerInfo");
+        const hecl::CVar* worldInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.worldInfo");
+        const hecl::CVar* areaInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.areaInfo");
+        if (showFrameIdx && showFrameIdx->toBoolean())
+            overlayText += hecl::Format("Frame: %d\n",
+                                        g_StateManager->GetUpdateFrameIndex());
 
-        const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-
-        std::string layerBits;
-        u32 totalActive = 0;
-        for (s32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i)
+        if (g_StateManager->Player() && playerInfo &&  playerInfo->toBoolean())
         {
-            if (layerStates->IsLayerActive(aId, i))
-            {
-                ++totalActive;
-                layerBits += "1";
-            }
-            else
-                layerBits += "0";
+            const CPlayer& pl = g_StateManager->GetPlayer();
+            zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
+            overlayText += hecl::Format("Player Position: x %f, y %f, z %f\n"
+                                        "       Quaternion: w %f, x %f, y %f, z %f\n",
+                                        pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z, plQ.w, plQ.x, plQ.y,
+                                        plQ.z);
+        }
+        if (worldInfo && worldInfo->toBoolean())
+        {
+            TLockedToken<CStringTable> tbl =
+                    g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
+            const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+            overlayText += hecl::Format("World: 0x%08X%s, Area: %i\n",
+                                        u32(g_GameState->CurrentWorldAssetId().Value()),
+                                        (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId);
         }
 
-        m_debugText->typesetGlyphs(
-            hecl::Format("Frame: %d\n"
-                         "Player Position: x %f, y %f, z %f\n"
-                         "       Quaternion: w %f, x %f, y %f, z %f\n"
-                         "World: 0x%08X%s, Area: %i\n"
-                         "Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
-                         "Active Layer bits: %s\n",
-                         g_StateManager->GetUpdateFrameIndex(),
-                         pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z, plQ.w, plQ.x, plQ.y,
-                         plQ.z, u32(g_GameState->CurrentWorldAssetId().Value()),
-                         (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId,
-                         g_StateManager->GetAllObjectList().size(), layerStates->GetAreaLayerCount(aId), totalActive,
-                         layerBits.c_str()));
+        const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+        if (areaInfo && areaInfo->toBoolean() && g_StateManager->WorldNC() && g_StateManager->WorldNC()->DoesAreaExist(aId))
+        {
+            const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+            std::string layerBits;
+            u32 totalActive = 0;
+            for (u32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i)
+            {
+                if (layerStates->IsLayerActive(aId, i))
+                {
+                    ++totalActive;
+                    layerBits += "1";
+                }
+                else
+                    layerBits += "0";
+            }
+            overlayText += hecl::Format("Area AssetId: 0x%08X, Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
+                                        "Active Layer bits: %s\n",
+                                        g_StateManager->WorldNC()->GetArea(aId)->GetAreaAssetId().Value(),
+                                        g_StateManager->GetAllObjectList().size(), layerStates->GetAreaLayerCount(aId),
+                                        totalActive, layerBits.c_str());
+        }
+
+
+        if (!overlayText.empty())
+            m_debugText->typesetGlyphs(overlayText);
     }
 }
 

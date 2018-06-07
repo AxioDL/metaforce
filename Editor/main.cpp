@@ -108,6 +108,7 @@ struct Application : boo::IApplicationCallback
     void initialize(boo::IApplication* app)
     {
         zeus::detectCPU();
+        createGlobalCVars();
         for (const boo::SystemString& arg : app->getArgs())
         {
             if (arg.find(_S("--verbosity=")) == 0 || arg.find(_S("-v=")) == 0)
@@ -144,6 +145,18 @@ struct Application : boo::IApplicationCallback
     bool getDeepColor() const
     {
         return m_cvarCommons.getDeepColor();
+    }
+
+    void createGlobalCVars()
+    {
+        m_cvarManager.findOrMakeCVar("debugOverlay.playerInfo"sv, "Displays information about the player, such as location and orientation"sv, false,
+                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+        m_cvarManager.findOrMakeCVar("debugOverlay.worldInfo"sv, "Displays information about the current world, such as world asset ID, and areaId"sv, false,
+                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+        m_cvarManager.findOrMakeCVar("debugOverlay.areaInfo"sv, "Displays information about the current area, such as asset ID, object/layer counts, and active layer bits"sv, false,
+                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+        m_cvarManager.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
+                                     hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     }
 };
 

@@ -446,4 +446,61 @@ void CPlayerState::InitializeScanTimes()
         x170_scanTimes.emplace_back(state.first, 0.f);
 }
 
+const std::unordered_map<std::string_view, CPlayerState::EItemType> CPlayerState::g_TypeNameMap = {
+    {"powerbeam"sv, EItemType::PowerBeam},
+    {"icebeam"sv, EItemType::IceBeam},
+    {"wavebeam"sv, EItemType::WaveBeam},
+    {"plasmabeam"sv, EItemType::PlasmaBeam},
+    {"missiles"sv, EItemType::Missiles},
+    {"scanvisor"sv, EItemType::ScanVisor},
+    {"bombs"sv, EItemType::MorphBallBombs},
+    {"ballbombs"sv, EItemType::MorphBallBombs},
+    {"morphballbombs"sv, EItemType::MorphBallBombs},
+    {"powerbombs"sv, EItemType::PowerBombs},
+    {"flamethrower"sv, EItemType::Flamethrower},
+    {"thermalvisor"sv, EItemType::ThermalVisor},
+    {"chargebeam"sv, EItemType::ChargeBeam},
+    {"supermissile"sv, EItemType::SuperMissile},
+    {"grapplebeam"sv, EItemType::GrappleBeam},
+    {"xrayvisor"sv, EItemType::XRayVisor},
+    {"icespreader"sv, EItemType::IceSpreader},
+    {"spacejumpboots"sv, EItemType::SpaceJumpBoots},
+    {"morphball"sv, EItemType::MorphBall},
+    {"combatvisor"sv, EItemType::CombatVisor},
+    {"boostball"sv, EItemType::BoostBall},
+    {"spiderball"sv, EItemType::SpiderBall},
+    {"powersuit"sv, EItemType::PowerSuit},
+    {"gravitysuit"sv, EItemType::GravitySuit},
+    {"variasuit"sv, EItemType::VariaSuit},
+    {"phazonsuit"sv, EItemType::PhazonSuit},
+    {"energytanks"sv, EItemType::EnergyTanks},
+    {"unknownitem1"sv, EItemType::UnknownItem1},
+    {"healthrefill"sv, EItemType::HealthRefill},
+    {"health"sv, EItemType::HealthRefill},
+    {"unknownitem2"sv, EItemType::UnknownItem2},
+    {"wavebuster"sv, EItemType::Wavebuster},
+    {"truth"sv, EItemType::Truth},
+    {"strength"sv, EItemType::Strength},
+    {"elder"sv, EItemType::Elder},
+    {"wild"sv, EItemType::Wild},
+    {"lifegiver"sv, EItemType::Lifegiver},
+    {"warrior"sv, EItemType::Warrior},
+    {"chozo"sv, EItemType::Chozo},
+    {"nature"sv, EItemType::Nature},
+    {"sun"sv, EItemType::Sun},
+    {"world"sv, EItemType::World},
+    {"spirit"sv, EItemType::Spirit},
+    {"newborn"sv, EItemType::Newborn},
+};
+
+CPlayerState::EItemType CPlayerState::ItemNameToType(std::string_view name)
+{
+    std::string lowName = name.data();
+    athena::utility::tolower(lowName);
+    if (g_TypeNameMap.find(lowName) == g_TypeNameMap.end())
+        return EItemType::Invalid;
+
+    return g_TypeNameMap.find(lowName)->second;
+}
+
 }

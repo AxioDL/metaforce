@@ -91,6 +91,7 @@ set(WORLD_SOURCES
     CSnakeWeedSwarm.hpp
     CScriptSpindleCamera.hpp CScriptSpindleCamera.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
+    CAmbientAI.hpp CAmbientAI.cpp
     CScriptBeam.hpp CScriptBeam.cpp
     CScriptMazeNode.hpp CScriptMazeNode.cpp
     CScriptShadowProjector.hpp CScriptShadowProjector.cpp
