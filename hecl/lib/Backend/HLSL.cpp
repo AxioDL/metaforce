@@ -249,7 +249,7 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -324,7 +324,7 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry);
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n", lighting.m_entry);
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }

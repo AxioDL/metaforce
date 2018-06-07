@@ -277,7 +277,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos, vtf.mvNorm, vtf);\n", lighting.m_entry, blockCall.c_str());
+            retval += hecl::Format("    float4 lighting = %s(%s, vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n", lighting.m_entry, blockCall.c_str());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }

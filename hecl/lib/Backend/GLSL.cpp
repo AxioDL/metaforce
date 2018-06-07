@@ -262,7 +262,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n", lighting.m_entry);
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
@@ -341,7 +341,7 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     if (m_lighting)
     {
         if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos, vtf.mvNorm);\n", lighting.m_entry);
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n", lighting.m_entry);
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
