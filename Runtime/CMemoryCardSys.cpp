@@ -180,6 +180,11 @@ bool CMemoryCardSys::InitializePump()
     return false;
 }
 
+std::pair<TAreaId, s32> CMemoryCardSys::GetAreaAndWorldIdForSaveId(s32 saveId) const
+{
+    return {kInvalidAreaId, -1};
+}
+
 void CMemoryCardSys::CCardFileInfo::LockBannerToken(CAssetId bannerTxtr, CSimplePool& sp)
 {
     x3c_bannerTex = bannerTxtr;

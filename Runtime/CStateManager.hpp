@@ -469,7 +469,7 @@ public:
     }
     TUniqueId GetPlayerActorHead() const { return xf6c_playerActorHead; }
     void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
-
+    std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;
 };

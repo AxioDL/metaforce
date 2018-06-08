@@ -26,6 +26,107 @@ static logvisor::Module Log("urde::SpecMP2");
 extern hecl::Database::DataSpecEntry SpecEntMP2;
 extern hecl::Database::DataSpecEntry SpecEntMP2ORIG;
 
+static const std::unordered_set<uint32_t> IndividualOrigIDs =
+{
+    0xB7BBD0B4,
+    0x1F9DA858,
+    0x2A13C23E,
+    0xF13452F8,
+    0xA91A7703,
+    0xC042EC91,
+    0x12A12131,
+    0x5F556002,
+    0xA9798329,
+    0xB306E26F,
+    0xCD7B1ACA,
+    0x8ADA8184,
+    0x1A29C0E6,
+    0x5D9F9796,
+    0x951546A8,
+    0x7946C4C5,
+    0x409AA72E,
+};
+
+struct OriginalIDs
+{
+    static void Generate(PAKRouter<DNAMP2::PAKBridge>& pakRouter, hecl::Database::Project& project)
+    {
+        std::unordered_set<UniqueID32> addedIDs;
+        std::vector<UniqueID32> originalIDs;
+
+        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
+            if (ent->type == FOURCC('MLVL') ||
+                ent->type == FOURCC('SCAN') ||
+                ent->type == FOURCC('MREA') ||
+                IndividualOrigIDs.find(ent->id.toUint32()) != IndividualOrigIDs.end())
+            {
+                if (addedIDs.find(ent->id) == addedIDs.cend())
+                {
+                    addedIDs.insert(ent->id);
+                    originalIDs.push_back(ent->id);
+                }
+            }
+            return true;
+        });
+        std::sort(originalIDs.begin(), originalIDs.end());
+
+        athena::io::YAMLDocWriter yamlW("MP2OriginalIDs");
+        for (const UniqueID32& id : originalIDs)
+        {
+            hecl::ProjectPath path = pakRouter.getWorking(id);
+            yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
+        }
+        hecl::ProjectPath path(project.getProjectWorkingPath(), "MP2/!original_ids.yaml");
+        path.makeDirChain(false);
+        athena::io::FileWriter fileW(path.getAbsolutePath());
+        yamlW.finish(&fileW);
+    }
+
+    static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+    {
+        hecl::Database::Project& project = inPath.getProject();
+        athena::io::YAMLDocReader r;
+        athena::io::FileReader fr(inPath.getAbsolutePath());
+        if (!fr.isOpen() || !r.parse(&fr))
+            return;
+
+        std::vector<std::pair<UniqueID32, UniqueID32>> originalIDs;
+        originalIDs.reserve(r.getRootNode()->m_mapChildren.size());
+        for (const auto& node : r.getRootNode()->m_mapChildren)
+        {
+            char* end = const_cast<char*>(node.first.c_str());
+            u32 id = strtoul(end, &end, 16);
+            if (end != node.first.c_str() + 8)
+                continue;
+
+            hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
+            originalIDs.push_back(std::make_pair(id, path.hash().val32()));
+        }
+        std::sort(originalIDs.begin(), originalIDs.end(),
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
+                      return a.first < b.first;
+                  });
+
+        athena::io::FileWriter w(outPath.getAbsolutePath());
+        w.writeUint32Big(originalIDs.size());
+        for (const auto& idPair : originalIDs)
+        {
+            idPair.first.write(w);
+            idPair.second.write(w);
+        }
+
+        std::sort(originalIDs.begin(), originalIDs.end(),
+                  [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
+                      return a.second < b.second;
+                  });
+        for (const auto& idPair : originalIDs)
+        {
+            idPair.second.write(w);
+            idPair.first.write(w);
+        }
+    }
+};
+
 struct SpecMP2 : SpecBase
 {
     bool checkStandaloneID(const char* id) const
@@ -42,12 +143,21 @@ struct SpecMP2 : SpecBase
     hecl::ProjectPath m_workPath;
     hecl::ProjectPath m_cookPath;
     PAKRouter<DNAMP2::PAKBridge> m_pakRouter;
+    IDRestorer<UniqueID32> m_idRestorer;
+
+    void setThreadProject()
+    {
+        SpecBase::setThreadProject();
+        UniqueIDBridge::SetIDRestorer(&m_idRestorer);
+    }
 
     SpecMP2(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
     : SpecBase(specEntry, project, pc),
       m_workPath(project.getProjectWorkingPath(), _S("MP2")),
       m_cookPath(project.getProjectCookedPath(SpecEntMP2), _S("MP2")),
-      m_pakRouter(*this, m_workPath, m_cookPath) {}
+      m_pakRouter(*this, m_workPath, m_cookPath),
+      m_idRestorer({project.getProjectWorkingPath(), "MP2/!original_ids.yaml"}, project)
+    {}
 
     void buildPaks(nod::Node& root,
                    const std::vector<hecl::SystemString>& args,
@@ -281,6 +391,9 @@ struct SpecMP2 : SpecBase
 
         process.waitUntilComplete();
 
+        /* Generate original ID mapping for MLVL and SCAN entries - marks complete project */
+        OriginalIDs::Generate(m_pakRouter, m_project);
+
         return true;
     }
 
@@ -412,6 +525,20 @@ struct SpecMP2 : SpecBase
         ds.close();
         DNAMAPU::MAPU::Cook(mapu, out);
         progress(_S("Done"));
+    }
+
+    UniqueID32 newToOriginal(urde::CAssetId id) const
+    {
+        if (UniqueID32 origId = m_idRestorer.newToOriginal({uint32_t(id.Value()), true}))
+            return {origId.toUint32(), true};
+        return {uint32_t(id.Value()), true};
+    }
+
+    urde::CAssetId originalToNew(UniqueID32 id) const
+    {
+        if (UniqueID32 newId = m_idRestorer.originalToNew(id))
+            return newId.toUint32();
+        return id.toUint32();
     }
 };
 

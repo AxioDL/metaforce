@@ -164,6 +164,7 @@ public:
         }
     };
 
+    std::pair<TAreaId, s32> GetAreaAndWorldIdForSaveId(s32 saveId) const;
     static kabufuda::ProbeResults CardProbe(kabufuda::ECardSlot port);
     static ECardResult MountCard(kabufuda::ECardSlot port);
     static ECardResult UnmountCard(kabufuda::ECardSlot port);
