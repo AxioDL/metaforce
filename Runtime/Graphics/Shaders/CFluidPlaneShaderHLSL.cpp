@@ -4,6 +4,7 @@ namespace urde
 {
 
 static boo::ObjToken<boo::IVertexFormat> s_vtxFmt;
+static boo::ObjToken<boo::IVertexFormat> s_vtxFmtTess;
 
 static const char* VS =
 "struct VertData\n"
@@ -38,16 +39,172 @@ static const char* VS =
 "{\n"
 "    VertToFrag vtf;\n"
 "    float4 pos = float4(v.posIn.xyz, 1.0);\n"
+"    float4 normalIn = v.normalIn;\n"
 "    vtf.mvPos = mul(mv, pos);\n"
 "    vtf.pos = mul(proj, vtf.mvPos);\n"
 "    vtf.mvNorm = mul(mvNorm, v.normalIn);\n"
 "    vtf.mvBinorm = mul(mvNorm, v.binormalIn);\n"
 "    vtf.mvTangent = mul(mvNorm, v.tangentIn);\n"
-"    vtf.color = v.colorIn;\n"
+"    vtf.color = float4(v.colorIn.xyz, 1.0);\n"
 "    vtf.uvs[0] = mul(texMtxs[0], pos).xy;\n"
 "    vtf.uvs[1] = mul(texMtxs[1], pos).xy;\n"
 "    vtf.uvs[2] = mul(texMtxs[2], pos).xy;\n"
 "%s" // Additional TCGs here
+"    return vtf;\n"
+"}\n";
+
+static const char* TessVS =
+"struct VertData\n"
+"{\n"
+"    float4 posIn : POSITION;\n"
+"    float4 outerLevelsIn : UV0;\n"
+"    float2 innerLevelsIn : UV1;\n"
+"};\n"
+"\n"
+"struct VertToControl\n"
+"{\n"
+"    float4 minMaxPos : POSITION;\n"
+"    float4 outerLevels : OUTERLEVELS;\n"
+"    float2 innerLevels : INNERLEVELS;\n"
+"};\n"
+"\n"
+"VertToControl main(in VertData v)\n"
+"{\n"
+"    VertToControl vtc;\n"
+"    vtc.minMaxPos = v.posIn;\n"
+"    vtc.outerLevels = v.outerLevelsIn;\n"
+"    vtc.innerLevels = v.innerLevelsIn;\n"
+"    return vtc;\n"
+"}\n";
+
+static const char* TessCS =
+"struct VertToControl\n"
+"{\n"
+"    float4 minMaxPos : POSITION;\n"
+"    float4 outerLevels : OUTERLEVELS;\n"
+"    float2 innerLevels : INNERLEVELS;\n"
+"};\n"
+"\n"
+"struct ControlToEvaluation\n"
+"{\n"
+"    float4 minMaxPos : POSITION;\n"
+"    float outerLevels[4] : SV_TessFactor;\n"
+"    float innerLevels[2] : SV_InsideTessFactor;\n"
+"};\n"
+"\n"
+"struct ControlPoint\n"
+"{};\n"
+"\n"
+"ControlToEvaluation patchmain(InputPatch<VertToControl, 1> vtc, uint id : SV_PrimitiveID)\n"
+"{\n"
+"    ControlToEvaluation cte;\n"
+"    cte.minMaxPos = vtc[id].minMaxPos;\n"
+"    for (int i=0 ; i<4 ; ++i)\n"
+"        cte.outerLevels[i] = vtc[id].outerLevels[i];\n"
+"    for (int i=0 ; i<2 ; ++i)\n"
+"        cte.innerLevels[i] = vtc[id].innerLevels[i];\n"
+"    return cte;\n"
+"}\n"
+"\n"
+"[domain(\"quad\")]\n"
+"[partitioning(\"integer\")]\n"
+"[outputtopology(\"triangle_cw\")]\n"
+"[outputcontrolpoints(1)]\n"
+"[patchconstantfunc(\"patchmain\")]\n"
+"ControlPoint main(InputPatch<VertToControl, 1> vtc, uint i : SV_OutputControlPointID, uint id : SV_PrimitiveID)\n"
+"{\n"
+"    ControlPoint pt;\n"
+"    return pt;\n"
+"}\n";
+
+static const char* TessES =
+"struct Ripple\n"
+"{\n"
+"    float4 center; // time, distFalloff\n"
+"    float4 params; // amplitude, lookupPhase, lookupTime\n"
+"};\n"
+"\n"
+"cbuffer FluidPlaneUniform : register(b0)\n"
+"{\n"
+"    float4x4 mv;\n"
+"    float4x4 mvNorm;\n"
+"    float4x4 proj;\n"
+"    float4x4 texMtxs[6];\n"
+"    Ripple ripples[20];\n"
+"    float4 colorMul;\n"
+"    float rippleNormResolution;\n"
+"};\n"
+"\n"
+"struct VertToFrag\n"
+"{\n"
+"    float4 pos : SV_Position;\n"
+"    float4 mvPos : POSITION;\n"
+"    float4 mvNorm : NORMAL;\n"
+"    float4 mvBinorm : BINORMAL;\n"
+"    float4 mvTangent : TANGENT;\n"
+"    float4 color : COLOR;\n"
+"    float2 uvs[7] : UV;\n"
+"};\n"
+"\n"
+"struct ControlToEvaluation\n"
+"{\n"
+"    float4 minMaxPos : POSITION;\n"
+"    float outerLevels[4] : SV_TessFactor;\n"
+"    float innerLevels[2] : SV_InsideTessFactor;\n"
+"};\n"
+"\n"
+"struct ControlPoint\n"
+"{};\n"
+"\n"
+"Texture2D RippleMap : register(t%d);\n"
+"SamplerState samp : register(s2);\n"
+"\n"
+"static const float PI_X2 = 6.283185307179586;\n"
+"\n"
+"static void ApplyRipple(in Ripple ripple, in float2 pos, inout float height)\n"
+"{\n"
+"    float dist = length(ripple.center.xy - pos);\n"
+"    float rippleV = RippleMap.SampleLevel(samp, float2(dist * ripple.center.w, ripple.center.z), 0.0).r;\n"
+"    height += rippleV * ripple.params.x * sin((dist * ripple.params.y + ripple.params.z) * PI_X2);\n"
+"}\n"
+"\n"
+"[domain(\"quad\")]\n"
+"VertToFrag main(in ControlToEvaluation cte, in float2 TessCoord : SV_DomainLocation,\n"
+"                const OutputPatch<ControlPoint, 1> bezpatch)\n"
+"{\n"
+"    float2 posIn = float2(lerp(cte.minMaxPos.x, cte.minMaxPos.z, TessCoord.x),\n"
+"                          lerp(cte.minMaxPos.y, cte.minMaxPos.w, TessCoord.y));\n"
+"    float height = 0.0;\n"
+"    float upHeight = 0.0;\n"
+"    float downHeight = 0.0;\n"
+"    float rightHeight = 0.0;\n"
+"    float leftHeight = 0.0;\n"
+"    for (int i=0 ; i<20 ; ++i)\n"
+"    {\n"
+"        ApplyRipple(ripples[i], posIn, height);\n"
+"        ApplyRipple(ripples[i], posIn + float2(0.0, rippleNormResolution), upHeight);\n"
+"        ApplyRipple(ripples[i], posIn - float2(0.0, rippleNormResolution), downHeight);\n"
+"        ApplyRipple(ripples[i], posIn + float2(rippleNormResolution, 0.0), rightHeight);\n"
+"        ApplyRipple(ripples[i], posIn - float2(rippleNormResolution, 0.0), leftHeight);\n"
+"    }\n"
+"    float4 normalIn = float4(normalize(float3((leftHeight - rightHeight),\n"
+"                                              (downHeight - upHeight),\n"
+"                                              rippleNormResolution)), 1.0);\n"
+"    float4 binormalIn = float4(normalIn.x, normalIn.z, -normalIn.y, 1.0);\n"
+"    float4 tangentIn = float4(normalIn.z, normalIn.y, -normalIn.x, 1.0);\n"
+"    float4 pos = float4(posIn, height, 1.0);\n"
+"    VertToFrag vtf;\n"
+"    vtf.mvPos = mul(mv, pos);\n"
+"    vtf.pos = mul(proj, vtf.mvPos);\n"
+"    vtf.mvNorm = mul(mvNorm, normalIn);\n"
+"    vtf.mvBinorm = mul(mvNorm, binormalIn);\n"
+"    vtf.mvTangent = mul(mvNorm, tangentIn);\n"
+"    vtf.color = max(height, 0.0) * colorMul;\n"
+"    vtf.color.a = 1.0;\n"
+"    vtf.uvs[0] = mul(texMtxs[0], pos).xy;\n"
+"    vtf.uvs[1] = mul(texMtxs[1], pos).xy;\n"
+"    vtf.uvs[2] = mul(texMtxs[2], pos).xy;\n"
+"%s\n" // Additional TCGs here
 "    return vtf;\n"
 "}\n";
 
@@ -168,7 +325,7 @@ static const char* FSDoor =
 "    return colorOut;\n"
 "}\n";
 
-boo::ObjToken<boo::IShaderPipeline>
+CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPlaneShaderInfo& info)
 {
     if (!s_vtxFmt)
@@ -215,7 +372,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
     if (info.m_hasEnvBumpMap)
     {
         envBumpMapUv = nextTCG;
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(v.normalIn.xyz, 1.0)).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
@@ -230,9 +387,9 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
 
     switch (info.m_type)
     {
-    case CFluidPlane::EFluidType::NormalWater:
-    case CFluidPlane::EFluidType::PhazonFluid:
-    case CFluidPlane::EFluidType::Four:
+    case EFluidType::NormalWater:
+    case EFluidType::PhazonFluid:
+    case EFluidType::Four:
         if (info.m_hasLightmap)
         {
             combiner += hecl::Format("    float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[%d]);\n", lightmapUv);
@@ -247,7 +404,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
                 // Output reg 2
                 // KColor 3
                 // Tex * K2 + Lighting
-                combiner += "    lighting += mix(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
+                combiner += "    lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
             }
             else
             {
@@ -303,7 +460,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
                 combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;\n";
             combiner += hecl::Format("    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
                                      "        float2(fog.indScale, -fog.indScale);\n", envBumpMapUv);
-            combiner += hecl::Format("    colorOut = mix(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[%d]), kColor1);\n",
+            combiner += hecl::Format("    colorOut = lerp(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[%d]), kColor1);\n",
                                      envMapUv);
         }
         else if (info.m_hasColorTex)
@@ -313,7 +470,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
 
         break;
 
-    case CFluidPlane::EFluidType::PoisonWater:
+    case EFluidType::PoisonWater:
         if (info.m_hasLightmap)
         {
             combiner += hecl::Format("    float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[%d]);\n", lightmapUv);
@@ -328,7 +485,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
                 // Output reg 2
                 // KColor 3
                 // Tex * K2 + Lighting
-                combiner += "    lighting += mix(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
+                combiner += "    lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
             }
             else
             {
@@ -381,7 +538,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
 
         break;
 
-    case CFluidPlane::EFluidType::Lava:
+    case EFluidType::Lava:
         // 0: Tex0TCG, Tex0, GX_COLOR0A0
         // ZERO, TEX, KONST, RAS
         // Output reg prev
@@ -439,7 +596,7 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
 
         break;
 
-    case CFluidPlane::EFluidType::ThickLava:
+    case EFluidType::ThickLava:
         // 0: Tex0TCG, Tex0, GX_COLOR0A0
         // ZERO, TEX, KONST, RAS
         // Output reg prev
@@ -488,19 +645,46 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
     asprintf(&finalVS, VS, additionalTCGs.c_str());
     asprintf(&finalFS, FS, textures.c_str(), combiner.c_str());
 
-    auto ret = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, nullptr, s_vtxFmt,
-                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
-                                     info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
-                                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                                     boo::CullMode::None);
+    auto regular = ctx.newShaderPipeline(finalVS, finalFS, nullptr, nullptr, nullptr, s_vtxFmt,
+                                         info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
+                                         info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
+                                         boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
+                                         boo::CullMode::None);
+
+    boo::ObjToken<boo::IShaderPipeline> tessellation;
+    if (info.m_tessellation)
+    {
+        if (!s_vtxFmtTess)
+        {
+            boo::VertexElementDescriptor elements[] =
+            {
+                {nullptr, nullptr, boo::VertexSemantic::Position4},
+                {nullptr, nullptr, boo::VertexSemantic::UV4, 0},
+                {nullptr, nullptr, boo::VertexSemantic::UV4, 1}
+            };
+            s_vtxFmtTess = ctx.newVertexFormat(3, elements);
+        }
+
+        char *finalESs;
+        asprintf(&finalESs, TessES, nextTex, additionalTCGs.c_str());
+
+        tessellation = ctx.newTessellationShaderPipeline(
+            TessVS, finalFS, TessCS, finalESs,
+             nullptr, nullptr, nullptr, nullptr, nullptr, s_vtxFmtTess,
+            info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
+            info.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
+            1, boo::ZTest::LEqual, false, true, false, boo::CullMode::None);
+
+        free(finalESs);
+    }
 
     free(finalVS);
     free(finalFS);
 
-    return ret;
+    return {regular, tessellation};
 }
 
-boo::ObjToken<boo::IShaderPipeline>
+CFluidPlaneShader::ShaderPair
 CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPlaneDoorShaderInfo& info)
 {
     if (!s_vtxFmt)
@@ -558,42 +742,50 @@ CFluidPlaneShader::BuildShader(boo::D3DDataFactory::Context& ctx, const SFluidPl
     free(finalVS);
     free(finalFS);
 
-    return ret;
+    return {ret, {}};
 }
 
 template <>
 void CFluidPlaneShader::_Shutdown<boo::D3DDataFactory>()
 {
     s_vtxFmt.reset();
+    s_vtxFmtTess.reset();
 }
 
-boo::ObjToken<boo::IShaderDataBinding>
-CFluidPlaneShader::BuildBinding(boo::D3DDataFactory::Context& ctx,
-                                const boo::ObjToken<boo::IShaderPipeline>& pipeline, bool door)
+CFluidPlaneShader::BindingPair
+CFluidPlaneShader::BuildBinding(boo::D3DDataFactory::Context& ctx, const ShaderPair& pipeline)
 {
     boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };
     boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
                                         boo::PipelineStage::Fragment };
-    size_t ubufOffs[] = {0, 0, 768};
-    size_t ubufSizes[] = {768, 768, sizeof(CModelShaders::LightingUniform)};
+    size_t ubufOffs[] = {0, 0, 1280};
+    size_t ubufSizes[] = {1280, 1280, sizeof(CModelShaders::LightingUniform)};
     size_t texCount = 0;
-    boo::ObjToken<boo::ITexture> texs[7] = {};
+    boo::ObjToken<boo::ITexture> texs[8] = {};
     if (m_patternTex1)
-        texs[texCount++] = (*m_patternTex1)->GetBooTexture();
+        texs[texCount++] = m_patternTex1->GetBooTexture();
     if (m_patternTex2)
-        texs[texCount++] = (*m_patternTex2)->GetBooTexture();
+        texs[texCount++] = m_patternTex2->GetBooTexture();
     if (m_colorTex)
-        texs[texCount++] = (*m_colorTex)->GetBooTexture();
+        texs[texCount++] = m_colorTex->GetBooTexture();
     if (m_bumpMap)
-        texs[texCount++] = (*m_bumpMap)->GetBooTexture();
+        texs[texCount++] = m_bumpMap->GetBooTexture();
     if (m_envMap)
-        texs[texCount++] = (*m_envMap)->GetBooTexture();
+        texs[texCount++] = m_envMap->GetBooTexture();
     if (m_envBumpMap)
-        texs[texCount++] = (*m_envBumpMap)->GetBooTexture();
+        texs[texCount++] = m_envBumpMap->GetBooTexture();
     if (m_lightmap)
-        texs[texCount++] = (*m_lightmap)->GetBooTexture();
-    return ctx.newShaderDataBinding(pipeline, s_vtxFmt, m_vbo.get(), nullptr, nullptr, 3,
-                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+        texs[texCount++] = m_lightmap->GetBooTexture();
+    auto regular = ctx.newShaderDataBinding(pipeline.m_regular, s_vtxFmt, m_vbo.get(), nullptr, nullptr, 3,
+                       ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+    boo::ObjToken<boo::IShaderDataBinding> tessellation;
+    if (pipeline.m_tessellation)
+    {
+        texs[texCount++] = m_rippleMap.get();
+        tessellation = ctx.newShaderDataBinding(pipeline.m_tessellation, s_vtxFmtTess, m_pvbo.get(), nullptr, nullptr,
+            3, ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+    }
+    return {regular, tessellation};
 }
 
 }

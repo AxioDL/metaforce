@@ -43,11 +43,15 @@ bool CPOINode::operator<(const CPOINode& other) const
     return x1c_time > other.x1c_time;
 }
 
-bool CPOINode::compare(const CPOINode& a, const CPOINode& b)
+int CPOINode::compare(const void* a, const void* b)
 {
-    if (a > b)
+    const CPOINode& na = *reinterpret_cast<const CPOINode*>(a);
+    const CPOINode& nb = *reinterpret_cast<const CPOINode*>(b);
+    if (na > nb)
         return 1;
-    return (a < b);
+    else if (na < nb)
+        return -1;
+    return 0;
 }
 
 template <class T>

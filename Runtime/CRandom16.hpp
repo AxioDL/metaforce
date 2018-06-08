@@ -6,7 +6,6 @@
 namespace urde
 {
 
-
 class CRandom16
 {
     u32 m_seed;

@@ -70,7 +70,7 @@ u32 CAnimTreeDoubleChild::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINod
     if (newCapacity > capacity)
         newCapacity = capacity;
 
-    std::sort(listOut, listOut + newCapacity, CPOINode::compare);
+    std::qsort(listOut, newCapacity, sizeof(CBoolPOINode), CPOINode::compare);
 
     return newCapacity;
 }
@@ -83,7 +83,7 @@ u32 CAnimTreeDoubleChild::VGetInt32POIList(const CCharAnimTime& time, CInt32POIN
     if (newCapacity > capacity)
         newCapacity = capacity;
 
-    std::sort(listOut, listOut + newCapacity, CPOINode::compare);
+    std::qsort(listOut, newCapacity, sizeof(CInt32POINode), CPOINode::compare);
 
     return newCapacity;
 }
@@ -96,7 +96,7 @@ u32 CAnimTreeDoubleChild::VGetParticlePOIList(const CCharAnimTime& time, CPartic
     if (newCapacity > capacity)
         newCapacity = capacity;
 
-    std::sort(listOut, listOut + newCapacity, CPOINode::compare);
+    std::qsort(listOut, newCapacity, sizeof(CParticlePOINode), CPOINode::compare);
 
     return newCapacity;
 }
@@ -109,7 +109,8 @@ u32 CAnimTreeDoubleChild::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOIN
     if (newCapacity > capacity)
         newCapacity = capacity;
 
-    std::sort(listOut, listOut + newCapacity, CPOINode::compare);
+    std::qsort(listOut, newCapacity, sizeof(CSoundPOINode), CPOINode::compare);
+
     return newCapacity;
 }
 

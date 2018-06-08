@@ -60,6 +60,15 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEKeyframeEmitter::GetMaxValue() const
+{
+    int maxVal = INT_MIN;
+    for (int k : x18_keys)
+        if (k > maxVal)
+            maxVal = k;
+    return maxVal;
+}
+
 bool CIEDeath::GetValue(int frame, int &valOut) const
 {
     x4_a->GetValue(frame, valOut);
@@ -67,6 +76,11 @@ bool CIEDeath::GetValue(int frame, int &valOut) const
     x8_b->GetValue(frame, b);
     /* Not 100% sure about this, originally some kinda branchless comparison */
     return frame > b;
+}
+
+int CIEDeath::GetMaxValue() const
+{
+    return x4_a->GetMaxValue();
 }
 
 bool CIEClamp::GetValue(int frame, int& valOut) const
@@ -82,6 +96,19 @@ bool CIEClamp::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEClamp::GetMaxValue() const
+{
+    int a, b, valOut;
+    a = x4_min->GetMaxValue();
+    b = x8_max->GetMaxValue();
+    valOut = xc_val->GetMaxValue();
+    if (valOut > b)
+        valOut = b;
+    if (valOut < a)
+        valOut = a;
+    return valOut;
+}
+
 bool CIETimeChain::GetValue(int frame, int& valOut) const
 {
     int v;
@@ -90,6 +117,11 @@ bool CIETimeChain::GetValue(int frame, int& valOut) const
         return x8_b->GetValue(frame, valOut);
     else
         return x4_a->GetValue(frame, valOut);
+}
+
+int CIETimeChain::GetMaxValue() const
+{
+    return std::max(x8_b->GetMaxValue(), x4_a->GetMaxValue());
 }
 
 bool CIEAdd::GetValue(int frame, int& valOut) const
@@ -101,10 +133,23 @@ bool CIEAdd::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEAdd::GetMaxValue() const
+{
+    int a, b;
+    a = x4_a->GetMaxValue();
+    b = x8_b->GetMaxValue();
+    return a + b;
+}
+
 bool CIEConstant::GetValue(int frame, int& valOut) const
 {
     valOut = x4_val;
     return false;
+}
+
+int CIEConstant::GetMaxValue() const
+{
+    return x4_val;
 }
 
 bool CIEImpulse::GetValue(int frame, int& valOut) const
@@ -116,13 +161,26 @@ bool CIEImpulse::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEImpulse::GetMaxValue() const
+{
+    return x4_a->GetMaxValue();
+}
+
 bool CIELifetimePercent::GetValue(int frame, int& valOut) const
 {
     int a;
     x4_percentVal->GetValue(frame, a);
     a = std::max(0, a);
-    valOut = (a / 100.0f) * CParticleGlobals::g_ParticleLifetimeReal;
+    valOut = (a / 100.0f) * CParticleGlobals::g_ParticleLifetimeReal + 0.5f;
     return false;
+}
+
+int CIELifetimePercent::GetMaxValue() const
+{
+    int a;
+    a = x4_percentVal->GetMaxValue();
+    a = std::max(0, a);
+    return (a / 100.0f) * 10000 + 0.5f; /* Assume 10000 frames max (not ideal estimate) */
 }
 
 bool CIEInitialRandom::GetValue(int frame, int& valOut) const
@@ -135,6 +193,11 @@ bool CIEInitialRandom::GetValue(int frame, int& valOut) const
         valOut = CRandom16::GetRandomNumber()->Range(a, b);
     }
     return false;
+}
+
+int CIEInitialRandom::GetMaxValue() const
+{
+    return x8_b->GetMaxValue();
 }
 
 bool CIEPulse::GetValue(int frame, int& valOut) const
@@ -158,6 +221,10 @@ bool CIEPulse::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEPulse::GetMaxValue() const
+{
+    return std::max(xc_aVal->GetMaxValue(), x10_bVal->GetMaxValue());
+}
 
 bool CIEMultiply::GetValue(int frame, int& valOut) const
 {
@@ -166,6 +233,11 @@ bool CIEMultiply::GetValue(int frame, int& valOut) const
     x8_b->GetValue(frame, b);
     valOut = a * b;
     return false;
+}
+
+int CIEMultiply::GetMaxValue() const
+{
+    return x4_a->GetMaxValue() * x8_b->GetMaxValue();
 }
 
 bool CIESampleAndHold::GetValue(int frame, int& valOut) const
@@ -185,6 +257,11 @@ bool CIESampleAndHold::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIESampleAndHold::GetMaxValue() const
+{
+    return x4_sampleSource->GetMaxValue();
+}
+
 bool CIERandom::GetValue(int frame, int& valOut) const
 {
     int a, b;
@@ -197,6 +274,14 @@ bool CIERandom::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIERandom::GetMaxValue() const
+{
+    if (x4_min->GetMaxValue() > 0)
+        return x8_max->GetMaxValue();
+    else
+        return 65535;
+}
+
 bool CIETimeScale::GetValue(int frame, int& valOut) const
 {
     float a;
@@ -205,10 +290,20 @@ bool CIETimeScale::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIETimeScale::GetMaxValue() const
+{
+    return 10000; /* Assume 10000 frames max (not ideal estimate) */
+}
+
 bool CIEGetCumulativeParticleCount::GetValue(int frame, int& valOut) const
 {
     valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetCumulativeParticleCount();
     return false;
+}
+
+int CIEGetCumulativeParticleCount::GetMaxValue() const
+{
+    return 256;
 }
 
 bool CIEGetActiveParticleCount::GetValue(int frame, int &valOut) const
@@ -217,10 +312,20 @@ bool CIEGetActiveParticleCount::GetValue(int frame, int &valOut) const
     return false;
 }
 
+int CIEGetActiveParticleCount::GetMaxValue() const
+{
+    return 256;
+}
+
 bool CIEGetEmitterTime::GetValue(int frame, int &valOut) const
 {
     valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetEmitterTime();
     return false;
+}
+
+int CIEGetEmitterTime::GetMaxValue() const
+{
+    return 10000; /* Assume 10000 frames max (not ideal estimate) */
 }
 
 bool CIEModulo::GetValue(int frame, int& valOut) const
@@ -235,6 +340,17 @@ bool CIEModulo::GetValue(int frame, int& valOut) const
     return false;
 }
 
+int CIEModulo::GetMaxValue() const
+{
+    int a, b;
+    a = x4_a->GetMaxValue();
+    b = x8_b->GetMaxValue();
+    if (b != 0)
+        return b - 1;
+    else
+        return a;
+}
+
 bool CIESubtract::GetValue(int frame, int& valOut) const
 {
     int a, b;
@@ -242,6 +358,14 @@ bool CIESubtract::GetValue(int frame, int& valOut) const
     x8_b->GetValue(frame, b);
     valOut = a - b;
     return false;
+}
+
+int CIESubtract::GetMaxValue() const
+{
+    int a, b;
+    a = x4_a->GetMaxValue();
+    b = x8_b->GetMaxValue();
+    return a - b;
 }
 
 }

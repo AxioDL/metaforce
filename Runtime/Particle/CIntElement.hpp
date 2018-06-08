@@ -20,6 +20,7 @@ class CIEKeyframeEmitter : public CIntElement
 public:
     CIEKeyframeEmitter(CInputStream& in);
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEDeath : public CIntElement
@@ -30,6 +31,7 @@ public:
     CIEDeath(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEClamp : public CIntElement
@@ -41,6 +43,7 @@ public:
     CIEClamp(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
     : x4_min(std::move(a)), x8_max(std::move(b)), xc_val(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIETimeChain : public CIntElement
@@ -52,6 +55,7 @@ public:
     CIETimeChain(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c)
     : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEAdd : public CIntElement
@@ -62,6 +66,7 @@ public:
     CIEAdd(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEConstant : public CIntElement
@@ -70,6 +75,7 @@ class CIEConstant : public CIntElement
 public:
     CIEConstant(int val) : x4_val(val) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEImpulse : public CIntElement
@@ -79,6 +85,7 @@ public:
     CIEImpulse(std::unique_ptr<CIntElement>&& a)
     : x4_a(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIELifetimePercent : public CIntElement
@@ -88,6 +95,7 @@ public:
     CIELifetimePercent(std::unique_ptr<CIntElement>&& a)
     : x4_percentVal(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEInitialRandom : public CIntElement
@@ -98,6 +106,7 @@ public:
     CIEInitialRandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEPulse : public CIntElement
@@ -111,6 +120,7 @@ public:
              std::unique_ptr<CIntElement>&& c, std::unique_ptr<CIntElement>&& d)
     : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEMultiply : public CIntElement
@@ -121,6 +131,7 @@ public:
     CIEMultiply(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIESampleAndHold : public CIntElement
@@ -135,6 +146,7 @@ public:
                      std::unique_ptr<CIntElement>&& c)
     : x4_sampleSource(std::move(a)), xc_waitFramesMin(std::move(b)), x10_waitFramesMax(std::move(c)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIERandom : public CIntElement
@@ -145,6 +157,7 @@ public:
     CIERandom(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_min(std::move(a)), x8_max(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIETimeScale : public CIntElement
@@ -154,24 +167,28 @@ public:
     CIETimeScale(std::unique_ptr<CRealElement>&& a)
     : x4_a(std::move(a)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEGetCumulativeParticleCount : public CIntElement
 {
 public:
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEGetActiveParticleCount : public CIntElement
 {
 public:
     bool GetValue(int frame, int &valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEGetEmitterTime : public CIntElement
 {
 public:
     bool GetValue(int frame, int &valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIEModulo : public CIntElement
@@ -182,6 +199,7 @@ public:
     CIEModulo(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 class CIESubtract : public CIntElement
@@ -192,6 +210,7 @@ public:
     CIESubtract(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b)
     : x4_a(std::move(a)), x8_b(std::move(b)) {}
     bool GetValue(int frame, int& valOut) const;
+    int GetMaxValue() const;
 };
 
 }

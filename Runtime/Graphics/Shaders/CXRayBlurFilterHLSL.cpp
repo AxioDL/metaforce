@@ -63,7 +63,7 @@ static const char* VS =
 static const char* FS =
 "Texture2D sceneTex : register(t0);\n"
 "Texture2D paletteTex : register(t1);\n"
-"SamplerState samp : register(s2);\n"
+"SamplerState samp : register(s3);\n"
 "struct VertToFrag\n"
 "{\n"
 "    float4 position : SV_Position;\n"

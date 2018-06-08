@@ -90,7 +90,7 @@ static const char* FS_HLSL =
 "};\n"
 "\n"
 "Texture2D tex : register(t0);\n"
-"SamplerState samp : register(s3);\n"
+"SamplerState samp : register(s4);\n"
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"

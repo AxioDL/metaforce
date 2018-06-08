@@ -49,7 +49,7 @@ public:
 
     bool operator>(const CPOINode& other) const;
     bool operator<(const CPOINode& other) const;
-    static bool compare(const CPOINode& a, const CPOINode& b);
+    static int compare(const void* a, const void* b);
 };
 
 template <class T>

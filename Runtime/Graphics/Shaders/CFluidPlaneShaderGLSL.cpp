@@ -882,7 +882,7 @@ CFluidPlaneShader::BuildBinding(boo::GLDataFactory::Context& ctx, const ShaderPa
     size_t ubufOffs[] = {0, 0, 1280};
     size_t ubufSizes[] = {1280, 1280, sizeof(CModelShaders::LightingUniform)};
     size_t texCount = 0;
-    boo::ObjToken<boo::ITexture> texs[7];
+    boo::ObjToken<boo::ITexture> texs[8];
     if (m_patternTex1)
         texs[texCount++] = m_patternTex1->GetBooTexture();
     if (m_patternTex2)
@@ -927,7 +927,7 @@ CFluidPlaneShader::BuildBinding(boo::VulkanDataFactory::Context& ctx, const Shad
     size_t ubufOffs[] = {0, 0, 1280};
     size_t ubufSizes[] = {1280, 1280, sizeof(CModelShaders::LightingUniform)};
     size_t texCount = 0;
-    boo::ObjToken<boo::ITexture> texs[7] = {};
+    boo::ObjToken<boo::ITexture> texs[8] = {};
     if (m_patternTex1)
         texs[texCount++] = m_patternTex1->GetBooTexture();
     if (m_patternTex2)

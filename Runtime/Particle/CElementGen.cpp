@@ -164,10 +164,14 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     else
         x268_PSLT = INT_MAX;
 
+    int useMAXP = 256;
     if (CIntElement* maxpElem = desc->x28_x1c_MAXP.get())
+    {
         maxpElem->GetValue(x74_curFrame, x90_MAXP);
+        useMAXP = maxpElem->GetMaxValue();
+    }
 
-    int useMAXP = std::min(x90_MAXP, 256);
+    useMAXP = std::min(useMAXP, 256);
     x30_particles.reserve(useMAXP);
     if (x2c_orientType == EModelOrientationType::One)
         x50_parentMatrices.resize(useMAXP);
@@ -231,7 +235,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         m_shaderClass = CElementGenShaders::GetShaderClass(*this);
     }
 
-    size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * x90_MAXP) : x90_MAXP;
+    size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * useMAXP) : useMAXP;
     maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
