@@ -9,6 +9,7 @@
 #include <QProcess>
 #include <QStorageInfo>
 #include "FindBlender.hpp"
+#include <QDebug>
 
 #if _WIN32
 #include <Windows.h>
@@ -45,23 +46,12 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
 : QAbstractTableModel(parent)
 {
 #ifdef __linux__
-    QProcess lscpuProc;
-    lscpuProc.start("lscpu", {"-J"}, QProcess::ReadOnly);
-    lscpuProc.waitForFinished();
-    QJsonDocument lscpu = QJsonDocument::fromJson(lscpuProc.readAll());
-    QJsonValue lscpuObj = lscpu.object().take("lscpu");
-    if (lscpuObj.type() == QJsonValue::Array)
+    QFile file("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+    if (file.open(QFile::ReadOnly))
     {
-        for (const QJsonValue& v: lscpuObj.toArray())
-        {
-            QJsonObject vObj = v.toObject();
-            if (vObj.take("field").toString() == "CPU max MHz:")
-            {
-                double speed = vObj.take("data").toString().toDouble();
-                m_cpuSpeed = speed;
-                m_cpuSpeedStr.sprintf("%g GHz", speed / 1000.0);
-            }
-        }
+        QString str(file.readAll());
+        m_cpuSpeed = str.toInt() / 1000;
+        m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.0);
     }
 #elif defined(__APPLE__)
     QProcess spProc;
