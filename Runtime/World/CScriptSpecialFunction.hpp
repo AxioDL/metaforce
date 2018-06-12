@@ -92,8 +92,8 @@ private:
     u32 x1a8_ = 2;
     zeus::CVector3f x1ac_ = zeus::CVector3f::skZero;
     bool x1b8_ = true;
-    CAssetId x1bc_;
-    CAssetId x1c0_;
+    s32 x1bc_areaSaveId;
+    s32 x1c0_layerIdx;
     CAssetId x1c4_;
     std::experimental::optional<zeus::CAABox> x1c8_;
     union
@@ -118,7 +118,7 @@ private:
 public:
     CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
                            std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
-                           bool, const CDamageInfo&, CAssetId, CAssetId, CAssetId, s16, s16, s16);
+                           bool, const CDamageInfo&, s32, s32, CAssetId, s16, s16, s16);
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);

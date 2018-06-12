@@ -775,4 +775,23 @@ bool CWorld::AreSkyNeedsMet() const
         return true;
     return false;
 }
+
+TAreaId CWorld::GetAreaIdForSaveId(s32 saveId) const
+{
+    if (saveId == -1)
+        return kInvalidAreaId;
+
+    if (x18_areas.size() <= 0)
+        return kInvalidAreaId;
+
+    TAreaId cur = 0;
+    for (const auto& area : x18_areas)
+    {
+        if (area->x88_areaId == saveId)
+            return cur;
+        ++cur;
+    }
+
+    return kInvalidAreaId;
+}
 }

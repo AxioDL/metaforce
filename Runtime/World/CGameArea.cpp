@@ -428,7 +428,7 @@ CGameArea::CGameArea(CInputStream& in, int idx, int mlvlVersion)
 
     x84_mrea = in.readUint32Big();
     if (mlvlVersion > 15)
-        x88_areaId = in.readUint32Big();
+        x88_areaId = in.readInt32Big();
     else
         x88_areaId = -1;
 

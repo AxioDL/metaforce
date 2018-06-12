@@ -211,6 +211,7 @@ public:
     EEnvFxType GetNeededEnvFx() const { return xc4_neededFx; }
     CAssetId GetWorldAssetId() const { return x8_mlvlId; }
     bool AreSkyNeedsMet() const;
+    TAreaId GetAreaIdForSaveId(s32 saveId) const;
 };
 
 struct CWorldLayers

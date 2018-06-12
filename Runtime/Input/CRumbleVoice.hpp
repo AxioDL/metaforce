@@ -7,6 +7,8 @@ namespace urde
 {
 enum class ERumbleFxId
 {
+    Zero = 0,
+    One = 1,
     CameraShake = 6,
     EscapeSequenceShake = 7,
     PlayerBump = 11,
@@ -14,7 +16,11 @@ enum class ERumbleFxId
     PlayerMissileFire = 13,
     PlayerGrappleFire = 14,
     PlayerLand = 15,
-    PlayerGrappleSwoosh = 17
+    PlayerGrappleSwoosh = 17,
+    Twenty = 20,
+    TwentyOne = 21,
+    TwentyTwo = 22,
+    TwentyThree = 23
 };
 enum class ERumblePriority
 {

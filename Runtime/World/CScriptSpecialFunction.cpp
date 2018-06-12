@@ -4,6 +4,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "TCastTo.hpp"
 #include "GameGlobalObjects.hpp"
+#include "CMemoryCardSys.hpp"
 #include "CGameState.hpp"
 #include "CStateManager.hpp"
 #include "IMain.hpp"
@@ -17,7 +18,7 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
                                                const zeus::CTransform& xf, ESpecialFunction func,
                                                std::string_view lcName, float f1, float f2, float f3, float f4,
                                                const zeus::CVector3f& vec, const zeus::CColor& col, bool active,
-                                               const CDamageInfo& dInfo, CAssetId aId1, CAssetId aId2, CAssetId aId3,
+                                               const CDamageInfo& dInfo, s32 aId1, s32 aId2, CAssetId aId3,
                                                s16 sId1, s16 sId2, s16 sId3)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)
@@ -33,8 +34,8 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x170_(CSfxManager::TranslateSFXID(sId1))
 , x172_(CSfxManager::TranslateSFXID(sId2))
 , x174_(CSfxManager::TranslateSFXID(sId3))
-, x1bc_(aId1)
-, x1c0_(aId2)
+, x1bc_areaSaveId(aId1)
+, x1c0_layerIdx(aId2)
 , x1c4_(aId3)
 {
     x1e4_26_ = true;
@@ -88,6 +89,15 @@ void CScriptSpecialFunction::Think(float dt, CStateManager& mgr)
     default: break;
     }
 }
+static const ERumbleFxId fxTranslation[6] =
+{
+    ERumbleFxId::Twenty,
+    ERumbleFxId::One,
+    ERumbleFxId::TwentyOne,
+    ERumbleFxId::TwentyTwo,
+    ERumbleFxId::TwentyThree,
+    ERumbleFxId::Zero
+};
 
 void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
@@ -332,8 +342,54 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
         }
         case ESpecialFunction::ScriptLayerController:
         {
+            if (msg == EScriptObjectMessage::Decrement || msg == EScriptObjectMessage::Increment)
+            {
+                if (x1bc_areaSaveId != -1 && x1c0_layerIdx != -1)
+                {
+                    TAreaId aId = mgr.GetWorld()->GetAreaIdForSaveId(x1bc_areaSaveId);
+                    std::shared_ptr<CWorldLayerState> worldLayerState;
+                    if (aId != kInvalidAreaId)
+                        worldLayerState = mgr.WorldLayerStateNC();
+                    else
+                    {
+                        std::pair<CAssetId, TAreaId> worldAreaPair = g_MemoryCardSys->GetAreaAndWorldIdForSaveId(x1bc_areaSaveId);
+                        if (worldAreaPair.first.IsValid())
+                        {
+                            worldLayerState = g_GameState->StateForWorld(worldAreaPair.first).GetLayerState();
+                            aId = worldAreaPair.second;
+                        }
+                    }
+
+                    if (aId != kInvalidAreaId)
+                        worldLayerState->SetLayerActive(aId, x1c0_layerIdx, msg == EScriptObjectMessage::Increment);
+                }
+            }
             break;
         }
+        /*
+        For some bizarre reason ScriptLayerController drops into EnvFxDensityController
+        [[fallthrough]];
+        We won't do that though
+        */
+        case ESpecialFunction::EnvFxDensityController:
+        {
+            if (msg == EScriptObjectMessage::Action)
+                mgr.GetEnvFxManager()->SetFxDensity(s32(x100_), xfc_);
+            break;
+        }
+        case ESpecialFunction::RumbleEffect:
+            if (msg == EScriptObjectMessage::Action)
+            {
+                s32 rumbFx = s32(x100_);
+                /* Retro originally did not check the upper bounds, this could potentially cause a crash
+                 * with some runtimes, so let's make sure we're not out of bounds in either direction
+                 */
+                if (rumbFx < 0 || rumbFx >= 6)
+                    break;
+
+                mgr.GetRumbleManager().Rumble(mgr, fxTranslation[rumbFx], 1.f, ERumblePriority::One);
+            }
+            break;
         default:
             break;
         }

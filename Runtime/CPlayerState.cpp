@@ -69,13 +69,14 @@ CPlayerState::CPlayerState()
 CPlayerState::CPlayerState(CBitStreamReader& stream)
 : x188_staticIntf(5)
 {
-    x4_enabledItems = u32(stream.ReadEncoded(0x20u));
+    x0_24_alive = true;
+    x4_enabledItems = u32(stream.ReadEncoded(32));
     union
     {
         float fHP;
         u32 iHP;
     } hp;
-    hp.iHP = u32(stream.ReadEncoded(0x20u));
+    hp.iHP = u32(stream.ReadEncoded(32));
     xc_health.SetHP(hp.fHP);
     x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
     x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));

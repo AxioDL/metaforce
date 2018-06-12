@@ -2387,7 +2387,7 @@ CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int p
 
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(center, {}),
                                       CScriptSpecialFunction::ESpecialFunction::FogVolume, "", flickerSpeed, f2, 0.f,
-                                      0.f, volume, fogColor, active, CDamageInfo(), CAssetId(), CAssetId(), CAssetId(),
+                                      0.f, volume, fogColor, active, CDamageInfo(), -1, -1, CAssetId(),
                                       -1, -1, -1);
 }
 
@@ -2448,7 +2448,7 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Identity(),
                                       CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density, w1,
                                       0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, CDamageInfo(),
-                                      CAssetId(), CAssetId(), CAssetId(), -1, -1, -1);
+                                      -1, -1, CAssetId(), -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

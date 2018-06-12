@@ -11,6 +11,7 @@ namespace urde
 {
 class CCollidableOBBTreeGroup;
 class CCollidableOBBTreeGroupContainer;
+class CFluidPlane;
 
 struct SRiders
 {
@@ -22,18 +23,18 @@ struct SRiders
 class CScriptPlatform : public CPhysicsActor
 {
     u32 x254_;
-    TUniqueId x258_ = kInvalidUniqueId;
-    TUniqueId x25a_ = kInvalidUniqueId;
-    float x25c_;
-    float x260_;
-    float x264_;
-    float x268_;
-    float x26c_;
+    TUniqueId x258_currentWaypoint = kInvalidUniqueId;
+    TUniqueId x25a_targetWaypoint = kInvalidUniqueId;
+    float x25c_currentMass;
+    float x260_ = 0.f;
+    float x264_ = 0.f;
+    float x268_fadeInTime = 0.f;
+    float x26c_fadeOutTime = 0.f;
     zeus::CVector3f x270_;
     zeus::CQuaternion x27c_;
-    CHealthInfo x28c_;
-    CHealthInfo x294_;
-    CDamageVulnerability x29c_;
+    CHealthInfo x28c_initialHealth;
+    CHealthInfo x294_health;
+    CDamageVulnerability x29c_damageVuln;
     std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
     std::unique_ptr<CCollidableOBBTreeGroup> x314_treeGroup;
     std::vector<SRiders> x318_riders;
@@ -42,12 +43,12 @@ class CScriptPlatform : public CPhysicsActor
     float x348_;
     u32 x34c_;
     u32 x350_;
-    TUniqueId x354_;
+    TUniqueId x354_ = kInvalidUniqueId;
     union
     {
         struct
         {
-            bool x356_24_ : 1;
+            bool x356_24_dead : 1;
             bool x356_25_ : 1;
             bool x356_26_ : 1;
             bool x356_27_ : 1;
@@ -66,6 +67,9 @@ public:
                     const std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool, u32, u32);
 
     void Accept(IVisitor& visitor);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void PreThink(float, CStateManager&);
+    void Think(float, CStateManager&);
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     bool IsRider(TUniqueId id) const;
     bool IsSlave(TUniqueId id) const;
@@ -75,6 +79,17 @@ public:
     const std::vector<SRiders>& GetX338() const { return x338_slaves2; }
     void AddSlave(TUniqueId, CStateManager&) {}
     bool HasComplexCollision() const { return x314_treeGroup.operator bool(); }
+    void BuildSlaveList(CStateManager&);
+    void AddRider(std::vector<SRiders>&, TUniqueId, const CPhysicsActor*, CStateManager&);
+    TUniqueId GetNext(TUniqueId, CStateManager&);
+    TUniqueId GetWaypoint(CStateManager&);
+
+    const CDamageVulnerability* GetDamageVulnerability() const { return &x29c_damageVuln; }
+    CHealthInfo* HealthInfo(CStateManager&) { return &x294_health; }
+    void DecayRiders(std::vector<SRiders>&, float, CStateManager&) {}
+
+    virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;
+    virtual zeus::CQuaternion Move(float, CStateManager&);
 };
 }
 
