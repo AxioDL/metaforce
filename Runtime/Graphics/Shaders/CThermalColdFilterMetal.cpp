@@ -72,7 +72,7 @@ static const char* FS =
 "\n"
 "constant float4 kRGBToYPrime = {0.299, 0.587, 0.114, 0.0};\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
-"                      sampler samp [[ sampler(2) ]],\n"
+"                      sampler samp [[ sampler(3) ]],\n"
 "                      texture2d<float> sceneTex [[ texture(0) ]],\n"
 "                      texture2d<float> shiftTex [[ texture(1) ]])\n"
 "{\n"

@@ -7,6 +7,7 @@
 #include "IOStreams.hpp"
 #include "rstl.hpp"
 #include "World/CHealthInfo.hpp"
+#include <unordered_map>
 
 namespace urde
 {

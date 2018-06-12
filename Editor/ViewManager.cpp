@@ -120,11 +120,10 @@ void ViewManager::TestGameView::think()
             }
             overlayText += hecl::Format("Area AssetId: 0x%08X, Total Objects: %i, Total Layers: %i, Total Active Layers: %i\n"
                                         "Active Layer bits: %s\n",
-                                        g_StateManager->WorldNC()->GetArea(aId)->GetAreaAssetId().Value(),
+                                        (unsigned int)g_StateManager->WorldNC()->GetArea(aId)->GetAreaAssetId().Value(),
                                         g_StateManager->GetAllObjectList().size(), layerStates->GetAreaLayerCount(aId),
                                         totalActive, layerBits.c_str());
         }
-
 
         if (!overlayText.empty())
             m_debugText->typesetGlyphs(overlayText);

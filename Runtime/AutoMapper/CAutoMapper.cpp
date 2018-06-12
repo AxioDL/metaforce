@@ -940,7 +940,7 @@ CAutoMapper::FindClosestVisibleWorld(const zeus::CVector3f& point,
                                      const CStateManager& mgr) const
 {
     float minDist = 29999.f;
-    std::pair<int, int> closestWorld = {xa0_curAreaId, xa0_curAreaId};
+    std::pair<int, int> closestWorld = {x9c_worldIdx, xa0_curAreaId};
     for (u32 w=0 ; w<x8_mapu->GetNumMapWorldDatas() ; ++w)
     {
         const CMapUniverse::CMapWorldData& mwData = x8_mapu->GetMapWorldData(w);

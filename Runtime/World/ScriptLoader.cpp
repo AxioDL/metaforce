@@ -1810,7 +1810,7 @@ CEntity* ScriptLoader::LoadRipple(CStateManager& mgr, CInputStream& in, int prop
 {
     if (!EnsurePropertyCount(propCount, 4, "Ripple"))
         return nullptr;
-    std::string_view name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     zeus::CVector3f center = zeus::CVector3f::ReadBig(in);
     bool active = in.readBool();
     float mag = in.readFloatBig();
@@ -1822,7 +1822,7 @@ CEntity* ScriptLoader::LoadBallTrigger(CStateManager& mgr, CInputStream& in, int
     if (!EnsurePropertyCount(propCount, 9, "BallTrigger"))
         return nullptr;
 
-    std::string_view name = in.readString();
+    std::string name = in.readString();
     zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
     zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
 
@@ -2342,7 +2342,7 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
     if (!EnsurePropertyCount(propCount, CScriptGunTurretData::GetMinProperties(), "GunTurret"))
         return nullptr;
 
-    std::string_view name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     CScriptGunTurret::ETurretComponent component = CScriptGunTurret::ETurretComponent(in.readUint32Big());
     zeus::CTransform xf = LoadEditorTransform(in);
     zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
@@ -2461,7 +2461,7 @@ CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int p
     if (!EnsurePropertyCount(propCount, 8, "TeamAiMgr"))
         return nullptr;
 
-    std::string_view name = mgr.HashInstanceName(in);
+    std::string name = mgr.HashInstanceName(in);
     CTeamAiData data(in, propCount);
     return new CTeamAiMgr(mgr.AllocateUniqueId(), name, info, data);
 }

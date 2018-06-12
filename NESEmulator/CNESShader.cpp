@@ -142,7 +142,7 @@ static const char* FS_METAL =
 "};\n"
 "\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
-"                      sampler clampSamp [[ sampler(3) ]],\n"
+"                      sampler clampSamp [[ sampler(4) ]],\n"
 "                      texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
 "    return vtf.color * float4(tex.sample(clampSamp, vtf.uv).bgr, 1.0);\n"
