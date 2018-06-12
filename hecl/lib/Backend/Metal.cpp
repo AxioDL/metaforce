@@ -390,7 +390,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     {
         if (lighting.m_entry)
         {
-                retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos, vtf.mvNorm, vtf" +
+            retval += "    float4 lighting = " + lightingEntry + "(" + blockCall + ", vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf" +
                     (!strncmp(lighting.m_entry, "EXT", 3) ? (extTexCall.size() ? (", samp, clampSamp," + extTexCall) : "") : "") + ");\n";
         }
         else
