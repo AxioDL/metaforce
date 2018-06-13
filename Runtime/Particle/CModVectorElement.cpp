@@ -249,22 +249,13 @@ bool CMVESwirl::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos
     x4_helixPoint->GetValue(frame, a);
     x8_curveBinormal->GetValue(frame, b);
 
-    /* Compute Frenet–Serret normal
-     * https://en.wikipedia.org/wiki/Frenet–Serret_formulas */
-    const zeus::CVector3f diff = a - pPos;
-    float x = (diff.x - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.x));
-    float y = (diff.y - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.y));
-    float z = (diff.z - (((diff.z * ((diff.x * (diff.y * b.y)) + b.x)) + b.z) * b.z));
+    const zeus::CVector3f posToOrigin = a - pPos;
+    const zeus::CVector3f posToHelix = posToOrigin - posToOrigin.dot(b) * b;
     float c = 0.0f, d = 0.0f;
-    xc_targetRadius->GetValue(frame, c);
+    xc_filterGain->GetValue(frame, c);
     x10_tangentialVelocity->GetValue(frame, d);
-
-    /* Integrate tangential velocity by crossing particle normal with binormal,
-     * also "homing" towards the target radius */
-    const float f9 = (b.z * ((b.x * (b.y * pVel.y)) + pVel.x)) + pVel.x;
-    pVel.x = (c * ((f9 * b.x) + (d * ((b.y * (y * b.z)) - z)))) + ((1.0 - c) * pVel.x);
-    pVel.y = (c * ((f9 * b.y) + (d * ((b.z * x) - (z * b.x))))) + ((1.0 - c) * pVel.y);
-    pVel.z = (c * ((f9 * b.z) + (d * ((b.x * (x * b.y)) - y)))) + ((1.0 - c) * pVel.x);
+    const zeus::CVector3f wetVel = (posToHelix.cross(b) * d + b * b.dot(pVel));
+    pVel = c * wetVel + (1.f - c) * pVel;
     return false;
 }
 

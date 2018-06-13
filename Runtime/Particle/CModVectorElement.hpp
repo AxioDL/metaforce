@@ -157,13 +157,13 @@ class CMVESwirl : public CModVectorElement
 {
     std::unique_ptr<CVectorElement> x4_helixPoint;
     std::unique_ptr<CVectorElement> x8_curveBinormal;
-    std::unique_ptr<CRealElement> xc_targetRadius;
+    std::unique_ptr<CRealElement> xc_filterGain;
     std::unique_ptr<CRealElement> x10_tangentialVelocity;
 public:
     CMVESwirl(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
               std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
     : x4_helixPoint(std::move(a)), x8_curveBinormal(std::move(b)),
-      xc_targetRadius(std::move(c)), x10_tangentialVelocity(std::move(d)) {}
+      xc_filterGain(std::move(c)), x10_tangentialVelocity(std::move(d)) {}
     bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const;
 };
 

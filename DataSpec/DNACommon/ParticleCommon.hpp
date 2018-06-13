@@ -774,7 +774,7 @@ struct MVESwirl : IModVectorElement
     AT_DECL_DNA_YAML
     VectorElementFactory helixPoint;
     VectorElementFactory curveBinormal;
-    RealElementFactory targetRadius;
+    RealElementFactory filterGain;
     RealElementFactory tangentialVelocity;
     const char* ClassID() const {return "SWRL";}
 };

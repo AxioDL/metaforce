@@ -62,7 +62,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
         zeus::CTransform newXf = xf;
         newXf.origin = zeus::CVector3f::skZero;
         x104_particleSystem->SetOrientation(newXf);
-        x104_particleSystem->SetTranslation(xf.origin);
+        x104_particleSystem->SetGlobalTranslation(xf.origin);
         x104_particleSystem->SetLocalScale(scale);
         x104_particleSystem->SetParticleEmission(active);
         x104_particleSystem->SetModulationColor(lParms.GetNoLightsAmbient());
@@ -77,7 +77,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
         zeus::CTransform newXf = xf;
         newXf.origin = zeus::CVector3f::skZero;
         xf4_electric->SetOrientation(newXf);
-        xf4_electric->SetTranslation(xf.origin);
+        xf4_electric->SetGlobalTranslation(xf.origin);
         xf4_electric->SetLocalScale(scale);
         xf4_electric->SetParticleEmission(active);
     }
@@ -106,7 +106,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
                 zeus::CTransform newXf = GetTransform();
                 newXf.origin = zeus::CVector3f::skZero;
                 x104_particleSystem->SetOrientation(newXf);
-                x104_particleSystem->SetTranslation(GetTranslation());
+                x104_particleSystem->SetGlobalTranslation(GetTranslation());
                 x104_particleSystem->SetLocalScale(scale);
                 x104_particleSystem->SetParticleEmission(oldActive);
                 x104_particleSystem->SetModulationColor(color);
@@ -121,7 +121,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
                 zeus::CTransform newXf = GetTransform();
                 newXf.origin = zeus::CVector3f::skZero;
                 xf4_electric->SetOrientation(newXf);
-                xf4_electric->SetTranslation(GetTranslation());
+                xf4_electric->SetGlobalTranslation(GetTranslation());
                 xf4_electric->SetLocalScale(scale);
                 xf4_electric->SetParticleEmission(oldActive);
                 xf4_electric->SetModulationColor(color);
@@ -291,14 +291,14 @@ void CScriptEffect::Think(float dt, CStateManager& mgr)
             zeus::CTransform newXf = x34_transform;
             newXf.origin = zeus::CVector3f::skZero;
             x104_particleSystem->SetOrientation(newXf);
-            x104_particleSystem->SetTranslation(x34_transform.origin);
+            x104_particleSystem->SetGlobalTranslation(x34_transform.origin);
         }
         if (xf4_electric)
         {
             zeus::CTransform newXf = x34_transform;
             newXf.origin = zeus::CVector3f::skZero;
             xf4_electric->SetOrientation(newXf);
-            xf4_electric->SetTranslation(x34_transform.origin);
+            xf4_electric->SetGlobalTranslation(x34_transform.origin);
         }
 
         if (TCastToPtr<CActor> act = mgr.ObjectById(x108_lightId))
