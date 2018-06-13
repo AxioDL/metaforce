@@ -77,7 +77,22 @@ std::vector<CVar*> CVarManager::cvars(CVar::EFlags filter) const
 
 void CVarManager::deserialize(CVar* cvar)
 {
-    if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
+    if (!cvar)
+        return;
+
+    /* First let's check for a deferred value */
+    std::string lowName = cvar->name().data();
+    athena::utility::tolower(lowName);
+    if (m_deferedCVars.find(lowName) != m_deferedCVars.end())
+    {
+        std::string val = m_deferedCVars[lowName];
+        m_deferedCVars.erase(lowName);
+        if (cvar->fromLiteralToType(val))
+            return;
+    }
+
+    /* We were either unable to find a deferred value or got an invalid value */
+    if (!cvar->isArchive() && !cvar->isInternalArchivable())
         return;
 
 #if _WIN32
@@ -304,6 +319,12 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args)
                     if (developerName == cvarName)
                         /* Make sure we're not overriding developer mode when we restore */
                         oldDeveloper = com_developer->toBoolean();
+                }
+                else
+                {
+                    /* Unable to find an existing CVar, let's defer for the time being 8 */
+                    athena::utility::tolower(cvarName);
+                    m_deferedCVars[cvarName] = cvarValue;
                 }
             }
         }
