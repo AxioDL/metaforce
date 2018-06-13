@@ -14,7 +14,7 @@ CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
 
-static const std::regex cmdLineRegex("\\+(\\w+)=([\\w\\.\\-]+)");
+static const std::regex cmdLineRegex("\\+([\\w\\.]+)=([\\w\\.\\-]+)");
 CVarManager* CVarManager::m_instance = nullptr;
 
 static logvisor::Module CVarLog("CVarManager");
@@ -65,11 +65,12 @@ std::vector<CVar*> CVarManager::archivedCVars() const
     return ret;
 }
 
-std::vector<CVar*> CVarManager::cvars() const
+std::vector<CVar*> CVarManager::cvars(CVar::EFlags filter) const
 {
     std::vector<CVar*> ret;
     for (const auto& pair : m_cvars)
-        ret.push_back(pair.second.get());
+        if (filter == CVar::EFlags::None || (pair.second->flags() & filter) != 0)
+            ret.push_back(pair.second.get());
 
     return ret;
 }
@@ -201,7 +202,7 @@ void CVarManager::list(Console* con, const std::vector<std::string>& /*args*/)
     for (const auto& cvar : m_cvars)
     {
         if (!cvar.second->isHidden())
-            con->report(Console::Level::Info, "%s: %s", cvar.first.c_str(), cvar.second->help().c_str());
+            con->report(Console::Level::Info, "%s: %s", cvar.second->name().data(), cvar.second->help().c_str());
     }
 }
 
@@ -222,13 +223,20 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string> &args)
     }
 
     const auto& cv = m_cvars[cvName];
+    std::string oldVal = cv->value();
     std::string value = args[1];
     auto it = args.begin() + 2;
     for (; it != args.end(); ++it)
         value += " " + *it;
 
+    /*  Check to make sure we're not redundantly assigning the value */
+    if (cv->value() == value)
+        return;
+
     if (!cv->fromLiteralToType(value))
-        con->report(Console::Level::Warning, "Unable to set cvar '%s' to value '%s'", args[0].c_str(), value.c_str());
+        con->report(Console::Level::Warning, "Unable to set cvar '%s' to value '%s'", cv->name().data(), value.c_str());
+    else
+        con->report(Console::Level::Info, "Set '%s' from '%s' to '%s'", cv->name().data(), oldVal.c_str(), value.c_str());
 }
 
 void CVarManager::getCVar(Console* con, const std::vector<std::string> &args)

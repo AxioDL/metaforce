@@ -63,7 +63,7 @@ public:
     }
 
     std::vector<CVar*> archivedCVars() const;
-    std::vector<CVar*> cvars() const;
+    std::vector<CVar*> cvars(CVar::EFlags filter = CVar::EFlags::None) const;
 
     void deserialize(CVar* cvar);
     void serialize();

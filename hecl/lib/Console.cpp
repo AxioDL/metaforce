@@ -1,6 +1,7 @@
 #include "hecl/Console.hpp"
 #include "hecl/CVarManager.hpp"
 #include "hecl/CVar.hpp"
+#include "hecl/hecl.hpp"
 #include "athena/Utility.hpp"
 
 namespace hecl
@@ -54,10 +55,50 @@ void Console::executeString(const std::string& str)
     for (std::string command : commands)
     {
         command = athena::utility::trim(command);
-        std::vector<std::string> args = athena::utility::split(command, ' ');
-
-        if (args.empty())
+        std::vector<std::string> tmpArgs = athena::utility::split(command, ' ');
+        if (tmpArgs.empty())
             continue;
+        std::vector<std::string> args;
+        args.reserve(tmpArgs.size());
+        /* detect string literals */
+        bool isInLiteral = false;
+        std::string curLiteral;
+        int depth = 0;
+        for (std::string arg : tmpArgs)
+        {
+            if ((arg.front() == '\'' || arg.front() == '"'))
+            {
+                ++depth;
+                isInLiteral = true;
+                curLiteral += arg;
+            }
+            else if ((arg.back() == '\'' || arg.back() == '"') && isInLiteral)
+            {
+                --depth;
+                curLiteral += arg;
+                args.push_back(curLiteral);
+                if (depth <= 0)
+                {
+                    depth = 0;
+                    isInLiteral = false;
+                    curLiteral.clear();
+                }
+            }
+            else if (isInLiteral)
+                curLiteral += arg;
+            else
+                args.push_back(arg);
+        }
+
+        if (isInLiteral)
+        {
+            if ((curLiteral.back() != '\'' && curLiteral.back() != '"') || depth > 1)
+            {
+                report(Level::Warning, "Unterminated string literal");
+                return;
+            }
+            args.push_back(curLiteral);
+        }
 
         std::string commandName = args[0];
         args.erase(args.begin());
@@ -79,6 +120,14 @@ void Console::executeString(const std::string& str)
                 return;
             }
             m_commands[lowComName].m_func(this, args);
+        }
+        else if (const CVar* cv = m_cvarMgr->findCVar(commandName))
+        {
+            args.insert(args.begin(), commandName);
+            if (args.size() > 1)
+                m_cvarMgr->setCVar(this, args);
+            else
+                m_cvarMgr->getCVar(this, args);
         }
         else
             report(Level::Error, "Command '%s' is not valid!", commandName.c_str());

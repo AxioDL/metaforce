@@ -22,6 +22,7 @@ enum class EType : atUint8
 
 enum EFlags
 {
+    None               = -1,
     System             = (1 << 0),
     Game               = (1 << 1),
     Editor             = (1 << 2),
@@ -113,7 +114,7 @@ public:
     void setModified();
 
     EType type() const  { return m_type; }
-    EFlags flags() const  { return m_flags; }
+    EFlags flags() const  { return (m_unlocked ? m_oldFlags : m_flags); }
 
     /*!
      * \brief Unlocks the CVar for writing if it is ReadOnly.
