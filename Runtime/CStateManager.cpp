@@ -53,6 +53,7 @@
 #include "World/CScriptDoor.hpp"
 #include "World/CScriptDamageableTrigger.hpp"
 #include "World/CScriptDebris.hpp"
+#include "hecl/CVarManager.hpp"
 #include <cmath>
 
 namespace urde
@@ -213,6 +214,8 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     ControlMapper::ResetCommandFilters();
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
     g_StateManager = this;
+
+    hecl::CVarManager::instance()->findOrMakeCVar("stateManager.logScripting"sv, "Prints object communication to the console", false, hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
 }
 
 CStateManager::~CStateManager()
@@ -1090,10 +1093,10 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
 {
     if (dest && !dest->x30_26_scriptingBlocked)
     {
-#ifndef NDEBUG
-        LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
-                        ScriptObjectMessageToStr(msg).data(), dest->GetName().data(), dest->GetUniqueId().id);
-#endif
+        const hecl::CVar* logScripting  = hecl::CVarManager::instance()->findCVar("stateManager.logScripting"sv);
+        if (logScripting && logScripting->toBoolean())
+            LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
+                            ScriptObjectMessageToStr(msg).data(), dest->GetName().data(), dest->GetUniqueId().id);
         dest->AcceptScriptMsg(msg, src, *this);
     }
 }

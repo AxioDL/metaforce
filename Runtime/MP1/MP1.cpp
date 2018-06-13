@@ -113,8 +113,8 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
     CStreamAudioManager::SetMusicVolume(0x7f);
     m->ResetGameState();
 
-    //std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
-    //x58_ioWinManager.AddIOWin(splash, 1000, 10000);
+    std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
+    x58_ioWinManager.AddIOWin(splash, 1000, 10000);
 
     std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
     x58_ioWinManager.AddIOWin(mf, 0, 0);
@@ -537,6 +537,20 @@ void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)
     g_StateManager->Player()->Teleport(xf, *g_StateManager, false);
 }
 
+void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string> &)
+{
+    if (g_ResFactory && g_ResFactory->GetResLoader())
+    {
+        for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks())
+            if (pak->IsWorldPak())
+            {
+                for (const auto& named : pak->GetNameList())
+                    if (named.second.type == SBIG('MLVL'))
+                        con->report(hecl::Console::Level::Info, "%s '%08X'", named.first.c_str(), named.second.id.Value());
+            }
+    }
+}
+
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
 {
     bool fusionBackup = g_GameState->SystemOptions().GetPlayerFusionSuitActive();
@@ -641,7 +655,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
     m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
     m_console->registerCommand("Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv, std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2), (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
-
+    m_console->registerCommand("listWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();

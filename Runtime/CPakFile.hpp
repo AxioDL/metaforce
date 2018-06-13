@@ -77,6 +77,7 @@ public:
     const SResInfo* GetResInfoForLoadPreferForward(CAssetId id) const;
     const SResInfo* GetResInfoForLoadDirectionless(CAssetId id) const;
     const SResInfo* GetResInfo(CAssetId id) const;
+    bool IsWorldPak() const { return x28_26_worldPak; }
     u32 GetFakeStaticSize() const { return 0; }
     void AsyncIdle();
 };

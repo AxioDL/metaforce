@@ -333,6 +333,7 @@ public:
     }
     void Give(hecl::Console*, const std::vector<std::string>&);
     void Teleport(hecl::Console*, const std::vector<std::string>&);
+    void ListWorlds(hecl::Console*, const std::vector<std::string>&);
     hecl::Console* Console() const { return m_console.get(); }
 };
 
