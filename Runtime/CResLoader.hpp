@@ -54,6 +54,7 @@ public:
     std::vector<std::pair<std::string, SObjectTag>> GetResourceIdToNameList() const;
     void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
     void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
+    const std::list<std::unique_ptr<CPakFile>>& GetPaks() const { return x18_pakLoadedList; }
 };
 
 }
