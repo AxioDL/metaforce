@@ -1706,23 +1706,28 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
 
     if (player)
     {
-        if (x870_cameraManager->IsInCinematicCamera() ||
-            (weapMode.GetType() == EWeaponType::Phazon &&
-            x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit)))
-            return false;
+        if (GetPlayerState()->CanTakeDamage())
+        {
+            if (x870_cameraManager->IsInCinematicCamera() ||
+                    (weapMode.GetType() == EWeaponType::Phazon &&
+                     x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit)))
+                return false;
 
-        if (g_GameState->GetHardMode())
-            mulDam *= g_GameState->GetHardModeDamageMultiplier();
+            if (g_GameState->GetHardMode())
+                mulDam *= g_GameState->GetHardModeDamageMultiplier();
 
-        float damReduction = 0.f;
-        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::VariaSuit))
-            damReduction = g_tweakPlayer->GetVariaDamageReduction();
-        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::GravitySuit))
-            damReduction = std::max(g_tweakPlayer->GetGravityDamageReduction(), damReduction);
-        if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit))
-            damReduction = std::max(g_tweakPlayer->GetPhazonDamageReduction(), damReduction);
+            float damReduction = 0.f;
+            if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::VariaSuit))
+                damReduction = g_tweakPlayer->GetVariaDamageReduction();
+            if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::GravitySuit))
+                damReduction = std::max(g_tweakPlayer->GetGravityDamageReduction(), damReduction);
+            if (x8b8_playerState->HasPowerUp(CPlayerState::EItemType::PhazonSuit))
+                damReduction = std::max(g_tweakPlayer->GetPhazonDamageReduction(), damReduction);
 
-        mulDam = -(damReduction * mulDam - mulDam);
+            mulDam = -(damReduction * mulDam - mulDam);
+        }
+        else
+            mulDam = 0.f;
     }
 
     float newHp = hInfo->GetHP() - mulDam;

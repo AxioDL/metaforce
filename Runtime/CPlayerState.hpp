@@ -128,6 +128,8 @@ private:
     std::vector<std::pair<CAssetId, float>> x170_scanTimes;
     std::pair<u32, u32> x180_scanCompletionRate = {};
     CStaticInterference x188_staticIntf;
+
+    bool m_canTakeDamage = true;
 public:
 
     u32 GetMissileCostForAltAttack() const;
@@ -186,6 +188,8 @@ public:
     void PutTo(CBitStreamWriter& stream);
     static u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[u32(type)]; }
     static EItemType ItemNameToType(std::string_view name);
+    bool CanTakeDamage() const { return m_canTakeDamage; }
+    void SetCanTakeDamage(bool c) { m_canTakeDamage = c; }
 };
 }
 

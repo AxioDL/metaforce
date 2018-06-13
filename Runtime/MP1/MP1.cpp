@@ -515,6 +515,18 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
     console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
 }
 
+void CMain::God(hecl::Console* con, const std::vector<std::string> &)
+{
+    if (g_GameState && g_GameState->GetPlayerState())
+    {
+        g_GameState->GetPlayerState()->SetCanTakeDamage(!g_GameState->GetPlayerState()->CanTakeDamage());
+        if (!g_GameState->GetPlayerState()->CanTakeDamage())
+            con->report(hecl::Console::Level::Info, "God Mode Enabled");
+        else
+            con->report(hecl::Console::Level::Info, "God Mode Disabled");
+    }
+}
+
 void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)
 {
     if (!g_StateManager || args.size() < 3)
@@ -655,6 +667,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
     m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
     m_console->registerCommand("Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv, std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2), (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
+    m_console->registerCommand("God"sv, "Disables damage given by enemies and objects"sv, ""sv, std::bind(&CMain::God, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
     m_console->registerCommand("listWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
     InitializeSubsystems(storeMgr);
