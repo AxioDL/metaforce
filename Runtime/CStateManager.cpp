@@ -58,6 +58,7 @@
 
 namespace urde
 {
+hecl::CVar* sm_logScripting = nullptr;
 logvisor::Module LogModule("urde::CStateManager");
 CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
                              const std::weak_ptr<CMapWorldInfo>& mwInfo,
@@ -215,7 +216,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x8f0_shadowTex = g_SimplePool->GetObj("DefaultShadow");
     g_StateManager = this;
 
-    hecl::CVarManager::instance()->findOrMakeCVar("stateManager.logScripting"sv, "Prints object communication to the console", false, hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
+    sm_logScripting = hecl::CVarManager::instance()->findOrMakeCVar("stateManager.logScripting"sv, "Prints object communication to the console", false, hecl::CVar::EFlags::ReadOnly | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::Game);
 }
 
 CStateManager::~CStateManager()
@@ -1093,9 +1094,8 @@ void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMes
 {
     if (dest && !dest->x30_26_scriptingBlocked)
     {
-        const hecl::CVar* logScripting  = hecl::CVarManager::instance()->findCVar("stateManager.logScripting"sv);
-        if (logScripting && logScripting->toBoolean())
-            LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
+        if (sm_logScripting && sm_logScripting->toBoolean())
+            LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X",
                             ScriptObjectMessageToStr(msg).data(), dest->GetName().data(), dest->GetUniqueId().id);
         dest->AcceptScriptMsg(msg, src, *this);
     }
@@ -1112,10 +1112,9 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
     CEntity* dst = ObjectById(dest);
     if (dst)
     {
-#ifndef NDEBUG
-        LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X\n",
-                        ScriptObjectMessageToStr(msg).data(), dst->GetName().data(), dst->GetUniqueId().id);
-#endif
+        if (sm_logScripting && sm_logScripting->toBoolean())
+            LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X",
+                             ScriptObjectMessageToStr(msg).data(), dst->GetName().data(), dst->GetUniqueId().id);
         dst->AcceptScriptMsg(msg, src, *this);
     }
 }
@@ -1178,9 +1177,8 @@ void CStateManager::FreeScriptObject(TUniqueId id)
         act->SetUseInSortedLists(false);
     }
 
-#ifndef NDEBUG
-    LogModule.report(logvisor::Info, "Removed '%s'", ent->GetName().data());
-#endif
+    if (sm_logScripting && sm_logScripting->toBoolean())
+        LogModule.report(logvisor::Info, "Removed '%s'", ent->GetName().data());
 }
 
 std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const
@@ -2561,9 +2559,9 @@ void CStateManager::AddObject(CEntity& ent)
             SendScriptMsg(&ent, kInvalidUniqueId, EScriptObjectMessage::InitializedInArea);
     }
 
-#ifndef NDEBUG
-    LogModule.report(logvisor::Info, "Added '%s'", ent.GetName().data());
-#endif
+
+    if (sm_logScripting && sm_logScripting->toBoolean())
+        LogModule.report(logvisor::Info, "Added '%s'", ent.GetName().data());
 }
 
 void CStateManager::AddObject(CEntity* ent)

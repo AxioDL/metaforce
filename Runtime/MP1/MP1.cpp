@@ -113,8 +113,8 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
     CStreamAudioManager::SetMusicVolume(0x7f);
     m->ResetGameState();
 
-    std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
-    x58_ioWinManager.AddIOWin(splash, 1000, 10000);
+    //std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
+    //x58_ioWinManager.AddIOWin(splash, 1000, 10000);
 
     std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
     x58_ioWinManager.AddIOWin(mf, 0, 0);
