@@ -380,8 +380,8 @@ struct VisorParameters : BigDNA
     AT_DECL_DNA_YAML
     Value<atUint32> propertyCount;
     Value<bool>     unknown1;
-    Value<bool>     unknown2;
-    Value<atUint32> unknown3;
+    Value<bool>     scanPassthrough;
+    Value<atUint32> visorMask;
 };
 
 struct PlayerParameters : BigDNA

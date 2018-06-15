@@ -262,13 +262,13 @@ CVisorParameters ScriptLoader::LoadVisorParameters(CInputStream& in)
     if (propCount >= 1 && propCount <= 3)
     {
         bool b1 = in.readBool();
-        bool b2 = false;
+        bool scanPassthrough = false;
         u8 mask = 0xf;
-        if (propCount > 1)
-            b2 = in.readBool();
         if (propCount > 2)
-            mask = in.readUint32Big();
-        return CVisorParameters(mask, b1, b2);
+            scanPassthrough = in.readBool();
+        if (propCount >= 2)
+            mask = u8(in.readUint32Big());
+        return CVisorParameters(mask, b1, scanPassthrough);
     }
     return CVisorParameters();
 }

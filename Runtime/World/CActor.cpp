@@ -19,9 +19,9 @@ namespace urde
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params)
 {
     CMaterialList ret = materialList;
-    if (params.GetVisorParameters().x0_28_b3)
+    if (params.GetVisorParameters().x0_4_b1)
         ret.Add(EMaterialTypes::Unknown46);
-    if (params.GetVisorParameters().x0_29_b4)
+    if (params.GetVisorParameters().x0_5_scanPassthrough)
         ret.Add(EMaterialTypes::ScanPassthrough);
     return ret;
 }
