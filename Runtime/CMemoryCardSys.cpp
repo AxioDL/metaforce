@@ -625,6 +625,8 @@ kabufuda::SystemString CMemoryCardSys::CreateDolphinCard(kabufuda::ECardSlot slo
     CardProbe(slot);
     MountCard(slot);
     FormatCard(slot);
+    kabufuda::Card& card = g_CardStates[int(slot)];
+    card.waitForCompletion();
     return path;
 }
 

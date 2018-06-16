@@ -110,10 +110,10 @@ static const uint32_t visibleImg = VISIBLE_DOTS*VISIBLE_LINES*4;
 //static uint8_t scaleFactor = 2;
 static bool emuSaveEnabled = false;
 static bool emuFdsHasSideB = false;
-static uint32_t mainLoopRuns;
-static uint32_t mainLoopPos;
-static uint16_t ppuCycleTimer;
-static uint16_t cpuCycleTimer;
+
+//static uint16_t ppuCycleTimer;
+uint32_t cpuCycleTimer;
+uint32_t vrc7CycleTimer;
 //from input.c
 extern uint8_t inValReads[8];
 //from mapper.c
@@ -122,16 +122,13 @@ extern bool mapperUse78A;
 extern bool m32_singlescreen;
 
 static volatile bool emuRenderFrame = false;
+extern uint8_t audioExpansion;
 
 //used externally
 bool emuSkipVsync = false;
 bool emuSkipFrame = false;
 
 //static uint32_t mCycles = 0;
-static uint16_t mainClock = 1;
-static uint16_t apuClock = 1;
-static uint16_t ppuClock = 1;
-static uint16_t vrc7Clock = 1;
 
 extern bool fdsSwitch;
 
@@ -185,10 +182,6 @@ void CNESEmulator::InitializeEmulator()
 {
     nesPause = false;
     ppuDebugPauseFrame = false;
-    mainClock = 1;
-    apuClock = 1;
-    ppuClock = 1;
-    vrc7Clock = 1;
 
     puts(VERSION_STRING);
     strcpy(window_title, VERSION_STRING);
@@ -239,18 +232,19 @@ void CNESEmulator::InitializeEmulator()
     sprintf(window_title, "%s NES - %s\n", nesPAL ? "PAL" : "NTSC", VERSION_STRING);
 
     sprintf(window_title_pause, "%s (Pause)", window_title);
+    sprintf(window_title_pause, "%s (Pause)", window_title);
     #if DEBUG_HZ
-    emuFrameStart = GetTickCount();
-    #endif
-    #if DEBUG_MAIN_CALLS
-    emuMainFrameStart = GetTickCount();
-    #endif
+	emuFrameStart = GetTickCount();
+	#endif
+	#if DEBUG_MAIN_CALLS
+	emuMainFrameStart = GetTickCount();
+	#endif
     cpuCycleTimer = nesPAL ? 16 : 12;
-    //do full frame per update loop
-    ppuCycleTimer = nesPAL ? 5 : 4;
-    mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
-    //mainLoopRuns *= ppuLinesTotal;
-    mainLoopPos = mainLoopRuns;
+    vrc7CycleTimer = 432 / cpuCycleTimer;
+    //do one scanline per idle loop
+    //ppuCycleTimer = nesPAL ? 5 : 4;
+    //mainLoopRuns = nesPAL ? DOTS*ppuCycleTimer : DOTS*ppuCycleTimer;
+    //mainLoopPos = mainLoopRuns;
 
     CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
@@ -292,7 +286,7 @@ void CNESEmulator::DeinitializeEmulator()
     apuDeinitBufs();
     if(emuNesROM != NULL)
     {
-        if(!nesEmuNSFPlayback && fdsEnabled)
+        if(!nesEmuNSFPlayback && (audioExpansion&EXP_FDS))
         {
             FILE *save = fopen(emuSaveName, "wb");
             if(save)
@@ -392,7 +386,7 @@ size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t
     return frames;
 }
 
-#define CATCHUP_SKIP 1
+#define CATCHUP_SKIP 0
 #if CATCHUP_SKIP
 static int catchupFrames = 0;
 #endif
@@ -419,97 +413,53 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
                 break;
         }
         ++loopCount;
-        if(mainClock == cpuCycleTimer)
-        {
-            //URDE uses this loop to pre-fill audio buffers,
-            //rather than executing multiple frame loops
-            bool breakout = false;
-            do
-            {
-                //runs every 8th cpu clock
-                if(apuClock == 8)
-                {
-                    if(!apuCycleURDE() && !forceDraw)
-                    {
-#if DEBUG_MAIN_CALLS
-                        emuMainTimesSkipped++;
-#endif
-#if CATCHUP_SKIP
-                        catchupFrames = 0;
-#endif
-                        //printf("LC SKIP\n");
-                        breakout = true;
-                        break;
-                    }
-                    apuClock = 1;
-                }
-                else
-                    apuClock++;
-                //runs every cpu cycle
-                apuClockTimers();
-            } while (emuSkipVsync);
-            if (breakout)
-                break;
 
-            //main CPU clock
-            if(!cpuCycle())
-                exit(EXIT_SUCCESS);
-            //mapper related irqs
-            if(mapperCycle != NULL)
-                mapperCycle();
-            //mCycles++;
-            //channel timer updates
-            apuLenCycle();
-            mainClock = 1;
-        }
-        else
-            mainClock++;
-        if(ppuClock == ppuCycleTimer)
+        //main CPU clock
+        if(!cpuCycle())
+            exit(EXIT_SUCCESS);
+        //run graphics
+        ppuCycle();
+        //run audio
+        apuCycle();
+        //mapper related irqs
+        mapperCycle();
+        //mCycles++;
+        if(ppuDrawDone())
         {
-            if(!ppuCycle())
-                exit(EXIT_SUCCESS);
-            if(ppuDrawDone())
-            {
-                //printf("%i\n",mCycles);
-                //mCycles = 0;
-                emuRenderFrame = true;
-                if(fm2playRunning())
-                    fm2playUpdate();
-#if DEBUG_HZ
-                emuTimesCalled++;
-                int end = GetTickCount();
-                emuTotalElapsed += end - emuFrameStart;
-                if(emuTotalElapsed >= 1000)
-                {
-                    printf("\r%iHz   ", emuTimesCalled);
-                    emuTimesCalled = 0;
-                    emuTotalElapsed = 0;
-                }
-                emuFrameStart = end;
+            //printf("%i\n",mCycles);
+            //mCycles = 0;
+#ifndef __LIBRETRO__
+            emuRenderFrame = true;
+#if 0
+            if(fm2playRunning())
+                fm2playUpdate();
 #endif
-                if(ppuDebugPauseFrame)
-                {
-                    ppuDebugPauseFrame = false;
-                    nesPause = true;
-                }
-                if(nesEmuNSFPlayback)
-                    nsfVsync();
-            }
-            ppuClock = 1;
-        }
-        else
-            ppuClock++;
-        if(fdsEnabled)
-            fdsAudioMasterUpdate();
-        if(vrc7enabled)
-        {
-            if(vrc7Clock == 432)
+#if (WINDOWS_BUILD && DEBUG_HZ)
+            emuTimesCalled++;
+            DWORD end = GetTickCount();
+            emuTotalElapsed += end - emuFrameStart;
+            if(emuTotalElapsed >= 1000)
             {
-                vrc7AudioCycle();
-                vrc7Clock = 1;
+                printf("\r%iHz   ", emuTimesCalled);
+                emuTimesCalled = 0;
+                emuTotalElapsed = 0;
             }
-            else
-                vrc7Clock++;
+            emuFrameStart = end;
+#endif
+            //update audio before drawing
+            while(!apuUpdate()) {}
+            //glutPostRedisplay();
+#if 0
+            if(ppuDebugPauseFrame)
+            {
+                ppuDebugPauseFrame = false;
+                nesPause = true;
+            }
+#endif
+#endif
+            if(nesEmuNSFPlayback)
+                nsfVsync();
+            continue;
         }
 
 #if 1

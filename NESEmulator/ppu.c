@@ -4,5 +4,5 @@
 
 uint8_t* ppuGetVRAM()
 {
-    return PPU_VRAM;
+    return ppu.VRAM;
 }
