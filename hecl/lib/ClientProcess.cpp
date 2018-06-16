@@ -72,7 +72,7 @@ void ClientProcess::Worker::proc()
     ClientProcess::ThreadWorker.reset(this);
 
     char thrName[64];
-    snprintf(thrName, 64, "HECL Worker%d", m_idx);
+    snprintf(thrName, 64, "HECL Worker %d", m_idx);
     logvisor::RegisterThreadName(thrName);
 
     std::unique_lock<std::mutex> lk(m_proc.m_mutex);
