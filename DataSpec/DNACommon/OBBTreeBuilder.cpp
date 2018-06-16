@@ -119,6 +119,10 @@ static FittedOBB FitOBB(const ColMesh& mesh, const std::vector<int>& index)
         cyy += ( 9.0*mui.y*mui.y + p.y*p.y + q.y*q.y + r.y*r.y )*(Ai/12.0);
         cyz += ( 9.0*mui.y*mui.z + p.y*p.z + q.y*q.z + r.y*r.z )*(Ai/12.0);
     }
+
+    if (zeus::close_enough(Am, 0.f))
+        return {};
+
     // divide out the Am fraction from the average position and
     // covariance terms
     mu = mu / Am;
@@ -131,7 +135,7 @@ static FittedOBB FitOBB(const ColMesh& mesh, const std::vector<int>& index)
     // now build the covariance matrix
     C(0,0)=cxx; C(0,1)=cxy; C(0,2)=cxz;
     C(1,0)=cxy; C(1,1)=cyy; C(1,2)=cyz;
-    C(2,0)=cxz; C(1,2)=cyz; C(2,2)=czz;
+    C(2,0)=cxz; C(2,1)=cyz; C(2,2)=czz;
 
     // set the obb parameters from the covariance matrix
     return BuildFromCovarianceMatrix(C, mesh, index);

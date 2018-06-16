@@ -649,10 +649,14 @@ ANIM::ANIM(const BlenderAction& act,
         newAnim.chanKeys.emplace_back();
         std::vector<DNAANIM::Value>& rotVals = newAnim.chanKeys.back();
         rotVals.reserve(chan.keys.size());
+        float sign = 0.f;
         for (const BlenderAction::Channel::Key& key : chan.keys)
         {
             zeus::CQuaternion q(key.rotation.val);
             q = rig.restoreRotation(newChan.id, q);
+            if (sign == 0.f)
+                sign = q.w < 0.f ? -1.f : 1.f;
+            q *= sign;
             rotVals.emplace_back(q.w, q.x, q.y, q.z);
         }
 

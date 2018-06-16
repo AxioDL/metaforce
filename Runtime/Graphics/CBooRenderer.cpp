@@ -59,9 +59,9 @@ void Buckets::Sort()
     if (sPlaneObjectBucket->size())
     {
         std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
-        [](u16 a, u16 b) -> bool
+        [](u16 a, u16 b)
         {
-            return (*sPlaneObjectData)[a].GetDistance() >= (*sPlaneObjectData)[b].GetDistance();
+            return (*sPlaneObjectData)[a].GetDistance() > (*sPlaneObjectData)[b].GetDistance();
         });
         precision = 50 / u32(sPlaneObjectBucket->size() + 1);
         pitch = 1.f / (delta / float(precision - 2));
@@ -128,8 +128,10 @@ void Buckets::Sort()
         if (bucket.size())
         {
             std::sort(bucket.begin(), bucket.end(),
-            [](CDrawable* a, CDrawable* b) -> bool
+            [](CDrawable* a, CDrawable* b)
             {
+                if (a->GetDistance() == b->GetDistance())
+                    return a->GetExtraSort() > b->GetExtraSort();
                 return a->GetDistance() > b->GetDistance();
             });
         }
@@ -747,7 +749,8 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model)
         zeus::CAABox aabb = surf->GetBounds();
         zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.vec);
         Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
-                        mat.heclIr.m_blendDst != boo::BlendFactor::Zero);
+                        mat.heclIr.m_blendSrc == boo::BlendFactor::SrcAlpha &&
+                        mat.heclIr.m_blendDst == boo::BlendFactor::InvSrcAlpha);
         surf = surf->m_next;
     }
 }
