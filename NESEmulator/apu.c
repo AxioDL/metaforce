@@ -313,3 +313,8 @@ bool apuCycleURDE()
 
     return true;
 }
+
+uint32_t apuGetMaxBufSize()
+{
+    return apu.BufSizeBytes;
+}

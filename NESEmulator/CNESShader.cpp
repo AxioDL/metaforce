@@ -48,7 +48,7 @@ BOO_GLSL_BINDING_HEAD
 "TBINDING0 uniform sampler2D tex;\n"
 "void main()\n"
 "{\n"
-"    colorOut = vtf.color * vec4(texture(tex, vtf.uv).bgr, 1.0);\n"
+"    colorOut = vtf.color * texture(tex, vtf.uv);\n"
 "}\n";
 
 #if _WIN32
@@ -94,7 +94,7 @@ static const char* FS_HLSL =
 "\n"
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
-"    return vtf.color * float4(tex.Sample(samp, vtf.uv).bgr, 1.0);\n"
+"    return vtf.color * tex.Sample(samp, vtf.uv);\n"
 "}\n";
 #endif
 
@@ -145,7 +145,7 @@ static const char* FS_METAL =
 "                      sampler clampSamp [[ sampler(4) ]],\n"
 "                      texture2d<float> tex [[ texture(0) ]])\n"
 "{\n"
-"    return vtf.color * float4(tex.sample(clampSamp, vtf.uv).bgr, 1.0);\n"
+"    return vtf.color * tex.sample(clampSamp, vtf.uv);\n"
 "}\n";
 #endif
 

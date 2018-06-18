@@ -15,7 +15,7 @@ class IDvdRequest;
 namespace MP1
 {
 
-#define NUM_AUDIO_BUFFERS 10
+#define NUM_AUDIO_BUFFERS 3
 
 class CNESEmulator final : public boo::IAudioVoiceCallback
 {
