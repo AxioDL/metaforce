@@ -132,8 +132,8 @@ bool emuSkipFrame = false;
 
 extern bool fdsSwitch;
 
-bool apuCycleURDE();
 uint32_t apuGetMaxBufSize();
+void apuResetPos();
 uint8_t* ppuGetVRAM();
 
 int audioUpdate()
@@ -272,6 +272,7 @@ void CNESEmulator::InitializeEmulator()
     m_booVoice->start();
     uint32_t apuBufSz = apuGetMaxBufSize();
     m_audioBufBlock.reset(new u8[apuBufSz * NUM_AUDIO_BUFFERS]);
+    memset(m_audioBufBlock.get(), 0, apuBufSz * NUM_AUDIO_BUFFERS);
     for (int i=0 ; i<NUM_AUDIO_BUFFERS ; ++i)
         m_audioBufs[i] = m_audioBufBlock.get() + apuBufSz * i;
 
@@ -340,12 +341,25 @@ int CNESEmulator::audioUpdate()
     uint8_t *data = apuGetBuf();
     if(data != NULL && m_procBufs)
     {
-        --m_procBufs;
-        memmove(m_audioBufs[m_headBuf], data, apuGetMaxBufSize());
-        //printf("PUSH\n");
-        ++m_headBuf;
-        if (m_headBuf == NUM_AUDIO_BUFFERS)
-            m_headBuf = 0;
+        uint32_t apuBufSz = apuGetMaxBufSize();
+        uint32_t remBytes = apuGetBufSize();
+        while (remBytes != 0)
+        {
+            size_t thisBytes = std::min(remBytes, apuBufSz - m_posInHeadBuf);
+            memmove(m_audioBufs[m_headBuf] + m_posInHeadBuf, data, thisBytes);
+            data += thisBytes;
+            m_posInHeadBuf += thisBytes;
+            if (m_posInHeadBuf == apuBufSz)
+            {
+                m_posInHeadBuf = 0;
+                --m_procBufs;
+                ++m_headBuf;
+                if (m_headBuf == NUM_AUDIO_BUFFERS)
+                    m_headBuf = 0;
+                //printf("PUSH\n");
+            }
+            remBytes -= thisBytes;
+        }
     }
 
     //if (!origProcBufs)
@@ -354,19 +368,19 @@ int CNESEmulator::audioUpdate()
     return origProcBufs;
 }
 
-static constexpr size_t AudioFrameSz = 2 * sizeof(int16_t);
+static constexpr uint32_t AudioFrameSz = 2 * sizeof(int16_t);
 
 size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data)
 {
-    size_t remFrames = frames;
+    uint32_t remFrames = uint32_t(frames);
     while (remFrames)
     {
-        if (m_posInBuf == apuGetMaxBufSize())
+        if (m_posInTailBuf == apuGetMaxBufSize())
         {
             ++m_tailBuf;
             if (m_tailBuf == NUM_AUDIO_BUFFERS)
                 m_tailBuf = 0;
-            m_posInBuf = 0;
+            m_posInTailBuf = 0;
             ++m_procBufs;
             //printf("POP\n");
         }
@@ -378,19 +392,14 @@ size_t CNESEmulator::supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t
             return frames;
         }
 
-        size_t copySz = std::min(apuGetMaxBufSize() - m_posInBuf, remFrames * AudioFrameSz);
-        memmove(data, m_audioBufs[m_tailBuf] + m_posInBuf, copySz);
+        size_t copySz = std::min(apuGetMaxBufSize() - m_posInTailBuf, remFrames * AudioFrameSz);
+        memmove(data, m_audioBufs[m_tailBuf] + m_posInTailBuf, copySz);
         data += copySz / sizeof(int16_t);
-        m_posInBuf += copySz;
+        m_posInTailBuf += copySz;
         remFrames -= copySz / AudioFrameSz;
     }
     return frames;
 }
-
-#define CATCHUP_SKIP 0
-#if CATCHUP_SKIP
-static int catchupFrames = 0;
-#endif
 
 void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 {
@@ -406,12 +415,7 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
             //printf("LC RENDER: %d\n", loopCount);
             m_texture->load(textureImage, visibleImg);
             emuRenderFrame = false;
-#if CATCHUP_SKIP
-            if (catchupFrames)
-                --catchupFrames;
-            else
-#endif
-                break;
+            break;
         }
         ++loopCount;
 
@@ -435,9 +439,9 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
             if(fm2playRunning())
                 fm2playUpdate();
 #endif
-#if (WINDOWS_BUILD && DEBUG_HZ)
+#if DEBUG_HZ
             emuTimesCalled++;
-            DWORD end = GetTickCount();
+            auto end = GetTickCount();
             emuTotalElapsed += end - emuFrameStart;
             if(emuTotalElapsed >= 1000)
             {
@@ -449,7 +453,10 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 #endif
             //update audio before drawing
             if(!apuUpdate())
+            {
+                apuResetPos();
                 break;
+            }
             //glutPostRedisplay();
 #if 0
             if(ppuDebugPauseFrame)
@@ -461,19 +468,13 @@ void CNESEmulator::NesEmuMainLoop(bool forceDraw)
 #endif
             if(nesEmuNSFPlayback)
                 nsfVsync();
+
+            //keep processing frames if audio buffers are underrunning
+            if (emuSkipFrame)
+                emuRenderFrame = false;
+
             continue;
         }
-
-#if 0
-        if (!forceDraw && (loopCount % 10000) == 0 && GetTickCount() - start >= 14)
-        {
-#if CATCHUP_SKIP
-            if (catchupFrames < 50)
-                ++catchupFrames;
-#endif
-            break;
-        }
-#endif
     }
     while(true);
 

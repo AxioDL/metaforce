@@ -5,7 +5,6 @@ using namespace std::literals;
 namespace urde
 {
 
-#ifndef NDEBUG
 std::string_view ScriptObjectTypeToStr(EScriptObjectType type)
 {
     switch (type)
@@ -238,6 +237,5 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message)
     default: return "..."sv;
     }
 }
-#endif
 
 }

@@ -230,11 +230,9 @@ enum class EScriptObjectMessage
     SuspendedMove = 48
 };
 
-#ifndef NDEBUG
 std::string_view ScriptObjectTypeToStr(EScriptObjectType type);
 std::string_view ScriptObjectStateToStr(EScriptObjectState state);
 std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message);
-#endif
 
 }
 

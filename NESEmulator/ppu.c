@@ -6,7 +6,7 @@
  */
 
 /*
- * URDE modification to generate RGBA8 framebuffer rather than BGR565
+ * URDE modifications to generate RGBA8 framebuffer rather than BGR565
  */
 
 #include <stdio.h>

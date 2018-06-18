@@ -15,7 +15,7 @@ class IDvdRequest;
 namespace MP1
 {
 
-#define NUM_AUDIO_BUFFERS 3
+#define NUM_AUDIO_BUFFERS 4
 
 class CNESEmulator final : public boo::IAudioVoiceCallback
 {
@@ -51,10 +51,11 @@ private:
 
     std::unique_ptr<u8[]> m_audioBufBlock;
     u8* m_audioBufs[NUM_AUDIO_BUFFERS];
-    int m_headBuf = 0;
-    int m_tailBuf = 0;
-    int m_procBufs = NUM_AUDIO_BUFFERS;
-    size_t m_posInBuf = 0;
+    uint32_t m_headBuf = 0;
+    uint32_t m_tailBuf = 0;
+    uint32_t m_procBufs = NUM_AUDIO_BUFFERS;
+    uint32_t m_posInHeadBuf = 0;
+    uint32_t m_posInTailBuf = 0;
     boo::ObjToken<boo::IAudioVoice> m_booVoice;
 
     //void* x4_loadBuf;
