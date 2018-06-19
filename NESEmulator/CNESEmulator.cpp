@@ -523,203 +523,103 @@ static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst)
 }
 #endif
 
-void CNESEmulator::DecompressROM(u8* dataIn, u8* dataOut, u32 dataOutLen, u8 descrambleSeed,
-                                 u32 checkDataLen, u32 checksumMagic)
+struct BitstreamState
 {
-    for (int i=0 ; i<256 ; ++i)
+    u8* rPos;
+    int position = 0;
+    int tmpBuf = 0;
+    int decBit = 0;
+    BitstreamState(u8* pos) : rPos(pos) {}
+    void resetDecBit() { decBit = 0; }
+    void runDecBit()
     {
-        descrambleSeed += dataIn[i];
-        dataIn[i] = descrambleSeed;
-    }
-
-    for (int i=0 ; i<128 ; ++i)
-        std::swap(dataIn[255 - i], dataIn[i]);
-
-    struct BitstreamState
-    {
-        u32 x0_remBits = 0;
-        u32 x4_lastByte;
-        u8* x8_ptr;
-        BitstreamState(u8* ptr) : x8_ptr(ptr) {}
-    } bState = {dataIn + 256};
-
-    u8* dataOutAlpha = dataOut;
-    while (dataOutLen != 0)
-    {
-        u32 r12 = 0;
-
-        if (bState.x0_remBits == 0)
+        if(position == 0)
         {
-            bState.x4_lastByte = *bState.x8_ptr;
-            bState.x8_ptr += 1;
-            bState.x0_remBits = 8;
+            position = 8;
+            tmpBuf = *rPos++;
         }
+        decBit <<= 1;
+        if(tmpBuf & 0x80)
+            decBit |= 1;
+        tmpBuf <<= 1;
+        position--;
+    }
+};
 
-        u32 r11 = r12 << 1;
-        if (bState.x4_lastByte & 0x80)
-            r11 |= 1;
-
-        bState.x4_lastByte <<= 1;
-        bState.x0_remBits -= 1;
-
-        if (r11 == 1)
+// Based on https://gist.github.com/FIX94/7593640c5cee6c37e3b23e7fcf8fe5b7
+void CNESEmulator::DecryptMetroid(u8* dataIn, u8* dataOut, u32 decLen, u8 decByte,
+                                  u32 xorLen, u32 xorVal)
+{
+    int i, j;
+    // simple add obfuscation
+    for(i = 0; i < 0x100; i++)
+    {
+        dataIn[i] += decByte;
+        decByte = dataIn[i];
+    }
+    // flip the first 0x100 bytes around
+    for (i = 0; i < 128; ++i)
+        std::swap(dataIn[255 - i], dataIn[i]);
+    // set up buffer pointers
+    BitstreamState bState(dataIn + 0x100);
+    // unscramble buffer
+    for(i = 0; i < decLen; i++)
+    {
+        bState.resetDecBit();
+        bState.runDecBit();
+        if(bState.decBit)
         {
-            r12 = 0;
-
-            for (int i=0 ; i<4 ; ++i)
-            {
-                if (bState.x0_remBits == 0)
-                {
-                    bState.x4_lastByte = *bState.x8_ptr;
-                    bState.x8_ptr += 1;
-                    bState.x0_remBits = 8;
-                }
-
-                r12 <<= 1;
-                if (bState.x4_lastByte & 0x80)
-                    r12 |= 1;
-
-                bState.x4_lastByte <<= 1;
-                bState.x0_remBits -= 1;
-
-                if (bState.x0_remBits == 0)
-                {
-                    bState.x4_lastByte = *bState.x8_ptr;
-                    bState.x8_ptr += 1;
-                    bState.x0_remBits = 8;
-                }
-
-                r12 <<= 1;
-                if (bState.x4_lastByte & 0x80)
-                    r12 |= 1;
-
-                bState.x4_lastByte <<= 1;
-                bState.x0_remBits -= 1;
-            }
-
-            *dataOutAlpha++ = dataIn[r12 + 73];
+            bState.resetDecBit();
+            for(j = 0; j < 8; j++)
+                bState.runDecBit();
+            dataOut[i] = dataIn[bState.decBit + 0x49];
         }
         else
         {
-            r12 = 0;
-
-            if (bState.x0_remBits == 0)
+            bState.resetDecBit();
+            bState.runDecBit();
+            if(bState.decBit)
             {
-                bState.x4_lastByte = *bState.x8_ptr;
-                bState.x8_ptr += 1;
-                bState.x0_remBits = 8;
-            }
-
-            r11 = r12 << 1;
-            if (bState.x4_lastByte & 0x80)
-                r11 |= 1;
-
-            bState.x4_lastByte <<= 1;
-            bState.x0_remBits -= 1;
-
-            if (r11 == 1)
-            {
-                r12 = 0;
-
-                for (int i=0 ; i<3 ; ++i)
-                {
-                    if (bState.x0_remBits == 0)
-                    {
-                        bState.x4_lastByte = *bState.x8_ptr;
-                        bState.x8_ptr += 1;
-                        bState.x0_remBits = 8;
-                    }
-
-                    r12 <<= 1;
-                    if (bState.x4_lastByte & 0x80)
-                        r12 |= 1;
-
-                    bState.x4_lastByte <<= 1;
-                    bState.x0_remBits -= 1;
-
-                    if (bState.x0_remBits == 0)
-                    {
-                        bState.x4_lastByte = *bState.x8_ptr;
-                        bState.x8_ptr += 1;
-                        bState.x0_remBits = 8;
-                    }
-
-                    r12 <<= 1;
-                    if (bState.x4_lastByte & 0x80)
-                        r12 |= 1;
-
-                    bState.x4_lastByte <<= 1;
-                    bState.x0_remBits -= 1;
-                }
-
-                *dataOutAlpha++ = dataIn[r12 + 9];
+                bState.resetDecBit();
+                for(j = 0; j < 6; j++)
+                    bState.runDecBit();
+                dataOut[i] = dataIn[bState.decBit + 9];
             }
             else
             {
-                r12 = 0;
-
-                if (bState.x0_remBits == 0)
+                bState.resetDecBit();
+                bState.runDecBit();
+                if(bState.decBit)
                 {
-                    bState.x4_lastByte = *bState.x8_ptr;
-                    bState.x8_ptr += 1;
-                    bState.x0_remBits = 8;
-                }
-
-                r11 = r12 << 1;
-                if (bState.x4_lastByte & 0x80)
-                    r11 |= 1;
-
-                bState.x4_lastByte <<= 1;
-                bState.x0_remBits -= 1;
-
-                if (r11 == 1)
-                {
-                    r12 = 0;
-
-                    for (int i=0 ; i<3 ; ++i)
-                    {
-                        if (bState.x0_remBits == 0)
-                        {
-                            bState.x4_lastByte = *bState.x8_ptr;
-                            bState.x8_ptr += 1;
-                            bState.x0_remBits = 8;
-                        }
-
-                        r12 <<= 1;
-                        if (bState.x4_lastByte & 0x80)
-                            r12 |= 1;
-
-                        bState.x4_lastByte <<= 1;
-                        bState.x0_remBits -= 1;
-                    }
-
-                    *dataOutAlpha++ = dataIn[r12 + 1];
+                    bState.resetDecBit();
+                    for(j = 0; j < 3; j++)
+                        bState.runDecBit();
+                    dataOut[i] = dataIn[bState.decBit + 1];
                 }
                 else
-                {
-                    *dataOutAlpha++ = dataIn[0];
-                }
+                    dataOut[i] = dataIn[bState.decBit];
             }
         }
-
-        --dataOutLen;
     }
-
-    u32 tmpWord = 0;
-    for (int i=0 ; i<checkDataLen ; ++i)
+    // do checksum fixups
+    unsigned int xorTmpVal = 0;
+    for(i = 0; i < xorLen; i++)
     {
-        tmpWord ^= dataOut[i];
-        for (int j=0 ; j<8 ; ++j)
+        xorTmpVal ^= dataOut[i];
+        for(j = 0; j < 8; j++)
         {
-            if (tmpWord & 0x1)
-                tmpWord = (tmpWord >> 1) ^ checksumMagic;
+            if(xorTmpVal & 1)
+            {
+                xorTmpVal >>= 1;
+                xorTmpVal ^= xorVal;
+            }
             else
-                tmpWord = (tmpWord >> 1);
+                xorTmpVal >>= 1;
         }
     }
-
-    dataOut[checkDataLen - 1] = (tmpWord >> 8) & 0xff;
-    dataOut[checkDataLen - 2] = tmpWord & 0xff;
+    // write in calculated checksum
+    dataOut[xorLen - 1] = u8((xorTmpVal >> 8) & 0xFF);
+    dataOut[xorLen - 2] = u8(xorTmpVal & 0xFF);
 }
 
 void CNESEmulator::ProcessUserInput(const CFinalInput& input, int)
@@ -871,7 +771,7 @@ void CNESEmulator::Update()
             m_dvdReq.reset();
             emuNesROMsize = 0x20000;
             emuNesROM = (uint8_t*)malloc(emuNesROMsize);
-            DecompressROM(m_nesEmuPBuf.get(), emuNesROM);
+            DecryptMetroid(m_nesEmuPBuf.get(), emuNesROM);
             m_nesEmuPBuf.reset();
             InitializeEmulator();
         }

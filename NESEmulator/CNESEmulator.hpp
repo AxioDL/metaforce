@@ -70,8 +70,8 @@ private:
     EPasswordEntryState x34_passwordEntryState = EPasswordEntryState::NotPasswordScreen;
     bool x38_passwordPending = false;
     u8 x39_passwordToNES[18];
-    static void DecompressROM(u8* dataIn, u8* dataOut, u32 dataOutLen = 0x20000, u8 descrambleSeed = 0xe9,
-                              u32 checkDataLen = 0x1FFFC, u32 checksumMagic = 0xA663);
+    static void DecryptMetroid(u8* dataIn, u8* dataOut, u32 decLen = 0x20000, u8 decByte = 0xe9,
+                               u32 xorLen = 0x1FFFC, u32 xorVal = 0xA663);
     void InitializeEmulator();
     void DeinitializeEmulator();
     void NesEmuMainLoop(bool forceDraw = false);
