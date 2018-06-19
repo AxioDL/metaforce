@@ -138,7 +138,7 @@ BOO_GLSL_BINDING_HEAD
 "void ApplyRipple(in Ripple ripple, in vec2 pos, inout float height)\n"
 "{\n"
 "    float dist = length(ripple.center.xy - pos);\n"
-"    float rippleV = texture(RippleMap, vec2(dist * ripple.center.w, ripple.center.z)).r;\n"
+"    float rippleV = textureLod(RippleMap, vec2(dist * ripple.center.w, ripple.center.z), 0.0).r;\n"
 "    height += rippleV * ripple.params.x * sin((dist * ripple.params.y + ripple.params.z) * PI_X2);\n"
 "}\n"
 "\n"
