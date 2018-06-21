@@ -322,8 +322,8 @@ CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
 
     /* Depth GEqual no Z-write */
     ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original,
-                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::GEqual,
+                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::GEqual,
                               hecl::Backend::CullMode::Backface, true, false, true);
 
     return ext;

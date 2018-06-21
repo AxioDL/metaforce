@@ -118,7 +118,7 @@ public:
     const zeus::CColor& GetGeometryColor() const { return xa8_color2; }
     void SetIdlePosition(const zeus::CVector3f& pos, bool reapply);
     void ReapplyXform();
-    void SetIsVisible(bool);
+    virtual void SetIsVisible(bool);
     void SetIsActive(bool);
     bool GetIsSelectable() const { return xb6_27_isSelectable; }
     void SetIsSelectable(bool v) { xb6_27_isSelectable = v; }

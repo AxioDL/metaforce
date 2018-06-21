@@ -113,8 +113,12 @@ struct CTweakBall final : public ITweakBall
     CTweakBall(athena::io::IStreamReader& r)
     {
         this->read(r);
+        x6c_ = -x6c_;
+        x70_ = -x70_;
         x74_ballCameraAnglePerSecond = zeus::degToRad(x74_ballCameraAnglePerSecond);
         x90_ = zeus::degToRad(x90_);
+        xe4_ballGravity = -xe4_ballGravity;
+        xe8_ballWaterGravity = -xe8_ballWaterGravity;
         x15c_ = zeus::degToRad(x15c_);
         x16c_ = zeus::degToRad(x16c_);
         x174_ = zeus::degToRad(x174_);

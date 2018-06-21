@@ -50,7 +50,7 @@ public:
     static void Init();
 };
 
-class CBooRenderer : public IRenderer
+class CBooRenderer final : public IRenderer
 {
     friend class CBooModel;
     friend class CModel;

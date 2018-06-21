@@ -269,18 +269,16 @@ void CHudVisorBeamMenu::Update(float dt, bool init)
         UpdateMenuWidgetTransform(x8_selectedItem, *x24_model_ghost, x28_menuItems[x8_selectedItem].x8_positioner);
     }
 
-    if (x1c_basewidget_menutitle->GetGeometryColor().a)
-        x1c_basewidget_menutitle->SetVisibility(true, ETraversalMode::Children);
-    else
-        x1c_basewidget_menutitle->SetVisibility(false, ETraversalMode::Children);
+    if (!x14_24_visibleDebug || !x14_25_visibleGame)
+        return;
+
+    x1c_basewidget_menutitle->SetVisibility
+        (x1c_basewidget_menutitle->GetGeometryColor().a != 0.f, ETraversalMode::Children);
 
     for (int i=0 ; i<4 ; ++i)
     {
         SMenuItem& item = x28_menuItems[i];
-        if (item.x4_model_icon->GetGeometryColor().a)
-            item.x4_model_icon->SetIsVisible(true);
-        else
-            item.x4_model_icon->SetIsVisible(false);
+        item.x4_model_icon->SetIsVisible(item.x4_model_icon->GetGeometryColor().a != 0.f);
     }
 }
 

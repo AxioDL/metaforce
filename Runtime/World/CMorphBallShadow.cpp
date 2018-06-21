@@ -38,6 +38,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
 
     GatherAreas(mgr);
 
+    SViewport backupVp = g_Viewport;
     g_Renderer->BindBallShadowIdTarget();
     CGraphics::g_BooMainCommandQueue->clearTarget();
 
@@ -94,6 +95,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     g_Renderer->BindMainDrawTarget();
     CGraphics::SetViewPointMatrix(backupViewMtx);
     CGraphics::SetProjectionState(backupProjection);
+    g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
     CGraphics::SetDepthRange(backupDepth[0], backupDepth[1]);
 
     xd0_hasIds = alphaVal != 4;

@@ -1268,7 +1268,9 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     default: break;
     }
 
-    x500_viewportScale.y = 1.f - morphT * g_tweakGui->GetBallViewportYReduction();
+    float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
+    float scaleMul = 1.f - zeus::clamp(0.f, (aspect - 1.33f) / (1.77f - 1.33f), 1.f);
+    x500_viewportScale.y = 1.f - scaleMul * morphT * g_tweakGui->GetBallViewportYReduction() * 1.2f;
     if (x2b0_ballIntf)
         x2b0_ballIntf->SetBallModeFactor(morphT);
 

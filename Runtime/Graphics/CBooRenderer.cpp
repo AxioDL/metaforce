@@ -11,6 +11,7 @@
 #include "zeus/CUnitVector.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 #include "zeus/CVector3d.hpp"
+#include "World/CActor.hpp"
 
 #define FOGVOL_RAMP_RES 256
 #define FOGVOL_FAR 750.0
@@ -109,6 +110,7 @@ void Buckets::Sort()
                     cont = planeObj.x3c_24_invertTest ? (!partial || !full) : (partial || full);
                 if (!cont)
                     break;
+                slot += precision;
             }
         }
 
