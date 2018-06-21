@@ -80,7 +80,7 @@ class CParticleSwoosh : public CParticleGen
         {
             bool x1d0_24_emitting : 1;
             bool x1d0_25_AALP : 1;
-            bool x1d0_26_disableUpdate : 1;
+            bool x1d0_26_forceOneUpdate : 1;
             bool x1d0_27_renderGaps : 1;
             bool x1d0_28_LLRD : 1;
             bool x1d0_29_VLS1 : 1;
@@ -162,7 +162,7 @@ public:
 
     void DoWarmupUpdate()
     {
-        x1d0_26_disableUpdate = true;
+        x1d0_26_forceOneUpdate = true;
         Update(0.0);
     }
 
@@ -170,7 +170,7 @@ public:
     {
         for (int i=0 ; i<x15c_swooshes.size() ; ++i)
         {
-            x1d0_26_disableUpdate = true;
+            x1d0_26_forceOneUpdate = true;
             Update(0.0);
         }
     }
@@ -189,7 +189,7 @@ public:
     {
         for (int i=0 ; i<x15c_swooshes.size()-1 ; ++i)
         {
-            x1d0_26_disableUpdate = true;
+            x1d0_26_forceOneUpdate = true;
             Update(0.0);
         }
     }
@@ -218,7 +218,7 @@ public:
         for (int i=0 ; i<6 ; ++i)
         {
             SetTranslation(translation);
-            x1d0_26_disableUpdate = true;
+            x1d0_26_forceOneUpdate = true;
             Update(0.0);
             translation += transInc;
         }

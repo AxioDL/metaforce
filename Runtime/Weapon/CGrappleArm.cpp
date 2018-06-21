@@ -28,7 +28,7 @@ CGrappleArm::CGrappleArm(const zeus::CVector3f& scale)
   x360_grappleClawDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xb8_grappleClaw})),
   x36c_grappleHitDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xbc_grappleHit})),
   x378_grappleMuzzleDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xc0_grappleMuzzle})),
-  x384_grappleSwooshDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xc4_grappleSwoosh})),
+  x384_grappleSwooshDesc(g_SimplePool->GetObj(SObjectTag{FOURCC('SWHC'), g_tweakGunRes->xc4_grappleSwoosh})),
   x390_grappleSegmentGen(std::make_unique<CElementGen>(x354_grappleSegmentDesc)),
   x394_grappleClawGen(std::make_unique<CElementGen>(x360_grappleClawDesc)),
   x398_grappleHitGen(std::make_unique<CElementGen>(x36c_grappleHitDesc)),
@@ -272,6 +272,7 @@ void CGrappleArm::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
     case EUserEventType::Projectile:
         if (x3b2_27_armMoving)
             return;
+        x3b2_25_beamActive = true;
         x398_grappleHitGen = std::make_unique<CElementGen>(x36c_grappleHitDesc);
         x39c_grappleMuzzleGen = std::make_unique<CElementGen>(x378_grappleMuzzleDesc);
         x338_beamT = 0.f;

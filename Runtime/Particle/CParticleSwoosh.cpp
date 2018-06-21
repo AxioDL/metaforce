@@ -233,9 +233,9 @@ bool CParticleSwoosh::Update(double dt)
         timeElem->GetValue(x28_curFrame, time);
 
     x30_curTime += std::max(0.0, dt * time);
-    while (!x1d0_26_disableUpdate && evalTime < x30_curTime)
+    while (x1d0_26_forceOneUpdate || evalTime < x30_curTime)
     {
-        x1d0_26_disableUpdate = false;
+        x1d0_26_forceOneUpdate = false;
 
         x158_curParticle += 1;
         if (x158_curParticle >= x15c_swooshes.size())

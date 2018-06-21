@@ -172,7 +172,7 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr)
             xc4_chargeGauge.x0_model.Lock();
         else
             xc4_chargeGauge.x0_model.Unlock();
-        if (scan)
+        if (!scan)
             x94_grapple.Lock();
         else
             x94_grapple.Unlock();
@@ -492,12 +492,12 @@ void CCompoundTargetReticle::DrawGrapplePoint(const CScriptGrapplePoint& point, 
         color = g_tweakTargeting->GetLockedGrapplePointSelectColor();
     else
         color = g_tweakTargeting->GetGrapplePointSelectColor();
-    color = zeus::CColor::lerp(color, g_tweakTargeting->GetGrapplePointColor(), t);
+    color = zeus::CColor::lerp(g_tweakTargeting->GetGrapplePointColor(), color, t);
     zeus::CMatrix3f scale(
         CalculateClampedScale(orbitPos, 1.f, g_tweakTargeting->GetGrappleClampMin(),
                               g_tweakTargeting->GetGrappleClampMax(), mgr) *
-            (1.f - t) * g_tweakTargeting->GetGrappleScale() + t * g_tweakTargeting->GetGrappleSelectScale());
-    zeus::CTransform modelXf(scale, orbitPos);
+            ((1.f - t) * g_tweakTargeting->GetGrappleScale() + t * g_tweakTargeting->GetGrappleSelectScale()));
+    zeus::CTransform modelXf(rot * scale, orbitPos);
     CGraphics::SetModelMatrix(modelXf);
     CModelFlags flags(7, 0, 0, color);
     x94_grapple->Draw(flags);

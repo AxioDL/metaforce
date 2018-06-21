@@ -3771,8 +3771,10 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                     {
                         zeus::CVector3f pointToPlayerFlat = pointToPlayer;
                         pointToPlayerFlat.z = 0.f;
+                        zeus::CVector3f pointAtPlayerHeight = point->GetTranslation();
+                        pointAtPlayerHeight.z = GetTranslation().z;
                         zeus::CVector3f playerToGrapplePlane =
-                            point->GetTranslation() + turnRot.transform(pointToPlayerFlat) - GetTranslation();
+                            pointAtPlayerHeight + turnRot.transform(pointToPlayerFlat) - GetTranslation();
                         if (playerToGrapplePlane.canBeNormalized())
                             pullVec += playerToGrapplePlane / dt;
                     }
@@ -3876,7 +3878,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                         }
                         else
                         {
-                            if (!g_tweakPlayer->GetGrappleJumpMode() && x3d8_grappleJumpTimeout <= 0.f)
+                            if (g_tweakPlayer->GetGrappleJumpMode() == 0 && x3d8_grappleJumpTimeout <= 0.f)
                                 ApplyGrappleJump(mgr);
                             BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                         }
@@ -3946,7 +3948,10 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                                     break;
                                 }
                                 break;
+                            default:
+                                break;
                             }
+                            break;
                         case EGrappleState::None:
                             x3b8_grappleState = EGrappleState::Firing;
                             x490_gun->GetGrappleArm().Activate(true);

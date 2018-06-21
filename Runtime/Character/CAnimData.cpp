@@ -735,9 +735,9 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans)
 {
     if (parms.GetAnimationId() == x40c_playbackParms.GetAnimationId() ||
         (parms.GetSecondAnimationId() == x40c_playbackParms.GetSecondAnimationId() &&
-         parms.GetBlendFactor() == x40c_playbackParms.GetBlendFactor() &&
-         parms.GetBlendFactor() != 1.f) ||
-        parms.GetSecondAnimationId() == -1)
+         parms.GetSecondAnimationId() != -1) ||
+        (parms.GetBlendFactor() == x40c_playbackParms.GetBlendFactor() &&
+         parms.GetBlendFactor() != 1.f))
     {
         if (x220_29_animationJustStarted)
             return;

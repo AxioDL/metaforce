@@ -211,8 +211,7 @@ static zeus::CVector3f ClipRayToPlane(const zeus::CVector3f& a, const zeus::CVec
 bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts,
                                                zeus::CAABox& aabb)
 {
-    /* FIXME: HACK: Increasing the size from 20 to 128 to give us more headroom, we should try and trim this back down to a more reasonable size */
-    rstl::reserved_vector<zeus::CVector3f, 128> vecs[2];
+    rstl::reserved_vector<zeus::CVector3f, 20> vecs[2];
 
     g_CalledClip += 1;
     g_RejectedByClip -= 1;
@@ -225,8 +224,8 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
     int otherVecIdx = 1;
     for (int i=0 ; i<6 ; ++i)
     {
-        rstl::reserved_vector<zeus::CVector3f, 128>& vec = vecs[vecIdx];
-        rstl::reserved_vector<zeus::CVector3f, 128>& otherVec = vecs[otherVecIdx];
+        rstl::reserved_vector<zeus::CVector3f, 20>& vec = vecs[vecIdx];
+        rstl::reserved_vector<zeus::CVector3f, 20>& otherVec = vecs[otherVecIdx];
         otherVec.clear();
 
         bool inFrontOf = planes[i].pointToPlaneDist(vec.front()) >= 0.f;
@@ -235,8 +234,10 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
             const zeus::CVector3f& b = vec[(j + 1) % vec.size()];
             if (inFrontOf)
                 otherVec.push_back(vec[j]);
-            if ((planes[i].pointToPlaneDist(b) >= 0.f) ^ inFrontOf)
+            bool nextInFrontOf = planes[i].pointToPlaneDist(b) >= 0.f;
+            if (nextInFrontOf ^ inFrontOf)
                 otherVec.push_back(ClipRayToPlane(vec[j], b, planes[i]));
+            inFrontOf = nextInFrontOf;
         }
 
         if (otherVec.empty())
@@ -246,7 +247,7 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
         otherVecIdx ^= 1;
     }
 
-    rstl::reserved_vector<zeus::CVector3f, 128>& accumVec = vecs[otherVecIdx ^ 1];
+    rstl::reserved_vector<zeus::CVector3f, 20>& accumVec = vecs[otherVecIdx ^ 1];
     for (const zeus::CVector3f& point : accumVec)
         aabb.accumulateBounds(point);
 
