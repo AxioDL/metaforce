@@ -1274,7 +1274,7 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
     else
     {
         x1c34_boostLightFactor = std::max(x1de8_boostChargeTime / g_tweakBall->GetBoostBallMaxChargeTime(),
-                                       x1c34_boostLightFactor);
+                                          x1c34_boostLightFactor);
         x1c34_boostLightFactor = std::min(x1c34_boostLightFactor, 1.f);
     }
     UpdateMorphBallTransitionFlash(dt);
@@ -1735,7 +1735,8 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     }
     else
     {
-        x58_ballModel->Render(mgr, ballToWorld, nullptr, flags);
+        // Lights used to be nullptr here, but we keep it due to PC's increased dynamic lighting range
+        x58_ballModel->Render(mgr, ballToWorld, lights, flags);
     }
 
     if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining())

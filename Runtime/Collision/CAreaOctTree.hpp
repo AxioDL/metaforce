@@ -93,7 +93,7 @@ public:
         ETreeType GetChildType(int idx) const
         {
             u16 flags = *reinterpret_cast<const u16*>(x18_ptr);
-            return ETreeType((flags << (2 * idx)) & 0x3);
+            return ETreeType((flags >> (2 * idx)) & 0x3);
         }
 
         ETreeType GetTreeType() const { return x20_nodeType; }
