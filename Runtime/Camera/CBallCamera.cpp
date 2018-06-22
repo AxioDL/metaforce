@@ -1517,7 +1517,7 @@ void CBallCamera::UpdateTransitionFromBallCamera(CStateManager& mgr)
     deltaFlat.z = 0.f;
     if (deltaFlat.magnitude() > 0.001f)
     {
-        SetTransform(zeus::lookAt(splinePoint, eyePos));
+        SetTransform(zeus::lookAt(splinePoint, zeus::CVector3f::lerp(x1d8_lookPos, eyePos, morphFactor)));
     }
     else
     {
