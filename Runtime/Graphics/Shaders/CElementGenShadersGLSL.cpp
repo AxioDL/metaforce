@@ -30,9 +30,10 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
+"    vec4 pos = posIn[gl_VertexID];\n"
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uv = uvsIn[gl_VertexID].xy;\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    gl_Position = mvp * pos;\n"
 "}\n";
 
 static const char* FS_GLSL_TEX =
@@ -95,11 +96,12 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
+"    vec4 pos = posIn[gl_VertexID];\n"
 "    vtf.color = colorIn * moduColor;\n"
 "    vtf.uvScene = uvsInScene;\n"
 "    vtf.uvTexr = uvsInTexrTind[gl_VertexID].xy;\n"
 "    vtf.uvTind = uvsInTexrTind[gl_VertexID].zw;\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    gl_Position = mvp * pos;\n"
 "    gl_Position = FLIPFROMGL(gl_Position);\n"
 "}\n";
 
@@ -170,8 +172,9 @@ BOO_GLSL_BINDING_HEAD
 "SBINDING(0) out VertToFrag vtf;\n"
 "void main()\n"
 "{\n"
+"    vec4 pos = posIn[gl_VertexID];\n"
 "    vtf.color = colorIn * moduColor;\n"
-"    gl_Position = mvp * posIn[gl_VertexID];\n"
+"    gl_Position = mvp * pos;\n"
 "}\n";
 
 static const char* FS_GLSL_NOTEX =
