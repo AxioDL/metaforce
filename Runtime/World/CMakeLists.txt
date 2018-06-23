@@ -88,7 +88,7 @@ set(WORLD_SOURCES
     CScriptGunTurret.hpp CScriptGunTurret.cpp
     CScriptCameraPitchVolume.hpp CScriptCameraPitchVolume.cpp
     CTeamAiMgr.hpp CTeamAiMgr.cpp
-    CSnakeWeedSwarm.hpp
+    CSnakeWeedSwarm.hpp CSnakeWeedSwarm.cpp
     CScriptSpindleCamera.hpp CScriptSpindleCamera.cpp
     CScriptCameraHintTrigger.hpp CScriptCameraHintTrigger.cpp
     CAmbientAI.hpp CAmbientAI.cpp
