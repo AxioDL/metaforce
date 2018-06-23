@@ -19,6 +19,7 @@
 #include "CAmbientAI.hpp"
 #include "CScriptCameraPitchVolume.hpp"
 #include "CTeamAiMgr.hpp"
+#include "CSnakeWeedSwarm.hpp"
 #include "CScriptCameraShaker.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptColorModulate.hpp"
@@ -2468,7 +2469,42 @@ CEntity* ScriptLoader::LoadTeamAIMgr(CStateManager& mgr, CInputStream& in, int p
 
 CEntity* ScriptLoader::LoadSnakeWeedSwarm(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 25, "SnakeWeedSwarm") || propCount > 29)
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    bool active = in.readBool();
+    CAnimationParameters animParms = LoadAnimationParameters(in);
+    CActorParameters actParms = LoadActorParameters(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    float f10 = in.readFloatBig();
+    float f11 = in.readFloatBig();
+    float f12 = in.readFloatBig();
+    float f13 = in.readFloatBig();
+    float f14 = in.readFloatBig();
+    CDamageInfo dInfo(in);
+    float f15 = in.readFloatBig();
+    u32 w4 = in.readUint32Big();
+    u32 w5 = in.readUint32Big();
+    u32 w6 = in.readUint32Big();
+    u32 w7 = (propCount < 29 ? -1 : in.readUint32Big());
+    u32 w8 = (propCount < 29 ? -1 : in.readUint32Big());
+    u32 w9 = (propCount < 29 ? -1 : in.readUint32Big());
+    u32 f16 = (propCount < 29 ? 0.f : in.readFloatBig());
+
+    return new CSnakeWeedSwarm(mgr.AllocateUniqueId(), active, name, info, pos, scale, animParms,
+                               actParms, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13,
+                               f14, dInfo, f15, w4, w5, w6, w7, w8, w9, f16);
 }
 
 CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2515,6 +2551,17 @@ CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int prop
 
 CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 16, "Geemer"))
+        return nullptr;
+    SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+
     return nullptr;
 }
 
