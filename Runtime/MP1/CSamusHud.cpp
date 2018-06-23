@@ -1218,7 +1218,8 @@ void CSamusHud::LeaveFirstPerson(const CStateManager& mgr)
 EHudState CSamusHud::GetDesiredHudState(const CStateManager& mgr)
 {
     if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ||
-        mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphing)
+        mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphing ||
+        mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphing)
         return EHudState::Ball;
 
     switch (mgr.GetPlayerState()->GetTransitioningVisor())

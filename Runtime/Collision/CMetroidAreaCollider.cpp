@@ -173,7 +173,7 @@ CMetroidAreaCollider::COctreeLeafCache::COctreeLeafCache(const CAreaOctTree& oct
 
 void CMetroidAreaCollider::COctreeLeafCache::AddLeaf(const CAreaOctTree::Node& node)
 {
-    if (x4_nodeCache.size() == 64)
+    if (x4_nodeCache.size() == x4_nodeCache.capacity())
     {
         x908_24_overflow = true;
         return;
@@ -187,13 +187,13 @@ void CMetroidAreaCollider::BuildOctreeLeafCache(const CAreaOctTree::Node& node, 
 {
     for (int i=0 ; i<8 ; ++i)
     {
-        u16 flags = (node.GetChildFlags() >> (i * 2)) & 0x3;
-        if (flags)
+        CAreaOctTree::Node::ETreeType type = node.GetChildType(i);
+        if (type != CAreaOctTree::Node::ETreeType::Invalid)
         {
             CAreaOctTree::Node ch = node.GetChild(i);
             if (aabb.intersects(ch.GetBoundingBox()))
             {
-                if (flags == 0x2)
+                if (type == CAreaOctTree::Node::ETreeType::Leaf)
                     cache.AddLeaf(ch);
                 else
                     BuildOctreeLeafCache(ch, aabb, cache);

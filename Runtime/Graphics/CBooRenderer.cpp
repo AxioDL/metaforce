@@ -1414,7 +1414,7 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
         u32 wordModel = 0;
         for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
         {
-            u32& word = modelBits[i];
+            u32& word = modelBits[curWord + i];
             if (!word)
                 continue;
             for (int j=0 ; j<32 ; ++j)
@@ -1450,7 +1450,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
         u32 wordModel = 0;
         for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
         {
-            const u32& word = modelBits[i];
+            const u32& word = modelBits[curWord + i];
             if (!word)
                 continue;
             for (int j=0 ; j<32 ; ++j)
@@ -1493,7 +1493,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
         u32 wordModel = 0;
         for (int i=0 ; i<item.x4_octTree->x14_bitmapWordCount ; ++i, wordModel += 32)
         {
-            const u32& word = modelBits[i];
+            const u32& word = modelBits[curWord + i];
             if (!word)
                 continue;
             for (int j=0 ; j<32 ; ++j)

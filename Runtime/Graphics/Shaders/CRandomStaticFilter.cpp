@@ -17,10 +17,10 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
             zeus::CVector2f m_uv;
         } verts[4] =
         {
-        {{-1.0, -1.0}, {0.0,   0.0}},
-        {{-1.0,  1.0}, {0.0,   448.0}},
-        {{ 1.0, -1.0}, {640.0, 0.0}},
-        {{ 1.0,  1.0}, {640.0, 448.0}},
+        {{-1.f, -1.f}, {0.f,   0.f}},
+        {{-1.f,  1.f}, {0.f,   448.f}},
+        {{ 1.f, -1.f}, {640.f, 0.f}},
+        {{ 1.f,  1.f}, {640.f, 448.f}},
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -32,7 +32,7 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
 void CRandomStaticFilter::draw(const zeus::CColor& color, float t)
 {
     m_uniform.color = color;
-    m_uniform.randOff = ROUND_UP_32(rand() * 32767 / RAND_MAX);
+    m_uniform.randOff = ROUND_UP_32(int64_t(rand()) * 32767 / RAND_MAX);
     m_uniform.discardThres = 1.f - t;
 
     m_uniBuf->load(&m_uniform, sizeof(Uniform));

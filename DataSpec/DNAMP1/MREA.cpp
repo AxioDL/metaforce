@@ -523,7 +523,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
 #if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
+        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */
@@ -594,7 +594,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
 #if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::Connection::BlendType::Area))
+        if (!conn.createBlend(inPath.getWithExtension(_S(".coctree.blend"), true), hecl::blender::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */

@@ -6,7 +6,8 @@ namespace DataSpec
 {
 logvisor::Module Log("AROTBuilder");
 
-#define AROT_MAX_LEVEL 6
+#define AROT_MAX_LEVEL 10
+#define AROT_MIN_SUBDIV 10.f
 #define AROT_MIN_MODELS 8
 #define COLLISION_MIN_NODE_TRIANGLES 8
 #define PATH_MIN_NODE_REGIONS 16
@@ -57,6 +58,17 @@ static zeus::CAABox SplitAABB(const zeus::CAABox& aabb, int i)
     }
 }
 
+void AROTBuilder::Node::mergeSets(int a, int b)
+{
+    childNodes[a].childIndices.insert(childNodes[b].childIndices.cbegin(), childNodes[b].childIndices.cend());
+    childNodes[b].childIndices = childNodes[a].childIndices;
+}
+
+bool AROTBuilder::Node::compareSets(int a, int b) const
+{
+    return childNodes[a].childIndices != childNodes[b].childIndices;
+}
+
 void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<zeus::CAABox>& triBoxes,
                                  const zeus::CAABox& curAABB, BspNodeType& typeOut)
 {
@@ -65,13 +77,16 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
         if (triBoxes[i].intersects(curAABB))
             childIndices.insert(i);
 
+    zeus::CVector3f extents = curAABB.extents();
+
     /* Return early if empty, triangle intersection below performance threshold, or at max level */
     if (childIndices.empty())
     {
         typeOut = BspNodeType::Invalid;
         return;
     }
-    else if (childIndices.size() < minChildren || level == AROT_MAX_LEVEL)
+    else if (childIndices.size() < minChildren || level == AROT_MAX_LEVEL ||
+             std::max(extents.x, std::max(extents.y, extents.z)) < AROT_MIN_SUBDIV)
     {
         typeOut = BspNodeType::Leaf;
         return;
@@ -87,22 +102,45 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
         flags |= int(chType) << (i * 2);
     }
 
+    /* Unsubdivide minimum axis dimensions */
+    if (extents.x < AROT_MIN_SUBDIV)
+    {
+        mergeSets(0, 1);
+        mergeSets(4, 5);
+        mergeSets(2, 3);
+        mergeSets(6, 7);
+    }
+    if (extents.y < AROT_MIN_SUBDIV)
+    {
+        mergeSets(0, 2);
+        mergeSets(1, 3);
+        mergeSets(4, 6);
+        mergeSets(5, 7);
+    }
+    if (extents.z < AROT_MIN_SUBDIV)
+    {
+        mergeSets(0, 4);
+        mergeSets(1, 5);
+        mergeSets(2, 6);
+        mergeSets(3, 7);
+    }
+
     /* Unsubdivide */
     compSubdivs = 0;
-    if (childNodes[0].childIndices != childNodes[1].childIndices ||
-        childNodes[4].childIndices != childNodes[5].childIndices ||
-        childNodes[2].childIndices != childNodes[3].childIndices ||
-        childNodes[6].childIndices != childNodes[7].childIndices)
+    if (compareSets(0, 1) ||
+        compareSets(4, 5) ||
+        compareSets(2, 3) ||
+        compareSets(6, 7))
         compSubdivs |= 0x4;
-    if (childNodes[0].childIndices != childNodes[2].childIndices ||
-        childNodes[1].childIndices != childNodes[3].childIndices ||
-        childNodes[4].childIndices != childNodes[6].childIndices ||
-        childNodes[5].childIndices != childNodes[7].childIndices)
+    if (compareSets(0, 2) ||
+        compareSets(1, 3) ||
+        compareSets(4, 6) ||
+        compareSets(5, 7))
         compSubdivs |= 0x2;
-    if (childNodes[0].childIndices != childNodes[4].childIndices ||
-        childNodes[1].childIndices != childNodes[5].childIndices ||
-        childNodes[2].childIndices != childNodes[6].childIndices ||
-        childNodes[3].childIndices != childNodes[7].childIndices)
+    if (compareSets(0, 4) ||
+        compareSets(1, 5) ||
+        compareSets(2, 6) ||
+        compareSets(3, 7))
         compSubdivs |= 0x1;
 
     if (!compSubdivs)

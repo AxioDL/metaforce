@@ -37,6 +37,8 @@ struct AROTBuilder
 
         void addChild(int level, int minChildren, const std::vector<zeus::CAABox>& triBoxes,
                       const zeus::CAABox& curAABB, BspNodeType& typeOut);
+        void mergeSets(int a, int b);
+        bool compareSets(int a, int b) const;
         void nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPool, size_t& curOff);
         void writeIndirectionTable(athena::io::MemoryWriter& w);
         void writeNodes(athena::io::MemoryWriter& w, int nodeIdx);
