@@ -468,6 +468,12 @@ zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3
     return GetPerspectiveProjectionMatrix(true).multiplyOneOverW(pt);
 }
 
+zeus::CVector3f CGraphics::ProjectModelPointToViewportSpace(const zeus::CVector3f& point, float& wOut)
+{
+    zeus::CVector3f pt = g_GXModelView * point;
+    return GetPerspectiveProjectionMatrix(true).multiplyOneOverW(pt, wOut);
+}
+
 void CGraphics::SetViewportResolution(const zeus::CVector2i& res)
 {
     g_Viewport.x8_width = res.x;

@@ -52,12 +52,14 @@ private:
     zeus::CVector2f m_firstUV;
     zeus::CColor m_firstColor;
     float m_firstWidth;
+    float m_firstW;
 
     zeus::CVector3f m_lastPos;
     zeus::CVector3f m_lastPos2;
     zeus::CVector2f m_lastUV;
     zeus::CColor m_lastColor;
     float m_lastWidth;
+    float m_lastW;
 
     static rstl::reserved_vector<SDrawVertTex, 1024> g_StaticLineVertsTex;
     static rstl::reserved_vector<SDrawVertNoTex, 1024> g_StaticLineVertsNoTex;

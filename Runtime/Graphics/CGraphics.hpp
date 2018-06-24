@@ -290,6 +290,7 @@ public:
     static SClipScreenRect ClipScreenRectFromMS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
     static SClipScreenRect ClipScreenRectFromVS(const zeus::CVector3f& p1, const zeus::CVector3f& p2);
     static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point);
+    static zeus::CVector3f ProjectModelPointToViewportSpace(const zeus::CVector3f& point, float& wOut);
 
     static void SetViewportResolution(const zeus::CVector2i& res);
     static void SetViewport(int leftOff, int bottomOff, int width, int height);

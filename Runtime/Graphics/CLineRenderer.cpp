@@ -133,13 +133,15 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
         return;
 
     float adjWidth = width / 480.f;
-    zeus::CVector3f projPt = CGraphics::ProjectModelPointToViewportSpace(position);
+    float w;
+    zeus::CVector3f projPt = CGraphics::ProjectModelPointToViewportSpace(position, w);
 
     if (m_mode == EPrimitiveMode::LineLoop)
     {
         if (m_nextVert == 0)
         {
             m_firstPos = projPt;
+            m_firstW = w;
             m_secondPos = projPt;
             m_firstUV = uv;
             m_firstColor = color;
@@ -172,14 +174,14 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                 if (m_nextVert & 1)
                 {
                     g_StaticLineVertsTex.push_back(g_StaticLineVertsTex.back());
-                    g_StaticLineVertsTex.push_back({m_lastPos + dvb, m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor, m_lastUV});
                     g_StaticLineVertsTex.push_back(g_StaticLineVertsTex.back());
-                    g_StaticLineVertsTex.push_back({m_lastPos - dvb, m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor, m_lastUV});
                 }
                 else
                 {
-                    g_StaticLineVertsTex.push_back({m_lastPos + dva, m_lastColor, m_lastUV});
-                    g_StaticLineVertsTex.push_back({m_lastPos - dva, m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor, m_lastUV});
                 }
             }
             else
@@ -192,8 +194,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
                 intersect2.z = m_lastPos.z;
 
-                g_StaticLineVertsTex.push_back({intersect1, m_lastColor, m_lastUV});
-                g_StaticLineVertsTex.push_back({intersect2, m_lastColor, m_lastUV});
+                g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
+                g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
             }
         }
         else
@@ -203,14 +205,14 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                 if (m_nextVert & 1)
                 {
                     g_StaticLineVertsNoTex.push_back(g_StaticLineVertsNoTex.back());
-                    g_StaticLineVertsNoTex.push_back({m_lastPos + dvb, m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor});
                     g_StaticLineVertsNoTex.push_back(g_StaticLineVertsNoTex.back());
-                    g_StaticLineVertsNoTex.push_back({m_lastPos - dvb, m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor});
                 }
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({m_lastPos + dva, m_lastColor});
-                    g_StaticLineVertsNoTex.push_back({m_lastPos - dva, m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor});
                 }
             }
             else
@@ -223,8 +225,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
                 intersect2.z = m_lastPos.z;
 
-                g_StaticLineVertsNoTex.push_back({intersect1, m_lastColor});
-                g_StaticLineVertsNoTex.push_back({intersect2, m_lastColor});
+                g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
+                g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
             }
         }
     }
@@ -237,18 +239,19 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
         dv.x /= CGraphics::g_ProjAspect;
         if (m_textured)
         {
-            g_StaticLineVertsTex.push_back({m_lastPos + dv, m_lastColor, m_lastUV});
-            g_StaticLineVertsTex.push_back({m_lastPos - dv, m_lastColor, m_lastUV});
+            g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dv, m_lastW), m_lastColor, m_lastUV});
+            g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dv, m_lastW), m_lastColor, m_lastUV});
         }
         else
         {
-            g_StaticLineVertsNoTex.push_back({m_lastPos + dv, m_lastColor});
-            g_StaticLineVertsNoTex.push_back({m_lastPos - dv, m_lastColor});
+            g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dv, m_lastW), m_lastColor});
+            g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dv, m_lastW), m_lastColor});
         }
     }
 
     m_lastPos2 = m_lastPos;
     m_lastPos = projPt;
+    m_lastW = w;
     m_lastUV = uv;
     m_lastColor = color;
     m_lastWidth = adjWidth;
@@ -284,13 +287,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
 
                 if (m_textured)
                 {
-                    g_StaticLineVertsTex.push_back({intersect1, m_lastColor, m_lastUV});
-                    g_StaticLineVertsTex.push_back({intersect2, m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
                 }
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({intersect1, m_lastColor});
-                    g_StaticLineVertsNoTex.push_back({intersect2, m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
                 }
             }
             {
@@ -316,13 +319,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
 
                 if (m_textured)
                 {
-                    g_StaticLineVertsTex.push_back({intersect1, m_firstColor, m_firstUV});
-                    g_StaticLineVertsTex.push_back({intersect2, m_firstColor, m_firstUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_firstW), m_firstColor, m_firstUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_firstW), m_firstColor, m_firstUV});
                 }
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({intersect1, m_firstColor});
-                    g_StaticLineVertsNoTex.push_back({intersect2, m_firstColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_firstW), m_firstColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_firstW), m_firstColor});
                 }
             }
         }
@@ -339,8 +342,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {}
                 else
                 {
-                    g_StaticLineVertsTex.push_back({m_lastPos + dv, m_lastColor, m_lastUV});
-                    g_StaticLineVertsTex.push_back({m_lastPos - dv, m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dv, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dv, m_lastW), m_lastColor, m_lastUV});
                 }
             }
             else
@@ -349,8 +352,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {}
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({m_lastPos + dv, m_lastColor});
-                    g_StaticLineVertsNoTex.push_back({m_lastPos - dv, m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dv, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dv, m_lastW), m_lastColor});
                 }
             }
         }
@@ -361,13 +364,15 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
     m_uniformBuf.access() = SDrawUniform{moduColor};
     if (m_textured)
     {
-        memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
+        memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(),
+                sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
         CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(0, g_StaticLineVertsTex.size());
     }
     else
     {
-        memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(), sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
+        memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(),
+                sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
         CGraphics::SetShaderDataBinding(m_shaderBind);
         CGraphics::DrawArray(0, g_StaticLineVertsNoTex.size());
     }
