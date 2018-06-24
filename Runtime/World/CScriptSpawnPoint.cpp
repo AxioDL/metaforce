@@ -17,6 +17,7 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
     x64_itemCounts[int(CPlayerState::EItemType::XRayVisor)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::GrappleBeam)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::BoostBall)] = 1;
+    x64_itemCounts[int(CPlayerState::EItemType::ChargeBeam)] = 1;
     x10c_24_firstSpawn = defaultSpawn;
     x10c_25_morphed = morphed;
 }

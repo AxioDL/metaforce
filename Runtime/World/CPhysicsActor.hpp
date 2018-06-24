@@ -134,7 +134,7 @@ public:
 
     float GetMass() const { return xe8_mass; }
     void SetPrimitiveOffset(const zeus::CVector2f& offset);
-    zeus::CVector3f GetPrimitiveOffset();
+    zeus::CVector3f GetPrimitiveOffset() const;
     void MoveCollisionPrimitive(const zeus::CVector3f& offset);
     void SetBoundingBox(const zeus::CAABox& box);
     zeus::CAABox GetMotionVolume(float dt) const;

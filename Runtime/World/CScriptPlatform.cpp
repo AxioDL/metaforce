@@ -196,6 +196,20 @@ std::experimental::optional<zeus::CAABox> CScriptPlatform::GetTouchBounds() cons
     return {CPhysicsActor::GetBoundingBox()};
 }
 
+zeus::CTransform CScriptPlatform::GetPrimitiveTransform() const
+{
+    zeus::CTransform ret = GetTransform();
+    ret.origin += GetPrimitiveOffset();
+    return ret;
+}
+
+const CCollisionPrimitive* CScriptPlatform::GetCollisionPrimitive() const
+{
+    if (!x314_treeGroup)
+        return CPhysicsActor::GetCollisionPrimitive();
+    return x314_treeGroup.get();
+}
+
 bool CScriptPlatform::IsRider(TUniqueId id) const
 {
     for (const SRiders& rider : x318_riders)

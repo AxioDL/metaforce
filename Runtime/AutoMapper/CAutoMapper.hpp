@@ -85,6 +85,14 @@ public:
             x54_depth2Ease = Ease::None;
             x58_alphaEase = Ease::None;
         }
+
+        zeus::CVector2i GetViewportSize() const
+        {
+            if (m_getViewportSize)
+                return m_getViewportSize();
+            else
+                return x0_viewportSize;
+        }
     };
 
     struct SAutoMapperHintStep

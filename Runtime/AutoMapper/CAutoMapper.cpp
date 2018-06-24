@@ -42,8 +42,8 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
     {
         float easeB = eases[int(b.x44_viewportEase)];
         float easeA = 1.f - easeB;
-        zeus::CVector2i vpA = a.m_getViewportSize();
-        zeus::CVector2i vpB = b.m_getViewportSize();
+        zeus::CVector2i vpA = a.GetViewportSize();
+        zeus::CVector2i vpB = b.GetViewportSize();
         out.x0_viewportSize = zeus::CVector2i(vpB.x * easeB + vpA.x * easeA,
                                               vpB.y * easeB + vpA.y * easeA);
     }
@@ -1451,14 +1451,8 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         alphaInterp = 1.f;
     }
 
-    float aspect;
-    if (xa8_renderStates[0].m_getViewportSize)
-    {
-        zeus::CVector2i vp = xa8_renderStates[0].m_getViewportSize();
-        aspect = vp.x / float(vp.y);
-    }
-    else
-        aspect = xa8_renderStates[0].x0_viewportSize.x / float(xa8_renderStates[0].x0_viewportSize.y);
+    zeus::CVector2i vp = xa8_renderStates[0].GetViewportSize();
+    float aspect = vp.x / float(vp.y);
     if (aspect > 1.78f)
         aspect = 1.78f;
     float yScale = xa8_renderStates[0].x18_camDist /

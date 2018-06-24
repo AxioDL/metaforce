@@ -98,17 +98,19 @@ u16 CSfxManager::CSfxWrapper::GetSfxId() const
 
 void CSfxManager::CSfxWrapper::UpdateEmitterSilent()
 {
-    x1c_voiceHandle->setVolume(1.f / 127.f);
+    if (x1c_voiceHandle)
+        x1c_voiceHandle->setVolume(1.f / 127.f);
 }
 
 void CSfxManager::CSfxWrapper::UpdateEmitter()
 {
-    x1c_voiceHandle->setVolume(x20_vol);
+    if (x1c_voiceHandle)
+        x1c_voiceHandle->setVolume(x20_vol);
 }
 
 void CSfxManager::CSfxWrapper::SetReverb(float rev)
 {
-    if (IsAuxProcessingEnabled() && UseAcoustics())
+    if (x1c_voiceHandle && IsAuxProcessingEnabled() && UseAcoustics())
         x1c_voiceHandle->setReverbVol(rev);
 }
 

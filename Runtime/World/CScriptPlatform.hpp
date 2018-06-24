@@ -71,6 +71,8 @@ public:
     void PreThink(float, CStateManager&);
     void Think(float, CStateManager&);
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+    zeus::CTransform GetPrimitiveTransform() const;
+    const CCollisionPrimitive* GetCollisionPrimitive() const;
     bool IsRider(TUniqueId id) const;
     bool IsSlave(TUniqueId id) const;
     std::vector<SRiders>& GetX328() { return x328_slaves1; }

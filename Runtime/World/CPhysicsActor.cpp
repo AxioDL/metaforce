@@ -54,7 +54,7 @@ float CPhysicsActor::GetWeight() const { return 24.525002f * xe8_mass; }
 
 void CPhysicsActor::SetPrimitiveOffset(const zeus::CVector2f& offset) { x1e8_primitiveOffset = offset; }
 
-zeus::CVector3f CPhysicsActor::GetPrimitiveOffset() { return x1e8_primitiveOffset; }
+zeus::CVector3f CPhysicsActor::GetPrimitiveOffset() const { return x1e8_primitiveOffset; }
 
 void CPhysicsActor::MoveCollisionPrimitive(const zeus::CVector3f& offset) { x1e8_primitiveOffset = offset; }
 
