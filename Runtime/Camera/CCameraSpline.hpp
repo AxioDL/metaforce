@@ -31,6 +31,9 @@ public:
     void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
     zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;
     zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
+    float FindClosestLengthAlongSpline(float time, const zeus::CVector3f& p);
+    s32 GetSize() const { return x4_positions.size(); }
+    float GetLength() const { return x44_length; }
 };
 }
 

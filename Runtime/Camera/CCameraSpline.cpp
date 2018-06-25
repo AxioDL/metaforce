@@ -50,6 +50,12 @@ void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnec
     }
 }
 
+void CCameraSpline::Initialize(TUniqueId camId, const std::vector<SConnection>& connections, CStateManager& mgr)
+{
+    CalculateKnots(camId, connections, mgr);
+    x44_length = CalculateSplineLength();
+}
+
 void CCameraSpline::Reset(int size)
 {
     x4_positions.clear();
@@ -285,5 +291,10 @@ zeus::CVector3f CCameraSpline::GetInterpolatedSplinePointByTime(float time, floa
                                               (time - float(baseIdx) * rangeFac) / rangeFac);
 
     return {};
+}
+
+float CCameraSpline::FindClosestLengthAlongSpline(float time, const zeus::CVector3f& p)
+{
+    return 0.f;
 }
 }

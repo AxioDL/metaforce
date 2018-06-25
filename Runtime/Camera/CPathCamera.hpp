@@ -16,8 +16,8 @@ public:
 private:
 
     CCameraSpline x188_spline;
-    float x1d4_ = 0.f;
-    float x1d8_ = 0.f;
+    float x1d4_pos = 0.f;
+    float x1d8_time = 0.f;
     float x1dc_;
     float x1e0_;
     float x1e4_;
@@ -32,8 +32,13 @@ public:
                 float, float, u32, EInitialSplinePosition);
 
     void Accept(IVisitor&);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void Think(float, CStateManager&);
+    void Render(const CStateManager&) const {}
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
+    zeus::CTransform MoveAlongSpline(float, CStateManager&);
+    void sub8012DD3C(CStateManager&);
 };
 
 }

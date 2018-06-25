@@ -31,6 +31,7 @@ void CAmbientAI::Accept(IVisitor& visitor)
 
 void CAmbientAI::Think(float dt, CStateManager& mgr)
 {
+    return;
     if (!GetActive())
         return;
 
@@ -114,6 +115,7 @@ void CAmbientAI::Think(float dt, CStateManager& mgr)
 
 void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
+    return;
     switch(msg)
     {
     case EScriptObjectMessage::Reset:

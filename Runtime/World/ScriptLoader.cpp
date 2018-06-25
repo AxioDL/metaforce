@@ -2562,7 +2562,26 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
     CPatternedInfo pInfo(in, pair.second);
     CActorParameters actParms = LoadActorParameters(in);
 
-    return nullptr;
+    if (pInfo.GetAnimationParameters().GetACSFile() == CAssetId())
+        return nullptr;
+
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    float f7 = in.readFloatBig();
+    u16 sId1 = in.readUint32Big() & 0xFFFF;
+    u16 sId2 = in.readUint32Big() & 0xFFFF;
+    u16 sId3 = in.readUint32Big() & 0xFFFF;
+
+    CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
+                              actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+
+    return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info, actHead.x10_transform,
+                              std::move(mData), pInfo, 6, 0.f, f1, f2, f3, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f,
+                              f5, f6, false, 2, CDamageVulnerability::NormalVulnerabilty(), MP1::CParasiteInfo(), sId1, sId2, sId3, -1, -1, 0.f, actParms);
 }
 
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
