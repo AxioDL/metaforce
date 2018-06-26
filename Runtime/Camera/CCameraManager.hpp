@@ -78,7 +78,6 @@ class CCameraManager
     void RestoreHintlessCamera(CStateManager& mgr);
     void InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId, const zeus::CVector3f& lookPos,
                                  float f1, float f2, float f3, bool b1, CStateManager& mgr);
-    static constexpr bool ShouldBypassInterpolation() { return false; }
     void SkipBallCameraCinematic(CStateManager& mgr);
     void ApplyCameraHint(const CScriptCameraHint& hint, CStateManager& mgr);
 
@@ -157,6 +156,8 @@ public:
     const CScriptCameraHint* GetCameraHint(CStateManager& mgr) const;
     bool HasCameraHint(CStateManager& mgr) const;
     bool IsInterpolationCameraActive() const;
+
+    bool ShouldBypassInterpolation() { return false; }
 };
 
 }

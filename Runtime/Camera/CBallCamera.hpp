@@ -253,6 +253,7 @@ public:
     void ProcessInput(const CFinalInput& input, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
     void Render(const CStateManager& mgr) const;
+    EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
     EBallCameraState GetState() const { return x400_state; }
     void SetState(EBallCameraState state, CStateManager& mgr);
     void Think(float dt, CStateManager& mgr);
