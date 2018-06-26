@@ -12,13 +12,17 @@ class CPathCamera : public CGameCamera
 public:
     enum class EInitialSplinePosition
     {
+        BallCamBasis,
+        Negative,
+        Positive,
+        ClampBasis
     };
 private:
 
     CCameraSpline x188_spline;
     float x1d4_pos = 0.f;
     float x1d8_time = 0.f;
-    float x1dc_;
+    float x1dc_lengthExtent;
     float x1e0_;
     float x1e4_;
     EInitialSplinePosition x1e8_initPos;
@@ -38,7 +42,7 @@ public:
     void ProcessInput(const CFinalInput&, CStateManager& mgr);
     void Reset(const zeus::CTransform&, CStateManager& mgr);
     zeus::CTransform MoveAlongSpline(float, CStateManager&);
-    void sub8012DD3C(CStateManager&);
+    void ClampToClosedDoor(CStateManager&);
 };
 
 }

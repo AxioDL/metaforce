@@ -7,6 +7,8 @@
 namespace urde
 {
 class CStateManager;
+class CMaterialFilter;
+
 class CCameraSpline
 {
     friend class CBallCamera;
@@ -31,10 +33,15 @@ public:
     void UpdateSplineLength() { x44_length = CalculateSplineLength(); }
     zeus::CTransform GetInterpolatedSplinePointByLength(float pos) const;
     zeus::CVector3f GetInterpolatedSplinePointByTime(float time, float range) const;
-    float FindClosestLengthAlongSpline(float time, const zeus::CVector3f& p);
+    float FindClosestLengthOnSpline(float time, const zeus::CVector3f& p) const;
+    float ValidateLength(float t) const;
+    float ClampLength(const zeus::CVector3f& pos, bool collide,
+                      const CMaterialFilter& filter, const CStateManager& mgr) const;
     s32 GetSize() const { return x4_positions.size(); }
     float GetLength() const { return x44_length; }
+    bool IsClosedLoop() const { return x48_closedLoop; }
 };
+
 }
 
 #endif // __URDE_CCAMERASPLINE_HPP__

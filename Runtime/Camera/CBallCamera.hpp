@@ -234,7 +234,6 @@ private:
     static zeus::CVector3f GetFailsafeSplinePoint(const std::vector<zeus::CVector3f>& points, float t);
     bool CheckFailsafeFromMorphBallState(CStateManager& mgr) const;
     bool SplineIntersectTest(CMaterialList& intersectMat, CStateManager& mgr) const;
-    static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
     void ActivateFailsafe(float dt, CStateManager& mgr);
     bool ConstrainElevationAndDistance(float& elevation, float& distance, float dt, CStateManager& mgr);
     zeus::CVector3f FindDesiredPosition(float distance, float elevation, const zeus::CVector3f& dir,
@@ -272,6 +271,9 @@ public:
     void ResetPosition(CStateManager& mgr);
     void DoorClosed(TUniqueId doorId);
     void DoorClosing(TUniqueId doorId);
+    const zeus::CVector3f& GetFixedLookPos() const { return x1cc_fixedLookPos; }
+
+    static bool IsBallNearDoor(const zeus::CVector3f& pos, CStateManager& mgr);
 };
 
 }

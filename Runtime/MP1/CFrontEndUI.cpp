@@ -2006,7 +2006,7 @@ CFrontEndUI::CFrontEndUI()
 
     m->ResetGameState();
     g_GameState->SetCurrentWorldId(g_ResFactory->TranslateOriginalToNew(g_DefaultWorldTag.id));
-    g_GameState->CurrentWorldState().SetAreaId(6);
+    g_GameState->CurrentWorldState().SetAreaId(8);
     g_GameState->GameOptions().ResetToDefaults();
     g_GameState->WriteBackupBuf();
 

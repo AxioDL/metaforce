@@ -293,8 +293,174 @@ zeus::CVector3f CCameraSpline::GetInterpolatedSplinePointByTime(float time, floa
     return {};
 }
 
-float CCameraSpline::FindClosestLengthAlongSpline(float time, const zeus::CVector3f& p)
+float CCameraSpline::FindClosestLengthOnSpline(float time, const zeus::CVector3f& p) const
 {
-    return 0.f;
+    float ret = -1.f;
+    float minLenDelta = 10000.f;
+    float minMag = 10000.f;
+
+    size_t iterations = x4_positions.size() - 1;
+    if (x48_closedLoop)
+        iterations += 1;
+
+    for (size_t i=0 ; i<iterations ; ++i)
+    {
+        const zeus::CVector3f& thisPos = x4_positions[i];
+        const zeus::CVector3f* nextPos;
+        if (!x48_closedLoop)
+        {
+            nextPos = &x4_positions[i + 1];
+        }
+        else
+        {
+            if (i == x4_positions.size() - 1)
+                nextPos = &x4_positions[0];
+            else
+                nextPos = &x4_positions[i + 1];
+        }
+
+        zeus::CVector3f delta = *nextPos - thisPos;
+        zeus::CVector3f nextDelta;
+        zeus::CVector3f revDelta = thisPos - *nextPos;
+        zeus::CVector3f nextRevDelta;
+
+        if (i != 0)
+        {
+            nextDelta = delta + thisPos - x4_positions[i - 1];
+        }
+        else
+        {
+            zeus::CVector3f extrap = x4_positions[0] - x4_positions[1] + x4_positions[0];
+            if (x48_closedLoop)
+                extrap = x4_positions.back();
+            nextDelta = delta + thisPos - extrap;
+        }
+
+        delta.normalize();
+
+        if (i < x4_positions.size() - 2)
+        {
+            nextRevDelta = revDelta + *nextPos - x4_positions[i + 2];
+        }
+        else
+        {
+            zeus::CVector3f extrap;
+            if (x48_closedLoop)
+            {
+                if (i == iterations - 1)
+                    extrap = x4_positions[1];
+                else
+                    extrap = x4_positions[0];
+            }
+            else
+            {
+                extrap = x4_positions[i + 1] - x4_positions[i] + x4_positions[i + 1];
+            }
+            nextRevDelta = revDelta + *nextPos - extrap;
+        }
+
+        revDelta.normalize();
+        nextDelta.normalize();
+        nextRevDelta.normalize();
+        float proj = (p - thisPos).dot(delta) / delta.dot(nextDelta);
+        float nextProj = (p - *nextPos).dot(revDelta) / revDelta.dot(nextRevDelta);
+        float t = proj / (proj + nextProj);
+
+        if (!x48_closedLoop)
+        {
+            if (i == 0 && t < 0.f)
+                t = 0.f;
+            if (i == x4_positions.size() - 2 && t > 1.f)
+                t = 1.f;
+        }
+
+        if (t >= 0.f && t <= 1.f)
+        {
+            float tLen;
+            if (i == x4_positions.size() - 1)
+                tLen = x44_length - x24_t[i];
+            else
+                tLen = x24_t[i + 1] - x24_t[i];
+
+            float lenT = t * tLen + x24_t[i];
+            zeus::CVector3f pointDelta = p - GetInterpolatedSplinePointByLength(lenT).origin;
+            float mag = 0.f;
+            if (pointDelta.canBeNormalized())
+                mag = pointDelta.magnitude();
+            float lenDelta = std::fabs(lenT - time);
+            if (x48_closedLoop && lenDelta > x44_length - lenDelta)
+                lenDelta = x44_length - lenDelta;
+            if (zeus::close_enough(std::fabs(mag - minMag), 0.f))
+            {
+                if (lenDelta < minLenDelta)
+                {
+                    ret = lenT;
+                    minLenDelta = lenDelta;
+                }
+            }
+            else
+            {
+                if (mag < minMag)
+                {
+                    ret = lenT;
+                    minLenDelta = lenDelta;
+                    minMag = mag;
+                }
+            }
+        }
+    }
+
+    return std::max(ret, 0.f);
 }
+
+float CCameraSpline::ValidateLength(float t) const
+{
+    if (x48_closedLoop)
+    {
+        while (t >= x44_length)
+            t -= x44_length;
+        while (t < 0.f)
+            t += x44_length;
+        return t;
+    }
+    else
+    {
+        return zeus::clamp(0.f, t, x44_length);
+    }
+}
+
+float CCameraSpline::ClampLength(const zeus::CVector3f& pos, bool collide,
+                                 const CMaterialFilter& filter, const CStateManager& mgr) const
+{
+    if (x4_positions.empty())
+        return 0.f;
+
+    if (x48_closedLoop)
+        return 0.f;
+
+    zeus::CVector3f deltaA = pos - x4_positions.front();
+    zeus::CVector3f deltaB = pos - x4_positions.back();
+    float magA = deltaA.magnitude();
+    float magB = deltaB.magnitude();
+    if (!deltaA.canBeNormalized())
+        return 0.f;
+    if (!deltaB.canBeNormalized())
+        return x44_length;
+
+    if (collide)
+    {
+        bool collideA = mgr.RayStaticIntersection(x4_positions.front(), deltaA.normalized(), magA, filter).IsValid();
+        bool collideB = mgr.RayStaticIntersection(x4_positions.back(), deltaB.normalized(), magB, filter).IsValid();
+        if (collideA)
+            return x44_length;
+        if (collideB)
+            return 0.f;
+    }
+
+    if (magA < magB)
+        return 0.f;
+    else
+        return x44_length;
+}
+
 }
