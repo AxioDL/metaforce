@@ -23,17 +23,18 @@ private:
     float x1d4_pos = 0.f;
     float x1d8_time = 0.f;
     float x1dc_lengthExtent;
-    float x1e0_;
-    float x1e4_;
+    float x1e0_filterMag;
+    float x1e4_filterProportion;
     EInitialSplinePosition x1e8_initPos;
     u32 x1ec_flags;
-    float x1f0_;
-    float x1f4_;
+    float x1f0_minEaseDist;
+    float x1f4_maxEaseDist;
 public:
 
-    CPathCamera(TUniqueId, std::string_view name, const CEntityInfo& info,
-                const zeus::CTransform& xf, bool, float, float, float,
-                float, float, u32, EInitialSplinePosition);
+    CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                const zeus::CTransform& xf, bool active, float lengthExtent, float filterMag,
+                float filterProportion, float minEaseDist, float maxEaseDist, u32 flags,
+                EInitialSplinePosition initPos);
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

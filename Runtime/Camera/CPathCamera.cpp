@@ -12,15 +12,17 @@ namespace urde
 {
 
 CPathCamera::CPathCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                         const zeus::CTransform& xf, bool active, float f1, float f2,
-                         float f3, float f4, float f5, u32 flags, EInitialSplinePosition initPos)
+                         const zeus::CTransform& xf, bool active, float lengthExtent, float filterMag,
+                         float filterProportion, float minEaseDist, float maxEaseDist, u32 flags,
+                         EInitialSplinePosition initPos)
 : CGameCamera(uid, active, name, info, xf,
               CCameraManager::ThirdPersonFOV(),
               CCameraManager::NearPlane(),
               CCameraManager::FarPlane(),
               CCameraManager::Aspect(), kInvalidUniqueId, 0, 0)
-, x188_spline(flags & 1), x1dc_lengthExtent(f1), x1e0_(f2), x1e4_(f3), x1e8_initPos(initPos)
-, x1ec_flags(flags), x1f0_(f4), x1f4_(f5)
+, x188_spline(flags & 1), x1dc_lengthExtent(lengthExtent), x1e0_filterMag(filterMag)
+, x1e4_filterProportion(filterProportion), x1e8_initPos(initPos), x1ec_flags(flags)
+, x1f0_minEaseDist(minEaseDist), x1f4_maxEaseDist(maxEaseDist)
 {
 }
 
@@ -168,7 +170,8 @@ zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr)
         float distToPlayer = 0.f;
         if (splineToPlayer.canBeNormalized())
             distToPlayer = splineToPlayer.magnitude();
-        f30 *= 1.f - std::sin(zeus::degToRad(zeus::clamp(0.f, (distToPlayer - x1f0_) / (x1f4_ - x1f0_), 1.f) * 90.f));
+        f30 *= 1.f - std::sin(zeus::degToRad(zeus::clamp(0.f, (distToPlayer - x1f0_minEaseDist) /
+            (x1f4_maxEaseDist - x1f0_minEaseDist), 1.f) * 90.f));
     }
 
     float newPos;
@@ -207,9 +210,8 @@ zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr)
         if (x188_spline.IsClosedLoop())
         {
             float absDelta = std::fabs(newPos - x1d4_pos);
-            if (absDelta > x188_spline.GetLength() - absDelta)
-                absDelta = x188_spline.GetLength() - absDelta;
-            float tBias = zeus::clamp(-1.f, absDelta / x1e4_, 1.f) * x1e0_ * t;
+            absDelta = std::min(absDelta, x188_spline.GetLength() - absDelta);
+            float tBias = zeus::clamp(-1.f, absDelta / x1e4_filterProportion, 1.f) * x1e0_filterMag * t;
             float tmpAbs = std::fabs(x1d4_pos - newPos);
             float absDelta2 = x188_spline.GetLength() - tmpAbs;
             if (x1d4_pos > newPos)
@@ -227,7 +229,7 @@ zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr)
         else
         {
             x1d4_pos = x188_spline.ValidateLength(
-                zeus::clamp(-1.f, (newPos - x1d4_pos) / x1e4_, 1.f) * x1e0_ * t + x1d4_pos);
+                zeus::clamp(-1.f, (newPos - x1d4_pos) / x1e4_filterProportion, 1.f) * x1e0_filterMag * t + x1d4_pos);
         }
         ret = x188_spline.GetInterpolatedSplinePointByLength(x1d4_pos);
     }

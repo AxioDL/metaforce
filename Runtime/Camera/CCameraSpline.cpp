@@ -5,7 +5,7 @@
 
 namespace urde
 {
-CCameraSpline::CCameraSpline(bool b) : x48_closedLoop(b) {}
+CCameraSpline::CCameraSpline(bool closedLoop) : x48_closedLoop(closedLoop) {}
 
 void CCameraSpline::CalculateKnots(TUniqueId cameraId, const std::vector<SConnection>& connections, CStateManager& mgr)
 {

@@ -21,7 +21,7 @@ class CCameraSpline
     bool GetSurroundingPoints(int idx, rstl::reserved_vector<zeus::CVector3f, 4>& positions,
                               rstl::reserved_vector<zeus::CVector3f, 4>& directions) const;
 public:
-    CCameraSpline(bool);
+    CCameraSpline(bool closedLoop);
     void CalculateKnots(TUniqueId, const std::vector<SConnection>&, CStateManager&);
     void Initialize(TUniqueId, const std::vector<SConnection>&, CStateManager&);
     void Reset(int size);

@@ -1452,14 +1452,15 @@ CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int 
     SActorHead aHead = LoadActorHead(in, mgr);
     bool active = in.readBool();
     u32 flags = LoadParameterFlags(in);
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
-    float f3 = in.readFloatBig();
+    float lengthExtent = in.readFloatBig();
+    float filterMag = in.readFloatBig();
+    float filterProportion = in.readFloatBig();
     CPathCamera::EInitialSplinePosition initPos = CPathCamera::EInitialSplinePosition(in.readUint32Big());
-    float f4 = in.readFloatBig();
-    float f5 = in.readFloatBig();
-    return new CPathCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, f1, f2, f3, f4, f5,
-                           flags, initPos);
+    float minEaseDist = in.readFloatBig();
+    float maxEaseDist = in.readFloatBig();
+
+    return new CPathCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, lengthExtent,
+                           filterMag, filterProportion, minEaseDist, maxEaseDist, flags, initPos);
 }
 
 CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

@@ -14,25 +14,25 @@ struct PathCamera : IScriptObject
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
-    Value<bool> unknown1;
+    Value<bool> active;
     struct CameraParameters : BigDNA
     {
         AT_DECL_DNA
         Value<atUint32> propertyCount;
-        Value<bool> unknown1;
-        Value<bool> unknown2;
-        Value<bool> unknown3;
-        Value<bool> unknown4;
-        Value<bool> unknown5;
-        Value<bool> unknown6;
+        Value<bool> closedLoop;
+        Value<bool> noFilter;
+        Value<bool> tangentOrientation;
+        Value<bool> easeDist;
+        Value<bool> useHintLookZ;
+        Value<bool> clampToClosedDoor;
     } cameraParameters;
 
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<float> unknown4;
-    Value<atUint32> unknown5;
-    Value<float> unknown6;
-    Value<float> unknown7;
+    Value<float> lengthExtent;
+    Value<float> filterMag;
+    Value<float> filterProportion;
+    Value<atUint32> initPos;
+    Value<float> minEaseDist;
+    Value<float> maxEaseDist;
 };
 }
 
