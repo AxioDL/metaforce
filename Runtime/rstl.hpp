@@ -387,6 +387,12 @@ public:
         return base::_const_cast_iterator(pos);
     }
 
+    void pop_front()
+    {
+        if (x0_size != 0)
+            erase(begin());
+    }
+
     void clear()
     {
         if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)

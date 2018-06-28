@@ -215,12 +215,12 @@ void CCameraManager::SetSpindleCamera(TUniqueId id, CStateManager& mgr)
 }
 
 void CCameraManager::InterpolateToBallCamera(const zeus::CTransform& xf, TUniqueId camId,
-                                             const zeus::CVector3f& lookPos, float f1, float f2, float f3,
-                                             bool b1, CStateManager& mgr)
+                                             const zeus::CVector3f& lookPos, float maxTime, float positionSpeed,
+                                             float rotationSpeed, bool sinusoidal, CStateManager& mgr)
 {
     if (!IsInFirstPersonCamera())
     {
-        x88_interpCamera->SetInterpolation(xf, lookPos, f1, f2, f3, camId, b1, mgr);
+        x88_interpCamera->SetInterpolation(xf, lookPos, maxTime, positionSpeed, rotationSpeed, camId, sinusoidal, mgr);
         if (!ShouldBypassInterpolation())
             SetCurrentCameraId(x88_interpCamera->GetUniqueId(), mgr);
     }
@@ -231,6 +231,7 @@ void CCameraManager::RestoreHintlessCamera(CStateManager& mgr)
     TCastToPtr<CScriptCameraHint> hint = mgr.ObjectById(xa6_camHintId);
     zeus::CTransform ballCamXf = x80_ballCamera->GetTransform();
     xa6_camHintId = kInvalidUniqueId;
+    printf("Setting NULL\n");
     xa8_hintPriority = 1000;
     if (hint)
     {
@@ -256,7 +257,7 @@ void CCameraManager::RestoreHintlessCamera(CStateManager& mgr)
                 x80_ballCamera->TeleportCamera(x80_ballCamera->UpdateLookDirection(camToPlayerFlat, mgr), mgr);
                 InterpolateToBallCamera(ballCamXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetLookPos(),
                                         hint->GetHint().GetClampVelTime(), hint->GetHint().GetClampVelRange(),
-                                        hint->GetHint().GetX50(),
+                                        hint->GetHint().GetClampRotRange(),
                                         (hint->GetHint().GetOverrideFlags() & 0x800) != 0, mgr);
             }
         }
@@ -284,6 +285,7 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
 
     TCastToPtr<CScriptCameraHint> oldHint = mgr.ObjectById(xa6_camHintId);
     xa6_camHintId = hint.GetUniqueId();
+    printf("Setting %08X %s\n", hint.GetEditorId().id, hint.GetName().data());
     xa8_hintPriority = hint.GetPriority();
 
     zeus::CTransform camXf = GetCurrentCameraTransform(mgr);
@@ -317,7 +319,8 @@ void CCameraManager::ApplyCameraHint(const CScriptCameraHint& hint, CStateManage
             (oldHint && oldHint->GetHint().GetBehaviourType() != CBallCamera::EBallCameraBehaviour::Default)))
     {
         InterpolateToBallCamera(camXf, x80_ballCamera->GetUniqueId(), x80_ballCamera->GetLookPos(),
-                                hint.GetHint().GetX58(), hint.GetHint().GetClampVelRange(), hint.GetHint().GetX50(),
+                                hint.GetHint().GetInterpolateTime(), hint.GetHint().GetClampVelRange(),
+                                hint.GetHint().GetClampRotRange(),
                                 (hint.GetHint().GetOverrideFlags() & 0x400) != 0, mgr);
     }
 }
@@ -347,6 +350,7 @@ void CCameraManager::UpdateCameraHints(float, CStateManager& mgr)
                 {
                     if (it->second == id)
                     {
+                        printf("ERASE %08X %s\n", hint->GetEditorId().id, hint->GetName().data());
                         xac_cameraHints.erase(it);
                         if (xa6_camHintId == id)
                         {
@@ -740,6 +744,20 @@ float CCameraManager::GetCameraBobMagnitude() const
 
 bool CCameraManager::HasBallCameraInitialPositionHint(CStateManager& mgr) const
 {
+    if (HasCameraHint(mgr))
+    {
+        switch (mgr.GetCameraManager()->GetCameraHint(mgr)->GetHint().GetBehaviourType())
+        {
+        case CBallCamera::EBallCameraBehaviour::HintBallToCam:
+        case CBallCamera::EBallCameraBehaviour::HintFixedPosition:
+        case CBallCamera::EBallCameraBehaviour::HintFixedTransform:
+        case CBallCamera::EBallCameraBehaviour::PathCamera:
+        case CBallCamera::EBallCameraBehaviour::SpindleCamera:
+            return true;
+        default:
+            return false;
+        }
+    }
     return false;
 }
 
@@ -761,7 +779,10 @@ void CCameraManager::DeleteCameraHint(TUniqueId id, CStateManager& mgr)
             hint->ClearIdList();
             hint->SetInactive(true);
             if (x2b0_inactiveCameraHints.size() != 64)
+            {
                 x2b0_inactiveCameraHints.push_back(id);
+                printf("Delete %08X %s\n", hint->GetEditorId().id, hint->GetName().data());
+            }
         }
     }
 }
@@ -774,7 +795,10 @@ void CCameraManager::AddInactiveCameraHint(TUniqueId id, CStateManager& mgr)
                                    [id](TUniqueId tid) { return tid == id; });
         if (search == x2b0_inactiveCameraHints.end() &&
             x2b0_inactiveCameraHints.size() != 64)
+        {
             x2b0_inactiveCameraHints.push_back(id);
+            printf("Inactive %08X %s\n", hint->GetEditorId().id, hint->GetName().data());
+        }
     }
 }
 
@@ -786,7 +810,10 @@ void CCameraManager::AddActiveCameraHint(TUniqueId id, CStateManager& mgr)
                                    [id](TUniqueId tid) { return tid == id; });
         if (search == x334_activeCameraHints.end() && xac_cameraHints.size() != 64 &&
             x334_activeCameraHints.size() != 64)
+        {
             x334_activeCameraHints.push_back(id);
+            printf("Active %08X %s\n", hint->GetEditorId().id, hint->GetName().data());
+        }
     }
 }
 

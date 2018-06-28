@@ -22,9 +22,9 @@ class CCameraHint
     float x44_azimuthRange;
     float x48_anglePerSecond;
     float x4c_clampVelRange;
-    float x50_f9;
+    float x50_clampRotRange;
     float x54_elevation;
-    float x58_f11;
+    float x58_interpolateTime;
     float x5c_clampVelTime;
     float x60_controlInterpDur;
 
@@ -32,13 +32,14 @@ public:
     CCameraHint(u32 overrideFlags, CBallCamera::EBallCameraBehaviour behaviour, float minDist, float maxDist,
                 float backwardsDist, const zeus::CVector3f& lookAtOffset, const zeus::CVector3f& chaseLookAtOffset,
                 const zeus::CVector3f& ballToCam, float fov, float attitudeRange, float azimuthRange,
-                float anglePerSecond, float clampVelRange, float f9, float elevation, float f11,
+                float anglePerSecond, float clampVelRange, float clampRotRange, float elevation, float interpolateTime,
                 float clampVelTime, float controlInterpDur)
     : x4_overrideFlags(overrideFlags), x8_behaviour(behaviour), xc_minDist(minDist), x10_maxDist(maxDist),
       x14_backwardsDist(backwardsDist), x18_lookAtOffset(lookAtOffset), x24_chaseLookAtOffset(chaseLookAtOffset),
       x30_ballToCam(ballToCam), x3c_fov(fov), x40_attitudeRange(attitudeRange), x44_azimuthRange(azimuthRange),
-      x48_anglePerSecond(anglePerSecond), x4c_clampVelRange(clampVelRange), x50_f9(f9), x54_elevation(elevation),
-      x58_f11(f11), x5c_clampVelTime(clampVelTime), x60_controlInterpDur(controlInterpDur) {}
+      x48_anglePerSecond(anglePerSecond), x4c_clampVelRange(clampVelRange), x50_clampRotRange(clampRotRange),
+      x54_elevation(elevation), x58_interpolateTime(interpolateTime), x5c_clampVelTime(clampVelTime),
+      x60_controlInterpDur(controlInterpDur) {}
 
     u32 GetOverrideFlags() const { return x4_overrideFlags; }
     CBallCamera::EBallCameraBehaviour GetBehaviourType() const { return x8_behaviour; }
@@ -53,9 +54,9 @@ public:
     float GetAzimuthRange() const { return x44_azimuthRange; }
     float GetAnglePerSecond() const { return x48_anglePerSecond; }
     float GetClampVelRange() const { return x4c_clampVelRange; }
-    float GetX50() const { return x50_f9; }
+    float GetClampRotRange() const { return x50_clampRotRange; }
     float GetElevation() const { return x54_elevation; }
-    float GetX58() const { return x58_f11; }
+    float GetInterpolateTime() const { return x58_interpolateTime; }
     float GetClampVelTime() const { return x5c_clampVelTime; }
     float GetControlInterpDur() const { return x60_controlInterpDur; }
 };
@@ -76,8 +77,9 @@ public:
                       bool active, s32 priority, CBallCamera::EBallCameraBehaviour behaviour, u32 overrideFlags,
                       float minDist, float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
                       const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam, float fov,
-                      float attitudeRange, float azimuthRange, float anglePerSecond, float clampVelRange, float f9,
-                      float elevation, float f11, float clampVelTime, float controlInterpDur);
+                      float attitudeRange, float azimuthRange, float anglePerSecond, float clampVelRange,
+                      float clampRotRange, float elevation, float interpolateTime, float clampVelTime,
+                      float controlInterpDur);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);

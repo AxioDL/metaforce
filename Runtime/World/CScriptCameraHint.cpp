@@ -12,13 +12,13 @@ CScriptCameraHint::CScriptCameraHint(TUniqueId uid, std::string_view name, const
                                      float maxDist, float backwardsDist, const zeus::CVector3f& lookAtOffset,
                                      const zeus::CVector3f& chaseLookAtOffset, const zeus::CVector3f& ballToCam,
                                      float fov, float attitudeRange, float azimuthRange, float anglePerSecond,
-                                     float clampVelRange, float f9, float elevation, float f11,
+                                     float clampVelRange, float clampRotRange, float elevation, float interpolateTime,
                                      float clampVelTime, float controlInterpDur)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId), xe8_priority(priority),
   xec_hint(overrideFlags, behaviour, minDist, maxDist, backwardsDist, lookAtOffset, chaseLookAtOffset, ballToCam,
-           fov, attitudeRange, azimuthRange, anglePerSecond, clampVelRange, f9, elevation, f11, clampVelTime,
-           controlInterpDur),
+           fov, attitudeRange, azimuthRange, anglePerSecond, clampVelRange, clampRotRange, elevation, interpolateTime,
+           clampVelTime, controlInterpDur),
   x168_origXf(xf)
 {
 }
@@ -76,6 +76,8 @@ void CScriptCameraHint::RemoveHelper(TUniqueId id)
                                [id](TUniqueId tid) { return tid == id; });
     if (search != x150_helpers.end())
         x150_helpers.erase(search);
+    else
+        x150_helpers.pop_front();
 }
 
 void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)

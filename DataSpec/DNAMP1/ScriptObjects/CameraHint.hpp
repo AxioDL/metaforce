@@ -31,7 +31,7 @@ struct CameraHint : IScriptObject
         Value<bool> hintDistanceSelection; // 0x80
         Value<bool> hintDistanceSelfPos; // 0x100
         Value<bool> controlInterpolation; // 0x200
-        Value<bool> unknown11; // 0x400
+        Value<bool> sinusoidalInterpolation; // 0x400
         Value<bool> unknown12; // 0x800
         Value<bool> clampVelocity; // 0x1000
         Value<bool> skipCinematic; // 0x2000
@@ -60,9 +60,9 @@ struct CameraHint : IScriptObject
     Value<atVec3f> ballToCam;
     BoolFloat fov, attitudeRange, azimuthRange, anglePerSecond; // 0x8000000, 0x10000000, 0x20000000, 0x40000000
     Value<float> clampVelRange;
-    Value<float> unknown6;
+    Value<float> clampRotRange;
     BoolFloat elevation; // 0x80000000
-    Value<float> unknown7;
+    Value<float> interpolateTime;
     Value<float> clampVelTime;
     Value<float> controlInterpDur;
 };

@@ -335,8 +335,7 @@ float CCameraSpline::FindClosestLengthOnSpline(float time, const zeus::CVector3f
                 extrap = x4_positions.back();
             nextDelta = delta + thisPos - extrap;
         }
-
-        delta.normalize();
+        nextDelta.normalize();
 
         if (i < x4_positions.size() - 2)
         {
@@ -358,12 +357,14 @@ float CCameraSpline::FindClosestLengthOnSpline(float time, const zeus::CVector3f
             }
             nextRevDelta = revDelta + *nextPos - extrap;
         }
+        nextRevDelta.normalize();
 
-        revDelta.normalize();
         nextDelta.normalize();
         nextRevDelta.normalize();
-        float proj = (p - thisPos).dot(delta) / delta.dot(nextDelta);
-        float nextProj = (p - *nextPos).dot(revDelta) / revDelta.dot(nextRevDelta);
+        zeus::CVector3f ptToPlayer = p - thisPos;
+        float proj = ptToPlayer.dot(nextDelta) / nextDelta.dot(delta.normalized());
+        zeus::CVector3f nextPtToPlayer = p - *nextPos;
+        float nextProj = nextPtToPlayer.dot(nextRevDelta) / nextRevDelta.dot(revDelta.normalized());
         float t = proj / (proj + nextProj);
 
         if (!x48_closedLoop)

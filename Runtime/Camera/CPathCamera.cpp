@@ -168,10 +168,11 @@ zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr)
         zeus::CVector3f splineToPlayer = mgr.GetPlayer().GetTranslation() -
             x188_spline.GetInterpolatedSplinePointByLength(x1d8_time).origin;
         float distToPlayer = 0.f;
+        splineToPlayer.z = 0.f;
         if (splineToPlayer.canBeNormalized())
             distToPlayer = splineToPlayer.magnitude();
-        f30 *= 1.f - std::sin(zeus::degToRad(zeus::clamp(0.f, (distToPlayer - x1f0_minEaseDist) /
-            (x1f4_maxEaseDist - x1f0_minEaseDist), 1.f) * 90.f));
+        float easedDistT = (distToPlayer - x1f0_minEaseDist) / (x1f4_maxEaseDist - x1f0_minEaseDist);
+        f30 *= 1.f - std::sin(zeus::degToRad(zeus::clamp(0.f, easedDistT, 1.f) * 90.f));
     }
 
     float newPos;

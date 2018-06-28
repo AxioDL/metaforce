@@ -13,11 +13,17 @@ class CInterpolationCamera : public CGameCamera
     float x190_maxTime = 0.f;
     zeus::CTransform x194_;
     zeus::CVector3f x1c4_lookPos;
-    float x1d0_ = 0.f;
-    float x1d4_ = 0.f;
+    float x1d0_positionSpeed = 0.f;
+    float x1d4_rotationSpeed = 0.f;
     float x1d8_ = 0.f;
-    bool x1d8_24_ : 1;
-    float x1dc_ = M_PIF * 2.f;
+    bool x1d8_24_sinusoidal : 1;
+    float x1dc_closeInAngle = M_PIF * 2.f;
+
+    bool InterpolateSinusoidal(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin,
+                               const zeus::CVector3f& lookPos, float maxTime, float curTime);
+    bool InterpolateWithDistance(zeus::CTransform& xf, const zeus::CVector3f& targetOrigin,
+                                 const zeus::CVector3f& lookPos, float positionSpeed,
+                                 float rotationSpeed, float dt, float maxTime, float curTime);
 public:
     CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf);
     void Accept(IVisitor& visitor);
@@ -27,10 +33,9 @@ public:
     void Reset(const zeus::CTransform&, CStateManager& mgr);
     void Think(float, CStateManager &);
     void SetInterpolation(const zeus::CTransform& xf, const zeus::CVector3f& lookPos,
-                          float f1, float f2, float f3, TUniqueId camId, bool b1, CStateManager& mgr);
+                          float maxTime, float positionSpeed, float rotationSpeed,
+                          TUniqueId camId, bool sinusoidal, CStateManager& mgr);
     void DeactivateInterpCamera(CStateManager&);
-    bool sub802654d8(zeus::CTransform&, const zeus::CVector3f&, const zeus::CVector3f&, float, float);
-    bool sub802658c0(zeus::CTransform&, const zeus::CVector3f&, const zeus::CVector3f&, float, float, float, float);
 };
 
 }

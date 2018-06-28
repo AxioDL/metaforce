@@ -885,23 +885,24 @@ CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int 
     overrideFlags |= in.readBool() << 27;
     float fov = in.readFloatBig();
     overrideFlags |= in.readBool() << 28;
-    float attitudeRange = in.readFloatBig();
+    float attitudeRange = zeus::degToRad(in.readFloatBig());
     overrideFlags |= in.readBool() << 29;
-    float azimuthRange = in.readFloatBig();
+    float azimuthRange = zeus::degToRad(in.readFloatBig());
     overrideFlags |= in.readBool() << 30;
-    float anglePerSecond = in.readFloatBig();
+    float anglePerSecond = zeus::degToRad(in.readFloatBig());
     float clampVelRange = in.readFloatBig();
-    float f9 = in.readFloatBig();
+    float clampRotRange = zeus::degToRad(in.readFloatBig());
     overrideFlags |= in.readBool() << 31;
     float elevation = in.readFloatBig();
-    float f11 = in.readFloatBig();
+    float interpolateTime = in.readFloatBig();
     float clampVelTime = in.readFloatBig();
     float controlInterpDur = in.readFloatBig();
 
     return new CScriptCameraHint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, prio,
                                  behaviour, overrideFlags, minDist, maxDist, backwardsDist, lookAtOffset,
                                  chaseLookAtOffset, ballToCam, fov, attitudeRange, azimuthRange, anglePerSecond,
-                                 clampVelRange, f9, elevation, f11, clampVelTime, controlInterpDur);
+                                 clampVelRange, clampRotRange, elevation, interpolateTime, clampVelTime,
+                                 controlInterpDur);
 }
 
 CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
