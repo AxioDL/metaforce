@@ -246,7 +246,7 @@ public:
                 bool x1108_26_ : 1;
                 bool x1108_27_ : 1;
                 bool x1108_28_occlusionPinged : 1;
-                bool x1108_29_ : 1;
+                bool x1108_29_pvsHasActors : 1;
                 bool x1108_30_ : 1;
             };
             u32 _dummy = 0;

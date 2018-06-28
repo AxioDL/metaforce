@@ -15,14 +15,14 @@ class CPVSAreaSet
     u32 xc_numActors;
     u32 x10_leafSize;
     u32 x14_lightIndexCount;
-    const u8* x18_entityIndex;
+    std::vector<u32> x18_entityIndex;
     const u8* x1c_lightLeaves;
     CPVSVisOctree x20_octree;
 
     CPVSVisSet _GetLightSet(u32 lightIdx) const
     {
         CPVSVisSet ret;
-        ret.SetFromMemory(x20_octree.GetTotalBits(), x20_octree.GetLightBits(),
+        ret.SetFromMemory(x20_octree.GetNumObjects(), x20_octree.GetNumLights(),
                           x1c_lightLeaves + x10_leafSize * lightIdx);
         return ret;
     }

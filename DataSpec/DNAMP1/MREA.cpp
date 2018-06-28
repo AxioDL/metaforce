@@ -337,7 +337,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
             for (int i=0 ; i<entityCount ; ++i)
             {
                 uint32_t entityId = rs.readUint32Big();
-                visiWriter.writeUint16(nullptr, entityId & 0xffff);
+                visiWriter.writeUint32(nullptr, entityId);
             }
         }
         hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _S("!visi.yaml"));
@@ -681,12 +681,12 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
                 entities.reserve(entityCount);
                 for (size_t i=0 ; i<entityCount ; ++i)
                 {
-                    uint16_t entityId = r.readUint16(nullptr);
+                    uint32_t entityId = r.readUint32(nullptr);
                     for (const SCLY::ScriptLayer& layer : sclyData.layers)
                     {
                         for (const std::unique_ptr<IScriptObject>& obj : layer.objects)
                         {
-                            if ((obj->id & 0xffff) == entityId)
+                            if ((obj->id & ~0x03FF0000) == entityId)
                             {
                                 zeus::CAABox entAABB = obj->getVISIAABB(btok);
                                 if (!entAABB.invalid())

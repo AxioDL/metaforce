@@ -1040,7 +1040,7 @@ void CGameArea::Validate(CStateManager& mgr)
     LoadScriptObjects(mgr);
 
     CPVSAreaSet* pvs = x12c_postConstructed->xa0_pvs.get();
-    if (pvs && x12c_postConstructed->x1108_29_)
+    if (pvs && x12c_postConstructed->x1108_29_pvsHasActors)
     {
         for (int i=0 ; i<pvs->GetNumActors() ; ++i)
         {
@@ -1168,7 +1168,7 @@ void CGameArea::PostConstructArea()
             x12c_postConstructed->x10a8_pvsVersion = r.readUint32Big();
             if (x12c_postConstructed->x10a8_pvsVersion == 2)
             {
-                x12c_postConstructed->x1108_29_ = r.readBool();
+                x12c_postConstructed->x1108_29_pvsHasActors = r.readBool();
                 x12c_postConstructed->x1108_30_ = r.readBool();
                 x12c_postConstructed->xa0_pvs = std::make_unique<CPVSAreaSet>(secIt->first + r.position(),
                                                                               secIt->second - r.position());

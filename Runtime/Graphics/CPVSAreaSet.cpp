@@ -12,8 +12,10 @@ CPVSAreaSet::CPVSAreaSet(const u8* data, u32 len)
     xc_numActors = r.readUint32Big();
     x10_leafSize = r.readUint32Big();
     x14_lightIndexCount = r.readUint32Big();
-    x18_entityIndex = data + r.position();
-    x1c_lightLeaves = x18_entityIndex + xc_numActors * 4;
+    x18_entityIndex.reserve(xc_numActors);
+    for (int i=0 ; i<xc_numActors ; ++i)
+        x18_entityIndex.push_back(r.readUint32Big());
+    x1c_lightLeaves = data + r.position();
     const u8* octreeData = x1c_lightLeaves + x14_lightIndexCount * x10_leafSize;
     x20_octree = CPVSVisOctree::MakePVSVisOctree(octreeData);
 }

@@ -95,7 +95,7 @@ void CPVSVisSet::SetTestPoint(const CPVSVisOctree& octree, const zeus::CVector3f
     switch (curNode & 0x18)
     {
     case 0x18:
-        SetFromMemory(octree.GetTotalBits(), octree.GetLightBits(), octCur);
+        SetFromMemory(octree.GetNumObjects(), octree.GetNumLights(), octCur);
         break;
     case 0x10:
         Reset(EPVSVisSetState::EndOfTree);

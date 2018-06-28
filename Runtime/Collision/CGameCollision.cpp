@@ -204,7 +204,7 @@ zeus::CVector3f CGameCollision::GetActorRelativeVelocities(const CPhysicsActor& 
         if (TCastToConstPtr<CScriptPlatform> plat = act1)
             rider = plat->IsRider(act0.GetUniqueId());
         if (!rider)
-            ret =- act1->GetVelocity();
+            ret -= act1->GetVelocity();
     }
     return ret;
 }
@@ -1035,6 +1035,7 @@ CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisi
                                           const rstl::reserved_vector<TUniqueId, 1024>& nearList)
 {
     zeus::CTransform xf = actor.GetPrimitiveTransform();
+    zeus::CVector3f origOrigin = xf.origin;
     zeus::CVector3f center = prim.CalculateAABox(xf).center();
     for (int i=2 ; i<1000 ; i+=(i/2))
     {
@@ -1126,12 +1127,13 @@ CGameCollision::FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisi
             default: break;
             }
 
-            zeus::CVector3f worldPoint = vec + xf.origin;
+            zeus::CVector3f worldPoint = vec + origOrigin;
             if (mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().pointInside(worldPoint))
             {
                 if (mgr.RayCollideWorld(center, center + vec, nearList,
                                         CMaterialFilter::skPassEverything, &actor))
                 {
+                    xf.origin = worldPoint;
                     if (!DetectCollisionBoolean_Cached(mgr, cache, prim, xf, actor.GetMaterialFilter(), nearList))
                         return {vec};
                 }

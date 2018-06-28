@@ -7,14 +7,14 @@ CPVSVisOctree CPVSVisOctree::MakePVSVisOctree(const u8* data)
 {
     CMemoryInStream r(data, 68);
     zeus::CAABox aabb = aabb.ReadBoundingBoxBig(r);
-    u32 a = r.readUint32Big();
-    u32 b = r.readUint32Big();
+    u32 numObjects = r.readUint32Big();
+    u32 numLights = r.readUint32Big();
     r.readUint32Big();
-    return CPVSVisOctree(aabb, a, b, data + r.position());
+    return CPVSVisOctree(aabb, numObjects, numLights, data + r.position());
 }
 
-CPVSVisOctree::CPVSVisOctree(const zeus::CAABox& aabb, u32 a, u32 b, const u8* c)
-: x0_aabb(aabb), x18_totalBits(a), x1c_lightBits(b), x20_bufferFlag(c != nullptr), x24_octreeData(c)
+CPVSVisOctree::CPVSVisOctree(const zeus::CAABox& aabb, u32 numObjects, u32 numLights, const u8* c)
+: x0_aabb(aabb), x18_numObjects(numObjects), x1c_numLights(numLights), x20_bufferFlag(c != nullptr), x24_octreeData(c)
 {
     x2c_searchAabb = x0_aabb;
     x20_bufferFlag = 0;

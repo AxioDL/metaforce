@@ -32,7 +32,7 @@ struct CameraHint : IScriptObject
         Value<bool> hintDistanceSelfPos; // 0x100
         Value<bool> controlInterpolation; // 0x200
         Value<bool> sinusoidalInterpolation; // 0x400
-        Value<bool> unknown12; // 0x800
+        Value<bool> sinusoidalInterpolationHintless; // 0x800
         Value<bool> clampVelocity; // 0x1000
         Value<bool> skipCinematic; // 0x2000
         Value<bool> noElevationInterp; // 0x4000
