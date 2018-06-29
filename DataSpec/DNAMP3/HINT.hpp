@@ -1,7 +1,7 @@
 #ifndef _DNAMP3_HINT_HPP_
 #define _DNAMP3_HINT_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
 
 namespace DataSpec::DNAMP3

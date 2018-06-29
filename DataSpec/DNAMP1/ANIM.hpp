@@ -2,7 +2,7 @@
 #define _DNAMP1_ANIM_HPP_
 
 #include "DNAMP1.hpp"
-#include "../DNACommon/ANIM.hpp"
+#include "DataSpec/DNACommon/ANIM.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 

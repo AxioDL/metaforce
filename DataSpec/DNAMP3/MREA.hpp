@@ -1,7 +1,7 @@
 #ifndef __DNAMP3_MREA_HPP__
 #define __DNAMP3_MREA_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CMDLMaterials.hpp"
 #include "CSKR.hpp"
 #include "../DNAMP2/MREA.hpp"

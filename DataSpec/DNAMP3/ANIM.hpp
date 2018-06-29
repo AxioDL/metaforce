@@ -2,8 +2,8 @@
 #define _DNAMP3_ANIM_HPP_
 
 #include "DNAMP3.hpp"
-#include "../DNACommon/ANIM.hpp"
-#include "../DNACommon/RigInverter.hpp"
+#include "DataSpec/DNACommon/ANIM.hpp"
+#include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 
 namespace DataSpec::DNAMP3

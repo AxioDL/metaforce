@@ -8,7 +8,7 @@ namespace urde
 
 class CScriptWaypoint : public CActor
 {
-    float xe8_;
+    float xe8_speed;
     u32 xec_;
     float xf0_;
     bool xf4_;
@@ -27,6 +27,7 @@ public:
     void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
     TUniqueId FollowWaypoint(CStateManager& mgr) const;
     TUniqueId NextWaypoint(CStateManager& mgr) const;
+    float GetSpeed() const { return xe8_speed; }
 };
 }
 

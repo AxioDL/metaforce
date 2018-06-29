@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include <nod/DiscBase.hpp>
-#include "../DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNAMP1
 {

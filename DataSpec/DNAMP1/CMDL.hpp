@@ -1,8 +1,8 @@
 #ifndef _DNAMP1_CMDL_HPP_
 #define _DNAMP1_CMDL_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/CMDL.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
 #include "CMDLMaterials.hpp"
 #include "DNAMP1.hpp"
 #include "CINF.hpp"

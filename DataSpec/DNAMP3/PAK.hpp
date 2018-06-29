@@ -5,7 +5,7 @@
 
 #include <lzo/lzo1x.h>
 #include <nod/DiscBase.hpp>
-#include "../DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNAMP3
 {

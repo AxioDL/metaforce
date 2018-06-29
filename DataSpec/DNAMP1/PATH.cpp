@@ -1,7 +1,7 @@
 #include "PATH.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "zeus/CAABox.hpp"
-#include "../DNACommon/AROTBuilder.hpp"
+#include "DataSpec/DNACommon/AROTBuilder.hpp"
 
 namespace DataSpec::DNAMP1
 {

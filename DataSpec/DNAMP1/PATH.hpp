@@ -1,8 +1,8 @@
 #ifndef __DNACOMMON_PATH_HPP__
 #define __DNACOMMON_PATH_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

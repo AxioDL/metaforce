@@ -2,8 +2,8 @@
 #define _DNAMP3_CHAR_HPP_
 
 #include <map>
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/ANCS.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/ANCS.hpp"
 #include "CMDLMaterials.hpp"
 #include "CINF.hpp"
 #include "CSKR.hpp"

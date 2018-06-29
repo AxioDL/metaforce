@@ -1,7 +1,7 @@
 #ifndef _DNAMP3_CINF_HPP_
 #define _DNAMP3_CINF_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "../DNAMP2/CINF.hpp"
 
 namespace DataSpec::DNAMP3

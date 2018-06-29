@@ -38,15 +38,15 @@ COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVector3f& a, const zeus::CVe
 
 CCollisionSurface COBBTree::GetSurface(u16 idx) const
 {
-    u32 surfIdx = idx * 3;
-    CCollisionEdge edge1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
-    CCollisionEdge edge2 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
-    u16 vert1 = edge2.GetVertIndex1();
-    u16 vert2 = edge2.GetVertIndex2();
-    u16 vert3 = edge1.GetVertIndex1();
+    int surfIdx = idx * 3;
+    CCollisionEdge e0 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx]];
+    CCollisionEdge e1 = x18_indexData.x40_edges[x18_indexData.x50_surfaceIndices[surfIdx + 1]];
+    u16 vert1 = e0.GetVertIndex1();
+    u16 vert2 = e0.GetVertIndex2();
+    u16 vert3 = e1.GetVertIndex1();
 
-    if (vert3 == vert1 || vert3 == edge2.GetVertIndex2())
-        vert3 = edge1.GetVertIndex2();
+    if (vert3 == vert1 || vert3 == vert2)
+        vert3 = e1.GetVertIndex2();
 
     u32 mat = x18_indexData.x0_materials[x18_indexData.x30_surfaceMaterials[idx]];
 

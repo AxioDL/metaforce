@@ -15,21 +15,21 @@ struct Platform : IScriptObject
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
-    Value<atVec3f> unknown1;
-    Value<atVec3f> scanOffset;
+    Value<atVec3f> extent;
+    Value<atVec3f> collisionCenter;
     UniqueID32 model;
     AnimationParameters animationParameters;
     ActorParameters actorParameters;
-    Value<float> unknown2;
+    Value<float> speed;
     Value<bool> active;
     UniqueID32 dcln;
     HealthInfo healthInfo;
     DamageVulnerability damageVulnerabilty;
-    Value<bool> unknown3;
-    Value<float> unknown4;
-    Value<bool> unknown5;
-    Value<atUint32> unknown6;
-    Value<atUint32> unknown7;
+    Value<bool> detectCollision;
+    Value<float> xrayAlpha;
+    Value<bool> rainSplashes;
+    Value<atUint32> maxRainSplashes;
+    Value<atUint32> rainGenRate;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const

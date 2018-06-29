@@ -2,7 +2,7 @@
 #define _DNAMP1_AFSM_HPP_
 
 #include <athena/FileWriter.hpp>
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

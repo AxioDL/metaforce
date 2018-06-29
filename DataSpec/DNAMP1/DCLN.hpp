@@ -2,9 +2,9 @@
 #define __DNAMP1_DCLN_HPP__
 
 #include <athena/Types.hpp>
-#include "../DNACommon/DeafBabe.hpp"
-#include "../DNACommon/PAK.hpp"
-#include "../DNACommon/OBBTreeBuilder.hpp"
+#include "DataSpec/DNACommon/DeafBabe.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/OBBTreeBuilder.hpp"
 #include "DNAMP1.hpp"
 #include "DeafBabe.hpp"
 

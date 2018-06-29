@@ -1,7 +1,7 @@
 #ifndef __DNAMP3_SAVW_HPP__
 #define __DNAMP3_SAVW_HPP__
 
-#include "../DNACommon/SAVWCommon.hpp"
+#include "DataSpec/DNACommon/SAVWCommon.hpp"
 #include "DNAMP3.hpp"
 
 namespace DataSpec::DNAMP3

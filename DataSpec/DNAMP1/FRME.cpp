@@ -1,5 +1,5 @@
 #include "FRME.hpp"
-#include "../DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
 #include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec::DNAMP1

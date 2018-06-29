@@ -2,8 +2,8 @@
 #define _DNAMP2_ANIM_HPP_
 
 #include "DNAMP2.hpp"
-#include "../DNACommon/ANIM.hpp"
-#include "../DNACommon/RigInverter.hpp"
+#include "DataSpec/DNACommon/ANIM.hpp"
+#include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
 
 namespace DataSpec::DNAMP2

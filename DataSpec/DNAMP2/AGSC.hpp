@@ -1,7 +1,7 @@
 #ifndef _DNAMP2_AGSC_HPP_
 #define _DNAMP2_AGSC_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP2.hpp"
 
 namespace DataSpec::DNAMP2

@@ -1,7 +1,7 @@
 #ifndef __DNAMP2_PTLA_HPP__
 #define __DNAMP2_PTLA_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 
 namespace DataSpec::DNAMP2
 {

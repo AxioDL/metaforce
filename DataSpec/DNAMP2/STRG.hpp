@@ -2,8 +2,8 @@
 #define __DNAMP2_STRG_HPP__
 
 #include <unordered_map>
-#include "../DNACommon/PAK.hpp"
-#include "../DNACommon/STRG.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/STRG.hpp"
 
 namespace DataSpec::DNAMP2
 {

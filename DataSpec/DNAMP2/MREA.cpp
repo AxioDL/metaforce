@@ -2,7 +2,7 @@
 #include <lzo/lzo1x.h>
 #include "MREA.hpp"
 #include "../DNAMP1/MREA.hpp"
-#include "../DNACommon/EGMC.hpp"
+#include "DataSpec/DNACommon/EGMC.hpp"
 #include "DeafBabe.hpp"
 #include "hecl/Blender/Connection.hpp"
 

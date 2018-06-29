@@ -11,10 +11,10 @@
 #include "MAPA.hpp"
 #include "SAVW.hpp"
 #include "HINT.hpp"
-#include "../DNACommon/TXTR.hpp"
-#include "../DNACommon/FONT.hpp"
-#include "../DNACommon/FSM2.hpp"
-#include "../DNACommon/DGRP.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/FONT.hpp"
+#include "DataSpec/DNACommon/FSM2.hpp"
+#include "DataSpec/DNACommon/DGRP.hpp"
 #include "Runtime/GCNTypes.hpp"
 
 namespace DataSpec::DNAMP3

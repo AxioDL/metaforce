@@ -82,8 +82,8 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr)
 
 void CScriptActorRotate::UpdatePlatformRiders(CScriptPlatform& plat, const zeus::CTransform& xf, CStateManager& mgr)
 {
-    UpdatePlatformRiders(plat.GetX328(), plat, xf, mgr);
-    UpdatePlatformRiders(plat.GetX338(), plat, xf, mgr);
+    UpdatePlatformRiders(plat.GetStaticSlaves(), plat, xf, mgr);
+    UpdatePlatformRiders(plat.GetDynamicSlaves(), plat, xf, mgr);
 }
 
 void CScriptActorRotate::UpdatePlatformRiders(std::vector<SRiders>& riders, CScriptPlatform& plat,

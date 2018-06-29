@@ -1,7 +1,7 @@
 #ifndef __DNAMP1_HPP__
 #define __DNAMP1_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
 #include "zeus/CMatrix4f.hpp"
 

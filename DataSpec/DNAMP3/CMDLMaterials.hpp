@@ -1,8 +1,8 @@
 #ifndef _DNAMP3_CMDL_MATERIALS_HPP_
 #define _DNAMP3_CMDL_MATERIALS_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/GX.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/GX.hpp"
 #include "../DNAMP1/CMDLMaterials.hpp"
 #include "DNAMP3.hpp"
 

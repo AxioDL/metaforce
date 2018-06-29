@@ -44,8 +44,4 @@ void CEnvFxManager::Cleanup()
     xb70_ = 0;
 }
 
-void CEnvFxManager::sub801e4f10(CActor*, float, const CStateManager& , u32, u32)
-{
-}
-
 }

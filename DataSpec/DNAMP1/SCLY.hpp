@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_SCLY_HPP_
 #define _DNAMP1_SCLY_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "ScriptObjects/IScriptObject.hpp"
 #include "DNAMP1.hpp"
 

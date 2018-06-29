@@ -4,7 +4,7 @@
 #include "SCLY.hpp"
 #include "PATH.hpp"
 #include "DeafBabe.hpp"
-#include "../DNACommon/BabeDead.hpp"
+#include "DataSpec/DNACommon/BabeDead.hpp"
 #include "zeus/Math.hpp"
 #include "zeus/CAABox.hpp"
 #include "DataSpec/DNACommon/AROTBuilder.hpp"

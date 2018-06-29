@@ -1,8 +1,8 @@
 #ifndef __DNAMP2_MLVL_HPP__
 #define __DNAMP2_MLVL_HPP__
 
-#include "../DNACommon/PAK.hpp"
-#include "../DNACommon/MLVL.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/MLVL.hpp"
 #include "DNAMP2.hpp"
 
 namespace DataSpec::DNAMP2

@@ -11,7 +11,7 @@ CScriptWaypoint::CScriptWaypoint(TUniqueId uid, std::string_view name, const CEn
                                  u32 w1, u32 w2, u32 w3, u32 w4, u32 w5, u32 w6, u32 w7)
 : CActor(uid, active, name, info, xf, CModelData(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId),
-  xe8_(f1), xec_(w7), xf0_(f2), xf4_(w1), xf5_(w2), xf6_(w3), xf7_(w4), xf8_(w5), xfa_jumpFlags(w6)
+  xe8_speed(f1), xec_(w7), xf0_(f2), xf4_(w1), xf5_(w2), xf6_(w3), xf7_(w4), xf8_(w5), xfa_jumpFlags(w6)
 {
     SetUseInSortedLists(false);
     SetCallTouch(false);

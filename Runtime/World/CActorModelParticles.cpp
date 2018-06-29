@@ -293,7 +293,7 @@ void CActorModelParticles::StartIce(CActor& actor, CStateManager& mgr)
 
 }
 
-void CActorModelParticles::AddRainSplashGenerator(CScriptPlayerActor& act, CStateManager& mgr, u32 maxSplashes,
+void CActorModelParticles::AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes,
                                                   u32 genRate, float minZ)
 {
     auto it = FindOrCreateSystem(act);
@@ -305,7 +305,7 @@ void CActorModelParticles::AddRainSplashGenerator(CScriptPlayerActor& act, CStat
                                                                              maxSplashes, genRate, minZ, 0.1875f);
 }
 
-void CActorModelParticles::RemoveRainSplashGenerator(CScriptPlayerActor& act)
+void CActorModelParticles::RemoveRainSplashGenerator(CActor& act)
 {
      auto it = FindOrCreateSystem(act);
      it->xd4_rainSplashGenerator.reset();

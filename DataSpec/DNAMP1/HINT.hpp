@@ -1,8 +1,8 @@
 #ifndef _DNAMP1_HINT_HPP_
 #define _DNAMP1_HINT_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNAMP1
 {

@@ -1,7 +1,7 @@
 #include <athena/FileWriter.hpp>
 #include "MREA.hpp"
 #include "../DNAMP2/DeafBabe.hpp"
-#include "../DNACommon/BabeDead.hpp"
+#include "DataSpec/DNACommon/BabeDead.hpp"
 #include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec

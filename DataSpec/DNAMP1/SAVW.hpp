@@ -1,7 +1,7 @@
 #ifndef __DNAMP1_SAVW_HPP__
 #define __DNAMP1_SAVW_HPP__
 
-#include "../DNACommon/SAVWCommon.hpp"
+#include "DataSpec/DNACommon/SAVWCommon.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

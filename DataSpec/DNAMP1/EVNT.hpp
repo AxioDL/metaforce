@@ -1,7 +1,7 @@
 #ifndef __DNAMP1_EVNT_HPP__
 #define __DNAMP1_EVNT_HPP__
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

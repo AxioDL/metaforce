@@ -1,8 +1,8 @@
 #ifndef __DNAMP3_MAPA_HPP__
 #define __DNAMP3_MAPA_HPP__
 
-#include "../DNACommon/PAK.hpp"
-#include "../DNACommon/MAPA.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/MAPA.hpp"
 #include "DNAMP3.hpp"
 
 namespace DataSpec::DNAMP3

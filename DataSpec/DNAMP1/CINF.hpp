@@ -1,8 +1,8 @@
 #ifndef _DNAMP1_CINF_HPP_
 #define _DNAMP1_CINF_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/RigInverter.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/RigInverter.hpp"
 
 namespace DataSpec::DNAMP1
 {

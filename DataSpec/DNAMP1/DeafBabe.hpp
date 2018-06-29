@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_DEAFBABE_HPP_
 #define _DNAMP1_DEAFBABE_HPP_
 
-#include "../DNACommon/DeafBabe.hpp"
+#include "DataSpec/DNACommon/DeafBabe.hpp"
 
 namespace DataSpec::DNAMP1
 {

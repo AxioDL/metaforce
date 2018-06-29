@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "../DNACommon/PAK.hpp"
-#include "../DNACommon/MAPA.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/MAPA.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

@@ -2,8 +2,8 @@
 #define __DNAMP1_STRG_HPP__
 
 #include <unordered_map>
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/STRG.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/STRG.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

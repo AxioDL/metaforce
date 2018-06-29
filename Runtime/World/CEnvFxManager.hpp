@@ -86,7 +86,6 @@ public:
     bool GetX24() const { return x24_; }
     float GetRainMagnitude() const { return x30_rainMagnitude; }
     void Cleanup();
-    void sub801e4f10(CActor*, float, const CStateManager&, u32, u32);
 };
 
 }

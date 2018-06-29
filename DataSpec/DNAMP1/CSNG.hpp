@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_CSNG_HPP_
 #define _DNAMP1_CSNG_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1

@@ -1,7 +1,7 @@
 #ifndef _DNAMP1_CSKR_HPP_
 #define _DNAMP1_CSKR_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
 
 namespace DataSpec::DNAMP1

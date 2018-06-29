@@ -1,7 +1,7 @@
 #ifndef __DNACOMMON_ITWEAK_HPP__
 #define __DNACOMMON_ITWEAK_HPP__
 
-#include "../DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 
 namespace hecl
 {

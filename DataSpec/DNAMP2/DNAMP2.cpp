@@ -12,11 +12,11 @@
 #include "AGSC.hpp"
 #include "../DNAMP1/HINT.hpp"
 #include "../DNAMP1/CSNG.hpp"
-#include "../DNACommon/FSM2.hpp"
-#include "../DNACommon/TXTR.hpp"
-#include "../DNACommon/FONT.hpp"
-#include "../DNACommon/DGRP.hpp"
-#include "../DNACommon/ATBL.hpp"
+#include "DataSpec/DNACommon/FSM2.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
+#include "DataSpec/DNACommon/FONT.hpp"
+#include "DataSpec/DNACommon/DGRP.hpp"
+#include "DataSpec/DNACommon/ATBL.hpp"
 #include "Runtime/GCNTypes.hpp"
 
 namespace DataSpec::DNAMP2

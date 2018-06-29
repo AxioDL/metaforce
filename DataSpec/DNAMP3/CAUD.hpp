@@ -1,8 +1,8 @@
 #ifndef _DNAMP3_CAUD_HPP_
 #define _DNAMP3_CAUD_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/PAK.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNAMP3
 {

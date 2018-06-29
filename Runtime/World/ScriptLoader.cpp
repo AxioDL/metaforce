@@ -633,19 +633,19 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
 
     CActorParameters actParms = LoadActorParameters(in);
 
-    float f1 = in.readFloatBig();
-    bool b1 = in.readBool();
+    float speed = in.readFloatBig();
+    bool active = in.readBool();
     CAssetId dclnId = in.readUint32Big();
 
     CHealthInfo hInfo(in);
 
     CDamageVulnerability dInfo(in);
 
-    bool b2 = in.readBool();
-    float f2 = in.readFloatBig();
-    bool b3 = in.readBool();
-    u32 w2 = in.readUint32Big();
-    u32 w3 = in.readUint32Big();
+    bool detectCollision = in.readBool();
+    float xrayAlpha = in.readFloatBig();
+    bool rainSplashes = in.readBool();
+    u32 maxRainSplashes = in.readUint32Big();
+    u32 rainGenRate = in.readUint32Big();
 
     FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
     if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
@@ -671,7 +671,8 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptPlatform(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
-                               actParms, aabb, f1, b2, f2, b1, hInfo, dInfo, dclnToken, b3, w2, w3);
+                               actParms, aabb, speed, detectCollision, xrayAlpha, active, hInfo, dInfo,
+                               dclnToken, rainSplashes, maxRainSplashes, rainGenRate);
 }
 
 CEntity* ScriptLoader::LoadSound(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

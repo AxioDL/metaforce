@@ -1,9 +1,9 @@
 #ifndef _DNAMP1_CMDL_MATERIALS_HPP_
 #define _DNAMP1_CMDL_MATERIALS_HPP_
 
-#include "../DNACommon/DNACommon.hpp"
-#include "../DNACommon/GX.hpp"
-#include "../DNACommon/CMDL.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/GX.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
 #include "DNAMP1.hpp"
 
 namespace DataSpec::DNAMP1
