@@ -433,8 +433,8 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
                         {
                             d = dOut;
                             const CCollisionEdge& edge = x10_tree->GetEdge(edgeIdx);
-                            if (CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(x10_tree->GetVert(edge.GetVertIndex1()),
-                                                                                     x10_tree->GetVert(edge.GetVertIndex2()),
+                            if (CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(surf.GetVert(k),
+                                                                                     surf.GetVert((k + 1) % 3),
                                                                                      components.x0_edges, dir, d, normal, point) &&
                                 d < dOut)
                             {

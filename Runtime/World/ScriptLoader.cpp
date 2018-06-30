@@ -494,7 +494,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
         return nullptr;
 
     CModelData mData =
-        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), false);
+        CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, 0, false);
     if (collisionExtent.isZero())
         aabb = mData.GetBounds(head.x10_transform.getRotation());
 

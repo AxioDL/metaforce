@@ -56,7 +56,8 @@ void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os,
     os << "bpy.context.scene.render.engine = 'CYCLES'\n"
           "bpy.context.scene.world.use_nodes = True\n"
           "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-          "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n";
+          "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
+          "bg_node.inputs[1].default_value = 0.0\n";
     for (atUint32 s=0 ; s<4 ; ++s)
     {
         atUint32 lightCount = rs.readUint32Big();

@@ -29,7 +29,7 @@ CScriptDoor::CScriptDoor(TUniqueId uid, std::string_view name, const CEntityInfo
                          const zeus::CTransform& xf, CModelData&& mData, const CActorParameters& actParms,
                          const zeus::CVector3f& orbitPos, const zeus::CAABox& aabb, bool active,
                          bool open, bool projectilesCollide, float animLen, bool ballDoor)
-    : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open),
+: CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakeDoorMaterialList(open),
                 aabb, SMoverData(1.f), actParms, 0.3f, 0.1f)
 {
     x258_animLen = animLen;
@@ -65,6 +65,8 @@ zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) cons
 /* ORIGINAL 0-00 OFFSET: 8007E550 */
 void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr)
 {
+    if (msg == EScriptObjectMessage::Start)
+        printf("");
     switch (msg)
     {
     case EScriptObjectMessage::Close:
@@ -133,7 +135,7 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
             OpenDoor(uid, mgr);
             break;
         default:
-            x2a8_25_wasOpen= false;
+            x2a8_25_wasOpen = false;
             x2a8_24_closing = true;
             break;
         }

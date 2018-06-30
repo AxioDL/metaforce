@@ -314,7 +314,8 @@ bool FRME::Extract(const SpecBase &dataSpec,
               "bpy.context.scene.render.engine = 'CYCLES'\n"
               "bpy.context.scene.world.use_nodes = True\n"
               "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-              "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n",
+              "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
+              "bg_node.inputs[1].default_value = 0.0\n",
               pakRouter.getBestEntryName(entry).c_str());
 
     int pIdx = 0;
