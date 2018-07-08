@@ -264,8 +264,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
 {
     switch (entry.type)
     {
-    case SBIG('CAUD'):
-        return {CAUD::Extract, {_S(".yaml")}};
+//    case SBIG('CAUD'):
+//        return {CAUD::Extract, {_S(".yaml")}};
     case SBIG('STRG'):
         return {STRG::Extract, {_S(".yaml")}};
     case SBIG('TXTR'):

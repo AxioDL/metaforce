@@ -483,7 +483,7 @@ bool CWorldTransManager::WaitForModelsAndTextures()
         if (tag.type == FOURCC('TXTR') || tag.type == FOURCC('CMDL'))
             g_SimplePool->GetObj(tag).GetObj();
     }
-    return true;
+    return false;
 }
 
 void CWorldTransManager::SfxStop()

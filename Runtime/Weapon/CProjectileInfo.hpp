@@ -14,6 +14,7 @@ class CProjectileInfo
     TToken<CWeaponDescription> x0_weaponDescription;
     CDamageInfo xc_damageInfo;
 public:
+    CProjectileInfo(CInputStream&);
     CProjectileInfo(CAssetId, const CDamageInfo&);
 
     zeus::CVector3f PredictInterceptPos(const zeus::CVector3f&, const zeus::CVector3f&, const CPlayer&, bool);

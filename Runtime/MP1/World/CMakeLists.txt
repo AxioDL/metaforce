@@ -13,6 +13,8 @@ set(MP1_WORLD_SOURCES
     CMetroidBeta.hpp CMetroidBeta.cpp
     CMetroid.hpp CMetroid.cpp
     CMetaree.hpp CMetaree.cpp
+    CSeedling.hpp CSeedling.cpp
+    CRidley.hpp CRidley.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp
     CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp)
 

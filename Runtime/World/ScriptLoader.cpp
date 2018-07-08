@@ -11,12 +11,14 @@
 #include "CScriptActorRotate.hpp"
 #include "CScriptAiJumpPoint.hpp"
 #include "CScriptAreaAttributes.hpp"
+#include "MP1/World/CSeedling.hpp"
 #include "CScriptBeam.hpp"
 #include "CScriptCameraBlurKeyframe.hpp"
 #include "CScriptCameraFilterKeyframe.hpp"
 #include "CScriptCameraHint.hpp"
 #include "CScriptCameraHintTrigger.hpp"
 #include "CAmbientAI.hpp"
+#include "MP1/World/CRidley.hpp"
 #include "CScriptCameraPitchVolume.hpp"
 #include "CTeamAiMgr.hpp"
 #include "CSnakeWeedSwarm.hpp"
@@ -2733,12 +2735,50 @@ CEntity* ScriptLoader::LoadTryclops(CStateManager& mgr, CInputStream& in, int pr
 
 CEntity* ScriptLoader::LoadRidley(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 47, "Ridley"))
+        return nullptr;
+
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+        return nullptr;
+
+    CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(), aHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+    return new MP1::CRidley(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData), pInfo, actParms, in, propCount);
 }
 
 CEntity* ScriptLoader::LoadSeedling(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 14, "Seedling"))
+        return nullptr;
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+
+    if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+        return nullptr;
+
+    CActorParameters actParms = LoadActorParameters(in);
+    CAssetId needleId(in);
+    CAssetId weaponId(in);
+    CDamageInfo dInfo1(in);
+    CDamageInfo dInfo2(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+
+    CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(), aHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
+    return new MP1::CSeedling(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData), pInfo, actParms, needleId, weaponId, dInfo1, dInfo2, f1, f2, f3, f4);
 }
 
 CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in, int propCount,

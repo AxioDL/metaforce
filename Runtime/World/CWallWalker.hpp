@@ -10,7 +10,7 @@ class CWallWalker : public CPatterned
 public:
     CWallWalker(ECharacter, TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&,
                 CModelData&&, const CPatternedInfo&, EMovementType, EColliderType, EBodyType,
-                const CActorParameters&, s32, bool);
+                const CActorParameters&, s32, u32);
 };
 }
 #endif // __URDE_CWALLWALKER_HPP__

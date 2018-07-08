@@ -216,7 +216,7 @@ bool CResLoader::FindResource(CAssetId id) const
             return true;
     }
 
-    Log.report(logvisor::Error, "Unable to find asset %08X", id);
+    Log.report(logvisor::Fatal, "Unable to find asset %08X", id);
     return false;
 }
 
