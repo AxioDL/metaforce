@@ -3,7 +3,7 @@
 #include "CDvdFile.hpp"
 #include "CDvdRequest.hpp"
 #include "Audio/CAudioSys.hpp"
-#include "amuse/DSPCodec.h"
+#include "amuse/DSPCodec.hpp"
 #include <memory>
 
 namespace urde

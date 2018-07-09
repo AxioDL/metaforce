@@ -2285,6 +2285,7 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr)
                 lookAtOffsetAhead = moveXf * lookAtOffsetAhead;
             zeus::CVector3f lookAtPosAhead = ballPos + lookAtOffsetAhead;
             x1c0_lookPosAhead = lookAtPosAhead;
+            x1cc_fixedLookPos = ballPos + zeus::CVector3f(0.f, 0.f, lookAtOffsetAhead.z);
             zeus::CVector3f aheadToCurrentLookDelta = x1d8_lookPos - lookAtPosAhead;
             float aheadToCurrentLookMag = aheadToCurrentLookDelta.magnitude();
             if (aheadToCurrentLookDelta.canBeNormalized())

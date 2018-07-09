@@ -305,7 +305,7 @@ void CNESShader::Initialize()
             break;
 #endif
 #if _WIN32
-            case boo::IGraphicsDataFactory::Platform::D3D11:
+        case boo::IGraphicsDataFactory::Platform::D3D11:
             Initialize(static_cast<boo::D3DDataFactory::Context&>(ctx));
             break;
 #endif
@@ -315,7 +315,7 @@ void CNESShader::Initialize()
             break;
 #endif
 #if BOO_HAS_VULKAN
-            case boo::IGraphicsDataFactory::Platform::Vulkan:
+        case boo::IGraphicsDataFactory::Platform::Vulkan:
             Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx));
             break;
 #endif
