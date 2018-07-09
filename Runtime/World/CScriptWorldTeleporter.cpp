@@ -130,7 +130,7 @@ void CScriptWorldTeleporter::StartTransition(CStateManager& mgr)
             transMgr->DisableTransition();
             break;
         case ETeleporterType::Elevator:
-            if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != -1)
+            if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != u32(-1))
             {
                 transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(),
                                                     x5c_playerScale, x50_playerAnim.GetInitialAnimation(),true),

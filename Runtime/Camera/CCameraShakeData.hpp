@@ -61,6 +61,7 @@ public:
                      const CCameraShakerComponent& shaker1, const CCameraShakerComponent& shaker2,
                      const CCameraShakerComponent& shaker3);
     CCameraShakeData(float duration, float magnitude);
+    CCameraShakeData(CInputStream&);
     static CCameraShakeData BuildLandingCameraShakeData(float duration, float magnitude);
     static CCameraShakeData BuildProjectileCameraShake(float duration, float magnitude);
     static CCameraShakeData BuildMissileCameraShake(float duration, float magnitude, float sfxDistance,

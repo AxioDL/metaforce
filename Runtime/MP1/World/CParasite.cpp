@@ -11,7 +11,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
                      float, float, float, float, float, float, float, float, float, float, bool, u32, const CDamageVulnerability &,
                      const CParasiteInfo &, u16, u16, u16, u32, u32, float, const CActorParameters &aParams)
     : CWallWalker(ECharacter::Parasite, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground, EColliderType::One, EBodyType::WallWalker,
-                  aParams, -1, false)
+                  aParams, -1, 0)
 {
 }
 

@@ -157,7 +157,9 @@ struct SpecMP2 : SpecBase
       m_cookPath(project.getProjectCookedPath(SpecEntMP2), _S("MP2")),
       m_pakRouter(*this, m_workPath, m_cookPath),
       m_idRestorer({project.getProjectWorkingPath(), "MP2/!original_ids.yaml"}, project)
-    {}
+    {
+        setThreadProject();
+    }
 
     void buildPaks(nod::Node& root,
                    const std::vector<hecl::SystemString>& args,

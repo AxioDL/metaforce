@@ -38,6 +38,19 @@ CCameraShakeData::CCameraShakeData(float duration, float magnitude)
                    SCameraShakePoint{1, 0.f, 0.f, 0.5f * duration, 2.f}})
 {}
 
+CCameraShakeData::CCameraShakeData(CInputStream& in)
+{
+    in.readUint32Big();
+    in.readFloatBig();
+    in.readFloatBig();
+    in.readFloatBig();
+    in.readFloatBig();
+    in.readFloatBig();
+    in.readFloatBig();
+    in.readBool();
+    BuildProjectileCameraShake(0.5f, 0.75f);
+}
+
 CCameraShakeData CCameraShakeData::BuildLandingCameraShakeData(float duration, float magnitude)
 {
     return {duration, 100.f, 0, zeus::CVector3f::skZero,
