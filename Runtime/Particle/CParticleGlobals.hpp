@@ -37,8 +37,9 @@ public:
     {
         float lt = g_ParticleLifetime != 0.0f ? g_ParticleLifetime : 1.0f;
         g_ParticleLifetimePercentageReal = 100.0f * frame / lt;
-        g_ParticleLifetimePercentage = g_ParticleLifetimePercentageReal;
+        g_ParticleLifetimePercentage = int(g_ParticleLifetimePercentageReal);
         g_ParticleLifetimePercentageRemainder = g_ParticleLifetimePercentageReal - g_ParticleLifetimePercentage;
+        g_ParticleLifetimePercentage = zeus::clamp(0, g_ParticleLifetimePercentage, 100);
     }
 
     static const std::array<float, 8>* g_particleAccessParameters;

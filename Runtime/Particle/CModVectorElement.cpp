@@ -24,7 +24,7 @@ bool CMVEImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& 
     float d;
     x10_minMag->GetValue(frame, d);
     if (x14_enableMinMag && dvm < d)
-        return false;
+        return true;
 
     if (0.f == dvm)
         return false;
@@ -51,7 +51,7 @@ bool CMVEExponentialImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::
     float d;
     x10_minMag->GetValue(frame, d);
     if (x14_enableMinMag && dvm < d)
-        return false;
+        return true;
 
     if (0.f == dvm)
         return false;
@@ -78,7 +78,7 @@ bool CMVELinearImplosion::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVect
     float d;
     x10_minMag->GetValue(frame, d);
     if (x14_enableMinMag && dvm < d)
-        return false;
+        return true;
 
     if (0.f == dvm)
         return false;

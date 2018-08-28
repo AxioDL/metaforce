@@ -106,7 +106,7 @@ public:
         virtual void Stop()=0;
         virtual bool Ready()=0;
         virtual ESfxAudibility GetAudible(const zeus::CVector3f&)=0;
-        virtual const std::shared_ptr<amuse::Voice>& GetVoice() const=0;
+        virtual amuse::ObjToken<amuse::Voice> GetVoice() const=0;
         virtual u16 GetSfxId() const=0;
         virtual void UpdateEmitterSilent()=0;
         virtual void UpdateEmitter()=0;
@@ -132,7 +132,7 @@ public:
     {
         float x1a_reverb;
         CAudioSys::C3DEmitterParmData x24_parmData;
-        std::shared_ptr<amuse::Emitter> x50_emitterHandle;
+        amuse::ObjToken<amuse::Emitter> x50_emitterHandle;
         bool x54_ready = true;
         float x55_cachedMaxVol;
     public:
@@ -141,14 +141,14 @@ public:
         void Stop();
         bool Ready();
         ESfxAudibility GetAudible(const zeus::CVector3f&);
-        const std::shared_ptr<amuse::Voice>& GetVoice() const { return x50_emitterHandle->getVoice(); }
+        amuse::ObjToken<amuse::Voice> GetVoice() const { return x50_emitterHandle->getVoice(); }
         u16 GetSfxId() const;
         void UpdateEmitterSilent();
         void UpdateEmitter();
         void SetReverb(float rev);
         CAudioSys::C3DEmitterParmData& GetEmitterData() { return x24_parmData; }
 
-        const std::shared_ptr<amuse::Emitter>& GetHandle() const { return x50_emitterHandle; }
+        amuse::ObjToken<amuse::Emitter> GetHandle() const { return x50_emitterHandle; }
 
         CSfxEmitterWrapper(bool looped, s16 prio, const CAudioSys::C3DEmitterParmData& data,
                            /*const CSfxHandle& handle,*/ bool useAcoustics, TAreaId area)
@@ -161,7 +161,7 @@ public:
     class CSfxWrapper : public CBaseSfxWrapper
     {
         u16 x18_sfxId;
-        std::shared_ptr<amuse::Voice> x1c_voiceHandle;
+        amuse::ObjToken<amuse::Voice> x1c_voiceHandle;
         float x20_vol;
         float x22_pan;
         bool x24_ready = true;
@@ -171,7 +171,7 @@ public:
         void Stop();
         bool Ready();
         ESfxAudibility GetAudible(const zeus::CVector3f&) { return ESfxAudibility::Aud3; }
-        const std::shared_ptr<amuse::Voice>& GetVoice() const { return x1c_voiceHandle; }
+        amuse::ObjToken<amuse::Voice> GetVoice() const { return x1c_voiceHandle; }
         u16 GetSfxId() const;
         void UpdateEmitterSilent();
         void UpdateEmitter();
@@ -196,7 +196,7 @@ public:
     static float m_reverbAmount;
     static EAuxEffect m_activeEffect;
     static EAuxEffect m_nextEffect;
-    static std::shared_ptr<amuse::Listener> m_listener;
+    static amuse::ObjToken<amuse::Listener> m_listener;
 
     static u16 kMaxPriority;
     static u16 kMedPriority;

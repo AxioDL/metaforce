@@ -70,11 +70,11 @@ private:
     std::vector<zeus::CMatrix3f> x50_parentMatrices;
     std::vector<std::array<float, 8>> x60_advValues;
 
-    u32 x70_internalStartFrame = 0;
-    u32 x74_curFrame = 0;
+    int x70_internalStartFrame = 0;
+    int x74_curFrame = 0;
     double x78_curSeconds = 0.f;
     float x80_timeDeltaScale;
-    u32 x84_prevFrame = -1;
+    int x84_prevFrame = -1;
     bool x88_particleEmission = true;
     float x8c_generatorRemainder = 0.f;
     int x90_MAXP = 0;

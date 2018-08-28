@@ -37,7 +37,7 @@ bool CSfxManager::m_auxProcessingEnabled = false;
 float CSfxManager::m_reverbAmount = 1.f;
 CSfxManager::EAuxEffect CSfxManager::m_activeEffect = CSfxManager::EAuxEffect::None;
 CSfxManager::EAuxEffect CSfxManager::m_nextEffect = CSfxManager::EAuxEffect::None;
-std::shared_ptr<amuse::Listener> CSfxManager::m_listener;
+amuse::ObjToken<amuse::Listener> CSfxManager::m_listener;
 
 u16 CSfxManager::kMaxPriority;
 u16 CSfxManager::kMedPriority;

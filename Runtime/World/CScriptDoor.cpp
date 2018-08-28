@@ -65,8 +65,6 @@ zeus::CVector3f CScriptDoor::GetOrbitPosition(const CStateManager& /*mgr*/) cons
 /* ORIGINAL 0-00 OFFSET: 8007E550 */
 void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager &mgr)
 {
-    if (msg == EScriptObjectMessage::Start)
-        printf("");
     switch (msg)
     {
     case EScriptObjectMessage::Close:

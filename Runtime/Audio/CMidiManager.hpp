@@ -25,13 +25,13 @@ public:
 
     class CMidiWrapper
     {
-        std::shared_ptr<amuse::Sequencer> x0_sequencer;
+        amuse::ObjToken<amuse::Sequencer> x0_sequencer;
         //CSfxHandle x4_handle;
         u16 x8_songId;
         bool xa_available = true;
     public:
-        const std::shared_ptr<amuse::Sequencer>& GetAudioSysHandle() const { return x0_sequencer; }
-        void SetAudioSysHandle(const std::shared_ptr<amuse::Sequencer>& sequencer) { x0_sequencer = sequencer; }
+        amuse::ObjToken<amuse::Sequencer> GetAudioSysHandle() const { return x0_sequencer; }
+        void SetAudioSysHandle(amuse::ObjToken<amuse::Sequencer> sequencer) { x0_sequencer = sequencer; }
         //const CSfxHandle& GetManagerHandle() const { return x4_handle; }
         //void SetMidiHandle(const CSfxHandle& handle) { x4_handle = handle; }
         bool IsAvailable() const { return xa_available; }

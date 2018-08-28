@@ -12,7 +12,8 @@ void SCLY::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs)
     layerCount = rs.readUint32Big();
     rs.enumerateBig(layerSizes, layerCount);
     atUint32 i = 0;
-    rs.enumerate<ScriptLayer>(layers, layerCount, [&i,this](athena::io::IStreamReader& rs, ScriptLayer& layer) {
+    rs.enumerate<ScriptLayer>(layers, layerCount,
+    [&i,this](athena::io::IStreamReader& rs, ScriptLayer& layer) {
         atUint64 start = rs.position();
         layer.read(rs);
         rs.seek(start + layerSizes[i++], athena::Begin);
