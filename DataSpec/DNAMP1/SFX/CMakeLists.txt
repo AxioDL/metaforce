@@ -1,7 +1,7 @@
 unset(DNAMP1_SFX_SOURCES)
 macro(add_sfx_header HEADER SYMBOL)
-    bintoc("DNAMP1/SFX/${SYMBOL}.cpp" "DNAMP1/SFX/${HEADER}" "${SYMBOL}")
-    list(APPEND DNAMP1_SFX_SOURCES "DNAMP1/SFX/${SYMBOL}.cpp")
+  bintoc("DNAMP1/SFX/${SYMBOL}.cpp" "DNAMP1/SFX/${HEADER}" "${SYMBOL}")
+  list(APPEND DNAMP1_SFX_SOURCES "DNAMP1/SFX/${SYMBOL}.cpp" "DNAMP1/SFX/${HEADER}")
 endmacro(add_sfx_header)
 
 add_sfx_header(Atomic.h Atomic_H)
@@ -75,3 +75,5 @@ add_sfx_header(ZZZ.h ZZZ_H)
 add_sfx_header(Zoomer.h Zoomer_H)
 add_sfx_header(lumigek.h lumigek_H)
 add_sfx_header(test.h test_H)
+
+list(APPEND DNAMP1_SFX_SOURCES "DNAMP1/SFX/SFX.h")
