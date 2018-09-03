@@ -430,6 +430,14 @@ static void VisitDirectory(const ProjectPath& dir,
     if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _S('.'))
         return;
 
+    if (hecl::ProjectPath(dir, _S("!project.yaml")).isFile() &&
+        hecl::ProjectPath(dir, _S("!pool.yaml")).isFile())
+    {
+        /* Handle AudioGroup case */
+        VisitFile(dir, force, fast, specInsts, progress, cp, cookPass);
+        return;
+    }
+
     std::map<SystemString, ProjectPath> children;
     dir.getDirChildren(children);
 

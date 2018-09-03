@@ -271,7 +271,7 @@ def cookcol(writebuf, mesh_obj):
         surfaceDirt = prop_val_from_colmat('retro_surface_dirt', m)
         surfaceLava = prop_val_from_colmat('retro_surface_lava', m)
         surfaceSPMetal = prop_val_from_colmat('retro_surface_sp_metal', m)
-        surfaceStoneRock = prop_val_from_colmat('retro_surface_stone_rock', m)
+        surfaceStoneRock = prop_val_from_colmat('retro_surface_lava_stone', m)
         surfaceSnow = prop_val_from_colmat('retro_surface_snow', m)
         surfaceMudSlow = prop_val_from_colmat('retro_surface_mud_slow', m)
         surfaceFabric = prop_val_from_colmat('retro_surface_fabric', m)

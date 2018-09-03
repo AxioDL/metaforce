@@ -288,7 +288,7 @@ struct ColMesh
         bool surfaceDirt;
         bool surfaceLava;
         bool surfaceSPMetal;
-        bool surfaceStoneRock;
+        bool surfaceLavaStone;
         bool surfaceSnow;
         bool surfaceMudSlow;
         bool surfaceFabric;
