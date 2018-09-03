@@ -2,6 +2,7 @@
 #include <lzo/lzo1x.h>
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
+#include "AGSC.hpp"
 
 namespace DataSpec::DNAMP1
 {
@@ -181,8 +182,19 @@ const PAK::Entry* PAK::lookupEntry(std::string_view name) const
     return nullptr;
 }
 
-std::string PAK::bestEntryName(const Entry& entry, bool& named) const
+std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, bool& named) const
 {
+    std::unordered_map<UniqueID32, Entry>::const_iterator search;
+    if (entry.type == FOURCC('AGSC') && (search = m_entries.find(entry.id)) != m_entries.cend())
+    {
+        /* Use internal AGSC name for entry */
+        auto rs = search->second.beginReadStream(pakNode);
+        AGSC::Header header;
+        header.read(rs);
+        named = true;
+        return header.groupName;
+    }
+
     /* Prefer named entries first */
     for (const NameEntry& nentry : m_nameEntries)
         if (nentry.id == entry.id)

@@ -227,7 +227,7 @@ void CPlayerVisor::UpdateScanWindow(float dt, const CStateManager& mgr)
     if (mgr.GetPlayer().GetScanningState() == CPlayer::EPlayerScanState::Scanning)
     {
         if (!x60_scanningLoopSfx)
-            x60_scanningLoopSfx = CSfxManager::SfxStart(1407, x24_visorSfxVol, 0.f,
+            x60_scanningLoopSfx = CSfxManager::SfxStart(SFXui_scanning_lp, x24_visorSfxVol, 0.f,
                                                         false, 0x7f, true, kInvalidAreaId);
     }
     else
@@ -265,7 +265,7 @@ void CPlayerVisor::UpdateScanWindow(float dt, const CStateManager& mgr)
                 (desiredState == EScanWindowState::Scan) ? g_tweakGui->GetScanSidesEndTime() - x3c_windowInterpTimer : 0.f;
             x3c_windowInterpTimer = x38_windowInterpDuration;
             if (desiredState == EScanWindowState::Scan)
-                CSfxManager::SfxStart(1411, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_into_scan_window, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         break;
     case EScanWindowState::Scan:
@@ -280,7 +280,7 @@ void CPlayerVisor::UpdateScanWindow(float dt, const CStateManager& mgr)
                 (desiredState == EScanWindowState::Idle) ? g_tweakGui->GetScanSidesEndTime() - x3c_windowInterpTimer : 0.f;
             x3c_windowInterpTimer = x38_windowInterpDuration;
             if (mgr.GetPlayerState()->GetVisorTransitionFactor() == 1.f)
-                CSfxManager::SfxStart(1409, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_outof_scan_window, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         break;
     default: break;
@@ -532,7 +532,7 @@ void CPlayerVisor::FinishTransitionIn()
     case CPlayerState::EPlayerVisor::XRay:
         x90_xrayBlur.SetBlur(EBlurType::Xray, 36.f, 0.f);
         if (!x5c_visorLoopSfx)
-            x5c_visorLoopSfx = CSfxManager::SfxStart(1384, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x5c_visorLoopSfx = CSfxManager::SfxStart(SFXui_visor_xray_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Scan:
     {
@@ -541,12 +541,12 @@ void CPlayerVisor::FinishTransitionIn()
                                                    x2c_scanDimInterp);
         x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
         if (!x5c_visorLoopSfx)
-            x5c_visorLoopSfx = CSfxManager::SfxStart(1404, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x5c_visorLoopSfx = CSfxManager::SfxStart(SFXui_visor_scan_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
         break;
     }
     case CPlayerState::EPlayerVisor::Thermal:
         if (!x5c_visorLoopSfx)
-            x5c_visorLoopSfx = CSfxManager::SfxStart(1388, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x5c_visorLoopSfx = CSfxManager::SfxStart(SFXui_visor_thermal_lp, x24_visorSfxVol, 0.f, false, 0x7f, true, kInvalidAreaId);
         break;
     default: break;
     }
@@ -560,14 +560,14 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&)
         x90_xrayBlur.SetBlur(EBlurType::Xray, 0.f, 0.f);
         //xc4_vpScaleX = 0.9f;
         //xc8_vpScaleY = 0.9f;
-        CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Scan:
-        CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::CColor::skWhite, -1);
         break;
     case CPlayerState::EPlayerVisor::Thermal:
-        CSfxManager::SfxStart(1383, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     default: break;
     }
@@ -605,7 +605,7 @@ void CPlayerVisor::BeginTransitionOut()
     switch (x1c_curVisor)
     {
     case CPlayerState::EPlayerVisor::XRay:
-        CSfxManager::SfxStart(1382, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_outof_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Scan:
         if (x60_scanningLoopSfx)
@@ -613,10 +613,10 @@ void CPlayerVisor::BeginTransitionOut()
             CSfxManager::SfxStop(x60_scanningLoopSfx);
             x60_scanningLoopSfx.reset();
         }
-        CSfxManager::SfxStart(1382, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_outof_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     case CPlayerState::EPlayerVisor::Thermal:
-        CSfxManager::SfxStart(1382, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_outof_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     default: break;
     }

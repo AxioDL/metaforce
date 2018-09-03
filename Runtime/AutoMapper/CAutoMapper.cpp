@@ -299,9 +299,9 @@ void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr)
         if (!oldProcessing)
         {
             if (xa0_curAreaId == mgr.GetNextAreaId() && x24_world == mgr.GetWorld())
-                CSfxManager::SfxStart(1386, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_show_local_beacon, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             else
-                CSfxManager::SfxStart(1387, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_show_remote_beacon, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         nextStep.x4_float = std::max(0.f, nextStep.x4_float - dt);
         for (SAutoMapperHintLocation& loc : x1f8_hintLocations)
@@ -386,7 +386,7 @@ void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, const CStat
     }
     else if (x1bc_state == EAutoMapperState::MapScreen && state == EAutoMapperState::MapScreenUniverse)
     {
-        CSfxManager::SfxStart(1426, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_map_to_universe, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         xa8_renderStates[1] = BuildMapScreenUniverseRenderState(mgr,
                               xa8_renderStates[0].x8_camOrientation, xa0_curAreaId);
         TransformRenderStatesWorldToUniverse();
@@ -394,7 +394,7 @@ void CAutoMapper::BeginMapperStateTransition(EAutoMapperState state, const CStat
     }
     else if (x1bc_state == EAutoMapperState::MapScreenUniverse && state == EAutoMapperState::MapScreen)
     {
-        CSfxManager::SfxStart(1427, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_map_from_universe, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         xa8_renderStates[1] = BuildMapScreenWorldRenderState(mgr,
                               xa8_renderStates[0].x8_camOrientation, xa0_curAreaId, x1e0_hintSteps.size());
         TransformRenderStateWorldToUniverse(xa8_renderStates[1]);
@@ -809,7 +809,7 @@ void CAutoMapper::SetShouldPanningSoundBePlaying(bool b)
     if (b)
     {
         if (!x1cc_panningSfx)
-            x1cc_panningSfx = CSfxManager::SfxStart(1406, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x1cc_panningSfx = CSfxManager::SfxStart(SFXui_map_pan, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -823,7 +823,7 @@ void CAutoMapper::SetShouldZoomingSoundBePlaying(bool b)
     if (b)
     {
         if (!x1d4_zoomingSfx)
-            x1d4_zoomingSfx = CSfxManager::SfxStart(1376, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x1d4_zoomingSfx = CSfxManager::SfxStart(SFXui_map_zoom, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -837,7 +837,7 @@ void CAutoMapper::SetShouldRotatingSoundBePlaying(bool b)
     if (b)
     {
         if (!x1d0_rotatingSfx)
-            x1d0_rotatingSfx = CSfxManager::SfxStart(1375, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+            x1d0_rotatingSfx = CSfxManager::SfxStart(SFXui_map_rotate, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -1170,15 +1170,15 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
         {
         case 0:
             sysOpts.SetAutoMapperKeyState(1);
-            CSfxManager::SfxStart(1452, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_map_screen_key1, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             break;
         case 1:
             sysOpts.SetAutoMapperKeyState(2);
-            CSfxManager::SfxStart(1446, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_map_screen_key2, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             break;
         case 2:
             sysOpts.SetAutoMapperKeyState(0);
-            CSfxManager::SfxStart(1453, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_map_screen_key0, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             break;
         default: break;
         }

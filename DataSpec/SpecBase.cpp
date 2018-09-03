@@ -173,6 +173,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
 
 void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress)
 {
+    setThreadProject();
     DataSpec::g_curSpec.reset(this);
     if (!Blender::BuildMasterShader(m_masterShader))
         Log.report(logvisor::Fatal, "Unable to build master shader blend");
@@ -199,21 +200,9 @@ void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressP
 
 static bool IsPathAudioGroup(const hecl::ProjectPath& path)
 {
-    if (path.getPathType() != hecl::ProjectPath::Type::Glob ||
-        !path.getWithExtension(_S(".pool"), true).isFile() ||
-        !path.getWithExtension(_S(".proj"), true).isFile() ||
-        !path.getWithExtension(_S(".sdir"), true).isFile() ||
-        !path.getWithExtension(_S(".samp"), true).isFile())
-    {
-        if (path.isFile() &&
-            !hecl::StrCmp(_S("proj"), path.getLastComponentExt().data()) &&
-            path.getWithExtension(_S(".pool"), true).isFile() &&
-            path.getWithExtension(_S(".sdir"), true).isFile() &&
-            path.getWithExtension(_S(".samp"), true).isFile())
-            return true;
-        return false;
-    }
-    return true;
+    return (path.getPathType() == hecl::ProjectPath::Type::Directory &&
+            hecl::ProjectPath(path, _S("!project.yaml")).isFile() &&
+            hecl::ProjectPath(path, _S("!pool.yaml")).isFile());
 }
 
 static bool IsPathSong(const hecl::ProjectPath& path)
@@ -570,6 +559,20 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
         hecl::ProjectPath childPath(path, ent.m_name);
         if (ent.m_isDir)
         {
+            if (hecl::ProjectPath(childPath, _S("!project.yaml")).isFile() &&
+                hecl::ProjectPath(childPath, _S("!pool.yaml")).isFile())
+            {
+                /* Handle AudioGroup case */
+                if (urde::SObjectTag tag = tagFromPath(childPath, btok))
+                {
+                    if (addedTags.find(tag) != addedTags.end())
+                        continue;
+                    addedTags.insert(tag);
+                    listOut.push_back(tag);
+                }
+                continue;
+            }
+
             recursiveBuildResourceList(listOut, addedTags, childPath, btok);
         }
         else
@@ -1068,7 +1071,7 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath,
             else if (node.m_seqChildren.size() == 1)
                 path = hecl::ProjectPath(m_project.getProjectWorkingPath(), node.m_seqChildren[0]->m_scalarString);
         }
-        if (!path.isFileOrGlob())
+        if (path.isNone())
             continue;
         urde::SObjectTag pathTag = tagFromPath(path, m_backgroundBlender);
         if (pathTag)
@@ -1242,12 +1245,6 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
             DumpCacheAdd(pathTag, subPath);
 #endif
         }
-        else if (pathTag.type == SBIG('AGSC'))
-        {
-            /* Transform tag to glob */
-            pathTag = {SBIG('AGSC'), asGlob.hash().val32()};
-            useGlob = true;
-        }
 
         /* Cache in-memory */
         const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
@@ -1280,7 +1277,21 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir,
 
         hecl::ProjectPath path(dir, ent.m_name);
         if (ent.m_isDir)
-            backgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level + 1);
+        {
+            /* Index AGSC here */
+            if (hecl::ProjectPath(path, "!project.yaml").isFile() &&
+                hecl::ProjectPath(path, "!pool.yaml").isFile())
+            {
+                urde::SObjectTag pathTag(SBIG('AGSC'), path.hash().val32());
+                m_tagToPath[pathTag] = path;
+                m_pathToTag[path.hash()] = pathTag;
+                WriteTag(cacheWriter, pathTag, path);
+            }
+            else
+            {
+                backgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level + 1);
+            }
+        }
         else
         {
             if (!path.isFile())

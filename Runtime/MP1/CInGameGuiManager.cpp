@@ -426,9 +426,9 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
                 if (std::fabs(stateMgr.GetPlayer().GetVisorStaticAlpha() - x1f4_visorStaticAlpha) < 0.5f)
                 {
                     if (x1f4_visorStaticAlpha == 0.f)
-                        CSfxManager::SfxStart(1401, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                        CSfxManager::SfxStart(SFXui_hud_reboot, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                     else if (x1f4_visorStaticAlpha == 1.f)
-                        CSfxManager::SfxStart(1400, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                        CSfxManager::SfxStart(SFXui_hud_shutdown, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 }
             }
         }

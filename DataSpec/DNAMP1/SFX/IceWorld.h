@@ -1,0 +1,133 @@
+/* Auto-generated Amuse Defines
+ *
+ * Project: Audio
+ * Subproject: IceWorld
+ * Date: Sat Sep  1 12:32:04 2018
+ */
+
+
+#define GRPgroup002D 45
+
+
+#define SFXice_x_gateopen_lp_00 1922
+#define SFXice_x_gatestop_00 1923
+#define SFXsfx0784 1924
+#define SFXice_x_towercrk_00 1925
+#define SFXice_ballroll_ice 1926
+#define SFXice_ballroll_snow 1927
+#define SFXsfx0788 1928
+#define SFXice_x_towerlnd_00 1929
+#define SFXsfx078A 1930
+#define SFXice_x_towerlnd_01 1931
+#define SFXice_x_towercrk_01 1932
+#define SFXice_x_towercrk_02 1933
+#define SFXsfx078E 1934
+#define SFXsfx078F 1935
+#define SFXsfx0790 1936
+#define SFXsfx0791 1937
+#define SFXsfx0792 1938
+#define SFXsfx0793 1939
+#define SFXsfx0794 1940
+#define SFXsfx0795 1941
+#define SFXsfx0796 1942
+#define SFXsfx0797 1943
+#define SFXsfx0798 1944
+#define SFXsfx0799 1945
+#define SFXsfx079A 1946
+#define SFXsfx079B 1947
+#define SFXsfx079C 1948
+#define SFXsfx079D 1949
+#define SFXsfx079E 1950
+#define SFXsfx079F 1951
+#define SFXsfx07A0 1952
+#define SFXsfx07A1 1953
+#define SFXsfx07A2 1954
+#define SFXsfx07A3 1955
+#define SFXsfx07A4 1956
+#define SFXsfx07A5 1957
+#define SFXsfx07A6 1958
+#define SFXsfx07A7 1959
+#define SFXsfx07A8 1960
+#define SFXsfx07A9 1961
+#define SFXsfx07AA 1962
+#define SFXsfx07AB 1963
+#define SFXsfx07AC 1964
+#define SFXsfx07AD 1965
+#define SFXsfx07AE 1966
+#define SFXsfx07AF 1967
+#define SFXtha_b_rockup_lp_00 1968
+#define SFXsfx07B1 1969
+#define SFXsfx07B2 1970
+#define SFXice_x_ridflap_00 1971
+#define SFXsfx07B4 1972
+#define SFXsfx07B5 1973
+#define SFXsfx07B6 1974
+#define SFXice_x_pump_00 1975
+#define SFXsfx07B8 1976
+#define SFXsfx07B9 1977
+#define SFXsfx07BA 1978
+#define SFXsfx07BB 1979
+#define SFXsfx07BC 1980
+#define SFXsfx07BD 1981
+#define SFXice_x_piston_00 1982
+#define SFXice_x_piston_lp_00 1983
+#define SFXsfx07C0 1984
+#define SFXsfx07C1 1985
+#define SFXsfx07C2 1986
+#define SFXsfx07C3 1987
+#define SFXsfx07C4 1988
+#define SFXsfx07C5 1989
+#define SFXsfx07C6 1990
+#define SFXsfx07C7 1991
+#define SFXsfx07C8 1992
+#define SFXsfx07C9 1993
+#define SFXtha_b_debris_00 1994
+#define SFXtha_b_debris_01 1995
+#define SFXsfx07CC 1996
+#define SFXsfx07CD 1997
+#define SFXsfx07CE 1998
+#define SFXsfx07CF 1999
+#define SFXsfx07D0 2000
+#define SFXsfx07D1 2001
+#define SFXsfx07D2 2002
+#define SFXsfx07D3 2003
+#define SFXsfx07D4 2004
+#define SFXsfx07D5 2005
+#define SFXsfx07D6 2006
+#define SFXsfx07D7 2007
+#define SFXsfx07D8 2008
+#define SFXsfx07D9 2009
+#define SFXsfx07DA 2010
+#define SFXsfx07DB 2011
+#define SFXsfx07DC 2012
+#define SFXsfx07DD 2013
+#define SFXsfx07DE 2014
+#define SFXsfx07DF 2015
+#define SFXsfx07E0 2016
+#define SFXsfx07E1 2017
+#define SFXsfx07E2 2018
+#define SFXsfx07E3 2019
+#define SFXsfx07E4 2020
+#define SFXsfx07E5 2021
+#define SFXsfx07E6 2022
+#define SFXsfx07E7 2023
+#define SFXsfx07E8 2024
+#define SFXsfx07E9 2025
+#define SFXsfx07EA 2026
+#define SFXsfx07EB 2027
+#define SFXsfx07EC 2028
+#define SFXsfx07ED 2029
+#define SFXsfx07EE 2030
+#define SFXsfx07EF 2031
+#define SFXsfx07F0 2032
+#define SFXsfx07F1 2033
+#define SFXsfx07F2 2034
+#define SFXsfx07F3 2035
+#define SFXsfx07F4 2036
+#define SFXsfx07F5 2037
+#define SFXsfx07F6 2038
+#define SFXsfx07F7 2039
+#define SFXsfx07F8 2040
+#define SFXsfx07F9 2041
+
+

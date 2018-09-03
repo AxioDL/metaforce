@@ -13,6 +13,7 @@ make_dnalist(liblist DNAMP2
 set(DNAMP2_SOURCES
     DNAMP2.hpp DNAMP2.cpp
     DeafBabe.cpp
+    PAK.cpp
     ANIM.cpp
     AGSC.cpp
     CINF.cpp

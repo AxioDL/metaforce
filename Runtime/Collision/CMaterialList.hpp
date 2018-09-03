@@ -17,7 +17,7 @@ enum class EMaterialTypes
     Phazon = 7,
     Dirt = 8,
     Lava = 9,
-    Ten = 10,
+    LavaStone = 10,
     Snow = 11,
     MudSlow = 12,
     HalfPipe = 13,

@@ -42,13 +42,13 @@ PAKBridge::PAKBridge(const nod::Node& node,
     /* Append Level String */
     for (const auto& entry : m_pak.m_entries)
     {
-        const DNAMP1::PAK::Entry& e = entry.second;
+        const DNAMP2::PAK::Entry& e = entry.second;
         if (e.type == FOURCC('MLVL'))
         {
             PAKEntryReadStream rs = e.beginReadStream(m_node);
             MLVL mlvl;
             mlvl.read(rs);
-            const DNAMP1::PAK::Entry* nameEnt = m_pak.lookupEntry(mlvl.worldNameId);
+            const DNAMP2::PAK::Entry* nameEnt = m_pak.lookupEntry(mlvl.worldNameId);
             if (nameEnt)
             {
                 PAKEntryReadStream rs = nameEnt->beginReadStream(m_node);
@@ -76,7 +76,7 @@ void PAKBridge::build()
     /* First pass: build per-area/per-layer dependency map */
     for (const auto& entry : m_pak.m_entries)
     {
-        const DNAMP1::PAK::Entry& e = entry.second;
+        const DNAMP2::PAK::Entry& e = entry.second;
         if (e.type == FOURCC('MLVL'))
         {
             Level& level = m_levelDeps[e.id];
@@ -87,13 +87,13 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
             bool named;
-            std::string bestName = m_pak.bestEntryName(e, named);
+            std::string bestName = m_pak.bestEntryName(m_node, e, named);
             level.name = hecl::SystemStringConv(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
 
             /* Make MAPW available to lookup MAPAs */
-            const DNAMP1::PAK::Entry* worldMapEnt = m_pak.lookupEntry(mlvl.worldMap);
+            const DNAMP2::PAK::Entry* worldMapEnt = m_pak.lookupEntry(mlvl.worldMap);
             std::vector<UniqueID32> mapw;
             if (worldMapEnt)
             {
@@ -111,7 +111,7 @@ void PAKBridge::build()
             {
                 Level::Area& areaDeps = level.areas[area.areaMREAId];
                 MLVL::LayerFlags& layerFlags = mlvl.layerFlags[ai];
-                const DNAMP1::PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
+                const DNAMP2::PAK::Entry* areaNameEnt = m_pak.lookupEntry(area.areaNameId);
                 if (areaNameEnt)
                 {
                     STRG areaName;
@@ -173,7 +173,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
         std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const
 {
-    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry>& entry : m_pak.m_entries)
+    for (const std::pair<UniqueID32, DNAMP2::PAK::Entry>& entry : m_pak.m_entries)
     {
         if (entry.second.type == FOURCC('ANCS'))
         {
@@ -201,7 +201,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
         std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const
 {
-    for (const std::pair<UniqueID32, DNAMP1::PAK::Entry>& entry : m_pak.m_entries)
+    for (const std::pair<UniqueID32, DNAMP2::PAK::Entry>& entry : m_pak.m_entries)
     {
         if (entry.second.type == FOURCC('MLVL'))
         {
@@ -225,7 +225,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             if (mlvl.worldMap)
             {
                 const nod::Node* mapNode;
-                const DNAMP1::PAK::Entry* mapEntry = pakRouter.lookupEntry(mlvl.worldMap, &mapNode);
+                const DNAMP2::PAK::Entry* mapEntry = pakRouter.lookupEntry(mlvl.worldMap, &mapNode);
                 if (mapEntry)
                 {
                     PAKEntryReadStream rs = mapEntry->beginReadStream(*mapNode);
@@ -252,7 +252,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
-ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const DNAMP1::PAK::Entry& entry)
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const DNAMP2::PAK& pak,
+                                                   const DNAMP2::PAK::Entry& entry)
 {
     switch (entry.type)
     {
@@ -285,7 +286,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const DNAMP1::PAK& pak, const
     case SBIG('DGRP'):
         return {DNADGRP::ExtractDGRP<UniqueID32>, {_S(".yaml")}};
     case SBIG('AGSC'):
-        return {AGSC::Extract, {_S(".pool"), _S(".proj"), _S(".samp"), _S(".sdir")}};
+        return {AGSC::Extract, {}};
     case SBIG('CSNG'):
         return {DNAMP1::CSNG::Extract, {_S(".mid"), _S(".yaml")}};
     case SBIG('ATBL'):

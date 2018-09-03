@@ -29,7 +29,7 @@ enum class EWeaponType
     AI = 9,
     PoisonWater = 10,
     Lava = 11,
-    Hot = 12,
+    Heat = 12,
     Unused1 = 13,
     OrangePhazon = 14
 };

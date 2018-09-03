@@ -464,12 +464,12 @@ void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category,
 
     if (frontend)
     {
-        CSfxManager::SfxStart(1096, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_advance_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_advance_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
     else
     {
-        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_advance, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 
     CGameOptions& gameOptions = g_GameState->GameOptions();

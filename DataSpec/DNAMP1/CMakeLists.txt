@@ -1,4 +1,5 @@
 include(DNAMP1/ScriptObjects/CMakeLists.txt)
+include(DNAMP1/SFX/CMakeLists.txt)
 
 make_dnalist(liblist DNAMP1
              PAK

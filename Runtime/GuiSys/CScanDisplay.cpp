@@ -100,7 +100,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
             else
             {
                 xc_state = EScanState::ViewingScan;
-                CSfxManager::SfxStart(1439, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_scan_next_page, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
         }
     }
@@ -118,7 +118,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
         }
         if (x1ac_pageCounter != oldCounter)
         {
-            CSfxManager::SfxStart(1439, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_scan_next_page, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             if (x1ac_pageCounter == 0)
             {
                 xa8_message->SetIsVisible(true);
@@ -342,7 +342,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
             {
                 xc_state = EScanState::ViewingScan;
                 x1b0_aPulse = x1a4_xAlpha = 1.f;
-                CSfxManager::SfxStart(1417, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_scan_complete, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
             else
             {
@@ -352,7 +352,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 g_MainStringTable->GetString(x14_scannableInfo->GetCategory() + 30) +
                 g_MainStringTable->GetString(30));
                 SetScanMessageTypeEffect(xa8_message, true);
-                CSfxManager::SfxStart(1425, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_new_scan_complete, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
 
             if (x194_scanStr->GetStringCount() > 2)
@@ -399,7 +399,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 if (tmp == 0.f)
                 {
                     dot.SetDotState(CDataDot::EDotState::Done);
-                    CSfxManager::SfxStart(1414, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    CSfxManager::SfxStart(SFXui_scan_pane_reveal, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                     x170_paneStates[i].first = g_tweakGui->GetScanPaneFadeOutTime() + g_tweakGui->GetScanPaneFadeInTime();
                 }
                 break;

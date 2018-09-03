@@ -435,9 +435,9 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
     if (x2e0_24_inFreeLook != inFreeLook)
     {
         if (inFreeLook)
-            CSfxManager::SfxStart(1392, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_into_freelook, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         else
-            CSfxManager::SfxStart(1390, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_outof_freelook, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x2e0_24_inFreeLook = inFreeLook;
     }
 
@@ -477,7 +477,7 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
             if (x574_lookDeltaDot < deltaFrames)
             {
                 if (!x564_freeLookSfx)
-                    x564_freeLookSfx = CSfxManager::SfxStart(1394, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
+                    x564_freeLookSfx = CSfxManager::SfxStart(SFXui_freelook_move_lp, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
             }
             else
             {
@@ -663,7 +663,7 @@ void CSamusHud::UpdateEnergyLow(float dt, const CStateManager& mgr)
         x580_energyLowPulse = (0.5f - x57c_energyLowTimer) / 0.25f;
 
     if (!cineCam && x2e0_27_energyLow && x57c_energyLowTimer < oldTimer)
-        CSfxManager::SfxStart(1405, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_energy_low, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CSamusHud::ApplyClassicLag(const zeus::CUnitVector3f& lookDir, zeus::CQuaternion& rot,
@@ -1115,8 +1115,8 @@ void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr)
     else
         x510_staticInterp = std::max(intf, x510_staticInterp - dt);
 
-    UpdateStaticSfx(x508_staticSfxHi, x514_staticCycleTimerHi, 1402, dt, oldStaticInterp, 0.1f);
-    UpdateStaticSfx(x50c_staticSfxLo, x518_staticCycleTimerLo, 1403, dt, oldStaticInterp, 0.5f);
+    UpdateStaticSfx(x508_staticSfxHi, x514_staticCycleTimerHi, SFXui_static_hi, dt, oldStaticInterp, 0.1f);
+    UpdateStaticSfx(x50c_staticSfxLo, x518_staticCycleTimerLo, SFXui_static_lo, dt, oldStaticInterp, 0.5f);
 
     if (x510_staticInterp > 0.f)
     {
@@ -1186,7 +1186,7 @@ void CSamusHud::ShowDamage(const zeus::CVector3f& position, float dam, float pre
     x3f4_damageFilterAmt = x3f0_damageFilterAmtInit;
     if (!x3a4_damageSfx)
     {
-        x3a4_damageSfx = CSfxManager::AddEmitter(1385, player.GetTranslation(), player.GetTransform().basis[1],
+        x3a4_damageSfx = CSfxManager::AddEmitter(SFXui_damage_lp, player.GetTranslation(), player.GetTransform().basis[1],
                                                  0.f, false, true, 0xff, kInvalidAreaId);
     }
     if (fpCam)
@@ -1364,7 +1364,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     if (!mgr.GetCameraManager()->IsInCinematicCamera() && oldAPulse < 0.f && x584_abuttonPulse >= 0.f &&
         x598_base_basewidget_message->GetIsVisible() && (x558_messageTextTime == 0.f || x558_messageTextTime >= 1.f))
     {
-        CSfxManager::SfxStart(1442, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_hud_memo_a_pulse, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 
     float allTextAlpha;
@@ -1436,7 +1436,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     {
         x55c_lastSfxChars = nextSfxChars;
         if (!x598_base_basewidget_message->GetIsVisible() || textScale == 1.f)
-            CSfxManager::SfxStart(1418, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_hud_memo_type, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 
     if (mgr.GetEscapeSequenceTimer() > 0.f)
@@ -1790,7 +1790,7 @@ void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
             x558_messageTextTime = 1.f;
             if (!info.IsHintMemo() || !isWidgetVisible)
                 return;
-            CSfxManager::SfxStart(1449, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_hide_hint_memo, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             return;
         }
         x598_base_basewidget_message->SetColor(zeus::CColor::skWhite);
@@ -1821,7 +1821,7 @@ void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info)
         {
             if (!isWidgetVisible)
             {
-                CSfxManager::SfxStart(1443, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_show_hint_memo, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
         }
         else

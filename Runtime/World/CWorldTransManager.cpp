@@ -155,7 +155,7 @@ void CWorldTransManager::UpdateText(float dt)
         if (printed >= nextSfxInterval)
         {
             x3c_sfxInterval = nextSfxInterval;
-            //CSfxManager::SfxStart(1438, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            //CSfxManager::SfxStart(SFXsfx059E, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
     }
 

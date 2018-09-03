@@ -3,11 +3,15 @@
 
 #include "../DNAMP1/PAK.hpp"
 
-namespace urde::DNAMP2
+namespace DataSpec::DNAMP2
 {
 
 /* Same PAK format as MP1 */
-using PAK = DNAMP1::PAK;
+struct PAK : DNAMP1::PAK
+{
+    using DNAMP1::PAK::PAK;
+    std::string bestEntryName(const nod::Node& pakNode, const Entry& entry, bool& named) const;
+};
 
 }
 

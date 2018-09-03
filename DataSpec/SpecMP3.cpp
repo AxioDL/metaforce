@@ -475,7 +475,8 @@ struct SpecMP3 : SpecBase
             outPath.makeDir();
             disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
             hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _S("files") : _S("files/MP3"));
-            mp3OutPath.makeDir();
+            mp3OutPath.makeDirChain(true);
+
             currentTarget = _S("MP3 Root");
             progress.print(currentTarget.c_str(), _S(""), 0.0);
             prog = 0;
@@ -536,7 +537,8 @@ struct SpecMP3 : SpecBase
             outPath.makeDir();
             disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
             hecl::ProjectPath feOutPath(outPath, m_standalone ? _S("files") : _S("files/fe"));
-            feOutPath.makeDir();
+            feOutPath.makeDirChain(true);
+
             currentTarget = _S("fe Root");
             progress.print(currentTarget.c_str(), _S(""), 0.0);
             prog = 0;

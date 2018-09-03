@@ -199,7 +199,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
         x84_tablegroup_rightlog->SetIsActive(false);
         break;
     case EMode::TextScroll:
-        CSfxManager::SfxStart(1431, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         break;
     default: break;
     }
@@ -210,7 +210,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
     {
     case EMode::LeftTable:
         if (oldMode == EMode::RightTable)
-            CSfxManager::SfxStart(1431, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x6c_basewidget_leftlog->SetColor(color);
         x70_tablegroup_leftlog->SetIsActive(true);
         UpdateSideTable(x70_tablegroup_leftlog);
@@ -346,7 +346,7 @@ void CPauseScreenBase::SetRightTableSelection(int oldSel, int newSel)
     int oldRightSel = x1c_rightSel;
     x1c_rightSel = zeus::clamp(0, x1c_rightSel + (newSel - oldSel), int(GetRightTableCount()) - 1);
     if (oldRightSel != x1c_rightSel)
-        CSfxManager::SfxStart(1436, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_table_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
     if (x1c_rightSel < x18_firstViewRightSel)
         x18_firstViewRightSel = x1c_rightSel;
@@ -364,7 +364,7 @@ void CPauseScreenBase::OnLeftTableAdvance(CGuiTableGroup* caller)
     {
         ChangeMode(EMode::RightTable);
         x198_25_handledInput = true;
-        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_advance, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 }
 
@@ -373,7 +373,7 @@ void CPauseScreenBase::OnRightTableAdvance(CGuiTableGroup* caller)
     if (ShouldRightTableAdvance() && !x198_25_handledInput)
     {
         ChangeMode(EMode::TextScroll);
-        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_advance, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 }
 
@@ -382,7 +382,7 @@ void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int oldSel
     UpdateSideTable(caller);
     if (x70_tablegroup_leftlog == caller)
     {
-        CSfxManager::SfxStart(1436, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_table_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         UpdateRightTable();
     }
     else

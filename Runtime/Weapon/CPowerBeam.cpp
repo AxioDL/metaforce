@@ -81,7 +81,7 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
     CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const u16 skSoundId[] = { 1770, 1767 };
+static const u16 skSoundId[] = { SFXwpn_fire_power_normal, SFXwpn_fire_power_charged };
 
 void CPowerBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2)

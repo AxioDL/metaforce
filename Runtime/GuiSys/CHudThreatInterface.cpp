@@ -197,9 +197,9 @@ void CHudThreatInterface::Update(float dt)
             x68_textpane_threatwarning->TextSupport().SetText(string);
 
             if (x4c_threatStatus == EThreatStatus::Normal && newStatus == EThreatStatus::Warning)
-                CSfxManager::SfxStart(1396, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_threat_warning, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             else if (newStatus == EThreatStatus::Damage)
-                CSfxManager::SfxStart(1399, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_threat_damage, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
             x4c_threatStatus = newStatus;
         }
@@ -213,7 +213,7 @@ void CHudThreatInterface::Update(float dt)
         xc_damagePulse = (0.5f - x8_damagePulseTimer) / 0.25f;
 
     if (x4c_threatStatus == EThreatStatus::Damage && x8_damagePulseTimer < oldX8)
-        CSfxManager::SfxStart(1399, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_threat_damage, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
     if (x68_textpane_threatwarning)
     {

@@ -189,12 +189,12 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr)
 
             if (x44_latestStatus == EInventoryStatus::Normal && curStatus == EInventoryStatus::Warning)
             {
-                CSfxManager::SfxStart(1397, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_missile_warning, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 x48_missileWarningPulse = g_tweakGui->GetMissileWarningPulseTime();
             }
             else if (curStatus == EInventoryStatus::Depleted)
             {
-                CSfxManager::SfxStart(1397, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_missile_warning, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 x48_missileWarningPulse = g_tweakGui->GetMissileWarningPulseTime();
             }
 

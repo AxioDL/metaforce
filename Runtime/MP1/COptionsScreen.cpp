@@ -95,7 +95,7 @@ void COptionsScreen::OnEnumChanged(CGuiTableGroup* caller, int oldSel)
     }
 
     CPauseScreenBase::UpdateSideTable(caller);
-    CSfxManager::SfxStart(1437, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXui_option_enum_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 bool COptionsScreen::InputDisabled() const
@@ -113,7 +113,8 @@ void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
     {
         if (x18c_slidergroup_slider->GetState() != CGuiSliderGroup::EState::None)
         {
-            x1a4_sliderSfx = CSfxManager::SfxStart(1451, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            x1a4_sliderSfx = CSfxManager::SfxStart(SFXui_options_slider_change_lp,
+                1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         else
         {
@@ -146,11 +147,11 @@ void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
         {
             archQueue.Push(MakeMsg::CreateQuitGameplay(EArchMsgTarget::Game));
             CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
-            CSfxManager::SfxStart(1422, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_options_quit_accept, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         else if (action == EQuitAction::No)
         {
-            CSfxManager::SfxStart(1423, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_options_quit_reject, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             x19c_quitGame.reset();
         }
     }

@@ -43,7 +43,7 @@ void CMessageScreen::ProcessControllerInput(const CFinalInput& input)
     x1c_textpane_message->TextSupport().SetTypeWriteEffectOptions(false, 0.1f, 30.f);
     x1c_textpane_message->TextSupport().SetText(x0_msg->GetString(x6c_page));
 
-    CSfxManager::SfxStart(1421, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXui_message_screen_key, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
     x74_delayTime = 0.8f;
 }

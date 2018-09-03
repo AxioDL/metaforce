@@ -170,7 +170,7 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::blender::ColMesh& colMes
         dbMat.setSurfaceDirt(mat.surfaceDirt);
         dbMat.setSurfaceLava(mat.surfaceLava);
         dbMat.setSurfaceSPMetal(mat.surfaceSPMetal);
-        dbMat.setSurfaceStoneRock(mat.surfaceStoneRock);
+        dbMat.setSurfaceLavaStone(mat.surfaceLavaStone);
         dbMat.setSurfaceSnow(mat.surfaceSnow);
         dbMat.setSurfaceMudSlow(mat.surfaceMudSlow);
         dbMat.setSurfaceFabric(mat.surfaceFabric);

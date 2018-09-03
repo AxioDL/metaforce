@@ -119,7 +119,7 @@ struct MREA
                         PAKEntryReadStream& rs,
                         const hecl::ProjectPath& outPath,
                         PAKRouter<PAKBridge>& pakRouter,
-                        const DNAMP1::PAK::Entry& entry,
+                        const DNAMP2::PAK::Entry& entry,
                         bool,
                         hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)>);

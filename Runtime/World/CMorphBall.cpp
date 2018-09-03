@@ -270,20 +270,58 @@ void CMorphBall::RenderToShadowTex(CStateManager& mgr)
 
 static const u16 skBallRollSfx[] =
 {
-    0xFFFF, 0x05DE, 0x05DD, 0x062F, 0x0786,
-    0xFFFF, 0x05DC, 0x060B, 0x05C8, 0x088A,
-    0x0698, 0x0787, 0x0630, 0xFFFF, 0x0628,
-    0x05DD, 0x05DD, 0x05C8, 0xFFFF, 0xFFFF,
-    0xFFFF, 0xFFFF, 0x05FE, 0x0628
+    0xFFFF,
+    SFXsam_ballroll_stone,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_grass,
+    SFXice_ballroll_ice,
+    0xFFFF,
+    SFXsam_ballroll_grate,
+    SFXsam_ballroll_phazon,
+    SFXsam_ballroll_dirt,
+    SFXlav_ballroll_lava,
+    SFXsam_ballroll_lavastone,
+    SFXice_ballroll_snow,
+    SFXsam_ballroll_mud,
+    0xFFFF,
+    SFXsam_ballroll_org,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_dirt,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_ballroll_wood,
+    SFXsam_ballroll_org
 };
 
 static const u16 skBallLandSfx[] =
 {
-    0xFFFF, 0x05C3, 0x05E0, 0x062C, 0x065B,
-    0xFFFF, 0x05DA, 0x0609, 0x05C0, 0x0697,
-    0x0697, 0x065C, 0x062D, 0xFFFF, 0x0627,
-    0x05E0, 0x05E0, 0x05C0, 0xFFFF, 0xFFFF,
-    0xFFFF, 0xFFFF, 0x05FD, 0x0627
+    0xFFFF,
+    SFXsam_ballland_stone,
+    SFXsam_ballland_metal,
+    SFXsam_ballland_grass,
+    SFXsam_ballland_ice,
+    0xFFFF,
+    SFXsam_ballland_grate,
+    SFXsam_ballland_phazon,
+    SFXsam_landdirt_00,
+    SFXsam_ballland_lava,
+    SFXsam_ballland_lava,
+    SFXsam_ballland_snow,
+    SFXsam_ballland_mud,
+    0xFFFF,
+    SFXsam_ballland_org,
+    SFXsam_ballland_metal,
+    SFXsam_ballland_metal,
+    SFXsam_landdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_ballland_wood,
+    SFXsam_ballland_org
 };
 
 void CMorphBall::SelectMorphBallSounds(const CMaterialList& mat)
@@ -362,7 +400,7 @@ void CMorphBall::UpdateMorphBallSounds(float dt)
         if (!x1e30_spiderSfxHandle)
         {
             x1e30_spiderSfxHandle =
-                CSfxManager::AddEmitter(1523, x0_player.GetTranslation(), zeus::CVector3f::skZero,
+                CSfxManager::AddEmitter(SFXsam_spider_lp, x0_player.GetTranslation(), zeus::CVector3f::skZero,
                                         true, true, 0xc8, kInvalidAreaId);
             x0_player.ApplySubmergedPitchBend(x1e30_spiderSfxHandle);
         }
@@ -1359,7 +1397,8 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
                 CAnimPlaybackParms parms(1, -1, 1.f, true);
                 x58_ballModel->AnimationData()->SetAnimation(parms, false);
                 x1e20_ballAnimIdx = 1;
-                x1e24_boostSfxHandle = CSfxManager::SfxStart(1477, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
+                x1e24_boostSfxHandle = CSfxManager::SfxStart(SFXsam_ball_charge_lp,
+                    1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
             }
             x1de8_boostChargeTime += dt;
             if (x1de8_boostChargeTime > g_tweakBall->GetBoostBallMaxChargeTime())
@@ -1375,7 +1414,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
                 CSfxManager::RemoveEmitter(x1e24_boostSfxHandle);
                 if (x1de8_boostChargeTime >= g_tweakBall->GetBoostBallMinChargeTime())
                 {
-                    CSfxManager::AddEmitter(1476, x0_player.GetTranslation(), zeus::CVector3f::skZero,
+                    CSfxManager::AddEmitter(SFXsam_ball_boost, x0_player.GetTranslation(), zeus::CVector3f::skZero,
                                             true, false, 0xb4, kInvalidAreaId);
                 }
             }
@@ -2092,7 +2131,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
 
         if (hitWall && !CSfxManager::IsPlaying(x1e28_wallHitSfxHandle))
         {
-            x1e28_wallHitSfxHandle = CSfxManager::AddEmitter(1525, x0_player.GetTranslation(),
+            x1e28_wallHitSfxHandle = CSfxManager::AddEmitter(SFXsam_ball_wallhit, x0_player.GetTranslation(),
                                                              zeus::CVector3f::skZero,
                                                              true, false, 0x7f, kInvalidAreaId);
             x0_player.ApplySubmergedPitchBend(x1e28_wallHitSfxHandle);

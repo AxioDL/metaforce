@@ -243,7 +243,7 @@ const PAK::Entry* PAK::lookupEntry(std::string_view name) const
     return nullptr;
 }
 
-std::string PAK::bestEntryName(const Entry& entry, bool& named) const
+std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, bool& named) const
 {
     /* Prefer named entries first */
     for (const NameEntry& nentry : m_nameEntries)

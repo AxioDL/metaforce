@@ -48,7 +48,7 @@ static const int MenuStringIdx[2][4] =
 
 static const u16 SelectionSfxs[] =
 {
-    1395, 1398
+    SFXui_select_visor, SFXui_select_beam
 };
 
 CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,

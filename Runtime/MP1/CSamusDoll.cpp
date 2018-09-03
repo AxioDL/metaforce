@@ -672,7 +672,7 @@ void CSamusDoll::SetRotationSfxPlaying(bool playing)
     {
         if (x268_rotateSfx)
             return;
-        x268_rotateSfx = CSfxManager::SfxStart(1375, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+        x268_rotateSfx = CSfxManager::SfxStart(SFXui_map_rotate, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -687,7 +687,7 @@ void CSamusDoll::SetOffsetSfxPlaying(bool playing)
     {
         if (x264_offsetSfx)
             return;
-        x264_offsetSfx = CSfxManager::SfxStart(1406, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+        x264_offsetSfx = CSfxManager::SfxStart(SFXui_map_pan, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -702,7 +702,7 @@ void CSamusDoll::SetZoomSfxPlaying(bool playing)
     {
         if (x26c_zoomSfx)
             return;
-        x26c_zoomSfx = CSfxManager::SfxStart(1376, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+        x26c_zoomSfx = CSfxManager::SfxStart(SFXui_map_zoom, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
     }
     else
     {
@@ -783,14 +783,14 @@ void CSamusDoll::BeginViewInterpolate(bool zoomIn)
 {
     if (xc4_viewInterp == 0.f)
     {
-        CSfxManager::SfxStart(1440, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_samus_doll_enter, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
     else
     {
         SetOffsetSfxPlaying(false);
         SetZoomSfxPlaying(false);
         SetRotationSfxPlaying(false);
-        CSfxManager::SfxStart(1441, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_samus_doll_exit, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 
     xc4_viewInterp = zoomIn ? FLT_EPSILON : (-1.f + FLT_EPSILON);

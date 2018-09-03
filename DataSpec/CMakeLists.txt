@@ -57,6 +57,7 @@ add_library(RetroDataSpec
             SpecMP1.cpp
             ${DNAMP1_SOURCES}
             ${ScriptObjectsMP1_SOURCES}
+            ${DNAMP1_SFX_SOURCES}
             SpecMP2.cpp
             ${DNAMP2_SOURCES}
             SpecMP3.cpp

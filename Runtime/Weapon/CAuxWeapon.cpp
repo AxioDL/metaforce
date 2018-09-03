@@ -254,7 +254,7 @@ void CAuxWeapon::CreateFlameThrower(const zeus::CTransform& xf, CStateManager& m
     ft->Think(dt, mgr);
     ft->StartFiring(xf, mgr);
     x24_muzzleFxGen = std::make_unique<CElementGen>(xc_flameMuzzle);
-    x7c_comboSfx = NWeaponTypes::play_sfx(1842, false, true, 0.165f);
+    x7c_comboSfx = NWeaponTypes::play_sfx(SFXwpn_combo_flamethrower, false, true, 0.165f);
     mgr.GetCameraManager()->AddCameraShaker(skHardShake, false);
     mgr.GetPlayerState()->SetFiringComboBeam(true);
     x74_firingBeamId = CPlayerState::EBeamId::Plasma;
@@ -285,7 +285,7 @@ void CAuxWeapon::CreateWaveBusterBeam(EProjectileAttrib attribs, TUniqueId homin
         kInvalidAreaId, x6c_playerId, homingTarget, attribs);
     mgr.AddObject(wb);
     x24_muzzleFxGen = std::make_unique<CElementGen>(x18_busterMuzzle);
-    x7c_comboSfx = NWeaponTypes::play_sfx(1847, false, true, 0.165f);
+    x7c_comboSfx = NWeaponTypes::play_sfx(SFXwpn_combo_wavebuster, false, true, 0.165f);
     mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::skChargedShotCameraShakeData, false);
     mgr.GetPlayerState()->SetFiringComboBeam(true);
     x74_firingBeamId = CPlayerState::EBeamId::Wave;
@@ -299,7 +299,7 @@ void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerS
 {
     const SShotParam& info =
         charged ? g_tweakPlayerGun->GetComboShotInfo(int(currentBeam)) : g_tweakPlayerGun->GetMissileInfo();
-    u16 sfxId = charged ? skSoundId[int(currentBeam)] : u16(1768);
+    u16 sfxId = charged ? skSoundId[int(currentBeam)] : u16(SFXwpn_fire_missile);
     CEnergyProjectile* proj = new CEnergyProjectile(true, charged ? x28_combos[int(currentBeam)] : x0_missile,
         charged ? EWeaponType::Power : EWeaponType::Missile, xf, EMaterialTypes::Player,
         CGunWeapon::GetShotDamageInfo(info, mgr), mgr.AllocateUniqueId(), kInvalidAreaId, x6c_playerId, homingId,

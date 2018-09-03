@@ -676,9 +676,9 @@ CSaveGameScreen::CSaveGameScreen(ESaveContext saveCtx, u64 serial)
 
     if (saveCtx == ESaveContext::InGame)
     {
-        x84_navConfirmSfx = 1432;
-        x88_navMoveSfx = 1436;
-        x8c_navBackSfx = 1431;
+        x84_navConfirmSfx = SFXui_advance;
+        x88_navMoveSfx = SFXui_table_selection_change;
+        x8c_navBackSfx = SFXui_table_change_mode;
     }
     x93_inGame = bool(saveCtx);
 

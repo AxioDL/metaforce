@@ -1,92 +1,82 @@
 #include "AGSC.hpp"
+#include "amuse/AudioGroup.hpp"
+#include "amuse/AudioGroupData.hpp"
 
 namespace DataSpec::DNAMP2
 {
 
-bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
+bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir)
 {
+    dir.makeDirChain(true);
+
     Header head;
     head.read(rs);
 
+    auto pool = rs.readUBytes(head.poolSz);
+    auto proj = rs.readUBytes(head.projSz);
+    auto sdir = rs.readUBytes(head.sdirSz);
+    auto samp = rs.readUBytes(head.sampSz);
+
+    amuse::AudioGroupData data(proj.get(), head.projSz, pool.get(), head.poolSz,
+                               sdir.get(), head.sdirSz, samp.get(), head.sampSz, amuse::GCNDataTag{});
+
+    /* Load into amuse representation */
+    amuse::ProjectDatabase projDb;
+    projDb.setIdDatabases();
+    amuse::AudioGroupDatabase group(data);
+    group.setGroupPath(dir.getAbsolutePath());
+
+    /* Extract samples */
+    group.getSdir().extractAllCompressed(dir.getAbsolutePath(), data.getSamp());
+
+    /* Write out project/pool */
     {
-        hecl::ProjectPath poolPath = outPath.getWithExtension(_S(".pool"), true);
-        athena::io::FileWriter w(poolPath.getAbsolutePath());
-        w.writeBytes(rs.readBytes(head.poolSz).get(), head.poolSz);
+        auto projd = group.getProj().toYAML();
+        athena::io::FileWriter fo(hecl::ProjectPath(dir, _S("!project.yaml")).getAbsolutePath());
+        if (fo.hasError())
+            return false;
+        fo.writeUBytes(projd.data(), projd.size());
     }
 
     {
-        hecl::ProjectPath projPath = outPath.getWithExtension(_S(".proj"), true);
-        athena::io::FileWriter w(projPath.getAbsolutePath());
-        w.writeBytes(rs.readBytes(head.projSz).get(), head.projSz);
-    }
-
-    {
-        hecl::ProjectPath sdirPath = outPath.getWithExtension(_S(".sdir"), true);
-        athena::io::FileWriter w(sdirPath.getAbsolutePath());
-        w.writeBytes(rs.readBytes(head.sdirSz).get(), head.sdirSz);
-    }
-
-    {
-        hecl::ProjectPath sampPath = outPath.getWithExtension(_S(".samp"), true);
-        athena::io::FileWriter w(sampPath.getAbsolutePath());
-        w.writeBytes(rs.readBytes(head.sampSz).get(), head.sampSz);
+        auto poold = group.getPool().toYAML();
+        athena::io::FileWriter fo(hecl::ProjectPath(dir, _S("!pool.yaml")).getAbsolutePath());
+        if (fo.hasError())
+            return false;
+        fo.writeUBytes(poold.data(), poold.size());
     }
 
     return true;
 }
 
-bool AGSC::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
+bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath)
 {
     athena::io::FileWriter w(outPath.getAbsolutePath());
     if (w.hasError())
         return false;
 
-    hecl::ProjectPath woExt = inPath.getWithExtension(nullptr, true);
-    std::string lastComp = std::string(woExt.getLastComponentUTF8());
-    if (hecl::StringUtils::EndsWith(lastComp, "_AGSC"))
-        lastComp.assign(lastComp.cbegin(), lastComp.cend() - 5);
+    amuse::ProjectDatabase projDb;
+    projDb.setIdDatabases();
+    amuse::AudioGroupDatabase group(dir.getAbsolutePath());
 
-    hecl::ProjectPath poolPath = inPath.getWithExtension(_S(".pool"), true);
-    athena::io::FileReader poolR(poolPath.getAbsolutePath());
-    if (poolR.hasError())
-        return false;
-    uint32_t poolLen = poolR.length();
-
-    hecl::ProjectPath projPath = inPath.getWithExtension(_S(".proj"), true);
-    athena::io::FileReader projR(projPath.getAbsolutePath());
-    if (projR.hasError())
-        return false;
-    uint32_t projLen = projR.length();
-
-    hecl::ProjectPath sdirPath = inPath.getWithExtension(_S(".sdir"), true);
-    athena::io::FileReader sdirR(sdirPath.getAbsolutePath());
-    if (sdirR.hasError())
-        return false;
-    uint32_t sdirLen = sdirR.length();
-
-    hecl::ProjectPath sampPath = inPath.getWithExtension(_S(".samp"), true);
-    athena::io::FileReader sampR(sampPath.getAbsolutePath());
-    if (sampR.hasError())
-        return false;
-    uint32_t sampLen = sampR.length();
-
-    projR.seek(4, athena::SeekOrigin::Begin);
-    uint16_t groupId = projR.readUint16Big();
-    projR.seek(0, athena::SeekOrigin::Begin);
+    auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
+    auto pool = group.getPool().toData<athena::Big>();
+    auto sdirSamp = group.getSdir().toGCNData(group);
 
     Header head;
-    head.groupName = lastComp;
-    head.groupId = groupId;
-    head.poolSz = poolLen;
-    head.projSz = projLen;
-    head.sdirSz = sdirLen;
-    head.sampSz = sampLen;
+    head.groupName = dir.getLastComponentUTF8();
+    for (const auto& p : group.getProj().sfxGroups())
+        head.groupId = p.first.id;
+    head.poolSz = pool.size();
+    head.projSz = proj.size();
+    head.sdirSz = sdirSamp.first.size();
+    head.sampSz = sdirSamp.second.size();
     head.write(w);
 
-    w.writeBytes(poolR.readBytes(poolLen).get(), poolLen);
-    w.writeBytes(projR.readBytes(projLen).get(), projLen);
-    w.writeBytes(sdirR.readBytes(sdirLen).get(), sdirLen);
-    w.writeBytes(sampR.readBytes(sampLen).get(), sampLen);
+    w.writeUBytes(pool.data(), pool.size());
+    w.writeUBytes(proj.data(), proj.size());
+    w.writeUBytes(sdirSamp.first.data(), sdirSamp.first.size());
+    w.writeUBytes(sdirSamp.second.data(), sdirSamp.second.size());
 
     return true;
 }

@@ -372,7 +372,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry) cons
 {
     if (!entry)
         return hecl::ProjectPath();
-    return getWorking(entry, BRIDGETYPE::LookupExtractor(*m_pak.get(), *entry));
+    return getWorking(entry, BRIDGETYPE::LookupExtractor(*m_node.get(), *m_pak.get(), *entry));
 }
 
 template <class BRIDGETYPE>
@@ -440,6 +440,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const IDType& id, bool silenc
 template <class BRIDGETYPE>
 hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryType& a, const IDType& b) const
 {
+    const nod::Node* node = m_node.get();
     const PAKType* pak = m_pak.get();
     if (!pak)
         LogDNACommon.report(logvisor::Fatal,
@@ -447,11 +448,11 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
     const typename BRIDGETYPE::PAKType::Entry* be = lookupEntry(b);
     if (!be)
         return hecl::SystemString();
-    hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*pak, a));
+    hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*node, *pak, a));
     hecl::SystemString ret;
     for (int i=0 ; i<aPath.levelCount() ; ++i)
         ret += _S("../");
-    hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*pak, *be));
+    hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*node, *pak, *be));
     ret += bPath.getRelativePath();
     return ret;
 }
@@ -477,7 +478,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry, bool
         }
 
         bool named;
-        name = pak.bestEntryName(entry, named);
+        name = pak.bestEntryName(bridge.getNode(), entry, named);
         if (named)
             return name;
     }
@@ -508,7 +509,7 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
         }
 
         bool named;
-        name = pak.bestEntryName(*e, named);
+        name = pak.bestEntryName(bridge.getNode(), *e, named);
         if (named)
             return name;
     }
@@ -528,7 +529,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
         for (const auto& item : m_pak->m_firstEntries)
         {
             const auto* entryPtr = m_pak->lookupEntry(item);
-            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_pak.get(), *entryPtr);
+            ResExtractor<BRIDGETYPE> extractor = BRIDGETYPE::LookupExtractor(*m_node.get(), *m_pak.get(), *entryPtr);
             if (extractor.weight != w)
                 continue;
 

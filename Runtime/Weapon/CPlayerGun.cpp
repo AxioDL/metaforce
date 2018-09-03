@@ -528,7 +528,7 @@ void CPlayerGun::HandleBeamChange(const CFinalInput& input, CStateManager& mgr)
         if (ExitMissile())
         {
             if (!CSfxManager::IsPlaying(x2e4_invalidSfx))
-                x2e4_invalidSfx = NWeaponTypes::play_sfx(1763, x834_27_underwater, false, 0.165f);
+                x2e4_invalidSfx = NWeaponTypes::play_sfx(SFXwpn_empty_action, x834_27_underwater, false, 0.165f);
         }
         else
         {
@@ -580,15 +580,18 @@ void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerS
     x6e0_rightHandModel.AnimationData()->SetAnimation(parms, false);
     Reset(mgr, false);
     if (playSelectionSfx)
-        CSfxManager::SfxStart(1774, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXwpn_morph_out_wipe, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
     x2ec_lastFireButtonStates &= ~0x1;
     x320_currentAuxBeam = x310_currentBeam;
     x833_30_canShowAuxMuzzleEffect = true;
 }
 
-static const u16 skFromMissileSound[] = { 1824, 1849, 1851, 1853 };
-static const u16 skFromBeamSound[] = { 0, 1822, 1828, 1826 };
-static const u16 skToMissileSound[] = { 1823, 1829, 1850, 1852 };
+static const u16 skFromMissileSound[] = { SFXwpn_from_missile_power, SFXwpn_from_missile_ice,
+                                          SFXwpn_from_missile_wave, SFXwpn_from_missile_plasma };
+static const u16 skFromBeamSound[] = { SFXsfx0000, SFXwpn_from_beam_ice,
+                                       SFXwpn_from_beam_wave, SFXwpn_from_beam_plasma };
+static const u16 skToMissileSound[] = { SFXwpn_to_missile_power, SFXwpn_to_missile_ice,
+                                        SFXwpn_to_missile_wave, SFXwpn_to_missile_plasma };
 
 void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop)
 {
@@ -603,7 +606,7 @@ void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop)
         sfx = skFromMissileSound[int(x310_currentBeam)];
         break;
     case NWeaponTypes::EGunAnimType::MissileReload:
-        sfx = 1769;
+        sfx = SFXwpn_reload_missile;
         break;
     case NWeaponTypes::EGunAnimType::FromBeam:
         sfx = skFromBeamSound[int(x310_currentBeam)];
@@ -1060,7 +1063,8 @@ void CPlayerGun::CGunMorph::StartWipe(EDir dir)
     x24_24_morphing = true;
 }
 
-static const u16 skIntoBeamSound[] = { 0, 1821, 1827, 1825 };
+static const u16 skIntoBeamSound[] = { SFXsfx0000, SFXwpn_into_beam_ice,
+                                       SFXwpn_into_beam_wave, SFXwpn_into_beam_plasma };
 
 void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr)
 {
@@ -1098,7 +1102,7 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr)
     switch (x678_morph.Update(0.2f, 1.292392f, dt))
     {
     case CGunMorph::EMorphEvent::InWipeDone:
-        CSfxManager::SfxStart(1775, 1.f, 0.f, true, 0x74, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXwpn_morph_in_wipe_done, 1.f, 0.f, true, 0x74, false, kInvalidAreaId);
         break;
     case CGunMorph::EMorphEvent::OutWipeDone:
         if (x730_outgoingBeam != nullptr && x72c_currentBeam != x730_outgoingBeam)
@@ -1138,7 +1142,7 @@ void CPlayerGun::SetPhazonBeamFeedback(bool active)
         CSfxManager::SfxStop(x2e8_phazonBeamSfx);
     x2e8_phazonBeamSfx.reset();
     if (active)
-        x2e8_phazonBeamSfx = NWeaponTypes::play_sfx(3141, x834_27_underwater, false, 0.165f);
+        x2e8_phazonBeamSfx = NWeaponTypes::play_sfx(SFXphg_charge_lp, x834_27_underwater, false, 0.165f);
 }
 
 void CPlayerGun::StartPhazonBeamTransition(bool active, CStateManager& mgr, CPlayerState& playerState)
@@ -1249,7 +1253,8 @@ static constexpr float kChargeFxStart = 1.f / CPlayerState::GetMissileComboCharg
 static constexpr float kChargeAnimStart = 0.25f / CPlayerState::GetMissileComboChargeFactor();
 static constexpr float kChargeStart = 0.025f / CPlayerState::GetMissileComboChargeFactor();
 
-static const u16 skBeamChargeUpSound[] = { 1766, 1759, 1844, 1839 };
+static const u16 skBeamChargeUpSound[] = { SFXwpn_chargeup_power, SFXwpn_chargeup_ice,
+                                           SFXwpn_chargeup_wave, SFXwpn_chargeup_plasma };
 
 void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr)
 {
@@ -1480,7 +1485,7 @@ static const CPlayerState::EItemType skItemArr[] =
     CPlayerState::EItemType::Missiles
 };
 
-static const u16 skItemEmptySound[] = { 0, 1763 };
+static const u16 skItemEmptySound[] = { SFXsfx0000, SFXwpn_empty_action };
 
 void CPlayerGun::FireSecondary(float dt, CStateManager& mgr)
 {
@@ -1490,7 +1495,7 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr)
     if (x835_25_inPhazonBeam || x318_comboAmmoIdx == 0 ||
         !mgr.GetPlayerState()->HasPowerUp(skItemArr[x318_comboAmmoIdx]) || (x2f8_stateFlags & 0x4) != 0x4)
     {
-        NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(SFXwpn_invalid_action, x834_27_underwater, false, 0.165f);
         return;
     }
 
@@ -1585,13 +1590,13 @@ void CPlayerGun::ActivateCombo(CStateManager& mgr)
             }
             x72c_currentBeam->EnableCharge(true);
             StopChargeSound(mgr);
-            NWeaponTypes::play_sfx(1762, x834_27_underwater, false, 0.165f);
+            NWeaponTypes::play_sfx(SFXwpn_combo_xfer, x834_27_underwater, false, 0.165f);
             x32c_chargePhase = EChargePhase::ComboXfer;
         }
     }
     else
     {
-        NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
+        NWeaponTypes::play_sfx(SFXwpn_invalid_action, x834_27_underwater, false, 0.165f);
     }
 }
 
@@ -1767,7 +1772,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
                 else
                 {
                     if (!CSfxManager::IsPlaying(x2e4_invalidSfx))
-                        x2e4_invalidSfx = NWeaponTypes::play_sfx(1781, x834_27_underwater, false, 0.165f);
+                        x2e4_invalidSfx = NWeaponTypes::play_sfx(SFXwpn_invalid_action, x834_27_underwater, false, 0.165f);
                     else
                         x2e4_invalidSfx.reset();
                 }

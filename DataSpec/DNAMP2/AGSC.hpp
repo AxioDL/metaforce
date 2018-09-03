@@ -9,6 +9,7 @@ namespace DataSpec::DNAMP2
 
 class AGSC
 {
+public:
     struct Header : BigDNA
     {
         AT_DECL_DNA
@@ -20,7 +21,6 @@ class AGSC
         Value<atUint32> sdirSz = 0;
         Value<atUint32> sampSz = 0;
     };
-public:
     static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
     static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };

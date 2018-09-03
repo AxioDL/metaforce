@@ -34,16 +34,16 @@ static const float FE2_VOL = 0.7421875f;
 /* L/R Stereo transition cues */
 static const u16 FETransitionBackSFX[3][2] =
 {
-    {1090, 1097},
-    {1098, 1099},
-    {1100, 1101}
+    {SFXfnt_transfore_00L, SFXfnt_transfore_00R},
+    {SFXfnt_transfore_01L, SFXfnt_transfore_01R},
+    {SFXfnt_transfore_02L, SFXfnt_transfore_02R}
 };
 
 static const u16 FETransitionForwardSFX[3][2] =
 {
-    {1102, 1103},
-    {1104, 1105},
-    {1106, 1107}
+    {SFXfnt_transback_00L, SFXfnt_transback_00R},
+    {SFXfnt_transback_01L, SFXfnt_transback_01R},
+    {SFXfnt_transback_02L, SFXfnt_transback_02R}
 };
 
 struct FEMovie
@@ -69,8 +69,8 @@ SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
 
 void CFrontEndUI::PlayAdvanceSfx()
 {
-    CSfxManager::SfxStart(1096, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-    CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXfnt_advance_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXfnt_advance_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 rnd, CFrontEndUITouchBar& touchBar)
@@ -586,13 +586,13 @@ void CFrontEndUI::SNewFileSelectFrame::DoPopupCancel(CGuiTableGroup* caller)
 {
     if (x8_subMenu == ESubMenu::EraseGamePopup)
     {
-        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x8_subMenu = ESubMenu::EraseGame;
         x10d_needsEraseToggle = true;
     }
     else
     {
-        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x8_subMenu = ESubMenu::Root;
         x10e_needsNewToggle = true;
     }
@@ -641,7 +641,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuCancel(CGuiTableGroup* caller)
 {
     if (x8_subMenu == ESubMenu::EraseGame)
     {
-        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         ResetFrame();
     }
 }
@@ -649,7 +649,7 @@ void CFrontEndUI::SNewFileSelectFrame::DoFileMenuCancel(CGuiTableGroup* caller)
 void CFrontEndUI::SNewFileSelectFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     HandleActiveChange(caller);
-    CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CFrontEndUI::SNewFileSelectFrame::DoFileMenuAdvance(CGuiTableGroup* caller)
@@ -884,7 +884,7 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInpu
             EUIType prevUi = PrevLinkUI[int(x0_uiType)];
             if (prevUi == EUIType::Empty)
                 break;
-            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             SetUIText(prevUi);
         }
         break;
@@ -902,13 +902,13 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(const CFinalInpu
             }
             else
             {
-                CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 SetUIText(EUIType::LinkFailed);
             }
         }
         else if (x4_gbaSupport->GetPhase() == CGBASupport::EPhase::Failed)
         {
-            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             SetUIText(EUIType::LinkFailed);
         }
         break;
@@ -1178,12 +1178,12 @@ void CFrontEndUI::SFusionBonusFrame::DoSelectionChange(CGuiTableGroup* caller, i
 {
     if (caller == x28_tablegroup_options)
     {
-        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         ResetCompletionFlags();
     }
     else
     {
-        CSfxManager::SfxStart(1095, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_enum_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         bool fusionActive = x2c_tablegroup_fusionsuit->GetUserSelection() == 1;
         g_GameState->SystemOptions().SetPlayerFusionSuitActive(fusionActive);
         g_GameState->GetPlayerState()->SetIsFusionEnabled(fusionActive);
@@ -1213,7 +1213,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
         else
         {
             x3a_mpNotComplete = true;
-            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         break;
     case 0:
@@ -1226,7 +1226,7 @@ void CFrontEndUI::SFusionBonusFrame::DoAdvance(CGuiTableGroup* caller)
         else if (g_GameState->SystemOptions().GetPlayerBeatFusion() || m_gbaOverride)
         {
             //x8_action = EAction::None;
-            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             x8_action = EAction::PlayNESMetroid;
         }
         else
@@ -1385,7 +1385,7 @@ void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller)
 
 void CFrontEndUI::SFrontEndFrame::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
-    CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     HandleActiveChange(caller);
 }
 
@@ -1623,7 +1623,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuCancel(CGuiTableGroup* caller)
         x28_tablegroup_rightmenu->SetIsActive(false);
         x28_tablegroup_rightmenu->SetUserSelection(0);
         SetTableColors(x28_tablegroup_rightmenu);
-        CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 }
 
@@ -1633,12 +1633,12 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
     if (x24_tablegroup_leftmenu == caller)
     {
         SetRightUIText();
-        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
     else if (x28_tablegroup_rightmenu == caller)
     {
         HandleRightSelectionChange();
-        CSfxManager::SfxStart(1093, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
     else if (x2c_tablegroup_double == caller || x30_tablegroup_triple == caller)
     {
@@ -1650,7 +1650,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
             const SGameOption& option = optionCategory.second[rightSel];
             CGameOptions::SetOption(option.option, caller->GetUserSelection());
             m_touchBarValueDirty = true;
-            CSfxManager::SfxStart(1095, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_enum_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
             if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0)
             {
@@ -1670,8 +1670,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoLeftMenuAdvance(CGuiTableGroup* calle
         x28_tablegroup_rightmenu->SetUserSelection(0);
         x24_tablegroup_leftmenu->SetIsActive(false);
         x28_tablegroup_rightmenu->SetIsActive(true);
-        CSfxManager::SfxStart(1096, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-        CSfxManager::SfxStart(1091, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_advance_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXfnt_advance_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
 }
 
@@ -1860,7 +1860,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
         if (input.PB() && x24_tablegroup_leftmenu->GetIsActive())
         {
             x134_25_exitOptions = true;
-            CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         else
         {
@@ -1942,7 +1942,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
                 if (tbAction == CGameOptionsTouchBar::EAction::Back)
                 {
                     x134_25_exitOptions = true;
-                    CSfxManager::SfxStart(1094, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                    CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 }
                 else
                 {
@@ -1970,7 +1970,8 @@ void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveGameScreen* sui)
     {
         if (isSliding)
         {
-            x3c_sliderSfx = CSfxManager::SfxStart(1458, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            x3c_sliderSfx = CSfxManager::SfxStart(SFXui_frontend_options_slider_change_lp,
+                1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         else
         {
@@ -2098,8 +2099,8 @@ void CFrontEndUI::StartStateTransition(EScreen screen)
         {
             SetCurrentMovie(EMenuMovie::FileSelectGBA);
             SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
-            CSfxManager::SfxStart(1108, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-            CSfxManager::SfxStart(1109, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_tofusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_tofusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
         break;
     case EScreen::FusionBonus:
@@ -2112,8 +2113,8 @@ void CFrontEndUI::StartStateTransition(EScreen screen)
         {
             SetCurrentMovie(EMenuMovie::GBAFileSelectA);
             SetFadeBlackTimer(xcc_curMoviePtr->GetTotalSeconds());
-            CSfxManager::SfxStart(1110, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
-            CSfxManager::SfxStart(1111, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_fromfusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXfnt_fromfusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
     default: break;
     }

@@ -164,7 +164,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                    PAKEntryReadStream& rs,
                    const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter,
-                   const DNAMP1::PAK::Entry& entry,
+                   const DNAMP2::PAK::Entry& entry,
                    bool force,
                    hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>)

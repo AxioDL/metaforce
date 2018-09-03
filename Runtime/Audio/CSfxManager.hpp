@@ -5,6 +5,7 @@
 #include "../RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
 #include "CAudioSys.hpp"
+#include "DNAMP1/SFX/SFX.h"
 
 namespace urde
 {

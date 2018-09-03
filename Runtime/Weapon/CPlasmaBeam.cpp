@@ -69,7 +69,7 @@ void CPlasmaBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr
 }
 
 static const CCameraShakeData CameraShaker = { 0.125f, 0.25f };
-static const u16 kSoundId[] = { 1803, 1840 };
+static const u16 kSoundId[] = { SFXwpn_fire_plasma_normal, SFXwpn_fire_plasma_charged };
 
 void CPlasmaBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2)

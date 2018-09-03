@@ -138,7 +138,7 @@ void CHudEnergyInterface::SetEnergyLow(bool energyLow)
         x28_textpane_energywarning->TextSupport().SetText(string);
 
     if (energyLow)
-        CSfxManager::SfxStart(1405, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_energy_low, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
     x1c_27_energyLow = energyLow;
 }

@@ -83,9 +83,9 @@ private:
     std::unique_ptr<CMemoryCardDriver> x6c_cardDriver;
     std::vector<TLockedToken<CSaveWorld>> x70_saveWorlds;
     CIOWin::EMessageReturn x80_iowRet = CIOWin::EMessageReturn::Normal;
-    u32 x84_navConfirmSfx = 1460;
-    u32 x88_navMoveSfx = 1461;
-    u32 x8c_navBackSfx = 1459;
+    u32 x84_navConfirmSfx = SFXui_frontend_save_confirm;
+    u32 x88_navMoveSfx = SFXui_frontend_save_move;
+    u32 x8c_navBackSfx = SFXui_frontend_save_back;
     bool x90_needsDriverReset = false;
     bool x91_uiTextDirty = false;
     bool x92_savingDisabled = false;

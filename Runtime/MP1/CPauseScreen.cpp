@@ -25,7 +25,7 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen,
     x58_frmePauseScreenBufSz = g_ResFactory->ResourceSize(frmeTag);
     x5c_frmePauseScreenBuf.reset(new u8[x58_frmePauseScreenBufSz]);
     x60_loadTok = g_ResFactory->LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf.get());
-    CSfxManager::SfxStart(1435, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXui_pause_screen_enter, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     x7c_screens.resize(2);
 }
 
@@ -197,19 +197,19 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
         if (input.PStart() || (input.PB() && bExits) ||
             (x7c_screens[x78_activeIdx] && x7c_screens[x78_activeIdx]->ShouldExitPauseScreen()))
         {
-            CSfxManager::SfxStart(1434, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_pause_screen_exit, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             StartTransition(0.5f, mgr, ESubScreen::ToGame, 2);
         }
         else
         {
             if (ControlMapper::GetPressInput(ControlMapper::ECommands::PreviousPauseScreen, input))
             {
-                CSfxManager::SfxStart(1433, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_pause_screen_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 StartTransition(0.5f, mgr, GetPreviousSubscreen(x8_curSubscreen), invalid ? 2 : 0);
             }
             else if (ControlMapper::GetPressInput(ControlMapper::ECommands::NextPauseScreen, input))
             {
-                CSfxManager::SfxStart(1433, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxManager::SfxStart(SFXui_pause_screen_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 StartTransition(0.5f, mgr, GetNextSubscreen(x8_curSubscreen), invalid ? 2 : 1);
             }
         }

@@ -1,0 +1,116 @@
+/* Auto-generated Amuse Defines
+ *
+ * Project: Audio
+ * Subproject: LavaWorld
+ * Date: Sat Sep  1 12:32:04 2018
+ */
+
+
+#define GRPgroup002F 47
+
+
+#define SFXsfx0885 2181
+#define SFXsfx0886 2182
+#define SFXlav_wlklava_00 2183
+#define SFXlav_wlklava_01 2184
+#define SFXsfx0889 2185
+#define SFXlav_ballroll_lava 2186
+#define SFXsfx088B 2187
+#define SFXsfx088C 2188
+#define SFXsfx088D 2189
+#define SFXlav_landlava_00 2190
+#define SFXsfx088F 2191
+#define SFXsfx0890 2192
+#define SFXsfx0891 2193
+#define SFXsfx0892 2194
+#define SFXsfx0893 2195
+#define SFXsfx0894 2196
+#define SFXsfx0895 2197
+#define SFXsfx0896 2198
+#define SFXsfx0897 2199
+#define SFXsfx0898 2200
+#define SFXsfx0899 2201
+#define SFXsfx089A 2202
+#define SFXsfx089B 2203
+#define SFXsfx089C 2204
+#define SFXsfx089D 2205
+#define SFXsfx089E 2206
+#define SFXsfx089F 2207
+#define SFXsfx08A0 2208
+#define SFXsfx08A1 2209
+#define SFXsfx08A2 2210
+#define SFXsfx08A3 2211
+#define SFXsfx08A4 2212
+#define SFXsfx08A5 2213
+#define SFXsfx08A6 2214
+#define SFXsfx08A7 2215
+#define SFXlav_x_piston_lp_00 2216
+#define SFXsfx08A9 2217
+#define SFXlav_x_piststop_00 2218
+#define SFXlav_x_piststop_01 2219
+#define SFXsfx08AC 2220
+#define SFXsfx08AD 2221
+#define SFXswp_x_03bridgestop_00 2222
+#define SFXsfx08AF 2223
+#define SFXsfx08B0 2224
+#define SFXsfx08B1 2225
+#define SFXsfx08B2 2226
+#define SFXsfx08B3 2227
+#define SFXsfx08B4 2228
+#define SFXsfx08B5 2229
+#define SFXsfx08B6 2230
+#define SFXsfx08B7 2231
+#define SFXsfx08B8 2232
+#define SFXsfx08B9 2233
+#define SFXsfx08BA 2234
+#define SFXsfx08BB 2235
+#define SFXsfx08BC 2236
+#define SFXsfx08BD 2237
+#define SFXsfx08BE 2238
+#define SFXmag_b_rise_00 2239
+#define SFXsfx08C0 2240
+#define SFXsfx08C1 2241
+#define SFXsfx08C2 2242
+#define SFXsfx08C3 2243
+#define SFXsfx08C4 2244
+#define SFXsfx08C5 2245
+#define SFXsfx08C6 2246
+#define SFXsfx08C7 2247
+#define SFXsfx08C8 2248
+#define SFXsfx08C9 2249
+#define SFXsfx08CA 2250
+#define SFXsfx08CB 2251
+#define SFXsfx08CC 2252
+#define SFXlav_x_gateup_lp_00 2253
+#define SFXsfx08CE 2254
+#define SFXlav_x_refrig_00 2255
+#define SFXlav_x_gatestop_00 2256
+#define SFXsfx08D1 2257
+#define SFXsfx08D2 2258
+#define SFXsfx08D3 2259
+#define SFXsfx08D4 2260
+#define SFXsfx08D5 2261
+#define SFXsfx08D6 2262
+#define SFXlav_landlava_02 2263
+#define SFXsfx08D8 2264
+#define SFXsfx08D9 2265
+#define SFXsfx08DA 2266
+#define SFXsfx08DB 2267
+#define SFXsfx08DC 2268
+#define SFXsfx08DD 2269
+#define SFXsfx08DE 2270
+#define SFXsfx08DF 2271
+#define SFXsfx08E0 2272
+#define SFXsfx08E1 2273
+#define SFXsfx08E2 2274
+#define SFXsfx08E3 2275
+#define SFXsfx08E4 2276
+#define SFXsfx08E5 2277
+#define SFXsfx08E6 2278
+#define SFXsfx08E7 2279
+#define SFXsfx08E8 2280
+#define SFXsfx08E9 2281
+#define SFXsfx08EA 2282
+#define SFXsfx08EB 2283
+
+

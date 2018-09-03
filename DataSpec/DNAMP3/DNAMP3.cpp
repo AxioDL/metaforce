@@ -92,7 +92,7 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
             bool named;
-            std::string bestName = m_pak.bestEntryName(entry, named);
+            std::string bestName = m_pak.bestEntryName(m_node, entry, named);
             level.name = hecl::SystemStringConv(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
@@ -260,7 +260,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
-ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::Entry& entry)
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry)
 {
     switch (entry.type)
     {

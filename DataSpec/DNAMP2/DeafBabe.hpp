@@ -96,7 +96,7 @@ struct DeafBabe : BigDNA
         bool surfaceMud() const { return false; }
         void setSurfaceMud(bool v) {}
         bool surfaceStoneRock() const { return false; }
-        void setSurfaceStoneRock(bool v) {}
+        void setSurfaceLavaStone(bool v) {}
         bool solid() const { return false; }
         void setSolid(bool v) {}
         bool noPlatformCollision() const { return false; }

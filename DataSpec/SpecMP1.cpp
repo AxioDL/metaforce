@@ -390,7 +390,7 @@ struct SpecMP1 : SpecBase
         outPath.makeDir();
         disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
         hecl::ProjectPath mp1OutPath(outPath, m_standalone ? _S("files") : _S("files/MP1"));
-        mp1OutPath.makeDir();
+        mp1OutPath.makeDirChain(true);
 
         /* Extract non-pak files */
         progress.startNewLine();
@@ -548,17 +548,6 @@ struct SpecMP1 : SpecBase
             return {SBIG('ANIM'), path.hash().val32()};
         else if (const hecl::SystemChar* ext = path.getLastComponentExt().data())
         {
-            if (ext[0] == _S('*') || !hecl::StrCmp(ext, _S("proj")))
-            {
-                if (path.getWithExtension(_S(".proj"), true).isFile() &&
-                    path.getWithExtension(_S(".pool"), true).isFile() &&
-                    path.getWithExtension(_S(".sdir"), true).isFile() &&
-                    path.getWithExtension(_S(".samp"), true).isFile())
-                {
-                    hecl::ProjectPath glob = path.getWithExtension(_S(".*"), true);
-                    return {SBIG('AGSC'), glob.hash().val32()};
-                }
-            }
             if (ext[0] == _S('*') || !hecl::StrCmp(ext, _S("mid")))
             {
                 if (path.getWithExtension(_S(".mid"), true).isFile() &&
@@ -568,6 +557,13 @@ struct SpecMP1 : SpecBase
                     return {SBIG('CSNG'), glob.hash().val32()};
                 }
             }
+        }
+
+        if (path.getPathType() == hecl::ProjectPath::Type::Directory)
+        {
+            if (hecl::ProjectPath(path, _S("!project.yaml")).isFile() &&
+                hecl::ProjectPath(path, _S("!pool.yaml")).isFile())
+                return {SBIG('AGSC'), path.hash().val32()};
         }
 
         hecl::ProjectPath asBlend;

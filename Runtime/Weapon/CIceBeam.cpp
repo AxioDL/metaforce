@@ -70,7 +70,7 @@ void CIceBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, c
     CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const u16 kSoundId[] = { 1797, 1776 };
+static const u16 kSoundId[] = { SFXwpn_fire_ice_normal, SFXwpn_fire_ice_charged };
 
 void CIceBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                     CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2)

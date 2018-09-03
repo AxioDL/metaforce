@@ -62,7 +62,7 @@ void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, 
 }
 
 static const float skShotAnglePitch = 120.f;
-static const u16 kSoundId[] = { 1801, 1845 };
+static const u16 kSoundId[] = { SFXwpn_fire_wave_normal, SFXwpn_fire_wave_charged };
 
 void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                      CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2)

@@ -54,7 +54,7 @@ struct OriginalIDs
         std::unordered_set<UniqueID32> addedIDs;
         std::vector<UniqueID32> originalIDs;
 
-        pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
+        pakRouter.enumerateResources([&](const DNAMP2::PAK::Entry* ent) {
             if (ent->type == FOURCC('MLVL') ||
                 ent->type == FOURCC('SCAN') ||
                 ent->type == FOURCC('MREA') ||
@@ -353,7 +353,8 @@ struct SpecMP2 : SpecBase
         outPath.makeDir();
         disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
         hecl::ProjectPath mp2OutPath(outPath, m_standalone ? _S("files") : _S("files/MP2"));
-        mp2OutPath.makeDir();
+        mp2OutPath.makeDirChain(true);
+
         progress.startNewLine();
         progress.print(_S("MP2 Root"), _S(""), 0.0);
         int prog = 0;

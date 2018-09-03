@@ -570,7 +570,7 @@ void CPlayer::Update(float dt, CStateManager& mgr)
             CStreamAudioManager::StopAll();
             if (x2f8_morphBallState == EPlayerMorphBallState::Unmorphed)
             {
-                CSfxHandle hnd = CSfxManager::SfxStart(1516, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_death, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 ApplySubmergedPitchBend(hnd);
             }
         }
@@ -583,7 +583,7 @@ void CPlayer::Update(float dt, CStateManager& mgr)
                 xa00_deathPowerBomb = x490_gun->DropPowerBomb(mgr);
             if (x9f4_deathTime >= 4.f && prevDeathTime < 4.f)
             {
-                CSfxHandle hnd = CSfxManager::SfxStart(1516, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_death, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 ApplySubmergedPitchBend(hnd);
             }
         }
@@ -641,7 +641,7 @@ void CPlayer::Update(float dt, CStateManager& mgr)
 
     if (!mgr.GetCameraManager()->IsInCinematicCamera() && xa30_samusExhaustedVoiceTimer <= 0.f)
     {
-        StartSamusVoiceSfx(1591, 1.f, 7);
+        StartSamusVoiceSfx(SFXsam_vox_exhausted, 1.f, 7);
         xa30_samusExhaustedVoiceTimer = 4.f;
     }
 }
@@ -982,37 +982,37 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location,
         {
         case EWeaponType::Phazon:
         case EWeaponType::OrangePhazon:
-            damageLoopSfx = 3114;
-            damageSamusVoiceSfx = 1653;
+            damageLoopSfx = SFXphz_damage_lp;
+            damageSamusVoiceSfx = SFXsam_vox_damage_phazon;
             break;
         case EWeaponType::PoisonWater:
-            damageLoopSfx = 1486;
-            damageSamusVoiceSfx = 1633;
+            damageLoopSfx = SFXsam_damage_poison_lp;
+            damageSamusVoiceSfx = SFXsam_vox_damage_poison;
             break;
         case EWeaponType::Lava:
-            damageLoopSfx = 657;
-        case EWeaponType::Hot:
-            damageSamusVoiceSfx = 1656;
+            damageLoopSfx = SFXpds_lava_damage_lp;
+        case EWeaponType::Heat:
+            damageSamusVoiceSfx = SFXsam_vox_damage_heat;
             break;
         default:
             if (x2f8_morphBallState == EPlayerMorphBallState::Unmorphed)
             {
                 if (dam > 30.f)
-                    damageSamusVoiceSfx = 1512;
+                    damageSamusVoiceSfx = SFXsam_vox_damage30;
                 else if (dam > 15.f)
-                    damageSamusVoiceSfx = 1511;
+                    damageSamusVoiceSfx = SFXsam_vox_damage15;
                 else
-                    damageSamusVoiceSfx = 1489;
-                suitDamageSfx = 1467;
+                    damageSamusVoiceSfx = SFXsam_vox_damage;
+                suitDamageSfx = SFXsam_suit_damage;
             }
             else
             {
                 if (dam > 30.f)
-                    suitDamageSfx = 1514;
+                    suitDamageSfx = SFXsam_ball_damage30;
                 else if (dam > 15.f)
-                    suitDamageSfx = 1513;
+                    suitDamageSfx = SFXsam_ball_damage15;
                 else
-                    suitDamageSfx = 1491;
+                    suitDamageSfx = SFXsam_ball_damage;
             }
             break;
         }
@@ -2140,7 +2140,7 @@ void CPlayer::UnFreeze(CStateManager& stateMgr)
                 CHUDBillboardEffect::GetScaleForPOV(stateMgr), zeus::CColor::skWhite,
                 zeus::CVector3f::skOne, zeus::CVector3f::skZero);
             stateMgr.AddObject(effect);
-            CSfxHandle hnd = CSfxManager::SfxStart(3129, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxHandle hnd = CSfxManager::SfxStart(SFXcrk_break_final, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
         }
         x768_morphball->Stop();
@@ -2215,13 +2215,13 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
             if (x754_iceBreakJumps != 0)
             {
                 /* Subsequent Breaks */
-                CSfxHandle hnd = CSfxManager::SfxStart(3127, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxHandle hnd = CSfxManager::SfxStart(SFXcrk_break_subsequent, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 ApplySubmergedPitchBend(hnd);
             }
             else
             {
                 /* Initial Break */
-                CSfxHandle hnd = CSfxManager::SfxStart(3128, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+                CSfxHandle hnd = CSfxManager::SfxStart(SFXcrk_break_initial, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                 ApplySubmergedPitchBend(hnd);
             }
             x754_iceBreakJumps += 1;
@@ -2764,16 +2764,58 @@ void CPlayer::PreThink(float dt, CStateManager& mgr)
 
 static const u16 skPlayerLandSfxSoft[] =
 {
-    0xFFFF, 0x05E4, 0x05D2, 0x0621, 0x0658, 0xFFFF, 0x05E3, 0x0606,
-    0x05C0, 0x088E, 0x0694, 0x0638, 0x062B, 0xFFFF, 0x0621, 0x05D2,
-    0x05D2, 0x05C0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x05FB, 0x0625
+    0xFFFF,
+    SFXsam_landstone_00,
+    SFXsam_landmetl_00,
+    SFXsam_landgrass_00,
+    SFXsam_landice_00,
+    0xFFFF,
+    SFXsam_landgrate_00,
+    SFXsam_landphazon_00,
+    SFXsam_landdirt_00,
+    SFXlav_landlava_00,
+    SFXsam_landlavastone_00,
+    SFXsam_landsnow_00,
+    SFXsam_landmud_00,
+    0xFFFF,
+    SFXsam_landgrass_00,
+    SFXsam_landmetl_00,
+    SFXsam_landmetl_00,
+    SFXsam_landdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_landwood_00,
+    SFXsam_b_landorg_00
 };
 
 static const u16 skPlayerLandSfxHard[] =
 {
-    0xFFFF, 0x0651, 0x064B, 0x0647, 0x065A, 0xFFFF, 0x0648, 0x064E,
-    0x064F, 0x08D7, 0x0696, 0x0650, 0x064C, 0xFFFF, 0x0647, 0x064B,
-    0x064B, 0x064F, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x0652, 0x064D
+    0xFFFF,
+    SFXsam_landstone_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_landgrass_02,
+    SFXsam_landice_02,
+    0xFFFF,
+    SFXsam_landgrate_02,
+    SFXsam_landphazon_02,
+    SFXsam_landdirt_02,
+    SFXlav_landlava_02,
+    SFXsam_landlavastone_02,
+    SFXsam_landsnow_02,
+    SFXsam_landmud_02,
+    0xFFFF,
+    SFXsam_landgrass_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_landdirt_02,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_landwood_02,
+    SFXsam_landorg_02
 };
 
 void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr)
@@ -2798,7 +2840,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                 else
                 {
                     landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard, 24, 0xffff);
-                    StartSamusVoiceSfx(1550, 1.f, 5);
+                    StartSamusVoiceSfx(SFXsam_voxland_02, 1.f, 5);
                     x55c_damageAmt = 0.f;
                     x560_prevDamageAmt = 10.f;
                     x564_damageLocation = x34_transform.origin;
@@ -2959,20 +3001,58 @@ void CPlayer::SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutD
 
 static const u16 skLeftStepSounds[] =
 {
-    0xFFFF, 0x05B9, 0x05D7, 0x0622, 0x0653,
-    0xFFFF, 0x05D5, 0x0611, 0x05D9, 0x0887,
-    0x0699, 0x063A, 0x0631, 0xFFFF, 0x0629,
-    0x05D7, 0x05D7, 0x05D9, 0xFFFF, 0xFFFF,
-    0xFFFF, 0xFFFF, 0x05F9, 0x0629
+    0xFFFF,
+    SFXsam_wlkstone_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_b_wlkgrass_00,
+    SFXsam_wlkice_00,
+    0xFFFF,
+    SFXsam_wlkgrate_00,
+    SFXsam_wlkphazon_00,
+    SFXsam_wlkdirt_00,
+    SFXlav_wlklava_00,
+    SFXsam_wlklavastone_00,
+    SFXsam_wlksnow_00,
+    SFXsam_wlkmud_00,
+    0xFFFF,
+    SFXsam_b_wlkorg_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_wlkdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_wlkwood_00,
+    SFXsam_b_wlkorg_00
 };
 
 static const u16 skRightStepSounds[] =
 {
-    0xFFFF, 0x05BA, 0x05D8, 0x0623, 0x0654,
-    0xFFFF, 0x05D6, 0x0612, 0x05DB, 0x0888,
-    0x069A, 0x063B, 0x0632, 0xFFFF, 0x062A,
-    0x05D8, 0x05D8, 0x05DB, 0xFFFF, 0xFFFF,
-    0xFFFF, 0xFFFF, 0x05FA, 0x062A
+    0xFFFF,
+    SFXsam_wlkstone_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_b_wlkgrass_01,
+    SFXsam_wlkice_01,
+    0xFFFF,
+    SFXsam_wlkgrate_01,
+    SFXsam_wlkphazon_01,
+    SFXsam_wlkdirt_01,
+    SFXlav_wlklava_01,
+    SFXsam_wlklavastone_01,
+    SFXsam_wlksnow_01,
+    SFXsam_wlkmud_01,
+    0xFFFF,
+    SFXsam_b_wlkorg_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_wlkdirt_01,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_wlkwood_01,
+    SFXsam_b_wlkorg_01
 };
 
 void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt)
@@ -3033,12 +3113,12 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
             {
                 if (x790_footstepSfxSel == EFootstepSfx::Left)
                 {
-                    CSfxHandle hnd = CSfxManager::SfxStart(2183, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
+                    CSfxHandle hnd = CSfxManager::SfxStart(SFXlav_wlklava_00, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(hnd);
                 }
                 else
                 {
-                    CSfxHandle hnd = CSfxManager::SfxStart(2184, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
+                    CSfxHandle hnd = CSfxManager::SfxStart(SFXlav_wlklava_01, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(hnd);
                 }
             }
@@ -3046,12 +3126,12 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
             {
                 if (x790_footstepSfxSel == EFootstepSfx::Left)
                 {
-                    CSfxHandle hnd = CSfxManager::SfxStart(1484, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
+                    CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_wlkwater_00, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(hnd);
                 }
                 else
                 {
-                    CSfxHandle hnd = CSfxManager::SfxStart(1485, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
+                    CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_wlkwater_01, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(hnd);
                 }
             }
@@ -3337,7 +3417,7 @@ void CPlayer::UpdateMorphBallState(float dt, const CFinalInput& input, CStateMan
         }
         else
         {
-            CSfxHandle hnd = CSfxManager::SfxStart(1781, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            CSfxHandle hnd = CSfxManager::SfxStart(SFXwpn_invalid_action, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
         }
         break;
@@ -3353,7 +3433,7 @@ void CPlayer::UpdateMorphBallState(float dt, const CFinalInput& input, CStateMan
         }
         else
         {
-            CSfxHandle hnd = CSfxManager::SfxStart(1781, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            CSfxHandle hnd = CSfxManager::SfxStart(SFXwpn_invalid_action, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
         }
         break;
@@ -5528,7 +5608,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr)
                     x9d4_bombJumpCheckDelayFrames = 2;
                 }
             }
-            CSfxHandle hnd = CSfxManager::AddEmitter(1468, GetTranslation(), zeus::CVector3f::skZero,
+            CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::CVector3f::skZero,
                                                      false, false, 0x7f, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
         }
@@ -5603,7 +5683,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
     case EPlayerMovementState::Jump:
         if (x258_movementState == EPlayerMovementState::StartingJump)
         {
-            CSfxHandle hnd = CSfxManager::SfxStart(1470, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_b_jump_00, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
             mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.2015f, ERumblePriority::One);
             x288_startingJumpTimeout = g_tweakPlayer->GetAllowedDoubleJumpTime();
@@ -5612,7 +5692,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
         }
         else if (x258_movementState != EPlayerMovementState::Jump)
         {
-            CSfxHandle hnd = CSfxManager::SfxStart(1471, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+            CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_firstjump, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
             x2a0_ = 0.01f;
             x288_startingJumpTimeout = g_tweakPlayer->GetAllowedJumpTime();
@@ -5950,7 +6030,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
                 if (!x9c5_28_slidingOnWall)
                 {
                     SetVelocityWR(vel);
-                    x778_dashSfx = CSfxManager::SfxStart(1560, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
+                    x778_dashSfx = CSfxManager::SfxStart(SFXsam_dash, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
                     ApplySubmergedPitchBend(x778_dashSfx);
                     mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.24375f, ERumblePriority::One);
                 }

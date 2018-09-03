@@ -36,7 +36,7 @@ struct DeafBabe : BigDNA
         bool surfaceLava() const {return (material >> 9) & 1; }
         void setSurfaceLava(bool v) { material &= ~(1ull << 9); material |= (v << 9); }
         bool surfaceStoneRock() const { return (material >> 10) & 1; }
-        void setSurfaceStoneRock(bool v) { material &= ~(1ull << 10); material |= (v << 10); }
+        void setSurfaceLavaStone(bool v) { material &= ~(1ull << 10); material |= (v << 10); }
         bool surfaceSnow() const { return (material >> 11) & 1; }
         void setSurfaceSnow(bool v) { material &= ~(1ull << 11); material |= (v << 11); }
         bool surfaceMudSlow() const { return (material >> 12) & 1; }

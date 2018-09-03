@@ -88,7 +88,7 @@ void CPhazonBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr
     CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const u16 kSoundId[] = { 1805, 1767 };
+static const u16 kSoundId[] = { SFXwpn_fire_phazon_normal, SFXwpn_fire_power_charged };
 
 void CPhazonBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                        CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2)

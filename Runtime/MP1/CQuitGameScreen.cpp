@@ -61,7 +61,7 @@ void CQuitGameScreen::FinishedLoading()
 void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel)
 {
     SetColors();
-    CSfxManager::SfxStart(1424, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    CSfxManager::SfxStart(SFXui_quit_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 }
 
 void CQuitGameScreen::DoAdvance(CGuiTableGroup* caller)
@@ -69,13 +69,13 @@ void CQuitGameScreen::DoAdvance(CGuiTableGroup* caller)
     if (caller->GetUserSelection() == 0)
     {
         /* Yes */
-        CSfxManager::SfxStart(1432, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_advance, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x18_action = EQuitAction::Yes;
     }
     else
     {
         /* No */
-        CSfxManager::SfxStart(1431, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+        CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x18_action = EQuitAction::No;
     }
 }

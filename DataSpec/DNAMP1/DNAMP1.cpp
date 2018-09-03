@@ -115,7 +115,7 @@ void PAKBridge::build()
                 mlvl.read(rs);
             }
             bool named;
-            std::string bestName = m_pak.bestEntryName(entry, named);
+            std::string bestName = m_pak.bestEntryName(m_node, entry, named);
             level.name = hecl::SystemStringConv(bestName).sys_str();
             level.areas.reserve(mlvl.areaCount);
             unsigned layerIdx = 0;
@@ -357,7 +357,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
     }
 }
 
-ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::Entry& entry)
+ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry)
 {
     switch (entry.type)
     {
@@ -408,7 +408,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     case SBIG('DGRP'):
         return {DNADGRP::ExtractDGRP<UniqueID32>, {_S(".yaml")}};
     case SBIG('AGSC'):
-        return {AGSC::Extract, {_S(".pool"), _S(".proj"), _S(".samp"), _S(".sdir")}};
+        return {AGSC::Extract, {}};
     case SBIG('CSNG'):
         return {CSNG::Extract, {_S(".mid"), _S(".yaml")}};
     case SBIG('ATBL'):
@@ -417,7 +417,7 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const PAK& pak, const PAK::En
     case SBIG('DUMB'):
     {
         bool named;
-        std::string name = pak.bestEntryName(entry, named);
+        std::string name = pak.bestEntryName(pakNode, entry, named);
         if (named)
         {
             if (!name.compare("PlayerRes"))

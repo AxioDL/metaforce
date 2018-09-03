@@ -2,7 +2,7 @@
 #define __DNAMP2_HPP__
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
-#include "../DNAMP1/PAK.hpp"
+#include "PAK.hpp"
 
 namespace DataSpec::DNAMP2
 {
@@ -13,7 +13,7 @@ extern logvisor::Module Log;
 class PAKBridge
 {
     const nod::Node& m_node;
-    DNAMP1::PAK m_pak;
+    DNAMP2::PAK m_pak;
 public:
     bool m_doExtract;
     using Level = DataSpec::Level<UniqueID32>;
@@ -22,11 +22,12 @@ public:
 
     PAKBridge(const nod::Node& node, bool doExtract=true);
     void build();
-    static ResExtractor<PAKBridge> LookupExtractor(const DNAMP1::PAK& pak, const DNAMP1::PAK::Entry& entry);
+    static ResExtractor<PAKBridge> LookupExtractor(const nod::Node& pakNode,
+        const DNAMP2::PAK& pak, const DNAMP2::PAK::Entry& entry);
     std::string_view getName() const {return m_node.getName();}
     hecl::SystemStringView getLevelString() const {return m_levelString;}
 
-    using PAKType = DNAMP1::PAK;
+    using PAKType = DNAMP2::PAK;
     const PAKType& getPAK() const {return m_pak;}
     const nod::Node& getNode() const {return m_node;}
 

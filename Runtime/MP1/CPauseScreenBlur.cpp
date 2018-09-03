@@ -43,9 +43,9 @@ void CPauseScreenBlur::SetState(EState state)
     {
         CSfxManager::SetChannel(CSfxManager::ESfxChannels::PauseScreen);
         if (state == EState::HUDMessage)
-            CSfxManager::SfxStart(1415, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_into_hud_message, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         else if (state == EState::MapScreen)
-            CSfxManager::SfxStart(1378, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_into_map_screen, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x18_blurAmt = FLT_EPSILON;
     }
 
@@ -53,9 +53,9 @@ void CPauseScreenBlur::SetState(EState state)
     {
         CSfxManager::SetChannel(CSfxManager::ESfxChannels::Game);
         if (x10_prevState == EState::HUDMessage)
-            CSfxManager::SfxStart(1416, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_outof_hud_message, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         else if (x10_prevState == EState::MapScreen)
-            CSfxManager::SfxStart(1380, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXui_outof_map_screen, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         x18_blurAmt = -1.f;
     }
 

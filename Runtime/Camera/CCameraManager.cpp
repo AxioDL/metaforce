@@ -71,10 +71,10 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx)
             zeus::clamp(100.f, std::max(data.GetMaxAMComponent(), data.GetMaxFMComponent()) * 9.f + 100.f, 127.f);
         CSfxHandle sfxHandle;
         if (data.xc0_flags & 0x1)
-            sfxHandle = CSfxManager::AddEmitter(1133, data.xc4_sfxPos, zeus::CVector3f::skZero,
+            sfxHandle = CSfxManager::AddEmitter(SFXamb_x_rumble_lp_00, data.xc4_sfxPos, zeus::CVector3f::skZero,
                                                 vol / 127.f, false, false, 0x7f, kInvalidAreaId);
         else
-            sfxHandle = CSfxManager::SfxStart(1133, vol / 127.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            sfxHandle = CSfxManager::SfxStart(SFXamb_x_rumble_lp_00, vol / 127.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         sfxHandle->SetTimeRemaining(data.x0_duration);
     }
     return x2c_lastShakeId;
