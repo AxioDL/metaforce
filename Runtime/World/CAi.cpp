@@ -4,6 +4,7 @@
 #include "CStateMachine.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "CScriptWater.hpp"
 
 namespace urde
 {
@@ -49,6 +50,42 @@ void CAi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager
     }
 
     CActor::AcceptScriptMsg(msg, uid, mgr);
+}
+
+EWeaponCollisionResponseTypes CAi::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                            const urde::CWeaponMode&, urde::EProjectileAttrib) const
+{
+    return EWeaponCollisionResponseTypes::EnemyNormal;
+}
+
+void CAi::FluidFXThink(EFluidState state, CScriptWater& water, urde::CStateManager& mgr)
+{
+    if (state == EFluidState::EnteredFluid || state == EFluidState::LeftFluid)
+    {
+        float dt = mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(GetUniqueId());
+        if (dt >= 0.02f)
+        {
+            float vel = (0.5f * GetMass()) * GetVelocity().magSquared();
+
+            if (vel > 500.f)
+            {
+                zeus::CVector3f pos = x34_transform.origin;
+                pos.z = water.GetTriggerBoundsWR().max.z;
+                mgr.GetFluidPlaneManager()->CreateSplash(GetUniqueId(), mgr, water, pos,
+                                                         0.1f + ((0.4f * zeus::min(vel, 30000.f) - 500.f) / 29500.f),
+                                                         true);
+            }
+        }
+    }
+
+    if (mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(GetUniqueId()) < (GetHealthInfo(mgr)->GetHP() > 0.f ? 0.2f : 0.7f))
+        return;
+
+    zeus::CVector3f pos = x34_transform.origin;
+    zeus::CVector3f center = pos;
+    center.z = water.GetTriggerBoundsWR().max.z;
+    pos.normalize();
+    water.GetFluidPlane().AddRipple(GetMass(), GetUniqueId(), center, GetVelocity(), water, mgr, pos);
 }
 
 CAiStateFunc CAi::GetStateFunc(const char* func) { return m_FuncMap->GetStateFunc(func); }
