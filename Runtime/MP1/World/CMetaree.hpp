@@ -45,7 +45,7 @@ public:
 
     bool Delay(CStateManager&, float)
     {
-        return x338_ == x568_;
+        return x330_stateMachineState.GetTime() == x568_;
     }
 };
 }

@@ -38,13 +38,13 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
 , x108_(in.readFloatBig())
 , x10c_particle1Frames(in.readUint32Big())
 , x110_particle1Scale(zeus::CVector3f::ReadBig(in))
-, x11c_particle1(in.readUint32Big())
-, x120_particle2Frames(in.readUint32Big())
+, x11c_particle1(in)
+, x120_electric(in)
 {
     if (pcount >= 36)
         x124_particle2Scale.readBig(in);
     if (pcount >= 37)
-        x130_particle2 = in.readUint32Big();
+        x130_particle2 = CAssetId(in);
     if (pcount >= 38)
         x134_iceShatterSfx = CSfxManager::TranslateSFXID(in.readUint32Big());
 }

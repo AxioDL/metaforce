@@ -50,7 +50,7 @@ class CPatternedInfo
     zeus::CVector3f x110_particle1Scale;
     CAssetId x11c_particle1;
 
-    u32 x120_particle2Frames;
+    CAssetId x120_electric;
     zeus::CVector3f x124_particle2Scale;
     CAssetId x130_particle2;
 

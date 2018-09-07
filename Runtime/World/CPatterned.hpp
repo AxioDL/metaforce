@@ -3,15 +3,45 @@
 
 #include "CAi.hpp"
 #include "Character/CBodyController.hpp"
+#include "Character/CSteeringBehaviors.hpp"
+#include "Graphics/CVertexMorphEffect.hpp"
+#include "Particle/CGenDescription.hpp"
+#include "Particle/CElectricDescription.hpp"
 #include "TCastTo.hpp"
+#include "CDamageInfo.hpp"
 
 namespace urde
 {
 class CPatternedInfo;
 
+class CPatternedUnknown2
+{
+    friend class CPatterned;
+    u8 x80_ = 0;
+    union
+    {
+        struct
+        {
+            bool x81_24_ : 1;
+            bool x81_25_ : 1;
+            bool x81_26_ : 1;
+            bool x81_27_ : 1;
+            bool x81_28_ : 1;
+            bool x81_29_ : 1;
+            bool x81_30_ : 1;
+            bool x81_31_ : 1;
+            bool x82_24_ : 1;
+            bool x82_25_ : 1;
+            bool x82_26_ : 1;
+        };
+        u32 dummy = 0;
+    };
+};
+
 class CPatterned : public CAi
 {
 public:
+    static const zeus::CColor skDamageColor;
     enum class ECharacter
     {
         AtomicAlpha = 0,
@@ -71,6 +101,17 @@ public:
     };
 
 protected:
+    u32 x2d8_ = -1;
+    TUniqueId x2dc_ = kInvalidUniqueId;
+    zeus::CVector3f x2e0_;
+    zeus::CVector3f x2ec_;
+    float x2f8_ = 0.f;
+    float x2fc_minAttackRange;
+    float x300_maxAttackRange;
+    float x304_averageAttackTime;
+    float x308_attackTimeVariation;
+    u32 x30c_ = 0;
+    zeus::CVector3f x310_;
     union
     {
         struct
@@ -82,9 +123,46 @@ protected:
         };
         u32 _dummy = 0;
     };
-    ECharacter x34c_character;
 
-    float x338_;
+    u32 x32c_;
+    CStateMachineState x330_stateMachineState;
+    ECharacter x34c_character;
+    zeus::CVector3f x350_;
+    zeus::CVector3f x35c_;
+    zeus::CVector3f x368_;
+    u32 x374_ = 0;
+    u32 x378_ = 2;
+    u32 x37c_ = 1;
+    u32 x380_ = 0;
+    u32 x384_ = 0;
+    s32 x388_anim;
+    /*x38c_*/
+    u32 x390_ = 0;
+    u32 x394_ = 0;
+    u32 x398_ = 0;
+    u32 x39c_ = 0;
+    zeus::CVector3f x3a0_;
+    TUniqueId x3ac_ = kInvalidUniqueId;
+    float x3b0_ = 1.f;
+    float x3b4_speed;
+    float x3b8_turnSpeed;
+    float x3bc_detectionRange;
+    float x3c0_detectionHeightRange;
+    float x3c4_detectionAngle;
+    float x3c8_leashRadius;
+    float x3cc_playerLeashRadius;
+    float x3d0_playerLeashTime;
+    float x3d4_ = 0.f;
+    float x3d8_;
+    float x3dc_;
+    float x3e0_;
+    float x3e4_ = 0.f;
+    float x3e8_ = 0.f;
+    float x3ec_ = 0.f;
+    float x3f0_ = 0.f;
+    float x3f4_ = 0.f;
+    u32 x3f8_ = 0;
+    EFlavorType x3fc_flavor;
 
     union
     {
@@ -121,21 +199,36 @@ protected:
         u32 _dummy2 = 0;
     };
 
+    CDamageInfo x404_;
+    float x420_ = 0.f;
+    float x424_damageWaitTime;
+    float x428_ = -1.f;
+    zeus::CColor x42c_ = zeus::CColor::skBlack;
+    zeus::CColor x430_ = skDamageColor;
+    CSteeringBehaviors x45c_;
     std::unique_ptr<CBodyController> x450_bodyController;
+    u32 x454_deathSfx;
+    u32 x458_iceShatterSfx;
 
-    union
-    {
-        struct
-        {
-            bool x4e1_24_ : 1;
-            bool x4e1_25_ : 1;
-            bool x4e1_26_ : 1;
-        };
-        u32 _dummy3 = 0;
-    };
-
+    CPatternedUnknown2 x460_;
+    zeus::CVector3f x4e4_;
+    float x4f0_ = 0.f;
+    float x4f4_;
+    float x4f8_;
+    float x4fc_;
     float x500_ = 0.f;
     float x504_damageDur = 0.f;
+    EColliderType x508_colliderType;
+    float x50c_thermalMag;
+    std::unique_ptr<CVertexMorphEffect> x510_;
+    zeus::CVector3f x514_;
+    std::experimental::optional<TLockedToken<CGenDescription>> x520_;
+    std::experimental::optional<TLockedToken<CElectricDescription>> x530_;
+    zeus::CVector3f x540_;
+    std::experimental::optional<TLockedToken<CGenDescription>> x54c_;
+    /* x55c_ */
+    /* x560_ */
+    /* x564_ */
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
@@ -143,8 +236,16 @@ public:
                const CActorParameters& params, int variant);
 
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+    void Think(float, CStateManager&);
+    void Touch(CActor&, CStateManager&);
     virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
+    zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const
+    {
+        return GetAimPosition(mgr, 0.f);
+    }
+
+    zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
 
     template <class T>
     static T* CastTo(CEntity* ent)
@@ -184,9 +285,12 @@ public:
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
     float GetDamageDuration() const { return x504_damageDur; }
+    zeus::CVector3f GetGunEyePos() const;
 
+    void BuildBodyController(EBodyType);
     const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
     CBodyController* BodyController() { return x450_bodyController.get(); }
+    void SetupPlayerCollision(bool);
 };
 }
 
