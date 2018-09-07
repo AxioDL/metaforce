@@ -21,7 +21,8 @@ enum class EFilterType
     Blend,
     Widescreen,
     SceneAdd,
-    NoColor
+    NoColor,
+    InvDstMultiply
 };
 
 enum class EFilterShape

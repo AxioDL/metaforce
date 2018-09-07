@@ -2,6 +2,8 @@
 #include "Character/CModelData.hpp"
 #include "CStateManager.hpp"
 #include "CStateMachine.hpp"
+#include "GameGlobalObjects.hpp"
+#include "CSimplePool.hpp"
 
 namespace urde
 {
@@ -22,7 +24,31 @@ CAi::CAi(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& i
                 actorParams, stepUp, stepDown)
 , x258_healthInfo(hInfo)
 , x260_damageVulnerability(dmgVuln)
+, x2c8_stateMachine(g_SimplePool->GetObj({FOURCC('AFSM'), fsm}))
 {
+    _CreateShadow();
+
+    if (x94_simpleShadow)
+    {
+        CreateShadow(true);
+        x94_simpleShadow->SetAlwaysCalculateRadius(false);
+    }
+
+    if (x90_actorLights)
+        x260_damageVulnerability.SetX38_25(true);
+}
+
+void CAi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
+{
+    if (msg == EScriptObjectMessage::InitializedInArea)
+    {
+        CMaterialList exclude = GetMaterialFilter().GetExcludeList();
+        CMaterialList include = GetMaterialFilter().GetIncludeList();
+        include.Add(EMaterialTypes::AIBlock);
+        SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
+    }
+
+    CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
 CAiStateFunc CAi::GetStateFunc(const char* func) { return m_FuncMap->GetStateFunc(func); }
