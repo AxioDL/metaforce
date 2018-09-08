@@ -55,7 +55,7 @@ s32 CStateMachine::GetStateIndex(std::string_view state) const
 
 const std::vector<CAiState>& CStateMachine::GetStateVector() const { return x0_states; }
 
-float CStateMachineState::GetTime() const { return 0.f; }
+float CStateMachineState::GetTime() const { return x8_time; }
 
 void CStateMachineState::SetState(CStateManager &, CAi &, s32 idx)
 {

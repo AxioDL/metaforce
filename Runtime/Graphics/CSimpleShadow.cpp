@@ -39,7 +39,7 @@ void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) const
     CGraphics::SetModelMatrix(x0_xf);
 
     if (!m_filter || m_filter->GetTex().GetObj() != tex.GetObj())
-        m_filter.emplace(EFilterType::Blend, tex, CTexturedQuadFilter::ZTest::LEqual);
+        m_filter.emplace(EFilterType::InvDstMultiply, tex, CTexturedQuadFilter::ZTest::LEqual);
 
     float radius = x34_radius * x30_scale;
     CTexturedQuadFilter::Vert verts[] =

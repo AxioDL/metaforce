@@ -224,7 +224,9 @@ public:
     SAdvancementDeltas AdvanceIgnoreParticles(float, CRandom16&, bool advTree);
     void AdvanceAnim(CCharAnimTime& time, zeus::CVector3f&, zeus::CQuaternion&);
     void SetXRayModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
+    std::shared_ptr<CSkinnedModel> GetXRayModel() const { return xf4_xrayModel; }
     void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
+    std::shared_ptr<CSkinnedModel> GetInfraModel() const { return xf8_infraModel; }
     const TCachedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
     static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose,
@@ -253,6 +255,7 @@ public:
 
     s32 GetCharacterIndex() const { return x204_charIdx; }
     u16 GetDefaultAnimation() const { return x208_defaultAnim; }
+    const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
 };
 
 }

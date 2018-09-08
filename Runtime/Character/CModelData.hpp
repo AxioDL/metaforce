@@ -158,6 +158,31 @@ public:
     void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }
     bool HasAnimData() const { return x10_animData != nullptr; }
     bool HasNormalModel() const { return x1c_normalModel; }
+    bool HasModel(EWhichModel which)
+    {
+        if (x10_animData)
+        {
+            switch(which)
+            {
+            case EWhichModel::Normal: return true;
+            case EWhichModel::XRay: return x10_animData->GetXRayModel().operator bool();
+            case EWhichModel::Thermal: return x10_animData->GetInfraModel().operator bool();
+            default:
+                return false;
+            }
+        }
+
+        switch(which)
+        {
+        case EWhichModel::Normal:
+            return x1c_normalModel;
+        case EWhichModel::XRay:
+            return x2c_xrayModel;
+        case EWhichModel::Thermal:
+            return x3c_infraModel;
+        default: return false;
+        }
+    }
 };
 
 }

@@ -30,6 +30,7 @@ enum class EKnockBackType
 
 class CAiFuncMap;
 class CStateManager;
+class CScriptWater;
 class CAi : public CPhysicsActor
 {
     static CAiFuncMap*   m_FuncMap;
@@ -48,16 +49,21 @@ public:
 
     const CStateMachine* GetStateMachine() const;
 
-    virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+    virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual CHealthInfo* HealthInfo(CStateManager&) { return &x258_healthInfo; }
     virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg)=0;
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float)=0;
     virtual const CDamageVulnerability* GetDamageVulnerability() const { return &x260_damageVulnerability; }
+    virtual const CDamageVulnerability* GetDamageVulnerability() { return &x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f&, float) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() const { return false; }
     virtual int Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
+    virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                   const CWeaponMode&, EProjectileAttrib) const;
+    void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
 
+    virtual zeus::CVector3f GetOrigin() const { return x34_transform.origin; }
     virtual void Patrol(CStateManager&, EStateMsg, float) {}
     virtual void FollowPattern(CStateManager&, EStateMsg, float) {}
     virtual void Dead(CStateManager&, EStateMsg, float) {}

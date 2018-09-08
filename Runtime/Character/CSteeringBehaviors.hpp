@@ -9,6 +9,7 @@ namespace urde
 
 class CSteeringBehaviors
 {
+    float x0_ = M_PIF / 2.f;
 public:
     static zeus::CVector3f ProjectOrbitalPosition(const zeus::CVector3f& pos, const zeus::CVector3f& vel,
                                                   const zeus::CVector3f& orbitPoint, float dt, float preThinkDt);

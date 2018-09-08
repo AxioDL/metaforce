@@ -74,6 +74,7 @@ public:
     const CVisorParameters& GetVisorParameters() const { return x54_visorParms; }
     const CLightParameters& GetLightParameters() const { return x0_lightParms; }
     bool HasThermalHeat() const { return x58_25_thermalHeat; }
+    float GetThermalMag() const { return x64_thermalMag; }
 };
 }
 
