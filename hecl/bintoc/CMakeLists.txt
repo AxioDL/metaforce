@@ -11,6 +11,8 @@ macro(bintoc out in sym)
   else()
     set(theIn ${CMAKE_CURRENT_SOURCE_DIR}/${in})
   endif()
+  get_filename_component(outDir ${theOut} DIRECTORY)
+  file(MAKE_DIRECTORY ${outDir})
   add_custom_command(OUTPUT ${theOut}
                      COMMAND $<TARGET_FILE:bintoc> ARGS ${theIn} ${theOut} ${sym}
                      DEPENDS ${theIn} bintoc)
