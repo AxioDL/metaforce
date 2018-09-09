@@ -1720,7 +1720,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
         x835_29_powerBombReady = false;
         if (!x835_31_actorAttached)
         {
-            x835_28_bombReady = false;
+            x835_28_bombReady = true;
             if (x53a_powerBomb != kInvalidUniqueId &&
                 !mgr.CanCreateProjectile(x538_playerId, EWeaponType::PowerBomb, 1))
             {
@@ -2596,11 +2596,12 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr)
         if (x308_bombCount <= 0)
             return;
 
+        zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
+        zeus::CTransform xf = zeus::CTransform::Translate({plPos.x,
+                                                          plPos.y, plPos.z + g_tweakPlayer->GetPlayerBallHalfExtent()});
         CBomb* bomb =
             new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
-                      mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime,
-                      zeus::CTransform::Translate(zeus::CVector3f{0.f, g_tweakPlayer->GetPlayerBallHalfExtent(), 0.f}),
-                      g_tweakPlayerGun->GetBombInfo());
+                      mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf,g_tweakPlayerGun->GetBombInfo());
         mgr.AddObject(bomb);
 
         if (x308_bombCount == 3)

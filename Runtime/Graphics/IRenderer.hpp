@@ -57,6 +57,7 @@ public:
     virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly)=0;
     virtual void PostRenderFogs()=0;
     virtual void AddParticleGen(const CParticleGen&)=0;
+    virtual void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&)=0;
     virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int)=0;
     virtual void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting)=0;
     virtual void SetDrawableCallback(TDrawableCallback, const void*)=0;

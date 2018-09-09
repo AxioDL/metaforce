@@ -9,9 +9,9 @@
 #define GRPgroup002B 43
 
 
-#define SFXsfx06DC 1756
+#define SFXwpn_bomb_drop 1756
 #define SFXsfx06DD 1757
-#define SFXsfx06DE 1758
+#define SFXwpn_bomb_explo 1758
 #define SFXwpn_chargeup_ice 1759
 #define SFXsfx06E0 1760
 #define SFXsfx06E1 1761

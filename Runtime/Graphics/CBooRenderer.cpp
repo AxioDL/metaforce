@@ -1046,6 +1046,11 @@ void CBooRenderer::AddParticleGen(const CParticleGen& gen)
     }
 }
 
+void CBooRenderer::AddParticleGen(const CParticleGen& gen, const zeus::CVector3f& pos, const zeus::CAABox& bounds)
+{
+    Buckets::Insert(pos, bounds, EDrawableType::Particle, &gen, xb0_viewPlane, 0);
+}
+
 void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, const zeus::CPlane& plane, int type)
 {
     zeus::CVector3f closePoint = aabb.closestPointAlongVector(xb0_viewPlane.normal());

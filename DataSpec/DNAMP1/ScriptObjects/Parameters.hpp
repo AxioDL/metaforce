@@ -294,7 +294,7 @@ struct PatternedInfo : BigDNA
     Value<atUint32> unknown11;
     Value<atVec3f>  unknown12;
     UniqueID32      particle1;
-    Value<atUint32> unknown13;
+    UniqueID32      electric;
     Value<atVec3f>  unknown14;
     UniqueID32      particle2;
     Value<atUint32> soundID2;
@@ -312,6 +312,11 @@ struct PatternedInfo : BigDNA
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
             ent->name = name + "_part1";
         }
+        if (electric)
+        {
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(electric);
+            ent->name = name + "_elsc";
+        }
         if (particle2)
         {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
@@ -324,6 +329,7 @@ struct PatternedInfo : BigDNA
         animationParameters.depANCS(pathsOut);
         g_curSpec->flattenDependencies(stateMachine, pathsOut);
         g_curSpec->flattenDependencies(particle1, pathsOut);
+        g_curSpec->flattenDependencies(electric, pathsOut);
         g_curSpec->flattenDependencies(particle2, pathsOut);
     }
 };
