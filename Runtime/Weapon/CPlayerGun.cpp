@@ -2624,11 +2624,11 @@ TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr)
                                                                : CDamageInfo(CWeaponMode::PowerBomb(), 0.f, 0.f, 0.f));
 
     TUniqueId uid = mgr.AllocateUniqueId();
-    CPowerBomb* pBomb =
-        new CPowerBomb(x784_bombEffects[1][0], uid, kInvalidAreaId, x538_playerId,
-                       zeus::CTransform::Translate(mgr.GetPlayer().GetTranslation() +
-                                                   zeus::CVector3f{0.f, g_tweakPlayer->GetPlayerBallHalfExtent(), 0.f}),
-                       dInfo);
+    zeus::CVector3f plVec = mgr.GetPlayer().GetTranslation();
+    zeus::CTransform xf = zeus::CTransform::Translate({plVec.x,
+                                                       plVec.y,
+                                                       plVec.z + g_tweakPlayer->GetPlayerBallHalfExtent()});
+    CPowerBomb* pBomb = new CPowerBomb(x784_bombEffects[1][0], uid, kInvalidAreaId, x538_playerId, xf, dInfo);
     mgr.AddObject(*pBomb);
     return uid;
 }

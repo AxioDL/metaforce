@@ -278,7 +278,7 @@ void CScriptEffect::Render(const CStateManager& mgr) const
     if (xf4_electric && xf4_electric->GetParticleCount() > 0)
     {
         g_NumParticlesRendered += xf4_electric->GetParticleCount();
-        xf4_electric->Render();
+        xf4_electric->Render(GetActorLights());
     }
 }
 
