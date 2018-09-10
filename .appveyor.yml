@@ -56,7 +56,6 @@ before_build:
   - git submodule update --init --recursive
 
 build_script:
-  - rmdir build
   - mkdir build
   - cd build
   - C:\projects\deps\cmake\cmake-3.10.1-win64-x64\bin\cmake.exe -GNinja ..
