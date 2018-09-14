@@ -62,6 +62,7 @@ class CRidley : public CPatterned
 {
     CRidleyData x568_;
 public:
+    DEFINE_PATTERNED(Ridley)
     CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, CInputStream&, u32);
 

@@ -35,6 +35,7 @@ public:
 
 class CAiState
 {
+    friend class CStateMachineState;
     CAiStateFunc x0_func;
     const char* x4_name;
     u32 x8_;
@@ -77,11 +78,13 @@ public:
 
 class CStateMachineState
 {
+    friend class CPatterned;
     const CStateMachine* x0_machine = nullptr;
     CAiState* x4_state = nullptr;
     float x8_time = 0.f;
-    float xc_ = 0.f;
+    float xc_random = 0.f;
     float x10_ = 0.f;
+    float x14_;
     union
     {
         struct
@@ -93,7 +96,7 @@ class CStateMachineState
 public:
     CStateMachineState()=default;
 
-    void GetActorState() const;
+    CAiState* GetActorState() const { return x4_state; }
     float GetTime() const;
 
     void Update(CStateManager& mgr, CAi& ai, float delta)
@@ -108,8 +111,15 @@ public:
     void Setup(const CStateMachine* machine);
     std::string GetName() const;
     void SetDelay(float);
-    void GetRandom() const;
+    float GetRandom() const { return xc_random; }
     float GetDelay() const;
+
+    u32 sub8007FB9C() const
+    {
+        if (x4_state)
+            return x4_state->xc_;
+        return 0;
+    }
 };
 
 CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,

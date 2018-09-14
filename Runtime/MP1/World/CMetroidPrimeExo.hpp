@@ -103,7 +103,7 @@ struct SPrimeExoRoomParameters
 class CMetroidPrimeExo : public CPatterned
 {
 public:
-    static constexpr ECharacter CharacterType = ECharacter::MetroidPrimeExo;
+    DEFINE_PATTERNED(MetroidPrimeExo)
     CMetroidPrimeExo(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
                      u32 pw1, const CCameraShakeData& shakeData1, const CCameraShakeData& shakeData2,

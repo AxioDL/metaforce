@@ -38,6 +38,7 @@ struct CParasiteInfo
 class CParasite : public CWallWalker
 {
 public:
+    DEFINE_PATTERNED(Parasite)
     CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info, const zeus::CTransform& xf,
               CModelData&& mData, const CPatternedInfo&, u32, float, float, float, float, float, float, float, float, float,
               float, float, float, float, float, float, float, float, float, bool, u32, const CDamageVulnerability&, const CParasiteInfo&, u16, u16,

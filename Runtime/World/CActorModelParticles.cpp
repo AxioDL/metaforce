@@ -288,9 +288,18 @@ std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindOrCre
     return x0_items.emplace(x0_items.end(), act, *this);
 }
 
-void CActorModelParticles::StartIce(CActor& actor, CStateManager& mgr)
+void CActorModelParticles::StartIce(CActor& actor)
 {
+}
 
+void CActorModelParticles::StopElectric(CActor& act)
+{
+    if (!act.GetPointGeneratorParticles())
+    {
+        auto iter = FindSystem(act.GetUniqueId());
+        if (iter != x0_items.cend() && iter->xc0_particleElectric)
+            iter->xc0_particleElectric->SetParticleEmission(false);
+    }
 }
 
 void CActorModelParticles::AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes,

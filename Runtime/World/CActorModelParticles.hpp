@@ -95,11 +95,30 @@ public:
     void SetupHook(TUniqueId uid);
     std::list<CItem>::const_iterator FindSystem(TUniqueId uid) const;
     std::list<CItem>::iterator FindOrCreateSystem(CActor& act);
-    void StartIce(CActor& actor, CStateManager& mgr);
+    void StartIce(CActor& actor);
     void AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes,
                                 u32 genRate, float minZ);
     void RemoveRainSplashGenerator(CActor& act);
     void Render(const CActor& actor) const;
+    void StartElectric(CActor& act)
+    {
+        auto iter = FindOrCreateSystem(act);
+
+        if (iter->xc0_particleElectric && !iter->xc0_particleElectric->GetParticleEmission())
+            iter->xc0_particleElectric->SetParticleEmission(true);
+
+    }
+
+    void StopElectric(CActor& act);
+
+    void LightDudeOnFire(CActor& act)
+    {
+        auto iter = FindOrCreateSystem(act);
+
+        /* iter->sub801e5a04(false); */
+        if (iter->x6c_ > 0.f)
+            iter->x70_ = true;
+    }
 };
 }
 

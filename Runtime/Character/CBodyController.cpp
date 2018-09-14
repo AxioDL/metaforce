@@ -90,7 +90,7 @@ void CBodyController::Update(float dt, CStateManager& mgr)
     if (x300_25_active)
     {
         x300_24_animationOver =
-            !x0_actor.GetModelData()->GetAnimationData()->IsAnimTimeRemaining(dt, "Whole Body");
+            !x0_actor.GetModelData()->GetAnimationData()->IsAnimTimeRemaining(dt, "Whole Body"sv);
         x4_cmdMgr.BlendSteeringCmds();
         x2dc_rot = zeus::CQuaternion::skNoRotation;
         UpdateBody(dt, mgr);
@@ -306,7 +306,7 @@ void CBodyController::UpdateFrozenInfo(float dt, CStateManager& mgr)
         {
             UnFreeze();
             x0_actor.SendScriptMsgs(EScriptObjectState::UnFrozen, mgr, EScriptObjectMessage::None);
-            mgr.GetActorModelParticles()->StartIce(x0_actor, mgr);
+            mgr.GetActorModelParticles()->StartIce(x0_actor);
             return;
         }
         if (x310_timeFrozen <= totalTime)

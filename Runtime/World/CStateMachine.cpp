@@ -86,7 +86,7 @@ void CStateMachineState::Setup(const CStateMachine* machine)
     x0_machine = machine;
     x4_state = nullptr;
     x8_time = 0.f;
-    xc_ = 0.f;
+    xc_random = 0.f;
     x10_ = 0.f;
 }
 

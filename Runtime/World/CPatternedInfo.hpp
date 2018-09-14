@@ -27,7 +27,7 @@ class CPatternedInfo
     float x28_leashRadius;
     float x2c_playerLeashRadius;
     float x30_playerLeashTime;
-    CDamageInfo x34_damageInfo;
+    CDamageInfo x34_contactDamageInfo;
     float x50_damageWaitTime;
     CHealthInfo x54_healthInfo;
     CDamageVulnerability x5c_damageVulnerability;
