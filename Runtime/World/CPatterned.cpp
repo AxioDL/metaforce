@@ -116,7 +116,6 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
         }
 
         xf8_25_angularEnabled = true;
-        x450_bodyController->Activate(mgr);
         break;
     }
     case EScriptObjectMessage::OnFloor:
