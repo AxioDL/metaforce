@@ -15,9 +15,11 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
 , x2f0_(1.f / x2ec_)
 , x2f4_(f1)
 , x300_(b1 == false ? x2ec_ : 0.f)
+, x308_(f2)
 , x464_24_(b1)
 , x464_25_(false)
 {
+
 }
 
 std::experimental::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const

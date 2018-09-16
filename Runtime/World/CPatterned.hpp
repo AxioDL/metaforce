@@ -107,7 +107,7 @@ public:
 protected:
     u32 x2d8_ = -1;
     TUniqueId x2dc_ = kInvalidUniqueId;
-    zeus::CVector3f x2e0_;
+    zeus::CVector3f x2e0_destPos;
     zeus::CVector3f x2ec_;
     float x2f8_ = 0.f;
     float x2fc_minAttackRange;
@@ -205,7 +205,7 @@ protected:
     };
 
     CDamageInfo x404_contactDamage;
-    float x420_ = 0.f;
+    float x420_curDamageTime = 0.f;
     float x424_damageWaitTime;
     float x428_ = -1.f;
     zeus::CColor x42c_ = zeus::CColor::skBlack;
@@ -242,6 +242,7 @@ public:
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_, mgr); }
     void Think(float, CStateManager&);
     void PreRender(CStateManager&, const zeus::CFrustum&);
 
@@ -270,7 +271,7 @@ public:
     virtual void Shock(float, float) {}
     virtual void ThinkAboutMove(float);
     virtual void GetSearchPath() {}
-    virtual CDamageInfo GetContactDamage() { return x404_contactDamage; }
+    virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
     virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_.a * 255);}
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
@@ -286,6 +287,7 @@ public:
     void SetupPlayerCollision(bool);
 
 
+    void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
     void sub8007a68c(float, CStateManager&) {}
     float sub80078a88();
     void sub8007a5b8(float) {}

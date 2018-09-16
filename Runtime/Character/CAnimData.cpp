@@ -237,7 +237,7 @@ bool CAnimData::IsAdditiveAnimationActive(u32 idx) const
     return search->second.IsActive();
 }
 
-void CAnimData::DelAdditiveAnimation(u32 idx)
+void CAnimData::DelAdditiveAnimation(s32 idx)
 {
     u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
     for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)
@@ -252,7 +252,7 @@ void CAnimData::DelAdditiveAnimation(u32 idx)
     }
 }
 
-void CAnimData::AddAdditiveAnimation(u32 idx, float weight, bool active, bool fadeOut)
+void CAnimData::AddAdditiveAnimation(s32 idx, float weight, bool active, bool fadeOut)
 {
     u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
     for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims)

@@ -62,6 +62,9 @@ public:
 
     CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
     const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
+
+    float GetHalfExtent() const { return xc4_halfExtent; }
+    float GetHeight() const { return xc8_height; }
 };
 }
 

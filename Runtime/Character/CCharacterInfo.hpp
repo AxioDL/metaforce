@@ -29,7 +29,7 @@ private:
     CAssetId x14_cmdl;
     CAssetId x18_cskr;
     CAssetId x1c_cinf;
-    std::vector<std::pair<u32, std::pair<std::string, std::string>>> x20_animInfo;
+    std::vector<std::pair<s32, std::pair<std::string, std::string>>> x20_animInfo;
     CPASDatabase x30_pasDatabase;
     CParticleResData x44_partRes;
     u32 x84_unk;
@@ -61,6 +61,8 @@ public:
     const CParticleResData& GetParticleResData() const { return x44_partRes; }
     s32 GetAnimationIndex(s32 idx) const { return xb0_animIdxs.at(idx); }
     const CPASDatabase& GetPASDatabase() const { return x30_pasDatabase; }
+
+    const s32 GetAnimationIndex(std::string_view) const;
 };
 }
 

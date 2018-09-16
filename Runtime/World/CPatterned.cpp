@@ -320,8 +320,8 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     //x460_.sub80233b58(thinkDt, mgr, *this);
     x4e4_ = GetTranslation() + PredictMotion(thinkDt).x0_translation;
     x328_26_ = false;
-    if (x420_ > 0.f)
-        x420_ -= dt;
+    if (x420_curDamageTime > 0.f)
+        x420_curDamageTime -= dt;
 
     if (x401_28_ && x3f4_ > dt)
         x3f4_ -= dt;
@@ -527,7 +527,7 @@ void CPatterned::ThinkAboutMove(float dt)
     if (!x401_26_ && doMove)
     {
         const CBodyState* state = x450_bodyController->GetBodyStateInfo().GetCurrentState();
-        if (state->ApplyAnimationDeltas() && !zeus::close_enough(x2e0_ - GetTranslation(), {}))
+        if (state->ApplyAnimationDeltas() && !zeus::close_enough(x2e0_destPos - GetTranslation(), {}))
             MoveToOR((x64_modelData->GetScale() * x434_posDelta) * x55c_, dt);
     }
 
