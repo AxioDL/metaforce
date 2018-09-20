@@ -24,14 +24,14 @@ public:
 
 class CCEConstant : public CColorElement
 {
-    std::unique_ptr<CRealElement> x4_a;
-    std::unique_ptr<CRealElement> x8_b;
-    std::unique_ptr<CRealElement> xc_c;
-    std::unique_ptr<CRealElement> x10_d;
+    std::unique_ptr<CRealElement> x4_r;
+    std::unique_ptr<CRealElement> x8_g;
+    std::unique_ptr<CRealElement> xc_b;
+    std::unique_ptr<CRealElement> x10_a;
 public:
     CCEConstant(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
                 std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
-    : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)), x10_d(std::move(d)) {}
+    : x4_r(std::move(a)), x8_g(std::move(b)), xc_b(std::move(c)), x10_a(std::move(d)) {}
     bool GetValue(int frame, zeus::CColor& colorOut) const;
 };
 

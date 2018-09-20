@@ -5,15 +5,16 @@
 namespace urde
 {
 
-CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& a,
-                                 std::unique_ptr<CIntElement>&& b, std::unique_ptr<CIntElement>&& c,
-                                 std::unique_ptr<CIntElement>&& d, std::unique_ptr<CIntElement>&& e, bool f)
-: x4_tex(std::move(tex)), x24_loop(f), x28_cycleFrames(std::move(e))
+CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntElement>&& tileW,
+                                 std::unique_ptr<CIntElement>&& tileH, std::unique_ptr<CIntElement>&& strideW,
+                                 std::unique_ptr<CIntElement>&& strideH, std::unique_ptr<CIntElement>&& cycleFrames,
+                                 bool loop)
+: x4_tex(std::move(tex)), x24_loop(loop), x28_cycleFrames(std::move(cycleFrames))
 {
-    a->GetValue(0, x10_tileW);
-    b->GetValue(0, x14_tileH);
-    c->GetValue(0, x18_strideW);
-    d->GetValue(0, x1c_strideH);
+    tileW->GetValue(0, x10_tileW);
+    tileH->GetValue(0, x14_tileH);
+    strideW->GetValue(0, x18_strideW);
+    strideH->GetValue(0, x1c_strideH);
 
     int width = x4_tex.GetObj()->GetWidth();
     int height = x4_tex.GetObj()->GetHeight();
