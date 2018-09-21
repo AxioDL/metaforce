@@ -457,6 +457,7 @@ void CWorldTransManager::StartTextFadeOut()
 
 void CWorldTransManager::DisableTransition()
 {
+    x30_type = ETransType::Disabled;
     x4_modelData.reset();
     x8_textData.reset();
     x44_26_goingUp = false;

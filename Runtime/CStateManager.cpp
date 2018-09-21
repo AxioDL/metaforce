@@ -2008,8 +2008,11 @@ void CStateManager::Update(float dt)
         xf94_27_inMapScreen = false;
     }
 
-    g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
-    x850_world->TravelToArea(x8cc_nextAreaId, *this, false);
+    if (!m_warping)
+    {
+        g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
+        x850_world->TravelToArea(x8cc_nextAreaId, *this, false);
+    }
 
     ClearGraveyard();
     ++x8d8_updateFrameIdx;

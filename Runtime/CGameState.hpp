@@ -41,6 +41,7 @@ public:
     void InitializeWorldLayers(const std::vector<CWorldLayers::Area>& layers);
 
     u32 GetAreaLayerCount(int areaIdx) const { return x0_areaLayers[areaIdx].m_layerCount; }
+    u32 GetAreaCount() const { return x0_areaLayers.size(); }
 
     void PutTo(CBitStreamWriter& writer) const;
 };

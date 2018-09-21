@@ -386,10 +386,16 @@ void CMain::AddWorldPaks()
     for (int i=0 ; i<9 ; ++i)
     {
         std::string path(pakPrefix);
+
         if (i != 0)
             path += '0' + i;
+
+        std::string lowerPath(path);
+        athena::utility::tolower(lowerPath);
         if (CDvdFile::FileExists((path + ".upak").c_str()))
             loader->AddPakFileAsync(path, false, true);
+        else if (CDvdFile::FileExists((lowerPath + ".upak").c_str()))
+            loader->AddPakFileAsync(lowerPath, false, true);
     }
     loader->WaitForPakFileLoadingComplete();
 }
@@ -511,7 +517,7 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
         else
             pState->DecrPickup(eType, zeus::clamp(0u, u32(abs(itemAmt)), pState->GetItemAmount(eType)));
     }
-
+    g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
     console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
 }
 
@@ -551,6 +557,7 @@ void CMain::Teleport(hecl::Console *, const std::vector<std::string>& args)
 
 void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string> &)
 {
+
     if (g_ResFactory && g_ResFactory->GetResLoader())
     {
         for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks())
@@ -558,9 +565,68 @@ void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string> &)
             {
                 for (const auto& named : pak->GetNameList())
                     if (named.second.type == SBIG('MLVL'))
-                        con->report(hecl::Console::Level::Info, "%s '%08X'", named.first.c_str(), named.second.id.Value());
+                    {
+                        con->report(hecl::Console::Level::Info, "%s '%08X'", named.first.c_str(),
+                                    named.second.id.Value());
+                    }
             }
     }
+}
+
+void CMain::WarpTo(hecl::Console* con, const std::vector<std::string>& args)
+{
+    if (!g_StateManager)
+        return;
+
+    if (args.size() < 1)
+        return;
+
+    TAreaId aId;
+    std::string worldName;
+    if (args.size() == 2)
+    {
+        worldName = args[0];
+        athena::utility::tolower(worldName);
+        aId = strtol(args[1].c_str(), nullptr, 10);
+    }
+    else
+        aId = strtol(args[0].c_str(), nullptr, 10);
+
+    if (!worldName.empty() && g_ResFactory && g_ResFactory->GetResLoader())
+    {
+        bool found = false;
+
+        for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks())
+        {
+            if (found)
+                break;
+            if (pak->IsWorldPak())
+            {
+                for (const auto& named : pak->GetNameList())
+                    if (named.second.type == SBIG('MLVL'))
+                    {
+                        std::string name = named.first;
+                        athena::utility::tolower(name);
+                        if (name.find(worldName) != std::string::npos)
+                        {
+                            g_GameState->SetCurrentWorldId(named.second.id);
+                            found = true;
+                            break;
+                        }
+                    }
+            }
+        }
+    }
+
+    g_GameState->GetWorldTransitionManager()->DisableTransition();
+
+    if (aId >= g_GameState->CurrentWorldState().GetLayerState()->GetAreaCount())
+        aId = 0;
+
+    g_GameState->CurrentWorldState().SetAreaId(aId);
+    g_Main->SetFlowState(EFlowState::None);
+    g_StateManager->SetWarping(true);
+    g_StateManager->SetShouldQuitGame(true);
 }
 
 void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
@@ -664,11 +730,12 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_mainWindow = window;
     m_cvarMgr = cvarMgr;
     m_console = std::make_unique<hecl::Console>(m_cvarMgr);
-    m_console->registerCommand("quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
+    m_console->registerCommand("Quit"sv, "Quits the game immediately"sv, ""sv, std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
     m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv, std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
     m_console->registerCommand("Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv, std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2), (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
     m_console->registerCommand("God"sv, "Disables damage given by enemies and objects"sv, ""sv, std::bind(&CMain::God, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
-    m_console->registerCommand("listWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
+    m_console->registerCommand("ListWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
+    m_console->registerCommand("WarpTo"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv, std::bind(&CMain::WarpTo, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
     InitializeSubsystems(storeMgr);
     x128_globalObjects.PostInitialize();

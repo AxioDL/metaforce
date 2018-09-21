@@ -204,7 +204,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo,
 
         TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
         if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj())
-            const_cast<CMappableObject*>(this)->m_texQuadFilter.emplace(EFilterType::Blend, tex);
+            const_cast<CMappableObject*>(this)->m_texQuadFilter.emplace(EFilterType::Add, tex);
 
         CTexturedQuadFilter::Vert verts[4] =
         {
