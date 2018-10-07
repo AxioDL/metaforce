@@ -966,7 +966,7 @@ namespace gmm {
 	tol = numeric_limits<T>::epsilon();
       else {
 	int i=int(sizeof(T)/4); while(i-- > 0) tol*=T(1E-8); 
-	GMM_WARNING1("The numeric type " << typeid(T).name()
+	GMM_WARNING1("The numeric type " /*<< typeid(T).name()*/
 		    << " has no numeric_limits defined !!\n"
 		    << "Taking " << tol << " as default tolerance");
       }
@@ -984,7 +984,7 @@ namespace gmm {
 	mi = std::numeric_limits<T>::min();
       else {
 	mi = T(0);
-	GMM_WARNING1("The numeric type " << typeid(T).name()
+	GMM_WARNING1("The numeric type " /*<< typeid(T).name()*/
 		    << " has no numeric_limits defined !!\n"
 		    << "Taking 0 as default minimum");
       }
@@ -1002,7 +1002,7 @@ namespace gmm {
 	mi = std::numeric_limits<T>::max();
       else {
 	mi = T(1);
-	GMM_WARNING1("The numeric type " << typeid(T).name()
+	GMM_WARNING1("The numeric type " /*<< typeid(T).name()*/
 		    << " has no numeric_limits defined !!\n"
 		    << "Taking 1 as default maximum !");
       }

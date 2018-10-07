@@ -1,15 +1,14 @@
 #include "CTextSupportShader.hpp"
 #include "GuiSys/CRasterFont.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
 
-boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_TextVtxFmt;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAlphaPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_TextAddOverdrawPipeline;
 
-boo::ObjToken<boo::IVertexFormat> CTextSupportShader::s_ImageVtxFmt;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAlphaPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddPipeline;
 boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddOverdrawPipeline;
@@ -17,6 +16,30 @@ boo::ObjToken<boo::IShaderPipeline> CTextSupportShader::s_ImageAddOverdrawPipeli
 hecl::VertexBufferPool<CTextSupportShader::CharacterInstance> CTextSupportShader::s_CharInsts;
 hecl::VertexBufferPool<CTextSupportShader::ImageInstance> CTextSupportShader::s_ImgInsts;
 hecl::UniformBufferPool<CTextSupportShader::Uniform> CTextSupportShader::s_Uniforms;
+
+void CTextSupportShader::Initialize()
+{
+    s_TextAlphaPipeline = hecl::conv->convert(Shader_CTextSupportShaderAlpha{});
+    s_TextAddPipeline = hecl::conv->convert(Shader_CTextSupportShaderAdd{});
+    s_TextAddOverdrawPipeline = hecl::conv->convert(Shader_CTextSupportShaderAddOverdraw{});
+    s_ImageAlphaPipeline = hecl::conv->convert(Shader_CTextSupportShaderImageAlpha{});
+    s_ImageAddPipeline = hecl::conv->convert(Shader_CTextSupportShaderImageAdd{});
+    s_ImageAddOverdrawPipeline = hecl::conv->convert(Shader_CTextSupportShaderImageAddOverdraw{});
+}
+
+void CTextSupportShader::Shutdown()
+{
+    s_TextAlphaPipeline.reset();
+    s_TextAddPipeline.reset();
+    s_TextAddOverdrawPipeline.reset();
+    s_ImageAlphaPipeline.reset();
+    s_ImageAddPipeline.reset();
+    s_ImageAddOverdrawPipeline.reset();
+
+    s_CharInsts.doDestroy();
+    s_ImgInsts.doDestroy();
+    s_Uniforms.doDestroy();
+}
 
 void CTextSupportShader::CharacterInstance::SetMetrics(const CGlyph& glyph,
                                                        const zeus::CVector2i& offset)
@@ -60,23 +83,5 @@ void CTextSupportShader::ImageInstance::SetMetrics(const CFontImageDef& imgDef,
     m_pos[3].assign(offset.x + imgSize.x, 0.f, offset.y + imgSize.y);
     m_uv[3].assign(0.5f + cropPad.x, 0.5f - cropPad.y);
 }
-
-void CTextSupportShader::Shutdown()
-{
-    s_TextVtxFmt.reset();
-    s_TextAlphaPipeline.reset();
-    s_TextAddPipeline.reset();
-    s_TextAddOverdrawPipeline.reset();
-    s_ImageVtxFmt.reset();
-    s_ImageAlphaPipeline.reset();
-    s_ImageAddPipeline.reset();
-    s_ImageAddOverdrawPipeline.reset();
-
-    s_CharInsts.doDestroy();
-    s_ImgInsts.doDestroy();
-    s_Uniforms.doDestroy();
-}
-
-URDE_SPECIALIZE_MULTI_BLEND_SHADER(CTextSupportShader)
 
 }

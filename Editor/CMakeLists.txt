@@ -101,7 +101,9 @@ target_link_libraries(urde
                       UrdeIcons
                       UrdeBadging
                       RuntimeCommon NESEmulator
-                      specter specter-fonts freetype ${DATA_SPEC_LIBS}
+                      specter specter-fonts
+                      ${HECL_APPLICATION_REPS_TARGETS_LIST}
+                      freetype ${DATA_SPEC_LIBS}
                       hecl-full hecl-blender-addon
                       athena-core nod logvisor athena-libyaml amuse boo
                       ${PNG_LIB} libjpeg-turbo squish xxhash zeus

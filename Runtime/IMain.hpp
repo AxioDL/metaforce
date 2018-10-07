@@ -1,10 +1,9 @@
 #ifndef __URDE_IMAIN_HPP__
 #define __URDE_IMAIN_HPP__
-#include <boo/boo.hpp>
-#include <boo/graphicsdev/GL.hpp>
-#include <boo/audiodev/IAudioVoiceEngine.hpp>
-#include <hecl/Runtime.hpp>
-#include <amuse/amuse.hpp>
+#include "boo/boo.hpp"
+#include "boo/audiodev/IAudioVoiceEngine.hpp"
+#include "hecl/Runtime.hpp"
+#include "amuse/amuse.hpp"
 #include "RetroTypes.hpp"
 
 namespace hecl
@@ -15,7 +14,7 @@ class Console;
 
 namespace urde
 {
-class CStopWatch;
+class CStopwatch;
 enum class EGameplayResult
 {
     None,

@@ -22,6 +22,7 @@ namespace urde
 {
 class ViewManager;
 class RootSpace;
+class SplitSpace;
 
 class Space : public specter::ISpaceController
 {
@@ -160,6 +161,8 @@ public:
     {return std::unique_ptr<Space>();}
 
     virtual specter::View* basisView() {return m_spaceView.get();}
+    Class cls() const { return m_class; }
+    SplitSpace* castToSplitSpace();
 };
 
 class RootSpace : public Space
@@ -359,6 +362,8 @@ public:
 
     specter::View* basisView() {return m_splitView.get();}
 };
+inline SplitSpace* Space::castToSplitSpace()
+{ return cls() == Class::SplitSpace ? static_cast<SplitSpace*>(this) : nullptr; }
 
 class ViewerSpace : public Space
 {

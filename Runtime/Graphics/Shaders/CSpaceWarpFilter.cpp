@@ -1,11 +1,24 @@
 #include "CSpaceWarpFilter.hpp"
 #include "Graphics/CGraphics.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "hecl/Pipeline.hpp"
 
 #define WARP_RAMP_RES 32
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+
+void CSpaceWarpFilter::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CSpaceWarpFilter{});
+}
+
+void CSpaceWarpFilter::Shutdown()
+{
+    s_Pipeline.reset();
+}
 
 void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx)
 {
@@ -49,7 +62,11 @@ CSpaceWarpFilter::CSpaceWarpFilter()
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TShader<CSpaceWarpFilter>::BuildShaderDataBinding(ctx, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), m_warpTex.get()};
+        m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr,
+                                              1, bufs, stages, nullptr, nullptr, 2, texs, nullptr, nullptr);
         return true;
     } BooTrace);
 }
@@ -152,7 +169,5 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-URDE_SPECIALIZE_SHADER(CSpaceWarpFilter)
 
 }

@@ -16,10 +16,7 @@ class CSwooshDescription;
 
 class CParticleSwoosh : public CParticleGen
 {
-    friend struct OGLParticleSwooshDataBindingFactory;
-    friend struct VulkanParticleSwooshDataBindingFactory;
-    friend struct D3DParticleSwooshDataBindingFactory;
-    friend struct MetalParticleSwooshDataBindingFactory;
+    friend class CParticleSwooshShaders;
 
     struct SSwooshData
     {

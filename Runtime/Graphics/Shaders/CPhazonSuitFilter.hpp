@@ -1,7 +1,8 @@
 #ifndef __URDE_CPHAZONSUITFILTER_HPP__
 #define __URDE_CPHAZONSUITFILTER_HPP__
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "zeus/CColor.hpp"
 
 namespace urde
 {
@@ -9,11 +10,6 @@ class CTexture;
 
 class CPhazonSuitFilter
 {
-    friend struct CPhazonSuitFilterGLDataBindingFactory;
-    friend struct CPhazonSuitFilterVulkanDataBindingFactory;
-    friend struct CPhazonSuitFilterMetalDataBindingFactory;
-    friend struct CPhazonSuitFilterD3DDataBindingFactory;
-
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurX;
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBufBlurY;
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
@@ -25,12 +21,11 @@ class CPhazonSuitFilter
     boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     void drawBlurPasses(float radius, const CTexture* indTex);
     void draw(const zeus::CColor& color,
               float indScale, float indOffX, float indOffY);
-
-    using _CLS = CPhazonSuitFilter;
-#include "TShaderDecl.hpp"
 };
 
 }

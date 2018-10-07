@@ -1,7 +1,22 @@
 #include "CEnergyBarShader.hpp"
+#include "hecl/Pipeline.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+
+void CEnergyBarShader::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CEnergyBarShader{});
+}
+
+void CEnergyBarShader::Shutdown()
+{
+    s_Pipeline.reset();
+}
 
 void CEnergyBarShader::updateModelMatrix()
 {
@@ -24,9 +39,17 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
         CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), m_maxVerts);
+            boo::ObjToken<boo::IGraphicsBuffer> bufs[1];
+            boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+            boo::ObjToken<boo::ITexture> texs[] = {m_tex->GetBooTexture()};
             for (int i=0 ; i<3 ; ++i)
+            {
                 m_uniBuf[i] = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-            TShader<CEnergyBarShader>::BuildShaderDataBinding(ctx, *this);
+                bufs[0] = m_uniBuf[i].get();
+                m_dataBind[i] = ctx.newShaderDataBinding(s_Pipeline,
+                                                         m_vbo.get(), nullptr, nullptr, 1, bufs, stages,
+                                                         nullptr, nullptr, 1, texs, nullptr, nullptr);
+            }
             return true;
         } BooTrace);
     }
@@ -74,7 +97,5 @@ void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex
         CGraphics::DrawArray(vertIter, verts2.size());
     }
 }
-
-URDE_SPECIALIZE_SHADER(CEnergyBarShader)
 
 }

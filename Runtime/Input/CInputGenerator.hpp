@@ -51,7 +51,7 @@ class CInputGenerator : public boo::DeviceFinder
     bool m_firstFrame = true;
 public:
     CInputGenerator(float leftDiv, float rightDiv)
-    : boo::DeviceFinder({typeid(boo::DolphinSmashAdapter)}),
+    : boo::DeviceFinder({dev_typeid(DolphinSmashAdapter)}),
       m_leftDiv(leftDiv),
       m_rightDiv(rightDiv) {}
 
@@ -184,9 +184,12 @@ public:
         /* Device listener thread */
         if (!smashAdapter)
         {
-            smashAdapter = std::dynamic_pointer_cast<boo::DolphinSmashAdapter>(tok.openAndGetDevice());
-            if (smashAdapter)
+            auto dev = tok.openAndGetDevice();
+            if (dev && dev->getTypeHash() == dev_typeid(DolphinSmashAdapter))
+            {
+                smashAdapter = std::static_pointer_cast<boo::DolphinSmashAdapter>(tok.openAndGetDevice());
                 smashAdapter->setCallback(&m_dolphinCb);
+            }
         }
     }
     void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device)

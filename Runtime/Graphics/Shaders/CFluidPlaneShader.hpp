@@ -4,51 +4,14 @@
 #include "RetroTypes.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "CModelShaders.hpp"
-#include "boo/graphicsdev/GL.hpp"
-#include "boo/graphicsdev/D3D.hpp"
-#include "boo/graphicsdev/Metal.hpp"
-#include "boo/graphicsdev/Vulkan.hpp"
 #include "World/CFluidPlaneManager.hpp"
 #include "Graphics/CTexture.hpp"
 #include "CToken.hpp"
 #include "zeus/CAABox.hpp"
+#include "Shaders/shader_CFluidPlaneShader.hpp"
 
 namespace urde
 {
-
-struct SFluidPlaneShaderInfo
-{
-    EFluidType m_type;
-    bool m_hasPatternTex1;
-    bool m_hasPatternTex2;
-    bool m_hasColorTex;
-    bool m_hasBumpMap;
-    bool m_hasEnvMap;
-    bool m_hasEnvBumpMap;
-    bool m_hasLightmap;
-    bool m_tessellation;
-    bool m_doubleLightmapBlend;
-    bool m_additive;
-
-    SFluidPlaneShaderInfo(EFluidType type, bool hasPatternTex1, bool hasPatternTex2, bool hasColorTex,
-                          bool hasBumpMap, bool hasEnvMap, bool hasEnvBumpMap, bool hasLightmap,
-                          bool tessellation, bool doubleLightmapBlend, bool additive)
-    : m_type(type), m_hasPatternTex1(hasPatternTex1), m_hasPatternTex2(hasPatternTex2), m_hasColorTex(hasColorTex),
-      m_hasBumpMap(hasBumpMap), m_hasEnvMap(hasEnvMap), m_hasEnvBumpMap(hasEnvBumpMap), m_hasLightmap(hasLightmap),
-      m_tessellation(tessellation), m_doubleLightmapBlend(doubleLightmapBlend), m_additive(additive)
-      {}
-};
-
-struct SFluidPlaneDoorShaderInfo
-{
-    bool m_hasPatternTex1;
-    bool m_hasPatternTex2;
-    bool m_hasColorTex;
-
-    SFluidPlaneDoorShaderInfo(bool hasPatternTex1, bool hasPatternTex2, bool hasColorTex)
-    : m_hasPatternTex1(hasPatternTex1), m_hasPatternTex2(hasPatternTex2), m_hasColorTex(hasColorTex)
-    {}
-};
 
 class CFluidPlaneShader
 {

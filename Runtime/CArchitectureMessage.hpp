@@ -104,7 +104,7 @@ public:
     template <class T>
     const T* GetParm() const
     {
-        return dynamic_cast<T*>(x8_parm.get());
+        return static_cast<T*>(x8_parm.get());
     }
 };
 

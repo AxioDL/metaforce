@@ -9,13 +9,16 @@ if(APPLE AND NOT CMAKE_OSX_SYSROOT)
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
-project(urde)
-
-option(URDE_CROSSCOMPILING "Don't build tools; attempt package import" Off)
+option(URDE_CROSSCOMPILING "Don't build tools; attempt package import" OFF)
 if (URDE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING On)
-  set(HAVE_WORDS_BIGENDIAN_EXITCODE 0)
 endif()
+
+if(CMAKE_CROSSCOMPILING)
+  set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
+endif()
+
+project(urde)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,7 +33,11 @@ if(NOT MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
   include(cotire)
 endif()
 
-set(URDE_VECTOR_ISA "sse2" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
+if (NX)
+  set(URDE_VECTOR_ISA "neon")
+else()
+  set(URDE_VECTOR_ISA "sse2" CACHE STRING "Vector ISA to build for (sse2, sse3, sse41, avx, avx2)")
+endif()
 
 if(MSVC)
   if(${URDE_VECTOR_ISA} STREQUAL "avx2")
@@ -99,12 +106,14 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
     message(STATUS "Building with SSE2 Vector ISA")
+  elseif(${URDE_VECTOR_ISA} STREQUAL "neon")
+    message(STATUS "Building with NEON Vector ISA")
   else()
     message(STATUS "Building with x87 Vector ISA")
   endif()
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-  -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
+  -Wno-multichar -fno-exceptions -fno-rtti -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
 
   if(APPLE)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto=thin")
@@ -141,13 +150,15 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
 endif()
 
 # Add discord-rpc here
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include)
-set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
-if (NOT CMAKE_INSTALL_LIBDIR)
-  set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
+if(NOT GEKKO AND NOT NX)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include)
+  set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
+  if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
+  endif()
+  add_subdirectory(discord-rpc/src)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
 endif()
-add_subdirectory(discord-rpc/src)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
 
 add_subdirectory(nod)
 set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
@@ -185,6 +196,10 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
+add_subdirectory(hecl/shaderc)
+include(hecl/ApplicationTools.cmake)
+add_subdirectory(specter/shaders)
+add_subdirectory(Shaders)
 add_subdirectory(hecl)
 
 if(NOT TARGET bintoc)
@@ -233,12 +248,14 @@ add_subdirectory(visigen)
 
 add_dependencies(hecl visigen)
 
-find_package(Qt5Widgets)
-if (Qt5Widgets_FOUND)
+if (NOT WINDOWS_STORE AND NOT NX)
+  find_package(Qt5Widgets)
+  if (Qt5Widgets_FOUND)
     message(STATUS "Qt5 found, hecl-gui will be built")
     add_subdirectory(hecl-gui)
-else()
+  else()
     message(STATUS "Qt5 not found, hecl-gui will not be built")
+  endif()
 endif()
 
 unset(GIT_EXECUTABLE CACHE)

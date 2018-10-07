@@ -1,12 +1,8 @@
 #ifndef __URDE_CELEMENTGENSHADERS_HPP__
 #define __URDE_CELEMENTGENSHADERS_HPP__
 
-#include "TShader.hpp"
 #include "Graphics/CGraphics.hpp"
-#include "boo/graphicsdev/GL.hpp"
-#include "boo/graphicsdev/D3D.hpp"
-#include "boo/graphicsdev/Metal.hpp"
-#include "boo/graphicsdev/Vulkan.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde
 {
@@ -14,10 +10,6 @@ class CElementGen;
 
 class CElementGenShaders
 {
-    friend struct OGLElementDataBindingFactory;
-    friend struct VulkanElementDataBindingFactory;
-    friend struct D3DElementDataBindingFactory;
-    friend struct MetalElementDataBindingFactory;
 public:
     enum class EShaderClass
     {
@@ -55,34 +47,11 @@ private:
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZTest;
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveNoZTest;
 
-    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatTex; /* No OpenGL */
-    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatIndTex; /* No OpenGL */
-    static boo::ObjToken<boo::IVertexFormat> m_vtxFormatNoTex; /* No OpenGL */
-
-    CElementGen& m_gen;
-    boo::ObjToken<boo::IShaderPipeline> m_regPipeline;
-    boo::ObjToken<boo::IShaderPipeline> m_regPipelineSub;
-    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipeline;
-    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipelineSub;
-    boo::ObjToken<boo::IShaderPipeline> m_regPipelinePmus;
-    boo::ObjToken<boo::IShaderPipeline> m_redToAlphaPipelinePmus;
-    CElementGenShaders(CElementGen& gen,
-                       const boo::ObjToken<boo::IShaderPipeline>& regPipeline,
-                       const boo::ObjToken<boo::IShaderPipeline>& regPipelineSub,
-                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipeline,
-                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipelineSub,
-                       const boo::ObjToken<boo::IShaderPipeline>& regPipelinePmus,
-                       const boo::ObjToken<boo::IShaderPipeline>& redToAlphaPipelinePmus)
-    : m_gen(gen), m_regPipeline(regPipeline), m_regPipelineSub(regPipelineSub),
-      m_redToAlphaPipeline(redToAlphaPipeline), m_redToAlphaPipelineSub(redToAlphaPipelineSub),
-      m_regPipelinePmus(regPipelinePmus), m_redToAlphaPipelinePmus(redToAlphaPipelinePmus) {}
-
 public:
+    static void Initialize();
+    static void Shutdown();
     static EShaderClass GetShaderClass(CElementGen& gen);
     static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CElementGen& gen);
-
-    using _CLS = CElementGenShaders;
-#include "TShaderDecl.hpp"
 };
 
 }

@@ -1260,13 +1260,11 @@ void CGameArea::FillInStaticGeometry(bool textures)
 
             boo::ObjToken<boo::IGraphicsBufferS> vbo;
             boo::ObjToken<boo::IGraphicsBufferS> ibo;
-            boo::ObjToken<boo::IVertexFormat> vtxFmt;
             vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, secIt->first, inst.m_hmdlMeta.vertStride,
                                       inst.m_hmdlMeta.vertCount);
             ++secIt;
             ibo = ctx.newStaticBuffer(boo::BufferUse::Index, secIt->first, 4, inst.m_hmdlMeta.indexCount);
             ++secIt;
-            vtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, inst.m_hmdlMeta, vbo.get(), ibo.get());
 
             u32 surfCount = hecl::SBig(*reinterpret_cast<const u32*>(secIt->first));
             inst.m_surfaces.reserve(surfCount);
@@ -1284,7 +1282,7 @@ void CGameArea::FillInStaticGeometry(bool textures)
 
             TToken<CModel> nullModel;
             inst.m_instance = std::make_unique<CBooModel>
-                (nullModel, nullptr, &inst.m_surfaces, matSet, vtxFmt, vbo, ibo,
+                (nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
                  inst.x34_aabb, inst.x0_visorFlags, 0, nullptr);
         }
 

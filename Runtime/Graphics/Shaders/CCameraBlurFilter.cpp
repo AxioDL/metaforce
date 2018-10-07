@@ -1,15 +1,33 @@
 #include "CCameraBlurFilter.hpp"
+#include "hecl/Pipeline.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde
 {
 
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+
+void CCameraBlurFilter::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CCameraBlurFilter{});
+}
+
+void CCameraBlurFilter::Shutdown()
+{
+    s_Pipeline.reset();
+}
+
 CCameraBlurFilter::CCameraBlurFilter()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TShader<CCameraBlurFilter>::BuildShaderDataBinding(ctx, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get()};
+        m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr,
+                                              1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
         return true;
     } BooTrace);
 }
@@ -58,7 +76,5 @@ void CCameraBlurFilter::draw(float amount, bool clearDepth)
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-URDE_SPECIALIZE_SHADER(CCameraBlurFilter)
 
 }

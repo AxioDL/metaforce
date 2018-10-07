@@ -8,16 +8,6 @@
 namespace urde
 {
 
-enum class EFluidType
-{
-    NormalWater,
-    PoisonWater,
-    Lava,
-    PhazonFluid,
-    Four,
-    ThickLava
-};
-
 class CStateManager;
 class CScriptWater;
 

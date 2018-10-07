@@ -1,6 +1,7 @@
 #include "CFluidPlaneShader.hpp"
 #include "World/CRipple.hpp"
 #include "World/CRippleManager.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
@@ -90,54 +91,32 @@ u16 CFluidPlaneShader::Cache::MakeCacheKey(const SFluidPlaneDoorShaderInfo& info
     return ret;
 }
 
-template<class T>
-CFluidPlaneShader::ShaderPair CFluidPlaneShader::Cache::GetOrBuildShader(const T& info)
+template<> CFluidPlaneShader::ShaderPair
+CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info)
 {
     u16 key = MakeCacheKey(info);
     auto& slot = CacheSlot(info, key);
     if (slot.m_regular)
         return slot;
 
-    if (CGraphics::g_BooFactory == nullptr)
-        return {};
-
-    CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx)
-    {
-        switch (ctx.platform())
-        {
-#if BOO_HAS_GL
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            slot = BuildShader(static_cast<boo::GLDataFactory::Context&>(ctx), info);
-            break;
-#endif
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-            slot = BuildShader(static_cast<boo::D3DDataFactory::Context&>(ctx), info);
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            slot = BuildShader(static_cast<boo::MetalDataFactory::Context&>(ctx), info);
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            slot = BuildShader(static_cast<boo::VulkanDataFactory::Context&>(ctx), info);
-            break;
-#endif
-        default: break;
-        }
-        return true;
-    } BooTrace);
+    slot.m_regular = hecl::conv->convert(Shader_CFluidPlaneShader{info, false});
+    if (info.m_tessellation)
+        slot.m_tessellation = hecl::conv->convert(Shader_CFluidPlaneShader{info, true});
 
     return slot;
 }
+template<> CFluidPlaneShader::ShaderPair
+CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info)
+{
+    u16 key = MakeCacheKey(info);
+    auto& slot = CacheSlot(info, key);
+    if (slot.m_regular)
+        return slot;
 
-template CFluidPlaneShader::ShaderPair
-CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneShaderInfo>(const SFluidPlaneShaderInfo& info);
-template CFluidPlaneShader::ShaderPair
-CFluidPlaneShader::Cache::GetOrBuildShader<SFluidPlaneDoorShaderInfo>(const SFluidPlaneDoorShaderInfo& info);
+    slot.m_regular = hecl::conv->convert(Shader_CFluidPlaneDoorShader{info});
+
+    return slot;
+}
 
 void CFluidPlaneShader::Cache::Clear()
 {
@@ -157,30 +136,37 @@ void CFluidPlaneShader::PrepareBinding(const ShaderPair& pipeline, u32 maxVertCo
             m_pvbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(PatchVertex), maxVertCount);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
 
-        switch (ctx.platform())
+        boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = { m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get() };
+        boo::PipelineStage ubufStages[] = { boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
+                                            boo::PipelineStage::Fragment };
+        size_t ubufOffs[] = {0, 0, 1280};
+        size_t ubufSizes[] = {1280, 1280, sizeof(CModelShaders::LightingUniform)};
+        size_t texCount = 0;
+        boo::ObjToken<boo::ITexture> texs[8];
+        if (m_patternTex1)
+            texs[texCount++] = m_patternTex1->GetBooTexture();
+        if (m_patternTex2)
+            texs[texCount++] = m_patternTex2->GetBooTexture();
+        if (m_colorTex)
+            texs[texCount++] = m_colorTex->GetBooTexture();
+        if (m_bumpMap)
+            texs[texCount++] = m_bumpMap->GetBooTexture();
+        if (m_envMap)
+            texs[texCount++] = m_envMap->GetBooTexture();
+        if (m_envBumpMap)
+            texs[texCount++] = m_envBumpMap->GetBooTexture();
+        if (m_lightmap)
+            texs[texCount++] = m_lightmap->GetBooTexture();
+        auto regular = ctx.newShaderDataBinding(pipeline.m_regular, m_vbo.get(), nullptr, nullptr, 3,
+                                                ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+        boo::ObjToken<boo::IShaderDataBinding> tessellation;
+        if (pipeline.m_tessellation)
         {
-#if BOO_HAS_GL
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            m_dataBind = BuildBinding(static_cast<boo::GLDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-            m_dataBind = BuildBinding(static_cast<boo::D3DDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            m_dataBind = BuildBinding(static_cast<boo::MetalDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            m_dataBind = BuildBinding(static_cast<boo::VulkanDataFactory::Context&>(ctx), pipeline);
-            break;
-#endif
-        default: break;
+            texs[texCount++] = m_rippleMap.get();
+            tessellation = ctx.newShaderDataBinding(pipeline.m_tessellation, m_pvbo.get(), nullptr, nullptr, 3,
+                                                    ubufs, ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
         }
+        m_dataBind = {regular, tessellation};
         return true;
     } BooTrace);
 }
@@ -188,30 +174,6 @@ void CFluidPlaneShader::PrepareBinding(const ShaderPair& pipeline, u32 maxVertCo
 void CFluidPlaneShader::Shutdown()
 {
     _cache.Clear();
-    switch (CGraphics::g_BooFactory->platform())
-    {
-#if BOO_HAS_GL
-    case boo::IGraphicsDataFactory::Platform::OpenGL:
-        CFluidPlaneShader::_Shutdown<boo::GLDataFactory>();
-        break;
-#endif
-#if _WIN32
-    case boo::IGraphicsDataFactory::Platform::D3D11:
-        CFluidPlaneShader::_Shutdown<boo::D3DDataFactory>();
-        break;
-#endif
-#if BOO_HAS_METAL
-    case boo::IGraphicsDataFactory::Platform::Metal:
-        CFluidPlaneShader::_Shutdown<boo::MetalDataFactory>();
-        break;
-#endif
-#if BOO_HAS_VULKAN
-    case boo::IGraphicsDataFactory::Platform::Vulkan:
-        CFluidPlaneShader::_Shutdown<boo::VulkanDataFactory>();
-        break;
-#endif
-    default: break;
-    }
 }
 
 CFluidPlaneShader::CFluidPlaneShader(EFluidType type,

@@ -1,8 +1,21 @@
 #include "CThermalColdFilter.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+
+void CThermalColdFilter::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CThermalColdFilter{});
+}
+
+void CThermalColdFilter::Shutdown()
+{
+    s_Pipeline.reset();
+}
 
 CThermalColdFilter::CThermalColdFilter()
 {
@@ -23,7 +36,11 @@ CThermalColdFilter::CThermalColdFilter()
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TShader<CThermalColdFilter>::BuildShaderDataBinding(ctx, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), m_shiftTex.get()};
+        m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr,
+                                              1, bufs, stages, nullptr, nullptr, 2, texs, nullptr, nullptr);
         return true;
     } BooTrace);
 
@@ -65,7 +82,5 @@ void CThermalColdFilter::draw()
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-URDE_SPECIALIZE_SHADER(CThermalColdFilter)
 
 }

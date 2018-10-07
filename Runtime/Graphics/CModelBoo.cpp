@@ -155,13 +155,12 @@ CBooModel::~CBooModel()
 }
 
 CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-                     const boo::ObjToken<boo::IVertexFormat>& vtxFmt, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
-                     const boo::ObjToken<boo::IGraphicsBufferS>& ibo, const zeus::CAABox& aabb, u8 renderMask,
-                     int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8])
+                     const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
+                     const zeus::CAABox& aabb, u8 renderMask, int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8])
 : m_modelTok(token), m_model(parent), x0_surfaces(surfaces), x4_matSet(&shader.m_matSet),
   m_geomLayout(&*shader.m_geomLayout), m_matSetIdx(shader.m_matSetIdx), m_pipelines(&shader.m_shaders),
   x1c_textures(shader.x0_textures), x20_aabb(aabb), x40_24_texturesLoaded(false), x40_25_modelVisible(0),
-  x41_mask(renderMask), m_staticVtxFmt(vtxFmt), m_staticVbo(vbo), m_staticIbo(ibo)
+  x41_mask(renderMask), m_staticVbo(vbo), m_staticIbo(ibo)
 {
     if (txtrOverrides)
         for (int i=0 ; i<8 ; ++i)
@@ -215,21 +214,6 @@ CBooModel::ModelInstance::GetBooVBO(const CBooModel& model,
                            parent.m_hmdlMeta.vertStride * parent.m_hmdlMeta.vertCount);
     }
     return m_dynamicVbo.get();
-}
-
-boo::ObjToken<boo::IVertexFormat>
-CBooModel::ModelInstance::GetBooVtxFmt(const CBooModel& model,
-                                       boo::IGraphicsDataFactory::Context& ctx)
-{
-    if (model.m_staticVtxFmt)
-        return model.m_staticVtxFmt;
-    if (!m_dynamicVtxFmt && model.m_model)
-    {
-        const CModel& parent = *model.m_model;
-        m_dynamicVtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, parent.m_hmdlMeta,
-                                                                   GetBooVBO(model, ctx), parent.m_ibo.get());
-    }
-    return m_dynamicVtxFmt;
 }
 
 GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const MaterialSet* matSet)
@@ -418,14 +402,14 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
             }
             thisSizes[3] = 256;
 
-            const std::shared_ptr<hecl::Runtime::ShaderPipelines>& pipelines = m_pipelines->at(surf.m_data.matIdx);
+            const CModelShaders::ShaderPipelines& pipelines = m_pipelines->at(surf.m_data.matIdx);
 
             newInst.m_shaderDataBindings.emplace_back();
             std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = newInst.m_shaderDataBindings.back();
-            extendeds.reserve(pipelines->m_pipelines.size());
+            extendeds.reserve(pipelines->size());
 
             int idx = 0;
-            for (const boo::ObjToken<boo::IShaderPipeline>& pipeline : pipelines->m_pipelines)
+            for (const auto& pipeline : *pipelines)
             {
                 boo::ObjToken<boo::ITexture>* ltexs;
                 if (idx == EExtendedShader::Thermal)
@@ -454,7 +438,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
                     ltexs = texs;
                 }
                 extendeds.push_back(
-                            ctx.newShaderDataBinding(pipeline, newInst.GetBooVtxFmt(*this, ctx),
+                            ctx.newShaderDataBinding(pipeline,
                                                      newInst.GetBooVBO(*this, ctx), nullptr, m_staticIbo.get(), 4, bufs,
                                                      stages, thisOffs, thisSizes, 8, ltexs, nullptr, nullptr));
                 ++idx;
@@ -513,7 +497,7 @@ void CBooModel::RemapMaterialData(SShader& shader)
 }
 
 void CBooModel::RemapMaterialData(SShader& shader,
-    const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines)
+    const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines)
 {
     if (!shader.m_geomLayout)
         return;
@@ -1204,14 +1188,13 @@ std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts,
     if (shaderIdx >= x18_matSets.size())
         shaderIdx = 0;
     auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx],
-                                           m_staticVtxFmt, m_staticVbo, m_ibo,
-                                           m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
+                                           m_staticVbo, m_ibo, m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
     if (lockParent)
         ret->LockParent();
     return ret;
 }
 
-std::shared_ptr<hecl::Runtime::ShaderPipelines>
+CModelShaders::ShaderPipelines
 SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat)
 {
     hecl::Backend::ReflectionType reflectionType;
@@ -1221,16 +1204,15 @@ SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& ma
         reflectionType = hecl::Backend::ReflectionType::Simple;
     else
         reflectionType = hecl::Backend::ReflectionType::None;
-    hecl::Runtime::ShaderTag tag(mat.heclIr,
+    hecl::Backend::ShaderTag tag(mat.heclIr,
                                  meta.colorCount, meta.uvCount, meta.weightCount,
                                  meta.weightCount * 4, boo::Primitive(meta.topology),
                                  reflectionType, true, true, true);
-    return CModelShaders::g_ModelShaders->buildExtendedShader
-        (tag, mat.heclIr, "CMDL", *CGraphics::g_BooFactory);
+    return CModelShaders::BuildExtendedShader(tag, mat.heclIr);
 }
 
 void SShader::BuildShaders(const hecl::HMDLMeta& meta,
-                           std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders)
+                           std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders)
 {
     shaders.reserve(m_matSet.materials.size());
     int idx = 0;
@@ -1294,7 +1276,6 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
             if (m_hmdlMeta.vertCount)
                 m_staticVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vboData,
                                                   m_hmdlMeta.vertStride, m_hmdlMeta.vertCount);
-            m_staticVtxFmt = hecl::Runtime::HMDLData::NewVertexFormat(ctx, m_hmdlMeta, m_staticVbo.get(), m_ibo.get());
         }
         else
         {

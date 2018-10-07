@@ -103,18 +103,20 @@ struct GeometryUniformLayout
 
 struct SShader
 {
+
+
     std::vector<TCachedToken<CTexture>> x0_textures;
-    std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
+    std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
     MaterialSet m_matSet;
     std::experimental::optional<GeometryUniformLayout> m_geomLayout;
     int m_matSetIdx;
     SShader(int idx) : m_matSetIdx(idx) {}
     void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
     void UnlockTextures();
-    std::shared_ptr<hecl::Runtime::ShaderPipelines>
+    CModelShaders::ShaderPipelines
     BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& mat);
     void BuildShaders(const hecl::HMDLMeta& meta,
-                      std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& shaders);
+                      std::unordered_map<int, CModelShaders::ShaderPipelines>& shaders);
     void BuildShaders(const hecl::HMDLMeta& meta) { BuildShaders(meta, m_shaders); }
 };
 
@@ -144,7 +146,7 @@ private:
     const MaterialSet* x4_matSet;
     const GeometryUniformLayout* m_geomLayout;
     int m_matSetIdx = -1;
-    const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>* m_pipelines;
+    const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
     std::vector<TCachedToken<CTexture>> x1c_textures;
     zeus::CAABox x20_aabb;
     CBooSurface* x38_firstUnsortedSurface = nullptr;
@@ -170,15 +172,12 @@ private:
         boo::ObjToken<boo::IGraphicsBufferD> m_geomUniformBuffer;
         boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuffer;
         std::vector<std::vector<boo::ObjToken<boo::IShaderDataBinding>>> m_shaderDataBindings;
-        boo::ObjToken<boo::IVertexFormat> m_dynamicVtxFmt;
         boo::ObjToken<boo::IGraphicsBufferD> m_dynamicVbo;
 
         boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
-        boo::ObjToken<boo::IVertexFormat> GetBooVtxFmt(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
     };
     std::vector<ModelInstance> m_instances;
 
-    boo::ObjToken<boo::IVertexFormat> m_staticVtxFmt;
     boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
     boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
 
@@ -206,9 +205,8 @@ private:
 public:
     ~CBooModel();
     CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
-              const boo::ObjToken<boo::IVertexFormat>& vtxFmt, const boo::ObjToken<boo::IGraphicsBufferS>& vbo,
-              const boo::ObjToken<boo::IGraphicsBufferS>& ibo, const zeus::CAABox& aabb, u8 renderMask,
-              int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8]);
+              const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
+              const zeus::CAABox& aabb, u8 renderMask, int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8]);
 
     static void MakeTexturesFromMats(const MaterialSet& matSet,
                                      std::vector<TCachedToken<CTexture>>& toksOut,
@@ -221,7 +219,7 @@ public:
     void DisableAllLights();
     void RemapMaterialData(SShader& shader);
     void RemapMaterialData(SShader& shader,
-                           const std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>>& pipelines);
+                           const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines);
     bool TryLockTextures() const;
     void UnlockTextures() const;
     void SyncLoadTextures() const;
@@ -292,7 +290,6 @@ class CModel
     int x38_lastFrame;
 
     /* urde addition: boo! */
-    boo::ObjToken<boo::IVertexFormat> m_staticVtxFmt;
     boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
     hecl::HMDLMeta m_hmdlMeta;
     std::unique_ptr<uint8_t[]> m_dynamicVertexData;

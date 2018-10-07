@@ -1,16 +1,36 @@
 #include "CAABoxShader.hpp"
+#include "hecl/Pipeline.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde
 {
 
-CAABoxShader::CAABoxShader(bool zOnly)
-: m_zOnly(zOnly)
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_zOnlyPipeline;
+
+void CAABoxShader::Initialize()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    s_Pipeline = hecl::conv->convert(Shader_CAABoxShader{});
+    s_zOnlyPipeline = hecl::conv->convert(Shader_CAABoxShaderZOnly{});
+}
+
+void CAABoxShader::Shutdown()
+{
+    s_Pipeline.reset();
+    s_zOnlyPipeline.reset();
+}
+
+CAABoxShader::CAABoxShader(bool zOnly)
+{
+    CGraphics::CommitResources([this, zOnly](boo::IGraphicsDataFactory::Context& ctx)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TShader<CAABoxShader>::BuildShaderDataBinding(ctx, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        m_dataBind = ctx.newShaderDataBinding(zOnly ? s_zOnlyPipeline : s_Pipeline,
+                                              m_vbo.get(), nullptr, nullptr, 1, bufs, stages,
+                                              nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return true;
     } BooTrace);
 }
@@ -72,7 +92,5 @@ void CAABoxShader::draw(const zeus::CColor& color)
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 34);
 }
-
-URDE_SPECIALIZE_SHADER(CAABoxShader)
 
 }

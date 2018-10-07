@@ -1,20 +1,16 @@
 #ifndef __URDE_CTHERMALCOLDFILTER_HPP__
 #define __URDE_CTHERMALCOLDFILTER_HPP__
 
-#include "TShader.hpp"
+#include "RetroTypes.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde
 {
 
 class CThermalColdFilter
 {
-    friend struct CThermalColdFilterGLDataBindingFactory;
-    friend struct CThermalColdFilterVulkanDataBindingFactory;
-    friend struct CThermalColdFilterMetalDataBindingFactory;
-    friend struct CThermalColdFilterD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CMatrix4f m_shiftTexMtx;
@@ -30,6 +26,8 @@ class CThermalColdFilter
     Uniform m_uniform;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CThermalColdFilter();
     void setShift(unsigned shift);
     void setColorA(const zeus::CColor& color) {m_uniform.m_colorRegs[0] = color;}
@@ -42,9 +40,6 @@ public:
         m_uniform.m_indMtx[1][1] = scale;
     }
     void draw();
-
-    using _CLS = CThermalColdFilter;
-#include "TShaderDecl.hpp"
 };
 
 }

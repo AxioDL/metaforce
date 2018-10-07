@@ -266,7 +266,7 @@ private:
     bool m_needsWarmupClear = false;
     bool m_doQuit = false;
 
-    void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
+    void InitializeSubsystems();
     static void InitializeDiscord();
     static void ShutdownDiscord();
     static void HandleDiscordReady(const DiscordUser* request);
@@ -305,7 +305,7 @@ public:
 
     bool CheckReset() { return m_doQuit; }
     bool CheckTerminate() { return m_doQuit; }
-    void DrawDebugMetrics(double, CStopWatch&) {}
+    void DrawDebugMetrics(double, CStopwatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
     bool LoadAudio();

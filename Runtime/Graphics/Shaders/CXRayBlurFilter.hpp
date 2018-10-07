@@ -1,7 +1,7 @@
 #ifndef __URDE_CXRAYBLURFILTER_HPP__
 #define __URDE_CXRAYBLURFILTER_HPP__
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "CToken.hpp"
@@ -12,11 +12,6 @@ class CTexture;
 
 class CXRayBlurFilter
 {
-    friend struct CXRayBlurFilterGLDataBindingFactory;
-    friend struct CXRayBlurFilterVulkanDataBindingFactory;
-    friend struct CXRayBlurFilterMetalDataBindingFactory;
-    friend struct CXRayBlurFilterD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CMatrix4f m_uv[8];
@@ -29,11 +24,10 @@ class CXRayBlurFilter
     Uniform m_uniform;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CXRayBlurFilter(TLockedToken<CTexture>& tex);
     void draw(float amount);
-
-    using _CLS = CXRayBlurFilter;
-#include "TShaderDecl.hpp"
 };
 
 }

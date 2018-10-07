@@ -20,6 +20,7 @@
 #include "Audio/CStreamAudioManager.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "hecl/Pipeline.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -292,6 +293,8 @@ void ViewManager::init(boo::IApplication* app)
     float pixelFactor = m_mainWindow->getVirtualPixelFactor();
 
     m_mainBooFactory = m_mainWindow->getMainContextDataFactory();
+    m_pipelineConv = hecl::NewPipelineConverter(m_mainBooFactory);
+    hecl::conv = m_pipelineConv.get();
     m_mainPlatformName = m_mainBooFactory->platformName();
     m_mainWindow->setTitle(_S("URDE [") + hecl::SystemString(m_mainPlatformName) + _S("]"));
     m_mainCommandQueue = m_mainWindow->getCommandQueue();

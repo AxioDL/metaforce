@@ -1,7 +1,22 @@
 #include "CRadarPaintShader.hpp"
+#include "hecl/Pipeline.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "Graphics/CTexture.hpp"
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+
+void CRadarPaintShader::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CRadarPaintShader{});
+}
+
+void CRadarPaintShader::Shutdown()
+{
+    s_Pipeline.reset();
+}
 
 void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CTexture* tex)
 {
@@ -16,7 +31,11 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
         {
             m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Instance), m_maxInsts);
             m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(zeus::CMatrix4f), 1);
-            m_dataBind = TShader<CRadarPaintShader>::BuildShaderDataBinding(ctx, *this);
+            boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+            boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+            boo::ObjToken<boo::ITexture> texs[] = {m_tex->GetBooTexture()};
+            m_dataBind = ctx.newShaderDataBinding(s_Pipeline, nullptr, m_vbo.get(), nullptr,
+                                                  1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
             return true;
         } BooTrace);
     }
@@ -32,7 +51,5 @@ void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CText
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawInstances(0, 4, instances.size());
 }
-
-URDE_SPECIALIZE_SHADER(CRadarPaintShader)
 
 }

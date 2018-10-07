@@ -1,7 +1,6 @@
 #ifndef __URDE_CSCANLINESFILTER_HPP__
 #define __URDE_CSCANLINESFILTER_HPP__
 
-#include "TMultiBlendShader.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CRectangle.hpp"
@@ -12,11 +11,6 @@ namespace urde
 
 class CScanLinesFilter
 {
-    friend struct CScanLinesFilterGLDataBindingFactory;
-    friend struct CScanLinesFilterVulkanDataBindingFactory;
-    friend struct CScanLinesFilterMetalDataBindingFactory;
-    friend struct CScanLinesFilterD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CColor color;
@@ -27,12 +21,11 @@ class CScanLinesFilter
     bool m_even;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CScanLinesFilter(EFilterType type, bool even);
     void draw(const zeus::CColor& color);
     void DrawFilter(EFilterShape, const zeus::CColor& color, float) { draw(color); }
-
-    using _CLS = CScanLinesFilter;
-#include "TMultiBlendShaderDecl.hpp"
 };
 
 class CScanLinesFilterEven : public CScanLinesFilter

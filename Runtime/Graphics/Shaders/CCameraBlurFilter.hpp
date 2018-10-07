@@ -1,7 +1,7 @@
 #ifndef __URDE_CCAMERABLURFILTER_HPP__
 #define __URDE_CCAMERABLURFILTER_HPP__
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 
@@ -10,11 +10,6 @@ namespace urde
 
 class CCameraBlurFilter
 {
-    friend struct CCameraBlurFilterGLDataBindingFactory;
-    friend struct CCameraBlurFilterVulkanDataBindingFactory;
-    friend struct CCameraBlurFilterMetalDataBindingFactory;
-    friend struct CCameraBlurFilterD3DDataBindingFactory;
-
     struct Vert
     {
         zeus::CVector2f m_pos;
@@ -32,11 +27,10 @@ class CCameraBlurFilter
     Uniform m_uniform;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CCameraBlurFilter();
     void draw(float amount, bool clearDepth=false);
-
-    using _CLS = CCameraBlurFilter;
-#include "TShaderDecl.hpp"
 };
 
 }

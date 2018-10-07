@@ -1,7 +1,6 @@
 #ifndef __URDE_CENERGYBARSHADER_HPP__
 #define __URDE_CENERGYBARSHADER_HPP__
 
-#include "TShader.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CRectangle.hpp"
@@ -12,11 +11,6 @@ namespace urde
 
 class CEnergyBarShader
 {
-    friend struct CEnergyBarShaderGLDataBindingFactory;
-    friend struct CEnergyBarShaderVulkanDataBindingFactory;
-    friend struct CEnergyBarShaderMetalDataBindingFactory;
-    friend struct CEnergyBarShaderD3DDataBindingFactory;
-
 public:
     struct Vertex
     {
@@ -38,14 +32,13 @@ private:
     size_t m_maxVerts = 0;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     void updateModelMatrix();
     void draw(const zeus::CColor& color0, const std::vector<Vertex>& verts0,
               const zeus::CColor& color1, const std::vector<Vertex>& verts1,
               const zeus::CColor& color2, const std::vector<Vertex>& verts2,
               const CTexture* tex);
-
-    using _CLS = CEnergyBarShader;
-#include "TShaderDecl.hpp"
 };
 
 }

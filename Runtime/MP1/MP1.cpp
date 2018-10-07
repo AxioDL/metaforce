@@ -57,6 +57,7 @@
 #include "MP1OriginalIDs.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
+#include "CStopwatch.hpp"
 #include <discord_rpc.h>
 
 namespace hecl
@@ -67,27 +68,6 @@ namespace hecl
 
 namespace urde
 {
-URDE_DECL_SPECIALIZE_SHADER(CParticleSwooshShaders)
-URDE_DECL_SPECIALIZE_SHADER(CThermalColdFilter)
-URDE_DECL_SPECIALIZE_SHADER(CThermalHotFilter)
-URDE_DECL_SPECIALIZE_SHADER(CSpaceWarpFilter)
-URDE_DECL_SPECIALIZE_SHADER(CCameraBlurFilter)
-URDE_DECL_SPECIALIZE_SHADER(CXRayBlurFilter)
-URDE_DECL_SPECIALIZE_SHADER(CFogVolumePlaneShader)
-URDE_DECL_SPECIALIZE_SHADER(CFogVolumeFilter)
-URDE_DECL_SPECIALIZE_SHADER(CEnergyBarShader)
-URDE_DECL_SPECIALIZE_SHADER(CRadarPaintShader)
-URDE_DECL_SPECIALIZE_SHADER(CMapSurfaceShader)
-URDE_DECL_SPECIALIZE_SHADER(CPhazonSuitFilter)
-URDE_DECL_SPECIALIZE_SHADER(CAABoxShader)
-URDE_DECL_SPECIALIZE_SHADER(CWorldShadowShader)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilter)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTexturedQuadFilterAlpha)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CTextSupportShader)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CScanLinesFilter)
-URDE_DECL_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
-
 namespace MP1
 {
 
@@ -286,27 +266,29 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
                             const boo::ObjToken<boo::ITextureR>& spareTex)
 {
     CGraphics::InitializeBoo(factory, cmdQ, spareTex);
-    TShader<CParticleSwooshShaders>::Initialize();
-    TShader<CThermalColdFilter>::Initialize();
-    TShader<CThermalHotFilter>::Initialize();
-    TShader<CSpaceWarpFilter>::Initialize();
-    TShader<CCameraBlurFilter>::Initialize();
-    TShader<CXRayBlurFilter>::Initialize();
-    TShader<CFogVolumePlaneShader>::Initialize();
-    TShader<CFogVolumeFilter>::Initialize();
-    TShader<CEnergyBarShader>::Initialize();
-    TShader<CRadarPaintShader>::Initialize();
-    TShader<CMapSurfaceShader>::Initialize();
-    TShader<CPhazonSuitFilter>::Initialize();
-    TShader<CAABoxShader>::Initialize();
-    TShader<CWorldShadowShader>::Initialize();
-    TMultiBlendShader<CColoredQuadFilter>::Initialize();
-    TMultiBlendShader<CTexturedQuadFilter>::Initialize();
-    TMultiBlendShader<CTexturedQuadFilterAlpha>::Initialize();
-    TMultiBlendShader<CTextSupportShader>::Initialize();
-    TMultiBlendShader<CScanLinesFilter>::Initialize();
-    TMultiBlendShader<CRandomStaticFilter>::Initialize();
+    CStopwatch sw;
+    CParticleSwooshShaders::Initialize();
+    CThermalColdFilter::Initialize();
+    CThermalHotFilter::Initialize();
+    CSpaceWarpFilter::Initialize();
+    CCameraBlurFilter::Initialize();
+    CXRayBlurFilter::Initialize();
+    CFogVolumePlaneShader::Initialize();
+    CFogVolumeFilter::Initialize();
+    CEnergyBarShader::Initialize();
+    CRadarPaintShader::Initialize();
+    CMapSurfaceShader::Initialize();
+    CPhazonSuitFilter::Initialize();
+    CAABoxShader::Initialize();
+    CWorldShadowShader::Initialize();
+    CColoredQuadFilter::Initialize();
+    CTexturedQuadFilter::Initialize();
+    CTexturedQuadFilterAlpha::Initialize();
+    CTextSupportShader::Initialize();
+    CScanLinesFilter::Initialize();
+    CRandomStaticFilter::Initialize();
     CNESShader::Initialize();
+    sw.report("shad init");
 }
 
 void CMain::RegisterResourceTweaks()
@@ -404,10 +386,10 @@ void CMain::ResetGameState()
     g_GameState->GetPlayerState()->SetIsFusionEnabled(g_GameState->SystemOptions().GetPlayerFusionSuitActive());
 }
 
-void CMain::InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr)
+void CMain::InitializeSubsystems()
 {
     CBasics::Initialize();
-    CModelShaders::Initialize(storeMgr, CGraphics::g_BooFactory);
+    CModelShaders::Initialize();
     CMoviePlayer::Initialize();
     CLineRenderer::Initialize();
     CElementGen::Initialize();
@@ -670,7 +652,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_console->registerCommand("God"sv, "Disables damage given by enemies and objects"sv, ""sv, std::bind(&CMain::God, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Cheat);
     m_console->registerCommand("listWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
-    InitializeSubsystems(storeMgr);
+    InitializeSubsystems();
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks(m_cvarMgr);
     x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
@@ -811,26 +793,26 @@ void CMain::Shutdown()
     m_console->unregisterCommand("Give");
     x164_archSupport.reset();
     ShutdownSubsystems();
-    TShader<CParticleSwooshShaders>::Shutdown();
-    TShader<CThermalColdFilter>::Shutdown();
-    TShader<CThermalHotFilter>::Shutdown();
-    TShader<CSpaceWarpFilter>::Shutdown();
-    TShader<CCameraBlurFilter>::Shutdown();
-    TShader<CXRayBlurFilter>::Shutdown();
-    TShader<CFogVolumePlaneShader>::Shutdown();
-    TShader<CFogVolumeFilter>::Shutdown();
-    TShader<CEnergyBarShader>::Shutdown();
-    TShader<CRadarPaintShader>::Shutdown();
-    TShader<CMapSurfaceShader>::Shutdown();
-    TShader<CPhazonSuitFilter>::Shutdown();
-    TShader<CAABoxShader>::Shutdown();
-    TShader<CWorldShadowShader>::Shutdown();
-    TMultiBlendShader<CColoredQuadFilter>::Shutdown();
-    TMultiBlendShader<CTexturedQuadFilter>::Shutdown();
-    TMultiBlendShader<CTexturedQuadFilterAlpha>::Shutdown();
-    TMultiBlendShader<CTextSupportShader>::Shutdown();
-    TMultiBlendShader<CScanLinesFilter>::Shutdown();
-    TMultiBlendShader<CRandomStaticFilter>::Shutdown();
+    CParticleSwooshShaders::Shutdown();
+    CThermalColdFilter::Shutdown();
+    CThermalHotFilter::Shutdown();
+    CSpaceWarpFilter::Shutdown();
+    CCameraBlurFilter::Shutdown();
+    CXRayBlurFilter::Shutdown();
+    CFogVolumePlaneShader::Shutdown();
+    CFogVolumeFilter::Shutdown();
+    CEnergyBarShader::Shutdown();
+    CRadarPaintShader::Shutdown();
+    CMapSurfaceShader::Shutdown();
+    CPhazonSuitFilter::Shutdown();
+    CAABoxShader::Shutdown();
+    CWorldShadowShader::Shutdown();
+    CColoredQuadFilter::Shutdown();
+    CTexturedQuadFilter::Shutdown();
+    CTexturedQuadFilterAlpha::Shutdown();
+    CTextSupportShader::Shutdown();
+    CScanLinesFilter::Shutdown();
+    CRandomStaticFilter::Shutdown();
     CFluidPlaneShader::Shutdown();
     CFluidPlaneManager::RippleMapTex.reset();
     CNESShader::Shutdown();

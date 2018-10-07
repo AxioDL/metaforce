@@ -74,6 +74,8 @@ struct MaterialSet : BigDNA
         struct SectionPASS : ISection
         {
             SectionPASS() : ISection(ISection::Type::PASS) {}
+            static SectionPASS* castTo(ISection* sec)
+            { return sec->m_type == Type::PASS ? static_cast<SectionPASS*>(sec) : nullptr; }
             AT_DECL_DNA
             AT_DECL_DNAV
             Value<atUint32> size;
@@ -126,6 +128,8 @@ struct MaterialSet : BigDNA
         struct SectionCLR : ISection
         {
             SectionCLR() : ISection(ISection::Type::CLR) {}
+            static SectionCLR* castTo(ISection* sec)
+            { return sec->m_type == Type::CLR ? static_cast<SectionCLR*>(sec) : nullptr; }
             AT_DECL_DNA
             AT_DECL_DNAV
             enum class Subtype : atUint32
@@ -148,6 +152,8 @@ struct MaterialSet : BigDNA
         struct SectionINT : ISection
         {
             SectionINT() : ISection(ISection::Type::INT) {}
+            static SectionINT* castTo(ISection* sec)
+            { return sec->m_type == Type::INT ? static_cast<SectionINT*>(sec) : nullptr; }
             AT_DECL_DNA
             AT_DECL_DNAV
             enum class Subtype : atUint32

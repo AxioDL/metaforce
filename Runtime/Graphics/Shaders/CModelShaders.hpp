@@ -2,6 +2,7 @@
 #define __URDE_CMODELSHADERS_HPP__
 
 #include "hecl/Runtime.hpp"
+#include "hecl/Backend/Backend.hpp"
 #include "optional.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
@@ -33,23 +34,14 @@ enum EExtendedShader : uint8_t
     ForcedAdditiveNoZWrite,
     ForcedAlphaNoCullNoZWrite,
     ForcedAdditiveNoCullNoZWrite,
-    DepthGEqualNoZWrite
+    DepthGEqualNoZWrite,
+    MAX
 };
 
 class CModelShaders
 {
     friend class CModel;
-    hecl::Runtime::ShaderCacheManager m_shaderCache;
-    static hecl::Runtime::ShaderCacheExtensions GetShaderExtensions(boo::IGraphicsDataFactory::Platform plat);
-    static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat);
-    static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsHLSL(boo::IGraphicsDataFactory::Platform plat);
-    static hecl::Runtime::ShaderCacheExtensions GetShaderExtensionsMetal(boo::IGraphicsDataFactory::Platform plat);
-    static const hecl::Backend::TextureInfo ThermalTextures[];
-    static const hecl::Backend::TextureInfo BallFadeTextures[];
-    static const hecl::Backend::TextureInfo WorldShadowTextures[];
 public:
-    static std::experimental::optional<CModelShaders> g_ModelShaders;
-
     struct Light
     {
         zeus::CVector3f pos;
@@ -87,45 +79,17 @@ public:
         float shadowId;
     };
 
-    static void Initialize(const hecl::Runtime::FileStoreManager& storeMgr,
-                           boo::IGraphicsDataFactory* gfxFactory);
+    static void Initialize();
     static void Shutdown();
 
-    CModelShaders(const hecl::Runtime::FileStoreManager& storeMgr,
-                  boo::IGraphicsDataFactory* gfxFactory);
+    using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, EExtendedShader::MAX>;
+    using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
 
-    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
-                                                                std::string_view source,
-                                                                std::string_view diagName,
-                                                                boo::IGraphicsDataFactory& factory)
-    {
-        return m_shaderCache.buildShader(tag, source, diagName, factory);
-    }
+    static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag,
+                                               const hecl::Frontend::IR& ir);
 
-    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildShader(const hecl::Runtime::ShaderTag& tag,
-                                                                const hecl::Frontend::IR& ir,
-                                                                std::string_view diagName,
-                                                                boo::IGraphicsDataFactory& factory)
-    {
-        return m_shaderCache.buildShader(tag, ir, diagName, factory);
-    }
-
-    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
-                                                                        std::string_view source,
-                                                                        std::string_view diagName,
-                                                                        boo::IGraphicsDataFactory& factory)
-    {
-        return m_shaderCache.buildExtendedShader(tag, source, diagName, factory);
-    }
-
-    std::shared_ptr<hecl::Runtime::ShaderPipelines> buildExtendedShader(const hecl::Runtime::ShaderTag& tag,
-                                                                        const hecl::Frontend::IR& ir,
-                                                                        std::string_view diagName,
-                                                                        boo::IGraphicsDataFactory& factory)
-    {
-        return m_shaderCache.buildExtendedShader(tag, ir, diagName, factory);
-    }
-
+private:
+    static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
 };
 
 }

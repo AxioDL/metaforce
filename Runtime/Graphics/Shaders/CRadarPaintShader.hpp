@@ -1,7 +1,6 @@
 #ifndef __URDE_CRADARPAINTSHADER_HPP__
 #define __URDE_CRADARPAINTSHADER_HPP__
 
-#include "TShader.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CRectangle.hpp"
@@ -12,11 +11,6 @@ namespace urde
 
 class CRadarPaintShader
 {
-    friend struct CRadarPaintShaderGLDataBindingFactory;
-    friend struct CRadarPaintShaderVulkanDataBindingFactory;
-    friend struct CRadarPaintShaderMetalDataBindingFactory;
-    friend struct CRadarPaintShaderD3DDataBindingFactory;
-
 public:
     struct Instance
     {
@@ -33,10 +27,9 @@ private:
     size_t m_maxInsts = 0;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     void draw(const std::vector<Instance>& instances, const CTexture* tex);
-
-    using _CLS = CRadarPaintShader;
-#include "TShaderDecl.hpp"
 };
 
 }

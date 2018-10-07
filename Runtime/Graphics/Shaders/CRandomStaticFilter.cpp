@@ -2,9 +2,46 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_CookieCutterPipeline;
+
+void CRandomStaticFilter::Initialize()
+{
+    s_AlphaPipeline = hecl::conv->convert(Shader_CRandomStaticFilterAlpha{});
+    s_AddPipeline = hecl::conv->convert(Shader_CRandomStaticFilterAdd{});
+    s_MultPipeline = hecl::conv->convert(Shader_CRandomStaticFilterMult{});
+    s_CookieCutterPipeline = hecl::conv->convert(Shader_CRandomStaticFilterCookieCutter{});
+}
+
+void CRandomStaticFilter::Shutdown()
+{
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
+    s_CookieCutterPipeline.reset();
+}
+
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type)
+{
+    switch (type)
+    {
+    case EFilterType::Blend:
+        return s_AlphaPipeline;
+    case EFilterType::Add:
+        return s_AddPipeline;
+    case EFilterType::Multiply:
+        return s_MultPipeline;
+    default:
+        return {};
+    }
+}
 
 CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
 : m_cookieCutter(cookieCutter)
@@ -24,7 +61,12 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter)
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TMultiBlendShader<CRandomStaticFilter>::BuildShaderDataBinding(ctx, type, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        boo::ObjToken<boo::ITexture> texs[] = {g_Renderer->GetRandomStaticEntropyTex()};
+        m_dataBind = ctx.newShaderDataBinding(m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type),
+                                              m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
+                                              1, texs, nullptr, nullptr);
         return true;
     } BooTrace);
 }
@@ -40,7 +82,5 @@ void CRandomStaticFilter::draw(const zeus::CColor& color, float t)
     CGraphics::SetShaderDataBinding(m_dataBind);
     CGraphics::DrawArray(0, 4);
 }
-
-URDE_SPECIALIZE_MULTI_BLEND_SHADER(CRandomStaticFilter)
 
 }

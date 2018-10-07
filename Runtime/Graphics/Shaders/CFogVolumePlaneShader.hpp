@@ -1,7 +1,7 @@
 #ifndef __URDE_CFOGVOLUMEPLANESHADER_HPP__
 #define __URDE_CFOGVOLUMEPLANESHADER_HPP__
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CRectangle.hpp"
@@ -12,11 +12,6 @@ namespace urde
 
 class CFogVolumePlaneShader
 {
-    friend struct CFogVolumePlaneShaderGLDataBindingFactory;
-    friend struct CFogVolumePlaneShaderVulkanDataBindingFactory;
-    friend struct CFogVolumePlaneShaderMetalDataBindingFactory;
-    friend struct CFogVolumePlaneShaderD3DDataBindingFactory;
-
     boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
     boo::ObjToken<boo::IShaderDataBinding> m_dataBinds[4];
     std::vector<zeus::CVector4f> m_verts;
@@ -25,13 +20,12 @@ class CFogVolumePlaneShader
     void CommitResources(size_t capacity);
 
 public:
+    static void Initialize();
+    static void Shutdown();
     static const zeus::CRectangle DefaultRect;
     void reset(int numVerts) { m_verts.clear(); m_verts.reserve(numVerts); }
     void addFan(const zeus::CVector3f* verts, int numVerts);
     void draw(int pass);
-
-    using _CLS = CFogVolumePlaneShader;
-#include "TShaderDecl.hpp"
 };
 
 }
