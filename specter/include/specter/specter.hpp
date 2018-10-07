@@ -1,5 +1,4 @@
-#ifndef SPECTER_HPP
-#define SPECTER_HPP
+#pragma once
 
 #include "View.hpp"
 #include "RootView.hpp"
@@ -18,4 +17,3 @@
 #include "FontCache.hpp"
 #include "ViewResources.hpp"
 
-#endif // SPECTER_HPP

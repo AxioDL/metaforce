@@ -1,5 +1,4 @@
-#ifndef SPECTER_TOOLBAR_HPP
-#define SPECTER_TOOLBAR_HPP
+#pragma once
 
 #include "specter/View.hpp"
 
@@ -75,4 +74,3 @@ public:
 
 }
 
-#endif // SPECTER_TOOLBAR_HPP

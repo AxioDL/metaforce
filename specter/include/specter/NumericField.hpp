@@ -1,5 +1,4 @@
-#ifndef SPECTER_NUMERICFIELD_HPP
-#define SPECTER_NUMERICFIELD_HPP
+#pragma once
 
 #include "specter/TextView.hpp"
 
@@ -51,4 +50,3 @@ public:
 
 }
 
-#endif // SPECTER_NUMERICFIELD_HPP

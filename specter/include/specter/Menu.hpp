@@ -1,5 +1,4 @@
-#ifndef SPECTER_MENU_HPP
-#define SPECTER_MENU_HPP
+#pragma once
 
 #include "View.hpp"
 #include "TextView.hpp"
@@ -92,4 +91,3 @@ public:
 
 }
 
-#endif // SPECTER_MENU_HPP

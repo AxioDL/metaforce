@@ -1,4 +1,2 @@
-#ifndef SPECTER_NODESOCKET_HPP
-#define SPECTER_NODESOCKET_HPP
+#pragma once
 
-#endif // SPECTER_NODESOCKET_HPP

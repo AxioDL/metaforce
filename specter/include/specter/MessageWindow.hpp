@@ -1,5 +1,4 @@
-#ifndef SPECTER_MESSAGEWINDOW_HPP
-#define SPECTER_MESSAGEWINDOW_HPP
+#pragma once
 
 #include "ModalWindow.hpp"
 #include "MultiLineTextView.hpp"
@@ -75,4 +74,3 @@ public:
 
 }
 
-#endif // SPECTER_MESSAGEWINDOW_HPP

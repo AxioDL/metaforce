@@ -1,5 +1,4 @@
-#ifndef SPECTER_MULTILINETEXTVIEW_HPP
-#define SPECTER_MULTILINETEXTVIEW_HPP
+#pragma once
 
 #include "View.hpp"
 #include "TextView.hpp"
@@ -52,4 +51,3 @@ public:
 
 }
 
-#endif // SPECTER_MULTILINETEXTVIEW_HPP

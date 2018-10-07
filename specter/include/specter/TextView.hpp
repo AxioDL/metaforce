@@ -1,5 +1,4 @@
-#ifndef SPECTER_TEXTVIEW_HPP
-#define SPECTER_TEXTVIEW_HPP
+#pragma once
 
 #include "View.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -131,4 +130,3 @@ private:
 
 }
 
-#endif // SPECTER_TEXTVIEW_HPP

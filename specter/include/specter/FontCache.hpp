@@ -1,5 +1,4 @@
-#ifndef SPECTER_FONTCACHE_HPP
-#define SPECTER_FONTCACHE_HPP
+#pragma once
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -201,4 +200,3 @@ public:
 
 }
 
-#endif // SPECTER_FONTCACHE_HPP

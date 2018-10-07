@@ -1,5 +1,4 @@
-#ifndef __SPECTER_GENIE_HPP__
-#define __SPECTER_GENIE_HPP__
+#pragma once
 
 #if __specter__
 #define SPECTER_PROPERTY(n, d) \
@@ -12,4 +11,3 @@
 #endif
 
 
-#endif //__SPECTER_GENIE_HPP__

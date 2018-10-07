@@ -1,5 +1,4 @@
-#ifndef SPECTER_TEXTFIELD_HPP
-#define SPECTER_TEXTFIELD_HPP
+#pragma once
 
 #include "Control.hpp"
 #include "TextView.hpp"
@@ -137,4 +136,3 @@ private:
 
 }
 
-#endif // SPECTER_TEXTFIELD_HPP

@@ -1,5 +1,4 @@
-#ifndef SPECTER_TABLE_HPP
-#define SPECTER_TABLE_HPP
+#pragma once
 
 #include "View.hpp"
 #include "ScrollView.hpp"
@@ -142,4 +141,3 @@ public:
 
 }
 
-#endif // SPECTER_TABLE_HPP

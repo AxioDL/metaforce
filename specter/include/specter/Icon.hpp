@@ -1,5 +1,4 @@
-#ifndef SPECTER_ICON_HPP
-#define SPECTER_ICON_HPP
+#pragma once
 
 #include "View.hpp"
 
@@ -71,4 +70,3 @@ public:
 
 }
 
-#endif // SPECTER_ICON_HPP

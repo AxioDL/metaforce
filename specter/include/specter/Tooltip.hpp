@@ -1,5 +1,4 @@
-#ifndef SPECTER_TOOLTIP_HPP
-#define SPECTER_TOOLTIP_HPP
+#pragma once
 
 #include "specter/View.hpp"
 #include "specter/MultiLineTextView.hpp"
@@ -38,4 +37,3 @@ public:
 
 }
 
-#endif // SPECTER_TOOLTIP_HPP

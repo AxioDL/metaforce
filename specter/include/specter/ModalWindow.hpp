@@ -1,5 +1,4 @@
-#ifndef SPECTER_MODAL_WINDOW_HPP
-#define SPECTER_MODAL_WINDOW_HPP
+#pragma once
 
 #include <specter/View.hpp>
 #include <specter/MultiLineTextView.hpp>
@@ -83,4 +82,3 @@ public:
 }
 
 
-#endif // SPECTER_MODAL_WINDOW_HPP

@@ -1,5 +1,4 @@
-#ifndef SPECTER_SCROLLVIEW_HPP
-#define SPECTER_SCROLLVIEW_HPP
+#pragma once
 
 #include "Button.hpp"
 #include "IViewManager.hpp"
@@ -99,4 +98,3 @@ public:
 
 }
 
-#endif // SPECTER_SCROLLVIEW_HPP

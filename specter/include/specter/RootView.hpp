@@ -1,5 +1,4 @@
-#ifndef SPECTER_ROOTVIEW_HPP
-#define SPECTER_ROOTVIEW_HPP
+#pragma once
 
 #include "View.hpp"
 #include "ViewResources.hpp"
@@ -252,4 +251,3 @@ private:
 
 }
 
-#endif // SPECTER_ROOTVIEW_HPP

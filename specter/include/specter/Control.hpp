@@ -1,5 +1,4 @@
-#ifndef SPECTER_CONTROL_HPP
-#define SPECTER_CONTROL_HPP
+#pragma once
 
 #include "View.hpp"
 
@@ -119,4 +118,3 @@ public:
 
 }
 
-#endif // SPECTER_CONTROL_HPP

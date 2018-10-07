@@ -1,5 +1,4 @@
-#ifndef SPECTER_BUTTON_HPP
-#define SPECTER_BUTTON_HPP
+#pragma once
 
 #include "specter/TextView.hpp"
 #include "specter/Control.hpp"
@@ -132,4 +131,3 @@ public:
 
 }
 
-#endif // SPECTER_BUTTON_HPP

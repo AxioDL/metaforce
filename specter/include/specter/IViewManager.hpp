@@ -1,5 +1,4 @@
-#ifndef SPECTER_IVIEWMANAGER_HPP
-#define SPECTER_IVIEWMANAGER_HPP
+#pragma once
 
 #include "Translator.hpp"
 #include "SplitView.hpp"
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // SPECTER_IVIEWMANAGER_HPP

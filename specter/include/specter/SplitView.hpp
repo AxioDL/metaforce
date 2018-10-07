@@ -1,5 +1,4 @@
-#ifndef SPECTER_SPLITVIEW_HPP
-#define SPECTER_SPLITVIEW_HPP
+#pragma once
 
 #include "specter/View.hpp"
 
@@ -119,4 +118,3 @@ inline SplitView* View::castToSplitView() { return isSplitView() ? static_cast<S
 
 }
 
-#endif // SPECTER_SPLITVIEW_HPP

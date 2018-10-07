@@ -1,5 +1,4 @@
-#ifndef SPECTER_SPACE_HPP
-#define SPECTER_SPACE_HPP
+#pragma once
 
 #include "View.hpp"
 #include "Toolbar.hpp"
@@ -81,4 +80,3 @@ inline Space* View::castToSpace() { return isSpace() ? static_cast<Space*>(this)
 
 }
 
-#endif // SPECTER_SPACE_HPP

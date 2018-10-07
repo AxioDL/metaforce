@@ -1,5 +1,4 @@
-#ifndef SPECTER_TRANSLATOR_HPP
-#define SPECTER_TRANSLATOR_HPP
+#pragma once
 
 #include <string>
 #include <athena/DNAYaml.hpp>
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // SPECTER_TRANSLATOR_HPP

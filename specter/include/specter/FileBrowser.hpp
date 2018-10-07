@@ -1,5 +1,4 @@
-#ifndef SPECTER_FILEBROWSER_HPP
-#define SPECTER_FILEBROWSER_HPP
+#pragma once
 
 #include "View.hpp"
 #include "ModalWindow.hpp"
@@ -353,4 +352,3 @@ public:
 
 }
 
-#endif // SPECTER_FILEBROWSER_HPP

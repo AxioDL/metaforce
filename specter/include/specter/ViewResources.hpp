@@ -1,5 +1,4 @@
-#ifndef SPECTER_VIEWRESOURCES_HPP
-#define SPECTER_VIEWRESOURCES_HPP
+#pragma once
 
 #include "TextView.hpp"
 #include "SplitView.hpp"
@@ -218,4 +217,3 @@ public:
 };
 } // namespace specter
 
-#endif // SPECTER_VIEWRESOURCES_HPP

@@ -1,5 +1,4 @@
-#ifndef SPECTER_IMENUNODE_HPP
-#define SPECTER_IMENUNODE_HPP
+#pragma once
 
 #include "View.hpp"
 
@@ -17,4 +16,3 @@ struct IMenuNode
 
 }
 
-#endif // SPECTER_IMENUNODE_HPP

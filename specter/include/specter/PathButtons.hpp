@@ -1,5 +1,4 @@
-#ifndef SPECTER_PATHBUTTONS_HPP
-#define SPECTER_PATHBUTTONS_HPP
+#pragma once
 
 #include "Button.hpp"
 #include "ScrollView.hpp"
@@ -75,4 +74,3 @@ public:
 
 }
 
-#endif // SPECTER_PATHBUTTONS_HPP

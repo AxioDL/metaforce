@@ -1,5 +1,4 @@
-#ifndef SPECTER_VIEW_HPP
-#define SPECTER_VIEW_HPP
+#pragma once
 
 #include "boo/boo.hpp"
 #include "optional.hpp"
@@ -394,4 +393,3 @@ struct ScissorViewChild : ViewChild<ViewPtrType>
 
 }
 
-#endif // SPECTER_VIEW_HPP

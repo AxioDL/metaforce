@@ -1,5 +1,4 @@
-#ifndef SPECTER_OUTLINER_HPP
-#define SPECTER_OUTLINER_HPP
+#pragma once
 
 namespace specter
 {
@@ -41,4 +40,3 @@ class Outliner
 };
 }
 
-#endif // SPECTER_OUTLINER_HPP
