@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_MAPA_HPP__
-#define __DNACOMMON_MAPA_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 #include "GX.hpp"
@@ -191,4 +190,3 @@ bool Cook(const hecl::blender::MapArea& mapa, const hecl::ProjectPath& out);
 
 }
 
-#endif // __DNACOMMON_MAPA_HPP__

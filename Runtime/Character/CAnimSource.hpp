@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMSOURCE_HPP__
-#define __URDE_CANIMSOURCE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -85,4 +84,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMSOURCE_HPP__

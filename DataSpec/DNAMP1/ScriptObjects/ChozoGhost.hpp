@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CHOZOGHOST_HPP_
-#define _DNAMP1_CHOZOGHOST_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -87,4 +86,3 @@ struct ChozoGhost : IScriptObject
 };
 }
 
-#endif

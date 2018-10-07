@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_PARAMETERS_HPP_
-#define _DNAMP1_PARAMETERS_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
@@ -522,4 +521,3 @@ struct BeamInfo : BigDNA
 
 }
 
-#endif

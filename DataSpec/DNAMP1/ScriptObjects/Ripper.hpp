@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_RIPPER_HPP_
-#define _DNAMP1_RIPPER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -46,4 +45,3 @@ struct Ripper : IScriptObject
 };
 }
 
-#endif

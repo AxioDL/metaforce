@@ -1,5 +1,4 @@
-#ifndef __URDE_CJOINTCOLLISIONDESCRIPTION_HPP__
-#define __URDE_CJOINTCOLLISIONDESCRIPTION_HPP__
+#pragma once
 
 #include "Character/CSegId.hpp"
 #include "zeus/CAABox.hpp"
@@ -63,4 +62,3 @@ public:
 };
 }
 
-#endif // __URDE_CJOINTCOLLISIONDESCRIPTION_HPP__

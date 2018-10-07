@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CINF_HPP_
-#define _DNAMP1_CINF_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
@@ -53,4 +52,3 @@ struct CINF : BigDNA
 
 }
 
-#endif // _DNAMP1_CINF_HPP_

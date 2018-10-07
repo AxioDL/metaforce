@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMPERSEGMENTDATA_HPP__
-#define __URDE_CANIMPERSEGMENTDATA_HPP__
+#pragma once
 
 #include "zeus/CQuaternion.hpp"
 #include "zeus/CVector3f.hpp"
@@ -16,4 +15,3 @@ struct CAnimPerSegmentData
 
 }
 
-#endif // __URDE_CANIMPERSEGMENTDATA_HPP__

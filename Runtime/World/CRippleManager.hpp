@@ -1,5 +1,4 @@
-#ifndef __URDE_CRIPPLEMANAGER_HPP__
-#define __URDE_CRIPPLEMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CRipple.hpp"
@@ -28,4 +27,3 @@ public:
 
 }
 ;
-#endif // __URDE_CRIPPLEMANAGER_HPP__

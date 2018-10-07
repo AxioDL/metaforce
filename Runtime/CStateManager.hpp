@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTATEMANAGER_HPP__
-#define __URDE_CSTATEMANAGER_HPP__
+#pragma once
 
 #include <memory>
 #include <set>
@@ -478,4 +477,3 @@ public:
 };
 }
 
-#endif

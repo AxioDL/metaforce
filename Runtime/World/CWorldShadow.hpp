@@ -1,5 +1,4 @@
-#ifndef __URDE_CWORLDSHADOW_HPP__
-#define __URDE_CWORLDSHADOW_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -36,4 +35,3 @@ public:
 
 }
 
-#endif // __URDE_CWORLDSHADOW_HPP__

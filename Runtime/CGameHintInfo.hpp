@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEHINTINFO_HPP__
-#define __URDE_CGAMEHINTINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IFactory.hpp"
@@ -47,4 +46,3 @@ public:
 
 CFactoryFnReturn FHintFactory(const SObjectTag&, CInputStream&, const CVParamTransfer, CObjectReference*);
 }
-#endif // __URDE_CGAMEHINTINFO_HPP__

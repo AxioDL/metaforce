@@ -1,5 +1,4 @@
-#ifndef __URDE_CEFFECTCOMPONENT_HPP__
-#define __URDE_CEFFECTCOMPONENT_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CEFFECTCOMPONENT_HPP__

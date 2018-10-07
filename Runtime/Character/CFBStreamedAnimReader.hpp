@@ -1,5 +1,4 @@
-#ifndef __URDE_CFSTREAMEDANIMREADER_HPP__
-#define __URDE_CFSTREAMEDANIMREADER_HPP__
+#pragma once
 
 #include "CAnimSourceReader.hpp"
 #include "CFBStreamedCompression.hpp"
@@ -123,4 +122,3 @@ public:
 
 }
 
-#endif // __URDE_CFSTREAMEDANIMREADER_HPP__

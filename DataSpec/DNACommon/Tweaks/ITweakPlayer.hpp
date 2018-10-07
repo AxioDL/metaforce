@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKPLAYER_HPP__
-#define __DNACOMMON_ITWEAKPLAYER_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 #include "zeus/CAABox.hpp"
@@ -146,4 +145,3 @@ struct ITweakPlayer : ITweak
 
 }
 
-#endif // __DNACOMMON_ITWEAKPLAYER_HPP__

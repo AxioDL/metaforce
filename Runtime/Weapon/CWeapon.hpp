@@ -1,5 +1,4 @@
-#ifndef __URDE_CWEAPON_HPP__
-#define __URDE_CWEAPON_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 #include "Weapon/WeaponCommon.hpp"
@@ -48,4 +47,3 @@ public:
     void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr);
 };
 }
-#endif // __URDE_CWEAPON_HPP__

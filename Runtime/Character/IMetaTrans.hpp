@@ -1,5 +1,4 @@
-#ifndef __URDE_IMETATRANS_HPP__
-#define __URDE_IMETATRANS_HPP__
+#pragma once
 
 #include "../RetroTypes.hpp"
 
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // __URDE_IMETATRANS_HPP__

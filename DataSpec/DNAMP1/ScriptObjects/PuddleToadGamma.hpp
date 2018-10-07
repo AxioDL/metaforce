@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_PUDDLETOADGAMMA_HPP_
-#define _DNAMP1_PUDDLETOADGAMMA_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -61,4 +60,3 @@ struct PuddleToadGamma : IScriptObject
 };
 }
 
-#endif

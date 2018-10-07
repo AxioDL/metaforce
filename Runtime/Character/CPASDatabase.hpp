@@ -1,5 +1,4 @@
-#ifndef __URDE_CPASDATABASE_HPP__
-#define __URDE_CPASDATABASE_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CPASAnimState.hpp"
@@ -49,4 +48,3 @@ public:
 
 }
 
-#endif // __URDE_CPASDATABASE_HPP__

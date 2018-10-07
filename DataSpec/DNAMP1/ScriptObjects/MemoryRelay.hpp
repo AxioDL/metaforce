@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_MEMORYRELAY_HPP_
-#define _DNAMP1_MEMORYRELAY_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -17,4 +16,3 @@ struct MemoryRelay : IScriptObject
 };
 }
 
-#endif

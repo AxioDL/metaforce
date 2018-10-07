@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDINTERFACE_HPP__
-#define __URDE_CHUDINTERFACE_HPP__
+#pragma once
 
 namespace urde
 {
@@ -15,4 +14,3 @@ enum class EHudType
 
 }
 
-#endif // __URDE_CHUDINTERFACE_HPP__

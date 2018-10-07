@@ -1,5 +1,4 @@
-#ifndef __URDE_CWALLWALKER_HPP__
-#define __URDE_CWALLWALKER_HPP__
+#pragma once
 
 #include "CPatterned.hpp"
 #include "Collision/CCollisionSurface.hpp"
@@ -41,4 +40,3 @@ public:
     void UpdateWPDestination(CStateManager&);
 };
 }
-#endif // __URDE_CWALLWALKER_HPP__

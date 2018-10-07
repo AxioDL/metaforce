@@ -1,5 +1,4 @@
-#ifndef __CSPLASHSCREEN_HPP__
-#define __CSPLASHSCREEN_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 #include "CToken.hpp"
@@ -34,4 +33,3 @@ public:
 };
 }
 
-#endif // __CSPLASHSCREEN_HPP__

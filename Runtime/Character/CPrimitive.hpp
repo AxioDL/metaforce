@@ -1,5 +1,4 @@
-#ifndef __URDE_CPRIMITIVE_HPP__
-#define __URDE_CPRIMITIVE_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CPRIMITIVE_HPP__

@@ -1,5 +1,4 @@
-#ifndef URDE_VIEW_MANAGER_HPP
-#define URDE_VIEW_MANAGER_HPP
+#pragma once
 
 #include "hecl/CVarManager.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
@@ -205,4 +204,3 @@ public:
 
 }
 
-#endif // URDE_VIEW_MANAGER_HPP

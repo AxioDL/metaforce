@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIMODEL_HPP__
-#define __URDE_CGUIMODEL_HPP__
+#pragma once
 
 #include "CGuiWidget.hpp"
 #include "CToken.hpp"
@@ -28,4 +27,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIMODEL_HPP__

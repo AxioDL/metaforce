@@ -1,5 +1,4 @@
-#ifndef URDE_CWORLDSHADOWSHADER_HPP
-#define URDE_CWORLDSHADOWSHADER_HPP
+#pragma once
 
 #include "CColoredQuadFilter.hpp"
 #include "CTexturedQuadFilter.hpp"
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // URDE_CWORLDSHADOWSHADER_HPP

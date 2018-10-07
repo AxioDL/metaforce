@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREEBLEND_HPP__
-#define __URDE_CANIMTREEBLEND_HPP__
+#pragma once
 
 #include "CAnimTreeTweenBase.hpp"
 
@@ -29,4 +28,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREEBLEND_HPP__

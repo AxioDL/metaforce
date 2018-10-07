@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLAMEWARP_HPP__
-#define __URDE_CFLAMEWARP_HPP__
+#pragma once
 
 #include "CWarp.hpp"
 
@@ -39,4 +38,3 @@ public:
 };
 }
 
-#endif // __URDE_CFLAMEWARP_HPP__

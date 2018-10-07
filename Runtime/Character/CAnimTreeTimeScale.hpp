@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREETIMESCALE_HPP__
-#define __URDE_CANIMTREETIMESCALE_HPP__
+#pragma once
 
 #include "CAnimTreeSingleChild.hpp"
 #include "CTimeScaleFunctions.hpp"
@@ -43,4 +42,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREETIMESCALE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_PAK_HPP__
-#define __DNACOMMON_PAK_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 #include "boo/ThreadLocalPtr.hpp"
@@ -239,4 +238,3 @@ public:
 
 }
 
-#endif // __DNACOMMON_PAK_HPP__

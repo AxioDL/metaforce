@@ -1,5 +1,4 @@
-#ifndef __URDE_CFONTRENDERSTATE_HPP__
-#define __URDE_CFONTRENDERSTATE_HPP__
+#pragma once
 
 #include "CGuiTextSupport.hpp"
 #include "CSaveableState.hpp"
@@ -39,4 +38,3 @@ public:
 
 }
 
-#endif // __URDE_CFONTRENDERSTATE_HPP__

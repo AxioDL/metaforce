@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_DCLN_HPP__
-#define __DNAMP1_DCLN_HPP__
+#pragma once
 
 #include <athena/Types.hpp>
 #include "DataSpec/DNACommon/DeafBabe.hpp"
@@ -110,4 +109,3 @@ struct DCLN : BigDNA
 };
 
 }
- #endif // __DNAMP1_DCLN_HPP__

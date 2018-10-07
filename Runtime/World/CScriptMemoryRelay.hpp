@@ -1,5 +1,4 @@
-#ifndef CSCRIPTMEMORYRELAY_HPP
-#define CSCRIPTMEMORYRELAY_HPP
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -24,4 +23,3 @@ public:
 };
 }
 
-#endif // CSCRIPTMEMORYRELAY_HPP

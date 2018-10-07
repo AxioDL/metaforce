@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_COLORMODULATE_HPP_
-#define _DNAMP1_COLORMODULATE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -26,4 +25,3 @@ struct ColorModulate : IScriptObject
 };
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef __DNAMP2_PTLA_HPP__
-#define __DNAMP2_PTLA_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
@@ -66,4 +65,3 @@ struct PTLA : BigDNA
     Vector<UnknownStruct3, AT_DNA_COUNT(count3)> entries3;
 };
 }
-#endif // __DNAMP2_PTLA_HPP__

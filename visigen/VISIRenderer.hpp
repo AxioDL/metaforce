@@ -1,5 +1,4 @@
-#ifndef VISIRENDERER_HPP
-#define VISIRENDERER_HPP
+#pragma once
 
 #include "boo/graphicsdev/glew.h"
 #include "hecl/SystemChar.hpp"
@@ -108,4 +107,3 @@ public:
     int ReturnVal() const { return m_return; }
 };
 
-#endif // VISIRENDERER_HPP

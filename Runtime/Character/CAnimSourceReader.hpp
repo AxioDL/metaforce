@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMSOURCEREADER_HPP__
-#define __URDE_CANIMSOURCEREADER_HPP__
+#pragma once
 
 #include "IAnimReader.hpp"
 #include "CToken.hpp"
@@ -102,4 +101,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMSOURCEREADER_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTVISORFLARE_HPP__
-#define __URDE_CSCRIPTVISORFLARE_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "CVisorFlare.hpp"
@@ -28,4 +27,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTVISORFLARE_HPP__

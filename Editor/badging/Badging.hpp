@@ -1,5 +1,4 @@
-#ifndef __URDE_BADGING_HPP__
-#define __URDE_BADGING_HPP__
+#pragma once
 
 #include "specter/ViewResources.hpp"
 
@@ -15,4 +14,3 @@ specter::Icon& GetBadge();
 #define BADGE_PHRASE "Prototype"
 #endif
 
-#endif // __URDE_BADGING_HPP__

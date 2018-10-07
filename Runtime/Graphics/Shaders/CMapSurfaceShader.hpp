@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPSURFACESHADER_HPP__
-#define __URDE_CMAPSURFACESHADER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -32,4 +31,3 @@ public:
 
 }
 
-#endif // __URDE_CMAPSURFACESHADER_HPP__

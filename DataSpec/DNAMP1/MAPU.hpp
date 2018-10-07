@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_MAPU_HPP__
-#define __DNAMP1_MAPU_HPP__
+#pragma once
 
 #include <vector>
 
@@ -29,4 +28,3 @@ struct MAPU : DNAMAPU::MAPU
 };
 }
 
-#endif

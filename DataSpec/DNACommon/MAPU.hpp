@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_MAPU_HPP__
-#define __DNACOMMON_MAPU_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -42,4 +41,3 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn,
 
 }
 
-#endif // __DNACOMMON_MAPU_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CLAYOUTDESCRIPTION_HPP__
-#define __URDE_CLAYOUTDESCRIPTION_HPP__
+#pragma once
 
 #include "optional.hpp"
 #include "CToken.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CLAYOUTDESCRIPTION_HPP__

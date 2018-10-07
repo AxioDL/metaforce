@@ -1,5 +1,4 @@
-#ifndef __URDE_COBBTREE_HPP__
-#define __URDE_COBBTREE_HPP__
+#pragma once
 #include "RetroTypes.hpp"
 #include "CCollisionEdge.hpp"
 #include "CCollisionSurface.hpp"
@@ -91,4 +90,3 @@ public:
 };
 }
 
-#endif // __URDE_COBBTREE_HPP__

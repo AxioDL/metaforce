@@ -1,5 +1,4 @@
-#ifndef __URDE_CMEMORYCARDSYS_HPP__
-#define __URDE_CMEMORYCARDSYS_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "World/CWorld.hpp"
@@ -191,4 +190,3 @@ public:
 
 }
 
-#endif // __URDE_CMEMORYCARDSYS_HPP__

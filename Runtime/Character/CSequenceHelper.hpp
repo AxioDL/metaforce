@@ -1,5 +1,4 @@
-#ifndef __URDE_CSEQUENCEHELPER_HPP__
-#define __URDE_CSEQUENCEHELPER_HPP__
+#pragma once
 
 #include "CAnimTreeNode.hpp"
 #include "CBoolPOINode.hpp"
@@ -50,4 +49,3 @@ public:
 
 }
 
-#endif // __URDE_CSEQUENCEHELPER_HPP__

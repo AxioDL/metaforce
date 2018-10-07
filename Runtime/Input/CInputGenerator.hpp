@@ -1,5 +1,4 @@
-#ifndef __URDE_CINPUTGENERATOR_HPP__
-#define __URDE_CINPUTGENERATOR_HPP__
+#pragma once
 
 #include <atomic>
 #include <boo/boo.hpp>
@@ -244,4 +243,3 @@ public:
 
 }
 
-#endif // __URDE_CINPUTGENERATOR_HPP__

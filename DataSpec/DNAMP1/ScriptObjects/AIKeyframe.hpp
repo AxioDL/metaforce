@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_AIKEYFRAME_HPP_
-#define _DNAMP1_AIKEYFRAME_HPP_
+#pragma once
 
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
@@ -21,4 +20,3 @@ struct AIKeyframe : IScriptObject
 };
 }
 
-#endif

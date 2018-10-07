@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKAUTOMAPPER_HPP__
-#define __DNACOMMON_ITWEAKAUTOMAPPER_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -66,4 +65,3 @@ struct ITweakAutoMapper : public ITweak
 }
 
 
-#endif // __DNACOMMON_ITWEAKAUTOMAPPER_HPP__

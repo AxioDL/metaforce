@@ -1,5 +1,4 @@
-#ifndef __URDE_CALLFORMATANIMSOURCE_HPP__
-#define __URDE_CALLFORMATANIMSOURCE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -54,4 +53,3 @@ CFactoryFnReturn AnimSourceFactory(const SObjectTag& tag, CInputStream& in, cons
 
 }
 
-#endif // __URDE_CALLFORMATANIMSOURCE_HPP__

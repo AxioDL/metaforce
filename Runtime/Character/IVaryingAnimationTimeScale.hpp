@@ -1,5 +1,4 @@
-#ifndef __URDE_IVARYINGANIMATIONTIMESCALE_HPP__
-#define __URDE_IVARYINGANIMATIONTIMESCALE_HPP__
+#pragma once
 
 #include "CCharAnimTime.hpp"
 
@@ -26,4 +25,3 @@ public:
     std::unique_ptr<IVaryingAnimationTimeScale> Clone() const { return VClone(); }
 };
 }
-#endif // __URDE_IVARYINGANIMATIONTIMESCALE_HPP__

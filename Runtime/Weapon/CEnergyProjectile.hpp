@@ -1,5 +1,4 @@
-#ifndef __URDE_CENERGYPROJECTILE_HPP__
-#define __URDE_CENERGYPROJECTILE_HPP__
+#pragma once
 
 #include "CGameProjectile.hpp"
 #include "Camera/CCameraShakeData.hpp"
@@ -50,4 +49,3 @@ public:
 
 }
 
-#endif // __URDE_CENERGYPROJECTILE_HPP__

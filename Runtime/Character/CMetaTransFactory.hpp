@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETATRANSFACTORY_HPP__
-#define __URDE_CMETATRANSFACTORY_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "IMetaTrans.hpp"
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_CMETATRANSFACTORY_HPP__

@@ -1,5 +1,4 @@
-#ifndef CICEIMPACT_HPP
-#define CICEIMPACT_HPP
+#pragma once
 
 #include "CEffect.hpp"
 
@@ -17,4 +16,3 @@ public:
 
 }
 
-#endif // CICEIMPACT_HPP

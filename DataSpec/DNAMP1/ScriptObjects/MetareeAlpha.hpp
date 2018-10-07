@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_METAREEALPHA_HPP_
-#define _DNAMP1_METAREEALPHA_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -50,4 +49,3 @@ struct MetareeAlpha : IScriptObject
 };
 }
 
-#endif

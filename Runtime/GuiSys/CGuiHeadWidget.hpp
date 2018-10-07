@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIHEADWIDGET_HPP__
-#define __URDE_CGUIHEADWIDGET_HPP__
+#pragma once
 
 #include "CGuiWidget.hpp"
 
@@ -19,4 +18,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIHEADWIDGET_HPP__

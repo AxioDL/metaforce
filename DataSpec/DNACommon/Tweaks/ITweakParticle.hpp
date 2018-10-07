@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKPARTICLE_HPP__
-#define __DNACOMMON_ITWEAKPARTICLE_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -12,4 +11,3 @@ struct ITweakParticle : ITweak
 
 }
 
-#endif

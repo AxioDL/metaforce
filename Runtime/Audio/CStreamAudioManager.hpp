@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTREAMAUDIOMANAGER_HPP__
-#define __URDE_CSTREAMAUDIOMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -38,4 +37,3 @@ public:
 
 }
 
-#endif // __URDE_CSTREAMAUDIOMANAGER_HPP__

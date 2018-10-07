@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_ATBL_HPP_
-#define _DNACOMMON_ATBL_HPP_
+#pragma once
 
 #include "DNACommon.hpp"
 #include "PAK.hpp"
@@ -16,4 +15,3 @@ public:
 
 }
 
-#endif // _DNACOMMON_ATBL_HPP_

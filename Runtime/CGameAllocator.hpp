@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEALLOCATOR_HPP__
-#define __URDE_CGAMEALLOCATOR_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -31,4 +30,3 @@ public:
 };
 }
 
-#endif

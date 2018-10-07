@@ -1,5 +1,4 @@
-#ifndef __URDE_CWORLD_HPP__
-#define __URDE_CWORLD_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -229,5 +228,4 @@ struct CWorldLayers
 
 }
 
-#endif // __URDE_CWORLD_HPP__
 

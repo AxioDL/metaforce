@@ -1,5 +1,4 @@
-#ifndef __URDE_CINT32POINODE_HPP__
-#define __URDE_CINT32POINODE_HPP__
+#pragma once
 
 #include "CPOINode.hpp"
 
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // __URDE_CINT32POINODE_HPP__

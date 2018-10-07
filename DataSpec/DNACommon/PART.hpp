@@ -1,5 +1,4 @@
-#ifndef __COMMON_PART_HPP__
-#define __COMMON_PART_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -115,4 +114,3 @@ bool WriteGPSM(const GPSM<IDType>& gpsm, const hecl::ProjectPath& outPath);
 
 }
 
-#endif // __COMMON_PART_HPP__

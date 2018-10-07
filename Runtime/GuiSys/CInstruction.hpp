@@ -1,5 +1,4 @@
-#ifndef __URDE_CINSTRUCTION_HPP__
-#define __URDE_CINSTRUCTION_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "CGuiTextSupport.hpp"
@@ -202,4 +201,3 @@ public:
 
 }
 
-#endif // __URDE_CINSTRUCTION_HPP__

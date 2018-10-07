@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SPANKWEED_HPP_
-#define _DNAMP1_SPANKWEED_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -49,4 +48,3 @@ struct SpankWeed : IScriptObject
 };
 }
 
-#endif

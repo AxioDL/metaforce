@@ -1,5 +1,4 @@
-#ifndef __URDE_CPAKFILE_HPP__
-#define __URDE_CPAKFILE_HPP__
+#pragma once
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -84,4 +83,3 @@ public:
 
 }
 
-#endif // __URDE_CPAKFILE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CHIERARCHYPOSEBUILDER_HPP__
-#define __URDE_CHIERARCHYPOSEBUILDER_HPP__
+#pragma once
 
 #include "CSegId.hpp"
 #include "TSegIdMap.hpp"
@@ -56,4 +55,3 @@ public:
 
 }
 
-#endif // __URDE_CHIERARCHYPOSEBUILDER_HPP__

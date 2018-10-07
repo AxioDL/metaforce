@@ -1,5 +1,4 @@
-#ifndef __URDE_CPAUSESCREEN_HPP__
-#define __URDE_CPAUSESCREEN_HPP__
+#pragma once
 
 #include "CInGameGuiManager.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
@@ -79,4 +78,3 @@ public:
 }
 }
 
-#endif // __URDE_CPAUSESCREEN_HPP__

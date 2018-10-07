@@ -1,5 +1,4 @@
-#ifndef __URDE_CPVSVISSET_HPP__
-#define __URDE_CPVSVISSET_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // __URDE_CPVSVISSET_HPP__

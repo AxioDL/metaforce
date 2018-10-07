@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUNWEAPON_HPP__
-#define __URDE_CGUNWEAPON_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CWeaponMgr.hpp"
@@ -178,4 +177,3 @@ public:
 };
 }
 
-#endif // __URDE_CGUNWEAPON_HPP__

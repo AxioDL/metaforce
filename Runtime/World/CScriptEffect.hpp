@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPEFFECT_HPP__
-#define __URDE_CSCRIPEFFECT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -77,4 +76,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPEFFECT_HPP__

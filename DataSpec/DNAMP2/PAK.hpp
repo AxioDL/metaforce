@@ -1,5 +1,4 @@
-#ifndef __DNAMP2_PAK_HPP__
-#define __DNAMP2_PAK_HPP__
+#pragma once
 
 #include "../DNAMP1/PAK.hpp"
 
@@ -15,4 +14,3 @@ struct PAK : DNAMP1::PAK
 
 }
 
-#endif // __DNAMP2_PAK_HPP__

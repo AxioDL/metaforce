@@ -1,5 +1,4 @@
-#ifndef __URDE_CBEAMPROJECTILE_HPP__
-#define __URDE_CBEAMPROJECTILE_HPP__
+#pragma once
 
 #include "Weapon/CGameProjectile.hpp"
 namespace urde
@@ -49,4 +48,3 @@ public:
     virtual void UpdateFX(const zeus::CTransform&, float, CStateManager&);
 };
 }
-#endif // __URDE_CBEAMPROJECTILE_HPP__

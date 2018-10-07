@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_PATH_HPP__
-#define __DNACOMMON_PATH_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
@@ -90,4 +89,3 @@ struct PATH : BigDNA
 };
 }
 
-#endif // __DNACOMMON_PATH_HPP__

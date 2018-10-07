@@ -1,5 +1,4 @@
-#ifndef CFLUIDPLANESHADER_HPP
-#define CFLUIDPLANESHADER_HPP
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -199,4 +198,3 @@ public:
 
 }
 
-#endif // CFLUIDPLANESHADER_HPP

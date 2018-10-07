@@ -1,5 +1,4 @@
-#ifndef __URDE_CFRONTENDUI_HPP__
-#define __URDE_CFRONTENDUI_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 #include "CGameDebug.hpp"
@@ -467,4 +466,3 @@ public:
 }
 }
 
-#endif // __URDE_CFRONTENDUI_HPP__

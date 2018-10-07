@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKPLAYERRES_HPP__
-#define __DNACOMMON_ITWEAKPLAYERRES_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
@@ -165,4 +164,3 @@ protected:
 
 }
 
-#endif // __DNACOMMON_ITWEAKPLAYERRES_HPP__

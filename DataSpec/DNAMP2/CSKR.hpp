@@ -1,5 +1,4 @@
-#ifndef _DNAMP2_CSKR_HPP_
-#define _DNAMP2_CSKR_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
@@ -22,4 +21,3 @@ struct CSKR : DNAMP1::CSKR
 
 }
 
-#endif // _DNAMP2_CSKR_HPP_

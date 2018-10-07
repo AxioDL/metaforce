@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMATION_HPP__
-#define __URDE_CANIMATION_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CMetaAnimFactory.hpp"
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMATION_HPP__

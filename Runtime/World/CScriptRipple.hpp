@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTRIPPLE_HPP__
-#define __URDE_CSCRIPTRIPPLE_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CVector3f.hpp"
@@ -18,4 +17,3 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
 };
 }
-#endif // __URDE_CSCRIPTRIPPLE_HPP__

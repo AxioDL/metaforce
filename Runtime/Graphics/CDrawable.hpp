@@ -1,5 +1,4 @@
-#ifndef __URDE_CDRAWABLE_HPP__
-#define __URDE_CDRAWABLE_HPP__
+#pragma once
 
 #include "GCNTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -34,4 +33,3 @@ public:
 };
 }
 
-#endif // __URDE_CDRAWABLE_HPP__

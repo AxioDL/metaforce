@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSWITCH_HPP__
-#define __URDE_CSCRIPTSWITCH_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -16,4 +15,3 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }
-#endif // __URDE_CSCRIPTSWITCH_HPP__

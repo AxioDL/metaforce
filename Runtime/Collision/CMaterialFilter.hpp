@@ -1,5 +1,4 @@
-#ifndef __URDE_CMATERIALFILTER_HPP__
-#define __URDE_CMATERIALFILTER_HPP__
+#pragma once
 
 #include "CMaterialList.hpp"
 #include "zeus/Math.hpp"
@@ -37,4 +36,3 @@ public:
     bool Passes(const CMaterialList&) const;
 };
 }
-#endif // __CMATERIALFILTER_HPP__

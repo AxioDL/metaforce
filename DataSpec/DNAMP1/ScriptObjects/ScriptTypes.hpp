@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SCRIPTTYPES_HPP_
-#define _DNAMP1_SCRIPTTYPES_HPP_
+#pragma once
 #include "Actor.hpp"
 #include "ActorContraption.hpp"
 #include "ActorKeyframe.hpp"
@@ -139,4 +138,3 @@ struct ScriptObjectSpec
 
 extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
 }
-#endif

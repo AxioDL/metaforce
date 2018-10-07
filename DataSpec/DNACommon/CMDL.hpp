@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_CMDL_HPP_
-#define _DNACOMMON_CMDL_HPP_
+#pragma once
 
 #include "athena/FileWriter.hpp"
 #include "hecl/Frontend.hpp"
@@ -179,4 +178,3 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
 
 }
 
-#endif // _DNACOMMON_CMDL_HPP_

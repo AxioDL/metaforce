@@ -1,5 +1,4 @@
-#ifndef _DATASPEC_ASSETNAMEMAP_HPP_
-#define _DATASPEC_ASSETNAMEMAP_HPP_
+#pragma once
 
 #include <unordered_map>
 #include <string>
@@ -11,4 +10,3 @@ void InitAssetNameMap();
 const std::string* TranslateIdToName(const UniqueID32&);
 const std::string* TranslateIdToName(const UniqueID64&);
 }
-#endif // _DATASPEC_ASSETNAMEMAP_HPP_

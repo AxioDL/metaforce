@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKPLAYERCONTROL_HPP__
-#define __DNACOMMON_ITWEAKPLAYERCONTROL_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -13,4 +12,3 @@ struct ITweakPlayerControl : ITweak
 
 }
 
-#endif // __DNACOMMON_ITWEAKPLAYERCONTROL_HPP__

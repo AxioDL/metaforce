@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONACTORMANAGER_HPP__
-#define __URDE_CCOLLISIONACTORMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -35,4 +34,3 @@ public:
     zeus::CTransform GetWRLocatorTransform(const CAnimData&, CSegId, const zeus::CTransform&, const zeus::CTransform&);
 };
 }
-#endif // __URDE_CCOLLISIONACTORMANAGER_HPP__

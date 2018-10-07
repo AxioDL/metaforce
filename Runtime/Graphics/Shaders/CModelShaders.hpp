@@ -1,5 +1,4 @@
-#ifndef __URDE_CMODELSHADERS_HPP__
-#define __URDE_CMODELSHADERS_HPP__
+#pragma once
 
 #include "hecl/Runtime.hpp"
 #include "hecl/Backend/Backend.hpp"
@@ -94,4 +93,3 @@ private:
 
 }
 
-#endif // __URDE_CMODELSHADERS_HPP__

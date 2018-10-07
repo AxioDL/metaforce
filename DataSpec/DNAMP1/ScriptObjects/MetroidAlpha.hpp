@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_METROIDALPHA_HPP_
-#define _DNAMP1_METROIDALPHA_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -66,4 +65,3 @@ struct MetroidAlpha : IScriptObject
 };
 }
 
-#endif

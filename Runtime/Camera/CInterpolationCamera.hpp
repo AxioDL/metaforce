@@ -1,5 +1,4 @@
-#ifndef __URDE_CINTERPOLATIONCAMERA_HPP__
-#define __URDE_CINTERPOLATIONCAMERA_HPP__
+#pragma once
 
 #include "CGameCamera.hpp"
 
@@ -40,4 +39,3 @@ public:
 
 }
 
-#endif // __URDE_CINTERPOLATIONCAMERA_HPP__

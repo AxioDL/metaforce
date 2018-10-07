@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEOPTIONSTOUCHBAR_HPP__
-#define __URDE_CGAMEOPTIONSTOUCHBAR_HPP__
+#pragma once
 
 #include <utility>
 #include <memory>
@@ -28,4 +27,3 @@ std::unique_ptr<CGameOptionsTouchBar> NewGameOptionsTouchBar();
 
 }
 
-#endif // __URDE_CGAMEOPTIONSTOUCHBAR_HPP__

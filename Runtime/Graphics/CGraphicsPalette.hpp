@@ -1,5 +1,4 @@
-#ifndef __URDE_CGRAPHICSPALETTE_HPP__
-#define __URDE_CGRAPHICSPALETTE_HPP__
+#pragma once
 
 #include <memory>
 #include "RetroTypes.hpp"
@@ -39,4 +38,3 @@ public:
 
 }
 
-#endif // __URDE_CGRAPHICSPALETTE_HPP__

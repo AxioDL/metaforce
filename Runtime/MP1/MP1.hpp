@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_HPP__
-#define __URDE_MP1_HPP__
+#pragma once
 
 #define MP1_USE_BOO 0
 
@@ -342,4 +341,3 @@ public:
 }
 }
 
-#endif // __URDE_MP1_HPP__

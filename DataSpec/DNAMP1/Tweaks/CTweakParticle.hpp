@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKPARTICLE_HPP_
-#define _DNAMP1_CTWEAKPARTICLE_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakParticle.hpp"
 
@@ -19,4 +18,3 @@ struct CTweakParticle final : ITweakParticle
 
 }
 
-#endif // _DNAMP1_CTWEAKPARTICLE_HPP_

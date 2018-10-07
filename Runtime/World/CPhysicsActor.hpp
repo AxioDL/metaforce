@@ -1,5 +1,4 @@
-#ifndef __URDE_CPHYSICSACTOR_HPP__
-#define __URDE_CPHYSICSACTOR_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "Collision/CCollidableAABox.hpp"
@@ -211,4 +210,3 @@ public:
 };
 }
 
-#endif // __URDE_CPHYSICSACTOR_HPP__

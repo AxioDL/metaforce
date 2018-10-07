@@ -1,5 +1,4 @@
-#ifndef __URDE_CFINALINPUT_HPP__
-#define __URDE_CFINALINPUT_HPP__
+#pragma once
 
 #include "../RetroTypes.hpp"
 #include "CKeyboardMouseController.hpp"
@@ -155,4 +154,3 @@ struct CFinalInput
 
 }
 
-#endif // __URDE_CFINALINPUT_HPP__

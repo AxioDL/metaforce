@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUITEXTPANE_HPP__
-#define __URDE_CGUITEXTPANE_HPP__
+#pragma once
 
 #include "CGuiPane.hpp"
 #include "CGuiTextSupport.hpp"
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CGUITEXTPANE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CAI_HPP__
-#define __URDE_CAI_HPP__
+#pragma once
 
 #include "GCNTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -192,4 +191,3 @@ public:
 
 }
 
-#endif // __URDE_CAI_HPP__

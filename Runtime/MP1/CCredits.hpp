@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CCREDITS_HPP__
-#define __URDE_MP1_CCREDITS_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 
@@ -17,4 +16,3 @@ public:
 
 }
 
-#endif // __URDE_MP1_CCREDITS_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSORTEDLISTS_HPP__
-#define __URDE_CSORTEDLISTS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -66,4 +65,3 @@ public:
 
 }
 
-#endif // __URDE_CSORTEDLISTS_HPP__

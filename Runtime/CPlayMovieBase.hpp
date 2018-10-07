@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYMOVIEBASE_HPP__
-#define __URDE_CPLAYMOVIEBASE_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 #include "Graphics/CMoviePlayer.hpp"
@@ -19,4 +18,3 @@ public:
 
 }
 
-#endif // __URDE_CPLAYMOVIEBASE_HPP__

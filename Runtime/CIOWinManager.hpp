@@ -1,5 +1,4 @@
-#ifndef __URDE_CIOWINMANAGER_HPP__
-#define __URDE_CIOWINMANAGER_HPP__
+#pragma once
 
 #include <memory>
 #include <list>
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // __URDE_CIOWINMANAGER_HPP__

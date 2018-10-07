@@ -1,5 +1,4 @@
-#ifndef __URDE_CASSETFACTORY_HPP__
-#define __URDE_CASSETFACTORY_HPP__
+#pragma once
 
 #include "IFactory.hpp"
 #include "IObj.hpp"
@@ -45,4 +44,3 @@ public:
 
 }
 
-#endif // __URDE_CASSETFACTORY_HPP__

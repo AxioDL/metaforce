@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_MAZESEEDS_HPP__
-#define __DNAMP1_MAZESEEDS_HPP__
+#pragma once
 
 #include <vector>
 
@@ -14,4 +13,3 @@ struct MazeSeeds : BigDNA
 };
 }
 
-#endif // __DNAMP1_MAZESEEDS_HPP__

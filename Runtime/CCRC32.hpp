@@ -1,5 +1,4 @@
-#ifndef RETRO_CRC32_HPP
-#define RETRO_CRC32_HPP
+#pragma once
 #include <cstdint>
 
 namespace urde
@@ -17,4 +16,3 @@ public:
 
 }
 
-#endif

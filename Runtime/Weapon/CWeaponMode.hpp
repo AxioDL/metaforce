@@ -1,5 +1,4 @@
-#ifndef __URDE_CWEAPONMODE_HPP__
-#define __URDE_CWEAPONMODE_HPP__
+#pragma once
 
 #include "WeaponCommon.hpp"
 
@@ -32,4 +31,3 @@ public:
     static CWeaponMode PowerBomb();
 };
 }
-#endif // __URDE_CWEAPONMODE_HPP__

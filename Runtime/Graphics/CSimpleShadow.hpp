@@ -1,5 +1,4 @@
-#ifndef __URDE_CSIMPLESHADOW_HPP__
-#define __URDE_CSIMPLESHADOW_HPP__
+#pragma once
 
 #include "zeus/CAABox.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
@@ -36,4 +35,3 @@ public:
 };
 }
 
-#endif // __URDE_CSIMPLESHADOW_HPP__

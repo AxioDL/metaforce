@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ACTORCONTRAPTION_HPP_
-#define _DNAMP1_ACTORCONTRAPTION_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -59,4 +58,3 @@ struct ActorContraption : IScriptObject
 };
 }
 
-#endif

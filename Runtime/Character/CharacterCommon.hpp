@@ -1,5 +1,4 @@
-#ifndef __URDE_PASTYPES_HPP__
-#define __URDE_PASTYPES_HPP__
+#pragma once
 
 namespace urde
 {
@@ -263,4 +262,3 @@ enum class EBodyStateCmd
 
 }
 
-#endif // __URDE_PASTYPES_HPP__

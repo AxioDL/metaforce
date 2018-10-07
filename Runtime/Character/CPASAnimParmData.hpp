@@ -1,5 +1,4 @@
-#ifndef CPASANIMPARMDATA_HPP
-#define CPASANIMPARMDATA_HPP
+#pragma once
 #include "RetroTypes.hpp"
 #include "CPASAnimParm.hpp"
 
@@ -35,4 +34,3 @@ public:
 };
 }
 
-#endif // CPASANIMPARMDATA_HPP

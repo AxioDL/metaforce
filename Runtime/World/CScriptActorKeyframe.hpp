@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTACTORKEYFRAME_HPP__
-#define __URDE_CSCRIPTACTORKEYFRAME_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -37,4 +36,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTACTORKEYFRAME_HPP__

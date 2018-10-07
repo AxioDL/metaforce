@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSPECIALFUNCTION_HPP__
-#define __URDE_CSCRIPTSPECIALFUNCTION_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "CDamageInfo.hpp"
@@ -151,4 +150,3 @@ public:
 };
 }
 
-#endif // CSCRIPTSPECIALFUNCTION_HPP

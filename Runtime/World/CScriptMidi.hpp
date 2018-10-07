@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTMIDI_HPP__
-#define __URDE_CSCRIPTMIDI_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "CToken.hpp"
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTSTREAMEDMUSIC_HPP__

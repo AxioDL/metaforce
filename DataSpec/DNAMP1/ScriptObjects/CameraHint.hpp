@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CAMERAHINT_HPP_
-#define _DNAMP1_CAMERAHINT_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -68,4 +67,3 @@ struct CameraHint : IScriptObject
 };
 }
 
-#endif

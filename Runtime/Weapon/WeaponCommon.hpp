@@ -1,5 +1,4 @@
-#ifndef __URDE_WEAPONCOMMON_HPP__
-#define __URDE_WEAPONCOMMON_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
@@ -94,4 +93,3 @@ CSfxHandle play_sfx(u16 sfx, bool underwater, bool looped, float pan);
 }
 
 }
-#endif // __URDE_WEAPONCOMMON_HPP__

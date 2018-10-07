@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_Babygoth_HPP_
-#define _DNAMP1_Babygoth_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -140,4 +139,3 @@ struct Babygoth : IScriptObject
 };
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEGENINFO_HPP__
-#define __URDE_CPARTICLEGENINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CParticleData.hpp"
@@ -115,4 +114,3 @@ public:
 };
 }
 
-#endif // __URDE_CPARTICLEGENINFO_HPP__

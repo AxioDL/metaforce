@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLESWOOSH_HPP__
-#define __URDE_CPARTICLESWOOSH_HPP__
+#pragma once
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
@@ -224,4 +223,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLESWOOSH_HPP__

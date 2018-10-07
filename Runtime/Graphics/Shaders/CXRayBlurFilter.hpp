@@ -1,5 +1,4 @@
-#ifndef __URDE_CXRAYBLURFILTER_HPP__
-#define __URDE_CXRAYBLURFILTER_HPP__
+#pragma once
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "zeus/CMatrix4f.hpp"
@@ -32,4 +31,3 @@ public:
 
 }
 
-#endif // __URDE_CXRAYBLURFILTER_HPP__

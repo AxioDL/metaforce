@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONINFOLIST_HPP__
-#define __URDE_CCOLLISIONINFOLIST_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CCollisionInfo.hpp"
@@ -37,4 +36,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLISIONINFOLIST_HPP__

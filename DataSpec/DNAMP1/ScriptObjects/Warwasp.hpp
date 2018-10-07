@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_WARWASP_HPP_
-#define _DNAMP1_WARWASP_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -63,4 +62,3 @@ struct Warwasp : IScriptObject
 };
 }
 
-#endif

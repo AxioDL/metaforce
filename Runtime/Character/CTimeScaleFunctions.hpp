@@ -1,5 +1,4 @@
-#ifndef __URDE_CTIMESCALEFUNCTIONS_HPP__
-#define __URDE_CTIMESCALEFUNCTIONS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -66,4 +65,3 @@ public:
 
 }
 
-#endif // __URDE_CTIMESCALEFUNCTIONS_HPP__

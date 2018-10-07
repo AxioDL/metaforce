@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_CTWEAKBALL_HPP__
-#define __DNAMP1_CTWEAKBALL_HPP__
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakBall.hpp"
 #include "zeus/CVector3f.hpp"
@@ -218,4 +217,3 @@ struct CTweakBall final : public ITweakBall
     }
 };
 }
-#endif // __DNAMP1_CTWEAKBALL_HPP__

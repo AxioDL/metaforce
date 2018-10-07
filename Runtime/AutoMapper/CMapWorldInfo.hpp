@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPWORLDINFO_HPP__
-#define __URDE_CMAPWORLDINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -32,4 +31,3 @@ public:
 };
 }
 
-#endif // __URDE_CMAPWORLDINFO_HPP__

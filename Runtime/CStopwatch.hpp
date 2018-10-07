@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTOPWATCH_HPP__
-#define __URDE_CSTOPWATCH_HPP__
+#pragma once
 
 #include <chrono>
 
@@ -25,4 +24,3 @@ public:
 };
 }
 
-#endif // __URDE_CSTOPWATCH_HPP__

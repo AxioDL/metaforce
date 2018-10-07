@@ -1,5 +1,4 @@
-#ifndef URDE_CNESSHADER_HPP
-#define URDE_CNESSHADER_HPP
+#pragma once
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // URDE_CNESSHADER_HPP

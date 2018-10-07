@@ -1,5 +1,4 @@
-#ifndef URDE_PROJECT_RESOURCE_FACTORY_MP1_HPP
-#define URDE_PROJECT_RESOURCE_FACTORY_MP1_HPP
+#pragma once
 
 #include "ProjectResourceFactoryBase.hpp"
 #include "CToken.hpp"
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // URDE_PROJECT_RESOURCE_FACTORY_MP1_HPP

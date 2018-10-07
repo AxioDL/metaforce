@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONINFO_HPP__
-#define __URDE_CCOLLISIONINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CMaterialList.hpp"
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // __URDE_CCOLLISIONINFO_HPP__

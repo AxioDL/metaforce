@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTDOCK_HPP__
-#define __URDE_CSCRIPTDOCK_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 
@@ -55,4 +54,3 @@ public:
     void SetLoadConnected(CStateManager&, bool);
 };
 }
-#endif // __URDE_CSCRIPTDOCK_HPP__

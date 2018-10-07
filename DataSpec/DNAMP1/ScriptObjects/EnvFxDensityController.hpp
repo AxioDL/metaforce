@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ENVFXDENSITYCONTROLLER_HPP_
-#define _DNAMP1_ENVFXDENSITYCONTROLLER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -18,4 +17,3 @@ struct EnvFxDensityController : IScriptObject
 };
 }
 
-#endif

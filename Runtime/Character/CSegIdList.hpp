@@ -1,5 +1,4 @@
-#ifndef __URDE_CSEGIDLIST_HPP__
-#define __URDE_CSEGIDLIST_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CSegId.hpp"
@@ -17,4 +16,3 @@ public:
 
 }
 
-#endif // __URDE_CSEGIDLIST_HPP__

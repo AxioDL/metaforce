@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ATOMICBETA_HPP_
-#define _DNAMP1_ATOMICBETA_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -77,4 +76,3 @@ struct AtomicBeta : IScriptObject
 };
 }
 
-#endif

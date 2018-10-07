@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_SCRIPTOBJECT_HPP
-#define __DNAMP1_SCRIPTOBJECT_HPP
+#pragma once
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
@@ -51,4 +50,3 @@ struct IScriptObject : BigDNAVYaml
 };
 }
 
-#endif

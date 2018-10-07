@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SCLY_HPP_
-#define _DNAMP1_SCLY_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "ScriptObjects/IScriptObject.hpp"
@@ -34,4 +33,3 @@ struct SCLY : BigDNA
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
 };
 }
-#endif

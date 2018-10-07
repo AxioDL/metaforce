@@ -1,5 +1,4 @@
-#ifndef _DNAMP3_CHAR_HPP_
-#define _DNAMP3_CHAR_HPP_
+#pragma once
 
 #include <map>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -349,4 +348,3 @@ struct CHAR : BigDNA
 
 }
 
-#endif // _DNAMP3_CHAR_HPP_

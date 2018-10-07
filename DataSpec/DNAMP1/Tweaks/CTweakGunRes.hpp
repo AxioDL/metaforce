@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKGUNRES_HPP_
-#define _DNAMP1_CTWEAKGUNRES_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakGunRes.hpp"
 
@@ -94,4 +93,3 @@ struct CTweakGunRes final : ITweakGunRes
 
 }
 
-#endif // _DNAMP1_CTWEAKGUNRES_HPP_

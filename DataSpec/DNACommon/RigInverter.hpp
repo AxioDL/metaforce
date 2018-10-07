@@ -1,5 +1,4 @@
-#ifndef __COMMON_RIGINVERTER_HPP__
-#define __COMMON_RIGINVERTER_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix3f.hpp"
@@ -43,4 +42,3 @@ public:
 
 }
 
-#endif // __COMMON_RIGINVERTER_HPP__

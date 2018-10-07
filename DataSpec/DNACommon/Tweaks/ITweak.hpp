@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAK_HPP__
-#define __DNACOMMON_ITWEAK_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 
@@ -16,4 +15,3 @@ struct ITweak : BigDNA
 };
 }
 
-#endif // __DNACOMMON_ITWEAK_HPP__

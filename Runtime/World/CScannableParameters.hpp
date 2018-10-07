@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCANNABLEPARAMETERS_HPP__
-#define __URDE_CSCANNABLEPARAMETERS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -17,4 +16,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCANNABLEPARAMETERS_HPP__

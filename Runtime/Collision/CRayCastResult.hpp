@@ -1,5 +1,4 @@
-#ifndef __URDE_CRAYCASTRESULT_HPP__
-#define __URDE_CRAYCASTRESULT_HPP__
+#pragma once
 
 #include "CMaterialList.hpp"
 #include "zeus/zeus.hpp"
@@ -50,4 +49,3 @@ public:
 };
 }
 
-#endif // __URDE_CRAYCASTRESULT_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CDECALDATAFACTORY_HPP__
-#define __URDE_CDECALDATAFACTORY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -25,4 +24,3 @@ public:
 CFactoryFnReturn FDecalDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                    CObjectReference*);
 }
-#endif // __URDE_CDECALDATAFACTORY_HPP__

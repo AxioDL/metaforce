@@ -1,5 +1,4 @@
-#ifndef __URDE_CRESLOADER_HPP__
-#define __URDE_CRESLOADER_HPP__
+#pragma once
 
 #include <memory>
 #include <string>
@@ -59,4 +58,3 @@ public:
 
 }
 
-#endif // __URDE_CRESLOADER_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTAREAATTRIBUTES_HPP__
-#define __URDE_CSCRIPTAREAATTRIBUTES_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "CEnvFxManager.hpp"
@@ -38,4 +37,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTAREAATTRIBUTES_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYER_HPP__
-#define __URDE_CPLAYER_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 #include "zeus/CAABox.hpp"
@@ -691,4 +690,3 @@ public:
 };
 }
 
-#endif // __URDE_CPLAYER_HPP__

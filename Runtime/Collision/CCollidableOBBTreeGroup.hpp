@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLIDABLEOBBTREEGROUP_HPP__
-#define __URDE_CCOLLIDABLEOBBTREEGROUP_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CFactoryMgr.hpp"
@@ -55,4 +54,3 @@ CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CInputStr
                                                 CObjectReference* selfRef);
 }
 
-#endif // __URDE_CCOLLIDABLEOBBTREEGROUP_HPP__

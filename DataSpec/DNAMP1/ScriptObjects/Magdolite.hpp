@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_MAGDOLITE_HPP_
-#define _DNAMP1_MAGDOLITE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -91,4 +90,3 @@ struct Magdolite : IScriptObject
 };
 }
 
-#endif

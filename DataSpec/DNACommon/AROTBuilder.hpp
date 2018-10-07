@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_AROTBUILDER_HPP_
-#define _DNACOMMON_AROTBUILDER_HPP_
+#pragma once
 
 #include "DNACommon.hpp"
 #include "DeafBabe.hpp"
@@ -59,4 +58,3 @@ struct AROTBuilder
 
 }
 
-#endif // _DNACOMMON_AROTBUILDER_HPP_

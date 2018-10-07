@@ -1,5 +1,4 @@
-#ifndef __URDE_CLINERENDERER_HPP__
-#define __URDE_CLINERENDERER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -99,4 +98,3 @@ public:
 
 }
 
-#endif // __URDE_CLINERENDERER_HPP__

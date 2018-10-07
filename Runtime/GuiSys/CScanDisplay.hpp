@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCANDISPLAY_HPP__
-#define __URDE_CSCANDISPLAY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
@@ -107,4 +106,3 @@ public:
 };
 
 }
-#endif // __URDE_CSCANDISPLAY_HPP__

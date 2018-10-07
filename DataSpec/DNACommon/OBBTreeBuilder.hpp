@@ -1,5 +1,4 @@
-#ifndef DNACOMMON_OBBTREEBUILDER_HPP
-#define DNACOMMON_OBBTREEBUILDER_HPP
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -15,4 +14,3 @@ struct OBBTreeBuilder
 
 }
 
-#endif // DNACOMMON_OBBTREEBUILDER_HPP

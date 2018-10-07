@@ -1,5 +1,4 @@
-#ifndef __URDE_CICEBEAM_HPP__
-#define __URDE_CICEBEAM_HPP__
+#pragma once
 
 #include "CGunWeapon.hpp"
 
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // __URDE_CICEBEAM_HPP__

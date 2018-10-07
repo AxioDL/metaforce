@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEXTSUPPORTSHADER_HPP__
-#define __URDE_CTEXTSUPPORTSHADER_HPP__
+#pragma once
 
 #include "GuiSys/CGuiWidget.hpp"
 #include "hecl/VertexBufferPool.hpp"
@@ -109,4 +108,3 @@ public:
 
 }
 
-#endif // __URDE_CTEXTSUPPORTSHADER_HPP__

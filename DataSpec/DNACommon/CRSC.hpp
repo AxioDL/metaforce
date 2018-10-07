@@ -1,5 +1,4 @@
-#ifndef __COMMON_CRSC_HPP__
-#define __COMMON_CRSC_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -29,4 +28,3 @@ bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteCRSM(const CRSM<IDType>& crsm, const hecl::ProjectPath& outPath);
 }
-#endif // __COMMON_CRSC_HPP__

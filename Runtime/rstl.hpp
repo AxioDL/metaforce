@@ -1,5 +1,4 @@
-#ifndef __RSTL_HPP__
-#define __RSTL_HPP__
+#pragma once
 
 #include <vector>
 #include <algorithm>
@@ -602,4 +601,3 @@ string string_l(const char* data)
 
 }
 
-#endif // __RSTL_HPP__

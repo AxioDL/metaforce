@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUXWEAPON_HPP__
-#define __URDE_CAUXWEAPON_HPP__
+#pragma once
 
 #include "CPlayerState.hpp"
 #include "RetroTypes.hpp"
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // __URDE_CAUXWEAPON_HPP__

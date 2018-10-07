@@ -1,5 +1,4 @@
-#ifndef __URDE_CVISORPARAMETERS_HPP__
-#define __URDE_CVISORPARAMETERS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -21,4 +20,3 @@ public:
 
 }
 
-#endif // __URDE_CVISORPARAMETERS_HPP__

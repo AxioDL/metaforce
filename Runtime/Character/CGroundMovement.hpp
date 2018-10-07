@@ -1,5 +1,4 @@
-#ifndef __URDE_CGROUNDMOVEMENT_HPP__
-#define __URDE_CGROUNDMOVEMENT_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Collision/CCollisionInfo.hpp"
@@ -71,4 +70,3 @@ public:
 
 }
 
-#endif // __URDE_CGROUNDMOVEMENT_HPP__

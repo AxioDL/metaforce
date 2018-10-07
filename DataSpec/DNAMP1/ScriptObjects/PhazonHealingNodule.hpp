@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_PHAZONHEALINGNODULE_HPP_
-#define _DNAMP1_PHAZONHEALINGNODULE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -53,4 +52,3 @@ struct PhazonHealingNodule : IScriptObject
 };
 }
 
-#endif

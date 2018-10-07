@@ -1,5 +1,4 @@
-#ifndef __URDE_CACTORMODELPARTICLES_HPP__
-#define __URDE_CACTORMODELPARTICLES_HPP__
+#pragma once
 
 #include <list>
 #include "Audio/CSfxManager.hpp"
@@ -122,4 +121,3 @@ public:
 };
 }
 
-#endif // __URDE_CACTORMODELPARTICLES_HPP__

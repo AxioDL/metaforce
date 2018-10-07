@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKPLAYERGUN_HPP__
-#define __DNACOMMON_ITWEAKPLAYERGUN_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 #include "zeus/CAABox.hpp"
@@ -73,4 +72,3 @@ struct ITweakPlayerGun : ITweak
 };
 }
 
-#endif // __DNACOMMON_ITWEAKPLAYERGUN_HPP__

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ACTOR_HPP_
-#define _DNAMP1_ACTOR_HPP_
+#pragma once
 
 #include "IScriptObject.hpp"
 #include "Parameters.hpp"
@@ -69,4 +68,3 @@ struct Actor : IScriptObject
 };
 }
 
-#endif

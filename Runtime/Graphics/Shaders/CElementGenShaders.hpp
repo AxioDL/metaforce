@@ -1,5 +1,4 @@
-#ifndef __URDE_CELEMENTGENSHADERS_HPP__
-#define __URDE_CELEMENTGENSHADERS_HPP__
+#pragma once
 
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -56,4 +55,3 @@ public:
 
 }
 
-#endif // __URDE_CELEMENTGENSHADERS_HPP__

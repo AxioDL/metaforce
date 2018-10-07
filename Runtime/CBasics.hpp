@@ -1,5 +1,4 @@
-#ifndef __URDE_CBASICS_HPP__
-#define __URDE_CBASICS_HPP__
+#pragma once
 
 #include <cstdint>
 #include <cstdlib>
@@ -48,4 +47,3 @@ public:
 
 }
 
-#endif // __URDE_CBASICS_HPP__

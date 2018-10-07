@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMECUBEDOLL_HPP__
-#define __URDE_CGAMECUBEDOLL_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Character/CActorLights.hpp"
@@ -32,4 +31,3 @@ public:
 }
 }
 
-#endif // __URDE_CGAMECUBEDOLL_HPP__

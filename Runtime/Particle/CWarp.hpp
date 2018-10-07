@@ -1,5 +1,4 @@
-#ifndef __URDE_CWARP_HPP__
-#define __URDE_CWARP_HPP__
+#pragma once
 
 #include "zeus/CColor.hpp"
 #include "zeus/CVector3f.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CWARP_HPP__

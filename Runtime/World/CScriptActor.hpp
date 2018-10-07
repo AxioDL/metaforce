@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTACTOR_HPP__
-#define __URDE_CSCRIPTACTOR_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 #include "CHealthInfo.hpp"
@@ -50,4 +49,3 @@ public:
 };
 };
 
-#endif // __URDE_CSCRIPTACTOR_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CWORDBREAKTABLES_HPP__
-#define __URDE_CWORDBREAKTABLES_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_CWORDBREAKTABLES_HPP__

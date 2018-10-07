@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_FLAAHGRA_HPP_
-#define _DNAMP1_FLAAHGRA_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -91,4 +90,3 @@ struct Flaahgra : IScriptObject
 };
 }
 
-#endif

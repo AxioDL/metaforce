@@ -1,5 +1,4 @@
-#ifndef __URDE_CSFXMANAGER_HPP__
-#define __URDE_CSFXMANAGER_HPP__
+#pragma once
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -260,4 +259,3 @@ using CSfxHandle = CSfxManager::CSfxHandle;
 
 }
 
-#endif // __URDE_CSFXMANAGER_HPP__

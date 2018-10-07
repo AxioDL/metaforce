@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTDISTANCEFOG_HPP__
-#define __URDE_CSCRIPTDISTANCEFOG_HPP__
+#pragma once
 
 #include "Graphics/CGraphics.hpp"
 #include "CEntity.hpp"
@@ -29,4 +28,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTDISTANCEFOG_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CDECALSHADERS_HPP__
-#define __URDE_CDECALSHADERS_HPP__
+#pragma once
 
 #include "Graphics/CGraphics.hpp"
 
@@ -25,4 +24,3 @@ public:
 
 }
 
-#endif // __URDE_CDECALSHADERS_HPP__

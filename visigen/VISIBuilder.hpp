@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_VISIBUILDER_HPP_
-#define _DNACOMMON_VISIBUILDER_HPP_
+#pragma once
 
 #include "VISIRenderer.hpp"
 #include "zeus/CAABox.hpp"
@@ -134,4 +133,3 @@ struct VISIBuilder
     VISIBuilder(VISIRenderer& renderer) : renderCache(renderer) {}
 };
 
-#endif // _DNACOMMON_VISIBUILDER_HPP_

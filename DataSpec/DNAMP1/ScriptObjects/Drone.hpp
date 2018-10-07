@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_DRONE_HPP_
-#define _DNAMP1_DRONE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -99,4 +98,3 @@ struct Drone : IScriptObject
 };
 }
 
-#endif

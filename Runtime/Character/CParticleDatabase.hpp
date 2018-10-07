@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEDATABASE_HPP__
-#define __URDE_CPARTICLEDATABASE_HPP__
+#pragma once
 
 #include "CCharacterInfo.hpp"
 #include "CParticleGenInfo.hpp"
@@ -73,4 +72,3 @@ public:
 };
 }
 
-#endif // __URDE_CPARTICLEDATABASE_HPP__

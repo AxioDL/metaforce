@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREELOOPIN_HPP__
-#define __URDE_CANIMTREELOOPIN_HPP__
+#pragma once
 
 #include "CAnimTreeSingleChild.hpp"
 #include "CAnimSysContext.hpp"
@@ -47,4 +46,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREELOOPIN_HPP__

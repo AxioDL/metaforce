@@ -1,5 +1,4 @@
-#ifndef __URDE_CSPACEWARPFILTER_HPP__
-#define __URDE_CSPACEWARPFILTER_HPP__
+#pragma once
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "RetroTypes.hpp"
@@ -37,4 +36,3 @@ public:
 
 }
 
-#endif // __URDE_CSPACEWARPFILTER_HPP__

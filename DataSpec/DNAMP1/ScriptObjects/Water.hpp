@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_WATER_HPP_
-#define _DNAMP1_WATER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -186,4 +185,3 @@ struct Water : IScriptObject
 };
 }
 
-#endif

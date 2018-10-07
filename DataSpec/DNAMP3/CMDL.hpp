@@ -1,5 +1,4 @@
-#ifndef _DNAMP3_CMDL_HPP_
-#define _DNAMP3_CMDL_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/CMDL.hpp"
@@ -25,4 +24,3 @@ struct CMDL
 
 }
 
-#endif // _DNAMP3_CMDL_HPP_

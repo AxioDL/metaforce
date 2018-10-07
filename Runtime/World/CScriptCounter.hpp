@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCOUNTER_HPP__
-#define __URDE_CSCRIPTCOUNTER_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTCOUNTER_HPP__

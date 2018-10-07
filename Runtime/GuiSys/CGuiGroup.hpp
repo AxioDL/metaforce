@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIGROUP_HPP__
-#define __URDE_CGUIGROUP_HPP__
+#pragma once
 
 #include "CGuiCompoundWidget.hpp"
 
@@ -26,4 +25,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIGROUP_HPP__

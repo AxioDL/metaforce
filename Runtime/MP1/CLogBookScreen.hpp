@@ -1,5 +1,4 @@
-#ifndef __URDE_CLOGBOOKSCREEN_HPP__
-#define __URDE_CLOGBOOKSCREEN_HPP__
+#pragma once
 
 #include "CInGameGuiManager.hpp"
 #include "CPauseScreenBase.hpp"
@@ -70,4 +69,3 @@ public:
 
 }
 
-#endif // __URDE_CLOGBOOKSCREEN_HPP__

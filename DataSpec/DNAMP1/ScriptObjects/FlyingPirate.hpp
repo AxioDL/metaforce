@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_FLYINGPIRATE_HPP_
-#define _DNAMP1_FLYINGPIRATE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -116,4 +115,3 @@ struct FlyingPirate : IScriptObject
 };
 }
 
-#endif

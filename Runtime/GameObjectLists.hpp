@@ -1,5 +1,4 @@
-#ifndef __URDE_GAMEOBJECTLISTS_HPP__
-#define __URDE_GAMEOBJECTLISTS_HPP__
+#pragma once
 
 #include "CObjectList.hpp"
 
@@ -63,4 +62,3 @@ public:
 
 }
 
-#endif // __URDE_GAMEOBJECTLISTS_HPP__

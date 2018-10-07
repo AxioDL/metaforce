@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_MLVL_HPP__
-#define __DNACOMMON_MLVL_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 #include "zeus/CVector3f.hpp"
@@ -18,4 +17,3 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
 
 }
 
-#endif // __DNACOMMON_MLVL_HPP__

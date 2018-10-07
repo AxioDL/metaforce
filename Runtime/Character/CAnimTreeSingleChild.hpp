@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREESINGLECHILD_HPP__
-#define __URDE_CANIMTREESINGLECHILD_HPP__
+#pragma once
 
 #include "CAnimTreeNode.hpp"
 
@@ -37,4 +36,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREESINGLECHILD_HPP__

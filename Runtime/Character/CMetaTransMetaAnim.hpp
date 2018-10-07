@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETATRANSMETAANIM_HPP__
-#define __URDE_CMETATRANSMETAANIM_HPP__
+#pragma once
 
 #include "IMetaTrans.hpp"
 #include "IMetaAnim.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CMETATRANSMETAANIM_HPP__

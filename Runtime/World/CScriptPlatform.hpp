@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPLATFORM_HPP__
-#define __URDE_CSCRIPTPLATFORM_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 #include "optional.hpp"
@@ -117,4 +116,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTPLATFORM_HPP__

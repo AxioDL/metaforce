@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLIDABLEAABOX_HPP__
-#define __URDE_CCOLLIDABLEAABOX_HPP__
+#pragma once
 
 #include "CCollisionPrimitive.hpp"
 
@@ -39,4 +38,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLIDABLEAABOX_HPP__

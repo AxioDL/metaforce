@@ -1,5 +1,4 @@
-#ifndef __URDE_IMAIN_HPP__
-#define __URDE_IMAIN_HPP__
+#pragma once
 #include "boo/boo.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
 #include "hecl/Runtime.hpp"
@@ -55,4 +54,3 @@ public:
 };
 }
 
-#endif // __URDE_IMAIN_HPP__

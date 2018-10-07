@@ -1,5 +1,4 @@
-#ifndef __URDE_CENTITY_HPP__
-#define __URDE_CENTITY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "ScriptObjectSupport.hpp"
@@ -74,4 +73,3 @@ public:
 
 }
 
-#endif // __URDE_CENTITY_HPP__

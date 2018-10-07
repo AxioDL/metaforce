@@ -1,5 +1,4 @@
-#ifndef __URDE_CTRANSITION_HPP__
-#define __URDE_CTRANSITION_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CMetaTransFactory.hpp"
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // __URDE_CTRANSITION_HPP__

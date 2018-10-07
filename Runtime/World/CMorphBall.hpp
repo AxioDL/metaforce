@@ -1,5 +1,4 @@
-#ifndef __URDE_CMORPHBALL_HPP__
-#define __URDE_CMORPHBALL_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 #include "World/ScriptObjectSupport.hpp"
@@ -304,4 +303,3 @@ public:
 
 }
 
-#endif // __URDE_CMORPHBALL_HPP__

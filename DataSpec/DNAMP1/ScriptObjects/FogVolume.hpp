@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_FOGVOLUME_HPP_
-#define _DNAMP1_FOGVOLUME_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -21,4 +20,3 @@ struct FogVolume : IScriptObject
 };
 }
 
-#endif

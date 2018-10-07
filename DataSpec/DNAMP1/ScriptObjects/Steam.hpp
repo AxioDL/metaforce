@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_STEAM_HPP_
-#define _DNAMP1_STEAM_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -42,4 +41,3 @@ struct Steam : IScriptObject
 };
 }
 
-#endif

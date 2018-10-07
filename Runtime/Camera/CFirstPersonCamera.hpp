@@ -1,5 +1,4 @@
-#ifndef __URDE_CFIRSTPERSONCAMERA_HPP__
-#define __URDE_CFIRSTPERSONCAMERA_HPP__
+#pragma once
 
 #include "CGameCamera.hpp"
 
@@ -38,4 +37,3 @@ public:
 };
 }
 
-#endif // __URDE_CFIRSTPERSONCAMERA_HPP__

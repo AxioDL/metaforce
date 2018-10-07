@@ -1,5 +1,4 @@
-#ifndef __URDE_ICOLLISIONFILTER_HPP__
-#define __URDE_ICOLLISIONFILTER_HPP__
+#pragma once
 
 #include "CCollisionInfoList.hpp"
 
@@ -18,4 +17,3 @@ public:
 
 }
 
-#endif // __URDE_ICOLLISIONFILTER_HPP__

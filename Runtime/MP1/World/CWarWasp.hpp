@@ -1,5 +1,4 @@
-#ifndef CWARWASP_HPP
-#define CWARWASP_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 
@@ -22,4 +21,3 @@ public:
 }
 }
 
-#endif // CWARWASP_HPP

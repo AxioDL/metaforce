@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPUNIVERSE_HPP__
-#define __URDE_CMAPUNIVERSE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -121,4 +120,3 @@ CFactoryFnReturn FMapUniverseFactory(const SObjectTag& tag, CInputStream& in, co
                                      CObjectReference*);
 
 }
-#endif

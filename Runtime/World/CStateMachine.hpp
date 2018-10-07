@@ -1,5 +1,4 @@
-#ifndef CSTATEMACHINE_HPP
-#define CSTATEMACHINE_HPP
+#pragma once
 
 #include "CAiFuncMap.hpp"
 #include "IObj.hpp"
@@ -127,4 +126,3 @@ CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag& tag, CInputStrea
 
 }
 
-#endif // CSTATEMACHINE_HPP

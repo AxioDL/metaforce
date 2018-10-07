@@ -1,5 +1,4 @@
-#ifndef __URDE_CBOORENDERER_HPP__
-#define __URDE_CBOORENDERER_HPP__
+#pragma once
 
 #include <functional>
 #include "IRenderer.hpp"
@@ -311,4 +310,3 @@ public:
 
 }
 
-#endif // __URDE_CBOORENDERER_HPP__

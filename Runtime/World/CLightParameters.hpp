@@ -1,5 +1,4 @@
-#ifndef __URDE_CLIGHTPARAMETERS_HPP__
-#define __URDE_CLIGHTPARAMETERS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
@@ -98,4 +97,3 @@ public:
 
 }
 
-#endif // __URDE_CLIGHTPARAMETERS_HPP__

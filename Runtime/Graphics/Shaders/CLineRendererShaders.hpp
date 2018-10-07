@@ -1,5 +1,4 @@
-#ifndef __URDE_CLINERENDERERSHADERS_HPP__
-#define __URDE_CLINERENDERERSHADERS_HPP__
+#pragma once
 
 #include "Graphics/CGraphics.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -34,4 +33,3 @@ public:
 
 }
 
-#endif // __URDE_CLINERENDERERSHADERS_HPP__

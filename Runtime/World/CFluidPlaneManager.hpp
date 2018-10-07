@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDPLANEMANAGER_HPP__
-#define __URDE_CFLUIDPLANEMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CRippleManager.hpp"
@@ -65,4 +64,3 @@ public:
 
 }
 
-#endif // __URDE_CFLUIDPLANEMANAGER_HPP__

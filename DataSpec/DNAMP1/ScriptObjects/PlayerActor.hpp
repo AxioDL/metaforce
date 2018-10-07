@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_PLAYERACTOR_HPP_
-#define _DNAMP1_PLAYERACTOR_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -64,4 +63,3 @@ struct PlayerActor : IScriptObject
 };
 }
 
-#endif

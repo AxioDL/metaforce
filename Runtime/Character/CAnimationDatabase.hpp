@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMATIONDATABASE_HPP__
-#define __URDE_CANIMATIONDATABASE_HPP__
+#pragma once
 
 #include "../RetroTypes.hpp"
 #include <vector>
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMATIONDATABASE_HPP__

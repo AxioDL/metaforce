@@ -1,5 +1,4 @@
-#ifndef __COMMON_FONT_HPP__
-#define __COMMON_FONT_HPP__
+#pragma once
 
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
@@ -125,4 +124,3 @@ bool WriteFONT(const FONT<IDType>& font, const hecl::ProjectPath& outPath);
 
 }
 
-#endif // __COMMON_FONT_HPP__

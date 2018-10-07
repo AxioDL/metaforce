@@ -1,5 +1,4 @@
-#ifndef URDE_MODEL_VIEWER_HPP
-#define URDE_MODEL_VIEWER_HPP
+#pragma once
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
@@ -86,4 +85,3 @@ public:
 
 }
 
-#endif // URDE_MODEL_VIEWER_HPP

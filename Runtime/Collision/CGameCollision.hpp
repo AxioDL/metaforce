@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMECOLLISION_HPP__
-#define __URDE_CGAMECOLLISION_HPP__
+#pragma once
 #include "zeus/CVector3f.hpp"
 #include "zeus/CPlane.hpp"
 #include "rstl.hpp"
@@ -125,4 +124,3 @@ public:
 };
 }
 
-#endif // __URDE_CGAMECOLLISION_HPP__

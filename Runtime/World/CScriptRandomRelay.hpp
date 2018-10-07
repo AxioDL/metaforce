@@ -1,5 +1,4 @@
-#ifndef CSCRIPTRANDOMRELAY_HPP
-#define CSCRIPTRANDOMRELAY_HPP
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -19,4 +18,3 @@ public:
 };
 }
 
-#endif // CSCRIPTRANDOMRELAY_HPP

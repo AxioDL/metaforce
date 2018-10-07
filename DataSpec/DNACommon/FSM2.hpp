@@ -1,5 +1,4 @@
-#ifndef __COMMON_FSM2_HPP__
-#define __COMMON_FSM2_HPP__
+#pragma once
 
 #include "PAK.hpp"
 #include "DNACommon.hpp"
@@ -153,4 +152,3 @@ template <class IDType>
 bool WriteFSM2(const FSM2<IDType>& fsm2, const hecl::ProjectPath& outPath);
 
 }
-#endif // __COMMON_FSM2_HPP__

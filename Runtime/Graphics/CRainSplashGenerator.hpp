@@ -1,5 +1,4 @@
-#ifndef URDE_CRAINSPLASHGENERATOR_HPP
-#define URDE_CRAINSPLASHGENERATOR_HPP
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CRandom16.hpp"
@@ -74,4 +73,3 @@ public:
 
 }
 
-#endif // URDE_CRAINSPLASHGENERATOR_HPP

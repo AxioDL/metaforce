@@ -1,5 +1,4 @@
-#ifndef __URDE_CINVENTORYSCREEN_HPP__
-#define __URDE_CINVENTORYSCREEN_HPP__
+#pragma once
 
 #include "CInGameGuiManager.hpp"
 #include "CPauseScreenBase.hpp"
@@ -61,4 +60,3 @@ public:
 }
 }
 
-#endif // __URDE_CINVENTORYSCREEN_HPP__

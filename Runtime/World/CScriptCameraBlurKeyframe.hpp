@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCAMERABLURKEYFRAME__
-#define __URDE_CSCRIPTCAMERABLURKEYFRAME__
+#pragma once
 
 #include "CEntity.hpp"
 #include "Camera/CCameraFilter.hpp"
@@ -24,4 +23,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTCAMERABLURKEYFRAME__

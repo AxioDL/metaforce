@@ -1,5 +1,4 @@
-#ifndef __URDE_CHEALTHINFO_HPP__
-#define __URDE_CHEALTHINFO_HPP__
+#pragma once
 
 #include "Runtime/RetroTypes.hpp"
 
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CHEALTHINFO_HPP__

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ENERGYBALL_HPP_
-#define _DNAMP1_ENERGYBALL_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -82,4 +81,3 @@ struct EnergyBall : IScriptObject
 };
 }
 
-#endif

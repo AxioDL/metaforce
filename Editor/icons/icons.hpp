@@ -1,5 +1,4 @@
-#ifndef URDE_ICONS_HPP
-#define URDE_ICONS_HPP
+#pragma once
 
 #include "specter/Icon.hpp"
 #include "specter/ViewResources.hpp"
@@ -43,4 +42,3 @@ specter::Icon& GetIcon(MonoIcon icon);
 
 }
 
-#endif // URDE_ICONS_HPP

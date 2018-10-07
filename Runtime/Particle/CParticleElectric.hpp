@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEELECTRIC_HPP__
-#define __URDE_CPARTICLEELECTRIC_HPP__
+#pragma once
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
@@ -144,4 +143,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLEELECTRIC_HPP__

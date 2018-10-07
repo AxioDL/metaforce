@@ -1,5 +1,4 @@
-#ifndef __URDE_CCHARACTERFACTORY_HPP__
-#define __URDE_CCHARACTERFACTORY_HPP__
+#pragma once
 
 #include "IFactory.hpp"
 #include "IObjFactory.hpp"
@@ -77,4 +76,3 @@ public:
 
 }
 
-#endif // __URDE_CCHARACTERFACTORY_HPP__

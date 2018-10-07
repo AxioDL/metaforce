@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPICKUPGENERATOR_HPP__
-#define __URDE_CSCRIPTPICKUPGENERATOR_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CVector3f.hpp"
@@ -19,4 +18,3 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr);
 };
 }
-#endif // __URDE_CSCRIPTPICKUPGENERATOR_HPP__

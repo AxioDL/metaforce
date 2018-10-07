@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_HINT_HPP_
-#define _DNAMP1_HINT_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
@@ -56,4 +55,3 @@ struct HINT : BigDNA
     }
 };
 }
-#endif // _DNAMP1_HINT_HPP_

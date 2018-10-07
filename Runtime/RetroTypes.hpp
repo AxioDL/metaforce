@@ -1,5 +1,4 @@
-#ifndef __URDE_TYPES_HPP__
-#define __URDE_TYPES_HPP__
+#pragma once
 
 #include <vector>
 #include <utility>
@@ -183,4 +182,3 @@ struct hash<urde::CAssetId>
 };
 }
 
-#endif // __URDE_TYPES_HPP__

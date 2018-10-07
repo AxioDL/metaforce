@@ -1,5 +1,4 @@
-#ifndef __URDE_CTHERMALCOLDFILTER_HPP__
-#define __URDE_CTHERMALCOLDFILTER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CMatrix4f.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CTHERMALCOLDFILTER_HPP__

@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_MREA_HPP__
-#define __DNAMP3_MREA_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CMDLMaterials.hpp"
@@ -127,4 +126,3 @@ struct MREA
 
 }
 
-#endif // __DNAMP3_MREA_HPP__

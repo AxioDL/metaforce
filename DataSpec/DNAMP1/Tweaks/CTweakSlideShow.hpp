@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKSLIDESHOW_HPP_
-#define _DNAMP1_CTWEAKSLIDESHOW_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakSlideShow.hpp"
 #include "zeus/CColor.hpp"
@@ -40,4 +39,3 @@ struct CTweakSlideShow final : ITweakSlideShow
 
 }
 
-#endif // _DNAMP1_CTWEAKSLIDESHOW_HPP_

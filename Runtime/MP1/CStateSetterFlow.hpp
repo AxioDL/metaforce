@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CSTATESETTERFLOW_HPP__
-#define __URDE_MP1_CSTATESETTERFLOW_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_MP1_CSTATESETTERFLOW_HPP__

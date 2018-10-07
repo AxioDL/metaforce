@@ -1,5 +1,4 @@
-#ifndef __URDE_CAMBIENTAI_HPP__
-#define __URDE_CAMBIENTAI_HPP__
+#pragma once
 #include "CPhysicsActor.hpp"
 #include "CDamageVulnerability.hpp"
 
@@ -46,4 +45,3 @@ public:
 };
 
 }
-#endif // __URDE_CAMBIENTAI_HPP

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_RELAY_HPP_
-#define _DNAMP1_RELAY_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -16,4 +15,3 @@ struct Relay : IScriptObject
 };
 }
 
-#endif

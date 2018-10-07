@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIFRAME_HPP__
-#define __URDE_CGUIFRAME_HPP__
+#pragma once
 
 #include "CGuiWidget.hpp"
 #include "CGuiHeadWidget.hpp"
@@ -86,4 +85,3 @@ std::unique_ptr<IObj> RGuiFrameFactoryInGame(const SObjectTag& tag, CInputStream
 
 }
 
-#endif // __URDE_CGUIFRAME_HPP__

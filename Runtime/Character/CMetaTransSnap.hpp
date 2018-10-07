@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETATRANSSNAP_HPP__
-#define __URDE_CMETATRANSSNAP_HPP__
+#pragma once
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
@@ -19,4 +18,3 @@ public:
 
 }
 
-#endif // __URDE_CMETATRANSSNAP_HPP__

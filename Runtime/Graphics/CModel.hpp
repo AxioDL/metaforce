@@ -1,5 +1,4 @@
-#ifndef __URDE_CMODEL_HPP__
-#define __URDE_CMODEL_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CColor.hpp"
@@ -332,4 +331,3 @@ CFactoryFnReturn FModelFactory(const urde::SObjectTag& tag,
 
 }
 
-#endif // __URDE_CMODEL_HPP__

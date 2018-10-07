@@ -1,5 +1,4 @@
-#ifndef __URDE_CDECALMANAGER_HPP__
-#define __URDE_CDECALMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "rstl.hpp"
@@ -45,4 +44,3 @@ public:
 
 }
 
-#endif // __URDE_CDECALMANAGER_HPP__

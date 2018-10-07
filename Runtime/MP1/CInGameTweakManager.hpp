@@ -1,5 +1,4 @@
-#ifndef __URDE_CINGAMETWEAKMANAGER_HPP__
-#define __URDE_CINGAMETWEAKMANAGER_HPP__
+#pragma once
 
 #include "CInGameTweakManagerBase.hpp"
 
@@ -14,4 +13,3 @@ public:
 
 }
 
-#endif // __URDE_CINGAMETWEAKMANAGER_HPP__

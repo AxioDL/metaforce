@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMATIONDATABASEGAME_HPP__
-#define __URDE_CANIMATIONDATABASEGAME_HPP__
+#pragma once
 
 #include "CAnimationDatabase.hpp"
 
@@ -21,4 +20,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMATIONDATABASEGAME_HPP__

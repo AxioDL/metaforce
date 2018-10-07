@@ -1,5 +1,4 @@
-#ifndef __DNAMP2_HPP__
-#define __DNAMP2_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // __DNAMP2_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTAIJUMPPOINT_HPP__
-#define __URDE_CSCRIPTAIJUMPPOINT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -34,4 +33,3 @@ public:
     bool GetInUse(TUniqueId uid) const;
 };
 }
-#endif // __URDE_CSCRIPTAIJUMPPOINT_HPP__

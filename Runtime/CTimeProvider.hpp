@@ -1,5 +1,4 @@
-#ifndef __URDE__CTIMEPROVIDER_HPP__
-#define __URDE__CTIMEPROVIDER_HPP__
+#pragma once
 namespace urde
 {
 class CTimeProvider;
@@ -16,4 +15,3 @@ public:
 };
 }
 
-#endif

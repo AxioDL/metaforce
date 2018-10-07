@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_BLOODFLOWER_HPP_
-#define _DNAMP1_BLOODFLOWER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -98,4 +97,3 @@ struct BloodFlower : IScriptObject
 };
 }
 
-#endif

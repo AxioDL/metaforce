@@ -1,5 +1,4 @@
-#ifndef __URDE_GAMEGLOBALOBJECTS_HPP__
-#define __URDE_GAMEGLOBALOBJECTS_HPP__
+#pragma once
 
 #define USE_DOWNCAST_TWEAKS 1
 
@@ -102,4 +101,3 @@ extern ITweakGuiColors* g_tweakGuiColors;
 
 }
 
-#endif // __URDE_GAMEGLOBALOBJECTS_HPP__

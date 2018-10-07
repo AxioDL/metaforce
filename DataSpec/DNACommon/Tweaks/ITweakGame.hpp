@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKGAME_HPP__
-#define __DNACOMMON_ITWEAKGAME_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -28,4 +27,3 @@ struct ITweakGame : ITweak
 };
 }
 
-#endif

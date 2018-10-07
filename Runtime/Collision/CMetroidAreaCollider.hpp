@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETROIDAREACOLLIDER_HPP__
-#define __URDE_CMETROIDAREACOLLIDER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -197,4 +196,3 @@ public:
 
 }
 
-#endif // __URDE_CMETROIDAREACOLLIDER_HPP__

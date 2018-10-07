@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_HPP__
-#define __DNAMP3_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif // __DNAMP3_HPP__

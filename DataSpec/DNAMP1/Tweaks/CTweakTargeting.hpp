@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKTARGETING_HPP_
-#define _DNAMP1_CTWEAKTARGETING_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakTargeting.hpp"
 
@@ -242,4 +241,3 @@ struct CTweakTargeting final : public ITweakTargeting
     float GetAngularLagSpeed() const { return x224_angularLagSpeed; }
 };
 }
-#endif // _DNAMP1_CTWEAKTARGETING_HPP_

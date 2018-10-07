@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAINFLOW_HPP__
-#define __URDE_CMAINFLOW_HPP__
+#pragma once
 
 #include "CMainFlowBase.hpp"
 
@@ -25,4 +24,3 @@ public:
 
 }
 
-#endif // __URDE_CMAINFLOW_HPP__

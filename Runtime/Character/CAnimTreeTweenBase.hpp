@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREETWEENBASE_HPP__
-#define __URDE_CANIMTREETWEENBASE_HPP__
+#pragma once
 
 #include "CAnimTreeDoubleChild.hpp"
 
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREETWEENBASE_HPP__

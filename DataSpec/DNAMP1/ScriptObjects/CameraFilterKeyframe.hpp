@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CAMERAFILTERKEYFRAME_HPP_
-#define _DNAMP1_CAMERAFILTERKEYFRAME_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -39,4 +38,3 @@ struct CameraFilterKeyframe : IScriptObject
 };
 }
 
-#endif

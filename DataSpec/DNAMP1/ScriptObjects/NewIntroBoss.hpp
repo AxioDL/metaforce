@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_NEWINTROBOSS_HPP_
-#define _DNAMP1_NEWINTROBOSS_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -75,4 +74,3 @@ struct NewIntroBoss : IScriptObject
 };
 }
 
-#endif

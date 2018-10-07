@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKBALL_HPP__
-#define __DNACOMMON_ITWEAKBALL_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -71,4 +70,3 @@ struct ITweakBall : ITweak
 };
 }
 
-#endif // __DNACOMMON_ITWEAKBALL_HPP__

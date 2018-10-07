@@ -1,5 +1,4 @@
-#ifndef __CCOMPOUNDTARGETRETICLE_HPP__
-#define __CCOMPOUNDTARGETRETICLE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CQuaternion.hpp"
@@ -186,4 +185,3 @@ public:
 };
 }
 
-#endif // __CCOMPOUNDTARGETRETICLE_HPP__

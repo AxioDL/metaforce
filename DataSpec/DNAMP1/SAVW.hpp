@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_SAVW_HPP__
-#define __DNAMP1_SAVW_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/SAVWCommon.hpp"
 #include "DNAMP1.hpp"
@@ -33,4 +32,3 @@ struct SAVW : BigDNA
 };
 }
 
-#endif // __DNAMP1_SAVW_HPP__

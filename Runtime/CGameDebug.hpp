@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEDEBUG_HPP__
-#define __URDE_CGAMEDEBUG_HPP__
+#pragma once
 
 #include <string>
 
@@ -53,4 +52,3 @@ public:
 
 }
 
-#endif // __URDE_CGAMEDEBUG_HPP__

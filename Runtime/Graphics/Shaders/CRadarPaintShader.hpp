@@ -1,5 +1,4 @@
-#ifndef __URDE_CRADARPAINTSHADER_HPP__
-#define __URDE_CRADARPAINTSHADER_HPP__
+#pragma once
 
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
@@ -34,4 +33,3 @@ public:
 
 }
 
-#endif // __URDE_CRADARPAINTSHADER_HPP__

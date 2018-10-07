@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_METROIDPRIMESTAGE1_HPP_
-#define _DNAMP1_METROIDPRIMESTAGE1_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -354,4 +353,3 @@ struct MetroidPrimeStage1 : IScriptObject
 };
 }
 
-#endif

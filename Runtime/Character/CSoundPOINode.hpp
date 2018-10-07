@@ -1,5 +1,4 @@
-#ifndef __URDE_CSOUNDPOINODE_HPP__
-#define __URDE_CSOUNDPOINODE_HPP__
+#pragma once
 
 #include "CPOINode.hpp"
 #include "CCharAnimTime.hpp"
@@ -29,4 +28,3 @@ public:
 
 }
 
-#endif // __URDE_CSOUNDPOINODE_HPP__

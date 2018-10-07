@@ -1,5 +1,4 @@
-#ifndef __URDE_CFACTORYMGR_HPP__
-#define __URDE_CFACTORYMGR_HPP__
+#pragma once
 
 #include <unordered_map>
 #include "RetroTypes.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CFACTORYMGR_HPP__

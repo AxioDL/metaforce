@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CSLIDESHOW_HPP__
-#define __URDE_MP1_CSLIDESHOW_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CIOWin.hpp"
@@ -132,4 +131,3 @@ public:
 
 }
 
-#endif // __URDE_MP1_CSLIDESHOW_HPP__

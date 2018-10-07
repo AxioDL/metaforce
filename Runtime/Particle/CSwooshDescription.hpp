@@ -1,5 +1,4 @@
-#ifndef __URDE_CSWOOSHDESCRIPTION_HPP__
-#define __URDE_CSWOOSHDESCRIPTION_HPP__
+#pragma once
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -49,4 +48,3 @@ public:
 };
 }
 
-#endif // __URDE_CSWOOSHDESCRIPTION_HPP__

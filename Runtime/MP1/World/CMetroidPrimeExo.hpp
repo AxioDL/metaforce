@@ -1,5 +1,4 @@
-#ifndef CMETROIDPRIMEEXO_HPP
-#define CMETROIDPRIMEEXO_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 #include "World/CPatternedInfo.hpp"
@@ -119,4 +118,3 @@ public:
 }
 }
 
-#endif // CMETROIDPRIMEEXO_HPP

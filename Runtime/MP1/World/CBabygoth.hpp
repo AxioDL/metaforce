@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CBABYGOTH_HPP__
-#define __URDE_MP1_CBABYGOTH_HPP__
+#pragma once
 
 #include "World/CPatterned.hpp"
 
@@ -48,4 +47,3 @@ public:
 };
 
 }
-#endif // __URDE_MP1_CBABYGOTH_HPP__

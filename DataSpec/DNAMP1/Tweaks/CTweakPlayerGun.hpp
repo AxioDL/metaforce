@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKPLAYERGUN_HPP_
-#define _DNAMP1_CTWEAKPLAYERGUN_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
@@ -114,4 +113,3 @@ struct CTweakPlayerGun final : ITweakPlayerGun
 };
 }
 
-#endif // _DNAMP1_CTWEAKPLAYERGUN_HPP_

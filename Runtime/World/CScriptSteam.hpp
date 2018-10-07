@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSTEAM_HPP__
-#define __URDE_CSCRIPTSTEAM_HPP__
+#pragma once
 
 #include "CScriptTrigger.hpp"
 
@@ -27,4 +26,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTSTEAM_HPP__

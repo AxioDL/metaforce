@@ -1,5 +1,4 @@
-#ifndef __URDE_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
-#define __URDE_CSPAWNSYSTEMKEYFRAMEDATA_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CToken.hpp"
@@ -40,4 +39,3 @@ public:
 
 }
 
-#endif // __URDE_CSPAWNSYSTEMKEYFRAMEDATA_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CRANDOMSTATICFILTER_HPP__
-#define __URDE_CRANDOMSTATICFILTER_HPP__
+#pragma once
 
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CRANDOMSTATICFILTER_HPP__

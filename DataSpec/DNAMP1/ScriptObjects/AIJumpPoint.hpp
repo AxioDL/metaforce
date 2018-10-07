@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_AIJUMPPOINT_HPP_
-#define _DNAMP1_AIJUMPPOINT_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -19,4 +18,3 @@ struct AIJumpPoint : IScriptObject
 };
 }
 
-#endif

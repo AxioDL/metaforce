@@ -1,5 +1,4 @@
-#ifndef URDE_GAMEMODE_HPP
-#define URDE_GAMEMODE_HPP
+#pragma once
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
@@ -74,4 +73,3 @@ public:
 };
 }
 
-#endif // URDE_GAMEMODE_HPP

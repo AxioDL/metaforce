@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDPLANECPU_HPP__
-#define __URDE_CFLUIDPLANECPU_HPP__
+#pragma once
 
 #include "CFluidPlane.hpp"
 #include "CRipple.hpp"
@@ -130,4 +129,3 @@ public:
 
 }
 
-#endif // __URDE_CFLUIDPLANECPU_HPP__

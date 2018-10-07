@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIPANE_HPP__
-#define __URDE_CGUIPANE_HPP__
+#pragma once
 
 #include "CGuiWidget.hpp"
 #include "specter/View.hpp"
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIPANE_HPP__

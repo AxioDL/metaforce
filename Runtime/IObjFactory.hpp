@@ -1,5 +1,4 @@
-#ifndef __URDE_IOBJFACTORY_HPP__
-#define __URDE_IOBJFACTORY_HPP__
+#pragma once
 
 #include <memory>
 #include "RetroTypes.hpp"
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_IOBJFACTORY_HPP__

@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_EVNT_HPP__
-#define __DNAMP1_EVNT_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
@@ -110,4 +109,3 @@ struct EVNT : BigDNA
 
 }
 
-#endif // __DNAMP1_EVNT_HPP__

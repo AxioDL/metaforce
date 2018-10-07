@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMSYSCONTEXT_HPP__
-#define __URDE_CANIMSYSCONTEXT_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "CRandom16.hpp"
@@ -24,4 +23,3 @@ struct CAnimSysContext
 
 }
 
-#endif // __URDE_CANIMSYSCONTEXT_HPP__

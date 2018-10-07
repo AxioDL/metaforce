@@ -1,5 +1,4 @@
-#ifndef CBODYSTATE_HPP
-#define CBODYSTATE_HPP
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CharacterCommon.hpp"
@@ -429,4 +428,3 @@ public:
     float ApplyLocomotionPhysics(float dt, CBodyController& bc);
 };
 }
-#endif // CBODYSTATE_HPP

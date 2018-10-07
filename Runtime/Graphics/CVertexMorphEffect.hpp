@@ -1,5 +1,4 @@
-#ifndef __URDE_CVERTEXMORPHEFFECT_HPP__
-#define __URDE_CVERTEXMORPHEFFECT_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "Character/CPoseAsTransforms.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CVERTEXMORPHEFFECT_HPP__

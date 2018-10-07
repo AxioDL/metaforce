@@ -1,5 +1,4 @@
-#ifndef __URDE_IOBJ_HPP__
-#define __URDE_IOBJ_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -36,4 +35,3 @@ public:
 
 }
 
-#endif // __URDE_IOBJ_HPP__

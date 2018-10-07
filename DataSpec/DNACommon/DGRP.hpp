@@ -1,5 +1,4 @@
-#ifndef __COMMON_DGRP_HPP__
-#define __COMMON_DGRP_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 #include "PAK.hpp"
@@ -48,4 +47,3 @@ bool WriteDGRP(const DGRP<IDType>& dgrp, const hecl::ProjectPath& outPath);
 
 }
 
-#endif // __COMMON_DGRP_HPP__

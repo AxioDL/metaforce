@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDBALLINTERFACE_HPP__
-#define __URDE_CHUDBALLINTERFACE_HPP__
+#pragma once
 
 #include "rstl.hpp"
 #include "zeus/CVector3f.hpp"
@@ -37,4 +36,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDBALLINTERFACE_HPP__

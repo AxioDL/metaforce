@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAMUSDOLL_HPP__
-#define __URDE_CSAMUSDOLL_HPP__
+#pragma once
 
 #include "CPlayerState.hpp"
 #include "CToken.hpp"
@@ -113,4 +112,3 @@ public:
 }
 }
 
-#endif // __URDE_CSAMUSDOLL_HPP__

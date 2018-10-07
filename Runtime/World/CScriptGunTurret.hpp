@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTGUNTURRET_HPP__
-#define __URDE_CSCRIPTGUNTURRET_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 #include "CDamageInfo.hpp"
@@ -159,4 +158,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTGUNTURRET_HPP__

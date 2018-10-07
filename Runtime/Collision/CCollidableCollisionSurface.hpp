@@ -1,5 +1,4 @@
-#ifndef __URDE_COLLIDABLECOLLISIONSURFACE_HPP__
-#define __URDE_COLLIDABLECOLLISIONSURFACE_HPP__
+#pragma once
 
 #include "CCollisionPrimitive.hpp"
 
@@ -14,4 +13,3 @@ public:
     static void SetStaticTableIndex(u32 index);
 };
 }
-#endif // __URDE_COLLIDABLECOLLISIONSURFACE_HPP__

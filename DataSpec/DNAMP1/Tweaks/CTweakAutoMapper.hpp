@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_CTWEAKAUTOMAPPER_HPP__
-#define __DNAMP1_CTWEAKAUTOMAPPER_HPP__
+#pragma once
 
 #include "../../DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
 #include "zeus/CVector3f.hpp"
@@ -138,4 +137,3 @@ struct CTweakAutoMapper final : public ITweakAutoMapper
 };
 }
 
-#endif // __DNAMP1_CTWEAKAUTOMAPPER_HPP__

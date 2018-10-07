@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDPLANEDOOR_HPP__
-#define __URDE_CFLUIDPLANEDOOR_HPP__
+#pragma once
 
 #include "CFluidPlane.hpp"
 #include "Graphics/Shaders/CFluidPlaneShader.hpp"
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // __URDE_CFLUIDPLANEDOOR_HPP__

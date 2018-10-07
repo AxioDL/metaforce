@@ -1,5 +1,4 @@
-#ifndef __URDE_CKEYBOARDMOUSECONTROLLER_HPP__
-#define __URDE_CKEYBOARDMOUSECONTROLLER_HPP__
+#pragma once
 
 #include <boo/boo.hpp>
 
@@ -18,4 +17,3 @@ struct CKeyboardMouseControllerData
 
 }
 
-#endif // __URDE_CKEYBOARDMOUSECONTROLLER_HPP__

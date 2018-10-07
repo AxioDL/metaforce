@@ -1,5 +1,4 @@
-#ifndef __URDE_CGSFIDGET_HPP__
-#define __URDE_CGSFIDGET_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -24,4 +23,3 @@ public:
 
 }
 
-#endif // __URDE_CGSFIDGET_HPP__

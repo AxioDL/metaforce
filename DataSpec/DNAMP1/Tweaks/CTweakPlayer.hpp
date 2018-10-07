@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKPLAYER_HPP_
-#define _DNAMP1_CTWEAKPLAYER_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakPlayer.hpp"
 
@@ -318,4 +317,3 @@ struct CTweakPlayer final : ITweakPlayer
 
 }
 
-#endif // _DNAMP1_CTWEAKPLAYER_HPP_

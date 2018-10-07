@@ -1,5 +1,4 @@
-#ifndef __URDE_CFACEPLATEDECORATION_HPP__
-#define __URDE_CFACEPLATEDECORATION_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
@@ -26,4 +25,3 @@ public:
 }
 }
 
-#endif // __URDE_CFACEPLATEDECORATION_HPP__

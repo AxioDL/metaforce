@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SCAN_HPP_
-#define _DNAMP1_SCAN_HPP_
+#pragma once
 
 #include <athena/FileWriter.hpp>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -113,4 +112,3 @@ struct SCAN : BigDNA
 
 }
 
-#endif

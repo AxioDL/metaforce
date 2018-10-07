@@ -1,5 +1,4 @@
-#ifndef __URDE_CSNAKEWEEDSWARM_HPP__
-#define __URDE_CSNAKEWEEDSWARM_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 #include "Collision/CCollisionSurface.hpp"
@@ -21,4 +20,3 @@ public:
 };
 }
 
-#endif // __URDE_CSNAKEWEEDSWARM_HPP__

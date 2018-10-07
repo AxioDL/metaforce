@@ -1,5 +1,4 @@
-#ifndef __URDE_CBOOLPOINODE_HPP__
-#define __URDE_CBOOLPOINODE_HPP__
+#pragma once
 
 #include "CPOINode.hpp"
 
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // __URDE_CBOOLPOINODE_HPP__

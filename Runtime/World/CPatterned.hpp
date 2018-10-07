@@ -1,5 +1,4 @@
-#ifndef __URDE_CPATTERNED_HPP__
-#define __URDE_CPATTERNED_HPP__
+#pragma once
 
 #include "CAi.hpp"
 #include "Character/CBodyController.hpp"
@@ -333,4 +332,3 @@ public:
 };
 }
 
-#endif // CPATTERNED_HPP

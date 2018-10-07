@@ -1,5 +1,4 @@
-#ifndef __URDE_CWORLDLIGHT_HPP__
-#define __URDE_CWORLDLIGHT_HPP__
+#pragma once
 
 #include "Graphics/CLight.hpp"
 
@@ -43,4 +42,3 @@ public:
 
 }
 
-#endif // __URDE_CWORLDLIGHT_HPP__

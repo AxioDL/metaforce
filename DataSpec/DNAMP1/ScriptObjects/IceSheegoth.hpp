@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ICESHEEGOTH_HPP_
-#define _DNAMP1_ICESHEEGOTH_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -135,4 +134,3 @@ struct IceSheegoth : IScriptObject
 };
 }
 
-#endif

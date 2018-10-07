@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIWIDGETDRAWPARMS_HPP__
-#define __URDE_CGUIWIDGETDRAWPARMS_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 
@@ -19,4 +18,3 @@ struct CGuiWidgetDrawParms
 
 }
 
-#endif // __URDE_CGUIWIDGETDRAWPARMS_HPP__

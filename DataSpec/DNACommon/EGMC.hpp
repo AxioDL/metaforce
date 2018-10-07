@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_EGMC_HPP_
-#define _DNACOMMON_EGMC_HPP_
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -20,4 +19,3 @@ struct EGMC : public BigDNA
     Vector<Object, AT_DNA_COUNT(count)> objects;
 };
 }
-#endif // _DNACOMMON_EGMC_HPP_

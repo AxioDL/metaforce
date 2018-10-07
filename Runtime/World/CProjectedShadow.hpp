@@ -1,5 +1,4 @@
-#ifndef __URDE_CPROJECTEDSHADOW_HPP__
-#define __URDE_CPROJECTEDSHADOW_HPP__
+#pragma once
 
 #include "Graphics/CTexture.hpp"
 #include "zeus/CTransform.hpp"
@@ -31,4 +30,3 @@ public:
                             const zeus::CVector3f&, float, float);
 };
 }
-#endif // __URDE_CPROJECTEDSHADOW_HPP__

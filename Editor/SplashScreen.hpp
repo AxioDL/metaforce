@@ -1,5 +1,4 @@
-#ifndef URDE_SPLASH_SCREEN_HPP
-#define URDE_SPLASH_SCREEN_HPP
+#pragma once
 
 #include "specter/View.hpp"
 #include "specter/ModalWindow.hpp"
@@ -184,4 +183,3 @@ public:
 }
 
 
-#endif // URDE_SPLASH_SCREEN_HPP

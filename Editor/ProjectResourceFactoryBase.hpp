@@ -1,5 +1,4 @@
-#ifndef URDE_PROJECT_RESOURCE_FACTORY_BASE_HPP
-#define URDE_PROJECT_RESOURCE_FACTORY_BASE_HPP
+#pragma once
 
 #include "hecl/ClientProcess.hpp"
 #include "hecl/Database.hpp"
@@ -185,4 +184,3 @@ public:
 
 }
 
-#endif // URDE_PROJECT_RESOURCE_FACTORY_BASE_HPP

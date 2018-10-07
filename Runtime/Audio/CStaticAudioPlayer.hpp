@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTATICAUDIOPLAYER_HPP__
-#define __URDE_CSTATICAUDIOPLAYER_HPP__
+#pragma once
 
 #include "CAudioSys.hpp"
 #include "RetroTypes.hpp"
@@ -86,4 +85,3 @@ public:
 
 }
 
-#endif // __URDE_CSTATICAUDIOPLAYER_HPP__

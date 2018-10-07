@@ -1,5 +1,4 @@
-#ifndef __URDE_CBODYSTATEINFO_HPP__
-#define __URDE_CBODYSTATEINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CharacterCommon.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CBODYSTATEINFO_HPP__

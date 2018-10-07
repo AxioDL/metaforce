@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_PAK_HPP__
-#define __DNAMP3_PAK_HPP__
+#pragma once
 
 #include <unordered_map>
 
@@ -74,4 +73,3 @@ struct PAK : BigDNA
 
 }
 
-#endif // __DNAMP3_PAK_HPP__

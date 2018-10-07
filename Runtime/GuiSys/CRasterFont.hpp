@@ -1,5 +1,4 @@
-#ifndef __URDE_CRASTERFONT_HPP__
-#define __URDE_CRASTERFONT_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CToken.hpp"
@@ -163,4 +162,3 @@ std::unique_ptr<IObj> FRasterFontFactory(const SObjectTag& tag, CInputStream& in
                                          CObjectReference* selfRef);
 }
 
-#endif // __URDE_CRASTERFONT_HPP__

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_TEAMAIMGR_HPP_
-#define _DNAMP1_TEAMAIMGR_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -24,4 +23,3 @@ struct TeamAIMgr : IScriptObject
 };
 }
 
-#endif

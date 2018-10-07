@@ -1,5 +1,4 @@
-#ifndef __URDE_CENTITYINFO_HPP__
-#define __URDE_CENTITYINFO_HPP__
+#pragma once
 
 #include <vector>
 #include <string>
@@ -29,4 +28,3 @@ public:
 };
 }
 
-#endif // __URDE_CENTITYINFO_HPP__

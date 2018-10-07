@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREEDOUBLECHILD_HPP__
-#define __URDE_CANIMTREEDOUBLECHILD_HPP__
+#pragma once
 
 #include "CAnimTreeNode.hpp"
 
@@ -56,4 +55,3 @@ public:
 };
 }
 
-#endif // __URDE_CANIMTREEDOUBLECHILD_HPP__

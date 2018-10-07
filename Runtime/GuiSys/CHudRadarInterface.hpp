@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDRADARINTERFACE_HPP__
-#define __URDE_CHUDRADARINTERFACE_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "Graphics/CTexture.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDRADARINTERFACE_HPP__

@@ -86,8 +86,7 @@ def getqualified(tp):
 headerf = open('TCastTo.hpp', 'w')
 sourcef = open('TCastTo.cpp', 'w')
 
-headerf.write('''#ifndef __TCASTTO_HPP__
-#define __TCASTTO_HPP__
+headerf.write('''#pragma once
 
 namespace urde
 {
@@ -153,8 +152,6 @@ public:
 };
 
 }
-
-#endif // __TCASTTO_HPP__
 ''')
 
 headerf.close()

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ICEZOOMER_HPP_
-#define _DNAMP1_ICEZOOMER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -54,4 +53,3 @@ struct IceZoomer : IScriptObject
 };
 }
 
-#endif

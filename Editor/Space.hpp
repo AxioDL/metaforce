@@ -1,5 +1,4 @@
-#ifndef URDE_SPACE_HPP
-#define URDE_SPACE_HPP
+#pragma once
 
 #include "athena/DNAYaml.hpp"
 #include "specter/Space.hpp"
@@ -427,4 +426,3 @@ public:
 
 }
 
-#endif // URDE_SPACE_HPP

@@ -1,5 +1,4 @@
-#ifndef __URDE_ITWEAK_HPP__
-#define __URDE_ITWEAK_HPP__
+#pragma once
 
 namespace urde
 {
@@ -10,4 +9,3 @@ public:
 };
 }
 
-#endif // __URDE_ITWEAK_HPP__

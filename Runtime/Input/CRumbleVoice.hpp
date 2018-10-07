@@ -1,5 +1,4 @@
-#ifndef CRUMBLEVOICE_HPP
-#define CRUMBLEVOICE_HPP
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -111,4 +110,3 @@ public:
 };
 }
 
-#endif // CRUMBLEVOICE_HPP

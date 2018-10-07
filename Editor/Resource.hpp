@@ -1,5 +1,4 @@
-#ifndef URDE_RESOURCE_HPP
-#define URDE_RESOURCE_HPP
+#pragma once
 
 #include "hecl/Database.hpp"
 #include "Space.hpp"
@@ -47,4 +46,3 @@ private:
 
 }
 
-#endif // URDE_RESOURCE_HPP

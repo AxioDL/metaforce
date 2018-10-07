@@ -1,5 +1,4 @@
-#ifndef __URDE_CREALELEMENT_HPP__
-#define __URDE_CREALELEMENT_HPP__
+#pragma once
 
 #include "IElement.hpp"
 
@@ -376,4 +375,3 @@ public:
 };
 }
 
-#endif // __URDE_CREALELEMENT_HPP__

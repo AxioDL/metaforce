@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_RIDLEY_HPP_
-#define _DNAMP1_RIDLEY_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -267,4 +266,3 @@ struct Ridley : IScriptObject
 };
 }
 
-#endif

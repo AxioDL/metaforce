@@ -1,5 +1,4 @@
-#ifndef __URDE_CMIDIMANAGER_HPP__
-#define __URDE_CMIDIMANAGER_HPP__
+#pragma once
 
 #include "CSfxManager.hpp"
 
@@ -59,4 +58,3 @@ using CMidiHandle = CMidiManager::CMidiHandle;
 
 }
 
-#endif // __URDE_CMIDIMANAGER_HPP__

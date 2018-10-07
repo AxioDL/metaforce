@@ -1,5 +1,4 @@
-#ifndef __URDE_CELEMENTGEN_HPP__
-#define __URDE_CELEMENTGEN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
@@ -248,4 +247,3 @@ ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 
 }
 
-#endif // __URDE_CELEMENTGEN_HPP__

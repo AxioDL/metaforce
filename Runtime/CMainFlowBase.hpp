@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAINFLOWBASE_HPP__
-#define __URDE_CMAINFLOWBASE_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 
@@ -28,4 +27,3 @@ public:
 
 }
 
-#endif // __URDE_CMAINFLOWBASE_HPP__

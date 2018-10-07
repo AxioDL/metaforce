@@ -1,5 +1,4 @@
-#ifndef CSCRIPTHUDMEMO_HPP
-#define CSCRIPTHUDMEMO_HPP
+#pragma once
 
 #include "CEntity.hpp"
 #include "CHUDMemoParms.hpp"
@@ -29,4 +28,3 @@ public:
 };
 }
 
-#endif // CSCRIPTHUDMEMO_HPP

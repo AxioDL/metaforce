@@ -1,5 +1,4 @@
-#ifndef __URDE_CHALFTRANSITION_HPP__
-#define __URDE_CHALFTRANSITION_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "IMetaTrans.hpp"
@@ -19,4 +18,3 @@ public:
 
 }
 
-#endif // __URDE_CHALFTRANSITION_HPP__

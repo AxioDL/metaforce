@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETAANIMSEQUENCE_HPP__
-#define __URDE_CMETAANIMSEQUENCE_HPP__
+#pragma once
 
 #include "IMetaAnim.hpp"
 #include "IOStreams.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CMETAANIMSEQUENCE_HPP__

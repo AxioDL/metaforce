@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLAMEINFO_HPP__
-#define __URDE_CFLAMEINFO_HPP__
+#pragma once
 
 #include "Weapon/CGameProjectile.hpp"
 
@@ -22,4 +21,3 @@ public:
     CAssetId GetFlameFxId() const { return x8_flameFxId; }
 };
 }
-#endif // __URDE_CFLAMEINFO_HPP__

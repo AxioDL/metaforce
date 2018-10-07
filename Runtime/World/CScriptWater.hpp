@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTWATER_HPP__
-#define __URDE_CSCRIPTWATER_HPP__
+#pragma once
 
 #include "CScriptTrigger.hpp"
 #include "CFluidPlaneCPU.hpp"
@@ -136,4 +135,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTWATER_HPP__

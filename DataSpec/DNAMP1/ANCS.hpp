@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ANCS_HPP_
-#define _DNAMP1_ANCS_HPP_
+#pragma once
 
 #include <map>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -518,4 +517,3 @@ struct ANCS : BigDNA
 
 }
 
-#endif // _DNAMP1_ANCS_HPP_

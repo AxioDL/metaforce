@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETAANIMPLAY_HPP__
-#define __URDE_CMETAANIMPLAY_HPP__
+#pragma once
 
 #include "IMetaAnim.hpp"
 #include "CPrimitive.hpp"
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // __URDE_CMETAANIMPLAY_HPP__

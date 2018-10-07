@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEAMAIMGR_HPP__
-#define __URDE_CTEAMAIMGR_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -30,4 +29,3 @@ public:
 };
 }
 
-#endif // __URDE_CTEAMAIMGR_HPP__

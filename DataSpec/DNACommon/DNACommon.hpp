@@ -1,5 +1,4 @@
-#ifndef __DNA_COMMON_HPP__
-#define __DNA_COMMON_HPP__
+#pragma once
 
 #include <cstdio>
 #include "logvisor/logvisor.hpp"
@@ -462,4 +461,3 @@ struct hash<DataSpec::UniqueID128>
 };
 }
 
-#endif // __DNA_COMMON_HPP__

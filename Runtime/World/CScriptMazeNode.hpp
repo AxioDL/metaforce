@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTMAZE_NODE_HPP__
-#define __URDE_CSCRIPTMAZE_NODE_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -41,4 +40,3 @@ public:
 };
 }
 
-#endif

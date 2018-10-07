@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_NEWCAMERASHAKER_HPP_
-#define _DNAMP1_NEWCAMERASHAKER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -36,4 +35,3 @@ struct NewCameraShaker : IScriptObject
 };
 }
 
-#endif

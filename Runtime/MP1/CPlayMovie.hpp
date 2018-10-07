@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYMOVIE_HPP__
-#define __URDE_CPLAYMOVIE_HPP__
+#pragma once
 
 #include "CPlayMovieBase.hpp"
 #include "RetroTypes.hpp"
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif // __URDE_CPLAYMOVIE_HPP__

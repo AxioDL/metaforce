@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUITABLEGROUP_HPP__
-#define __URDE_CGUITABLEGROUP_HPP__
+#pragma once
 
 #include "CGuiCompoundWidget.hpp"
 
@@ -105,4 +104,3 @@ public:
 
 }
 
-#endif // __URDE_CGUITABLEGROUP_HPP__

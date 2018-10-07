@@ -1,5 +1,4 @@
-#ifndef __URDE_CWALLCRAWLERSWARM_HPP__
-#define __URDE_CWALLCRAWLERSWARM_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 #include "Collision/CCollisionSurface.hpp"
@@ -77,4 +76,3 @@ public:
 };
 }
 
-#endif // __URDE_CWALLCRAWLERSWARM_HPP__

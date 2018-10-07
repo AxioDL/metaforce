@@ -1,5 +1,4 @@
-#ifndef __URDE_CPATHFINDSEARCH_HPP__
-#define __URDE_CPATHFINDSEARCH_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CPathFindArea.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CPATHFINDSEARCH_HPP__

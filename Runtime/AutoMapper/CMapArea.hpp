@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPAREA_HPP__
-#define __URDE_CMAPAREA_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CResFactory.hpp"
@@ -92,4 +91,3 @@ public:
 CFactoryFnReturn FMapAreaFactory(const SObjectTag& objTag, CInputStream& in, const CVParamTransfer&,
                                  CObjectReference*);
 }
-#endif // __URDE_CMAPAREA_HPP__

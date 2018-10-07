@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUIMETER_HPP__
-#define __URDE_CAUIMETER_HPP__
+#pragma once
 
 #include "CGuiGroup.hpp"
 
@@ -33,4 +32,3 @@ public:
 
 }
 
-#endif // __URDE_CAUIMETER_HPP__

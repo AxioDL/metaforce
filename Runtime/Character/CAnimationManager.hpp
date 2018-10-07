@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMATIONMANAGER_HPP__
-#define __URDE_CANIMATIONMANAGER_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "CAnimSysContext.hpp"
@@ -29,4 +28,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMATIONMANAGER_HPP__

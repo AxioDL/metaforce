@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_FLICKERBAT_HPP_
-#define _DNAMP1_FLICKERBAT_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -48,4 +47,3 @@ struct FlickerBat : IScriptObject
 };
 }
 
-#endif

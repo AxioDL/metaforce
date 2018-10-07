@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTROOMACOUSTICS_HPP__
-#define __URDE_CSCRIPTROOMACOUSTICS_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "amuse/EffectChorus.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTROOMACOUSTICS_HPP__

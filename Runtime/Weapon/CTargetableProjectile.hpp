@@ -1,5 +1,4 @@
-#ifndef URDE_CTARGETABLEPROJECTILE_HPP
-#define URDE_CTARGETABLEPROJECTILE_HPP
+#pragma once
 
 #include "CEnergyProjectile.hpp"
 
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // URDE_CTARGETABLEPROJECTILE_HPP
