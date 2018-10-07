@@ -1,5 +1,4 @@
-#ifndef GUI_VECTORISATABLEMODELINTEL_HPP
-#define GUI_VECTORISATABLEMODELINTEL_HPP
+#pragma once
 
 #include "VectorISATableModel.hpp"
 
@@ -107,4 +106,3 @@ public:
     }
 };
 
-#endif // GUI_VECTORISATABLEMODELINTEL_HPP

@@ -1,5 +1,4 @@
-#ifndef FINDBLENDER_HPP
-#define FINDBLENDER_HPP
+#pragma once
 
 #include "hecl/hecl.hpp"
 
@@ -10,4 +9,3 @@ hecl::SystemString FindBlender(int& major, int& minor);
 
 }
 
-#endif // FINDBLENDER_HPP

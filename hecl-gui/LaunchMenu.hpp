@@ -1,5 +1,4 @@
-#ifndef GUI_LAUNCHMENU_HPP
-#define GUI_LAUNCHMENU_HPP
+#pragma once
 
 #include <QMenu>
 namespace hecl { struct CVarCommons; }
@@ -34,4 +33,3 @@ public slots:
     void developerModeTriggered();
 };
 
-#endif // GUI_LAUNCHMENU_HPP

@@ -1,5 +1,4 @@
-#ifndef GUI_COMMON_HPP
-#define GUI_COMMON_HPP
+#pragma once
 
 #include <QString>
 #include <QMetaType>
@@ -77,4 +76,3 @@ Q_DECLARE_METATYPE(URDEVersion);
 
 void InitializePlatform();
 
-#endif // GUI_COMMON_HPP

@@ -1,5 +1,4 @@
-#ifndef GUI_VECTORISATABLEVIEW_HPP
-#define GUI_VECTORISATABLEVIEW_HPP
+#pragma once
 
 #include <QTableView>
 #include "Common.hpp"
@@ -25,4 +24,3 @@ public:
     bool willRun(VectorISA visa) const { return m_model.willRun(visa); }
 };
 
-#endif // GUI_VECTORISATABLEVIEW_HPP

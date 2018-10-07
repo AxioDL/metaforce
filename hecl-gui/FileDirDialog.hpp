@@ -1,5 +1,4 @@
-#ifndef FILEDIRDIALOG_HPP
-#define FILEDIRDIALOG_HPP
+#pragma once
 
 #include <QFileDialog>
 
@@ -10,4 +9,3 @@ public:
     FileDirDialog(QWidget* parent = nullptr) : QFileDialog(parent) { setFileMode(QFileDialog::Directory); }
 };
 
-#endif // FILEDIRDIALOG_HPP

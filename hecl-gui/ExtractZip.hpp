@@ -1,5 +1,4 @@
-#ifndef GUI_EXTRACTZIP_HPP
-#define GUI_EXTRACTZIP_HPP
+#pragma once
 
 class QStringList;
 class QuaZip;
@@ -13,4 +12,3 @@ public:
     static bool extractDir(QuaZip& zip, QString dir);
 };
 
-#endif // GUI_EXTRACTZIP_HPP

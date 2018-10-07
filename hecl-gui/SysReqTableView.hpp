@@ -1,5 +1,4 @@
-#ifndef GUI_SYSREQTABLEVIEW_HPP
-#define GUI_SYSREQTABLEVIEW_HPP
+#pragma once
 
 #include <QTableView>
 #include "VectorISATableView.hpp"
@@ -57,4 +56,3 @@ public:
     void updateFreeDiskSpace(const QString& path) { m_model.updateFreeDiskSpace(path); }
 };
 
-#endif // GUI_SYSREQTABLEVIEW_HPP

@@ -1,5 +1,4 @@
-#ifndef GUI_ERRORLABEL_HPP
-#define GUI_ERRORLABEL_HPP
+#pragma once
 
 #include <QLabel>
 
@@ -19,4 +18,3 @@ public:
     }
 };
 
-#endif // GUI_ERRORLABEL_HPP

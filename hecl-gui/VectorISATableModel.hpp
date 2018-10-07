@@ -1,5 +1,4 @@
-#ifndef GUI_VECTORISATABLEMODEL_HPP
-#define GUI_VECTORISATABLEMODEL_HPP
+#pragma once
 
 #include <QTableView>
 #include "zeus/Math.hpp"
@@ -14,4 +13,3 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const { return 1; }
 };
 
-#endif // GUI_VECTORISATABLEMODEL_HPP

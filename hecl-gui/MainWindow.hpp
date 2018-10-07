@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_HPP
-#define MAINWINDOW_HPP
+#pragma once
 
 #include <QMainWindow>
 #include <QProcess>
@@ -65,4 +64,3 @@ private:
     bool isPackageComplete() const;
 };
 
-#endif // MAINWINDOW_HPP

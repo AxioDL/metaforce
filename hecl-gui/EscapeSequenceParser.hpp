@@ -1,5 +1,4 @@
-#ifndef GUI_ESCAPESEQUENCEPARSER_HPP
-#define GUI_ESCAPESEQUENCEPARSER_HPP
+#pragma once
 
 #include <QString>
 #include <QTextCharFormat>
@@ -12,4 +11,3 @@ void ReturnInsert(QTextCursor& cur, const QString& text);
 
 void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& format);
 
-#endif // GUI_ESCAPESEQUENCEPARSER_HPP

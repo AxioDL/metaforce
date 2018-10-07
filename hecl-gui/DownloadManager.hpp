@@ -1,5 +1,4 @@
-#ifndef GUI_DOWNLOADMANAGER_HPP
-#define GUI_DOWNLOADMANAGER_HPP
+#pragma once
 
 #include <QObject>
 #include <QtNetwork>
@@ -71,4 +70,3 @@ public slots:
 
 };
 
-#endif // GUI_DOWNLOADMANAGER_HPP
