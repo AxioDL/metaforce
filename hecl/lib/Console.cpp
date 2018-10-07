@@ -490,14 +490,6 @@ void Console::dumpLog()
 
 void Console::RegisterLogger(Console* con)
 {
-    /* Determine if console logger already added */
-    for (auto& logger : logvisor::MainLoggers)
-    {
-        if (typeid(logger.get()) == typeid(LogVisorAdapter))
-            return;
-    }
-
-    /* Otherwise construct new console logger */
     logvisor::MainLoggers.emplace_back(new LogVisorAdapter(con));
 }
 

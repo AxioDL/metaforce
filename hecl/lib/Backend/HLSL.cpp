@@ -215,10 +215,10 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
 }
 
 std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
-                           const ShaderFunction& lighting) const
+                           const Function& lighting) const
 {
     std::string lightingSrc;
-    if (lighting.m_source)
+    if (!lighting.m_source.empty())
         lightingSrc = lighting.m_source;
     else
         lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
@@ -248,8 +248,9 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
 
     if (m_lighting)
     {
-        if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n", lighting.m_entry);
+        if (!lighting.m_entry.empty())
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n",
+                lighting.m_entry.data());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -271,12 +272,12 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
 }
 
 std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
-                           const ShaderFunction& lighting,
-                           const ShaderFunction& post, size_t extTexCount,
+                           const Function& lighting,
+                           const Function& post, size_t extTexCount,
                            const TextureInfo* extTexs) const
 {
     std::string lightingSrc;
-    if (lighting.m_source)
+    if (!lighting.m_source.empty())
         lightingSrc = lighting.m_source;
     else
         lightingSrc = "static const float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
@@ -285,11 +286,11 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
                       "static const float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
 
     std::string postSrc;
-    if (post.m_source)
+    if (!post.m_source.empty())
         postSrc = post.m_source;
 
     std::string postEntry;
-    if (post.m_entry)
+    if (!post.m_entry.empty())
         postEntry = post.m_entry;
 
     std::string texMapDecl;
@@ -323,8 +324,9 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
 
     if (m_lighting)
     {
-        if (lighting.m_entry)
-            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n", lighting.m_entry);
+        if (!lighting.m_entry.empty())
+            retval += hecl::Format("    float4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz), vtf);\n",
+                lighting.m_entry.data());
         else
             retval += "    float4 lighting = float4(1.0,1.0,1.0,1.0);\n";
     }
@@ -343,347 +345,6 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
         retval += "    colorOut = " + postEntry + "(" + (postEntry.size() ? "vtf, " : "") + "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
 
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
-}
-
-}
-
-namespace hecl::Runtime
-{
-
-struct HLSLBackendFactory : IShaderBackendFactory
-{
-    Backend::HLSL m_backend;
-
-    ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
-                                       const hecl::Frontend::IR& ir,
-                                       hecl::Frontend::Diagnostics& diag,
-                                       boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
-    {
-        m_backend.reset(ir, diag);
-
-        std::string vertSource =
-        m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), 0, nullptr,
-                           tag.getReflectionType());
-
-        std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    tag.getReflectionType());
-        ComPtr<ID3DBlob> vertBlob;
-        ComPtr<ID3DBlob> fragBlob;
-        ComPtr<ID3DBlob> pipelineBlob;
-        objOut =
-        static_cast<boo::D3DDataFactory::Context&>(ctx).
-            newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                              ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
-                              tag.newVertexFormat(ctx),
-                              boo::BlendFactor(m_backend.m_blendSrc),
-                              boo::BlendFactor(m_backend.m_blendDst),
-                              tag.getPrimType(),
-                              tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, false,
-                              tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!objOut)
-            Log.report(logvisor::Fatal, "unable to build shader");
-
-        atUint32 vertSz = 0;
-        atUint32 fragSz = 0;
-        atUint32 pipelineSz = 0;
-        if (vertBlob)
-            vertSz = vertBlob->GetBufferSize();
-        if (fragBlob)
-            fragSz = fragBlob->GetBufferSize();
-        if (pipelineBlob)
-            pipelineSz = pipelineBlob->GetBufferSize();
-
-        size_t cachedSz = 14 + vertSz + fragSz + pipelineSz;
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-
-        if (vertBlob)
-        {
-            w.writeUint32Big(vertSz);
-            w.writeUBytes((atUint8*)vertBlob->GetBufferPointer(), vertSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        if (fragBlob)
-        {
-            w.writeUint32Big(fragSz);
-            w.writeUBytes((atUint8*)fragBlob->GetBufferPointer(), fragSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        if (pipelineBlob)
-        {
-            w.writeUint32Big(pipelineSz);
-            w.writeUBytes((atUint8*)pipelineBlob->GetBufferPointer(), pipelineSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        return dataOut;
-    }
-
-    boo::ObjToken<boo::IShaderPipeline>
-    buildShaderFromCache(const ShaderCachedData& data,
-                         boo::IGraphicsDataFactory::Context& ctx)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-
-        if (r.hasError())
-            return nullptr;
-
-        atUint32 vertSz = r.readUint32Big();
-        ComPtr<ID3DBlob> vertBlob;
-        if (vertSz)
-        {
-            D3DCreateBlobPROC(vertSz, &vertBlob);
-            r.readUBytesToBuf(vertBlob->GetBufferPointer(), vertSz);
-        }
-
-        atUint32 fragSz = r.readUint32Big();
-        ComPtr<ID3DBlob> fragBlob;
-        if (fragSz)
-        {
-            D3DCreateBlobPROC(fragSz, &fragBlob);
-            r.readUBytesToBuf(fragBlob->GetBufferPointer(), fragSz);
-        }
-
-        atUint32 pipelineSz = r.readUint32Big();
-        ComPtr<ID3DBlob> pipelineBlob;
-        if (pipelineSz)
-        {
-            D3DCreateBlobPROC(pipelineSz, &pipelineBlob);
-            r.readUBytesToBuf(pipelineBlob->GetBufferPointer(), pipelineSz);
-        }
-
-        if (r.hasError())
-            return nullptr;
-
-        boo::ObjToken<boo::IShaderPipeline> ret =
-        static_cast<boo::D3DDataFactory::Context&>(ctx).
-            newShaderPipeline(nullptr, nullptr,
-                              ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
-                              tag.newVertexFormat(ctx),
-                              blendSrc, blendDst, tag.getPrimType(),
-                              tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None, tag.getDepthWrite(), true, false,
-                              tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!ret)
-            Log.report(logvisor::Fatal, "unable to build shader");
-        return ret;
-    }
-
-    ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
-                                               const hecl::Frontend::IR& ir,
-                                               hecl::Frontend::Diagnostics& diag,
-                                               const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                               boo::IGraphicsDataFactory::Context& ctx,
-                                               FReturnExtensionShader returnFunc)
-    {
-        m_backend.reset(ir, diag);
-
-        struct Blobs
-        {
-            ComPtr<ID3DBlob> vert;
-            ComPtr<ID3DBlob> frag;
-            ComPtr<ID3DBlob> pipeline;
-        };
-        std::vector<Blobs> pipeBlobs;
-        pipeBlobs.reserve(extensionSlots.size());
-
-        size_t cachedSz = 2 + 12 * extensionSlots.size();
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            std::string vertSource =
-            m_backend.makeVert(tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), slot.texCount, slot.texs,
-                               tag.getReflectionType());
-
-            std::string fragSource = m_backend.makeFrag(tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                        tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs);
-            pipeBlobs.emplace_back();
-            Blobs& thisPipeBlobs = pipeBlobs.back();
-
-            boo::ZTest zTest;
-            switch (slot.depthTest)
-            {
-            case hecl::Backend::ZTest::Original:
-            default:
-                zTest = tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::None:
-                zTest = boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::LEqual:
-                zTest = boo::ZTest::LEqual;
-                break;
-            case hecl::Backend::ZTest::Greater:
-                zTest = boo::ZTest::Greater;
-                break;
-            case hecl::Backend::ZTest::Equal:
-                zTest = boo::ZTest::Equal;
-                break;
-            case hecl::Backend::ZTest::GEqual:
-                zTest = boo::ZTest::GEqual;
-                break;
-            }
-
-            boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::D3DDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  ReferenceComPtr(thisPipeBlobs.vert), ReferenceComPtr(thisPipeBlobs.frag), ReferenceComPtr(thisPipeBlobs.pipeline),
-                                  tag.newVertexFormat(ctx),
-                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
-                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
-                                  tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
-                                  !slot.noColorWrite, !slot.noAlphaWrite,
-                                  (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                  boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            if (thisPipeBlobs.vert)
-                cachedSz += thisPipeBlobs.vert->GetBufferSize();
-            if (thisPipeBlobs.frag)
-                cachedSz += thisPipeBlobs.frag->GetBufferSize();
-            if (thisPipeBlobs.pipeline)
-                cachedSz += thisPipeBlobs.pipeline->GetBufferSize();
-            returnFunc(ret);
-        }
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-
-        for (const Blobs& blobs : pipeBlobs)
-        {
-            if (blobs.vert)
-            {
-                w.writeUint32Big(blobs.vert->GetBufferSize());
-                w.writeUBytes((atUint8*)blobs.vert->GetBufferPointer(), blobs.vert->GetBufferSize());
-            }
-            else
-                w.writeUint32Big(0);
-
-            if (blobs.frag)
-            {
-                w.writeUint32Big(blobs.frag->GetBufferSize());
-                w.writeUBytes((atUint8*)blobs.frag->GetBufferPointer(), blobs.frag->GetBufferSize());
-            }
-            else
-                w.writeUint32Big(0);
-
-            if (blobs.pipeline)
-            {
-                w.writeUint32Big(blobs.pipeline->GetBufferSize());
-                w.writeUBytes((atUint8*)blobs.pipeline->GetBufferPointer(), blobs.pipeline->GetBufferSize());
-            }
-            else
-                w.writeUint32Big(0);
-        }
-
-        return dataOut;
-    }
-
-    bool buildExtendedShaderFromCache(const ShaderCachedData& data,
-                                      const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                      boo::IGraphicsDataFactory::Context& ctx,
-                                      FReturnExtensionShader returnFunc)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
-        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
-        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
-
-        if (r.hasError())
-            return false;
-
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            atUint32 vertSz = r.readUint32Big();
-            ComPtr<ID3DBlob> vertBlob;
-            if (vertSz)
-            {
-                D3DCreateBlobPROC(vertSz, &vertBlob);
-                r.readUBytesToBuf(vertBlob->GetBufferPointer(), vertSz);
-            }
-
-            atUint32 fragSz = r.readUint32Big();
-            ComPtr<ID3DBlob> fragBlob;
-            if (fragSz)
-            {
-                D3DCreateBlobPROC(fragSz, &fragBlob);
-                r.readUBytesToBuf(fragBlob->GetBufferPointer(), fragSz);
-            }
-
-            atUint32 pipelineSz = r.readUint32Big();
-            ComPtr<ID3DBlob> pipelineBlob;
-            if (pipelineSz)
-            {
-                D3DCreateBlobPROC(pipelineSz, &pipelineBlob);
-                r.readUBytesToBuf(pipelineBlob->GetBufferPointer(), pipelineSz);
-            }
-
-            if (r.hasError())
-                return false;
-
-            boo::ZTest zTest;
-            switch (slot.depthTest)
-            {
-            case hecl::Backend::ZTest::Original:
-            default:
-                zTest = tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::None:
-                zTest = boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::LEqual:
-                zTest = boo::ZTest::LEqual;
-                break;
-            case hecl::Backend::ZTest::Greater:
-                zTest = boo::ZTest::Greater;
-                break;
-            case hecl::Backend::ZTest::Equal:
-                zTest = boo::ZTest::Equal;
-                break;
-            case hecl::Backend::ZTest::GEqual:
-                zTest = boo::ZTest::GEqual;
-                break;
-            }
-
-            boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::D3DDataFactory::Context&>(ctx).
-                newShaderPipeline(nullptr, nullptr,
-                                  ReferenceComPtr(vertBlob), ReferenceComPtr(fragBlob), ReferenceComPtr(pipelineBlob),
-                                  tag.newVertexFormat(ctx),
-                                  boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
-                                  boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
-                                  tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
-                                  !slot.noColorWrite, !slot.noAlphaWrite,
-                                  (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                  (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                  boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            returnFunc(ret);
-        }
-
-        return true;
-    }
-};
-
-IShaderBackendFactory* _NewHLSLBackendFactory()
-{
-    return new struct HLSLBackendFactory();
 }
 
 }

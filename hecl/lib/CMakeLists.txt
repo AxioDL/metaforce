@@ -6,6 +6,8 @@ macro(hecl_add_list rel_path a_list)
   set(${a_list} "${tmp_list}" PARENT_SCOPE)
 endmacro(hecl_add_list)
 
+include_directories(../extern/boo/glslang ../extern/boo)
+
 add_subdirectory(Blender)
 add_subdirectory(Backend)
 add_subdirectory(Frontend)
@@ -17,7 +19,6 @@ endif()
 
 atdna(atdna_HMDLMeta.cpp ../include/hecl/HMDLMeta.hpp)
 atdna(atdna_Frontend.cpp ../include/hecl/Frontend.hpp)
-atdna(atdna_Runtime.cpp ../include/hecl/Runtime.hpp)
 atdna(atdna_CVar.cpp ../include/hecl/CVar.hpp)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
@@ -50,7 +51,10 @@ set(HECL_HEADERS
     ../include/hecl/BitVector.hpp
     ../include/hecl/MathExtras.hpp
     ../include/hecl/UniformBufferPool.hpp
-    ../include/hecl/VertexBufferPool.hpp)
+    ../include/hecl/VertexBufferPool.hpp
+    ../include/hecl/PipelineBase.hpp
+    ../include/hecl/Pipeline.hpp
+    ../include/hecl/Compilers.hpp)
 set(COMMON_SOURCES
     hecl.cpp
     MultiProgressPrinter.cpp
@@ -63,9 +67,10 @@ set(COMMON_SOURCES
     ClientProcess.cpp
     SteamFinder.cpp
     WideStringConvert.cpp
+    Compilers.cpp
+    Pipeline.cpp
     atdna_HMDLMeta.cpp
     atdna_Frontend.cpp
-    atdna_Runtime.cpp
     atdna_CVar.cpp)
 
 add_library(hecl-full
@@ -81,10 +86,15 @@ add_library(hecl-light
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
             ${PLAT_SRCS})
+add_library(hecl-compilers Compilers.cpp)
+
+add_dependencies(hecl-full ${HECL_APPLICATION_REPS_TARGETS_LIST})
+add_dependencies(hecl-light ${HECL_APPLICATION_REPS_TARGETS_LIST})
 
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-full)
   add_sanitizers(hecl-light)
+  add_sanitizers(hecl-compilers)
 endif()
 
 if(WINDOWS_STORE)

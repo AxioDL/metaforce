@@ -13,10 +13,10 @@ struct HLSL : ProgrammableCommon
                          unsigned skinSlots, size_t extTexCount,
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
-                         const ShaderFunction& lighting=ShaderFunction()) const;
+                         const Function& lighting=Function()) const;
     std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
-                         const ShaderFunction& lighting,
-                         const ShaderFunction& post, size_t extTexCount,
+                         const Function& lighting,
+                         const Function& post, size_t extTexCount,
                          const TextureInfo* extTexs) const;
 
 private:

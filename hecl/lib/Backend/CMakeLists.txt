@@ -1,11 +1,7 @@
-if(WIN32)
-  set(PLAT_SRCS HLSL.cpp)
-endif()
-if(APPLE)
-  set(PLAT_SRCS Metal.cpp)
-endif()
 if(NOT WINDOWS_STORE)
-  list(APPEND PLAT_SRCS GLSL.cpp)
+  list(APPEND PLAT_SRCS GLSL.cpp HLSL.cpp Metal.cpp)
+else()
+  list(APPEND PLAT_SRCS HLSL.cpp)
 endif()
 
 set(BACKEND_SOURCES

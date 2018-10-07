@@ -1,9 +1,8 @@
 #include "hecl/Backend/GLSL.hpp"
 #include "hecl/Runtime.hpp"
-#include <athena/MemoryReader.hpp>
-#include <athena/MemoryWriter.hpp>
-#include <boo/graphicsdev/GL.hpp>
-#include <boo/graphicsdev/Vulkan.hpp>
+#include "athena/MemoryReader.hpp"
+#include "athena/MemoryWriter.hpp"
+#include "boo/graphicsdev/GLSLMacros.hpp"
 
 static logvisor::Module Log("hecl::Backend::GLSL");
 
@@ -150,12 +149,12 @@ void GLSL::reset(const IR& ir, Diagnostics& diag)
     ProgrammableCommon::reset(ir, diag, "GLSL");
 }
 
-std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
+std::string GLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                            unsigned s, size_t extTexCount,
                            const TextureInfo* extTexs, ReflectionType reflectionType) const
 {
     extTexCount = std::min(int(extTexCount), BOO_GLSL_MAX_TEXTURE_COUNT - int(m_tcgs.size()));
-    std::string retval = std::string(glslVer) + "\n" BOO_GLSL_BINDING_HEAD +
+    std::string retval =
             GenerateVertInStruct(col, uv, w) + "\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
             GenerateVertUniformStruct(s, reflectionType != ReflectionType::None) +
@@ -221,11 +220,11 @@ std::string GLSL::makeVert(const char* glslVer, unsigned col, unsigned uv, unsig
     return retval + "}\n";
 }
 
-std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
-                           ReflectionType reflectionType, const ShaderFunction& lighting) const
+std::string GLSL::makeFrag(bool alphaTest,
+                           ReflectionType reflectionType, const Function& lighting) const
 {
     std::string lightingSrc;
-    if (lighting.m_source)
+    if (!lighting.m_source.empty())
         lightingSrc = lighting.m_source;
     else
         lightingSrc = "const vec4 colorReg0 = vec4(1.0);\n"
@@ -245,8 +244,8 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionTex;\n",
                                    m_texMapEnd);
 
-    std::string retval = std::string(glslVer) +
-            "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
+    std::string retval =
+            std::string("#extension GL_ARB_shader_image_load_store: enable\n") +
             GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "#ifdef GL_ARB_shader_image_load_store\n"
@@ -261,8 +260,9 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
 
     if (m_lighting)
     {
-        if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n", lighting.m_entry);
+        if (!lighting.m_entry.empty())
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n",
+                lighting.m_entry.data());
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
@@ -282,14 +282,14 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
 
-std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
+std::string GLSL::makeFrag(bool alphaTest,
                            ReflectionType reflectionType,
-                           const ShaderFunction& lighting,
-                           const ShaderFunction& post,
+                           const Function& lighting,
+                           const Function& post,
                            size_t extTexCount, const TextureInfo* extTexs) const
 {
     std::string lightingSrc;
-    if (lighting.m_source)
+    if (!lighting.m_source.empty())
         lightingSrc = lighting.m_source;
     else
         lightingSrc = "const vec4 colorReg0 = vec4(1.0);\n"
@@ -299,11 +299,11 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                       "\n";
 
     std::string postSrc;
-    if (post.m_source)
+    if (!post.m_source.empty())
         postSrc = post.m_source;
 
     std::string postEntry;
-    if (post.m_entry)
+    if (!post.m_entry.empty())
         postEntry = post.m_entry;
 
     std::string texMapDecl;
@@ -324,8 +324,8 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
                                    extTex.mapIdx, extTex.mapIdx);
     }
 
-    std::string retval = std::string(glslVer) +
-            "\n#extension GL_ARB_shader_image_load_store: enable\n" BOO_GLSL_BINDING_HEAD +
+    std::string retval =
+            std::string("#extension GL_ARB_shader_image_load_store: enable\n") +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "\n#ifdef GL_ARB_shader_image_load_store\n"
@@ -340,8 +340,9 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
 
     if (m_lighting)
     {
-        if (lighting.m_entry)
-            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n", lighting.m_entry);
+        if (!lighting.m_entry.empty())
+            retval += hecl::Format("    vec4 lighting = %s(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n",
+                lighting.m_entry.data());
         else
             retval += "    vec4 lighting = vec4(1.0,1.0,1.0,1.0);\n";
     }
@@ -363,599 +364,3 @@ std::string GLSL::makeFrag(const char* glslVer, bool alphaTest,
 
 }
 
-namespace hecl::Runtime
-{
-
-static const char* STD_BLOCKNAMES[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                       HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME};
-
-static const char* STD_TEXNAMES[] =
-{
-    "tex0",
-    "tex1",
-    "tex2",
-    "tex3",
-    "tex4",
-    "tex5",
-    "tex6",
-    "tex7"
-};
-
-static const char* EXT_TEXNAMES[] =
-{
-    "extTex0",
-    "extTex1",
-    "extTex2",
-    "extTex3",
-    "extTex4",
-    "extTex5",
-    "extTex6",
-    "extTex7"
-};
-
-struct GLSLBackendFactory : IShaderBackendFactory
-{
-    Backend::GLSL m_backend;
-
-    ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
-                                       const hecl::Frontend::IR& ir,
-                                       hecl::Frontend::Diagnostics& diag,
-                                       boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
-    {
-        m_backend.reset(ir, diag);
-        size_t cachedSz = 3;
-
-        std::string vertSource =
-        m_backend.makeVert("#version 330",
-                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), 0, nullptr, tag.getReflectionType());
-        cachedSz += vertSource.size() + 1;
-
-        std::string fragSource = m_backend.makeFrag("#version 330",
-            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-            tag.getReflectionType());
-        cachedSz += fragSource.size() + 1;
-
-        if (m_backend.m_texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
-
-        objOut =
-        static_cast<boo::GLDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  m_backend.m_texMapEnd, STD_TEXNAMES,
-                                  2, STD_BLOCKNAMES,
-                                  boo::BlendFactor(m_backend.m_blendSrc),
-                                  boo::BlendFactor(m_backend.m_blendDst),
-                                  tag.getPrimType(), tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
-                                  tag.getDepthWrite(), true, false,
-                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!objOut)
-            Log.report(logvisor::Fatal, "unable to build shader");
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(m_backend.m_texMapEnd);
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-        w.writeString(vertSource);
-        w.writeString(fragSource);
-
-        return dataOut;
-    }
-
-    boo::ObjToken<boo::IShaderPipeline> buildShaderFromCache(const ShaderCachedData& data,
-                                                             boo::IGraphicsDataFactory::Context& ctx)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
-        atUint8 texMapEnd = r.readUByte();
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-        std::string vertSource = r.readString();
-        std::string fragSource = r.readString();
-
-        if (r.hasError())
-            return nullptr;
-
-        if (texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
-
-        auto ret =
-        static_cast<boo::GLDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  texMapEnd, STD_TEXNAMES,
-                                  2, STD_BLOCKNAMES,
-                                  blendSrc, blendDst, tag.getPrimType(),
-                                  tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
-                                  tag.getDepthWrite(), true, false,
-                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!ret)
-            Log.report(logvisor::Fatal, "unable to build shader");
-        return ret;
-    }
-
-    ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
-                                               const hecl::Frontend::IR& ir,
-                                               hecl::Frontend::Diagnostics& diag,
-                                               const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                               boo::IGraphicsDataFactory::Context& ctx,
-                                               FReturnExtensionShader returnFunc)
-    {
-        m_backend.reset(ir, diag);
-        size_t cachedSz = 3;
-
-        if (m_backend.m_texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
-
-        std::vector<std::pair<std::string, std::string>> sources;
-        sources.reserve(extensionSlots.size());
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            size_t bc = 2;
-            const char** bn = STD_BLOCKNAMES;
-            if (slot.blockCount)
-            {
-                bc = slot.blockCount;
-                bn = slot.blockNames;
-            }
-
-            sources.emplace_back(m_backend.makeVert("#version 330",
-                                                    tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                                                    tag.getSkinSlotCount(), slot.texCount,
-                                                    slot.texs, tag.getReflectionType()),
-                                 m_backend.makeFrag("#version 330",
-                                                    tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                    tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs));
-            cachedSz += sources.back().first.size() + 1;
-            cachedSz += sources.back().second.size() + 1;
-
-            boo::ZTest zTest;
-            switch (slot.depthTest)
-            {
-            case hecl::Backend::ZTest::Original:
-            default:
-                zTest = tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::None:
-                zTest = boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::LEqual:
-                zTest = boo::ZTest::LEqual;
-                break;
-            case hecl::Backend::ZTest::Greater:
-                zTest = boo::ZTest::Greater;
-                break;
-            case hecl::Backend::ZTest::Equal:
-                zTest = boo::ZTest::Equal;
-                break;
-            case hecl::Backend::ZTest::GEqual:
-                zTest = boo::ZTest::GEqual;
-                break;
-            }
-
-            const char* ExtTexnames[8];
-            for (int i=0 ; i<8 ; ++i)
-                ExtTexnames[i] = STD_TEXNAMES[i];
-            for (int i=0 ; i<slot.texCount ; ++i)
-                ExtTexnames[slot.texs[i].mapIdx] = EXT_TEXNAMES[slot.texs[i].mapIdx];
-
-            auto ret =
-            static_cast<boo::GLDataFactory::Context&>(ctx).
-                    newShaderPipeline(sources.back().first.c_str(), sources.back().second.c_str(),
-                                      8, ExtTexnames, bc, bn,
-                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendSrc : slot.srcFactor),
-                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? m_backend.m_blendDst : slot.dstFactor),
-                                      tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
-                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            returnFunc(ret);
-        }
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(m_backend.m_texMapEnd);
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-        for (const std::pair<std::string, std::string>& pair : sources)
-        {
-            w.writeString(pair.first);
-            w.writeString(pair.second);
-        }
-
-        return dataOut;
-    }
-
-    bool buildExtendedShaderFromCache(const ShaderCachedData& data,
-                                      const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                      boo::IGraphicsDataFactory::Context& ctx,
-                                      FReturnExtensionShader returnFunc)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
-        atUint8 texMapEnd = r.readUByte();
-        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
-        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
-
-        if (r.hasError())
-            return false;
-
-        if (texMapEnd > 8)
-            Log.report(logvisor::Fatal, "maximum of 8 texture maps supported");
-
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            size_t bc = 2;
-            const char** bn = STD_BLOCKNAMES;
-            if (slot.blockCount)
-            {
-                bc = slot.blockCount;
-                bn = slot.blockNames;
-            }
-
-            std::string vertSource = r.readString();
-            std::string fragSource = r.readString();
-
-            if (r.hasError())
-                return false;
-
-            boo::ZTest zTest;
-            switch (slot.depthTest)
-            {
-            case hecl::Backend::ZTest::Original:
-            default:
-                zTest = tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::None:
-                zTest = boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::LEqual:
-                zTest = boo::ZTest::LEqual;
-                break;
-            case hecl::Backend::ZTest::Greater:
-                zTest = boo::ZTest::Greater;
-                break;
-            case hecl::Backend::ZTest::Equal:
-                zTest = boo::ZTest::Equal;
-                break;
-            case hecl::Backend::ZTest::GEqual:
-                zTest = boo::ZTest::GEqual;
-                break;
-            }
-
-            const char* ExtTexnames[8];
-            for (int i=0 ; i<8 ; ++i)
-                ExtTexnames[i] = STD_TEXNAMES[i];
-            for (int i=0 ; i<slot.texCount ; ++i)
-                ExtTexnames[slot.texs[i].mapIdx] = EXT_TEXNAMES[slot.texs[i].mapIdx];
-
-            auto ret =
-            static_cast<boo::GLDataFactory::Context&>(ctx).
-                    newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      8, ExtTexnames, bc, bn,
-                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
-                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
-                                      tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(), !slot.noColorWrite, !slot.noAlphaWrite,
-                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            returnFunc(ret);
-        }
-
-        return true;
-    }
-};
-
-IShaderBackendFactory* _NewGLSLBackendFactory()
-{
-    return new struct GLSLBackendFactory();
-}
-
-#if BOO_HAS_VULKAN
-
-struct SPIRVBackendFactory : IShaderBackendFactory
-{
-    Backend::GLSL m_backend;
-
-    ShaderCachedData buildShaderFromIR(const ShaderTag& tag,
-                                       const hecl::Frontend::IR& ir,
-                                       hecl::Frontend::Diagnostics& diag,
-                                       boo::IGraphicsDataFactory::Context& ctx,
-                                       boo::ObjToken<boo::IShaderPipeline>& objOut)
-    {
-        m_backend.reset(ir, diag);
-
-        std::string vertSource =
-        m_backend.makeVert("#version 330",
-                           tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                           tag.getSkinSlotCount(), 0, nullptr,
-                           tag.getReflectionType());
-
-        std::string fragSource = m_backend.makeFrag("#version 330",
-            tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-            tag.getReflectionType());
-
-        std::vector<unsigned int> vertBlob;
-        std::vector<unsigned int> fragBlob;
-        std::vector<unsigned char> pipelineBlob;
-
-        objOut =
-        static_cast<boo::VulkanDataFactory::Context&>(ctx).
-                newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                  &vertBlob, &fragBlob, &pipelineBlob, tag.newVertexFormat(ctx),
-                                  boo::BlendFactor(m_backend.m_blendSrc), boo::BlendFactor(m_backend.m_blendDst),
-                                  tag.getPrimType(), tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
-                                  tag.getDepthWrite(), true, false,
-                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!objOut)
-            Log.report(logvisor::Fatal, "unable to build shader");
-
-
-        atUint32 vertSz = vertBlob.size() * sizeof(unsigned int);
-        atUint32 fragSz = fragBlob.size() * sizeof(unsigned int);
-        atUint32 pipelineSz = pipelineBlob.size();
-
-        size_t cachedSz = 15 + vertSz + fragSz + pipelineSz;
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(atUint8(m_backend.m_texMapEnd));
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-
-        if (vertBlob.size())
-        {
-            w.writeUint32Big(vertSz);
-            w.writeUBytes((atUint8*)vertBlob.data(), vertSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        if (fragBlob.size())
-        {
-            w.writeUint32Big(fragSz);
-            w.writeUBytes((atUint8*)fragBlob.data(), fragSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        if (pipelineBlob.size())
-        {
-            w.writeUint32Big(pipelineSz);
-            w.writeUBytes((atUint8*)pipelineBlob.data(), pipelineSz);
-        }
-        else
-            w.writeUint32Big(0);
-
-        return dataOut;
-    }
-
-    boo::ObjToken<boo::IShaderPipeline>
-    buildShaderFromCache(const ShaderCachedData& data,
-                         boo::IGraphicsDataFactory::Context& ctx)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz, false, false);
-        size_t texCount = size_t(r.readByte());
-        boo::BlendFactor blendSrc = boo::BlendFactor(r.readUByte());
-        boo::BlendFactor blendDst = boo::BlendFactor(r.readUByte());
-
-        atUint32 vertSz = r.readUint32Big();
-        std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
-        if (vertSz)
-            r.readUBytesToBuf(vertBlob.data(), vertSz);
-
-        atUint32 fragSz = r.readUint32Big();
-        std::vector<unsigned int> fragBlob(fragSz / sizeof(unsigned int));
-        if (fragSz)
-            r.readUBytesToBuf(fragBlob.data(), fragSz);
-
-        atUint32 pipelineSz = r.readUint32Big();
-        std::vector<unsigned char> pipelineBlob(pipelineSz);
-        if (pipelineSz)
-            r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
-
-        if (r.hasError())
-            return nullptr;
-
-        boo::ObjToken<boo::IShaderPipeline> ret =
-        static_cast<boo::VulkanDataFactory::Context&>(ctx).
-                newShaderPipeline(nullptr, nullptr,
-                                  &vertBlob, &fragBlob, &pipelineBlob,
-                                  tag.newVertexFormat(ctx),
-                                  blendSrc, blendDst, tag.getPrimType(),
-                                  tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
-                                  tag.getDepthWrite(), true, false,
-                                  tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None);
-        if (!ret)
-            Log.report(logvisor::Fatal, "unable to build shader");
-        return ret;
-    }
-
-    ShaderCachedData buildExtendedShaderFromIR(const ShaderTag& tag,
-                                               const hecl::Frontend::IR& ir,
-                                               hecl::Frontend::Diagnostics& diag,
-                                               const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                               boo::IGraphicsDataFactory::Context& ctx,
-                                               FReturnExtensionShader returnFunc)
-    {
-        m_backend.reset(ir, diag);
-
-        struct Blobs
-        {
-            std::vector<unsigned int> vert;
-            std::vector<unsigned int> frag;
-            std::vector<unsigned char> pipeline;
-        };
-        std::vector<Blobs> pipeBlobs;
-        pipeBlobs.reserve(extensionSlots.size());
-
-        size_t cachedSz = 3 + 12 * extensionSlots.size();
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            std::string vertSource =
-            m_backend.makeVert("#version 330",
-                               tag.getColorCount(), tag.getUvCount(), tag.getWeightCount(),
-                               tag.getSkinSlotCount(), slot.texCount, slot.texs,
-                               tag.getReflectionType());
-
-            std::string fragSource = m_backend.makeFrag("#version 330",
-                                                        tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-                                                        tag.getReflectionType(), slot.lighting, slot.post, slot.texCount, slot.texs);
-            pipeBlobs.emplace_back();
-            Blobs& pipeBlob = pipeBlobs.back();
-            boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::VulkanDataFactory::Context&>(ctx).
-                    newShaderPipeline(vertSource.c_str(), fragSource.c_str(),
-                                      &pipeBlob.vert, &pipeBlob.frag, &pipeBlob.pipeline,
-                                      tag.newVertexFormat(ctx),
-                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ?
-                                                           m_backend.m_blendSrc : slot.srcFactor),
-                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ?
-                                                           m_backend.m_blendDst : slot.dstFactor),
-                                      tag.getPrimType(), tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None,
-                                      slot.noDepthWrite ? false : tag.getDepthWrite(),
-                                      !slot.noColorWrite, !slot.noAlphaWrite,
-                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            cachedSz += pipeBlob.vert.size() * sizeof(unsigned int);
-            cachedSz += pipeBlob.frag.size() * sizeof(unsigned int);
-            cachedSz += pipeBlob.pipeline.size();
-            returnFunc(ret);
-        }
-
-        ShaderCachedData dataOut(tag, cachedSz);
-        athena::io::MemoryWriter w(dataOut.m_data.get(), dataOut.m_sz);
-        w.writeUByte(atUint8(m_backend.m_texMapEnd));
-        w.writeUByte(atUint8(m_backend.m_blendSrc));
-        w.writeUByte(atUint8(m_backend.m_blendDst));
-
-        for (const Blobs& pipeBlob : pipeBlobs)
-        {
-            size_t vertBlobSz = pipeBlob.vert.size() * sizeof(unsigned int);
-            size_t fragBlobSz = pipeBlob.frag.size() * sizeof(unsigned int);
-            size_t pipeBlobSz = pipeBlob.pipeline.size();
-
-            if (vertBlobSz)
-            {
-                w.writeUint32Big(vertBlobSz);
-                w.writeUBytes((atUint8*)pipeBlob.vert.data(), vertBlobSz);
-            }
-            else
-                w.writeUint32Big(0);
-
-            if (fragBlobSz)
-            {
-                w.writeUint32Big(fragBlobSz);
-                w.writeUBytes((atUint8*)pipeBlob.frag.data(), fragBlobSz);
-            }
-            else
-                w.writeUint32Big(0);
-
-            if (pipeBlobSz)
-            {
-                w.writeUint32Big(pipeBlobSz);
-                w.writeUBytes((atUint8*)pipeBlob.pipeline.data(), pipeBlobSz);
-            }
-            else
-                w.writeUint32Big(0);
-        }
-
-        return dataOut;
-    }
-
-    bool buildExtendedShaderFromCache(const ShaderCachedData& data,
-                                      const std::vector<ShaderCacheExtensions::ExtensionSlot>& extensionSlots,
-                                      boo::IGraphicsDataFactory::Context& ctx,
-                                      FReturnExtensionShader returnFunc)
-    {
-        const ShaderTag& tag = data.m_tag;
-        athena::io::MemoryReader r(data.m_data.get(), data.m_sz);
-        size_t texCount = size_t(r.readByte());
-        hecl::Backend::BlendFactor blendSrc = hecl::Backend::BlendFactor(r.readUByte());
-        hecl::Backend::BlendFactor blendDst = hecl::Backend::BlendFactor(r.readUByte());
-
-        if (r.hasError())
-            return false;
-
-        for (const ShaderCacheExtensions::ExtensionSlot& slot : extensionSlots)
-        {
-            atUint32 vertSz = r.readUint32Big();
-            std::vector<unsigned int> vertBlob(vertSz / sizeof(unsigned int));
-            if (vertSz)
-                r.readUBytesToBuf(vertBlob.data(), vertSz);
-
-            atUint32 fragSz = r.readUint32Big();
-            std::vector<unsigned int> fragBlob(fragSz / sizeof(unsigned int));
-            if (fragSz)
-                r.readUBytesToBuf(fragBlob.data(), fragSz);
-
-            atUint32 pipelineSz = r.readUint32Big();
-            std::vector<unsigned char> pipelineBlob(pipelineSz);
-            if (pipelineSz)
-                r.readUBytesToBuf(pipelineBlob.data(), pipelineSz);
-
-            if (r.hasError())
-                return false;
-
-            boo::ZTest zTest;
-            switch (slot.depthTest)
-            {
-            case hecl::Backend::ZTest::Original:
-            default:
-                zTest = tag.getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::None:
-                zTest = boo::ZTest::None;
-                break;
-            case hecl::Backend::ZTest::LEqual:
-                zTest = boo::ZTest::LEqual;
-                break;
-            case hecl::Backend::ZTest::Greater:
-                zTest = boo::ZTest::Greater;
-                break;
-            case hecl::Backend::ZTest::Equal:
-                zTest = boo::ZTest::Equal;
-                break;
-            case hecl::Backend::ZTest::GEqual:
-                zTest = boo::ZTest::GEqual;
-                break;
-            }
-
-            boo::ObjToken<boo::IShaderPipeline> ret =
-            static_cast<boo::VulkanDataFactory::Context&>(ctx).
-                    newShaderPipeline(nullptr, nullptr,
-                                      &vertBlob, &fragBlob, &pipelineBlob,
-                                      tag.newVertexFormat(ctx),
-                                      boo::BlendFactor((slot.srcFactor == hecl::Backend::BlendFactor::Original) ? blendSrc : slot.srcFactor),
-                                      boo::BlendFactor((slot.dstFactor == hecl::Backend::BlendFactor::Original) ? blendDst : slot.dstFactor),
-                                      tag.getPrimType(), zTest, slot.noDepthWrite ? false : tag.getDepthWrite(),
-                                      !slot.noColorWrite, !slot.noAlphaWrite,
-                                      (slot.cullMode == hecl::Backend::CullMode::Original) ?
-                                      (tag.getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
-                                      boo::CullMode(slot.cullMode), !slot.noAlphaOverwrite);
-            if (!ret)
-                Log.report(logvisor::Fatal, "unable to build shader");
-            returnFunc(ret);
-        }
-
-        return true;
-    }
-};
-
-IShaderBackendFactory* _NewSPIRVBackendFactory()
-{
-    return new struct SPIRVBackendFactory();
-}
-
-#endif
-
-}

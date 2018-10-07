@@ -1,8 +1,6 @@
 #ifndef HECLBACKEND_METAL_HPP
 #define HECLBACKEND_METAL_HPP
 
-#if BOO_HAS_METAL
-
 #include "ProgrammableCommon.hpp"
 
 namespace hecl::Backend
@@ -16,10 +14,10 @@ struct Metal : ProgrammableCommon
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
                          ReflectionType reflectionType,
-                         const ShaderFunction& lighting=ShaderFunction()) const;
+                         const Function& lighting=Function()) const;
     std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                         ReflectionType reflectionType, const ShaderFunction& lighting,
-                         const ShaderFunction& post, size_t extTexCount,
+                         ReflectionType reflectionType, const Function& lighting,
+                         const Function& post, size_t extTexCount,
                          const TextureInfo* extTexs) const;
 
 private:
@@ -46,5 +44,4 @@ private:
 
 }
 
-#endif // BOO_HAS_METAL
 #endif // HECLBACKEND_METAL_HPP

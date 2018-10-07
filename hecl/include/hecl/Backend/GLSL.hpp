@@ -12,15 +12,15 @@ namespace hecl::Backend
 struct GLSL : ProgrammableCommon
 {
     void reset(const IR& ir, Diagnostics& diag);
-    std::string makeVert(const char* glslVer, unsigned col, unsigned uv, unsigned w,
+    std::string makeVert(unsigned col, unsigned uv, unsigned w,
                          unsigned skinSlots, size_t extTexCount,
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
-    std::string makeFrag(const char* glslVer, bool alphaTest, ReflectionType reflectionType,
-                         const ShaderFunction& lighting=ShaderFunction()) const;
-    std::string makeFrag(const char* glslVer, bool alphaTest,
+    std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
+                         const Function& lighting=Function()) const;
+    std::string makeFrag(bool alphaTest,
                          ReflectionType reflectionType,
-                         const ShaderFunction& lighting,
-                         const ShaderFunction& post,
+                         const Function& lighting,
+                         const Function& post,
                          size_t extTexCount, const TextureInfo* extTexs) const;
 
 private:

@@ -1,6 +1,6 @@
 if(NOT CMAKE_CROSSCOMPILING)
 add_executable(bintoc bintoc.c)
-macro(bintoc out in sym)
+function(bintoc out in sym)
   if(IS_ABSOLUTE ${out})
     set(theOut ${out})
   else()
@@ -16,7 +16,7 @@ macro(bintoc out in sym)
   add_custom_command(OUTPUT ${theOut}
                      COMMAND $<TARGET_FILE:bintoc> ARGS ${theIn} ${theOut} ${sym}
                      DEPENDS ${theIn} bintoc)
-endmacro()
+endfunction()
 
 ##################
 # Package Export #

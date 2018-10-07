@@ -1,2 +1,3 @@
 DataSpecRegistry.hpp
+include/hecl/ApplicationReps.hpp
 .DS_Store

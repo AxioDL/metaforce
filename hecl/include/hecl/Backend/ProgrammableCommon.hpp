@@ -13,8 +13,6 @@ namespace hecl::Backend
 
 struct ProgrammableCommon : IBackend
 {
-    using ShaderFunction = Runtime::ShaderCacheExtensions::Function;
-
     std::string m_colorExpr;
     std::string m_alphaExpr;
     BlendFactor m_blendSrc;
