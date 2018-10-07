@@ -63,6 +63,7 @@ public:
     const CBodyStateInfo& GetBodyStateInfo() const { return x2a4_bodyStateInfo; }
     CBodyStateInfo& BodyStateInfo() { return x2a4_bodyStateInfo; }
     float GetTurnSpeed() const { return x2fc_turnSpeed; }
+    void SetLocomotionType(pas::ELocomotionType type) { x2ec_locomotionType = type; }
     pas::ELocomotionType GetLocomotionType() const { return x2ec_locomotionType; }
     CActor& GetOwner() const { return x0_actor; }
     bool IsAnimationOver() const { return x300_24_animationOver; }
@@ -106,6 +107,7 @@ public:
     EBodyType GetBodyType() const { return x2f4_bodyType; }
     bool HasBeenFrozen() const { return x300_27_hasBeenFrozen; }
     float GetRestrictedFlyerMoveSpeed() const { return x330_restrictedFlyerMoveSpeed; }
+    bool GetActive() const { return x300_25_active; }
 };
 }
 

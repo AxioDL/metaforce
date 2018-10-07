@@ -63,12 +63,12 @@ bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const
 
 bool CCEConstant::GetValue(int frame, zeus::CColor& valOut) const
 {
-    float a, b, c, d;
-    x4_a->GetValue(frame, a);
-    x8_b->GetValue(frame, b);
-    xc_c->GetValue(frame, c);
-    x10_d->GetValue(frame, d);
-    valOut = zeus::CColor(a, b, c, d);
+    float r, g, b, a;
+    x4_r->GetValue(frame, r);
+    x8_g->GetValue(frame, g);
+    xc_b->GetValue(frame, b);
+    x10_a->GetValue(frame, a);
+    valOut = zeus::CColor(r, g, b, a);
     return false;
 }
 

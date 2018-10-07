@@ -110,7 +110,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals()
             if (i < x10_treeNodes.size()-1)
             {
                 node = CTreeUtils::GetTransitionTree(node,
-                    CAnimTreeNode::Cast(x10_treeNodes[i+1]->Clone()), x0_animCtx);
+                    CAnimTreeNode::Cast(std::move(x10_treeNodes[i+1]->Clone())), x0_animCtx);
             }
         }
     }

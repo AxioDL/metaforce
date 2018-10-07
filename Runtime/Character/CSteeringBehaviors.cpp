@@ -35,4 +35,15 @@ CSteeringBehaviors::ProjectOrbitalPosition(const zeus::CVector3f& pos, const zeu
     return usePos;
 }
 
+bool CSteeringBehaviors::SolveQuadratic(float f30, float f31, float f3, float f4, float& out1, float& out2)
+{
+    float f1 = f31 * f31 - 4.f * f30 * f3;
+    if (f1 > FLT_EPSILON && std::fabs(f1) < FLT_EPSILON)
+        return false;
+
+    out1 = -f31 + std::sqrt(f1) / 2.f * f30;
+    out2 = -f31 - std::sqrt(f1) / 2.f * f30;
+    return true;
+}
+
 }

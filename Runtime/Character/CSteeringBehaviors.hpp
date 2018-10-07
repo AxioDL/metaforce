@@ -13,6 +13,7 @@ class CSteeringBehaviors
 public:
     static zeus::CVector3f ProjectOrbitalPosition(const zeus::CVector3f& pos, const zeus::CVector3f& vel,
                                                   const zeus::CVector3f& orbitPoint, float dt, float preThinkDt);
+    static bool SolveQuadratic(float, float, float, float, float&, float&);
 };
 
 }

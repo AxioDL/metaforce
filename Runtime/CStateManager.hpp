@@ -235,6 +235,7 @@ private:
 
     CColoredQuadFilter m_deathWhiteout = { EFilterType::Add };
     CColoredQuadFilter m_escapeWhiteout = { EFilterType::Add };
+    bool m_warping = false;
 
     void UpdateThermalVisor();
     static void RendererDrawCallback(const void*, const void*, int);
@@ -472,6 +473,8 @@ public:
     std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;
+
+    void SetWarping(bool v) { m_warping = true; }
 };
 }
 

@@ -10,7 +10,7 @@ namespace urde::MP1
 class CMetroidBeta : public CPatterned
 {
 public:
-    static constexpr ECharacter CharacterType = ECharacter::MetroidBeta;
+    DEFINE_PATTERNED(MetroidBeta)
     CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                  const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& aParms, const CMetroidData& metroidData);

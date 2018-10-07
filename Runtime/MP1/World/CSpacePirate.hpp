@@ -9,6 +9,10 @@ namespace urde::MP1
 
 class CSpacePirate : public CPatterned
 {
+public:
+    DEFINE_PATTERNED(SpacePirate)
+
+private:
     class CSpacePirateData
     {
         float x0_;

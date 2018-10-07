@@ -247,17 +247,14 @@ void CPhysicsActor::ComputeDerivedQuantities()
 
 bool CPhysicsActor::WillMove(const CStateManager&)
 {
-    if (!zeus::close_enough(zeus::CVector3f::skZero, x138_velocity) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x168_impulse) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x174_torque) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x18c_moveImpulse) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x144_angularVelocity) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x180_angularImpulse) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, x198_moveAngularImpulse) ||
-        !zeus::close_enough(zeus::CVector3f::skZero, GetTotalForcesWR()))
-        return true;
-
-    return false;
+    return !zeus::close_enough(zeus::CVector3f::skZero, x138_velocity) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x168_impulse) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x174_torque) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x18c_moveImpulse) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x144_angularVelocity) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x180_angularImpulse) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, x198_moveAngularImpulse) ||
+           !zeus::close_enough(zeus::CVector3f::skZero, GetTotalForcesWR());
 }
 
 void CPhysicsActor::SetPhysicsState(const CPhysicsState& state)

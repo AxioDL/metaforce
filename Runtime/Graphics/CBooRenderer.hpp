@@ -221,6 +221,7 @@ public:
     void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly);
     void PostRenderFogs();
     void AddParticleGen(const CParticleGen&);
+    void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&);
     void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
     void AddDrawable(void const *, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
     void SetDrawableCallback(TDrawableCallback, const void*);

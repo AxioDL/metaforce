@@ -27,7 +27,7 @@ class CPatternedInfo
     float x28_leashRadius;
     float x2c_playerLeashRadius;
     float x30_playerLeashTime;
-    CDamageInfo x34_damageInfo;
+    CDamageInfo x34_contactDamageInfo;
     float x50_damageWaitTime;
     CHealthInfo x54_healthInfo;
     CDamageVulnerability x5c_damageVulnerability;
@@ -62,6 +62,9 @@ public:
 
     CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
     const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
+
+    float GetHalfExtent() const { return xc4_halfExtent; }
+    float GetHeight() const { return xc8_height; }
 };
 }
 

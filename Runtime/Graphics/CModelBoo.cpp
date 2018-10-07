@@ -266,7 +266,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
     if (!x40_24_texturesLoaded && !g_DummyTextures)
         return nullptr;
 
-    if (m_instances.size() >= 256)
+    if (m_instances.size() >= 512)
         Log.report(logvisor::Fatal, "Model buffer overflow");
     m_instances.emplace_back();
     ModelInstance& newInst = m_instances.back();

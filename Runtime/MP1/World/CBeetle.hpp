@@ -19,6 +19,7 @@ public:
     };
 private:
 public:
+    DEFINE_PATTERNED(Beetle)
     CBeetle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, CPatterned::EFlavorType,EEntranceType, const CDamageInfo &, const CDamageVulnerability&,
             const zeus::CVector3f&, float, float, float, const CDamageVulnerability&, const CActorParameters&,

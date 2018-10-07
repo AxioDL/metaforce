@@ -29,15 +29,15 @@ CCharacterInfo::CParticleResData::CParticleResData(CInputStream& in, u16 tableCo
     }
 }
 
-static std::vector<std::pair<u32, std::pair<std::string, std::string>>>
+static std::vector<std::pair<s32, std::pair<std::string, std::string>>>
 MakeAnimInfoVector(CInputStream& in)
 {
-    std::vector<std::pair<u32, std::pair<std::string, std::string>>> ret;
+    std::vector<std::pair<s32, std::pair<std::string, std::string>>> ret;
     u32 animInfoCount = in.readUint32Big();
     ret.reserve(animInfoCount);
     for (u32 i=0 ; i<animInfoCount ; ++i)
     {
-        u32 idx = in.readUint32Big();
+        s32 idx = in.readInt32Big();
         std::string a = in.readString();
         std::string b = in.readString();
         ret.emplace_back(idx, std::make_pair(a, b));
@@ -97,6 +97,17 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
         for (u32 i=0 ; i<aidxCount ; ++i)
             xb0_animIdxs.push_back(in.readInt32Big());
     }
+}
+
+const s32 CCharacterInfo::GetAnimationIndex(std::string_view name) const
+{
+    for (const auto& pair : x20_animInfo)
+    {
+        if (pair.second.second.compare(name.data()) == 0)
+            return pair.first;
+    }
+
+    return -1;
 }
 
 }

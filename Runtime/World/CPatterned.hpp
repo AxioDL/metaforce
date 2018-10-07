@@ -10,10 +10,14 @@
 #include "TCastTo.hpp"
 #include "CDamageInfo.hpp"
 
+#ifndef DEFINE_PATTERNED
+#define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type;
+#endif
+
 namespace urde
 {
 class CPatternedInfo;
-
+class CProjectileInfo;
 class CPatternedUnknown2
 {
     friend class CPatterned;
@@ -103,7 +107,7 @@ public:
 protected:
     u32 x2d8_ = -1;
     TUniqueId x2dc_ = kInvalidUniqueId;
-    zeus::CVector3f x2e0_;
+    zeus::CVector3f x2e0_destPos;
     zeus::CVector3f x2ec_;
     float x2f8_ = 0.f;
     float x2fc_minAttackRange;
@@ -112,6 +116,7 @@ protected:
     float x308_attackTimeVariation;
     u32 x30c_ = 0;
     zeus::CVector3f x310_;
+    zeus::CVector3f x31c_;
     union
     {
         struct
@@ -152,7 +157,7 @@ protected:
     float x3c8_leashRadius;
     float x3cc_playerLeashRadius;
     float x3d0_playerLeashTime;
-    float x3d4_ = 0.f;
+    float x3d4_curPlayerLeashTime = 0.f;
     float x3d8_;
     float x3dc_;
     float x3e0_;
@@ -199,12 +204,14 @@ protected:
         u32 _dummy2 = 0;
     };
 
-    CDamageInfo x404_;
-    float x420_ = 0.f;
+    CDamageInfo x404_contactDamage;
+    float x420_curDamageTime = 0.f;
     float x424_damageWaitTime;
     float x428_ = -1.f;
     zeus::CColor x42c_ = zeus::CColor::skBlack;
     zeus::CColor x430_ = skDamageColor;
+    zeus::CVector3f x434_posDelta;
+    zeus::CQuaternion x440_rotDelta;
     CSteeringBehaviors x45c_;
     std::unique_ptr<CBodyController> x450_bodyController;
     u32 x454_deathSfx;
@@ -226,26 +233,69 @@ protected:
     std::experimental::optional<TLockedToken<CElectricDescription>> x530_;
     zeus::CVector3f x540_;
     std::experimental::optional<TLockedToken<CGenDescription>> x54c_;
-    /* x55c_ */
-    /* x560_ */
-    /* x564_ */
+    zeus::CVector3f x55c_;
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
                const CActorParameters& params, int variant);
 
-    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) {}
+    void Accept(IVisitor&);
+    void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+    void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_, mgr); }
     void Think(float, CStateManager&);
+    void PreRender(CStateManager&, const zeus::CFrustum&);
+
     void Touch(CActor&, CStateManager&);
-    virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
-    virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+    bool CanRenderUnsorted(const CStateManager& mgr) const;
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const
     {
         return GetAimPosition(mgr, 0.f);
     }
 
     zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
+
+    void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
+    void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
+    void TakeDamage(const zeus::CVector3f&, float) { x428_ = 0.33f;}
+    bool FixedRandom(CStateManager&, float) { return x330_stateMachineState.GetRandom() < x330_stateMachineState.x14_; }
+    bool Random(CStateManager&, float dt) { return x330_stateMachineState.GetRandom() < dt; }
+    //bool FixedDelay(CStateManager&, float dt) { return x330_stateMachineState.GetDelay() == dt; }
+
+    bool Default() { return true; }
+    virtual bool KnockbackWhenFrozen() const { return true;}
+    virtual void sub8007ace8(CStateManager&) {}
+    virtual void sub8007ab34(CStateManager&) {}
+    virtual void Burn(float, float) {}
+    virtual void Shock(float, float) {}
+    virtual void ThinkAboutMove(float);
+    virtual void GetSearchPath() {}
+    virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
+    virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_.a * 255);}
+    virtual bool IsOnGround() const { return x328_27_onGround; }
+    virtual float GetGravityConstant() const { return 24.525002f; }
+    virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
+    virtual void PhazeOut(CStateManager&) {}
+    virtual TLockedToken<CGenDescription>& GetX520() { return x520_.value(); }
+    float GetDamageDuration() const { return x504_damageDur; }
+    zeus::CVector3f GetGunEyePos() const;
+
+    void BuildBodyController(EBodyType);
+    const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
+    CBodyController* BodyController() { return x450_bodyController.get(); }
+    void SetupPlayerCollision(bool);
+
+
+    void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
+    void sub8007a68c(float, CStateManager&) {}
+    float sub80078a88();
+    void sub8007a5b8(float) {}
+
+    bool GetX328_26() const { return x328_26_; }
+    bool GetX402_28() const { return x402_28_; }
+
+    //region Casting Functions
 
     template <class T>
     static T* CastTo(CEntity* ent)
@@ -279,18 +329,7 @@ public:
         return nullptr;
     }
 
-    bool GetX328_26() const { return x328_26_; }
-    bool GetX402_28() const { return x402_28_; }
-
-    virtual bool IsOnGround() const { return x328_27_onGround; }
-    virtual float GetGravityConstant() const { return 24.525002f; }
-    float GetDamageDuration() const { return x504_damageDur; }
-    zeus::CVector3f GetGunEyePos() const;
-
-    void BuildBodyController(EBodyType);
-    const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
-    CBodyController* BodyController() { return x450_bodyController.get(); }
-    void SetupPlayerCollision(bool);
+    //endregion
 };
 }
 

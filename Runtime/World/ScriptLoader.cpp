@@ -1652,10 +1652,10 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
     const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
     CModelData mData(
         CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
-    return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, 6, f1, f2, f3,
-                              f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, 0.f, b1, 0,
-                              CDamageVulnerability::NormalVulnerabilty(), MP1::CParasiteInfo(), -1, -1, -1, -1, -1, 0.f,
-                              aParms);
+    return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
+                              EBodyType::WallWalker, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15,
+                              f16, f17, 0.f, b1, 0, CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(),
+                              -1, -1, -1, -1, -1, 0.f, aParms);
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2584,9 +2584,11 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
     CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                               actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
 
-    return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info, actHead.x10_transform,
-                              std::move(mData), pInfo, 6, 0.f, f1, f2, f3, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f,
-                              f5, f6, false, 2, CDamageVulnerability::NormalVulnerabilty(), MP1::CParasiteInfo(), sId1, sId2, sId3, -1, -1, 0.f, actParms);
+    return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info,
+                              actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, f1, f2, f3, f4, 0.2f, 0.4f, 0.f,
+                              0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f, f5, f6, false, 2,
+                              CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), sId1, sId2, sId3, -1,
+                              -1, 0.f, actParms);
 }
 
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

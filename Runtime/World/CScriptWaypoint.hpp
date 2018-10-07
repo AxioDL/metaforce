@@ -28,6 +28,7 @@ public:
     TUniqueId FollowWaypoint(CStateManager& mgr) const;
     TUniqueId NextWaypoint(CStateManager& mgr) const;
     float GetSpeed() const { return xe8_speed; }
+    float GetF0() const { return xf0_; }
 };
 }
 

@@ -383,7 +383,7 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr)
             x7cc_transitionSuit = suit;
             CAnimRes useRes = x7d0_animRes;
             useRes.SetCharacterNodeId(s32(x7cc_transitionSuit));
-            SetModelData(std::make_unique<CModelData>(x7d0_animRes));
+            SetModelData(std::make_unique<CModelData>(useRes));
             SetIntoBallReadyAnimation(mgr);
         }
         return;

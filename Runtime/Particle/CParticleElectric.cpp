@@ -625,7 +625,7 @@ bool CParticleElectric::Update(double dt)
     return ret;
 }
 
-void CParticleElectric::Render(const CActorLights*)
+void CParticleElectric::Render(const CActorLights* lights)
 {
     if (x3e8_electricManagers.size())
     {
@@ -640,13 +640,13 @@ void CParticleElectric::Render(const CActorLights*)
     if (x450_25_haveGPSM)
     {
         for (int i=0 ; i<x154_SCNT ; ++i)
-            x400_gpsmGenerators[i]->Render();
+            x400_gpsmGenerators[i]->Render(lights);
     }
 
     if (x450_26_haveEPSM)
     {
         for (int i=0 ; i<x154_SCNT ; ++i)
-            x410_epsmGenerators[i]->Render();
+            x410_epsmGenerators[i]->Render(lights);
     }
 }
 

@@ -176,8 +176,8 @@ public:
     const std::shared_ptr<CAnimTreeNode>& GetRootAnimationTree() const { return x1f8_animRoot; }
     const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(u32) const;
     bool IsAdditiveAnimationActive(u32) const;
-    void DelAdditiveAnimation(u32);
-    void AddAdditiveAnimation(u32, float, bool, bool);
+    void DelAdditiveAnimation(s32);
+    void AddAdditiveAnimation(s32, float, bool, bool);
     float GetAdditiveAnimationWeight(u32 idx) const;
     std::shared_ptr<CAnimationManager> GetAnimationManager();
     const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }

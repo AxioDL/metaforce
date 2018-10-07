@@ -1734,7 +1734,7 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     hInfo->SetHP(newHp);
     bool significant = std::fabs(newHp - hInfo->GetHP()) >= 0.00001;
 
-    if (player)
+    if (player && GetPlayerState()->CanTakeDamage())
     {
         player->TakeDamage(significant, vec1, mulDam, weapMode.GetType(), *this);
         if (newHp <= 0.f)
@@ -2008,8 +2008,11 @@ void CStateManager::Update(float dt)
         xf94_27_inMapScreen = false;
     }
 
-    g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
-    x850_world->TravelToArea(x8cc_nextAreaId, *this, false);
+    if (!m_warping)
+    {
+        g_GameState->CurrentWorldState().SetAreaId(x8cc_nextAreaId);
+        x850_world->TravelToArea(x8cc_nextAreaId, *this, false);
+    }
 
     ClearGraveyard();
     ++x8d8_updateFrameIdx;
