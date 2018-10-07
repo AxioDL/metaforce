@@ -1,5 +1,4 @@
-#ifndef URDE_LOCALE_HPP
-#define URDE_LOCALE_HPP
+#pragma once
 
 #include <specter/Translator.hpp>
 
@@ -12,4 +11,3 @@ const specter::Locale* SystemLocaleOrEnglish();
 
 }
 
-#endif // URDE_LOCALE_HPP
