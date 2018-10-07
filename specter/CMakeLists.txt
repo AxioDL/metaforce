@@ -91,3 +91,4 @@ list(APPEND SPECTER_SOURCES
      atdna_FontCache.cpp)
 
 add_library(specter ${SPECTER_SOURCES} ${SPECTER_HEADERS})
+add_dependencies(specter hecl-light)

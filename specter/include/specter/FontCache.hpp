@@ -8,6 +8,7 @@
 #include <hecl/Runtime.hpp>
 #include <athena/FileReader.hpp>
 #include <athena/FileWriter.hpp>
+#include <athena/DNA.hpp>
 
 namespace specter
 {

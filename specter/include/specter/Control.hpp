@@ -8,14 +8,28 @@ namespace specter
 class Control;
 class Button;
 
+enum class ControlType
+{
+    Button,
+    Float,
+    Int,
+    String,
+    CVar
+};
+
 struct IControlBinding
 {
+    virtual ControlType type() const = 0;
     virtual std::string_view name(const Control* control) const=0;
     virtual std::string_view help(const Control* control) const {return {};}
 };
 
 struct IButtonBinding : IControlBinding
 {
+    ControlType type() const { return ControlType::Button; }
+    static IButtonBinding* castTo(IControlBinding* bind)
+    { return bind->type() == ControlType::Button ? static_cast<IButtonBinding*>(bind) : nullptr; }
+
     /** Pressed/Released while Hovering action,
      *  cancellable by holding the button and releasing outside */
     virtual void activated(const Button* button, const boo::SWindowCoord& coord) {}
@@ -43,6 +57,9 @@ struct IButtonBinding : IControlBinding
 
 struct IFloatBinding : IControlBinding
 {
+    ControlType type() const { return ControlType::Float; }
+    static IFloatBinding* castTo(IControlBinding* bind)
+    { return bind->type() == ControlType::Float ? static_cast<IFloatBinding*>(bind) : nullptr; }
     virtual float getDefault(const Control* control) const {return 0.0;}
     virtual std::pair<float,float> getBounds(const Control* control) const {return std::make_pair(FLT_MIN, FLT_MAX);}
     virtual void changed(const Control* control, float val)=0;
@@ -50,6 +67,9 @@ struct IFloatBinding : IControlBinding
 
 struct IIntBinding : IControlBinding
 {
+    ControlType type() const { return ControlType::Int; }
+    static IIntBinding* castTo(IControlBinding* bind)
+    { return bind->type() == ControlType::Int ? static_cast<IIntBinding*>(bind) : nullptr; }
     virtual int getDefault(const Control* control) const {return 0;}
     virtual std::pair<int,int> getBounds(const Control* control) const {return std::make_pair(INT_MIN, INT_MAX);}
     virtual void changed(const Control* control, int val)=0;
@@ -57,6 +77,9 @@ struct IIntBinding : IControlBinding
 
 struct IStringBinding : IControlBinding
 {
+    ControlType type() const { return ControlType::String; }
+    static IStringBinding* castTo(IControlBinding* bind)
+    { return bind->type() == ControlType::String ? static_cast<IStringBinding*>(bind) : nullptr; }
     virtual std::string getDefault(const Control* control) const {return "";}
     virtual void changed(const Control* control, std::string_view val)=0;
 };
@@ -66,6 +89,9 @@ struct CVarControlBinding : IControlBinding
     hecl::CVar* m_cvar;
     CVarControlBinding(hecl::CVar* cvar)
     : m_cvar(cvar) {}
+    ControlType type() const { return ControlType::CVar; }
+    static CVarControlBinding* castTo(IControlBinding* bind)
+    { return bind->type() == ControlType::CVar ? static_cast<CVarControlBinding*>(bind) : nullptr; }
     std::string_view name(const Control* control) const {return m_cvar->name();}
     std::string_view help(const Control* control) const {return m_cvar->rawHelp();}
 };

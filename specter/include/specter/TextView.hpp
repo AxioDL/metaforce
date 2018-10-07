@@ -2,10 +2,7 @@
 #define SPECTER_TEXTVIEW_HPP
 
 #include "View.hpp"
-#include <boo/graphicsdev/GL.hpp>
-#include <boo/graphicsdev/D3D.hpp>
-#include <boo/graphicsdev/Metal.hpp>
-#include <boo/graphicsdev/Vulkan.hpp>
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 #include "FontCache.hpp"
 
@@ -62,7 +59,6 @@ private:
     size_t m_capacity;
     size_t m_curSize = 0;
     hecl::VertexBufferPool<RenderGlyph>::Token m_glyphBuf;
-    boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* OpenGL only */
     boo::ObjToken<boo::IShaderDataBinding> m_shaderBinding;
     const FontAtlas& m_fontAtlas;
     Alignment m_align;
@@ -90,27 +86,14 @@ public:
         FontCache* m_fcache = nullptr;
         boo::ObjToken<boo::IShaderPipeline> m_regular;
         boo::ObjToken<boo::IShaderPipeline> m_subpixel;
-        boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* Not OpenGL */
 
-#if BOO_HAS_GL
-        void init(boo::GLDataFactory::Context& ctx, FontCache* fcache);
-#endif
-#if _WIN32
-        void init(boo::D3DDataFactory::Context& ctx, FontCache* fcache);
-#endif
-#if BOO_HAS_METAL
-        void init(boo::MetalDataFactory::Context& ctx, FontCache* fcache);
-#endif
-#if BOO_HAS_VULKAN
-        void init(boo::VulkanDataFactory::Context& ctx, FontCache* fcache);
-#endif
+        void init(boo::IGraphicsDataFactory::Context& ctx, FontCache* fcache);
 
         void destroy()
         {
             m_glyphPool.doDestroy();
             m_regular.reset();
             m_subpixel.reset();
-            m_vtxFmt.reset();
         }
     };
 

@@ -123,7 +123,7 @@ bool SplitView::testJoinArrowHover(const boo::SWindowCoord& coord, int& origSlot
             dirOut = ArrowDir::Up;
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->testJoinArrowHover(coord, origDummy, splitOut, slotOut, rectOut, dirDummy, 0);
             }
@@ -140,7 +140,7 @@ bool SplitView::testJoinArrowHover(const boo::SWindowCoord& coord, int& origSlot
             dirOut = ArrowDir::Down;
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->testJoinArrowHover(coord, origDummy, splitOut, slotOut, rectOut, dirDummy, 1);
             }
@@ -160,7 +160,7 @@ bool SplitView::testJoinArrowHover(const boo::SWindowCoord& coord, int& origSlot
             dirOut = ArrowDir::Right;
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->testJoinArrowHover(coord, origDummy, splitOut, slotOut, rectOut, dirDummy, 0);
             }
@@ -177,7 +177,7 @@ bool SplitView::testJoinArrowHover(const boo::SWindowCoord& coord, int& origSlot
             dirOut = ArrowDir::Left;
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->testJoinArrowHover(coord, origDummy, splitOut, slotOut, rectOut, dirDummy, 1);
             }
@@ -199,7 +199,7 @@ void SplitView::getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir&
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->getJoinArrowHover(0, rectOut, dirOut);
             }
@@ -212,7 +212,7 @@ void SplitView::getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir&
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->getJoinArrowHover(1, rectOut, dirOut);
             }
@@ -228,7 +228,7 @@ void SplitView::getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir&
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->getJoinArrowHover(0, rectOut, dirOut);
             }
@@ -241,7 +241,7 @@ void SplitView::getJoinArrowHover(int slot, boo::SWindowRect& rectOut, ArrowDir&
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->getJoinArrowHover(1, rectOut, dirOut);
             }
@@ -265,7 +265,7 @@ bool SplitView::testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut,
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
             }
@@ -281,7 +281,7 @@ bool SplitView::testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut,
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
             }
@@ -300,7 +300,7 @@ bool SplitView::testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut,
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
             }
@@ -316,7 +316,7 @@ bool SplitView::testSplitLineHover(const boo::SWindowCoord& coord, int& slotOut,
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->testSplitLineHover(coord, slotOut, rectOut, splitOut, axisOut);
             }
@@ -339,7 +339,7 @@ void SplitView::getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axi
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->getSplitLineHover(0, rectOut, axisOut);
             }
@@ -352,7 +352,7 @@ void SplitView::getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axi
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Horizontal)
                     return chSplit->getSplitLineHover(1, rectOut, axisOut);
             }
@@ -368,7 +368,7 @@ void SplitView::getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axi
         {
             if (m_views[1].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[1].m_view);
+                SplitView* chSplit = m_views[1].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->getSplitLineHover(0, rectOut, axisOut);
             }
@@ -381,7 +381,7 @@ void SplitView::getSplitLineHover(int slot, boo::SWindowRect& rectOut, Axis& axi
         {
             if (m_views[0].m_view)
             {
-                SplitView* chSplit = dynamic_cast<SplitView*>(m_views[0].m_view);
+                SplitView* chSplit = m_views[0].m_view->castToSplitView();
                 if (chSplit && chSplit->m_axis == Axis::Vertical)
                     return chSplit->getSplitLineHover(1, rectOut, axisOut);
             }

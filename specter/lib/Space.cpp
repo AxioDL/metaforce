@@ -267,7 +267,7 @@ void Space::CornerView::mouseLeave(const boo::SWindowCoord& coord)
 
 SplitView* Space::findSplitViewOnSide(SplitView::Axis axis, int side)
 {
-    SplitView* ret = dynamic_cast<SplitView*>(&parentView());
+    SplitView* ret = parentView().castToSplitView();
     View* test = this;
     while (ret)
     {
@@ -277,7 +277,7 @@ SplitView* Space::findSplitViewOnSide(SplitView::Axis axis, int side)
             return ret;
         else if (ret->m_views[side].m_view == test)
             test = ret;
-        ret = dynamic_cast<SplitView*>(&ret->parentView());
+        ret = ret->parentView().castToSplitView();
     }
     return nullptr;
 }

@@ -320,7 +320,7 @@ void RootView::SplitMenuSystem::mouseUp(const boo::SWindowCoord& coord, boo::EMo
             {
                 m_interactiveDown = false;
                 m_phase = Phase::Inactive;
-                Space* space = dynamic_cast<Space*>(m_splitView->m_views[m_interactiveSlot].m_view);
+                Space* space = m_splitView->m_views[m_interactiveSlot].m_view->castToSpace();
                 if (space && space->m_controller.spaceSplitAllowed())
                 {
                     ISplitSpaceController* ss = space->m_controller.spaceSplit(axis, 0);
@@ -337,7 +337,7 @@ SplitView* RootView::recursiveTestSplitHover(SplitView* sv, const boo::SWindowCo
         return sv;
     for (int i=0 ; i<2 ; ++i)
     {
-        SplitView* child = dynamic_cast<SplitView*>(sv->m_views[i].m_view);
+        SplitView* child = sv->m_views[i].m_view->castToSplitView();
         if (child)
         {
             SplitView* res = recursiveTestSplitHover(child, coord);
@@ -391,7 +391,7 @@ void RootView::mouseMove(const boo::SWindowCoord& coord)
     {
         for (View* v : m_views)
         {
-            SplitView* sv = dynamic_cast<SplitView*>(v);
+            SplitView* sv = v->castToSplitView();
             if (sv)
                 sv = recursiveTestSplitHover(sv, coord);
             if (sv)

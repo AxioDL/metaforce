@@ -112,7 +112,10 @@ public:
         if (m_views[1].m_view)
             m_views[1].m_view->setMultiplyColor(color);
     }
+
+    bool isSplitView() const { return true; }
 };
+inline SplitView* View::castToSplitView() { return isSplitView() ? static_cast<SplitView*>(this) : nullptr; }
 
 }
 

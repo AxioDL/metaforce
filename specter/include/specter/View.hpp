@@ -1,7 +1,7 @@
 #ifndef SPECTER_VIEW_HPP
 #define SPECTER_VIEW_HPP
 
-#include <boo/boo.hpp>
+#include "boo/boo.hpp"
 #include "optional.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix4f.hpp"
@@ -10,11 +10,6 @@
 #include "hecl/CVar.hpp"
 #include "hecl/UniformBufferPool.hpp"
 #include "hecl/VertexBufferPool.hpp"
-
-#include <boo/graphicsdev/GL.hpp>
-#include <boo/graphicsdev/D3D.hpp>
-#include <boo/graphicsdev/Metal.hpp>
-#include <boo/graphicsdev/Vulkan.hpp>
 
 namespace specter
 {
@@ -81,6 +76,8 @@ public:
     }
 };
 
+class Space;
+class SplitView;
 class View
 {
 public:
@@ -111,7 +108,6 @@ public:
     struct VertexBufferBinding
     {
         typename hecl::VertexBufferPool<VertStruct>::Token m_vertsBuf;
-        boo::ObjToken<boo::IVertexFormat> m_vtxFmt; /* OpenGL only */
         boo::ObjToken<boo::IShaderDataBinding> m_shaderBinding;
 
         void load(const VertStruct* data, size_t count)
@@ -165,24 +161,6 @@ private:
 
 protected:
     ViewBlock m_viewVertBlock;
-#define SPECTER_GLSL_VIEW_VERT_BLOCK\
-    "UBINDING0 uniform SpecterViewBlock\n"\
-    "{\n"\
-    "    mat4 mv;\n"\
-    "    vec4 mulColor;\n"\
-    "};\n"
-#define SPECTER_HLSL_VIEW_VERT_BLOCK\
-    "cbuffer SpecterViewBlock : register(b0)\n"\
-    "{\n"\
-    "    float4x4 mv;\n"\
-    "    float4 mulColor;\n"\
-    "};\n"
-#define SPECTER_METAL_VIEW_VERT_BLOCK\
-    "struct SpecterViewBlock\n"\
-    "{\n"\
-    "    float4x4 mv;\n"\
-    "    float4 mulColor;\n"\
-    "};\n"
     hecl::UniformBufferPool<ViewBlock>::Token m_viewVertBlockBuf;
 
 public:
@@ -200,23 +178,9 @@ public:
         }
 
         boo::ObjToken<boo::IShaderPipeline> m_solidShader;
-        boo::ObjToken<boo::IVertexFormat> m_solidVtxFmt; /* Not OpenGL */
-
         boo::ObjToken<boo::IShaderPipeline> m_texShader;
-        boo::ObjToken<boo::IVertexFormat> m_texVtxFmt; /* Not OpenGL */
 
-#if BOO_HAS_GL
-        void init(boo::GLDataFactory::Context& ctx, const IThemeData& theme);
-#endif
-#if _WIN32
-        void init(boo::D3DDataFactory::Context& ctx, const IThemeData& theme);
-#endif
-#if BOO_HAS_METAL
-        void init(boo::MetalDataFactory::Context& ctx, const IThemeData& theme);
-#endif
-#if BOO_HAS_VULKAN
-        void init(boo::VulkanDataFactory::Context& ctx, const IThemeData& theme);
-#endif
+        void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
 
         void destroy()
         {
@@ -225,9 +189,7 @@ public:
             m_texPool.doDestroy();
 
             m_solidShader.reset();
-            m_solidVtxFmt.reset();
             m_texShader.reset();
-            m_texVtxFmt.reset();
         }
     };
 
@@ -292,6 +254,11 @@ public:
                          const boo::SWindowRect& scissor) {resized(root, sub);}
     virtual void think() {}
     virtual void draw(boo::IGraphicsCommandQueue* gfxQ);
+
+    virtual bool isSpace() const { return false; }
+    virtual bool isSplitView() const { return false; }
+    Space* castToSpace();
+    SplitView* castToSplitView();
 };
 
 template <class ViewPtrType>

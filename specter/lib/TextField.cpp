@@ -33,8 +33,9 @@ void TextField::_setText()
         m_textStr = m_deferredTextStr;
         m_text->typesetGlyphs(m_textStr, m_error ? rootView().themeData().uiText() :
                                                    rootView().themeData().fieldText());
-        if (m_controlBinding && dynamic_cast<IStringBinding*>(m_controlBinding))
-            static_cast<IStringBinding&>(*m_controlBinding).changed(this, m_textStr);
+        if (m_controlBinding)
+            if (IStringBinding* strBind = IStringBinding::castTo(m_controlBinding))
+                strBind->changed(this, m_textStr);
         m_hasTextSet = false;
         if (m_deferredMarkStr.size())
             m_hasMarkSet = true;

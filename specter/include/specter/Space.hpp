@@ -74,7 +74,10 @@ public:
         if (m_toolbar.m_view)
             m_toolbar.m_view->setMultiplyColor(color);
     }
+
+    bool isSpace() const { return true; }
 };
+inline Space* View::castToSpace() { return isSpace() ? static_cast<Space*>(this) : nullptr; }
 
 }
 

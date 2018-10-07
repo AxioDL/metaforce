@@ -17,7 +17,6 @@ class NumericField : public View
     boo::IGraphicsBufferD* m_bBlockBuf;
 
     boo::IGraphicsBufferD* m_bVertsBuf;
-    boo::IVertexFormat* m_bVtxFmt; /* OpenGL only */
     boo::IShaderDataBinding* m_bShaderBinding;
 
     int m_nomWidth, m_nomHeight;

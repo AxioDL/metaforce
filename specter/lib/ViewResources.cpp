@@ -17,31 +17,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
     m_curveFont = fcache->prepCurvesFont(AllCharFilter, false, 8.f, dpi);
 
     factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
-        switch (ctx.platform())
-        {
-#if BOO_HAS_GL
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            init<boo::GLDataFactory::Context>(static_cast<boo::GLDataFactory::Context&>(ctx), *theme, fcache);
-            break;
-#endif
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-            init<boo::D3DDataFactory::Context>(static_cast<boo::D3DDataFactory::Context&>(ctx), *theme, fcache);
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            init<boo::MetalDataFactory::Context>(static_cast<boo::MetalDataFactory::Context&>(ctx), *theme, fcache);
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            init<boo::VulkanDataFactory::Context>(static_cast<boo::VulkanDataFactory::Context&>(ctx), *theme, fcache);
-            break;
-#endif
-        default:
-            Log.report(logvisor::Fatal, _S("unable to init view system for %s"), ctx.platformName());
-        }
+        init(ctx, *theme, fcache);
         return true;
     } BooTrace);
 }
