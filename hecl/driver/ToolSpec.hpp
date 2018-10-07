@@ -1,5 +1,4 @@
-#ifndef CTOOL_SPEC
-#define CTOOL_SPEC
+#pragma once
 
 #include "ToolBase.hpp"
 #include <cstdio>
@@ -155,4 +154,3 @@ public:
     }
 };
 
-#endif // CTOOL_SPEC

@@ -1,5 +1,4 @@
-#ifndef CVARMANAGER_HPP
-#define CVARMANAGER_HPP
+#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -89,4 +88,3 @@ private:
 
 }
 
-#endif // CVARMANAGER_HPP

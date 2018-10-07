@@ -1,5 +1,4 @@
-#ifndef HECL_FOURCC_HPP
-#define HECL_FOURCC_HPP
+#pragma once
 
 #include <cstdint>
 #include <cstddef>
@@ -59,4 +58,3 @@ template <> struct hash<hecl::FourCC>
 };
 }
 
-#endif // HECL_FOURCC_HPP

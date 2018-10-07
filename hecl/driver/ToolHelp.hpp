@@ -1,5 +1,4 @@
-#ifndef CTOOL_HELP
-#define CTOOL_HELP
+#pragma once
 
 #include "ToolBase.hpp"
 #include <cstdio>
@@ -91,4 +90,3 @@ public:
     }
 };
 
-#endif // CTOOL_HELP

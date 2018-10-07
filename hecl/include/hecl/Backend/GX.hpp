@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_GX_HPP
-#define HECLBACKEND_GX_HPP
+#pragma once
 
 #include "Backend.hpp"
 #include <athena/DNA.hpp>
@@ -591,4 +590,3 @@ private:
 
 }
 
-#endif // HECLBACKEND_GX_HPP

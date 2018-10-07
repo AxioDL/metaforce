@@ -1,5 +1,4 @@
-#ifndef HECLFRONTEND_HPP
-#define HECLFRONTEND_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -378,4 +377,3 @@ public:
 
 }
 
-#endif // HECLFRONTEND_HPP

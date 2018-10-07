@@ -1,5 +1,4 @@
-#ifndef HECLDATABASE_HPP
-#define HECLDATABASE_HPP
+#pragma once
 
 #include <iterator>
 #include <string>
@@ -481,4 +480,3 @@ public:
 }
 }
 
-#endif // HECLDATABASE_HPP

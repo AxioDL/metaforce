@@ -1,5 +1,4 @@
-#ifndef HECL_HPP
-#define HECL_HPP
+#pragma once
 
 #ifndef _WIN32
 #include <cstdlib>
@@ -1468,4 +1467,3 @@ template <> struct hash<hecl::Hash>
 };
 }
 
-#endif // HECL_HPP

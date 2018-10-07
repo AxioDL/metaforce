@@ -1,5 +1,4 @@
-#ifndef HECL_UNIFORMBUFFERPOOL_HPP
-#define HECL_UNIFORMBUFFERPOOL_HPP
+#pragma once
 
 #include <boo/boo.hpp>
 #include <vector>
@@ -204,4 +203,3 @@ public:
 
 }
 
-#endif // HECL_UNIFORMBUFFERPOOL_HPP

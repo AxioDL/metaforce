@@ -11,8 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef HECL_LLVM_ADT_BITVECTOR_H
-#define HECL_LLVM_ADT_BITVECTOR_H
+#pragma once
 
 #include "MathExtras.hpp"
 #include <algorithm>
@@ -615,4 +614,3 @@ namespace std {
   }
 } // end namespace std
 
-#endif // LLVM_ADT_BITVECTOR_H

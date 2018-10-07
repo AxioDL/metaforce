@@ -1,5 +1,4 @@
-#ifndef HECLRUNTIME_HPP
-#define HECLRUNTIME_HPP
+#pragma once
 
 #include "hecl.hpp"
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
@@ -56,4 +55,3 @@ struct HMDLData
 }
 }
 
-#endif // HECLRUNTIME_HPP

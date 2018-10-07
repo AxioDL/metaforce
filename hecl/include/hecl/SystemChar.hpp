@@ -1,5 +1,4 @@
-#ifndef SYSTEMCHAR_HPP
-#define SYSTEMCHAR_HPP
+#pragma once
 
 #ifndef _WIN32
 #include <cstdlib>
@@ -62,4 +61,3 @@ typedef struct stat Sstat;
 
 }
 
-#endif

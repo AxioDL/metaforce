@@ -1,5 +1,4 @@
-#ifndef CTOOL_IMAGE
-#define CTOOL_IMAGE
+#pragma once
 
 #if HECL_HAS_NOD
 
@@ -156,4 +155,3 @@ public:
 
 #endif
 
-#endif // CTOOL_IMAGE

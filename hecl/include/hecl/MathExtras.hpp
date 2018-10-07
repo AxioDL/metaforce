@@ -11,8 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef HECL_LLVM_SUPPORT_MATHEXTRAS_H
-#define HECL_LLVM_SUPPORT_MATHEXTRAS_H
+#pragma once
 
 /// \macro LLVM_GNUC_PREREQ
 /// \brief Extend the default __GNUC_PREREQ even if glibc's features.h isn't
@@ -854,4 +853,3 @@ extern const float huge_valf;
 } // End llvm namespace
 } // End hecl namespace
 
-#endif

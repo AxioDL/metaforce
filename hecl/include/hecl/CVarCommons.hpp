@@ -1,5 +1,4 @@
-#ifndef CVARCOMMONS_HPP
-#define CVARCOMMONS_HPP
+#pragma once
 
 #include "CVarManager.hpp"
 
@@ -91,4 +90,3 @@ struct CVarCommons
 
 }
 
-#endif // CVARCOMMONS_HPP

@@ -1,5 +1,4 @@
-#ifndef BLENDERCONNECTION_HPP
-#define BLENDERCONNECTION_HPP
+#pragma once
 
 #if _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -715,4 +714,3 @@ public:
 
 }
 
-#endif // BLENDERCONNECTION_HPP

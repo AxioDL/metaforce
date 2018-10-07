@@ -1,5 +1,4 @@
-﻿#ifndef CVAR_HPP
-#define CVAR_HPP
+﻿#pragma once
 
 #include <string>
 #include <functional>
@@ -157,5 +156,4 @@ public:
 };
 
 }
-#endif // CVAR_HPP
 

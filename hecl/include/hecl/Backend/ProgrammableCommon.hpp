@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_PROGCOMMON_HPP
-#define HECLBACKEND_PROGCOMMON_HPP
+#pragma once
 
 #include "Backend.hpp"
 #include "hecl/Runtime.hpp"
@@ -136,4 +135,3 @@ private:
 
 }
 
-#endif // HECLBACKEND_PROGCOMMON_HPP

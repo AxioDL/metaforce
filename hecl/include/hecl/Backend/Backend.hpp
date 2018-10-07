@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_HPP
-#define HECLBACKEND_HPP
+#pragma once
 
 #include "hecl/Frontend.hpp"
 
@@ -238,4 +237,3 @@ template <> struct hash<hecl::Backend::ShaderTag>
 };
 }
 
-#endif // HECLBACKEND_HPP

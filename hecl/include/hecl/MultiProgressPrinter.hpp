@@ -1,5 +1,4 @@
-#ifndef HECLMULTIPROGRESSPRINTER_HPP
-#define HECLMULTIPROGRESSPRINTER_HPP
+#pragma once
 
 #include "hecl.hpp"
 #include <thread>
@@ -58,4 +57,3 @@ public:
 
 }
 
-#endif // HECLMULTIPROGRESSPRINTER_HPP

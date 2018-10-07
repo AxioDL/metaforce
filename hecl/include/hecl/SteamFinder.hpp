@@ -1,5 +1,4 @@
-#ifndef _HECL_STEAMFINDER_H_
-#define _HECL_STEAMFINDER_H_
+#pragma once
 
 #include "hecl/SystemChar.hpp"
 
@@ -11,4 +10,3 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name);
 }
 
 
-#endif // _HECL_STEAMFINDER_H_

@@ -1,5 +1,4 @@
-#ifndef CTOOL_COOK
-#define CTOOL_COOK
+#pragma once
 
 #include "ToolBase.hpp"
 #include <cstdio>
@@ -180,4 +179,3 @@ public:
     }
 };
 
-#endif // CTOOL_COOK

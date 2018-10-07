@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_GLSL_HPP
-#define HECLBACKEND_GLSL_HPP
+#pragma once
 
 #include "ProgrammableCommon.hpp"
 
@@ -46,4 +45,3 @@ private:
 
 }
 
-#endif // HECLBACKEND_GLSL_HPP

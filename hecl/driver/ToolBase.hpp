@@ -1,5 +1,4 @@
-#ifndef CTOOL_BASE
-#define CTOOL_BASE
+#pragma once
 
 #include <string>
 #include <vector>
@@ -274,4 +273,3 @@ static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
 #endif
 }
 
-#endif // CTOOL_BASE

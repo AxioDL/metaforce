@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_METAL_HPP
-#define HECLBACKEND_METAL_HPP
+#pragma once
 
 #include "ProgrammableCommon.hpp"
 
@@ -44,4 +43,3 @@ private:
 
 }
 
-#endif // HECLBACKEND_METAL_HPP

@@ -1,5 +1,4 @@
-#ifndef HMDLMETA_HPP
-#define HMDLMETA_HPP
+#pragma once
 
 #include "hecl/hecl.hpp"
 #include "athena/DNA.hpp"
@@ -31,4 +30,3 @@ struct HMDLMeta : athena::io::DNA<athena::Big>
 
 }
 
-#endif // HMDLMETA_HPP

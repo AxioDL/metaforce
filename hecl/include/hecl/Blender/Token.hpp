@@ -1,5 +1,4 @@
-#ifndef HECL_BLENDERTOKEN_HPP
-#define HECL_BLENDERTOKEN_HPP
+#pragma once
 
 #include <memory>
 
@@ -24,4 +23,3 @@ public:
 
 }
 
-#endif // HECL_BLENDERTOKEN_HPP

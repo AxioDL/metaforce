@@ -1,5 +1,4 @@
-#ifndef HECLBACKEND_HLSL_HPP
-#define HECLBACKEND_HLSL_HPP
+#pragma once
 
 #include "ProgrammableCommon.hpp"
 
@@ -42,4 +41,3 @@ private:
 
 }
 
-#endif // HECLBACKEND_HLSL_HPP

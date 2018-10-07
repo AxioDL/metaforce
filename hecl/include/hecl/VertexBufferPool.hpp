@@ -1,5 +1,4 @@
-#ifndef HECL_VERTEXBUFFERPOOL_HPP
-#define HECL_VERTEXBUFFERPOOL_HPP
+#pragma once
 
 #include <boo/boo.hpp>
 #include <vector>
@@ -208,4 +207,3 @@ public:
 
 }
 
-#endif // HECL_VERTEXBUFFERPOOL_HPP

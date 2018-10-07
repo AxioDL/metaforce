@@ -1,5 +1,4 @@
-#ifndef __URDE_CONSOLE_HPP__
-#define __URDE_CONSOLE_HPP__
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -113,4 +112,3 @@ public:
 };
 }
 
-#endif // __URDE_CONSOLE_HPP__

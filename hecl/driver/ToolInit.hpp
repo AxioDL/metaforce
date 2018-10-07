@@ -1,5 +1,4 @@
-#ifndef CTOOL_INIT
-#define CTOOL_INIT
+#pragma once
 
 #include "ToolBase.hpp"
 #include <cstdio>
@@ -85,4 +84,3 @@ public:
     hecl::SystemString toolName() const {return _S("init");}
 };
 
-#endif // CTOOL_INIT

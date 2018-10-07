@@ -1,5 +1,4 @@
-#ifndef CTOOL_EXTRACT
-#define CTOOL_EXTRACT
+#pragma once
 
 #include "ToolBase.hpp"
 #include <cstdio>
@@ -184,4 +183,3 @@ public:
     }
 };
 
-#endif // CTOOL_EXTRACT

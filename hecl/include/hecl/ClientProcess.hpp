@@ -1,5 +1,4 @@
-#ifndef HECL_CLIENT_PROCESS_HPP
-#define HECL_CLIENT_PROCESS_HPP
+#pragma once
 
 #include "hecl.hpp"
 #include "Database.hpp"
@@ -118,4 +117,3 @@ public:
 
 }
 
-#endif // HECL_CLIENT_PROCESS_HPP

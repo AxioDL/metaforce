@@ -1,5 +1,4 @@
-#ifndef CTOOL_PACKAGE
-#define CTOOL_PACKAGE
+#pragma once
 
 #include <vector>
 #include <string>
@@ -215,4 +214,3 @@ public:
     }
 };
 
-#endif // CTOOL_PACKAGE
