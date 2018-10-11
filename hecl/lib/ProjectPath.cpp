@@ -77,7 +77,7 @@ void ProjectPath::assign(Database::Project& project, SystemStringView path)
     m_absPath = SystemString(project.getProjectRootPath().getAbsolutePath()) + _S('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
-    
+
     ComputeHash();
 }
 
@@ -118,6 +118,38 @@ void ProjectPath::assign(const ProjectPath& parentPath, std::string_view path)
     assign(parentPath, wpath);
 }
 #endif
+
+ProjectPath ProjectPath::getWithExtension(const SystemChar* ext, bool replace) const
+{
+    ProjectPath pp(*this);
+    if (replace)
+    {
+        auto relIt = pp.m_relPath.end();
+        if (relIt != pp.m_relPath.begin())
+            --relIt;
+        auto absIt = pp.m_absPath.end();
+        if (absIt != pp.m_absPath.begin())
+            --absIt;
+        while (relIt != pp.m_relPath.begin() && *relIt != _S('.') && *relIt != _S('/'))
+        {
+            --relIt;
+            --absIt;
+        }
+        if (*relIt == _S('.') && relIt != pp.m_relPath.begin())
+        {
+            pp.m_relPath.resize(relIt - pp.m_relPath.begin());
+            pp.m_absPath.resize(absIt - pp.m_absPath.begin());
+        }
+    }
+    if (ext)
+    {
+        pp.m_relPath += ext;
+        pp.m_absPath += ext;
+    }
+
+    pp.ComputeHash();
+    return pp;
+}
 
 ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) const
 {

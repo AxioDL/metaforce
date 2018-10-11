@@ -83,6 +83,9 @@ public:
             m_extension.texCount, m_extension.texs);
     }
     const hecl::Backend::ShaderTag& getTag() const { return m_tag; }
+    const hecl::Backend::ExtensionSlot& extension() const { return m_extension; }
+    std::pair<hecl::Backend::BlendFactor, hecl::Backend::BlendFactor> blendFactors() const
+    { return {m_backend.m_blendSrc, m_backend.m_blendDst}; }
 };
 
 template<typename P>
@@ -134,6 +137,7 @@ StageCollection<T<P, Rest...>>::StageCollection(PipelineConverter<P>& conv, Fact
     m_fragment = conv.getFragmentConverter().convert(ctx, StageSourceText<P, PipelineStage::Fragment>(in.makeFrag()));
     m_vtxFmtData = in.getTag().vertexFormat();
     m_vtxFmt = boo::VertexFormatInfo(m_vtxFmtData.size(), m_vtxFmtData.data());
+    m_additionalInfo = in.getTag().additionalInfo(in.extension(), in.blendFactors());
     MakeHash();
 }
 

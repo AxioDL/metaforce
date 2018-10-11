@@ -149,44 +149,50 @@ class SACTAction_load(bpy.types.Operator):
 
         # Set single action into armature
         if subtype.linked_armature in bpy.data.objects:
-            armature_obj = bpy.data.objects[subtype.linked_armature]
+            armature_objs = [bpy.data.objects[subtype.linked_armature]]
+            
+            for attachment in actor_data.attachments:
+                if attachment.linked_armature in bpy.data.objects:
+                    attachment_armature = bpy.data.objects[attachment.linked_armature]
+                    armature_objs.append(attachment_armature)
 
-            for bone in armature_obj.pose.bones:
-                bone.location = (0,0,0)
-                bone.rotation_quaternion = (1,0,0,0)
-                bone.scale = (1,1,1)
+            for armature_obj in armature_objs:
+                for bone in armature_obj.pose.bones:
+                    bone.location = (0,0,0)
+                    bone.rotation_quaternion = (1,0,0,0)
+                    bone.scale = (1,1,1)
 
-            if action_data.name in bpy.data.actions:
-                action_obj =\
-                bpy.data.actions[action_data.name]
-                armature_obj.animation_data_clear()
-                armature_obj.animation_data_create()
-                armature_obj.animation_data.action = action_obj
+                if action_data.name in bpy.data.actions:
+                    action_obj =\
+                    bpy.data.actions[action_data.name]
+                    armature_obj.animation_data_clear()
+                    armature_obj.animation_data_create()
+                    armature_obj.animation_data.action = action_obj
 
-                # Time remapping
-                if context.scene.hecl_auto_remap:
-                    bpy.context.scene.render.fps = 60
-                    bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
-                    bpy.context.scene.render.frame_map_new = 60
-                    bpy.context.scene.frame_start = 0
-                    bpy.context.scene.frame_end = action_obj.frame_range[1] * (60 / action_obj.hecl_fps)
+                    # Time remapping
+                    if context.scene.hecl_auto_remap:
+                        bpy.context.scene.render.fps = 60
+                        bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
+                        bpy.context.scene.render.frame_map_new = 60
+                        bpy.context.scene.frame_start = 0
+                        bpy.context.scene.frame_end = action_obj.frame_range[1] * (60 / action_obj.hecl_fps)
+                    else:
+                        bpy.context.scene.render.fps = action_obj.hecl_fps
+                        bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
+                        bpy.context.scene.render.frame_map_new = action_obj.hecl_fps
+                        bpy.context.scene.frame_start = 0
+                        bpy.context.scene.frame_end = action_obj.frame_range[1]
+
+                    # Events
+                    #SACTEvent.clear_action_events(self, context, actor_data)
+                    #SACTEvent.load_action_events(self, context, action_obj, 0)
+
                 else:
-                    bpy.context.scene.render.fps = action_obj.hecl_fps
-                    bpy.context.scene.render.frame_map_old = action_obj.hecl_fps
-                    bpy.context.scene.render.frame_map_new = action_obj.hecl_fps
-                    bpy.context.scene.frame_start = 0
-                    bpy.context.scene.frame_end = action_obj.frame_range[1]
+                    armature_obj.animation_data_clear()
+                    self.report({'WARNING'}, "Unable to load action; check HECL panel")
+                    return {'FINISHED'}
 
-                # Events
-                #SACTEvent.clear_action_events(self, context, actor_data)
-                #SACTEvent.load_action_events(self, context, action_obj, 0)
-
-                return {'FINISHED'}
-
-            else:
-                armature_obj.animation_data_clear()
-                self.report({'WARNING'}, "Unable to load action; check HECL panel")
-                return {'FINISHED'}
+            return {'FINISHED'}
 
         else:
             self.report({'WARNING'}, "Unable to load armature; check HECL panel")

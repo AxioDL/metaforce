@@ -834,37 +834,7 @@ public:
      * @param replace remove existing extension (if any) before appending new extension
      * @return new path with extension
      */
-     ProjectPath getWithExtension(const SystemChar* ext, bool replace=false) const
-    {
-        ProjectPath pp(*this);
-        if (replace)
-        {
-            auto relIt = pp.m_relPath.end();
-            if (relIt != pp.m_relPath.begin())
-                --relIt;
-            auto absIt = pp.m_absPath.end();
-            if (absIt != pp.m_absPath.begin())
-                --absIt;
-            while (relIt != pp.m_relPath.begin() && *relIt != _S('.') && *relIt != _S('/'))
-            {
-                --relIt;
-                --absIt;
-            }
-            if (*relIt == _S('.') && relIt != pp.m_relPath.begin())
-            {
-                pp.m_relPath.resize(relIt - pp.m_relPath.begin());
-                pp.m_absPath.resize(absIt - pp.m_absPath.begin());
-            }
-        }
-        if (ext)
-        {
-            pp.m_relPath += ext;
-            pp.m_absPath += ext;
-        }
-
-        pp.ComputeHash();
-        return pp;
-    }
+     ProjectPath getWithExtension(const SystemChar* ext, bool replace=false) const;
 
     /**
      * @brief Access fully-canonicalized absolute path
@@ -1063,7 +1033,10 @@ public:
      */
     ProjectPath ensureAuxInfo(SystemStringView auxStr) const
     {
-        return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + auxStr.data());
+        if (auxStr.empty())
+            return ProjectPath(getProject(), getRelativePath());
+        else
+            return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + auxStr.data());
     }
 
 #if HECL_UCS2

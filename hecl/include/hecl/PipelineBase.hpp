@@ -66,9 +66,7 @@ public:
     uint64_t Hash() const { return m_hash; }
 
     explicit StageSourceText(std::string_view text)
-    {
-        m_hash = XXH64(m_text.data(), m_text.size(), 0);
-    }
+    : m_text(text), m_hash(XXH64(m_text.data(), m_text.size(), 0)) {}
     std::string_view text() const { return m_text; }
 };
 

@@ -504,6 +504,14 @@ struct Actor
         Subtype(Connection& conn);
     };
     std::vector<Subtype> subtypes;
+    struct Attachment
+    {
+        std::string name;
+        ProjectPath mesh;
+        int32_t armature = -1;
+        Attachment(Connection& conn);
+    };
+    std::vector<Attachment> attachments;
     std::vector<Action> actions;
 
     Actor(Connection& conn);
@@ -572,6 +580,7 @@ public:
     std::vector<std::string> getSubtypeNames();
     std::vector<std::string> getActionNames();
     std::vector<std::string> getSubtypeOverlayNames(std::string_view name);
+    std::vector<std::string> getAttachmentNames();
 
     std::unordered_map<std::string, Matrix3f> getBoneMatrices(std::string_view name);
 

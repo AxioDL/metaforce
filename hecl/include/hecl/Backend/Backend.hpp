@@ -4,6 +4,7 @@
 
 namespace hecl::Backend
 {
+struct ExtensionSlot;
 
 using IR = Frontend::IR;
 using Diagnostics = Frontend::Diagnostics;
@@ -159,6 +160,9 @@ public:
 
         return ret;
     }
+
+    boo::AdditionalPipelineInfo additionalInfo(const ExtensionSlot& ext,
+        std::pair<BlendFactor, BlendFactor> blendFactors) const;
 };
 
 struct Function
@@ -225,6 +229,44 @@ struct ExtensionSlot
         return m_hash;
     }
 };
+
+inline boo::AdditionalPipelineInfo ShaderTag::additionalInfo(const ExtensionSlot& ext,
+    std::pair<BlendFactor, BlendFactor> blendFactors) const
+{
+    boo::ZTest zTest;
+    switch (ext.depthTest)
+    {
+    case hecl::Backend::ZTest::Original:
+    default:
+        zTest = getDepthTest() ? boo::ZTest::LEqual : boo::ZTest::None;
+        break;
+    case hecl::Backend::ZTest::None:
+        zTest = boo::ZTest::None;
+        break;
+    case hecl::Backend::ZTest::LEqual:
+        zTest = boo::ZTest::LEqual;
+        break;
+    case hecl::Backend::ZTest::Greater:
+        zTest = boo::ZTest::Greater;
+        break;
+    case hecl::Backend::ZTest::Equal:
+        zTest = boo::ZTest::Equal;
+        break;
+    case hecl::Backend::ZTest::GEqual:
+        zTest = boo::ZTest::GEqual;
+        break;
+    }
+
+    return {
+        boo::BlendFactor((ext.srcFactor == BlendFactor::Original) ? blendFactors.first : ext.srcFactor),
+        boo::BlendFactor((ext.dstFactor == BlendFactor::Original) ? blendFactors.second : ext.dstFactor),
+        getPrimType(), zTest, ext.noDepthWrite ? false : getDepthWrite(),
+        !ext.noColorWrite, !ext.noAlphaWrite,
+        (ext.cullMode == hecl::Backend::CullMode::Original) ?
+        (getBackfaceCulling() ? boo::CullMode::Backface : boo::CullMode::None) :
+        boo::CullMode(ext.cullMode), !ext.noAlphaOverwrite
+    };
+}
 
 }
 

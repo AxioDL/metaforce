@@ -19,6 +19,11 @@ class SACTData(bpy.types.PropertyGroup):
     show_subtypes =\
     bpy.props.BoolProperty()
 
+    attachments = \
+    bpy.props.CollectionProperty(type=SACTSubtype.SACTAttachment, name="Attachment List")
+    active_attachment = \
+    bpy.props.IntProperty(name="Active Attachment", default=0, update=SACTSubtype.active_subtype_update)
+
     actions =\
     bpy.props.CollectionProperty(type=SACTAction.SACTAction, name="Actor Action List")
     active_action =\
@@ -268,6 +273,32 @@ def _out_subtypes(sact_data, writebuf):
             else:
                 writebuf(struct.pack('I', 0))
 
+def _out_attachments(sact_data, writebuf):
+    writebuf(struct.pack('I', len(sact_data.attachments)))
+    for attachment in sact_data.attachments:
+        writebuf(struct.pack('I', len(attachment.name)))
+        writebuf(attachment.name.encode())
+
+        mesh = None
+        if attachment.linked_mesh in bpy.data.objects:
+            mesh = bpy.data.objects[attachment.linked_mesh]
+
+        if mesh and mesh.library:
+            mesh_path = bpy.path.abspath(mesh.library.filepath)
+            writebuf(struct.pack('I', len(mesh_path)))
+            writebuf(mesh_path.encode())
+        else:
+            writebuf(struct.pack('I', 0))
+
+        arm = None
+        if attachment.linked_armature in bpy.data.objects:
+            arm = bpy.data.objects[attachment.linked_armature]
+
+        arm_idx = -1
+        if arm:
+            arm_idx = bpy.data.armatures.find(arm.name)
+        writebuf(struct.pack('i', arm_idx))
+
 def _out_actions(sact_data, writebuf):
     writebuf(struct.pack('I', len(sact_data.actions)))
     for action_idx in range(len(sact_data.actions)):
@@ -335,6 +366,9 @@ def cook(writebuf):
     # Output subtypes
     _out_subtypes(sact_data, writebuf)
 
+    # Output attachments
+    _out_attachments(sact_data, writebuf)
+
     # Output actions
     _out_actions(sact_data, writebuf)
 
@@ -347,6 +381,9 @@ def cook_character_only(writebuf):
 
     # Output subtypes
     _out_subtypes(sact_data, writebuf)
+
+    # Output attachments
+    _out_attachments(sact_data, writebuf)
 
     # Output no actions
     writebuf(struct.pack('I', 0))
@@ -386,6 +423,15 @@ def get_subtype_overlay_names(writebuf, subtypeName):
                 writebuf(overlay.name.encode())
             return
     writebuf(struct.pack('I', 0))
+
+# Access contained attachment names
+def get_attachment_names(writebuf):
+    sact_data = bpy.context.scene.hecl_sact_data
+    writebuf(struct.pack('I', len(sact_data.attachments)))
+    for att_idx in range(len(sact_data.attachments)):
+        attachment = sact_data.attachments[att_idx]
+        writebuf(struct.pack('I', len(attachment.name)))
+        writebuf(attachment.name.encode())
 
 # Access actor's contained action names
 def get_action_names(writebuf):

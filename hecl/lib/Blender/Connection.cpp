@@ -1546,6 +1546,12 @@ Actor::Actor(Connection& conn)
     for (uint32_t i=0 ; i<subtypeCount ; ++i)
         subtypes.emplace_back(conn);
 
+    uint32_t attachmentCount;
+    conn._readBuf(&attachmentCount, 4);
+    attachments.reserve(attachmentCount);
+    for (uint32_t i=0 ; i<attachmentCount ; ++i)
+        attachments.emplace_back(conn);
+
     uint32_t actionCount;
     conn._readBuf(&actionCount, 4);
     actions.reserve(actionCount);
@@ -1675,6 +1681,29 @@ Actor::Subtype::Subtype(Connection& conn)
             ProjectPath(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel));
         }
     }
+}
+
+Actor::Attachment::Attachment(Connection& conn)
+{
+    uint32_t bufSz;
+    conn._readBuf(&bufSz, 4);
+    name.assign(bufSz, ' ');
+    conn._readBuf(&name[0], bufSz);
+
+    std::string meshPath;
+    conn._readBuf(&bufSz, 4);
+    if (bufSz)
+    {
+        meshPath.assign(bufSz, ' ');
+        conn._readBuf(&meshPath[0], bufSz);
+        SystemStringConv meshPathAbs(meshPath);
+
+        SystemString meshPathRel =
+            conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
+        mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
+    }
+
+    conn._readBuf(&armature, 4);
 }
 
 Action::Action(Connection& conn)
@@ -2222,6 +2251,37 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
     m_parent->_readBuf(&subCount, 4);
     ret.reserve(subCount);
     for (uint32_t i=0 ; i<subCount ; ++i)
+    {
+        ret.emplace_back();
+        std::string& name = ret.back();
+        uint32_t bufSz;
+        m_parent->_readBuf(&bufSz, 4);
+        name.assign(bufSz, ' ');
+        m_parent->_readBuf(&name[0], bufSz);
+    }
+
+    return ret;
+}
+
+std::vector<std::string> DataStream::getAttachmentNames()
+{
+    if (m_parent->getBlendType() != BlendType::Actor)
+        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+                          m_parent->getBlendPath().getAbsolutePath().data());
+
+    m_parent->_writeStr("GETATTACHMENTNAMES");
+
+    char readBuf[256];
+    m_parent->_readStr(readBuf, 256);
+    if (strcmp(readBuf, "OK"))
+        BlenderLog.report(logvisor::Fatal, "unable to get attachments of actor: %s", readBuf);
+
+    std::vector<std::string> ret;
+
+    uint32_t attCount;
+    m_parent->_readBuf(&attCount, 4);
+    ret.reserve(attCount);
+    for (uint32_t i=0 ; i<attCount ; ++i)
     {
         ret.emplace_back();
         std::string& name = ret.back();
