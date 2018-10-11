@@ -52,8 +52,6 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
 std::pair<bool, u32> CPatternedInfo::HasCorrectParameterCount(CInputStream& in)
 {
     u32 pcount = in.readUint32Big();
-    if (pcount < 35 || pcount > 38)
-        return {false, pcount};
-    return {true, pcount};
+    return {(pcount >= 35 && pcount <= 38), pcount};
 }
 }

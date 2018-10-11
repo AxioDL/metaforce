@@ -2,9 +2,16 @@ set(MP1_WORLD_SOURCES
     CNewIntroBoss.hpp CNewIntroBoss.cpp
     CBeetle.hpp CBeetle.cpp
     CWarWasp.hpp CWarWasp.cpp
+    CElitePirate.hpp CElitePirate.cpp
+    CBloodFlower.hpp CBloodFlower.cpp
     CSpacePirate.hpp CSpacePirate.cpp
     CParasite.hpp CParasite.cpp
     CBabygoth.hpp CBabygoth.cpp
+    CTryclops.hpp CTryclops.cpp
+    CFireFlea.hpp CFireFlea.cpp
+    CEyeball.hpp CEyeball.cpp
+    CAtomicAlpha.hpp CAtomicAlpha.cpp
+    CFlickerBat.hpp CFlickerBat.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp
@@ -13,6 +20,9 @@ set(MP1_WORLD_SOURCES
     CMetroidBeta.hpp CMetroidBeta.cpp
     CMetroid.hpp CMetroid.cpp
     CMetaree.hpp CMetaree.cpp
+    CBurrower.hpp CBurrower.cpp
+    CPuffer.hpp CPuffer.cpp
+    CMagdolite.hpp CMagdolite.cpp
     CSeedling.hpp CSeedling.cpp
     CRidley.hpp CRidley.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp

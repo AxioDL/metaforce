@@ -49,6 +49,7 @@ class CScriptSpindleCamera : public CGameCamera
     float x328_ = 0.f;
     bool x32c_24 = false;
     zeus::CVector3f x330_lookDir;
+    bool x33c_24_;
 public:
     CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                          const zeus::CTransform& xf, bool active, u32 r9,
@@ -62,8 +63,9 @@ public:
                          const SSpindleProperty& seg14, const SSpindleProperty& seg15);
 
     void Accept(IVisitor& visitor);
-    void ProcessInput(const CFinalInput& input, CStateManager& mgr);
+    void Think(float, CStateManager&);
     void Reset(const zeus::CTransform& xf, CStateManager& mgr);
+    void ProcessInput(const CFinalInput& input, CStateManager& mgr);
 };
 
 }

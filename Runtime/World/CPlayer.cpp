@@ -5817,7 +5817,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
             float backwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
             if (forwards < backwards)
                 forwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
-            return (vDoubleJumpAccel - (vDoubleJumpAccel - hDoubleJumpAccel) * forwards) * xe8_mass * jumpFactor;
+            return ((vDoubleJumpAccel - (vDoubleJumpAccel - hDoubleJumpAccel) * forwards) * xe8_mass) * jumpFactor;
         }
 
         return GetGravity() * xe8_mass;
@@ -5831,7 +5831,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
             if (ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input))
             {
                 SetMoveState(EPlayerMovementState::Jump, mgr);
-                return vJumpAccel * xe8_mass * jumpFactor;
+                return (vJumpAccel * xe8_mass) * jumpFactor;
             }
             return 0.f;
         }
@@ -5839,7 +5839,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
         float backwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
         if (forwards < backwards)
             forwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Backward, input);
-        return (vJumpAccel - (vJumpAccel - hJumpAccel) * forwards) * xe8_mass * jumpFactor;
+        return ((vJumpAccel - (vJumpAccel - hJumpAccel) * forwards) * xe8_mass) * jumpFactor;
     }
 
     if (x258_movementState == EPlayerMovementState::Jump)

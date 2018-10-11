@@ -56,7 +56,7 @@ std::string_view ScriptObjectTypeToStr(EScriptObjectType type)
     case EScriptObjectType::PuddleToadGamma: return "PuddleToadGamma"sv;
     case EScriptObjectType::DistanceFog: return "DistanceFog"sv;
     case EScriptObjectType::FireFlea: return "FireFlea"sv;
-    case EScriptObjectType::MetareeAlpha: return "MetareeAlpha"sv;
+    case EScriptObjectType::Metaree: return "Metaree"sv;
     case EScriptObjectType::DockAreaChange: return "DockAreaChange"sv;
     case EScriptObjectType::ActorRotate: return "ActorRotate"sv;
     case EScriptObjectType::SpecialFunction: return "SpecialFunction"sv;

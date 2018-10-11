@@ -73,6 +73,7 @@ set(WORLD_SOURCES
     CScriptPlayerHint.hpp CScriptPlayerHint.cpp
     CScriptPlayerStateChange.hpp CScriptPlayerStateChange.cpp
     CScriptTargetingPoint.hpp CScriptTargetingPoint.cpp
+    CScriptEMPulse.hpp CScriptEMPulse.cpp
     CScriptPlayerActor.hpp CScriptPlayerActor.cpp
     CFishCloud.hpp CFishCloud.cpp
     CFishCloudModifier.hpp CFishCloudModifier.cpp

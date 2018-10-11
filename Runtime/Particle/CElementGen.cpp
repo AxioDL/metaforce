@@ -275,7 +275,7 @@ bool CElementGen::Update(double t)
         Log.report(logvisor::Info,
                    "Running warmup on particle system 0x%08x for %d ticks.",
                    desc, pswt);
-        InternalUpdate(pswt / 60.0);
+        InternalUpdate((1.f / 60.f) * pswt);
         x26d_25_warmedUp = true;
     }
     bool ret = InternalUpdate(t);

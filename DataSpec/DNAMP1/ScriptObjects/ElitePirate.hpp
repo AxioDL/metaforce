@@ -44,7 +44,7 @@ struct ElitePirate : IScriptObject
     Value<float> unknown13;
     Value<float> unknown14;
     Value<float> unknown15;
-    Value<float> unknown16;
+    Value<atUint32> unknown16;
     Value<atUint32> soundID3;
     Value<atUint32> soundID4;
     UniqueID32 particle7;

@@ -1,7 +1,3 @@
-//
-// Created by antidote on 8/19/17.
-//
-
 #include "CMetaree.hpp"
 
 namespace urde::MP1

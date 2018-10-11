@@ -251,7 +251,7 @@ void CGrappleArm::LoadSuitPoll()
 {
     if (NWeaponTypes::are_tokens_ready(x19c_suitDeps[int(x3a8_loadedSuit)]))
     {
-        x0_grappleArmModel.emplace(CAnimRes(g_tweakGunRes->x8_grappleArm, 0, x31c_scale, 41, false));
+        x0_grappleArmModel.emplace(CAnimRes(g_tweakGunRes->x8_grappleArm, int(x3a8_loadedSuit), x31c_scale, 41, false));
         x0_grappleArmModel->SetSortThermal(true);
         x328_gunController = std::make_unique<CGunController>(*x0_grappleArmModel);
         x3b2_29_suitLoading = false;

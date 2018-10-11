@@ -31,6 +31,10 @@ public:
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager&);
     void Touch(CActor &, CStateManager &);
+    std::experimental::optional<zeus::CAABox> GetTouchBounds() const
+    {
+        return CPhysicsActor::GetBoundingBox();
+    }
     float GetPossibility() const { return x264_possibility; }
     CPlayerState::EItemType GetItem() { return x258_itemType; }
 };

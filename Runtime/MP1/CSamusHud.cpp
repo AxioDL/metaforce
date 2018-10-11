@@ -1597,7 +1597,7 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha,
     if (x29c_decoIntf && !x2cc_preLoadCountdown)
         x29c_decoIntf->Draw();
 
-    if (x2bc_nextState >= EHudState::Combat && x2bc_nextState < EHudState::Scan)
+    if (x2bc_nextState >= EHudState::Combat && x2bc_nextState <= EHudState::Scan)
     {
         if (hudVis &&
             helmetVis != CInGameGuiManager::EHelmetVisMode::ReducedUpdate &&

@@ -82,7 +82,7 @@ public:
     static CEntity* LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadDistanceFog(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadFireFlea(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-    static CEntity* LoadMetareeAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+    static CEntity* LoadMetaree(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadDockAreaChange(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadActorRotate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
     static CEntity* LoadSpecialFunction(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

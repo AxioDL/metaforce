@@ -155,7 +155,7 @@ void CWorldTransManager::UpdateText(float dt)
         if (printed >= nextSfxInterval)
         {
             x3c_sfxInterval = nextSfxInterval;
-            //CSfxManager::SfxStart(SFXsfx059E, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+            CSfxManager::SfxStart(SFXsfx059E, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         }
     }
 
@@ -424,6 +424,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
     else
         x1c_bgHeight = 0.f;
 
+    StartTransition();
     TouchModels();
 }
 
@@ -446,6 +447,7 @@ void CWorldTransManager::EnableTransition(CAssetId fontId, CAssetId stringId, u3
     x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
     xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});
     x8_textData->SetText(u"");
+    StartTransition();
 }
 
 void CWorldTransManager::StartTextFadeOut()

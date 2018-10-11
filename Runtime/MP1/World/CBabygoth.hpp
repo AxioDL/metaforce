@@ -3,37 +3,37 @@
 
 #include "World/CPatterned.hpp"
 
-namespace urde
+namespace urde::MP1
 {
 class CBabygothData
 {
     float x0_;
     float x4_;
-    u32 x8_;
+    CAssetId x8_;
     CDamageInfo xc_;
     CDamageInfo x28_;
-    u32 x44_;
-    u32 x48_;
+    CAssetId x44_;
+    CAssetId x48_;
     CDamageInfo x4c_;
     CDamageVulnerability x68_;
     CDamageVulnerability xd0_;
-    u32 x138_;
-    u32 x13c_;
+    CAssetId x138_;
+    CAssetId x13c_;
     float x140_;
     s16 x144_;
-    u32 x148_;
-    u32 x14c_;
-    u32 x150_;
-    u32 x154_;
+    CAssetId x148_;
+    CAssetId x14c_;
+    CAssetId x150_;
+    CAssetId x154_;
     s16 x158_;
     s16 x15a_;
     s16 x15c_;
     float x160_;
     float x164_;
     float x168_;
-    u32 x16c_;
+    CAssetId x16c_;
     s16 x170_;
-    u32 x174_;
+    CAssetId x174_;
 public:
     CBabygothData(CInputStream&);
     CAssetId GetShellModelResId() const;
@@ -45,6 +45,14 @@ public:
     void GetFireballAttackTime() const;
     void GetFireBreathDamage() const;
     CAssetId GetFireBreathResId() const;
+};
+
+class CBabygoth : public CPatterned
+{
+public:
+    DEFINE_PATTERNED(Babygoth)
+    CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+        const CPatternedInfo&, const CActorParameters&, const CBabygothData&);
 };
 
 }

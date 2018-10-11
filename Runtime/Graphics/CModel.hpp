@@ -108,7 +108,11 @@ struct SShader
     MaterialSet m_matSet;
     std::experimental::optional<GeometryUniformLayout> m_geomLayout;
     int m_matSetIdx;
-    SShader(int idx) : m_matSetIdx(idx) {}
+    SShader(int idx) : m_matSetIdx(idx)
+    {
+        x0_textures.clear();
+        m_shaders.clear();
+    }
     void InitializeLayout(const CModel* model) { m_geomLayout.emplace(model, &m_matSet); }
     void UnlockTextures();
     std::shared_ptr<hecl::Runtime::ShaderPipelines>

@@ -14,12 +14,13 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts)
 {
 #ifndef NDEBUG
+    x64_itemCounts[int(CPlayerState::EItemType::GravitySuit)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::ThermalVisor)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::XRayVisor)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::GrappleBeam)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::BoostBall)] = 1;
     x64_itemCounts[int(CPlayerState::EItemType::ChargeBeam)] = 1;
-    x64_itemCounts[int(CPlayerState::EItemType::PowerBombs)] = 1;
+    x64_itemCounts[int(CPlayerState::EItemType::PowerBombs)] = 8;
 #endif
     x10c_24_firstSpawn = defaultSpawn;
     x10c_25_morphed = morphed;

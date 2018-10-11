@@ -10,9 +10,11 @@
 #include "zeus/CColor.hpp"
 
 #include "hecl/Runtime.hpp"
+#include "hecl/CVar.hpp"
 
 namespace urde
 {
+extern hecl::CVar* g_disableLighting;
 class CLight;
 class CTimeProvider;
 

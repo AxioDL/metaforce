@@ -55,7 +55,7 @@ enum class EScriptObjectType
     PuddleToadGamma = 0x34,
     DistanceFog = 0x35,
     FireFlea = 0x36,
-    MetareeAlpha = 0x37,
+    Metaree = 0x37,
     DockAreaChange = 0x38,
     ActorRotate = 0x39,
     SpecialFunction = 0x3A,

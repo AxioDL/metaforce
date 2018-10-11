@@ -291,7 +291,7 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
 {
     if (instIdx >= m_instances.size())
         return;
-    
+
     Instance& instance = const_cast<Instance&>(m_instances[instIdx]);
 
     if (surfColor.a)

@@ -217,14 +217,14 @@ BOO_GLSL_BINDING_HEAD
 "    {\n"
 "        vec3 delta = mvPosIn - lights[i].pos.xyz;\n"
 "        float dist = length(delta);\n"
-"        float angDot = clamp(dot(normalize(delta), lights[i].dir.xyz), 0.0, 1.0);\n"
+"        float angDot = clamp(dot(normalize(delta).xyz, lights[i].dir.xyz), 0.0, 1.0);\n"
 "        float att = 1.0 / (lights[i].linAtt[2] * dist * dist +\n"
 "                           lights[i].linAtt[1] * dist +\n"
 "                           lights[i].linAtt[0]);\n"
 "        float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
 "                       lights[i].angAtt[1] * angDot +\n"
 "                       lights[i].angAtt[0];\n"
-"        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn), 0.0, 1.0);\n"
+"        ret += lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta).xyz, mvNormIn), 0.0, 1.0);\n"
 "    }\n"
 "    \n"
 "    return ret;\n"
@@ -554,8 +554,8 @@ static void _BuildFragShader(std::string& finalFS, int& nextTex, const char* tex
             // Output reg 0, subtract, clamp, no bias
 
             combiner += "    vec3 lightVec = lights[3].pos.xyz - vtf.mvPos.xyz;\n"
-                        "    float lx = dot(vtf.mvTangent, lightVec);\n"
-                        "    float ly = dot(vtf.mvBinorm, lightVec);\n";
+                        "    float lx = dot(vtf.mvTangent.xyz, lightVec);\n"
+                        "    float ly = dot(vtf.mvBinorm.xyz, lightVec);\n";
             combiner += hecl::Format("    vec4 emboss1 = texture(bumpMap, vtf.uvs[%d]) + vec4(0.5);\n"
                                      "    vec4 emboss2 = texture(bumpMap, vtf.uvs[%d] + vec2(lx, ly));\n",
                                      bumpMapUv, bumpMapUv);

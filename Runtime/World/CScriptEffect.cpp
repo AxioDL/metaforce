@@ -407,6 +407,13 @@ zeus::CAABox CScriptEffect::GetSortingBounds(const CStateManager& mgr) const
 
 bool CScriptEffect::AreBothSystemsDeleteable()
 {
-    return x104_particleSystem->IsSystemDeletable() && xf4_electric->IsSystemDeletable();
+    bool ret = true;
+    if (x104_particleSystem && !x104_particleSystem->IsSystemDeletable())
+        ret = false;
+
+    if (xf4_electric && !xf4_electric->IsSystemDeletable())
+        ret = false;
+
+    return ret;
 }
 }

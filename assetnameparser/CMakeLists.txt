@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
+set(BUILD_TESTING OFF)
 add_subdirectory(tinyxml2)
 add_executable(assetnameparser "main.cpp")
 include_directories(${LOGVISOR_INCLUDE_DIR})

@@ -660,6 +660,7 @@ public:
     CPlayerGun* GetPlayerGun() const { return x490_gun.get(); }
     CMorphBall* GetMorphBall() const { return x768_morphball.get(); }
     CPlayerCameraBob* GetCameraBob() const { return x76c_cameraBob.get(); }
+    float GetStaticTimer() const { return x740_staticTimer; }
     float GetDeathTime() const { return x9f4_deathTime; }
     const CPlayerEnergyDrain& GetEnergyDrain() const { return x274_energyDrain; }
     EPlayerZoneInfo GetOrbitZone() const { return x330_orbitZoneMode; }

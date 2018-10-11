@@ -95,8 +95,9 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             const auto& world = mgr.WorldNC();
             world->SetLoadPauseState(true);
             CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
+            g_GameState->SetCurrentWorldId(x34_worldId);
 
-            if (g_ResFactory->GetResourceTypeById(currentWorld) == SBIG('MLVL'))
+            if (g_ResFactory->GetResourceTypeById(x34_worldId) == SBIG('MLVL'))
             {
                 StartTransition(mgr);
                 g_GameState->SetCurrentWorldId(x34_worldId);

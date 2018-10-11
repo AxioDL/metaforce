@@ -20,7 +20,7 @@ class CScriptDistanceFog : public CEntity
     bool x60_explicit;
     bool x61_nonZero;
 public:
-    CScriptDistanceFog(TUniqueId, std::string_view, const CEntityInfo&, const ERglFogMode&,
+    CScriptDistanceFog(TUniqueId, std::string_view, const CEntityInfo&, ERglFogMode,
                        const zeus::CColor&, const zeus::CVector2f&, float, const zeus::CVector2f&,
                        bool, bool, float, float, float, float);
 

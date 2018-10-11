@@ -6,7 +6,7 @@
 namespace urde
 {
 CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                       const ERglFogMode& mode, const zeus::CColor& color,
+                                       ERglFogMode mode, const zeus::CColor& color,
                                        const zeus::CVector2f& range, float colorDelta,
                                        const zeus::CVector2f& rangeDelta, bool expl, bool active,
                                        float thermalTarget, float thermalSpeed, float xrayTarget, float xraySpeed)

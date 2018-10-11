@@ -1,6 +1,8 @@
 #include "CScriptSpindleCamera.hpp"
 #include "Camera/CCameraManager.hpp"
+#include "CStateManager.hpp"
 #include "ScriptLoader.hpp"
+#include "Camera/CBallCamera.hpp"
 #include "TCastTo.hpp"
 
 namespace urde
@@ -43,7 +45,16 @@ void CScriptSpindleCamera::ProcessInput(const CFinalInput& input, CStateManager&
 
 void CScriptSpindleCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr)
 {
+    const CScriptCameraHint* hint = mgr.GetCameraManager()->GetCameraHint(mgr);
+    if (!GetActive() || hint == nullptr)
+        return;
 
+    x33c_24_ = true;
+    mgr.GetCameraManager()->GetBallCamera()->UpdateLookAtPosition(0.01f, mgr);
+}
+
+void CScriptSpindleCamera::Think(float, CStateManager&)
+{
 }
 
 }

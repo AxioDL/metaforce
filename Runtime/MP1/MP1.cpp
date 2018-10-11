@@ -488,6 +488,8 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
         {
             pState->IncrPickup(eType, 9999);
             console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
+            if (g_StateManager)
+                g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
             return;
         }
 
@@ -517,7 +519,8 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args)
         else
             pState->DecrPickup(eType, zeus::clamp(0u, u32(abs(itemAmt)), pState->GetItemAmount(eType)));
     }
-    g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+    if (g_StateManager)
+        g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
     console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
 }
 

@@ -130,7 +130,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
     x90c_loaderFuncs[int(EScriptObjectType::PuddleToadGamma)] = ScriptLoader::LoadPuddleToadGamma;
     x90c_loaderFuncs[int(EScriptObjectType::DistanceFog)] = ScriptLoader::LoadDistanceFog;
     x90c_loaderFuncs[int(EScriptObjectType::FireFlea)] = ScriptLoader::LoadFireFlea;
-    x90c_loaderFuncs[int(EScriptObjectType::MetareeAlpha)] = ScriptLoader::LoadMetareeAlpha;
+    x90c_loaderFuncs[int(EScriptObjectType::Metaree)] = ScriptLoader::LoadMetaree;
     x90c_loaderFuncs[int(EScriptObjectType::DockAreaChange)] = ScriptLoader::LoadDockAreaChange;
     x90c_loaderFuncs[int(EScriptObjectType::ActorRotate)] = ScriptLoader::LoadActorRotate;
     x90c_loaderFuncs[int(EScriptObjectType::SpecialFunction)] = ScriptLoader::LoadSpecialFunction;
@@ -1123,7 +1123,7 @@ void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMe
 {
     CEntity* ent = ObjectById(src);
     auto search = GetIdListForScript(dest);
-    if (ent && search.first != x890_scriptIdMap.cend())
+    if (search.first != x890_scriptIdMap.cend())
     {
         for (auto it = search.first; it != search.second; ++it)
         {
@@ -1278,14 +1278,14 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
     u32 readAmt = in.position() - startPos;
     if (readAmt > length)
-        LogModule.report(logvisor::Fatal, "Script object overread");
+        LogModule.report(logvisor::Fatal, "Script object overread while reading %s", ScriptObjectTypeToStr(type).data());
     u32 leftover = length - readAmt;
     for (u32 i=0 ; i<leftover ; ++i)
         in.readByte();
 
     if (error || ent == nullptr)
     {
-        LogModule.report(logvisor::Fatal, "Script load error");
+        LogModule.report(logvisor::Error, "Script load error while loading %s", ScriptObjectTypeToStr(type).data());
         return {kInvalidEditorId, kInvalidUniqueId};
     }
     else

@@ -28,7 +28,7 @@ struct BloodFlower : IScriptObject
     UniqueID32 particle4;
     Value<float> unknown1;
     UniqueID32 particle5;
-    Value<float> unknown2;
+    Value<atUint32> unknown2;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
