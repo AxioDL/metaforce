@@ -53,11 +53,10 @@ struct ElitePirate : IScriptObject
     Value<bool> unknown17;
     Value<bool> unknown18;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
-        actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+        actorParameters1.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
+        actorParameters2.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const

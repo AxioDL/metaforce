@@ -42,8 +42,7 @@ void MREA::ReadBabeDeadToBlender_1_2(hecl::blender::PyOutStream& os,
 }
 
 void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
-                           PAKRouter<PAKBridge>& pakRouter,
-                           std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo)
+                           PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc)
 {
     /* Do extract */
     Header head;
@@ -58,7 +57,7 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs,
     rs.seek(secStart, athena::Begin);
     SCLY scly;
     scly.read(rs);
-    scly.addCMDLRigPairs(pakRouter, addTo);
+    scly.addCMDLRigPairs(pakRouter, charAssoc);
 }
 
 UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs)

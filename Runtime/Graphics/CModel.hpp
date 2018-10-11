@@ -102,8 +102,6 @@ struct GeometryUniformLayout
 
 struct SShader
 {
-
-
     std::vector<TCachedToken<CTexture>> x0_textures;
     std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
     MaterialSet m_matSet;

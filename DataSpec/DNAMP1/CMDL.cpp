@@ -14,7 +14,7 @@ bool CMDL::Extract(const SpecBase& dataSpec,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
     /* Check for RigPair */
-    const PAKRouter<PAKBridge>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id);
+    const typename CharacterAssociations<UniqueID32>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id);
     CINF cinf;
     CSKR cskr;
     std::pair<CSKR*,CINF*> loadRp(nullptr, nullptr);

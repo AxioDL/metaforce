@@ -399,8 +399,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Read>(athena::io::IStr
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.read(reader);
-        cskrOverlay.read(reader);
+        cmdlIce.read(reader);
+        cskrIce.read(reader);
     }
 
     animIdxs.clear();
@@ -421,7 +421,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -472,8 +472,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.write(writer);
-        cskrOverlay.write(writer);
+        cmdlIce.write(writer);
+        cskrIce.write(writer);
     }
 
     if (sectionCount > 4)
@@ -494,7 +494,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(size_t& __
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -594,7 +594,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::ReadYaml>(athena::io::
 
     if (sectionCount > 3)
     {
-        reader.enumerate("cmdlOverride", cmdlOverlay);
+        reader.enumerate("cmdlIce", cmdlIce);
     }
 
     animIdxs.clear();
@@ -614,7 +614,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -656,7 +656,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
 
     if (sectionCount > 3)
     {
-        writer.enumerate("cmdlOverride", cmdlOverlay);
+        writer.enumerate("cmdlIce", cmdlIce);
     }
 
     if (sectionCount > 4)
@@ -1179,8 +1179,8 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         ch.cmdl = UniqueID32{};
         ch.cskr = UniqueID32{};
         ch.cinf = UniqueID32{};
-        ch.cmdlOverlay = UniqueID32Zero{};
-        ch.cskrOverlay = UniqueID32Zero{};
+        ch.cmdlIce = UniqueID32Zero{};
+        ch.cskrIce = UniqueID32Zero{};
 
         hecl::SystemStringConv chSysName(ch.name);
         ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR"));
@@ -1209,12 +1209,14 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                     hecl::SystemStringConv armSysName(arm.name);
                     ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF"));
                     ch.cmdl = sub.mesh;
-                    if (sub.overlayMeshes.size())
+                    auto search = std::find_if(sub.overlayMeshes.cbegin(), sub.overlayMeshes.cend(),
+                                               [](const auto& p) { return p.first == "ICE"; });
+                    if (search != sub.overlayMeshes.cend())
                     {
-                        hecl::SystemStringConv overlaySys(sub.overlayMeshes[0].first);
-                        ch.cmdlOverlay = sub.overlayMeshes[0].second;
-                        ch.cskrOverlay = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
-                                                              overlaySys.c_str() + _S(".CSKR"));
+                        hecl::SystemStringConv overlaySys(search->first);
+                        ch.cmdlIce = search->second;
+                        ch.cskrIce = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
+                                                          overlaySys.c_str() + _S(".CSKR"));
                     }
                 }
 
@@ -1314,19 +1316,37 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     }
 
     const DNAANCS::Actor::Subtype* subtype = nullptr;
-    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    if (subName != "ATTACH")
     {
-        if (!sub.name.compare(subNameView.str()))
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
-            subtype = &sub;
-            break;
+            if (!sub.name.compare(subNameView.str()))
+            {
+                subtype = &sub;
+                break;
+            }
         }
+        if (!subtype)
+            Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
     }
-    if (!subtype)
-        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
 
     const hecl::ProjectPath* modelPath = nullptr;
-    if (overName.empty())
+    if (subName == "ATTACH")
+    {
+        const DNAANCS::Actor::Attachment* attachment = nullptr;
+        for (const DNAANCS::Actor::Attachment& att : actor.attachments)
+        {
+            if (!att.name.compare(overNameView.str()))
+            {
+                attachment = &att;
+                break;
+            }
+        }
+        if (!attachment)
+            Log.report(logvisor::Fatal, _S("unable to find attachment '%s'"), overName.c_str());
+        modelPath = &attachment->mesh;
+    }
+    else if (overName.empty())
     {
         modelPath = &subtype->mesh;
     }
@@ -1434,19 +1454,37 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
     }
 
     const DNAANCS::Actor::Subtype* subtype = nullptr;
-    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    if (subName != "ATTACH")
     {
-        if (!sub.name.compare(subNameView.str()))
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
-            subtype = &sub;
-            break;
+            if (!sub.name.compare(subNameView.str()))
+            {
+                subtype = &sub;
+                break;
+            }
         }
+        if (!subtype)
+            Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
     }
-    if (!subtype)
-        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
 
     const hecl::ProjectPath* modelPath = nullptr;
-    if (overName.empty())
+    if (subName == "ATTACH")
+    {
+        const DNAANCS::Actor::Attachment* attachment = nullptr;
+        for (const DNAANCS::Actor::Attachment& att : actor.attachments)
+        {
+            if (!att.name.compare(overNameView.str()))
+            {
+                attachment = &att;
+                break;
+            }
+        }
+        if (!attachment)
+            Log.report(logvisor::Fatal, _S("unable to find attachment '%s'"), overName.c_str());
+        modelPath = &attachment->mesh;
+    }
+    else if (overName.empty())
     {
         modelPath = &subtype->mesh;
     }

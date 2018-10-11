@@ -294,7 +294,7 @@ struct CHAR : BigDNA
         chOut.cinf = characterInfo.cinf;
 
         for (const CharacterInfo::Overlay& overlay : characterInfo.overlays)
-            chOut.overlays.emplace_back(overlay.type, std::make_pair(overlay.cmdl, overlay.cskr));
+            chOut.overlays.emplace_back(overlay.type.toString(), std::make_pair(overlay.cmdl, overlay.cskr));
     }
 
     void getAnimationResInfo(PAKRouter<PAKBridge>* pakRouter,

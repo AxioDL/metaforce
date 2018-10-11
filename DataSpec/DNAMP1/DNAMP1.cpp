@@ -216,9 +216,7 @@ void PAKBridge::build()
     }
 }
 
-void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const
+void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
 {
     for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries)
     {
@@ -229,23 +227,26 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             ancs.read(rs);
             for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters)
             {
-                addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-                cskrCinfToAncs[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
-                cskrCinfToAncs[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
+                charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+                charAssoc.m_cskrCinfToCharacter[ci.cskr] =
+                    std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+                charAssoc.m_cskrCinfToCharacter[ci.cinf] =
+                    std::make_pair(entry.second.id, hecl::Format("CINF_%08X.CINF", ci.cinf.toUint32()));
                 PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
                 PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
                 PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
                 cmdlEnt->name = hecl::Format("ANCS_%08X_%s_model", entry.first.toUint32(), ci.name.c_str());
                 cskrEnt->name = hecl::Format("ANCS_%08X_%s_skin", entry.first.toUint32(), ci.name.c_str());
                 cinfEnt->name = hecl::Format("ANCS_%08X_%s_skel", entry.first.toUint32(), ci.name.c_str());
-                if (ci.cmdlOverlay && ci.cskrOverlay)
+                if (ci.cmdlIce && ci.cskrIce)
                 {
-                    addTo[ci.cmdlOverlay] = std::make_pair(ci.cskrOverlay, ci.cinf);
-                    cskrCinfToAncs[ci.cskrOverlay] = std::make_pair(entry.second.id, hecl::Format("%s.OVER.CSKR", ci.name.c_str()));
-                    PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlOverlay);
-                    PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrOverlay);
-                    cmdlEnt->name = hecl::Format("ANCS_%08X_%s_overmodel", entry.first.toUint32(), ci.name.c_str());
-                    cskrEnt->name = hecl::Format("ANCS_%08X_%s_overskin", entry.first.toUint32(), ci.name.c_str());
+                    charAssoc.m_cmdlRigs[ci.cmdlIce] = std::make_pair(ci.cskrIce, ci.cinf);
+                    charAssoc.m_cskrCinfToCharacter[ci.cskrIce] =
+                        std::make_pair(entry.second.id, hecl::Format("%s.ICE.CSKR", ci.name.c_str()));
+                    PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlIce);
+                    PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrIce);
+                    cmdlEnt->name = hecl::Format("ANCS_%08X_%s_icemodel", entry.first.toUint32(), ci.name.c_str());
+                    cskrEnt->name = hecl::Format("ANCS_%08X_%s_iceskin", entry.first.toUint32(), ci.name.c_str());
                 }
             }
             std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
@@ -254,19 +255,21 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             {
                 PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
                 animEnt->name = hecl::Format("ANCS_%08X_%s", entry.first.toUint32(), ae.second.name.c_str());
-                cskrCinfToAncs[ae.second.animId] = std::make_pair(entry.second.id, hecl::Format("%s.ANIM", ae.second.name.c_str()));
+                charAssoc.m_cskrCinfToCharacter[ae.second.animId] =
+                    std::make_pair(entry.second.id, hecl::Format("%s.ANIM", ae.second.name.c_str()));
                 if (ae.second.evntId)
                 {
                     PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.evntId);
                     evntEnt->name = hecl::Format("ANCS_%08X_%s_evnt", entry.first.toUint32(), ae.second.name.c_str());
-                    cskrCinfToAncs[ae.second.evntId] = std::make_pair(entry.second.id, hecl::Format("%s.evnt.yaml", ae.second.name.c_str()));
+                    charAssoc.m_cskrCinfToCharacter[ae.second.evntId] =
+                        std::make_pair(entry.second.id, hecl::Format("%s.evnt.yaml", ae.second.name.c_str()));
                 }
             }
         }
         else if (entry.second.type == FOURCC('MREA'))
         {
             PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
-            MREA::AddCMDLRigPairs(rs, pakRouter, addTo);
+            MREA::AddCMDLRigPairs(rs, pakRouter, charAssoc);
         }
     }
 }

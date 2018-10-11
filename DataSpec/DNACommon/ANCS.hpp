@@ -19,7 +19,7 @@ struct CharacterResInfo
     IDTYPE cmdl;
     IDTYPE cskr;
     IDTYPE cinf;
-    std::vector<std::pair<hecl::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
+    std::vector<std::pair<std::string, std::pair<IDTYPE, IDTYPE>>> overlays;
 };
 
 template <typename IDTYPE>

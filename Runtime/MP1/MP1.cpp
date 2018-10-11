@@ -266,7 +266,6 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
                             const boo::ObjToken<boo::ITextureR>& spareTex)
 {
     CGraphics::InitializeBoo(factory, cmdQ, spareTex);
-    CStopwatch sw;
     CParticleSwooshShaders::Initialize();
     CThermalColdFilter::Initialize();
     CThermalHotFilter::Initialize();
@@ -288,7 +287,6 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     CScanLinesFilter::Initialize();
     CRandomStaticFilter::Initialize();
     CNESShader::Initialize();
-    sw.report("shad init");
 }
 
 void CMain::RegisterResourceTweaks()

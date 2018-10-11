@@ -178,9 +178,7 @@ void PAKBridge::build()
     }
 }
 
-void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
-        std::unordered_map<UniqueID64, std::pair<UniqueID64, std::string>>& cskrCinfToChar) const
+void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID64>& charAssoc) const
 {
     for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries)
     {
@@ -190,13 +188,15 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             CHAR aChar;
             aChar.read(rs);
             const CHAR::CharacterInfo& ci = aChar.characterInfo;
-            addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-            cskrCinfToChar[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
-            cskrCinfToChar[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
+            charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+            charAssoc.m_cskrCinfToCharacter[ci.cskr] =
+                std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+            charAssoc.m_cskrCinfToCharacter[ci.cinf] =
+                std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
             for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays)
             {
-                addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
-                cskrCinfToChar[overlay.cskr] = std::make_pair(entry.second.id,
+                charAssoc.m_cmdlRigs[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
+                charAssoc.m_cskrCinfToCharacter[overlay.cskr] = std::make_pair(entry.second.id,
                     hecl::Format("%s.%.4s.CSKR", ci.name.c_str(), overlay.type.getChars()));
             }
         }

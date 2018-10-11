@@ -402,10 +402,10 @@ struct ActorParameters : BigDNA
     Value<atUint32> propertyCount;
     LightParameters lightParameters;
     ScannableParameters scannableParameters;
-    UniqueID32   xrayModel;
-    UniqueID32   xraySkin;
-    UniqueID32   thermalModel;
-    UniqueID32   thermalSkin;
+    UniqueID32   cmdlXray;
+    UniqueID32   cskrXray;
+    UniqueID32   cmdlThermal;
+    UniqueID32   cskrThermal;
     Value<bool>  globalTimeProvider;
     Value<float> fadeInTime;
     Value<float> fadeOutTime;
@@ -415,36 +415,47 @@ struct ActorParameters : BigDNA
     Value<bool>  noSortThermal;
     Value<float> thermalMag;
 
-    void addCMDLRigPairs(std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
-                         const UniqueID32& cinf) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc,
+                         const AnimationParameters& animParms) const
     {
-        if (xrayModel && xraySkin)
-            addTo[xrayModel] = std::make_pair(xraySkin, cinf);
-        if (thermalModel && thermalSkin)
-            addTo[thermalModel] = std::make_pair(thermalSkin, cinf);
+        auto cinf = animParms.getCINF(pakRouter);
+        if (cmdlXray && cskrXray)
+        {
+            charAssoc.m_cmdlRigs[cmdlXray] = std::make_pair(cskrXray, cinf);
+            charAssoc.m_cskrCinfToCharacter[cskrXray] = std::make_pair(
+                animParms.animationCharacterSet, "ATTACH.XRAY.CSKR");
+            charAssoc.addAttachmentRig(animParms.animationCharacterSet, {}, cmdlXray, "XRAY");
+        }
+        if (cmdlThermal && cskrThermal)
+        {
+            charAssoc.m_cmdlRigs[cmdlThermal] = std::make_pair(cskrThermal, cinf);
+            charAssoc.m_cskrCinfToCharacter[cskrThermal] = std::make_pair(
+                animParms.animationCharacterSet, "ATTACH.THERMAL.CSKR");
+            charAssoc.addAttachmentRig(animParms.animationCharacterSet, {}, cmdlThermal, "THERMAL");
+        }
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
     {
         scannableParameters.nameIDs(pakRouter, name);
-        if (xrayModel)
+        if (cmdlXray)
         {
-            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(xrayModel);
+            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(cmdlXray);
             xmEnt->name = name + "_xraymodel";
         }
-        if (xraySkin)
+        if (cskrXray)
         {
-            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(xraySkin);
+            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(cskrXray);
             xsEnt->name = name + "_xrayskin";
         }
-        if (thermalModel)
+        if (cmdlThermal)
         {
-            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(thermalModel);
+            PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(cmdlThermal);
             xmEnt->name = name + "_thermalmodel";
         }
-        if (thermalSkin)
+        if (cskrThermal)
         {
-            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(thermalSkin);
+            PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(cskrThermal);
             xsEnt->name = name + "_thermalskin";
         }
     }
@@ -453,10 +464,10 @@ struct ActorParameters : BigDNA
                 std::vector<hecl::ProjectPath>& lazyOut) const
     {
         scannableParameters.depIDs(lazyOut);
-        g_curSpec->flattenDependencies(xrayModel, pathsOut);
-        g_curSpec->flattenDependencies(xraySkin, pathsOut);
-        g_curSpec->flattenDependencies(thermalModel, pathsOut);
-        g_curSpec->flattenDependencies(thermalSkin, pathsOut);
+        g_curSpec->flattenDependencies(cmdlXray, pathsOut);
+        g_curSpec->flattenDependencies(cskrXray, pathsOut);
+        g_curSpec->flattenDependencies(cmdlThermal, pathsOut);
+        g_curSpec->flattenDependencies(cskrThermal, pathsOut);
     }
 
     void scanIDs(std::vector<Scan>& scansOut) const

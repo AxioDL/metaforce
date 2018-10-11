@@ -56,8 +56,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Read>(typename Read::S
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.read(reader);
-        cskrOverlay.read(reader);
+        cmdlIce.read(reader);
+        cskrIce.read(reader);
     }
 
     animIdxs.clear();
@@ -89,7 +89,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(typename Write:
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -143,8 +143,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(typename Write:
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.write(writer);
-        cskrOverlay.write(writer);
+        cmdlIce.write(writer);
+        cskrIce.write(writer);
     }
 
     if (sectionCount > 4)
@@ -173,7 +173,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(typename B
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -286,7 +286,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::ReadYaml>(typename Rea
 
     if (sectionCount > 3)
     {
-        reader.enumerate("cmdlOverlay", cmdlOverlay);
+        reader.enumerate("cmdlIce", cmdlIce);
     }
 
     animIdxs.clear();
@@ -316,7 +316,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename Wr
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -359,7 +359,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename Wr
 
     if (sectionCount > 3)
     {
-        writer.enumerate("cmdlOverlay", cmdlOverlay);
+        writer.enumerate("cmdlIce", cmdlIce);
     }
 
     if (sectionCount > 4)

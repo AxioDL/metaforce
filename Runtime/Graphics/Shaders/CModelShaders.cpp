@@ -174,12 +174,15 @@ void CModelShaders::Initialize()
     default:
         lightingFuncs = ExtensionLightingFuncsGLSL;
         postFuncs = ExtensionPostFuncsGLSL;
+        break;
     case boo::IGraphicsDataFactory::Platform::D3D11:
         lightingFuncs = ExtensionLightingFuncsHLSL;
         postFuncs = ExtensionPostFuncsHLSL;
+        break;
     case boo::IGraphicsDataFactory::Platform::Metal:
         lightingFuncs = ExtensionLightingFuncsMetal;
         postFuncs = ExtensionPostFuncsMetal;
+        break;
     }
     for (auto& ext : g_ExtensionSlots)
     {
@@ -196,10 +199,10 @@ void CModelShaders::Shutdown()
 CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Backend::ShaderTag& tag,
                                                                   const hecl::Frontend::IR& ir)
 {
-    auto search = g_ShaderPipelines.find(ir.m_hash);
+    auto search = g_ShaderPipelines.find(tag.val64());
     if (search != g_ShaderPipelines.cend())
         return search->second;
-    ShaderPipelines& newPipelines = g_ShaderPipelines[ir.m_hash];
+    ShaderPipelines& newPipelines = g_ShaderPipelines[tag.val64()];
     newPipelines = std::make_shared<ShaderPipelinesData>();
     int idx = 0;
     for (const auto& ext : g_ExtensionSlots)

@@ -328,11 +328,10 @@ struct MetroidPrimeStage1 : IScriptObject
         }
     } massivePrimeStruct;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        massivePrimeStruct.actorParameters.addCMDLRigPairs(addTo,
-        massivePrimeStruct.patternedInfo.animationParameters.getCINF(pakRouter));
+        massivePrimeStruct.actorParameters.addCMDLRigPairs(pakRouter, charAssoc,
+        massivePrimeStruct.patternedInfo.animationParameters);
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const

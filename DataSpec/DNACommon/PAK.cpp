@@ -143,7 +143,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
 
     m_uniqueEntries.clear();
     m_sharedEntries.clear();
-    m_cmdlRigs.clear();
+    m_charAssoc.m_cmdlRigs.clear();
     size_t count = 0;
     float bridgesSz = bridges.size();
 
@@ -186,7 +186,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
         }
 
         /* Add RigPairs to global map */
-        bridge.addCMDLRigPairs(*this, m_cmdlRigs, m_cskrCinfToCharacter);
+        bridge.addCMDLRigPairs(*this, m_charAssoc);
 
         progress(++count / bridgesSz);
         ++bridgeIdx;
@@ -257,8 +257,8 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge)
 template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* entry) const
 {
-    auto characterSearch = m_cskrCinfToCharacter.find(entry->id);
-    if (characterSearch != m_cskrCinfToCharacter.cend())
+    auto characterSearch = m_charAssoc.m_cskrCinfToCharacter.find(entry->id);
+    if (characterSearch != m_charAssoc.m_cskrCinfToCharacter.cend())
     {
         hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
         if (entry->type == FOURCC('EVNT'))
@@ -301,10 +301,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
             else if (extractor.fileExts[0])
                 entName += _S(".*");
             else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
-            {
-                entName = chWork.getLastComponent();
-                auxInfo = chWork.getAuxInfo();
-            }
+                return chWork;
             return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
         }
     }
@@ -325,10 +322,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         else if (extractor.fileExts[0])
             entName += _S(".*");
         else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
-        {
-            entName = chWork.getLastComponent();
-            auxInfo = chWork.getAuxInfo();
-        }
+            return chWork;
         if (bridge.getPAK().m_noShare)
         {
             return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
@@ -355,10 +349,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         else if (extractor.fileExts[0])
             entName += _S(".*");
         else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
-        {
-            entName = chWork.getLastComponent();
-            auxInfo = chWork.getAuxInfo();
-        }
+            return chWork;
         hecl::ProjectPath sharedPath(m_sharedWorking, entName);
         return sharedPath.ensureAuxInfo(auxInfo);
     }
@@ -642,12 +633,20 @@ const typename BRIDGETYPE::PAKType::Entry* PAKRouter<BRIDGETYPE>::lookupEntry(co
 }
 
 template <class BRIDGETYPE>
-const typename PAKRouter<BRIDGETYPE>::RigPair* PAKRouter<BRIDGETYPE>::lookupCMDLRigPair(const IDType& id) const
+const typename CharacterAssociations<typename PAKRouter<BRIDGETYPE>::IDType>::RigPair*
+PAKRouter<BRIDGETYPE>::lookupCMDLRigPair(const IDType& id) const
 {
-    auto search = m_cmdlRigs.find(id);
-    if (search == m_cmdlRigs.end())
+    auto search = m_charAssoc.m_cmdlRigs.find(id);
+    if (search == m_charAssoc.m_cmdlRigs.end())
         return nullptr;
     return &search->second;
+}
+
+template <class BRIDGETYPE>
+const typename CharacterAssociations<typename PAKRouter<BRIDGETYPE>::IDType>::MultimapIteratorPair
+PAKRouter<BRIDGETYPE>::lookupCharacterAttachmentRigs(const IDType& id) const
+{
+    return m_charAssoc.m_characterToAttachmentRigs.equal_range(id);
 }
 
 template <class BRIDGETYPE>

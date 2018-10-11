@@ -139,8 +139,8 @@ struct ANCS : BigDNA
             };
             std::vector<Effect> effects;
 
-            UniqueID32Zero cmdlOverlay;
-            UniqueID32Zero cskrOverlay;
+            UniqueID32Zero cmdlIce;
+            UniqueID32Zero cskrIce;
 
             std::vector<atUint32> animIdxs;
         };
@@ -431,8 +431,8 @@ struct ANCS : BigDNA
             chOut.cskr = ci.cskr;
             chOut.cinf = ci.cinf;
 
-            if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
+            if (ci.cmdlIce)
+                chOut.overlays.emplace_back("ICE", std::make_pair(ci.cmdlIce, ci.cskrIce));
         }
     }
 

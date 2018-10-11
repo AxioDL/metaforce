@@ -14,8 +14,6 @@
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/glslang" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/NX/libdrm_nouveau" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/NX/mesa" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/libdrm_nouveau" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/mesa" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/logvisor" vcs="Git" />

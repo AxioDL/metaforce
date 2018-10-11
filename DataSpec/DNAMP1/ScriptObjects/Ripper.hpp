@@ -19,10 +19,9 @@ struct Ripper : IScriptObject
     ActorParameters actorParameters;
     GrappleParameters grappleParameters;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+        actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const

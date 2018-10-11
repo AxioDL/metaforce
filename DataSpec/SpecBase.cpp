@@ -466,11 +466,31 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in,
         else if (charIdx < actor.subtypes.size())
             doSubtype(actor.subtypes[charIdx]);
 
+        for (const Actor::Attachment& att : actor.attachments)
+        {
+            if (hecl::IsPathBlend(att.mesh))
+            {
+                flattenDependenciesBlend(att.mesh, pathsOut, btok);
+                pathsOut.push_back(att.mesh);
+            }
+
+            hecl::SystemStringConv chSysName(att.name);
+            pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(_S("ATTACH.")) +
+                                                    chSysName.c_str() + _S(".CSKR")));
+
+            if (att.armature >= 0)
+            {
+                const auto& arm = actor.armatures[att.armature];
+                hecl::SystemStringConv armSysName(arm.name);
+                pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF")));
+            }
+        }
+
         for (const auto& act : actNames)
         {
             hecl::SystemStringConv actSysName(act);
             pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _S(".ANIM")));
-            hecl::ProjectPath evntPath = asGlob.getWithExtension(
+            hecl::ProjectPath evntPath = asGlob.ensureAuxInfo({}).getWithExtension(
                 hecl::SysFormat(_S(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
             if (evntPath.isFile())
                 pathsOut.push_back(evntPath);
@@ -1206,6 +1226,21 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path,
                     DumpCacheAdd(pathTag, subPath);
 #endif
                 }
+            }
+
+            std::vector<std::string> attachmentNames = ds.getAttachmentNames();
+            for (const auto& attachment : attachmentNames)
+            {
+                hecl::SystemStringConv attachmentSys(attachment);
+                hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(_S("ATTACH.")) +
+                                                                 attachmentSys.c_str() + _S(".CSKR"));
+                urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+                m_tagToPath[pathTag] = subPath;
+                m_pathToTag[subPath.hash()] = pathTag;
+                WriteTag(cacheWriter, pathTag, subPath);
+#if DUMP_CACHE_FILL
+                DumpCacheAdd(pathTag, subPath);
+#endif
             }
 
             for (const std::string& act : actionNames)

@@ -52,17 +52,25 @@ struct OmegaPirate : IScriptObject
     Value<atUint32> soundID5;
     Value<bool> unknown17;
     Value<bool> unknown18;
-    UniqueID32 model2;
-    UniqueID32 skin;
-    UniqueID32 rig;
+    UniqueID32 cmdlPhazonVeins;
+    UniqueID32 cskrPhazonVeins;
+    UniqueID32 cinfPhazonVeins;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        actorParameters1.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
-        actorParameters2.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
-        if (model2 && skin && rig)
-            addTo[model2] = std::make_pair(skin, rig);
+        actorParameters1.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
+        actorParameters2.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
+        if (cmdlPhazonVeins && cskrPhazonVeins && cinfPhazonVeins)
+        {
+            charAssoc.m_cmdlRigs[cmdlPhazonVeins] = std::make_pair(cskrPhazonVeins, cinfPhazonVeins);
+            charAssoc.m_cskrCinfToCharacter[cskrPhazonVeins] = std::make_pair(
+                patternedInfo.animationParameters.animationCharacterSet, "ATTACH.VEINS.CSKR");
+            charAssoc.m_cskrCinfToCharacter[cinfPhazonVeins] = std::make_pair(
+                patternedInfo.animationParameters.animationCharacterSet,
+                hecl::Format("CINF_%08X.CINF", cinfPhazonVeins.toUint32()));
+            charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet,
+                                       cinfPhazonVeins, cmdlPhazonVeins, "VEINS");
+        }
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
@@ -112,19 +120,19 @@ struct OmegaPirate : IScriptObject
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
             ent->name = name + "_model1";
         }
-        if (model2)
+        if (cmdlPhazonVeins)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cmdlPhazonVeins);
             ent->name = name + "_model2";
         }
-        if (skin)
+        if (cskrPhazonVeins)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(skin);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cskrPhazonVeins);
             ent->name = name + "_skin";
         }
-        if (rig)
+        if (cinfPhazonVeins)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(rig);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cinfPhazonVeins);
             ent->name = name + "_rig";
         }
         patternedInfo.nameIDs(pakRouter, name + "_patterned");
@@ -145,9 +153,9 @@ struct OmegaPirate : IScriptObject
         g_curSpec->flattenDependencies(particle7, pathsOut);
         g_curSpec->flattenDependencies(elsc, pathsOut);
         g_curSpec->flattenDependencies(model1, pathsOut);
-        g_curSpec->flattenDependencies(model2, pathsOut);
-        g_curSpec->flattenDependencies(skin, pathsOut);
-        g_curSpec->flattenDependencies(rig, pathsOut);
+        g_curSpec->flattenDependencies(cmdlPhazonVeins, pathsOut);
+        g_curSpec->flattenDependencies(cskrPhazonVeins, pathsOut);
+        g_curSpec->flattenDependencies(cinfPhazonVeins, pathsOut);
         patternedInfo.depIDs(pathsOut);
         actorParameters1.depIDs(pathsOut, lazyOut);
         actorParameters2.depIDs(pathsOut, lazyOut);

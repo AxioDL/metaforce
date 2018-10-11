@@ -63,18 +63,16 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
     }
 }
 
-void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
 {
     for (const ScriptLayer& layer : layers)
-        layer.addCMDLRigPairs(pakRouter, addTo);
+        layer.addCMDLRigPairs(pakRouter, charAssoc);
 }
 
-void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
 {
     for (const std::unique_ptr<IScriptObject>& obj : objects)
-        obj->addCMDLRigPairs(pakRouter, addTo);
+        obj->addCMDLRigPairs(pakRouter, charAssoc);
 }
 
 void SCLY::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
