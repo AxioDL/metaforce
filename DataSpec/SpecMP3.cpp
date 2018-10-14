@@ -146,11 +146,11 @@ struct SpecMP3 : SpecBase
 
     SpecMP3(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
     : SpecBase(specEntry, project, pc),
-      m_workPath(project.getProjectWorkingPath(), _S("MP3")),
-      m_cookPath(project.getProjectCookedPath(SpecEntMP3), _S("MP3")),
+      m_workPath(project.getProjectWorkingPath(), _SYS_STR("MP3")),
+      m_cookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("MP3")),
       m_pakRouter(*this, m_workPath, m_cookPath),
-      m_feWorkPath(project.getProjectWorkingPath(), _S("fe")),
-      m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _S("fe")),
+      m_feWorkPath(project.getProjectWorkingPath(), _SYS_STR("fe")),
+      m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("fe")),
       m_fePakRouter(*this, m_feWorkPath, m_feCookPath),
       m_idRestorer({project.getProjectWorkingPath(), "MP3/!original_ids.yaml"}, project)
     {
@@ -261,13 +261,13 @@ struct SpecMP3 : SpecBase
             else if (!item.first.compare("Metroid6.pak"))
             {
                 /* Phaaze doesn't have a world name D: */
-                childRep.desc = _S("Phaaze");
+                childRep.desc = _SYS_STR("Phaaze");
                 continue;
             }
             else if (!item.first.compare("Metroid8.pak"))
             {
                 /* Space world is misnamed */
-                childRep.desc = _S("Space");
+                childRep.desc = _SYS_STR("Space");
                 continue;
             }
             childRep.desc = item.second->getLevelString();
@@ -293,11 +293,11 @@ struct SpecMP3 : SpecBase
         /* Root Report */
         reps.emplace_back();
         ExtractReport& rep = reps.back();
-        rep.name = _S("MP3");
-        rep.desc = _S("Metroid Prime 3 ") + regstr;
+        rep.name = _SYS_STR("MP3");
+        rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
         std::string buildStr(buildInfo);
         hecl::SystemStringConv buildView(buildStr);
-        rep.desc += _S(" (") + buildView + _S(")");
+        rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
         /* Iterate PAKs and build level options */
         nod::Node& root = partition->getFSTRoot();
@@ -320,13 +320,13 @@ struct SpecMP3 : SpecBase
             {
                 hecl::SystemString lowerArg = arg;
                 hecl::ToLower(lowerArg);
-                if (!lowerArg.compare(0, 3, _S("mp3")))
+                if (!lowerArg.compare(0, 3, _SYS_STR("mp3")))
                 {
                     doMP3 = true;
                     mp3args.reserve(args.size());
-                    size_t slashPos = arg.find(_S('/'));
+                    size_t slashPos = arg.find(_SYS_STR('/'));
                     if (slashPos == hecl::SystemString::npos)
-                        slashPos = arg.find(_S('\\'));
+                        slashPos = arg.find(_SYS_STR('\\'));
                     if (slashPos != hecl::SystemString::npos)
                         mp3args.emplace_back(hecl::SystemString(arg.begin() + slashPos + 1, arg.end()));
                 }
@@ -336,13 +336,13 @@ struct SpecMP3 : SpecBase
             {
                 hecl::SystemString lowerArg = arg;
                 hecl::ToLower(lowerArg);
-                if (!lowerArg.compare(0, 2, _S("fe")))
+                if (!lowerArg.compare(0, 2, _SYS_STR("fe")))
                 {
                     doMPTFE = true;
                     feargs.reserve(args.size());
-                    size_t slashPos = arg.find(_S('/'));
+                    size_t slashPos = arg.find(_SYS_STR('/'));
                     if (slashPos == hecl::SystemString::npos)
-                        slashPos = arg.find(_S('\\'));
+                        slashPos = arg.find(_SYS_STR('\\'));
                     if (slashPos != hecl::SystemString::npos)
                         feargs.emplace_back(hecl::SystemString(arg.begin() + slashPos + 1, arg.end()));
                 }
@@ -389,12 +389,12 @@ struct SpecMP3 : SpecBase
             /* Root Report */
             reps.emplace_back();
             ExtractReport& rep = reps.back();
-            rep.name = _S("MP3");
-            rep.desc = _S("Metroid Prime 3 ") + regstr;
+            rep.name = _SYS_STR("MP3");
+            rep.desc = _SYS_STR("Metroid Prime 3 ") + regstr;
 
             std::string buildStr(buildInfo);
             hecl::SystemStringConv buildView(buildStr);
-            rep.desc += _S(" (") + buildView + _S(")");
+            rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
 
 
             /* Iterate PAKs and build level options */
@@ -424,13 +424,13 @@ struct SpecMP3 : SpecBase
             /* Root Report */
             reps.emplace_back();
             ExtractReport& rep = reps.back();
-            rep.name = _S("fe");
-            rep.desc = _S("Metroid Prime Trilogy Frontend ") + regstr;
+            rep.name = _SYS_STR("fe");
+            rep.desc = _SYS_STR("Metroid Prime Trilogy Frontend ") + regstr;
             if (buildInfo)
             {
                 std::string buildStr(buildInfo);
                 hecl::SystemStringConv buildView(buildStr);
-                rep.desc += _S(" (") + buildView + _S(")");
+                rep.desc += _SYS_STR(" (") + buildView + _SYS_STR(")");
             }
 
             /* Iterate PAKs and build level options */
@@ -449,7 +449,7 @@ struct SpecMP3 : SpecBase
 
     bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress)
     {
-        hecl::SystemString currentTarget = _S("");
+        hecl::SystemString currentTarget = _SYS_STR("");
         size_t nodeCount = 0;
         int prog = 0;
         nod::ExtractionContext ctx = {force,
@@ -463,22 +463,22 @@ struct SpecMP3 : SpecBase
             m_workPath.makeDir();
 
             progress.startNewLine();
-            progress.print(_S("Indexing PAKs"), _S(""), 0.0);
+            progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), 0.0);
             m_pakRouter.build(m_paks, [&progress](float factor)
             {
-                progress.print(_S("Indexing PAKs"), _S(""), factor);
+                progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), factor);
             });
-            progress.print(_S("Indexing PAKs"), _S(""), 1.0);
+            progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), 1.0);
             progress.startNewLine();
 
-            hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
+            hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
             outPath.makeDir();
             disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-            hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _S("files") : _S("files/MP3"));
+            hecl::ProjectPath mp3OutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/MP3"));
             mp3OutPath.makeDirChain(true);
 
-            currentTarget = _S("MP3 Root");
-            progress.print(currentTarget.c_str(), _S(""), 0.0);
+            currentTarget = _SYS_STR("MP3 Root");
+            progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
             prog = 0;
 
             nodeCount = m_nonPaks.size();
@@ -490,7 +490,7 @@ struct SpecMP3 : SpecBase
             }
             ctx.progressCB = nullptr;
 
-            progress.print(currentTarget.c_str(), _S(""), 1.0);
+            progress.print(currentTarget.c_str(), _SYS_STR(""), 1.0);
             progress.startNewLine();
 
             hecl::ClientProcess process;
@@ -525,22 +525,22 @@ struct SpecMP3 : SpecBase
             m_feWorkPath.makeDir();
 
             progress.startNewLine();
-            progress.print(_S("Indexing PAKs"), _S(""), 0.0);
+            progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), 0.0);
             m_fePakRouter.build(m_fePaks, [&progress](float factor)
             {
-                progress.print(_S("Indexing PAKs"), _S(""), factor);
+                progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), factor);
             });
-            progress.print(_S("Indexing PAKs"), _S(""), 1.0);
+            progress.print(_SYS_STR("Indexing PAKs"), _SYS_STR(""), 1.0);
             progress.startNewLine();
 
-            hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _S("out"));
+            hecl::ProjectPath outPath(m_project.getProjectWorkingPath(), _SYS_STR("out"));
             outPath.makeDir();
             disc.getDataPartition()->extractSysFiles(outPath.getAbsolutePath(), ctx);
-            hecl::ProjectPath feOutPath(outPath, m_standalone ? _S("files") : _S("files/fe"));
+            hecl::ProjectPath feOutPath(outPath, m_standalone ? _SYS_STR("files") : _SYS_STR("files/fe"));
             feOutPath.makeDirChain(true);
 
-            currentTarget = _S("fe Root");
-            progress.print(currentTarget.c_str(), _S(""), 0.0);
+            currentTarget = _SYS_STR("fe Root");
+            progress.print(currentTarget.c_str(), _SYS_STR(""), 0.0);
             prog = 0;
             nodeCount = m_feNonPaks.size();
 
@@ -550,7 +550,7 @@ struct SpecMP3 : SpecBase
                 node->extractToDirectory(feOutPath.getAbsolutePath(), ctx);
                 prog++;
             }
-            progress.print(currentTarget.c_str(), _S(""), 1.0);
+            progress.print(currentTarget.c_str(), _SYS_STR(""), 1.0);
             progress.startNewLine();
 
             hecl::ClientProcess process;
@@ -596,7 +596,7 @@ struct SpecMP3 : SpecBase
 
     bool checkPathPrefix(const hecl::ProjectPath& path) const
     {
-        return path.getRelativePath().compare(0, 4, _S("MP3/")) == 0;
+        return path.getRelativePath().compare(0, 4, _SYS_STR("MP3/")) == 0;
     }
 
     bool validateYAMLDNAType(athena::io::IStreamReader& fp) const
@@ -687,7 +687,7 @@ struct SpecMP3 : SpecBase
         hecl::blender::MapArea mapa = ds.compileMapArea();
         ds.close();
         DNAMP3::MAPA::Cook(mapa, out);
-        progress(_S("Done"));
+        progress(_SYS_STR("Done"));
     }
 
     void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
@@ -714,16 +714,16 @@ struct SpecMP3 : SpecBase
 
 hecl::Database::DataSpecEntry SpecEntMP3
 (
-    _S("MP3"sv),
-    _S("Data specification for original Metroid Prime 3 engine"sv), _S(".pak"sv), 2,
+    _SYS_STR("MP3"sv),
+    _SYS_STR("Data specification for original Metroid Prime 3 engine"sv), _SYS_STR(".pak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool)
     -> std::unique_ptr<hecl::Database::IDataSpec> {return std::make_unique<SpecMP3>(&SpecEntMP3, project, false);}
 );
 
 hecl::Database::DataSpecEntry SpecEntMP3PC =
 {
-    _S("MP3-PC"sv),
-    _S("Data specification for PC-optimized Metroid Prime 3 engine"sv), _S(".upak"sv), 2,
+    _SYS_STR("MP3-PC"sv),
+    _SYS_STR("Data specification for PC-optimized Metroid Prime 3 engine"sv), _SYS_STR(".upak"sv), 2,
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool tool)
     -> std::unique_ptr<hecl::Database::IDataSpec>
     {
@@ -735,8 +735,8 @@ hecl::Database::DataSpecEntry SpecEntMP3PC =
 
 hecl::Database::DataSpecEntry SpecEntMP3ORIG =
 {
-    _S("MP3-ORIG"sv),
-    _S("Data specification for unmodified Metroid Prime 3 resources"sv),
+    _SYS_STR("MP3-ORIG"sv),
+    _SYS_STR("Data specification for unmodified Metroid Prime 3 resources"sv),
     {}, 2, {}
 };
 

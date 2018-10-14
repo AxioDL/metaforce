@@ -63,7 +63,7 @@ public:
     PipelineInfo({in.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                   in.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
-                  boo::CullMode::None, tessellation ? 1 : 0}),
+                  boo::CullMode::None, tessellation ? 1u : 0u}),
     HasTessellation(tessellation) {}
 
     const boo::VertexFormatInfo VtxFmt;
@@ -114,18 +114,6 @@ public:
 #define UNIVERSAL_PIPELINES_shader_CFluidPlaneShader \
 ::Shader_CFluidPlaneShader \
 ::Shader_CFluidPlaneDoorShader
-#define OPENGL_STAGES_shader_CFluidPlaneShader \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneShader, hecl::PlatformType::OpenGL) \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneDoorShader, hecl::PlatformType::OpenGL)
-#define VULKAN_STAGES_shader_CFluidPlaneShader \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneShader, hecl::PlatformType::Vulkan) \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneDoorShader, hecl::PlatformType::Vulkan)
-#define D3D11_STAGES_shader_CFluidPlaneShader \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneShader, hecl::PlatformType::D3D11) \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneDoorShader, hecl::PlatformType::D3D11)
-#define METAL_STAGES_shader_CFluidPlaneShader \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneShader, hecl::PlatformType::Metal) \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneDoorShader, hecl::PlatformType::Metal)
-#define NX_STAGES_shader_CFluidPlaneShader \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneShader, hecl::PlatformType::NX) \
-STAGE_SPECIALIZATIONS(::StageObject_CFluidPlaneDoorShader, hecl::PlatformType::NX)
+#define STAGES_shader_CFluidPlaneShader(P, S) \
+::StageObject_CFluidPlaneShader<P, S>, \
+::StageObject_CFluidPlaneDoorShader<P, S>,

@@ -316,9 +316,9 @@ struct CHAR : BigDNA
                         hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
         hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
         hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||

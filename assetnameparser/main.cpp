@@ -154,15 +154,15 @@ enum class FileLockType
 #if IS_UCS2
 typedef wchar_t SystemChar;
 typedef std::wstring SystemString;
-#ifndef _S
-#define _S(val) L##val
+#ifndef _SYS_STR
+#define _SYS_STR(val) L##val
 #endif
 typedef struct _stat Sstat;
 #else
 typedef char SystemChar;
 typedef std::string SystemString;
-#ifndef _S
-#define _S(val) val
+#ifndef _SYS_STR
+#define _SYS_STR(val) val
 #endif
 typedef struct stat Sstat;
 #endif
@@ -205,7 +205,7 @@ int main(int argc, const char* argv[])
     logvisor::RegisterConsoleLogger();
     if (argc < 3)
     {
-        Log.report(logvisor::Error, _S("Usage: %s <input> <output>"), argv[0]);
+        Log.report(logvisor::Error, _SYS_STR("Usage: %s <input> <output>"), argv[0]);
         return 1;
     }
 
@@ -214,20 +214,20 @@ int main(int argc, const char* argv[])
 
     tinyxml2::XMLDocument doc;
     std::vector<SAsset> assets;
-    FILE* docF = Fopen(inPath.c_str(), _S("rb"));
+    FILE* docF = Fopen(inPath.c_str(), _SYS_STR("rb"));
     if (!doc.LoadFile(docF))
     {
         const tinyxml2::XMLElement* elm = doc.RootElement();
         if (strcmp(elm->Name(), "AssetNameMap"))
         {
-            Log.report(logvisor::Fatal, _S("Invalid database supplied"));
+            Log.report(logvisor::Fatal, _SYS_STR("Invalid database supplied"));
             return 1;
         }
 
         elm = elm->FirstChildElement("AssetNameMap");
         if (elm == nullptr)
         {
-            Log.report(logvisor::Fatal, _S("Malformed AssetName database"));
+            Log.report(logvisor::Fatal, _SYS_STR("Malformed AssetName database"));
             return 1;
         }
 
@@ -240,7 +240,7 @@ int main(int argc, const char* argv[])
 
             if (!keyElm || !valueElm)
             {
-                Log.report(logvisor::Fatal, _S("Malformed Asset entry, [Key,Value] required"));
+                Log.report(logvisor::Fatal, _SYS_STR("Malformed Asset entry, [Key,Value] required"));
                 return 0;
             }
 
@@ -250,7 +250,7 @@ int main(int argc, const char* argv[])
 
             if (!nameElm || !dirElm || ! typeElm)
             {
-                Log.report(logvisor::Fatal, _S("Malformed Value entry, [Name,Directory,Type] required"));
+                Log.report(logvisor::Fatal, _SYS_STR("Malformed Value entry, [Name,Directory,Type] required"));
                 return 0;
             }
             assets.emplace_back();
@@ -262,10 +262,10 @@ int main(int argc, const char* argv[])
             elm = elm->NextSiblingElement("Asset");
         }
 
-        FILE* f = Fopen(outPath.c_str(), _S("wb"));
+        FILE* f = Fopen(outPath.c_str(), _SYS_STR("wb"));
         if (!f)
         {
-            Log.report(logvisor::Fatal, _S("Unable to open destination"));
+            Log.report(logvisor::Fatal, _SYS_STR("Unable to open destination"));
             return 0;
         }
 
@@ -294,6 +294,6 @@ int main(int argc, const char* argv[])
     if (docF)
         fclose(docF);
 
-    Log.report(logvisor::Fatal, _S("failed to load"));
+    Log.report(logvisor::Fatal, _SYS_STR("failed to load"));
     return 1;
 }

@@ -76,19 +76,19 @@ void SplashScreen::think()
 
     if (m_newProjBind.m_deferPath.size())
     {
-        Log.report(logvisor::Info, _S("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _SYS_STR("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
         m_vm.projectManager().newProject(m_newProjBind.m_deferPath);
         m_newProjBind.m_deferPath.clear();
     }
     else if (m_openProjBind.m_deferPath.size())
     {
-        Log.report(logvisor::Info, _S("Opening project '%s'"), m_openProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _SYS_STR("Opening project '%s'"), m_openProjBind.m_deferPath.c_str());
         m_vm.projectManager().openProject(m_openProjBind.m_deferPath);
         m_openProjBind.m_deferPath.clear();
     }
     else if (m_extractProjBind.m_deferPath.size())
     {
-        Log.report(logvisor::Info, _S("Extracting game '%s'"), m_extractProjBind.m_deferPath.c_str());
+        Log.report(logvisor::Info, _SYS_STR("Extracting game '%s'"), m_extractProjBind.m_deferPath.c_str());
         m_vm.projectManager().extractGame(m_extractProjBind.m_deferPath);
         m_extractProjBind.m_deferPath.clear();
     }

@@ -204,7 +204,7 @@ CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Ba
         return search->second;
     ShaderPipelines& newPipelines = g_ShaderPipelines[tag.val64()];
     newPipelines = std::make_shared<ShaderPipelinesData>();
-    int idx = 0;
+    size_t idx = 0;
     for (const auto& ext : g_ExtensionSlots)
         (*newPipelines)[idx++] = hecl::conv->convert(hecl::HECLIR(ir, tag, ext));
     return newPipelines;

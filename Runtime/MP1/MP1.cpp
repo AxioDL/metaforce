@@ -896,7 +896,7 @@ boo::IWindow* CMain::GetMainWindow() const
 int CMain::appMain(boo::IApplication* app)
 {
     zeus::detectCPU();
-    mainWindow = app->newWindow(_S("Metroid Prime 1 Reimplementation vZygote"), 1);
+    mainWindow = app->newWindow(_SYS_STR("Metroid Prime 1 Reimplementation vZygote"), 1);
     mainWindow->showWindow();
     TOneStatic<CGameGlobalObjects> globalObjs;
     InitializeSubsystems();

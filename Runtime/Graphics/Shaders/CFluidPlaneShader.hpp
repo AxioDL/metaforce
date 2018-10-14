@@ -128,11 +128,11 @@ private:
     BindingPair BuildBinding(boo::GLDataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 #if _WIN32
-    static ShaderPair BuildShader(boo::D3DDataFactory::Context& ctx,
+    static ShaderPair BuildShader(boo::D3D11DataFactory::Context& ctx,
                                   const SFluidPlaneShaderInfo& info);
-    static ShaderPair BuildShader(boo::D3DDataFactory::Context& ctx,
+    static ShaderPair BuildShader(boo::D3D11DataFactory::Context& ctx,
                                   const SFluidPlaneDoorShaderInfo& info);
-    BindingPair BuildBinding(boo::D3DDataFactory::Context& ctx, const ShaderPair& pipeline);
+    BindingPair BuildBinding(boo::D3D11DataFactory::Context& ctx, const ShaderPair& pipeline);
 #endif
 #if BOO_HAS_METAL
     static ShaderPair BuildShader(boo::MetalDataFactory::Context& ctx,

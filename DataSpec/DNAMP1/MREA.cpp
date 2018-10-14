@@ -323,7 +323,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
         {
             rs.seek(secStart, athena::Begin);
             auto visiData = rs.readUBytes(head.secSizes[curSec]);
-            athena::io::FileWriter visiOut(outPath.getWithExtension(_S(".visi"), true).getAbsolutePath());
+            athena::io::FileWriter visiOut(outPath.getWithExtension(_SYS_STR(".visi"), true).getAbsolutePath());
             visiOut.writeUBytes(visiData.get(), head.secSizes[curSec]);
             rs.seek(secStart + 4, athena::Begin);
         }
@@ -340,7 +340,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
                 visiWriter.writeUint32(nullptr, entityId);
             }
         }
-        hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _S("!visi.yaml"));
+        hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _SYS_STR("!visi.yaml"));
         athena::io::FileWriter visiMetadata(visiMetadataPath.getAbsolutePath());
         visiWriter.finish(&visiMetadata);
     }
@@ -439,7 +439,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
                                         false, false, true);
         for (const hecl::DirectoryEnumerator::Entry& ent : dEnum)
         {
-            hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _S("/!objects.yaml"));
+            hecl::ProjectPath layerScriptPath(areaDirPath, ent.m_name + _SYS_STR("/!objects.yaml"));
             if (layerScriptPath.isFile())
                 layerScriptPaths.push_back(std::move(layerScriptPath));
         }
@@ -523,7 +523,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
 #if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".octree.blend"), true), hecl::blender::BlendType::Area))
+        if (!conn.createBlend(inPath.getWithExtension(_SYS_STR(".octree.blend"), true), hecl::blender::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */
@@ -594,7 +594,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
 #if DUMP_OCTREE
         hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.createBlend(inPath.getWithExtension(_S(".coctree.blend"), true), hecl::blender::BlendType::Area))
+        if (!conn.createBlend(inPath.getWithExtension(_SYS_STR(".coctree.blend"), true), hecl::blender::BlendType::Area))
             return false;
 
         /* Open Py Stream and read sections */
@@ -666,7 +666,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
     }
 
     /* VISI */
-    hecl::ProjectPath visiMetadataPath(areaDirPath, _S("!visi.yaml"));
+    hecl::ProjectPath visiMetadataPath(areaDirPath, _SYS_STR("!visi.yaml"));
     bool visiGood = false;
     if (visiMetadataPath.isFile())
     {
@@ -698,7 +698,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
             }
 
             // Check if pre-generated visi exists, recycle if able
-            hecl::ProjectPath preVisiPath = inPath.getWithExtension(_S(".visi"), true);
+            hecl::ProjectPath preVisiPath = inPath.getWithExtension(_SYS_STR(".visi"), true);
             if (preVisiPath.getPathType() == hecl::ProjectPath::Type::File)
             {
                 athena::io::FileReader preVisiReader(preVisiPath.getAbsolutePath());
@@ -733,7 +733,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 #if !WINDOWS_STORE
             if (!visiGood)
             {
-                hecl::ProjectPath visiIntOut = outPath.getWithExtension(_S(".visiint"));
+                hecl::ProjectPath visiIntOut = outPath.getWithExtension(_SYS_STR(".visiint"));
                 athena::io::FileWriter w(visiIntOut.getAbsolutePath());
                 w.writeUint32Big(meshes.size());
                 for (const DNACMDL::Mesh& mesh : meshes)
@@ -775,17 +775,17 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
                 w.close();
 
-                hecl::SystemString VisiGenPath = ExeDir + _S("/visigen");
+                hecl::SystemString VisiGenPath = ExeDir + _SYS_STR("/visigen");
 #if _WIN32
-                VisiGenPath += _S(".exe");
+                VisiGenPath += _SYS_STR(".exe");
 #endif
                 hecl::SystemChar thrIdx[16];
-                hecl::SNPrintf(thrIdx, 16, _S("%d"), hecl::ClientProcess::GetThreadWorkerIdx());
+                hecl::SNPrintf(thrIdx, 16, _SYS_STR("%d"), hecl::ClientProcess::GetThreadWorkerIdx());
                 hecl::SystemChar parPid[32];
 #if _WIN32
-                hecl::SNPrintf(parPid, 32, _S("%lluX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
+                hecl::SNPrintf(parPid, 32, _SYS_STR("%lluX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
 #else
-                hecl::SNPrintf(parPid, 32, _S("%lluX"), (unsigned long long)getpid());
+                hecl::SNPrintf(parPid, 32, _SYS_STR("%lluX"), (unsigned long long)getpid());
 #endif
                 const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                                   visiIntOut.getAbsolutePath().data(),
@@ -801,7 +801,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
                 }
                 else
                 {
-                    Log.report(logvisor::Fatal, _S("Unable to launch %s"), VisiGenPath.c_str());
+                    Log.report(logvisor::Fatal, _SYS_STR("Unable to launch %s"), VisiGenPath.c_str());
                 }
             }
 #endif
@@ -812,7 +812,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
 
     /* PATH */
     {
-        hecl::ProjectPath pathPath(inPath.getParentPath(), _S("!path.blend"));
+        hecl::ProjectPath pathPath(inPath.getParentPath(), _SYS_STR("!path.blend"));
         UniqueID32 pathId = pathPath;
         secs.emplace_back(4, 0);
         athena::io::MemoryWriter w(secs.back().data(), secs.back().size());

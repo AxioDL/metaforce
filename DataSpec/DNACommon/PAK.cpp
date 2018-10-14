@@ -264,7 +264,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* en
         if (entry->type == FOURCC('EVNT'))
         {
             hecl::SystemStringConv wideStr(characterSearch->second.second);
-            return characterPath.getWithExtension((hecl::SystemString(_S(".")) + wideStr.c_str()).c_str(), true);
+            return characterPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) + wideStr.c_str()).c_str(), true);
         }
         return characterPath.ensureAuxInfo(characterSearch->second.second);
     }
@@ -299,7 +299,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
             if (extractor.fileExts[0] && !extractor.fileExts[1])
                 entName += extractor.fileExts[0];
             else if (extractor.fileExts[0])
-                entName += _S(".*");
+                entName += _SYS_STR(".*");
             else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
                 return chWork;
             return hecl::ProjectPath(pakPath, entName).ensureAuxInfo(auxInfo);
@@ -320,7 +320,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
-            entName += _S(".*");
+            entName += _SYS_STR(".*");
         else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
             return chWork;
         if (bridge.getPAK().m_noShare)
@@ -347,7 +347,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
         if (extractor.fileExts[0] && !extractor.fileExts[1])
             entName += extractor.fileExts[0];
         else if (extractor.fileExts[0])
-            entName += _S(".*");
+            entName += _SYS_STR(".*");
         else if (hecl::ProjectPath chWork = getCharacterWorking(entry))
             return chWork;
         hecl::ProjectPath sharedPath(m_sharedWorking, entName);
@@ -442,7 +442,7 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
     hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*node, *pak, a));
     hecl::SystemString ret;
     for (int i=0 ; i<aPath.levelCount() ; ++i)
-        ret += _S("../");
+        ret += _SYS_STR("../");
     hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*node, *pak, *be));
     ret += bPath.getRelativePath();
     return ret;
@@ -543,7 +543,7 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
             {
                 cooked.makeDirChain(false);
                 PAKEntryReadStream s = entryPtr->beginReadStream(*node);
-                FILE* fout = hecl::Fopen(cooked.getAbsolutePath().data(), _S("wb"));
+                FILE* fout = hecl::Fopen(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
                 fwrite(s.data(), 1, s.length(), fout);
                 fclose(fout);
             }

@@ -30,7 +30,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
 {
     if (maxVerts < 2)
     {
-        LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
+        LineRendererLog.report(logvisor::Fatal, _SYS_STR("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
     }
     m_textured = texture;
@@ -66,7 +66,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
 {
     if (maxVerts < 2)
     {
-        LineRendererLog.report(logvisor::Fatal, _S("maxVerts < 2, maxVerts = %i"), maxVerts);
+        LineRendererLog.report(logvisor::Fatal, _SYS_STR("maxVerts < 2, maxVerts = %i"), maxVerts);
         return;
     }
     m_textured = texture;

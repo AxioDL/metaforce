@@ -6,8 +6,8 @@ namespace DataSpec::DNAMP1
 
 bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 {
-    hecl::ProjectPath midPath = outPath.getWithExtension(_S(".mid"), true);
-    hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
+    hecl::ProjectPath midPath = outPath.getWithExtension(_SYS_STR(".mid"), true);
+    hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
 
     Header head;
     head.read(rs);
@@ -38,9 +38,9 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
     }
 
     /* Update !songs.yaml for Amuse editor */
-    hecl::ProjectPath audGrp(outPath.getParentPath().getParentPath(), _S("AudioGrp"));
+    hecl::ProjectPath audGrp(outPath.getParentPath().getParentPath(), _SYS_STR("AudioGrp"));
     audGrp.makeDirChain(true);
-    hecl::ProjectPath songsPath(audGrp, _S("!songs.yaml"));
+    hecl::ProjectPath songsPath(audGrp, _SYS_STR("!songs.yaml"));
     std::experimental::optional<athena::io::FileReader> r;
     if (songsPath.isFile())
         r.emplace(songsPath.getAbsolutePath());
@@ -57,8 +57,8 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 
 bool CSNG::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath)
 {
-    hecl::ProjectPath midPath = inPath.getWithExtension(_S(".mid"), true);
-    hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
+    hecl::ProjectPath midPath = inPath.getWithExtension(_SYS_STR(".mid"), true);
+    hecl::ProjectPath yamlPath = inPath.getWithExtension(_SYS_STR(".yaml"), true);
 
     std::vector<uint8_t> sngData;
     {

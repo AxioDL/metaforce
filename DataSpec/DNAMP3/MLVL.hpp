@@ -91,7 +91,7 @@ struct MLVL : BigDNA
     {
         MLVL mlvl;
         mlvl.read(rs);
-        athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
+        athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
         athena::io::ToYAMLStream(mlvl, writer);
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,

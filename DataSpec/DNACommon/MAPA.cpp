@@ -379,7 +379,7 @@ bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out)
 {
     if (mapaIn.verts.size() >= 256)
     {
-        Log.report(logvisor::Error, _S("MAPA %s vertex range exceeded [%d/%d]"),
+        Log.report(logvisor::Error, _SYS_STR("MAPA %s vertex range exceeded [%d/%d]"),
                    out.getRelativePath().data(), mapaIn.verts.size(), 255);
         return false;
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <athena/Types.hpp>
+#include "athena/Types.hpp"
 #include "DataSpec/DNACommon/DeafBabe.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
 #include "DataSpec/DNACommon/OBBTreeBuilder.hpp"

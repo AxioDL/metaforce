@@ -6,6 +6,7 @@
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
 #include "Graphics/CGraphics.hpp"
+#include <array>
 
 #define URDE_MAX_LIGHTS 8
 

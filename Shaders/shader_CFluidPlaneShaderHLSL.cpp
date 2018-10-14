@@ -668,57 +668,21 @@ static std::string _BuildVS(const SFluidPlaneShaderInfo& info, bool tessellation
     return ret;
 }
 template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::OpenGL, hecl::PipelineStage::Vertex>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return _BuildVS(in, tessellation);
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Vulkan, hecl::PipelineStage::Vertex>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return _BuildVS(in, tessellation);
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::NX, hecl::PipelineStage::Vertex>::BuildShader
+std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Vertex>::BuildShader
     (const SFluidPlaneShaderInfo& in, bool tessellation)
 {
     return _BuildVS(in, tessellation);
 }
 
 template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::OpenGL, hecl::PipelineStage::Fragment>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return _BuildFS(in);
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Vulkan, hecl::PipelineStage::Fragment>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return _BuildFS(in);
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::NX, hecl::PipelineStage::Fragment>::BuildShader
+std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Fragment>::BuildShader
     (const SFluidPlaneShaderInfo& in, bool tessellation)
 {
     return _BuildFS(in);
 }
 
 template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::OpenGL, hecl::PipelineStage::Control>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return TessCS;
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Vulkan, hecl::PipelineStage::Control>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
-{
-    return TessCS;
-}
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::NX, hecl::PipelineStage::Control>::BuildShader
+std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Control>::BuildShader
     (const SFluidPlaneShaderInfo& in, bool tessellation)
 {
     return TessCS;
@@ -752,20 +716,75 @@ static std::string BuildES(const SFluidPlaneShaderInfo& info)
     return ret;
 }
 template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::OpenGL, hecl::PipelineStage::Evaluation>::BuildShader
+std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Evaluation>::BuildShader
     (const SFluidPlaneShaderInfo& in, bool tessellation)
 {
     return BuildES(in);
 }
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Vulkan, hecl::PipelineStage::Evaluation>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
+
+static std::string _BuildVS(const SFluidPlaneDoorShaderInfo& info)
 {
-    return BuildES(in);
+    char *finalVSs;
+    asprintf(&finalVSs, VS, "");
+    std::string ret(finalVSs);
+    free(finalVSs);
+    return ret;
 }
-template <>
-std::string StageObject_CFluidPlaneShader<hecl::PlatformType::NX, hecl::PipelineStage::Evaluation>::BuildShader
-    (const SFluidPlaneShaderInfo& in, bool tessellation)
+
+static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info)
 {
-    return BuildES(in);
+    int nextTex = 0;
+    std::string textures;
+    std::string combiner;
+
+    if (info.m_hasPatternTex1)
+    {
+        textures += hecl::Format("Texture2D patternTex1 : register(t%d);\n", nextTex++);
+    }
+    if (info.m_hasPatternTex2)
+    {
+        textures += hecl::Format("Texture2D patternTex2 : register(t%d);\n", nextTex++);
+    }
+    if (info.m_hasColorTex)
+    {
+        textures += hecl::Format("Texture2D colorTex : register(t%d);\n", nextTex++);
+    }
+
+    // Tex0 * kColor0 * Tex1 + Tex2
+    if (info.m_hasPatternTex1 && info.m_hasPatternTex2)
+    {
+        combiner += "    colorOut = patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 *\n"
+                    "               patternTex2.Sample(samp, vtf.uvs[1]);\n";
+    }
+    else
+    {
+        combiner += "    colorOut = float4(0.0);\n";
+    }
+
+    if (info.m_hasColorTex)
+    {
+        combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]);\n";
+    }
+
+    combiner += "    colorOut.a = kColor0.a;\n";
+
+    char *finalFSs;
+    asprintf(&finalFSs, FSDoor, textures.c_str(), combiner.c_str());
+    std::string ret(finalFSs);
+    free(finalFSs);
+    return ret;
+}
+
+template <>
+std::string StageObject_CFluidPlaneDoorShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Vertex>::BuildShader
+    (const SFluidPlaneDoorShaderInfo& in)
+{
+    return _BuildVS(in);
+}
+
+template <>
+std::string StageObject_CFluidPlaneDoorShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Fragment>::BuildShader
+    (const SFluidPlaneDoorShaderInfo& in)
+{
+    return _BuildFS(in);
 }
