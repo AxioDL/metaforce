@@ -57,69 +57,69 @@ public:
 
     static void Help(HelpOutput& help)
     {
-        help.secHead(_S("NAME"));
+        help.secHead(_SYS_STR("NAME"));
         help.beginWrap();
-        help.wrap(_S("hecl-image - Generate GameCube/Wii disc image from packaged files\n"));
+        help.wrap(_SYS_STR("hecl-image - Generate GameCube/Wii disc image from packaged files\n"));
         help.endWrap();
 
-        help.secHead(_S("SYNOPSIS"));
+        help.secHead(_SYS_STR("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl image [<input-dir>]\n"));
+        help.wrap(_SYS_STR("hecl image [<input-dir>]\n"));
         help.endWrap();
 
-        help.secHead(_S("DESCRIPTION"));
+        help.secHead(_SYS_STR("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command uses the current contents of `out` to generate a GameCube or ")
-                  _S("Wii disc image. `hecl package` must have been run previously to be effective.\n"));
+        help.wrap(_SYS_STR("This command uses the current contents of `out` to generate a GameCube or ")
+                  _SYS_STR("Wii disc image. `hecl package` must have been run previously to be effective.\n"));
         help.endWrap();
 
-        help.secHead(_S("OPTIONS"));
-        help.optionHead(_S("<input-dir>"), _S("input directory"));
+        help.secHead(_SYS_STR("OPTIONS"));
+        help.optionHead(_SYS_STR("<input-dir>"), _SYS_STR("input directory"));
         help.beginWrap();
-        help.wrap(_S("Specifies a project subdirectory to root the resulting image from. ")
-                  _S("Project must contain an out/sys and out/files directory to succeed.\n"));
+        help.wrap(_SYS_STR("Specifies a project subdirectory to root the resulting image from. ")
+                  _SYS_STR("Project must contain an out/sys and out/files directory to succeed.\n"));
         help.endWrap();
     }
 
-    hecl::SystemString toolName() const {return _S("image");}
+    hecl::SystemString toolName() const {return _SYS_STR("image");}
 
     int run()
     {
         if (XTERM_COLOR)
-            hecl::Printf(_S("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n"));
+            hecl::Printf(_SYS_STR("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n"));
         else
-            hecl::Printf(_S("ABOUT TO IMAGE:\n"));
+            hecl::Printf(_SYS_STR("ABOUT TO IMAGE:\n"));
 
-        hecl::Printf(_S("  %s\n"), m_useProj->getProjectRootPath().getAbsolutePath().data());
+        hecl::Printf(_SYS_STR("  %s\n"), m_useProj->getProjectRootPath().getAbsolutePath().data());
         fflush(stdout);
 
         if (continuePrompt())
         {
-            hecl::ProjectPath outPath(m_useProj->getProjectWorkingPath(), _S("out"));
+            hecl::ProjectPath outPath(m_useProj->getProjectWorkingPath(), _SYS_STR("out"));
             if (!outPath.isDirectory())
             {
-                LogModule.report(logvisor::Error, _S("%s is not a directory"), outPath.getAbsolutePath().data());
+                LogModule.report(logvisor::Error, _SYS_STR("%s is not a directory"), outPath.getAbsolutePath().data());
                 return 1;
             }
 
-            hecl::ProjectPath bootBinPath(outPath, _S("sys/boot.bin"));
+            hecl::ProjectPath bootBinPath(outPath, _SYS_STR("sys/boot.bin"));
             if (!bootBinPath.isFile())
             {
-                LogModule.report(logvisor::Error, _S("%s is not a file"), bootBinPath.getAbsolutePath().data());
+                LogModule.report(logvisor::Error, _SYS_STR("%s is not a file"), bootBinPath.getAbsolutePath().data());
                 return 1;
             }
 
             athena::io::FileReader r(bootBinPath.getAbsolutePath());
             if (r.hasError())
             {
-                LogModule.report(logvisor::Error, _S("unable to open %s"), bootBinPath.getAbsolutePath().data());
+                LogModule.report(logvisor::Error, _SYS_STR("unable to open %s"), bootBinPath.getAbsolutePath().data());
                 return 1;
             }
             std::string id = r.readString(6);
             r.close();
 
             hecl::SystemStringConv idView(id);
-            hecl::SystemString fileOut = hecl::SystemString(outPath.getAbsolutePath()) + _S('/') + idView.c_str();
+            hecl::SystemString fileOut = hecl::SystemString(outPath.getAbsolutePath()) + _SYS_STR('/') + idView.c_str();
             hecl::MultiProgressPrinter printer(true);
             auto progFunc = [&printer](float totalProg, nod::SystemStringView fileName, size_t fileBytesXfered)
             {
@@ -127,22 +127,22 @@ public:
             };
             if (id[0] == 'G')
             {
-                fileOut += _S(".gcm");
+                fileOut += _SYS_STR(".gcm");
                 if (nod::DiscBuilderGCN::CalculateTotalSizeRequired(outPath.getAbsolutePath()) == -1)
                     return 1;
-                LogModule.report(logvisor::Info, _S("Generating %s as GameCube image"), fileOut.c_str());
+                LogModule.report(logvisor::Info, _SYS_STR("Generating %s as GameCube image"), fileOut.c_str());
                 nod::DiscBuilderGCN db(fileOut, progFunc);
                 if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)
                     return 1;
             }
             else
             {
-                fileOut += _S(".iso");
+                fileOut += _SYS_STR(".iso");
                 bool dualLayer;
                 if (nod::DiscBuilderWii::CalculateTotalSizeRequired(outPath.getAbsolutePath(), dualLayer) == -1)
                     return 1;
-                LogModule.report(logvisor::Info, _S("Generating %s as %s-layer Wii image"), fileOut.c_str(),
-                                 dualLayer ? _S("dual") : _S("single"));
+                LogModule.report(logvisor::Info, _SYS_STR("Generating %s as %s-layer Wii image"), fileOut.c_str(),
+                                 dualLayer ? _SYS_STR("dual") : _SYS_STR("single"));
                 nod::DiscBuilderWii db(fileOut, dualLayer, progFunc);
                 if (db.buildFromDirectory(outPath.getAbsolutePath()) != nod::EBuildResult::Success)
                     return 1;

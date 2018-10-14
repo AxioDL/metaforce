@@ -206,7 +206,7 @@ static inline void MakeDir(const wchar_t* dir)
     HRESULT err;
     if (!CreateDirectoryW(dir, NULL))
         if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-            LogModule.report(logvisor::Fatal, _S("MakeDir(%s)"), dir);
+            LogModule.report(logvisor::Fatal, _SYS_STR("MakeDir(%s)"), dir);
 }
 #endif
 
@@ -239,12 +239,12 @@ SystemString GetcwdStr();
 static inline bool IsAbsolute(SystemStringView path)
 {
 #if _WIN32
-    if (path.size() && (path[0] == _S('\\') || path[0] == _S('/')))
+    if (path.size() && (path[0] == _SYS_STR('\\') || path[0] == _SYS_STR('/')))
         return true;
-    if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _S(':'))
+    if (path.size() >= 2 && iswalpha(path[0]) && path[1] == _SYS_STR(':'))
         return true;
 #else
-    if (path.size() && path[0] == _S('/'))
+    if (path.size() && path[0] == _SYS_STR('/'))
         return true;
 #endif
     return false;
@@ -447,11 +447,11 @@ static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz)
     wchar_t* end;
     DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
     if (!ret || ret > 1024)
-        LogModule.report(logvisor::Fatal, _S("GetFullPathNameW %s"), path);
+        LogModule.report(logvisor::Fatal, _SYS_STR("GetFullPathNameW %s"), path);
     if (end)
         end[0] = L'\0';
     if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-        LogModule.report(logvisor::Fatal, _S("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
+        LogModule.report(logvisor::Fatal, _SYS_STR("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
     return reqSz < freeBytes.QuadPart;
 #else
     struct statvfs svfs;
@@ -682,12 +682,12 @@ public:
         {
             SystemString absPathForward(absPath);
             for (SystemChar& ch : absPathForward)
-                if (ch == _S('\\'))
-                    ch = _S('/');
+                if (ch == _SYS_STR('\\'))
+                    ch = _SYS_STR('/');
             if (!absPathForward.compare(0, m_projRoot.size(), m_projRoot))
             {
                 auto beginIt = absPathForward.cbegin() + m_projRoot.size();
-                while (*beginIt == _S('/'))
+                while (*beginIt == _SYS_STR('/'))
                     ++beginIt;
                 return SystemString(beginIt, absPathForward.cend());
             }
@@ -719,7 +719,7 @@ public:
      */
     SystemStringView getLastComponent() const
     {
-        size_t pos = m_projRoot.rfind(_S('/'));
+        size_t pos = m_projRoot.rfind(_SYS_STR('/'));
         if (pos == SystemString::npos)
             return {};
         return {m_projRoot.c_str() + pos + 1, size_t(m_projRoot.size() - pos - 1)};
@@ -850,7 +850,7 @@ public:
     {
         if (m_relPath.size())
             return m_relPath;
-        static const SystemString dot = _S(".");
+        static const SystemString dot = _SYS_STR(".");
         return dot;
     }
 
@@ -869,11 +869,11 @@ public:
      */
     ProjectPath getParentPath() const
     {
-        if (m_relPath == _S("."))
+        if (m_relPath == _SYS_STR("."))
             LogModule.report(logvisor::Fatal, "attempted to resolve parent of root project path");
-        size_t pos = m_relPath.rfind(_S('/'));
+        size_t pos = m_relPath.rfind(_SYS_STR('/'));
         if (pos == SystemString::npos)
-            return ProjectPath(*m_proj, _S(""));
+            return ProjectPath(*m_proj, _SYS_STR(""));
         return ProjectPath(*m_proj, SystemString(m_relPath.begin(), m_relPath.begin() + pos));
     }
 
@@ -883,14 +883,14 @@ public:
      */
     SystemStringView getLastComponent() const
     {
-        size_t pos = m_relPath.rfind(_S('/'));
+        size_t pos = m_relPath.rfind(_SYS_STR('/'));
         if (pos == SystemString::npos)
             return m_relPath;
         return {m_relPath.c_str() + pos + 1, m_relPath.size() - pos - 1};
     }
     std::string_view getLastComponentUTF8() const
     {
-        size_t pos = m_relPath.rfind(_S('/'));
+        size_t pos = m_relPath.rfind(_SYS_STR('/'));
 #if HECL_UCS2
         if (pos == SystemString::npos)
             return m_utf8RelPath;
@@ -913,7 +913,7 @@ public:
         const SystemChar* lastComp = end;
         while (lastComp != lastCompOrig.data())
         {
-            if (*lastComp == _S('.'))
+            if (*lastComp == _SYS_STR('.'))
                 return {lastComp + 1, size_t(end - lastComp - 1)};
             --lastComp;
         }
@@ -930,15 +930,15 @@ public:
         if (m_relPath.empty())
             return ret;
         auto it = m_relPath.cbegin();
-        if (*it == _S('/'))
+        if (*it == _SYS_STR('/'))
         {
-            ret.push_back(_S("/"));
+            ret.push_back(_SYS_STR("/"));
             ++it;
         }
         hecl::SystemString comp;
         for (; it != m_relPath.cend() ; ++it)
         {
-            if (*it == _S('/'))
+            if (*it == _SYS_STR('/'))
             {
                 if (comp.empty())
                     continue;
@@ -1036,13 +1036,13 @@ public:
         if (auxStr.empty())
             return ProjectPath(getProject(), getRelativePath());
         else
-            return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + auxStr.data());
+            return ProjectPath(getProject(), SystemString(getRelativePath()) + _SYS_STR('|') + auxStr.data());
     }
 
 #if HECL_UCS2
     ProjectPath ensureAuxInfo(std::string_view auxStr) const
     {
-        return ProjectPath(getProject(), SystemString(getRelativePath()) + _S('|') + UTF8ToWide(auxStr));
+        return ProjectPath(getProject(), SystemString(getRelativePath()) + _SYS_STR('|') + UTF8ToWide(auxStr));
     }
 #endif
 
@@ -1135,7 +1135,7 @@ public:
     {
         size_t count = 0;
         for (SystemChar ch : m_relPath)
-            if (ch == _S('/') || ch == _S('\\'))
+            if (ch == _SYS_STR('/') || ch == _SYS_STR('\\'))
                 ++count;
         return count;
     }
@@ -1159,7 +1159,7 @@ public:
         auto end = comps.cend();
         if (end != comps.cbegin() && !includeLastComp)
             --end;
-        ProjectPath compPath(*m_proj, _S("."));
+        ProjectPath compPath(*m_proj, _SYS_STR("."));
         for (auto it=comps.cbegin() ; it != end ; ++it)
         {
             compPath = ProjectPath(compPath, *it);

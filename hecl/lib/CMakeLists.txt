@@ -86,7 +86,7 @@ add_library(hecl-light
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
             ${PLAT_SRCS})
-add_library(hecl-compilers Compilers.cpp)
+add_library(hecl-compilers Compilers.cpp WideStringConvert.cpp)
 
 add_dependencies(hecl-full ${HECL_APPLICATION_REPS_TARGETS_LIST})
 add_dependencies(hecl-light ${HECL_APPLICATION_REPS_TARGETS_LIST})

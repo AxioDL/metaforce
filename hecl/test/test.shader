@@ -1,3 +1,5 @@
+#shader test
+
 #culling none
 #attribute position3
 #attribute normal3
@@ -22,4 +24,37 @@ SBINDING(0) in vec2 out_uv;
 void main()
 {
     out_frag = texture(texs[0], out_uv);
+}
+
+#vertex hlsl
+struct VertData
+{
+    float3 in_pos : POSITION;
+    float3 in_norm : NORMAL;
+    float2 in_uv : UV;
+};
+struct VertToFrag
+{
+    float4 position : SV_Position;
+    float2 out_uv : UV;
+};
+VertToFrag main(in VertData v)
+{
+    VertToFrag ret;
+    ret.position = float4(v.in_pos, 1.0);
+    ret.out_uv = v.in_uv;
+    return ret;
+}
+
+#fragment hlsl
+struct VertToFrag
+{
+    float4 position : SV_Position;
+    float2 out_uv : UV;
+};
+Texture2D texs : register(t0);
+SamplerState samp : register(s0);
+float4 main(in VertToFrag vtf) : SV_Target0
+{
+    return texs.Sample(samp, vtf.out_uv);
 }

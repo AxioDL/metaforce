@@ -282,7 +282,7 @@ public:
         FILE* m_lockedFile = NULL;
     public:
         ConfigFile(const Project& project, SystemStringView name,
-                   SystemStringView subdir=_S("/.hecl/"));
+                   SystemStringView subdir=_SYS_STR("/.hecl/"));
         std::vector<std::string>& lockAndRead();
         void addLine(std::string_view line);
         void removeLine(std::string_view refLine);

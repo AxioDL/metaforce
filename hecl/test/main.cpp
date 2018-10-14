@@ -60,7 +60,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
     bool m_running = true;
 
     HECLApplicationCallback()
-        : m_fileStoreMgr(_S("heclTest")),
+        : m_fileStoreMgr(_SYS_STR("heclTest")),
           m_cvarManager(m_fileStoreMgr),
           m_console(&m_cvarManager)
     {
@@ -75,7 +75,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         hecl::VerbosityLevel = 2;
 
         /* Setup boo window */
-        m_mainWindow = app->newWindow(_S("HECL Test"));
+        m_mainWindow = app->newWindow(_SYS_STR("HECL Test"));
         m_mainWindow->setCallback(&m_windowCb);
 
         boo::ObjToken<boo::ITextureR> renderTex;
@@ -130,7 +130,8 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         hecl::Backend::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, boo::Primitive::TriStrips,
                                                hecl::Backend::ReflectionType::None, false, false, false);
         hecl::Frontend::Frontend FE;
-        hecl::HECLIR irObj(FE.compileSource(testShader, "booTest"), testShaderTag, 0);
+        hecl::Frontend::IR ir = FE.compileSource(testShader, "booTest");
+        hecl::HECLIR irObj(ir, testShaderTag, 0);
 
         gfxF->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx)
         {
@@ -277,7 +278,7 @@ int main(int argc, const boo::SystemChar** argv)
     logvisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("heclTest"), _S("HECL Test"), argc, argv);
+        appCb, _SYS_STR("heclTest"), _SYS_STR("HECL Test"), argc, argv);
     printf("IM DYING!!\n");
     return ret;
 }
@@ -291,7 +292,7 @@ int WINAPIV main(Platform::Array<Platform::String^>^ params)
     logvisor::RegisterConsoleLogger();
     HECLApplicationCallback appCb;
     boo::ViewProvider^ viewProvider =
-        ref new boo::ViewProvider(appCb, _S("heclTest"), _S("HECL Test"), _S("heclTest"), params, false);
+        ref new boo::ViewProvider(appCb, _SYS_STR("heclTest"), _SYS_STR("HECL Test"), _SYS_STR("heclTest"), params, false);
     CoreApplication::Run(viewProvider);
     return 0;
 }

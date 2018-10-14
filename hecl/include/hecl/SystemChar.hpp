@@ -34,8 +34,8 @@ static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), towlower);}
 static inline void ToUpper(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), towupper);}
-#ifndef _S
-#define _S(val) L ## val
+#ifndef _SYS_STR
+#define _SYS_STR(val) L ## val
 #endif
 #ifndef FMT_CSTR_SYS
 #define FMT_CSTR_SYS "S"
@@ -50,8 +50,8 @@ static inline void ToLower(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), tolower);}
 static inline void ToUpper(SystemString& str)
 {std::transform(str.begin(), str.end(), str.begin(), toupper);}
-#ifndef _S
-#define _S(val) val
+#ifndef _SYS_STR
+#define _SYS_STR(val) val
 #endif
 #ifndef FMT_CSTR_SYS
 #define FMT_CSTR_SYS "s"

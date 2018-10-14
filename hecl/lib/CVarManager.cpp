@@ -96,16 +96,16 @@ void CVarManager::deserialize(CVar* cvar)
         return;
 
 #if _WIN32
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toWideLiteral();
 #else
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toLiteral();
 #endif
     hecl::Sstat st;
 
     if (m_useBinary)
     {
         CVarContainer container;
-        filename += _S(".bin");
+        filename += _SYS_STR(".bin");
         if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
             return;
         athena::io::FileReader reader(filename);
@@ -134,7 +134,7 @@ void CVarManager::deserialize(CVar* cvar)
     }
     else
     {
-        filename += _S(".yaml");
+        filename += _SYS_STR(".yaml");
         if (hecl::Stat(filename.c_str(), &st) || !S_ISREG(st.st_mode))
             return;
         athena::io::FileReader reader(filename);
@@ -168,9 +168,9 @@ void CVarManager::deserialize(CVar* cvar)
 void CVarManager::serialize()
 {
 #if _WIN32
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toWideLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toWideLiteral();
 #else
-    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _S('/') + com_configfile->toLiteral();
+    hecl::SystemString filename = hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toLiteral();
 #endif
 
     if (m_useBinary)
@@ -182,14 +182,14 @@ void CVarManager::serialize()
                 container.cvars.push_back(*pair.second);
         container.cvarCount = atUint32(container.cvars.size());
 
-        filename += _S(".bin");
+        filename += _SYS_STR(".bin");
         athena::io::FileWriter writer(filename);
         if (writer.isOpen())
             container.write(writer);
     }
     else
     {
-        filename += _S(".yaml");
+        filename += _SYS_STR(".yaml");
 
         athena::io::FileReader r(filename);
         athena::io::YAMLDocWriter docWriter(nullptr, r.isOpen() ? &r : nullptr);
@@ -303,7 +303,7 @@ void CVarManager::parseCommandLine(const std::vector<SystemString>& args)
     athena::utility::tolower(developerName);
     for (const SystemString& arg : args)
     {
-        if (arg[0] == _S('+'))
+        if (arg[0] == _SYS_STR('+'))
         {
             std::string tmp = SystemUTF8Conv(arg).c_str();
 

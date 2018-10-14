@@ -4,8 +4,8 @@
 
 namespace hecl
 {
-static const SystemRegex regPATHCOMP(_S("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
-static const SystemRegex regDRIVELETTER(_S("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
+static const SystemRegex regPATHCOMP(_SYS_STR("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript|SystemRegex::optimize);
+static const SystemRegex regDRIVELETTER(_SYS_STR("^([^/]*)/"), SystemRegex::ECMAScript|SystemRegex::optimize);
 
 static SystemString CanonRelPath(SystemStringView path)
 {
@@ -17,15 +17,15 @@ static SystemString CanonRelPath(SystemStringView path)
     for (; std::regex_search(in, matches, regPATHCOMP) ; in = matches.suffix().str())
     {
         hecl::SystemRegexMatch::const_reference match = matches[1];
-        if (!match.compare(_S(".")))
+        if (!match.compare(_SYS_STR(".")))
             continue;
-        else if (!match.compare(_S("..")))
+        else if (!match.compare(_SYS_STR("..")))
         {
             if (comps.empty())
             {
                 /* Unable to resolve outside project */
-                LogModule.report(logvisor::Fatal, _S("Unable to resolve outside project root in %s"), path.data());
-                return _S(".");
+                LogModule.report(logvisor::Fatal, _SYS_STR("Unable to resolve outside project root in %s"), path.data());
+                return _SYS_STR(".");
             }
             comps.pop_back();
             continue;
@@ -42,13 +42,13 @@ static SystemString CanonRelPath(SystemStringView path)
         {
             if ((*it).size())
             {
-                retval += _S('/');
+                retval += _SYS_STR('/');
                 retval += *it;
             }
         }
         return retval;
     }
-    return _S(".");
+    return _SYS_STR(".");
 }
 
 static SystemString CanonRelPath(SystemStringView path, const ProjectRootPath& projectRoot)
@@ -64,7 +64,7 @@ void ProjectPath::assign(Database::Project& project, SystemStringView path)
     m_proj = &project;
 
     SystemString usePath;
-    size_t pipeFind = path.rfind(_S('|'));
+    size_t pipeFind = path.rfind(_SYS_STR('|'));
     if (pipeFind != SystemString::npos)
     {
         m_auxInfo.assign(path.cbegin() + pipeFind + 1, path.cend());
@@ -74,7 +74,7 @@ void ProjectPath::assign(Database::Project& project, SystemStringView path)
         usePath = path;
 
     m_relPath = CanonRelPath(usePath, project.getProjectRootPath());
-    m_absPath = SystemString(project.getProjectRootPath().getAbsolutePath()) + _S('/') + m_relPath;
+    m_absPath = SystemString(project.getProjectRootPath().getAbsolutePath()) + _SYS_STR('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
 
@@ -94,7 +94,7 @@ void ProjectPath::assign(const ProjectPath& parentPath, SystemStringView path)
     m_proj = parentPath.m_proj;
 
     SystemString usePath;
-    size_t pipeFind = path.rfind(_S('|'));
+    size_t pipeFind = path.rfind(_SYS_STR('|'));
     if (pipeFind != SystemString::npos)
     {
         m_auxInfo.assign(path.cbegin() + pipeFind + 1, path.cend());
@@ -103,8 +103,8 @@ void ProjectPath::assign(const ProjectPath& parentPath, SystemStringView path)
     else
         usePath = path;
 
-    m_relPath = CanonRelPath(parentPath.m_relPath + _S('/') + usePath);
-    m_absPath = SystemString(m_proj->getProjectRootPath().getAbsolutePath()) + _S('/') + m_relPath;
+    m_relPath = CanonRelPath(parentPath.m_relPath + _SYS_STR('/') + usePath);
+    m_absPath = SystemString(m_proj->getProjectRootPath().getAbsolutePath()) + _SYS_STR('/') + m_relPath;
     SanitizePath(m_relPath);
     SanitizePath(m_absPath);
 
@@ -130,12 +130,12 @@ ProjectPath ProjectPath::getWithExtension(const SystemChar* ext, bool replace) c
         auto absIt = pp.m_absPath.end();
         if (absIt != pp.m_absPath.begin())
             --absIt;
-        while (relIt != pp.m_relPath.begin() && *relIt != _S('.') && *relIt != _S('/'))
+        while (relIt != pp.m_relPath.begin() && *relIt != _SYS_STR('.') && *relIt != _SYS_STR('/'))
         {
             --relIt;
             --absIt;
         }
-        if (*relIt == _S('.') && relIt != pp.m_relPath.begin())
+        if (*relIt == _SYS_STR('.') && relIt != pp.m_relPath.begin())
         {
             pp.m_relPath.resize(relIt - pp.m_relPath.begin());
             pp.m_absPath.resize(absIt - pp.m_absPath.begin());
@@ -157,14 +157,14 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
     ProjectPath ret(m_proj->getProjectCookedPath(spec), woExt.getRelativePath());
 
     if (getAuxInfo().size())
-        return ret.getWithExtension((SystemString(_S(".")) + getAuxInfo().data()).c_str());
+        return ret.getWithExtension((SystemString(_SYS_STR(".")) + getAuxInfo().data()).c_str());
     else
         return ret;
 }
 
 ProjectPath::Type ProjectPath::getPathType() const
 {
-    if (m_absPath.find(_S('*')) != SystemString::npos)
+    if (m_absPath.find(_SYS_STR('*')) != SystemString::npos)
         return Type::Glob;
     Sstat theStat;
     if (hecl::Stat(m_absPath.c_str(), &theStat))
@@ -180,7 +180,7 @@ Time ProjectPath::getModtime() const
 {
     Sstat theStat;
     time_t latestTime = 0;
-    if (m_absPath.find(_S('*')) != SystemString::npos)
+    if (m_absPath.find(_SYS_STR('*')) != SystemString::npos)
     {
         std::vector<ProjectPath> globResults;
         getGlobResults(globResults);
@@ -215,7 +215,7 @@ Time ProjectPath::getModtime() const
             return Time(latestTime);
         }
     }
-    LogModule.report(logvisor::Fatal, _S("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
+    LogModule.report(logvisor::Fatal, _SYS_STR("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
     return Time();
 }
 
@@ -230,11 +230,11 @@ static void _recursiveGlob(Database::Project& proj,
         return;
 
     const SystemString& comp = matches[1];
-    if (comp.find(_S('*')) == SystemString::npos)
+    if (comp.find(_SYS_STR('*')) == SystemString::npos)
     {
         SystemString nextItStr = itStr;
         if (needSlash)
-            nextItStr += _S('/');
+            nextItStr += _SYS_STR('/');
         nextItStr += comp;
 
         hecl::Sstat theStat;
@@ -291,7 +291,7 @@ hecl::DirectoryEnumerator ProjectPath::enumerateDir() const
 void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const
 {
     auto rootPath = m_proj->getProjectRootPath().getAbsolutePath();
-    _recursiveGlob(*m_proj, outPaths, m_relPath, rootPath.data(), rootPath.back() != _S('/'));
+    _recursiveGlob(*m_proj, outPaths, m_relPath, rootPath.data(), rootPath.back() != _SYS_STR('/'));
 }
 
 ProjectRootPath SearchForProject(SystemStringView path)
@@ -302,13 +302,13 @@ ProjectRootPath SearchForProject(SystemStringView path)
     while (begin != end)
     {
         SystemString testPath(begin, end);
-        SystemString testIndexPath = testPath + _S("/.hecl/beacon");
+        SystemString testIndexPath = testPath + _SYS_STR("/.hecl/beacon");
         Sstat theStat;
         if (!hecl::Stat(testIndexPath.c_str(), &theStat))
         {
             if (S_ISREG(theStat.st_mode))
             {
-                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _S("rb"));
+                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _SYS_STR("rb"));
                 if (!fp)
                     continue;
                 char magic[4];
@@ -323,7 +323,7 @@ ProjectRootPath SearchForProject(SystemStringView path)
             }
         }
 
-        while (begin != end && *(end-1) != _S('/') && *(end-1) != _S('\\'))
+        while (begin != end && *(end-1) != _SYS_STR('/') && *(end-1) != _SYS_STR('\\'))
             --end;
         if (begin != end)
             --end;
@@ -339,13 +339,13 @@ ProjectRootPath SearchForProject(SystemStringView path, SystemString& subpathOut
     while (begin != end)
     {
         SystemString testPath(begin, end);
-        SystemString testIndexPath = testPath + _S("/.hecl/beacon");
+        SystemString testIndexPath = testPath + _SYS_STR("/.hecl/beacon");
         Sstat theStat;
         if (!hecl::Stat(testIndexPath.c_str(), &theStat))
         {
             if (S_ISREG(theStat.st_mode))
             {
-                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _S("rb"));
+                FILE* fp = hecl::Fopen(testIndexPath.c_str(), _SYS_STR("rb"));
                 if (!fp)
                     continue;
                 char magic[4];
@@ -357,16 +357,16 @@ ProjectRootPath SearchForProject(SystemStringView path, SystemString& subpathOut
                     continue;
                 ProjectRootPath newRootPath = ProjectRootPath(testPath);
                 auto origEnd = testRoot.getAbsolutePath().end();
-                while (end != origEnd && *end != _S('/') && *end != _S('\\'))
+                while (end != origEnd && *end != _SYS_STR('/') && *end != _SYS_STR('\\'))
                     ++end;
-                if (end != origEnd && (*end == _S('/') || *end == _S('\\')))
+                if (end != origEnd && (*end == _SYS_STR('/') || *end == _SYS_STR('\\')))
                     ++end;
                 subpathOut.assign(end, origEnd);
                 return newRootPath;
             }
         }
 
-        while (begin != end && *(end-1) != _S('/') && *(end-1) != _S('\\'))
+        while (begin != end && *(end-1) != _SYS_STR('/') && *(end-1) != _SYS_STR('\\'))
             --end;
         if (begin != end)
             --end;

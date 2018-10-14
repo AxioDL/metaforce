@@ -47,25 +47,25 @@ bool XTERM_COLOR = false;
 static void printHelp(const hecl::SystemChar* pname)
 {
     if (XTERM_COLOR)
-        hecl::Printf(_S("" BOLD "HECL" NORMAL ""));
+        hecl::Printf(_SYS_STR("" BOLD "HECL" NORMAL ""));
     else
-        hecl::Printf(_S("HECL"));
+        hecl::Printf(_SYS_STR("HECL"));
 #if HECL_HAS_NOD
 #  define TOOL_LIST "extract|init|cook|package|image|help"
 #else
 #  define TOOL_LIST "extract|init|cook|package|help"
 #endif
 #if HECL_GIT
-    hecl::Printf(_S(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+    hecl::Printf(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
 #elif HECL_VER
-    hecl::Printf(_S(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+    hecl::Printf(_SYS_STR(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
 #else
-    hecl::Printf(_S("\nUsage: %s " TOOL_LIST "\n"), pname);
+    hecl::Printf(_SYS_STR("\nUsage: %s " TOOL_LIST "\n"), pname);
 #endif
 }
 
 /* Regex patterns */
-static const hecl::SystemRegex regOPEN(_S("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
+static const hecl::SystemRegex regOPEN(_SYS_STR("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
 
 static ToolBase* ToolPtr = nullptr;
 
@@ -100,7 +100,7 @@ static void SIGWINCHHandler(int sig) {}
 int main(int argc, const char** argv)
 #endif
 {
-    if (argc > 1 && !hecl::StrCmp(argv[1], _S("--dlpackage")))
+    if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage")))
     {
         printf("%s\n", HECL_DLPACKAGE);
         return 100;
@@ -140,7 +140,7 @@ int main(int argc, const char** argv)
     }
     else if (argc == 0)
     {
-        printHelp(_S("hecl"));
+        printHelp(_SYS_STR("hecl"));
 #if WIN_PAUSE
         system("PAUSE");
 #endif
@@ -156,17 +156,17 @@ int main(int argc, const char** argv)
     if (hecl::Getcwd(cwdbuf, 1024))
     {
         info.cwd = cwdbuf;
-        if (info.cwd.size() && info.cwd.back() != _S('/') && info.cwd.back() != _S('\\'))
+        if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\'))
 #if _WIN32
-            info.cwd += _S('\\');
+            info.cwd += _SYS_STR('\\');
 #else
-            info.cwd += _S('/');
+            info.cwd += _SYS_STR('/');
 #endif
 
         if (hecl::PathRelative(argv[0]))
-            ExeDir = hecl::SystemString(cwdbuf) + _S('/');
+            ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
         hecl::SystemString Argv0(argv[0]);
-        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_S("/\\"));
+        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
         if (lastIdx != hecl::SystemString::npos)
             ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
     }
@@ -211,7 +211,7 @@ int main(int argc, const char** argv)
         for (auto it = args.cbegin() ; it != args.cend() ;)
         {
             const hecl::SystemString& arg = *it;
-            if (arg.size() < 2 || arg[0] != _S('-') || arg[1] == _S('-'))
+            if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-'))
             {
                 ++it;
                 continue;
@@ -219,13 +219,13 @@ int main(int argc, const char** argv)
 
             for (auto chit = arg.cbegin() + 1 ; chit != arg.cend() ; ++chit)
             {
-                if (*chit == _S('v'))
+                if (*chit == _SYS_STR('v'))
                     ++info.verbosityLevel;
-                else if (*chit == _S('f'))
+                else if (*chit == _SYS_STR('f'))
                     info.force = true;
-                else if (*chit == _S('y'))
+                else if (*chit == _SYS_STR('y'))
                     info.yes = true;
-                else if (*chit == _S('g'))
+                else if (*chit == _SYS_STR('g'))
                     info.gui = true;
                 else
                     info.flags.push_back(*chit);
@@ -265,27 +265,27 @@ int main(int argc, const char** argv)
     std::unique_ptr<ToolBase> tool;
 
     size_t ErrorRef = logvisor::ErrorCount;
-    if (toolName == _S("init"))
+    if (toolName == _SYS_STR("init"))
         tool.reset(new ToolInit(info));
-    else if (toolName == _S("spec"))
+    else if (toolName == _SYS_STR("spec"))
         tool.reset(new ToolSpec(info));
-    else if (toolName == _S("extract"))
+    else if (toolName == _SYS_STR("extract"))
         tool.reset(new ToolExtract(info));
-    else if (toolName == _S("cook"))
+    else if (toolName == _SYS_STR("cook"))
         tool.reset(new ToolCook(info));
-    else if (toolName == _S("package") || toolName == _S("pack"))
+    else if (toolName == _SYS_STR("package") || toolName == _SYS_STR("pack"))
         tool.reset(new ToolPackage(info));
 #if HECL_HAS_NOD
-    else if (toolName == _S("image"))
+    else if (toolName == _SYS_STR("image"))
         tool.reset(new ToolImage(info));
 #endif
-    else if (toolName == _S("help"))
+    else if (toolName == _SYS_STR("help"))
         tool.reset(new ToolHelp(info));
     else
     {
-        FILE* fp = hecl::Fopen(argv[1], _S("rb"));
+        FILE* fp = hecl::Fopen(argv[1], _SYS_STR("rb"));
         if (!fp)
-            LogModule.report(logvisor::Error, _S("unrecognized tool '%s'"), toolName.c_str());
+            LogModule.report(logvisor::Error, _SYS_STR("unrecognized tool '%s'"), toolName.c_str());
         else
         {
             /* Shortcut-case: implicit extract */
@@ -304,7 +304,7 @@ int main(int argc, const char** argv)
     }
 
     if (info.verbosityLevel)
-        LogModule.report(logvisor::Info, _S("Constructed tool '%s' %d\n"),
+        LogModule.report(logvisor::Info, _SYS_STR("Constructed tool '%s' %d\n"),
                          tool->toolName().c_str(), info.verbosityLevel);
 
     /* Run tool */

@@ -43,12 +43,12 @@ public:
             {
                 /* Get name from input file and init project there */
                 hecl::SystemString baseFile = info.args.front();
-                size_t slashPos = baseFile.rfind(_S('/'));
+                size_t slashPos = baseFile.rfind(_SYS_STR('/'));
                 if (slashPos == hecl::SystemString::npos)
-                    slashPos = baseFile.rfind(_S('\\'));
+                    slashPos = baseFile.rfind(_SYS_STR('\\'));
                 if (slashPos != hecl::SystemString::npos)
                     baseFile.assign(baseFile.begin() + slashPos + 1, baseFile.end());
-                size_t dotPos = baseFile.rfind(_S('.'));
+                size_t dotPos = baseFile.rfind(_SYS_STR('.'));
                 if (dotPos != hecl::SystemString::npos)
                     baseFile.assign(baseFile.begin(), baseFile.begin() + dotPos);
 
@@ -71,7 +71,7 @@ public:
             m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
             if (logvisor::ErrorCount > ErrorRef)
                 LogModule.report(logvisor::Fatal, "unable to init project at '%s'", rootDir.c_str());
-            LogModule.report(logvisor::Info, _S("initialized project at '%s/.hecl'"), rootDir.c_str());
+            LogModule.report(logvisor::Info, _SYS_STR("initialized project at '%s/.hecl'"), rootDir.c_str());
             m_useProj = m_fallbackProj.get();
         }
         else
@@ -99,45 +99,45 @@ public:
 
     static void Help(HelpOutput& help)
     {
-        help.secHead(_S("NAME"));
+        help.secHead(_SYS_STR("NAME"));
         help.beginWrap();
-        help.wrap(_S("hecl-extract - Extract objects from supported package/image formats\n"));
+        help.wrap(_SYS_STR("hecl-extract - Extract objects from supported package/image formats\n"));
         help.endWrap();
 
-        help.secHead(_S("SYNOPSIS"));
+        help.secHead(_SYS_STR("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl extract <packagefile> [<subnode>...]\n"));
+        help.wrap(_SYS_STR("hecl extract <packagefile> [<subnode>...]\n"));
         help.endWrap();
 
-        help.secHead(_S("DESCRIPTION"));
+        help.secHead(_SYS_STR("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command recursively extracts all or part of a dataspec-supported ")
-                  _S("package format. Each object is decoded to a working format and added to the project.\n\n"));
+        help.wrap(_SYS_STR("This command recursively extracts all or part of a dataspec-supported ")
+                  _SYS_STR("package format. Each object is decoded to a working format and added to the project.\n\n"));
         help.endWrap();
 
-        help.secHead(_S("OPTIONS"));
-        help.optionHead(_S("<packagefile>[/<subnode>...]"), _S("input file"));
+        help.secHead(_SYS_STR("OPTIONS"));
+        help.optionHead(_SYS_STR("<packagefile>[/<subnode>...]"), _SYS_STR("input file"));
         help.beginWrap();
-        help.wrap(_S("Specifies the package file or disc image to source data from. ")
-                  _S("An optional subnode specifies a named hierarchical-node specific ")
-                  _S("to the game architecture (levels/areas)."));
+        help.wrap(_SYS_STR("Specifies the package file or disc image to source data from. ")
+                  _SYS_STR("An optional subnode specifies a named hierarchical-node specific ")
+                  _SYS_STR("to the game architecture (levels/areas)."));
         help.endWrap();
     }
 
-    hecl::SystemString toolName() const {return _S("extract");}
+    hecl::SystemString toolName() const {return _SYS_STR("extract");}
 
     static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep)
     {
         for (int l=0 ; l<level ; ++l)
-            hecl::Printf(_S("  "));
+            hecl::Printf(_SYS_STR("  "));
         if (XTERM_COLOR)
-            hecl::Printf(_S("" BOLD "%s" NORMAL ""), rep.name.c_str());
+            hecl::Printf(_SYS_STR("" BOLD "%s" NORMAL ""), rep.name.c_str());
         else
-            hecl::Printf(_S("%s"), rep.name.c_str());
+            hecl::Printf(_SYS_STR("%s"), rep.name.c_str());
 
         if (rep.desc.size())
-            hecl::Printf(_S(" [%s]"), rep.desc.c_str());
-        hecl::Printf(_S("\n"));
+            hecl::Printf(_SYS_STR(" [%s]"), rep.desc.c_str());
+        hecl::Printf(_SYS_STR("\n"));
         for (hecl::Database::IDataSpec::ExtractReport& child : rep.childOpts)
             _recursivePrint(level + 1, child);
     }
@@ -147,21 +147,21 @@ public:
         if (m_specPasses.empty())
         {
             if (XTERM_COLOR)
-                hecl::Printf(_S("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
+                hecl::Printf(_SYS_STR("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n"));
             else
-                hecl::Printf(_S("NOTHING TO EXTRACT\n"));
+                hecl::Printf(_SYS_STR("NOTHING TO EXTRACT\n"));
             return 1;
         }
 
         if (XTERM_COLOR)
-            hecl::Printf(_S("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
+            hecl::Printf(_SYS_STR("" GREEN BOLD "ABOUT TO EXTRACT:" NORMAL "\n"));
         else
-            hecl::Printf(_S("ABOUT TO EXTRACT:\n"));
+            hecl::Printf(_SYS_STR("ABOUT TO EXTRACT:\n"));
 
         for (hecl::Database::IDataSpec::ExtractReport& rep : m_reps)
         {
             _recursivePrint(0, rep);
-            hecl::Printf(_S("\n"));
+            hecl::Printf(_SYS_STR("\n"));
         }
         fflush(stdout);
 
@@ -170,12 +170,12 @@ public:
             for (SpecExtractPass& ds : m_specPasses)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name.data());
+                    hecl::Printf(_SYS_STR("" MAGENTA BOLD "Using DataSpec %s:" NORMAL "\n"), ds.m_entry->m_name.data());
                 else
-                    hecl::Printf(_S("Using DataSpec %s:\n"), ds.m_entry->m_name.data());
+                    hecl::Printf(_SYS_STR("Using DataSpec %s:\n"), ds.m_entry->m_name.data());
 
                 ds.m_instance->doExtract(m_einfo, {true});
-                hecl::Printf(_S("\n\n"));
+                hecl::Printf(_SYS_STR("\n\n"));
             }
         }
 

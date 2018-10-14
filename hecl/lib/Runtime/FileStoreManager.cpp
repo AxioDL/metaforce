@@ -19,17 +19,17 @@ FileStoreManager::FileStoreManager(SystemStringView domain)
 #if !WINDOWS_STORE
     WCHAR home[MAX_PATH];
     if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-        Log.report(logvisor::Fatal, _S("unable to locate profile for file store"));
+        Log.report(logvisor::Fatal, _SYS_STR("unable to locate profile for file store"));
 
     SystemString path(home);
 #else
     StorageFolder^ cacheFolder = ApplicationData::Current->LocalCacheFolder;
     SystemString path(cacheFolder->Path->Data());
 #endif
-    path += _S("/.heclrun");
+    path += _SYS_STR("/.heclrun");
 
     hecl::MakeDir(path.c_str());
-    path += _S('/');
+    path += _SYS_STR('/');
     path += domain.data();
 
     hecl::MakeDir(path.c_str());

@@ -7,6 +7,7 @@
 #include <regex>
 #include <unordered_map>
 #include <set>
+#include <bitset>
 
 using namespace std::literals;
 
@@ -238,24 +239,24 @@ bool Compiler::includeFile(SystemStringView file, std::string& out, int depth)
 {
     if (depth > 32)
     {
-        Log.report(logvisor::Error, _S("Too many levels of includes (>32) at '%s'"), file.data());
+        Log.report(logvisor::Error, _SYS_STR("Too many levels of includes (>32) at '%s'"), file.data());
         return false;
     }
 
     const std::string* data = getFileContents(file);
     if (!data)
     {
-        Log.report(logvisor::Error, _S("Unable to access '%s'"), file.data());
+        Log.report(logvisor::Error, _SYS_STR("Unable to access '%s'"), file.data());
         return false;
     }
     const std::string& sdata = *data;
 
     SystemString directory;
-    auto slashPos = file.find_last_of("/\\");
+    auto slashPos = file.find_last_of(_SYS_STR("/\\"));
     if (slashPos != SystemString::npos)
         directory = SystemString(file.begin(), file.begin() + slashPos);
     else
-        directory = _S(".");
+        directory = _SYS_STR(".");
 
     auto begin = sdata.cbegin();
     auto end = sdata.cend();
@@ -274,13 +275,13 @@ bool Compiler::includeFile(SystemStringView file, std::string& out, int depth)
             std::string path = subMatch[1].str();
             if (path.empty())
             {
-                Log.report(logvisor::Error, _S("Empty path provided to include in '%s'"), file.data());
+                Log.report(logvisor::Error, _SYS_STR("Empty path provided to include in '%s'"), file.data());
                 return false;
             }
 
             hecl::SystemString pathStr(hecl::SystemStringConv(path).sys_str());
             if (!hecl::IsAbsolute(pathStr))
-                pathStr = directory + _S('/') + pathStr;
+                pathStr = directory + _SYS_STR('/') + pathStr;
             if (!includeFile(pathStr, out, depth + 1))
                 return false;
         }
@@ -871,58 +872,15 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
     }
     out.first += "\n";
 
-    out.first += "#define OPENGL_STAGES_";
+    out.first += "#define STAGES_";
     out.first += baseName;
+    out.first += "(P, S)";
     for (const auto& shader : shaderStageUses)
     {
         out.first += " \\\n";
-        out.first += "STAGE_SPECIALIZATIONS(::StageObject_";
+        out.first += "::StageObject_";
         out.first += shader.first;
-        out.first += ", hecl::PlatformType::OpenGL)";
-    }
-    out.first += "\n";
-
-    out.first += "#define VULKAN_STAGES_";
-    out.first += baseName;
-    for (const auto& shader : shaderStageUses)
-    {
-        out.first += " \\\n";
-        out.first += "STAGE_SPECIALIZATIONS(::StageObject_";
-        out.first += shader.first;
-        out.first += ", hecl::PlatformType::Vulkan)";
-    }
-    out.first += "\n";
-
-    out.first += "#define D3D11_STAGES_";
-    out.first += baseName;
-    for (const auto& shader : shaderStageUses)
-    {
-        out.first += " \\\n";
-        out.first += "STAGE_SPECIALIZATIONS(::StageObject_";
-        out.first += shader.first;
-        out.first += ", hecl::PlatformType::D3D11)";
-    }
-    out.first += "\n";
-
-    out.first += "#define METAL_STAGES_";
-    out.first += baseName;
-    for (const auto& shader : shaderStageUses)
-    {
-        out.first += " \\\n";
-        out.first += "STAGE_SPECIALIZATIONS(::StageObject_";
-        out.first += shader.first;
-        out.first += ", hecl::PlatformType::Metal)";
-    }
-    out.first += "\n";
-
-    out.first += "#define NX_STAGES_";
-    out.first += baseName;
-    for (const auto& shader : shaderStageUses)
-    {
-        out.first += " \\\n";
-        out.first += "STAGE_SPECIALIZATIONS(::StageObject_";
-        out.first += shader.first;
-        out.first += ", hecl::PlatformType::NX)";
+        out.first += "<P, S>,";
     }
     out.first += "\n";
 

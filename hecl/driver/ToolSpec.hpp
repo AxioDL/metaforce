@@ -27,9 +27,9 @@ public:
         hecl::SystemString firstArg = info.args.front();
         hecl::ToLower(firstArg);
 
-        if (!firstArg.compare(_S("enable")))
+        if (!firstArg.compare(_SYS_STR("enable")))
             mode = MENABLE;
-        else if (!firstArg.compare(_S("disable")))
+        else if (!firstArg.compare(_SYS_STR("disable")))
             mode = MDISABLE;
         else
             return;
@@ -54,38 +54,38 @@ public:
             }
             if (!found)
                 LogModule.report(logvisor::Fatal,
-                                 _S("'%s' is not found in the dataspec registry"),
+                                 _SYS_STR("'%s' is not found in the dataspec registry"),
                                  it->c_str());
         }
     }
 
     static void Help(HelpOutput& help)
     {
-        help.secHead(_S("NAME"));
+        help.secHead(_SYS_STR("NAME"));
         help.beginWrap();
-        help.wrap(_S("hecl-spec - Configure target data options\n"));
+        help.wrap(_SYS_STR("hecl-spec - Configure target data options\n"));
         help.endWrap();
 
-        help.secHead(_S("SYNOPSIS"));
+        help.secHead(_SYS_STR("SYNOPSIS"));
         help.beginWrap();
-        help.wrap(_S("hecl spec [enable|disable] [<specname>...]\n"));
+        help.wrap(_SYS_STR("hecl spec [enable|disable] [<specname>...]\n"));
         help.endWrap();
 
-        help.secHead(_S("DESCRIPTION"));
+        help.secHead(_SYS_STR("DESCRIPTION"));
         help.beginWrap();
-        help.wrap(_S("This command configures the HECL project with the user's preferred target DataSpecs.\n\n")
-                  _S("Providing enable/disable argument will bulk-set the enable status of the provided spec(s)")
-                  _S("list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n"));
+        help.wrap(_SYS_STR("This command configures the HECL project with the user's preferred target DataSpecs.\n\n")
+                  _SYS_STR("Providing enable/disable argument will bulk-set the enable status of the provided spec(s)")
+                  _SYS_STR("list. If enable/disable is not provided, a list of supported DataSpecs is printed.\n\n"));
         help.endWrap();
 
-        help.secHead(_S("OPTIONS"));
-        help.optionHead(_S("<specname>..."), _S("DataSpec name(s)"));
+        help.secHead(_SYS_STR("OPTIONS"));
+        help.optionHead(_SYS_STR("<specname>..."), _SYS_STR("DataSpec name(s)"));
         help.beginWrap();
-        help.wrap(_S("Specifies platform-names to enable/disable"));
+        help.wrap(_SYS_STR("Specifies platform-names to enable/disable"));
         help.endWrap();
     }
 
-    hecl::SystemString toolName() const {return _S("spec");}
+    hecl::SystemString toolName() const {return _SYS_STR("spec");}
 
     int run()
     {
@@ -94,10 +94,10 @@ public:
             for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name.data());
+                    hecl::Printf(_SYS_STR("" BOLD CYAN "%s" NORMAL "\n"), spec->m_name.data());
                 else
-                    hecl::Printf(_S("%s\n"), spec->m_name.data());
-                hecl::Printf(_S("  %s\n"), spec->m_desc.data());
+                    hecl::Printf(_SYS_STR("%s\n"), spec->m_name.data());
+                hecl::Printf(_SYS_STR("  %s\n"), spec->m_desc.data());
             }
             return 0;
         }
@@ -108,17 +108,17 @@ public:
             for (auto& spec : specs)
             {
                 if (XTERM_COLOR)
-                    hecl::Printf(_S("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name.data());
+                    hecl::Printf(_SYS_STR("" BOLD CYAN "%s" NORMAL ""), spec.spec.m_name.data());
                 else
-                    hecl::Printf(_S("%s"), spec.spec.m_name.data());
+                    hecl::Printf(_SYS_STR("%s"), spec.spec.m_name.data());
                 if (spec.active)
                 {
                     if (XTERM_COLOR)
-                        hecl::Printf(_S(" " BOLD GREEN "[ENABLED]" NORMAL ""));
+                        hecl::Printf(_SYS_STR(" " BOLD GREEN "[ENABLED]" NORMAL ""));
                     else
-                        hecl::Printf(_S(" [ENABLED]"));
+                        hecl::Printf(_SYS_STR(" [ENABLED]"));
                 }
-                hecl::Printf(_S("\n  %s\n"), spec.spec.m_desc.data());
+                hecl::Printf(_SYS_STR("\n  %s\n"), spec.spec.m_desc.data());
             }
             return 0;
         }

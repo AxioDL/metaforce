@@ -7,6 +7,37 @@
 static logvisor::Module Log("shaderc");
 
 #if _WIN32
+#include <d3dcompiler.h>
+extern pD3DCompile D3DCompilePROC;
+pD3DCompile D3DCompilePROC = nullptr;
+
+static bool FindBestD3DCompile()
+{
+    HMODULE d3dCompilelib = LoadLibraryW(L"D3DCompiler_47.dll");
+    if (!d3dCompilelib)
+    {
+        d3dCompilelib = LoadLibraryW(L"D3DCompiler_46.dll");
+        if (!d3dCompilelib)
+        {
+            d3dCompilelib = LoadLibraryW(L"D3DCompiler_45.dll");
+            if (!d3dCompilelib)
+            {
+                d3dCompilelib = LoadLibraryW(L"D3DCompiler_44.dll");
+                if (!d3dCompilelib)
+                {
+                    d3dCompilelib = LoadLibraryW(L"D3DCompiler_43.dll");
+                }
+            }
+        }
+    }
+    if (d3dCompilelib)
+    {
+        D3DCompilePROC = (pD3DCompile)GetProcAddress(d3dCompilelib, "D3DCompile");
+        return D3DCompilePROC != nullptr;
+    }
+    return false;
+}
+
 int wmain(int argc, const hecl::SystemChar** argv)
 #else
 int main(int argc, const hecl::SystemChar** argv)
@@ -14,6 +45,14 @@ int main(int argc, const hecl::SystemChar** argv)
 {
     logvisor::RegisterConsoleLogger();
     logvisor::RegisterStandardExceptions();
+
+#if _WIN32
+    if (!FindBestD3DCompile())
+    {
+        Log.report(logvisor::Info, "Unable to find D3DCompiler dll");
+        return 1;
+    }
+#endif
 
     if (argc == 1)
     {
@@ -63,7 +102,7 @@ int main(int argc, const hecl::SystemChar** argv)
                 }
                 hecl::SystemUTF8Conv conv(define);
                 const char* defineU8 = conv.c_str();
-                if (char* equals = strchr(defineU8, '='))
+                if (const char* equals = strchr(defineU8, '='))
                     c.addDefine(std::string(defineU8, equals - defineU8), equals + 1);
                 else
                     c.addDefine(defineU8, "");
@@ -87,7 +126,7 @@ int main(int argc, const hecl::SystemChar** argv)
     }
 
     hecl::SystemStringView baseName;
-    auto slashPos = outPath.find_last_of("/\\");
+    auto slashPos = outPath.find_last_of(_SYS_STR("/\\"));
     if (slashPos != hecl::SystemString::npos)
         baseName = outPath.data() + slashPos + 1;
     else
@@ -105,22 +144,22 @@ int main(int argc, const hecl::SystemChar** argv)
         return 1;
 
     {
-        hecl::SystemString headerPath = outPath + _S(".hpp");
+        hecl::SystemString headerPath = outPath + _SYS_STR(".hpp");
         athena::io::FileWriter w(headerPath);
         if (w.hasError())
         {
-            Log.report(logvisor::Error, _S("Error opening '%s' for writing"), headerPath.c_str());
+            Log.report(logvisor::Error, _SYS_STR("Error opening '%s' for writing"), headerPath.c_str());
             return 1;
         }
         w.writeBytes(ret.first.data(), ret.first.size());
     }
 
     {
-        hecl::SystemString impPath = outPath + _S(".cpp");
+        hecl::SystemString impPath = outPath + _SYS_STR(".cpp");
         athena::io::FileWriter w(impPath);
         if (w.hasError())
         {
-            Log.report(logvisor::Error, _S("Error opening '%s' for writing"), impPath.c_str());
+            Log.report(logvisor::Error, _SYS_STR("Error opening '%s' for writing"), impPath.c_str());
             return 1;
         }
         w.writeBytes(ret.second.data(), ret.second.size());

@@ -7,10 +7,33 @@
 #include <SPIRV/GlslangToSpv.h>
 #include <SPIRV/disassemble.h>
 #endif
+#if _WIN32
+#include <d3dcompiler.h>
+extern pD3DCompile D3DCompilePROC;
+#endif
 
 namespace hecl
 {
 logvisor::Module Log("hecl::Compilers");
+
+namespace PlatformType
+{
+const char* OpenGL::Name = "OpenGL";
+const char* Vulkan::Name = "Vulkan";
+const char* D3D11::Name = "D3D11";
+const char* Metal::Name = "Metal";
+const char* NX::Name = "NX";
+}
+
+namespace PipelineStage
+{
+const char* Null::Name = "Null";
+const char* Vertex::Name = "Vertex";
+const char* Fragment::Name = "Fragment";
+const char* Geometry::Name = "Geometry";
+const char* Control::Name = "Control";
+const char* Evaluation::Name = "Evaluation";
+}
 
 template<typename P> struct ShaderCompiler {};
 
@@ -71,6 +94,43 @@ template<> struct ShaderCompiler<PlatformType::Vulkan>
     }
 };
 
+#if _WIN32
+static const char* D3DShaderTypes[] =
+{
+    nullptr,
+    "vs_5_0",
+    "ps_5_0",
+    "gs_5_0",
+    "hs_5_0",
+    "ds_5_0"
+};
+template<> struct ShaderCompiler<PlatformType::D3D11>
+{
+#if _DEBUG && 0
+#define BOO_D3DCOMPILE_FLAG D3DCOMPILE_DEBUG | D3DCOMPILE_OPTIMIZATION_LEVEL0
+#else
+#define BOO_D3DCOMPILE_FLAG D3DCOMPILE_OPTIMIZATION_LEVEL3
+#endif
+    template<typename S>
+    static std::pair<std::shared_ptr<uint8_t[]>, size_t> Compile(std::string_view text)
+    {
+        ComPtr<ID3DBlob> errBlob;
+        ComPtr<ID3DBlob> blobOut;
+        if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
+                                  D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob)))
+        {
+            printf("%s\n", text.data());
+            Log.report(logvisor::Fatal, "error compiling shader: %s", errBlob->GetBufferPointer());
+            return {};
+        }
+        std::pair<std::shared_ptr<uint8_t[]>, size_t> ret(new uint8_t[blobOut->GetBufferSize()], blobOut->GetBufferSize());
+        memcpy(ret.first.get(), blobOut->GetBufferPointer(), blobOut->GetBufferSize());
+        return ret;
+    }
+};
+#endif
+
+#if HECL_NOUVEAU_NX
 template<> struct ShaderCompiler<PlatformType::NX>
 {
     template<typename S>
@@ -84,6 +144,7 @@ template<> struct ShaderCompiler<PlatformType::NX>
         return ret;
     }
 };
+#endif
 
 template<typename P, typename S>
 std::pair<std::shared_ptr<uint8_t[]>, size_t> CompileShader(std::string_view text)
@@ -106,33 +167,6 @@ SPECIALIZE_COMPILE_SHADER(PlatformType::Metal)
 #endif
 #if HECL_NOUVEAU_NX
 SPECIALIZE_COMPILE_SHADER(PlatformType::NX)
-#endif
-
-#if _WIN32
-static const char* ShaderTypes[] =
-{
-    "vs_5_0",
-    "ps_5_0",
-    "gs_5_0",
-    "hs_5_0",
-    "ds_5_0"
-};
-template<>
-std::vector<uint8_t> CompileShader<PlatformType::D3D11>(std::string_view text, PipelineStage stage)
-{
-    ComPtr<ID3DBlob> errBlob;
-    ComPtr<ID3DBlob> blobOut;
-    if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
-                              ShaderTypes[int(stage)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob)))
-    {
-        printf("%s\n", source);
-        Log.report(logvisor::Fatal, "error compiling shader: %s", errBlob->GetBufferPointer());
-        return {};
-    }
-    std::vector<uint8_t> ret(blobOut.GetBufferSize());
-    memcpy(ret.data(), blobOut.GetBufferPointer(), blobOut.GetBufferSize());
-    return ret;
-};
 #endif
 
 #if BOO_HAS_METAL

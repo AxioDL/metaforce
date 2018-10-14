@@ -36,24 +36,24 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const
     if (submessageLen)
     {
         if (messageLen > half-submessageLen-1)
-            hecl::Printf(_S("  %.*s... %s "), half-submessageLen-4, m_message.c_str(), m_submessage.c_str());
+            hecl::Printf(_SYS_STR("  %.*s... %s "), half-submessageLen-4, m_message.c_str(), m_submessage.c_str());
         else
         {
-            hecl::Printf(_S("  %s"), m_message.c_str());
+            hecl::Printf(_SYS_STR("  %s"), m_message.c_str());
             for (int i=half-messageLen-submessageLen-1 ; i>=0 ; --i)
-                hecl::Printf(_S(" "));
-            hecl::Printf(_S("%s "), m_submessage.c_str());
+                hecl::Printf(_SYS_STR(" "));
+            hecl::Printf(_SYS_STR("%s "), m_submessage.c_str());
         }
     }
     else
     {
         if (messageLen > half)
-            hecl::Printf(_S("  %.*s... "), half-3, m_message.c_str());
+            hecl::Printf(_SYS_STR("  %.*s... "), half-3, m_message.c_str());
         else
         {
-            hecl::Printf(_S("  %s"), m_message.c_str());
+            hecl::Printf(_SYS_STR("  %s"), m_message.c_str());
             for (int i=half-messageLen ; i>=0 ; --i)
-                hecl::Printf(_S(" "));
+                hecl::Printf(_SYS_STR(" "));
         }
     }
 
@@ -66,24 +66,24 @@ void MultiProgressPrinter::ThreadStat::print(const TermInfo& tinfo) const
 
         if (tinfo.xtermColor)
         {
-            hecl::Printf(_S("" BOLD "%3d%% ["), iFactor);
+            hecl::Printf(_SYS_STR("" BOLD "%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
-                hecl::Printf(_S("#"));
+                hecl::Printf(_SYS_STR("#"));
             for (int b=0 ; b<rem ; ++b)
-                hecl::Printf(_S("-"));
-            hecl::Printf(_S("]" NORMAL ""));
+                hecl::Printf(_SYS_STR("-"));
+            hecl::Printf(_SYS_STR("]" NORMAL ""));
         }
         else
         {
 #if _WIN32
             SetConsoleTextAttribute(tinfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-            hecl::Printf(_S("%3d%% ["), iFactor);
+            hecl::Printf(_SYS_STR("%3d%% ["), iFactor);
             for (int b=0 ; b<filled ; ++b)
-                hecl::Printf(_S("#"));
+                hecl::Printf(_SYS_STR("#"));
             for (int b=0 ; b<rem ; ++b)
-                hecl::Printf(_S("-"));
-            hecl::Printf(_S("]"));
+                hecl::Printf(_SYS_STR("-"));
+            hecl::Printf(_SYS_STR("]"));
 #if _WIN32
             SetConsoleTextAttribute(tinfo.console, FOREGROUND_WHITE);
 #endif
@@ -108,26 +108,26 @@ void MultiProgressPrinter::DrawIndeterminateBar()
 
     if (m_termInfo.xtermColor)
     {
-        hecl::Printf(_S("" BOLD " ["));
+        hecl::Printf(_SYS_STR("" BOLD " ["));
         for (int b=0 ; b<pre ; ++b)
-            hecl::Printf(_S("-"));
-        hecl::Printf(_S("#"));
+            hecl::Printf(_SYS_STR("-"));
+        hecl::Printf(_SYS_STR("#"));
         for (int b=0 ; b<rem ; ++b)
-            hecl::Printf(_S("-"));
-        hecl::Printf(_S("]" NORMAL ""));
+            hecl::Printf(_SYS_STR("-"));
+        hecl::Printf(_SYS_STR("]" NORMAL ""));
     }
     else
     {
 #if _WIN32
         SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-        hecl::Printf(_S(" ["));
+        hecl::Printf(_SYS_STR(" ["));
         for (int b=0 ; b<pre ; ++b)
-            hecl::Printf(_S("-"));
-        hecl::Printf(_S("#"));
+            hecl::Printf(_SYS_STR("-"));
+        hecl::Printf(_SYS_STR("#"));
         for (int b=0 ; b<rem ; ++b)
-            hecl::Printf(_S("-"));
-        hecl::Printf(_S("]"));
+            hecl::Printf(_SYS_STR("-"));
+        hecl::Printf(_SYS_STR("]"));
 #if _WIN32
         SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_WHITE);
 #endif
@@ -140,7 +140,7 @@ void MultiProgressPrinter::MoveCursorUp(int n)
     {
         if (m_termInfo.xtermColor)
         {
-            hecl::Printf(_S("" PREV_LINE ""), n);
+            hecl::Printf(_SYS_STR("" PREV_LINE ""), n);
         }
 #if _WIN32
         else
@@ -155,7 +155,7 @@ void MultiProgressPrinter::MoveCursorUp(int n)
     }
     else
     {
-        hecl::Printf(_S("\r"));
+        hecl::Printf(_SYS_STR("\r"));
     }
 }
 
@@ -175,7 +175,7 @@ void MultiProgressPrinter::DoPrint()
     SetConsoleCursorInfo(m_termInfo.console, &cursorInfo);
 #endif
     if (m_termInfo.xtermColor)
-        hecl::Printf(_S("" HIDE_CURSOR ""));
+        hecl::Printf(_SYS_STR("" HIDE_CURSOR ""));
 
     if (m_dirty)
     {
@@ -190,7 +190,7 @@ void MultiProgressPrinter::DoPrint()
                 if (stat.m_active)
                 {
                     stat.print(m_termInfo);
-                    hecl::Printf(_S("\n"));
+                    hecl::Printf(_SYS_STR("\n"));
                     ++m_curThreadLines;
                 }
             }
@@ -202,7 +202,7 @@ void MultiProgressPrinter::DoPrint()
                 )
             {
                 DrawIndeterminateBar();
-                hecl::Printf(_S("\n"));
+                hecl::Printf(_SYS_STR("\n"));
                 ++m_curProgLines;
             }
             else if (m_mainFactor >= 0.f)
@@ -217,30 +217,30 @@ void MultiProgressPrinter::DoPrint()
 
                 if (m_termInfo.xtermColor)
                 {
-                    hecl::Printf(_S("" BOLD "  %3d%% ["), iFactor);
+                    hecl::Printf(_SYS_STR("" BOLD "  %3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
-                        hecl::Printf(_S("#"));
+                        hecl::Printf(_SYS_STR("#"));
                     for (int b=0 ; b<rem ; ++b)
-                        hecl::Printf(_S("-"));
-                    hecl::Printf(_S("]" NORMAL ""));
+                        hecl::Printf(_SYS_STR("-"));
+                    hecl::Printf(_SYS_STR("]" NORMAL ""));
                 }
                 else
                 {
 #if _WIN32
                     SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_INTENSITY | FOREGROUND_WHITE);
 #endif
-                    hecl::Printf(_S("  %3d%% ["), iFactor);
+                    hecl::Printf(_SYS_STR("  %3d%% ["), iFactor);
                     for (int b=0 ; b<filled ; ++b)
-                        hecl::Printf(_S("#"));
+                        hecl::Printf(_SYS_STR("#"));
                     for (int b=0 ; b<rem ; ++b)
-                        hecl::Printf(_S("-"));
-                    hecl::Printf(_S("]"));
+                        hecl::Printf(_SYS_STR("-"));
+                    hecl::Printf(_SYS_STR("]"));
 #if _WIN32
                     SetConsoleTextAttribute(m_termInfo.console, FOREGROUND_WHITE);
 #endif
                 }
 
-                hecl::Printf(_S("\n"));
+                hecl::Printf(_SYS_STR("\n"));
                 ++m_curProgLines;
             }
         }
@@ -248,7 +248,7 @@ void MultiProgressPrinter::DoPrint()
         {
             const ThreadStat& stat = m_threadStats[m_latestThread];
             stat.print(m_termInfo);
-            hecl::Printf(_S("\r"));
+            hecl::Printf(_SYS_STR("\r"));
         }
         m_dirty = false;
     }
@@ -262,12 +262,12 @@ void MultiProgressPrinter::DoPrint()
         MoveCursorUp(m_curProgLines);
         m_curProgLines = 0;
         DrawIndeterminateBar();
-        hecl::Printf(_S("\n"));
+        hecl::Printf(_SYS_STR("\n"));
         ++m_curProgLines;
     }
 
     if (m_termInfo.xtermColor)
-        hecl::Printf(_S("" SHOW_CURSOR ""));
+        hecl::Printf(_SYS_STR("" SHOW_CURSOR ""));
     fflush(stdout);
 
 #if _WIN32
@@ -380,7 +380,7 @@ void MultiProgressPrinter::startNewLine() const
     m_curThreadLines = 0;
     m_mainFactor = -1.f;
     auto logLk = logvisor::LockLog();
-    hecl::Printf(_S("\n"));
+    hecl::Printf(_SYS_STR("\n"));
 }
 
 void MultiProgressPrinter::flush() const

@@ -63,18 +63,18 @@ extern "C" size_t HECL_STARTUP_SZ;
 
 static void InstallBlendershell(const SystemChar* path)
 {
-    FILE* fp = hecl::Fopen(path, _S("w"));
+    FILE* fp = hecl::Fopen(path, _SYS_STR("w"));
     if (!fp)
-        BlenderLog.report(logvisor::Fatal, _S("unable to open %s for writing"), path);
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("unable to open %s for writing"), path);
     fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
     fclose(fp);
 }
 
 static void InstallAddon(const SystemChar* path)
 {
-    FILE* fp = hecl::Fopen(path, _S("wb"));
+    FILE* fp = hecl::Fopen(path, _SYS_STR("wb"));
     if (!fp)
-        BlenderLog.report(logvisor::Fatal, _S("Unable to install blender addon at '%s'"), path);
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to install blender addon at '%s'"), path);
     fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
     fclose(fp);
 }
@@ -235,7 +235,7 @@ void Connection::_closePipe()
 void Connection::_blenderDied()
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    FILE* errFp = hecl::Fopen(m_errPath.c_str(), _S("r"));
+    FILE* errFp = hecl::Fopen(m_errPath.c_str(), _SYS_STR("r"));
     if (errFp)
     {
         fseek(errFp, 0, SEEK_END);
@@ -278,10 +278,10 @@ Connection::Connection(int verbosityLevel)
 #endif
 
     hecl::SystemString blenderShellPath(TMPDIR);
-    blenderShellPath += _S("/hecl_blendershell.py");
+    blenderShellPath += _SYS_STR("/hecl_blendershell.py");
 
     hecl::SystemString blenderAddonPath(TMPDIR);
-    blenderAddonPath += _S("/hecl_blenderaddon.zip");
+    blenderAddonPath += _SYS_STR("/hecl_blenderaddon.zip");
     m_startupBlend += "/hecl_startup.blend";
 
     bool FalseCmp = false;
@@ -344,10 +344,10 @@ Connection::Connection(int verbosityLevel)
         if (!blenderBin || !RegFileExists(blenderBin))
         {
             /* Environment not set; try steam */
-            steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+            steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
             if (steamBlender.size())
             {
-                steamBlender += _S("\\blender.exe");
+                steamBlender += _SYS_STR("\\blender.exe");
                 blenderBin = steamBlender.c_str();
             }
 
@@ -469,7 +469,7 @@ Connection::Connection(int verbosityLevel)
             }
 
             /* Try steam */
-            steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+            steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
             if (steamBlender.size())
             {
 #ifdef __APPLE__
@@ -511,10 +511,10 @@ Connection::Connection(int verbosityLevel)
 
         /* Stash error path and unlink existing file */
 #if _WIN32
-        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"),
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_SYS_STR("/hecl_%016llX.derp"),
                                                                  (unsigned long long)m_pinfo.dwProcessId);
 #else
-        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_S("/hecl_%016llX.derp"),
+        m_errPath = hecl::SystemString(TMPDIR) + hecl::SysFormat(_SYS_STR("/hecl_%016llX.derp"),
                                                                  (unsigned long long)m_blenderProc);
 #endif
         hecl::Unlink(m_errPath.c_str());
@@ -532,10 +532,10 @@ Connection::Connection(int verbosityLevel)
         {
             _closePipe();
             if (blenderBin)
-                BlenderLog.report(logvisor::Fatal, _S("Unable to find blender at '%s' or '%s'"),
+                BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s' or '%s'"),
                            blenderBin, DEFAULT_BLENDER_BIN);
             else
-                BlenderLog.report(logvisor::Fatal, _S("Unable to find blender at '%s'"),
+                BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s'"),
                            DEFAULT_BLENDER_BIN);
         }
         else if (!strcmp(lineBuf, "NOADDON"))
@@ -544,14 +544,14 @@ Connection::Connection(int verbosityLevel)
             InstallAddon(blenderAddonPath.c_str());
             ++installAttempt;
             if (installAttempt >= 2)
-                BlenderLog.report(logvisor::Fatal, _S("unable to install blender addon using '%s'"),
+                BlenderLog.report(logvisor::Fatal, _SYS_STR("unable to install blender addon using '%s'"),
                                   blenderAddonPath.c_str());
             continue;
         }
         else if (!strcmp(lineBuf, "ADDONINSTALLED"))
         {
             _closePipe();
-            blenderAddonPath = _S("SKIPINSTALL");
+            blenderAddonPath = _SYS_STR("SKIPINSTALL");
             continue;
         }
         else if (strcmp(lineBuf, "READY"))
@@ -715,7 +715,7 @@ void Connection::deleteBlend()
     if (m_loadedBlend)
     {
         hecl::Unlink(m_loadedBlend.getAbsolutePath().data());
-        BlenderLog.report(logvisor::Info, _S("Deleted '%s'"), m_loadedBlend.getAbsolutePath().data());
+        BlenderLog.report(logvisor::Info, _SYS_STR("Deleted '%s'"), m_loadedBlend.getAbsolutePath().data());
         m_loadedBlend = ProjectPath();
     }
 }
@@ -1833,7 +1833,7 @@ std::pair<atVec3f, atVec3f> DataStream::getMeshAABB()
 {
     if (m_parent->m_loadedType != BlendType::Mesh &&
         m_parent->m_loadedType != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH or ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MESH or ACTOR blend"),
                           m_parent->m_loadedBlend.getAbsolutePath().data());
 
     m_parent->_writeStr("MESHAABB");
@@ -1856,7 +1856,7 @@ const char* DataStream::MeshOutputModeString(HMDLTopology topology)
 Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount, Mesh::SurfProgFunc surfProg)
 {
     if (m_parent->getBlendType() != BlendType::Mesh)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a MESH blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MESH blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -1876,7 +1876,7 @@ Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology,
                              int skinSlotCount, bool useLuv, Mesh::SurfProgFunc surfProg)
 {
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -1895,7 +1895,7 @@ Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology,
 ColMesh DataStream::compileColMesh(std::string_view name)
 {
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -1913,7 +1913,7 @@ ColMesh DataStream::compileColMesh(std::string_view name)
 std::vector<ColMesh> DataStream::compileColMeshes()
 {
     if (m_parent->getBlendType() != BlendType::ColMesh)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a CMESH blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a CMESH blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -1941,7 +1941,7 @@ Mesh DataStream::compileAllMeshes(HMDLTopology topology, int skinSlotCount,
                                   float maxOctantLength, Mesh::SurfProgFunc surfProg)
 {
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -1961,7 +1961,7 @@ Mesh DataStream::compileAllMeshes(HMDLTopology topology, int skinSlotCount,
 std::vector<Light> DataStream::compileLights()
 {
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("LIGHTCOMPILEALL");
@@ -1986,7 +1986,7 @@ std::vector<Light> DataStream::compileLights()
 PathMesh DataStream::compilePathMesh()
 {
     if (m_parent->getBlendType() != BlendType::PathMesh)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a PATH blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a PATH blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("MESHCOMPILEPATH");
@@ -2003,7 +2003,7 @@ std::vector<uint8_t> DataStream::compileGuiFrame(int version)
 {
     std::vector<uint8_t> ret;
     if (m_parent->getBlendType() != BlendType::Frame)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a FRAME blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a FRAME blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[512];
@@ -2074,7 +2074,7 @@ std::vector<ProjectPath> DataStream::getTextures()
 Actor DataStream::compileActor()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("ACTORCOMPILE");
@@ -2090,7 +2090,7 @@ Actor DataStream::compileActor()
 Actor DataStream::compileActorCharacterOnly()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("ACTORCOMPILECHARACTERONLY");
@@ -2106,7 +2106,7 @@ Actor DataStream::compileActorCharacterOnly()
 Action DataStream::compileActionChannelsOnly(std::string_view name)
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -2124,7 +2124,7 @@ Action DataStream::compileActionChannelsOnly(std::string_view name)
 World DataStream::compileWorld()
 {
     if (m_parent->getBlendType() != BlendType::World)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an WORLD blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an WORLD blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("WORLDCOMPILE");
@@ -2140,7 +2140,7 @@ World DataStream::compileWorld()
 std::vector<std::string> DataStream::getArmatureNames()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("GETARMATURENAMES");
@@ -2171,7 +2171,7 @@ std::vector<std::string> DataStream::getArmatureNames()
 std::vector<std::string> DataStream::getSubtypeNames()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("GETSUBTYPENAMES");
@@ -2202,7 +2202,7 @@ std::vector<std::string> DataStream::getSubtypeNames()
 std::vector<std::string> DataStream::getActionNames()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("GETACTIONNAMES");
@@ -2233,7 +2233,7 @@ std::vector<std::string> DataStream::getActionNames()
 std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view name)
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -2266,7 +2266,7 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
 std::vector<std::string> DataStream::getAttachmentNames()
 {
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("GETATTACHMENTNAMES");
@@ -2301,7 +2301,7 @@ DataStream::getBoneMatrices(std::string_view name)
         return {};
 
     if (m_parent->getBlendType() != BlendType::Actor)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an ACTOR blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[128];
@@ -2351,7 +2351,7 @@ bool DataStream::renderPvs(std::string_view path, const atVec3f& location)
         return false;
 
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[256];
@@ -2374,7 +2374,7 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
         return false;
 
     if (m_parent->getBlendType() != BlendType::Area)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not an AREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[256];
@@ -2393,7 +2393,7 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
 MapArea DataStream::compileMapArea()
 {
     if (m_parent->getBlendType() != BlendType::MapArea)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPAREA blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MAPAREA blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("MAPAREACOMPILE");
@@ -2410,7 +2410,7 @@ MapArea DataStream::compileMapArea()
 MapUniverse DataStream::compileMapUniverse()
 {
     if (m_parent->getBlendType() != BlendType::MapUniverse)
-        BlenderLog.report(logvisor::Fatal, _S("%s is not a MAPUNIVERSE blend"),
+        BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MAPUNIVERSE blend"),
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     m_parent->_writeStr("MAPUNIVERSECOMPILE");

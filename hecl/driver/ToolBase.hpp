@@ -59,9 +59,9 @@ protected:
         if (!m_info.yes)
         {
             if (XTERM_COLOR)
-                hecl::Printf(_S("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
+                hecl::Printf(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
             else
-                hecl::Printf(_S("\nContinue? (Y/n) "));
+                hecl::Printf(_SYS_STR("\nContinue? (Y/n) "));
             fflush(stdout);
 
             int ch;
@@ -78,7 +78,7 @@ protected:
             {
                 if (ch == 'n' || ch == 'N')
                 {
-                    hecl::Printf(_S("\n"));
+                    hecl::Printf(_SYS_STR("\n"));
                     return false;
                 }
                 if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
@@ -88,7 +88,7 @@ protected:
             tcsetattr(0, TCSANOW, &tioOld);
 #endif
         }
-        hecl::Printf(_S("\n"));
+        hecl::Printf(_SYS_STR("\n"));
         return true;
     }
 
@@ -130,7 +130,7 @@ private:
             {
                 if (it >= string.end())
                     return;
-                if (*it == _S('\n'))
+                if (*it == _SYS_STR('\n'))
                 {
                     counter = WRAP_INDENT;
                     ++it;
@@ -138,17 +138,17 @@ private:
                 if (counter == WRAP_INDENT)
                 {
                     for (int i=0 ; i<WRAP_INDENT ; ++i)
-                        it = string.insert(it, _S(' ')) + 1;
+                        it = string.insert(it, _SYS_STR(' ')) + 1;
                 }
                 if (it >= string.end())
                     return;
-                if (*it != _S('\n'))
+                if (*it != _SYS_STR('\n'))
                     ++it;
             }
             /* check for whitespace */
             if (isspace(*it))
             {
-                *it = _S('\n');
+                *it = _SYS_STR('\n');
                 counter = WRAP_INDENT;
                 ++it;
             }
@@ -161,9 +161,9 @@ private:
                     {
                         counter = WRAP_INDENT;
                         if (k - string.begin() < v)
-                            k = string.insert(it, _S('\n'));
+                            k = string.insert(it, _SYS_STR('\n'));
                         else
-                            *k = _S('\n');
+                            *k = _SYS_STR('\n');
                         it = k + 1;
                         break;
                     }
@@ -200,31 +200,31 @@ public:
 
     void print(const hecl::SystemChar* str)
     {
-        hecl::FPrintf(m_sout, _S("%s"), str);
+        hecl::FPrintf(m_sout, _SYS_STR("%s"), str);
     }
 
     void printBold(const hecl::SystemChar* str)
     {
         if (XTERM_COLOR)
-            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL ""), str);
+            hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL ""), str);
         else
-            hecl::FPrintf(m_sout, _S("%s"), str);
+            hecl::FPrintf(m_sout, _SYS_STR("%s"), str);
     }
 
     void secHead(const hecl::SystemChar* headName)
     {
         if (XTERM_COLOR)
-            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL "\n"), headName);
+            hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL "\n"), headName);
         else
-            hecl::FPrintf(m_sout, _S("%s\n"), headName);
+            hecl::FPrintf(m_sout, _SYS_STR("%s\n"), headName);
     }
 
     void optionHead(const hecl::SystemChar* flag, const hecl::SystemChar* synopsis)
     {
         if (XTERM_COLOR)
-            hecl::FPrintf(m_sout, _S("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
+            hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
         else
-            hecl::FPrintf(m_sout, _S("%s (%s)\n"), flag, synopsis);
+            hecl::FPrintf(m_sout, _SYS_STR("%s (%s)\n"), flag, synopsis);
     }
 
     void beginWrap()
@@ -240,17 +240,17 @@ public:
     void wrapBold(const hecl::SystemChar* str)
     {
         if (XTERM_COLOR)
-            m_wrapBuffer += _S("" BOLD "");
+            m_wrapBuffer += _SYS_STR("" BOLD "");
         m_wrapBuffer += str;
         if (XTERM_COLOR)
-            m_wrapBuffer += _S("" NORMAL "");
+            m_wrapBuffer += _SYS_STR("" NORMAL "");
     }
 
     void endWrap()
     {
         _wrapBuf(m_wrapBuffer);
-        m_wrapBuffer += _S('\n');
-        hecl::FPrintf(m_sout, _S("%s"), m_wrapBuffer.c_str());
+        m_wrapBuffer += _SYS_STR('\n');
+        hecl::FPrintf(m_sout, _SYS_STR("%s"), m_wrapBuffer.c_str());
         m_wrapBuffer.clear();
     }
 };
@@ -259,17 +259,17 @@ static hecl::SystemString MakePathArgAbsolute(const hecl::SystemString& arg,
                                               const hecl::SystemString& cwd)
 {
 #if _WIN32
-    if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == _S(':'))
+    if (arg.size() >= 2 && iswalpha(arg[0]) && arg[1] == _SYS_STR(':'))
         return arg;
-    if (arg[0] == _S('\\') || arg[0] == _S('/'))
+    if (arg[0] == _SYS_STR('\\') || arg[0] == _SYS_STR('/'))
         return arg;
-    return cwd + _S('\\') + arg;
+    return cwd + _SYS_STR('\\') + arg;
 #else
-    if (arg[0] == _S('/') || arg[0] == _S('\\'))
+    if (arg[0] == _SYS_STR('/') || arg[0] == _SYS_STR('\\'))
         return arg;
-    if (cwd.back() == _S('/') || cwd.back() == _S('\\'))
+    if (cwd.back() == _SYS_STR('/') || cwd.back() == _SYS_STR('\\'))
         return cwd + arg;
-    return cwd + _S('/') + arg;
+    return cwd + _SYS_STR('/') + arg;
 #endif
 }
 

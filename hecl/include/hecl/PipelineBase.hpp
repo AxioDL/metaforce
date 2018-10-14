@@ -189,6 +189,7 @@ public:
 
 }
 
+#if 0
 #define _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, P) \
 template <> const hecl::StageBinary<P, hecl::PipelineStage::Vertex> \
 T<P, hecl::PipelineStage::Vertex>::Prototype; \
@@ -200,6 +201,8 @@ template <> const hecl::StageBinary<P, hecl::PipelineStage::Control> \
 T<P, hecl::PipelineStage::Control>::Prototype; \
 template <> const hecl::StageBinary<P, hecl::PipelineStage::Evaluation> \
 T<P, hecl::PipelineStage::Evaluation>::Prototype;
+#endif
+#define _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, P)
 
 #define STAGEOBJECT_PROTOTYPE_DECLARATIONS(T) \
 _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, hecl::PlatformType::OpenGL) \

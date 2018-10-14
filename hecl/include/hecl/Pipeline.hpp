@@ -160,72 +160,125 @@ public:
 };
 #endif
 
-#define STAGE_COLLECTION_SPECIALIZATIONS(T, P) StageCollection<T<P, PipelineStage::Null>>,
-
 template<typename... Args> struct pack {};
 struct null_t {};
-template<typename P> struct TypeDB {};
-template<> struct TypeDB<PlatformType::OpenGL>
-{
-    using PipelineTypes = pack<
+template<typename P> struct ShaderDB {};
+
+#define STAGE_COLLECTION_SPECIALIZATIONS(T, P) StageCollection<T<P, PipelineStage::Null>>,
+#define PIPELINE_RUNTIME_SPECIALIZATIONS(P) \
+    HECLBackend<P>, \
+    STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, P) \
+    STAGE_COLLECTION_SPECIALIZATIONS(StageBinary, P) \
+    STAGE_COLLECTION_SPECIALIZATIONS(StageRuntimeObject, P) \
+    FinalPipeline<P>,
+#define PIPELINE_OFFLINE_SPECIALIZATIONS(P) \
+    HECLBackend<P>, \
+    STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, P)
+#define STAGE_RUNTIME_SPECIALIZATIONS(P, S) \
+    StageBinary<P, S>, \
+    HECL_APPLICATION_STAGE_REPS(P, S) \
+    StageRuntimeObject<P, S>,
+#define STAGE_OFFLINE_SPECIALIZATIONS(P, S) \
+    HECL_APPLICATION_STAGE_REPS(P, S)
+
+#define SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, S) \
+template<> struct ShaderDB<P>::StageDB<S> \
+{ \
+    using StageTypes = pack< \
+    STAGE_RUNTIME_SPECIALIZATIONS(P, S) \
+    null_t \
+    >; \
+};
+#define SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, S) \
+template<> struct ShaderDB<P>::StageDB<S> \
+{ \
+    using StageTypes = pack< \
+    null_t \
+    >; \
+};
+#define SPECIALIZE_OFFLINE_STAGE(P, S) \
+template<> struct ShaderDB<P>::StageDB<S> \
+{ \
+    using StageTypes = pack< \
+    STAGE_OFFLINE_SPECIALIZATIONS(P, S) \
+    null_t \
+    >; \
+};
+#define SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(P) \
+template<> struct ShaderDB<P> \
+{ \
+    using PipelineTypes = pack< \
+    PIPELINE_RUNTIME_SPECIALIZATIONS(P) \
+    null_t \
+    >; \
+    template<typename S> struct StageDB {}; \
+}; \
+SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, hecl::PipelineStage::Vertex) \
+SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, hecl::PipelineStage::Fragment) \
+SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, hecl::PipelineStage::Geometry) \
+SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, hecl::PipelineStage::Control) \
+SPECIALIZE_RUNTIME_AVAILABLE_STAGE(P, hecl::PipelineStage::Evaluation)
+#define SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(P) \
+template<> struct ShaderDB<P> \
+{ \
+    using PipelineTypes = pack< \
+    null_t \
+    >; \
+    template<typename S> struct StageDB {}; \
+}; \
+SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, hecl::PipelineStage::Vertex) \
+SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, hecl::PipelineStage::Fragment) \
+SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, hecl::PipelineStage::Geometry) \
+SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, hecl::PipelineStage::Control) \
+SPECIALIZE_RUNTIME_UNAVAILABLE_STAGE(P, hecl::PipelineStage::Evaluation)
+#define SPECIALIZE_OFFLINE_PLATFORM(P) \
+template<> struct ShaderDB<P> \
+{ \
+    using PipelineTypes = pack< \
+    PIPELINE_OFFLINE_SPECIALIZATIONS(P) \
+    null_t \
+    >; \
+    template<typename S> struct StageDB {}; \
+}; \
+SPECIALIZE_OFFLINE_STAGE(P, hecl::PipelineStage::Vertex) \
+SPECIALIZE_OFFLINE_STAGE(P, hecl::PipelineStage::Fragment) \
+SPECIALIZE_OFFLINE_STAGE(P, hecl::PipelineStage::Geometry) \
+SPECIALIZE_OFFLINE_STAGE(P, hecl::PipelineStage::Control) \
+SPECIALIZE_OFFLINE_STAGE(P, hecl::PipelineStage::Evaluation)
+
 #if HECL_RUNTIME
 #if BOO_HAS_GL
-        HECLBackend<PlatformType::OpenGL>,
-        STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, PlatformType::OpenGL)
-        STAGE_COLLECTION_SPECIALIZATIONS(StageBinary, PlatformType::OpenGL)
-        STAGE_COLLECTION_SPECIALIZATIONS(StageRuntimeObject, PlatformType::OpenGL)
-        FinalPipeline<PlatformType::OpenGL>,
-#endif
+SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(hecl::PlatformType::OpenGL)
 #else
-        HECLBackend<PlatformType::OpenGL>,
-        STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, PlatformType::OpenGL)
+SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(hecl::PlatformType::OpenGL)
 #endif
-        null_t
-    >;
-    using StageTypes = pack<
-#if HECL_RUNTIME
-#if BOO_HAS_GL
-        STAGE_SPECIALIZATIONS(StageBinary, PlatformType::OpenGL)
-        HECL_APPLICATION_STAGE_REPS_OPENGL
-        STAGE_SPECIALIZATIONS(StageRuntimeObject, PlatformType::OpenGL)
-#endif
-#else
-        HECL_APPLICATION_STAGE_REPS_OPENGL
-#endif
-        null_t
-    >;
-};
-template<> struct TypeDB<PlatformType::Vulkan>
-{
-    using PipelineTypes = pack<
-#if HECL_RUNTIME
 #if BOO_HAS_VULKAN
-        HECLBackend<PlatformType::Vulkan>,
-        STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, PlatformType::Vulkan)
-        STAGE_COLLECTION_SPECIALIZATIONS(StageBinary, PlatformType::Vulkan)
-        STAGE_COLLECTION_SPECIALIZATIONS(StageRuntimeObject, PlatformType::Vulkan)
-        FinalPipeline<PlatformType::Vulkan>,
+SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(hecl::PlatformType::Vulkan)
+#else
+SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(hecl::PlatformType::Vulkan)
+#endif
+#if _WIN32
+SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(hecl::PlatformType::D3D11)
+#else
+SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(hecl::PlatformType::D3D11)
+#endif
+#if BOO_HAS_METAL
+SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(hecl::PlatformType::Metal)
+#else
+SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(hecl::PlatformType::Metal)
+#endif
+#if BOO_HAS_NX
+SPECIALIZE_RUNTIME_AVAILABLE_PLATFORM(hecl::PlatformType::NX)
+#else
+SPECIALIZE_RUNTIME_UNAVAILABLE_PLATFORM(hecl::PlatformType::NX)
 #endif
 #else
-        HECLBackend<PlatformType::Vulkan>,
-        STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, PlatformType::Vulkan)
-        STAGE_COLLECTION_SPECIALIZATIONS(StageBinary, PlatformType::Vulkan)
+SPECIALIZE_OFFLINE_PLATFORM(hecl::PlatformType::OpenGL)
+SPECIALIZE_OFFLINE_PLATFORM(hecl::PlatformType::Vulkan)
+SPECIALIZE_OFFLINE_PLATFORM(hecl::PlatformType::D3D11)
+SPECIALIZE_OFFLINE_PLATFORM(hecl::PlatformType::Metal)
+SPECIALIZE_OFFLINE_PLATFORM(hecl::PlatformType::NX)
 #endif
-        null_t
-    >;
-    using StageTypes = pack<
-#if HECL_RUNTIME
-#if BOO_HAS_VULKAN
-        STAGE_SPECIALIZATIONS(StageBinary, PlatformType::Vulkan)
-        HECL_APPLICATION_STAGE_REPS_VULKAN
-        STAGE_SPECIALIZATIONS(StageRuntimeObject, PlatformType::Vulkan)
-#endif
-#else
-        HECL_APPLICATION_STAGE_REPS_VULKAN
-#endif
-        null_t
-    >;
-};
 
 class ShaderCacheZipStream;
 
@@ -293,7 +346,7 @@ class StageConverter
     }
 #endif
 
-    using StageTypes = typename TypeDB<P>::StageTypes;
+    using StageTypes = typename ShaderDB<P>::template StageDB<S>::StageTypes;
 
     template <typename ToTp, typename FromTp>
     static constexpr bool is_stage_constructible_v =
@@ -427,7 +480,7 @@ class PipelineConverter : public PipelineConverterBase
     StageConverter<P, PipelineStage::Control> m_controlConverter;
     StageConverter<P, PipelineStage::Evaluation> m_evaluationConverter;
 
-    using PipelineTypes = typename TypeDB<P>::PipelineTypes;
+    using PipelineTypes = typename ShaderDB<P>::PipelineTypes;
 
     template <typename ToTp, typename FromTp>
     static constexpr bool is_pipeline_constructible_v =
@@ -573,15 +626,15 @@ inline std::unique_ptr<PipelineConverterBase> NewPipelineConverter(boo::IGraphic
         return std::make_unique<PipelineConverter<PlatformType::Vulkan>>(gfxF);
 #endif
 #if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
+    case boo::IGraphicsDataFactory::Platform::D3D11:
         return std::make_unique<PipelineConverter<PlatformType::D3D11>>(gfxF);
 #endif
 #if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
+    case boo::IGraphicsDataFactory::Platform::Metal:
         return std::make_unique<PipelineConverter<PlatformType::Metal>>(gfxF);
 #endif
 #if BOO_HAS_NX
-        case boo::IGraphicsDataFactory::Platform::NX:
+    case boo::IGraphicsDataFactory::Platform::NX:
         return std::make_unique<PipelineConverter<PlatformType::NX>>(gfxF);
 #endif
     default:

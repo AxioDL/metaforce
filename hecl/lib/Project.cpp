@@ -55,7 +55,7 @@ std::vector<std::string>& Project::ConfigFile::lockAndRead()
     if (m_lockedFile)
         return m_lines;
 
-    m_lockedFile = hecl::Fopen(m_filepath.c_str(), _S("a+"), FileLockType::Write);
+    m_lockedFile = hecl::Fopen(m_filepath.c_str(), _SYS_STR("a+"), FileLockType::Write);
     hecl::FSeek(m_lockedFile, 0, SEEK_SET);
 
     std::string mainString;
@@ -153,8 +153,8 @@ bool Project::ConfigFile::unlockAndCommit()
         return false;
     }
 
-    SystemString newPath = m_filepath + _S(".part");
-    FILE* newFile = hecl::Fopen(newPath.c_str(), _S("w"), FileLockType::Write);
+    SystemString newPath = m_filepath + _SYS_STR(".part");
+    FILE* newFile = hecl::Fopen(newPath.c_str(), _SYS_STR("w"), FileLockType::Write);
     bool fail = false;
     for (const std::string& line : m_lines)
     {
@@ -200,24 +200,24 @@ bool Project::ConfigFile::unlockAndCommit()
 
 Project::Project(const ProjectRootPath& rootPath)
 : m_rootPath(rootPath),
-  m_workRoot(*this, _S("")),
-  m_dotPath(m_workRoot, _S(".hecl")),
-  m_cookedRoot(m_dotPath, _S("cooked")),
-  m_specs(*this, _S("specs")),
-  m_paths(*this, _S("paths")),
-  m_groups(*this, _S("groups"))
+  m_workRoot(*this, _SYS_STR("")),
+  m_dotPath(m_workRoot, _SYS_STR(".hecl")),
+  m_cookedRoot(m_dotPath, _SYS_STR("cooked")),
+  m_specs(*this, _SYS_STR("specs")),
+  m_paths(*this, _SYS_STR("paths")),
+  m_groups(*this, _SYS_STR("groups"))
 {
     /* Stat for existing project directory (must already exist) */
     Sstat myStat;
     if (hecl::Stat(m_rootPath.getAbsolutePath().data(), &myStat))
     {
-        LogModule.report(logvisor::Error, _S("unable to stat %s"), m_rootPath.getAbsolutePath().data());
+        LogModule.report(logvisor::Error, _SYS_STR("unable to stat %s"), m_rootPath.getAbsolutePath().data());
         return;
     }
 
     if (!S_ISDIR(myStat.st_mode))
     {
-        LogModule.report(logvisor::Error, _S("provided path must be a directory; '%s' isn't"),
+        LogModule.report(logvisor::Error, _SYS_STR("provided path must be a directory; '%s' isn't"),
                          m_rootPath.getAbsolutePath().data());
         return;
     }
@@ -227,8 +227,8 @@ Project::Project(const ProjectRootPath& rootPath)
     m_cookedRoot.makeDir();
 
     /* Ensure beacon is valid or created */
-    ProjectPath beaconPath(m_dotPath, _S("beacon"));
-    FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().data(), _S("a+b"));
+    ProjectPath beaconPath(m_dotPath, _SYS_STR("beacon"));
+    FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().data(), _SYS_STR("a+b"));
     struct BeaconStruct
     {
         hecl::FourCC magic;
@@ -320,7 +320,7 @@ void Project::rescanDataSpecs()
     {
         hecl::SystemString specStr(spec->m_name);
         SystemUTF8Conv specUTF8(specStr);
-        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, hecl::SystemString(spec->m_name) + _S(".spec")),
+        m_compiledSpecs.push_back({*spec, ProjectPath(m_cookedRoot, hecl::SystemString(spec->m_name) + _SYS_STR(".spec")),
                                    m_specs.checkForLine(specUTF8.str())});
     }
     m_specs.unlockAndDiscard();
@@ -365,19 +365,19 @@ public:
     void reportFile(const DataSpecEntry* specEnt)
     {
         SystemString submsg(m_file);
-        submsg += _S(" (");
+        submsg += _SYS_STR(" (");
         submsg += specEnt->m_name.data();
-        submsg += _S(')');
+        submsg += _SYS_STR(')');
         m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
     }
     void reportFile(const DataSpecEntry* specEnt, const SystemChar* extra)
     {
         SystemString submsg(m_file);
-        submsg += _S(" (");
+        submsg += _SYS_STR(" (");
         submsg += specEnt->m_name.data();
-        submsg += _S(", ");
+        submsg += _SYS_STR(", ");
         submsg += extra;
-        submsg += _S(')');
+        submsg += _SYS_STR(')');
         m_progPrinter.print(m_dir, submsg.c_str(), m_prog);
     }
     void reportDirComplete()
@@ -406,7 +406,7 @@ static void VisitFile(const ProjectPath& path, bool force, bool fast,
                     continue;
                 ProjectPath cooked = path.getCookedPath(*override);
                 if (fast)
-                    cooked = cooked.getWithExtension(_S(".fast"));
+                    cooked = cooked.getWithExtension(_SYS_STR(".fast"));
                 if (force || cooked.getPathType() == ProjectPath::Type::None ||
                     path.getModtime() > cooked.getModtime())
                 {
@@ -427,11 +427,11 @@ static void VisitDirectory(const ProjectPath& dir,
                            std::vector<std::unique_ptr<IDataSpec>>& specInsts,
                            CookProgress& progress, ClientProcess* cp, int cookPass)
 {
-    if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _S('.'))
+    if (dir.getLastComponent().size() > 1 && dir.getLastComponent()[0] == _SYS_STR('.'))
         return;
 
-    if (hecl::ProjectPath(dir, _S("!project.yaml")).isFile() &&
-        hecl::ProjectPath(dir, _S("!pool.yaml")).isFile())
+    if (hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).isFile() &&
+        hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).isFile())
     {
         /* Handle AudioGroup case */
         VisitFile(dir, force, fast, specInsts, progress, cp, cookPass);
@@ -540,7 +540,7 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
         {
             if (spec.active && spec.spec.m_factory)
             {
-                if (hecl::StringUtils::EndsWith(spec.spec.m_name, _S("-PC")))
+                if (hecl::StringUtils::EndsWith(spec.spec.m_name, _SYS_STR("-PC")))
                 {
                     foundPC = true;
                     specEntry = &spec.spec;

@@ -215,7 +215,7 @@ void ResourceLock::ClearThreadRes()
 
 bool IsPathPNG(const hecl::ProjectPath& path)
 {
-    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
     if (!fp)
         return false;
     uint32_t buf = 0;
@@ -234,9 +234,9 @@ bool IsPathPNG(const hecl::ProjectPath& path)
 bool IsPathBlend(const hecl::ProjectPath& path)
 {
     auto lastCompExt = path.getLastComponentExt();
-    if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _S("blend")))
+    if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend")))
         return false;
-    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _S("rb"));
+    FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
     if (!fp)
         return false;
     uint32_t buf = 0;
@@ -254,13 +254,13 @@ bool IsPathBlend(const hecl::ProjectPath& path)
 
 bool IsPathYAML(const hecl::ProjectPath& path)
 {
-    if (!hecl::StrCmp(path.getLastComponent().data(), _S("!catalog.yaml")))
+    if (!hecl::StrCmp(path.getLastComponent().data(), _SYS_STR("!catalog.yaml")))
         return false; /* !catalog.yaml is exempt from general use */
     auto lastCompExt = path.getLastComponentExt();
     if (lastCompExt.empty())
         return false;
-    if (!hecl::StrCmp(lastCompExt.data(), _S("yaml")) ||
-        !hecl::StrCmp(lastCompExt.data(), _S("yml")))
+    if (!hecl::StrCmp(lastCompExt.data(), _SYS_STR("yaml")) ||
+        !hecl::StrCmp(lastCompExt.data(), _SYS_STR("yml")))
         return true;
     return false;
 }
@@ -274,7 +274,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
 
 #if _WIN32
     hecl::SystemString wc(path);
-    wc += _S("/*");
+    wc += _SYS_STR("/*");
     WIN32_FIND_DATAW d;
     HANDLE dir = FindFirstFileW(wc.c_str(), &d);
     if (dir == INVALID_HANDLE_VALUE)
@@ -284,12 +284,12 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
     case Mode::Native:
         do
         {
-            if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+            if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
                 continue;
             if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             hecl::SystemString fp(path);
-            fp += _S('/');
+            fp += _SYS_STR('/');
             fp += d.cFileName;
             hecl::Sstat st;
             if (hecl::Stat(fp.c_str(), &st))
@@ -313,12 +313,12 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
         std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
         do
         {
-            if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+            if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
                 continue;
             if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                 continue;
             hecl::SystemString fp(path);
-            fp +=_S('/');
+            fp +=_SYS_STR('/');
             fp += d.cFileName;
             hecl::Sstat st;
             if (hecl::Stat(fp.c_str(), &st) || !S_ISDIR(st.st_mode))
@@ -348,12 +348,12 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
             std::multimap<size_t, Entry> sort;
             do
             {
-                if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
                     continue;
                 if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
                 hecl::SystemString fp(path);
-                fp += _S('/');
+                fp += _SYS_STR('/');
                 fp += d.cFileName;
                 hecl::Sstat st;
                 if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
@@ -373,12 +373,12 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
             std::map<hecl::SystemString, Entry, CaseInsensitiveCompare> sort;
             do
             {
-                if (!wcscmp(d.cFileName, _S(".")) || !wcscmp(d.cFileName, _S("..")))
+                if (!wcscmp(d.cFileName, _SYS_STR(".")) || !wcscmp(d.cFileName, _SYS_STR("..")))
                     continue;
                 if (noHidden && (d.cFileName[0] == L'.' || (d.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != 0))
                     continue;
                 hecl::SystemString fp(path);
-                fp += _S('/');
+                fp += _SYS_STR('/');
                 fp += d.cFileName;
                 hecl::Sstat st;
                 if (hecl::Stat(fp.c_str(), &st) || !S_ISREG(st.st_mode))
@@ -847,9 +847,9 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[])
     const SystemChar* const* arg = &args[1];
     while (*arg)
     {
-        cmdLine += _S(" \"");
+        cmdLine += _SYS_STR(" \"");
         cmdLine += *arg++;
-        cmdLine += _S('"');
+        cmdLine += _SYS_STR('"');
     }
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
