@@ -18,15 +18,15 @@ std::vector<hecl::SystemString> FileBrowser::PathComponents(hecl::SystemStringVi
     if (sPath.empty())
         return ret;
     auto it = sPath.cbegin();
-    if (*it == _S('/'))
+    if (*it == _SYS_STR('/'))
     {
-        ret.push_back(_S("/"));
+        ret.push_back(_SYS_STR("/"));
         ++it;
     }
     hecl::SystemString comp;
     for (; it != sPath.cend() ; ++it)
     {
-        if (*it == _S('/'))
+        if (*it == _SYS_STR('/'))
         {
             if (comp.empty())
                 continue;
@@ -142,8 +142,8 @@ void FileBrowser::navigateToPath(hecl::SystemStringView path)
     for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
-            dir += _S('/');
-        if (d.compare(_S("/")))
+            dir += _SYS_STR('/');
+        if (d.compare(_SYS_STR("/")))
             needSlash = true;
         dir += d;
     }
@@ -191,8 +191,8 @@ void FileBrowser::okActivated(bool viaButton)
     for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
-            path += _S('/');
-        if (d.compare(_S("/")))
+            path += _SYS_STR('/');
+        if (d.compare(_SYS_STR("/")))
             needSlash = true;
         path += d;
     }
@@ -207,7 +207,7 @@ void FileBrowser::okActivated(bool viaButton)
         return;
     }
 
-    path += _S('/');
+    path += _SYS_STR('/');
     path += hecl::SystemStringConv(m_fileField.m_view->getText()).sys_str();
 
     int err = hecl::Stat(path.c_str(), &theStat);
@@ -338,13 +338,13 @@ void FileBrowser::cancelActivated()
     for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
-            path += _S('/');
-        if (d.compare(_S("/")))
+            path += _SYS_STR('/');
+        if (d.compare(_SYS_STR("/")))
             needSlash = true;
         path += d;
     }
 
-    path += _S('/');
+    path += _SYS_STR('/');
     path += hecl::SystemStringConv(m_fileField.m_view->getText()).sys_str();
 
     m_returnFunc(false, path);
@@ -362,8 +362,8 @@ void FileBrowser::pathButtonActivated(size_t idx)
     for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
-            dir += _S('/');
-        if (d.compare(_S("/")))
+            dir += _SYS_STR('/');
+        if (d.compare(_SYS_STR("/")))
             needSlash = true;
         dir += d;
         if (++i > idx)

@@ -681,7 +681,7 @@ FontCache::Library::~Library()
 
 FontCache::FontCache(const hecl::Runtime::FileStoreManager& fileMgr)
 : m_fileMgr(fileMgr),
-  m_cacheRoot(hecl::SystemString(m_fileMgr.getStoreRoot()) + _S("/fontcache")),
+  m_cacheRoot(hecl::SystemString(m_fileMgr.getStoreRoot()) + _SYS_STR("/fontcache")),
   m_regFace(m_fontLib, DROIDSANS_PERMISSIVE, DROIDSANS_PERMISSIVE_SZ),
   m_monoFace(m_fontLib, BMONOFONT, BMONOFONT_SZ),
   m_curvesFace(m_fontLib, SPECTERCURVES, SPECTERCURVES_SZ)
@@ -710,7 +710,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face,
         return tag;
 
     /* Now check filesystem cache */
-    hecl::SystemString cachePath = m_cacheRoot + _S('/') + hecl::SysFormat(_S("%" PRIx64), tag.hash());
+    hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + hecl::SysFormat(_SYS_STR("%" PRIx64), tag.hash());
     hecl::Sstat st;
     if (!hecl::Stat(cachePath.c_str(), &st) && S_ISREG(st.st_mode))
     {
