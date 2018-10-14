@@ -45,10 +45,10 @@ hecl::SystemString FindBlender(int& major, int& minor)
     if (!blenderBin || !RegFileExists(blenderBin))
     {
         /* Environment not set; try steam */
-        steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+        steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
         if (steamBlender.size())
         {
-            steamBlender += _S("\\blender.exe");
+            steamBlender += _SYS_STR("\\blender.exe");
             blenderBin = steamBlender.c_str();
         }
 
@@ -71,7 +71,7 @@ hecl::SystemString FindBlender(int& major, int& minor)
     if (!RegFileExists(blenderBin))
     {
         /* Try steam */
-        steamBlender = hecl::FindCommonSteamApp(_S("Blender"));
+        steamBlender = hecl::FindCommonSteamApp(_SYS_STR("Blender"));
         if (steamBlender.size())
         {
 #ifdef __APPLE__
@@ -103,9 +103,9 @@ hecl::SystemString FindBlender(int& major, int& minor)
     if (!blenderBin)
         return {};
 
-    hecl::SystemString command = hecl::SystemString(_S("\"")) + blenderBin + _S("\" --version");
+    hecl::SystemString command = hecl::SystemString(_SYS_STR("\"")) + blenderBin + _SYS_STR("\" --version");
 #if _WIN32
-    FILE* fp = _wpopen(command.c_str(), _S("r"));
+    FILE* fp = _wpopen(command.c_str(), _SYS_STR("r"));
 #else
     FILE* fp = popen(command.c_str(), "r");
 #endif

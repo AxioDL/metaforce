@@ -59,7 +59,7 @@ static void KillProcessTree(QProcess& proc)
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
-  , m_fileMgr(_S("urde"))
+  , m_fileMgr(_SYS_STR("urde"))
   , m_cvarManager(m_fileMgr)
   , m_cvarCommons(m_cvarManager)
   , m_ui(new Ui::MainWindow)

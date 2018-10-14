@@ -79,12 +79,12 @@ SysReqTableModel::SysReqTableModel(QObject* parent)
 #elif _WIN32
     HKEY hkey;
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                     _S("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"),
+                     _SYS_STR("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"),
                      0, KEY_QUERY_VALUE, &hkey) == ERROR_SUCCESS)
     {
         DWORD MHz;
         DWORD size = sizeof(MHz);
-        if (RegQueryValueEx(hkey, _S("~MHz"), nullptr, nullptr,
+        if (RegQueryValueEx(hkey, _SYS_STR("~MHz"), nullptr, nullptr,
                             (LPBYTE)&MHz, &size) == ERROR_SUCCESS)
         {
             m_cpuSpeed = uint64_t(MHz);
