@@ -178,6 +178,8 @@ struct ExtensionSlot
 {
     Function lighting;
     Function post;
+    size_t blockCount = 0;
+    const char** blockNames = nullptr;
     size_t texCount = 0;
     const Backend::TextureInfo* texs = nullptr;
     Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
@@ -190,7 +192,9 @@ struct ExtensionSlot
     bool noAlphaOverwrite = false;
     bool noReflection = false;
 
-    ExtensionSlot(size_t texCount = 0,
+    ExtensionSlot(size_t blockCount = 0,
+                  const char** blockNames = nullptr,
+                  size_t texCount = 0,
                   const Backend::TextureInfo* texs = nullptr,
                   Backend::BlendFactor srcFactor = Backend::BlendFactor::Original,
                   Backend::BlendFactor dstFactor = Backend::BlendFactor::Original,
@@ -201,8 +205,9 @@ struct ExtensionSlot
                   bool noAlphaWrite = false,
                   bool noAlphaOverwrite = false,
                   bool noReflection = false)
-    : texCount(texCount), texs(texs), srcFactor(srcFactor), dstFactor(dstFactor), depthTest(depthTest),
-      cullMode(cullMode), noDepthWrite(noDepthWrite), noColorWrite(noColorWrite), noAlphaWrite(noAlphaWrite),
+    : blockCount(blockCount), blockNames(blockNames), texCount(texCount), texs(texs),
+      srcFactor(srcFactor), dstFactor(dstFactor), depthTest(depthTest), cullMode(cullMode),
+      noDepthWrite(noDepthWrite), noColorWrite(noColorWrite), noAlphaWrite(noAlphaWrite),
       noAlphaOverwrite(noAlphaOverwrite), noReflection(noReflection) {}
 
     mutable uint64_t m_hash = 0;

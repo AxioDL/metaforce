@@ -64,9 +64,10 @@ void StageConverter<P, S>::loadFromStream(FactoryCtx& ctx, ShaderCacheZipStream&
     {
         uint64_t hash = r.readUint64Big();
         uint32_t size = r.readUint32Big();
-        std::shared_ptr<uint8_t[]> data(new uint8_t[size]);
+        StageBinaryData data = MakeStageBinaryData(size);
         r.readUBytesToBuf(data.get(), size);
-        m_stageCache.insert(std::make_pair(hash, Do<StageTargetTp>(ctx, StageBinary<P, S>(data, size))));
+        m_stageCache.insert(std::make_pair(hash,
+            Do<StageTargetTp>(ctx, StageBinary<P, S>(data, size))));
     }
 }
 

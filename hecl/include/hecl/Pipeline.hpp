@@ -77,8 +77,8 @@ public:
     }
     std::string makeFrag() const
     {
-        return m_backend.makeFrag(m_tag.getDepthWrite() &&
-            m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
+        return m_backend.makeFrag(m_extension.blockCount, m_extension.blockNames,
+            m_tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
             m_tag.getReflectionType(), m_extension.lighting, m_extension.post,
             m_extension.texCount, m_extension.texs);
     }
@@ -631,6 +631,7 @@ inline std::unique_ptr<PipelineConverterBase> NewPipelineConverter(boo::IGraphic
 #endif
 #if BOO_HAS_METAL
     case boo::IGraphicsDataFactory::Platform::Metal:
+        setenv("HECL_NO_METAL_COMPILER", "1", 1);
         return std::make_unique<PipelineConverter<PlatformType::Metal>>(gfxF);
 #endif
 #if BOO_HAS_NX

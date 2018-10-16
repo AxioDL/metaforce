@@ -220,7 +220,7 @@ std::string GLSL::makeVert(unsigned col, unsigned uv, unsigned w,
     return retval + "}\n";
 }
 
-std::string GLSL::makeFrag(bool alphaTest,
+std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
                            ReflectionType reflectionType, const Function& lighting) const
 {
     std::string lightingSrc;
@@ -282,7 +282,8 @@ std::string GLSL::makeFrag(bool alphaTest,
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
 
-std::string GLSL::makeFrag(bool alphaTest,
+std::string GLSL::makeFrag(size_t blockCount, const char** blockNames,
+                           bool alphaTest,
                            ReflectionType reflectionType,
                            const Function& lighting,
                            const Function& post,

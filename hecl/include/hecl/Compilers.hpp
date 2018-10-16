@@ -50,7 +50,21 @@ struct Control { static constexpr StageEnum Enum = StageEnum::Control; static co
 struct Evaluation { static constexpr StageEnum Enum = StageEnum::Evaluation; static const char* Name; };
 }
 
+#ifdef __APPLE__
+using StageBinaryData = std::shared_ptr<uint8_t>;
+static inline StageBinaryData MakeStageBinaryData(size_t sz)
+{
+    return StageBinaryData(new uint8_t[sz], std::default_delete<uint8_t[]>{});
+}
+#else
+using StageBinaryData = std::shared_ptr<uint8_t[]>;
+static inline StageBinaryData MakeStageBinaryData(size_t sz)
+{
+    return StageBinaryData(new uint8_t[sz]);
+}
+#endif
+
 template<typename P, typename S>
-std::pair<std::shared_ptr<uint8_t[]>, size_t> CompileShader(std::string_view text);
+std::pair<StageBinaryData, size_t> CompileShader(std::string_view text);
 
 }

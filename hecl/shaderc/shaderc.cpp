@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <set>
 #include <bitset>
+#include <memory>
+#include <cstdint>
 
 using namespace std::literals;
 
@@ -100,7 +102,7 @@ struct CompileStageAction
     template<typename P, typename S>
     static bool Do(const std::string& name, const std::string& basename, const std::string& stage, std::string& implOut)
     {
-        std::pair<std::shared_ptr<uint8_t[]>, size_t> data = CompileShader<P, S>(stage);
+        std::pair<StageBinaryData, size_t> data = CompileShader<P, S>(stage);
         if (data.second == 0)
             return false;
 
@@ -109,7 +111,7 @@ struct CompileStageAction
         {
             implOut += "    ";
             for (int j = 0; j < 10 && i < data.second ; ++i, ++j)
-                implOut += Format("0x%02X, ", data.first[i]);
+                implOut += Format("0x%02X, ", data.first.get()[i]);
             implOut += "\n";
         }
         implOut += "};\n\n";

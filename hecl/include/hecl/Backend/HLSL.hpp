@@ -11,9 +11,11 @@ struct HLSL : ProgrammableCommon
     std::string makeVert(unsigned col, unsigned uv, unsigned w,
                          unsigned skinSlots, size_t extTexCount,
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
-    std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
+    std::string makeFrag(size_t blockCount, const char** blockNames,
+                         bool alphaTest, ReflectionType reflectionType,
                          const Function& lighting=Function()) const;
-    std::string makeFrag(bool alphaTest, ReflectionType reflectionType,
+    std::string makeFrag(size_t blockCount, const char** blockNames,
+                         bool alphaTest, ReflectionType reflectionType,
                          const Function& lighting,
                          const Function& post, size_t extTexCount,
                          const TextureInfo* extTexs) const;

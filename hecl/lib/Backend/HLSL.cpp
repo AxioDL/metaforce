@@ -214,7 +214,8 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
                     "}\n";
 }
 
-std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
+std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
+                           bool alphaTest, ReflectionType reflectionType,
                            const Function& lighting) const
 {
     std::string lightingSrc;
@@ -271,7 +272,8 @@ std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
     return retval + (alphaTest ? GenerateAlphaTest() : "") + "    return colorOut;\n}\n";
 }
 
-std::string HLSL::makeFrag(bool alphaTest, ReflectionType reflectionType,
+std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
+                           bool alphaTest, ReflectionType reflectionType,
                            const Function& lighting,
                            const Function& post, size_t extTexCount,
                            const TextureInfo* extTexs) const

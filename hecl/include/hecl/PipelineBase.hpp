@@ -73,7 +73,7 @@ public:
 template<typename P, typename S>
 class StageBinary : public StageRep<P, S>
 {
-    std::shared_ptr<uint8_t[]> m_ownedData;
+    StageBinaryData m_ownedData;
     const uint8_t* m_data = nullptr;
     size_t m_size = 0;
     uint64_t m_hash = 0;
@@ -86,11 +86,11 @@ public:
     StageBinary(const uint8_t* data, size_t size)
     : m_data(data), m_size(size)
     { m_hash = XXH64(m_data, m_size, 0); }
-    StageBinary(std::shared_ptr<uint8_t[]> data, size_t size)
+    StageBinary(StageBinaryData data, size_t size)
     : m_ownedData(std::move(data)),
       m_data(m_ownedData.get()), m_size(size)
     { m_hash = XXH64(m_data, m_size, 0); }
-    explicit StageBinary(std::pair<std::shared_ptr<uint8_t[]>, size_t> data)
+    explicit StageBinary(std::pair<StageBinaryData, size_t> data)
     : StageBinary(data.first, data.second) {}
     StageBinary(StageConverter<P, S>& conv, FactoryCtx& ctx, const StageSourceText<P, S>& in)
     : StageBinary(CompileShader<P, S>(in.text())) {}
@@ -162,7 +162,9 @@ public:
     }
     template<typename I>
     StageCollection(PipelineConverter<P>& conv, FactoryCtx& ctx, const I& in,
-                    typename std::enable_if_t<std::is_base_of_v<TessellationShader, I>>* = 0)
+                    typename std::enable_if_t<std::conjunction_v<
+                        std::is_base_of<TessellationShader, I>,
+                        std::negation<std::is_same<P, PlatformType::Metal>>>>* = 0)
     {
         m_vertex = conv.getVertexConverter().convert(ctx, in);
         m_fragment = conv.getFragmentConverter().convert(ctx, in);
@@ -171,6 +173,20 @@ public:
             m_control = conv.getControlConverter().convert(ctx, in);
             m_evaluation = conv.getEvaluationConverter().convert(ctx, in);
         }
+        m_vtxFmt = in.VtxFmt;
+        m_additionalInfo = in.PipelineInfo;
+        MakeHash();
+    }
+    template<typename I>
+    StageCollection(PipelineConverter<P>& conv, FactoryCtx& ctx, const I& in,
+                    typename std::enable_if_t<std::conjunction_v<
+                        std::is_base_of<TessellationShader, I>,
+                        std::is_same<P, PlatformType::Metal>>>* = 0)
+    {
+        m_vertex = conv.getVertexConverter().convert(ctx, in);
+        m_fragment = conv.getFragmentConverter().convert(ctx, in);
+        if (in.HasTessellation)
+            m_evaluation = conv.getEvaluationConverter().convert(ctx, in);
         m_vtxFmt = in.VtxFmt;
         m_additionalInfo = in.PipelineInfo;
         MakeHash();
@@ -189,7 +205,7 @@ public:
 
 }
 
-#if 0
+#ifndef _WIN32
 #define _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, P) \
 template <> const hecl::StageBinary<P, hecl::PipelineStage::Vertex> \
 T<P, hecl::PipelineStage::Vertex>::Prototype; \
@@ -201,8 +217,9 @@ template <> const hecl::StageBinary<P, hecl::PipelineStage::Control> \
 T<P, hecl::PipelineStage::Control>::Prototype; \
 template <> const hecl::StageBinary<P, hecl::PipelineStage::Evaluation> \
 T<P, hecl::PipelineStage::Evaluation>::Prototype;
-#endif
+#else
 #define _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, P)
+#endif
 
 #define STAGEOBJECT_PROTOTYPE_DECLARATIONS(T) \
 _STAGEOBJECT_PROTOTYPE_DECLARATIONS(T, hecl::PlatformType::OpenGL) \
