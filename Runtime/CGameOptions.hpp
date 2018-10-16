@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEOPTIONS_HPP__
-#define __URDE_CGAMEOPTIONS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Audio/CAudioSys.hpp"
@@ -239,4 +238,3 @@ public:
 
 }
 
-#endif // __URDE_CGAMEOPTIONS_HPP__

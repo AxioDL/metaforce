@@ -1,5 +1,4 @@
-#ifndef __URDE_CINTELEMENT_HPP__
-#define __URDE_CINTELEMENT_HPP__
+#pragma once
 
 #include "IElement.hpp"
 
@@ -215,4 +214,3 @@ public:
 
 }
 
-#endif // __URDE_CINTELEMENT_HPP__

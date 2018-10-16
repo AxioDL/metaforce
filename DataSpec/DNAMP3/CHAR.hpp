@@ -1,5 +1,4 @@
-#ifndef _DNAMP3_CHAR_HPP_
-#define _DNAMP3_CHAR_HPP_
+#pragma once
 
 #include <map>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -295,7 +294,7 @@ struct CHAR : BigDNA
         chOut.cinf = characterInfo.cinf;
 
         for (const CharacterInfo::Overlay& overlay : characterInfo.overlays)
-            chOut.overlays.emplace_back(overlay.type, std::make_pair(overlay.cmdl, overlay.cskr));
+            chOut.overlays.emplace_back(overlay.type.toString(), std::make_pair(overlay.cmdl, overlay.cskr));
     }
 
     void getAnimationResInfo(PAKRouter<PAKBridge>* pakRouter,
@@ -317,9 +316,9 @@ struct CHAR : BigDNA
                         hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
         hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
         hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
@@ -349,4 +348,3 @@ struct CHAR : BigDNA
 
 }
 
-#endif // _DNAMP3_CHAR_HPP_

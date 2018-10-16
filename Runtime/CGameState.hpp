@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMESTATE_HPP__
-#define __URDE_CGAMESTATE_HPP__
+#pragma once
 
 #include <memory>
 #include "CBasics.hpp"
@@ -142,4 +141,3 @@ public:
 };
 } // namespace urde
 
-#endif // __URDE_CGAMESTATE_HPP__

@@ -1,5 +1,4 @@
-#ifndef CBEETLE_HPP
-#define CBEETLE_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 
@@ -30,4 +29,3 @@ public:
 }
 }
 
-#endif // CBEETLE_HPP

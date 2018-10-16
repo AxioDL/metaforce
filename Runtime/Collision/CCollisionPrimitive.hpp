@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONPRIMITIVE_HPP__
-#define __URDE_CCOLLISIONPRIMITIVE_HPP__
+#pragma once
 
 #include "Collision/CMaterialList.hpp"
 #include "CRayCastResult.hpp"
@@ -178,4 +177,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLISIONPRIMITIVE_HPP__

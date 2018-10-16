@@ -1,5 +1,4 @@
-#ifndef _RETRO_BLENDER_SUPPORT_HPP_
-#define _RETRO_BLENDER_SUPPORT_HPP_
+#pragma once
 
 #include <hecl/hecl.hpp>
 
@@ -10,4 +9,3 @@ bool BuildMasterShader(const hecl::ProjectPath& path);
 
 }
 
-#endif // _RETRO_BLENDER_SUPPORT_HPP_

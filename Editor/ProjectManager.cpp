@@ -56,7 +56,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path)
     hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
     if (projPath)
     {
-        Log.report(logvisor::Warning, _S("project already exists at '%s'"), path.data());
+        Log.report(logvisor::Warning, _SYS_STR("project already exists at '%s'"), path.data());
         return false;
     }
 
@@ -73,7 +73,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path)
     saveProject();
 
     hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-    windowTitle += _S(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _S("]");
+    windowTitle += _SYS_STR(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _SYS_STR("]");
     m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     m_vm.DismissSplash();
     m_vm.FadeInEditors();
@@ -87,7 +87,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path)
     hecl::ProjectRootPath projPath = hecl::SearchForProject(path, subPath);
     if (!projPath)
     {
-        Log.report(logvisor::Warning, _S("project doesn't exist at '%s'"), path.data());
+        Log.report(logvisor::Warning, _SYS_STR("project doesn't exist at '%s'"), path.data());
         return false;
     }
 
@@ -98,7 +98,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path)
         return false;
     }
 
-    hecl::ProjectPath urdeSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
+    hecl::ProjectPath urdeSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
     athena::io::FileReader reader(urdeSpacesPath.getAbsolutePath());
 
     bool needsSave = false;
@@ -132,7 +132,7 @@ makeProj:
     else
         m_vm.SetupEditorView();
 
-    bool doRun = hecl::StringUtils::BeginsWith(subPath, _S("out"));
+    bool doRun = hecl::StringUtils::BeginsWith(subPath, _SYS_STR("out"));
     if (doRun)
     {
         m_mainMP1.emplace(nullptr, nullptr, m_vm.m_mainBooFactory,
@@ -145,7 +145,7 @@ makeProj:
 
     {
         hecl::SystemString windowTitle(m_proj->getProjectRootPath().getLastComponent());
-        windowTitle += _S(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _S("]");
+        windowTitle += _SYS_STR(" - URDE [") + hecl::SystemString(m_vm.platformName()) + _SYS_STR("]");
         m_vm.m_mainWindow->setTitle(windowTitle.c_str());
     }
     m_vm.DismissSplash();
@@ -164,7 +164,7 @@ bool ProjectManager::saveProject()
     if (!m_proj)
         return false;
 
-    hecl::ProjectPath oldSpacesPath(*m_proj, _S(".hecl/~urde_spaces.yaml"));
+    hecl::ProjectPath oldSpacesPath(*m_proj, _SYS_STR(".hecl/~urde_spaces.yaml"));
     athena::io::FileWriter writer(oldSpacesPath.getAbsolutePath());
     if (!writer.isOpen())
         return false;
@@ -174,7 +174,7 @@ bool ProjectManager::saveProject()
     if (!w.finish(&writer))
         return false;
 
-    hecl::ProjectPath newSpacesPath(*m_proj, _S(".hecl/urde_spaces.yaml"));
+    hecl::ProjectPath newSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
 
     hecl::Unlink(newSpacesPath.getAbsolutePath().data());
     hecl::Rename(oldSpacesPath.getAbsolutePath().data(),

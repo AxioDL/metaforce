@@ -1,5 +1,4 @@
-#ifndef __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__
-#define __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -24,4 +23,3 @@ CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStrea
                                               CObjectReference*);
 }
 
-#endif // __URDE_CPROJECTILEWEAPONDATAFACTORY_HPP__

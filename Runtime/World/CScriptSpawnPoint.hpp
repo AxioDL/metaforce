@@ -1,5 +1,4 @@
-#ifndef __CSCRIPTSPAWNPOINT_HPP__
-#define __CSCRIPTSPAWNPOINT_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CTransform.hpp"
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // __CSCRIPTSPAWNPOINT_HPP__

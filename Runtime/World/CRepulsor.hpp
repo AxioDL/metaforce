@@ -1,5 +1,4 @@
-#ifndef __URDE_CREPULSOR_HPP__
-#define __URDE_CREPULSOR_HPP__
+#pragma once
 
 #include "CActor.hpp"
 namespace urde
@@ -17,4 +16,3 @@ public:
     float GetAffectRadius() const { return xe8_affectRadius; }
 };
 }
-#endif // __URDE_CREPULSOR_HPP__

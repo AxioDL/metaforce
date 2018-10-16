@@ -1,5 +1,4 @@
-#ifndef __URDE_CDESTROYABLEROCK_HPP__
-#define __URDE_CDESTROYABLEROCK_HPP__
+#pragma once
 
 #include "CAi.hpp"
 
@@ -17,4 +16,3 @@ public:
 
 }
 
-#endif // __URDE_CDESTROYABLEROCK_HPP__

@@ -1,5 +1,4 @@
-#ifndef __COMMON_SWHC_HPP__
-#define __COMMON_SWHC_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -56,4 +55,3 @@ bool ExtractSWSH(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 template <class IDType>
 bool WriteSWSH(const SWSH<IDType>& gpsm, const hecl::ProjectPath& outPath);
 }
-#endif // __COMMON_SWHC_HPP__

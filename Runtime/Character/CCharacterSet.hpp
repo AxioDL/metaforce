@@ -1,5 +1,4 @@
-#ifndef __URDE_CCHARACTERSET_HPP__
-#define __URDE_CCHARACTERSET_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CCharacterInfo.hpp"
@@ -18,4 +17,3 @@ public:
 
 }
 
-#endif // __URDE_CCHARACTERSET_HPP__

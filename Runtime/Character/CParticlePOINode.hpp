@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEPOINODE_HPP__
-#define __URDE_CPARTICLEPOINODE_HPP__
+#pragma once
 
 #include "CPOINode.hpp"
 #include "CParticleData.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLEPOINODE_HPP__

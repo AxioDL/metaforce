@@ -1,5 +1,4 @@
-#ifndef __URDE_CPHAZONBEAM_HPP__
-#define __URDE_CPHAZONBEAM_HPP__
+#pragma once
 
 #include "CGunWeapon.hpp"
 #include "Graphics/Shaders/CAABoxShader.hpp"
@@ -56,4 +55,3 @@ public:
 
 }
 
-#endif // __URDE_CPHAZONBEAM_HPP__

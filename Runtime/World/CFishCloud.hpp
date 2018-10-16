@@ -1,5 +1,4 @@
-#ifndef __URDE_CFISHCLOUD_HPP__
-#define __URDE_CFISHCLOUD_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CFISHCLOUD_HPP__

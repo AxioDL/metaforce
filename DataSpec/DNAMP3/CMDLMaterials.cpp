@@ -156,7 +156,7 @@ void MaterialSet::ConstructMaterial(Stream& out,
     for (const Material::SectionFactory& factory : material.sections)
     {
         factory.section->constructNode(out, pakRouter, entry, prevSection, i++, texMapIdx, texMtxIdx, kColorIdx);
-        Material::SectionPASS* pass = dynamic_cast<Material::SectionPASS*>(factory.section.get());
+        Material::SectionPASS* pass = Material::SectionPASS::castTo(factory.section.get());
         if (!pass || (pass && Material::SectionPASS::Subtype(pass->subtype.toUint32()) != Material::SectionPASS::Subtype::RFLV))
             prevSection = factory.section.get();
     }

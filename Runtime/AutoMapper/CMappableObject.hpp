@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPPABLEOBJECT_HPP__
-#define __URDE_CMAPPABLEOBJECT_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -104,4 +103,3 @@ public:
     static void Shutdown();
 };
 }
-#endif // __URDE_CMAPPABLEOBJECT_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIWIDGETIDDB_HPP__
-#define __URDE_CGUIWIDGETIDDB_HPP__
+#pragma once
 
 #include <unordered_map>
 #include "RetroTypes.hpp"
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIWIDGETIDDB_HPP__

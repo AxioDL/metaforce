@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_HPP__
-#define __DNAMP3_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
@@ -30,9 +29,7 @@ public:
     const PAKType& getPAK() const {return m_pak;}
     const nod::Node& getNode() const {return m_node;}
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
-            std::unordered_map<UniqueID64, std::pair<UniqueID64, std::string>>& cskrCinfToChar) const;
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID64>& charAssoc) const;
 
     void addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             std::unordered_map<UniqueID64, zeus::CMatrix4f>& addTo,
@@ -41,4 +38,3 @@ public:
 
 }
 
-#endif // __DNAMP3_HPP__

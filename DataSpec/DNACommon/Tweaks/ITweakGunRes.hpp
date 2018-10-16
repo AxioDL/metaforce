@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKGUNRES_HPP__
-#define __DNACOMMON_ITWEAKGUNRES_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 #include "Runtime/IFactory.hpp"
@@ -139,4 +138,3 @@ protected:
 
 }
 
-#endif

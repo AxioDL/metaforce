@@ -1,5 +1,4 @@
-#ifndef __URDE_CDVDFILE_HPP__
-#define __URDE_CDVDFILE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "athena/FileReader.hpp"
@@ -78,4 +77,3 @@ public:
 };
 }
 
-#endif // __URDE_CDVDFILE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __DNA_COMMON_HPP__
-#define __DNA_COMMON_HPP__
+#pragma once
 
 #include <cstdio>
 #include "logvisor/logvisor.hpp"
@@ -428,6 +427,31 @@ public:
 /** Resource cooker function */
 typedef std::function<bool(const hecl::ProjectPath&, const hecl::ProjectPath&)> ResCooker;
 
+/** Mappings of resources involved in extracting characters */
+template <class IDType>
+struct CharacterAssociations
+{
+    using RigPair = std::pair<IDType, IDType>;
+    /* CMDL -> (CSKR, CINF) */
+    std::unordered_map<IDType, RigPair> m_cmdlRigs;
+    /* (CSKR, CINF) -> ANCS */
+    std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;
+    /* ANCS -> (CINF, CMDL) */
+    std::unordered_multimap<IDType, std::pair<RigPair, std::string>> m_characterToAttachmentRigs;
+    using MultimapIteratorPair = std::pair<
+        typename std::unordered_multimap<IDType, std::pair<RigPair, std::string>>::const_iterator,
+        typename std::unordered_multimap<IDType, std::pair<RigPair, std::string>>::const_iterator>;
+    void addAttachmentRig(IDType character, IDType cinf, IDType cmdl, const char* name)
+    {
+        auto range = m_characterToAttachmentRigs.equal_range(character);
+        for (auto it = range.first; it != range.second; ++it)
+            if (it->second.second == name)
+                return;
+        m_characterToAttachmentRigs.insert(
+            std::make_pair(character, std::make_pair(std::make_pair(cinf, cmdl), name)));
+    }
+};
+
 }
 
 /* Hash template-specializations for UniqueID types */
@@ -462,4 +486,3 @@ struct hash<DataSpec::UniqueID128>
 };
 }
 
-#endif // __DNA_COMMON_HPP__

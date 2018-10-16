@@ -6,8 +6,6 @@
 namespace urde
 {
 
-URDE_DECL_SPECIALIZE_SHADER(CParticleSwooshShaders)
-
 int CParticleSwoosh::g_ParticleSystemAliveCount = 0;
 
 CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int leng)

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTDOOR_HPP__
-#define __URDE_CSCRIPTDOOR_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 
@@ -58,4 +57,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTDOOR_HPP__

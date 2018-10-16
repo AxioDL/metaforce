@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCANNABLEOBJECTINFO_HPP__
-#define __URDE_CSCANNABLEOBJECTINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IFactory.hpp"
@@ -48,4 +47,3 @@ public:
 CFactoryFnReturn FScannableObjectInfoFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
                                              CObjectReference* selfRef);
 }
-#endif // __URDE_CSCANNABLEOBJECTINFO_HPP__

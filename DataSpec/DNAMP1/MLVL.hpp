@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_MLVL_HPP__
-#define __DNAMP1_MLVL_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/PAK.hpp"
 #include "DataSpec/DNACommon/MLVL.hpp"
@@ -168,4 +167,3 @@ struct MLVL : BigDNA
 
 }
 
-#endif // __DNAMP1_MLVL_HPP__

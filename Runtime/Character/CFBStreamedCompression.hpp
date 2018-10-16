@@ -1,5 +1,4 @@
-#ifndef __URDE_CFSTREAMEDCOMPRESSION_HPP__
-#define __URDE_CFSTREAMEDCOMPRESSION_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -85,4 +84,3 @@ public:
 
 }
 
-#endif // __URDE_CFSTREAMEDCOMPRESSION_HPP__

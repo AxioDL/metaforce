@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_SCRIPTOBJECT_HPP
-#define __DNAMP1_SCRIPTOBJECT_HPP
+#pragma once
 #include "../../DNACommon/DNACommon.hpp"
 #include "../DNAMP1.hpp"
 #include "../SAVW.hpp"
@@ -42,7 +41,7 @@ struct IScriptObject : BigDNAVYaml
     virtual ~IScriptObject() = default;
 
     virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&,
-                                 std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>&) const {}
+                                 CharacterAssociations<UniqueID32>& charAssoc) const {}
     virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}
     virtual void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
                                     std::vector<hecl::ProjectPath>& lazyOut) const {}
@@ -51,4 +50,3 @@ struct IScriptObject : BigDNAVYaml
 };
 }
 
-#endif

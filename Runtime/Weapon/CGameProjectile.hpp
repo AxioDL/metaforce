@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMEPROJECTILE_HPP__
-#define __URDE_CGAMEPROJECTILE_HPP__
+#pragma once
 
 #include "Collision/CMaterialList.hpp"
 #include "Weapon/CWeaponMode.hpp"
@@ -91,4 +90,3 @@ public:
 };
 }
 
-#endif // __URDE_CGAMEPROJECTILE_HPP__

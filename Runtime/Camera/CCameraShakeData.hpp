@@ -1,5 +1,4 @@
-#ifndef __URDE_CCAMERASHAKEDATA_HPP__
-#define __URDE_CCAMERASHAKEDATA_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 #include "RetroTypes.hpp"
@@ -80,4 +79,3 @@ public:
 
 }
 
-#endif // __URDE_CCAMERASHAKEDATA_HPP__

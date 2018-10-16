@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETATRANSTRANS_HPP__
-#define __URDE_CMETATRANSTRANS_HPP__
+#pragma once
 
 #include "IMetaTrans.hpp"
 #include "IOStreams.hpp"
@@ -25,4 +24,3 @@ public:
 
 }
 
-#endif // __URDE_CMETATRANSTRANS_HPP__

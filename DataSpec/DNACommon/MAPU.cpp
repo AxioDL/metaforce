@@ -125,7 +125,7 @@ bool MAPU::Cook(const hecl::blender::MapUniverse& mapuIn, const hecl::ProjectPat
         mapu.worlds.emplace_back();
         MAPU::World& wldOut = mapu.worlds.back();
         wldOut.name = wld.name;
-        wldOut.mlvl = hecl::ProjectPath(wld.worldPath, _S("!world.*"));
+        wldOut.mlvl = hecl::ProjectPath(wld.worldPath, _SYS_STR("!world.*"));
         wldOut.transform.xf[0] = wld.xf.val[0];
         wldOut.transform.xf[1] = wld.xf.val[1];
         wldOut.transform.xf[2] = wld.xf.val[2];

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYERCAMERABOB_HPP__
-#define __URDE_CPLAYERCAMERABOB_HPP__
+#pragma once
 
 #include <cfloat>
 #include "RetroTypes.hpp"
@@ -104,4 +103,3 @@ public:
 };
 }
 
-#endif // __URDE_CPLAYERCAMERABOB_HPP__

@@ -1,5 +1,4 @@
-#ifndef RUMBLEFXTABLE_HPP
-#define RUMBLEFXTABLE_HPP
+#pragma once
 
 #include "CRumbleVoice.hpp"
 
@@ -10,4 +9,3 @@ extern const SAdsrData RumbleFxTable[];
 
 }
 
-#endif // RUMBLEFXTABLE_HPP

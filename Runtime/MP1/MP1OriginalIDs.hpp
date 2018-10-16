@@ -1,5 +1,4 @@
-#ifndef URDE_MP1ORIGINALIDS_HPP
-#define URDE_MP1ORIGINALIDS_HPP
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IFactory.hpp"
@@ -24,4 +23,3 @@ CFactoryFnReturn FMP1OriginalIDsFactory(const SObjectTag& tag, CInputStream& in,
 
 }
 
-#endif // URDE_MP1ORIGINALIDS_HPP

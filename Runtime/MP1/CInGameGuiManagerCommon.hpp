@@ -1,5 +1,4 @@
-#ifndef __URDE_CINGAMEGUIMANAGERCOMMON_HPP__
-#define __URDE_CINGAMEGUIMANAGERCOMMON_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -19,4 +18,3 @@ enum class EInGameGuiState
 
 }
 
-#endif // __URDE_CINGAMEGUIMANAGERCOMMON_HPP__

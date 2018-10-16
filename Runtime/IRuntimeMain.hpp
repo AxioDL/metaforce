@@ -1,5 +1,4 @@
-#ifndef IRUNTIMEMAIN_HPP
-#define IRUNTIMEMAIN_HPP
+#pragma once
 
 namespace urde
 {
@@ -11,4 +10,3 @@ struct IRuntimeMain
 };
 }
 
-#endif // IRUNTIMEMAIN_HPP

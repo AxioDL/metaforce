@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEXTEXECUTEBUFFER_HPP__
-#define __URDE_CTEXTEXECUTEBUFFER_HPP__
+#pragma once
 
 #include "CSaveableState.hpp"
 #include "CGuiTextSupport.hpp"
@@ -76,4 +75,3 @@ public:
 
 }
 
-#endif // __URDE_CTEXTEXECUTEBUFFER_HPP__

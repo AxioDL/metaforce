@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_MAPA_HPP__
-#define __DNAMP1_MAPA_HPP__
+#pragma once
 
 #include <vector>
 
@@ -38,4 +37,3 @@ struct MAPA : DNAMAPA::MAPA
 };
 }
 
-#endif

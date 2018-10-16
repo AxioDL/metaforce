@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_BABEDEAD_HPP_
-#define _DNACOMMON_BABEDEAD_HPP_
+#pragma once
 
 #include "zeus/Math.hpp"
 #include "hecl/hecl.hpp"
@@ -17,4 +16,3 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender:
 
 }
 
-#endif // _DNACOMMON_BABEDEAD_HPP_

@@ -1,5 +1,4 @@
-#ifndef __URDE_CDVDREQUEST_HPP__
-#define __URDE_CDVDREQUEST_HPP__
+#pragma once
 
 namespace urde
 {
@@ -25,4 +24,3 @@ public:
 
 }
 
-#endif // __URDE_CDVDREQUEST_HPP__

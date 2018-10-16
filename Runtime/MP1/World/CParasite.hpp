@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CPARASITE_HPP__
-#define __URDE_MP1_CPARASITE_HPP__
+#pragma once
 
 #include "World/CWallWalker.hpp"
 #include "Collision/CCollisionActorManager.hpp"
@@ -115,4 +114,3 @@ public:
     void AlignToFloor(CStateManager&, float, const zeus::CVector3f&, float);
 };
 }
-#endif // __URDE_MP1_CPARASITE_HPP__

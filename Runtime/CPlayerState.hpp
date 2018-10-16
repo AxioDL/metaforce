@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYERSTATE_HPP__
-#define __URDE_CPLAYERSTATE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CBasics.hpp"
@@ -193,4 +192,3 @@ public:
 };
 }
 
-#endif // __URDE_CPLAYERSTATE_HPP__

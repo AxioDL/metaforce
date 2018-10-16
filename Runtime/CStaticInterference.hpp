@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTATICINTERFERENCE_HPP__
-#define __URDE_CSTATICINTERFERENCE_HPP__
+#pragma once
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -28,4 +27,3 @@ public:
 
 }
 
-#endif // __URDE_CSTATICINTERFERENCE_HPP__

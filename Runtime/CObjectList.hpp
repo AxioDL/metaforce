@@ -1,5 +1,4 @@
-#ifndef __URDE_COBJECTLIST_HPP__
-#define __URDE_COBJECTLIST_HPP__
+#pragma once
 
 #include "World/CEntity.hpp"
 #include "RetroTypes.hpp"
@@ -84,4 +83,3 @@ public:
 
 }
 
-#endif // __URDE_COBJECTLIST_HPP__

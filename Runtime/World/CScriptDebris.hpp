@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTDEBRIS_HPP__
-#define __URDE_CSCRIPTDEBRIS_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 
@@ -99,4 +98,3 @@ public:
 };
 } // namespace urde
 
-#endif // __URDE_CSCRIPTDEBRIS_HPP__

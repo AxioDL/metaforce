@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAVEUITOUCHBAR_HPP__
-#define __URDE_CSAVEUITOUCHBAR_HPP__
+#pragma once
 
 #include <utility>
 #include <memory>
@@ -22,4 +21,3 @@ std::unique_ptr<CSaveGameScreenTouchBar> NewSaveUITouchBar();
 
 }
 
-#endif // __URDE_CSAVEUITOUCHBAR_HPP__

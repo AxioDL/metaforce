@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEGEN_HPP__
-#define __URDE_CPARTICLEGEN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Graphics/CLight.hpp"
@@ -66,4 +65,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLEGEN_HPP__

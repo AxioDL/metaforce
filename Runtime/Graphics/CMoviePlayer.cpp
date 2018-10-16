@@ -5,157 +5,11 @@
 #include "Audio/g721.h"
 #include "amuse/DSPCodec.hpp"
 #include "CDvdRequest.hpp"
+#include "hecl/Pipeline.hpp"
 #include <turbojpeg.h>
 
 namespace urde
 {
-
-static const char* VS_GLSL_YUV =
-"#version 330\n"
-BOO_GLSL_BINDING_HEAD
-"layout(location=0) in vec3 posIn;\n"
-"layout(location=1) in vec2 uvIn;\n"
-SPECTER_GLSL_VIEW_VERT_BLOCK
-"struct VertToFrag\n"
-"{\n"
-"    vec4 color;\n"
-"    vec2 uv;\n"
-"};\n"
-"SBINDING(0) out VertToFrag vtf;\n"
-"void main()\n"
-"{\n"
-"    vtf.uv = uvIn;\n"
-"    vtf.color = mulColor;\n"
-"    gl_Position = mv * vec4(posIn, 1.0);\n"
-"    gl_Position = FLIPFROMGL(gl_Position);\n"
-"}\n";
-
-static const char* FS_GLSL_YUV =
-"#version 330\n"
-BOO_GLSL_BINDING_HEAD
-"struct VertToFrag\n"
-"{\n"
-"    vec4 color;\n"
-"    vec2 uv;\n"
-"};\n"
-"SBINDING(0) in VertToFrag vtf;\n"
-"TBINDING0 uniform sampler2D texY;\n"
-"TBINDING1 uniform sampler2D texU;\n"
-"TBINDING2 uniform sampler2D texV;\n"
-"layout(location=0) out vec4 colorOut;\n"
-"void main()\n"
-"{\n"
-"    vec3 yuv;\n"
-"    yuv.r = texture(texY, vtf.uv).r;\n"
-"    yuv.g = texture(texU, vtf.uv).r;\n"
-"    yuv.b = texture(texV, vtf.uv).r;\n"
-"    yuv.r = 1.1643*(yuv.r-0.0625);\n"
-"    yuv.g = yuv.g-0.5;\n"
-"    yuv.b = yuv.b-0.5;\n"
-"    colorOut = vec4(yuv.r+1.5958*yuv.b,\n"
-"                    yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
-"                    yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
-"}\n";
-
-#if _WIN32
-static const char* VS_HLSL_YUV =
-"struct VertData\n"
-"{\n"
-"    float3 posIn : POSITION;\n"
-"    float2 uvIn : UV;\n"
-"};\n"
-SPECTER_HLSL_VIEW_VERT_BLOCK
-"struct VertToFrag\n"
-"{\n"
-"    float4 position : SV_Position;\n"
-"    float4 color : COLOR;\n"
-"    float2 uv : UV;\n"
-"};\n"
-"VertToFrag main(in VertData v)\n"
-"{\n"
-"    VertToFrag vtf;\n"
-"    vtf.uv = v.uvIn;\n"
-"    vtf.color = mulColor;\n"
-"    vtf.position = mul(mv, float4(v.posIn, 1.0));\n"
-"    return vtf;\n"
-"}\n";
-
-static const char* FS_HLSL_YUV =
-"struct VertToFrag\n"
-"{\n"
-"    float4 position : SV_Position;\n"
-"    float4 color : COLOR;\n"
-"    float2 uv : UV;\n"
-"};\n"
-"Texture2D texs[3] : register(t0);\n"
-"SamplerState samp : register(s0);\n"
-"float4 main(in VertToFrag vtf) : SV_Target0\n"
-"{\n"
-"    float3 yuv;\n"
-"    yuv.r = texs[0].Sample(samp, vtf.uv).r;\n"
-"    yuv.g = texs[1].Sample(samp, vtf.uv).r;\n"
-"    yuv.b = texs[2].Sample(samp, vtf.uv).r;\n"
-"    yuv.r = 1.1643*(yuv.r-0.0625);\n"
-"    yuv.g = yuv.g-0.5;\n"
-"    yuv.b = yuv.b-0.5;\n"
-"    return float4(yuv.r+1.5958*yuv.b,\n"
-"                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
-"                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
-"}\n";
-#endif
-
-#if BOO_HAS_METAL
-static const char* VS_METAL_YUV =
-"#include <metal_stdlib>\n"
-"using namespace metal;\n"
-"struct VertData\n"
-"{\n"
-"    float3 posIn [[ attribute(0) ]];\n"
-"    float2 uvIn [[ attribute(1) ]];\n"
-"};\n"
-SPECTER_METAL_VIEW_VERT_BLOCK
-"struct VertToFrag\n"
-"{\n"
-"    float4 position [[ position ]];\n"
-"    float4 color;\n"
-"    float2 uv;\n"
-"};\n"
-"vertex VertToFrag vmain(VertData v [[ stage_in ]], constant SpecterViewBlock& view [[ buffer(2) ]])\n"
-"{\n"
-"    VertToFrag vtf;\n"
-"    vtf.uv = v.uvIn;\n"
-"    vtf.color = view.mulColor;\n"
-"    vtf.position = view.mv * float4(v.posIn, 1.0);\n"
-"    return vtf;\n"
-"}\n";
-
-static const char* FS_METAL_YUV =
-"#include <metal_stdlib>\n"
-"using namespace metal;\n"
-"struct VertToFrag\n"
-"{\n"
-"    float4 position [[ position ]];\n"
-"    float4 color;\n"
-"    float2 uv;\n"
-"};\n"
-"fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
-"                      sampler samp [[ sampler(0) ]],\n"
-"                      texture2d<float> tex0 [[ texture(0) ]],\n"
-"                      texture2d<float> tex1 [[ texture(1) ]],\n"
-"                      texture2d<float> tex2 [[ texture(2) ]])\n"
-"{\n"
-"    float3 yuv;\n"
-"    yuv.r = tex0.sample(samp, vtf.uv).r;\n"
-"    yuv.g = tex1.sample(samp, vtf.uv).r;\n"
-"    yuv.b = tex2.sample(samp, vtf.uv).r;\n"
-"    yuv.r = 1.1643*(yuv.r-0.0625);\n"
-"    yuv.g = yuv.g-0.5;\n"
-"    yuv.b = yuv.b-0.5;\n"
-"    return float4(yuv.r+1.5958*yuv.b,\n"
-"                  yuv.r-0.39173*yuv.g-0.81290*yuv.b,\n"
-"                  yuv.r+2.017*yuv.g, 1.0) * vtf.color;\n"
-"}\n";
-#endif
 
 /* used in the original to look up fixed-point dividends on a
  * MIDI-style volume scale (0-127) -> (n/0x8000) */
@@ -180,7 +34,6 @@ static const u16 StaticVolumeLookup[] =
 };
 
 /* shared boo resources */
-static boo::ObjToken<boo::IVertexFormat> YUVVTXFmt;
 static boo::ObjToken<boo::IShaderPipeline> YUVShaderPipeline;
 static tjhandle TjHandle = nullptr;
 
@@ -202,63 +55,12 @@ static const char* TexNames[] = {"texY", "texU", "texV"};
 
 void CMoviePlayer::Initialize()
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
-    {
-        if (!ctx.bindingNeedsVertexFormat())
-        {
-            boo::VertexElementDescriptor texvdescs[] =
-            {
-                {nullptr, nullptr, boo::VertexSemantic::Position4},
-                {nullptr, nullptr, boo::VertexSemantic::UV4}
-            };
-            YUVVTXFmt = ctx.newVertexFormat(2, texvdescs);
-        }
-
-        switch (ctx.platform())
-        {
-#if BOO_HAS_GL
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            YUVShaderPipeline = static_cast<boo::GLDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_GLSL_YUV, FS_GLSL_YUV, 3, TexNames, 1, BlockNames,
-                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-            break;
-#endif
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-            YUVShaderPipeline = static_cast<boo::D3DDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_HLSL_YUV, FS_HLSL_YUV, nullptr, nullptr, nullptr, YUVVTXFmt,
-                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            YUVShaderPipeline = static_cast<boo::MetalDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_METAL_YUV, FS_METAL_YUV, nullptr, nullptr, YUVVTXFmt,
-                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            YUVShaderPipeline = static_cast<boo::VulkanDataFactory::Context&>(ctx).newShaderPipeline
-                    (VS_GLSL_YUV, FS_GLSL_YUV, YUVVTXFmt,
-                     boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
-                     boo::Primitive::TriStrips, boo::ZTest::None, false, true, false, boo::CullMode::None);
-            break;
-#endif
-        default: break;
-        }
-        return true;
-    } BooTrace);
-
+    YUVShaderPipeline = hecl::conv->convert(Shader_CMoviePlayerShader{});
     TjHandle = tjInitDecompress();
 }
 
 void CMoviePlayer::Shutdown()
 {
-    YUVVTXFmt.reset();
     YUVShaderPipeline.reset();
     tjDestroy(TjHandle);
 }
@@ -434,17 +236,6 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
         m_blockBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(m_viewVertBlock), 1);
         m_vertBuf = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(specter::View::TexShaderVert), 4);
 
-        boo::ObjToken<boo::IVertexFormat> vtxFmt = YUVVTXFmt;
-        if (ctx.bindingNeedsVertexFormat())
-        {
-            boo::VertexElementDescriptor texvdescs[] =
-            {
-                {m_vertBuf.get(), nullptr, boo::VertexSemantic::Position4},
-                {m_vertBuf.get(), nullptr, boo::VertexSemantic::UV4}
-            };
-            vtxFmt = ctx.newVertexFormat(2, texvdescs);
-        }
-
         /* Allocate textures here (rather than at decode time) */
         x80_textures.reserve(3);
         for (int i=0 ; i<3 ; ++i)
@@ -467,7 +258,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
                 for (int j=0 ; j<2 ; ++j)
                 {
                     boo::ObjToken<boo::ITexture> texs[] = {set.Y[j].get(), set.U.get(), set.V.get()};
-                    set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf.get(),
+                    set.binding[j] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(),
                                                               nullptr, nullptr, 1, bufs, nullptr,
                                                               3, texs, nullptr, nullptr);
                 }
@@ -484,7 +275,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
 
                 boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_blockBuf.get()};
                 boo::ObjToken<boo::ITexture> texs[] = {set.Y[0].get(), set.U.get(), set.V.get()};
-                set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, vtxFmt, m_vertBuf.get(),
+                set.binding[0] = ctx.newShaderDataBinding(YUVShaderPipeline, m_vertBuf.get(),
                                                           nullptr, nullptr, 1, bufs, nullptr,
                                                           3, texs, nullptr, nullptr);
             }

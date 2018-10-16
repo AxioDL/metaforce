@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDTHREATINTERFACE_HPP__
-#define __URDE_CHUDTHREATINTERFACE_HPP__
+#pragma once
 
 #include "CHudInterface.hpp"
 #include "RetroTypes.hpp"
@@ -56,4 +55,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDTHREATINTERFACE_HPP__

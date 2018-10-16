@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEXTURE_HPP__
-#define __URDE_CTEXTURE_HPP__
+#pragma once
 
 #include "GCNTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -83,4 +82,3 @@ CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag,
 
 }
 
-#endif // __URDE_CTEXTURE_HPP__

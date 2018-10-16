@@ -1,5 +1,4 @@
-#ifndef __URDE_CPOINODE_HPP__
-#define __URDE_CPOINODE_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CCharAnimTime.hpp"
@@ -69,4 +68,3 @@ u32 _getPOIList(const CCharAnimTime& time,
 
 }
 
-#endif // __URDE_CPOINODE_HPP__

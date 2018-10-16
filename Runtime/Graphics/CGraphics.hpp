@@ -1,5 +1,4 @@
-#ifndef __URDE_CGRAPHICS_HPP__
-#define __URDE_CGRAPHICS_HPP__
+#pragma once
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
@@ -410,4 +409,3 @@ public:
 
 }
 
-#endif // __URDE_CGRAPHICS_HPP__

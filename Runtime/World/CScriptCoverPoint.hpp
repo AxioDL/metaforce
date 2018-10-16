@@ -1,5 +1,4 @@
-#ifndef CSCRIPTCOVERPOINT_HPP
-#define CSCRIPTCOVERPOINT_HPP
+#pragma once
 
 #include "CActor.hpp"
 
@@ -58,4 +57,3 @@ public:
 };
 }
 
-#endif // CSCRIPTCOVERPOINT_HPP

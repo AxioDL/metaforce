@@ -1,5 +1,4 @@
-#ifndef CSCRIPTDAMAGEABLETRIGGER_HPP
-#define CSCRIPTDAMAGEABLETRIGGER_HPP
+#pragma once
 
 #include "CActor.hpp"
 #include "CFluidPlaneDoor.hpp"
@@ -66,4 +65,3 @@ public:
 };
 }
 
-#endif // CSCRIPTDAMAGEABLETRIGGER_HPP

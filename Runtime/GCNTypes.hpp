@@ -1,5 +1,4 @@
-#ifndef __URDE_GCTYPES_HPP__
-#define __URDE_GCTYPES_HPP__
+#pragma once
 
 #include <cstdint>
 #include <cstdlib>
@@ -13,4 +12,3 @@ using u32 = uint32_t;
 using s64 = int64_t;
 using u64 = uint64_t;
 
-#endif // __URDE_GCTYPES_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CBURSTFIRE_HPP__
-#define __URDE_CBURSTFIRE_HPP__
+#pragma once
 
 #include "CStateManager.hpp"
 
@@ -54,4 +53,3 @@ public:
     void SetFirstBurstIndex(s32);
 };
 }
-#endif // __URDE_CBURSTFIRE_HPP__

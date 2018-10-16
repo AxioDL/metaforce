@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SCRIPTBEAM_HPP_
-#define _DNAMP1_SCRIPTBEAM_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -38,4 +37,3 @@ struct ScriptBeam : IScriptObject
 };
 }
 
-#endif

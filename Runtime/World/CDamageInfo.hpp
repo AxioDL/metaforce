@@ -1,5 +1,4 @@
-#ifndef __URDE_CDAMAGEINFO_HPP__
-#define __URDE_CDAMAGEINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Weapon/CWeaponMgr.hpp"
@@ -71,4 +70,3 @@ public:
 };
 }
 
-#endif // __URDE_CDAMAGEINFO_HPP__

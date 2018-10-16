@@ -23,7 +23,7 @@ void ProjectResourceFactoryBase::BeginBackgroundIndex
 
 bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working)
 {
-    Log.report(logvisor::Warning, _S("sync-cooking %s"), working.getRelativePath().data());
+    Log.report(logvisor::Warning, _SYS_STR("sync-cooking %s"), working.getRelativePath().data());
     return m_clientProc.syncCook(working, m_cookSpec.get(), hecl::blender::SharedBlenderToken,
                                  false, false);
 }
@@ -66,7 +66,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
         /* Ensure requested resource is on the filesystem */
         if (!path.isFileOrGlob())
         {
-            Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
+            Log.report(logvisor::Error, _SYS_STR("unable to find resource path '%s'"),
                        path.getRelativePath().data());
             m_failed = true;
             return;
@@ -83,7 +83,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
             urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::blender::SharedBlenderToken);
             if (verifyTag.type != tag.type)
             {
-                Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+                Log.report(logvisor::Error, _SYS_STR("%s: expected type '%.4s', found '%.4s'"),
                            path.getRelativePath().data(),
                            tag.type.getChars(), verifyTag.type.getChars());
                 m_failed = true;
@@ -114,7 +114,7 @@ void ProjectResourceFactoryBase::AsyncTask::CookComplete()
     athena::io::FileReader fr(m_cookedPath.getAbsolutePath(), 32 * 1024, false);
     if (fr.hasError())
     {
-        Log.report(logvisor::Error, _S("unable to open cooked resource path '%s'"),
+        Log.report(logvisor::Error, _SYS_STR("unable to open cooked resource path '%s'"),
                    m_cookedPath.getAbsolutePath().data());
         m_failed = true;
         return;
@@ -218,7 +218,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
     /* Ensure requested resource is on the filesystem */
     if (!path.isFileOrGlob())
     {
-        Log.report(logvisor::Error, _S("unable to find resource path '%s'"),
+        Log.report(logvisor::Error, _SYS_STR("unable to find resource path '%s'"),
                    path.getAbsolutePath().data());
         return false;
     }
@@ -234,7 +234,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
         urde::SObjectTag verifyTag = TagFromPath(path, hecl::blender::SharedBlenderToken);
         if (verifyTag.type != tag.type)
         {
-            Log.report(logvisor::Error, _S("%s: expected type '%.4s', found '%.4s'"),
+            Log.report(logvisor::Error, _SYS_STR("%s: expected type '%.4s', found '%.4s'"),
                        path.getRelativePath().data(),
                        tag.type.getChars(), verifyTag.type.getChars());
             return false;
@@ -250,7 +250,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
             /* Do a blocking cook here */
             if (!SyncCook(path))
             {
-                Log.report(logvisor::Error, _S("unable to cook resource path '%s'"),
+                Log.report(logvisor::Error, _SYS_STR("unable to cook resource path '%s'"),
                            path.getAbsolutePath().data());
                 return false;
             }
@@ -261,7 +261,7 @@ ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag,
     fr.emplace(cooked.getAbsolutePath(), 32 * 1024, false);
     if (fr->hasError())
     {
-        Log.report(logvisor::Error, _S("unable to open cooked resource path '%s'"),
+        Log.report(logvisor::Error, _SYS_STR("unable to open cooked resource path '%s'"),
                    cooked.getAbsolutePath().data());
         return false;
     }
@@ -491,7 +491,7 @@ bool ProjectResourceFactoryBase::AsyncPumpTask(ItType& it)
     {
         if (!static_cast<DataSpec::SpecBase&>(*m_cookSpec).backgroundIndexRunning())
         {
-            Log.report(logvisor::Error, _S("unable to find async load resource (%.4s, %08X)"),
+            Log.report(logvisor::Error, _SYS_STR("unable to find async load resource (%.4s, %08X)"),
                        task.x0_tag.type.getChars(), task.x0_tag.id);
             it = _RemoveTask(it);
         }

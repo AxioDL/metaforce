@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMELIGHT_HPP__
-#define __URDE_CGAMELIGHT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -25,4 +24,3 @@ public:
     TUniqueId GetParentId() const { return xe8_parentId; }
 };
 }
-#endif // __URDE_CGAMELIGHT_HPP__

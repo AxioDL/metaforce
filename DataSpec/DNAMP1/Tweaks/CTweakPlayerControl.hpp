@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKPLAYERCONTROL_HPP_
-#define _DNAMP1_CTWEAKPLAYERCONTROL_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakPlayerControl.hpp"
 
@@ -17,4 +16,3 @@ struct CTweakPlayerControl final : ITweakPlayerControl
 
 }
 
-#endif // _DNAMP1_CTWEAKPLAYERCONTROL_HPP_

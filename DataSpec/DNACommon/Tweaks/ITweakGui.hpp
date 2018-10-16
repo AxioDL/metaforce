@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKGUI_HPP__
-#define __DNACOMMON_ITWEAKGUI_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 #include "zeus/CVector2f.hpp"
@@ -152,4 +151,3 @@ struct ITweakGui : ITweak
 
 }
 
-#endif // __DNACOMMON_ITWEAKGUI_HPP__

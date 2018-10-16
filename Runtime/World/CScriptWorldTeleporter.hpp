@@ -1,5 +1,4 @@
-#ifndef __CSCRIPTWORLDTELEPORTER_HPP__
-#define __CSCRIPTWORLDTELEPORTER_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "CAnimationParameters.hpp"
@@ -59,4 +58,3 @@ public:
 };
 }
 
-#endif // __CSCRIPTWORLDTELEPORTER_HPP__

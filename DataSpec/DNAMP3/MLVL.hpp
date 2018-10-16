@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_MLVL_HPP__
-#define __DNAMP3_MLVL_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/PAK.hpp"
 #include "DataSpec/DNACommon/MLVL.hpp"
@@ -92,7 +91,7 @@ struct MLVL : BigDNA
     {
         MLVL mlvl;
         mlvl.read(rs);
-        athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
+        athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
         athena::io::ToYAMLStream(mlvl, writer);
         hecl::blender::Connection& conn = btok.getBlenderConnection();
         return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter,
@@ -102,4 +101,3 @@ struct MLVL : BigDNA
 
 }
 
-#endif // __DNAMP3_MLVL_HPP__

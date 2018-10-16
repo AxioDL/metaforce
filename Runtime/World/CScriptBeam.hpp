@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTBEAM_HPP__
-#define __URDE_CSCRIPTBEAM_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "Weapon/CBeamInfo.hpp"
@@ -23,4 +22,3 @@ public:
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
 };
 }
-#endif // __URDE_CSCRIPTBEAM_HPP__

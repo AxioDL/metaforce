@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTWAYPOINT_HPP__
-#define __URDE_CSCRIPTWAYPOINT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -32,4 +31,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTWAYPOINT_HPP__

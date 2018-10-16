@@ -16,7 +16,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
                        bool force,
                        std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+    hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
     if (!force && blendPath.isFile())
         return true;
 

@@ -1,5 +1,4 @@
-#ifndef INFORMATIONCENTER_HPP
-#define INFORMATIONCENTER_HPP
+#pragma once
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
@@ -68,4 +67,3 @@ public:
 };
 }
 
-#endif // INFORMATIONCENTER_HPP

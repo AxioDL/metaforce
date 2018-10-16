@@ -1,5 +1,4 @@
-#ifndef __URDE_CCONTROLMAPPER_HPP__
-#define __URDE_CCONTROLMAPPER_HPP__
+#pragma once
 
 namespace urde
 {
@@ -116,4 +115,3 @@ public:
 
 }
 
-#endif // __URDE_CCONTROLMAPPER_HPP__

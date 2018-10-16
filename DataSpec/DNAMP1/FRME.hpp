@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_FRME_HPP_
-#define _DNAMP1_FRME_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
@@ -317,4 +316,3 @@ struct FRME : BigDNA
 
 }
 
-#endif // _DNAMP1_FRME_HPP_

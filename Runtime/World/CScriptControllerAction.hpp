@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCONTROLLERACTION_HPP__
-#define __URDE_CSCRIPTCONTROLLERACTION_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "Input/ControlMapper.hpp"
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTCONTROLLERACTION_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLASMABEAM_HPP__
-#define __URDE_CPLASMABEAM_HPP__
+#pragma once
 
 #include "CGunWeapon.hpp"
 
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // __URDE_CPLASMABEAM_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDDECOINTERFACE_HPP__
-#define __URDE_CHUDDECOINTERFACE_HPP__
+#pragma once
 
 #include "zeus/CMatrix3f.hpp"
 #include "zeus/CQuaternion.hpp"
@@ -191,4 +190,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDDECOINTERFACE_HPP__

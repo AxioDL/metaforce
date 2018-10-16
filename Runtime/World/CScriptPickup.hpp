@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPICKUP_HPP__
-#define __URDE_CSCRIPTPICKUP_HPP__
+#pragma once
 
 #include "CPhysicsActor.hpp"
 #include "CPlayerState.hpp"
@@ -40,4 +39,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTPICKUP_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLESWOOSH_HPP__
-#define __URDE_CPARTICLESWOOSH_HPP__
+#pragma once
 
 #include "CParticleGen.hpp"
 #include "CToken.hpp"
@@ -16,10 +15,7 @@ class CSwooshDescription;
 
 class CParticleSwoosh : public CParticleGen
 {
-    friend struct OGLParticleSwooshDataBindingFactory;
-    friend struct VulkanParticleSwooshDataBindingFactory;
-    friend struct D3DParticleSwooshDataBindingFactory;
-    friend struct MetalParticleSwooshDataBindingFactory;
+    friend class CParticleSwooshShaders;
 
     struct SSwooshData
     {
@@ -227,4 +223,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLESWOOSH_HPP__

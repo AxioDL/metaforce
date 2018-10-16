@@ -1,5 +1,4 @@
-#ifndef __URDE_CTREEUTILS_HPP__
-#define __URDE_CTREEUTILS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -18,4 +17,3 @@ public:
 
 }
 
-#endif // __URDE_CTREEUTILS_HPP__

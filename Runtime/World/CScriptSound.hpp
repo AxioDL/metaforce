@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSOUND_HPP__
-#define __URDE_CSCRIPTSOUND_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -63,4 +62,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTSOUND_HPP__

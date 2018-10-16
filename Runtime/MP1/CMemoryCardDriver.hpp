@@ -1,5 +1,4 @@
-#ifndef __URDE_CMEMORYCARDDRIVER_HPP__
-#define __URDE_CMEMORYCARDDRIVER_HPP__
+#pragma once
 
 #include "CMemoryCardSys.hpp"
 #include "CGameState.hpp"
@@ -211,4 +210,3 @@ public:
 
 }
 
-#endif // __URDE_CMEMORYCARDDRIVER_HPP__

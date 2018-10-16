@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEDATAFACTORY_HPP__
-#define __URDE_CPARTICLEDATAFACTORY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -106,4 +105,3 @@ CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const
 
 }
 
-#endif // __URDE_CPARTICLEDATAFACTORY_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CCINEMATICCAMERA_HPP__
-#define __URDE_CCINEMATICCAMERA_HPP__
+#pragma once
 
 #include "CGameCamera.hpp"
 
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // __URDE_CCINEMATICCAMERA_HPP__

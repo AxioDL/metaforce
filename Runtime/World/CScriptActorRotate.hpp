@@ -1,5 +1,4 @@
-#ifndef CSCRIPTACTORROTATE_HPP
-#define CSCRIPTACTORROTATE_HPP
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CTransform.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // CSCRIPTACTORROTATE_HPP

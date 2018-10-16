@@ -28,29 +28,29 @@ static hecl::SystemString CPUFeatureString(const zeus::CPUInfo& cpuInf)
     auto AddFeature = [&features](const hecl::SystemChar* str)
     {
         if (!features.empty())
-            features += _S(", ");
+            features += _SYS_STR(", ");
         features += str;
     };
     if (cpuInf.AESNI)
-        AddFeature(_S("AES-NI"));
+        AddFeature(_SYS_STR("AES-NI"));
     if (cpuInf.SSE1)
-        AddFeature(_S("SSE"));
+        AddFeature(_SYS_STR("SSE"));
     if (cpuInf.SSE2)
-        AddFeature(_S("SSE2"));
+        AddFeature(_SYS_STR("SSE2"));
     if (cpuInf.SSE3)
-        AddFeature(_S("SSE3"));
+        AddFeature(_SYS_STR("SSE3"));
     if (cpuInf.SSSE3)
-        AddFeature(_S("SSSE3"));
+        AddFeature(_SYS_STR("SSSE3"));
     if (cpuInf.SSE4a)
-        AddFeature(_S("SSE4a"));
+        AddFeature(_SYS_STR("SSE4a"));
     if (cpuInf.SSE41)
-        AddFeature(_S("SSE4.1"));
+        AddFeature(_SYS_STR("SSE4.1"));
     if (cpuInf.SSE42)
-        AddFeature(_S("SSE4.2"));
+        AddFeature(_SYS_STR("SSE4.2"));
     if (cpuInf.AVX)
-        AddFeature(_S("AVX"));
+        AddFeature(_SYS_STR("AVX"));
     if (cpuInf.AVX2)
-        AddFeature(_S("AVX2"));
+        AddFeature(_SYS_STR("AVX2"));
     return features;
 }
 
@@ -64,7 +64,7 @@ struct Application : boo::IApplicationCallback
     std::atomic_bool m_running = {true};
 
     Application() :
-        m_fileMgr(_S("urde")),
+        m_fileMgr(_SYS_STR("urde")),
         m_cvarManager(m_fileMgr),
         m_cvarCommons(m_cvarManager)
     {
@@ -111,7 +111,7 @@ struct Application : boo::IApplicationCallback
         createGlobalCVars();
         for (const boo::SystemString& arg : app->getArgs())
         {
-            if (arg.find(_S("--verbosity=")) == 0 || arg.find(_S("-v=")) == 0)
+            if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0)
             {
                 hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
                 hecl::VerbosityLevel = atoi(utf8Arg.c_str());
@@ -124,7 +124,7 @@ struct Application : boo::IApplicationCallback
         const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
         Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
         Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
-        Log.report(logvisor::Info, _S("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
+        Log.report(logvisor::Info, _SYS_STR("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
     }
 
     std::string getGraphicsApi() const
@@ -192,7 +192,7 @@ static void SetupBasics(bool logging)
 static bool IsClientLoggingEnabled(int argc, const boo::SystemChar** argv)
 {
     for (int i = 1; i < argc; ++i)
-        if (!hecl::StrNCmp(argv[i], _S("-l"), 2))
+        if (!hecl::StrNCmp(argv[i], _SYS_STR("-l"), 2))
             return true;
     return false;
 }
@@ -204,7 +204,7 @@ int wmain(int argc, const boo::SystemChar** argv)
 int main(int argc, const boo::SystemChar** argv)
 #endif
 {
-    if (argc > 1 && !hecl::StrCmp(argv[1], _S("--dlpackage")))
+    if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage")))
     {
         printf("%s\n", URDE_DLPACKAGE);
         return 100;
@@ -215,16 +215,16 @@ int main(int argc, const boo::SystemChar** argv)
     if (hecl::SystemChar* cwd = hecl::Getcwd(CwdBuf, 1024))
     {
         if (hecl::PathRelative(argv[0]))
-            ExeDir = hecl::SystemString(cwd) + _S('/');
+            ExeDir = hecl::SystemString(cwd) + _SYS_STR('/');
         hecl::SystemString Argv0(argv[0]);
-        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_S("/\\"));
+        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
         if (lastIdx != hecl::SystemString::npos)
             ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
     }
 
     urde::Application appCb;
     int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto,
-        appCb, _S("urde"), _S("URDE"), argc, argv, appCb.getGraphicsApi(),
+        appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc, argv, appCb.getGraphicsApi(),
         appCb.getSamples(), appCb.getAnisotropy(), appCb.getDeepColor(), false);
     //printf("IM DYING!!\n");
     return ret;
@@ -240,7 +240,7 @@ int WINAPIV main(Platform::Array<Platform::String^>^ params)
 {
     SetupBasics(false);
     urde::Application appCb;
-    auto viewProvider = ref new boo::ViewProvider(appCb, _S("urde"), _S("URDE"), _S("urde"), params, false);
+    auto viewProvider = ref new boo::ViewProvider(appCb, _SYS_STR("urde"), _SYS_STR("URDE"), _SYS_STR("urde"), params, false);
     CoreApplication::Run(viewProvider);
     return 0;
 }

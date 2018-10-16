@@ -1,5 +1,4 @@
-#ifndef __URDE_IVPARAMOBJ_HPP__
-#define __URDE_IVPARAMOBJ_HPP__
+#pragma once
 
 #include <memory>
 #include "IObj.hpp"
@@ -40,4 +39,3 @@ public:
 
 }
 
-#endif // __URDE_IVPARAMOBJ_HPP__

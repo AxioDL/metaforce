@@ -31,13 +31,13 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     {
         hecl::ProjectPath areaDir = pakRouter.getWorking(area.areaMREAId).getParentPath();
         {
-            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _S("!memoryid.yaml")).getAbsolutePath());
+            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _SYS_STR("!memoryid.yaml")).getAbsolutePath());
             athena::io::YAMLDocWriter w(nullptr);
             w.writeUint32("memoryid", area.areaId);
             w.finish(&fw);
         }
         {
-            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _S("!memoryrelays.yaml")).getAbsolutePath());
+            athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _SYS_STR("!memoryrelays.yaml")).getAbsolutePath());
             athena::io::YAMLDocWriter w(nullptr);
 
             std::vector<atUint32> relayIds;
@@ -52,12 +52,12 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
             w.finish(&fw);
         }
         if (pakRouter.mreaHasDupeResources(area.areaMREAId))
-            athena::io::FileWriter(hecl::ProjectPath(areaDir, _S("!duperes")).getAbsolutePath());
+            athena::io::FileWriter(hecl::ProjectPath(areaDir, _SYS_STR("!duperes")).getAbsolutePath());
 
         areaIdx++;
     }
 
-    athena::io::FileWriter writer(outPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
+    athena::io::FileWriter writer(outPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
     athena::io::ToYAMLStream(mlvl, writer, &MLVL::writeMeta);
     hecl::blender::Connection& conn = btok.getBlenderConnection();
     return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
@@ -98,18 +98,18 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 hecl::blender::Token& btok)
 {
     MLVL mlvl = {};
-    athena::io::FileReader reader(inPath.getWithExtension(_S(".yaml"), true).getAbsolutePath());
+    athena::io::FileReader reader(inPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
     athena::io::FromYAMLStream(mlvl, reader, &MLVL::readMeta);
 
     mlvl.magic = 0xDEAFBABE;
     mlvl.version = 0x11;
-    hecl::ProjectPath namePath(inPath.getParentPath(), _S("!name.yaml"));
+    hecl::ProjectPath namePath(inPath.getParentPath(), _SYS_STR("!name.yaml"));
     if (namePath.isFile())
         mlvl.worldNameId = namePath;
-    hecl::ProjectPath globPath = inPath.getWithExtension(_S(".*"), true);
-    hecl::ProjectPath savwPath = globPath.ensureAuxInfo(_S("SAVW"));
+    hecl::ProjectPath globPath = inPath.getWithExtension(_SYS_STR(".*"), true);
+    hecl::ProjectPath savwPath = globPath.ensureAuxInfo(_SYS_STR("SAVW"));
     mlvl.saveWorldId = savwPath;
-    hecl::ProjectPath mapwPath = globPath.ensureAuxInfo(_S("MAPW"));
+    hecl::ProjectPath mapwPath = globPath.ensureAuxInfo(_SYS_STR("MAPW"));
     mlvl.worldMap = mapwPath;
 
     size_t areaIdx = 0;
@@ -119,13 +119,13 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
             continue;
 
-        hecl::ProjectPath areaPath(area.path, _S("!area.blend"));
+        hecl::ProjectPath areaPath(area.path, _SYS_STR("!area.blend"));
         if (!areaPath.isFile())
             continue;
 
-        Log.report(logvisor::Info, _S("Visiting %s"), area.path.getRelativePath().data());
+        Log.report(logvisor::Info, _SYS_STR("Visiting %s"), area.path.getRelativePath().data());
 
-        hecl::ProjectPath memRelayPath(area.path, _S("!memoryrelays.yaml"));
+        hecl::ProjectPath memRelayPath(area.path, _SYS_STR("!memoryrelays.yaml"));
 
         std::vector<atUint32> memRelays;
 
@@ -155,7 +155,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             else
                 layerName = hecl::StringUtils::TrimWhitespace(hecl::SystemString(endCh));
 
-            hecl::ProjectPath objectsPath(area.path, e.m_name + _S("/!objects.yaml"));
+            hecl::ProjectPath objectsPath(area.path, e.m_name + _SYS_STR("/!objects.yaml"));
             if (objectsPath.isNone())
                 continue;
 
@@ -177,7 +177,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             layerResources.beginLayer();
 
             /* Set active flag state */
-            hecl::ProjectPath defActivePath(area.path, e.m_name + _S("/!defaultactive"));
+            hecl::ProjectPath defActivePath(area.path, e.m_name + _SYS_STR("/!defaultactive"));
             bool active = defActivePath.isNone() ? false : true;
 
             if (!areaInit)
@@ -189,7 +189,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 mlvl.areas.emplace_back();
                 MLVL::Area& areaOut = mlvl.areas.back();
 
-                hecl::ProjectPath namePath(area.path, _S("!name.yaml"));
+                hecl::ProjectPath namePath(area.path, _SYS_STR("!name.yaml"));
                 if (namePath.isFile())
                     areaOut.areaNameId = namePath;
 
@@ -201,7 +201,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 areaOut.areaMREAId = areaPath;
                 areaOut.areaId = 0xffffffff;
 
-                hecl::ProjectPath memIdPath(area.path, _S("!memoryid.yaml"));
+                hecl::ProjectPath memIdPath(area.path, _SYS_STR("!memoryid.yaml"));
                 if (memIdPath.isFile())
                 {
                     athena::io::FileReader fr(memIdPath.getAbsolutePath());
@@ -316,7 +316,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         }
 
         if (!areaInit)
-            Log.report(logvisor::Info, _S("No layer directories for area %s"), area.path.getRelativePath().data());
+            Log.report(logvisor::Info, _SYS_STR("No layer directories for area %s"), area.path.getRelativePath().data());
 
         /* Build deplist */
         MLVL::Area& areaOut = mlvl.areas.back();
@@ -369,7 +369,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 }
             }
 
-            hecl::ProjectPath pathPath(areaPath.getParentPath(), _S("!path.blend"));
+            hecl::ProjectPath pathPath(areaPath.getParentPath(), _SYS_STR("!path.blend"));
             urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath, btok);
             if (pathTag.id.IsValid())
             {
@@ -416,7 +416,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath,
             continue;
 
         /* Area map */
-        hecl::ProjectPath mapPath(area.path, _S("/!map.blend"));
+        hecl::ProjectPath mapPath(area.path, _SYS_STR("/!map.blend"));
         if (mapPath.isFile())
             mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath, btok));
     }
@@ -451,11 +451,11 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath,
         if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
             continue;
 
-        hecl::ProjectPath areaPath(area.path, _S("/!area.blend"));
+        hecl::ProjectPath areaPath(area.path, _SYS_STR("/!area.blend"));
         if (!areaPath.isFile())
             continue;
 
-        hecl::ProjectPath memRelayPath(area.path, _S("/!memoryrelays.yaml"));
+        hecl::ProjectPath memRelayPath(area.path, _SYS_STR("/!memoryrelays.yaml"));
         std::vector<atUint32> memRelays;
         if (memRelayPath.isFile())
         {
@@ -478,7 +478,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath,
             else
                 layerName = hecl::StringUtils::TrimWhitespace(hecl::SystemString(endCh));
 
-            hecl::ProjectPath objectsPath(area.path, e.m_name + _S("/!objects.yaml"));
+            hecl::ProjectPath objectsPath(area.path, e.m_name + _SYS_STR("/!objects.yaml"));
             if (objectsPath.isNone())
                 continue;
 

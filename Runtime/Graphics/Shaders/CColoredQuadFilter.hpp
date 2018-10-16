@@ -1,7 +1,5 @@
-#ifndef __URDE_CCOLOREDQUADFILTER_HPP__
-#define __URDE_CCOLOREDQUADFILTER_HPP__
+#pragma once
 
-#include "TMultiBlendShader.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CRectangle.hpp"
@@ -12,11 +10,6 @@ namespace urde
 
 class CColoredQuadFilter
 {
-    friend struct CColoredQuadFilterGLDataBindingFactory;
-    friend struct CColoredQuadFilterVulkanDataBindingFactory;
-    friend struct CColoredQuadFilterMetalDataBindingFactory;
-    friend struct CColoredQuadFilterD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CMatrix4f m_matrix;
@@ -28,15 +21,14 @@ class CColoredQuadFilter
     Uniform m_uniform;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     static const zeus::CRectangle DefaultRect;
     CColoredQuadFilter(EFilterType type);
     CColoredQuadFilter(EFilterType type, const TLockedToken<CTexture>&)
     : CColoredQuadFilter(type) {}
     void draw(const zeus::CColor& color, const zeus::CRectangle& rect=DefaultRect);
     void DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) { draw(color); }
-
-    using _CLS = CColoredQuadFilter;
-#include "TMultiBlendShaderDecl.hpp"
 };
 
 class CWideScreenFilter
@@ -57,4 +49,3 @@ public:
 
 }
 
-#endif // __URDE_CCOLOREDQUADFILTER_HPP__

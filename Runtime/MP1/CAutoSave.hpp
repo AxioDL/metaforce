@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUTOSAVE_HPP__
-#define __URDE_CAUTOSAVE_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 
@@ -13,4 +12,3 @@ public:
     CAutoSave();
 };
 }
-#endif // __URDE_CAUTOSAVE_HPP__

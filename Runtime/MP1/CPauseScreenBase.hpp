@@ -1,5 +1,4 @@
-#ifndef __URDE_CPAUSESCREENBASE_HPP__
-#define __URDE_CPAUSESCREENBASE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -136,4 +135,3 @@ public:
 }
 }
 
-#endif // __URDE_CPAUSESCREENBASE_HPP__

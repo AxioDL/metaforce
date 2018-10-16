@@ -1,5 +1,4 @@
-#ifndef __URDE_CEMITTERELEMENT_HPP__
-#define __URDE_CEMITTERELEMENT_HPP__
+#pragma once
 
 #include "IElement.hpp"
 
@@ -52,4 +51,3 @@ public:
 
 }
 
-#endif // __URDE_CEMITTERELEMENT_HPP__

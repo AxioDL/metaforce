@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSHADOWPROJECTOR_HPP__
-#define __URDE_CSCRIPTSHADOWPROJECTOR_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 
@@ -39,4 +38,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTSHADOWPROJECTOR_HPP__

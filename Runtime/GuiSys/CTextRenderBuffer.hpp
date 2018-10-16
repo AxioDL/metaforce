@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEXTRENDERBUFFER_HPP__
-#define __URDE_CTEXTRENDERBUFFER_HPP__
+#pragma once
 
 #include "zeus/CColor.hpp"
 #include "zeus/CVector2i.hpp"
@@ -142,4 +141,3 @@ public:
 
 }
 
-#endif // __URDE_CTEXTRENDERBUFFER_HPP__

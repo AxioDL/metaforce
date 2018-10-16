@@ -1,5 +1,4 @@
-#ifndef __URDE_CARCHITECTUREQUEUE_HPP__
-#define __URDE_CARCHITECTUREQUEUE_HPP__
+#pragma once
 
 #include <list>
 #include "CArchitectureMessage.hpp"
@@ -27,4 +26,3 @@ public:
 
 }
 
-#endif // __URDE_CARCHITECTUREQUEUE_HPP__

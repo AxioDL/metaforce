@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMATIONSET_HPP__
-#define __URDE_CANIMATIONSET_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CAnimation.hpp"
@@ -34,4 +33,3 @@ public:
 };
 }
 
-#endif // __URDE_CANIMATIONSET_HPP__

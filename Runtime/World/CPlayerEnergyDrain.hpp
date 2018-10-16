@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYERENERGYDRAIN_HPP__
-#define __URDE_CPLAYERENERGYDRAIN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CEnergyDrainSource.hpp"
@@ -22,4 +21,3 @@ public:
     void ProcessEnergyDrain(const CStateManager&, float);
 };
 }
-#endif // __URDE_CPLAYERENERGYDRAIN_HPP__

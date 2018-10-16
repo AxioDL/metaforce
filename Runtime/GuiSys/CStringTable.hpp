@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTRINGTABLE_HPP__
-#define __URDE_CSTRINGTABLE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IFactory.hpp"
@@ -25,4 +24,3 @@ public:
 CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream&, const CVParamTransfer&,
                                      CObjectReference* selfRef);
 }
-#endif // __URDE_CSTRINGTABLE_HPP__

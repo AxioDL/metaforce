@@ -1,5 +1,4 @@
-#ifndef __URDE_CMFGAME_HPP__
-#define __URDE_CMFGAME_HPP__
+#pragma once
 
 #include "CMFGameBase.hpp"
 #include "CInGameGuiManager.hpp"
@@ -91,4 +90,3 @@ public:
 }
 }
 
-#endif // __URDE_CMFGAME_HPP__

@@ -92,7 +92,7 @@ bool MREA::Extract(const SpecBase& dataSpec,
 
     /* MREA decompression stream */
     StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
-    hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP3ORIG).getWithExtension(_S(".decomp"));
+    hecl::ProjectPath decompPath = outPath.getCookedPath(SpecEntMP3ORIG).getWithExtension(_SYS_STR(".decomp"));
     decompPath.makeDirChain(false);
     athena::io::FileWriter mreaDecompOut(decompPath.getAbsolutePath());
     head.write(mreaDecompOut);

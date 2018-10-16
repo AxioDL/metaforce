@@ -1,10 +1,9 @@
-#ifndef __URDE_CTEXTSUPPORTSHADER_HPP__
-#define __URDE_CTEXTSUPPORTSHADER_HPP__
+#pragma once
 
-#include "TMultiBlendShader.hpp"
 #include "GuiSys/CGuiWidget.hpp"
 #include "hecl/VertexBufferPool.hpp"
 #include "hecl/UniformBufferPool.hpp"
+#include "zeus/CVector2i.hpp"
 
 namespace urde
 {
@@ -14,18 +13,12 @@ class CFontImageDef;
 
 class CTextSupportShader
 {
-    friend struct CTextSupportShaderGLDataBindingFactory;
-    friend struct CTextSupportShaderVulkanDataBindingFactory;
-    friend struct CTextSupportShaderMetalDataBindingFactory;
-    friend struct CTextSupportShaderD3DDataBindingFactory;
     friend class CTextRenderBuffer;
 
-    static boo::ObjToken<boo::IVertexFormat> s_TextVtxFmt;
     static boo::ObjToken<boo::IShaderPipeline> s_TextAlphaPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_TextAddPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_TextAddOverdrawPipeline;
 
-    static boo::ObjToken<boo::IVertexFormat> s_ImageVtxFmt;
     static boo::ObjToken<boo::IShaderPipeline> s_ImageAlphaPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_ImageAddPipeline;
     static boo::ObjToken<boo::IShaderPipeline> s_ImageAddOverdrawPipeline;
@@ -59,8 +52,6 @@ class CTextSupportShader
     static hecl::UniformBufferPool<Uniform> s_Uniforms;
 
 public:
-    using _CLS = CTextSupportShader;
-#include "TMultiBlendShaderDecl.hpp"
 
     static boo::ObjToken<boo::IShaderPipeline> SelectTextPipeline(CGuiWidget::EGuiModelDrawFlags df)
     {
@@ -111,9 +102,9 @@ public:
         s_Uniforms.updateBuffers();
     }
 
+    static void Initialize();
     static void Shutdown();
 };
 
 }
 
-#endif // __URDE_CTEXTSUPPORTSHADER_HPP__

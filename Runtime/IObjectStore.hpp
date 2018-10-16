@@ -1,5 +1,4 @@
-#ifndef __URDE_IOBJECTSTORE_HPP__
-#define __URDE_IOBJECTSTORE_HPP__
+#pragma once
 
 #include <string_view>
 
@@ -27,4 +26,3 @@ public:
 
 }
 
-#endif // __URDE_IOBJECTSTORE_HPP__

@@ -26,7 +26,8 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
     for (const auto& info : chResInfo)
     {
         const nod::Node* node;
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true, true);
+        const typename PAKRouter::EntryType* cmdlE =
+            pakRouter.lookupEntry(info.cmdl, &node, true, false);
         if (cmdlE)
         {
             hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -55,6 +56,44 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
         }
     }
 
+    /* Extract attachment CMDL/CSKRs first */
+    auto attRange = pakRouter.lookupCharacterAttachmentRigs(entry.id);
+    for (auto it = attRange.first; it != attRange.second; ++it)
+    {
+        auto cmdlid = it->second.first.second;
+
+        const nod::Node* node;
+        const typename PAKRouter::EntryType* cmdlE =
+            pakRouter.lookupEntry(cmdlid, &node, true, false);
+        if (cmdlE)
+        {
+            hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+            if (force || cmdlPath.isNone())
+            {
+                if (!conn.createBlend(cmdlPath, hecl::blender::BlendType::Mesh))
+                    return false;
+
+                std::string bestName = pakRouter.getBestEntryName(*cmdlE);
+                hecl::SystemStringConv bestNameView(bestName);
+                fileChanged(bestNameView.c_str());
+
+                const auto* rp = pakRouter.lookupCMDLRigPair(cmdlid);
+                typename ANCSDNA::CSKRType cskr;
+                pakRouter.lookupAndReadDNA(rp->first, cskr);
+                typename ANCSDNA::CINFType cinf;
+                pakRouter.lookupAndReadDNA(rp->second, cinf);
+                using RigPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
+                RigPair rigPair(&cskr, &cinf);
+
+                PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
+                DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RigPair, SurfaceHeader, CMDLVersion>
+                    (conn, rs, pakRouter, *cmdlE, dataspec, rigPair);
+
+                conn.saveBlend();
+            }
+        }
+    }
+
     std::string bestName = pakRouter.getBestEntryName(entry);
     hecl::SystemStringConv bestNameView(bestName);
     fileChanged(bestNameView.c_str());
@@ -69,20 +108,21 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
         hecl::blender::PyOutStream os = conn.beginPythonOut(true);
 
         os.format("import bpy\n"
-                      "from mathutils import Vector\n"
-                      "bpy.context.scene.name = '%s'\n"
-                      "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
-                      "\n"
-                      "# Using 'Blender Game'\n"
-                      "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-                      "\n"
-                      "# Clear Scene\n"
-                      "for ob in bpy.data.objects:\n"
-                      "    if ob.type != 'LAMP' and ob.type != 'CAMERA':\n"
-                      "        bpy.context.scene.objects.unlink(ob)\n"
-                      "        bpy.data.objects.remove(ob)\n"
-                      "\n"
-                      "actor_data = bpy.context.scene.hecl_sact_data\n",
+                  "from mathutils import Vector\n"
+                  "bpy.context.scene.name = '%s'\n"
+                  "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
+                  "\n"
+                  "# Using 'Blender Game'\n"
+                  "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
+                  "\n"
+                  "# Clear Scene\n"
+                  "for ob in bpy.data.objects:\n"
+                  "    if ob.type != 'LAMP' and ob.type != 'CAMERA':\n"
+                  "        bpy.context.scene.objects.unlink(ob)\n"
+                  "        bpy.data.objects.remove(ob)\n"
+                  "\n"
+                  "actor_data = bpy.context.scene.hecl_sact_data\n"
+                  "arm_obj = None\n",
                   pakRouter.getBestEntryName(entry).c_str());
 
         std::unordered_set<typename PAKRouter::IDType> cinfsDone;
@@ -90,7 +130,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
         {
             /* Provide data to add-on */
             os.format("actor_subtype = actor_data.subtypes.add()\n"
-                          "actor_subtype.name = '%s'\n\n",
+                      "actor_subtype.name = '%s'\n\n",
                       info.name.c_str());
 
             /* Build CINF if needed */
@@ -111,7 +151,8 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
             os << "actor_subtype.linked_armature = arm_obj.name\n";
 
             /* Link CMDL */
-            const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true, true);
+            const typename PAKRouter::EntryType* cmdlE =
+                pakRouter.lookupEntry(info.cmdl, nullptr, true, false);
             if (cmdlE)
             {
                 hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -130,10 +171,11 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
             for (const auto& overlay : info.overlays)
             {
                 os << "overlay = actor_subtype.overlays.add()\n";
-                os.format("overlay.name = '%s'\n", overlay.first.toString().c_str());
+                os.format("overlay.name = '%s'\n", overlay.first.c_str());
 
                 /* Link CMDL */
-                const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true, true);
+                const typename PAKRouter::EntryType* cmdlE =
+                    pakRouter.lookupEntry(overlay.second.first, nullptr, true, false);
                 if (cmdlE)
                 {
                     hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
@@ -149,6 +191,53 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
                 }
             }
         }
+
+        /* Link attachments */
+        for (auto it = attRange.first; it != attRange.second; ++it)
+        {
+            os << "attachment = actor_data.attachments.add()\n";
+            os.format("attachment.name = '%s'\n", it->second.second.c_str());
+
+            auto cinfid = it->second.first.first;
+            auto cmdlid = it->second.first.second;
+
+            if (cinfid)
+            {
+                /* Build CINF if needed */
+                if (cinfsDone.find(cinfid) == cinfsDone.end())
+                {
+                    typename ANCSDNA::CINFType cinf;
+                    pakRouter.lookupAndReadDNA(cinfid, cinf);
+                    cinf.sendCINFToBlender(os, cinfid);
+                    if (cinfsDone.empty())
+                    {
+                        firstName = ANCSDNA::CINFType::GetCINFArmatureName(cinfid);
+                        firstCinf = cinf;
+                    }
+                    cinfsDone.insert(cinfid);
+                }
+                else
+                    os.format("arm_obj = bpy.data.objects['CINF_%s']\n", cinfid.toString().c_str());
+                os << "attachment.linked_armature = arm_obj.name\n";
+            }
+
+            /* Link CMDL */
+            const typename PAKRouter::EntryType* cmdlE =
+                pakRouter.lookupEntry(cmdlid, nullptr, true, false);
+            if (cmdlE)
+            {
+                hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
+                os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(),
+                             pakRouter.getBestEntryName(*cmdlE).data(), true);
+
+                /* Attach CMDL to CINF */
+                os << "if obj.name not in bpy.context.scene.objects:\n"
+                      "    bpy.context.scene.objects.link(obj)\n"
+                      "obj.parent = arm_obj\n"
+                      "obj.parent_type = 'ARMATURE'\n"
+                      "attachment.linked_mesh = obj.name\n\n";
+            }
+        }
     }
 
     {
@@ -160,7 +249,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
 
         hecl::blender::PyOutStream os = conn.beginPythonOut(true);
         os << "import bpy\n"
-            "actor_data = bpy.context.scene.hecl_sact_data\n";
+              "actor_data = bpy.context.scene.hecl_sact_data\n";
 
         /* Get animation primitives */
         std::map<atUint32, AnimationResInfo<typename PAKRouter::IDType>> animResInfo;

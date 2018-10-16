@@ -1,5 +1,4 @@
-#ifndef URDE_CMETROIDPRIMEPROJECTILE_HPP
-#define URDE_CMETROIDPRIMEPROJECTILE_HPP
+#pragma once
 
 #include "Weapon/CEnergyProjectile.hpp"
 
@@ -36,4 +35,3 @@ public:
 
 }
 
-#endif // URDE_CMETROIDPRIMEPROJECTILE_HPP

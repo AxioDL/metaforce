@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLIDABLEOBBTREE_HPP__
-#define __URDE_CCOLLIDABLEOBBTREE_HPP__
+#pragma once
 
 #include "Collision/CCollisionPrimitive.hpp"
 #include "COBBTree.hpp"
@@ -85,4 +84,3 @@ public:
 
 }
 
-#endif // __URDE_CCOLLIDABLEOBBTREE_HPP__

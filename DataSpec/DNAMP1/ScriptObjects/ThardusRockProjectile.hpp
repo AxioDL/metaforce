@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_THARDUSROCKPROJECTILE_HPP_
-#define _DNAMP1_THARDUSROCKPROJECTILE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -23,10 +22,9 @@ struct ThardusRockProjectile : IScriptObject
     UniqueID32 model;
     UniqueID32 stateMachine;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        actorParameters.addCMDLRigPairs(addTo, patternedInfo.animationParameters.getCINF(pakRouter));
+        actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
@@ -61,4 +59,3 @@ struct ThardusRockProjectile : IScriptObject
 };
 }
 
-#endif

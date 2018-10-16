@@ -45,6 +45,12 @@ if(NOT INKSCAPE_BIN)
   add_custom_command(OUTPUT icons.bin COMMAND ${CMAKE_COMMAND} ARGS -P
       ${CMAKE_CURRENT_SOURCE_DIR}/IconDownload.cmake)
 else()
+  if(APPLE)
+    get_filename_component(INKSCAPE_DIR ${INKSCAPE_BIN} DIRECTORY)
+    if(EXISTS "${INKSCAPE_DIR}/../Resources/bin/inkscape")
+      set(INKSCAPE_BIN "${INKSCAPE_DIR}/../Resources/bin/inkscape")
+    endif()
+  endif()
   message(STATUS "Inkscape found; will render icons locally")
   add_custom_command(OUTPUT icons.bin COMMAND $<TARGET_FILE:packicons>
                      ARGS ${INKSCAPE_BIN} ${CMAKE_CURRENT_SOURCE_DIR}/icons.svg

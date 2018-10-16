@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDBILLBOARDEFFECT_HPP__
-#define __URDE_CHUDBILLBOARDEFFECT_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "World/CEffect.hpp"
@@ -39,4 +38,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDBILLBOARDEFFECT_HPP__

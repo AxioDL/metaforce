@@ -1,5 +1,4 @@
-#ifndef __URDE_IOSTREAMS_HPP__
-#define __URDE_IOSTREAMS_HPP__
+#pragma once
 
 #include "GCNTypes.hpp"
 #include <athena/IStreamReader.hpp>
@@ -72,4 +71,3 @@ public:
 
 }
 
-#endif // __URDE_IOSTREAMS_HPP__

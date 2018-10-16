@@ -1,5 +1,4 @@
-#ifndef __URDE_CPOWERBOMB_HPP__
-#define __URDE_CPOWERBOMB_HPP__
+#pragma once
 
 #include "CWeapon.hpp"
 #include "CToken.hpp"
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // __URDE_CPOWERBOMB_HPP__

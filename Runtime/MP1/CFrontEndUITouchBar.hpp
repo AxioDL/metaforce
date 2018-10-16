@@ -1,5 +1,4 @@
-#ifndef __URDE_CFRONTENDUITOUCHBAR_HPP__
-#define __URDE_CFRONTENDUITOUCHBAR_HPP__
+#pragma once
 
 #include <memory>
 
@@ -69,4 +68,3 @@ std::unique_ptr<CFrontEndUITouchBar> NewFrontEndUITouchBar();
 
 }
 
-#endif // __URDE_CFRONTENDUITOUCHBAR_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREETRANSITION_HPP__
-#define __URDE_CANIMTREETRANSITION_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CAnimTreeTweenBase.hpp"
@@ -41,4 +40,3 @@ public:
 };
 }
 
-#endif // __URDE_CANIMTREETRANSITION_HPP__

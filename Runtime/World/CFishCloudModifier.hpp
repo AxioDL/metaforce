@@ -1,5 +1,4 @@
-#ifndef __URDE_CFISHCLOUDMODIFIER_HPP__
-#define __URDE_CFISHCLOUDMODIFIER_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -21,4 +20,3 @@ public:
 };
 }
 
-#endif

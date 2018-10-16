@@ -1,5 +1,4 @@
-#ifndef __URDE_CPATHFINDREGION_HPP__
-#define __URDE_CPATHFINDREGION_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -127,4 +126,3 @@ public:
 };
 }
 
-#endif // __URDE_CPATHFINDREGION_HPP__

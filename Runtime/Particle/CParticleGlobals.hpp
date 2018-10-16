@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEGLOBALS_HPP__
-#define __URDE_CPARTICLEGLOBALS_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CVector4f.hpp"
@@ -85,4 +84,3 @@ struct SParticleUniforms
 
 }
 
-#endif // __URDE_CPARTICLEGLOBALS_HPP__

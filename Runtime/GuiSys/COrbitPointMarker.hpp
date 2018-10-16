@@ -1,5 +1,4 @@
-#ifndef __URDE_CORBITPOINTMARKER_HPP__
-#define __URDE_CORBITPOINTMARKER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -27,4 +26,3 @@ public:
     void Draw(const CStateManager& mgr) const;
 };
 }
-#endif // __URDE_CORBITPOINTMARKER_HPP__

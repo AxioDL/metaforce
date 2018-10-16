@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_HUDMEMO_HPP_
-#define _DNAMP1_HUDMEMO_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -35,4 +34,3 @@ struct HUDMemo : IScriptObject
 };
 }
 
-#endif

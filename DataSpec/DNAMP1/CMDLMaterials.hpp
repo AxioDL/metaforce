@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CMDL_MATERIALS_HPP_
-#define _DNAMP1_CMDL_MATERIALS_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/GX.hpp"
@@ -391,4 +390,3 @@ struct HMDLMaterialSet : BigDNA
 
 }
 
-#endif // _DNAMP1_CMDL_MATERIALS_HPP_

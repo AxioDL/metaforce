@@ -1,5 +1,4 @@
-#ifndef __URDE_CTOKEN_HPP__
-#define __URDE_CTOKEN_HPP__
+#pragma once
 
 #include <memory>
 #include "IObj.hpp"
@@ -188,4 +187,3 @@ public:
 
 }
 
-#endif // __URDE_CTOKEN_HPP__

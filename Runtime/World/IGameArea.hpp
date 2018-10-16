@@ -1,5 +1,4 @@
-#ifndef __URDE_IGAMEAREA_HPP__
-#define __URDE_IGAMEAREA_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
@@ -64,4 +63,3 @@ enum class EChain
 
 }
 
-#endif // __URDE_IGAMEAREA_HPP__

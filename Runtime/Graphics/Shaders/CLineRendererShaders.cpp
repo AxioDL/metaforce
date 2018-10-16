@@ -1,4 +1,6 @@
 #include "CLineRendererShaders.hpp"
+#include "Graphics/CLineRenderer.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
@@ -17,43 +19,20 @@ boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAdditiveZ;
 
 boo::ObjToken<boo::IShaderPipeline> CLineRendererShaders::m_noTexAlphaZGEqual;
 
-boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_texVtxFmt;
-boo::ObjToken<boo::IVertexFormat> CLineRendererShaders::m_noTexVtxFmt;
-
-std::unique_ptr<CLineRendererShaders::IDataBindingFactory> CLineRendererShaders::m_bindFactory;
-
 void CLineRendererShaders::Initialize()
 {
-    if (!CGraphics::g_BooFactory)
-        return;
-
     CGraphics::CommitResources(
-    [&](boo::IGraphicsDataFactory::Context& ctx)
+    [](boo::IGraphicsDataFactory::Context& ctx)
     {
-        switch (ctx.platform())
-        {
-#if BOO_HAS_GL
-        case boo::IGraphicsDataFactory::Platform::OpenGL:
-            m_bindFactory.reset(Initialize(static_cast<boo::GLDataFactory::Context&>(ctx)));
-            break;
-#endif
-#if _WIN32
-        case boo::IGraphicsDataFactory::Platform::D3D11:
-            m_bindFactory.reset(Initialize(static_cast<boo::D3DDataFactory::Context&>(ctx)));
-            break;
-#endif
-#if BOO_HAS_METAL
-        case boo::IGraphicsDataFactory::Platform::Metal:
-            m_bindFactory.reset(Initialize(static_cast<boo::MetalDataFactory::Context&>(ctx)));
-            break;
-#endif
-#if BOO_HAS_VULKAN
-        case boo::IGraphicsDataFactory::Platform::Vulkan:
-            m_bindFactory.reset(Initialize(static_cast<boo::VulkanDataFactory::Context&>(ctx)));
-            break;
-#endif
-        default: break;
-        }
+        m_texAlpha = hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlpha{});
+        m_texAdditive = hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditive{});
+        m_noTexAlpha = hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlpha{});
+        m_noTexAdditive = hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditive{});
+        m_texAlphaZ = hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAlphaZ{});
+        m_texAdditiveZ = hecl::conv->convert(ctx, Shader_CLineRendererShaderTexAdditiveZ{});
+        m_noTexAlphaZ = hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZ{});
+        m_noTexAdditiveZ = hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAdditiveZ{});
+        m_noTexAlphaZGEqual = hecl::conv->convert(ctx, Shader_CLineRendererShaderNoTexAlphaZGEqual{});
         return true;
     } BooTrace);
 }
@@ -69,8 +48,6 @@ void CLineRendererShaders::Shutdown()
     m_noTexAlphaZ.reset();
     m_noTexAdditiveZ.reset();
     m_noTexAlphaZGEqual.reset();
-    m_texVtxFmt.reset();
-    m_noTexVtxFmt.reset();
 }
 
 void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx,
@@ -119,7 +96,34 @@ void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Con
         }
     }
 
-    m_bindFactory->BuildShaderDataBinding(ctx, renderer, pipeline, texture);
+    int texCount = 0;
+    boo::ObjToken<boo::ITexture> textures[1];
+
+    std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+        hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp> vbufInfo;
+    std::pair<boo::ObjToken<boo::IGraphicsBufferD>,
+        hecl::UniformBufferPool<CLineRenderer::SDrawUniform>::IndexTp> ubufInfo =
+        renderer.m_uniformBuf.getBufferInfo();
+    if (texture)
+    {
+        vbufInfo = renderer.m_vertBufTex.getBufferInfo();
+        textures[0] = texture;
+        texCount = 1;
+    }
+    else
+    {
+        vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
+    }
+
+    boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
+    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+    size_t ubufOffs[] = {size_t(ubufInfo.second)};
+    size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
+
+    renderer.m_shaderBind = ctx.newShaderDataBinding(pipeline, vbufInfo.first.get(),
+                                                     nullptr, nullptr, 1, uniforms, stages,
+                                                     ubufOffs, ubufSizes, texCount, textures,
+                                                     nullptr, nullptr, vbufInfo.second);
 }
 
 }

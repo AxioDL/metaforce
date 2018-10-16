@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDVISORBEAMMENU_HPP__
-#define __URDE_CHUDVISORBEAMMENU_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include <cfloat>
@@ -70,4 +69,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDVISORBEAMMENU_HPP__

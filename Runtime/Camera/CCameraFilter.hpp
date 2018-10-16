@@ -1,5 +1,4 @@
-#ifndef __URDE_CCAMERAFILTER_HPP__
-#define __URDE_CCAMERAFILTER_HPP__
+#pragma once
 
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
@@ -120,4 +119,3 @@ public:
 
 }
 
-#endif // __URDE_CCAMERAFILTER_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CTRANSITIONDATABASE_HPP__
-#define __URDE_CTRANSITIONDATABASE_HPP__
+#pragma once
 
 #include "../RetroTypes.hpp"
 
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_CTRANSITIONDATABASE_HPP__

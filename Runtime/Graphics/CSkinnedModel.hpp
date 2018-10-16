@@ -1,5 +1,4 @@
-#ifndef __URDE_CSKINNEDMODEL_HPP__
-#define __URDE_CSKINNEDMODEL_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "CModel.hpp"
@@ -70,4 +69,3 @@ public:
 
 }
 
-#endif // __URDE_CSKINNEDMODEL_HPP__

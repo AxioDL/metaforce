@@ -1,5 +1,4 @@
-#ifndef URDE_CAMERA_HPP
-#define URDE_CAMERA_HPP
+#pragma once
 
 #include "zeus/CProjection.hpp"
 #include "zeus/CFrustum.hpp"
@@ -29,4 +28,3 @@ public:
 }
 
 
-#endif // URDE_CAMERA_HPP

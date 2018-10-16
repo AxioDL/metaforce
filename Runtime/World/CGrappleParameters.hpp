@@ -1,5 +1,4 @@
-#ifndef __URDE_CGRAPPLEPARAMETERS_HPP__
-#define __URDE_CGRAPPLEPARAMETERS_HPP__
+#pragma once
 
 namespace urde
 {
@@ -31,4 +30,3 @@ public:
 
 }
 
-#endif // __URDE_CGRAPPLEPARAMETERS_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAMUSHUD_HPP__
-#define __URDE_CSAMUSHUD_HPP__
+#pragma once
 
 #include "CInGameGuiManager.hpp"
 #include "GuiSys/CTargetingManager.hpp"
@@ -272,4 +271,3 @@ public:
 }
 }
 
-#endif // __URDE_CSAMUSHUD_HPP__

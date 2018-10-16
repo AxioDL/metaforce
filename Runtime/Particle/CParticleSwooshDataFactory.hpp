@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__
-#define __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -23,4 +22,3 @@ CFactoryFnReturn FParticleSwooshDataFactory(const SObjectTag& tag, CInputStream&
                                             CObjectReference*);
 }
 
-#endif // __URDE_CPARTICLESWOOSHDATAFACTORY_HPP__

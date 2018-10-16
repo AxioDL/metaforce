@@ -1,7 +1,7 @@
-#ifndef __URDE_CSPACEWARPFILTER_HPP__
-#define __URDE_CSPACEWARPFILTER_HPP__
+#pragma once
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "RetroTypes.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 
@@ -10,11 +10,6 @@ namespace urde
 
 class CSpaceWarpFilter
 {
-    friend struct CSpaceWarpFilterGLDataBindingFactory;
-    friend struct CSpaceWarpFilterVulkanDataBindingFactory;
-    friend struct CSpaceWarpFilterMetalDataBindingFactory;
-    friend struct CSpaceWarpFilterD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CMatrix4f m_matrix;
@@ -32,14 +27,12 @@ class CSpaceWarpFilter
     void GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx);
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CSpaceWarpFilter();
     void setStrength(float strength) { m_strength = strength; }
     void draw(const zeus::CVector3f& pt);
-
-    using _CLS = CSpaceWarpFilter;
-#include "TShaderDecl.hpp"
 };
 
 }
 
-#endif // __URDE_CSPACEWARPFILTER_HPP__

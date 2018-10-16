@@ -1,5 +1,4 @@
-#ifndef __URDE_CAREAOCTTREE_HPP__
-#define __URDE_CAREAOCTTREE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CAABox.hpp"
@@ -147,4 +146,3 @@ public:
 
 }
 
-#endif // __URDE_CAREAOCTTREE_HPP__

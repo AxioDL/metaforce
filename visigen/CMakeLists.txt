@@ -27,6 +27,11 @@ add_executable(visigen ${PLAT_SRCS}
 
 set_target_properties(visigen PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 
+if(APPLE)
+  find_library(OPENGL_LIBRARY OpenGL)
+  set(PLAT_LIBS ${OPENGL_LIBRARY})
+endif()
+
 target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew
-                      xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS})
+                      xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS} ${PLAT_LIBS})
 endif()

@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_SCLY_HPP_
-#define _DNAMP1_SCLY_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "ScriptObjects/IScriptObject.hpp"
@@ -22,16 +21,13 @@ struct SCLY : BigDNA
         Value<atUint8> unknown;
         Value<atUint32> objectCount;
         Vector<std::unique_ptr<IScriptObject>, AT_DNA_COUNT(objectCount)> objects;
-        void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-                std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
+        void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const;
         void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
     };
     Vector<ScriptLayer, AT_DNA_COUNT(layerCount)> layers;
 
     void exportToLayerDirectories(const PAK::Entry &, PAKRouter<PAKBridge>&, bool) const;
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const;
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const;
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const;
 };
 }
-#endif

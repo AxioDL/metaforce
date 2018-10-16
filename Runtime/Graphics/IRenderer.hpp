@@ -1,5 +1,4 @@
-#ifndef __URDE_IRENDERER_HPP__
-#define __URDE_IRENDERER_HPP__
+#pragma once
 
 #include <vector>
 #include "../RetroTypes.hpp"
@@ -112,4 +111,3 @@ public:
 
 }
 
-#endif // __URDE_IRENDERER_HPP__

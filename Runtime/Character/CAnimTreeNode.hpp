@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREENODE_HPP__
-#define __URDE_CANIMTREENODE_HPP__
+#pragma once
 
 #include "IAnimReader.hpp"
 
@@ -37,4 +36,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREENODE_HPP__

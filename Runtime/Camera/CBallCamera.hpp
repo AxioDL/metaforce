@@ -1,5 +1,4 @@
-#ifndef __URDE_CBALLCAMERA_HPP__
-#define __URDE_CBALLCAMERA_HPP__
+#pragma once
 
 #include "CGameCamera.hpp"
 #include "CCameraSpline.hpp"
@@ -279,4 +278,3 @@ public:
 
 }
 
-#endif // __URDE_CBALLCAMERA_HPP__

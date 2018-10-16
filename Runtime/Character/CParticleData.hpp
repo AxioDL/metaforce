@@ -1,5 +1,4 @@
-#ifndef __URDE_CPARTICLEDATA_HPP__
-#define __URDE_CPARTICLEDATA_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "RetroTypes.hpp"
@@ -48,4 +47,3 @@ public:
 
 }
 
-#endif // __URDE_CPARTICLEDATA_HPP__

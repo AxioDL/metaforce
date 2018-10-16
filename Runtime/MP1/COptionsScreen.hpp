@@ -1,5 +1,4 @@
-#ifndef __URDE_COPTIONSSCREEN_HPP__
-#define __URDE_COPTIONSSCREEN_HPP__
+#pragma once
 
 #include "CInGameGuiManager.hpp"
 #include "CPauseScreenBase.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_COPTIONSSCREEN_HPP__

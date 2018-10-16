@@ -1,5 +1,4 @@
-#ifndef __COMMON_PARTICLECOMMON_HPP__
-#define __COMMON_PARTICLECOMMON_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -902,4 +901,3 @@ struct ChildResourceFactory : BigDNA
 
 }
 
-#endif // __COMMON_PARTICLECOMMON_HPP__

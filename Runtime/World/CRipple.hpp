@@ -1,5 +1,4 @@
-#ifndef __URDE_CRIPPLE_HPP__
-#define __URDE_CRIPPLE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -42,4 +41,3 @@ public:
     float GetLookupPhase() const { return x38_lookupPhase; }
 };
 }
-#endif // __URDE_CRIPPLE_HPP__

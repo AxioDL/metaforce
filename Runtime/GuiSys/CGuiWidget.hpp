@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIWIDGET_HPP__
-#define __URDE_CGUIWIDGET_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CGuiObject.hpp"
@@ -141,4 +140,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIWIDGET_HPP__

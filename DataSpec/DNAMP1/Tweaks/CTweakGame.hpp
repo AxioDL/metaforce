@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKGAME_HPP_
-#define _DNAMP1_CTWEAKGAME_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakGame.hpp"
 
@@ -60,4 +59,3 @@ struct CTweakGame final : ITweakGame
 };
 }
 
-#endif

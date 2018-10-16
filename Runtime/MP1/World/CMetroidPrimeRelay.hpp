@@ -1,5 +1,4 @@
-#ifndef CMETROIDPRIMERELAY_HPP
-#define CMETROIDPRIMERELAY_HPP
+#pragma once
 
 #include "World/CEntity.hpp"
 #include "CMetroidPrimeExo.hpp"
@@ -38,4 +37,3 @@ public:
 
 }
 
-#endif // CMETROIDPRIMERELAY_HPP

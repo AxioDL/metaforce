@@ -1,5 +1,4 @@
-#ifndef __URDE_CWORLDTRANSMANAGER_HPP__
-#define __URDE_CWORLDTRANSMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CRandom16.hpp"
@@ -136,4 +135,3 @@ public:
 
 }
 
-#endif // __URDE_CWORLDTRANSMANAGER_HPP__

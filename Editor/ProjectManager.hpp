@@ -1,5 +1,4 @@
-#ifndef URDE_PROJECT_MANAGER_HPP
-#define URDE_PROJECT_MANAGER_HPP
+#pragma once
 
 #include "hecl/Database.hpp"
 #include "athena/DNAYaml.hpp"
@@ -60,4 +59,3 @@ public:
 
 }
 
-#endif // URDE_PROJECT_MANAGER_HPP

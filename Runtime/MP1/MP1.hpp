@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_HPP__
-#define __URDE_MP1_HPP__
+#pragma once
 
 #define MP1_USE_BOO 0
 
@@ -266,7 +265,7 @@ private:
     bool m_needsWarmupClear = false;
     bool m_doQuit = false;
 
-    void InitializeSubsystems(const hecl::Runtime::FileStoreManager& storeMgr);
+    void InitializeSubsystems();
     static void InitializeDiscord();
     static void ShutdownDiscord();
     static void HandleDiscordReady(const DiscordUser* request);
@@ -305,7 +304,7 @@ public:
 
     bool CheckReset() { return m_doQuit; }
     bool CheckTerminate() { return m_doQuit; }
-    void DrawDebugMetrics(double, CStopWatch&) {}
+    void DrawDebugMetrics(double, CStopwatch&) {}
     void DoPredrawMetrics() {}
     void FillInAssetIDs();
     bool LoadAudio();
@@ -342,4 +341,3 @@ public:
 }
 }
 
-#endif // __URDE_MP1_HPP__

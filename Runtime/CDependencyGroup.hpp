@@ -1,5 +1,4 @@
-#ifndef CDEPENDENCYGROUP_HPP
-#define CDEPENDENCYGROUP_HPP
+#pragma once
 
 #include "CFactoryMgr.hpp"
 
@@ -18,4 +17,3 @@ CFactoryFnReturn FDependencyGroupFactory(const SObjectTag& tag, CInputStream& in
                                          CObjectReference* selfRef);
 }
 
-#endif // CDEPENDENCYGROUP_HPP

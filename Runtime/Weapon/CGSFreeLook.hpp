@@ -1,5 +1,4 @@
-#ifndef __URDE_CGSFREELOOK_HPP__
-#define __URDE_CGSFREELOOK_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -29,4 +28,3 @@ public:
 
 }
 
-#endif // __URDE_CGSFREELOOK_HPP__

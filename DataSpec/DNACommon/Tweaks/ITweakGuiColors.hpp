@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKGUICOLORS_HPP__
-#define __DNACOMMON_ITWEAKGUICOLORS_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -106,4 +105,3 @@ struct ITweakGuiColors : ITweak
 };
 }
 
-#endif // __DNACOMMON_ITWEAKGUICOLORS_HPP__

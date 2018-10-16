@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTTARGETINGPOINT_HPP__
-#define __URDE_CSCRIPTTARGETINGPOINT_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 
@@ -31,4 +30,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTTARGETINGPOINT_HPP__

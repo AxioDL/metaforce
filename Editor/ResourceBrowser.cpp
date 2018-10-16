@@ -44,8 +44,8 @@ void ResourceBrowser::pathButtonActivated(size_t idx)
     for (const hecl::SystemString& d : m_comps)
     {
         if (needSlash)
-            dir += _S('/');
-        if (d.compare(_S("/")))
+            dir += _SYS_STR('/');
+        if (d.compare(_SYS_STR("/")))
             needSlash = true;
         dir += d;
         if (++i > idx)

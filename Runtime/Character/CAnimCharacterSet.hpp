@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMCHARACTERSET_HPP__
-#define __URDE_CANIMCHARACTERSET_HPP__
+#pragma once
 
 #include "CFactoryMgr.hpp"
 #include "CCharacterSet.hpp"
@@ -24,4 +23,3 @@ CFactoryFnReturn FAnimCharacterSet(const SObjectTag&, CInputStream&, const CVPar
 
 }
 
-#endif // __URDE_CANIMCHARACTERSET_HPP__

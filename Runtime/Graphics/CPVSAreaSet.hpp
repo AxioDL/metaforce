@@ -1,5 +1,4 @@
-#ifndef __URDE_CPVSAREASET_HPP__
-#define __URDE_CPVSAREASET_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CPVSVisOctree.hpp"
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // __URDE_CPVSAREASET_HPP__

@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_CTWEAKGUICOLORS_HPP__
-#define __DNAMP1_CTWEAKGUICOLORS_HPP__
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakGuiColors.hpp"
 
@@ -232,4 +231,3 @@ struct CTweakGuiColors final : public ITweakGuiColors
 };
 }
 
-#endif // __DNAMP1_CTWEAKGUICOLORS_HPP__

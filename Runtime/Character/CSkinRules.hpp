@@ -1,5 +1,4 @@
-#ifndef __URDE_CSKINRULES_HPP__
-#define __URDE_CSKINRULES_HPP__
+#pragma once
 
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "RetroTypes.hpp"
@@ -58,4 +57,3 @@ CFactoryFnReturn FSkinRulesFactory(const SObjectTag& tag, CInputStream& in, cons
 
 }
 
-#endif // __URDE_CSKINRULES_HPP__

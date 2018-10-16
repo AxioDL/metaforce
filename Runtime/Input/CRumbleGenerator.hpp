@@ -1,5 +1,4 @@
-#ifndef CRUMBLEGENERATOR_HPP
-#define CRUMBLEGENERATOR_HPP
+#pragma once
 
 #include "CRumbleVoice.hpp"
 #include "CInputGenerator.hpp"
@@ -25,4 +24,3 @@ public:
 };
 }
 
-#endif // CRUMBLEGENERATOR_HPP

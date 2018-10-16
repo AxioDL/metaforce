@@ -1,5 +1,4 @@
-#ifndef __URDE_CACTORPARAMETERS_HPP__
-#define __URDE_CACTORPARAMETERS_HPP__
+#pragma once
 
 #include "CLightParameters.hpp"
 #include "CScannableParameters.hpp"
@@ -78,4 +77,3 @@ public:
 };
 }
 
-#endif // __URDE_CACTORPARAMETERS_HPP__

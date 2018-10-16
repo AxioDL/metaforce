@@ -51,10 +51,10 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
         if (active)
         {
             hecl::ProjectPath activePath(layerPath, "!defaultactive");
-            fclose(hecl::Fopen(activePath.getAbsolutePath().data(), _S("wb")));
+            fclose(hecl::Fopen(activePath.getAbsolutePath().data(), _SYS_STR("wb")));
         }
 
-        hecl::ProjectPath yamlFile(layerPath, _S("!objects.yaml"));
+        hecl::ProjectPath yamlFile(layerPath, _SYS_STR("!objects.yaml"));
         if (force || yamlFile.isNone())
         {
             athena::io::FileWriter writer(yamlFile.getAbsolutePath());
@@ -63,18 +63,16 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
     }
 }
 
-void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+void SCLY::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
 {
     for (const ScriptLayer& layer : layers)
-        layer.addCMDLRigPairs(pakRouter, addTo);
+        layer.addCMDLRigPairs(pakRouter, charAssoc);
 }
 
-void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+void SCLY::ScriptLayer::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
 {
     for (const std::unique_ptr<IScriptObject>& obj : objects)
-        obj->addCMDLRigPairs(pakRouter, addTo);
+        obj->addCMDLRigPairs(pakRouter, charAssoc);
 }
 
 void SCLY::nameIDs(PAKRouter<PAKBridge>& pakRouter) const
@@ -136,11 +134,11 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs)
             objects.push_back(std::move(obj));
             size_t actualLen = rs.position() - start;
             if (actualLen != len)
-                Log.report(logvisor::Fatal, _S("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
+                Log.report(logvisor::Fatal, _SYS_STR("Error while reading object of type 0x%.2X, did not read the expected amount of data, read 0x%x, expected 0x%x"), (atUint32)type, actualLen, len);
             rs.seek(start + len, athena::Begin);
         }
         else
-            Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+            Log.report(logvisor::Fatal, _SYS_STR("Unable to find type 0x%X in object database"), (atUint32)type);
     }
 }
 
@@ -170,7 +168,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& r
                     objects.push_back(std::move(obj));
                 }
                 else
-                    Log.report(logvisor::Fatal, _S("Unable to find type 0x%X in object database"), (atUint32)type);
+                    Log.report(logvisor::Fatal, _SYS_STR("Unable to find type 0x%X in object database"), (atUint32)type);
             }
         }
     }

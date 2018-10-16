@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPLAYERACTOR_HPP__
-#define __URDE_CSCRIPTPLAYERACTOR_HPP__
+#pragma once
 
 #include "CScriptActor.hpp"
 #include "CPlayerState.hpp"
@@ -74,4 +73,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTPLAYERACTOR_HPP__

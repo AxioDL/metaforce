@@ -16,8 +16,6 @@ CAssetId CDecalManager::m_LastDecalCreatedAssetId = -1;
 rstl::reserved_vector<CDecalManager::SDecal, 64> CDecalManager::m_DecalPool;
 rstl::reserved_vector<s32, 64> CDecalManager::m_ActiveIndexList;
 
-URDE_DECL_SPECIALIZE_SHADER(CDecalShaders)
-
 void CDecalManager::Initialize()
 {
     if (m_PoolInitialized)
@@ -34,7 +32,7 @@ void CDecalManager::Initialize()
     m_LastDecalCreatedAssetId = -1;
 
     /* Compile shaders */
-    TShader<CDecalShaders>::Initialize();
+    CDecalShaders::Initialize();
 }
 
 void CDecalManager::Reinitialize()
@@ -55,7 +53,7 @@ void CDecalManager::Shutdown()
 {
     m_ActiveIndexList.clear();
     m_DecalPool.clear();
-    TShader<CDecalShaders>::Shutdown();
+    CDecalShaders::Shutdown();
 }
 
 void CDecalManager::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr)

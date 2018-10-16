@@ -1,5 +1,4 @@
-#ifndef __URDE_CADDITIVEBODYSTATE_HPP__
-#define __URDE_CADDITIVEBODYSTATE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CharacterCommon.hpp"
@@ -73,4 +72,3 @@ public:
 
 }
 
-#endif // __URDE_CADDITIVEBODYSTATE_HPP__

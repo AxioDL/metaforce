@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLAMETHROWER_HPP__
-#define __URDE_CFLAMETHROWER_HPP__
+#pragma once
 
 #include "Weapon/CGameProjectile.hpp"
 
@@ -37,4 +36,3 @@ public:
     bool GetX400_25() const { return x400_25; }
 };
 }
-#endif // __URDE_CFLAMETHROWER_HPP__

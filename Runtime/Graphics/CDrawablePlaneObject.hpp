@@ -1,5 +1,4 @@
-#ifndef __URDE_CDRAWABLEOBJECT_HPP__
-#define __URDE_CDRAWABLEOBJECT_HPP__
+#pragma once
 
 #include "CDrawable.hpp"
 #include "zeus/CPlane.hpp"
@@ -23,4 +22,3 @@ public:
 };
 }
 
-#endif // __URDE_CDRAWABLEOBJECT_HPP__

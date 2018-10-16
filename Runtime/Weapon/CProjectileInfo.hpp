@@ -1,5 +1,4 @@
-#ifndef __URDE_CPROJECTILEINFO_HPP__
-#define __URDE_CPROJECTILEINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -23,4 +22,3 @@ public:
     const TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
 }
-#endif // __URDE_CPROJECTILEINFO_HPP__

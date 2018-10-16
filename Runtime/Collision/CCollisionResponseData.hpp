@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONRESPONSEDATA_HPP__
-#define __URDE_CCOLLISIONRESPONSEDATA_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Collision/CMaterialList.hpp"
@@ -75,4 +74,3 @@ CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStre
                                                CObjectReference*);
 }
 
-#endif // __URDE_CCOLLISIONRESPONSEDATA_HPP__

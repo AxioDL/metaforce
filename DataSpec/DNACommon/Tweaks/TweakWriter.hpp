@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_TWEAKWRITER_HPP__
-#define __DNACOMMON_TWEAKWRITER_HPP__
+#pragma once
 
 #include "../PAK.hpp"
 
@@ -36,4 +35,3 @@ bool ExtractTweak(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath)
 
 }
 
-#endif // __DNACOMMON_TWEAKWRITER_HPP__

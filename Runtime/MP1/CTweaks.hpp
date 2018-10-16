@@ -1,5 +1,4 @@
-#ifndef __URDE_CTWEAKS_HPP__
-#define __URDE_CTWEAKS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 namespace hecl
@@ -23,4 +22,3 @@ public:
 }
 }
 
-#endif // __URDE_CTWEAKS_HPP__

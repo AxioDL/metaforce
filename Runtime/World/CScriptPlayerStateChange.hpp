@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPLAYERSTATECHANGE_HPP__
-#define __URDE_CSCRIPTPLAYERSTATECHANGE_HPP__
+#pragma once
 
 #include "World/CEntity.hpp"
 
@@ -33,4 +32,3 @@ public:
 }
 
 
-#endif // __URDE_CSCRIPTPLAYERSTATECHANGE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CSEEDLING_HPP__
-#define __URDE_MP1_CSEEDLING_HPP__
+#pragma once
 
 #include "World/CWallWalker.hpp"
 
@@ -20,4 +19,3 @@ public:
 };
 }
 }
-#endif // __URDE_MP1_CSEEDLING_HPP__

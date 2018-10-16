@@ -1,5 +1,4 @@
-#ifndef __URDE_CCHARANIMTIME_HPP__
-#define __URDE_CCHARANIMTIME_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 
@@ -62,4 +61,3 @@ public:
 };
 }
 
-#endif // __URDE_CCHARANIMTIME_HPP__

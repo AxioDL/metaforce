@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTTRIGGER_HPP__
-#define __URDE_CSCRIPTTRIGGER_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "CDamageInfo.hpp"
@@ -91,4 +90,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTTRIGGER_HPP__

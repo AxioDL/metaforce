@@ -1,5 +1,4 @@
-#ifndef __URDE_CCHARACTERINFO_HPP__
-#define __URDE_CCHARACTERINFO_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CPASDatabase.hpp"
@@ -66,4 +65,3 @@ public:
 };
 }
 
-#endif // __URDE_CCHARACTERINFO_HPP__

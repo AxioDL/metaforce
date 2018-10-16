@@ -1,5 +1,4 @@
-#ifndef __URDE_CTEXTPARSER_HPP__
-#define __URDE_CTEXTPARSER_HPP__
+#pragma once
 
 #include "CGuiTextSupport.hpp"
 
@@ -34,4 +33,3 @@ public:
 
 }
 
-#endif // __URDE_CTEXTPARSER_HPP__

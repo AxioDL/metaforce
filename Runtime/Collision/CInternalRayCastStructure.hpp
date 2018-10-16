@@ -1,5 +1,4 @@
-#ifndef __URDE_CINTERNALRAYCASTSTRUCTURE_HPP__
-#define __URDE_CINTERNALRAYCASTSTRUCTURE_HPP__
+#pragma once
 
 #include "zeus/CTransform.hpp"
 #include "zeus/CMRay.hpp"
@@ -31,4 +30,3 @@ public:
 };
 }
 
-#endif // __URDE_CINTERNALRAYCASTSTRUCTURE_HPP__

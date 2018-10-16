@@ -1,5 +1,4 @@
-#ifndef CSCRIPTCAMERAFILTERKEYFRAME_HPP
-#define CSCRIPTCAMERAFILTERKEYFRAME_HPP
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CColor.hpp"
@@ -29,4 +28,3 @@ public:
 };
 }
 
-#endif // CSCRIPTCAMERAFILTERKEYFRAME_HPP

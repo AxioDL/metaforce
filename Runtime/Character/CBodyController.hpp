@@ -1,5 +1,4 @@
-#ifndef __URDE_CBODYCONTROLLER_HPP__
-#define __URDE_CBODYCONTROLLER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CQuaternion.hpp"
@@ -111,4 +110,3 @@ public:
 };
 }
 
-#endif // __URDE_CBODYCONTROLLER_HPP__

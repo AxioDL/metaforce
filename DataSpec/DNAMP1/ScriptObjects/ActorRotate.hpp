@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ACTORROTATE_HPP_
-#define _DNAMP1_ACTORROTATE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -20,4 +19,3 @@ struct ActorRotate : IScriptObject
 };
 }
 
-#endif

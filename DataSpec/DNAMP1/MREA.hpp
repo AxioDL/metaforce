@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_MREA_HPP__
-#define __DNAMP1_MREA_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CMDLMaterials.hpp"
@@ -103,8 +102,7 @@ struct MREA
                                           athena::io::IStreamReader& rs);
 
     static void AddCMDLRigPairs(PAKEntryReadStream& rs,
-                                PAKRouter<PAKBridge>& pakRouter,
-                                std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo);
+                                PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc);
 
     static UniqueID32 GetPATHId(PAKEntryReadStream& rs);
 
@@ -137,4 +135,3 @@ struct MREA
 
 }
 
-#endif

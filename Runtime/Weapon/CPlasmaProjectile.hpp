@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLASMAPROJECTILE_HPP__
-#define __URDE_CPLASMAPROJECTILE_HPP__
+#pragma once
 
 #include "Weapon/CBeamProjectile.hpp"
 #include "Weapon/CBeamInfo.hpp"
@@ -21,4 +20,3 @@ public:
 };
 }
 
-#endif // __URDE_CPLASMAPROJECTILE_HPP__

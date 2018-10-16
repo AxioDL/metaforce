@@ -1,5 +1,4 @@
-#ifndef __URDE_CBEAMINFO_HPP__
-#define __URDE_CBEAMINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IOStreams.hpp"
@@ -50,4 +49,3 @@ struct CBeamInfo
 };
 
 }
-#endif // __URDE_CBEAMINFO_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CSPACEPIRATE_HPP__
-#define __URDE_MP1_CSPACEPIRATE_HPP__
+#pragma once
 
 #include "World/CPatterned.hpp"
 #include "Weapon/CProjectileInfo.hpp"
@@ -80,4 +79,3 @@ public:
     void Accept(IVisitor &visitor);
 };
 }
-#endif // __URDE_MP1_CSPACEPIRATE_HPP__

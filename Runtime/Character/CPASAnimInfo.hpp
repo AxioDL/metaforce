@@ -1,5 +1,4 @@
-#ifndef __URDE_CPASANIMINFO_HPP__
-#define __URDE_CPASANIMINFO_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "rstl.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CPASANIMINFO_HPP__

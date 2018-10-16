@@ -1,5 +1,4 @@
-#ifndef __URDE_CRESFACTORY_HPP__
-#define __URDE_CRESFACTORY_HPP__
+#pragma once
 
 #include <unordered_map>
 #include "IFactory.hpp"
@@ -121,4 +120,3 @@ public:
 
 }
 
-#endif // __URDE_CRESFACTORY_HPP__

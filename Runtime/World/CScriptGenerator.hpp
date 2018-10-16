@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTGENERATOR_HPP__
-#define __URDE_CSCRIPTGENERATOR_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CVector3f.hpp"
@@ -32,4 +31,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTGENERATOR_HPP__

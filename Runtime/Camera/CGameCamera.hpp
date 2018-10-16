@@ -1,5 +1,4 @@
-#ifndef __URDE_CGAMECAMERA_HPP__
-#define __URDE_CGAMECAMERA_HPP__
+#pragma once
 
 #include "World/CActor.hpp"
 #include "zeus/CTransform.hpp"
@@ -56,4 +55,3 @@ public:
 };
 }
 
-#endif // __URDE_CGAMECAMERA_HPP__

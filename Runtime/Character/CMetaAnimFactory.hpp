@@ -1,5 +1,4 @@
-#ifndef __URDE_CMETAANIMFACTORY_HPP__
-#define __URDE_CMETAANIMFACTORY_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "IMetaAnim.hpp"
@@ -15,4 +14,3 @@ public:
 
 }
 
-#endif // __URDE_CMETAANIMFACTORY_HPP__

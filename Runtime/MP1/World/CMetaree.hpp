@@ -1,5 +1,4 @@
-#ifndef URDE_CMETAREE_HPP
-#define URDE_CMETAREE_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 #include "World/CDamageInfo.hpp"
@@ -50,4 +49,3 @@ public:
 };
 }
 
-#endif //URDE_CMETAREE_HPP

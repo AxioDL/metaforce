@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTBALLTRIGGER_HPP__
-#define __URDE_CSCRIPTBALLTRIGGER_HPP__
+#pragma once
 
 #include "CScriptTrigger.hpp"
 
@@ -24,4 +23,3 @@ public:
     void InhabitantExited(CActor&, CStateManager&);
 };
 }
-#endif // __URDE_CSCRIPTBALLTRIGGER_HPP

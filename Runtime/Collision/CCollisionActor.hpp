@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONACTOR_HPP__
-#define __URDE_CCOLLISIONACTOR_HPP__
+#pragma once
 
 #include "World/CPhysicsActor.hpp"
 #include "World/CHealthInfo.hpp"
@@ -60,4 +59,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLISIONACTOR_HPP__

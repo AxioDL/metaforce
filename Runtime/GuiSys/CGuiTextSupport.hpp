@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUITEXTSUPPORT_HPP__
-#define __URDE_CGUITEXTSUPPORT_HPP__
+#pragma once
 
 #include "zeus/CColor.hpp"
 #include "RetroTypes.hpp"
@@ -147,4 +146,3 @@ public:
 
 }
 
-#endif // __URDE_CGUITEXTSUPPORT_HPP__

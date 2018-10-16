@@ -1,5 +1,4 @@
-#ifndef __URDE_CAIFUNCMAP_HPP__
-#define __URDE_CAIFUNCMAP_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include <unordered_map>
@@ -30,4 +29,3 @@ public:
 };
 }
 
-#endif // __URDE_CAIFUNCMAP_HPP__

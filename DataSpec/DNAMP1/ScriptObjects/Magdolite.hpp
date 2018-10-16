@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_MAGDOLITE_HPP_
-#define _DNAMP1_MAGDOLITE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -23,8 +22,8 @@ struct Magdolite : IScriptObject
     DamageInfo damageInfo2;
     DamageVulnerability damageVulnerabilty1;
     DamageVulnerability damageVulnerabilty2;
-    UniqueID32 model;
-    UniqueID32 skin;
+    UniqueID32 cmdlHeadless;
+    UniqueID32 cskrHeadless;
     Value<float> unknown3;
     Value<float> unknown4;
     Value<float> unknown5;
@@ -44,25 +43,31 @@ struct Magdolite : IScriptObject
     Value<float> unknown8;
     Value<float> unknown9;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
         UniqueID32 cinf = patternedInfo.animationParameters.getCINF(pakRouter);
-        actorParameters.addCMDLRigPairs(addTo, cinf);
-        if (model && skin)
-            addTo[model] = std::make_pair(skin, cinf);
+        actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
+
+        if (cmdlHeadless && cskrHeadless)
+        {
+            charAssoc.m_cmdlRigs[cmdlHeadless] = std::make_pair(cskrHeadless, cinf);
+            charAssoc.m_cskrCinfToCharacter[cskrHeadless] = std::make_pair(
+                patternedInfo.animationParameters.animationCharacterSet, "ATTACH.HEADLESS.CSKR");
+            charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet,
+                                       {}, cmdlHeadless, "HEADLESS");
+        }
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
     {
-        if (model)
+        if (cmdlHeadless)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cmdlHeadless);
             ent->name = name + "_emodel";
         }
-        if (skin)
+        if (cskrHeadless)
         {
-            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(skin);
+            PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cskrHeadless);
             ent->name = name + "_eskin";
         }
         if (magdoliteParameters.particle)
@@ -77,8 +82,8 @@ struct Magdolite : IScriptObject
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
                             std::vector<hecl::ProjectPath>& lazyOut) const
     {
-        g_curSpec->flattenDependencies(model, pathsOut);
-        g_curSpec->flattenDependencies(skin, pathsOut);
+        g_curSpec->flattenDependencies(cmdlHeadless, pathsOut);
+        g_curSpec->flattenDependencies(cskrHeadless, pathsOut);
         g_curSpec->flattenDependencies(magdoliteParameters.particle, pathsOut);
         patternedInfo.depIDs(pathsOut);
         actorParameters.depIDs(pathsOut, lazyOut);
@@ -91,4 +96,3 @@ struct Magdolite : IScriptObject
 };
 }
 
-#endif

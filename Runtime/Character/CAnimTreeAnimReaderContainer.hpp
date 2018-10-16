@@ -1,5 +1,4 @@
-#ifndef __URDE_CANIMTREEANIMREADERCONTAINER_HPP__
-#define __URDE_CANIMTREEANIMREADERCONTAINER_HPP__
+#pragma once
 
 #include "CAnimTreeNode.hpp"
 
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CANIMTREEANIMREADERCONTAINER_HPP__

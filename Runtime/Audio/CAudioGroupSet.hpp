@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUDIOGROUPSET_HPP__
-#define __URDE_CAUDIOGROUPSET_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CFactoryMgr.hpp"
@@ -31,4 +30,3 @@ CFactoryFnReturn FAudioGroupSetDataFactory(const urde::SObjectTag& tag,
 
 }
 
-#endif // __URDE_CAUDIOGROUPSET_HPP__

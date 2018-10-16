@@ -1,5 +1,4 @@
-#ifndef __URDE_CERROROUTPUTWINDOW_HPP__
-#define __URDE_CERROROUTPUTWINDOW_HPP__
+#pragma once
 
 #include "CIOWin.hpp"
 #include "RetroTypes.hpp"
@@ -40,4 +39,3 @@ public:
 
 }
 
-#endif // __URDE_CERROROUTPUTWINDOW_HPP__

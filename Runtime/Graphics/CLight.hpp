@@ -1,5 +1,4 @@
-#ifndef __URDE_CLIGHT_HPP__
-#define __URDE_CLIGHT_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
@@ -143,4 +142,3 @@ public:
 
 }
 
-#endif // __URDE_CLIGHT_HPP__

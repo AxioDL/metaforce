@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONSURFACE_HPP__
-#define __URDE_CCOLLISIONSURFACE_HPP__
+#pragma once
 
 #include "zeus/zeus.hpp"
 #include "RetroTypes.hpp"
@@ -23,4 +22,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLISIONSURFACE_HPP__

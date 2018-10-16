@@ -1,5 +1,4 @@
-#ifndef __URDE_CVISORFLARE_HPP__
-#define __URDE_CVISORFLARE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // __URDE_CVISORFLARE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CPAUSESCREENBLUR_HPP__
-#define __URDE_CPAUSESCREENBLUR_HPP__
+#pragma once
 
 #include "CInGameGuiManagerCommon.hpp"
 #include "CToken.hpp"
@@ -59,4 +58,3 @@ public:
 }
 }
 
-#endif // __URDE_CPAUSESCREENBLUR_HPP__

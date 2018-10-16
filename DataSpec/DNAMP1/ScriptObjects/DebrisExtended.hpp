@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_DEBRISEXTENDED_HPP_
-#define _DNAMP1_DEBRISEXTENDED_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -93,4 +92,3 @@ struct DebrisExtended : IScriptObject
 };
 }
 
-#endif

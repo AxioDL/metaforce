@@ -1,5 +1,4 @@
-#ifndef _DNAMP2_ANCS_HPP_
-#define _DNAMP2_ANCS_HPP_
+#pragma once
 
 #include <map>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -81,8 +80,8 @@ struct ANCS : BigDNA
             };
             std::vector<Effect> effects;
 
-            UniqueID32 cmdlOverlay;
-            UniqueID32 cskrOverlay;
+            UniqueID32 cmdlIce;
+            UniqueID32 cskrIce;
 
             std::vector<atUint32> animIdxs;
 
@@ -199,8 +198,8 @@ struct ANCS : BigDNA
             chOut.cskr = ci.cskr;
             chOut.cinf = ci.cinf;
 
-            if (ci.cmdlOverlay)
-                chOut.overlays.emplace_back(FOURCC('OVER'), std::make_pair(ci.cmdlOverlay, ci.cskrOverlay));
+            if (ci.cmdlIce)
+                chOut.overlays.emplace_back("ICE", std::make_pair(ci.cmdlIce, ci.cskrIce));
         }
     }
 
@@ -226,9 +225,9 @@ struct ANCS : BigDNA
                         hecl::blender::Token& btok,
                         std::function<void(const hecl::SystemChar*)> fileChanged)
     {
-        hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
+        hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
         hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-        hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+        hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
         hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
         if (force ||
@@ -258,4 +257,3 @@ struct ANCS : BigDNA
 
 }
 
-#endif // _DNAMP2_ANCS_HPP_

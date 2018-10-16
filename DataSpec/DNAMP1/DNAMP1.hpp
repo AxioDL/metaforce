@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_HPP__
-#define __DNAMP1_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "PAK.hpp"
@@ -30,9 +29,7 @@ public:
     const PAKType& getPAK() const {return m_pak;}
     const nod::Node& getNode() const {return m_node;}
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, std::string>>& cskrCinfToAncs) const;
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const;
 
     void addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
                        std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const;
@@ -44,4 +41,3 @@ public:
 
 }
 
-#endif // __DNAMP1_HPP__

@@ -73,7 +73,7 @@ void FRME::Widget::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_read
     case SBIG('TBGP'): widgetInfo.reset(new TBGPInfo); break;
     case SBIG('SLGP'): widgetInfo.reset(new SLGPInfo); break;
     default:
-        Log.report(logvisor::Fatal, _S("Unsupported FRME widget type %.8X"), type.toUint32());
+        Log.report(logvisor::Fatal, _SYS_STR("Unsupported FRME widget type %.8X"), type.toUint32());
     }
 
     /* widgetInfo */
@@ -159,7 +159,7 @@ void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Read>(athena::io::IStreamReader& 
     else if (projectionType == ProjectionType::Orthographic)
         projection.reset(new OrthographicProjection);
     else
-        Log.report(logvisor::Fatal, _S("Invalid CAMR projection mode! %i"), int(projectionType));
+        Log.report(logvisor::Fatal, _SYS_STR("Invalid CAMR projection mode! %i"), int(projectionType));
 
     projection->read(__dna_reader);
 }
@@ -168,9 +168,9 @@ template <>
 void FRME::Widget::CAMRInfo::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& __dna_writer)
 {
     if (!projection)
-        Log.report(logvisor::Fatal, _S("Invalid CAMR projection object!"));
+        Log.report(logvisor::Fatal, _SYS_STR("Invalid CAMR projection object!"));
     if (projection->type != projectionType)
-        Log.report(logvisor::Fatal, _S("CAMR projection type does not match actual projection type!"));
+        Log.report(logvisor::Fatal, _SYS_STR("CAMR projection type does not match actual projection type!"));
 
     __dna_writer.writeUint32Big(atUint32(projectionType));
     projection->write(__dna_writer);

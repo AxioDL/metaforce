@@ -1,5 +1,4 @@
-#ifndef __URDE_CWEAPONDESCRIPTION_HPP__
-#define __URDE_CWEAPONDESCRIPTION_HPP__
+#pragma once
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -58,4 +57,3 @@ public:
     std::unique_ptr<CRealElement> xb0_FOFF;
 };
 }
-#endif // __URDE_CWEAPONDESCRIPTION_HPP__

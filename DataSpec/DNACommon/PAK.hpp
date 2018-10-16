@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_PAK_HPP__
-#define __DNACOMMON_PAK_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 #include "boo/ThreadLocalPtr.hpp"
@@ -155,7 +154,6 @@ public:
     using PAKType = typename BRIDGETYPE::PAKType;
     using IDType = typename PAKType::IDType;
     using EntryType = typename PAKType::Entry;
-    using RigPair = std::pair<IDType, IDType>;
 
 private:
     const std::vector<BRIDGETYPE>* m_bridges = nullptr;
@@ -170,8 +168,7 @@ private:
     std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_uniqueEntries;
     std::unordered_map<IDType, std::pair<size_t, const EntryType*>> m_sharedEntries;
     std::unordered_map<IDType, hecl::ProjectPath> m_overrideEntries;
-    std::unordered_map<IDType, RigPair> m_cmdlRigs;
-    std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;
+    CharacterAssociations<IDType> m_charAssoc;
     std::unordered_map<IDType, zeus::CMatrix4f> m_mapaTransforms;
 
     hecl::ProjectPath getCharacterWorking(const EntryType* entry) const;
@@ -224,7 +221,8 @@ public:
         return true;
     }
 
-    const RigPair* lookupCMDLRigPair(const IDType& id) const;
+    const typename CharacterAssociations<IDType>::RigPair* lookupCMDLRigPair(const IDType& id) const;
+    const typename CharacterAssociations<IDType>::MultimapIteratorPair lookupCharacterAttachmentRigs(const IDType& id) const;
     const zeus::CMatrix4f* lookupMAPATransform(const IDType& mapaId) const;
 
     hecl::ProjectPath getAreaLayerWorking(const IDType& areaId, int layerIdx) const;
@@ -239,4 +237,3 @@ public:
 
 }
 
-#endif // __DNACOMMON_PAK_HPP__

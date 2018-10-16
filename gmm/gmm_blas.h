@@ -651,6 +651,38 @@ namespace gmm {
     return res;
   }
 
+  /** 1-distance between two vectors */
+  template <typename V1, typename V2> inline
+   typename number_traits<typename linalg_traits<V1>::value_type>
+   ::magnitude_type
+  vect_dist1(const V1 &v1, const V2 &v2) { // not fully optimized 
+    typedef typename linalg_traits<V1>::value_type T;
+    typedef typename number_traits<T>::magnitude_type R;
+    auto it1 = vect_const_begin(v1), ite1 = vect_const_end(v1);
+    auto it2 = vect_const_begin(v2), ite2 = vect_const_end(v2);
+    size_type k1(0), k2(0);
+    R res(0);
+    while (it1 != ite1 && it2 != ite2) {
+      size_type i1 = index_of_it(it1, k1,
+				 typename linalg_traits<V1>::storage_type());
+      size_type i2 = index_of_it(it2, k2,
+				 typename linalg_traits<V2>::storage_type());
+
+      if (i1 == i2) {
+	res += gmm::abs(*it2 - *it1); ++it1; ++k1; ++it2; ++k2;
+      }
+      else if (i1 < i2) {
+	res += gmm::abs(*it1); ++it1; ++k1; 
+      }
+      else  {
+	res += gmm::abs(*it2); ++it2; ++k2; 
+      }
+    }
+    while (it1 != ite1) { res += gmm::abs(*it1); ++it1; }
+    while (it2 != ite2) { res += gmm::abs(*it2); ++it2; }
+    return res;
+  }
+
   /* ******************************************************************** */
   /*		vector Infinity norm                              	  */
   /* ******************************************************************** */
@@ -663,6 +695,38 @@ namespace gmm {
     typename number_traits<typename linalg_traits<V>::value_type>
       ::magnitude_type res(0);
     for (; it != ite; ++it) res = std::max(res, gmm::abs(*it));
+    return res;
+  }
+
+  /** Infinity distance between two vectors */
+  template <typename V1, typename V2> inline
+   typename number_traits<typename linalg_traits<V1>::value_type>
+   ::magnitude_type
+  vect_distinf(const V1 &v1, const V2 &v2) { // not fully optimized 
+    typedef typename linalg_traits<V1>::value_type T;
+    typedef typename number_traits<T>::magnitude_type R;
+    auto it1 = vect_const_begin(v1), ite1 = vect_const_end(v1);
+    auto it2 = vect_const_begin(v2), ite2 = vect_const_end(v2);
+    size_type k1(0), k2(0);
+    R res(0);
+    while (it1 != ite1 && it2 != ite2) {
+      size_type i1 = index_of_it(it1, k1,
+				 typename linalg_traits<V1>::storage_type());
+      size_type i2 = index_of_it(it2, k2,
+				 typename linalg_traits<V2>::storage_type());
+
+      if (i1 == i2) {
+	res = std::max(res, gmm::abs(*it2 - *it1)); ++it1; ++k1; ++it2; ++k2;
+      }
+      else if (i1 < i2) {
+	res = std::max(res, gmm::abs(*it1)); ++it1; ++k1; 
+      }
+      else  {
+	res = std::max(res, gmm::abs(*it2)); ++it2; ++k2; 
+      }
+    }
+    while (it1 != ite1) { res = std::max(res, gmm::abs(*it1)); ++it1; }
+    while (it2 != ite2) { res = std::max(res, gmm::abs(*it2)); ++it2; }
     return res;
   }
 

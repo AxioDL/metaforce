@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUISLIDERGROUP_HPP__
-#define __URDE_CGUISLIDERGROUP_HPP__
+#pragma once
 
 #include "CGuiCompoundWidget.hpp"
 #include <functional>
@@ -61,4 +60,3 @@ public:
 
 }
 
-#endif // __URDE_CGUISLIDERGROUP_HPP__

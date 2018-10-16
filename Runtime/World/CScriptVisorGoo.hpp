@@ -1,5 +1,4 @@
-#ifndef URDE_CSCRIPTVISORGOO_HPP
-#define URDE_CSCRIPTVISORGOO_HPP
+#pragma once
 
 #include "CActor.hpp"
 
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // URDE_CSCRIPTVISORGOO_HPP

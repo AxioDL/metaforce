@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_ANIMBITSTREAM_HPP_
-#define _DNACOMMON_ANIMBITSTREAM_HPP_
+#pragma once
 
 #include "DNACommon.hpp"
 #include <cmath>
@@ -99,4 +98,3 @@ public:
 
 }
 
-#endif // _DNACOMMON_ANIMBITSTREAM_HPP_

@@ -98,7 +98,7 @@ void SplitSpace::joinViews(specter::SplitView* thisSplit, int thisSlot, specter:
 {
     if (thisSplit == otherSplit)
     {
-        SplitSpace* thisSS = dynamic_cast<SplitSpace*>(m_slots[thisSlot].get());
+        SplitSpace* thisSS = m_slots[thisSlot]->castToSplitSpace();
         if (thisSS)
         {
             int ax = thisSS->m_state.axis == specter::SplitView::Axis::Horizontal ? 1 : 0;
@@ -115,7 +115,7 @@ void SplitSpace::joinViews(specter::SplitView* thisSplit, int thisSlot, specter:
     {
         for (int i=0 ; i<2 ; ++i)
         {
-            SplitSpace* otherSS = dynamic_cast<SplitSpace*>(m_slots[i].get());
+            SplitSpace* otherSS = m_slots[i]->castToSplitSpace();
             if (otherSS && otherSS->m_splitView.get() == otherSplit)
             {
                 int ax = m_state.axis == specter::SplitView::Axis::Horizontal ? 1 : 0;
@@ -248,23 +248,23 @@ void Space::SpaceMenuNode::SubNode::activated(const boo::SWindowCoord &coord)
     switch(m_data.m_cls)
     {
     case Class::InformationCenter:
-        if (typeid(InformationCenter) != typeid(m_space))
+        if (m_space.cls() == Class::InformationCenter)
             newSpace.reset(new InformationCenter(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     case Class::EffectEditor:
-        if (typeid(EffectEditor) != typeid(m_space))
+        if (m_space.cls() == Class::EffectEditor)
             newSpace.reset(new EffectEditor(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     case Class::ResourceBrowser:
-        if (typeid(ResourceBrowser) != typeid(m_space))
+        if (m_space.cls() == Class::ResourceBrowser)
             newSpace.reset(new ResourceBrowser(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     case Class::ModelViewer:
-        if (typeid(ModelViewer) != typeid(m_space))
+        if (m_space.cls() == Class::ModelViewer)
             newSpace.reset(new ModelViewer(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     case Class::GameMode:
-        if (typeid(GameMode) != typeid(m_space))
+        if (m_space.cls() == Class::GameMode)
             newSpace.reset(new GameMode(m_space.m_parent->m_vm, m_space.m_parent));
         break;
     default: break;

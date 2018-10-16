@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ELECTROMAGNETICPULSE_HPP_
-#define _DNAMP1_ELECTROMAGNETICPULSE_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -41,4 +40,3 @@ struct ElectroMagneticPulse : IScriptObject
 };
 }
 
-#endif

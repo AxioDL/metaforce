@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_ANIM_HPP_
-#define _DNAMP1_ANIM_HPP_
+#pragma once
 
 #include "DNAMP1.hpp"
 #include "DataSpec/DNACommon/ANIM.hpp"
@@ -220,4 +219,3 @@ struct ANIM : BigDNA
 
 }
 
-#endif // _DNAMP1_ANIM_HPP_

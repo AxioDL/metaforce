@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAVEABLESTATE_HPP__
-#define __URDE_CSAVEABLESTATE_HPP__
+#pragma once
 
 #include "CGuiTextSupport.hpp"
 #include "CDrawStringOptions.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CSAVEABLESTATE_HPP__

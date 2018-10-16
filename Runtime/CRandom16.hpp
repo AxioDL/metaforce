@@ -1,5 +1,4 @@
-#ifndef RETRO_CRANDOM16_HPP
-#define RETRO_CRANDOM16_HPP
+#pragma once
 
 #include "GCNTypes.hpp"
 
@@ -73,4 +72,3 @@ public:
 
 }
 
-#endif // RETRO_CRANDOM16_HPP

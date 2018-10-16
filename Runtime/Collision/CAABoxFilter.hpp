@@ -1,5 +1,4 @@
-#ifndef __URDE_CAABOXFILTER_HPP__
-#define __URDE_CAABOXFILTER_HPP__
+#pragma once
 
 #include "ICollisionFilter.hpp"
 
@@ -16,4 +15,3 @@ public:
 
 }
 
-#endif // __URDE_CAABOXFILTER_HPP__

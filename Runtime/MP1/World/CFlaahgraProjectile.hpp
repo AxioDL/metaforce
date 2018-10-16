@@ -1,5 +1,4 @@
-#ifndef URDE_CFLAAHGRAPROJECTILE_HPP
-#define URDE_CFLAAHGRAPROJECTILE_HPP
+#pragma once
 
 #include "Weapon/CEnergyProjectile.hpp"
 
@@ -16,4 +15,3 @@ public:
 
 }
 
-#endif // URDE_CFLAAHGRAPROJECTILE_HPP

@@ -1,5 +1,4 @@
-#ifndef __URDE_CENERGYDRAINSOURCE_HPP__
-#define __URDE_CENERGYDRAINSOURCE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -16,4 +15,3 @@ public:
     float GetEnergyDrainIntensity() const { return x4_intensity; }
 };
 }
-#endif // __URDE_CENERGYDRAINSOURCE_HPP__

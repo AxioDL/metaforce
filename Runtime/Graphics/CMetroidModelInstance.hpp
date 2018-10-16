@@ -1,12 +1,11 @@
-#ifndef __URDE_CMETROIDMODELINSTANCE_HPP__
-#define __URDE_CMETROIDMODELINSTANCE_HPP__
+#pragma once
 
 #include <vector>
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
 #include "zeus/CAABox.hpp"
-#include "hecl/Runtime.hpp"
 #include "hecl/HMDLMeta.hpp"
+#include "Shaders/CModelShaders.hpp"
 
 namespace urde
 {
@@ -24,7 +23,7 @@ class CMetroidModelInstance
     std::vector<CBooSurface> m_surfaces;
     std::unique_ptr<CBooModel> m_instance;
     hecl::HMDLMeta m_hmdlMeta;
-    std::unordered_map<int, std::shared_ptr<hecl::Runtime::ShaderPipelines>> m_shaders;
+    std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
 public:
     CMetroidModelInstance() = default;
     CMetroidModelInstance(CMetroidModelInstance&&) = default;
@@ -42,4 +41,3 @@ public:
 
 }
 
-#endif // __URDE_CMETROIDMODELINSTANCE_HPP__

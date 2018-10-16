@@ -1,5 +1,4 @@
-#ifndef __URDE_IELEMENT_HPP__
-#define __URDE_IELEMENT_HPP__
+#pragma once
 
 #include <memory>
 #include "GCNTypes.hpp"
@@ -57,4 +56,3 @@ public:
 
 }
 
-#endif // __URDE_IELEMENT_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCAMERAPITCHVOLUME_HPP__
-#define __URDE_CSCRIPTCAMERAPITCHVOLUME_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "zeus/CRelAngle.hpp"
@@ -41,4 +40,3 @@ public:
     void Exited(CStateManager&);
 };
 }
-#endif // __URDE_CSCRIPTCAMERAPITCHVOLUME_HPP__

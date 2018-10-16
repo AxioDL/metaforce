@@ -1,5 +1,4 @@
-#ifndef __COMMON_DPSC_HPP__
-#define __COMMON_DPSC_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -55,4 +54,3 @@ bool WriteDPSM(const DPSM<IDType>& dpsm, const hecl::ProjectPath& outPath);
 
 }
 
-#endif // __COMMON_DPSC_HPP__

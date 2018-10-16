@@ -1,5 +1,4 @@
-#ifndef URDE_CNEWFLAMETHROWER_HPP
-#define URDE_CNEWFLAMETHROWER_HPP
+#pragma once
 
 #include "CGameProjectile.hpp"
 
@@ -62,4 +61,3 @@ public:
 
 }
 
-#endif // URDE_CNEWFLAMETHROWER_HPP

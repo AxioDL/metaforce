@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_COVERPOINT_HPP_
-#define _DNAMP1_COVERPOINT_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -23,4 +22,3 @@ struct CoverPoint : IScriptObject
 };
 }
 
-#endif

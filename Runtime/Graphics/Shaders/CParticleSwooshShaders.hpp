@@ -1,12 +1,7 @@
-#ifndef __URDE_CPARTICLESWOOSHSHADERS_HPP__
-#define __URDE_CPARTICLESWOOSHSHADERS_HPP__
+#pragma once
 
-#include "TShader.hpp"
 #include "Graphics/CGraphics.hpp"
-#include "boo/graphicsdev/GL.hpp"
-#include "boo/graphicsdev/D3D.hpp"
-#include "boo/graphicsdev/Metal.hpp"
-#include "boo/graphicsdev/Vulkan.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace urde
 {
@@ -14,10 +9,6 @@ class CParticleSwoosh;
 
 class CParticleSwooshShaders
 {
-    friend struct OGLParticleSwooshDataBindingFactory;
-    friend struct VulkanParticleSwooshDataBindingFactory;
-    friend struct D3DParticleSwooshDataBindingFactory;
-    friend struct MetalParticleSwooshDataBindingFactory;
 public:
     enum class EShaderClass
     {
@@ -43,21 +34,12 @@ private:
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZWrite;
     static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveNoZWrite;
 
-    static boo::ObjToken<boo::IVertexFormat> m_vtxFormat; /* No OpenGL */
-
-    CParticleSwoosh& m_gen;
-    boo::ObjToken<boo::IShaderPipeline> m_pipeline;
-    CParticleSwooshShaders(CParticleSwoosh& gen, const boo::ObjToken<boo::IShaderPipeline>& pipeline)
-    : m_gen(gen), m_pipeline(pipeline) {}
-
 public:
+    static void Initialize();
+    static void Shutdown();
     static EShaderClass GetShaderClass(CParticleSwoosh& gen);
     static void BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& ctx, CParticleSwoosh& gen);
-
-    using _CLS = CParticleSwooshShaders;
-#include "TShaderDecl.hpp"
 };
 
 }
 
-#endif // __URDE_CPARTICLESWOOSHSHADERS_HPP__

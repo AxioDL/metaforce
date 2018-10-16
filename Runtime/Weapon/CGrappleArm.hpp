@@ -1,5 +1,4 @@
-#ifndef __URDE_CGRAPPLEARM_HPP__
-#define __URDE_CGRAPPLEARM_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -142,4 +141,3 @@ public:
 
 }
 
-#endif // __URDE_CGRAPPLEARM_HPP__

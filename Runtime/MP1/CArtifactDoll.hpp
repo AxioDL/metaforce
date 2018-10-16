@@ -1,5 +1,4 @@
-#ifndef __URDE_CARTIFACTDOLL_HPP__
-#define __URDE_CARTIFACTDOLL_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Character/CActorLights.hpp"
@@ -36,4 +35,3 @@ public:
 }
 }
 
-#endif // __URDE_CARTIFACTDOLL_HPP__

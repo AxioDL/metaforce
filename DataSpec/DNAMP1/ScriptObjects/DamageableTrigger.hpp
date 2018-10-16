@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_DAMAGABLETRIGGER_HPP_
-#define _DNAMP1_DAMAGABLETRIGGER_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -60,4 +59,3 @@ struct DamageableTrigger : IScriptObject
 };
 }
 
-#endif

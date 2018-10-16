@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCAMERAHINTTRIGGER_HPP__
-#define __URDE_CSCRIPTCAMERAHINTTRIGGER_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "zeus/COBBox.hpp"
@@ -28,4 +27,3 @@ public:
     void Accept(IVisitor& visitor);
 };
 }
-#endif // __URDE_CSCRIPTCAMERAHINTTRIGGER_HPP__

@@ -1,5 +1,4 @@
-#ifndef __COMMON_SAVWCOMMON_HPP__
-#define __COMMON_SAVWCOMMON_HPP__
+#pragma once
 #include "DNACommon.hpp"
 #include "PAK.hpp"
 
@@ -51,4 +50,3 @@ static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath
 
 }
 
-#endif // __COMMON_SAVWCOMMON_HPP__

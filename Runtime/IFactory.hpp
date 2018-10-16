@@ -1,5 +1,4 @@
-#ifndef __URDE_IFACTORY_HPP__
-#define __URDE_IFACTORY_HPP__
+#pragma once
 
 #include <memory>
 #include <functional>
@@ -56,4 +55,3 @@ public:
 
 }
 
-#endif // __URDE_IFACTORY_HPP__

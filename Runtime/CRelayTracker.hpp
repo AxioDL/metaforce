@@ -1,5 +1,4 @@
-#ifndef __URDE_CRELAYTRACKER_HPP__
-#define __URDE_CRELAYTRACKER_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "World/ScriptObjectSupport.hpp"
@@ -40,4 +39,3 @@ public:
 
 }
 
-#endif // __URDE_CRELAYTRACKER_HPP__

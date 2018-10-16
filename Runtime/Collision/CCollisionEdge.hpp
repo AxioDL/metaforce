@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLISIONEDGE_HPP__
-#define __URDE_CCOLLISIONEDGE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 
@@ -24,4 +23,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLISIONEDGE_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSEGSTATEMENTSET_HPP__
-#define __URDE_CSEGSTATEMENTSET_HPP__
+#pragma once
 
 #include "CAnimPerSegmentData.hpp"
 #include "CSegId.hpp"
@@ -23,4 +22,3 @@ public:
 
 }
 
-#endif // __URDE_CSEGSTATEMENTSET_HPP__

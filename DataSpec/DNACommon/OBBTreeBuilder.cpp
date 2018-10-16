@@ -1,4 +1,4 @@
-#include <athena/Types.hpp>
+#include "athena/Types.hpp"
 #include "OBBTreeBuilder.hpp"
 #include "zeus/CTransform.hpp"
 #include "DataSpec/DNAMP1/DCLN.hpp"
@@ -48,7 +48,9 @@ static FittedOBB BuildFromCovarianceMatrix(gmm::dense_matrix<float>& C,
     // extract the eigenvalues and eigenvectors from C
     gmm::dense_matrix<float> eigvec(3,3);
     std::vector<float> eigval(3);
-    gmm::symmetric_qr_algorithm(C, eigval, eigvec);
+    using namespace gmm;
+    using MAT1 = gmm::dense_matrix<float>;
+    gmm::symmetric_qr_algorithm(C, eigval, eigvec, default_tol_for_qr);
 
     // find the right, up and forward vectors from the eigenvectors
     zeus::CVector3f r(eigvec(0,0), eigvec(1,0), eigvec(2,0));

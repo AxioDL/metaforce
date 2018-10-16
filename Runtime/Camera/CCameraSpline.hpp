@@ -1,5 +1,4 @@
-#ifndef __URDE_CCAMERASPLINE_HPP__
-#define __URDE_CCAMERASPLINE_HPP__
+#pragma once
 
 #include "World/CEntityInfo.hpp"
 #include "zeus/CVector3f.hpp"
@@ -44,4 +43,3 @@ public:
 
 }
 
-#endif // __URDE_CCAMERASPLINE_HPP__

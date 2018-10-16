@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUIOBJECT_HPP__
-#define __URDE_CGUIOBJECT_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -48,4 +47,3 @@ public:
 
 }
 
-#endif // __URDE_CGUIOBJECT_HPP__

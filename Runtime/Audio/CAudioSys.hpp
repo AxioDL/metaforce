@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUDIOSYS_HPP__
-#define __URDE_CAUDIOSYS_HPP__
+#pragma once
 
 #include "../GCNTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -96,4 +95,3 @@ public:
 
 }
 
-#endif // __URDE_CAUDIOSYS_HPP__

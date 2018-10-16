@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_DEAFBABE_HPP_
-#define _DNACOMMON_DEAFBABE_HPP_
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -21,4 +20,3 @@ void DeafBabeBuildFromBlender(DEAFBABE& db, const hecl::blender::ColMesh& colMes
 
 }
 
-#endif // _DNACOMMON_DEAFBABE_HPP_

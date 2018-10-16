@@ -1,5 +1,4 @@
-#ifndef __URDE_CSIMPLEPOOL_HPP__
-#define __URDE_CSIMPLEPOOL_HPP__
+#pragma once
 
 #include "IObjectStore.hpp"
 #include "RetroTypes.hpp"
@@ -36,4 +35,3 @@ public:
 
 }
 
-#endif // __URDE_CSIMPLEPOOL_HPP__

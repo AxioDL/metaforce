@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCAMERASHAKER_HPP__
-#define __URDE_CSCRIPTCAMERASHAKER_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "Camera/CCameraShakeData.hpp"
@@ -19,4 +18,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTCAMERASHAKER_HPP__

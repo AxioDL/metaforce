@@ -1,5 +1,4 @@
-#ifndef __URDE_CFIDGET_HPP__
-#define __URDE_CFIDGET_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CGunMotion.hpp"
@@ -50,4 +49,3 @@ public:
 
 }
 
-#endif // __URDE_CFIDGET_HPP__

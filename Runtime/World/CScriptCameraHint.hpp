@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCAMERAHINT_HPP__
-#define __URDE_CSCRIPTCAMERAHINT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "Camera/CBallCamera.hpp"
@@ -95,4 +94,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTCAMERAHINT_HPP__

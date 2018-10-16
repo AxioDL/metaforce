@@ -1,5 +1,4 @@
-#ifndef URDE_PARTICLE_EDITOR_HPP
-#define URDE_PARTICLE_EDITOR_HPP
+#pragma once
 
 #include "Space.hpp"
 
@@ -45,4 +44,3 @@ public:
 
 }
 
-#endif // URDE_PARTICLE_EDITOR_HPP

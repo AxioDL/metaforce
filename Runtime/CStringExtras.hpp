@@ -1,5 +1,4 @@
-#ifndef __URDE_CSTRINGEXTRAS_HPP__
-#define __URDE_CSTRINGEXTRAS_HPP__
+#pragma once
 
 #include <string>
 #include <cstring>
@@ -36,4 +35,3 @@ public:
 
 }
 
-#endif // __URDE_CSTRINGEXTRAS_HPP__

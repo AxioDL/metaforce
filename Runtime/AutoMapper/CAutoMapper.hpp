@@ -1,5 +1,4 @@
-#ifndef __URDE_CAUTOMAPPER_HPP__
-#define __URDE_CAUTOMAPPER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CInGameTweakManagerBase.hpp"
@@ -303,4 +302,3 @@ public:
 };
 }
 
-#endif // __URDE_CAUTOMAPPER_HPP__

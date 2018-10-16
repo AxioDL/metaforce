@@ -1,5 +1,4 @@
-#ifndef __URDE_CPATHCAMERA_HPP__
-#define __URDE_CPATHCAMERA_HPP__
+#pragma once
 
 #include "CGameCamera.hpp"
 #include "CCameraSpline.hpp"
@@ -48,4 +47,3 @@ public:
 
 }
 
-#endif // __URDE_CPATHCAMERA_HPP__

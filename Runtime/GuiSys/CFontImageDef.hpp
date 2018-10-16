@@ -1,5 +1,4 @@
-#ifndef __URDE_CFONTIMAGEDEF_HPP__
-#define __URDE_CFONTIMAGEDEF_HPP__
+#pragma once
 
 #include <vector>
 #include "CToken.hpp"
@@ -26,4 +25,3 @@ public:
 
 }
 
-#endif // __URDE_CFONTIMAGEDEF_HPP__

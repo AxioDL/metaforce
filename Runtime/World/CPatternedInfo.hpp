@@ -1,5 +1,4 @@
-#ifndef __URDE_CPATTERNEDINFO_HPP__
-#define __URDE_CPATTERNEDINFO_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CDamageInfo.hpp"
@@ -68,4 +67,3 @@ public:
 };
 }
 
-#endif // __URDE_CPATTERNEDINFO_HPP__

@@ -1,5 +1,4 @@
-#ifndef __CANIMPLAYBACKPARMS_HPP__
-#define __CANIMPLAYBACKPARMS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CQuaternion.hpp"
@@ -41,4 +40,3 @@ public:
 };
 }
 
-#endif // CANIMPLAYBACKPARMS_HPP

@@ -1,5 +1,4 @@
-#ifndef __URDE_CACTORLIGHTS_HPP__
-#define __URDE_CACTORLIGHTS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CVector3f.hpp"
@@ -98,4 +97,3 @@ public:
 
 }
 
-#endif // __URDE_CACTORLIGHTS_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTCOLORMODULATE_HPP__
-#define __URDE_CSCRIPTCOLORMODULATE_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "zeus/CColor.hpp"
@@ -67,4 +66,3 @@ public:
     void End(CStateManager&);
 };
 }
-#endif // __URDE_CSCRIPTCOLORMODULATE_HPP__

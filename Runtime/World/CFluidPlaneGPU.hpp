@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDPLANEGPU_HPP__
-#define __URDE_CFLUIDPLANEGPU_HPP__
+#pragma once
 
 #include "CFluidPlaneCPU.hpp"
 
@@ -26,4 +25,3 @@ public:
 
 }
 
-#endif // __URDE_CFLUIDPLANEGPU_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CINGAMEGUIMANAGER_HPP__
-#define __URDE_CINGAMEGUIMANAGER_HPP__
+#pragma once
 
 #include "CToken.hpp"
 #include "CRandom16.hpp"
@@ -150,4 +149,3 @@ public:
 }
 }
 
-#endif // __URDE_CINGAMEGUIMANAGER_HPP__

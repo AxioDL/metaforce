@@ -1,5 +1,4 @@
-#ifndef __URDE_CELECTRICDESCRIPTION_HPP__
-#define __URDE_CELECTRICDESCRIPTION_HPP__
+#pragma once
 
 #include "CParticleDataFactory.hpp"
 #include "CRealElement.hpp"
@@ -37,4 +36,3 @@ public:
 };
 }
 
-#endif // __URDE_CELECTRICDESCRIPTION_HPP__

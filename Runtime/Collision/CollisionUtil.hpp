@@ -1,5 +1,4 @@
-#ifndef __URDE_COLLISIONUTIL_HPP__
-#define __URDE_COLLISIONUTIL_HPP__
+#pragma once
 
 #include "GCNTypes.hpp"
 #include "zeus/zeus.hpp"
@@ -50,4 +49,3 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
 void AddAverageToFront(const CCollisionInfoList& in, CCollisionInfoList& out);
 }
 }
-#endif // __URDE_COLLISIONUTIL_HPP__

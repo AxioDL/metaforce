@@ -1,5 +1,4 @@
-#ifndef __URDE_CMAPWORLD_HPP__
-#define __URDE_CMAPWORLD_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -174,4 +173,3 @@ CFactoryFnReturn FMapWorldFactory(const SObjectTag& tag, CInputStream& in, const
 
 }
 
-#endif // __URDE_CMAPWORLD_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTSPINDLECAMERA_HPP__
-#define __URDE_CSCRIPTSPINDLECAMERA_HPP__
+#pragma once
 
 #include "Camera/CGameCamera.hpp"
 
@@ -70,4 +69,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTSPINDLECAMERA_HPP__

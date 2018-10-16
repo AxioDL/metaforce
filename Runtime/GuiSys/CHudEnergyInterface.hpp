@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDENERGYINTERFACE_HPP__
-#define __URDE_CHUDENERGYINTERFACE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CHudInterface.hpp"
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDENERGYINTERFACE_HPP__

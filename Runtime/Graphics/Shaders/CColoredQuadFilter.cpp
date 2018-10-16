@@ -1,11 +1,46 @@
 #include "CColoredQuadFilter.hpp"
+#include "Graphics/CGraphics.hpp"
+#include "hecl/Pipeline.hpp"
 
 namespace urde
 {
 
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
+
+void CColoredQuadFilter::Initialize()
+{
+    s_AlphaPipeline = hecl::conv->convert(Shader_CColoredQuadFilter{});
+    s_AddPipeline = hecl::conv->convert(Shader_CColoredQuadFilterAdd{});
+    s_MultPipeline = hecl::conv->convert(Shader_CColoredQuadFilterMul{});
+}
+
+void CColoredQuadFilter::Shutdown()
+{
+    s_AlphaPipeline.reset();
+    s_AddPipeline.reset();
+    s_MultPipeline.reset();
+}
+
+static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type)
+{
+    switch (type)
+    {
+    case EFilterType::Blend:
+        return s_AlphaPipeline;
+    case EFilterType::Add:
+        return s_AddPipeline;
+    case EFilterType::Multiply:
+        return s_MultPipeline;
+    default:
+        return {};
+    }
+}
+
 CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
 {
-    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
+    CGraphics::CommitResources([this, type](boo::IGraphicsDataFactory::Context& ctx)
     {
         struct Vert
         {
@@ -19,7 +54,10 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
         };
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        m_dataBind = TMultiBlendShader<CColoredQuadFilter>::BuildShaderDataBinding(ctx, type, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), m_vbo.get(), nullptr, nullptr,
+                                              1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         return true;
     } BooTrace);
 }
@@ -89,7 +127,5 @@ void CWideScreenFilter::SetViewportToFull()
 }
 
 const zeus::CRectangle CColoredQuadFilter::DefaultRect = {0.f, 0.f, 1.f, 1.f};
-
-URDE_SPECIALIZE_MULTI_BLEND_SHADER(CColoredQuadFilter)
 
 }

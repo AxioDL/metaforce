@@ -1,5 +1,4 @@
-#ifndef __URDE_CPOWERBEAM_HPP__
-#define __URDE_CPOWERBEAM_HPP__
+#pragma once
 
 #include "CGunWeapon.hpp"
 
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif // __URDE_CPOWERBEAM_HPP__

@@ -1,5 +1,4 @@
-#ifndef _DNAMP3_CAUD_HPP_
-#define _DNAMP3_CAUD_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
@@ -118,4 +117,3 @@ struct CAUD : BigDNA
 };
 }
 
-#endif // _DNAMP3_CAUD_HPP_

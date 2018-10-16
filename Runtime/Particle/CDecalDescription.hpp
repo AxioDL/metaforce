@@ -1,5 +1,4 @@
-#ifndef __URDE_CDECALDESCRIPTION_HPP__
-#define __URDE_CDECALDESCRIPTION_HPP__
+#pragma once
 
 #include "CRealElement.hpp"
 #include "CIntElement.hpp"
@@ -40,4 +39,3 @@ public:
 };
 
 }
-#endif // __URDE_CDECALDESCRIPTION_HPP__

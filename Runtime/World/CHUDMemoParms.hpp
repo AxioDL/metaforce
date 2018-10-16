@@ -1,5 +1,4 @@
-#ifndef CHUDMEMOPARMS_HPP
-#define CHUDMEMOPARMS_HPP
+#pragma once
 
 #include "IOStreams.hpp"
 
@@ -32,4 +31,3 @@ public:
 
 }
 
-#endif // CHUDMEMOPARMS_HPP

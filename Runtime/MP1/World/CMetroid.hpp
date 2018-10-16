@@ -1,5 +1,4 @@
-#ifndef CMETROID_HPP
-#define CMETROID_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 #include "World/CAnimationParameters.hpp"
@@ -37,4 +36,3 @@ public:
 
 }
 
-#endif // CMETROID_HPP

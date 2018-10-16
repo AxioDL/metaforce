@@ -1,5 +1,4 @@
-#ifndef __URDE_CPASANIMSTATE_HPP__
-#define __URDE_CPASANIMSTATE_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "CPASParmInfo.hpp"
@@ -30,4 +29,3 @@ public:
 
 }
 
-#endif // __URDE_CPASANIMSTATE_HPP__

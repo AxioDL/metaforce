@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYERGUN_HPP__
-#define __URDE_CPLAYERGUN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Character/CActorLights.hpp"
@@ -415,4 +414,3 @@ public:
 
 }
 
-#endif // __URDE_CPLAYERGUN_HPP__

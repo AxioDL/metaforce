@@ -1,5 +1,4 @@
-#ifndef __URDE_CACTOR_HPP__
-#define __URDE_CACTOR_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 #include "Graphics/CGraphics.hpp"
@@ -203,4 +202,3 @@ public:
 };
 }
 
-#endif // __URDE_CACTOR_HPP__

@@ -1,5 +1,4 @@
-#ifndef __COMMON_STRG_HPP__
-#define __COMMON_STRG_HPP__
+#pragma once
 
 #include <string>
 #include <fstream>
@@ -26,4 +25,3 @@ std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader);
 
 }
 
-#endif // __COMMON_STRG_HPP__

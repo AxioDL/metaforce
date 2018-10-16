@@ -1,5 +1,4 @@
-#ifndef __SCRIPT_OBJECT_SUPPORT_HPP__
-#define __SCRIPT_OBJECT_SUPPORT_HPP__
+#pragma once
 
 #include <string_view>
 
@@ -236,4 +235,3 @@ std::string_view ScriptObjectMessageToStr(EScriptObjectMessage message);
 
 }
 
-#endif // __SCRIPT_OBJECT_SUPPORT_HPP__

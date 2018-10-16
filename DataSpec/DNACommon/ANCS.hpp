@@ -1,5 +1,4 @@
-#ifndef _DNACOMMON_ANCS_HPP_
-#define _DNACOMMON_ANCS_HPP_
+#pragma once
 
 #include <unordered_set>
 #include "DNACommon.hpp"
@@ -20,7 +19,7 @@ struct CharacterResInfo
     IDTYPE cmdl;
     IDTYPE cskr;
     IDTYPE cinf;
-    std::vector<std::pair<hecl::FourCC, std::pair<IDTYPE, IDTYPE>>> overlays;
+    std::vector<std::pair<std::string, std::pair<IDTYPE, IDTYPE>>> overlays;
 };
 
 template <typename IDTYPE>
@@ -44,4 +43,3 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
 
 }
 
-#endif // _DNACOMMON_ANCS_HPP_

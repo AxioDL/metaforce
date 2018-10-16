@@ -1,5 +1,4 @@
-#ifndef URDE_RESOURCE_OUTLINER_HPP
-#define URDE_RESOURCE_OUTLINER_HPP
+#pragma once
 
 #include "Space.hpp"
 #include "ViewManager.hpp"
@@ -261,4 +260,3 @@ public:
 
 }
 
-#endif // URDE_RESOURCE_OUTLINER_HPP

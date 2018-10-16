@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CAMERAPITCHVOLUME_HPP_
-#define _DNAMP1_CAMERAPITCHVOLUME_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -22,4 +21,3 @@ struct CameraPitchVolume : IScriptObject
 };
 }
 
-#endif

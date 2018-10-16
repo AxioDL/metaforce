@@ -1,5 +1,4 @@
-#ifndef __URDE_CTRANSITIONDATABASEGAME_HPP__
-#define __URDE_CTRANSITIONDATABASEGAME_HPP__
+#pragma once
 
 #include "CTransitionDatabase.hpp"
 
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CTRANSITIONDATABASEGAME_HPP__

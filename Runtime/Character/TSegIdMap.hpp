@@ -1,5 +1,4 @@
-#ifndef __URDE_TSEGIDMAP_HPP__
-#define __URDE_TSEGIDMAP_HPP__
+#pragma once
 
 #include <map>
 #include "CSegId.hpp"
@@ -69,4 +68,3 @@ public:
 
 }
 
-#endif // __URDE_TSEGIDMAP_HPP__

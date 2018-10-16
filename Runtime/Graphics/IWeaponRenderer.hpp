@@ -1,5 +1,4 @@
-#ifndef __URDE_IWEAPONRENDERER_HPP__
-#define __URDE_IWEAPONRENDERER_HPP__
+#pragma once
 
 namespace urde
 {
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // __URDE_IWEAPONRENDERER_HPP__

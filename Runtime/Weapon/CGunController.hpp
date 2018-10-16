@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUNCONTROLLER_HPP__
-#define __URDE_CGUNCONTROLLER_HPP__
+#pragma once
 
 #include "Character/CModelData.hpp"
 #include "CGSFreeLook.hpp"
@@ -57,4 +56,3 @@ public:
 };
 }
 
-#endif // __URDE_CGUNCONTROLLER_HPP__

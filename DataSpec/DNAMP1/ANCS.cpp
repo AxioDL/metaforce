@@ -399,8 +399,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Read>(athena::io::IStr
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.read(reader);
-        cskrOverlay.read(reader);
+        cmdlIce.read(reader);
+        cskrIce.read(reader);
     }
 
     animIdxs.clear();
@@ -421,7 +421,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -472,8 +472,8 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
 
     if (sectionCount > 3)
     {
-        cmdlOverlay.write(writer);
-        cskrOverlay.write(writer);
+        cmdlIce.write(writer);
+        cskrIce.write(writer);
     }
 
     if (sectionCount > 4)
@@ -494,7 +494,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(size_t& __
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -594,7 +594,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::ReadYaml>(athena::io::
 
     if (sectionCount > 3)
     {
-        reader.enumerate("cmdlOverride", cmdlOverlay);
+        reader.enumerate("cmdlIce", cmdlIce);
     }
 
     animIdxs.clear();
@@ -614,7 +614,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
         sectionCount = 6;
     else if (animIdxs.size())
         sectionCount = 5;
-    else if (cmdlOverlay)
+    else if (cmdlIce)
         sectionCount = 4;
     else if (effects.size())
         sectionCount = 3;
@@ -656,7 +656,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
 
     if (sectionCount > 3)
     {
-        writer.enumerate("cmdlOverride", cmdlOverlay);
+        writer.enumerate("cmdlIce", cmdlIce);
     }
 
     if (sectionCount > 4)
@@ -1089,9 +1089,9 @@ bool ANCS::Extract(const SpecBase& dataSpec,
                    hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged)
 {
-    hecl::ProjectPath yamlPath = outPath.getWithExtension(_S(".yaml"), true);
+    hecl::ProjectPath yamlPath = outPath.getWithExtension(_SYS_STR(".yaml"), true);
     hecl::ProjectPath::Type yamlType = yamlPath.getPathType();
-    hecl::ProjectPath blendPath = outPath.getWithExtension(_S(".blend"), true);
+    hecl::ProjectPath blendPath = outPath.getWithExtension(_SYS_STR(".blend"), true);
     hecl::ProjectPath::Type blendType = blendPath.getPathType();
 
     ANCS ancs;
@@ -1123,9 +1123,9 @@ bool ANCS::Extract(const SpecBase& dataSpec,
         if (res.second.evntId)
         {
             hecl::SystemStringConv sysStr(res.second.name);
-            hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_S(".")) +
+            hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) +
                                                                        sysStr.c_str() +
-                                                                       _S(".evnt.yaml")).c_str(), true);
+                                                                       _SYS_STR(".evnt.yaml")).c_str(), true);
             hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
 
             if (force || evntYamlType == hecl::ProjectPath::Type::None)
@@ -1148,26 +1148,26 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 const DNAANCS::Actor& actor)
 {
     /* Search for yaml */
-    hecl::ProjectPath yamlPath = inPath.getWithExtension(_S(".yaml"), true);
+    hecl::ProjectPath yamlPath = inPath.getWithExtension(_SYS_STR(".yaml"), true);
     if (!yamlPath.isFile())
-        Log.report(logvisor::Fatal, _S("'%s' not found as file"),
+        Log.report(logvisor::Fatal, _SYS_STR("'%s' not found as file"),
                    yamlPath.getRelativePath().data());
 
     athena::io::FileReader reader(yamlPath.getAbsolutePath());
     if (!reader.isOpen())
-        Log.report(logvisor::Fatal, _S("can't open '%s' for reading"),
+        Log.report(logvisor::Fatal, _SYS_STR("can't open '%s' for reading"),
                    yamlPath.getRelativePath().data());
 
     if (!athena::io::ValidateFromYAMLStream<ANCS>(reader))
     {
-        Log.report(logvisor::Fatal, _S("'%s' is not urde::DNAMP1::ANCS type"),
+        Log.report(logvisor::Fatal, _SYS_STR("'%s' is not urde::DNAMP1::ANCS type"),
                    yamlPath.getRelativePath().data());
     }
 
     athena::io::YAMLDocReader yamlReader;
     if (!yamlReader.parse(&reader))
     {
-        Log.report(logvisor::Fatal, _S("unable to parse '%s'"),
+        Log.report(logvisor::Fatal, _SYS_STR("unable to parse '%s'"),
                    yamlPath.getRelativePath().data());
     }
     ANCS ancs;
@@ -1179,11 +1179,11 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
         ch.cmdl = UniqueID32{};
         ch.cskr = UniqueID32{};
         ch.cinf = UniqueID32{};
-        ch.cmdlOverlay = UniqueID32Zero{};
-        ch.cskrOverlay = UniqueID32Zero{};
+        ch.cmdlIce = UniqueID32Zero{};
+        ch.cskrIce = UniqueID32Zero{};
 
         hecl::SystemStringConv chSysName(ch.name);
-        ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S(".CSKR"));
+        ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR(".CSKR"));
 
         int subtypeIdx = 0;
         ch.animAABBs.clear();
@@ -1207,14 +1207,16 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
                 {
                     const DNAANCS::Armature& arm = actor.armatures[sub.armature];
                     hecl::SystemStringConv armSysName(arm.name);
-                    ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _S(".CINF"));
+                    ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _SYS_STR(".CINF"));
                     ch.cmdl = sub.mesh;
-                    if (sub.overlayMeshes.size())
+                    auto search = std::find_if(sub.overlayMeshes.cbegin(), sub.overlayMeshes.cend(),
+                                               [](const auto& p) { return p.first == "ICE"; });
+                    if (search != sub.overlayMeshes.cend())
                     {
-                        hecl::SystemStringConv overlaySys(sub.overlayMeshes[0].first);
-                        ch.cmdlOverlay = sub.overlayMeshes[0].second;
-                        ch.cskrOverlay = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _S('.') +
-                                                              overlaySys.c_str() + _S(".CSKR"));
+                        hecl::SystemStringConv overlaySys(search->first);
+                        ch.cmdlIce = search->second;
+                        ch.cskrIce = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR('.') +
+                                                          overlaySys.c_str() + _SYS_STR(".CSKR"));
                     }
                 }
 
@@ -1233,7 +1235,7 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool
     {
         hecl::SystemStringConv sysStr(prim.animName);
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
         prim.animId = pathOut;
         return true;
     });
@@ -1243,16 +1245,16 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath,
     for (const DNAANCS::Action& act : actor.actions)
     {
         hecl::SystemStringConv sysStr(act.name);
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _S(".ANIM"));
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
 
         ancs.animationSet.animResources.emplace_back();
         ancs.animationSet.animResources.back().animId = pathOut;
 
         /* Check for associated EVNT YAML */
-        hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) +
+        hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) +
                                                                   sysStr.c_str() +
-                                                                  _S(".evnt.yaml")).c_str(), true);
-        evntYamlPath = evntYamlPath.ensureAuxInfo(_S(""));
+                                                                  _SYS_STR(".evnt.yaml")).c_str(), true);
+        evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
         if (evntYamlPath.isFile())
             ancs.animationSet.animResources.back().evntId = evntYamlPath;
     }
@@ -1297,7 +1299,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     hecl::SystemString subName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
     hecl::SystemString overName;
-    auto dotPos = subName.rfind(_S('.'));
+    auto dotPos = subName.rfind(_SYS_STR('.'));
     if (dotPos != hecl::SystemString::npos)
     {
         overName = hecl::SystemString(subName.begin() + dotPos + 1, subName.end());
@@ -1314,19 +1316,37 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
     }
 
     const DNAANCS::Actor::Subtype* subtype = nullptr;
-    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    if (subName != _SYS_STR("ATTACH"))
     {
-        if (!sub.name.compare(subNameView.str()))
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
-            subtype = &sub;
-            break;
+            if (!sub.name.compare(subNameView.str()))
+            {
+                subtype = &sub;
+                break;
+            }
         }
+        if (!subtype)
+            Log.report(logvisor::Fatal, _SYS_STR("unable to find subtype '%s'"), subName.c_str());
     }
-    if (!subtype)
-        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
 
     const hecl::ProjectPath* modelPath = nullptr;
-    if (overName.empty())
+    if (subName == _SYS_STR("ATTACH"))
+    {
+        const DNAANCS::Actor::Attachment* attachment = nullptr;
+        for (const DNAANCS::Actor::Attachment& att : actor.attachments)
+        {
+            if (!att.name.compare(overNameView.str()))
+            {
+                attachment = &att;
+                break;
+            }
+        }
+        if (!attachment)
+            Log.report(logvisor::Fatal, _SYS_STR("unable to find attachment '%s'"), overName.c_str());
+        modelPath = &attachment->mesh;
+    }
+    else if (overName.empty())
     {
         modelPath = &subtype->mesh;
     }
@@ -1340,19 +1360,19 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
             }
     }
     if (!modelPath)
-        Log.report(logvisor::Fatal, _S("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
 
     if (!modelPath->isFile())
-        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().data());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to resolve '%s'"), modelPath->getRelativePath().data());
 
-    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1).getWithExtension(_S(".skinint"));
+    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1).getWithExtension(_SYS_STR(".skinint"));
     if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
         if (!modelCookFunc(*modelPath))
-            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().data());
+            Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
 
     athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
     if (skinIO.hasError())
-        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().data());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to open '%s'"), skinIntPath.getRelativePath().data());
 
     std::vector<std::string> boneNames;
     uint32_t boneNameCount = skinIO.readUint32Big();
@@ -1417,7 +1437,7 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
     hecl::SystemString subName(inPath.getAuxInfo().begin(),
                                inPath.getAuxInfo().end() - 5);
     hecl::SystemString overName;
-    auto dotPos = subName.rfind(_S('.'));
+    auto dotPos = subName.rfind(_SYS_STR('.'));
     if (dotPos != hecl::SystemString::npos)
     {
         overName = hecl::SystemString(subName.begin() + dotPos + 1, subName.end());
@@ -1434,19 +1454,37 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
     }
 
     const DNAANCS::Actor::Subtype* subtype = nullptr;
-    for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
+    if (subName != _SYS_STR("ATTACH"))
     {
-        if (!sub.name.compare(subNameView.str()))
+        for (const DNAANCS::Actor::Subtype& sub : actor.subtypes)
         {
-            subtype = &sub;
-            break;
+            if (!sub.name.compare(subNameView.str()))
+            {
+                subtype = &sub;
+                break;
+            }
         }
+        if (!subtype)
+            Log.report(logvisor::Fatal, _SYS_STR("unable to find subtype '%s'"), subName.c_str());
     }
-    if (!subtype)
-        Log.report(logvisor::Fatal, _S("unable to find subtype '%s'"), subName.c_str());
 
     const hecl::ProjectPath* modelPath = nullptr;
-    if (overName.empty())
+    if (subName == _SYS_STR("ATTACH"))
+    {
+        const DNAANCS::Actor::Attachment* attachment = nullptr;
+        for (const DNAANCS::Actor::Attachment& att : actor.attachments)
+        {
+            if (!att.name.compare(overNameView.str()))
+            {
+                attachment = &att;
+                break;
+            }
+        }
+        if (!attachment)
+            Log.report(logvisor::Fatal, _SYS_STR("unable to find attachment '%s'"), overName.c_str());
+        modelPath = &attachment->mesh;
+    }
+    else if (overName.empty())
     {
         modelPath = &subtype->mesh;
     }
@@ -1460,19 +1498,19 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
             }
     }
     if (!modelPath)
-        Log.report(logvisor::Fatal, _S("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
 
     if (!modelPath->isFile())
-        Log.report(logvisor::Fatal, _S("unable to resolve '%s'"), modelPath->getRelativePath().data());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to resolve '%s'"), modelPath->getRelativePath().data());
 
-    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_S(".skinint"));
+    hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_SYS_STR(".skinint"));
     if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
         if (!modelCookFunc(*modelPath))
-            Log.report(logvisor::Fatal, _S("unable to cook '%s'"), modelPath->getRelativePath().data());
+            Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
 
     athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
     if (skinIO.hasError())
-        Log.report(logvisor::Fatal, _S("unable to open '%s'"), skinIntPath.getRelativePath().data());
+        Log.report(logvisor::Fatal, _SYS_STR("unable to open '%s'"), skinIntPath.getRelativePath().data());
 
     std::vector<std::vector<uint32_t>> skinBanks;
     uint32_t bankCount = skinIO.readUint32Big();
@@ -1567,7 +1605,7 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
     DNAANCS::Action action = ds.compileActionChannelsOnly(actNameView.str());
 
     if (!actor.armatures.size())
-        Log.report(logvisor::Fatal, _S("0 armatures in %s"),
+        Log.report(logvisor::Fatal, _SYS_STR("0 armatures in %s"),
                    inPath.getRelativePath().data());
 
     /* Build bone ID map */
@@ -1591,9 +1629,9 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath,
     ANIM anim(action, boneIdMap, *rigInv, pc);
 
     /* Check for associated EVNT YAML */
-    hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_S(".")) + actName +
-                                                              _S(".evnt.yaml")).c_str(), true);
-    evntYamlPath = evntYamlPath.ensureAuxInfo(_S(""));
+    hecl::ProjectPath evntYamlPath = inPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) + actName +
+                                                              _SYS_STR(".evnt.yaml")).c_str(), true);
+    evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
     if (evntYamlPath.isFile())
         anim.m_anim->evnt = evntYamlPath;
 

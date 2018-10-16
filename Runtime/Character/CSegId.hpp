@@ -1,5 +1,4 @@
-#ifndef __URDE_CSEGID_HPP__
-#define __URDE_CSEGID_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "IOStreams.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // __URDE_CSEGID_HPP__

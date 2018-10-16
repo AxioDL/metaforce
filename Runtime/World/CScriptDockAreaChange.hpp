@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTDOCKAREACHANGE_HPP__
-#define __URDE_CSCRIPTDOCKAREACHANGE_HPP__
+#pragma once
 
 #include "CEntity.hpp"
 
@@ -16,4 +15,3 @@ public:
 };
 }
 
-#endif //__URDE_CSCRIPTDOCKAREACHANGE_HPP__

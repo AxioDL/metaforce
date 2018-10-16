@@ -1,5 +1,4 @@
-#ifndef __COMMON_WPSC_HPP__
-#define __COMMON_WPSC_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -63,4 +62,3 @@ bool WriteWPSM(const WPSM<IDType>& wpsm, const hecl::ProjectPath& outPath);
 
 }
 
-#endif // __COMMON_WPSC_HPP__

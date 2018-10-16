@@ -1,5 +1,4 @@
-#ifndef _DNAMP3_CINF_HPP_
-#define _DNAMP3_CINF_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "../DNAMP2/CINF.hpp"
@@ -16,4 +15,3 @@ struct CINF : DNAMP2::CINF
 
 }
 
-#endif // _DNAMP3_CINF_HPP_

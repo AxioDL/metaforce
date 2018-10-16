@@ -1,5 +1,4 @@
-#ifndef CPATHFINDAREA_HPP
-#define CPATHFINDAREA_HPP
+#pragma once
 
 #include "IObj.hpp"
 #include "zeus/CTransform.hpp"
@@ -114,4 +113,3 @@ CFactoryFnReturn FPathFindAreaFactory(const urde::SObjectTag& tag,
                                       CObjectReference* selfRef);
 }
 
-#endif // CPATHFINDAREA_HPP

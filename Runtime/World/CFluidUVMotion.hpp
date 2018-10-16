@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDUVMOTION_HPP__
-#define __URDE_CFLUIDUVMOTION_HPP__
+#pragma once
 
 #include "rstl.hpp"
 #include "RetroTypes.hpp"
@@ -50,4 +49,3 @@ public:
     void CalculateFluidTextureOffset(float, float[3][2]) const;
 };
 }
-#endif // __URDE_CFLUIDUVMOTION_HPP__

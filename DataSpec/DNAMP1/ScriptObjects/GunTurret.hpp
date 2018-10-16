@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_GUNTURRET_HPP_
-#define _DNAMP1_GUNTURRET_HPP_
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 #include "IScriptObject.hpp"
@@ -60,10 +59,9 @@ struct GunTurret : IScriptObject
     Value<float> unknown29;
     Value<bool> unknown30;
 
-    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-            std::unordered_map<UniqueID32, std::pair<UniqueID32, UniqueID32>>& addTo) const
+    void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {
-        actorParameters.addCMDLRigPairs(addTo, animationParameters.getCINF(pakRouter));
+        actorParameters.addCMDLRigPairs(pakRouter, charAssoc, animationParameters);
     }
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter) const
@@ -140,4 +138,3 @@ struct GunTurret : IScriptObject
 };
 }
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUILIGHT_HPP__
-#define __URDE_CGUILIGHT_HPP__
+#pragma once
 
 #include "CGuiWidget.hpp"
 #include "Graphics/CLight.hpp"
@@ -47,4 +46,3 @@ public:
 
 }
 
-#endif // __URDE_CGUILIGHT_HPP__

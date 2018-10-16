@@ -1,5 +1,4 @@
-#ifndef __URDE_CFLUIDPLANEMANAGER_HPP__
-#define __URDE_CFLUIDPLANEMANAGER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CRippleManager.hpp"
@@ -7,16 +6,6 @@
 
 namespace urde
 {
-
-enum class EFluidType
-{
-    NormalWater,
-    PoisonWater,
-    Lava,
-    PhazonFluid,
-    Four,
-    ThickLava
-};
 
 class CStateManager;
 class CScriptWater;
@@ -75,4 +64,3 @@ public:
 
 }
 
-#endif // __URDE_CFLUIDPLANEMANAGER_HPP__

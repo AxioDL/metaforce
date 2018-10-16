@@ -1,5 +1,4 @@
-#ifndef SPECBASE_HPP
-#define SPECBASE_HPP
+#pragma once
 
 #include <functional>
 #include <thread>
@@ -240,5 +239,4 @@ protected:
 
 }
 
-#endif // SPECBASE_HPP
 

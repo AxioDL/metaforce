@@ -1,5 +1,4 @@
-#ifndef __URDE_SCRIPTLOADER_HPP__
-#define __URDE_SCRIPTLOADER_HPP__
+#pragma once
 
 #include "IOStreams.hpp"
 #include "zeus/CTransform.hpp"
@@ -165,4 +164,3 @@ public:
 
 }
 
-#endif // __URDE_SCRIPTLOADER_HPP__

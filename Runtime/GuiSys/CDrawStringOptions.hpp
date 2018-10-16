@@ -1,5 +1,4 @@
-#ifndef __URDE_CDRAWSTRINGOPTIONS_HPP__
-#define __URDE_CDRAWSTRINGOPTIONS_HPP__
+#pragma once
 
 #include <vector>
 #include "RetroTypes.hpp"
@@ -28,4 +27,3 @@ public:
 
 }
 
-#endif // __URDE_CDRAWSTRINGOPTIONS_HPP__

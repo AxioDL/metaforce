@@ -1,5 +1,4 @@
-#ifndef __URDE_CRUMBLEMANAGER_HPP__
-#define __URDE_CRUMBLEMANAGER_HPP__
+#pragma once
 
 #include "CRumbleGenerator.hpp"
 #include "zeus/CVector3f.hpp"
@@ -26,4 +25,3 @@ public:
 };
 }
 
-#endif // __URDE_CRUMBLEMANAGER_HPP__

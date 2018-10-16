@@ -1,5 +1,4 @@
-#ifndef __URDE_CBALLFILTER_HPP__
-#define __URDE_CBALLFILTER_HPP__
+#pragma once
 
 #include "ICollisionFilter.hpp"
 
@@ -16,4 +15,3 @@ public:
 
 }
 
-#endif // __URDE_CBALLFILTER_HPP__

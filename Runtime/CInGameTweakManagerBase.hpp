@@ -1,5 +1,4 @@
-#ifndef __URDE_CINGAMETWEAKMANAGERBASE_HPP__
-#define __URDE_CINGAMETWEAKMANAGERBASE_HPP__
+#pragma once
 
 #include <string>
 #include <vector>
@@ -87,4 +86,3 @@ public:
 
 }
 
-#endif // __URDE_CINGAMETWEAKMANAGERBASE_HPP__

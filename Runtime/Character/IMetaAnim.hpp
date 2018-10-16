@@ -1,5 +1,4 @@
-#ifndef __URDE_IMETAANIM_HPP__
-#define __URDE_IMETAANIM_HPP__
+#pragma once
 
 #include "../RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -83,4 +82,3 @@ public:
 
 }
 
-#endif // __URDE_IMETAANIM_HPP__

@@ -1,5 +1,4 @@
-#ifndef __URDE_CGBASUPPORT_HPP__
-#define __URDE_CGBASUPPORT_HPP__
+#pragma once
 
 #include "CDvdFile.hpp"
 
@@ -53,4 +52,3 @@ public:
 
 }
 
-#endif // __URDE_CGBASUPPORT_HPP__

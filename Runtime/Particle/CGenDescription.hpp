@@ -1,5 +1,4 @@
-#ifndef __URDE_CGENDESCRIPTION_HPP__
-#define __URDE_CGENDESCRIPTION_HPP__
+#pragma once
 
 #include <memory>
 #include "CRealElement.hpp"
@@ -112,4 +111,3 @@ public:
 
 }
 
-#endif // __URDE_CGENDESCRIPTION_HPP__

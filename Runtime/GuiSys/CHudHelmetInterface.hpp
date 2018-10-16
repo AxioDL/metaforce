@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDHELMETINTERFACE_HPP__
-#define __URDE_CHUDHELMETINTERFACE_HPP__
+#pragma once
 
 #include "zeus/CMatrix3f.hpp"
 #include "RetroTypes.hpp"
@@ -46,4 +45,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDHELMETINTERFACE_HPP__

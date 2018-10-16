@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAVEWORLD_HPP__
-#define __URDE_CSAVEWORLD_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "DNACommon/SAVWCommon.hpp"
@@ -51,4 +50,3 @@ CFactoryFnReturn FSaveWorldFactory(const SObjectTag& tag, CInputStream& in, cons
 
 }
 
-#endif // __URDE_CSAVEWORLD_HPP__

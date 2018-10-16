@@ -24,11 +24,11 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     /* Check our registry keys */
     HKEY hkey;
     kabufuda::SystemChar configPath[MAX_PATH] = {0};
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, _S("Software\\Dolphin Emulator"), 0, KEY_QUERY_VALUE,
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, _SYS_STR("Software\\Dolphin Emulator"), 0, KEY_QUERY_VALUE,
                      &hkey) == ERROR_SUCCESS)
     {
         DWORD size = MAX_PATH;
-        if (RegQueryValueEx(hkey, _S("UserConfigPath"), nullptr, nullptr, (LPBYTE)configPath,
+        if (RegQueryValueEx(hkey, _SYS_STR("UserConfigPath"), nullptr, nullptr, (LPBYTE)configPath,
                             &size) != ERROR_SUCCESS)
             configPath[0] = 0;
         RegCloseKey(hkey);
@@ -43,7 +43,7 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     if (configPath[0])  /* Case 1 */
         path = configPath;
     else if (my_documents_found)  /* Case 2 */
-        path = kabufuda::SystemString(my_documents) + _S("/Dolphin Emulator");
+        path = kabufuda::SystemString(my_documents) + _SYS_STR("/Dolphin Emulator");
     else  /* Unable to find */
         return {};
 #else
@@ -51,8 +51,8 @@ kabufuda::SystemString CMemoryCardSys::ResolveDolphinCardPath(kabufuda::ECardSlo
     kabufuda::SystemString path(localFolder->Path->Data());
 #endif
 
-    path += hecl::SysFormat(_S("/GC/MemoryCard%c.USA.raw"),
-                            slot == kabufuda::ECardSlot::SlotA ? _S('A') : _S('B'));
+    path += hecl::SysFormat(_SYS_STR("/GC/MemoryCard%c.USA.raw"),
+                            slot == kabufuda::ECardSlot::SlotA ? _SYS_STR('A') : _SYS_STR('B'));
 
     hecl::Sstat theStat;
     if (hecl::Stat(path.c_str(), &theStat) || !S_ISREG(theStat.st_mode))
@@ -74,11 +74,11 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
     /* Check our registry keys */
     HKEY hkey;
     kabufuda::SystemChar configPath[MAX_PATH] = {0};
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, _S("Software\\Dolphin Emulator"), 0, KEY_QUERY_VALUE,
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, _SYS_STR("Software\\Dolphin Emulator"), 0, KEY_QUERY_VALUE,
                      &hkey) == ERROR_SUCCESS)
     {
         DWORD size = MAX_PATH;
-        if (RegQueryValueEx(hkey, _S("UserConfigPath"), nullptr, nullptr, (LPBYTE)configPath,
+        if (RegQueryValueEx(hkey, _SYS_STR("UserConfigPath"), nullptr, nullptr, (LPBYTE)configPath,
                             &size) != ERROR_SUCCESS)
             configPath[0] = 0;
         RegCloseKey(hkey);
@@ -93,7 +93,7 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
     if (configPath[0])  /* Case 1 */
         path = configPath;
     else if (my_documents_found)  /* Case 2 */
-        path = kabufuda::SystemString(my_documents) + _S("/Dolphin Emulator");
+        path = kabufuda::SystemString(my_documents) + _SYS_STR("/Dolphin Emulator");
     else  /* Unable to find */
         return {};
 #else
@@ -101,13 +101,13 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
     kabufuda::SystemString path(localFolder->Path->Data());
 #endif
 
-    path += _S("/GC");
+    path += _SYS_STR("/GC");
     if (hecl::RecursiveMakeDir(path.c_str()) < 0)
         return {};
 
-    path += hecl::SysFormat(_S("/MemoryCard%c.USA.raw"),
-                            slot == kabufuda::ECardSlot::SlotA ? _S('A') : _S('B'));
-    FILE* fp = hecl::Fopen(path.c_str(), _S("wb"));
+    path += hecl::SysFormat(_SYS_STR("/MemoryCard%c.USA.raw"),
+                            slot == kabufuda::ECardSlot::SlotA ? _SYS_STR('A') : _SYS_STR('B'));
+    FILE* fp = hecl::Fopen(path.c_str(), _SYS_STR("wb"));
     if (!fp)
         return {};
     fclose(fp);

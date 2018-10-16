@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CSKR_HPP_
-#define _DNAMP1_CSKR_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "CINF.hpp"
@@ -36,4 +35,3 @@ struct CSKR : BigDNA
 
 }
 
-#endif // _DNAMP1_CSKR_HPP_

@@ -16,8 +16,6 @@ namespace urde
 {
 static logvisor::Module Log("urde::CElementGen");
 
-URDE_DECL_SPECIALIZE_SHADER(CElementGenShaders)
-
 u16 CElementGen::g_GlobalSeed = 99;
 bool CElementGen::g_subtractBlend = false;
 
@@ -41,12 +39,12 @@ void CElementGen::Initialize()
     g_ParticleSystemInitialized = true;
 
     /* Compile shaders */
-    TShader<CElementGenShaders>::Initialize();
+    CElementGenShaders::Initialize();
 }
 
 void CElementGen::Shutdown()
 {
-    TShader<CElementGenShaders>::Shutdown();
+    CElementGenShaders::Shutdown();
 }
 
 static const size_t ShadClsSizes[] =

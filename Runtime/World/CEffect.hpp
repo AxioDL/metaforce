@@ -1,5 +1,4 @@
-#ifndef __URDE_CEFFECT_HPP__
-#define __URDE_CEFFECT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -18,4 +17,3 @@ public:
 
 }
 
-#endif // __URDE_CEFFECT_HPP__

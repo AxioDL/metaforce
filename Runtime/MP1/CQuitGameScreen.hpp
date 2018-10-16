@@ -1,5 +1,4 @@
-#ifndef __URDE_CQUITGAMESCREEN_HPP__
-#define __URDE_CQUITGAMESCREEN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CToken.hpp"
@@ -53,4 +52,3 @@ public:
 }
 }
 
-#endif // __URDE_CQUITGAMESCREEN_HPP__

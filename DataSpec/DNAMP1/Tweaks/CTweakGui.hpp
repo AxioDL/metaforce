@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_CTWEAKGUI_HPP_
-#define _DNAMP1_CTWEAKGUI_HPP_
+#pragma once
 
 #include "../../DNACommon/Tweaks/ITweakGui.hpp"
 
@@ -334,4 +333,3 @@ struct CTweakGui final : ITweakGui
 
 }
 
-#endif // _DNAMP1_CTWEAKGUI_HPP_

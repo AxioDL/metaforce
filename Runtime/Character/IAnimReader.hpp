@@ -1,5 +1,4 @@
-#ifndef __URDE_IANIMREADER_HPP__
-#define __URDE_IANIMREADER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CCharAnimTime.hpp"
@@ -142,4 +141,3 @@ public:
 
 }
 
-#endif // __URDE_IANIMREADER_HPP__

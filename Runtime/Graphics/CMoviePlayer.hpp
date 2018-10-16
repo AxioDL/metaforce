@@ -1,5 +1,4 @@
-#ifndef __URDE_CMOVIEPLAYER_HPP__
-#define __URDE_CMOVIEPLAYER_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CDvdFile.hpp"
@@ -173,4 +172,3 @@ public:
 
 }
 
-#endif // __URDE_CMOVIEPLAYER_HPP__

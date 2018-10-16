@@ -1,5 +1,4 @@
-#ifndef __URDE_CPLAYERVISOR_HPP__
-#define __URDE_CPLAYERVISOR_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "Camera/CCameraFilter.hpp"
@@ -102,4 +101,3 @@ public:
 }
 }
 
-#endif // __URDE_CPLAYERVISOR_HPP__

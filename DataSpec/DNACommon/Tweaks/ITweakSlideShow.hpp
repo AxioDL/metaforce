@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_ITWEAKSLIDESHOW_HPP__
-#define __DNACOMMON_ITWEAKSLIDESHOW_HPP__
+#pragma once
 
 #include "ITweak.hpp"
 
@@ -17,4 +16,3 @@ struct ITweakSlideShow : ITweak
 
 }
 
-#endif // __DNACOMMON_ITWEAKSLIDESHOW_HPP__

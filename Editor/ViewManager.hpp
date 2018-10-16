@@ -1,5 +1,4 @@
-#ifndef URDE_VIEW_MANAGER_HPP
-#define URDE_VIEW_MANAGER_HPP
+#pragma once
 
 #include "hecl/CVarManager.hpp"
 #include "boo/audiodev/IAudioVoiceEngine.hpp"
@@ -22,6 +21,8 @@
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Runtime/Audio/CStaticAudioPlayer.hpp"
 
+namespace hecl { class PipelineConverterBase; }
+
 namespace urde
 {
 class SplashScreen;
@@ -43,6 +44,7 @@ class ViewManager final : public specter::IViewManager
     specter::Translator m_translator;
     boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
     boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
+    std::unique_ptr<hecl::PipelineConverterBase> m_pipelineConv;
     boo::ObjToken<boo::ITextureR> m_renderTex;
     const boo::SystemChar* m_mainPlatformName;
 
@@ -202,4 +204,3 @@ public:
 
 }
 
-#endif // URDE_VIEW_MANAGER_HPP

@@ -1,7 +1,24 @@
 #include "CWorldShadowShader.hpp"
+#include "hecl/Pipeline.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde
 {
+
+static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_ZPipeline;
+
+void CWorldShadowShader::Initialize()
+{
+    s_Pipeline = hecl::conv->convert(Shader_CWorldShadowShader{});
+    s_ZPipeline = hecl::conv->convert(Shader_CWorldShadowShaderZ{});
+}
+
+void CWorldShadowShader::Shutdown()
+{
+    s_Pipeline.reset();
+    s_ZPipeline.reset();
+}
 
 CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
 : m_w(w), m_h(h)
@@ -10,7 +27,12 @@ CWorldShadowShader::CWorldShadowShader(u32 w, u32 h)
     {
         m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
         m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-        TShader<CWorldShadowShader>::BuildShaderDataBinding(ctx, *this);
+        boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
+        boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
+        m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr,
+                                              1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
+        m_zDataBind = ctx.newShaderDataBinding(s_ZPipeline, m_vbo.get(), nullptr, nullptr,
+                                               1, bufs, stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
         m_tex = ctx.newRenderTexture(m_w, m_h, boo::TextureClampMode::ClampToWhite, 1, 0);
         return true;
     } BooTrace);
@@ -57,7 +79,5 @@ void CWorldShadowShader::resolveTexture()
     boo::SWindowRect rect = {0, 0, int(m_w), int(m_h)};
     CGraphics::g_BooMainCommandQueue->resolveBindTexture(m_tex, rect, false, 0, true, false, true);
 }
-
-URDE_SPECIALIZE_SHADER(CWorldShadowShader)
 
 }

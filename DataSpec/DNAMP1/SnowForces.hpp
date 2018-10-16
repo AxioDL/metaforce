@@ -1,5 +1,4 @@
-#ifndef __DNAMP1_SNOWFORCES_HPP__
-#define __DNAMP1_SNOWFORCES_HPP__
+#pragma once
 
 #include <vector>
 
@@ -21,4 +20,3 @@ struct SnowForces : BigDNA
 };
 }
 
-#endif // __DNAMP1_SNOWFORCES_HPP__

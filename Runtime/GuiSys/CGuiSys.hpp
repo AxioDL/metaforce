@@ -1,5 +1,4 @@
-#ifndef __URDE_CGUISYS_HPP__
-#define __URDE_CGUISYS_HPP__
+#pragma once
 
 #include "hecl/hecl.hpp"
 #include <unordered_map>
@@ -61,4 +60,3 @@ extern CTextParser* g_TextParser;
 
 }
 
-#endif // __URDE_CGUISYS_HPP__

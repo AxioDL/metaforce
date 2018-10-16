@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDFREELOOKINTERFACE_HPP__
-#define __URDE_CHUDFREELOOKINTERFACE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CHudInterface.hpp"
@@ -85,4 +84,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDFREELOOKINTERFACE_HPP__

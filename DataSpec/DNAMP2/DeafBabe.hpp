@@ -1,5 +1,4 @@
-#ifndef _DNAMP2_DEAFBABE_HPP_
-#define _DNAMP2_DEAFBABE_HPP_
+#pragma once
 
 #include "../DNAMP1/DeafBabe.hpp"
 
@@ -143,4 +142,3 @@ struct DeafBabe : BigDNA
 
 }
 
-#endif // _DNAMP2_DEAFBABE_HPP_

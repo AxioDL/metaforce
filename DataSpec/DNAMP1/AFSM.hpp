@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_AFSM_HPP_
-#define _DNAMP1_AFSM_HPP_
+#pragma once
 
 #include <athena/FileWriter.hpp>
 #include "DataSpec/DNACommon/DNACommon.hpp"
@@ -58,4 +57,3 @@ struct AFSM : public BigDNA
 };
 }
 
-#endif // _RETRO_AFSM_HPP_

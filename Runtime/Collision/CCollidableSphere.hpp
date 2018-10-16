@@ -1,5 +1,4 @@
-#ifndef __URDE_CCOLLIDALBESPHERE_HPP
-#define __URDE_CCOLLIDALBESPHERE_HPP
+#pragma once
 
 #include "CCollisionPrimitive.hpp"
 #include "zeus/CSphere.hpp"
@@ -43,4 +42,3 @@ public:
 };
 }
 
-#endif // __URDE_CCOLLIDALBESPHERE_HPP

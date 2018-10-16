@@ -61,7 +61,7 @@ PAKBridge::PAKBridge(const nod::Node& node,
     for (const hecl::SystemString& str : uniq)
     {
         if (comma)
-            m_levelString += _S(", ");
+            m_levelString += _SYS_STR(", ");
         comma = true;
         m_levelString += str;
     }
@@ -71,8 +71,8 @@ static hecl::SystemString LayerName(std::string_view name)
 {
     hecl::SystemString ret(hecl::SystemStringConv(name).sys_str());
     for (auto& ch : ret)
-        if (ch == _S('/') || ch == _S('\\'))
-            ch = _S('-');
+        if (ch == _SYS_STR('/') || ch == _SYS_STR('\\'))
+            ch = _SYS_STR('-');
     return ret;
 }
 
@@ -133,11 +133,11 @@ void PAKBridge::build()
                     if (areaDeps.name.empty())
                     {
                         std::string idStr = area.areaMREAId.toString();
-                        areaDeps.name = hecl::SystemString(_S("MREA_")) + hecl::SystemStringConv(idStr).c_str();
+                        areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
                     }
                 }
                 hecl::SystemChar num[16];
-                hecl::SNPrintf(num, 16, _S("%02u "), ai);
+                hecl::SNPrintf(num, 16, _SYS_STR("%02u "), ai);
                 areaDeps.name = num + areaDeps.name;
 
                 const MLVL::LayerFlags& layerFlags = *layerFlagsIt++;
@@ -151,7 +151,7 @@ void PAKBridge::build()
                         layer.name = LayerName(mlvl.layerNames[layerIdx++]);
                         layer.active = layerFlags.flags >> (l-1) & 0x1;
                         layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
-                        hecl::SNPrintf(num, 16, _S("%02u "), l-1);
+                        hecl::SNPrintf(num, 16, _SYS_STR("%02u "), l-1);
                         layer.name = num + layer.name;
                     }
                 }
@@ -178,9 +178,7 @@ void PAKBridge::build()
     }
 }
 
-void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
-        std::unordered_map<UniqueID64, std::pair<UniqueID64, UniqueID64>>& addTo,
-        std::unordered_map<UniqueID64, std::pair<UniqueID64, std::string>>& cskrCinfToChar) const
+void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID64>& charAssoc) const
 {
     for (const std::pair<UniqueID64, PAK::Entry>& entry : m_pak.m_entries)
     {
@@ -190,13 +188,15 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter,
             CHAR aChar;
             aChar.read(rs);
             const CHAR::CharacterInfo& ci = aChar.characterInfo;
-            addTo[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-            cskrCinfToChar[ci.cskr] = std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
-            cskrCinfToChar[ci.cinf] = std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
+            charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
+            charAssoc.m_cskrCinfToCharacter[ci.cskr] =
+                std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+            charAssoc.m_cskrCinfToCharacter[ci.cinf] =
+                std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
             for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays)
             {
-                addTo[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
-                cskrCinfToChar[overlay.cskr] = std::make_pair(entry.second.id,
+                charAssoc.m_cmdlRigs[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
+                charAssoc.m_cskrCinfToCharacter[overlay.cskr] = std::make_pair(entry.second.id,
                     hecl::Format("%s.%.4s.CSKR", ci.name.c_str(), overlay.type.getChars()));
             }
         }
@@ -221,13 +221,13 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
             hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
             if (mlvl.worldNameId)
-                pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _S("!name.yaml"));
+                pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _SYS_STR("!name.yaml"));
 
             for (const MLVL::Area& area : mlvl.areas)
             {
                 hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
                 if (area.areaNameId)
-                    pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _S("!name.yaml"));
+                    pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _SYS_STR("!name.yaml"));
             }
 
             if (mlvl.worldMap)
@@ -265,31 +265,31 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     switch (entry.type)
     {
 //    case SBIG('CAUD'):
-//        return {CAUD::Extract, {_S(".yaml")}};
+//        return {CAUD::Extract, {_SYS_STR(".yaml")}};
     case SBIG('STRG'):
-        return {STRG::Extract, {_S(".yaml")}};
+        return {STRG::Extract, {_SYS_STR(".yaml")}};
     case SBIG('TXTR'):
-        return {TXTR::Extract, {_S(".png")}};
+        return {TXTR::Extract, {_SYS_STR(".png")}};
     case SBIG('SAVW'):
-        return {SAVWCommon::ExtractSAVW<SAVW>, {_S(".yaml")}};
+        return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
     case SBIG('HINT'):
-        return {HINT::Extract, {_S(".yaml")}};
+        return {HINT::Extract, {_SYS_STR(".yaml")}};
     case SBIG('CMDL'):
-        return {CMDL::Extract, {_S(".blend")}, 1};
+        return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
     case SBIG('CHAR'):
-        return {CHAR::Extract, {_S(".yaml"), _S(".blend")}, 2};
+        return {CHAR::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
     case SBIG('MLVL'):
-        return {MLVL::Extract, {_S(".yaml"), _S(".blend")}, 3};
+        return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
     case SBIG('MREA'):
-        return {MREA::Extract, {_S(".blend")}, 4};
+        return {MREA::Extract, {_SYS_STR(".blend")}, 4};
     case SBIG('MAPA'):
-        return {MAPA::Extract, {_S(".blend")}, 4};
+        return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
     case SBIG('FSM2'):
-        return {DNAFSM2::ExtractFSM2<UniqueID64>, {_S(".yaml")}};
+        return {DNAFSM2::ExtractFSM2<UniqueID64>, {_SYS_STR(".yaml")}};
     case SBIG('FONT'):
-        return {DNAFont::ExtractFONT<UniqueID64>, {_S(".yaml")}};
+        return {DNAFont::ExtractFONT<UniqueID64>, {_SYS_STR(".yaml")}};
     case SBIG('DGRP'):
-        return {DNADGRP::ExtractDGRP<UniqueID64>, {_S(".yaml")}};
+        return {DNADGRP::ExtractDGRP<UniqueID64>, {_SYS_STR(".yaml")}};
     }
     return {};
 }

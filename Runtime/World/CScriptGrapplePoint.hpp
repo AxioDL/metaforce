@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTGRAPPLEPOINT_HPP__
-#define __URDE_CSCRIPTGRAPPLEPOINT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 #include "CGrappleParameters.hpp"
@@ -24,4 +23,3 @@ public:
 };
 }
 
-#endif // __URDE_CSCRIPTGRAPPLEPOINT_HPP__

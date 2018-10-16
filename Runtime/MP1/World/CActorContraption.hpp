@@ -1,5 +1,4 @@
-#ifndef __URDE_MP1_CACTORCONTRAPTION_HPP__
-#define __URDE_MP1_CACTORCONTRAPTION_HPP__
+#pragma once
 
 #include "World/CScriptActor.hpp"
 #include "World/CDamageInfo.hpp"
@@ -31,4 +30,3 @@ public:
 }
 }
 
-#endif // __URDE_MP1_CACTORCONTRAPTION_HPP__

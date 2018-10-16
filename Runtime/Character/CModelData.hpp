@@ -1,5 +1,4 @@
-#ifndef __URDE_CMODELDATA_HPP__
-#define __URDE_CMODELDATA_HPP__
+#pragma once
 
 #include "zeus/CVector3f.hpp"
 #include "zeus/CAABox.hpp"
@@ -187,4 +186,3 @@ public:
 
 }
 
-#endif // __URDE_CMODELDATA_HPP__

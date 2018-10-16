@@ -1,5 +1,4 @@
-#ifndef __URDE_CIOWIN_HPP__
-#define __URDE_CIOWIN_HPP__
+#pragma once
 
 #include <string>
 #include <memory>
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // __URDE_CIOWIN_HPP__

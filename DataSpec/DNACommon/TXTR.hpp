@@ -1,5 +1,4 @@
-#ifndef __DNACOMMON_TXTR_HPP__
-#define __DNACOMMON_TXTR_HPP__
+#pragma once
 
 #include "DNACommon.hpp"
 
@@ -16,4 +15,3 @@ struct TXTR
 
 }
 
-#endif // __DNACOMMON_TXTR_HPP__

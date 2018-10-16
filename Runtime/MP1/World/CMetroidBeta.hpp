@@ -1,5 +1,4 @@
-#ifndef CMETROIDBETA_HPP
-#define CMETROIDBETA_HPP
+#pragma once
 
 #include "World/CPatterned.hpp"
 #include "CMetroid.hpp"
@@ -20,4 +19,3 @@ public:
 
 }
 
-#endif // CMETROIDBETA_HPP

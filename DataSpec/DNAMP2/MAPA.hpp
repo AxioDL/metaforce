@@ -1,5 +1,4 @@
-#ifndef __DNAMP2_MAPA_HPP__
-#define __DNAMP2_MAPA_HPP__
+#pragma once
 
 #include "DataSpec/DNACommon/PAK.hpp"
 #include "DataSpec/DNACommon/MAPA.hpp"
@@ -36,4 +35,3 @@ struct MAPA : DNAMAPA::MAPA
 
 }
 
-#endif

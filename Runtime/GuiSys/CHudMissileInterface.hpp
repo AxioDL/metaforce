@@ -1,5 +1,4 @@
-#ifndef __URDE_CHUDMISSILEINTERFACE_HPP__
-#define __URDE_CHUDMISSILEINTERFACE_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CHudInterface.hpp"
@@ -73,4 +72,3 @@ public:
 
 }
 
-#endif // __URDE_CHUDMISSILEINTERFACE_HPP__

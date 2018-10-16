@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPOINTOFINTEREST_HPP__
-#define __URDE_CSCRIPTPOINTOFINTEREST_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -23,4 +22,3 @@ public:
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
 };
 }
-#endif // __URDE_CSCRIPTPOINTOFINTEREST_HPP__

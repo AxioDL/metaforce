@@ -1,5 +1,4 @@
-#ifndef __URDE_CEXPLOSION_HPP__
-#define __URDE_CEXPLOSION_HPP__
+#pragma once
 
 #include "CEffect.hpp"
 #include "Particle/CElementGen.hpp"
@@ -34,4 +33,3 @@ public:
 
 }
 
-#endif // __URDE_CEXPLOSION_HPP__

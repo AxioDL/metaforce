@@ -3,8 +3,12 @@
 
 namespace urde
 {
+using namespace std::literals;
 
-static const char* LightingGLSL =
+extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];
+extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];
+
+static std::string_view LightingGLSL =
 "struct Light\n"
 "{\n"
 "    vec4 pos;\n"
@@ -51,9 +55,9 @@ static const char* LightingGLSL =
 "    }\n"
 "    \n"
 "    return ret;\n"
-"}\n";
+"}\n"sv;
 
-static const char* LightingShadowGLSL =
+static std::string_view LightingShadowGLSL =
 "struct Light\n"
 "{\n"
 "    vec4 pos;\n"
@@ -115,9 +119,9 @@ static const char* LightingShadowGLSL =
 "    }\n"
 "    \n"
 "    return ret;\n"
-"}\n";
+"}\n"sv;
 
-static const char* MainPostGLSL =
+static std::string_view MainPostGLSL =
 "vec4 MainPostFunc(vec4 colorIn)\n"
 "{\n"
 "    float fogZ, temp;\n"
@@ -146,9 +150,9 @@ static const char* MainPostGLSL =
 "    }\n"
 "    return mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0));\n"
 "}\n"
-"\n";
+"\n"sv;
 
-static const char* ThermalPostGLSL =
+static std::string_view ThermalPostGLSL =
 "UBINDING2 uniform ThermalUniform\n"
 "{\n"
 "    vec4 tmulColor;\n"
@@ -158,9 +162,9 @@ static const char* ThermalPostGLSL =
 "{\n"
 "    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + addColor.a);\n"
 "}\n"
-"\n";
+"\n"sv;
 
-static const char* SolidPostGLSL =
+static std::string_view SolidPostGLSL =
 "UBINDING2 uniform SolidUniform\n"
 "{\n"
 "    vec4 solidColor;\n"
@@ -169,9 +173,9 @@ static const char* SolidPostGLSL =
 "{\n"
 "    return solidColor;\n"
 "}\n"
-"\n";
+"\n"sv;
 
-static const char* MBShadowPostGLSL =
+static std::string_view MBShadowPostGLSL =
 "UBINDING2 uniform MBShadowUniform\n"
 "{\n"
 "    vec4 shadowUp;\n"
@@ -187,146 +191,54 @@ static const char* MBShadowPostGLSL =
 "        sphereTexel * fadeTexel;\n"
 "    return vec4(0.0, 0.0, 0.0, val);\n"
 "}\n"
-"\n";
+"\n"sv;
 
-static const char* BlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                   HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
-                                   "LightingUniform"};
-
-static const char* ThermalBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                          HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
-                                         "ThermalUniform"};
-
-static const char* SolidBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                        HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
-                                        "SolidUniform"};
-
-static const char* MBShadowBlockNames[] = {HECL_GLSL_VERT_UNIFORM_BLOCK_NAME,
-                                           HECL_GLSL_TEXMTX_UNIFORM_BLOCK_NAME,
-                                           "MBShadowUniform"};
-
-hecl::Runtime::ShaderCacheExtensions
-CModelShaders::GetShaderExtensionsGLSL(boo::IGraphicsDataFactory::Platform plat)
+const hecl::Backend::Function ExtensionLightingFuncsGLSL[] =
 {
-    hecl::Runtime::ShaderCacheExtensions ext(plat);
+    {},
+    {LightingGLSL, "LightingFunc"},
+    {},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    {LightingShadowGLSL, "LightingShadowFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"},
+    {LightingGLSL, "LightingFunc"}
+};
 
-    /* Normal lit shading */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original,
-                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, true);
-
-    /* Thermal Visor shading */
-    ext.registerExtensionSlot({}, {ThermalPostGLSL, "ThermalPostFunc"}, 3, ThermalBlockNames,
-                              1, ThermalTextures, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, false, true);
-
-    /* Forced alpha shading */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, true);
-
-    /* Forced additive shading */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, true, false, true);
-
-    /* Solid color */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
-                              hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
-                              hecl::Backend::CullMode::Backface, false, false, false);
-
-    /* Solid color additive */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-                              hecl::Backend::CullMode::Backface, true, false, true);
-
-    /* Alpha-only Solid color frontface cull, LEqual */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-                              hecl::Backend::CullMode::Frontface, false, true, false);
-
-    /* Alpha-only Solid color frontface cull, Always, No Z-write */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::None,
-                              hecl::Backend::CullMode::Frontface, true, true, false);
-
-    /* Alpha-only Solid color backface cull, LEqual */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
-                              hecl::Backend::CullMode::Backface, false, true, false);
-
-    /* Alpha-only Solid color backface cull, Greater, No Z-write */
-    ext.registerExtensionSlot({}, {SolidPostGLSL, "SolidPostFunc"},
-                              3, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater,
-                              hecl::Backend::CullMode::Backface, true, true, false);
-
-    /* MorphBall shadow shading */
-    ext.registerExtensionSlot({}, {MBShadowPostGLSL, "MBShadowPostFunc"},
-                              3, MBShadowBlockNames, 3, BallFadeTextures,
-                              hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha,
-                              hecl::Backend::ZTest::Equal,
-                              hecl::Backend::CullMode::Backface, false, false, true, false, true);
-
-    /* World shadow shading (modified lighting) */
-    ext.registerExtensionSlot({LightingShadowGLSL, "LightingShadowFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
-                              hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Backface, false, false, true);
-
-    /* Forced alpha shading without culling */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::None, false, false, true);
-
-    /* Forced additive shading without culling */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::None, false, false, true);
-
-    /* Forced alpha shading without Z-write */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Original, true, false, true);
-
-    /* Forced additive shading without Z-write */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::Original, true, false, true);
-
-    /* Forced alpha shading without culling or Z-write */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::None, true, false, true);
-
-    /* Forced additive shading without culling or Z-write */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
-                              hecl::Backend::CullMode::None, true, false, true);
-
-    /* Depth GEqual no Z-write */
-    ext.registerExtensionSlot({LightingGLSL, "LightingFunc"}, {MainPostGLSL, "MainPostFunc"},
-                              3, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
-                              hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::GEqual,
-                              hecl::Backend::CullMode::Backface, true, false, true);
-
-    return ext;
-}
+const hecl::Backend::Function ExtensionPostFuncsGLSL[] =
+{
+    {},
+    {MainPostGLSL, "MainPostFunc"},
+    {ThermalPostGLSL, "ThermalPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {SolidPostGLSL, "SolidPostFunc"},
+    {MBShadowPostGLSL, "MBShadowPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
+};
 
 }

@@ -1,5 +1,4 @@
-#ifndef __URDE_CIKCHAIN_HPP__
-#define __URDE_CIKCHAIN_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "zeus/CTransform.hpp"
@@ -44,4 +43,3 @@ public:
 };
 }
 
-#endif // __URDE_CIKCHAIN_HPP__

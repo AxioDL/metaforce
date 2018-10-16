@@ -1,7 +1,6 @@
-#ifndef __URDE_CAABOXSHADER_HPP__
-#define __URDE_CAABOXSHADER_HPP__
+#pragma once
 
-#include "TShader.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CColor.hpp"
 #include "zeus/CAABox.hpp"
@@ -11,11 +10,6 @@ namespace urde
 
 class CAABoxShader
 {
-    friend struct CAABoxShaderGLDataBindingFactory;
-    friend struct CAABoxShaderVulkanDataBindingFactory;
-    friend struct CAABoxShaderMetalDataBindingFactory;
-    friend struct CAABoxShaderD3DDataBindingFactory;
-
     struct Uniform
     {
         zeus::CMatrix4f m_xf;
@@ -25,17 +19,14 @@ class CAABoxShader
     boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
     boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
     Uniform m_uniform;
-    bool m_zOnly;
 
 public:
+    static void Initialize();
+    static void Shutdown();
     CAABoxShader(bool zOnly);
     void setAABB(const zeus::CAABox& aabb);
     void draw(const zeus::CColor& color);
-
-    using _CLS = CAABoxShader;
-#include "TShaderDecl.hpp"
 };
 
 }
 
-#endif // __URDE_CAABOXSHADER_HPP__

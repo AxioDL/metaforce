@@ -20,6 +20,7 @@
 #include "Audio/CStreamAudioManager.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
+#include "hecl/Pipeline.hpp"
 #include <cstdio>
 
 using YAMLNode = athena::io::YAMLNode;
@@ -169,7 +170,7 @@ void ViewManager::RootSpaceViewBuilt(specter::View* view)
 void ViewManager::ProjectChanged(hecl::Database::Project& proj)
 {
     CDvdFile::Shutdown();
-    CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _S("out/files")));
+    CDvdFile::Initialize(hecl::ProjectPath(proj.getProjectWorkingPath(), _SYS_STR("out/files")));
 }
 
 void ViewManager::SetupEditorView()
@@ -211,14 +212,14 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
 , m_projManager(*this)
 , m_fontCache(fileMgr)
 , m_translator(urde::SystemLocaleOrEnglish())
-, m_recentProjectsPath(hecl::SysFormat(_S("%s/recent_projects.txt"), fileMgr.getStoreRoot().data()))
-, m_recentFilesPath(hecl::SysFormat(_S("%s/recent_files.txt"), fileMgr.getStoreRoot().data()))
+, m_recentProjectsPath(hecl::SysFormat(_SYS_STR("%s/recent_projects.txt"), fileMgr.getStoreRoot().data()))
+, m_recentFilesPath(hecl::SysFormat(_SYS_STR("%s/recent_files.txt"), fileMgr.getStoreRoot().data()))
 {
     Space::SpaceMenuNode::InitializeStrings(*this);
     char path[2048];
     hecl::Sstat theStat;
 
-    FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _S("r"), hecl::FileLockType::Read);
+    FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
     if (fp)
     {
         while (fgets(path, 2048, fp))
@@ -232,7 +233,7 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
         fclose(fp);
     }
 
-    fp = hecl::Fopen(m_recentFilesPath.c_str(), _S("r"), hecl::FileLockType::Read);
+    fp = hecl::Fopen(m_recentFilesPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
     if (fp)
     {
         while (fgets(path, 2048, fp))
@@ -257,7 +258,7 @@ void ViewManager::pushRecentProject(hecl::SystemStringView path)
             return;
     }
     m_recentProjects.emplace_back(path);
-    FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _S("w"), hecl::FileLockType::Write);
+    FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
     if (fp)
     {
         for (hecl::SystemString& pPath : m_recentProjects)
@@ -274,7 +275,7 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path)
             return;
     }
     m_recentFiles.emplace_back(path);
-    FILE* fp = hecl::Fopen(m_recentFilesPath.c_str(), _S("w"), hecl::FileLockType::Write);
+    FILE* fp = hecl::Fopen(m_recentFilesPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
     if (fp)
     {
         for (hecl::SystemString& pPath : m_recentFiles)
@@ -285,15 +286,17 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path)
 
 void ViewManager::init(boo::IApplication* app)
 {
-    m_mainWindow = app->newWindow(_S("URDE"));
+    m_mainWindow = app->newWindow(_SYS_STR("URDE"));
     m_mainWindow->showWindow();
     m_mainWindow->setWaitCursor(true);
 
     float pixelFactor = m_mainWindow->getVirtualPixelFactor();
 
     m_mainBooFactory = m_mainWindow->getMainContextDataFactory();
+    m_pipelineConv = hecl::NewPipelineConverter(m_mainBooFactory);
+    hecl::conv = m_pipelineConv.get();
     m_mainPlatformName = m_mainBooFactory->platformName();
-    m_mainWindow->setTitle(_S("URDE [") + hecl::SystemString(m_mainPlatformName) + _S("]"));
+    m_mainWindow->setTitle(_SYS_STR("URDE [") + hecl::SystemString(m_mainPlatformName) + _SYS_STR("]"));
     m_mainCommandQueue = m_mainWindow->getCommandQueue();
     m_viewResources.init(m_mainBooFactory, &m_fontCache, &m_themeData, pixelFactor);
     InitializeIcons(m_viewResources);
@@ -313,9 +316,9 @@ void ViewManager::init(boo::IApplication* app)
     {
         if (m_deferedProject.empty() && hecl::SearchForProject(arg))
             m_deferedProject = arg;
-        if (arg == _S("--no-shader-warmup"))
+        if (arg == _SYS_STR("--no-shader-warmup"))
             m_noShaderWarmup = true;
-        else if (arg == _S("--no-sound"))
+        else if (arg == _SYS_STR("--no-sound"))
             m_voiceEngine->setVolume(0.f);
     }
 
@@ -326,8 +329,8 @@ void ViewManager::init(boo::IApplication* app)
         {
             hecl::SystemString rootPath(root.getAbsolutePath());
             hecl::Sstat theStat;
-            if (!hecl::Stat((rootPath + _S("/out/files/Metroid1.upak")).c_str(), &theStat) && S_ISREG(theStat.st_mode))
-                m_deferedProject = rootPath + _S("/out");
+            if (!hecl::Stat((rootPath + _SYS_STR("/out/files/Metroid1.upak")).c_str(), &theStat) && S_ISREG(theStat.st_mode))
+                m_deferedProject = rootPath + _SYS_STR("/out");
         }
     }
 }

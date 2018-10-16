@@ -1,5 +1,4 @@
-#ifndef __DNAMP2_SAVW_HPP__
-#define __DNAMP2_SAVW_HPP__
+#pragma once
 
 #include "../DNAMP1/SAVW.hpp"
 #include "DNAMP2.hpp"
@@ -18,4 +17,3 @@ struct SAVW : DNAMP1::SAVW
 };
 }
 
-#endif // __DNAMP2_SAVW_HPP__

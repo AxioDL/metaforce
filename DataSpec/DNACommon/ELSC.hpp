@@ -1,5 +1,4 @@
-#ifndef __COMMON_ELSC_HPP__
-#define __COMMON_ELSC_HPP__
+#pragma once
 
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
@@ -43,4 +42,3 @@ template <class IDType>
 bool WriteELSM(const ELSM<IDType>& elsm, const hecl::ProjectPath& outPath);
 
 }
-#endif // __COMMON_ELSC_HPP__

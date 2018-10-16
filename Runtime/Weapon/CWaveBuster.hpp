@@ -1,5 +1,4 @@
-#ifndef URDE_CWAVEBUSTER_HPP
-#define URDE_CWAVEBUSTER_HPP
+#pragma once
 
 #include "CGameProjectile.hpp"
 
@@ -53,4 +52,3 @@ public:
 
 }
 
-#endif // URDE_CWAVEBUSTER_HPP

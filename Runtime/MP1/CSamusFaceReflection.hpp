@@ -1,5 +1,4 @@
-#ifndef __URDE_CSAMUSFACEREFLECTION_HPP__
-#define __URDE_CSAMUSFACEREFLECTION_HPP__
+#pragma once
 
 #include "Character/CModelData.hpp"
 #include "Character/CActorLights.hpp"
@@ -24,4 +23,3 @@ public:
 
 }
 
-#endif // __URDE_CSAMUSFACEREFLECTION_HPP__

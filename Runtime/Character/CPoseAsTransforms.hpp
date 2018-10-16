@@ -1,5 +1,4 @@
-#ifndef __URDE_CPOSEASTRANSFORMS_HPP__
-#define __URDE_CPOSEASTRANSFORMS_HPP__
+#pragma once
 
 #include "RetroTypes.hpp"
 #include "CSegId.hpp"
@@ -41,4 +40,3 @@ public:
 
 }
 
-#endif // __URDE_CPOSEASTRANSFORMS_HPP__

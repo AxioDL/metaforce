@@ -1,5 +1,4 @@
-#ifndef _DNAMP1_AGSC_HPP_
-#define _DNAMP1_AGSC_HPP_
+#pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
 #include "DNAMP1.hpp"
@@ -22,4 +21,3 @@ public:
 
 }
 
-#endif // _DNAMP1_AGSC_HPP_

@@ -1,5 +1,4 @@
-#ifndef __URDE_CCHARLAYOUTINFO_HPP__
-#define __URDE_CCHARLAYOUTINFO_HPP__
+#pragma once
 
 #include "CFactoryMgr.hpp"
 #include "IOStreams.hpp"
@@ -46,4 +45,3 @@ CFactoryFnReturn FCharLayoutInfo(const SObjectTag&, CInputStream&, const CVParam
 
 }
 
-#endif // __URDE_CCHARLAYOUTINFO_HPP__

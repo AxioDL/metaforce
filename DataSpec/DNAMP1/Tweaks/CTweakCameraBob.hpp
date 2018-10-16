@@ -1,5 +1,4 @@
-#ifndef __URDE_CTWEAKCAMERABOB_HPP__
-#define __URDE_CTWEAKCAMERABOB_HPP__
+#pragma once
 
 #include "../../DNACommon/DNACommon.hpp"
 
@@ -25,4 +24,3 @@ struct CTweakCameraBob : BigDNA
 };
 }
 
-#endif // __URDE_CTWEAKCAMERABOB_HPP__

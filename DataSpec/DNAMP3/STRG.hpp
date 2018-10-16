@@ -1,5 +1,4 @@
-#ifndef __DNAMP3_STRG_HPP__
-#define __DNAMP3_STRG_HPP__
+#pragma once
 
 #include <unordered_map>
 #include "DataSpec/DNACommon/PAK.hpp"
@@ -83,4 +82,3 @@ struct STRG : ISTRG
 
 }
 
-#endif // __DNAMP2_STRG_HPP__

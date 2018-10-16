@@ -1,5 +1,4 @@
-#ifndef __URDE_CSCRIPTPLAYERHINT_HPP__
-#define __URDE_CSCRIPTPLAYERHINT_HPP__
+#pragma once
 
 #include "CActor.hpp"
 
@@ -29,4 +28,3 @@ public:
 
 }
 
-#endif // __URDE_CSCRIPTPLAYERHINT_HPP__
