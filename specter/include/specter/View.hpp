@@ -16,6 +16,8 @@ class IThemeData;
 class ViewResources;
 class RootView;
 
+extern zeus::CMatrix4f g_PlatformMatrix;
+
 class RectangleConstraint
 {
 public:
@@ -100,6 +102,11 @@ public:
             m_mv[1][1] = 2.0f / root.size[1];
             m_mv[3][0] = sub.location[0] * m_mv[0][0] - 1.0f;
             m_mv[3][1] = sub.location[1] * m_mv[1][1] - 1.0f;
+        }
+        void finalAssign(const ViewBlock& other)
+        {
+            m_mv = g_PlatformMatrix * other.m_mv;
+            m_color = other.m_color;
         }
     };
 
@@ -222,7 +229,7 @@ public:
     {
         m_viewVertBlock.m_color = color;
         if (m_viewVertBlockBuf)
-            m_viewVertBlockBuf.access() = m_viewVertBlock;
+            m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
     }
 
     virtual int nominalWidth() const {return 0;}

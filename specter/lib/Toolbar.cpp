@@ -140,7 +140,7 @@ void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     setHorizontalVerts(sub.size[0]);
     m_vertsBinding.load<decltype(m_tbVerts)>(m_tbVerts);
     m_tbBlock.setViewRect(root, sub);
-    m_tbBlockBuf.access() = m_tbBlock;
+    m_tbBlockBuf.access().finalAssign(m_tbBlock);
 
     float gaugeUnit = rootView().viewRes().pixelFactor() * SPECTER_TOOLBAR_GAUGE;
     float yOff = 0.0;

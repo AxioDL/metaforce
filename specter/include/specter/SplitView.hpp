@@ -104,7 +104,7 @@ public:
     {
         View::setMultiplyColor(color);
         m_splitBlock.m_color = color;
-        m_splitBlockBuf.access() = m_splitBlock;
+        m_splitBlockBuf.access().finalAssign(m_splitBlock);
 
         if (m_views[0].m_view)
             m_views[0].m_view->setMultiplyColor(color);

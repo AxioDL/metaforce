@@ -84,7 +84,7 @@ void Tooltip::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     float pf = rootView().viewRes().pixelFactor();
     setVerts(m_nomWidth, m_nomHeight, pf);
     m_ttBlock.setViewRect(root, sub);
-    m_ttBlockBuf.access() = m_ttBlock;
+    m_ttBlockBuf.access().finalAssign(m_ttBlock);
 
     std::pair<int,int> margin = m_cornersFilled[0]->queryGlyphDimensions(0);
 

@@ -453,7 +453,7 @@ void ModalWindow::resized(const boo::SWindowRect& root, const boo::SWindowRect& 
     centerRect.location[1] = root.size[1] / 2 - m_height / 2.0;
     View::resized(root, centerRect);
     m_viewBlock.setViewRect(root, centerRect);
-    m_viewBlockBuf.access() = m_viewBlock;
+    m_viewBlockBuf.access().finalAssign(m_viewBlock);
 
     setLineVerts(m_width, m_height, pf, m_lineTime);
     setFillVerts(m_width, m_height, pf);

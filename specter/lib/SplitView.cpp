@@ -476,7 +476,7 @@ void SplitView::resized(const boo::SWindowRect& root, const boo::SWindowRect& su
         m_splitBlock.setViewRect(root, ssub);
         setVerticalVerts(ssub.size[1]);
     }
-    m_splitBlockBuf.access() = m_splitBlock;
+    m_splitBlockBuf.access().finalAssign(m_splitBlock);
     m_splitVertsBinding.load<decltype(m_splitVerts)>(m_splitVerts);
 }
 

@@ -7,8 +7,18 @@ namespace specter
 {
 static logvisor::Module Log("specter::View");
 
+zeus::CMatrix4f g_PlatformMatrix;
+
 void View::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme)
 {
+    switch (ctx.platform())
+    {
+    case boo::IGraphicsDataFactory::Platform::Vulkan:
+        g_PlatformMatrix.m[1][1] = -1.f;
+        break;
+    default:
+        break;
+    }
     m_solidShader = hecl::conv->convert(ctx, Shader_SpecterViewShaderSolid{});
     m_texShader = hecl::conv->convert(ctx, Shader_SpecterViewShaderTex{});
 }
@@ -41,7 +51,7 @@ void View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf.access() = m_viewVertBlock;
+        m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
     m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 
@@ -53,7 +63,7 @@ void View::resized(const ViewBlock& vb, const boo::SWindowRect& sub)
     m_bgRect[2].m_pos.assign(sub.size[0], sub.size[1], 0.f);
     m_bgRect[3].m_pos.assign(sub.size[0], 0.f, 0.f);
     if (m_viewVertBlockBuf)
-        m_viewVertBlockBuf.access() = vb;
+        m_viewVertBlockBuf.access().finalAssign(vb);
     m_bgVertsBinding.load<decltype(m_bgRect)>(m_bgRect);
 }
 

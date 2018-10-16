@@ -111,7 +111,7 @@ void RootView::SplitMenuSystem::setArrowVerts(const boo::SWindowRect& rect, Spli
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + (dir == SplitView::ArrowDir::Down ? rect.size[1] : 0)) /
                                  float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf.access() = m_viewBlock;
+    m_viewVertBlockBuf.access().finalAssign(m_viewBlock);
 }
 
 void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float split, SplitView::Axis axis)
@@ -135,7 +135,7 @@ void RootView::SplitMenuSystem::setLineVerts(const boo::SWindowRect& rect, float
         m_viewBlock.m_mv[3][0] = (rect.location[0] + split * rect.size[0]) * m_viewBlock.m_mv[0][0] - 1.0f;
         m_viewBlock.m_mv[3][1] = 2.0f * (rect.location[1] + rect.size[1] / 2.0f) / float(root.size[1]) - 1.0f;
     }
-    m_viewVertBlockBuf.access() = m_viewBlock;
+    m_viewVertBlockBuf.access().finalAssign(m_viewBlock);
 }
 
 void RootView::destroyed()
