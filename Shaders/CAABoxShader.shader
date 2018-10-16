@@ -109,7 +109,7 @@ vertex VertToFrag vmain(VertData v [[ stage_in ]], constant CAABoxUniform& bu [[
 }
 
 #fragment metal
-"struct VertToFrag
+struct VertToFrag
 {
     float4 pos [[ position ]];
     float4 color;

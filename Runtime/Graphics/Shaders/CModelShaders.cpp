@@ -71,86 +71,91 @@ static const hecl::Backend::TextureInfo WorldShadowTextures[] =
     {hecl::Backend::TexGenSrc::Position, 7, 0, 7, false} // Shadow tex
 };
 
+static const char* BlockNames[] = {"LightingUniform"};
+static const char* ThermalBlockNames[] = {"ThermalUniform"};
+static const char* SolidBlockNames[] = {"SolidUniform"};
+static const char* MBShadowBlockNames[] = {"MBShadowUniform"};
+
 static hecl::Backend::ExtensionSlot g_ExtensionSlots[] =
 {
     /* Default solid shading */
     {},
     /* Normal lit shading */
-    {0, nullptr, hecl::Backend::BlendFactor::Original,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original,
         hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Backface, false, false, true},
     /* Thermal Visor shading */
-    {1, ThermalTextures, hecl::Backend::BlendFactor::One,
+    {1, ThermalBlockNames, 1, ThermalTextures, hecl::Backend::BlendFactor::One,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Backface, false, false, false, true},
     /* Forced alpha shading */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Backface, false, false, true},
     /* Forced additive shading */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Backface, true, false, true},
     /* Solid color */
-    {0, nullptr, hecl::Backend::BlendFactor::One,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One,
         hecl::Backend::BlendFactor::Zero, hecl::Backend::ZTest::LEqual,
         hecl::Backend::CullMode::Backface, false, false, false},
     /* Solid color additive */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
         hecl::Backend::CullMode::Backface, true, false, true},
     /* Alpha-only Solid color frontface cull, LEqual */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
         hecl::Backend::CullMode::Frontface, false, true, false},
     /* Alpha-only Solid color frontface cull, Always, No Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::None,
         hecl::Backend::CullMode::Frontface, true, true, false},
     /* Alpha-only Solid color backface cull, LEqual */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::LEqual,
         hecl::Backend::CullMode::Backface, false, true, false},
     /* Alpha-only Solid color backface cull, Greater, No Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::Zero,
+    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Greater,
         hecl::Backend::CullMode::Backface, true, true, false},
     /* MorphBall shadow shading */
-    {3, BallFadeTextures,
+    {1, MBShadowBlockNames, 3, BallFadeTextures,
         hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha,
         hecl::Backend::ZTest::Equal,
         hecl::Backend::CullMode::Backface, false, false, true, false, true},
     /* World shadow shading (modified lighting) */
-    {1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
+    {1, BlockNames, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original,
         hecl::Backend::BlendFactor::Original, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Backface, false, false, true},
     /* Forced alpha shading without culling */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::None, false, false, true},
     /* Forced additive shading without culling */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::None, false, false, true},
     /* Forced alpha shading without Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Original, true, false, true},
     /* Forced additive shading without Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::Original, true, false, true},
     /* Forced alpha shading without culling or Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::None, true, false, true},
     /* Forced additive shading without culling or Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::One, hecl::Backend::ZTest::Original,
         hecl::Backend::CullMode::None, true, false, true},
     /* Depth GEqual no Z-write */
-    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::GEqual,
         hecl::Backend::CullMode::Backface, true, false, true}
 };

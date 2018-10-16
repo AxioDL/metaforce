@@ -81,7 +81,7 @@ namespace gmm {
     std::vector<size_type> ns(dim), na(dim), nu(dim);
     for (size_type i = 0; i < nbpts; ++i) {
       for (int k = 0; k < dim; ++k) {
-	register double a = (pts[i][k] - pmin[k]) / msize;
+	double a = (pts[i][k] - pmin[k]) / msize;
 	ns[k] = size_type(a) - 1; na[k] = 0;
 	pts1[k] = int(a + overlap); pts2[k] = int(ceil(a-1.0-overlap));
       }

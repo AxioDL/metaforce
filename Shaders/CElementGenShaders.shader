@@ -435,7 +435,7 @@ struct VertToFrag
 };
 
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
-                      sampler samp [[ sampler(0) ]],"
+                      sampler samp [[ sampler(0) ]],
                       texture2d<float> tex0 [[ texture(0) ]],
                       texture2d<float> tex1 [[ texture(1) ]],
                       texture2d<float> tex2 [[ texture(2) ]])
@@ -444,7 +444,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     float4 texrTexel = tex0.sample(samp, vtf.uvTexr);
     float4 colr = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;
-    return float4(colr.rgb, vtf.color.a * texrTexel.a);"
+    return float4(colr.rgb, vtf.color.a * texrTexel.a);
 }
 
 #shader CElementGenShaderIndTexNoZWrite : CElementGenShaderIndTexZWrite
