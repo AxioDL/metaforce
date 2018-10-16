@@ -27,7 +27,6 @@ void main()
     vtf.uv = uvIn;
     vtf.color = mulColor;
     gl_Position = mv * vec4(posIn, 1.0);
-    gl_Position = FLIPFROMGL(gl_Position);
 }
 
 #fragment glsl

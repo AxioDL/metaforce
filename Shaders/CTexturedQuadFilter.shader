@@ -33,7 +33,6 @@ void main()
     vtf.uv = uvIn.xy;
     vtf.lod = lod;
     gl_Position = mtx * vec4(posIn.xyz, 1.0);
-    gl_Position = FLIPFROMGL(gl_Position);
 }
 
 #fragment glsl

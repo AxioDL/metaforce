@@ -98,9 +98,6 @@ class ViewManager final : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->charKeyDown(cc, mkey, repeat);
-
-            if (cc == '\t')
-                m_vm.m_skipWait = true;
         }
 
         void charKeyUp(unsigned long cc, boo::EModifierKey mkey)
@@ -108,9 +105,6 @@ class ViewManager final : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->charKeyUp(cc, mkey);
-
-            if (cc == '\t')
-                m_vm.m_skipWait = false;
         }
 
         void specialKeyDown(boo::ESpecialKey skey, boo::EModifierKey mkey, bool repeat)
@@ -118,6 +112,9 @@ class ViewManager final : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->specialKeyDown(skey, mkey, repeat);
+
+            if (skey == boo::ESpecialKey::F1)
+                m_vm.m_skipWait = true;
         }
 
         void specialKeyUp(boo::ESpecialKey skey, boo::EModifierKey mkey)
@@ -125,6 +122,9 @@ class ViewManager final : public specter::IViewManager
             if (MP1::CMain* m = m_vm.m_projManager.gameMain())
                 if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
                     as->specialKeyUp(skey, mkey);
+
+            if (skey == boo::ESpecialKey::F1)
+                m_vm.m_skipWait = false;
         }
     };
     std::unique_ptr<TestGameView> m_testGameView;

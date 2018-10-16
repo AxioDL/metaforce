@@ -298,7 +298,6 @@ void main()
     vtf.uvTexr = uvsInTexrTind[gl_VertexID].xy;
     vtf.uvTind = uvsInTexrTind[gl_VertexID].zw;
     gl_Position = mvp * pos;
-    gl_Position = FLIPFROMGL(gl_Position);
 }
 
 #fragment glsl
