@@ -191,8 +191,8 @@ struct VertToFrag
 };
 struct BlendOut
 {
-    float4 colorOut : [[ color(0), index(0) ]];
-    float4 blendOut : [[ color(0), index(1) ]];
+    float4 colorOut [[ color(0), index(0) ]];
+    float4 blendOut [[ color(0), index(1) ]];
 };
 fragment BlendOut fmain(VertToFrag vtf [[ stage_in ]],
                         sampler samp [[ sampler(0) ]],
