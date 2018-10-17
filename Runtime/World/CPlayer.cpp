@@ -5707,10 +5707,10 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
                 x294_jumpCameraTimer = 0.01f;
                 x2a4_cancelCameraPitch = false;
             }
-            x258_movementState = EPlayerMovementState::Jump;
-            x2ac_surfaceRestraint = ESurfaceRestraints::InAir;
-            x2a8_timeSinceJump = 0.f;
         }
+        x258_movementState = EPlayerMovementState::Jump;
+        x2ac_surfaceRestraint = ESurfaceRestraints::InAir;
+        x2a8_timeSinceJump = 0.f;
         break;
     case EPlayerMovementState::Falling:
         if (x258_movementState == EPlayerMovementState::OnGround)
