@@ -402,13 +402,24 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
     CGraphics::SetModelMatrix(seventeenScale * windowScale);
 
+    float uvX0 = rect.x4_left / float(g_Viewport.x8_width);
+    float uvX1 = (rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width);
+    float uvY0 = rect.x8_top / float(g_Viewport.xc_height);
+    float uvY1 = (rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height);
     CTexturedQuadFilter::Vert rttVerts[4] =
     {
-        {{-5.f, 0.f, 4.45f}, {rect.x4_left / float(g_Viewport.x8_width), rect.x8_top / float(g_Viewport.xc_height)}},
-        {{ 5.f, 0.f, 4.45f}, {(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width), rect.x8_top / float(g_Viewport.xc_height)}},
-        {{-5.f, 0.f, -4.45f}, {rect.x4_left / float(g_Viewport.x8_width), (rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height)}},
-        {{ 5.f, 0.f, -4.45f}, {(rect.x4_left + rect.xc_width) / float(g_Viewport.x8_width), (rect.x8_top + rect.x10_height) / float(g_Viewport.xc_height)}}
+        {{-5.f, 0.f, 4.45f}, {uvX0, uvY0}},
+        {{ 5.f, 0.f, 4.45f}, {uvX1, uvY0}},
+        {{-5.f, 0.f, -4.45f}, {uvX0, uvY1}},
+        {{ 5.f, 0.f, -4.45f}, {uvX1, uvY1}}
     };
+    if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL)
+    {
+        rttVerts[0].m_uv.y = uvY1;
+        rttVerts[1].m_uv.y = uvY1;
+        rttVerts[2].m_uv.y = uvY0;
+        rttVerts[3].m_uv.y = uvY0;
+    }
     const_cast<CTexturedQuadFilter&>(x108_newScanPane).drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
     // No cull faces

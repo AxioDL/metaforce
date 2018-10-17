@@ -100,7 +100,7 @@ public:
     {
         OnGround,
         Jump,
-        StartingJump,
+        ApplyJump,
         Falling,
         FallingMorphed
     };

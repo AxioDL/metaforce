@@ -158,7 +158,7 @@ static const CMaterialFilter BallTransitionCollide =
 
 s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const
 {
-    if (x258_movementState == EPlayerMovementState::StartingJump)
+    if (x258_movementState == EPlayerMovementState::ApplyJump)
         return 3; // B_airposetoball_samus
     zeus::CVector3f localVel = x34_transform.transposeRotate(x138_velocity);
     zeus::CVector3f localVelFlat = localVel;
@@ -1878,7 +1878,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr)
         if (ShouldSampleFailsafe(mgr))
         {
             CFailsafeTest::EInputState inputState = CFailsafeTest::EInputState::Moving;
-            if (x258_movementState == EPlayerMovementState::StartingJump)
+            if (x258_movementState == EPlayerMovementState::ApplyJump)
                 inputState = CFailsafeTest::EInputState::StartingJump;
             else if (x258_movementState == EPlayerMovementState::Jump)
                 inputState = CFailsafeTest::EInputState::Jump;
@@ -2680,7 +2680,7 @@ void CPlayer::Think(float dt, CStateManager& mgr)
     {
         x288_startingJumpTimeout -= dt;
         if (0.f >= x288_startingJumpTimeout)
-            SetMoveState(EPlayerMovementState::StartingJump, mgr);
+            SetMoveState(EPlayerMovementState::ApplyJump, mgr);
     }
 
     if (x2a0_ > 0.f)
@@ -2692,7 +2692,7 @@ void CPlayer::Think(float dt, CStateManager& mgr)
 
     x300_fallingTime += dt;
     if (x258_movementState == EPlayerMovementState::FallingMorphed && x300_fallingTime > 0.4f)
-        SetMoveState(EPlayerMovementState::StartingJump, mgr);
+        SetMoveState(EPlayerMovementState::ApplyJump, mgr);
 
     if (x570_immuneTimer > 0.f)
         x570_immuneTimer -= dt;
@@ -2868,7 +2868,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                  x2f8_morphBallState == EPlayerMorphBallState::Morphed)
         {
             if (x138_velocity.z < -40.f && !x768_morphball->GetIsInHalfPipeMode() &&
-                x258_movementState == EPlayerMovementState::StartingJump &&
+                x258_movementState == EPlayerMovementState::ApplyJump &&
                 x300_fallingTime > 0.75f)
                 SetCoefficientOfRestitutionModifier(0.2f);
             x768_morphball->StartLandingSfx();
@@ -2904,8 +2904,8 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     case EScriptObjectMessage::LandOnNotFloor:
         if (x2f8_morphBallState == EPlayerMorphBallState::Morphed &&
             x768_morphball->GetSpiderBallState() == CMorphBall::ESpiderBallState::Active &&
-            x258_movementState != EPlayerMovementState::StartingJump)
-            SetMoveState(EPlayerMovementState::StartingJump, mgr);
+            x258_movementState != EPlayerMovementState::ApplyJump)
+            SetMoveState(EPlayerMovementState::ApplyJump, mgr);
         break;
     case EScriptObjectMessage::OnIceSurface:
         x2ac_surfaceRestraint = ESurfaceRestraints::Ice;
@@ -4072,7 +4072,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 if (x3d8_grappleJumpTimeout <= 0.f)
                 {
                     BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
-                    SetMoveState(EPlayerMovementState::StartingJump, mgr);
+                    SetMoveState(EPlayerMovementState::ApplyJump, mgr);
                     ComputeMovement(input, mgr, input.DeltaTime());
                     PreventFallingCameraPitch();
                 }
@@ -4094,7 +4094,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                 x3d8_grappleJumpTimeout -= input.DeltaTime();
                 if (x3d8_grappleJumpTimeout <= 0.f)
                 {
-                    SetMoveState(EPlayerMovementState::StartingJump, mgr);
+                    SetMoveState(EPlayerMovementState::ApplyJump, mgr);
                     ComputeMovement(input, mgr, input.DeltaTime());
                     BreakGrapple(EPlayerOrbitRequest::StopOrbit, mgr);
                     PreventFallingCameraPitch();
@@ -5503,7 +5503,7 @@ float CPlayer::GetUnbiasedEyeHeight() const
 float CPlayer::GetStepUpHeight() const
 {
     if (x258_movementState == EPlayerMovementState::Jump ||
-        x258_movementState == EPlayerMovementState::StartingJump)
+        x258_movementState == EPlayerMovementState::ApplyJump)
         return 0.3f;
     return CPhysicsActor::GetStepUpHeight();
 }
@@ -5512,7 +5512,7 @@ float CPlayer::GetStepDownHeight() const
 {
     if (x258_movementState == EPlayerMovementState::Jump)
         return -1.f;
-    if (x258_movementState == EPlayerMovementState::StartingJump)
+    if (x258_movementState == EPlayerMovementState::ApplyJump)
         return 0.1f;
     return CPhysicsActor::GetStepDownHeight();
 }
@@ -5681,7 +5681,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
     switch (newState)
     {
     case EPlayerMovementState::Jump:
-        if (x258_movementState == EPlayerMovementState::StartingJump)
+        if (x258_movementState == EPlayerMovementState::ApplyJump)
         {
             CSfxHandle hnd = CSfxManager::SfxStart(SFXsam_b_jump_00, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
             ApplySubmergedPitchBend(hnd);
@@ -5741,11 +5741,11 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr)
         x2a4_cancelCameraPitch = false;
         x298_jumpPresses = 0;
         break;
-    case EPlayerMovementState::StartingJump:
+    case EPlayerMovementState::ApplyJump:
         x288_startingJumpTimeout = 0.f;
-        if (x258_movementState != EPlayerMovementState::StartingJump)
+        if (x258_movementState != EPlayerMovementState::ApplyJump)
         {
-            x258_movementState = EPlayerMovementState::StartingJump;
+            x258_movementState = EPlayerMovementState::ApplyJump;
             if (x294_jumpCameraTimer <= x288_startingJumpTimeout &&
                 x29c_fallCameraTimer <= x288_startingJumpTimeout &&
                 !x3dc_inFreeLook && !x3dd_lookButtonHeld)
@@ -5799,7 +5799,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
     if (x828_distanceUnderWater >= 0.8f * GetEyeHeight())
         doubleJumpImpulse *= jumpFactor;
 
-    if (x258_movementState == EPlayerMovementState::StartingJump)
+    if (x258_movementState == EPlayerMovementState::ApplyJump)
     {
         if (g_tweakPlayer->GetMaxDoubleJumpWindow() - g_tweakPlayer->GetMinDoubleJumpWindow() >= x28c_sjTimer &&
             0.f < x28c_sjTimer && ControlMapper::GetPressInput(ControlMapper::ECommands::JumpOrBoost, input))
@@ -5843,7 +5843,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
     }
 
     if (x258_movementState == EPlayerMovementState::Jump)
-        SetMoveState(EPlayerMovementState::StartingJump, mgr);
+        SetMoveState(EPlayerMovementState::ApplyJump, mgr);
 
     return 0.f;
 }
@@ -6203,7 +6203,7 @@ float CPlayer::GetWeight() const { return xe8_mass * -GetGravity(); }
 zeus::CVector3f CPlayer::GetDampedClampedVelocityWR() const
 {
     zeus::CVector3f localVel = x34_transform.transposeRotate(x138_velocity);
-    if ((x258_movementState != EPlayerMovementState::StartingJump ||
+    if ((x258_movementState != EPlayerMovementState::ApplyJump ||
         GetSurfaceRestraint() != ESurfaceRestraints::InAir) &&
         x304_orbitState == EPlayerOrbitState::NoOrbit)
     {

@@ -385,13 +385,13 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     CPlayer& player = static_cast<CPlayer&>(actor);
     player.x9c5_28_slidingOnWall = false;
-    bool startingJump = player.x258_movementState == CPlayer::EPlayerMovementState::StartingJump;
+    bool startingJump = player.x258_movementState == CPlayer::EPlayerMovementState::ApplyJump;
     bool dampUnderwater = false;
     if (player.x9c4_31_dampUnderwaterMotion)
         if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
             dampUnderwater = true;
 
-    bool noJump = (player.x258_movementState != CPlayer::EPlayerMovementState::StartingJump &&
+    bool noJump = (player.x258_movementState != CPlayer::EPlayerMovementState::ApplyJump &&
                    player.x258_movementState != CPlayer::EPlayerMovementState::Jump);
 
     float stepDown = player.GetStepDownHeight();

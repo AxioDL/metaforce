@@ -59,7 +59,7 @@ class Shader_CFluidPlaneShader : public hecl::TessellationShader
     const SFluidPlaneShaderInfo& m_info;
 public:
     Shader_CFluidPlaneShader(const SFluidPlaneShaderInfo& in, bool tessellation)
-    : m_info(in), VtxFmt(tessellation ? TessVtxFmtElems : VtxFmtElems),
+    : m_info(in), VtxFmt(tessellation ? boo::VertexFormatInfo(TessVtxFmtElems) : boo::VertexFormatInfo(VtxFmtElems)),
     PipelineInfo({in.m_additive ? boo::BlendFactor::One : boo::BlendFactor::SrcAlpha,
                   in.m_additive ? boo::BlendFactor::One : boo::BlendFactor::InvSrcAlpha,
                   boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
@@ -89,7 +89,7 @@ class Shader_CFluidPlaneDoorShader : public hecl::GeneralShader
     const SFluidPlaneDoorShaderInfo& m_info;
 public:
     explicit Shader_CFluidPlaneDoorShader(const SFluidPlaneDoorShaderInfo& in)
-    : m_info(in), VtxFmt(Shader_CFluidPlaneShader::VtxFmtElems),
+    : m_info(in), VtxFmt(boo::VertexFormatInfo(Shader_CFluidPlaneShader::VtxFmtElems)),
       PipelineInfo({boo::BlendFactor::SrcAlpha, boo::BlendFactor::InvSrcAlpha,
                     boo::Primitive::TriStrips, boo::ZTest::LEqual, false, true, false,
                     boo::CullMode::None}) {}
