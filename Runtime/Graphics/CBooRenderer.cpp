@@ -532,7 +532,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
     zeus::CVector2i vpMax(0, 0);
     zeus::CVector2i vpMin(g_Viewport.x8_width, g_Viewport.xc_height);
 
-    bool b1 = true;
+    bool vpInvalid = true;
     for (int i=0 ; i<20 ; ++i)
     {
         zeus::CVector3f overW;
@@ -569,7 +569,7 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
         vpMin.x = std::min(vpMin.x, vpX);
         vpMax.y = std::max(vpMax.y, vpY);
         vpMin.y = std::min(vpMin.y, vpY);
-        b1 = false;
+        vpInvalid = false;
     }
 
     zeus::CVector2i vpSize = {vpMax.x - vpMin.x, vpMax.y - vpMin.y};
@@ -588,6 +588,9 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
     rect.x10_height = g_Viewport.xc_height;
     
     //CGraphics::SetScissor(vpMin.x, vpMin.y, vpSize.x, vpSize.y);
+    zeus::CAABox marginAABB((CGraphics::g_GXModelView * aabb.min) - 1.f,
+                            (CGraphics::g_GXModelView * aabb.max) + 1.f);
+    bool camInModel = marginAABB.pointInside(CGraphics::g_ViewMatrix.origin) && (model || sModel);
 
     CFogVolumePlaneShader* fvs;
     if (!model && !sModel)
@@ -602,12 +605,14 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
     }
 
     RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 0, fvs);
-    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1, fvs);
+    if (camInModel)
+        RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 1, fvs);
 
     CGraphics::ResolveSpareDepth(rect, 0);
 
     RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 2, fvs);
-    RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3, fvs);
+    if (camInModel)
+        RenderFogVolumeModel(aabb, model, CGraphics::g_GXModelMatrix, CGraphics::g_ViewMatrix, sModel, 3, fvs);
 
     CGraphics::ResolveSpareDepth(rect, 1);
 
@@ -615,14 +620,15 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
         m_fogVolumeFilters.insert(m_fogVolumeFilters.end(), CFogVolumeFilter()) :
         m_nextFogVolumeFilter++;
     fvf->draw2WayPass(color);
-    fvf->draw1WayPass(color);
+    if (camInModel)
+        fvf->draw1WayPass(color);
     
     //CGraphics::SetScissor(g_Viewport.x0_left, g_Viewport.x4_top, g_Viewport.x8_width, g_Viewport.xc_height);
 }
 
 void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& ctx)
 {
-    u8 data[FOGVOL_RAMP_RES][FOGVOL_RAMP_RES] = {};
+    u16 data[FOGVOL_RAMP_RES][FOGVOL_RAMP_RES] = {};
     for (int y=0 ; y<FOGVOL_RAMP_RES ; ++y)
     {
         for (int x=0 ; x<FOGVOL_RAMP_RES ; ++x)
@@ -631,12 +637,12 @@ void CBooRenderer::GenerateFogVolumeRampTex(boo::IGraphicsDataFactory::Context& 
             double a = zeus::clamp(0.0, (-150.0 / (tmp / double(0xffffff) *
                 (FOGVOL_FAR - FOGVOL_NEAR) - FOGVOL_FAR) - FOGVOL_NEAR) * 3.0 /
                 (FOGVOL_FAR - FOGVOL_NEAR), 1.0);
-            data[y][x] = (a * a + a) / 2.f * 255;
+            data[y][x] = u16((a * a + a) / 2.0 * 65535);
         }
     }
     x1b8_fogVolumeRamp = ctx.newStaticTexture(FOGVOL_RAMP_RES, FOGVOL_RAMP_RES, 1,
-                                              boo::TextureFormat::I8, boo::TextureClampMode::Repeat, data[0],
-                                              FOGVOL_RAMP_RES * FOGVOL_RAMP_RES);
+                                              boo::TextureFormat::I16, boo::TextureClampMode::Repeat, data[0],
+                                              FOGVOL_RAMP_RES * FOGVOL_RAMP_RES * 2);
 }
 
 void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx)
