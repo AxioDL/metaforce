@@ -118,6 +118,12 @@ public:
         x134_gameState.reset(new CGameState());
         g_GameState = x134_gameState.get();
     }
+
+    void StreamInGameState(CBitStreamReader& stream, u32 saveIdx)
+    {
+        x134_gameState.reset(new CGameState(stream, saveIdx));
+        g_GameState = x134_gameState.get();
+    }
 };
 
 #if MP1_USE_BOO
@@ -281,6 +287,7 @@ public:
     void AddWorldPaks();
     void ResetGameState();
     void StreamNewGameState(CBitStreamReader&, u32 idx);
+    void RefreshGameState();
     void CheckTweakManagerDebugOptions() {}
     void SetMFGameBuilt(bool b) { x160_25_mfGameBuilt = b; }
     void SetScreenFading(bool b) { x160_26_screenFading = b; }
@@ -336,6 +343,10 @@ public:
     void ListWorlds(hecl::Console*, const std::vector<std::string>&);
     void WarpTo(hecl::Console*, const std::vector<std::string>&);
     hecl::Console* Console() const { return m_console.get(); }
+
+    int m_warpWorldIdx = -1;
+    TAreaId m_warpAreaId = 0;
+    u64 m_warpLayerBits = 0;
 };
 
 }

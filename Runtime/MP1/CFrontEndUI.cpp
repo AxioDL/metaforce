@@ -2007,7 +2007,6 @@ CFrontEndUI::CFrontEndUI()
 
     m->ResetGameState();
     g_GameState->SetCurrentWorldId(g_ResFactory->TranslateOriginalToNew(g_DefaultWorldTag.id));
-    g_GameState->CurrentWorldState().SetAreaId(7);
     g_GameState->GameOptions().ResetToDefaults();
     g_GameState->WriteBackupBuf();
 
@@ -2016,8 +2015,6 @@ CFrontEndUI::CFrontEndUI()
 
     m_touchBar = NewFrontEndUITouchBar();
     m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::None);
-
-    x14_phase = EPhase::ExitFrontEnd;
 }
 
 void CFrontEndUI::StartSlideShow(CArchitectureQueue& queue)

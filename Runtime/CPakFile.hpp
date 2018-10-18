@@ -63,6 +63,7 @@ private:
     std::vector<CAssetId> x64_depList;
     std::vector<SResInfo> x74_resList;
     mutable s32 x84_currentSeek = -1;
+    CAssetId m_mlvlId;
     void LoadResourceTable(athena::io::MemoryReader& r);
     void DataLoad();
     void InitialHeaderLoad();
@@ -79,6 +80,7 @@ public:
     bool IsWorldPak() const { return x28_26_worldPak; }
     u32 GetFakeStaticSize() const { return 0; }
     void AsyncIdle();
+    CAssetId GetMLVLId() const { return m_mlvlId; }
 };
 
 }

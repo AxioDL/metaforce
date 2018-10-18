@@ -373,12 +373,12 @@ void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, con
 
     const zeus::CPlane& plane = planes[level];
     u32 insidePlaneCount = 0;
-    bool outsidePlane[4];
+    bool outsidePlane[20];
     for (int i=0 ; i<numVerts ; ++i)
         outsidePlane[insidePlaneCount++] = plane.normal().dot(verts[i]) < plane.d;
 
     u32 numUseVerts = 0;
-    zeus::CVector3f useVerts[4];
+    zeus::CVector3f useVerts[20];
     for (int i=0 ; i<numVerts ; ++i)
     {
         int nextIdx = (i + 1) % numVerts;

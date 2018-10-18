@@ -116,6 +116,7 @@ public:
     void ExportPersistentOptions(CPersistentOptions& opts) const;
     void SetGameOptions(const CGameOptions& opts) { x17c_gameOptions = opts; }
     void WriteBackupBuf();
+    std::vector<u8>& BackupBuf() { return x218_backupBuf; }
     u32 GetFileIdx() const { return x20c_saveFileIdx; }
     void SetFileIdx(u32 idx) { x20c_saveFileIdx = idx; }
     void SetCardSerial(u64 serial) { x210_cardSerial = serial; }

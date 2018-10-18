@@ -622,6 +622,22 @@ void CMain::StreamNewGameState(CBitStreamReader& r, u32 idx)
     g_GameState->HintOptions().SetNextHintTime();
 }
 
+void CMain::RefreshGameState()
+{
+    CPersistentOptions sysOpts = g_GameState->SystemOptions();
+    u64 cardSerial = g_GameState->GetCardSerial();
+    std::vector<u8> saveData = g_GameState->BackupBuf();
+    CGameOptions gameOpts = g_GameState->GameOptions();
+    CBitStreamReader r(saveData.data(), saveData.size());
+    x128_globalObjects.StreamInGameState(r, g_GameState->GetFileIdx());
+    g_GameState->SetPersistentOptions(sysOpts);
+    g_GameState->SetGameOptions(gameOpts);
+    g_GameState->GameOptions().EnsureSettings();
+    g_GameState->SetCardSerial(cardSerial);
+    g_GameState->GetPlayerState()->SetIsFusionEnabled(
+        g_GameState->SystemOptions().GetPlayerFusionSuitActive());
+}
+
 static logvisor::Module DiscordLog("Discord");
 static const char* DISCORD_APPLICATION_ID = "402571593815031819";
 static int64_t DiscordStartTime;
@@ -720,6 +736,35 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_console->registerCommand("ListWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
     m_console->registerCommand("WarpTo"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv, std::bind(&CMain::WarpTo, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
+    const auto& args = boo::APP->getArgs();
+    for (auto it = args.begin(); it != args.end(); ++it)
+    {
+        if (*it == _SYS_STR("--warp") && args.end() - it >= 3)
+        {
+            const hecl::SystemChar* worldIdxStr = (*(it + 1)).c_str();
+            const hecl::SystemChar* areaIdxStr = (*(it + 2)).c_str();
+
+            hecl::SystemChar* endptr;
+            m_warpWorldIdx = hecl::StrToUl(worldIdxStr, &endptr, 0);
+            if (endptr == worldIdxStr)
+                m_warpWorldIdx = 0;
+            m_warpAreaId = hecl::StrToUl(areaIdxStr, &endptr, 0);
+            if (endptr == areaIdxStr)
+                m_warpAreaId = 0;
+
+            if (args.end() - it >= 4)
+            {
+                const hecl::SystemChar* layerStr = (*(it + 3)).c_str();
+                if (layerStr[0] == _SYS_STR('0') || layerStr[0] == _SYS_STR('1'))
+                    for (const auto* cur = layerStr; *cur != _SYS_STR('\0'); ++cur)
+                        if (*cur == _SYS_STR('1'))
+                            m_warpLayerBits |= 1 << (cur - layerStr);
+            }
+
+            SetFlowState(EFlowState::StateSetter);
+        }
+    }
+
     InitializeSubsystems();
     x128_globalObjects.PostInitialize();
     x70_tweaks.RegisterTweaks(m_cvarMgr);
@@ -730,8 +775,6 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     g_archSupport = x164_archSupport.get();
     x164_archSupport->PreloadAudio();
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
-
-    //CStreamAudioManager::Start(false, "Audio/rui_samusL.dsp|Audio/rui_samusR.dsp", 0x7f, true, 1.f, 1.f);
 }
 
 static logvisor::Module WarmupLog("ShaderWarmup");

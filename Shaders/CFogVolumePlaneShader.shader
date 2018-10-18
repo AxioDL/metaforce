@@ -6,6 +6,7 @@
 #depthtest lequal
 #depthwrite true
 #colorwrite false
+#alphawrite true
 #culling frontface
 
 #vertex glsl
@@ -72,16 +73,19 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
 #depthtest none
 #depthwrite false
 #colorwrite false
+#alphawrite true
 #culling frontface
 
 #shader CFogVolumePlaneShader2 : CFogVolumePlaneShader0
 #depthtest lequal
 #depthwrite true
 #colorwrite false
+#alphawrite true
 #culling backface
 
 #shader CFogVolumePlaneShader3 : CFogVolumePlaneShader0
 #depthtest greater
 #depthwrite false
 #colorwrite false
+#alphawrite true
 #culling backface

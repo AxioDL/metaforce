@@ -43,6 +43,8 @@ void CPakFile::LoadResourceTable(athena::io::MemoryReader& r)
         CAssetId id = r.readUint32Big();
         u32 size = r.readUint32Big();
         u32 offset = r.readUint32Big();
+        if (fcc == FOURCC('MLVL'))
+            m_mlvlId = id;
         x74_resList.emplace_back(id, fcc, offset, size, flags);
         if (x28_24_buildDepList)
             x64_depList.push_back(id);

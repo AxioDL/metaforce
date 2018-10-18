@@ -39,34 +39,19 @@ void CFogVolumePlaneShader::CommitResources(size_t capacity)
 
 void CFogVolumePlaneShader::addFan(const zeus::CVector3f* verts, int numVerts)
 {
-    if (numVerts == 3)
+    zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
+    zeus::CVector4f vert0 = proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[0]);
+    if (m_verts.size())
     {
-        zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-        zeus::CVector4f vert0 = proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[0]);
-        if (m_verts.size())
-        {
-            m_verts.push_back(m_verts.back());
-            m_verts.push_back(vert0);
-        }
-        m_verts.push_back(vert0);
-        m_verts.push_back(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[1]));
-        m_verts.push_back(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[2]));
         m_verts.push_back(m_verts.back());
-    }
-    else if (numVerts == 4)
-    {
-        zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-        zeus::CVector4f vert0 = proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[0]);
-        if (m_verts.size())
-        {
-            m_verts.push_back(m_verts.back());
-            m_verts.push_back(vert0);
-        }
         m_verts.push_back(vert0);
-        m_verts.push_back(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[1]));
-        m_verts.push_back(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[3]));
-        m_verts.push_back(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[2]));
+        if (m_verts.size() & 1)
+            m_verts.push_back(vert0);
     }
+    TriFanToStrip<zeus::CVector4f> fanToStrip(m_verts);
+    fanToStrip.AddVert(vert0);
+    for (int i = 1; i < numVerts; ++i)
+        fanToStrip.AddVert(proj * zeus::CVector4f(CGraphics::g_GXModelView * verts[i]));
 }
 
 void CFogVolumePlaneShader::draw(int pass)
