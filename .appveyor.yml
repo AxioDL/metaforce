@@ -61,16 +61,16 @@ build_script:
   - C:\projects\deps\cmake\cmake-3.10.1-win64-x64\bin\cmake.exe -GNinja ..
   - ninja
   
-notifications:
-  - provider: Slack
-    incoming_webhook:
-      secure: uoO0I0PWyCx0KLjBOG6d17aSVuEEvYztB/UiF8J0LmTb2O735mAdWcuZHTImDFUGZxeI34/qzOB2JKqF+h8dZA5yiprSTkWIookqQjUokAM=
-  - provider: Webhook
-    url: https://skyhook.glitch.me/api/webhooks/345359672326356993/M8kBYpqr1JyVNhnAHBwNN5TnZmtWy9_msxAQoeOlaa73UhPn8gLU5uYZCjU1qsAi3sGN/appveyor
-    method: POST
-    on_build_success: true
-    on_build_failure: true
-    on_build_status_changed: false
+#notifications:
+#  - provider: Slack
+#    incoming_webhook:
+#      secure: uoO0I0PWyCx0KLjBOG6d17aSVuEEvYztB/UiF8J0LmTb2O735mAdWcuZHTImDFUGZxeI34/qzOB2JKqF+h8dZA5yiprSTkWIookqQjUokAM=
+#  - provider: Webhook
+#    url: https://skyhook.glitch.me/api/webhooks/345359672326356993/M8kBYpqr1JyVNhnAHBwNN5TnZmtWy9_msxAQoeOlaa73UhPn8gLU5uYZCjU1qsAi3sGN/appveyor
+#    method: POST
+#    on_build_success: true
+#    on_build_failure: true
+#    on_build_status_changed: false
   
 # Uncomment this to debug AppVeyor failures.
 #on_finish:

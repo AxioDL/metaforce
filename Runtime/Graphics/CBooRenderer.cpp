@@ -729,7 +729,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
         GenerateFogVolumeRampTex(ctx);
         GenerateSphereRampTex(ctx);
         m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
-        x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::Repeat, 1, 0);
+        x14c_reflectionTex = ctx.newRenderTexture(256, 256, boo::TextureClampMode::ClampToBlack, 1, 0);
         GenerateScanLinesVBO(ctx);
         return true;
     } BooTrace);

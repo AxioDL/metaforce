@@ -64,6 +64,14 @@ static const zeus::CMatrix4f ReflectBaseMtx =
     0.f, 0.f, 0.f, 1.f
 };
 
+static const zeus::CMatrix4f ReflectPostGL =
+{
+    1.f, 0.f, 0.f, 0.f,
+    0.f, -1.f, 0.f, 1.f,
+    0.f, 0.f, 1.f, 0.f,
+    0.f, 0.f, 0.f, 1.f
+};
+
 void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurface* surf,
                                          zeus::CMatrix4f* mtxsOut, float& alphaOut)
 {
@@ -128,6 +136,14 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
         mtxsOut[1][3][0] = -surfPos.dot(v2) * f1 + 0.5f;
         mtxsOut[1][2][1] = f2;
         mtxsOut[1][3][1] = -modelToPlayerLocal.z * f2;
+        switch (CGraphics::g_BooPlatform)
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+            mtxsOut[1] = ReflectPostGL * mtxsOut[1];
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -1200,7 +1216,7 @@ SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& ma
     hecl::Backend::ReflectionType reflectionType;
     if (mat.flags.samusReflectionIndirectTexture())
         reflectionType = hecl::Backend::ReflectionType::Indirect;
-    else if (mat.flags.samusReflection())
+    else if (mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye())
         reflectionType = hecl::Backend::ReflectionType::Simple;
     else
         reflectionType = hecl::Backend::ReflectionType::None;
