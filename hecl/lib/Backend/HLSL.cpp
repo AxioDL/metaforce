@@ -129,9 +129,9 @@ std::string HLSL::GenerateReflectionExpr(ReflectionType type) const
     default:
         return "float3(0.0, 0.0, 0.0)";
     case ReflectionType::Simple:
-        return "reflectionTex.Sample(samp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
+        return "reflectionTex.Sample(reflectSamp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     case ReflectionType::Indirect:
-        return "reflectionTex.Sample(samp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).rg - "
+        return "reflectionTex.Sample(reflectSamp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).rg - "
                "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
     }
 }
@@ -239,7 +239,8 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
                                    m_texMapEnd);
     std::string retval =
             "SamplerState samp : register(s0);\n"
-            "SamplerState clampSamp : register(s1);\n" +
+            "SamplerState clampSamp : register(s1);\n"
+            "SamplerState reflectSamp : register(s2);\n" +
             GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +
@@ -315,7 +316,8 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
 
     std::string retval =
             "SamplerState samp : register(s0);\n"
-            "SamplerState clampSamp : register(s1);\n" +
+            "SamplerState clampSamp : register(s1);\n"
+            "SamplerState reflectSamp : register(s2);\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             texMapDecl + "\n" +
             lightingSrc + "\n" +

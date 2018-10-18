@@ -133,9 +133,9 @@ std::string Metal::GenerateReflectionExpr(ReflectionType type) const
     default:
         return "float3(0.0, 0.0, 0.0)";
     case ReflectionType::Simple:
-        return "reflectionTex.sample(samp, vtf.reflectTcgs1).rgb * vtf.reflectAlpha";
+        return "reflectionTex.sample(reflectSamp, vtf.reflectTcgs1).rgb * vtf.reflectAlpha";
     case ReflectionType::Indirect:
-        return "reflectionTex.sample(samp, (reflectionIndTex.sample(samp, vtf.reflectTcgs0).rg - "
+        return "reflectionTex.sample(reflectSamp, (reflectionIndTex.sample(samp, vtf.reflectTcgs0).rg - "
                "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs1).rgb * vtf.reflectAlpha";
     }
 }
@@ -254,7 +254,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
     "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]],\n"
-    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]]" + texMapDecl + ")\n"
+    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]], sampler reflectSamp [[ sampler(2) ]]" + texMapDecl + ")\n"
     "{\n"
     "    FragOut out;\n";
 
@@ -367,7 +367,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     lightingSrc + "\n" +
     postSrc + "\n" +
     "fragment FragOut fmain(VertToFrag vtf [[ stage_in ]],\n"
-    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]]" + texMapDecl + ")\n"
+    "sampler samp [[ sampler(0) ]], sampler clampSamp [[ sampler(1) ]], sampler reflectSamp [[ sampler(2) ]]" + texMapDecl + ")\n"
     "{\n"
     "    FragOut out;\n";
 
