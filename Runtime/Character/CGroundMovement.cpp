@@ -385,7 +385,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     CPlayer& player = static_cast<CPlayer&>(actor);
     player.x9c5_28_slidingOnWall = false;
-    bool startingJump = player.x258_movementState == CPlayer::EPlayerMovementState::ApplyJump;
+    bool applyJump = player.x258_movementState == CPlayer::EPlayerMovementState::ApplyJump;
     bool dampUnderwater = false;
     if (player.x9c4_31_dampUnderwaterMotion)
         if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
@@ -401,7 +401,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
     CMaterialList material(EMaterialTypes::NoStepLogic);
     SMoveObjectResult result;
 
-    if (!startingJump)
+    if (!applyJump)
     {
         SMovementOptions opts;
         opts.x0_setWaterLandingForce = false;
