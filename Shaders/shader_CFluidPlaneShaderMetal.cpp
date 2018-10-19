@@ -551,7 +551,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info)
             // ZERO, TEX, ONE, C0
             // Output reg 0, subtract, clamp, no bias
 
-            combiner += "    float3 lightVec = lights[3].pos.xyz - vtf.mvPos.xyz;\n"
+            combiner += "    float3 lightVec = lu.lights[3].pos.xyz - vtf.mvPos.xyz;\n"
                         "    float lx = dot(vtf.mvTangent.xyz, lightVec);\n"
                         "    float ly = dot(vtf.mvBinorm.xyz, lightVec);\n";
             combiner += hecl::Format("    float4 emboss1 = bumpMap.sample(samp, vtf.uv%d) + float4(0.5);\n"
@@ -648,9 +648,6 @@ static std::string _BuildAdditionalTCGs(const SFluidPlaneShaderInfo& info)
 
 static std::string _BuildVS(const SFluidPlaneShaderInfo& info, bool tessellation)
 {
-    if (tessellation)
-        return TessCS;
-
     std::string additionalTCGs = _BuildAdditionalTCGs(info);
 
     char *finalVSs;
@@ -671,6 +668,13 @@ std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Metal, hecl::Pipel
     (const SFluidPlaneShaderInfo& in, bool tessellation)
 {
     return _BuildFS(in);
+}
+
+template <>
+std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Metal, hecl::PipelineStage::Control>::BuildShader
+    (const SFluidPlaneShaderInfo& in, bool tessellation)
+{
+    return TessCS;
 }
 
 static std::string BuildES(const SFluidPlaneShaderInfo& info)
@@ -700,6 +704,7 @@ static std::string BuildES(const SFluidPlaneShaderInfo& info)
 
     return ret;
 }
+
 template <>
 std::string StageObject_CFluidPlaneShader<hecl::PlatformType::Metal, hecl::PipelineStage::Evaluation>::BuildShader
     (const SFluidPlaneShaderInfo& in, bool tessellation)

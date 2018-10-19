@@ -196,6 +196,7 @@ Texture2D zFrontfaceTex : register(t0);
 Texture2D zBackfaceTex : register(t1);
 Texture2D zLinearizer : register(t2);
 SamplerState samp : register(s0);
+SamplerState zLinearizerSamp : register(s3);
 float4 main(in VertToFrag vtf) : SV_Target0
 {
     float frontY;
@@ -204,8 +205,8 @@ float4 main(in VertToFrag vtf) : SV_Target0
     float frontX = modf((1.0 - zFrontfaceTex.Sample(samp, vtf.uv).r) * linScale, frontY);
     float backX = modf((1.0 - zBackfaceTex.Sample(samp, vtf.uv).r) * linScale, backY);
     const float uvBias = 0.5 / 256.0;
-    float frontLin = zLinearizer.Sample(samp, float2(frontX * 255.0 / 256.0 + uvBias, frontY / 256.0 + uvBias)).r;
-    float backLin = zLinearizer.Sample(samp, float2(backX * 255.0 / 256.0 + uvBias, backY / 256.0 + uvBias)).r;
+    float frontLin = zLinearizer.Sample(zLinearizerSamp, float2(frontX * 255.0 / 256.0 + uvBias, frontY / 256.0 + uvBias)).r;
+    float backLin = zLinearizer.Sample(zLinearizerSamp, float2(backX * 255.0 / 256.0 + uvBias, backY / 256.0 + uvBias)).r;
     return float4(vtf.color.rgb, (frontLin - backLin) * 10.0);
 }
 
@@ -219,6 +220,7 @@ struct VertToFrag
 
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(0) ]],
+                      sampler zLinearizerSamp [[ sampler(3) ]],
                       texture2d<float> zFrontfaceTex [[ texture(0) ]],
                       texture2d<float> zBackfaceTex [[ texture(1) ]],
                       texture2d<float> zLinearizer [[ texture(2) ]])
@@ -229,7 +231,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     float frontX = modf((1.0 - zFrontfaceTex.sample(samp, vtf.uv).r) * linScale, frontY);
     float backX = modf((1.0 - zBackfaceTex.sample(samp, vtf.uv).r) * linScale, backY);
     const float uvBias = 0.5 / 256.0;
-    float frontLin = zLinearizer.sample(samp, float2(frontX * 255.0 / 256.0 + uvBias, frontY / 256.0 + uvBias)).r;
-    float backLin = zLinearizer.sample(samp, float2(backX * 255.0 / 256.0 + uvBias, backY / 256.0 + uvBias)).r;
+    float frontLin = zLinearizer.sample(zLinearizerSamp, float2(frontX * 255.0 / 256.0 + uvBias, frontY / 256.0 + uvBias)).r;
+    float backLin = zLinearizer.sample(zLinearizerSamp, float2(backX * 255.0 / 256.0 + uvBias, backY / 256.0 + uvBias)).r;
     return float4(vtf.color.rgb, (frontLin - backLin) * 10.0);
 }
