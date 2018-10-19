@@ -58,3 +58,36 @@ float4 main(in VertToFrag vtf) : SV_Target0
 {
     return texs.Sample(samp, vtf.out_uv);
 }
+
+#vertex metal
+struct VertData
+{
+    float3 in_pos [[ attribute(0) ]];
+    float3 in_norm [[ attribute(1) ]];
+    float2 in_uv [[ attribute(2) ]];
+};
+struct VertToFrag
+{
+    float4 position [[ position ]];
+    float2 out_uv;
+};
+vertex VertToFrag vmain(VertData v [[ stage_in ]])
+{
+    VertToFrag ret;
+    ret.position = float4(v.in_pos, 1.0);
+    ret.out_uv = v.in_uv;
+    return ret;
+}
+
+#fragment metal
+struct VertToFrag
+{
+    float4 position [[ position ]];
+    float2 out_uv;
+};
+fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
+                      sampler samp [[ sampler(0) ]],
+                      texture2d<float> tex [[ texture(0) ]])
+{
+    return tex.sample(samp, vtf.out_uv);
+}
