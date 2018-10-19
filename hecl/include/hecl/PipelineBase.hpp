@@ -183,10 +183,16 @@ public:
                         std::is_base_of<TessellationShader, I>,
                         std::is_same<P, PlatformType::Metal>>>* = 0)
     {
-        m_vertex = conv.getVertexConverter().convert(ctx, in);
-        m_fragment = conv.getFragmentConverter().convert(ctx, in);
         if (in.HasTessellation)
+        {
+            m_control = conv.getControlConverter().convert(ctx, in);
             m_evaluation = conv.getEvaluationConverter().convert(ctx, in);
+        }
+        else
+        {
+            m_vertex = conv.getVertexConverter().convert(ctx, in);
+        }
+        m_fragment = conv.getFragmentConverter().convert(ctx, in);
         m_vtxFmt = in.VtxFmt;
         m_additionalInfo = in.PipelineInfo;
         MakeHash();
