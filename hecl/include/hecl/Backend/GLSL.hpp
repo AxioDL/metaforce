@@ -16,10 +16,12 @@ struct GLSL : ProgrammableCommon
                          const TextureInfo* extTexs, ReflectionType reflectionType) const;
     std::string makeFrag(size_t blockCount, const char** blockNames,
                          bool alphaTest, ReflectionType reflectionType,
+                         BlendFactor srcFactor, BlendFactor dstFactor,
                          const Function& lighting=Function()) const;
     std::string makeFrag(size_t blockCount, const char** blockNames,
                          bool alphaTest,
                          ReflectionType reflectionType,
+                         BlendFactor srcFactor, BlendFactor dstFactor,
                          const Function& lighting,
                          const Function& post,
                          size_t extTexCount, const TextureInfo* extTexs) const;

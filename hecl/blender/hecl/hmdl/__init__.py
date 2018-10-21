@@ -31,6 +31,11 @@ def write_out_material(writebuf, mat, mesh_obj):
         transparent = True
     writebuf(struct.pack('b', int(transparent)))
 
+# If this returns true, the material geometry will be split into contiguous faces
+def should_split_into_contiguous_faces(mat):
+    return mat.game_settings.alpha_blend != 'OPAQUE' and \
+           'retro_depth_sort' in mat and mat['retro_depth_sort']
+
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
 def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
@@ -125,7 +130,7 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
     # Generate material meshes (if opaque)
     for mat_idx in sorted_material_idxs:
         mat = mesh_obj.data.materials[mat_idx]
-        if mat.game_settings.alpha_blend != 'OPAQUE':
+        if should_split_into_contiguous_faces(mat):
             continue
         mat_faces_rem = []
         for face in bm_master.faces:
@@ -161,7 +166,7 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
     # Generate island meshes (if transparent)
     for mat_idx in sorted_material_idxs:
         mat = mesh_obj.data.materials[mat_idx]
-        if mat.game_settings.alpha_blend == 'OPAQUE':
+        if not should_split_into_contiguous_faces(mat):
             continue
         mat_faces_rem = []
         for face in bm_master.faces:

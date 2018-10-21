@@ -216,6 +216,7 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
 
 std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
                            bool alphaTest, ReflectionType reflectionType,
+                           BlendFactor srcFactor, BlendFactor dstFactor,
                            const Function& lighting) const
 {
     std::string lightingSrc;
@@ -238,6 +239,8 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
         texMapDecl += hecl::Format("Texture2D reflectionTex : register(t%u);\n",
                                    m_texMapEnd);
     std::string retval =
+            std::string("#define BLEND_SRC_") + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+            "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
             "SamplerState samp : register(s0);\n"
             "SamplerState clampSamp : register(s1);\n"
             "SamplerState reflectSamp : register(s2);\n" +
@@ -275,6 +278,7 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
 
 std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
                            bool alphaTest, ReflectionType reflectionType,
+                           BlendFactor srcFactor, BlendFactor dstFactor,
                            const Function& lighting,
                            const Function& post, size_t extTexCount,
                            const TextureInfo* extTexs) const
@@ -315,6 +319,8 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
     }
 
     std::string retval =
+            std::string("#define BLEND_SRC_") + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+            "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
             "SamplerState samp : register(s0);\n"
             "SamplerState clampSamp : register(s1);\n"
             "SamplerState reflectSamp : register(s2);\n" +

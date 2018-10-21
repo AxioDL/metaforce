@@ -79,7 +79,8 @@ public:
     {
         return m_backend.makeFrag(m_extension.blockCount, m_extension.blockNames,
             m_tag.getDepthWrite() && m_backend.m_blendDst == hecl::Backend::BlendFactor::InvSrcAlpha,
-            m_tag.getReflectionType(), m_extension.lighting, m_extension.post,
+            m_tag.getReflectionType(), m_backend.m_blendSrc, m_backend.m_blendDst,
+            m_extension.lighting, m_extension.post,
             m_extension.texCount, m_extension.texs);
     }
     const hecl::Backend::ShaderTag& getTag() const { return m_tag; }

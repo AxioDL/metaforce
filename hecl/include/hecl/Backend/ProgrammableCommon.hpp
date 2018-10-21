@@ -42,6 +42,8 @@ struct ProgrammableCommon : IBackend
     using IBackend::reset;
     void reset(const IR& ir, Diagnostics& diag, const char* backendName);
 
+    static const char* BlendFactorToDefine(BlendFactor factor, BlendFactor defaultFactor);
+
 private:
     unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize);
     unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);

@@ -221,7 +221,8 @@ std::string GLSL::makeVert(unsigned col, unsigned uv, unsigned w,
 }
 
 std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                           ReflectionType reflectionType, const Function& lighting) const
+                           ReflectionType reflectionType, BlendFactor srcFactor, BlendFactor dstFactor,
+                           const Function& lighting) const
 {
     std::string lightingSrc;
     if (!lighting.m_source.empty())
@@ -246,6 +247,8 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
 
     std::string retval =
             std::string("#extension GL_ARB_shader_image_load_store: enable\n") +
+            "#define BLEND_SRC_" + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+            "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
             GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "#ifdef GL_ARB_shader_image_load_store\n"
@@ -285,6 +288,7 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
 std::string GLSL::makeFrag(size_t blockCount, const char** blockNames,
                            bool alphaTest,
                            ReflectionType reflectionType,
+                           BlendFactor srcFactor, BlendFactor dstFactor,
                            const Function& lighting,
                            const Function& post,
                            size_t extTexCount, const TextureInfo* extTexs) const
@@ -327,6 +331,8 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames,
 
     std::string retval =
             std::string("#extension GL_ARB_shader_image_load_store: enable\n") +
+            "#define BLEND_SRC_" + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+            "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
             GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) +
             (!alphaTest ?
             "\n#ifdef GL_ARB_shader_image_load_store\n"

@@ -4,6 +4,39 @@
 namespace hecl::Backend
 {
 
+const char* ProgrammableCommon::BlendFactorToDefine(BlendFactor factor, BlendFactor defaultFactor)
+{
+    switch (factor)
+    {
+    case BlendFactor::Zero:
+        return "ZERO";
+    case BlendFactor::One:
+        return "ONE";
+    case BlendFactor::SrcColor:
+        return "SRCCOLOR";
+    case BlendFactor::InvSrcColor:
+        return "INVSRCCOLOR";
+    case BlendFactor::DstColor:
+        return "DSTCOLOR";
+    case BlendFactor::InvDstColor:
+        return "INVDSTCOLOR";
+    case BlendFactor::SrcAlpha:
+        return "SRCALPHA";
+    case BlendFactor::InvSrcAlpha:
+        return "INVSRCALPHA";
+    case BlendFactor::DstAlpha:
+        return "DSTALPHA";
+    case BlendFactor::InvDstAlpha:
+        return "INVDSTALPHA";
+    case BlendFactor::SrcColor1:
+        return "SRCCOLOR1";
+    case BlendFactor::InvSrcColor1:
+        return "INVSRCCOLOR1";
+    default:
+        return BlendFactorToDefine(defaultFactor, BlendFactor::Zero);
+    }
+}
+
 unsigned ProgrammableCommon::addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize)
 {
     for (unsigned i=0 ; i<m_tcgs.size() ; ++i)

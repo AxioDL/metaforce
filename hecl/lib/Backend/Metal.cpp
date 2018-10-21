@@ -222,7 +222,9 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
 }
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                            ReflectionType reflectionType, const Function& lighting) const
+                            ReflectionType reflectionType,
+                            BlendFactor srcFactor, BlendFactor dstFactor,
+                            const Function& lighting) const
 {
     std::string lightingSrc;
     if (!lighting.m_source.empty())
@@ -249,7 +251,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         blockCall += hecl::Format("block%" PRISize, i);
     }
 
-    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
+    std::string retval = std::string("#include <metal_stdlib>\nusing namespace metal;\n") +
+    "#define BLEND_SRC_" + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+    "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
     GenerateVertToFragStruct(0, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
@@ -301,7 +305,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 }
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest,
-                            ReflectionType reflectionType, const Function& lighting,
+                            ReflectionType reflectionType,
+                            BlendFactor srcFactor, BlendFactor dstFactor,
+                            const Function& lighting,
                             const Function& post, size_t extTexCount,
                             const TextureInfo* extTexs) const
 {
@@ -361,7 +367,9 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         blockCall += hecl::Format("block%" PRISize, i);
     }
 
-    std::string retval = "#include <metal_stdlib>\nusing namespace metal;\n" +
+    std::string retval = std::string("#include <metal_stdlib>\nusing namespace metal;\n") +
+    "#define BLEND_SRC_" + BlendFactorToDefine(srcFactor, m_blendSrc) + "\n" +
+    "#define BLEND_DST_" + BlendFactorToDefine(dstFactor, m_blendDst) + "\n" +
     GenerateVertToFragStruct(extTexCount, reflectionType != ReflectionType::None) + "\n" +
     GenerateFragOutStruct() + "\n" +
     lightingSrc + "\n" +
