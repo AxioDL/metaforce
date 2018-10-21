@@ -132,7 +132,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         if (x104_particleSystem && x104_particleSystem->SystemHasLight())
         {
             x108_lightId = mgr.AllocateUniqueId();
-            mgr.AddObject(new CGameLight(x108_lightId, GetAreaIdAlways(), true,
+            mgr.AddObject(new CGameLight(x108_lightId, GetAreaIdAlways(), GetActive(),
                           std::string("EffectPLight_") + GetName().data(), x34_transform,  GetUniqueId(),
                           x104_particleSystem->GetLight(), x10c_partId.Value(), 1, 0.f));
         }

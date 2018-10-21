@@ -148,7 +148,11 @@ static std::string_view MainPostGLSL =
 "        fogZ = 0.0;\n"
 "        break;\n"
 "    }\n"
-"    return mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0));\n"
+"#ifdef BLEND_DST_ONE\n"
+"    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
+"#else\n"
+"    return vec4(mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
+"#endif\n"
 "}\n"
 "\n"sv;
 

@@ -144,7 +144,11 @@ static std::string_view MainPostHLSL =
 "        fogZ = 0.0;\n"
 "        break;\n"
 "    }\n"
-"    return lerp(colorIn, fog.color, saturate(fogZ));\n"
+"#ifdef BLEND_DST_ONE\n"
+"    return float4(lerp(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"
+"#else\n"
+"    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
+"#endif\n"
 "}\n"
 "\n"sv;
 

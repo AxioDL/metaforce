@@ -108,6 +108,8 @@ void SWSH<IDType>::_read(typename BigDNA::ReadYaml::StreamT& r)
             case SBIG('CRND'):
                 x45_26_CRND = r.readBool(nullptr);
             break;
+            default:
+            break;
             }
         }
     }

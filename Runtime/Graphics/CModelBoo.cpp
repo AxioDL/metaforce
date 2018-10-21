@@ -626,21 +626,10 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const
     }
 }
 
-void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const
+static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, const CModelFlags& flags)
 {
-    //if (m_uniUpdateCount == 0)
-    //    Log.report(logvisor::Fatal, "UpdateUniformData() not called");
-    if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
-        return;
-    const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
-
-    const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
-    if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
-        return;
-
     bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
 
-    const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
     EExtendedShader extended = EExtendedShader::Flat;
     if (flags.m_extendedShader == EExtendedShader::Lighting)
     {
@@ -698,10 +687,28 @@ void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) c
             extended = EExtendedShader::Lighting;
         }
     }
-    else if (flags.m_extendedShader < extendeds.size())
+    else if (flags.m_extendedShader < EExtendedShader::MAX)
     {
         extended = flags.m_extendedShader;
     }
+
+    return extended;
+}
+
+void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const
+{
+    //if (m_uniUpdateCount == 0)
+    //    Log.report(logvisor::Fatal, "UpdateUniformData() not called");
+    if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
+        return;
+    const ModelInstance& inst = m_instances[m_uniUpdateCount-1];
+
+    const MaterialSet::Material& data = GetMaterialByIndex(surf.m_data.matIdx);
+    if (data.flags.shadowOccluderMesh() && !g_DrawingOccluders)
+        return;
+
+    const std::vector<boo::ObjToken<boo::IShaderDataBinding>>& extendeds = inst.m_shaderDataBindings[surf.selfIdx];
+    EExtendedShader extended = ResolveExtendedShader(data, flags);
 
     boo::ObjToken<boo::IShaderDataBinding> binding = extendeds[extended];
     CGraphics::SetShaderDataBinding(binding);

@@ -131,7 +131,7 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
         compareSets(4, 5) ||
         compareSets(2, 3) ||
         compareSets(6, 7))
-        compSubdivs |= 0x4;
+        compSubdivs |= 0x1;
     if (compareSets(0, 2) ||
         compareSets(1, 3) ||
         compareSets(4, 6) ||
@@ -141,7 +141,7 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
         compareSets(1, 5) ||
         compareSets(2, 6) ||
         compareSets(3, 7))
-        compSubdivs |= 0x1;
+        compSubdivs |= 0x4;
 
     if (!compSubdivs)
     {
@@ -175,11 +175,11 @@ void AROTBuilder::Node::nodeCount(size_t& sz, size_t& idxRefs, BitmapPool& bmpPo
     curOff += nodeSz;
     if (childNodes.size())
     {
-        for (int k=0 ; k < 1 + ((compSubdivs & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((compSubdivs & 0x4) != 0) ; ++k)
         {
             for (int j=0 ; j < 1 + ((compSubdivs & 0x2) != 0) ; ++j)
             {
-                for (int i=0 ; i < 1 + ((compSubdivs & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((compSubdivs & 0x1) != 0) ; ++i)
                 {
                     int idx = k*4 + j*2 + i;
                     childNodes[idx].nodeCount(sz, idxRefs, bmpPool, curOff);
@@ -195,11 +195,11 @@ void AROTBuilder::Node::writeIndirectionTable(athena::io::MemoryWriter& w)
     w.writeUint32Big(nodeOff);
     if (childNodes.size())
     {
-        for (int k=0 ; k < 1 + ((compSubdivs & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((compSubdivs & 0x4) != 0) ; ++k)
         {
             for (int j=0 ; j < 1 + ((compSubdivs & 0x2) != 0) ; ++j)
             {
-                for (int i=0 ; i < 1 + ((compSubdivs & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((compSubdivs & 0x1) != 0) ; ++i)
                 {
                     int idx = k*4 + j*2 + i;
                     childNodes[idx].writeIndirectionTable(w);
@@ -222,11 +222,11 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx)
 
         int childIndices[8];
 
-        for (int k=0 ; k < 1 + ((compSubdivs & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((compSubdivs & 0x4) != 0) ; ++k)
         {
             for (int j=0 ; j < 1 + ((compSubdivs & 0x2) != 0) ; ++j)
             {
-                for (int i=0 ; i < 1 + ((compSubdivs & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((compSubdivs & 0x1) != 0) ; ++i)
                 {
                     int idx = k*4 + j*2 + i;
                     w.writeUint16Big(curIdx);
@@ -236,11 +236,11 @@ void AROTBuilder::Node::writeNodes(athena::io::MemoryWriter& w, int nodeIdx)
             }
         }
 
-        for (int k=0 ; k < 1 + ((compSubdivs & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((compSubdivs & 0x4) != 0) ; ++k)
         {
             for (int j=0 ; j < 1 + ((compSubdivs & 0x2) != 0) ; ++j)
             {
-                for (int i=0 ; i < 1 + ((compSubdivs & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((compSubdivs & 0x1) != 0) ; ++i)
                 {
                     int idx = k*4 + j*2 + i;
                     childNodes[idx].writeNodes(w, childIndices[idx]);
@@ -255,11 +255,11 @@ void AROTBuilder::Node::advanceIndex(int& nodeIdx)
     ++nodeIdx;
     if (childNodes.size())
     {
-        for (int k=0 ; k < 1 + ((compSubdivs & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((compSubdivs & 0x4) != 0) ; ++k)
         {
             for (int j=0 ; j < 1 + ((compSubdivs & 0x2) != 0) ; ++j)
             {
-                for (int i=0 ; i < 1 + ((compSubdivs & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((compSubdivs & 0x1) != 0) ; ++i)
                 {
                     int idx = k*4 + j*2 + i;
                     childNodes[idx].advanceIndex(nodeIdx);

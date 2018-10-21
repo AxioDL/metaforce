@@ -310,68 +310,74 @@ void ELSM<IDType>::_read(athena::io::YAMLDocReader& r)
             LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
             continue;
         }
-        switch(*reinterpret_cast<const uint32_t*>(elem.first.data()))
+
+        if (auto rec = r.enterSubRecord(elem.first.c_str()))
         {
-        case SBIG('LIFE'):
-            x0_LIFE.read(r);
-            break;
-        case SBIG('SLIF'):
-            x4_SLIF.read(r);
-            break;
-        case SBIG('GRAT'):
-            x8_GRAT.read(r);
-            break;
-        case SBIG('SCNT'):
-            xc_SCNT.read(r);
-            break;
-        case SBIG('SSEG'):
-            x10_SSEG.read(r);
-            break;
-        case SBIG('COLR'):
-            x14_COLR.read(r);
-            break;
-        case SBIG('IEMT'):
-            x18_IEMT.read(r);
-            break;
-        case SBIG('FEMT'):
-            x1c_FEMT.read(r);
-            break;
-        case SBIG('AMPL'):
-            x20_AMPL.read(r);
-            break;
-        case SBIG('AMPD'):
-            x24_AMPD.read(r);
-            break;
-        case SBIG('LWD1'):
-            x28_LWD1.read(r);
-            break;
-        case SBIG('LWD2'):
-            x2c_LWD2.read(r);
-            break;
-        case SBIG('LWD3'):
-            x30_LWD3.read(r);
-            break;
-        case SBIG('LCL1'):
-            x34_LCL1.read(r);
-            break;
-        case SBIG('LCL2'):
-            x38_LCL2.read(r);
-            break;
-        case SBIG('LCL3'):
-            x3c_LCL3.read(r);
-            break;
-        case SBIG('SSWH'):
-            x40_SSWH.read(r);
-            break;
-        case SBIG('GPSM'):
-            x50_GPSM.read(r);
-            break;
-        case SBIG('EPSM'):
-            x60_EPSM.read(r);
-            break;
-        case SBIG('ZERY'):
-            x70_ZERY.read(r);
-            break;
+            switch (*reinterpret_cast<const uint32_t*>(elem.first.data()))
+            {
+            case SBIG('LIFE'):
+                x0_LIFE.read(r);
+                break;
+            case SBIG('SLIF'):
+                x4_SLIF.read(r);
+                break;
+            case SBIG('GRAT'):
+                x8_GRAT.read(r);
+                break;
+            case SBIG('SCNT'):
+                xc_SCNT.read(r);
+                break;
+            case SBIG('SSEG'):
+                x10_SSEG.read(r);
+                break;
+            case SBIG('COLR'):
+                x14_COLR.read(r);
+                break;
+            case SBIG('IEMT'):
+                x18_IEMT.read(r);
+                break;
+            case SBIG('FEMT'):
+                x1c_FEMT.read(r);
+                break;
+            case SBIG('AMPL'):
+                x20_AMPL.read(r);
+                break;
+            case SBIG('AMPD'):
+                x24_AMPD.read(r);
+                break;
+            case SBIG('LWD1'):
+                x28_LWD1.read(r);
+                break;
+            case SBIG('LWD2'):
+                x2c_LWD2.read(r);
+                break;
+            case SBIG('LWD3'):
+                x30_LWD3.read(r);
+                break;
+            case SBIG('LCL1'):
+                x34_LCL1.read(r);
+                break;
+            case SBIG('LCL2'):
+                x38_LCL2.read(r);
+                break;
+            case SBIG('LCL3'):
+                x3c_LCL3.read(r);
+                break;
+            case SBIG('SSWH'):
+                x40_SSWH.read(r);
+                break;
+            case SBIG('GPSM'):
+                x50_GPSM.read(r);
+                break;
+            case SBIG('EPSM'):
+                x60_EPSM.read(r);
+                break;
+            case SBIG('ZERY'):
+                x70_ZERY.read(r);
+                break;
+            default:
+                break;
+            }
         }
     }
 }

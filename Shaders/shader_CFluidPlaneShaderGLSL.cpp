@@ -179,8 +179,9 @@ static const char* FS =
 "{\n"
 "    int mode;\n"
 "    vec4 color;\n"
-"    float indScale;\n"
+"    float rangeScale;\n"
 "    float start;\n"
+"    float indScale;\n"
 "};\n"
 "\n"
 "UBINDING2 uniform LightingUniform\n"
@@ -226,12 +227,46 @@ static const char* FS =
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
+"vec4 MainPostFunc(vec4 colorIn)\n"
+"{\n"
+"    float fogZ, temp;\n"
+"    switch (fog.mode)\n"
+"    {\n"
+"    case 2:\n"
+"        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+"        break;\n"
+"    case 4:\n"
+"        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"
+"        break;\n"
+"    case 5:\n"
+"        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+"        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
+"        break;\n"
+"    case 6:\n"
+"        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"
+"        break;\n"
+"    case 7:\n"
+"        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"
+"        fogZ = exp2(-8.0 * temp * temp);\n"
+"        break;\n"
+"    default:\n"
+"        fogZ = 0.0;\n"
+"        break;\n"
+"    }\n"
+"#if %d\n"
+"    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
+"#else\n"
+"    return vec4(mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
+"#endif\n"
+"}\n"
+"\n"
 "layout(location=0) out vec4 colorOut;\n"
 "%s" // Textures here
 "void main()\n"
 "{\n"
 "    vec4 lighting = LightingFunc(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n"
 "%s" // Combiner expression here
+"    colorOut = MainPostFunc(colorOut);\n"
 "}\n";
 
 static const char* FSDoor =
@@ -248,8 +283,9 @@ static const char* FSDoor =
 "{\n"
 "    int mode;\n"
 "    vec4 color;\n"
-"    float indScale;\n"
+"    float rangeScale;\n"
 "    float start;\n"
+"    float indScale;\n"
 "};\n"
 "\n"
 "UBINDING2 uniform LightingUniform\n"
@@ -592,7 +628,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info)
     combiner += "    colorOut.a = kColor0.a;\n";
 
     char *finalFSs;
-    asprintf(&finalFSs, FS, textures.c_str(), combiner.c_str());
+    asprintf(&finalFSs, FS, int(info.m_additive), textures.c_str(), combiner.c_str());
     std::string ret(finalFSs);
     free(finalFSs);
     return ret;

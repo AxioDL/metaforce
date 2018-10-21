@@ -145,7 +145,11 @@ static std::string_view MainPostMetal =
 "        fogZ = 0.0;\n"
 "        break;\n"
 "    }\n"
-"    return mix(colorIn, lu.fog.color, saturate(fogZ));\n"
+"#ifdef BLEND_DST_ONE\n"
+"    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"
+"#else\n"
+"    return float4(mix(colorIn, lu.fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
+"#endif\n"
 "}\n"
 "\n"sv;
 

@@ -2139,7 +2139,7 @@ void CMorphBall::CollidedWith(TUniqueId id, const CCollisionInfoList& list, CSta
     }
 
     if (wakeMaterial == EMaterialTypes::NoStepLogic && x1c0c_wakeEffectIdx != -1)
-        x1bc8_wakeEffectGens[int(wakeMaterial)]->SetParticleEmission(false);
+        x1bc8_wakeEffectGens[int(x1c0c_wakeEffectIdx)]->SetParticleEmission(false);
 
     x1954_isProjectile = false;
 

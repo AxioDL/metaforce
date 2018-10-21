@@ -103,7 +103,7 @@ private:
         zeus::CVector4f m_colorMul;
         zeus::CVector4f m_pad[3]; // rippleNormResolution, Pad out to 1280 bytes
         CModelShaders::LightingUniform m_lighting;
-        zeus::CVector3f m_pad2; // Pad out to 768 bytes
+        zeus::CVector3f m_pad2; // Pad out to 768 bytes, also holds ind scale
     };
 
     TLockedToken<CTexture> m_patternTex1;

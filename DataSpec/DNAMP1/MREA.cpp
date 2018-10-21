@@ -160,7 +160,7 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryR
 static const uint32_t AROTChildCounts[] = { 0, 2, 2, 4, 2, 4, 4, 8 };
 
 /* AROT octree dumper */
-static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryReader& r,
+static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::IStreamReader& r,
                              const zeus::CAABox& aabb)
 {
     r.readUint16Big();
@@ -171,19 +171,19 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryR
         r.seek(2 * childCount);
 
         zeus::CAABox Z[2] = {aabb};
-        if ((flags & 0x1) != 0)
+        if ((flags & 0x4) != 0)
             aabb.splitZ(Z[0], Z[1]);
-        for (int k=0 ; k < 1 + ((flags & 0x1) != 0) ; ++k)
+        for (int k=0 ; k < 1 + ((flags & 0x4) != 0) ; ++k)
         {
-            zeus::CAABox Y[2] = {Z[0]};
+            zeus::CAABox Y[2] = {Z[k]};
             if ((flags & 0x2) != 0)
                 Z[k].splitY(Y[0], Y[1]);
             for (int j=0 ; j < 1 + ((flags & 0x2) != 0) ; ++j)
             {
-                zeus::CAABox X[2] = {Y[0]};
-                if ((flags & 0x4) != 0)
+                zeus::CAABox X[2] = {Y[j]};
+                if ((flags & 0x1) != 0)
                     Y[j].splitX(X[0], X[1]);
-                for (int i=0 ; i < 1 + ((flags & 0x4) != 0) ; ++i)
+                for (int i=0 ; i < 1 + ((flags & 0x1) != 0) ; ++i)
                 {
                     OutputOctreeNode(os, r, X[i]);
                 }

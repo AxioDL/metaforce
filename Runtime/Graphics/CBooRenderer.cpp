@@ -23,13 +23,13 @@ namespace urde
 
 static logvisor::Module Log("CBooRenderer");
 
-static rstl::reserved_vector<CDrawable, 4096> sDataHolder;
+static rstl::reserved_vector<CDrawable, 512> sDataHolder;
 static rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50> sBucketsHolder;
 static rstl::reserved_vector<CDrawablePlaneObject, 8> sPlaneObjectDataHolder;
 static rstl::reserved_vector<u16, 8> sPlaneObjectBucketHolder;
 
 rstl::reserved_vector<u16, 50> Buckets::sBucketIndex;
-rstl::reserved_vector<CDrawable, 4096>* Buckets::sData = nullptr;
+rstl::reserved_vector<CDrawable, 512>* Buckets::sData = nullptr;
 rstl::reserved_vector<rstl::reserved_vector<CDrawable*, 128>, 50>* Buckets::sBuckets = nullptr;
 rstl::reserved_vector<CDrawablePlaneObject, 8>* Buckets::sPlaneObjectData = nullptr;
 rstl::reserved_vector<u16, 8>* Buckets::sPlaneObjectBucket = nullptr;
@@ -119,6 +119,8 @@ void Buckets::Sort()
         rstl::reserved_vector<CDrawable*, 128>& bucket = (*sBuckets)[slot];
         if (bucket.size() < bucket.capacity())
             bucket.push_back(&drawable);
+        //else
+        //    Log.report(logvisor::Fatal, "Full bucket!!!");
     }
 
     u16 bucketIdx = u16(sBuckets->size());

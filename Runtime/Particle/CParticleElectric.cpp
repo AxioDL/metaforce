@@ -18,6 +18,8 @@ u16 CParticleElectric::g_GlobalSeed = 99;
 CParticleElectric::CParticleElectric(const TToken<CElectricDescription>& token)
 : x1c_elecDesc(token), x14c_randState(g_GlobalSeed++)
 {
+    x1bc_allocated.resize(32);
+
     x450_24_emitting = true;
     x450_29_transformDirty = true;
     CElectricDescription* desc = x1c_elecDesc.GetObj();
@@ -120,7 +122,7 @@ void CParticleElectric::RenderLines()
                               zeus::CTransform::Translate(x38_translation) * x44_orientation *
                               zeus::CTransform::Scale(xe0_globalScale) * zeus::CTransform::Scale(xec_localScale));
     // Disable culling
-    SetupLineGXMaterial();    
+    SetupLineGXMaterial();
     for (CParticleElectricManager& elec : x3e8_electricManagers)
     {
         CLineManager& line = *x2e4_lineManagers[elec.x0_idx];

@@ -49,8 +49,8 @@ private:
     zeus::CTransform x74_invOrientation;
     zeus::CVector3f  xa4_globalTranslation;
     zeus::CTransform xb0_globalOrientation;
-    zeus::CVector3f  xe0_globalScale;
-    zeus::CVector3f  xec_localScale;
+    zeus::CVector3f  xe0_globalScale = zeus::CVector3f::skOne;
+    zeus::CVector3f  xec_localScale = zeus::CVector3f::skOne;
     zeus::CTransform xf8_cachedXf;
     float            x128 = 0.f;
     float            x12c = 0.f;

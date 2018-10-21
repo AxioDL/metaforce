@@ -199,8 +199,9 @@ static const char* FS =
 "{\n"
 "    int mode;\n"
 "    float4 color;\n"
-"    float indScale;\n"
+"    float rangeScale;\n"
 "    float start;\n"
+"    float indScale;\n"
 "};\n"
 "\n"
 "struct LightingUniform\n"
@@ -252,6 +253,39 @@ static const char* FS =
 "    float2 uv6;\n"
 "};\n"
 "\n"
+"float4 MainPostFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn)\n"
+"{\n"
+"    float fogZ, temp;\n"
+"    switch (lu.fog.mode)\n"
+"    {\n"
+"    case 2:\n"
+"        fogZ = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"
+"        break;\n"
+"    case 4:\n"
+"        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale);\n"
+"        break;\n"
+"    case 5:\n"
+"        temp = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"
+"        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
+"        break;\n"
+"    case 6:\n"
+"        fogZ = exp2(-8.0 * (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale);\n"
+"        break;\n"
+"    case 7:\n"
+"        temp = (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale;\n"
+"        fogZ = exp2(-8.0 * temp * temp);\n"
+"        break;\n"
+"    default:\n"
+"        fogZ = 0.0;\n"
+"        break;\n"
+"    }\n"
+"#if %d\n"
+"    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"
+"#else\n"
+"    return float4(mix(colorIn, lu.fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
+"#endif\n"
+"}\n"
+"\n"
 "fragment float4 fmain(VertToFrag vtf [[ stage_in ]],\n"
 "                      sampler samp [[ sampler(0) ]],\n"
 "                      constant LightingUniform& lu [[ buffer(4) ]]%s)\n" // Textures here
@@ -259,7 +293,7 @@ static const char* FS =
 "    float4 lighting = LightingFunc(lu, vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n"
 "    float4 colorOut;\n"
 "%s" // Combiner expression here
-"    return colorOut;\n"
+"    return MainPostFunc(vtf, lu, colorOut);\n"
 "}\n";
 
 static const char* FSDoor =
@@ -275,8 +309,9 @@ static const char* FSDoor =
 "{\n"
 "    int mode;\n"
 "    float4 color;\n"
-"    float indScale;\n"
+"    float rangeScale;\n"
 "    float start;\n"
+"    float indScale;\n"
 "};\n"
 "\n"
 "struct LightingUniform\n"
@@ -614,7 +649,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info)
     combiner += "    colorOut.a = lu.kColor0.a;\n";
 
     char *finalFS;
-    asprintf(&finalFS, FS, textures.c_str(), combiner.c_str());
+    asprintf(&finalFS, FS, int(info.m_additive), textures.c_str(), combiner.c_str());
     std::string ret(finalFS);
     free(finalFS);
     return ret;
