@@ -297,6 +297,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
     m_frame[3].m_uv = {1.f, 1.f};
     SetFrame({-0.5f, 0.5f, 0.f}, {-0.5f, -0.5f, 0.f}, {0.5f, -0.5f, 0.f}, {0.5f, 0.5f, 0.f});
 
+    m_viewVertBlock.finalAssign(m_viewVertBlock);
     m_blockBuf->load(&m_viewVertBlock, sizeof(m_viewVertBlock));
 }
 
