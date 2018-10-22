@@ -50,6 +50,7 @@
 #include "hecl/ClientProcess.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/SDNARead.hpp"
 #include "nod/nod.hpp"
 
 namespace DataSpec
@@ -574,11 +575,7 @@ struct SpecMP1 : SpecBase
 
         if (hecl::IsPathBlend(asBlend))
         {
-            hecl::blender::Connection& conn = btok.getBlenderConnection();
-            if (!conn.openBlend(asBlend))
-                return {};
-
-            switch (conn.getBlendType())
+            switch (hecl::blender::GetBlendType(asBlend.getAbsolutePath()))
             {
             case hecl::blender::BlendType::Mesh:
                 return {SBIG('CMDL'), path.hash().val32()};

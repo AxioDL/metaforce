@@ -11,6 +11,7 @@
 #include "hecl/ClientProcess.hpp"
 #include "nod/nod.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/SDNARead.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
 
 #include <png.h>
@@ -233,10 +234,7 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok
 
     if (hecl::IsPathBlend(asBlend))
     {
-        hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(asBlend))
-            return false;
-        hecl::blender::BlendType type = conn.getBlendType();
+        hecl::blender::BlendType type = hecl::blender::GetBlendType(asBlend.getAbsolutePath());
         if (type != hecl::blender::BlendType::None)
             return cookPass < 0 ||
                    (cookPass == 0 && type == hecl::blender::BlendType::Mesh) || // CMDL only
@@ -288,14 +286,13 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
             hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".ANIM")))
             return oldEntry;
 
-        hecl::blender::Connection& conn = btok.getBlenderConnection();
-        if (!conn.openBlend(asBlend))
+        hecl::blender::BlendType type = hecl::blender::GetBlendType(asBlend.getAbsolutePath());
+        if (type == hecl::blender::BlendType::None)
         {
             Log.report(logvisor::Error, _SYS_STR("unable to cook '%s'"),
                        path.getAbsolutePath().data());
             return nullptr;
         }
-        hecl::blender::BlendType type = conn.getBlendType();
         if (type == hecl::blender::BlendType::Mesh ||
             type == hecl::blender::BlendType::Area)
             return oldEntry;

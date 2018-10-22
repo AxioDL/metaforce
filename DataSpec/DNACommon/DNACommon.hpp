@@ -23,28 +23,7 @@ typedef athena::io::DNAV<athena::Big> BigDNAV;
 typedef athena::io::DNAVYaml<athena::Big> BigDNAVYaml;
 
 /** FourCC with DNA read/write */
-class DNAFourCC final : public BigDNA, public hecl::FourCC
-{
-public:
-    DNAFourCC() : hecl::FourCC() {}
-    DNAFourCC(const hecl::FourCC& other)
-    : hecl::FourCC() {num = other.toUint32();}
-    DNAFourCC(const char* name)
-    : hecl::FourCC(name) {}
-    DNAFourCC(uint32_t n)
-    : hecl::FourCC(n) {}
-    AT_DECL_EXPLICIT_DNA_YAML
-};
-template <> inline void DNAFourCC::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
-{ r.readUBytesToBuf(fcc, 4); }
-template <> inline void DNAFourCC::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
-{ w.writeUBytes((atUint8*)fcc, 4); }
-template <> inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
-{ std::string rs = r.readString(nullptr); strncpy(fcc, rs.c_str(), 4); }
-template <> inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
-{ w.writeString(nullptr, std::string(fcc, 4)); }
-template <> inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
-{ s += 4; }
+using DNAFourCC = hecl::DNAFourCC;
 
 class DNAColor final : public BigDNA, public zeus::CColor
 {
