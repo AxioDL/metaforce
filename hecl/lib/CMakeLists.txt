@@ -20,6 +20,7 @@ endif()
 atdna(atdna_HMDLMeta.cpp ../include/hecl/HMDLMeta.hpp)
 atdna(atdna_Frontend.cpp ../include/hecl/Frontend.hpp)
 atdna(atdna_CVar.cpp ../include/hecl/CVar.hpp)
+atdna(atdna_SDNARead.cpp ../include/hecl/Blender/SDNARead.hpp)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
   add_definitions(-DHECL_MULTIPROCESSOR)
@@ -41,6 +42,7 @@ set(HECL_HEADERS
     ../include/hecl/Backend/HLSL.hpp
     ../include/hecl/Backend/Metal.hpp
     ../include/hecl/Blender/Connection.hpp
+    ../include/hecl/Blender/SDNARead.hpp
     ../include/hecl/Blender/Token.hpp
     ../include/hecl/SteamFinder.hpp
     ../include/hecl/Frontend.hpp
@@ -78,6 +80,7 @@ add_library(hecl-full
             ${FRONTEND_SOURCES}
             ${RUNTIME_SOURCES}
             ${BLENDER_SOURCES}
+            atdna_SDNARead.cpp
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
             ${PLAT_SRCS})

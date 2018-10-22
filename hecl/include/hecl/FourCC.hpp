@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include "athena/DNA.hpp"
 
 namespace hecl
 {
@@ -46,6 +47,32 @@ public:
     char* getChars() {return fcc;}
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
+
+using BigDNA = athena::io::DNA<athena::Big>;
+
+/** FourCC with DNA read/write */
+class DNAFourCC final : public BigDNA, public FourCC
+{
+public:
+    DNAFourCC() : FourCC() {}
+    DNAFourCC(const FourCC& other)
+    : FourCC() {num = other.toUint32();}
+    DNAFourCC(const char* name)
+    : FourCC(name) {}
+    DNAFourCC(uint32_t n)
+    : FourCC(n) {}
+    AT_DECL_EXPLICIT_DNA_YAML
+};
+template <> inline void DNAFourCC::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
+{ r.readUBytesToBuf(fcc, 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
+{ w.writeUBytes((atUint8*)fcc, 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r)
+{ std::string rs = r.readString(nullptr); strncpy(fcc, rs.c_str(), 4); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
+{ w.writeString(nullptr, std::string(fcc, 4)); }
+template <> inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
+{ s += 4; }
 
 }
 
