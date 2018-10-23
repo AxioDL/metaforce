@@ -290,7 +290,7 @@ static const char* FS =
 "        break;\n"
 "    }\n"
 "#if %d\n"
-"    return float4(lerp(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"
+"    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"
 "#else\n"
 "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
 "#endif\n"
@@ -671,19 +671,19 @@ static std::string _BuildAdditionalTCGs(const SFluidPlaneShaderInfo& info)
 
     if (info.m_hasBumpMap)
     {
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[0] * pos).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[0], pos).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvBumpMap)
     {
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[3] * vec4(normalIn.xyz, 1.0)).xy;\n", nextTCG++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;\n", nextTCG++);
     }
     if (info.m_hasEnvMap)
     {
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * pos).xy;\n", nextTCG++, nextMtx++);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
     }
     if (info.m_hasLightmap)
     {
-        additionalTCGs += hecl::Format("    vtf.uvs[%d] = (texMtxs[%d] * pos).xy;\n", nextTCG, nextMtx);
+        additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG, nextMtx);
     }
 
     return additionalTCGs;
