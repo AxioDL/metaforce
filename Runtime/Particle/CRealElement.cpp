@@ -193,10 +193,10 @@ bool CRELifetimePercent::GetValue(int frame, float& valOut) const
 bool CRESineWave::GetValue(int frame, float& valOut) const
 {
     float a, b, c;
-    x4_magnitude->GetValue(frame, a);
-    x8_linearFrame->GetValue(frame, b);
-    xc_constantFrame->GetValue(frame, c);
-    valOut = std::sin(zeus::degToRad(frame * b + c)) * a;
+    x4_frequency->GetValue(frame, a);
+    x8_amplitude->GetValue(frame, b);
+    xc_phase->GetValue(frame, c);
+    valOut = std::sin(zeus::degToRad(frame * a + c)) * b;
     return false;
 }
 

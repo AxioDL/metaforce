@@ -64,6 +64,11 @@ public:
     void Render(const CStateManager&) const;
     void Think(float, CStateManager&);
     bool CanRenderUnsorted(const CStateManager&) const { return false; }
+    void SetActive(bool active)
+    {
+        CActor::SetActive(active);
+        xe7_29_drawEnabled = true;
+    }
     void CalculateRenderBounds();
     zeus::CAABox GetSortingBounds(const CStateManager&) const;
     bool AreBothSystemsDeleteable();

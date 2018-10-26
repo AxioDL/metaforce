@@ -93,7 +93,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
     std::sort(sortInfos.begin(), sortInfos.end(),
     [](const CMapObjectSortInfo& a, const CMapObjectSortInfo& b)
     {
-        return a.GetZDistance() < b.GetZDistance();
+        return a.GetZDistance() > b.GetZDistance();
     });
 
     int lastWldIdx = -1;

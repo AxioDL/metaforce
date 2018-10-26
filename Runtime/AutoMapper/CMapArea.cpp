@@ -59,8 +59,8 @@ void CMapArea::PostConstruct()
         m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, m_verts.data(), 16, m_verts.size());
         m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, index.data(), 4, index.size());
 
-        /* Only the map universe specifies Always; it draws a maximum of 133 instances */
-        size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 133 : 1;
+        /* Only the map universe specifies Always; it draws a maximum of 1016 instances */
+        size_t instCount = (xc_visibilityMode == EVisMode::Always) ? 1024 : 1;
 
         for (u32 i = 0 ; i<x30_surfaceCount ; ++i)
         {

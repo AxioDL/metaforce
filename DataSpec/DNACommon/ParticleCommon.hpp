@@ -183,9 +183,9 @@ struct RELifetimePercent : IRealElement
 struct RESineWave : IRealElement
 {
     AT_DECL_DNA_YAML
-    RealElementFactory magnitude;
-    RealElementFactory linearAngle;
-    RealElementFactory constantAngle;
+    RealElementFactory frequency;
+    RealElementFactory amplitude;
+    RealElementFactory phase;
     const char* ClassID() const {return "SINE";}
 };
 

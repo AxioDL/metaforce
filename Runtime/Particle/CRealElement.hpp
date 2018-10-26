@@ -146,13 +146,13 @@ public:
 
 class CRESineWave : public CRealElement
 {
-    std::unique_ptr<CRealElement> x4_magnitude;
-    std::unique_ptr<CRealElement> x8_linearFrame;
-    std::unique_ptr<CRealElement> xc_constantFrame;
+    std::unique_ptr<CRealElement> x4_frequency;
+    std::unique_ptr<CRealElement> x8_amplitude;
+    std::unique_ptr<CRealElement> xc_phase;
 public:
     CRESineWave(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
                 std::unique_ptr<CRealElement>&& c)
-    : x4_magnitude(std::move(a)), x8_linearFrame(std::move(b)), xc_constantFrame(std::move(c)) {}
+    : x4_frequency(std::move(a)), x8_amplitude(std::move(b)), xc_phase(std::move(c)) {}
     bool GetValue(int frame, float& valOut) const;
 };
 

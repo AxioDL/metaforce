@@ -39,13 +39,11 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx,
     switch (mode)
     {
     case EPrimitiveMode::Lines:
-        maxTriVerts = maxVerts * 3;
-        break;
     case EPrimitiveMode::LineStrip:
-        maxTriVerts = maxVerts * 2;
+        maxTriVerts = maxVerts * 4;
         break;
     case EPrimitiveMode::LineLoop:
-        maxTriVerts = maxVerts * 2 + 2;
+        maxTriVerts = maxVerts * 4 + 4;
         break;
     }
 
@@ -75,13 +73,11 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
     switch (mode)
     {
     case EPrimitiveMode::Lines:
-        maxTriVerts = maxVerts * 3;
-        break;
     case EPrimitiveMode::LineStrip:
-        maxTriVerts = maxVerts * 2;
+        maxTriVerts = maxVerts * 4;
         break;
     case EPrimitiveMode::LineLoop:
-        maxTriVerts = maxVerts * 2 + 2;
+        maxTriVerts = maxVerts * 4 + 4;
         break;
     }
 
@@ -102,18 +98,17 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts,
 rstl::reserved_vector<CLineRenderer::SDrawVertTex, 1024> CLineRenderer::g_StaticLineVertsTex = {};
 rstl::reserved_vector<CLineRenderer::SDrawVertNoTex, 1024> CLineRenderer::g_StaticLineVertsNoTex = {};
 
-static zeus::CVector2f IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa2,
-                                      const zeus::CVector2f& pb1, const zeus::CVector2f& pb2)
+static bool IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa2,
+                           const zeus::CVector2f& pb1, const zeus::CVector2f& pb2,
+                           zeus::CVector3f& intersect)
 {
-    zeus::CVector2f pa1mpa2 = pa1 - pa2;
-    zeus::CVector2f pb1mpb2 = pb1 - pb2;
-    float denom = pa1mpa2.x * pb1mpb2.y - pa1mpa2.y * pb1mpb2.x;
-    if (denom < 0.01f)
-        return pa2;
-    float numt1 = pa1.x * pa2.y - pa1.y * pa2.x;
-    float numt2 = pb1.x * pb2.y - pb1.y * pb2.x;
-    return {(numt1 * pb1mpb2.x - pa1mpa2.x * numt2) / denom,
-            (numt1 * pb1mpb2.y - pa1mpa2.y * numt2) / denom};
+    float det = (pa1.x - pa2.x) * (pb1.y - pb2.y) - (pa1.y - pa2.y) * (pb1.x - pb2.x);
+    if (std::fabs(det) < 0.01f)
+        return false;
+    float c0 = pa1.x * pa2.y - pa1.y * pa2.x;
+    float c1 = pb1.x * pb2.y - pb1.y * pb2.x;
+    intersect = (c0 * (pb1 - pb2) - c1 * (pa1 - pa2)) / det;
+    return true;
 }
 
 void CLineRenderer::Reset()
@@ -186,16 +181,32 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
             }
             else
             {
-                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
-                                                            m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb);
-                intersect1.z = m_lastPos.z;
+                zeus::CVector3f intersect1;
+                bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                                            m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb, intersect1);
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good1 = false;
 
-                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
-                                                            m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
-                intersect2.z = m_lastPos.z;
+                zeus::CVector3f intersect2;
+                bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                                            m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb, intersect2);
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good2 = false;
 
-                g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
-                g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
+                if (good1 && good2)
+                {
+                    intersect1.z = m_lastPos.z;
+                    intersect2.z = m_lastPos.z;
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
+                }
+                else
+                {
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor, m_lastUV});
+                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor, m_lastUV});
+                }
             }
         }
         else
@@ -217,16 +228,32 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
             }
             else
             {
-                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
-                                                            m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb);
-                intersect1.z = m_lastPos.z;
+                zeus::CVector3f intersect1;
+                bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                                            m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb, intersect1);
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good1 = false;
 
-                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
-                                                            m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb);
-                intersect2.z = m_lastPos.z;
+                zeus::CVector3f intersect2;
+                bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                                            m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb, intersect2);
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good2 = false;
 
-                g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
-                g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
+                if (good1 && good2)
+                {
+                    intersect1.z = m_lastPos.z;
+                    intersect2.z = m_lastPos.z;
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
+                }
+                else
+                {
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor});
+                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor});
+                }
             }
         }
     }
@@ -277,23 +304,51 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 dvb = dvb.normalized().perpendicularVector() * m_lastWidth;
                 dvb.x /= CGraphics::g_ProjAspect;
 
-                zeus::CVector3f intersect1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
-                                                            m_lastPos.toVec2f() + dvb, m_firstPos.toVec2f() + dvb);
-                intersect1.z = m_lastPos.z;
+                zeus::CVector3f intersect1;
+                bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
+                                            m_lastPos.toVec2f() + dvb, m_firstPos.toVec2f() + dvb, intersect1);
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good1 = false;
 
-                zeus::CVector3f intersect2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
-                                                            m_lastPos.toVec2f() - dvb, m_firstPos.toVec2f() - dvb);
-                intersect2.z = m_lastPos.z;
+                zeus::CVector3f intersect2;
+                bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
+                                            m_lastPos.toVec2f() - dvb, m_firstPos.toVec2f() - dvb, intersect2);
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                    good2 = false;
 
                 if (m_textured)
                 {
-                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
-                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
+                    if (good1 && good2)
+                    {
+                        intersect1.z = m_lastPos.z;
+                        intersect2.z = m_lastPos.z;
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
+                    }
+                    else
+                    {
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor, m_lastUV});
+                    }
                 }
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
-                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
+                    if (good1 && good2)
+                    {
+                        intersect1.z = m_lastPos.z;
+                        intersect2.z = m_lastPos.z;
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
+                    }
+                    else
+                    {
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dva, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dva, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dvb, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_lastPos - dvb, m_lastW), m_lastColor});
+                    }
                 }
             }
             {
@@ -309,23 +364,51 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 dvb = dvb.normalized().perpendicularVector() * m_firstWidth;
                 dvb.x /= CGraphics::g_ProjAspect;
 
-                zeus::CVector3f intersect1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
-                                                            m_firstPos.toVec2f() + dvb, m_secondPos.toVec2f() + dvb);
-                intersect1.z = m_firstPos.z;
+                zeus::CVector3f intersect1;
+                bool good1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
+                                            m_firstPos.toVec2f() + dvb, m_secondPos.toVec2f() + dvb, intersect1);
+                if ((intersect1.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 4.f)
+                    good1 = false;
 
-                zeus::CVector3f intersect2 = IntersectLines(m_lastPos.toVec2f() - dva, m_firstPos.toVec2f() - dva,
-                                                            m_firstPos.toVec2f() - dvb, m_secondPos.toVec2f() - dvb);
-                intersect2.z = m_firstPos.z;
+                zeus::CVector3f intersect2;
+                bool good2 = IntersectLines(m_lastPos.toVec2f() - dva, m_firstPos.toVec2f() - dva,
+                                            m_firstPos.toVec2f() - dvb, m_secondPos.toVec2f() - dvb, intersect2);
+                if ((intersect2.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 4.f)
+                    good2 = false;
 
                 if (m_textured)
                 {
-                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_firstW), m_firstColor, m_firstUV});
-                    g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_firstW), m_firstColor, m_firstUV});
+                    if (good1 && good2)
+                    {
+                        intersect1.z = m_firstPos.z;
+                        intersect2.z = m_firstPos.z;
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
+                    }
+                    else
+                    {
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_firstPos + dva, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_firstPos - dva, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_firstPos + dvb, m_lastW), m_lastColor, m_lastUV});
+                        g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_firstPos - dvb, m_lastW), m_lastColor, m_lastUV});
+                    }
                 }
                 else
                 {
-                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_firstW), m_firstColor});
-                    g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_firstW), m_firstColor});
+                    if (good1 && good2)
+                    {
+                        intersect1.z = m_firstPos.z;
+                        intersect2.z = m_firstPos.z;
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
+                    }
+                    else
+                    {
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_firstPos + dva, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_firstPos - dva, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_firstPos + dvb, m_lastW), m_lastColor});
+                        g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(m_firstPos - dvb, m_lastW), m_lastColor});
+                    }
                 }
             }
         }
