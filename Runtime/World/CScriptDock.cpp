@@ -43,12 +43,19 @@ void CScriptDock::Think(float dt, CStateManager& mgr)
         x268_24_dockReferenced = false;
     }
 
-    if (x268_26_areaPostConstructed != mgr.WorldNC()->GetArea(x260_area)->IsPostConstructed())
+    const IGameArea::Dock* gameDock = mgr.WorldNC()->GetArea(x260_area)->GetDock(x25c_dock);
+    TAreaId connArea = gameDock->GetConnectedAreaId(gameDock->GetReferenceCount());
+    if (connArea != kInvalidAreaId)
     {
-        if (mgr.WorldNC()->GetArea(x260_area)->IsPostConstructed())
-            CEntity::SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
-        else
-            CEntity::SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+        bool connPostConstructed = mgr.WorldNC()->GetArea(connArea)->IsPostConstructed();
+        if (x268_26_areaPostConstructed != connPostConstructed)
+        {
+            x268_26_areaPostConstructed = connPostConstructed;
+            if (connPostConstructed)
+                CEntity::SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+            else
+                CEntity::SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+        }
     }
 
     if (mgr.GetNextAreaId() != x260_area)
@@ -69,8 +76,7 @@ void CScriptDock::Think(float dt, CStateManager& mgr)
                 mgr.SetCurrentAreaId(aid);
                 s32 otherDock = dock->GetOtherDockNumber(dock->GetReferenceCount());
 
-                CObjectList* objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects();
-                if (objs)
+                if (CObjectList* objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects())
                 {
                     for (CEntity* ent : *objs)
                     {

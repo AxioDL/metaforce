@@ -254,8 +254,8 @@ void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& o
         mag = 8000.f;
     zeus::CVector3f ray = dir * mag;
     zeus::CVector3f sum = ray + pos;
-    zeus::CVector3f maxs(std::max(pos.z, sum.z), std::max(pos.y, sum.y), std::max(pos.x, sum.x));
-    zeus::CVector3f mins(std::min(sum.z, pos.z), std::min(sum.y, pos.y), std::min(sum.y, pos.y));
+    zeus::CVector3f maxs(std::max(pos.x, sum.x), std::max(pos.y, sum.y), std::max(pos.z, sum.z));
+    zeus::CVector3f mins(std::min(sum.x, pos.x), std::min(sum.y, pos.y), std::min(sum.z, pos.z));
     BuildNearList(out, zeus::CAABox(mins, maxs), filter, actor);
 }
 

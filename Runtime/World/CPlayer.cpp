@@ -4662,7 +4662,7 @@ void CPlayer::UpdateOrbitableObjects(CStateManager& mgr)
 {
     x354_onScreenOrbitObjects.clear();
     x344_nearbyOrbitObjects.clear();
-    x354_onScreenOrbitObjects.clear();
+    x364_offScreenOrbitObjects.clear();
 
     if (CheckOrbitDisableSourceList(mgr))
         return;
@@ -4801,6 +4801,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                             minEyeToOrbitMag = eyeToOrbitMag;
                             minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                         }
+                        continue;
                     }
 
                     if (std::fabs(eyeToOrbitMag - minEyeToOrbitMag) <

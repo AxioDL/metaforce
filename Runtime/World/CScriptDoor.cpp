@@ -217,7 +217,7 @@ void CScriptDoor::Think(float dt, CStateManager& mgr)
     }
 
     if (x64_modelData->IsAnimating())
-        UpdateAnimation((x64_modelData->GetAnimationDuration(s32(x260_doorState)) / x258_animLen) * dt, mgr, true);
+        UpdateAnimation((x64_modelData->GetAnimationDuration(s32(x260_doorAnimState)) / x258_animLen) * dt, mgr, true);
 
     xe7_31_targetable = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan;
 }
@@ -400,7 +400,7 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr)
 /* ORIGINAL 0-00 OFFSET: 8007E9D0 */
 void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type)
 {
-    x260_doorState = type;
+    x260_doorAnimState = type;
     CModelData* modelData = x64_modelData.get();
     if (modelData && modelData->AnimationData())
         modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);

@@ -26,7 +26,7 @@ IGameArea::Dock::Dock(urde::CInputStream& in, const zeus::CTransform& xf)
 
 TAreaId IGameArea::Dock::GetConnectedAreaId(s32 other) const
 {
-    if (u32(other) >= x4_dockReferences.size() || other < 0)
+    if (x4_dockReferences.empty())
         return kInvalidAreaId;
 
     return x4_dockReferences[other].x0_area;

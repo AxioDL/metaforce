@@ -17,7 +17,7 @@ public:
 
     float x258_animLen;
     float x25c_animTime = 0.f;
-    EDoorAnimType x260_doorState = EDoorAnimType::Open;
+    EDoorAnimType x260_doorAnimState = EDoorAnimType::Open;
     zeus::CAABox x264_;
     TUniqueId x27c_partner1 = kInvalidUniqueId;
     TUniqueId x27e_partner2 = kInvalidUniqueId;

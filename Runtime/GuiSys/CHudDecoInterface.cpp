@@ -363,10 +363,10 @@ void CHudDecoInterfaceScan::Update(float dt, const CStateManager& stateMgr)
     if (oldSidesPositioner != x234_sidesPositioner)
     {
         zeus::CVector3f sidesPos(x234_sidesPositioner, 0.f, 0.f);
-        x24c_basewidget_leftside->SetLocalPosition(x24c_basewidget_leftside->RotateO2P(
-            x218_leftsidePosition + sidesPos));
-        x250_basewidget_rightside->SetLocalPosition(x250_basewidget_rightside->RotateO2P(
-            x224_rightsidePosition - sidesPos));
+        x24c_basewidget_leftside->SetLocalPosition(x218_leftsidePosition +
+            x24c_basewidget_leftside->RotateO2P(sidesPos));
+        x250_basewidget_rightside->SetLocalPosition(x224_rightsidePosition -
+            x250_basewidget_rightside->RotateO2P(sidesPos));
     }
 
     x244_camera->SetO2WTransform(

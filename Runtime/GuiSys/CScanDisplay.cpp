@@ -100,6 +100,7 @@ void CScanDisplay::ProcessInput(const CFinalInput& input)
             else
             {
                 xc_state = EScanState::ViewingScan;
+                x1a4_xAlpha = 1.f;
                 CSfxManager::SfxStart(SFXui_scan_next_page, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
         }
