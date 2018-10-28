@@ -736,6 +736,13 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     m_console->registerCommand("ListWorlds"sv, "Lists loaded worlds"sv, ""sv, std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
     m_console->registerCommand("WarpTo"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv, std::bind(&CMain::WarpTo, this, std::placeholders::_1, std::placeholders::_2), hecl::SConsoleCommand::ECommandFlags::Normal);
 
+
+    InitializeSubsystems();
+    x128_globalObjects.PostInitialize();
+    x70_tweaks.RegisterTweaks(m_cvarMgr);
+    x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
+    AddWorldPaks();
+
     const auto& args = boo::APP->getArgs();
     for (auto it = args.begin(); it != args.end(); ++it)
     {
@@ -752,6 +759,22 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
             if (endptr == areaIdxStr)
                 m_warpAreaId = 0;
 
+            bool found = false;
+            for (const auto& pak : g_ResFactory->GetResLoader()->GetPaks())
+            {
+                if (*(pak->GetPath().end() - 6) == '0' + m_warpWorldIdx)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                m_warpWorldIdx = -1;
+                break;
+            }
+
             if (args.end() - it >= 4)
             {
                 const hecl::SystemChar* layerStr = (*(it + 3)).c_str();
@@ -765,11 +788,6 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
         }
     }
 
-    InitializeSubsystems();
-    x128_globalObjects.PostInitialize();
-    x70_tweaks.RegisterTweaks(m_cvarMgr);
-    x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
-    AddWorldPaks();
     FillInAssetIDs();
     x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
     g_archSupport = x164_archSupport.get();

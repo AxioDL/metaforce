@@ -47,4 +47,9 @@ CJointCollisionDescription CCollisionActorManager::GetCollisionDescFromIndex(u32
     return x0_jointDescriptions[idx];
 }
 
+void CCollisionActorManager::Update(float, CStateManager&, CCollisionActorManager::EUpdateOptions) const
+{
+
+}
+
 }

@@ -785,4 +785,10 @@ void CActor::SetModelData(std::unique_ptr<CModelData>&& mData)
     else
         x64_modelData = std::move(mData);
 }
+
+void CActor::SetMuted(bool muted)
+{
+    xe5_26_muted = muted;
+    RemoveEmitter();
+}
 }

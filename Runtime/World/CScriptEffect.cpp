@@ -147,7 +147,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     case EScriptObjectMessage::InitializedInArea:
         for (const SConnection& conn : x20_conns)
         {
-            if (!(conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Deactivate) ||
+            if (!(conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Deactivate) &&
                 !(conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Activate))
                 continue;
 

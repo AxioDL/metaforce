@@ -32,6 +32,9 @@
 #include "CScriptControllerAction.hpp"
 #include "CScriptCounter.hpp"
 #include "MP1/World/CElitePirate.hpp"
+#include "MP1/World/CMetroid.hpp"
+#include "MP1/World/CMetroidBeta.hpp"
+#include "MP1/World/CChozoGhost.hpp"
 #include "CScriptCoverPoint.hpp"
 #include "CScriptSpiderBallWaypoint.hpp"
 #include "CScriptDamageableTrigger.hpp"
@@ -97,12 +100,14 @@
 #include "MP1/World/CMetroidPrimeRelay.hpp"
 #include "MP1/World/CNewIntroBoss.hpp"
 #include "MP1/World/CSpacePirate.hpp"
+#include "MP1/World/CFlyingPirate.hpp"
 #include "MP1/World/CWarWasp.hpp"
 #include "MP1/World/CParasite.hpp"
 #include "Particle/CWeaponDescription.hpp"
 #include "MP1/World/CBloodFlower.hpp"
 #include "MP1/World/CFlickerBat.hpp"
 #include "Camera/CPathCamera.hpp"
+
 namespace urde
 {
 static logvisor::Module Log("urde::ScriptLoader");
@@ -261,11 +266,11 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in)
         if (propCount > 13)
             thermalMag = in.readFloatBig();
 
-        std::pair <CAssetId, CAssetId> xray = {};
+        std::pair<CAssetId, CAssetId> xray = {};
         if (g_ResFactory->GetResourceTypeById(xrayModel))
             xray = {xrayModel, xraySkin};
 
-        std::pair <CAssetId, CAssetId> infra = {};
+        std::pair<CAssetId, CAssetId> infra = {};
         if (g_ResFactory->GetResourceTypeById(infraModel))
             infra = {infraModel, infraSkin};
 
@@ -544,7 +549,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
     zeus::CVector3f forceVec = zeus::CVector3f::ReadBig(in);
 
     ETriggerFlags
-    flags = ETriggerFlags(in.readUint32Big());
+        flags = ETriggerFlags(in.readUint32Big());
     bool active = in.readBool();
     bool b2 = in.readBool();
     bool b3 = in.readBool();
@@ -672,7 +677,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
     FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
-    std::experimental::optional <TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
+    std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
     if (dclnType)
     {
         dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));
@@ -1036,7 +1041,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
     if (animType != SBIG('ANCS'))
         return nullptr;
 
-    std::experimental::optional <CStaticRes> abdomenRes;
+    std::experimental::optional<CStaticRes> abdomenRes;
     if (flavor == CPatterned::EFlavorType::One)
         abdomenRes.emplace(CStaticRes(abdomen, scale));
 
@@ -1238,11 +1243,11 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     zeus::CVector3f orientedForce;
     orientedForce.readBig(in);
     ETriggerFlags
-    triggerFlags = ETriggerFlags(in.readUint32Big()) | ETriggerFlags::DetectProjectiles1 |
-                   ETriggerFlags::DetectProjectiles2 | ETriggerFlags::DetectProjectiles3 |
-                   ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
-                   ETriggerFlags::DetectPowerBombs | ETriggerFlags::DetectProjectiles5 |
-                   ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
+        triggerFlags = ETriggerFlags(in.readUint32Big()) | ETriggerFlags::DetectProjectiles1 |
+                       ETriggerFlags::DetectProjectiles2 | ETriggerFlags::DetectProjectiles3 |
+                       ETriggerFlags::DetectProjectiles4 | ETriggerFlags::DetectBombs |
+                       ETriggerFlags::DetectPowerBombs | ETriggerFlags::DetectProjectiles5 |
+                       ETriggerFlags::DetectProjectiles6 | ETriggerFlags::DetectProjectiles7;
     bool thermalCold = in.readBool();
     bool displaySurface = in.readBool();
     CAssetId patternMap1 = in.readUint32Big();
@@ -1309,7 +1314,7 @@ CEntity* ScriptLoader::LoadWater(CStateManager& mgr, CInputStream& in, int propC
     u32 w22 = in.readUint32Big();
     bool b5 = in.readBool();
 
-    std::unique_ptr < u32[] > bitset;
+    std::unique_ptr<u32[]> bitset;
     u32 bitVal0 = 0;
     u32 bitVal1 = 0;
 
@@ -1413,7 +1418,27 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadFlyingPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 35, "FlyingPirate"))
+        return nullptr;
+
+    SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+
+    if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
+        return nullptr;
+
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    CModelData mData(
+        CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actHead.x40_scale, animParms.GetInitialAnimation(),
+                 true));
+
+    return new MP1::CFlyingPirate(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform,
+                                  std::move(mData), actParms, pInfo, in, propCount);
 }
 
 CEntity* ScriptLoader::LoadElitePirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1444,12 +1469,79 @@ CEntity* ScriptLoader::LoadElitePirate(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 23, "MetroidBeta"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    MP1::CMetroidBetaData metData(in);
+    if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+        return nullptr;
+
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    CModelData mData(
+        CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+
+    return new MP1::CMetroidBeta(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, actParms, metData);
 }
 
 CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 32, "ChozoGhost"))
+        return nullptr;
+
+    SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
+
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+    CAssetId wpsc1(in);
+    CDamageInfo dInfo1(in);
+    CAssetId wpsc2(in);
+    CDamageInfo dInfo2(in);
+    MP1::CChozoGhost::CBehaveChance behaveChance1(in);
+    MP1::CChozoGhost::CBehaveChance behaveChance2(in);
+    MP1::CChozoGhost::CBehaveChance behaveChance3(in);
+    s16 sId1 = CSfxManager::TranslateSFXID(in.readUint32Big());
+    float f5 = in.readFloatBig();
+    s16 sId2 = CSfxManager::TranslateSFXID(in.readUint32Big());
+    s16 sId3 = CSfxManager::TranslateSFXID(in.readUint32Big());
+    u32 w1 = in.readUint32Big();
+    float f6 = in.readFloatBig();
+    u32 w2 = in.readUint32Big();
+    float f7 = in.readFloatBig();
+    CAssetId partId(in);
+    s16 sId4 = CSfxManager::TranslateSFXID(in.readUint32Big());
+    float f8 = in.readFloatBig();
+    float f9 = in.readFloatBig();
+    u32 w3 = in.readUint32Big();
+    u32 w4 = in.readUint32Big();
+
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+        return nullptr;
+
+    CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actorHead.x40_scale, animParms.GetInitialAnimation(), true));
+
+    return new MP1::CChozoGhost(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
+                                std::move(mData), actParms, pInfo, f1, f2, f3, f4, wpsc1, dInfo1, wpsc2, dInfo2,
+                                behaveChance1, behaveChance2, behaveChance3, sId1, f5, sId2, sId3, w1, f6, w2, f7,
+                                partId, sId4, f8, f9, w3, w4);
 }
 
 CEntity* ScriptLoader::LoadCoverPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1586,7 +1678,22 @@ CEntity* ScriptLoader::LoadGrapplePoint(CStateManager& mgr, CInputStream& in, in
 
 CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
+    if (!EnsurePropertyCount(propCount, 16, "PuddleSpore"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+
     return nullptr;
+
 }
 
 CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount,
@@ -1955,7 +2062,7 @@ CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propC
     zeus::CVector3f v3 = zeus::CVector3f::ReadBig(in);
 
     ETriggerFlags
-    w1 = ETriggerFlags(in.readUint32Big());
+        w1 = ETriggerFlags(in.readUint32Big());
     bool b1 = in.readBool();
     u32 w2 = in.readUint32Big();
     float f1 = in.readFloatBig();
@@ -2185,7 +2292,7 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
     float f2 = in.readFloatBig();
     float f3 = in.readFloatBig();
     u32 w2 = in.readUint32Big();
-    std::vector <CVisorFlare::CFlareDef> flares;
+    std::vector<CVisorFlare::CFlareDef> flares;
     flares.reserve(5);
     for (int i = 0; i < 5; ++i)
         if (auto flare = CVisorFlare::LoadFlareDef(in))
@@ -3200,7 +3307,7 @@ CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCo
 
     CBeamInfo beamInfo(in);
     CDamageInfo dInfo(in);
-    TToken <CWeaponDescription> weaponDesc = g_SimplePool->GetObj({SBIG('WPSC'), weaponDescId});
+    TToken<CWeaponDescription> weaponDesc = g_SimplePool->GetObj({SBIG('WPSC'), weaponDescId});
 
     return new CScriptBeam(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, weaponDesc,
                            beamInfo, dInfo);
@@ -3336,4 +3443,4 @@ CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int 
 {
     return nullptr;
 }
-} // namespace urde
+}// namespace urde

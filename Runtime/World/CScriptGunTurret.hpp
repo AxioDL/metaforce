@@ -8,7 +8,7 @@
 
 namespace urde
 {
-
+class CCollisionActorManager;
 class CScriptGunTurretData
 {
     friend class CScriptGunTurret;
@@ -39,7 +39,7 @@ class CScriptGunTurretData
     CAssetId x78_;
     u16 x7c_;
     u16 x7e_;
-    u16 x80_;
+    u16 x80_unfreezeSound;
     u16 x82_;
     u16 x84_;
     u16 x86_;
@@ -78,9 +78,15 @@ class CScriptGunTurret : public CPhysicsActor
 public:
     enum class ETurretComponent
     {
-        Turret,
+        Base,
         Gun
     };
+    enum class ETurretState
+    {
+
+    };
+private:
+
     ETurretComponent x258_type;
     TUniqueId x25c_ = kInvalidUniqueId;
     float x260_ = 0.f;
@@ -104,15 +110,15 @@ public:
     std::unique_ptr<CElementGen> x480_;
     std::unique_ptr<CElementGen> x488_;
     std::unique_ptr<CElementGen> x490_;
-    TUniqueId x498_ = kInvalidUniqueId;
-    u32 x49c_ = 0;
+    TUniqueId x498_lightId = kInvalidUniqueId;
+    std::unique_ptr<CCollisionActorManager> x49c_collisionManager;
     TUniqueId x4a0_ = kInvalidUniqueId;
     std::experimental::optional<CModelData> x4a4_;
     float x4f4_ = 0.f;
     float x4f8_ = 0.f;
     zeus::CVector3f x4fc_;
     u8 x508_ = 0xFF;
-    u32 x50c_ = 0;
+    CSfxHandle x50c_ = 0;
     float x510_ = 0.f;
     zeus::CVector3f x514_;
     s32 x520_ = -1;
@@ -138,6 +144,9 @@ public:
         u32 _dummy = 0;
     };
 private:
+
+    void SetupCollisionManager(CStateManager&);
+
 public:
     CScriptGunTurret(TUniqueId uid, std::string_view name, ETurretComponent comp, const CEntityInfo& info,
                      const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb,
@@ -147,13 +156,40 @@ public:
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void Think(float, CStateManager&);
+    void Touch(CActor&, CStateManager&);
+    void AddToRenderer(const zeus::CFrustum&, const CStateManager&);
+    void Render(const CStateManager&) const;
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
     zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
 
     CHealthInfo* HealthInfo(CStateManager&) { return &x264_healthInfo; }
     const CDamageVulnerability* GetDamageVulnerability() const { return &x26c_damageVuln; }
-
+    void sub80219b18(s32, CStateManager&);
+    void sub8021998c(s32, CStateManager&, float);
+    void sub80217408(CStateManager&);
+    void sub802172b8(CStateManager&);
+    void sub80219a00(float, CStateManager&);
+    void sub802189c8();
+    void UpdateGunCollisionManager(float, CStateManager&);
+    void GetUnFreezeSoundId(float, CStateManager&);
+    void UpdatGunParticles(float, CStateManager&);
+    void sub80219938(s32, CStateManager&);
+    void sub802196c4(s32, CStateManager&, float);
+    void sub802195bc(s32, CStateManager&, float);
+    void sub8021942c(s32, CStateManager&, float);
+    void sub80218f50(s32, CStateManager&, float);
+    void sub80218e34(s32, CStateManager&, float);
+    void sub80218bb4(s32, CStateManager&, float);
+    bool sub80217ad8(CStateManager&);
+    bool sub802179a4(CStateManager&);
+    void sub80217f5c(float, CStateManager&);
+    zeus::CVector3f sub80217e34(float);
+    void sub80216288(float);
+    void sub80217124(CStateManager&);
+    void sub80218830(float, CStateManager&);
+    void sub80216594(CStateManager&);
+    bool sub80217950(CStateManager&);
 };
 
 }
