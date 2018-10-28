@@ -4,6 +4,7 @@ set(MP1_WORLD_SOURCES
     CWarWasp.hpp CWarWasp.cpp
     CElitePirate.hpp CElitePirate.cpp
     CBloodFlower.hpp CBloodFlower.cpp
+    CChozoGhost.hpp CChozoGhost.cpp
     CSpacePirate.hpp CSpacePirate.cpp
     CParasite.hpp CParasite.cpp
     CBabygoth.hpp CBabygoth.cpp
@@ -12,6 +13,7 @@ set(MP1_WORLD_SOURCES
     CEyeball.hpp CEyeball.cpp
     CAtomicAlpha.hpp CAtomicAlpha.cpp
     CFlickerBat.hpp CFlickerBat.cpp
+    CFlyingPirate.hpp CFlyingPirate.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp
     CMetroidPrimeExo.hpp CMetroidPrimeExo.cpp
     CMetroidPrimeProjectile.hpp CMetroidPrimeProjectile.cpp

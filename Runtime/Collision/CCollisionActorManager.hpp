@@ -15,6 +15,7 @@ class CCollisionActorManager
 public:
     enum class EUpdateOptions
     {
+        Zero
     };
 
 private:

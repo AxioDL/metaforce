@@ -136,6 +136,7 @@ public:
 
     void RemoveEmitter();
     void SetVolume(float vol);
+    void SetMuted(bool);
     const zeus::CTransform& GetTransform() const { return x34_transform; }
     const zeus::CVector3f& GetTranslation() const { return x34_transform.origin; }
     const zeus::CTransform GetScaledLocatorTransform(std::string_view segName) const;

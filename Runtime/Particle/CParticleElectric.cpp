@@ -101,7 +101,7 @@ void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts,
         m_lineRenderers.resize(m_nextLineRenderer);
     if (!m_lineRenderers[useIdx])
         m_lineRenderers[useIdx] = std::make_unique<CLineRenderer>(CLineRenderer::EPrimitiveMode::LineStrip,
-                                                                  x150_SSEG, nullptr, true);
+                                                                  x150_SSEG, nullptr, true, true);
     CLineRenderer& renderer = *m_lineRenderers[useIdx];
     zeus::CColor useColor = x1b8_moduColor * color;
 

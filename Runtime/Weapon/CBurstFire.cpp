@@ -15,4 +15,14 @@ CBurstFire::CBurstFire(SBurst** bursts, s32 firstIndex)
         ++burst;
     }
 }
+
+void CBurstFire::Update(CStateManager&, float)
+{
+
+}
+
+zeus::CVector3f CBurstFire::GetDistanceCompensatedError(float, float) const
+{
+    return {};
+}
 }

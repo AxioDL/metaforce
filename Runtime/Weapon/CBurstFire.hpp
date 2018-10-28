@@ -46,10 +46,12 @@ public:
     void Update(CStateManager&, float);
     void Update();
     void GetError(float, float) const;
-    void GetDistanceCompensatedError(float, float) const;
+    zeus::CVector3f GetDistanceCompensatedError(float, float) const;
     float GetMaxXError() const;
     float GetMaxZError() const;
     void GetError() const;
     void SetFirstBurstIndex(s32);
+
+    bool GetX14_24() const { return x14_24_; }
 };
 }
