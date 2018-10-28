@@ -4,6 +4,8 @@
 #include "DataSpec/DNACommon/ANIM.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
+#include "EVNT.hpp"
+#include "DataSpec/DNACommon/ANCS.hpp"
 
 namespace DataSpec::DNAMP1
 {
@@ -206,6 +208,29 @@ struct ANIM : BigDNA
         if (!m_anim)
             return false;
         return m_anim->looping;
+    }
+
+    void extractEVNT(const DNAANCS::AnimationResInfo<UniqueID32>& animInfo,
+                     const hecl::ProjectPath& outPath, PAKRouter<PAKBridge>& pakRouter, bool force) const
+    {
+        if (m_anim->evnt)
+        {
+            hecl::SystemStringConv sysStr(animInfo.name);
+            hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) +
+                                                                       sysStr.c_str() +
+                                                                       _SYS_STR(".evnt.yaml")).c_str(), true);
+            hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
+
+            if (force || evntYamlType == hecl::ProjectPath::Type::None)
+            {
+                EVNT evnt;
+                if (pakRouter.lookupAndReadDNA(m_anim->evnt, evnt, true))
+                {
+                    athena::io::FileWriter writer(evntYamlPath.getAbsolutePath());
+                    athena::io::ToYAMLStream(evnt, writer);
+                }
+            }
+        }
     }
 
     using BlenderAction = hecl::blender::Action;

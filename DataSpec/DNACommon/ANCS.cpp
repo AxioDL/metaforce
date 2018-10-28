@@ -266,6 +266,9 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
 
             os.format("actor_action = actor_data.actions.add()\n"
                           "actor_action.name = '%s'\n", id.second.name.c_str());
+
+            /* Extract EVNT if present */
+            anim.extractEVNT(id.second, outPath, pakRouter, force);
         }
     }
     conn.saveBlend();

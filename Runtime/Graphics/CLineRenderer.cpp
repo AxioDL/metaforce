@@ -103,7 +103,7 @@ static bool IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa
                            zeus::CVector3f& intersect)
 {
     float det = (pa1.x - pa2.x) * (pb1.y - pb2.y) - (pa1.y - pa2.y) * (pb1.x - pb2.x);
-    if (std::fabs(det) < 0.01f)
+    if (std::fabs(det) < 0.000001f)
         return false;
     float c0 = pa1.x * pa2.y - pa1.y * pa2.x;
     float c1 = pb1.x * pb2.y - pb1.y * pb2.x;
@@ -184,13 +184,13 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                             m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb, intersect1);
-                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good1 = false;
 
                 zeus::CVector3f intersect2;
                 bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb, intersect2);
-                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good2 = false;
 
                 if (good1 && good2)
@@ -231,13 +231,13 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                             m_lastPos.toVec2f() + dvb, projPt.toVec2f() + dvb, intersect1);
-                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good1 = false;
 
                 zeus::CVector3f intersect2;
                 bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                             m_lastPos.toVec2f() - dvb, projPt.toVec2f() - dvb, intersect2);
-                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good2 = false;
 
                 if (good1 && good2)
@@ -307,13 +307,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
                                             m_lastPos.toVec2f() + dvb, m_firstPos.toVec2f() + dvb, intersect1);
-                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect1.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good1 = false;
 
                 zeus::CVector3f intersect2;
                 bool good2 = IntersectLines(m_lastPos2.toVec2f() - dva, m_lastPos.toVec2f() - dva,
                                             m_lastPos.toVec2f() - dvb, m_firstPos.toVec2f() - dvb, intersect2);
-                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 4.f)
+                if ((intersect2.toVec2f() - m_lastPos.toVec2f()).magnitude() > m_lastWidth * 2.f)
                     good2 = false;
 
                 if (m_textured)
@@ -367,13 +367,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
                                             m_firstPos.toVec2f() + dvb, m_secondPos.toVec2f() + dvb, intersect1);
-                if ((intersect1.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 4.f)
+                if ((intersect1.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 2.f)
                     good1 = false;
 
                 zeus::CVector3f intersect2;
                 bool good2 = IntersectLines(m_lastPos.toVec2f() - dva, m_firstPos.toVec2f() - dva,
                                             m_firstPos.toVec2f() - dvb, m_secondPos.toVec2f() - dvb, intersect2);
-                if ((intersect2.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 4.f)
+                if ((intersect2.toVec2f() - m_firstPos.toVec2f()).magnitude() > m_firstWidth * 2.f)
                     good2 = false;
 
                 if (m_textured)

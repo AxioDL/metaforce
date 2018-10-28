@@ -4,6 +4,7 @@
 #include "DataSpec/DNACommon/ANIM.hpp"
 #include "DataSpec/DNACommon/RigInverter.hpp"
 #include "CINF.hpp"
+#include "DataSpec/DNACommon/ANCS.hpp"
 
 namespace DataSpec::DNAMP2
 {
@@ -184,6 +185,9 @@ struct ANIM : BigDNA
     {
         m_anim->sendANIMToBlender(os, rig);
     }
+
+    void extractEVNT(const DNAANCS::AnimationResInfo<UniqueID32>& animInfo,
+                     const hecl::ProjectPath& outPath, PAKRouter<PAKBridge>& pakRouter, bool force) const {}
 
 };
 

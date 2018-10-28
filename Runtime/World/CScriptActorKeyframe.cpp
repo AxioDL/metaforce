@@ -31,7 +31,6 @@ void CScriptActorKeyframe::Accept(IVisitor& visitor)
 
 void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-
     if (msg == EScriptObjectMessage::Action)
     {
         if (GetActive())

@@ -1115,31 +1115,6 @@ bool ANCS::Extract(const SpecBase& dataSpec,
         }
     }
 
-    /* Extract EVNTs */
-    std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animRes;
-    ancs.getAnimationResInfo(&pakRouter, animRes);
-    for (const auto& res : animRes)
-    {
-        if (res.second.evntId)
-        {
-            hecl::SystemStringConv sysStr(res.second.name);
-            hecl::ProjectPath evntYamlPath = outPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) +
-                                                                       sysStr.c_str() +
-                                                                       _SYS_STR(".evnt.yaml")).c_str(), true);
-            hecl::ProjectPath::Type evntYamlType = evntYamlPath.getPathType();
-
-            if (force || evntYamlType == hecl::ProjectPath::Type::None)
-            {
-                EVNT evnt;
-                if (pakRouter.lookupAndReadDNA(res.second.evntId, evnt, true))
-                {
-                    athena::io::FileWriter writer(evntYamlPath.getAbsolutePath());
-                    athena::io::ToYAMLStream(evnt, writer);
-                }
-            }
-        }
-    }
-
     return true;
 }
 

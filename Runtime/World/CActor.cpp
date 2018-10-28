@@ -575,7 +575,7 @@ float CActor::GetYaw() const { return zeus::CQuaternion(x34_transform.buildMatri
 void CActor::EnsureRendered(const CStateManager& mgr) const
 {
     zeus::CAABox aabb = GetSortingBounds(mgr);
-    EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.origin), aabb);
+    EnsureRendered(mgr, aabb.closestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]), aabb);
 }
 
 void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f& pos,
