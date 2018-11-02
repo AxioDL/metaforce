@@ -43,6 +43,7 @@ set(GRAPHICS_SOURCES
     Shaders/CParticleSwooshShaders.hpp Shaders/CParticleSwooshShaders.cpp
     Shaders/CFluidPlaneShader.hpp Shaders/CFluidPlaneShader.cpp
     Shaders/CAABoxShader.hpp Shaders/CAABoxShader.cpp
-    Shaders/CWorldShadowShader.hpp Shaders/CWorldShadowShader.cpp)
+    Shaders/CWorldShadowShader.hpp Shaders/CWorldShadowShader.cpp
+    Shaders/CEnvFxShaders.hpp Shaders/CEnvFxShaders.cpp)
 
 runtime_add_list(Graphics GRAPHICS_SOURCES)

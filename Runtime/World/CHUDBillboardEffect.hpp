@@ -31,6 +31,9 @@ public:
                         const zeus::CColor& color, const zeus::CVector3f& v1, const zeus::CVector3f& v2);
     ~CHUDBillboardEffect();
     void Accept(IVisitor& visitor);
+    bool GetX104_26() const { return x104_26_; }
+    void SetX104_27(bool b) { x104_27_ = b; }
+    CParticleGen* GetParticleGen() const { return xe8_generator.get(); }
 
     static float GetNearClipDistance(CStateManager& mgr);
     static zeus::CVector3f GetScaleForPOV(CStateManager& mgr);

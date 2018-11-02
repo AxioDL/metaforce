@@ -33,6 +33,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
             hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
             if (force || cmdlPath.isNone())
             {
+                cmdlPath.makeDirChain(false);
                 if (!conn.createBlend(cmdlPath, hecl::blender::BlendType::Mesh))
                     return false;
 
@@ -70,6 +71,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn,
             hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
             if (force || cmdlPath.isNone())
             {
+                cmdlPath.makeDirChain(false);
                 if (!conn.createBlend(cmdlPath, hecl::blender::BlendType::Mesh))
                     return false;
 

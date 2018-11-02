@@ -1067,7 +1067,7 @@ void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, con
     float farDist = xb0_viewPlane.pointToPlaneDist(farPoint);
     if (closeDist >= 0.f || farDist >= 0.f)
     {
-        bool zOnly = plane.normal().isZero();
+        bool zOnly = plane.normal() == zeus::CVector3f::skUp;
         bool invert;
         if (zOnly)
             invert = CGraphics::g_ViewMatrix.origin.z >= plane.d;

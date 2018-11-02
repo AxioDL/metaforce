@@ -18,6 +18,7 @@
 #include "Graphics/Shaders/CAABoxShader.hpp"
 #include "Graphics/Shaders/CWorldShadowShader.hpp"
 #include "Graphics/Shaders/CParticleSwooshShaders.hpp"
+#include "Graphics/Shaders/CEnvFxShaders.hpp"
 #include "NESEmulator/CNESShader.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "CGBASupport.hpp"
@@ -286,6 +287,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory,
     CTextSupportShader::Initialize();
     CScanLinesFilter::Initialize();
     CRandomStaticFilter::Initialize();
+    CEnvFxShaders::Initialize();
     CNESShader::Initialize();
 }
 
@@ -942,6 +944,7 @@ void CMain::Shutdown()
     CTextSupportShader::Shutdown();
     CScanLinesFilter::Shutdown();
     CRandomStaticFilter::Shutdown();
+    CEnvFxShaders::Shutdown();
     CFluidPlaneShader::Shutdown();
     CFluidPlaneManager::RippleMapTex.reset();
     CNESShader::Shutdown();

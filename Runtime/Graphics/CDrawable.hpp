@@ -9,8 +9,8 @@ enum class EDrawableType : u16
 {
     WorldSurface,
     Particle,
-    UnsortedCallback,
-    SortedCallback,
+    Actor,
+    SimpleShadow,
     Decal
 };
 

@@ -55,7 +55,7 @@ void CScriptSteam::Think(float dt, CStateManager& mgr)
         float distance = (mag >= x164_ ? 0.f : std::cos((1.5707964f * mag) * x168_) * x158_);
         mgr.Player()->SetVisorSteam(distance, x15c_alphaInDur, x160_alphaOutDur, x154_texture, x150_);
         if (x150_)
-            mgr.GetEnvFxManager()->SetXB54(2.f * distance);
+            mgr.GetEnvFxManager()->SetSplashRate(2.f * distance);
     }
     else
         mgr.Player()->SetVisorSteam(0.f, x15c_alphaInDur, x160_alphaOutDur, CAssetId(), x150_);

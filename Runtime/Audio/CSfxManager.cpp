@@ -3,8 +3,8 @@
 
 namespace urde
 {
-static TLockedToken<std::vector<s16>> mpSfxTranslationTableTok;
-std::vector<s16>* CSfxManager::mpSfxTranslationTable = nullptr;
+static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;
+std::vector<u16>* CSfxManager::mpSfxTranslationTable = nullptr;
 
 static amuse::EffectReverbHiInfo s_ReverbHiQueued;
 static amuse::EffectChorusInfo s_ChorusQueued;
@@ -20,12 +20,12 @@ CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStre
                                                const CVParamTransfer& vparms,
                                                CObjectReference* selfRef)
 {
-    std::unique_ptr<std::vector<s16>> obj = std::make_unique<std::vector<s16>>();
+    std::unique_ptr<std::vector<u16>> obj = std::make_unique<std::vector<u16>>();
     u32 count = in.readUint32Big();
     obj->reserve(count);
     for (u32 i=0 ; i<count ; ++i)
         obj->push_back(in.readUint16Big());
-    return TToken<std::vector<s16>>::GetIObjObjectFor(std::move(obj));
+    return TToken<std::vector<u16>>::GetIObjObjectFor(std::move(obj));
 }
 
 CSfxManager::CSfxChannel CSfxManager::m_channels[4];
@@ -379,8 +379,8 @@ u16 CSfxManager::TranslateSFXID(u16 id)
     if (index >= mpSfxTranslationTable->size())
         return 0;
 
-    s16 ret = mpSfxTranslationTable->at(index);
-    if (ret == -1)
+    u16 ret = (*mpSfxTranslationTable)[index];
+    if (ret == 0xffff)
         return 0;
     return ret;
 }
@@ -747,7 +747,7 @@ void CSfxManager::Update(float dt)
 void CSfxManager::Shutdown()
 {
     mpSfxTranslationTable = nullptr;
-    mpSfxTranslationTableTok = TLockedToken<std::vector<s16>>{};
+    mpSfxTranslationTableTok = TLockedToken<std::vector<u16>>{};
     StopAndRemoveAllEmitters();
     DisableAuxCallback();
 }

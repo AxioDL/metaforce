@@ -1258,7 +1258,7 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr)
     bool emitRainWake = (x0_player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround &&
                          mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain &&
                          mgr.GetEnvFxManager()->GetRainMagnitude() > 0.f &&
-                         mgr.GetEnvFxManager()->GetX24());
+        mgr.GetEnvFxManager()->IsSplashActive());
     x1bc8_wakeEffectGens[7]->SetParticleEmission(emitRainWake);
     float rainGenRate = std::min(mgr.GetEnvFxManager()->GetRainMagnitude() * 2.f *
                                  x0_player.x4fc_flatMoveSpeed / x0_player.GetBallMaxVelocity(), 1.f);

@@ -23,6 +23,25 @@ struct MaterialSet : BigDNA
 
         void addTexture(const UniqueID32& id) {textureIDs.push_back(id); ++textureCount;}
         void addMaterialEndOff(atUint32 off) {materialEndOffs.push_back(off); ++materialCount;}
+
+        template <class PAKBRIDGE>
+        void ensureTexturesExtracted(PAKRouter<PAKBRIDGE>& pakRouter) const
+        {
+            for (const auto& id : textureIDs)
+            {
+                const nod::Node* node;
+                const PAK::Entry* texEntry = pakRouter.lookupEntry(id, &node);
+                if (!texEntry)
+                    continue;
+                hecl::ProjectPath txtrPath = pakRouter.getWorking(texEntry);
+                if (txtrPath.isNone())
+                {
+                    txtrPath.makeDirChain(false);
+                    PAKEntryReadStream rs = texEntry->beginReadStream(*node);
+                    TXTR::Extract(rs, txtrPath);
+                }
+            }
+        }
     } head;
 
     struct Material : BigDNA
@@ -352,6 +371,10 @@ struct MaterialSet : BigDNA
         }
     }
 
+    void ensureTexturesExtracted(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        head.ensureTexturesExtracted(pakRouter);
+    }
 };
 
 struct HMDLMaterialSet : BigDNA

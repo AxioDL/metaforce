@@ -933,7 +933,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                     if (water.GetFluidPlane().GetFluidType() == EFluidType::NormalWater)
                     {
                         float velMag = mgr.GetPlayer().GetVelocity().magnitude() / 10.f;
-                        mgr.GetEnvFxManager()->SetXB54(10.f * std::max(1.f, velMag));
+                        mgr.GetEnvFxManager()->SetSplashRate(10.f * std::max(1.f, velMag));
                     }
                 }
                 break;

@@ -652,6 +652,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
             {
                 MaterialSet matSet;
                 matSet.read(reader);
+                matSet.ensureTexturesExtracted(pakRouter);
                 GetVertexAttributes(matSet, vertAttribs);
             }
         }

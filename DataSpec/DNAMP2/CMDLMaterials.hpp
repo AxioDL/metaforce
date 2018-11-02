@@ -71,6 +71,11 @@ struct MaterialSet : BigDNA
     {
         DNACMDL::ReadMaterialSetToBlender_1_2(os, *this, pakRouter, entry, setIdx);
     }
+
+    void ensureTexturesExtracted(PAKRouter<PAKBridge>& pakRouter) const
+    {
+        head.ensureTexturesExtracted(pakRouter);
+    }
 };
 
 }

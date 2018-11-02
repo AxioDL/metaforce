@@ -2434,9 +2434,6 @@ void CStateManager::SetCurrentAreaId(TAreaId aid)
     x850_world->GetMapWorld()->RecalculateWorldSphere(*x8c0_mapWorldInfo, *x850_world);
 }
 
-CEntity* CStateManager::ObjectById(TUniqueId uid) { return GetAllObjectList().GetObjectById(uid); }
-const CEntity* CStateManager::GetObjectById(TUniqueId uid) const { return GetAllObjectList().GetObjectById(uid); }
-
 void CStateManager::AreaUnloaded(TAreaId)
 {
     // Intentionally empty

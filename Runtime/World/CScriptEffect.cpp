@@ -147,15 +147,15 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     case EScriptObjectMessage::InitializedInArea:
         for (const SConnection& conn : x20_conns)
         {
-            if (!(conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Deactivate) &&
-                !(conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Activate))
-                continue;
-
-            auto search = mgr.GetIdListForScript(conn.x8_objId);
-            for (auto it = search.first; it != search.second; ++it)
+            if ((conn.x0_state == EScriptObjectState::Modify && conn.x4_msg == EScriptObjectMessage::Follow) ||
+                (conn.x0_state == EScriptObjectState::InheritBounds && conn.x4_msg == EScriptObjectMessage::Activate))
             {
-                if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second)))
-                    x13c_triggerId = it->second;
+                auto search = mgr.GetIdListForScript(conn.x8_objId);
+                for (auto it = search.first; it != search.second; ++it)
+                {
+                    if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second)))
+                        x13c_triggerId = it->second;
+                }
             }
         }
         break;

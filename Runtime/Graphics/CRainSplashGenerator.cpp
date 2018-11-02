@@ -170,7 +170,7 @@ void CRainSplashGenerator::Update(float dt, CStateManager& mgr)
     EEnvFxType neededFx = mgr.GetWorld()->GetNeededEnvFx();
     x28_dt = dt;
     x48_25_raining = false;
-    if (neededFx != EEnvFxType::None && mgr.GetEnvFxManager()->GetX24() &&
+    if (neededFx != EEnvFxType::None && mgr.GetEnvFxManager()->IsSplashActive() &&
         mgr.GetEnvFxManager()->GetRainMagnitude() != 0.f && neededFx == EEnvFxType::Rain)
     {
         UpdateRainSplashes(mgr, mgr.GetEnvFxManager()->GetRainMagnitude(), dt);

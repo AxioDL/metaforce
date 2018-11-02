@@ -11,7 +11,7 @@ namespace urde
 
 class CSfxManager
 {
-    static std::vector<s16>* mpSfxTranslationTable;
+    static std::vector<u16>* mpSfxTranslationTable;
 public:
 
     enum class ESfxChannels
