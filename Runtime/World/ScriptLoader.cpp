@@ -84,6 +84,7 @@
 #include "CScriptWater.hpp"
 #include "CScriptWaypoint.hpp"
 #include "CScriptWorldTeleporter.hpp"
+#include "CScriptDebugCameraWaypoint.hpp"
 #include "CScriptSpiderBallAttractionSurface.hpp"
 #include "CScriptSpindleCamera.hpp"
 #include "MP1/World/CAtomicAlpha.hpp"
@@ -1699,7 +1700,12 @@ CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int
 CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount,
                                                const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 4, "DebugCameraWaypoint"))
+        return nullptr;
+
+    SActorHead actHead = LoadActorHead(in, mgr);
+    u32 w1 = in.readUint32Big();
+    return new CScriptDebugCameraWaypoint(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, w1);
 }
 
 CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInputStream& in, int propCount,
