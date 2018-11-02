@@ -714,6 +714,8 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
             else
                 extraLine = std::string(begin, includesPass.cbegin() + findPos);
             *defineContinue += extraLine;
+            if (!defineContinue->empty() && defineContinue->back() == '\r')
+                defineContinue->pop_back();
             if (!defineContinue->empty() && defineContinue->back() == '\\')
                 defineContinue->pop_back();
             else
@@ -723,6 +725,8 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
         {
             std::string& defOut = m_defines[subMatch[1].str()];
             defOut = subMatch[2].str();
+            if (!defOut.empty() && defOut.back() == '\r')
+                defOut.pop_back();
             if (!defOut.empty() && defOut.back() == '\\')
             {
                 defOut.pop_back();
