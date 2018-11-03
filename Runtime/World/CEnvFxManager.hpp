@@ -98,6 +98,12 @@ class CEnvFxManager
 {
     friend class CEnvFxManagerGrid;
     friend class CEnvFxShaders;
+
+    mutable hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
+    mutable hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
+    mutable CEnvFxShaders::Uniform m_uniformData;
+    boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
+
     zeus::CAABox x0_particleBounds = zeus::CAABox(-63.5f, 63.5f);
     zeus::CVector3f x18_focusCellPosition = zeus::CVector3f::skZero;
     bool x24_enableSplash = false;
@@ -121,11 +127,6 @@ class CEnvFxManager
     rstl::reserved_vector<zeus::CVector3f, 16> xb84_snowZDeltas;
     TLockedToken<CTexture> xc48_underwaterFlake;
     bool xc54_ = true;
-
-    hecl::VertexBufferPool<CEnvFxShaders::Instance> m_instPool;
-    hecl::UniformBufferPool<CEnvFxShaders::Uniform> m_uniformPool;
-    mutable CEnvFxShaders::Uniform m_uniformData;
-    boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
 
     void SetSplashEffectRate(float f, const CStateManager& mgr);
     void UpdateRainSounds(const CStateManager& mgr);

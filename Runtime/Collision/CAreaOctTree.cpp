@@ -435,8 +435,11 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
                 if (child.x20_nodeType != ETreeType::Invalid)
                     child.LineTestExInternal(line, filter, res, tmpLoT, tmpHiT, maxT, dirRecip);
                 if (res.x10_surface)
+                {
                     if (res.x3c_t > highT)
                         res = SRayResult();
+                    break;
+                }
             }
             tmpLoT = tmpHiT;
         }

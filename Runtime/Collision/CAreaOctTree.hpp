@@ -22,18 +22,12 @@ public:
 
     class TriListReference
     {
-        u16 m_count;
-        std::unique_ptr<u16[]> m_refs;
+        const u16* m_ptr;
     public:
         TriListReference(const u16* ptr)
-        : m_count(ptr[0])
-        {
-            m_refs.reset(new u16[m_count]);
-            for (u16 i=0 ; i<m_count ; ++i)
-                m_refs[i] = ptr[i+1];
-        }
-        u16 GetAt(int idx) const { return m_refs[idx]; }
-        u16 GetSize() const { return m_count; }
+        : m_ptr(ptr) {}
+        u16 GetAt(int idx) const { return m_ptr[idx+1]; }
+        u16 GetSize() const { return m_ptr[0]; }
     };
 
     class Node

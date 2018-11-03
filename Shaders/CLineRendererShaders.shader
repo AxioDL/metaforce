@@ -78,7 +78,7 @@ VertToFrag main(in VertData v)
 }
 
 #fragment hlsl
-SamplerState samp : register(s0);
+SamplerState samp : register(s3);
 Texture2D tex0 : register(t0);
 struct VertToFrag
 {
@@ -133,7 +133,7 @@ struct VertToFrag
 };
 
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
-                      sampler samp [[ sampler(0) ]],
+                      sampler samp [[ sampler(3) ]],
                       texture2d<float> tex0 [[ texture(0) ]])
 {
     return vtf.color * tex0.sample(samp, vtf.uv);

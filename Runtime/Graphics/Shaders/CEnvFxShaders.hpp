@@ -19,7 +19,8 @@ public:
     };
     struct Uniform
     {
-        zeus::CMatrix4f mvp;
+        zeus::CMatrix4f mv;
+        zeus::CMatrix4f proj;
         zeus::CMatrix4f envMtx;
         zeus::CColor moduColor;
     };

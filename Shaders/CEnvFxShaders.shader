@@ -40,7 +40,7 @@ struct VertToFrag
 SBINDING(0) out VertToFrag vtf;
 void main()
 {
-    vec4 pos = posIn[gl_VertexID];
+    vec4 pos = vec4(posIn[gl_VertexID].xyz, 1.0);
     vtf.color = colorIn * moduColor;
     vtf.uvFlake = uvsIn[gl_VertexID].xy;
     vtf.uvEnv = (envMtx * pos).xy;
@@ -134,8 +134,9 @@ VertToFrag main(in VertData v, in uint vertId : SV_VertexID)
     VertToFrag vtf;
     vtf.color = v.colorIn * moduColor;
     vtf.uvFlake = v.uvsIn[vertId].xy;
-    vtf.uvEnv = mul(envMtx, v.posIn[vertId]).xy;
-    vtf.mvPos = mul(mv, v.posIn[vertId]);
+    float4 pos = float4(v.posIn[vertId].xyz, 1.0);
+    vtf.uvEnv = mul(envMtx, pos).xy;
+    vtf.mvPos = mul(mv, pos);
     vtf.position = mul(proj, vtf.mvPos);
     return vtf;
 }
@@ -229,8 +230,9 @@ vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],
     constant VertData& v = va[instId];
     vtf.color = v.colorIn * particle.moduColor;
     vtf.uvFlake = v.uvsIn[vertId].xy;
-    vtf.uvEnv = (envMtx * v.posIn[vertId]).xy;
-    vtf.mvPos = particle.mv * v.posIn[vertId];
+    float4 pos = float4(v.posIn[vertId].xyz, 1.0);
+    vtf.uvEnv = (envMtx * pos).xy;
+    vtf.mvPos = particle.mv * pos;
     vtf.position = particle.proj * vtf.mvPos;
     return vtf;
 }
