@@ -1723,7 +1723,7 @@ static const u8 BallSwooshColorsCharged[9][3] =
     {0xFF, 0xE6, 0x00}
 };
 
-static const u8 BallSwooshColorsLaggy[9][3] =
+static const u8 BallSwooshColorsJaggy[9][3] =
 {
     {0xFF, 0xCC, 0x00},
     {0xFF, 0xCC, 0x00},
@@ -1826,9 +1826,9 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
     if (x1df4_boostDrainTime > 0.f && speed > 23.f && swooshAlpha > 0.5f)
     {
         float laggyAlpha = zeus::clamp(0.f, (speed - 23.f) / 17.f, t);
-        c = BallSwooshColorsLaggy[x8_ballGlowColorIdx];
-        zeus::CColor colorLaggy = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, laggyAlpha};
-        x19c8_jaggyTrailGen->SetModulationColor(colorLaggy);
+        c = BallSwooshColorsJaggy[x8_ballGlowColorIdx];
+        zeus::CColor colorJaggy = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, laggyAlpha};
+        x19c8_jaggyTrailGen->SetModulationColor(colorJaggy);
         x19c8_jaggyTrailGen->Render();
     }
 
@@ -2433,11 +2433,11 @@ static const std::pair<const char*, u32> kSpiderBallGlassTable[] =
     {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 1},
-    {"SamusPhazonBallGlassCMDL", 2},
+    {"SamusPhazonBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 0},
-    {"SamusSpiderBallGlassCMDL", 2},
+    {"SamusSpiderBallGlassCMDL", 0},
     {"SamusSpiderBallGlassCMDL", 1},
-    {"SamusPhazonBallGlassCMDL", 3}
+    {"SamusPhazonBallGlassCMDL", 0}
 };
 
 static const u32 kSpiderBallGlowColorIdxTable[] =

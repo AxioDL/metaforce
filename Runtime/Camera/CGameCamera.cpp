@@ -29,7 +29,7 @@ CGameCamera::CGameCamera(TUniqueId uid, bool active, std::string_view name, cons
 
 void CGameCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
 {
-    if (msg == EScriptObjectMessage::UpdateSplashInhabitant)
+    if (msg == EScriptObjectMessage::AddSplashInhabitant)
     {
         mgr.GetCameraManager()->SetInsideFluid(true, uid);
         return;

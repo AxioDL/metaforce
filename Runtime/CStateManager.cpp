@@ -912,7 +912,7 @@ void CStateManager::DrawWorld() const
         CGraphics::SetDepthRange(DEPTH_SCREEN_ACTORS, DEPTH_GUN);
         for (TUniqueId id : x86c_stateManagerContainer->xf39c_renderLast)
             if (const CActor* actor = static_cast<const CActor*>(GetObjectById(id)))
-                if (actor->xe6_27_thermalVisorFlags & 0x2)
+                if (!thermal || actor->xe6_27_thermalVisorFlags & 0x2)
                     actor->Render(*this);
         CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
     }

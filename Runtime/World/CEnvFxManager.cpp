@@ -57,7 +57,7 @@ CEnvFxManager::CEnvFxManager()
 void CEnvFxManager::SetSplashEffectRate(float rate, const CStateManager& mgr)
 {
     if (TCastToPtr<CHUDBillboardEffect> splashEffect = mgr.ObjectById(xb68_envRainSplashId))
-        if (splashEffect->GetX104_26())
+        if (splashEffect->IsElementGen())
             splashEffect->GetParticleGen()->SetGeneratorRate(rate);
 }
 
@@ -433,7 +433,7 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr)
 static zeus::CColor GetFlakeColor(const zeus::CMatrix4f& mvp, const CEnvFxShaders::Instance& inst)
 {
     float screenHeight = std::fabs(mvp.multiplyOneOverW(inst.positions[1]).y -
-                                   mvp.multiplyOneOverW(inst.positions[0]).y);
+                                   mvp.multiplyOneOverW(inst.positions[0]).y) / 2.f;
     screenHeight -= (32.f / 480.f);
     screenHeight /= (32.f / 480.f);
     return zeus::CColor(1.f - zeus::clamp(0.f, screenHeight, 1.f), 1.f);
@@ -668,7 +668,7 @@ void CEnvFxManager::AsyncLoadResources(CStateManager& mgr)
                             CHUDBillboardEffect::GetNearClipDistance(mgr),
                             CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::CColor::skWhite,
                             zeus::CVector3f::skOne, zeus::CVector3f::skZero);
-    effect->SetX104_27(true);
+    effect->SetRunIndefinitely(true);
     mgr.AddObject(effect);
 }
 

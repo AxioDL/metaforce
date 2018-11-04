@@ -94,7 +94,7 @@ void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAs
     }
 
     u32 nameCount = r.readUint32Big();
-    ret.m_names.reserve(areaCount);
+    ret.m_names.reserve(nameCount);
     for (u32 i = 0; i < nameCount; ++i)
         ret.m_names.push_back(r.readString());
 

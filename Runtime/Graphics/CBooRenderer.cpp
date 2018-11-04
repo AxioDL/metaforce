@@ -1046,8 +1046,7 @@ void CBooRenderer::PostRenderFogs()
 
 void CBooRenderer::AddParticleGen(const CParticleGen& gen)
 {
-    auto bounds = gen.GetBounds();
-    if (bounds)
+    if (auto bounds = gen.GetBounds())
     {
         zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.vec);
         Buckets::Insert(pt, bounds.value(), EDrawableType::Particle, &gen, xb0_viewPlane, 0);

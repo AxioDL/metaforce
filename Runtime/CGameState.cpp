@@ -67,7 +67,7 @@ void CWorldLayerState::InitializeWorldLayers(const std::vector<CWorldLayers::Are
     u32 b = 0;
     for (const CWorldLayers::Area& area : x0_areaLayers)
     {
-        for (u32 l=0 ; l<area.m_layerCount ; ++l)
+        for (u32 l=1 ; l<area.m_layerCount ; ++l)
             SetLayerActive(a, l, x10_saveLayers.getBit(b++));
         ++a;
     }
@@ -88,7 +88,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveW
 : x0_mlvlId(mlvlId)
 {
     x4_areaId = reader.ReadEncoded(32);
-    x10_desiredAreaAssetId = reader.ReadEncoded(32);
+    x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
     x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
     xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
     x14_layerState = std::make_shared<CWorldLayerState>(reader, saveWorld);

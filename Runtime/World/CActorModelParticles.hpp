@@ -32,7 +32,7 @@ public:
         CSfxHandle x74_sfx;
         std::unique_ptr<CElementGen> x78_;
         u32 x80_ = 0;
-        u32 x84_ = -1;
+        s32 x84_ = -1;
         u32 x88_seed1 = 99;
         rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x8c_thermalColdParticles;
         s32 xb0_ = -1;

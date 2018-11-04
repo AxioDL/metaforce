@@ -2,6 +2,10 @@
 #include "TCastTo.hpp"
 #include "CStateManager.hpp"
 #include "Camera/CGameCamera.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
+#include "World/CPlayer.hpp"
+#include "World/CWorld.hpp"
 
 namespace urde
 {
@@ -11,21 +15,22 @@ u32 CHUDBillboardEffect::g_BillboardCount = 0;
 
 CHUDBillboardEffect::CHUDBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
                                          const std::experimental::optional<TToken<CElectricDescription>>& electric,
-                                         TUniqueId uid, bool active, std::string_view name, float f,
-                                         const zeus::CVector3f& v0, const zeus::CColor& color,
-                                         const zeus::CVector3f& v1, const zeus::CVector3f& v2)
+                                         TUniqueId uid, bool active, std::string_view name, float dist,
+                                         const zeus::CVector3f& scale0, const zeus::CColor& color,
+                                         const zeus::CVector3f& scale1, const zeus::CVector3f& translation)
 : CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform::Identity())
 {
-    xec_v2 = v2;
-    xec_v2.y += f;
-    xf8_ = v1 * v0;
-    x104_24_ = true;
-    x104_25_ = false;
-    x104_26_ = false;
-    x104_27_ = false;
+    xec_translation = translation;
+    xec_translation.y += dist;
+    xf8_localScale = scale1 * scale0;
+    x104_24_renderAsParticleGen = true;
+    x104_25_enableRender = false;
+    x104_26_isElementGen = false;
+    x104_27_runIndefinitely = false;
 
     if (particle)
     {
+        x104_26_isElementGen = true;
         xe8_generator = std::make_unique<CElementGen>(*particle);
         if (static_cast<CElementGen&>(*xe8_generator).IsIndirectTextured())
             ++g_IndirectTexturedBillboardCount;
@@ -36,7 +41,7 @@ CHUDBillboardEffect::CHUDBillboardEffect(const std::experimental::optional<TToke
     }
     ++g_BillboardCount;
     xe8_generator->SetModulationColor(color);
-    xe8_generator->SetLocalScale(xf8_);
+    xe8_generator->SetLocalScale(xf8_localScale);
 }
 
 CHUDBillboardEffect::~CHUDBillboardEffect()
@@ -48,6 +53,71 @@ CHUDBillboardEffect::~CHUDBillboardEffect()
 }
 
 void CHUDBillboardEffect::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+float CHUDBillboardEffect::CalcGenRate()
+{
+    float f1;
+    if (g_BillboardCount + g_IndirectTexturedBillboardCount <= 4)
+        f1 = 0.f;
+    else
+        f1 = g_BillboardCount * 0.2f + g_IndirectTexturedBillboardCount * 0.1f;
+    return 1.f - std::min(f1, 0.8f);
+}
+
+void CHUDBillboardEffect::Think(float dt, CStateManager& mgr)
+{
+    if (GetActive())
+    {
+        mgr.SetActorAreaId(*this, mgr.GetWorld()->GetCurrentAreaId());
+        float oldGenRate = xe8_generator->GetGeneratorRate();
+        xe8_generator->SetGeneratorRate(oldGenRate * CalcGenRate());
+        xe8_generator->Update(dt);
+        xe8_generator->SetGeneratorRate(oldGenRate);
+        if (!x104_27_runIndefinitely)
+        {
+            x108_timeoutTimer += dt;
+            if (x108_timeoutTimer > 30.f)
+            {
+                mgr.FreeScriptObject(GetUniqueId());
+                return;
+            }
+        }
+        if (xe8_generator->IsSystemDeletable())
+            mgr.FreeScriptObject(GetUniqueId());
+    }
+}
+
+void CHUDBillboardEffect::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const
+{
+    if (x104_25_enableRender && x104_24_renderAsParticleGen)
+    {
+        g_Renderer->AddParticleGen(*xe8_generator);
+    }
+}
+
+void CHUDBillboardEffect::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
+{
+    if (mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson)
+    {
+        zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
+        xe8_generator->SetGlobalTranslation(camXf * xec_translation);
+        xe8_generator->SetGlobalOrientation(camXf);
+        x104_25_enableRender = true;
+    }
+    else
+    {
+        x104_25_enableRender = false;
+    }
+    x104_24_renderAsParticleGen = !mgr.RenderLast(GetUniqueId());
+}
+
+void CHUDBillboardEffect::Render(const CStateManager& mgr) const
+{
+    if (x104_25_enableRender && !x104_24_renderAsParticleGen)
+    {
+        xe8_generator->Render();
+    }
+}
 
 float CHUDBillboardEffect::GetNearClipDistance(CStateManager& mgr)
 {

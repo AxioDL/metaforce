@@ -1932,11 +1932,19 @@ void CElementGen::RenderParticlesIndirectTexture()
         inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
         inst.color = particle.x34_color;
-        inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMin, uvsInd.yMin};
-        inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
-        inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
-        inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMax, uvsInd.yMax};
-        inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
+        inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMax, uvsInd.yMax};
+        inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};
+        inst.texrTindUVs[2] = zeus::CVector4f{uvs.xMax, uvs.yMin, uvsInd.xMax, uvsInd.yMin};
+        inst.texrTindUVs[3] = zeus::CVector4f{uvs.xMin, uvs.yMin, uvsInd.xMin, uvsInd.yMin};
+        switch (CGraphics::g_BooPlatform)
+        {
+        case boo::IGraphicsDataFactory::Platform::OpenGL:
+            inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, clipRect.x24_uvYMax, clipRect.x1c_uvXMax, clipRect.x20_uvYMin};
+            break;
+        default:
+            inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax, 1.f - clipRect.x20_uvYMin};
+            break;
+        }
     }
 
     if (g_instIndTexData.size())

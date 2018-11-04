@@ -261,9 +261,6 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #instattribute uv4 2
 #instattribute uv4 3
 #instattribute uv4 4
-#instattribute uv4 5
-#instattribute uv4 6
-#instattribute uv4 7
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest none
@@ -320,6 +317,7 @@ void main()
     vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     vec4 texrTexel = texture(texrMap, vtf.uvTexr);
     colorOut = vtf.color * vec4(sceneTexel.rgb, 1.0) + texrTexel;
+    colorOut.a = vtf.color.a * texrTexel.a;
 }
 
 #vertex hlsl
