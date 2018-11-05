@@ -7,7 +7,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
                            CAssetId wpsc, const CDamageInfo& dInfo, float f1, float f2, float f3, CAssetId cmdl,
                            bool b1, bool b2)
     : CPatterned(ECharacter::AtomicAlpha, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-                 EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, 1)
+                 EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::One)
 {
 
 }

@@ -22,7 +22,8 @@ CRidley::CRidley(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                  const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                  const CActorParameters& actParms, CInputStream& in, u32 propCount)
     : CPatterned(ECharacter::Ridley, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-                 EMovementType::Flyer, EColliderType::Zero, EBodyType::Flyer, actParms, 2), x568_(in, propCount)
+                 EMovementType::Flyer, EColliderType::Zero, EBodyType::Flyer, actParms, EKnockBackVariant::Two),
+                 x568_(in, propCount)
 {
 }
 }

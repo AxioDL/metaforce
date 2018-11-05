@@ -10,7 +10,7 @@ CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, E
                          const CEntityInfo& eInfo, const zeus::CTransform& xf,
                          CModelData&& mData, const CPatternedInfo& pInfo, EMovementType mType,
                          EColliderType colType, EBodyType bType, const CActorParameters& aParms, float f1, float f2,
-                         s32 w1, float f3, u32 w2, float f4, bool b1)
+                         EKnockBackVariant w1, float f3, u32 w2, float f4, bool b1)
 : CPatterned(chr, uid, name, flavType, eInfo, xf, std::move(mData), pInfo, mType, colType, bType, aParms, w1)
 , x590_colSphere(zeus::CSphere(zeus::CVector3f::skZero, pInfo.GetHalfExtent()), x68_material)
 , x5b0_(f1)

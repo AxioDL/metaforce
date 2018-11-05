@@ -7,7 +7,7 @@ CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, con
                    float f1, const zeus::CVector3f& v1, float f2, EBodyType bodyType, float f3, float f4,
                    const CActorParameters& aParms)
 : CPatterned(ECharacter::Metaree, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
-             EColliderType::Zero, bodyType, aParms, 0)
+             EColliderType::Zero, bodyType, aParms, EKnockBackVariant::Zero)
 , x568_(f3)
 , x56c_(f4)
 , x570_(f1)

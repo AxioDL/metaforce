@@ -29,7 +29,7 @@ CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityIn
                            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
                            const CActorParameters& aParms, const CMetroidBetaData& metroidData)
 : CPatterned(ECharacter::MetroidBeta, uid, name, EFlavorType::One, info, xf, std::move(mData), pInfo,
-             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, 2)
+             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Two)
 {
 }
 

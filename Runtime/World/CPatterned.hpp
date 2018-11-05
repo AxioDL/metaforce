@@ -8,6 +8,7 @@
 #include "Particle/CElectricDescription.hpp"
 #include "TCastTo.hpp"
 #include "CDamageInfo.hpp"
+#include "CKnockBackController.hpp"
 
 #ifndef DEFINE_PATTERNED
 #define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type;
@@ -17,29 +18,6 @@ namespace urde
 {
 class CPatternedInfo;
 class CProjectileInfo;
-class CPatternedUnknown2
-{
-    friend class CPatterned;
-    u8 x80_ = 0;
-    union
-    {
-        struct
-        {
-            bool x81_24_ : 1;
-            bool x81_25_ : 1;
-            bool x81_26_ : 1;
-            bool x81_27_ : 1;
-            bool x81_28_ : 1;
-            bool x81_29_ : 1;
-            bool x81_30_ : 1;
-            bool x81_31_ : 1;
-            bool x82_24_ : 1;
-            bool x82_25_ : 1;
-            bool x82_26_ : 1;
-        };
-        u32 dummy = 0;
-    };
-};
 
 class CPatterned : public CAi
 {
@@ -173,7 +151,7 @@ protected:
         struct
         {
             bool x400_24_ : 1;
-            bool x400_25_ : 1; // t
+            bool x400_25_alive : 1; // t
             bool x400_26_ : 1;
             bool x400_27_ : 1;
             bool x400_28_ : 1;
@@ -195,8 +173,8 @@ protected:
             bool x402_28_ : 1;
             bool x402_29_ : 1; // t
             bool x402_30_ : 1;
-            bool x402_31_ : 1;
-            bool x403_24_ : 1;
+            bool x402_31_thawed : 1;
+            bool x403_24_keepThermalVisorState : 1;
             bool x403_25_ : 1; // t
             bool x403_26_ : 1; // t
         };
@@ -216,7 +194,7 @@ protected:
     u32 x454_deathSfx;
     u32 x458_iceShatterSfx;
 
-    CPatternedUnknown2 x460_;
+    CKnockBackController x460_knockBackController;
     zeus::CVector3f x4e4_;
     float x4f0_ = 0.f;
     float x4f4_;
@@ -226,18 +204,19 @@ protected:
     float x504_damageDur = 0.f;
     EColliderType x508_colliderType;
     float x50c_thermalMag;
-    std::unique_ptr<CVertexMorphEffect> x510_;
+    std::shared_ptr<CVertexMorphEffect> x510_vertexMorph;
     zeus::CVector3f x514_;
     std::experimental::optional<TLockedToken<CGenDescription>> x520_;
     std::experimental::optional<TLockedToken<CElectricDescription>> x530_;
     zeus::CVector3f x540_;
     std::experimental::optional<TLockedToken<CGenDescription>> x54c_;
     zeus::CVector3f x55c_;
+    void UpdateFrozenState(bool thawed);
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
                CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
-               const CActorParameters& params, int variant);
+               const CActorParameters& params, EKnockBackVariant kbVariant);
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -255,8 +234,9 @@ public:
 
     zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
 
-    void Death(CStateManager&, const zeus::CVector3f&, EStateMsg) {}
-    void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float) {}
+    void Death(const zeus::CVector3f&, CStateManager&, EScriptObjectState) {}
+    void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
+                   EKnockBackType type, bool inDeferred, float magnitude);
     void TakeDamage(const zeus::CVector3f&, float) { x428_ = 0.33f;}
     bool FixedRandom(CStateManager&, float) { return x330_stateMachineState.GetRandom() < x330_stateMachineState.x14_; }
     bool Random(CStateManager&, float dt) { return x330_stateMachineState.GetRandom() < dt; }
@@ -279,6 +259,7 @@ public:
     virtual TLockedToken<CGenDescription>& GetX520() { return x520_.value(); }
     float GetDamageDuration() const { return x504_damageDur; }
     zeus::CVector3f GetGunEyePos() const;
+    bool IsAlive() const { return x400_25_alive; }
 
     void BuildBodyController(EBodyType);
     const CBodyController* GetBodyController() const { return x450_bodyController.get(); }

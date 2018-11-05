@@ -32,7 +32,7 @@ protected:
 public:
     CWallWalker(ECharacter, TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&,
                 CModelData&&, const CPatternedInfo&, EMovementType, EColliderType, EBodyType,
-                const CActorParameters&, float, float, s32, float, u32, float, bool);
+                const CActorParameters&, float, float, EKnockBackVariant, float, u32, float, bool);
 
     void PreThink(float, CStateManager&);
     void Think(float, CStateManager&);

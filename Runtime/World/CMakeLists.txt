@@ -15,6 +15,7 @@ set(WORLD_SOURCES
     CAiFuncMap.hpp CAiFuncMap.cpp
     CStateMachine.hpp CStateMachine.cpp
     CPatterned.hpp CPatterned.cpp
+    CKnockBackController.hpp CKnockBackController.cpp
     CPathFindArea.hpp CPathFindArea.cpp
     CPathFindRegion.hpp CPathFindRegion.cpp
     CPathFindSearch.hpp CPathFindSearch.cpp

@@ -1746,7 +1746,7 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
         if (significant)
             ai->TakeDamage(vec2, mulDam);
         if (newHp <= 0.f)
-            ai->Death(*this, vec2, EStateMsg::Twenty);
+            ai->Death(vec2, *this, EScriptObjectState::DeathRattle);
     }
 
     return significant;

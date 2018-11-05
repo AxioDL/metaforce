@@ -19,7 +19,7 @@ CElitePirate::CElitePirate(TUniqueId uid, std::string_view name, const CEntityIn
                            CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
                            const CElitePirateData& eliteData)
     : CPatterned(ECharacter::ElitePirate, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-                 EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, 2)
+                 EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Two)
 {
 
 }

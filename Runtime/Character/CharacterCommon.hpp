@@ -141,7 +141,9 @@ enum class EStepType
 
 enum class ESeverity
 {
-    Invalid = -1
+    Invalid = -1,
+    Zero = 0,
+    One = 1
 };
 
 enum class EGetupType

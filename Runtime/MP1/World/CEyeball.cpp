@@ -7,7 +7,7 @@ CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType
                    CAssetId, const CDamageInfo&, CAssetId, CAssetId, CAssetId, CAssetId, u32, u32, u32, u32, u32,
                    const CActorParameters& actParms, bool)
 : CPatterned(ECharacter::EyeBall, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
-                 EColliderType::Zero, EBodyType::Restricted, actParms, 1)
+                 EColliderType::Zero, EBodyType::Restricted, actParms, EKnockBackVariant::One)
 {
 
 }

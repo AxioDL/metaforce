@@ -28,7 +28,7 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
                        const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
                        const CPatternedInfo& pInfo, CPatterned::EMovementType moveType,
                        CPatterned::EColliderType colliderType, EBodyType bodyType, const CActorParameters& actorParms,
-                       int variant)
+                       EKnockBackVariant kbVariant)
 : CAi(uid, pInfo.xf8_active, name, info, xf, std::move(mData),
       zeus::CAABox(pInfo.xcc_bodyOrigin - zeus::CVector3f{pInfo.xc4_halfExtent, pInfo.xc4_halfExtent, 0.f},
                    pInfo.xcc_bodyOrigin +
@@ -50,12 +50,13 @@ x3c4_detectionAngle(std::cos(zeus::degToRad(pInfo.x14_dectectionAngle))),
 x3c8_leashRadius(pInfo.x28_leashRadius),
 x3cc_playerLeashRadius(pInfo.x2c_playerLeashRadius),
 x3d0_playerLeashTime(pInfo.x30_playerLeashTime),
-x3fc_flavor(flavor)
+x3fc_flavor(flavor),
+x460_knockBackController(kbVariant)
 {
-    x400_25_ = true;
+    x400_25_alive = true;
     x400_31_ = moveType == CPatterned::EMovementType::Flyer;
     x402_29_ = true;
-    x402_30_ = x402_31_ = actorParms.HasThermalHeat();
+    x402_30_ = x402_31_thawed = actorParms.HasThermalHeat();
     x403_25_ = true;
     x403_26_ = true;
     x404_contactDamage = pInfo.x34_contactDamageInfo;
@@ -67,7 +68,6 @@ x3fc_flavor(flavor)
     x4fc_ = pInfo.x108_;
     x508_colliderType = colliderType;
     x50c_thermalMag = actorParms.GetThermalMag();
-    x510_.reset(new CVertexMorphEffect);
     x514_ = pInfo.x110_particle1Scale;
     x540_ = pInfo.x124_particle2Scale;
 
@@ -84,7 +84,7 @@ x3fc_flavor(flavor)
         x404_contactDamage.SetRadius(0.f);
 
     xe6_29_renderParticleDBInside = false;
-    x402_27_ = x64_modelData->HasModel(CModelData::EWhichModel::XRay);
+    x402_27_ = !x64_modelData->HasModel(CModelData::EWhichModel::XRay);
     BuildBodyController(bodyType);
 }
 
@@ -101,7 +101,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     {
     case EScriptObjectMessage::Registered:
     {
-        if (x508_colliderType == EColliderType::Zero)
+        if (x508_colliderType != EColliderType::One)
         {
             CMaterialList include = GetMaterialFilter().GetIncludeList();
             CMaterialList exclude = GetMaterialFilter().GetExcludeList();
@@ -112,7 +112,10 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
 
         if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->GetAnimationData()->GetIceModel())
         {
-            /* TODO Initialize CVertexMorphEffect located at 0x8007CC7C */
+            const auto& baseAABB = GetBaseBoundingBox();
+            float diagExtent = (baseAABB.max - baseAABB.min).magnitude() * 0.5f;
+            x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::CVector3f::skRight,
+                               zeus::CVector3f{}, diagExtent, 0.f, *mgr.GetActiveRandom());
         }
 
         xf8_25_angularEnabled = true;
@@ -155,20 +158,21 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
             const CDamageInfo& info = proj->GetDamageInfo();
             if (info.GetWeaponMode().GetType() == EWeaponType::Wave)
             {
-                if (x460_.x81_26_ && info.GetWeaponMode().IsComboed() && HealthInfo(mgr))
+                if (x460_knockBackController.x81_26_ && info.GetWeaponMode().IsComboed() && HealthInfo(mgr))
                 {
                     x401_31_ = true;
                     KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::One, false,
                               info.GetKnockBackPower());
-//                    x460_.sub80233D30(2);
+                    x460_knockBackController.DeferKnockBack(EWeaponType::Wave);
                 }
             }
             else if (info.GetWeaponMode().GetType() == EWeaponType::Plasma)
             {
-                if (x460_.x81_27_ && info.GetWeaponMode().IsCharged() && HealthInfo(mgr))
+                if (x460_knockBackController.x81_27_ && info.GetWeaponMode().IsCharged() && HealthInfo(mgr))
                 {
-                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::One, false, info.GetKnockBackPower());
-                    // x460_.sub80233D30(2);
+                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::One,
+                              false, info.GetKnockBackPower());
+                    x460_knockBackController.DeferKnockBack(EWeaponType::Plasma);
                 }
             }
             if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId())
@@ -189,18 +193,24 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     }
 }
 
+void CPatterned::UpdateFrozenState(bool thawed)
+{
+    x402_31_thawed = thawed;
+    if (x403_24_keepThermalVisorState)
+        return;
+    xe6_27_thermalVisorFlags = thawed ? 2 : 1;
+}
+
 void CPatterned::Think(float dt, CStateManager& mgr)
 {
     if (!GetActive())
         return;
 
-#if 0
     if (x402_30_)
-        sub80077854(x450_bodyController->GetPercentageFrozen() == 0.f);
-#endif
+        UpdateFrozenState(x450_bodyController->GetPercentageFrozen() == 0.f);
 
     if (x64_modelData->GetAnimationData()->GetIceModel())
-        x510_->Update(dt);
+        x510_vertexMorph->Update(dt);
 
     if (x402_26_)
     {
@@ -209,7 +219,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
             x400_29_ = true;
     }
 
-    if (x400_25_ && !x400_28_ && x400_29_)
+    if (x400_25_alive && !x400_28_ && x400_29_)
     {
         if (x3e0_ > 0.f && x400_29_)
         {
@@ -253,7 +263,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     else
         x4f0_ = 0.f;
 
-    if (x460_.x81_26_ && x401_31_ && x402_24_)
+    if (x460_knockBackController.x81_26_ && x401_31_ && x402_24_)
         Shock(0.5f + mgr.GetActiveRandom()->Range(0.f, 0.5f), 0.2f);
 
     x402_24_ = x401_24_;
@@ -261,7 +271,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     if (x450_bodyController->IsElectrocuting())
     {
         mgr.GetActorModelParticles()->StartElectric(*this);
-        if (x3f0_ > 0.f && x400_25_)
+        if (x3f0_ > 0.f && x400_25_alive)
         {
             CDamageInfo dInfo({EWeaponType::Wave}, x3f0_, 0.f, 0.f);
             mgr.ApplyDamage(kInvalidUniqueId, GetUniqueId(), kInvalidUniqueId, dInfo,
@@ -279,7 +289,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
 
     if (x450_bodyController->IsOnFire())
     {
-        if (x400_25_)
+        if (x400_25_alive)
         {
             mgr.GetActorModelParticles()->LightDudeOnFire(*this);
             CDamageInfo dInfo({EWeaponType::Wave}, x3f0_, 0.f, 0.f);
@@ -300,10 +310,10 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     if (x401_30_)
     {
         x401_30_ = false;
-        Death(mgr, GetTransform().frontVector(), EStateMsg::Twenty);
+        Death(GetTransform().frontVector(), mgr, EScriptObjectState::DeathRattle);
     }
 
-    float thinkDt = (x400_25_ ? dt : dt * sub80078a88());
+    float thinkDt = (x400_25_alive ? dt : dt * sub80078a88());
 
     x450_bodyController->Update(thinkDt, mgr);
     x450_bodyController->MultiplyPlaybackRate(x3b4_speed);
@@ -317,7 +327,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
 
     ThinkAboutMove(thinkDt);
 
-    //x460_.sub80233b58(thinkDt, mgr, *this);
+    x460_knockBackController.Update(thinkDt, mgr, *this);
     x4e4_ = GetTranslation() + PredictMotion(thinkDt).x0_translation;
     x328_26_ = false;
     if (x420_curDamageTime > 0.f)
@@ -352,7 +362,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
 
 void CPatterned::Touch(CActor& act, CStateManager& mgr)
 {
-    if (!x400_25_)
+    if (!x400_25_alive)
         return;
 
     if (TCastToPtr<CGameProjectile> proj = act)
@@ -397,6 +407,17 @@ zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float
     return offset + GetBoundingBox().center();
 }
 
+void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info,
+                           EKnockBackType type, bool inDeferred, float magnitude)
+{
+    CHealthInfo* hInfo = HealthInfo(mgr);
+    if (!x401_27_ && !x401_28_ && hInfo)
+    {
+        x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
+        /* TODO: Finish */
+    }
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType)
 {
     if (x450_bodyController)
@@ -406,7 +427,7 @@ void CPatterned::BuildBodyController(EBodyType bodyType)
     auto anim = x450_bodyController->GetPASDatabase().FindBestAnimation(CPASAnimParmData(24,
         CPASAnimParm::FromEnum(0)), -1);
     /* TODO: Double check this */
-     x460_.x81_26_ = anim.first != 0.f;
+     x460_knockBackController.x81_26_ = anim.first != 0.f;
 }
 
 zeus::CVector3f CPatterned::GetGunEyePos() const

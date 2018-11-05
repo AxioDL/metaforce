@@ -8,6 +8,7 @@
 #include "CDamageVulnerability.hpp"
 #include "CHealthInfo.hpp"
 #include "CStateMachine.hpp"
+#include "CKnockBackController.hpp"
 
 #include "zeus/zeus.hpp"
 
@@ -19,12 +20,6 @@ enum class EListenNoiseType
     Character,
     Bomb,
     Projectile
-};
-
-enum class EKnockBackType
-{
-    Zero,
-    One
 };
 
 class CAiFuncMap;
@@ -50,8 +45,9 @@ public:
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual CHealthInfo* HealthInfo(CStateManager&) { return &x258_healthInfo; }
-    virtual void Death(CStateManager&, const zeus::CVector3f&, EStateMsg)=0;
-    virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType, bool, float)=0;
+    virtual void Death(const zeus::CVector3f&, CStateManager&, EScriptObjectState)=0;
+    virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
+                           EKnockBackType type, bool inDeferred, float magnitude)=0;
     virtual const CDamageVulnerability* GetDamageVulnerability() const { return &x260_damageVulnerability; }
     virtual const CDamageVulnerability* GetDamageVulnerability() { return &x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f&, float) {}

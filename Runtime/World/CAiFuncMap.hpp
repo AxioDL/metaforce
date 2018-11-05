@@ -8,8 +8,7 @@ namespace urde
 enum class EStateMsg
 {
     One = 1,
-    Two = 2,
-    Twenty = 20
+    Two = 2
 };
 
 class CStateManager;
