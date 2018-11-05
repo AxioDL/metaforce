@@ -356,9 +356,9 @@ public:
         boo::SWindowRect wrect = {rect.x4_left, rect.x8_top, rect.xc_width, rect.x10_height};
         g_BooMainCommandQueue->resolveBindTexture(g_SpareTexture, wrect, true, bindIdx, false, true);
     }
-    static void DrawInstances(size_t start, size_t count, size_t instCount)
+    static void DrawInstances(size_t start, size_t count, size_t instCount, size_t startInst = 0)
     {
-        g_BooMainCommandQueue->drawInstances(start, count, instCount);
+        g_BooMainCommandQueue->drawInstances(start, count, instCount, startInst);
     }
     static void DrawArray(size_t start, size_t count)
     {

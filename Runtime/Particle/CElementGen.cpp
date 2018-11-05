@@ -1876,6 +1876,9 @@ void CElementGen::RenderParticlesIndirectTexture()
     g_instIndTexData.clear();
     g_instIndTexData.reserve(x30_particles.size());
 
+    if (!x30_particles.empty())
+        CGraphics::SetShaderDataBinding(m_normalDataBind);
+
     for (int i=0 ; i<x30_particles.size() ; ++i)
     {
         int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;
@@ -1945,13 +1948,14 @@ void CElementGen::RenderParticlesIndirectTexture()
             inst.sceneUVs = zeus::CVector4f{clipRect.x18_uvXMin, 1.f - clipRect.x24_uvYMax, clipRect.x1c_uvXMax, 1.f - clipRect.x20_uvYMin};
             break;
         }
+        CGraphics::DrawInstances(0, 4, 1, g_instIndTexData.size() - 1);
     }
 
     if (g_instIndTexData.size())
     {
         m_instBuf->load(g_instIndTexData.data(), g_instIndTexData.size() * sizeof(SParticleInstanceIndTex));
-        CGraphics::SetShaderDataBinding(m_normalDataBind);
-        CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
+        //CGraphics::SetShaderDataBinding(m_normalDataBind);
+        //CGraphics::DrawInstances(0, 4, g_instIndTexData.size());
     }
 }
 
