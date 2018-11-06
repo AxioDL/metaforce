@@ -24,7 +24,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
                      bool b1, u32 w1, const CDamageVulnerability& dVuln,const CDamageInfo& parInfo, u16 sfxId1,
                      u16 sfxId2, u16 sfxId3, u32 w2, u32 w3, float f19, const CActorParameters &aParams)
 : CWallWalker(ECharacter::Parasite, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
-              EColliderType::Zero, bodyType, aParams, f7, f4, EKnockBackVariant::Zero, f2, w1, f17, b1)
+              EColliderType::Zero, bodyType, aParams, f7, f4, EKnockBackVariant::Small, f2, w1, f17, b1)
 , x64c_(dVuln)
 , x6b4_(parInfo)
 , x6d0_(f1)
@@ -53,7 +53,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
     switch(x5d0_)
     {
     case 2:
-        x460_knockBackController.SetX81_25(false);
+        x460_knockBackController.SetEnableFreeze(false);
     case 1:
         x460_knockBackController.SetAutoResetImpulse(false);
         break;

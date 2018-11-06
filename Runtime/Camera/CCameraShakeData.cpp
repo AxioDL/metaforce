@@ -93,6 +93,24 @@ CCameraShakeData CCameraShakeData::BuildPhazonCameraShakeData(float duration, fl
                                    SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 0.5f))};
 }
 
+CCameraShakeData CCameraShakeData::BuildPatternedExplodeShakeData(float duration, float magnitude)
+{
+    return {duration, 100.f, 0, zeus::CVector3f::skZero,
+            CCameraShakerComponent(1,
+                                   SCameraShakePoint(0, 0.25f * duration, 0.f, 0.75f * duration, magnitude),
+                                   SCameraShakePoint(1, 0.f, 0.f, 0.5f * duration, 2.0f)),
+            CCameraShakerComponent(),
+            CCameraShakerComponent()};
+}
+
+CCameraShakeData CCameraShakeData::BuildPatternedExplodeShakeData(const zeus::CVector3f& pos, float duration,
+                                                                  float magnitude, float distance)
+{
+    CCameraShakeData shakeData = CCameraShakeData::BuildPatternedExplodeShakeData(duration, magnitude);
+    shakeData.SetSfxPositionAndDistance(pos, distance);
+    return shakeData;
+}
+
 void SCameraShakePoint::Update(float curTime)
 {
     float offTimePoint = xc_attackTime + x10_sustainTime;

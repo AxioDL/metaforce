@@ -10,6 +10,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 #include "World/CScriptPlayerActor.hpp"
+#include "CPatterned.hpp"
 
 namespace urde
 {
@@ -123,6 +124,22 @@ void CActorModelParticles::CItem::Update(float, CStateManager&)
 
 }
 
+void CActorModelParticles::CItem::EnsureLoaded(EDependency d)
+{
+    if (!(x134_bits & (1 << int(d))))
+    {
+        x128_parent.IncrementDependency(d);
+        x134_bits |= (1 << int(d));
+    }
+}
+
+void CActorModelParticles::IncrementDependency(EDependency d)
+{
+    x50_dgrps[int(d)].Increment();
+    if (!(xe6_bits2 & (1 << int(d))))
+        xe4_bits |= (1 << int(d));
+}
+
 static const char* ParticleDGRPs[] =
 {
     "Effect_OnFire_DGRP",
@@ -133,15 +150,15 @@ static const char* ParticleDGRPs[] =
     "Effect_Electric_DGRP",
 };
 
-std::pair<std::vector<CToken>, bool>
+CActorModelParticles::Dependency
 CActorModelParticles::GetParticleDGRPTokens(const char* name)
 {
-    std::pair<std::vector<CToken>, bool> ret = {};
+    Dependency ret = {};
     TToken<CDependencyGroup> dgrp = g_SimplePool->GetObj(name);
     const auto& vector = dgrp->GetObjectTagVector();
-    ret.first.reserve(vector.size());
+    ret.x0_tokens.reserve(vector.size());
     for (const SObjectTag& tag : vector)
-        ret.first.push_back(g_SimplePool->GetObj(tag));
+        ret.x0_tokens.push_back(g_SimplePool->GetObj(tag));
     return ret;
 }
 
@@ -292,14 +309,76 @@ void CActorModelParticles::StartIce(CActor& actor)
 {
 }
 
+void CActorModelParticles::StartElectric(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    if (iter->xc0_particleElectric && !iter->xc0_particleElectric->GetParticleEmission())
+        iter->xc0_particleElectric->SetParticleEmission(true);
+}
+
 void CActorModelParticles::StopElectric(CActor& act)
 {
-    if (!act.GetPointGeneratorParticles())
+    if (act.GetPointGeneratorParticles())
     {
         auto iter = FindSystem(act.GetUniqueId());
         if (iter != x0_items.cend() && iter->xc0_particleElectric)
             iter->xc0_particleElectric->SetParticleEmission(false);
     }
+}
+
+void CActorModelParticles::StopThermalHotParticles(CActor& act)
+{
+    if (act.GetPointGeneratorParticles())
+    {
+        auto iter = FindSystem(act.GetUniqueId());
+        if (iter != x0_items.cend())
+        {
+            for (auto& part : iter->x8_thermalHotParticles)
+                if (part.first)
+                    part.first->SetParticleEmission(false);
+        }
+    }
+}
+
+static bool IsMediumOrLarge(CActor& act)
+{
+    if (TCastToConstPtr<CPatterned> pat = act)
+        return pat->GetKnockBackController().GetVariant() != EKnockBackVariant::Small;
+    return false;
+}
+
+void CActorModelParticles::PlayFireSFX(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    u16 sfx = SFXeff_x_smallfire_lp_00 + u16(IsMediumOrLarge(act));
+    CSfxManager::AddEmitter(sfx, act.GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f, kInvalidAreaId);
+    iter->xdc_ashy.Lock();
+}
+
+void CActorModelParticles::EnsureElectricLoaded(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    iter->EnsureLoaded(EDependency::Electric);
+}
+
+void CActorModelParticles::EnsureFirePopLoaded(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    iter->EnsureLoaded(EDependency::FirePop);
+}
+
+void CActorModelParticles::EnsureIceBreakLoaded(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    iter->EnsureLoaded(EDependency::IceBreak);
+}
+
+void CActorModelParticles::LightDudeOnFire(CActor& act)
+{
+    auto iter = FindOrCreateSystem(act);
+    iter->EnsureLoaded(EDependency::OnFire);
+    if (iter->x6c_ <= 0.f)
+        iter->x70_ = true;
 }
 
 void CActorModelParticles::AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes,

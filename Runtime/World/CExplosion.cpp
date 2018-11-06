@@ -27,6 +27,23 @@ CExplosion::CExplosion(const TLockedToken<CGenDescription>& particle, TUniqueId 
     xe8_particleGen->SetModulationColor(color);
 }
 
+CExplosion::CExplosion(const TLockedToken<CElectricDescription>& electric, TUniqueId uid, bool active,
+                       const CEntityInfo& info, std::string_view name, const zeus::CTransform& xf,
+                       u32 flags, const zeus::CVector3f& scale, const zeus::CColor& color)
+: CEffect(uid, info, active, name, xf)
+{
+    xe8_particleGen = std::make_unique<CParticleElectric>(electric);
+    xf0_electricDesc = electric.GetObj();
+    xf4_24_renderThermalHot = flags & 0x4;
+    xf4_25_ = true;
+    xf4_26_renderXray = flags & 0x8;
+    xe6_27_thermalVisorFlags = flags & 0x1 ? 1 : 2;
+    xe8_particleGen->SetGlobalTranslation(xf.origin);
+    xe8_particleGen->SetOrientation(xf.getRotation());
+    xe8_particleGen->SetGlobalScale(scale);
+    xe8_particleGen->SetModulationColor(color);
+}
+
 void CExplosion::Accept(IVisitor& visitor)
 {
     visitor.Visit(this);

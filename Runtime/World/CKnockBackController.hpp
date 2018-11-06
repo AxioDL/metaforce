@@ -11,15 +11,15 @@ class CDamageInfo;
 
 enum class EKnockBackType
 {
-    Zero,
-    One
+    Direct,
+    Radius
 };
 
 enum class EKnockBackVariant
 {
-    Zero,
-    One,
-    Two
+    Small,
+    Medium,
+    Large
 };
 
 enum class EKnockBackWeaponType
@@ -28,15 +28,15 @@ enum class EKnockBackWeaponType
     Power,
     PowerCharged,
     PowerComboed,
-    PowerExtra,
+    PowerComboedDirect,
     Wave,
     WaveCharged,
     WaveComboed,
-    WaveExtra,
+    WaveComboedDirect,
     Ice,
     IceCharged,
     IceComboed,
-    IceExtra,
+    IceComboedDirect,
     Plasma,
     PlasmaCharged,
     PlasmaComboed,
@@ -64,19 +64,19 @@ enum class EKnockBackAnimationState
     Fall
 };
 
-enum class EKnockBackAnimationCondition
+enum class EKnockBackAnimationFollowUp
 {
     Invalid = -1,
-    Zero,
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine
+    None,
+    Freeze,
+    Shock,
+    Burn,
+    PhazeOut,
+    Death,
+    ExplodeDeath,
+    IceDeath,
+    FireDeath,
+    Disintegrate
 };
 
 class CKnockBackController
@@ -85,8 +85,8 @@ public:
     struct KnockBackParms
     {
         EKnockBackAnimationState x0_animState;
-        EKnockBackAnimationCondition x4_animCondition;
-        float x8_;
+        EKnockBackAnimationFollowUp x4_animFollowup;
+        float x8_followupMagnitude;
         float xc_;
     };
 private:
@@ -113,12 +113,12 @@ private:
         struct
         {
             bool x81_24_autoResetImpulse : 1; // t
-            bool x81_25_ : 1; // t
-            bool x81_26_ : 1;
-            bool x81_27_ : 1; // t
-            bool x81_28_ : 1; // t
-            bool x81_29_ : 1; // t
-            bool x81_30_ : 1; // t
+            bool x81_25_enableFreeze : 1; // t
+            bool x81_26_enableShock : 1;
+            bool x81_27_enableBurn : 1; // t
+            bool x81_28_enableFireDeath : 1; // t
+            bool x81_29_enableExplodeDeath : 1; // t
+            bool x81_30_enableDisintegrate : 1; // t
             bool x81_31_ : 1; // t
             bool x82_24_ : 1; // t
             bool x82_25_inDeferredKnockBack : 1;
@@ -148,7 +148,9 @@ public:
     void Update(float dt, CStateManager& mgr, CPatterned& parent);
     void KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent,
                    const CDamageInfo& info, EKnockBackType type, float magnitude);
-    void SetX81_25(bool b) { x81_25_ = b; }
+    void SetEnableFreeze(bool b) { x81_25_enableFreeze = b; }
+    const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
+    EKnockBackVariant GetVariant() const { return x0_variant; }
 };
 
 }

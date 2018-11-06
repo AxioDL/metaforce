@@ -101,6 +101,8 @@ public:
     void DouseElectrocuting();
     void UpdateFrozenInfo(float, CStateManager&);
     bool HasIceBreakoutState() const;
+    void StopElectrocution();
+    void FrozenBreakout();
     pas::EAnimationState GetCurrentAdditiveStateId() const
     { return x2a4_bodyStateInfo.GetCurrentAdditiveStateId(); }
     EBodyType GetBodyType() const { return x2f4_bodyType; }

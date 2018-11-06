@@ -21,7 +21,7 @@ CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& 
     const CDamageVulnerability& dVuln2, CAssetId modelId, CAssetId skinId, float f3, float f4,
     float f5, float f6, const urde::MP1::CMagdolite::CMagdoliteData& magData, float f7, float f8, float f9)
 : CPatterned(ECharacter::Magdolite, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-    EMovementType::Flyer, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Two)
+    EMovementType::Flyer, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Large)
 {
 
 }

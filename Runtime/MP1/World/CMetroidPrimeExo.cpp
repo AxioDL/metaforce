@@ -142,7 +142,7 @@ CMetroidPrimeExo::CMetroidPrimeExo(TUniqueId uid, std::string_view name, const C
                                    CAssetId particle3, CAssetId particle4,
                                    const rstl::reserved_vector<SPrimeStruct6, 4>& struct6s)
 : CPatterned(ECharacter::MetroidPrimeExo, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Two)
+             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, aParms, EKnockBackVariant::Large)
 {
 
 }

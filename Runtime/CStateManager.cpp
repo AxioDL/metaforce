@@ -54,6 +54,8 @@
 #include "World/CScriptDamageableTrigger.hpp"
 #include "World/CScriptDebris.hpp"
 #include "hecl/CVarManager.hpp"
+#include "World/CPatterned.hpp"
+#include "World/CDestroyableRock.hpp"
 #include <cmath>
 
 namespace urde
@@ -1361,7 +1363,8 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
         {
             if (TCastToPtr<CPhysicsActor> physActor = actor)
             {
-                zeus::CVector3f kbVec = pos * (dampedPower - hInfo->GetKnockbackResistance()) * physActor->GetMass() * 1.5f;
+                zeus::CVector3f kbVec = pos *
+                    (dampedPower - hInfo->GetKnockbackResistance()) * physActor->GetMass() * 1.5f;
                 if (physActor->GetMaterialList().HasMaterial(EMaterialTypes::Immovable) ||
                     !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Grass))
                     return;
@@ -1372,7 +1375,8 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
     }
 
     if (ai)
-        ai->KnockBack(pos, *this, info, dampen == 0.f ? EKnockBackType::Zero : EKnockBackType::One, false, dampedPower);
+        ai->KnockBack(pos, *this, info, dampen == 0.f ? EKnockBackType::Direct : EKnockBackType::Radius,
+                      false, dampedPower);
 }
 
 void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos, float power, float resistance)
@@ -1698,11 +1702,9 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     float mulDam = dam;
 
     TCastToPtr<CPlayer> player = damagee;
-    TCastToPtr<CAi> ai = damagee;
-#if 0
-    if (TCastToPtr<CDestroyableRock>(damagee))
-        ai = damagee;
-#endif
+    CAi* ai = TCastToPtr<CPatterned>(damagee).GetPtr();
+    if (!ai)
+        ai = TCastToPtr<CDestroyableRock>(damagee).GetPtr();
 
     if (player)
     {
@@ -1746,7 +1748,7 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
         if (significant)
             ai->TakeDamage(vec2, mulDam);
         if (newHp <= 0.f)
-            ai->Death(vec2, *this, EScriptObjectState::DeathRattle);
+            ai->Death(*this, vec2, EScriptObjectState::DeathRattle);
     }
 
     return significant;

@@ -13,6 +13,7 @@
 #include "TCastTo.hpp"
 #include "MP1/World/CSpacePirate.hpp"
 #include "World/CStateMachine.hpp"
+#include "CExplosion.hpp"
 
 namespace urde
 {
@@ -68,17 +69,17 @@ x460_knockBackController(kbVariant)
     x4fc_ = pInfo.x108_;
     x508_colliderType = colliderType;
     x50c_thermalMag = actorParms.GetThermalMag();
-    x514_ = pInfo.x110_particle1Scale;
-    x540_ = pInfo.x124_particle2Scale;
+    x514_deathExplosionOffset = pInfo.x110_particle1Scale;
+    x540_iceDeathExplosionOffset = pInfo.x124_particle2Scale;
 
     if (pInfo.x11c_particle1.IsValid())
-        x520_ = { g_SimplePool->GetObj({FOURCC('PART'), pInfo.x11c_particle1})};
+        x520_deathExplosionParticle = { g_SimplePool->GetObj({FOURCC('PART'), pInfo.x11c_particle1})};
 
     if (pInfo.x120_electric.IsValid())
-        x530_ = { g_SimplePool->GetObj({FOURCC('ELSC'), pInfo.x120_electric})};
+        x530_deathExplosionElectric = { g_SimplePool->GetObj({FOURCC('ELSC'), pInfo.x120_electric})};
 
     if (pInfo.x130_particle2.IsValid())
-        x54c_ = { g_SimplePool->GetObj({FOURCC('PART'), pInfo.x130_particle2})};
+        x54c_iceDeathExplosionParticle = { g_SimplePool->GetObj({FOURCC('PART'), pInfo.x130_particle2})};
 
     if (x404_contactDamage.GetRadius() > 0.f)
         x404_contactDamage.SetRadius(0.f);
@@ -158,19 +159,19 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
             const CDamageInfo& info = proj->GetDamageInfo();
             if (info.GetWeaponMode().GetType() == EWeaponType::Wave)
             {
-                if (x460_knockBackController.x81_26_ && info.GetWeaponMode().IsComboed() && HealthInfo(mgr))
+                if (x460_knockBackController.x81_26_enableShock && info.GetWeaponMode().IsComboed() && HealthInfo(mgr))
                 {
                     x401_31_ = true;
-                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::One, false,
+                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Radius, false,
                               info.GetKnockBackPower());
                     x460_knockBackController.DeferKnockBack(EWeaponType::Wave);
                 }
             }
             else if (info.GetWeaponMode().GetType() == EWeaponType::Plasma)
             {
-                if (x460_knockBackController.x81_27_ && info.GetWeaponMode().IsCharged() && HealthInfo(mgr))
+                if (x460_knockBackController.x81_27_enableBurn && info.GetWeaponMode().IsCharged() && HealthInfo(mgr))
                 {
-                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::One,
+                    KnockBack(GetTransform().frontVector(), mgr, info, EKnockBackType::Radius,
                               false, info.GetKnockBackPower());
                     x460_knockBackController.DeferKnockBack(EWeaponType::Plasma);
                 }
@@ -223,13 +224,13 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     {
         if (x3e0_ > 0.f && x400_29_)
         {
-            SendScriptMsgs(EScriptObjectState::UNKS4, mgr, EScriptObjectMessage::None);
-            sub8007ab34(mgr);
+            SendScriptMsgs(EScriptObjectState::AboutToDie, mgr, EScriptObjectMessage::None);
+            DoIceDeath(mgr);
         }
         else
         {
-            SendScriptMsgs(EScriptObjectState::UNKS4, mgr, EScriptObjectMessage::None);
-            sub8007ace8(mgr);
+            SendScriptMsgs(EScriptObjectState::AboutToDie, mgr, EScriptObjectMessage::None);
+            DoDeath(mgr);
         }
     }
     else if (!x400_29_)
@@ -243,7 +244,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
                 bool isDead = false; //sub8007A454(unk, "Dead"sv);
 
                 if (!isDead && x330_stateMachineState.x8_time > 15.f)
-                    sub8007ace8(mgr);
+                    DoDeath(mgr);
             }
         }
     }
@@ -263,7 +264,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     else
         x4f0_ = 0.f;
 
-    if (x460_knockBackController.x81_26_ && x401_31_ && x402_24_)
+    if (x460_knockBackController.x81_26_enableShock && x401_31_ && x402_24_)
         Shock(0.5f + mgr.GetActiveRandom()->Range(0.f, 0.5f), 0.2f);
 
     x402_24_ = x401_24_;
@@ -282,7 +283,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     {
         if (x3f0_!= 0.f)
         {
-            //x450_bodyController->sub80139f0c(x3f0_);
+            x450_bodyController->StopElectrocution();
             mgr.GetActorModelParticles()->StopElectric(*this);
         }
     }
@@ -310,7 +311,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     if (x401_30_)
     {
         x401_30_ = false;
-        Death(GetTransform().frontVector(), mgr, EScriptObjectState::DeathRattle);
+        Death(mgr, GetTransform().frontVector(), EScriptObjectState::DeathRattle);
     }
 
     float thinkDt = (x400_25_alive ? dt : dt * sub80078a88());
@@ -407,6 +408,18 @@ zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float
     return offset + GetBoundingBox().center();
 }
 
+void CPatterned::DeathDelete(CStateManager& mgr)
+{
+    SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+    if (x450_bodyController->IsElectrocuting())
+    {
+        x3f0_ = 0.f;
+        x450_bodyController->StopElectrocution();
+        mgr.GetActorModelParticles()->StopElectric(*this);
+    }
+    mgr.FreeScriptObject(GetUniqueId());
+}
+
 void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, const CDamageInfo& info,
                            EKnockBackType type, bool inDeferred, float magnitude)
 {
@@ -414,7 +427,60 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
     if (!x401_27_ && !x401_28_ && hInfo)
     {
         x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
-        /* TODO: Finish */
+        if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_ >= 0.f)
+            x450_bodyController->FrozenBreakout();
+        switch (x460_knockBackController.GetActiveParms().x4_animFollowup)
+        {
+        case EKnockBackAnimationFollowUp::Freeze:
+            Freeze(mgr, zeus::CVector3f::skZero, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
+                   x460_knockBackController.GetActiveParms().x8_followupMagnitude);
+            break;
+        case EKnockBackAnimationFollowUp::PhazeOut:
+            PhazeOut(mgr);
+            break;
+        case EKnockBackAnimationFollowUp::Shock:
+            Shock(x460_knockBackController.GetActiveParms().x8_followupMagnitude, -1.f);
+            break;
+        case EKnockBackAnimationFollowUp::Burn:
+            Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, 0.25f);
+            break;
+        case EKnockBackAnimationFollowUp::Disintegrate:
+            x401_29_ = true;
+        case EKnockBackAnimationFollowUp::FireDeath:
+            Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, -1.f);
+            Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+            x400_28_ = x400_29_ = false;
+            x400_27_ = x401_28_ = true;
+            x3f4_ = 1.5f;
+            x402_29_ = false;
+            x450_bodyController->DouseFlames();
+            mgr.GetActorModelParticles()->StopThermalHotParticles(*this);
+            mgr.GetActorModelParticles()->PlayFireSFX(*this);
+            if (!x401_29_)
+            {
+                mgr.GetActorModelParticles()->EnsureFirePopLoaded(*this);
+                mgr.GetActorModelParticles()->EnsureIceBreakLoaded(*this);
+            }
+            break;
+        case EKnockBackAnimationFollowUp::Death:
+            Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+            break;
+        case EKnockBackAnimationFollowUp::ExplodeDeath:
+            Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+            if (GetDeathExplosionParticle() || x530_deathExplosionElectric)
+                DoDeath(mgr);
+            else if (x450_bodyController->IsFrozen())
+                x450_bodyController->FrozenBreakout();
+            break;
+        case EKnockBackAnimationFollowUp::IceDeath:
+            Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+            if (x54c_iceDeathExplosionParticle)
+                DoIceDeath(mgr);
+            else if (x450_bodyController->IsFrozen())
+                x450_bodyController->FrozenBreakout();
+        default:
+            break;
+        }
     }
 }
 
@@ -427,7 +493,71 @@ void CPatterned::BuildBodyController(EBodyType bodyType)
     auto anim = x450_bodyController->GetPASDatabase().FindBestAnimation(CPASAnimParmData(24,
         CPASAnimParm::FromEnum(0)), -1);
     /* TODO: Double check this */
-     x460_knockBackController.x81_26_ = anim.first != 0.f;
+     x460_knockBackController.x81_26_enableShock = anim.first != 0.f;
+}
+
+void CPatterned::GenerateDeathExplosion(CStateManager& mgr)
+{
+    if (auto particle = GetDeathExplosionParticle())
+    {
+        zeus::CTransform xf(GetTransform());
+        xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
+        CExplosion* explo = new CExplosion(*particle, mgr.AllocateUniqueId(), true,
+            CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
+            zeus::CVector3f::skOne, zeus::CColor::skWhite);
+        mgr.AddObject(explo);
+    }
+    else if (x530_deathExplosionElectric)
+    {
+        zeus::CTransform xf(GetTransform());
+        xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
+        CExplosion* explo = new CExplosion(*x530_deathExplosionElectric, mgr.AllocateUniqueId(), true,
+            CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
+            zeus::CVector3f::skOne, zeus::CColor::skWhite);
+        mgr.AddObject(explo);
+    }
+}
+
+void CPatterned::DoDeath(CStateManager& mgr)
+{
+    CSfxManager::AddEmitter(x454_deathSfx, GetTranslation(), zeus::CVector3f::skZero,
+                            true, false, 0x7f, kInvalidAreaId);
+    if (!x401_28_)
+    {
+        SendScriptMsgs(EScriptObjectState::DeathExplosion, mgr, EScriptObjectMessage::None);
+        GenerateDeathExplosion(mgr);
+    }
+    DeathDelete(mgr);
+    x400_28_ = x400_29_ = false;
+}
+
+void CPatterned::GenerateIceDeathExplosion(CStateManager& mgr)
+{
+    if (x54c_iceDeathExplosionParticle)
+    {
+        zeus::CTransform xf(GetTransform());
+        xf.origin = GetTransform() * (x64_modelData->GetScale() * x540_iceDeathExplosionOffset);
+        CExplosion* explo = new CExplosion(*x54c_iceDeathExplosionParticle, mgr.AllocateUniqueId(), true,
+            CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
+            zeus::CVector3f::skOne, zeus::CColor::skWhite);
+        mgr.AddObject(explo);
+    }
+}
+
+void CPatterned::DoIceDeath(CStateManager& mgr)
+{
+    if (x458_iceShatterSfx == 0xffff)
+        x458_iceShatterSfx = x454_deathSfx;
+    CSfxManager::AddEmitter(x458_iceShatterSfx, GetTranslation(), zeus::CVector3f::skZero,
+                            true, false, 0x7f, kInvalidAreaId);
+    SendScriptMsgs(EScriptObjectState::IceDeathExplosion, mgr, EScriptObjectMessage::None);
+    GenerateIceDeathExplosion(mgr);
+    float toPlayerDist = (mgr.GetPlayer().GetTranslation() - GetTranslation()).magnitude();
+    if (toPlayerDist < 40.f)
+        mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::BuildPatternedExplodeShakeData(
+            GetTranslation(), 0.25f, 0.3f, 40.f), true);
+    DeathDelete(mgr);
+    x400_28_ = x400_29_ = false;
 }
 
 zeus::CVector3f CPatterned::GetGunEyePos() const
@@ -458,7 +588,7 @@ float CPatterned::sub80078a88()
 void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
 #if 1
-    if (mgr.GetPlayerState()->GetActiveVisor(mgr  ) == CPlayerState::EPlayerVisor::Thermal)
+    if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
     {
         SetCalculateLighting(false);
         x90_actorLights->BuildConstantAmbientLighting(zeus::CColor::skWhite);

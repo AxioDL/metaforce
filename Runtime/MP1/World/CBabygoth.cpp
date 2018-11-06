@@ -35,7 +35,7 @@ CBabygothData::CBabygothData(CInputStream& in)
 CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
     CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, const CBabygothData& babyData)
 : CPatterned(ECharacter::Babygoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo, EMovementType::Ground,
-    EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::One)
+    EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium)
 {
 
 }

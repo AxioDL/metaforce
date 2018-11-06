@@ -66,6 +66,9 @@ public:
     static CCameraShakeData BuildMissileCameraShake(float duration, float magnitude, float sfxDistance,
                                                     const zeus::CVector3f& sfxPos);
     static CCameraShakeData BuildPhazonCameraShakeData(float duration, float magnitude);
+    static CCameraShakeData BuildPatternedExplodeShakeData(float duration, float magnitude);
+    static CCameraShakeData BuildPatternedExplodeShakeData(const zeus::CVector3f& pos, float duration,
+                                                           float magnitude, float distance);
     void Update(float dt, CStateManager& mgr);
     zeus::CVector3f GetPoint() const;
     float GetMaxAMComponent() const;

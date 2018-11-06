@@ -31,7 +31,7 @@
 #define SFXpik_x_elevamb_lp_00 1147
 #define SFXsfx047C 1148
 #define SFXsfx047D 1149
-#define SFXsfx047E 1150
+#define SFXeff_x_smallfire_lp_00 1150
 #define SFXeff_x_fire_lp_00 1151
 #define SFXsfx0480 1152
 #define SFXsfx0481 1153

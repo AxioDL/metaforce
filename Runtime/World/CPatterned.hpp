@@ -191,8 +191,8 @@ protected:
     zeus::CQuaternion x440_rotDelta;
     CSteeringBehaviors x45c_;
     std::unique_ptr<CBodyController> x450_bodyController;
-    u32 x454_deathSfx;
-    u32 x458_iceShatterSfx;
+    u16 x454_deathSfx;
+    u16 x458_iceShatterSfx;
 
     CKnockBackController x460_knockBackController;
     zeus::CVector3f x4e4_;
@@ -205,13 +205,15 @@ protected:
     EColliderType x508_colliderType;
     float x50c_thermalMag;
     std::shared_ptr<CVertexMorphEffect> x510_vertexMorph;
-    zeus::CVector3f x514_;
-    std::experimental::optional<TLockedToken<CGenDescription>> x520_;
-    std::experimental::optional<TLockedToken<CElectricDescription>> x530_;
-    zeus::CVector3f x540_;
-    std::experimental::optional<TLockedToken<CGenDescription>> x54c_;
+    zeus::CVector3f x514_deathExplosionOffset;
+    std::experimental::optional<TLockedToken<CGenDescription>> x520_deathExplosionParticle;
+    std::experimental::optional<TLockedToken<CElectricDescription>> x530_deathExplosionElectric;
+    zeus::CVector3f x540_iceDeathExplosionOffset;
+    std::experimental::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
     zeus::CVector3f x55c_;
     void UpdateFrozenState(bool thawed);
+    void GenerateIceDeathExplosion(CStateManager& mgr);
+    void GenerateDeathExplosion(CStateManager& mgr);
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
@@ -234,7 +236,8 @@ public:
 
     zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
 
-    void Death(const zeus::CVector3f&, CStateManager&, EScriptObjectState) {}
+    void DeathDelete(CStateManager& mgr);
+    void Death(CStateManager& mgr, const zeus::CVector3f&, EScriptObjectState) {}
     void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
                    EKnockBackType type, bool inDeferred, float magnitude);
     void TakeDamage(const zeus::CVector3f&, float) { x428_ = 0.33f;}
@@ -244,10 +247,12 @@ public:
 
     bool Default() { return true; }
     virtual bool KnockbackWhenFrozen() const { return true;}
-    virtual void sub8007ace8(CStateManager&) {}
-    virtual void sub8007ab34(CStateManager&) {}
+    virtual void DoDeath(CStateManager&);
+    virtual void DoIceDeath(CStateManager&);
     virtual void Burn(float, float) {}
     virtual void Shock(float, float) {}
+    virtual void Freeze(CStateManager& mgr, const zeus::CVector3f& pos,
+                        const zeus::CUnitVector3f& dir, float magnitude) {}
     virtual void ThinkAboutMove(float);
     virtual void GetSearchPath() {}
     virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
@@ -256,7 +261,8 @@ public:
     virtual float GetGravityConstant() const { return 24.525002f; }
     virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
     virtual void PhazeOut(CStateManager&) {}
-    virtual TLockedToken<CGenDescription>& GetX520() { return x520_.value(); }
+    virtual const std::experimental::optional<TLockedToken<CGenDescription>>&
+    GetDeathExplosionParticle() const { return x520_deathExplosionParticle; }
     float GetDamageDuration() const { return x504_damageDur; }
     zeus::CVector3f GetGunEyePos() const;
     bool IsAlive() const { return x400_25_alive; }
@@ -264,6 +270,7 @@ public:
     void BuildBodyController(EBodyType);
     const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
     CBodyController* BodyController() { return x450_bodyController.get(); }
+    const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
     void SetupPlayerCollision(bool);
 
 

@@ -9,7 +9,7 @@ CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavor
                                    const zeus::CVector3f& v1,
                                    float f4, float f5, float f6, const CDamageInfo& dInfo1, const CDamageInfo& dInfo2)
 : CPatterned(ECharacter::PuddleToad, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
-             EColliderType::Zero, EBodyType::Restricted, aParms, EKnockBackVariant::Two)
+             EColliderType::Zero, EBodyType::Restricted, aParms, EKnockBackVariant::Large)
 {
 
 }

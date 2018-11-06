@@ -21,6 +21,16 @@ class CScriptPlayerActor;
 class CActorModelParticles
 {
 public:
+    enum class EDependency
+    {
+        OnFire,
+        Ash,
+        IceBreak,
+        FirePop,
+        IcePop,
+        Electric
+    };
+
     class CItem
     {
         friend class CActorModelParticles;
@@ -63,9 +73,11 @@ public:
         CItem(const CEntity& ent, CActorModelParticles& parent);
         void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
         void Update(float, CStateManager&);
+        void EnsureLoaded(EDependency i);
     };
 
 private:
+    friend class CItem;
     std::list<CItem> x0_items;
     TToken<CGenDescription> x18_onFire;
     TToken<CGenDescription> x20_ash;
@@ -74,9 +86,47 @@ private:
     TToken<CGenDescription> x38_icePop;
     TToken<CElectricDescription> x40_electric;
     TToken<CTexture> x48_ashy;
-    rstl::reserved_vector<std::pair<std::vector<CToken>, bool>, 6> x50_dgrps;
+    struct Dependency
+    {
+        std::vector<CToken> x0_tokens;
+        int x10_refCount = 0;
+        bool x14_loaded = false;
+        void Increment()
+        {
+            ++x10_refCount;
+            if (x10_refCount == 1)
+                Load();
+        }
+        void Decrement()
+        {
+            --x10_refCount;
+            if (x10_refCount <= 0)
+                Unload();
+        }
+        void Load()
+        {
+            bool loading = false;
+            for (CToken& tok : x0_tokens)
+            {
+                tok.Lock();
+                if (!tok.IsLoaded())
+                    loading = true;
+            }
+            if (!loading)
+                x14_loaded = true;
+        }
+        void Unload()
+        {
+            for (CToken& tok : x0_tokens)
+                tok.Unlock();
+            x14_loaded = false;
+        }
+    };
+    rstl::reserved_vector<Dependency, 6> x50_dgrps;
+    u8 xe4_bits = 0;
+    u8 xe6_bits2 = 0;
 
-    std::pair<std::vector<CToken>, bool> GetParticleDGRPTokens(const char* name);
+    Dependency GetParticleDGRPTokens(const char* name);
     void LoadParticleDGRPs();
 
     std::unique_ptr<CElementGen> MakeOnFireGen() const;
@@ -86,6 +136,7 @@ private:
     std::unique_ptr<CElementGen> MakeIcePopGen() const;
     std::unique_ptr<CParticleElectric> MakeElectricGen() const;
 
+    void IncrementDependency(EDependency d);
 public:
     CActorModelParticles();
     static void PointGenerator(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
@@ -99,25 +150,14 @@ public:
                                 u32 genRate, float minZ);
     void RemoveRainSplashGenerator(CActor& act);
     void Render(const CActor& actor) const;
-    void StartElectric(CActor& act)
-    {
-        auto iter = FindOrCreateSystem(act);
-
-        if (iter->xc0_particleElectric && !iter->xc0_particleElectric->GetParticleEmission())
-            iter->xc0_particleElectric->SetParticleEmission(true);
-
-    }
-
+    void StartElectric(CActor& act);
     void StopElectric(CActor& act);
-
-    void LightDudeOnFire(CActor& act)
-    {
-        auto iter = FindOrCreateSystem(act);
-
-        /* iter->sub801e5a04(false); */
-        if (iter->x6c_ > 0.f)
-            iter->x70_ = true;
-    }
+    void StopThermalHotParticles(CActor& act);
+    void PlayFireSFX(CActor& act);
+    void EnsureElectricLoaded(CActor& act);
+    void EnsureFirePopLoaded(CActor& act);
+    void EnsureIceBreakLoaded(CActor& act);
+    void LightDudeOnFire(CActor& act);
 };
 }
 

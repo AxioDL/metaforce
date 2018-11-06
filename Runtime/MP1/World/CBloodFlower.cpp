@@ -8,5 +8,5 @@ CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityIn
                            const CDamageInfo& dInfo2, const CDamageInfo& dInfo3, CAssetId partId2, CAssetId partId3,
                            CAssetId partId4, float f1, CAssetId partId5, u32 soundId)
     : CPatterned(ECharacter::BloodFlower, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-                 EMovementType::Ground, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::One) {}
+                 EMovementType::Ground, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium) {}
 }

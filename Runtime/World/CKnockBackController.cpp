@@ -10,350 +10,350 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
 {
     {
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 1.000000f, 0.000000f},
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 1.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, 0.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 0.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 5.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 5.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 5.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 5.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 8.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 8.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 4.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 4.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Six, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-    },
-    {
-        {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 1.000000f, 0.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, 0.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 0.000000f, 0.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 5.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 5.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 8.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 8.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 4.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 4.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Eight, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Eight, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Eight, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Eight, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Nine, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Nine, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-        },
-        {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Four, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::ExplodeDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
     },
     {
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 1.000000f, 0.000000f},
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 1.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 2.000000f, 0.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Two, 4.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 0.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Two, 4.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 5.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 5.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 4.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 4.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 8.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 8.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::One, 2.500000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 4.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 4.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Three, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Eight, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Three, 6.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationCondition::Seven, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::None, EKnockBackAnimationCondition::Zero, 0.000000f, 0.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Nine, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Nine, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Flinch, EKnockBackAnimationCondition::Zero, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Four, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationCondition::Seven, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::PhazeOut, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+    },
+    {
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 1.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 2.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Shock, 4.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Shock, 4.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 4.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 4.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Freeze, 2.500000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::None, 0.000000f, 0.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+        },
+        {
+            {EKnockBackAnimationState::Flinch, EKnockBackAnimationFollowUp::None, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::PhazeOut, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
     },
 };
@@ -362,11 +362,11 @@ CKnockBackController::CKnockBackController(EKnockBackVariant variant)
 : x0_variant(variant)
 {
     x81_24_autoResetImpulse = true;
-    x81_25_ = true;
-    x81_27_ = true;
-    x81_28_ = true;
-    x81_29_ = true;
-    x81_30_ = true;
+    x81_25_enableFreeze = true;
+    x81_27_enableBurn = true;
+    x81_28_enableFireDeath = true;
+    x81_29_enableExplodeDeath = true;
+    x81_30_enableDisintegrate = true;
     x81_31_ = true;
     x82_24_ = true;
     for (int i = 0; i < 4; ++i)
@@ -454,38 +454,38 @@ void CKnockBackController::ValidateState(CPatterned& parent)
     x4_activeParms.x0_animState = (useState != EKnockBackAnimationState::Invalid) ?
         useState : EKnockBackAnimationState::None;
 
-    bool r4 = false;
-    switch (x4_activeParms.x4_animCondition)
+    bool disableFollowup = false;
+    switch (x4_activeParms.x4_animFollowup)
     {
-    case EKnockBackAnimationCondition::One:
-        r4 = !x81_25_;
+    case EKnockBackAnimationFollowUp::Freeze:
+        disableFollowup = !x81_25_enableFreeze;
         break;
-    case EKnockBackAnimationCondition::Two:
-        r4 = !x81_26_;
+    case EKnockBackAnimationFollowUp::Shock:
+        disableFollowup = !x81_26_enableShock;
         break;
-    case EKnockBackAnimationCondition::Three:
-        r4 = !x81_27_;
+    case EKnockBackAnimationFollowUp::Burn:
+        disableFollowup = !x81_27_enableBurn;
         break;
-    case EKnockBackAnimationCondition::Six:
-        r4 = !x81_29_;
+    case EKnockBackAnimationFollowUp::ExplodeDeath:
+        disableFollowup = !x81_29_enableExplodeDeath;
         break;
-    case EKnockBackAnimationCondition::Seven:
-        r4 = !x81_29_;
+    case EKnockBackAnimationFollowUp::IceDeath:
+        disableFollowup = !x81_29_enableExplodeDeath;
         break;
-    case EKnockBackAnimationCondition::Eight:
-        r4 = !x81_28_;
+    case EKnockBackAnimationFollowUp::FireDeath:
+        disableFollowup = !x81_28_enableFireDeath;
         break;
-    case EKnockBackAnimationCondition::Nine:
-        r4 = !x81_30_;
+    case EKnockBackAnimationFollowUp::Disintegrate:
+        disableFollowup = !x81_30_enableDisintegrate;
         break;
     default:
         break;
     }
 
-    if (r4)
+    if (disableFollowup)
     {
-        x4_activeParms.x4_animCondition = EKnockBackAnimationCondition::Zero;
-        x4_activeParms.x8_ = 0.f;
+        x4_activeParms.x4_animFollowup = EKnockBackAnimationFollowUp::None;
+        x4_activeParms.x8_followupMagnitude = 0.f;
     }
 }
 
@@ -547,7 +547,7 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
 void CKnockBackController::ResetKnockBackImpulse(CPatterned& parent, const zeus::CVector3f& backVec, float magnitude)
 {
     if (x81_24_autoResetImpulse && x4_activeParms.x0_animState == EKnockBackAnimationState::KnockBack &&
-        x4_activeParms.x4_animCondition != EKnockBackAnimationCondition::One)
+        x4_activeParms.x4_animFollowup != EKnockBackAnimationFollowUp::Freeze)
     {
         x50_impulseDir = backVec.canBeNormalized() ? backVec.normalized() : -parent.GetTransform().basis[1];
         if (x60_impulseRemTime <= 0.f)
@@ -562,7 +562,7 @@ void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& p
 {
     if (x14_deferWeaponType == EWeaponType::Wave)
     {
-        x4_activeParms = KnockBackParmsTable[int(x0_variant)][int(EKnockBackWeaponType::WaveExtra)]
+        x4_activeParms = KnockBackParmsTable[int(x0_variant)][int(EKnockBackWeaponType::WaveComboedDirect)]
                                             [int(GetKnockBackCharacterState(parent))];
         ValidateState(parent);
         if (CHealthInfo* hInfo = parent.HealthInfo(mgr))
@@ -573,7 +573,7 @@ void CKnockBackController::DoDeferredKnockBack(CStateManager& mgr, CPatterned& p
             x82_25_inDeferredKnockBack = true;
             parent.KnockBack(backVec, mgr,
                 CDamageInfo({x14_deferWeaponType, false, true, false}, 0.f, 0.f, 10.f),
-                EKnockBackType::One, x82_25_inDeferredKnockBack, 10.f);
+                EKnockBackType::Radius, x82_25_inDeferredKnockBack, 10.f);
             x82_25_inDeferredKnockBack = false;
         }
     }
@@ -622,9 +622,9 @@ EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageI
     switch (wType)
     {
     case EWeaponType::Power:
-        return EKnockBackWeaponType(type != EKnockBackType::Zero ? stacking : stacking + 1);
+        return EKnockBackWeaponType(type != EKnockBackType::Direct ? stacking : stacking + 1);
     case EWeaponType::Ice:
-        return EKnockBackWeaponType(type != EKnockBackType::Zero ? stacking + 8 : stacking + 9);
+        return EKnockBackWeaponType(type != EKnockBackType::Direct ? stacking + 8 : stacking + 9);
     case EWeaponType::Wave:
         return EKnockBackWeaponType(stacking + 4);
     case EWeaponType::Plasma:

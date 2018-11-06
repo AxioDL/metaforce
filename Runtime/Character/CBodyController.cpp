@@ -333,4 +333,21 @@ bool CBodyController::HasIceBreakoutState() const
     return best.first > 0.f;
 }
 
+void CBodyController::StopElectrocution()
+{
+    x324_electrocutionDur = 0.f;
+    x32c_timeElectrocuting = 0.f;
+    x4_cmdMgr.DeliverCmd(CBodyStateCmd(EBodyStateCmd::StopReaction));
+}
+
+void CBodyController::FrozenBreakout()
+{
+    if (x300_26_frozen)
+    {
+        float timeToBreakout = x304_intoFreezeDur + x308_frozenDur;
+        if (x310_timeFrozen < timeToBreakout)
+            x310_timeFrozen = timeToBreakout;
+    }
+}
+
 }
