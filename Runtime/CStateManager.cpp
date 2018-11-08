@@ -1260,7 +1260,10 @@ CStateManager::GetIdListForScript(TEditorId id) const
 {
     auto ret = x890_scriptIdMap.equal_range(id);
     if (ret.first != x890_scriptIdMap.cend() && ret.first->first != id)
+    {
         ret.first = x890_scriptIdMap.cend();
+        ret.second = x890_scriptIdMap.cend();
+    }
     return ret;
 }
 
