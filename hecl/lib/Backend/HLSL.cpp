@@ -14,9 +14,9 @@ std::string HLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "vtf.mvPos.xy\n";
+        return "objPos.xy\n";
     case TexGenSrc::Normal:
-        return "vtf.mvNorm.xy\n";
+        return "objNorm.xy\n";
     case TexGenSrc::UV:
         return hecl::Format("v.uvIn[%u]", uvIdx);
     default: break;
@@ -29,9 +29,9 @@ std::string HLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "float4(vtf.mvPos.xyz, 1.0)\n";
+        return "float4(objPos.xyz, 1.0)\n";
     case TexGenSrc::Normal:
-        return "float4(vtf.mvNorm.xyz, 1.0)\n";
+        return "float4(objNorm.xyz, 1.0)\n";
     case TexGenSrc::UV:
         return hecl::Format("float4(v.uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
@@ -82,15 +82,28 @@ std::string HLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCo
 
 std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionCoords) const
 {
+    std::string retval;
     if (skinSlots == 0)
-        skinSlots = 1;
-    std::string retval = hecl::Format("cbuffer HECLVertUniform : register(b0)\n"
-                                      "{\n"
-                                      "    float4x4 mv[%u];\n"
-                                      "    float4x4 mvInv[%u];\n"
-                                      "    float4x4 proj;\n"
-                                      "};\n",
-                                      skinSlots, skinSlots);
+    {
+        retval = "cbuffer HECLVertUniform : register(b0)\n"
+                 "{\n"
+                 "    float4x4 mv;\n"
+                 "    float4x4 mvInv;\n"
+                 "    float4x4 proj;\n"
+                 "};\n";
+    }
+    else
+    {
+        retval = hecl::Format("cbuffer HECLVertUniform : register(b0)\n"
+                              "{\n"
+                              "    float4x4 objs[%u];\n"
+                              "    float4x4 objsInv[%u];\n"
+                              "    float4x4 mv;\n"
+                              "    float4x4 mvInv;\n"
+                              "    float4x4 proj;\n"
+                              "};\n",
+                              skinSlots, skinSlots);
+    }
     retval += "struct TCGMtx\n"
               "{\n"
               "    float4x4 mtx;\n"
@@ -157,23 +170,26 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w,
     if (s)
     {
         /* skinned */
-        retval += "    float4 posAccum = float4(0.0,0.0,0.0,0.0);\n"
-                  "    float4 normAccum = float4(0.0,0.0,0.0,0.0);\n";
+        retval += "    float4 objPos = float4(0.0,0.0,0.0,0.0);\n"
+                  "    float4 objNorm = float4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += hecl::Format("    posAccum += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n"
-                                   "    normAccum += mul(mvInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
+            retval += hecl::Format("    objPos += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n"
+                                   "    objNorm += mul(mvInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
-        retval += "    posAccum[3] = 1.0;\n"
-                  "    vtf.mvPos = posAccum;\n"
-                  "    vtf.mvNorm = float4(normalize(normAccum.xyz), 0.0);\n"
-                  "    vtf.mvpPos = mul(proj, posAccum);\n";
+        retval += "    objPos[3] = 1.0;\n"
+                  "    objNorm = float4(normalize(objNorm.xyz), 0.0);\n"
+                  "    vtf.mvPos = mul(mv, objPos);\n"
+                  "    vtf.mvNorm = float4(normalize(mul(mvInv, objNorm).xyz), 0.0);\n"
+                  "    vtf.mvpPos = mul(proj, vtf.mvPos);\n";
     }
     else
     {
         /* non-skinned */
-        retval += "    vtf.mvPos = mul(mv[0], float4(v.posIn, 1.0));\n"
-                  "    vtf.mvNorm = mul(mvInv[0], float4(v.normIn, 0.0));\n"
-                  "    vtf.mvpPos = mul(proj, vtf.mvPos);\n";
+        retval += "    float4 objPos = float4(posIn, 1.0);\n"
+                  "    float4 objNorm = float4(normIn, 0.0);\n"
+                  "    vtf.mvPos = mul(mv, objPos);\n"
+                  "    vtf.mvNorm = mul(mvInv, objNorm);\n"
+                  "    gl_Position = mul(proj, vtf.mvPos);\n";
     }
 
     retval += "    float4 tmpProj;\n";
@@ -311,11 +327,16 @@ std::string HLSL::makeFrag(size_t blockCount, const char** blockNames,
         texMapDecl += hecl::Format("Texture2D reflectionTex : register(t%u);\n",
                                    m_texMapEnd);
 
+    uint32_t extTexBits = 0;
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
-        texMapDecl += hecl::Format("Texture2D extTex%u : register(t%u);\n",
-                                   extTex.mapIdx, extTex.mapIdx);
+        if (!(extTexBits & (1 << extTex.mapIdx)))
+        {
+            texMapDecl += hecl::Format("Texture2D extTex%u : register(t%u);\n",
+                                       extTex.mapIdx, extTex.mapIdx);
+            extTexBits |= (1 << extTex.mapIdx);
+        }
     }
 
     std::string retval =

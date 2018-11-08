@@ -13,9 +13,9 @@ std::string Metal::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
         case TexGenSrc::Position:
-            return "vtf.mvPos.xy\n";
+            return "objPos.xy\n";
         case TexGenSrc::Normal:
-            return "vtf.mvNorm.xy\n";
+            return "objNorm.xy\n";
         case TexGenSrc::UV:
             return hecl::Format("v.uvIn%u", uvIdx);
         default: break;
@@ -28,9 +28,9 @@ std::string Metal::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
         case TexGenSrc::Position:
-            return "float4(vtf.mvPos.xyz, 1.0)\n";
+            return "float4(objPos.xyz, 1.0)\n";
         case TexGenSrc::Normal:
-            return "float4(vtf.mvNorm.xyz, 1.0)\n";
+            return "float4(objNorm.xyz, 1.0)\n";
         case TexGenSrc::UV:
             return hecl::Format("float4(v.uvIn%u, 0.0, 1.0)", uvIdx);
         default: break;
@@ -94,17 +94,32 @@ std::string Metal::GenerateVertToFragStruct(size_t extTexCount, bool reflectionC
 
 std::string Metal::GenerateVertUniformStruct(unsigned skinSlots) const
 {
+    std::string retval;
     if (skinSlots == 0)
-        skinSlots = 1;
-    std::string retval = hecl::Format("struct HECLVertUniform\n"
-                                      "{\n"
-                                      "    float4x4 mv[%u];\n"
-                                      "    float4x4 mvInv[%u];\n"
-                                      "    float4x4 proj;\n"
-                                      "};\n"
-                                      "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n"
-                                      "struct ReflectTexMtxs {float4x4 indMtx; float4x4 reflectMtx; float reflectAlpha;};\n",
-                                      skinSlots, skinSlots);
+    {
+        retval = "struct HECLVertUniform\n"
+                 "{\n"
+                 "    float4x4 mv;\n"
+                 "    float4x4 mvInv;\n"
+                 "    float4x4 proj;\n"
+                 "};\n"
+                 "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n"
+                 "struct ReflectTexMtxs {float4x4 indMtx; float4x4 reflectMtx; float reflectAlpha;};\n";
+    }
+    else
+    {
+        retval = hecl::Format("struct HECLVertUniform\n"
+                              "{\n"
+                              "    float4x4 objs[%u];\n"
+                              "    float4x4 objsInv[%u];\n"
+                              "    float4x4 mv;\n"
+                              "    float4x4 mvInv;\n"
+                              "    float4x4 proj;\n"
+                              "};\n"
+                              "struct TexMtxs {float4x4 mtx; float4x4 postMtx;};\n"
+                              "struct ReflectTexMtxs {float4x4 indMtx; float4x4 reflectMtx; float reflectAlpha;};\n",
+                              skinSlots, skinSlots);
+    }
     return retval;
 }
 
@@ -165,23 +180,26 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
     if (s)
     {
         /* skinned */
-        retval += "    float4 posAccum = float4(0.0,0.0,0.0,0.0);\n"
-        "    float4 normAccum = float4(0.0,0.0,0.0,0.0);\n";
+        retval += "    float4 objPos = float4(0.0,0.0,0.0,0.0);\n"
+                  "    float4 objNorm = float4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += hecl::Format("    posAccum += (vu.mv[%" PRISize "] * float4(v.posIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n"
-                                   "    normAccum += (vu.mvInv[%" PRISize "] * float4(v.normIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n",
+            retval += hecl::Format("    objPos += (vu.mv[%" PRISize "] * float4(v.posIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n"
+                                   "    objNorm += (vu.mvInv[%" PRISize "] * float4(v.normIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
-        retval += "    posAccum[3] = 1.0;\n"
-        "    vtf.mvPos = posAccum;\n"
-        "    vtf.mvNorm = float4(normalize(normAccum.xyz), 0.0);\n"
-        "    vtf.mvpPos = vu.proj * posAccum;\n";
+        retval += "    objPos[3] = 1.0;\n"
+                  "    objNorm = float4(normalize(objNorm.xyz), 0.0);\n"
+                  "    vtf.mvPos = mv * objPos;\n"
+                  "    vtf.mvNorm = float4(normalize((mvInv * objNorm).xyz), 0.0);\n"
+                  "    vtf.mvpPos = proj * vtf.mvPos;\n";
     }
     else
     {
         /* non-skinned */
-        retval += "    vtf.mvPos = vu.mv[0] * float4(v.posIn, 1.0);\n"
-        "    vtf.mvNorm = vu.mvInv[0] * float4(v.normIn, 0.0);\n"
-        "    vtf.mvpPos = vu.proj * vtf.mvPos;\n";
+        retval += "    float4 objPos = float4(posIn, 1.0);\n"
+                  "    float4 objNorm = float4(normIn, 0.0);\n"
+                  "    vtf.mvPos = mv * objPos;\n"
+                  "    vtf.mvNorm = mvInv * objNorm;\n"
+                  "    vtf.mvpPos = proj * vtf.mvPos;\n";
     }
 
     retval += "    float4 tmpProj;\n";
@@ -348,14 +366,18 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
                                    m_texMapEnd);
 
     std::string extTexCall;
+    int extTexBits2 = 0;
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
-        if (extTexCall.size())
-            extTexCall += ", ";
-        extTexCall += hecl::Format("tex%u", extTex.mapIdx);
-        texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
-        extTexBits |= 1 << extTex.mapIdx;
+        if (!(extTexBits2 & (1 << extTex.mapIdx)))
+        {
+            if (extTexCall.size())
+                extTexCall += ", ";
+            extTexCall += hecl::Format("tex%u", extTex.mapIdx);
+            texMapDecl += hecl::Format(",\ntexture2d<float> tex%u [[ texture(%u) ]]", extTex.mapIdx, extTex.mapIdx);
+            extTexBits2 |= 1 << extTex.mapIdx;
+        }
     }
 
     std::string blockCall;

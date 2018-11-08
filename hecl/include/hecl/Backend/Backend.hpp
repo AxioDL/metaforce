@@ -94,27 +94,34 @@ class ShaderTag : public Hash
             bool m_depthTest:1;
             bool m_depthWrite:1;
             bool m_backfaceCulling:1;
+            bool m_alphaTest:1;
         };
     };
 public:
     ShaderTag() = default;
     ShaderTag(std::string_view source, uint8_t c, uint8_t u, uint8_t w, uint8_t s, boo::Primitive pt,
-              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling)
+              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling,
+              bool alphaTest)
         : Hash(source), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s),
           m_primitiveType(uint8_t(pt)), m_reflectionType(uint8_t(reflectionType)),
-          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling),
+          m_alphaTest(alphaTest)
     {hash ^= m_meta;}
     ShaderTag(const hecl::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, boo::Primitive pt,
-              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling)
+              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling,
+              bool alphaTest)
         : Hash(ir.m_hash), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s),
           m_primitiveType(uint8_t(pt)), m_reflectionType(uint8_t(reflectionType)),
-          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling),
+          m_alphaTest(alphaTest)
     {hash ^= m_meta;}
     ShaderTag(uint64_t hashin, uint8_t c, uint8_t u, uint8_t w, uint8_t s, boo::Primitive pt,
-              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling)
+              Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling,
+              bool alphaTest)
         : Hash(hashin), m_colorCount(c), m_uvCount(u), m_weightCount(w), m_skinSlotCount(s),
           m_primitiveType(uint8_t(pt)), m_reflectionType(uint8_t(reflectionType)),
-          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling)
+          m_depthTest(depthTest), m_depthWrite(depthWrite), m_backfaceCulling(backfaceCulling),
+          m_alphaTest(alphaTest)
     {hash ^= m_meta;}
     ShaderTag(uint64_t comphashin, uint64_t meta)
         : Hash(comphashin), m_meta(meta) {}
@@ -128,6 +135,7 @@ public:
     bool getDepthTest() const {return m_depthTest;}
     bool getDepthWrite() const {return m_depthWrite;}
     bool getBackfaceCulling() const {return m_backfaceCulling;}
+    bool getAlphaTest() const {return m_alphaTest;}
     uint64_t getMetaData() const {return m_meta;}
 
     std::vector<boo::VertexElementDescriptor> vertexFormat() const
@@ -191,6 +199,7 @@ struct ExtensionSlot
     bool noAlphaWrite = false;
     bool noAlphaOverwrite = false;
     bool noReflection = false;
+    bool forceAlphaTest = false;
 
     ExtensionSlot(size_t blockCount = 0,
                   const char** blockNames = nullptr,
@@ -204,11 +213,12 @@ struct ExtensionSlot
                   bool noColorWrite = false,
                   bool noAlphaWrite = false,
                   bool noAlphaOverwrite = false,
-                  bool noReflection = false)
+                  bool noReflection = false,
+                  bool forceAlphaTest = false)
     : blockCount(blockCount), blockNames(blockNames), texCount(texCount), texs(texs),
       srcFactor(srcFactor), dstFactor(dstFactor), depthTest(depthTest), cullMode(cullMode),
       noDepthWrite(noDepthWrite), noColorWrite(noColorWrite), noAlphaWrite(noAlphaWrite),
-      noAlphaOverwrite(noAlphaOverwrite), noReflection(noReflection) {}
+      noAlphaOverwrite(noAlphaOverwrite), noReflection(noReflection), forceAlphaTest(forceAlphaTest) {}
 
     mutable uint64_t m_hash = 0;
     void calculateHash() const

@@ -14,9 +14,9 @@ std::string GLSL::EmitTexGenSource2(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "vtf.mvPos.xy";
+        return "objPos.xy";
     case TexGenSrc::Normal:
-        return "vtf.mvNorm.xy";
+        return "objNorm.xy";
     case TexGenSrc::UV:
         return hecl::Format("uvIn[%u]", uvIdx);
     default: break;
@@ -29,9 +29,9 @@ std::string GLSL::EmitTexGenSource4(TexGenSrc src, int uvIdx) const
     switch (src)
     {
     case TexGenSrc::Position:
-        return "vec4(vtf.mvPos.xyz, 1.0)";
+        return "vec4(objPos.xyz, 1.0)";
     case TexGenSrc::Normal:
-        return "vec4(vtf.mvNorm.xyz, 1.0)";
+        return "vec4(objNorm.xyz, 1.0)";
     case TexGenSrc::UV:
         return hecl::Format("vec4(uvIn[%u], 0.0, 1.0)", uvIdx);
     default: break;
@@ -88,15 +88,28 @@ std::string GLSL::GenerateVertToFragStruct(size_t extTexCount, bool reflectionCo
 
 std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionCoords) const
 {
+    std::string retval;
     if (skinSlots == 0)
-        skinSlots = 1;
-    std::string retval = hecl::Format("UBINDING0 uniform HECLVertUniform\n"
-                                      "{\n"
-                                      "    mat4 mv[%u];\n"
-                                      "    mat4 mvInv[%u];\n"
-                                      "    mat4 proj;\n"
-                                      "};\n",
-                                      skinSlots, skinSlots);
+    {
+        retval = "UBINDING0 uniform HECLVertUniform\n"
+                 "{\n"
+                 "    mat4 mv;\n"
+                 "    mat4 mvInv;\n"
+                 "    mat4 proj;\n"
+                 "};\n";
+    }
+    else
+    {
+        retval = hecl::Format("UBINDING0 uniform HECLVertUniform\n"
+                              "{\n"
+                              "    mat4 objs[%u];\n"
+                              "    mat4 objsInv[%u];\n"
+                              "    mat4 mv;\n"
+                              "    mat4 mvInv;\n"
+                              "    mat4 proj;\n"
+                              "};\n",
+                              skinSlots, skinSlots);
+    }
 
     retval += "struct HECLTCGMatrix\n"
               "{\n"
@@ -164,22 +177,25 @@ std::string GLSL::makeVert(unsigned col, unsigned uv, unsigned w,
     if (s)
     {
         /* skinned */
-        retval += "    vec4 posAccum = vec4(0.0,0.0,0.0,0.0);\n"
-                  "    vec4 normAccum = vec4(0.0,0.0,0.0,0.0);\n";
+        retval += "    vec4 objPos = vec4(0.0,0.0,0.0,0.0);\n"
+                  "    vec4 objNorm = vec4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += hecl::Format("    posAccum += (mv[%" PRISize "] * vec4(posIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n"
-                                   "    normAccum += (mvInv[%" PRISize "] * vec4(normIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n",
+            retval += hecl::Format("    objPos += (objs[%" PRISize "] * vec4(posIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n"
+                                   "    objNorm += (objsInv[%" PRISize "] * vec4(normIn, 1.0)) * weightIn[%" PRISize "][%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
-        retval += "    posAccum[3] = 1.0;\n"
-                  "    vtf.mvPos = posAccum;\n"
-                  "    vtf.mvNorm = vec4(normalize(normAccum.xyz), 0.0);\n"
-                  "    gl_Position = proj * posAccum;\n";
+        retval += "    objPos[3] = 1.0;\n"
+                  "    objNorm = vec4(normalize(objNorm.xyz), 0.0);\n"
+                  "    vtf.mvPos = mv * objPos;\n"
+                  "    vtf.mvNorm = vec4(normalize((mvInv * objNorm).xyz), 0.0);\n"
+                  "    gl_Position = proj * vtf.mvPos;\n";
     }
     else
     {
         /* non-skinned */
-        retval += "    vtf.mvPos = mv[0] * vec4(posIn, 1.0);\n"
-                  "    vtf.mvNorm = mvInv[0] * vec4(normIn, 0.0);\n"
+        retval += "    vec4 objPos = vec4(posIn, 1.0);\n"
+                  "    vec4 objNorm = vec4(normIn, 0.0);\n"
+                  "    vtf.mvPos = mv * objPos;\n"
+                  "    vtf.mvNorm = mvInv * objNorm;\n"
                   "    gl_Position = proj * vtf.mvPos;\n";
     }
 
@@ -322,11 +338,16 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames,
         texMapDecl += hecl::Format("TBINDING%u uniform sampler2D reflectionTex;\n",
                                    m_texMapEnd);
 
+    uint32_t extTexBits = 0;
     for (int i=0 ; i<extTexCount ; ++i)
     {
         const TextureInfo& extTex = extTexs[i];
-        texMapDecl += hecl::Format("TBINDING%u uniform sampler2D extTex%u;\n",
-                                   extTex.mapIdx, extTex.mapIdx);
+        if (!(extTexBits & (1 << extTex.mapIdx)))
+        {
+            texMapDecl += hecl::Format("TBINDING%u uniform sampler2D extTex%u;\n",
+                                       extTex.mapIdx, extTex.mapIdx);
+            extTexBits |= (1 << extTex.mapIdx);
+        }
     }
 
     std::string retval =
