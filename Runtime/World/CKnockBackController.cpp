@@ -199,19 +199,19 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
         },
         {
             {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::BurnDeath, 6.000000f, -1.000000f},
             {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::BurnDeath, 6.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::BurnDeath, 6.000000f, -1.000000f},
             {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
             {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::BurnDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
@@ -228,8 +228,8 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::LaggedBurnDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::LaggedBurnDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
@@ -327,7 +327,7 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
         },
         {
             {EKnockBackAnimationState::None, EKnockBackAnimationFollowUp::Burn, 6.000000f, -1.000000f},
-            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::FireDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::BurnDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::KnockBack, EKnockBackAnimationFollowUp::Burn, 6.000000f, 0.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
@@ -344,8 +344,8 @@ static const CKnockBackController::KnockBackParms KnockBackParmsTable[3][19][4] 
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
         {
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
-            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::Disintegrate, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::LaggedBurnDeath, 0.000000f, -1.000000f},
+            {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::LaggedBurnDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::Hurled, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
             {EKnockBackAnimationState::Fall, EKnockBackAnimationFollowUp::IceDeath, 0.000000f, -1.000000f},
         },
@@ -364,9 +364,9 @@ CKnockBackController::CKnockBackController(EKnockBackVariant variant)
     x81_24_autoResetImpulse = true;
     x81_25_enableFreeze = true;
     x81_27_enableBurn = true;
-    x81_28_enableFireDeath = true;
+    x81_28_enableBurnDeath = true;
     x81_29_enableExplodeDeath = true;
-    x81_30_enableDisintegrate = true;
+    x81_30_enableLaggedBurnDeath = true;
     x81_31_ = true;
     x82_24_ = true;
     for (int i = 0; i < 4; ++i)
@@ -472,11 +472,11 @@ void CKnockBackController::ValidateState(CPatterned& parent)
     case EKnockBackAnimationFollowUp::IceDeath:
         disableFollowup = !x81_29_enableExplodeDeath;
         break;
-    case EKnockBackAnimationFollowUp::FireDeath:
-        disableFollowup = !x81_28_enableFireDeath;
+    case EKnockBackAnimationFollowUp::BurnDeath:
+        disableFollowup = !x81_28_enableBurnDeath;
         break;
-    case EKnockBackAnimationFollowUp::Disintegrate:
-        disableFollowup = !x81_30_enableDisintegrate;
+    case EKnockBackAnimationFollowUp::LaggedBurnDeath:
+        disableFollowup = !x81_30_enableLaggedBurnDeath;
         break;
     default:
         break;

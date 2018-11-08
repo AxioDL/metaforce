@@ -48,7 +48,6 @@ public:
 
     bool operator>(const CPOINode& other) const;
     bool operator<(const CPOINode& other) const;
-    static int compare(const void* a, const void* b);
 };
 
 template <class T>

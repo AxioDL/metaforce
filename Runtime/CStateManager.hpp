@@ -284,6 +284,7 @@ public:
     void SetupFogForArea(const CGameArea& area) const;
     bool SetupFogForDraw() const;
     void PreRender();
+    void GetCharacterRenderMaskAndTarget(bool thawed, int& mask, int& target) const;
     bool GetVisSetForArea(TAreaId, TAreaId, CPVSVisSet& setOut) const;
     void RecursiveDrawTree(TUniqueId) const;
     void SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg);

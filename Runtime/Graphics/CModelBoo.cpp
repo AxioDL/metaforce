@@ -149,6 +149,7 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
 
 boo::ObjToken<boo::ITexture> CBooModel::g_shadowMap;
 zeus::CTransform CBooModel::g_shadowTexXf;
+boo::ObjToken<boo::ITexture> CBooModel::g_disintegrateTexture;
 
 void CBooModel::EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf)
 {
@@ -198,7 +199,7 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
     {
         u32 matId = it->m_data.matIdx;
         const MaterialSet::Material& matData = GetMaterialByIndex(matId);
-        if (matData.flags.depthSorting() || matData.heclIr.m_doAlpha)
+        if (matData.flags.depthSorting())
         {
             it->m_next = x3c_firstSortedSurface;
             x3c_firstSortedSurface = &*it;
@@ -251,7 +252,7 @@ GeometryUniformLayout::GeometryUniformLayout(const CModel* model, const Material
         /* Skinned */
         for (size_t i=0 ; i<m_skinBankCount ; ++i)
         {
-            size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 1));
+            size_t thisSz = ROUND_UP_256(sizeof(zeus::CMatrix4f) * (2 * m_weightVecCount * 4 + 3));
             m_skinOffs.push_back(m_geomBufferSize);
             m_skinSizes.push_back(thisSz);
             m_geomBufferSize += thisSz;
@@ -441,6 +442,14 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf)
                 {
                     if (g_shadowMap)
                         texs[7] = g_shadowMap;
+                    else
+                        texs[7] = g_Renderer->x220_sphereRamp.get();
+                    ltexs = texs;
+                }
+                else if (idx == EExtendedShader::Disintegrate)
+                {
+                    if (g_disintegrateTexture)
+                        texs[7] = g_disintegrateTexture;
                     else
                         texs[7] = g_Renderer->x220_sphereRamp.get();
                     ltexs = texs;
@@ -757,11 +766,8 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     {
     case UVAnimation::Mode::MvInvNoTranslation:
     {
-        /* Handled in-shader
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-        texMtxOut.vec[3].zeroOut();
         texMtxOut.vec[3].w = 1.f;
-         */
         postMtxOut.vec[0].x = 0.5f;
         postMtxOut.vec[1].y = 0.5f;
         postMtxOut.vec[3].x = 0.5f;
@@ -770,6 +776,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::MvInv:
     {
+        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
         texMtxOut.vec[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
         texMtxOut.vec[3].w = 1.f;
         postMtxOut.vec[0].x = 0.5f;
@@ -822,11 +829,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     }
     case UVAnimation::Mode::CylinderEnvironment:
     {
-        /* Handled in-shader
-        //texMtxOut = (CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix).toMatrix4f();
-        texMtxOut = CGraphics::g_GXModelView.toMatrix4f();
-        texMtxOut.vec[3].zeroOut();
-         */
+        texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
         float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];
@@ -862,13 +865,19 @@ static const zeus::CMatrix4f MBShadowPost1(0.f, 0.f, 0.f, 1.f,
                                            0.f, 0.f, 0.f, 1.f,
                                            0.f, 0.f, 0.f, 1.f);
 
-void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags)
+static const zeus::CMatrix4f DisintegratePost(1.f, 1.f, 0.f, 0.f,
+                                              0.f, 0.f, 1.f, 0.f,
+                                              0.f, 0.f, 0.f, 1.f,
+                                              0.f, 0.f, 0.f, 1.f);
+
+void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet,
+                                          const CModelFlags& flags, const CBooModel* parent)
 {
     u8* start = bufOut;
 
-    /* Special matrices for MorphBall shadow rendering */
     if (flags.m_extendedShader == EExtendedShader::MorphBallShadow)
     {
+        /* Special matrices for MorphBall shadow rendering */
         zeus::CMatrix4f texMtx =
         (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max.x - flags.mbShadowBox.min.x),
                                  1.f / (flags.mbShadowBox.max.y - flags.mbShadowBox.min.y),
@@ -884,6 +893,34 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
             mtxs[0][1] = MBShadowPost0;
             mtxs[1][0] = texMtx;
             mtxs[1][1] = MBShadowPost1;
+            bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
+            PadOutBuffer(start, bufOut);
+        }
+        return;
+    }
+    else if (flags.m_extendedShader == EExtendedShader::Disintegrate)
+    {
+        assert(parent != nullptr && "Parent CBooModel not set");
+        zeus::CTransform xf = zeus::CTransform::RotateX(-zeus::degToRad(45.f));
+        zeus::CAABox aabb = parent->GetAABB().getTransformedAABox(xf);
+        xf = zeus::CTransform::Scale(5.f / (aabb.max - aabb.min)) *
+             zeus::CTransform::Translate(-aabb.min) * xf;
+        zeus::CMatrix4f texMtx = xf.toMatrix4f();
+        zeus::CMatrix4f post0 = DisintegratePost;
+        post0[3].x = flags.addColor.a;
+        post0[3].y = 6.f * -(1.f - flags.addColor.a) + 1.f;
+        zeus::CMatrix4f post1 = DisintegratePost;
+        post1[3].x = -0.85f * flags.addColor.a - 0.15f;
+        post1[3].y = post0[3].y;
+        /* Special matrices for disintegration rendering */
+        for (const MaterialSet::Material& mat : matSet->materials)
+        {
+            (void)mat;
+            std::array<zeus::CMatrix4f, 2>* mtxs = reinterpret_cast<std::array<zeus::CMatrix4f, 2>*>(bufOut);
+            mtxs[0][0] = texMtx;
+            mtxs[0][1] = post0;
+            mtxs[1][0] = texMtx;
+            mtxs[1][1] = post1;
             bufOut += sizeof(zeus::CMatrix4f) * 2 * 8;
             PadOutBuffer(start, bufOut);
         }
@@ -946,7 +983,8 @@ void GeometryUniformLayout::Update(const CModelFlags& flags,
                                    const CSkinRules* cskr,
                                    const CPoseAsTransforms* pose,
                                    const MaterialSet* matSet,
-                                   const boo::ObjToken<boo::IGraphicsBufferD>& buf) const
+                                   const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+                                   const CBooModel* parent) const
 {
     u8* dataOut = reinterpret_cast<u8*>(buf->map(m_geomBufferSize));
     u8* dataCur = dataOut;
@@ -965,25 +1003,20 @@ void GeometryUniformLayout::Update(const CModelFlags& flags,
 
                 for (size_t w=0 ; w<weightCount ; ++w)
                 {
-                    zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    zeus::CMatrix4f& obj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     if (w >= bankTransforms.size())
-                        mv = CGraphics::g_GXModelView.toMatrix4f();
+                        obj = zeus::CMatrix4f::skIdentityMatrix4f;
                     else
-                        mv = (CGraphics::g_GXModelView * *bankTransforms[w]).toMatrix4f();
+                        obj = bankTransforms[w]->toMatrix4f();
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
                 for (size_t w=0 ; w<weightCount ; ++w)
                 {
-                    zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+                    zeus::CMatrix4f& objInv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
                     if (w >= bankTransforms.size())
-                        mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+                        objInv = zeus::CMatrix4f::skIdentityMatrix4f;
                     else
-                    {
-                        zeus::CTransform xf = (CGraphics::g_GXModelView.basis * bankTransforms[w]->basis);
-                        xf.basis.invert();
-                        xf.basis.transpose();
-                        mvinv = xf.toMatrix4f();
-                    }
+                        objInv = bankTransforms[w]->basis;
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
 
@@ -994,16 +1027,24 @@ void GeometryUniformLayout::Update(const CModelFlags& flags,
                 for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-                    mv = CGraphics::g_GXModelView.toMatrix4f();
+                    mv = zeus::CMatrix4f::skIdentityMatrix4f;
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
                 for (size_t w=0 ; w<weightCount ; ++w)
                 {
                     zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-                    mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+                    mvinv = zeus::CMatrix4f::skIdentityMatrix4f;
                     dataCur += sizeof(zeus::CMatrix4f);
                 }
             }
+            zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+            mv = CGraphics::g_GXModelView.toMatrix4f();
+            dataCur += sizeof(zeus::CMatrix4f);
+
+            zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
+            mvinv = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
+            dataCur += sizeof(zeus::CMatrix4f);
+
             zeus::CMatrix4f& proj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
             proj = CGraphics::GetPerspectiveProjectionMatrix(true);
             dataCur += sizeof(zeus::CMatrix4f);
@@ -1029,7 +1070,7 @@ void GeometryUniformLayout::Update(const CModelFlags& flags,
         dataCur = dataOut + ROUND_UP_256(dataCur - dataOut);
     }
 
-    CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags);
+    CBooModel::UVAnimationBuffer::Update(dataCur, matSet, flags, parent);
     buf->unmap();
 }
 
@@ -1043,6 +1084,14 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
         m_lastDrawnShadowMap != g_shadowMap)
     {
         const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
+        const_cast<CBooModel*>(this)->m_instances.clear();
+    }
+
+    /* Invalidate instances if new one-texture being drawn */
+    if (flags.m_extendedShader == EExtendedShader::Disintegrate &&
+        m_lastDrawnOneTexture != g_disintegrateTexture)
+    {
+        const_cast<CBooModel*>(this)->m_lastDrawnOneTexture = g_disintegrateTexture;
         const_cast<CBooModel*>(this)->m_instances.clear();
     }
 
@@ -1076,7 +1125,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     }
 
     if (inst->m_geomUniformBuffer)
-        m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer);
+        m_geomLayout->Update(flags, cskr, pose, x4_matSet, inst->m_geomUniformBuffer, this);
 
     u8* dataOut = reinterpret_cast<u8*>(inst->m_uniformBuffer->map(m_uniformDataSize));
     u8* dataCur = dataOut;
@@ -1099,6 +1148,12 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
         shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::CVector3f::skUp;
         shadowOut.shadowUp.w = flags.x4_color.a;
         shadowOut.shadowId = flags.x4_color.r;
+    }
+    else if (flags.m_extendedShader == EExtendedShader::Disintegrate)
+    {
+        CModelShaders::OneTextureUniform& oneTexOut = *reinterpret_cast<CModelShaders::OneTextureUniform*>(dataCur);
+        oneTexOut.addColor = flags.addColor;
+        oneTexOut.fog = CGraphics::g_Fog;
     }
     else
     {
@@ -1230,7 +1285,7 @@ SShader::BuildShader(const hecl::HMDLMeta& meta, const MaterialSet::Material& ma
     hecl::Backend::ShaderTag tag(mat.heclIr,
                                  meta.colorCount, meta.uvCount, meta.weightCount,
                                  meta.weightCount * 4, boo::Primitive(meta.topology),
-                                 reflectionType, true, true, true);
+                                 reflectionType, true, true, true, mat.flags.alphaTest());
     return CModelShaders::BuildExtendedShader(tag, mat.heclIr);
 }
 

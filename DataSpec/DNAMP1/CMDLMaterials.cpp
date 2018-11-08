@@ -11,7 +11,7 @@ using Material = MaterialSet::Material;
 void MaterialSet::RegisterMaterialProps(Stream& out)
 {
     out << "bpy.types.Material.retro_depth_sort = bpy.props.BoolProperty(name='Retro: Transparent Depth Sort')\n"
-           "bpy.types.Material.retro_punchthrough_alpha = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"
+           "bpy.types.Material.retro_alpha_test = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"
            "bpy.types.Material.retro_samus_reflection = bpy.props.BoolProperty(name='Retro: Samus Reflection')\n"
            "bpy.types.Material.retro_depth_write = bpy.props.BoolProperty(name='Retro: Depth Write')\n"
            "bpy.types.Material.retro_samus_reflection_persp = bpy.props.BoolProperty(name='Retro: Samus Reflection Perspective')\n"
@@ -794,7 +794,7 @@ void _ConstructMaterial(Stream& out,
 
     /* Material Flags */
     out.format("new_material.retro_depth_sort = %s\n"
-               "new_material.retro_punchthrough_alpha = %s\n"
+               "new_material.retro_alpha_test = %s\n"
                "new_material.retro_samus_reflection = %s\n"
                "new_material.retro_depth_write = %s\n"
                "new_material.retro_samus_reflection_persp = %s\n"
@@ -803,7 +803,7 @@ void _ConstructMaterial(Stream& out,
                "new_material.retro_lightmapped = %s\n"
                "new_material.game_settings.invisible = %s\n",
                material.flags.depthSorting() ? "True" : "False",
-               material.flags.punchthroughAlpha() ? "True" : "False",
+               material.flags.alphaTest() ? "True" : "False",
                material.flags.samusReflection() ? "True" : "False",
                material.flags.depthWrite() ? "True" : "False",
                material.flags.samusReflectionSurfaceEye() ? "True" : "False",
@@ -946,7 +946,7 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx,
     if (search != iprops.end())
         flags.setDepthSorting(search->second != 0);
 
-    search = iprops.find("retro_punchthrough_alpha");
+    search = iprops.find("retro_alpha_test");
     if (search != iprops.end())
         flags.setPunchthroughAlpha(search->second != 0);
 
@@ -1212,7 +1212,7 @@ HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE,
     if (search != iprops.end())
         flags.setDepthSorting(search->second != 0);
 
-    search = iprops.find("retro_punchthrough_alpha");
+    search = iprops.find("retro_alpha_test");
     if (search != iprops.end())
         flags.setPunchthroughAlpha(search->second != 0);
 

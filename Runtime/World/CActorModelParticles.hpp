@@ -37,8 +37,8 @@ public:
         TUniqueId x0_id;
         TAreaId x4_areaId;
         rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_thermalHotParticles;
-        float x6c_ = 0.f;
-        bool x70_ = false;
+        float x6c_onFireDelayTimer = 0.f;
+        bool x70_onFire = false;
         CSfxHandle x74_sfx;
         std::unique_ptr<CElementGen> x78_;
         u32 x80_ = 0;
@@ -153,11 +153,12 @@ public:
     void StartElectric(CActor& act);
     void StopElectric(CActor& act);
     void StopThermalHotParticles(CActor& act);
-    void PlayFireSFX(CActor& act);
+    void StartBurnDeath(CActor& act);
     void EnsureElectricLoaded(CActor& act);
     void EnsureFirePopLoaded(CActor& act);
     void EnsureIceBreakLoaded(CActor& act);
     void LightDudeOnFire(CActor& act);
+    const CTexture* GetAshyTexture(const CActor& act);
 };
 }
 

@@ -14,6 +14,7 @@
 #include "MP1/World/CSpacePirate.hpp"
 #include "World/CStateMachine.hpp"
 #include "CExplosion.hpp"
+#include "Graphics/CSkinnedModel.hpp"
 
 namespace urde
 {
@@ -249,7 +250,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
         }
     }
 
-    sub8007a68c(dt, mgr);
+    UpdateAlpha(dt, mgr);
 
     x3e4_ = HealthInfo(mgr)->GetHP();
     if (!x330_stateMachineState.x4_state)
@@ -305,8 +306,8 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     //if (x450_bodyController->IsFrozen())
         //mgr.GetActorModelParticles()->sub801e5044(*this);
 
-    if (!x401_27_ || x401_28_)
-        x3e8_ = -0.33333334f;
+    if (!x401_27_ || x401_28_burning)
+        x3e8_alphaRate = -0.33333334f;
 
     if (x401_30_)
     {
@@ -314,7 +315,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
         Death(mgr, GetTransform().frontVector(), EScriptObjectState::DeathRattle);
     }
 
-    float thinkDt = (x400_25_alive ? dt : dt * sub80078a88());
+    float thinkDt = (x400_25_alive ? dt : dt * CalcDyingThinkRate());
 
     x450_bodyController->Update(thinkDt, mgr);
     x450_bodyController->MultiplyPlaybackRate(x3b4_speed);
@@ -334,8 +335,8 @@ void CPatterned::Think(float dt, CStateManager& mgr)
     if (x420_curDamageTime > 0.f)
         x420_curDamageTime -= dt;
 
-    if (x401_28_ && x3f4_ > dt)
-        x3f4_ -= dt;
+    if (x401_28_burning && x3f4_burnThinkRateTimer > dt)
+        x3f4_burnThinkRateTimer -= dt;
 
     xd0_thermalMag = x50c_thermalMag;
     sub8007a5b8(dt);
@@ -424,7 +425,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
                            EKnockBackType type, bool inDeferred, float magnitude)
 {
     CHealthInfo* hInfo = HealthInfo(mgr);
-    if (!x401_27_ && !x401_28_ && hInfo)
+    if (!x401_27_ && !x401_28_burning && hInfo)
     {
         x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
         if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_ >= 0.f)
@@ -444,19 +445,19 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
         case EKnockBackAnimationFollowUp::Burn:
             Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, 0.25f);
             break;
-        case EKnockBackAnimationFollowUp::Disintegrate:
-            x401_29_ = true;
-        case EKnockBackAnimationFollowUp::FireDeath:
+        case EKnockBackAnimationFollowUp::LaggedBurnDeath:
+            x401_29_laggedBurnDeath = true;
+        case EKnockBackAnimationFollowUp::BurnDeath:
             Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, -1.f);
             Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
             x400_28_ = x400_29_ = false;
-            x400_27_ = x401_28_ = true;
-            x3f4_ = 1.5f;
+            x400_27_deleteWhenDoneBurning = x401_28_burning = true;
+            x3f4_burnThinkRateTimer = 1.5f;
             x402_29_ = false;
             x450_bodyController->DouseFlames();
             mgr.GetActorModelParticles()->StopThermalHotParticles(*this);
-            mgr.GetActorModelParticles()->PlayFireSFX(*this);
-            if (!x401_29_)
+            mgr.GetActorModelParticles()->StartBurnDeath(*this);
+            if (!x401_29_laggedBurnDeath)
             {
                 mgr.GetActorModelParticles()->EnsureFirePopLoaded(*this);
                 mgr.GetActorModelParticles()->EnsureIceBreakLoaded(*this);
@@ -522,7 +523,7 @@ void CPatterned::DoDeath(CStateManager& mgr)
 {
     CSfxManager::AddEmitter(x454_deathSfx, GetTranslation(), zeus::CVector3f::skZero,
                             true, false, 0x7f, kInvalidAreaId);
-    if (!x401_28_)
+    if (!x401_28_burning)
     {
         SendScriptMsgs(EScriptObjectState::DeathExplosion, mgr, EScriptObjectMessage::None);
         GenerateDeathExplosion(mgr);
@@ -579,15 +580,37 @@ void CPatterned::SetupPlayerCollision(bool v)
 
 }
 
-float CPatterned::sub80078a88()
+void CPatterned::UpdateAlpha(float dt, CStateManager& mgr)
 {
-    float f0 = (x401_28_ ? x3f4_ / 1.f : 1.f);
+    if (x3e8_alphaRate == 0.f)
+        return;
+
+    float alpha = dt * x3e8_alphaRate + x42c_color.a;
+    if (alpha > 1.f)
+    {
+        alpha = 1.f;
+        x3e8_alphaRate = 0.f;
+    }
+    else if (alpha < 0.f)
+    {
+        alpha = 0.f;
+        x3e8_alphaRate = 0.f;
+        if (x400_27_deleteWhenDoneBurning)
+            DeathDelete(mgr);
+    }
+    x94_simpleShadow->SetUserAlpha(alpha);
+    x42c_color.a = alpha;
+    x64_modelData->AnimationData()->GetParticleDB().SetModulationColorAllActiveEffects(zeus::CColor(1.f, alpha));
+}
+
+float CPatterned::CalcDyingThinkRate()
+{
+    float f0 = (x401_28_burning ? (x3f4_burnThinkRateTimer / 1.5f) : 1.f);
     return zeus::max(0.1f, f0);
 }
 
 void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
-#if 1
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
     {
         SetCalculateLighting(false);
@@ -596,25 +619,119 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
     else
         SetCalculateLighting(true);
 
-    zeus::CColor col = x42c_;
+    zeus::CColor col = x42c_color;
     u8 alpha = GetModelAlphau8(mgr);
     if (x402_27_ && mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
-        alpha = 0x4C;
+        alpha = 76;
 
-    if (alpha < 0xFF)
+    if (alpha < 255)
     {
         if (col.r == 0.f && col.g == 0.f && col.b == 0.f)
             col = zeus::CColor::skWhite;
-    }
 
-    if (x401_29_ && alpha > 0x7F)
+        if (x401_29_laggedBurnDeath)
+        {
+            int stripedAlpha = 255;
+            if (alpha > 127)
+                stripedAlpha = (alpha - 128) * 2;
+            xb4_drawFlags = CModelFlags(3, 0, 3, zeus::CColor(0.f, (stripedAlpha * stripedAlpha) / 65025.f));
+        }
+        else if (x401_28_burning)
+        {
+            xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(0.f, 1.f));
+        }
+        else
+        {
+            zeus::CColor col2 = col;
+            col2.a = alpha / 255.f;
+            xb4_drawFlags = CModelFlags(5, 0, 3, col2);
+        }
+    }
+    else
     {
-
+        if (col.r != 0.f || col.g != 0.f || col.b != 0.f)
+        {
+            zeus::CColor col2 = col;
+            col2.a = alpha / 255.f;
+            xb4_drawFlags = CModelFlags(2, 0, 3, col2);
+        }
+        else
+        {
+            xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+        }
     }
-#endif
 
     CActor::PreRender(mgr, frustum);
+}
 
+void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const
+{
+    CModelFlags useFlags = flags;
+    useFlags.x1_matSetIdx = 0;
+    CAnimData* animData = x64_modelData->AnimationData();
+    if (CMorphableSkinnedModel* iceModel = animData->IceModel().GetObj())
+        animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
+}
+
+void CPatterned::Render(const CStateManager& mgr) const
+{
+    int mask = 0;
+    int target = 0;
+    if (x402_29_)
+    {
+        mgr.GetCharacterRenderMaskAndTarget(x402_31_thawed, mask, target);
+        x64_modelData->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirstMasked(mask, target);
+    }
+    if ((mgr.GetThermalDrawFlag() == EThermalDrawFlag::Cold && !x402_31_thawed) ||
+        (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x402_31_thawed) ||
+        mgr.GetThermalDrawFlag() == EThermalDrawFlag::Bypass)
+    {
+        if (x401_28_burning)
+        {
+            const CTexture* ashy = mgr.GetActorModelParticles()->GetAshyTexture(*this);
+            u8 alpha = GetModelAlphau8(mgr);
+            if (ashy && ((!x401_29_laggedBurnDeath && alpha <= 255) || alpha <= 127))
+            {
+                if (xe5_31_pointGeneratorParticles)
+                    mgr.SetupParticleHook(*this);
+                zeus::CColor addColor;
+                if (x401_29_laggedBurnDeath)
+                {
+                    addColor = zeus::CColor::skClear;
+                }
+                else
+                {
+                    addColor = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot ?
+                        zeus::CColor::skWhite : zeus::CColor::skBlack;
+                }
+                x64_modelData->DisintegrateDraw(mgr, GetTransform(), *ashy, addColor,
+                                                alpha * (x401_29_laggedBurnDeath ? 0.00787402f : 0.00392157f));
+                if (xe5_31_pointGeneratorParticles)
+                {
+                    CSkinnedModel::ClearPointGeneratorFunc();
+                    mgr.GetActorModelParticles()->Render(*this);
+                }
+            }
+            else
+            {
+                CPhysicsActor::Render(mgr);
+            }
+        }
+        else
+        {
+            CPhysicsActor::Render(mgr);
+        }
+
+        if (x450_bodyController->IsFrozen() && !x401_28_burning)
+        {
+            RenderIceModelWithFlags(CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+        }
+    }
+
+    if (x402_29_)
+    {
+        x64_modelData->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLastMasked(mask, target);
+    }
 }
 
 void CPatterned::ThinkAboutMove(float dt)

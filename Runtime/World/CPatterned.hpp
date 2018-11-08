@@ -139,10 +139,10 @@ protected:
     float x3dc_;
     float x3e0_;
     float x3e4_ = 0.f;
-    float x3e8_ = 0.f;
+    float x3e8_alphaRate = 0.f;
     float x3ec_ = 0.f;
     float x3f0_ = 0.f;
-    float x3f4_ = 0.f;
+    float x3f4_burnThinkRateTimer = 0.f;
     u32 x3f8_ = 0;
     EFlavorType x3fc_flavor;
 
@@ -153,7 +153,7 @@ protected:
             bool x400_24_ : 1;
             bool x400_25_alive : 1; // t
             bool x400_26_ : 1;
-            bool x400_27_ : 1;
+            bool x400_27_deleteWhenDoneBurning : 1;
             bool x400_28_ : 1;
             bool x400_29_ : 1;
             bool x400_30_ : 1;
@@ -162,8 +162,8 @@ protected:
             bool x401_25_ : 1;
             bool x401_26_ : 1;
             bool x401_27_ : 1;
-            bool x401_28_ : 1;
-            bool x401_29_ : 1;
+            bool x401_28_burning : 1;
+            bool x401_29_laggedBurnDeath : 1;
             bool x401_30_ : 1;
             bool x401_31_ : 1;
             bool x402_24_ : 1;
@@ -185,7 +185,7 @@ protected:
     float x420_curDamageTime = 0.f;
     float x424_damageWaitTime;
     float x428_ = -1.f;
-    zeus::CColor x42c_ = zeus::CColor::skBlack;
+    zeus::CColor x42c_color = zeus::CColor::skBlack;
     zeus::CColor x430_ = skDamageColor;
     zeus::CVector3f x434_posDelta;
     zeus::CQuaternion x440_rotDelta;
@@ -214,6 +214,7 @@ protected:
     void UpdateFrozenState(bool thawed);
     void GenerateIceDeathExplosion(CStateManager& mgr);
     void GenerateDeathExplosion(CStateManager& mgr);
+    void RenderIceModelWithFlags(const CModelFlags& flags) const;
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
@@ -225,6 +226,7 @@ public:
     void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_, mgr); }
     void Think(float, CStateManager&);
     void PreRender(CStateManager&, const zeus::CFrustum&);
+    void Render(const CStateManager& mgr) const;
 
     void Touch(CActor&, CStateManager&);
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
@@ -256,7 +258,7 @@ public:
     virtual void ThinkAboutMove(float);
     virtual void GetSearchPath() {}
     virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
-    virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_.a * 255);}
+    virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_color.a * 255);}
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
     virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
@@ -275,8 +277,8 @@ public:
 
 
     void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
-    void sub8007a68c(float, CStateManager&) {}
-    float sub80078a88();
+    void UpdateAlpha(float dt, CStateManager& mgr);
+    float CalcDyingThinkRate();
     void sub8007a5b8(float) {}
 
     bool GetX328_26() const { return x328_26_; }

@@ -347,10 +347,10 @@ static bool IsMediumOrLarge(CActor& act)
     return false;
 }
 
-void CActorModelParticles::PlayFireSFX(CActor& act)
+void CActorModelParticles::StartBurnDeath(CActor& act)
 {
     auto iter = FindOrCreateSystem(act);
-    u16 sfx = SFXeff_x_smallfire_lp_00 + u16(IsMediumOrLarge(act));
+    u16 sfx = SFXeff_x_smallburndeath_lp_00 - s16(IsMediumOrLarge(act));
     CSfxManager::AddEmitter(sfx, act.GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f, kInvalidAreaId);
     iter->xdc_ashy.Lock();
 }
@@ -377,8 +377,19 @@ void CActorModelParticles::LightDudeOnFire(CActor& act)
 {
     auto iter = FindOrCreateSystem(act);
     iter->EnsureLoaded(EDependency::OnFire);
-    if (iter->x6c_ <= 0.f)
-        iter->x70_ = true;
+    if (iter->x6c_onFireDelayTimer <= 0.f)
+        iter->x70_onFire = true;
+}
+
+const CTexture* CActorModelParticles::GetAshyTexture(const CActor& act)
+{
+    auto iter = FindSystem(act.GetUniqueId());
+    if (iter != x0_items.cend() && iter->xdc_ashy && iter->xdc_ashy.IsLoaded())
+    {
+        iter->xdc_ashy->GetBooTexture()->setClampMode(boo::TextureClampMode::ClampToEdge);
+        return iter->xdc_ashy.GetObj();
+    }
+    return nullptr;
 }
 
 void CActorModelParticles::AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes,

@@ -270,6 +270,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
 void CBooRenderer::RenderBucketItems(CAreaListItem* item)
 {
     CModelFlags flags;
+    flags.m_noZWrite = true;
     flags.m_extendedShader = EExtendedShader::Lighting;
 
     for (u16 idx : Buckets::sBucketIndex)
@@ -831,7 +832,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
             continue;
 
         item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer[bufIdx]);
+                                               item.m_shaderSet->m_geomLayout->m_sharedBuffer[bufIdx], nullptr);
 
         for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it)
         {

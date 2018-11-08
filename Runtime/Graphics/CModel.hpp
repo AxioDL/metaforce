@@ -97,7 +97,8 @@ struct GeometryUniformLayout
 
     GeometryUniformLayout(const CModel* model, const MaterialSet* matSet);
     void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
-                const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf) const;
+                const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
+                const CBooModel* parent) const;
 };
 
 struct SShader
@@ -161,7 +162,8 @@ private:
     {
         static void ProcessAnimation(u8*& bufOut, const UVAnimation& anim);
         static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
-        static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags);
+        static void Update(u8*& bufOut, const MaterialSet* matSet,
+                           const CModelFlags& flags, const CBooModel* parent);
     };
 
     CModelShaders::LightingUniform m_lightingData;
@@ -185,6 +187,7 @@ private:
     boo::ObjToken<boo::ITexture> m_txtrOverrides[8];
 
     boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
+    boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
 
     ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
     void DrawAlphaSurfaces(const CModelFlags& flags) const;
@@ -268,10 +271,15 @@ public:
     static void EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf);
     static void DisableShadowMaps();
 
+    static boo::ObjToken<boo::ITexture> g_disintegrateTexture;
+    static void SetDisintegrateTexture(const boo::ObjToken<boo::ITexture>& map) { g_disintegrateTexture = map; }
+
     static void SetDummyTextures(bool b) { g_DummyTextures = b; }
     static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
 
     static void AssertAllFreed();
+
+    const zeus::CAABox& GetAABB() const { return x20_aabb; }
 };
 
 class CModel

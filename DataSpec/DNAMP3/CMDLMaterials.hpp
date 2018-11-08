@@ -33,7 +33,7 @@ struct MaterialSet : BigDNA
                 Value<atUint32> flags;
                 bool alphaBlending() const {return (flags & 0x8) != 0;}
                 void setAlphaBlending(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
-                bool punchthroughAlpha() const {return (flags & 0x10) != 0;}
+                bool alphaTest() const {return (flags & 0x10) != 0;}
                 void setPunchthroughAlpha(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
                 bool additiveBlending() const {return (flags & 0x20) != 0;}
                 void setAdditiveBlending(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}

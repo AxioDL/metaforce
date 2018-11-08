@@ -145,6 +145,10 @@ public:
 
     void InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,
                            const zeus::CColor& color0, const zeus::CColor& color1);
+    void DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf,
+                          const CTexture& tex, const zeus::CColor& addColor, float t);
+    void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
+                          const CTexture& tex, const zeus::CColor& addColor, float t);
 
     CAnimData* AnimationData() { return x10_animData.get(); }
     const CAnimData* GetAnimationData() const { return x10_animData.get(); }

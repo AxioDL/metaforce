@@ -43,17 +43,6 @@ bool CPOINode::operator<(const CPOINode& other) const
     return x1c_time > other.x1c_time;
 }
 
-int CPOINode::compare(const void* a, const void* b)
-{
-    const CPOINode& na = *reinterpret_cast<const CPOINode*>(a);
-    const CPOINode& nb = *reinterpret_cast<const CPOINode*>(b);
-    if (na > nb)
-        return 1;
-    else if (na < nb)
-        return -1;
-    return 0;
-}
-
 template <class T>
 u32 _getPOIList(const CCharAnimTime& time,
                 T* listOut,

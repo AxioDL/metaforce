@@ -484,4 +484,34 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
     }
 }
 
+void CModelData::DisintegrateDraw(const CStateManager& mgr, const zeus::CTransform& xf,
+                                  const CTexture& tex, const zeus::CColor& addColor, float t)
+{
+    DisintegrateDraw(GetRenderingModel(mgr), xf, tex, addColor, t);
+}
+
+void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
+                                  const CTexture& tex, const zeus::CColor& addColor, float t)
+{
+    zeus::CTransform scaledXf = xf * zeus::CTransform::Scale(x0_scale);
+    CGraphics::SetModelMatrix(scaledXf);
+
+    CBooModel::SetDisintegrateTexture(tex.GetBooTexture());
+    CModelFlags flags(5, 0, 3, zeus::CColor::skWhite);
+    flags.m_extendedShader = EExtendedShader::Disintegrate;
+    flags.addColor = addColor;
+    flags.addColor.a = t; // Stash T value in here (shader does not care)
+
+    if (x10_animData)
+    {
+        CSkinnedModel& sModel = PickAnimatedModel(which);
+        x10_animData->Render(sModel, flags, {}, nullptr);
+    }
+    else
+    {
+        CBooModel& model = *PickStaticModel(which);
+        model.Draw(flags, nullptr, nullptr);
+    }
+}
+
 }

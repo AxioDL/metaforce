@@ -77,6 +77,7 @@ private:
     bool x88_particleEmission = true;
     float x8c_generatorRemainder = 0.f;
     int x90_MAXP = 0;
+    int m_maxMAXP = 256;
     u16 x94_randomSeed = 99;
     float x98_generatorRate = 1.f;
     float x9c_cextValues[16] = {};

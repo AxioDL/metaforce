@@ -71,6 +71,12 @@ static const hecl::Backend::TextureInfo WorldShadowTextures[] =
     {hecl::Backend::TexGenSrc::Position, 7, 0, 7, false} // Shadow tex
 };
 
+static const hecl::Backend::TextureInfo DisintegrateTextures[] =
+{
+    {hecl::Backend::TexGenSrc::Position, 7, 0, 0, false}, // Ashy tex
+    {hecl::Backend::TexGenSrc::Position, 7, 0, 1, false}  // Ashy tex
+};
+
 static const char* BlockNames[] = {"LightingUniform"};
 static const char* ThermalBlockNames[] = {"ThermalUniform"};
 static const char* SolidBlockNames[] = {"SolidUniform"};
@@ -157,7 +163,11 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] =
     /* Depth GEqual no Z-write */
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha,
         hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::GEqual,
-        hecl::Backend::CullMode::Backface, true, false, true}
+        hecl::Backend::CullMode::Backface, true, false, true},
+    /* Disintegration */
+    {1, BlockNames, 2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
+        hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::LEqual,
+        hecl::Backend::CullMode::Original, false, false, true, false, false, true}
 };
 
 extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];

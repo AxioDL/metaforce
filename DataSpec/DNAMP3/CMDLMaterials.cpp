@@ -76,7 +76,7 @@ void MaterialSet::Material::Enumerate<BigDNA::BinarySize>(typename BinarySize::S
 
 void MaterialSet::RegisterMaterialProps(Stream& out)
 {
-    out << "bpy.types.Material.retro_punchthrough_alpha = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"
+    out << "bpy.types.Material.retro_alpha_test = bpy.props.BoolProperty(name='Retro: Punchthrough Alpha')\n"
            "bpy.types.Material.retro_shadow_occluder = bpy.props.BoolProperty(name='Retro: Shadow Occluder')\n"
            "bpy.types.Material.retro_lightmapped = bpy.props.BoolProperty(name='Retro: Lightmapped')\n"
            "bpy.types.Material.retro_opac = bpy.props.IntProperty(name='Retro: OPAC')\n"
@@ -121,10 +121,10 @@ void MaterialSet::ConstructMaterial(Stream& out,
                "\n", groupIdx, matIdx);
 
     /* Material Flags */
-    out.format("new_material.retro_punchthrough_alpha = %s\n"
+    out.format("new_material.retro_alpha_test = %s\n"
                "new_material.retro_shadow_occluder = %s\n"
                "new_material.game_settings.invisible = %s\n",
-               material.header.flags.punchthroughAlpha() ? "True" : "False",
+               material.header.flags.alphaTest() ? "True" : "False",
                material.header.flags.shadowOccluderMesh() ? "True" : "False",
                material.header.flags.shadowOccluderMesh() ? "True" : "False");
 

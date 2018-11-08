@@ -35,6 +35,7 @@ enum EExtendedShader : uint8_t
     ForcedAlphaNoCullNoZWrite,
     ForcedAdditiveNoCullNoZWrite,
     DepthGEqualNoZWrite,
+    Disintegrate,
     MAX
 };
 
@@ -77,6 +78,12 @@ public:
     {
         zeus::CVector4f shadowUp;
         float shadowId;
+    };
+
+    struct OneTextureUniform
+    {
+        zeus::CColor addColor;
+        CGraphics::CFogState fog;
     };
 
     static void Initialize();

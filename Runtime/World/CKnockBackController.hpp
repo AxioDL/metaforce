@@ -75,8 +75,8 @@ enum class EKnockBackAnimationFollowUp
     Death,
     ExplodeDeath,
     IceDeath,
-    FireDeath,
-    Disintegrate
+    BurnDeath,
+    LaggedBurnDeath
 };
 
 class CKnockBackController
@@ -116,9 +116,9 @@ private:
             bool x81_25_enableFreeze : 1; // t
             bool x81_26_enableShock : 1;
             bool x81_27_enableBurn : 1; // t
-            bool x81_28_enableFireDeath : 1; // t
+            bool x81_28_enableBurnDeath : 1; // t
             bool x81_29_enableExplodeDeath : 1; // t
-            bool x81_30_enableDisintegrate : 1; // t
+            bool x81_30_enableLaggedBurnDeath : 1; // t
             bool x81_31_ : 1; // t
             bool x82_24_ : 1; // t
             bool x82_25_inDeferredKnockBack : 1;

@@ -55,7 +55,7 @@ struct MaterialSet : BigDNA
             void setKonstValuesEnabled(bool enabled) {flags &= ~0x8; flags |= atUint32(enabled) << 3;}
             bool depthSorting() const {return (flags & 0x10) != 0;}
             void setDepthSorting(bool enabled) {flags &= ~0x10; flags |= atUint32(enabled) << 4;}
-            bool punchthroughAlpha() const {return (flags & 0x20) != 0;}
+            bool alphaTest() const {return (flags & 0x20) != 0;}
             void setPunchthroughAlpha(bool enabled) {flags &= ~0x20; flags |= atUint32(enabled) << 5;}
             bool samusReflection() const {return (flags & 0x40) != 0;}
             void setSamusReflection(bool enabled) {flags &= ~0x40; flags |= atUint32(enabled) << 6;}

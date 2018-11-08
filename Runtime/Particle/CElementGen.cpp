@@ -162,17 +162,16 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     else
         x268_PSLT = INT_MAX;
 
-    int useMAXP = 256;
     if (CIntElement* maxpElem = desc->x28_x1c_MAXP.get())
     {
         maxpElem->GetValue(x74_curFrame, x90_MAXP);
-        useMAXP = maxpElem->GetMaxValue();
+        m_maxMAXP = maxpElem->GetMaxValue();
     }
 
-    useMAXP = std::min(useMAXP, 256);
-    x30_particles.reserve(useMAXP);
+    m_maxMAXP = std::min(m_maxMAXP, 256);
+    x30_particles.reserve(m_maxMAXP);
     if (x2c_orientType == EModelOrientationType::One)
-        x50_parentMatrices.resize(useMAXP);
+        x50_parentMatrices.resize(m_maxMAXP);
 
     x26c_31_LINE = desc->x44_24_x30_24_LINE;
     x26d_24_FXLL = desc->x44_25_x30_25_FXLL;
@@ -224,7 +223,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         boo::ObjToken<boo::ITexture> tex;
         if (texr)
             tex = texr->GetValueTexture(0).GetObj()->GetBooTexture();
-        int maxVerts = (x90_MAXP == 0 ? 256 : x90_MAXP);
+        int maxVerts = (m_maxMAXP == 0 ? 256 : m_maxMAXP);
         m_lineRenderer.reset(new CLineRenderer(CLineRenderer::EPrimitiveMode::Lines,
                                                maxVerts * 2, tex, x26c_26_AAPH, x26c_28_zTest));
     }
@@ -233,7 +232,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
         m_shaderClass = CElementGenShaders::GetShaderClass(*this);
     }
 
-    size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * useMAXP) : useMAXP;
+    size_t maxInsts = x26c_30_MBLR ? (m_maxMBSP * m_maxMAXP) : m_maxMAXP;
     maxInsts = (maxInsts == 0 ? 256 : maxInsts);
 
     CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx)
@@ -546,7 +545,7 @@ void CElementGen::CreateNewParticles(int count)
     CGlobalRandom gr(x27c_randState);
     x30_particles.reserve(x90_MAXP);
     if (x26d_28_enableADV && x60_advValues.empty())
-        x60_advValues.resize(x90_MAXP);
+        x60_advValues.resize(m_maxMAXP);
 
     CParticleGlobals::g_particleAccessParameters = nullptr;
 

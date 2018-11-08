@@ -62,9 +62,11 @@ public:
 
 class CMorphableSkinnedModel : public CSkinnedModel
 {
+    std::unique_ptr<float[]> x40_morphMagnitudes;
 public:
     CMorphableSkinnedModel(IObjectStore& store, CAssetId model, CAssetId skinRules,
                            CAssetId layoutInfo, int shaderIdx, int drawInsts);
+    const float* GetMorphMagnitudes() const { return x40_morphMagnitudes.get(); }
 };
 
 }

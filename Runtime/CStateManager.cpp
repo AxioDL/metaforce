@@ -1018,6 +1018,54 @@ void CStateManager::PreRender()
     }
 }
 
+void CStateManager::GetCharacterRenderMaskAndTarget(bool thawed, int& mask, int& target) const
+{
+    switch (x8b8_playerState->GetActiveVisor(*this))
+    {
+    case CPlayerState::EPlayerVisor::Combat:
+    case CPlayerState::EPlayerVisor::Scan:
+        mask = 0x1000;
+        target = 0x0;
+        break;
+    case CPlayerState::EPlayerVisor::XRay:
+        mask = 0x800;
+        target = 0x0;
+        break;
+    case CPlayerState::EPlayerVisor::Thermal:
+        if (thawed)
+        {
+            if (xf34_thermalFlag == EThermalDrawFlag::Hot)
+            {
+                mask = 0x600;
+                target = 0x0;
+            }
+            else
+            {
+                mask = 0x600;
+                target = 0x200;
+            }
+        }
+        else
+        {
+            if (xf34_thermalFlag == EThermalDrawFlag::Cold)
+            {
+                mask = 0x500;
+                target = 0x0;
+            }
+            else
+            {
+                mask = 0x500;
+                target = 0x100;
+            }
+        }
+        break;
+    default:
+        mask = 0x0;
+        target = 0x0;
+        break;
+    }
+}
+
 bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) const
 {
     if (b == kInvalidAreaId)
