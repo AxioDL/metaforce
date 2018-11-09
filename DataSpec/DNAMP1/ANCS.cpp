@@ -1345,42 +1345,44 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath,
         if (!modelCookFunc(*modelPath))
             Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
 
-    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
-    if (skinIO.hasError())
-        Log.report(logvisor::Fatal, _SYS_STR("unable to open '%s'"), skinIntPath.getRelativePath().data());
-
-    std::vector<std::string> boneNames;
-    uint32_t boneNameCount = skinIO.readUint32Big();
-    boneNames.reserve(boneNameCount);
-    for (uint32_t i=0 ; i<boneNameCount ; ++i)
-        boneNames.push_back(skinIO.readString());
-
     std::vector<std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>> skins;
-    uint32_t skinCount = skinIO.readUint32Big();
-    skins.resize(skinCount);
-    for (uint32_t i=0 ; i<skinCount ; ++i)
+    uint32_t posCount = 0;
+    uint32_t normCount = 0;
+    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
+    if (!skinIO.hasError())
     {
-        std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>& virtualBone = skins[i];
-        uint32_t bindCount = skinIO.readUint32Big();
-        virtualBone.first.reserve(bindCount);
-        for (uint32_t j=0 ; j<bindCount ; ++j)
+        std::vector<std::string> boneNames;
+        uint32_t boneNameCount = skinIO.readUint32Big();
+        boneNames.reserve(boneNameCount);
+        for (uint32_t i=0 ; i<boneNameCount ; ++i)
+            boneNames.push_back(skinIO.readString());
+
+        uint32_t skinCount = skinIO.readUint32Big();
+        skins.resize(skinCount);
+        for (uint32_t i=0 ; i<skinCount ; ++i)
         {
-            uint32_t bIdx = skinIO.readUint32Big();
-            float weight = skinIO.readFloatBig();
-            const std::string& name = boneNames[bIdx];
-            auto search = boneIdMap.find(name);
-            if (search == boneIdMap.cend())
-                Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
-                           name.c_str(), inPath.getRelativePathUTF8().data());
-            virtualBone.first.emplace_back(search->second, weight);
+            std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>& virtualBone = skins[i];
+            uint32_t bindCount = skinIO.readUint32Big();
+            virtualBone.first.reserve(bindCount);
+            for (uint32_t j=0 ; j<bindCount ; ++j)
+            {
+                uint32_t bIdx = skinIO.readUint32Big();
+                float weight = skinIO.readFloatBig();
+                const std::string& name = boneNames[bIdx];
+                auto search = boneIdMap.find(name);
+                if (search == boneIdMap.cend())
+                    Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                               name.c_str(), inPath.getRelativePathUTF8().data());
+                virtualBone.first.emplace_back(search->second, weight);
+            }
+            virtualBone.second = skinIO.readUint32Big();
         }
-        virtualBone.second = skinIO.readUint32Big();
+
+        posCount = skinIO.readUint32Big();
+        normCount = skinIO.readUint32Big();
+
+        skinIO.close();
     }
-
-    uint32_t posCount = skinIO.readUint32Big();
-    uint32_t normCount = skinIO.readUint32Big();
-
-    skinIO.close();
 
     athena::io::TransactionalFileWriter skinOut(outPath.getAbsolutePath());
 
@@ -1483,57 +1485,60 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
         if (!modelCookFunc(*modelPath))
             Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
 
-    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
-    if (skinIO.hasError())
-        Log.report(logvisor::Fatal, _SYS_STR("unable to open '%s'"), skinIntPath.getRelativePath().data());
-
+    uint32_t bankCount = 0;
     std::vector<std::vector<uint32_t>> skinBanks;
-    uint32_t bankCount = skinIO.readUint32Big();
-    skinBanks.reserve(bankCount);
-    for (uint32_t i=0 ; i<bankCount ; ++i)
-    {
-        skinBanks.emplace_back();
-        std::vector<uint32_t>& bonesOut = skinBanks.back();
-        uint32_t boneCount = skinIO.readUint32Big();
-        bonesOut.reserve(boneCount);
-        for (uint32_t j=0 ; j<boneCount ; ++j)
-        {
-            uint32_t idx = skinIO.readUint32Big();
-            bonesOut.push_back(idx);
-        }
-    }
-
     std::vector<std::string> boneNames;
-    uint32_t boneNameCount = skinIO.readUint32Big();
-    boneNames.reserve(boneNameCount);
-    for (uint32_t i=0 ; i<boneNameCount ; ++i)
-        boneNames.push_back(skinIO.readString());
-
     std::vector<std::vector<std::pair<uint32_t, float>>> skins;
-    uint32_t skinCount = skinIO.readUint32Big();
-    skins.resize(skinCount);
-    for (uint32_t i=0 ; i<skinCount ; ++i)
+    atUint64 uniquePoolIndexLen = 0;
+    std::unique_ptr<atUint8[]> uniquePoolIndexData;
+    athena::io::FileReader skinIO(skinIntPath.getAbsolutePath(), 1024*32, false);
+    if (!skinIO.hasError())
     {
-        std::vector<std::pair<uint32_t, float>>& virtualBone = skins[i];
-        uint32_t bindCount = skinIO.readUint32Big();
-        virtualBone.reserve(bindCount);
-        for (uint32_t j=0 ; j<bindCount ; ++j)
+        bankCount = skinIO.readUint32Big();
+        skinBanks.reserve(bankCount);
+        for (uint32_t i=0 ; i<bankCount ; ++i)
         {
-            uint32_t bIdx = skinIO.readUint32Big();
-            float weight = skinIO.readFloatBig();
-            const std::string& name = boneNames[bIdx];
-            auto search = boneIdMap.find(name);
-            if (search == boneIdMap.cend())
-                Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
-                           name.c_str(), inPath.getRelativePathUTF8().data());
-            virtualBone.emplace_back(search->second, weight);
+            skinBanks.emplace_back();
+            std::vector<uint32_t>& bonesOut = skinBanks.back();
+            uint32_t boneCount = skinIO.readUint32Big();
+            bonesOut.reserve(boneCount);
+            for (uint32_t j=0 ; j<boneCount ; ++j)
+            {
+                uint32_t idx = skinIO.readUint32Big();
+                bonesOut.push_back(idx);
+            }
         }
+
+        uint32_t boneNameCount = skinIO.readUint32Big();
+        boneNames.reserve(boneNameCount);
+        for (uint32_t i=0 ; i<boneNameCount ; ++i)
+            boneNames.push_back(skinIO.readString());
+
+        uint32_t skinCount = skinIO.readUint32Big();
+        skins.resize(skinCount);
+        for (uint32_t i=0 ; i<skinCount ; ++i)
+        {
+            std::vector<std::pair<uint32_t, float>>& virtualBone = skins[i];
+            uint32_t bindCount = skinIO.readUint32Big();
+            virtualBone.reserve(bindCount);
+            for (uint32_t j=0 ; j<bindCount ; ++j)
+            {
+                uint32_t bIdx = skinIO.readUint32Big();
+                float weight = skinIO.readFloatBig();
+                const std::string& name = boneNames[bIdx];
+                auto search = boneIdMap.find(name);
+                if (search == boneIdMap.cend())
+                    Log.report(logvisor::Fatal, "unable to find bone '%s' in %s",
+                               name.c_str(), inPath.getRelativePathUTF8().data());
+                virtualBone.emplace_back(search->second, weight);
+            }
+        }
+
+        uniquePoolIndexLen = skinIO.length() - skinIO.position();
+        uniquePoolIndexData = skinIO.readUBytes(uniquePoolIndexLen);
+
+        skinIO.close();
     }
-
-    atUint64 uniquePoolIndexLen = skinIO.length() - skinIO.position();
-    auto uniquePoolIndexData = skinIO.readUBytes(uniquePoolIndexLen);
-
-    skinIO.close();
 
     athena::io::TransactionalFileWriter skinOut(outPath.getAbsolutePath());
 
@@ -1563,7 +1568,8 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath,
         }
     }
 
-    skinOut.writeUBytes(uniquePoolIndexData.get(), uniquePoolIndexLen);
+    if (uniquePoolIndexLen)
+        skinOut.writeUBytes(uniquePoolIndexData.get(), uniquePoolIndexLen);
 
     return true;
 }
