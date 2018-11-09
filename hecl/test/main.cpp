@@ -128,7 +128,7 @@ struct HECLApplicationCallback : boo::IApplicationCallback
         static std::string testShader = "HECLOpaque(Texture(0, UV(0)))";
         //static std::string testShader = "HECLOpaque(vec3(1.0,1.0,1.0),1.0)";
         hecl::Backend::ShaderTag testShaderTag(testShader, 0, 1, 0, 0, boo::Primitive::TriStrips,
-                                               hecl::Backend::ReflectionType::None, false, false, false);
+                                               hecl::Backend::ReflectionType::None, false, false, false, false);
         hecl::Frontend::Frontend FE;
         hecl::Frontend::IR ir = FE.compileSource(testShader, "booTest");
         hecl::HECLIR irObj(ir, testShaderTag, 0);
