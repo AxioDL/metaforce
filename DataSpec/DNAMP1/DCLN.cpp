@@ -5,7 +5,7 @@ namespace DataSpec::DNAMP1
 {
 
 #if DCLN_DUMP_OBB
-void DCLN::Collision::NodesendToBlender(hecl::blender::PyOutStream& os) const
+void DCLN::Collision::Node::sendToBlender(hecl::blender::PyOutStream& os) const
 {
     os.format("obj = bpy.data.objects.new('%s', None)\n"
               "obj.empty_draw_type = 'CUBE'\n"
@@ -62,15 +62,15 @@ void DCLN::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
     /* Open Py Stream and read sections */
     hecl::blender::PyOutStream os = conn.beginPythonOut(true);
     os.format("import bpy\n"
-                  "import bmesh\n"
-                  "from mathutils import Vector, Matrix\n"
-                  "\n"
-                  "bpy.context.scene.name = '%s'\n"
-                  "# Clear Scene\n"
-                  "for ob in bpy.data.objects:\n"
-                  "    if ob.type != 'CAMERA':\n"
-                  "        bpy.context.scene.objects.unlink(ob)\n"
-                  "        bpy.data.objects.remove(ob)\n",
+              "import bmesh\n"
+              "from mathutils import Vector, Matrix\n"
+              "\n"
+              "bpy.context.scene.name = '%s'\n"
+              "# Clear Scene\n"
+              "for ob in bpy.data.objects:\n"
+              "    if ob.type != 'CAMERA':\n"
+              "        bpy.context.scene.objects.unlink(ob)\n"
+              "        bpy.data.objects.remove(ob)\n",
               entryName.data());
 
     DeafBabe::BlenderInit(os);
@@ -118,6 +118,13 @@ bool DCLN::Cook(const hecl::ProjectPath& outPath,
         colOut.root = std::move(*OBBTreeBuilder::buildCol<Collision::Node>(mesh));
         colOut.memSize = atUint32(colOut.root.getMemoryUsage());
     }
+
+#if DCLN_DUMP_OBB
+    hecl::blender::Connection& conn = hecl::blender::SharedBlenderToken.getBlenderConnection();
+    conn.createBlend(outPath.getWithExtension(_SYS_STR(".blend")), hecl::blender::BlendType::ColMesh);
+    dcln.sendToBlender(conn, "BLAH");
+    conn.saveBlend();
+#endif
 
     athena::io::FileWriter w(outPath.getAbsolutePath());
     dcln.write(w);

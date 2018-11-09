@@ -77,7 +77,7 @@ struct DCLN : BigDNA
             }
 
 #if DCLN_DUMP_OBB
-            sendToBlender(hecl::blender::PyOutStream& os) const;
+            void sendToBlender(hecl::blender::PyOutStream& os) const;
 #endif
         };
         Node root;

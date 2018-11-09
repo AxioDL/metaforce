@@ -160,9 +160,10 @@ public:
         }
 
         template<class RigPair>
-        void sendAdditionalVertsToBlender(hecl::blender::PyOutStream& os,
-                                          const RigPair& rp) const
+        atUint32 sendAdditionalVertsToBlender(hecl::blender::PyOutStream& os,
+                                              const RigPair& rp, atUint32 baseVert) const
         {
+            atUint32 addedVerts = 0;
             atUint32 nextVert = 1;
             while (nextVert < m_nextOverPos)
             {
@@ -175,13 +176,15 @@ public:
                             os.format("bm.verts.ensure_lookup_table()\n"
                                       "orig_vert = bm.verts[%u]\n"
                                       "vert = bm.verts.new(orig_vert.co)\n",
-                                      ev.first);
+                                      ev.first + baseVert);
                             rp.first->weightVertex(os, *rp.second, se.first);
                             ++nextVert;
+                            ++addedVerts;
                         }
                     }
                 }
             }
+            return addedVerts;
         }
 
         atUint16 lookupVertIdx(atUint16 pos, atInt16 skin) const
@@ -448,7 +451,7 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os,
           "                ret.append(loop)\n"
           "    return ret\n"
           "\n"
-          "def add_triangle(bm, vert_seq, vert_indices, norm_seq, norm_indices, mat_nr, od_list):\n"
+          "def add_triangle(bm, vert_seq, vert_indices, norm_seq, norm_indices, mat_nr, od_list, two_face_vert):\n"
           "    if len(set(vert_indices)) != 3:\n"
           "        return None, None\n"
           "\n"
@@ -456,7 +459,7 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os,
           "    vert_seq.ensure_lookup_table()\n"
           "    verts = [vert_seq[i] for i in vert_indices]\n"
           "\n"
-          "    # Make the face\n"
+          "    # Try getting existing face\n"
           "    face = bm.faces.get(verts)\n"
           "\n"
           "    if face is not None and face.material_index != mat_nr: # Same poly, new material\n"
@@ -476,17 +479,15 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os,
           "        if face is None:\n"
           "            face = od_entry['bm'].faces.new(verts)\n"
           "        else: # Probably a double-sided surface\n"
-          "            face = face.copy()\n"
-          "            for i in range(3):\n"
-          "                face.verts[i].co = verts[i].co\n"
+          "            verts = [od_entry['bm'].verts[i + two_face_vert] for i in vert_indices]\n"
+          "            face = od_entry['bm'].faces.new(verts)\n"
           "        ret_mesh = od_entry['bm']\n"
           "\n"
           "    elif face is not None: # Same material, probably double-sided\n"
-          "        face = face.copy()\n"
-          "        for i in range(3):\n"
-          "            face.verts[i].co = verts[i].co\n"
+          "        verts = [vert_seq[i + two_face_vert] for i in vert_indices]\n"
+          "        face = bm.faces.new(verts)\n"
           "\n"
-          "    else: \n"
+          "    else: # Make totally new face\n"
           "        face = bm.faces.new(verts)\n"
           "\n"
           "    for i in range(3):\n"
@@ -553,16 +554,24 @@ void FinishBlenderMesh(hecl::blender::PyOutStream& os,
           "\n"
           "# Merge OD meshes\n"
           "for od_entry in od_list:\n"
-          "    vert_dict = {}\n"
+          "    vert_dict = [{},{}]\n"
           "\n"
           "    for vert in od_entry['bm'].verts:\n"
           "        if len(vert.link_faces):\n"
+          "            if vert.index >= two_face_vert:\n"
+          "                use_vert_dict = vert_dict[1]\n"
+          "            else:\n"
+          "                use_vert_dict = vert_dict[0]\n"
           "            copy_vert = bm.verts.new(vert.co, vert)\n"
-          "            vert_dict[vert[od_entry['bm'].verts.layers.int['CMDLOriginalPosIdxs']]] = copy_vert\n"
+          "            use_vert_dict[vert[od_entry['bm'].verts.layers.int['CMDLOriginalPosIdxs']]] = copy_vert\n"
           "            copy_vert[orig_pidx_lay] = vert[od_entry['bm'].verts.layers.int['CMDLOriginalPosIdxs']]\n"
           "\n"
           "    for face in od_entry['bm'].faces:\n"
-          "        merge_verts = [vert_dict[fv[od_entry['bm'].verts.layers.int['CMDLOriginalPosIdxs']]] for fv in face.verts]\n"
+          "        if face.verts[0].index >= two_face_vert:\n"
+          "            use_vert_dict = vert_dict[1]\n"
+          "        else:\n"
+          "            use_vert_dict = vert_dict[0]\n"
+          "        merge_verts = [use_vert_dict[fv[od_entry['bm'].verts.layers.int['CMDLOriginalPosIdxs']]] for fv in face.verts]\n"
           "        if bm.faces.get(merge_verts) is not None:\n"
           "            continue\n"
           "        merge_face = bm.faces.new(merge_verts)\n"
@@ -576,6 +585,12 @@ void FinishBlenderMesh(hecl::blender::PyOutStream& os,
           "        merge_face.material_index = face.material_index\n"
           "\n"
           "    od_entry['bm'].free()\n"
+          "\n"
+          "verts_to_del = []\n"
+          "for v in bm.verts:\n"
+          "    if len(v.link_faces) == 0:\n"
+          "        verts_to_del.append(v)\n"
+          "bmesh.ops.delete(bm, geom=verts_to_del, context=1)\n"
           "\n"
           "for edge in bm.edges:\n"
           "    if edge.is_manifold:\n"
@@ -759,9 +774,13 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
             case 0:
             {
                 /* Positions */
+                atUint32 vertCount = maxIdxs.pos + 1;
+                std::vector<atVec3f> positions;
+                positions.reserve(vertCount);
                 for (size_t i=0 ; i<=maxIdxs.pos ; ++i)
                 {
-                    atVec3f pos = reader.readVec3fBig();
+                    positions.push_back(reader.readVec3fBig());
+                    const atVec3f& pos = positions.back();
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
                               pos.vec[0], pos.vec[1], pos.vec[2]);
                     if (rp.first)
@@ -773,7 +792,23 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                     }
                 }
                 if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
-                    extraTracker.sendAdditionalVertsToBlender(os, rp);
+                    vertCount += extraTracker.sendAdditionalVertsToBlender(os, rp, 0);
+                os.format("two_face_vert = %u\n", vertCount);
+                for (size_t i=0 ; i<=maxIdxs.pos ; ++i)
+                {
+                    const atVec3f& pos = positions[i];
+                    os.format("vert = bm.verts.new((%f,%f,%f))\n",
+                              pos.vec[0], pos.vec[1], pos.vec[2]);
+                    if (rp.first)
+                    {
+                        if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
+                            rp.first->weightVertex(os, *rp.second, skinIndices[i]);
+                        else if (!SurfaceHeader::UseMatrixSkinning())
+                            rp.first->weightVertex(os, *rp.second, i);
+                    }
+                }
+                if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
+                    extraTracker.sendAdditionalVertsToBlender(os, rp, vertCount);
                 break;
             }
             case 1:
@@ -904,7 +939,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                         {
                             if (flip)
                             {
-                                os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
+                                os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, two_face_vert)\n",
                                           primVerts[c%3].pos,
                                           primVerts[(c+2)%3].pos,
                                           primVerts[(c+1)%3].pos,
@@ -938,7 +973,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                             }
                             else
                             {
-                                os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
+                                os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, two_face_vert)\n",
                                           primVerts[c%3].pos,
                                           primVerts[(c+1)%3].pos,
                                           primVerts[(c+2)%3].pos,
@@ -984,7 +1019,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                         for (int v=0 ; v<vertCount ; v+=3)
                         {
 
-                            os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
+                            os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, two_face_vert)\n",
                                       primVerts[0].pos,
                                       primVerts[1].pos,
                                       primVerts[2].pos,
@@ -1030,7 +1065,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                         ++c;
                         for (int v=0 ; v<vertCount-2 ; ++v)
                         {
-                            os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list)\n",
+                            os.format("last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, two_face_vert)\n",
                                       firstPrimVert.pos,
                                       primVerts[c%3].pos,
                                       primVerts[(c+1)%3].pos,
