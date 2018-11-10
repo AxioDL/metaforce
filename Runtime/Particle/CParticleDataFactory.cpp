@@ -858,7 +858,7 @@ CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& 
 bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& in,
                                       std::vector<CAssetId>& tracker, CSimplePool* resPool)
 {
-    CRandom16 rand{99};
+    CRandom16 rand;
     CGlobalRandom gr(rand);
     FourCC clsId = GetClassID(in);
     while (clsId != SBIG('_END'))

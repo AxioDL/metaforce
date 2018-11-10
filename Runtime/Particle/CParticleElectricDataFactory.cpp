@@ -34,7 +34,7 @@ CElectricDescription* CParticleElectricDataFactory::CreateElectricDescription(CI
 
 bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
-    CRandom16 rand{99};
+    CRandom16 rand;
     CGlobalRandom gr{rand};
 
     FourCC clsId = CPF::GetClassID(in);

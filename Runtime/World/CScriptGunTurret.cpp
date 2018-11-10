@@ -268,7 +268,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
 
                 if (TCastToConstPtr<CScriptGunTurret> gun = mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId)))
                 {
-                    x25c_ = mgr.GetIdForScript(conn.x8_objId);
+                    x25c_gunId = mgr.GetIdForScript(conn.x8_objId);
                     x260_ = gun->GetHealthInfo(mgr)->GetHP();
                     return;
                 }
@@ -374,9 +374,19 @@ zeus::CVector3f CScriptGunTurret::GetAimPosition(const CStateManager &, float) c
     return GetTranslation();
 }
 
-void CScriptGunTurret::SetupCollisionManager(CStateManager&)
+void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr)
 {
+    std::vector<CJointCollisionDescription> jointDescs;
+    jointDescs.reserve(2);
+    const CAnimData* animData = GetModelData()->GetAnimationData();
+    x508_gunSDKSeg = animData->GetLocatorSegId("Gun_SDK"sv);
+    CSegId blastLCTR = animData->GetLocatorSegId("Blast_LCTR"sv);
+    jointDescs.push_back(CJointCollisionDescription::SphereSubdivideCollision(x508_gunSDKSeg, blastLCTR, 0.6f, 1.f,
+                                                                              CJointCollisionDescription::EOrientationType::One,
+                                                                              "Gun_SDK"sv, 1000.f));
+    jointDescs.push_back(CJointCollisionDescription::SphereCollision(blastLCTR, 0.3f, "Blast_LCTR"sv, 1000.f));
 
+    x49c_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true));
 }
 
 void CScriptGunTurret::sub80219b18(s32 w1, CStateManager& mgr)
@@ -606,9 +616,9 @@ void CScriptGunTurret::sub80219a00(float dt, CStateManager& mgr)
     sub80219b18(1, mgr);
     x524_ += dt;
     sub80217124(mgr);
-    if (x25c_ != kInvalidUniqueId)
+    if (x25c_gunId != kInvalidUniqueId)
     {
-        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_))
+        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
         {
             if (gunTurret->x520_ != 12)
                 gunTurret->x520_ = x520_;
@@ -667,7 +677,7 @@ void CScriptGunTurret::sub8021998c(s32 w1, CStateManager& mgr, float dt)
         sub80218f50(w1, mgr, dt);
         break;
     case 11:
-        sub80218e34(w1, mgr, dt);
+        sub80218e34(w1, mgr);
         break;
     case 12:
         sub80218bb4(w1, mgr, dt);
@@ -696,7 +706,7 @@ void CScriptGunTurret::sub802196c4(s32 w1, CStateManager& mgr, float dt)
     {
         x528_ = 0.f;
         x560_27_ = false;
-        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_))
+        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
             x260_ = gunTurret->HealthInfo(mgr)->GetHP();
     }
     else if (w1 == 1)
@@ -707,7 +717,7 @@ void CScriptGunTurret::sub802196c4(s32 w1, CStateManager& mgr, float dt)
         x560_28_ = true;
         x468_->SetParticleEmission(false);
 
-        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_))
+        if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
             x260_ = gunTurret->GetHealthInfo(mgr)->GetHP();
     }
 }
@@ -777,9 +787,9 @@ void CScriptGunTurret::sub80218f50(s32 state, CStateManager& mgr, float dt)
             if (sub802179a4(mgr))
             {
                 sub80218830(dt, mgr);
-                if (x25c_ != kInvalidUniqueId)
+                if (x25c_gunId != kInvalidUniqueId)
                 {
-                    if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_))
+                    if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
                     {
                         zeus::CVector3f vec = x404_;
                         if (sub80217ad8(mgr))
@@ -835,19 +845,75 @@ void CScriptGunTurret::sub80218f50(s32 state, CStateManager& mgr, float dt)
     }
 }
 
-void CScriptGunTurret::sub80218e34(s32, CStateManager&, float)
+void CScriptGunTurret::sub80218e34(s32 state, CStateManager& mgr)
 {
+    if (state != 1 || x25c_gunId == kInvalidUniqueId)
+        return;
 
+    if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
+    {
+        zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
+
+        if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_) < zeus::degToRad(0.9f))
+            sub80219b18(6, mgr);
+    }
 }
 
-void CScriptGunTurret::sub80218bb4(s32, CStateManager&, float)
+void CScriptGunTurret::sub80218bb4(s32 state, CStateManager& mgr, float dt)
 {
+    if (state == 0)
+    {
+        x560_31_ = mgr.GetActiveRandom()->Float() < 0.f;
+        x534_ = 0.15f;
+        RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+        mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
+    } else if (state == 1)
+    {
+        if (x524_ >= x2d4_data.x9c_)
+        {
+            sub80219b18(0, mgr);
+            if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
+                gun->x520_ = 0;
+            return;
+        }
 
+        zeus::CVector3f frontVec = GetTransform().frontVector();
+        if (x560_31_ && x550_.magSquared() < 0.f &&
+            zeus::CVector3f::getAngleDiff(x544_, frontVec) >= zeus::degToRad(45.f))
+        {
+            x560_31_ = false;
+        } else if (!x560_31_ && x550_.magSquared() < 0.f &&
+                   zeus::CVector3f::getAngleDiff(x544_, frontVec) >= zeus::degToRad(45.f))
+        {
+            x560_31_ = true;
+        }
+
+        if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
+        {
+            x534_ -= dt;
+            if (x534_ >= 0.f)
+                return;
+
+            x404_ = gun->GetTranslation() + (100.f * gun->GetTransform().frontVector());
+            SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
+            x534_ = 0.15f;
+        }
+    }
 }
 
-bool CScriptGunTurret::sub80217ad8(CStateManager&)
+bool CScriptGunTurret::sub80217ad8(CStateManager& mgr)
 {
-    return false;
+    zeus::CVector3f posDif = mgr.GetPlayer().GetTranslation() - GetTranslation();
+    zeus::CVector3f someVec(posDif.x, posDif.y, 0.f);
+    if (x550_.dot(posDif) >= 0.f)
+        return zeus::CVector3f::getAngleDiff(x544_, someVec) <= x2d4_data.x20_;
+
+    if (zeus::CVector3f::getAngleDiff(x544_, someVec) <= x2d4_data.x20_)
+        return true;
+
+    float biasedAngle = zeus::CVector3f::getAngleDiff(posDif, zeus::CVector3f::skUp) - zeus::degToRad(90.f);
+
+    return (biasedAngle >= zeus::degToRad(-20.f) && biasedAngle <= x2d4_data.x24_);
 }
 
 bool CScriptGunTurret::sub802179a4(CStateManager&)
@@ -871,10 +937,10 @@ zeus::CVector3f CScriptGunTurret::sub80217e34(float dt)
 void CScriptGunTurret::sub80217f5c(float dt, CStateManager& mgr)
 {
     /* TODO: Finish */
-    if (x25c_ == kInvalidUniqueId)
+    if (x25c_gunId == kInvalidUniqueId)
         return;
 
-    if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_))
+    if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
     {
         zeus::CTransform xf = GetLocatorTransform("Gun_SDK"sv);
         xf = GetTransform() * xf;

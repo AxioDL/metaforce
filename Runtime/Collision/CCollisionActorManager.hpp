@@ -15,13 +15,16 @@ class CCollisionActorManager
 public:
     enum class EUpdateOptions
     {
-        Zero
+        Zero,
+        One
     };
 
 private:
     std::vector<CJointCollisionDescription> x0_jointDescriptions;
-    TUniqueId x10_;
+    TUniqueId x10_ownerId;
+    bool x12_;
     bool x13_ = false;
+    bool x14_ = true;
 public:
     CCollisionActorManager(CStateManager&, TUniqueId, TAreaId, const std::vector<CJointCollisionDescription>&, bool);
 

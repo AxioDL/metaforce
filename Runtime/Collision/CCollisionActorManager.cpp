@@ -7,9 +7,11 @@
 namespace urde
 {
 
-CCollisionActorManager::CCollisionActorManager(CStateManager&, TUniqueId, TAreaId,
-                                               const std::vector<CJointCollisionDescription>& descs, bool)
+CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId owner, TAreaId area,
+                                               const std::vector<CJointCollisionDescription>& descs, bool b1)
     : x0_jointDescriptions(descs)
+    , x10_ownerId(owner)
+    , x12_(b1)
 {
 }
 
@@ -21,9 +23,22 @@ void CCollisionActorManager::Destroy(CStateManager& mgr) const
     const_cast<CCollisionActorManager&>(*this).x13_ = true;
 }
 
-void CCollisionActorManager::SetActive(CStateManager&, bool)
+void CCollisionActorManager::SetActive(CStateManager& mgr, bool active)
 {
+    for (const CJointCollisionDescription& jDesc : x0_jointDescriptions)
+    {
+        TCastToPtr<CActor> act(mgr.ObjectById(jDesc.GetCollisionActorId()));
 
+        if (act)
+        {
+            bool curActive = act->GetActive();
+            if (curActive != active)
+                act->SetActive(active);
+
+            if (!curActive)
+                Update(0.f, mgr, EUpdateOptions::One);
+        }
+    }
 }
 
 void CCollisionActorManager::AddMaterial(CStateManager& mgr, const CMaterialList& list)
@@ -49,7 +64,6 @@ CJointCollisionDescription CCollisionActorManager::GetCollisionDescFromIndex(u32
 
 void CCollisionActorManager::Update(float, CStateManager&, CCollisionActorManager::EUpdateOptions) const
 {
-
 }
 
 }

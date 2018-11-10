@@ -5,7 +5,7 @@
 
 namespace urde
 {
-CRandom16 CDecal::sDecalRandom(99);
+CRandom16 CDecal::sDecalRandom;
 bool CDecal::sMoveRedToAlphaBuffer = false;
 
 CDecal::CDecal(const TToken<CDecalDescription>& desc, const zeus::CTransform& xf)

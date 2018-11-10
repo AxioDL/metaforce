@@ -117,8 +117,8 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr)
     {
         SVideoBand& band = x5a4_videoBands[i];
         band.x0_videoband = static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget(hecl::Format("model_videoband%d", i)));
-        band.x4_randA = CRandom16::GetRandomNumber()->Range(6.f, 66.f);
-        band.x8_randB = CRandom16::GetRandomNumber()->Range(16.f, 256.f);
+        band.x4_randA = 6 + (std::rand() % ((66 - 6) + 1));
+        band.x8_randB = 16 + (std::rand() % ((256 - 16) + 1));
     }
     x59c_base_textpane_message->SetDepthTest(false);
     x598_base_basewidget_message->SetVisibility(false, ETraversalMode::Children);

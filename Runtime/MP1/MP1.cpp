@@ -83,7 +83,6 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
 {
     CMain* m = static_cast<CMain*>(g_Main);
 
-    g_GuiSys = &x44_guiSys;
     x30_inputGenerator.startScanning();
     g_InputGenerator = &x30_inputGenerator;
 
@@ -94,8 +93,11 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
     CStreamAudioManager::SetMusicVolume(0x7f);
     m->ResetGameState();
 
-    //std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
-    //x58_ioWinManager.AddIOWin(splash, 1000, 10000);
+    if (!g_tweakGame->GetSplashScreensDisabled())
+    {
+        std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
+        x58_ioWinManager.AddIOWin(splash, 1000, 10000);
+    }
 
     std::shared_ptr<CIOWin> mf = std::make_shared<CMainFlow>();
     x58_ioWinManager.AddIOWin(mf, 0, 0);
@@ -108,6 +110,9 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent,
 
     std::shared_ptr<CIOWin> errWin = std::make_shared<CErrorOutputWindow>(false);
     x58_ioWinManager.AddIOWin(errWin, 10000, 100000);
+
+    g_GuiSys = &x44_guiSys;
+    g_GameState->GameOptions().EnsureSettings();
 }
 
 void CGameArchitectureSupport::UpdateTicks()
@@ -794,6 +799,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr,
     x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
     g_archSupport = x164_archSupport.get();
     x164_archSupport->PreloadAudio();
+    std::srand(std::time(nullptr));
     //g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 

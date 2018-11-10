@@ -10,8 +10,7 @@ class CRandom16
     u32 m_seed;
     static CRandom16* g_randomNumber;
 public:
-    CRandom16() = default;
-    CRandom16(u32 p) : m_seed(p) {}
+    CRandom16(u32 p = 99) : m_seed(p) {}
 
     inline u32 Next()
     {
