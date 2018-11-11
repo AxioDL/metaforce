@@ -157,7 +157,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
         break;
     case EScriptObjectMessage::Deleted:
         if (x330_stateMachineState.GetActorState() != nullptr)
-            x330_stateMachineState.GetActorState()->CallFunc(mgr, *this, EStateMsg::Two, 0.f);
+            x330_stateMachineState.GetActorState()->CallFunc(mgr, *this, EStateMsg::Deactivate, 0.f);
         break;
     case EScriptObjectMessage::Damage:
     {
@@ -787,7 +787,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float arg)
         const auto& waypoints = search->GetWaypoints();
         switch (msg)
         {
-        case EStateMsg::Zero:
+        case EStateMsg::Activate:
         {
             if (search->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success)
             {
@@ -803,7 +803,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float arg)
             }
             break;
         }
-        case EStateMsg::One:
+        case EStateMsg::Update:
         {
             if (curWp < waypoints.size() - 1)
             {
@@ -830,10 +830,10 @@ void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float arg)
 {
     switch (msg)
     {
-    case EStateMsg::Zero:
+    case EStateMsg::Activate:
         x31c_faceVec = zeus::CVector3f::skZero;
         break;
-    case EStateMsg::One:
+    case EStateMsg::Update:
         x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Die));
         if (!x400_27_fadeToDeath)
         {
@@ -854,7 +854,7 @@ void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float arg)
 
 void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float arg)
 {
-    if (msg == EStateMsg::Zero)
+    if (msg == EStateMsg::Activate)
     {
         x2dc_destObj = mgr.GetPlayer().GetUniqueId();
         SetDestPos(mgr.GetPlayer().GetTranslation());
@@ -865,7 +865,7 @@ void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float arg)
 
 void CPatterned::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg)
 {
-    if (msg == EStateMsg::Zero)
+    if (msg == EStateMsg::Activate)
     {
         x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Patrol, EScriptObjectMessage::Follow);
         if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x2dc_destObj))
@@ -879,7 +879,7 @@ void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float arg)
 {
     switch (msg)
     {
-    case EStateMsg::Zero:
+    case EStateMsg::Activate:
         SetupPattern(mgr);
         if (x328_29_noPatternShagging || !IsPatternObstructed(mgr, GetTranslation(), x2e0_destPos))
         {
@@ -891,7 +891,7 @@ void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float arg)
             x400_30_patternShagged = true;
         }
         break;
-    case EStateMsg::One:
+    case EStateMsg::Update:
         if (x328_24_inPosition)
         {
             x39c_curPattern += 1;
@@ -917,7 +917,7 @@ void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float arg)
         }
         ApproachDest(mgr);
         break;
-    case EStateMsg::Two:
+    case EStateMsg::Deactivate:
         x38c_patterns.clear();
         x400_30_patternShagged = false;
     }
@@ -927,7 +927,7 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float arg)
 {
     switch (msg)
     {
-    case EStateMsg::Zero:
+    case EStateMsg::Activate:
         if (x3ac_lastPatrolDest == kInvalidUniqueId)
         {
             x2dc_destObj = GetWaypointForState(mgr, EScriptObjectState::Patrol, EScriptObjectMessage::Follow);
@@ -951,7 +951,7 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float arg)
         x2d8_patrolState = EPatrolState::Patrol;
         x2f8_waypointPauseRemTime = 0.f;
         break;
-    case EStateMsg::One:
+    case EStateMsg::Update:
         switch (x2d8_patrolState)
         {
         case EPatrolState::Patrol:
@@ -983,7 +983,7 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float arg)
             break;
         }
         break;
-    case EStateMsg::Two:
+    case EStateMsg::Deactivate:
         x3ac_lastPatrolDest = x2dc_destObj;
         x2d8_patrolState = EPatrolState::Invalid;
         break;

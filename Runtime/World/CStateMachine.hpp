@@ -12,24 +12,39 @@ class CAiState;
 class CStateManager;
 class CAiTrigger
 {
-    u32 x0_ = 0;
-    u32 x4_ = 0;
-    u32 x8_ = 0;
-    float xc_ = 0.f;
-    u32 x10_ = 0;
-    u32 x14_ = 0;
-    bool x18_ = false;
+    CAiTriggerFunc x0_func;
+    float xc_arg = 0.f;
+    CAiTrigger* x10_andTrig = nullptr;
+    CAiState* x14_state = nullptr;
+    bool x18_lNot = false;
 public:
     CAiTrigger() = default;
-    bool GetAnd();
-    void GetState();
-    bool CallFunc(CStateManager&, CAi&)
+    CAiTrigger* GetAnd() const { return x10_andTrig; }
+    CAiState* GetState() const { return x14_state; }
+    bool CallFunc(CStateManager& mgr, CAi& ai)
     {
-        return false;
+        if (x0_func)
+        {
+            bool ret = (ai.*x0_func)(mgr, xc_arg);
+            return x18_lNot ? !ret : ret;
+        }
+        return true;
     }
 
-    void Setup(CAiTriggerFunc func, bool, float, CAiTrigger*);
-    void Setup(CAiTriggerFunc func, bool, float, CAiState*);
+    void Setup(CAiTriggerFunc func, bool lnot, float arg, CAiTrigger* andTrig)
+    {
+        x0_func = func;
+        x18_lNot = lnot;
+        xc_arg = arg;
+        x10_andTrig = andTrig;
+    }
+    void Setup(CAiTriggerFunc func, bool lnot, float arg, CAiState* state)
+    {
+        x0_func = func;
+        x18_lNot = lnot;
+        xc_arg = arg;
+        x14_state = state;
+    }
 };
 
 class CAiState
@@ -38,15 +53,18 @@ class CAiState
     CAiStateFunc x0_func;
     char xc_name[32];
     u32 x2c_numTriggers;
-    u32 x30_;
+    CAiTrigger* x30_firstTrigger;
 public:
     CAiState(CAiStateFunc func, const char* name)
-    {}
+    {
+        x0_func = func;
+        strncpy(xc_name, name, 32);
+    }
 
-    s32 GetNumTriggers() const;
-    CAiTrigger& GetTrig(s32) const;
+    s32 GetNumTriggers() const { return x2c_numTriggers; }
+    CAiTrigger* GetTrig(s32 i) const { return &x30_firstTrigger[i]; }
     const char* GetName() const { return xc_name; }
-    void SetTriggers(CAiTrigger* triggers);
+    void SetTriggers(CAiTrigger* triggers) { x30_firstTrigger = triggers; }
     void SetNumTriggers(s32 numTriggers) { x2c_numTriggers = numTriggers; }
     void CallFunc(CStateManager& mgr, CAi& ai, EStateMsg msg, float delta) const
     {
@@ -88,12 +106,7 @@ public:
 
     CAiState* GetActorState() const { return x4_state; }
 
-    void Update(CStateManager& mgr, CAi& ai, float delta)
-    {
-        x8_time += delta;
-        if (x4_state)
-            x4_state->CallFunc(mgr, ai, EStateMsg::One, delta);
-    }
+    void Update(CStateManager& mgr, CAi& ai, float delta);
     void SetState(CStateManager&, CAi&, s32);
     void SetState(CStateManager&, CAi&, const CStateMachine*, std::string_view);
     const std::vector<CAiState>* GetStateVector() const;

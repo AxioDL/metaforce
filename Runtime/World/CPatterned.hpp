@@ -398,7 +398,6 @@ public:
     const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
     void SetupPlayerCollision(bool);
 
-
     void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
     void UpdateAlphaDelta(float dt, CStateManager& mgr);
     void SetModelAlpha(float a) { x42c_color.a = a; }
