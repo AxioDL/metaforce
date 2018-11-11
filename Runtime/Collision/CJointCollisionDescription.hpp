@@ -20,6 +20,7 @@ public:
     enum class EOrientationType
     {
         Zero,
+        One
     };
 
 private:

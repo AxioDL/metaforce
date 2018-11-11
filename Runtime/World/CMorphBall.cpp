@@ -1962,7 +1962,7 @@ void CMorphBall::RenderIceBreakEffect(const CStateManager& mgr) const
 
 void CMorphBall::RenderDamageEffects(const CStateManager& mgr, const zeus::CTransform& xf) const
 {
-    CRandom16 rand(99);
+    CRandom16 rand;
     CModelFlags flags(7, 0, 1, zeus::CColor(0.25f * x1e44_damageEffect, 0.1f * x1e44_damageEffect,
                                             0.1f * x1e44_damageEffect, 1.f)); // No Z update
     flags.m_extendedShader = EExtendedShader::SolidColorAdditive;

@@ -33,7 +33,7 @@ CSwooshDescription* CParticleSwooshDataFactory::CreateGeneratorDescription(CInpu
 
 bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
-    CRandom16 rand{99};
+    CRandom16 rand;
     FourCC clsId = CPF::GetClassID(in);
     while (clsId != SBIG('_END'))
     {

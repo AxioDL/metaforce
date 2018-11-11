@@ -70,6 +70,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen,
     if (desc->x58_x44_TIND)
         desc->x58_x44_TIND->GetValueTexture(0).GetObj();
 
+    CGlobalRandom globRnd(x27c_randState);
     if (CIntElement* seedElem = desc->x1c_x10_SEED.get())
     {
         int seedVal;

@@ -34,7 +34,7 @@ CWeaponDescription* CProjectileWeaponDataFactory::CreateGeneratorDescription(CIn
 
 bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
-    CRandom16 rand{99};
+    CRandom16 rand;
     CGlobalRandom gr{rand};
     FourCC clsId = CPF::GetClassID(in);
 

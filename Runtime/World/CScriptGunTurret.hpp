@@ -88,7 +88,7 @@ public:
 private:
 
     ETurretComponent x258_type;
-    TUniqueId x25c_ = kInvalidUniqueId;
+    TUniqueId x25c_gunId = kInvalidUniqueId;
     float x260_ = 0.f;
     CHealthInfo x264_healthInfo;
     CDamageVulnerability x26c_damageVuln;
@@ -117,7 +117,7 @@ private:
     float x4f4_ = 0.f;
     float x4f8_ = 0.f;
     zeus::CVector3f x4fc_;
-    u8 x508_ = 0xFF;
+    u8 x508_gunSDKSeg = 0xFF;
     CSfxHandle x50c_ = 0;
     float x510_ = 0.f;
     zeus::CVector3f x514_;
@@ -179,7 +179,7 @@ public:
     void sub802195bc(s32, CStateManager&, float);
     void sub8021942c(s32, CStateManager&, float);
     void sub80218f50(s32, CStateManager&, float);
-    void sub80218e34(s32, CStateManager&, float);
+    void sub80218e34(s32, CStateManager&);
     void sub80218bb4(s32, CStateManager&, float);
     bool sub80217ad8(CStateManager&);
     bool sub802179a4(CStateManager&);

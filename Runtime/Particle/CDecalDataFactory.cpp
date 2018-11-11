@@ -33,7 +33,7 @@ CDecalDescription* CDecalDataFactory::CreateGeneratorDescription(CInputStream& i
 
 bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CSimplePool* resPool)
 {
-    CRandom16 rand{99};
+    CRandom16 rand;
     CGlobalRandom gr{rand};
     FourCC clsId = CPF::GetClassID(in);
 

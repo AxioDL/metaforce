@@ -156,7 +156,7 @@ CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* re
     FourCC clsId = CPF::GetClassID(in);
     if (clsId == UncookedResType())
     {
-        CRandom16 rand{99};
+        CRandom16 rand;
         CGlobalRandom gr(rand);
 
         while (clsId != SBIG('_END'))
