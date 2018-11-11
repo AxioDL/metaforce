@@ -13,16 +13,16 @@ struct Waypoint : IScriptObject
     String<-1> name;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
-    Value<bool> unknown1;
-    Value<float> unknown2;
-    Value<float> unknown3;
-    Value<atUint32> unknown4;
-    Value<atUint32> unknown5;
-    Value<atUint32> unknown6;
-    Value<atUint32> unknown7;
-    Value<atUint32> unknown8;
-    Value<atUint32> jumpFlags; // 0x2: single, 0x4: double
-    Value<atUint32> unknown10;
+    Value<bool> active;
+    Value<float> speed;
+    Value<float> pause;
+    Value<atUint32> patternTranslate;
+    Value<atUint32> patternOrient;
+    Value<atUint32> patternFit;
+    Value<atUint32> behaviour;
+    Value<atUint32> behaviourOrient;
+    Value<atUint32> behaviourModifiers; // 0x2: single, 0x4: double
+    Value<atUint32> animation;
 };
 }
 

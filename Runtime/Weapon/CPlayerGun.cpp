@@ -312,7 +312,7 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
         }
         else if (TCastToConstPtr<CPatterned> ai = mgr.GetObjectById(sender))
         {
-            if (ai->GetX402_28())
+            if (ai->IsMakingBigStrike())
             {
                 x394_damageTimer = ai->GetDamageDuration();
                 bigStrike = true;

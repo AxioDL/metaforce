@@ -17,7 +17,7 @@ protected:
     float x5b4_;
     float x5b8_ = 0.f;
     float x5bc_ = 0.f;
-    float x5c0_;
+    float x5c0_advanceWpRadius;
     float x5c4_;
     float x5c8_bendingHackWeight = 0.f;
     s32 x5cc_bendingHackAnim;

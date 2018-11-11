@@ -155,7 +155,7 @@ std::string_view ScriptObjectStateToStr(EScriptObjectState state)
     case EScriptObjectState::Open: return "Open"sv;
     case EScriptObjectState::Zero: return "Zero"sv;
     case EScriptObjectState::Attack: return "Attack"sv;
-    case EScriptObjectState::UNKS1: return "UNKS1"sv;
+    case EScriptObjectState::CloseIn: return "CloseIn"sv;
     case EScriptObjectState::Retreat: return "Retreat"sv;
     case EScriptObjectState::Patrol: return "Patrol"sv;
     case EScriptObjectState::Dead: return "Dead"sv;
@@ -163,12 +163,12 @@ std::string_view ScriptObjectStateToStr(EScriptObjectState state)
     case EScriptObjectState::CameraTarget: return "CameraTarget"sv;
     case EScriptObjectState::UNKS2: return "UNKS2"sv;
     case EScriptObjectState::Play: return "Play"sv;
-    case EScriptObjectState::DeathExplosion: return "DeathExplosion"sv;
+    case EScriptObjectState::MassiveDeath: return "DeathExplosion"sv;
     case EScriptObjectState::DeathRattle: return "DeathRattle"sv;
-    case EScriptObjectState::AboutToDie: return "AboutToDie"sv;
+    case EScriptObjectState::AboutToMassivelyDie: return "AboutToDie"sv;
     case EScriptObjectState::Damage: return "Damage"sv;
     case EScriptObjectState::InvulnDamage: return "InvulnDamage"sv;
-    case EScriptObjectState::IceDeathExplosion: return "IceDeathExplosion"sv;
+    case EScriptObjectState::MassiveFrozenDeath: return "IceDeathExplosion"sv;
     case EScriptObjectState::Modify: return "Modify"sv;
     case EScriptObjectState::ScanStart: return "ScanStart"sv;
     case EScriptObjectState::ScanProcessing: return "ScanProcessing"sv;

@@ -36,16 +36,7 @@ class CAiState
 {
     friend class CStateMachineState;
     CAiStateFunc x0_func;
-    const char* x4_name;
-    u32 x8_;
-    u32 xc_;
-    u32 x10_;
-    u32 x14_;
-    u32 x18_;
-    u32 x1c_;
-    u32 x20_;
-    u32 x24_;
-    u32 x28_;
+    char xc_name[32];
     u32 x2c_numTriggers;
     u32 x30_;
 public:
@@ -54,7 +45,7 @@ public:
 
     s32 GetNumTriggers() const;
     CAiTrigger& GetTrig(s32) const;
-    const char* GetName() const { return x4_name; }
+    const char* GetName() const { return xc_name; }
     void SetTriggers(CAiTrigger* triggers);
     void SetNumTriggers(s32 numTriggers) { x2c_numTriggers = numTriggers; }
     void CallFunc(CStateManager& mgr, CAi& ai, EStateMsg msg, float delta) const
@@ -72,7 +63,7 @@ public:
     CStateMachine(CInputStream& in);
 
     s32 GetStateIndex(std::string_view state) const;
-    const std::vector<CAiState>& GetStateVector() const;
+    const std::vector<CAiState>& GetStateVector() const { return x0_states; }
 };
 
 class CStateMachineState
@@ -82,7 +73,7 @@ class CStateMachineState
     CAiState* x4_state = nullptr;
     float x8_time = 0.f;
     float xc_random = 0.f;
-    float x10_ = 0.f;
+    float x10_delay = 0.f;
     float x14_;
     union
     {
@@ -96,7 +87,6 @@ public:
     CStateMachineState()=default;
 
     CAiState* GetActorState() const { return x4_state; }
-    float GetTime() const;
 
     void Update(CStateManager& mgr, CAi& ai, float delta)
     {
@@ -108,16 +98,16 @@ public:
     void SetState(CStateManager&, CAi&, const CStateMachine*, std::string_view);
     const std::vector<CAiState>* GetStateVector() const;
     void Setup(const CStateMachine* machine);
-    std::string GetName() const;
-    void SetDelay(float);
+    void SetDelay(float delay) { x10_delay = delay; }
+    float GetTime() const { return x8_time; }
     float GetRandom() const { return xc_random; }
-    float GetDelay() const;
+    float GetDelay() const { return x10_delay; }
 
-    u32 sub8007FB9C() const
+    const char* GetName() const
     {
         if (x4_state)
-            return x4_state->xc_;
-        return 0;
+            return x4_state->GetName();
+        return nullptr;
     }
 };
 

@@ -7,11 +7,15 @@ namespace urde
 {
 
 CScriptWaypoint::CScriptWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                 const zeus::CTransform& xf, bool active, float f1, float f2,
-                                 u32 w1, u32 w2, u32 w3, u32 w4, u32 w5, u32 w6, u32 w7)
+                                 const zeus::CTransform& xf, bool active, float speed, float pause,
+                                 u32 patternTranslate, u32 patternOrient, u32 patternFit, u32 behaviour,
+                                 u32 behaviourOrient, u32 behaviourModifiers, u32 animation)
 : CActor(uid, active, name, info, xf, CModelData(), CMaterialList(),
          CActorParameters::None(), kInvalidUniqueId),
-  xe8_speed(f1), xec_(w7), xf0_(f2), xf4_(w1), xf5_(w2), xf6_(w3), xf7_(w4), xf8_(w5), xfa_jumpFlags(w6)
+  xe8_speed(speed), xec_animation(animation), xf0_pause(pause),
+  xf4_patternTranslate(patternTranslate), xf5_patternOrient(patternOrient),
+  xf6_patternFit(patternFit), xf7_behaviour(behaviour),
+  xf8_behaviourOrient(behaviourOrient), xfa_behaviourModifiers(behaviourModifiers)
 {
     SetUseInSortedLists(false);
     SetCallTouch(false);

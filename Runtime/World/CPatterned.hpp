@@ -18,6 +18,7 @@ namespace urde
 {
 class CPatternedInfo;
 class CProjectileInfo;
+class CPathFindSearch;
 
 class CPatterned : public CAi
 {
@@ -80,52 +81,129 @@ public:
         Zero = 0,
         One = 1
     };
+    enum class EPatternTranslate
+    {
+        RelativeStart,
+        RelativePlayerStart,
+        RelativePlayer,
+        Absolute
+    };
+    enum class EPatternOrient
+    {
+        StartToPlayer,
+        StartToPlayerStart,
+        ReversePlayerForward,
+        Forward
+    };
+    enum class EPatternFit
+    {
+        Zero,
+        One
+    };
+    enum class EMoveState
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+        Four
+    };
+    enum class EBehaviour
+    {
+        Zero
+    };
+    enum class EBehaviourOrient
+    {
+        MoveDir,
+        Constant,
+        Destination
+    };
+    enum class EBehaviourModifiers
+    {
+        Zero
+    };
+    enum class EPatrolState
+    {
+        Invalid = -1,
+        Patrol,
+        Pause,
+        Done
+    };
+    enum class EAnimState
+    {
+        Zero,
+        One,
+        Two,
+        Over
+    };
+    class CPatternNode
+    {
+        zeus::CVector3f x0_pos;
+        zeus::CVector3f xc_forward;
+        float x18_speed;
+        u8 x1c_behaviour;
+        u8 x1d_behaviourOrient;
+        u16 x1e_behaviourModifiers;
+        u32 x20_animation;
+    public:
+        CPatternNode(const zeus::CVector3f& pos, const zeus::CVector3f& forward, float speed,
+                     u8 behaviour, u8 behaviourOrient, u16 behaviourModifiers, u32 animation)
+        : x0_pos(pos), xc_forward(forward), x18_speed(speed), x1c_behaviour(behaviour),
+          x1d_behaviourOrient(behaviourOrient), x1e_behaviourModifiers(behaviourModifiers),
+          x20_animation(animation) {}
+        const zeus::CVector3f& GetPos() const { return x0_pos; }
+        const zeus::CVector3f& GetForward() const { return xc_forward; }
+        float GetSpeed() const { return x18_speed; }
+        u8 GetBehaviour() const { return x1c_behaviour; }
+        u8 GetBehaviourOrient() const { return x1d_behaviourOrient; }
+        u16 GetBehaviourModifiers() const { return x1e_behaviourModifiers; }
+    };
 
 protected:
-    u32 x2d8_ = -1;
-    TUniqueId x2dc_ = kInvalidUniqueId;
+    EPatrolState x2d8_patrolState = EPatrolState::Invalid;
+    TUniqueId x2dc_destObj = kInvalidUniqueId;
     zeus::CVector3f x2e0_destPos;
-    zeus::CVector3f x2ec_;
-    float x2f8_ = 0.f;
+    zeus::CVector3f x2ec_reflectedDestPos;
+    float x2f8_waypointPauseRemTime = 0.f;
     float x2fc_minAttackRange;
     float x300_maxAttackRange;
     float x304_averageAttackTime;
     float x308_attackTimeVariation;
-    u32 x30c_ = 0;
-    zeus::CVector3f x310_;
-    zeus::CVector3f x31c_;
+    EBehaviourOrient x30c_behaviourOrient = EBehaviourOrient::MoveDir;
+    zeus::CVector3f x310_moveVec;
+    zeus::CVector3f x31c_faceVec;
     union
     {
         struct
         {
-            bool x328_24_ : 1;
-            bool x328_25_ : 1;
-            bool x328_26_ : 1;
+            bool x328_24_inPosition : 1;
+            bool x328_25_verticalMovement : 1;
+            bool x328_26_longJump : 1;
             bool x328_27_onGround : 1;
+            bool x328_28_prevOnGround : 1;
+            bool x328_29_noPatternShagging : 1;
+            bool x328_30_lookAtDeathDir : 1;
         };
         u32 _dummy = 0;
     };
 
-    u32 x32c_;
+    EAnimState x32c_animState = EAnimState::Zero;
     CStateMachineState x330_stateMachineState;
     ECharacter x34c_character;
-    zeus::CVector3f x350_;
-    zeus::CVector3f x35c_;
-    zeus::CVector3f x368_;
-    u32 x374_ = 0;
-    u32 x378_ = 2;
-    u32 x37c_ = 1;
-    u32 x380_ = 0;
-    u32 x384_ = 0;
+    zeus::CVector3f x350_patternStartPos;
+    zeus::CVector3f x35c_patternStartPlayerPos;
+    zeus::CVector3f x368_destWPDelta;
+    EPatternTranslate x374_patternTranslate = EPatternTranslate::RelativeStart;
+    EPatternOrient x378_patternOrient = EPatternOrient::ReversePlayerForward;
+    EPatternFit x37c_patternFit = EPatternFit::One;
+    EBehaviour x380_behaviour = EBehaviour::Zero;
+    EBehaviourModifiers x384_behaviourModifiers = EBehaviourModifiers::Zero;
     s32 x388_anim;
-    /*x38c_*/
-    u32 x390_ = 0;
-    u32 x394_ = 0;
-    u32 x398_ = 0;
-    u32 x39c_ = 0;
-    zeus::CVector3f x3a0_;
-    TUniqueId x3ac_ = kInvalidUniqueId;
-    float x3b0_ = 1.f;
+    std::vector<CPatternNode> x38c_patterns;
+    u32 x39c_curPattern = 0;
+    zeus::CVector3f x3a0_latestLeashPosition;
+    TUniqueId x3ac_lastPatrolDest = kInvalidUniqueId;
+    float x3b0_moveSpeed = 1.f;
     float x3b4_speed;
     float x3b8_turnSpeed;
     float x3bc_detectionRange;
@@ -135,128 +213,173 @@ protected:
     float x3cc_playerLeashRadius;
     float x3d0_playerLeashTime;
     float x3d4_curPlayerLeashTime = 0.f;
-    float x3d8_;
-    float x3dc_;
-    float x3e0_;
-    float x3e4_ = 0.f;
-    float x3e8_alphaRate = 0.f;
-    float x3ec_ = 0.f;
-    float x3f0_ = 0.f;
+    float x3d8_xDamageThreshold;
+    float x3dc_frozenXDamageThreshold;
+    float x3e0_xDamageDelay;
+    float x3e4_lastHP = 0.f;
+    float x3e8_alphaDelta = 0.f;
+    float x3ec_pendingFireDamage = 0.f;
+    float x3f0_pendingShockDamage = 0.f;
     float x3f4_burnThinkRateTimer = 0.f;
-    u32 x3f8_ = 0;
+    EMoveState x3f8_moveState = EMoveState::Zero;
     EFlavorType x3fc_flavor;
 
     union
     {
         struct
         {
-            bool x400_24_ : 1;
+            bool x400_24_hitByPlayerProjectile : 1;
             bool x400_25_alive : 1; // t
             bool x400_26_ : 1;
-            bool x400_27_deleteWhenDoneBurning : 1;
-            bool x400_28_ : 1;
-            bool x400_29_ : 1;
-            bool x400_30_ : 1;
-            bool x400_31_ : 1; // r25 == 1
-            bool x401_24_ : 1;
-            bool x401_25_ : 1;
-            bool x401_26_ : 1;
-            bool x401_27_ : 1;
+            bool x400_27_fadeToDeath : 1;
+            bool x400_28_pendingMassiveDeath : 1;
+            bool x400_29_pendingMassiveFrozenDeath : 1;
+            bool x400_30_patternShagged : 1;
+            bool x400_31_isFlyer : 1;
+            bool x401_24_pathOverCount : 2;
+            bool x401_26_disableMove : 1;
+            bool x401_27_phazingOut : 1;
             bool x401_28_burning : 1;
             bool x401_29_laggedBurnDeath : 1;
-            bool x401_30_ : 1;
-            bool x401_31_ : 1;
-            bool x402_24_ : 1;
-            bool x402_25_ : 1;
-            bool x402_26_ : 1;
-            bool x402_27_ : 1;
-            bool x402_28_ : 1;
-            bool x402_29_ : 1; // t
-            bool x402_30_ : 1;
+            bool x401_30_pendingDeath : 1;
+            bool x401_31_nextPendingShock : 1;
+            bool x402_24_pendingShock : 1;
+            bool x402_25_lostMassiveFrozenHP : 1;
+            bool x402_26_dieIf80PercFrozen : 1;
+            bool x402_27_noXrayModel : 1;
+            bool x402_28_isMakingBigStrike : 1;
+            bool x402_29_drawParticles : 1; // t
+            bool x402_30_updateThermalFrozenState : 1;
             bool x402_31_thawed : 1;
             bool x403_24_keepThermalVisorState : 1;
-            bool x403_25_ : 1; // t
-            bool x403_26_ : 1; // t
+            bool x403_25_enableStateMachine : 1; // t
+            bool x403_26_stateControlledMassiveDeath : 1; // t
         };
         u32 _dummy2 = 0;
     };
 
     CDamageInfo x404_contactDamage;
-    float x420_curDamageTime = 0.f;
+    float x420_curDamageRemTime = 0.f;
     float x424_damageWaitTime;
-    float x428_ = -1.f;
+    float x428_damageCooldownTimer = -1.f;
     zeus::CColor x42c_color = zeus::CColor::skBlack;
-    zeus::CColor x430_ = skDamageColor;
+    zeus::CColor x430_damageColor = skDamageColor;
     zeus::CVector3f x434_posDelta;
     zeus::CQuaternion x440_rotDelta;
-    CSteeringBehaviors x45c_;
+    CSteeringBehaviors x45c_steeringBehaviors;
     std::unique_ptr<CBodyController> x450_bodyController;
     u16 x454_deathSfx;
     u16 x458_iceShatterSfx;
 
     CKnockBackController x460_knockBackController;
-    zeus::CVector3f x4e4_;
-    float x4f0_ = 0.f;
-    float x4f4_;
-    float x4f8_;
+    zeus::CVector3f x4e4_latestPredictedTranslation;
+    float x4f0_predictedLeashTime = 0.f;
+    float x4f4_intoFreezeDur;
+    float x4f8_outofFreezeDur;
     float x4fc_;
-    float x500_ = 0.f;
+    float x500_preThinkDt = 0.f;
     float x504_damageDur = 0.f;
     EColliderType x508_colliderType;
-    float x50c_thermalMag;
+    float x50c_baseDamageMag;
     std::shared_ptr<CVertexMorphEffect> x510_vertexMorph;
     zeus::CVector3f x514_deathExplosionOffset;
     std::experimental::optional<TLockedToken<CGenDescription>> x520_deathExplosionParticle;
     std::experimental::optional<TLockedToken<CElectricDescription>> x530_deathExplosionElectric;
     zeus::CVector3f x540_iceDeathExplosionOffset;
     std::experimental::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
-    zeus::CVector3f x55c_;
-    void UpdateFrozenState(bool thawed);
+    zeus::CVector3f x55c_moveScale = zeus::CVector3f::skOne;
+
+    void UpdateThermalFrozenState(bool thawed);
     void GenerateIceDeathExplosion(CStateManager& mgr);
     void GenerateDeathExplosion(CStateManager& mgr);
     void RenderIceModelWithFlags(const CModelFlags& flags) const;
+    TUniqueId GetWaypointForState(CStateManager& mgr, EScriptObjectState state, EScriptObjectMessage msg) const;
+    void UpdateActorKeyframe(CStateManager& mgr) const;
+    pas::EStepDirection GetStepDirection(const zeus::CVector3f& moveVec) const;
+    bool IsPatternObstructed(CStateManager& mgr, const zeus::CVector3f& p0, const zeus::CVector3f& p1) const;
+    void UpdateDest(CStateManager& mgr);
+    void ApproachDest(CStateManager& mgr);
+    std::pair<CScriptWaypoint*, CScriptWaypoint*> GetDestWaypoints(CStateManager& mgr) const;
+    zeus::CQuaternion FindPatternRotation(const zeus::CVector3f& dir) const;
+    zeus::CVector3f FindPatternDir(CStateManager& mgr) const;
+    void UpdatePatternDestPos(CStateManager& mgr);
+    void SetupPattern(CStateManager& mgr);
+    EScriptObjectState GetDesiredAttackState(CStateManager& mgr) const;
 public:
-    CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-               const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pinfo,
-               CPatterned::EMovementType movement, EColliderType collider, EBodyType body,
-               const CActorParameters& params, EKnockBackVariant kbVariant);
+    CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor,
+               const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+               const CPatternedInfo& pinfo, CPatterned::EMovementType movement,
+               EColliderType collider, EBodyType body, const CActorParameters& params,
+               EKnockBackVariant kbVariant);
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-    void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_, mgr); }
+    void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_preThinkDt, mgr); }
     void Think(float, CStateManager&);
     void PreRender(CStateManager&, const zeus::CFrustum&);
     void Render(const CStateManager& mgr) const;
 
-    void Touch(CActor&, CStateManager&);
+    void Touch(CActor& act, CStateManager& mgr);
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     bool CanRenderUnsorted(const CStateManager& mgr) const;
     zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const
     {
         return GetAimPosition(mgr, 0.f);
     }
-
     zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
 
     void DeathDelete(CStateManager& mgr);
-    void Death(CStateManager& mgr, const zeus::CVector3f&, EScriptObjectState) {}
+    void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
     void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
                    EKnockBackType type, bool inDeferred, float magnitude);
-    void TakeDamage(const zeus::CVector3f&, float) { x428_ = 0.33f;}
-    bool FixedRandom(CStateManager&, float) { return x330_stateMachineState.GetRandom() < x330_stateMachineState.x14_; }
-    bool Random(CStateManager&, float dt) { return x330_stateMachineState.GetRandom() < dt; }
-    //bool FixedDelay(CStateManager&, float dt) { return x330_stateMachineState.GetDelay() == dt; }
+    void TakeDamage(const zeus::CVector3f&, float arg);
+    bool FixedRandom(CStateManager&, float arg);
+    bool Random(CStateManager&, float arg);
+    bool CodeTrigger(CStateManager&, float arg);
+    bool FixedDelay(CStateManager&, float arg);
+    bool RandomDelay(CStateManager&, float arg);
+    bool Delay(CStateManager&, float arg);
+    bool PatrolPathOver(CStateManager&, float arg);
+    bool Stuck(CStateManager&, float arg);
+    bool AnimOver(CStateManager&, float arg);
+    bool InPosition(CStateManager&, float arg);
+    bool HasPatrolPath(CStateManager& mgr, float arg);
+    bool Attacked(CStateManager&, float arg);
+    bool PatternShagged(CStateManager&, float arg);
+    bool PatternOver(CStateManager&, float arg);
+    bool HasRetreatPattern(CStateManager& mgr, float arg);
+    bool HasAttackPattern(CStateManager& mgr, float arg);
+    bool NoPathNodes(CStateManager&, float arg);
+    bool PathShagged(CStateManager&, float arg);
+    bool PathFound(CStateManager&, float arg);
+    bool PathOver(CStateManager&, float arg);
+    bool Landed(CStateManager&, float arg);
+    bool PlayerSpot(CStateManager&, float arg);
+    bool SpotPlayer(CStateManager&, float arg);
+    bool Leash(CStateManager&, float arg);
+    bool InDetectionRange(CStateManager&, float arg);
+    bool InMaxRange(CStateManager&, float arg);
+    bool TooClose(CStateManager&, float arg);
+    bool InRange(CStateManager&, float arg);
+    bool OffLine(CStateManager&, float arg);
+    bool Default(CStateManager&, float arg) { return true; }
+    void PathFind(CStateManager&, EStateMsg msg, float arg);
+    void Dead(CStateManager&, EStateMsg msg, float arg);
+    void TargetPlayer(CStateManager&, EStateMsg msg, float arg);
+    void TargetPatrol(CStateManager&, EStateMsg msg, float arg);
+    void FollowPattern(CStateManager&, EStateMsg msg, float arg);
+    void Patrol(CStateManager&, EStateMsg msg, float arg);
+    void Start(CStateManager&, EStateMsg msg, float arg) {}
 
-    bool Default() { return true; }
-    virtual bool KnockbackWhenFrozen() const { return true;}
-    virtual void DoDeath(CStateManager&);
-    virtual void DoIceDeath(CStateManager&);
+    virtual bool KnockbackWhenFrozen() const { return true; }
+    virtual void MassiveDeath(CStateManager& mgr);
+    virtual void MassiveFrozenDeath(CStateManager& mgr);
     virtual void Burn(float, float) {}
     virtual void Shock(float, float) {}
     virtual void Freeze(CStateManager& mgr, const zeus::CVector3f& pos,
                         const zeus::CUnitVector3f& dir, float magnitude) {}
     virtual void ThinkAboutMove(float);
-    virtual void GetSearchPath() {}
+    virtual CPathFindSearch* GetSearchPath() { return nullptr; }
     virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
     virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_color.a * 255);}
     virtual bool IsOnGround() const { return x328_27_onGround; }
@@ -277,12 +400,13 @@ public:
 
 
     void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
-    void UpdateAlpha(float dt, CStateManager& mgr);
+    void UpdateAlphaDelta(float dt, CStateManager& mgr);
+    void SetModelAlpha(float a) { x42c_color.a = a; }
     float CalcDyingThinkRate();
-    void sub8007a5b8(float) {}
+    void UpdateDamageColor(float dt);
 
-    bool GetX328_26() const { return x328_26_; }
-    bool GetX402_28() const { return x402_28_; }
+    bool CanLongJump() const { return x328_26_longJump; }
+    bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
 
     //region Casting Functions
 

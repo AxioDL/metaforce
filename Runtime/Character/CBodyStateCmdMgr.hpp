@@ -91,7 +91,8 @@ public:
     CBCGenerateCmd(pas::EGenerateType type, int i)
     : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) { x1c_24_targetTransform = false; x1c_25_overrideAnim = false; }
     CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec)
-    : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) { x1c_24_targetTransform = false; x1c_25_overrideAnim = false; }
+    : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), xc_targetPos(vec)
+    { x1c_24_targetTransform = false; x1c_25_overrideAnim = false; }
     pas::EGenerateType GetGenerateType() const { return x8_type; }
     const zeus::CVector3f& GetExitTargetPos() const { return xc_targetPos; }
     bool HasExitTargetPos() const { return x1c_24_targetTransform; }

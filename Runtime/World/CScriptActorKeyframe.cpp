@@ -8,7 +8,7 @@
 namespace urde
 {
 CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,
-                                           bool looping, float lifetime, bool disableUpdate, u32 fadeOut, bool active,
+                                           bool looping, float lifetime, bool isPassive, u32 fadeOut, bool active,
                                            float totalPlayback)
 : CEntity(uid, info, active, name)
 , x34_animationId(animId)
@@ -17,7 +17,7 @@ CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name,
 , x40_lifetime(lifetime)
 {
     x44_24_looping = looping;
-    x44_25_disableUpdate = disableUpdate;
+    x44_25_isPassive = isPassive;
     x44_26_fadeOut = fadeOut;
     x44_27_timedLoop = fadeOut;
     x44_28_playing = false;
@@ -35,7 +35,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
     {
         if (GetActive())
         {
-            if (!x44_25_disableUpdate)
+            if (!x44_25_isPassive)
             {
                 for (const SConnection& conn : x20_conns)
                 {
@@ -63,7 +63,7 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
 
 void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
 {
-    if (x44_25_disableUpdate || !x44_24_looping || !x44_27_timedLoop || !x44_28_playing || x40_lifetime <= 0.f)
+    if (x44_25_isPassive || !x44_24_looping || !x44_27_timedLoop || !x44_28_playing || x40_lifetime <= 0.f)
     {
         CEntity::Think(dt, mgr);
         return;

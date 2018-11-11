@@ -35,14 +35,14 @@ class CPatternedInfo
     zeus::CVector3f xcc_bodyOrigin;
     float xd8_stepUpHeight;
     float xdc_xDamage;
-    float xe0_;
-    float xe4_;
+    float xe0_frozenXDamage;
+    float xe4_xDamageDelay;
     u16 xe8_deathSfx;
     CAnimationParameters xec_animParams;
     bool xf8_active;
     CAssetId xfc_stateMachineId;
-    float x100_;
-    float x104_;
+    float x100_intoFreezeDur;
+    float x104_outofFreezeDur;
     float x108_;
 
     u32 x10c_particle1Frames;

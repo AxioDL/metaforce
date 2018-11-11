@@ -477,18 +477,19 @@ CEntity* ScriptLoader::LoadWaypoint(CStateManager& mgr, CInputStream& in, int pr
     SActorHead head = LoadActorHead(in, mgr);
 
     bool active = in.readBool();
-    float f1 = in.readFloatBig();
-    float delay = in.readFloatBig();
-    u32 w1 = in.readUint32Big();
-    u32 w2 = in.readUint32Big();
-    u32 w3 = in.readUint32Big();
-    u32 w4 = in.readUint32Big();
-    u32 w5 = in.readUint32Big();
-    u32 w6 = in.readUint32Big();
-    u32 w7 = in.readUint32Big();
+    float speed = in.readFloatBig();
+    float pause = in.readFloatBig();
+    u32 patternTranslate = in.readUint32Big();
+    u32 patternOrient = in.readUint32Big();
+    u32 patternFit = in.readUint32Big();
+    u32 behaviour = in.readUint32Big();
+    u32 behaviourOrient = in.readUint32Big();
+    u32 behaviourModifiers = in.readUint32Big();
+    u32 animation = in.readUint32Big();
 
-    return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, active, f1, delay, w1,
-                               w2, w3, w4, w5, w6, w7);
+    return new CScriptWaypoint(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
+                               active, speed, pause, patternTranslate, patternOrient, patternFit,
+                               behaviour, behaviourOrient, behaviourModifiers, animation);
 }
 
 CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

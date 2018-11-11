@@ -276,27 +276,27 @@ struct PatternedInfo : BigDNA
     Value<float>    damageWaitTime;
     HealthInfo      healthInfo;
     DamageVulnerability damageVulnerability;
-    Value<float>    unkown1;
-    Value<float>    unkown2;
-    Value<atVec3f>  unkown3;
-    Value<float>    unkown4;
-    Value<float>    unkown5;
-    Value<float>    unkown6;
-    Value<float>    unkown7;
-    Value<atUint32> soundID1;
+    Value<float>    halfExtent;
+    Value<float>    height;
+    Value<atVec3f>  bodyOrigin;
+    Value<float>    stepUpHeight;
+    Value<float>    xDamage;
+    Value<float>    frozenXDamage;
+    Value<float>    xDamageDelay;
+    Value<atUint32> deathSfx;
     AnimationParameters animationParameters;
     Value<bool>     active;
     UniqueID32      stateMachine;
-    Value<float>    unknown8;
-    Value<float>    unknown9;
+    Value<float>    intoFreezeDur;
+    Value<float>    outOfFreezeDur;
     Value<float>    unknown10;
-    Value<atUint32> unknown11;
-    Value<atVec3f>  unknown12;
+    Value<atUint32> particle1Frames;
+    Value<atVec3f>  particle1Scale;
     UniqueID32      particle1;
     UniqueID32      electric;
-    Value<atVec3f>  unknown14;
+    Value<atVec3f>  particle2Scale;
     UniqueID32      particle2;
-    Value<atUint32> soundID2;
+    Value<atUint32> iceShatterSfx;
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const
     {

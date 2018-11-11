@@ -183,11 +183,11 @@ void CParasite::Think(float dt, CStateManager& mgr)
                 x742_27_ = false;
             }
 
-            if (x420_curDamageTime <= 0.f)
+            if (x420_curDamageRemTime <= 0.f)
             {
                 mgr.ApplyDamage(GetUniqueId(), pl->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                                 CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
-                x420_curDamageTime = x424_damageWaitTime;
+                x420_curDamageRemTime = x424_damageWaitTime;
             }
         }
     }

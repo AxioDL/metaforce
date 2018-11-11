@@ -45,12 +45,12 @@ public:
 
     virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     virtual CHealthInfo* HealthInfo(CStateManager&) { return &x258_healthInfo; }
-    virtual void Death(CStateManager& mgr, const zeus::CVector3f&, EScriptObjectState)=0;
+    virtual void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state)=0;
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
                            EKnockBackType type, bool inDeferred, float magnitude)=0;
     virtual const CDamageVulnerability* GetDamageVulnerability() const { return &x260_damageVulnerability; }
     virtual const CDamageVulnerability* GetDamageVulnerability() { return &x260_damageVulnerability; }
-    virtual void TakeDamage(const zeus::CVector3f&, float) {}
+    virtual void TakeDamage(const zeus::CVector3f& direction, float magnitude) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() const { return false; }
     virtual int Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }

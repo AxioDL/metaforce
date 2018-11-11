@@ -53,10 +53,6 @@ s32 CStateMachine::GetStateIndex(std::string_view state) const
     return it - x0_states.begin();
 }
 
-const std::vector<CAiState>& CStateMachine::GetStateVector() const { return x0_states; }
-
-float CStateMachineState::GetTime() const { return x8_time; }
-
 void CStateMachineState::SetState(CStateManager &, CAi &, s32 idx)
 {
 }
@@ -87,10 +83,8 @@ void CStateMachineState::Setup(const CStateMachine* machine)
     x4_state = nullptr;
     x8_time = 0.f;
     xc_random = 0.f;
-    x10_ = 0.f;
+    x10_delay = 0.f;
 }
-
-std::string CStateMachineState::GetName() const { return {}; }
 
 CFactoryFnReturn FAiFiniteStateMachineFactory(const SObjectTag &tag, CInputStream &in, const CVParamTransfer &vparms, CObjectReference *)
 {

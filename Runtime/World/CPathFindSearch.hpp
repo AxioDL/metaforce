@@ -38,6 +38,12 @@ public:
     EResult FindClosestReachablePoint(const zeus::CVector3f& p1, zeus::CVector3f& p2) const;
     EResult PathExists(const zeus::CVector3f& p1, const zeus::CVector3f& p2) const;
     EResult OnPath(const zeus::CVector3f& p1) const;
+    EResult GetResult() const { return xcc_result; }
+    u32 GetCurrentWaypoint() const { return xc8_curWaypoint; }
+    void SetCurrentWaypoint(u32 wp) { xc8_curWaypoint = wp; }
+    const rstl::reserved_vector<zeus::CVector3f, 16>& GetWaypoints() const { return x4_waypoints; }
+    bool IsOver() const { return GetCurrentWaypoint() >= x4_waypoints.size(); }
+    bool IsShagged() const { return GetResult() != EResult::Success; }
     bool SegmentOver(const zeus::CVector3f& p1) const;
     void GetSplinePoint(zeus::CVector3f& pOut, const zeus::CVector3f& p1) const;
     void GetSplinePointWithLookahead(zeus::CVector3f& pOut, const zeus::CVector3f& p1, float lookahead) const;

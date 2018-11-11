@@ -1740,7 +1740,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
     }
 }
 
-bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CVector3f& vec2, CActor& damagee,
+bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& pos, const zeus::CVector3f& dir, CActor& damagee,
                                      float dam, const CWeaponMode& weapMode)
 {
     CHealthInfo* hInfo = damagee.HealthInfo(*this);
@@ -1789,7 +1789,7 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
 
     if (player && GetPlayerState()->CanTakeDamage())
     {
-        player->TakeDamage(significant, vec1, mulDam, weapMode.GetType(), *this);
+        player->TakeDamage(significant, pos, mulDam, weapMode.GetType(), *this);
         if (newHp <= 0.f)
             x8b8_playerState->SetPlayerAlive(false);
     }
@@ -1797,9 +1797,9 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& vec1, const zeus::CV
     if (ai)
     {
         if (significant)
-            ai->TakeDamage(vec2, mulDam);
+            ai->TakeDamage(dir, mulDam);
         if (newHp <= 0.f)
-            ai->Death(*this, vec2, EScriptObjectState::DeathRattle);
+            ai->Death(*this, dir, EScriptObjectState::DeathRattle);
     }
 
     return significant;

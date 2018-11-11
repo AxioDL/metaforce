@@ -1023,7 +1023,7 @@ bool CBSJump::CheckForWallJump(CBodyController& bc, CStateManager& mgr)
             float distToWall = (xc_waypoint1 - act->GetTranslation()).magnitude();
             zeus::CAABox aabb = act->GetBoundingBox();
             float xExtent = (aabb.max.x - aabb.min.x) * 0.5f;
-            if (distToWall < 1.414f * xExtent || (act->GetX328_26() && distToWall < 3.f * xExtent))
+            if (distToWall < 1.414f * xExtent || (act->CanLongJump() && distToWall < 3.f * xExtent))
             {
                 x4_state = x30_26_wallBounceRight ? pas::EJumpState::WallBounceRight : pas::EJumpState::WallBounceLeft;
                 CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)),
@@ -1041,7 +1041,7 @@ void CBSJump::CheckForLand(CBodyController& bc, CStateManager& mgr)
 {
     if (TCastToPtr<CPatterned> act = bc.GetOwner())
     {
-        if (act->GetX328_26() || act->IsOnGround())
+        if (act->CanLongJump() || act->IsOnGround())
         {
             x4_state = pas::EJumpState::OutOfJump;
             CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)),
@@ -1275,7 +1275,7 @@ bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const
 {
     if (TCastToPtr<CPatterned> ai = bc.GetOwner())
     {
-        if (ai->GetX328_26())
+        if (ai->CanLongJump())
             if (!ai->IsOnGround())
                 return true;
     }
@@ -1652,7 +1652,7 @@ bool CBSWallHang::CheckForLand(CBodyController& bc, CStateManager& mgr)
 {
     if (TCastToPtr<CPatterned> ai = bc.GetOwner())
     {
-        if (ai->GetX328_26() || ai->IsOnGround())
+        if (ai->CanLongJump() || ai->IsOnGround())
         {
             x4_state = pas::EWallHangState::DetachOutOfJump;
             CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
@@ -1673,7 +1673,7 @@ bool CBSWallHang::CheckForWall(CBodyController& bc, CStateManager& mgr)
         if (wp)
             magSq = (wp->GetTranslation() - ai->GetTranslation()).magSquared();
 
-        if (magSq < 1.f || ai->GetX328_26())
+        if (magSq < 1.f || ai->CanLongJump())
         {
             x4_state = pas::EWallHangState::IntoWallHang;
             CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));

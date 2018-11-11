@@ -15,7 +15,7 @@ CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, E
 , x590_colSphere(zeus::CSphere(zeus::CVector3f::skZero, pInfo.GetHalfExtent()), x68_material)
 , x5b0_(f1)
 , x5b4_(f2)
-, x5c0_(f3)
+, x5c0_advanceWpRadius(f3)
 , x5c4_(f4)
 , x5cc_bendingHackAnim(GetModelData()->GetAnimationData()->GetCharacterInfo().GetAnimationIndex("BendingAnimationHack"sv))
 , x5d0_(w2)
@@ -94,15 +94,15 @@ void CWallWalker::Think(float dt, CStateManager& mgr)
 
 void CWallWalker::UpdateWPDestination(CStateManager& mgr)
 {
-    if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_))
+    if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj))
     {
         zeus::CVector3f wpPos = wp->GetTranslation();
-        if ((wpPos - GetTranslation()).magSquared() < x5c0_ * x5c0_)
+        if ((wpPos - GetTranslation()).magSquared() < x5c0_advanceWpRadius * x5c0_advanceWpRadius)
         {
-            x2dc_ = wp->NextWaypoint(mgr);
-            if (std::fabs(wp->GetF0()) > 0.00001f)
+            x2dc_destObj = wp->NextWaypoint(mgr);
+            if (std::fabs(wp->GetPause()) > 0.00001f)
             {
-                x5bc_ = wp->GetF0();
+                x5bc_ = wp->GetPause();
                 if (x5d0_ == 0)
                     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
                 mgr.SendScriptMsg(wp, GetUniqueId(), EScriptObjectMessage::Arrived);

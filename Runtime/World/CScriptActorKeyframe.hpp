@@ -15,7 +15,7 @@ private:
         struct
         {
             bool x44_24_looping : 1;
-            bool x44_25_disableUpdate : 1;
+            bool x44_25_isPassive : 1;
             bool x44_26_fadeOut : 1;
             bool x44_27_timedLoop : 1;
             bool x44_28_playing : 1;
@@ -26,13 +26,14 @@ private:
 
 public:
     CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,
-                         bool looping, float lifetime, bool disableUpdate, u32 fadeOut, bool active,
+                         bool looping, float lifetime, bool isPassive, u32 fadeOut, bool active,
                          float totalPlayback);
 
     void Accept(IVisitor& visitor);
     void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
     void Think(float, CStateManager&);
     void UpdateEntity(TUniqueId, CStateManager&);
+    bool IsPassive() const { return x44_25_isPassive; }
 };
 }
 

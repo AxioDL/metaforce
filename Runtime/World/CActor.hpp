@@ -45,7 +45,7 @@ protected:
     TUniqueId xc6_nextDrawNode;
     int xc8_drawnToken = -1;
     int xcc_addedToken = -1;
-    float xd0_thermalMag;
+    float xd0_damageMag;
     float xd4_maxVol = 1.f;
     rstl::reserved_vector<CSfxHandle, 2> xd8_nonLoopingSfxHandles;
     union
@@ -200,6 +200,7 @@ public:
     TUniqueId GetFluidId() const { return xc4_fluidId; }
     bool GetPointGeneratorParticles() const { return xe5_31_pointGeneratorParticles; }
     void SetPointGeneratorParticles(bool s) { xe5_31_pointGeneratorParticles = s; }
+    CSimpleShadow* Shadow() { return x94_simpleShadow.get(); }
 };
 }
 

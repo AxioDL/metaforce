@@ -7,6 +7,7 @@ namespace urde
 {
 enum class EStateMsg
 {
+    Zero = 0,
     One = 1,
     Two = 2
 };

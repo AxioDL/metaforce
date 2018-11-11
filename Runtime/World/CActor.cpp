@@ -37,7 +37,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
     x90_actorLights = mData.IsNull() ? std::unique_ptr<CActorLights>() : params.x0_lightParms.MakeActorLights();
     if (mData.x10_animData || mData.x1c_normalModel)
         x64_modelData = std::make_unique<CModelData>(std::move(mData));
-    xd0_thermalMag = params.x64_thermalMag;
+    xd0_damageMag = params.x64_thermalMag;
     xd8_nonLoopingSfxHandles.resize(2);
     xe4_27_notInSortedLists = true;
     xe4_28_transformDirty = true;
@@ -241,14 +241,14 @@ void CActor::RenderInternal(const CStateManager& mgr) const
         {
             float addMag;
             float mulMag = 1.f;
-            if (xd0_thermalMag <= 1.f)
+            if (xd0_damageMag <= 1.f)
             {
-                mulMag = xd0_thermalMag;
+                mulMag = xd0_damageMag;
                 addMag = 0.f;
             }
-            else if (xd0_thermalMag < 2.f)
+            else if (xd0_damageMag < 2.f)
             {
-                addMag = xd0_thermalMag - 1.f;
+                addMag = xd0_damageMag - 1.f;
             }
             else
             {
