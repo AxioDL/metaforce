@@ -12,7 +12,7 @@ namespace urde
 
 CParticleDatabase::CParticleDatabase()
 {
-    xb4_24_active = true;
+    xb4_24_updatesEnabled = true;
     xb4_25_anySystemsDrawnWithModel = false;
 }
 
@@ -227,7 +227,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
 void CParticleDatabase::Update(float dt, const CPoseAsTransforms& pose, const CCharLayoutInfo& charInfo,
                                const zeus::CTransform& xf, const zeus::CVector3f& scale, CStateManager& stateMgr)
 {
-    if (!xb4_24_active)
+    if (!xb4_24_updatesEnabled)
         return;
 
     UpdateParticleGenDB(dt, pose, charInfo, xf, scale, stateMgr, x3c_rendererDrawLoop, true);

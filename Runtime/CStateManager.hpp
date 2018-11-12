@@ -202,7 +202,7 @@ private:
     EThermalDrawFlag xf34_thermalFlag = EThermalDrawFlag::Bypass;
     TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
     std::list<u32> xf3c_;
-    std::list<u32> xf54_;
+    std::list<TUniqueId> xf54_parasiteTelegraphs;
     TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
     u32 xf70_ = 0;
 
@@ -470,6 +470,7 @@ public:
     }
     TUniqueId GetPlayerActorHead() const { return xf6c_playerActorHead; }
     void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
+    std::list<TUniqueId>& GetParasiteTelegraphs() { return xf54_parasiteTelegraphs; }
     std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
     static float g_EscapeShakeCountdown;
     static bool g_EscapeShakeCountdownInit;

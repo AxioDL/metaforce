@@ -49,7 +49,6 @@ public:
     virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,
                            EKnockBackType type, bool inDeferred, float magnitude)=0;
     virtual const CDamageVulnerability* GetDamageVulnerability() const { return &x260_damageVulnerability; }
-    virtual const CDamageVulnerability* GetDamageVulnerability() { return &x260_damageVulnerability; }
     virtual void TakeDamage(const zeus::CVector3f& direction, float magnitude) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() const { return false; }

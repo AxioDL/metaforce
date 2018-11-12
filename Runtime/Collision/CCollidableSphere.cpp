@@ -208,13 +208,6 @@ CCollidableSphere::CCollidableSphere(const zeus::CSphere& sphere, const CMateria
 {
 }
 
-const zeus::CSphere& CCollidableSphere::GetSphere() const { return x10_sphere; }
-
-void CCollidableSphere::SetSphereCenter(const zeus::CVector3f& center)
-{
-    x10_sphere.position = center;
-}
-
 zeus::CSphere CCollidableSphere::Transform(const zeus::CTransform& xf) const
 {
     return zeus::CSphere(xf * x10_sphere.position, x10_sphere.radius);
@@ -256,10 +249,6 @@ CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructur
 
     return {};
 }
-
-const CCollisionPrimitive::Type& CCollidableSphere::GetType() { return sType; }
-
-void CCollidableSphere::SetStaticTableIndex(u32 index) { sTableIndex = index; }
 
 bool CCollidableSphere::CollideMovingAABox(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
                                            double& dOut, CCollisionInfo& infoOut)

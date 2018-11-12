@@ -11,6 +11,7 @@
 #include "Character/CAnimData.hpp"
 #include "TCastTo.hpp"
 #include "MP1/World/CSpacePirate.hpp"
+#include "MP1/World/CMetroid.hpp"
 #include "World/CStateMachine.hpp"
 #include "CExplosion.hpp"
 #include "Graphics/CSkinnedModel.hpp"
@@ -419,6 +420,17 @@ zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float
     return offset + GetBoundingBox().center();
 }
 
+zeus::CTransform CPatterned::GetLctrTransform(std::string_view name) const
+{
+    return x34_transform * GetScaledLocatorTransform(name);
+}
+
+zeus::CTransform CPatterned::GetLctrTransform(CSegId id) const
+{
+    zeus::CTransform xf = x64_modelData->GetAnimationData()->GetLocatorTransform(id, nullptr);
+    return x34_transform * zeus::CTransform(xf.buildMatrix3f(), x64_modelData->GetScale() * xf.origin);
+}
+
 void CPatterned::DeathDelete(CStateManager& mgr)
 {
     SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
@@ -487,27 +499,27 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
     if (!x401_27_phazingOut && !x401_28_burning && hInfo)
     {
         x460_knockBackController.KnockBack(backVec, mgr, *this, info, type, magnitude);
-        if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_ >= 0.f)
+        if (x450_bodyController->IsFrozen() && x460_knockBackController.GetActiveParms().xc_intoFreezeDur >= 0.f)
             x450_bodyController->FrozenBreakout();
         switch (x460_knockBackController.GetActiveParms().x4_animFollowup)
         {
         case EKnockBackAnimationFollowUp::Freeze:
             Freeze(mgr, zeus::CVector3f::skZero, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
-                   x460_knockBackController.GetActiveParms().x8_followupMagnitude);
+                   x460_knockBackController.GetActiveParms().x8_followupDuration);
             break;
         case EKnockBackAnimationFollowUp::PhazeOut:
             PhazeOut(mgr);
             break;
         case EKnockBackAnimationFollowUp::Shock:
-            Shock(x460_knockBackController.GetActiveParms().x8_followupMagnitude, -1.f);
+            Shock(x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
             break;
         case EKnockBackAnimationFollowUp::Burn:
-            Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, 0.25f);
+            Burn(x460_knockBackController.GetActiveParms().x8_followupDuration, 0.25f);
             break;
         case EKnockBackAnimationFollowUp::LaggedBurnDeath:
             x401_29_laggedBurnDeath = true;
         case EKnockBackAnimationFollowUp::BurnDeath:
-            Burn(x460_knockBackController.GetActiveParms().x8_followupMagnitude, -1.f);
+            Burn(x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
             Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
             x400_28_pendingMassiveDeath = x400_29_pendingMassiveFrozenDeath = false;
             x400_27_fadeToDeath = x401_28_burning = true;
@@ -561,7 +573,7 @@ bool CPatterned::Random(CStateManager&, float arg)
 
 bool CPatterned::CodeTrigger(CStateManager&, float arg)
 {
-    return x330_stateMachineState.x18_24_;
+    return x330_stateMachineState.x18_24_codeTrigger;
 }
 
 bool CPatterned::FixedDelay(CStateManager&, float arg)
@@ -779,7 +791,7 @@ bool CPatterned::OffLine(CStateManager&, float arg)
     return distSq > arg * arg;
 }
 
-void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt)
 {
     if (CPathFindSearch* search = GetSearchPath())
     {
@@ -826,7 +838,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float arg)
     }
 }
 
-void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float dt)
 {
     switch (msg)
     {
@@ -852,7 +864,7 @@ void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float arg)
     }
 }
 
-void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float dt)
 {
     if (msg == EStateMsg::Activate)
     {
@@ -863,7 +875,7 @@ void CPatterned::TargetPlayer(CStateManager& mgr, EStateMsg msg, float arg)
     }
 }
 
-void CPatterned::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt)
 {
     if (msg == EStateMsg::Activate)
     {
@@ -875,7 +887,7 @@ void CPatterned::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg)
     }
 }
 
-void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float dt)
 {
     switch (msg)
     {
@@ -923,7 +935,7 @@ void CPatterned::FollowPattern(CStateManager& mgr, EStateMsg msg, float arg)
     }
 }
 
-void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float arg)
+void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float dt)
 {
     switch (msg)
     {
@@ -990,6 +1002,22 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float arg)
     default:
         break;
     }
+}
+
+void CPatterned::TryCommand(CStateManager& mgr, pas::EAnimationState state,
+                            CPatternedTryFunc func, int arg)
+{
+    if (state == x450_bodyController->GetCurrentStateId())
+        x32c_animState = EAnimState::Repeat;
+    else if (x32c_animState == EAnimState::One)
+        (this->*func)(mgr, arg);
+    else
+        x32c_animState = EAnimState::Over;
+}
+
+void CPatterned::TryLoopReaction(CStateManager& mgr, int arg)
+{
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::EReactionType(arg)));
 }
 
 void CPatterned::BuildBodyController(EBodyType bodyType)
@@ -1065,6 +1093,75 @@ void CPatterned::MassiveFrozenDeath(CStateManager& mgr)
             GetTranslation(), 0.25f, 0.3f, 40.f), true);
     DeathDelete(mgr);
     x400_28_pendingMassiveDeath = x400_29_pendingMassiveFrozenDeath = false;
+}
+
+void CPatterned::Burn(float duration, float damage)
+{
+    switch (GetDamageVulnerability()->GetVulnerability(CWeaponMode(EWeaponType::Plasma), false))
+    {
+    case EVulnerability::DoubleDamage:
+        x450_bodyController->SetOnFire(1.5f * duration);
+        x3ec_pendingFireDamage = 1.5f * damage;
+        break;
+    case EVulnerability::Normal:
+        x450_bodyController->SetOnFire(duration);
+        x3ec_pendingFireDamage = damage;
+        break;
+    default:
+        break;
+    }
+}
+
+void CPatterned::Shock(float duration, float damage)
+{
+    switch (GetDamageVulnerability()->GetVulnerability(CWeaponMode(EWeaponType::Wave), false))
+    {
+    case EVulnerability::DoubleDamage:
+        x450_bodyController->SetElectrocuting(1.5f * duration);
+        x3f0_pendingShockDamage = 1.5f * damage;
+        break;
+    case EVulnerability::Normal:
+        x450_bodyController->SetElectrocuting(duration);
+        x3f0_pendingShockDamage = damage;
+        break;
+    default:
+        break;
+    }
+}
+
+void CPatterned::Freeze(CStateManager& mgr, const zeus::CVector3f& pos,
+                        const zeus::CUnitVector3f& dir, float frozenDur)
+{
+    if (x402_25_lostMassiveFrozenHP)
+        x402_26_dieIf80PercFrozen = true;
+    bool playSfx = false;
+    if (x450_bodyController->IsFrozen())
+    {
+        x450_bodyController->Freeze(x460_knockBackController.GetActiveParms().xc_intoFreezeDur,
+                                    frozenDur, x4f8_outofFreezeDur);
+        mgr.GetActorModelParticles()->EnsureElectricLoaded(*this);
+        playSfx = true;
+    }
+    else if (!x450_bodyController->IsElectrocuting() &&
+             !x450_bodyController->IsOnFire())
+    {
+        x450_bodyController->Freeze(x4f4_intoFreezeDur, frozenDur, x4f8_outofFreezeDur);
+        if (x510_vertexMorph)
+            x510_vertexMorph->Reset(dir, pos, x4f4_intoFreezeDur);
+        playSfx = true;
+    }
+
+    if (playSfx)
+    {
+        u16 sfx;
+        if (x460_knockBackController.GetVariant() != EKnockBackVariant::Small &&
+            CPatterned::CastTo<MP1::CMetroid>(mgr.GetObjectById(GetUniqueId())))
+            sfx = SFXsfx0701;
+        else
+            sfx = SFXsfx0708;
+        CSfxManager::AddEmitter(sfx, GetTranslation(), zeus::CVector3f::skZero,
+                                true, false, 0x7f, kInvalidAreaId);
+    }
 }
 
 zeus::CVector3f CPatterned::GetGunEyePos() const
@@ -1683,5 +1780,14 @@ void CPatterned::ThinkAboutMove(float dt)
     }
 
     RotateToOR(x440_rotDelta, dt);
+}
+
+void CPatterned::PhazeOut(CStateManager& mgr)
+{
+    if (!x400_27_fadeToDeath)
+        SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
+    x401_27_phazingOut = true;
+    x450_bodyController->SetPlaybackRate(0.f);
+    x64_modelData->AnimationData()->GetParticleDB().SetUpdatesEnabled(false);
 }
 }

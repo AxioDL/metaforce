@@ -159,7 +159,7 @@ enum class EScriptObjectState
     CameraTarget    = 16,
     UNKS2           = 17,
     Play            = 18,
-    MassiveDeath  = 19,
+    MassiveDeath    = 19,
     DeathRattle     = 20,
     AboutToMassivelyDie = 21,
     Damage          = 22,

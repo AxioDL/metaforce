@@ -166,7 +166,9 @@ enum class ELoopAttackType
 
 enum class EGenerateType
 {
-    Invalid = -1
+    Invalid = -1,
+    Zero,
+    One
 };
 
 enum class ESlideType

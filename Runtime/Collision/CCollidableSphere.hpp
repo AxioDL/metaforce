@@ -22,8 +22,8 @@ class CCollidableSphere : public CCollisionPrimitive
 public:
     CCollidableSphere(const zeus::CSphere&, const CMaterialList&);
 
-    const zeus::CSphere& GetSphere() const;
-    void SetSphereCenter(const zeus::CVector3f& center);
+    const zeus::CSphere& GetSphere() const { return x10_sphere; }
+    void SetSphereCenter(const zeus::CVector3f& center) { x10_sphere.position = center; }
     zeus::CSphere Transform(const zeus::CTransform& xf) const;
 
     virtual u32 GetTableIndex() const;
@@ -32,8 +32,8 @@ public:
     virtual FourCC GetPrimType() const;
     virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
 
-    static const Type& GetType();
-    static void SetStaticTableIndex(u32 index);
+    static const Type& GetType() { return sType; }
+    static void SetStaticTableIndex(u32 index) { sTableIndex = index; }
     static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
                                    CCollisionInfo&);
     static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,

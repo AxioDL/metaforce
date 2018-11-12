@@ -9,16 +9,16 @@ namespace urde
 CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, EFlavorType flavType,
                          const CEntityInfo& eInfo, const zeus::CTransform& xf,
                          CModelData&& mData, const CPatternedInfo& pInfo, EMovementType mType,
-                         EColliderType colType, EBodyType bType, const CActorParameters& aParms, float f1, float f2,
-                         EKnockBackVariant w1, float f3, u32 w2, float f4, bool b1)
-: CPatterned(chr, uid, name, flavType, eInfo, xf, std::move(mData), pInfo, mType, colType, bType, aParms, w1)
+                         EColliderType colType, EBodyType bType, const CActorParameters& aParms,
+                         float f1, float f2, EKnockBackVariant kbVariant, float f3, EWalkerType wType, float f4, bool b1)
+: CPatterned(chr, uid, name, flavType, eInfo, xf, std::move(mData), pInfo, mType, colType, bType, aParms, kbVariant)
 , x590_colSphere(zeus::CSphere(zeus::CVector3f::skZero, pInfo.GetHalfExtent()), x68_material)
-, x5b0_(f1)
+, x5b0_collisionCloseMargin(f1)
 , x5b4_(f2)
 , x5c0_advanceWpRadius(f3)
 , x5c4_(f4)
 , x5cc_bendingHackAnim(GetModelData()->GetAnimationData()->GetCharacterInfo().GetAnimationIndex("BendingAnimationHack"sv))
-, x5d0_(w2)
+, x5d0_walkerType(wType)
 , x5d6_24_(false)
 , x5d6_25_(false)
 , x5d6_26_(false)
@@ -26,6 +26,37 @@ CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, E
 , x5d6_28_addBendingWeight(true)
 , x5d6_29_applyBendingHack(false)
 {
+}
+
+void CWallWalker::OrientToSurfaceNormal(const zeus::CVector3f& normal, float clampAngle)
+{
+    float dot = x34_transform.basis[2].dot(normal);
+    if (zeus::close_enough(dot, 1.f) || dot < -0.999f)
+        return;
+    zeus::CQuaternion q =
+    zeus::CQuaternion::clampedRotateTo(x34_transform.basis[2], normal, zeus::degToRad(clampAngle));
+    q.setImaginary(x34_transform.transposeRotate(q.getImaginary()));
+    SetTransform((zeus::CQuaternion(x34_transform.basis) * q).normalized().toTransform(GetTranslation()));
+}
+
+void CWallWalker::GotoNextWaypoint(CStateManager& mgr)
+{
+    if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj))
+    {
+        zeus::CVector3f wpPos = wp->GetTranslation();
+        if ((wpPos - GetTranslation()).magSquared() < x5c0_advanceWpRadius * x5c0_advanceWpRadius)
+        {
+            x2dc_destObj = wp->NextWaypoint(mgr);
+            if (!zeus::close_enough(wp->GetPause(), 0.f))
+            {
+                x5bc_ = wp->GetPause();
+                if (x5d0_walkerType == EWalkerType::Parasite)
+                    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+            }
+            mgr.SendScriptMsg(wp, GetUniqueId(), EScriptObjectMessage::Arrived);
+        }
+        SetDestPos(wpPos);
+    }
 }
 
 void CWallWalker::PreThink(float dt, CStateManager& mgr)
@@ -45,11 +76,9 @@ void CWallWalker::PreThink(float dt, CStateManager& mgr)
         SetTranslation(GetTranslation() * (1.f - futureDt) +
                        (((GetTranslation() - ((plane.vec.dot(GetTranslation())) - plane.d) -
                           x590_colSphere.GetSphere().radius - 0.1f) * plane.vec) * futureDt));
-
     }
     else
         MoveCollisionPrimitive(zeus::CVector3f::skZero);
-
 }
 
 void CWallWalker::Think(float dt, CStateManager& mgr)
@@ -92,6 +121,11 @@ void CWallWalker::Think(float dt, CStateManager& mgr)
     }
 }
 
+void CWallWalker::Render(const CStateManager& mgr) const
+{
+    CPatterned::Render(mgr);
+}
+
 void CWallWalker::UpdateWPDestination(CStateManager& mgr)
 {
     if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x2dc_destObj))
@@ -103,7 +137,7 @@ void CWallWalker::UpdateWPDestination(CStateManager& mgr)
             if (std::fabs(wp->GetPause()) > 0.00001f)
             {
                 x5bc_ = wp->GetPause();
-                if (x5d0_ == 0)
+                if (x5d0_walkerType == EWalkerType::Parasite)
                     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
                 mgr.SendScriptMsg(wp, GetUniqueId(), EScriptObjectMessage::Arrived);
             }

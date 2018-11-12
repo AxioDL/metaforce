@@ -13,6 +13,12 @@ class CParasite : public CWallWalker
 {
     class CRepulsor
     {
+        zeus::CVector3f x0_v;
+        float xc_f;
+    public:
+        CRepulsor(const zeus::CVector3f& v, float f) : x0_v(v), xc_f(f) {}
+        const zeus::CVector3f& GetVector() const { return x0_v; }
+        float GetFloat() const { return xc_f; }
     };
     static const float flt_805A8FB0;
     static const float skAttackVelocity;
@@ -24,23 +30,16 @@ class CParasite : public CWallWalker
     float x5ec_ = 0.f;
     float x5f0_ = 0.f;
     float x5f4_ = 0.f;
-    float x5f8_ = 0.f;
-    float x5fc_ = 0.f;
-    float x600_ = 0.f;
+    zeus::CVector3f x5f8_;
     float x604_ = 1.f;
     float x608_ = 0.f;
     float x60c_ = 0.f;
     zeus::CVector3f x614_;
     std::unique_ptr<CCollisionActorManager> x620_ = 0;
-    u32 x624_ = 0;
-    float x628_ = 0.f;
-    float x62c_ = 0.f;
-    float x630_ = 0.f;
-    float x634_ = 0.f;
-    float x638_ = 0.f;
-    float x640_ = 0.f;
-    float x644_ = 0.f;
-    float x648_ = 0.f;
+    TLockedToken<CSkinnedModel> x624_extraModel;
+    zeus::CVector3f x628_;
+    zeus::CVector3f x634_;
+    zeus::CVector3f x640_;
     CDamageVulnerability x64c_;
     CDamageInfo x6b4_;
     float x6d0_;
@@ -68,46 +67,85 @@ class CParasite : public CWallWalker
     float x730_ = 0.f;
     float x734_ = 0.f;
     float x738_ = 0.f;
-    s16 x73c_;
-    s16 x73e_;
-    s16 x740_;
+    u16 x73c_haltSfx;
+    u16 x73e_getUpSfx;
+    u16 x740_crouchSfx;
     union
     {
         struct
         {
             bool x742_24_ : 1;
-            bool x742_25_ : 1;
+            bool x742_25_jumpVelDirty : 1;
             bool x742_26_ : 1;
-            bool x742_27_ : 1;
-            bool x742_28_ : 1;
+            bool x742_27_landed : 1;
+            bool x742_28_onGround : 1;
             bool x742_29_ : 1;
-            bool x742_30_ : 1;
+            bool x742_30_attackOver : 1;
             bool x742_31_ : 1;
             bool x743_24_ : 1;
             bool x743_25_ : 1;
-            bool x743_26_ : 1;
-            bool x743_27_ : 1;
+            bool x743_26_oculusShotAt : 1;
+            bool x743_27_inJump : 1;
         };
         u16 _dummy = 0;
     };
+    bool CloseToWall(CStateManager& mgr);
+    void FaceTarget(const zeus::CVector3f& target);
+    TUniqueId RecursiveFindClosestWayPoint(CStateManager& mgr, TUniqueId id, float& dist);
+    TUniqueId GetClosestWaypointForState(EScriptObjectState state, CStateManager& mgr);
+    void UpdatePFDestination(CStateManager& mgr);
+    void DoFlockingBehavior(CStateManager& mgr);
 public:
     DEFINE_PATTERNED(Parasite)
     CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
               const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo&, EBodyType, float, float, float,
               float, float, float, float, float, float, float, float, float, float, float, float, float, float, float,
-              bool, u32, const CDamageVulnerability&, const CDamageInfo&, u16, u16, u16, u32, u32, float,
+              bool, EWalkerType wType, const CDamageVulnerability&, const CDamageInfo&, u16, u16, u16, CAssetId, CAssetId, float,
               const CActorParameters&);
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
     void PreThink(float, CStateManager&);
     void Think(float dt, CStateManager& mgr);
+    void Render(const CStateManager&) const;
+    const CDamageVulnerability* GetDamageVulnerability() const;
+    void Touch(CActor& actor, CStateManager&);
+    zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+    void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
+    void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
+    void Patrol(CStateManager&, EStateMsg msg, float dt);
+    void PathFind(CStateManager&, EStateMsg msg, float dt);
+    void TargetPlayer(CStateManager&, EStateMsg msg, float dt);
+    void TargetPatrol(CStateManager&, EStateMsg msg, float dt);
+    void Halt(CStateManager&, EStateMsg, float);
+    void Run(CStateManager&, EStateMsg, float);
+    void Generate(CStateManager&, EStateMsg, float);
+    void Deactivate(CStateManager&, EStateMsg, float);
+    void Attack(CStateManager&, EStateMsg, float);
+    void Crouch(CStateManager&, EStateMsg, float);
+    void GetUp(CStateManager&, EStateMsg, float);
+    void TelegraphAttack(CStateManager&, EStateMsg, float);
+    void Jump(CStateManager&, EStateMsg, float);
+    void Retreat(CStateManager&, EStateMsg, float);
+    bool AnimOver(CStateManager&, float);
+    bool ShouldAttack(CStateManager&, float);
+    bool HitSomething(CStateManager&, float);
+    bool Stuck(CStateManager&, float);
+    bool Landed(CStateManager&, float);
+    bool AttackOver(CStateManager&, float);
+    bool ShotAt(CStateManager&, float);
+    void MassiveDeath(CStateManager&);
+    void MassiveFrozenDeath(CStateManager&);
+    void ThinkAboutMove(float);
+    bool IsOnGround() const;
+    virtual void UpdateWalkerAnimation(CStateManager&, float);
+
     void DestroyActorManager(CStateManager& mgr);
     void UpdateJumpVelocity();
     void UpdateCollisionActors(CStateManager&) {}
     CDamageInfo GetContactDamage() const
     {
-        if (x5d0_ == 1 && x743_24_)
+        if (x5d0_walkerType == EWalkerType::Oculus && x743_24_)
             return x6b4_;
         return CPatterned::GetContactDamage();
     }

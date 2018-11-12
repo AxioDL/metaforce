@@ -61,7 +61,7 @@ CStateMachine::CStateMachine(CInputStream& in)
 
 s32 CStateMachine::GetStateIndex(std::string_view state) const
 {
-    auto it = std::find_if(x0_states.begin(), x0_states.end(), [&state](const CAiState& st) {
+    auto it = std::find_if(x0_states.begin(), x0_states.end(), [state](const CAiState& st) {
         return (strncmp(st.GetName(), state.data(), 31) == 0);
     });
     if (it == x0_states.end())
@@ -96,7 +96,7 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta)
                 x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
                 x4_state = state;
                 x8_time = 0.f;
-                x18_24_ = false;
+                x18_24_codeTrigger = false;
                 xc_random = mgr.GetActiveRandom()->Float();
                 x4_state->CallFunc(mgr, ai, EStateMsg::Activate, delta);
                 return;
@@ -115,7 +115,7 @@ void CStateMachineState::SetState(CStateManager& mgr, CAi& ai, s32 idx)
         x4_state = state;
         x8_time = 0.f;
         xc_random = mgr.GetActiveRandom()->Float();
-        x18_24_ = false;
+        x18_24_codeTrigger = false;
         x4_state->CallFunc(mgr, ai, EStateMsg::Activate, 0.f);
     }
 }

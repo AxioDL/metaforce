@@ -485,7 +485,7 @@ void CKnockBackController::ValidateState(CPatterned& parent)
     if (disableFollowup)
     {
         x4_activeParms.x4_animFollowup = EKnockBackAnimationFollowUp::None;
-        x4_activeParms.x8_followupMagnitude = 0.f;
+        x4_activeParms.x8_followupDuration = 0.f;
     }
 }
 

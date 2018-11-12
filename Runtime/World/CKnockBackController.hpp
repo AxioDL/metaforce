@@ -86,8 +86,8 @@ public:
     {
         EKnockBackAnimationState x0_animState;
         EKnockBackAnimationFollowUp x4_animFollowup;
-        float x8_followupMagnitude;
-        float xc_;
+        float x8_followupDuration;
+        float xc_intoFreezeDur;
     };
 private:
     friend class CPatterned;
@@ -149,6 +149,12 @@ public:
     void KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, CPatterned& parent,
                    const CDamageInfo& info, EKnockBackType type, float magnitude);
     void SetEnableFreeze(bool b) { x81_25_enableFreeze = b; }
+    void SetEnableShock(bool b) { x81_26_enableShock = b; }
+    void SetEnableBurn(bool b) { x81_27_enableBurn = b; }
+    void SetEnableBurnDeath(bool b) { x81_28_enableBurnDeath = b; }
+    void SetEnableExplodeDeath(bool b) { x81_29_enableExplodeDeath = b; }
+    void SetEnableLaggedBurnDeath(bool b) { x81_30_enableLaggedBurnDeath = b; }
+    void SetX82_24(bool b) { x82_24_ = b; }
     const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
     EKnockBackVariant GetVariant() const { return x0_variant; }
 };

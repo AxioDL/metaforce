@@ -26,7 +26,7 @@ public:
     void MorphVertices(std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
                        const float* magnitudes, const TLockedToken<CSkinRules>& skinRules,
                        const CPoseAsTransforms& pose) const;
-
+    void Reset(const zeus::CVector3f& dir, const zeus::CVector3f& pos, float duration) {}
     void Update(float) {}
 };
 

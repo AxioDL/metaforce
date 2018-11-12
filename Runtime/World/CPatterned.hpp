@@ -19,6 +19,7 @@ namespace urde
 class CPatternedInfo;
 class CProjectileInfo;
 class CPathFindSearch;
+typedef void (CPatterned::*CPatternedTryFunc)(CStateManager&, int);
 
 class CPatterned : public CAi
 {
@@ -133,7 +134,7 @@ public:
     {
         Zero,
         One,
-        Two,
+        Repeat,
         Over
     };
     class CPatternNode
@@ -327,6 +328,8 @@ public:
         return GetAimPosition(mgr, 0.f);
     }
     zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
+    zeus::CTransform GetLctrTransform(std::string_view name) const;
+    zeus::CTransform GetLctrTransform(CSegId id) const;
 
     void DeathDelete(CStateManager& mgr);
     void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
@@ -363,21 +366,24 @@ public:
     bool InRange(CStateManager&, float arg);
     bool OffLine(CStateManager&, float arg);
     bool Default(CStateManager&, float arg) { return true; }
-    void PathFind(CStateManager&, EStateMsg msg, float arg);
-    void Dead(CStateManager&, EStateMsg msg, float arg);
-    void TargetPlayer(CStateManager&, EStateMsg msg, float arg);
-    void TargetPatrol(CStateManager&, EStateMsg msg, float arg);
-    void FollowPattern(CStateManager&, EStateMsg msg, float arg);
-    void Patrol(CStateManager&, EStateMsg msg, float arg);
-    void Start(CStateManager&, EStateMsg msg, float arg) {}
+    void PathFind(CStateManager&, EStateMsg msg, float dt);
+    void Dead(CStateManager&, EStateMsg msg, float dt);
+    void TargetPlayer(CStateManager&, EStateMsg msg, float dt);
+    void TargetPatrol(CStateManager&, EStateMsg msg, float dt);
+    void FollowPattern(CStateManager&, EStateMsg msg, float dt);
+    void Patrol(CStateManager&, EStateMsg msg, float dt);
+    void Start(CStateManager&, EStateMsg msg, float dt) {}
+
+    void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
+    void TryLoopReaction(CStateManager& mgr, int arg);
 
     virtual bool KnockbackWhenFrozen() const { return true; }
     virtual void MassiveDeath(CStateManager& mgr);
     virtual void MassiveFrozenDeath(CStateManager& mgr);
-    virtual void Burn(float, float) {}
-    virtual void Shock(float, float) {}
+    virtual void Burn(float, float);
+    virtual void Shock(float, float);
     virtual void Freeze(CStateManager& mgr, const zeus::CVector3f& pos,
-                        const zeus::CUnitVector3f& dir, float magnitude) {}
+                        const zeus::CUnitVector3f& dir, float frozenDur);
     virtual void ThinkAboutMove(float);
     virtual CPathFindSearch* GetSearchPath() { return nullptr; }
     virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
@@ -385,7 +391,7 @@ public:
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
     virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
-    virtual void PhazeOut(CStateManager&) {}
+    virtual void PhazeOut(CStateManager&);
     virtual const std::experimental::optional<TLockedToken<CGenDescription>>&
     GetDeathExplosionParticle() const { return x520_deathExplosionParticle; }
     float GetDamageDuration() const { return x504_damageDur; }

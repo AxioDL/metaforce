@@ -1924,8 +1924,9 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
         CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
     return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
                               EBodyType::WallWalker, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15,
-                              f16, f17, 0.f, b1, 0, CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(),
-                              -1, -1, -1, -1, -1, 0.f, aParms);
+                              f16, f17, 0.f, b1, CWallWalker::EWalkerType::Parasite,
+                              CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(),
+                              -1, -1, -1, {}, {}, 0.f, aParms);
 }
 
 CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -2970,7 +2971,7 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
     return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info,
                               actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, f1, f2, f3,
                               f4, 0.2f, 0.4f, 0.f,
-                              0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f, f5, f6, false, 2,
+                              0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f, f5, f6, false, CWallWalker::EWalkerType::Geemer,
                               CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), sId1, sId2, sId3, -1,
                               -1, 0.f, actParms);
 }

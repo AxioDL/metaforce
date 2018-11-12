@@ -51,14 +51,14 @@ class CAiState
 {
     friend class CStateMachineState;
     CAiStateFunc x0_func;
-    char xc_name[32];
+    char xc_name[32] = {};
     u32 x2c_numTriggers;
     CAiTrigger* x30_firstTrigger;
 public:
     CAiState(CAiStateFunc func, const char* name)
     {
         x0_func = func;
-        strncpy(xc_name, name, 32);
+        strncpy(xc_name, name, 31);
     }
 
     s32 GetNumTriggers() const { return x2c_numTriggers; }
@@ -97,7 +97,7 @@ class CStateMachineState
     {
         struct
         {
-            bool x18_24_ : 1;
+            bool x18_24_codeTrigger : 1;
         };
         u32 dummy = 0;
     };

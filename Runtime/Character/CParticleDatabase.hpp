@@ -25,7 +25,7 @@ class CParticleDatabase
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> x78_rendererDraw;
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> x8c_firstDraw;
     std::map<std::string, std::unique_ptr<CParticleGenInfo>> xa0_lastDraw;
-    bool xb4_24_active : 1;
+    bool xb4_24_updatesEnabled : 1;
     bool xb4_25_anySystemsDrawnWithModel : 1;
 
     static void SetModulationColorAllActiveEffectsForParticleDB(const zeus::CColor& color,
@@ -69,6 +69,7 @@ public:
     void InsertParticleGen(bool oneShot, int flags, std::string_view name,
                            std::unique_ptr<CParticleGenInfo>&& gen);
     bool AreAnySystemsDrawnWithModel() const { return xb4_25_anySystemsDrawnWithModel; }
+    void SetUpdatesEnabled(bool active) { xb4_24_updatesEnabled = active; }
 };
 }
 
