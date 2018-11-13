@@ -26,38 +26,36 @@ class CParasite : public CWallWalker
     static const float flt_805A8FB8;
     static const float skRetreatVelocity;
     std::vector<CRepulsor> x5d8_doorRepulsors;
-    s32 x5e8_ = -1;
-    float x5ec_ = 0.f;
-    float x5f0_ = 0.f;
-    float x5f4_ = 0.f;
-    zeus::CVector3f x5f8_;
-    float x604_ = 1.f;
-    float x608_ = 0.f;
-    float x60c_ = 0.f;
-    zeus::CVector3f x614_;
-    std::unique_ptr<CCollisionActorManager> x620_ = 0;
+    s32 x5e8_stateProgress = -1;
+    zeus::CVector3f x5ec_;
+    zeus::CVector3f x5f8_targetPos;
+    float x604_activeSpeed = 1.f;
+    float x608_telegraphRemTime = 0.f;
+    float x60c_stuckTime = 0.f;
+    zeus::CVector3f x614_lastStuckPos;
+    std::unique_ptr<CCollisionActorManager> x620_collisionActorManager;
     TLockedToken<CSkinnedModel> x624_extraModel;
-    zeus::CVector3f x628_;
-    zeus::CVector3f x634_;
-    zeus::CVector3f x640_;
-    CDamageVulnerability x64c_;
-    CDamageInfo x6b4_;
-    float x6d0_;
+    zeus::CVector3f x628_parasiteSeparationMove;
+    zeus::CVector3f x634_parasiteCohesionMove;
+    zeus::CVector3f x640_parasiteAlignmentMove;
+    CDamageVulnerability x64c_oculusHaltDVuln;
+    CDamageInfo x6b4_oculusHaltDInfo;
+    float x6d0_maxTelegraphReactDist;
     float x6d4_;
     float x6dc_;
-    float x6e0_;
-    float x6e4_;
-    float x6e8_;
-    float x6ec_;
-    float x6f0_;
-    float x6f4_;
-    float x6f8_;
-    float x6fc_;
-    float x700_;
-    float x704_;
-    float x708_;
-    float x710_;
-    float x714_;
+    float x6e0_stuckTimeThreshold;
+    float x6e4_parasiteSearchRadius;
+    float x6e8_parasiteSeparationDist;
+    float x6ec_parasiteSeparationWeight;
+    float x6f0_parasiteAlignmentWeight;
+    float x6f4_parasiteCohesionWeight;
+    float x6f8_destinationSeekWeight;
+    float x6fc_forwardMoveWeight;
+    float x700_playerSeparationDist;
+    float x704_playerSeparationWeight;
+    float x708_unmorphedRadius;
+    float x710_haltDelay;
+    float x714_iceZoomerJointHP;
     float x718_ = 0.f;
     float x71c_ = 0.f;
     float x720_ = 0.f;
@@ -74,7 +72,7 @@ class CParasite : public CWallWalker
     {
         struct
         {
-            bool x742_24_ : 1;
+            bool x742_24_receivedTelegraph : 1;
             bool x742_25_jumpVelDirty : 1;
             bool x742_26_ : 1;
             bool x742_27_landed : 1;
@@ -82,8 +80,8 @@ class CParasite : public CWallWalker
             bool x742_29_ : 1;
             bool x742_30_attackOver : 1;
             bool x742_31_ : 1;
-            bool x743_24_ : 1;
-            bool x743_25_ : 1;
+            bool x743_24_halted : 1;
+            bool x743_25_vulnerable : 1;
             bool x743_26_oculusShotAt : 1;
             bool x743_27_inJump : 1;
         };
@@ -95,13 +93,26 @@ class CParasite : public CWallWalker
     TUniqueId GetClosestWaypointForState(EScriptObjectState state, CStateManager& mgr);
     void UpdatePFDestination(CStateManager& mgr);
     void DoFlockingBehavior(CStateManager& mgr);
+    void SetupIceZoomerCollision(CStateManager& mgr);
+    void SetupIceZoomerVulnerability(CStateManager& mgr, const CDamageVulnerability& dVuln,
+                                     const CHealthInfo& hInfo);
+    void AddDoorRepulsors(CStateManager& mgr);
+    void UpdateCollisionActors(float dt, CStateManager& mgr);
+    void DestroyActorManager(CStateManager& mgr);
+    void UpdateJumpVelocity();
 public:
     DEFINE_PATTERNED(Parasite)
-    CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
-              const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo&, EBodyType, float, float, float,
-              float, float, float, float, float, float, float, float, float, float, float, float, float, float, float,
-              bool, EWalkerType wType, const CDamageVulnerability&, const CDamageInfo&, u16, u16, u16, CAssetId, CAssetId, float,
-              const CActorParameters&);
+    CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo &info,
+              const zeus::CTransform &xf, CModelData &&mData, const CPatternedInfo &pInfo, EBodyType bodyType,
+              float maxTelegraphReactDist, float advanceWpRadius, float f3, float alignAngVel, float f5,
+              float stuckTimeThreshold, float collisionCloseMargin, float parasiteSearchRadius,
+              float parasiteSeparationDist, float parasiteSeparationWeight, float parasiteAlignmentWeight,
+              float parasiteCohesionWeight, float destinationSeekWeight, float forwardMoveWeight,
+              float playerSeparationDist, float playerSeparationWeight, float playerObstructionMinDist,
+              float haltDelay, bool disableMove, EWalkerType wType, const CDamageVulnerability& dVuln,
+              const CDamageInfo& parInfo, u16 haltSfx, u16 getUpSfx, u16 crouchSfx, CAssetId modelRes,
+              CAssetId skinRes, float iceZoomerJointHP,
+              const CActorParameters& aParams);
 
     void Accept(IVisitor&);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
@@ -109,6 +120,7 @@ public:
     void Think(float dt, CStateManager& mgr);
     void Render(const CStateManager&) const;
     const CDamageVulnerability* GetDamageVulnerability() const;
+    CDamageInfo GetContactDamage() const;
     void Touch(CActor& actor, CStateManager&);
     zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
     void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
@@ -139,16 +151,5 @@ public:
     void ThinkAboutMove(float);
     bool IsOnGround() const;
     virtual void UpdateWalkerAnimation(CStateManager&, float);
-
-    void DestroyActorManager(CStateManager& mgr);
-    void UpdateJumpVelocity();
-    void UpdateCollisionActors(CStateManager&) {}
-    CDamageInfo GetContactDamage() const
-    {
-        if (x5d0_walkerType == EWalkerType::Oculus && x743_24_)
-            return x6b4_;
-        return CPatterned::GetContactDamage();
-    }
-    void AlignToFloor(CStateManager&, float, const zeus::CVector3f&, float);
 };
 }

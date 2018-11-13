@@ -284,8 +284,8 @@ class CBCLocomotionCmd
     zeus::CVector3f xc_face;
     float x18_weight;
 public:
-    CBCLocomotionCmd(const zeus::CVector3f& v1, const zeus::CVector3f& v2, float f)
-    : x0_move(v1), xc_face(v2), x18_weight(f) {}
+    CBCLocomotionCmd(const zeus::CVector3f& move, const zeus::CVector3f& face, float weight)
+    : x0_move(move), xc_face(face), x18_weight(weight) {}
     const zeus::CVector3f& GetMoveVector() const { return x0_move; }
     const zeus::CVector3f& GetFaceVector() const { return xc_face; }
     float GetWeight() const { return x18_weight; }

@@ -17,24 +17,24 @@ struct Parasite : IScriptObject
     Value<atVec3f> scale;
     PatternedInfo patternedInfo;
     ActorParameters actorParameters;
-    Value<float> unknown2;
-    Value<float> unknown3;
+    Value<float> maxTelegraphReactDist;
+    Value<float> advanceWpRadius;
     Value<float> unknown4;
-    Value<float> unknown5;
+    Value<float> alignAngVel;
     Value<float> unknown6;
-    Value<float> unknown7;
-    Value<float> unknown8;
-    Value<float> unknown9;
-    Value<float> unknown10;
-    Value<float> unknown11;
-    Value<float> unknown12;
-    Value<float> unknown13;
-    Value<float> unknown14;
-    Value<float> unknown15;
-    Value<float> unknown16;
-    Value<float> unknown17;
-    Value<float> unknown18;
-    Value<bool> unknown19;
+    Value<float> stuckTimeThreshold;
+    Value<float> collisionCloseMargin;
+    Value<float> parasiteSearchRadius;
+    Value<float> parasiteSeparationDist;
+    Value<float> parasiteSeparationWeight;
+    Value<float> parasiteAlignmentWeight;
+    Value<float> parasiteCohesionWeight;
+    Value<float> destinationSeekWeight;
+    Value<float> forwardMoveWeight;
+    Value<float> playerSeparationDist;
+    Value<float> playerSeparationWeight;
+    Value<float> playerObstructionMinDist;
+    Value<bool> disableMove;
 
     void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const
     {

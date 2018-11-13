@@ -126,6 +126,9 @@ public:
         void AddLeaf(const CAreaOctTree::Node& node);
         u32 GetNumLeaves() const { return x4_nodeCache.size(); }
         bool HasCacheOverflowed() const { return x908_24_overflow; }
+        const CAreaOctTree& GetOctTree() const { return x0_octTree; }
+        rstl::reserved_vector<CAreaOctTree::Node, 64>::iterator begin() { return x4_nodeCache.begin(); }
+        rstl::reserved_vector<CAreaOctTree::Node, 64>::iterator end() { return x4_nodeCache.end(); }
     };
     static void BuildOctreeLeafCache(const CAreaOctTree::Node& root, const zeus::CAABox& aabb,
                                      CMetroidAreaCollider::COctreeLeafCache& cache);

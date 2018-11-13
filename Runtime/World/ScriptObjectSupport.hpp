@@ -157,7 +157,7 @@ enum class EScriptObjectState
     Dead            = 14,
     CameraPath      = 15,
     CameraTarget    = 16,
-    UNKS2           = 17,
+    DeactivateState = 17,
     Play            = 18,
     MassiveDeath    = 19,
     DeathRattle     = 20,

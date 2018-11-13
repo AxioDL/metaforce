@@ -3,57 +3,68 @@
 namespace urde
 {
 
-CJointCollisionDescription::CJointCollisionDescription(ECollisionType colType, CSegId seg1, CSegId seg2,
-                                                       const zeus::CVector3f& v1, const zeus::CVector3f& v2, float f1,
-                                                       float f2, EOrientationType orientType, std::string_view name,
-                                                       float f3)
+CJointCollisionDescription::CJointCollisionDescription(ECollisionType colType, CSegId pivotId, CSegId nextId,
+                                                       const zeus::CVector3f& bounds, const zeus::CVector3f& pivotPoint,
+                                                       float radius, float maxSeparation, EOrientationType orientType,
+                                                       std::string_view name, float mass)
 : x0_colType(colType)
 , x4_orientType(orientType)
-, x8_(seg1)
-, x9_(seg2)
-, xc_(v1)
-, x18_(v2)
-, x24_(f1)
-, x28_(f2)
+, x8_pivotId(pivotId)
+, x9_nextId(nextId)
+, xc_bounds(bounds)
+, x18_pivotPoint(pivotPoint)
+, x24_radius(radius)
+, x28_maxSeparation(maxSeparation)
 , x2c_name(name)
-, x40_(f3)
+, x40_mass(mass)
 {
 }
 
-CJointCollisionDescription CJointCollisionDescription::SphereSubdivideCollision(CSegId seg1, CSegId seg2, float f1,
-                                                                                float f2, EOrientationType orientType,
-                                                                                std::string_view name, float f3)
+CJointCollisionDescription
+CJointCollisionDescription::SphereSubdivideCollision(CSegId pivotId, CSegId nextId, float radius,
+                                                     float maxSeparation, EOrientationType orientType,
+                                                     std::string_view name, float mass)
 {
-    return CJointCollisionDescription(ECollisionType::SphereSubdivide, seg1, seg2, zeus::CVector3f::skZero,
-                                      zeus::CVector3f::skZero, f1, f2, orientType, name, f3);
+    return CJointCollisionDescription(ECollisionType::SphereSubdivide, pivotId, nextId, zeus::CVector3f::skZero,
+                                      zeus::CVector3f::skZero, radius, maxSeparation, orientType, name, mass);
 }
 
-CJointCollisionDescription CJointCollisionDescription::SphereCollision(CSegId segId, float f1, std::string_view name, float f2)
+CJointCollisionDescription
+CJointCollisionDescription::SphereCollision(CSegId pivotId, float radius, std::string_view name, float mass)
 {
-    return CJointCollisionDescription(ECollisionType::Sphere, segId, -1, zeus::CVector3f::skZero,
-                                      zeus::CVector3f::skZero, f1, 0.f, EOrientationType::Zero, name, f2);
+    return CJointCollisionDescription(ECollisionType::Sphere, pivotId, {}, zeus::CVector3f::skZero,
+                                      zeus::CVector3f::skZero, radius, 0.f, EOrientationType::Zero, name, mass);
 }
 
-CJointCollisionDescription CJointCollisionDescription::AABoxCollision(CSegId segId, const zeus::CVector3f& v1,
-                                                                      std::string_view name, float f1)
+CJointCollisionDescription
+CJointCollisionDescription::AABoxCollision(CSegId pivotId, const zeus::CVector3f& bounds,
+                                           std::string_view name, float mass)
 {
-    return CJointCollisionDescription(ECollisionType::AABox, segId, -1, v1, zeus::CVector3f::skZero, 0.f, 0.f,
-                                      EOrientationType::Zero, name, f1);
+    return CJointCollisionDescription(ECollisionType::AABox, pivotId, {}, bounds, zeus::CVector3f::skZero,
+                                      0.f, 0.f, EOrientationType::Zero, name, mass);
 }
 
-CJointCollisionDescription CJointCollisionDescription::OBBCollision(CSegId segId, const zeus::CVector3f& v1,
-                                                                    const zeus::CVector3f& v2, std::string_view name,
-                                                                    float f1)
+CJointCollisionDescription
+CJointCollisionDescription::OBBAutoSizeCollision(CSegId pivotId, CSegId nextId, const zeus::CVector3f& bounds,
+                                                 EOrientationType orientType, std::string_view name, float mass)
 {
-    return CJointCollisionDescription(ECollisionType::OBB, segId, -1, v1, v2, 0.f, 0.f, EOrientationType::Zero, name,
-                                      f1);
+    return CJointCollisionDescription(ECollisionType::OBBAutoSize, pivotId, nextId, bounds, zeus::CVector3f::skZero,
+                                      0.f, 0.f, orientType, name, mass);
+}
+
+CJointCollisionDescription
+CJointCollisionDescription::OBBCollision(CSegId pivotId, const zeus::CVector3f& bounds,
+                                         const zeus::CVector3f& pivotPoint, std::string_view name, float mass)
+{
+    return CJointCollisionDescription(ECollisionType::OBB, pivotId, {}, bounds, pivotPoint, 0.f, 0.f,
+                                      EOrientationType::Zero, name, mass);
 }
 
 void CJointCollisionDescription::ScaleAllBounds(const zeus::CVector3f& scale)
 {
-    xc_ *= scale;
-    x24_ *= scale.x;
-    x28_ *= scale.x;
-    x18_ *= scale;
+    xc_bounds *= scale;
+    x24_radius *= scale.x;
+    x28_maxSeparation *= scale.x;
+    x18_pivotPoint *= scale;
 }
 }

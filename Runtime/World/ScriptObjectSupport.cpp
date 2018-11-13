@@ -161,7 +161,7 @@ std::string_view ScriptObjectStateToStr(EScriptObjectState state)
     case EScriptObjectState::Dead: return "Dead"sv;
     case EScriptObjectState::CameraPath: return "CameraPath"sv;
     case EScriptObjectState::CameraTarget: return "CameraTarget"sv;
-    case EScriptObjectState::UNKS2: return "UNKS2"sv;
+    case EScriptObjectState::DeactivateState: return "DeactivateState"sv;
     case EScriptObjectState::Play: return "Play"sv;
     case EScriptObjectState::MassiveDeath: return "DeathExplosion"sv;
     case EScriptObjectState::DeathRattle: return "DeathRattle"sv;

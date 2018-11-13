@@ -1898,24 +1898,24 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
 
     CPatternedInfo pInfo(in, pcount.second);
     CActorParameters aParms = LoadActorParameters(in);
-    float f1 = in.readFloatBig();
-    float f2 = in.readFloatBig();
+    float maxTelegraphReactDist = in.readFloatBig();
+    float advanceWpRadius = in.readFloatBig();
     float f3 = in.readFloatBig();
-    float f4 = in.readFloatBig();
+    float alignAngVel = in.readFloatBig();
     float f5 = in.readFloatBig();
-    float f6 = in.readFloatBig();
-    float f7 = in.readFloatBig();
-    float f8 = in.readFloatBig();
-    float f9 = in.readFloatBig();
-    float f10 = in.readFloatBig();
-    float f11 = in.readFloatBig();
-    float f12 = in.readFloatBig();
-    float f13 = in.readFloatBig();
-    float f14 = in.readFloatBig();
-    float f15 = in.readFloatBig();
-    float f16 = in.readFloatBig();
-    float f17 = in.readFloatBig();
-    bool b1 = in.readBool();
+    float stuckTimeThreshold = in.readFloatBig();
+    float collisionCloseMargin = in.readFloatBig();
+    float parasiteSearchRadius = in.readFloatBig();
+    float parasiteSeparationDist = in.readFloatBig();
+    float parasiteSeparationWeight = in.readFloatBig();
+    float parasiteAlignmentWeight = in.readFloatBig();
+    float parasiteCohesionWeight = in.readFloatBig();
+    float destinationSeekWeight = in.readFloatBig();
+    float forwardMoveWeight = in.readFloatBig();
+    float playerSeparationDist = in.readFloatBig();
+    float playerSeparationWeight = in.readFloatBig();
+    float playerObstructionMinDist = in.readFloatBig();
+    bool disableMove = in.readBool();
 
     if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
         return nullptr;
@@ -1923,8 +1923,11 @@ CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int pr
     CModelData mData(
         CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
     return new MP1::CParasite(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
-                              EBodyType::WallWalker, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15,
-                              f16, f17, 0.f, b1, CWallWalker::EWalkerType::Parasite,
+                              EBodyType::WallWalker, maxTelegraphReactDist, advanceWpRadius, f3, alignAngVel, f5,
+                              stuckTimeThreshold, collisionCloseMargin, parasiteSearchRadius, parasiteSeparationDist,
+                              parasiteSeparationWeight, parasiteAlignmentWeight, parasiteCohesionWeight,
+                              destinationSeekWeight, forwardMoveWeight, playerSeparationDist, playerSeparationWeight,
+                              playerObstructionMinDist, 0.f, disableMove, CWallWalker::EWalkerType::Parasite,
                               CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(),
                               -1, -1, -1, {}, {}, 0.f, aParms);
 }

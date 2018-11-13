@@ -15,26 +15,30 @@ class CCollisionActorManager
 public:
     enum class EUpdateOptions
     {
-        Zero,
-        One
+        ObjectSpace,
+        WorldSpace
     };
 
 private:
     std::vector<CJointCollisionDescription> x0_jointDescriptions;
     TUniqueId x10_ownerId;
-    bool x12_;
-    bool x13_ = false;
-    bool x14_ = true;
+    bool x12_active;
+    bool x13_destroyed = false;
+    bool x14_movable = true;
 public:
-    CCollisionActorManager(CStateManager&, TUniqueId, TAreaId, const std::vector<CJointCollisionDescription>&, bool);
+    CCollisionActorManager(CStateManager& mgr, TUniqueId owner, TAreaId area,
+                           const std::vector<CJointCollisionDescription>& descs, bool active);
 
-    void Update(float, CStateManager&, EUpdateOptions) const;
-    void Destroy(CStateManager&) const;
-    void SetActive(CStateManager&, bool);
-    void AddMaterial(CStateManager&, const CMaterialList&);
+    void Update(float dt, CStateManager& mgr, CCollisionActorManager::EUpdateOptions opts);
+    void Destroy(CStateManager& mgr) const;
+    void SetActive(CStateManager& mgr, bool active);
+    void AddMaterial(CStateManager& mgr, const CMaterialList& list);
+    void SetMovable(CStateManager& mgr, bool movable);
 
-    u32 GetNumCollisionActors() const;
-    CJointCollisionDescription GetCollisionDescFromIndex(u32) const;
-    zeus::CTransform GetWRLocatorTransform(const CAnimData&, CSegId, const zeus::CTransform&, const zeus::CTransform&);
+    u32 GetNumCollisionActors() const { return x0_jointDescriptions.size(); }
+    const CJointCollisionDescription& GetCollisionDescFromIndex(u32 i) const { return x0_jointDescriptions[i]; }
+    static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id,
+                                                  const zeus::CTransform& worldXf,
+                                                  const zeus::CTransform& localXf);
 };
 }

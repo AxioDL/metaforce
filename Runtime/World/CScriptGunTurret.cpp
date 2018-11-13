@@ -485,7 +485,7 @@ void CScriptGunTurret::UpdateGunCollisionManager(float dt, CStateManager& mgr)
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x4a0_))
         colAct->SetActive(mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed);
 
-    x49c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::Zero);
+    x49c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
 }
 
 void CScriptGunTurret::GetUnFreezeSoundId(float dt, CStateManager& mgr)
