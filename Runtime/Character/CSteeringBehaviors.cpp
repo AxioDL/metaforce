@@ -1,4 +1,6 @@
 #include "CSteeringBehaviors.hpp"
+#include "World/CPhysicsActor.hpp"
+#include "CStateManager.hpp"
 
 namespace urde
 {
@@ -6,19 +8,35 @@ namespace urde
 zeus::CVector3f CSteeringBehaviors::Flee(const CPhysicsActor& actor,
     const zeus::CVector3f& v0) const
 {
-    return {};
+    zeus::CVector3f actVec = actor.GetTranslation() - v0;
+    if (actVec.canBeNormalized())
+        return actVec.normalized();
+
+    return actor.GetTransform().frontVector();
 }
 
 zeus::CVector3f CSteeringBehaviors::Seek(const CPhysicsActor& actor,
     const zeus::CVector3f& v0) const
 {
+    zeus::CVector3f posDiff = actor.GetTranslation() - v0;
+    if (posDiff.canBeNormalized())
+        return posDiff.normalized();
+
     return {};
 }
 
 zeus::CVector3f CSteeringBehaviors::Arrival(const CPhysicsActor& actor,
-    const zeus::CVector3f& v0, float f1) const
+    const zeus::CVector3f& v0, float f31) const
 {
-    return {};
+    if (!v0.canBeNormalized())
+        return {};
+
+    if (v0.magSquared() < (f31 * f31))
+        f31 = v0.magSquared() / (f31 * f31);
+    else
+        f31 = 1.f;
+
+    return f31 * v0.normalized();
 }
 
 zeus::CVector3f CSteeringBehaviors::Pursuit(const CPhysicsActor& actor,
@@ -28,21 +46,54 @@ zeus::CVector3f CSteeringBehaviors::Pursuit(const CPhysicsActor& actor,
 }
 
 zeus::CVector3f CSteeringBehaviors::Separation(const CPhysicsActor& actor,
-    const zeus::CVector3f& v0, float f1) const
+    const zeus::CVector3f& pos, float separation) const
 {
-    return {};
+    zeus::CVector3f posDiff = actor.GetTranslation() - pos;
+    if (posDiff.magSquared() >= separation * separation)
+        return {};
+
+    if (!posDiff.canBeNormalized())
+        return actor.GetTransform().frontVector();
+
+    return (1.f - (posDiff.magSquared() / (separation * separation))) * posDiff;
 }
 
 zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor,
     rstl::reserved_vector<TUniqueId, 1024>& list, const CStateManager& mgr) const
 {
-    return {};
+    zeus::CVector3f align;
+
+    if (!list.empty())
+    {
+        for (const TUniqueId& id : list)
+        {
+            if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id)))
+                align += act->GetTransform().frontVector();
+        }
+
+        align *=  zeus::CVector3f(1.f / float(list.size()));
+    }
+
+    float diff = zeus::CVector3f::getAngleDiff(actor.GetTransform().frontVector(), align);
+    return align * ( diff / M_PIF);
 }
 
 zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor,
     rstl::reserved_vector<TUniqueId, 1024>& list, float f1, const CStateManager& mgr) const
 {
-    return {};
+    zeus::CVector3f cohesion;
+    if (!list.empty())
+    {
+        for (const TUniqueId& id : list)
+        {
+            if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id)))
+                cohesion += act->GetTranslation();
+        }
+
+        cohesion *= zeus::CVector3f(1.f / float(list.size()));
+        return Arrival(actor, cohesion, f1);
+    }
+    return cohesion;
 }
 
 zeus::CVector3f CSteeringBehaviors::Flee2D(const CPhysicsActor& actor,

@@ -16,7 +16,7 @@ public:
     zeus::CVector3f Seek(const CPhysicsActor& actor, const zeus::CVector3f& v0) const;
     zeus::CVector3f Arrival(const CPhysicsActor& actor, const zeus::CVector3f& v0, float f1) const;
     zeus::CVector3f Pursuit(const CPhysicsActor& actor, const zeus::CVector3f& v0, const zeus::CVector3f& v1) const;
-    zeus::CVector3f Separation(const CPhysicsActor& actor, const zeus::CVector3f& v0, float f1) const;
+    zeus::CVector3f Separation(const CPhysicsActor& actor, const zeus::CVector3f& pos, float separation) const;
     zeus::CVector3f Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
                               const CStateManager& mgr) const;
     zeus::CVector3f Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,

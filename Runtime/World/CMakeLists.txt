@@ -130,6 +130,7 @@ set(WORLD_SOURCES
     CHUDBillboardEffect.hpp CHUDBillboardEffect.cpp
     CExplosion.hpp CExplosion.cpp
     CIceImpact.hpp CIceImpact.cpp
+    CFire.hpp CFire.cpp
     CEntityInfo.hpp)
 
 runtime_add_list(World WORLD_SOURCES)

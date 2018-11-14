@@ -57,13 +57,7 @@ void CFire::Think(float dt, CStateManager& mgr)
     if (GetActive())
     {
         xe8_->Update(dt * x144_);
-        float f0;
-        if (particleCount <= 0.5f)
-            f0 = 0.5f;
-        else
-            f0 = particleCount;
-
-        x10c_damageInfo = CDamageInfo(xf0_damageInfo, dt * f0);
+        x10c_damageInfo = CDamageInfo(xf0_damageInfo, dt * std::max(0.5f, particleCount));
     }
 
     bool doFree = false;
@@ -100,21 +94,20 @@ void CFire::Touch(CActor& act, CStateManager& mgr)
 
 void CFire::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const
 {
-    printf("AddToRenderer\n");
-    bool r31 = true;
+    bool drawParticles = true;
     if (!x148_27_)
     {
         using EPlayerVisor = CPlayerState::EPlayerVisor;
         CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
         if (visor == EPlayerVisor::Combat || visor == EPlayerVisor::Scan)
-            r31 = x148_24_;
+            drawParticles = x148_24_;
         else if (visor == EPlayerVisor::XRay)
-            r31 = x148_26_;
+            drawParticles = x148_26_;
         else if (visor == EPlayerVisor::Thermal)
-            r31 = x148_25_;
+            drawParticles = x148_25_;
     }
 
-    if (r31)
+    if (drawParticles)
         g_Renderer->AddParticleGen(*xe8_);
     CActor::AddToRenderer(frustum, mgr);
 }
