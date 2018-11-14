@@ -31,6 +31,7 @@ public:
     float GetLocomotionSpeed(pas::ELocomotionAnim anim) const;
     float GetMaxSpeed() const;
     float GetMaximumPitch() const { return x30_maxPitch; }
+    void SetMaximumPitch(float pitch) { x30_maxPitch = pitch; }
     bool GetLocoAnimChangeAtEndOfAnimOnly() const { return x34_24_changeLocoAtEndOfAnimOnly; }
     void SetLocoAnimChangeAtEndOfAnimOnly(bool s) { x34_24_changeLocoAtEndOfAnimOnly = s; }
     CBodyState* GetCurrentState();
