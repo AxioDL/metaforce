@@ -243,6 +243,8 @@ public:
     bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }
     void SetModelsUseLights(bool v) { x26d_26_modelsUseLights = v; }
     static void SetMoveRedToAlphaBuffer(bool);
+
+    s32 GetMaxParticles() const { return x90_MAXP; }
 };
 ENABLE_BITWISE_ENUM(CElementGen::EOptionalSystemFlags)
 

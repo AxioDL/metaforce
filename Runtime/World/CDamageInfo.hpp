@@ -38,6 +38,7 @@ public:
     }
 
     CDamageInfo(const CDamageInfo& other) = default;
+    CDamageInfo(const CDamageInfo&, float);
     CDamageInfo(const DataSpec::SShotParam& other);
     CDamageInfo& operator=(const DataSpec::SShotParam& other);
 

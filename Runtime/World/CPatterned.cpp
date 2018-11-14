@@ -283,7 +283,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
             mgr.GetActorModelParticles()->StartElectric(*this);
             if (x3f0_pendingShockDamage > 0.f && x400_25_alive)
             {
-                CDamageInfo dInfo({EWeaponType::Wave}, x3f0_pendingShockDamage, 0.f, 0.f);
+                CDamageInfo dInfo({{EWeaponType::Wave}, x3f0_pendingShockDamage, 0.f, 0.f}, dt);
                 mgr.ApplyDamage(kInvalidUniqueId, GetUniqueId(), kInvalidUniqueId, dInfo,
                                 CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
             }
@@ -303,7 +303,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
         if (x400_25_alive)
         {
             mgr.GetActorModelParticles()->LightDudeOnFire(*this);
-            CDamageInfo dInfo({EWeaponType::Plasma}, x3ec_pendingFireDamage, 0.f, 0.f);
+            CDamageInfo dInfo({{EWeaponType::Plasma}, x3ec_pendingFireDamage, 0.f, 0.f}, dt);
             mgr.ApplyDamage(kInvalidUniqueId, GetUniqueId(), kInvalidUniqueId, dInfo,
                             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
         }

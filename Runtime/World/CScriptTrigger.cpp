@@ -126,7 +126,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr)
                 sendInside = true;
                 InhabitantIdle(*act, mgr);
                 if (act->HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f)
-                    mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x100_damageInfo,
+                    mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), {x100_damageInfo, dt},
                                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
                                     zeus::CVector3f::skZero);
 

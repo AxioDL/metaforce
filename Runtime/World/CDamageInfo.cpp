@@ -47,4 +47,14 @@ float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const
 
     return xc_radiusDamage;
 }
+
+CDamageInfo::CDamageInfo(const CDamageInfo& other, float dt)
+{
+    x0_weaponMode = other.x0_weaponMode;
+    x8_damage = other.x8_damage * (60.f * dt);
+    xc_radiusDamage = x8_damage;
+    x10_radius = other.x10_radius;
+    x14_knockback = other.x14_knockback;
+    x18_noImmunity = true;
+}
 }
