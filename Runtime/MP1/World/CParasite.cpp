@@ -1002,9 +1002,9 @@ void CParasite::UpdateJumpVelocity()
         {
             float f27 = 0.f;
             bool isNeg = f31 < 0.f;
-            float out1, out2;
-            if (CSteeringBehaviors::SolveQuadratic(f30, vec.z, -f31, vec2.y, out1, out2))
-                f27 = isNeg ? out1 : out2;
+            float xPos, xNeg;
+            if (CSteeringBehaviors::SolveQuadratic(f30, vec.z, -f31, xPos, xNeg))
+                f27 = isNeg ? xPos : xNeg;
 
             if (!isNeg)
                 f27 = f27 * f29 / f28;

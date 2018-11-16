@@ -11,7 +11,7 @@ struct Parasite : IScriptObject
     AT_DECL_DNA_YAML
     AT_DECL_DNAV
     String<-1> name;
-    Value<atUint32> unknown1;
+    Value<atUint32> flavor;
     Value<atVec3f> location;
     Value<atVec3f> orientation;
     Value<atVec3f> scale;
