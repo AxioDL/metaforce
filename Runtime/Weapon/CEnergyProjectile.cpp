@@ -126,7 +126,7 @@ static constexpr u64 kCheckMaterial = 0xE3FFFE;
 void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CStateManager& mgr)
 {
     EWeaponCollisionResponseTypes crType = CCollisionResponseData::GetWorldCollisionResponseType(
-        CMaterialList::BitPosition(res.GetMaterial().GetValue() & 0xffffffff & kCheckMaterial));
+        CMaterialList::BitPosition((res.GetMaterial().GetValue() & 0xffffffff) & kCheckMaterial));
     if ((xe8_projectileAttribs & (EProjectileAttrib::Wave | EProjectileAttrib::ComboShot)) !=
         (EProjectileAttrib::Wave | EProjectileAttrib::ComboShot))
     {

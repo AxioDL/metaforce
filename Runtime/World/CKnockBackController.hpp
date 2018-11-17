@@ -107,7 +107,7 @@ private:
     u32 x70_ = 0;
     u32 x74_ = 0;
     pas::ESeverity x7c_severity = pas::ESeverity::One;
-    std::bitset<4> x80_availableStates;
+    std::bitset<5> x80_availableStates;
     union
     {
         struct
@@ -157,6 +157,7 @@ public:
     void SetX82_24(bool b) { x82_24_ = b; }
     const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
     EKnockBackVariant GetVariant() const { return x0_variant; }
+    float GetFlinchRemTime() const { return x64_flinchRemTime; }
 };
 
 }

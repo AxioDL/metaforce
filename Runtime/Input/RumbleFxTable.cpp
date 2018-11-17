@@ -22,7 +22,7 @@ const SAdsrData RumbleFxTable[] =
     {2.4f,         0.f,            0.01f,     0.125f,   0.25f,       0.5f,       false,      false}, // PlayerMissileFire
     {0.84f,        0.f,            0.1f,      0.125f,   0.35f,       1.0f,       false,      false}, // PlayerGrappleFire
     {2.4f,         0.f,            0.1f,      0.225f,   0.38f,       0.3f,       false,      false}, // PlayerLand
-    {0.48f,        0.f,            0.065f,    0.175f,   0.4f,        0.f,        false,      false},
+    {0.48f,        0.f,            0.065f,    0.175f,   0.4f,        0.f,        false,      false}, // IntroBossProjectile (??)
     {0.3024f,      0.f,            0.1f,      1.345f,   0.f,         1.756f,     false,      false}, // PlayerGrappleSwoosh
     {0.72f,        0.f,            0.01f,     0.01f,    0.6f,        0.1f,       false,      false},
     {1.1904f,      0.f,            0.f,       0.125f,   0.683f,      0.5f,       true,       false},

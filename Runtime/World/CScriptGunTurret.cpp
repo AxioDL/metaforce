@@ -170,6 +170,8 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 
     if (comp == ETurretComponent::Base && HasModelData() && GetModelData()->HasAnimData())
         ModelData()->EnableLooping(true);
+
+    const_cast<TToken<CWeaponDescription>*>(&x37c_projectileInfo.Token())->Lock();
 }
 
 void CScriptGunTurret::Accept(IVisitor& visitor)
@@ -409,9 +411,13 @@ void CScriptGunTurret::sub80217408(CStateManager&)
 
 }
 
-void CScriptGunTurret::sub802172b8(CStateManager&)
+void CScriptGunTurret::sub802172b8(CStateManager& mgr)
 {
-
+    auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(CPASAnimParmData(23),
+                                                                                                    *mgr.GetActiveRandom(),
+                                                                                                    -1);
+    if (pair.first > 0.f)
+        ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
 }
 
 void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr)
@@ -967,14 +973,72 @@ void CScriptGunTurret::sub80217f5c(float dt, CStateManager& mgr)
     }
 }
 
-void CScriptGunTurret::sub80216288(float)
+void CScriptGunTurret::sub80216288(float dt)
 {
+    x510_ += dt;
+    float angleDiff2D = zeus::CVector2f::getAngleDiff(x514_.toVec2f(), GetTransform().frontVector().toVec2f());
 
+    if (x560_30_ && angleDiff2D < zeus::degToRad(20.f) && (x520_ == 9 || x520_ == 10))
+    {
+        if (!x560_25_)
+            CSfxManager::AddEmitter(x2d4_data.x82_, GetTranslation(), zeus::CVector3f::skUp, false, false, 127,
+                                    GetAreaIdAlways());
+        x560_30_ = false;
+    }
+
+    if (x510_ >= 0.5f && !x560_25_)
+    {
+        if (x520_ == 9 || x520_ == 10 || x520_ == 12)
+        {
+            bool res = sub80217c24(dt);
+            if (!res && !x50c_)
+                x50c_ = CSfxManager::AddEmitter(x2d4_data.x7c_, GetTranslation(), zeus::CVector3f::skUp, false, true,
+                                                127, GetAreaIdAlways());
+            else if (res && x50c_)
+            {
+                CSfxManager::RemoveEmitter(x50c_);
+                x50c_.reset();
+                x510_ = 0.f;
+            }
+
+            if (x50c_)
+            {
+                float bendScale = dt * x2d4_data.x28_;
+                CSfxManager::PitchBend(x50c_,
+                                       std::max(1.f, 8192.f * (bendScale > 0.f ? angleDiff2D / bendScale : 0.f)) +
+                                       8192);
+            }
+        }
+    }
+    else if (x560_25_ && x50c_)
+    {
+        CSfxManager::RemoveEmitter(x50c_);
+        x50c_.reset();
+    }
+
+    x514_ = GetTransform().frontVector();
 }
 
-void CScriptGunTurret::sub80217124(CStateManager&)
+void CScriptGunTurret::sub80217124(CStateManager& mgr)
 {
+    if (x520_ == 10)
+    {
+        if (x55c_ != -1)
+            return;
 
+        auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+            CPASAnimParmData(24, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
+        if (pair.first > 0.f)
+        {
+            x55c_ = pair.second;
+            ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);
+        }
+    }
+    else if (x55c_ != -1)
+    {
+        ModelData()->AnimationData()->DelAdditiveAnimation(x55c_);
+        x55c_ = -1;
+    }
 }
 
 void CScriptGunTurret::sub80218830(float dt, CStateManager& mgr)
@@ -1010,9 +1074,43 @@ void CScriptGunTurret::sub80218830(float dt, CStateManager& mgr)
     }
 }
 
-void CScriptGunTurret::sub80216594(CStateManager&)
+void CScriptGunTurret::sub80216594(CStateManager& mgr)
 {
+    if (x560_27_)
+    {
+        u32 r0 = 1;
+        if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
+        {
+            zeus::CVector3f frontVec = GetTransform().frontVector();
+            zeus::CVector3f plFrontVec = mgr.GetPlayer().GetTransform().frontVector();
+            float dot = frontVec.dot(plFrontVec);
 
+            if (dot > 0.f)
+                r0 = 0;
+        }
+        bool r29 = r0 != 0;
+        u32 r3 = mgr.GetActiveRandom()->Range(0, 3);
+        r3 += 2;
+        if (r3 > 2 && x2d4_data.x98_ < 3)
+            r0 = 0;
+        else if (r3 > 5 || r3 > 3)
+            r0 = 2;
+        else
+            r0 = 1;
+
+        x3a4_burstFire.SetBurstType(r0 + r29);
+    }
+    else
+    {
+        u32 r3 = x2d4_data.x90_ - 2;
+        x3a4_burstFire.SetBurstType(r3);
+        x3a4_burstFire.xc_ = x2d4_data.x94_;
+    }
+
+
+    x3a4_burstFire.Start(mgr);
+    x560_26_ = false;
+    x560_27_ = true;
 }
 
 bool CScriptGunTurret::sub80217950(CStateManager& mgr)
@@ -1021,6 +1119,11 @@ bool CScriptGunTurret::sub80217950(CStateManager& mgr)
         return sub80217ad8(mgr);
 
     return false;
+}
+
+bool CScriptGunTurret::sub80217c24(float)
+{
+    return zeus::CVector2f::getAngleDiff(x514_.toVec2f(), GetTransform().frontVector().toVec2f()) < zeus::degToRad(20.f);
 }
 
 

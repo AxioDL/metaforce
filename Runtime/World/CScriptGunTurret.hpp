@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Runtime/Weapon/CBurstFire.hpp>
+
 #include "CPhysicsActor.hpp"
 #include "CDamageInfo.hpp"
 #include "CDamageVulnerability.hpp"
@@ -118,7 +120,7 @@ private:
     float x4f8_ = 0.f;
     zeus::CVector3f x4fc_;
     u8 x508_gunSDKSeg = 0xFF;
-    CSfxHandle x50c_ = 0;
+    CSfxHandle x50c_;
     float x510_ = 0.f;
     zeus::CVector3f x514_;
     s32 x520_ = -1;
@@ -190,7 +192,7 @@ public:
     void sub80218830(float, CStateManager&);
     void sub80216594(CStateManager&);
     bool sub80217950(CStateManager&);
+    bool sub80217c24(float);
 };
-
 }
 

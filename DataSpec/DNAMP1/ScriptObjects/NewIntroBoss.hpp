@@ -17,7 +17,7 @@ struct NewIntroBoss : IScriptObject
     PatternedInfo patternedInfo;
     ActorParameters actorParameters;
     Value<float> unknown1;
-    Value<float> unknown2;
+    UniqueID32 weaponDesc;
     DamageInfo damageInfo;
     UniqueID32 particle1;
     UniqueID32 particle2;
@@ -58,6 +58,7 @@ struct NewIntroBoss : IScriptObject
     void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
                             std::vector<hecl::ProjectPath>& lazyOut) const
     {
+        g_curSpec->flattenDependencies(weaponDesc, pathsOut);
         g_curSpec->flattenDependencies(particle1, pathsOut);
         g_curSpec->flattenDependencies(particle2, pathsOut);
         g_curSpec->flattenDependencies(texture1, pathsOut);

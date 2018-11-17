@@ -64,6 +64,7 @@ public:
 
     float GetHalfExtent() const { return xc4_halfExtent; }
     float GetHeight() const { return xc8_height; }
+    u32 GetParticle1Frames() const { return x10c_particle1Frames; }
 };
 }
 

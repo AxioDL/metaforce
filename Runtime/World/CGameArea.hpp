@@ -219,9 +219,9 @@ public:
             TUniqueId x4_uid = kInvalidUniqueId;
         } xa8_pvsEntityMap[1024];
         u32 x10a8_pvsVersion = 0;
-        TLockedToken<CPFArea> x10ac_path;
+        TLockedToken<CPFArea> x10ac_pathToken;
         // bool x10b8_ = 0; optional flag for CToken
-        u32 x10bc_ = 0;
+        CPFArea* x10bc_pathArea = nullptr;
         std::unique_ptr<CAreaObjectList> x10c0_areaObjs;
         std::unique_ptr<CAreaFog> x10c4_areaFog;
         const u8* x10c8_sclyBuf = nullptr;

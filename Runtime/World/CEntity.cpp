@@ -10,6 +10,7 @@ CEntity::CEntity(TUniqueId uniqueId, const CEntityInfo& info, bool active, std::
   x20_conns(info.GetConnectionList())
 {
     x30_24_active = active;
+    x30_27_inUse = x4_areaId != kInvalidAreaId;
 }
 
 void CEntity::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)

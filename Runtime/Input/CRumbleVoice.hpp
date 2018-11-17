@@ -16,6 +16,7 @@ enum class ERumbleFxId
     PlayerGrappleFire = 14,
     PlayerLand = 15,
     PlayerGrappleSwoosh = 17,
+    IntroBossProjectile = 19,
     Twenty = 20,
     TwentyOne = 21,
     TwentyTwo = 22,

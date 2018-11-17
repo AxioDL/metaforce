@@ -49,7 +49,7 @@ CParticleGenInfoGeneric::CParticleGenInfoGeneric(const SObjectTag& part, const s
     if (lightId == -1)
         x88_lightId = kInvalidUniqueId;
     else
-        x88_lightId = _initializeLight(system, stateMgr, lightId, areaId);
+        x88_lightId = _initializeLight(system, stateMgr, areaId, lightId);
 }
 
 void CParticleGenInfoGeneric::AddToRenderer() { g_Renderer->AddParticleGen(*x84_system.get()); }

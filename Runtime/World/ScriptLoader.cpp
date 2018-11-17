@@ -832,14 +832,14 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
     CActorParameters actParms = LoadActorParameters(in);
 
     float f1 = in.readFloatBig();
-    u32 w1 = in.readUint32Big();
+    CAssetId w1(in);
 
     CDamageInfo dInfo(in);
 
-    u32 w2 = in.readUint32Big();
-    u32 w3 = in.readUint32Big();
-    u32 w4 = in.readUint32Big();
-    u32 w5 = in.readUint32Big();
+    CAssetId w2(in);
+    CAssetId w3(in);
+    CAssetId w4(in);
+    CAssetId w5(in);
 
     const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
     FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());

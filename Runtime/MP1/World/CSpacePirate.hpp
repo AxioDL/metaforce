@@ -77,5 +77,6 @@ public:
                  const CActorParameters&, const CPatternedInfo&, CInputStream&, u32);
 
     void Accept(IVisitor &visitor);
+    void Think(float dt, CStateManager&);
 };
 }

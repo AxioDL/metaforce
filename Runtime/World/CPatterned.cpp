@@ -1790,4 +1790,12 @@ void CPatterned::PhazeOut(CStateManager& mgr)
     x450_bodyController->SetPlaybackRate(0.f);
     x64_modelData->AnimationData()->GetParticleDB().SetUpdatesEnabled(false);
 }
+
+bool CPatterned::ApplyBoneTracking() const
+{
+    if (x400_25_alive)
+        return x460_knockBackController.GetFlinchRemTime() <= 0.f;
+
+    return false;
+}
 }

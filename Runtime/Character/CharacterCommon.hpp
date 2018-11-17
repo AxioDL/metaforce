@@ -168,7 +168,10 @@ enum class EGenerateType
 {
     Invalid = -1,
     Zero,
-    One
+    One,
+    Two,
+    Three,
+    Four
 };
 
 enum class ESlideType

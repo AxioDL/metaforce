@@ -791,4 +791,16 @@ void CActor::SetMuted(bool muted)
     xe5_26_muted = muted;
     RemoveEmitter();
 }
+
+void CActor::MoveScannableObjectInfoToActor(CActor* act, CStateManager& mgr)
+{
+    if (!act)
+        return;
+
+    if (act->GetScannableObjectInfo() != GetScannableObjectInfo())
+        act->x98_scanObjectInfo = x98_scanObjectInfo;
+
+    act->AddMaterial(EMaterialTypes::Scannable, mgr);
+    RemoveMaterial(EMaterialTypes::Scannable, mgr);
+}
 }

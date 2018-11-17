@@ -201,6 +201,7 @@ public:
     bool GetPointGeneratorParticles() const { return xe5_31_pointGeneratorParticles; }
     void SetPointGeneratorParticles(bool s) { xe5_31_pointGeneratorParticles = s; }
     CSimpleShadow* Shadow() { return x94_simpleShadow.get(); }
+    void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
 };
 }
 

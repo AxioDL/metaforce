@@ -40,5 +40,6 @@ public:
     static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id,
                                                   const zeus::CTransform& worldXf,
                                                   const zeus::CTransform& localXf);
+
 };
 }

@@ -52,6 +52,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
                     }
                     mgr.AddObject(newAct);
                     x0_jointDescriptions.push_back(desc);
+                    x0_jointDescriptions.back().SetCollisionActorId(newAct->GetUniqueId());
                 }
                 else
                 {
@@ -134,6 +135,7 @@ void CCollisionActorManager::Destroy(CStateManager& mgr) const
 
 void CCollisionActorManager::SetActive(CStateManager& mgr, bool active)
 {
+    x12_active = active;
     for (const CJointCollisionDescription& jDesc : x0_jointDescriptions)
     {
         if (TCastToPtr<CActor> act = mgr.ObjectById(jDesc.GetCollisionActorId()))
@@ -142,7 +144,7 @@ void CCollisionActorManager::SetActive(CStateManager& mgr, bool active)
             if (curActive != active)
                 act->SetActive(active);
 
-            if (!curActive)
+            if (active)
                 Update(0.f, mgr, EUpdateOptions::WorldSpace);
         }
     }

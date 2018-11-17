@@ -47,6 +47,7 @@ public:
     bool SegmentOver(const zeus::CVector3f& p1) const;
     void GetSplinePoint(zeus::CVector3f& pOut, const zeus::CVector3f& p1) const;
     void GetSplinePointWithLookahead(zeus::CVector3f& pOut, const zeus::CVector3f& p1, float lookahead) const;
+    void SetArea(CPFArea* area) { x0_area = area; }
 };
 
 }

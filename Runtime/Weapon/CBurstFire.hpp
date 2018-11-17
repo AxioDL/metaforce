@@ -21,6 +21,7 @@ struct SBurst
 
 class CBurstFire
 {
+    friend class CScriptGunTurret;
     s32 x0_ = -1;
     s32 x4_ = -1;
     float x8_ = 0.f;
@@ -37,11 +38,11 @@ public:
     CBurstFire(SBurst**, s32);
 
     void SetFirstBurst(bool);
-    void SetBurstType(s32);
+    void SetBurstType(s32 type) { x0_ = type; }
     bool IsBurstSet() const;
     void SetTimeToNextShot(float);
     bool ShouldFire() const;
-    s32 GetBurstType() const;
+    s32 GetBurstType() const { return x0_; }
     void Start(CStateManager&);
     void Update(CStateManager&, float);
     void Update();

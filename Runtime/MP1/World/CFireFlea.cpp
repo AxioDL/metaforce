@@ -1,6 +1,8 @@
+#include <Runtime/World/CPatternedInfo.hpp>
 #include "CFireFlea.hpp"
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
+#include "World/CWorld.hpp"
 #include "TCastTo.hpp"
 
 namespace urde::MP1
@@ -63,11 +65,60 @@ void CFireFlea::CDeathCameraEffect::Think(float dt, CStateManager& mgr)
 
 //endregion
 
+s32 CFireFlea::sLightIdx = 0;
+
 CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                     CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, float)
+                     CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, float f1)
     : CPatterned(ECharacter::FireFlea, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
                  EMovementType::Flyer, EColliderType::One, EBodyType::NewFlyer, actParms, EKnockBackVariant::Small)
+ , x56c_(f1)
+ , xd8c_pathFind(nullptr, 2, pInfo.GetParticle1Frames(), 1.f, 1.f)
 {
+    CMaterialFilter filter = GetMaterialFilter();
+    filter.ExcludeList().Add(EMaterialTypes::Character);
+    SetMaterialFilter(filter);
 
+    ModelData()->AnimationData()->SetParticleLightIdx(sLightIdx);
+    ++sLightIdx;
+}
+
+void CFireFlea::Dead(CStateManager& mgr, EStateMsg msg, float dt)
+{
+    if (msg != EStateMsg::Activate || mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal)
+        return;
+
+    mgr.AddObject(new CDeathCameraEffect(mgr.AllocateUniqueId(), GetAreaIdAlways(), ""sv));
+}
+
+bool CFireFlea::Delay(CStateManager&, float arg)
+{
+    return x330_stateMachineState.GetTime() > 0.5f;
+}
+
+void CFireFlea::Accept(IVisitor& visitor)
+{
+    visitor.Visit(this);
+}
+
+void CFireFlea::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
+{
+    CPatterned::AcceptScriptMsg(msg, uid, mgr);
+
+    if (msg == EScriptObjectMessage::Registered)
+    {
+        x450_bodyController->Activate(mgr);
+    }
+    else if (msg == EScriptObjectMessage::InitializedInArea)
+    {
+        xd8c_pathFind.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
+        xe64_ = 50.f;
+    }
+}
+
+bool CFireFlea::InPosition(CStateManager& mgr, float dt)
+{
+    if (x2dc_destObj == kInvalidUniqueId)
+        return false;
+    return (xd80_ - GetTranslation()).magnitude() < 25.f;
 }
 }

@@ -331,6 +331,8 @@ public:
     zeus::CTransform GetLctrTransform(std::string_view name) const;
     zeus::CTransform GetLctrTransform(CSegId id) const;
 
+    bool ApplyBoneTracking() const;
+
     void DeathDelete(CStateManager& mgr);
     void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
     void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info,

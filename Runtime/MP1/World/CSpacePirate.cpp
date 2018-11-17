@@ -32,4 +32,14 @@ void CSpacePirate::Accept(IVisitor &visitor)
     visitor.Visit(this);
 }
 
+void CSpacePirate::Think(float dt, CStateManager& mgr)
+{
+    if (!GetActive())
+        return;
+
+    if (!x450_bodyController->GetActive())
+        x450_bodyController->Activate(mgr);
+    CPatterned::Think(dt, mgr);
+}
+
 }

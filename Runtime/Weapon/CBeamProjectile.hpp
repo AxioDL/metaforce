@@ -46,5 +46,6 @@ public:
     void CalculateRenderBounds();
     virtual void ResetBeam(CStateManager&, bool);
     virtual void UpdateFX(const zeus::CTransform&, float, CStateManager&);
+    virtual void Fire(const zeus::CTransform&, CStateManager&, bool) = 0;
 };
 }

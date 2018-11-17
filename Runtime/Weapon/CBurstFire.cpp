@@ -25,4 +25,54 @@ zeus::CVector3f CBurstFire::GetDistanceCompensatedError(float, float) const
 {
     return {};
 }
+
+void CBurstFire::SetFirstBurst(bool)
+{
+
+}
+
+bool CBurstFire::IsBurstSet() const
+{
+    return false;
+}
+
+void CBurstFire::SetTimeToNextShot(float)
+{
+
+}
+
+bool CBurstFire::ShouldFire() const
+{
+    return false;
+}
+
+void CBurstFire::Start(CStateManager&)
+{
+
+}
+
+void CBurstFire::GetError(float, float) const
+{
+
+}
+
+float CBurstFire::GetMaxXError() const
+{
+    return 0;
+}
+
+float CBurstFire::GetMaxZError() const
+{
+    return 0;
+}
+
+void CBurstFire::GetError() const
+{
+
+}
+
+void CBurstFire::SetFirstBurstIndex(s32)
+{
+
+}
 }
