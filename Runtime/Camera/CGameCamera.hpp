@@ -38,7 +38,6 @@ public:
     virtual void ProcessInput(const CFinalInput&, CStateManager& mgr) = 0;
     virtual void Reset(const zeus::CTransform&, CStateManager& mgr) = 0;
 
-    const zeus::CTransform& GetTransform() const { return x34_transform; }
     zeus::CMatrix4f GetPerspectiveMatrix() const;
     zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f&) const;
     zeus::CTransform ValidateCameraTransform(const zeus::CTransform&, const zeus::CTransform&);

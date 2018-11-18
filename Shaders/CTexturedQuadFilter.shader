@@ -270,3 +270,18 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #srcfac zero
 #dstfac invsrccolor
 
+#shader CTexturedQuadFilterAlphaGEqualZWrite : CTexturedQuadFilterAlpha
+#depthtest gequal
+#depthwrite true
+
+#shader CTexturedQuadFilterAddGEqualZWrite : CTexturedQuadFilterAdd
+#depthtest gequal
+#depthwrite true
+
+#shader CTexturedQuadFilterSubtractGEqualZWrite : CTexturedQuadFilterSubtract
+#depthtest gequal
+#depthwrite true
+
+#shader CTexturedQuadFilterMultGEqualZWrite : CTexturedQuadFilterMult
+#depthtest gequal
+#depthwrite true

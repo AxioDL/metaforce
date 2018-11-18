@@ -16,7 +16,8 @@ public:
     {
         None,
         LEqual,
-        GEqual
+        GEqual,
+        GEqualZWrite
     };
 
 protected:

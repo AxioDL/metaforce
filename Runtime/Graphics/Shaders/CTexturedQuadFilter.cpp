@@ -7,15 +7,19 @@ namespace urde
 
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaGEqualPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AlphaGEqualZWritePipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AlphaLEqualPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddGEqualPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_AddGEqualZWritePipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AddLEqualPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_SubtractPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_SubtractGEqualPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_SubtractGEqualZWritePipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_SubtractLEqualPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_MultPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_MultGEqualPipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_MultGEqualZWritePipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_MultLEqualPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_InvDstMultPipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_InvDstMultGEqualPipeline;
@@ -31,15 +35,19 @@ void CTexturedQuadFilter::Initialize()
 {
     s_AlphaPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAlpha{});
     s_AlphaGEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAlphaGEqual{});
+    s_AlphaGEqualZWritePipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAlphaGEqualZWrite{});
     s_AlphaLEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAlphaLEqual{});
     s_AddPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAdd{});
     s_AddGEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAddGEqual{});
+    s_AddGEqualZWritePipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAddGEqualZWrite{});
     s_AddLEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterAddLEqual{});
     s_SubtractPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterSubtract{});
     s_SubtractGEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterSubtractGEqual{});
+    s_SubtractGEqualZWritePipeline = hecl::conv->convert(Shader_CTexturedQuadFilterSubtractGEqualZWrite{});
     s_SubtractLEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterSubtractLEqual{});
     s_MultPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterMult{});
     s_MultGEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterMultGEqual{});
+    s_MultGEqualZWritePipeline = hecl::conv->convert(Shader_CTexturedQuadFilterMultGEqualZWrite{});
     s_MultLEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterMultLEqual{});
     s_InvDstMultPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterInvDstMult{});
     s_InvDstMultGEqualPipeline = hecl::conv->convert(Shader_CTexturedQuadFilterInvDstMultGEqual{});
@@ -50,15 +58,19 @@ void CTexturedQuadFilter::Shutdown()
 {
     s_AlphaPipeline.reset();
     s_AlphaGEqualPipeline.reset();
+    s_AlphaGEqualZWritePipeline.reset();
     s_AlphaLEqualPipeline.reset();
     s_AddPipeline.reset();
     s_AddGEqualPipeline.reset();
+    s_AddGEqualZWritePipeline.reset();
     s_AddLEqualPipeline.reset();
     s_SubtractPipeline.reset();
     s_SubtractGEqualPipeline.reset();
+    s_SubtractGEqualZWritePipeline.reset();
     s_SubtractLEqualPipeline.reset();
     s_MultPipeline.reset();
     s_MultGEqualPipeline.reset();
+    s_MultGEqualZWritePipeline.reset();
     s_MultLEqualPipeline.reset();
     s_InvDstMultPipeline.reset();
     s_InvDstMultGEqualPipeline.reset();
@@ -101,6 +113,22 @@ static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type, CTex
         default:
             break;
         }
+        break;
+    case CTexturedQuadFilter::ZTest::GEqualZWrite:
+        switch (type)
+        {
+        case EFilterType::Blend:
+            return s_AlphaGEqualZWritePipeline;
+        case EFilterType::Add:
+            return s_AddGEqualZWritePipeline;
+        case EFilterType::Subtract:
+            return s_SubtractGEqualZWritePipeline;
+        case EFilterType::Multiply:
+            return s_MultGEqualZWritePipeline;
+        default:
+            break;
+        }
+        break;
     case CTexturedQuadFilter::ZTest::LEqual:
         switch (type)
         {
@@ -117,6 +145,7 @@ static boo::ObjToken<boo::IShaderPipeline> SelectPipeline(EFilterType type, CTex
         default:
             break;
         }
+        break;
     default:
         break;
     }

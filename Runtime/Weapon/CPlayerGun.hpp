@@ -314,7 +314,7 @@ private:
     };
 
     mutable CTexturedQuadFilter m_screenQuad = {EFilterType::Blend, CGraphics::g_SpareTexture.get(),
-                                                CTexturedQuadFilter::ZTest::GEqual};
+                                                CTexturedQuadFilter::ZTest::GEqualZWrite};
     mutable CAABoxShader m_aaboxShader = {true};
 
     void InitBeamData();

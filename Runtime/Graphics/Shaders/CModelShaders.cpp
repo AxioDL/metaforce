@@ -48,9 +48,15 @@ void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& l
     for (; curLight<URDE_MAX_LIGHTS ; ++curLight)
     {
         CModelShaders::Light& lightOut = lights[curLight];
+        lightOut.pos = zeus::CVector3f::skZero;
+        lightOut.dir = zeus::CVector3f::skDown;
         lightOut.color = zeus::CColor::skClear;
         lightOut.linAtt[0] = 1.f;
+        lightOut.linAtt[1] = 0.f;
+        lightOut.linAtt[2] = 0.f;
         lightOut.angAtt[0] = 1.f;
+        lightOut.angAtt[1] = 0.f;
+        lightOut.angAtt[2] = 0.f;
     }
 }
 

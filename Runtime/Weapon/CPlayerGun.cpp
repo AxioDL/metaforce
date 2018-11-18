@@ -1092,6 +1092,7 @@ void CPlayerGun::ProcessGunMorph(float dt, CStateManager& mgr)
         break;
     case CGunMorph::EGunState::InWipe:
     case CGunMorph::EGunState::OutWipe:
+        x774_holoTransitionGen->SetGlobalScale(sGunScale);
         x774_holoTransitionGen->SetGlobalTranslation(zeus::CVector3f(0.f, x678_morph.GetYLerp(), 0.f));
         x774_holoTransitionGen->Update(dt);
         break;
@@ -2442,11 +2443,7 @@ void CPlayerGun::DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, c
 
 zeus::CVector3f CPlayerGun::ConvertToScreenSpace(const zeus::CVector3f& pos, const CGameCamera& cam) const
 {
-    zeus::CVector3f camToPosLocal = cam.GetTransform().transposeRotate(pos - cam.GetTranslation());
-    if (!camToPosLocal.isZero())
-        return CGraphics::GetPerspectiveProjectionMatrix(false).multiplyOneOverW(camToPosLocal);
-    else
-        return {-1.f, -1.f, 1.f};
+    return cam.ConvertToScreenSpace(pos);
 }
 
 void CPlayerGun::CopyScreenTex()
