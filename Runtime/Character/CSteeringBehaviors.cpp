@@ -26,17 +26,18 @@ zeus::CVector3f CSteeringBehaviors::Seek(const CPhysicsActor& actor,
 }
 
 zeus::CVector3f CSteeringBehaviors::Arrival(const CPhysicsActor& actor,
-    const zeus::CVector3f& v0, float f31) const
+    const zeus::CVector3f& dest, float dampingRadius) const
 {
-    if (!v0.canBeNormalized())
+    zeus::CVector3f posDiff = dest - actor.GetTranslation();
+    if (!posDiff.canBeNormalized())
         return {};
 
-    if (v0.magSquared() < (f31 * f31))
-        f31 = v0.magSquared() / (f31 * f31);
+    if (posDiff.magSquared() < (dampingRadius * dampingRadius))
+        dampingRadius = posDiff.magSquared() / (dampingRadius * dampingRadius);
     else
-        f31 = 1.f;
+        dampingRadius = 1.f;
 
-    return f31 * v0.normalized();
+    return dampingRadius * posDiff.normalized();
 }
 
 zeus::CVector3f CSteeringBehaviors::Pursuit(const CPhysicsActor& actor,
@@ -69,34 +70,30 @@ zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor,
     if (!list.empty())
     {
         for (const TUniqueId& id : list)
-        {
             if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id)))
                 align += act->GetTransform().frontVector();
-        }
 
-        align *=  zeus::CVector3f(1.f / float(list.size()));
+        align *= zeus::CVector3f(1.f / float(list.size()));
     }
 
     float diff = zeus::CVector3f::getAngleDiff(actor.GetTransform().frontVector(), align);
-    return align * ( diff / M_PIF);
+    return align * (diff / M_PIF);
 }
 
 zeus::CVector3f CSteeringBehaviors::Cohesion(const CPhysicsActor& actor,
-    rstl::reserved_vector<TUniqueId, 1024>& list, float f1, const CStateManager& mgr) const
+    rstl::reserved_vector<TUniqueId, 1024>& list, float dampingRadius, const CStateManager& mgr) const
 {
-    zeus::CVector3f cohesion;
+    zeus::CVector3f dest;
     if (!list.empty())
     {
         for (const TUniqueId& id : list)
-        {
             if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id)))
-                cohesion += act->GetTranslation();
-        }
+                dest += act->GetTranslation();
 
-        cohesion *= zeus::CVector3f(1.f / float(list.size()));
-        return Arrival(actor, cohesion, f1);
+        dest *= zeus::CVector3f(1.f / float(list.size()));
+        return Arrival(actor, dest, dampingRadius);
     }
-    return cohesion;
+    return dest;
 }
 
 zeus::CVector2f CSteeringBehaviors::Flee2D(const CPhysicsActor& actor,
@@ -164,7 +161,7 @@ bool CSteeringBehaviors::SolveCubic(
             float f25 = std::pow(std::fabs(f24 + f30), 0.333333f);
             f1 = std::pow(std::fabs(f24 - f30), 0.333333f);
             f1 = (f24 - f30) > 0.f ? f1 : -f1;
-            f25 = (f24 - f30) > 0.f ? f25 : -f25;
+            f25 = (f24 + f30) > 0.f ? f25 : -f25;
             out.push_back(f25 + f1 - f31);
         }
         for (float& f : out)

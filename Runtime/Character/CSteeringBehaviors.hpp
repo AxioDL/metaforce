@@ -14,13 +14,13 @@ class CSteeringBehaviors
 public:
     zeus::CVector3f Flee(const CPhysicsActor& actor, const zeus::CVector3f& v0) const;
     zeus::CVector3f Seek(const CPhysicsActor& actor, const zeus::CVector3f& target) const;
-    zeus::CVector3f Arrival(const CPhysicsActor& actor, const zeus::CVector3f& v0, float f1) const;
+    zeus::CVector3f Arrival(const CPhysicsActor& actor, const zeus::CVector3f& dest, float dampingRadius) const;
     zeus::CVector3f Pursuit(const CPhysicsActor& actor, const zeus::CVector3f& v0, const zeus::CVector3f& v1) const;
     zeus::CVector3f Separation(const CPhysicsActor& actor, const zeus::CVector3f& pos, float separation) const;
     zeus::CVector3f Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
                               const CStateManager& mgr) const;
     zeus::CVector3f Cohesion(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
-                             float f1, const CStateManager& mgr) const;
+                             float dampingRadius, const CStateManager& mgr) const;
     zeus::CVector2f Flee2D(const CPhysicsActor& actor, const zeus::CVector2f& v0) const;
     zeus::CVector2f Arrival2D(const CPhysicsActor& actor, const zeus::CVector2f& v0, float f1) const;
     static bool SolveQuadratic(float, float, float, float&, float&);

@@ -446,7 +446,7 @@ void CParasite::UpdatePFDestination(CStateManager& mgr)
 void CParasite::DoFlockingBehavior(CStateManager& mgr)
 {
     zeus::CVector3f upVec = x34_transform.basis[2];
-    rstl::reserved_vector<TUniqueId, 1024> _834;
+    rstl::reserved_vector<TUniqueId, 1024> parasiteList;
     zeus::CAABox aabb(GetTranslation() - x6e4_parasiteSearchRadius,
                       GetTranslation() + x6e4_parasiteSearchRadius);
     if ((x5d4_thinkCounter % 6) == 0)
@@ -462,7 +462,7 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr)
             {
                 if (parasite != this && parasite->IsAlive())
                 {
-                    _834.push_back(parasite->GetUniqueId());
+                    parasiteList.push_back(parasite->GetUniqueId());
                     float distSq = (parasite->GetTranslation() - GetTranslation()).magSquared();
                     if (distSq < minDistSq)
                     {
@@ -477,8 +477,8 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr)
                 x6e8_parasiteSeparationDist) * x604_activeSpeed;
         else
             x628_parasiteSeparationMove = zeus::CVector3f::skZero;
-        x634_parasiteCohesionMove = x45c_steeringBehaviors.Cohesion(*this, _834, 0.6f, mgr) * x604_activeSpeed;
-        x640_parasiteAlignmentMove = x45c_steeringBehaviors.Alignment(*this, _834, mgr) * x604_activeSpeed;
+        x634_parasiteCohesionMove = x45c_steeringBehaviors.Cohesion(*this, parasiteList, 0.6f, mgr) * x604_activeSpeed;
+        x640_parasiteAlignmentMove = x45c_steeringBehaviors.Alignment(*this, parasiteList, mgr) * x604_activeSpeed;
     }
 
     if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() <

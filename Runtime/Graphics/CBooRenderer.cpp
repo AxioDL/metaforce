@@ -808,7 +808,7 @@ void CBooRenderer::DisablePVS()
     xc8_pvs = std::experimental::nullopt;
 }
 
-void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
+void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights)
 {
     SetupRendererStates();
 
@@ -839,7 +839,8 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender)
             CBooModel* model = *it;
             if (model->TryLockTextures())
             {
-                ActivateLightsForModel(&item, *model);
+                if (activateLights)
+                    ActivateLightsForModel(&item, *model);
                 model->UpdateUniformData(flags, nullptr, nullptr, bufIdx);
             }
         }
@@ -1449,7 +1450,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                                                const zeus::CAABox& aabb) const
 {
     SetupRendererStates();
-    const_cast<CBooRenderer&>(*this).UpdateAreaUniforms(-1);
+    const_cast<CBooRenderer&>(*this).UpdateAreaUniforms(-1, false, false);
 
     CModelFlags flags;
     flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
