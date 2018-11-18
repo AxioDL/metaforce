@@ -87,6 +87,7 @@ public:
     zeus::CAABox GetProjectileBounds() const;
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
+    zeus::CVector3f GetPreviousPos() const { return x298_lastOrigin; }
 };
 }
 

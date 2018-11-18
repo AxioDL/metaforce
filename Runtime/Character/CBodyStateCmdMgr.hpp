@@ -465,6 +465,7 @@ public:
     const zeus::CVector3f& GetMoveVector() const { return x0_move; }
     const zeus::CVector3f& GetFaceVector() const { return xc_face; }
     const zeus::CVector3f& GetTargetVector() const { return x18_target; }
+    void SetTargetVector(const zeus::CVector3f& target) { x18_target = target; }
     const zeus::CVector3f& GetAdditiveTargetVector() const { return x24_additiveTarget; }
 };
 

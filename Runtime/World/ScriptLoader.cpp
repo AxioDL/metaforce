@@ -1817,8 +1817,7 @@ CEntity* ScriptLoader::LoadMetaree(CStateManager& mgr, CInputStream& in, int pro
         CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                  scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
     return new MP1::CMetaree(mgr.AllocateUniqueId(), name, CPatterned::EFlavorType::Zero, info, xf, std::move(mData),
-                             pInfo,
-                             dInfo, f1, vec, f2, EBodyType::Invalid, f3, f4, aParms);
+                             pInfo, dInfo, f1, vec, f2, EBodyType::Invalid, f3, f4, aParms);
 }
 
 CEntity* ScriptLoader::LoadDockAreaChange(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
