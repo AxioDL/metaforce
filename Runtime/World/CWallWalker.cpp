@@ -145,12 +145,11 @@ void CWallWalker::PreThink(float dt, CStateManager& mgr)
     {
         zeus::CPlane plane = x568_alignNormal.GetPlane();
         const float futureDt = (10.f * dt);
-        SetTranslation(GetTranslation() * (1.f - futureDt) +
-                       (((GetTranslation() - ((plane.vec.dot(GetTranslation())) - plane.d) -
-                          x590_colSphere.GetSphere().radius - 0.1f) * plane.vec) * futureDt));
+        SetTranslation(zeus::CVector3f::lerp(GetTranslation(),
+            GetTranslation() - (plane.pointToPlaneDist(GetTranslation()) -
+            x590_colSphere.GetSphere().radius - 0.01f) * plane.vec, futureDt));
     }
-    else
-        MoveCollisionPrimitive(zeus::CVector3f::skZero);
+    MoveCollisionPrimitive(zeus::CVector3f::skZero);
 }
 
 void CWallWalker::Think(float dt, CStateManager& mgr)

@@ -70,7 +70,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
     }
 
     x40_lifetime -= dt;
-    if (x40_lifetime <= 0.f)
+    if (x40_lifetime > 0.f)
     {
         CEntity::Think(dt, mgr);
         return;
@@ -79,7 +79,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
     x44_28_playing = false;
     for (const SConnection& conn : x20_conns)
     {
-        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg!= EScriptObjectMessage::Play)
+        if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Play)
             continue;
         CEntity* ent = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId));
         if (TCastToPtr<CScriptActor> act = ent)
@@ -94,9 +94,6 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
                     animData->EnableLooping(false);
             }
         }
-        // TODO: Re-enable this
-
-#if 0
         else if (TCastToPtr<CPatterned> ai = ent)
         {
             CAnimData* animData = ai->ModelData()->AnimationData();
@@ -110,7 +107,6 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr)
                 ai->BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
             }
         }
-#endif
     }
 
     CEntity::Think(dt, mgr);
@@ -145,8 +141,6 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
             }
         }
     }
-    // TODO: Re-enable this
-#if 0
     else if (TCastToPtr<CPatterned> ai = ent)
     {
         CAnimData* animData = ai->ModelData()->AnimationData();
@@ -160,6 +154,5 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr)
                 CBCScriptedCmd(x34_animationId, x44_24_looping, x44_27_timedLoop, x38_initialLifetime));
         }
     }
-#endif
 }
 }

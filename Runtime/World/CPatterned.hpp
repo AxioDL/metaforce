@@ -184,6 +184,8 @@ protected:
             bool x328_28_prevOnGround : 1;
             bool x328_29_noPatternShagging : 1;
             bool x328_30_lookAtDeathDir : 1;
+            bool x328_31_ : 1;
+            bool x329_24_ : 1;
         };
         u32 _dummy = 0;
     };

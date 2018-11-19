@@ -62,6 +62,11 @@ x3e0_xDamageDelay(pInfo.xe4_xDamageDelay),
 x3fc_flavor(flavor),
 x460_knockBackController(kbVariant)
 {
+    x328_25_verticalMovement = moveType == EMovementType::Flyer;
+    x328_27_onGround = moveType != EMovementType::Flyer;
+    x328_28_prevOnGround = true;
+    x328_30_lookAtDeathDir = true;
+    x329_24_ = true;
     x400_25_alive = true;
     x400_31_isFlyer = moveType == CPatterned::EMovementType::Flyer;
     x402_29_drawParticles = true;

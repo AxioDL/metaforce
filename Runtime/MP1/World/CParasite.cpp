@@ -267,7 +267,7 @@ void CParasite::Think(float dt, CStateManager& mgr)
 
     if (x5d6_26_playerObstructed)
     {
-        xf8_24_movable = x5d6_26_playerObstructed;
+        xf8_24_movable = false;
         return;
     }
 
@@ -681,7 +681,7 @@ void CParasite::Generate(CStateManager&, EStateMsg msg, float)
                 x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero));
             break;
         case 1:
-            if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Generate)
+            if (x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Generate)
                 x5e8_stateProgress = 2;
             break;
         default:
