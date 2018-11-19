@@ -35,7 +35,10 @@ void CAnimTreeTweenBase::VGetSegStatementSet(const CSegIdList& list, CSegStateme
     else if (sStack > 3)
     {
         auto& n = w > 0.5f ? x18_b : x14_a;
-        n->GetBestUnblendedChild()->VGetSegStatementSet(list, setOut);
+        auto ptr = n->GetBestUnblendedChild();
+        if (!ptr)
+            ptr = n;
+        ptr->VGetSegStatementSet(list, setOut);
     }
     else
     {

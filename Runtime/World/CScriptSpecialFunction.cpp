@@ -1,14 +1,18 @@
 #include "CScriptSpecialFunction.hpp"
-#include "Character/CModelData.hpp"
-#include "CActorParameters.hpp"
 #include "Audio/CSfxManager.hpp"
-#include "TCastTo.hpp"
+#include "Camera/CCameraManager.hpp"
+#include "Character/CModelData.hpp"
+#include "Graphics/CTexture.hpp"
+#include "World/CActorParameters.hpp"
+#include "World/CPlayer.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CMemoryCardSys.hpp"
 #include "CGameState.hpp"
+#include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "IMain.hpp"
-#include "CPlayer.hpp"
+#include "TCastTo.hpp"
+
 #include "hecl/CVarManager.hpp"
 
 namespace urde
@@ -18,7 +22,7 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
                                                const zeus::CTransform& xf, ESpecialFunction func,
                                                std::string_view lcName, float f1, float f2, float f3, float f4,
                                                const zeus::CVector3f& vec, const zeus::CColor& col, bool active,
-                                               const CDamageInfo& dInfo, s32 aId1, s32 aId2, CAssetId aId3,
+                                               const CDamageInfo& dInfo, s32 aId1, s32 aId2, CPlayerState::EItemType itemType,
                                                s16 sId1, s16 sId2, s16 sId3)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(), CActorParameters::None(),
          kInvalidUniqueId)
@@ -36,7 +40,7 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x174_(CSfxManager::TranslateSFXID(sId3))
 , x1bc_areaSaveId(aId1)
 , x1c0_layerIdx(aId2)
-, x1c4_(aId3)
+, x1c4_item(itemType)
 {
     x1e4_26_ = true;
     if (xe8_function == ESpecialFunction::HUDTarget)
@@ -77,13 +81,11 @@ void CScriptSpecialFunction::Think(float dt, CStateManager& mgr)
     case ESpecialFunction::PlayerInAreaRelay: ThinkPlayerInArea(dt, mgr); break;
     case ESpecialFunction::Billboard:
     {
-#if 0
-        if (x1f0_ && x1e8_->x10_ && x1e5_26_)
+        if (x1e8_ && x1e5_26_displayBillboard)
         {
             SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
-            x1e5_26_ = false;
+            x1e5_26_displayBillboard = false;
         }
-#endif
         break;
     }
     default: break;
@@ -276,7 +278,6 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                         }
 
                         //std::sort(x198_ringControllers.begin(), x198_ringControllers.end());
-                        /* TODO: Finish */
                     }
                     break;
                 }
@@ -390,6 +391,109 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                 mgr.GetRumbleManager().Rumble(mgr, fxTranslation[rumbFx], 1.f, ERumblePriority::One);
             }
             break;
+        case ESpecialFunction::InventoryActivator:
+        {
+            if (msg == EScriptObjectMessage::Action && mgr.GetPlayerState()->HasPowerUp(x1c4_item))
+                SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+            break;
+        }
+        case ESpecialFunction::FusionRelay:
+        {
+            if (msg == EScriptObjectMessage::Action && mgr.GetPlayerState()->IsFusionEnabled())
+                SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+            break;
+        }
+        case ESpecialFunction::AreaDamage:
+        {
+            if ((msg == EScriptObjectMessage::Deleted || msg == EScriptObjectMessage::Deactivate) && x1e4_31_)
+            {
+                x1e4_31_ = false;
+                mgr.GetPlayer().DecrementPhazon();
+                mgr.SetIsFullThreat(false);
+            }
+            break;
+        }
+        case ESpecialFunction::DropBomb:
+        {
+            if (msg == EScriptObjectMessage::Action)
+            {
+                if (xfc_ >= 1.f)
+                    mgr.GetPlayer().GetPlayerGun()->DropBomb(CPlayerGun::EBWeapon::PowerBomb, mgr);
+                else
+                    mgr.GetPlayer().GetPlayerGun()->DropBomb(CPlayerGun::EBWeapon::Bomb, mgr);
+            }
+            break;
+        }
+        case ESpecialFunction::RedundantHintSystem:
+        {
+            CHintOptions& hintOptions = g_GameState->HintOptions();
+            if (msg == EScriptObjectMessage::Action)
+                hintOptions.ActivateContinueDelayHintTimer(xec_locatorName.c_str());
+            else if (msg == EScriptObjectMessage::Increment)
+                hintOptions.ActivateImmediateHintTimer(xec_locatorName.c_str());
+            else if (msg == EScriptObjectMessage::Decrement)
+                hintOptions.DelayHint(xec_locatorName.c_str());
+            break;
+        }
+        case ESpecialFunction::Billboard:
+        {
+            if (msg == EScriptObjectMessage::Increment)
+            {
+                const SObjectTag* objectTag = g_ResFactory->GetResourceIdByName(xec_locatorName);
+                CAssetId assetId = objectTag ? objectTag->id : CAssetId();
+
+                mgr.SetPendingOnScreenTex(assetId, {x104_, x108_}, {xfc_, x100_});
+                if (objectTag)
+                {
+                    x1e8_ = g_SimplePool->GetObj(*objectTag);
+                    x1e5_26_displayBillboard = true;
+                }
+            }
+            else if (msg == EScriptObjectMessage::Decrement)
+            {
+                mgr.SetPendingOnScreenTex({}, {x104_, x108_}, {xfc_, x100_});
+                if (x1e8_)
+                    x1e8_ = TLockedToken<CTexture>();
+                x1e5_26_displayBillboard = false;
+            }
+            break;
+        }
+        case ESpecialFunction::PlayerInAreaRelay:
+        {
+            if ((msg == EScriptObjectMessage::Action || msg == EScriptObjectMessage::SetToZero) &&
+                GetAreaIdAlways() == mgr.GetPlayer().GetAreaIdAlways())
+            {
+                SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+            }
+            break;
+        }
+        case ESpecialFunction::HUDTarget:
+        {
+            if (msg == EScriptObjectMessage::Increment)
+                AddMaterial(EMaterialTypes::Target, EMaterialTypes::RadarObject, mgr);
+            else if (msg == EScriptObjectMessage::Decrement)
+                RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::RadarObject, mgr);
+            break;
+        }
+        case ESpecialFunction::FogFader:
+        {
+            if (msg == EScriptObjectMessage::Increment)
+                mgr.GetCameraManager()->SetFogDensity(x100_, xfc_);
+            else if (msg == EScriptObjectMessage::Decrement)
+                mgr.GetCameraManager()->SetFogDensity(x100_, 1.f);
+            break;
+        }
+        case ESpecialFunction::EnterLogbook:
+        {
+            if (msg == EScriptObjectMessage::Action)
+                mgr.DeferStateTransition(EStateManagerTransition::LogBook);
+            break;
+        }
+        case ESpecialFunction::Ending:
+        {
+            if (msg == EScriptObjectMessage::Action && GetSpecialEnding(mgr) == u32(xfc_))
+                SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+        }
         default:
             break;
         }
@@ -496,9 +600,12 @@ void CScriptSpecialFunction::ThinkSaveStation(float, CStateManager& mgr)
     }
 }
 
-void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager &)
+void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager& mgr)
 {
-
+    if ((float(mgr.GetInputFrameIdx()) / 3600.f) < 0.5f)
+        SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+    else
+        SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
 }
 
 void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager &)
@@ -506,9 +613,21 @@ void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager &)
 
 }
 
-void CScriptSpecialFunction::ThinkPlayerInArea(float, CStateManager &)
+void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr)
 {
+    if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways())
+    {
+        if (x1e5_25_playerInArea)
+            return;
 
+        x1e5_25_playerInArea = true;
+        SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+    }
+    else if (x1e5_25_playerInArea)
+    {
+        x1e5_25_playerInArea = false;
+        SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
+    }
 }
 
 bool CScriptSpecialFunction::ShouldSkipCinematic(CStateManager& stateMgr) const

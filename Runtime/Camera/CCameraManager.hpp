@@ -136,6 +136,7 @@ public:
     void UpdateListener(CStateManager& mgr);
 
     float CalculateFogDensity(CStateManager&, const CScriptWater*);
+    void SetFogDensity(float, float);
 
     void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);
 

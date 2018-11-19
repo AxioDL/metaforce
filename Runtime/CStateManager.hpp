@@ -402,6 +402,7 @@ public:
     void SetInMapScreen(bool b) { xf94_27_inMapScreen = b; }
     bool GetInMapScreen() const { return xf94_27_inMapScreen; }
     bool IsFullThreat() const { return xf94_30_fullThreat; }
+    void SetIsFullThreat(bool v) { xf94_30_fullThreat = v; }
 
     const std::shared_ptr<CPlayerState>& GetPlayerState() const {return x8b8_playerState;}
     CRandom16* GetActiveRandom() {return x900_activeRandom;}

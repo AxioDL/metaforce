@@ -78,6 +78,7 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         RemoveMaterial(EMaterialTypes::Solid, mgr);
         RemoveMaterial(EMaterialTypes::Target, mgr);
         RemoveMaterial(EMaterialTypes::Orbit, mgr);
+        RemoveMaterial(EMaterialTypes::Occluder, mgr);
         x450_bodyController->Activate(mgr);
 
         if (x5d4_stage1Projectile == kInvalidUniqueId)

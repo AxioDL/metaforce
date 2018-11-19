@@ -1861,7 +1861,7 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
     float f3 = in.readFloatBig();
     u32 w2 = in.readUint32Big();
     u32 w3 = in.readUint32Big();
-    u32 w4 = in.readUint32Big();
+    CPlayerState::EItemType w4 = CPlayerState::EItemType(in.readUint32Big());
     bool active1 = in.readBool();
     float f4 = in.readFloatBig();
     s16 w5 = in.readUint32Big() & 0xFFFF;
@@ -2681,7 +2681,7 @@ CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int p
 
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(center, {}),
                                       CScriptSpecialFunction::ESpecialFunction::FogVolume, "", flickerSpeed, f2, 0.f,
-                                      0.f, volume, fogColor, active, CDamageInfo(), -1, -1, CAssetId(),
+                                      0.f, volume, fogColor, active, CDamageInfo(), -1, -1, CPlayerState::EItemType::Invalid,
                                       -1, -1, -1);
 }
 
@@ -2767,7 +2767,7 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, xf,
                                       CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f,
                                       0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1,
-                                      -1, -1, -1, -1);
+                                      CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2800,7 +2800,7 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Identity(),
                                       CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density, w1,
                                       0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, CDamageInfo(),
-                                      -1, -1, CAssetId(), -1, -1, -1);
+                                      -1, -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -3089,7 +3089,7 @@ CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, in
     return new CScriptSpecialFunction(
         mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, position),
         CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "", f1, w1, pFlags, 0.f, zeus::CVector3f::skZero,
-        zeus::CColor::skBlack, active, {}, {}, {}, {}, -1, -1, -1);
+        zeus::CColor::skBlack, active, {}, {}, {}, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
