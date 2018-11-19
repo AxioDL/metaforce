@@ -93,7 +93,7 @@ private:
     bool x1b8_ = true;
     s32 x1bc_areaSaveId;
     s32 x1c0_layerIdx;
-    CAssetId x1c4_;
+    CPlayerState::EItemType x1c4_item;
     std::experimental::optional<zeus::CAABox> x1c8_;
     union
     {
@@ -108,7 +108,7 @@ private:
             bool x1e4_30_ : 1;
             bool x1e4_31_ : 1;
             bool x1e5_24_doSave : 1;
-            bool x1e5_25_ : 1;
+            bool x1e5_25_playerInArea : 1;
             bool x1e5_26_displayBillboard : 1;
         };
         u32 x1e4_dummy = 0;
@@ -117,7 +117,7 @@ private:
 public:
     CScriptSpecialFunction(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, ESpecialFunction,
                            std::string_view, float, float, float, float, const zeus::CVector3f&, const zeus::CColor&,
-                           bool, const CDamageInfo&, s32, s32, CAssetId, s16, s16, s16);
+                           bool, const CDamageInfo&, s32, s32, CPlayerState::EItemType, s16, s16, s16);
 
     void Accept(IVisitor& visitor);
     void Think(float, CStateManager &);

@@ -830,4 +830,10 @@ bool CCameraManager::HasCameraHint(CStateManager& mgr) const
 }
 
 bool CCameraManager::IsInterpolationCameraActive() const { return x88_interpCamera->GetActive(); }
+
+void CCameraManager::SetFogDensity(float fogDensityTarget, float fogDensitySpeed)
+{
+    x9c_fogDensityFactorTarget = fogDensityTarget;
+    x98_fogDensitySpeed = (x9c_fogDensityFactorTarget >= x94_fogDensityFactor ? fogDensitySpeed : -fogDensitySpeed);
+}
 }

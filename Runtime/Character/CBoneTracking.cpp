@@ -26,17 +26,20 @@ void CBoneTracking::Update(float dt)
 void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf,
                               const zeus::CVector3f& vec, const CBodyController& bodyController)
 {
-    TCastToPtr <CPatterned> patterned = bodyController.GetOwner();
-    bool r31 = false;
-    if (bodyController.GetBodyStateInfo().ApplyHeadTracking() && patterned && patterned->ApplyBoneTracking())
-        r31 = true;
+    TCastToPtr<CPatterned> patterned = bodyController.GetOwner();
 
-    PreRender(mgr, animData, xf, vec, r31);
+    PreRender(mgr, animData, xf, vec,
+              (bodyController.GetBodyStateInfo().ApplyHeadTracking() && patterned && patterned->ApplyBoneTracking()));
 }
 
 void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, const zeus::CTransform& xf,
                               const zeus::CVector3f& vec, bool b)
 {
+    if (x14_segId == 0)
+        return;
+
+    
+    x18_time = 0.f;
 }
 
 void CBoneTracking::SetActive(bool)
