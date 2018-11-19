@@ -47,6 +47,8 @@ public:
     void Touch(CActor &, CStateManager &);
     zeus::CVector3f GetOrbitPosition(const CStateManager &) const;
     const CCollisionPrimitive* GetCollisionPrimitive() const;
+    EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                           const CWeaponMode&, EProjectileAttrib) const;
     zeus::CTransform GetPrimitiveTransform() const;
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void SetDamageVulnerability(const CDamageVulnerability& vuln);

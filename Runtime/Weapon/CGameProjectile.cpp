@@ -245,16 +245,16 @@ CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr)
 
 void CGameProjectile::ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo)
 {
-    if (x2c6_ != kInvalidUniqueId)
+    if (x2c6_pendingDamagee != kInvalidUniqueId)
     {
-        if (TCastToPtr<CActor> act = mgr.ObjectById(x2c6_))
+        if (TCastToPtr<CActor> act = mgr.ObjectById(x2c6_pendingDamagee))
         {
             mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), xec_ownerId, dInfo, xf8_filter, x34_transform.basis[1]);
             if ((xe8_projectileAttribs & EProjectileAttrib::PlayerUnFreeze) == EProjectileAttrib::PlayerUnFreeze &&
                 mgr.GetPlayer().GetUniqueId() == act->GetUniqueId() && mgr.GetPlayer().GetFrozenState())
                 mgr.GetPlayer().UnFreeze(mgr);
         }
-        x2c6_ = kInvalidUniqueId;
+        x2c6_pendingDamagee = kInvalidUniqueId;
     }
 
     for (CProjectileTouchResult& res : x2d0_touchResults)
@@ -285,7 +285,7 @@ CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVecto
 {
     x2d0_touchResults.clear();
     idOut = kInvalidUniqueId;
-    x2c6_ = kInvalidUniqueId;
+    x2c6_pendingDamagee = kInvalidUniqueId;
     CRayCastResult res;
     zeus::CVector3f delta = end - start;
     if (!delta.canBeNormalized())
@@ -314,7 +314,7 @@ CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVecto
                     ent->Touch(*this, mgr);
                     bestMag = tRes.GetRayCastResult().GetT();
                     res = tRes.GetRayCastResult();
-                    x2c6_ = idOut = tRes.GetActorId();
+                    x2c6_pendingDamagee = idOut = tRes.GetActorId();
                 }
             }
             else
@@ -343,12 +343,12 @@ CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVecto
                     {
                         bestMag = res3.GetT();
                         res = res3;
-                        x2c6_ = idOut = tRes.GetActorId();
+                        x2c6_pendingDamagee = idOut = tRes.GetActorId();
                     }
                 }
                 else if (tb->pointInside(start) || (projObj && projObj->GetProjectileBounds().intersects(*tb)))
                 {
-                    x2c6_ = idOut = ent->GetUniqueId();
+                    x2c6_pendingDamagee = idOut = ent->GetUniqueId();
                     zeus::CUnitVector3f norm(-dir);
                     res = CRayCastResult(0.f, start, {norm, norm.dot(start)}, ent->GetMaterialList());
                     break;
@@ -475,7 +475,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CS
         {
             return {kInvalidUniqueId, {}};
         }
-        else if (act.GetUniqueId() == x2c2_)
+        else if (act.GetUniqueId() == x2c2_lastResolvedObj)
         {
             return {kInvalidUniqueId, {}};
         }

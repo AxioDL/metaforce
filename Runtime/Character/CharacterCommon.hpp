@@ -250,7 +250,7 @@ enum class EBodyStateCmd
     ExitState,
     LeanFromCover,
     NextState,
-    Thirteen,
+    MaintainVelocity,
     Generate,
     Hurled,
     Jump,

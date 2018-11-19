@@ -8,8 +8,6 @@ CWeaponMode::CWeaponMode(EWeaponType type, bool charged, bool comboed, bool inst
 {
 }
 
-EWeaponType CWeaponMode::GetType() const { return x0_weaponType; }
-
 CWeaponMode CWeaponMode::Invalid() { return CWeaponMode(EWeaponType::None); }
 
 CWeaponMode CWeaponMode::Phazon() { return CWeaponMode(EWeaponType::Phazon); }

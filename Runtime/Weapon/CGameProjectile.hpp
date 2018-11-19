@@ -38,9 +38,9 @@ protected:
     double x2b0_targetHomingTime = 0.0;
     double x2b8_curHomingTime = x2a8_homingDt;
     TUniqueId x2c0_homingTargetId;
-    TUniqueId x2c2_ = kInvalidUniqueId;
+    TUniqueId x2c2_lastResolvedObj = kInvalidUniqueId;
     TUniqueId x2c4_ = kInvalidUniqueId;
-    TUniqueId x2c6_ = kInvalidUniqueId;
+    TUniqueId x2c6_pendingDamagee = kInvalidUniqueId;
     TUniqueId x2c8_projectileLight = kInvalidUniqueId;
     CAssetId x2cc_wpscId;
     std::vector<CProjectileTouchResult> x2d0_touchResults;

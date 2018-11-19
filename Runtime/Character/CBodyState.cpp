@@ -1957,9 +1957,9 @@ float CBSLocomotion::GetStartVelocityMagnitude(CBodyController& bc)
     return 0.f;
 }
 
-void CBSLocomotion::ReStartBodyState(CBodyController& bc, bool b)
+void CBSLocomotion::ReStartBodyState(CBodyController& bc, bool maintainVel)
 {
-    UpdateLocomotionAnimation(0.f, b ? GetStartVelocityMagnitude(bc) : 0.f, bc, true);
+    UpdateLocomotionAnimation(0.f, maintainVel ? GetStartVelocityMagnitude(bc) : 0.f, bc, true);
 }
 
 float CBSLocomotion::ComputeWeightPercentage(const std::pair<s32, float>& a,
@@ -1974,7 +1974,7 @@ float CBSLocomotion::ComputeWeightPercentage(const std::pair<s32, float>& a,
 void CBSLocomotion::Start(CBodyController& bc, CStateManager& mgr)
 {
     x4_locomotionType = bc.GetLocomotionType();
-    if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Thirteen))
+    if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::MaintainVelocity))
         ReStartBodyState(bc, true);
     else
         ReStartBodyState(bc, false);

@@ -323,7 +323,7 @@ class CBodyStateCmdMgr
     CBodyStateCmd x16c_ = {EBodyStateCmd::ExitState};
     CBodyStateCmd x174_ = {EBodyStateCmd::LeanFromCover};
     CBodyStateCmd x17c_ = {EBodyStateCmd::NextState};
-    CBodyStateCmd x184_ = {EBodyStateCmd::Thirteen};
+    CBodyStateCmd x184_ = {EBodyStateCmd::MaintainVelocity};
     CBCGenerateCmd x18c_generate;
     CBCHurledCmd x1ac_hurled;
     CBCJumpCmd x1d0_jump;

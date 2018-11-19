@@ -134,13 +134,13 @@ void CEnergyProjectile::ResolveCollisionWithWorld(const CRayCastResult& res, CSt
         if (Explode(res.GetPoint(), res.GetPlane().normal(), crType, mgr,
                     CDamageVulnerability::NormalVulnerabilty(), kInvalidUniqueId))
             mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), x12c_curDamageInfo, xf8_filter);
-        x2c2_ = kInvalidUniqueId;
+        x2c2_lastResolvedObj = kInvalidUniqueId;
     }
 }
 
 void CEnergyProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr)
 {
-    x2c2_ = act.GetUniqueId();
+    x2c2_lastResolvedObj = act.GetUniqueId();
     EWeaponCollisionResponseTypes crType =
     act.GetCollisionResponseType(res.GetPoint(), x34_transform.basis[1].normalized(),
                                  x12c_curDamageInfo.GetWeaponMode(), xe8_projectileAttribs);
@@ -283,7 +283,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
         EVulnerability deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
         switch (deflectType)
         {
-        case EVulnerability::DoubleDamage:
+        case EVulnerability::Weak:
             deflect = false;
             break;
         case EVulnerability::Deflect:

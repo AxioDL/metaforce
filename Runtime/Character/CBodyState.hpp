@@ -347,7 +347,7 @@ class CBSLocomotion : public CBodyState
 protected:
     pas::ELocomotionType x4_locomotionType = pas::ELocomotionType::Invalid;
     float GetStartVelocityMagnitude(CBodyController& bc);
-    void ReStartBodyState(CBodyController& bc, bool);
+    void ReStartBodyState(CBodyController& bc, bool maintainVel);
     float ComputeWeightPercentage(const std::pair<s32, float>& a,
                                   const std::pair<s32, float>& b, float f) const;
 public:

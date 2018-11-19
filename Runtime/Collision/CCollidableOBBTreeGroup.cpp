@@ -92,6 +92,7 @@ CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastSt
         }
     }
 
+    ret.Transform(rayCast.GetTransform());
     return ret;
 }
 

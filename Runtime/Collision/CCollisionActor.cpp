@@ -132,6 +132,12 @@ const CCollisionPrimitive* CCollisionActor::GetCollisionPrimitive() const
     return x284_spherePrimitive.get();
 }
 
+EWeaponCollisionResponseTypes CCollisionActor::GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                                        const CWeaponMode&, EProjectileAttrib) const
+{
+    return x300_responseType;
+}
+
 zeus::CTransform CCollisionActor::GetPrimitiveTransform() const
 {
     zeus::CTransform xf = x34_transform;

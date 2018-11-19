@@ -14,7 +14,7 @@ class CWeaponMode
 public:
     CWeaponMode() { x4_24_charged = false; x4_25_comboed = false; x4_26_instantKill = false; }
     CWeaponMode(EWeaponType, bool charged = false, bool comboed = false, bool instaKill = false);
-    EWeaponType GetType() const;
+    EWeaponType GetType() const { return x0_weaponType; }
 
     bool IsCharged() const { return x4_24_charged; }
     bool IsComboed() const { return x4_25_comboed; }

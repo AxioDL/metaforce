@@ -31,7 +31,7 @@ float CDamageInfo::GetDamage(const CDamageVulnerability& dVuln) const
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
     if (vuln == EVulnerability::Deflect)
         return 0.f;
-    else if (vuln == EVulnerability::DoubleDamage)
+    else if (vuln == EVulnerability::Weak)
         return 2.f * x8_damage;
 
     return x8_damage;
@@ -42,7 +42,7 @@ float CDamageInfo::GetRadiusDamage(const CDamageVulnerability& dVuln) const
     EVulnerability vuln = dVuln.GetVulnerability(x0_weaponMode, false);
     if (vuln == EVulnerability::Deflect)
         return 0.f;
-    else if (vuln == EVulnerability::DoubleDamage)
+    else if (vuln == EVulnerability::Weak)
         return 2.f * xc_radiusDamage;
 
     return xc_radiusDamage;

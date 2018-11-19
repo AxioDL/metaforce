@@ -271,7 +271,7 @@ void CParasite::Think(float dt, CStateManager& mgr)
         return;
     }
 
-    xf8_24_movable = !xf8_24_movable;
+    xf8_24_movable = !x5d6_24_alignToFloor;
 
     if (!x5d6_27_disableMove)
     {

@@ -1099,7 +1099,7 @@ void CPatterned::Burn(float duration, float damage)
 {
     switch (GetDamageVulnerability()->GetVulnerability(CWeaponMode(EWeaponType::Plasma), false))
     {
-    case EVulnerability::DoubleDamage:
+    case EVulnerability::Weak:
         x450_bodyController->SetOnFire(1.5f * duration);
         x3ec_pendingFireDamage = 1.5f * damage;
         break;
@@ -1116,7 +1116,7 @@ void CPatterned::Shock(float duration, float damage)
 {
     switch (GetDamageVulnerability()->GetVulnerability(CWeaponMode(EWeaponType::Wave), false))
     {
-    case EVulnerability::DoubleDamage:
+    case EVulnerability::Weak:
         x450_bodyController->SetElectrocuting(1.5f * duration);
         x3f0_pendingShockDamage = 1.5f * damage;
         break;
