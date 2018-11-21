@@ -41,33 +41,36 @@ CCharAnimTime CAnimSourceInfo::GetAnimationDuration() const
     return x4_token->GetDuration();
 }
 
-std::map<std::string, CParticleData::EParentedMode>
+std::set<std::pair<std::string, s32>>
 CAnimSourceReaderBase::GetUniqueParticlePOIs() const
 {
     const std::vector<CParticlePOINode>& particleNodes = x4_sourceInfo->GetParticlePOIStream();
-    std::map<std::string, CParticleData::EParentedMode> ret;
+    std::set<std::pair<std::string, s32>> ret;
     for (const CParticlePOINode& node : particleNodes)
-        ret[std::string(node.GetString())] = node.GetParticleData().GetParentedMode();
+        if (node.GetUnique())
+            ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
     return ret;
 }
 
-std::map<std::string, s32>
+std::set<std::pair<std::string, s32>>
 CAnimSourceReaderBase::GetUniqueInt32POIs() const
 {
     const std::vector<CInt32POINode>& int32Nodes = x4_sourceInfo->GetInt32POIStream();
-    std::map<std::string, s32> ret;
+    std::set<std::pair<std::string, s32>> ret;
     for (const CInt32POINode& node : int32Nodes)
-        ret[std::string(node.GetString())] = node.GetValue();
+        if (node.GetUnique())
+            ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
     return ret;
 }
 
-std::map<std::string, bool>
+std::set<std::pair<std::string, s32>>
 CAnimSourceReaderBase::GetUniqueBoolPOIs() const
 {
     const std::vector<CBoolPOINode>& boolNodes = x4_sourceInfo->GetBoolPOIStream();
-    std::map<std::string, bool> ret;
+    std::set<std::pair<std::string, s32>> ret;
     for (const CBoolPOINode& node : boolNodes)
-        ret[std::string(node.GetString())] = node.GetValue();
+        if (node.GetUnique())
+            ret.insert(std::make_pair(std::string(node.GetString()), node.GetIndex()));
     return ret;
 }
 
@@ -80,21 +83,20 @@ void CAnimSourceReaderBase::PostConstruct(const CCharAnimTime& time)
 
     if (x4_sourceInfo->HasPOIData())
     {
-        std::map<std::string, bool> boolPOIs = GetUniqueBoolPOIs();
-        std::map<std::string, s32> int32POIs = GetUniqueInt32POIs();
-        std::map<std::string, CParticleData::EParentedMode> particlePOIs = GetUniqueParticlePOIs();
+        std::set<std::pair<std::string, s32>> boolPOIs = GetUniqueBoolPOIs();
+        std::set<std::pair<std::string, s32>> int32POIs = GetUniqueInt32POIs();
+        std::set<std::pair<std::string, s32>> particlePOIs = GetUniqueParticlePOIs();
 
-        x24_boolStates.reserve(boolPOIs.size());
+        x24_boolStates.resize(boolPOIs.size());
+        x34_int32States.resize(int32POIs.size());
+        x44_particleStates.resize(particlePOIs.size());
+
         for (const auto& poi : boolPOIs)
-            x24_boolStates.push_back(poi);
-
-        x34_int32States.reserve(int32POIs.size());
+            x24_boolStates[poi.second] = std::make_pair(poi.first, false);
         for (const auto& poi : int32POIs)
-            x34_int32States.push_back(poi);
-
-        x44_particleStates.reserve(particlePOIs.size());
+            x34_int32States[poi.second] = std::make_pair(poi.first, 0);
         for (const auto& poi : particlePOIs)
-            x44_particleStates.push_back(poi);
+            x44_particleStates[poi.second] = std::make_pair(poi.first, CParticleData::EParentedMode::Initial);
     }
 
     CCharAnimTime tmpTime = time;

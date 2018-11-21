@@ -46,9 +46,9 @@ protected:
     std::vector<std::pair<std::string, s32>> x34_int32States;
     std::vector<std::pair<std::string, CParticleData::EParentedMode>> x44_particleStates;
 
-    std::map<std::string, CParticleData::EParentedMode> GetUniqueParticlePOIs() const;
-    std::map<std::string, s32> GetUniqueInt32POIs() const;
-    std::map<std::string, bool> GetUniqueBoolPOIs() const;
+    std::set<std::pair<std::string, s32>> GetUniqueParticlePOIs() const;
+    std::set<std::pair<std::string, s32>> GetUniqueInt32POIs() const;
+    std::set<std::pair<std::string, s32>> GetUniqueBoolPOIs() const;
 
 protected:
     void PostConstruct(const CCharAnimTime& time);
