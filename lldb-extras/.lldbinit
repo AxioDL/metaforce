@@ -1,0 +1,159 @@
+command script import ~/urde_lldb_tools.py
+type synthetic add zeus::CMatrix3f --python-class urde_lldb_tools.CMatrix3f_Provider
+type synthetic add zeus::CMatrix4f --python-class urde_lldb_tools.CMatrix4f_Provider
+
+type summary add --summary-string "(${var.x}, ${var.y})" zeus::CVector2i
+type summary add --summary-string "(${var.x}, ${var.y})" zeus::CVector2f
+type summary add --summary-string "(${var.x}, ${var.y}, ${var.z})" zeus::CVector3f
+type summary add --summary-string "(${var.x}, ${var.y}, ${var.z})" zeus::CVector3d
+type summary add --summary-string "(${var.x}, ${var.y}, ${var.z}, ${var.w})" zeus::CVector4f
+type summary add --summary-string "(${var.r}, ${var.g}, ${var.b}, ${var.a})" zeus::CColor
+type summary add --summary-string "${var.angle}" zeus::CRelAngle
+type summary add --summary-string "(${var.w}, ${var.x}, ${var.y}, ${var.z})" zeus::CQuaternion
+type summary add --summary-string "pos=${var.position} radius=${var.radius}" zeus::CSphere
+type summary add --summary-string "norm=${var.position} d=${var.d}" zeus::CPlane
+type summary add --summary-string "min=${var.min} max=${var.max}" zeus::CAABox
+type summary add --summary-string "start=${var.origin} dir=${var.dir}" zeus::CLine
+type summary add --summary-string "start=${var.x0_start} dir=${var.xc_dir} end=${var.x18_end}" zeus::CLineSeg
+type summary add --summary-string "pos=${var.position} size=${var.size}" zeus::CRectangle
+type summary add --summary-string "${var.origin}" zeus::CTransform
+
+type summary add --summary-string "${var.id%x} area=${var.id[16-25]}, layer=${var.id[26-31]}, id=${var.id[0-15]}" urde::TEditorId
+type summary add --summary-string "${var.id}" urde::TUniqueId
+
+# \s*(\S+) \((\S+)\)
+# type summary add --summary-string "\${var.x10_name} \${var.xc_editorId}" $2::$1\n
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}, active=${var.x30_24_active}" urde::CEntity
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CActor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CEffect
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CExplosion
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CHUDBillboardEffect
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CIceImpact
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CFire
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CFishCloud
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CFishCloudModifier
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CGameCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CBallCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CCinematicCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CFirstPersonCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CInterpolationCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPathCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSpindleCamera
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CGameLight
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPhysicsActor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CAi
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CDestroyableRock
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPatterned
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CAtomicAlpha
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CBabygoth
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CBeetle
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CBloodFlower
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CBurrower
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CChozoGhost
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CElitePirate
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CEyeball
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CFireFlea
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CFlickerBat
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CFlyingPirate
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMagdolite
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetaree
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetroid
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetroidBeta
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetroidPrimeExo
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CNewIntroBoss
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CPuddleToadGamma
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CPuffer
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CRidley
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CSpacePirate
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CThardusRockProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CTryclops
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CWallWalker
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CParasite
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CSeedling
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CWarWasp
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CAmbientAI
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CCollisionActor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPlayer
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptActor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CActorContraption
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPlayerActor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDebris
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDock
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDoor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptGunTurret
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPickup
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPlatform
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CRepulsor
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptAiJumpPoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptBeam
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraHint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraHintTrigger
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraPitchVolume
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraWaypoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCoverPoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDamageableTrigger
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDebugCameraWaypoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptEffect
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptEMPulse
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptGrapplePoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptMazeNode
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPlayerHint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPointOfInterest
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptShadowProjector
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSound
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSpecialFunction
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSpiderBallAttractionSurface
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSpiderBallWaypoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptTargetingPoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptTrigger
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptBallTrigger
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSteam
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptWater
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptVisorFlare
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptVisorGoo
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptWaypoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CSnakeWeedSwarm
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CWallCrawlerSwarm
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CWeapon
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CBomb
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CGameProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CBeamProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPlasmaProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CEnergyProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CFlaahgraProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetroidPrimeProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CTargetableProjectile
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CFlameThrower
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CNewFlameThrower
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CWaveBuster
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CPowerBomb
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CFireFlea::CDeathCameraEffect
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::MP1::CMetroidPrimeRelay
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptActorKeyframe
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptActorRotate
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptAreaAttributes
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraBlurKeyframe
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraFilterKeyframe
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCameraShaker
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptColorModulate
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptControllerAction
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptCounter
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDistanceFog
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptDockAreaChange
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptGenerator
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptHUDMemo
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptMemoryRelay
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptMidi
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPickupGenerator
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptPlayerStateChange
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptRandomRelay
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptRelay
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptRipple
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptRoomAcoustics
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSpawnPoint
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptStreamedMusic
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptSwitch
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptTimer
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CScriptWorldTeleporter
+type summary add --summary-string "${var.x10_name} ${var.xc_editorId}" urde::CTeamAiMgr
+
