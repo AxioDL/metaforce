@@ -2749,7 +2749,7 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
                               pInfo.GetAnimationParameters().GetInitialAnimation(), true));
 
     return new MP1::CEyeball(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, f1, f2, wpsc,
-                             dInfo, partId1, partId2, texture1, texture2, w1, w2, w3, w4, w5, actParms, b1);
+                             dInfo, partId1, partId2, texture1, texture2, w1, w2, w3, w4, w5, b1, actParms);
 }
 
 CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
