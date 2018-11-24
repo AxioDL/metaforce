@@ -4,7 +4,7 @@ set(WEAPON_SOURCES
     CGunController.hpp CGunController.cpp
     CGunMotion.hpp CGunMotion.cpp
     CGrappleArm.hpp CGrappleArm.cpp
-    CWeaponMode.hpp CWeaponMode.cpp
+    CWeaponMode.hpp
     CPlayerGun.hpp CPlayerGun.cpp
     CGunWeapon.hpp CGunWeapon.cpp
     CAuxWeapon.hpp CAuxWeapon.cpp

@@ -45,7 +45,7 @@ class CPatternedInfo
     float x104_outofFreezeDur;
     float x108_;
 
-    u32 x10c_particle1Frames;
+    u32 x10c_pathfindingIndex;
     zeus::CVector3f x110_particle1Scale;
     CAssetId x11c_particle1;
 
@@ -64,7 +64,8 @@ public:
 
     float GetHalfExtent() const { return xc4_halfExtent; }
     float GetHeight() const { return xc8_height; }
-    u32 GetParticle1Frames() const { return x10c_particle1Frames; }
+    u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
+    const CHealthInfo& GetHealthInfo() const { return x54_healthInfo; }
 };
 }
 

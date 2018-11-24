@@ -214,6 +214,7 @@ public:
     static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
     void PreRender();
     void BuildPose();
+    const CPoseAsTransforms& GetPose() const { return x224_pose; }
     static void PrimitiveSetToTokenVector(const std::set<CPrimitive>& primSet,
                                           std::vector<CToken>& tokensOut, bool preLock);
     void GetAnimationPrimitives(const CAnimPlaybackParms& parms, std::set<CPrimitive>& primsOut) const;
@@ -242,7 +243,7 @@ public:
     void SubstituteModelData(const TCachedToken<CSkinnedModel>& model);
     static void FreeCache();
     static void InitializeCache();
-    const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
+    CHierarchyPoseBuilder& PoseBuilder() { return x2fc_poseBuilder; }
     const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
     CParticleDatabase& GetParticleDB() { return x120_particleDB; }
     void SetParticleCEXTValue(std::string_view name, int idx, float value);
@@ -257,6 +258,8 @@ public:
     TLockedToken<CMorphableSkinnedModel>& IceModel() { return xe4_iceModelData; }
     const TLockedToken<CMorphableSkinnedModel>& GetIceModel() const { return xe4_iceModelData; }
     void SetParticleLightIdx(s32 idx) { x21c_particleLightIdx = idx; }
+
+    void MarkPoseDirty() { x220_30_poseBuilt = false; }
 };
 
 }

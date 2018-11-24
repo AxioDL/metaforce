@@ -59,71 +59,77 @@ CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
 {
 }
 
-SBurst CScriptGunTurret::skOOVBurst4InfoTemplate[5] =
+const SBurst CScriptGunTurret::skBurst2InfoTemplate[] =
 {
-    {3,  1,  2, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {3,  7,  6, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {4,  3,  5, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {60, 16, 4, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {30,  4, 4, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
+    {3, {1, 2, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {3, {7, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {4, {3, 5, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {60, {16, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {4, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst CScriptGunTurret::skOOVBurst3InfoTemplate[5] =
+const SBurst CScriptGunTurret::skBurst3InfoTemplate[] =
 {
-    {30, 4, 5, 4, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {30, 2, 3, 4, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {30, 3, 4, 5, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {5, 16, 1, 2, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {5,  8, 7, 6, -1, 0, 0, 0, 0, 0.15f, 0.05f},
+    {30, {4, 5, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {2, 3, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {3, 4, 5, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {16, 1, 2, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {8, 7, 6, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst CScriptGunTurret::skOOVBurst2InfoTemplate[7] =
+const SBurst CScriptGunTurret::skBurst4InfoTemplate[] =
 {
-    {5,  16,  1, 2,  3, 0, 0, 0, 0, 0.15f, 0.05f},
-    {5,   9,  8, 7,  6, 0, 0, 0, 0, 0.15f, 0.05f},
-    {15,  2,  3, 4,  5, 0, 0, 0, 0, 0.15f, 0.05f},
-    {15,  5,  4, 3,  2, 0, 0, 0, 0, 0.15f, 0.05f},
-    {15, 10, 11, 4, 13, 0, 0, 0, 0, 0.15f, 0.05f},
-    {15, 14, 13, 4, 11, 0, 0, 0, 0, 0.15f, 0.05f},
-    {30,  2,  4, 4,  6, 0, 0, 0, 0, 0.15f, 0.05f},
+    {5, {16, 1, 2, 3, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {5, {9, 8, 7, 6, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {2, 3, 4, 5, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {5, 4, 3, 2, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {10, 11, 4, 13, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {15, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {2, 4, 4, 6, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst CScriptGunTurret::skBurst4InfoTemplate[5] =
+const SBurst CScriptGunTurret::skOOVBurst2InfoTemplate[] =
 {
-    {20, 16, 15, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20,  8,  9, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20, 13, 11, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20,  2,  6, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20,  3,  4, -1, -1, 0, 0, 0, 0, 0.15f, 0.05f},
+    {20, {16, 15, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {8, 9, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {13, 11, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {2, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {3, 4, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst CScriptGunTurret::skBurst3InfoTemplate[5] =
+const SBurst CScriptGunTurret::skOOVBurst3InfoTemplate[] =
 {
-    {10, 14,  4, 10, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {10, 15, 13,  4, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {10,  9, 11,  4, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {35, 15, 13, 11, -1, 0, 0, 0, 0, 0.15f, 0.05f},
-    {35,  9, 11, 13, -1, 0, 0, 0, 0, 0.15f, 0.05f},
+    {10, {14, 4, 10, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {15, 13, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {9, 11, 4, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {35, {15, 13, 11, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {35, {9, 11, 13, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst CScriptGunTurret::skBurst2InfoTemplate[6] =
+const SBurst CScriptGunTurret::skOOVBurst4InfoTemplate[] =
 {
-    {10, 14, 13,  4, 11, 0, 0, 0, 0, 0.15f, 0.05f},
-    {30,  1, 15, 13, 11, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20, 16, 15, 14, 13, 0, 0, 0, 0, 0.15f, 0.05f},
-    {10,  8,  9, 11,  4, 0, 0, 0, 0, 0.15f, 0.05f},
-    {10,  1, 15, 13,  4, 0, 0, 0, 0, 0.15f, 0.05f},
-    {20,  8,  9, 10, 11, 0, 0, 0, 0, 0.15f, 0.05f}
+    {10, {14, 13, 4, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {30, {1, 15, 13, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {16, 15, 14, 13, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {8, 9, 11, 4, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {10, {1, 15, 13, 4, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {20, {8, 9, 10, 11, 0, 0, 0, 0}, 0.150000, 0.050000},
+    {0, {0, 0, 0, 0, 0, 0, 0, 0}, 0.000000, 0.000000},
 };
 
-SBurst* CScriptGunTurret::skBursts[] =
+const SBurst* CScriptGunTurret::skBursts[] =
 {
-    skOOVBurst4InfoTemplate,
-    skOOVBurst3InfoTemplate,
-    skOOVBurst2InfoTemplate,
-    skBurst4InfoTemplate,
-    skBurst3InfoTemplate,
     skBurst2InfoTemplate,
+    skBurst3InfoTemplate,
+    skBurst4InfoTemplate,
+    skOOVBurst2InfoTemplate,
+    skOOVBurst3InfoTemplate,
+    skOOVBurst4InfoTemplate,
     nullptr
 };
 
@@ -324,7 +330,7 @@ void CScriptGunTurret::Think(float dt, CStateManager& mgr)
     }
     else if (x258_type == ETurretComponent::Gun)
     {
-        UpdatGunParticles(dt, mgr);
+        UpdateGunParticles(dt, mgr);
         SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
         MoveToOR(deltas.x0_posDelta, dt);
         RotateToOR(deltas.xc_rotDelta, dt);
@@ -512,7 +518,7 @@ void CScriptGunTurret::GetUnFreezeSoundId(float dt, CStateManager& mgr)
         x53c_ = 0.f;
 }
 
-void CScriptGunTurret::UpdatGunParticles(float dt, CStateManager& mgr)
+void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr)
 {
     CGameLight* light = nullptr;
     if (x498_lightId != kInvalidUniqueId)
@@ -1104,7 +1110,7 @@ void CScriptGunTurret::sub80216594(CStateManager& mgr)
     {
         u32 r3 = x2d4_data.x90_ - 2;
         x3a4_burstFire.SetBurstType(r3);
-        x3a4_burstFire.xc_ = x2d4_data.x94_;
+        x3a4_burstFire.SetFirstBurstIndex(x2d4_data.x94_);
     }
 
 
@@ -1115,7 +1121,7 @@ void CScriptGunTurret::sub80216594(CStateManager& mgr)
 
 bool CScriptGunTurret::sub80217950(CStateManager& mgr)
 {
-    if (x520_ == 9 && x534_ <= 0.f && x3a4_burstFire.GetX14_24())
+    if (x520_ == 9 && x534_ <= 0.f && x3a4_burstFire.ShouldFire())
         return sub80217ad8(mgr);
 
     return false;

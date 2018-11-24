@@ -51,7 +51,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
     x150_momentum = zeus::CVector3f(0.f, 0.f, -24.525f * xe8_mass);
 
     if (x90_actorLights)
-        x90_actorLights->SetAmbientChannelOverflow(true);
+        x90_actorLights->SetAmbienceGenerated(true);
 }
 
 CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,

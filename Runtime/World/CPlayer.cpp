@@ -1138,7 +1138,7 @@ void CPlayer::UpdateScanningState(const CFinalInput& input, CStateManager& mgr, 
                 if (scanTime >= 1.f)
                 {
                     x9c6_30_newScanScanning = false;
-                    scanTime = 0.f;
+                    scanTime = 1.f;
                 }
                 else
                 {

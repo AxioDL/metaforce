@@ -51,6 +51,7 @@ public:
     void BuildNoScale(CPoseAsTransforms& pose);
     void Insert(const CSegId& boneId, const zeus::CQuaternion& quat);
     void Insert(const CSegId& boneId, const zeus::CQuaternion& quat, const zeus::CVector3f& offset);
+    TSegIdMap<CTreeNode>& GetTreeMap() { return x38_treeMap; }
 };
 
 }

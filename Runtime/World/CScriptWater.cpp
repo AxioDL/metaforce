@@ -96,7 +96,7 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
         x90_actorLights->DisableAreaLights();
     x90_actorLights->SetMaxDynamicLights(4);
     x90_actorLights->SetCastShadows(false);
-    x90_actorLights->SetAmbientChannelOverflow(false);
+    x90_actorLights->SetAmbienceGenerated(false);
     x90_actorLights->SetFindNearestDynamicLights(true);
     x148_24_detectCamera = true;
     CalculateRenderBounds();

@@ -91,6 +91,7 @@ set(CHARACTER_SOURCES
     CGroundMovement.hpp CGroundMovement.cpp
     CSteeringBehaviors.hpp CSteeringBehaviors.cpp
     CBodyStateInfo.hpp CBodyStateInfo.cpp
-    CBoneTracking.hpp CBoneTracking.cpp)
+    CBoneTracking.hpp CBoneTracking.cpp
+    CRagDoll.hpp CRagDoll.cpp)
 
 runtime_add_list(Character CHARACTER_SOURCES)

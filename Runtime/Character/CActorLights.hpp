@@ -29,7 +29,7 @@ class CActorLights
             bool x298_26_hasAreaLights : 1;
             bool x298_27_findShadowLight : 1;
             bool x298_28_inArea : 1;
-            bool x298_29_ambientChannelOverflow : 1;
+            bool x298_29_ambienceGenerated : 1;
             bool x298_30_layer2 : 1;
             bool x298_31_disableWorldLights : 1;
             bool x299_24_inBrightLight : 1;
@@ -75,7 +75,7 @@ public:
     void SetCastShadows(bool v) { x298_25_castShadows = v; }
     void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
     void SetShadowDynamicRangeThreshold(float t) { x2d0_shadowDynamicRangeThreshold = t; }
-    void SetAmbientChannelOverflow(bool v) { x298_29_ambientChannelOverflow = v; }
+    void SetAmbienceGenerated(bool v) { x298_29_ambienceGenerated = v; }
     void DisableAreaLights();
     void SetMaxDynamicLights(int l) { x2bc_maxDynamicLights = l; }
     void SetFindNearestDynamicLights(bool v) { x29a_findNearestDynamicLights = v; }

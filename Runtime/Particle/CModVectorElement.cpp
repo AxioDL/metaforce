@@ -124,34 +124,28 @@ bool CMVEBounce::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPo
     if (!x14_planePrecomputed)
     {
         /* Compute Hesse normal form of plane (for penetration testing) */
-        x8_planeNormal->GetValue(frame, ((zeus::CVector3f&)x18_planeValidatedNormal));
-        ((zeus::CVector3f&)x18_planeValidatedNormal).normalize();
+        x8_planeNormal->GetValue(frame, const_cast<zeus::CVector3f&>(x18_planeValidatedNormal));
+        const_cast<zeus::CVector3f&>(x18_planeValidatedNormal).normalize();
 
         zeus::CVector3f a;
         x4_planePoint->GetValue(frame, a);
 
-        (float&)(x24_planeD) = x18_planeValidatedNormal.dot(a);
+        const_cast<float&>(x24_planeD) = x18_planeValidatedNormal.dot(a);
     }
 
     float dot = x18_planeValidatedNormal.dot(pPos);
-    if ((dot - x24_planeD) <= 0.0f)
-    {
-        if (x15_dieOnPenetrate)
-            return true;
-    }
-    else
+    if (dot - x24_planeD > 0.0f)
         return false;
+    else if (x15_dieOnPenetrate)
+        return true;
 
     /* Deflection event */
 
-    if (pVel.magSquared() > 0.0f)
+    if (pVel.dot(x18_planeValidatedNormal) >= 0.0f)
         return false;
 
     zeus::CVector3f delta = pPos - pVel;
-    pPos += zeus::CVector3f{(-((((delta.z * ((delta.x * (delta.y * x18_planeValidatedNormal.y))
-                                             + ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x))) + x18_planeValidatedNormal.z) - x24_planeD)) /
-                             ((pVel.z * ((pVel.x * (x18_planeValidatedNormal.y * pVel.y)) + x18_planeValidatedNormal.x)) + x18_planeValidatedNormal.z)) - (
-                (x18_planeValidatedNormal.z * ((x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x)) +  pVel.z)} * pVel;
+    pPos += (-(delta.dot(x18_planeValidatedNormal) - x24_planeD) / pVel.dot(x18_planeValidatedNormal) - 1.f) * pVel;
 
     float d = 0.0f;
     x10_restitution->GetValue(frame, d);
@@ -159,7 +153,7 @@ bool CMVEBounce::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPo
 
     float c = 0.0f;
     xc_friction->GetValue(frame, c);
-    pVel -= zeus::CVector3f{(1.0f + c) * ((x18_planeValidatedNormal.z * (x18_planeValidatedNormal.x * (x18_planeValidatedNormal.y * pVel.y)) + pVel.x) + pVel.x)} * x18_planeValidatedNormal;
+    pVel -= (1.f + c) * x18_planeValidatedNormal.dot(pVel) * x18_planeValidatedNormal;
     return false;
 }
 

@@ -25,7 +25,7 @@ CActorLights::CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& act
     x298_25_castShadows = true;
 
     x298_28_inArea = (!disableWorldLights && maxAreaLights > 0) ? true : false;
-    x298_29_ambientChannelOverflow = ambientChannelOverflow;
+    x298_29_ambienceGenerated = ambientChannelOverflow;
     x298_30_layer2 = layer2;
     x298_31_disableWorldLights = disableWorldLights;
     x299_24_inBrightLight = true;
@@ -152,7 +152,7 @@ void CActorLights::AddOverflowToLights(const CLight& light, const zeus::CColor& 
 
 void CActorLights::MoveAmbienceToLights(const zeus::CColor& color)
 {
-    if (x298_29_ambientChannelOverflow)
+    if (x298_29_ambienceGenerated)
     {
         x288_ambientColor += color * 0.333333f;
         x288_ambientColor.a = 1.f;
@@ -342,7 +342,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     float overflowMag = 0.f;
 
     /* Max significant lights */
-    int maxAreaLights = !x298_29_ambientChannelOverflow ? x2b8_maxAreaLights - 1 : x2b8_maxAreaLights;
+    int maxAreaLights = !x298_29_ambienceGenerated ? x2b8_maxAreaLights - 1 : x2b8_maxAreaLights;
     x0_areaLights.clear();
 
     /* Filter for performing final light visibility test */
@@ -415,7 +415,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
         else
         {
             /* Overflow light */
-            if (!x298_29_ambientChannelOverflow && value.x10_colorMag > 0.001f)
+            if (!x298_29_ambienceGenerated && value.x10_colorMag > 0.001f)
             {
                 /* Average parameters into final light */
                 MergeOverflowLight(overflowLight, overflowLightColor, light, value.x10_colorMag);
@@ -430,7 +430,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     }
 
     /* Finalize overflow lights */
-    if (!x298_29_ambientChannelOverflow)
+    if (!x298_29_ambienceGenerated)
         AddOverflowToLights(overflowLight, overflowLightColor, overflowMag);
     else
         MoveAmbienceToLights(overflowAmbColor);

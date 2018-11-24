@@ -70,13 +70,13 @@ public:
 
 class CScriptGunTurret : public CPhysicsActor
 {
-    static SBurst skOOVBurst4InfoTemplate[5];
-    static SBurst skOOVBurst3InfoTemplate[5];
-    static SBurst skOOVBurst2InfoTemplate[7];
-    static SBurst skBurst4InfoTemplate[5];
-    static SBurst skBurst3InfoTemplate[5];
-    static SBurst skBurst2InfoTemplate[6];
-    static SBurst* skBursts[];
+    static const SBurst skOOVBurst4InfoTemplate[];
+    static const SBurst skOOVBurst3InfoTemplate[];
+    static const SBurst skOOVBurst2InfoTemplate[];
+    static const SBurst skBurst4InfoTemplate[];
+    static const SBurst skBurst3InfoTemplate[];
+    static const SBurst skBurst2InfoTemplate[];
+    static const SBurst* skBursts[];
 public:
     enum class ETurretComponent
     {
@@ -175,7 +175,7 @@ public:
     void sub802189c8();
     void UpdateGunCollisionManager(float, CStateManager&);
     void GetUnFreezeSoundId(float, CStateManager&);
-    void UpdatGunParticles(float, CStateManager&);
+    void UpdateGunParticles(float, CStateManager&);
     void sub80219938(s32, CStateManager&);
     void sub802196c4(s32, CStateManager&, float);
     void sub802195bc(s32, CStateManager&, float);

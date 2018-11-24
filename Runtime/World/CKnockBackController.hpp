@@ -122,7 +122,7 @@ private:
             bool x81_31_ : 1; // t
             bool x82_24_ : 1; // t
             bool x82_25_inDeferredKnockBack : 1;
-            bool x82_26_ : 1;
+            bool x82_26_locomotionDuringElectrocution : 1;
         };
         u32 dummy = 0;
     };
@@ -155,6 +155,7 @@ public:
     void SetEnableExplodeDeath(bool b) { x81_29_enableExplodeDeath = b; }
     void SetEnableLaggedBurnDeath(bool b) { x81_30_enableLaggedBurnDeath = b; }
     void SetX82_24(bool b) { x82_24_ = b; }
+    void SetLocomotionDuringElectrocution(bool b) { x82_26_locomotionDuringElectrocution = b; }
     const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
     EKnockBackVariant GetVariant() const { return x0_variant; }
     float GetFlinchRemTime() const { return x64_flinchRemTime; }

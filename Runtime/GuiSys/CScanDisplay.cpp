@@ -21,8 +21,10 @@ void CScanDisplay::CDataDot::Update(float dt)
     if (x20_remTime > 0.f)
     {
         x20_remTime = std::max(0.f, x20_remTime - dt);
-        float d = x20_remTime / x1c_transDur;
-        xc_curPos = (x14_targetPos * (x4_startPos * d)) + (1.f - x1c_transDur > 0.f ? d : 0.f);
+        float d = 0.f;
+        if (x1c_transDur > 0.f)
+            d = x20_remTime / x1c_transDur;
+        xc_curPos = zeus::CVector2f::lerp(x14_targetPos, x4_startPos, d);
     }
 
     if (x24_alpha > x28_desiredAlpha)
@@ -32,7 +34,7 @@ void CScanDisplay::CDataDot::Update(float dt)
     }
     else if (x24_alpha < x28_desiredAlpha)
     {
-        float tmp = 2.0 * dt + x24_alpha;
+        float tmp = 2.f * dt + x24_alpha;
         x24_alpha = std::min(tmp, x28_desiredAlpha);
     }
 }
@@ -243,7 +245,8 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
             }
             state.second->SetTextureID0(bucket.x0_texture, g_SimplePool);
             state.second->SetFlashFactor(0.f);
-            if (scanTime >= GetDownloadStartTime(i))
+            float startTime = GetDownloadStartTime(i);
+            if (scanTime >= startTime)
                 x170_paneStates[i].first = 0.f;
             else
                 x170_paneStates[i].first = -1.f;
@@ -400,6 +403,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 if (tmp == 0.f)
                 {
                     dot.SetDotState(CDataDot::EDotState::Done);
+                    dot.SetDesiredAlpha(0.f);
                     CSfxManager::SfxStart(SFXui_scan_pane_reveal, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
                     x170_paneStates[i].first = g_tweakGui->GetScanPaneFadeOutTime() + g_tweakGui->GetScanPaneFadeInTime();
                 }
@@ -423,12 +427,14 @@ void CScanDisplay::Update(float dt, float scanningTime)
             float tmp = dot.GetTransitionFactor();
             if (tmp == 0.f)
             {
-                float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude();
+                float vpRatio = g_Viewport.xc_height / 480.f;
+                float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude() * vpRatio;
                 float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMin() : g_tweakGui->GetScanDataDotSeekDurationMin();
                 float durMax = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMax() : g_tweakGui->GetScanDataDotSeekDurationMax();
                 zeus::CVector2f vec(dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().x : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand),
                                     dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().y : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand));
-                dot.StartTransitionTo(vec, (durMax - durMin) * (rand() / float(RAND_MAX)) + durMin);
+                float dur = (durMax - durMin) * (rand() / float(RAND_MAX)) + durMin;
+                dot.StartTransitionTo(vec, dur);
                 dot.SetDotState(dot.GetDotState() == CDataDot::EDotState::Hold ? CDataDot::EDotState::Seek : CDataDot::EDotState::Hold);
             }
             break;
@@ -436,7 +442,8 @@ void CScanDisplay::Update(float dt, float scanningTime)
         case CDataDot::EDotState::RevealPane:
         case CDataDot::EDotState::Done:
         {
-            zeus::CVector3f screenPos = xa0_selHud.GetFrameCamera()->ConvertToScreenSpace(x170_paneStates[i].second->GetWorldPosition());
+            const zeus::CVector3f& panePos = x170_paneStates[i].second->GetWorldPosition();
+            zeus::CVector3f screenPos = xa0_selHud.GetFrameCamera()->ConvertToScreenSpace(panePos);
             zeus::CVector2f viewportCoords(screenPos.x * g_Viewport.x8_width * 0.5f,
                                            screenPos.y * g_Viewport.xc_height * 0.5f);
             dot.SetDestPosition(viewportCoords);
@@ -485,7 +492,8 @@ void CScanDisplay::Draw() const
     g_Renderer->SetViewportOrtho(true, -4096.f, 4096.f);
     // Additive alpha
 
+    float vpRatio = g_Viewport.xc_height / 480.f;
     for (const CDataDot& dot : xbc_dataDots)
-        dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius());
+        dot.Draw(g_tweakGuiColors->GetScanDataDotColor(), g_tweakGui->GetScanDataDotRadius() * vpRatio);
 }
 }

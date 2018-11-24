@@ -1597,6 +1597,19 @@ EScriptObjectState CPatterned::GetDesiredAttackState(CStateManager& mgr) const
         return EScriptObjectState::Attack;
 }
 
+float CPatterned::GetAnimationDistance(const CPASAnimParmData& data) const
+{
+    auto bestAnim =
+    x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(data, -1);
+    float dist = 1.f;
+    if (bestAnim.first > FLT_EPSILON)
+    {
+        dist = x64_modelData->GetAnimationData()->GetAnimationDuration(bestAnim.second) *
+            x64_modelData->GetAnimationData()->GetAverageVelocity(bestAnim.second);
+    }
+    return dist;
+}
+
 void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 {
     if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)

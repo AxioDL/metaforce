@@ -308,6 +308,7 @@ protected:
     void UpdatePatternDestPos(CStateManager& mgr);
     void SetupPattern(CStateManager& mgr);
     EScriptObjectState GetDesiredAttackState(CStateManager& mgr) const;
+    float GetAnimationDistance(const CPASAnimParmData& data) const;
 public:
     CPatterned(ECharacter character, TUniqueId uid, std::string_view name, EFlavorType flavor,
                const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,

@@ -605,7 +605,7 @@ void CKnockBackController::Update(float dt, CStateManager& mgr, CPatterned& pare
     x64_flinchRemTime -= dt;
     if (TickDeferredTimer(dt))
         DoDeferredKnockBack(mgr, parent);
-    if (x82_26_ && parent.BodyController()->IsElectrocuting())
+    if (x82_26_locomotionDuringElectrocution && parent.BodyController()->IsElectrocuting())
         parent.BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Locomotion));
 }
 

@@ -95,6 +95,29 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
     x50_typeEnable = enable;
     x54_chFadeTime = std::max(chFadeTime, 0.0001f);
     x58_chRate = std::max(chRate, 1.f);
+    if (enable)
+    {
+        if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer())
+        {
+            float chStartTime = 0.f;
+            for (s32 i=0 ; i<buf->GetPrimitiveCount() ; ++i)
+            {
+                for (const std::pair<float, int>& p : x40_primStartTimes)
+                {
+                    if (p.second < i)
+                        continue;
+                    if (p.second != i)
+                        break;
+                    chStartTime = p.first;
+                    break;
+                }
+
+                buf->SetPrimitiveOpacity(i,
+                    std::min(std::max(0.f, (x3c_curTime - chStartTime) / x54_chFadeTime), 1.f));
+                chStartTime += 1.f / x58_chRate;
+            }
+        }
+    }
 }
 
 void CGuiTextSupport::Update(float dt)

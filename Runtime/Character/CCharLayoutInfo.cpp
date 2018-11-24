@@ -28,7 +28,7 @@ CSegId CCharLayoutInfo::GetSegIdFromString(std::string_view name) const
     if (it == x18_segIdMap.end())
         return {};
 
-    return (*it).second;
+    return it->second;
 }
 
 void CCharLayoutNode::Bone::read(CInputStream& in)

@@ -6,53 +6,42 @@ namespace urde
 {
 struct SBurst
 {
-    u32 x0_;
-    u32 x4_;
-    u32 x8_;
-    s32 xc_;
-    s32 x10_;
-    u32 x14_;
-    u32 x18_;
-    u32 x1c_;
-    u32 x20_;
-    float x24_;
-    float x28_;
+    s32 x0_randomSelectionWeight;
+    s32 x4_shotAngles[8];
+    float x24_timeToNextShot;
+    float x28_timeToNextShotVariance;
 };
 
 class CBurstFire
 {
-    friend class CScriptGunTurret;
-    s32 x0_ = -1;
-    s32 x4_ = -1;
-    float x8_ = 0.f;
-    u32 xc_ = 0;
-    s32 x10_;
+    s32 x0_burstType = -1;
+    s32 x4_angleIdx = -1;
+    float x8_timeToNextShot = 0.f;
+    s32 xc_firstBurstIdx = 0;
+    s32 x10_firstBurstCounter;
     union
     {
-        struct { bool x14_24_ : 1; bool x14_25_ : 1; };
+        struct { bool x14_24_shouldFire : 1; bool x14_25_avoidAccuracy : 1; };
         u32 _dummy = 0;
     };
 
-    rstl::reserved_vector<SBurst*, 16> x18_bursts;
+    const SBurst* x18_curBursts = nullptr;
+    rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;
 public:
-    CBurstFire(SBurst**, s32);
+    CBurstFire(const SBurst** burstDefs, s32 firstBurstCount);
 
-    void SetFirstBurst(bool);
-    void SetBurstType(s32 type) { x0_ = type; }
-    bool IsBurstSet() const;
-    void SetTimeToNextShot(float);
-    bool ShouldFire() const;
-    s32 GetBurstType() const { return x0_; }
-    void Start(CStateManager&);
-    void Update(CStateManager&, float);
-    void Update();
-    void GetError(float, float) const;
-    zeus::CVector3f GetDistanceCompensatedError(float, float) const;
+    void SetAvoidAccuracy(bool b) { x14_25_avoidAccuracy = b; }
+    void SetBurstType(s32 type) { x0_burstType = type; }
+    void SetTimeToNextShot(float t) { x8_timeToNextShot = t; }
+    s32 GetBurstType() const { return x0_burstType; }
+    void Start(CStateManager& mgr);
+    void Update(CStateManager& mgr, float dt);
+    zeus::CVector3f GetError(float xMag, float zMag) const;
+    zeus::CVector3f GetDistanceCompensatedError(float dist, float maxErrDist) const;
     float GetMaxXError() const;
     float GetMaxZError() const;
-    void GetError() const;
-    void SetFirstBurstIndex(s32);
-
-    bool GetX14_24() const { return x14_24_; }
+    void SetFirstBurstIndex(s32 idx) { xc_firstBurstIdx = idx; }
+    bool ShouldFire() const { return x14_24_shouldFire; }
+    bool IsBurstSet() const { return x18_curBursts != nullptr; }
 };
 }
