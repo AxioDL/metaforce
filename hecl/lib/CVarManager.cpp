@@ -25,7 +25,7 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
     m_instance = this;
     com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
     com_developer = newCVar("developer", "Enables developer mode", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
-    com_enableCheats = newCVar("iamaweiner", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
+    com_enableCheats = newCVar("cheats", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
 }
 
 CVarManager::~CVarManager()
