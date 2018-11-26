@@ -420,7 +420,7 @@ void CActor::OnScanStateChanged(EScanState state, CStateManager& mgr)
 
 zeus::CAABox CActor::GetSortingBounds(const CStateManager&) const { return x9c_renderBounds; }
 
-void CActor::DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType event, float)
+void CActor::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType event, float dt)
 {
     if (event == EUserEventType::LoopedSoundStop)
         RemoveEmitter();

@@ -1347,7 +1347,7 @@ void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights)
     }
 }
 
-void CBooRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color)
+void CBooRenderer::SetGXRegister1Color(const zeus::CColor& color)
 {
     CGraphics::g_ColorRegs[1] = color;
 }

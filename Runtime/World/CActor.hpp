@@ -132,7 +132,7 @@ public:
     virtual void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
     virtual void OnScanStateChanged(EScanState, CStateManager&);
     virtual zeus::CAABox GetSortingBounds(const CStateManager&) const;
-    virtual void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt);
+    virtual void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
 
     void RemoveEmitter();
     void SetVolume(float vol);

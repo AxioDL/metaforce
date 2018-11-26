@@ -51,7 +51,7 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManag
         mgr.AddObject(gameLight);
         mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
         CSfxManager::AddEmitter(SFXwpn_bomb_drop, GetTranslation(), {}, true, false, 0x7f, -1);
-        mgr.InformListeners(GetTranslation(), EListenNoiseType::Bomb);
+        mgr.InformListeners(GetTranslation(), EListenNoiseType::BombExplode);
         return;
     }
     else if (msg == EScriptObjectMessage::Deleted)
@@ -166,7 +166,7 @@ void CBomb::Explode(const zeus::CVector3f& pos, CStateManager& mgr)
 {
     mgr.ApplyDamageToWorld(xec_ownerId, *this, pos, x12c_curDamageInfo, xf8_filter);
     CSfxManager::AddEmitter(SFXwpn_bomb_explo, GetTranslation(), {}, true, false, 0x7f, -1);
-    mgr.InformListeners(pos, EListenNoiseType::Bomb);
+    mgr.InformListeners(pos, EListenNoiseType::BombExplode);
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
     x190_24_isNotDetonated = false;
 

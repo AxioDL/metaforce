@@ -36,7 +36,7 @@ public:
     void Think(float, CStateManager&);
     void Render(const CStateManager&) const;
     void Touch(CActor&, CStateManager&);
-    void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt);
+    void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
     void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
     bool CanBeShot(CStateManager&, int);
     void Patrol(CStateManager&, EStateMsg, float);

@@ -80,7 +80,7 @@ void CFlickerBat::Touch(CActor& act, CStateManager& mgr)
     CPatterned::Touch(act, mgr);
 }
 
-void CFlickerBat::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType type, float dt)
+void CFlickerBat::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt)
 {
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }

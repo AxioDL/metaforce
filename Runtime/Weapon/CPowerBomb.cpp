@@ -44,7 +44,7 @@ void CPowerBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
         if (mgr.GetPlayerState()->IsPlayerAlive())
         {
             CSfxManager::AddEmitter(SFXsfx0710, GetTranslation(), {}, true, false, 0x7f, -1);
-            mgr.InformListeners(GetTranslation(), EListenNoiseType::Bomb);
+            mgr.InformListeners(GetTranslation(), EListenNoiseType::BombExplode);
         }
         else
         {

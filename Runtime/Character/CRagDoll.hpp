@@ -22,23 +22,23 @@ protected:
         zeus::CVector3f x4_curPos;
         float x10_radius;
         zeus::CVector3f x14_prevPos;
-        zeus::CVector3f x20_acceleration;
-        zeus::CVector3f x2c_nextPosDelta;
-        float x38_ = 0.f;
-        bool x3c_24_nextDampVel : 1;
+        zeus::CVector3f x20_velocity;
+        zeus::CVector3f x2c_impactResponseDelta;
+        float x38_impactFrameVel = 0.f;
+        bool x3c_24_impactPending : 1;
         bool x3c_25_ : 1;
     public:
-        CRagDollParticle(CSegId id, const zeus::CVector3f& curPos, float f1, const zeus::CVector3f& prevPos)
-        : x0_id(id), x4_curPos(curPos), x10_radius(f1), x14_prevPos(prevPos)
+        CRagDollParticle(CSegId id, const zeus::CVector3f& curPos, float radius, const zeus::CVector3f& prevPos)
+        : x0_id(id), x4_curPos(curPos), x10_radius(radius), x14_prevPos(prevPos)
         {
-            x3c_24_nextDampVel = false;
+            x3c_24_impactPending = false;
             x3c_25_ = false;
         }
         CSegId GetBone() const { return x0_id; }
         const zeus::CVector3f& GetPosition() const { return x4_curPos; }
         zeus::CVector3f& Position() { return x4_curPos; }
-        const zeus::CVector3f& GetAcceleration() const { return x20_acceleration; }
-        zeus::CVector3f& Acceleration() { return x20_acceleration; }
+        const zeus::CVector3f& GetVelocity() const { return x20_velocity; }
+        zeus::CVector3f& Velocity() { return x20_velocity; }
         float GetRadius() const { return x10_radius; }
     };
     class CRagDollLengthConstraint
@@ -87,29 +87,29 @@ protected:
     std::vector<CRagDollLengthConstraint> x14_lengthConstraints;
     std::vector<CRagDollJointConstraint> x24_jointConstraints;
     std::vector<CRagDollPlaneConstraint> x34_planeConstraints;
-    float x44_f1;
-    float x48_f2;
-    u32 x4c_ = 0;
-    float x50_f3;
-    float x54_ = 0.f;
-    zeus::CVector3f x58_;
+    float x44_normalGravity;
+    float x48_floatingGravity;
+    u32 x4c_impactCount = 0;
+    float x50_overTimer;
+    float x54_impactVel = 0.f;
+    zeus::CVector3f x58_averageVel;
     float x64_angTimer = 0.f;
     union
     {
         struct
         {
-            bool x68_24_ : 1;
-            bool x68_25_ : 1;
+            bool x68_24_prevMovingSlowly : 1;
+            bool x68_25_over : 1;
             bool x68_26_primed : 1;
-            bool x68_27_ : 1;
-            bool x68_28_ : 1;
-            bool x68_29_ : 1;
+            bool x68_27_continueSmallMovements : 1;
+            bool x68_28_noOverTimer : 1;
+            bool x68_29_noAiCollision : 1;
         };
         u32 _dummy = 0;
     };
-    void AccumulateForces(float dt, float f2);
+    void AccumulateForces(float dt, float waterTop);
     void SetNumParticles(int num) { x4_particles.reserve(num); }
-    void AddParticle(CSegId id, const zeus::CVector3f& prevPos, const zeus::CVector3f& curPos, float f1);
+    void AddParticle(CSegId id, const zeus::CVector3f& prevPos, const zeus::CVector3f& curPos, float radius);
     void SetNumLengthConstraints(int num) { x14_lengthConstraints.reserve(num); }
     void AddLengthConstraint(int i1, int i2);
     void AddMaxLengthConstraint(int i1, int i2, float length);
@@ -118,20 +118,24 @@ protected:
     void AddJointConstraint(int i1, int i2, int i3, int i4, int i5, int i6);
     zeus::CQuaternion BoneAlign(CHierarchyPoseBuilder& pb, const CCharLayoutInfo& charInfo,
                                 int i1, int i2, const zeus::CQuaternion& q);
-    zeus::CAABox CalculateRenderBounds() const;
     void CheckStatic(float dt);
     void ClearForces();
     void SatisfyConstraints(CStateManager& mgr);
-    bool SatisfyWorldConstraints(CStateManager& mgr, int i1);
+    bool SatisfyWorldConstraints(CStateManager& mgr, int pass);
     void SatisfyWorldConstraintsOnConstruction(CStateManager& mgr);
     void Verlet(float dt);
 public:
     virtual ~CRagDoll() = default;
-    CRagDoll(float f1, float f2, float f3, u32 flags);
+    CRagDoll(float normalGravity, float floatingGravity, float overTime, u32 flags);
 
     virtual void PreRender(const zeus::CVector3f& v, CModelData& mData);
-    virtual void Update(CStateManager& mgr, float dt, float f2);
+    virtual void Update(CStateManager& mgr, float dt, float waterTop);
     virtual void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData);
+
+    zeus::CAABox CalculateRenderBounds() const;
+    bool IsPrimed() const { return x68_26_primed; }
+    bool WillContinueSmallMovements() const { return x68_27_continueSmallMovements; }
+    bool IsOver() const { return x68_25_over; }
 };
 
 }

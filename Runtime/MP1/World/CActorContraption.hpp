@@ -23,7 +23,7 @@ public:
     void Accept(IVisitor &visitor);
     void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager &);
     void Think(float, CStateManager &);
-    void DoUserAnimEvent(CStateManager &, CInt32POINode &, EUserEventType, float dt);
+    void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
     CFlameThrower* CreateFlameThrower(std::string_view, CStateManager&);
     void ResetFlameThrowers(CStateManager& mgr);
 };

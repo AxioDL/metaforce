@@ -688,6 +688,7 @@ public:
     float GetMoveSpeed() const { return x4f8_moveSpeed; }
     EPlayerOrbitRequest GetOrbitRequest() const { return x30c_orbitRequest; }
     bool IsShowingCrosshairs() const { return x9c4_25_showCrosshairs; }
+    bool IsSidewaysDashing() const { return x37c_sidewaysDashing; }
 };
 }
 

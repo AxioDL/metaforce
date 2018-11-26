@@ -25,6 +25,11 @@ void CIkChain::Activate(const CAnimData& animData, const CSegId& segId, const ze
     //const TLockedToken<CCharLayoutInfo>& info = posBuilder.CharLayoutInfo();
 }
 
+void CIkChain::PreRender(CAnimData& animData, const zeus::CTransform& xf, const zeus::CVector3f& scale)
+{
+
+}
+
 void CIkChain::Solve(zeus::CQuaternion& q1, zeus::CQuaternion& q2, const zeus::CVector3f& vec)
 {
     const float mag = vec.magnitude();

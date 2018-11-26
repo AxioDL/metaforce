@@ -63,7 +63,7 @@ void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr)
     }
 }
 
-void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType evType, float dt)
+void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType evType, float dt)
 {
     if (evType == EUserEventType::DamageOff)
     {

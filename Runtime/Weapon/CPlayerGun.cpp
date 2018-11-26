@@ -1533,7 +1533,7 @@ void CPlayerGun::FireSecondary(float dt, CStateManager& mgr)
         fireXf.origin += mgr.GetCameraManager()->GetGlobalCameraTranslation(mgr);
         x744_auxWeapon->Fire(dt, x834_27_underwater, x310_currentBeam, x330_chargeState, fireXf,
                              mgr, x72c_currentBeam->GetWeaponType(), targetId);
-        mgr.InformListeners(x4a8_gunWorldXf.origin, EListenNoiseType::Character);
+        mgr.InformListeners(x4a8_gunWorldXf.origin, EListenNoiseType::PlayerFire);
         x3a0_missileExitTimer = 7.f;
         if (!x832_26_comboFiring)
         {
@@ -1659,7 +1659,7 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr)
         homingTarget = kInvalidUniqueId;
     x72c_currentBeam->Fire(x834_27_underwater, dt, x330_chargeState, xf, mgr, homingTarget,
                            x340_chargeBeamFactor, x340_chargeBeamFactor);
-    mgr.InformListeners(x4a8_gunWorldXf.origin, EListenNoiseType::Character);
+    mgr.InformListeners(x4a8_gunWorldXf.origin, EListenNoiseType::PlayerFire);
 }
 
 void CPlayerGun::ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt)

@@ -67,7 +67,7 @@ public:
     }
 
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return  {}; }
-    void DoUserAnimEvent(CStateManager&, CInt32POINode&, EUserEventType, float dt);
+    void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
     void Generate(CStateManager&, EStateMsg, float);
     void Attack(CStateManager&, EStateMsg, float);
     void Patrol(CStateManager&, EStateMsg, float);

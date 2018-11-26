@@ -561,7 +561,7 @@ void CActorLights::ActivateLights(CBooModel& model) const
     if (x298_31_disableWorldLights)
     {
         zeus::CColor color(x2d4_worldLightingLevel);
-        g_Renderer->SetWorldLightMultiplyColor(color);
+        g_Renderer->SetGXRegister1Color(color);
     }
 }
 

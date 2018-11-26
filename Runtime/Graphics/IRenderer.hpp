@@ -105,7 +105,7 @@ public:
     virtual void DoThermalBlendHot()=0;
     virtual u32 GetStaticWorldDataSize()=0;
     virtual void PrepareDynamicLights(const std::vector<CLight>& lights)=0;
-    virtual void SetWorldLightMultiplyColor(const zeus::CColor& color)=0;
+    virtual void SetGXRegister1Color(const zeus::CColor& color)=0;
     virtual void SetWorldLightFadeLevel(float level)=0;
 };
 

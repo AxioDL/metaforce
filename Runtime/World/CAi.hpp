@@ -17,14 +17,16 @@ namespace urde
 
 enum class EListenNoiseType
 {
-    Character,
-    Bomb,
-    Projectile
+    PlayerFire,
+    BombExplode,
+    ProjectileExplode
 };
 
 class CAiFuncMap;
 class CStateManager;
 class CScriptWater;
+class CTeamAiRole;
+
 class CAi : public CPhysicsActor
 {
     static CAiFuncMap*   m_FuncMap;
@@ -52,12 +54,13 @@ public:
     virtual void TakeDamage(const zeus::CVector3f& direction, float magnitude) {}
     virtual bool CanBeShot(const CStateManager&, int) { return true; }
     virtual bool IsListening() const { return false; }
-    virtual int Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
+    virtual bool Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
     virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                                    const CWeaponMode&, EProjectileAttrib) const;
     void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
 
-    virtual zeus::CVector3f GetOrigin() const { return x34_transform.origin; }
+    virtual zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role) const
+    { return x34_transform.origin; }
     virtual void Patrol(CStateManager&, EStateMsg, float) {}
     virtual void FollowPattern(CStateManager&, EStateMsg, float) {}
     virtual void Dead(CStateManager&, EStateMsg, float) {}
@@ -116,7 +119,7 @@ public:
 
     virtual bool InAttackPosition(CStateManager&, float) { return false; }
     virtual bool Leash(CStateManager&, float) { return false; }
-    virtual bool OffLine(CStateManager&,float) { return false; }
+    virtual bool OffLine(CStateManager&, float) { return false; }
     virtual bool Attacked(CStateManager&, float) { return false; }
     virtual bool PathShagged(CStateManager&, float) { return false; }
     virtual bool PathOver(CStateManager&, float) { return false; }
@@ -146,20 +149,20 @@ public:
     virtual bool Stuck(CStateManager&, float) { return false; }
     virtual bool NoPathNodes(CStateManager&, float) { return false; }
     virtual bool Landed(CStateManager&, float) { return false; }
-    virtual bool HearShot(CStateManager&,float) { return false; }
-    virtual bool HearPlayer(CStateManager&,float) { return false; }
+    virtual bool HearShot(CStateManager&, float) { return false; }
+    virtual bool HearPlayer(CStateManager&, float) { return false; }
     virtual bool CoverCheck(CStateManager&, float) { return false; }
     virtual bool CoverFind(CStateManager&, float) { return false; }
     virtual bool CoverBlown(CStateManager&, float) { return false; }
     virtual bool CoverNearlyBlown(CStateManager&, float) { return false; }
     virtual bool CoveringFire(CStateManager&, float) { return false; }
     virtual bool GotUp(CStateManager&, float) { return false; }
-    virtual bool LineOfSight(CStateManager&,float) { return false; }
+    virtual bool LineOfSight(CStateManager&, float) { return false; }
     virtual bool AggressionCheck(CStateManager&, float) { return false; }
     virtual bool AttackOver(CStateManager&, float) { return false; }
     virtual bool ShouldTaunt(CStateManager&,float) { return false; }
-    virtual bool Inside(CStateManager&,float) { return false; }
-    virtual bool ShouldFire(CStateManager&,float) { return false; }
+    virtual bool Inside(CStateManager&, float) { return false; }
+    virtual bool ShouldFire(CStateManager&, float) { return false; }
     virtual bool ShouldFlinch(CStateManager&, float) { return false; }
     virtual bool PatrolPathOver(CStateManager&, float) { return false; }
     virtual bool ShouldDodge(CStateManager&, float) { return false; }

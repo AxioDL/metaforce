@@ -269,7 +269,7 @@ public:
     void DoThermalBlendHot();
     u32 GetStaticWorldDataSize();
     void PrepareDynamicLights(const std::vector<CLight>& lights);
-    void SetWorldLightMultiplyColor(const zeus::CColor& color);
+    void SetGXRegister1Color(const zeus::CColor& color);
     void SetWorldLightFadeLevel(float level);
     void DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
                                       const zeus::CColor& indirectMod, float blurRadius,

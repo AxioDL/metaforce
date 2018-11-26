@@ -65,66 +65,68 @@ void CRagDoll::CRagDollPlaneConstraint::Update()
     }
 }
 
-CRagDoll::CRagDoll(float f1, float f2, float f3, u32 flags)
-: x44_f1(f1), x48_f2(f2), x50_f3(f3)
+CRagDoll::CRagDoll(float normalGravity, float floatingGravity, float overTime, u32 flags)
+: x44_normalGravity(normalGravity), x48_floatingGravity(floatingGravity), x50_overTimer(overTime)
 {
-    x68_27_ = bool(flags & 0x1);
-    x68_28_ = bool(flags & 0x2);
-    x68_29_ = bool(flags & 0x4);
+    x68_27_continueSmallMovements = bool(flags & 0x1);
+    x68_28_noOverTimer = bool(flags & 0x2);
+    x68_29_noAiCollision = bool(flags & 0x4);
 }
 
-void CRagDoll::AccumulateForces(float dt, float f2)
+void CRagDoll::AccumulateForces(float dt, float waterTop)
 {
     float fps = 1.f / dt;
     x64_angTimer += dt;
     if (x64_angTimer > 4.f)
         x64_angTimer -= 4.f;
-    float f25 = std::sin(zeus::degToRad(90.f) * x64_angTimer) * 0.1f + (f2 - 0.2f);
-    zeus::CVector3f f29;
-    float f24 = 0.f;
+    float targetZ = std::sin(zeus::degToRad(90.f) * x64_angTimer) * 0.1f + (waterTop - 0.2f);
+    zeus::CVector3f centerOfVolume;
+    float totalVolume = 0.f;
     for (auto& particle : x4_particles)
     {
-        float cubed = particle.x10_radius * particle.x10_radius * particle.x10_radius;
-        f24 += cubed;
-        f29 += particle.x4_curPos * cubed;
-        float f7 = particle.x4_curPos.z - f25;
-        float f8 = x48_f2;
-        float f23 = 0.f;
-        if (std::fabs(f7) < 0.5f)
+        float volume = particle.x10_radius * particle.x10_radius * particle.x10_radius;
+        totalVolume += volume;
+        centerOfVolume += particle.x4_curPos * volume;
+        float fromTargetZ = particle.x4_curPos.z - targetZ;
+        float verticalAcc = x48_floatingGravity;
+        float termVelCoefficient = 0.f;
+        if (std::fabs(fromTargetZ) < 0.5f)
         {
-            f23 = 0.5f * f7 / 0.5f + 0.5f;
-            f8 = x48_f2 * -f7 / 0.5f;
+            termVelCoefficient = 0.5f * fromTargetZ / 0.5f + 0.5f;
+            verticalAcc = x48_floatingGravity * -fromTargetZ / 0.5f;
         }
-        else if (f7 > 0.f)
+        else if (fromTargetZ > 0.f)
         {
-            f8 = x44_f1;
-            f23 = 1.f;
+            verticalAcc = x44_normalGravity;
+            termVelCoefficient = 1.f;
         }
-        particle.x20_acceleration.z += f8;
+        particle.x20_velocity.z += verticalAcc;
         zeus::CVector3f vel = (particle.x4_curPos - particle.x14_prevPos) * fps;
         float velMag = vel.magnitude();
         if (velMag > FLT_EPSILON)
         {
-            particle.x20_acceleration -= vel * (1.f / velMag) *
-                ((velMag * velMag * 0.75f * (1.2f * f23 + 1000.f * (1.f - f23))) / (8000.f * particle.x10_radius));
+            particle.x20_velocity -= vel * (1.f / velMag) *
+                ((velMag * velMag * 0.75f * (1.2f * termVelCoefficient + 1000.f *
+                (1.f - termVelCoefficient))) / (8000.f * particle.x10_radius));
         }
     }
-    zeus::CVector3f _c8;
-    f29 = f29 / f24;
+    zeus::CVector3f averageTorque;
+    centerOfVolume = centerOfVolume / totalVolume;
     for (const auto& particle : x4_particles)
     {
-        float cubed = particle.x10_radius * particle.x10_radius * particle.x10_radius;
-        _c8 += (particle.x4_curPos - f29).cross(particle.x4_curPos) * cubed;
+        float volume = particle.x10_radius * particle.x10_radius * particle.x10_radius;
+        averageTorque += (particle.x4_curPos - centerOfVolume).
+            cross(particle.x4_curPos - particle.x14_prevPos) * volume;
     }
-    _c8 = _c8 * (fps / f24);
-    if (_c8.canBeNormalized())
+    averageTorque = averageTorque * (fps / totalVolume);
+    if (averageTorque.canBeNormalized())
         for (auto& particle : x4_particles)
-            particle.x20_acceleration -= _c8.cross(particle.x4_curPos - f29) * 25.f;
+            particle.x20_velocity -= averageTorque.cross(particle.x4_curPos - centerOfVolume) * 25.f;
 }
 
-void CRagDoll::AddParticle(CSegId id, const zeus::CVector3f& prevPos, const zeus::CVector3f& curPos, float f1)
+void CRagDoll::AddParticle(CSegId id, const zeus::CVector3f& prevPos, const zeus::CVector3f& curPos, float radius)
 {
-    x4_particles.emplace_back(id, curPos, f1, prevPos);
+    x4_particles.emplace_back(id, curPos, radius, prevPos);
 }
 
 void CRagDoll::AddLengthConstraint(int i1, int i2)
@@ -173,42 +175,42 @@ zeus::CAABox CRagDoll::CalculateRenderBounds() const
 
 void CRagDoll::CheckStatic(float dt)
 {
-    x4c_ = 0;
-    x54_ = 0.f;
-    float f1 = 0.5f * dt;
-    float f31 = f1 * f1;
-    x58_ = zeus::CVector3f::skZero;
-    bool r31 = true;
+    x4c_impactCount = 0;
+    x54_impactVel = 0.f;
+    float halfDt = 0.5f * dt;
+    float halfDeltaUnitSq = halfDt * halfDt;
+    x58_averageVel = zeus::CVector3f::skZero;
+    bool movingSlowly = true;
     for (auto& particle : x4_particles)
     {
         zeus::CVector3f delta = particle.x4_curPos - particle.x14_prevPos;
-        x58_ += delta;
-        if (delta.magSquared() > f31)
-            r31 = false;
-        if (particle.x3c_24_nextDampVel)
+        x58_averageVel += delta;
+        if (delta.magSquared() > halfDeltaUnitSq)
+            movingSlowly = false;
+        if (particle.x3c_24_impactPending)
         {
-            x4c_ += 1;
-            x54_ = std::max(particle.x38_, x54_);
+            x4c_impactCount += 1;
+            x54_impactVel = std::max(particle.x38_impactFrameVel, x54_impactVel);
         }
     }
     if (!x4_particles.empty())
-        x58_ = x58_ * (1.f / (dt * x4_particles.size()));
-    x54_ /= dt;
-    if (!x68_28_)
+        x58_averageVel = x58_averageVel * (1.f / (dt * x4_particles.size()));
+    x54_impactVel /= dt;
+    if (!x68_28_noOverTimer)
     {
-        x50_f3 -= dt;
-        if (x50_f3 <= 0.f)
-            x68_25_ = true;
+        x50_overTimer -= dt;
+        if (x50_overTimer <= 0.f)
+            x68_25_over = true;
     }
-    if (r31 && x68_24_)
-        x68_25_ = true;
-    x68_24_ = r31;
+    if (movingSlowly && x68_24_prevMovingSlowly)
+        x68_25_over = true;
+    x68_24_prevMovingSlowly = movingSlowly;
 }
 
 void CRagDoll::ClearForces()
 {
     for (auto& particle : x4_particles)
-        particle.x20_acceleration = zeus::CVector3f::skZero;
+        particle.x20_velocity = zeus::CVector3f::skZero;
 }
 
 void CRagDoll::SatisfyConstraints(CStateManager& mgr)
@@ -223,12 +225,12 @@ void CRagDoll::SatisfyConstraints(CStateManager& mgr)
         SatisfyWorldConstraints(mgr, 2);
 }
 
-bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int i1)
+bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int pass)
 {
     zeus::CAABox aabb;
     for (const auto& particle : x4_particles)
     {
-        if (i1 == 1 || particle.x3c_24_nextDampVel)
+        if (pass == 1 || particle.x3c_24_impactPending)
         {
             aabb.accumulateBounds(particle.x14_prevPos - particle.x10_radius);
             aabb.accumulateBounds(particle.x14_prevPos + particle.x10_radius);
@@ -239,19 +241,19 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int i1)
 
     CAreaCollisionCache ccache(aabb);
     CGameCollision::BuildAreaCollisionCache(mgr, ccache);
-    bool ret = false;
+    bool needs2ndPass = false;
 
     TUniqueId bestId = kInvalidUniqueId;
     CMaterialList include;
-    if (x68_29_)
+    if (x68_29_noAiCollision)
         include = CMaterialList(EMaterialTypes::Solid);
     else
         include = CMaterialList(EMaterialTypes::Solid, EMaterialTypes::AIBlock);
 
     CMaterialList exclude;
-    if (x68_29_)
+    if (x68_29_noAiCollision)
         exclude = CMaterialList(EMaterialTypes::Character, EMaterialTypes::Player,
-                                  EMaterialTypes::AIBlock, EMaterialTypes::Occluder);
+                                EMaterialTypes::AIBlock, EMaterialTypes::Occluder);
     else
         exclude = CMaterialList(EMaterialTypes::Character, EMaterialTypes::Player);
 
@@ -261,7 +263,7 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int i1)
 
     for (auto& particle : x4_particles)
     {
-        if (i1 == 1 || particle.x3c_24_nextDampVel)
+        if (pass == 1 || particle.x3c_24_impactPending)
         {
             zeus::CVector3f delta = particle.x4_curPos - particle.x14_prevPos;
             float deltaMag = delta.magnitude();
@@ -275,15 +277,15 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int i1)
                                                               nearList, delta, bestId, info, d);
                 if (info.IsValid())
                 {
-                    ret = true;
-                    switch (i1)
+                    needs2ndPass = true;
+                    switch (pass)
                     {
                     case 1:
                     {
-                        particle.x3c_24_nextDampVel = true;
+                        particle.x3c_24_impactPending = true;
                         float dot = delta.dot(info.GetNormalLeft());
-                        particle.x2c_nextPosDelta = -0.125f * dot * deltaMag * info.GetNormalLeft();
-                        particle.x38_ = -dot * deltaMag;
+                        particle.x2c_impactResponseDelta = -0.125f * dot * deltaMag * info.GetNormalLeft();
+                        particle.x38_impactFrameVel = -dot * deltaMag;
                         particle.x4_curPos += float(0.0001f - (deltaMag - d) * dot) * info.GetNormalLeft();
                         break;
                     }
@@ -295,20 +297,20 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int i1)
                     }
                 }
             }
-            else if (!x68_27_)
+            else if (!x68_27_continueSmallMovements)
             {
                 particle.x4_curPos = particle.x14_prevPos;
             }
         }
     }
 
-    return ret;
+    return needs2ndPass;
 }
 
 void CRagDoll::SatisfyWorldConstraintsOnConstruction(CStateManager& mgr)
 {
     for (auto& particle : x4_particles)
-        particle.x3c_24_nextDampVel = true;
+        particle.x3c_24_impactPending = true;
     SatisfyWorldConstraints(mgr, 2);
     for (auto& particle : x4_particles)
         particle.x14_prevPos = particle.x4_curPos;
@@ -320,15 +322,15 @@ void CRagDoll::Verlet(float dt)
     {
         zeus::CVector3f oldPos = particle.x4_curPos;
         particle.x4_curPos += (particle.x4_curPos - particle.x14_prevPos) *
-            (particle.x3c_24_nextDampVel ? 0.9f : 1.f);
-        particle.x4_curPos += particle.x20_acceleration * (dt * dt);
-        particle.x4_curPos += particle.x2c_nextPosDelta;
+            (particle.x3c_24_impactPending ? 0.9f : 1.f);
+        particle.x4_curPos += particle.x20_velocity * (dt * dt);
+        particle.x4_curPos += particle.x2c_impactResponseDelta;
         particle.x14_prevPos = oldPos;
         zeus::CVector3f deltaPos = particle.x4_curPos - particle.x14_prevPos;
         if (deltaPos.magSquared() > 4.f)
             particle.x4_curPos = deltaPos.normalized() * 2.f + particle.x14_prevPos;
-        particle.x3c_24_nextDampVel = false;
-        particle.x2c_nextPosDelta = zeus::CVector3f::skZero;
+        particle.x3c_24_impactPending = false;
+        particle.x2c_impactResponseDelta = zeus::CVector3f::skZero;
     }
 }
 
@@ -337,11 +339,11 @@ void CRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData)
     // Empty
 }
 
-void CRagDoll::Update(CStateManager& mgr, float dt, float f2)
+void CRagDoll::Update(CStateManager& mgr, float dt, float waterTop)
 {
-    if (!x68_25_ || x68_27_)
+    if (!x68_25_over || x68_27_continueSmallMovements)
     {
-        AccumulateForces(dt, f2);
+        AccumulateForces(dt, waterTop);
         Verlet(dt);
         SatisfyConstraints(mgr);
         ClearForces();
@@ -359,7 +361,7 @@ void CRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData&
             particle.x4_curPos = xf * aData->GetPose().GetOffset(particle.x0_id) * scale;
     SatisfyWorldConstraints(mgr, 2);
     for (auto& particle : x4_particles)
-        particle.x3c_24_nextDampVel = false;
+        particle.x3c_24_impactPending = false;
     x68_26_primed = true;
 }
 

@@ -334,7 +334,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
     }
 
     PlayImpactSound(pos, type);
-    mgr.InformListeners(pos, EListenNoiseType::Projectile);
+    mgr.InformListeners(pos, EListenNoiseType::ProjectileExplode);
     if (auto particle = x170_projectile.CollisionOccured(type, !done, retargetPlayer, offsetPos, normal, targetPos))
     {
         zeus::CTransform particleXf = zeus::lookAt(zeus::CVector3f::skZero, normal);

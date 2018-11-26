@@ -33,6 +33,7 @@ public:
     void SetAvoidAccuracy(bool b) { x14_25_avoidAccuracy = b; }
     void SetBurstType(s32 type) { x0_burstType = type; }
     void SetTimeToNextShot(float t) { x8_timeToNextShot = t; }
+    float GetTimeToNextShot() const { return x8_timeToNextShot; }
     s32 GetBurstType() const { return x0_burstType; }
     void Start(CStateManager& mgr);
     void Update(CStateManager& mgr, float dt);

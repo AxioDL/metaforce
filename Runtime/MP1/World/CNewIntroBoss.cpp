@@ -318,7 +318,7 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr)
     }
 }
 
-void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, CInt32POINode& node, EUserEventType event, float dt)
+void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType event, float dt)
 {
     if (event == EUserEventType::DamageOn)
     {

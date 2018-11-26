@@ -19,6 +19,7 @@
 #include "Camera/CFirstPersonCamera.hpp"
 #include "World/CScriptWaypoint.hpp"
 #include "World/CScriptActorKeyframe.hpp"
+#include "Weapon/CEnergyProjectile.hpp"
 
 namespace urde
 {
@@ -1171,10 +1172,9 @@ void CPatterned::Freeze(CStateManager& mgr, const zeus::CVector3f& pos,
 
 zeus::CVector3f CPatterned::GetGunEyePos() const
 {
-    zeus::CVector3f origin = GetOrigin();
+    zeus::CVector3f origin = GetTranslation();
     zeus::CAABox baseBox = GetBaseBoundingBox();
     origin.z = 0.6f * (baseBox.max.z - baseBox.min.z) + origin.z;
-
     return origin;
 }
 
@@ -1185,6 +1185,98 @@ void CPatterned::SetupPlayerCollision(bool v)
     CMaterialList* modList = (v ? &exclude : &include);
     modList->Add(EMaterialTypes::Player);
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
+}
+
+void CPatterned::LaunchProjectile(
+    const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed, EProjectileAttrib attrib,
+    bool playerHoming, const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
+    u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale)
+{
+    CProjectileInfo* pInfo = GetProjectileInfo();
+    if (pInfo->Token().IsLoaded())
+    {
+        if (mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, maxAllowed))
+        {
+            TUniqueId homingId = playerHoming ? mgr.GetPlayer().GetUniqueId() : kInvalidUniqueId;
+            CEnergyProjectile* newProjectile = new CEnergyProjectile(true, pInfo->Token(), EWeaponType::AI,
+                gunXf, EMaterialTypes::Character, pInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(),
+                GetUniqueId(), homingId, attrib, false, scale, visorParticle, visorSfx, sendCollideMsg);
+            mgr.AddObject(newProjectile);
+        }
+    }
+}
+
+void CPatterned::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt)
+{
+    switch (type)
+    {
+    case EUserEventType::Projectile:
+    {
+        zeus::CTransform lctrXf = GetLctrTransform(node.GetLocatorName());
+        zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+        if ((aimPos - lctrXf.origin).normalized().dot(lctrXf.basis[1]) > 0.f)
+        {
+            zeus::CTransform gunXf = zeus::lookAt(lctrXf.origin, aimPos);
+            LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::CVector3f::skOne);
+        }
+        else
+        {
+            LaunchProjectile(lctrXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::CVector3f::skOne);
+        }
+        break;
+    }
+    case EUserEventType::DamageOn:
+    {
+        zeus::CTransform lctrXf = GetLctrTransform(node.GetLocatorName());
+        zeus::CVector3f xfOrigin = x34_transform * (x64_modelData->GetScale() * lctrXf.origin);
+        zeus::CVector3f margin = zeus::CVector3f(1.f, 1.f, 0.5f) * x64_modelData->GetScale();
+        if (zeus::CAABox(xfOrigin - margin, xfOrigin + margin).intersects(mgr.GetPlayer().GetBoundingBox()))
+        {
+            mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(),
+                            GetContactDamage(), CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
+                            zeus::CVector3f::skZero);
+        }
+        break;
+    }
+    case EUserEventType::Delete:
+    {
+        if (!x400_25_alive)
+        {
+            if (!x400_27_fadeToDeath)
+            {
+                x3e8_alphaDelta = -0.333333f;
+                x400_27_fadeToDeath = true;
+            }
+            RemoveMaterial(EMaterialTypes::Character, EMaterialTypes::Solid,
+                           EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+            AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
+        }
+        else
+        {
+            DeathDelete(mgr);
+        }
+        break;
+    }
+    case EUserEventType::BreakLockOn:
+    {
+        RemoveMaterial(EMaterialTypes::Character,
+                       EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+        break;
+    }
+    case EUserEventType::BecomeShootThrough:
+    {
+        AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
+        break;
+    }
+    case EUserEventType::RemoveCollision:
+    {
+        RemoveMaterial(EMaterialTypes::Solid, mgr);
+        break;
+    }
+    default:
+        break;
+    }
+    CActor::DoUserAnimEvent(mgr, node, type, dt);
 }
 
 void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr)
