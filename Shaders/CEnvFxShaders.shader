@@ -231,7 +231,7 @@ vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],
     vtf.color = v.colorIn * particle.moduColor;
     vtf.uvFlake = v.uvsIn[vertId].xy;
     float4 pos = float4(v.posIn[vertId].xyz, 1.0);
-    vtf.uvEnv = (envMtx * pos).xy;
+    vtf.uvEnv = (particle.envMtx * pos).xy;
     vtf.mvPos = particle.mv * pos;
     vtf.position = particle.proj * vtf.mvPos;
     return vtf;
@@ -258,7 +258,7 @@ struct FogUniform
 float4 MainPostFunc(thread VertToFrag& vtf, constant FogUniform& fu, float4 colorIn)
 {
     float fogZ, temp;
-    switch (lu.mode)
+    switch (fu.mode)
     {
     case 2:
         fogZ = (-vtf.mvPos.z - fu.start) * fu.rangeScale;
