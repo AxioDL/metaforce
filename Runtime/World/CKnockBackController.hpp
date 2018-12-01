@@ -154,6 +154,7 @@ public:
     void SetEnableBurnDeath(bool b) { x81_28_enableBurnDeath = b; }
     void SetEnableExplodeDeath(bool b) { x81_29_enableExplodeDeath = b; }
     void SetEnableLaggedBurnDeath(bool b) { x81_30_enableLaggedBurnDeath = b; }
+    void SetX81_31(bool b) { x81_31_ = b; }
     void SetX82_24(bool b) { x82_24_ = b; }
     void SetLocomotionDuringElectrocution(bool b) { x82_26_locomotionDuringElectrocution = b; }
     const KnockBackParms& GetActiveParms() const { return x4_activeParms; }

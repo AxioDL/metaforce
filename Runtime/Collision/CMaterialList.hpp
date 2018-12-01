@@ -111,7 +111,7 @@ public:
 
     void Add(EMaterialTypes type)
     {
-        x0_list |= (1ull << u32(type));
+        x0_list |= (1ull << u64(type));
     }
 
     void Add(const CMaterialList& l)
@@ -121,7 +121,7 @@ public:
 
     void Remove(EMaterialTypes type)
     {
-        x0_list &= ~(1ull << u32(type));
+        x0_list &= ~(1ull << u64(type));
     }
 
     void Remove(const CMaterialList& other)
@@ -131,7 +131,7 @@ public:
 
     bool HasMaterial(EMaterialTypes type) const
     {
-        return (x0_list & (1ull << u32(type))) != 0;
+        return (x0_list & (1ull << u64(type))) != 0;
     }
 
     bool SharesMaterials(const CMaterialList& other)

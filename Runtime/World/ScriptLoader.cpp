@@ -86,6 +86,7 @@
 #include "CScriptWorldTeleporter.hpp"
 #include "CScriptDebugCameraWaypoint.hpp"
 #include "CScriptSpiderBallAttractionSurface.hpp"
+#include "MP1/World/CPuddleToadGamma.hpp"
 #include "CScriptSpindleCamera.hpp"
 #include "MP1/World/CAtomicAlpha.hpp"
 #include "CSimplePool.hpp"
@@ -1722,7 +1723,34 @@ CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInpu
 
 CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 17, "PuddleToadGamma"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    CDamageInfo dInfo1(in);
+    CDamageInfo dInfo2(in);
+    CAssetId collisionData(in);
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale,
+                              animParms.GetInitialAnimation(), true));
+    return new MP1::CPuddleToadGamma(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
+                                     f1, f2, f3, vec, f4, f5, f6, dInfo1, dInfo2, collisionData);
 }
 
 CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
