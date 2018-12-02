@@ -59,13 +59,13 @@ public:
     CPatternedInfo(CInputStream& in, u32 pcount);
     static std::pair<bool, u32> HasCorrectParameterCount(CInputStream& in);
 
-    CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
-    const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
-
+    float GetDetectionHeightRange() const { return x10_detectionHeightRange; }
     float GetHalfExtent() const { return xc4_halfExtent; }
     float GetHeight() const { return xc8_height; }
-    u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
     const CHealthInfo& GetHealthInfo() const { return x54_healthInfo; }
+    CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
+    const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
+    u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
 };
 }
 

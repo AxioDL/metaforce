@@ -17,7 +17,7 @@ public:
     void Accept(IVisitor& visitor);
 
     void UpdateFx(const zeus::CTransform&, float, CStateManager&) {}
-    void Fire(const zeus::CTransform&, CStateManager&, bool) {}
+    void Fire(const zeus::CTransform&, CStateManager&, bool);
 };
 }
 

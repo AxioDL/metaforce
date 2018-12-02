@@ -18,4 +18,9 @@ void CPlasmaProjectile::Accept(IVisitor& visitor)
     visitor.Visit(this);
 }
 
+void CPlasmaProjectile::Fire(const zeus::CTransform&, CStateManager&, bool)
+{
+    SetActive(true);
+}
+
 }

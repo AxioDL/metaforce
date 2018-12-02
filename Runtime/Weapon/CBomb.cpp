@@ -136,7 +136,7 @@ void CBomb::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManag
     zeus::CAABox aabox(origin - (0.9f * ballRadius), origin + (0.9f * ballRadius));
     zeus::CVector3f closestPoint = aabox.closestPointAlongVector(CGraphics::g_ViewMatrix.frontVector());
 
-    if (x190_24_isNotDetonated&& x17c_fuseTime > 0.5f)
+    if (x190_24_isNotDetonated && x17c_fuseTime > 0.5f)
         g_Renderer->AddParticleGen(*x180_particle1, closestPoint, aabox);
     else
         g_Renderer->AddParticleGen(*x184_particle2, closestPoint, aabox);

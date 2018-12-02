@@ -207,6 +207,7 @@ void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float)
 
 void CPuddleToadGamma::Suck(CStateManager& mgr, EStateMsg msg, float arg)
 {
+    return;
     if (msg == EStateMsg::Activate)
     {
         SetSolid(mgr, false);
@@ -252,6 +253,7 @@ void CPuddleToadGamma::SuckPlayer(CStateManager& mgr, float arg)
 
 void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float)
 {
+    return;
     if (msg == EStateMsg::Activate)
     {
         mgr.GetPlayer().Stop();
@@ -318,6 +320,7 @@ bool CPuddleToadGamma::Inside(CStateManager& mgr, float)
 
 void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float)
 {
+    return;
     if (msg == EStateMsg::Activate)
     {
         x568_ = 0;
