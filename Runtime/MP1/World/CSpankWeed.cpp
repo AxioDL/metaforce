@@ -115,7 +115,7 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
         {
             if (TCastToPtr<CPlayer> player = mgr.ObjectById(colAct->GetLastTouchedObject()))
             {
-                if (x420_curDamageRemTime < 0.f && x5b4_ != 4 && x5b4_ != 6)
+                if (x420_curDamageRemTime <= 0.f && x5b4_ != 4 && x5b4_ != 6)
                 {
                     mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), GetContactDamage(),
                                     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
