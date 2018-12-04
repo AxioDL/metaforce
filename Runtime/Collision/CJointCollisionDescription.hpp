@@ -5,6 +5,19 @@
 
 namespace urde
 {
+struct SOBBJointDescription
+{
+    const char* from;
+    const char* to;
+    zeus::CVector3f bounds;
+};
+
+struct SSphereJointDescription
+{
+    const char* name;
+    float radius;
+};
+
 class CJointCollisionDescription
 {
 public:

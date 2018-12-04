@@ -36,7 +36,7 @@ CAi::CAi(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& i
     }
 
     if (x90_actorLights)
-        x260_damageVulnerability.SetX38_25(true);
+        x90_actorLights->SetCastShadows(true);
 }
 
 void CAi::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)

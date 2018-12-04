@@ -93,6 +93,8 @@ public:
     s32 GetShadowLightIndex() const { return x2a0_shadowLightIdx; }
     u32 GetAreaUpdateFramePeriod() const { return x2a8_areaUpdateFramePeriod; }
     void SetAreaUpdateFramePeriod(u32 p) { x2a8_areaUpdateFramePeriod = p; }
+    zeus::CVector3f GetActorPositionBias() const { return x2ac_actorPosBias; }
+    void SetActorPositionBias(const zeus::CVector3f& bias) { x2ac_actorPosBias = bias; }
 };
 
 }
