@@ -381,6 +381,8 @@ public:
 
     void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
     void TryLoopReaction(CStateManager& mgr, int arg);
+    void TryProjectileAttack(CStateManager& mgr, int arg);
+    void TryGenerate(CStateManager& mgr, int arg);
 
     virtual bool KnockbackWhenFrozen() const { return true; }
     virtual void MassiveDeath(CStateManager& mgr);
@@ -421,6 +423,12 @@ public:
 
     bool CanLongJump() const { return x328_26_longJump; }
     bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
+
+    void SetKeepInThermalVisor()
+    {
+        x403_24_keepThermalVisorState = true;
+        xe6_27_thermalVisorFlags = 1 | 2;
+    }
 
     //region Casting Functions
 

@@ -7,21 +7,21 @@ namespace pas
 enum class ELocomotionType
 {
     Invalid = -1,
-    Crouch,
-    Relaxed,
-    Lurk,
-    Combat,
-    Internal4,
-    Internal5,
-    Internal6,
-    Internal7,
-    Internal8,
-    Internal9,
-    Internal10,
-    Internal11,
-    Internal12,
-    Internal13,
-    Internal14
+    Crouch = 0,
+    Relaxed = 1,
+    Lurk = 2,
+    Combat = 3,
+    Internal4 = 4,
+    Internal5 = 5,
+    Internal6 = 6,
+    Internal7 = 7,
+    Internal8 = 8,
+    Internal9 = 9,
+    Internal10 = 10,
+    Internal11 = 11,
+    Internal12 = 12,
+    Internal13 = 13,
+    Internal14 = 14
 };
 
 enum class ELocomotionAnim
