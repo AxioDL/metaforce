@@ -16,4 +16,3 @@
 #include "NodeSocket.hpp"
 #include "FontCache.hpp"
 #include "ViewResources.hpp"
-

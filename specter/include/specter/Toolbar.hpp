@@ -2,75 +2,62 @@
 
 #include "specter/View.hpp"
 
-namespace specter
-{
+namespace specter {
 #define SPECTER_TOOLBAR_GAUGE 28
 
-class Toolbar : public View
-{
+class Toolbar : public View {
 public:
-    class Resources
-    {
-        friend class ViewResources;
-        friend class Toolbar;
-        boo::ObjToken<boo::ITextureS> m_shadingTex;
+  class Resources {
+    friend class ViewResources;
+    friend class Toolbar;
+    boo::ObjToken<boo::ITextureS> m_shadingTex;
 
-        void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
-        void destroy() { m_shadingTex.reset(); }
-    };
+    void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
+    void destroy() { m_shadingTex.reset(); }
+  };
 
-    enum class Position
-    {
-        None,
-        Bottom,
-        Top
-    };
+  enum class Position { None, Bottom, Top };
+
 private:
-    unsigned m_units;
-    std::vector<std::vector<ViewChild<View*>>> m_children;
+  unsigned m_units;
+  std::vector<std::vector<ViewChild<View*>>> m_children;
 
-    ViewBlock m_tbBlock;
-    hecl::UniformBufferPool<ViewBlock>::Token m_tbBlockBuf;
-    TexShaderVert m_tbVerts[10];
-    int m_nomGauge = 25;
-    int m_padding = 10;
+  ViewBlock m_tbBlock;
+  hecl::UniformBufferPool<ViewBlock>::Token m_tbBlockBuf;
+  TexShaderVert m_tbVerts[10];
+  int m_nomGauge = 25;
+  int m_padding = 10;
 
-    void setHorizontalVerts(int width);
-    void setVerticalVerts(int height);
+  void setHorizontalVerts(int width);
+  void setVerticalVerts(int height);
 
-    VertexBufferBindingTex m_vertsBinding;
+  VertexBufferBindingTex m_vertsBinding;
 
 public:
-    Toolbar(ViewResources& res, View& parentView, Position toolbarPos, unsigned units);
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseMove(const boo::SWindowCoord&);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&coord);
-    void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+  Toolbar(ViewResources& res, View& parentView, Position toolbarPos, unsigned units);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+  void mouseMove(const boo::SWindowCoord&);
+  void mouseEnter(const boo::SWindowCoord&);
+  void mouseLeave(const boo::SWindowCoord& coord);
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
+  void draw(boo::IGraphicsCommandQueue* gfxQ);
 
-    int nominalHeight() const
-    {
-        return m_nomGauge;
-    }
+  int nominalHeight() const { return m_nomGauge; }
 
-    void clear()
-    {
-        for (std::vector<ViewChild<View*>>& u : m_children)
-            u.clear();
-    }
-    void push_back(View* v, unsigned unit);
+  void clear() {
+    for (std::vector<ViewChild<View*>>& u : m_children)
+      u.clear();
+  }
+  void push_back(View* v, unsigned unit);
 
-    void setMultiplyColor(const zeus::CColor& color)
-    {
-        View::setMultiplyColor(color);
-        for (std::vector<ViewChild<View*>>& u : m_children)
-            for (ViewChild<View*>& c : u)
-                if (c.m_view)
-                    c.m_view->setMultiplyColor(color);
-    }
+  void setMultiplyColor(const zeus::CColor& color) {
+    View::setMultiplyColor(color);
+    for (std::vector<ViewChild<View*>>& u : m_children)
+      for (ViewChild<View*>& c : u)
+        if (c.m_view)
+          c.m_view->setMultiplyColor(color);
+  }
 };
 
-}
-
+} // namespace specter
