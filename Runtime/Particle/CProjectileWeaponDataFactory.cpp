@@ -8,171 +8,158 @@
 #include "CRandom16.hpp"
 #include "CSimplePool.hpp"
 
-namespace urde
-{
+namespace urde {
 static logvisor::Module Log("urde::CProjectileWeaponDataFactory");
 
 using CPF = CParticleDataFactory;
 
-CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool)
-{
-    return CreateGeneratorDescription(in, resPool);
+CWeaponDescription* CProjectileWeaponDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+  return CreateGeneratorDescription(in, resPool);
 }
 
-CWeaponDescription* CProjectileWeaponDataFactory::CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool)
-{
-    FourCC clsId = CPF::GetClassID(in);
-    if (clsId == FOURCC('WPSM'))
-    {
-        CWeaponDescription* desc = new CWeaponDescription;
-        CreateWPSM(desc, in, resPool);
-        return desc;
-    }
+CWeaponDescription* CProjectileWeaponDataFactory::CreateGeneratorDescription(CInputStream& in, CSimplePool* resPool) {
+  FourCC clsId = CPF::GetClassID(in);
+  if (clsId == FOURCC('WPSM')) {
+    CWeaponDescription* desc = new CWeaponDescription;
+    CreateWPSM(desc, in, resPool);
+    return desc;
+  }
 
-    return nullptr;
+  return nullptr;
 }
 
-bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool)
-{
-    CRandom16 rand;
-    CGlobalRandom gr{rand};
-    FourCC clsId = CPF::GetClassID(in);
+bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputStream& in, CSimplePool* resPool) {
+  CRandom16 rand;
+  CGlobalRandom gr{rand};
+  FourCC clsId = CPF::GetClassID(in);
 
-    while (clsId != SBIG('_END'))
-    {
-        switch (clsId)
-        {
-        case SBIG('IORN'):
-            desc->x0_IORN = CPF::GetVectorElement(in);
-            break;
-        case SBIG('IVEC'):
-            desc->x4_IVEC = CPF::GetVectorElement(in);
-            break;
-        case SBIG('PSOV'):
-            desc->x8_PSOV = CPF::GetVectorElement(in);
-            break;
-        case SBIG('PSVM'):
-            desc->xc_PSVM = CPF::GetModVectorElement(in);
-            break;
-        case SBIG('VMD2'):
-            desc->x10_VMD2 = CPF::GetBool(in);
-            break;
-        case SBIG('PSLT'):
-            desc->x14_PSLT = CPF::GetIntElement(in);
-            break;
-        case SBIG('PSCL'):
-            desc->x18_PSCL = CPF::GetVectorElement(in);
-            break;
-        case SBIG('PCOL'):
-            desc->x1c_PCOL = CPF::GetColorElement(in);
-            break;
-        case SBIG('POFS'):
-            desc->x20_POFS = CPF::GetVectorElement(in);
-            break;
-        case SBIG('OFST'):
-            desc->x24_OFST = CPF::GetVectorElement(in);
-            break;
-        case SBIG('APSO'):
-            desc->x28_APSO = CPF::GetBool(in);
-            break;
-        case SBIG('HOMG'):
-            desc->x29_HOMG = CPF::GetBool(in);
-            break;
-        case SBIG('AP11'):
-            desc->x2a_AP11 = CPF::GetBool(in);
-            break;
-        case SBIG('AP21'):
-            desc->x2b_AP21 = CPF::GetBool(in);
-            break;
-        case SBIG('AS11'):
-            desc->x2c_AS11 = CPF::GetBool(in);
-            break;
-        case SBIG('AS12'):
-            desc->x2d_AS12 = CPF::GetBool(in);
-            break;
-        case SBIG('AS13'):
-            desc->x2e_AS13 = CPF::GetBool(in);
-            break;
-        case SBIG('TRAT'):
-            desc->x30_TRAT = CPF::GetRealElement(in);
-            break;
-        case SBIG('APSM'):
-        {
-            std::vector<CAssetId> tracker;
-            tracker.reserve(8);
-            desc->x34_APSM = CPF::GetChildGeneratorDesc(in, resPool, tracker);
-            break;
-        }
-        case SBIG('APS2'):
-        {
-            std::vector<CAssetId> tracker;
-            tracker.reserve(8);
-            desc->x44_APS2 = CPF::GetChildGeneratorDesc(in, resPool, tracker);
-            break;
-        }
-        case SBIG('ASW1'):
-            desc->x54_ASW1 = CPF::GetSwooshGeneratorDesc(in, resPool);
-            break;
-        case SBIG('ASW2'):
-            desc->x64_ASW2 = CPF::GetSwooshGeneratorDesc(in, resPool);
-            break;
-        case SBIG('ASW3'):
-            desc->x74_ASW3 = CPF::GetSwooshGeneratorDesc(in, resPool);
-            break;
-        case SBIG('OHEF'):
-            desc->x84_OHEF = CPF::GetModel(in, resPool);
-            break;
-        case SBIG('COLR'):
-        {
-            FourCC cid = CPF::GetClassID(in);
-            if (cid == SBIG('NONE'))
-                break;
-            CAssetId id(in);
-            if (id.IsValid())
-                desc->x94_COLR = {resPool->GetObj({FOURCC('CRSC'), id}), true};
-            break;
-        }
-        case SBIG('EWTR'):
-            desc->xa4_EWTR = CPF::GetBool(in);
-            break;
-        case SBIG('LWTR'):
-            desc->xa5_LWTR = CPF::GetBool(in);
-            break;
-        case SBIG('SWTR'):
-            desc->xa6_SWTR = CPF::GetBool(in);
-            break;
-        case SBIG('PJFX'):
-        {
-            FourCC cid = CPF::GetClassID(in);
-            if (cid == FOURCC('NONE'))
-                break;
-
-            desc->xa8_PJFX = CPF::GetInt(in);
-            break;
-        }
-        case SBIG('RNGE'):
-            desc->xac_RNGE = CPF::GetRealElement(in);
-            break;
-        case SBIG('FOFF'):
-            desc->xb0_FOFF = CPF::GetRealElement(in);
-            break;
-        default:
-        {
-            uint32_t clsName = clsId.toUint32();
-            Log.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsName, in.position());
-            return false;
-        }
-        }
-        clsId = CPF::GetClassID(in);
+  while (clsId != SBIG('_END')) {
+    switch (clsId) {
+    case SBIG('IORN'):
+      desc->x0_IORN = CPF::GetVectorElement(in);
+      break;
+    case SBIG('IVEC'):
+      desc->x4_IVEC = CPF::GetVectorElement(in);
+      break;
+    case SBIG('PSOV'):
+      desc->x8_PSOV = CPF::GetVectorElement(in);
+      break;
+    case SBIG('PSVM'):
+      desc->xc_PSVM = CPF::GetModVectorElement(in);
+      break;
+    case SBIG('VMD2'):
+      desc->x10_VMD2 = CPF::GetBool(in);
+      break;
+    case SBIG('PSLT'):
+      desc->x14_PSLT = CPF::GetIntElement(in);
+      break;
+    case SBIG('PSCL'):
+      desc->x18_PSCL = CPF::GetVectorElement(in);
+      break;
+    case SBIG('PCOL'):
+      desc->x1c_PCOL = CPF::GetColorElement(in);
+      break;
+    case SBIG('POFS'):
+      desc->x20_POFS = CPF::GetVectorElement(in);
+      break;
+    case SBIG('OFST'):
+      desc->x24_OFST = CPF::GetVectorElement(in);
+      break;
+    case SBIG('APSO'):
+      desc->x28_APSO = CPF::GetBool(in);
+      break;
+    case SBIG('HOMG'):
+      desc->x29_HOMG = CPF::GetBool(in);
+      break;
+    case SBIG('AP11'):
+      desc->x2a_AP11 = CPF::GetBool(in);
+      break;
+    case SBIG('AP21'):
+      desc->x2b_AP21 = CPF::GetBool(in);
+      break;
+    case SBIG('AS11'):
+      desc->x2c_AS11 = CPF::GetBool(in);
+      break;
+    case SBIG('AS12'):
+      desc->x2d_AS12 = CPF::GetBool(in);
+      break;
+    case SBIG('AS13'):
+      desc->x2e_AS13 = CPF::GetBool(in);
+      break;
+    case SBIG('TRAT'):
+      desc->x30_TRAT = CPF::GetRealElement(in);
+      break;
+    case SBIG('APSM'): {
+      std::vector<CAssetId> tracker;
+      tracker.reserve(8);
+      desc->x34_APSM = CPF::GetChildGeneratorDesc(in, resPool, tracker);
+      break;
     }
-    return true;
+    case SBIG('APS2'): {
+      std::vector<CAssetId> tracker;
+      tracker.reserve(8);
+      desc->x44_APS2 = CPF::GetChildGeneratorDesc(in, resPool, tracker);
+      break;
+    }
+    case SBIG('ASW1'):
+      desc->x54_ASW1 = CPF::GetSwooshGeneratorDesc(in, resPool);
+      break;
+    case SBIG('ASW2'):
+      desc->x64_ASW2 = CPF::GetSwooshGeneratorDesc(in, resPool);
+      break;
+    case SBIG('ASW3'):
+      desc->x74_ASW3 = CPF::GetSwooshGeneratorDesc(in, resPool);
+      break;
+    case SBIG('OHEF'):
+      desc->x84_OHEF = CPF::GetModel(in, resPool);
+      break;
+    case SBIG('COLR'): {
+      FourCC cid = CPF::GetClassID(in);
+      if (cid == SBIG('NONE'))
+        break;
+      CAssetId id(in);
+      if (id.IsValid())
+        desc->x94_COLR = {resPool->GetObj({FOURCC('CRSC'), id}), true};
+      break;
+    }
+    case SBIG('EWTR'):
+      desc->xa4_EWTR = CPF::GetBool(in);
+      break;
+    case SBIG('LWTR'):
+      desc->xa5_LWTR = CPF::GetBool(in);
+      break;
+    case SBIG('SWTR'):
+      desc->xa6_SWTR = CPF::GetBool(in);
+      break;
+    case SBIG('PJFX'): {
+      FourCC cid = CPF::GetClassID(in);
+      if (cid == FOURCC('NONE'))
+        break;
+
+      desc->xa8_PJFX = CPF::GetInt(in);
+      break;
+    }
+    case SBIG('RNGE'):
+      desc->xac_RNGE = CPF::GetRealElement(in);
+      break;
+    case SBIG('FOFF'):
+      desc->xb0_FOFF = CPF::GetRealElement(in);
+      break;
+    default: {
+      uint32_t clsName = clsId.toUint32();
+      Log.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsName, in.position());
+      return false;
+    }
+    }
+    clsId = CPF::GetClassID(in);
+  }
+  return true;
 }
 
 CFactoryFnReturn FProjectileWeaponDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
-                                              CObjectReference*)
-{
-    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CWeaponDescription>::GetIObjObjectFor(
-        std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
+                                              CObjectReference*) {
+  CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
+  return TToken<CWeaponDescription>::GetIObjObjectFor(
+      std::unique_ptr<CWeaponDescription>(CProjectileWeaponDataFactory::GetGeneratorDesc(in, sp)));
 }
-}
+} // namespace urde

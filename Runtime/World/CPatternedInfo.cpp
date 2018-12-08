@@ -1,8 +1,7 @@
 #include "CPatternedInfo.hpp"
 #include "Audio/CSfxManager.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
 : x0_mass(in.readFloatBig())
@@ -39,19 +38,17 @@ CPatternedInfo::CPatternedInfo(CInputStream& in, u32 pcount)
 , x10c_pathfindingIndex(in.readUint32Big())
 , x110_particle1Scale(zeus::CVector3f::ReadBig(in))
 , x11c_particle1(in)
-, x120_electric(in)
-{
-    if (pcount >= 36)
-        x124_particle2Scale.readBig(in);
-    if (pcount >= 37)
-        x130_particle2 = CAssetId(in);
-    if (pcount >= 38)
-        x134_iceShatterSfx = CSfxManager::TranslateSFXID(in.readUint32Big());
+, x120_electric(in) {
+  if (pcount >= 36)
+    x124_particle2Scale.readBig(in);
+  if (pcount >= 37)
+    x130_particle2 = CAssetId(in);
+  if (pcount >= 38)
+    x134_iceShatterSfx = CSfxManager::TranslateSFXID(in.readUint32Big());
 }
 
-std::pair<bool, u32> CPatternedInfo::HasCorrectParameterCount(CInputStream& in)
-{
-    u32 pcount = in.readUint32Big();
-    return {(pcount >= 35 && pcount <= 38), pcount};
+std::pair<bool, u32> CPatternedInfo::HasCorrectParameterCount(CInputStream& in) {
+  u32 pcount = in.readUint32Big();
+  return {(pcount >= 35 && pcount <= 38), pcount};
 }
-}
+} // namespace urde

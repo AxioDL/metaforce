@@ -6,51 +6,47 @@
 #include "zeus/CAABox.hpp"
 #include "CCollisionPrimitive.hpp"
 
-namespace urde
-{
-class CCollidableOBBTreeGroupContainer
-{
-    friend class CCollidableOBBTreeGroup;
-    std::vector<std::unique_ptr<COBBTree>> x0_trees;
-    std::vector<zeus::CAABox> x10_aabbs;
-    zeus::CAABox x20_aabox;
+namespace urde {
+class CCollidableOBBTreeGroupContainer {
+  friend class CCollidableOBBTreeGroup;
+  std::vector<std::unique_ptr<COBBTree>> x0_trees;
+  std::vector<zeus::CAABox> x10_aabbs;
+  zeus::CAABox x20_aabox;
+
 public:
-    CCollidableOBBTreeGroupContainer(CInputStream& in);
-    CCollidableOBBTreeGroupContainer(const zeus::CVector3f&, const zeus::CVector3f&);
+  CCollidableOBBTreeGroupContainer(CInputStream& in);
+  CCollidableOBBTreeGroupContainer(const zeus::CVector3f&, const zeus::CVector3f&);
 };
 
-class CCollidableOBBTreeGroup : public CCollisionPrimitive
-{
-    static const Type sType;
-    static u32 sTableIndex;
-    const CCollidableOBBTreeGroupContainer* x10_container;
+class CCollidableOBBTreeGroup : public CCollisionPrimitive {
+  static const Type sType;
+  static u32 sTableIndex;
+  const CCollidableOBBTreeGroupContainer* x10_container;
+
 public:
-    CCollidableOBBTreeGroup(CInputStream& in);
-    CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer*, const CMaterialList&);
-    virtual ~CCollidableOBBTreeGroup() {}
+  CCollidableOBBTreeGroup(CInputStream& in);
+  CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer*, const CMaterialList&);
+  virtual ~CCollidableOBBTreeGroup() {}
 
-    void ResetTestStats() const;
-    virtual u32 GetTableIndex() const;
-    virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
-    virtual zeus::CAABox CalculateLocalAABox() const;
-    virtual FourCC GetPrimType() const;
-    virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+  void ResetTestStats() const;
+  virtual u32 GetTableIndex() const;
+  virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
+  virtual zeus::CAABox CalculateLocalAABox() const;
+  virtual FourCC GetPrimType() const;
+  virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
 
-    static const Type& GetType();
-    static void SetStaticTableIndex(u32 index);
-    /* Sphere Collide */
-    static bool SphereCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
-    static bool SphereCollideBoolean(const CInternalCollisionStructure&);
-    static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
-                                    CCollisionInfo&);
-    /* AABox Collide */
-    static bool AABoxCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
-    static bool AABoxCollideBoolean(const CInternalCollisionStructure&);
-    static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
-                                    CCollisionInfo&);
+  static const Type& GetType();
+  static void SetStaticTableIndex(u32 index);
+  /* Sphere Collide */
+  static bool SphereCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
+  static bool SphereCollideBoolean(const CInternalCollisionStructure&);
+  static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
+  /* AABox Collide */
+  static bool AABoxCollide(const CInternalCollisionStructure&, CCollisionInfoList&);
+  static bool AABoxCollideBoolean(const CInternalCollisionStructure&);
+  static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
 };
 
 CFactoryFnReturn FCollidableOBBTreeGroupFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                 CObjectReference* selfRef);
-}
-
+} // namespace urde

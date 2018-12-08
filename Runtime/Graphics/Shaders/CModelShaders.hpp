@@ -10,94 +10,84 @@
 
 #define URDE_MAX_LIGHTS 8
 
-namespace urde
-{
+namespace urde {
 
-enum EExtendedShader : uint8_t
-{
-    Flat,
-    Lighting,
-    Thermal,
-    ForcedAlpha,
-    ForcedAdditive,
-    SolidColor,
-    SolidColorAdditive,
-    SolidColorFrontfaceCullLEqualAlphaOnly,
-    SolidColorFrontfaceCullAlwaysAlphaOnly, // No Z-write or test
-    SolidColorBackfaceCullLEqualAlphaOnly,
-    SolidColorBackfaceCullGreaterAlphaOnly, // No Z-write
-    MorphBallShadow,
-    WorldShadow,
-    ForcedAlphaNoCull,
-    ForcedAdditiveNoCull,
-    ForcedAlphaNoZWrite,
-    ForcedAdditiveNoZWrite,
-    ForcedAlphaNoCullNoZWrite,
-    ForcedAdditiveNoCullNoZWrite,
-    DepthGEqualNoZWrite,
-    Disintegrate,
-    MAX
+enum EExtendedShader : uint8_t {
+  Flat,
+  Lighting,
+  Thermal,
+  ForcedAlpha,
+  ForcedAdditive,
+  SolidColor,
+  SolidColorAdditive,
+  SolidColorFrontfaceCullLEqualAlphaOnly,
+  SolidColorFrontfaceCullAlwaysAlphaOnly, // No Z-write or test
+  SolidColorBackfaceCullLEqualAlphaOnly,
+  SolidColorBackfaceCullGreaterAlphaOnly, // No Z-write
+  MorphBallShadow,
+  WorldShadow,
+  ForcedAlphaNoCull,
+  ForcedAdditiveNoCull,
+  ForcedAlphaNoZWrite,
+  ForcedAdditiveNoZWrite,
+  ForcedAlphaNoCullNoZWrite,
+  ForcedAdditiveNoCullNoZWrite,
+  DepthGEqualNoZWrite,
+  Disintegrate,
+  MAX
 };
 
-class CModelShaders
-{
-    friend class CModel;
+class CModelShaders {
+  friend class CModel;
+
 public:
-    struct Light
-    {
-        zeus::CVector3f pos;
-        zeus::CVector3f dir;
-        zeus::CColor color = zeus::CColor::skClear;
-        float linAtt[4] = {1.f, 0.f, 0.f};
-        float angAtt[4] = {1.f, 0.f, 0.f};
-    };
+  struct Light {
+    zeus::CVector3f pos;
+    zeus::CVector3f dir;
+    zeus::CColor color = zeus::CColor::skClear;
+    float linAtt[4] = {1.f, 0.f, 0.f};
+    float angAtt[4] = {1.f, 0.f, 0.f};
+  };
 
-    struct LightingUniform
-    {
-        Light lights[URDE_MAX_LIGHTS];
-        zeus::CColor ambient;
-        zeus::CColor colorRegs[3];
-        zeus::CColor mulColor;
-        CGraphics::CFogState fog;
+  struct LightingUniform {
+    Light lights[URDE_MAX_LIGHTS];
+    zeus::CColor ambient;
+    zeus::CColor colorRegs[3];
+    zeus::CColor mulColor;
+    CGraphics::CFogState fog;
 
-        void ActivateLights(const std::vector<CLight>& lts);
-    };
+    void ActivateLights(const std::vector<CLight>& lts);
+  };
 
-    struct ThermalUniform
-    {
-        zeus::CColor mulColor;
-        zeus::CColor addColor;
-    };
+  struct ThermalUniform {
+    zeus::CColor mulColor;
+    zeus::CColor addColor;
+  };
 
-    struct SolidUniform
-    {
-        zeus::CColor solidColor;
-    };
+  struct SolidUniform {
+    zeus::CColor solidColor;
+  };
 
-    struct MBShadowUniform
-    {
-        zeus::CVector4f shadowUp;
-        float shadowId;
-    };
+  struct MBShadowUniform {
+    zeus::CVector4f shadowUp;
+    float shadowId;
+  };
 
-    struct OneTextureUniform
-    {
-        zeus::CColor addColor;
-        CGraphics::CFogState fog;
-    };
+  struct OneTextureUniform {
+    zeus::CColor addColor;
+    CGraphics::CFogState fog;
+  };
 
-    static void Initialize();
-    static void Shutdown();
+  static void Initialize();
+  static void Shutdown();
 
-    using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, EExtendedShader::MAX>;
-    using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
+  using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, EExtendedShader::MAX>;
+  using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
 
-    static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag,
-                                               const hecl::Frontend::IR& ir);
+  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const hecl::Frontend::IR& ir);
 
 private:
-    static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
+  static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;
 };
 
-}
-
+} // namespace urde

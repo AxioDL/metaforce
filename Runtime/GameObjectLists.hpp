@@ -2,63 +2,54 @@
 
 #include "CObjectList.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CActorList : public CObjectList
-{
+class CActorList : public CObjectList {
 public:
-    CActorList();
+  CActorList();
 
-    bool IsQualified(const CEntity&);
+  bool IsQualified(const CEntity&);
 };
 
-class CPhysicsActorList : public CObjectList
-{
+class CPhysicsActorList : public CObjectList {
 public:
-    CPhysicsActorList();
-    bool IsQualified(const CEntity&);
+  CPhysicsActorList();
+  bool IsQualified(const CEntity&);
 };
 
-class CGameCameraList : public CObjectList
-{
+class CGameCameraList : public CObjectList {
 public:
-    CGameCameraList();
-    bool IsQualified(const CEntity&);
+  CGameCameraList();
+  bool IsQualified(const CEntity&);
 };
 
-class CListeningAiList : public CObjectList
-{
+class CListeningAiList : public CObjectList {
 public:
-    CListeningAiList();
+  CListeningAiList();
 
-    bool IsQualified(const CEntity&);
+  bool IsQualified(const CEntity&);
 };
 
-class CAiWaypointList : public CObjectList
-{
+class CAiWaypointList : public CObjectList {
 public:
-    CAiWaypointList();
-    bool IsQualified(const CEntity&);
+  CAiWaypointList();
+  bool IsQualified(const CEntity&);
 };
 
-class CPlatformAndDoorList : public CObjectList
-{
+class CPlatformAndDoorList : public CObjectList {
 public:
-    CPlatformAndDoorList();
+  CPlatformAndDoorList();
 
-    bool IsQualified(const CEntity&);
-    bool IsDoor(const CEntity&);
-    bool IsPlatform(const CEntity&);
+  bool IsQualified(const CEntity&);
+  bool IsDoor(const CEntity&);
+  bool IsPlatform(const CEntity&);
 };
 
-class CGameLightList : public CObjectList
-{
+class CGameLightList : public CObjectList {
 public:
-    CGameLightList();
+  CGameLightList();
 
-    bool IsQualified(const CEntity&);
+  bool IsQualified(const CEntity&);
 };
 
-}
-
+} // namespace urde

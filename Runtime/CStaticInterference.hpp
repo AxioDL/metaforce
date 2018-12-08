@@ -3,27 +3,24 @@
 #include <vector>
 #include "RetroTypes.hpp"
 
-namespace urde
-{
+namespace urde {
 class CStateManager;
 
-struct CStaticInterferenceSource
-{
-    TUniqueId id;
-    float magnitude;
-    float timeLeft;
+struct CStaticInterferenceSource {
+  TUniqueId id;
+  float magnitude;
+  float timeLeft;
 };
 
-class CStaticInterference
-{
-    std::vector<CStaticInterferenceSource> m_sources;
+class CStaticInterference {
+  std::vector<CStaticInterferenceSource> m_sources;
+
 public:
-    CStaticInterference(int sourceCount);
-    void RemoveSource(TUniqueId id);
-    void Update(CStateManager&, float dt);
-    float GetTotalInterference() const;
-    void AddSource(TUniqueId id, float magnitude, float duration);
+  CStaticInterference(int sourceCount);
+  void RemoveSource(TUniqueId id);
+  void Update(CStateManager&, float dt);
+  float GetTotalInterference() const;
+  void AddSource(TUniqueId id, float magnitude, float duration);
 };
 
-}
-
+} // namespace urde

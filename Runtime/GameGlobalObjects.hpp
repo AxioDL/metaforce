@@ -34,11 +34,9 @@
 #include "../DataSpec/DNACommon/Tweaks/ITweakGuiColors.hpp"
 #endif
 
-namespace urde
-{
+namespace urde {
 extern class IMain* g_Main;
-namespace MP1
-{
+namespace MP1 {
 extern class CGameArchitectureSupport* g_archSupport;
 }
 extern class CMemoryCardSys* g_MemoryCardSys;
@@ -83,7 +81,7 @@ using ITweakBall = DataSpec::ITweakBall;
 using ITweakGuiColors = DataSpec::ITweakGuiColors;
 #endif
 
-extern ITweakGame*   g_tweakGame;
+extern ITweakGame* g_tweakGame;
 extern ITweakPlayer* g_tweakPlayer;
 extern ITweakPlayerControl* g_tweakPlayerControl;
 extern ITweakPlayerControl* g_tweakPlayerControlAlt;
@@ -99,5 +97,4 @@ extern ITweakParticle* g_tweakParticle;
 extern ITweakBall* g_tweakBall;
 extern ITweakGuiColors* g_tweakGuiColors;
 
-}
-
+} // namespace urde

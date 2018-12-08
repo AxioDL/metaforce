@@ -1,8 +1,7 @@
 #include "Weapon/CBeamProjectile.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                                  const zeus::CTransform& xf, s32 flags, float f1, float f2, EMaterialTypes matType,
@@ -17,41 +16,27 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
 , x300_(b1 == false ? x2ec_ : 0.f)
 , x308_(f2)
 , x464_24_(b1)
-, x464_25_(false)
-{
+, x464_25_(false) {}
 
-}
-
-std::experimental::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const
-{
-    if (!GetActive())
-        return {};
-    if (!x464_25_)
-    {
-        zeus::CVector3f pos = GetTranslation();
-        return {{pos - 1.f, pos + 1.f}};
-    }
+std::experimental::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const {
+  if (!GetActive())
     return {};
+  if (!x464_25_) {
+    zeus::CVector3f pos = GetTranslation();
+    return {{pos - 1.f, pos + 1.f}};
+  }
+  return {};
 }
 
-void CBeamProjectile::CalculateRenderBounds()
-{
-    x9c_renderBounds = x354_.getTransformedAABox(x324_);
+void CBeamProjectile::CalculateRenderBounds() { x9c_renderBounds = x354_.getTransformedAABox(x324_); }
+
+void CBeamProjectile::ResetBeam(CStateManager&, bool) {
+  if (x464_24_)
+    x300_ = 0.f;
 }
 
-void CBeamProjectile::ResetBeam(CStateManager &, bool)
-{
-    if (x464_24_)
-        x300_ = 0.f;
-}
+void CBeamProjectile::UpdateFX(const zeus::CTransform&, float, CStateManager&) {}
 
-void CBeamProjectile::UpdateFX(const zeus::CTransform &, float, CStateManager &)
-{
-}
+void CBeamProjectile::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
 
-void CBeamProjectile::Accept(urde::IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
-}
+} // namespace urde

@@ -6,53 +6,44 @@
 #include "zeus/CColor.hpp"
 #include "IOStreams.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class IElement
-{
+class IElement {
 public:
-    virtual ~IElement() = default;
+  virtual ~IElement() = default;
 };
 
-class CRealElement : public IElement
-{
+class CRealElement : public IElement {
 public:
-    virtual bool GetValue(int frame, float& valOut) const=0;
-    virtual bool IsConstant() const {return false;}
+  virtual bool GetValue(int frame, float& valOut) const = 0;
+  virtual bool IsConstant() const { return false; }
 };
 
-class CIntElement : public IElement
-{
+class CIntElement : public IElement {
 public:
-    virtual bool GetValue(int frame, int& valOut) const=0;
-    virtual int GetMaxValue() const=0;
+  virtual bool GetValue(int frame, int& valOut) const = 0;
+  virtual int GetMaxValue() const = 0;
 };
 
-class CVectorElement : public IElement
-{
+class CVectorElement : public IElement {
 public:
-    virtual bool GetValue(int frame, zeus::CVector3f& valOut) const=0;
-    virtual bool IsFastConstant() const {return false;}
+  virtual bool GetValue(int frame, zeus::CVector3f& valOut) const = 0;
+  virtual bool IsFastConstant() const { return false; }
 };
 
-class CModVectorElement : public IElement
-{
+class CModVectorElement : public IElement {
 public:
-    virtual bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const=0;
+  virtual bool GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPos) const = 0;
 };
 
-class CColorElement : public IElement
-{
+class CColorElement : public IElement {
 public:
-    virtual bool GetValue(int frame, zeus::CColor& colorOut) const=0;
+  virtual bool GetValue(int frame, zeus::CColor& colorOut) const = 0;
 };
 
-class CEmitterElement : public IElement
-{
+class CEmitterElement : public IElement {
 public:
-    virtual bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const=0;
+  virtual bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const = 0;
 };
 
-}
-
+} // namespace urde

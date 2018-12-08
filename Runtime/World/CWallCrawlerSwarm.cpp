@@ -3,13 +3,11 @@
 #include "Collision/CMaterialList.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
-static CMaterialList MakeMaterialList()
-{
-    return CMaterialList(EMaterialTypes::Scannable, EMaterialTypes::Trigger, EMaterialTypes::NonSolidDamageable,
-                         EMaterialTypes::ExcludeFromLineOfSightTest);
+static CMaterialList MakeMaterialList() {
+  return CMaterialList(EMaterialTypes::Scannable, EMaterialTypes::Trigger, EMaterialTypes::NonSolidDamageable,
+                       EMaterialTypes::ExcludeFromLineOfSightTest);
 }
 
 CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
@@ -18,10 +16,8 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
                                      float, u32, u32, float, float, float, float, float, float, float, float, float,
                                      u32, float, float, float, const CHealthInfo&, const CDamageVulnerability&, u32,
                                      u32, const CActorParameters& aParams)
-: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), MakeMaterialList(), aParams, kInvalidUniqueId)
-{
-}
+: CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), MakeMaterialList(), aParams, kInvalidUniqueId) {}
 
 void CWallCrawlerSwarm::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-}
+} // namespace urde

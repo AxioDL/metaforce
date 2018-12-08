@@ -5,26 +5,24 @@
 #include "athena/FileWriter.hpp"
 #include "optional.hpp"
 
-namespace DataSpec::DNAParticle
-{
+namespace DataSpec::DNAParticle {
 template <class IDType>
-struct CRSM : BigDNA
-{
-    AT_DECL_EXPLICIT_DNA_YAML
-    AT_SUBDECL_DNA
-    std::unordered_map<FourCC, ChildResourceFactory<IDType>> x0_generators;
-    std::unordered_map<FourCC, uint32_t> x10_sfx;
-    std::unordered_map<FourCC, ChildResourceFactory<IDType>> x20_decals;
-    float x30_RNGE;
-    float x34_FOFF;
+struct CRSM : BigDNA {
+  AT_DECL_EXPLICIT_DNA_YAML
+  AT_SUBDECL_DNA
+  std::unordered_map<FourCC, ChildResourceFactory<IDType>> x0_generators;
+  std::unordered_map<FourCC, uint32_t> x10_sfx;
+  std::unordered_map<FourCC, ChildResourceFactory<IDType>> x20_decals;
+  float x30_RNGE;
+  float x34_FOFF;
 
-    CRSM();
+  CRSM();
 
-    void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
+  void gatherDependencies(std::vector<hecl::ProjectPath>&) const;
 };
 template <class IDType>
 bool ExtractCRSM(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
 
 template <class IDType>
 bool WriteCRSM(const CRSM<IDType>& crsm, const hecl::ProjectPath& outPath);
-}
+} // namespace DataSpec::DNAParticle

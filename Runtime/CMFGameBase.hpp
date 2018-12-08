@@ -2,20 +2,16 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CMFGameBase : public CIOWin
-{
+class CMFGameBase : public CIOWin {
 public:
-    CMFGameBase(const char* name) : CIOWin(name) {}
+  CMFGameBase(const char* name) : CIOWin(name) {}
 };
 
-class CMFGameLoaderBase : public CIOWin
-{
+class CMFGameLoaderBase : public CIOWin {
 public:
-    CMFGameLoaderBase(const char* name) : CIOWin(name) {}
+  CMFGameLoaderBase(const char* name) : CIOWin(name) {}
 };
 
-}
-
+} // namespace urde

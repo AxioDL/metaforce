@@ -5,28 +5,24 @@
 #include "zeus/CColor.hpp"
 #include "zeus/CAABox.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CAABoxShader
-{
-    struct Uniform
-    {
-        zeus::CMatrix4f m_xf;
-        zeus::CColor m_color;
-    };
-    boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-    boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
-    boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
-    Uniform m_uniform;
+class CAABoxShader {
+  struct Uniform {
+    zeus::CMatrix4f m_xf;
+    zeus::CColor m_color;
+  };
+  boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
+  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+  boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
+  Uniform m_uniform;
 
 public:
-    static void Initialize();
-    static void Shutdown();
-    CAABoxShader(bool zOnly);
-    void setAABB(const zeus::CAABox& aabb);
-    void draw(const zeus::CColor& color);
+  static void Initialize();
+  static void Shutdown();
+  CAABoxShader(bool zOnly);
+  void setAABB(const zeus::CAABox& aabb);
+  void draw(const zeus::CColor& color);
 };
 
-}
-
+} // namespace urde

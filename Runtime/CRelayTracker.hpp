@@ -4,8 +4,7 @@
 #include "World/ScriptObjectSupport.hpp"
 #include "RetroTypes.hpp"
 
-namespace urde
-{
+namespace urde {
 class CStateManager;
 class CSaveWorld;
 #if 0
@@ -22,20 +21,18 @@ struct CMailMessage
 };
 #endif
 
+class CRelayTracker {
+  std::vector<TEditorId> x0_relayStates;
 
-class CRelayTracker
-{
-    std::vector<TEditorId> x0_relayStates;
 public:
-    CRelayTracker() = default;
-    CRelayTracker(CBitStreamReader&, const CSaveWorld&);
+  CRelayTracker() = default;
+  CRelayTracker(CBitStreamReader&, const CSaveWorld&);
 
-    bool HasRelay(TEditorId);
-    void AddRelay(TEditorId);
-    void RemoveRelay(TEditorId);
-    void SendMsgs(const TAreaId&, CStateManager&);
-    void PutTo(CBitStreamWriter&, const CSaveWorld&);
+  bool HasRelay(TEditorId);
+  void AddRelay(TEditorId);
+  void RemoveRelay(TEditorId);
+  void SendMsgs(const TAreaId&, CStateManager&);
+  void PutTo(CBitStreamWriter&, const CSaveWorld&);
 };
 
-}
-
+} // namespace urde

@@ -6,29 +6,23 @@
 #include "CGameState.hpp"
 #include "MP1.hpp"
 
-namespace urde::MP1
-{
+namespace urde::MP1 {
 
-CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue)
-{
-    CMain* m = static_cast<CMain*>(g_Main);
+CIOWin::EMessageReturn CAudioStateWin::OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) {
+  CMain* m = static_cast<CMain*>(g_Main);
 
-    const EArchMsgType msgType = msg.GetType();
-    if (msgType == EArchMsgType::SetGameState)
-    {
-        CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
-        CSfxManager::TurnOnChannel(CSfxManager::ESfxChannels::Game);
+  const EArchMsgType msgType = msg.GetType();
+  if (msgType == EArchMsgType::SetGameState) {
+    CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
+    CSfxManager::TurnOnChannel(CSfxManager::ESfxChannels::Game);
+  } else if (msgType == EArchMsgType::QuitGameplay) {
+    if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
+        m->GetFlowState() != EFlowState::None) {
+      CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
+      CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
     }
-    else if (msgType == EArchMsgType::QuitGameplay)
-    {
-        if (g_GameState->GetWorldTransitionManager()->GetTransType() == CWorldTransManager::ETransType::Disabled ||
-            m->GetFlowState() != EFlowState::None)
-        {
-            CSfxManager::SetChannel(CSfxManager::ESfxChannels::Default);
-            CSfxManager::KillAll(CSfxManager::ESfxChannels::Game);
-        }
-    }
-    return EMessageReturn::Normal;
+  }
+  return EMessageReturn::Normal;
 }
 
-}
+} // namespace urde::MP1

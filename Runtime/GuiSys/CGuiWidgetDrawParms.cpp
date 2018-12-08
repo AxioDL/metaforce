@@ -1,6 +1,5 @@
 #include "CGuiWidgetDrawParms.hpp"
 
-namespace urde
-{
+namespace urde {
 CGuiWidgetDrawParms CGuiWidgetDrawParms::Default = {};
 }

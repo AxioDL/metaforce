@@ -3,14 +3,11 @@
 #include "IOStreams.hpp"
 #include "IMetaAnim.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CMetaAnimFactory
-{
+class CMetaAnimFactory {
 public:
-    static std::shared_ptr<IMetaAnim> CreateMetaAnim(CInputStream& in);
+  static std::shared_ptr<IMetaAnim> CreateMetaAnim(CInputStream& in);
 };
 
-}
-
+} // namespace urde

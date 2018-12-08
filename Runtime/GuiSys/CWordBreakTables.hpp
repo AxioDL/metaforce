@@ -2,15 +2,12 @@
 
 #include "RetroTypes.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CWordBreakTables
-{
+class CWordBreakTables {
 public:
-    static int GetBeginRank(wchar_t ch);
-    static int GetEndRank(wchar_t ch);
+  static int GetBeginRank(wchar_t ch);
+  static int GetEndRank(wchar_t ch);
 };
 
-}
-
+} // namespace urde

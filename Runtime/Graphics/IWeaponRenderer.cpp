@@ -1,12 +1,8 @@
 #include "IWeaponRenderer.hpp"
 #include "Particle/CParticleGen.hpp"
 
-namespace urde
-{
+namespace urde {
 
-void CDefaultWeaponRenderer::AddParticleGen(const CParticleGen& gen)
-{
-    ((CParticleGen&)gen).Render();
-}
+void CDefaultWeaponRenderer::AddParticleGen(const CParticleGen& gen) { ((CParticleGen&)gen).Render(); }
 
-}
+} // namespace urde

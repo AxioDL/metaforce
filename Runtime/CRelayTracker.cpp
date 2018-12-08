@@ -4,91 +4,80 @@
 #include "World/CWorld.hpp"
 #include <algorithm>
 
-namespace urde
-{
+namespace urde {
 
-CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveworld)
-{
-    u32 relayCount = saveworld.GetRelayCount();
-    if (saveworld.GetRelayCount())
-    {
-        std::vector<bool> relayStates(saveworld.GetRelayCount());
-        for (u32 i=0 ; i<relayCount ; ++i)
-            relayStates[i] = in.ReadEncoded(1);
+CRelayTracker::CRelayTracker(CBitStreamReader& in, const CSaveWorld& saveworld) {
+  u32 relayCount = saveworld.GetRelayCount();
+  if (saveworld.GetRelayCount()) {
+    std::vector<bool> relayStates(saveworld.GetRelayCount());
+    for (u32 i = 0; i < relayCount; ++i)
+      relayStates[i] = in.ReadEncoded(1);
 
-        for (u32 i=0 ; i<relayCount ; ++i)
-        {
-            if (!relayStates[i])
-                continue;
-            x0_relayStates.push_back(saveworld.GetRelayEditorId(i));
-        }
+    for (u32 i = 0; i < relayCount; ++i) {
+      if (!relayStates[i])
+        continue;
+      x0_relayStates.push_back(saveworld.GetRelayEditorId(i));
     }
+  }
 }
 
-bool CRelayTracker::HasRelay(TEditorId id)
-{
-    return std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end();
+bool CRelayTracker::HasRelay(TEditorId id) {
+  return std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end();
 }
 
-void CRelayTracker::AddRelay(TEditorId id)
-{
-    if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) == x0_relayStates.end())
-        x0_relayStates.push_back(id);
+void CRelayTracker::AddRelay(TEditorId id) {
+  if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) == x0_relayStates.end())
+    x0_relayStates.push_back(id);
 }
 
-void CRelayTracker::RemoveRelay(TEditorId id)
-{
-    if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end())
-        x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
+void CRelayTracker::RemoveRelay(TEditorId id) {
+  if (std::find(x0_relayStates.begin(), x0_relayStates.end(), id) != x0_relayStates.end())
+    x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
 }
 
-void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr)
-{
-    const CWorld* world = stateMgr.WorldNC();
-    u32 relayCount = world->GetRelayCount();
+void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr) {
+  const CWorld* world = stateMgr.WorldNC();
+  u32 relayCount = world->GetRelayCount();
 
-    bool hasActiveRelays = false;
-    for (u32 i=0 ; i<relayCount ; ++i)
-    {
-        const CWorld::CRelay& relay = world->GetRelay(i);
-        if (relay.GetTargetId().AreaNum() != areaId)
-            continue;
+  bool hasActiveRelays = false;
+  for (u32 i = 0; i < relayCount; ++i) {
+    const CWorld::CRelay& relay = world->GetRelay(i);
+    if (relay.GetTargetId().AreaNum() != areaId)
+      continue;
 
-        if (!HasRelay(relay.GetRelayId()))
-            continue;
+    if (!HasRelay(relay.GetRelayId()))
+      continue;
 
-        stateMgr.SendScriptMsg(kInvalidUniqueId, relay.GetTargetId(), EScriptObjectMessage(relay.GetMessage()),
-                               EScriptObjectState::Any);
-        if (relay.GetActive())
-            hasActiveRelays = true;
-    }
+    stateMgr.SendScriptMsg(kInvalidUniqueId, relay.GetTargetId(), EScriptObjectMessage(relay.GetMessage()),
+                           EScriptObjectState::Any);
+    if (relay.GetActive())
+      hasActiveRelays = true;
+  }
 
-    if (!hasActiveRelays)
-        return;
+  if (!hasActiveRelays)
+    return;
 
-    for (u32 i=0 ; i<relayCount ; ++i)
-    {
-        const CWorld::CRelay& relay = world->GetRelay(i);
-        if (relay.GetTargetId().AreaNum() != areaId)
-            continue;
+  for (u32 i = 0; i < relayCount; ++i) {
+    const CWorld::CRelay& relay = world->GetRelay(i);
+    if (relay.GetTargetId().AreaNum() != areaId)
+      continue;
 
-        if (!HasRelay(relay.GetRelayId()) || !relay.GetActive())
-            continue;
+    if (!HasRelay(relay.GetRelayId()) || !relay.GetActive())
+      continue;
 
-        RemoveRelay(relay.GetRelayId());
-    }
+    RemoveRelay(relay.GetRelayId());
+  }
 }
 
-void CRelayTracker::PutTo(CBitStreamWriter& out, const CSaveWorld& saveworld)
-{
-    u32 relayCount = saveworld.GetRelayCount();
-    std::vector<bool> relays(relayCount);
+void CRelayTracker::PutTo(CBitStreamWriter& out, const CSaveWorld& saveworld) {
+  u32 relayCount = saveworld.GetRelayCount();
+  std::vector<bool> relays(relayCount);
 
-    for (const TEditorId& id : x0_relayStates)
-        relays[saveworld.GetRelayIndex(id)] = true;
+  for (const TEditorId& id : x0_relayStates)
+    relays[saveworld.GetRelayIndex(id)] = true;
 
-    for (u32 i=0 ; i<relayCount ; ++i)
-        out.WriteEncoded(u32(relays[i]), 1);
+  for (u32 i = 0; i < relayCount; ++i)
+    out.WriteEncoded(u32(relays[i]), 1);
 }
 
-}
+} // namespace urde

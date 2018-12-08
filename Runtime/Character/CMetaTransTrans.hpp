@@ -4,23 +4,21 @@
 #include "IOStreams.hpp"
 #include "CCharAnimTime.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CMetaTransTrans : public IMetaTrans
-{
-    CCharAnimTime x4_transDur;
-    bool xc_;
-    bool xd_runA;
-    u32 x10_flags;
+class CMetaTransTrans : public IMetaTrans {
+  CCharAnimTime x4_transDur;
+  bool xc_;
+  bool xd_runA;
+  u32 x10_flags;
+
 public:
-    CMetaTransTrans(CInputStream& in);
-    EMetaTransType GetType() const {return EMetaTransType::Trans;}
+  CMetaTransTrans(CInputStream& in);
+  EMetaTransType GetType() const { return EMetaTransType::Trans; }
 
-    std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
-                                                      const std::weak_ptr<CAnimTreeNode>& b,
-                                                      const CAnimSysContext& animSys) const;
+  std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
+                                                    const std::weak_ptr<CAnimTreeNode>& b,
+                                                    const CAnimSysContext& animSys) const;
 };
 
-}
-
+} // namespace urde

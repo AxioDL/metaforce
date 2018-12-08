@@ -7,8 +7,7 @@
 #include "optional.hpp"
 #include "logvisor/logvisor.hpp"
 
-namespace rstl
-{
+namespace rstl {
 
 #ifndef NDEBUG
 static logvisor::Module Log("rstl");
@@ -18,483 +17,523 @@ static logvisor::Module Log("rstl");
  * @brief Base vector backed by statically-allocated array
  */
 template <class T>
-class _reserved_vector_base
-{
+class _reserved_vector_base {
 public:
-    class const_iterator
-    {
-        friend class _reserved_vector_base;
-    protected:
-        const T* m_val;
-    public:
-        explicit const_iterator(const T* val) : m_val(val) {}
-        using value_type = T;
-        using difference_type = std::ptrdiff_t;
-        using pointer = T*;
-        using reference = T&;
-        using iterator_category = std::random_access_iterator_tag;
+  class const_iterator {
+    friend class _reserved_vector_base;
 
-        const T& operator*() const { return *m_val; }
-        const T* operator->() const { return m_val; }
-        const_iterator& operator++() { ++m_val; return *this; }
-        const_iterator& operator--() { --m_val; return *this; }
-        const_iterator operator++(int) { auto ret = *this; ++m_val; return ret; }
-        const_iterator operator--(int) { auto ret = *this; --m_val; return ret; }
-        bool operator!=(const const_iterator& other) const { return m_val != other.m_val; }
-        bool operator==(const const_iterator& other) const { return m_val == other.m_val; }
-        const_iterator operator+(std::ptrdiff_t i) const { return const_iterator(m_val + i); }
-        const_iterator operator-(std::ptrdiff_t i) const { return const_iterator(m_val - i); }
-        const_iterator& operator+=(std::ptrdiff_t i) { m_val += i; return *this; }
-        const_iterator& operator-=(std::ptrdiff_t i) { m_val -= i; return *this; }
-        std::ptrdiff_t operator-(const const_iterator& it) const { return m_val - it.m_val; }
-        bool operator>(const const_iterator& it) const { return m_val > it.m_val; }
-        bool operator<(const const_iterator& it) const { return m_val < it.m_val; }
-        bool operator>=(const const_iterator& it) const { return m_val >= it.m_val; }
-        bool operator<=(const const_iterator& it) const { return m_val <= it.m_val; }
-        const T& operator[](std::ptrdiff_t i) const { return m_val[i]; }
-    };
+  protected:
+    const T* m_val;
 
-    class iterator : public const_iterator
-    {
-        friend class _reserved_vector_base;
-    public:
-        explicit iterator(T* val) : const_iterator(val) {}
-        T& operator*() const { return *const_cast<T*>(const_iterator::m_val); }
-        T* operator->() const { return const_cast<T*>(const_iterator::m_val); }
-        iterator& operator++() { ++const_iterator::m_val; return *this; }
-        iterator& operator--() { --const_iterator::m_val; return *this; }
-        iterator operator++(int) { auto ret = *this; ++const_iterator::m_val; return ret; }
-        iterator operator--(int) { auto ret = *this; --const_iterator::m_val; return ret; }
-        iterator operator+(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) + i); }
-        iterator operator-(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) - i); }
-        iterator& operator+=(std::ptrdiff_t i) { const_iterator::m_val += i; return *this; }
-        iterator& operator-=(std::ptrdiff_t i) { const_iterator::m_val -= i; return *this; }
-        std::ptrdiff_t operator-(const iterator& it) const { return const_iterator::m_val - it.m_val; }
-        bool operator>(const iterator& it) const { return const_iterator::m_val > it.m_val; }
-        bool operator<(const iterator& it) const { return const_iterator::m_val < it.m_val; }
-        bool operator>=(const iterator& it) const { return const_iterator::m_val >= it.m_val; }
-        bool operator<=(const iterator& it) const { return const_iterator::m_val <= it.m_val; }
-        T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_iterator::m_val)[i]; }
-    };
+  public:
+    explicit const_iterator(const T* val) : m_val(val) {}
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+    using iterator_category = std::random_access_iterator_tag;
 
-    class const_reverse_iterator
-    {
-        friend class _reserved_vector_base;
-    protected:
-        const T* m_val;
-    public:
-        explicit const_reverse_iterator(const T* val) : m_val(val) {}
-        using value_type = T;
-        using difference_type = std::ptrdiff_t;
-        using pointer = T*;
-        using reference = T&;
-        using iterator_category = std::random_access_iterator_tag;
+    const T& operator*() const { return *m_val; }
+    const T* operator->() const { return m_val; }
+    const_iterator& operator++() {
+      ++m_val;
+      return *this;
+    }
+    const_iterator& operator--() {
+      --m_val;
+      return *this;
+    }
+    const_iterator operator++(int) {
+      auto ret = *this;
+      ++m_val;
+      return ret;
+    }
+    const_iterator operator--(int) {
+      auto ret = *this;
+      --m_val;
+      return ret;
+    }
+    bool operator!=(const const_iterator& other) const { return m_val != other.m_val; }
+    bool operator==(const const_iterator& other) const { return m_val == other.m_val; }
+    const_iterator operator+(std::ptrdiff_t i) const { return const_iterator(m_val + i); }
+    const_iterator operator-(std::ptrdiff_t i) const { return const_iterator(m_val - i); }
+    const_iterator& operator+=(std::ptrdiff_t i) {
+      m_val += i;
+      return *this;
+    }
+    const_iterator& operator-=(std::ptrdiff_t i) {
+      m_val -= i;
+      return *this;
+    }
+    std::ptrdiff_t operator-(const const_iterator& it) const { return m_val - it.m_val; }
+    bool operator>(const const_iterator& it) const { return m_val > it.m_val; }
+    bool operator<(const const_iterator& it) const { return m_val < it.m_val; }
+    bool operator>=(const const_iterator& it) const { return m_val >= it.m_val; }
+    bool operator<=(const const_iterator& it) const { return m_val <= it.m_val; }
+    const T& operator[](std::ptrdiff_t i) const { return m_val[i]; }
+  };
 
-        const T& operator*() const { return *m_val; }
-        const T* operator->() const { return m_val; }
-        const_reverse_iterator& operator++() { --m_val; return *this; }
-        const_reverse_iterator& operator--() { ++m_val; return *this; }
-        const_reverse_iterator operator++(int) { auto ret = *this; --m_val; return ret; }
-        const_reverse_iterator operator--(int) { auto ret = *this; ++m_val; return ret; }
-        bool operator!=(const const_reverse_iterator& other) const { return m_val != other.m_val; }
-        bool operator==(const const_reverse_iterator& other) const { return m_val == other.m_val; }
-        const_reverse_iterator operator+(std::ptrdiff_t i) const { return const_reverse_iterator(m_val - i); }
-        const_reverse_iterator operator-(std::ptrdiff_t i) const { return const_reverse_iterator(m_val + i); }
-        const_reverse_iterator& operator+=(std::ptrdiff_t i) { m_val -= i; return *this; }
-        const_reverse_iterator& operator-=(std::ptrdiff_t i) { m_val += i; return *this; }
-        std::ptrdiff_t operator-(const const_reverse_iterator& it) const { return it.m_val - m_val; }
-        bool operator>(const const_iterator& it) const { return it.m_val > m_val; }
-        bool operator<(const const_iterator& it) const { return it.m_val < m_val; }
-        bool operator>=(const const_iterator& it) const { return it.m_val >= m_val; }
-        bool operator<=(const const_iterator& it) const { return it.m_val <= m_val; }
-        const T& operator[](std::ptrdiff_t i) const { return m_val[-i]; }
-    };
+  class iterator : public const_iterator {
+    friend class _reserved_vector_base;
 
-    class reverse_iterator : public const_reverse_iterator
-    {
-        friend class _reserved_vector_base;
-    public:
-        explicit reverse_iterator(T* val) : const_reverse_iterator(val) {}
-        T& operator*() const { return *const_cast<T*>(const_reverse_iterator::m_val); }
-        T* operator->() const { return const_cast<T*>(const_reverse_iterator::m_val); }
-        reverse_iterator& operator++() { --const_reverse_iterator::m_val; return *this; }
-        reverse_iterator& operator--() { ++const_reverse_iterator::m_val; return *this; }
-        reverse_iterator operator++(int) { auto ret = *this; --const_reverse_iterator::m_val; return ret; }
-        reverse_iterator operator--(int) { auto ret = *this; ++const_reverse_iterator::m_val; return ret; }
-        reverse_iterator operator+(std::ptrdiff_t i) const
-        { return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) - i); }
-        reverse_iterator operator-(std::ptrdiff_t i) const
-        { return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) + i); }
-        reverse_iterator& operator+=(std::ptrdiff_t i) { const_reverse_iterator::m_val -= i; return *this; }
-        reverse_iterator& operator-=(std::ptrdiff_t i) { const_reverse_iterator::m_val += i; return *this; }
-        std::ptrdiff_t operator-(const reverse_iterator& it) const { return it.m_val - const_reverse_iterator::m_val; }
-        bool operator>(const const_reverse_iterator& it) const { return it.m_val > const_reverse_iterator::m_val; }
-        bool operator<(const const_reverse_iterator& it) const { return it.m_val < const_reverse_iterator::m_val; }
-        bool operator>=(const const_reverse_iterator& it) const { return it.m_val >= const_reverse_iterator::m_val; }
-        bool operator<=(const const_reverse_iterator& it) const { return it.m_val <= const_reverse_iterator::m_val; }
-        T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_reverse_iterator::m_val)[-i]; }
-    };
+  public:
+    explicit iterator(T* val) : const_iterator(val) {}
+    T& operator*() const { return *const_cast<T*>(const_iterator::m_val); }
+    T* operator->() const { return const_cast<T*>(const_iterator::m_val); }
+    iterator& operator++() {
+      ++const_iterator::m_val;
+      return *this;
+    }
+    iterator& operator--() {
+      --const_iterator::m_val;
+      return *this;
+    }
+    iterator operator++(int) {
+      auto ret = *this;
+      ++const_iterator::m_val;
+      return ret;
+    }
+    iterator operator--(int) {
+      auto ret = *this;
+      --const_iterator::m_val;
+      return ret;
+    }
+    iterator operator+(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) + i); }
+    iterator operator-(std::ptrdiff_t i) const { return iterator(const_cast<T*>(const_iterator::m_val) - i); }
+    iterator& operator+=(std::ptrdiff_t i) {
+      const_iterator::m_val += i;
+      return *this;
+    }
+    iterator& operator-=(std::ptrdiff_t i) {
+      const_iterator::m_val -= i;
+      return *this;
+    }
+    std::ptrdiff_t operator-(const iterator& it) const { return const_iterator::m_val - it.m_val; }
+    bool operator>(const iterator& it) const { return const_iterator::m_val > it.m_val; }
+    bool operator<(const iterator& it) const { return const_iterator::m_val < it.m_val; }
+    bool operator>=(const iterator& it) const { return const_iterator::m_val >= it.m_val; }
+    bool operator<=(const iterator& it) const { return const_iterator::m_val <= it.m_val; }
+    T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_iterator::m_val)[i]; }
+  };
+
+  class const_reverse_iterator {
+    friend class _reserved_vector_base;
+
+  protected:
+    const T* m_val;
+
+  public:
+    explicit const_reverse_iterator(const T* val) : m_val(val) {}
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+    using iterator_category = std::random_access_iterator_tag;
+
+    const T& operator*() const { return *m_val; }
+    const T* operator->() const { return m_val; }
+    const_reverse_iterator& operator++() {
+      --m_val;
+      return *this;
+    }
+    const_reverse_iterator& operator--() {
+      ++m_val;
+      return *this;
+    }
+    const_reverse_iterator operator++(int) {
+      auto ret = *this;
+      --m_val;
+      return ret;
+    }
+    const_reverse_iterator operator--(int) {
+      auto ret = *this;
+      ++m_val;
+      return ret;
+    }
+    bool operator!=(const const_reverse_iterator& other) const { return m_val != other.m_val; }
+    bool operator==(const const_reverse_iterator& other) const { return m_val == other.m_val; }
+    const_reverse_iterator operator+(std::ptrdiff_t i) const { return const_reverse_iterator(m_val - i); }
+    const_reverse_iterator operator-(std::ptrdiff_t i) const { return const_reverse_iterator(m_val + i); }
+    const_reverse_iterator& operator+=(std::ptrdiff_t i) {
+      m_val -= i;
+      return *this;
+    }
+    const_reverse_iterator& operator-=(std::ptrdiff_t i) {
+      m_val += i;
+      return *this;
+    }
+    std::ptrdiff_t operator-(const const_reverse_iterator& it) const { return it.m_val - m_val; }
+    bool operator>(const const_iterator& it) const { return it.m_val > m_val; }
+    bool operator<(const const_iterator& it) const { return it.m_val < m_val; }
+    bool operator>=(const const_iterator& it) const { return it.m_val >= m_val; }
+    bool operator<=(const const_iterator& it) const { return it.m_val <= m_val; }
+    const T& operator[](std::ptrdiff_t i) const { return m_val[-i]; }
+  };
+
+  class reverse_iterator : public const_reverse_iterator {
+    friend class _reserved_vector_base;
+
+  public:
+    explicit reverse_iterator(T* val) : const_reverse_iterator(val) {}
+    T& operator*() const { return *const_cast<T*>(const_reverse_iterator::m_val); }
+    T* operator->() const { return const_cast<T*>(const_reverse_iterator::m_val); }
+    reverse_iterator& operator++() {
+      --const_reverse_iterator::m_val;
+      return *this;
+    }
+    reverse_iterator& operator--() {
+      ++const_reverse_iterator::m_val;
+      return *this;
+    }
+    reverse_iterator operator++(int) {
+      auto ret = *this;
+      --const_reverse_iterator::m_val;
+      return ret;
+    }
+    reverse_iterator operator--(int) {
+      auto ret = *this;
+      ++const_reverse_iterator::m_val;
+      return ret;
+    }
+    reverse_iterator operator+(std::ptrdiff_t i) const {
+      return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) - i);
+    }
+    reverse_iterator operator-(std::ptrdiff_t i) const {
+      return reverse_iterator(const_cast<T*>(const_reverse_iterator::m_val) + i);
+    }
+    reverse_iterator& operator+=(std::ptrdiff_t i) {
+      const_reverse_iterator::m_val -= i;
+      return *this;
+    }
+    reverse_iterator& operator-=(std::ptrdiff_t i) {
+      const_reverse_iterator::m_val += i;
+      return *this;
+    }
+    std::ptrdiff_t operator-(const reverse_iterator& it) const { return it.m_val - const_reverse_iterator::m_val; }
+    bool operator>(const const_reverse_iterator& it) const { return it.m_val > const_reverse_iterator::m_val; }
+    bool operator<(const const_reverse_iterator& it) const { return it.m_val < const_reverse_iterator::m_val; }
+    bool operator>=(const const_reverse_iterator& it) const { return it.m_val >= const_reverse_iterator::m_val; }
+    bool operator<=(const const_reverse_iterator& it) const { return it.m_val <= const_reverse_iterator::m_val; }
+    T& operator[](std::ptrdiff_t i) const { return const_cast<T*>(const_reverse_iterator::m_val)[-i]; }
+  };
 
 protected:
-    static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
+  static iterator _const_cast_iterator(const const_iterator& it) { return iterator(const_cast<T*>(it.m_val)); }
 };
 
 /**
  * @brief Vector backed by statically-allocated array with uninitialized storage
  */
 template <class T, size_t N>
-class reserved_vector : public _reserved_vector_base<T>
-{
-    union alignas(T) storage_t
-    {
-        struct {} _dummy;
-        T _value;
-        storage_t() : _dummy() {}
-        ~storage_t() {}
-    };
-    size_t x0_size;
-    storage_t x4_data[N];
-    T& _value(std::ptrdiff_t idx) { return x4_data[idx]._value; }
-    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
-    template <typename Tp>
-    static void destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value &&
-                                                !std::is_trivially_destructible<Tp>::value>* = 0) { t.Tp::~Tp(); }
-    template <typename Tp>
-    static void destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value ||
-                                                std::is_trivially_destructible<Tp>::value>* = 0) {}
+class reserved_vector : public _reserved_vector_base<T> {
+  union alignas(T) storage_t {
+    struct {
+    } _dummy;
+    T _value;
+    storage_t() : _dummy() {}
+    ~storage_t() {}
+  };
+  size_t x0_size;
+  storage_t x4_data[N];
+  T& _value(std::ptrdiff_t idx) { return x4_data[idx]._value; }
+  const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
+  template <typename Tp>
+  static void
+  destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value && !std::is_trivially_destructible<Tp>::value>* = 0) {
+    t.Tp::~Tp();
+  }
+  template <typename Tp>
+  static void
+  destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value || std::is_trivially_destructible<Tp>::value>* = 0) {
+  }
 
 public:
-    using base = _reserved_vector_base<T>;
-    using iterator = typename base::iterator;
-    using const_iterator = typename base::const_iterator;
-    using reverse_iterator = typename base::reverse_iterator;
-    using const_reverse_iterator = typename base::const_reverse_iterator;
-    reserved_vector() : x0_size(0) {}
+  using base = _reserved_vector_base<T>;
+  using iterator = typename base::iterator;
+  using const_iterator = typename base::const_iterator;
+  using reverse_iterator = typename base::reverse_iterator;
+  using const_reverse_iterator = typename base::const_reverse_iterator;
+  reserved_vector() : x0_size(0) {}
 
-    reserved_vector(const reserved_vector& other) : x0_size(other.x0_size)
-    {
-        for (size_t i=0 ; i<x0_size ; ++i)
-            ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+  reserved_vector(const reserved_vector& other) : x0_size(other.x0_size) {
+    for (size_t i = 0; i < x0_size; ++i)
+      ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+  }
+
+  reserved_vector& operator=(const reserved_vector& other) {
+    size_t i = 0;
+    if (other.x0_size > x0_size) {
+      for (; i < x0_size; ++i)
+        _value(i) = other._value(i);
+      for (; i < other.x0_size; ++i)
+        ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+    } else if (other.x0_size < x0_size) {
+      for (; i < other.x0_size; ++i)
+        _value(i) = other._value(i);
+      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+        for (; i < x0_size; ++i)
+          destroy(_value(i));
+    } else {
+      for (; i < other.x0_size; ++i)
+        _value(i) = other._value(i);
     }
+    x0_size = other.x0_size;
+    return *this;
+  }
 
-    reserved_vector& operator=(const reserved_vector& other)
-    {
-        size_t i = 0;
-        if (other.x0_size > x0_size)
-        {
-            for (; i<x0_size ; ++i)
-                _value(i) = other._value(i);
-            for (; i<other.x0_size ; ++i)
-                ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
-        }
-        else if (other.x0_size < x0_size)
-        {
-            for (; i<other.x0_size ; ++i)
-                _value(i) = other._value(i);
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (; i<x0_size ; ++i)
-                    destroy(_value(i));
-        }
-        else
-        {
-            for (; i<other.x0_size ; ++i)
-                _value(i) = other._value(i);
-        }
-        x0_size = other.x0_size;
-        return *this;
+  reserved_vector(reserved_vector&& other) : x0_size(other.x0_size) {
+    for (size_t i = 0; i < x0_size; ++i)
+      ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+  }
+
+  reserved_vector& operator=(reserved_vector&& other) {
+    size_t i = 0;
+    if (other.x0_size > x0_size) {
+      for (; i < x0_size; ++i)
+        _value(i) = std::forward<T>(other._value(i));
+      for (; i < other.x0_size; ++i)
+        ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+    } else if (other.x0_size < x0_size) {
+      for (; i < other.x0_size; ++i)
+        _value(i) = std::forward<T>(other._value(i));
+      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+        for (; i < x0_size; ++i)
+          destroy(_value(i));
+    } else {
+      for (; i < other.x0_size; ++i)
+        _value(i) = std::forward<T>(other._value(i));
     }
+    x0_size = other.x0_size;
+    return *this;
+  }
 
-    reserved_vector(reserved_vector&& other) : x0_size(other.x0_size)
-    {
-        for (size_t i=0 ; i<x0_size ; ++i)
-            ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
-    }
+  ~reserved_vector() {
+    if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+      for (size_t i = 0; i < x0_size; ++i)
+        destroy(_value(i));
+  }
 
-    reserved_vector& operator=(reserved_vector&& other)
-    {
-        size_t i = 0;
-        if (other.x0_size > x0_size)
-        {
-            for (; i<x0_size ; ++i)
-                _value(i) = std::forward<T>(other._value(i));
-            for (; i<other.x0_size ; ++i)
-                ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
-        }
-        else if (other.x0_size < x0_size)
-        {
-            for (; i<other.x0_size ; ++i)
-                _value(i) = std::forward<T>(other._value(i));
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (; i<x0_size ; ++i)
-                    destroy(_value(i));
-        }
-        else
-        {
-            for (; i<other.x0_size ; ++i)
-                _value(i) = std::forward<T>(other._value(i));
-        }
-        x0_size = other.x0_size;
-        return *this;
-    }
-
-    ~reserved_vector()
-    {
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            for (size_t i=0 ; i<x0_size ; ++i)
-                destroy(_value(i));
-    }
-
-    void push_back(const T& d)
-    {
+  void push_back(const T& d) {
 #ifndef NDEBUG
-        if (x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+    if (x0_size == N)
+      Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
 #endif
-        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(d);
-        ++x0_size;
-    }
+    ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(d);
+    ++x0_size;
+  }
 
-    void push_back(T&& d)
-    {
+  void push_back(T&& d) {
 #ifndef NDEBUG
-        if (x0_size == N)
-            Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
+    if (x0_size == N)
+      Log.report(logvisor::Fatal, "push_back() called on full rstl::reserved_vector.");
 #endif
-        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(d));
-        ++x0_size;
-    }
+    ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(d));
+    ++x0_size;
+  }
 
-    template<class... _Args>
-    void emplace_back(_Args&&... args)
-    {
+  template <class... _Args>
+  void emplace_back(_Args&&... args) {
 #ifndef NDEBUG
-        if (x0_size == N)
-            Log.report(logvisor::Fatal, "emplace_back() called on full rstl::reserved_vector.");
+    if (x0_size == N)
+      Log.report(logvisor::Fatal, "emplace_back() called on full rstl::reserved_vector.");
 #endif
-        ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
-        ++x0_size;
-    }
+    ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
+    ++x0_size;
+  }
 
-    void pop_back()
-    {
+  void pop_back() {
 #ifndef NDEBUG
-        if (x0_size == 0)
-            Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
+    if (x0_size == 0)
+      Log.report(logvisor::Fatal, "pop_back() called on empty rstl::reserved_vector.");
 #endif
-        --x0_size;
-        destroy(_value(x0_size));
-    }
+    --x0_size;
+    destroy(_value(x0_size));
+  }
 
-    iterator insert(const_iterator pos, const T& value)
-    {
+  iterator insert(const_iterator pos, const T& value) {
 #ifndef NDEBUG
-        if (x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+    if (x0_size == N)
+      Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == cend())
-        {
-            ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(value);
-        }
-        else
-        {
-            ::new (static_cast<void*>(std::addressof(_value(x0_size))))
-                T(std::forward<T>(_value(x0_size - 1)));
-            for (auto it = end() - 1; it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = value;
-        }
-        ++x0_size;
-        return target_it;
+    auto target_it = base::_const_cast_iterator(pos);
+    if (pos == cend()) {
+      ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(value);
+    } else {
+      ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(_value(x0_size - 1)));
+      for (auto it = end() - 1; it != target_it; --it)
+        *it = std::forward<T>(*(it - 1));
+      *target_it = value;
     }
+    ++x0_size;
+    return target_it;
+  }
 
-    iterator insert(const_iterator pos, T&& value)
-    {
+  iterator insert(const_iterator pos, T&& value) {
 #ifndef NDEBUG
-        if (x0_size == N)
-            Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
+    if (x0_size == N)
+      Log.report(logvisor::Fatal, "insert() called on full rstl::reserved_vector.");
 #endif
-        auto target_it = base::_const_cast_iterator(pos);
-        if (pos == cend())
-        {
-            ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(value));
-        }
-        else
-        {
-            ::new (static_cast<void*>(std::addressof(_value(x0_size))))
-                T(std::forward<T>(_value(x0_size - 1)));
-            for (auto it = end() - 1; it != target_it; --it)
-                *it = std::forward<T>(*(it - 1));
-            *target_it = std::forward<T>(value);
-        }
-        ++x0_size;
-        return target_it;
+    auto target_it = base::_const_cast_iterator(pos);
+    if (pos == cend()) {
+      ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(value));
+    } else {
+      ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(_value(x0_size - 1)));
+      for (auto it = end() - 1; it != target_it; --it)
+        *it = std::forward<T>(*(it - 1));
+      *target_it = std::forward<T>(value);
     }
+    ++x0_size;
+    return target_it;
+  }
 
-    void resize(size_t size)
-    {
+  void resize(size_t size) {
 #ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
+    if (size > N)
+      Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
 #endif
-        if (size > x0_size)
-        {
-            for (size_t i = x0_size; i < size; ++i)
-                ::new (static_cast<void*>(std::addressof(_value(i)))) T();
-            x0_size = size;
-        }
-        else if (size < x0_size)
-        {
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (size_t i = size; i < x0_size; ++i)
-                    destroy(_value(i));
-            x0_size = size;
-        }
+    if (size > x0_size) {
+      for (size_t i = x0_size; i < size; ++i)
+        ::new (static_cast<void*>(std::addressof(_value(i)))) T();
+      x0_size = size;
+    } else if (size < x0_size) {
+      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+        for (size_t i = size; i < x0_size; ++i)
+          destroy(_value(i));
+      x0_size = size;
     }
+  }
 
-    void resize(size_t size, const T& value)
-    {
+  void resize(size_t size, const T& value) {
 #ifndef NDEBUG
-        if (size > N)
-            Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
+    if (size > N)
+      Log.report(logvisor::Fatal, "resize() call overflows rstl::reserved_vector.");
 #endif
-        if (size > x0_size)
-        {
-            for (size_t i = x0_size; i < size; ++i)
-                ::new (static_cast<void*>(std::addressof(_value(i)))) T(value);
-            x0_size = size;
-        }
-        else if (size < x0_size)
-        {
-            if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-                for (size_t i = size; i < x0_size; ++i)
-                    destroy(_value(i));
-            x0_size = size;
-        }
+    if (size > x0_size) {
+      for (size_t i = x0_size; i < size; ++i)
+        ::new (static_cast<void*>(std::addressof(_value(i)))) T(value);
+      x0_size = size;
+    } else if (size < x0_size) {
+      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+        for (size_t i = size; i < x0_size; ++i)
+          destroy(_value(i));
+      x0_size = size;
     }
+  }
 
-    iterator erase(const_iterator pos)
-    {
+  iterator erase(const_iterator pos) {
 #ifndef NDEBUG
-        if (x0_size == 0)
-            Log.report(logvisor::Fatal, "erase() called on empty rstl::reserved_vector.");
+    if (x0_size == 0)
+      Log.report(logvisor::Fatal, "erase() called on empty rstl::reserved_vector.");
 #endif
-        for (auto it = base::_const_cast_iterator(pos) + 1; it != end(); ++it)
-            *(it - 1) = std::forward<T>(*it);
-        --x0_size;
-        destroy(_value(x0_size));
-        return base::_const_cast_iterator(pos);
-    }
+    for (auto it = base::_const_cast_iterator(pos) + 1; it != end(); ++it)
+      *(it - 1) = std::forward<T>(*it);
+    --x0_size;
+    destroy(_value(x0_size));
+    return base::_const_cast_iterator(pos);
+  }
 
-    void pop_front()
-    {
-        if (x0_size != 0)
-            erase(begin());
-    }
+  void pop_front() {
+    if (x0_size != 0)
+      erase(begin());
+  }
 
-    void clear()
-    {
-        if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-            for (auto it = begin(); it != end(); ++it)
-                destroy(*it);
-        x0_size = 0;
-    }
+  void clear() {
+    if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
+      for (auto it = begin(); it != end(); ++it)
+        destroy(*it);
+    x0_size = 0;
+  }
 
-    size_t size() const noexcept { return x0_size; }
-    bool empty() const noexcept { return x0_size == 0; }
-    constexpr size_t capacity() const noexcept { return N; }
-    const T* data() const noexcept { return std::addressof(_value(0)); }
-    T* data() noexcept { return std::addressof(_value(0)); }
+  size_t size() const noexcept { return x0_size; }
+  bool empty() const noexcept { return x0_size == 0; }
+  constexpr size_t capacity() const noexcept { return N; }
+  const T* data() const noexcept { return std::addressof(_value(0)); }
+  T* data() noexcept { return std::addressof(_value(0)); }
 
-    T& back() { return _value(x0_size - 1); }
-    T& front() { return _value(0); }
-    const T& back() const { return _value(x0_size - 1); }
-    const T& front() const { return _value(0); }
+  T& back() { return _value(x0_size - 1); }
+  T& front() { return _value(0); }
+  const T& back() const { return _value(x0_size - 1); }
+  const T& front() const { return _value(0); }
 
-    const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
-    const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
-    iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
-    iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
-    const_iterator cbegin() const noexcept { return begin(); }
-    const_iterator cend() const noexcept { return end(); }
+  const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+  const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+  iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+  iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+  const_iterator cbegin() const noexcept { return begin(); }
+  const_iterator cend() const noexcept { return end(); }
 
-    const_reverse_iterator rbegin() const noexcept
-    { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
-    reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
-    reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
-    const_reverse_iterator crbegin() const noexcept { return rbegin(); }
-    const_reverse_iterator crend() const noexcept { return rend(); }
+  const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
+  reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+  const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  const_reverse_iterator crend() const noexcept { return rend(); }
 
-    T& operator[](size_t idx) { return _value(idx); }
-    const T& operator[](size_t idx) const { return _value(idx); }
+  T& operator[](size_t idx) { return _value(idx); }
+  const T& operator[](size_t idx) const { return _value(idx); }
 };
 
 /**
  * @brief Vector-style view backed by externally-allocated storage
  */
 template <class T>
-class prereserved_vector : public _reserved_vector_base<T>
-{
-    size_t x0_size;
-    T* x4_data;
-    T& _value(std::ptrdiff_t idx) { return x4_data[idx]; }
-    const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]; }
+class prereserved_vector : public _reserved_vector_base<T> {
+  size_t x0_size;
+  T* x4_data;
+  T& _value(std::ptrdiff_t idx) { return x4_data[idx]; }
+  const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]; }
 
 public:
-    using base = _reserved_vector_base<T>;
-    using iterator = typename base::iterator;
-    using const_iterator = typename base::const_iterator;
-    using reverse_iterator = typename base::reverse_iterator;
-    using const_reverse_iterator = typename base::const_reverse_iterator;
-    prereserved_vector() : x0_size(0), x4_data(nullptr) {}
-    prereserved_vector(size_t size, T* data) : x0_size(size), x4_data(data) {}
+  using base = _reserved_vector_base<T>;
+  using iterator = typename base::iterator;
+  using const_iterator = typename base::const_iterator;
+  using reverse_iterator = typename base::reverse_iterator;
+  using const_reverse_iterator = typename base::const_reverse_iterator;
+  prereserved_vector() : x0_size(0), x4_data(nullptr) {}
+  prereserved_vector(size_t size, T* data) : x0_size(size), x4_data(data) {}
 
-    void set_size(size_t n) { x0_size = n; }
-    void set_data(T* data) { x4_data = data; }
+  void set_size(size_t n) { x0_size = n; }
+  void set_data(T* data) { x4_data = data; }
 
-    size_t size() const noexcept { return x0_size; }
-    bool empty() const noexcept { return x0_size == 0; }
-    const T* data() const noexcept { return x4_data; }
-    T* data() noexcept { return x4_data; }
+  size_t size() const noexcept { return x0_size; }
+  bool empty() const noexcept { return x0_size == 0; }
+  const T* data() const noexcept { return x4_data; }
+  T* data() noexcept { return x4_data; }
 
-    T& back() { return _value(x0_size - 1); }
-    T& front() { return _value(0); }
-    const T& back() const { return _value(x0_size - 1); }
-    const T& front() const { return _value(0); }
+  T& back() { return _value(x0_size - 1); }
+  T& front() { return _value(0); }
+  const T& back() const { return _value(x0_size - 1); }
+  const T& front() const { return _value(0); }
 
-    const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
-    const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
-    iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
-    iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
-    const_iterator cbegin() const noexcept { return begin(); }
-    const_iterator cend() const noexcept { return end(); }
+  const_iterator begin() const noexcept { return const_iterator(std::addressof(_value(0))); }
+  const_iterator end() const noexcept { return const_iterator(std::addressof(_value(x0_size))); }
+  iterator begin() noexcept { return iterator(std::addressof(_value(0))); }
+  iterator end() noexcept { return iterator(std::addressof(_value(x0_size))); }
+  const_iterator cbegin() const noexcept { return begin(); }
+  const_iterator cend() const noexcept { return end(); }
 
-    const_reverse_iterator rbegin() const noexcept
-    { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
-    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
-    reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
-    reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
-    const_reverse_iterator crbegin() const noexcept { return rbegin(); }
-    const_reverse_iterator crend() const noexcept { return rend(); }
+  const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  const_reverse_iterator rend() const noexcept { return const_reverse_iterator(std::addressof(_value(-1))); }
+  reverse_iterator rbegin() noexcept { return reverse_iterator(std::addressof(_value(x0_size - 1))); }
+  reverse_iterator rend() noexcept { return reverse_iterator(std::addressof(_value(-1))); }
+  const_reverse_iterator crbegin() const noexcept { return rbegin(); }
+  const_reverse_iterator crend() const noexcept { return rend(); }
 
-    T& operator[](size_t idx) { return _value(idx); }
-    const T& operator[](size_t idx) const { return _value(idx); }
+  T& operator[](size_t idx) { return _value(idx); }
+  const T& operator[](size_t idx) const { return _value(idx); }
 };
 
-template<class ForwardIt, class T>
-ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value)
-{
-    first = std::lower_bound(first, last, value);
-    return (!(first == last) && !(value < *first)) ? first : last;
+template <class ForwardIt, class T>
+ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value) {
+  first = std::lower_bound(first, last, value);
+  return (!(first == last) && !(value < *first)) ? first : last;
 }
 
-template<class ForwardIt, class T, class GetKey>
-ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value, GetKey getkey)
-{
-    auto comp = [&](const auto& left, const T& right) { return getkey(left) < right; };
-    first = std::lower_bound(first, last, value, comp);
-    return (!(first == last) && !(value < getkey(*first))) ? first : last;
+template <class ForwardIt, class T, class GetKey>
+ForwardIt binary_find(ForwardIt first, ForwardIt last, const T& value, GetKey getkey) {
+  auto comp = [&](const auto& left, const T& right) { return getkey(left) < right; };
+  first = std::lower_bound(first, last, value, comp);
+  return (!(first == last) && !(value < getkey(*first))) ? first : last;
 }
 
 #if 0
@@ -599,5 +638,4 @@ string string_l(const char* data)
 }
 #endif
 
-}
-
+} // namespace rstl

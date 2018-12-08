@@ -1,21 +1,17 @@
 #pragma once
 
-namespace urde
-{
+namespace urde {
 class CParticleGen;
 
-class IWeaponRenderer
-{
+class IWeaponRenderer {
 public:
-    virtual ~IWeaponRenderer() = default;
-    virtual void AddParticleGen(const CParticleGen&)=0;
+  virtual ~IWeaponRenderer() = default;
+  virtual void AddParticleGen(const CParticleGen&) = 0;
 };
 
-class CDefaultWeaponRenderer : public IWeaponRenderer
-{
+class CDefaultWeaponRenderer : public IWeaponRenderer {
 public:
-    void AddParticleGen(const CParticleGen&);
+  void AddParticleGen(const CParticleGen&);
 };
 
-}
-
+} // namespace urde

@@ -4,8 +4,7 @@
 #include "CActorParameters.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
 atUint32 CScriptMazeNode::sMazeSeeds[300] = {0};
 
@@ -19,23 +18,18 @@ CScriptMazeNode::CScriptMazeNode(TUniqueId uid, std::string_view name, const CEn
 , xf0_(w2)
 , x100_(vec1)
 , x110_(vec2)
-, x120_(vec3)
-{
-    x13c_24_ = true;
+, x120_(vec3) {
+  x13c_24_ = true;
 }
 
-void CScriptMazeNode::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CScriptMazeNode::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptMazeNode::LoadMazeSeeds()
-{
-    const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_MazeSeeds");
-    u32 resSize = g_ResFactory->ResourceSize(*tag);
-    std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
-    CMemoryInStream in(buf.get(), resSize);
-    for (u32 i = 0; i<300 ; ++i)
-        sMazeSeeds[i] = in.readUint32Big();
+void CScriptMazeNode::LoadMazeSeeds() {
+  const SObjectTag* tag = g_ResFactory->GetResourceIdByName("DUMB_MazeSeeds");
+  u32 resSize = g_ResFactory->ResourceSize(*tag);
+  std::unique_ptr<u8[]> buf = g_ResFactory->LoadResourceSync(*tag);
+  CMemoryInStream in(buf.get(), resSize);
+  for (u32 i = 0; i < 300; ++i)
+    sMazeSeeds[i] = in.readUint32Big();
 }
-}
+} // namespace urde

@@ -1,16 +1,7 @@
 #pragma once
 
-namespace urde
-{
+namespace urde {
 
-enum class EHudType
-{
-    Combat,
-    Scan,
-    XRay,
-    Thermal,
-    Ball
-};
+enum class EHudType { Combat, Scan, XRay, Thermal, Ball };
 
 }
-

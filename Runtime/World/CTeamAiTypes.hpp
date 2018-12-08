@@ -1,11 +1,7 @@
 #pragma once
 
-namespace urde
-{
+namespace urde {
 
-class CTeamAiTypes
-{
-};
+class CTeamAiTypes {};
 
-}
-
+} // namespace urde

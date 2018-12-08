@@ -1,14 +1,10 @@
 #include "ModelViewer.hpp"
 
-namespace urde
-{
+namespace urde {
 
-void ModelViewer::View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub)
-{
-    specter::View::resized(root, sub);
-    m_scissorRect = sub;
+void ModelViewer::View::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
+  specter::View::resized(root, sub);
+  m_scissorRect = sub;
 }
 
-
-
-}
+} // namespace urde

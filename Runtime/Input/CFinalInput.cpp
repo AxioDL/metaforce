@@ -1,8 +1,7 @@
 #include "zeus/Math.hpp"
 #include "CFinalInput.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CFinalInput::CFinalInput()
 : x0_dt(0.0)
@@ -46,9 +45,7 @@ CFinalInput::CFinalInput()
 , x2e_b28_PDPRight(false)
 , x2e_b29_PDPDown(false)
 , x2e_b30_PDPLeft(false)
-, x2e_b31_PStart(false)
-{
-}
+, x2e_b31_PStart(false) {}
 
 CFinalInput::CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput,
                          float leftDiv, float rightDiv)
@@ -93,48 +90,42 @@ CFinalInput::CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& 
 , x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
 , x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
-, x2e_b31_PStart(DStart() && !prevInput.DStart())
-{
+, x2e_b31_PStart(DStart() && !prevInput.DStart()) {}
+
+static float KBToAnaLeftX(const CKeyboardMouseControllerData& data) {
+  float retval = 0.0;
+  if (data.m_charKeys[int('a')])
+    retval -= 1.0;
+  if (data.m_charKeys[int('d')])
+    retval += 1.0;
+  return retval;
 }
 
-static float KBToAnaLeftX(const CKeyboardMouseControllerData& data)
-{
-    float retval = 0.0;
-    if (data.m_charKeys[int('a')])
-        retval -= 1.0;
-    if (data.m_charKeys[int('d')])
-        retval += 1.0;
-    return retval;
+static float KBToAnaLeftY(const CKeyboardMouseControllerData& data) {
+  float retval = 0.0;
+  if (data.m_charKeys[int('s')])
+    retval -= 1.0;
+  if (data.m_charKeys[int('w')])
+    retval += 1.0;
+  return retval;
 }
 
-static float KBToAnaLeftY(const CKeyboardMouseControllerData& data)
-{
-    float retval = 0.0;
-    if (data.m_charKeys[int('s')])
-        retval -= 1.0;
-    if (data.m_charKeys[int('w')])
-        retval += 1.0;
-    return retval;
+static float KBToAnaRightX(const CKeyboardMouseControllerData& data) {
+  float retval = 0.0;
+  if (data.m_charKeys[int('2')])
+    retval -= 1.0;
+  if (data.m_charKeys[int('4')])
+    retval += 1.0;
+  return retval;
 }
 
-static float KBToAnaRightX(const CKeyboardMouseControllerData& data)
-{
-    float retval = 0.0;
-    if (data.m_charKeys[int('2')])
-        retval -= 1.0;
-    if (data.m_charKeys[int('4')])
-        retval += 1.0;
-    return retval;
-}
-
-static float KBToAnaRightY(const CKeyboardMouseControllerData& data)
-{
-    float retval = 0.0;
-    if (data.m_charKeys[int('3')])
-        retval -= 1.0;
-    if (data.m_charKeys[int('1')])
-        retval += 1.0;
-    return retval;
+static float KBToAnaRightY(const CKeyboardMouseControllerData& data) {
+  float retval = 0.0;
+  if (data.m_charKeys[int('3')])
+    retval -= 1.0;
+  if (data.m_charKeys[int('1')])
+    retval += 1.0;
+  return retval;
 }
 
 CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput)
@@ -179,80 +170,75 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
 , x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
-, x2e_b31_PStart(DStart() && !prevInput.DStart())
-{
-    if (x8_anaLeftX || xc_anaLeftY)
-    {
-        float len = std::sqrt(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
-        x8_anaLeftX /= len;
-        xc_anaLeftY /= len;
-    }
-    if (x10_anaRightX || x14_anaRightY)
-    {
-        float len = std::sqrt(x10_anaRightX * x10_anaRightX + x14_anaRightY * x14_anaRightY);
-        x10_anaRightX /= len;
-        x14_anaRightY /= len;
-    }
+, x2e_b31_PStart(DStart() && !prevInput.DStart()) {
+  if (x8_anaLeftX || xc_anaLeftY) {
+    float len = std::sqrt(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
+    x8_anaLeftX /= len;
+    xc_anaLeftY /= len;
+  }
+  if (x10_anaRightX || x14_anaRightY) {
+    float len = std::sqrt(x10_anaRightX * x10_anaRightX + x14_anaRightY * x14_anaRightY);
+    x10_anaRightX /= len;
+    x14_anaRightY /= len;
+  }
 }
 
-CFinalInput& CFinalInput::operator|=(const CFinalInput& other)
-{
-    if (std::fabs(other.x8_anaLeftX) > std::fabs(x8_anaLeftX))
-        x8_anaLeftX = other.x8_anaLeftX;
-    if (std::fabs(other.xc_anaLeftY) > std::fabs(xc_anaLeftY))
-        xc_anaLeftY = other.xc_anaLeftY;
-    if (std::fabs(other.x10_anaRightX) > std::fabs(x10_anaRightX))
-        x10_anaRightX = other.x10_anaRightX;
-    if (std::fabs(other.x14_anaRightY) > std::fabs(x14_anaRightY))
-        x14_anaRightY = other.x14_anaRightY;
-    if (std::fabs(other.x18_anaLeftTrigger) > std::fabs(x18_anaLeftTrigger))
-        x18_anaLeftTrigger = other.x18_anaLeftTrigger;
-    if (std::fabs(other.x1c_anaRightTrigger) > std::fabs(x1c_anaRightTrigger))
-        x1c_anaRightTrigger = other.x1c_anaRightTrigger;
-    x20_enableAnaLeftXP |= other.x20_enableAnaLeftXP;
-    x20_enableAnaLeftNegXP |= other.x20_enableAnaLeftNegXP;
-    x21_enableAnaLeftYP |= other.x21_enableAnaLeftYP;
-    x21_enableAnaLeftNegYP |= other.x21_enableAnaLeftNegYP;
-    x22_enableAnaRightXP |= other.x22_enableAnaRightXP;
-    x22_enableAnaRightNegXP |= other.x22_enableAnaRightNegXP;
-    x23_enableAnaRightYP |= other.x23_enableAnaRightYP;
-    x23_enableAnaRightNegYP |= other.x23_enableAnaRightNegYP;
-    x24_anaLeftTriggerP |= other.x24_anaLeftTriggerP;
-    x28_anaRightTriggerP |= other.x28_anaRightTriggerP;
-    x2c_b24_A |= other.x2c_b24_A;
-    x2c_b25_B |= other.x2c_b25_B;
-    x2c_b26_X |= other.x2c_b26_X;
-    x2c_b27_Y |= other.x2c_b27_Y;
-    x2c_b28_Z |= other.x2c_b28_Z;
-    x2c_b29_L |= other.x2c_b29_L;
-    x2c_b30_R |= other.x2c_b30_R;
-    x2c_b31_DPUp |= other.x2c_b31_DPUp;
-    x2d_b24_DPRight |= other.x2d_b24_DPRight;
-    x2d_b25_DPDown |= other.x2d_b25_DPDown;
-    x2d_b26_DPLeft |= other.x2d_b26_DPLeft;
-    x2d_b27_Start |= other.x2d_b27_Start;
-    x2d_b28_PA |= other.x2d_b28_PA;
-    x2d_b29_PB |= other.x2d_b29_PB;
-    x2d_b30_PX |= other.x2d_b30_PX;
-    x2d_b31_PY |= other.x2d_b31_PY;
-    x2e_b24_PZ |= other.x2e_b24_PZ;
-    x2e_b25_PL |= other.x2e_b25_PL;
-    x2e_b26_PR |= other.x2e_b26_PR;
-    x2e_b27_PDPUp |= other.x2e_b27_PDPUp;
-    x2e_b28_PDPRight |= other.x2e_b28_PDPRight;
-    x2e_b29_PDPDown |= other.x2e_b29_PDPDown;
-    x2e_b30_PDPLeft |= other.x2e_b30_PDPLeft;
-    x2e_b31_PStart |= other.x2e_b31_PStart;
-    return *this;
+CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
+  if (std::fabs(other.x8_anaLeftX) > std::fabs(x8_anaLeftX))
+    x8_anaLeftX = other.x8_anaLeftX;
+  if (std::fabs(other.xc_anaLeftY) > std::fabs(xc_anaLeftY))
+    xc_anaLeftY = other.xc_anaLeftY;
+  if (std::fabs(other.x10_anaRightX) > std::fabs(x10_anaRightX))
+    x10_anaRightX = other.x10_anaRightX;
+  if (std::fabs(other.x14_anaRightY) > std::fabs(x14_anaRightY))
+    x14_anaRightY = other.x14_anaRightY;
+  if (std::fabs(other.x18_anaLeftTrigger) > std::fabs(x18_anaLeftTrigger))
+    x18_anaLeftTrigger = other.x18_anaLeftTrigger;
+  if (std::fabs(other.x1c_anaRightTrigger) > std::fabs(x1c_anaRightTrigger))
+    x1c_anaRightTrigger = other.x1c_anaRightTrigger;
+  x20_enableAnaLeftXP |= other.x20_enableAnaLeftXP;
+  x20_enableAnaLeftNegXP |= other.x20_enableAnaLeftNegXP;
+  x21_enableAnaLeftYP |= other.x21_enableAnaLeftYP;
+  x21_enableAnaLeftNegYP |= other.x21_enableAnaLeftNegYP;
+  x22_enableAnaRightXP |= other.x22_enableAnaRightXP;
+  x22_enableAnaRightNegXP |= other.x22_enableAnaRightNegXP;
+  x23_enableAnaRightYP |= other.x23_enableAnaRightYP;
+  x23_enableAnaRightNegYP |= other.x23_enableAnaRightNegYP;
+  x24_anaLeftTriggerP |= other.x24_anaLeftTriggerP;
+  x28_anaRightTriggerP |= other.x28_anaRightTriggerP;
+  x2c_b24_A |= other.x2c_b24_A;
+  x2c_b25_B |= other.x2c_b25_B;
+  x2c_b26_X |= other.x2c_b26_X;
+  x2c_b27_Y |= other.x2c_b27_Y;
+  x2c_b28_Z |= other.x2c_b28_Z;
+  x2c_b29_L |= other.x2c_b29_L;
+  x2c_b30_R |= other.x2c_b30_R;
+  x2c_b31_DPUp |= other.x2c_b31_DPUp;
+  x2d_b24_DPRight |= other.x2d_b24_DPRight;
+  x2d_b25_DPDown |= other.x2d_b25_DPDown;
+  x2d_b26_DPLeft |= other.x2d_b26_DPLeft;
+  x2d_b27_Start |= other.x2d_b27_Start;
+  x2d_b28_PA |= other.x2d_b28_PA;
+  x2d_b29_PB |= other.x2d_b29_PB;
+  x2d_b30_PX |= other.x2d_b30_PX;
+  x2d_b31_PY |= other.x2d_b31_PY;
+  x2e_b24_PZ |= other.x2e_b24_PZ;
+  x2e_b25_PL |= other.x2e_b25_PL;
+  x2e_b26_PR |= other.x2e_b26_PR;
+  x2e_b27_PDPUp |= other.x2e_b27_PDPUp;
+  x2e_b28_PDPRight |= other.x2e_b28_PDPRight;
+  x2e_b29_PDPDown |= other.x2e_b29_PDPDown;
+  x2e_b30_PDPLeft |= other.x2e_b30_PDPLeft;
+  x2e_b31_PStart |= other.x2e_b31_PStart;
+  return *this;
 }
 
-CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) const
-{
-    CFinalInput ret = *this;
-    ret.x8_anaLeftX = zeus::clamp(-1.f, x8_anaLeftX / leftDiv, 1.f);
-    ret.xc_anaLeftY = zeus::clamp(-1.f, xc_anaLeftY / leftDiv, 1.f);
-    ret.x10_anaRightX = zeus::clamp(-1.f, x10_anaRightX / rightDiv, 1.f);
-    ret.x14_anaRightY = zeus::clamp(-1.f, x14_anaRightY / rightDiv, 1.f);
-    return ret;
+CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) const {
+  CFinalInput ret = *this;
+  ret.x8_anaLeftX = zeus::clamp(-1.f, x8_anaLeftX / leftDiv, 1.f);
+  ret.xc_anaLeftY = zeus::clamp(-1.f, xc_anaLeftY / leftDiv, 1.f);
+  ret.x10_anaRightX = zeus::clamp(-1.f, x10_anaRightX / rightDiv, 1.f);
+  ret.x14_anaRightY = zeus::clamp(-1.f, x14_anaRightY / rightDiv, 1.f);
+  return ret;
 }
-}
+} // namespace urde

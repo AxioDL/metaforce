@@ -1,11 +1,8 @@
 #pragma once
 
-namespace urde
-{
-class ITweak
-{
+namespace urde {
+class ITweak {
 public:
-    virtual ~ITweak() {}
+  virtual ~ITweak() {}
 };
-}
-
+} // namespace urde

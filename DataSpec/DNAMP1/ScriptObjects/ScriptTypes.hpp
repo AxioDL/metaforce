@@ -128,13 +128,11 @@
 #include <functional>
 #include <list>
 
-namespace DataSpec::DNAMP1
-{
-struct ScriptObjectSpec
-{
-    atUint8 type;
-    std::function<IScriptObject*()> a;
+namespace DataSpec::DNAMP1 {
+struct ScriptObjectSpec {
+  atUint8 type;
+  std::function<IScriptObject*()> a;
 };
 
 extern const std::vector<const struct ScriptObjectSpec*> SCRIPT_OBJECT_DB;
-}
+} // namespace DataSpec::DNAMP1

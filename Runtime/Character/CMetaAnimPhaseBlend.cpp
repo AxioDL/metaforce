@@ -1,28 +1,23 @@
 #include "CMetaAnimPhaseBlend.hpp"
 #include "CMetaAnimFactory.hpp"
 
-namespace urde
-{
+namespace urde {
 
-CMetaAnimPhaseBlend::CMetaAnimPhaseBlend(CInputStream& in)
-{
-    x4_animA = CMetaAnimFactory::CreateMetaAnim(in);
-    x8_animB = CMetaAnimFactory::CreateMetaAnim(in);
-    xc_blend = in.readFloatBig();
-    x10_ = in.readBool();
+CMetaAnimPhaseBlend::CMetaAnimPhaseBlend(CInputStream& in) {
+  x4_animA = CMetaAnimFactory::CreateMetaAnim(in);
+  x8_animB = CMetaAnimFactory::CreateMetaAnim(in);
+  xc_blend = in.readFloatBig();
+  x10_ = in.readBool();
 }
 
-void CMetaAnimPhaseBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const
-{
-    x4_animA->GetUniquePrimitives(primsOut);
-    x8_animB->GetUniquePrimitives(primsOut);
+void CMetaAnimPhaseBlend::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const {
+  x4_animA->GetUniquePrimitives(primsOut);
+  x8_animB->GetUniquePrimitives(primsOut);
 }
 
-std::shared_ptr<CAnimTreeNode>
-CMetaAnimPhaseBlend::VGetAnimationTree(const CAnimSysContext& animSys,
-                                       const CMetaAnimTreeBuildOrders& orders) const
-{
-    return {};
+std::shared_ptr<CAnimTreeNode> CMetaAnimPhaseBlend::VGetAnimationTree(const CAnimSysContext& animSys,
+                                                                      const CMetaAnimTreeBuildOrders& orders) const {
+  return {};
 }
 
-}
+} // namespace urde

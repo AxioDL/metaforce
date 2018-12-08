@@ -2,40 +2,30 @@
 #include "CStateManager.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
-CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 connCount, s32 variance,
-                                       bool clamp, bool active)
-    : CEntity(uid, info, active, name),
-      x34_connectionCount((clamp && connCount > 100) ? 100 : connCount),
-      x38_variance(variance),
-      x3c_clamp(clamp)
-{
+namespace urde {
+CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 connCount,
+                                       s32 variance, bool clamp, bool active)
+: CEntity(uid, info, active, name)
+, x34_connectionCount((clamp && connCount > 100) ? 100 : connCount)
+, x38_variance(variance)
+, x3c_clamp(clamp) {}
+
+void CScriptRandomRelay::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void CScriptRandomRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
+  CEntity::AcceptScriptMsg(msg, objId, stateMgr);
+  if (msg == EScriptObjectMessage::SetToZero) {
+    if (!x30_24_active)
+      return;
+    SendLocalScriptMsgs(EScriptObjectState::Zero, stateMgr);
+  }
 }
 
-void CScriptRandomRelay::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
-void CScriptRandomRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr)
-{
-    CEntity::AcceptScriptMsg(msg, objId, stateMgr);
-    if (msg == EScriptObjectMessage::SetToZero)
-    {
-        if (!x30_24_active)
-            return;
-        SendLocalScriptMsgs(EScriptObjectState::Zero, stateMgr);
-    }
-}
-
-void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateManager &stateMgr)
-{
-    if (state != EScriptObjectState::Zero)
-    {
-        SendScriptMsgs(state, stateMgr, EScriptObjectMessage::None);
-        return;
-    }
+void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateManager& stateMgr) {
+  if (state != EScriptObjectState::Zero) {
+    SendScriptMsgs(state, stateMgr, EScriptObjectMessage::None);
+    return;
+  }
 
 #if 0
     std::vector<std::pair<CEntity*, EScriptObjectMessage>> objs;
@@ -60,4 +50,4 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
 
 #endif
 }
-}
+} // namespace urde

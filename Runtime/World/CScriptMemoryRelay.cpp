@@ -3,43 +3,33 @@
 #include "CRelayTracker.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool b1,
                                        bool skipSendActive, bool ignoreMessages)
-    : CEntity(uid, info, true, name),
-      x34_24_(b1),
-      x34_25_skipSendActive(skipSendActive),
-      x34_26_ignoreMessages(ignoreMessages)
-{
+: CEntity(uid, info, true, name)
+, x34_24_(b1)
+, x34_25_skipSendActive(skipSendActive)
+, x34_26_ignoreMessages(ignoreMessages) {}
+
+void CScriptMemoryRelay::Accept(IVisitor& visitor) { visitor.Visit(this); }
+
+void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
+  if (x34_26_ignoreMessages)
+    return;
+
+  if (msg == EScriptObjectMessage::Deactivate) {
+    stateMgr.GetRelayTracker()->RemoveRelay(xc_editorId);
+    return;
+  } else if (msg == EScriptObjectMessage::Activate) {
+    stateMgr.GetRelayTracker()->AddRelay(xc_editorId);
+    if (!x34_25_skipSendActive)
+      SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
+
+    return;
+  }
+
+  CEntity::AcceptScriptMsg(msg, objId, stateMgr);
 }
 
-void CScriptMemoryRelay::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
-
-void CScriptMemoryRelay::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager &stateMgr)
-{
-    if (x34_26_ignoreMessages)
-        return;
-
-    if (msg == EScriptObjectMessage::Deactivate)
-    {
-        stateMgr.GetRelayTracker()->RemoveRelay(xc_editorId);
-        return;
-    }
-    else if (msg == EScriptObjectMessage::Activate)
-    {
-        stateMgr.GetRelayTracker()->AddRelay(xc_editorId);
-        if (!x34_25_skipSendActive)
-            SendScriptMsgs(EScriptObjectState::Active, stateMgr, EScriptObjectMessage::None);
-
-        return;
-    }
-
-    CEntity::AcceptScriptMsg(msg, objId, stateMgr);
-}
-
-}
+} // namespace urde

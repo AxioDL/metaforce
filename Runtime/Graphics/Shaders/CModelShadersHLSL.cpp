@@ -1,7 +1,6 @@
 #include "CModelShaders.hpp"
 
-namespace urde
-{
+namespace urde {
 using namespace std::literals;
 
 extern const hecl::Backend::Function ExtensionLightingFuncsHLSL[];
@@ -118,107 +117,104 @@ static std::string_view LightingShadowHLSL =
 "}\n"sv;
 
 static std::string_view MainPostHLSL =
-"static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
-"{\n"
-"    float fogZ, temp;\n"
-"    switch (fog.mode)\n"
-"    {\n"
-"    case 2:\n"
-"        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-"        break;\n"
-"    case 4:\n"
-"        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"
-"        break;\n"
-"    case 5:\n"
-"        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-"        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
-"        break;\n"
-"    case 6:\n"
-"        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"
-"        break;\n"
-"    case 7:\n"
-"        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"
-"        fogZ = exp2(-8.0 * temp * temp);\n"
-"        break;\n"
-"    default:\n"
-"        fogZ = 0.0;\n"
-"        break;\n"
-"    }\n"
-"#ifdef BLEND_DST_ONE\n"
-"    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"
-"#else\n"
-"    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
-"#endif\n"
-"}\n"
-"\n"sv;
+    "static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+    "{\n"
+    "    float fogZ, temp;\n"
+    "    switch (fog.mode)\n"
+    "    {\n"
+    "    case 2:\n"
+    "        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+    "        break;\n"
+    "    case 4:\n"
+    "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"
+    "        break;\n"
+    "    case 5:\n"
+    "        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
+    "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
+    "        break;\n"
+    "    case 6:\n"
+    "        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"
+    "        break;\n"
+    "    case 7:\n"
+    "        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"
+    "        fogZ = exp2(-8.0 * temp * temp);\n"
+    "        break;\n"
+    "    default:\n"
+    "        fogZ = 0.0;\n"
+    "        break;\n"
+    "    }\n"
+    "#ifdef BLEND_DST_ONE\n"
+    "    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"
+    "#else\n"
+    "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
+    "#endif\n"
+    "}\n"
+    "\n"sv;
 
 static std::string_view ThermalPostHLSL =
-"cbuffer ThermalUniform : register(b2)\n"
-"{\n"
-"    float4 tmulColor;\n"
-"    float4 addColor;\n"
-"};\n"
-"static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
-"{\n"
-"    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + addColor.a);\n"
-"}\n"
-"\n"sv;
+    "cbuffer ThermalUniform : register(b2)\n"
+    "{\n"
+    "    float4 tmulColor;\n"
+    "    float4 addColor;\n"
+    "};\n"
+    "static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+    "{\n"
+    "    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + "
+    "addColor.a);\n"
+    "}\n"
+    "\n"sv;
 
 static std::string_view SolidPostHLSL =
-"cbuffer SolidUniform : register(b2)\n"
-"{\n"
-"    float4 solidColor;\n"
-"};\n"
-"static float4 SolidPostFunc(in VertToFrag vtf, float4 colorIn)\n"
-"{\n"
-"    return solidColor;\n"
-"}\n"
-"\n"sv;
+    "cbuffer SolidUniform : register(b2)\n"
+    "{\n"
+    "    float4 solidColor;\n"
+    "};\n"
+    "static float4 SolidPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+    "{\n"
+    "    return solidColor;\n"
+    "}\n"
+    "\n"sv;
 
 static std::string_view MBShadowPostHLSL =
-"cbuffer MBShadowUniform : register(b2)\n"
-"{\n"
-"    float4 shadowUp;\n"
-"    float shadowId;\n"
-"};\n"
-"static float4 MBShadowPostFunc(in VertToFrag vtf, float4 colorIn)\n"
-"{\n"
-"    float idTexel = extTex0.Sample(samp, vtf.extTcgs[0]).a;\n"
-"    float sphereTexel = extTex1.Sample(samp, vtf.extTcgs[1]).a;\n"
-"    float fadeTexel = extTex2.Sample(samp, vtf.extTcgs[2]).a;\n"
-"    float val = ((abs(idTexel - shadowId) < 0.001) ?\n"
-"        (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *\n"
-"        sphereTexel * fadeTexel;\n"
-"    return float4(0.0, 0.0, 0.0, val);\n"
-"}\n"
-"\n"sv;
+    "cbuffer MBShadowUniform : register(b2)\n"
+    "{\n"
+    "    float4 shadowUp;\n"
+    "    float shadowId;\n"
+    "};\n"
+    "static float4 MBShadowPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+    "{\n"
+    "    float idTexel = extTex0.Sample(samp, vtf.extTcgs[0]).a;\n"
+    "    float sphereTexel = extTex1.Sample(samp, vtf.extTcgs[1]).a;\n"
+    "    float fadeTexel = extTex2.Sample(samp, vtf.extTcgs[2]).a;\n"
+    "    float val = ((abs(idTexel - shadowId) < 0.001) ?\n"
+    "        (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *\n"
+    "        sphereTexel * fadeTexel;\n"
+    "    return float4(0.0, 0.0, 0.0, val);\n"
+    "}\n"
+    "\n"sv;
 
-const hecl::Backend::Function ExtensionLightingFuncsHLSL[] =
-{
-    {},
-    {LightingHLSL, "LightingFunc"},
-    {},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {LightingShadowHLSL, "LightingShadowFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"},
-    {LightingHLSL, "LightingFunc"}
-};
+const hecl::Backend::Function ExtensionLightingFuncsHLSL[] = {{},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              {},
+                                                              {LightingShadowHLSL, "LightingShadowFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"}};
 
-const hecl::Backend::Function ExtensionPostFuncsHLSL[] =
-{
+const hecl::Backend::Function ExtensionPostFuncsHLSL[] = {
     {},
     {MainPostHLSL, "MainPostFunc"},
     {ThermalPostHLSL, "ThermalPostFunc"},
@@ -241,4 +237,4 @@ const hecl::Backend::Function ExtensionPostFuncsHLSL[] =
     {MainPostHLSL, "MainPostFunc"},
 };
 
-}
+} // namespace urde

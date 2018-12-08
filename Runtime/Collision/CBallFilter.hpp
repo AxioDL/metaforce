@@ -2,16 +2,13 @@
 
 #include "ICollisionFilter.hpp"
 
-namespace urde
-{
+namespace urde {
 class CPhysicsActor;
 
-class CBallFilter : public ICollisionFilter
-{
+class CBallFilter : public ICollisionFilter {
 public:
-    CBallFilter(CActor& actor) : ICollisionFilter(actor) {}
-    void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const;
+  CBallFilter(CActor& actor) : ICollisionFilter(actor) {}
+  void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const;
 };
 
-}
-
+} // namespace urde

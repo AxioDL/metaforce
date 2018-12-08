@@ -3,14 +3,11 @@
 #include "IOStreams.hpp"
 #include "IMetaTrans.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CMetaTransFactory
-{
+class CMetaTransFactory {
 public:
-    static std::shared_ptr<IMetaTrans> CreateMetaTrans(CInputStream& in);
+  static std::shared_ptr<IMetaTrans> CreateMetaTrans(CInputStream& in);
 };
 
-}
-
+} // namespace urde

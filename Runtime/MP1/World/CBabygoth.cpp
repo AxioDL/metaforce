@@ -1,7 +1,6 @@
 #include "CBabygoth.hpp"
 
-namespace urde::MP1
-{
+namespace urde::MP1 {
 CBabygothData::CBabygothData(CInputStream& in)
 : x0_(in.readFloatBig())
 , x4_(in.readFloatBig())
@@ -28,15 +27,11 @@ CBabygothData::CBabygothData(CInputStream& in)
 , x168_(in.readFloatBig())
 , x16c_(in)
 , x170_(CSfxManager::TranslateSFXID(in.readUint32Big()))
-, x174_(in)
-{
-}
+, x174_(in) {}
 
 CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-    CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, const CBabygothData& babyData)
-: CPatterned(ECharacter::Babygoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo, EMovementType::Ground,
-    EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium)
-{
-
-}
-}
+                     CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
+                     const CBabygothData& babyData)
+: CPatterned(ECharacter::Babygoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
+             EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium) {}
+} // namespace urde::MP1

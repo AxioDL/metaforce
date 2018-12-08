@@ -74,176 +74,170 @@ extern "C" const uint8_t Zoomer_H[];
 extern "C" const uint8_t lumigek_H[];
 extern "C" const uint8_t test_H[];
 
-namespace DataSpec::DNAMP1
-{
+namespace DataSpec::DNAMP1 {
 
 using namespace std::literals;
 
-static const std::pair<std::string_view, const uint8_t*> Headers[] =
-{
-    {"Atomic"sv, Atomic_H},
-    {"BetaBeetle"sv, BetaBeetle_H},
-    {"Bird"sv, Bird_H},
-    {"BloodFlower"sv, BloodFlower_H},
-    {"Burrower"sv, Burrower_H},
-    {"ChozoGhost"sv, ChozoGhost_H},
-    {"ChubbWeed"sv, ChubbWeed_H},
-    {"CineBoots"sv, CineBoots_H},
-    {"CineGeneral"sv, CineGeneral_H},
-    {"CineGun"sv, CineGun_H},
-    {"CineMorphball"sv, CineMorphball_H},
-    {"CineSuit"sv, CineSuit_H},
-    {"CineVisor"sv, CineVisor_H},
-    {"Crater"sv, Crater_H},
-    {"Crystallite"sv, Crystallite_H},
-    {"Drones"sv, Drones_H},
-    {"EliteSpacePirate"sv, EliteSpacePirate_H},
-    {"FireFlea"sv, FireFlea_H},
-    {"Flaaghra"sv, Flaaghra_H},
-    {"FlickerBat"sv, FlickerBat_H},
-    {"FlyingPirate"sv, FlyingPirate_H},
-    {"FrontEnd"sv, FrontEnd_H},
-    {"GagantuanBeatle"sv, GagantuanBeatle_H},
-    {"Gnats"sv, Gnats_H},
-    {"Gryzbee"sv, Gryzbee_H},
-    {"IceCrack"sv, IceCrack_H},
-    {"IceWorld"sv, IceWorld_H},
-    {"InjuredPirates"sv, InjuredPirates_H},
-    {"IntroBoss"sv, IntroBoss_H},
-    {"IntroWorld"sv, IntroWorld_H},
-    {"JellyZap"sv, JellyZap_H},
-    {"LavaWorld"sv, LavaWorld_H},
-    {"Magdolite"sv, Magdolite_H},
-    {"Metaree"sv, Metaree_H},
-    {"MetroidPrime"sv, MetroidPrime_H},
-    {"Metroid"sv, Metroid_H},
-    {"MinesWorld"sv, MinesWorld_H},
-    {"MiscSamus"sv, MiscSamus_H},
-    {"Misc"sv, Misc_H},
-    {"OmegaPirate"sv, OmegaPirate_H},
-    {"OverWorld"sv, OverWorld_H},
-    {"Parasite"sv, Parasite_H},
-    {"PhazonGun"sv, PhazonGun_H},
-    {"Phazon"sv, Phazon_H},
-    {"PuddleSpore"sv, PuddleSpore_H},
-    {"PuddleToad"sv, PuddleToad_H},
-    {"Puffer"sv, Puffer_H},
-    {"ReactorDoor"sv, ReactorDoor_H},
-    {"Ridley"sv, Ridley_H},
-    {"Ripper"sv, Ripper_H},
-    {"RuinsWorld"sv, RuinsWorld_H},
-    {"SamusShip"sv, SamusShip_H},
-    {"Scarab"sv, Scarab_H},
-    {"Seedling"sv, Seedling_H},
-    {"SheeGoth"sv, SheeGoth_H},
-    {"SnakeWeed"sv, SnakeWeed_H},
-    {"Sova"sv, Sova_H},
-    {"SpacePirate"sv, SpacePirate_H},
-    {"SpankWeed"sv, SpankWeed_H},
-    {"Thardus"sv, Thardus_H},
-    {"TheEnd"sv, TheEnd_H},
-    {"Torobyte"sv, Torobyte_H},
-    {"Triclops"sv, Triclops_H},
-    {"Turret"sv, Turret_H},
-    {"UI"sv, UI_H},
-    {"WarWasp"sv, WarWasp_H},
-    {"Weapons"sv, Weapons_H},
-    {"ZZZ"sv, ZZZ_H},
-    {"Zoomer"sv, Zoomer_H},
-    {"lumigek"sv, lumigek_H},
-    {"test"sv, test_H}
-};
+static const std::pair<std::string_view, const uint8_t*> Headers[] = {{"Atomic"sv, Atomic_H},
+                                                                      {"BetaBeetle"sv, BetaBeetle_H},
+                                                                      {"Bird"sv, Bird_H},
+                                                                      {"BloodFlower"sv, BloodFlower_H},
+                                                                      {"Burrower"sv, Burrower_H},
+                                                                      {"ChozoGhost"sv, ChozoGhost_H},
+                                                                      {"ChubbWeed"sv, ChubbWeed_H},
+                                                                      {"CineBoots"sv, CineBoots_H},
+                                                                      {"CineGeneral"sv, CineGeneral_H},
+                                                                      {"CineGun"sv, CineGun_H},
+                                                                      {"CineMorphball"sv, CineMorphball_H},
+                                                                      {"CineSuit"sv, CineSuit_H},
+                                                                      {"CineVisor"sv, CineVisor_H},
+                                                                      {"Crater"sv, Crater_H},
+                                                                      {"Crystallite"sv, Crystallite_H},
+                                                                      {"Drones"sv, Drones_H},
+                                                                      {"EliteSpacePirate"sv, EliteSpacePirate_H},
+                                                                      {"FireFlea"sv, FireFlea_H},
+                                                                      {"Flaaghra"sv, Flaaghra_H},
+                                                                      {"FlickerBat"sv, FlickerBat_H},
+                                                                      {"FlyingPirate"sv, FlyingPirate_H},
+                                                                      {"FrontEnd"sv, FrontEnd_H},
+                                                                      {"GagantuanBeatle"sv, GagantuanBeatle_H},
+                                                                      {"Gnats"sv, Gnats_H},
+                                                                      {"Gryzbee"sv, Gryzbee_H},
+                                                                      {"IceCrack"sv, IceCrack_H},
+                                                                      {"IceWorld"sv, IceWorld_H},
+                                                                      {"InjuredPirates"sv, InjuredPirates_H},
+                                                                      {"IntroBoss"sv, IntroBoss_H},
+                                                                      {"IntroWorld"sv, IntroWorld_H},
+                                                                      {"JellyZap"sv, JellyZap_H},
+                                                                      {"LavaWorld"sv, LavaWorld_H},
+                                                                      {"Magdolite"sv, Magdolite_H},
+                                                                      {"Metaree"sv, Metaree_H},
+                                                                      {"MetroidPrime"sv, MetroidPrime_H},
+                                                                      {"Metroid"sv, Metroid_H},
+                                                                      {"MinesWorld"sv, MinesWorld_H},
+                                                                      {"MiscSamus"sv, MiscSamus_H},
+                                                                      {"Misc"sv, Misc_H},
+                                                                      {"OmegaPirate"sv, OmegaPirate_H},
+                                                                      {"OverWorld"sv, OverWorld_H},
+                                                                      {"Parasite"sv, Parasite_H},
+                                                                      {"PhazonGun"sv, PhazonGun_H},
+                                                                      {"Phazon"sv, Phazon_H},
+                                                                      {"PuddleSpore"sv, PuddleSpore_H},
+                                                                      {"PuddleToad"sv, PuddleToad_H},
+                                                                      {"Puffer"sv, Puffer_H},
+                                                                      {"ReactorDoor"sv, ReactorDoor_H},
+                                                                      {"Ridley"sv, Ridley_H},
+                                                                      {"Ripper"sv, Ripper_H},
+                                                                      {"RuinsWorld"sv, RuinsWorld_H},
+                                                                      {"SamusShip"sv, SamusShip_H},
+                                                                      {"Scarab"sv, Scarab_H},
+                                                                      {"Seedling"sv, Seedling_H},
+                                                                      {"SheeGoth"sv, SheeGoth_H},
+                                                                      {"SnakeWeed"sv, SnakeWeed_H},
+                                                                      {"Sova"sv, Sova_H},
+                                                                      {"SpacePirate"sv, SpacePirate_H},
+                                                                      {"SpankWeed"sv, SpankWeed_H},
+                                                                      {"Thardus"sv, Thardus_H},
+                                                                      {"TheEnd"sv, TheEnd_H},
+                                                                      {"Torobyte"sv, Torobyte_H},
+                                                                      {"Triclops"sv, Triclops_H},
+                                                                      {"Turret"sv, Turret_H},
+                                                                      {"UI"sv, UI_H},
+                                                                      {"WarWasp"sv, WarWasp_H},
+                                                                      {"Weapons"sv, Weapons_H},
+                                                                      {"ZZZ"sv, ZZZ_H},
+                                                                      {"Zoomer"sv, Zoomer_H},
+                                                                      {"lumigek"sv, lumigek_H},
+                                                                      {"test"sv, test_H}};
 
-bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir)
-{
-    dir.makeDirChain(true);
+bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
+  dir.makeDirChain(true);
 
-    Header head;
-    head.read(rs);
+  Header head;
+  head.read(rs);
 
-    uint32_t poolLen = rs.readUint32Big();
-    auto pool = rs.readUBytes(poolLen);
+  uint32_t poolLen = rs.readUint32Big();
+  auto pool = rs.readUBytes(poolLen);
 
-    uint32_t projLen = rs.readUint32Big();
-    auto proj = rs.readUBytes(projLen);
+  uint32_t projLen = rs.readUint32Big();
+  auto proj = rs.readUBytes(projLen);
 
-    uint32_t sampLen = rs.readUint32Big();
-    auto samp = rs.readUBytes(sampLen);
+  uint32_t sampLen = rs.readUint32Big();
+  auto samp = rs.readUBytes(sampLen);
 
-    uint32_t sdirLen = rs.readUint32Big();
-    auto sdir = rs.readUBytes(sdirLen);
+  uint32_t sdirLen = rs.readUint32Big();
+  auto sdir = rs.readUBytes(sdirLen);
 
-    amuse::AudioGroupData data(proj.get(), projLen, pool.get(), poolLen,
-        sdir.get(), sdirLen, samp.get(), sampLen, amuse::GCNDataTag{});
+  amuse::AudioGroupData data(proj.get(), projLen, pool.get(), poolLen, sdir.get(), sdirLen, samp.get(), sampLen,
+                             amuse::GCNDataTag{});
 
-    /* Load into amuse representation */
-    amuse::ProjectDatabase projDb;
-    projDb.setIdDatabases();
-    amuse::AudioGroupDatabase group(data);
-    group.setGroupPath(dir.getAbsolutePath());
+  /* Load into amuse representation */
+  amuse::ProjectDatabase projDb;
+  projDb.setIdDatabases();
+  amuse::AudioGroupDatabase group(data);
+  group.setGroupPath(dir.getAbsolutePath());
 
-    /* Extract samples */
-    group.getSdir().extractAllCompressed(dir.getAbsolutePath(), data.getSamp());
+  /* Extract samples */
+  group.getSdir().extractAllCompressed(dir.getAbsolutePath(), data.getSamp());
 
-    /* Import C headers */
-    auto lastComp = dir.getLastComponentUTF8();
-    auto search = std::lower_bound(std::cbegin(Headers), std::cend(Headers), lastComp,
-                  [](const auto& a, const auto& b) { return a.first < b; });
-    if (search != std::cend(Headers) && search->first == lastComp)
-        group.importCHeader((char*)search->second);
+  /* Import C headers */
+  auto lastComp = dir.getLastComponentUTF8();
+  auto search = std::lower_bound(std::cbegin(Headers), std::cend(Headers), lastComp,
+                                 [](const auto& a, const auto& b) { return a.first < b; });
+  if (search != std::cend(Headers) && search->first == lastComp)
+    group.importCHeader((char*)search->second);
 
-    /* Write out project/pool */
-    {
-        auto projd = group.getProj().toYAML();
-        athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).getAbsolutePath());
-        if (fo.hasError())
-            return false;
-        fo.writeUBytes(projd.data(), projd.size());
-    }
+  /* Write out project/pool */
+  {
+    auto projd = group.getProj().toYAML();
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!project.yaml")).getAbsolutePath());
+    if (fo.hasError())
+      return false;
+    fo.writeUBytes(projd.data(), projd.size());
+  }
 
-    {
-        auto poold = group.getPool().toYAML();
-        athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).getAbsolutePath());
-        if (fo.hasError())
-            return false;
-        fo.writeUBytes(poold.data(), poold.size());
-    }
+  {
+    auto poold = group.getPool().toYAML();
+    athena::io::FileWriter fo(hecl::ProjectPath(dir, _SYS_STR("!pool.yaml")).getAbsolutePath());
+    if (fo.hasError())
+      return false;
+    fo.writeUBytes(poold.data(), poold.size());
+  }
 
-    return true;
+  return true;
 }
 
-bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath)
-{
-    athena::io::FileWriter w(outPath.getAbsolutePath());
-    if (w.hasError())
-        return false;
+bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath) {
+  athena::io::FileWriter w(outPath.getAbsolutePath());
+  if (w.hasError())
+    return false;
 
-    Header head;
-    head.audioDir = "Audio/"sv;
-    head.groupName = dir.getLastComponentUTF8();
-    head.write(w);
+  Header head;
+  head.audioDir = "Audio/"sv;
+  head.groupName = dir.getLastComponentUTF8();
+  head.write(w);
 
-    amuse::ProjectDatabase projDb;
-    projDb.setIdDatabases();
-    amuse::AudioGroupDatabase group(dir.getAbsolutePath());
+  amuse::ProjectDatabase projDb;
+  projDb.setIdDatabases();
+  amuse::AudioGroupDatabase group(dir.getAbsolutePath());
 
-    auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
-    auto pool = group.getPool().toData<athena::Big>();
-    auto sdirSamp = group.getSdir().toGCNData(group);
+  auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
+  auto pool = group.getPool().toData<athena::Big>();
+  auto sdirSamp = group.getSdir().toGCNData(group);
 
-    w.writeUint32Big(pool.size());
-    w.writeUBytes(pool.data(), pool.size());
+  w.writeUint32Big(pool.size());
+  w.writeUBytes(pool.data(), pool.size());
 
-    w.writeUint32Big(proj.size());
-    w.writeUBytes(proj.data(), proj.size());
+  w.writeUint32Big(proj.size());
+  w.writeUBytes(proj.data(), proj.size());
 
-    w.writeUint32Big(sdirSamp.second.size());
-    w.writeUBytes(sdirSamp.second.data(), sdirSamp.second.size());
+  w.writeUint32Big(sdirSamp.second.size());
+  w.writeUBytes(sdirSamp.second.data(), sdirSamp.second.size());
 
-    w.writeUint32Big(sdirSamp.first.size());
-    w.writeUBytes(sdirSamp.first.data(), sdirSamp.first.size());
+  w.writeUint32Big(sdirSamp.first.size());
+  w.writeUBytes(sdirSamp.first.data(), sdirSamp.first.size());
 
-    return true;
+  return true;
 }
 
-}
+} // namespace DataSpec::DNAMP1

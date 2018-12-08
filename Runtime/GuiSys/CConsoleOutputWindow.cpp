@@ -1,21 +1,14 @@
 #include "CConsoleOutputWindow.hpp"
 #include "Graphics/CGraphics.hpp"
 
-namespace urde
-{
+namespace urde {
 
-CConsoleOutputWindow::CConsoleOutputWindow(int, float, float)
-: CIOWin("Console Output Window")
-{
+CConsoleOutputWindow::CConsoleOutputWindow(int, float, float) : CIOWin("Console Output Window") {}
+
+CIOWin::EMessageReturn CConsoleOutputWindow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&) {
+  return EMessageReturn::Normal;
 }
 
-CIOWin::EMessageReturn CConsoleOutputWindow::OnMessage(const CArchitectureMessage&, CArchitectureQueue&)
-{
-    return EMessageReturn::Normal;
-}
+void CConsoleOutputWindow::Draw() const {}
 
-void CConsoleOutputWindow::Draw() const
-{
-}
-
-}
+} // namespace urde

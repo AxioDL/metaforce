@@ -2,16 +2,13 @@
 
 #include "ICollisionFilter.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CAABoxFilter : public ICollisionFilter
-{
+class CAABoxFilter : public ICollisionFilter {
 public:
-    CAABoxFilter(CActor& actor) : ICollisionFilter(actor) {}
-    void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const;
-    static void FilterBoxFloorCollisions(const CCollisionInfoList& in, CCollisionInfoList& out);
+  CAABoxFilter(CActor& actor) : ICollisionFilter(actor) {}
+  void Filter(const CCollisionInfoList& in, CCollisionInfoList& out) const;
+  static void FilterBoxFloorCollisions(const CCollisionInfoList& in, CCollisionInfoList& out);
 };
 
-}
-
+} // namespace urde

@@ -7,183 +7,172 @@
 #include "IObjectStore.hpp"
 #include "IFactory.hpp"
 
-namespace urde
-{
+namespace urde {
 class IObjectStore;
 
 /** Shared data-structure for CToken references, analogous to std::shared_ptr */
-class CObjectReference
-{
-    friend class CToken;
-    friend class CSimplePool;
-    u16 x0_refCount = 0;
-    u16 x2_lockCount = 0;
-    bool x3_loading = false; /* Rightmost bit of lockCount */
-    SObjectTag x4_objTag;
-    IObjectStore* xC_objectStore = nullptr;
-    std::unique_ptr<IObj> x10_object;
-    CVParamTransfer x14_params;
+class CObjectReference {
+  friend class CToken;
+  friend class CSimplePool;
+  u16 x0_refCount = 0;
+  u16 x2_lockCount = 0;
+  bool x3_loading = false; /* Rightmost bit of lockCount */
+  SObjectTag x4_objTag;
+  IObjectStore* xC_objectStore = nullptr;
+  std::unique_ptr<IObj> x10_object;
+  CVParamTransfer x14_params;
 
-    /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
-     *  Reaching 0 indicates the CToken should delete the CObjectReference */
-    u16 RemoveReference();
+  /** Mechanism by which CToken decrements 1st ref-count, indicating CToken invalidation or reset.
+   *  Reaching 0 indicates the CToken should delete the CObjectReference */
+  u16 RemoveReference();
 
-    CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj,
-                     const SObjectTag& objTag, CVParamTransfer buildParams);
-    CObjectReference(std::unique_ptr<IObj>&& obj);
+  CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj, const SObjectTag& objTag,
+                   CVParamTransfer buildParams);
+  CObjectReference(std::unique_ptr<IObj>&& obj);
 
-    /** Indicates an asynchronous load transaction has been submitted and is not yet finished */
-    bool IsLoading() const {return x3_loading;}
+  /** Indicates an asynchronous load transaction has been submitted and is not yet finished */
+  bool IsLoading() const { return x3_loading; }
 
-    /** Indicates an asynchronous load transaction has finished and object is completely loaded */
-    bool IsLoaded() const {return x10_object.operator bool();}
+  /** Indicates an asynchronous load transaction has finished and object is completely loaded */
+  bool IsLoaded() const { return x10_object.operator bool(); }
 
-    /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
-    void Unlock();
+  /** Decrements 2nd ref-count, performing unload or async-load-cancel if 0 reached */
+  void Unlock();
 
-    /** Increments 2nd ref-count, performing async-factory-load if needed */
-    void Lock();
+  /** Increments 2nd ref-count, performing async-factory-load if needed */
+  void Lock();
 
-    void CancelLoad();
+  void CancelLoad();
 
-    /** Pointer-synchronized object-destructor, another building Lock cycle may be performed after */
-    void Unload();
+  /** Pointer-synchronized object-destructor, another building Lock cycle may be performed after */
+  void Unload();
 
-    /** Synchronous object-fetch, guaranteed to return complete object on-demand, blocking build if not ready */
-    IObj* GetObject();
+  /** Synchronous object-fetch, guaranteed to return complete object on-demand, blocking build if not ready */
+  IObj* GetObject();
 
 public:
-    const SObjectTag& GetObjectTag() const { return x4_objTag; }
+  const SObjectTag& GetObjectTag() const { return x4_objTag; }
 
-    ~CObjectReference();
+  ~CObjectReference();
 };
 
 /** Counted meta-object, reference-counting against a shared CObjectReference
  *  This class is analogous to std::shared_ptr and C++11 rvalues have been implemented accordingly
  *  (default/empty constructor, move constructor/assign) */
-class CToken
-{
-    friend class CSimplePool;
-    friend class CModel;
-    CObjectReference* x0_objRef = nullptr;
-    bool x4_lockHeld = false;
+class CToken {
+  friend class CSimplePool;
+  friend class CModel;
+  CObjectReference* x0_objRef = nullptr;
+  bool x4_lockHeld = false;
 
-    void RemoveRef();
+  void RemoveRef();
 
-    CToken(CObjectReference* obj);
+  CToken(CObjectReference* obj);
 
 public:
-    /* Added to test for non-null state */
-    operator bool() const {return x0_objRef != nullptr;}
-    void Unlock();
-    void Lock();
-    bool IsLocked() const {return x4_lockHeld;}
-    bool IsLoaded() const;
-    IObj* GetObj();
-    const IObj* GetObj() const
-    {
-        return const_cast<CToken*>(this)->GetObj();
-    }
-    CToken& operator=(const CToken& other);
-    CToken& operator=(CToken&& other);
-    CToken() = default;
-    CToken(const CToken& other);
-    CToken(CToken&& other);
-    CToken(IObj* obj);
-    CToken(std::unique_ptr<IObj>&& obj);
-    const SObjectTag* GetObjectTag() const;
-    ~CToken();
+  /* Added to test for non-null state */
+  operator bool() const { return x0_objRef != nullptr; }
+  void Unlock();
+  void Lock();
+  bool IsLocked() const { return x4_lockHeld; }
+  bool IsLoaded() const;
+  IObj* GetObj();
+  const IObj* GetObj() const { return const_cast<CToken*>(this)->GetObj(); }
+  CToken& operator=(const CToken& other);
+  CToken& operator=(CToken&& other);
+  CToken() = default;
+  CToken(const CToken& other);
+  CToken(CToken&& other);
+  CToken(IObj* obj);
+  CToken(std::unique_ptr<IObj>&& obj);
+  const SObjectTag* GetObjectTag() const;
+  ~CToken();
 };
 
 template <class T>
-class TToken : public CToken
-{
+class TToken : public CToken {
 public:
-    static std::unique_ptr<TObjOwnerDerivedFromIObj<T>> GetIObjObjectFor(std::unique_ptr<T>&& obj)
-    {
-        return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
-    }
-    TToken() = default;
-    TToken(const CToken& other) : CToken(other) {}
-    TToken(CToken&& other) : CToken(std::move(other)) {}
-    TToken(std::unique_ptr<T>&& obj) : CToken(GetIObjObjectFor(std::move(obj))) {}
-    TToken& operator=(std::unique_ptr<T>&& obj)
-    {
-        *this = CToken(GetIObjObjectFor(std::move(obj)));
-        return this;
-    }
-    T* GetObj()
-    {
-        TObjOwnerDerivedFromIObj<T>* owner = static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj());
-        if (owner)
-            return owner->GetObj();
-        return nullptr;
-    }
-    const T* GetObj() const
-    {
-        return const_cast<TToken<T>*>(this)->GetObj();
-    }
-    T* operator->() {return GetObj();}
-    const T* operator->() const {return GetObj();}
-    T& operator*() {return *GetObj();}
-    const T& operator*() const {return *GetObj();}
+  static std::unique_ptr<TObjOwnerDerivedFromIObj<T>> GetIObjObjectFor(std::unique_ptr<T>&& obj) {
+    return TObjOwnerDerivedFromIObj<T>::GetNewDerivedObject(std::move(obj));
+  }
+  TToken() = default;
+  TToken(const CToken& other) : CToken(other) {}
+  TToken(CToken&& other) : CToken(std::move(other)) {}
+  TToken(std::unique_ptr<T>&& obj) : CToken(GetIObjObjectFor(std::move(obj))) {}
+  TToken& operator=(std::unique_ptr<T>&& obj) {
+    *this = CToken(GetIObjObjectFor(std::move(obj)));
+    return this;
+  }
+  T* GetObj() {
+    TObjOwnerDerivedFromIObj<T>* owner = static_cast<TObjOwnerDerivedFromIObj<T>*>(CToken::GetObj());
+    if (owner)
+      return owner->GetObj();
+    return nullptr;
+  }
+  const T* GetObj() const { return const_cast<TToken<T>*>(this)->GetObj(); }
+  T* operator->() { return GetObj(); }
+  const T* operator->() const { return GetObj(); }
+  T& operator*() { return *GetObj(); }
+  const T& operator*() const { return *GetObj(); }
 };
 
 template <class T>
-class TCachedToken : public TToken<T>
-{
+class TCachedToken : public TToken<T> {
 protected:
-    T* m_obj = nullptr;
-public:
-    TCachedToken() = default;
-    TCachedToken(const CToken& other) : TToken<T>(other) {}
-    TCachedToken(CToken&& other) : TToken<T>(std::move(other)) {}
-    T* GetObj()
-    {
-        if (!m_obj)
-            m_obj = TToken<T>::GetObj();
-        return m_obj;
-    }
-    const T* GetObj() const
-    {
-        return const_cast<TCachedToken<T>*>(this)->GetObj();
-    }
-    T* operator->() {return GetObj();}
-    const T* operator->() const {return GetObj();}
-    void Unlock() {TToken<T>::Unlock(); m_obj = nullptr;}
+  T* m_obj = nullptr;
 
-    TCachedToken& operator=(const TCachedToken& other) { CToken::operator=(other); m_obj = nullptr; return *this; }
-    TCachedToken& operator=(const CToken& other) { CToken::operator=(other); m_obj = nullptr; return *this; }
+public:
+  TCachedToken() = default;
+  TCachedToken(const CToken& other) : TToken<T>(other) {}
+  TCachedToken(CToken&& other) : TToken<T>(std::move(other)) {}
+  T* GetObj() {
+    if (!m_obj)
+      m_obj = TToken<T>::GetObj();
+    return m_obj;
+  }
+  const T* GetObj() const { return const_cast<TCachedToken<T>*>(this)->GetObj(); }
+  T* operator->() { return GetObj(); }
+  const T* operator->() const { return GetObj(); }
+  void Unlock() {
+    TToken<T>::Unlock();
+    m_obj = nullptr;
+  }
+
+  TCachedToken& operator=(const TCachedToken& other) {
+    CToken::operator=(other);
+    m_obj = nullptr;
+    return *this;
+  }
+  TCachedToken& operator=(const CToken& other) {
+    CToken::operator=(other);
+    m_obj = nullptr;
+    return *this;
+  }
 };
 
 template <class T>
-class TLockedToken : public TCachedToken<T>
-{
+class TLockedToken : public TCachedToken<T> {
 public:
-    TLockedToken() = default;
-    TLockedToken(const TLockedToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
-    TLockedToken& operator=(const TLockedToken& other)
-    {
-        CToken oldTok = std::move(*this);
-        TCachedToken<T>::operator=(other);
-        CToken::Lock();
-        return *this;
-    }
-    TLockedToken(const CToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
-    TLockedToken& operator=(const CToken& other)
-    {
-        CToken oldTok = std::move(*this);
-        TCachedToken<T>::operator=(other);
-        CToken::Lock();
-        return *this;
-    }
-    TLockedToken(CToken&& other)
-    {
-        CToken oldTok = std::move(*this);
-        *this = TCachedToken<T>(std::move(other));
-        CToken::Lock();
-    }
+  TLockedToken() = default;
+  TLockedToken(const TLockedToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
+  TLockedToken& operator=(const TLockedToken& other) {
+    CToken oldTok = std::move(*this);
+    TCachedToken<T>::operator=(other);
+    CToken::Lock();
+    return *this;
+  }
+  TLockedToken(const CToken& other) : TCachedToken<T>(other) { CToken::Lock(); }
+  TLockedToken& operator=(const CToken& other) {
+    CToken oldTok = std::move(*this);
+    TCachedToken<T>::operator=(other);
+    CToken::Lock();
+    return *this;
+  }
+  TLockedToken(CToken&& other) {
+    CToken oldTok = std::move(*this);
+    *this = TCachedToken<T>(std::move(other));
+    CToken::Lock();
+  }
 };
 
-}
-
+} // namespace urde

@@ -2,8 +2,7 @@
 #include "CActorParameters.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,
                        const zeus::CVector3f& scale, const zeus::CTransform& xf, CModelData&& mData,
@@ -11,36 +10,17 @@ CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const 
                        float f7, float f8, float f9, float f10, float f11, float f12, float f13, u32 w2,
                        const zeus::CColor& color, bool b1, float f14, CAssetId part1, u32 w3, CAssetId part2, u32 w4,
                        CAssetId part3, u32 w5, CAssetId part4, u32 w6, u32 w7, bool b2, bool b3)
-: CActor(uid, active, name, info, xf, std::move(mData), {EMaterialTypes::NoStepLogic},
-         CActorParameters::None(), kInvalidUniqueId)
-{
+: CActor(uid, active, name, info, xf, std::move(mData), {EMaterialTypes::NoStepLogic}, CActorParameters::None(),
+         kInvalidUniqueId) {}
 
-}
+void CFishCloud::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CFishCloud::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CFishCloud::RemoveRepulsor(TUniqueId) {}
 
-void CFishCloud::RemoveRepulsor(TUniqueId)
-{
+void CFishCloud::RemoveAttractor(TUniqueId) {}
 
-}
+void CFishCloud::AddRepulsor(TUniqueId, float, float) {}
 
-void CFishCloud::RemoveAttractor(TUniqueId)
-{
+void CFishCloud::AddAttractor(TUniqueId, float, float) {}
 
-}
-
-void CFishCloud::AddRepulsor(TUniqueId, float, float)
-{
-
-}
-
-void CFishCloud::AddAttractor(TUniqueId, float, float)
-{
-
-}
-
-}
-
+} // namespace urde

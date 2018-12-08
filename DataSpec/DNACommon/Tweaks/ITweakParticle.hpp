@@ -2,12 +2,8 @@
 
 #include "ITweak.hpp"
 
-namespace DataSpec
-{
+namespace DataSpec {
 
-struct ITweakParticle : ITweak
-{
-};
+struct ITweakParticle : ITweak {};
 
-}
-
+} // namespace DataSpec

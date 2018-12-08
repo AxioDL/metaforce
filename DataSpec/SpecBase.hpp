@@ -7,236 +7,196 @@
 #include "hecl/Blender/Token.hpp"
 #include "Runtime/RetroTypes.hpp"
 
-namespace nod
-{
+namespace nod {
 class DiscBase;
 class Node;
-}
+} // namespace nod
 
-namespace athena::io
-{
+namespace athena::io {
 class FileWriter;
 class YAMLDocWriter;
-}
+} // namespace athena::io
 
-namespace DataSpec
-{
+namespace DataSpec {
 
 template <typename IDType>
-class IDRestorer
-{
-    std::vector<std::pair<IDType, IDType>> m_newToOrig;
-    std::vector<std::pair<IDType, IDType>> m_origToNew;
+class IDRestorer {
+  std::vector<std::pair<IDType, IDType>> m_newToOrig;
+  std::vector<std::pair<IDType, IDType>> m_origToNew;
+
 public:
-    IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Database::Project& project);
-    IDType newToOriginal(IDType id) const;
-    IDType originalToNew(IDType id) const;
+  IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Database::Project& project);
+  IDType newToOriginal(IDType id) const;
+  IDType originalToNew(IDType id) const;
 };
 
-struct SpecBase : hecl::Database::IDataSpec
-{
-    /* HECL Adaptors */
-    void setThreadProject();
-    bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
-    void doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress);
+struct SpecBase : hecl::Database::IDataSpec {
+  /* HECL Adaptors */
+  void setThreadProject();
+  bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
+  void doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress);
 
-    bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass);
-    const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
-                                                          const hecl::Database::DataSpecEntry* oldEntry,
-                                                          hecl::blender::Token& btok) const;
-    void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath,
-                bool fast, hecl::blender::Token& btok, FCookProgress progress);
+  bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass);
+  const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
+                                                        const hecl::Database::DataSpecEntry* oldEntry,
+                                                        hecl::blender::Token& btok) const;
+  void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath, bool fast, hecl::blender::Token& btok,
+              FCookProgress progress);
 
-    bool canPackage(const hecl::ProjectPath& path);
-    void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry,
-                   bool fast, hecl::blender::Token& btok, const hecl::MultiProgressPrinter& progress,
-                   hecl::ClientProcess* cp);
+  bool canPackage(const hecl::ProjectPath& path);
+  void doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry, bool fast,
+                 hecl::blender::Token& btok, const hecl::MultiProgressPrinter& progress, hecl::ClientProcess* cp);
 
-    void interruptCook();
+  void interruptCook();
 
-    /* Extract handlers */
-    virtual bool checkStandaloneID(const char* id) const=0;
-    virtual bool checkFromStandaloneDisc(nod::DiscBase& disc,
-                                         const hecl::SystemString& regstr,
-                                         const std::vector<hecl::SystemString>& args,
-                                         std::vector<ExtractReport>& reps)=0;
-    virtual bool checkFromTrilogyDisc(nod::DiscBase& disc,
-                                      const hecl::SystemString& regstr,
-                                      const std::vector<hecl::SystemString>& args,
-                                      std::vector<ExtractReport>& reps)=0;
-    virtual bool extractFromDisc(nod::DiscBase& disc, bool force,
-                                 const hecl::MultiProgressPrinter& progress)=0;
+  /* Extract handlers */
+  virtual bool checkStandaloneID(const char* id) const = 0;
+  virtual bool checkFromStandaloneDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
+                                       const std::vector<hecl::SystemString>& args,
+                                       std::vector<ExtractReport>& reps) = 0;
+  virtual bool checkFromTrilogyDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
+                                    const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) = 0;
+  virtual bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) = 0;
 
-    /* Convert path to object tag */
-    virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path,
-                                              hecl::blender::Token& btok) const=0;
+  /* Convert path to object tag */
+  virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const = 0;
 
-    /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
-    virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const=0;
+  /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
+  virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const = 0;
 
-    /* This will return a pseudo-spec for unmodified resources */
-    virtual const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const=0;
+  /* This will return a pseudo-spec for unmodified resources */
+  virtual const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const = 0;
 
-    /* Basic path check (game directory matching) */
-    virtual bool checkPathPrefix(const hecl::ProjectPath& path) const=0;
+  /* Basic path check (game directory matching) */
+  virtual bool checkPathPrefix(const hecl::ProjectPath& path) const = 0;
 
-    /* Pre-cook handlers */
-    virtual bool validateYAMLDNAType(athena::io::IStreamReader& fp) const=0;
+  /* Pre-cook handlers */
+  virtual bool validateYAMLDNAType(athena::io::IStreamReader& fp) const = 0;
 
-    /* Cook handlers */
-    using BlendStream = hecl::blender::DataStream;
-    using Mesh = hecl::blender::Mesh;
-    using ColMesh = hecl::blender::ColMesh;
-    using PathMesh = hecl::blender::PathMesh;
-    using Light = hecl::blender::Light;
-    using Actor = hecl::blender::Actor;
+  /* Cook handlers */
+  using BlendStream = hecl::blender::DataStream;
+  using Mesh = hecl::blender::Mesh;
+  using ColMesh = hecl::blender::ColMesh;
+  using PathMesh = hecl::blender::PathMesh;
+  using Light = hecl::blender::Light;
+  using Actor = hecl::blender::Actor;
 
-    virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                          FCookProgress progress)=0;
-    virtual void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                             BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                             FCookProgress progress)=0;
-    virtual void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                              BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                              FCookProgress progress)=0;
-    virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                           BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                           FCookProgress progress)=0;
-    virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                          FCookProgress progress)=0;
-    virtual void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                           BlendStream& ds, bool fast, hecl::blender::Token& btok,
-                           FCookProgress progress)=0;
-    virtual void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                              BlendStream& ds, hecl::blender::Token& btok,
-                              FCookProgress progress)=0;
-    virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          athena::io::IStreamReader& fin, FCookProgress progress)=0;
-    virtual void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                                FCookProgress progress)=0;
-    virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                          FCookProgress progress)=0;
-    virtual void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                             BlendStream& ds, hecl::blender::Token& btok,
-                             FCookProgress progress)=0;
-    virtual void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in,
-                                 BlendStream& ds, hecl::blender::Token& btok,
-                                 FCookProgress progress)=0;
+  virtual void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                        hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                           hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                            hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                         hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                        hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                         hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
+                            hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
+                        FCookProgress progress) = 0;
+  virtual void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) = 0;
+  virtual void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) = 0;
+  virtual void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
+                           hecl::blender::Token& btok, FCookProgress progress) = 0;
+  virtual void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
+                               hecl::blender::Token& btok, FCookProgress progress) = 0;
 
-    /* Dependency flatteners */
-    void flattenDependencies(const hecl::ProjectPath& in,
-                             std::vector<hecl::ProjectPath>& pathsOut,
-                             hecl::blender::Token& btok,
-                             int charIdx = -1);
-    void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
-    void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
-    void flattenDependenciesBlend(const hecl::ProjectPath& in,
-                                  std::vector<hecl::ProjectPath>& pathsOut,
-                                  hecl::blender::Token& btok,
-                                  int charIdx = -1);
-    virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut)=0;
-    virtual void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin,
-                                             std::vector<hecl::ProjectPath>& pathsOut,
-                                             int charIdx = -1)=0;
+  /* Dependency flatteners */
+  void flattenDependencies(const hecl::ProjectPath& in, std::vector<hecl::ProjectPath>& pathsOut,
+                           hecl::blender::Token& btok, int charIdx = -1);
+  void flattenDependencies(const class UniqueID32& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
+  void flattenDependencies(const class UniqueID64& id, std::vector<hecl::ProjectPath>& pathsOut, int charIdx = -1);
+  void flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector<hecl::ProjectPath>& pathsOut,
+                                hecl::blender::Token& btok, int charIdx = -1);
+  virtual void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut) = 0;
+  virtual void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut,
+                                           int charIdx = -1) = 0;
 
-    virtual void buildWorldPakList(const hecl::ProjectPath& worldPath,
-                                   const hecl::ProjectPath& worldPathCooked,
-                                   hecl::blender::Token& btok,
-                                   athena::io::FileWriter& w,
-                                   std::vector<urde::SObjectTag>& listOut,
-                                   atUint64& resTableOffset,
-                                   std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) {}
-    virtual void buildPakList(hecl::blender::Token& btok,
-                              athena::io::FileWriter& w,
-                              const std::vector<urde::SObjectTag>& list,
-                              const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
-                              atUint64& resTableOffset) {}
-    virtual void writePakFileIndex(athena::io::FileWriter& w,
-                                   const std::vector<urde::SObjectTag>& tags,
-                                   const std::vector<std::tuple<size_t, size_t, bool>>& index,
-                                   atUint64 resTableOffset) {}
-    virtual std::pair<std::unique_ptr<uint8_t[]>, size_t>
-    compressPakData(const urde::SObjectTag& tag, const uint8_t* data, size_t len) { return {}; }
+  virtual void buildWorldPakList(const hecl::ProjectPath& worldPath, const hecl::ProjectPath& worldPathCooked,
+                                 hecl::blender::Token& btok, athena::io::FileWriter& w,
+                                 std::vector<urde::SObjectTag>& listOut, atUint64& resTableOffset,
+                                 std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData) {}
+  virtual void buildPakList(hecl::blender::Token& btok, athena::io::FileWriter& w,
+                            const std::vector<urde::SObjectTag>& list,
+                            const std::vector<std::pair<urde::SObjectTag, std::string>>& nameList,
+                            atUint64& resTableOffset) {}
+  virtual void writePakFileIndex(athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& tags,
+                                 const std::vector<std::tuple<size_t, size_t, bool>>& index, atUint64 resTableOffset) {}
+  virtual std::pair<std::unique_ptr<uint8_t[]>, size_t> compressPakData(const urde::SObjectTag& tag,
+                                                                        const uint8_t* data, size_t len) {
+    return {};
+  }
 
-    const hecl::ProjectPath& getMasterShaderPath() const {return m_masterShader;}
+  const hecl::ProjectPath& getMasterShaderPath() const { return m_masterShader; }
 
-    /* Support functions for resolving paths from IDs */
-    virtual hecl::ProjectPath getWorking(class UniqueID32&) {return hecl::ProjectPath();}
-    virtual hecl::ProjectPath getWorking(class UniqueID64&) {return hecl::ProjectPath();}
+  /* Support functions for resolving paths from IDs */
+  virtual hecl::ProjectPath getWorking(class UniqueID32&) { return hecl::ProjectPath(); }
+  virtual hecl::ProjectPath getWorking(class UniqueID64&) { return hecl::ProjectPath(); }
 
-    hecl::ProjectPath getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const;
+  hecl::ProjectPath getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const;
 
-    /* Project accessor */
-    hecl::Database::Project& getProject() const {return m_project;}
+  /* Project accessor */
+  hecl::Database::Project& getProject() const { return m_project; }
 
-    /* Extract RandomStatic entropy */
-    void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
+  /* Extract RandomStatic entropy */
+  void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
 
-    /* Tag cache functions */
-    urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const;
-    hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
-    bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
-    const urde::SObjectTag* getResourceIdByName(std::string_view name) const;
-    hecl::FourCC getResourceTypeById(urde::CAssetId id) const;
-    void enumerateResources(const std::function<bool(const urde::SObjectTag&)>& lambda) const;
-    void enumerateNamedResources(
-        const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const;
-    void cancelBackgroundIndex();
-    void beginBackgroundIndex();
-    bool backgroundIndexRunning() const { return m_backgroundRunning; }
-    void waitForIndexComplete() const;
+  /* Tag cache functions */
+  urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const;
+  hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
+  bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
+  const urde::SObjectTag* getResourceIdByName(std::string_view name) const;
+  hecl::FourCC getResourceTypeById(urde::CAssetId id) const;
+  void enumerateResources(const std::function<bool(const urde::SObjectTag&)>& lambda) const;
+  void enumerateNamedResources(const std::function<bool(std::string_view, const urde::SObjectTag&)>& lambda) const;
+  void cancelBackgroundIndex();
+  void beginBackgroundIndex();
+  bool backgroundIndexRunning() const { return m_backgroundRunning; }
+  void waitForIndexComplete() const;
 
-    virtual void getTagListForFile(const char* pakName, std::vector<urde::SObjectTag>& out) const {}
+  virtual void getTagListForFile(const char* pakName, std::vector<urde::SObjectTag>& out) const {}
 
-    SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc);
-    ~SpecBase();
+  SpecBase(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc);
+  ~SpecBase();
+
 protected:
-    hecl::Database::Project& m_project;
-    bool m_pc;
-    hecl::ProjectPath m_masterShader;
+  hecl::Database::Project& m_project;
+  bool m_pc;
+  hecl::ProjectPath m_masterShader;
 
-    std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
-    std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
-    std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
-    std::unordered_map<urde::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
-    void clearTagCache();
-    
-    hecl::blender::Token m_backgroundBlender;
-    std::thread m_backgroundIndexTh;
-    std::mutex m_backgroundIndexMutex;
-    bool m_backgroundRunning = false;
+  std::unordered_map<urde::SObjectTag, hecl::ProjectPath> m_tagToPath;
+  std::unordered_map<hecl::Hash, urde::SObjectTag> m_pathToTag;
+  std::unordered_map<std::string, urde::SObjectTag> m_catalogNameToTag;
+  std::unordered_map<urde::SObjectTag, std::unordered_set<std::string>> m_catalogTagToNames;
+  void clearTagCache();
 
-    void readCatalog(const hecl::ProjectPath& catalogPath,
-                     athena::io::YAMLDocWriter& nameWriter);
-    bool addFileToIndex(const hecl::ProjectPath& path,
-                        athena::io::YAMLDocWriter& cacheWriter);
-    void backgroundIndexRecursiveProc(const hecl::ProjectPath& path,
-                                      athena::io::YAMLDocWriter& cacheWriter,
-                                      athena::io::YAMLDocWriter& nameWriter,
-                                      int level);
-    void backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& path,
-                                          athena::io::YAMLDocWriter& nameWriter,
-                                          int level);
-    void backgroundIndexProc();
+  hecl::blender::Token m_backgroundBlender;
+  std::thread m_backgroundIndexTh;
+  std::mutex m_backgroundIndexMutex;
+  bool m_backgroundRunning = false;
 
-    void recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
-                                    std::unordered_set<urde::SObjectTag>& addedTags,
-                                    const hecl::ProjectPath& path,
-                                    hecl::blender::Token& btok);
-    void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
-                           const std::vector<urde::SObjectTag>& buildList,
-                           const hecl::Database::DataSpecEntry* entry,
-                           bool fast, const hecl::MultiProgressPrinter& progress,
-                           athena::io::FileWriter& pakOut,
-                           const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
+  void readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter);
+  bool addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter);
+  void backgroundIndexRecursiveProc(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter,
+                                    athena::io::YAMLDocWriter& nameWriter, int level);
+  void backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& nameWriter,
+                                        int level);
+  void backgroundIndexProc();
 
-    std::unique_ptr<nod::DiscBase> m_disc;
-    bool m_isWii;
-    bool m_standalone;
+  void recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut,
+                                  std::unordered_set<urde::SObjectTag>& addedTags, const hecl::ProjectPath& path,
+                                  hecl::blender::Token& btok);
+  void copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& fileIndex,
+                         const std::vector<urde::SObjectTag>& buildList, const hecl::Database::DataSpecEntry* entry,
+                         bool fast, const hecl::MultiProgressPrinter& progress, athena::io::FileWriter& pakOut,
+                         const std::unordered_map<urde::CAssetId, std::vector<uint8_t>>& mlvlData);
+
+  std::unique_ptr<nod::DiscBase> m_disc;
+  bool m_isWii;
+  bool m_standalone;
 };
 
-}
-
-
+} // namespace DataSpec

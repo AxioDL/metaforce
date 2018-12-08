@@ -8,8 +8,7 @@
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 
-namespace urde
-{
+namespace urde {
 const EWeaponCollisionResponseTypes CCollisionResponseData::skWorldMaterialTable[32] = {
     EWeaponCollisionResponseTypes::Default, EWeaponCollisionResponseTypes::Unknown2,
     EWeaponCollisionResponseTypes::Metal,   EWeaponCollisionResponseTypes::Grass,
@@ -67,202 +66,172 @@ static const std::vector<FourCC> kWCRTDecalIDs = {SBIG('NCDL'), SBIG('DDCL'), SB
 using CPF = CParticleDataFactory;
 
 void CCollisionResponseData::AddParticleSystemToResponse(EWeaponCollisionResponseTypes type, CInputStream& in,
-                                                         CSimplePool* resPool)
-{
-    int i = int(type);
-    std::vector<CAssetId> tracker;
-    tracker.resize(8);
-    x0_generators[i].emplace(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
+                                                         CSimplePool* resPool) {
+  int i = int(type);
+  std::vector<CAssetId> tracker;
+  tracker.resize(8);
+  x0_generators[i].emplace(CPF::GetChildGeneratorDesc(in, resPool, tracker).m_token);
 }
 
-bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
-{
-    int i = 0;
-    for (const FourCC& type : kWCRTDecalIDs)
-    {
-        if (type == clsId)
-        {
-            FourCC cls = CPF::GetClassID(in);
-            if (cls == SBIG('NONE'))
-                return true;
-
-            CAssetId id = u64(in.readUint32Big());
-            if (!id.IsValid())
-                return true;
-
-            x20_decals[i].emplace(resPool->GetObj({FOURCC('DPSC'), id}));
-            return true;
-        }
-        i++;
-    }
-    return false;
-}
-
-bool CCollisionResponseData::CheckAndAddSoundFXToResponse(FourCC clsId, CInputStream& in)
-{
-    int i = 0;
-    for (const FourCC& type : kWCRTSFXIDs)
-    {
-        if (type == clsId)
-        {
-            FourCC cls = CPF::GetClassID(in);
-            if (cls == SBIG('NONE'))
-                return true;
-
-            x10_sfx[i] = CPF::GetInt(in);
-            return true;
-        }
-        i++;
-    }
-
-    return false;
-}
-
-bool CCollisionResponseData::CheckAndAddParticleSystemToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
-{
-    int i = 0;
-    for (const FourCC& type : kWCRTIDs)
-    {
-        if (type == clsId)
-        {
-            AddParticleSystemToResponse(EWeaponCollisionResponseTypes(i), in, resPool);
-            return true;
-        }
-        i++;
-    }
-    return false;
-}
-
-bool CCollisionResponseData::CheckAndAddResourceToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool)
-{
-    if (CheckAndAddParticleSystemToResponse(clsId, in, resPool))
-        return true;
-    if (CheckAndAddSoundFXToResponse(clsId, in))
-        return true;
-    if (CheckAndAddDecalToResponse(clsId, in, resPool))
+bool CCollisionResponseData::CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool) {
+  int i = 0;
+  for (const FourCC& type : kWCRTDecalIDs) {
+    if (type == clsId) {
+      FourCC cls = CPF::GetClassID(in);
+      if (cls == SBIG('NONE'))
         return true;
 
-    return false;
+      CAssetId id = u64(in.readUint32Big());
+      if (!id.IsValid())
+        return true;
+
+      x20_decals[i].emplace(resPool->GetObj({FOURCC('DPSC'), id}));
+      return true;
+    }
+    i++;
+  }
+  return false;
 }
 
-CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* resPool) : x30_RNGE(50.f), x34_FOFF(0.2f)
-{
-    x0_generators.resize(94);
-    x10_sfx.resize(94);
-    x20_decals.resize(94);
-    for (s32& id : x10_sfx)
-        id = kInvalidSFX;
+bool CCollisionResponseData::CheckAndAddSoundFXToResponse(FourCC clsId, CInputStream& in) {
+  int i = 0;
+  for (const FourCC& type : kWCRTSFXIDs) {
+    if (type == clsId) {
+      FourCC cls = CPF::GetClassID(in);
+      if (cls == SBIG('NONE'))
+        return true;
 
-    FourCC clsId = CPF::GetClassID(in);
-    if (clsId == UncookedResType())
-    {
-        CRandom16 rand;
-        CGlobalRandom gr(rand);
-
-        while (clsId != SBIG('_END'))
-        {
-            clsId = CPF::GetClassID(in);
-            if (CheckAndAddResourceToResponse(clsId, in, resPool))
-                continue;
-
-            if (clsId == SBIG('RNGE'))
-            {
-                CPF::GetClassID(in);
-                x30_RNGE = CPF::GetReal(in);
-            }
-            else if (clsId == SBIG('FOFF'))
-            {
-                CPF::GetClassID(in);
-                x34_FOFF = CPF::GetReal(in);
-            }
-        }
+      x10_sfx[i] = CPF::GetInt(in);
+      return true;
     }
+    i++;
+  }
+
+  return false;
+}
+
+bool CCollisionResponseData::CheckAndAddParticleSystemToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool) {
+  int i = 0;
+  for (const FourCC& type : kWCRTIDs) {
+    if (type == clsId) {
+      AddParticleSystemToResponse(EWeaponCollisionResponseTypes(i), in, resPool);
+      return true;
+    }
+    i++;
+  }
+  return false;
+}
+
+bool CCollisionResponseData::CheckAndAddResourceToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool) {
+  if (CheckAndAddParticleSystemToResponse(clsId, in, resPool))
+    return true;
+  if (CheckAndAddSoundFXToResponse(clsId, in))
+    return true;
+  if (CheckAndAddDecalToResponse(clsId, in, resPool))
+    return true;
+
+  return false;
+}
+
+CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* resPool)
+: x30_RNGE(50.f), x34_FOFF(0.2f) {
+  x0_generators.resize(94);
+  x10_sfx.resize(94);
+  x20_decals.resize(94);
+  for (s32& id : x10_sfx)
+    id = kInvalidSFX;
+
+  FourCC clsId = CPF::GetClassID(in);
+  if (clsId == UncookedResType()) {
+    CRandom16 rand;
+    CGlobalRandom gr(rand);
+
+    while (clsId != SBIG('_END')) {
+      clsId = CPF::GetClassID(in);
+      if (CheckAndAddResourceToResponse(clsId, in, resPool))
+        continue;
+
+      if (clsId == SBIG('RNGE')) {
+        CPF::GetClassID(in);
+        x30_RNGE = CPF::GetReal(in);
+      } else if (clsId == SBIG('FOFF')) {
+        CPF::GetClassID(in);
+        x34_FOFF = CPF::GetReal(in);
+      }
+    }
+  }
 }
 
 const std::experimental::optional<TLockedToken<CGenDescription>>&
-CCollisionResponseData::GetParticleDescription(EWeaponCollisionResponseTypes type) const
-{
-    if (x0_generators[u32(type)])
-        return x0_generators[u32(type)];
-
-    bool foundType = false;
-    if (ResponseTypeIsEnemyNormal(type))
-    {
-        type = EWeaponCollisionResponseTypes::EnemyNormal;
-        foundType = true;
-    }
-    else if (ResponseTypeIsEnemySpecial(type))
-    {
-        type = EWeaponCollisionResponseTypes::EnemySpecial;
-        foundType = true;
-    }
-    else if (ResponseTypeIsEnemyShielded(type))
-    {
-        type = EWeaponCollisionResponseTypes::EnemyShielded;
-        foundType = true;
-    }
-
-    if (foundType && !x0_generators[u32(type)])
-        type = EWeaponCollisionResponseTypes::EnemyNormal;
-
-    if (!x0_generators[u32(type)] && type != EWeaponCollisionResponseTypes::None)
-        type = EWeaponCollisionResponseTypes::Default;
-
+CCollisionResponseData::GetParticleDescription(EWeaponCollisionResponseTypes type) const {
+  if (x0_generators[u32(type)])
     return x0_generators[u32(type)];
+
+  bool foundType = false;
+  if (ResponseTypeIsEnemyNormal(type)) {
+    type = EWeaponCollisionResponseTypes::EnemyNormal;
+    foundType = true;
+  } else if (ResponseTypeIsEnemySpecial(type)) {
+    type = EWeaponCollisionResponseTypes::EnemySpecial;
+    foundType = true;
+  } else if (ResponseTypeIsEnemyShielded(type)) {
+    type = EWeaponCollisionResponseTypes::EnemyShielded;
+    foundType = true;
+  }
+
+  if (foundType && !x0_generators[u32(type)])
+    type = EWeaponCollisionResponseTypes::EnemyNormal;
+
+  if (!x0_generators[u32(type)] && type != EWeaponCollisionResponseTypes::None)
+    type = EWeaponCollisionResponseTypes::Default;
+
+  return x0_generators[u32(type)];
 }
 
 const std::experimental::optional<TLockedToken<CDecalDescription>>&
-CCollisionResponseData::GetDecalDescription(EWeaponCollisionResponseTypes type) const
-{
-    return x20_decals[u32(type)];
+CCollisionResponseData::GetDecalDescription(EWeaponCollisionResponseTypes type) const {
+  return x20_decals[u32(type)];
 }
 
-s32 CCollisionResponseData::GetSoundEffectId(EWeaponCollisionResponseTypes type) const
-{
-    if (x10_sfx[u32(type)] == kInvalidSFX)
-    {
-        if (ResponseTypeIsEnemyNormal(type))
-            type = EWeaponCollisionResponseTypes::EnemyNormal;
-        else if (ResponseTypeIsEnemySpecial(type))
-            type = EWeaponCollisionResponseTypes::EnemySpecial;
-        else if (ResponseTypeIsEnemyShielded(type))
-            type = EWeaponCollisionResponseTypes::EnemyShielded;
-        else
-            type = EWeaponCollisionResponseTypes::Default;
-    }
+s32 CCollisionResponseData::GetSoundEffectId(EWeaponCollisionResponseTypes type) const {
+  if (x10_sfx[u32(type)] == kInvalidSFX) {
+    if (ResponseTypeIsEnemyNormal(type))
+      type = EWeaponCollisionResponseTypes::EnemyNormal;
+    else if (ResponseTypeIsEnemySpecial(type))
+      type = EWeaponCollisionResponseTypes::EnemySpecial;
+    else if (ResponseTypeIsEnemyShielded(type))
+      type = EWeaponCollisionResponseTypes::EnemyShielded;
+    else
+      type = EWeaponCollisionResponseTypes::Default;
+  }
 
-    return x10_sfx[u32(type)];
+  return x10_sfx[u32(type)];
 }
 
-EWeaponCollisionResponseTypes CCollisionResponseData::GetWorldCollisionResponseType(s32 id)
-{
-    if (id < 0 || id >= 32)
-        return EWeaponCollisionResponseTypes::Default;
-    return skWorldMaterialTable[id];
+EWeaponCollisionResponseTypes CCollisionResponseData::GetWorldCollisionResponseType(s32 id) {
+  if (id < 0 || id >= 32)
+    return EWeaponCollisionResponseTypes::Default;
+  return skWorldMaterialTable[id];
 }
 
-bool CCollisionResponseData::ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes type)
-{
-    return (type >= EWeaponCollisionResponseTypes::Unknown19 && type <= EWeaponCollisionResponseTypes::Unknown43);
+bool CCollisionResponseData::ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes type) {
+  return (type >= EWeaponCollisionResponseTypes::Unknown19 && type <= EWeaponCollisionResponseTypes::Unknown43);
 }
 
-bool CCollisionResponseData::ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes type)
-{
-    return (type >= EWeaponCollisionResponseTypes::Unknown44 && type <= EWeaponCollisionResponseTypes::Unknown68);
+bool CCollisionResponseData::ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes type) {
+  return (type >= EWeaponCollisionResponseTypes::Unknown44 && type <= EWeaponCollisionResponseTypes::Unknown68);
 }
 
-bool CCollisionResponseData::ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes type)
-{
-    return (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::Unknown93);
+bool CCollisionResponseData::ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes type) {
+  return (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::Unknown93);
 }
 
 FourCC CCollisionResponseData::UncookedResType() { return SBIG('CRSM'); }
 
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
-                                               CObjectReference*)
-{
-    CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-    return TToken<CCollisionResponseData>::GetIObjObjectFor(
-        std::unique_ptr<CCollisionResponseData>(new CCollisionResponseData(in, sp)));
+                                               CObjectReference*) {
+  CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
+  return TToken<CCollisionResponseData>::GetIObjObjectFor(
+      std::unique_ptr<CCollisionResponseData>(new CCollisionResponseData(in, sp)));
 }
-}
+} // namespace urde

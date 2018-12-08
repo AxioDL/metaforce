@@ -2,16 +2,13 @@
 
 #include "CIOWin.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CConsoleOutputWindow : public CIOWin
-{
+class CConsoleOutputWindow : public CIOWin {
 public:
-    CConsoleOutputWindow(int, float, float);
-    EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
-    void Draw() const;
+  CConsoleOutputWindow(int, float, float);
+  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
+  void Draw() const;
 };
 
-}
-
+} // namespace urde

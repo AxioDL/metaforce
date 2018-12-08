@@ -9,8 +9,7 @@
 #include "TCastTo.hpp"
 #include "CActorParameters.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const zeus::CAABox& aabb, float mass, float zMomentum,
@@ -24,191 +23,166 @@ CScriptActor::CScriptActor(TUniqueId uid, std::string_view name, const CEntityIn
 , x2d0_fadeInTime(actParms.x5c_fadeInTime)
 , x2d4_fadeOutTime(actParms.x60_fadeOutTime)
 , x2d8_shaderIdx(shaderIdx)
-, x2dc_xrayAlpha(xrayAlpha)
-{
-    x2e2_24_noThermalHotZ = noThermalHotZ;
-    x2e2_25_dead = false;
-    x2e2_26_animating = true;
-    x2e2_27_xrayAlphaEnabled = !zeus::close_enough(1.f, xrayAlpha);
-    x2e2_28_inXrayAlpha = false;
-    x2e2_29_processModelFlags = (x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0);
-    x2e2_30_scaleAdvancementDelta = scaleAdvancementDelta;
-    x2e2_31_materialFlag54 = materialFlag54;
-    x2e3_24_isPlayerActor = false;
+, x2dc_xrayAlpha(xrayAlpha) {
+  x2e2_24_noThermalHotZ = noThermalHotZ;
+  x2e2_25_dead = false;
+  x2e2_26_animating = true;
+  x2e2_27_xrayAlphaEnabled = !zeus::close_enough(1.f, xrayAlpha);
+  x2e2_28_inXrayAlpha = false;
+  x2e2_29_processModelFlags = (x2e2_27_xrayAlphaEnabled || x2e2_24_noThermalHotZ || x2d8_shaderIdx != 0);
+  x2e2_30_scaleAdvancementDelta = scaleAdvancementDelta;
+  x2e2_31_materialFlag54 = materialFlag54;
+  x2e3_24_isPlayerActor = false;
 
-    if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
-        CreateShadow(true);
+  if (x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()) && castsShadow)
+    CreateShadow(true);
 
-    if (x64_modelData && x64_modelData->HasAnimData())
-        x64_modelData->EnableLooping(looping);
+  if (x64_modelData && x64_modelData->HasAnimData())
+    x64_modelData->EnableLooping(looping);
 
-    x150_momentum = zeus::CVector3f(0.f, 0.f, zMomentum);
+  x150_momentum = zeus::CVector3f(0.f, 0.f, zMomentum);
 }
 
 void CScriptActor::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
-{
-    switch (msg)
-    {
-    case EScriptObjectMessage::InitializedInArea:
-        for (const SConnection& conn : x20_conns)
-        {
-            if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate)
-                continue;
+void CScriptActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  switch (msg) {
+  case EScriptObjectMessage::InitializedInArea:
+    for (const SConnection& conn : x20_conns) {
+      if (conn.x0_state != EScriptObjectState::InheritBounds || conn.x4_msg != EScriptObjectMessage::Activate)
+        continue;
 
-            auto search = mgr.GetIdListForScript(conn.x8_objId);
-            for (auto it = search.first; it != search.second; ++it)
-            {
-                if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second)))
-                {
-                    x2e0_triggerId = it->second;
-                    break;
-                }
-            }
+      auto search = mgr.GetIdListForScript(conn.x8_objId);
+      for (auto it = search.first; it != search.second; ++it) {
+        if (TCastToConstPtr<CScriptTrigger>(mgr.GetObjectById(it->second))) {
+          x2e0_triggerId = it->second;
+          break;
         }
-
-        if (x2e2_31_materialFlag54)
-            CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
-        break;
-    case EScriptObjectMessage::Reset:
-        x2e2_25_dead = false;
-        x260_currentHealth = x258_initialHealth;
-        break;
-    case EScriptObjectMessage::Increment:
-        if (!GetActive())
-        {
-            mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
-            CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_fadeInTime);
-        }
-        break;
-    case EScriptObjectMessage::Decrement:
-        CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_fadeOutTime);
-        break;
-    default:
-        break;
+      }
     }
 
-    CActor::AcceptScriptMsg(msg, uid, mgr);
+    if (x2e2_31_materialFlag54)
+      CActor::AddMaterial(EMaterialTypes::Unknown54, mgr);
+    break;
+  case EScriptObjectMessage::Reset:
+    x2e2_25_dead = false;
+    x260_currentHealth = x258_initialHealth;
+    break;
+  case EScriptObjectMessage::Increment:
+    if (!GetActive()) {
+      mgr.SendScriptMsg(this, x8_uid, EScriptObjectMessage::Activate);
+      CScriptColorModulate::FadeInHelper(mgr, x8_uid, x2d0_fadeInTime);
+    }
+    break;
+  case EScriptObjectMessage::Decrement:
+    CScriptColorModulate::FadeOutHelper(mgr, x8_uid, x2d4_fadeOutTime);
+    break;
+  default:
+    break;
+  }
+
+  CActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CScriptActor::Think(float dt, CStateManager& mgr)
-{
-    if (!GetActive())
-        return;
+void CScriptActor::Think(float dt, CStateManager& mgr) {
+  if (!GetActive())
+    return;
 
-    if (HasModelData() && x64_modelData->HasAnimData())
-    {
-        bool timeRemaining = x64_modelData->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body");
-        bool loop = x64_modelData->GetIsLoop();
+  if (HasModelData() && x64_modelData->HasAnimData()) {
+    bool timeRemaining = x64_modelData->GetAnimationData()->IsAnimTimeRemaining(dt - FLT_EPSILON, "Whole Body");
+    bool loop = x64_modelData->GetIsLoop();
 
-        SAdvancementDeltas deltas = CActor::UpdateAnimation(dt, mgr, true);
+    SAdvancementDeltas deltas = CActor::UpdateAnimation(dt, mgr, true);
 
-        if (timeRemaining || loop)
-        {
-            x2e2_26_animating = true;
+    if (timeRemaining || loop) {
+      x2e2_26_animating = true;
 
-            if (x2e2_30_scaleAdvancementDelta)
-                MoveToOR(
-                    x34_transform.rotate(x64_modelData->GetScale() * x34_transform.transposeRotate(deltas.x0_posDelta)),
-                    dt);
-            else
-                MoveToOR(deltas.x0_posDelta, dt);
+      if (x2e2_30_scaleAdvancementDelta)
+        MoveToOR(x34_transform.rotate(x64_modelData->GetScale() * x34_transform.transposeRotate(deltas.x0_posDelta)),
+                 dt);
+      else
+        MoveToOR(deltas.x0_posDelta, dt);
 
-            RotateToOR(deltas.xc_rotDelta, dt);
-        }
-
-        if (!timeRemaining && x2e2_26_animating && !loop)
-        {
-            SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
-            x2e2_26_animating = false;
-        }
+      RotateToOR(deltas.xc_rotDelta, dt);
     }
 
-    if (!x2e2_25_dead && HealthInfo(mgr)->GetHP() <= 0.f)
-    {
-        x2e2_25_dead = true;
-        SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+    if (!timeRemaining && x2e2_26_animating && !loop) {
+      SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+      x2e2_26_animating = false;
     }
+  }
+
+  if (!x2e2_25_dead && HealthInfo(mgr)->GetHP() <= 0.f) {
+    x2e2_25_dead = true;
+    SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+  }
 }
 
-void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
-{
-    CActor::PreRender(mgr, frustum);
+void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  CActor::PreRender(mgr, frustum);
 
-    if (xe4_30_outOfFrustum && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
-        xe4_30_outOfFrustum = false;
+  if (xe4_30_outOfFrustum && TCastToPtr<CCinematicCamera>(mgr.GetCameraManager()->GetCurrentCamera(mgr)))
+    xe4_30_outOfFrustum = false;
 
-    if (!xe4_30_outOfFrustum && x2e2_29_processModelFlags)
-    {
-        if (x2e2_27_xrayAlphaEnabled)
-        {
-            zeus::CColor col(1.f, x2dc_xrayAlpha);
-            CModelFlags xrayFlags(5, 0, 3, col);
-            if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)
-            {
-                xb4_drawFlags = xrayFlags;
-                x2e2_28_inXrayAlpha = true;
-            }
-            else if (x2e2_28_inXrayAlpha)
-            {
-                x2e2_28_inXrayAlpha = false;
-                if (xb4_drawFlags == xrayFlags)
-                    xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
-            }
-        }
-
-        if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2)
-        {
-            if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
-                xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
-            else
-                xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
-        }
-
-        if (x2d8_shaderIdx != 0)
-            xb4_drawFlags.x1_matSetIdx = u8(x2d8_shaderIdx);
+  if (!xe4_30_outOfFrustum && x2e2_29_processModelFlags) {
+    if (x2e2_27_xrayAlphaEnabled) {
+      zeus::CColor col(1.f, x2dc_xrayAlpha);
+      CModelFlags xrayFlags(5, 0, 3, col);
+      if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
+        xb4_drawFlags = xrayFlags;
+        x2e2_28_inXrayAlpha = true;
+      } else if (x2e2_28_inXrayAlpha) {
+        x2e2_28_inXrayAlpha = false;
+        if (xb4_drawFlags == xrayFlags)
+          xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+      }
     }
 
-    if (mgr.GetObjectById(x2e0_triggerId) == nullptr)
-        x2e0_triggerId = kInvalidUniqueId;
-}
-
-zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const
-{
-    if (x2e0_triggerId != kInvalidUniqueId)
-    {
-        TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_triggerId));
-        if (trigger)
-            return trigger->GetTriggerBoundsWR();
+    if (x2e2_24_noThermalHotZ && xe6_27_thermalVisorFlags == 2) {
+      if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal)
+        xb4_drawFlags.x2_flags &= ~3; // Disable Z test/update
+      else
+        xb4_drawFlags.x2_flags |= 3; // Enable Z test/update
     }
 
-    return CActor::GetSortingBounds(mgr);
+    if (x2d8_shaderIdx != 0)
+      xb4_drawFlags.x1_matSetIdx = u8(x2d8_shaderIdx);
+  }
+
+  if (mgr.GetObjectById(x2e0_triggerId) == nullptr)
+    x2e0_triggerId = kInvalidUniqueId;
 }
 
-EWeaponCollisionResponseTypes
-CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2, const
-                                       CWeaponMode& wMode, EProjectileAttrib w) const
-{
-    const CDamageVulnerability* dVuln = GetDamageVulnerability();
-    if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Deflect)
-    {
-        EVulnerability phazonVuln = dVuln->GetDeflectionType(wMode);
-        if (phazonVuln < EVulnerability::PassThrough && phazonVuln >= EVulnerability::Normal)
-            return EWeaponCollisionResponseTypes::Unknown15;
-    }
-    return CActor::GetCollisionResponseType(v1, v2, wMode, w);
+zeus::CAABox CScriptActor::GetSortingBounds(const CStateManager& mgr) const {
+  if (x2e0_triggerId != kInvalidUniqueId) {
+    TCastToConstPtr<CScriptTrigger> trigger(mgr.GetObjectById(x2e0_triggerId));
+    if (trigger)
+      return trigger->GetTriggerBoundsWR();
+  }
+
+  return CActor::GetSortingBounds(mgr);
 }
 
-std::experimental::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const
-{
-    if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid))
-        return {CPhysicsActor::GetBoundingBox()};
-    return {};
+EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const zeus::CVector3f& v1,
+                                                                     const zeus::CVector3f& v2,
+                                                                     const CWeaponMode& wMode,
+                                                                     EProjectileAttrib w) const {
+  const CDamageVulnerability* dVuln = GetDamageVulnerability();
+  if (dVuln->GetVulnerability(wMode, false) == EVulnerability::Deflect) {
+    EVulnerability phazonVuln = dVuln->GetDeflectionType(wMode);
+    if (phazonVuln < EVulnerability::PassThrough && phazonVuln >= EVulnerability::Normal)
+      return EWeaponCollisionResponseTypes::Unknown15;
+  }
+  return CActor::GetCollisionResponseType(v1, v2, wMode, w);
 }
 
-void CScriptActor::Touch(CActor&, CStateManager&)
-{
-    // Empty
+std::experimental::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
+  if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid))
+    return {CPhysicsActor::GetBoundingBox()};
+  return {};
 }
+
+void CScriptActor::Touch(CActor&, CStateManager&) {
+  // Empty
 }
+} // namespace urde

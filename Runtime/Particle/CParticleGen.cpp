@@ -1,11 +1,7 @@
 #include "CParticleGen.hpp"
 
-namespace urde
-{
+namespace urde {
 
-void CParticleGen::AddModifier(CWarp* mod)
-{
-    x4_modifierList.push_back(mod);
-}
+void CParticleGen::AddModifier(CWarp* mod) { x4_modifierList.push_back(mod); }
 
-}
+} // namespace urde

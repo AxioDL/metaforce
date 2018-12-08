@@ -1,6 +1,3 @@
 #include "ParticleEditor.hpp"
 
-namespace urde
-{
-
-}
+namespace urde {}

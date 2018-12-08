@@ -3,14 +3,11 @@
 #include <memory>
 #include "RetroTypes.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class IObjFactory
-{
+class IObjFactory {
 public:
-    virtual ~IObjFactory() = default;
+  virtual ~IObjFactory() = default;
 };
 
-}
-
+} // namespace urde

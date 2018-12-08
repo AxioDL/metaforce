@@ -3,15 +3,12 @@
 #include "DNACommon.hpp"
 #include "PAK.hpp"
 
-namespace DataSpec::DNAAudio
-{
+namespace DataSpec::DNAAudio {
 
-class ATBL
-{
+class ATBL {
 public:
-    static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
-    static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
+  static bool Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
+  static bool Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath);
 };
 
-}
-
+} // namespace DataSpec::DNAAudio

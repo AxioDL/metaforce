@@ -3,16 +3,14 @@
 #include "IOStreams.hpp"
 #include "CSegId.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CSegIdList
-{
-    std::vector<CSegId> x0_list;
+class CSegIdList {
+  std::vector<CSegId> x0_list;
+
 public:
-    CSegIdList(CInputStream& in);
-    const std::vector<CSegId>& GetList() const {return x0_list;}
+  CSegIdList(CInputStream& in);
+  const std::vector<CSegId>& GetList() const { return x0_list; }
 };
 
-}
-
+} // namespace urde

@@ -2,8 +2,7 @@
 #include "CActorParameters.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 
 CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
@@ -11,15 +10,11 @@ CScriptCameraHintTrigger::CScriptCameraHintTrigger(TUniqueId uid, bool active, s
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obb(xf, scale)
-, x124_scale(scale)
-{
-    x130_24_ = b2;
-    x130_25_ = b3;
+, x124_scale(scale) {
+  x130_24_ = b2;
+  x130_25_ = b3;
 }
 
-void CScriptCameraHintTrigger::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CScriptCameraHintTrigger::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-}
+} // namespace urde

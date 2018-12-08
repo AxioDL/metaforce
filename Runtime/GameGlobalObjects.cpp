@@ -1,9 +1,7 @@
 #include "GameGlobalObjects.hpp"
 
-namespace urde
-{
-namespace MP1
-{
+namespace urde {
+namespace MP1 {
 class CGameArchitectureSupport* g_archSupport = nullptr;
 }
 
@@ -20,7 +18,7 @@ class CStringTable* g_MainStringTable = nullptr;
 class CInputGenerator* g_InputGenerator = nullptr;
 class CStateManager* g_StateManager = nullptr;
 
-ITweakGame*   g_tweakGame = nullptr;
+ITweakGame* g_tweakGame = nullptr;
 ITweakPlayer* g_tweakPlayer = nullptr;
 ITweakPlayerControl* g_tweakPlayerControl = nullptr;
 ITweakPlayerControl* g_tweakPlayerControlAlt = nullptr;
@@ -36,4 +34,4 @@ ITweakParticle* g_tweakParticle = nullptr;
 ITweakBall* g_tweakBall = nullptr;
 ITweakGuiColors* g_tweakGuiColors = nullptr;
 
-}
+} // namespace urde

@@ -2,47 +2,47 @@
 
 #include "CStateManager.hpp"
 
-namespace urde
-{
-struct SBurst
-{
-    s32 x0_randomSelectionWeight;
-    s32 x4_shotAngles[8];
-    float x24_timeToNextShot;
-    float x28_timeToNextShotVariance;
+namespace urde {
+struct SBurst {
+  s32 x0_randomSelectionWeight;
+  s32 x4_shotAngles[8];
+  float x24_timeToNextShot;
+  float x28_timeToNextShotVariance;
 };
 
-class CBurstFire
-{
-    s32 x0_burstType = -1;
-    s32 x4_angleIdx = -1;
-    float x8_timeToNextShot = 0.f;
-    s32 xc_firstBurstIdx = 0;
-    s32 x10_firstBurstCounter;
-    union
-    {
-        struct { bool x14_24_shouldFire : 1; bool x14_25_avoidAccuracy : 1; };
-        u32 _dummy = 0;
+class CBurstFire {
+  s32 x0_burstType = -1;
+  s32 x4_angleIdx = -1;
+  float x8_timeToNextShot = 0.f;
+  s32 xc_firstBurstIdx = 0;
+  s32 x10_firstBurstCounter;
+  union {
+    struct {
+      bool x14_24_shouldFire : 1;
+      bool x14_25_avoidAccuracy : 1;
     };
+    u32 _dummy = 0;
+  };
 
-    const SBurst* x18_curBursts = nullptr;
-    rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;
+  const SBurst* x18_curBursts = nullptr;
+  rstl::reserved_vector<const SBurst*, 16> x1c_burstDefs;
+
 public:
-    CBurstFire(const SBurst** burstDefs, s32 firstBurstCount);
+  CBurstFire(const SBurst** burstDefs, s32 firstBurstCount);
 
-    void SetAvoidAccuracy(bool b) { x14_25_avoidAccuracy = b; }
-    void SetBurstType(s32 type) { x0_burstType = type; }
-    void SetTimeToNextShot(float t) { x8_timeToNextShot = t; }
-    float GetTimeToNextShot() const { return x8_timeToNextShot; }
-    s32 GetBurstType() const { return x0_burstType; }
-    void Start(CStateManager& mgr);
-    void Update(CStateManager& mgr, float dt);
-    zeus::CVector3f GetError(float xMag, float zMag) const;
-    zeus::CVector3f GetDistanceCompensatedError(float dist, float maxErrDist) const;
-    float GetMaxXError() const;
-    float GetMaxZError() const;
-    void SetFirstBurstIndex(s32 idx) { xc_firstBurstIdx = idx; }
-    bool ShouldFire() const { return x14_24_shouldFire; }
-    bool IsBurstSet() const { return x18_curBursts != nullptr; }
+  void SetAvoidAccuracy(bool b) { x14_25_avoidAccuracy = b; }
+  void SetBurstType(s32 type) { x0_burstType = type; }
+  void SetTimeToNextShot(float t) { x8_timeToNextShot = t; }
+  float GetTimeToNextShot() const { return x8_timeToNextShot; }
+  s32 GetBurstType() const { return x0_burstType; }
+  void Start(CStateManager& mgr);
+  void Update(CStateManager& mgr, float dt);
+  zeus::CVector3f GetError(float xMag, float zMag) const;
+  zeus::CVector3f GetDistanceCompensatedError(float dist, float maxErrDist) const;
+  float GetMaxXError() const;
+  float GetMaxZError() const;
+  void SetFirstBurstIndex(s32 idx) { xc_firstBurstIdx = idx; }
+  bool ShouldFire() const { return x14_24_shouldFire; }
+  bool IsBurstSet() const { return x18_curBursts != nullptr; }
 };
-}
+} // namespace urde

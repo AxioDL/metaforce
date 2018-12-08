@@ -6,8 +6,7 @@
 #include "IMain.hpp"
 #include "TCastTo.hpp"
 
-namespace urde
-{
+namespace urde {
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId)
 : CEntity(uid, info, active, name)
@@ -16,17 +15,14 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x3c_type(ETeleporterType::NoTransition)
 , x40_24_upElevator(false)
 , x40_25_inTransition(false)
-, x40_27_fadeWhite(false)
-{
-}
+, x40_27_fadeWhite(false) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
-                                               bool active, CAssetId worldId, CAssetId areaId,
-                                               CAssetId playerAncs, u32 charIdx, u32 defaultAnim,
-                                               const zeus::CVector3f& playerScale, CAssetId platformModel,
-                                               const zeus::CVector3f& platformScale, CAssetId backgroundModel,
-                                               const zeus::CVector3f& backgroundScale, bool upElevator, u16 soundId,
-                                               u8 volume, u8 panning)
+                                               bool active, CAssetId worldId, CAssetId areaId, CAssetId playerAncs,
+                                               u32 charIdx, u32 defaultAnim, const zeus::CVector3f& playerScale,
+                                               CAssetId platformModel, const zeus::CVector3f& platformScale,
+                                               CAssetId backgroundModel, const zeus::CVector3f& backgroundScale,
+                                               bool upElevator, u16 soundId, u8 volume, u8 panning)
 : CEntity(uid, info, active, name)
 , x34_worldId(worldId)
 , x38_areaId(areaId)
@@ -42,9 +38,7 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x7c_backgroundScale(backgroundScale)
 , x88_soundId(CSfxManager::TranslateSFXID(soundId))
 , x8a_volume(volume)
-, x8b_panning(panning)
-{
-}
+, x8b_panning(panning) {}
 
 CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                bool active, CAssetId worldId, CAssetId areaId, u16 soundId, u8 volume,
@@ -64,89 +58,73 @@ CScriptWorldTeleporter::CScriptWorldTeleporter(TUniqueId uid, std::string_view n
 , x8a_volume(volume)
 , x8b_panning(panning)
 , x8c_fontId(fontId)
-, x90_stringId(stringId)
-{
-}
+, x90_stringId(stringId) {}
 
-void CScriptWorldTeleporter::Accept(IVisitor& visitor)
-{
-    visitor.Visit(this);
-}
+void CScriptWorldTeleporter::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
-{
-    if (GetActive())
-    {
-        const std::shared_ptr<CWorldTransManager>& transMgr = mgr.WorldTransManager();
-        switch(msg)
-        {
-        case EScriptObjectMessage::Stop:
-            x40_25_inTransition = false;
-            transMgr->DisableTransition();
-            transMgr->SfxStop();
-            break;
-        case EScriptObjectMessage::Play:
-            StartTransition(mgr);
-            transMgr->SetSfx(x88_soundId, x8a_volume, x8b_panning);
-            transMgr->SfxStart();
-            break;
-        case EScriptObjectMessage::SetToZero:
-        {
-            const auto& world = mgr.WorldNC();
-            world->SetLoadPauseState(true);
-            CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
-            g_GameState->SetCurrentWorldId(x34_worldId);
+void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  if (GetActive()) {
+    const std::shared_ptr<CWorldTransManager>& transMgr = mgr.WorldTransManager();
+    switch (msg) {
+    case EScriptObjectMessage::Stop:
+      x40_25_inTransition = false;
+      transMgr->DisableTransition();
+      transMgr->SfxStop();
+      break;
+    case EScriptObjectMessage::Play:
+      StartTransition(mgr);
+      transMgr->SetSfx(x88_soundId, x8a_volume, x8b_panning);
+      transMgr->SfxStart();
+      break;
+    case EScriptObjectMessage::SetToZero: {
+      const auto& world = mgr.WorldNC();
+      world->SetLoadPauseState(true);
+      CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
+      g_GameState->SetCurrentWorldId(x34_worldId);
 
-            if (g_ResFactory->GetResourceTypeById(x34_worldId) == SBIG('MLVL'))
-            {
-                StartTransition(mgr);
-                g_GameState->SetCurrentWorldId(x34_worldId);
-                g_GameState->CurrentWorldState().SetDesiredAreaAssetId(x38_areaId);
-                g_Main->SetFlowState(EFlowState::None);
-                mgr.SetShouldQuitGame(true);
-            }
-            else
-            {
-                x40_25_inTransition = false;
-                transMgr->DisableTransition();
-                g_GameState->SetCurrentWorldId(currentWorld);
-            }
-            break;
-        }
-        default:
-            break;
-        }
+      if (g_ResFactory->GetResourceTypeById(x34_worldId) == SBIG('MLVL')) {
+        StartTransition(mgr);
+        g_GameState->SetCurrentWorldId(x34_worldId);
+        g_GameState->CurrentWorldState().SetDesiredAreaAssetId(x38_areaId);
+        g_Main->SetFlowState(EFlowState::None);
+        mgr.SetShouldQuitGame(true);
+      } else {
+        x40_25_inTransition = false;
+        transMgr->DisableTransition();
+        g_GameState->SetCurrentWorldId(currentWorld);
+      }
+      break;
     }
-    CEntity::AcceptScriptMsg(msg, uid, mgr);
-}
-
-void CScriptWorldTeleporter::StartTransition(CStateManager& mgr)
-{
-    if (!x40_25_inTransition)
-    {
-        const auto& transMgr = mgr.WorldTransManager();
-        switch(x3c_type)
-        {
-        case ETeleporterType::NoTransition:
-            transMgr->DisableTransition();
-            break;
-        case ETeleporterType::Elevator:
-            if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != u32(-1))
-            {
-                transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(),
-                                                    x5c_playerScale, x50_playerAnim.GetInitialAnimation(),true),
-                                           x68_platformModel, x6c_platformScale, x78_backgroundModel,
-                                           x7c_backgroundScale, x40_24_upElevator);
-                x40_25_inTransition = true;
-            }
-            break;
-        case ETeleporterType::Text:
-            transMgr->EnableTransition(x8c_fontId, x90_stringId, 0, x40_27_fadeWhite, x44_charFadeIn, x48_charsPerSecond,
-                                       x4c_showDelay);
-            x40_25_inTransition = true;
-            break;
-        }
+    default:
+      break;
     }
+  }
+  CEntity::AcceptScriptMsg(msg, uid, mgr);
 }
 
+void CScriptWorldTeleporter::StartTransition(CStateManager& mgr) {
+  if (!x40_25_inTransition) {
+    const auto& transMgr = mgr.WorldTransManager();
+    switch (x3c_type) {
+    case ETeleporterType::NoTransition:
+      transMgr->DisableTransition();
+      break;
+    case ETeleporterType::Elevator:
+      if (x50_playerAnim.GetACSFile().IsValid() && x50_playerAnim.GetCharacter() != u32(-1)) {
+        transMgr->EnableTransition(CAnimRes(x50_playerAnim.GetACSFile(), x50_playerAnim.GetCharacter(), x5c_playerScale,
+                                            x50_playerAnim.GetInitialAnimation(), true),
+                                   x68_platformModel, x6c_platformScale, x78_backgroundModel, x7c_backgroundScale,
+                                   x40_24_upElevator);
+        x40_25_inTransition = true;
+      }
+      break;
+    case ETeleporterType::Text:
+      transMgr->EnableTransition(x8c_fontId, x90_stringId, 0, x40_27_fadeWhite, x44_charFadeIn, x48_charsPerSecond,
+                                 x4c_showDelay);
+      x40_25_inTransition = true;
+      break;
+    }
+  }
 }
+
+} // namespace urde

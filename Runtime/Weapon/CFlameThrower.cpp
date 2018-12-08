@@ -4,8 +4,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "TCastTo.hpp"
-namespace urde
-{
+namespace urde {
 const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);
 
 CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
@@ -16,9 +15,7 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
                   zeus::CVector3f(1.f), {}, -1, false)
 , x2e8_(xf)
 , x33c_flameDesc(g_SimplePool->GetObj({FOURCC('PART'), flameInfo.GetFlameFxId()}))
-, x348_flameGen(new CElementGen(x33c_flameDesc))
-{
-}
+, x348_flameGen(new CElementGen(x33c_flameDesc)) {}
 
 void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -27,4 +24,4 @@ void CFlameThrower::SetTransform(const zeus::CTransform& xf) { x2e8_ = xf; }
 void CFlameThrower::Reset(CStateManager&, bool) {}
 
 void CFlameThrower::Fire(const zeus::CTransform&, CStateManager&, bool) {}
-}
+} // namespace urde

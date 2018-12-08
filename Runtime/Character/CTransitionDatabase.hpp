@@ -2,15 +2,12 @@
 
 #include "../RetroTypes.hpp"
 
-namespace urde
-{
+namespace urde {
 class IMetaTrans;
 
-class CTransitionDatabase
-{
+class CTransitionDatabase {
 public:
-    virtual const std::shared_ptr<IMetaTrans>& GetMetaTrans(u32, u32) const=0;
+  virtual const std::shared_ptr<IMetaTrans>& GetMetaTrans(u32, u32) const = 0;
 };
 
-}
-
+} // namespace urde

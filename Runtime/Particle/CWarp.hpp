@@ -5,19 +5,16 @@
 #include "RetroTypes.hpp"
 #include "CParticleGen.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CWarp
-{
+class CWarp {
 public:
-    virtual ~CWarp() = default;
-    virtual bool UpdateWarp()=0;
-    virtual void ModifyParticles(std::vector<CParticle>& particles)=0;
-    virtual void Activate(bool)=0;
-    virtual bool IsActivated()=0;
-    virtual FourCC Get4CharID()=0;
+  virtual ~CWarp() = default;
+  virtual bool UpdateWarp() = 0;
+  virtual void ModifyParticles(std::vector<CParticle>& particles) = 0;
+  virtual void Activate(bool) = 0;
+  virtual bool IsActivated() = 0;
+  virtual FourCC Get4CharID() = 0;
 };
 
-}
-
+} // namespace urde

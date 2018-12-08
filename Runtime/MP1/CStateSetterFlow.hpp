@@ -2,15 +2,12 @@
 
 #include "CIOWin.hpp"
 
-namespace urde::MP1
-{
+namespace urde::MP1 {
 
-class CStateSetterFlow : public CIOWin
-{
+class CStateSetterFlow : public CIOWin {
 public:
-    CStateSetterFlow();
-    EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
+  CStateSetterFlow();
+  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
 };
 
-}
-
+} // namespace urde::MP1

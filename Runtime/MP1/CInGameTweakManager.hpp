@@ -2,14 +2,10 @@
 
 #include "CInGameTweakManagerBase.hpp"
 
-namespace urde::MP1
-{
+namespace urde::MP1 {
 
-class CInGameTweakManager : public CInGameTweakManagerBase
-{
+class CInGameTweakManager : public CInGameTweakManagerBase {
 public:
-
 };
 
-}
-
+} // namespace urde::MP1

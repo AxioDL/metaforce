@@ -1,5 +1,5 @@
 ---
-IndentWidth: 4
+BasedOnStyle: LLVM
 ColumnLimit: 120
 UseTab: Never
 ---
@@ -8,7 +8,6 @@ DerivePointerAlignment: false
 PointerAlignment: Left
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: false
-BreakBeforeBraces: Allman
 IndentCaseLabels: false
 AllowShortBlocksOnASingleLine: true
 AlignOperands: true
@@ -24,6 +23,6 @@ NamespaceIndentation: None
 BinPackArguments: true
 BinPackParameters: true
 SortIncludes: false
-AccessModifierOffset: -4
+AccessModifierOffset: -2
 ConstructorInitializerIndentWidth: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: true

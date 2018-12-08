@@ -2,29 +2,24 @@
 
 #include "CAnimTreeTweenBase.hpp"
 
-namespace urde
-{
+namespace urde {
 
-class CAnimTreeBlend : public CAnimTreeTweenBase
-{
-    float x24_blendWeight;
+class CAnimTreeBlend : public CAnimTreeTweenBase {
+  float x24_blendWeight;
+
 public:
-    static std::string CreatePrimitiveName(const std::shared_ptr<CAnimTreeNode>& a,
-                                           const std::shared_ptr<CAnimTreeNode>& b,
-                                           float scale);
+  static std::string CreatePrimitiveName(const std::shared_ptr<CAnimTreeNode>& a,
+                                         const std::shared_ptr<CAnimTreeNode>& b, float scale);
 
-    CAnimTreeBlend(bool,
-                   const std::shared_ptr<CAnimTreeNode>& a,
-                   const std::shared_ptr<CAnimTreeNode>& b,
-                   float blendWeight, std::string_view name);
+  CAnimTreeBlend(bool, const std::shared_ptr<CAnimTreeNode>& a, const std::shared_ptr<CAnimTreeNode>& b,
+                 float blendWeight, std::string_view name);
 
-    SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
-    CCharAnimTime VGetTimeRemaining() const;
-    CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-    std::unique_ptr<IAnimReader> VClone() const;
-    void SetBlendingWeight(float w);
-    float VGetBlendingWeight() const;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
+  CCharAnimTime VGetTimeRemaining() const;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
+  std::unique_ptr<IAnimReader> VClone() const;
+  void SetBlendingWeight(float w);
+  float VGetBlendingWeight() const;
 };
 
-}
-
+} // namespace urde

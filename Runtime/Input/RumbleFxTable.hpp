@@ -2,10 +2,8 @@
 
 #include "CRumbleVoice.hpp"
 
-namespace urde
-{
+namespace urde {
 
 extern const SAdsrData RumbleFxTable[];
 
 }
-
