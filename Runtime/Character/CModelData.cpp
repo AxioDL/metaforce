@@ -385,7 +385,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf,
 {
     if (x14_25_sortThermal && which == EWhichModel::ThermalHot)
     {
-        zeus::CColor mul(drawFlags.x4_color.a, drawFlags.x4_color.a);
+        zeus::CColor mul(drawFlags.x4_color.a(), drawFlags.x4_color.a());
         RenderThermal(xf, mul, {0.f, 0.f, 0.f, 0.25f}, drawFlags);
     }
     else
@@ -500,7 +500,7 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
     CModelFlags flags(5, 0, 3, zeus::CColor::skWhite);
     flags.m_extendedShader = EExtendedShader::Disintegrate;
     flags.addColor = addColor;
-    flags.addColor.a = t; // Stash T value in here (shader does not care)
+    flags.addColor.a() = t; // Stash T value in here (shader does not care)
 
     if (x10_animData)
     {

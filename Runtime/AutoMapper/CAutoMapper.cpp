@@ -623,8 +623,8 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
         float deltaFrames = input.DeltaTime() * 60.f;
         SetShouldRotatingSoundBePlaying(true);
         zeus::CEulerAngles eulers(xa8_renderStates[0].x8_camOrientation);
-        zeus::CRelAngle angX(eulers.x);
-        zeus::CRelAngle angZ(eulers.z);
+        zeus::CRelAngle angX(eulers.x());
+        zeus::CRelAngle angZ(eulers.z());
 
         float dt = deltaFrames * g_tweakAutoMapper->GetCamRotateDegreesPerFrame();
 
@@ -892,7 +892,7 @@ zeus::CQuaternion CAutoMapper::GetMiniMapCameraOrientation(const CStateManager& 
 {
     const CGameCamera* cam = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr);
     zeus::CEulerAngles camAngles(zeus::CQuaternion(cam->GetTransform().buildMatrix3f()));
-    float rotMod = -(std::floor(camAngles.z * 0.15915494f) * 2.f * M_PIF - camAngles.z);
+    float rotMod = -(std::floor(camAngles.z() / (2.f * M_PIF)) * 2.f * M_PIF - camAngles.z());
     if (rotMod < 0.f)
         rotMod += 2.f * M_PIF;
 
@@ -1035,9 +1035,9 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
 
     zeus::CVector3f xfPoint = mapa->GetAreaPostTransform(*x24_world, xa0_curAreaId) * mapa->GetAreaCenterPoint();
     zeus::CVector3f maxMargin;
-    maxMargin.x = std::max(xfPoint.x - aabb.min.x, aabb.max.x - xfPoint.x);
-    maxMargin.y = std::max(xfPoint.y - aabb.min.y, aabb.max.y - xfPoint.y);
-    maxMargin.z = std::max(xfPoint.z - aabb.min.z, aabb.max.z - xfPoint.z);
+    maxMargin.x() = std::max(xfPoint.x() - aabb.min.x(), aabb.max.x() - xfPoint.x());
+    maxMargin.y() = std::max(xfPoint.y() - aabb.min.y(), aabb.max.y() - xfPoint.y());
+    maxMargin.z() = std::max(xfPoint.z() - aabb.min.z(), aabb.max.z() - xfPoint.z());
     zeus::CVector3f extent = mapa->GetBoundingBox().max - mapa->GetBoundingBox().min;
 
     return (0.5f * (0.5f * extent.magnitude()) + 0.5f * maxMargin.magnitude()) *
@@ -1589,7 +1589,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             float func = zeus::clamp(0.f, 0.5f * (1.f + std::sin(5.f * CGraphics::GetSecondsMod900() - (M_PIF / 2.f))), 1.f);
             float scale = std::min(0.6f * g_tweakAutoMapper->GetMaxCamDist() / g_tweakAutoMapper->GetMinCamDist(), objectScale);
             zeus::CEulerAngles eulers(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
-            zeus::CRelAngle angle(eulers.z);
+            zeus::CRelAngle angle(eulers.z());
             zeus::CTransform playerXf(zeus::CMatrix3f::RotateZ(angle),
             CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) + mgr.GetPlayer().GetTranslation());
             CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
@@ -1600,7 +1600,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                 alpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
             alpha *= mapAlpha;
             zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
-            modColor.a *= alpha;
+            modColor.a() *= alpha;
             CModelFlags flags(5, 0, 8 | 1, modColor); /* Depth GEqual */
             flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
             x30_miniMapSamus->Draw(flags);
@@ -1651,7 +1651,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                         alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
                     alpha *= mapAlpha;
                     zeus::CColor color = zeus::CColor::skWhite;
-                    color.a = alpha;
+                    color.a() = alpha;
                     filter.drawVerts(color, verts);
                 }
             }

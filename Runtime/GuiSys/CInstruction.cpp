@@ -252,11 +252,11 @@ void CImageInstruction::Invoke(CFontRenderState& state, CTextRenderBuffer* buf) 
                 zeus::CVector2i coords(state.xd4_curX, y);
                 buf->AddImage(coords, x4_image);
             }
-            state.xd4_curX = state.xd4_curX + tex->GetWidth() * x4_image.x14_cropFactor.x;
+            state.xd4_curX = state.xd4_curX + tex->GetWidth() * x4_image.x14_cropFactor.x();
         }
         else
         {
-            int scale = state.xdc_currentLineInst->x8_curX - tex->GetWidth() * x4_image.x14_cropFactor.x;
+            int scale = state.xdc_currentLineInst->x8_curX - tex->GetWidth() * x4_image.x14_cropFactor.x();
             if (buf)
             {
                 zeus::CVector2i coords(scale / 2 + state.xd4_curX, state.xd8_curY);

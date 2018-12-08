@@ -68,7 +68,7 @@ void CPauseScreenBase::InitializeFrameGlue()
     x194_tablegroup_triple = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_triple"));
 
     x2c_rightTableStart = x84_tablegroup_rightlog->GetWorkerWidget(0)->GetIdlePosition();
-    x38_highlightPitch = x84_tablegroup_rightlog->GetWorkerWidget(1)->GetIdlePosition().z - x2c_rightTableStart.z;
+    x38_highlightPitch = x84_tablegroup_rightlog->GetWorkerWidget(1)->GetIdlePosition().z() - x2c_rightTableStart.z();
     x3c_sliderStart = x18c_slidergroup_slider->GetIdlePosition();
     x48_tableDoubleStart = x190_tablegroup_double->GetIdlePosition();
     x54_tableTripleStart = x194_tablegroup_triple->GetIdlePosition();
@@ -107,7 +107,7 @@ void CPauseScreenBase::InitializeFrameGlue()
     if (IsRightLogDynamic())
     {
         zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
-        color.a = 0.5f;
+        color.a() = 0.5f;
         UpdateRightLogColors(false, g_tweakGuiColors->GetPauseItemAmberColor(), color);
     }
     else
@@ -119,7 +119,7 @@ void CPauseScreenBase::InitializeFrameGlue()
         static_cast<CGuiWidget*>(obj)->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
 
     zeus::CColor dimColor = g_tweakGuiColors->GetPauseItemAmberColor();
-    dimColor.a = 0.2f;
+    dimColor.a() = 0.2f;
     x98_model_scrollleftup->SetColor(dimColor);
     x9c_model_scrollleftdown->SetColor(dimColor);
     xa0_model_scrollrightup->SetColor(dimColor);
@@ -182,7 +182,7 @@ void CPauseScreenBase::ChangeMode(EMode mode)
     EMode oldMode = x10_mode;
     zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
     zeus::CColor colorDim = color;
-    colorDim.a = 0.5f;
+    colorDim.a() = 0.5f;
 
     switch (x10_mode)
     {
@@ -296,7 +296,7 @@ void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
     float rightDownT = pulseRightDown ? CGraphics::GetSecondsMod900() : 0.f;
 
     zeus::CColor lowC = g_tweakGuiColors->GetPauseItemAmberColor();
-    lowC.a = 0.2f;
+    lowC.a() = 0.2f;
     xa0_model_scrollrightup->SetColor(
     zeus::CColor::lerp(lowC, g_tweakGuiColors->GetPauseItemAmberColor(),
                        zeus::clamp(0.f, (std::sin(5.f * rightUpT - M_PIF / 2.f) + 1.f) * 0.5f, 1.f)));
@@ -324,9 +324,9 @@ void CPauseScreenBase::ProcessControllerInput(const CFinalInput& input)
 void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff)
 {
     zeus::CColor color = zeus::CColor::skWhite;
-    color.a = mainAlpha * x14_alpha;
+    color.a() = mainAlpha * x14_alpha;
     x60_basewidget_pivot->SetColor(color);
-    color.a = frameAlpha;
+    color.a() = frameAlpha;
     x64_basewidget_bgframe->SetColor(color);
 
     CGuiWidgetDrawParms parms(1.f, zeus::CVector3f{0.f, 15.f * yOff, 0.f});

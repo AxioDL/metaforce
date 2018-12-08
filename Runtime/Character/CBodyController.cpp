@@ -137,7 +137,7 @@ void CBodyController::FaceDirection(const zeus::CVector3f& v0, float dt)
     if (x300_26_frozen)
         return;
     zeus::CVector3f noZ = v0;
-    noZ.z = 0.f;
+    noZ.z() = 0.f;
     if (noZ.canBeNormalized())
     {
         if (TCastToPtr<CPhysicsActor> act = x0_actor)

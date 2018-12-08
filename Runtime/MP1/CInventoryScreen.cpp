@@ -475,7 +475,7 @@ void CInventoryScreen::UpdateRightTable()
     x84_tablegroup_rightlog->GetWorkerWidget(0)->SetIsSelectable(false);
     x84_tablegroup_rightlog->GetWorkerWidget(x84_tablegroup_rightlog->GetElementCount() - 1)->SetIsSelectable(false);
     zeus::CColor inactiveColor = g_tweakGuiColors->GetPauseItemAmberColor();
-    inactiveColor.a = 0.5f;
+    inactiveColor.a() = 0.5f;
     UpdateRightLogColors(false, g_tweakGuiColors->GetPauseItemAmberColor(), inactiveColor);
 }
 

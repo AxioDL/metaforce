@@ -331,7 +331,7 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
     if (mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot && x200_beamId != CPlayerState::EBeamId::Ice)
     {
         /* Hot Draw */
-        zeus::CColor mulColor(flags.x4_color.a, flags.x4_color.a);
+        zeus::CColor mulColor(flags.x4_color.a(), flags.x4_color.a());
         zeus::CColor addColor(0.25f, 0.25f);
         if (x218_29_drawHologram)
         {
@@ -457,7 +457,7 @@ void CGunWeapon::LoadProjectileData(CStateManager& mgr)
             trat->GetValue(0, tratVal);
         x1d0_velInfo.x24_trat.push_back(tratVal);
         x1d0_velInfo.x1c_targetHoming.push_back(x144_weapons[i]->x29_HOMG);
-        if (weaponVel.y > 0.f)
+        if (weaponVel.y() > 0.f)
             x1d0_velInfo.x0_vel.back() *= zeus::CVector3f(60.f);
         else
             x1d0_velInfo.x0_vel.back() = zeus::CVector3f::skForward;

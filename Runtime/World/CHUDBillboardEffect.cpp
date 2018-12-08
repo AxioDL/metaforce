@@ -21,7 +21,7 @@ CHUDBillboardEffect::CHUDBillboardEffect(const std::experimental::optional<TToke
 : CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform::Identity())
 {
     xec_translation = translation;
-    xec_translation.y += dist;
+    xec_translation.y() += dist;
     xf8_localScale = scale1 * scale0;
     x104_24_renderAsParticleGen = true;
     x104_25_enableRender = false;

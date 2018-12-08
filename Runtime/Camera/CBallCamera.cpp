@@ -324,7 +324,7 @@ void CBallCamera::BuildSplineNav(CStateManager& mgr)
     float elevation = x1a0_elevation;
     float distance = x190_curMinDistance;
     ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);
-    zeus::CVector3f pt1(x35c_splineIntermediatePos.x, x35c_splineIntermediatePos.y, GetTranslation().z);
+    zeus::CVector3f pt1(x35c_splineIntermediatePos.x(), x35c_splineIntermediatePos.y(), GetTranslation().z());
     x37c_camSpline.AddKnot(pt1, zeus::CVector3f::skForward);
     zeus::CVector3f pt2 = pt1 + (x35c_splineIntermediatePos - GetTranslation()) * (0.5f + downFactor);
     x37c_camSpline.AddKnot(pt2, zeus::CVector3f::skForward);
@@ -362,11 +362,11 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr)
     float distance = x190_curMinDistance;
     ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);
     zeus::CVector3f halfwayPoint = (ballPos.toVec2f() - GetTranslation().toVec2f()) * 0.5f + GetTranslation().toVec2f();
-    halfwayPoint.z = GetTranslation().z;
+    halfwayPoint.z() = GetTranslation().z();
     zeus::CVector3f delta = GetTranslation() - halfwayPoint;
     zeus::CQuaternion rot;
     rot.rotateZ(zeus::degToRad(45.f));
-    if (mgr.GetPlayer().GetMoveDir().cross(x34_transform.basis[1]).z >= 0.f)
+    if (mgr.GetPlayer().GetMoveDir().cross(x34_transform.basis[1]).z() >= 0.f)
     {
         rot = zeus::CQuaternion();
         rot.rotateZ(zeus::degToRad(-45.f));
@@ -442,7 +442,7 @@ void CBallCamera::UpdatePlayerMovement(float dt, CStateManager& mgr)
     zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
     x2f0_ballDelta = ballPos - x2dc_prevBallPos;
     x2fc_ballDeltaFlat = x2f0_ballDelta;
-    x2fc_ballDeltaFlat.z = 0.f;
+    x2fc_ballDeltaFlat.z() = 0.f;
     if (x2fc_ballDeltaFlat.canBeNormalized())
         x2e8_ballVelFlat = x2fc_ballDeltaFlat.magnitude() / dt;
     else
@@ -450,7 +450,7 @@ void CBallCamera::UpdatePlayerMovement(float dt, CStateManager& mgr)
     x2dc_prevBallPos = ballPos;
     x18d_28_obtuseDirection = false;
     zeus::CVector3f camToBallFlat = ballPos - GetTranslation();
-    camToBallFlat.z = 0.f;
+    camToBallFlat.z() = 0.f;
     if (camToBallFlat.canBeNormalized())
     {
         camToBallFlat.normalize();
@@ -479,7 +479,7 @@ void CBallCamera::UpdateTransform(const zeus::CVector3f& lookDir, const zeus::CV
         if (const CScriptCameraHint* hint = mgr.GetCameraManager()->GetCameraHint(mgr))
             useLookDir = hint->GetTransform().basis[1];
     zeus::CVector3f lookDirFlat = useLookDir;
-    lookDirFlat.z = 0.f;
+    lookDirFlat.z() = 0.f;
     if (!lookDirFlat.canBeNormalized())
     {
         SetTranslation(pos);
@@ -545,7 +545,7 @@ zeus::CVector3f CBallCamera::ConstrainYawAngle(const CPlayer& player, float dist
                                                CStateManager& mgr) const
 {
     zeus::CVector3f playerToCamFlat = GetTranslation() - player.GetTranslation();
-    playerToCamFlat.z = 0.f;
+    playerToCamFlat.z() = 0.f;
     zeus::CVector3f lookDir = player.GetTransform().basis[1];
     if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
     {
@@ -697,7 +697,7 @@ zeus::CVector3f CBallCamera::GetFixedLookTarget(const zeus::CVector3f& hintToLoo
         return hintToLookDir;
     zeus::CVector3f hintDir = hint->GetTransform().basis[1];
     zeus::CVector3f hintDirFlat = hintDir;
-    hintDirFlat.z = 0.f;
+    hintDirFlat.z() = 0.f;
     if (hintDir.canBeNormalized() && hintDirFlat.canBeNormalized())
     {
         hintDir.normalize();
@@ -710,7 +710,7 @@ zeus::CVector3f CBallCamera::GetFixedLookTarget(const zeus::CVector3f& hintToLoo
     }
 
     zeus::CVector3f hintToLookDirFlat = hintToLookDir;
-    hintToLookDirFlat.z = 0.f;
+    hintToLookDirFlat.z() = 0.f;
     if (hintToLookDir.canBeNormalized() && hintToLookDirFlat.canBeNormalized())
         hintToLookDirFlat.normalize();
     else
@@ -723,20 +723,20 @@ zeus::CVector3f CBallCamera::GetFixedLookTarget(const zeus::CVector3f& hintToLoo
         attitude = refAttitude + zeus::clamp(-x1ac_attitudeRange, attitude - refAttitude, x1ac_attitudeRange);
     }
 
-    if (hintToLookDir.z >= 0.f)
+    if (hintToLookDir.z() >= 0.f)
         attitude = -attitude;
 
     float azimuth = std::acos(zeus::clamp(-1.f, hintToLookDirFlat.dot(hintDirFlat), 1.f));
     if (x18c_30_clampAzimuth)
         azimuth = zeus::clamp(-x1b0_azimuthRange, azimuth, x1b0_azimuthRange);
 
-    if (hintToLookDirFlat.x * hintDirFlat.y - hintDirFlat.x * hintToLookDirFlat.y >= 0.f)
+    if (hintToLookDirFlat.x() * hintDirFlat.y() - hintDirFlat.x() * hintToLookDirFlat.y() >= 0.f)
         azimuth = -azimuth;
 
     zeus::CQuaternion quat;
     quat.rotateZ(azimuth);
     zeus::CVector3f aziLookDirFlat = quat.transform(hintDirFlat);
-    zeus::CVector3f attitudeAxis(aziLookDirFlat.y, -aziLookDirFlat.x, 0.f);
+    zeus::CVector3f attitudeAxis(aziLookDirFlat.y(), -aziLookDirFlat.x(), 0.f);
     attitudeAxis.normalize();
     return zeus::CQuaternion::fromAxisAngle(attitudeAxis, -attitude).transform(aziLookDirFlat);
 }
@@ -952,12 +952,12 @@ zeus::CVector3f CBallCamera::InterpolateCameraElevation(const zeus::CVector3f& c
     if (!x18c_31_clearLOS && x350_obscuringMaterial.HasMaterial(EMaterialTypes::Floor))
     {
         x3d4_elevInterpTimer = 1.f;
-        ret.z = x3d8_elevInterpStart = GetTranslation().z;
+        ret.z() = x3d8_elevInterpStart = GetTranslation().z();
     }
     else if (x3d4_elevInterpTimer > 0.f)
     {
         x3d4_elevInterpTimer -= dt;
-        ret.z = (camPos.z - x3d8_elevInterpStart) * (1.f - zeus::clamp(0.f, x3d4_elevInterpTimer, 1.f)) +
+        ret.z() = (camPos.z() - x3d8_elevInterpStart) * (1.f - zeus::clamp(0.f, x3d4_elevInterpTimer, 1.f)) +
             x3d8_elevInterpStart;
     }
 
@@ -979,10 +979,10 @@ zeus::CVector3f CBallCamera::CalculateCollidersCentroid(const std::vector<CCamer
     {
         if (prevCol->x4c_occlusionCount < 2 && col.x4c_occlusionCount < 2)
         {
-            float z0 = prevCol->x50_scale * prevCol->x8_lastLocalPos.z;
-            float x1 = prevCol->x50_scale * col.x8_lastLocalPos.x;
-            float x0 = prevCol->x50_scale * prevCol->x8_lastLocalPos.x;
-            float z1 = prevCol->x50_scale * col.x8_lastLocalPos.z;
+            float z0 = prevCol->x50_scale * prevCol->x8_lastLocalPos.z();
+            float x1 = prevCol->x50_scale * col.x8_lastLocalPos.x();
+            float x0 = prevCol->x50_scale * prevCol->x8_lastLocalPos.x();
+            float z1 = prevCol->x50_scale * col.x8_lastLocalPos.z();
 
             float cross = x0 * z1 - x1 * z0;
             accumCross += cross;
@@ -1015,29 +1015,29 @@ zeus::CVector3f CBallCamera::ApplyColliders()
     zeus::CVector3f mediumCentroid = CalculateCollidersCentroid(x274_mediumColliders, x2c8_mediumCollidersObsCount);
     zeus::CVector3f largeCentroid = CalculateCollidersCentroid(x284_largeColliders, x2cc_largeCollidersObsCount);
 
-    if (smallCentroid.y == 0.f)
+    if (smallCentroid.y() == 0.f)
         x2a0_smallCentroid = smallCentroid;
     else
         x2a0_smallCentroid = zeus::CVector3f::skZero;
 
-    float centroidX = x2a0_smallCentroid.x;
-    float centroidZ = x2a0_smallCentroid.z;
+    float centroidX = x2a0_smallCentroid.x();
+    float centroidZ = x2a0_smallCentroid.z();
 
-    if (mediumCentroid.y == 0.f)
+    if (mediumCentroid.y() == 0.f)
         x2ac_mediumCentroid = mediumCentroid;
     else
         x2ac_mediumCentroid = zeus::CVector3f::skZero;
 
-    centroidX += x2ac_mediumCentroid.x;
-    centroidZ += x2ac_mediumCentroid.z;
+    centroidX += x2ac_mediumCentroid.x();
+    centroidZ += x2ac_mediumCentroid.z();
 
-    if (largeCentroid.y == 0.f)
+    if (largeCentroid.y() == 0.f)
         x2b8_largeCentroid = largeCentroid;
     else
         x2b8_largeCentroid = zeus::CVector3f::skZero;
 
-    centroidX += x2b8_largeCentroid.x;
-    centroidZ += x2b8_largeCentroid.z;
+    centroidX += x2b8_largeCentroid.x();
+    centroidZ += x2b8_largeCentroid.z();
 
     if (x18c_31_clearLOS)
         centroidX /= 1.5f;
@@ -1075,10 +1075,10 @@ void CBallCamera::UpdateColliders(const zeus::CTransform& xf, std::vector<CCamer
 {
     if (it < colliderList.size())
     {
-        x310_idealLookVec = {0.f, g_tweakBall->GetBallCameraOffset().y, g_tweakPlayer->GetPlayerBallHalfExtent()};
-        x310_idealLookVec.y *= x308_speedFactor;
-        x31c_predictedLookPos = mgr.GetPlayer().GetMoveDir() * x310_idealLookVec.y;
-        x31c_predictedLookPos.z = x310_idealLookVec.z;
+        x310_idealLookVec = {0.f, g_tweakBall->GetBallCameraOffset().y(), g_tweakPlayer->GetPlayerBallHalfExtent()};
+        x310_idealLookVec.y() *= x308_speedFactor;
+        x31c_predictedLookPos = mgr.GetPlayer().GetMoveDir() * x310_idealLookVec.y();
+        x31c_predictedLookPos.z() = float(x310_idealLookVec.z());
         x31c_predictedLookPos += mgr.GetPlayer().GetTranslation();
         zeus::CTransform predictedLookXf = zeus::lookAt(xf.origin, x31c_predictedLookPos);
         float toleranceRecip = 1.f / tolerance;
@@ -1225,9 +1225,9 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
         x2c4_smallCollidersObsCount = CountObscuredColliders(x264_smallColliders);
         x2c8_mediumCollidersObsCount = CountObscuredColliders(x274_mediumColliders);
         x2cc_largeCollidersObsCount = CountObscuredColliders(x284_largeColliders);
-        zeus::CVector3f posAtBallLevel = {0.f, 0.f, GetTranslation().z - ballPos.z};
+        zeus::CVector3f posAtBallLevel = {0.f, 0.f, GetTranslation().z() - ballPos.z()};
         zeus::CVector3f ballToCamFlat = GetTranslation() - ballPos;
-        ballToCamFlat.z = 0.f;
+        ballToCamFlat.z() = 0.f;
         float ballToCamFlatMag = 0.f;
         if (ballToCamFlat.canBeNormalized())
             ballToCamFlatMag = ballToCamFlat.magnitude();
@@ -1240,7 +1240,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
         float distance = x214_ballCameraSpring.ApplyDistanceSpring(x190_curMinDistance, ballToCamFlatMag,
                                                                    (3.f + x308_speedFactor) * dt);
         zeus::CVector3f camToBall = ballPos - GetTranslation();
-        camToBall.z = 0.f;
+        camToBall.z() = 0.f;
         if (camToBall.canBeNormalized())
         {
             camToBall.normalize();
@@ -1309,9 +1309,9 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
                                                  g_tweakBall->GetBallCameraBoostYawSpeed(), dt, mgr);
                     }
                     ballToCam.normalize();
-                    ballToCam.z = 0.f;
+                    ballToCam.z() = 0.f;
                     ballToCam = ballToCam * distance;
-                    ballToCam.z = 1.f;
+                    ballToCam.z() = 1.f;
                     desiredBallToCam = ballToCam;
                     noDoor = false;
                 }
@@ -1328,10 +1328,10 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
                         ballToCam = ConstrainYawAngle(mgr.GetPlayer(), g_tweakBall->GetBallCameraChaseDistance(),
                                                  g_tweakBall->GetBallCameraChaseYawSpeed(), dt, mgr);
                     }
-                    ballToCam.z = 0.f;
+                    ballToCam.z() = 0.f;
                     ballToCam.normalize();
                     ballToCam = ballToCam * distance;
-                    ballToCam.z = g_tweakBall->GetBallCameraElevation();
+                    ballToCam.z() = g_tweakBall->GetBallCameraElevation();
                     desiredBallToCam = ballToCam;
                     noDoor = false;
                 }
@@ -1385,7 +1385,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
             colliderPointLocal = AvoidGeometry(lookXf, nearList, dt, mgr);
 
         zeus::CVector3f ballToCam2 = GetTranslation() - ballPos;
-        ballToCam2.z = 0.f;
+        ballToCam2.z() = 0.f;
         if (ballToCam2.magnitude() < 2.f)
         {
             if (x18c_31_clearLOS && x478_shortMoveCount > 2)
@@ -1431,10 +1431,10 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
 
         zeus::CVector3f finalPos = posDelta * cDistSpringMag + x294_dampedPos;
         if (mgr.GetPlayer().GetMorphBall()->GetSpiderBallState() != CMorphBall::ESpiderBallState::Active &&
-            !x18e_24_noElevationVelClamp && mgr.GetPlayer().GetVelocity().z > 8.f)
+            !x18e_24_noElevationVelClamp && mgr.GetPlayer().GetVelocity().z() > 8.f)
         {
             zeus::CVector3f delta = finalPos - oldPos;
-            delta.z = zeus::clamp(-0.1f * dt, delta.z, 0.1f * dt);
+            delta.z() = zeus::clamp(-0.1f * dt, float(delta.z()), 0.1f * dt);
             finalPos = oldPos + delta;
         }
 
@@ -1442,12 +1442,12 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
             finalPos = InterpolateCameraElevation(finalPos, dt);
 
         if (x18d_29_noElevationInterp)
-            finalPos.z = elevation + ballPos.z;
+            finalPos.z() = elevation + ballPos.z();
 
         if (ballToCam2.magnitude() < 2.f)
         {
-            if (finalPos.z < 2.f + ballPos.z)
-                finalPos.z = 2.f + ballPos.z;
+            if (finalPos.z() < 2.f + ballPos.z())
+                finalPos.z() = 2.f + ballPos.z();
             x214_ballCameraSpring.Reset();
         }
 
@@ -1457,12 +1457,12 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr)
                 if (!door->x2a8_26_isOpen)
                     finalPos = GetTranslation();
 
-        float backupZ = finalPos.z;
+        float backupZ = finalPos.z();
         finalPos = MoveCollisionActor(finalPos, dt, mgr);
 
         if (x18c_31_clearLOS && x478_shortMoveCount > 0)
         {
-            finalPos.z = backupZ;
+            finalPos.z() = backupZ;
             finalPos = MoveCollisionActor(finalPos, dt, mgr);
         }
 
@@ -1494,11 +1494,11 @@ zeus::CVector3f CBallCamera::ClampElevationToWater(zeus::CVector3f& pos, CStateM
     zeus::CVector3f ret = pos;
     if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(mgr.GetPlayer().GetFluidId()))
     {
-        float waterZ = water->GetTriggerBoundsWR().max.z;
-        if (pos.z >= waterZ && pos.z - waterZ <= 0.25f)
-            ret.z = 0.25f + waterZ;
-        else if (pos.z < waterZ && pos.z - waterZ >= -0.12f)
-            ret.z = waterZ - 0.12f;
+        float waterZ = water->GetTriggerBoundsWR().max.z();
+        if (pos.z() >= waterZ && pos.z() - waterZ <= 0.25f)
+            ret.z() = 0.25f + waterZ;
+        else if (pos.z() < waterZ && pos.z() - waterZ >= -0.12f)
+            ret.z() = waterZ - 0.12f;
     }
     return ret;
 }
@@ -1512,9 +1512,9 @@ void CBallCamera::UpdateTransitionFromBallCamera(CStateManager& mgr)
     x47c_failsafeState->x90_splinePoints[2] += delta;
     x47c_failsafeState->x90_splinePoints[3] += delta;
     zeus::CVector3f splinePoint = GetFailsafeSplinePoint(x47c_failsafeState->x90_splinePoints, morphFactor);
-    splinePoint.z = (splinePoint.z - eyePos.z) * zeus::clamp(0.f, 1.f - 1.5f * morphFactor, 1.f) + eyePos.z;
+    splinePoint.z() = (splinePoint.z() - eyePos.z()) * zeus::clamp(0.f, 1.f - 1.5f * morphFactor, 1.f) + eyePos.z();
     zeus::CVector3f deltaFlat = eyePos - splinePoint;
-    deltaFlat.z = 0.f;
+    deltaFlat.z() = 0.f;
     if (deltaFlat.magnitude() > 0.001f)
     {
         SetTransform(zeus::lookAt(splinePoint, zeus::CVector3f::lerp(x1d8_lookPos, eyePos, morphFactor)));
@@ -1539,7 +1539,7 @@ void CBallCamera::UpdateUsingTransitions(float dt, CStateManager& mgr)
     x18d_26_lookAtBall = false;
     zeus::CVector3f ballPos = mgr.GetPlayer().GetBallPosition();
     zeus::CVector3f eyePos = mgr.GetPlayer().GetEyePosition();
-    ballPos.z += x1b4_lookAtOffset.z;
+    ballPos.z() += x1b4_lookAtOffset.z();
 
     zeus::CVector3f lookDir = x34_transform.basis[1];
     zeus::CTransform xe8 = x34_transform;
@@ -1608,16 +1608,16 @@ void CBallCamera::UpdateUsingTransitions(float dt, CStateManager& mgr)
                     yawSpeed = std::fabs(std::acos(zeus::clamp(-1.f, playerToCamDir.dot(-moveDir), 1.f))) * morphT / dt;
                 }
                 zeus::CVector3f useLookDir = ConstrainYawAngle(mgr.GetPlayer(), yawSpeed, zeus::degToRad(10.f), dt, mgr);
-                useLookDir.z = 0.f;
+                useLookDir.z() = 0.f;
                 useLookDir.normalize();
                 zeus::CVector3f camPos = useLookDir * distance + eyePos;
-                camPos.z = (GetTranslation().z - eyePos.z) * morphT + eyePos.z;
+                camPos.z() = (GetTranslation().z() - eyePos.z()) * morphT + eyePos.z();
                 finalPos = ClampElevationToWater(camPos, mgr);
                 finalPos = MoveCollisionActor(finalPos, dt, mgr);
                 zeus::CVector3f finalToBall = ballPos - finalPos;
-                finalToBall.z = 0.f;
+                finalToBall.z() = 0.f;
                 zeus::CVector3f lookPos = ballPos;
-                lookPos.z = morphT * (eyePos.z - ballPos.z) + ballPos.z;
+                lookPos.z() = morphT * (eyePos.z() - ballPos.z()) + ballPos.z();
                 if (finalToBall.canBeNormalized())
                     SetTransform(zeus::lookAt(finalPos, lookPos));
                 else
@@ -1642,7 +1642,7 @@ zeus::CTransform CBallCamera::UpdateCameraPositions(float dt, const zeus::CTrans
                                                     const zeus::CTransform& newXf)
 {
     zeus::CTransform useXf = newXf;
-    if (std::fabs(oldXf.basis[1].z) > 0.9f && std::fabs(newXf.basis[1].z) > 0.9f &&
+    if (std::fabs(oldXf.basis[1].z()) > 0.9f && std::fabs(newXf.basis[1].z()) > 0.9f &&
         oldXf.basis[0].dot(newXf.basis[0]) <= 0.999f)
     {
         zeus::CVector3f newRight = zeus::CQuaternion::clampedRotateTo(oldXf.basis[0], newXf.basis[0],
@@ -1859,9 +1859,9 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
     if (!mgr.RayCollideWorld(ballPos, eyePos, BallCameraFilter, nullptr))
         eyePos = ballPos;
 
-    zeus::CVector3f idealLookVec(0.f, -dist, elev - (eyePos.z - ballPos.z));
+    zeus::CVector3f idealLookVec(0.f, -dist, elev - (eyePos.z() - ballPos.z()));
     idealLookVec = lookDirXf.getRotation() * idealLookVec;
-    zeus::CVector3f lookVec(0.f, distance, elev - (eyePos.z - ballPos.z));
+    zeus::CVector3f lookVec(0.f, distance, elev - (eyePos.z() - ballPos.z()));
     float idealLookDist = idealLookVec.magnitude();
     float resolveLOSIntervalAng = zeus::degToRad(30.f);
     bool foundClear = false;
@@ -1869,8 +1869,8 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
     if (!clear && idealLookDist <= 0.f)
     {
         zeus::CAABox x13ac(ballPos - distance, ballPos + distance);
-        x13ac.min.z = ballPos.z;
-        x13ac.max.z = elev + ballPos.z;
+        x13ac.min.z() = float(ballPos.z());
+        x13ac.max.z() = elev + ballPos.z();
         rstl::reserved_vector<TUniqueId, 1024> nearList;
         mgr.BuildNearList(nearList, x13ac, BallCameraFilter,
                           TCastToConstPtr<CActor>(mgr.GetObjectById(x46c_collisionActorId)).GetPtr());
@@ -1956,8 +1956,8 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
             if (!foundClear)
             {
                 zeus::CAABox findBounds(ballPos - distance, ballPos + distance);
-                findBounds.min.z = ballPos.z;
-                findBounds.max.z = elev + ballPos.z;
+                findBounds.min.z() = float(ballPos.z());
+                findBounds.max.z() = elev + ballPos.z();
                 rstl::reserved_vector<TUniqueId, 1024> nearList;
                 mgr.BuildNearList(nearList, findBounds, BallCameraFilter,
                                   TCastToConstPtr<CActor>(mgr.GetObjectById(x46c_collisionActorId)).GetPtr());
@@ -2263,7 +2263,7 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr)
         if (player->IsMorphBallTransitioning())
         {
             x1d8_lookPos = ballPos;
-            x1d8_lookPos.z += x1b4_lookAtOffset.z;
+            x1d8_lookPos.z() += x1b4_lookAtOffset.z();
             x1c0_lookPosAhead = x1d8_lookPos;
             x1cc_fixedLookPos = x1d8_lookPos;
         }
@@ -2271,21 +2271,21 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr)
         {
             zeus::CVector3f dirNorm = player->GetMoveDir();
             dirNorm.normalize();
-            zeus::CVector3f lookAtOffsetAhead(x308_speedFactor * x1b4_lookAtOffset.x,
-                                              x308_speedFactor * x1b4_lookAtOffset.y,
-                                              x1b4_lookAtOffset.z);
+            zeus::CVector3f lookAtOffsetAhead(x308_speedFactor * x1b4_lookAtOffset.x(),
+                                              x308_speedFactor * x1b4_lookAtOffset.y(),
+                                              x1b4_lookAtOffset.z());
             if (x18c_25_chaseAllowed && (x400_state == EBallCameraState::Chase || x400_state == EBallCameraState::One))
-                lookAtOffsetAhead = zeus::CVector3f(x308_speedFactor * x410_chaseLookAtOffset.x,
-                                                    x308_speedFactor * x410_chaseLookAtOffset.y,
-                                                    x410_chaseLookAtOffset.z);
+                lookAtOffsetAhead = zeus::CVector3f(x308_speedFactor * x410_chaseLookAtOffset.x(),
+                                                    x308_speedFactor * x410_chaseLookAtOffset.y(),
+                                                    x410_chaseLookAtOffset.z());
             if (mgr.GetCameraManager()->IsInterpolationCameraActive())
-                lookAtOffsetAhead = zeus::CVector3f(0.f, 0.f, x1b4_lookAtOffset.z);
+                lookAtOffsetAhead = zeus::CVector3f(0.f, 0.f, x1b4_lookAtOffset.z());
             zeus::CTransform moveXf = player->CreateTransformFromMovementDirection().getRotation();
             if (x2fc_ballDeltaFlat.canBeNormalized())
                 lookAtOffsetAhead = moveXf * lookAtOffsetAhead;
             zeus::CVector3f lookAtPosAhead = ballPos + lookAtOffsetAhead;
             x1c0_lookPosAhead = lookAtPosAhead;
-            x1cc_fixedLookPos = ballPos + zeus::CVector3f(0.f, 0.f, lookAtOffsetAhead.z);
+            x1cc_fixedLookPos = ballPos + zeus::CVector3f(0.f, 0.f, lookAtOffsetAhead.z());
             zeus::CVector3f aheadToCurrentLookDelta = x1d8_lookPos - lookAtPosAhead;
             float aheadToCurrentLookMag = aheadToCurrentLookDelta.magnitude();
             if (aheadToCurrentLookDelta.canBeNormalized())
@@ -2298,7 +2298,7 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr)
             if (x18d_26_lookAtBall)
             {
                 x1d8_lookPos = ballPos;
-                x1d8_lookPos.z += x1b4_lookAtOffset.z;
+                x1d8_lookPos.z() += x1b4_lookAtOffset.z();
             }
             else
             {
@@ -2330,9 +2330,9 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr)
             }
             if (x18d_30_directElevation)
             {
-                x1d8_lookPos.z = ballPos.z + x1b4_lookAtOffset.z;
-                x1c0_lookPosAhead.z = x1d8_lookPos.z;
-                x1cc_fixedLookPos.z = x1d8_lookPos.z;
+                x1d8_lookPos.z() = ballPos.z() + x1b4_lookAtOffset.z();
+                x1c0_lookPosAhead.z() = float(x1d8_lookPos.z());
+                x1cc_fixedLookPos.z() = float(x1d8_lookPos.z());
             }
             if (x18d_31_overrideLookDir)
             {
@@ -2426,7 +2426,7 @@ void CBallCamera::ApplyCameraHint(CStateManager& mgr)
             {
                 float distance = hint->GetHint().GetBallToCam().toVec2f().magnitude();
                 zeus::CVector3f camToBall = -zeus::CVector3f(hint->GetHint().GetBallToCam().toVec2f()).normalized();
-                camPos = FindDesiredPosition(distance, hint->GetHint().GetBallToCam().z, camToBall, mgr, false);
+                camPos = FindDesiredPosition(distance, hint->GetHint().GetBallToCam().z(), camToBall, mgr, false);
             }
             TeleportCamera(zeus::lookAt(camPos, x1d8_lookPos), mgr);
             break;
@@ -2446,7 +2446,7 @@ void CBallCamera::ApplyCameraHint(CStateManager& mgr)
                 {
                     zeus::CVector3f lookDir = mgr.GetPlayer().GetTranslation() -
                         mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).origin;
-                    lookDir.z = 0.f;
+                    lookDir.z() = 0.f;
                     if (lookDir.canBeNormalized())
                         lookDir.normalize();
                     else
@@ -2493,7 +2493,7 @@ void CBallCamera::ApplyCameraHint(CStateManager& mgr)
 void CBallCamera::ResetPosition(CStateManager& mgr)
 {
     x1d8_lookPos = mgr.GetPlayer().GetBallPosition();
-    x1d8_lookPos.z += x1b4_lookAtOffset.z;
+    x1d8_lookPos.z() += x1b4_lookAtOffset.z();
     x1c0_lookPosAhead = x1d8_lookPos;
     x1cc_fixedLookPos = x1d8_lookPos;
 }

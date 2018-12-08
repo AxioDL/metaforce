@@ -235,7 +235,7 @@ void CCameraManager::RestoreHintlessCamera(CStateManager& mgr)
     if (hint)
     {
         zeus::CVector3f camToPlayerFlat = mgr.GetPlayer().GetTranslation() - ballCamXf.origin;
-        camToPlayerFlat.z = 0.f;
+        camToPlayerFlat.z() = 0.f;
         if (camToPlayerFlat.canBeNormalized())
             camToPlayerFlat.normalize();
         else

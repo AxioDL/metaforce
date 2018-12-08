@@ -205,6 +205,6 @@ bool CMetaree::InRange(CStateManager& mgr, float arg)
 
 bool CMetaree::ShouldAttack(CStateManager&, float)
 {
-    return GetTranslation().z < x584_lookPos.z;
+    return GetTranslation().z() < x584_lookPos.z();
 }
 }

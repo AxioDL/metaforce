@@ -130,7 +130,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
         {
             float interp = (std::sin(CGraphics::GetSecondsMod900() * 2.f * M_PIF) + 1.f) * 0.5f;
             color = zeus::CColor::lerp(zeus::CColor::skWhite, color, interp);
-            color.a *= zeus::clamp(0.f, 1.25f - interp, 1.f);
+            color.a() *= zeus::clamp(0.f, 1.25f - interp, 1.f);
         }
 
         CModelFlags flags(7, 0, 3, zeus::CColor(1.f, 0.f));
@@ -139,7 +139,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr,
         model->Draw(flags);
 
         flags.x4_color = color;
-        flags.x4_color.a *= alpha;
+        flags.x4_color.a() *= alpha;
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         model->Draw(flags);
     }

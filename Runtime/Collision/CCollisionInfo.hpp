@@ -32,9 +32,9 @@ public:
     CCollisionInfo(const zeus::CAABox& aabox, const CMaterialList& list1, const CMaterialList& list2,
                    const zeus::CVector3f& normalLeft, const zeus::CVector3f& normalRight)
     : x0_point(aabox.min),
-      xc_extentX(aabox.max.x - aabox.min.x, 0.f, 0.f),
-      x18_extentY(0.f, aabox.max.y - aabox.min.y, 0.f),
-      x24_extentZ(0.f, 0.f, aabox.max.z - aabox.min.z),
+      xc_extentX(aabox.max.x() - aabox.min.x(), 0.f, 0.f),
+      x18_extentY(0.f, aabox.max.y() - aabox.min.y(), 0.f),
+      x24_extentZ(0.f, 0.f, aabox.max.z() - aabox.min.z()),
       x30_valid(true), x31_hasExtents(true), x38_materialLeft(list2),
       x40_materialRight(list1), x48_normalLeft(normalLeft),
       x54_normalRight(normalRight)

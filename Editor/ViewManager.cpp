@@ -87,20 +87,20 @@ void ViewManager::TestGameView::think()
         if (g_StateManager->Player() && playerInfo &&  playerInfo->toBoolean())
         {
             const CPlayer& pl = g_StateManager->GetPlayer();
-            zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
-            zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
-            zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
+            const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
+            const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
+            const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
             overlayText += hecl::Format("Player Position: x %f, y %f, z %f\n"
                                         "       Quaternion: w %f, x %f, y %f, z %f\n"
                                         "       Roll: %f, Pitch: %f, Yaw: %f\n"
                                         "Camera Position: x %f, y %f, z %f\n"
                                         "       Quaternion: w %f, x %f, y %f, z %f\n"
                                         "       Roll: %f, Pitch: %f, Yaw: %f\n",
-                                        pl.GetTranslation().x, pl.GetTranslation().y, pl.GetTranslation().z,
-                                        plQ.w, plQ.x, plQ.y, plQ.z,
+                                        pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
+                                        plQ.w(), plQ.x(), plQ.y(), plQ.z(),
                                         plQ.roll(), plQ.pitch(), plQ.yaw(),
-                                        camXf.origin.x, camXf.origin.y, camXf.origin.z,
-                                        camQ.w, camQ.x, camQ.y, camQ.z,
+                                        camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
+                                        camQ.w(), camQ.x(), camQ.y(), camQ.z(),
                                         camQ.roll(), camQ.pitch(), camQ.yaw());
         }
         if (worldInfo && worldInfo->toBoolean())

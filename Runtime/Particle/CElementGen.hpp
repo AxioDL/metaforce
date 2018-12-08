@@ -155,7 +155,7 @@ private:
     std::unique_ptr<CLineRenderer> m_lineRenderer;
     CElementGenShaders::EShaderClass m_shaderClass;
 
-    void AccumulateBounds(zeus::CVector3f& pos, float size);
+    void AccumulateBounds(const zeus::CVector3f& pos, float size);
 
 public:
     CElementGen(const TToken<CGenDescription>& gen,

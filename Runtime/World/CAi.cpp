@@ -70,7 +70,7 @@ void CAi::FluidFXThink(EFluidState state, CScriptWater& water, urde::CStateManag
             if (vel > 500.f)
             {
                 zeus::CVector3f pos = x34_transform.origin;
-                pos.z = water.GetTriggerBoundsWR().max.z;
+                pos.z() = float(water.GetTriggerBoundsWR().max.z());
                 mgr.GetFluidPlaneManager()->CreateSplash(GetUniqueId(), mgr, water, pos,
                                                          0.1f + ((0.4f * zeus::min(vel, 30000.f) - 500.f) / 29500.f),
                                                          true);
@@ -83,7 +83,7 @@ void CAi::FluidFXThink(EFluidState state, CScriptWater& water, urde::CStateManag
 
     zeus::CVector3f pos = x34_transform.origin;
     zeus::CVector3f center = pos;
-    center.z = water.GetTriggerBoundsWR().max.z;
+    center.z() = float(water.GetTriggerBoundsWR().max.z());
     pos.normalize();
     water.GetFluidPlane().AddRipple(GetMass(), GetUniqueId(), center, GetVelocity(), water, mgr, pos);
 }

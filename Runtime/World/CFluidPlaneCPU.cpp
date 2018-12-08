@@ -85,17 +85,17 @@ void CFluidPlaneCPU::CalculateLightmapMatrix(const zeus::CTransform& areaXf, con
 
     zeus::CTransform toLocal = areaXf.getRotation().inverse();
     zeus::CAABox areaLocalAABB = aabb.getTransformedAABox(toLocal);
-    float f26 = (areaLocalAABB.max.x - areaLocalAABB.min.x) / (width * x11c_unitsPerLightmapTexel);
-    float f25 = (areaLocalAABB.max.y - areaLocalAABB.min.y) / (height * x11c_unitsPerLightmapTexel);
-    float f24 = (1.f + std::fmod(areaLocalAABB.min.x + xf.origin.x, x11c_unitsPerLightmapTexel)) / width;
-    float f23 = (2.f - std::fmod(areaLocalAABB.max.x + xf.origin.x, x11c_unitsPerLightmapTexel)) / width;
-    float f29 = (1.f + std::fmod(areaLocalAABB.min.y + xf.origin.y, x11c_unitsPerLightmapTexel)) / height;
-    float f6 = (2.f - std::fmod(areaLocalAABB.max.y + xf.origin.y, x11c_unitsPerLightmapTexel)) / height;
+    float f26 = (areaLocalAABB.max.x() - areaLocalAABB.min.x()) / (width * x11c_unitsPerLightmapTexel);
+    float f25 = (areaLocalAABB.max.y() - areaLocalAABB.min.y()) / (height * x11c_unitsPerLightmapTexel);
+    float f24 = (1.f + std::fmod(areaLocalAABB.min.x() + xf.origin.x(), x11c_unitsPerLightmapTexel)) / width;
+    float f23 = (2.f - std::fmod(areaLocalAABB.max.x() + xf.origin.x(), x11c_unitsPerLightmapTexel)) / width;
+    float f29 = (1.f + std::fmod(areaLocalAABB.min.y() + xf.origin.y(), x11c_unitsPerLightmapTexel)) / height;
+    float f6 = (2.f - std::fmod(areaLocalAABB.max.y() + xf.origin.y(), x11c_unitsPerLightmapTexel)) / height;
 
-    float scaleX = (f26 - f24 - f23) / (areaLocalAABB.max.x - areaLocalAABB.min.x);
-    float scaleY = -(f25 - f29 - f6) / (areaLocalAABB.max.y - areaLocalAABB.min.y);
-    float offX = f24 + f26 * -areaLocalAABB.min.x / (areaLocalAABB.max.x - areaLocalAABB.min.x);
-    float offY = f25 * areaLocalAABB.min.y / (areaLocalAABB.max.y - areaLocalAABB.min.y) - f6;
+    float scaleX = (f26 - f24 - f23) / (areaLocalAABB.max.x() - areaLocalAABB.min.x());
+    float scaleY = -(f25 - f29 - f6) / (areaLocalAABB.max.y() - areaLocalAABB.min.y());
+    float offX = f24 + f26 * -areaLocalAABB.min.x() / (areaLocalAABB.max.x() - areaLocalAABB.min.x());
+    float offY = f25 * areaLocalAABB.min.y() / (areaLocalAABB.max.y() - areaLocalAABB.min.y()) - f6;
     mtxOut = (zeus::CTransform(zeus::CMatrix3f(zeus::CVector3f(scaleX, scaleY, 0.f)),
                                zeus::CVector3f(offX, offY, 0.f)) * toLocal).toMatrix4f();
 }
@@ -170,15 +170,18 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
     float fluidUVs[3][2];
     x4c_uvMotion.CalculateFluidTextureOffset(uvT, fluidUVs);
 
-    out.texMtxs[0][0][0] = out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+    out.texMtxs[0][0][0] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
+    out.texMtxs[0][1][1] = x4c_uvMotion.GetFluidLayers()[1].GetUVScale();
     out.texMtxs[0][3][0] = fluidUVs[1][0];
     out.texMtxs[0][3][1] = fluidUVs[1][1];
 
-    out.texMtxs[1][0][0] = out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+    out.texMtxs[1][0][0] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
+    out.texMtxs[1][1][1] = x4c_uvMotion.GetFluidLayers()[2].GetUVScale();
     out.texMtxs[1][3][0] = fluidUVs[2][0];
     out.texMtxs[1][3][1] = fluidUVs[2][1];
 
-    out.texMtxs[2][0][0] = out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+    out.texMtxs[2][0][0] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
+    out.texMtxs[2][1][1] = x4c_uvMotion.GetFluidLayers()[0].GetUVScale();
     out.texMtxs[2][3][0] = fluidUVs[0][0];
     out.texMtxs[2][3][1] = fluidUVs[0][1];
 
@@ -199,8 +202,10 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
 
         // Load GX_TEXMTX3 with identity
         zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-        texMtx[0][0] = texMtx[1][1] = pttScale;
-        texMtx[3][0] = texMtx[3][1] = 0.5f;
+        texMtx[0][0] = pttScale;
+        texMtx[1][1] = pttScale;
+        texMtx[3][0] = 0.5f;
+        texMtx[3][1] = 0.5f;
         // Load GX_PTTEXMTX0 with scale of pttScale
         // Next: GX_TG_MTX2x4 GX_TG_NRM, GX_TEXMTX3, true, GX_PTTEXMTX0
 
@@ -211,12 +216,13 @@ CFluidPlaneCPU::RenderSetup(const CStateManager& mgr, float alpha, const zeus::C
 
     if (hasEnvMap)
     {
-        float scale = std::max(aabb.max.x - aabb.min.x, aabb.max.y - aabb.min.y);
+        float scale = std::max(aabb.max.x() - aabb.min.x(), aabb.max.y() - aabb.min.y());
         zeus::CMatrix4f& texMtx = out.texMtxs[nextTexMtx++];
-        texMtx[0][0] = texMtx[1][1] = 1.f / scale;
+        texMtx[0][0] = 1.f / scale;
+        texMtx[1][1] = 1.f / scale;
         zeus::CVector3f center = aabb.center();
-        texMtx[3][0] = 0.5f + -center.x / scale;
-        texMtx[3][1] = 0.5f + -center.y / scale;
+        texMtx[3][0] = 0.5f + -center.x() / scale;
+        texMtx[3][1] = 0.5f + -center.y() / scale;
         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
     }
 
@@ -300,8 +306,8 @@ bool CFluidPlaneCPU::PrepareRipple(const CRipple& ripple, const CFluidPlaneRende
     if (dist != 0)
         dist = std::sqrt(dist);
     dist = info.x24_ooRippleResolution * dist + 1.f;
-    float centerX = info.x24_ooRippleResolution * (ripple.GetCenter().x - info.xc_globalMin.x);
-    float centerY = info.x24_ooRippleResolution * (ripple.GetCenter().y - info.xc_globalMin.y);
+    float centerX = info.x24_ooRippleResolution * (ripple.GetCenter().x() - info.xc_globalMin.x());
+    float centerY = info.x24_ooRippleResolution * (ripple.GetCenter().y() - info.xc_globalMin.y());
     int fromX = int(centerX - dist) - 1;
     int toX = int(centerX + dist) + 1;
     int fromY = int(centerY - dist) - 1;
@@ -329,7 +335,7 @@ void CFluidPlaneCPU::ApplyTurbulence(float t, CFluidPlaneRender::SHFieldSample (
     }
 
     float scaledT = t * GetOOTurbulenceSpeed();
-    float curY = info.x4_localMin.y - info.x18_rippleResolution - areaCenter.y;
+    float curY = info.x4_localMin.y() - info.x18_rippleResolution - areaCenter.y();
     int xDivs = (info.x0_xSubdivs + CFluidPlaneRender::numSubdivisionsInTile - 4) /
         CFluidPlaneRender::numSubdivisionsInTile * CFluidPlaneRender::numSubdivisionsInTile + 2;
     int yDivs = (info.x1_ySubdivs + CFluidPlaneRender::numSubdivisionsInTile - 4) /
@@ -337,7 +343,7 @@ void CFluidPlaneCPU::ApplyTurbulence(float t, CFluidPlaneRender::SHFieldSample (
     for (int i=0 ; i<=yDivs ; ++i)
     {
         float curYSq = curY * curY;
-        float curX = info.x4_localMin.x - info.x18_rippleResolution - areaCenter.x;
+        float curX = info.x4_localMin.x() - info.x18_rippleResolution - areaCenter.x();
         for (int j=0 ; j<=xDivs ; ++j)
         {
             float distFac = curX * curX + curYSq;
@@ -377,7 +383,7 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
     int toX = (rippleInfo.x18_gtoX + CFluidPlaneRender::numSubdivisionsInTile - 1) /
         CFluidPlaneRender::numSubdivisionsInTile;
 
-    float curY = rippleInfo.x0_ripple.GetCenter().y - info.xc_globalMin.y -
+    float curY = rippleInfo.x0_ripple.GetCenter().y() - info.xc_globalMin.y() -
         (0.5f * info.x14_tileSize + (fromY - 1) * info.x14_tileSize);
     int curGridY = info.x2a_gridDimX * (info.x2e_tileY + fromY - 1);
     int startGridX = (info.x28_tileX + fromX - 1);
@@ -391,7 +397,7 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
         float curYSq = curY * curY;
         int curGridX = startGridX;
         int curXDiv = rippleInfo.x4_fromX;
-        float curX = rippleInfo.x0_ripple.GetCenter().x - info.xc_globalMin.x -
+        float curX = rippleInfo.x0_ripple.GetCenter().x() - info.xc_globalMin.x() -
             (0.5f * info.x14_tileSize + (fromX - 1) * info.x14_tileSize);
         for (int j=fromX ; j<=toX ; ++j, curX -= info.x14_tileSize, ++curGridX)
         {
@@ -404,9 +410,9 @@ void CFluidPlaneCPU::ApplyRipple(const CFluidPlaneRender::SRippleInfo& rippleInf
             bool addedRipple = false;
             int nextXDiv = (j+1) * CFluidPlaneRender::numSubdivisionsInTile;
             float curXMod =
-                (rippleInfo.x0_ripple.GetCenter().x - info.xc_globalMin.x) - info.x18_rippleResolution * curXDiv;
+                (rippleInfo.x0_ripple.GetCenter().x() - info.xc_globalMin.x()) - info.x18_rippleResolution * curXDiv;
             float curYMod =
-                (rippleInfo.x0_ripple.GetCenter().y - info.xc_globalMin.y) - info.x18_rippleResolution * curYDiv;
+                (rippleInfo.x0_ripple.GetCenter().y() - info.xc_globalMin.y()) - info.x18_rippleResolution * curYDiv;
 
             if (!info.x30_gridFlags || (info.x30_gridFlags && curGridY >= 0 && curGridY < gridCells && curGridX >= 0 &&
                 curGridX < info.x2a_gridDimX && info.x30_gridFlags[curGridX + curGridY]))
@@ -875,7 +881,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     {
         float cameraPenetration =
             mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::CVector3f::skUp) -
-            water->GetTriggerBoundsWR().max.z;
+            water->GetTriggerBoundsWR().max.z();
         wavecapIntensityScale *= (cameraPenetration >= 0.5f || cameraPenetration < 0.f) ? 1.f : 2.f * cameraPenetration;
     }
 
@@ -888,9 +894,9 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     {
         /* Additional uniform data for tessellation evaluation shader */
         zeus::CColor colorMul;
-        colorMul.r = wavecapIntensityScale / 255.f / float(1 << redShift);
-        colorMul.g = wavecapIntensityScale / 255.f / float(1 << greenShift);
-        colorMul.b = wavecapIntensityScale / 255.f / float(1 << blueShift);
+        colorMul.r() = wavecapIntensityScale / 255.f / float(1 << redShift);
+        colorMul.g() = wavecapIntensityScale / 255.f / float(1 << greenShift);
+        colorMul.b() = wavecapIntensityScale / 255.f / float(1 << blueShift);
         m_shader->prepareDraw(setupInfo, xf.origin, *rippleManager, colorMul, x108_rippleResolution / 4.f);
     }
     else
@@ -899,22 +905,22 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
     }
 
     u32 tileY = 0;
-    float curY = aabb.min.y;
-    for (int i=0 ; curY < aabb.max.y && i<patchDimY ; ++i)
+    float curY = aabb.min.y();
+    for (int i=0 ; curY < aabb.max.y() && i<patchDimY ; ++i)
     {
         u32 tileX = 0;
-        float curX = aabb.min.x;
-        float _remDivsY = (aabb.max.y - curY) * rippleResolutionRecip;
-        for (int j=0 ; curX < aabb.max.x && j<patchDimX ; ++j)
+        float curX = aabb.min.x();
+        float _remDivsY = (aabb.max.y() - curY) * rippleResolutionRecip;
+        for (int j=0 ; curX < aabb.max.x() && j<patchDimX ; ++j)
         {
             if (u8 renderFlags = water->GetPatchRenderFlags(j, i))
             {
-                s16 remDivsX = std::min(s16((aabb.max.x - curX) * rippleResolutionRecip),
+                s16 remDivsX = std::min(s16((aabb.max.x() - curX) * rippleResolutionRecip),
                                         s16(CFluidPlaneRender::numSubdivisionsInHField));
                 s16 remDivsY = std::min(s16(_remDivsY), s16(CFluidPlaneRender::numSubdivisionsInHField));
                 zeus::CVector3f localMax(x108_rippleResolution * remDivsX + curX,
-                                         x108_rippleResolution * remDivsY + curY, aabb.max.z);
-                zeus::CVector3f localMin(curX, curY, aabb.min.z);
+                                         x108_rippleResolution * remDivsY + curY, aabb.max.z());
+                zeus::CVector3f localMin(curX, curY, aabb.min.z());
                 zeus::CAABox testaabb(localMin + xf.origin, localMax + xf.origin);
                 if (frustum.aabbFrustumTest(testaabb))
                 {
@@ -943,10 +949,10 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                     RenderPatch(info, lc_heights, lc_flags, noRipples, renderFlags == 1, m_verts, m_pVerts);
                 }
             }
-            curX += ripplePitch.x;
+            curX += ripplePitch.x();
             tileX += CFluidPlaneRender::numTilesInHField;
         }
-        curY += ripplePitch.y;
+        curY += ripplePitch.y();
         tileY += CFluidPlaneRender::numTilesInHField;
     }
 

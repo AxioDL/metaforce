@@ -193,7 +193,7 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
     }
 }
 
-static const atVec4f BottomRow = {0.f, 0.f, 0.f, 1.f};
+static const atVec4f BottomRow = {{0.f, 0.f, 0.f, 1.f}};
 
 void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
         std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,

@@ -46,22 +46,22 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const
     zeus::CVector2f dims = GetDimensions();
 
     if (xd4_textSupport.x34_extentX)
-        dims.x /= float(xd4_textSupport.x34_extentX);
+        dims.x() /= float(xd4_textSupport.x34_extentX);
     else
-        dims.x = 0.f;
+        dims.x() = 0.f;
 
     if (xd4_textSupport.x38_extentY)
-        dims.y /= float(xd4_textSupport.x38_extentY);
+        dims.y() /= float(xd4_textSupport.x38_extentY);
     else
-        dims.y = 0.f;
+        dims.y() = 0.f;
 
     zeus::CTransform local =
         zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
-        zeus::CTransform::Scale(dims.x, 1.f, dims.y);
+        zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
     CGraphics::SetModelMatrix(x34_worldXF * local);
 
     zeus::CColor geomCol = xa8_color2;
-    geomCol.a *= parms.x0_alphaMod;
+    geomCol.a() *= parms.x0_alphaMod;
     const_cast<CGuiTextPane*>(this)->xd4_textSupport.SetGeometryColor(geomCol);
 
 #if 0

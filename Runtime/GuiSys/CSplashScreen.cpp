@@ -68,16 +68,16 @@ void CSplashScreen::Draw() const
         color = zeus::CColor{0.86f, 0.f, 0.f, 1.f};
 
     if (x18_splashTimeout > 1.5f)
-        color.a = 1.f - (x18_splashTimeout - 1.5f) * 2.f;
+        color.a() = 1.f - (x18_splashTimeout - 1.5f) * 2.f;
     else if (x18_splashTimeout < 0.5f)
-        color.a = x18_splashTimeout * 2.f;
+        color.a() = x18_splashTimeout * 2.f;
 
     zeus::CRectangle rect;
     float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
-    rect.size.x = m_quad.GetTex()->GetWidth() / (480.f * aspect);
-    rect.size.y = m_quad.GetTex()->GetHeight() / 480.f;
-    rect.position.x = 0.5f - rect.size.x / 2.f;
-    rect.position.y = 0.5f - rect.size.y / 2.f;
+    rect.size.x() = m_quad.GetTex()->GetWidth() / (480.f * aspect);
+    rect.size.y() = m_quad.GetTex()->GetHeight() / 480.f;
+    rect.position.x() = 0.5f - rect.size.x() / 2.f;
+    rect.position.y() = 0.5f - rect.size.y() / 2.f;
 
     const_cast<CTexturedQuadFilterAlpha&>(m_quad).draw(color, 1.f, rect);
 }

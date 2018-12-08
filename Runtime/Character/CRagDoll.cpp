@@ -87,7 +87,7 @@ void CRagDoll::AccumulateForces(float dt, float waterTop)
         float volume = particle.x10_radius * particle.x10_radius * particle.x10_radius;
         totalVolume += volume;
         centerOfVolume += particle.x4_curPos * volume;
-        float fromTargetZ = particle.x4_curPos.z - targetZ;
+        float fromTargetZ = particle.x4_curPos.z() - targetZ;
         float verticalAcc = x48_floatingGravity;
         float termVelCoefficient = 0.f;
         if (std::fabs(fromTargetZ) < 0.5f)
@@ -100,7 +100,7 @@ void CRagDoll::AccumulateForces(float dt, float waterTop)
             verticalAcc = x44_normalGravity;
             termVelCoefficient = 1.f;
         }
-        particle.x20_velocity.z += verticalAcc;
+        particle.x20_velocity.z() += verticalAcc;
         zeus::CVector3f vel = (particle.x4_curPos - particle.x14_prevPos) * fps;
         float velMag = vel.magnitude();
         if (velMag > FLT_EPSILON)

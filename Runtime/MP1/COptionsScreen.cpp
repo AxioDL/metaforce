@@ -135,7 +135,7 @@ void COptionsScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
     }
 
     zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
-    color.a = x29c_optionAlpha;
+    color.a() = x29c_optionAlpha;
     x18c_slidergroup_slider->SetColor(color);
     x190_tablegroup_double->SetColor(color);
     x194_tablegroup_triple->SetColor(color);

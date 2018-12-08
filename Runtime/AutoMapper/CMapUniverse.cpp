@@ -66,16 +66,16 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
         if (w == parms.GetFocusWorldIndex())
         {
             surfColor = data.GetSurfaceColorSelected();
-            surfColor.a *= parms.GetAlpha();
+            surfColor.a() *= parms.GetAlpha();
             outlineColor = data.GetOutlineColorSelected();
-            outlineColor.a *= parms.GetAlpha();
+            outlineColor.a() *= parms.GetAlpha();
         }
         else
         {
             surfColor = data.GetSurfaceColorUnselected();
-            surfColor.a *= parms.GetAlpha();
+            surfColor.a() *= parms.GetAlpha();
             outlineColor = data.GetSurfaceColorUnselected();
-            outlineColor.a *= parms.GetAlpha();
+            outlineColor.a() *= parms.GetAlpha();
         }
 
         for (int h=0 ; h<data.GetNumMapAreaDatas() ; ++h)
@@ -85,7 +85,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
             {
                 const CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(s);
                 zeus::CVector3f centerPos = hexXf * surf.GetCenterPosition();
-                sortInfos.emplace_back(centerPos.y, w, h, s, surfColor, outlineColor);
+                sortInfos.emplace_back(centerPos.y(), w, h, s, surfColor, outlineColor);
             }
         }
     }
@@ -109,11 +109,11 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
             surfColor = zeus::CColor::lerp(g_tweakAutoMapper->GetSurfaceSelectVisitedColor(),
                                            g_tweakAutoMapper->GetAreaFlashPulseColor(),
                                            parms.GetFlashPulse());
-            surfColor.a = info.GetSurfaceColor().a;
+            surfColor.a() = info.GetSurfaceColor().a();
             outlineColor = zeus::CColor::lerp(g_tweakAutoMapper->GetOutlineSelectVisitedColor(),
                                               g_tweakAutoMapper->GetAreaFlashPulseColor(),
                                               parms.GetFlashPulse());
-            outlineColor.a = info.GetOutlineColor().a;
+            outlineColor.a() = info.GetOutlineColor().a();
         }
 
         zeus::CTransform hexXf = mwData.GetMapAreaData(info.GetAreaIndex());

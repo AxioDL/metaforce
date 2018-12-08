@@ -91,7 +91,7 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     if (doRipple)
     {
         zeus::CVector3f pos = GetTranslation();
-        pos.z = water.GetTriggerBoundsWR().max.z;
+        pos.z() = float(water.GetTriggerBoundsWR().max.z());
         if ((xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::None)
         {
             if (!water.CanRippleAtPoint(pos))

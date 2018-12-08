@@ -107,12 +107,12 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
 
     InitializeBallTransition();
     zeus::CAABox ballTransAABB = x64_modelData->GetBounds();
-    x2f0_ballTransHeight = ballTransAABB.max.z - ballTransAABB.min.z;
+    x2f0_ballTransHeight = ballTransAABB.max.z() - ballTransAABB.min.z();
 
     SetCalculateLighting(true);
 
     x90_actorLights->SetCastShadows(true);
-    x50c_moveDir.z = 0.f;
+    x50c_moveDir.z() = 0.f;
     if (x50c_moveDir.canBeNormalized())
         x50c_moveDir.normalize();
     x2b4_accelerationTable.push_back(20.f);
@@ -138,7 +138,7 @@ bool CPlayer::IsTransparent() const { return x588_alpha < 1.f; }
 
 float CPlayer::GetTransitionAlpha(const zeus::CVector3f& camPos, float zNear) const
 {
-    float zLimit = (x2d8_fpBounds.max.x - x2d8_fpBounds.min.x) * 0.5f + zNear;
+    float zLimit = (x2d8_fpBounds.max.x() - x2d8_fpBounds.min.x()) * 0.5f + zNear;
     float zStart = 1.f + zLimit;
     float dist = (camPos - GetEyePosition()).magnitude();
     if (dist >= zLimit && dist <= zStart)
@@ -162,11 +162,11 @@ s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const
         return 3; // B_airposetoball_samus
     zeus::CVector3f localVel = x34_transform.transposeRotate(x138_velocity);
     zeus::CVector3f localVelFlat = localVel;
-    localVelFlat.z = 0.f;
+    localVelFlat.z() = 0.f;
     float localVelFlatMag = localVelFlat.magnitude();
     if (localVelFlatMag > 1.f)
     {
-        zeus::CRelAngle velAng = std::atan2(localVelFlat.x, localVelFlat.y);
+        zeus::CRelAngle velAng = std::atan2(localVelFlat.x(), localVelFlat.y());
         float velDeg = velAng.asDegrees();
         if (velDeg < 45.f || velDeg > 315.f)
         {
@@ -205,7 +205,7 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr)
     SetCameraState(EPlayerCameraState::Transitioning, mgr);
     x500_lookDir = x34_transform.basis[1];
     x50c_moveDir = x500_lookDir;
-    x50c_moveDir.z = 0.f;
+    x50c_moveDir.z() = 0.f;
     if (x50c_moveDir.canBeNormalized())
     {
         x50c_moveDir.normalize();
@@ -241,7 +241,7 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr)
 void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
 {
     x584_ballTransitionAnim = 14; // B_ball_unfurl
-    x58c_transitionVel = zeus::CVector2f(x138_velocity.x, x138_velocity.y).magnitude();
+    x58c_transitionVel = zeus::CVector2f(x138_velocity.x(), x138_velocity.y()).magnitude();
     if (x58c_transitionVel < 1.f)
         x584_ballTransitionAnim = 5; // ballstationarytoready_random
     if (x258_movementState != EPlayerMovementState::OnGround)
@@ -268,7 +268,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
     {
         camToPlayer.normalize();
         zeus::CVector3f vecFlat = x500_lookDir;
-        vecFlat.z = 0.f;
+        vecFlat.z() = 0.f;
         zeus::CVector3f f31 =
             vecFlat.canBeNormalized() && vecFlat.magnitude() >= 0.1f ? x518_leaveMorphDir : camToPlayer;
         if (x9c6_26_outOfBallLookAtHint)
@@ -276,7 +276,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
             if (TCastToConstPtr<CScriptPlayerHint> hint = mgr.GetObjectById(x830_playerHint))
             {
                 zeus::CVector3f deltaFlat = hint->GetTranslation() - GetTranslation();
-                deltaFlat.z = 0.f;
+                deltaFlat.z() = 0.f;
                 if (deltaFlat.canBeNormalized())
                     f31 = deltaFlat.normalized();
             }
@@ -288,7 +288,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
                 if (TCastToConstPtr<CActor> act = mgr.GetObjectById(hint->GetActorId()))
                 {
                     zeus::CVector3f deltaFlat = act->GetOrbitPosition(mgr) - GetTranslation();
-                    deltaFlat.z = 0.f;
+                    deltaFlat.z() = 0.f;
                     if (deltaFlat.canBeNormalized())
                         f31 = deltaFlat.normalized();
                 }
@@ -315,14 +315,14 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
         if (ballCam->GetTooCloseActorDistance() < 20.f && ballCam->GetTooCloseActorDistance() > 1.f)
         {
             zeus::CVector3f deltaFlat = act->GetTranslation() - GetTranslation();
-            deltaFlat.z = 0.f;
+            deltaFlat.z() = 0.f;
             zeus::CVector3f deltaFlat2 = act->GetTranslation() - ballCam->GetTranslation();
-            deltaFlat2.z = 0.f;
+            deltaFlat2.z() = 0.f;
             if (deltaFlat.canBeNormalized() && deltaFlat2.canBeNormalized())
             {
                 deltaFlat.normalize();
                 zeus::CVector3f camLookFlat = ballCam->GetTransform().basis[1];
-                camLookFlat.z = 0.f;
+                camLookFlat.z() = 0.f;
                 camLookFlat.normalize();
                 deltaFlat2.normalize();
                 if (deltaFlat.dot(deltaFlat2) >= 0.3f && deltaFlat2.dot(camLookFlat) >= 0.7f)
@@ -354,7 +354,7 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr)
 s32 CPlayer::GetNextBallTransitionAnim(float dt, bool& loopOut, CStateManager& mgr)
 {
     loopOut = false;
-    zeus::CVector2f vel(x138_velocity.x, x138_velocity.y);
+    zeus::CVector2f vel(x138_velocity.x(), x138_velocity.y());
     if (!vel.canBeNormalized())
         return 12; // B_ball_ready_samus
     float velMag = vel.magnitude();
@@ -408,7 +408,7 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr)
         else if (x584_ballTransitionAnim != 5 && x584_ballTransitionAnim != 7)
         // ballstationarytoready_random, B_balljumptoairpose
         {
-            float velMag = zeus::CVector2f(x138_velocity.x, x138_velocity.y).magnitude();
+            float velMag = zeus::CVector2f(x138_velocity.x(), x138_velocity.y()).magnitude();
             if (std::fabs(x58c_transitionVel - velMag) > 0.04f * GetActualFirstPersonMaxVelocity(dt) || velMag < 1.f)
             {
                 bool loop = false;
@@ -758,7 +758,7 @@ float CPlayer::GetAcceleration() const
 
 float CPlayer::CalculateOrbitMinDistance(EPlayerOrbitType type) const
 {
-    return zeus::clamp(1.f, std::fabs(x314_orbitPoint.z - GetTranslation().z) / 20.f, 4.f) *
+    return zeus::clamp(1.f, std::fabs(x314_orbitPoint.z() - GetTranslation().z()) / 20.f, 4.f) *
         g_tweakPlayer->GetOrbitMinDistance(int(type));
 }
 
@@ -880,9 +880,9 @@ zeus::CVector3f CPlayer::GetAimPosition(const CStateManager& mgr, float dt) cons
     }
 
     if (x2f8_morphBallState == EPlayerMorphBallState::Morphed)
-        ret.z += g_tweakPlayer->GetPlayerBallHalfExtent();
+        ret.z() += g_tweakPlayer->GetPlayerBallHalfExtent();
     else
-        ret.z += GetEyeHeight();
+        ret.z() += GetEyeHeight();
 
     return ret;
 }
@@ -900,7 +900,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
         if (mgr.GetFluidPlaneManager()->GetLastSplashDeltaTime(x8_uid) >= 0.2f)
         {
             zeus::CVector3f position(x34_transform.origin);
-            position.z = water.GetTriggerBoundsWR().max.z;
+            position.z() = float(water.GetTriggerBoundsWR().max.z());
             mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.1f,
                                                      state == EFluidState::EnteredFluid);
         }
@@ -921,14 +921,14 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                 {
                     zeus::CVector3f lookDir = x34_transform.basis[1].normalized();
                     zeus::CVector3f dcVel = GetDampedClampedVelocityWR();
-                    dcVel.z = 0.f;
+                    dcVel.z() = 0.f;
                     if (lookDir.dot(dcVel.normalized()) > 0.75f)
                         doSplash = false;
                 }
                 if (doSplash)
                 {
                     zeus::CVector3f position = x34_transform.origin + posOffset;
-                    position.z = water.GetTriggerBoundsWR().max.z;
+                    position.z() = float(water.GetTriggerBoundsWR().max.z());
                     mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.3f, true);
                     if (water.GetFluidPlane().GetFluidType() == EFluidType::NormalWater)
                     {
@@ -944,7 +944,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
                     mgr.GetFluidPlaneManager()->GetLastRippleDeltaTime(x8_uid) >= 0.2f)
                 {
                     zeus::CVector3f position(x34_transform.origin);
-                    position.z = water.GetTriggerBoundsWR().max.z;
+                    position.z() = float(water.GetTriggerBoundsWR().max.z());
                     water.GetFluidPlane().AddRipple(0.5f, x8_uid, position, water, mgr);
                 }
                 break;
@@ -952,7 +952,7 @@ void CPlayer::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
             case EFluidState::LeftFluid:
             {
                 zeus::CVector3f position = x34_transform.origin + posOffset;
-                position.z = water.GetTriggerBoundsWR().max.z;
+                position.z() = float(water.GetTriggerBoundsWR().max.z());
                 mgr.GetFluidPlaneManager()->CreateSplash(x8_uid, mgr, water, position, 0.15f, true);
                 break;
             }
@@ -1664,13 +1664,13 @@ void CPlayer::UpdateFreeLookState(const CFinalInput& input, float dt, CStateMana
             {
                 zeus::CVector3f lookDir = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis[1];
                 zeus::CVector3f lookDirFlat = lookDir;
-                lookDirFlat.z = 0.f;
+                lookDirFlat.z() = 0.f;
                 x3e4_freeLookYawAngle = 0.f;
                 if (lookDirFlat.canBeNormalized())
                 {
                     lookDirFlat.normalize();
                     x3ec_freeLookPitchAngle = std::acos(zeus::clamp(-1.f, lookDirFlat.dot(lookDir), 1.f));
-                    if (lookDir.z < 0.f)
+                    if (lookDir.z() < 0.f)
                         x3ec_freeLookPitchAngle = -x3ec_freeLookPitchAngle;
                 }
             }
@@ -1971,7 +1971,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr)
         {
             x540_controlDir = x9d8_controlDirOverrideDir.normalized();
             x54c_controlDirFlat = x9d8_controlDirOverrideDir;
-            x54c_controlDirFlat.z = 0.f;
+            x54c_controlDirFlat.z() = 0.f;
             if (x54c_controlDirFlat.canBeNormalized())
                 x54c_controlDirFlat.normalize();
             else
@@ -1992,7 +1992,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr)
         }
         else
         {
-            zeus::CVector3f camToPlayerFlat(camToPlayer.x, camToPlayer.y, 0.f);
+            zeus::CVector3f camToPlayerFlat(camToPlayer.x(), camToPlayer.y(), 0.f);
             if (camToPlayerFlat.canBeNormalized())
             {
                 if (camToPlayerFlat.magnitude() > g_tweakBall->GetBallCameraControlDistance())
@@ -2009,7 +2009,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr)
                         default:
                             x540_controlDir = GetTransform().basis[1];
                             x54c_controlDirFlat = x540_controlDir;
-                            x54c_controlDirFlat.z = 0.f;
+                            x54c_controlDirFlat.z() = 0.f;
                             if (x54c_controlDirFlat.canBeNormalized())
                                 x54c_controlDirFlat.normalize();
                         }
@@ -2017,7 +2017,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr)
                     else if (x2f8_morphBallState != EPlayerMorphBallState::Morphed)
                     {
                         x540_controlDir = GetTransform().basis[1];
-                        x54c_controlDirFlat.z = 0.f;
+                        x54c_controlDirFlat.z() = 0.f;
                         if (x54c_controlDirFlat.canBeNormalized())
                             x54c_controlDirFlat.normalize();
                     }
@@ -2032,7 +2032,7 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr)
                     else if (x2f8_morphBallState != EPlayerMorphBallState::Morphed)
                     {
                         x540_controlDir = GetTransform().basis[1];
-                        x54c_controlDirFlat.z = 0.f;
+                        x54c_controlDirFlat.z() = 0.f;
                         if (x54c_controlDirFlat.canBeNormalized())
                             x54c_controlDirFlat.normalize();
                     }
@@ -2054,7 +2054,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         x53c_timeMoving += dt;
         x4f8_moveSpeed = std::fabs(delta.magnitude() / dt);
         x500_lookDir = delta.normalized();
-        zeus::CVector3f flatDelta(delta.x, delta.y, 0.f);
+        zeus::CVector3f flatDelta(delta.x(), delta.y(), 0.f);
         if (flatDelta.canBeNormalized())
         {
             x4fc_flatMoveSpeed = std::fabs(flatDelta.magnitude() / dt);
@@ -2070,7 +2070,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
             default:
                 x500_lookDir = GetTransform().basis[1];
                 x50c_moveDir = x500_lookDir;
-                x50c_moveDir.z = 0.f;
+                x50c_moveDir.z() = 0.f;
                 if (x50c_moveDir.canBeNormalized())
                     x50c_moveDir.normalize();
                 x530_gunDir = x50c_moveDir;
@@ -2084,7 +2084,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
             {
                 x500_lookDir = GetTransform().basis[1];
                 x50c_moveDir = x500_lookDir;
-                x50c_moveDir.z = 0.f;
+                x50c_moveDir.z() = 0.f;
                 if (x50c_moveDir.canBeNormalized())
                     x50c_moveDir.normalize();
                 x530_gunDir = x50c_moveDir;
@@ -2106,7 +2106,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         default:
             x500_lookDir = GetTransform().basis[1];
             x50c_moveDir = x500_lookDir;
-            x50c_moveDir.z = 0.f;
+            x50c_moveDir.z() = 0.f;
             if (x50c_moveDir.canBeNormalized())
                 x50c_moveDir.normalize();
             x530_gunDir = x50c_moveDir;
@@ -2117,7 +2117,7 @@ void CPlayer::CalculatePlayerMovementDirection(float dt)
         x4fc_flatMoveSpeed = 0.f;
     }
 
-    x50c_moveDir.z = 0.f;
+    x50c_moveDir.z() = 0.f;
     if (x50c_moveDir.canBeNormalized())
         x500_lookDir.normalize();
 }
@@ -2239,7 +2239,7 @@ void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr)
 
 void CPlayer::UpdateStepCameraZBias(float dt)
 {
-    float newBias = GetTranslation().z + GetUnbiasedEyeHeight();
+    float newBias = GetTranslation().z() + GetUnbiasedEyeHeight();
     if (x258_movementState == EPlayerMovementState::OnGround && !IsMorphBallTransitioning())
     {
         float oldBias = newBias;
@@ -2249,7 +2249,7 @@ void CPlayer::UpdateStepCameraZBias(float dt)
             float newDelta = 5.f * dt;
             if (delta > 0.f)
             {
-                if (delta > dt * x138_velocity.z && delta > newDelta)
+                if (delta > dt * x138_velocity.z() && delta > newDelta)
                 {
                     if (delta > GetStepUpHeight())
                         newDelta += delta - GetStepUpHeight();
@@ -2258,7 +2258,7 @@ void CPlayer::UpdateStepCameraZBias(float dt)
             }
             else
             {
-                if (delta < dt * x138_velocity.z && delta < -newDelta)
+                if (delta < dt * x138_velocity.z() && delta < -newDelta)
                 {
                     if (delta < -GetStepDownHeight())
                         newDelta += -delta - GetStepDownHeight();
@@ -2280,8 +2280,8 @@ void CPlayer::UpdateWaterSurfaceCameraBias(CStateManager& mgr)
 {
     if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(xc4_fluidId))
     {
-        float waterZ = water->GetTriggerBoundsWR().max.z;
-        float biasToEyeDelta = GetEyePosition().z - x9c8_eyeZBias;
+        float waterZ = water->GetTriggerBoundsWR().max.z();
+        float biasToEyeDelta = GetEyePosition().z() - x9c8_eyeZBias;
         float waterToDeltaDelta = biasToEyeDelta - waterZ;
         if (biasToEyeDelta >= waterZ && waterToDeltaDelta <= 0.25f)
             x9c8_eyeZBias += waterZ + 0.25f - biasToEyeDelta;
@@ -2590,7 +2590,7 @@ void CPlayer::UpdateBombJumpStuff()
         return;
 
     zeus::CVector3f velFlat = x138_velocity;
-    velFlat.z = 0.f;
+    velFlat.z() = 0.f;
     if (x258_movementState == EPlayerMovementState::OnGround ||
         (velFlat.canBeNormalized() && velFlat.magnitude() > 6.f))
         x9d0_bombJumpCount = 0;
@@ -2618,11 +2618,11 @@ void CPlayer::UpdateTransitionFilter(float dt, CStateManager& mgr)
     float time = x824_transitionFilterTimer - 0.95f;
     zeus::CColor color(1.f, 0.87f, 0.54f, 1.f);
     if (time < 0.1f)
-        color.a = 0.3f * time / 0.1f;
+        color.a() = 0.3f * time / 0.1f;
     else if (time >= 0.15f)
-        color.a = 1.f - zeus::clamp(-1.f, (time - 0.15f) / 0.15f, 1.f) * 0.3f;
+        color.a() = 1.f - zeus::clamp(-1.f, (time - 0.15f) / 0.15f, 1.f) * 0.3f;
     else
-        color.a = 0.3f;
+        color.a() = 0.3f;
 
     mgr.GetCameraFilterPass(8).SetFilter(EFilterType::Add, EFilterShape::ScanLinesEven, 0.f, color, {});
 }
@@ -2733,11 +2733,11 @@ void CPlayer::Think(float dt, CStateManager& mgr)
 
     if (x2f8_morphBallState != EPlayerMorphBallState::Morphed)
     {
-        if (std::fabs(x34_transform.basis[0].z) > FLT_EPSILON ||
-            std::fabs(x34_transform.basis[1].z) > FLT_EPSILON)
+        if (std::fabs(x34_transform.basis[0].z()) > FLT_EPSILON ||
+            std::fabs(x34_transform.basis[1].z()) > FLT_EPSILON)
         {
             zeus::CVector3f backupTranslation = GetTranslation();
-            zeus::CVector3f lookDirFlat(x34_transform.basis[1].x, x34_transform.basis[1].y, 0.f);
+            zeus::CVector3f lookDirFlat(x34_transform.basis[1].x(), x34_transform.basis[1].y(), 0.f);
             if (lookDirFlat.canBeNormalized())
             {
                 SetTransform(zeus::lookAt(zeus::CVector3f::skZero, lookDirFlat.normalized()));
@@ -2831,9 +2831,9 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
             {
                 float hardThres = 30.f * 2.f * -g_tweakPlayer->GetNormalGravAccel();
                 hardThres = (hardThres != 0.f) ? hardThres * std::sqrt(hardThres) : 0.f;
-                float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z + 95.f, 127.f) / 127.f;
+                float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
                 u16 landSfx;
-                if (-x794_lastVelocity.z < hardThres)
+                if (-x794_lastVelocity.z() < hardThres)
                 {
                     landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxSoft, 24, 0xffff);
                 }
@@ -2853,7 +2853,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
                     CSfxManager::SfxStart(landSfx, landVol, 0.f, false, 0x7f, false, kInvalidAreaId);
                 ApplySubmergedPitchBend(handle);
 
-                float rumbleMag = -x794_lastVelocity.z / 110.f;
+                float rumbleMag = -x794_lastVelocity.z() / 110.f;
                 if (rumbleMag > 0.f)
                 {
                     if (std::fabs(rumbleMag) > 0.8f)
@@ -2867,22 +2867,22 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         else if (x258_movementState != EPlayerMovementState::OnGround &&
                  x2f8_morphBallState == EPlayerMorphBallState::Morphed)
         {
-            if (x138_velocity.z < -40.f && !x768_morphball->GetIsInHalfPipeMode() &&
+            if (x138_velocity.z() < -40.f && !x768_morphball->GetIsInHalfPipeMode() &&
                 x258_movementState == EPlayerMovementState::ApplyJump &&
                 x300_fallingTime > 0.75f)
                 SetCoefficientOfRestitutionModifier(0.2f);
             x768_morphball->StartLandingSfx();
-            if (x138_velocity.z < -5.f)
+            if (x138_velocity.z() < -5.f)
             {
-                float rumbleMag = -x138_velocity.z / 110.f * 0.5f;
+                float rumbleMag = -x138_velocity.z() / 110.f * 0.5f;
                 if (std::fabs(rumbleMag) > 0.8f)
                     rumbleMag = (rumbleMag > 0.f) ? 0.8f : -0.8f;
                 mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerLand, rumbleMag, ERumblePriority::One);
                 x2a0_ = 0.f;
             }
-            if (x138_velocity.z < -30.f)
+            if (x138_velocity.z() < -30.f)
             {
-                float rumbleMag = -x138_velocity.z / 110.f;
+                float rumbleMag = -x138_velocity.z() / 110.f;
                 if (std::fabs(rumbleMag) > 0.8f)
                     rumbleMag = (rumbleMag > 0.f) ? 0.8f : -0.8f;
                 mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerLand, rumbleMag, ERumblePriority::One);
@@ -3342,8 +3342,8 @@ void CPlayer::UpdateArmAndGunTransforms(float dt, CStateManager& mgr)
         gunOffset = g_tweakPlayerGun->GetGunPosition();
         grappleOffset = x490_gun->GetGrappleArm().IsArmMoving() ?
                         zeus::CVector3f::skZero : g_tweakPlayerGun->GetGrapplingArmPosition();
-        gunOffset.z += GetEyeHeight();
-        grappleOffset.z += GetEyeHeight();
+        gunOffset.z() += GetEyeHeight();
+        grappleOffset.z() += GetEyeHeight();
     }
 
     UpdateGunTransform(gunOffset + x76c_cameraBob->GetGunBobTransformation().origin, mgr);
@@ -3515,17 +3515,17 @@ void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManag
     {
         zeus::CVector3f gunToTarget = x480_assistedTargetAim - xf.origin;
         zeus::CVector3f gunToTargetFlat = gunToTarget;
-        gunToTargetFlat.z = 0.f;
+        gunToTargetFlat.z() = 0.f;
         float gunToTargetFlatMag = gunToTargetFlat.magnitude();
         zeus::CVector3f gunDirFlat = xf.basis[1];
-        gunDirFlat.z = 0.f;
+        gunDirFlat.z() = 0.f;
         float gunDirFlatMag = gunDirFlat.magnitude();
         if (gunToTargetFlat.canBeNormalized() && gunDirFlat.canBeNormalized())
         {
             gunToTargetFlat = gunToTargetFlat / gunToTargetFlatMag;
             gunDirFlat = gunDirFlat / gunDirFlatMag;
-            float vAngleDelta = std::atan2(gunToTarget.z, gunToTargetFlatMag) -
-                std::atan2(xf.basis[1].z, gunDirFlatMag);
+            float vAngleDelta = std::atan2(gunToTarget.z(), gunToTargetFlatMag) -
+                std::atan2(xf.basis[1].z(), gunDirFlatMag);
             bool hasVAngleDelta = true;
             if (!x9c6_27_aimingAtProjectile && std::fabs(vAngleDelta) > g_tweakPlayer->GetAimAssistVerticalAngle())
             {
@@ -3544,7 +3544,7 @@ void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManag
                 }
             }
 
-            bool targetToLeft = gunDirFlat.cross(gunToTargetFlat).z > 0.f;
+            bool targetToLeft = gunDirFlat.cross(gunToTargetFlat).z() > 0.f;
             float hAngleDelta = std::acos(zeus::clamp(-1.f, gunDirFlat.dot(gunToTargetFlat), 1.f));
             bool hasHAngleDelta = true;
             if (!x9c6_27_aimingAtProjectile && std::fabs(hAngleDelta) > g_tweakPlayer->GetAimAssistHorizontalAngle())
@@ -3566,9 +3566,9 @@ void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManag
                 hAngleDelta = 0.f;
             }
 
-            gunToTarget.x = std::sin(hAngleDelta) * std::cos(vAngleDelta);
-            gunToTarget.y = std::cos(hAngleDelta) * std::cos(vAngleDelta);
-            gunToTarget.z = std::sin(vAngleDelta);
+            gunToTarget.x() = std::sin(hAngleDelta) * std::cos(vAngleDelta);
+            gunToTarget.y() = std::cos(hAngleDelta) * std::cos(vAngleDelta);
+            gunToTarget.z() = std::sin(vAngleDelta);
             gunToTarget = xf.rotate(gunToTarget);
             assistXf = zeus::lookAt(zeus::CVector3f::skZero, gunToTarget, zeus::CVector3f::skUp);
         }
@@ -3668,7 +3668,7 @@ void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f& offset, CStateMan
                 {
                     armToTarget = target->GetTranslation() - armPosition;
                     zeus::CVector3f armToTargetFlat = armToTarget;
-                    armToTargetFlat.z = 0.f;
+                    armToTargetFlat.z() = 0.f;
                     if (armToTarget.canBeNormalized())
                         armToTarget.normalize();
                     if (armToTargetFlat.canBeNormalized() && x3b8_grappleState != EGrappleState::Firing)
@@ -3733,10 +3733,10 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                     {
                         CMotionState mState = PredictMotion(dt);
                         zeus::CVector3f lookDirFlat = x34_transform.basis[1];
-                        lookDirFlat.z = 0.f;
+                        lookDirFlat.z() = 0.f;
                         zeus::CVector3f newPlayerToPointFlat =
                             point->GetTranslation() - (GetTranslation() + mState.x0_translation);
-                        newPlayerToPointFlat.z = 0.f;
+                        newPlayerToPointFlat.z() = 0.f;
                         if (lookDirFlat.canBeNormalized())
                             lookDirFlat.normalize();
                         if (newPlayerToPointFlat.canBeNormalized())
@@ -3748,7 +3748,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                             float deltaAngle = dt * g_tweakPlayer->GetGrappleLookCenterSpeed();
                             if (lookToPointAngle >= deltaAngle)
                             {
-                                zeus::CVector3f leftDirFlat(lookDirFlat.y, -lookDirFlat.x, 0.f);
+                                zeus::CVector3f leftDirFlat(lookDirFlat.y(), -lookDirFlat.x(), 0.f);
                                 if (leftDirFlat.canBeNormalized())
                                     leftDirFlat.normalize();
                                 if (newPlayerToPointFlat.dot(leftDirFlat) >= 0.f)
@@ -3784,7 +3784,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                 turnAngleSpeed *= -1.f;
             zeus::CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
             float pointToPlayerZProj =
-                zeus::clamp(-1.f, std::fabs(pointToPlayer.z / pointToPlayer.magnitude()), 1.f);
+                zeus::clamp(-1.f, std::fabs(pointToPlayer.z() / pointToPlayer.magnitude()), 1.f);
 
             bool enableTurn = false;
             if (!point->GetGrappleParameters().GetLockSwingTurn())
@@ -3850,9 +3850,9 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                     if (pointToPlayer.magSquared() > 0.04f)
                     {
                         zeus::CVector3f pointToPlayerFlat = pointToPlayer;
-                        pointToPlayerFlat.z = 0.f;
+                        pointToPlayerFlat.z() = 0.f;
                         zeus::CVector3f pointAtPlayerHeight = point->GetTranslation();
-                        pointAtPlayerHeight.z = GetTranslation().z;
+                        pointAtPlayerHeight.z() = GetTranslation().z();
                         zeus::CVector3f playerToGrapplePlane =
                             pointAtPlayerHeight + turnRot.transform(pointToPlayerFlat) - GetTranslation();
                         if (playerToGrapplePlane.canBeNormalized())
@@ -3861,7 +3861,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                     zeus::CVector3f swingAxisBackup = x3c0_grappleSwingAxis;
                     x3c0_grappleSwingAxis = turnRot.transform(x3c0_grappleSwingAxis);
                     x3c0_grappleSwingAxis.normalize();
-                    zeus::CVector3f swingForward(-x3c0_grappleSwingAxis.y, x3c0_grappleSwingAxis.x, 0.f);
+                    zeus::CVector3f swingForward(-x3c0_grappleSwingAxis.y(), x3c0_grappleSwingAxis.x(), 0.f);
                     SetTransform(
                         zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation()));
                     SetVelocityWR(pullVec);
@@ -3891,7 +3891,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
         }
     }
 
-    zeus::CVector3f newAngVel = {0.f, 0.f, 0.9f * GetAngularVelocityOR().getVector().z};
+    zeus::CVector3f newAngVel = {0.f, 0.f, 0.9f * GetAngularVelocityOR().getVector().z()};
     SetAngularVelocityOR(newAngVel);
 }
 
@@ -3926,7 +3926,7 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
         zeus::CVector3f eyePosition = GetEyePosition();
         zeus::CVector3f playerToPoint = point->GetTranslation() - eyePosition;
         zeus::CVector3f playerToPointFlat = playerToPoint;
-        playerToPointFlat.z = 0.f;
+        playerToPointFlat.z() = 0.f;
         if (playerToPoint.canBeNormalized() && playerToPointFlat.canBeNormalized() &&
             playerToPointFlat.magnitude() > 2.f)
         {
@@ -3942,12 +3942,12 @@ void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr)
                         if (TCastToPtr<CScriptGrapplePoint> point2 = mgr.ObjectById(x33c_orbitNextTargetId))
                         {
                             playerToPoint = point2->GetTranslation() - eyePosition;
-                            playerToPoint.z = 0.f;
+                            playerToPoint.z() = 0.f;
                             if (playerToPoint.canBeNormalized())
                             {
                                 x490_gun->GetGrappleArm().GrappleBeamDisconnected();
-                                x3c0_grappleSwingAxis.x = playerToPoint.y;
-                                x3c0_grappleSwingAxis.y = -playerToPoint.x;
+                                x3c0_grappleSwingAxis.x() = float(playerToPoint.y());
+                                x3c0_grappleSwingAxis.y() = -playerToPoint.x();
                                 x3c0_grappleSwingAxis.normalize();
                                 x3bc_grappleSwingTimer = 0.f;
                                 SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
@@ -4142,7 +4142,7 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr)
             tmp *= zeus::CVector3f::skNegOne;
         zeus::CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
         zeus::CVector3f cross = pointToPlayer.normalized().cross(tmp);
-        zeus::CVector3f pointToPlayerFlat(pointToPlayer.x, pointToPlayer.y, 0.f);
+        zeus::CVector3f pointToPlayerFlat(pointToPlayer.x(), pointToPlayer.y(), 0.f);
         float dot = 1.f;
         if (pointToPlayerFlat.canBeNormalized() && cross.canBeNormalized())
             dot = zeus::clamp(-1.f, std::fabs(cross.normalized().dot(pointToPlayerFlat.normalized())), 1.f);
@@ -4152,11 +4152,11 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr)
 
 void CPlayer::BeginGrapple(zeus::CVector3f& vec, CStateManager& mgr)
 {
-    vec.z = 0.f;
+    vec.z() = 0.f;
     if (vec.canBeNormalized())
     {
-        x3c0_grappleSwingAxis.x = vec.y;
-        x3c0_grappleSwingAxis.y = -vec.x;
+        x3c0_grappleSwingAxis.x() = float(vec.y());
+        x3c0_grappleSwingAxis.y() = -vec.x();
         x3c0_grappleSwingAxis.normalize();
         x3bc_grappleSwingTimer = 0.f;
         SetOrbitState(EPlayerOrbitState::Grapple, mgr);
@@ -4326,8 +4326,8 @@ void CPlayer::UpdateOrbitZPosition()
 {
     if (x304_orbitState == EPlayerOrbitState::OrbitPoint)
     {
-        if (std::fabs(x320_orbitVector.z) < g_tweakPlayer->GetOrbitZRange())
-            x314_orbitPoint.z = x320_orbitVector.z + x34_transform.origin.z + GetEyeHeight();
+        if (std::fabs(x320_orbitVector.z()) < g_tweakPlayer->GetOrbitZRange())
+            x314_orbitPoint.z() = x320_orbitVector.z() + x34_transform.origin.z() + GetEyeHeight();
     }
 }
 
@@ -4347,7 +4347,7 @@ void CPlayer::SetOrbitPosition(float dist, CStateManager& mgr)
     if (std::fabs(dot) > 1.f)
         dot = (dot > 0.f) ? 1.f : -1.f;
     x314_orbitPoint = camXf.rotate(zeus::CVector3f(0.f, dist / dot, 0.f)) + camXf.origin;
-    x320_orbitVector = zeus::CVector3f(0.f, dist, x314_orbitPoint.z - camXf.origin.z);
+    x320_orbitVector = zeus::CVector3f(0.f, dist, x314_orbitPoint.z() - camXf.origin.z());
 }
 
 void CPlayer::UpdateAimTarget(CStateManager& mgr)
@@ -4455,9 +4455,9 @@ bool CPlayer::ValidateAimTargetId(TUniqueId uid, CStateManager& mgr)
         zeus::CVector3f eyePos = GetEyePosition();
         zeus::CVector3f eyeToAim = aimPos - eyePos;
         zeus::CVector3f screenPos = mgr.GetCameraManager()->GetFirstPersonCamera()->ConvertToScreenSpace(aimPos);
-        zeus::CVector3f posInBox(vpWHalf + screenPos.x * vpWHalf,
-                                 vpHHalf + screenPos.y * vpHHalf,
-                                 screenPos.z);
+        zeus::CVector3f posInBox(vpWHalf + screenPos.x() * vpWHalf,
+                                 vpHHalf + screenPos.y() * vpHHalf,
+                                 screenPos.z());
         if (WithinOrbitScreenBox(posInBox, x330_orbitZoneMode, x334_orbitType) ||
             (x330_orbitZoneMode != EPlayerZoneInfo::Targeting &&
              WithinOrbitScreenBox(posInBox, EPlayerZoneInfo::Targeting, x334_orbitType)))
@@ -4591,9 +4591,9 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
             {
                 zeus::CVector3f aimPos = act->GetAimPosition(mgr, 0.f);
                 zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(aimPos);
-                zeus::CVector3f posInBox(vpWHalf + screenPos.x * vpWHalf,
-                                         vpHHalf + screenPos.y * vpHHalf,
-                                         screenPos.z);
+                zeus::CVector3f posInBox(vpWHalf + screenPos.x() * vpWHalf,
+                                         vpHHalf + screenPos.y() * vpHHalf,
+                                         screenPos.z());
                 if (WithinOrbitScreenBox(posInBox, info, zone))
                 {
                     zeus::CVector3f eyeToAim = aimPos - eyePos;
@@ -4614,16 +4614,16 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
                             if (result.IsInvalid())
                             {
                                 bestId = act->GetUniqueId();
-                                float posInBoxLeft = posInBox.x - boxLeft;
-                                float posInBoxTop = posInBox.y - boxTop;
+                                float posInBoxLeft = posInBox.x() - boxLeft;
+                                float posInBoxTop = posInBox.y() - boxTop;
                                 minEyeToAimMag = eyeToAimMag;
                                 minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                             }
                         }
                         else if (std::fabs(eyeToAimMag - minEyeToAimMag) < g_tweakPlayer->GetAimThresholdDistance())
                         {
-                            float posInBoxLeft = posInBox.x - boxLeft;
-                            float posInBoxTop = posInBox.y - boxTop;
+                            float posInBoxLeft = posInBox.x() - boxLeft;
+                            float posInBoxTop = posInBox.y() - boxTop;
                             float posInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                             if (posInBoxMagSq < minPosInBoxMagSq)
                             {
@@ -4706,7 +4706,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
             zeus::CVector3f eyeToOrbit = orbitPos - eyePos;
             float eyeToOrbitMag = eyeToOrbit.magnitude();
             zeus::CVector3f orbitPosScreen = fpCam->ConvertToScreenSpace(orbitPos);
-            if (orbitPosScreen.z >= 0.f)
+            if (orbitPosScreen.z() >= 0.f)
             {
                 if (x310_orbitTargetId != id)
                 {
@@ -4735,7 +4735,7 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                                             GetTranslation() - point->GetTranslation();
                                         if (pointToPlayer.canBeNormalized())
                                         {
-                                            pointToPlayer.z = 0.f;
+                                            pointToPlayer.z() = 0.f;
                                             if (std::fabs(point->GetTransform().basis[1].normalized().
                                                 dot(pointToPlayer.normalized())) <= M_SQRT1_2F)
                                                 continue;
@@ -4743,8 +4743,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                                     }
 
                                     bestId = act->GetUniqueId();
-                                    float posInBoxLeft = orbitPosScreen.x - boxLeft;
-                                    float posInBoxTop = orbitPosScreen.y - boxTop;
+                                    float posInBoxLeft = orbitPosScreen.x() - boxLeft;
+                                    float posInBoxTop = orbitPosScreen.y() - boxTop;
                                     minEyeToOrbitMag = eyeToOrbitMag;
                                     minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                                 }
@@ -4796,8 +4796,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                         if (result.IsInvalid())
                         {
                             bestId = act->GetUniqueId();
-                            float posInBoxLeft = orbitPosScreen.x - boxLeft;
-                            float posInBoxTop = orbitPosScreen.y - boxTop;
+                            float posInBoxLeft = orbitPosScreen.x() - boxLeft;
+                            float posInBoxTop = orbitPosScreen.y() - boxTop;
                             minEyeToOrbitMag = eyeToOrbitMag;
                             minPosInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                         }
@@ -4808,8 +4808,8 @@ TUniqueId CPlayer::FindBestOrbitableObject(const std::vector<TUniqueId>& ids,
                             g_tweakPlayer->GetOrbitDistanceThreshold() ||
                         mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan)
                     {
-                        float posInBoxLeft = orbitPosScreen.x - boxLeft;
-                        float posInBoxTop = orbitPosScreen.y - boxTop;
+                        float posInBoxLeft = orbitPosScreen.x() - boxLeft;
+                        float posInBoxTop = orbitPosScreen.y() - boxTop;
                         float posInBoxMagSq = posInBoxLeft * posInBoxLeft + posInBoxTop * posInBoxTop;
                         if (posInBoxMagSq < minPosInBoxMagSq)
                         {
@@ -4884,8 +4884,8 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
                 continue;
             zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
             zeus::CVector3f screenPos = fpCam->ConvertToScreenSpace(orbitPos);
-            screenPos.x = g_Viewport.x8_width * screenPos.x / 2.f + g_Viewport.x8_width / 2.f;
-            screenPos.y = g_Viewport.xc_height * screenPos.y / 2.f + g_Viewport.xc_height / 2.f;
+            screenPos.x() = g_Viewport.x8_width * screenPos.x() / 2.f + g_Viewport.x8_width / 2.f;
+            screenPos.y() = g_Viewport.xc_height * screenPos.y() / 2.f + g_Viewport.xc_height / 2.f;
 
             bool pass = false;
             if (onScreenTest)
@@ -4909,17 +4909,17 @@ void CPlayer::FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&
 bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone,
                                    EPlayerZoneType type) const
 {
-    if (screenCoords.z >= 1.f)
+    if (screenCoords.z() >= 1.f)
         return false;
 
     switch (type)
     {
     case EPlayerZoneType::Box:
-        return std::fabs(screenCoords.x - GetOrbitScreenBoxCenterXScaled(int(zone))) <
+        return std::fabs(screenCoords.x() - GetOrbitScreenBoxCenterXScaled(int(zone))) <
                    GetOrbitScreenBoxHalfExtentXScaled(int(zone)) &&
-               std::fabs(screenCoords.y - GetOrbitScreenBoxCenterYScaled(int(zone))) <
+               std::fabs(screenCoords.y() - GetOrbitScreenBoxCenterYScaled(int(zone))) <
                    GetOrbitScreenBoxHalfExtentYScaled(int(zone)) &&
-               screenCoords.z < 1.f;
+               screenCoords.z() < 1.f;
         break;
     case EPlayerZoneType::Ellipse:
         return WithinOrbitScreenEllipse(screenCoords, zone);
@@ -4932,15 +4932,15 @@ bool CPlayer::WithinOrbitScreenBox(const zeus::CVector3f& screenCoords, EPlayerZ
 
 bool CPlayer::WithinOrbitScreenEllipse(const zeus::CVector3f& screenCoords, EPlayerZoneInfo zone) const
 {
-    if (screenCoords.z >= 1.f)
+    if (screenCoords.z() >= 1.f)
         return false;
 
     float heYSq = GetOrbitScreenBoxHalfExtentYScaled(int(zone));
     heYSq *= heYSq;
     float heXSq = GetOrbitScreenBoxHalfExtentXScaled(int(zone));
     heXSq *= heXSq;
-    float tmpY = std::fabs(screenCoords.y - GetOrbitScreenBoxCenterYScaled(int(zone)));
-    float tmpX = std::fabs(screenCoords.x - GetOrbitScreenBoxCenterXScaled(int(zone)));
+    float tmpY = std::fabs(screenCoords.y() - GetOrbitScreenBoxCenterYScaled(int(zone)));
+    float tmpX = std::fabs(screenCoords.x() - GetOrbitScreenBoxCenterXScaled(int(zone)));
     return tmpX * tmpX <= (1.f - tmpY * tmpY / heYSq) * heXSq;
 }
 
@@ -5240,7 +5240,7 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr)
         zeus::CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
         if (!x374_orbitLockEstablished)
             playerToPoint = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis[1];
-        playerToPoint.z = 0.f;
+        playerToPoint.z() = 0.f;
         if (playerToPoint.canBeNormalized())
         {
             zeus::CTransform xf = zeus::lookAt(zeus::CVector3f::skZero, playerToPoint);
@@ -5261,7 +5261,7 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
     if (!ValidateOrbitTargetIdAndPointer(x33c_orbitNextTargetId, mgr))
         x33c_orbitNextTargetId = kInvalidUniqueId;
     zeus::CVector3f playerToPoint = x314_orbitPoint - GetTranslation();
-    playerToPoint.z = 0.f;
+    playerToPoint.z() = 0.f;
     float playerToPointMag = playerToPoint.magnitude();
 
     switch (x304_orbitState)
@@ -5283,7 +5283,7 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
     case EPlayerOrbitState::OrbitPoint:
     {
         if (g_tweakPlayer->GetOrbitFixedOffset() &&
-            std::fabs(x320_orbitVector.z) > g_tweakPlayer->GetOrbitFixedOffsetZDiff())
+            std::fabs(x320_orbitVector.z()) > g_tweakPlayer->GetOrbitFixedOffsetZDiff())
         {
             UpdateOrbitFixedPosition();
             return;
@@ -5296,9 +5296,9 @@ void CPlayer::UpdateOrbitTarget(CStateManager& mgr)
         if (x3dd_lookButtonHeld)
             SetOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
         zeus::CVector3f eyeToPoint = x314_orbitPoint - GetEyePosition();
-        float angleToPoint = std::asin(zeus::clamp(-1.f, std::fabs(eyeToPoint.z) / eyeToPoint.magnitude(), 1.f));
-        if ((eyeToPoint.z >= 0.f && angleToPoint >= g_tweakPlayer->GetOrbitUpperAngle()) ||
-            (eyeToPoint.z < 0.f && angleToPoint >= g_tweakPlayer->GetOrbitLowerAngle()))
+        float angleToPoint = std::asin(zeus::clamp(-1.f, std::fabs(eyeToPoint.z()) / eyeToPoint.magnitude(), 1.f));
+        if ((eyeToPoint.z() >= 0.f && angleToPoint >= g_tweakPlayer->GetOrbitUpperAngle()) ||
+            (eyeToPoint.z() < 0.f && angleToPoint >= g_tweakPlayer->GetOrbitLowerAngle()))
             SetOrbitRequest(EPlayerOrbitRequest::BadVerticalAngle, mgr);
         break;
     }
@@ -5354,14 +5354,14 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateOrbitTargetId(TUniqueId uid, CS
     zeus::CVector3f eyePos = GetEyePosition();
     zeus::CVector3f eyeToOrbit = act->GetOrbitPosition(mgr) - eyePos;
     zeus::CVector3f eyeToOrbitFlat = eyeToOrbit;
-    eyeToOrbitFlat.z = 0.f;
+    eyeToOrbitFlat.z() = 0.f;
 
     if (eyeToOrbitFlat.canBeNormalized() && eyeToOrbitFlat.magnitude() > 1.f)
     {
         float angleFromHorizon =
-            std::asin(zeus::clamp(-1.f, std::fabs(eyeToOrbit.z) / eyeToOrbit.magnitude(), 1.f));
-        if ((eyeToOrbit.z >= 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitUpperAngle()) ||
-            (eyeToOrbit.z < 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitLowerAngle()))
+            std::asin(zeus::clamp(-1.f, std::fabs(eyeToOrbit.z()) / eyeToOrbit.magnitude(), 1.f));
+        if ((eyeToOrbit.z() >= 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitUpperAngle()) ||
+            (eyeToOrbit.z() < 0.f && angleFromHorizon >= g_tweakPlayer->GetOrbitLowerAngle()))
             return EOrbitValidationResult::ExtremeHorizonAngle;
     }
     else
@@ -5449,7 +5449,7 @@ CPlayer::EOrbitValidationResult CPlayer::ValidateCurrentOrbitTargetId(CStateMana
         }
 
         zeus::CVector3f eyeToOrbitFlat = eyeToOrbit;
-        eyeToOrbitFlat.z = 0.f;
+        eyeToOrbitFlat.z() = 0.f;
         if (eyeToOrbitFlat.canBeNormalized())
         {
             float lookToOrbitAngle =
@@ -5493,12 +5493,12 @@ zeus::CVector3f CPlayer::GetEyePosition() const
 
 float CPlayer::GetEyeHeight() const
 {
-    return x9c8_eyeZBias + (x2d8_fpBounds.max.z - g_tweakPlayer->GetEyeOffset());
+    return x9c8_eyeZBias + (x2d8_fpBounds.max.z() - g_tweakPlayer->GetEyeOffset());
 }
 
 float CPlayer::GetUnbiasedEyeHeight() const
 {
-    return x2d8_fpBounds.max.z - g_tweakPlayer->GetEyeOffset();
+    return x2d8_fpBounds.max.z() - g_tweakPlayer->GetEyeOffset();
 }
 
 float CPlayer::GetStepUpHeight() const
@@ -5624,7 +5624,7 @@ zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const
     else
         moveDir = zeus::CVector3f::skForward;
 
-    return {zeus::CVector3f(moveDir.y, -moveDir.x, 0.f), moveDir, zeus::CVector3f::skUp, GetTranslation()};
+    return {zeus::CVector3f(moveDir.y(), -moveDir.x(), 0.f), moveDir, zeus::CVector3f::skUp, GetTranslation()};
 }
 
 const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const
@@ -5810,7 +5810,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr)
             x380_strafeInputAtDash = StrafeInput(input);
             if (g_tweakPlayer->GetImpulseDoubleJump())
             {
-                zeus::CVector3f impulse(0.f, 0.f, (doubleJumpImpulse - x138_velocity.z) * xe8_mass);
+                zeus::CVector3f impulse(0.f, 0.f, (doubleJumpImpulse - x138_velocity.z()) * xe8_mass);
                 ApplyImpulseWR(impulse, zeus::CAxisAngle::sIdentity);
             }
 
@@ -5932,7 +5932,7 @@ float CPlayer::ForwardInput(const CFinalInput& input, float turnInput) const
     if (!g_tweakPlayer->GetMoveDuringFreeLook())
     {
         zeus::CVector3f velFlat = x138_velocity;
-        velFlat.z = 0.f;
+        velFlat.z() = 0.f;
         if (x3dc_inFreeLook || x3dd_lookButtonHeld)
             if (x258_movementState == EPlayerMovementState::OnGround || std::fabs(velFlat.magnitude()) < 0.00001f)
                 return 0.f;
@@ -6007,7 +6007,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
 {
     float strafeInput = StrafeInput(input);
     float forwardInput = ForwardInput(input, TurnInput(input));
-    zeus::CVector3f orbitPointFlattened(x314_orbitPoint.x, x314_orbitPoint.y, GetTranslation().z);
+    zeus::CVector3f orbitPointFlattened(x314_orbitPoint.x(), x314_orbitPoint.y(), GetTranslation().z());
     zeus::CVector3f orbitToPlayer = GetTranslation() - orbitPointFlattened;
     if (!orbitToPlayer.canBeNormalized())
         return;
@@ -6025,9 +6025,9 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
             x38c_doneSidewaysDashing = true;
             x384_dashTimer = 0.f;
             zeus::CVector3f vel = x138_velocity;
-            if (vel.z > 0.f)
+            if (vel.z() > 0.f)
             {
-                vel.z *= 0.1f;
+                vel.z() *= 0.1f;
                 if (!x9c5_28_slidingOnWall)
                 {
                     SetVelocityWR(vel);
@@ -6075,9 +6075,9 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
         x388_dashButtonHoldTime = 0.f;
     strafeVel = skOrbitForwardDistances[int(restraints)] * forwardInput * dt;
     orbitPointFlattened += -useOrbitToPlayer.normalized() * strafeVel;
-    zeus::CVector2f velFlat(x138_velocity.x, x138_velocity.y);
+    zeus::CVector2f velFlat(x138_velocity.x(), x138_velocity.y());
     zeus::CVector3f newVelocity = (orbitPointFlattened - GetTranslation()) / dt;
-    zeus::CVector3f velDelta(newVelocity.x - x138_velocity.x, newVelocity.y - x138_velocity.y, 0.f);
+    zeus::CVector3f velDelta(newVelocity.x() - x138_velocity.x(), newVelocity.y() - x138_velocity.y(), 0.f);
     strafeVel = velDelta.magnitude();
     if (strafeVel > FLT_EPSILON)
     {
@@ -6108,11 +6108,11 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
         if (std::fabs(zRotateInput) < 0.00001f)
         {
             float frictionZAngVel = g_tweakPlayer->GetPlayerRotationFriction(int(restraints)) *
-                GetAngularVelocityOR().getVector().z;
+                GetAngularVelocityOR().getVector().z();
             SetAngularVelocityOR({0.f, 0.f, frictionZAngVel});
         }
 
-        float curZAngVel = GetAngularVelocityOR().getVector().z;
+        float curZAngVel = GetAngularVelocityOR().getVector().z();
         float maxZAngVel = g_tweakPlayer->GetPlayerRotationMaxSpeed(int(restraints)) * turnSpeedMul;
         if (curZAngVel > maxZAngVel)
             SetAngularVelocityOR({0.f, 0.f, maxZAngVel});
@@ -6121,7 +6121,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     }
 
     float f26 = g_tweakPlayer->GetPlayerRotationMaxSpeed(int(restraints)) * zRotateInput * turnSpeedMul;
-    f26 -= GetAngularVelocityOR().getVector().z;
+    f26 -= GetAngularVelocityOR().getVector().z();
     float remainVel = zeus::clamp(0.f, std::fabs(f26) /
         (turnSpeedMul * g_tweakPlayer->GetPlayerRotationMaxSpeed(int(restraints))), 1.f);
     if (f26 < 0.f)
@@ -6136,7 +6136,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
         float calcSpeed = g_tweakPlayer->GetPlayerTranslationFriction(int(restraints)) * xe8_mass /
                           (dt * g_tweakPlayer->GetMaxTranslationalAcceleration(int(restraints))) * maxSpeed;
         float f28 = (forwardInput > 0.f ? 1.f : -1.f) * calcSpeed + (maxSpeed - calcSpeed) * forwardInput;
-        forwardForce = zeus::clamp(-1.f, (f28 - x34_transform.transposeRotate(x138_velocity).y) / maxSpeed, 1.f) *
+        forwardForce = zeus::clamp(-1.f, (f28 - x34_transform.transposeRotate(x138_velocity).y()) / maxSpeed, 1.f) *
             g_tweakPlayer->GetMaxTranslationalAcceleration(int(restraints));
     }
     else
@@ -6179,7 +6179,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     {
         if (!x9c5_28_slidingOnWall && x258_movementState == EPlayerMovementState::OnGround)
         {
-            zeus::CVector3f revVelFlat(-x138_velocity.x, -x138_velocity.y, 0.f);
+            zeus::CVector3f revVelFlat(-x138_velocity.x(), -x138_velocity.y(), 0.f);
             float revVelFlatMag = revVelFlat.magnitude();
             if (revVelFlatMag > FLT_EPSILON)
             {
@@ -6209,20 +6209,20 @@ zeus::CVector3f CPlayer::GetDampedClampedVelocityWR() const
         x304_orbitState == EPlayerOrbitState::NoOrbit)
     {
         float friction = g_tweakPlayer->GetPlayerTranslationFriction(int(GetSurfaceRestraint()));
-        if (localVel.y > 0.f)
-            localVel.y = std::max(0.f, localVel.y - friction);
+        if (localVel.y() > 0.f)
+            localVel.y() = std::max(0.f, localVel.y() - friction);
         else
-            localVel.y = std::min(0.f, localVel.y + friction);
-        if (localVel.x > 0.f)
-            localVel.x = std::max(0.f, localVel.x - friction);
+            localVel.y() = std::min(0.f, localVel.y() + friction);
+        if (localVel.x() > 0.f)
+            localVel.x() = std::max(0.f, localVel.x() - friction);
         else
-            localVel.x = std::min(0.f, localVel.x + friction);
+            localVel.x() = std::min(0.f, localVel.x() + friction);
     }
 
     float maxSpeed = g_tweakPlayer->GetPlayerTranslationMaxSpeed(int(GetSurfaceRestraint()));
-    localVel.y = zeus::clamp(-maxSpeed, localVel.y, maxSpeed);
+    localVel.y() = zeus::clamp(-maxSpeed, float(localVel.y()), maxSpeed);
     if (x258_movementState == EPlayerMovementState::OnGround)
-        localVel.z = 0.f;
+        localVel.z() = 0.f;
     return x34_transform.rotate(localVel);
 }
 
@@ -6293,7 +6293,7 @@ bool CPlayer::CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) c
         CCollidableAABox cAABB(aabb, CMaterialList());
         if (!CGameCollision::DetectCollisionBoolean(mgr, cAABB, zeus::CTransform::Identity(), filter, nearList))
             return true;
-        pos.z += 0.1f;
+        pos.z() += 0.1f;
     }
     return false;
 }
@@ -6590,7 +6590,7 @@ bool CPlayer::CFailsafeTest::Passes() const
 
     zeus::CAABox velAABB(x148_velSamples[0], x148_velSamples[0]);
     zeus::CAABox posAABB(x54_posSamples[0], x54_posSamples[0]);
-    zeus::CVector3f inputVec(x23c_inputSamples[0].x, x23c_inputSamples[0].y, 0.f);
+    zeus::CVector3f inputVec(x23c_inputSamples[0].x(), x23c_inputSamples[0].y(), 0.f);
     zeus::CAABox inputAABB(inputVec, inputVec);
 
     float maxVelMag = x148_velSamples[0].magnitude();
@@ -6609,7 +6609,7 @@ bool CPlayer::CFailsafeTest::Passes() const
         minVelMag = std::min(minVelMag, velMag);
         maxVelMag = std::max(maxVelMag, velMag);
 
-        zeus::CVector3f inputVec2(x23c_inputSamples[i].x, x23c_inputSamples[i].y, 0.f);
+        zeus::CVector3f inputVec2(x23c_inputSamples[i].x(), x23c_inputSamples[i].y(), 0.f);
         inputAABB.accumulateBounds(inputVec2);
 
         if (x0_stateSamples[i] != x0_stateSamples[i-1])
@@ -6703,7 +6703,7 @@ void CPlayer::UpdateSubmerged(CStateManager& mgr)
         if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId))
         {
             x828_distanceUnderWater =
-                -(zeus::CVector3f::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z);
+                -(zeus::CVector3f::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z());
             EFluidType fluidType = water->GetFluidPlane().GetFluidType();
             x82c_inLava = (fluidType == EFluidType::Lava || fluidType == EFluidType::ThickLava);
             CheckSubmerged();

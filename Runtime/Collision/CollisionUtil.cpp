@@ -64,7 +64,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb,
     zeus::CVector3f vec0 = {-1.f, -1.f, -1.f};
     zeus::CVector3f vec1;
 
-    if (rayDelta.x != 0.f && rayDelta.y != 0.f && rayDelta.z != 0.f)
+    if (rayDelta.x() != 0.f && rayDelta.y() != 0.f && rayDelta.z() != 0.f)
     {
         for (int i=0 ; i<3 ; ++i)
         {
@@ -97,13 +97,13 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb,
             {
                 sign[i] = 1;
                 bad = false;
-                end[i] = aabbMin[i];
+                end[i] = float(aabbMin[i]);
             }
             else if (rayStart[i] > aabbMax[i])
             {
                 sign[i] = 0;
                 bad = false;
-                end[i] = aabbMax[i];
+                end[i] = float(aabbMax[i]);
             }
         }
 
@@ -118,16 +118,16 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb,
                 vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
     }
 
-    float maxComp = vec0.x;
+    float maxComp = vec0.x();
     int maxCompIdx = 0;
-    if (maxComp < vec0.y)
+    if (maxComp < vec0.y())
     {
-        maxComp = vec0.y;
+        maxComp = vec0.y();
         maxCompIdx = 1;
     }
-    if (maxComp < vec0.z)
+    if (maxComp < vec0.z())
     {
-        maxComp = vec0.z;
+        maxComp = vec0.z();
         maxCompIdx = 2;
     }
 
@@ -163,7 +163,7 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
     zeus::CVector3d vec0 = {-1.0, -1.0, -1.0};
     zeus::CVector3d vec1;
 
-    if (rayDelta.x != 0.0 && rayDelta.y != 0.0 && rayDelta.z != 0.0)
+    if (rayDelta.x() != 0.0 && rayDelta.y() != 0.0 && rayDelta.z() != 0.0)
     {
         for (int i=0 ; i<3 ; ++i)
         {
@@ -196,13 +196,13 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
             {
                 sign[i] = 1;
                 bad = false;
-                end[i] = aabbMin[i];
+                end[i] = double(aabbMin[i]);
             }
             else if (rayStart[i] > aabbMax[i])
             {
                 sign[i] = 0;
                 bad = false;
-                end[i] = aabbMax[i];
+                end[i] = double(aabbMax[i]);
             }
         }
 
@@ -217,16 +217,16 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
                 vec0[i] = (end[i] - rayStart[i]) / rayDelta[i];
     }
 
-    double maxComp = vec0.x;
+    double maxComp = vec0.x();
     int maxCompIdx = 0;
-    if (maxComp < vec0.y)
+    if (maxComp < vec0.y())
     {
-        maxComp = vec0.y;
+        maxComp = vec0.y();
         maxCompIdx = 1;
     }
-    if (maxComp < vec0.z)
+    if (maxComp < vec0.z())
     {
-        maxComp = vec0.z;
+        maxComp = vec0.z();
         maxCompIdx = 2;
     }
 
@@ -389,32 +389,32 @@ bool AABoxAABoxIntersection(const zeus::CAABox& aabb0, const CMaterialList& list
                             const zeus::CAABox& aabb1, const CMaterialList& list1,
                             CCollisionInfoList& infoList)
 {
-    zeus::CVector3f maxOfMin(std::max(aabb0.min.x, aabb1.min.x),
-                             std::max(aabb0.min.y, aabb1.min.y),
-                             std::max(aabb0.min.z, aabb1.min.z));
-    zeus::CVector3f minOfMax(std::min(aabb0.max.x, aabb1.max.x),
-                             std::min(aabb0.max.y, aabb1.max.y),
-                             std::min(aabb0.max.z, aabb1.max.z));
+    zeus::CVector3f maxOfMin(std::max(aabb0.min.x(), aabb1.min.x()),
+                             std::max(aabb0.min.y(), aabb1.min.y()),
+                             std::max(aabb0.min.z(), aabb1.min.z()));
+    zeus::CVector3f minOfMax(std::min(aabb0.max.x(), aabb1.max.x()),
+                             std::min(aabb0.max.y(), aabb1.max.y()),
+                             std::min(aabb0.max.z(), aabb1.max.z()));
 
-    if (maxOfMin.x >= minOfMax.x || maxOfMin.y >= minOfMax.y || maxOfMin.z >= minOfMax.z)
+    if (maxOfMin.x() >= minOfMax.x() || maxOfMin.y() >= minOfMax.y() || maxOfMin.z() >= minOfMax.z())
         return false;
 
     zeus::CAABox boolAABB(maxOfMin, minOfMax);
 
     int ineqFlags[] =
     {
-        (aabb0.min.x <= aabb1.min.x ? 1 << 0 : 0) |
-        (aabb0.min.x <= aabb1.max.x ? 1 << 1 : 0) |
-        (aabb0.max.x <= aabb1.min.x ? 1 << 2 : 0) |
-        (aabb0.max.x <= aabb1.max.x ? 1 << 3 : 0),
-        (aabb0.min.y <= aabb1.min.y ? 1 << 0 : 0) |
-        (aabb0.min.y <= aabb1.max.y ? 1 << 1 : 0) |
-        (aabb0.max.y <= aabb1.min.y ? 1 << 2 : 0) |
-        (aabb0.max.y <= aabb1.max.y ? 1 << 3 : 0),
-        (aabb0.min.z <= aabb1.min.z ? 1 << 0 : 0) |
-        (aabb0.min.z <= aabb1.max.z ? 1 << 1 : 0) |
-        (aabb0.max.z <= aabb1.min.z ? 1 << 2 : 0) |
-        (aabb0.max.z <= aabb1.max.z ? 1 << 3 : 0),
+        (aabb0.min.x() <= aabb1.min.x() ? 1 << 0 : 0) |
+        (aabb0.min.x() <= aabb1.max.x() ? 1 << 1 : 0) |
+        (aabb0.max.x() <= aabb1.min.x() ? 1 << 2 : 0) |
+        (aabb0.max.x() <= aabb1.max.x() ? 1 << 3 : 0),
+        (aabb0.min.y() <= aabb1.min.y() ? 1 << 0 : 0) |
+        (aabb0.min.y() <= aabb1.max.y() ? 1 << 1 : 0) |
+        (aabb0.max.y() <= aabb1.min.y() ? 1 << 2 : 0) |
+        (aabb0.max.y() <= aabb1.max.y() ? 1 << 3 : 0),
+        (aabb0.min.z() <= aabb1.min.z() ? 1 << 0 : 0) |
+        (aabb0.min.z() <= aabb1.max.z() ? 1 << 1 : 0) |
+        (aabb0.max.z() <= aabb1.min.z() ? 1 << 2 : 0) |
+        (aabb0.max.z() <= aabb1.max.z() ? 1 << 3 : 0),
     };
 
     for (int i=0 ; i<3 ; ++i)
@@ -505,48 +505,48 @@ static bool planeBoxOverlap(const zeus::CVector3f& normal, float d, const zeus::
 
 /*======================== X-tests ========================*/
 #define AXISTEST_X01(a, b, fa, fb)             \
-    p0 = a*v0.y - b*v0.z;                    \
-    p2 = a*v2.y - b*v2.z;                    \
+    p0 = a*v0.y() - b*v0.z();                    \
+    p2 = a*v2.y() - b*v2.z();                    \
     if(p0<p2) {min=p0; max=p2;} else {min=p2; max=p0;} \
-    rad = fa * boxhalfsize.y + fb * boxhalfsize.z;   \
+    rad = fa * boxhalfsize.y() + fb * boxhalfsize.z();   \
     if(min>rad || max<-rad) return false;
 
 #define AXISTEST_X2(a, b, fa, fb)              \
-    p0 = a*v0.y - b*v0.z;                    \
-    p1 = a*v1.y - b*v1.z;                    \
+    p0 = a*v0.y() - b*v0.z();                    \
+    p1 = a*v1.y() - b*v1.z();                    \
     if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
-    rad = fa * boxhalfsize.y + fb * boxhalfsize.z;   \
+    rad = fa * boxhalfsize.y() + fb * boxhalfsize.z();   \
     if(min>rad || max<-rad) return false;
 
 /*======================== Y-tests ========================*/
 #define AXISTEST_Y02(a, b, fa, fb)             \
-    p0 = -a*v0.x + b*v0.z;                   \
-    p2 = -a*v2.x + b*v2.z;                       \
+    p0 = -a*v0.x() + b*v0.z();                   \
+    p2 = -a*v2.x() + b*v2.z();                       \
     if(p0<p2) {min=p0; max=p2;} else {min=p2; max=p0;} \
-    rad = fa * boxhalfsize.x + fb * boxhalfsize.z;   \
+    rad = fa * boxhalfsize.x() + fb * boxhalfsize.z();   \
     if(min>rad || max<-rad) return false;
 
 #define AXISTEST_Y1(a, b, fa, fb)              \
-    p0 = -a*v0.x + b*v0.z;                   \
-    p1 = -a*v1.x + b*v1.z;                       \
+    p0 = -a*v0.x() + b*v0.z();                   \
+    p1 = -a*v1.x() + b*v1.z();                       \
     if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
-    rad = fa * boxhalfsize.x + fb * boxhalfsize.z;   \
+    rad = fa * boxhalfsize.x() + fb * boxhalfsize.z();   \
     if(min>rad || max<-rad) return false;
 
 /*======================== Z-tests ========================*/
 
 #define AXISTEST_Z12(a, b, fa, fb)             \
-    p1 = a*v1.x - b*v1.y;                    \
-    p2 = a*v2.x - b*v2.y;                    \
+    p1 = a*v1.x() - b*v1.y();                    \
+    p2 = a*v2.x() - b*v2.y();                    \
     if(p2<p1) {min=p2; max=p1;} else {min=p1; max=p2;} \
-    rad = fa * boxhalfsize.x + fb * boxhalfsize.y;   \
+    rad = fa * boxhalfsize.x() + fb * boxhalfsize.y();   \
     if(min>rad || max<-rad) return false;
 
 #define AXISTEST_Z0(a, b, fa, fb)              \
-    p0 = a*v0.x - b*v0.y;                \
-    p1 = a*v1.x - b*v1.y;                    \
+    p0 = a*v0.x() - b*v0.y();                \
+    p1 = a*v1.x() - b*v1.y();                    \
     if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
-    rad = fa * boxhalfsize.x + fb * boxhalfsize.y;   \
+    rad = fa * boxhalfsize.x() + fb * boxhalfsize.y();   \
     if(min>rad || max<-rad) return false;
 
 bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxhalfsize,
@@ -578,26 +578,26 @@ bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxh
 
     /* Bullet 3:  */
     /*  test the 9 tests first (this was faster) */
-    fex = std::fabs(e0.x);
-    fey = std::fabs(e0.y);
-    fez = std::fabs(e0.z);
-    AXISTEST_X01(e0.z, e0.y, fez, fey);
-    AXISTEST_Y02(e0.z, e0.x, fez, fex);
-    AXISTEST_Z12(e0.y, e0.x, fey, fex);
+    fex = std::fabs(e0.x());
+    fey = std::fabs(e0.y());
+    fez = std::fabs(e0.z());
+    AXISTEST_X01(e0.z(), e0.y(), fez, fey);
+    AXISTEST_Y02(e0.z(), e0.x(), fez, fex);
+    AXISTEST_Z12(e0.y(), e0.x(), fey, fex);
 
-    fex = std::fabs(e1.x);
-    fey = std::fabs(e1.y);
-    fez = std::fabs(e1.z);
-    AXISTEST_X01(e1.z, e1.y, fez, fey);
-    AXISTEST_Y02(e1.z, e1.x, fez, fex);
-    AXISTEST_Z0(e1.y, e1.x, fey, fex);
+    fex = std::fabs(e1.x());
+    fey = std::fabs(e1.y());
+    fez = std::fabs(e1.z());
+    AXISTEST_X01(e1.z(), e1.y(), fez, fey);
+    AXISTEST_Y02(e1.z(), e1.x(), fez, fex);
+    AXISTEST_Z0(e1.y(), e1.x(), fey, fex);
 
-    fex = std::fabs(e2.x);
-    fey = std::fabs(e2.y);
-    fez = std::fabs(e2.z);
-    AXISTEST_X2(e2.z, e2.y, fez, fey);
-    AXISTEST_Y1(e2.z, e2.x, fez, fex);
-    AXISTEST_Z12(e2.y, e2.x, fey, fex);
+    fex = std::fabs(e2.x());
+    fey = std::fabs(e2.y());
+    fez = std::fabs(e2.z());
+    AXISTEST_X2(e2.z(), e2.y(), fez, fey);
+    AXISTEST_Y1(e2.z(), e2.x(), fez, fex);
+    AXISTEST_Z12(e2.y(), e2.x(), fey, fex);
 
     /* Bullet 1: */
     /*  first test overlap in the {x,y,z}-directions */
@@ -606,16 +606,16 @@ bool TriBoxOverlap(const zeus::CVector3f& boxcenter, const zeus::CVector3f& boxh
     /*  the triangle against the AABB */
 
     /* test in X-direction */
-    FINDMINMAX(v0.x, v1.x, v2.x, min, max);
-    if (min>boxhalfsize.x || max<-boxhalfsize.x) return false;
+    FINDMINMAX(v0.x(), v1.x(), v2.x(), min, max);
+    if (min>boxhalfsize.x() || max<-boxhalfsize.x()) return false;
 
     /* test in Y-direction */
-    FINDMINMAX(v0.y, v1.y, v2.y, min, max);
-    if (min>boxhalfsize.y || max<-boxhalfsize.y) return false;
+    FINDMINMAX(v0.y(), v1.y(), v2.y(), min, max);
+    if (min>boxhalfsize.y() || max<-boxhalfsize.y()) return false;
 
     /* test in Z-direction */
-    FINDMINMAX(v0.z, v1.z, v2.z, min, max);
-    if (min>boxhalfsize.z || max<-boxhalfsize.z) return false;
+    FINDMINMAX(v0.z(), v1.z(), v2.z(), min, max);
+    if (min>boxhalfsize.z() || max<-boxhalfsize.z()) return false;
 
     /* Bullet 2: */
     /*  test if the box intersects the plane of the triangle */
@@ -878,7 +878,7 @@ bool TriSphereIntersection(const zeus::CSphere& sphere,
     point = zeus::baryToWorld(trivert2, trivert1, trivert0, barys);
 
     if (baryX == 0.f || baryX == 1.f || baryY == 0.f || baryY == 1.f ||
-        barys.z == 0.f || barys.z == 1.f)
+        barys.z() == 0.f || barys.z() == 1.f)
         normal = -sphere.getSurfaceNormal(point);
     else
         normal = (trivert1 - trivert0).cross(trivert2 - trivert0).normalized();

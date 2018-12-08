@@ -63,7 +63,7 @@ void CHudHelmetInterface::UpdateCameraDebugSettings(float fov, float y, float z)
 void CHudHelmetInterface::UpdateHelmetAlpha()
 {
     zeus::CColor color = zeus::CColor::skWhite;
-    color.a = g_GameState->GameOptions().GetHelmetAlpha() / 255.f;
+    color.a() = g_GameState->GameOptions().GetHelmetAlpha() / 255.f;
     x44_BaseWidget_Pivot->SetColor(color);
 }
 

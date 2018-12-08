@@ -13,10 +13,14 @@ static bool _close_enough(float f1, float f2, float epsilon)
 
 static bool BoxLineTest(const zeus::CAABox& aabb, const zeus::CLine& line, float& lT, float& hT)
 {
-    const float* aabbMin = &aabb.min.x;
-    const float* aabbMax = &aabb.max.x;
-    const float* lorigin = &line.origin.x;
-    const float* ldir = &line.dir.x;
+    zeus::simd_floats aabbMinF(aabb.min.mSimd);
+    zeus::simd_floats aabbMaxF(aabb.max.mSimd);
+    zeus::simd_floats lineOrigin(line.origin.mSimd);
+    zeus::simd_floats lineDir(line.dir.mSimd);
+    const float* aabbMin = aabbMinF.data();
+    const float* aabbMax = aabbMaxF.data();
+    const float* lorigin = lineOrigin.data();
+    const float* ldir = lineDir.data();
     lT = -FLT_MAX;
     hT = FLT_MAX;
 
@@ -416,11 +420,11 @@ void CAreaOctTree::Node::LineTestExInternal(const zeus::CLine& line, const CMate
 
         zeus::CVector3f lineStart = line.origin + (lT * line.dir);
         int selector = 0;
-        if (lineStart.x >= center.x)
+        if (lineStart.x() >= center.x())
             selector = 1;
-        if (lineStart.y >= center.y)
+        if (lineStart.y() >= center.y())
             selector |= 1 << 1;
-        if (lineStart.z >= center.z)
+        if (lineStart.z() >= center.z())
             selector |= 1 << 2;
 
         float tmpLoT = lT;

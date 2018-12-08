@@ -48,7 +48,7 @@ void CGuiFrame::SortDrawOrder()
     std::sort(x2c_widgets.begin(), x2c_widgets.end(),
     [](const std::shared_ptr<CGuiWidget>& a, const std::shared_ptr<CGuiWidget>& b) -> bool
     {
-        return a->GetWorldPosition().y > b->GetWorldPosition().y;
+        return a->GetWorldPosition().y() > b->GetWorldPosition().y();
     });
 }
 

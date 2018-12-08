@@ -34,7 +34,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
                     if (dist <= FLT_EPSILON)
                         continue;
                     zeus::CVector3f bounds = modDesc.GetBounds();
-                    bounds.y += dist;
+                    bounds.y() += dist;
                     CCollisionActor* newAct =
                         new CCollisionActor(mgr.AllocateUniqueId(), area, x10_ownerId, bounds,
                                             zeus::CVector3f(0.f, 0.5f * dist, 0.f), active, modDesc.GetMass());

@@ -136,6 +136,8 @@ public:
     bool IsPrimed() const { return x68_26_primed; }
     bool WillContinueSmallMovements() const { return x68_27_continueSmallMovements; }
     bool IsOver() const { return x68_25_over; }
+    void SetNoOverTimer(bool b) { x68_28_noOverTimer = b; }
+    void SetContinueSmallMovements(bool b) { x68_27_continueSmallMovements = b; }
 };
 
 }

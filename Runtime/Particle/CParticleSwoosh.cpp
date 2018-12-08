@@ -90,12 +90,12 @@ void CParticleSwoosh::UpdateMaxRadius(float r)
 
 void CParticleSwoosh::UpdateBounds(const zeus::CVector3f& pos)
 {
-    x1fc_aabbMax[0] = std::max(pos[0], x1fc_aabbMax[0]);
-    x1fc_aabbMax[1] = std::max(pos[1], x1fc_aabbMax[1]);
-    x1fc_aabbMax[2] = std::max(pos[2], x1fc_aabbMax[2]);
-    x1f0_aabbMin[0] = std::min(pos[0], x1f0_aabbMin[0]);
-    x1f0_aabbMin[1] = std::min(pos[1], x1f0_aabbMin[1]);
-    x1f0_aabbMin[2] = std::min(pos[2], x1f0_aabbMin[2]);
+    x1fc_aabbMax[0] = std::max(pos[0], float(x1fc_aabbMax[0]));
+    x1fc_aabbMax[1] = std::max(pos[1], float(x1fc_aabbMax[1]));
+    x1fc_aabbMax[2] = std::max(pos[2], float(x1fc_aabbMax[2]));
+    x1f0_aabbMin[0] = std::min(pos[0], float(x1f0_aabbMin[0]));
+    x1f0_aabbMin[1] = std::min(pos[1], float(x1f0_aabbMin[1]));
+    x1f0_aabbMin[2] = std::min(pos[2], float(x1f0_aabbMin[2]));
 }
 
 float CParticleSwoosh::GetLeftRadius(int i) const

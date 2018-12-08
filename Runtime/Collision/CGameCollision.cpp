@@ -246,14 +246,14 @@ bool CGameCollision::CanBlock(const CMaterialList& mat, const zeus::CVector3f& v
     if (mat.HasMaterial(EMaterialTypes::Floor))
         return true;
 
-    return (v.z > 0.85f);
+    return (v.z() > 0.85f);
 }
 
 bool CGameCollision::IsFloor(const CMaterialList& mat, const zeus::CVector3f& v)
 {
     if (mat.HasMaterial(EMaterialTypes::Floor))
         return true;
-    return (v.z > 0.85f);
+    return (v.z() > 0.85f);
 }
 
 void CGameCollision::SendMaterialMessage(CStateManager& mgr, const CMaterialList& mat, CActor& act)
@@ -424,9 +424,9 @@ float CGameCollision::GetMinExtentForCollisionPrimitive(const CCollisionPrimitiv
     else if (prim.GetPrimType() == FOURCC('AABX'))
     {
         const CCollidableAABox& aabx = static_cast<const CCollidableAABox&>(prim);
-        zeus::CVector3f extent = aabx.GetAABB().max - aabx.GetAABB().min;
-        float minExtent = std::min(extent.x, extent.y);
-        minExtent = std::min(minExtent, extent.z);
+        const zeus::CVector3f extent = aabx.GetAABB().max - aabx.GetAABB().min;
+        float minExtent = std::min(extent.x(), extent.y());
+        minExtent = std::min(minExtent, extent.z());
         return minExtent;
     }
     else if (prim.GetPrimType() == FOURCC('ABSH'))
@@ -882,7 +882,7 @@ void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActo
 {
     zeus::CVector3f normal = info.GetNormalLeft();
     if (zeroZ)
-        normal.z = 0.f;
+        normal.z() = 0.f;
 
     zeus::CVector3f relVel = GetActorRelativeVelocities(a0, &a1);
     float velNormDot = relVel.dot(normal);
@@ -952,7 +952,7 @@ void CGameCollision::CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMateri
 {
     zeus::CUnitVector3f useNorm = normal;
     if (zeroZ && m0.HasMaterial(EMaterialTypes::Player) && !m1.HasMaterial(EMaterialTypes::Floor))
-        useNorm.z = 0.f;
+        useNorm.z() = 0.f;
 
     if (useNorm.canBeNormalized())
     {

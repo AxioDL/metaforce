@@ -72,7 +72,7 @@ void CPauseScreen::InitializeFrameGlue()
     if (CGuiWidget* deco = x34_loadedPauseScreenInstructions->FindWidget("basewidget_deco"))
     {
         zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
-        color.a *= 0.75f;
+        color.a() *= 0.75f;
         deco->SetColor(color);
     }
 }
@@ -257,7 +257,7 @@ void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, C
     {
         curScreen->Update(dt, rand, archQueue);
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = std::min(curScreen->GetAlpha(), x8_curSubscreen != xc_nextSubscreen ? x10_alphaInterp / 0.5f : 1.f);
+        color.a() = std::min(curScreen->GetAlpha(), x8_curSubscreen != xc_nextSubscreen ? x10_alphaInterp / 0.5f : 1.f);
         x40_textpane_a->SetColor(color);
         x44_textpane_b->SetColor(color);
     }

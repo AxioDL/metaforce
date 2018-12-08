@@ -45,15 +45,15 @@ public:
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
     void SetInUse(bool inUse);
     bool GetInUse(TUniqueId uid) const;
-    bool ShouldLandHere() const;
-    bool ShouldWallHang() const;
-    bool ShouldStay() const;
-    bool ShouldCrouch() const;
+    bool ShouldLandHere() const { return xe8_26_landHere; }
+    bool ShouldWallHang() const { return xe8_27_wallHang; }
+    bool ShouldStay() const { return xe8_28_stay; }
+    bool ShouldCrouch() const { return xf8_24_crouch; }
     bool Blown(const zeus::CVector3f& pos) const;
     float GetSinSqVerticalAngle() const;
-    float GetCosHorizontalAngle() const;
-    u32 GetAttackDirection() const;
-    void Reserve(TUniqueId id);
+    float GetCosHorizontalAngle() const { return xec_cosHorizontalAngle; }
+    u32 GetAttackDirection() const { return xe8_flags; }
+    void Reserve(TUniqueId id) { xfa_occupant = id; }
 };
 }
 

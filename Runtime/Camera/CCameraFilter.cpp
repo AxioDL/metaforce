@@ -82,7 +82,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
             if (x0_curType == EFilterType::Multiply)
                 x1c_nextColor = zeus::CColor::skWhite;
             else if (x0_curType == EFilterType::Add || x0_curType == EFilterType::Blend)
-                x1c_nextColor.a = 0.f;
+                x1c_nextColor.a() = 0.f;
         }
         else
         {
@@ -95,7 +95,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape,
                 else if (type == EFilterType::Add || type == EFilterType::Blend)
                 {
                     x18_curColor = x1c_nextColor;
-                    x18_curColor.a = 0.f;
+                    x18_curColor.a() = 0.f;
                     x14_prevColor = x18_curColor;
                 }
             }

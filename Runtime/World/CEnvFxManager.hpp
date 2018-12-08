@@ -45,9 +45,10 @@ public:
     CVectorFixed8_8(s16 xi, s16 yi, s16 zi) { x = xi; y = yi; z = zi; }
     CVectorFixed8_8(const zeus::CVector3f& vec)
     {
-        x = s16(vec.x * 256.f);
-        y = s16(vec.y * 256.f);
-        z = s16(vec.z * 256.f);
+        zeus::simd_floats f(vec.mSimd);
+        x = s16(f[0] * 256.f);
+        y = s16(f[1] * 256.f);
+        z = s16(f[2] * 256.f);
     }
     CVectorFixed8_8 operator+(const CVectorFixed8_8& other) const
     {

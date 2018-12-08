@@ -41,32 +41,32 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
     x300_28_canOrbit = canOrbit == ECanOrbit::Orbit;
     if (x1dc_faceFlag & 0x1)
     {
-        x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.max.y, 0.f);
+        x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.max.y(), 0.f);
         x1e4_faceDir = zeus::CTransform::RotateX(-M_PIF / 2.f);
     }
     else if (x1dc_faceFlag & 0x2)
     {
-        x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.min.y, 0.f);
+        x244_faceTranslate = zeus::CVector3f(0.f, x14c_bounds.min.y(), 0.f);
         x1e4_faceDir = zeus::CTransform::RotateX(M_PIF / 2.f);
     }
     else if (x1dc_faceFlag & 0x4)
     {
-        x244_faceTranslate = zeus::CVector3f(x14c_bounds.min.x, 0.f, 0.f);
+        x244_faceTranslate = zeus::CVector3f(x14c_bounds.min.x(), 0.f, 0.f);
         x1e4_faceDir = zeus::CTransform::RotateY(-M_PIF / 2.f);
     }
     else if (x1dc_faceFlag & 0x8)
     {
-        x244_faceTranslate = zeus::CVector3f(x14c_bounds.max.x, 0.f, 0.f);
+        x244_faceTranslate = zeus::CVector3f(x14c_bounds.max.x(), 0.f, 0.f);
         x1e4_faceDir = zeus::CTransform::RotateY(M_PIF / 2.f);
     }
     else if (x1dc_faceFlag & 0x10)
     {
-        x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.max.z);
+        x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.max.z());
         x1e4_faceDir = zeus::CTransform::Identity();
     }
     else if (x1dc_faceFlag & 0x20)
     {
-        x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.min.z);
+        x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.min.z());
         x1e4_faceDir = zeus::CTransform::RotateY(M_PIF);
     }
 

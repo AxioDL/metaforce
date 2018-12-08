@@ -463,9 +463,9 @@ bool MREA::Cook(const hecl::ProjectPath& outPath,
     }
     else
     {
-        head.localToWorldMtx[0].vec[0] = 1.f;
-        head.localToWorldMtx[1].vec[1] = 1.f;
-        head.localToWorldMtx[2].vec[2] = 1.f;
+        head.localToWorldMtx[0].simd[0] = 1.f;
+        head.localToWorldMtx[1].simd[1] = 1.f;
+        head.localToWorldMtx[2].simd[2] = 1.f;
     }
     head.meshCount = meshes.size();
     head.geomSecIdx = 0;

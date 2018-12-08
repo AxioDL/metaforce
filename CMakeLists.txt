@@ -115,8 +115,7 @@ else()
     message(STATUS "Building with x87 Vector ISA")
   endif()
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-  -Wno-multichar -fno-exceptions -fno-rtti -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-multichar -fno-exceptions -fno-rtti -Werror")
 
   if(APPLE)
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -flto=thin")

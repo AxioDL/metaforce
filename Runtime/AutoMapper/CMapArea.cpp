@@ -294,10 +294,10 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
 
     Instance& instance = const_cast<Instance&>(m_instances[instIdx]);
 
-    if (surfColor.a)
+    if (surfColor.a())
         instance.m_surfacePrims.draw(surfColor, m_primStart, m_primCount);
 
-    if (lineColor.a)
+    if (lineColor.a())
     {
         bool draw2 = lineWidth > 1.f;
         athena::io::MemoryReader r(x1c_outlineOffset, INT_MAX);
@@ -306,7 +306,7 @@ void CMapArea::CMapAreaSurface::Draw(const zeus::CVector3f* verts, const zeus::C
         std::vector<CLineRenderer>& linePrims = instance.m_linePrims;
         zeus::CColor color = lineColor;
         if (draw2)
-            color.a *= 0.5f;
+            color.a() *= 0.5f;
         float width = lineWidth;
 
         auto primIt = linePrims.begin();

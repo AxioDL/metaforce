@@ -34,7 +34,7 @@ void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, flo
         mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
         actor.SetAngularVelocityWR(actor.GetAngularVelocityWR() * 0.98f);
         zeus::CVector3f vel = actor.GetTransform().transposeRotate(actor.GetVelocity());
-        vel.z = 0.f;
+        vel.z() = 0.f;
         actor.SetVelocityOR(vel);
         actor.SetMomentumWR(zeus::CVector3f::skZero);
     }
@@ -166,15 +166,15 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
         return true;
 
     zeus::CAABox actorAABB = actor.GetBoundingBox();
-    if (normAccum.z >= 0.f)
+    if (normAccum.z() >= 0.f)
     {
-        zextent = aabb.max.z - actorAABB.min.z + 0.02f;
+        zextent = aabb.max.z() - actorAABB.min.z() + 0.02f;
         if (zextent > stepUp)
             return true;
     }
     else
     {
-        zextent = aabb.min.z - actorAABB.max.z - 0.02f;
+        zextent = aabb.min.z() - actorAABB.max.z() - 0.02f;
         if (zextent < -stepDown)
             return true;
     }
@@ -226,9 +226,9 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
         zeus::CAABox actorAABB = actor.GetBoundingBox();
         float zextent;
         if (amt > 0.f)
-            zextent = aabb.min.z - actorAABB.max.z - 0.02f + amt;
+            zextent = aabb.min.z() - actorAABB.max.z() - 0.02f + amt;
         else
-            zextent = aabb.max.z - actorAABB.min.z + 0.02f + amt;
+            zextent = aabb.max.z() - actorAABB.min.z() + 0.02f + amt;
 
         actor.MoveCollisionPrimitive({0.f, 0.f, zextent});
 
@@ -426,11 +426,11 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
         if (noJump)
         {
             zeus::CVector3f vel = player.GetVelocity();
-            vel.z = 0.f;
+            vel.z() = 0.f;
             actor.SetVelocityWR(vel);
-            actor.x15c_force.z = 0.f;
-            actor.x150_momentum.z = 0.f;
-            actor.x168_impulse.z = 0.f;
+            actor.x15c_force.z() = 0.f;
+            actor.x150_momentum.z() = 0.f;
+            actor.x168_impulse.z() = 0.f;
         }
 
         CPhysicsState physStatePre = actor.GetPhysicsState();
@@ -688,9 +688,9 @@ bool CGroundMovement::RemoveNormalComponent(const zeus::CVector3f& a, zeus::CVec
 
 static bool RemovePositiveZComponentFromNormal(zeus::CVector3f& vec)
 {
-    if (vec.z > 0.f && vec.z < 0.99f)
+    if (vec.z() > 0.f && vec.z() < 0.99f)
     {
-        vec.z = 0.f;
+        vec.z() = 0.f;
         vec.normalize();
         return true;
     }
@@ -795,9 +795,9 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
                 vel += (elasticForce - dot) * collisionNorm;
             if (clipCollision && floorCollision)
                 if (!CGroundMovement::RemoveNormalComponent(floorPlaneNormal, vel))
-                    vel.z = 0.f;
-            if (vel.z > opts.x38_maxPositiveVerticalVelocity)
-                vel *= zeus::CVector3f(opts.x38_maxPositiveVerticalVelocity / vel.z);
+                    vel.z() = 0.f;
+            if (vel.z() > opts.x38_maxPositiveVerticalVelocity)
+                vel *= zeus::CVector3f(opts.x38_maxPositiveVerticalVelocity / vel.z());
 
             if (opts.x18_dampForceAndMomentum)
             {
@@ -818,11 +818,11 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
 
             if (opts.x0_setWaterLandingForce && !floor)
             {
-                if (collisionInfo.GetNormalLeft().z < -0.1f && vel.z > 0.f)
-                    vel.z *= 0.5f;
+                if (collisionInfo.GetNormalLeft().z() < -0.1f && vel.z() > 0.f)
+                    vel.z() *= 0.5f;
 
-                float zNormAbs = std::fabs(collisionInfo.GetNormalLeft().z);
-                if ((zNormAbs > opts.x10_downwardZThreshold && vel.z < 0.f) || zNormAbs > opts.xc_anyZThreshold)
+                float zNormAbs = std::fabs(collisionInfo.GetNormalLeft().z());
+                if ((zNormAbs > opts.x10_downwardZThreshold && vel.z() < 0.f) || zNormAbs > opts.xc_anyZThreshold)
                 {
                     actor.x15c_force = zeus::CVector3f(0.f, 0.f,
                         -(1.f + std::max(opts.x4_waterLandingForceCoefficient * zNormAbs,
@@ -836,8 +836,8 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
         else
         {
             zeus::CVector3f vel = actor.x138_velocity;
-            if (actor.x138_velocity.z > opts.x38_maxPositiveVerticalVelocity)
-                vel *= zeus::CVector3f(opts.x38_maxPositiveVerticalVelocity / vel.z);
+            if (actor.x138_velocity.z() > opts.x38_maxPositiveVerticalVelocity)
+                vel *= zeus::CVector3f(opts.x38_maxPositiveVerticalVelocity / vel.z());
 
             actor.SetVelocityWR(vel);
         }

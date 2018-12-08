@@ -152,12 +152,12 @@ void CBomb::Touch(CActor&, urde::CStateManager&)
 std::experimental::optional<zeus::CAABox> CBomb::GetTouchBounds() const
 {
     float radius = (x190_24_isNotDetonated ? 0.2f : x12c_curDamageInfo.GetRadius());
-    float minX = (x170_prevLocation.x >= GetTranslation().x ? x170_prevLocation.x : GetTranslation().x) - radius;
-    float minY = (x170_prevLocation.y >= GetTranslation().y ? x170_prevLocation.y : GetTranslation().y) - radius;
-    float minZ = (x170_prevLocation.z >= GetTranslation().z ? x170_prevLocation.z : GetTranslation().z) - radius;
-    float maxX = (x170_prevLocation.x >= GetTranslation().x ? x170_prevLocation.x : GetTranslation().x) + radius;
-    float maxY = (x170_prevLocation.y >= GetTranslation().y ? x170_prevLocation.y : GetTranslation().y) + radius;
-    float maxZ = (x170_prevLocation.z >= GetTranslation().z ? x170_prevLocation.z : GetTranslation().z) + radius;
+    float minX = (x170_prevLocation.x() >= GetTranslation().x() ? x170_prevLocation.x() : GetTranslation().x()) - radius;
+    float minY = (x170_prevLocation.y() >= GetTranslation().y() ? x170_prevLocation.y() : GetTranslation().y()) - radius;
+    float minZ = (x170_prevLocation.z() >= GetTranslation().z() ? x170_prevLocation.z() : GetTranslation().z()) - radius;
+    float maxX = (x170_prevLocation.x() >= GetTranslation().x() ? x170_prevLocation.x() : GetTranslation().x()) + radius;
+    float maxY = (x170_prevLocation.y() >= GetTranslation().y() ? x170_prevLocation.y() : GetTranslation().y()) + radius;
+    float maxZ = (x170_prevLocation.z() >= GetTranslation().z() ? x170_prevLocation.z() : GetTranslation().z()) + radius;
 
     return {{minX, minY, minZ, maxX, maxY, maxZ}};
 }

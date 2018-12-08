@@ -38,12 +38,12 @@ std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream
 
 void CAuiImagePane::Update(float dt)
 {
-    xd0_uvBias0.x = std::fmod(xd0_uvBias0.x, 1.f);
-    xd0_uvBias0.y = std::fmod(xd0_uvBias0.y, 1.f);
+    xd0_uvBias0.x() = std::fmod(xd0_uvBias0.x(), 1.f);
+    xd0_uvBias0.y() = std::fmod(xd0_uvBias0.y(), 1.f);
     if (x138_tileSize != zeus::CVector2f::skZero && xb8_tex0Tok.IsLoaded())
     {
         zeus::CVector2f tmp = zeus::CVector2f(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight()) / x138_tileSize;
-        x144_frameTimer = std::fmod(x144_frameTimer + dt * x140_interval, std::floor(tmp.x) * std::floor(tmp.y));
+        x144_frameTimer = std::fmod(x144_frameTimer + dt * x140_interval, std::floor(tmp.x()) * std::floor(tmp.y()));
     }
 
     CGuiWidget::Update(dt);
@@ -62,7 +62,7 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
                                     int frame, float alpha, bool noBlur, CTexturedQuadFilterAlpha& quad) const
 {
     zeus::CColor useColor = color;
-    useColor.a *= alpha;
+    useColor.a() *= alpha;
 
     rstl::reserved_vector<zeus::CVector2f, 4> vec;
     const rstl::reserved_vector<zeus::CVector2f, 4>* useUVs;
@@ -71,10 +71,10 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
         zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
         zeus::CVector2f tmp = res / x138_tileSize;
         zeus::CVector2f tmpRecip = x138_tileSize / res;
-        float x0 = tmpRecip.x * (frame % int(tmp.x));
-        float x1 = x0 + tmpRecip.x;
-        float y0 = tmpRecip.y * (frame % int(tmp.y));
-        float y1 = y0 + tmpRecip.y;
+        float x0 = tmpRecip.x() * (frame % int(tmp.x()));
+        float x1 = x0 + tmpRecip.x();
+        float y0 = tmpRecip.y() * (frame % int(tmp.y()));
+        float y1 = y0 + tmpRecip.y();
         vec.push_back(zeus::CVector2f(x0, y0));
         vec.push_back(zeus::CVector2f(x0, y1));
         vec.push_back(zeus::CVector2f(x1, y0));
@@ -121,7 +121,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const
         const_cast<CAuiImagePane*>(this)->m_filters.emplace(const_cast<CAuiImagePane*>(this)->xb8_tex0Tok);
     Filters& filters = const_cast<Filters&>(*m_filters);
     zeus::CColor color = xa8_color2;
-    color.a *= params.x0_alphaMod;
+    color.a() *= params.x0_alphaMod;
     //SetZUpdate(xac_drawFlags == EGuiModelDrawFlags::Shadeless || xac_drawFlags == EGuiModelDrawFlags::Opaque);
     float blur0 = 1.f;
     float blur1 = 0.f;
@@ -130,7 +130,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const
     if (x140_interval < 1.f && x140_interval > 0.f)
     {
         zeus::CVector2f tmp = zeus::CVector2f(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight()) / x138_tileSize;
-        frame1 = (frame0 + 1) % int(tmp.x * tmp.y);
+        frame1 = (frame0 + 1) % int(tmp.x() * tmp.y());
         if (x148_fadeDuration == 0.f)
             blur1 = 1.f;
         else
@@ -145,7 +145,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const
     {
         // Additive blend
         zeus::CColor color2 = xa8_color2;
-        color2.a = x150_flashFactor;
+        color2.a() = x150_flashFactor;
         DoDrawImagePane(color2, *xb8_tex0Tok, frame0, blur0, false, filters.m_flashQuad[0]);
         if (blur1 > 0.f)
             DoDrawImagePane(color2, *xb8_tex0Tok, frame1, blur1, false, filters.m_flashQuad[1]);

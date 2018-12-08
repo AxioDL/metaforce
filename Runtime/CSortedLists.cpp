@@ -162,22 +162,22 @@ s16 CSortedListManager::FindInListLower(ESortedList list, float val) const
 
 s16 CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aabb)
 {
-    int minXa = FindInListLower(ESortedList::MinX, aabb.min.x);
-    int maxXa = FindInListUpper(ESortedList::MinX, aabb.max.x);
-    int minXb = FindInListLower(ESortedList::MaxX, aabb.min.x);
-    int maxXb = FindInListUpper(ESortedList::MaxX, aabb.max.x);
+    int minXa = FindInListLower(ESortedList::MinX, aabb.min.x());
+    int maxXa = FindInListUpper(ESortedList::MinX, aabb.max.x());
+    int minXb = FindInListLower(ESortedList::MaxX, aabb.min.x());
+    int maxXb = FindInListUpper(ESortedList::MaxX, aabb.max.x());
     int xEnd = std::min(int(xb000_sortedLists[3].x800_size) - maxXb, minXa) + (maxXb + (maxXa - minXa) - minXb) / 2;
 
-    int minYa = FindInListLower(ESortedList::MinY, aabb.min.y);
-    int maxYa = FindInListUpper(ESortedList::MinY, aabb.max.y);
-    int minYb = FindInListLower(ESortedList::MaxY, aabb.min.y);
-    int maxYb = FindInListUpper(ESortedList::MaxY, aabb.max.y);
+    int minYa = FindInListLower(ESortedList::MinY, aabb.min.y());
+    int maxYa = FindInListUpper(ESortedList::MinY, aabb.max.y());
+    int minYb = FindInListLower(ESortedList::MaxY, aabb.min.y());
+    int maxYb = FindInListUpper(ESortedList::MaxY, aabb.max.y());
     int yEnd = std::min(int(xb000_sortedLists[4].x800_size) - maxYb, minYa) + (maxYb + (maxYa - minYa) - minYb) / 2;
 
-    int minZa = FindInListLower(ESortedList::MinZ, aabb.min.z);
-    int maxZa = FindInListUpper(ESortedList::MinZ, aabb.max.z);
-    int minZb = FindInListLower(ESortedList::MaxZ, aabb.min.z);
-    int maxZb = FindInListUpper(ESortedList::MaxZ, aabb.max.z);
+    int minZa = FindInListLower(ESortedList::MinZ, aabb.min.z());
+    int maxZa = FindInListUpper(ESortedList::MinZ, aabb.max.z());
+    int minZb = FindInListLower(ESortedList::MaxZ, aabb.min.z());
+    int maxZb = FindInListUpper(ESortedList::MaxZ, aabb.max.z());
     int zEnd = std::min(int(xb000_sortedLists[5].x800_size) - maxZb, minZa) + (maxZb + (maxZa - minZa) - minZb) / 2;
 
     if (xEnd < yEnd && xEnd < zEnd)
@@ -252,10 +252,10 @@ void CSortedListManager::BuildNearList(rstl::reserved_vector<TUniqueId, 1024>& o
 {
     if (mag == 0.f)
         mag = 8000.f;
-    zeus::CVector3f ray = dir * mag;
-    zeus::CVector3f sum = ray + pos;
-    zeus::CVector3f maxs(std::max(pos.x, sum.x), std::max(pos.y, sum.y), std::max(pos.z, sum.z));
-    zeus::CVector3f mins(std::min(sum.x, pos.x), std::min(sum.y, pos.y), std::min(sum.z, pos.z));
+    const zeus::CVector3f ray = dir * mag;
+    const zeus::CVector3f sum = ray + pos;
+    zeus::CVector3f maxs(std::max(pos.x(), sum.x()), std::max(pos.y(), sum.y()), std::max(pos.z(), sum.z()));
+    zeus::CVector3f mins(std::min(sum.x(), pos.x()), std::min(sum.y(), pos.y()), std::min(sum.z(), pos.z()));
     BuildNearList(out, zeus::CAABox(mins, maxs), filter, actor);
 }
 

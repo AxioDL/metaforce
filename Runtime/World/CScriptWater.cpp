@@ -50,8 +50,8 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
   x2b8_alphaOutRecip((alphaOutTime != 0.f) ? 1.f / alphaOutTime : 0.f), x2bc_alpha(alpha), x2c0_tileSize(tileSize)
 {
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
-    x2c4_gridDimX = u32((x2c0_tileSize + triggerAABB.max.x - triggerAABB.min.x - 0.01f) / x2c0_tileSize);
-    x2c8_gridDimY = u32((x2c0_tileSize + triggerAABB.max.y - triggerAABB.min.y - 0.01f) / x2c0_tileSize);
+    x2c4_gridDimX = u32((x2c0_tileSize + triggerAABB.max.x() - triggerAABB.min.x() - 0.01f) / x2c0_tileSize);
+    x2c8_gridDimY = u32((x2c0_tileSize + triggerAABB.max.y() - triggerAABB.min.y() - 0.01f) / x2c0_tileSize);
     x2cc_gridCellCount = (x2c4_gridDimX + 1) * (x2c8_gridDimY + 1);
     x2e8_24_b4 = b4;
     x2e8_27_allowRender = allowRender;
@@ -113,8 +113,8 @@ CScriptWater::CScriptWater(CStateManager& mgr, TUniqueId uid, std::string_view n
 void CScriptWater::SetupGrid(bool recomputeClipping)
 {
     zeus::CAABox triggerAABB = GetTriggerBoundsWR();
-    auto dimX = u32((triggerAABB.max.x - triggerAABB.min.x + x2c0_tileSize) / x2c0_tileSize);
-    auto dimY = u32((triggerAABB.max.y - triggerAABB.min.y + x2c0_tileSize) / x2c0_tileSize);
+    auto dimX = u32((triggerAABB.max.x() - triggerAABB.min.x() + x2c0_tileSize) / x2c0_tileSize);
+    auto dimY = u32((triggerAABB.max.y() - triggerAABB.min.y() + x2c0_tileSize) / x2c0_tileSize);
     x2e4_computedGridCellCount = x2cc_gridCellCount = (dimX + 1) * (dimY + 1);
     x2dc_vertIntersects.reset();
     if (!x2d8_tileIntersects || dimX != x2c4_gridDimX || dimY != x2c8_gridDimY)
@@ -151,17 +151,17 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts)
         x2dc_vertIntersects.reset(new bool[(x2c4_gridDimX + 1) * (x2c8_gridDimY + 1)]);
     zeus::CAABox triggerBounds = GetTriggerBoundsWR();
     zeus::CVector3f basePos = triggerBounds.min;
-    basePos.z = triggerBounds.max.z + 0.8f;
-    auto gridDiv = std::div(int(x2e4_computedGridCellCount), int(x2c4_gridDimX + 1));
+    basePos.z() = triggerBounds.max.z() + 0.8f;
+    auto gridDiv = std::div(x2e4_computedGridCellCount, x2c4_gridDimX + 1);
     float yOffset = x2c0_tileSize * gridDiv.quot;
     float xOffset = x2c0_tileSize * gridDiv.rem;
-    float mag = std::min(120.f, 2.f * (x130_bounds.max.z - x130_bounds.min.z) + 0.8f);
+    float mag = std::min(120.f, 2.f * (x130_bounds.max.z() - x130_bounds.min.z()) + 0.8f);
     for (int i = x2e4_computedGridCellCount;
          i < std::min(x2e4_computedGridCellCount + computeVerts, x2cc_gridCellCount); ++i)
     {
         zeus::CVector3f pos = basePos;
-        pos.x += xOffset;
-        pos.y += yOffset;
+        pos.x() += xOffset;
+        pos.y() += yOffset;
         x2dc_vertIntersects[i] = mgr.RayStaticIntersection(pos, zeus::CVector3f::skDown, mag, SolidFilter).IsValid();
         gridDiv.rem += 1;
         xOffset += x2c0_tileSize;
@@ -257,7 +257,7 @@ void CScriptWater::UpdateSplashInhabitants(CStateManager& mgr)
             if (auto tb = act->GetTouchBounds())
             {
                 zeus::CAABox thisTb = GetTriggerBoundsWR();
-                if (tb->min.z <= thisTb.max.z && tb->max.z >= thisTb.max.z)
+                if (tb->min.z() <= thisTb.max.z() && tb->max.z() >= thisTb.max.z())
                     intersects = true;
             }
         }
@@ -468,7 +468,7 @@ void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CState
 {
     if (!xe4_30_outOfFrustum)
     {
-        zeus::CPlane plane(zeus::CVector3f::skUp, x34_transform.origin.z + x130_bounds.max.z);
+        zeus::CPlane plane(zeus::CVector3f::skUp, x34_transform.origin.z() + x130_bounds.max.z());
         zeus::CAABox renderBounds = GetSortingBounds(mgr);
         mgr.AddDrawableActorPlane(*this, plane, renderBounds);
     }
@@ -478,12 +478,12 @@ void CScriptWater::Render(const CStateManager& mgr) const
 {
     if (x30_24_active && !xe4_30_outOfFrustum)
     {
-        float zOffset = 0.5f * (x9c_renderBounds.max.z + x9c_renderBounds.min.z) - x34_transform.origin.z;
+        float zOffset = 0.5f * (x9c_renderBounds.max.z() + x9c_renderBounds.min.z()) - x34_transform.origin.z();
         zeus::CAABox aabb = x9c_renderBounds.getTransformedAABox(
-        zeus::CTransform::Translate(-x34_transform.origin.x, -x34_transform.origin.y,
-                                    -x34_transform.origin.z - zOffset));
+        zeus::CTransform::Translate(-x34_transform.origin.x(), -x34_transform.origin.y(),
+                                    -x34_transform.origin.z() - zOffset));
         zeus::CTransform xf = x34_transform;
-        xf.origin.z += zOffset;
+        xf.origin.z() += zOffset;
         zeus::CVector3f areaCenter = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().center();
         std::experimental::optional<CRippleManager> rippleMan(mgr.GetFluidPlaneManager()->GetRippleManager());
         x1b4_fluidPlane->Render(mgr, x2bc_alpha, aabb, xf,
@@ -500,8 +500,8 @@ void CScriptWater::Render(const CStateManager& mgr) const
                 if (fogLevel > 0.f)
                 {
                     zeus::CAABox fogBox = GetTriggerBoundsWR();
-                    fogBox.min.z = fogBox.max.z;
-                    fogBox.max.z += fogLevel;
+                    fogBox.min.z() = float(fogBox.max.z());
+                    fogBox.max.z() += fogLevel;
                     zeus::CTransform modelXf = zeus::CTransform::Translate(fogBox.center()) *
                         zeus::CTransform::Scale((fogBox.max - fogBox.min) * 0.5f);
                     zeus::CAABox renderAABB(zeus::CVector3f::skNegOne, zeus::CVector3f::skOne);
@@ -537,8 +537,8 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr)
         return;
 
     x1fc_waterInhabitants.emplace_back(otherAct.GetUniqueId(), true);
-    float triggerMaxZ = GetTriggerBoundsWR().max.z;
-    if (touchBounds->min.z <= triggerMaxZ && touchBounds->max.z >= triggerMaxZ)
+    float triggerMaxZ = GetTriggerBoundsWR().max.z();
+    if (touchBounds->min.z() <= triggerMaxZ && touchBounds->max.z() >= triggerMaxZ)
         otherAct.FluidFXThink(EFluidState::EnteredFluid, *this, mgr);
 
     mgr.SendScriptMsg(&otherAct, x8_uid, EScriptObjectMessage::AddSplashInhabitant);
@@ -547,9 +547,9 @@ void CScriptWater::Touch(CActor& otherAct, CStateManager& mgr)
 void CScriptWater::CalculateRenderBounds()
 {
     zeus::CVector3f aabbMin = x130_bounds.min;
-    aabbMin.z = x130_bounds.max.z - 1.f;
+    aabbMin.z() = x130_bounds.max.z() - 1.f;
     zeus::CVector3f aabbMax = x130_bounds.max;
-    aabbMax.z += 1.f;
+    aabbMax.z() += 1.f;
     zeus::CVector3f transAABBMin = aabbMin + GetTranslation();
     zeus::CVector3f transAABBMax = aabbMax + GetTranslation();
     x9c_renderBounds = zeus::CAABox(transAABBMin, transAABBMax);
@@ -558,7 +558,7 @@ void CScriptWater::CalculateRenderBounds()
 zeus::CAABox CScriptWater::GetSortingBounds(const CStateManager& mgr) const
 {
     zeus::CVector3f max = x9c_renderBounds.max;
-    max.z = std::max(max.z, x9c_renderBounds.max.z - 1.f + x214_fogBias + x218_fogMagnitude);
+    max.z() = std::max(float(max.z()), x9c_renderBounds.max.z() - 1.f + x214_fogBias + x218_fogMagnitude);
     return {x9c_renderBounds.min, max};
 }
 
@@ -621,11 +621,11 @@ bool CScriptWater::CanRippleAtPoint(const zeus::CVector3f& point) const
     if (!x2d8_tileIntersects)
         return true;
 
-    auto xTile = int((point.x - GetTriggerBoundsWR().min.x) / x2c0_tileSize);
+    auto xTile = int((point.x() - GetTriggerBoundsWR().min.x()) / x2c0_tileSize);
     if (xTile < 0 || xTile >= x2c4_gridDimX)
         return false;
 
-    auto yTile = int((point.y - GetTriggerBoundsWR().min.y) / x2c0_tileSize);
+    auto yTile = int((point.y() - GetTriggerBoundsWR().min.y()) / x2c0_tileSize);
     if (yTile < 0 || yTile >= x2c8_gridDimY)
         return false;
 

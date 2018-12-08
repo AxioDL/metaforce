@@ -6,7 +6,8 @@
 namespace urde
 {
 CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo &info,
-                                     zeus::CTransform xf, bool active, u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime)
+                                     zeus::CTransform xf, bool active, u32 flags, bool crouch,
+                                     float horizontalAngle, float verticalAngle, float coverTime)
     : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(),
              CMaterialList(EMaterialTypes::NoStepLogic), CActorParameters::None(), kInvalidUniqueId),
       xe8_flags(flags),
@@ -71,7 +72,7 @@ bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const
         zeus::CVector3f frontVec = x34_transform.frontVector();
         frontVec.normalize();
 
-        if (frontVec.dot(normDif) <= GetCosHorizontalAngle() || (posDif.z * posDif.z) >= GetSinSqVerticalAngle())
+        if (frontVec.dot(normDif) <= GetCosHorizontalAngle() || (posDif.z() * posDif.z()) >= GetSinSqVerticalAngle())
             return true;
     }
     return false;
@@ -80,41 +81,6 @@ bool CScriptCoverPoint::Blown(const zeus::CVector3f& point) const
 float CScriptCoverPoint::GetSinSqVerticalAngle() const
 {
     return xf0_sinVerticalAngle * xf0_sinVerticalAngle;
-}
-
-float CScriptCoverPoint::GetCosHorizontalAngle() const
-{
-    return xec_cosHorizontalAngle;
-}
-
-bool CScriptCoverPoint::ShouldLandHere() const
-{
-    return xe8_26_landHere;
-}
-
-bool CScriptCoverPoint::ShouldWallHang() const
-{
-    return xe8_27_wallHang;
-}
-
-bool CScriptCoverPoint::ShouldStay() const
-{
-    return xe8_28_stay;
-}
-
-bool CScriptCoverPoint::ShouldCrouch() const
-{
-    return xf8_24_crouch;
-}
-
-u32 CScriptCoverPoint::GetAttackDirection() const
-{
-    return xe8_flags;
-}
-
-void CScriptCoverPoint::Reserve(TUniqueId id)
-{
-    xfa_occupant = id;
 }
 
 void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr)
@@ -131,6 +97,5 @@ void CScriptCoverPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
             }
     }
 }
-
 
 }

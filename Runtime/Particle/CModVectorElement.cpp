@@ -159,9 +159,11 @@ bool CMVEBounce::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& pPo
 
 bool CMVEConstant::GetValue(int frame, zeus::CVector3f& pVel, zeus::CVector3f& /*pPos*/) const
 {
-    x4_x->GetValue(frame, pVel.x);
-    x8_y->GetValue(frame, pVel.y);
-    xc_z->GetValue(frame, pVel.z);
+    float x, y, z;
+    x4_x->GetValue(frame, x);
+    x8_y->GetValue(frame, y);
+    xc_z->GetValue(frame, z);
+    pVel.assign(x, y, z);
     return false;
 }
 

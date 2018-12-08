@@ -127,7 +127,7 @@ void SplashScreen::updateContentOpacity(float opacity)
     zeus::CColor color = zeus::CColor::lerp(clearColor, res.themeData().uiText(), opacity);
     m_title->colorGlyphs(color);
     m_buildInfo->colorGlyphs(color);
-    m_badgeIcon->setMultiplyColor({1.f, 1.f, 1.f, color.a});
+    m_badgeIcon->setMultiplyColor({1.f, 1.f, 1.f, color.a()});
     m_badgeText->colorGlyphs(color);
     m_newButt.m_view->colorGlyphs(color);
     m_openButt.m_view->colorGlyphs(color);

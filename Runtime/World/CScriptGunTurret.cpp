@@ -218,7 +218,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
             {
                 CModelData mData(CStaticRes(x2d4_data.x88_, scale));
                 x4a4_.emplace(std::move(mData));
-                x4f4_ = x4a4_->GetBounds().max.z - x4a4_->GetBounds().min.z;
+                x4f4_ = x4a4_->GetBounds().max.z() - x4a4_->GetBounds().min.z();
             }
             sub80219b18(5, mgr);
         }
@@ -916,7 +916,7 @@ void CScriptGunTurret::sub80218bb4(s32 state, CStateManager& mgr, float dt)
 bool CScriptGunTurret::sub80217ad8(CStateManager& mgr)
 {
     zeus::CVector3f posDif = mgr.GetPlayer().GetTranslation() - GetTranslation();
-    zeus::CVector3f someVec(posDif.x, posDif.y, 0.f);
+    zeus::CVector3f someVec(posDif.x(), posDif.y(), 0.f);
     if (x550_.dot(posDif) >= 0.f)
         return zeus::CVector3f::getAngleDiff(x544_, someVec) <= x2d4_data.x20_;
 

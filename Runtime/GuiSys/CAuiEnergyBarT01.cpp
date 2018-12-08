@@ -79,15 +79,15 @@ void CAuiEnergyBarT01::Draw(const CGuiWidgetDrawParms& drawParms) const
     float shadowT = xe0_maxEnergy > 0.f ? xfc_shadowEnergy / xe0_maxEnergy : 0.f;
 
     zeus::CColor filledColor = xd0_filledColor;
-    filledColor.a *= drawParms.x0_alphaMod;
+    filledColor.a() *= drawParms.x0_alphaMod;
     filledColor *= xa8_color2;
 
     zeus::CColor shadowColor = xd4_shadowColor;
-    shadowColor.a *= drawParms.x0_alphaMod;
+    shadowColor.a() *= drawParms.x0_alphaMod;
     shadowColor *= xa8_color2;
 
     zeus::CColor emptyColor = xcc_emptyColor;
-    emptyColor.a *= drawParms.x0_alphaMod;
+    emptyColor.a() *= drawParms.x0_alphaMod;
     emptyColor *= xa8_color2;
 
     for (int i=0 ; i<3 ; ++i)

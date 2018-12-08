@@ -18,7 +18,8 @@ template <> struct hash<zeus::CVector3f>
 {
     size_t operator()(const zeus::CVector3f& val) const noexcept
     {
-        return XXH64(val.v, 12, 0);
+        zeus::simd_floats f(val.mSimd);
+        return XXH64(&f[0], 12, 0);
     }
 };
 }

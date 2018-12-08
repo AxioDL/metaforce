@@ -37,10 +37,10 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr)
             if (!x4_camRelZPos)
                 x10_lagTargetPos = orbitTargetPosition + zeus::CVector3f(0.f, 0.f, x0_zOffset);
             else
-                x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x, orbitTargetPosition.y,
-                                                   curCam->GetTranslation().z + x0_zOffset);
+                x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x(), orbitTargetPosition.y(),
+                                                   curCam->GetTranslation().z() + x0_zOffset);
             x8_lagAzimuth =
-                zeus::CEulerAngles(zeus::CQuaternion(curCam->GetTransform().basis)).z + zeus::degToRad(45.f);
+                zeus::CEulerAngles(zeus::CQuaternion(curCam->GetTransform().basis)).z() + zeus::degToRad(45.f);
         }
         else
         {
@@ -55,23 +55,23 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr)
     if (!x4_camRelZPos)
     {
         zeus::CVector3f orbitTargetPosition = mgr.GetPlayer().GetHUDOrbitTargetPosition();
-        if ((orbitTargetPosition.z + x0_zOffset) - x10_lagTargetPos.z < 0.1f)
+        if ((orbitTargetPosition.z() + x0_zOffset) - x10_lagTargetPos.z() < 0.1f)
             x10_lagTargetPos = orbitTargetPosition + zeus::CVector3f(0.f, 0.f, x0_zOffset);
-        else if ((orbitTargetPosition.z + x0_zOffset) - x10_lagTargetPos.z < 0.f)
-            x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x, orbitTargetPosition.y, x10_lagTargetPos.z - 0.1f);
+        else if ((orbitTargetPosition.z() + x0_zOffset) - x10_lagTargetPos.z() < 0.f)
+            x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x(), orbitTargetPosition.y(), x10_lagTargetPos.z() - 0.1f);
         else
-            x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x, orbitTargetPosition.y, x10_lagTargetPos.z + 0.1f);
+            x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x(), orbitTargetPosition.y(), x10_lagTargetPos.z() + 0.1f);
     }
     else
     {
         zeus::CVector3f orbitTargetPosition = mgr.GetPlayer().GetHUDOrbitTargetPosition();
-        x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x, orbitTargetPosition.y,
-                                           x0_zOffset + orbitTargetPosition.z);
+        x10_lagTargetPos = zeus::CVector3f(orbitTargetPosition.x(), orbitTargetPosition.y(),
+                                           x0_zOffset + orbitTargetPosition.z());
     }
 
     if (x1c_lastFreeOrbit)
     {
-        float newAzimuth = zeus::CEulerAngles(zeus::CQuaternion(curCam->GetTransform().basis)).z + zeus::degToRad(45.f);
+        float newAzimuth = zeus::CEulerAngles(zeus::CQuaternion(curCam->GetTransform().basis)).z() + zeus::degToRad(45.f);
         float aziDelta = newAzimuth - xc_azimuth;
         if (mgr.GetPlayer().IsInFreeLook())
             x8_lagAzimuth += aziDelta;
@@ -103,7 +103,7 @@ void COrbitPointMarker::Draw(const CStateManager& mgr) const
         modelXf.origin += x10_lagTargetPos;
         CGraphics::SetModelMatrix(modelXf);
         zeus::CColor color = g_tweakTargeting->GetOrbitPointColor();
-        color.a *= scale;
+        color.a() *= scale;
         CModelFlags flags(7, 0, 0, color);
         x28_orbitPointModel->Draw(flags);
     }

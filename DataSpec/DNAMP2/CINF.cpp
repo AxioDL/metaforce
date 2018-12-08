@@ -64,15 +64,19 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& c
               cinfId.toUint32());
 
     for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones())
+    {
+        zeus::simd_floats originF(bone.m_origBone.origin.simd);
+        zeus::simd_floats tailF(bone.m_tail.mSimd);
         os.format("bone = arm.edit_bones.new('%s')\n"
                   "bone.head = (%f,%f,%f)\n"
                   "bone.tail = (%f,%f,%f)\n"
                   "bone.use_inherit_scale = False\n"
                   "arm_bone_table[%u] = bone\n",
                   getBoneNameFromId(bone.m_origBone.id)->c_str(),
-                  bone.m_origBone.origin.vec[0], bone.m_origBone.origin.vec[1], bone.m_origBone.origin.vec[2],
-                  bone.m_tail[0], bone.m_tail[1], bone.m_tail[2],
+                  originF[0], originF[1], originF[2],
+                  tailF[0], tailF[1], tailF[2],
                   bone.m_origBone.id);
+    }
 
     for (const Bone& bone : bones)
         if (bone.parentId != 97)

@@ -64,10 +64,10 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type)
 
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect)
 {
-    m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
-    m_uniform.m_matrix[1][1] = rect.size.y * 2.f;
-    m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
-    m_uniform.m_matrix[3][1] = rect.position.y * 2.f - 1.f;
+    m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
+    m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
+    m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;
+    m_uniform.m_matrix[3][1] = rect.position.y() * 2.f - 1.f;
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
@@ -85,7 +85,7 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t)
         delta /= float(g_Viewport.xc_height);
         zeus::CRectangle rect(0.f, 0.f, 1.f, delta);
         m_bottom.draw(color, rect);
-        rect.position.y = 1.f - delta;
+        rect.position.y() = 1.f - delta;
         m_top.draw(color, rect);
     }
 }

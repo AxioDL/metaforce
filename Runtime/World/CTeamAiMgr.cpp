@@ -112,7 +112,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos)
     {
         if (TCastToPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId()))
         {
-            float length = (ai->GetBaseBoundingBox().max.y - ai->GetBaseBoundingBox().min.y) * 1.5f;
+            float length = (ai->GetBaseBoundingBox().max.y() - ai->GetBaseBoundingBox().min.y()) * 1.5f;
             if (length > tierStagger)
                 tierStagger = length;
         }
@@ -131,7 +131,7 @@ void CTeamAiMgr::SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos)
             else
                 newPos = pos + ai->GetTransform().basis[1] * curTierDist;
             role.x1c_position = newPos;
-            role.x1c_position.z = ai->GetTranslation().z;
+            role.x1c_position.z() = ai->GetTranslation().z();
             tierTeamSize += 1;
             if (tierTeamSize > maxTierTeamSize)
             {
@@ -430,6 +430,20 @@ bool CTeamAiMgr::AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgr
         }
     }
     return false;
+}
+
+TUniqueId CTeamAiMgr::GetTeamAiMgr(CAi& ai, CStateManager& mgr)
+{
+    for (const auto& conn : ai.GetConnectionList())
+    {
+        if (conn.x0_state == EScriptObjectState::Active && conn.x4_msg == EScriptObjectMessage::Play)
+        {
+            TUniqueId id = mgr.GetIdForScript(conn.x8_objId);
+            if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(id))
+                return aimgr->GetUniqueId();
+        }
+    }
+    return kInvalidUniqueId;
 }
 
 }

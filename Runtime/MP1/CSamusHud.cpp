@@ -323,10 +323,8 @@ void CSamusHud::InitializeDamageLight()
     x3d4_damageLight->SetColor(zeus::CColor::skBlack);
 
     zeus::CColor lightColor = g_tweakGuiColors->GetHudFrameColor();
-    lightColor.r *= lightColor.a;
-    lightColor.g *= lightColor.a;
-    lightColor.b *= lightColor.a;
-    lightColor.a = 1.f;
+    lightColor *= lightColor.a();
+    lightColor.a() = 1.f;
     x3d4_damageLight->SetAmbientLightColor(lightColor);
 
     x3d4_damageLight->SetDistC(1.f);
@@ -491,12 +489,13 @@ void CSamusHud::UpdateFreeLook(float dt, const CStateManager& mgr)
     {
         zeus::CMatrix3f camRot = fpCam->GetTransform().buildMatrix3f();
         zeus::CVector3f camDir(camRot[1]);
-        zeus::CUnitVector3f camDirNoZ(camDir.x, camDir.y, 0.f);
+        zeus::CUnitVector3f camDirNoZ = camDir;
+        camDirNoZ.z() = 0.f;
         float offHorizonDot = camDir.dot(camDirNoZ);
         if (std::fabs(offHorizonDot) > 1.f)
             offHorizonDot = (offHorizonDot >= 0.f) ? 1.f : -1.f;
         float offHorizonAngle = std::fabs(std::acos(offHorizonDot));
-        if (camDir.z < 0.f)
+        if (camDir.z() < 0.f)
             offHorizonAngle = -offHorizonAngle;
 
         if (x298_freeLookIntf)
@@ -647,8 +646,8 @@ void CSamusHud::UpdateCameraDebugSettings()
     if (x29c_decoIntf)
         x29c_decoIntf->UpdateCameraDebugSettings(fov, y, z);
     x274_loadedFrmeBaseHud->GetFrameCamera()->SetFov(fov);
-    x310_cameraPos.y = y;
-    x310_cameraPos.z = z;
+    x310_cameraPos.y() = y;
+    x310_cameraPos.z() = z;
 }
 
 void CSamusHud::UpdateEnergyLow(float dt, const CStateManager& mgr)
@@ -740,7 +739,7 @@ void CSamusHud::UpdateHudLag(float dt, const CStateManager& mgr)
 
         zeus::CQuaternion lagRot = x44c_hudLagShakeRot * x31c_hudLag;
         zeus::CVector3f lagOff = x41c_decoShakeTranslate * g_tweakGui->GetHudLagOffsetScale();
-        lagOff.z += bobTranslation.z;
+        lagOff.z() += bobTranslation.z();
         if (x2a0_helmetIntf)
         {
             x2a0_helmetIntf->SetHudLagRotation(lagRot);
@@ -970,11 +969,9 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
 
     x3ec_damageLightPulser = zeus::clamp(0.f, g_tweakGui->GetHudDamageColorGain() * x3ec_damageLightPulser * std::min(0.5f, player.GetDamageAmount()), 1.f);
     zeus::CColor damageAmbColor = g_tweakGuiColors->GetHudFrameColor();
-    damageAmbColor.r *= damageAmbColor.a;
-    damageAmbColor.g *= damageAmbColor.a;
-    damageAmbColor.b *= damageAmbColor.a;
+    damageAmbColor *= damageAmbColor.a();
     damageAmbColor += zeus::CColor(x3ec_damageLightPulser);
-    damageAmbColor.a = 1.f;
+    damageAmbColor.a() = 1.f;
 
     if (x3d4_damageLight)
         x3d4_damageLight->SetAmbientLightColor(damageAmbColor);
@@ -998,16 +995,16 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr,
 
     colorGain = zeus::clamp(0.f, colorGain * x3f8_damageFilterAmtGain, 1.f);
     zeus::CColor color0 = g_tweakGuiColors->GetDamageAmbientColor();
-    color0.a *= colorGain;
+    color0.a() *= colorGain;
 
     zeus::CColor color1 = g_tweakGuiColors->GetDamageAmbientPulseColor();
-    color1.a *= x3ec_damageLightPulser;
+    color1.a() *= x3ec_damageLightPulser;
     zeus::CColor color2 = color0 + color1;
 
-    if (color2.a)
+    if (color2.a())
     {
         if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
-            color2.a *= 0.75f;
+            color2.a() *= 0.75f;
         x3a8_camFilter.SetFilter(EFilterType::Add, EFilterShape::Fullscreen,
                                  0.f, color2, -1);
     }
@@ -1121,7 +1118,7 @@ void CSamusHud::UpdateStaticInterference(float dt, const CStateManager& mgr)
     if (x510_staticInterp > 0.f)
     {
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = x510_staticInterp;
+        color.a() = x510_staticInterp;
         x51c_camFilter2.SetFilter(EFilterType::Blend,
                                   EFilterShape::RandomStatic, 0.f, color, -1);
     }
@@ -1141,8 +1138,8 @@ int CSamusHud::GetRelativeDirection(const zeus::CVector3f& position, const CStat
         return 0;
     float y = std::cos(2.f * M_PIF * 0.0027777778f * 0.5f * fpCam->GetFov());
     float x = std::cos(2.f * M_PIF * 0.0027777778f * 0.5f * fpCam->GetFov() * fpCam->GetAspectRatio());
-    zeus::CVector2f camToPosXY = zeus::CVector2f(camToPosLocal.x, camToPosLocal.y).normalized();
-    zeus::CVector2f camToPosYZ = zeus::CVector2f(camToPosLocal.y, camToPosLocal.z).normalized();
+    zeus::CVector2f camToPosXY = zeus::CVector2f(camToPosLocal.x(), camToPosLocal.y()).normalized();
+    zeus::CVector2f camToPosYZ = zeus::CVector2f(camToPosLocal.y(), camToPosLocal.z()).normalized();
     if (camToPosXY.dot(zeus::CVector2f(0.f, 1.f)) > x && camToPosYZ.dot(zeus::CVector2f(1.f, 0.f)) > y)
         return 0;
     if (camToPosXY.dot(zeus::CVector2f(0.f, -1.f)) > x && camToPosYZ.dot(zeus::CVector2f(-1.f, 0.f)) > y)
@@ -1271,7 +1268,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
 
     float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
     float scaleMul = 1.f - zeus::clamp(0.f, (aspect - 1.33f) / (1.77f - 1.33f), 1.f);
-    x500_viewportScale.y = 1.f - scaleMul * morphT * g_tweakGui->GetBallViewportYReduction() * 1.2f;
+    x500_viewportScale.y() = 1.f - scaleMul * morphT * g_tweakGui->GetBallViewportYReduction() * 1.2f;
     if (x2b0_ballIntf)
         x2b0_ballIntf->SetBallModeFactor(morphT);
 
@@ -1358,7 +1355,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
     }
 
     zeus::CColor abuttonColor = zeus::CColor::skWhite;
-    abuttonColor.a = std::fabs(x584_abuttonPulse);
+    abuttonColor.a() = std::fabs(x584_abuttonPulse);
     x5a0_base_model_abutton->SetColor(abuttonColor);
 
     if (!mgr.GetCameraManager()->IsInCinematicCamera() && oldAPulse < 0.f && x584_abuttonPulse >= 0.f &&
@@ -1406,7 +1403,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
 
     zeus::CColor messageColor = zeus::CColor::skWhite;
     float textScale = 1.f;
-    messageColor.a = std::min(allTextAlpha, messageTextAlpha);
+    messageColor.a() = std::min(allTextAlpha, messageTextAlpha);
     messageWidget->SetColor(messageColor);
 
     if (messageWidget == x598_base_basewidget_message)
@@ -1450,7 +1447,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr,
         x594_base_textpane_counter->SetIsVisible(true);
 
         zeus::CColor counterColor = zeus::CColor::skWhite;
-        counterColor.a = zeus::clamp(0.f, std::min(1.f - std::min(x558_messageTextTime, 1.f), allTextAlpha), 1.f);
+        counterColor.a() = zeus::clamp(0.f, std::min(1.f - std::min(x558_messageTextTime, 1.f), allTextAlpha), 1.f);
         x594_base_textpane_counter->SetColor(counterColor);
     }
     else
@@ -1541,7 +1538,7 @@ void CSamusHud::DrawAttachedEnemyEffect(const CStateManager& mgr) const
     }
 
     zeus::CColor filterColor = g_tweakGuiColors->GetEnergyDrainFilterColor();
-    filterColor.a *= alpha;
+    filterColor.a() *= alpha;
     const_cast<CColoredQuadFilter&>(m_energyDrainFilter).draw(filterColor);
 }
 

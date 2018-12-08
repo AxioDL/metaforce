@@ -372,7 +372,7 @@ bool CREGetComponentRed::GetValue(int frame, float& valOut) const
 {
     zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
-    valOut = a.r;
+    valOut = a.r();
     return false;
 }
 
@@ -380,7 +380,7 @@ bool CREGetComponentGreen::GetValue(int frame, float& valOut) const
 {
     zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
-    valOut = a.g;
+    valOut = a.g();
     return false;
 }
 
@@ -388,7 +388,7 @@ bool CREGetComponentBlue::GetValue(int frame, float& valOut) const
 {
     zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
-    valOut = a.b;
+    valOut = a.b();
     return false;
 }
 
@@ -396,7 +396,7 @@ bool CREGetComponentAlpha::GetValue(int frame, float& valOut) const
 {
     zeus::CColor a = zeus::CColor::skBlack;
     x4_a->GetValue(frame, a);
-    valOut = a.a;
+    valOut = a.a();
     return false;
 }
 

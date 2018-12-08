@@ -17,7 +17,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
     case BabeDeadLight::LightType::LocalAmbient2:
         os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
                   "bg_node.inputs[1].default_value = %f\n",
-                  light.color.vec[0], light.color.vec[1], light.color.vec[2],
+                  light.color.simd[0], light.color.simd[1], light.color.simd[2],
                   light.q / 8.f);
         return;
     case BabeDeadLight::LightType::Directional:
@@ -27,8 +27,8 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                   "lamp_obj.rotation_mode = 'QUATERNION'\n"
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
-                  light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
+                  "\n", s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2],
+                  light.direction.simd[0], light.direction.simd[1], light.direction.simd[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         return;
     case BabeDeadLight::LightType::Custom:
@@ -37,7 +37,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                   "lamp_obj = bpy.data.objects.new(lamp.name, lamp)\n"
                   "lamp.shadow_soft_size = 1.0\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
+                  "\n", s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         break;
     case BabeDeadLight::LightType::Spot:
@@ -50,9 +50,9 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
                   "lamp_obj.rotation_quaternion = Vector((0,0,-1)).rotation_difference(Vector((%f,%f,%f)))\n"
                   "lamp.shadow_soft_size = 0.5\n"
                   "lamp.shadow_method = '%s'\n"
-                  "\n", s, l, light.color.vec[0], light.color.vec[1], light.color.vec[2],
+                  "\n", s, l, light.color.simd[0], light.color.simd[1], light.color.simd[2],
                   zeus::degToRad(light.spotCutoff),
-                  light.direction.vec[0], light.direction.vec[1], light.direction.vec[2],
+                  light.direction.simd[0], light.direction.simd[1], light.direction.simd[2],
                   light.castShadows ? "RAY_SHADOW" : "NOSHADOW");
         break;
     default: return;
@@ -73,8 +73,8 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os,
               "lamp_obj.location = (%f,%f,%f)\n"
               "bpy.context.scene.objects.link(lamp_obj)\n"
               "\n", s, light.lightType, light.q / 8.f,
-              light.color.vec[0], light.color.vec[1], light.color.vec[2],
-              light.position.vec[0], light.position.vec[1], light.position.vec[2]);
+              light.color.simd[0], light.color.simd[1], light.color.simd[2],
+              light.position.simd[0], light.position.simd[1], light.position.simd[2]);
 
     switch (light.falloff)
     {
@@ -150,9 +150,9 @@ void WriteBabeDeadLightFromBlender(BabeDeadLight& lightOut, const hecl::blender:
     lightOut.color = lightIn.color;
     lightOut.spotCutoff = zeus::radToDeg(lightIn.spotCutoff);
     lightOut.castShadows = lightIn.shadow;
-    lightOut.position.vec[0] = lightIn.sceneXf[0].vec[3];
-    lightOut.position.vec[1] = lightIn.sceneXf[1].vec[3];
-    lightOut.position.vec[2] = lightIn.sceneXf[2].vec[3];
+    lightOut.position.simd[0] = lightIn.sceneXf[0].simd[3];
+    lightOut.position.simd[1] = lightIn.sceneXf[1].simd[3];
+    lightOut.position.simd[2] = lightIn.sceneXf[2].simd[3];
 
     zeus::CTransform lightXf(&lightIn.sceneXf[0]);
     lightOut.direction = (lightXf.basis.transposed() * zeus::CVector3f(0.f, 0.f, -1.f)).normalized();

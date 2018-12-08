@@ -154,8 +154,8 @@ void CSlideShow::SSlideData::Draw() const
     zeus::CRectangle rect;
     const_cast<CTexturedQuadFilterAlpha&>(*m_texQuad).draw(x30_mulColor, 1.f, rect);
 
-    zeus::CVector2f centeredOffset((x28_canvasSize.x - m_texQuad->GetTex()->GetWidth()) * 0.5f,
-                                   (x28_canvasSize.y - m_texQuad->GetTex()->GetHeight()) * 0.5f);
+    zeus::CVector2f centeredOffset((x28_canvasSize.x() - m_texQuad->GetTex()->GetWidth()) * 0.5f,
+                                   (x28_canvasSize.y() - m_texQuad->GetTex()->GetHeight()) * 0.5f);
 }
 
 void CSlideShow::Draw() const

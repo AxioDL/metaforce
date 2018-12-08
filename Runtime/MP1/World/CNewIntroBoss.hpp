@@ -63,7 +63,7 @@ public:
     zeus::CAABox GetSortingBounds(const CStateManager&) const
     {
         zeus::CAABox box = GetModelData()->GetBounds();
-        return zeus::CAABox({-0.5f, -0.5f, box.min.z}, {0.5f, 0.5f, box.max.z}).getTransformedAABox(x34_transform);
+        return zeus::CAABox({-0.5f, -0.5f, box.min.z()}, {0.5f, 0.5f, box.max.z()}).getTransformedAABox(x34_transform);
     }
 
     std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return  {}; }

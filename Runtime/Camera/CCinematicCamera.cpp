@@ -199,9 +199,9 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr)
         {
             zeus::CVector3f target = mgr.GetPlayer().GetTranslation();
             if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
-                target.z += mgr.GetPlayer().GetMorphBall()->GetBallRadius();
+                target.z() += mgr.GetPlayer().GetMorphBall()->GetBallRadius();
             else
-                target.z += mgr.GetPlayer().GetEyeHeight();
+                target.z() += mgr.GetPlayer().GetEyeHeight();
 
             zeus::CVector3f upVec = orientation.transform(zeus::CVector3f::skUp);
             if ((target - viewPoint).toVec2f().magnitude() < 0.0011920929f)

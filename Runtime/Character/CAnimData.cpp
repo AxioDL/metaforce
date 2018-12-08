@@ -97,6 +97,15 @@ CAnimData::CAnimData(CAssetId id,
         x1f8_animRoot = treeNode;
 }
 
+void CAnimData::SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr)
+{
+    auto search = std::find_if(xc_charInfo.x98_effects.begin(), xc_charInfo.x98_effects.end(),
+                               [effectName](const auto& v) { return v.first == effectName; });
+    if (search != xc_charInfo.x98_effects.end())
+        for (const auto& p : search->second)
+            x120_particleDB.SetParticleEffectState(p.GetComponentName(), active, mgr);
+}
+
 void CAnimData::InitializeEffects(CStateManager& mgr, TAreaId aId, const zeus::CVector3f& scale)
 {
     for (const auto& effects : xc_charInfo.GetEffectList())

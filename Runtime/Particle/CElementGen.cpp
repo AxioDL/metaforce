@@ -371,14 +371,14 @@ bool CElementGen::InternalUpdate(double dt)
     return false;
 }
 
-void CElementGen::AccumulateBounds(zeus::CVector3f& pos, float size)
+void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size)
 {
-    x2e0_aabbMax[0] = std::max(pos[0], x2e0_aabbMax[0]);
-    x2e0_aabbMax[1] = std::max(pos[1], x2e0_aabbMax[1]);
-    x2e0_aabbMax[2] = std::max(pos[2], x2e0_aabbMax[2]);
-    x2d4_aabbMin[0] = std::min(pos[0], x2d4_aabbMin[0]);
-    x2d4_aabbMin[1] = std::min(pos[1], x2d4_aabbMin[1]);
-    x2d4_aabbMin[2] = std::min(pos[2], x2d4_aabbMin[2]);
+    x2e0_aabbMax[0] = std::max(pos[0], float(x2e0_aabbMax[0]));
+    x2e0_aabbMax[1] = std::max(pos[1], float(x2e0_aabbMax[1]));
+    x2e0_aabbMax[2] = std::max(pos[2], float(x2e0_aabbMax[2]));
+    x2d4_aabbMin[0] = std::min(pos[0], float(x2d4_aabbMin[0]));
+    x2d4_aabbMin[1] = std::min(pos[1], float(x2d4_aabbMin[1]));
+    x2d4_aabbMin[2] = std::min(pos[2], float(x2d4_aabbMin[2]));
     x2ec_maxSize = std::max(size, x2ec_maxSize);
 }
 
@@ -1162,7 +1162,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights)
             }
             else
             {
-                if (1.f == col.a)
+                if (1.f == col.a())
                     model->Draw({0, 0, 3, zeus::CColor::skWhite});
                 else
                     model->Draw({5, 0, 1, col});
@@ -1494,10 +1494,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z + size, 1.f};
-                        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z + size, 1.f};
-                        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
-                        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
                         inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1509,10 +1509,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z + size, 1.f};
-                        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z + size, 1.f};
-                        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
-                        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
                         inst.color = particle.x34_color;
                         break;
                     }
@@ -1532,11 +1532,11 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, viewPoint.y, viewPoint.z + cosT - sinT, 1.f};
-                        inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, viewPoint.y, viewPoint.z + sinT + cosT, 1.f};
-                        inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), viewPoint.y, viewPoint.z + (-cosT - sinT),
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x() + (cosT - sinT), viewPoint.y(), viewPoint.z() + (-cosT - sinT),
                                                       1.f};
-                        inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), viewPoint.y, viewPoint.z - (cosT - sinT),
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT),
                                                       1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
@@ -1549,11 +1549,11 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = zeus::CVector4f{viewPoint.x + sinT + cosT, viewPoint.y, viewPoint.z + cosT - sinT, 1.f};
-                        inst.pos[1] = zeus::CVector4f{viewPoint.x + sinT - cosT, viewPoint.y, viewPoint.z + sinT + cosT, 1.f};
-                        inst.pos[2] = zeus::CVector4f{viewPoint.x + (cosT - sinT), viewPoint.y, viewPoint.z + (-cosT - sinT),
+                        inst.pos[0] = zeus::CVector4f{viewPoint.x() + sinT + cosT, viewPoint.y(), viewPoint.z() + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{viewPoint.x() + sinT - cosT, viewPoint.y(), viewPoint.z() + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{viewPoint.x() + (cosT - sinT), viewPoint.y(), viewPoint.z() + (-cosT - sinT),
                                                       1.f};
-                        inst.pos[3] = zeus::CVector4f{viewPoint.x - (sinT + cosT), viewPoint.y, viewPoint.z - (cosT - sinT),
+                        inst.pos[3] = zeus::CVector4f{viewPoint.x() - (sinT + cosT), viewPoint.y(), viewPoint.z() - (cosT - sinT),
                                                       1.f};
                         inst.color = particle.x34_color;
                         break;
@@ -1720,10 +1720,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[1] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[2] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
-                        inst.pos[3] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
                         inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1735,10 +1735,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[1] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z + size, 1.f};
-                        inst.pos[2] = zeus::CVector4f{vec2.x + size, vec2.y, vec2.z - size, 1.f};
-                        inst.pos[3] = zeus::CVector4f{vec2.x - size, vec2.y, vec2.z - size, 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() + size, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() + size, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x() + size, vec2.y(), vec2.z() - size, 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x() - size, vec2.y(), vec2.z() - size, 1.f};
                         inst.color = particle.x34_color;
                         break;
                     }
@@ -1763,10 +1763,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instTexData.emplace_back();
                         SParticleInstanceTex& inst = g_instTexData.back();
-                        inst.pos[0] = zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
-                        inst.pos[1] = zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
-                        inst.pos[2] = zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
-                        inst.pos[3] = zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
                         inst.color = particle.x34_color;
                         inst.uvs[0] = {uvs.xMax, uvs.yMax};
                         inst.uvs[1] = {uvs.xMin, uvs.yMax};
@@ -1778,10 +1778,10 @@ void CElementGen::RenderParticles()
                     {
                         g_instNoTexData.emplace_back();
                         SParticleInstanceNoTex& inst = g_instNoTexData.back();
-                        inst.pos[0] = zeus::CVector4f{vec2.x + sinT + cosT, vec2.y, vec2.z + cosT - sinT, 1.f};
-                        inst.pos[1] = zeus::CVector4f{vec2.x + sinT - cosT, vec2.y, vec2.z + sinT + cosT, 1.f};
-                        inst.pos[2] = zeus::CVector4f{vec2.x + (cosT - sinT), vec2.y, vec2.z + (-cosT - sinT), 1.f};
-                        inst.pos[3] = zeus::CVector4f{vec2.x - (sinT + cosT), vec2.y, vec2.z - (cosT - sinT), 1.f};
+                        inst.pos[0] = zeus::CVector4f{vec2.x() + sinT + cosT, vec2.y(), vec2.z() + cosT - sinT, 1.f};
+                        inst.pos[1] = zeus::CVector4f{vec2.x() + sinT - cosT, vec2.y(), vec2.z() + sinT + cosT, 1.f};
+                        inst.pos[2] = zeus::CVector4f{vec2.x() + (cosT - sinT), vec2.y(), vec2.z() + (-cosT - sinT), 1.f};
+                        inst.pos[3] = zeus::CVector4f{vec2.x() - (sinT + cosT), vec2.y(), vec2.z() - (cosT - sinT), 1.f};
                         inst.color = particle.x34_color;
                         break;
                     }
@@ -1919,8 +1919,8 @@ void CElementGen::RenderParticlesIndirectTexture()
             tind->GetValueUV(partFrame, uvsInd);
 
         float size = 0.5f * particle.x2c_lineLengthOrSize;
-        zeus::CVector3f p1 = {viewPoint.x - size, viewPoint.y, viewPoint.z - size};
-        zeus::CVector3f p2 = {viewPoint.x + size, viewPoint.y, viewPoint.z + size};
+        zeus::CVector3f p1 = {viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size};
+        zeus::CVector3f p2 = {viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size};
         SClipScreenRect clipRect = CGraphics::ClipScreenRectFromMS(p1, p2);
 
         if (!clipRect.x0_valid)
@@ -1930,10 +1930,10 @@ void CElementGen::RenderParticlesIndirectTexture()
 
         g_instIndTexData.emplace_back();
         SParticleInstanceIndTex& inst = g_instIndTexData.back();
-        inst.pos[0] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z + size, 1.f};
-        inst.pos[1] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z + size, 1.f};
-        inst.pos[2] = zeus::CVector4f{viewPoint.x + size, viewPoint.y, viewPoint.z - size, 1.f};
-        inst.pos[3] = zeus::CVector4f{viewPoint.x - size, viewPoint.y, viewPoint.z - size, 1.f};
+        inst.pos[0] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() + size, 1.f};
+        inst.pos[1] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() + size, 1.f};
+        inst.pos[2] = zeus::CVector4f{viewPoint.x() + size, viewPoint.y(), viewPoint.z() - size, 1.f};
+        inst.pos[3] = zeus::CVector4f{viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size, 1.f};
         inst.color = particle.x34_color;
         inst.texrTindUVs[0] = zeus::CVector4f{uvs.xMax, uvs.yMax, uvsInd.xMax, uvsInd.yMax};
         inst.texrTindUVs[1] = zeus::CVector4f{uvs.xMin, uvs.yMax, uvsInd.xMin, uvsInd.yMax};

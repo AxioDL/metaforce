@@ -786,7 +786,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                     positions.push_back(reader.readVec3fBig());
                     const atVec3f& pos = positions.back();
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
-                              pos.vec[0], pos.vec[1], pos.vec[2]);
+                              pos.simd[0], pos.simd[1], pos.simd[2]);
                     if (rp.first)
                     {
                         if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
@@ -802,7 +802,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                 {
                     const atVec3f& pos = positions[i];
                     os.format("vert = bm.verts.new((%f,%f,%f))\n",
-                              pos.vec[0], pos.vec[1], pos.vec[2]);
+                              pos.simd[0], pos.simd[1], pos.simd[2]);
                     if (rp.first)
                     {
                         if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
@@ -836,9 +836,9 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                     size_t normCount = secSizes[s] / 12;
                     for (size_t i=0 ; i<normCount ; ++i)
                     {
-                        atVec3f norm = reader.readVec3fBig();
+                        const atVec3f norm = reader.readVec3fBig();
                         os.format("norm_list.append((%f,%f,%f))\n",
-                                  norm.vec[0], norm.vec[1], norm.vec[2]);
+                                  norm.simd[0], norm.simd[1], norm.simd[2]);
                     }
                 }
                 break;
@@ -855,9 +855,9 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os,
                 size_t uvCount = secSizes[s] / 8;
                 for (size_t i=0 ; i<uvCount ; ++i)
                 {
-                    atVec2f uv = reader.readVec2fBig();
+                    const atVec2f uv = reader.readVec2fBig();
                     os.format("uv_list.append((%f,%f))\n",
-                              uv.vec[0], uv.vec[1]);
+                              uv.simd[0], uv.simd[1]);
                 }
                 break;
             }
@@ -1461,7 +1461,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
         {
             for (int i = 0; i < 3; ++i)
             {
-                int tmpV = int(norm.vec[i] * 16384.f);
+                int tmpV = int(norm.simd[i] * 16384.f);
                 tmpV = zeus::clamp(-32768, tmpV, 32767);
                 writer.writeInt16Big(atInt16(tmpV));
             }
@@ -1992,7 +1992,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
             {
                 for (int i=0 ; i<2 ; ++i)
                 {
-                    int tmpV = int(v.val.vec[i] * 32768.f);
+                    int tmpV = int(v.val.simd[i] * 32768.f);
                     tmpV = zeus::clamp(-32768, tmpV, 32767);
                     w.writeInt16Big(atInt16(tmpV));
                 }

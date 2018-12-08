@@ -188,7 +188,8 @@ void CParasite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
             {
                 float distSq = (act->GetTranslation() - GetTranslation()).magSquared();
                 auto tb = GetTouchBounds();
-                float maxComp = std::max(std::max(tb->max.y - tb->min.y, tb->max.z - tb->min.z), tb->max.x - tb->min.x);
+                float maxComp = std::max(std::max(tb->max.y() - tb->min.y(), tb->max.z() - tb->min.z()),
+                                         tb->max.x() - tb->min.x());
                 float maxCompSq = maxComp * maxComp + 1.f;
                 if (distSq < maxCompSq * maxCompSq)
                     x743_26_oculusShotAt = true;
@@ -863,7 +864,7 @@ void CParasite::Retreat(CStateManager& mgr, EStateMsg msg, float)
     case EStateMsg::Activate:
     {
         zeus::CVector3f dir = mgr.GetPlayer().GetTranslation() - GetTranslation();
-        dir.z = 0.f;
+        dir.z() = 0.f;
         if (dir.canBeNormalized())
             dir.normalize();
         else
@@ -980,18 +981,18 @@ void CParasite::UpdateJumpVelocity()
     if (!x742_30_attackOver)
     {
         vec = skAttackVelocity * GetTransform().frontVector();
-        vec.z = 0.5f * skRetreatVelocity;
+        vec.z() = 0.5f * skRetreatVelocity;
     }
     else
     {
         vec = skRetreatVelocity * GetTransform().frontVector();
-        vec.z = 0.5f * skAttackVelocity;
+        vec.z() = 0.5f * skAttackVelocity;
     }
 
-    float f30 = x150_momentum.z / xe8_mass;
-    float f31 = x5f8_targetPos.z - GetTranslation().z;
+    float f30 = x150_momentum.z() / xe8_mass;
+    float f31 = x5f8_targetPos.z() - GetTranslation().z();
     zeus::CVector3f vec2 = x5f8_targetPos - GetTranslation();
-    vec2.z = 0.f;
+    vec2.z() = 0.f;
     float f29 = vec2.magnitude();
 
     if (f29 > FLT_EPSILON)
@@ -1003,7 +1004,7 @@ void CParasite::UpdateJumpVelocity()
             float f27 = 0.f;
             bool isNeg = f31 < 0.f;
             float xPos, xNeg;
-            if (CSteeringBehaviors::SolveQuadratic(f30, vec.z, -f31, xPos, xNeg))
+            if (CSteeringBehaviors::SolveQuadratic(f30, vec.z(), -f31, xPos, xNeg))
                 f27 = isNeg ? xPos : xNeg;
 
             if (!isNeg)
@@ -1012,7 +1013,7 @@ void CParasite::UpdateJumpVelocity()
             if (f27 < 10.f)
             {
                 vec = f29 / f27 * vec2;
-                vec.z = (0.5f * f30 * f27 + f31 / f27);
+                vec.z() = (0.5f * f30 * f27 + f31 / f27);
             }
         }
     }

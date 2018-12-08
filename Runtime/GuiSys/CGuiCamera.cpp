@@ -30,7 +30,7 @@ zeus::CVector3f CGuiCamera::ConvertToScreenSpace(const zeus::CVector3f& vec) con
     zeus::CMatrix4f mat = CGraphics::CalculatePerspectiveMatrix(m_proj.xbc_fov, m_proj.xc0_aspect,
                                                                 m_proj.xc4_znear, m_proj.xc8_zfar,
                                                                 false);
-    local = zeus::CVector3f(local.x, local.z, -local.y);
+    local = zeus::CVector3f(local.x(), local.z(), -local.y());
     return mat.multiplyOneOverW(local);
 }
 

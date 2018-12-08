@@ -19,7 +19,7 @@ zeus::CAABox DoorArea::getVISIAABB(hecl::blender::Token& btok) const
         aabbOut = zeus::CAABox(aabb.first, aabb.second);
     }
 
-    if (aabbOut.min.x > aabbOut.max.x)
+    if (aabbOut.min.x() > aabbOut.max.x())
         return {};
 
     zeus::CTransform xf = ConvertEditorEulerToTransform4f(scale, orientation, location);

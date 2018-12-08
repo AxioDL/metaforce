@@ -6,33 +6,22 @@
 namespace DataSpec::DNAANIM
 {
 
-union Value
+struct Value
 {
-    atVec3f v3;
-    atVec4f v4;
-    Value(atVec3f v) : v3(v) {}
-    Value(atVec4f v) : v4(v) {}
-    Value(float x, float y, float z)
-    {
-        v3.vec[0] = x;
-        v3.vec[1] = y;
-        v3.vec[2] = z;
-        v4.vec[3] = 0.0;
-    }
-    Value(float w, float x, float y, float z)
-    {
-        v4.vec[0] = w;
-        v4.vec[1] = x;
-        v4.vec[2] = y;
-        v4.vec[3] = z;
-    }
+    athena::simd<float> simd;
+    Value() = default;
+    Value(const athena::simd<float>& s) : simd(s) {}
+    Value(const atVec3f& v) : simd(v.simd) {}
+    Value(const atVec4f& v) : simd(v.simd) {}
+    Value(float x, float y, float z) : simd(x, y, z, 0.f) {}
+    Value(float w, float x, float y, float z) : simd(w, x, y, z) {}
 };
 struct QuantizedValue
 {
     atInt32 v[4];
     atInt32& operator[] (size_t idx)
     {return v[idx];}
-    const atInt32& operator[] (size_t idx) const
+    atInt32 operator[] (size_t idx) const
     {return v[idx];}
 
     int qFrom(const QuantizedValue& other, size_t idx) const

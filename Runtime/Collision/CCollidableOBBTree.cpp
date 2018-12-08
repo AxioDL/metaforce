@@ -162,7 +162,7 @@ CRayCastResult CCollidableOBBTree::LineIntersectsTree(const zeus::CMRay& ray, co
 zeus::CPlane CCollidableOBBTree::TransformPlane(const zeus::CPlane& pl, const zeus::CTransform& xf)
 {
     zeus::CVector3f normal = xf.rotate(pl.normal());
-    return zeus::CPlane(normal, (xf * (pl.normal() * pl.d)).dot(normal));
+    return zeus::CPlane(normal, (xf * (pl.normal() * pl.d())).dot(normal));
 }
 
 bool CCollidableOBBTree::SphereCollideWithLeafMoving(const COBBTree::CLeafData& leaf, const zeus::CTransform& xf,

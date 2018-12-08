@@ -39,50 +39,53 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div)
 {
     float q = M_PIF / 2.0f / float(div);
+    zeus::simd_floats f(quat.simd);
     return
     {
         {
-            atInt32(std::asin(quat.v4.vec[1]) / q),
-            atInt32(std::asin(quat.v4.vec[2]) / q),
-            atInt32(std::asin(quat.v4.vec[3]) / q),
+            atInt32(std::asin(f[1]) / q),
+            atInt32(std::asin(f[2]) / q),
+            atInt32(std::asin(f[3]) / q),
         },
-        (quat.v4.vec[0] < 0.f) ? true : false
+        (f[0] < 0.f)
     };
 }
 
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div)
 {
     float q = M_PIF / 2.0f / float(div);
-    Value retval =
-    {
+    athena::simd_floats f = {
         0.0f,
         std::sin(v.v[0] * q),
         std::sin(v.v[1] * q),
         std::sin(v.v[2] * q),
     };
-    retval.v4.vec[0] = std::sqrt(std::max((1.0f -
-                               (retval.v4.vec[1] * retval.v4.vec[1] +
-                                retval.v4.vec[2] * retval.v4.vec[2] +
-                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0f));
-    retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
+    f[0] = std::sqrt(std::max((1.0f -
+                               (f[1] * f[1] +
+                                f[2] * f[2] +
+                                f[3] * f[3])), 0.0f));
+    f[0] = v.w ? -f[0] : f[0];
+    Value retval;
+    retval.simd.copy_from(f);
     return retval;
 }
 
 static inline Value DequantizeRotation_3(const QuantizedRot& v, atUint32 div)
 {
     float q = 1.0f / float(div);
-    Value retval =
-    {
+    athena::simd_floats f = {
         0.0f,
         v.v[0] * q,
         v.v[1] * q,
         v.v[2] * q,
     };
-    retval.v4.vec[0] = std::sqrt(std::max((1.0f -
-                               (retval.v4.vec[1] * retval.v4.vec[1] +
-                                retval.v4.vec[2] * retval.v4.vec[2] +
-                                retval.v4.vec[3] * retval.v4.vec[3])), 0.0f));
-    retval.v4.vec[0] = v.w ? -retval.v4.vec[0] : retval.v4.vec[0];
+    f[0] = std::sqrt(std::max((1.0f -
+                               (f[1] * f[1] +
+                                f[2] * f[2] +
+                                f[3] * f[3])), 0.0f));
+    f[0] = v.w ? -f[0] : f[0];
+    Value retval;
+    retval.simd.copy_from(f);
     return retval;
 }
 
@@ -337,9 +340,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  ++it)
             {
                 const Value* key = &*it;
-                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[0]));
-                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[1]));
-                maxTransVal = std::max(maxTransVal, std::fabs(key->v3.vec[2]));
+                zeus::simd_floats f(key->simd);
+                maxTransVal = std::max(maxTransVal, std::fabs(f[0]));
+                maxTransVal = std::max(maxTransVal, std::fabs(f[1]));
+                maxTransVal = std::max(maxTransVal, std::fabs(f[2]));
             }
             break;
         }
@@ -350,9 +354,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  ++it)
             {
                 const Value* key = &*it;
-                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[0]));
-                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[1]));
-                maxScaleVal = std::max(maxScaleVal, std::fabs(key->v3.vec[2]));
+                zeus::simd_floats f(key->simd);
+                maxScaleVal = std::max(maxScaleVal, std::fabs(f[0]));
+                maxScaleVal = std::max(maxScaleVal, std::fabs(f[1]));
+                maxScaleVal = std::max(maxScaleVal, std::fabs(f[2]));
             }
             break;
         }
@@ -383,17 +388,19 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
         }
         case Channel::Type::Translation:
         {
-            chan.i = {atInt32((*kit)[0].v3.vec[0] / transMultOut),
-                      atInt32((*kit)[0].v3.vec[1] / transMultOut),
-                      atInt32((*kit)[0].v3.vec[2] / transMultOut)};
+            zeus::simd_floats f((*kit)[0].simd);
+            chan.i = {atInt32(f[0] / transMultOut),
+                      atInt32(f[1] / transMultOut),
+                      atInt32(f[2] / transMultOut)};
             initVals.push_back(chan.i);
             break;
         }
         case Channel::Type::Scale:
         {
-            chan.i = {atInt32((*kit)[0].v3.vec[0] / scaleMultOut),
-                      atInt32((*kit)[0].v3.vec[1] / scaleMultOut),
-                      atInt32((*kit)[0].v3.vec[2] / scaleMultOut)};
+            zeus::simd_floats f((*kit)[0].simd);
+            chan.i = {atInt32(f[0] / scaleMultOut),
+                      atInt32(f[1] / scaleMultOut),
+                      atInt32(f[2] / scaleMultOut)};
             initVals.push_back(chan.i);
             break;
         }
@@ -431,9 +438,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  it != kit->end();
                  ++it)
             {
-                QuantizedValue cur = {atInt32(it->v3.vec[0] / transMultOut),
-                                      atInt32(it->v3.vec[1] / transMultOut),
-                                      atInt32(it->v3.vec[2] / transMultOut)};
+                zeus::simd_floats f(it->simd);
+                QuantizedValue cur = {atInt32(f[0] / transMultOut),
+                                      atInt32(f[1] / transMultOut),
+                                      atInt32(f[2] / transMultOut)};
                 chan.q[0] = std::max(chan.q[0], atUint8(cur.qFrom(last, 0)));
                 chan.q[1] = std::max(chan.q[1], atUint8(cur.qFrom(last, 1)));
                 chan.q[2] = std::max(chan.q[2], atUint8(cur.qFrom(last, 2)));
@@ -447,9 +455,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
                  it != kit->end();
                  ++it)
             {
-                QuantizedValue cur = {atInt32(it->v3.vec[0] / scaleMultOut),
-                                      atInt32(it->v3.vec[1] / scaleMultOut),
-                                      atInt32(it->v3.vec[2] / scaleMultOut)};
+                zeus::simd_floats f(it->simd);
+                QuantizedValue cur = {atInt32(f[0] / scaleMultOut),
+                                      atInt32(f[1] / scaleMultOut),
+                                      atInt32(f[2] / scaleMultOut)};
                 chan.q[0] = std::max(chan.q[0], atUint8(cur.qFrom(last, 0)));
                 chan.q[1] = std::max(chan.q[1], atUint8(cur.qFrom(last, 1)));
                 chan.q[2] = std::max(chan.q[2], atUint8(cur.qFrom(last, 2)));
@@ -490,9 +499,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             case Channel::Type::Translation:
             {
-                QuantizedValue cur = {atInt32(val.v3.vec[0] / transMultOut),
-                                      atInt32(val.v3.vec[1] / transMultOut),
-                                      atInt32(val.v3.vec[2] / transMultOut)};
+                zeus::simd_floats f(val.simd);
+                QuantizedValue cur = {atInt32(f[0] / transMultOut),
+                                      atInt32(f[1] / transMultOut),
+                                      atInt32(f[2] / transMultOut)};
                 quantize(newData.get(), chan.q[0], cur[0] - last[0]);
                 quantize(newData.get(), chan.q[1], cur[1] - last[1]);
                 quantize(newData.get(), chan.q[2], cur[2] - last[2]);
@@ -501,9 +511,10 @@ BitstreamWriter::write(const std::vector<std::vector<Value>>& chanKeys,
             }
             case Channel::Type::Scale:
             {
-                QuantizedValue cur = {atInt32(val.v3.vec[0] / scaleMultOut),
-                                      atInt32(val.v3.vec[1] / scaleMultOut),
-                                      atInt32(val.v3.vec[2] / scaleMultOut)};
+                zeus::simd_floats f(val.simd);
+                QuantizedValue cur = {atInt32(f[0] / scaleMultOut),
+                                      atInt32(f[1] / scaleMultOut),
+                                      atInt32(f[2] / scaleMultOut)};
                 quantize(newData.get(), chan.q[0], cur[0] - last[0]);
                 quantize(newData.get(), chan.q[1], cur[1] - last[1]);
                 quantize(newData.get(), chan.q[2], cur[2] - last[2]);

@@ -34,7 +34,7 @@ float CLight::GetIntensity() const
         if (x1c_type == ELightType::Custom)
             coef = x30_angleC;
         const_cast<CLight*>(this)->x48_cachedIntensity =
-            coef * std::max(x18_color.r, std::max(x18_color.g, x18_color.b));
+            coef * std::max(x18_color.r(), std::max(x18_color.g(), x18_color.b()));
     }
     return x48_cachedIntensity;
 }

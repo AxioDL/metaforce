@@ -85,12 +85,12 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
                                                                    float dt, zeus::CVector3f& rVec)
 {
     zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
-    gunFrontVec.z = 0.f;
+    gunFrontVec.z() = 0.f;
     if (gunFrontVec.canBeNormalized())
         gunFrontVec.normalize();
 
     zeus::CVector3f rVecNoZ = rVec;
-    rVecNoZ.z = 0.f;
+    rVecNoZ.z() = 0.f;
     if (rVecNoZ.canBeNormalized())
         rVecNoZ.normalize();
 
@@ -124,12 +124,12 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
         float angleClamp = g_tweakPlayer->GetVerticalFreeLookAngleVel() - std::fabs(x1c0_pitch);
         angle = zeus::clamp(-angleClamp, angle, angleClamp);
         zeus::CVector3f vec;
-        vec.z = std::sin(angle);
-        vec.y = std::cos(-player->x3e4_freeLookYawAngle) * std::cos(angle);
-        vec.x = std::sin(-player->x3e4_freeLookYawAngle) * std::cos(angle);
+        vec.z() = std::sin(angle);
+        vec.y() = std::cos(-player->x3e4_freeLookYawAngle) * std::cos(angle);
+        vec.x() = std::sin(-player->x3e4_freeLookYawAngle) * std::cos(angle);
         if (g_tweakPlayer->GetFreeLookTurnsPlayer())
         {
-            vec.x = 0.f;
+            vec.x() = 0.f;
             if (!zeus::close_enough(vec, zeus::CVector3f::skZero))
                 vec.normalize();
         }
@@ -185,9 +185,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                                                g_tweakPlayer->GetJumpCameraPitchDownFull(), 1.f) *
                               g_tweakPlayer->GetJumpCameraPitchDownAngle();
                 angle += x1c0_pitch;
-                rVec.x = 0.f;
-                rVec.y = std::cos(angle);
-                rVec.z = -std::sin(angle);
+                rVec.x() = 0.f;
+                rVec.y() = std::cos(angle);
+                rVec.z() = -std::sin(angle);
 
                 rVec = playerXf.rotate(rVec);
             }
@@ -196,9 +196,9 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                 float angle = zeus::clamp(0.f, (player->x29c_fallCameraTimer - g_tweakPlayer->GetFallCameraPitchDownStart()) /
                                                g_tweakPlayer->GetFallCameraPitchDownFull(), 1.f) *
                               g_tweakPlayer->GetFallCameraPitchDownAngle();
-                rVec.x = 0.f;
-                rVec.y = std::cos(angle);
-                rVec.z = -std::sin(angle);
+                rVec.x() = 0.f;
+                rVec.y() = std::cos(angle);
+                rVec.z() = -std::sin(angle);
 
                 rVec = playerXf.rotate(rVec);
             }
@@ -264,7 +264,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
                     gunFrontVec.normalize();
 
                 zeus::CVector3f rVecCpy = rVec;
-                rVecCpy.z = 0.f;
+                rVecCpy.z() = 0.f;
                 if (rVecCpy.canBeNormalized())
                     rVecCpy.normalize();
 
@@ -290,12 +290,12 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt)
     else
     {
         zeus::CVector3f gunFront = x190_gunFollowXf.frontVector();
-        gunFront.z = 0.f;
+        gunFront.z() = 0.f;
         if (gunFront.canBeNormalized())
             gunFront.normalize();
 
         zeus::CVector3f rVecCpy = rVec;
-        rVecCpy.z = 0.f;
+        rVecCpy.z() = 0.f;
         if (rVecCpy.canBeNormalized())
             rVecCpy.normalize();
 
@@ -342,12 +342,12 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr)
             if (TCastToConstPtr<CScriptCameraPitchVolume> pvol = mgr.GetObjectById(x1c4_pitchId))
             {
                 zeus::CVector3f pitchDirFlat = pvol->GetTransform().basis[1];
-                pitchDirFlat.z = 0.f;
+                pitchDirFlat.z() = 0.f;
                 if (!pitchDirFlat.canBeNormalized())
                     pitchDirFlat = zeus::CVector3f::skForward;
 
                 zeus::CVector3f playerDirFlat = player->GetTransform().basis[1];
-                playerDirFlat.z = 0.f;
+                playerDirFlat.z() = 0.f;
                 playerDirFlat.normalize();
 
                 float pitchDot = zeus::clamp(-1.f, pitchDirFlat.dot(playerDirFlat), 1.f);
@@ -357,7 +357,7 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr)
                     x1c0_pitch = pvol->GetUpPitch() * -pitchDot;
 
                 zeus::CVector3f pvolToPlayerFlat = player->GetTranslation() - pvol->GetTranslation();
-                pvolToPlayerFlat.z = 0.f;
+                pvolToPlayerFlat.z() = 0.f;
                 float pitchMul = 0.f;
                 if (pvolToPlayerFlat.canBeNormalized())
                 {
@@ -368,7 +368,7 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr)
                         pitchMul = 1.f;
                     else
                         pitchMul = 1.f - zeus::clamp(-1.f, (pvolPlayerProj - pvol->GetMaxInterpolationDistance()) /
-                            (pvol->GetScale().y - pvol->GetMaxInterpolationDistance()), 1.f);
+                            (pvol->GetScale().y() - pvol->GetMaxInterpolationDistance()), 1.f);
                 }
                 x1c0_pitch *= pitchMul;
             }

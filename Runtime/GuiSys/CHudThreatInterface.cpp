@@ -120,7 +120,7 @@ void CHudThreatInterface::Update(float dt)
             x60_model_threatarrowup->SetIsVisible(true);
             x14_arrowTimer = std::max(0.f, x14_arrowTimer - dt);
             zeus::CColor color = warningColor;
-            color.a = x14_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
+            color.a() = x14_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
             x60_model_threatarrowup->SetColor(color);
             x64_model_threatarrowdown->SetIsVisible(false);
         }
@@ -129,7 +129,7 @@ void CHudThreatInterface::Update(float dt)
             x64_model_threatarrowdown->SetIsVisible(true);
             x14_arrowTimer = std::min(0.f, x14_arrowTimer + dt);
             zeus::CColor color = warningColor;
-            color.a = -x14_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
+            color.a() = -x14_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
             x64_model_threatarrowdown->SetColor(color);
             x60_model_threatarrowup->SetIsVisible(false);
         }
@@ -221,17 +221,17 @@ void CHudThreatInterface::Update(float dt)
         {
             x48_warningLerpAlpha = std::min(x48_warningLerpAlpha + 2.f * dt, 1.f);
             zeus::CColor color = zeus::CColor::skWhite;
-            color.a = x48_warningLerpAlpha * xc_damagePulse;
+            color.a() = x48_warningLerpAlpha * xc_damagePulse;
             x68_textpane_threatwarning->SetColor(color);
         }
         else
         {
             x48_warningLerpAlpha = std::max(0.f, x48_warningLerpAlpha - 2.f * dt);
             zeus::CColor color = zeus::CColor::skWhite;
-            color.a = x48_warningLerpAlpha * xc_damagePulse;
+            color.a() = x48_warningLerpAlpha * xc_damagePulse;
             x68_textpane_threatwarning->SetColor(color);
         }
-        if (x68_textpane_threatwarning->GetGeometryColor().a > 0.f)
+        if (x68_textpane_threatwarning->GetGeometryColor().a() > 0.f)
             x68_textpane_threatwarning->SetIsVisible(true);
         else
             x68_textpane_threatwarning->SetIsVisible(false);

@@ -167,12 +167,12 @@ void CGameProjectile::Chase(float dt, CStateManager& mgr)
 
             if (!swarm && !TCastToConstPtr<CPhysicsActor>(act.GetPtr()))
                 if (auto tb = act->GetTouchBounds())
-                    projToPos.z += (tb->max.z - tb->min.z) * 0.5f;
+                    projToPos.z() += (tb->max.z() - tb->min.z()) * 0.5f;
 
             zeus::CQuaternion qDelta =
                 zeus::CQuaternion::shortestRotationArc(x170_projectile.GetTransform().basis[1], projToPos);
 
-            float wThres = qDelta.w * qDelta.w * 2.f - 1.f;
+            float wThres = qDelta.w() * qDelta.w() * 2.f - 1.f;
             if (wThres > 0.99f)
                 return;
 
@@ -527,12 +527,12 @@ CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStat
 
 zeus::CAABox CGameProjectile::GetProjectileBounds() const
 {
-    return {{std::min(x298_lastOrigin.x, GetTranslation().x) - x2a4_projExtent,
-             std::min(x298_lastOrigin.y, GetTranslation().y) - x2a4_projExtent,
-             std::min(x298_lastOrigin.z, GetTranslation().z) - x2a4_projExtent},
-            {std::max(x298_lastOrigin.x, GetTranslation().x) + x2a4_projExtent,
-             std::max(x298_lastOrigin.y, GetTranslation().y) + x2a4_projExtent,
-                    std::max(x298_lastOrigin.z, GetTranslation().z) + x2a4_projExtent}};
+    return {{std::min(x298_lastOrigin.x(), GetTranslation().x()) - x2a4_projExtent,
+             std::min(x298_lastOrigin.y(), GetTranslation().y()) - x2a4_projExtent,
+             std::min(x298_lastOrigin.z(), GetTranslation().z()) - x2a4_projExtent},
+            {std::max(x298_lastOrigin.x(), GetTranslation().x()) + x2a4_projExtent,
+             std::max(x298_lastOrigin.y(), GetTranslation().y()) + x2a4_projExtent,
+             std::max(x298_lastOrigin.z(), GetTranslation().z()) + x2a4_projExtent}};
 }
 
 std::experimental::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const

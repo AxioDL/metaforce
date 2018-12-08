@@ -254,7 +254,7 @@ void CStateManager::UpdateThermalVisor()
     {
         CGameArea* area = x850_world->GetArea(x8cc_nextAreaId);
         const zeus::CTransform& playerXf = x84c_player->GetTransform();
-        zeus::CVector3f playerXYPos(playerXf.origin.x, playerXf.origin.y, 0.f);
+        zeus::CVector3f playerXYPos(playerXf.origin.x(), playerXf.origin.y(), 0.f);
         CGameArea* lastArea = nullptr;
         float closestDist = FLT_MAX;
         for (const CGameArea::Dock& dock : area->GetDocks())
@@ -262,7 +262,7 @@ void CStateManager::UpdateThermalVisor()
             zeus::CVector3f dockCenter = (dock.GetPlaneVertices()[0] + dock.GetPlaneVertices()[1] +
                                           dock.GetPlaneVertices()[2] + dock.GetPlaneVertices()[3]) *
                                          0.25f;
-            dockCenter.z = 0.f;
+            dockCenter.z() = 0.f;
             float dist = (playerXYPos - dockCenter).magSquared();
             if (dist < closestDist)
             {
@@ -512,7 +512,7 @@ void CStateManager::DrawReflection(const zeus::CVector3f& reflectPoint)
     zeus::CAABox aabb = x84c_player->GetBoundingBox();
     zeus::CVector3f playerPos = aabb.center();
     zeus::CVector3f surfToPlayer = playerPos - reflectPoint;
-    surfToPlayer.z = 0.f;
+    surfToPlayer.z() = 0.f;
     zeus::CVector3f viewPos = playerPos - surfToPlayer.normalized() * 3.5f;
     zeus::CTransform look = zeus::lookAt(viewPos, playerPos, {0.f, 0.f, -1.f});
 
@@ -594,7 +594,7 @@ void CStateManager::DrawE3DeathEffect() const
         }
         float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = whiteAmt;
+        color.a() = whiteAmt;
         const_cast<CColoredQuadFilter&>(m_deathWhiteout).draw(color);
     }
 }
@@ -605,7 +605,7 @@ void CStateManager::DrawAdditionalFilters() const
         !x870_cameraManager->IsInCinematicCamera())
     {
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = 1.f - xf0c_escapeTimer;
+        color.a() = 1.f - xf0c_escapeTimer;
         const_cast<CColoredQuadFilter&>(m_escapeWhiteout).draw(color);
     }
 }
@@ -615,14 +615,14 @@ zeus::CFrustum CStateManager::SetupDrawFrustum(const SViewport& vp) const
     zeus::CFrustum ret;
     const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
     zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
-    int vpWidth = xf2c_viewportScale.x * vp.x8_width;
-    int vpHeight = xf2c_viewportScale.y * vp.xc_height;
+    int vpWidth = xf2c_viewportScale.x() * vp.x8_width;
+    int vpHeight = xf2c_viewportScale.y() * vp.xc_height;
     int vpLeft = (vp.x8_width - vpWidth) / 2 + vp.x0_left;
     int vpTop = (vp.xc_height - vpHeight) / 2 + vp.x4_top;
     g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
-    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y) * 2.f;
-    float width = xf2c_viewportScale.x * vp.x8_width;
-    float height = xf2c_viewportScale.y * vp.xc_height;
+    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y()) * 2.f;
+    float width = xf2c_viewportScale.x() * vp.x8_width;
+    float height = xf2c_viewportScale.y() * vp.xc_height;
     zeus::CProjection proj;
     proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
     ret.updatePlanes(camXf, proj);
@@ -635,15 +635,15 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const
     zeus::CTransform camXf = x870_cameraManager->GetCurrentCameraTransform(*this);
     g_Renderer->SetWorldViewpoint(camXf);
     CBooModel::SetNewPlayerPositionAndTime(x84c_player->GetTranslation());
-    int vpWidth = xf2c_viewportScale.x * vp.x8_width;
-    int vpHeight = xf2c_viewportScale.y * vp.xc_height;
+    int vpWidth = xf2c_viewportScale.x() * vp.x8_width;
+    int vpHeight = xf2c_viewportScale.y() * vp.xc_height;
     int vpLeft = (vp.x8_width - vpWidth) / 2 + vp.x0_left;
     int vpTop = (vp.xc_height - vpHeight) / 2 + vp.x4_top;
     g_Renderer->SetViewport(vpLeft, vpTop, vpWidth, vpHeight);
     CGraphics::SetDepthRange(DEPTH_WORLD, DEPTH_FAR);
-    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y) * 2.f;
-    float width = xf2c_viewportScale.x * vp.x8_width;
-    float height = xf2c_viewportScale.y * vp.xc_height;
+    float fov = std::atan(std::tan(zeus::degToRad(cam->GetFov()) * 0.5f) * xf2c_viewportScale.y()) * 2.f;
+    float width = xf2c_viewportScale.x() * vp.x8_width;
+    float height = xf2c_viewportScale.y() * vp.xc_height;
     g_Renderer->SetPerspective(zeus::radToDeg(fov), width, height,
                                cam->GetNearClipDistance(), cam->GetFarClipDistance());
     zeus::CFrustum frustum;
@@ -1668,9 +1668,9 @@ bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterial
 {
     zeus::CVector3f crossed =
     {
-        -ray.dir.z * ray.dir.z - ray.dir.y * ray.dir.x,
-        ray.dir.x * ray.dir.x - ray.dir.z * ray.dir.y,
-        ray.dir.y * ray.dir.y - ray.dir.x * -ray.dir.z
+        -ray.dir.z() * ray.dir.z() - ray.dir.y() * ray.dir.x(),
+        ray.dir.x() * ray.dir.x() - ray.dir.z() * ray.dir.y(),
+        ray.dir.y() * ray.dir.y() - ray.dir.x() * -ray.dir.z()
     };
 
     crossed.normalize();
@@ -1702,9 +1702,9 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
             if (TCastToPtr<CScriptWater> water = damagee)
             {
                 zeus::CAABox bounds = water->GetTriggerBoundsWR();
-                zeus::CVector3f hitPos(pos.x, pos.y, bounds.max.z);
+                zeus::CVector3f hitPos(pos.x(), pos.y(), bounds.max.z());
                 float bombRad = powerBomb ? 4.f : 2.f;
-                float delta = bounds.max.z - pos.dot(zeus::CVector3f::skUp);
+                float delta = bounds.max.z() - pos.dot(zeus::CVector3f::skUp);
                 if (delta <= bombRad && delta > 0.f)
                 {
                     // Below surface

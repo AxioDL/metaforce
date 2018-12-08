@@ -86,7 +86,7 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
         return;
     }
     else if (childIndices.size() < minChildren || level == AROT_MAX_LEVEL ||
-             std::max(extents.x, std::max(extents.y, extents.z)) < AROT_MIN_SUBDIV)
+             std::max(extents.x(), std::max(extents.y(), extents.z())) < AROT_MIN_SUBDIV)
     {
         typeOut = BspNodeType::Leaf;
         return;
@@ -103,21 +103,21 @@ void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<z
     }
 
     /* Unsubdivide minimum axis dimensions */
-    if (extents.x < AROT_MIN_SUBDIV)
+    if (extents.x() < AROT_MIN_SUBDIV)
     {
         mergeSets(0, 1);
         mergeSets(4, 5);
         mergeSets(2, 3);
         mergeSets(6, 7);
     }
-    if (extents.y < AROT_MIN_SUBDIV)
+    if (extents.y() < AROT_MIN_SUBDIV)
     {
         mergeSets(0, 2);
         mergeSets(1, 3);
         mergeSets(4, 6);
         mergeSets(5, 7);
     }
-    if (extents.z < AROT_MIN_SUBDIV)
+    if (extents.z() < AROT_MIN_SUBDIV)
     {
         mergeSets(0, 4);
         mergeSets(1, 5);

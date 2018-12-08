@@ -74,7 +74,8 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
 
     float vpScale = g_Viewport.xc_height / 448.f;
     CGraphics::SetModelMatrix(
-        zeus::CTransform::Scale(x48_interpWindowDims.x * 17.f * vpScale, 1.f, x48_interpWindowDims.y * 17.f * vpScale));
+        zeus::CTransform::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
+                                x48_interpWindowDims.y() * 17.f * vpScale));
 
     x114_scanShield->Draw(CModelFlags(5, 0, 3, zeus::CColor::skClear));
 
@@ -142,7 +143,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const
             }
 
             CGraphics::SetModelMatrix(xf);
-            iconColor.a *= iconAlpha * farT;
+            iconColor.a() *= iconAlpha * farT;
             useModel->Draw(CModelFlags(7, 0, 1, iconColor));
         }
     }
@@ -169,8 +170,8 @@ void CPlayerVisor::UpdateScanObjectIndicators(const CStateManager& mgr, float dt
             const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
             zeus::CVector3f orbitPos = act->GetOrbitPosition(mgr);
             orbitPos = cam->ConvertToScreenSpace(orbitPos);
-            orbitPos.x = orbitPos.x * g_Viewport.x8_width / 2.f + g_Viewport.x8_width / 2.f;
-            orbitPos.y = orbitPos.y * g_Viewport.xc_height / 2.f + g_Viewport.xc_height / 2.f;
+            orbitPos.x() = orbitPos.x() * g_Viewport.x8_width / 2.f + g_Viewport.x8_width / 2.f;
+            orbitPos.y() = orbitPos.y() * g_Viewport.xc_height / 2.f + g_Viewport.xc_height / 2.f;
             bool inBox = mgr.GetPlayer().WithinOrbitScreenBox(orbitPos,
                                                               mgr.GetPlayer().GetOrbitZone(),
                                                               mgr.GetPlayer().GetOrbitType());
@@ -382,9 +383,9 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     float vpScale = g_Viewport.xc_height / 448.f;
     float divisor = (transFactor * ((1.f - t) * x58_scanMagInterp + t * g_tweakGui->GetScanWindowScanningAspect()) + (1.f - transFactor));
     divisor = 1.f / divisor;
-    float vpW = 169.218f * x48_interpWindowDims.x * divisor;
+    float vpW = 169.218f * x48_interpWindowDims.x() * divisor;
     vpW = zeus::clamp(0.f, vpW, 640.f) * vpScale;
-    float vpH = 152.218f * x48_interpWindowDims.y * divisor;
+    float vpH = 152.218f * x48_interpWindowDims.y() * divisor;
     vpH = zeus::clamp(0.f, vpH, 448.f) * vpScale;
 
     SClipScreenRect rect;
@@ -398,7 +399,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
 
     g_Renderer->SetViewportOrtho(true, -1.f, 1.f);
 
-    zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x, 1.f, x48_interpWindowDims.y);
+    zeus::CTransform windowScale = zeus::CTransform::Scale(x48_interpWindowDims.x(), 1.f, x48_interpWindowDims.y());
     zeus::CTransform seventeenScale = zeus::CTransform::Scale(17.f * vpScale, 1.f, 17.f * vpScale);
     CGraphics::SetModelMatrix(seventeenScale * windowScale);
 
@@ -415,10 +416,10 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
     };
     if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL)
     {
-        rttVerts[0].m_uv.y = uvY1;
-        rttVerts[1].m_uv.y = uvY1;
-        rttVerts[2].m_uv.y = uvY0;
-        rttVerts[3].m_uv.y = uvY0;
+        rttVerts[0].m_uv.y() = uvY1;
+        rttVerts[1].m_uv.y() = uvY1;
+        rttVerts[2].m_uv.y() = uvY0;
+        rttVerts[3].m_uv.y() = uvY0;
     }
     const_cast<CTexturedQuadFilter&>(x108_newScanPane).drawVerts(zeus::CColor(1.f, transFactor), rttVerts);
 
@@ -428,7 +429,7 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
         g_tweakGuiColors->GetScanFrameInactiveColor(),
         g_tweakGuiColors->GetScanFrameActiveColor(),
         x54c_scanFrameColorInterp);
-    frameColor.a = transFactor;
+    frameColor.a() = transFactor;
 
     CModelFlags flags(5, 0, 0,
         frameColor + g_tweakGuiColors->GetScanFrameImpulseColor() *

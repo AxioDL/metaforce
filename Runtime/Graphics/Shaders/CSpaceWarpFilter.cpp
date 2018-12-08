@@ -35,8 +35,8 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
                 vec.normalize();
                 vec *= zeus::CVector2f(std::sqrt(mag));
             }
-            data[y][x][0] = zeus::clamp(0, int((((vec.x / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
-            data[y][x][1] = zeus::clamp(0, int((((vec.y / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+            data[y][x][0] = zeus::clamp(0, int((((vec.x() / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+            data[y][x][1] = zeus::clamp(0, int((((vec.y() / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
         }
     }
     m_warpTex = ctx.newStaticTexture(WARP_RAMP_RES+1, WARP_RAMP_RES+1, 1,
@@ -132,14 +132,14 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
 
     /* Transform UV coordinates of rectangle within viewport and sampled scene texels (clamped to viewport bounds) */
     zeus::CVector2f vp{float(CGraphics::g_CroppedViewport.xc_width), float(CGraphics::g_CroppedViewport.x10_height)};
-    m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x;
-    m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y;
-    m_uniform.m_matrix[3][0] = pt.x + (1.f / vp.x);
-    m_uniform.m_matrix[3][1] = pt.y + (1.f / vp.y);
+    m_uniform.m_matrix[0][0] = clipRect.xc_width / vp.x();
+    m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y();
+    m_uniform.m_matrix[3][0] = pt.x() + (1.f / vp.x());
+    m_uniform.m_matrix[3][1] = pt.y() + (1.f / vp.y());
     if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL)
-        m_uniform.m_matrix[3][2] = pt.z * 2.f - 1.f;
+        m_uniform.m_matrix[3][2] = pt.z() * 2.f - 1.f;
     else
-        m_uniform.m_matrix[3][2] = pt.z;
+        m_uniform.m_matrix[3][2] = pt.z();
 
     if (clipRect.x4_left)
     {
@@ -161,9 +161,9 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt)
     clipRect.x8_top = g_Viewport.xc_height - clipRect.x10_height - clipRect.x8_top;
     CGraphics::ResolveSpareTexture(clipRect);
 
-    m_uniform.m_strength.x = m_uniform.m_matrix[0][0] * m_strength * 0.5f *
-                             (clipRect.x10_height / float(clipRect.xc_width));
-    m_uniform.m_strength.y = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
+    m_uniform.m_strength.x() = m_uniform.m_matrix[0][0] * m_strength * 0.5f *
+                               (clipRect.x10_height / float(clipRect.xc_width));
+    m_uniform.m_strength.y() = m_uniform.m_matrix[1][1] * m_strength * 0.5f;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
     CGraphics::SetShaderDataBinding(m_dataBind);

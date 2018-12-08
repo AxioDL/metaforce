@@ -243,7 +243,7 @@ void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr)
 bool CScriptDock::HasPointCrossedDock(const CStateManager& mgr, const zeus::CVector3f& point) const
 {
     const zeus::CPlane plane = GetPlane(mgr);
-    return (point.dot(plane.vec) >= plane.d);
+    return plane.pointToPlaneDist(point) >= 0.f;
 }
 
 void CScriptDock::AreaLoaded(CStateManager& mgr) { SetLoadConnected(mgr, x268_25_loadConnected); }

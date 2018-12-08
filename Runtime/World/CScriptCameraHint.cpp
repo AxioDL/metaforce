@@ -120,13 +120,13 @@ void CScriptCameraHint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
             if (TCastToConstPtr<CActor> act = mgr.GetObjectById(sender))
             {
                 zeus::CVector3f followerToThisFlat = x168_origXf.origin - act->GetTranslation();
-                followerToThisFlat.z = 0.f;
+                followerToThisFlat.z() = 0.f;
                 if (followerToThisFlat.canBeNormalized())
                     followerToThisFlat.normalize();
                 else
                     followerToThisFlat = act->GetTransform().basis[1];
                 zeus::CVector3f target = act->GetTranslation() + followerToThisFlat;
-                target.z = x168_origXf.origin.z + followerToThisFlat.z;
+                target.z() = x168_origXf.origin.z() + followerToThisFlat.z();
                 SetTransform(zeus::lookAt(act->GetTranslation(), target));
             }
         }

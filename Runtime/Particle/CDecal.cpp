@@ -108,7 +108,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const
     if (CVectorElement* off = desc.xc_OFF.get())
     {
         off->GetValue(x58_frameIdx, offset);
-        offset.y = 0.f;
+        offset.y() = 0.f;
     }
     zeus::CTransform modXf = xc_transform;
     modXf.origin += offset;
@@ -215,9 +215,9 @@ void CDecal::RenderMdl() const
     if (dmrtIsConst)
     {
         desc.x50_DMRT->GetValue(x58_frameIdx, const_cast<zeus::CVector3f&>(x60_rotation));
-        dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(x60_rotation.z));
-        dmrtXf.rotateLocalY(zeus::degToRad(x60_rotation.y));
-        dmrtXf.rotateLocalX(zeus::degToRad(x60_rotation.x));
+        dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(x60_rotation.z()));
+        dmrtXf.rotateLocalY(zeus::degToRad(x60_rotation.y()));
+        dmrtXf.rotateLocalX(zeus::degToRad(x60_rotation.x()));
     }
 
     dmrtXf = rotXf * dmrtXf;
@@ -237,9 +237,9 @@ void CDecal::RenderMdl() const
         {
             zeus::CVector3f dmrtVec;
             dmrt->GetValue(x58_frameIdx, dmrtVec);
-            dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(dmrtVec.z));
-            dmrtXf.rotateLocalY(zeus::degToRad(dmrtVec.y));
-            dmrtXf.rotateLocalX(zeus::degToRad(dmrtVec.x));
+            dmrtXf = zeus::CTransform::RotateZ(zeus::degToRad(dmrtVec.z()));
+            dmrtXf.rotateLocalY(zeus::degToRad(dmrtVec.y()));
+            dmrtXf.rotateLocalX(zeus::degToRad(dmrtVec.x()));
             worldXf = worldXf * rotXf * dmrtXf;
         }
         else
@@ -267,7 +267,7 @@ void CDecal::RenderMdl() const
     }
     else
     {
-        if (color.a == 1.f)
+        if (color.a() == 1.f)
         {
             CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
             desc.x38_DMDL.m_token->Draw(flags);

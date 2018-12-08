@@ -87,6 +87,8 @@ public:
     zeus::CAABox GetTriggerBoundsWR() const;
     const CDamageInfo& GetDamageInfo() const { return x100_damageInfo; }
     ETriggerFlags GetTriggerFlags() const { return x12c_flags; }
+    float GetForceMagnitude() const { return x128_forceMagnitude; }
+    const zeus::CVector3f& GetForceVector() const { return x11c_forceField; }
 };
 }
 

@@ -29,14 +29,14 @@ void CTextRenderBuffer::BooPrimitiveMark::SetOpacity(CTextRenderBuffer& rb, floa
     {
         BooFontCharacters& fc = rb.m_fontCharacters[m_bindIdx];
         CTextSupportShader::CharacterInstance& inst = fc.m_charData[m_instIdx];
-        inst.m_mulColor.a = opacity;
+        inst.m_mulColor.a() = opacity;
         fc.m_dirty = true;
         break;
     }
     case Command::ImageRender:
     {
         BooImage& img = rb.m_images[m_bindIdx];
-        img.m_imageData.m_color.a = opacity;
+        img.m_imageData.m_color.a() = opacity;
         img.m_dirty = true;
         break;
     }
@@ -159,8 +159,8 @@ void CTextRenderBuffer::Render(const zeus::CColor& col, float time) const
         CTextSupportShader::Uniform{mat, col};
     if (m_drawFlags == CGuiWidget::EGuiModelDrawFlags::AlphaAdditiveOverdraw)
     {
-        zeus::CColor colPremul = col * col.a;
-        colPremul.a = col.a;
+        zeus::CColor colPremul = col * col.a();
+        colPremul.a() = col.a();
         const_cast<CTextRenderBuffer*>(this)->m_uniBuf2.access() =
             CTextSupportShader::Uniform{mat, colPremul};
     }
@@ -277,19 +277,19 @@ std::pair<zeus::CVector2i, zeus::CVector2i> CTextRenderBuffer::AccumulateTextBou
     {
         for (const CTextSupportShader::CharacterInstance& charInst : chars.m_charData)
         {
-            ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x));
-            ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z));
-            ret.second.x = std::max(ret.second.x, int(charInst.m_pos[3].x));
-            ret.second.y = std::max(ret.second.y, int(charInst.m_pos[3].z));
+            ret.first.x = std::min(ret.first.x, int(charInst.m_pos[0].x()));
+            ret.first.y = std::min(ret.first.y, int(charInst.m_pos[0].z()));
+            ret.second.x = std::max(ret.second.x, int(charInst.m_pos[3].x()));
+            ret.second.y = std::max(ret.second.y, int(charInst.m_pos[3].z()));
         }
     }
 
     for (const BooImage& imgs : m_images)
     {
-        ret.first.x = std::min(ret.first.x, int(imgs.m_imageData.m_pos[0].x));
-        ret.first.y = std::min(ret.first.y, int(imgs.m_imageData.m_pos[0].z));
-        ret.second.x = std::max(ret.second.x, int(imgs.m_imageData.m_pos[3].x));
-        ret.second.y = std::max(ret.second.y, int(imgs.m_imageData.m_pos[3].z));
+        ret.first.x = std::min(ret.first.x, int(imgs.m_imageData.m_pos[0].x()));
+        ret.first.y = std::min(ret.first.y, int(imgs.m_imageData.m_pos[0].z()));
+        ret.second.x = std::max(ret.second.x, int(imgs.m_imageData.m_pos[3].x()));
+        ret.second.y = std::max(ret.second.y, int(imgs.m_imageData.m_pos[3].z()));
     }
 
     return ret;

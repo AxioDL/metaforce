@@ -18,7 +18,7 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles)
     u8 idx = 0;
     for (CParticle& particle : particles)
     {
-        float transp = 1.f - particle.x34_color.a;
+        float transp = 1.f - particle.x34_color.a();
         if (transp > maxTransp)
         {
             float distSq = (particle.x4_pos - x74_warpPoint).magSquared();

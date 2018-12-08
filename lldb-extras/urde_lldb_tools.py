@@ -20,7 +20,7 @@ class CMatrix3f_Provider:
         if index >= self.num_children():
             return None
         try:
-            m = self.valobj.GetChildAtIndex(0).GetChildMemberWithName('vec')
+            m = self.valobj.GetChildMemberWithName('m')
             return m.GetChildAtIndex(index)
         except:
             return None

@@ -56,14 +56,13 @@ public:
                    NormalMode normalMode, int redShift, int greenShift, int blueShift, u32 tileX, u32 gridDimX,
                    u32 gridDimY, u32 tileY, const bool* gridFlags)
         {
-            x0_xSubdivs = std::min(s16((localMax.x - localMin.x) / rippleResolution + 1.f - FLT_EPSILON) + 2,
+            x0_xSubdivs = std::min(s16((localMax.x() - localMin.x()) / rippleResolution + 1.f - FLT_EPSILON) + 2,
                                    numSubdivisionsInHField + 2);
-            x1_ySubdivs = std::min(s16((localMax.y - localMin.y) / rippleResolution + 1.f - FLT_EPSILON) + 2,
+            x1_ySubdivs = std::min(s16((localMax.y() - localMin.y()) / rippleResolution + 1.f - FLT_EPSILON) + 2,
                                    numSubdivisionsInHField + 2);
             float tileHypRadius = tileSize * tileSize * 2 * 0.25f;
-            x4_localMin.x = localMin.x;
-            x4_localMin.y = localMin.y;
-            xc_globalMin = x4_localMin + zeus::CVector2f(pos.x, pos.y);
+            x4_localMin = localMin.toVec2f();
+            xc_globalMin = x4_localMin + pos.toVec2f();
             x14_tileSize = tileSize;
             x18_rippleResolution = rippleResolution;
             if (tileHypRadius != 0.f)

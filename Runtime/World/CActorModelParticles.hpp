@@ -68,12 +68,22 @@ public:
             u16 _dummy = 0;
         };
         float x130_ = 10.f;
-        u8 x134_bits = 0;
+        u8 x134_lockDeps = 0;
+        void sub_801e59a8(EDependency i);
+        bool UpdateOnFire(float dt, CActor* actor, CStateManager& mgr);
+        bool UpdateAsh(float dt, CActor* actor, CStateManager& mgr);
+        bool sub_801e65bc(float dt, CActor* actor, CStateManager& mgr);
+        bool UpdateFirePop(float dt, CActor* actor, CStateManager& mgr);
+        bool UpdateElectric(float dt, CActor* actor, CStateManager& mgr);
+        bool sub_801e69f0(float dt, CActor* actor, CStateManager& mgr);
+        bool sub_801e5e98(float dt, CActor* actor, CStateManager& mgr);
+        bool UpdateIcePop(float dt, CActor* actor, CStateManager& mgr);
     public:
         CItem(const CEntity& ent, CActorModelParticles& parent);
         void GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
-        void Update(float, CStateManager&);
-        void EnsureLoaded(EDependency i);
+        bool Update(float dt, CStateManager& mgr);
+        void Lock(EDependency i);
+        void Unlock(EDependency i);
     };
 
 private:
@@ -124,6 +134,7 @@ private:
     };
     rstl::reserved_vector<Dependency, 6> x50_dgrps;
     u8 xe4_bits = 0;
+    u8 xe5_bits1 = 0;
     u8 xe6_bits2 = 0;
 
     Dependency GetParticleDGRPTokens(const char* name);
@@ -136,6 +147,7 @@ private:
     std::unique_ptr<CElementGen> MakeIcePopGen() const;
     std::unique_ptr<CParticleElectric> MakeElectricGen() const;
 
+    void DecrementDependency(EDependency d);
     void IncrementDependency(EDependency d);
 public:
     CActorModelParticles();
@@ -152,6 +164,7 @@ public:
     void Render(const CActor& actor) const;
     void StartElectric(CActor& act);
     void StopElectric(CActor& act);
+    void sub_801e51d0(CActor& act);
     void StopThermalHotParticles(CActor& act);
     void StartBurnDeath(CActor& act);
     void EnsureElectricLoaded(CActor& act);

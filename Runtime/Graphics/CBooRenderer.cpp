@@ -93,15 +93,15 @@ void Buckets::Sort()
                 bool partial, full;
                 if (planeObj.x3c_25_zOnly)
                 {
-                    partial = drawable.GetBounds().max.z > planeObj.GetPlane().d;
-                    full = drawable.GetBounds().min.z > planeObj.GetPlane().d;
+                    partial = drawable.GetBounds().max.z() > planeObj.GetPlane().d();
+                    full = drawable.GetBounds().min.z() > planeObj.GetPlane().d();
                 }
                 else
                 {
                     partial = planeObj.GetPlane().pointToPlaneDist(
-                        drawable.GetBounds().closestPointAlongVector(planeObj.GetPlane().vec)) > 0.f;
+                        drawable.GetBounds().closestPointAlongVector(planeObj.GetPlane().normal())) > 0.f;
                     full = planeObj.GetPlane().pointToPlaneDist(
-                        drawable.GetBounds().furthestPointAlongVector(planeObj.GetPlane().vec)) > 0.f;
+                        drawable.GetBounds().furthestPointAlongVector(planeObj.GetPlane().normal())) > 0.f;
                 }
                 bool cont;
                 if (drawable.GetType() == EDrawableType::Particle)
@@ -378,7 +378,7 @@ void CBooRenderer::CalcDrawFogFan(const zeus::CPlane* planes, int numPlanes, con
     u32 insidePlaneCount = 0;
     bool outsidePlane[20];
     for (int i=0 ; i<numVerts ; ++i)
-        outsidePlane[insidePlaneCount++] = plane.normal().dot(verts[i]) < plane.d;
+        outsidePlane[insidePlaneCount++] = plane.normal().dot(verts[i]) < plane.d();
 
     u32 numUseVerts = 0;
     zeus::CVector3f useVerts[20];
@@ -435,7 +435,7 @@ void CBooRenderer::DrawFogSlices(const zeus::CPlane* planes, int numPlanes,
 
     zeus::CVector3d planeNormal = plane.normal();
     for (const zeus::CVector3d& vert : verts)
-        verts2[vert2Count++] = vert - (planeNormal * zeus::CVector3f(planeNormal.dot(vert) - plane.d));
+        verts2[vert2Count++] = vert - (planeNormal * zeus::CVector3f(planeNormal.dot(vert) - plane.d()));
 
     CalcDrawFogFan(planes, numPlanes, verts2, vert2Count, iteration, 0, fogVol);
 }
@@ -452,21 +452,21 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
             zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
             zeus::CPlane planes[7] =
             {
-                {zeus::CVector3f::skRight, xfAABB.min.x},
-                {zeus::CVector3f::skLeft, -xfAABB.max.x},
-                {zeus::CVector3f::skForward, xfAABB.min.y},
-                {zeus::CVector3f::skBack, -xfAABB.max.y},
-                {zeus::CVector3f::skUp, xfAABB.min.z},
-                {zeus::CVector3f::skDown, -xfAABB.max.z},
+                {zeus::CVector3f::skRight, xfAABB.min.x()},
+                {zeus::CVector3f::skLeft, -xfAABB.max.x()},
+                {zeus::CVector3f::skForward, xfAABB.min.y()},
+                {zeus::CVector3f::skBack, -xfAABB.max.y()},
+                {zeus::CVector3f::skUp, xfAABB.min.z()},
+                {zeus::CVector3f::skDown, -xfAABB.max.z()},
                 {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}
             };
 
             CGraphics::SetModelMatrix(zeus::CTransform::Identity());
 
             float longestAxis = std::max(std::max(
-                xfAABB.max.x - xfAABB.min.x,
-                xfAABB.max.y - xfAABB.min.y),
-                xfAABB.max.z - xfAABB.min.z) * 2.f;
+                xfAABB.max.x() - xfAABB.min.x(),
+                xfAABB.max.y() - xfAABB.min.y()),
+                xfAABB.max.z() - xfAABB.min.z()) * 2.f;
 
             fvs->reset(7 * 6);
             for (int i=0 ; i<7 ; ++i)
@@ -541,23 +541,23 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
         zeus::CVector3f overW;
         if (i < 8)
         {
-            overW = points[i].toVec3f() * (1.f / points[i].w);
+            overW = points[i].toVec3f() * (1.f / points[i].w());
         }
         else
         {
             const zeus::CVector4f& pt1 = points[s_FogVolumeCtrl.xfc_[i-8][0]];
             const zeus::CVector4f& pt2 = points[s_FogVolumeCtrl.xfc_[i-8][1]];
 
-            bool eq1 = (pt1.z / pt1.w) == 1.f;
-            bool eq2 = (pt2.z / pt2.w) == 1.f;
+            bool eq1 = (pt1.z() / pt1.w()) == 1.f;
+            bool eq2 = (pt2.z() / pt2.w()) == 1.f;
             if (eq1 == eq2)
                 continue;
 
-            float interp = -(pt1.w - 1.f) / (pt2.w - pt1.w);
+            float interp = -(pt1.w() - 1.f) / (pt2.w() - pt1.w());
             if (interp <= 0.f || interp >= 1.f)
                 continue;
 
-            float wRecip = 1.f / (interp * (pt2.w - pt1.w) + pt1.w);
+            float wRecip = 1.f / (interp * (pt2.w() - pt1.w()) + pt1.w());
             zeus::CVector3f pt1_3 = pt1.toVec3f();
             zeus::CVector3f pt2_3 = pt2.toVec3f();
             overW = (pt1_3 + interp * (pt2_3 - pt1_3)) * wRecip;
@@ -566,8 +566,8 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
         //if (overW.z > 1.001f)
         //    continue;
 
-        int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x * 0.5f + (g_Viewport.x8_width / 2)), int(g_Viewport.x8_width));
-        int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y * 0.5f + (g_Viewport.xc_height / 2)), int(g_Viewport.xc_height));
+        int vpX = zeus::clamp(0, int(g_Viewport.x8_width * overW.x() * 0.5f + (g_Viewport.x8_width / 2)), int(g_Viewport.x8_width));
+        int vpY = zeus::clamp(0, int(g_Viewport.xc_height * overW.y() * 0.5f + (g_Viewport.xc_height / 2)), int(g_Viewport.xc_height));
         vpMax.x = std::max(vpMax.x, vpX);
         vpMin.x = std::min(vpMin.x, vpX);
         vpMax.y = std::max(vpMax.y, vpY);
@@ -758,7 +758,7 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model)
     {
         const MaterialSet::Material& mat = model.GetMaterialByIndex(surf->m_data.matIdx);
         zeus::CAABox aabb = surf->GetBounds();
-        zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.vec);
+        zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.normal());
         Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
                         mat.heclIr.m_blendSrc == boo::BlendFactor::SrcAlpha &&
                         mat.heclIr.m_blendDst == boo::BlendFactor::InvSrcAlpha);
@@ -1026,16 +1026,20 @@ void CBooRenderer::PostRenderFogs()
     x2ac_fogVolumes.sort([](const CFogVolumeListItem& a, const CFogVolumeListItem& b)
     {
         zeus::CAABox aabbA = a.x34_aabb.getTransformedAABox(a.x0_transform);
-        bool insideA = aabbA.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x, CGraphics::g_ViewPoint.y, aabbA.min.z));
+        bool insideA = aabbA.pointInside(
+          zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbA.min.z()));
 
         zeus::CAABox aabbB = b.x34_aabb.getTransformedAABox(b.x0_transform);
-        bool insideB = aabbB.pointInside(zeus::CVector3f(CGraphics::g_ViewPoint.x, CGraphics::g_ViewPoint.y, aabbB.min.z));
+        bool insideB = aabbB.pointInside(
+          zeus::CVector3f(CGraphics::g_ViewPoint.x(), CGraphics::g_ViewPoint.y(), aabbB.min.z()));
 
         if (insideA != insideB)
             return insideA;
 
-        float dotA = aabbA.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
-        float dotB = aabbB.furthestPointAlongVector(CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+        float dotA = aabbA.furthestPointAlongVector(
+          CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
+        float dotB = aabbB.furthestPointAlongVector(
+          CGraphics::g_ViewMatrix.basis[1]).dot(CGraphics::g_ViewMatrix.basis[1]);
         return dotA < dotB;
     });
     for (const CFogVolumeListItem& fog : x2ac_fogVolumes)
@@ -1050,7 +1054,7 @@ void CBooRenderer::AddParticleGen(const CParticleGen& gen)
 {
     if (auto bounds = gen.GetBounds())
     {
-        zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.vec);
+        zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.normal());
         Buckets::Insert(pt, bounds.value(), EDrawableType::Particle, &gen, xb0_viewPlane, 0);
     }
 }
@@ -1071,7 +1075,7 @@ void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, con
         bool zOnly = plane.normal() == zeus::CVector3f::skUp;
         bool invert;
         if (zOnly)
-            invert = CGraphics::g_ViewMatrix.origin.z >= plane.d;
+            invert = CGraphics::g_ViewMatrix.origin.z() >= plane.d();
         else
             invert = plane.pointToPlaneDist(CGraphics::g_ViewMatrix.origin) >= 0.f;
         Buckets::InsertPlaneObject(closeDist, farDist, aabb, invert, plane, zOnly, EDrawableType(type + 2), obj);
@@ -1096,8 +1100,7 @@ void CBooRenderer::SetDrawableCallback(TDrawableCallback cb, const void* ctx)
 void CBooRenderer::SetWorldViewpoint(const zeus::CTransform& xf)
 {
     CGraphics::SetViewPointMatrix(xf);
-    xb0_viewPlane.vec = xf.basis[1];
-    xb0_viewPlane.d = xf.basis[1].dot(xf.origin);
+    xb0_viewPlane = zeus::CPlane(xf.basis[1], xf.basis[1].dot(xf.origin));
 }
 
 void CBooRenderer::SetPerspective(float fovy, float width, float height, float znear, float zfar)
@@ -1474,7 +1477,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
                     if (alphaVal > 255)
                         return alphaVal;
 
-                    flags.x4_color.a = alphaVal / 255.f;
+                    flags.x4_color.a() = alphaVal / 255.f;
                     const CBooModel& model = *item.x10_models[wordModel + j];
                     const_cast<CBooModel&>(model).VerifyCurrentShader(0);
                     for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
@@ -1495,7 +1498,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
                                                     const zeus::CAABox& aabb, float alpha) const
 {
     CModelFlags flags;
-    flags.x4_color.a = alpha;
+    flags.x4_color.a() = alpha;
     flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw
 
     u32 curWord = 0;
@@ -1517,7 +1520,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
                     if (alphaVal > 255)
                         return;
 
-                    flags.x4_color.r = alphaVal / 255.f;
+                    flags.x4_color.r() = alphaVal / 255.f;
                     const CBooModel& model = *item.x10_models[wordModel + j];
                     const_cast<CBooModel&>(model).VerifyCurrentShader(0);
                     for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)

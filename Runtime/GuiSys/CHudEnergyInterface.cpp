@@ -87,18 +87,18 @@ void CHudEnergyInterface::Update(float dt, float energyLowPulse)
         {
             x4_energyLowFader = std::min(x4_energyLowFader + 2.f * dt, 1.f);
             zeus::CColor color = zeus::CColor::skWhite;
-            color.a = x4_energyLowFader * energyLowPulse;
+            color.a() = x4_energyLowFader * energyLowPulse;
             x28_textpane_energywarning->SetColor(color);
         }
         else
         {
             x4_energyLowFader = std::max(0.f, x4_energyLowFader - 2.f * dt);
             zeus::CColor color = zeus::CColor::skWhite;
-            color.a = x4_energyLowFader * energyLowPulse;
+            color.a() = x4_energyLowFader * energyLowPulse;
             x28_textpane_energywarning->SetColor(color);
         }
 
-        if (x28_textpane_energywarning->GetGeometryColor().a)
+        if (x28_textpane_energywarning->GetGeometryColor().a())
             x28_textpane_energywarning->SetIsVisible(true);
         else
             x28_textpane_energywarning->SetIsVisible(false);

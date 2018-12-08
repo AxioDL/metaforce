@@ -104,7 +104,7 @@ void CFluidPlane::RenderStripWithRipples(float curY,
     float yMin = curY;
     float yMid = curY + tileMid;
 
-    float curX = info.x4_localMin.x;
+    float curX = info.x4_localMin.x();
     int gridCell = info.x28_tileX + info.x2a_gridDimX * (info.x2e_tileY + yTile - 1);
     int xTile = 1;
     int tileSpan;
@@ -364,8 +364,8 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info,
     {
         m_shader->bindRegular();
 
-        float xMin = info.x4_localMin.x;
-        float yMin = info.x4_localMin.y;
+        float xMin = info.x4_localMin.x();
+        float yMin = info.x4_localMin.y();
         float xMax = info.x18_rippleResolution * (info.x0_xSubdivs - 2) + xMin;
         float yMax = info.x18_rippleResolution * (info.x1_ySubdivs - 2) + yMin;
 
@@ -568,7 +568,7 @@ void CFluidPlane::RenderPatch(const CFluidPlaneRender::SPatchInfo& info,
     }
     else
     {
-        float curY = info.x4_localMin.y;
+        float curY = info.x4_localMin.y();
         for (int startYDiv=1 ; startYDiv<info.x1_ySubdivs-2 ;
              startYDiv += CFluidPlaneRender::numSubdivisionsInTile, curY += info.x14_tileSize)
             RenderStripWithRipples(curY, heights, flags, startYDiv, info, vOut, pvOut);

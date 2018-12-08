@@ -90,7 +90,8 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
     else
     {
         surfPos = model.x20_aabb.center();
-        surfSize = (model.x20_aabb.max.x - model.x20_aabb.min.x) + (model.x20_aabb.max.y - model.x20_aabb.min.y) * 0.5f;
+        surfSize = (model.x20_aabb.max.x() - model.x20_aabb.min.x()) +
+                   (model.x20_aabb.max.y() - model.x20_aabb.min.y()) * 0.5f;
     }
 
     if (g_Renderer->x318_24_refectionDirty)
@@ -131,11 +132,11 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
         float f1 = timeScale * g_TransformedTime;
         float f2 = timeScale * g_TransformedTime2;
         mtxsOut[1] = ReflectBaseMtx;
-        mtxsOut[1][0][0] = f1 * v2.x;
-        mtxsOut[1][1][0] = f1 * v2.y;
+        mtxsOut[1][0][0] = f1 * v2.x();
+        mtxsOut[1][1][0] = f1 * v2.y();
         mtxsOut[1][3][0] = -surfPos.dot(v2) * f1 + 0.5f;
         mtxsOut[1][2][1] = f2;
-        mtxsOut[1][3][1] = -modelToPlayerLocal.z * f2;
+        mtxsOut[1][3][1] = -modelToPlayerLocal.z() * f2;
         switch (CGraphics::g_BooPlatform)
         {
         case boo::IGraphicsDataFactory::Platform::OpenGL:
@@ -767,28 +768,28 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     case UVAnimation::Mode::MvInvNoTranslation:
     {
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-        texMtxOut.vec[3].w = 1.f;
-        postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.5f;
-        postMtxOut.vec[3].x = 0.5f;
-        postMtxOut.vec[3].y = 0.5f;
+        texMtxOut.m[3].w() = 1.f;
+        postMtxOut.m[0].x() = 0.5f;
+        postMtxOut.m[1].y() = 0.5f;
+        postMtxOut.m[3].x() = 0.5f;
+        postMtxOut.m[3].y() = 0.5f;
         break;
     }
     case UVAnimation::Mode::MvInv:
     {
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-        texMtxOut.vec[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
-        texMtxOut.vec[3].w = 1.f;
-        postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.5f;
-        postMtxOut.vec[3].x = 0.5f;
-        postMtxOut.vec[3].y = 0.5f;
+        texMtxOut.m[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+        texMtxOut.m[3].w() = 1.f;
+        postMtxOut.m[0].x() = 0.5f;
+        postMtxOut.m[1].y() = 0.5f;
+        postMtxOut.m[3].x() = 0.5f;
+        postMtxOut.m[3].y() = 0.5f;
         break;
     }
     case UVAnimation::Mode::Scroll:
     {
-        texMtxOut.vec[3].x = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
-        texMtxOut.vec[3].y = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
+        texMtxOut.m[3].x() = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
+        texMtxOut.m[3].y() = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
         break;
     }
     case UVAnimation::Mode::Rotation:
@@ -796,35 +797,35 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         float angle = CGraphics::GetSecondsMod900() * anim.vals[1] + anim.vals[0];
         float acos = std::cos(angle);
         float asin = std::sin(angle);
-        texMtxOut.vec[0].x = acos;
-        texMtxOut.vec[0].y = asin;
-        texMtxOut.vec[1].x = -asin;
-        texMtxOut.vec[1].y = acos;
-        texMtxOut.vec[3].x = (1.0f - (acos - asin)) * 0.5f;
-        texMtxOut.vec[3].y = (1.0f - (asin + acos)) * 0.5f;
+        texMtxOut.m[0].x() = acos;
+        texMtxOut.m[0].y() = asin;
+        texMtxOut.m[1].x() = -asin;
+        texMtxOut.m[1].y() = acos;
+        texMtxOut.m[3].x() = (1.0f - (acos - asin)) * 0.5f;
+        texMtxOut.m[3].y() = (1.0f - (asin + acos)) * 0.5f;
         break;
     }
     case UVAnimation::Mode::HStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].x = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.m[3].x() = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::VStrip:
     {
         float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-        texMtxOut.vec[3].y = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+        texMtxOut.m[3].y() = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
         break;
     }
     case UVAnimation::Mode::Model:
     {
         texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
-        texMtxOut.vec[3].zeroOut();
-        postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.f;
-        postMtxOut.vec[2].y = 0.5f;
-        postMtxOut.vec[3].x = CGraphics::g_GXModelMatrix.origin.x * 0.05f;
-        postMtxOut.vec[3].y = CGraphics::g_GXModelMatrix.origin.y * 0.05f;
+        texMtxOut.m[3].zeroOut();
+        postMtxOut.m[0].x() = 0.5f;
+        postMtxOut.m[1].y() = 0.f;
+        postMtxOut.m[2].y() = 0.5f;
+        postMtxOut.m[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
+        postMtxOut.m[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
         break;
     }
     case UVAnimation::Mode::CylinderEnvironment:
@@ -832,9 +833,9 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
         texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
 
         const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
-        float xy = (viewOrigin.x + viewOrigin.y) * 0.025f * anim.vals[1];
+        float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.vals[1];
         xy = (xy - (int)xy);
-        float z = (viewOrigin.z) * 0.05f * anim.vals[1];
+        float z = (viewOrigin.z()) * 0.05f * anim.vals[1];
         z = (z - (int)z);
 
         float halfA = anim.vals[0] * 0.5f;
@@ -879,12 +880,8 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     {
         /* Special matrices for MorphBall shadow rendering */
         zeus::CMatrix4f texMtx =
-        (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max.x - flags.mbShadowBox.min.x),
-                                 1.f / (flags.mbShadowBox.max.y - flags.mbShadowBox.min.y),
-                                 1.f / (flags.mbShadowBox.max.z - flags.mbShadowBox.min.z)) *
-         zeus::CTransform::Translate(-flags.mbShadowBox.min.x,
-                                     -flags.mbShadowBox.min.y,
-                                     -flags.mbShadowBox.min.z) * CGraphics::g_GXModelView).toMatrix4f();
+        (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max - flags.mbShadowBox.min)) *
+         zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelView).toMatrix4f();
         for (const MaterialSet::Material& mat : matSet->materials)
         {
             (void)mat;
@@ -907,11 +904,11 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
              zeus::CTransform::Translate(-aabb.min) * xf;
         zeus::CMatrix4f texMtx = xf.toMatrix4f();
         zeus::CMatrix4f post0 = DisintegratePost;
-        post0[3].x = flags.addColor.a;
-        post0[3].y = 6.f * -(1.f - flags.addColor.a) + 1.f;
+        post0[3].x() = flags.addColor.a();
+        post0[3].y() = 6.f * -(1.f - flags.addColor.a()) + 1.f;
         zeus::CMatrix4f post1 = DisintegratePost;
-        post1[3].x = -0.85f * flags.addColor.a - 0.15f;
-        post1[3].y = post0[3].y;
+        post1[3].x() = -0.85f * flags.addColor.a() - 0.15f;
+        post1[3].y() = float(post0[3].y());
         /* Special matrices for disintegration rendering */
         for (const MaterialSet::Material& mat : matSet->materials)
         {
@@ -941,10 +938,10 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
          */
 
         zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
-        postMtxOut.vec[0].x = 0.5f;
-        postMtxOut.vec[1].y = 0.5f;
-        postMtxOut.vec[3].x = 0.5f;
-        postMtxOut.vec[3].y = 0.5f;
+        postMtxOut.m[0].x() = 0.5f;
+        postMtxOut.m[1].y() = 0.5f;
+        postMtxOut.m[3].x() = 0.5f;
+        postMtxOut.m[3].y() = 0.5f;
     }
     else if (flags.m_extendedShader == EExtendedShader::WorldShadow)
     {
@@ -953,14 +950,14 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
 
         zeus::CMatrix4f mat = g_shadowTexXf.toMatrix4f();
         zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
-        texMtxOut[0][0] = mat[0][0];
-        texMtxOut[1][0] = mat[1][0];
-        texMtxOut[2][0] = mat[2][0];
-        texMtxOut[3][0] = mat[3][0];
-        texMtxOut[0][1] = mat[0][2];
-        texMtxOut[1][1] = mat[1][2];
-        texMtxOut[2][1] = mat[2][2];
-        texMtxOut[3][1] = mat[3][2];
+        texMtxOut[0][0] = float(mat[0][0]);
+        texMtxOut[1][0] = float(mat[1][0]);
+        texMtxOut[2][0] = float(mat[2][0]);
+        texMtxOut[3][0] = float(mat[3][0]);
+        texMtxOut[0][1] = float(mat[0][2]);
+        texMtxOut[1][1] = float(mat[1][2]);
+        texMtxOut[2][1] = float(mat[2][2]);
+        texMtxOut[3][1] = float(mat[3][2]);
     }
 
     for (const MaterialSet::Material& mat : matSet->materials)
@@ -1146,8 +1143,8 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     {
         CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
         shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::CVector3f::skUp;
-        shadowOut.shadowUp.w = flags.x4_color.a;
-        shadowOut.shadowId = flags.x4_color.r;
+        shadowOut.shadowUp.w() = flags.x4_color.a();
+        shadowOut.shadowId = flags.x4_color.r();
     }
     else if (flags.m_extendedShader == EExtendedShader::Disintegrate)
     {
@@ -1470,12 +1467,12 @@ void CModel::ApplyVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vertBu
     {
         const std::pair<zeus::CVector3f, zeus::CVector3f>& avn = vn[i];
         float* floats = reinterpret_cast<float*>(data + GetPoolVertexOffset(i));
-        floats[0] = avn.first.x;
-        floats[1] = avn.first.y;
-        floats[2] = avn.first.z;
-        floats[3] = avn.second.x;
-        floats[4] = avn.second.y;
-        floats[5] = avn.second.z;
+        floats[0] = avn.first.x();
+        floats[1] = avn.first.y();
+        floats[2] = avn.first.z();
+        floats[3] = avn.second.x();
+        floats[4] = avn.second.y();
+        floats[5] = avn.second.z();
     }
     vertBuf->unmap();
 }

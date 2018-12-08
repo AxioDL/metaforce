@@ -269,7 +269,7 @@ void CPatterned::Think(float dt, CStateManager& mgr)
 
     zeus::CVector3f diffVec = x4e4_latestPredictedTranslation - GetTranslation();
     if (!x328_25_verticalMovement)
-        diffVec.z = 0.f;
+        diffVec.z() = 0.f;
 
     if (diffVec.magSquared() > (0.1f * dt))
         x4f0_predictedLeashTime += dt;
@@ -713,9 +713,9 @@ bool CPatterned::PlayerSpot(CStateManager& mgr, float arg)
         zeus::CVector3f aimToCenterNorm = aimToCenter * (1.f / aimToCenterMag);
         zeus::CVector3f screenSpace = mgr.GetCameraManager()->
             GetFirstPersonCamera()->ConvertToScreenSpace(center);
-        if (screenSpace.z > 0.f &&
-            screenSpace.x * screenSpace.x < 1.f &&
-            screenSpace.y * screenSpace.y < 1.f)
+        if (screenSpace.z() > 0.f &&
+            screenSpace.x() * screenSpace.x() < 1.f &&
+            screenSpace.y() * screenSpace.y() < 1.f)
         {
             CRayCastResult res =
             mgr.RayStaticIntersection(aimPosition, aimToCenterNorm, aimToCenterMag,
@@ -753,7 +753,7 @@ bool CPatterned::InDetectionRange(CStateManager& mgr, float arg)
     if (delta.magSquared() < x3bc_detectionRange * x3bc_detectionRange)
     {
         if (x3c0_detectionHeightRange > 0.f)
-            return delta.z * delta.z < x3c0_detectionHeightRange * x3c0_detectionHeightRange;
+            return delta.z() * delta.z() < x3c0_detectionHeightRange * x3c0_detectionHeightRange;
         return true;
     }
     return false;
@@ -830,8 +830,8 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt)
                 zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::CVector3f::skUp;
                 x2ec_reflectedDestPos = biasedPos - (x2e0_destPos - biasedPos);
                 ApproachDest(mgr);
-                zeus::CVector3f biasedForward = x34_transform.basis[1] * x64_modelData->GetScale().y + biasedPos;
-                search->GetSplinePointWithLookahead(biasedForward, biasedPos, 3.f * x64_modelData->GetScale().y);
+                zeus::CVector3f biasedForward = x34_transform.basis[1] * x64_modelData->GetScale().y() + biasedPos;
+                search->GetSplinePointWithLookahead(biasedForward, biasedPos, 3.f * x64_modelData->GetScale().y());
                 SetDestPos(biasedForward);
                 if (search->SegmentOver(biasedPos))
                     search->SetCurrentWaypoint(search->GetCurrentWaypoint() + 1);
@@ -1174,7 +1174,7 @@ zeus::CVector3f CPatterned::GetGunEyePos() const
 {
     zeus::CVector3f origin = GetTranslation();
     zeus::CAABox baseBox = GetBaseBoundingBox();
-    origin.z = 0.6f * (baseBox.max.z - baseBox.min.z) + origin.z;
+    origin.z() = 0.6f * (baseBox.max.z() - baseBox.min.z()) + origin.z();
     return origin;
 }
 
@@ -1284,7 +1284,7 @@ void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr)
     if (x3e8_alphaDelta == 0.f)
         return;
 
-    float alpha = dt * x3e8_alphaDelta + x42c_color.a;
+    float alpha = dt * x3e8_alphaDelta + x42c_color.a();
     if (alpha > 1.f)
     {
         alpha = 1.f;
@@ -1314,10 +1314,10 @@ void CPatterned::UpdateDamageColor(float dt)
     if (x428_damageCooldownTimer > 0.f)
     {
         x428_damageCooldownTimer = std::max(0.f, x428_damageCooldownTimer - dt);
-        float alpha = x42c_color.a;
+        float alpha = x42c_color.a();
         x42c_color = zeus::CColor::lerp(zeus::CColor::skBlack, x430_damageColor,
                                         std::min(x428_damageCooldownTimer / 0.33f, 1.f));
-        x42c_color.a = alpha;
+        x42c_color.a() = alpha;
         if (!x450_bodyController->IsFrozen())
             xd0_damageMag = x50c_baseDamageMag + x428_damageCooldownTimer;
     }
@@ -1439,7 +1439,7 @@ void CPatterned::ApproachDest(CStateManager& mgr)
     zeus::CVector3f faceVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
     zeus::CVector3f moveVec = x2e0_destPos - GetTranslation();
     if (!x328_25_verticalMovement)
-        moveVec.z = 0.f;
+        moveVec.z() = 0.f;
     zeus::CVector3f pathLine = x2e0_destPos - x2ec_reflectedDestPos;
     if (pathLine.dot(moveVec) <= 0.f)
         x328_24_inPosition = true;
@@ -1516,10 +1516,10 @@ std::pair<CScriptWaypoint*, CScriptWaypoint*> CPatterned::GetDestWaypoints(CStat
 zeus::CQuaternion CPatterned::FindPatternRotation(const zeus::CVector3f& dir) const
 {
     zeus::CVector3f wpDeltaFlat = x368_destWPDelta;
-    wpDeltaFlat.z = 0.f;
+    wpDeltaFlat.z() = 0.f;
     wpDeltaFlat.normalize();
     zeus::CVector3f dirFlat = dir;
-    dirFlat.z = 0.f;
+    dirFlat.z() = 0.f;
     dirFlat.normalize();
 
     zeus::CQuaternion q;
@@ -1719,7 +1719,7 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
 
     if (alpha < 255)
     {
-        if (col.r == 0.f && col.g == 0.f && col.b == 0.f)
+        if (col.r() == 0.f && col.g() == 0.f && col.b() == 0.f)
             col = zeus::CColor::skWhite; /* Not being damaged */
 
         if (x401_29_laggedBurnDeath)
@@ -1736,17 +1736,17 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum)
         else
         {
             zeus::CColor col2 = col;
-            col2.a = alpha / 255.f;
+            col2.a() = alpha / 255.f;
             xb4_drawFlags = CModelFlags(5, 0, 3, col2);
         }
     }
     else
     {
-        if (col.r != 0.f || col.g != 0.f || col.b != 0.f)
+        if (col.r() != 0.f || col.g() != 0.f || col.b() != 0.f)
         {
             /* Being damaged */
             zeus::CColor col2 = col;
-            col2.a = alpha / 255.f;
+            col2.a() = alpha / 255.f;
             xb4_drawFlags = CModelFlags(2, 0, 3, col2);
         }
         else

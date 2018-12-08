@@ -126,13 +126,13 @@ std::vector<VISIRenderer::Model::Vert> VISIRenderer::AABBToVerts(const zeus::CAA
         verts[i].color = color;
 
     verts[0].pos = aabb.min;
-    verts[1].pos = {aabb.max.x, aabb.min.y, aabb.min.z};
-    verts[2].pos = {aabb.min.x, aabb.min.y, aabb.max.z};
-    verts[3].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
-    verts[4].pos = {aabb.min.x, aabb.max.y, aabb.max.z};
+    verts[1].pos = {aabb.max.x(), aabb.min.y(), aabb.min.z()};
+    verts[2].pos = {aabb.min.x(), aabb.min.y(), aabb.max.z()};
+    verts[3].pos = {aabb.max.x(), aabb.min.y(), aabb.max.z()};
+    verts[4].pos = {aabb.min.x(), aabb.max.y(), aabb.max.z()};
     verts[5].pos = aabb.max;
-    verts[6].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
-    verts[7].pos = {aabb.max.x, aabb.max.y, aabb.min.z};
+    verts[6].pos = {aabb.min.x(), aabb.max.y(), aabb.min.z()};
+    verts[7].pos = {aabb.max.x(), aabb.max.y(), aabb.min.z()};
 
     return verts;
 }

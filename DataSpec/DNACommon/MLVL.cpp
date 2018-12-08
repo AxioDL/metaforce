@@ -44,6 +44,9 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
         hecl::SystemUTF8Conv areaDirName(*mreaEntry->unique.m_areaName);
 
         os.AABBToBMesh(area.aabb[0], area.aabb[1]);
+        zeus::simd_floats xfMtxF[3];
+        for (int i = 0; i < 3; ++i)
+            area.transformMtx[i].simd.copy_to(xfMtxF[i]);
         os.format("box_mesh = bpy.data.meshes.new('''%s''')\n"
                   "bm.to_mesh(box_mesh)\n"
                   "bm.free()\n"
@@ -56,9 +59,9 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
                   "box.rotation_quaternion = mtxd[1]\n"
                   "box.scale = mtxd[2]\n",
                   areaDirName.str().data(),
-                  area.transformMtx[0].vec[0], area.transformMtx[0].vec[1], area.transformMtx[0].vec[2], area.transformMtx[0].vec[3],
-                  area.transformMtx[1].vec[0], area.transformMtx[1].vec[1], area.transformMtx[1].vec[2], area.transformMtx[1].vec[3],
-                  area.transformMtx[2].vec[0], area.transformMtx[2].vec[1], area.transformMtx[2].vec[2], area.transformMtx[2].vec[3]);
+                  xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3],
+                  xfMtxF[1][0], xfMtxF[1][1], xfMtxF[1][2], xfMtxF[1][3],
+                  xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], xfMtxF[2][3]);
 
         /* Insert dock planes */
         int dockIdx = 0;
@@ -72,7 +75,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
             int idx = 0;
             for (const atVec3f& pv : dock.planeVerts)
             {
-                zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
+                const zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
                 os.format("bm.verts.new((%f,%f,%f))\n"
                           "bm.verts.ensure_lookup_table()\n",
                           pvRel[0], pvRel[1], pvRel[2]);
@@ -88,7 +91,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn,
                   "bm.free()\n"
                   "dockObj.parent = box\n";
             os.format("dockObj.location = (%f,%f,%f)\n",
-                      pvAvg[0], pvAvg[1], pvAvg[2]);
+                      float(pvAvg[0]), float(pvAvg[1]), float(pvAvg[2]));
             ++dockIdx;
         }
         ++areaIdx;

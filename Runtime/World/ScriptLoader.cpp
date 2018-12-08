@@ -164,8 +164,8 @@ static zeus::CTransform LoadEditorTransformPivotOnly(CInputStream& in)
     position.readBig(in);
     zeus::CVector3f orientation;
     orientation.readBig(in);
-    orientation.x = 0.f;
-    orientation.y = 0.f;
+    orientation.x() = 0.f;
+    orientation.y() = 0.f;
     return ScriptLoader::ConvertEditorEulerToTransform4f(orientation, position);
 }
 
@@ -395,9 +395,10 @@ CFluidUVMotion ScriptLoader::LoadFluidUVMotion(CInputStream& in)
 zeus::CTransform ScriptLoader::ConvertEditorEulerToTransform4f(const zeus::CVector3f& orientation,
                                                                const zeus::CVector3f& position)
 {
-    return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
-           zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
-           zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) +
+    zeus::simd_floats f(orientation.mSimd);
+    return zeus::CTransform::RotateZ(zeus::degToRad(f[2])) *
+           zeus::CTransform::RotateY(zeus::degToRad(f[1])) *
+           zeus::CTransform::RotateX(zeus::degToRad(f[0])) +
            position;
 }
 
@@ -461,7 +462,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
     else
         data = CStaticRes(staticId, head.x40_scale);
 
-    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+    if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new CScriptActor(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), aabb, mass,
@@ -1110,9 +1111,9 @@ CEntity* ScriptLoader::LoadCameraBlurKeyframe(CStateManager& mgr, CInputStream& 
 
 u32 ClassifyVector(const zeus::CVector3f& dir)
 {
-    zeus::CVector3f absDir(std::fabs(dir.x), std::fabs(dir.y), std::fabs(dir.z));
-    u32 max = (absDir.x > absDir.y ? 0 : 1);
-    max = (absDir[max] > absDir.z ? max : 2);
+    zeus::CVector3f absDir(std::fabs(dir.x()), std::fabs(dir.y()), std::fabs(dir.z()));
+    u32 max = (absDir.x() > absDir.y() ? 0 : 1);
+    max = (absDir[max] > absDir.z() ? max : 2);
 
     bool positive = (absDir[max] == dir[max]);
     if (max == 0)
@@ -2185,7 +2186,7 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
     if (solid)
         list.Add(EMaterialTypes::Solid);
 
-    if ((extents.x < 0.f || extents.y < 0.f || extents.z < 0.f) || extents.isZero())
+    if ((extents.x() < 0.f || extents.y() < 0.f || extents.z() < 0.f) || extents.isZero())
         aabox = zeus::CAABox(-.5f, 0.5f);
 
     return new CScriptPlayerActor(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform,
@@ -2655,7 +2656,7 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
         CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
     zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
 
-    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+    if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
         aabb = mData.GetBounds(xf.getRotation());
 
     return new CScriptGunTurret(mgr.AllocateUniqueId(), name, component, info, xf, std::move(mData), aabb, hInfo, dVuln,
@@ -2675,9 +2676,9 @@ CEntity* ScriptLoader::LoadFogVolume(CStateManager& mgr, CInputStream& in, int p
     zeus::CColor fogColor = zeus::CColor::ReadRGBABig(in);
     bool active = in.readBool();
 
-    volume.x = std::fabs(volume.x);
-    volume.y = std::fabs(volume.y);
-    volume.z = std::fabs(volume.z);
+    volume.x() = std::fabs(volume.x());
+    volume.y() = std::fabs(volume.y());
+    volume.z() = std::fabs(volume.z());
 
     return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(center, {}),
                                       CScriptSpecialFunction::ESpecialFunction::FogVolume, "", flickerSpeed, f2, 0.f,
@@ -2927,7 +2928,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
     CModelData data(CAnimRes(animParams.GetACSFile(), animParams.GetCharacter(), head.x40_scale,
                              animParams.GetInitialAnimation(), true));
 
-    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+    if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
         aabb = data.GetBounds(head.x10_transform.getRotation());
 
     return new MP1::CActorContraption(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data),
@@ -3120,7 +3121,7 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
 
     CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), head.x40_scale,
                               animParms.GetInitialAnimation(), true));
-    if ((collisionExtent.x < 0.f || collisionExtent.y < 0.f || collisionExtent.z < 0.f) || collisionExtent.isZero())
+    if ((collisionExtent.x() < 0.f || collisionExtent.y() < 0.f || collisionExtent.z() < 0.f) || collisionExtent.isZero())
         aabox = mData.GetBounds(head.x10_transform.getRotation());
 
     return new CAmbientAI(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(mData), aabox,

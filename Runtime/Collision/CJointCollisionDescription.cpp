@@ -63,8 +63,8 @@ CJointCollisionDescription::OBBCollision(CSegId pivotId, const zeus::CVector3f& 
 void CJointCollisionDescription::ScaleAllBounds(const zeus::CVector3f& scale)
 {
     xc_bounds *= scale;
-    x24_radius *= scale.x;
-    x28_maxSeparation *= scale.x;
+    x24_radius *= scale.x();
+    x28_maxSeparation *= scale.x();
     x18_pivotPoint *= scale;
 }
 }

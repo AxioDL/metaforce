@@ -57,9 +57,9 @@ void CScriptActorRotate::Think(float dt, CStateManager& mgr)
             if (TCastToPtr<CActor> act = mgr.ObjectById(actorPair.first))
             {
                 zeus::CTransform xf =
-                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z)) *
-                    zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y)) *
-                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x));
+                    zeus::CTransform::RotateZ(zeus::degToRad(timeOffset * x34_rotation.z())) *
+                    zeus::CTransform::RotateY(zeus::degToRad(timeOffset * x34_rotation.y())) *
+                    zeus::CTransform::RotateX(zeus::degToRad(timeOffset * x34_rotation.x()));
                 zeus::CTransform localRot = actorPair.second * xf;
                 localRot.origin = act->GetTranslation();
                 act->SetTransform(localRot);

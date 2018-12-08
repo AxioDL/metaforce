@@ -28,6 +28,7 @@ public:
     void PreRender(const zeus::CVector3f& v, CModelData& mData);
     void Update(CStateManager& mgr, float dt, float waterTop);
     void Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData);
+    zeus::CVector3f& TorsoImpulse() { return x84_torsoImpulse; }
 };
 
 class CSpacePirate : public CPatterned
@@ -90,7 +91,7 @@ private:
             bool x635_27_shadowPirate : 1;
             bool x635_28_ : 1;
             bool x635_29_ : 1;
-            bool x635_30_ragdollKeepAlive : 1;
+            bool x635_30_floatingCorpse : 1;
             bool x635_31_ragdollNoAiCollision : 1;
             bool x636_24_trooper : 1;
             bool x636_25_hearNoise : 1;
@@ -118,7 +119,7 @@ private:
             bool x638_31_ : 1;
             bool x639_24_ : 1;
             bool x639_25_ : 1;
-            bool x639_26_ : 1;
+            bool x639_26_started : 1;
             bool x639_27_ : 1;
             bool x639_28_ : 1;
             bool x639_29_ : 1;
@@ -206,6 +207,8 @@ private:
     void UpdateCloak(float dt, CStateManager& mgr);
     bool ShouldFrenzy(CStateManager& mgr);
     void ResetTeamAiRole(CStateManager& mgr);
+    void AssignTeamAiRole(CStateManager& mgr);
+    void RemoveTeamAiRole(CStateManager& mgr);
     bool CheckTargetable(CStateManager& mgr);
     void FireProjectile(float dt, CStateManager& mgr);
     void UpdateAttacks(float dt, CStateManager& mgr);
@@ -214,6 +217,8 @@ private:
     void SetCinematicCollision(CStateManager& mgr);
     void SetNonCinematicCollision(CStateManager& mgr);
     void CheckForProjectiles(CStateManager& mgr);
+    void SetEyeParticleActive(CStateManager& mgr, bool active);
+    void SetVelocityForJump();
 
 public:
     CSpacePirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

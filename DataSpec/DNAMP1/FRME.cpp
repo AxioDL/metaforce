@@ -366,15 +366,20 @@ bool FRME::Extract(const SpecBase &dataSpec,
                 switch(info->type)
                 {
                 case LITEInfo::ELightType::LocalAmbient:
+                {
+                    zeus::simd_floats colorF(w.header.color.simd);
                     os.format("bg_node.inputs[0].default_value = (%f,%f,%f,1.0)\n"
                               "bg_node.inputs[1].default_value = %f\n",
-                              w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2],
+                              colorF[0], colorF[1], colorF[2],
                               info->distQ / 8.0);
                     break;
+                }
                 case LITEInfo::ELightType::Spot:
                 case LITEInfo::ELightType::Directional:
                     os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
                 default:
+                {
+                    zeus::simd_floats colorF(w.header.color.simd);
                     os.format("lamp = bpy.data.lamps.new(name='%s', type='POINT')\n"
                               "lamp.color = (%f, %f, %f)\n"
                               "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
@@ -387,7 +392,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                               "lamp.retro_light_index = %d\n"
                               "binding = lamp\n",
                               w.header.name.c_str(),
-                              w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2],
+                              colorF[0], colorF[1], colorF[2],
                               info->distC, info->distL, info->distQ,
                               info->angC, info->angL, info->angQ, info->loadedIdx);
                     if (info->type == LITEInfo::ELightType::Spot)
@@ -396,6 +401,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                                   info->cutoff);
                     else if (info->type == LITEInfo::ELightType::Directional)
                         os << "lamp.type = 'HEMI'\n";
+                }
                 }
             }
         }
@@ -456,10 +462,8 @@ bool FRME::Extract(const SpecBase &dataSpec,
                         ti = 2;
                     else
                         ti = i;
-                    os.format("verts.append(bm.verts.new((%f,%f,%f)))\n",
-                              info->quadCoords[ti].vec[0],
-                              info->quadCoords[ti].vec[1],
-                              info->quadCoords[ti].vec[2]);
+                    zeus::simd_floats f(info->quadCoords[ti].simd);
+                    os.format("verts.append(bm.verts.new((%f,%f,%f)))\n", f[0], f[1], f[2]);
                 }
                 os << "bm.faces.new(verts)\n"
                       "bm.loops.layers.uv.new('UV')\n"
@@ -473,9 +477,8 @@ bool FRME::Extract(const SpecBase &dataSpec,
                         ti = 2;
                     else
                         ti = i;
-                    os.format("bm.verts[%d].link_loops[0][bm.loops.layers.uv[0]].uv = (%f,%f)\n", i,
-                              info->uvCoords[ti].vec[0],
-                              info->uvCoords[ti].vec[1]);
+                    zeus::simd_floats f(info->uvCoords[ti].simd);
+                    os.format("bm.verts[%d].link_loops[0][bm.loops.layers.uv[0]].uv = (%f,%f)\n", i, f[0], f[1]);
                 }
                 os.format("binding = bpy.data.meshes.new('%s')\n"
                           "bm.to_mesh(binding)\n"
@@ -485,6 +488,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
             }
         }
 
+        zeus::simd_floats colorF(w.header.color.simd);
         os.format("frme_obj = bpy.data.objects.new(name='%s', object_data=binding)\n"
                   "frme_obj.pass_index = %d\n"
                   "parentName = '%s'\n"
@@ -507,7 +511,7 @@ bool FRME::Extract(const SpecBase &dataSpec,
                   w.header.defaultVisible ? "True" : "False",
                   w.header.defaultActive ? "True" : "False",
                   w.header.cullFaces ? "True" : "False",
-                  w.header.color.vec[0], w.header.color.vec[1], w.header.color.vec[2], w.header.color.vec[3],
+                  colorF[0], colorF[1], colorF[2], colorF[3],
                   w.header.modelDrawFlags,
                   w.isWorker ? "True" : "False",
                   w.workerId);
@@ -541,12 +545,10 @@ bool FRME::Extract(const SpecBase &dataSpec,
             using PANEInfo = Widget::PANEInfo;
             if (PANEInfo* info = static_cast<PANEInfo*>(w.widgetInfo.get()))
             {
+                zeus::simd_floats f(info->scaleCenter.simd);
                 os.format("frme_obj.retro_pane_dimensions = (%f,%f)\n"
                           "frme_obj.retro_pane_scale_center = (%f,%f,%f)\n",
-                          info->xDim, info->zDim,
-                          info->scaleCenter.vec[0],
-                          info->scaleCenter.vec[1],
-                          info->scaleCenter.vec[2]);
+                          info->xDim, info->zDim, f[0], f[1], f[2]);
             }
         }
         else if (w.type == SBIG('TXPN'))
@@ -559,6 +561,10 @@ bool FRME::Extract(const SpecBase &dataSpec,
                 if (frme.version >= 1)
                     jpFontPath = pakRouter.getWorking(info->jpnFont, true);
 
+                zeus::simd_floats scaleF(info->scaleCenter.simd);
+                zeus::simd_floats fillF(info->fillColor.simd);
+                zeus::simd_floats outlineF(info->outlineColor.simd);
+                zeus::simd_floats extentF(info->blockExtent.simd);
                 os.format("frme_obj.retro_pane_dimensions = (%f,%f)\n"
                           "frme_obj.retro_pane_scale_center = (%f,%f,%f)\n"
                           "frme_obj.retro_textpane_font_path = '%s'\n"
@@ -572,22 +578,13 @@ bool FRME::Extract(const SpecBase &dataSpec,
                           "frme_obj.retro_textpane_hjustification = bpy.types.Object.retro_textpane_hjustification[1]['items'][%d][0]\n"
                           "frme_obj.retro_textpane_vjustification = bpy.types.Object.retro_textpane_vjustification[1]['items'][%d][0]\n",
                           info->xDim, info->zDim,
-                          info->scaleCenter.vec[0],
-                          info->scaleCenter.vec[1],
-                          info->scaleCenter.vec[2],
+                          scaleF[0], scaleF[1], scaleF[2],
                           fontPath.getRelativePathUTF8().data(),
                           info->wordWrap ? "True" : "False",
                           info->horizontal ? "True" : "False",
-                          info->fillColor.vec[0],
-                          info->fillColor.vec[1],
-                          info->fillColor.vec[2],
-                          info->fillColor.vec[3],
-                          info->outlineColor.vec[0],
-                          info->outlineColor.vec[1],
-                          info->outlineColor.vec[2],
-                          info->outlineColor.vec[3],
-                          info->blockExtent.vec[0],
-                          info->blockExtent.vec[1],
+                          fillF[0], fillF[1], fillF[2], fillF[3],
+                          outlineF[0], outlineF[1], outlineF[2], outlineF[3],
+                          extentF[0], extentF[1],
                           jpFontPath.getRelativePathUTF8().data(),
                           info->jpnPointScale[0],
                           info->jpnPointScale[1],
@@ -652,6 +649,10 @@ bool FRME::Extract(const SpecBase &dataSpec,
             }
         }
 
+        zeus::simd_floats xfMtxF[3];
+        for (int i = 0; i < 3; ++i)
+            w.basis[i].simd.copy_to(xfMtxF[i]);
+        zeus::simd_floats originF(w.origin.simd);
         os.format("mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                   "mtxd = mtx.decompose()\n"
                   "frme_obj.rotation_mode = 'QUATERNION'\n"
@@ -659,9 +660,9 @@ bool FRME::Extract(const SpecBase &dataSpec,
                   "frme_obj.rotation_quaternion = mtxd[1] * angle\n"
                   "frme_obj.scale = mtxd[2]\n"
                   "bpy.context.scene.objects.link(frme_obj)\n",
-                  w.basis[0].vec[0], w.basis[0].vec[1], w.basis[0].vec[2], w.origin.vec[0],
-                  w.basis[1].vec[0], w.basis[1].vec[1], w.basis[1].vec[2], w.origin.vec[1],
-                  w.basis[2].vec[0], w.basis[2].vec[1], w.basis[2].vec[2], w.origin.vec[2]);
+                  xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], originF[0],
+                  xfMtxF[1][0], xfMtxF[1][1], xfMtxF[1][2], originF[1],
+                  xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], originF[2]);
     }
 
     os.centerView();

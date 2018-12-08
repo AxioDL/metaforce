@@ -391,8 +391,8 @@ void CTextExecuteBuffer::AddImage(const CFontImageDef& image)
     if (xa0_curBlock)
     {
         const CTexture* tex = image.x4_texs[0].GetObj();
-        int width = tex->GetWidth() * image.x14_cropFactor.x;
-        int height = tex->GetHeight() * image.x14_cropFactor.y;
+        int width = tex->GetWidth() * image.x14_cropFactor.x();
+        int height = tex->GetHeight() * image.x14_cropFactor.y();
 
         if (x18_textState.x7c_enableWordWrap &&
             xa4_curLine->x8_curX + width > xa0_curBlock->xc_blockExtentX && xa4_curLine->x4_wordCount > 1)

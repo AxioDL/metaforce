@@ -44,39 +44,39 @@ s32 CPVSVisOctree::IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const
     zeus::CVector3f newMax;
     bool highFlags[3];
 
-    if (tp.x > newMin.x)
+    if (tp.x() > newMin.x())
     {
-        newMax.x = x2c_searchAabb.max.x;
+        newMax.x() = x2c_searchAabb.max.x();
         highFlags[0] = true;
     }
     else
     {
-        newMax.x = newMin.x;
-        newMin.x = x2c_searchAabb.min.x;
+        newMax.x() = float(newMin.x());
+        newMin.x() = float(x2c_searchAabb.min.x());
         highFlags[0] = false;
     }
 
-    if (tp.y > newMin.y)
+    if (tp.y() > newMin.y())
     {
-        newMax.y = x2c_searchAabb.max.y;
+        newMax.y() = float(x2c_searchAabb.max.y());
         highFlags[1] = true;
     }
     else
     {
-        newMax.y = newMin.y;
-        newMin.y = x2c_searchAabb.min.y;
+        newMax.y() = float(newMin.y());
+        newMin.y() = float(x2c_searchAabb.min.y());
         highFlags[1] = false;
     }
 
-    if (tp.z > newMin.z)
+    if (tp.z() > newMin.z())
     {
-        newMax.z = x2c_searchAabb.max.z;
+        newMax.z() = float(x2c_searchAabb.max.z());
         highFlags[2] = true;
     }
     else
     {
-        newMax.z = newMin.z;
-        newMin.z = x2c_searchAabb.min.z;
+        newMax.z() = float(newMin.z());
+        newMin.z() = float(x2c_searchAabb.min.z());
         highFlags[2] = false;
     }
 
@@ -89,18 +89,18 @@ s32 CPVSVisOctree::IterateSearch(u8 nodeData, const zeus::CVector3f& tp) const
     zeus::CAABox& newSearch = const_cast<zeus::CAABox&>(x2c_searchAabb);
     if (nodeData & 0x1)
     {
-        newSearch.min.x = newMin.x;
-        newSearch.max.x = newMax.x;
+        newSearch.min.x() = float(newMin.x());
+        newSearch.max.x() = float(newMax.x());
     }
     if (nodeData & 0x2)
     {
-        newSearch.min.y = newMin.y;
-        newSearch.max.y = newMax.y;
+        newSearch.min.y() = float(newMin.y());
+        newSearch.max.y() = float(newMax.y());
     }
     if (nodeData & 0x4)
     {
-        newSearch.min.z = newMin.z;
-        newSearch.max.z = newMax.z;
+        newSearch.min.z() = float(newMin.z());
+        newSearch.max.z() = float(newMax.z());
     }
 
     // Branch node - calculate next relative pointer

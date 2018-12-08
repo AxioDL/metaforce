@@ -311,9 +311,9 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
         else
         {
             finalSurfColor = *surfaceColor;
-            finalSurfColor.a = surfDepth * alphaSurf;
+            finalSurfColor.a() = surfDepth * alphaSurf;
             finalOutlineColor = *outlineColor;
-            finalOutlineColor.a = outlineDepth * alphaOutline;
+            finalOutlineColor.a() = outlineDepth * alphaOutline;
         }
 
         if ((selArea != playerArea || parms.GetHintAreaFlashIntensity() == 0.f) &&
@@ -331,7 +331,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
         {
             const CMapArea::CMapAreaSurface& surf = mapa->GetSurface(i);
             zeus::CVector3f pos = modelView * surf.GetCenterPosition();
-            sortInfos.emplace_back(pos.y, thisArea, CMapObjectSortInfo::EObjectCode::Surface, i,
+            sortInfos.emplace_back(pos.y(), thisArea, CMapObjectSortInfo::EObjectCode::Surface, i,
                                    finalSurfColor, finalOutlineColor);
         }
 
@@ -355,7 +355,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
                         zeus::CVector3f center = obj.BuildSurfaceCenterPoint(s);
                         zeus::CVector3f pos = modelView *
                             (CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea) + center);
-                        sortInfos.emplace_back(pos.y, thisArea, CMapObjectSortInfo::EObjectCode::DoorSurface, si+s,
+                        sortInfos.emplace_back(pos.y(), thisArea, CMapObjectSortInfo::EObjectCode::DoorSurface, si+s,
                                                zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
                     }
                     continue;
@@ -364,8 +364,8 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
 
             zeus::CVector3f pos = modelView * (obj.GetTransform().origin +
                                                CMapArea::GetAreaPostTranslate(parms.GetWorld(), thisArea));
-            sortInfos.emplace_back(pos.y, thisArea, doorType ? CMapObjectSortInfo::EObjectCode::Door :
-                                                               CMapObjectSortInfo::EObjectCode::Object,
+            sortInfos.emplace_back(pos.y(), thisArea, doorType ? CMapObjectSortInfo::EObjectCode::Door :
+                                                                 CMapObjectSortInfo::EObjectCode::Object,
                                    i, zeus::CColor{1.f, 0.f, 1.f, 1.f}, zeus::CColor{1.f, 0.f, 1.f, 1.f});
         }
     }
@@ -476,8 +476,8 @@ static Circle2 ExactCircle3(const zeus::CVector2f* a, const zeus::CVector2f* b, 
     zeus::CVector2f magVec(d1.magSquared() * 0.5f, d2.magSquared() * 0.5f);
     if (std::fabs(cross) > 0.01f)
     {
-        zeus::CVector2f tmp((d2.y * magVec.x - d1.y * magVec.y) / cross,
-                            (d1.x * magVec.y - d2.x * magVec.x) / cross);
+        zeus::CVector2f tmp((d2.y() * magVec.x() - d1.y() * magVec.y()) / cross,
+                            (d1.x() * magVec.y() - d2.x() * magVec.x()) / cross);
         ret.x0_point = *a + tmp;
         ret.x8_radiusSq = tmp.magSquared();
     }
@@ -760,10 +760,10 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
                 zeus::CAABox aabb = mapa->GetBoundingBox().getTransformedAABox(mapa->GetAreaPostTransform(wld, i));
                 for (int j=0 ; j<8 ; ++j)
                 {
-                    zeus::CVector3f point = aabb.getPoint(j);
-                    coords.emplace_back(point.x, point.y);
-                    zMin = std::min(point.z, zMin);
-                    zMax = std::max(point.z, zMax);
+                    const zeus::CVector3f point = aabb.getPoint(j);
+                    coords.push_back(point.toVec2f());
+                    zMin = std::min(point.z(), zMin);
+                    zMax = std::max(point.z(), zMax);
                 }
             }
         }
@@ -772,35 +772,35 @@ void CMapWorld::RecalculateWorldSphere(const CMapWorldInfo& mwInfo, const IWorld
     Circle circle = MinCircle(coords);
     const_cast<CMapWorld*>(this)->x3c_worldSphereRadius = circle.x8_radius;
     const_cast<CMapWorld*>(this)->x30_worldSpherePoint =
-        zeus::CVector3f(circle.x0_point.x, circle.x0_point.y, (zMin + zMax) * 0.5f);
+        zeus::CVector3f(circle.x0_point.x(), circle.x0_point.y(), (zMin + zMax) * 0.5f);
     const_cast<CMapWorld*>(this)->x40_worldSphereHalfDepth = (zMax - zMin) * 0.5f;
 }
 
 zeus::CVector3f CMapWorld::ConstrainToWorldVolume(const zeus::CVector3f& point, const zeus::CVector3f& lookVec) const
 {
     zeus::CVector3f ret = point;
-    if (std::fabs(lookVec.z) > FLT_EPSILON)
+    if (std::fabs(lookVec.z()) > FLT_EPSILON)
     {
-        float f2 = point.z - (x40_worldSphereHalfDepth + x30_worldSpherePoint.z);
-        float f1 = point.z - (x30_worldSpherePoint.z - x40_worldSphereHalfDepth);
+        float f2 = point.z() - (x40_worldSphereHalfDepth + x30_worldSpherePoint.z());
+        float f1 = point.z() - (x30_worldSpherePoint.z() - x40_worldSphereHalfDepth);
         if (f2 > 0.f)
-            ret = point + lookVec * (-f2 / lookVec.z);
+            ret = point + lookVec * (-f2 / lookVec.z());
         else if (f1 < 0.f)
-            ret = point + lookVec * (-f1 / lookVec.z);
+            ret = point + lookVec * (-f1 / lookVec.z());
     }
     else
     {
-        ret.z = zeus::clamp(x30_worldSpherePoint.z - x40_worldSphereHalfDepth, ret.z,
-                            x40_worldSphereHalfDepth + x30_worldSpherePoint.z);
+        ret.z() = zeus::clamp(x30_worldSpherePoint.z() - x40_worldSphereHalfDepth, float(ret.z()),
+                              x40_worldSphereHalfDepth + x30_worldSpherePoint.z());
     }
 
-    zeus::CVector2f tmp(x30_worldSpherePoint.x, x30_worldSpherePoint.y);
-    zeus::CVector2f vec2 = zeus::CVector2f(point.x, point.y) - tmp;
+    zeus::CVector2f tmp = x30_worldSpherePoint.toVec2f();
+    zeus::CVector2f vec2 = point.toVec2f() - tmp;
     if (vec2.magnitude() > x3c_worldSphereRadius)
     {
         tmp += vec2.normalized() * x3c_worldSphereRadius;
-        ret.x = tmp.x;
-        ret.y = tmp.y;
+        ret.x() = float(tmp.x());
+        ret.y() = float(tmp.y());
     }
 
     return ret;

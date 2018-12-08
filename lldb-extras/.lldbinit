@@ -2,14 +2,17 @@ command script import ~/urde_lldb_tools.py
 type synthetic add zeus::CMatrix3f --python-class urde_lldb_tools.CMatrix3f_Provider
 type synthetic add zeus::CMatrix4f --python-class urde_lldb_tools.CMatrix4f_Provider
 
+type summary add --summary-string "(${var.__s_.__storage_[0]}, ${var.__s_.__storage_[1]}, ${var.__s_.__storage_[2]}, ${var.__s_.__storage_[3]})" zeus::simd<float>
+type summary add --summary-string "(${var.__s_.__storage_[0]}, ${var.__s_.__storage_[1]}, ${var.__s_.__storage_[2]}, ${var.__s_.__storage_[3]})" zeus::simd<double>
+
 type summary add --summary-string "(${var.x}, ${var.y})" zeus::CVector2i
-type summary add --summary-string "(${var.x}, ${var.y})" zeus::CVector2f
-type summary add --summary-string "(${var.x}, ${var.y}, ${var.z})" zeus::CVector3f
-type summary add --summary-string "(${var.x}, ${var.y}, ${var.z})" zeus::CVector3d
-type summary add --summary-string "(${var.x}, ${var.y}, ${var.z}, ${var.w})" zeus::CVector4f
-type summary add --summary-string "(${var.r}, ${var.g}, ${var.b}, ${var.a})" zeus::CColor
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]})" zeus::CVector2f
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]})" zeus::CVector3f
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]})" zeus::CVector3d
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]}, ${var.mSimd.__s_.__storage_[3]})" zeus::CVector4f
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]}, ${var.mSimd.__s_.__storage_[3]})" zeus::CColor
 type summary add --summary-string "${var.angle}" zeus::CRelAngle
-type summary add --summary-string "(${var.w}, ${var.x}, ${var.y}, ${var.z})" zeus::CQuaternion
+type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]}, ${var.mSimd.__s_.__storage_[3]})" zeus::CQuaternion
 type summary add --summary-string "pos=${var.position} radius=${var.radius}" zeus::CSphere
 type summary add --summary-string "norm=${var.position} d=${var.d}" zeus::CPlane
 type summary add --summary-string "min=${var.min} max=${var.max}" zeus::CAABox

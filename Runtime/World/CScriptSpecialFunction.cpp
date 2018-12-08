@@ -250,7 +250,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                 {
                     x1a8_ = 1;
                     x1ac_ = GetTranslation() - mgr.GetPlayer().GetTranslation();
-                    x1ac_.z = 0.f;
+                    x1ac_.z() = 0.f;
                     x1ac_.normalize();
                     break;
                 }
@@ -442,7 +442,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
                 const SObjectTag* objectTag = g_ResFactory->GetResourceIdByName(xec_locatorName);
                 CAssetId assetId = objectTag ? objectTag->id : CAssetId();
 
-                mgr.SetPendingOnScreenTex(assetId, {x104_, x108_}, {xfc_, x100_});
+                mgr.SetPendingOnScreenTex(assetId, {int(x104_), int(x108_)}, {int(xfc_), int(x100_)});
                 if (objectTag)
                 {
                     x1e8_ = g_SimplePool->GetObj(*objectTag);
@@ -451,7 +451,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             }
             else if (msg == EScriptObjectMessage::Decrement)
             {
-                mgr.SetPendingOnScreenTex({}, {x104_, x108_}, {xfc_, x100_});
+                mgr.SetPendingOnScreenTex({}, {int(x104_), int(x108_)}, {int(xfc_), int(x100_)});
                 if (x1e8_)
                     x1e8_ = TLockedToken<CTexture>();
                 x1e5_26_displayBillboard = false;

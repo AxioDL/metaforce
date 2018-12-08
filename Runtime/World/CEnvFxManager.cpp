@@ -273,14 +273,14 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
                     }
                 }
                 ++blockedGrids;
-                grid.x14_block = std::make_pair(result.IsValid(), result.GetPoint().z);
+                grid.x14_block = std::make_pair(result.IsValid(), result.GetPoint().z());
             }
             grid.x0_24_blockDirty = false;
         }
         zeus::CVector2i gridEnd = grid.x4_position + grid.xc_extent;
         if (localPlayerPos.x >= grid.x4_position.x && localPlayerPos.y >= grid.x4_position.y &&
             localPlayerPos.x < gridEnd.x && localPlayerPos.y < gridEnd.y && grid.x14_block.first &&
-            grid.x14_block.second <= playerPos.z)
+            grid.x14_block.second <= playerPos.z())
         {
             x24_enableSplash = true;
             x2c_lastBlockedGridIdx = i;
@@ -349,7 +349,7 @@ void CEnvFxManager::UpdateSnowParticles(const rstl::reserved_vector<CVectorFixed
 
 void CEnvFxManager::UpdateRainParticles(const CVectorFixed8_8& zVec, const zeus::CVector3f& oopbtws, float dt)
 {
-    s16 deltaZ = zVec.z + s16(-40.f * dt * oopbtws.z * 256.f);
+    s16 deltaZ = zVec.z + s16(-40.f * dt * oopbtws.z() * 256.f);
     for (auto it = x50_grids.rbegin(); it != x50_grids.rend(); ++it)
         for (auto pit = it->x1c_particles.rbegin(); pit != it->x1c_particles.rend(); ++pit)
             pit->z = s16((pit->z + deltaZ) & 0x3fff);
@@ -391,14 +391,14 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr)
         zeus::CVector3f pbtws = GetParticleBoundsToWorldScale();
         zeus::CVector3f oopbtws = 1.f / pbtws;
         zeus::CVector3f forwardPoint = camXf.basis[1] * 23.8125f + camXf.origin;
-        float modX = std::fmod(forwardPoint.x, 7.9375f);
-        float modY = std::fmod(forwardPoint.y, 7.9375f);
-        s32 moveX = (x18_focusCellPosition.x - (forwardPoint.x - modX)) / 7.9375f;
-        x18_focusCellPosition.x = forwardPoint.x - modX;
-        s32 moveY = (x18_focusCellPosition.y - (forwardPoint.y - modY)) / 7.9375f;
-        x18_focusCellPosition.y = forwardPoint.y - modY;
-        float deltaZ = x18_focusCellPosition.z - forwardPoint.z;
-        x18_focusCellPosition.z = forwardPoint.z;
+        float modX = std::fmod(forwardPoint.x(), 7.9375f);
+        float modY = std::fmod(forwardPoint.y(), 7.9375f);
+        s32 moveX = (x18_focusCellPosition.x() - (forwardPoint.x() - modX)) / 7.9375f;
+        x18_focusCellPosition.x() = forwardPoint.x() - modX;
+        s32 moveY = (x18_focusCellPosition.y() - (forwardPoint.y() - modY)) / 7.9375f;
+        x18_focusCellPosition.y() = forwardPoint.y() - modY;
+        float deltaZ = x18_focusCellPosition.z() - forwardPoint.z();
+        x18_focusCellPosition.z() = float(forwardPoint.z());
         MoveWrapCells(moveX, moveY);
         CVectorFixed8_8 zVec(oopbtws * zeus::CVector3f(0.f, 0.f, deltaZ));
         if (fxType == EEnvFxType::UnderwaterFlake)
@@ -432,8 +432,8 @@ void CEnvFxManager::Update(float dt, CStateManager& mgr)
 
 static zeus::CColor GetFlakeColor(const zeus::CMatrix4f& mvp, const CEnvFxShaders::Instance& inst)
 {
-    float screenHeight = std::fabs(mvp.multiplyOneOverW(inst.positions[1]).y -
-                                   mvp.multiplyOneOverW(inst.positions[0]).y) / 2.f;
+    float screenHeight = std::fabs(mvp.multiplyOneOverW(inst.positions[1]).y() -
+                                   mvp.multiplyOneOverW(inst.positions[0]).y()) / 2.f;
     screenHeight -= (32.f / 480.f);
     screenHeight /= (32.f / 480.f);
     return zeus::CColor(1.f - zeus::clamp(0.f, screenHeight, 1.f), 1.f);
@@ -472,9 +472,9 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) const
     {
         zeus::CVector3f pos0 = particle.toVec3f();
         zeus::CVector3f pos1 = pos0;
-        pos1.z += zOffset;
-        float uvy0 = pos0.z * 10.f + m_uvyOffset;
-        float uvy1 = pos1.z * 10.f + m_uvyOffset;
+        pos1.z() += zOffset;
+        float uvy0 = pos0.z() * 10.f + m_uvyOffset;
+        float uvy1 = pos1.z() * 10.f + m_uvyOffset;
         m_lineRenderer.AddVertex(pos0, zeus::CColor::skWhite, 1.f, {0.f, uvy0});
         m_lineRenderer.AddVertex(pos1, zeus::CColor::skClear, 1.f, {0.f, uvy1});
     }
@@ -521,7 +521,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
         {
             zeus::CMatrix4f envTexMtx(true);
             envTexMtx[2][1] = 10.f;
-            envTexMtx[3][1] = 0.5f - (invXf * (zeus::CVector3f::skUp * x14_block.second)).z * 10.f;
+            envTexMtx[3][1] = 0.5f - (invXf * (zeus::CVector3f::skUp * x14_block.second)).z() * 10.f;
             m_uvyOffset = envTexMtx[3][1];
             parent.m_uniformData.envMtx = envTexMtx;
             break;
@@ -603,11 +603,11 @@ void CEnvFxManager::SetupUnderwaterTevs(const zeus::CTransform& invXf, const CSt
     for (CEntity* ent : mgr.GetAllObjectList())
         if (TCastToPtr<CScriptWater> water = ent)
             if (auto tb = water->GetTouchBounds())
-                waterTop = std::min(waterTop, tb->max.z);
+                waterTop = std::min(waterTop, float(tb->max.z()));
     zeus::CVector3f localWaterTop = invXf * (zeus::CVector3f::skUp * waterTop);
     zeus::CMatrix4f envTexMtx(true);
     envTexMtx[2][1] = -10.f;
-    envTexMtx[3][1] = localWaterTop.z * -10.f + 0.5f;
+    envTexMtx[3][1] = localWaterTop.z() * -10.f + 0.5f;
     // Load into texmtx5
 
     // x40_txtrEnvGradient

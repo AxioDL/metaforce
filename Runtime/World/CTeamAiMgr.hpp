@@ -114,6 +114,8 @@ public:
     static void ResetTeamAiRole(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId, bool clearRole);
     static bool CanAcceptAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
     static bool AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
+
+    static TUniqueId GetTeamAiMgr(CAi& ai, CStateManager& mgr);
 };
 }
 

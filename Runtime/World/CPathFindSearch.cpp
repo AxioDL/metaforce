@@ -20,8 +20,8 @@ CPathFindSearch::FindClosestReachablePoint(const zeus::CVector3f& p1, zeus::CVec
     /* Raise a bit above ground for step-up resolution */
     if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
     {
-        localP2.z += 0.3f;
-        localP1.z += 0.3f;
+        localP2.z() += 0.3f;
+        localP1.z() += 0.3f;
     }
 
     rstl::reserved_vector<CPFRegion*, 4> regions;
@@ -56,8 +56,8 @@ CPathFindSearch::EResult CPathFindSearch::PathExists(const zeus::CVector3f& p1, 
     /* Raise a bit above ground for step-up resolution */
     if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
     {
-        localP2.z += 0.3f;
-        localP1.z += 0.3f;
+        localP2.z() += 0.3f;
+        localP1.z() += 0.3f;
     }
 
     rstl::reserved_vector<CPFRegion*, 4> regions1;
@@ -86,7 +86,7 @@ CPathFindSearch::EResult CPathFindSearch::OnPath(const zeus::CVector3f& p1) cons
 
     /* Raise a bit above ground for step-up resolution */
     if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
-        localP1.z += 0.3f;
+        localP1.z() += 0.3f;
 
     rstl::reserved_vector<CPFRegion*, 4> regions1;
     if (x0_area->FindRegions(regions1, localP1, xdc_flags, xe0_indexMask) == 0)
@@ -123,8 +123,8 @@ CPathFindSearch::EResult CPathFindSearch::Search(const zeus::CVector3f& p1, cons
     /* Raise a bit above ground for step-up resolution */
     if (!(xdc_flags & 0x2) && !(xdc_flags & 0x4))
     {
-        localP2.z += 0.3f;
-        localP1.z += 0.3f;
+        localP2.z() += 0.3f;
+        localP1.z() += 0.3f;
     }
 
     rstl::reserved_vector<CPFRegion*, 4> regions1;
@@ -249,7 +249,7 @@ CPathFindSearch::EResult CPathFindSearch::Search(const zeus::CVector3f& p1, cons
         if (xdc_flags & 0x2 || xdc_flags & 0x4)
         {
             float minHeight = std::min(reg->GetHeight(), linkReg->GetHeight());
-            midPoint.z = zeus::clamp(chHalfHeight + midPoint.z, p2.z, minHeight + midPoint.z - chHalfHeight);
+            midPoint.z() = zeus::clamp(chHalfHeight + midPoint.z(), p2.z(), minHeight + midPoint.z() - chHalfHeight);
         }
         points.push_back(midPoint);
         reg = linkReg;

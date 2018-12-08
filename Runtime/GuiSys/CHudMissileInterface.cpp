@@ -151,7 +151,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr)
         {
             xc_arrowTimer = std::max(0.f, xc_arrowTimer - dt);
             zeus::CColor color = g_tweakGuiColors->GetMissileIconColorActive();
-            color.a *= xc_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
+            color.a() *= xc_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
             x6c_model_missilearrowup->SetColor(color);
             x70_model_missilearrowdown->SetIsVisible(false);
         }
@@ -159,7 +159,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr)
         {
             xc_arrowTimer = std::min(0.f, xc_arrowTimer + dt);
             zeus::CColor color = g_tweakGuiColors->GetMissileIconColorActive();
-            color.a *= -xc_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
+            color.a() *= -xc_arrowTimer / g_tweakGui->GetMissileArrowVisTime();
             x70_model_missilearrowdown->SetColor(color);
             x6c_model_missilearrowup->SetIsVisible(false);
         }
@@ -216,9 +216,9 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr)
             tmp = (0.5f - tmp) / 0.25f;
 
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = x40_missileWarningAlpha * tmp * warnPulse;
+        color.a() = x40_missileWarningAlpha * tmp * warnPulse;
         x68_textpane_missilewarning->SetColor(color);
-        if (x68_textpane_missilewarning->GetGeometryColor().a)
+        if (x68_textpane_missilewarning->GetGeometryColor().a())
             x68_textpane_missilewarning->SetIsVisible(true);
         else
             x68_textpane_missilewarning->SetIsVisible(false);

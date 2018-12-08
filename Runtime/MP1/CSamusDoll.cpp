@@ -475,12 +475,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
                 flags.m_extendedShader = EExtendedShader::ForcedAlpha;
                 flags.x4_color = zeus::CColor::skWhite;
-                flags.x4_color.a = alpha * ballAlpha;
+                flags.x4_color.a() = alpha * ballAlpha;
                 x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
                 flags.m_extendedShader = EExtendedShader::ForcedAdditive;
                 flags.x4_color = zeus::CColor::skWhite;
-                flags.x4_color.a = x6c_ballPulseFactor * alpha * ballAlpha * itemPulse;
+                flags.x4_color.a() = x6c_ballPulseFactor * alpha * ballAlpha * itemPulse;
                 x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
             }
 
@@ -526,12 +526,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
                 flags.m_extendedShader = EExtendedShader::ForcedAlpha;
                 flags.x4_color = zeus::CColor::skWhite;
-                flags.x4_color.a = alpha;
+                flags.x4_color.a() = alpha;
                 x1d4_spiderBallGlass->Draw(flags);
 
                 flags.m_extendedShader = EExtendedShader::ForcedAdditive;
                 flags.x4_color = zeus::CColor::skWhite;
-                flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
+                flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
                 x1d4_spiderBallGlass->Draw(flags);
             }
         }
@@ -541,7 +541,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
             float radius = zeus::clamp(0.2f, (10.f - (xc0_userZoom >= 0.f ? xc0_userZoom : -xc0_userZoom)) / 20.f, 1.f);
             float offset = std::sin(x260_phazonOffsetAngle);
             zeus::CColor color = g_tweakGuiColors->GetPauseBlurFilterColor();
-            color.a = alpha;
+            color.a() = alpha;
             g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, alpha), x250_phazonIndirectTexture,
                                                      color, radius, 0.1f, offset, offset);
         }
@@ -556,12 +556,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
         flags.m_extendedShader = EExtendedShader::ForcedAlpha;
         flags.x4_color = zeus::CColor::skWhite;
-        flags.x4_color.a = alpha;
+        flags.x4_color.a() = alpha;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
         flags.x4_color = zeus::CColor::skWhite;
-        flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
+        flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         const u8* c = CMorphBall::BallGlowColors[x1e8_ballGlowColorIdx];
@@ -599,12 +599,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha)
 
             flags.m_extendedShader = EExtendedShader::ForcedAlpha;
             flags.x4_color = zeus::CColor::skWhite;
-            flags.x4_color.a = alpha;
+            flags.x4_color.a() = alpha;
             x1d4_spiderBallGlass->Draw(flags);
 
             flags.m_extendedShader = EExtendedShader::ForcedAdditive;
             flags.x4_color = zeus::CColor::skWhite;
-            flags.x4_color.a = x6c_ballPulseFactor * alpha * itemPulse;
+            flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
             x1d4_spiderBallGlass->Draw(flags);
         }
     }
@@ -718,8 +718,8 @@ void CSamusDoll::SetRotation(float xDelta, float zDelta, float dt)
     SetRotationSfxPlaying(xDelta != 0.f || zDelta != 0.f);
     zeus::CEulerAngles angles(xb0_userRot);
 
-    zeus::CRelAngle angX(angles.x);
-    zeus::CRelAngle angZ(angles.z);
+    zeus::CRelAngle angX(angles.x());
+    zeus::CRelAngle angZ(angles.z());
 
     angX += xDelta;
     angZ += zDelta;
@@ -745,12 +745,12 @@ void CSamusDoll::SetOffset(const zeus::CVector3f& offset, float dt)
         return;
     zeus::CVector3f oldOffset = xa4_offset;
     zeus::CMatrix3f rotMtx = xb0_userRot.toTransform().basis;
-    xa4_offset += rotMtx * zeus::CVector3f(offset.x, 0.f, offset.z);
+    xa4_offset += rotMtx * zeus::CVector3f(offset.x(), 0.f, offset.z());
     SetOffsetSfxPlaying((oldOffset - xa4_offset).magnitude() > dt);
     float oldZoom = xc0_userZoom;
-    xc0_userZoom = zeus::clamp(-4.f, xc0_userZoom + offset.y, -2.2f);
+    xc0_userZoom = zeus::clamp(-4.f, xc0_userZoom + offset.y(), -2.2f);
     bool zoomSfx = std::fabs(xc0_userZoom - oldZoom) > dt;
-    float zoomDelta = offset.y - (xc0_userZoom - oldZoom);
+    float zoomDelta = offset.y() - (xc0_userZoom - oldZoom);
     zeus::CVector3f newOffset = rotMtx[1] * zoomDelta + xa4_offset;
     zeus::CVector3f delta = newOffset - xa4_offset;
     oldOffset = xa4_offset;

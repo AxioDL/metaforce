@@ -102,11 +102,13 @@ static bool IntersectLines(const zeus::CVector2f& pa1, const zeus::CVector2f& pa
                            const zeus::CVector2f& pb1, const zeus::CVector2f& pb2,
                            zeus::CVector3f& intersect)
 {
-    float det = (pa1.x - pa2.x) * (pb1.y - pb2.y) - (pa1.y - pa2.y) * (pb1.x - pb2.x);
+    zeus::CVector2f deltaA = pa1 - pa2;
+    zeus::CVector2f deltaB = pb1 - pb2;
+    float det = deltaA.cross(deltaB);
     if (std::fabs(det) < 0.000001f)
         return false;
-    float c0 = pa1.x * pa2.y - pa1.y * pa2.x;
-    float c1 = pb1.x * pb2.y - pb1.y * pb2.x;
+    float c0 = pa1.cross(pa2);
+    float c1 = pb1.cross(pb2);
     intersect = (c0 * (pb1 - pb2) - c1 * (pa1 - pa2)) / det;
     return true;
 }
@@ -154,13 +156,13 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
         if (!dva.canBeNormalized())
             dva = {0.f, 1.f};
         dva = dva.normalized().perpendicularVector() * m_lastWidth;
-        dva.x /= CGraphics::g_ProjAspect;
+        dva.x() /= CGraphics::g_ProjAspect;
 
         zeus::CVector2f dvb = (projPt - m_lastPos).toVec2f();
         if (!dvb.canBeNormalized())
             dvb = {0.f, 1.f};
         dvb = dvb.normalized().perpendicularVector() * m_lastWidth;
-        dvb.x /= CGraphics::g_ProjAspect;
+        dvb.x() /= CGraphics::g_ProjAspect;
 
         if (m_textured)
         {
@@ -195,8 +197,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
 
                 if (good1 && good2)
                 {
-                    intersect1.z = m_lastPos.z;
-                    intersect2.z = m_lastPos.z;
+                    intersect1.z() = float(m_lastPos.z());
+                    intersect2.z() = float(m_lastPos.z());
                     g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
                     g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
                 }
@@ -242,8 +244,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
 
                 if (good1 && good2)
                 {
-                    intersect1.z = m_lastPos.z;
-                    intersect2.z = m_lastPos.z;
+                    intersect1.z() = float(m_lastPos.z());
+                    intersect2.z() = float(m_lastPos.z());
                     g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
                     g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
                 }
@@ -263,7 +265,7 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
         if (!dv.canBeNormalized())
             dv = {0.f, 1.f};
         dv = dv.normalized().perpendicularVector() * m_lastWidth;
-        dv.x /= CGraphics::g_ProjAspect;
+        dv.x() /= CGraphics::g_ProjAspect;
         if (m_textured)
         {
             g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(m_lastPos + dv, m_lastW), m_lastColor, m_lastUV});
@@ -296,13 +298,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 if (!dva.canBeNormalized())
                     dva = {0.f, 1.f};
                 dva = dva.normalized().perpendicularVector() * m_lastWidth;
-                dva.x /= CGraphics::g_ProjAspect;
+                dva.x() /= CGraphics::g_ProjAspect;
 
                 zeus::CVector2f dvb = (m_firstPos - m_lastPos).toVec2f();
                 if (!dvb.canBeNormalized())
                     dvb = {0.f, 1.f};
                 dvb = dvb.normalized().perpendicularVector() * m_lastWidth;
-                dvb.x /= CGraphics::g_ProjAspect;
+                dvb.x() /= CGraphics::g_ProjAspect;
 
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos2.toVec2f() + dva, m_lastPos.toVec2f() + dva,
@@ -320,8 +322,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {
                     if (good1 && good2)
                     {
-                        intersect1.z = m_lastPos.z;
-                        intersect2.z = m_lastPos.z;
+                        intersect1.z() = float(m_lastPos.z());
+                        intersect2.z() = float(m_lastPos.z());
                         g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
                         g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
                     }
@@ -337,8 +339,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {
                     if (good1 && good2)
                     {
-                        intersect1.z = m_lastPos.z;
-                        intersect2.z = m_lastPos.z;
+                        intersect1.z() = float(m_lastPos.z());
+                        intersect2.z() = float(m_lastPos.z());
                         g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
                         g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
                     }
@@ -356,13 +358,13 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 if (!dva.canBeNormalized())
                     dva = {0.f, 1.f};
                 dva = dva.normalized().perpendicularVector() * m_firstWidth;
-                dva.x /= CGraphics::g_ProjAspect;
+                dva.x() /= CGraphics::g_ProjAspect;
 
                 zeus::CVector2f dvb = (m_secondPos - m_firstPos).toVec2f();
                 if (!dvb.canBeNormalized())
                     dvb = {0.f, 1.f};
                 dvb = dvb.normalized().perpendicularVector() * m_firstWidth;
-                dvb.x /= CGraphics::g_ProjAspect;
+                dvb.x() /= CGraphics::g_ProjAspect;
 
                 zeus::CVector3f intersect1;
                 bool good1 = IntersectLines(m_lastPos.toVec2f() + dva, m_firstPos.toVec2f() + dva,
@@ -380,8 +382,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {
                     if (good1 && good2)
                     {
-                        intersect1.z = m_firstPos.z;
-                        intersect2.z = m_firstPos.z;
+                        intersect1.z() = float(m_firstPos.z());
+                        intersect2.z() = float(m_firstPos.z());
                         g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor, m_lastUV});
                         g_StaticLineVertsTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor, m_lastUV});
                     }
@@ -397,8 +399,8 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
                 {
                     if (good1 && good2)
                     {
-                        intersect1.z = m_firstPos.z;
-                        intersect2.z = m_firstPos.z;
+                        intersect1.z() = float(m_firstPos.z());
+                        intersect2.z() = float(m_firstPos.z());
                         g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect1, m_lastW), m_lastColor});
                         g_StaticLineVertsNoTex.push_back({zeus::CVector4f::ToClip(intersect2, m_lastW), m_lastColor});
                     }
@@ -418,7 +420,7 @@ void CLineRenderer::Render(const zeus::CColor& moduColor)
             if (!dv.canBeNormalized())
                 dv = {0.f, 1.f};
             dv = dv.normalized().perpendicularVector() * m_lastWidth;
-            dv.x /= CGraphics::g_ProjAspect;
+            dv.x() /= CGraphics::g_ProjAspect;
             if (m_textured)
             {
                 if (m_mode == EPrimitiveMode::Lines && (m_nextVert & 1))

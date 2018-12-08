@@ -20,8 +20,7 @@ void CRayCastResult::MakeInvalid()
 void CRayCastResult::Transform(const zeus::CTransform& xf)
 {
     x4_point = xf * x4_point;
-    x10_plane.vec = xf.rotate(x10_plane.vec);
-    x10_plane.d = x10_plane.vec.dot(x4_point);
+    x10_plane = zeus::CPlane(xf.rotate(x10_plane.normal()), x10_plane.normal().dot(x4_point));
 }
 
 }

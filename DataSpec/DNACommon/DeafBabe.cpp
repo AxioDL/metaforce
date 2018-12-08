@@ -15,10 +15,10 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
     os << "material_index = []\n"
           "col_bm = bmesh.new()\n";
     for (const atVec3f& vert : db.verts)
-        os.format("col_bm.verts.new((%f,%f,%f))\n",
-                  vert.vec[0],
-                  vert.vec[1],
-                  vert.vec[2]);
+    {
+        zeus::simd_floats f(vert.simd);
+        os.format("col_bm.verts.new((%f,%f,%f))\n", f[0], f[1], f[2]);
+    }
 
     os << "col_bm.verts.ensure_lookup_table()\n";
 

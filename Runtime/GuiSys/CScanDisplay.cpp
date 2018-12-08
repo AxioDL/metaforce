@@ -46,10 +46,10 @@ void CScanDisplay::CDataDot::Draw(const zeus::CColor& col, float radius) const
 
     if (x0_dotState != EDotState::Hidden)
     {
-        zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x, 0.f, xc_curPos.y);
+        zeus::CTransform xf = zeus::CTransform::Translate(xc_curPos.x(), 0.f, xc_curPos.y());
         CGraphics::SetModelMatrix(xf);
         zeus::CColor useColor = col;
-        useColor.a *= x24_alpha;
+        useColor.a() *= x24_alpha;
         CTexturedQuadFilter::Vert verts[4] =
         {
             {{-radius, 0.f, radius}, {0.f, 1.f}},
@@ -215,7 +215,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
         CAuiImagePane* pane = static_cast<CAuiImagePane*>(
             xa0_selHud.FindWidget(MP1::CPauseScreenBase::GetImagePaneName(i)));
         zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
-        color.a = 0.f;
+        color.a() = 0.f;
         pane->SetColor(color);
         pane->SetTextureID0(-1, g_SimplePool);
         pane->SetAnimationParms(zeus::CVector2f::skZero, 0.f, 0.f);
@@ -384,7 +384,7 @@ void CScanDisplay::Update(float dt, float scanningTime)
         }
         float alphaMul = ((xc_state == EScanState::Downloading) ? GetDownloadFraction(i, scanningTime) : 1.f) * x1a8_bodyAlpha;
         zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
-        color.a *= alphaMul;
+        color.a() *= alphaMul;
         x170_paneStates[i].second->SetColor(color);
         x170_paneStates[i].second->SetDeResFactor(1.f - alphaMul);
         if (GetDownloadStartTime(i) - g_tweakGui->GetScanAppearanceDuration() < scanningTime)
@@ -431,8 +431,8 @@ void CScanDisplay::Update(float dt, float scanningTime)
                 float posRand = g_tweakGui->GetScanDataDotPosRandMagnitude() * vpRatio;
                 float durMin = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMin() : g_tweakGui->GetScanDataDotSeekDurationMin();
                 float durMax = dot.GetDotState() == CDataDot::EDotState::Hold ? g_tweakGui->GetScanDataDotHoldDurationMax() : g_tweakGui->GetScanDataDotSeekDurationMax();
-                zeus::CVector2f vec(dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().x : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand),
-                                    dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().y : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand));
+                zeus::CVector2f vec(dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().x() : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand),
+                                    dot.GetDotState() == CDataDot::EDotState::Hold ? dot.GetCurrPosition().y() : (posRand * (rand() / float(RAND_MAX)) - 0.5f * posRand));
                 float dur = (durMax - durMin) * (rand() / float(RAND_MAX)) + durMin;
                 dot.StartTransitionTo(vec, dur);
                 dot.SetDotState(dot.GetDotState() == CDataDot::EDotState::Hold ? CDataDot::EDotState::Seek : CDataDot::EDotState::Hold);
@@ -444,8 +444,8 @@ void CScanDisplay::Update(float dt, float scanningTime)
         {
             const zeus::CVector3f& panePos = x170_paneStates[i].second->GetWorldPosition();
             zeus::CVector3f screenPos = xa0_selHud.GetFrameCamera()->ConvertToScreenSpace(panePos);
-            zeus::CVector2f viewportCoords(screenPos.x * g_Viewport.x8_width * 0.5f,
-                                           screenPos.y * g_Viewport.xc_height * 0.5f);
+            zeus::CVector2f viewportCoords(screenPos.x() * g_Viewport.x8_width * 0.5f,
+                                           screenPos.y() * g_Viewport.xc_height * 0.5f);
             dot.SetDestPosition(viewportCoords);
             break;
         }

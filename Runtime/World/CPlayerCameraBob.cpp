@@ -36,9 +36,9 @@ zeus::CTransform CPlayerCameraBob::GetViewWanderTransform() const { return xd0_v
 
 zeus::CVector3f CPlayerCameraBob::GetHelmetBobTranslation() const
 {
-    return {kHelmetBobMagnitude * x2c_cameraBobTransform.origin.x,
-            kHelmetBobMagnitude * x2c_cameraBobTransform.origin.y,
-            kHelmetBobMagnitude * (x2c_cameraBobTransform.origin.z - x78_camTranslation)};
+    return {kHelmetBobMagnitude * x2c_cameraBobTransform.origin.x(),
+            kHelmetBobMagnitude * x2c_cameraBobTransform.origin.y(),
+            kHelmetBobMagnitude * (x2c_cameraBobTransform.origin.z() - x78_camTranslation)};
 }
 
 zeus::CTransform CPlayerCameraBob::GetGunBobTransformation() const
@@ -51,7 +51,7 @@ zeus::CTransform CPlayerCameraBob::GetCameraBobTransformation() const { return x
 void CPlayerCameraBob::SetPlayerVelocity(const zeus::CVector3f& velocity)
 {
     x5c_playerVelocity = velocity;
-    x68_playerPeakFallVel = zeus::min(x68_playerPeakFallVel, velocity.z);
+    x68_playerPeakFallVel = zeus::min(x68_playerPeakFallVel, velocity.z());
 }
 
 void CPlayerCameraBob::SetBobMagnitude(float magnitude)
@@ -110,8 +110,8 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr)
         x7c_wanderPoints[xcc_wanderIndex], x7c_wanderPoints[(xcc_wanderIndex + 1) & 3],
         x7c_wanderPoints[(xcc_wanderIndex + 2) & 3], x7c_wanderPoints[(xcc_wanderIndex + 3) & 3], xc4_wanderTime);
 
-    pt.x *= x100_wanderMagnitude;
-    pt.z *= x100_wanderMagnitude;
+    pt.x() *= x100_wanderMagnitude;
+    pt.z() *= x100_wanderMagnitude;
     zeus::CTransform orient = zeus::CTransform::RotateY((
         zeus::getCatmullRomSplinePoint(xb0_wanderPitches[xcc_wanderIndex], xb0_wanderPitches[(xcc_wanderIndex + 1) & 3],
                                        xb0_wanderPitches[(xcc_wanderIndex + 2) & 3],
@@ -201,19 +201,20 @@ void CPlayerCameraBob::CalculateMovingTranslation(float& x, float& y) const
     if (x0_type == ECameraBobType::Zero)
     {
         double c = ((M_PIF * 2.f) * std::fmod(x1c_bobTime, 2.0f * xc_bobPeriod) / xc_bobPeriod);
-        x = (x14_bobMagnitude * x4_vec.x) * float(std::sin(c));
-        y = (x14_bobMagnitude * x4_vec.y) * float(std::fabs(std::cos(c * .5)) * std::cos(c * .5));
+        x = (x14_bobMagnitude * x4_vec.x()) * float(std::sin(c));
+        y = (x14_bobMagnitude * x4_vec.y()) * float(std::fabs(std::cos(c * .5)) * std::cos(c * .5));
     }
     else if (x0_type == ECameraBobType::One)
     {
         float fX = std::fmod(x1c_bobTime, 2.f * xc_bobPeriod);
         if (fX > xc_bobPeriod)
-            x = (2.f - (fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x);
+            x = (2.f - (fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x());
         else
-            x = ((fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x);
+            x = ((fX / xc_bobPeriod)) * (x14_bobMagnitude * x4_vec.x());
 
         auto sY = float(std::sin(std::fmod((M_PI * fX) / xc_bobPeriod, M_PI)));
-        y = (1.f - sY) * (x14_bobMagnitude * x4_vec.y) * 0.5f + (0.5f * -((sY * sY) - 1.f) * (x14_bobMagnitude * x4_vec.y));
+        y = (1.f - sY) * (x14_bobMagnitude * x4_vec.y()) * 0.5f +
+            (0.5f * -((sY * sY) - 1.f) * (x14_bobMagnitude * x4_vec.y()));
     }
 }
 

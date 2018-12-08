@@ -26,7 +26,7 @@ void CEnvFxShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& c
     auto iBufInfo = grid.m_instBuf.getBufferInfo();
     boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {uBufInfo.first.get(),
                                                       fxMgr.m_fogUniformBuf.get()};
-    size_t ubufOffsets[] = {uBufInfo.second, 0};
+    size_t ubufOffsets[] = {size_t(uBufInfo.second), 0};
     size_t ubufSizes[] = {sizeof(CEnvFxShaders::Uniform), sizeof(CGraphics::g_Fog)};
     boo::PipelineStage uniformStages[] = {boo::PipelineStage::Vertex, boo::PipelineStage::Fragment};
     boo::ObjToken<boo::ITexture> textures[] = {fxMgr.xb74_txtrSnowFlake->GetBooTexture(),

@@ -81,10 +81,10 @@ void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea&
             zeus::CVector3f camToExplo = explosion->GetTranslation() - fpTransform.origin;
             if (fpTransform.transposeRotate(camToExplo).dot(zeus::CVector3f::skForward) >= 0.f)
             {
-                camToExplo.y = -camToExplo.y + ITweakGui::FaceReflectionDistanceDebugValueToActualValue(
-                                               g_tweakGui->GetFaceReflectionDistance());
-                camToExplo.z = -camToExplo.z + ITweakGui::FaceReflectionHeightDebugValueToActualValue(
-                                               g_tweakGui->GetFaceReflectionHeight());
+                camToExplo.y() = -camToExplo.y() + ITweakGui::FaceReflectionDistanceDebugValueToActualValue(
+                                                   g_tweakGui->GetFaceReflectionDistance());
+                camToExplo.z() = -camToExplo.z() + ITweakGui::FaceReflectionHeightDebugValueToActualValue(
+                                                   g_tweakGui->GetFaceReflectionHeight());
                 explosionLight.SetPosition(fpTransform * camToExplo);
                 zeus::CSphere sphere(originalLight.GetPosition(), originalLight.GetRadius());
                 if (aabb.intersects(sphere))
@@ -140,7 +140,7 @@ void CActorLights::AddOverflowToLights(const CLight& light, const zeus::CColor& 
 
     mag = 1.f / mag;
     zeus::CColor useColor = color * mag;
-    useColor.a = 1.f;
+    useColor.a() = 1.f;
     x0_areaLights.push_back(CLight::BuildCustom(light.GetPosition() * mag, light.GetDirection() * mag, useColor,
                                                 light.GetAttenuationConstant() * mag,
                                                 light.GetAttenuationLinear() * mag,
@@ -155,15 +155,15 @@ void CActorLights::MoveAmbienceToLights(const zeus::CColor& color)
     if (x298_29_ambienceGenerated)
     {
         x288_ambientColor += color * 0.333333f;
-        x288_ambientColor.a = 1.f;
+        x288_ambientColor.a() = 1.f;
         return;
     }
 
     zeus::CColor useColor = x0_areaLights[0].GetColor() + color;
-    float maxComponent = std::max(useColor.r, std::max(useColor.g, useColor.b));
+    float maxComponent = std::max(useColor.r(), std::max(useColor.g(), useColor.b()));
     if (maxComponent > FLT_EPSILON)
         useColor *= (1.f / maxComponent);
-    useColor.a = 1.f;
+    useColor.a() = 1.f;
     x0_areaLights[0].SetColor(useColor);
 }
 
@@ -174,7 +174,7 @@ void CActorLights::MultiplyLightingLevels(float level)
     {
         zeus::CColor color = light.GetColor();
         color *= level;
-        color.a = 1.f;
+        color.a() = 1.f;
         light.SetColor(color);
     }
 }
@@ -303,7 +303,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
                     SLightValue& value = valList.back();
                     value.x0_areaLightIdx = lightIdx;
                     value.x4_color = light.GetNormalIndependentLightingAtPoint(vec);
-                    value.x4_color.a = 0.f;
+                    value.x4_color.a() = 0.f;
                     value.x10_colorMag = value.x4_color.magnitude();
                     value.x18_visiblity = visible;
                 }
@@ -323,7 +323,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
     if (x298_27_findShadowLight)
     {
         /* Accumulate magnitudes up to most intense for shadow dynamic range check */
-        x288_ambientColor.a = 0.f;
+        x288_ambientColor.a() = 0.f;
         float mag = x288_ambientColor.magnitude();
         for (auto it = valList.rbegin() ; it != valList.rend() ; ++it)
         {
@@ -436,13 +436,13 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
         MoveAmbienceToLights(overflowAmbColor);
 
     /* Clamp ambient color */
-    if (x288_ambientColor.r > 1.f)
-        x288_ambientColor.r = 1.f;
-    if (x288_ambientColor.g > 1.f)
-        x288_ambientColor.g = 1.f;
-    if (x288_ambientColor.b > 1.f)
-        x288_ambientColor.b = 1.f;
-    x288_ambientColor.a = 1.f;
+    if (x288_ambientColor.r() > 1.f)
+        x288_ambientColor.r() = 1.f;
+    if (x288_ambientColor.g() > 1.f)
+        x288_ambientColor.g() = 1.f;
+    if (x288_ambientColor.b() > 1.f)
+        x288_ambientColor.b() = 1.f;
+    x288_ambientColor.a() = 1.f;
 
     /* Multiply down lighting with world fader level */
     if (worldLightingLevel < 1.f)
@@ -534,7 +534,7 @@ std::vector<CLight> CActorLights::BuildLightVector() const
         lights.push_back(light);
 
     zeus::CColor ambColor = x288_ambientColor;
-    ambColor.a = 1.f;
+    ambColor.a() = 1.f;
     lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
 
     return lights;

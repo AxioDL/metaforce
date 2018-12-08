@@ -41,11 +41,11 @@ void CPFAreaOctree::Fixup(CPFArea& area)
 int CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const
 {
     int idx = 0x0;
-    if (point.x > x1c_center.x)
+    if (point.x() > x1c_center.x())
         idx = 0x1;
-    if (point.y > x1c_center.y)
+    if (point.y() > x1c_center.y())
         idx |= 0x2;
-    if (point.z > x1c_center.z)
+    if (point.z() > x1c_center.z())
         idx |= 0x4;
     return idx;
 }
@@ -79,12 +79,12 @@ void CPFAreaOctree::GetRegionListList(rstl::reserved_vector<rstl::prereserved_ve
 
 bool CPFAreaOctree::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const
 {
-    return point.x >= x4_aabb.min.x - padding &&
-           point.x <= x4_aabb.max.x + padding &&
-           point.y >= x4_aabb.min.y - padding &&
-           point.y <= x4_aabb.max.y + padding &&
-           point.z >= x4_aabb.min.z - padding &&
-           point.z <= x4_aabb.max.z + padding;
+    return point.x() >= x4_aabb.min.x() - padding &&
+           point.x() <= x4_aabb.max.x() + padding &&
+           point.y() >= x4_aabb.min.y() - padding &&
+           point.y() <= x4_aabb.max.y() + padding &&
+           point.z() >= x4_aabb.min.z() - padding &&
+           point.z() <= x4_aabb.max.z() + padding;
 }
 
 void CPFOpenList::Clear()

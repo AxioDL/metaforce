@@ -352,7 +352,7 @@ void CParticleElectric::CalculatePoints()
 
     if (x1c_elecDesc->x70_ZERY)
         for (int i=0 ; i<x420_calculatedVerts.size() ; ++i)
-            x420_calculatedVerts[i].y = 0.f;
+            x420_calculatedVerts[i].y() = 0.f;
 }
 
 void CParticleElectric::CreateNewParticles(int count)

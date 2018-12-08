@@ -55,7 +55,7 @@ void CPathCamera::Think(float dt, CStateManager& mgr)
     if ((x1ec_flags & 0x10))
     {
         if (const CScriptCameraHint* hint = mgr.GetCameraManager()->GetCameraHint(mgr))
-            ballLook.z = hint->GetTranslation().z;
+            ballLook.z() = hint->GetTranslation().z();
     }
 
     if (!mgr.GetPlayer().GetVelocity().canBeNormalized() && (ballLook - GetTranslation()).canBeNormalized())
@@ -74,7 +74,7 @@ void CPathCamera::Think(float dt, CStateManager& mgr)
         ClampToClosedDoor(mgr);
 
     zeus::CVector3f tmp = ballLook - GetTranslation();
-    tmp.z = 0.f;
+    tmp.z() = 0.f;
     if (tmp.canBeNormalized())
         SetTransform(zeus::lookAt(GetTranslation(), ballLook));
 
@@ -168,7 +168,7 @@ zeus::CTransform CPathCamera::MoveAlongSpline(float t, CStateManager& mgr)
         zeus::CVector3f splineToPlayer = mgr.GetPlayer().GetTranslation() -
             x188_spline.GetInterpolatedSplinePointByLength(x1d8_time).origin;
         float distToPlayer = 0.f;
-        splineToPlayer.z = 0.f;
+        splineToPlayer.z() = 0.f;
         if (splineToPlayer.canBeNormalized())
             distToPlayer = splineToPlayer.magnitude();
         float easedDistT = (distToPlayer - x1f0_minEaseDist) / (x1f4_maxEaseDist - x1f0_minEaseDist);

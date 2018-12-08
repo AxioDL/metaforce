@@ -55,13 +55,13 @@ pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateMa
         {
             CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
 
-            float hAngle = zeus::clamp(-x18_angles[0], std::atan2(target.x, target.y), x18_angles[1]);
+            float hAngle = zeus::clamp(-x18_angles[0], std::atan2(target.x(), target.y()), x18_angles[1]);
             hAngle *= 0.63661975f;
             hAngle = zeus::clamp(-3.f, (hAngle - x28_hWeight) * 0.25f / dt, 3.f);
             x2c_hWeightVel += dt * zeus::clamp(-10.f, (hAngle - x2c_hWeightVel) / dt, 10.f);
 
-            float hypotenuse = std::sqrt(target.y * target.y + target.x * target.x);
-            float vAngle = zeus::clamp(-x18_angles[3], std::atan2(target.z, hypotenuse), x18_angles[2]);
+            float hypotenuse = std::sqrt(target.y() * target.y() + target.x() * target.x());
+            float vAngle = zeus::clamp(-x18_angles[3], std::atan2(target.z(), hypotenuse), x18_angles[2]);
             vAngle *= 0.63661975f;
             vAngle = zeus::clamp(-3.f, (vAngle - x30_vWeight) * 0.25f / dt, 3.f);
             x34_vWeightVel += dt * zeus::clamp(-10.f, (vAngle - x34_vWeightVel) / dt, 10.f);

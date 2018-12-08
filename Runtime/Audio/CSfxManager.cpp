@@ -130,8 +130,10 @@ void CSfxManager::CSfxEmitterWrapper::Play()
     else
         x1a_reverb = 0.f;
 
+    zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+    zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
     x50_emitterHandle = CAudioSys::GetAmuseEngine().addEmitter(
-        x24_parmData.x0_pos.v, x24_parmData.xc_dir.v,
+        pos.data(), dir.data(),
         x24_parmData.x18_maxDist, x24_parmData.x1c_distComp,
         x24_parmData.x24_sfxId, x24_parmData.x27_minVol,
         x24_parmData.x26_maxVol, (x24_parmData.x20_flags & 0x8) != 0);
@@ -180,7 +182,9 @@ void CSfxManager::CSfxEmitterWrapper::UpdateEmitterSilent()
 {
     if (x50_emitterHandle)
     {
-        x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
+        zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+        zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
+        x50_emitterHandle->setVectors(pos.data(), dir.data());
         x50_emitterHandle->setMaxVol(1.f / 127.f);
     }
     x55_cachedMaxVol = x24_parmData.x26_maxVol;
@@ -190,7 +194,9 @@ void CSfxManager::CSfxEmitterWrapper::UpdateEmitter()
 {
     if (x50_emitterHandle)
     {
-        x50_emitterHandle->setVectors(x24_parmData.x0_pos.v, x24_parmData.xc_dir.v);
+        zeus::simd_floats pos(x24_parmData.x0_pos.mSimd);
+        zeus::simd_floats dir(x24_parmData.xc_dir.mSimd);
+        x50_emitterHandle->setVectors(pos.data(), dir.data());
         x50_emitterHandle->setMaxVol(x55_cachedMaxVol);
     }
 }
@@ -280,7 +286,11 @@ void CSfxManager::AddListener(ESfxChannels channel,
 {
     if (m_listener)
         CAudioSys::GetAmuseEngine().removeListener(m_listener.get());
-    m_listener = CAudioSys::GetAmuseEngine().addListener(pos.v, dir.v, heading.v, up.v, frontRadius,
+    zeus::simd_floats p(pos.mSimd);
+    zeus::simd_floats d(dir.mSimd);
+    zeus::simd_floats h(heading.mSimd);
+    zeus::simd_floats u(up.mSimd);
+    m_listener = CAudioSys::GetAmuseEngine().addListener(p.data(), d.data(), h.data(), u.data(), frontRadius,
                                                          surroundRadius, soundSpeed, vol);
 }
 
@@ -290,7 +300,11 @@ void CSfxManager::UpdateListener(const zeus::CVector3f& pos, const zeus::CVector
 {
     if (m_listener)
     {
-        m_listener->setVectors(pos.v, dir.v, heading.v, up.v);
+        zeus::simd_floats p(pos.mSimd);
+        zeus::simd_floats d(dir.mSimd);
+        zeus::simd_floats h(heading.mSimd);
+        zeus::simd_floats u(up.mSimd);
+        m_listener->setVectors(p.data(), d.data(), h.data(), u.data());
         m_listener->setVolume(vol);
     }
 }
@@ -442,7 +456,9 @@ void CSfxManager::UpdateEmitter(const CSfxHandle& handle, const zeus::CVector3f&
     emitter.GetEmitterData().xc_dir = dir;
     emitter.GetEmitterData().x26_maxVol = maxVol;
     amuse::Emitter& h = *emitter.GetHandle();
-    h.setVectors(pos.v, dir.v);
+    zeus::simd_floats p(pos.mSimd);
+    zeus::simd_floats d(dir.mSimd);
+    h.setVectors(p.data(), d.data());
     h.setMaxVol(maxVol);
 }
 

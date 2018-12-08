@@ -207,10 +207,10 @@ void CPhysicsActor::MoveToWR(const zeus::CVector3f& trans, float d)
 
 zeus::CAxisAngle CPhysicsActor::GetRotateToORAngularMomentumWR(const zeus::CQuaternion& q, float d) const
 {
-    if (q.w > 0.99999976)
+    if (q.w() > 0.99999976)
         return zeus::CAxisAngle::skZero;
     return (xf0_inertiaTensor *
-            (((2.f * std::acos(q.w)) * (1.f / d)) * x34_transform.rotate({q.x, q.y, q.z}).normalized()));
+            (((2.f * std::acos(q.w())) * (1.f / d)) * x34_transform.rotate(q.getImaginary()).normalized()));
 }
 
 zeus::CVector3f CPhysicsActor::GetMoveToORImpulseWR(const zeus::CVector3f& trans, float d) const

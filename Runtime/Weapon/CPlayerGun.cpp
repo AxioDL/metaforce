@@ -145,7 +145,7 @@ void CPlayerGun::TakeDamage(bool bigStrike, bool notFromMetroid, CStateManager& 
         if (x678_morph.GetGunState() == CGunMorph::EGunState::OutWipeDone)
         {
             zeus::CVector3f localDamageLoc = mgr.GetPlayer().GetTransform().transposeRotate(x3dc_damageLocation);
-            angle = zeus::CRelAngle(std::atan2(localDamageLoc.y, localDamageLoc.x)).asDegrees();
+            angle = zeus::CRelAngle(std::atan2(localDamageLoc.y(), localDamageLoc.x())).asDegrees();
             hasStrikeAngle = true;
         }
     }
@@ -809,7 +809,7 @@ void CPlayerGun::CancelFiring(CStateManager& mgr)
 float CPlayerGun::GetBeamVelocity() const
 {
     if (x72c_currentBeam->IsLoaded())
-        return x72c_currentBeam->GetVelocityInfo().GetVelocity(int(x330_chargeState)).y;
+        return x72c_currentBeam->GetVelocityInfo().GetVelocity(int(x330_chargeState)).y();
     return 10.f;
 }
 
@@ -2538,7 +2538,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                        mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal ?
                                        kHandThermalFlag : kHandHoloFlag);
             x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
-            DrawScreenTex(ConvertToScreenSpace(morphXf.origin, *cam).z);
+            DrawScreenTex(ConvertToScreenSpace(morphXf.origin, *cam).z());
             if (x0_lights.HasShadowLight())
                 x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
             CGraphics::SetModelMatrix(morphXf);
@@ -2594,8 +2594,8 @@ void CPlayerGun::DropBomb(EBWeapon weapon, CStateManager& mgr)
             return;
 
         zeus::CVector3f plPos = mgr.GetPlayer().GetTranslation();
-        zeus::CTransform xf = zeus::CTransform::Translate({plPos.x,
-                                                          plPos.y, plPos.z + g_tweakPlayer->GetPlayerBallHalfExtent()});
+        zeus::CTransform xf = zeus::CTransform::Translate({plPos.x(),
+                              plPos.y(), plPos.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
         CBomb* bomb =
             new CBomb(x784_bombEffects[u32(weapon)][0], x784_bombEffects[u32(weapon)][1], mgr.AllocateUniqueId(),
                       mgr.GetPlayer().GetAreaId(), x538_playerId, x354_bombFuseTime, xf,g_tweakPlayerGun->GetBombInfo());
@@ -2622,9 +2622,9 @@ TUniqueId CPlayerGun::DropPowerBomb(CStateManager& mgr)
 
     TUniqueId uid = mgr.AllocateUniqueId();
     zeus::CVector3f plVec = mgr.GetPlayer().GetTranslation();
-    zeus::CTransform xf = zeus::CTransform::Translate({plVec.x,
-                                                       plVec.y,
-                                                       plVec.z + g_tweakPlayer->GetPlayerBallHalfExtent()});
+    zeus::CTransform xf = zeus::CTransform::Translate({plVec.x(),
+                                                       plVec.y(),
+                                                       plVec.z() + g_tweakPlayer->GetPlayerBallHalfExtent()});
     CPowerBomb* pBomb = new CPowerBomb(x784_bombEffects[1][0], uid, kInvalidAreaId, x538_playerId, xf, dInfo);
     mgr.AddObject(*pBomb);
     return uid;

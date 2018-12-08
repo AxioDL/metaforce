@@ -397,8 +397,8 @@ void CGraphics::FlushProjection()
 zeus::CVector2i CGraphics::ProjectPoint(const zeus::CVector3f& point)
 {
     zeus::CVector3f projPt = GetPerspectiveProjectionMatrix(false).multiplyOneOverW(point);
-    return {int(projPt.x * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
-            int(g_Viewport.xc_height) - (int(projPt.y * g_Viewport.x14_halfHeight) +
+    return {int(projPt.x() * g_Viewport.x10_halfWidth) + int(g_Viewport.x10_halfWidth),
+            int(g_Viewport.xc_height) - (int(projPt.y() * g_Viewport.x14_halfHeight) +
             int(g_Viewport.x14_halfHeight))};
 }
 
@@ -413,14 +413,14 @@ SClipScreenRect CGraphics::ClipScreenRectFromMS(const zeus::CVector3f& p1,
 SClipScreenRect CGraphics::ClipScreenRectFromVS(const zeus::CVector3f& p1,
                                                 const zeus::CVector3f& p2)
 {
-    if (p1.x == 0.f && p1.y == 0.f && p1.z == 0.f)
+    if (p1.x() == 0.f && p1.y() == 0.f && p1.z() == 0.f)
         return {};
-    if (p2.x == 0.f && p2.y == 0.f && p2.z == 0.f)
+    if (p2.x() == 0.f && p2.y() == 0.f && p2.z() == 0.f)
         return {};
 
-    if (-p1.z < GetProjectionState().x14_near || -p2.z < GetProjectionState().x14_near)
+    if (-p1.z() < GetProjectionState().x14_near || -p2.z() < GetProjectionState().x14_near)
         return {};
-    if (-p1.z > GetProjectionState().x18_far || -p2.z > GetProjectionState().x18_far)
+    if (-p1.z() > GetProjectionState().x18_far || -p2.z() > GetProjectionState().x18_far)
         return {};
 
     zeus::CVector2i sp1 = ProjectPoint(p1);

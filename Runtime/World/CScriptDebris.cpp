@@ -169,12 +169,12 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, 
         if (!x281_30_debrisExtended)
         {
             zeus::CVector3f linImpulse;
-            linImpulse.z = std::fabs(mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
-                xe8_mass * x258_velocity.z + x26c_zImpulse;
-            linImpulse.y = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
-                xe8_mass * x258_velocity.y;
-            linImpulse.x = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
-                xe8_mass * x258_velocity.x;
+            linImpulse.z() = std::fabs(mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
+                xe8_mass * x258_velocity.z() + x26c_zImpulse;
+            linImpulse.y() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
+                xe8_mass * x258_velocity.y();
+            linImpulse.x() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) *
+                xe8_mass * x258_velocity.x();
             linImpulse += x34_transform.basis[2];
             zeus::CAxisAngle angImpulse;
             if (x281_24_randomAngImpulse)
@@ -182,9 +182,9 @@ void CScriptDebris::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, 
                 if (mgr.GetActiveRandom()->Next() % 100 < 50)
                 {
                     zeus::CVector3f rotVec;
-                    rotVec.x = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 45.f;
-                    rotVec.y = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 15.f;
-                    rotVec.z = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 35.f;
+                    rotVec.x() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 45.f;
+                    rotVec.y() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 15.f;
+                    rotVec.z() = (mgr.GetActiveRandom()->Next() % 32767 / 16383.5f - 1.f) * 35.f;
                     angImpulse = zeus::CAxisAngle(rotVec);
                 }
             }
@@ -242,7 +242,7 @@ void CScriptDebris::Think(float dt, CStateManager& mgr)
                     zeus::CVector3f normVel = x138_velocity.normalized();
                     zeus::CTransform orient =
                     zeus::lookAt(zeus::CVector3f::skZero, normVel,
-                                 std::fabs(normVel.z) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
+                                 std::fabs(normVel.z()) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
                     x2d4_particleGens[0]->SetOrientation(orient);
                 }
             }
@@ -279,7 +279,7 @@ void CScriptDebris::Think(float dt, CStateManager& mgr)
                     zeus::CVector3f normVel = x138_velocity.normalized();
                     zeus::CTransform orient =
                         zeus::lookAt(zeus::CVector3f::skZero, normVel,
-                                     std::fabs(normVel.z) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
+                                     std::fabs(normVel.z()) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
                     x2d4_particleGens[1]->SetOrientation(orient);
                 }
             }
@@ -310,7 +310,7 @@ void CScriptDebris::Think(float dt, CStateManager& mgr)
                     zeus::CVector3f normVel = x138_velocity.normalized();
                     zeus::CTransform orient =
                         zeus::lookAt(zeus::CVector3f::skZero, normVel,
-                                     std::fabs(normVel.z) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
+                                     std::fabs(normVel.z()) < 0.99f ? zeus::CVector3f::skUp : zeus::CVector3f::skForward);
                     x2d4_particleGens[2]->SetOrientation(orient);
                 }
             }

@@ -164,6 +164,7 @@ public:
               const TLockedToken<CCharacterFactory>& charFactory,
               int drawInstCount);
 
+    void SetParticleEffectState(std::string_view effectName, bool active, CStateManager& mgr);
     void InitializeEffects(CStateManager&, TAreaId, const zeus::CVector3f&);
     CAssetId GetEventResourceIdForAnimResourceId(CAssetId) const;
     void AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet);

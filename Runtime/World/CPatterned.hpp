@@ -392,7 +392,7 @@ public:
     virtual void ThinkAboutMove(float);
     virtual CPathFindSearch* GetSearchPath() { return nullptr; }
     virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
-    virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_color.a * 255);}
+    virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_color.a() * 255);}
     virtual bool IsOnGround() const { return x328_27_onGround; }
     virtual float GetGravityConstant() const { return 24.525002f; }
     virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
@@ -415,7 +415,7 @@ public:
 
     void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
     void UpdateAlphaDelta(float dt, CStateManager& mgr);
-    void SetModelAlpha(float a) { x42c_color.a = a; }
+    void SetModelAlpha(float a) { x42c_color.a() = a; }
     float CalcDyingThinkRate();
     void UpdateDamageColor(float dt);
 

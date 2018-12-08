@@ -110,7 +110,7 @@ bool CMessageScreen::Update(float dt, float blurAmt)
 
         float alpha = std::max(0.f, (x70_blurAmt - 0.7f) / 0.3f);
         zeus::CColor color = g_tweakGuiColors->GetHudFrameColor();
-        color.a *= alpha;
+        color.a() *= alpha;
         x20_basewidget_top->SetColor(color);
         x28_basewidget_bottom->SetColor(zeus::CColor(1.f, alpha));
 

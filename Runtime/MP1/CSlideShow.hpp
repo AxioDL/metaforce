@@ -38,7 +38,7 @@ public:
 
         SSlideData(CSlideShow& parent) : x0_parent(parent)
         {
-            x30_mulColor.a = 0.f;
+            x30_mulColor.a() = 0.f;
         }
 
         void SetTexture(const TLockedToken<CTexture>& tex)

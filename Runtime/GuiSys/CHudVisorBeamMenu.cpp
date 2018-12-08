@@ -96,7 +96,7 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
     }
 
     zeus::CColor titleColor = zeus::CColor::skWhite;
-    titleColor.a = 0.f;
+    titleColor.a() = 0.f;
     x1c_basewidget_menutitle->SetColor(titleColor);
 
     x20_textpane_menu->TextSupport().SetText(g_MainStringTable->GetString(MenuStringIdx[int(x4_type)][x8_selectedItem]));
@@ -215,7 +215,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init)
     case EAnimPhase::SelectFlash:
     {
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = 0.f;
+        color.a() = 0.f;
         x1c_basewidget_menutitle->SetColor(color);
 
         zeus::CColor& color0 = std::fmod(x10_interp, 0.1f) > 0.05f ? activeColor : inactiveColor;
@@ -254,7 +254,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init)
     {
         x78_textFader = std::max(0.f, x78_textFader - dt);
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = x78_textFader / x7c_animDur;
+        color.a() = x78_textFader / x7c_animDur;
         x1c_basewidget_menutitle->SetColor(color);
     }
 
@@ -273,19 +273,19 @@ void CHudVisorBeamMenu::Update(float dt, bool init)
         return;
 
     x1c_basewidget_menutitle->SetVisibility
-        (x1c_basewidget_menutitle->GetGeometryColor().a != 0.f, ETraversalMode::Children);
+        (x1c_basewidget_menutitle->GetGeometryColor().a() != 0.f, ETraversalMode::Children);
 
     for (int i=0 ; i<4 ; ++i)
     {
         SMenuItem& item = x28_menuItems[i];
-        item.x4_model_icon->SetIsVisible(item.x4_model_icon->GetGeometryColor().a != 0.f);
+        item.x4_model_icon->SetIsVisible(item.x4_model_icon->GetGeometryColor().a() != 0.f);
     }
 }
 
 void CHudVisorBeamMenu::UpdateHudAlpha(float alpha)
 {
     zeus::CColor color = zeus::CColor::skWhite;
-    color.a = g_GameState->GameOptions().GetHUDAlpha() / 255.f * alpha;
+    color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f * alpha;
     x18_basewidget_menu->SetColor(color);
 }
 

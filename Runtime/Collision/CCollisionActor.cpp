@@ -113,8 +113,8 @@ zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateMana
     else
     {
         const zeus::CVector3f v = GetBoxSize();
-        float comp = (v.x < v.y ? v.y : v.z);
-        comp = (comp < v.z ? v.x : comp);
+        float comp = (v.x() < v.y() ? v.y() : v.z());
+        comp = (comp < v.z() ? v.x() : comp);
 
         scanScale = 0.5f * comp;
     }

@@ -67,7 +67,7 @@ CVECone::CVECone(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealEleme
     zeus::CVector3f av;
     x4_direction->GetValue(0, av);
     zeus::CVector3f avNorm = av.normalized();
-    if (avNorm.x > 0.8)
+    if (avNorm.x() > 0.8f)
         xc_xVec = av.cross(zeus::CVector3f(0.f, 1.f, 0.f));
     else
         xc_xVec = av.cross(zeus::CVector3f(1.f, 0.f, 0.f));
@@ -286,21 +286,21 @@ bool CVEParticleLocation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 bool CVEParticleSystemOrientationFront::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     zeus::CMatrix4f trans = CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
-    valOut.assign(trans.vec[0].y, trans.vec[1].y, trans.vec[2].y);
+    valOut.assign(trans.m[0].y(), trans.m[1].y(), trans.m[2].y());
     return false;
 }
 
 bool CVEParticleSystemOrientationUp::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     zeus::CMatrix4f trans = CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
-    valOut.assign(trans.vec[0].z, trans.vec[1].z, trans.vec[2].z);
+    valOut.assign(trans.m[0].z(), trans.m[1].z(), trans.m[2].z());
     return false;
 }
 
 bool CVEParticleSystemOrientationRight::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 {
     zeus::CMatrix4f trans = CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
-    valOut.assign(trans.vec[0].x, trans.vec[1].x, trans.vec[2].x);
+    valOut.assign(trans.m[0].x(), trans.m[1].x(), trans.m[2].x());
     return false;
 }
 
@@ -323,7 +323,7 @@ bool CVEColorToVector::GetValue(int frame, zeus::CVector3f &valOut) const
 {
     zeus::CColor val = {0.0f, 0.0f, 0.0f, 1.0f};
     x4_a->GetValue(frame, val);
-    valOut = zeus::CVector3f{val.r, val.g, val.b};
+    valOut = zeus::CVector3f{val.mSimd};
     return false;
 }
 

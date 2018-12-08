@@ -46,14 +46,14 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     CGraphics::CProjectionState backupProjection = CGraphics::g_Proj;
     zeus::CVector2f backupDepth = CGraphics::g_CachedDepthRange;
     zeus::CTransform viewMtx(zeus::CVector3f::skRight, zeus::CVector3f::skDown, zeus::CVector3f::skForward,
-                             zeus::CVector3f((aabb.min.x + aabb.max.x) * 0.5f,
-                                             (aabb.min.y + aabb.max.y) * 0.5f,
-                                             aabb.max.z));
+                             zeus::CVector3f((aabb.min.x() + aabb.max.x()) * 0.5f,
+                                             (aabb.min.y() + aabb.max.y()) * 0.5f,
+                                             aabb.max.z()));
 
     CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
-    float vpX = (aabb.max.x - aabb.min.x) * 0.5f;
-    float vpY = (aabb.max.y - aabb.min.y) * 0.5f;
-    float vpZ = (aabb.max.z - aabb.min.z) + FLT_EPSILON;
+    float vpX = (aabb.max.x() - aabb.min.x()) * 0.5f;
+    float vpY = (aabb.max.y() - aabb.min.y()) * 0.5f;
+    float vpZ = (aabb.max.z() - aabb.min.z()) + FLT_EPSILON;
     CGraphics::SetOrtho(-vpX, vpX, vpY, -vpY, 0.f, vpZ);
 
     rstl::reserved_vector<TUniqueId, 1024> nearItems;
@@ -126,7 +126,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha)
         return;
 
     CModelFlags flags;
-    flags.x4_color.a = alpha;
+    flags.x4_color.a() = alpha;
     flags.m_extendedShader = EExtendedShader::MorphBallShadow;
 
     int alphaVal = 4;
@@ -136,7 +136,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha)
         zeus::CTransform modelXf = actor->GetTransform() * zeus::CTransform::Scale(modelData->GetScale());
         CGraphics::SetModelMatrix(modelXf);
 
-        flags.x4_color.r = alphaVal / 255.f;
+        flags.x4_color.r() = alphaVal / 255.f;
         const CBooModel& model = *modelData->PickStaticModel(CModelData::EWhichModel::Normal);
         const_cast<CBooModel&>(model).VerifyCurrentShader(flags.x1_matSetIdx);
         model.DrawNormal(flags, nullptr, nullptr);

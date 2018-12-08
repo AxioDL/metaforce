@@ -1304,38 +1304,38 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
         mode = Mode::Scroll;
         if (gameArgs.size() < 2)
             Log.report(logvisor::Fatal, "Mode2 UV anim requires 2 vector arguments");
-        vals[0] = gameArgs[0].vec[0];
-        vals[1] = gameArgs[0].vec[1];
-        vals[2] = gameArgs[1].vec[0];
-        vals[3] = gameArgs[1].vec[1];
+        vals[0] = gameArgs[0].simd[0];
+        vals[1] = gameArgs[0].simd[1];
+        vals[2] = gameArgs[1].simd[0];
+        vals[3] = gameArgs[1].simd[1];
     }
     else if (!gameFunction.compare("RetroUVMode3Node"))
     {
         mode = Mode::Rotation;
         if (gameArgs.size() < 2)
             Log.report(logvisor::Fatal, "Mode3 UV anim requires 2 arguments");
-        vals[0] = gameArgs[0].vec[0];
-        vals[1] = gameArgs[1].vec[0];
+        vals[0] = gameArgs[0].simd[0];
+        vals[1] = gameArgs[1].simd[0];
     }
     else if (!gameFunction.compare("RetroUVMode4Node"))
     {
         mode = Mode::HStrip;
         if (gameArgs.size() < 4)
             Log.report(logvisor::Fatal, "Mode4 UV anim requires 4 arguments");
-        vals[0] = gameArgs[0].vec[0];
-        vals[1] = gameArgs[1].vec[0];
-        vals[2] = gameArgs[2].vec[0];
-        vals[3] = gameArgs[3].vec[0];
+        vals[0] = gameArgs[0].simd[0];
+        vals[1] = gameArgs[1].simd[0];
+        vals[2] = gameArgs[2].simd[0];
+        vals[3] = gameArgs[3].simd[0];
     }
     else if (!gameFunction.compare("RetroUVMode5Node"))
     {
         mode = Mode::VStrip;
         if (gameArgs.size() < 4)
             Log.report(logvisor::Fatal, "Mode5 UV anim requires 4 arguments");
-        vals[0] = gameArgs[0].vec[0];
-        vals[1] = gameArgs[1].vec[0];
-        vals[2] = gameArgs[2].vec[0];
-        vals[3] = gameArgs[3].vec[0];
+        vals[0] = gameArgs[0].simd[0];
+        vals[1] = gameArgs[1].simd[0];
+        vals[2] = gameArgs[2].simd[0];
+        vals[3] = gameArgs[3].simd[0];
     }
     else if (!gameFunction.compare("RetroUVMode6NodeN"))
         mode = Mode::Model;
@@ -1344,8 +1344,8 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
         mode = Mode::CylinderEnvironment;
         if (gameArgs.size() < 2)
             Log.report(logvisor::Fatal, "Mode7 UV anim requires 2 arguments");
-        vals[0] = gameArgs[0].vec[0];
-        vals[1] = gameArgs[1].vec[0];
+        vals[0] = gameArgs[0].simd[0];
+        vals[1] = gameArgs[1].simd[0];
     }
     else
         Log.report(logvisor::Fatal, "unsupported UV anim '%s'", gameFunction.c_str());

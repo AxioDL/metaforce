@@ -185,6 +185,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn,
         if (mapa.version < 5)
         {
             const MAPA::MappableObjectMP1_2* moMP12 = static_cast<const MAPA::MappableObjectMP1_2*>(mo.get());
+            zeus::simd_floats mtxF[3];
+            for (int i = 0; i < 3; ++i)
+                moMP12->transformMtx[i].simd.copy_to(mtxF[i]);
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
@@ -197,15 +200,18 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn,
                       "obj.rotation_quaternion = mtxd[1]\n"
                       "obj.scale = mtxd[2]\n",
                       moIdx, moMP12->type, RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId,
-                      moMP12->transformMtx[0].vec[0], moMP12->transformMtx[0].vec[1], moMP12->transformMtx[0].vec[2], moMP12->transformMtx[0].vec[3],
-                      moMP12->transformMtx[1].vec[0], moMP12->transformMtx[1].vec[1], moMP12->transformMtx[1].vec[2], moMP12->transformMtx[1].vec[3],
-                      moMP12->transformMtx[2].vec[0], moMP12->transformMtx[2].vec[1], moMP12->transformMtx[2].vec[2], moMP12->transformMtx[2].vec[3]);
+                      mtxF[0][0], mtxF[0][1], mtxF[0][2], mtxF[0][3],
+                      mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3],
+                      mtxF[2][0], mtxF[2][1], mtxF[2][2], mtxF[2][3]);
             ++moIdx;
             continue;
         }
         else
         {
             const MAPA::MappableObjectMP3* moMP3 = static_cast<const MAPA::MappableObjectMP3*>(mo.get());
+            zeus::simd_floats mtxF[3];
+            for (int i = 0; i < 3; ++i)
+                moMP3->transformMtx[i].simd.copy_to(mtxF[i]);
             os.format("obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.retro_mappable_type = %d\n"
@@ -218,9 +224,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn,
                       "obj.rotation_quaternion = mtxd[1]\n"
                       "obj.scale = mtxd[2]\n",
                       moIdx, moMP3->type, RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId,
-                      moMP3->transformMtx[0].vec[0], moMP3->transformMtx[0].vec[1], moMP3->transformMtx[0].vec[2], moMP3->transformMtx[0].vec[3],
-                      moMP3->transformMtx[1].vec[0], moMP3->transformMtx[1].vec[1], moMP3->transformMtx[1].vec[2], moMP3->transformMtx[1].vec[3],
-                      moMP3->transformMtx[2].vec[0], moMP3->transformMtx[2].vec[1], moMP3->transformMtx[2].vec[2], moMP3->transformMtx[2].vec[3]);
+                      mtxF[0][0], mtxF[0][1], mtxF[0][2], mtxF[0][3],
+                      mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3],
+                      mtxF[2][0], mtxF[2][1], mtxF[2][2], mtxF[2][3]);
             ++moIdx;
             continue;
         }
@@ -232,8 +238,10 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn,
 
     /* Read in verts */
     for (const atVec3f& vert : mapa.vertices)
-        os.format("bm.verts.new((%f,%f,%f))\n",
-                  vert.vec[0], vert.vec[1], vert.vec[2]);
+    {
+        zeus::simd_floats f(vert.simd);
+        os.format("bm.verts.new((%f,%f,%f))\n", f[0], f[1], f[2]);
+    }
     os << "bm.verts.ensure_lookup_table()\n";
 
     /* Read in surfaces */

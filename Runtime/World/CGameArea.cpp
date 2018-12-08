@@ -61,47 +61,47 @@ zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB
         return curAABB;
     case 1:
         if (idx == 0)
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, center.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), center.x(), curAABB.max.y(), curAABB.max.z()};
         else
-            return {center.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {center.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
     case 2:
         if (idx == 0)
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, center.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), center.y(), curAABB.max.z()};
         else
-            return {curAABB.min.x, center.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), center.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
     case 3:
     {
         switch (idx)
         {
         case 0:
         default:
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, center.x, center.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), center.x(), center.y(), curAABB.max.z()};
         case 1:
-            return {center.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, center.y, curAABB.max.z};
+            return {center.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), center.y(), curAABB.max.z()};
         case 2:
-            return {curAABB.min.x, center.y, curAABB.min.z, center.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), center.y(), curAABB.min.z(), center.x(), curAABB.max.y(), curAABB.max.z()};
         case 3:
-            return {center.x, center.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {center.x(), center.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
         }
     }
     case 4:
         if (idx == 0)
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, center.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), center.z()};
         else
-            return {curAABB.min.x, curAABB.min.y, center.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), center.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
     case 5:
     {
         switch (idx)
         {
         case 0:
         default:
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, center.x, curAABB.max.y, center.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), center.x(), curAABB.max.y(), center.z()};
         case 1:
-            return {center.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, center.z};
+            return {center.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), center.z()};
         case 2:
-            return {curAABB.min.x, curAABB.min.y, center.z, center.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), center.z(), center.x(), curAABB.max.y(), curAABB.max.z()};
         case 3:
-            return {center.x, curAABB.min.y, center.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {center.x(), curAABB.min.y(), center.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
         }
     }
     case 6:
@@ -110,13 +110,13 @@ zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB
         {
         case 0:
         default:
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, center.y, center.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), center.y(), center.z()};
         case 1:
-            return {curAABB.min.x, center.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, center.z};
+            return {curAABB.min.x(), center.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), center.z()};
         case 2:
-            return {curAABB.min.x, curAABB.min.y, center.z, curAABB.max.x, center.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), center.z(), curAABB.max.x(), center.y(), curAABB.max.z()};
         case 3:
-            return {curAABB.min.x, center.y, center.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), center.y(), center.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
         }
     }
     case 7:
@@ -125,21 +125,21 @@ zeus::CAABox CAreaRenderOctTree::Node::GetNodeBounds(const zeus::CAABox& curAABB
         {
         case 0:
         default:
-            return {curAABB.min.x, curAABB.min.y, curAABB.min.z, center.x, center.y, center.z};
+            return {curAABB.min.x(), curAABB.min.y(), curAABB.min.z(), center.x(), center.y(), center.z()};
         case 1:
-            return {center.x, curAABB.min.y, curAABB.min.z, curAABB.max.x, center.y, center.z};
+            return {center.x(), curAABB.min.y(), curAABB.min.z(), curAABB.max.x(), center.y(), center.z()};
         case 2:
-            return {curAABB.min.x, center.y, curAABB.min.z, center.x, curAABB.max.y, center.z};
+            return {curAABB.min.x(), center.y(), curAABB.min.z(), center.x(), curAABB.max.y(), center.z()};
         case 3:
-            return {center.x, center.y, curAABB.min.z, curAABB.max.x, curAABB.max.y, center.z};
+            return {center.x(), center.y(), curAABB.min.z(), curAABB.max.x(), curAABB.max.y(), center.z()};
         case 4:
-            return {curAABB.min.x, curAABB.min.y, center.z, center.x, center.y, curAABB.max.z};
+            return {curAABB.min.x(), curAABB.min.y(), center.z(), center.x(), center.y(), curAABB.max.z()};
         case 5:
-            return {center.x, curAABB.min.y, center.z, curAABB.max.x, center.y, curAABB.max.z};
+            return {center.x(), curAABB.min.y(), center.z(), curAABB.max.x(), center.y(), curAABB.max.z()};
         case 6:
-            return {curAABB.min.x, center.y, center.z, center.x, curAABB.max.y, curAABB.max.z};
+            return {curAABB.min.x(), center.y(), center.z(), center.x(), curAABB.max.y(), curAABB.max.z()};
         case 7:
-            return {center.x, center.y, center.z, curAABB.max.x, curAABB.max.y, curAABB.max.z};
+            return {center.x(), center.y(), center.z(), curAABB.max.x(), curAABB.max.y(), curAABB.max.z()};
         }
     }
     }
@@ -204,7 +204,7 @@ void CGameArea::CAreaFog::Update(float dt)
         float delta = x28_colorTarget[i] - x1c_colorCur[i];
         if (std::fabs(delta) <= colorDelta)
         {
-            x1c_colorCur[i] = x28_colorTarget[i];
+            x1c_colorCur[i] = float(x28_colorTarget[i]);
         }
         else
         {
@@ -220,7 +220,7 @@ void CGameArea::CAreaFog::Update(float dt)
         float delta = xc_rangeTarget[i] - x4_rangeCur[i];
         if (std::fabs(delta) <= rangeDelta[i])
         {
-            x4_rangeCur[i] = xc_rangeTarget[i];
+            x4_rangeCur[i] = float(xc_rangeTarget[i]);
         }
         else
         {

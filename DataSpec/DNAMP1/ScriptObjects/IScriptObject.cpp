@@ -269,9 +269,10 @@ zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale,
                                                  const zeus::CVector3f& orientation,
                                                  const zeus::CVector3f& position)
 {
-    return zeus::CTransform::RotateZ(zeus::degToRad(orientation.z)) *
-           zeus::CTransform::RotateY(zeus::degToRad(orientation.y)) *
-           zeus::CTransform::RotateX(zeus::degToRad(orientation.x)) *
+    zeus::simd_floats f(orientation.mSimd);
+    return zeus::CTransform::RotateZ(zeus::degToRad(f[2])) *
+           zeus::CTransform::RotateY(zeus::degToRad(f[1])) *
+           zeus::CTransform::RotateX(zeus::degToRad(f[0])) *
            zeus::CTransform::Scale(scale) +
            position;
 }

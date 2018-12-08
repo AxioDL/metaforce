@@ -47,10 +47,10 @@ void CHudRadarInterface::DoDrawRadarPaint(float radius, const zeus::CColor& colo
 void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius,
                                         float alpha, const SRadarPaintDrawParms& parms) const
 {
-    zeus::CVector2f playerToEnemy(enemyPos.x - parms.x0_playerPos.x,
-                                  enemyPos.y - parms.x0_playerPos.y);
+    zeus::CVector2f playerToEnemy(enemyPos.x() - parms.x0_playerPos.x(),
+                                  enemyPos.y() - parms.x0_playerPos.y());
 
-    float zDelta = std::fabs(enemyPos.z - parms.x0_playerPos.z);
+    float zDelta = std::fabs(enemyPos.z() - parms.x0_playerPos.z());
 
     if (playerToEnemy.magnitude() <= parms.x78_xyRadius && zDelta <= parms.x7c_zRadius)
     {
@@ -58,10 +58,10 @@ void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float r
             alpha *= 1.f - (zDelta - parms.x80_ZCloseRadius) / (parms.x7c_zRadius - parms.x80_ZCloseRadius);
         zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
         zeus::CTransform modelMatrix = parms.x3c_postTranslate * zeus::CTransform::Translate(
-            parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x, 0.f, scopeScaled.y));
+            parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()));
         CGraphics::SetModelMatrix(modelMatrix);
         zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
-        color.a *= alpha;
+        color.a() *= alpha;
         DoDrawRadarPaint(radius, color);
     }
 }
@@ -79,7 +79,7 @@ void CHudRadarInterface::Update(float dt, const CStateManager& mgr)
     float visorTransFactor = (playerState.GetCurrentVisor() == CPlayerState::EPlayerVisor::Combat) ?
                              playerState.GetVisorTransitionFactor() : 0.f;
     zeus::CColor color = g_tweakGuiColors->GetRadarStuffColor();
-    color.a *= g_GameState->GameOptions().GetHUDAlpha() / 255.f * visorTransFactor;
+    color.a() *= g_GameState->GameOptions().GetHUDAlpha() / 255.f * visorTransFactor;
     x40_BaseWidget_RadarStuff->SetColor(color);
     bool tweakVis = g_tweakGui->GetHudVisMode() >= ITweakGui::EHudVisMode::Three;
     if (tweakVis != x3c_25_visibleDebug)
@@ -117,7 +117,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const
     drawParms.x70_scopeScalar = drawParms.x6c_scopeRadius / drawParms.x78_xyRadius;
 
     float camZ = zeus::CEulerAngles(zeus::CQuaternion(
-        mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis)).z;
+        mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis)).z();
     zeus::CRelAngle angleZ(camZ);
     drawParms.xc_preTranslate = zeus::CTransform::RotateY(angleZ);
     drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
@@ -128,15 +128,15 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const
     CGraphics::SetModelMatrix(drawParms.x3c_postTranslate);
 
     zeus::CColor playerColor = g_tweakGuiColors->GetRadarPlayerPaintColor();
-    playerColor.a *= alpha;
+    playerColor.a() *= alpha;
     DoDrawRadarPaint(g_tweakGui->GetRadarPlayerPaintRadius(), playerColor);
 
-    zeus::CAABox radarBounds(player.GetTranslation().x - drawParms.x78_xyRadius,
-                             player.GetTranslation().y - drawParms.x78_xyRadius,
-                             player.GetTranslation().z - drawParms.x7c_zRadius,
-                             player.GetTranslation().x + drawParms.x78_xyRadius,
-                             player.GetTranslation().y + drawParms.x78_xyRadius,
-                             player.GetTranslation().z + drawParms.x7c_zRadius);
+    zeus::CAABox radarBounds(player.GetTranslation().x() - drawParms.x78_xyRadius,
+                             player.GetTranslation().y() - drawParms.x78_xyRadius,
+                             player.GetTranslation().z() - drawParms.x7c_zRadius,
+                             player.GetTranslation().x() + drawParms.x78_xyRadius,
+                             player.GetTranslation().y() + drawParms.x78_xyRadius,
+                             player.GetTranslation().z() + drawParms.x7c_zRadius);
 
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildNearList(nearList, radarBounds,

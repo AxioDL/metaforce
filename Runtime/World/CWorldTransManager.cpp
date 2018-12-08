@@ -235,9 +235,9 @@ void CWorldTransManager::DrawAllModels()
 void CWorldTransManager::DrawFirstPass()
 {
     zeus::CTransform translateXf =
-        zeus::CTransform::Translate(x4_modelData->x1b4_shakeResult.x,
+        zeus::CTransform::Translate(x4_modelData->x1b4_shakeResult.x(),
                                     -3.5f * (1.f - zeus::clamp(0.f, x0_curTime / 10.f, 1.f)) - 3.5f,
-                                    x4_modelData->x1b4_shakeResult.y + 2.f);
+                                    x4_modelData->x1b4_shakeResult.y() + 2.f);
     zeus::CTransform rotateXf =
         zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) *
                                                  360.f + 180.f - 90.f));
@@ -250,9 +250,9 @@ void CWorldTransManager::DrawSecondPass()
 {
     const zeus::CVector3f& samusScale = x4_modelData->x0_samusRes.GetScale();
     zeus::CTransform translateXf =
-        zeus::CTransform::Translate(-0.1f * samusScale.x,
-                                    -0.5f * samusScale.y,
-                                    1.5f * samusScale.z);
+        zeus::CTransform::Translate(-0.1f * samusScale.x(),
+                                    -0.5f * samusScale.y(),
+                                    1.5f * samusScale.z());
     zeus::CTransform rotateXf =
         zeus::CTransform::RotateZ(zeus::degToRad(48.f *
             zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
@@ -322,7 +322,7 @@ void CWorldTransManager::DrawText()
     if (filterAlpha > 0.f)
     {
         zeus::CColor filterColor = x44_27_fadeWhite ? zeus::CColor::skWhite : zeus::CColor::skBlack;
-        filterColor.a = filterAlpha;
+        filterColor.a() = filterAlpha;
         m_fadeToBlack.draw(filterColor);
     }
 }
@@ -419,7 +419,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes,
         x4_modelData->x100_bgModelData[2] = bg;
         x4_modelData->x100_bgModelData[2].Touch(CModelData::EWhichModel::Normal, 0);
         zeus::CAABox bounds = x4_modelData->x100_bgModelData[0].GetBounds();
-        x1c_bgHeight = (bounds.max.z - bounds.min.z) * bgScale.z;
+        x1c_bgHeight = (bounds.max.z() - bounds.min.z()) * bgScale.z();
     }
     else
         x1c_bgHeight = 0.f;

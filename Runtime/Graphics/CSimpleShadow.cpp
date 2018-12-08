@@ -18,16 +18,16 @@ zeus::CAABox CSimpleShadow::GetMaxShadowBox(const zeus::CAABox& aabb) const
     float extent = x34_radius * x30_scale;
     zeus::CVector3f center = aabb.center();
     zeus::CAABox expandedAABB = aabb;
-    expandedAABB.accumulateBounds({center.x + extent, center.y + extent, center.z - GetMaxObjectHeight()});
-    expandedAABB.accumulateBounds({center.x - extent, center.y - extent, center.z - GetMaxObjectHeight()});
+    expandedAABB.accumulateBounds({center.x() + extent, center.y() + extent, center.z() - GetMaxObjectHeight()});
+    expandedAABB.accumulateBounds({center.x() - extent, center.y() - extent, center.z() - GetMaxObjectHeight()});
     return expandedAABB;
 }
 
 zeus::CAABox CSimpleShadow::GetBounds() const
 {
     float extent = x34_radius * x30_scale;
-    return {{x0_xf.origin.x - extent, x0_xf.origin.y - extent, x0_xf.origin.z - extent},
-            {x0_xf.origin.x + extent, x0_xf.origin.y + extent, x0_xf.origin.z + extent}};
+    return {{x0_xf.origin.x() - extent, x0_xf.origin.y() - extent, x0_xf.origin.z() - extent},
+            {x0_xf.origin.x() + extent, x0_xf.origin.y() + extent, x0_xf.origin.z() + extent}};
 }
 
 void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) const
@@ -55,7 +55,7 @@ void CSimpleShadow::Render(const TLockedToken<CTexture>& tex) const
 void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& xf, const CStateManager& mgr)
 {
     x48_24_collision = false;
-    float halfHeight = (aabb.max.z - aabb.min.z) * 0.5f;
+    float halfHeight = (aabb.max.z() - aabb.min.z()) * 0.5f;
     zeus::CVector3f pos = xf.origin + zeus::CVector3f(0.f, 0.f, halfHeight);
     CRayCastResult res = mgr.RayStaticIntersection(pos, zeus::CVector3f::skDown, x40_maxObjHeight,
                          CMaterialFilter::MakeExclude({EMaterialTypes::SeeThrough}));
@@ -88,8 +88,8 @@ void CSimpleShadow::Calculate(const zeus::CAABox& aabb, const zeus::CTransform& 
         x0_xf.origin = res.GetPlane().normal() * x44_displacement + res.GetPoint();
         if (x48_25_alwaysCalculateRadius || !x48_26_radiusCalculated)
         {
-            float xExtent = aabb.max.x - aabb.min.x;
-            float yExtent = aabb.max.y - aabb.min.y;
+            float xExtent = aabb.max.x() - aabb.min.x();
+            float yExtent = aabb.max.y() - aabb.min.y();
             x34_radius = std::sqrt(xExtent * xExtent + yExtent * yExtent) * 0.5f;
             x48_26_radiusCalculated = true;
         }

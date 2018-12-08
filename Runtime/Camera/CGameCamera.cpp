@@ -68,7 +68,7 @@ zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) cons
     if (rVec.isZero())
         return {-1.f, -1.f, 1.f};
 
-    rVec = zeus::CVector3f(rVec.x, rVec.z, -rVec.y);
+    rVec = zeus::CVector3f(rVec.x(), rVec.z(), -rVec.y());
     zeus::CMatrix4f mtx = GetPerspectiveMatrix();
     return mtx.multiplyOneOverW(rVec);
 }
@@ -84,11 +84,11 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& ne
     if (std::fabs(f2) > 0.999f)
         xfCpy = oldXf;
 
-    if (xfCpy.upVector().z < -0.2f)
+    if (xfCpy.upVector().z() < -0.2f)
         xfCpy = zeus::CQuaternion::fromAxisAngle(xfCpy.frontVector(), M_PIF).toTransform() * xfCpy;
 
-    if (!zeus::close_enough(xfCpy.rightVector().z, 0.f) &&
-        !zeus::close_enough(xfCpy.upVector().z, 0.f))
+    if (!zeus::close_enough(xfCpy.rightVector().z(), 0.f) &&
+        !zeus::close_enough(xfCpy.upVector().z(), 0.f))
     {
         if (xfCpy.frontVector().canBeNormalized())
             xfCpy = zeus::lookAt(zeus::CVector3f::skZero, xfCpy.frontVector());

@@ -88,8 +88,8 @@ zeus::CVector3f CBurstFire::GetError(float xMag, float zMag) const
         if (r0 > 0)
         {
             float angle = r0 * zeus::degToRad(-22.5f);
-            ret.x = std::cos(angle) * xMag;
-            ret.z = std::sin(angle) * zMag;
+            ret.x() = std::cos(angle) * xMag;
+            ret.z() = std::sin(angle) * zMag;
         }
     }
     return ret;

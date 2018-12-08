@@ -82,13 +82,13 @@ void CHudFreeLookInterface::SetFreeLookState(bool inFreeLook, bool lookControlHe
 
     zeus::CColor color = zeus::CColor::skWhite;
     float totalInterp = x68_freeLookInterp * (1.f - x6c_lockOnInterp);
-    color.a = totalInterp;
+    color.a() = totalInterp;
     x74_basewidget_freelookleft->SetColor(color);
     x80_basewidget_freelookright->SetColor(color);
 
     if (x8c_basewidget_outlinesb)
     {
-        color.a = 0.7f * totalInterp + 0.3f;
+        color.a() = 0.7f * totalInterp + 0.3f;
         x8c_basewidget_outlinesb->SetColor(color);
     }
 
@@ -160,7 +160,7 @@ void CHudFreeLookInterfaceXRay::SetFreeLookState(bool inFreeLook, bool lookContr
         zeus::CTransform(zeus::CMatrix3f::RotateY(-vertLookAngle), x10_freeLookRightPos));
 
     zeus::CColor color = zeus::CColor::skWhite;
-    color.a = x1c_freeLookInterp;
+    color.a() = x1c_freeLookInterp;
     x24_basewidget_freelook->SetColor(color);
 
     if (x1c_freeLookInterp == 0.f)

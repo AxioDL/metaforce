@@ -52,7 +52,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : rotKeys)
-                    fixedRotKeys[idx++][c] = val.v4.vec[c];
+                    fixedRotKeys[idx++][c] = val.simd[c];
             }
 
             for (zeus::CQuaternion& rot : fixedRotKeys)
@@ -77,7 +77,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : transKeys)
-                    fixedTransKeys[idx++][c] = val.v3.vec[c];
+                    fixedTransKeys[idx++][c] = val.simd[c];
             }
 
             for (zeus::CVector3f& t : fixedTransKeys)
@@ -281,7 +281,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
         const std::vector<DNAANIM::Value>& keys = *cit++;
         auto kit = keys.begin();
         for (size_t k=0 ; k<head.keyCount ; ++k)
-            writer.writeVec4fBig((*kit++).v4);
+            writer.writeVec4fBig(atVec4f{(*kit++).simd});
         if (bone.second)
         {
             transKeyCount += head.keyCount;
@@ -299,7 +299,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer)
             const std::vector<DNAANIM::Value>& keys = *cit++;
             auto kit = keys.begin();
             for (size_t k=0 ; k<head.keyCount ; ++k)
-                writer.writeVec3fBig((*kit++).v3);
+                writer.writeVec3fBig(atVec3f{(*kit++).simd});
         }
     }
 
@@ -655,9 +655,9 @@ ANIM::ANIM(const BlenderAction& act,
             zeus::CQuaternion q(key.rotation.val);
             q = rig.restoreRotation(newChan.id, q);
             if (sign == 0.f)
-                sign = q.w < 0.f ? -1.f : 1.f;
+                sign = q.w() < 0.f ? -1.f : 1.f;
             q *= sign;
-            rotVals.emplace_back(q.w, q.x, q.y, q.z);
+            rotVals.emplace_back(q.mSimd);
         }
 
         if (chan.attrMask & 0x2)
@@ -674,7 +674,7 @@ ANIM::ANIM(const BlenderAction& act,
             {
                 zeus::CVector3f pos(key.position.val);
                 pos = rig.restorePosition(newChan.id, pos, true);
-                transVals.emplace_back(pos.x, pos.y, pos.z);
+                transVals.emplace_back(pos.mSimd);
             }
         }
     }

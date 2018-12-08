@@ -64,8 +64,10 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
               entryName.data());
 
     for (const Node& n : nodes)
-        os.format("bm.verts.new((%f,%f,%f))\n",
-                  n.position.vec[0], n.position.vec[1], n.position.vec[2]);
+    {
+        zeus::simd_floats f(n.position.simd);
+        os.format("bm.verts.new((%f,%f,%f))\n", f[0], f[1], f[2]);
+    }
 
     os << "bm.verts.ensure_lookup_table()\n";
 
@@ -128,15 +130,18 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
     if (xf)
     {
         const zeus::CMatrix4f& w = *xf;
+        zeus::simd_floats xfMtxF[4];
+        for (int i = 0; i < 4; ++i)
+            w.m[i].mSimd.copy_to(xfMtxF[i]);
         os.format("mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                   "mtxd = mtx.decompose()\n"
                   "path_mesh_obj.rotation_mode = 'QUATERNION'\n"
                   "path_mesh_obj.location = mtxd[0]\n"
                   "path_mesh_obj.rotation_quaternion = mtxd[1]\n"
                   "path_mesh_obj.scale = mtxd[2]\n",
-                  w.m[0][0], w.m[1][0], w.m[2][0], w.m[3][0],
-                  w.m[0][1], w.m[1][1], w.m[2][1], w.m[3][1],
-                  w.m[0][2], w.m[1][2], w.m[2][2], w.m[3][2]);
+                  xfMtxF[0][0], xfMtxF[1][0], xfMtxF[2][0], xfMtxF[3][0],
+                  xfMtxF[0][1], xfMtxF[1][1], xfMtxF[2][1], xfMtxF[3][1],
+                  xfMtxF[0][2], xfMtxF[1][2], xfMtxF[2][2], xfMtxF[3][2]);
     }
 
     os.linkBackground("//!area.blend");

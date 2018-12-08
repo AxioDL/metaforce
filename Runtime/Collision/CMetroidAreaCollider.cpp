@@ -205,7 +205,7 @@ void CMetroidAreaCollider::BuildOctreeLeafCache(const CAreaOctTree::Node& node, 
 static zeus::CVector3f ClipRayToPlane(const zeus::CVector3f& a, const zeus::CVector3f& b,
                                       const zeus::CPlane& plane)
 {
-    return (1.f - -plane.pointToPlaneDist(a) / (b - a).dot(plane.vec)) * (a - b) + b;
+    return (1.f - -plane.pointToPlaneDist(a) / (b - a).dot(plane.normal())) * (a - b) + b;
 }
 
 bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const zeus::CVector3f* verts,
@@ -722,8 +722,8 @@ bool CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(const zeus::CVector3f&
 
                 zeus::CVector3d clipped = ev0d + (-(ev0d.dot(edge.x70_coDir) - edge.x88_dirCoDirDot) /
                     delta.dot(edge.x70_coDir)) * delta;
-                int maxCompIdx = (std::fabs(edge.x70_coDir.x) > std::fabs(edge.x70_coDir.y)) ? 0 : 1;
-                if (std::fabs(edge.x70_coDir[maxCompIdx]) < std::fabs(edge.x70_coDir.z))
+                int maxCompIdx = (std::fabs(edge.x70_coDir.x()) > std::fabs(edge.x70_coDir.y())) ? 0 : 1;
+                if (std::fabs(edge.x70_coDir[maxCompIdx]) < std::fabs(edge.x70_coDir.z()))
                     maxCompIdx = 2;
 
                 int ci0, ci1;

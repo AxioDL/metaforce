@@ -30,13 +30,13 @@ bool CFontImageDef::IsLoaded() const
 s32 CFontImageDef::CalculateBaseline() const
 {
     const CTexture* tex = x4_texs.front().GetObj();
-    return s32(tex->GetHeight() * x14_cropFactor.y) * 2.5f / 3.f;
+    return s32(tex->GetHeight() * x14_cropFactor.y()) * 2.5f / 3.f;
 }
 
 s32 CFontImageDef::CalculateHeight() const
 {
     const CTexture* tex = x4_texs.front().GetObj();
-    s32 scaledH = tex->GetHeight() * x14_cropFactor.y;
+    s32 scaledH = tex->GetHeight() * x14_cropFactor.y();
     return scaledH - (scaledH - CalculateBaseline());
 }
 

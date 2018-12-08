@@ -458,7 +458,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const
         flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
         x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
         flags.m_extendedShader = EExtendedShader::Lighting;
-        flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a};
+        flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a()};
         x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
     }
 

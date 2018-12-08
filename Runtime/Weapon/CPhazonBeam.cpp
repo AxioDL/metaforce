@@ -12,10 +12,10 @@ namespace urde
 CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId,
                          EMaterialTypes playerMaterial, const zeus::CVector3f& scale)
 : CGunWeapon(characterId, type, playerId, playerMaterial, scale),
-  x238_aaBoxScale(zeus::CVector3f(-0.14664599f, 0.f, -0.14909725f) * scale.y,
-                  zeus::CVector3f(0.14664599f, 0.64619601f, 0.14909725f) * scale.y),
-  x250_aaBoxTranslate(zeus::CVector3f(-0.0625f, 0.f, -0.09375f) * scale.y,
-                      zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y)
+  x238_aaBoxScale(zeus::CVector3f(-0.14664599f, 0.f, -0.14909725f) * scale.y(),
+                  zeus::CVector3f(0.14664599f, 0.64619601f, 0.14909725f) * scale.y()),
+  x250_aaBoxTranslate(zeus::CVector3f(-0.0625f, 0.f, -0.09375f) * scale.y(),
+                      zeus::CVector3f(0.0625f, -0.25f, 0.09375f) * scale.y())
 {
     x21c_phazonVeins = g_SimplePool->GetObj("PhazonVeins");
     x228_phazon2nd1 = g_SimplePool->GetObj("Phazon2nd_1");
@@ -160,7 +160,7 @@ void CPhazonBeam::Update(float dt, CStateManager& mgr)
     }
     else if (x274_26_veinsAlphaActive)
     {
-        x270_indirectAlpha = x10_solidModelData->GetLocatorTransform("phazonScale_LCTR_SDK").origin.y;
+        x270_indirectAlpha = x10_solidModelData->GetLocatorTransform("phazonScale_LCTR_SDK").origin.y();
     }
 }
 

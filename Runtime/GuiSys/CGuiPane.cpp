@@ -39,10 +39,10 @@ void CGuiPane::InitializeBuffers()
     if (xc0_verts.size() < 4)
         xc0_verts.resize(4);
 
-    xc0_verts[0].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
-    xc0_verts[1].m_pos.assign(-xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
-    xc0_verts[2].m_pos.assign(xb8_dim.x * 0.5f, 0.f, xb8_dim.y * 0.5f);
-    xc0_verts[3].m_pos.assign(xb8_dim.x * 0.5f, 0.f, -xb8_dim.y * 0.5f);
+    xc0_verts[0].m_pos.assign(-xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
+    xc0_verts[1].m_pos.assign(-xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
+    xc0_verts[2].m_pos.assign(xb8_dim.x() * 0.5f, 0.f, xb8_dim.y() * 0.5f);
+    xc0_verts[3].m_pos.assign(xb8_dim.x() * 0.5f, 0.f, -xb8_dim.y() * 0.5f);
 }
 
 void CGuiPane::WriteData(COutputStream& out, bool flag) const

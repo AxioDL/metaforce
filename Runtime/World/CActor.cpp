@@ -255,8 +255,8 @@ void CActor::RenderInternal(const CStateManager& mgr) const
                 addMag = 1.f;
             }
 
-            zeus::CColor mulColor(mulMag * xb4_drawFlags.x4_color.a, xb4_drawFlags.x4_color.a);
-            zeus::CColor addColor(addMag, xb4_drawFlags.x4_color.a / 4.f);
+            zeus::CColor mulColor(mulMag * xb4_drawFlags.x4_color.a(), xb4_drawFlags.x4_color.a());
+            zeus::CColor addColor(addMag, xb4_drawFlags.x4_color.a() / 4.f);
             x64_modelData->RenderThermal(x34_transform, mulColor, addColor, xb4_drawFlags);
             return;
         }
@@ -367,8 +367,8 @@ zeus::CVector3f CActor::GetScanObjectIndicatorPosition(const CStateManager& mgr)
     const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     zeus::CVector3f orbitPos = GetOrbitPosition(mgr);
     float camToOrbitPos = (cam->GetTranslation() - orbitPos).magnitude();
-    zeus::CVector3f boundsExtent = x9c_renderBounds.max - x9c_renderBounds.min;
-    float distFac = std::min(std::max(boundsExtent.x, std::max(boundsExtent.y, boundsExtent.z)) * 0.5f,
+    const zeus::CVector3f boundsExtent = x9c_renderBounds.max - x9c_renderBounds.min;
+    float distFac = std::min(std::max(boundsExtent.x(), std::max(boundsExtent.y(), boundsExtent.z())) * 0.5f,
                              camToOrbitPos - cam->GetNearClipDistance() - 0.1f);
     return orbitPos - (orbitPos - cam->GetTranslation()).normalized() * distFac;
 }

@@ -30,18 +30,18 @@ void RotationAndOffsetStorage::CopyRotationsAndOffsets(const std::vector<zeus::C
         for (u32 j=0 ; j<rotsPerFrame ; ++j)
         {
             const zeus::CQuaternion& rot = *rit++;
-            arrOut[0] = rot.w;
-            arrOut[1] = rot.x;
-            arrOut[2] = rot.y;
-            arrOut[3] = rot.z;
+            arrOut[0] = rot.w();
+            arrOut[1] = rot.x();
+            arrOut[2] = rot.y();
+            arrOut[3] = rot.z();
             arrOut += 4;
         }
         for (u32 j=0 ; j<offsPerFrame ; ++j)
         {
             const zeus::CVector3f& off = *oit++;
-            arrOut[0] = off.x;
-            arrOut[1] = off.y;
-            arrOut[2] = off.z;
+            arrOut[0] = off.x();
+            arrOut[1] = off.y();
+            arrOut[2] = off.z();
             arrOut += 3;
         }
     }

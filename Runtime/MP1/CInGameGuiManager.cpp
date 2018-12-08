@@ -495,8 +495,8 @@ void CInGameGuiManager::Update(CStateManager& stateMgr, float dt, CArchitectureQ
     else
     {
         stateMgr.SetViewportScale(zeus::CVector2f(
-            std::min(x30_playerVisor->GetDesiredViewportScaleX(stateMgr), x34_samusHud->GetViewportScale().x),
-            std::min(x30_playerVisor->GetDesiredViewportScaleY(stateMgr), x34_samusHud->GetViewportScale().y)));
+            std::min(x30_playerVisor->GetDesiredViewportScaleX(stateMgr), x34_samusHud->GetViewportScale().x()),
+            std::min(x30_playerVisor->GetDesiredViewportScaleY(stateMgr), x34_samusHud->GetViewportScale().y())));
     }
 
     x1f8_25_playerAlive = stateMgr.GetPlayerState()->IsPlayerAlive();

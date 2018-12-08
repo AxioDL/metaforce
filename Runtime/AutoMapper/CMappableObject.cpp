@@ -31,8 +31,8 @@ CMappableObject::CMappableObject(const void* buf)
 
 zeus::CTransform CMappableObject::AdjustTransformForType()
 {
-    const float doorCenterX = g_tweakAutoMapper->GetDoorCenter().x;
-    const float doorCenterZ = g_tweakAutoMapper->GetDoorCenter().z;
+    const float doorCenterX = g_tweakAutoMapper->GetDoorCenter().x();
+    const float doorCenterZ = g_tweakAutoMapper->GetDoorCenter().z();
     if (x0_type == EMappableObjectType::BigDoor1)
     {
         zeus::CTransform orientation;
@@ -127,11 +127,11 @@ CMappableObject::GetDoorColors(int curAreaId, const CMapWorldInfo& mwInfo, float
         color = zeus::CColor::skClear;
     }
 
-    color.a *= alpha;
-    return {color, zeus::CColor(std::min(1.4f * color.r, 1.f),
-                                std::min(1.4f * color.g, 1.f),
-                                std::min(1.4f * color.b, 1.f),
-                                std::min(1.4f * color.a, 1.f))};
+    color.a() *= alpha;
+    return {color, zeus::CColor(std::min(1.4f * color.r(), 1.f),
+                                std::min(1.4f * color.g(), 1.f),
+                                std::min(1.4f * color.b(), 1.f),
+                                std::min(1.4f * color.a(), 1.f))};
 }
 
 void CMappableObject::PostConstruct(const void *)
@@ -200,7 +200,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo,
             break;
         }
 
-        iconColor.a *= alpha;
+        iconColor.a() *= alpha;
 
         TLockedToken<CTexture> tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), iconRes});
         if (!m_texQuadFilter || m_texQuadFilter->GetTex().GetObj() != tex.GetObj())
@@ -243,15 +243,15 @@ zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfIdx) const
     case 0:
         return x10_transform * zeus::CVector3f::skZero;
     case 1:
-        return x10_transform * zeus::CVector3f{0.f, 0.f, 2.f * doorCenter.x};
+        return x10_transform * zeus::CVector3f{0.f, 0.f, 2.f * doorCenter.x()};
     case 2:
-        return x10_transform * zeus::CVector3f{0.f, -doorCenter.y, 0.f};
+        return x10_transform * zeus::CVector3f{0.f, -doorCenter.y(), 0.f};
     case 3:
-        return x10_transform * zeus::CVector3f{0.f, doorCenter.y, 0.f};
+        return x10_transform * zeus::CVector3f{0.f, doorCenter.y(), 0.f};
     case 4:
-        return x10_transform * zeus::CVector3f{-doorCenter.x, 0.f, 0.f};
+        return x10_transform * zeus::CVector3f{-doorCenter.x(), 0.f, 0.f};
     case 5:
-        return x10_transform * zeus::CVector3f{doorCenter.x, 0.f, 0.f};
+        return x10_transform * zeus::CVector3f{doorCenter.x(), 0.f, 0.f};
     default: break;
     }
 
@@ -284,16 +284,17 @@ boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks)
 {
     const zeus::CVector3f& center = tweaks.GetDoorCenter();
+    zeus::simd_floats centerF(center.mSimd);
     zeus::CVector3f* doorVerts = const_cast<zeus::CVector3f*>(&CMappableObject::skDoorVerts[0]);
     /* Wrap door verts around -Z to build surface */
-    doorVerts[0].assign(      -center.z, -center.y, 0.f);
-    doorVerts[1].assign(      -center.z, -center.y, 2.f * center.x);
-    doorVerts[2].assign(      -center.z,  center.y, 0.f);
-    doorVerts[3].assign(      -center.z,  center.y, 2.f * center.x);
-    doorVerts[4].assign(.2f * -center.z, -center.y, 0.f);
-    doorVerts[5].assign(.2f * -center.z, -center.y, 2.f * center.x);
-    doorVerts[6].assign(.2f * -center.z,  center.y, 0.f);
-    doorVerts[7].assign(.2f * -center.z,  center.y, 2.f * center.x);
+    doorVerts[0].assign(      -centerF[2], -centerF[1], 0.f);
+    doorVerts[1].assign(      -centerF[2], -centerF[1], 2.f * centerF[0]);
+    doorVerts[2].assign(      -centerF[2],  centerF[1], 0.f);
+    doorVerts[3].assign(      -centerF[2],  centerF[1], 2.f * centerF[0]);
+    doorVerts[4].assign(.2f * -centerF[2], -centerF[1], 0.f);
+    doorVerts[5].assign(.2f * -centerF[2], -centerF[1], 2.f * centerF[0]);
+    doorVerts[6].assign(.2f * -centerF[2],  centerF[1], 0.f);
+    doorVerts[7].assign(.2f * -centerF[2],  centerF[1], 2.f * centerF[0]);
 
     CGraphics::CommitResources([](boo::IGraphicsDataFactory::Context& ctx)
     {

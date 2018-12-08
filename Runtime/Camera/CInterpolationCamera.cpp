@@ -131,7 +131,7 @@ bool CInterpolationCamera::InterpolateSinusoidal(zeus::CTransform& xf, const zeu
     else
         lookDir = x34_transform.basis[1];
     zeus::CVector3f lookDirFlat = lookDir;
-    lookDirFlat.z = 0.f;
+    lookDirFlat.z() = 0.f;
     if (lookDirFlat.canBeNormalized())
     {
         t = zeus::clamp(-1.f, t, 1.f);
@@ -209,7 +209,7 @@ bool CInterpolationCamera::InterpolateWithDistance(zeus::CTransform& xf, const z
     float ang = zeus::clamp(-1.f, std::acos(lookProj) / (M_PIF / 6.f), 1.f) * rotationSpeed * dt;
 
     zeus::CVector3f lookDirFlat = lookDir;
-    lookDirFlat.z = 0.f;
+    lookDirFlat.z() = 0.f;
     bool rotationFail = false;
     if (lookDirFlat.canBeNormalized())
     {

@@ -73,9 +73,9 @@ void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAAB
     {
         // Heuristic split
         int splits[3];
-        splits[0] = (curAabb.max.x - curAabb.min.x >= VISI_MIN_LENGTH) ? 2 : 1;
-        splits[1] = (curAabb.max.y - curAabb.min.y >= VISI_MIN_LENGTH) ? 2 : 1;
-        splits[2] = (curAabb.max.z - curAabb.min.z >= VISI_MIN_LENGTH) ? 2 : 1;
+        splits[0] = (curAabb.max.x() - curAabb.min.x() >= VISI_MIN_LENGTH) ? 2 : 1;
+        splits[1] = (curAabb.max.y() - curAabb.min.y() >= VISI_MIN_LENGTH) ? 2 : 1;
+        splits[2] = (curAabb.max.z() - curAabb.min.z() >= VISI_MIN_LENGTH) ? 2 : 1;
 
         if (splits[0] == 2)
             flags |= 0x1;
@@ -168,33 +168,33 @@ void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAAB
     {
         // This is a child node
         zeus::CVector3f center = curAabb.center();
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.min.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.min.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.min.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, center.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, center.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, center.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.max.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.max.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.max.y, curAabb.min.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.min.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.min.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.min.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, center.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, center.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, center.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.max.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.max.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.max.y, center.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.min.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.min.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.min.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, center.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, center.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, center.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x, curAabb.max.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(center.x, curAabb.max.y, curAabb.max.z));
-        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x, curAabb.max.y, curAabb.max.z));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.min.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.min.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.min.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), center.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), center.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), center.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.max.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.max.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.max.y(), curAabb.min.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.min.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.min.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.min.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), center.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), center.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), center.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.max.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.max.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.max.y(), center.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.min.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.min.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.min.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), center.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), center.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), center.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.min.x(), curAabb.max.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(center.x(), curAabb.max.y(), curAabb.max.z()));
+        leaf |= rc.GetLeaf(zeus::CVector3f(curAabb.max.x(), curAabb.max.y(), curAabb.max.z()));
 
         prog.report(divisions);
     }

@@ -41,20 +41,23 @@ template <> inline void DNAColor::Enumerate<BigDNA::ReadYaml>(typename ReadYaml:
     size_t count;
     if (auto v = _r.enterSubVector(nullptr, count))
     {
-        r = (count >= 1) ? _r.readFloat(nullptr) : 0.f;
-        g = (count >= 2) ? _r.readFloat(nullptr) : 0.f;
-        b = (count >= 3) ? _r.readFloat(nullptr) : 0.f;
-        a = (count >= 4) ? _r.readFloat(nullptr) : 0.f;
+        zeus::simd_floats f;
+        f[0] = (count >= 1) ? _r.readFloat(nullptr) : 0.f;
+        f[1] = (count >= 2) ? _r.readFloat(nullptr) : 0.f;
+        f[2] = (count >= 3) ? _r.readFloat(nullptr) : 0.f;
+        f[3] = (count >= 4) ? _r.readFloat(nullptr) : 0.f;
+        mSimd.copy_from(f);
     }
 }
 template <> inline void DNAColor::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& _w)
 {
     if (auto v = _w.enterSubVector(nullptr))
     {
-        _w.writeFloat(nullptr, r);
-        _w.writeFloat(nullptr, g);
-        _w.writeFloat(nullptr, b);
-        _w.writeFloat(nullptr, a);
+        zeus::simd_floats f(mSimd);
+        _w.writeFloat(nullptr, f[0]);
+        _w.writeFloat(nullptr, f[1]);
+        _w.writeFloat(nullptr, f[2]);
+        _w.writeFloat(nullptr, f[3]);
     }
 }
 template <> inline void DNAColor::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& _s)

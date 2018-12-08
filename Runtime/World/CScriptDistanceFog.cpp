@@ -58,7 +58,7 @@ void CScriptDistanceFog::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId obj
 
         CGameArea::CAreaFog* fog = stateMgr.WorldNC()->GetArea(x4_areaId)->AreaFog();
         if (x34_mode == ERglFogMode::None)
-            fog->RollFogOut(x48_rangeDelta.x, x44_colorDelta, x38_color);
+            fog->RollFogOut(x48_rangeDelta.x(), x44_colorDelta, x38_color);
         else
             fog->FadeFog(x34_mode, x38_color, x3c_range, x44_colorDelta, x48_rangeDelta);
 

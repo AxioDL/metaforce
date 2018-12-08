@@ -162,9 +162,9 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
             polyPoints.clear();
             polyPoints.push_back(node.GetPos());
             polyPoints.push_back(node.GetPos());
-            polyPoints.back().z += x14_height;
+            polyPoints.back().z() += x14_height;
             polyPoints.push_back(nextNode.GetPos());
-            polyPoints.back().z += x14_height;
+            polyPoints.back().z() += x14_height;
             polyPoints.push_back(nextNode.GetPos());
             found |= FindClosestPointOnPolygon(polyPoints, node.GetNormal(), point, true);
         }
@@ -185,7 +185,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
         {
             CPFNode& node = x4_startNode[i];
             polyPoints.push_back(node.GetPos());
-            polyPoints.back().z += x14_height;
+            polyPoints.back().z() += x14_height;
         }
         found |= FindClosestPointOnPolygon(polyPoints, -x18_normal, point, false);
     }
@@ -207,7 +207,7 @@ void CPFRegion::SetLinkTo(s32 idx)
 
 void CPFRegion::DropToGround(zeus::CVector3f& point) const
 {
-    point.z -= (point - x4_startNode->GetPos()).dot(x18_normal) / x18_normal.z;
+    point.z() -= (point - x4_startNode->GetPos()).dot(x18_normal) / x18_normal.z();
 }
 
 zeus::CVector3f CPFRegion::GetLinkMidPoint(const CPFLink& link) const
@@ -226,14 +226,14 @@ zeus::CVector3f CPFRegion::FitThroughLink2d(const zeus::CVector3f& p1, const CPF
     float t = 0.5f;
     if (chRadius < 0.5f * link.Get2dWidth())
     {
-        zeus::CVector2f delta2d(nodeDelta.x, nodeDelta.y);
+        zeus::CVector2f delta2d(nodeDelta.x(), nodeDelta.y());
         delta2d *= link.GetOO2dWidth();
         zeus::CVector3f nodeToP1 = p1 - node.GetPos();
         float f27 = nodeToP1.dot(node.GetNormal());
-        float f31 = delta2d.dot(zeus::CVector2f(nodeToP1.y, nodeToP1.y));
+        float f31 = delta2d.dot(zeus::CVector2f(nodeToP1.y(), nodeToP1.y()));
         zeus::CVector3f nodeToP2 = p2 - node.GetPos();
         float f26 = -nodeToP2.dot(node.GetNormal());
-        float f1b = delta2d.dot(zeus::CVector2f(nodeToP2.y, nodeToP2.y));
+        float f1b = delta2d.dot(zeus::CVector2f(nodeToP2.y(), nodeToP2.y()));
         float f3 = f27 + f26;
         if (f3 > FLT_EPSILON)
             t = zeus::clamp(chRadius, 1.f / f3 * (f26 * f31 + f27 * f1b), link.Get2dWidth() - chRadius) *
@@ -272,27 +272,27 @@ zeus::CVector3f CPFRegion::FitThroughLink3d(const zeus::CVector3f& p1, const CPF
     float z;
     if (chHalfHeight < 0.5f * regionHeight)
     {
-        float minZ = chHalfHeight + midPoint.z;
-        z = 0.5f * (p1.z + p2.z);
+        float minZ = chHalfHeight + midPoint.z();
+        z = 0.5f * (p1.z() + p2.z());
         if (f23 > FLT_EPSILON)
-            z = 1.f / f23 * (f24 * p1.z + f25 * p2.z);
-        z = zeus::clamp(minZ, z, regionHeight + midPoint.z - chHalfHeight);
+            z = 1.f / f23 * (f24 * p1.z() + f25 * p2.z());
+        z = zeus::clamp(minZ, z, regionHeight + midPoint.z() - chHalfHeight);
     }
     else
     {
-        z = (p1.z + p2.z) * 0.5f;
+        z = (p1.z() + p2.z()) * 0.5f;
     }
-    return {midPoint.x, midPoint.y, z};
+    return {midPoint.x(), midPoint.y(), z};
 }
 
 bool CPFRegion::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float padding) const
 {
-    return point.x >= x34_aabb.min.x - padding &&
-           point.x <= x34_aabb.max.x + padding &&
-           point.y >= x34_aabb.min.y - padding &&
-           point.y <= x34_aabb.max.y + padding &&
-           point.z >= x34_aabb.min.z - padding &&
-           point.z <= x34_aabb.max.z + padding;
+    return point.x() >= x34_aabb.min.x() - padding &&
+           point.x() <= x34_aabb.max.x() + padding &&
+           point.y() >= x34_aabb.min.y() - padding &&
+           point.y() <= x34_aabb.max.y() + padding &&
+           point.z() >= x34_aabb.min.z() - padding &&
+           point.z() <= x34_aabb.max.z() + padding;
 }
 
 }

@@ -264,23 +264,23 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info,
             continue;
         }
         zeus::CVector3f localPos = ripple.GetCenter() - waterCenter;
-        rOut.center.x = localPos.x;
-        rOut.center.y = localPos.y;
-        rOut.center.z = ripple.GetTime() * ripple.GetOOTimeFalloff();
-        rOut.center.w = ripple.GetOODistanceFalloff();
-        rOut.params.x = ripple.GetAmplitude();
-        rOut.params.y = ripple.GetPhase();
-        rOut.params.z = (1.f - ripple.GetTime() * ripple.GetOOTimeFalloff() *
-                        ripple.GetOOTimeFalloff()) * ripple.GetFrequency();
+        rOut.center.x() = float(localPos.x());
+        rOut.center.y() = float(localPos.y());
+        rOut.center.z() = ripple.GetTime() * ripple.GetOOTimeFalloff();
+        rOut.center.w() = ripple.GetOODistanceFalloff();
+        rOut.params.x() = ripple.GetAmplitude();
+        rOut.params.y() = ripple.GetPhase();
+        rOut.params.z() = (1.f - ripple.GetTime() * ripple.GetOOTimeFalloff() *
+                          ripple.GetOOTimeFalloff()) * ripple.GetFrequency();
     }
     uni.m_colorMul = colorMul;
-    uni.m_pad[0].x = rippleNormResolution;
+    uni.m_pad[0].x() = rippleNormResolution;
     uni.m_lighting.ActivateLights(info.lights);
     for (i=0 ; i<3 ; ++i)
         uni.m_lighting.colorRegs[i] = info.kColors[i];
     uni.m_lighting.mulColor = info.kColors[3];
     uni.m_lighting.fog = CGraphics::g_Fog;
-    uni.m_pad2.x = info.indScale;
+    uni.m_pad2.x() = info.indScale;
     m_uniBuf->unmap();
 }
 

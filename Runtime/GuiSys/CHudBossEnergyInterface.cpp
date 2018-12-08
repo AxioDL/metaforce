@@ -32,7 +32,7 @@ void CHudBossEnergyInterface::Update(float dt)
     if (x4_fader > 0.f)
     {
         zeus::CColor color = zeus::CColor::skWhite;
-        color.a = x0_alpha * x4_fader;
+        color.a() = x0_alpha * x4_fader;
         x14_basewidget_bossenergystuff->SetColor(color);
         x14_basewidget_bossenergystuff->SetVisibility(true, ETraversalMode::Children);
     }

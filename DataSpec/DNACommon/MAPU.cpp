@@ -47,6 +47,10 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn,
     {
         hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(wld.mlvl);
         const MAPU::Transform& wldXf = wld.transform;
+        zeus::simd_floats wldXfF[3];
+        for (int i = 0; i < 3; ++i)
+            wldXf.xf[i].simd.copy_to(wldXfF[i]);
+        zeus::simd_floats hexColorF(wld.hexColor.mSimd);
         os.format("wldObj = bpy.data.objects.new('%s', None)\n"
                   "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                   "mtxd = mtx.decompose()\n"
@@ -57,14 +61,17 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn,
                   "wldObj.retro_mapworld_color = (%f, %f, %f, %f)\n"
                   "wldObj.retro_mapworld_path = '''%s'''\n"
                   "bpy.context.scene.objects.link(wldObj)\n", wld.name.c_str(),
-                  wldXf.xf[0].vec[0], wldXf.xf[0].vec[1], wldXf.xf[0].vec[2], wldXf.xf[0].vec[3],
-                  wldXf.xf[1].vec[0], wldXf.xf[1].vec[1], wldXf.xf[1].vec[2], wldXf.xf[1].vec[3],
-                  wldXf.xf[2].vec[0], wldXf.xf[2].vec[1], wldXf.xf[2].vec[2], wldXf.xf[2].vec[3],
-                  wld.hexColor.r, wld.hexColor.g, wld.hexColor.b, wld.hexColor.a,
+                  wldXfF[0][0], wldXfF[0][1], wldXfF[0][2], wldXfF[0][3],
+                  wldXfF[1][0], wldXfF[1][1], wldXfF[1][2], wldXfF[1][3],
+                  wldXfF[2][0], wldXfF[2][1], wldXfF[2][2], wldXfF[2][3],
+                  hexColorF[0], hexColorF[1], hexColorF[2], hexColorF[3],
                   path.getParentPath().getRelativePathUTF8().data());
         int idx = 0;
         for (const MAPU::Transform& hexXf : wld.hexTransforms)
         {
+            zeus::simd_floats hexXfF[3];
+            for (int i = 0; i < 3; ++i)
+                hexXf.xf[i].simd.copy_to(hexXfF[i]);
             os.format("obj = bpy.data.objects.new('%s_%d', hexMesh)\n"
                       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
                       "mtxd = mtx.decompose()\n"
@@ -75,9 +82,9 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn,
                       "bpy.context.scene.objects.link(obj)\n"
                       "obj.parent = wldObj\n",
                       wld.name.c_str(), idx++,
-                      hexXf.xf[0].vec[0], hexXf.xf[0].vec[1], hexXf.xf[0].vec[2], hexXf.xf[0].vec[3],
-                      hexXf.xf[1].vec[0], hexXf.xf[1].vec[1], hexXf.xf[1].vec[2], hexXf.xf[1].vec[3],
-                      hexXf.xf[2].vec[0], hexXf.xf[2].vec[1], hexXf.xf[2].vec[2], hexXf.xf[2].vec[3]);
+                      hexXfF[0][0], hexXfF[0][1], hexXfF[0][2], hexXfF[0][3],
+                      hexXfF[1][0], hexXfF[1][1], hexXfF[1][2], hexXfF[1][3],
+                      hexXfF[2][0], hexXfF[2][1], hexXfF[2][2], hexXfF[2][3]);
         }
     }
 

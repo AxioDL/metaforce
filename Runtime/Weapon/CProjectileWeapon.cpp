@@ -62,9 +62,9 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
         zeus::CTransform xf;
         zeus::CVector3f orn;
         iorn->GetValue(0, orn);
-        xf.rotateLocalX(zeus::degToRad(orn.x));
-        xf.rotateLocalY(zeus::degToRad(orn.y));
-        xf.rotateLocalZ(zeus::degToRad(orn.z));
+        xf.rotateLocalX(zeus::degToRad(orn.x()));
+        xf.rotateLocalY(zeus::degToRad(orn.y()));
+        xf.rotateLocalZ(zeus::degToRad(orn.z()));
         SetRelativeOrientation(xf);
     }
     else
@@ -435,9 +435,9 @@ void CProjectileWeapon::UpdatePSTranslationAndOrientation()
         psov->GetValue(xf4_curFrame, orient);
 
         zeus::CTransform xf = x44_localXf;
-        xf.rotateLocalX(zeus::degToRad(orient.x));
-        xf.rotateLocalY(zeus::degToRad(orient.y));
-        xf.rotateLocalZ(zeus::degToRad(orient.z));
+        xf.rotateLocalX(zeus::degToRad(orient.x()));
+        xf.rotateLocalY(zeus::degToRad(orient.y()));
+        xf.rotateLocalZ(zeus::degToRad(orient.z()));
         SetRelativeOrientation(xf);
     }
 

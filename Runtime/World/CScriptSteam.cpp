@@ -17,8 +17,8 @@ CScriptSteam::CScriptSteam(TUniqueId uid, std::string_view name, const CEntityIn
 , x15c_alphaInDur(f2 / f1)
 , x160_alphaOutDur(f3 / f1)
 {
-    float r3 = (aabb.max.z < aabb.max.y ? aabb.max.z : aabb.max.y);
-    r3 = (r3 < aabb.max.x ? r3 : aabb.max.x);
+    float r3 = (aabb.max.z() < aabb.max.y() ? aabb.max.z() : aabb.max.y());
+    r3 = (r3 < aabb.max.x() ? r3 : aabb.max.x());
 
     if (f4 - 0.f >=  0.000009999999747378752f)
         r3 = (r3 < f2 ? r3 : f4);

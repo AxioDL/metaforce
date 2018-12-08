@@ -231,17 +231,17 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
 
     if (!m_flipRect)
     {
-        m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
-        m_uniform.m_matrix[1][1] = rect.size.y * 2.f;
-        m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
-        m_uniform.m_matrix[3][1] = rect.position.y * 2.f - 1.f;
+        m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
+        m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
+        m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;
+        m_uniform.m_matrix[3][1] = rect.position.y() * 2.f - 1.f;
     }
     else
     {
-        m_uniform.m_matrix[0][0] = rect.size.x * 2.f;
-        m_uniform.m_matrix[1][1] = rect.size.y * -2.f;
-        m_uniform.m_matrix[3][0] = rect.position.x * 2.f - 1.f;
-        m_uniform.m_matrix[3][1] = rect.position.y * -2.f + 1.f;
+        m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
+        m_uniform.m_matrix[1][1] = rect.size.y() * -2.f;
+        m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;
+        m_uniform.m_matrix[3][1] = rect.position.y() * -2.f + 1.f;
     }
     m_uniform.m_color = color;
     m_uniBuf->load(&m_uniform, sizeof(m_uniform));

@@ -60,7 +60,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : rotKeys)
-                    fixedRotKeys[idx++][c] = val.v4.vec[c];
+                    fixedRotKeys[idx++][c] = val.simd[c];
             }
 
             for (zeus::CQuaternion& rot : fixedRotKeys)
@@ -85,7 +85,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
             {
                 size_t idx = 0;
                 for (const DNAANIM::Value& val : transKeys)
-                    fixedTransKeys[idx++][c] = val.v3.vec[c];
+                    fixedTransKeys[idx++][c] = val.simd[c];
             }
 
             for (zeus::CVector3f& t : fixedTransKeys)
@@ -108,7 +108,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
                 auto frameit = frames.begin();
                 ao.changeCurve(ANIMOutStream::CurveType::Scale, c, scaleKeys.size());
                 for (const DNAANIM::Value& val : scaleKeys)
-                    ao.write(*frameit++, val.v3.vec[c]);
+                    ao.write(*frameit++, val.simd[c]);
             }
         }
     }
@@ -367,7 +367,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
             const std::vector<DNAANIM::Value>& keys = *cit++;
             auto kit = keys.begin();
             for (size_t k=0 ; k<head.keyCount ; ++k)
-                writer.writeVec3fBig((*kit++).v3);
+                writer.writeVec3fBig(atVec3f{(*kit++).simd});
         }
     }
 
@@ -380,7 +380,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
             const std::vector<DNAANIM::Value>& keys = *cit++;
             auto kit = keys.begin();
             for (size_t k=0 ; k<head.keyCount ; ++k)
-                writer.writeVec4fBig((*kit++).v4);
+                writer.writeVec4fBig(atVec4f{(*kit++).simd});
         }
         if (std::get<1>(bone.second))
             ++cit;
@@ -399,7 +399,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::Write>(typename Write::StreamT& writer)
             const std::vector<DNAANIM::Value>& keys = *cit++;
             auto kit = keys.begin();
             for (size_t k=0 ; k<head.keyCount ; ++k)
-                writer.writeVec3fBig((*kit++).v3);
+                writer.writeVec3fBig(atVec3f{(*kit++).simd});
         }
         if (std::get<2>(bone.second))
             ++cit;

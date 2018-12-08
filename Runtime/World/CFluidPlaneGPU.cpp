@@ -35,7 +35,7 @@ void CFluidPlaneGPU::RenderStripWithRipples(float curY, const CFluidPlaneRender:
     float yMin = curY;
     float subdivF = CFluidPlaneRender::numSubdivisionsInTile;
 
-    float curX = info.x4_localMin.x;
+    float curX = info.x4_localMin.x();
     int gridCell = info.x28_tileX + info.x2a_gridDimX * (info.x2e_tileY + yTile - 1);
     int xTile = 1;
     int tileSpan;
