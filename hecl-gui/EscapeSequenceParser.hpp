@@ -10,4 +10,3 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
 void ReturnInsert(QTextCursor& cur, const QString& text);
 
 void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& format);
-

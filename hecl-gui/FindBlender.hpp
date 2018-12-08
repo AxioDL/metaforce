@@ -2,10 +2,8 @@
 
 #include "hecl/hecl.hpp"
 
-namespace hecl::blender
-{
+namespace hecl::blender {
 
 hecl::SystemString FindBlender(int& major, int& minor);
 
 }
-
