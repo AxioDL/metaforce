@@ -32,133 +32,124 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-namespace hecl
-{
+namespace hecl {
 static logvisor::Module Log("hecl::HumanizeNumber");
 
 static const int maxscale = 7;
 
-std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags)
-{
-    const char *prefixes, *sep;
-    int	i, r, remainder, s1, s2, sign;
-    int	divisordeccut;
-    int64_t	divisor, max;
-    size_t	baselen;
+std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags) {
+  const char *prefixes, *sep;
+  int i, r, remainder, s1, s2, sign;
+  int divisordeccut;
+  int64_t divisor, max;
+  size_t baselen;
 
-    /* validate args */
-    if (suffix == nullptr)
-        suffix = "";
-    if ((flags & HNFlags::Divisor1000) != HNFlags::None && (flags & HNFlags::IECPrefixes) != HNFlags::None)
-        Log.report(logvisor::Fatal, "invalid flags combo");
+  /* validate args */
+  if (suffix == nullptr)
+    suffix = "";
+  if ((flags & HNFlags::Divisor1000) != HNFlags::None && (flags & HNFlags::IECPrefixes) != HNFlags::None)
+    Log.report(logvisor::Fatal, "invalid flags combo");
 
-    /* setup parameters */
-    remainder = 0;
+  /* setup parameters */
+  remainder = 0;
 
-    if ((flags & HNFlags::IECPrefixes) != HNFlags::None) {
-        baselen = 2;
-        /*
-         * Use the prefixes for power of two recommended by
-         * the International Electrotechnical Commission
-         * (IEC) in IEC 80000-3 (i.e. Ki, Mi, Gi...).
-         *
-         * HN_IEC_PREFIXES implies a divisor of 1024 here
-         * (use of HN_DIVISOR_1000 would have triggered
-         * an assertion earlier).
-         */
-        divisor = 1024;
-        divisordeccut = 973;	/* ceil(.95 * 1024) */
-        if ((flags & HNFlags::B) != HNFlags::None)
-            prefixes = "B\0\0Ki\0Mi\0Gi\0Ti\0Pi\0Ei";
-        else
-            prefixes = "\0\0\0Ki\0Mi\0Gi\0Ti\0Pi\0Ei";
-    } else {
-        baselen = 1;
-        if ((flags & HNFlags::Divisor1000) != HNFlags::None) {
-            divisor = 1000;
-            divisordeccut = 950;
-            if ((flags & HNFlags::B) != HNFlags::None)
-                prefixes = "B\0\0k\0\0M\0\0G\0\0T\0\0P\0\0E";
-            else
-                prefixes = "\0\0\0k\0\0M\0\0G\0\0T\0\0P\0\0E";
-        } else {
-            divisor = 1024;
-            divisordeccut = 973;	/* ceil(.95 * 1024) */
-            if ((flags & HNFlags::B) != HNFlags::None)
-                prefixes = "B\0\0K\0\0M\0\0G\0\0T\0\0P\0\0E";
-            else
-                prefixes = "\0\0\0K\0\0M\0\0G\0\0T\0\0P\0\0E";
-        }
-    }
-
-#define	SCALE2PREFIX(scale)	(&prefixes[(scale) * 3])
-
-    if (quotient < 0) {
-        sign = -1;
-        quotient = -quotient;
-        baselen += 2;		/* sign, digit */
-    } else {
-        sign = 1;
-        baselen += 1;		/* digit */
-    }
-    if ((flags & HNFlags::NoSpace) != HNFlags::None)
-        sep = "";
-    else {
-        sep = " ";
-        baselen++;
-    }
-    baselen += strlen(suffix);
-
-    /* Check if enough room for `x y' + suffix */
-    if (len < baselen)
-        Log.report(logvisor::Fatal,
-                   "buffer size %" PRISize "insufficient for minimum size %" PRISize,
-                   len, baselen);
-    std::string ret(len, '\0');
-    len += 1;
-
-    if ((scale & int(HNScale::AutoScale)) != 0) {
-        /* See if there is additional columns can be used. */
-        for (max = 1, i = len - baselen; i-- > 0;)
-            max *= 10;
-
-        /*
-         * Divide the number until it fits the given column.
-         * If there will be an overflow by the rounding below,
-         * divide once more.
-         */
-        for (i = 0;
-             (quotient >= max || (quotient == max - 1 &&
-                                  remainder >= divisordeccut)) && i < maxscale; i++) {
-            remainder = quotient % divisor;
-            quotient /= divisor;
-        }
-    } else {
-        for (i = 0; i < scale && i < maxscale; i++) {
-            remainder = quotient % divisor;
-            quotient /= divisor;
-        }
-    }
-
-    /* If a value <= 9.9 after rounding and ... */
+  if ((flags & HNFlags::IECPrefixes) != HNFlags::None) {
+    baselen = 2;
     /*
-     * XXX - should we make sure there is enough space for the decimal
-     * place and if not, don't do HN_DECIMAL?
+     * Use the prefixes for power of two recommended by
+     * the International Electrotechnical Commission
+     * (IEC) in IEC 80000-3 (i.e. Ki, Mi, Gi...).
+     *
+     * HN_IEC_PREFIXES implies a divisor of 1024 here
+     * (use of HN_DIVISOR_1000 would have triggered
+     * an assertion earlier).
      */
-    if (((quotient == 9 && remainder < divisordeccut) || quotient < 9) &&
-            i > 0 && (flags & HNFlags::Decimal) != HNFlags::None) {
-        s1 = (int)quotient + ((remainder * 10 + divisor / 2) /
-                              divisor / 10);
-        s2 = ((remainder * 10 + divisor / 2) / divisor) % 10;
-        r = snprintf(&ret[0], len, "%d%s%d%s%s%s",
-                     sign * s1, localeconv()->decimal_point, s2,
-                     sep, SCALE2PREFIX(i), suffix);
-    } else
-        r = snprintf(&ret[0], len, "%" PRId64 "%s%s%s",
-                     sign * (quotient + (remainder + divisor / 2) / divisor),
-                     sep, SCALE2PREFIX(i), suffix);
+    divisor = 1024;
+    divisordeccut = 973; /* ceil(.95 * 1024) */
+    if ((flags & HNFlags::B) != HNFlags::None)
+      prefixes = "B\0\0Ki\0Mi\0Gi\0Ti\0Pi\0Ei";
+    else
+      prefixes = "\0\0\0Ki\0Mi\0Gi\0Ti\0Pi\0Ei";
+  } else {
+    baselen = 1;
+    if ((flags & HNFlags::Divisor1000) != HNFlags::None) {
+      divisor = 1000;
+      divisordeccut = 950;
+      if ((flags & HNFlags::B) != HNFlags::None)
+        prefixes = "B\0\0k\0\0M\0\0G\0\0T\0\0P\0\0E";
+      else
+        prefixes = "\0\0\0k\0\0M\0\0G\0\0T\0\0P\0\0E";
+    } else {
+      divisor = 1024;
+      divisordeccut = 973; /* ceil(.95 * 1024) */
+      if ((flags & HNFlags::B) != HNFlags::None)
+        prefixes = "B\0\0K\0\0M\0\0G\0\0T\0\0P\0\0E";
+      else
+        prefixes = "\0\0\0K\0\0M\0\0G\0\0T\0\0P\0\0E";
+    }
+  }
 
-    return ret;
+#define SCALE2PREFIX(scale) (&prefixes[(scale)*3])
+
+  if (quotient < 0) {
+    sign = -1;
+    quotient = -quotient;
+    baselen += 2; /* sign, digit */
+  } else {
+    sign = 1;
+    baselen += 1; /* digit */
+  }
+  if ((flags & HNFlags::NoSpace) != HNFlags::None)
+    sep = "";
+  else {
+    sep = " ";
+    baselen++;
+  }
+  baselen += strlen(suffix);
+
+  /* Check if enough room for `x y' + suffix */
+  if (len < baselen)
+    Log.report(logvisor::Fatal, "buffer size %" PRISize "insufficient for minimum size %" PRISize, len, baselen);
+  std::string ret(len, '\0');
+  len += 1;
+
+  if ((scale & int(HNScale::AutoScale)) != 0) {
+    /* See if there is additional columns can be used. */
+    for (max = 1, i = len - baselen; i-- > 0;)
+      max *= 10;
+
+    /*
+     * Divide the number until it fits the given column.
+     * If there will be an overflow by the rounding below,
+     * divide once more.
+     */
+    for (i = 0; (quotient >= max || (quotient == max - 1 && remainder >= divisordeccut)) && i < maxscale; i++) {
+      remainder = quotient % divisor;
+      quotient /= divisor;
+    }
+  } else {
+    for (i = 0; i < scale && i < maxscale; i++) {
+      remainder = quotient % divisor;
+      quotient /= divisor;
+    }
+  }
+
+  /* If a value <= 9.9 after rounding and ... */
+  /*
+   * XXX - should we make sure there is enough space for the decimal
+   * place and if not, don't do HN_DECIMAL?
+   */
+  if (((quotient == 9 && remainder < divisordeccut) || quotient < 9) && i > 0 &&
+      (flags & HNFlags::Decimal) != HNFlags::None) {
+    s1 = (int)quotient + ((remainder * 10 + divisor / 2) / divisor / 10);
+    s2 = ((remainder * 10 + divisor / 2) / divisor) % 10;
+    r = snprintf(&ret[0], len, "%d%s%d%s%s%s", sign * s1, localeconv()->decimal_point, s2, sep, SCALE2PREFIX(i),
+                 suffix);
+  } else
+    r = snprintf(&ret[0], len, "%" PRId64 "%s%s%s", sign * (quotient + (remainder + divisor / 2) / divisor), sep,
+                 SCALE2PREFIX(i), suffix);
+
+  return ret;
 }
 
-}
+} // namespace hecl

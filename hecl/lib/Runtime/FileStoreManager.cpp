@@ -8,46 +8,43 @@
 using namespace Windows::Storage;
 #endif
 
-namespace hecl::Runtime
-{
+namespace hecl::Runtime {
 static logvisor::Module Log("FileStoreManager");
 
-FileStoreManager::FileStoreManager(SystemStringView domain)
-: m_domain(domain)
-{
+FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
 #if _WIN32
 #if !WINDOWS_STORE
-    WCHAR home[MAX_PATH];
-    if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-        Log.report(logvisor::Fatal, _SYS_STR("unable to locate profile for file store"));
+  WCHAR home[MAX_PATH];
+  if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
+    Log.report(logvisor::Fatal, _SYS_STR("unable to locate profile for file store"));
 
-    SystemString path(home);
+  SystemString path(home);
 #else
-    StorageFolder^ cacheFolder = ApplicationData::Current->LocalCacheFolder;
-    SystemString path(cacheFolder->Path->Data());
+  StorageFolder ^ cacheFolder = ApplicationData::Current->LocalCacheFolder;
+  SystemString path(cacheFolder->Path->Data());
 #endif
-    path += _SYS_STR("/.heclrun");
+  path += _SYS_STR("/.heclrun");
 
-    hecl::MakeDir(path.c_str());
-    path += _SYS_STR('/');
-    path += domain.data();
+  hecl::MakeDir(path.c_str());
+  path += _SYS_STR('/');
+  path += domain.data();
 
-    hecl::MakeDir(path.c_str());
-    m_storeRoot = path;
+  hecl::MakeDir(path.c_str());
+  m_storeRoot = path;
 #else
-    const char* home = getenv("HOME");
-    if (!home)
-        Log.report(logvisor::Fatal, "unable to locate $HOME for file store");
-    std::string path(home);
-    path += "/.heclrun";
-    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-        Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
-    path += '/';
-    path += domain.data();
-    if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-        Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
-    m_storeRoot = path;
+  const char* home = getenv("HOME");
+  if (!home)
+    Log.report(logvisor::Fatal, "unable to locate $HOME for file store");
+  std::string path(home);
+  path += "/.heclrun";
+  if (mkdir(path.c_str(), 0755) && errno != EEXIST)
+    Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
+  path += '/';
+  path += domain.data();
+  if (mkdir(path.c_str(), 0755) && errno != EEXIST)
+    Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
+  m_storeRoot = path;
 #endif
 }
 
-}
+} // namespace hecl::Runtime

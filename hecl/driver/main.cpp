@@ -35,7 +35,6 @@ logvisor::Module LogModule("hecl::Driver");
 
 bool XTERM_COLOR = false;
 
-
 /*
 #define HECL_GIT 1234567
 #define HECL_GIT_S "1234567"
@@ -44,49 +43,45 @@ bool XTERM_COLOR = false;
 */
 
 /* Main usage message */
-static void printHelp(const hecl::SystemChar* pname)
-{
-    if (XTERM_COLOR)
-        hecl::Printf(_SYS_STR("" BOLD "HECL" NORMAL ""));
-    else
-        hecl::Printf(_SYS_STR("HECL"));
+static void printHelp(const hecl::SystemChar* pname) {
+  if (XTERM_COLOR)
+    hecl::Printf(_SYS_STR("" BOLD "HECL" NORMAL ""));
+  else
+    hecl::Printf(_SYS_STR("HECL"));
 #if HECL_HAS_NOD
-#  define TOOL_LIST "extract|init|cook|package|image|help"
+#define TOOL_LIST "extract|init|cook|package|image|help"
 #else
-#  define TOOL_LIST "extract|init|cook|package|help"
+#define TOOL_LIST "extract|init|cook|package|help"
 #endif
 #if HECL_GIT
-    hecl::Printf(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+  hecl::Printf(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
 #elif HECL_VER
-    hecl::Printf(_SYS_STR(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+  hecl::Printf(_SYS_STR(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
 #else
-    hecl::Printf(_SYS_STR("\nUsage: %s " TOOL_LIST "\n"), pname);
+  hecl::Printf(_SYS_STR("\nUsage: %s " TOOL_LIST "\n"), pname);
 #endif
 }
 
 /* Regex patterns */
-static const hecl::SystemRegex regOPEN(_SYS_STR("-o([^\"]*|\\S*)"), std::regex::ECMAScript|std::regex::optimize);
+static const hecl::SystemRegex regOPEN(_SYS_STR("-o([^\"]*|\\S*)"), std::regex::ECMAScript | std::regex::optimize);
 
 static ToolBase* ToolPtr = nullptr;
 
 /* SIGINT will gracefully close blender connections and delete blends in progress */
-static void SIGINTHandler(int sig)
-{
-    if (ToolPtr)
-        ToolPtr->cancel();
-    hecl::blender::Connection::Shutdown();
-    logvisor::KillProcessTree();
-    exit(1);
+static void SIGINTHandler(int sig) {
+  if (ToolPtr)
+    ToolPtr->cancel();
+  hecl::blender::Connection::Shutdown();
+  logvisor::KillProcessTree();
+  exit(1);
 }
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file,
-                      const char*, int line, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    AthenaLog.report(logvisor::Level(level), fmt, ap);
-    va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, const char* fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  AthenaLog.report(logvisor::Level(level), fmt, ap);
+  va_end(ap);
 }
 
 static hecl::SystemChar cwdbuf[1024];
@@ -100,232 +95,210 @@ static void SIGWINCHHandler(int sig) {}
 int main(int argc, const char** argv)
 #endif
 {
-    if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage")))
-    {
-        printf("%s\n", HECL_DLPACKAGE);
-        return 100;
-    }
+  if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
+    printf("%s\n", HECL_DLPACKAGE);
+    return 100;
+  }
 
 #if _WIN32
-    CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
+  CoInitializeEx(nullptr, COINIT_MULTITHREADED | COINIT_DISABLE_OLE1DDE);
 #else
-    std::setlocale(LC_ALL, "en-US.UTF-8");
+  std::setlocale(LC_ALL, "en-US.UTF-8");
 #endif
 
-    /* Xterm check */
+  /* Xterm check */
 #if _WIN32
-    const char* conemuANSI = getenv("ConEmuANSI");
-    if (conemuANSI && !strcmp(conemuANSI, "ON"))
-        XTERM_COLOR = true;
+  const char* conemuANSI = getenv("ConEmuANSI");
+  if (conemuANSI && !strcmp(conemuANSI, "ON"))
+    XTERM_COLOR = true;
 #else
-    const char* term = getenv("TERM");
-    if (term && !strncmp(term, "xterm", 5))
-        XTERM_COLOR = true;
-    signal(SIGWINCH, SIGWINCHHandler);
+  const char* term = getenv("TERM");
+  if (term && !strncmp(term, "xterm", 5))
+    XTERM_COLOR = true;
+  signal(SIGWINCH, SIGWINCHHandler);
 #endif
-    signal(SIGINT, SIGINTHandler);
+  signal(SIGINT, SIGINTHandler);
 
-    logvisor::RegisterStandardExceptions();
-    logvisor::RegisterConsoleLogger();
-    atSetExceptionHandler(AthenaExc);
+  logvisor::RegisterStandardExceptions();
+  logvisor::RegisterConsoleLogger();
+  atSetExceptionHandler(AthenaExc);
 
-    /* Basic usage check */
-    if (argc == 1)
-    {
-        printHelp(argv[0]);
+  /* Basic usage check */
+  if (argc == 1) {
+    printHelp(argv[0]);
 #if WIN_PAUSE
-        system("PAUSE");
+    system("PAUSE");
 #endif
-        return 0;
-    }
-    else if (argc == 0)
-    {
-        printHelp(_SYS_STR("hecl"));
+    return 0;
+  } else if (argc == 0) {
+    printHelp(_SYS_STR("hecl"));
 #if WIN_PAUSE
-        system("PAUSE");
+    system("PAUSE");
 #endif
-        return 0;
-    }
+    return 0;
+  }
 
-    /* Prepare DataSpecs */
-    HECLRegisterDataSpecs();
+  /* Prepare DataSpecs */
+  HECLRegisterDataSpecs();
 
-    /* Assemble common tool pass info */
-    ToolPassInfo info;
-    info.pname = argv[0];
-    if (hecl::Getcwd(cwdbuf, 1024))
-    {
-        info.cwd = cwdbuf;
-        if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\'))
+  /* Assemble common tool pass info */
+  ToolPassInfo info;
+  info.pname = argv[0];
+  if (hecl::Getcwd(cwdbuf, 1024)) {
+    info.cwd = cwdbuf;
+    if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\'))
 #if _WIN32
-            info.cwd += _SYS_STR('\\');
+      info.cwd += _SYS_STR('\\');
 #else
-            info.cwd += _SYS_STR('/');
+      info.cwd += _SYS_STR('/');
 #endif
 
-        if (hecl::PathRelative(argv[0]))
-            ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
-        hecl::SystemString Argv0(argv[0]);
-        hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
-        if (lastIdx != hecl::SystemString::npos)
-            ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
+    if (hecl::PathRelative(argv[0]))
+      ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
+    hecl::SystemString Argv0(argv[0]);
+    hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
+    if (lastIdx != hecl::SystemString::npos)
+      ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
+  }
+
+  /* Concatenate args */
+  std::vector<hecl::SystemString> args;
+  args.reserve(argc - 2);
+  for (int i = 2; i < argc; ++i)
+    args.push_back(hecl::SystemString(argv[i]));
+
+  if (!args.empty()) {
+    /* Extract output argument */
+    for (auto it = args.cbegin(); it != args.cend();) {
+      const hecl::SystemString& arg = *it;
+      hecl::SystemRegexMatch oMatch;
+      if (std::regex_search(arg, oMatch, regOPEN)) {
+        const hecl::SystemString& token = oMatch[1].str();
+        if (token.size()) {
+          if (info.output.empty())
+            info.output = oMatch[1].str();
+          it = args.erase(it);
+        } else {
+          it = args.erase(it);
+          if (it == args.end())
+            break;
+          if (info.output.empty())
+            info.output = *it;
+          it = args.erase(it);
+        }
+        continue;
+      }
+      ++it;
     }
 
-    /* Concatenate args */
-    std::vector<hecl::SystemString> args;
-    args.reserve(argc-2);
-    for (int i=2 ; i<argc ; ++i)
-        args.push_back(hecl::SystemString(argv[i]));
+    /* Iterate flags */
+    for (auto it = args.cbegin(); it != args.cend();) {
+      const hecl::SystemString& arg = *it;
+      if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-')) {
+        ++it;
+        continue;
+      }
 
-    if (!args.empty())
-    {
-        /* Extract output argument */
-        for (auto it = args.cbegin() ; it != args.cend() ;)
-        {
-            const hecl::SystemString& arg = *it;
-            hecl::SystemRegexMatch oMatch;
-            if (std::regex_search(arg, oMatch, regOPEN))
-            {
-                const hecl::SystemString& token = oMatch[1].str();
-                if (token.size())
-                {
-                    if (info.output.empty())
-                        info.output = oMatch[1].str();
-                    it = args.erase(it);
-                }
-                else
-                {
-                    it = args.erase(it);
-                    if (it == args.end())
-                        break;
-                    if (info.output.empty())
-                        info.output = *it;
-                    it = args.erase(it);
-                }
-                continue;
-            }
-            ++it;
-        }
-
-        /* Iterate flags */
-        for (auto it = args.cbegin() ; it != args.cend() ;)
-        {
-            const hecl::SystemString& arg = *it;
-            if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-'))
-            {
-                ++it;
-                continue;
-            }
-
-            for (auto chit = arg.cbegin() + 1 ; chit != arg.cend() ; ++chit)
-            {
-                if (*chit == _SYS_STR('v'))
-                    ++info.verbosityLevel;
-                else if (*chit == _SYS_STR('f'))
-                    info.force = true;
-                else if (*chit == _SYS_STR('y'))
-                    info.yes = true;
-                else if (*chit == _SYS_STR('g'))
-                    info.gui = true;
-                else
-                    info.flags.push_back(*chit);
-            }
-
-            it = args.erase(it);
-        }
-
-        /* Gather remaining args */
-        info.args.reserve(args.size());
-        for (const hecl::SystemString& arg : args)
-            info.args.push_back(arg);
-    }
-
-    /* Attempt to find hecl project */
-    hecl::ProjectRootPath rootPath = hecl::SearchForProject(info.cwd);
-    std::unique_ptr<hecl::Database::Project> project;
-    if (rootPath)
-    {
-        size_t ErrorRef = logvisor::ErrorCount;
-        hecl::Database::Project* newProj = new hecl::Database::Project(rootPath);
-        if (logvisor::ErrorCount > ErrorRef)
-        {
-#if WIN_PAUSE
-            system("PAUSE");
-#endif
-            delete newProj;
-            return 1;
-        }
-        project.reset(newProj);
-        info.project = newProj;
-    }
-
-    /* Construct selected tool */
-    hecl::SystemString toolName(argv[1]);
-    hecl::ToLower(toolName);
-    std::unique_ptr<ToolBase> tool;
-
-    size_t ErrorRef = logvisor::ErrorCount;
-    if (toolName == _SYS_STR("init"))
-        tool.reset(new ToolInit(info));
-    else if (toolName == _SYS_STR("spec"))
-        tool.reset(new ToolSpec(info));
-    else if (toolName == _SYS_STR("extract"))
-        tool.reset(new ToolExtract(info));
-    else if (toolName == _SYS_STR("cook"))
-        tool.reset(new ToolCook(info));
-    else if (toolName == _SYS_STR("package") || toolName == _SYS_STR("pack"))
-        tool.reset(new ToolPackage(info));
-#if HECL_HAS_NOD
-    else if (toolName == _SYS_STR("image"))
-        tool.reset(new ToolImage(info));
-#endif
-    else if (toolName == _SYS_STR("help"))
-        tool.reset(new ToolHelp(info));
-    else
-    {
-        FILE* fp = hecl::Fopen(argv[1], _SYS_STR("rb"));
-        if (!fp)
-            LogModule.report(logvisor::Error, _SYS_STR("unrecognized tool '%s'"), toolName.c_str());
+      for (auto chit = arg.cbegin() + 1; chit != arg.cend(); ++chit) {
+        if (*chit == _SYS_STR('v'))
+          ++info.verbosityLevel;
+        else if (*chit == _SYS_STR('f'))
+          info.force = true;
+        else if (*chit == _SYS_STR('y'))
+          info.yes = true;
+        else if (*chit == _SYS_STR('g'))
+          info.gui = true;
         else
-        {
-            /* Shortcut-case: implicit extract */
-            fclose(fp);
-            info.args.insert(info.args.begin(), argv[1]);
-            tool.reset(new ToolExtract(info));
-        }
+          info.flags.push_back(*chit);
+      }
+
+      it = args.erase(it);
     }
 
-    if (logvisor::ErrorCount > ErrorRef)
-    {
+    /* Gather remaining args */
+    info.args.reserve(args.size());
+    for (const hecl::SystemString& arg : args)
+      info.args.push_back(arg);
+  }
+
+  /* Attempt to find hecl project */
+  hecl::ProjectRootPath rootPath = hecl::SearchForProject(info.cwd);
+  std::unique_ptr<hecl::Database::Project> project;
+  if (rootPath) {
+    size_t ErrorRef = logvisor::ErrorCount;
+    hecl::Database::Project* newProj = new hecl::Database::Project(rootPath);
+    if (logvisor::ErrorCount > ErrorRef) {
 #if WIN_PAUSE
-        system("PAUSE");
+      system("PAUSE");
 #endif
-        return 1;
+      delete newProj;
+      return 1;
     }
+    project.reset(newProj);
+    info.project = newProj;
+  }
 
-    if (info.verbosityLevel)
-        LogModule.report(logvisor::Info, _SYS_STR("Constructed tool '%s' %d\n"),
-                         tool->toolName().c_str(), info.verbosityLevel);
+  /* Construct selected tool */
+  hecl::SystemString toolName(argv[1]);
+  hecl::ToLower(toolName);
+  std::unique_ptr<ToolBase> tool;
 
-    /* Run tool */
-    ErrorRef = logvisor::ErrorCount;
-    ToolPtr = tool.get();
-    int retval = tool->run();
-    ToolPtr = nullptr;
-    if (logvisor::ErrorCount > ErrorRef)
-    {
-        hecl::blender::Connection::Shutdown();
+  size_t ErrorRef = logvisor::ErrorCount;
+  if (toolName == _SYS_STR("init"))
+    tool.reset(new ToolInit(info));
+  else if (toolName == _SYS_STR("spec"))
+    tool.reset(new ToolSpec(info));
+  else if (toolName == _SYS_STR("extract"))
+    tool.reset(new ToolExtract(info));
+  else if (toolName == _SYS_STR("cook"))
+    tool.reset(new ToolCook(info));
+  else if (toolName == _SYS_STR("package") || toolName == _SYS_STR("pack"))
+    tool.reset(new ToolPackage(info));
+#if HECL_HAS_NOD
+  else if (toolName == _SYS_STR("image"))
+    tool.reset(new ToolImage(info));
+#endif
+  else if (toolName == _SYS_STR("help"))
+    tool.reset(new ToolHelp(info));
+  else {
+    FILE* fp = hecl::Fopen(argv[1], _SYS_STR("rb"));
+    if (!fp)
+      LogModule.report(logvisor::Error, _SYS_STR("unrecognized tool '%s'"), toolName.c_str());
+    else {
+      /* Shortcut-case: implicit extract */
+      fclose(fp);
+      info.args.insert(info.args.begin(), argv[1]);
+      tool.reset(new ToolExtract(info));
+    }
+  }
+
+  if (logvisor::ErrorCount > ErrorRef) {
 #if WIN_PAUSE
-        system("PAUSE");
+    system("PAUSE");
 #endif
-        return 1;
-    }
+    return 1;
+  }
 
+  if (info.verbosityLevel)
+    LogModule.report(logvisor::Info, _SYS_STR("Constructed tool '%s' %d\n"), tool->toolName().c_str(),
+                     info.verbosityLevel);
+
+  /* Run tool */
+  ErrorRef = logvisor::ErrorCount;
+  ToolPtr = tool.get();
+  int retval = tool->run();
+  ToolPtr = nullptr;
+  if (logvisor::ErrorCount > ErrorRef) {
     hecl::blender::Connection::Shutdown();
 #if WIN_PAUSE
     system("PAUSE");
 #endif
-    return retval;
+    return 1;
+  }
+
+  hecl::blender::Connection::Shutdown();
+#if WIN_PAUSE
+  system("PAUSE");
+#endif
+  return retval;
 }
-
-

@@ -18,8 +18,7 @@
 #include <cstring>
 #include <algorithm>
 
-namespace hecl
-{
+namespace hecl {
 
 #if _WIN32 && UNICODE
 #define HECL_UCS2 1
@@ -27,15 +26,13 @@ namespace hecl
 
 #if HECL_UCS2
 typedef wchar_t SystemChar;
-static inline size_t StrLen(const SystemChar* str) {return wcslen(str);}
+static inline size_t StrLen(const SystemChar* str) { return wcslen(str); }
 typedef std::wstring SystemString;
 typedef std::wstring_view SystemStringView;
-static inline void ToLower(SystemString& str)
-{std::transform(str.begin(), str.end(), str.begin(), towlower);}
-static inline void ToUpper(SystemString& str)
-{std::transform(str.begin(), str.end(), str.begin(), towupper);}
+static inline void ToLower(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), towlower); }
+static inline void ToUpper(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), towupper); }
 #ifndef _SYS_STR
-#define _SYS_STR(val) L ## val
+#define _SYS_STR(val) L##val
 #endif
 #ifndef FMT_CSTR_SYS
 #define FMT_CSTR_SYS "S"
@@ -43,13 +40,11 @@ static inline void ToUpper(SystemString& str)
 typedef struct _stat Sstat;
 #else
 typedef char SystemChar;
-static inline size_t StrLen(const SystemChar* str) {return strlen(str);}
+static inline size_t StrLen(const SystemChar* str) { return strlen(str); }
 typedef std::string SystemString;
 typedef std::string_view SystemStringView;
-static inline void ToLower(SystemString& str)
-{std::transform(str.begin(), str.end(), str.begin(), tolower);}
-static inline void ToUpper(SystemString& str)
-{std::transform(str.begin(), str.end(), str.begin(), toupper);}
+static inline void ToLower(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), tolower); }
+static inline void ToUpper(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), toupper); }
 #ifndef _SYS_STR
 #define _SYS_STR(val) val
 #endif
@@ -59,5 +54,4 @@ static inline void ToUpper(SystemString& str)
 typedef struct stat Sstat;
 #endif
 
-}
-
+} // namespace hecl

@@ -2,11 +2,8 @@
 
 #include "hecl/SystemChar.hpp"
 
-namespace hecl
-{
+namespace hecl {
 
 hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name);
 
 }
-
-
