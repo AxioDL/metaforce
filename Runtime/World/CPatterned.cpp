@@ -1026,6 +1026,16 @@ void CPatterned::TryLoopReaction(CStateManager& mgr, int arg)
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::EReactionType(arg)));
 }
 
+void CPatterned::TryProjectileAttack(CStateManager&, int arg)
+{
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity(arg), x2e0_destPos, false));
+}
+
+void CPatterned::TryGenerate(CStateManager& mgr, int arg)
+{
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, true));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType)
 {
     if (x450_bodyController)

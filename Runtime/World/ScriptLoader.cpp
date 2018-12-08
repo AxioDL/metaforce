@@ -69,6 +69,7 @@
 #include "CScriptSound.hpp"
 #include "CScriptSpawnPoint.hpp"
 #include "CScriptSpecialFunction.hpp"
+#include "MP1/World/CSpankWeed.hpp"
 #include "MP1/World/CBabygoth.hpp"
 #include "MP1/World/CEyeball.hpp"
 #include "CScriptSteam.hpp"
@@ -86,6 +87,7 @@
 #include "CScriptWorldTeleporter.hpp"
 #include "CScriptDebugCameraWaypoint.hpp"
 #include "CScriptSpiderBallAttractionSurface.hpp"
+#include "MP1/World/CPuddleToadGamma.hpp"
 #include "CScriptSpindleCamera.hpp"
 #include "MP1/World/CAtomicAlpha.hpp"
 #include "CSimplePool.hpp"
@@ -1723,7 +1725,34 @@ CEntity* ScriptLoader::LoadSpiderBallAttractionSurface(CStateManager& mgr, CInpu
 
 CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 17, "PuddleToadGamma"))
+        return nullptr;
+
+    std::string name = mgr.HashInstanceName(in);
+    CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
+    zeus::CTransform xf = LoadEditorTransform(in);
+    zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
+    float f4 = in.readFloatBig();
+    float f5 = in.readFloatBig();
+    float f6 = in.readFloatBig();
+    CDamageInfo dInfo1(in);
+    CDamageInfo dInfo2(in);
+    CAssetId collisionData(in);
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale,
+                              animParms.GetInitialAnimation(), true));
+    return new MP1::CPuddleToadGamma(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
+                                     f1, f2, f3, vec, f4, f5, f6, dInfo1, dInfo2, collisionData);
 }
 
 CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
@@ -1879,7 +1908,29 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)
 {
-    return nullptr;
+    if (!EnsurePropertyCount(propCount, 11, "SpankWeed"))
+        return nullptr;
+    SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+    auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+    if (!pair.first)
+        return nullptr;
+
+    CPatternedInfo pInfo(in, pair.second);
+    CActorParameters actParms = LoadActorParameters(in);
+    in.readBool();
+    float f1 = in.readFloatBig();
+    float f2 = in.readFloatBig();
+    float f3 = in.readFloatBig();
+    float f4 = in.readFloatBig();
+
+    const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+    if (!animParms.GetACSFile().IsValid())
+        return nullptr;
+
+    CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                              animParms.GetInitialAnimation(), true));
+    return new MP1::CSpankWeed(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData),
+                               actParms, pInfo, f1, f2, f3, f4);
 }
 
 CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info)

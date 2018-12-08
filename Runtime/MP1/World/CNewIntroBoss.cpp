@@ -37,22 +37,9 @@ void CNewIntroBoss::Accept(IVisitor &visitor)
     visitor.Visit(this);
 }
 
-struct SSphereJointDescription
-{
-    const char* name;
-    float radius;
-};
-
 static const SSphereJointDescription skSphereJoints[] ={
     {"Head_1", 1.5f},
     {"Tail_1", 1.5f}
-};
-
-struct SOBBJointDescription
-{
-    const char* from;
-    const char* to;
-    zeus::CVector3f bounds;
 };
 
 static const SOBBJointDescription skOBBJoints[] = {
