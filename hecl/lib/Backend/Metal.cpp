@@ -183,23 +183,23 @@ std::string Metal::makeVert(unsigned col, unsigned uv, unsigned w,
         retval += "    float4 objPos = float4(0.0,0.0,0.0,0.0);\n"
                   "    float4 objNorm = float4(0.0,0.0,0.0,0.0);\n";
         for (size_t i=0 ; i<s ; ++i)
-            retval += hecl::Format("    objPos += (vu.mv[%" PRISize "] * float4(v.posIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n"
-                                   "    objNorm += (vu.mvInv[%" PRISize "] * float4(v.normIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n",
+            retval += hecl::Format("    objPos += (vu.objs[%" PRISize "] * float4(v.posIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n"
+                                   "    objNorm += (vu.objsInv[%" PRISize "] * float4(v.normIn, 1.0)) * v.weightIn%" PRISize "[%" PRISize "];\n",
                                    i, i/4, i%4, i, i/4, i%4);
         retval += "    objPos[3] = 1.0;\n"
                   "    objNorm = float4(normalize(objNorm.xyz), 0.0);\n"
-                  "    vtf.mvPos = mv * objPos;\n"
-                  "    vtf.mvNorm = float4(normalize((mvInv * objNorm).xyz), 0.0);\n"
-                  "    vtf.mvpPos = proj * vtf.mvPos;\n";
+                  "    vtf.mvPos = vu.mv * objPos;\n"
+                  "    vtf.mvNorm = float4(normalize((vu.mvInv * objNorm).xyz), 0.0);\n"
+                  "    vtf.mvpPos = vu.proj * vtf.mvPos;\n";
     }
     else
     {
         /* non-skinned */
-        retval += "    float4 objPos = float4(posIn, 1.0);\n"
-                  "    float4 objNorm = float4(normIn, 0.0);\n"
-                  "    vtf.mvPos = mv * objPos;\n"
-                  "    vtf.mvNorm = mvInv * objNorm;\n"
-                  "    vtf.mvpPos = proj * vtf.mvPos;\n";
+        retval += "    float4 objPos = float4(v.posIn, 1.0);\n"
+                  "    float4 objNorm = float4(v.normIn, 0.0);\n"
+                  "    vtf.mvPos = vu.mv * objPos;\n"
+                  "    vtf.mvNorm = vu.mvInv * objNorm;\n"
+                  "    vtf.mvpPos = vu.proj * vtf.mvPos;\n";
     }
 
     retval += "    float4 tmpProj;\n";

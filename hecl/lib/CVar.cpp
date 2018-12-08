@@ -144,7 +144,9 @@ atVec4f CVar::toVec4f(bool* isValid) const
         *isValid = true;
 
     atVec4f vec;
-    std::sscanf(m_value.c_str(), "%f %f %f %f", &vec.vec[0], &vec.vec[1], &vec.vec[2], &vec.vec[3]);
+    athena::simd_floats f;
+    std::sscanf(m_value.c_str(), "%f %f %f %f", &f[0], &f[1], &f[2], &f[3]);
+    vec.simd.copy_from(f);
 
     return vec;
 }
@@ -247,7 +249,8 @@ bool CVar::fromVec4f(const atVec4f& val)
     if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
         return false;
 
-    m_value.assign(hecl::Format("%f %f %f %f", val.vec[0], val.vec[1], val.vec[2], val.vec[3]));
+    athena::simd_floats f(val.simd);
+    m_value.assign(hecl::Format("%f %f %f %f", f[0], f[1], f[2], f[3]));
     m_flags |= EFlags::Modified;
     return true;
 }
@@ -378,7 +381,9 @@ bool CVar::fromLiteralToType(std::string_view val, bool setDefault)
     case EType::Vec4f:
     {
         atVec4f vec;
-        std::sscanf(val.data(), "%f %f %f %f", &vec.vec[0], &vec.vec[1], &vec.vec[2], &vec.vec[3]);
+        athena::simd_floats f;
+        std::sscanf(val.data(), "%f %f %f %f", &f[0], &f[1], &f[2], &f[3]);
+        vec.simd.copy_from(f);
         return fromVec4f(vec);
     }
     }
@@ -419,7 +424,9 @@ bool CVar::fromLiteralToType(std::wstring_view val, bool setDefault)
     case EType::Vec4f:
     {
         atVec4f vec;
-        std::swscanf(val.data(), L"%f %f %f %f", &vec.vec[0], &vec.vec[1], &vec.vec[2], &vec.vec[3]);
+        athena::simd_floats f;
+        std::swscanf(val.data(), L"%f %f %f %f", &f[0], &f[1], &f[2], &f[3]);
+        vec.simd.copy_from(f);
         return fromVec4f(vec);
     }
     }

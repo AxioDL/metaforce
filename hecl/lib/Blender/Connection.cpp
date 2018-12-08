@@ -830,6 +830,8 @@ void PyOutStream::linkBackground(const char* target, const char* sceneName)
 
 void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max)
 {
+    athena::simd_floats minf(min.simd);
+    athena::simd_floats maxf(max.simd);
     format("bm = bmesh.new()\n"
                "bm.verts.new((%f,%f,%f))\n"
                "bm.verts.new((%f,%f,%f))\n"
@@ -852,14 +854,14 @@ void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max)
                "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
                "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
                "bm.edges.new((bm.verts[6], bm.verts[7]))\n",
-           min.vec[0], min.vec[1], min.vec[2],
-           max.vec[0], min.vec[1], min.vec[2],
-           min.vec[0], max.vec[1], min.vec[2],
-           max.vec[0], max.vec[1], min.vec[2],
-           min.vec[0], min.vec[1], max.vec[2],
-           max.vec[0], min.vec[1], max.vec[2],
-           min.vec[0], max.vec[1], max.vec[2],
-           max.vec[0], max.vec[1], max.vec[2]);
+           minf[0], minf[1], minf[2],
+           maxf[0], minf[1], minf[2],
+           minf[0], maxf[1], minf[2],
+           maxf[0], maxf[1], minf[2],
+           minf[0], minf[1], maxf[2],
+           maxf[0], minf[1], maxf[2],
+           minf[0], maxf[1], maxf[2],
+           maxf[0], maxf[1], maxf[2]);
 }
 
 void PyOutStream::centerView()
@@ -2333,9 +2335,9 @@ DataStream::getBoneMatrices(std::string_view name)
             {
                 float val;
                 m_parent->_readBuf(&val, 4);
-                matOut[i].vec[j] = val;
+                matOut[i].simd[j] = val;
             }
-            reinterpret_cast<atVec4f&>(matOut[i]).vec[3] = 0.f;
+            reinterpret_cast<atVec4f&>(matOut[i]).simd[3] = 0.f;
         }
 
         ret.emplace(std::make_pair(std::move(name), std::move(matOut)));
@@ -2355,8 +2357,8 @@ bool DataStream::renderPvs(std::string_view path, const atVec3f& location)
                           m_parent->getBlendPath().getAbsolutePath().data());
 
     char req[256];
-    snprintf(req, 256, "RENDERPVS %s %f %f %f", path.data(),
-             location.vec[0], location.vec[1], location.vec[2]);
+    athena::simd_floats f(location.simd);
+    snprintf(req, 256, "RENDERPVS %s %f %f %f", path.data(), f[0], f[1], f[2]);
     m_parent->_writeStr(req);
 
     char readBuf[256];

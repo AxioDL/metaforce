@@ -32,7 +32,8 @@ private:
 
     std::string EmitVec3(const atVec4f& vec) const
     {
-        return hecl::Format("float3(%g,%g,%g)", vec.vec[0], vec.vec[1], vec.vec[2]);
+        athena::simd_floats f(vec.simd);
+        return hecl::Format("float3(%g,%g,%g)", f[0], f[1], f[2]);
     }
 
     std::string EmitVec3(const std::string& a, const std::string& b, const std::string& c) const

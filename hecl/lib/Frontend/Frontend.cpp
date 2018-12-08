@@ -104,12 +104,14 @@ int IR::addInstruction(const IRNode& n, IR::RegID target)
             atVec4f vec = {};
             auto it = n.children.cbegin();
             int i;
+            athena::simd_floats f;
             for (i=0 ; i<3 ; ++i, ++it)
             {
                 if (it->kind != IRNode::Kind::Imm)
                     break;
-                vec.vec[i] = it->val;
+                f[i] = it->val;
             }
+            vec.simd.copy_from(f);
             if (i == 3)
             {
                 m_instructions.emplace_back(OpType::LoadImm, target, n.loc);
@@ -123,12 +125,14 @@ int IR::addInstruction(const IRNode& n, IR::RegID target)
             atVec4f vec = {};
             auto it = n.children.cbegin();
             int i;
+            athena::simd_floats f;
             for (i=0 ; i<4 ; ++i, ++it)
             {
                 if (it->kind != IRNode::Kind::Imm)
                     break;
-                vec.vec[i] = it->val;
+                f[i] = it->val;
             }
+            vec.simd.copy_from(f);
             if (i == 4)
             {
                 m_instructions.emplace_back(OpType::LoadImm, target, n.loc);
@@ -154,10 +158,7 @@ int IR::addInstruction(const IRNode& n, IR::RegID target)
     {
         m_instructions.emplace_back(OpType::LoadImm, target, n.loc);
         Instruction::LoadImm& inst = m_instructions.back().m_loadImm;
-        inst.m_immVec.vec[0] = n.val;
-        inst.m_immVec.vec[1] = n.val;
-        inst.m_immVec.vec[2] = n.val;
-        inst.m_immVec.vec[3] = n.val;
+        inst.m_immVec.simd = athena::simd<float>(n.val);
         return m_instructions.size() - 1;
     }
     case IRNode::Kind::Binop:

@@ -104,7 +104,7 @@ unsigned GX::RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Ins
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
         auto& idxImm = idxInst.getImmVec();
-        return addTexCoordGen(diag, inst.m_loc, TexGenSrc(TG_TEX0 + unsigned(idxImm.vec[0])), mtx, normalize, pmtx);
+        return addTexCoordGen(diag, inst.m_loc, TexGenSrc(TG_TEX0 + unsigned(idxImm.simd[0])), mtx, normalize, pmtx);
     }
     else if (!tcgName.compare("Normal"))
         return addTexCoordGen(diag, inst.m_loc, TG_NRM, mtx, normalize, pmtx);
@@ -147,7 +147,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
             auto& mapImm = mapInst.getImmVec();
-            newStage.m_texMapIdx = unsigned(mapImm.vec[0]);
+            newStage.m_texMapIdx = unsigned(mapImm.simd[0]);
             newStage.m_color[0] = swizzleAlpha ? CC_TEXA : CC_TEXC;
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
@@ -158,7 +158,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
         else if (!name.compare("ColorReg"))
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-            unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            unsigned idx = unsigned(idxInst.getImmVec().simd[0]);
             if (swizzleAlpha)
                 m_aRegMask |= 1 << idx;
             else
@@ -176,9 +176,9 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
     case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
-        if (vec.vec[0] == 0.f && vec.vec[1] == 0.f && vec.vec[2] == 0.f)
+        if (vec.simd[0] == 0.f && vec.simd[1] == 0.f && vec.simd[2] == 0.f)
             return TraceResult(CC_ZERO);
-        else if (vec.vec[0] == 1.f && vec.vec[1] == 1.f && vec.vec[2] == 1.f)
+        else if (vec.simd[0] == 1.f && vec.simd[1] == 1.f && vec.simd[2] == 1.f)
             return TraceResult(CC_ONE);
         unsigned idx = addKColor(diag, inst.m_loc, vec);
         return TraceResult(TevKColorSel(TEV_KCSEL_K0 + idx));
@@ -438,7 +438,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
             const atVec4f& mapImm = mapInst.getImmVec();
-            unsigned mapIdx = unsigned(mapImm.vec[0]);
+            unsigned mapIdx = unsigned(mapImm.simd[0]);
 
             int foundStage = -1;
             for (int i=m_alphaTraceStage+1 ; i<int(m_tevCount) ; ++i)
@@ -473,7 +473,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
         else if (!name.compare("ColorReg"))
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-            unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            unsigned idx = unsigned(idxInst.getImmVec().simd[0]);
             m_aRegMask |= 1 << idx;
             return TraceResult(TevAlphaArg(CA_A0 + idx));
         }
@@ -488,11 +488,11 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
     case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
-        if (vec.vec[0] == 0.f)
+        if (vec.simd[0] == 0.f)
             return TraceResult(CA_ZERO);
-        else if (vec.vec[0] == 1.f)
+        else if (vec.simd[0] == 1.f)
             return TraceResult(TEV_KASEL_1);
-        unsigned idx = addKAlpha(diag, inst.m_loc, vec.vec[0]);
+        unsigned idx = addKAlpha(diag, inst.m_loc, vec.simd[0]);
         return TraceResult(TevKAlphaSel(TEV_KASEL_K0_A + idx));
     }
     case IR::OpType::Arithmetic:

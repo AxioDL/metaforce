@@ -11,18 +11,30 @@ namespace hecl::blender
 atVec3f MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec)
 {
     atVec3f res;
-    res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2] + mtx[0].vec[3];
-    res.vec[1] = mtx[1].vec[0] * vec.val.vec[0] + mtx[1].vec[1] * vec.val.vec[1] + mtx[1].vec[2] * vec.val.vec[2] + mtx[1].vec[3];
-    res.vec[2] = mtx[2].vec[0] * vec.val.vec[0] + mtx[2].vec[1] * vec.val.vec[1] + mtx[2].vec[2] * vec.val.vec[2] + mtx[2].vec[3];
+    athena::simd_floats resf;
+    athena::simd_floats mtxf[3];
+    for (int i = 0; i < 3; ++i)
+        mtx[i].simd.copy_to(mtxf[i]);
+    athena::simd_floats vecf(vec.val.simd);
+    resf[0] = mtxf[0][0] * vecf[0] + mtxf[0][1] * vecf[1] + mtxf[0][2] * vecf[2] + mtxf[0][3];
+    resf[1] = mtxf[1][0] * vecf[0] + mtxf[1][1] * vecf[1] + mtxf[1][2] * vecf[2] + mtxf[1][3];
+    resf[2] = mtxf[2][0] * vecf[0] + mtxf[2][1] * vecf[1] + mtxf[2][2] * vecf[2] + mtxf[2][3];
+    res.simd.copy_from(resf);
     return res;
 }
 
 atVec3f MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec)
 {
     atVec3f res;
-    res.vec[0] = mtx[0].vec[0] * vec.val.vec[0] + mtx[0].vec[1] * vec.val.vec[1] + mtx[0].vec[2] * vec.val.vec[2];
-    res.vec[1] = mtx[1].vec[0] * vec.val.vec[0] + mtx[1].vec[1] * vec.val.vec[1] + mtx[1].vec[2] * vec.val.vec[2];
-    res.vec[2] = mtx[2].vec[0] * vec.val.vec[0] + mtx[2].vec[1] * vec.val.vec[1] + mtx[2].vec[2] * vec.val.vec[2];
+    athena::simd_floats resf;
+    athena::simd_floats mtxf[3];
+    for (int i = 0; i < 3; ++i)
+        mtx[i].simd.copy_to(mtxf[i]);
+    athena::simd_floats vecf(vec.val.simd);
+    resf[0] = mtxf[0][0] * vecf[0] + mtxf[0][1] * vecf[1] + mtxf[0][2] * vecf[2];
+    resf[1] = mtxf[1][0] * vecf[0] + mtxf[1][1] * vecf[1] + mtxf[1][2] * vecf[2];
+    resf[2] = mtxf[2][0] * vecf[0] + mtxf[2][1] * vecf[1] + mtxf[2][2] * vecf[2];
+    res.simd.copy_from(resf);
     return res;
 }
 
@@ -113,15 +125,11 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
             vboW.writeVec3fLittle(preXfPos);
 
             atVec3f preXfNorm = MtxVecMul3RM(sceneXf, norm[v.iNorm]);
-            float mag =
-                preXfNorm.vec[0] * preXfNorm.vec[0] +
-                preXfNorm.vec[1] * preXfNorm.vec[1] +
-                preXfNorm.vec[2] * preXfNorm.vec[2];
+            athena::simd_floats f(preXfNorm.simd * preXfNorm.simd);
+            float mag = f[0] + f[1] + f[2];
             if (mag > FLT_EPSILON)
                 mag = 1.f / std::sqrt(mag);
-            preXfNorm.vec[0] *= mag;
-            preXfNorm.vec[1] *= mag;
-            preXfNorm.vec[2] *= mag;
+            preXfNorm.simd *= mag;
             vboW.writeVec3fLittle(preXfNorm);
         }
         else
@@ -133,9 +141,10 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
         for (size_t i=0 ; i<colorLayerCount ; ++i)
         {
             const Vector3f& c = color[v.iColor[i]];
-            vboW.writeUByte(std::max(0, std::min(255, int(c.val.vec[0] * 255))));
-            vboW.writeUByte(std::max(0, std::min(255, int(c.val.vec[1] * 255))));
-            vboW.writeUByte(std::max(0, std::min(255, int(c.val.vec[2] * 255))));
+            athena::simd_floats f(c.val.simd);
+            vboW.writeUByte(std::max(0, std::min(255, int(f[0] * 255))));
+            vboW.writeUByte(std::max(0, std::min(255, int(f[1] * 255))));
+            vboW.writeUByte(std::max(0, std::min(255, int(f[2] * 255))));
             vboW.writeUByte(255);
         }
 
@@ -158,7 +167,7 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
                     for (const SkinBind& bind : binds)
                         if (bind.boneIdx == *it)
                         {
-                            vec.vec[j] = bind.weight;
+                            vec.simd[j] = bind.weight;
                             break;
                         }
                     ++it;

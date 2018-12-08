@@ -84,7 +84,7 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
             diag.reportBackendErr(inst.m_loc, "TexCoordGen UV(layerIdx) requires one argument");
         const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
         auto& idxImm = idxInst.getImmVec();
-        return addTexCoordGen(TexGenSrc::UV, idxImm.vec[0], mtx, normalize);
+        return addTexCoordGen(TexGenSrc::UV, int(idxImm.simd[0]), mtx, normalize);
     }
     else if (!tcgName.compare("Normal"))
         return addTexCoordGen(TexGenSrc::Normal, -1, mtx, normalize);
@@ -123,7 +123,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
             auto& mapImm = mapInst.getImmVec();
-            unsigned mapIdx = unsigned(mapImm.vec[0]);
+            unsigned mapIdx = unsigned(mapImm.simd[0]);
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1, normalize);
@@ -134,7 +134,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
         else if (!name.compare("ColorReg"))
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-            unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            unsigned idx = unsigned(idxInst.getImmVec().simd[0]);
             return toSwizzle ? EmitColorRegUseRaw(idx) : EmitColorRegUseRGB(idx);
         }
         else if (!name.compare("Lighting"))
@@ -221,7 +221,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
 
             const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
             const atVec4f& mapImm = mapInst.getImmVec();
-            unsigned mapIdx = unsigned(mapImm.vec[0]);
+            unsigned mapIdx = unsigned(mapImm.simd[0]);
 
             const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
             unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1, normalize);
@@ -232,7 +232,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
         else if (!name.compare("ColorReg"))
         {
             const IR::Instruction& idxInst = inst.getChildInst(ir, 0);
-            unsigned idx = unsigned(idxInst.getImmVec().vec[0]);
+            unsigned idx = unsigned(idxInst.getImmVec().simd[0]);
             return toSwizzle ? EmitColorRegUseRaw(idx) : EmitColorRegUseAlpha(idx);
         }
         else if (!name.compare("Lighting"))
@@ -247,7 +247,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
     case IR::OpType::LoadImm:
     {
         const atVec4f& vec = inst.m_loadImm.m_immVec;
-        return EmitVal(vec.vec[0]);
+        return EmitVal(vec.simd[0]);
     }
     case IR::OpType::Arithmetic:
     {

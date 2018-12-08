@@ -431,17 +431,19 @@ struct GX final : IBackend
         Color() = default;
         Color& operator=(const atVec4f& vec)
         {
-            color[0] = uint8_t(std::min(std::max(vec.vec[0] * 255.f, 0.f), 255.f));
-            color[1] = uint8_t(std::min(std::max(vec.vec[1] * 255.f, 0.f), 255.f));
-            color[2] = uint8_t(std::min(std::max(vec.vec[2] * 255.f, 0.f), 255.f));
-            color[3] = uint8_t(std::min(std::max(vec.vec[3] * 255.f, 0.f), 255.f));
+            athena::simd_floats f(vec.simd);
+            color[0] = uint8_t(std::min(std::max(f[0] * 255.f, 0.f), 255.f));
+            color[1] = uint8_t(std::min(std::max(f[1] * 255.f, 0.f), 255.f));
+            color[2] = uint8_t(std::min(std::max(f[2] * 255.f, 0.f), 255.f));
+            color[3] = uint8_t(std::min(std::max(f[3] * 255.f, 0.f), 255.f));
             return *this;
         }
         Color& operator=(const atVec3f& vec)
         {
-            color[0] = uint8_t(std::min(std::max(vec.vec[0] * 255.f, 0.f), 255.f));
-            color[1] = uint8_t(std::min(std::max(vec.vec[1] * 255.f, 0.f), 255.f));
-            color[2] = uint8_t(std::min(std::max(vec.vec[2] * 255.f, 0.f), 255.f));
+            athena::simd_floats f(vec.simd);
+            color[0] = uint8_t(std::min(std::max(f[0] * 255.f, 0.f), 255.f));
+            color[1] = uint8_t(std::min(std::max(f[1] * 255.f, 0.f), 255.f));
+            color[2] = uint8_t(std::min(std::max(f[2] * 255.f, 0.f), 255.f));
             color[3] = 0xff;
             return *this;
         }
@@ -456,10 +458,12 @@ struct GX final : IBackend
         atVec4f toVec4f() const
         {
             atVec4f out;
-            out.vec[0] = color[0] / 255.f;
-            out.vec[1] = color[1] / 255.f;
-            out.vec[2] = color[2] / 255.f;
-            out.vec[3] = color[3] / 255.f;
+            athena::simd_floats f;
+            f[0] = color[0] / 255.f;
+            f[1] = color[1] / 255.f;
+            f[2] = color[2] / 255.f;
+            f[3] = color[3] / 255.f;
+            out.simd.copy_from(f);
             return out;
         }
         Color(const atVec4f& vec) {*this = vec;}
