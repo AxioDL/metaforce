@@ -1,0 +1,52 @@
+<h1>NOT MAINTAINED!! Use https://github.com/stachenov/quazip by the original author instead.</h1>
+
+<p>QuaZIP is the C++ wrapper for Gilles Vollant's ZIP/UNZIP package
+(AKA minizip) using the Qt framework.</p>
+
+<h3>Dependencies:</h3>
+<ol>
+    <li>zlib</li>
+    <li>Qt 5</li>
+</ol>
+
+<h3>Building:</h3>
+
+Building QuaZIP is super simple. Just open the terminal on your Mac/Linux
+or Command Prompt on Windows and type the following:
+```
+$ mkdir build && cd build
+$ cmake .. -DCMAKE_BUILD_TYPE=(Debug|Release) -DCMAKE_INSTALL_PREFIX=/path/to/install/QuaZIP
+```
+<h5>Notes for building on Windows:</h5>
+We recommend you not to install QuaZIP in "Program Files" on Windows. We also recommend to use
+the NMake Makefiles generator if you are compiling with Visual Studio.
+
+<h3>Documentation:</h3>
+
+<p>See doc/html or, if you do not have a browser, quazip/*.h and
+quazip/doc/* files for the more detailed documentation.</p>
+
+<h3>Copyright notice:</h3>
+
+```
+Copyright (C) 2005-2012 Sergey A. Tachenov
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser
+General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+See COPYING file for the full LGPL text.
+
+Original ZIP package is copyrighted by Gilles Vollant, see
+quazip/(un)zip.h files for details, basically it's zlib license.
+```
