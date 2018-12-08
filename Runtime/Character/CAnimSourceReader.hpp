@@ -4,6 +4,7 @@
 #include "CToken.hpp"
 #include "CAnimSource.hpp"
 #include "CParticleData.hpp"
+#include <set>
 
 namespace urde {
 
