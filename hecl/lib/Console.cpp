@@ -1,7 +1,11 @@
+
+#include <hecl/Console.hpp>
+
 #include "hecl/Console.hpp"
 #include "hecl/CVarManager.hpp"
 #include "hecl/CVar.hpp"
 #include "hecl/hecl.hpp"
+#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
 #include "athena/Utility.hpp"
 
 namespace hecl {
@@ -167,6 +171,9 @@ void Console::report(Level level, const char* fmt, ...) {
   report(level, fmt, ap);
   va_end(ap);
 }
+void Console::init(boo::IWindow* window) {
+  m_window = window;
+}
 
 void Console::proc() {
   if (m_conHeight->isModified()) {
@@ -184,8 +191,10 @@ void Console::proc() {
     fflush(stdout);
   } else if (m_state == State::Opening)
     m_state = State::Opened;
-  else if (m_state == State::Closing)
+  else if (m_state == State::Closing) {
     m_state = State::Closed;
+    m_commandString.clear();
+  }
 
   if (m_cursorPosition > int(m_commandString.size() - 1))
     m_cursorPosition = int(m_commandString.size() - 1);
@@ -198,7 +207,8 @@ void Console::proc() {
     m_logOffset = 0;
 }
 
-void Console::draw(boo::IGraphicsCommandQueue* /*gfxQ*/) {}
+void Console::draw(boo::IGraphicsCommandQueue* /* gfxQ */) {
+}
 
 void Console::handleCharCode(unsigned long chr, boo::EModifierKey /*mod*/, bool /*repeat*/) {
   if (chr == U'`' || chr == U'~') {
@@ -231,7 +241,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     break;
   case boo::ESpecialKey::Backspace: {
     if (!m_commandString.empty()) {
-      if (int(mod & boo::EModifierKey::Ctrl) != 0) {
+      if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
         size_t index = m_commandString.rfind(' ', size_t(m_cursorPosition - 1));
 
         if (index == std::string::npos) {
@@ -257,7 +267,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
       if ((m_cursorPosition + 1) >= int(m_commandString.size()))
         break;
 
-      if (int(mod & boo::EModifierKey::Ctrl) != 0) {
+      if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
         size_t index = m_commandString.find_first_of(' ', size_t(m_cursorPosition + 1));
         if (index != std::string::npos)
           m_commandString.erase(size_t(m_cursorPosition + 1), index + 1);
@@ -293,7 +303,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     if (m_cursorPosition < 0)
       break;
 
-    if (int(mod & boo::EModifierKey::Ctrl) != 0)
+    if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None)
       m_cursorPosition = int(m_commandString.rfind(' ', size_t(m_cursorPosition) - 1));
     else
       m_cursorPosition--;
@@ -306,7 +316,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     if (m_cursorPosition >= int(m_commandString.size() - 1))
       break;
 
-    if (int(mod & boo::EModifierKey::Ctrl) != 0) {
+    if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
       if (m_commandString[size_t(m_cursorPosition)] == ' ')
         m_cursorPosition++;
 
