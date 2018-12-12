@@ -318,6 +318,7 @@ public:
   void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
   void TryLoopReaction(CStateManager& mgr, int arg);
   void TryProjectileAttack(CStateManager& mgr, int arg);
+  void TryMeleeAttack(CStateManager& mgr, int arg);
   void TryGenerate(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }

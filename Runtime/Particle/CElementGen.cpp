@@ -795,7 +795,7 @@ void CElementGen::Render(const CActorLights* actorLights) {
   CGraphics::DisableAllLights();
 
   for (std::unique_ptr<CParticleGen>& child : x290_activePartChildren)
-    child->Render();
+    child->Render(actorLights);
 
   CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
