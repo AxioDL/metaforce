@@ -47,7 +47,8 @@ public:
   enum State { Closed, Closing, Opened, Opening };
 
 private:
-  CVarManager* m_cvarMgr;
+  CVarManager* m_cvarMgr = nullptr;
+  boo::IWindow* m_window = nullptr;
   std::unordered_map<std::string, SConsoleCommand> m_commands;
   std::vector<std::pair<std::string, Level>> m_log;
   int m_logOffset;
@@ -82,6 +83,7 @@ public:
   void report(Level level, const char* fmt, va_list list);
   void report(Level level, const char* fmt, ...);
 
+  void init(boo::IWindow* ctx);
   void proc();
   void draw(boo::IGraphicsCommandQueue* gfxQ);
   void handleCharCode(unsigned long chr, boo::EModifierKey mod, bool repeat);
