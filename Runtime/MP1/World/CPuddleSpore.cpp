@@ -301,12 +301,12 @@ void CPuddleSpore::GetUp(CStateManager& mgr, EStateMsg msg, float) {
 
 void CPuddleSpore::Attack(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
-    x32c_animState = EAnimState::One;
+    x32c_animState = EAnimState::Ready;
     x598_ = 0.f;
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
   } else if (msg == EStateMsg::Deactivate) {
-    x32c_animState = EAnimState::Zero;
+    x32c_animState = EAnimState::NotReady;
   }
 }
 }

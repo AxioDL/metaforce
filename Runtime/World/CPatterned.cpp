@@ -848,10 +848,6 @@ void CPatterned::TryJump(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCJumpCmd(x2e0_destPos, pas::EJumpType(arg)));
 }
 
-void CPatterned::TryMeleeAttack(CStateManager& mgr, int arg) {
-  x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity(arg)));
-}
-
 void CPatterned::TryTurn(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(
     CBCLocomotionCmd(zeus::CVector3f::skZero, (x2e0_destPos - GetTranslation()).normalized(), 1.f));

@@ -321,7 +321,6 @@ public:
   void TryMeleeAttack(CStateManager& mgr, int arg);
   void TryGenerate(CStateManager& mgr, int arg);
   void TryJump(CStateManager& mgr, int arg);
-  void TryMeleeAttack(CStateManager& mgr, int arg);
   void TryTurn(CStateManager& mgr, int arg);
   void TryGetUp(CStateManager& mgr, int arg);
   void TryTaunt(CStateManager& mgr, int arg);
