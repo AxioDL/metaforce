@@ -24,13 +24,15 @@ class CFireFlea : public CPatterned {
   };
   float x568_ = 1.f;
   float x56c_;
-  u32 x570_ = 0;
+  rstl::reserved_vector<TUniqueId, 1024> x570_nearList;
   float xe64_;
   zeus::CVector3f xd74_;
-  zeus::CVector3f xd80_;
+  zeus::CVector3f xd80_targetPos;
   CPathFindSearch xd8c_pathFind;
 
   static s32 sLightIdx;
+  zeus::CVector3f FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward);
+  bool CheckNearWater(const CStateManager&, const zeus::CVector3f& dir);
 
 public:
   DEFINE_PATTERNED(FireFlea)
@@ -43,6 +45,10 @@ public:
   void Dead(CStateManager&, EStateMsg msg, float dt);
   bool Delay(CStateManager&, float arg);
   bool InPosition(CStateManager& mgr, float dt);
+  bool HearShot(CStateManager&, float);
+  void TargetPatrol(CStateManager&, EStateMsg, float);
+  void Patrol(CStateManager&, EStateMsg, float);
+  void Flee(CStateManager&, EStateMsg, float);
   CPathFindSearch* GetSearchPath() { return &xd8c_pathFind; }
 };
 } // namespace urde::MP1

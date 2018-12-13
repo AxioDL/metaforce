@@ -90,6 +90,120 @@ void CFireFlea::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
 bool CFireFlea::InPosition(CStateManager& mgr, float dt) {
   if (x2dc_destObj == kInvalidUniqueId)
     return false;
-  return (xd80_ - GetTranslation()).magnitude() < 25.f;
+  return (xd80_targetPos - GetTranslation()).magnitude() < 25.f;
+}
+
+bool CFireFlea::HearShot(urde::CStateManager& mgr, float arg) {
+  x570_nearList.clear();
+  mgr.BuildNearList(x570_nearList, zeus::CAABox(GetTranslation() - 10.f, GetTranslation() + 10.f),
+                    CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
+
+  return !x570_nearList.empty();
+}
+
+void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    CPatterned::Patrol(mgr, msg, arg);
+    UpdateDest(mgr);
+    xd80_targetPos = x2e0_destPos;
+  } else if (msg == EStateMsg::Update) {
+    if (auto* pathFind = GetSearchPath()) {
+      if (pathFind->GetResult() != CPathFindSearch::EResult::Success) {
+        zeus::CVector3f closestPoint = zeus::CVector3f::skZero;
+        if (pathFind->FindClosestReachablePoint(GetTranslation(), closestPoint) == CPathFindSearch::EResult::Success) {
+          zeus::CVector3f delta = FindSafeRoute(mgr, x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(delta, {}, 1.f));
+        }
+      } else {
+        PathFind(mgr, msg, arg);
+      }
+    } else {
+      x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f), {}, 1.f));
+    }
+  }
+}
+
+zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector3f& forward) {
+  float mag = forward.magnitude();
+  if (mag > 0.f) {
+    CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), forward.normalized(), 1.f,
+                                                   CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+    if (res.IsValid() || CheckNearWater(mgr, forward.normalized())) {
+      zeus::CVector3f right = forward.normalized().cross(zeus::CVector3f::skUp).normalized();
+      CRayCastResult res1 = mgr.RayStaticIntersection(GetTranslation(), right, 1.f,
+                                                      CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+      if (res1.IsValid()) {
+        zeus::CVector3f left = -right;
+        CRayCastResult res2 = mgr.RayStaticIntersection(GetTranslation(), left, 1.f,
+                                                        CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+        if (res2.IsValid()) {
+          zeus::CVector3f up = right.cross(forward.normalized());
+          CRayCastResult res3 = mgr.RayStaticIntersection(GetTranslation(), up, 1.f,
+                                                          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+          if (res3.IsValid()) {
+            zeus::CVector3f down = -up;
+            CRayCastResult res4 = mgr.RayStaticIntersection(GetTranslation(), down, 1.f,
+                                                            CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+            if (res4.IsValid()) {
+              return mag * down;
+            } else {
+              return -forward;
+            }
+          } else {
+            return mag * up;
+          }
+        } else {
+          return mag * left;
+        }
+      } else {
+        return mag * right;
+      }
+    } else {
+      return forward;
+    }
+  }
+  return {};
+}
+
+bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& dir) {
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, GetTranslation(), dir, 2.f, CMaterialFilter::skPassEverything, nullptr);
+
+  for (TUniqueId id : nearList) {
+    if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(id))
+      return true;
+  }
+
+  return false;
+}
+
+void CFireFlea::Patrol(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (!zeus::close_enough(x310_moveVec, {}))
+    x310_moveVec.normalize();
+
+  x310_moveVec = FindSafeRoute(mgr, x310_moveVec);
+  CPatterned::Patrol(mgr, msg, arg);
+  if (x2d8_patrolState == EPatrolState::Done)
+    mgr.FreeScriptObject(GetUniqueId());
+}
+
+void CFireFlea::Flee(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
+  } else if (msg == EStateMsg::Update) {
+    if (x570_nearList.empty()) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(FindSafeRoute(mgr, xd74_), {}, 1.f));
+    } else {
+      for (TUniqueId id : x570_nearList) {
+        if (const CActor* act = static_cast<const CActor*>(mgr.GetObjectById(id))) {
+          zeus::CVector3f fleeDirection = x45c_steeringBehaviors.Flee(*this, act->GetTranslation());
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(FindSafeRoute(mgr, fleeDirection), {}, 1.f));
+        }
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+  }
 }
 } // namespace urde::MP1

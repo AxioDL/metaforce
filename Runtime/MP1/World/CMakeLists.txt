@@ -29,6 +29,7 @@ set(MP1_WORLD_SOURCES
     CRidley.hpp CRidley.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp
     CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
-    CSpankWeed.hpp CSpankWeed.cpp)
+    CSpankWeed.hpp CSpankWeed.cpp
+    CPuddleSpore.hpp CPuddleSpore.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)

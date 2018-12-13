@@ -623,6 +623,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   m_mainWindow = window;
   m_cvarMgr = cvarMgr;
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
+  m_console->init(window);
   m_console->registerCommand("Quit"sv, "Quits the game immediately"sv, ""sv,
                              std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
   m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv,

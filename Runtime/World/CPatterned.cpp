@@ -836,6 +836,9 @@ void CPatterned::TryLoopReaction(CStateManager& mgr, int arg) {
 void CPatterned::TryProjectileAttack(CStateManager&, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity(arg), x2e0_destPos, false));
 }
+void CPatterned::TryMeleeAttack(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity(arg)));
+}
 
 void CPatterned::TryGenerate(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, true));
@@ -1635,4 +1638,6 @@ bool CPatterned::ApplyBoneTracking() const {
 
   return false;
 }
+
+
 } // namespace urde

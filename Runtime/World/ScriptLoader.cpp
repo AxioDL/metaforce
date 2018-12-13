@@ -48,6 +48,7 @@
 #include "CScriptEffect.hpp"
 #include "CScriptGenerator.hpp"
 #include "CScriptGrapplePoint.hpp"
+#include "MP1/World/CPuddleSpore.hpp"
 #include "CScriptHUDMemo.hpp"
 #include "CScriptMazeNode.hpp"
 #include "CScriptMemoryRelay.hpp"
@@ -1605,8 +1606,25 @@ CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int
     return nullptr;
 
   CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  bool b1 = in.readBool();
+  CAssetId w1(in);
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  CAssetId w2(in);
+  CDamageInfo dInfo(in);
 
-  return nullptr;
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+    return nullptr;
+
+  CModelData mData(
+    CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+  return new MP1::CPuddleSpore(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
+                               CPatterned::EColliderType(b1), w1, f1, f2, f3, f4, f5, actParms, w2, dInfo);
 }
 
 CEntity* ScriptLoader::LoadDebugCameraWaypoint(CStateManager& mgr, CInputStream& in, int propCount,

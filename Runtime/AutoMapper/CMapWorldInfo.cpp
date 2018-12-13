@@ -92,11 +92,7 @@ void CMapWorldInfo::SetIsMapped(TAreaId aid, bool mapped) {
 
 bool CMapWorldInfo::IsWorldVisible(TAreaId aid) const { return x38_mapStationUsed || IsMapped(aid); }
 
-bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const {
-  if (IsAreaVisted(aid) || IsMapped(aid))
-    return true;
-  return false;
-}
+bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const { return IsAreaVisted(aid) || IsMapped(aid); }
 
 bool CMapWorldInfo::IsAnythingSet() const {
   for (int i = 0; i < x0_visitedAreasAllocated; ++i)
