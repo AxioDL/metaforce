@@ -75,7 +75,7 @@ public:
   enum class EBehaviourOrient { MoveDir, Constant, Destination };
   enum class EBehaviourModifiers { Zero };
   enum class EPatrolState { Invalid = -1, Patrol, Pause, Done };
-  enum class EAnimState { Zero, One, Repeat, Over };
+  enum class EAnimState { NotReady, Ready, Repeat, Over };
   class CPatternNode {
     zeus::CVector3f x0_pos;
     zeus::CVector3f xc_forward;
@@ -131,7 +131,7 @@ protected:
     u32 _dummy = 0;
   };
 
-  EAnimState x32c_animState = EAnimState::Zero;
+  EAnimState x32c_animState = EAnimState::NotReady;
   CStateMachineState x330_stateMachineState;
   ECharacter x34c_character;
   zeus::CVector3f x350_patternStartPos;
@@ -319,6 +319,17 @@ public:
   void TryLoopReaction(CStateManager& mgr, int arg);
   void TryProjectileAttack(CStateManager& mgr, int arg);
   void TryGenerate(CStateManager& mgr, int arg);
+  void TryJump(CStateManager& mgr, int arg);
+  void TryMeleeAttack(CStateManager& mgr, int arg);
+  void TryTurn(CStateManager& mgr, int arg);
+  void TryGetUp(CStateManager& mgr, int arg);
+  void TryTaunt(CStateManager& mgr, int arg);
+  void TryJumpInLoop(CStateManager& mgr, int arg);
+  void TryDodge(CStateManager& mgr, int arg);
+  void TryRollingDodge(CStateManager& mgr, int arg);
+  void TryBreakDodge(CStateManager& mgr, int arg);
+  void TryCover(CStateManager& mgr, int arg);
+  void TryWallHang(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
@@ -357,6 +368,9 @@ public:
   void SetModelAlpha(float a) { x42c_color.a() = a; }
   float CalcDyingThinkRate();
   void UpdateDamageColor(float dt);
+  CScriptCoverPoint* GetCoverPoint(CStateManager& mgr, TUniqueId id) const;
+  void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);
+  void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id);
 
   bool CanLongJump() const { return x328_26_longJump; }
   bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }

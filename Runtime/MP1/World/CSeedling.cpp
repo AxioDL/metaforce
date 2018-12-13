@@ -179,18 +179,18 @@ void CSeedling::Enraged(CStateManager&, EStateMsg msg, float) {
 
 void CSeedling::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate)
-    x32c_animState = EAnimState::One;
+    x32c_animState = EAnimState::Ready;
   else if (msg == EStateMsg::Update)
     TryCommand(mgr, pas::EAnimationState::ProjectileAttack, &CPatterned::TryProjectileAttack, 0);
   else if (msg == EStateMsg::Deactivate) {
-    x32c_animState = EAnimState::Zero;
+    x32c_animState = EAnimState::NotReady;
     x71c_attackCoolOff = (x300_maxAttackRange * mgr.GetActiveRandom()->Float()) + x304_averageAttackTime;
   }
 }
 
 void CSeedling::Generate(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate)
-    x32c_animState = EAnimState::One;
+    x32c_animState = EAnimState::Ready;
   else if (msg == EStateMsg::Update)
     TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 0);
 }

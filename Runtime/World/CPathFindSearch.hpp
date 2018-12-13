@@ -40,6 +40,9 @@ public:
   void GetSplinePoint(zeus::CVector3f& pOut, const zeus::CVector3f& p1) const;
   void GetSplinePointWithLookahead(zeus::CVector3f& pOut, const zeus::CVector3f& p1, float lookahead) const;
   void SetArea(CPFArea* area) { x0_area = area; }
+  float GetCharacterHeight() const { return xd0_chHeight; }
+  void SetCharacterHeight(float h) { xd0_chHeight = h; }
+  float RemainingPathDistance(const zeus::CVector3f& pos) const;
 };
 
 } // namespace urde

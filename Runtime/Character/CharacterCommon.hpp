@@ -76,11 +76,11 @@ enum class EJumpState { Invalid = -1, IntoJump, AmbushJump, Loop, OutOfJump, Wal
 
 enum class EStepDirection { Invalid = -1, Forward = 0, Backward = 1, Left = 2, Right = 3, Up = 4, Down = 5 };
 
-enum class EStepType { Normal = 0, Dodge = 1 };
+enum class EStepType { Normal = 0, Dodge = 1, BreakDodge = 2, RollDodge = 3 };
 
-enum class ESeverity { Invalid = -1, Zero = 0, One = 1 };
+enum class ESeverity { Invalid = -1, Zero = 0, One = 1, Two = 2 };
 
-enum class EGetupType { Invalid = -1 };
+enum class EGetupType { Invalid = -1, Zero = 0 };
 
 enum class ELoopState { Invalid = -1, Begin, Loop, End };
 
@@ -90,7 +90,7 @@ enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four };
 
 enum class ESlideType { Invalid = -1 };
 
-enum class ETauntType { Invalid = -1 };
+enum class ETauntType { Invalid = -1, Zero, One, Two };
 
 enum class ECoverState { Invalid = -1, IntoCover, Cover, Lean, OutOfCover };
 

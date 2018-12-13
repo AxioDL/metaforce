@@ -2281,6 +2281,14 @@ CRayCastResult CStateManager::RayWorldIntersection(TUniqueId& idOut, const zeus:
   return CGameCollision::RayWorldIntersection(*this, idOut, pos, dir, length, filter, list);
 }
 
+zeus::CVector3f CStateManager::Random2f(float scaleMin, float scaleMax) {
+  zeus::CVector3f ret(x900_activeRandom->Float() - 0.5f, x900_activeRandom->Float() - 0.5f, 0.f);
+  if (std::fabs(ret.x()) < 0.001f)
+    ret.x() = 0.001f;
+  ret.normalize();
+  return ret * ((scaleMax - scaleMin) * x900_activeRandom->Float() + scaleMin);
+}
+
 void CStateManager::UpdateObjectInLists(CEntity& ent) {
   for (auto& list : x808_objLists) {
     if (list->GetValidObjectById(ent.GetUniqueId()))

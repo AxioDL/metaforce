@@ -5,7 +5,7 @@
 namespace urde {
 class CScriptAiJumpPoint : public CActor {
 private:
-  float xe8_;
+  float xe8_apex;
   zeus::CAABox xec_touchBounds;
   union {
     struct {
@@ -28,5 +28,8 @@ public:
   void Render(const CStateManager&) const {}
   std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
   bool GetInUse(TUniqueId uid) const;
+  TUniqueId GetJumpPoint() const { return x10c_currentWaypoint; }
+  TUniqueId GetJumpTarget() const { return x10e_nextWaypoint; }
+  float GetJumpApex() const { return xe8_apex; }
 };
 } // namespace urde

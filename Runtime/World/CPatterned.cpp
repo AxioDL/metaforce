@@ -20,6 +20,7 @@
 #include "World/CScriptWaypoint.hpp"
 #include "World/CScriptActorKeyframe.hpp"
 #include "Weapon/CEnergyProjectile.hpp"
+#include "World/CScriptCoverPoint.hpp"
 
 namespace urde {
 
@@ -822,7 +823,7 @@ void CPatterned::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
 void CPatterned::TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg) {
   if (state == x450_bodyController->GetCurrentStateId())
     x32c_animState = EAnimState::Repeat;
-  else if (x32c_animState == EAnimState::One)
+  else if (x32c_animState == EAnimState::Ready)
     (this->*func)(mgr, arg);
   else
     x32c_animState = EAnimState::Over;
@@ -838,6 +839,54 @@ void CPatterned::TryProjectileAttack(CStateManager&, int arg) {
 
 void CPatterned::TryGenerate(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), x2e0_destPos, true));
+}
+
+void CPatterned::TryJump(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCJumpCmd(x2e0_destPos, pas::EJumpType(arg)));
+}
+
+void CPatterned::TryMeleeAttack(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity(arg)));
+}
+
+void CPatterned::TryTurn(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(
+    CBCLocomotionCmd(zeus::CVector3f::skZero, (x2e0_destPos - GetTranslation()).normalized(), 1.f));
+}
+
+void CPatterned::TryGetUp(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType(arg)));
+}
+
+void CPatterned::TryTaunt(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCTauntCmd(pas::ETauntType(arg)));
+}
+
+void CPatterned::TryJumpInLoop(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCJumpCmd(x2e0_destPos, pas::EJumpType(arg), true));
+}
+
+void CPatterned::TryDodge(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::Dodge));
+}
+
+void CPatterned::TryRollingDodge(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::RollDodge));
+}
+
+void CPatterned::TryBreakDodge(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(pas::EStepDirection(arg), pas::EStepType::BreakDodge));
+}
+
+void CPatterned::TryCover(CStateManager& mgr, int arg) {
+  if (CScriptCoverPoint* cp = GetCoverPoint(mgr, x2dc_destObj)) {
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCCoverCmd(pas::ECoverDirection(arg), cp->GetTranslation(),
+                                                                -cp->GetTransform().basis[1]));
+  }
+}
+
+void CPatterned::TryWallHang(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCWallHangCmd(x2dc_destObj));
 }
 
 void CPatterned::BuildBodyController(EBodyType bodyType) {
@@ -1082,6 +1131,26 @@ void CPatterned::UpdateDamageColor(float dt) {
     x42c_color.a() = alpha;
     if (!x450_bodyController->IsFrozen())
       xd0_damageMag = x50c_baseDamageMag + x428_damageCooldownTimer;
+  }
+}
+
+CScriptCoverPoint* CPatterned::GetCoverPoint(CStateManager& mgr, TUniqueId id) const {
+  if (id != kInvalidUniqueId) {
+    if (TCastToPtr<CScriptCoverPoint> cp = mgr.ObjectById(id))
+      return cp.GetPtr();
+  }
+  return nullptr;
+}
+
+void CPatterned::SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id) {
+  cp->SetInUse(true);
+  id = cp->GetUniqueId();
+}
+
+void CPatterned::ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id) {
+  if (CScriptCoverPoint* cp = GetCoverPoint(mgr, id)) {
+    cp->SetInUse(false);
+    id = kInvalidUniqueId;
   }
 }
 
@@ -1476,7 +1545,7 @@ void CPatterned::Render(const CStateManager& mgr) const {
                                         alpha * (x401_29_laggedBurnDeath ? 0.00787402f : 0.00392157f));
         if (xe5_31_pointGeneratorParticles) {
           CSkinnedModel::ClearPointGeneratorFunc();
-          mgr.GetActorModelParticles()->Render(*this);
+          mgr.GetActorModelParticles()->Render(mgr, *this);
         }
       } else {
         CPhysicsActor::Render(mgr);

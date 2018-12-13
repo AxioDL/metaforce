@@ -192,5 +192,6 @@ public:
   void SetPointGeneratorParticles(bool s) { xe5_31_pointGeneratorParticles = s; }
   CSimpleShadow* Shadow() { return x94_simpleShadow.get(); }
   void MoveScannableObjectInfoToActor(CActor*, CStateManager&);
+  const zeus::CAABox& GetRenderBounds() const { return x9c_renderBounds; }
 };
 } // namespace urde

@@ -96,5 +96,6 @@ public:
   static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
   CElementGen* GetAttachedPS1() const { return xfc_APSMGen.get(); }
   double GameTime() const { return xd0_curTime; }
+  static float GetTickPeriod() { return 0.0166667f; }
 };
 } // namespace urde

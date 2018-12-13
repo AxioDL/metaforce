@@ -9,7 +9,7 @@ CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, con
                                        zeus::CTransform& xf, bool active, float f1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::NoStepLogic),
          CActorParameters::None(), kInvalidUniqueId)
-, xe8_(f1)
+, xe8_apex(f1)
 , xec_touchBounds(xf.origin, xf.origin) {}
 
 void CScriptAiJumpPoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -43,10 +43,7 @@ void CScriptAiJumpPoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId oth
 std::experimental::optional<zeus::CAABox> CScriptAiJumpPoint::GetTouchBounds() const { return xec_touchBounds; }
 
 bool CScriptAiJumpPoint::GetInUse(TUniqueId uid) const {
-  if (x108_24 || x110_timeRemaining > 0.f || x10a_occupant != kInvalidUniqueId || uid != kInvalidUniqueId ||
-      uid != x10a_occupant)
-    return true;
-
-  return false;
+  return x108_24 || x110_timeRemaining > 0.f || x10a_occupant != kInvalidUniqueId || uid != kInvalidUniqueId ||
+      uid != x10a_occupant;
 }
 } // namespace urde

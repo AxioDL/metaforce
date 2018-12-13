@@ -22,124 +22,114 @@ static bool IsMediumOrLarge(CActor& act) {
 
 CActorModelParticles::CItem::CItem(const CEntity& ent, CActorModelParticles& parent)
 : x0_id(ent.GetUniqueId()), x4_areaId(ent.GetAreaIdAlways()), xdc_ashy(parent.x48_ashy), x128_parent(parent) {
-  x8_thermalHotParticles.resize(8);
+  x8_onFireGens.resize(8);
 }
 
-u32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn, CRandom16& rnd) {
+static s32 GetNextBestPt(s32 start, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn,
+                         CRandom16& rnd) {
   const zeus::CVector3f& startVec = vn[start].first;
-  u32 ret;
-  float lastMag = 0.f;
+  s32 ret = start;
+  float maxMag = 0.f;
   for (s32 i = 0; i < 10; ++i) {
-    u32 idx = u32(rnd.Range(0, s32(vn.size()) - 1));
+    s32 idx = rnd.Range(0, s32(vn.size()) - 1);
     const zeus::CVector3f& rndVec = vn[idx].first;
     float mag = (startVec - rndVec).magSquared();
-    if (mag > lastMag) {
+    if (mag > maxMag) {
       ret = idx;
-      lastMag = mag;
+      maxMag = mag;
     }
   }
   return ret;
 }
 void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
-  for (std::pair<std::unique_ptr<CElementGen>, u32>& pair : x8_thermalHotParticles) {
+  for (std::pair<std::unique_ptr<CElementGen>, u32>& pair : x8_onFireGens) {
     if (pair.first) {
       CRandom16 rnd(pair.second);
-      const zeus::CVector3f& vec = vn[u32(rnd.Float() * (vn.size() - 1))].first;
-      pair.first->SetTranslation(xec_ * vec);
+      const zeus::CVector3f& vec = vn[rnd.Float() * (vn.size() - 1)].first;
+      pair.first->SetTranslation(xec_particleOffsetScale * vec);
     }
   }
 
-  if (x84_ > 0) {
-    CRandom16 rnd(x88_seed1);
-    u32 count = (x84_ >= 16 ? 16 : x84_);
-    u32 idx = x80_;
+  if (x84_ashMaxParticles > 0) {
+    CRandom16 rnd(x88_ashSeed);
+    s32 count = (x84_ashMaxParticles >= 16 ? 16 : x84_ashMaxParticles);
+    s32 idx = x80_ashPointIterator;
     for (u32 i = 0; i < count; ++i) {
       idx = GetNextBestPt(idx, vn, rnd);
-      x78_->SetTranslation(xec_ * vn[idx].first);
+      x78_ashGen->SetTranslation(xec_particleOffsetScale * vn[idx].first);
       zeus::CVector3f v = vn[idx].second;
       if (v.canBeNormalized()) {
         v.normalize();
-        x78_->SetOrientation(
-            zeus::CTransform{zeus::CVector3f::skUp.cross(v), v, zeus::CVector3f::skUp, zeus::CVector3f::skZero});
+        x78_ashGen->SetOrientation(
+            zeus::CTransform{v.cross(zeus::CVector3f::skUp), v, zeus::CVector3f::skUp, zeus::CVector3f::skZero});
       }
-      x78_->ForceParticleCreation(1);
+      x78_ashGen->ForceParticleCreation(1);
     }
-    x84_ -= count;
-    x88_seed1 = rnd.GetSeed();
+    x84_ashMaxParticles -= count;
+    x88_ashSeed = rnd.GetSeed();
+    x80_ashPointIterator = idx;
   }
 
-  if (xb0_ != -1) {
-    CRandom16 rnd(xb4_seed2);
+  if (xb0_icePointIterator != -1) {
+    CRandom16 rnd(xb4_iceSeed);
 
     std::unique_ptr<CElementGen> iceGen = x128_parent.MakeIceGen();
-    iceGen->SetGlobalOrientAndTrans(xf8_);
+    iceGen->SetGlobalOrientAndTrans(xf8_iceXf);
 
-    u32 next = GetNextBestPt(xb0_, vn, rnd);
-    iceGen->SetTranslation(xec_ * vn[next].first);
+    s32 idx = GetNextBestPt(xb0_icePointIterator, vn, rnd);
+    iceGen->SetTranslation(xec_particleOffsetScale * vn[idx].first);
 
-    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(vn[next].second)));
+    iceGen->SetOrientation(zeus::CTransform::MakeRotationsBasedOnY(zeus::CUnitVector3f(vn[idx].second)));
 
-    x8c_thermalColdParticles.push_back(std::move(iceGen));
-    xb0_ = (x8c_thermalColdParticles.size() == 4 ? -1 : next);
+    x8c_iceGens.push_back(std::move(iceGen));
+    xb0_icePointIterator = (x8c_iceGens.size() == 4 ? -1 : idx);
   }
-  // TODO: Verify behavior
-  if (xc0_particleElectric && xc0_particleElectric->GetParticleEmission()) {
-    CRandom16 rnd(xcc_seed3);
+
+  if (xc0_electricGen && xc0_electricGen->GetParticleEmission()) {
+    CRandom16 rnd(xcc_electricSeed);
     u32 end = 1;
 #if 0
-        if (4 < 1)
-            end = 4;
+    if (4 < 1)
+      end = 4;
 #endif
-    u32 lastRnd;
+    s32 idx = xc8_electricPointIterator;
     for (u32 i = 0; i < end; ++i) {
-      xc0_particleElectric->SetOverrideIPos(vn[u32(rnd.Range(0, s32(vn.size()) - 1))].first * xec_);
-      lastRnd = u32(rnd.Range(0, s32(vn.size()) - 1));
-      xc0_particleElectric->SetOverrideFPos(vn[lastRnd].first * xec_);
-      xc0_particleElectric->ForceParticleCreation(1);
+      xc0_electricGen->SetOverrideIPos(vn[rnd.Range(0, s32(vn.size()) - 1)].first * xec_particleOffsetScale);
+      idx = rnd.Range(0, s32(vn.size()) - 1);
+      xc0_electricGen->SetOverrideFPos(vn[idx].first * xec_particleOffsetScale);
+      xc0_electricGen->ForceParticleCreation(1);
     }
 
-    xcc_seed3 = rnd.GetSeed();
-    xc8_ = lastRnd;
+    xcc_electricSeed = rnd.GetSeed();
+    xc8_electricPointIterator = idx;
   }
 
-  // TODO: Finish
-#if 0
-    if (xd4_)
-    {
-        xd4_->sub_8026A5E0(v1, v2, w1);
-    }
-#endif
-}
-
-void CActorModelParticles::CItem::sub_801e59a8(EDependency i) {
-  if (x134_lockDeps & (1 << int(i))) {
-    // x128_parent.sub_801e3a94(i);
-    x134_lockDeps &= ~(1 << int(i));
-  }
+  if (xd4_rainSplashGen)
+    xd4_rainSplashGen->GeneratePoints(vn);
 }
 
 bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateManager& mgr) {
-  bool r30 = false;
-  bool r31 = false;
+  bool effectActive = false;
+  bool sfxActive = false;
   x6c_onFireDelayTimer -= dt;
   if (x6c_onFireDelayTimer < 0.f)
     x6c_onFireDelayTimer = 0.f;
   if (x134_lockDeps & 0x1) {
-    if (x128_parent.xe6_bits2 & 0x1) {
+    if (x128_parent.xe6_loadedDeps & 0x1) {
       if (x70_onFire && actor) {
-        bool r26 = true;
-        if (x78_ || xdc_ashy) {
-          r26 = false;
+        bool doCreate = true;
+        if (x78_ashGen || xdc_ashy) {
+          doCreate = false;
         } else if (!IsMediumOrLarge(*actor)) {
-          int r3 = 0;
-          for (const auto& p : x8_thermalHotParticles)
+          int activeParts = 0;
+          for (const auto& p : x8_onFireGens)
             if (p.first)
-              ++r3;
-          if (r3 >= 4)
-            r26 = false;
+              ++activeParts;
+          if (activeParts >= 4)
+            doCreate = false;
         }
-        if (r26) {
-          for (auto& p : x8_thermalHotParticles) {
+        if (doCreate) {
+          for (auto& p : x8_onFireGens) {
             if (!p.first) {
               p.second = mgr.GetActiveRandom()->Next();
               p.first = x128_parent.MakeOnFireGen();
@@ -154,83 +144,203 @@ bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateMa
         }
         x70_onFire = false;
       }
-      for (auto& p : x8_thermalHotParticles) {
+      for (auto& p : x8_onFireGens) {
         if (p.first) {
           if (p.first->IsSystemDeletable())
             p.first.reset();
           else if (actor)
             p.first->SetGlobalOrientAndTrans(actor->GetTransform());
           p.first->Update(dt);
-          r30 = true;
-          r31 = true;
+          effectActive = true;
+          sfxActive = true;
         }
       }
     } else {
-      r30 = true;
+      effectActive = true;
     }
   }
   if (x74_sfx) {
-    if (r31) {
-      CSfxManager::UpdateEmitter(x74_sfx, xf8_.origin, zeus::CVector3f::skZero, 1.f);
+    if (sfxActive) {
+      CSfxManager::UpdateEmitter(x74_sfx, xf8_iceXf.origin, zeus::CVector3f::skZero, 1.f);
     } else {
       CSfxManager::RemoveEmitter(x74_sfx);
       x74_sfx.reset();
     }
   }
-  if (!r30) {
+  if (!effectActive)
     Unlock(EDependency::OnFire);
-  }
-  return r30;
+  return effectActive;
 }
 
-bool CActorModelParticles::CItem::UpdateAsh(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateAshGen(float dt, CActor* actor, CStateManager& mgr) {
+  if (x78_ashGen) {
+    if (x84_ashMaxParticles == 0 && x78_ashGen->IsSystemDeletable()) {
+      x78_ashGen.reset();
+    } else {
+      if (actor)
+        x78_ashGen->SetGlobalOrientAndTrans(actor->GetTransform());
+      x78_ashGen->Update(dt);
+      return true;
+    }
+  } else if (x134_lockDeps & 0x4 && actor) {
+    if (x128_parent.xe6_loadedDeps & 0x4) {
+      x78_ashGen = x128_parent.MakeAshGen();
+      x80_ashPointIterator = 0;
+      x78_ashGen->SetGlobalOrientAndTrans(actor->GetTransform());
+      x84_ashMaxParticles = s32((IsMediumOrLarge(*actor) ? 1.f : 0.3f) * x78_ashGen->GetMaxParticles());
+      x88_ashSeed = mgr.GetActiveRandom()->Next();
+    }
+    return true;
+  }
+  Unlock(EDependency::Ash);
+  return false;
+}
 
-bool CActorModelParticles::CItem::sub_801e65bc(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateIceGen(float dt, CActor* actor, CStateManager& mgr) {
+  if (xb0_icePointIterator != -1)
+    return true;
+  if (!x8c_iceGens.empty()) {
+    bool active = false;
+    for (auto& p : x8c_iceGens) {
+      if (!p->IsSystemDeletable())
+        active = true;
+      p->Update(dt);
+    }
+    if (!active)
+      x8c_iceGens.clear();
+    else
+      return true;
+  } else if (x134_lockDeps & 0x2 && actor) {
+    if (x128_parent.xe6_loadedDeps & 0x2) {
+      xb0_icePointIterator = 0;
+      xb4_iceSeed = mgr.GetActiveRandom()->Next();
+    }
+    return true;
+  }
+  Unlock(EDependency::Ice);
+  return false;
+}
 
-bool CActorModelParticles::CItem::UpdateFirePop(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateFirePop(float dt, CActor* actor, CStateManager& mgr) {
+  if (xb8_firePopGen) {
+    if (xb8_firePopGen->IsSystemDeletable()) {
+      xb8_firePopGen.reset();
+    } else {
+      xb8_firePopGen->Update(dt);
+      return true;
+    }
+  } else if (x134_lockDeps & 0x8 && actor) {
+    if (x128_parent.xe6_loadedDeps & 0x8) {
+      xb8_firePopGen = x128_parent.MakeFirePopGen();
+      xb8_firePopGen->SetGlobalOrientation(actor->GetTransform());
+      xb8_firePopGen->SetGlobalTranslation(actor->GetRenderBounds().center());
+    }
+    return true;
+  }
+  Unlock(EDependency::FirePop);
+  return false;
+}
 
-bool CActorModelParticles::CItem::UpdateElectric(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateElectric(float dt, CActor* actor, CStateManager& mgr) {
+  if (xc0_electricGen) {
+    if (xc0_electricGen->IsSystemDeletable()) {
+      xc0_electricGen.reset();
+    } else {
+      if (actor && actor->GetActive()) {
+        xc0_electricGen->SetGlobalOrientation(actor->GetTransform().getRotation());
+        xc0_electricGen->SetGlobalTranslation(actor->GetTranslation());
+      }
+      if (!actor || actor->GetActive()) {
+        xc0_electricGen->SetModulationColor(xd0_electricColor);
+        xc0_electricGen->Update(dt);
+        return true;
+      }
+    }
+  } else if (x134_lockDeps & 0x10) {
+    if (x128_parent.xe6_loadedDeps & 0x10) {
+      xc0_electricGen = x128_parent.MakeElectricGen();
+      xc0_electricGen->SetModulationColor(xd0_electricColor);
+      xc8_electricPointIterator = 0;
+      xcc_electricSeed = mgr.GetActiveRandom()->Next();
+    }
+    return true;
+  }
+  Unlock(EDependency::Electric);
+  return false;
+}
 
-bool CActorModelParticles::CItem::sub_801e69f0(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateRainSplash(float dt, CActor* actor, CStateManager& mgr) {
+  if (xd4_rainSplashGen) {
+    if (!xd4_rainSplashGen->IsRaining()) {
+      xd4_rainSplashGen.reset();
+    } else {
+      xd4_rainSplashGen->Update(dt, mgr);
+      return true;
+    }
+  }
+  return false;
+}
 
-bool CActorModelParticles::CItem::sub_801e5e98(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateBurn(float dt, CActor* actor, CStateManager& mgr) {
+  if (!actor)
+    xdc_ashy.Unlock();
+  return xdc_ashy.IsLocked();
+}
 
-bool CActorModelParticles::CItem::UpdateIcePop(float dt, CActor* actor, CStateManager& mgr) { return false; }
+bool CActorModelParticles::CItem::UpdateIcePop(float dt, CActor* actor, CStateManager& mgr) {
+  if (xe4_icePopGen) {
+    if (xe4_icePopGen->IsSystemDeletable()) {
+      xe4_icePopGen.reset();
+    } else {
+      xe4_icePopGen->Update(dt);
+      return true;
+    }
+  } else if (x134_lockDeps & 0x20 && actor) {
+    if (x128_parent.xe6_loadedDeps & 0x20) {
+      xe4_icePopGen = x128_parent.MakeIcePopGen();
+      xe4_icePopGen->SetGlobalOrientation(actor->GetTransform());
+      xe4_icePopGen->SetGlobalTranslation(actor->GetRenderBounds().center());
+    }
+    return true;
+  }
+  Unlock(EDependency::IcePop);
+  return false;
+}
 
 bool CActorModelParticles::CItem::Update(float dt, CStateManager& mgr) {
   CActor* act = static_cast<CActor*>(mgr.ObjectById(x0_id));
   if (act && act->HasModelData() && !act->ModelData()->IsNull()) {
-    xec_ = act->ModelData()->GetScale();
-    xf8_ = act->GetTransform();
+    xec_particleOffsetScale = act->ModelData()->GetScale();
+    xf8_iceXf = act->GetTransform();
     x4_areaId = act->GetAreaIdAlways();
   } else {
     x0_id = kInvalidUniqueId;
-    x84_ = 0;
-    xb0_ = -1;
-    if (xc0_particleElectric)
-      xc0_particleElectric->SetParticleEmission(false);
+    x84_ashMaxParticles = 0;
+    xb0_icePointIterator = -1;
+    if (xc0_electricGen)
+      xc0_electricGen->SetParticleEmission(false);
     if (x74_sfx) {
       CSfxManager::RemoveEmitter(x74_sfx);
       x74_sfx.reset();
     }
-    x130_ -= dt;
-    if (x130_ <= 0.f)
+    x130_remTime -= dt;
+    if (x130_remTime <= 0.f)
       return false;
   }
   bool ret = false;
   if (UpdateOnFire(dt, act, mgr))
     ret = true;
-  if (UpdateAsh(dt, act, mgr))
+  if (UpdateAshGen(dt, act, mgr))
     ret = true;
-  if (sub_801e65bc(dt, act, mgr))
+  if (UpdateIceGen(dt, act, mgr))
     ret = true;
   if (UpdateFirePop(dt, act, mgr))
     ret = true;
   if (UpdateElectric(dt, act, mgr))
     ret = true;
-  if (sub_801e69f0(dt, act, mgr))
+  if (UpdateRainSplash(dt, act, mgr))
     ret = true;
-  if (sub_801e5e98(dt, act, mgr))
+  if (UpdateBurn(dt, act, mgr))
     ret = true;
   if (UpdateIcePop(dt, act, mgr))
     ret = true;
@@ -255,21 +365,21 @@ void CActorModelParticles::DecrementDependency(EDependency d) {
   Dependency& dep = x50_dgrps[int(d)];
   dep.Decrement();
   if (dep.x10_refCount == 0) {
-    xe4_bits &= ~(1 << int(d));
-    xe6_bits2 &= ~(1 << int(d));
-    xe5_bits1 &= ~(1 << int(d));
+    xe4_loadingDeps &= ~(1 << int(d));
+    xe6_loadedDeps &= ~(1 << int(d));
+    xe5_justLoadedDeps &= ~(1 << int(d));
   }
 }
 
 void CActorModelParticles::IncrementDependency(EDependency d) {
   x50_dgrps[int(d)].Increment();
-  if (!(xe6_bits2 & (1 << int(d))))
-    xe4_bits |= (1 << int(d));
+  if (!(xe6_loadedDeps & (1 << int(d))))
+    xe4_loadingDeps |= (1 << int(d));
 }
 
 static const char* ParticleDGRPs[] = {
-    "Effect_OnFire_DGRP",  "Effect_Ash_DGRP",    "Effect_IceBreak_DGRP",
-    "Effect_FirePop_DGRP", "Effect_IcePop_DGRP", "Effect_Electric_DGRP",
+    "Effect_OnFire_DGRP",  "Effect_IceBreak_DGRP", "Effect_Ash_DGRP",
+    "Effect_FirePop_DGRP", "Effect_Electric_DGRP", "Effect_IcePop_DGRP",
 };
 
 CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(const char* name) {
@@ -291,7 +401,9 @@ std::unique_ptr<CElementGen> CActorModelParticles::MakeOnFireGen() const {
   return std::make_unique<CElementGen>(x18_onFire);
 }
 
-std::unique_ptr<CElementGen> CActorModelParticles::MakeAshGen() const { return std::make_unique<CElementGen>(x20_ash); }
+std::unique_ptr<CElementGen> CActorModelParticles::MakeAshGen() const {
+  return std::make_unique<CElementGen>(x20_ash);
+}
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeIceGen() const {
   return std::make_unique<CElementGen>(x28_iceBreak);
@@ -342,23 +454,23 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
     if (isNotCold) {
       /* Hot Draw */
       for (int i = 0; i < 8; ++i) {
-        std::unique_ptr<CElementGen>& gen = item.x8_thermalHotParticles[i].first;
+        std::unique_ptr<CElementGen>& gen = item.x8_onFireGens[i].first;
         if (gen)
           g_Renderer->AddParticleGen(*gen);
       }
-      if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && item.x78_)
-        g_Renderer->AddParticleGen(*item.x78_);
-      if (item.xb8_)
-        g_Renderer->AddParticleGen(*item.xb8_);
-      if (item.xc0_particleElectric)
-        g_Renderer->AddParticleGen(*item.xc0_particleElectric);
+      if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && item.x78_ashGen)
+        g_Renderer->AddParticleGen(*item.x78_ashGen);
+      if (item.xb8_firePopGen)
+        g_Renderer->AddParticleGen(*item.xb8_firePopGen);
+      if (item.xc0_electricGen)
+        g_Renderer->AddParticleGen(*item.xc0_electricGen);
     }
     if (isNotHot) {
       /* Cold Draw */
-      for (std::unique_ptr<CElementGen>& gen : item.x8c_thermalColdParticles)
+      for (std::unique_ptr<CElementGen>& gen : item.x8c_iceGens)
         g_Renderer->AddParticleGen(*gen);
-      if (item.xe4_)
-        g_Renderer->AddParticleGen(*item.xe4_);
+      if (item.xe4_icePopGen)
+        g_Renderer->AddParticleGen(*item.xe4_icePopGen);
     }
     if (isNotCold) {
       /* Thermal Reset */
@@ -368,7 +480,34 @@ void CActorModelParticles::AddStragglersToRenderer(const CStateManager& mgr) {
   }
 }
 
-void CActorModelParticles::Update(float dt, CStateManager& mgr) {}
+void CActorModelParticles::UpdateLoad() {
+  if (xe4_loadingDeps) {
+    xe5_justLoadedDeps = 0;
+    for (int i = 0; i < 6; ++i) {
+      if (xe4_loadingDeps & (1 << i)) {
+        x50_dgrps[i].UpdateLoad();
+        if (x50_dgrps[i].x14_loaded) {
+          xe5_justLoadedDeps |= (1 << i);
+          xe4_loadingDeps &= ~(1 << i);
+        }
+      }
+    }
+    xe6_loadedDeps |= xe5_justLoadedDeps;
+  }
+}
+
+void CActorModelParticles::Update(float dt, CStateManager& mgr) {
+  UpdateLoad();
+  for (auto it = x0_items.begin(); it != x0_items.end();) {
+    if (!it->Update(dt, mgr)) {
+      if (CActor* act = static_cast<CActor*>(mgr.ObjectById(it->x0_id)))
+        act->SetPointGeneratorParticles(false);
+      it = x0_items.erase(it);
+      continue;
+    }
+    ++it;
+  }
+}
 
 void CActorModelParticles::PointGenerator(void* ctx,
                                           const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
@@ -401,30 +540,30 @@ std::list<CActorModelParticles::CItem>::iterator CActorModelParticles::FindOrCre
 
 void CActorModelParticles::StartIce(CActor& act) {
   auto iter = FindOrCreateSystem(act);
-  iter->Lock(EDependency::Ash);
+  iter->Lock(EDependency::Ice);
 }
 
 void CActorModelParticles::StartElectric(CActor& act) {
   auto iter = FindOrCreateSystem(act);
-  if (iter->xc0_particleElectric && !iter->xc0_particleElectric->GetParticleEmission())
-    iter->xc0_particleElectric->SetParticleEmission(true);
+  if (iter->xc0_electricGen && !iter->xc0_electricGen->GetParticleEmission())
+    iter->xc0_electricGen->SetParticleEmission(true);
 }
 
 void CActorModelParticles::StopElectric(CActor& act) {
   if (act.GetPointGeneratorParticles()) {
     auto iter = FindSystem(act.GetUniqueId());
-    if (iter != x0_items.cend() && iter->xc0_particleElectric)
-      iter->xc0_particleElectric->SetParticleEmission(false);
+    if (iter != x0_items.cend() && iter->xc0_electricGen)
+      iter->xc0_electricGen->SetParticleEmission(false);
   }
 }
 
-void CActorModelParticles::sub_801e51d0(CActor& act) {
+void CActorModelParticles::LoadAndStartElectric(CActor& act) {
   auto iter = FindOrCreateSystem(act);
-  if (!iter->xc0_particleElectric)
-    iter->Lock(EDependency::IcePop);
+  if (!iter->xc0_electricGen)
+    iter->Lock(EDependency::Electric);
   else {
-    if (!iter->xc0_particleElectric->GetParticleEmission())
-      iter->xc0_particleElectric->SetParticleEmission(true);
+    if (!iter->xc0_electricGen->GetParticleEmission())
+      iter->xc0_electricGen->SetParticleEmission(true);
   }
 }
 
@@ -432,7 +571,7 @@ void CActorModelParticles::StopThermalHotParticles(CActor& act) {
   if (act.GetPointGeneratorParticles()) {
     auto iter = FindSystem(act.GetUniqueId());
     if (iter != x0_items.cend()) {
-      for (auto& part : iter->x8_thermalHotParticles)
+      for (auto& part : iter->x8_onFireGens)
         if (part.first)
           part.first->SetParticleEmission(false);
     }
@@ -448,7 +587,7 @@ void CActorModelParticles::StartBurnDeath(CActor& act) {
 
 void CActorModelParticles::EnsureElectricLoaded(CActor& act) {
   auto iter = FindOrCreateSystem(act);
-  iter->Lock(EDependency::Electric);
+  iter->Lock(EDependency::IcePop);
 }
 
 void CActorModelParticles::EnsureFirePopLoaded(CActor& act) {
@@ -458,7 +597,7 @@ void CActorModelParticles::EnsureFirePopLoaded(CActor& act) {
 
 void CActorModelParticles::EnsureIceBreakLoaded(CActor& act) {
   auto iter = FindOrCreateSystem(act);
-  iter->Lock(EDependency::IceBreak);
+  iter->Lock(EDependency::Ash);
 }
 
 void CActorModelParticles::LightDudeOnFire(CActor& act) {
@@ -480,19 +619,52 @@ const CTexture* CActorModelParticles::GetAshyTexture(const CActor& act) {
 void CActorModelParticles::AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes, u32 genRate,
                                                   float minZ) {
   auto it = FindOrCreateSystem(act);
-  if (it->xd4_rainSplashGenerator)
+  if (it->xd4_rainSplashGen)
     return;
 
   if (act.GetModelData() && !act.GetModelData()->IsNull())
-    it->xd4_rainSplashGenerator =
+    it->xd4_rainSplashGen =
         std::make_unique<CRainSplashGenerator>(act.GetModelData()->GetScale(), maxSplashes, genRate, minZ, 0.1875f);
 }
 
 void CActorModelParticles::RemoveRainSplashGenerator(CActor& act) {
   auto it = FindOrCreateSystem(act);
-  it->xd4_rainSplashGenerator.reset();
+  it->xd4_rainSplashGen.reset();
 }
 
-void CActorModelParticles::Render(const CActor& actor) const {}
+void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor) const {
+  zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;
+  auto search = FindSystem(actor.GetUniqueId());
+  if (search == x0_items.end())
+    return;
+  if (search->x4_areaId != kInvalidAreaId) {
+    const CGameArea* area = mgr.GetWorld()->GetAreaAlways(search->x4_areaId);
+    if (!area->IsPostConstructed())
+      return;
+    if (area->GetOcclusionState() == CGameArea::EOcclusionState::Occluded)
+      return;
+  }
+  if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Cold) {
+    for (const auto& gen : search->x8_onFireGens)
+      gen.first->Render();
+    if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && search->x78_ashGen)
+      search->x78_ashGen->Render();
+    if (search->xb8_firePopGen)
+      search->xb8_firePopGen->Render();
+    if (search->xc0_electricGen)
+      search->xc0_electricGen->Render();
+    search->x134_lockDeps |= 0x80;
+  }
+  if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot) {
+    for (const auto& gen : search->x8c_iceGens)
+      gen->Render();
+    if (search->xd4_rainSplashGen && actor.GetModelData() && !actor.GetModelData()->IsNull())
+      search->xd4_rainSplashGen->Draw(actor.GetTransform());
+    if (search->xe4_icePopGen)
+      search->xe4_icePopGen->Render();
+    search->x134_lockDeps |= 0x40;
+  }
+  CGraphics::SetModelMatrix(backupModel);
+}
 
 } // namespace urde

@@ -137,6 +137,8 @@ public:
   const KnockBackParms& GetActiveParms() const { return x4_activeParms; }
   EKnockBackVariant GetVariant() const { return x0_variant; }
   float GetFlinchRemTime() const { return x64_flinchRemTime; }
+  void SetAvailableState(EKnockBackAnimationState s, bool b) { x80_availableStates.set(size_t(s), b); }
+  bool TestAvailableState(EKnockBackAnimationState s) const { return x80_availableStates.test(size_t(s)); }
 };
 
 } // namespace urde

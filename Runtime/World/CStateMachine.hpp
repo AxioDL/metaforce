@@ -106,6 +106,7 @@ public:
   float GetTime() const { return x8_time; }
   float GetRandom() const { return xc_random; }
   float GetDelay() const { return x10_delay; }
+  void SetCodeTrigger() { x18_24_codeTrigger = true; }
 
   const char* GetName() const {
     if (x4_state)

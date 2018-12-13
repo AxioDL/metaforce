@@ -5674,4 +5674,10 @@ bool CPlayer::AttachActorToPlayer(TUniqueId id, bool disableGun) {
   return false;
 }
 
+float CPlayer::GetAverageSpeed() const {
+  if (auto avg = x4a4_moveSpeedAvg.GetAverage())
+    return *avg;
+  return x4f8_moveSpeed;
+}
+
 } // namespace urde

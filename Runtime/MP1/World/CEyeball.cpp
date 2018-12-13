@@ -143,12 +143,12 @@ void CEyeball::Cover(CStateManager&, EStateMsg msg, float) {
 
 void CEyeball::Flinch(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    x32c_animState = EAnimState::One;
+    x32c_animState = EAnimState::Ready;
     x330_stateMachineState.SetDelay(x568_attackDelay);
   } else if (msg == EStateMsg::Update)
     TryCommand(mgr, pas::EAnimationState::KnockBack, CPatternedTryFunc(&CEyeball::TryFlinch), 0);
   else if (msg == EStateMsg::Deactivate)
-    x32c_animState = EAnimState::Zero;
+    x32c_animState = EAnimState::NotReady;
 }
 
 void CEyeball::TryFlinch(CStateManager&, int arg) {

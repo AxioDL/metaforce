@@ -264,7 +264,7 @@ void CActor::Render(const CStateManager& mgr) const {
       }
       if (xe5_31_pointGeneratorParticles) {
         CSkinnedModel::ClearPointGeneratorFunc();
-        mgr.GetActorModelParticles()->Render(*this);
+        mgr.GetActorModelParticles()->Render(mgr, *this);
       }
     }
 

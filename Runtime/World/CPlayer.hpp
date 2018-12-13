@@ -610,5 +610,7 @@ public:
   bool IsShowingCrosshairs() const { return x9c4_25_showCrosshairs; }
   bool IsSidewaysDashing() const { return x37c_sidewaysDashing; }
   void Set_X590(bool b) { x590_ = b; }
+  const zeus::CVector3f& GetOrbitPoint() const { return x314_orbitPoint; }
+  float GetAverageSpeed() const;
 };
 } // namespace urde

@@ -315,7 +315,7 @@ class CBodyStateCmdMgr {
   u32 xb4_deliveredCmdMask = 0;
   CBCGetupCmd xb8_getup;
   CBCStepCmd xc4_step;
-  CBodyStateCmd xd4_ = {EBodyStateCmd::Die};
+  CBodyStateCmd xd4_die = {EBodyStateCmd::Die};
   CBCKnockDownCmd xdc_knockDown;
   CBCKnockBackCmd xf4_knockBack;
   CBCMeleeAttackCmd x10c_meleeAttack;
@@ -323,10 +323,10 @@ class CBodyStateCmdMgr {
   CBCLoopAttackCmd x144_loopAttack;
   CBCLoopReactionCmd x154_loopReaction;
   CBCLoopHitReactionCmd x160_loopHitReaction;
-  CBodyStateCmd x16c_ = {EBodyStateCmd::ExitState};
-  CBodyStateCmd x174_ = {EBodyStateCmd::LeanFromCover};
-  CBodyStateCmd x17c_ = {EBodyStateCmd::NextState};
-  CBodyStateCmd x184_ = {EBodyStateCmd::MaintainVelocity};
+  CBodyStateCmd x16c_exitState = {EBodyStateCmd::ExitState};
+  CBodyStateCmd x174_leanFromCover = {EBodyStateCmd::LeanFromCover};
+  CBodyStateCmd x17c_nextState = {EBodyStateCmd::NextState};
+  CBodyStateCmd x184_maintainVelocity = {EBodyStateCmd::MaintainVelocity};
   CBCGenerateCmd x18c_generate;
   CBCHurledCmd x1ac_hurled;
   CBCJumpCmd x1d0_jump;
@@ -335,12 +335,12 @@ class CBodyStateCmdMgr {
   CBCScriptedCmd x21c_scripted;
   CBCCoverCmd x230_cover;
   CBCWallHangCmd x254_wallHang;
-  CBodyStateCmd x260_ = {EBodyStateCmd::Locomotion};
-  CBodyStateCmd x268_ = {EBodyStateCmd::AdditiveIdle};
+  CBodyStateCmd x260_locomotion = {EBodyStateCmd::Locomotion};
+  CBodyStateCmd x268_additiveIdle = {EBodyStateCmd::AdditiveIdle};
   CBCAdditiveAimCmd x270_additiveAim;
   CBCAdditiveFlinchCmd x278_additiveFlinch;
   CBCAdditiveReactionCmd x284_additiveReaction;
-  CBodyStateCmd x298_ = {EBodyStateCmd::StopReaction};
+  CBodyStateCmd x298_stopReaction = {EBodyStateCmd::StopReaction};
   void DeliverCmd(EBodyStateCmd cmd) { xb4_deliveredCmdMask |= (1 << int(cmd)); }
 
 public:

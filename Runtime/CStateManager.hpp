@@ -363,6 +363,7 @@ public:
 
   const std::shared_ptr<CPlayerState>& GetPlayerState() const { return x8b8_playerState; }
   CRandom16* GetActiveRandom() { return x900_activeRandom; }
+  zeus::CVector3f Random2f(float scaleMin, float scaleMax);
   void SetActiveRandomToDefault() { x900_activeRandom = &x8fc_random; }
   void ClearActiveRandom() { x900_activeRandom = nullptr; }
   CRumbleManager& GetRumbleManager() { return *x88c_rumbleManager; }

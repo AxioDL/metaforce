@@ -14,57 +14,76 @@ struct SpacePirate : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> unknown1;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
-  Value<atUint32> unknown7;
+  Value<float> AggressionCheck;
+  Value<float> CoverCheck;
+  Value<float> SearchRadius;
+  Value<float> FallBackCheck;
+  Value<float> FallBackRadius;
+  Value<float> HearingRadius;
+  /*
+   * 0x1: pendingAmbush
+   * 0x2: ceilingAmbush
+   * 0x4: nonAggressive
+   * 0x8: melee
+   * 0x10: noShuffleCloseCheck
+   * 0x20: onlyAttackInRange
+   * 0x40: unk
+   * 0x80: noKnockbackImpulseReset
+   * 0x200: noMeleeAttack
+   * 0x400: breakAttack
+   * 0x1000: seated
+   * 0x2000: shadowPirate
+   * 0x4000: alertBeforeCloak
+   * 0x8000: noBreakDodge
+   * 0x10000: floatingCorpse
+   * 0x20000: ragdollNoAiCollision
+   * 0x40000: trooper
+   */
+  Value<atUint32> flags;
   Value<bool> unknown8;
-  UniqueID32 wpsc1;
-  DamageInfo damageInfo1;
-  Value<atUint32> soundID1;
-  DamageInfo damageInfo2;
-  Value<float> unknown9;
-  UniqueID32 wpsc2;
-  DamageInfo damageInfo3;
-  Value<float> unknown10;
-  Value<atUint32> soundID2;
-  Value<float> unknown11;
-  Value<float> unknown12;
-  Value<atUint32> soundID3;
-  Value<float> unknown13;
-  Value<atUint32> unknown14;
-  Value<float> unknown15;
-  Value<float> unknown16;
-  Value<float> unknown17;
-  Value<float> unknown18;
-  Value<atUint32> soundID4;
-  Value<atUint32> soundID5;
+  UniqueID32 Projectile;
+  DamageInfo ProjectileDamage;
+  Value<atUint32> Sound_Projectile;
+  DamageInfo BladeDamage;
+  Value<float> KneelAttackChance;
+  UniqueID32 KneelAttackShot;
+  DamageInfo KneelAttackDamage;
+  Value<float> DodgeCheck;
+  Value<atUint32> Sound_Impact;
+  Value<float> averageNextShotTime;
+  Value<float> nextShotTimeVariation;
+  Value<atUint32> Sound_Alert;
+  Value<float> GunTrackDelay;
+  Value<atUint32> firstBurstCount;
+  Value<float> CloakOpacity;
+  Value<float> MaxCloakOpacity;
+  Value<float> dodgeDelayTimeMin;
+  Value<float> dodgeDelayTimeMax;
+  Value<atUint32> Sound_Hurled;
+  Value<atUint32> Sound_Death;
   Value<float> unknown19;
-  Value<float> unknown20;
+  Value<float> AvoidDistance;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
-      ent->name = name + "_wpsc1";
+    if (Projectile) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(Projectile);
+      ent->name = name + "_Projectile";
     }
-    if (wpsc2) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
-      ent->name = name + "_wpsc2";
+    if (KneelAttackShot) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(KneelAttackShot);
+      ent->name = name + "_KneelAttackShot";
     }
     patternedInfo.nameIDs(pakRouter, name + "_patterned");
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
-    g_curSpec->flattenDependencies(wpsc1, pathsOut);
-    g_curSpec->flattenDependencies(wpsc2, pathsOut);
+    g_curSpec->flattenDependencies(Projectile, pathsOut);
+    g_curSpec->flattenDependencies(KneelAttackShot, pathsOut);
     patternedInfo.depIDs(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }

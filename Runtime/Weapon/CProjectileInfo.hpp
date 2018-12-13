@@ -15,7 +15,11 @@ public:
   CProjectileInfo(CInputStream&);
   CProjectileInfo(CAssetId, const CDamageInfo&);
 
-  zeus::CVector3f PredictInterceptPos(const zeus::CVector3f&, const zeus::CVector3f&, const CPlayer&, bool);
+  float GetProjectileSpeed() const;
+  static zeus::CVector3f PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
+                                             const CPlayer& player, bool gravity, float speed, float dt);
+  zeus::CVector3f PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
+                                      const CPlayer& player, bool gravity, float dt);
 
   CDamageInfo GetDamage() const { return xc_damageInfo; }
   const TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }

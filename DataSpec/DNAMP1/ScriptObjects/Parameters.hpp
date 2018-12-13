@@ -268,7 +268,7 @@ struct PatternedInfo : BigDNA {
   Value<float> intoFreezeDur;
   Value<float> outOfFreezeDur;
   Value<float> unknown10;
-  Value<atUint32> particle1Frames;
+  Value<atUint32> pathfindingIndex;
   Value<atVec3f> particle1Scale;
   UniqueID32 particle1;
   UniqueID32 electric;

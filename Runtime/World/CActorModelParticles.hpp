@@ -19,33 +19,33 @@ class CScriptPlayerActor;
 
 class CActorModelParticles {
 public:
-  enum class EDependency { OnFire, Ash, IceBreak, FirePop, IcePop, Electric };
+  enum class EDependency { OnFire, Ice, Ash, FirePop, Electric, IcePop };
 
   class CItem {
     friend class CActorModelParticles;
     TUniqueId x0_id;
     TAreaId x4_areaId;
-    rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_thermalHotParticles;
+    rstl::reserved_vector<std::pair<std::unique_ptr<CElementGen>, u32>, 8> x8_onFireGens;
     float x6c_onFireDelayTimer = 0.f;
     bool x70_onFire = false;
     CSfxHandle x74_sfx;
-    std::unique_ptr<CElementGen> x78_;
-    u32 x80_ = 0;
-    s32 x84_ = -1;
-    u32 x88_seed1 = 99;
-    rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x8c_thermalColdParticles;
-    s32 xb0_ = -1;
-    u32 xb4_seed2 = 99;
-    std::unique_ptr<CElementGen> xb8_;
-    std::unique_ptr<CParticleElectric> xc0_particleElectric;
-    u32 xc8_ = 0;
-    u32 xcc_seed3 = 99;
-    zeus::CColor xd0_;
-    std::unique_ptr<CRainSplashGenerator> xd4_rainSplashGenerator;
+    std::unique_ptr<CElementGen> x78_ashGen;
+    s32 x80_ashPointIterator = 0;
+    s32 x84_ashMaxParticles = -1;
+    u32 x88_ashSeed = 99;
+    rstl::reserved_vector<std::unique_ptr<CElementGen>, 4> x8c_iceGens;
+    s32 xb0_icePointIterator = -1;
+    u32 xb4_iceSeed = 99;
+    std::unique_ptr<CElementGen> xb8_firePopGen;
+    std::unique_ptr<CParticleElectric> xc0_electricGen;
+    s32 xc8_electricPointIterator = 0;
+    u32 xcc_electricSeed = 99;
+    zeus::CColor xd0_electricColor;
+    std::unique_ptr<CRainSplashGenerator> xd4_rainSplashGen;
     TToken<CTexture> xdc_ashy;
-    std::unique_ptr<CElementGen> xe4_;
-    zeus::CVector3f xec_ = zeus::CVector3f::skOne;
-    zeus::CTransform xf8_;
+    std::unique_ptr<CElementGen> xe4_icePopGen;
+    zeus::CVector3f xec_particleOffsetScale = zeus::CVector3f::skOne;
+    zeus::CTransform xf8_iceXf;
     CActorModelParticles& x128_parent;
     union {
       struct {
@@ -54,16 +54,15 @@ public:
       };
       u16 _dummy = 0;
     };
-    float x130_ = 10.f;
-    u8 x134_lockDeps = 0;
-    void sub_801e59a8(EDependency i);
+    float x130_remTime = 10.f;
+    mutable u8 x134_lockDeps = 0;
     bool UpdateOnFire(float dt, CActor* actor, CStateManager& mgr);
-    bool UpdateAsh(float dt, CActor* actor, CStateManager& mgr);
-    bool sub_801e65bc(float dt, CActor* actor, CStateManager& mgr);
+    bool UpdateAshGen(float dt, CActor* actor, CStateManager& mgr);
+    bool UpdateIceGen(float dt, CActor* actor, CStateManager& mgr);
     bool UpdateFirePop(float dt, CActor* actor, CStateManager& mgr);
     bool UpdateElectric(float dt, CActor* actor, CStateManager& mgr);
-    bool sub_801e69f0(float dt, CActor* actor, CStateManager& mgr);
-    bool sub_801e5e98(float dt, CActor* actor, CStateManager& mgr);
+    bool UpdateRainSplash(float dt, CActor* actor, CStateManager& mgr);
+    bool UpdateBurn(float dt, CActor* actor, CStateManager& mgr);
     bool UpdateIcePop(float dt, CActor* actor, CStateManager& mgr);
 
   public:
@@ -113,11 +112,22 @@ private:
         tok.Unlock();
       x14_loaded = false;
     }
+    void UpdateLoad() {
+      if (x14_loaded || x10_refCount == 0)
+        return;
+      bool loading = false;
+      for (CToken& tok : x0_tokens) {
+        if (!tok.IsLoaded())
+          loading = true;
+      }
+      if (!loading)
+        x14_loaded = true;
+    }
   };
   rstl::reserved_vector<Dependency, 6> x50_dgrps;
-  u8 xe4_bits = 0;
-  u8 xe5_bits1 = 0;
-  u8 xe6_bits2 = 0;
+  u8 xe4_loadingDeps = 0;
+  u8 xe5_justLoadedDeps = 0;
+  u8 xe6_loadedDeps = 0;
 
   Dependency GetParticleDGRPTokens(const char* name);
   void LoadParticleDGRPs();
@@ -132,6 +142,8 @@ private:
   void DecrementDependency(EDependency d);
   void IncrementDependency(EDependency d);
 
+  void UpdateLoad();
+
 public:
   CActorModelParticles();
   static void PointGenerator(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);
@@ -143,10 +155,10 @@ public:
   void StartIce(CActor& actor);
   void AddRainSplashGenerator(CActor& act, CStateManager& mgr, u32 maxSplashes, u32 genRate, float minZ);
   void RemoveRainSplashGenerator(CActor& act);
-  void Render(const CActor& actor) const;
+  void Render(const CStateManager& mgr, const CActor& actor) const;
   void StartElectric(CActor& act);
   void StopElectric(CActor& act);
-  void sub_801e51d0(CActor& act);
+  void LoadAndStartElectric(CActor& act);
   void StopThermalHotParticles(CActor& act);
   void StartBurnDeath(CActor& act);
   void EnsureElectricLoaded(CActor& act);

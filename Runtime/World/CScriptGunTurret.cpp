@@ -655,7 +655,7 @@ void CScriptGunTurret::sub80218f50(s32 state, CStateManager& mgr, float dt) {
               zeus::CVector3f rotatedBlastVec = GetTransform().rotate(blastXf.origin) + GetTranslation();
               x404_ = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
               vec = x37c_projectileInfo.PredictInterceptPos(rotatedBlastVec, mgr.GetPlayer().GetAimPosition(mgr, dt),
-                                                            mgr.GetPlayer(), false);
+                                                            mgr.GetPlayer(), false, dt);
             }
 
             zeus::CVector3f compensated =

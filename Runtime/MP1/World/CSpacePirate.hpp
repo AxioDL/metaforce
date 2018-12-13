@@ -32,40 +32,58 @@ public:
 
 class CSpacePirate : public CPatterned {
   friend class CPirateRagDoll;
-
 public:
   DEFINE_PATTERNED(SpacePirate)
 private:
   class CSpacePirateData {
     friend class CSpacePirate;
-    float x0_;
-    float x4_;
-    float x8_;
-    float xc_;
-    float x10_;
-    float x14_hearNoiseRange;
+    float x0_AggressionCheck;
+    float x4_CoverCheck;
+    float x8_SearchRadius;
+    float xc_FallBackCheck;
+    float x10_FallBackRadius;
+    float x14_HearingRadius;
+    /*
+     * 0x1: pendingAmbush
+     * 0x2: ceilingAmbush
+     * 0x4: nonAggressive
+     * 0x8: melee
+     * 0x10: noShuffleCloseCheck
+     * 0x20: onlyAttackInRange
+     * 0x40: unk
+     * 0x80: noKnockbackImpulseReset
+     * 0x200: noMeleeAttack
+     * 0x400: breakAttack
+     * 0x1000: seated
+     * 0x2000: shadowPirate
+     * 0x4000: alertBeforeCloak
+     * 0x8000: noBreakDodge
+     * 0x10000: floatingCorpse
+     * 0x20000: ragdollNoAiCollision
+     * 0x40000: trooper
+     */
     u32 x18_flags;
     bool x1c_;
-    CProjectileInfo x20_mainProjectileInfo;
-    u16 x48_;
-    CDamageInfo x4c_;
-    float x68_;
-    CProjectileInfo x6c_;
-    float x94_;
-    u16 x98_ragdollThudSfx;
+    CProjectileInfo x20_Projectile;
+    u16 x48_Sound_Projectile;
+    CDamageInfo x4c_BladeDamage;
+    float x68_KneelAttackChance;
+    CProjectileInfo x6c_KneelAttackShot;
+    float x94_DodgeCheck;
+    u16 x98_Sound_Impact;
     float x9c_averageNextShotTime;
     float xa0_nextShotTimeVariation;
-    u16 xa4_;
-    float xa8_aimDelayTime;
+    u16 xa4_Sound_Alert;
+    float xa8_GunTrackDelay;
     u32 xac_firstBurstCount;
-    float xb0_minCloakAlpha;
-    float xb4_maxCloakAlpha;
-    float xb8_;
-    float xbc_;
-    u16 xc0_;
-    u16 xc2_;
+    float xb0_CloakOpacity;
+    float xb4_MaxCloakOpacity;
+    float xb8_dodgeDelayTimeMin;
+    float xbc_dodgeDelayTimeMax;
+    u16 xc0_Sound_Hurled;
+    u16 xc2_Sound_Death;
     float xc4_;
-    float xc8_;
+    float xc8_AvoidDistance;
 
   public:
     CSpacePirateData(CInputStream&, u32);
@@ -76,94 +94,94 @@ private:
     struct {
       bool x634_24_pendingAmbush : 1;
       bool x634_25_ceilingAmbush : 1;
-      bool x634_26_ : 1;
+      bool x634_26_nonAggressive : 1;
       bool x634_27_melee : 1;
-      bool x634_28_ : 1;
+      bool x634_28_noShuffleCloseCheck : 1;
       bool x634_29_onlyAttackInRange : 1;
       bool x634_30_ : 1;
-      bool x634_31_ : 1;
-      bool x635_24_ : 1;
-      bool x635_25_ : 1;
-      bool x635_26_ : 1;
+      bool x634_31_noKnockbackImpulseReset : 1;
+      bool x635_24_noMeleeAttack : 1;
+      bool x635_25_breakAttack : 1;
+      bool x635_26_seated : 1;
       bool x635_27_shadowPirate : 1;
-      bool x635_28_ : 1;
-      bool x635_29_ : 1;
+      bool x635_28_alertBeforeCloak : 1;
+      bool x635_29_noBreakDodge : 1;
       bool x635_30_floatingCorpse : 1;
       bool x635_31_ragdollNoAiCollision : 1;
       bool x636_24_trooper : 1;
       bool x636_25_hearNoise : 1;
-      bool x636_26_ : 1;
+      bool x636_26_enableMeleeAttack : 1;
       bool x636_27_ : 1;
       bool x636_28_ : 1;
-      bool x636_29_ : 1;
-      bool x636_30_ : 1;
-      bool x636_31_ : 1;
-      bool x637_24_ : 1;
-      bool x637_25_ : 1;
+      bool x636_29_enableRetreat : 1;
+      bool x636_30_shuffleClose : 1;
+      bool x636_31_inAttackState : 1;
+      bool x637_24_enablePatrol : 1;
+      bool x637_25_enableAim : 1;
       bool x637_26_hearPlayerFire : 1;
       bool x637_27_inProjectilePath : 1;
-      bool x637_28_ : 1;
-      bool x637_29_ : 1;
-      bool x637_30_ : 1;
+      bool x637_28_noPlayerLos : 1;
+      bool x637_29_inWallHang : 1;
+      bool x637_30_jumpVelSet : 1;
       bool x637_31_prevInCineCam : 1;
       bool x638_24_pendingFrenzyChance : 1;
-      bool x638_25_ : 1;
-      bool x638_26_ : 1;
-      bool x638_27_ : 1;
-      bool x638_28_ : 1;
-      bool x638_29_ : 1;
+      bool x638_25_appliedBladeDamage : 1;
+      bool x638_26_alwaysAggressive : 1;
+      bool x638_27_coverCheck : 1;
+      bool x638_28_enableDodge : 1;
+      bool x638_29_noPlayerDodge : 1;
       bool x638_30_ragdollOver : 1;
-      bool x638_31_ : 1;
+      bool x638_31_mayStartAttack : 1;
       bool x639_24_ : 1;
-      bool x639_25_ : 1;
+      bool x639_25_useJumpBackJump : 1;
       bool x639_26_started : 1;
-      bool x639_27_ : 1;
-      bool x639_28_ : 1;
-      bool x639_29_ : 1;
-      bool x639_30_ : 1;
-      bool x639_31_ : 1;
-      bool x63a_24_ : 1;
+      bool x639_27_inRange : 1;
+      bool x639_28_satUp : 1;
+      bool x639_29_enableBreakDodge : 1;
+      bool x639_30_closeMelee : 1;
+      bool x639_31_sentAttackMsg : 1;
+      bool x63a_24_normalDodge : 1;
     };
 
     u64 _dummy = 0;
   };
 
   s32 x63c_frenzyFrames = 0;
-  TUniqueId x640_ = kInvalidUniqueId;
-  TUniqueId x642_ = kInvalidUniqueId;
-  float x644_ = 1.f;
-  zeus::CVector3f x648_ = zeus::CVector3f::skForward;
-  zeus::CVector3f x654_;
+  TUniqueId x640_coverPoint = kInvalidUniqueId;
+  TUniqueId x642_previousCoverPoint = kInvalidUniqueId;
+  float x644_steeringSpeed = 1.f;
+  zeus::CVector3f x648_targetDelta = zeus::CVector3f::skForward;
+  zeus::CVector3f x654_coverPointRearDir;
   CPathFindSearch x660_pathFindSearch;
-  float x744_ = 0.f;
-  float x748_ = 0.f;
+  float x744_unkTimer = 0.f;
+  float x748_steeringDelayTimer = 0.f;
   u32 x74c_ = 0;
   float x750_initialHP;
-  float x754_ = 0.f;
+  float x754_fsmRange = 0.f;
   CSegId x758_headSeg;
   u32 x75c_ = 0;
-  s32 x760_ = -1;
+  pas::ETauntType x760_taunt = pas::ETauntType::Invalid;
   CBoneTracking x764_boneTracking;
-  s32 x79c_ = -1;
+  pas::ECoverDirection x79c_coverDir = pas::ECoverDirection::Invalid;
   float x7a4_intoJumpDist = 1.f;
-  float x7a8_ = 2.f;
-  float x7ac_ = 0.f;
-  u32 x7b0_ = 0;
-  TUniqueId x7b4_ = kInvalidUniqueId;
+  float x7a8_eyeHeight = 2.f;
+  float x7ac_timeNoPlayerLos = 0.f;
+  u32 x7b0_cantSeePlayerCycleCounter = 0;
+  TUniqueId x7b4_attachedActor = kInvalidUniqueId;
   CSegId x7b6_gunSeg;
   CSegId x7b7_elbowSeg;
   CSegId x7b8_wristSeg;
   CSegId x7b9_swooshSeg;
-  float x7bc_ = 1.f;
+  float x7bc_attackRemTime = 1.f;
   TUniqueId x7c0_targetId = kInvalidUniqueId;
   CBurstFire x7c4_burstFire;
-  float x824_ = 3.f;
-  zeus::CVector3f x828_;
-  s32 x834_ = -1;
-  float x838_ = 0.f;
-  s32 x83c_ = -1;
-  TUniqueId x840_ = kInvalidUniqueId;
-  s32 x844_ = -1;
+  float x824_jumpHeight = 3.f;
+  zeus::CVector3f x828_patrolDestPos;
+  pas::EStepDirection x834_skidDir = pas::EStepDirection::Invalid;
+  float x838_strafeDelayTimer = 0.f;
+  pas::ESeverity x83c_meleeSeverity = pas::ESeverity::Invalid;
+  TUniqueId x840_jumpPoint = kInvalidUniqueId;
+  pas::EStepDirection x844_dodgeDir = pas::EStepDirection::Invalid;
   float x848_dodgeDist = 3.f;
   float x84c_breakDodgeDist = 3.f;
   float x850_timeSinceHitByPlayer = FLT_MAX;
@@ -177,13 +195,13 @@ private:
   float x8b4_shadowPirateAlpha = 0.5f;
   float x8b8_minCloakAlpha;
   float x8bc_maxCloakAlpha;
-  float x8c0_;
+  float x8c0_dodgeDelayTimer;
   float x8c4_aimDelayTimer;
   TUniqueId x8c8_teamAiMgrId = kInvalidUniqueId;
   zeus::CColor x8cc_trooperColor = zeus::CColor::skWhite;
-  zeus::CVector2f x8d0_;
-  float x8d8_ = 0.f;
-  float x8dc_ = 0.f;
+  zeus::CVector2f x8d0_heldPosition;
+  float x8d8_holdPositionTime = 0.f;
+  float x8dc_leashTimer = 0.f;
 
   static const SBurst skBurstsSeatedOOV[];
   static const SBurst skBurstsInjuredOOV[];
@@ -207,7 +225,7 @@ private:
   void AssignTeamAiRole(CStateManager& mgr);
   void RemoveTeamAiRole(CStateManager& mgr);
   bool CheckTargetable(CStateManager& mgr);
-  void FireProjectile(float dt, CStateManager& mgr);
+  bool FireProjectile(float dt, CStateManager& mgr);
   void UpdateAttacks(float dt, CStateManager& mgr);
   zeus::CVector3f GetTargetPos(CStateManager& mgr);
   void UpdateAimBodyState(float dt, CStateManager& mgr);
@@ -216,6 +234,15 @@ private:
   void CheckForProjectiles(CStateManager& mgr);
   void SetEyeParticleActive(CStateManager& mgr, bool active);
   void SetVelocityForJump();
+  void AvoidActors(CStateManager& mgr);
+  void UpdateCantSeePlayer(CStateManager& mgr);
+  bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
+                       const CMaterialList& excludeList) const;
+  void UpdateHeldPosition(CStateManager& mgr, float dt);
+  void CheckBlade(CStateManager& mgr);
+  bool CantJumpBack(CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
+  void UpdateLeashTimer(float dt);
+  pas::EStepDirection GetStrafeDir(CStateManager& mgr, float dist) const;
 
 public:
   CSpacePirate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
@@ -237,10 +264,13 @@ public:
   bool IsListening() const;
   bool Listen(const zeus::CVector3f&, EListenNoiseType);
   zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role) const;
+  void DetachActorFromPirate() { x7b4_attachedActor = kInvalidUniqueId; }
+  bool AttachActorToPirate(TUniqueId id);
+  void SetAttackTarget(TUniqueId id);
 
   void Patrol(CStateManager&, EStateMsg, float);
   void Dead(CStateManager&, EStateMsg, float);
-  void PathFind(CStateManager&, EStateMsg, float);
+  void PathFind(CStateManager& mgr, EStateMsg msg, float dt);
   void TargetPatrol(CStateManager&, EStateMsg, float);
   void TargetCover(CStateManager&, EStateMsg, float);
   void Halt(CStateManager&, EStateMsg, float);
@@ -279,7 +309,7 @@ public:
   bool PatternShagged(CStateManager&, float);
   bool AnimOver(CStateManager&, float);
   bool ShouldAttack(CStateManager&, float);
-  bool ShouldJumpBack(CStateManager&, float);
+  bool ShouldJumpBack(CStateManager& mgr, float arg);
   bool Stuck(CStateManager&, float);
   bool Landed(CStateManager&, float);
   bool HearShot(CStateManager&, float);
@@ -300,10 +330,10 @@ public:
   bool ShouldWallHang(CStateManager&, float);
   bool StartAttack(CStateManager&, float);
   bool BreakAttack(CStateManager&, float);
-  bool ShouldStrafe(CStateManager&, float);
+  bool ShouldStrafe(CStateManager& mgr, float arg);
   bool ShouldSpecialAttack(CStateManager&, float);
   bool LostInterest(CStateManager&, float);
-  bool BounceFind(CStateManager&, float);
+  bool BounceFind(CStateManager& mgr, float arg);
 
   CPathFindSearch* GetSearchPath();
   u8 GetModelAlphau8(const CStateManager& mgr) const;

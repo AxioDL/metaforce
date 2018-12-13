@@ -554,7 +554,7 @@ void CParasite::Halt(CStateManager& mgr, EStateMsg msg, float) {
   switch (msg) {
   case EStateMsg::Activate:
     x330_stateMachineState.SetDelay(x710_haltDelay);
-    x32c_animState = EAnimState::One;
+    x32c_animState = EAnimState::Ready;
     x743_24_halted = true;
     x5d6_24_alignToFloor = true;
     if (x5d0_walkerType == EWalkerType::Geemer)
@@ -567,7 +567,7 @@ void CParasite::Halt(CStateManager& mgr, EStateMsg msg, float) {
     break;
   case EStateMsg::Deactivate:
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
-    x32c_animState = EAnimState::Zero;
+    x32c_animState = EAnimState::NotReady;
     x743_24_halted = false;
     x5d6_24_alignToFloor = false;
     break;

@@ -25,11 +25,18 @@ public:
 };
 
 class CMetroid : public CPatterned {
+  union {
+    struct {
+      bool x9bf_29_ : 1;
+    };
+    u32 _dummy = 0;
+  };
 public:
   DEFINE_PATTERNED(Metroid)
   CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
            const CMetroidData& metroidData);
+  bool GetX9BF_29() const { return x9bf_29_; }
 };
 
 } // namespace urde::MP1
