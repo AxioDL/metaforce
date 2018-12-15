@@ -65,8 +65,8 @@ public:
   CAssetId GetEventResourceIdForAnimResourceId(CAssetId animId) const;
 
   const CCharacterInfo& GetCharInfo(int charIdx) const { return x4_charInfoDB[charIdx]; }
-  const CAdditiveAnimationInfo& FindAdditiveInfo(u32 idx) const;
-  bool HasAdditiveInfo(u32 idx) const;
+  const CAdditiveAnimationInfo& FindAdditiveInfo(s32 idx) const;
+  bool HasAdditiveInfo(s32 idx) const;
 };
 
 } // namespace urde

@@ -34,7 +34,7 @@ void CBoneTracking::PreRender(const CStateManager& mgr, CAnimData& animData, con
   if (x14_segId == 0)
     return;
   CHierarchyPoseBuilder& pb = animData.PoseBuilder();
-  TCastToConstPtr<CPatterned> targetAct = mgr.GetObjectById(x34_target);
+  TCastToConstPtr<CActor> targetAct = mgr.GetObjectById(x34_target);
   if (x36_24_active && tracking && (targetAct || x24_targetPosition)) {
     x36_25_hasTrackedRotation = true;
     auto layoutInfo = pb.CharLayoutInfo();

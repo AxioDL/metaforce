@@ -943,8 +943,8 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::IT
     x44c_hudLagShakeRot.rotateZ(rand() / float(RAND_MAX) * rotAng);
     zeus::CVector3f vecs[] = {zeus::CVector3f::skRight, zeus::CVector3f::skForward, zeus::CVector3f::skUp};
     for (int i = 0; i < 4; ++i) {
-      int sel = int(rand() / float(RAND_MAX) * 9.f);
-      vecs[sel & 0x3][(sel / 3) & 0x3] += (rand() / float(RAND_MAX) - dt) * rotMul;
+      int sel = rand() % 9;
+      vecs[sel % 3][sel / 3] += (rand() / float(RAND_MAX) - dt) * rotMul;
     }
     x428_decoShakeRotate = zeus::CMatrix3f(vecs[0], vecs[1], vecs[2]).transposed();
     transformUpdate = true;

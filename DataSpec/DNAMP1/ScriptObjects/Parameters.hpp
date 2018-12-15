@@ -212,7 +212,7 @@ struct HealthInfo : BigDNA {
   AT_DECL_DNA_YAML
   Value<atUint32> propertyCount;
   Value<float> health SPECTER_PROPERTY("Health", "Base health for object");
-  Value<float> knockbackResistence SPECTER_PROPERTY("Knockback Resistence", "");
+  Value<float> knockbackResistance SPECTER_PROPERTY("Knockback Resistance", "");
 } SPECTER_PROPERTY("Health Info", "");
 
 struct LightParameters : BigDNA {

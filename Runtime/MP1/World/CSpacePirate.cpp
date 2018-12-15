@@ -155,7 +155,7 @@ void CPirateRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData) {
     aData->PoseBuilder().GetTreeMap()[rootId].x4_rotation = _a4;
     if (x6c_spacePirate->x7b4_attachedActor == kInvalidUniqueId) {
       zeus::CVector3f _b0 = aData->GetCharLayoutInfo().GetFromParentUnrotated(x4_particles[1].GetBone());
-      aData->PoseBuilder().GetTreeMap()[x4_particles[1].GetBone()] = zeus::CQuaternion::shortestRotationArc(
+      aData->PoseBuilder().GetTreeMap()[x4_particles[1].GetBone()].x4_rotation = zeus::CQuaternion::shortestRotationArc(
           _b0, _a4.inverse().transform(x4_particles[1].GetPosition() - x4_particles[0].GetPosition()));
     }
     BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 3, 4,
@@ -552,7 +552,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
 void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
   bool reset = true;
   if ((!x400_25_alive ||
-       (x450_bodyController->GetBodyStateInfo().GetCurrentState()->CanShoot() && x637_29_inWallHang && !x634_27_melee &&
+       (x450_bodyController->GetBodyStateInfo().GetCurrentState()->CanShoot() && x637_25_enableAim && !x634_27_melee &&
         !x634_25_ceilingAmbush && !x639_26_started && !x450_bodyController->IsElectrocuting())) &&
       x7c4_burstFire.GetBurstType() != -1) {
     if (x400_25_alive) {
@@ -1008,7 +1008,7 @@ void CSpacePirate::Touch(CActor& other, CStateManager& mgr) {
 }
 
 zeus::CAABox CSpacePirate::GetSortingBounds(const CStateManager& mgr) const {
-  zeus::CAABox aabb = x64_modelData->GetBounds();
+  zeus::CAABox aabb = x64_modelData->GetBounds(x34_transform);
   zeus::CVector3f radius = aabb.extents() * 0.5f;
   zeus::CVector3f center = aabb.center();
   return zeus::CAABox(center - radius, center + radius);
@@ -1280,46 +1280,46 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       x328_24_inPosition = false;
       x2dc_destObj = cp->GetUniqueId();
       x2e0_destPos = cp->GetTranslation();
-      if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
-        x2ec_reflectedDestPos = GetTranslation();
-        x2e0_destPos =
-        (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size()) ?
-        GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1] :
-        GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
-        x328_24_inPosition = false;
-        x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(x2e0_destPos - GetTranslation(), zeus::CVector3f::skZero, 1.f));
-      } else {
-        CScriptAiJumpPoint* bestJp = nullptr;
-        float minDist = FLT_MAX;
-        for (CEntity* ent : mgr.GetAiWaypointObjectList()) {
-          if (TCastToPtr<CScriptAiJumpPoint> jp = ent) {
-            if (jp->GetActive() && !jp->GetInUse(GetUniqueId()) && jp->GetJumpTarget() == kInvalidUniqueId &&
-                GetAreaIdAlways() == jp->GetAreaIdAlways()) {
-              zeus::CVector3f toJp = jp->GetTranslation() - GetTranslation();
-              float f30 = toJp.magSquared();
-              if (f30 > 25.f && jp->GetTransform().basis[1].dot(toJp) > 0.f) {
-                if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(jp->GetJumpPoint())) {
-                  if ((wp->GetTranslation().z() - jp->GetTranslation().z()) *
-                      (x2e0_destPos.z() - GetTranslation().z()) > 0.f) {
-                    zeus::CVector3f delta = x2e0_destPos - wp->GetTranslation();
-                    f30 += 4.f * toJp.z() * toJp.z();
-                    f30 += delta.magSquared() + delta.z() * delta.z() * 9.f;
-                    if (f30 < minDist &&
-                        GetSearchPath()->PathExists(GetTranslation(), jp->GetTranslation()) ==
-                        CPathFindSearch::EResult::Success) {
-                      bool r24 = false;
-                      auto res = GetSearchPath()->PathExists(wp->GetTranslation(), x2e0_destPos);
-                      if (res != CPathFindSearch::EResult::Success)
-                        f30 += 1000.f;
-                      if (res == CPathFindSearch::EResult::Success)
-                        r24 = true;
-                      if (f30 < minDist) {
-                        minDist = f30;
-                        bestJp = jp.GetPtr();
-                        if (r24)
-                          break;
-                      }
+    }
+    if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
+      x2ec_reflectedDestPos = GetTranslation();
+      x2e0_destPos =
+      (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size()) ?
+      GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1] :
+      GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
+      x328_24_inPosition = false;
+      x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCLocomotionCmd(x2e0_destPos - GetTranslation(), zeus::CVector3f::skZero, 1.f));
+    } else {
+      CScriptAiJumpPoint* bestJp = nullptr;
+      float minDist = FLT_MAX;
+      for (CEntity* ent : mgr.GetAiWaypointObjectList()) {
+        if (TCastToPtr<CScriptAiJumpPoint> jp = ent) {
+          if (jp->GetActive() && !jp->GetInUse(GetUniqueId()) && jp->GetJumpTarget() == kInvalidUniqueId &&
+              GetAreaIdAlways() == jp->GetAreaIdAlways()) {
+            zeus::CVector3f toJp = jp->GetTranslation() - GetTranslation();
+            float f30 = toJp.magSquared();
+            if (f30 > 25.f && jp->GetTransform().basis[1].dot(toJp) > 0.f) {
+              if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(jp->GetJumpPoint())) {
+                if ((wp->GetTranslation().z() - jp->GetTranslation().z()) *
+                    (x2e0_destPos.z() - GetTranslation().z()) > 0.f) {
+                  zeus::CVector3f delta = x2e0_destPos - wp->GetTranslation();
+                  f30 += 4.f * toJp.z() * toJp.z();
+                  f30 += delta.magSquared() + delta.z() * delta.z() * 9.f;
+                  if (f30 < minDist &&
+                      GetSearchPath()->PathExists(GetTranslation(), jp->GetTranslation()) ==
+                      CPathFindSearch::EResult::Success) {
+                    bool r24 = false;
+                    auto res = GetSearchPath()->PathExists(wp->GetTranslation(), x2e0_destPos);
+                    if (res != CPathFindSearch::EResult::Success)
+                      f30 += 1000.f;
+                    if (res == CPathFindSearch::EResult::Success)
+                      r24 = true;
+                    if (f30 < minDist) {
+                      minDist = f30;
+                      bestJp = jp.GetPtr();
+                      if (r24)
+                        break;
                     }
                   }
                 }
@@ -1327,32 +1327,32 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
             }
           }
         }
-        if (bestJp) {
-          x2e0_destPos = bestJp->GetTranslation();
-          if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
-            x2ec_reflectedDestPos = GetTranslation();
-            x2e0_destPos =
-            (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size()) ?
-            GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1] :
-            GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
-            x328_24_inPosition = false;
-            x840_jumpPoint = bestJp->GetUniqueId();
-            x824_jumpHeight = bestJp->GetJumpApex();
-            if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(bestJp->GetJumpPoint())) {
-              x828_patrolDestPos = wp->GetTranslation();
-              x450_bodyController->GetCommandMgr().DeliverCmd(
-                CBCLocomotionCmd(x2e0_destPos, zeus::CVector3f::skZero, 1.f));
-              x30c_behaviourOrient = EBehaviourOrient::MoveDir;
-            }
+      }
+      if (bestJp) {
+        x2e0_destPos = bestJp->GetTranslation();
+        if (GetSearchPath()->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
+          x2ec_reflectedDestPos = GetTranslation();
+          x2e0_destPos =
+          (GetSearchPath()->GetCurrentWaypoint() + 1 < GetSearchPath()->GetWaypoints().size()) ?
+          GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint() + 1] :
+          GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
+          x328_24_inPosition = false;
+          x840_jumpPoint = bestJp->GetUniqueId();
+          x824_jumpHeight = bestJp->GetJumpApex();
+          if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(bestJp->GetJumpPoint())) {
+            x828_patrolDestPos = wp->GetTranslation();
+            x450_bodyController->GetCommandMgr().DeliverCmd(
+              CBCLocomotionCmd(x2e0_destPos, zeus::CVector3f::skZero, 1.f));
+            x30c_behaviourOrient = EBehaviourOrient::MoveDir;
           }
         }
       }
-      x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
-      if (x637_25_enableAim)
-        x644_steeringSpeed = 1.f;
-      x639_27_inRange = false;
-      x63a_24_normalDodge = true;
     }
+    x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
+    if (x637_25_enableAim)
+      x644_steeringSpeed = 1.f;
+    x639_27_inRange = false;
+    x63a_24_normalDodge = true;
     break;
   case EStateMsg::Update:
     CPatterned::PathFind(mgr, msg, dt);

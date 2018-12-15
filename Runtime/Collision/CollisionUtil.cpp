@@ -308,7 +308,7 @@ void FilterByClosestNormal(const zeus::CVector3f& norm, const CCollisionInfoList
   }
 
   if (idx != -1)
-    out.Add(in.GetItem(i), false);
+    out.Add(in.GetItem(idx), false);
 }
 
 static const zeus::CVector3f AABBNormalTable[] = {{-1.f, 0.f, 0.f}, {1.f, 0.f, 0.f},  {0.f, -1.f, 0.f},

@@ -8,6 +8,7 @@ namespace urde {
 class CCharLayoutInfo;
 
 class CPoseAsTransforms {
+  friend class CAnimData;
 public:
   struct Transform {
     zeus::CTransform m_originToAccum;

@@ -20,7 +20,7 @@ class CPoseAsTransforms;
 class CModel;
 
 struct CModelFlags {
-  u8 x0_blendMode = 0; /* >6: additive, >4: blend, else opaque */
+  u8 x0_blendMode = 0; /* 2: add color, >6: additive, >4: blend, else opaque */
   u8 x1_matSetIdx = 0;
   EExtendedShader m_extendedShader = EExtendedShader::Lighting;
   bool m_noCull = false;

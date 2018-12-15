@@ -989,6 +989,7 @@ void CGameArea::PostConstructArea() {
     CAssetId pathId = r.readUint32Big();
     x12c_postConstructed->x10ac_pathToken = g_SimplePool->GetObj(SObjectTag{FOURCC('PATH'), pathId});
     x12c_postConstructed->x10bc_pathArea = x12c_postConstructed->x10ac_pathToken.GetObj();
+    x12c_postConstructed->x10bc_pathArea->SetTransform(xc_transform);
     ++secIt;
   }
 

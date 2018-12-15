@@ -48,6 +48,7 @@ class CPFOpenList {
   CPFRegionData x90_regionData;
 
 public:
+  CPFOpenList();
   void Clear();
   void Push(CPFRegion* reg);
   CPFRegion* Pop();

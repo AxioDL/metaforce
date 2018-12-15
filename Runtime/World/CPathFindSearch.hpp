@@ -2,8 +2,16 @@
 
 #include "RetroTypes.hpp"
 #include "CPathFindArea.hpp"
+#include "Graphics/CLineRenderer.hpp"
 
 namespace urde {
+class CPathFindSearch;
+
+class CPathFindVisualizer {
+  CLineRenderer m_spline = {CLineRenderer::EPrimitiveMode::LineStrip, 16, {}, true};
+public:
+  void Draw(const CPathFindSearch& path);
+};
 
 class CPathFindSearch {
 public:
@@ -19,6 +27,7 @@ private:
   float xd8_padding = 10.f;
   u32 xdc_flags; // 0x2: flyer, 0x4: path-always-exists (swimmers)
   u32 xe0_indexMask;
+  mutable std::experimental::optional<CPathFindVisualizer> m_viz;
   bool Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const zeus::CVector3f& p1,
               rstl::reserved_vector<CPFRegion*, 4>& regs2, const zeus::CVector3f& p2);
   void GetSplinePoint(zeus::CVector3f& pOut, const zeus::CVector3f& p1, u32 wpIdx) const;
@@ -43,6 +52,7 @@ public:
   float GetCharacterHeight() const { return xd0_chHeight; }
   void SetCharacterHeight(float h) { xd0_chHeight = h; }
   float RemainingPathDistance(const zeus::CVector3f& pos) const;
+  void DebugDraw() const;
 };
 
 } // namespace urde

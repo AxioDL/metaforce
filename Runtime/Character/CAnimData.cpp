@@ -108,7 +108,7 @@ CAssetId CAnimData::GetEventResourceIdForAnimResourceId(CAssetId id) const {
 }
 
 void CAnimData::AddAdditiveSegData(const CSegIdList& list, CSegStatementSet& stSet) {
-  for (std::pair<u32, CAdditiveAnimPlayback>& additive : x434_additiveAnims)
+  for (auto& additive : x434_additiveAnims)
     if (additive.second.GetTargetWeight() > 0.00001f)
       additive.second.AddToSegStatementSet(list, *xcc_layoutData.GetObj(), stSet);
 }
@@ -126,7 +126,7 @@ SAdvancementDeltas CAnimData::AdvanceAdditiveAnims(float dt) {
 
   SAdvancementDeltas deltas = {};
 
-  for (std::pair<u32, CAdditiveAnimPlayback>& additive : x434_additiveAnims) {
+  for (auto& additive : x434_additiveAnims) {
     std::shared_ptr<CAnimTreeNode>& anim = additive.second.GetAnim();
     if (additive.second.IsActive()) {
       while (time.GreaterThanZero() && std::fabs(time.GetSeconds()) >= 0.00001f) {
@@ -181,72 +181,73 @@ SAdvancementDeltas CAnimData::UpdateAdditiveAnims(float dt) {
   return AdvanceAdditiveAnims(dt);
 }
 
-bool CAnimData::IsAdditiveAnimation(u32 idx) const {
-  u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+bool CAnimData::IsAdditiveAnimation(s32 idx) const {
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
   return x0_charFactory->HasAdditiveInfo(animIdx);
 }
 
-bool CAnimData::IsAdditiveAnimationAdded(u32 idx) const {
+bool CAnimData::IsAdditiveAnimationAdded(s32 idx) const {
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
   auto search =
       std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool { return pair.first == idx; });
-  if (search == x434_additiveAnims.cend())
-    return false;
-  return true;
+                   [animIdx](const auto& pair) { return pair.first == animIdx; });
+  return search != x434_additiveAnims.cend();
 }
 
-const std::shared_ptr<CAnimTreeNode>& CAnimData::GetAdditiveAnimationTree(u32 idx) const {
+const std::shared_ptr<CAnimTreeNode>& CAnimData::GetAdditiveAnimationTree(s32 idx) const {
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
   auto search =
       std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool { return pair.first == idx; });
+                   [animIdx](const auto& pair) { return pair.first == animIdx; });
   return search->second.GetAnim();
 }
 
-bool CAnimData::IsAdditiveAnimationActive(u32 idx) const {
+bool CAnimData::IsAdditiveAnimationActive(s32 idx) const {
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
   auto search =
       std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [&](const std::pair<u32, CAdditiveAnimPlayback>& pair) -> bool { return pair.first == idx; });
+                   [animIdx](const auto& pair) { return pair.first == animIdx; });
   if (search == x434_additiveAnims.cend())
     return false;
   return search->second.IsActive();
 }
 
 void CAnimData::DelAdditiveAnimation(s32 idx) {
-  u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims) {
-    if (anim.first == animIdx && anim.second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
-        anim.second.GetPhase() != EAdditivePlaybackPhase::FadedOut) {
-      anim.second.FadeOut();
-      return;
-    }
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+  auto search =
+    std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
+                 [animIdx](const auto& pair) { return pair.first == animIdx; });
+  if (search != x434_additiveAnims.cend() &&
+      search->second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
+      search->second.GetPhase() != EAdditivePlaybackPhase::FadedOut) {
+    search->second.FadeOut();
   }
 }
 
 void CAnimData::AddAdditiveAnimation(s32 idx, float weight, bool active, bool fadeOut) {
-  u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  for (std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims) {
-    if (anim.first == animIdx && anim.second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
-        anim.second.GetPhase() != EAdditivePlaybackPhase::FadedOut) {
-      anim.second.SetActive(active);
-      anim.second.SetWeight(weight);
-      anim.second.SetNeedsFadeOut(!anim.second.IsActive() && fadeOut);
-      return;
-    }
-  }
-
-  std::shared_ptr<CAnimTreeNode> node =
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+  auto search =
+    std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
+                 [animIdx](const auto& pair) { return pair.first == animIdx; });
+  if (search != x434_additiveAnims.cend()) {
+    search->second.SetActive(active);
+    search->second.SetWeight(weight);
+    search->second.SetNeedsFadeOut(!search->second.IsActive() && fadeOut);
+  } else {
+    std::shared_ptr<CAnimTreeNode> node =
       GetAnimationManager()->GetAnimationTree(animIdx, CMetaAnimTreeBuildOrders::NoSpecialOrders());
-
-  const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
-  x434_additiveAnims.emplace_back(std::make_pair(idx, CAdditiveAnimPlayback(node, weight, active, info, fadeOut)));
+    const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
+    x434_additiveAnims.emplace_back(std::make_pair(animIdx, CAdditiveAnimPlayback(node, weight, active, info, fadeOut)));
+  }
 }
 
-float CAnimData::GetAdditiveAnimationWeight(u32 idx) const {
-  u32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  for (const std::pair<u32, CAdditiveAnimPlayback>& anim : x434_additiveAnims) {
-    if (anim.first == animIdx)
-      return anim.second.GetTargetWeight();
-  }
+float CAnimData::GetAdditiveAnimationWeight(s32 idx) const {
+  s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
+  auto search =
+    std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                 [animIdx](const auto& pair) { return pair.first == animIdx; });
+  if (search != x434_additiveAnims.cend())
+    return search->second.GetTargetWeight();
   return 0.f;
 }
 
@@ -618,13 +619,13 @@ void CAnimData::SetAnimation(const CAnimPlaybackParms& parms, bool noTrans) {
   x200_speedScale = 1.f;
   x208_defaultAnim = parms.GetAnimationId();
 
-  u32 animIdxA = xc_charInfo.GetAnimationIndex(parms.GetAnimationId());
+  s32 animIdxA = xc_charInfo.GetAnimationIndex(parms.GetAnimationId());
 
   ResetPOILists();
 
   std::shared_ptr<CAnimTreeNode> blendNode;
   if (parms.GetSecondAnimationId() != -1) {
-    u32 animIdxB = xc_charInfo.GetAnimationIndex(parms.GetSecondAnimationId());
+    s32 animIdxB = xc_charInfo.GetAnimationIndex(parms.GetSecondAnimationId());
 
     std::shared_ptr<CAnimTreeNode> treeA =
         x100_animMgr->GetAnimationTree(animIdxA, CMetaAnimTreeBuildOrders::NoSpecialOrders());

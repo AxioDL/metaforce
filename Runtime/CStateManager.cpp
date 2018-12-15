@@ -56,6 +56,7 @@
 #include "hecl/CVarManager.hpp"
 #include "World/CPatterned.hpp"
 #include "World/CDestroyableRock.hpp"
+#include "World/CPathFindSearch.hpp"
 #include <cmath>
 
 namespace urde {
@@ -515,7 +516,15 @@ void CStateManager::BuildDynamicLightListForWorld() {
   }
 }
 
-void CStateManager::DrawDebugStuff() const {}
+void CStateManager::DrawDebugStuff() const {
+  for (CEntity* ent : GetActorObjectList()) {
+    if (TCastToPtr<CPatterned> ai = ent) {
+      if (CPathFindSearch* path = ai->GetSearchPath()) {
+        path->DebugDraw();
+      }
+    }
+  }
+}
 
 void CStateManager::RenderCamerasAndAreaLights() const {
   x870_cameraManager->RenderCameras(*this);
@@ -1558,8 +1567,8 @@ bool CStateManager::ApplyLocalDamage(const zeus::CVector3f& pos, const zeus::CVe
   }
 
   float newHp = hInfo->GetHP() - mulDam;
-  hInfo->SetHP(newHp);
   bool significant = std::fabs(newHp - hInfo->GetHP()) >= 0.00001;
+  hInfo->SetHP(newHp);
 
   if (player && GetPlayerState()->CanTakeDamage()) {
     player->TakeDamage(significant, pos, mulDam, weapMode.GetType(), *this);

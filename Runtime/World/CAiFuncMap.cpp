@@ -67,6 +67,8 @@ CAiFuncMap::CAiFuncMap() {
   x10_triggerFuncs["OffLine"] = &CAi::OffLine;
   x10_triggerFuncs["Attacked"] = &CAi::Attacked;
   x10_triggerFuncs["PathShagged"] = &CAi::PathShagged;
+  x10_triggerFuncs["PathOver"] = &CAi::PathOver;
+  x10_triggerFuncs["PathFound"] = &CAi::PathFound;
   x10_triggerFuncs["TooClose"] = &CAi::TooClose;
   x10_triggerFuncs["InRange"] = &CAi::InRange;
   x10_triggerFuncs["InMaxRange"] = &CAi::InMaxRange;

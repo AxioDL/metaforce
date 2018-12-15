@@ -47,7 +47,7 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
   mgr.BuildColliderList(useColliderList, actor, motionVol);
   CAreaCollisionCache cache(motionVol);
   float collideDt = dt;
-  if (actor.GetCollisionPrimitive()->GetPrimType() == FOURCC('OBTG')) {
+  if (actor.GetCollisionPrimitive()->GetPrimType() != FOURCC('OBTG')) {
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     if (deltaMag > 0.5f * CGameCollision::GetMinExtentForCollisionPrimitive(*actor.GetCollisionPrimitive())) {
       zeus::CVector3f point = actor.GetCollisionPrimitive()->CalculateAABox(actor.GetPrimitiveTransform()).center();
@@ -59,55 +59,55 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
         collideDt = dt * (result.GetT() / deltaMag);
         newState = actor.PredictMotion_Internal(collideDt);
       }
-      actor.MoveCollisionPrimitive(newState.x0_translation);
-      if (CGameCollision::DetectCollision_Cached(mgr, cache, *actor.GetCollisionPrimitive(),
-                                                 actor.GetPrimitiveTransform(), actor.GetMaterialFilter(),
-                                                 useColliderList, idDetect, collisionList)) {
-        actor.AddMotionState(newState);
-        float resolved = 0.f;
-        if (ResolveUpDown(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, actor.GetStepUpHeight(), 0.f,
-                          resolved, collisionList)) {
-          actor.SetMotionState(oldState);
-          MoveGroundColliderXY(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, collideDt);
-        }
+    }
+  }
+  actor.MoveCollisionPrimitive(newState.x0_translation);
+  if (CGameCollision::DetectCollision_Cached(mgr, cache, *actor.GetCollisionPrimitive(),
+                                             actor.GetPrimitiveTransform(), actor.GetMaterialFilter(),
+                                             useColliderList, idDetect, collisionList)) {
+    actor.AddMotionState(newState);
+    float resolved = 0.f;
+    if (ResolveUpDown(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, actor.GetStepUpHeight(), 0.f,
+                      resolved, collisionList)) {
+      actor.SetMotionState(oldState);
+      MoveGroundColliderXY(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, collideDt);
+    }
 
-      } else {
-        actor.AddMotionState(newState);
-      }
+  } else {
+    actor.AddMotionState(newState);
+  }
 
-      float stepDown = actor.GetStepDownHeight();
-      float resolved = 0.f;
-      collisionList.Clear();
-      TUniqueId stepZId = kInvalidUniqueId;
-      if (stepDown >= 0.f) {
-        if (MoveGroundColliderZ(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, -stepDown, resolved,
-                                collisionList, stepZId)) {
-          if (collisionList.GetCount() > 0) {
-            CCollisionInfoList filteredList;
-            CollisionUtil::FilterByClosestNormal(zeus::CVector3f{0.f, 0.f, 1.f}, collisionList, filteredList);
-            if (filteredList.GetCount() > 0) {
-              if (CGameCollision::IsFloor(filteredList.Front().GetMaterialLeft(),
-                                          filteredList.Front().GetNormalLeft())) {
-                if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(stepZId))
-                  mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
-                CGameCollision::SendMaterialMessage(mgr, filteredList.Front().GetMaterialLeft(), actor);
-                mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
-              } else {
-                CheckFalling(actor, mgr, dt);
-              }
-            }
+  float stepDown = actor.GetStepDownHeight();
+  float resolved = 0.f;
+  collisionList.Clear();
+  TUniqueId stepZId = kInvalidUniqueId;
+  if (stepDown >= 0.f) {
+    if (MoveGroundColliderZ(cache, mgr, actor, actor.GetMaterialFilter(), useColliderList, -stepDown, resolved,
+                            collisionList, stepZId)) {
+      if (collisionList.GetCount() > 0) {
+        CCollisionInfoList filteredList;
+        CollisionUtil::FilterByClosestNormal(zeus::CVector3f{0.f, 0.f, 1.f}, collisionList, filteredList);
+        if (filteredList.GetCount() > 0) {
+          if (CGameCollision::IsFloor(filteredList.Front().GetMaterialLeft(),
+                                      filteredList.Front().GetNormalLeft())) {
+            if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById(stepZId))
+              mgr.SendScriptMsg(plat.GetPtr(), actor.GetUniqueId(), EScriptObjectMessage::AddPlatformRider);
+            CGameCollision::SendMaterialMessage(mgr, filteredList.Front().GetMaterialLeft(), actor);
+            mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::OnFloor);
+          } else {
+            CheckFalling(actor, mgr, dt);
           }
         }
-      } else {
-        CheckFalling(actor, mgr, dt);
-      }
-
-      actor.ClearForcesAndTorques();
-      actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
-      if (actor.GetMaterialList().HasMaterial(EMaterialTypes::Player)) {
-        CGameCollision::CollisionFailsafe(mgr, cache, actor, *actor.GetCollisionPrimitive(), useColliderList, 0.f, 1);
       }
     }
+  } else {
+    CheckFalling(actor, mgr, dt);
+  }
+
+  actor.ClearForcesAndTorques();
+  actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  if (actor.GetMaterialList().HasMaterial(EMaterialTypes::Player)) {
+    CGameCollision::CollisionFailsafe(mgr, cache, actor, *actor.GetCollisionPrimitive(), useColliderList, 0.f, 1);
   }
 }
 

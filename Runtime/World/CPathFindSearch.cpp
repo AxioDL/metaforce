@@ -1,4 +1,5 @@
 #include "CPathFindSearch.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde {
 
@@ -346,6 +347,19 @@ bool CPathFindSearch::Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const 
   }
 
   return reg != nullptr;
+}
+
+void CPathFindVisualizer::Draw(const CPathFindSearch& path) {
+  m_spline.Reset();
+  for (const auto& wp : path.GetWaypoints())
+    m_spline.AddVertex(wp, zeus::CColor::skBlue, 2.f);
+  m_spline.Render();
+}
+
+void CPathFindSearch::DebugDraw() const {
+  if (!m_viz)
+    m_viz.emplace();
+  m_viz->Draw(*this);
 }
 
 } // namespace urde

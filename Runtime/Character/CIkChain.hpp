@@ -10,15 +10,15 @@ namespace urde {
 class CAnimData;
 class CSegId;
 class CIkChain {
-  CSegId x0_;
-  CSegId x1_;
-  CSegId x2_;
-  zeus::CVector3f x4_ = zeus::CVector3f::skForward;
-  zeus::CVector3f x10_ = zeus::CVector3f::skForward;
-  float x1c_ = 1.f;
-  float x20_ = 1.f;
-  zeus::CQuaternion x24_;
-  zeus::CVector3f x34_;
+  CSegId x0_bone;
+  CSegId x1_p1;
+  CSegId x2_p2;
+  zeus::CVector3f x4_p2p1Dir = zeus::CVector3f::skForward;
+  zeus::CVector3f x10_p1BoneDir = zeus::CVector3f::skForward;
+  float x1c_p2p1Length = 1.f;
+  float x20_p1BoneLength = 1.f;
+  zeus::CQuaternion x24_holdRot;
+  zeus::CVector3f x34_holdPos;
   float x40_time = 0.f;
 
   union {

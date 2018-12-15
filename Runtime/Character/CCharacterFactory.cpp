@@ -100,7 +100,7 @@ CAssetId CCharacterFactory::GetEventResourceIdForAnimResourceId(CAssetId id) con
   return search->second;
 }
 
-const CAdditiveAnimationInfo& CCharacterFactory::FindAdditiveInfo(u32 idx) const {
+const CAdditiveAnimationInfo& CCharacterFactory::FindAdditiveInfo(s32 idx) const {
   auto search = rstl::binary_find(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
                                   [](const auto& anim) { return anim.first; });
 
@@ -109,7 +109,7 @@ const CAdditiveAnimationInfo& CCharacterFactory::FindAdditiveInfo(u32 idx) const
   return search->second;
 }
 
-bool CCharacterFactory::HasAdditiveInfo(u32 idx) const {
+bool CCharacterFactory::HasAdditiveInfo(s32 idx) const {
   auto search = rstl::binary_find(x40_additiveInfo.cbegin(), x40_additiveInfo.cend(), idx,
                                   [](const auto& anim) { return anim.first; });
   return search != x40_additiveInfo.cend();

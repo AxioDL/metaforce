@@ -1501,7 +1501,9 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
       /* Being damaged */
       zeus::CColor col2 = col;
       col2.a() = alpha / 255.f;
-      xb4_drawFlags = CModelFlags(2, 0, 3, col2);
+      xb4_drawFlags = CModelFlags(2, 0, 3, zeus::CColor::skWhite);
+      /* Make color additive */
+      xb4_drawFlags.addColor = col2;
     } else {
       xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
     }

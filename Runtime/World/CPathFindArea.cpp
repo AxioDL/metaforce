@@ -73,6 +73,11 @@ bool CPFAreaOctree::IsPointInsidePaddedAABox(const zeus::CVector3f& point, float
          point.z() >= x4_aabb.min.z() - padding && point.z() <= x4_aabb.max.z() + padding;
 }
 
+CPFOpenList::CPFOpenList() {
+  x40_region.SetData(&x90_regionData);
+  Clear();
+}
+
 void CPFOpenList::Clear() {
   x40_region.Data()->SetOpenMore(&x40_region);
   x40_region.Data()->SetOpenLess(&x40_region);

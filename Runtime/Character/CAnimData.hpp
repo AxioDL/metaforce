@@ -108,7 +108,7 @@ private:
 
   float x200_speedScale = 1.f;
   s32 x204_charIdx;
-  u16 x208_defaultAnim;
+  s32 x208_defaultAnim;
   u32 x20c_passedBoolCount = 0;
   u32 x210_passedIntCount = 0;
   u32 x214_passedParticleCount = 0;
@@ -133,7 +133,7 @@ private:
   CHierarchyPoseBuilder x2fc_poseBuilder;
 
   CAnimPlaybackParms x40c_playbackParms;
-  rstl::reserved_vector<std::pair<u32, CAdditiveAnimPlayback>, 8> x434_additiveAnims;
+  rstl::reserved_vector<std::pair<s32, CAdditiveAnimPlayback>, 8> x434_additiveAnims;
 
   static rstl::reserved_vector<CBoolPOINode, 8> g_BoolPOINodes;
   static rstl::reserved_vector<CInt32POINode, 16> g_Int32POINodes;
@@ -158,14 +158,14 @@ public:
   static SAdvancementResults AdvanceAdditiveAnim(std::shared_ptr<CAnimTreeNode>& anim, const CCharAnimTime& time);
   SAdvancementDeltas AdvanceAdditiveAnims(float);
   SAdvancementDeltas UpdateAdditiveAnims(float);
-  bool IsAdditiveAnimation(u32) const;
-  bool IsAdditiveAnimationAdded(u32) const;
+  bool IsAdditiveAnimation(s32) const;
+  bool IsAdditiveAnimationAdded(s32) const;
   const std::shared_ptr<CAnimTreeNode>& GetRootAnimationTree() const { return x1f8_animRoot; }
-  const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(u32) const;
-  bool IsAdditiveAnimationActive(u32) const;
+  const std::shared_ptr<CAnimTreeNode>& GetAdditiveAnimationTree(s32) const;
+  bool IsAdditiveAnimationActive(s32) const;
   void DelAdditiveAnimation(s32);
   void AddAdditiveAnimation(s32, float, bool, bool);
-  float GetAdditiveAnimationWeight(u32 idx) const;
+  float GetAdditiveAnimationWeight(s32 idx) const;
   std::shared_ptr<CAnimationManager> GetAnimationManager();
   const CCharacterInfo& GetCharacterInfo() const { return xc_charInfo; }
   const CCharLayoutInfo& GetCharLayoutInfo() const { return *xcc_layoutData.GetObj(); }
@@ -229,6 +229,7 @@ public:
   static void FreeCache();
   static void InitializeCache();
   CHierarchyPoseBuilder& PoseBuilder() { return x2fc_poseBuilder; }
+  const CHierarchyPoseBuilder& GetPoseBuilder() const { return x2fc_poseBuilder; }
   const CParticleDatabase& GetParticleDB() const { return x120_particleDB; }
   CParticleDatabase& GetParticleDB() { return x120_particleDB; }
   void SetParticleCEXTValue(std::string_view name, int idx, float value);
