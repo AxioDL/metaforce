@@ -917,13 +917,14 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::IT
       x28c_energyIntf->SetFlashMagnitude(practicals);
     practicals = std::min(practicals * x404_hudDamagePracticalsGain, 1.f);
     x2a0_helmetIntf->AddHelmetLightValue(practicals);
-    if (x29c_decoIntf)
+    if (x29c_decoIntf) {
       x29c_decoIntf->SetFrameColorValue(practicals);
-    if (practicals > 0.f) {
-      x3d4_damageLight->SetColor(g_tweakGuiColors->GetHudDamageLightColor() * zeus::CColor(practicals));
-      x3d4_damageLight->SetIsVisible(true);
-    } else {
-      x3d4_damageLight->SetIsVisible(false);
+      if (practicals > 0.f) {
+        x3d4_damageLight->SetColor(g_tweakGuiColors->GetHudDamageLightColor() * zeus::CColor(practicals));
+        x3d4_damageLight->SetIsVisible(true);
+      } else {
+        x3d4_damageLight->SetIsVisible(false);
+      }
     }
   }
 
