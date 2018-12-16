@@ -48,15 +48,15 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumer
   case DataType::UInt32:
   case DataType::Enum:
     writer.writeUint32Big(range[0].uint32);
-    writer.writeUint32Big(range[0].uint32);
+    writer.writeUint32Big(range[1].uint32);
     break;
   case DataType::Float:
     writer.writeFloatBig(range[0].float32);
-    writer.writeFloatBig(range[0].float32);
+    writer.writeFloatBig(range[1].float32);
     break;
   case DataType::Bool:
     writer.writeBool(range[0].bool1);
-    writer.writeBool(range[0].bool1);
+    writer.writeBool(range[1].bool1);
     break;
   }
 }
@@ -124,15 +124,15 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumer
     case DataType::UInt32:
     case DataType::Enum:
       writer.writeUint32(nullptr, range[0].uint32);
-      writer.writeUint32(nullptr, range[0].uint32);
+      writer.writeUint32(nullptr, range[1].uint32);
       break;
     case DataType::Float:
       writer.writeFloat(nullptr, range[0].float32);
-      writer.writeFloat(nullptr, range[0].float32);
+      writer.writeFloat(nullptr, range[1].float32);
       break;
     case DataType::Bool:
       writer.writeBool(nullptr, range[0].bool1);
-      writer.writeBool(nullptr, range[0].bool1);
+      writer.writeBool(nullptr, range[1].bool1);
       break;
     }
   }

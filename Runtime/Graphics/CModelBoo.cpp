@@ -662,12 +662,12 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
   }
   case UVAnimation::Mode::HStrip: {
     float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut.m[3].x() = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+    texMtxOut.m[3].x() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
     break;
   }
   case UVAnimation::Mode::VStrip: {
     float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut.m[3].y() = (float)(short)(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+    texMtxOut.m[3].y() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
     break;
   }
   case UVAnimation::Mode::Model: {
@@ -685,9 +685,9 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
 
     const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
     float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.vals[1];
-    xy = (xy - (int)xy);
+    xy = (xy - std::trunc(xy));
     float z = (viewOrigin.z()) * 0.05f * anim.vals[1];
-    z = (z - (int)z);
+    z = (z - std::trunc(z));
 
     float halfA = anim.vals[0] * 0.5f;
 

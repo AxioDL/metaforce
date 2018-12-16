@@ -84,8 +84,10 @@ void ViewManager::TestGameView::think() {
           "       Roll: %f, Pitch: %f, Yaw: %f\n"
           "Camera Position: x %f, y %f, z %f\n"
           "       Roll: %f, Pitch: %f, Yaw: %f\n",
-          pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(), plQ.roll(), plQ.pitch(), plQ.yaw(),
-          camXf.origin.x(), camXf.origin.y(), camXf.origin.z(), camQ.roll(), camQ.pitch(), camQ.yaw());
+          pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
+          zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
+          camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
+          zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
     }
     if (worldInfo && worldInfo->toBoolean()) {
       TLockedToken<CStringTable> tbl =
