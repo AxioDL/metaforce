@@ -430,6 +430,7 @@ public:
     DeliverCmd(EBodyStateCmd::AdditiveReaction);
   }
   void DeliverCmd(const CBCLocomotionCmd& cmd);
+  void DeliverFaceVector(const zeus::CVector3f& f) { xc_face = f; }
   void DeliverTargetVector(const zeus::CVector3f& t) { x18_target = t; }
   void DeliverAdditiveTargetVector(const zeus::CVector3f& t) { x24_additiveTarget = t; }
   void SetSteeringBlendSpeed(float s) { x3c_steeringSpeed = s; }
