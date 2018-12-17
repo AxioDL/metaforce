@@ -226,7 +226,7 @@ void CScriptPlayerActor::Think(float dt, CStateManager& mgr) {
 
   if (x338_phazonIndirectTexture) {
     x34c_phazonOffsetAngle += 0.03f;
-    x34c_phazonOffsetAngle = zeus::CRelAngle::FromRadians(x34c_phazonOffsetAngle);
+    x34c_phazonOffsetAngle = zeus::CRelAngle(x34c_phazonOffsetAngle).asRel();
   }
 
   CScriptActor::Think(dt, mgr);

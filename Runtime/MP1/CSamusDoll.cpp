@@ -223,6 +223,7 @@ void CSamusDoll::Update(float dt, CRandom16& rand) {
 
   if (x250_phazonIndirectTexture) {
     x260_phazonOffsetAngle += 0.03f;
+    x260_phazonOffsetAngle.makeRel();
     g_Renderer->AllocatePhazonSuitMaskTexture();
   }
 
@@ -596,23 +597,23 @@ void CSamusDoll::SetRotation(float xDelta, float zDelta, float dt) {
   zeus::CEulerAngles angles(xb0_userRot);
 
   zeus::CRelAngle angX(angles.x());
+  angX.makeRel();
   zeus::CRelAngle angZ(angles.z());
+  angZ.makeRel();
 
   angX += xDelta;
+  angX.makeRel();
   angZ += zDelta;
+  angZ.makeRel();
 
   float angXCenter = angX;
   if (angXCenter > M_PIF)
     angXCenter -= 2.f * M_PIF;
   angXCenter = zeus::clamp(-1.555f, angXCenter, 1.555f);
 
-  float angZCenter = angZ;
-  if (angZCenter > M_PIF)
-    angZCenter -= 2.f * M_PIF;
-
   zeus::CQuaternion quat;
-  quat.rotateZ(angZCenter);
-  quat.rotateX(angXCenter);
+  quat.rotateZ(angZ);
+  quat.rotateX(zeus::CRelAngle(angXCenter).asRel());
   xb0_userRot = quat;
 }
 

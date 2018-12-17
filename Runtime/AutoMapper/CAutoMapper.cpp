@@ -539,21 +539,28 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
     SetShouldRotatingSoundBePlaying(true);
     zeus::CEulerAngles eulers(xa8_renderStates[0].x8_camOrientation);
     zeus::CRelAngle angX(eulers.x());
+    angX.makeRel();
     zeus::CRelAngle angZ(eulers.z());
+    angZ.makeRel();
 
     float dt = deltaFrames * g_tweakAutoMapper->GetCamRotateDegreesPerFrame();
 
     angZ -= zeus::degToRad(dt * dirs[2]);
+    angZ.makeRel();
     angZ += zeus::degToRad(dt * dirs[3]);
+    angZ.makeRel();
 
     angX -= zeus::degToRad(dt * dirs[0]);
+    angX.makeRel();
     angX += zeus::degToRad(dt * dirs[1]);
+    angX.makeRel();
 
     float angXDeg = angX.asDegrees();
     if (angXDeg > 180.f)
       angXDeg -= 360.f;
     angX = zeus::degToRad(
         zeus::clamp(g_tweakAutoMapper->GetMinCamRotateX(), angXDeg, g_tweakAutoMapper->GetMaxCamRotateX()));
+    angX.makeRel();
 
     zeus::CQuaternion quat;
     quat.rotateZ(angZ);
@@ -767,12 +774,11 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, const CStateMa
 zeus::CQuaternion CAutoMapper::GetMiniMapCameraOrientation(const CStateManager& stateMgr) const {
   const CGameCamera* cam = stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr);
   zeus::CEulerAngles camAngles(zeus::CQuaternion(cam->GetTransform().buildMatrix3f()));
-  float rotMod = -(std::floor(camAngles.z() / (2.f * M_PIF)) * 2.f * M_PIF - camAngles.z());
-  if (rotMod < 0.f)
-    rotMod += 2.f * M_PIF;
+  zeus::CRelAngle angle(camAngles.z());
+  angle.makeRel();
 
   zeus::CQuaternion ret;
-  ret.rotateZ(rotMod);
+  ret.rotateZ(angle);
   ret.rotateX(zeus::degToRad(g_tweakAutoMapper->GetMiniCamXAngle()));
   return ret;
 }
@@ -1356,6 +1362,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           std::min(0.6f * g_tweakAutoMapper->GetMaxCamDist() / g_tweakAutoMapper->GetMinCamDist(), objectScale);
       zeus::CEulerAngles eulers(mgr.GetCameraManager()->GetCurrentCameraTransform(mgr));
       zeus::CRelAngle angle(eulers.z());
+      angle.makeRel();
       zeus::CTransform playerXf(zeus::CMatrix3f::RotateZ(angle),
                                 CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) +
                                     mgr.GetPlayer().GetTranslation());

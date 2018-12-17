@@ -131,7 +131,7 @@ void CPlayerGun::TakeDamage(bool bigStrike, bool notFromMetroid, CStateManager& 
     x364_gunStrikeCoolTimer = 0.75f;
     if (x678_morph.GetGunState() == CGunMorph::EGunState::OutWipeDone) {
       zeus::CVector3f localDamageLoc = mgr.GetPlayer().GetTransform().transposeRotate(x3dc_damageLocation);
-      angle = zeus::CRelAngle(std::atan2(localDamageLoc.y(), localDamageLoc.x())).asDegrees();
+      angle = zeus::CRelAngle(std::atan2(localDamageLoc.y(), localDamageLoc.x())).asRel().asDegrees();
       hasStrikeAngle = true;
     }
   }

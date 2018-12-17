@@ -195,7 +195,7 @@ float CPASAnimState::ComputePercentErrorWeight(u32 idx, const CPASAnimParm& parm
   }
 
   if (range > FLT_EPSILON)
-    return (val / range) - 1.0f;
+    return 1.f - val / range;
 
   return (val < FLT_EPSILON ? 1.f : 0.f);
 }

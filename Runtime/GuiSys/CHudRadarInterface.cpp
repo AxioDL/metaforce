@@ -105,6 +105,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   float camZ =
       zeus::CEulerAngles(zeus::CQuaternion(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().basis)).z();
   zeus::CRelAngle angleZ(camZ);
+  angleZ.makeRel();
   drawParms.xc_preTranslate = zeus::CTransform::RotateY(angleZ);
   drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
   float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();

@@ -109,7 +109,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       if (chargeFactor > CPlayerGun::skTractorBeamFactor) {
         zeus::CVector3f posVec =
             (GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation()).normalized();
-        float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV()));
+        float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
         if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().upVector().dot(posVec) > std::cos(relFov) &&
             posVec.magSquared() < (30.f * 30.f)) {
           x28c_25_ = true;

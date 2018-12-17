@@ -102,6 +102,7 @@ void CBSProjectileAttack::Start(CBodyController& bc, CStateManager& mgr) {
   zeus::CVector3f localDelta =
       bc.GetOwner().GetTransform().transposeRotate(cmd->GetTargetPosition() - bc.GetOwner().GetTranslation());
   zeus::CRelAngle angle = std::atan2(localDelta.y(), localDelta.x());
+  angle.makeRel();
   float attackAngle = angle.asDegrees();
   CPASAnimParmData parms(18, CPASAnimParm::FromEnum(s32(cmd->GetAttackSeverity())),
                          CPASAnimParm::FromReal32(angle.asDegrees()),
@@ -184,6 +185,7 @@ void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCKnockDownCmd* cmd = static_cast<const CBCKnockDownCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown));
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.z());
+  angle.makeRel();
   CPASAnimParmData parms(0, CPASAnimParm::FromReal32(angle.asDegrees()),
                          CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
@@ -193,7 +195,9 @@ void CBSFall::Start(CBodyController& bc, CStateManager& mgr) {
   if (!knockdownState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     float animAngle = zeus::degToRad(knockdownState->GetAnimParmData(best.second, 0).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
+    delta1.makeRel();
     zeus::CRelAngle delta2 = animAngle - angle;
+    delta2.makeRel();
     float minAngle = std::min(float(delta1), float(delta2));
     x8_remTime = 0.15f * bc.GetAnimTimeRemaining();
     float flippedAngle = (delta1 > M_PIF) ? -minAngle : minAngle;
@@ -263,6 +267,7 @@ void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCKnockBackCmd* cmd = static_cast<const CBCKnockBackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockBack));
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
+  angle.makeRel();
   CPASAnimParmData parms(6, CPASAnimParm::FromReal32(angle.asDegrees()),
                          CPASAnimParm::FromEnum(s32(cmd->GetHitSeverity())));
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
@@ -272,7 +277,9 @@ void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   if (!knockbackState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     float animAngle = zeus::degToRad(knockbackState->GetAnimParmData(best.second, 0).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
+    delta1.makeRel();
     zeus::CRelAngle delta2 = animAngle - angle;
+    delta2.makeRel();
     float minAngle = std::min(float(delta1), float(delta2));
     float flippedAngle = (delta1 > M_PIF) ? -minAngle : minAngle;
     xc_remTime = 0.15f * bc.GetAnimTimeRemaining();
@@ -705,6 +712,7 @@ void CBSGroundHit::Start(CBodyController& bc, CStateManager& mgr) {
   const CBCKnockBackCmd* cmd = static_cast<const CBCKnockBackCmd*>(bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockBack));
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
+  angle.makeRel();
   CPASAnimParmData parms(11, CPASAnimParm::FromEnum(s32(bc.GetFallState())),
                          CPASAnimParm::FromReal32(angle.asDegrees()));
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
@@ -714,7 +722,9 @@ void CBSGroundHit::Start(CBodyController& bc, CStateManager& mgr) {
   if (!groundHitState->GetAnimParmData(best.second, 2).GetBoolValue()) {
     float animAngle = zeus::degToRad(groundHitState->GetAnimParmData(best.second, 1).GetReal32Value());
     zeus::CRelAngle delta1 = angle - animAngle;
+    delta1.makeRel();
     zeus::CRelAngle delta2 = animAngle - angle;
+    delta2.makeRel();
     float minAngle = std::min(float(delta1), float(delta2));
     float flippedAngle = (delta1 > M_PIF) ? -minAngle : minAngle;
     x8_remTime = 0.15f * bc.GetAnimTimeRemaining();
@@ -956,6 +966,7 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   x4_state = pas::EHurledState(cmd->GetSkipLaunchState());
   zeus::CVector3f localDir = bc.GetOwner().GetTransform().transposeRotate(cmd->GetHitDirection());
   zeus::CRelAngle angle = std::atan2(localDir.y(), localDir.x());
+  angle.makeRel();
   x8_knockAngle = angle.asDegrees();
   CPASAnimParmData parms(14, CPASAnimParm::FromInt32(-1), CPASAnimParm::FromReal32(x8_knockAngle),
                          CPASAnimParm::FromEnum(s32(x4_state)));
@@ -971,7 +982,9 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
       act->SetConstantForce(act->GetMass() * cmd->GetLaunchVelocity());
   float animAngle = zeus::degToRad(hurledState->GetAnimParmData(best.second, 1).GetReal32Value());
   zeus::CRelAngle delta1 = angle - animAngle;
+  delta1.makeRel();
   zeus::CRelAngle delta2 = animAngle - angle;
+  delta2.makeRel();
   float minAngle = std::min(float(delta1), float(delta2));
   x14_remTime = 0.15f * bc.GetAnimTimeRemaining();
   float flippedAngle = (delta1 > M_PIF) ? -minAngle : minAngle;
@@ -1146,7 +1159,7 @@ void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
   if (timeRem > FLT_EPSILON) {
     const CPASAnimState* slideState = bc.GetPASDatabase().GetAnimState(15);
     float animAngle = zeus::degToRad(slideState->GetAnimParmData(best.second, 1).GetReal32Value());
-    float delta1 = zeus::CRelAngle(angle - animAngle);
+    float delta1 = zeus::CRelAngle(angle - animAngle).asRel();
     float flippedAngle = (delta1 > M_PIF) ? delta1 - 2.f * M_PIF : delta1;
     x4_rotateSpeed = flippedAngle / timeRem;
   } else {
