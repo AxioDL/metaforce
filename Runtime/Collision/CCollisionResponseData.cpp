@@ -215,7 +215,7 @@ EWeaponCollisionResponseTypes CCollisionResponseData::GetWorldCollisionResponseT
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes type) {
-  return (type >= EWeaponCollisionResponseTypes::Unknown19 && type <= EWeaponCollisionResponseTypes::Unknown43);
+  return (type >= EWeaponCollisionResponseTypes::Unknown19 && type <= EWeaponCollisionResponseTypes::AtomicAlpha);
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes type) {
@@ -223,7 +223,7 @@ bool CCollisionResponseData::ResponseTypeIsEnemySpecial(EWeaponCollisionResponse
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes type) {
-  return (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::Unknown93);
+  return (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect);
 }
 
 FourCC CCollisionResponseData::UncookedResType() { return SBIG('CRSM'); }

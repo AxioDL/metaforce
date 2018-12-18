@@ -50,6 +50,7 @@ public:
   DEFINE_PATTERNED(Babygoth)
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
 };
 
 } // namespace urde::MP1
