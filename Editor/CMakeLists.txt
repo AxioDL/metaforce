@@ -107,7 +107,7 @@ target_link_libraries(urde
                       hecl-full hecl-blender-addon
                       athena-core nod logvisor athena-libyaml amuse boo
                       ${PNG_LIB} libjpeg-turbo squish xxhash zeus
-                      kabufuda jbus discord-rpc ${ZLIB_LIBRARIES} ${LZO_LIB}
+                      kabufuda jbus discord-rpc ${ZLIB_LIBRARIES} lzokay
                       ${BOO_SYS_LIBS} ${URDE_PLAT_LIBS})
 if(COMMAND add_sanitizers)
   add_sanitizers(urde)

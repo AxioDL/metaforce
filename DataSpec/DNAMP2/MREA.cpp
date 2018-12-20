@@ -1,5 +1,5 @@
 #include <athena/FileWriter.hpp>
-#include <lzo/lzo1x.h>
+#include <lzokay.hpp>
 #include "MREA.hpp"
 #include "../DNAMP1/MREA.hpp"
 #include "DataSpec/DNACommon/EGMC.hpp"
@@ -47,8 +47,8 @@ void MREA::StreamReader::nextBlock() {
         rem -= chunkSz;
       } else {
         m_source.readUBytesToBuf(m_compBuf.get(), chunkSz);
-        lzo_uint dsz = rem;
-        lzo1x_decompress(m_compBuf.get(), chunkSz, bufCur, &dsz, nullptr);
+        size_t dsz = rem;
+        lzokay::decompress(m_compBuf.get(), chunkSz, bufCur, dsz);
         bufCur += dsz;
         rem -= dsz;
       }

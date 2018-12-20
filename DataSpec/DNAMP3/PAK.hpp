@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include <lzo/lzo1x.h>
+#include <lzokay.hpp>
 #include <nod/DiscBase.hpp>
 #include "DataSpec/DNACommon/PAK.hpp"
 

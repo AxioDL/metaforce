@@ -30,7 +30,7 @@ macro(dataspec_add_list rel_path a_list)
   set(${a_list} "${tmp_list}")
 endmacro(dataspec_add_list)
 
-include_directories(${ZLIB_INCLUDE_DIR} ${LZO_INCLUDE_DIR})
+include_directories(${ZLIB_INCLUDE_DIR} ${LZOKAY_INCLUDE_DIR})
 
 # Each game's DNA library
 include(DNACommon/CMakeLists.txt)

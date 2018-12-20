@@ -1,5 +1,5 @@
 #include <zlib.h>
-#include <lzo/lzo1x.h>
+#include <lzokay.hpp>
 #include "DNAMP1.hpp"
 #include "PAK.hpp"
 #include "AGSC.hpp"
@@ -122,8 +122,8 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
         strm->read(&chunkSz, 2);
         chunkSz = hecl::SBig(chunkSz);
         strm->read(compBuf, chunkSz);
-        lzo_uint dsz = rem;
-        lzo1x_decompress(compBuf, chunkSz, bufCur, &dsz, nullptr);
+        size_t dsz = rem;
+        lzokay::decompress(compBuf, chunkSz, bufCur, dsz);
         bufCur += dsz;
         rem -= dsz;
       }

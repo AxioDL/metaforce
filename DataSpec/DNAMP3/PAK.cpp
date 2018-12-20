@@ -179,8 +179,8 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
         while (rem) {
           atUint16 chunkSz = hecl::SBig(*(atUint16*)compBufCur);
           compBufCur += 2;
-          lzo_uint dsz = rem;
-          lzo1x_decompress(compBufCur, chunkSz, bufCur, &dsz, nullptr);
+          size_t dsz = rem;
+          lzokay::decompress(compBufCur, chunkSz, bufCur, dsz);
           compBufCur += chunkSz;
           bufCur += dsz;
           rem -= dsz;

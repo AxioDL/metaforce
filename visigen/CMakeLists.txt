@@ -33,5 +33,5 @@ if(APPLE)
 endif()
 
 target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew
-                      xxhash ${ZLIB_LIBRARIES} ${LZO_LIB} ${BOO_SYS_LIBS} ${PLAT_LIBS})
+                      xxhash ${ZLIB_LIBRARIES} lzokay ${BOO_SYS_LIBS} ${PLAT_LIBS})
 endif()
