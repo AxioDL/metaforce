@@ -1789,10 +1789,11 @@ CEntity* ScriptLoader::LoadActorRotate(CStateManager& mgr, CInputStream& in, int
   zeus::CVector3f rotation = zeus::CVector3f::ReadBig(in);
   float scale = in.readFloatBig();
   bool updateActors = in.readBool();
-  bool b2 = in.readBool();
+  bool updateOnCreation = in.readBool();
   bool active = in.readBool();
 
-  return new CScriptActorRotate(mgr.AllocateUniqueId(), name, info, rotation, scale, updateActors, b2, active);
+  return new CScriptActorRotate(mgr.AllocateUniqueId(), name, info, rotation, scale, updateActors, updateOnCreation,
+                                active);
 }
 
 CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in, int propCount,

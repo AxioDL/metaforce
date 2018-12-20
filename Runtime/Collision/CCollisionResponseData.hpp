@@ -56,7 +56,7 @@ enum class EWeaponCollisionResponseTypes {
   Unknown40,
   Unknown41,
   Unknown42,
-  Unknown43,
+  AtomicAlpha,
   Unknown44,
   Unknown45,
   Unknown46,
@@ -106,7 +106,7 @@ enum class EWeaponCollisionResponseTypes {
   Unknown90,
   Unknown91,
   Unknown92,
-  Unknown93
+  AtomicAlphaReflect
 };
 
 class CCollisionResponseData {

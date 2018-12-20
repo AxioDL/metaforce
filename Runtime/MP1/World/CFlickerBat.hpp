@@ -14,11 +14,14 @@ private:
   EFlickerBatState x574_state;
   float x578_ = 1.f;
   float x57c_ = 0.f;
-  bool x580_24_ : 1;
+  bool x580_24_wasInXray : 1;
   bool x580_25_heardShot : 1;
   bool x580_26_ : 1;
   bool x580_27_ : 1;
 
+  void NotifyNeighbors(CStateManager&);
+  void ToggleVisible(CStateManager&);
+  void SetHeardShot(bool heardShot) { x580_25_heardShot = heardShot; }
 public:
   DEFINE_PATTERNED(FlickerBat)
   CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

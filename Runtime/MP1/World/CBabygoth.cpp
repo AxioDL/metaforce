@@ -34,4 +34,11 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
                      const CBabygothData& babyData)
 : CPatterned(ECharacter::Babygoth, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Medium) {}
+
+void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  CPatterned::AcceptScriptMsg(msg, uid, mgr);
+  if (msg == EScriptObjectMessage::Registered) {
+    x450_bodyController->Activate(mgr);
+  }
+}
 } // namespace urde::MP1

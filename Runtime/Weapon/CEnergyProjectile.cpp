@@ -269,7 +269,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   if (vulnType != EVulnerability::Immune && !deflect) {
     deflect =
         (type == EWeaponCollisionResponseTypes::Unknown15 || type == EWeaponCollisionResponseTypes::EnemyShielded ||
-         (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::Unknown93));
+         (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect));
   }
 
   SetTranslation(offsetPos);

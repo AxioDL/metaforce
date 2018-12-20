@@ -172,7 +172,7 @@ private:
   zeus::CVector2f xf2c_viewportScale = {1.f, 1.f};
   EThermalDrawFlag xf34_thermalFlag = EThermalDrawFlag::Bypass;
   TUniqueId xf38_skipCineSpecialFunc = kInvalidUniqueId;
-  std::list<u32> xf3c_;
+  std::list<TUniqueId> xf3c_activeFlickerBats;
   std::list<TUniqueId> xf54_activeParasites;
   TUniqueId xf6c_playerActorHead = kInvalidUniqueId;
   u32 xf70_ = 0;
@@ -248,7 +248,9 @@ public:
   void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
   void DrawWorld() const;
   void SetupFogForArea(TAreaId area) const;
+  void SetupFogForAreaNonCurrent(TAreaId area) const;
   void SetupFogForArea(const CGameArea& area) const;
+  void SetupFogForAreaNonCurrent(const CGameArea& area) const;
   bool SetupFogForDraw() const;
   void PreRender();
   void GetCharacterRenderMaskAndTarget(bool thawed, int& mask, int& target) const;
@@ -429,6 +431,7 @@ public:
   }
   TUniqueId GetPlayerActorHead() const { return xf6c_playerActorHead; }
   void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
+  std::list<TUniqueId>& GetActiveFlickerBats() { return xf3c_activeFlickerBats; }
   std::list<TUniqueId>& GetActiveParasites() { return xf54_activeParasites; }
   std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
   static float g_EscapeShakeCountdown;

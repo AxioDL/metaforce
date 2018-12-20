@@ -860,6 +860,14 @@ void CStateManager::SetupFogForArea(TAreaId area) const {
     SetupFogForArea(*areaObj);
 }
 
+void CStateManager::SetupFogForAreaNonCurrent(TAreaId area) const {
+  if (area == kInvalidAreaId)
+    area = x8cc_nextAreaId;
+  const CGameArea* areaObj = x850_world->GetAreaAlways(area);
+  if (areaObj->IsPostConstructed())
+    SetupFogForAreaNonCurrent(*areaObj);
+}
+
 void CStateManager::SetupFogForArea(const CGameArea& area) const {
   if (SetupFogForDraw())
     return;
@@ -871,6 +879,18 @@ void CStateManager::SetupFogForArea(const CGameArea& area) const {
                             g_tweakGui->GetXRayFogColor());
   } else {
     area.GetAreaFog()->SetCurrent();
+  }
+}
+
+void CStateManager::SetupFogForAreaNonCurrent(const CGameArea& area) const {
+  if (SetupFogForDraw())
+    return;
+
+  if (x8b8_playerState->GetActiveVisor(*this) == CPlayerState::EPlayerVisor::XRay) {
+    float fogDist = area.GetXRayFogDistance();
+    float farz = g_tweakGui->GetXRayFogNearZ() * (1.f - fogDist) + g_tweakGui->GetXRayFogFarZ() * fogDist;
+    g_Renderer->SetWorldFog(ERglFogMode(g_tweakGui->GetXRayFogMode()), g_tweakGui->GetXRayFogNearZ(), farz,
+                            g_tweakGui->GetXRayFogColor());
   }
 }
 
