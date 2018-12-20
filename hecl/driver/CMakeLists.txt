@@ -31,7 +31,7 @@ target_link_libraries(hecl
     ${DATA_SPEC_LIBS}
     hecl-full hecl-blender-addon athena-core nod
     logvisor athena-libyaml ${PNG_LIB} squish xxhash zeus boo
-    ${ZLIB_LIBRARIES} ${LZO_LIB} ${PLAT_LIBS} ${BOO_SYS_LIBS})
+    ${ZLIB_LIBRARIES} lzokay ${PLAT_LIBS} ${BOO_SYS_LIBS})
 
 set_target_properties(hecl PROPERTIES COMPILE_DEFINITIONS HECL_DLPACKAGE="${HECL_DLPACKAGE}")
 
