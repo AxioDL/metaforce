@@ -365,7 +365,7 @@ CKnockBackController::CKnockBackController(EKnockBackVariant variant) : x0_varia
   x81_30_enableLaggedBurnDeath = true;
   x81_31_ = true;
   x82_24_ = true;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 5; ++i) {
     x24_.push_back(std::make_pair(0.f, FLT_MAX));
     x80_availableStates.set(i);
   }

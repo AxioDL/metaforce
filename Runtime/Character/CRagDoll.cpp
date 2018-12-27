@@ -247,7 +247,7 @@ bool CRagDoll::SatisfyWorldConstraints(CStateManager& mgr, int pass) {
             float dot = delta.dot(info.GetNormalLeft());
             particle.x2c_impactResponseDelta = -0.125f * dot * deltaMag * info.GetNormalLeft();
             particle.x38_impactFrameVel = -dot * deltaMag;
-            particle.x4_curPos += float(0.0001f - (deltaMag - d) * dot) * info.GetNormalLeft();
+            particle.x4_curPos += (0.0001f - (deltaMag - float(d)) * dot) * info.GetNormalLeft();
             break;
           }
           case 2:
@@ -309,7 +309,7 @@ void CRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData&
   aData->BuildPose();
   for (auto& particle : x4_particles)
     if (particle.x0_id != 0xff)
-      particle.x4_curPos = xf * aData->GetPose().GetOffset(particle.x0_id) * scale;
+      particle.x4_curPos = xf * (aData->GetPose().GetOffset(particle.x0_id) * scale);
   SatisfyWorldConstraints(mgr, 2);
   for (auto& particle : x4_particles)
     particle.x3c_24_impactPending = false;

@@ -796,9 +796,9 @@ bool CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(const COctreeLeafCa
                 zeus::CVector3f intersectPoint = sphere.position + mag * dir;
 
                 bool outsideEdges[] = {
-                    (intersectPoint - surf.GetVert(0)).dot((surf.GetVert(1) - surf.GetVert(0)).cross(surfNormal)) < 0.f,
-                    (intersectPoint - surf.GetVert(1)).dot((surf.GetVert(2) - surf.GetVert(1)).cross(surfNormal)) < 0.f,
-                    (intersectPoint - surf.GetVert(2)).dot((surf.GetVert(0) - surf.GetVert(2)).cross(surfNormal)) <
+                    (intersectPoint - surf.GetVert(0)).dot(surfNormal.cross(surf.GetVert(1) - surf.GetVert(0))) < 0.f,
+                    (intersectPoint - surf.GetVert(1)).dot(surfNormal.cross(surf.GetVert(2) - surf.GetVert(1))) < 0.f,
+                    (intersectPoint - surf.GetVert(2)).dot(surfNormal.cross(surf.GetVert(0) - surf.GetVert(2))) <
                         0.f};
 
                 if (mag >= 0.f && !outsideEdges[0] && !outsideEdges[1] && !outsideEdges[2] && mag < dOut) {

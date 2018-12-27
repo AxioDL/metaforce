@@ -27,6 +27,8 @@
 
 namespace urde {
 
+static logvisor::Module Log("urde::CPlayer");
+
 static const CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
 static const CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
@@ -3567,6 +3569,12 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
   CFirstPersonCamera* cam = mgr.GetCameraManager()->GetFirstPersonCamera();
   switch (x304_orbitState) {
   case EPlayerOrbitState::OrbitObject:
+#ifndef NDEBUG
+    if (x310_orbitTargetId != kInvalidUniqueId) {
+      if (const CEntity* ent = mgr.GetObjectById(x310_orbitTargetId))
+        Log.report(logvisor::Info, "Orbiting %08X %s", ent->GetEditorId(), ent->GetName().data());
+    }
+#endif
     cam->SetLockCamera(false);
     break;
   case EPlayerOrbitState::OrbitCarcass: {

@@ -144,32 +144,35 @@ void CPirateRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData) {
       if (aData->GetCharLayoutInfo().GetRootNode()->GetBoneMap()[id].x10_children.size() > 1)
         aData->PoseBuilder().GetTreeMap()[id].x4_rotation = zeus::CQuaternion::skNoRotation;
     CSegId rootId = aData->GetLocatorSegId("Skeleton_Root"sv);
+    // R_hip, L_hip
     aData->PoseBuilder().GetTreeMap()[rootId].x14_offset =
         (0.5f * (x4_particles[8].GetPosition() + x4_particles[11].GetPosition()) - v) / mData.GetScale();
-    zeus::CVector3f _7c = x4_particles[2].GetPosition() - x4_particles[5].GetPosition();
-    zeus::CVector3f _88 =
+    // R_shoulder, L_shoulder
+    zeus::CVector3f rootRight = x4_particles[2].GetPosition() - x4_particles[5].GetPosition();
+    // Collar, R_hip, L_hip
+    zeus::CVector3f rootUp =
         (x4_particles[0].GetPosition() - (x4_particles[8].GetPosition() + x4_particles[11].GetPosition()) * 0.5f)
             .normalized();
-    zeus::CVector3f _x94 = _88.cross(_7c).normalized();
-    zeus::CQuaternion _a4(zeus::CMatrix3f(_x94.cross(_88), _x94, _88).transposed());
-    aData->PoseBuilder().GetTreeMap()[rootId].x4_rotation = _a4;
+    zeus::CVector3f rootFore = rootUp.cross(rootRight).normalized();
+    zeus::CQuaternion rootRot(zeus::CMatrix3f(rootFore.cross(rootUp), rootFore, rootUp));
+    aData->PoseBuilder().GetTreeMap()[rootId].x4_rotation = rootRot;
     if (x6c_spacePirate->x7b4_attachedActor == kInvalidUniqueId) {
-      zeus::CVector3f _b0 = aData->GetCharLayoutInfo().GetFromParentUnrotated(x4_particles[1].GetBone());
+      zeus::CVector3f neckRestVec = aData->GetCharLayoutInfo().GetFromParentUnrotated(x4_particles[1].GetBone());
       aData->PoseBuilder().GetTreeMap()[x4_particles[1].GetBone()].x4_rotation = zeus::CQuaternion::shortestRotationArc(
-          _b0, _a4.inverse().transform(x4_particles[1].GetPosition() - x4_particles[0].GetPosition()));
+          neckRestVec, rootRot.inverse().transform(x4_particles[1].GetPosition() - x4_particles[0].GetPosition()));
     }
     BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 3, 4,
-              _a4 * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 2, 3, _a4));
+              rootRot * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 2, 3, rootRot));
     BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 6, 7,
-              _a4 * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 5, 6, _a4));
+              rootRot * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 5, 6, rootRot));
     BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 9, 10,
-              _a4 * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 8, 9, _a4));
+              rootRot * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 8, 9, rootRot));
     BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 12, 13,
-              _a4 * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 11, 12, _a4));
+              rootRot * BoneAlign(aData->PoseBuilder(), aData->GetCharLayoutInfo(), 11, 12, rootRot));
     zeus::CQuaternion q;
     q.rotateX(zeus::degToRad(-70.f));
-    aData->PoseBuilder().GetTreeMap()[x4_particles[10].GetBone()].x4_rotation = q;
-    aData->PoseBuilder().GetTreeMap()[x4_particles[13].GetBone()].x4_rotation = q;
+    aData->PoseBuilder().GetTreeMap()[x4_particles[10].GetBone()].x4_rotation = q; // R_ankle
+    aData->PoseBuilder().GetTreeMap()[x4_particles[13].GetBone()].x4_rotation = q; // L_ankle
     aData->MarkPoseDirty();
   }
 }
@@ -405,9 +408,6 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
     else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Wave), false))
       x8cc_trooperColor = zeus::CColor(0.776f, 0.054f, 1.f, 1.f);
   }
-
-  if (GetEditorId().Id() == 0x77)
-    SetActive(true);
 }
 
 void CSpacePirate::Accept(IVisitor& visitor) { visitor.Visit(this); }

@@ -70,7 +70,7 @@ private:
   EKnockBackAnimationState x18_minAnimState = EKnockBackAnimationState::None;
   EKnockBackAnimationState x1c_maxAnimState = EKnockBackAnimationState::Fall;
   u32 x20_impulseDurationIdx = 0;
-  rstl::reserved_vector<std::pair<float, float>, 4> x24_;
+  rstl::reserved_vector<std::pair<float, float>, 5> x24_;
   zeus::CVector3f x50_impulseDir;
   float x5c_impulseMag = 0.f;
   float x60_impulseRemTime = 0.f;
