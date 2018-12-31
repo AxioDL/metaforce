@@ -4,13 +4,13 @@
 #include "zeus/CAABox.hpp"
 
 namespace urde {
-struct SOBBJointDescription {
+struct SOBBJointInfo {
   const char* from;
   const char* to;
   zeus::CVector3f bounds;
 };
 
-struct SSphereJointDescription {
+struct SSphereJointInfo {
   const char* name;
   float radius;
 };

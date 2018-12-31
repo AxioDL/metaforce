@@ -369,7 +369,7 @@ float CGameCollision::GetMinExtentForCollisionPrimitive(const CCollisionPrimitiv
     return 2.f * sphere.GetSphere().radius;
   } else if (prim.GetPrimType() == FOURCC('AABX')) {
     const CCollidableAABox& aabx = static_cast<const CCollidableAABox&>(prim);
-    const zeus::CVector3f extent = aabx.GetAABB().max - aabx.GetAABB().min;
+    const zeus::CVector3f extent = aabx.GetBox().max - aabx.GetBox().min;
     float minExtent = std::min(extent.x(), extent.y());
     minExtent = std::min(minExtent, extent.z());
     return minExtent;

@@ -31,9 +31,9 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntity
 
 void CNewIntroBoss::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
-static const SSphereJointDescription skSphereJoints[] = {{"Head_1", 1.5f}, {"Tail_1", 1.5f}};
+static const SSphereJointInfo skSphereJoints[] = {{"Head_1", 1.5f}, {"Tail_1", 1.5f}};
 
-static const SOBBJointDescription skOBBJoints[] = {
+static const SOBBJointInfo skOBBJoints[] = {
     {"Pelvis", "Spine_3", {4.f, 1.f, 4.f}},
     {"Spine_3", "Tail_1", {2.f, 1.f, 2.f}},
     {"Tail_1", "Tail_2", {1.f, 1.f, 1.f}},
@@ -88,12 +88,12 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     jointCollisions.reserve(15);
 
     const CAnimData* animData = GetModelData()->GetAnimationData();
-    for (const SSphereJointDescription& joint : skSphereJoints) {
+    for (const SSphereJointInfo& joint : skSphereJoints) {
       CSegId seg = animData->GetLocatorSegId(joint.name);
       jointCollisions.push_back(CJointCollisionDescription::SphereCollision(seg, joint.radius, joint.name, 0.001f));
     }
 
-    for (const SOBBJointDescription& joint : skOBBJoints) {
+    for (const SOBBJointInfo& joint : skOBBJoints) {
       CSegId from = animData->GetLocatorSegId(joint.from);
       CSegId to = animData->GetLocatorSegId(joint.to);
       jointCollisions.push_back(CJointCollisionDescription::OBBAutoSizeCollision(

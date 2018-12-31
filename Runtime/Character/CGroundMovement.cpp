@@ -557,7 +557,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
   if (usePrim->GetPrimType() == FOURCC('AABX')) {
     const CCollidableAABox& existingAABB = static_cast<const CCollidableAABox&>(*usePrim);
     prim.reset(
-        new CCollidableAABox(zeus::CAABox(existingAABB.GetAABB().min + 0.0001f, existingAABB.GetAABB().max - 0.0001f),
+        new CCollidableAABox(zeus::CAABox(existingAABB.GetBox().min + 0.0001f, existingAABB.GetBox().max - 0.0001f),
                              usePrim->GetMaterial()));
     usePrim = prim.get();
   } else if (usePrim->GetPrimType() == FOURCC('SPHR')) {

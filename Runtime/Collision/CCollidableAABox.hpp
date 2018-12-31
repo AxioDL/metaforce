@@ -24,7 +24,8 @@ public:
   virtual zeus::CAABox CalculateLocalAABox() const;
   virtual FourCC GetPrimType() const;
   virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
-  const zeus::CAABox& GetAABB() const { return x10_aabox; }
+  const zeus::CAABox& GetBox() const { return x10_aabox; }
+  zeus::CAABox& Box() { return x10_aabox; }
 
   static const CCollisionPrimitive::Type& GetType();
   static void SetStaticTableIndex(u32 index);

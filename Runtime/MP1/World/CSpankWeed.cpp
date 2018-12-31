@@ -47,7 +47,7 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   x460_knockBackController.SetAutoResetImpulse(false);
 }
 
-static const SSphereJointDescription kArmCollision[] = {{"Arm_4", 1.5f},      {"Arm_6", 1.f}, {"Arm_7", 1.f},
+static const SSphereJointInfo kArmCollision[] = {{"Arm_4", 1.5f},      {"Arm_6", 1.f}, {"Arm_7", 1.f},
                                                         {"Arm_8", 1.f},       {"Arm_9", 1.f}, {"Arm_11", 1.f},
                                                         {"Swoosh_LCTR", 1.5f}};
 
@@ -72,7 +72,7 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     std::vector<CJointCollisionDescription> joints;
     joints.reserve(12);
 
-    for (const SSphereJointDescription& joint : kArmCollision) {
+    for (const SSphereJointInfo& joint : kArmCollision) {
       CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId(joint.name);
       if (id != 0xFF)
         joints.push_back(CJointCollisionDescription::SphereCollision(id, joint.radius, joint.name, 0.001f));

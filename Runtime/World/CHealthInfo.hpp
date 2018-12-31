@@ -17,6 +17,7 @@ public:
   void SetHP(float hp) { x0_health = hp; }
   float GetHP() const { return x0_health; }
   float GetKnockbackResistance() const { return x4_knockbackResistance; }
+  void SetKnockbackResistance(float r) { x4_knockbackResistance = r; }
 };
 
 } // namespace urde

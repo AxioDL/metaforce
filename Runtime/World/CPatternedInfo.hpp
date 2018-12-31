@@ -58,9 +58,10 @@ public:
   static std::pair<bool, u32> HasCorrectParameterCount(CInputStream& in);
 
   float GetDetectionHeightRange() const { return x10_detectionHeightRange; }
+  const CHealthInfo& GetHealthInfo() const { return x54_healthInfo; }
+  const CDamageVulnerability& GetDamageVulnerability() const { return x5c_damageVulnerability; }
   float GetHalfExtent() const { return xc4_halfExtent; }
   float GetHeight() const { return xc8_height; }
-  const CHealthInfo& GetHealthInfo() const { return x54_healthInfo; }
   zeus::CVector3f GetBodyOrigin() const { return xcc_bodyOrigin; }
   CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
   const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }

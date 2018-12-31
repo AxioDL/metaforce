@@ -31,6 +31,7 @@ public:
   const TLockedToken<CModel>& GetModel() const { return x4_model; }
   const std::unique_ptr<CBooModel>& GetModelInst() const { return m_modelInst; }
   const TLockedToken<CSkinRules>& GetSkinRules() const { return x10_skinRules; }
+  void SetLayoutInfo(const TLockedToken<CCharLayoutInfo>& inf) { x1c_layoutInfo = inf; }
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
   void Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,

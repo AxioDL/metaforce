@@ -4,8 +4,7 @@
 #include "World/CPathFindSearch.hpp"
 #include "Weapon/CProjectileInfo.hpp"
 
-namespace urde {
-namespace MP1 {
+namespace urde::MP1 {
 class CSeedling : public CWallWalker {
   static const std::string skNeedleLocators[2][6];
   CPathFindSearch x5d8_searchPath;
@@ -42,5 +41,4 @@ public:
   bool ShouldAttack(CStateManager&, float);
   void MassiveDeath(CStateManager&);
 };
-} // namespace MP1
 } // namespace urde

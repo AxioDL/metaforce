@@ -1536,10 +1536,10 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
 
   if (x2f8_morphBallState == EPlayerMorphBallState::Unmorphed && x4a0_failsafeTest->Passes()) {
     auto* prim = static_cast<const CCollidableAABox*>(GetCollisionPrimitive());
-    zeus::CAABox tmpAABB(prim->GetAABB().min - 0.2f, prim->GetAABB().max + 0.2f);
+    zeus::CAABox tmpAABB(prim->GetBox().min - 0.2f, prim->GetBox().max + 0.2f);
     CCollidableAABox tmpBox(tmpAABB, prim->GetMaterial());
     CPhysicsActor::Stop();
-    zeus::CAABox testBounds = prim->GetAABB().getTransformedAABox(x34_transform);
+    zeus::CAABox testBounds = prim->GetBox().getTransformedAABox(x34_transform);
     zeus::CAABox expandedBounds(testBounds.min - 3.f, testBounds.max + 3.f);
     CAreaCollisionCache cache(expandedBounds);
     CGameCollision::BuildAreaCollisionCache(mgr, cache);

@@ -186,4 +186,23 @@ zeus::CTransform CCollisionActorManager::GetWRLocatorTransform(const CAnimData& 
   return locXf;
 }
 
+std::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CStateManager& mgr, CSegId seg) {
+  for (const CJointCollisionDescription& desc : x0_jointDescriptions) {
+    if (desc.GetPivotId() != seg)
+      continue;
+
+    if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x10_ownerId)) {
+      if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(desc.GetCollisionActorId())) {
+        zeus::CTransform xf = GetWRLocatorTransform(*act->GetModelData()->GetAnimationData(), desc.GetPivotId(),
+                                                    act->GetTransform(),
+                                                    zeus::CTransform::Scale(act->GetModelData()->GetScale()));
+
+        return {colAct->GetTranslation() - xf.origin};
+      }
+    }
+  }
+
+  return {};
+}
+
 } // namespace urde

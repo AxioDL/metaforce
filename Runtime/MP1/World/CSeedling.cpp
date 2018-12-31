@@ -7,8 +7,7 @@
 #include "TCastTo.hpp"
 #include "CSeedling.hpp"
 
-namespace urde {
-namespace MP1 {
+namespace urde::MP1 {
 
 CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -25,7 +24,7 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x722_25_curNeedleCluster(false) {
   const_cast<TToken<CWeaponDescription>*>(&x6c0_projectileInfo.Token())->Lock();
   CreateShadow(false);
-  SetKeepInThermalVisor();
+  MakeThermalColdAndHot();
 }
 
 void CSeedling::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -220,5 +219,4 @@ void CSeedling::MassiveDeath(CStateManager& mgr) {
   CPatterned::MassiveDeath(mgr);
 }
 
-} // namespace MP1
-} // namespace urde
+}

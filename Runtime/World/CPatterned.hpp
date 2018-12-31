@@ -376,11 +376,6 @@ public:
   bool CanLongJump() const { return x328_26_longJump; }
   bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
 
-  void SetKeepInThermalVisor() {
-    x403_24_keepThermalVisorState = true;
-    xe6_27_thermalVisorFlags = 1 | 2;
-  }
-
   // region Casting Functions
 
   template <class T>

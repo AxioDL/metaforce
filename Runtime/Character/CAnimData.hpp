@@ -91,7 +91,7 @@ private:
   TLockedToken<CCharacterFactory> x0_charFactory;
   CCharacterInfo xc_charInfo;
   TLockedToken<CCharLayoutInfo> xcc_layoutData;
-  TCachedToken<CSkinnedModel> xd8_modelData;
+  TLockedToken<CSkinnedModel> xd8_modelData;
   TLockedToken<CMorphableSkinnedModel> xe4_iceModelData;
   std::shared_ptr<CSkinnedModel> xf4_xrayModel;
   std::shared_ptr<CSkinnedModel> xf8_infraModel;
@@ -214,7 +214,7 @@ public:
   std::shared_ptr<CSkinnedModel> GetXRayModel() const { return xf4_xrayModel; }
   void SetInfraModel(const TLockedToken<CModel>& model, const TLockedToken<CSkinRules>& skinRules);
   std::shared_ptr<CSkinnedModel> GetInfraModel() const { return xf8_infraModel; }
-  const TCachedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
+  const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
                                const std::experimental::optional<CVertexMorphEffect>& morphEffect,

@@ -23,10 +23,10 @@ public:
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                 const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner, EProjectileAttrib attribs,
-                u32 w2, s16 sId, u32 w3);
+                CAssetId w2, s16 sId, CAssetId w3);
 
   void Accept(IVisitor& visitor);
-  void SetTransform(const zeus::CTransform& xf);
+  void SetTransform(const zeus::CTransform& xf, float);
   void Reset(CStateManager&, bool);
   void Fire(const zeus::CTransform&, CStateManager&, bool);
   bool GetX400_25() const { return x400_25; }

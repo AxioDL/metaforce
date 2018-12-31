@@ -44,7 +44,7 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
     CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
 
     if (act && act->GetActive())
-      act->SetTransform(x34_transform * act->GetScaledLocatorTransform(uid.second));
+      act->SetTransform(x34_transform * act->GetScaledLocatorTransform(uid.second), dt);
   }
 }
 
