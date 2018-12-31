@@ -978,29 +978,30 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
 
   CPatternedInfo pInfo(in, pcount.second);
   CActorParameters aParams = LoadActorParameters(in);
-  CDamageInfo dInfo(in);
-  zeus::CVector3f v1 = zeus::CVector3f::ReadBig(in);
-  float f1 = in.readFloatBig();
-  CDamageVulnerability dVuln1(in);
-  CDamageVulnerability dVuln2(in);
-  CAssetId abdomen = in.readUint32Big();
-  MP1::CBeetle::EEntranceType entrance = MP1::CBeetle::EEntranceType(in.readUint32Big());
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
+  CDamageInfo touchDamage(in);
+  zeus::CVector3f tailAimReference = zeus::CVector3f::ReadBig(in);
+  float unused = in.readFloatBig();
+  CDamageVulnerability tailVuln(in);
+  CDamageVulnerability platingVuln(in);
+  CAssetId tailModel = in.readUint32Big();
+  MP1::CBeetle::EEntranceType entranceType = MP1::CBeetle::EEntranceType(in.readUint32Big());
+  float initialAttackDelay = in.readFloatBig();
+  float retreatTime = in.readFloatBig();
 
   FourCC animType = g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile());
   if (animType != SBIG('ANCS'))
     return nullptr;
 
-  std::experimental::optional<CStaticRes> abdomenRes;
+  std::experimental::optional<CStaticRes> tailRes;
   if (flavor == CPatterned::EFlavorType::One)
-    abdomenRes.emplace(CStaticRes(abdomen, scale));
+    tailRes.emplace(CStaticRes(tailModel, scale));
 
   const CAnimationParameters& animParams = pInfo.GetAnimationParameters();
   CAnimRes animRes(animParams.GetACSFile(), animParams.GetCharacter(), scale, animParams.GetInitialAnimation(), true);
 
-  return new MP1::CBeetle(mgr.AllocateUniqueId(), name, info, xfrm, animRes, pInfo, flavor, entrance, dInfo, dVuln2, v1,
-                          f2, f3, f1, dVuln1, aParams, abdomenRes);
+  return new MP1::CBeetle(mgr.AllocateUniqueId(), name, info, xfrm, animRes, pInfo, flavor, entranceType, touchDamage,
+                          platingVuln, tailAimReference, initialAttackDelay, retreatTime, unused, tailVuln, aParams,
+                          tailRes);
 }
 
 CEntity* ScriptLoader::LoadHUDMemo(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

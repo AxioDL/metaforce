@@ -13,10 +13,10 @@ struct Trigger : IScriptObject {
   Value<atVec3f> volume;
   DamageInfo damageInfo;
   Value<atVec3f> force;
-  Value<atUint32> unknown;
+  Value<atUint32> flags;
   Value<bool> active;
-  Value<bool> unknown2;
-  Value<bool> unknown3;
+  Value<bool> deactivateOnEntered;
+  Value<bool> deactivateOnExited;
 
   zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const {
     zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;

@@ -131,7 +131,7 @@ void CTeamAiMgr::PositionTeam(CStateManager& mgr) {
   default:
     for (auto& role : x58_roles)
       if (TCastToPtr<CAi> ai = mgr.ObjectById(role.GetOwnerId()))
-        role.x1c_position = ai->GetOrigin(mgr, role);
+        role.x1c_position = ai->GetOrigin(mgr, role, aimPos);
     break;
   }
 }

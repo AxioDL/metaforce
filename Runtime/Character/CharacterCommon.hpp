@@ -88,7 +88,7 @@ enum class ELoopAttackType { Invalid = -1 };
 
 enum class EGenerateType { Invalid = -1, Zero, One, Two, Three, Four };
 
-enum class ESlideType { Invalid = -1 };
+enum class ESlideType { Invalid = -1, Zero = 0 };
 
 enum class ETauntType { Invalid = -1, Zero, One, Two };
 

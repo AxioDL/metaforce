@@ -228,6 +228,7 @@ void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr) {
       xa8_renderStates[2] = xa8_renderStates[0];
       xa8_renderStates[1].x20_areaPoint = GetAreaPointOfInterest(mgr, nextStep.x4_areaId);
       xa8_renderStates[1].ResetInterpolation();
+      xa8_renderStates[1].x4c_pointEase = SAutoMapperRenderState::Ease::Linear;
       ResetInterpolationTimer(2.f * g_tweakAutoMapper->GetHintPanTime());
       x1e0_hintSteps.pop_front();
     }
@@ -238,6 +239,7 @@ void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr) {
     xa8_renderStates[2] = xa8_renderStates[0];
     xa8_renderStates[1].x20_areaPoint = mwData.GetWorldCenterPoint();
     xa8_renderStates[1].ResetInterpolation();
+    xa8_renderStates[1].x4c_pointEase = SAutoMapperRenderState::Ease::Linear;
     ResetInterpolationTimer(2.f * g_tweakAutoMapper->GetHintPanTime());
     x1e0_hintSteps.pop_front();
     break;
@@ -269,7 +271,8 @@ void CAutoMapper::UpdateHintNavigation(float dt, const CStateManager& mgr) {
     nextStep.x4_float = std::max(0.f, nextStep.x4_float - dt);
     for (SAutoMapperHintLocation& loc : x1f8_hintLocations) {
       if (x24_world->IGetWorldAssetId() == loc.x8_worldId && xa0_curAreaId == loc.xc_areaId) {
-        nextStep.x4_float = 1.f - std::min(nextStep.x4_float / 0.5f, 1.f);
+        loc.x0_showBeacon = 1;
+        loc.x4_beaconAlpha = 1.f - std::min(nextStep.x4_float / 0.5f, 1.f);
         break;
       }
     }
@@ -1021,9 +1024,9 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
 
   if (input.PZ() || input.PB()) {
     if (x328_ == 0) {
-      if (CanLeaveMapScreenInternal(mgr))
+      if (CanLeaveMapScreenInternal(mgr)) {
         LeaveMapScreen(mgr);
-      if (NotHintNavigating()) {
+      } else if (NotHintNavigating()) {
         BeginMapperStateTransition(EAutoMapperState::MapScreenUniverse, mgr);
         x328_ = 1;
       }

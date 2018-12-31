@@ -23,6 +23,8 @@ class CBCMeleeAttackCmd : public CBodyStateCmd {
 public:
   CBCMeleeAttackCmd() : CBodyStateCmd(EBodyStateCmd::MeleeAttack) {}
   CBCMeleeAttackCmd(pas::ESeverity severity) : CBodyStateCmd(EBodyStateCmd::MeleeAttack), x8_severity(severity) {}
+  CBCMeleeAttackCmd(pas::ESeverity severity, const zeus::CVector3f& target) : CBodyStateCmd(EBodyStateCmd::MeleeAttack)
+  , x8_severity(severity), xc_targetPos(target), x18_hasTargetPos(true) {}
   pas::ESeverity GetAttackSeverity() const { return x8_severity; }
   bool HasAttackTargetPos() const { return x18_hasTargetPos; }
   const zeus::CVector3f& GetAttackTargetPos() const { return xc_targetPos; }
@@ -95,10 +97,15 @@ public:
     x1c_24_targetTransform = false;
     x1c_25_overrideAnim = false;
   }
-  CBCGenerateCmd(pas::EGenerateType type, s32 animId = -1)
-  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId) {
+  CBCGenerateCmd(pas::EGenerateType type)
+  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type) {
     x1c_24_targetTransform = false;
     x1c_25_overrideAnim = false;
+  }
+  CBCGenerateCmd(pas::EGenerateType type, s32 animId)
+  : CBodyStateCmd(EBodyStateCmd::Generate), x8_type(type), x18_animId(animId) {
+    x1c_24_targetTransform = false;
+    x1c_25_overrideAnim = animId != -1;
   }
   CBCGenerateCmd(pas::EGenerateType type, const zeus::CVector3f& vec, bool targetTransform = false,
                  bool overrideAnim = false)

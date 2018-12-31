@@ -53,7 +53,8 @@ public:
                                                                  const CWeaponMode&, EProjectileAttrib) const;
   void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
 
-  virtual zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role) const {
+  virtual zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+                                    const zeus::CVector3f& aimPos) const {
     return x34_transform.origin;
   }
   virtual void Patrol(CStateManager&, EStateMsg, float) {}

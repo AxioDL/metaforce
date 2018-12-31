@@ -9,37 +9,37 @@ struct Beetle : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<atUint32> unknown1;
+  Value<atUint32> flavor;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  DamageInfo damageInfo;
-  Value<atVec3f> unknown2;
-  Value<float> unknown3;
-  DamageVulnerability damageVulnerabilty1;
-  DamageVulnerability damageVulnerabilty2;
-  UniqueID32 model;
-  Value<atUint32> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
+  DamageInfo touchDamage;
+  Value<atVec3f> tailAimReference;
+  Value<float> unused;
+  DamageVulnerability tailVuln;
+  DamageVulnerability platingVuln;
+  UniqueID32 tailModel;
+  Value<atUint32> entranceType;
+  Value<float> initialAttackDelay;
+  Value<float> retreatTime;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
-      ent->name = name + "_model";
+    if (tailModel) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tailModel);
+      ent->name = name + "_tailModel";
     }
     patternedInfo.nameIDs(pakRouter, name + "_patterned");
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
-    g_curSpec->flattenDependencies(model, pathsOut);
+    g_curSpec->flattenDependencies(tailModel, pathsOut);
     patternedInfo.depIDs(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }

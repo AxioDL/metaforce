@@ -485,12 +485,12 @@ bool CSpacePirate::ShouldFrenzy(CStateManager& mgr) {
   return x63c_frenzyFrames >= 0;
 }
 
-void CSpacePirate::ResetTeamAiRole(CStateManager& mgr) {
+void CSpacePirate::SquadReset(CStateManager& mgr) {
   CTeamAiMgr::ResetTeamAiRole(!x634_27_melee ? CTeamAiMgr::EAttackType::Projectile : CTeamAiMgr::EAttackType::Melee,
                               mgr, x8c8_teamAiMgrId, GetUniqueId(), true);
 }
 
-void CSpacePirate::AssignTeamAiRole(CStateManager& mgr) {
+void CSpacePirate::SquadAdd(CStateManager& mgr) {
   if (x8c8_teamAiMgrId == kInvalidUniqueId)
     x8c8_teamAiMgrId = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
   if (x8c8_teamAiMgrId != kInvalidUniqueId) {
@@ -502,7 +502,7 @@ void CSpacePirate::AssignTeamAiRole(CStateManager& mgr) {
   }
 }
 
-void CSpacePirate::RemoveTeamAiRole(CStateManager& mgr) {
+void CSpacePirate::SquadRemove(CStateManager& mgr) {
   if (x8c8_teamAiMgrId != kInvalidUniqueId) {
     if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x8c8_teamAiMgrId)) {
       if (aimgr->IsPartOfTeam(GetUniqueId())) {
@@ -611,7 +611,7 @@ void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
   }
 
   if (reset)
-    ResetTeamAiRole(mgr);
+    SquadReset(mgr);
 
   xe7_31_targetable = CheckTargetable(mgr);
 }
@@ -852,7 +852,7 @@ void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
         x638_31_mayStartAttack = true;
       else
         x400_24_hitByPlayerProjectile = true;
-      AssignTeamAiRole(mgr);
+      SquadAdd(mgr);
     } else if (x634_25_ceilingAmbush) {
       RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
       x328_27_onGround = false;
@@ -956,7 +956,7 @@ void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
     break;
   case EScriptObjectMessage::Deactivate:
   case EScriptObjectMessage::Deleted:
-    RemoveTeamAiRole(mgr);
+    SquadRemove(mgr);
     mChargePlayerList.remove(GetUniqueId());
     break;
   case EScriptObjectMessage::Start:
@@ -1137,7 +1137,8 @@ bool CSpacePirate::Listen(const zeus::CVector3f& pos, EListenNoiseType type) {
   return ret;
 }
 
-zeus::CVector3f CSpacePirate::GetOrigin(const CStateManager& mgr, const CTeamAiRole& role) const {
+zeus::CVector3f CSpacePirate::GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+                                        const zeus::CVector3f& aimPos) const {
   return GetTranslation();
 }
 
@@ -1220,7 +1221,7 @@ void CSpacePirate::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     x764_boneTracking.SetActive(false);
     SetEyeParticleActive(mgr, false);
-    ResetTeamAiRole(mgr);
+    SquadReset(mgr);
     break;
   case EStateMsg::Update:
     if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Death) {
@@ -1773,7 +1774,7 @@ void CSpacePirate::GetUp(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case EStateMsg::Activate:
     x32c_animState = EAnimState::Ready;
-    ResetTeamAiRole(mgr);
+    SquadReset(mgr);
     x8dc_leashTimer = 0.f;
     break;
   case EStateMsg::Update:

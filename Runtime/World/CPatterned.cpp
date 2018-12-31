@@ -183,6 +183,11 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   }
 }
 
+void CPatterned::MakeThermalColdAndHot() {
+  x403_24_keepThermalVisorState = true;
+  xe6_27_thermalVisorFlags = 3;
+}
+
 void CPatterned::UpdateThermalFrozenState(bool thawed) {
   x402_31_thawed = thawed;
   if (x403_24_keepThermalVisorState)
@@ -243,7 +248,7 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
   if (x460_knockBackController.x81_26_enableShock) {
     /* Shock on logical falling edge */
     if (!x401_31_nextPendingShock && x402_24_pendingShock)
-      Shock(0.5f + mgr.GetActiveRandom()->Range(0.f, 0.5f), 0.2f);
+      Shock(mgr, 0.5f + mgr.GetActiveRandom()->Range(0.f, 0.5f), 0.2f);
     x402_24_pendingShock = x401_31_nextPendingShock;
     x401_31_nextPendingShock = false;
 
@@ -437,7 +442,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       PhazeOut(mgr);
       break;
     case EKnockBackAnimationFollowUp::Shock:
-      Shock(x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
+      Shock(mgr, x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
       break;
     case EKnockBackAnimationFollowUp::Burn:
       Burn(x460_knockBackController.GetActiveParms().x8_followupDuration, 0.25f);
@@ -967,7 +972,7 @@ void CPatterned::Burn(float duration, float damage) {
   }
 }
 
-void CPatterned::Shock(float duration, float damage) {
+void CPatterned::Shock(CStateManager& mgr, float duration, float damage) {
   switch (GetDamageVulnerability()->GetVulnerability(CWeaponMode(EWeaponType::Wave), false)) {
   case EVulnerability::Weak:
     x450_bodyController->SetElectrocuting(1.5f * duration);

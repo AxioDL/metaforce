@@ -64,7 +64,7 @@ public:
     WarWasp = 39,
     EnergyBall = 40
   };
-  enum class EFlavorType { Zero = 0, One = 1 };
+  enum class EFlavorType { Zero = 0, One = 1, Two = 2 };
   enum class EMovementType { Ground = 0, Flyer = 1 };
   enum class EColliderType { Zero = 0, One = 1 };
   enum class EPatternTranslate { RelativeStart, RelativePlayerStart, RelativePlayer, Absolute };
@@ -231,6 +231,7 @@ protected:
   std::experimental::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
   zeus::CVector3f x55c_moveScale = zeus::CVector3f::skOne;
 
+  void MakeThermalColdAndHot();
   void UpdateThermalFrozenState(bool thawed);
   void GenerateIceDeathExplosion(CStateManager& mgr);
   void GenerateDeathExplosion(CStateManager& mgr);
@@ -334,8 +335,8 @@ public:
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
   virtual void MassiveFrozenDeath(CStateManager& mgr);
-  virtual void Burn(float, float);
-  virtual void Shock(float, float);
+  virtual void Burn(float duration, float damage);
+  virtual void Shock(CStateManager& mgr, float duration, float damage);
   virtual void Freeze(CStateManager& mgr, const zeus::CVector3f& pos, const zeus::CUnitVector3f& dir, float frozenDur);
   virtual void ThinkAboutMove(float);
   virtual CPathFindSearch* GetSearchPath() { return nullptr; }

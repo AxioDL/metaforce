@@ -1602,6 +1602,8 @@ void CSamusHud::SetMessage(std::u16string_view text, const CHUDMemoParms& info) 
     x558_messageTextTime = info.GetDisplayTime();
     if (info.IsHintMemo()) {
       if (!isWidgetVisible) {
+        x584_abuttonPulse = 0.f;
+        x560_messageTextScale = 0.f;
         CSfxManager::SfxStart(SFXui_show_hint_memo, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       }
     } else {

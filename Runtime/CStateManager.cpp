@@ -1871,17 +1871,15 @@ void CStateManager::UpdateHintState(float dt) {
 void CStateManager::PreThinkObjects(float dt) {
   if (x84c_player->x9f4_deathTime > 0.f) {
     x84c_player->DoPreThink(dt, *this);
-    return;
-  }
-
-  if (x904_gameState == EGameState::SoftPaused)
+  } else if (x904_gameState == EGameState::SoftPaused) {
     for (CEntity* ent : GetAllObjectList())
       if (TCastToPtr<CScriptEffect> effect = ent)
         effect->PreThink(dt, *this);
-
-  for (CEntity* ent : GetAllObjectList())
-    if (ent && !GetCameraObjectList().GetObjectById(ent->GetUniqueId()))
-      ent->PreThink(dt, *this);
+  } else {
+    for (CEntity* ent : GetAllObjectList())
+      if (ent && !GetCameraObjectList().GetObjectById(ent->GetUniqueId()))
+        ent->PreThink(dt, *this);
+  }
 }
 
 void CStateManager::MovePlatforms(float dt) {

@@ -221,9 +221,9 @@ private:
 
   void UpdateCloak(float dt, CStateManager& mgr);
   bool ShouldFrenzy(CStateManager& mgr);
-  void ResetTeamAiRole(CStateManager& mgr);
-  void AssignTeamAiRole(CStateManager& mgr);
-  void RemoveTeamAiRole(CStateManager& mgr);
+  void SquadReset(CStateManager& mgr);
+  void SquadAdd(CStateManager& mgr);
+  void SquadRemove(CStateManager& mgr);
   bool CheckTargetable(CStateManager& mgr);
   bool FireProjectile(float dt, CStateManager& mgr);
   void UpdateAttacks(float dt, CStateManager& mgr);
@@ -263,7 +263,8 @@ public:
                  float magnitude);
   bool IsListening() const;
   bool Listen(const zeus::CVector3f&, EListenNoiseType);
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role) const;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+                            const zeus::CVector3f& aimPos) const;
   void DetachActorFromPirate() { x7b4_attachedActor = kInvalidUniqueId; }
   bool AttachActorToPirate(TUniqueId id);
   void SetAttackTarget(TUniqueId id);

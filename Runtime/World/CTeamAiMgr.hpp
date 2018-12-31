@@ -74,14 +74,6 @@ private:
   void UpdateRoles(CStateManager& mgr);
   void SpacingSort(CStateManager& mgr, const zeus::CVector3f& pos);
   void PositionTeam(CStateManager& mgr);
-  bool IsMeleeAttacker(TUniqueId aiId) const;
-  bool CanAcceptMeleeAttacker(TUniqueId aiId) const;
-  bool AddMeleeAttacker(TUniqueId aiId);
-  void RemoveMeleeAttacker(TUniqueId aiId);
-  bool IsProjectileAttacker(TUniqueId aiId) const;
-  bool CanAcceptProjectileAttacker(TUniqueId aiId) const;
-  bool AddProjectileAttacker(TUniqueId aiId);
-  void RemoveProjectileAttacker(TUniqueId aiId);
 
 public:
   CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data);
@@ -98,6 +90,15 @@ public:
   void ClearTeamAiRole(TUniqueId aiId);
   s32 GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole role) const;
   s32 GetNumAssignedAiRoles() const;
+
+  bool IsMeleeAttacker(TUniqueId aiId) const;
+  bool CanAcceptMeleeAttacker(TUniqueId aiId) const;
+  bool AddMeleeAttacker(TUniqueId aiId);
+  void RemoveMeleeAttacker(TUniqueId aiId);
+  bool IsProjectileAttacker(TUniqueId aiId) const;
+  bool CanAcceptProjectileAttacker(TUniqueId aiId) const;
+  bool AddProjectileAttacker(TUniqueId aiId);
+  void RemoveProjectileAttacker(TUniqueId aiId);
 
   static CTeamAiRole* GetTeamAiRole(CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
   static void ResetTeamAiRole(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId, bool clearRole);
