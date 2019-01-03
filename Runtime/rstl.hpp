@@ -255,6 +255,14 @@ public:
   using const_reverse_iterator = typename base::const_reverse_iterator;
   reserved_vector() : x0_size(0) {}
 
+  template <size_t LN>
+  reserved_vector(const T(&l)[LN])
+  : x0_size(LN) {
+    static_assert(LN <= N, "initializer array too large for reserved_vector");
+    for (size_t i = 0; i < LN; ++i)
+      ::new (static_cast<void*>(std::addressof(_value(i)))) T(l[i]);
+  }
+
   reserved_vector(const reserved_vector& other) : x0_size(other.x0_size) {
     for (size_t i = 0; i < x0_size; ++i)
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));

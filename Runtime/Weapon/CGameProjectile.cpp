@@ -28,7 +28,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
 , x168_visorSfx(visorSfx)
 , x170_projectile(wDesc, xf.origin, xf.basis, scale,
                   (attribs & EProjectileAttrib::ParticleOPTS) == EProjectileAttrib::ParticleOPTS)
-, x298_lastOrigin(xf.origin)
+, x298_previousPos(xf.origin)
 , x2a4_projExtent((xe8_projectileAttribs & EProjectileAttrib::BigProjectile) == EProjectileAttrib::BigProjectile ? 0.25f
                                                                                                                  : 0.1f)
 , x2c0_homingTargetId(homingTarget)
@@ -186,7 +186,7 @@ void CGameProjectile::UpdateProjectileMovement(float dt, CStateManager& mgr) {
   if (x2e4_26_waterUpdate)
     useDt = 37.5f * dt * dt;
 
-  x298_lastOrigin = x34_transform.origin;
+  x298_previousPos = x34_transform.origin;
   x170_projectile.Update(useDt);
   SetTransform(x170_projectile.GetTransform());
   SetTranslation(x170_projectile.GetTranslation());
@@ -196,12 +196,12 @@ void CGameProjectile::UpdateProjectileMovement(float dt, CStateManager& mgr) {
 CRayCastResult CGameProjectile::DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr) {
   CRayCastResult res;
   if (x2e4_24_active) {
-    zeus::CVector3f posDelta = x34_transform.origin - x298_lastOrigin;
+    zeus::CVector3f posDelta = x34_transform.origin - x298_previousPos;
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildNearList(nearList, GetProjectileBounds(),
                       CMaterialFilter::MakeExclude(EMaterialTypes::ProjectilePassthrough), this);
 
-    res = RayCollisionCheckWithWorld(idOut, x298_lastOrigin, x34_transform.origin, posDelta.magnitude(), nearList, mgr);
+    res = RayCollisionCheckWithWorld(idOut, x298_previousPos, x34_transform.origin, posDelta.magnitude(), nearList, mgr);
   }
   return res;
 }
@@ -335,25 +335,25 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& a
   if (useAct) {
     const CCollisionPrimitive* prim = useAct->GetCollisionPrimitive();
     zeus::CTransform xf = useAct->GetPrimitiveTransform();
-    zeus::CVector3f deltaPos = GetTranslation() - x298_lastOrigin;
+    zeus::CVector3f deltaPos = GetTranslation() - x298_previousPos;
     if (deltaPos.canBeNormalized()) {
       zeus::CVector3f dir = deltaPos.normalized();
       float mag = deltaPos.magnitude();
       CRayCastResult res = prim->CastRayInternal(
-          {x298_lastOrigin, dir, mag, xf,
+          {x298_previousPos, dir, mag, xf,
            CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
       if (!res.IsValid()) {
         if (prim->GetPrimType() == FOURCC('SPHR')) {
           mag *= 2.f;
           CRayCastResult res2 = prim->CastRayInternal(
-              {x298_lastOrigin - dir * mag, dir, deltaPos.magnitude(), xf,
+              {x298_previousPos - dir * mag, dir, deltaPos.magnitude(), xf,
                CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough})});
           if (res2.IsValid())
             return {act.GetUniqueId(), {res2}};
         } else if (TCastToPtr<CCollisionActor> cAct = act) {
           float rad = cAct->GetSphereRadius();
-          if ((x298_lastOrigin - GetTranslation()).magSquared() < rad * rad) {
-            zeus::CVector3f point = x298_lastOrigin - dir * rad * 1.125f;
+          if ((x298_previousPos - GetTranslation()).magSquared() < rad * rad) {
+            zeus::CVector3f point = x298_previousPos - dir * rad * 1.125f;
             zeus::CUnitVector3f revDir(-dir);
             return {act.GetUniqueId(), {{0.f, point, {revDir, point.dot(revDir)}, act.GetMaterialList()}}};
           }
@@ -415,12 +415,12 @@ CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStat
 }
 
 zeus::CAABox CGameProjectile::GetProjectileBounds() const {
-  return {{std::min(x298_lastOrigin.x(), GetTranslation().x()) - x2a4_projExtent,
-           std::min(x298_lastOrigin.y(), GetTranslation().y()) - x2a4_projExtent,
-           std::min(x298_lastOrigin.z(), GetTranslation().z()) - x2a4_projExtent},
-          {std::max(x298_lastOrigin.x(), GetTranslation().x()) + x2a4_projExtent,
-           std::max(x298_lastOrigin.y(), GetTranslation().y()) + x2a4_projExtent,
-           std::max(x298_lastOrigin.z(), GetTranslation().z()) + x2a4_projExtent}};
+  return {{std::min(x298_previousPos.x(), GetTranslation().x()) - x2a4_projExtent,
+           std::min(x298_previousPos.y(), GetTranslation().y()) - x2a4_projExtent,
+           std::min(x298_previousPos.z(), GetTranslation().z()) - x2a4_projExtent},
+          {std::max(x298_previousPos.x(), GetTranslation().x()) + x2a4_projExtent,
+           std::max(x298_previousPos.y(), GetTranslation().y()) + x2a4_projExtent,
+           std::max(x298_previousPos.z(), GetTranslation().z()) + x2a4_projExtent}};
 }
 
 std::experimental::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {

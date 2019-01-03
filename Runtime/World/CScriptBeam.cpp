@@ -35,7 +35,7 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
     mgr.AddObject(new CPlasmaProjectile(xe8_weaponDescription, x10_name + "-Projectile",
                                         x138_damageInfo.GetWeaponMode().GetType(), xf4_beamInfo, x34_transform,
                                         EMaterialTypes::Projectile, x138_damageInfo, x8_uid, x4_areaId,
-                                        x154_projectileId, 8, false, EProjectileAttrib::PlasmaProjectile));
+                                        x154_projectileId, {}, false, EProjectileAttrib::PlasmaProjectile));
   } else if (msg == EScriptObjectMessage::Deleted) {
   }
 

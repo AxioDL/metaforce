@@ -588,6 +588,8 @@ public:
   const std::vector<TUniqueId>& GetOnScreenOrbitObjects() const { return x354_onScreenOrbitObjects; }
   const std::vector<TUniqueId>& GetOffScreenOrbitObjects() const { return x364_offScreenOrbitObjects; }
   void SetPlayerHitWallDuringMove();
+  float GetTimeSinceJump() const { return x2a8_timeSinceJump; }
+  void ResetTimeSinceJump() { x2a8_timeSinceJump = 1000.f; }
   ESurfaceRestraints GetCurrentSurfaceRestraint() const { return x2ac_surfaceRestraint; }
   ESurfaceRestraints GetSurfaceRestraint() const {
     return x2b0_outOfWaterTicks == 2 ? GetCurrentSurfaceRestraint() : ESurfaceRestraints::Water;

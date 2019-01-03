@@ -791,14 +791,14 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
   CActorParameters actParms = LoadActorParameters(in);
 
   float f1 = in.readFloatBig();
-  CAssetId w1(in);
+  CAssetId projectile(in);
 
   CDamageInfo dInfo(in);
 
-  CAssetId w2(in);
-  CAssetId w3(in);
-  CAssetId w4(in);
-  CAssetId w5(in);
+  CAssetId beamContactFxId(in);
+  CAssetId beamPulseFxId(in);
+  CAssetId beamTextureId(in);
+  CAssetId beamGlowTextureId(in);
 
   const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
   FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
@@ -808,7 +808,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
   CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
 
   return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
-                                f1, w1, dInfo, w2, w3, w4, w5);
+                                f1, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId, beamGlowTextureId);
 }
 
 CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

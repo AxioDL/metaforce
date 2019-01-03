@@ -120,7 +120,7 @@ protected:
     struct {
       bool x328_24_inPosition : 1;
       bool x328_25_verticalMovement : 1;
-      bool x328_26_longJump : 1;
+      bool x328_26_solidCollision : 1;
       bool x328_27_onGround : 1;
       bool x328_28_prevOnGround : 1;
       bool x328_29_noPatternShagging : 1;
@@ -263,6 +263,7 @@ public:
   void PreRender(CStateManager&, const zeus::CFrustum&);
   void Render(const CStateManager& mgr) const;
 
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
   void Touch(CActor& act, CStateManager& mgr);
   std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
   bool CanRenderUnsorted(const CStateManager& mgr) const;
@@ -373,7 +374,7 @@ public:
   void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);
   void ReleaseCoverPoint(CStateManager& mgr, TUniqueId& id);
 
-  bool CanLongJump() const { return x328_26_longJump; }
+  bool MadeSolidCollision() const { return x328_26_solidCollision; }
   bool IsMakingBigStrike() const { return x402_28_isMakingBigStrike; }
 
   // region Casting Functions

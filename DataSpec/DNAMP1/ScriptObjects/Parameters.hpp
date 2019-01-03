@@ -424,47 +424,47 @@ struct ActorParameters : BigDNA {
 struct BeamInfo : BigDNA {
   AT_DECL_DNA_YAML
   Value<atUint32> propertyCount;
-  Value<atUint32> unknown1;
-  UniqueID32 particle1;
-  UniqueID32 particle2;
-  UniqueID32 texture1;
-  UniqueID32 texture2;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
-  Value<float> unknown7;
-  Value<float> unknown8;
-  Value<float> unknown9;
-  Value<float> unknown10;
-  DNAColor unknown11;
-  DNAColor unknown12;
+  Value<atUint32> beamAttributes;
+  UniqueID32 contactFxId;
+  UniqueID32 pulseFxId;
+  UniqueID32 textureId;
+  UniqueID32 glowTextureId;
+  Value<float> length;
+  Value<float> radius;
+  Value<float> expansionSpeed;
+  Value<float> lifeTime;
+  Value<float> pulseSpeed;
+  Value<float> shutdownTime;
+  Value<float> contactFxScale;
+  Value<float> pulseFxScale;
+  Value<float> travelSpeed;
+  DNAColor innerColor;
+  DNAColor outerColor;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-    if (particle1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+    if (contactFxId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(contactFxId);
       ent->name = name + "_part1";
     }
-    if (particle2) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+    if (pulseFxId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(pulseFxId);
       ent->name = name + "_part2";
     }
-    if (texture1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+    if (textureId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(textureId);
       ent->name = name + "_tex1";
     }
-    if (texture2) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+    if (glowTextureId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(glowTextureId);
       ent->name = name + "_tex2";
     }
   }
 
   void depIDs(std::vector<hecl::ProjectPath>& pathsOut) const {
-    g_curSpec->flattenDependencies(particle1, pathsOut);
-    g_curSpec->flattenDependencies(particle2, pathsOut);
-    g_curSpec->flattenDependencies(texture1, pathsOut);
-    g_curSpec->flattenDependencies(texture2, pathsOut);
+    g_curSpec->flattenDependencies(contactFxId, pathsOut);
+    g_curSpec->flattenDependencies(pulseFxId, pathsOut);
+    g_curSpec->flattenDependencies(textureId, pathsOut);
+    g_curSpec->flattenDependencies(glowTextureId, pathsOut);
   }
 };
 

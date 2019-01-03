@@ -106,6 +106,10 @@ class CBooRenderer final : public IRenderer {
   // boo::ITextureS* xe4_blackTex = nullptr;
   bool xee_24_ : 1;
 
+  boo::ObjToken<boo::ITexture> m_clearTexture;
+  boo::ObjToken<boo::ITexture> m_blackTexture;
+  boo::ObjToken<boo::ITexture> m_whiteTexture;
+
   boo::ObjToken<boo::ITextureR> x14c_reflectionTex;
   // boo::ITextureS* x150_mirrorRamp = nullptr;
   boo::ObjToken<boo::ITextureS> x1b8_fogVolumeRamp;
@@ -268,6 +272,10 @@ public:
   const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
+
+  const boo::ObjToken<boo::ITexture>& GetClearTexture() { return m_clearTexture; }
+  const boo::ObjToken<boo::ITexture>& GetBlackTexture() { return m_blackTexture; }
+  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() { return m_whiteTexture; }
 
   static void BindMainDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture); }
   void BindReflectionDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex); }

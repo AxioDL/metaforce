@@ -7,6 +7,7 @@ include_directories(../hecl/include
 add_shader(CAABoxShader)
 add_shader(CCameraBlurFilter)
 add_shader(CColoredQuadFilter)
+add_shader(CColoredStripShader)
 add_shader(CDecalShaders)
 add_shader(CElementGenShaders)
 add_shader(CEnergyBarShader)

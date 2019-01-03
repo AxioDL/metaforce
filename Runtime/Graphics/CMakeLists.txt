@@ -22,6 +22,7 @@ set(GRAPHICS_SOURCES
     Shaders/CLineRendererShaders.hpp Shaders/CLineRendererShaders.cpp
     Shaders/CTexturedQuadFilter.hpp Shaders/CTexturedQuadFilter.cpp
     Shaders/CColoredQuadFilter.hpp Shaders/CColoredQuadFilter.cpp
+    Shaders/CColoredStripShader.hpp Shaders/CColoredStripShader.cpp
     Shaders/CModelShaders.hpp Shaders/CModelShaders.cpp
     Shaders/CModelShadersGLSL.cpp Shaders/CModelShadersHLSL.cpp Shaders/CModelShadersMetal.cpp
     Shaders/CThermalColdFilter.hpp Shaders/CThermalColdFilter.cpp

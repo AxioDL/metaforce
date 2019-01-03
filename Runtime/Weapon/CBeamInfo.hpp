@@ -5,62 +5,87 @@
 #include "zeus/CColor.hpp"
 
 namespace urde {
-struct CBeamInfo {
+class CBeamInfo {
   u32 x0_;
-  s32 x4_;
-  CAssetId x8_;
-  CAssetId xc_;
-  CAssetId x10_;
-  CAssetId x14_;
-  s32 x18_;
-  float x1c_;
-  float x20_;
-  float x24_;
-  float x28_;
-  float x2c_;
-  float x30_;
-  float x34_;
-  float x38_;
-  zeus::CColor x3c_;
-  zeus::CColor x40_;
+  /*
+   * 0x1: motion blur
+   * 0x2: pulse effect
+   * 0x4: one shot
+   * 0x8: phazon damage
+   */
+  s32 x4_beamAttributes;
+  CAssetId x8_contactFxId;
+  CAssetId xc_pulseFxId;
+  CAssetId x10_textureId;
+  CAssetId x14_glowTextureId;
+  s32 x18_length;
+  float x1c_radius;
+  float x20_expansionSpeed;
+  float x24_lifeTime;
+  float x28_pulseSpeed;
+  float x2c_shutdownTime;
+  float x30_contactFxScale;
+  float x34_pulseFxScale;
+  float x38_travelSpeed;
+  zeus::CColor x3c_innerColor;
+  zeus::CColor x40_outerColor;
 
+public:
   CBeamInfo(CInputStream& in)
   : x0_(in.readUint32Big())
-  , x4_(in.readUint32Big())
-  , x8_(in.readUint32Big())
-  , xc_(in.readUint32Big())
-  , x10_(in.readUint32Big())
-  , x14_(in.readUint32Big())
-  , x18_(in.readFloatBig())
-  , x1c_(in.readFloatBig())
-  , x20_(in.readFloatBig())
-  , x24_(in.readFloatBig())
-  , x28_(in.readFloatBig())
-  , x2c_(in.readFloatBig())
-  , x30_(in.readFloatBig())
-  , x34_(in.readFloatBig())
-  , x38_(in.readFloatBig())
-  , x3c_(zeus::CColor::ReadRGBABig(in))
-  , x40_(zeus::CColor::ReadRGBABig(in)) {}
+  , x4_beamAttributes(in.readUint32Big())
+  , x8_contactFxId(in.readUint32Big())
+  , xc_pulseFxId(in.readUint32Big())
+  , x10_textureId(in.readUint32Big())
+  , x14_glowTextureId(in.readUint32Big())
+  , x18_length(in.readFloatBig())
+  , x1c_radius(in.readFloatBig())
+  , x20_expansionSpeed(in.readFloatBig())
+  , x24_lifeTime(in.readFloatBig())
+  , x28_pulseSpeed(in.readFloatBig())
+  , x2c_shutdownTime(in.readFloatBig())
+  , x30_contactFxScale(in.readFloatBig())
+  , x34_pulseFxScale(in.readFloatBig())
+  , x38_travelSpeed(in.readFloatBig())
+  , x3c_innerColor(zeus::CColor::ReadRGBABig(in))
+  , x40_outerColor(zeus::CColor::ReadRGBABig(in)) {}
 
-  CBeamInfo(s32 w1, CAssetId w2, CAssetId w3, CAssetId w4, CAssetId w5, s32 w6, float f1, float f2, float f3, float f4,
-            float f5, float f6, float f7, const zeus::CColor& col1, const zeus::CColor& col2, float f8)
-  : x4_(w1)
-  , x8_(w2)
-  , xc_(w3)
-  , x10_(w4)
-  , x14_(w5)
-  , x18_(w6)
-  , x1c_(f1)
-  , x20_(f2)
-  , x24_(f3)
-  , x28_(f4)
-  , x2c_(f5)
-  , x30_(f6)
-  , x34_(f7)
-  , x38_(f8)
-  , x3c_(col1)
-  , x40_(col2) {}
+  CBeamInfo(s32 beamAttributes, CAssetId contactFxId, CAssetId pulseFxId, CAssetId textureId, CAssetId glowTextureId,
+            s32 length, float radius, float f2, float f3, float f4, float f5, float contactFxScale, float pulseFxScale,
+            const zeus::CColor& innerColor, const zeus::CColor& outerColor, float travelSpeed)
+  : x4_beamAttributes(beamAttributes)
+  , x8_contactFxId(contactFxId)
+  , xc_pulseFxId(pulseFxId)
+  , x10_textureId(textureId)
+  , x14_glowTextureId(glowTextureId)
+  , x18_length(length)
+  , x1c_radius(radius)
+  , x20_expansionSpeed(f2)
+  , x24_lifeTime(f3)
+  , x28_pulseSpeed(f4)
+  , x2c_shutdownTime(f5)
+  , x30_contactFxScale(contactFxScale)
+  , x34_pulseFxScale(pulseFxScale)
+  , x38_travelSpeed(travelSpeed)
+  , x3c_innerColor(innerColor)
+  , x40_outerColor(outerColor) {}
+
+  s32 GetBeamAttributes() const { return x4_beamAttributes; }
+  CAssetId GetContactFxId() const { return x8_contactFxId; }
+  CAssetId GetPulseFxId() const { return xc_pulseFxId; }
+  CAssetId GetTextureId() const { return x10_textureId; }
+  CAssetId GetGlowTextureId() const { return x14_glowTextureId; }
+  s32 GetLength() const { return x18_length; }
+  float GetRadius() const { return x1c_radius; }
+  float GetExpansionSpeed() const { return x20_expansionSpeed; }
+  float GetLifeTime() const { return x24_lifeTime; }
+  float GetPulseSpeed() const { return x28_pulseSpeed; }
+  float GetShutdownTime() const { return x2c_shutdownTime; }
+  float GetContactFxScale() const { return x30_contactFxScale; }
+  float GetPulseFxScale() const { return x34_pulseFxScale; }
+  float GetTravelSpeed() const { return x38_travelSpeed; }
+  const zeus::CColor& GetInnerColor() const { return x3c_innerColor; }
+  const zeus::CColor& GetOuterColor() const { return x40_outerColor; }
 };
 
 } // namespace urde

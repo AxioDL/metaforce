@@ -11,7 +11,7 @@ class CCollisionActorManager;
 namespace MP1 {
 class CNewIntroBoss : public CPatterned {
   pas::ELocomotionType x568_locomotion = pas::ELocomotionType::Relaxed;
-  u32 x56c_ = 0;
+  u32 x56c_stateProg = 0;
   float x570_;
   CBoneTracking x574_boneTracking;
   CProjectileInfo x5ac_projectileInfo;
@@ -20,16 +20,16 @@ class CNewIntroBoss : public CPatterned {
   TUniqueId x5d8_stage3Projectile = kInvalidUniqueId;
   std::string x5dc_damageLocator; // ???
   std::unique_ptr<CCollisionActorManager> x5ec_collisionManager;
-  CAssetId x5f0_;
-  CAssetId x5f4_;
-  CAssetId x5f8_;
-  CAssetId x5fc_;
+  CAssetId x5f0_beamContactFxId;
+  CAssetId x5f4_beamPulseFxId;
+  CAssetId x5f8_beamTextureId;
+  CAssetId x5fc_beamGlowTextureId;
   TUniqueId x600_headActor = kInvalidUniqueId;
   TUniqueId x602_pelvisActor = kInvalidUniqueId;
   zeus::CVector3f x604_predictedPlayerPos;
   zeus::CVector3f x610_lookPos;
-  zeus::CVector3f x61c_;
-  float x628_ = 0.f;
+  zeus::CVector3f x61c_startPlayerPos;
+  float x628_firingTime = 0.f;
   zeus::CVector3f x62c_targetPos;
   float x638_ = 0.2f;
   float x63c_attackTime = 8.f;
@@ -48,8 +48,9 @@ class CNewIntroBoss : public CPatterned {
 public:
   DEFINE_PATTERNED(NewIntroBoss)
   CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms, float, CAssetId,
-                const CDamageInfo& dInfo, CAssetId, CAssetId, CAssetId, CAssetId);
+                CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
+                float f1, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
+                CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId);
 
   void Accept(IVisitor& visitor);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager&);

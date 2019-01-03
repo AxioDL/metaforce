@@ -3,48 +3,61 @@
 #include "Weapon/CGameProjectile.hpp"
 namespace urde {
 class CBeamProjectile : public CGameProjectile {
-  u32 x2e8_;
-  float x2ec_;
-  float x2f0_;
-  float x2f4_;
-  u32 x2f8_ = 0;
+public:
+  enum class EDamageType {
+    None,
+    Actor,
+    World
+  };
+
+private:
+  s32 x2e8_intMaxLength;
+  float x2ec_maxLength;
+  float x2f0_invMaxLength;
+  float x2f4_beamRadius;
+  EDamageType x2f8_damageType = EDamageType::None;
   TUniqueId x2fc_ = kInvalidUniqueId;
-  TUniqueId x2fe_ = kInvalidUniqueId;
-  float x300_;
-  float x304_;
-  float x308_;
-  zeus::CVector3f x30c_ = zeus::CVector3f::skUp;
-  zeus::CTransform x324_;
+  TUniqueId x2fe_collisionActorId = kInvalidUniqueId;
+  float x300_intBeamLength;
+  float x304_beamLength;
+  float x308_travelSpeed;
+  zeus::CVector3f x30c_collisionNormal = zeus::CVector3f::skUp;
+  zeus::CVector3f x318_collisionPoint = zeus::CVector3f::skZero;
+  zeus::CTransform x324_xf;
   zeus::CAABox x354_ = zeus::CAABox::skNullBox;
+  zeus::CAABox x36c_ = zeus::CAABox::skNullBox;
   rstl::reserved_vector<zeus::CVector3f, 10> x384_;
-  rstl::reserved_vector<zeus::CVector3f, 8> x400_;
-  bool x464_24_ : 1;
-  bool x464_25_ : 1;
+  rstl::reserved_vector<zeus::CVector3f, 8> x400_pointCache;
+  bool x464_24_growingBeam : 1;
+  bool x464_25_enableTouchDamage : 1;
+
+  void SetCollisionResultData(EDamageType dType, CRayCastResult& res, TUniqueId id);
 
 public:
   CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
-                  const zeus::CTransform& xf, s32 flags, float f1, float f2, EMaterialTypes matType,
-                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner, EProjectileAttrib attribs,
-                  bool b1);
+                  const zeus::CTransform& xf, s32 maxLength, float beamRadius, float travelSpeed,
+                  EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
+                  EProjectileAttrib attribs, bool growingBeam);
 
   void Accept(IVisitor& visitor);
-  float GetMaxRadius() const;
-  zeus::CVector3f GetSurfaceNormal() const;
-  void GetDamageType() const;
-  void GetCurrentPos() const;
-  void PointCache();
-  void GetPointCache() const;
-  void CauseDamage(bool);
-  zeus::CVector3f GetBeamOrigin() const;
-  void GetInvMaxLength() const;
-  void GetCurrentLength();
-  void GetMaxLength();
-  s32 GetIntMaxLength();
+  float GetMaxRadius() const { return x2f4_beamRadius; }
+  const zeus::CVector3f& GetSurfaceNormal() const { return x30c_collisionNormal; }
+  EDamageType GetDamageType() const { return x2f8_damageType; }
+  const zeus::CVector3f& GetCurrentPos() const { return x318_collisionPoint; }
+  rstl::reserved_vector<zeus::CVector3f, 8>& PointCache() { return x400_pointCache; }
+  const rstl::reserved_vector<zeus::CVector3f, 8>& GetPointCache() const { return x400_pointCache; }
+  void CauseDamage(bool b) { x464_25_enableTouchDamage = b; }
+  const zeus::CTransform& GetBeamTransform() const { return x324_xf; }
+  float GetInvMaxLength() const { return x2f0_invMaxLength; }
+  float GetCurrentLength() const { return x304_beamLength; }
+  float GetMaxLength() const { return x2ec_maxLength; }
+  s32 GetIntMaxLength() const { return x2e8_intMaxLength; }
+  TUniqueId GetCollisionActorId() const { return x2fe_collisionActorId; }
 
   std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
   void CalculateRenderBounds();
   virtual void ResetBeam(CStateManager&, bool);
-  virtual void UpdateFX(const zeus::CTransform&, float, CStateManager&);
+  virtual void UpdateFx(const zeus::CTransform&, float, CStateManager&);
   virtual void Fire(const zeus::CTransform&, CStateManager&, bool) = 0;
 };
 } // namespace urde

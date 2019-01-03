@@ -14,17 +14,17 @@ namespace urde::MP1 {
 
 CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                             float f1, CAssetId projectile, const CDamageInfo& dInfo, CAssetId part1, CAssetId part2,
-                             CAssetId tex1, CAssetId tex2)
+                             float f1, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
+                             CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId)
 : CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x570_(f1)
 , x574_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f), false)
 , x5ac_projectileInfo(projectile, dInfo)
-, x5f0_(part1)
-, x5f4_(part2)
-, x5f8_(tex1)
-, x5fc_(tex2) {
+, x5f0_beamContactFxId(beamContactFxId)
+, x5f4_beamPulseFxId(beamPulseFxId)
+, x5f8_beamTextureId(beamTextureId)
+, x5fc_beamGlowTextureId(beamGlowTextureId) {
   const_cast<TToken<CWeaponDescription>*>(&x5ac_projectileInfo.Token())->Lock();
   x574_boneTracking.SetActive(true);
 }
@@ -58,10 +58,12 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     x450_bodyController->Activate(mgr);
 
     if (x5d4_stage1Projectile == kInvalidUniqueId) {
-      CBeamInfo stage1BeamInfo = CBeamInfo(3, x5f0_, x5f4_, x5f8_, x5fc_, 50, 1.f, 1.f, 1.5f, 20.f, 1.f, 4.f, 8.f,
-                                           zeus::CColor::skYellow, zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
-      CBeamInfo stage2BeamInfo(3, x5f0_, x5f4_, x5f8_, x5fc_, 50, 1.f, 1.f, 2.f, 20.f, 1.f, 4.f, 8.f,
-                               zeus::CColor::skYellow, zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
+      CBeamInfo stage1BeamInfo(3, x5f0_beamContactFxId, x5f4_beamPulseFxId, x5f8_beamTextureId, x5fc_beamGlowTextureId,
+                               50, 1.f, 1.f, 1.5f, 20.f, 1.f, 4.f, 8.f, zeus::CColor::skYellow,
+                               zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
+      CBeamInfo stage2BeamInfo(3, x5f0_beamContactFxId, x5f4_beamPulseFxId, x5f8_beamTextureId, x5fc_beamGlowTextureId,
+                               50, 1.f, 1.f, 2.f, 20.f, 1.f, 4.f, 8.f, zeus::CColor::skYellow,
+                               zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
 
       x5d4_stage1Projectile = mgr.AllocateUniqueId();
       x5d6_stage2Projectile = mgr.AllocateUniqueId();
@@ -69,15 +71,15 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
       CPlasmaProjectile* stage1Projectile =
           new CPlasmaProjectile(x5ac_projectileInfo.Token(), "IntroBoss_Beam"sv, EWeaponType::AI, stage1BeamInfo, {},
                                 EMaterialTypes::Character, x5ac_projectileInfo.GetDamage(), x5d4_stage1Projectile,
-                                GetAreaIdAlways(), GetUniqueId(), 8, true, EProjectileAttrib::KeepInCinematic);
+                                GetAreaIdAlways(), GetUniqueId(), {}, true, EProjectileAttrib::KeepInCinematic);
       CPlasmaProjectile* stage2Projectile =
           new CPlasmaProjectile(x5ac_projectileInfo.Token(), "IntroBoss_Beam_Stage2"sv, EWeaponType::AI, stage2BeamInfo,
                                 {}, EMaterialTypes::Character, x5ac_projectileInfo.GetDamage(), x5d6_stage2Projectile,
-                                GetAreaIdAlways(), GetUniqueId(), 8, true, EProjectileAttrib::KeepInCinematic);
+                                GetAreaIdAlways(), GetUniqueId(), {}, true, EProjectileAttrib::KeepInCinematic);
       CPlasmaProjectile* stage3Projectile =
           new CPlasmaProjectile(x5ac_projectileInfo.Token(), "IntroBoss_Beam_Stage2"sv, EWeaponType::AI, stage2BeamInfo,
                                 {}, EMaterialTypes::Character, x5ac_projectileInfo.GetDamage(), x5d8_stage3Projectile,
-                                GetAreaIdAlways(), GetUniqueId(), 8, true, EProjectileAttrib::KeepInCinematic);
+                                GetAreaIdAlways(), GetUniqueId(), {}, true, EProjectileAttrib::KeepInCinematic);
       mgr.AddObject(stage1Projectile);
       mgr.AddObject(stage2Projectile);
       mgr.AddObject(stage3Projectile);
@@ -219,16 +221,18 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
 
   CPlasmaProjectile* curProjectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x676_curProjectile));
   if (curProjectile && curProjectile->GetActive()) {
-    x628_ += dt;
+    x628_firingTime += dt;
     zeus::CTransform xf = GetLctrTransform(x5dc_damageLocator);
 
     if (x400_25_alive) {
-      zeus::CQuaternion clampedQuat = zeus::CQuaternion::clampedRotateTo(
-          (x610_lookPos + (zeus::min(x628_ / 1.5f, 1.f) * (x61c_ - x610_lookPos))) - xf.origin, xf.frontVector(),
+      zeus::CQuaternion clampedQuat = zeus::CQuaternion::clampedRotateTo(xf.frontVector(),
+          (x610_lookPos + (zeus::min(x628_firingTime / 1.5f, 1.f) * (x61c_startPlayerPos - x610_lookPos))) - xf.origin,
           zeus::CRelAngle::FromDegrees(30.f));
-      curProjectile->UpdateFX(clampedQuat.toTransform() * xf.getRotation(), dt, mgr);
+      zeus::CTransform newXf = clampedQuat.toTransform() * xf.getRotation();
+      newXf.origin = xf.origin;
+      curProjectile->UpdateFx(newXf, dt, mgr);
     } else
-      curProjectile->UpdateFX(xf, dt, mgr);
+      curProjectile->UpdateFx(xf, dt, mgr);
   }
 
   TCastToPtr<CCollisionActor> headAct = mgr.ObjectById(x600_headActor);
@@ -263,7 +267,8 @@ void CNewIntroBoss::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& nod
     zeus::CTransform xf = GetLctrTransform(x5dc_damageLocator);
     zeus::CVector3f playerPos = PlayerPos(mgr);
     x604_predictedPlayerPos = x610_lookPos = x62c_targetPos = playerPos;
-    x628_ = 0.f;
+    x61c_startPlayerPos = playerPos;
+    x628_firingTime = 0.f;
     if (GetLocoForHealth(mgr) == pas::ELocomotionType::Combat)
       x676_curProjectile = x5d8_stage3Projectile;
     else if (GetLocoForHealth(mgr) == pas::ELocomotionType::Lurk)
@@ -337,24 +342,24 @@ bool CNewIntroBoss::ShouldAttack(CStateManager& mgr, float dt) {
 
 bool CNewIntroBoss::AIStage(CStateManager& mgr, float) { return x568_locomotion != GetLocoForHealth(mgr); }
 
-bool CNewIntroBoss::AnimOver(urde::CStateManager&, float) { return x56c_ == 3; }
+bool CNewIntroBoss::AnimOver(urde::CStateManager&, float) { return x56c_stateProg == 3; }
 
 void CNewIntroBoss::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    x56c_ = 0;
+    x56c_stateProg = 0;
     x568_locomotion = GetLocoForHealth(mgr);
     SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
   } else if (msg == EStateMsg::Update) {
-    if (x56c_ == 0) {
+    if (x56c_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Generate) {
-        x56c_ = 2;
+        x56c_stateProg = 2;
         return;
       }
 
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(GetGenerateForHealth(mgr)));
-    } else if (x56c_ == 2) {
+    } else if (x56c_stateProg == 2) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Generate) {
-        x56c_ = 3;
+        x56c_stateProg = 3;
         SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
       }
     }
@@ -373,18 +378,18 @@ bool CNewIntroBoss::InAttackPosition(CStateManager& mgr, float dt) {
 
 void CNewIntroBoss::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate)
-    x56c_ = 0;
+    x56c_stateProg = 0;
   else if (msg == EStateMsg::Update) {
-    if (x56c_ == 0) {
+    if (x56c_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::ProjectileAttack)
-        x56c_ = 2;
+        x56c_stateProg = 2;
       else {
         x450_bodyController->GetCommandMgr().DeliverCmd(
             CBCProjectileAttackCmd(pas::ESeverity::One, mgr.GetPlayer().GetTranslation(), false));
       }
-    } else if (x56c_ == 2) {
+    } else if (x56c_stateProg == 2) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::ProjectileAttack) {
-        x56c_ = 3;
+        x56c_stateProg = 3;
         x638_ = 0.f;
       }
 

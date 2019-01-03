@@ -104,7 +104,7 @@ void CEyeball::Think(float dt, CStateManager& mgr) {
   if (GetActive()) {
     CPlasmaProjectile* projectile = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x5ec_projectileId));
     if (projectile && projectile->GetActive())
-      projectile->UpdateFX(GetLctrTransform(skEyeLocator), dt, mgr);
+      projectile->UpdateFx(GetLctrTransform(skEyeLocator), dt, mgr);
   }
 
   if (x60c_28_firingBeam) {
@@ -125,7 +125,7 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
                                       zeus::CTransform::Identity(), EMaterialTypes::Immovable,
                                       x5b4_projectileInfo.GetDamage(), x5ec_projectileId, GetAreaIdAlways(),
-                                      GetUniqueId(), 8, false, EProjectileAttrib::KeepInCinematic));
+                                      GetUniqueId(), {}, false, EProjectileAttrib::KeepInCinematic));
 }
 
 void CEyeball::InActive(CStateManager&, EStateMsg msg, float) {

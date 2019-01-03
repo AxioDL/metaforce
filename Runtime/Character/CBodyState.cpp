@@ -837,7 +837,7 @@ bool CBSJump::CheckForWallJump(CBodyController& bc, CStateManager& mgr) {
       float distToWall = (xc_waypoint1 - act->GetTranslation()).magnitude();
       zeus::CAABox aabb = act->GetBoundingBox();
       float xExtent = (aabb.max.x() - aabb.min.x()) * 0.5f;
-      if (distToWall < 1.414f * xExtent || (act->CanLongJump() && distToWall < 3.f * xExtent)) {
+      if (distToWall < 1.414f * xExtent || (act->MadeSolidCollision() && distToWall < 3.f * xExtent)) {
         x4_state = x30_26_wallBounceRight ? pas::EJumpState::WallBounceRight : pas::EJumpState::WallBounceLeft;
         CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_jumpType)));
         bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
@@ -851,7 +851,7 @@ bool CBSJump::CheckForWallJump(CBodyController& bc, CStateManager& mgr) {
 
 void CBSJump::CheckForLand(CBodyController& bc, CStateManager& mgr) {
   if (TCastToPtr<CPatterned> act = bc.GetOwner()) {
-    if (act->CanLongJump() || act->IsOnGround()) {
+    if (act->MadeSolidCollision() || act->IsOnGround()) {
       x4_state = pas::EJumpState::OutOfJump;
       CPASAnimParmData parms(13, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_jumpType)));
       bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
@@ -1044,7 +1044,7 @@ void CBSHurled::PlayLandAnimation(CBodyController& bc, CStateManager& mgr) {
 
 bool CBSHurled::ShouldStartStrikeWall(CBodyController& bc) const {
   if (TCastToPtr<CPatterned> ai = bc.GetOwner()) {
-    if (ai->CanLongJump())
+    if (ai->MadeSolidCollision())
       if (!ai->IsOnGround())
         return true;
   }
@@ -1361,7 +1361,7 @@ void CBSWallHang::FixInPlace(CBodyController& bc) {
 
 bool CBSWallHang::CheckForLand(CBodyController& bc, CStateManager& mgr) {
   if (TCastToPtr<CPatterned> ai = bc.GetOwner()) {
-    if (ai->CanLongJump() || ai->IsOnGround()) {
+    if (ai->MadeSolidCollision() || ai->IsOnGround()) {
       x4_state = pas::EWallHangState::DetachOutOfJump;
       CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
       bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
@@ -1379,7 +1379,7 @@ bool CBSWallHang::CheckForWall(CBodyController& bc, CStateManager& mgr) {
     if (wp)
       magSq = (wp->GetTranslation() - ai->GetTranslation()).magSquared();
 
-    if (magSq < 1.f || ai->CanLongJump()) {
+    if (magSq < 1.f || ai->MadeSolidCollision()) {
       x4_state = pas::EWallHangState::IntoWallHang;
       CPASAnimParmData parms(20, CPASAnimParm::FromEnum(s32(x4_state)));
       std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);

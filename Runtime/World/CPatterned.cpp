@@ -304,7 +304,7 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
 
   x460_knockBackController.Update(thinkDt, mgr, *this);
   x4e4_latestPredictedTranslation = GetTranslation() + PredictMotion(thinkDt).x0_translation;
-  x328_26_longJump = false;
+  x328_26_solidCollision = false;
   if (x420_curDamageRemTime > 0.f)
     x420_curDamageRemTime -= dt;
 
@@ -320,7 +320,7 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
 
     if (x3cc_playerLeashRadius != 0.f) {
       zeus::CVector3f diffVec = (GetTranslation() - mgr.GetPlayer().GetTranslation());
-      if (diffVec.magSquared() > x3cc_playerLeashRadius)
+      if (diffVec.magSquared() > x3cc_playerLeashRadius * x3cc_playerLeashRadius)
         x3d4_curPlayerLeashTime += dt;
       else
         x3d4_curPlayerLeashTime = 0.f;
@@ -331,6 +331,44 @@ void CPatterned::Think(float dt, CStateManager& mgr) {
 
   if (x2f8_waypointPauseRemTime > 0.f)
     x2f8_waypointPauseRemTime -= dt;
+}
+
+void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, CStateManager& mgr) {
+  if (x420_curDamageRemTime <= 0.f) {
+    if (TCastToPtr<CPlayer> player = mgr.ObjectById(other)) {
+      bool jumpOnHead = player->GetTimeSinceJump() < 5.f && list.GetCount() != 0 &&
+                        list.Front().GetNormalLeft().z() > 0.707f;
+      if (x400_25_alive || jumpOnHead) {
+        CDamageInfo cDamage = GetContactDamage();
+        if (!x400_25_alive || x450_bodyController->IsFrozen())
+          cDamage.SetDamage(0.f);
+        if (jumpOnHead) {
+          mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), cDamage,
+                          CMaterialFilter::skPassEverything, -player->GetVelocity());
+          player->ResetTimeSinceJump();
+        } else if (x400_25_alive && !x450_bodyController->IsFrozen()) {
+          mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), cDamage,
+                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+        }
+        x420_curDamageRemTime = x424_damageWaitTime;
+      }
+    }
+  }
+  static CMaterialList testList(EMaterialTypes::Solid, EMaterialTypes::Ceiling, EMaterialTypes::Wall,
+                                EMaterialTypes::Floor, EMaterialTypes::Character);
+  for (const CCollisionInfo& info : list) {
+    if (info.GetMaterialLeft().Intersection(testList)) {
+      if (!info.GetMaterialLeft().HasMaterial(EMaterialTypes::Floor)) {
+        if (!x310_moveVec.isZero() && info.GetNormalLeft().dot(x310_moveVec) >= 0.f)
+          continue;
+      } else if (!x400_31_isFlyer) {
+        continue;
+      }
+      x328_26_solidCollision = true;
+      return;
+    }
+  }
+  CPhysicsActor::CollidedWith(other, list, mgr);
 }
 
 void CPatterned::Touch(CActor& act, CStateManager& mgr) {
@@ -604,8 +642,7 @@ bool CPatterned::Leash(CStateManager&, float arg) {
   bool ret = x3d4_curPlayerLeashTime > x3d0_playerLeashTime;
   if (ret) {
     float posToLeashMagSq = (x3a0_latestLeashPosition - GetTranslation()).magSquared();
-    if (posToLeashMagSq > x3c8_leashRadius * x3c8_leashRadius)
-      return true;
+    return posToLeashMagSq > x3c8_leashRadius * x3c8_leashRadius;
   }
   return ret;
 }
@@ -1586,7 +1623,7 @@ void CPatterned::ThinkAboutMove(float dt) {
 
     switch (x3f8_moveState) {
     case EMoveState::Zero:
-      if (!x328_26_longJump)
+      if (!x328_26_solidCollision)
         break;
     case EMoveState::One:
       doMove = false;
@@ -1601,7 +1638,7 @@ void CPatterned::ThinkAboutMove(float dt) {
       x3f8_moveState = EMoveState::Three;
     case EMoveState::Three:
       doMove = true;
-      if (!x328_26_longJump) {
+      if (!x328_26_solidCollision) {
         x3f8_moveState = EMoveState::Zero;
         break;
       }

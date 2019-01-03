@@ -4,6 +4,7 @@
 #include "Graphics/Shaders/CThermalHotFilter.hpp"
 #include "Graphics/Shaders/CSpaceWarpFilter.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Graphics/Shaders/CColoredStripShader.hpp"
 #include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Graphics/Shaders/CCameraBlurFilter.hpp"
 #include "Graphics/Shaders/CXRayBlurFilter.hpp"
@@ -244,6 +245,7 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCo
   CAABoxShader::Initialize();
   CWorldShadowShader::Initialize();
   CColoredQuadFilter::Initialize();
+  CColoredStripShader::Initialize();
   CTexturedQuadFilter::Initialize();
   CTexturedQuadFilterAlpha::Initialize();
   CTextSupportShader::Initialize();
@@ -823,6 +825,7 @@ void CMain::Shutdown() {
   CAABoxShader::Shutdown();
   CWorldShadowShader::Shutdown();
   CColoredQuadFilter::Shutdown();
+  CColoredStripShader::Shutdown();
   CTexturedQuadFilter::Shutdown();
   CTexturedQuadFilterAlpha::Shutdown();
   CTextSupportShader::Shutdown();

@@ -30,7 +30,7 @@ protected:
   std::experimental::optional<TLockedToken<CGenDescription>> x158_visorParticle;
   u16 x168_visorSfx;
   CProjectileWeapon x170_projectile;
-  zeus::CVector3f x298_lastOrigin;
+  zeus::CVector3f x298_previousPos;
   float x2a4_projExtent;
   float x2a8_homingDt = 0.03f;
   double x2b0_targetHomingTime = 0.0;
@@ -83,6 +83,6 @@ public:
   zeus::CAABox GetProjectileBounds() const;
   std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
-  zeus::CVector3f GetPreviousPos() const { return x298_lastOrigin; }
+  zeus::CVector3f GetPreviousPos() const { return x298_previousPos; }
 };
 } // namespace urde

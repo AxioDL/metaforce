@@ -477,7 +477,7 @@ void CBeetle::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     AddMaterial(EMaterialTypes::Character, EMaterialTypes::Solid, EMaterialTypes::GroundCollider, mgr);
     x328_25_verticalMovement = false;
     x838_25_burrowing = false;
-    if (x328_26_longJump)
+    if (x328_26_solidCollision)
       DeathDelete(mgr);
     break;
   default:
@@ -581,7 +581,7 @@ void CBeetle::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
     default:
       break;
     }
-    if (x328_26_longJump)
+    if (x328_26_solidCollision)
       x838_24_hitSomething = true;
     break;
   case EStateMsg::Deactivate:

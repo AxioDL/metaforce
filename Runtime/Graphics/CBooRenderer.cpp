@@ -615,6 +615,16 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
   m_staticEntropy = store.GetObj("RandomStaticEntropy");
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+    u8 clearPixel[] = {0, 0, 0, 0};
+    m_clearTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
+                                          boo::TextureClampMode::Repeat, clearPixel, 4).get();
+    u8 blackPixel[] = {0, 0, 0, 255};
+    m_blackTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
+                                          boo::TextureClampMode::Repeat, blackPixel, 4).get();
+    u8 whitePixel[] = {255, 255, 255, 255};
+    m_whiteTexture = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
+                                          boo::TextureClampMode::Repeat, whitePixel, 4).get();
+
     GenerateFogVolumeRampTex(ctx);
     GenerateSphereRampTex(ctx);
     m_ballShadowId = ctx.newRenderTexture(m_ballShadowIdW, m_ballShadowIdH, boo::TextureClampMode::Repeat, 1, 0);
