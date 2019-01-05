@@ -149,3 +149,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #shader CColoredStripShaderFullAdditive : CColoredStripShader
 #srcfac one
 #dstfac one
+
+#shader CColoredStripShaderSubtractive : CColoredStripShader
+#srcfac subtract
+#dstfac subtract

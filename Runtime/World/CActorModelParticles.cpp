@@ -646,7 +646,8 @@ void CActorModelParticles::Render(const CStateManager& mgr, const CActor& actor)
   }
   if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Cold) {
     for (const auto& gen : search->x8_onFireGens)
-      gen.first->Render();
+      if (gen.first)
+        gen.first->Render();
     if (mgr.GetThermalDrawFlag() != EThermalDrawFlag::Hot && search->x78_ashGen)
       search->x78_ashGen->Render();
     if (search->xb8_firePopGen)

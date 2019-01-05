@@ -6,6 +6,46 @@ using namespace std::literals;
 extern const hecl::Backend::Function ExtensionLightingFuncsHLSL[];
 extern const hecl::Backend::Function ExtensionPostFuncsHLSL[];
 
+#define FOG_STRUCT_HLSL                                                                                                \
+  "struct Fog\n"                                                                                                       \
+  "{\n"                                                                                                                \
+  "    int mode;\n"                                                                                                    \
+  "    float4 color;\n"                                                                                                \
+  "    float rangeScale;\n"                                                                                            \
+  "    float start;\n"                                                                                                 \
+  "};\n"
+
+#define FOG_ALGORITHM_HLSL                                                                                             \
+  "    float fogZ, temp;\n"                                                                                            \
+  "    switch (fog.mode)\n"                                                                                            \
+  "    {\n"                                                                                                            \
+  "    case 2:\n"                                                                                                      \
+  "        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
+  "        break;\n"                                                                                                   \
+  "    case 4:\n"                                                                                                      \
+  "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"                                   \
+  "        break;\n"                                                                                                   \
+  "    case 5:\n"                                                                                                      \
+  "        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
+  "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"                                                                   \
+  "        break;\n"                                                                                                   \
+  "    case 6:\n"                                                                                                      \
+  "        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"                                          \
+  "        break;\n"                                                                                                   \
+  "    case 7:\n"                                                                                                      \
+  "        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"                                                       \
+  "        fogZ = exp2(-8.0 * temp * temp);\n"                                                                         \
+  "        break;\n"                                                                                                   \
+  "    default:\n"                                                                                                     \
+  "        fogZ = 0.0;\n"                                                                                              \
+  "        break;\n"                                                                                                   \
+  "    }\n"                                                                                                            \
+  "#ifdef BLEND_DST_ONE\n"                                                                                             \
+  "    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"                     \
+  "#else\n"                                                                                                            \
+  "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                      \
+  "#endif\n"
+
 static std::string_view LightingHLSL =
 "struct Light\n"
 "{\n"
@@ -15,13 +55,7 @@ static std::string_view LightingHLSL =
 "    float4 linAtt;\n"
 "    float4 angAtt;\n"
 "};\n"
-"struct Fog\n"
-"{\n"
-"    int mode;\n"
-"    float4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"};\n"
+FOG_STRUCT_HLSL
 "\n"
 "cbuffer LightingUniform : register(b2)\n"
 "{\n"
@@ -118,36 +152,7 @@ static std::string_view LightingShadowHLSL =
 
 static std::string_view MainPostHLSL =
     "static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"
-    "{\n"
-    "    float fogZ, temp;\n"
-    "    switch (fog.mode)\n"
-    "    {\n"
-    "    case 2:\n"
-    "        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-    "        break;\n"
-    "    case 4:\n"
-    "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"
-    "        break;\n"
-    "    case 5:\n"
-    "        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-    "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
-    "        break;\n"
-    "    case 6:\n"
-    "        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"
-    "        break;\n"
-    "    case 7:\n"
-    "        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"
-    "        fogZ = exp2(-8.0 * temp * temp);\n"
-    "        break;\n"
-    "    default:\n"
-    "        fogZ = 0.0;\n"
-    "        break;\n"
-    "    }\n"
-    "#ifdef BLEND_DST_ONE\n"
-    "    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"
-    "#else\n"
-    "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
-    "#endif\n"
+    "{\n" FOG_ALGORITHM_HLSL
     "}\n"
     "\n"sv;
 
@@ -193,6 +198,21 @@ static std::string_view MBShadowPostHLSL =
     "}\n"
     "\n"sv;
 
+static std::string_view DisintegratePostHLSL = FOG_STRUCT_HLSL
+    "cbuffer DisintegrateUniform : register(b2)\n"
+    "{\n"
+    "    float4 addColor;\n"
+    "    Fog fog;\n"
+    "};\n"
+    "float4 DisintegratePostFunc(float4 colorIn)\n"
+    "{\n"
+    "    float4 texel0 = extTex7.Sample(samp, vtf.extTcgs[0]);\n"
+    "    float4 texel1 = extTex7.Sample(samp, vtf.extTcgs[1]);\n"
+    "    colorIn = mix(float4(0.0), texel1, texel0);\n"
+    "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_HLSL
+    "}\n"
+    "\n"sv;
+
 const hecl::Backend::Function ExtensionLightingFuncsHLSL[] = {{},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {},
@@ -212,6 +232,8 @@ const hecl::Backend::Function ExtensionLightingFuncsHLSL[] = {{},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {LightingHLSL, "LightingFunc"},
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {},
                                                               {LightingHLSL, "LightingFunc"}};
 
 const hecl::Backend::Function ExtensionPostFuncsHLSL[] = {
@@ -234,6 +256,8 @@ const hecl::Backend::Function ExtensionPostFuncsHLSL[] = {
     {MainPostHLSL, "MainPostFunc"},
     {MainPostHLSL, "MainPostFunc"},
     {MainPostHLSL, "MainPostFunc"},
+    {MainPostHLSL, "MainPostFunc"},
+    {DisintegratePostHLSL, "DisintegratePostFunc"},
     {MainPostHLSL, "MainPostFunc"},
 };
 

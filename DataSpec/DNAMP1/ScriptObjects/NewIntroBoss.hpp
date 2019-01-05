@@ -14,7 +14,7 @@ struct NewIntroBoss : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> turnRadius;
+  Value<float> minTurnAngle;
   UniqueID32 weaponDesc;
   DamageInfo damageInfo;
   UniqueID32 beamContactFxId;

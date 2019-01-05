@@ -6,6 +6,46 @@ using namespace std::literals;
 extern const hecl::Backend::Function ExtensionLightingFuncsMetal[];
 extern const hecl::Backend::Function ExtensionPostFuncsMetal[];
 
+#define FOG_STRUCT_METAL                                                                                               \
+  "struct Fog\n"                                                                                                       \
+  "{\n"                                                                                                                \
+  "    int mode;\n"                                                                                                    \
+  "    float4 color;\n"                                                                                                \
+  "    float rangeScale;\n"                                                                                            \
+  "    float start;\n"                                                                                                 \
+  "};\n"
+
+#define FOG_ALGORITHM_METAL                                                                                            \
+  "    float fogZ, temp;\n"                                                                                            \
+  "    switch (lu.fog.mode)\n"                                                                                         \
+  "    {\n"                                                                                                            \
+  "    case 2:\n"                                                                                                      \
+  "        fogZ = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"                                                \
+  "        break;\n"                                                                                                   \
+  "    case 4:\n"                                                                                                      \
+  "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale);\n"                             \
+  "        break;\n"                                                                                                   \
+  "    case 5:\n"                                                                                                      \
+  "        temp = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"                                                \
+  "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"                                                                   \
+  "        break;\n"                                                                                                   \
+  "    case 6:\n"                                                                                                      \
+  "        fogZ = exp2(-8.0 * (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale);\n"                                    \
+  "        break;\n"                                                                                                   \
+  "    case 7:\n"                                                                                                      \
+  "        temp = (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale;\n"                                                 \
+  "        fogZ = exp2(-8.0 * temp * temp);\n"                                                                         \
+  "        break;\n"                                                                                                   \
+  "    default:\n"                                                                                                     \
+  "        fogZ = 0.0;\n"                                                                                              \
+  "        break;\n"                                                                                                   \
+  "    }\n"                                                                                                            \
+  "#ifdef BLEND_DST_ONE\n"                                                                                             \
+  "    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"                                     \
+  "#else\n"                                                                                                            \
+  "    return float4(mix(colorIn, lu.fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                    \
+  "#endif\n"
+
 static std::string_view LightingMetal =
 "struct Light\n"
 "{\n"
@@ -15,13 +55,7 @@ static std::string_view LightingMetal =
 "    float4 linAtt;\n"
 "    float4 angAtt;\n"
 "};\n"
-"struct Fog\n"
-"{\n"
-"    int mode;\n"
-"    float4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"};\n"
+FOG_STRUCT_METAL
 "\n"
 "struct LightingUniform\n"
 "{\n"
@@ -119,36 +153,7 @@ static std::string_view LightingShadowMetal =
 
 static std::string_view MainPostMetal =
     "float4 MainPostFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn)\n"
-    "{\n"
-    "    float fogZ, temp;\n"
-    "    switch (lu.fog.mode)\n"
-    "    {\n"
-    "    case 2:\n"
-    "        fogZ = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"
-    "        break;\n"
-    "    case 4:\n"
-    "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale);\n"
-    "        break;\n"
-    "    case 5:\n"
-    "        temp = (-vtf.mvPos.z - lu.fog.start) * lu.fog.rangeScale;\n"
-    "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
-    "        break;\n"
-    "    case 6:\n"
-    "        fogZ = exp2(-8.0 * (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale);\n"
-    "        break;\n"
-    "    case 7:\n"
-    "        temp = (lu.fog.start + vtf.mvPos.z) * lu.fog.rangeScale;\n"
-    "        fogZ = exp2(-8.0 * temp * temp);\n"
-    "        break;\n"
-    "    default:\n"
-    "        fogZ = 0.0;\n"
-    "        break;\n"
-    "    }\n"
-    "#ifdef BLEND_DST_ONE\n"
-    "    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"
-    "#else\n"
-    "    return float4(mix(colorIn, lu.fog.color, saturate(fogZ)).rgb, colorIn.a);\n"
-    "#endif\n"
+    "{\n" FOG_ALGORITHM_METAL
     "}\n"
     "\n"sv;
 
@@ -184,10 +189,9 @@ static std::string_view MBShadowPostMetal =
     "    float4 shadowUp;\n"
     "    float shadowId;\n"
     "};\n"
-    "static float4 EXTMBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su, sampler samp, sampler "
-    "clampSamp,\n"
-    "                                  texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2, "
-    "float4 colorIn)\n"
+    "static float4 EXTMBShadowPostFunc(thread VertToFrag& vtf, constant MBShadowUniform& su, sampler samp,\n"
+    "                                  sampler clampSamp, texture2d<float> extTex0, texture2d<float> extTex1,\n"
+    "                                  texture2d<float> extTex2, float4 colorIn)\n"
     "{\n"
     "    float idTexel = extTex0.sample(samp, vtf.extTcgs0).a;\n"
     "    float sphereTexel = extTex1.sample(samp, vtf.extTcgs1).a;\n"
@@ -196,6 +200,22 @@ static std::string_view MBShadowPostMetal =
     "        (dot(vtf.mvNorm.xyz, su.shadowUp.xyz) * su.shadowUp.w) : 0.0) *\n"
     "        sphereTexel * fadeTexel;\n"
     "    return float4(0.0, 0.0, 0.0, val);\n"
+    "}\n"
+    "\n"sv;
+
+static std::string_view DisintegratePostMetal = FOG_STRUCT_METAL
+    "struct DisintegrateUniform\n"
+    "{\n"
+    "    float4 addColor;\n"
+    "    Fog fog;\n"
+    "};\n"
+    "static float4 EXTDisintegratePostFunc(thread VertToFrag& vtf, constant DisintegrateUniform& lu, sampler samp,\n"
+    "                                      sampler clampSamp, texture2d<float> extTex7, float4 colorIn)\n"
+    "{\n"
+    "    float4 texel0 = extTex7.sample(samp, vtf.extTcgs[0]);\n"
+    "    float4 texel1 = extTex7.sample(samp, vtf.extTcgs[1]);\n"
+    "    colorIn = mix(float4(0.0), texel1, texel0);\n"
+    "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_METAL
     "}\n"
     "\n"sv;
 
@@ -218,6 +238,8 @@ const hecl::Backend::Function ExtensionLightingFuncsMetal[] = {{},
                                                                {LightingMetal, "LightingFunc"},
                                                                {LightingMetal, "LightingFunc"},
                                                                {LightingMetal, "LightingFunc"},
+                                                               {LightingMetal, "LightingFunc"},
+                                                               {},
                                                                {LightingMetal, "LightingFunc"}};
 
 const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
@@ -240,6 +262,8 @@ const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {MainPostMetal, "MainPostFunc"},
     {MainPostMetal, "MainPostFunc"},
     {MainPostMetal, "MainPostFunc"},
+    {MainPostMetal, "MainPostFunc"},
+    {DisintegratePostMetal, "EXTDisintegratePostFunc"},
     {MainPostMetal, "MainPostFunc"},
 };
 

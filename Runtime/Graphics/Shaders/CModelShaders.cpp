@@ -140,7 +140,10 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     /* Disintegration */
     {1, BlockNames, 2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
      hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false,
-     false, true, false, false, true}};
+     false, true, false, false, true},
+    /* Forced additive shading without culling or Z-write and greater depth test */
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+     hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true}};
 
 extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];
 extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];

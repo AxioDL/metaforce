@@ -12,7 +12,8 @@ public:
   enum class Mode {
     Alpha,
     Additive,
-    FullAdditive
+    FullAdditive,
+    Subtractive
   };
 private:
   struct Uniform {

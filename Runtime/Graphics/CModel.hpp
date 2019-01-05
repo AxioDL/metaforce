@@ -25,6 +25,7 @@ struct CModelFlags {
   EExtendedShader m_extendedShader = EExtendedShader::Lighting;
   bool m_noCull = false;
   bool m_noZWrite = false;
+  bool m_depthGreater = false;
   u16 x2_flags = 0;      /* Flags */
   zeus::CColor x4_color; /* Set into kcolor slot specified by material */
   zeus::CColor addColor = zeus::CColor::skClear;

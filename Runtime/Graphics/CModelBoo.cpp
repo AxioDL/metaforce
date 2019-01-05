@@ -531,19 +531,23 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
   if (flags.m_extendedShader == EExtendedShader::Lighting) {
     if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero) {
       /* Override shader if originally opaque (typical for FRME models) */
-      if (flags.x0_blendMode > 6)
-        extended =
+      if (flags.x0_blendMode > 6) {
+        if (flags.m_depthGreater)
+          extended = EExtendedShader::ForcedAdditiveNoZWriteDepthGreater;
+        else
+          extended =
             flags.m_noCull
-                ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
-                : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
-      else if (flags.x0_blendMode > 4)
+            ? (noZWrite ? EExtendedShader::ForcedAdditiveNoCullNoZWrite : EExtendedShader::ForcedAdditiveNoCull)
+            : (noZWrite ? EExtendedShader::ForcedAdditiveNoZWrite : EExtendedShader::ForcedAdditive);
+      } else if (flags.x0_blendMode > 4) {
         extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
-      else
+                   ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+                   : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::ForcedAlpha);
+      } else {
         extended = flags.m_noCull
-                       ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
-                       : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
+                   ? (noZWrite ? EExtendedShader::ForcedAlphaNoCullNoZWrite : EExtendedShader::ForcedAlphaNoCull)
+                   : (noZWrite ? EExtendedShader::ForcedAlphaNoZWrite : EExtendedShader::Lighting);
+      }
     } else if (flags.m_noCull && noZWrite) {
       /* Substitute no-cull,no-zwrite pipeline if available */
       if (data.heclIr.m_blendDst == boo::BlendFactor::One)

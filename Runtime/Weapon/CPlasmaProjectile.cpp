@@ -17,6 +17,10 @@ CPlasmaProjectile::RenderObjects::RenderObjects(boo::IGraphicsDataFactory::Conte
 , m_beamStrip2(ctx, 10, CColoredStripShader::Mode::FullAdditive, tex)
 , m_beamStrip3(ctx, 18, CColoredStripShader::Mode::FullAdditive, tex)
 , m_beamStrip4(ctx, 14, CColoredStripShader::Mode::Additive, glowTex)
+, m_beamStrip1Sub(ctx, 8, CColoredStripShader::Mode::Subtractive, {})
+, m_beamStrip2Sub(ctx, 10, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip3Sub(ctx, 18, CColoredStripShader::Mode::Subtractive, tex)
+, m_beamStrip4Sub(ctx, 14, CColoredStripShader::Mode::Subtractive, glowTex)
 , m_motionBlurStrip(ctx, 16, CColoredStripShader::Mode::Alpha, {}) {}
 
 CPlasmaProjectile::CPlasmaProjectile(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
@@ -418,19 +422,23 @@ void CPlasmaProjectile::Render(const CStateManager& mgr) const {
 
   // Pass1: alpha-controlled additive
   CGraphics::SetModelMatrix(xf);
-  RenderBeam(3, 0.25f * x4b8_beamWidth, zeus::CColor(1.f, 0.3f), flags | 0x4, m_renderObjs->m_beamStrip1);
+  RenderBeam(3, 0.25f * x4b8_beamWidth, zeus::CColor(1.f, 0.3f), flags | 0x4,
+             (flags & 0x10) ? m_renderObjs->m_beamStrip1Sub : m_renderObjs->m_beamStrip1);
 
   // Pass2: textured
   CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(x4c8_beamAngle)));
-  RenderBeam(4, 0.5f * x4b8_beamWidth, x490_innerColor, flags | 0x1, m_renderObjs->m_beamStrip2);
+  RenderBeam(4, 0.5f * x4b8_beamWidth, x490_innerColor, flags | 0x1,
+             (flags & 0x10) ? m_renderObjs->m_beamStrip2Sub : m_renderObjs->m_beamStrip2);
 
   // Pass3: textured | length-controlled UVY
   CGraphics::SetModelMatrix(xf * zeus::CTransform::RotateY(zeus::degToRad(-x4c8_beamAngle)));
-  RenderBeam(8, x4b8_beamWidth, x494_outerColor, flags | 0x3, m_renderObjs->m_beamStrip3);
+  RenderBeam(8, x4b8_beamWidth, x494_outerColor, flags | 0x3,
+             (flags & 0x10) ? m_renderObjs->m_beamStrip3Sub : m_renderObjs->m_beamStrip3);
 
   // Pass4: textured | alpha-controlled additive | glow texture
   CGraphics::SetModelMatrix(xf);
-  RenderBeam(6, 1.25f * x4b8_beamWidth, x494_outerColor, flags | 0xd, m_renderObjs->m_beamStrip4);
+  RenderBeam(6, 1.25f * x4b8_beamWidth, x494_outerColor, flags | 0xd,
+             (flags & 0x10) ? m_renderObjs->m_beamStrip4Sub : m_renderObjs->m_beamStrip4);
 }
 
 } // namespace urde

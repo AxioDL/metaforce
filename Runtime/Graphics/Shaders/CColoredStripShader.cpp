@@ -9,17 +9,20 @@ namespace urde {
 static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_AdditivePipeline;
 static boo::ObjToken<boo::IShaderPipeline> s_FullAdditivePipeline;
+static boo::ObjToken<boo::IShaderPipeline> s_SubtractivePipeline;
 
 void CColoredStripShader::Initialize() {
   s_Pipeline = hecl::conv->convert(Shader_CColoredStripShader{});
   s_AdditivePipeline = hecl::conv->convert(Shader_CColoredStripShaderAdditive{});
   s_FullAdditivePipeline = hecl::conv->convert(Shader_CColoredStripShaderFullAdditive{});
+  s_SubtractivePipeline = hecl::conv->convert(Shader_CColoredStripShaderSubtractive{});
 }
 
 void CColoredStripShader::Shutdown() {
   s_Pipeline.reset();
   s_AdditivePipeline.reset();
   s_FullAdditivePipeline.reset();
+  s_SubtractivePipeline.reset();
 }
 
 static const boo::ObjToken<boo::IShaderPipeline>& SelectPipeline(CColoredStripShader::Mode mode) {
@@ -31,6 +34,8 @@ static const boo::ObjToken<boo::IShaderPipeline>& SelectPipeline(CColoredStripSh
     return s_AdditivePipeline;
   case CColoredStripShader::Mode::FullAdditive:
     return s_FullAdditivePipeline;
+  case CColoredStripShader::Mode::Subtractive:
+    return s_SubtractivePipeline;
   }
 }
 

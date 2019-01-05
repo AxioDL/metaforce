@@ -34,6 +34,7 @@ enum EExtendedShader : uint8_t {
   ForcedAdditiveNoCullNoZWrite,
   DepthGEqualNoZWrite,
   Disintegrate,
+  ForcedAdditiveNoZWriteDepthGreater,
   MAX
 };
 

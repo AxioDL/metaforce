@@ -74,6 +74,10 @@ private:
     CColoredStripShader m_beamStrip2;
     CColoredStripShader m_beamStrip3;
     CColoredStripShader m_beamStrip4;
+    CColoredStripShader m_beamStrip1Sub;
+    CColoredStripShader m_beamStrip2Sub;
+    CColoredStripShader m_beamStrip3Sub;
+    CColoredStripShader m_beamStrip4Sub;
     CColoredStripShader m_motionBlurStrip;
     RenderObjects(boo::IGraphicsDataFactory::Context& ctx,
                   boo::ObjToken<boo::ITexture> tex,

@@ -790,7 +790,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
 
   CActorParameters actParms = LoadActorParameters(in);
 
-  float turnRadius = in.readFloatBig();
+  float minTurnAngle = in.readFloatBig();
   CAssetId projectile(in);
 
   CDamageInfo dInfo(in);
@@ -808,7 +808,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
   CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
 
   return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
-                                turnRadius, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId,
+                                minTurnAngle, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId,
                                 beamGlowTextureId);
 }
 
