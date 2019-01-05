@@ -790,7 +790,7 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
 
   CActorParameters actParms = LoadActorParameters(in);
 
-  float f1 = in.readFloatBig();
+  float turnRadius = in.readFloatBig();
   CAssetId projectile(in);
 
   CDamageInfo dInfo(in);
@@ -808,7 +808,8 @@ CEntity* ScriptLoader::LoadNewIntroBoss(CStateManager& mgr, CInputStream& in, in
   CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, aParms.GetInitialAnimation(), true);
 
   return new MP1::CNewIntroBoss(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, res, pInfo, actParms,
-                                f1, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId, beamGlowTextureId);
+                                turnRadius, projectile, dInfo, beamContactFxId, beamPulseFxId, beamTextureId,
+                                beamGlowTextureId);
 }
 
 CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

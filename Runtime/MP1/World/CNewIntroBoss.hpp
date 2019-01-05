@@ -12,7 +12,7 @@ namespace MP1 {
 class CNewIntroBoss : public CPatterned {
   pas::ELocomotionType x568_locomotion = pas::ELocomotionType::Relaxed;
   u32 x56c_stateProg = 0;
-  float x570_;
+  float x570_turnRadius;
   CBoneTracking x574_boneTracking;
   CProjectileInfo x5ac_projectileInfo;
   TUniqueId x5d4_stage1Projectile = kInvalidUniqueId;
@@ -49,7 +49,7 @@ public:
   DEFINE_PATTERNED(NewIntroBoss)
   CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                 CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                float f1, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
+                float turnRadius, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
                 CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId);
 
   void Accept(IVisitor& visitor);

@@ -10,6 +10,7 @@ class CCollisionEdge {
 public:
   CCollisionEdge() = default;
   CCollisionEdge(CInputStream&);
+  CCollisionEdge(u16 v0, u16 v1) : x0_index1(v0), x2_index2(v1) {}
 
   u16 GetVertIndex1() const { return x0_index1; }
   u16 GetVertIndex2() const { return x2_index2; }

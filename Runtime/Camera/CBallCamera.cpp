@@ -130,7 +130,7 @@ void CBallCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
   case EScriptObjectMessage::Registered: {
     x46c_collisionActorId = stateMgr.AllocateUniqueId();
     CCollisionActor* colAct =
-        new CCollisionActor(x46c_collisionActorId, GetAreaId(), kInvalidUniqueId, true, 0.3f, 1.f);
+        new CCollisionActor(x46c_collisionActorId, GetAreaId(), kInvalidUniqueId, true, 0.3f, 1.f, "BallCamera"sv);
     colAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
         {EMaterialTypes::Solid}, {EMaterialTypes::Player, EMaterialTypes::CameraPassthrough}));
     colAct->SetMaterialList({EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough,

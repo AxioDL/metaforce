@@ -370,7 +370,7 @@ bool CElementGen::UpdateVelocitySource(u32 idx, u32 particleFrame, CParticle& pa
     zeus::CVector3f localPos = x208_orientationInverse * (particle.x4_pos - xdc_translation);
     err = x280_VELSources[idx]->GetValue(particleFrame, localVel, localPos);
     particle.x1c_vel = x1d8_orientation.rotate(localVel);
-    particle.x4_pos = x1d8_orientation.rotate(localVel) + xdc_translation;
+    particle.x4_pos = x1d8_orientation.rotate(localPos) + xdc_translation;
   } else {
     err = x280_VELSources[idx]->GetValue(particleFrame, particle.x1c_vel, particle.x4_pos);
   }

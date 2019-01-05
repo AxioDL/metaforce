@@ -22,11 +22,20 @@ CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream&
 
   x10_aabbs.reserve(x0_trees.size());
 
-  for (const std::unique_ptr<COBBTree>& tree : x0_trees)
+  for (const std::unique_ptr<COBBTree>& tree : x0_trees) {
     x10_aabbs.push_back(CCollidableOBBTree(tree.get(), CMaterialList()).CalculateLocalAABox());
+    x20_aabox.accumulateBounds(x10_aabbs.back());
+  }
 }
 
-CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const zeus::CVector3f&, const zeus::CVector3f&) {}
+CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(const zeus::CVector3f& extent, const zeus::CVector3f& center) {
+  x0_trees.push_back(COBBTree::BuildOrientedBoundingBoxTree(extent, center));
+
+  for (const std::unique_ptr<COBBTree>& tree : x0_trees) {
+    x10_aabbs.push_back(CCollidableOBBTree(tree.get(), CMaterialList()).CalculateLocalAABox());
+    x20_aabox.accumulateBounds(x10_aabbs.back());
+  }
+}
 
 CCollidableOBBTreeGroup::CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer* container,
                                                  const CMaterialList& matList)

@@ -11,17 +11,19 @@ static const CMaterialList gkDefaultCollisionActorMaterials =
     CMaterialList(EMaterialTypes::Solid, EMaterialTypes::CollisionActor, EMaterialTypes::ScanPassthrough,
                   EMaterialTypes::CameraPassthrough);
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& vec1,
-                                 const zeus::CVector3f& vec2, bool active, float mass)
+CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& extent,
+                                 const zeus::CVector3f& center, bool active, float mass, std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::OBBTreeGroup)
 , x25c_owner(uid2)
-, x260_boxSize(vec1)
-, x26c_(vec2)
-, x278_obbContainer(new CCollidableOBBTreeGroupContainer(vec1, vec2))
+, x260_boxSize(extent)
+, x26c_center(center)
+, x278_obbContainer(new CCollidableOBBTreeGroupContainer(extent, center))
 , x27c_obbTreeGroupPrimitive(new CCollidableOBBTreeGroup(x278_obbContainer.get(), GetMaterialList())) {
+  x10_name += ' ';
+  x10_name += name;
   SetCoefficientOfRestitutionModifier(0.5f);
   SetCallTouch(false);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
@@ -29,7 +31,7 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 }
 
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& boxSize,
-                                 bool active, float mass)
+                                 bool active, float mass, std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
@@ -38,13 +40,16 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 , x260_boxSize(boxSize)
 , x280_aaboxPrimitive(new CCollidableAABox(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
                                            CMaterialList(EMaterialTypes::Solid, EMaterialTypes::NoStaticCollision))) {
+  x10_name += ' ';
+  x10_name += name;
   SetCoefficientOfRestitutionModifier(0.5f);
   SetCallTouch(false);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
       {EMaterialTypes::Solid}, {EMaterialTypes::CollisionActor, EMaterialTypes::NoStaticCollision}));
 }
 
-CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass)
+CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass,
+                                 std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
                 zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
                 zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
@@ -53,6 +58,8 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
 , x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::CVector3f::skZero, radius),
                                              CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
 , x288_sphereRadius(radius) {
+  x10_name += ' ';
+  x10_name += name;
   SetCoefficientOfRestitutionModifier(0.5f);
   SetCallTouch(false);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
@@ -71,12 +78,13 @@ void CCollisionActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
   case EScriptObjectMessage::Touched:
   case EScriptObjectMessage::Damage:
   case EScriptObjectMessage::InvulnDamage: {
-    CEntity* ent = mgr.ObjectById(x25c_owner);
-    if (ent)
-      mgr.SendScriptMsg(ent, x2fc_lastTouched, msg);
+    if (CEntity* ent = mgr.ObjectById(x25c_owner)) {
+      x2fc_lastTouched = uid;
+      mgr.SendScriptMsg(ent, GetUniqueId(), msg);
+    }
   } break;
   default:
-    mgr.SendScriptMsgAlways(x25c_owner, x8_uid, msg);
+    mgr.SendScriptMsgAlways(x25c_owner, GetUniqueId(), msg);
     break;
   }
 

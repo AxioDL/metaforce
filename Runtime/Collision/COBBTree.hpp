@@ -27,7 +27,7 @@ public:
 
   public:
     CLeafData() = default;
-    CLeafData(const std::vector<u16>&);
+    CLeafData(std::vector<u16>&& surface);
     CLeafData(CInputStream&);
 
     const std::vector<u16>& GetSurfaceVector() const;
@@ -45,7 +45,8 @@ public:
   public:
     CNode() = default;
     CNode(const CNode&) = default;
-    CNode(const zeus::CTransform&, const zeus::CVector3f&, const CNode*, const CNode*, const CLeafData*);
+    CNode(const zeus::CTransform&, const zeus::CVector3f&, std::unique_ptr<CNode>&&, std::unique_ptr<CNode>&&,
+          std::unique_ptr<CLeafData>&&);
     CNode(CInputStream&);
 
     bool WasHit() const { return x4c_hit; }
@@ -68,11 +69,10 @@ private:
 
 public:
   COBBTree() = default;
-  COBBTree(const COBBTree::SIndexData&, const CNode*);
   COBBTree(CInputStream&);
 
-  static std::unique_ptr<CCollidableOBBTreeGroupContainer> BuildOrientedBoundingBoxTree(const zeus::CVector3f&,
-                                                                                        const zeus::CVector3f&);
+  static std::unique_ptr<COBBTree> BuildOrientedBoundingBoxTree(const zeus::CVector3f&,
+                                                                const zeus::CVector3f&);
   CCollisionSurface GetSurface(u16 idx) const;
   const u16* GetTriangleEdgeIndices(u16 idx) const { return &x18_indexData.x50_surfaceIndices[idx * 3]; }
   void GetTriangleVertexIndices(u16 idx, u16 indicesOut[3]) const;

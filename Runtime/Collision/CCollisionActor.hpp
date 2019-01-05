@@ -13,7 +13,7 @@ class CCollisionActor : public CPhysicsActor {
   EPrimitiveType x258_primitiveType;
   TUniqueId x25c_owner;
   zeus::CVector3f x260_boxSize;
-  zeus::CVector3f x26c_;
+  zeus::CVector3f x26c_center;
   std::unique_ptr<CCollidableOBBTreeGroupContainer> x278_obbContainer;
   std::unique_ptr<CCollidableOBBTreeGroup> x27c_obbTreeGroupPrimitive;
   std::unique_ptr<CCollidableAABox> x280_aaboxPrimitive;
@@ -26,9 +26,10 @@ class CCollisionActor : public CPhysicsActor {
   zeus::CVector3f x304_extendedTouchBounds = zeus::CVector3f::skZero;
 
 public:
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, bool, float);
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, bool, float);
-  CCollisionActor(TUniqueId, TAreaId, TUniqueId, bool, float, float);
+  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, bool, float,
+                  std::string_view name);
+  CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, bool, float, std::string_view name);
+  CCollisionActor(TUniqueId, TAreaId, TUniqueId, bool, float, float, std::string_view name);
 
   void Accept(IVisitor& visitor);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

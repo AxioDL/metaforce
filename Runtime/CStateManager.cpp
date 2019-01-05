@@ -1377,44 +1377,42 @@ void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee, 
 void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& pos, CActor& a2,
                                       const CDamageInfo& info) {
   zeus::CVector3f delta = a2.GetTranslation() - pos;
-  if (delta.magSquared() >= info.GetRadius() * info.GetRadius()) {
-    std::experimental::optional<zeus::CAABox> bounds = a2.GetTouchBounds();
-    if (!bounds)
-      return;
-    if (CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds)) {
-      float rad = info.GetRadius();
-      if (rad > FLT_EPSILON)
-        rad = delta.magnitude() / rad;
-      else
-        rad = 0.f;
-      if (rad > 0.f)
-        delta.normalize();
+  std::experimental::optional<zeus::CAABox> bounds;
+  if (delta.magSquared() < info.GetRadius() * info.GetRadius() ||
+      ((bounds = a2.GetTouchBounds()) &&
+       CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))) {
+    float rad = info.GetRadius();
+    if (rad > FLT_EPSILON)
+      rad = delta.magnitude() / rad;
+    else
+      rad = 0.f;
+    if (rad > 0.f)
+      delta.normalize();
 
-      bool alive = false;
-      if (CHealthInfo* hInfo = a2.HealthInfo(*this))
-        if (hInfo->GetHP() > 0.f)
-          alive = true;
+    bool alive = false;
+    if (CHealthInfo* hInfo = a2.HealthInfo(*this))
+      if (hInfo->GetHP() > 0.f)
+        alive = true;
 
-      const CDamageVulnerability* vuln;
-      if (rad > 0.f)
-        vuln = a2.GetDamageVulnerability(pos, delta, info);
-      else
-        vuln = a2.GetDamageVulnerability();
+    const CDamageVulnerability* vuln;
+    if (rad > 0.f)
+      vuln = a2.GetDamageVulnerability(pos, delta, info);
+    else
+      vuln = a2.GetDamageVulnerability();
 
-      if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
-        float dam = info.GetRadiusDamage(*vuln);
-        if (dam > 0.f)
-          ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
-        a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
-        SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::Damage);
-      } else {
-        a2.SendScriptMsgs(EScriptObjectState::InvulnDamage, *this, EScriptObjectMessage::None);
-        SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InvulnDamage);
-      }
-
-      if (alive && info.GetKnockBackPower() > 0.f)
-        ApplyKnockBack(a2, info, *vuln, (a2.GetTranslation() - a1.GetTranslation()).normalized(), rad);
+    if (vuln->WeaponHurts(info.GetWeaponMode(), true)) {
+      float dam = info.GetRadiusDamage(*vuln);
+      if (dam > 0.f)
+        ApplyLocalDamage(pos, delta, a2, dam, info.GetWeaponMode());
+      a2.SendScriptMsgs(EScriptObjectState::Damage, *this, EScriptObjectMessage::None);
+      SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::Damage);
+    } else {
+      a2.SendScriptMsgs(EScriptObjectState::InvulnDamage, *this, EScriptObjectMessage::None);
+      SendScriptMsg(&a2, a1.GetUniqueId(), EScriptObjectMessage::InvulnDamage);
     }
+
+    if (alive && info.GetKnockBackPower() > 0.f)
+      ApplyKnockBack(a2, info, *vuln, (a2.GetTranslation() - a1.GetTranslation()).normalized(), rad);
   }
 }
 

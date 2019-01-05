@@ -677,9 +677,8 @@ void CActor::MoveScannableObjectInfoToActor(CActor* act, CStateManager& mgr) {
   if (!act)
     return;
 
-  if (act->GetScannableObjectInfo() != GetScannableObjectInfo())
-    act->x98_scanObjectInfo = x98_scanObjectInfo;
-
+  act->x98_scanObjectInfo = x98_scanObjectInfo;
+  x98_scanObjectInfo = TLockedToken<CScannableObjectInfo>();
   act->AddMaterial(EMaterialTypes::Scannable, mgr);
   RemoveMaterial(EMaterialTypes::Scannable, mgr);
 }

@@ -30,7 +30,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
           bounds.y() += dist;
           CCollisionActor* newAct =
               new CCollisionActor(mgr.AllocateUniqueId(), area, x10_ownerId, bounds,
-                                  zeus::CVector3f(0.f, 0.5f * dist, 0.f), active, modDesc.GetMass());
+                                  zeus::CVector3f(0.f, 0.5f * dist, 0.f), active, modDesc.GetMass(), desc.GetName());
           if (modDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
             newAct->SetTransform(locXf);
           } else {
@@ -46,7 +46,8 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
         } else {
           TUniqueId newId = mgr.AllocateUniqueId();
           CCollisionActor* newAct =
-              new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass());
+              new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
+                                  desc.GetName());
           newAct->SetTransform(locXf);
           mgr.AddObject(newAct);
           x0_jointDescriptions.push_back(CJointCollisionDescription::SphereCollision(
@@ -63,7 +64,8 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
                   CJointCollisionDescription::EOrientationType::One, modDesc.GetName(), 0.001f));
               TUniqueId newId2 = mgr.AllocateUniqueId();
               CCollisionActor* newAct2 =
-                  new CCollisionActor(newId2, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass());
+                  new CCollisionActor(newId2, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
+                                      desc.GetName());
               if (modDesc.GetOrientationType() == CJointCollisionDescription::EOrientationType::Zero) {
                 newAct2->SetTransform(zeus::CTransform::Translate(locXf.origin + separation * locXf.basis[1]));
               } else {
@@ -83,12 +85,14 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
         TUniqueId newId = mgr.AllocateUniqueId();
         CCollisionActor* newAct;
         if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::Sphere)
-          newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass());
+          newAct = new CCollisionActor(newId, area, x10_ownerId, active, modDesc.GetRadius(), modDesc.GetMass(),
+                                       desc.GetName());
         else if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::OBB)
           newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), modDesc.GetPivotPoint(), active,
-                                       modDesc.GetMass());
+                                       modDesc.GetMass(), desc.GetName());
         else
-          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), active, modDesc.GetMass());
+          newAct = new CCollisionActor(newId, area, x10_ownerId, modDesc.GetBounds(), active, modDesc.GetMass(),
+                                       desc.GetName());
         newAct->SetTransform(locXf);
         mgr.AddObject(newAct);
         x0_jointDescriptions.push_back(desc);

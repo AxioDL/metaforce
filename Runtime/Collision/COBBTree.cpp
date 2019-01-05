@@ -8,8 +8,6 @@ u32 verify_deaf_babe(CInputStream& in) { return in.readUint32Big(); }
 /* This is exactly what retro did >.< */
 u32 verify_version(CInputStream& in) { return in.readUint32Big(); }
 
-COBBTree::COBBTree(const SIndexData& indexData, const CNode* root) : x18_indexData(indexData), x88_root((CNode*)root) {}
-
 COBBTree::COBBTree(CInputStream& in)
 : x0_magic(verify_deaf_babe(in))
 , x4_version(verify_version(in))
@@ -17,9 +15,48 @@ COBBTree::COBBTree(CInputStream& in)
 , x18_indexData(in)
 , x88_root(new CNode(in)) {}
 
-std::unique_ptr<CCollidableOBBTreeGroupContainer> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVector3f& a,
-                                                                                         const zeus::CVector3f& b) {
-  return std::make_unique<CCollidableOBBTreeGroupContainer>(a, b);
+static const u8 DefaultEdgeMaterials[] = {
+  2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 2
+};
+
+static const u8 DefaultSurfaceMaterials[] = {
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1
+};
+
+static const CCollisionEdge DefaultEdges[] = {
+  {4, 1}, {1, 5}, {5, 4}, {4, 0}, {0, 1}, {7, 2}, {2, 6}, {6, 7}, {7, 3},
+  {3, 2}, {6, 0}, {4, 6}, {2, 0}, {5, 3}, {7, 5}, {1, 3}, {6, 5}, {0, 3}
+};
+
+static const u16 DefaultSurfaceIndices[] = {
+  0, 1, 2, 0, 3, 4, 5, 6, 7, 5, 8, 9, 10, 3, 11, 10, 6, 12, 13,
+  8, 14, 13, 1, 15, 16, 14, 7, 16, 11, 2, 17, 15, 4, 17, 12, 9
+};
+
+std::unique_ptr<COBBTree> COBBTree::BuildOrientedBoundingBoxTree(const zeus::CVector3f& extent,
+                                                                 const zeus::CVector3f& center) {
+  zeus::CAABox aabb(extent * -0.5f + center, extent * 0.5f + center);
+  std::unique_ptr<COBBTree> ret = std::make_unique<COBBTree>();
+  COBBTree::SIndexData& idxData = ret->x18_indexData;
+  idxData.x0_materials.reserve(3);
+  idxData.x0_materials.push_back(0x40180000);
+  idxData.x0_materials.push_back(0x42180000);
+  idxData.x0_materials.push_back(0x41180000);
+  idxData.x10_vertMaterials = std::vector<u8>(8, u8(0));
+  idxData.x20_edgeMaterials = std::vector<u8>(std::begin(DefaultEdgeMaterials), std::end(DefaultEdgeMaterials));
+  idxData.x30_surfaceMaterials = std::vector<u8>(std::begin(DefaultSurfaceMaterials), std::end(DefaultSurfaceMaterials));
+  idxData.x40_edges = std::vector<CCollisionEdge>(std::begin(DefaultEdges), std::end(DefaultEdges));
+  idxData.x50_surfaceIndices = std::vector<u16>(std::begin(DefaultSurfaceIndices), std::end(DefaultSurfaceIndices));
+  idxData.x60_vertices.reserve(8);
+  for (int i = 0; i < 8; ++i)
+    idxData.x60_vertices.push_back(aabb.getPoint(i));
+  std::vector<u16> surface;
+  surface.reserve(12);
+  for (int i = 0; i < 12; ++i)
+    surface.push_back(i);
+  ret->x88_root = std::make_unique<CNode>(zeus::CTransform::Translate(center), extent * 0.5f,
+    std::unique_ptr<CNode>{}, std::unique_ptr<CNode>{}, std::make_unique<CLeafData>(std::move(surface)));
+  return ret;
 }
 
 CCollisionSurface COBBTree::GetSurface(u16 idx) const {
@@ -118,13 +155,14 @@ COBBTree::SIndexData::SIndexData(CInputStream& in) {
     x60_vertices.push_back(zeus::CVector3f::ReadBig(in));
 }
 
-COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point, const COBBTree::CNode* left,
-                       const COBBTree::CNode* right, const COBBTree::CLeafData* leaf)
-: x0_obb(xf, point), x3c_isLeaf(leaf != nullptr) {
-  x40_left.reset((CNode*)left);
-  x44_right.reset((CNode*)right);
-  x48_leaf.reset((CLeafData*)leaf);
-}
+COBBTree::CNode::CNode(const zeus::CTransform& xf, const zeus::CVector3f& point,
+                       std::unique_ptr<CNode>&& left, std::unique_ptr<CNode>&& right,
+                       std::unique_ptr<CLeafData>&& leaf)
+: x0_obb(xf, point)
+, x3c_isLeaf(leaf.operator bool())
+, x40_left(std::move(left))
+, x44_right(std::move(right))
+, x48_leaf(std::move(leaf)) {}
 
 COBBTree::CNode::CNode(CInputStream& in) {
   x0_obb = zeus::COBBox::ReadBig(in);
@@ -151,7 +189,7 @@ size_t COBBTree::CNode::GetMemoryUsage() const {
   return (ret + 3) & ~3;
 }
 
-COBBTree::CLeafData::CLeafData(const std::vector<u16>& surface) : x0_surface(surface) {}
+COBBTree::CLeafData::CLeafData(std::vector<u16>&& surface) : x0_surface(std::move(surface)) {}
 
 const std::vector<u16>& COBBTree::CLeafData::GetSurfaceVector() const { return x0_surface; }
 

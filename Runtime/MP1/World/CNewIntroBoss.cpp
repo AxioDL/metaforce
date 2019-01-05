@@ -14,11 +14,11 @@ namespace urde::MP1 {
 
 CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                             float f1, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
+                             float turnRadius, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
                              CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId)
 : CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
-, x570_(f1)
+, x570_turnRadius(turnRadius)
 , x574_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f), false)
 , x5ac_projectileInfo(projectile, dInfo)
 , x5f0_beamContactFxId(beamContactFxId)
@@ -327,7 +327,8 @@ bool CNewIntroBoss::ShouldTurn(CStateManager& mgr, float dt) {
 
   zeus::CVector2f diffPos = (x604_predictedPlayerPos - GetTranslation()).toVec2f();
 
-  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diffPos) > zeus::degToRad(1.f);
+  return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diffPos) >
+  zeus::degToRad(x570_turnRadius);
 }
 
 bool CNewIntroBoss::ShouldAttack(CStateManager& mgr, float dt) {
