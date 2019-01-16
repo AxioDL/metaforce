@@ -119,6 +119,7 @@ def cook(writebuf, mesh_obj):
     node_list = []
     link_list = []
     region_list = []
+    up_vec = Vector((0.0, 0.0, 1.0))
     for f in bm.faces:
         start_loop = f.loops[0]
         cur_loop = start_loop
@@ -126,8 +127,11 @@ def cook(writebuf, mesh_obj):
         start_node = len(node_list)
         start_link = len(link_list)
         while True:
-            node_list.append(cur_loop)
+            node_list.append([cur_loop, up_vec])
+            nv1 = cur_loop.vert.co
             cur_loop = cur_loop.link_loop_prev
+            nv0 = cur_loop.vert.co
+            node_list[-1][1] = (nv0 - nv1).cross(up_vec).normalized()
             for other_face in cur_loop.edge.link_faces:
                 if other_face == f:
                     continue
@@ -140,8 +144,8 @@ def cook(writebuf, mesh_obj):
     # Emit nodes
     ba += struct.pack('>I', len(node_list))
     for n in node_list:
-        v = n.vert
-        normal = (n.edge.other_vert(v).co - v.co).normalized()
+        v = n[0].vert
+        normal = n[1]
         ba += struct.pack('>ffffff', v.co[0], v.co[1], v.co[2], normal[0], normal[1], normal[2])
 
     # Emit links
