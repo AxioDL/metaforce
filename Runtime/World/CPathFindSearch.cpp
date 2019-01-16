@@ -306,7 +306,7 @@ bool CPathFindSearch::Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const 
         /* Next G */
         float g = (linkReg->GetCentroid() - reg->GetCentroid()).magnitude() + reg->Data()->GetG();
         if ((!x0_area->ClosedSet().Test(linkReg->GetIndex()) && !x0_area->OpenList().Test(linkReg)) ||
-            linkReg->Data()->GetG() <= g) {
+            linkReg->Data()->GetG() > g) {
           if (x0_area->OpenList().Test(linkReg)) {
             /* In rare cases, revisiting a region will yield a lower G (actual cost) */
             x0_area->OpenList().Pop(linkReg);

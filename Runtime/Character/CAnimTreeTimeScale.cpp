@@ -176,6 +176,7 @@ SAdvancementResults CAnimTreeTimeScale::VAdvanceView(const CCharAnimTime& dt) {
     SAdvancementResults res2;
     if (newDt.GreaterThanZero())
       res2 = x14_child->VAdvanceView(newDt);
+    x20_curAccelTime = x28_targetAccelTime;
     res2.x0_remTime = res2.x0_remTime + (newTime - x28_targetAccelTime);
     return res2;
   }

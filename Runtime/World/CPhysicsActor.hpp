@@ -124,7 +124,7 @@ public:
 
   float GetMass() const { return xe8_mass; }
   void SetPrimitiveOffset(const zeus::CVector2f& offset);
-  zeus::CVector3f GetPrimitiveOffset() const;
+  const zeus::CVector3f& GetPrimitiveOffset() const { return x1e8_primitiveOffset; }
   void MoveCollisionPrimitive(const zeus::CVector3f& offset);
   void SetBoundingBox(const zeus::CAABox& box);
   zeus::CAABox GetMotionVolume(float dt) const;
@@ -145,6 +145,8 @@ public:
   const zeus::CAxisAngle& GetAngularVelocityWR() const { return x144_angularVelocity; }
   void SetAngularVelocityWR(const zeus::CAxisAngle& angVel);
   const zeus::CVector3f& GetForceOR() const { return x15c_force; }
+  const zeus::CVector3f& GetImpulseOR() const { return x168_impulse; }
+  const zeus::CVector3f& GetMoveImpulseOR() const { return x18c_moveImpulse; }
   void SetVelocityWR(const zeus::CVector3f& vel);
   void SetVelocityOR(const zeus::CVector3f& vel);
   void SetMomentumWR(const zeus::CVector3f& m) { x150_momentum = m; }

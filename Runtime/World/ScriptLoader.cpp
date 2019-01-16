@@ -1307,10 +1307,10 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
   CActorParameters actorParms = LoadActorParameters(in);
   CPatterned::EColliderType collider = CPatterned::EColliderType(in.readBool());
   CDamageInfo damageInfo1(in);
-  CAssetId weaponDesc = in.readUint32Big();
-  CDamageInfo damageInfo2(in);
-  CAssetId particle = in.readUint32Big();
-  u32 w1 = in.readUint32Big();
+  CAssetId projectileWeapon = in.readUint32Big();
+  CDamageInfo projectileDamage(in);
+  CAssetId projectileVisorParticle = in.readUint32Big();
+  u32 projectileVisorSfx = in.readUint32Big();
 
   const CAnimationParameters& aParms = pInfo.GetAnimationParameters();
   FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
@@ -1320,7 +1320,8 @@ CEntity* ScriptLoader::LoadWarWasp(CStateManager& mgr, CInputStream& in, int pro
   CAnimRes res(aParms.GetACSFile(), aParms.GetCharacter(), scale, aParms.GetInitialAnimation(), true);
   CModelData mData(res);
   return new MP1::CWarWasp(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, flavor, collider,
-                           damageInfo1, actorParms, weaponDesc, damageInfo2, particle, w1);
+                           damageInfo1, actorParms, projectileWeapon, projectileDamage, projectileVisorParticle,
+                           projectileVisorSfx);
 }
 
 CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2657,30 +2658,31 @@ CEntity* ScriptLoader::LoadEyeball(CStateManager& mgr, CInputStream& in, int pro
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
+  float attackDelay = in.readFloatBig();
+  float attackStartTime = in.readFloatBig();
   CAssetId wpsc(in);
   CDamageInfo dInfo(in);
-  CAssetId partId1(in);
-  CAssetId partId2(in);
-  CAssetId texture1(in);
-  CAssetId texture2(in);
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  u32 w3 = in.readUint32Big();
-  u32 w4 = in.readUint32Big();
-  u32 w5 = in.readUint32Big();
+  CAssetId beamContactFxId(in);
+  CAssetId beamPulseFxId(in);
+  CAssetId beamTextureId(in);
+  CAssetId beamGlowTextureId(in);
+  u32 anim0 = in.readUint32Big();
+  u32 anim1 = in.readUint32Big();
+  u32 anim2 = in.readUint32Big();
+  u32 anim3 = in.readUint32Big();
+  u32 beamSfx = in.readUint32Big();
 
   if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
     return nullptr;
 
-  bool b1 = in.readBool();
+  bool attackDisabled = in.readBool();
 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
 
-  return new MP1::CEyeball(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, f1, f2, wpsc, dInfo,
-                           partId1, partId2, texture1, texture2, w1, w2, w3, w4, w5, b1, actParms);
+  return new MP1::CEyeball(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, attackDelay,
+                           attackStartTime, wpsc, dInfo, beamContactFxId, beamPulseFxId, beamTextureId,
+                           beamGlowTextureId, anim0, anim1, anim2, anim3, beamSfx, attackDisabled, actParms);
 }
 
 CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

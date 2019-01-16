@@ -2235,7 +2235,7 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
     x2b0_outOfWaterTicks += 1;
 
   x9c5_24_ = x9c4_24_visorChangeRequested;
-  x9c4_31_dampUnderwaterMotion = x9c5_25_splashUpdated;
+  x9c4_31_inWaterMovement = x9c5_25_splashUpdated;
   x9c5_25_splashUpdated = false;
   UpdateBombJumpStuff();
 
@@ -5242,7 +5242,7 @@ const CScriptWater* CPlayer::GetVisorRunoffEffect(const CStateManager& mgr) cons
 
 void CPlayer::SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr) {
   if (x2f8_morphBallState == EPlayerMorphBallState::Morphed && state != EPlayerMorphBallState::Morphed)
-    x9c5_26_ = x9c4_31_dampUnderwaterMotion;
+    x9c5_26_ = x9c4_31_inWaterMovement;
 
   x2f8_morphBallState = state;
   xf9_standardCollider = state == EPlayerMorphBallState::Morphed;

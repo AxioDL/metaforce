@@ -105,6 +105,16 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
 #endif
   }
 
+#if 0
+  for (const Node& n : nodes) {
+    zeus::simd_floats f(n.position.simd);
+    zeus::simd_floats no(n.position.simd + n.normal.simd);
+    os.format("v = bm.verts.new((%f,%f,%f))\n"
+              "v2 = bm.verts.new((%f,%f,%f))\n"
+              "bm.edges.new((v, v2))\n", f[0], f[1], f[2], no[0], no[1], no[2]);
+  }
+#endif
+
   os << "bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.001)\n"
         "path_mesh = bpy.data.meshes.new('PATH')\n"
         "bm.to_mesh(path_mesh)\n"

@@ -22,6 +22,6 @@ public:
                                       const CPlayer& player, bool gravity, float dt);
 
   CDamageInfo GetDamage() const { return xc_damageInfo; }
-  const TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
+  TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
 } // namespace urde

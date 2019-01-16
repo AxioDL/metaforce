@@ -9,30 +9,30 @@ struct Warwasp : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<atUint32> unknown1;
+  Value<atUint32> flavor;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<bool> unknown2;
+  Value<atUint8> colliderType;
   DamageInfo damageInfo1;
-  UniqueID32 wpsc1;
-  DamageInfo damageInfo2;
-  UniqueID32 particle;
-  Value<atUint32> unknown3;
+  UniqueID32 projectileWeapon;
+  DamageInfo projectileDamage;
+  UniqueID32 projectileVisorParticle;
+  Value<atUint32> projectileVisorSfx;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
+    if (projectileWeapon) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(projectileWeapon);
       ent->name = name + "_wpsc";
     }
-    if (particle) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
+    if (projectileVisorParticle) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(projectileVisorParticle);
       ent->name = name + "_part";
     }
     patternedInfo.nameIDs(pakRouter, name + "_patterned");
@@ -40,8 +40,8 @@ struct Warwasp : IScriptObject {
   }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
-    g_curSpec->flattenDependencies(wpsc1, pathsOut);
-    g_curSpec->flattenDependencies(particle, pathsOut);
+    g_curSpec->flattenDependencies(projectileWeapon, pathsOut);
+    g_curSpec->flattenDependencies(projectileVisorParticle, pathsOut);
     patternedInfo.depIDs(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }

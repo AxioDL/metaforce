@@ -48,7 +48,7 @@ void CScriptCounter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, 
     if (GetActive() && x38_current < x3c_max) {
       ++x38_current;
       if (x38_current >= x3c_max) {
-        SendScriptMsgs(EScriptObjectState::Zero, stateMgr, EScriptObjectMessage::None);
+        SendScriptMsgs(EScriptObjectState::MaxReached, stateMgr, EScriptObjectMessage::None);
         if (x40_autoReset)
           x38_current = x34_initial;
       }

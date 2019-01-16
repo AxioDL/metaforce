@@ -9,26 +9,26 @@ struct Eyeball : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<atUint32> unknown1;
+  Value<atUint32> flavor;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> unknown2;
-  Value<float> unknown3;
+  Value<float> attackDelay;
+  Value<float> attackStartTime;
   UniqueID32 wpsc;
   DamageInfo damageInfo;
-  UniqueID32 particle1;
-  UniqueID32 particle2;
-  UniqueID32 texture1;
-  UniqueID32 texture2;
-  Value<atUint32> unknown4;
-  Value<atUint32> unknown5; // always ff
-  Value<atUint32> unknown6; // always ff
-  Value<atUint32> unknown7; // always ff
-  Value<atUint32> unknown8;
-  Value<bool> unknown9;
+  UniqueID32 beamContactFxId;
+  UniqueID32 beamPulseFxId;
+  UniqueID32 beamTextureId;
+  UniqueID32 beamGlowTextureId;
+  Value<atUint32> anim0;
+  Value<atUint32> anim1; // always ff
+  Value<atUint32> anim2; // always ff
+  Value<atUint32> anim3; // always ff
+  Value<atUint32> beamSfx;
+  Value<bool> attackDisabled;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
@@ -39,20 +39,20 @@ struct Eyeball : IScriptObject {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }
-    if (particle1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
+    if (beamContactFxId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamContactFxId);
       ent->name = name + "_part1";
     }
-    if (particle2) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
+    if (beamPulseFxId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamPulseFxId);
       ent->name = name + "_part2";
     }
-    if (texture1) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
+    if (beamTextureId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamTextureId);
       ent->name = name + "_tex1";
     }
-    if (texture2) {
-      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
+    if (beamGlowTextureId) {
+      PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamGlowTextureId);
       ent->name = name + "_tex2";
     }
     patternedInfo.nameIDs(pakRouter, name + "_patterned");
@@ -61,10 +61,10 @@ struct Eyeball : IScriptObject {
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
     g_curSpec->flattenDependencies(wpsc, pathsOut);
-    g_curSpec->flattenDependencies(particle1, pathsOut);
-    g_curSpec->flattenDependencies(particle2, pathsOut);
-    g_curSpec->flattenDependencies(texture1, pathsOut);
-    g_curSpec->flattenDependencies(texture2, pathsOut);
+    g_curSpec->flattenDependencies(beamContactFxId, pathsOut);
+    g_curSpec->flattenDependencies(beamPulseFxId, pathsOut);
+    g_curSpec->flattenDependencies(beamTextureId, pathsOut);
+    g_curSpec->flattenDependencies(beamGlowTextureId, pathsOut);
     patternedInfo.depIDs(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }

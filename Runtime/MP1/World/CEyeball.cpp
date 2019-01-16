@@ -9,29 +9,30 @@
 #include "TCastTo.hpp"
 namespace urde::MP1 {
 CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
-                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float f1, float f2,
-                   CAssetId aId1, const CDamageInfo& dInfo, CAssetId aId2, CAssetId aId3, CAssetId aId4, CAssetId aId5,
-                   u32 w1, u32 w2, u32 w3, u32 w4, u32 w5, bool b1, const CActorParameters& actParms)
+                   const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,
+                   float attackStartTime, CAssetId wpscId, const CDamageInfo& dInfo, CAssetId beamContactFxId,
+                   CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1,
+                   u32 anim2, u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms)
 : CPatterned(ECharacter::EyeBall, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
-, x568_attackDelay(f1)
-, x56c_maxAttackDelay(f2)
+, x568_attackDelay(attackDelay)
+, x56c_attackStartTime(attackStartTime)
 , x570_boneTracking(*GetModelData()->GetAnimationData(), "Eye"sv, zeus::degToRad(45.f), zeus::degToRad(180.f), true)
-, x5b4_projectileInfo(aId1, dInfo)
-, x5dc_(aId2)
-, x5e0_(aId3)
-, x5e4_(aId4)
-, x5e8_(aId5)
-, x604_beamSfxId(CSfxManager::TranslateSFXID(w5))
+, x5b4_projectileInfo(wpscId, dInfo)
+, x5dc_beamContactFxId(beamContactFxId)
+, x5e0_beamPulseFxId(beamPulseFxId)
+, x5e4_beamTextureId(beamTextureId)
+, x5e8_beamGlowTextureId(beamGlowTextureId)
+, x604_beamSfxId(CSfxManager::TranslateSFXID(beamSfx))
 , x60c_24_canAttack(false)
 , x60c_25_playerInRange(false)
 , x60c_26_alert(false)
-, x60c_27_attackDisabled(b1)
+, x60c_27_attackDisabled(attackDisabled)
 , x60c_28_firingBeam(false) {
-  x5f4_animIdxs[0] = w1;
-  x5f4_animIdxs[1] = w2;
-  x5f4_animIdxs[2] = w3;
-  x5f4_animIdxs[3] = w4;
+  x5f4_animIdxs[0] = anim0;
+  x5f4_animIdxs[1] = anim1;
+  x5f4_animIdxs[2] = anim2;
+  x5f4_animIdxs[3] = anim3;
 
   x460_knockBackController.SetAutoResetImpulse(false);
 }
@@ -119,8 +120,9 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
   if (x5ec_projectileId != kInvalidUniqueId)
     return;
 
-  CBeamInfo beamInfo(3, x5dc_, x5e0_, x5e4_, x5e8_, 50, .5f, 1.f, 2.f, 20.f, 1.f, 1.f, 2.f,
-                     zeus::CColor(1.f, 1.f, 1.f, 0.f), zeus::CColor(0.f, 1.f, 0.5f, 0.f), 150.f);
+  CBeamInfo beamInfo(3, x5dc_beamContactFxId, x5e0_beamPulseFxId, x5e4_beamTextureId, x5e8_beamGlowTextureId,
+                     50, 0.05f, 1.f, 2.f, 20.f, 1.f, 1.f, 2.f, zeus::CColor(1.f, 1.f, 1.f, 0.f),
+                     zeus::CColor(0.f, 1.f, 0.5f, 0.f), 150.f);
   x5ec_projectileId = mgr.AllocateUniqueId();
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
                                       zeus::CTransform::Identity(), EMaterialTypes::Immovable,
@@ -161,7 +163,7 @@ void CEyeball::Active(CStateManager& mgr, EStateMsg msg, float) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
     x60c_24_canAttack = false;
   } else if (msg == EStateMsg::Update) {
-    if (x330_stateMachineState.GetDelay() > x56c_maxAttackDelay)
+    if (x330_stateMachineState.GetTime() > x56c_attackStartTime)
       x60c_24_canAttack = true;
 
     UpdateAnimation();

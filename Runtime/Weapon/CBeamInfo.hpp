@@ -51,8 +51,9 @@ public:
   , x40_outerColor(zeus::CColor::ReadRGBABig(in)) {}
 
   CBeamInfo(s32 beamAttributes, CAssetId contactFxId, CAssetId pulseFxId, CAssetId textureId, CAssetId glowTextureId,
-            s32 length, float radius, float f2, float f3, float f4, float f5, float contactFxScale, float pulseFxScale,
-            const zeus::CColor& innerColor, const zeus::CColor& outerColor, float travelSpeed)
+            s32 length, float radius, float expansionSpeed, float lifeTime, float pulseSpeed, float shutdownTime,
+            float contactFxScale, float pulseFxScale, const zeus::CColor& innerColor, const zeus::CColor& outerColor,
+            float travelSpeed)
   : x4_beamAttributes(beamAttributes)
   , x8_contactFxId(contactFxId)
   , xc_pulseFxId(pulseFxId)
@@ -60,10 +61,10 @@ public:
   , x14_glowTextureId(glowTextureId)
   , x18_length(length)
   , x1c_radius(radius)
-  , x20_expansionSpeed(f2)
-  , x24_lifeTime(f3)
-  , x28_pulseSpeed(f4)
-  , x2c_shutdownTime(f5)
+  , x20_expansionSpeed(expansionSpeed)
+  , x24_lifeTime(lifeTime)
+  , x28_pulseSpeed(pulseSpeed)
+  , x2c_shutdownTime(shutdownTime)
   , x30_contactFxScale(contactFxScale)
   , x34_pulseFxScale(pulseFxScale)
   , x38_travelSpeed(travelSpeed)

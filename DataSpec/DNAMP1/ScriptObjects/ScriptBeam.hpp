@@ -11,7 +11,7 @@ struct ScriptBeam : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
+  Value<bool> active;
   UniqueID32 wpsc;
   BeamInfo beamInfo;
   DamageInfo damageInfo;

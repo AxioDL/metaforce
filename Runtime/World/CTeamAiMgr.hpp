@@ -100,6 +100,13 @@ public:
   bool AddProjectileAttacker(TUniqueId aiId);
   void RemoveProjectileAttacker(TUniqueId aiId);
 
+  bool HasMeleeAttackers() const { return !x68_meleeAttackers.empty(); }
+  bool HasProjectileAttackers() const { return !x78_projectileAttackers.empty(); }
+  s32 GetNumRoles() const { return x58_roles.size(); }
+  const std::vector<CTeamAiRole>& GetRoles() const { return x58_roles; }
+  s32 GetMaxMeleeAttackerCount() const { return x34_data.x10_maxMeleeAttackerCount; }
+  s32 GetMaxProjectileAttackerCount() const { return x34_data.x14_maxProjectileAttackerCount; }
+
   static CTeamAiRole* GetTeamAiRole(CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
   static void ResetTeamAiRole(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId, bool clearRole);
   static bool CanAcceptAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);

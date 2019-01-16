@@ -44,9 +44,9 @@ class CPatternedInfo {
   float x108_;
 
   u32 x10c_pathfindingIndex;
+
   zeus::CVector3f x110_particle1Scale;
   CAssetId x11c_particle1;
-
   CAssetId x120_electric;
   zeus::CVector3f x124_particle2Scale;
   CAssetId x130_particle2;
@@ -66,5 +66,6 @@ public:
   CAnimationParameters& GetAnimationParameters() { return xec_animParams; }
   const CAnimationParameters& GetAnimationParameters() const { return xec_animParams; }
   u32 GetPathfindingIndex() const { return x10c_pathfindingIndex; }
+  bool GetActive() const { return xf8_active; }
 };
 } // namespace urde

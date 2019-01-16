@@ -288,7 +288,7 @@ private:
       bool x9c4_28_canLeaveMorphBall : 1;
       bool x9c4_29_spiderBallControlXY : 1;
       bool x9c4_30_controlDirOverride : 1;
-      bool x9c4_31_dampUnderwaterMotion : 1;
+      bool x9c4_31_inWaterMovement : 1;
       bool x9c5_24_ : 1;
       bool x9c5_25_splashUpdated : 1;
       bool x9c5_26_ : 1;
@@ -314,7 +314,7 @@ private:
   float x9c8_eyeZBias = 0.f;
   float x9cc_stepCameraZBias = 0.f;
   u32 x9d0_bombJumpCount = 0;
-  u32 x9d4_bombJumpCheckDelayFrames = 0;
+  s32 x9d4_bombJumpCheckDelayFrames = 0;
   zeus::CVector3f x9d8_controlDirOverrideDir = zeus::CVector3f::skForward;
   rstl::reserved_vector<TUniqueId, 5> x9e4_orbitDisableList;
 
@@ -614,5 +614,6 @@ public:
   void Set_X590(bool b) { x590_ = b; }
   const zeus::CVector3f& GetOrbitPoint() const { return x314_orbitPoint; }
   float GetAverageSpeed() const;
+  bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
 };
 } // namespace urde

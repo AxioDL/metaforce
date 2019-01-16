@@ -54,11 +54,11 @@ bool CPFRegion::IsPointInside(const zeus::CVector3f& point) const {
     if ((point - node.GetPos()).dot(node.GetNormal()) < 0.f)
       break;
   }
+  if (i != x0_numNodes)
+    return false;
   zeus::CVector3f nodeToPoint = point - x4_startNode->GetPos();
-  if (i == x0_numNodes && nodeToPoint.dot(x18_normal) >= 0.f)
-    if ((nodeToPoint - x14_height * zeus::CVector3f::skUp).dot(x18_normal) <= 0.f)
-      return true;
-  return false;
+  return nodeToPoint.dot(x18_normal) >= 0.f &&
+         (nodeToPoint - x14_height * zeus::CVector3f::skUp).dot(x18_normal) <= 0.f;
 }
 
 float CPFRegion::PointHeight(const zeus::CVector3f& point) const {
@@ -212,20 +212,18 @@ zeus::CVector3f CPFRegion::FitThroughLink3d(const zeus::CVector3f& p1, const CPF
   float f24 = (node.GetPos() - p2).dot(node.GetNormal());
   float f23 = f25 + f24;
 #if 0
-    if (chRadius < 0.5f * link.Get2dWidth())
-    {
-        zeus::CVector2f delta2d(nodeDelta.x, nodeDelta.y);
-        delta2d *= link.GetOO2dWidth();
-        zeus::CVector3f nodeToP1 = p1 - node.GetPos();
-        float f29 = delta2d.dot(zeus::CVector2f(nodeToP1.y, nodeToP1.y));
-        zeus::CVector3f nodeToP2 = p2 - node.GetPos();
-        float f1b = delta2d.dot(zeus::CVector2f(nodeToP2.y, nodeToP2.y));
-        if (f23 > FLT_EPSILON)
-        {
-            zeus::clamp(chRadius, 1.f / f23 * f24 * f29 + f25 * f1b, link.Get2dWidth() - chRadius) *
-                link.GetOO2dWidth();
-        }
+  if (chRadius < 0.5f * link.Get2dWidth()) {
+    zeus::CVector2f delta2d(nodeDelta.x, nodeDelta.y);
+    delta2d *= link.GetOO2dWidth();
+    zeus::CVector3f nodeToP1 = p1 - node.GetPos();
+    float f29 = delta2d.dot(zeus::CVector2f(nodeToP1.y, nodeToP1.y));
+    zeus::CVector3f nodeToP2 = p2 - node.GetPos();
+    float f1b = delta2d.dot(zeus::CVector2f(nodeToP2.y, nodeToP2.y));
+    if (f23 > FLT_EPSILON) {
+      zeus::clamp(chRadius, 1.f / f23 * f24 * f29 + f25 * f1b, link.Get2dWidth() - chRadius) *
+          link.GetOO2dWidth();
     }
+  }
 #endif
   zeus::CVector3f midPoint = nodeDelta * 0.5f + node.GetPos();
   float z;
@@ -233,7 +231,7 @@ zeus::CVector3f CPFRegion::FitThroughLink3d(const zeus::CVector3f& p1, const CPF
     float minZ = chHalfHeight + midPoint.z();
     z = 0.5f * (p1.z() + p2.z());
     if (f23 > FLT_EPSILON)
-      z = 1.f / f23 * (f24 * p1.z() + f25 * p2.z());
+      z = (f24 * p1.z() + f25 * p2.z()) / f23;
     z = zeus::clamp(minZ, z, regionHeight + midPoint.z() - chHalfHeight);
   } else {
     z = (p1.z() + p2.z()) * 0.5f;

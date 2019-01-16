@@ -331,7 +331,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
   player.x9c5_28_slidingOnWall = false;
   bool applyJump = player.x258_movementState == CPlayer::EPlayerMovementState::ApplyJump;
   bool dampUnderwater = false;
-  if (player.x9c4_31_dampUnderwaterMotion)
+  if (player.x9c4_31_inWaterMovement)
     if (!mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))
       dampUnderwater = true;
 
