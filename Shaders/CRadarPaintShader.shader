@@ -1,13 +1,13 @@
 #shader CRadarPaintShader
-#attribute position4 0
-#attribute position4 1
-#attribute position4 2
-#attribute position4 3
-#attribute uv4 0
-#attribute uv4 1
-#attribute uv4 2
-#attribute uv4 3
-#attribute color
+#instattribute position4 0
+#instattribute position4 1
+#instattribute position4 2
+#instattribute position4 3
+#instattribute uv4 0
+#instattribute uv4 1
+#instattribute uv4 2
+#instattribute uv4 3
+#instattribute color
 #srcfac srcalpha
 #dstfac one
 #primitive tristrips

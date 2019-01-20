@@ -2438,13 +2438,13 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
     x2ac_surfaceRestraint = ESurfaceRestraints::Ice;
     break;
   case EScriptObjectMessage::OnMudSlowSurface:
-    x2ac_surfaceRestraint = ESurfaceRestraints::MudSlow;
+    x2ac_surfaceRestraint = ESurfaceRestraints::Organic;
     break;
   case EScriptObjectMessage::OnNormalSurface:
     x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
     break;
   case EScriptObjectMessage::InSnakeWeed:
-    x2ac_surfaceRestraint = ESurfaceRestraints::SnakeWeed;
+    x2ac_surfaceRestraint = ESurfaceRestraints::Shrubbery;
     break;
   case EScriptObjectMessage::AddSplashInhabitant: {
     SetInFluid(true, sender);
@@ -2473,7 +2473,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
           x2b0_outOfWaterTicks = 0;
           break;
         case EFluidType::PhazonFluid:
-          x2ac_surfaceRestraint = ESurfaceRestraints::PhazonFluid;
+          x2ac_surfaceRestraint = ESurfaceRestraints::Phazon;
           break;
         default:
           break;
@@ -4681,7 +4681,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {
       case ESurfaceRestraints::Lava:
         upVel *= g_tweakPlayer->GetLavaBallJumpFactor();
         break;
-      case ESurfaceRestraints::PhazonFluid:
+      case ESurfaceRestraints::Phazon:
         upVel *= g_tweakPlayer->GetPhazonBallJumpFactor();
         break;
       default:
@@ -4785,7 +4785,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr) {
       }
     }
     x258_movementState = EPlayerMovementState::Jump;
-    x2ac_surfaceRestraint = ESurfaceRestraints::InAir;
+    x2ac_surfaceRestraint = ESurfaceRestraints::Air;
     x2a8_timeSinceJump = 0.f;
     break;
   case EPlayerMovementState::Falling:
@@ -4826,7 +4826,7 @@ void CPlayer::SetMoveState(EPlayerMovementState newState, CStateManager& mgr) {
         x2a4_cancelCameraPitch = false;
       }
     }
-    x2ac_surfaceRestraint = ESurfaceRestraints::InAir;
+    x2ac_surfaceRestraint = ESurfaceRestraints::Air;
     break;
   }
 }
@@ -4844,7 +4844,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr) {
     case ESurfaceRestraints::Lava:
       jumpFactor = g_tweakPlayer->GetLavaJumpFactor();
       break;
-    case ESurfaceRestraints::PhazonFluid:
+    case ESurfaceRestraints::Phazon:
       jumpFactor = g_tweakPlayer->GetPhazonJumpFactor();
       break;
     default:
@@ -5214,7 +5214,7 @@ float CPlayer::GetWeight() const { return xe8_mass * -GetGravity(); }
 
 zeus::CVector3f CPlayer::GetDampedClampedVelocityWR() const {
   zeus::CVector3f localVel = x34_transform.transposeRotate(x138_velocity);
-  if ((x258_movementState != EPlayerMovementState::ApplyJump || GetSurfaceRestraint() != ESurfaceRestraints::InAir) &&
+  if ((x258_movementState != EPlayerMovementState::ApplyJump || GetSurfaceRestraint() != ESurfaceRestraints::Air) &&
       x304_orbitState == EPlayerOrbitState::NoOrbit) {
     float friction = g_tweakPlayer->GetPlayerTranslationFriction(int(GetSurfaceRestraint()));
     if (localVel.y() > 0.f)

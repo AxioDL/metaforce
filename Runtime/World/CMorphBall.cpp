@@ -862,7 +862,7 @@ void CMorphBall::UpdateBallDynamics(CStateManager& mgr, float dt) {
     x1c28_tireInterpSpeed = -1.f;
     UpdateMarbleDynamics(mgr, dt, x1890_spiderTrackPoint);
   } else {
-    if (x0_player.GetSurfaceRestraint() != CPlayer::ESurfaceRestraints::InAir) {
+    if (x0_player.GetSurfaceRestraint() != CPlayer::ESurfaceRestraints::Air) {
       zeus::CVector3f normal, point;
       if (CalculateBallContactInfo(normal, point)) {
         x1924_surfaceToWorld = CalculateSurfaceToWorld(normal, point, x0_player.x500_lookDir);

@@ -74,9 +74,9 @@ void CBSAttack::UpdatePhysicsActor(CBodyController& bc, float dt) {
   if (x34_curTime >= x2c_alignTargetPosStartTime && x34_curTime <= x30_alignTargetPosTime) {
     if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
       zeus::CVector3f delta = x20_targetPos - act->GetTranslation();
-      float td = x30_alignTargetPosTime - x2c_alignTargetPosStartTime;
-      if (dt > 0.f)
-        delta *= zeus::CVector3f(dt / td);
+      float dur = x30_alignTargetPosTime - x2c_alignTargetPosStartTime;
+      if (dur > 0.f)
+        delta *= zeus::CVector3f(dt / dur);
       zeus::CVector3f localDelta = act->GetTransform().transposeRotate(delta);
       act->ApplyImpulseWR(act->GetMoveToORImpulseWR(localDelta, dt), zeus::CAxisAngle::sIdentity);
     }

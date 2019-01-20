@@ -25,24 +25,25 @@ CHudRadarInterface::CHudRadarInterface(CGuiFrame& baseHud, CStateManager& stateM
   x40_BaseWidget_RadarStuff->SetColor(g_tweakGuiColors->GetRadarStuffColor());
 }
 
-void CHudRadarInterface::DoDrawRadarPaint(float radius, const zeus::CColor& color) const {
+void CHudRadarInterface::DoDrawRadarPaint(const zeus::CVector3f& translate, float radius,
+                                          const zeus::CColor& color) const {
   radius *= 4.f;
-  const_cast<CHudRadarInterface&>(*this).m_paintInsts.emplace_back();
-  CRadarPaintShader::Instance& inst = const_cast<CHudRadarInterface&>(*this).m_paintInsts.back();
-  inst.pos[0].assign(-radius, 0.f, radius);
+  m_paintInsts.emplace_back();
+  CRadarPaintShader::Instance& inst = m_paintInsts.back();
+  inst.pos[0] = translate + zeus::CVector3f(-radius, 0.f, radius);
   inst.uv[0].assign(0.f, 1.f);
-  inst.pos[1].assign(-radius, 0.f, -radius);
+  inst.pos[1] = translate + zeus::CVector3f(-radius, 0.f, -radius);
   inst.uv[1].assign(0.f, 0.f);
-  inst.pos[2].assign(radius, 0.f, radius);
+  inst.pos[2] = translate + zeus::CVector3f(radius, 0.f, radius);
   inst.uv[2].assign(1.f, 1.f);
-  inst.pos[3].assign(radius, 0.f, -radius);
+  inst.pos[3] = translate + zeus::CVector3f(radius, 0.f, -radius);
   inst.uv[3].assign(1.f, 0.f);
   inst.color = color;
 }
 
 void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha,
                                         const SRadarPaintDrawParms& parms) const {
-  zeus::CVector2f playerToEnemy(enemyPos.x() - parms.x0_playerPos.x(), enemyPos.y() - parms.x0_playerPos.y());
+  zeus::CVector2f playerToEnemy = enemyPos.toVec2f() - parms.x0_playerPos.toVec2f();
 
   float zDelta = std::fabs(enemyPos.z() - parms.x0_playerPos.z());
 
@@ -50,13 +51,9 @@ void CHudRadarInterface::DrawRadarPaint(const zeus::CVector3f& enemyPos, float r
     if (zDelta > parms.x80_ZCloseRadius)
       alpha *= 1.f - (zDelta - parms.x80_ZCloseRadius) / (parms.x7c_zRadius - parms.x80_ZCloseRadius);
     zeus::CVector2f scopeScaled = playerToEnemy * parms.x70_scopeScalar;
-    zeus::CTransform modelMatrix =
-        parms.x3c_postTranslate *
-        zeus::CTransform::Translate(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()));
-    CGraphics::SetModelMatrix(modelMatrix);
     zeus::CColor color = g_tweakGuiColors->GetRadarEnemyPaintColor();
     color.a() *= alpha;
-    DoDrawRadarPaint(radius, color);
+    DoDrawRadarPaint(parms.xc_preTranslate * zeus::CVector3f(scopeScaled.x(), 0.f, scopeScaled.y()), radius, color);
   }
 }
 
@@ -110,13 +107,13 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
   drawParms.x3c_postTranslate = x40_BaseWidget_RadarStuff->GetWorldTransform();
   float enemyRadius = g_tweakGui->GetRadarEnemyPaintRadius();
 
-  const_cast<CHudRadarInterface&>(*this).m_paintInsts.clear();
+  m_paintInsts.clear();
   x44_camera->Draw(CGuiWidgetDrawParms{0.f, zeus::CVector3f{}});
   CGraphics::SetModelMatrix(drawParms.x3c_postTranslate);
 
   zeus::CColor playerColor = g_tweakGuiColors->GetRadarPlayerPaintColor();
   playerColor.a() *= alpha;
-  DoDrawRadarPaint(g_tweakGui->GetRadarPlayerPaintRadius(), playerColor);
+  DoDrawRadarPaint(zeus::CVector3f::skZero, g_tweakGui->GetRadarPlayerPaintRadius(), playerColor);
 
   zeus::CAABox radarBounds(
       player.GetTranslation().x() - drawParms.x78_xyRadius, player.GetTranslation().y() - drawParms.x78_xyRadius,
@@ -129,6 +126,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
                                     CMaterialList(EMaterialTypes::ExcludeFromRadar),
                                     CMaterialFilter::EFilterType::IncludeExclude),
                     nullptr);
+  drawParms.x0_playerPos = mgr.GetPlayer().GetTranslation();
 
   for (TUniqueId id : nearList) {
     if (TCastToConstPtr<CActor> act = mgr.GetObjectById(id)) {
@@ -147,7 +145,7 @@ void CHudRadarInterface::Draw(const CStateManager& mgr, float alpha) const {
     }
   }
 
-  const_cast<CHudRadarInterface&>(*this).m_paintShader.draw(m_paintInsts, x0_txtrRadarPaint.GetObj());
+  m_paintShader.draw(m_paintInsts, x0_txtrRadarPaint.GetObj());
 }
 
 } // namespace urde

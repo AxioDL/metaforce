@@ -28,9 +28,9 @@ class CHudRadarInterface {
   bool x3c_25_visibleDebug : 1;
   CGuiWidget* x40_BaseWidget_RadarStuff;
   CGuiCamera* x44_camera;
-  CRadarPaintShader m_paintShader;
-  std::vector<CRadarPaintShader::Instance> m_paintInsts;
-  void DoDrawRadarPaint(float radius, const zeus::CColor& color) const;
+  mutable CRadarPaintShader m_paintShader;
+  mutable std::vector<CRadarPaintShader::Instance> m_paintInsts;
+  void DoDrawRadarPaint(const zeus::CVector3f& translate, float radius, const zeus::CColor& color) const;
   void DrawRadarPaint(const zeus::CVector3f& enemyPos, float radius, float alpha,
                       const SRadarPaintDrawParms& parms) const;
 

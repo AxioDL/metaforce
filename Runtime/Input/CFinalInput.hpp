@@ -59,6 +59,8 @@ struct CFinalInput {
   bool x2e_b30_PDPLeft : 1;
   bool x2e_b31_PStart : 1;
 
+  std::experimental::optional<CKeyboardMouseControllerData> m_kbm;
+
   CFinalInput();
   CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
@@ -143,6 +145,8 @@ struct CFinalInput {
   float ARightTrigger() const { return x1c_anaRightTrigger; }
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
+
+  const std::experimental::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };
 
 } // namespace urde

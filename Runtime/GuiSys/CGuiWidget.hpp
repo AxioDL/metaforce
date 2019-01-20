@@ -68,6 +68,7 @@ protected:
   bool xb6_31_depthTest : 1;
   bool xb7_24_depthWrite : 1;
   bool xb7_25_ : 1;
+  bool m_mouseActive : 1;
 
 public:
   CGuiWidget(const CGuiWidgetParms& parms);
@@ -82,6 +83,7 @@ public:
   virtual void Touch() const;
   virtual bool GetIsVisible() const;
   virtual bool GetIsActive() const;
+  virtual bool GetMouseActive() const;
   virtual FourCC GetWidgetTypeID() const { return FOURCC('BWIG'); }
   virtual bool AddWorkerWidget(CGuiWidget* worker);
   virtual bool GetIsFinishedLoadingWidgetSpecific() const;
@@ -103,6 +105,7 @@ public:
   void SetIsActive(bool);
   bool GetIsSelectable() const { return xb6_27_isSelectable; }
   void SetIsSelectable(bool v) { xb6_27_isSelectable = v; }
+  void SetMouseActive(bool v) { m_mouseActive = v; }
 
   void ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWidgetParms& parms);
   void AddChildWidget(CGuiWidget* widget, bool makeWorldLocal, bool atEnd);

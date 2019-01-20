@@ -41,6 +41,13 @@ private:
   float m_aspectConstraint = -1.f;
   float m_maxAspect = -1.f;
 
+  mutable bool m_inMouseDown = false;
+  mutable CGuiWidget* m_mouseDownWidget = nullptr;
+  mutable CGuiWidget* m_lastMouseOverWidget = nullptr;
+  std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
+  std::function<void(CGuiWidget*)> m_mouseDownCb;
+  std::function<void(CGuiWidget*)> m_mouseUpCb;
+
 public:
   CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
   ~CGuiFrame();
@@ -66,9 +73,19 @@ public:
   const zeus::CTransform& GetAspectTransform() const { return m_aspectTransform; }
   void SetAspectConstraint(float c);
   void SetMaxAspect(float c);
+  void SetMouseOverChangeCallback(std::function<void(CGuiWidget*, CGuiWidget*)>&& cb) {
+    m_mouseOverChangeCb = std::move(cb);
+  }
+  void SetMouseDownCallback(std::function<void(CGuiWidget*)>&& cb) {
+    m_mouseDownCb = std::move(cb);
+  }
+  void SetMouseUpCallback(std::function<void(CGuiWidget*)>&& cb) {
+    m_mouseUpCb = std::move(cb);
+  }
 
   void Update(float dt);
   void Draw(const CGuiWidgetDrawParms& parms) const;
+  CGuiWidget* BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const;
   void Initialize();
   void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
   void ProcessUserInput(const CFinalInput& input) const;

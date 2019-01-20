@@ -20,6 +20,7 @@ public:
   bool GetIsFinishedLoadingWidgetSpecific() const;
   void Touch() const;
   void Draw(const CGuiWidgetDrawParms& parms) const;
+  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

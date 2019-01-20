@@ -20,6 +20,7 @@ public:
   virtual ~CGuiObject() = default;
   virtual void Update(float dt);
   virtual void Draw(const CGuiWidgetDrawParms& parms) const;
+  virtual bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const { return false; }
   virtual void Initialize() = 0;
 
   void MoveInWorld(const zeus::CVector3f& vec);

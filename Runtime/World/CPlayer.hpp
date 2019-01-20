@@ -78,7 +78,7 @@ public:
 
   enum class EPlayerCameraState { FirstPerson, Ball, Two, Transitioning, Spawned };
 
-  enum class ESurfaceRestraints { Normal, InAir, Ice, MudSlow, Water, Lava, PhazonFluid, SnakeWeed };
+  enum class ESurfaceRestraints { Normal, Air, Ice, Organic, Water, Lava, Phazon, Shrubbery };
 
   enum class EFootstepSfx { None, Left, Right };
 

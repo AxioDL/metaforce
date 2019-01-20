@@ -30,7 +30,7 @@ bool CCharAnimTime::operator==(const CCharAnimTime& other) const {
   if (x4_type == EType::NonZero) {
     if (other.x4_type == EType::NonZero)
       return x0_time == other.x0_time;
-    return !other.EqualsZero();
+    return false;
   }
 
   if (EqualsZero()) {

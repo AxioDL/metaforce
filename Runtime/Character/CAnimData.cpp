@@ -268,9 +268,10 @@ CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnim
   for (int i = 0; i < count; ++i) {
     CInt32POINode& poi = g_TransientInt32POINodes[i];
     if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == type) {
+      CCharAnimTime ret = poi.GetTime();
       for (; i < count; ++i)
         g_TransientInt32POINodes[i] = CInt32POINode();
-      return poi.GetTime();
+      return ret;
     } else {
       poi = CInt32POINode();
     }

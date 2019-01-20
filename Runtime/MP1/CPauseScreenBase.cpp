@@ -87,6 +87,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
     x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_title%d", i + 1))));
     x15c_model_righttitledecos.push_back(
         static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_righttitledeco%d", i + 1))));
+    x15c_model_righttitledecos.back()->SetMouseActive(true);
     xa8_textpane_categories.push_back(
         static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_category%d", i))));
     xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_category%d", i))));

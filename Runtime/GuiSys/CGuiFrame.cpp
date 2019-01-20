@@ -9,6 +9,7 @@
 #include "zeus/CColor.hpp"
 #include "CSimplePool.hpp"
 #include "Graphics/CModel.hpp"
+#include "CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 
@@ -140,6 +141,16 @@ void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetCullMode(ERglCullMode::Front);
 }
 
+CGuiWidget* CGuiFrame::BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const {
+  x14_camera->Draw(parms);
+  zeus::CMatrix4f vp = CGraphics::GetPerspectiveProjectionMatrix(false) * CGraphics::g_CameraMatrix.toMatrix4f();
+  CGuiWidget* ret = nullptr;
+  for (const auto& widget : x2c_widgets)
+    if (widget->GetMouseActive() && widget->TestCursorHit(vp, point))
+      ret = widget.get();
+  return ret;
+}
+
 void CGuiFrame::Initialize() {
   SortDrawOrder();
   xc_headWidget->SetColor(xc_headWidget->xa4_color);
@@ -168,6 +179,28 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 }
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
+  if (const auto& kbm = input.GetKBM()) {
+    zeus::CVector2f point(kbm->m_mouseCoord.norm[0] * 2.f - 1.f,
+                          kbm->m_mouseCoord.norm[1] * 2.f - 1.f);
+    CGuiWidget* hit = BestCursorHit(point, {});
+    if (!m_inMouseDown && kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      m_inMouseDown = true;
+      m_mouseDownWidget = hit;
+      if (m_mouseDownCb)
+        m_mouseDownCb(hit);
+    } else if (m_inMouseDown && !kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      m_inMouseDown = false;
+      if (m_mouseUpCb)
+        m_mouseUpCb(m_mouseDownWidget);
+    }
+    if (hit != m_lastMouseOverWidget) {
+      if (m_inMouseDown)
+        hit = nullptr;
+      if (m_mouseOverChangeCb)
+        m_mouseOverChangeCb(m_lastMouseOverWidget, hit);
+      m_lastMouseOverWidget = hit;
+    }
+  }
   if (input.ControllerIdx() != 0)
     return;
   for (auto& widget : x2c_widgets) {

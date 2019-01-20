@@ -170,7 +170,8 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2e_b28_PDPRight(DDPRight() && !prevInput.DDPRight())
 , x2e_b29_PDPDown(DDPDown() && !prevInput.DDPDown())
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
-, x2e_b31_PStart(DStart() && !prevInput.DStart()) {
+, x2e_b31_PStart(DStart() && !prevInput.DStart())
+, m_kbm(data) {
   if (x8_anaLeftX || xc_anaLeftY) {
     float len = std::sqrt(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
     x8_anaLeftX /= len;
@@ -230,6 +231,8 @@ CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
   x2e_b29_PDPDown |= other.x2e_b29_PDPDown;
   x2e_b30_PDPLeft |= other.x2e_b30_PDPLeft;
   x2e_b31_PStart |= other.x2e_b31_PStart;
+  if (other.m_kbm)
+    m_kbm = other.m_kbm;
   return *this;
 }
 

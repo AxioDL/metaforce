@@ -21,6 +21,7 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
   xb6_31_depthTest = true;
   xb7_24_depthWrite = false;
   xb7_25_ = true;
+  m_mouseActive = false;
   RecalcWidgetColor(ETraversalMode::Single);
 }
 
@@ -88,6 +89,8 @@ void CGuiWidget::Touch() const {}
 bool CGuiWidget::GetIsVisible() const { return xb6_25_isVisible; }
 
 bool CGuiWidget::GetIsActive() const { return xb6_26_isActive; }
+
+bool CGuiWidget::GetMouseActive() const { return m_mouseActive; }
 
 void CGuiWidget::InitializeRGBAFactor() {
   CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
