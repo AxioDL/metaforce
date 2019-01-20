@@ -8,7 +8,7 @@
 namespace urde {
 class CCollisionActorManager;
 class CWeaponDescription;
-}
+} // namespace urde
 
 namespace urde::MP1 {
 struct CBabygothData {
@@ -50,16 +50,14 @@ public:
   CAssetId GetFireBreathResId() const { return x48_fireBreathRes; }
   CDamageInfo GetFireBreathDamage() const { return x4c_fireBreathDamage; }
   const CDamageVulnerability& GetShellDamageVulnerability() const { return xd0_shellVulnerabilities; }
-  float GetShellHitPoints() const { return  x140_shellHitPoints; }
+  float GetShellHitPoints() const { return x140_shellHitPoints; }
   s16 GetShellCrackSfx() { return x144_shellCrackSfx; }
 };
 
 class CBabygoth final : public CPatterned {
 public:
-  enum class EPathFindMode {
-    Zero,
-    One
-  };
+  enum class EPathFindMode { Zero, One };
+
 private:
   static constexpr s32 skSphereJointCount = 5;
   static const SSphereJointInfo skSphereJointList[skSphereJointCount];
@@ -92,7 +90,7 @@ private:
   TUniqueId x9f6_ = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 1> x9f8_shellIds;
   float xa00_shellHitPoints;
-  u32 xa04_ = 1;
+  u32 xa04_ = 0;
   TLockedToken<CSkinnedModel> xa08_noShellModel;
   TToken<CGenDescription> xa14_;
   TToken<CGenDescription> xa20_;
@@ -123,6 +121,7 @@ private:
   void CreateFlameThrower(CStateManager&);
   void ApplyContactDamage(TUniqueId, CStateManager&);
   void RemoveFromTeam(CStateManager&);
+  void ApplySeparationBehavior(CStateManager&);
   bool IsMouthCollisionActor(TUniqueId uid) { return x9f6_ == uid; }
   bool IsShell(TUniqueId uid) {
     for (TUniqueId shellId : x9f8_shellIds) {
@@ -133,7 +132,7 @@ private:
   }
   void CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform&, s16, bool);
   void sub8021d478(CStateManager&, TUniqueId);
-  void sub8021ec58(float, CStateManager&);
+  void AvoidPlayerCollision(float, CStateManager&);
   s32 sub8023a180(TUniqueId, CStateManager&);
   void sub8021d6e8(CStateManager&);
   void sub8021e2c4(float);
@@ -141,8 +140,12 @@ private:
   void UpdateParticleEffects(float, CStateManager&);
   void TryToGetUp(CStateManager& mgr);
   bool CheckShouldWakeUp(CStateManager&, float);
-  void ResetProjectileCollision(CStateManager&);
+  void SetProjectilePasshtrough(CStateManager&);
   void UpdateTouchBounds();
+  void UpdateAttackPosition(CStateManager&, zeus::CVector3f&);
+  void sub8021d644(CStateManager&);
+  bool IsDestinationObstructed(CStateManager&);
+
 public:
   DEFINE_PATTERNED(Babygoth)
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
@@ -154,6 +157,7 @@ public:
   }
 
   void Think(float, CStateManager&);
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
   float GetGravityConstant() const { return 10.f * 24.525f; }
   void SetPathFindMode(EPathFindMode mode) { x8b4_pathFindMode = mode; }
   const CCollisionPrimitive* GetCollisionPrimitive() const { return &x930_aabox; }
@@ -172,15 +176,32 @@ public:
   }
   void Shock(CStateManager&, float, float);
 
+  void TurnAround(CStateManager&, EStateMsg, float);
+  void GetUp(CStateManager&, EStateMsg, float);
+  void Enraged(CStateManager&, EStateMsg, float);
+  void FollowPattern(CStateManager&, EStateMsg, float);
+  void Taunt(CStateManager&, EStateMsg, float);
   void Crouch(CStateManager&, EStateMsg, float);
+  void Deactivate(CStateManager&, EStateMsg, float);
+  void Generate(CStateManager&, EStateMsg, float);
+  void TargetPatrol(CStateManager&, EStateMsg, float);
+  void Patrol(CStateManager&, EStateMsg, float);
+  void Approach(CStateManager&, EStateMsg, float);
+  void PathFind(CStateManager&, EStateMsg, float);
+  void SpecialAttack(CStateManager&, EStateMsg, float);
+  void Attack(CStateManager&, EStateMsg, float);
+  void ProjectileAttack(CStateManager&, EStateMsg, float);
+
+  bool AnimOver(CStateManager&, float) { return x568_ == 4; }
+
   bool SpotPlayer(CStateManager& mgr, float arg) {
     if (xa48_24_isAlert)
       return true;
     return CPatterned::SpotPlayer(mgr, arg);
   }
-  bool InPosition(CStateManager&, float) {
-    return (x8b8_ - GetTranslation()).magSquared() < 9.f;
-  }
+  bool InPosition(CStateManager&, float) { return (x8b8_ - GetTranslation()).magSquared() < 9.f; }
+
+  bool ShotAt(CStateManager&, float) { return x400_24_hitByPlayerProjectile; }
 };
 
 } // namespace urde::MP1

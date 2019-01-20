@@ -234,6 +234,7 @@ public:
   CParticleDatabase& GetParticleDB() { return x120_particleDB; }
   void SetParticleCEXTValue(std::string_view name, int idx, float value);
 
+  float GetSpeedScale() const { return x200_speedScale; }
   u32 GetPassedBoolPOICount() const { return x20c_passedBoolCount; }
   u32 GetPassedIntPOICount() const { return x210_passedIntCount; }
   u32 GetPassedParticlePOICount() const { return x214_passedParticleCount; }
