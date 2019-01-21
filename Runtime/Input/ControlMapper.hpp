@@ -1,5 +1,7 @@
 #pragma once
 
+#include "boo/IWindow.hpp"
+
 namespace urde {
 struct CFinalInput;
 
@@ -100,6 +102,14 @@ public:
     MAX // default case
   };
 
+  enum class EKBMFunctionList {
+    None,
+    KeyPress,
+    SpecialKeyPress = 259,
+    MousePress = 285,
+    MAX = 291 /* Provide space for keys/buttons within base actions */
+  };
+
   static void SetCommandFiltered(ECommands cmd, bool filtered);
   static void ResetCommandFilters();
   static bool GetPressInput(ECommands cmd, const CFinalInput& input);
@@ -108,5 +118,20 @@ public:
   static const char* GetDescriptionForCommand(ECommands cmd);
   static const char* GetDescriptionForFunction(EFunctionList func);
 };
+
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, char b) {
+  using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
+  return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
+}
+
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::ESpecialKey b) {
+  using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
+  return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
+}
+
+constexpr ControlMapper::EKBMFunctionList operator+(ControlMapper::EKBMFunctionList a, boo::EMouseButton b) {
+  using T = std::underlying_type_t<ControlMapper::EKBMFunctionList>;
+  return ControlMapper::EKBMFunctionList(static_cast<T>(a) + static_cast<T>(b));
+}
 
 } // namespace urde

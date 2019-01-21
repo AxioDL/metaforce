@@ -91,11 +91,13 @@ void CInventoryScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
       x1a4_textBodyAlpha = std::min(4.f * dt + x1a4_textBodyAlpha, 1.f);
     else
       x1a4_textBodyAlpha = std::max(0.f, x1a4_textBodyAlpha - 4.f * dt);
-    x174_textpane_body->SetColor(zeus::CColor(1.f, x1a4_textBodyAlpha));
-    x180_basewidget_yicon->SetColor(zeus::CColor(1.f, 1.f - x1a4_textBodyAlpha));
     if (x1a4_textBodyAlpha == 0.f && x1a8_state == EState::Active)
       ChangeMode(EMode::RightTable);
+  } else {
+    x1a4_textBodyAlpha = std::max(0.f, x1a4_textBodyAlpha - 4.f * dt);
   }
+  x174_textpane_body->SetColor(zeus::CColor(1.f, x1a4_textBodyAlpha));
+  x180_basewidget_yicon->SetColor(zeus::CColor(1.f, 1.f - x1a4_textBodyAlpha));
 
   x19c_samusDoll->SetInMorphball(x70_tablegroup_leftlog->GetUserSelection() == 1 && x10_mode != EMode::LeftTable);
   UpdateSamusDollPulses();
@@ -121,7 +123,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     if (input.PStart()) {
       x19c_samusDoll->BeginViewInterpolate(false);
       x198_26_exitPauseScreen = true;
-    } else if (input.PB()) {
+    } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
       x19c_samusDoll->BeginViewInterpolate(false);
     }
   }
@@ -152,9 +154,10 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
       int totalCount = x174_textpane_body->TextSupport().GetTotalPageCount();
       bool lastPage = totalCount - 1 == oldPage;
       if (totalCount != -1) {
-        if (input.PLAUp())
+        if (input.PLAUp() || m_bodyUpClicked)
           newPage = std::max(oldPage - 1, 0);
-        else if (input.PLADown() || (input.PA() && !lastPage))
+        else if (input.PLADown() || m_bodyDownClicked ||
+                 ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
           newPage = std::min(oldPage + 1, totalCount - 1);
         x174_textpane_body->TextSupport().SetPage(newPage);
         if (oldPage != newPage)
@@ -166,7 +169,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         x198_28_pulseTextArrowTop = false;
       }
       if (!x1ac_textLeaveRequested)
-        x1ac_textLeaveRequested = input.PB() || (input.PA() && lastPage);
+        x1ac_textLeaveRequested = input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
+          ((input.PA() || m_bodyClicked || input.PSpecialKey(boo::ESpecialKey::Enter)) && lastPage);
       x1ad_textViewing = !x1ac_textLeaveRequested;
     } else {
       x198_29_pulseTextArrowBottom = false;
@@ -176,6 +180,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     if (x1a8_state != EState::Active)
       x1ad_textViewing = false;
 
+    CPauseScreenBase::ProcessMouseInput(input, absViewInterp);
     CPauseScreenBase::ProcessControllerInput(input);
   }
 }

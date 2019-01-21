@@ -84,7 +84,7 @@ void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
   if (!x10_loadedFrame)
     return;
   x10_loadedFrame->ProcessUserInput(input);
-  if (input.PB() && x0_type != EQuitType::ContinueFromLastSave)
+  if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x0_type != EQuitType::ContinueFromLastSave)
     x18_action = EQuitAction::No;
 }
 

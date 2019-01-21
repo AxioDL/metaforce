@@ -179,34 +179,49 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
 }
 
 void CGuiFrame::ProcessUserInput(const CFinalInput& input) const {
-  if (const auto& kbm = input.GetKBM()) {
-    zeus::CVector2f point(kbm->m_mouseCoord.norm[0] * 2.f - 1.f,
-                          kbm->m_mouseCoord.norm[1] * 2.f - 1.f);
-    CGuiWidget* hit = BestCursorHit(point, {});
-    if (!m_inMouseDown && kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
-      m_inMouseDown = true;
-      m_mouseDownWidget = hit;
-      if (m_mouseDownCb)
-        m_mouseDownCb(hit);
-    } else if (m_inMouseDown && !kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
-      m_inMouseDown = false;
-      if (m_mouseUpCb)
-        m_mouseUpCb(m_mouseDownWidget);
-    }
-    if (hit != m_lastMouseOverWidget) {
-      if (m_inMouseDown)
-        hit = nullptr;
-      if (m_mouseOverChangeCb)
-        m_mouseOverChangeCb(m_lastMouseOverWidget, hit);
-      m_lastMouseOverWidget = hit;
-    }
-  }
   if (input.ControllerIdx() != 0)
     return;
   for (auto& widget : x2c_widgets) {
     if (widget->GetIsActive())
       widget->ProcessUserInput(input);
   }
+}
+
+bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) const {
+  if (const auto& kbm = input.GetKBM()) {
+    zeus::CVector2f point(kbm->m_mouseCoord.norm[0] * 2.f - 1.f,
+                          kbm->m_mouseCoord.norm[1] * 2.f - 1.f);
+    CGuiWidget* hit = BestCursorHit(point, parms);
+    if (hit != m_lastMouseOverWidget) {
+      if (m_inMouseDown && m_mouseDownWidget != hit) {
+        m_inCancel = true;
+        if (m_mouseUpCb)
+          m_mouseUpCb(m_mouseDownWidget, true);
+      } else if (m_inCancel && m_mouseDownWidget == hit) {
+        m_inCancel = false;
+        if (m_mouseDownCb)
+          m_mouseDownCb(m_mouseDownWidget, true);
+      }
+      if (m_mouseOverChangeCb)
+        m_mouseOverChangeCb(m_lastMouseOverWidget, hit);
+      m_lastMouseOverWidget = hit;
+    }
+    if (!m_inMouseDown && kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      m_inMouseDown = true;
+      m_inCancel = false;
+      m_mouseDownWidget = hit;
+      if (m_mouseDownCb)
+        m_mouseDownCb(hit, false);
+      if (hit)
+        return true;
+    } else if (m_inMouseDown && !kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      m_inMouseDown = false;
+      m_inCancel = false;
+      if (m_mouseUpCb && m_mouseDownWidget == m_lastMouseOverWidget)
+        m_mouseUpCb(m_mouseDownWidget, false);
+    }
+  }
+  return false;
 }
 
 std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp) {

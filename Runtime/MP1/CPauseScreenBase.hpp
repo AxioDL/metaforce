@@ -59,6 +59,7 @@ protected:
   rstl::reserved_vector<CGuiTextPane*, 5> xd8_textpane_titles;
   rstl::reserved_vector<CAuiImagePane*, 20> xf0_imagePanes;
   rstl::reserved_vector<CGuiModel*, 5> x144_model_titles;
+  rstl::reserved_vector<CGuiModel*, 5> m_model_lefttitledecos;
   rstl::reserved_vector<CGuiModel*, 5> x15c_model_righttitledecos;
   CGuiTextPane* x174_textpane_body = nullptr;
   CGuiTextPane* x178_textpane_title = nullptr;
@@ -77,11 +78,15 @@ protected:
       bool x198_27_canDraw : 1;
       bool x198_28_pulseTextArrowTop : 1;
       bool x198_29_pulseTextArrowBottom : 1;
+      bool m_isLogBook : 1;
+      bool m_bodyUpClicked : 1;
+      bool m_bodyDownClicked : 1;
+      bool m_bodyClicked : 1;
     };
     u32 _dummy = 0;
   };
   void InitializeFrameGlue();
-  void ChangeMode(EMode mode);
+  void ChangeMode(EMode mode, bool playSfx = true);
   void UpdateSideTable(CGuiTableGroup* table);
   void SetRightTableSelection(int oldSel, int newSel);
 
@@ -90,10 +95,12 @@ protected:
   void OnTableSelectionChange(CGuiTableGroup* caller, int oldSel);
   void OnRightTableCancel(CGuiTableGroup* caller);
 
+  void OnWidgetMouseUp(CGuiWidget* widget, bool cancel);
+
 public:
   static std::string GetImagePaneName(u32 i);
 
-  CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
+  CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg, bool isLogBook = false);
 
   bool ShouldExitPauseScreen() const { return x198_26_exitPauseScreen; }
   bool IsReady();
@@ -107,6 +114,7 @@ public:
   virtual void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue);
   virtual void Touch() {}
   virtual void ProcessControllerInput(const CFinalInput& input);
+  bool ProcessMouseInput(const CFinalInput& input, float yOff);
   virtual void Draw(float transInterp, float totalAlpha, float yOff);
   virtual float GetCameraYBias() const { return 0.f; }
   virtual bool VReady() const = 0;

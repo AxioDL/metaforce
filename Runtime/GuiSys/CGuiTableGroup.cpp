@@ -32,9 +32,9 @@ CGuiTableGroup::CGuiTableGroup(const CGuiWidgetParms& parms, int elementCount, i
 , xd0_selectWraparound(selectWraparound) {}
 
 void CGuiTableGroup::ProcessUserInput(const CFinalInput& input) {
-  if (input.PA()) {
+  if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter)) {
     DoAdvance();
-  } else if (input.PB()) {
+  } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
     DoCancel();
   } else {
     bool decrement;

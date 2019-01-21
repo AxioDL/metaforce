@@ -41,6 +41,17 @@ private:
   bool x90_resourcesLoaded = false;
   bool x91_initialTransition = true;
 
+  bool m_returnClicked : 1;
+  bool m_nextClicked : 1;
+  bool m_backClicked : 1;
+  bool m_lClicked : 1;
+  bool m_rClicked : 1;
+  bool m_returnDown : 1;
+  bool m_nextDown : 1;
+  bool m_backDown : 1;
+  bool m_lDown : 1;
+  bool m_rDown : 1;
+
   std::unique_ptr<CPauseScreenBase> BuildPauseSubScreen(ESubScreen subscreen, const CStateManager& mgr,
                                                         CGuiFrame& frame) const;
   void StartTransition(float time, const CStateManager& mgr, ESubScreen subscreen, int);
@@ -50,6 +61,9 @@ private:
   static ESubScreen GetPreviousSubscreen(ESubScreen screen);
   static ESubScreen GetNextSubscreen(ESubScreen screen);
   void TransitionComplete();
+
+  void OnWidgetMouseDown(CGuiWidget* widget, bool resume);
+  void OnWidgetMouseUp(CGuiWidget* widget, bool cancel);
 
 public:
   CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);

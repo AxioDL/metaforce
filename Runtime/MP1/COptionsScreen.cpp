@@ -140,9 +140,11 @@ void COptionsScreen::Touch() {
 
 void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
   if (!x19c_quitGame) {
+    CPauseScreenBase::ProcessMouseInput(input, 0.f);
     CPauseScreenBase::ProcessControllerInput(input);
     CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false, false);
-    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && input.PA())
+    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && (input.PA() ||
+                                                            input.PSpecialKey(boo::ESpecialKey::Enter)))
       x19c_quitGame = std::make_unique<CQuitGameScreen>(EQuitType::QuitGame);
   } else {
     x19c_quitGame->ProcessUserInput(input);

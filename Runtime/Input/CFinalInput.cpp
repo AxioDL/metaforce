@@ -92,51 +92,15 @@ CFinalInput::CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& 
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
 , x2e_b31_PStart(DStart() && !prevInput.DStart()) {}
 
-static float KBToAnaLeftX(const CKeyboardMouseControllerData& data) {
-  float retval = 0.0;
-  if (data.m_charKeys[int('a')])
-    retval -= 1.0;
-  if (data.m_charKeys[int('d')])
-    retval += 1.0;
-  return retval;
-}
-
-static float KBToAnaLeftY(const CKeyboardMouseControllerData& data) {
-  float retval = 0.0;
-  if (data.m_charKeys[int('s')])
-    retval -= 1.0;
-  if (data.m_charKeys[int('w')])
-    retval += 1.0;
-  return retval;
-}
-
-static float KBToAnaRightX(const CKeyboardMouseControllerData& data) {
-  float retval = 0.0;
-  if (data.m_charKeys[int('2')])
-    retval -= 1.0;
-  if (data.m_charKeys[int('4')])
-    retval += 1.0;
-  return retval;
-}
-
-static float KBToAnaRightY(const CKeyboardMouseControllerData& data) {
-  float retval = 0.0;
-  if (data.m_charKeys[int('3')])
-    retval -= 1.0;
-  if (data.m_charKeys[int('1')])
-    retval += 1.0;
-  return retval;
-}
-
 CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput)
 : x0_dt(dt)
 , x4_controllerIdx(cIdx)
-, x8_anaLeftX(KBToAnaLeftX(data))
-, xc_anaLeftY(KBToAnaLeftY(data))
-, x10_anaRightX(KBToAnaRightX(data))
-, x14_anaRightY(KBToAnaRightY(data))
-, x18_anaLeftTrigger(data.m_charKeys[int('q')] ? 1.0 : 0.0)
-, x1c_anaRightTrigger(data.m_charKeys[int('e')] ? 1.0 : 0.0)
+, x8_anaLeftX(0.f)
+, xc_anaLeftY(0.f)
+, x10_anaRightX(0.f)
+, x14_anaRightY(0.f)
+, x18_anaLeftTrigger(false)
+, x1c_anaRightTrigger(false)
 , x20_enableAnaLeftXP(DLARight() && !prevInput.DLARight())
 , x20_enableAnaLeftNegXP(DLALeft() && !prevInput.DLALeft())
 , x21_enableAnaLeftYP(DLAUp() && !prevInput.DLAUp())
@@ -147,13 +111,13 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x23_enableAnaRightNegYP(DRADown() && !prevInput.DRADown())
 , x24_anaLeftTriggerP(DLTrigger() && !prevInput.DLTrigger())
 , x28_anaRightTriggerP(DRTrigger() && !prevInput.DRTrigger())
-, x2c_b24_A(data.m_mouseButtons[int(boo::EMouseButton::Primary)])
-, x2c_b25_B(data.m_charKeys[int(' ')])
-, x2c_b26_X(data.m_charKeys[int('c')])
-, x2c_b27_Y(data.m_mouseButtons[int(boo::EMouseButton::Secondary)])
-, x2c_b28_Z(data.m_charKeys[int('\t')])
-, x2c_b29_L(data.m_charKeys[int('q')])
-, x2c_b30_R(data.m_charKeys[int('e')])
+, x2c_b24_A(false)
+, x2c_b25_B(false)
+, x2c_b26_X(false)
+, x2c_b27_Y(false)
+, x2c_b28_Z(false)
+, x2c_b29_L(false)
+, x2c_b30_R(false)
 , x2c_b31_DPUp(data.m_specialKeys[int(boo::ESpecialKey::Up)])
 , x2d_b24_DPRight(data.m_specialKeys[int(boo::ESpecialKey::Right)])
 , x2d_b25_DPDown(data.m_specialKeys[int(boo::ESpecialKey::Down)])
@@ -172,15 +136,13 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2e_b30_PDPLeft(DDPLeft() && !prevInput.DDPLeft())
 , x2e_b31_PStart(DStart() && !prevInput.DStart())
 , m_kbm(data) {
-  if (x8_anaLeftX || xc_anaLeftY) {
-    float len = std::sqrt(x8_anaLeftX * x8_anaLeftX + xc_anaLeftY * xc_anaLeftY);
-    x8_anaLeftX /= len;
-    xc_anaLeftY /= len;
-  }
-  if (x10_anaRightX || x14_anaRightY) {
-    float len = std::sqrt(x10_anaRightX * x10_anaRightX + x14_anaRightY * x14_anaRightY);
-    x10_anaRightX /= len;
-    x14_anaRightY /= len;
+  if (prevInput.m_kbm) {
+    for (int i = 0; i < 256; ++i)
+      m_PCharKeys[i] = data.m_charKeys[i] && !prevInput.m_kbm->m_charKeys[i];
+    for (int i = 0; i < 26; ++i)
+      m_PSpecialKeys[i] = data.m_specialKeys[i] && !prevInput.m_kbm->m_specialKeys[i];
+    for (int i = 0; i < 6; ++i)
+      m_PMouseButtons[i] = data.m_mouseButtons[i] && !prevInput.m_kbm->m_mouseButtons[i];
   }
 }
 
@@ -231,8 +193,15 @@ CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
   x2e_b29_PDPDown |= other.x2e_b29_PDPDown;
   x2e_b30_PDPLeft |= other.x2e_b30_PDPLeft;
   x2e_b31_PStart |= other.x2e_b31_PStart;
-  if (other.m_kbm)
+  if (other.m_kbm) {
     m_kbm = other.m_kbm;
+    for (int i = 0; i < 256; ++i)
+      m_PCharKeys[i] = other.m_PCharKeys[i];
+    for (int i = 0; i < 26; ++i)
+      m_PSpecialKeys[i] = other.m_PSpecialKeys[i];
+    for (int i = 0; i < 6; ++i)
+      m_PMouseButtons[i] = other.m_PMouseButtons[i];
+  }
   return *this;
 }
 
@@ -242,6 +211,8 @@ CFinalInput CFinalInput::ScaleAnalogueSticks(float leftDiv, float rightDiv) cons
   ret.xc_anaLeftY = zeus::clamp(-1.f, xc_anaLeftY / leftDiv, 1.f);
   ret.x10_anaRightX = zeus::clamp(-1.f, x10_anaRightX / rightDiv, 1.f);
   ret.x14_anaRightY = zeus::clamp(-1.f, x14_anaRightY / rightDiv, 1.f);
+  ret.m_leftMul = 1.f / leftDiv;
+  ret.m_rightMul = 1.f / rightDiv;
   return ret;
 }
 } // namespace urde

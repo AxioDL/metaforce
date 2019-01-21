@@ -13,8 +13,10 @@
 
 namespace urde::MP1 {
 
-CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
+CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
+                                   bool isLogBook)
 : x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg) {
+  m_isLogBook = isLogBook;
   InitializeFrameGlue();
 }
 
@@ -34,12 +36,13 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x88_basewidget_rightguages->SetColor(zeus::CColor(1.f, 0.f));
   x8c_model_righthighlight = static_cast<CGuiModel*>(x8_frame.FindWidget("model_righthighlight"));
   x90_model_textarrowtop = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowtop"));
+  x90_model_textarrowtop->SetMouseActive(true);
   x94_model_textarrowbottom = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowbottom"));
+  x94_model_textarrowbottom->SetMouseActive(true);
   x98_model_scrollleftup = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollleftup"));
   x9c_model_scrollleftdown = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollleftdown"));
   xa0_model_scrollrightup = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollrightup"));
   xa4_model_scrollrightdown = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollrightdown"));
-  x94_model_textarrowbottom = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textarrowbottom"));
   x178_textpane_title = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_title"));
   x178_textpane_title->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x174_textpane_body = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_body"));
@@ -51,6 +54,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x174_textpane_body->TextSupport().SetJustification(EJustification::Left);
   x174_textpane_body->TextSupport().SetVerticalJustification(EVerticalJustification::Top);
   x174_textpane_body->TextSupport().SetControlTXTRMap(&g_GameState->GameOptions().GetControlTXTRMap());
+  x174_textpane_body->SetMouseActive(true);
   x180_basewidget_yicon = x8_frame.FindWidget("basewidget_yicon");
   x180_basewidget_yicon->SetVisibility(false, ETraversalMode::Children);
   x17c_model_textalpha = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textalpha"));
@@ -85,6 +89,9 @@ void CPauseScreenBase::InitializeFrameGlue() {
         static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_title%d", i + 1))));
     xd8_textpane_titles.back()->TextSupport().SetText(u"");
     x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_title%d", i + 1))));
+    m_model_lefttitledecos.push_back(
+      static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_lefttitledeco%d", i))));
+    m_model_lefttitledecos.back()->SetMouseActive(true);
     x15c_model_righttitledecos.push_back(
         static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_righttitledeco%d", i + 1))));
     x15c_model_righttitledecos.back()->SetMouseActive(true);
@@ -152,6 +159,9 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x18c_slidergroup_slider->SetSelectionChangedCallback({});
   x190_tablegroup_double->SetMenuSelectionChangeCallback({});
   x194_tablegroup_triple->SetMenuSelectionChangeCallback({});
+
+  x8_frame.SetMouseUpCallback(std::bind(&CPauseScreenBase::OnWidgetMouseUp, this,
+                                        std::placeholders::_1, std::placeholders::_2));
 }
 
 bool CPauseScreenBase::IsReady() {
@@ -168,7 +178,7 @@ bool CPauseScreenBase::IsReady() {
   return false;
 }
 
-void CPauseScreenBase::ChangeMode(EMode mode) {
+void CPauseScreenBase::ChangeMode(EMode mode, bool playSfx) {
   if (x10_mode == mode)
     return;
 
@@ -191,7 +201,8 @@ void CPauseScreenBase::ChangeMode(EMode mode) {
     x84_tablegroup_rightlog->SetIsActive(false);
     break;
   case EMode::TextScroll:
-    CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
+    if (playSfx)
+      CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     break;
   default:
     break;
@@ -201,7 +212,7 @@ void CPauseScreenBase::ChangeMode(EMode mode) {
 
   switch (x10_mode) {
   case EMode::LeftTable:
-    if (oldMode == EMode::RightTable)
+    if (playSfx && oldMode == EMode::RightTable)
       CSfxManager::SfxStart(SFXui_table_change_mode, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     x6c_basewidget_leftlog->SetColor(color);
     x70_tablegroup_leftlog->SetIsActive(true);
@@ -305,6 +316,14 @@ void CPauseScreenBase::ProcessControllerInput(const CFinalInput& input) {
   x8_frame.ProcessUserInput(input);
 }
 
+bool CPauseScreenBase::ProcessMouseInput(const CFinalInput& input, float yOff) {
+  m_bodyUpClicked = false;
+  m_bodyDownClicked = false;
+  m_bodyClicked = false;
+  CGuiWidgetDrawParms parms(1.f, zeus::CVector3f{0.f, 15.f * yOff, 0.f});
+  return x8_frame.ProcessMouseInput(input, parms);
+}
+
 void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff) {
   zeus::CColor color = zeus::CColor::skWhite;
   color.a() = mainAlpha * x14_alpha;
@@ -365,6 +384,60 @@ void CPauseScreenBase::OnTableSelectionChange(CGuiTableGroup* caller, int oldSel
 }
 
 void CPauseScreenBase::OnRightTableCancel(CGuiTableGroup* caller) { ChangeMode(EMode::LeftTable); }
+
+void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
+  if (cancel || !widget)
+    return;
+  if (widget->GetParent() == x70_tablegroup_leftlog) {
+    if (m_isLogBook && x10_mode == EMode::TextScroll)
+      return;
+    int idx = int(std::find(m_model_lefttitledecos.begin(), m_model_lefttitledecos.end(), widget) -
+                  m_model_lefttitledecos.begin());
+    if (x70_tablegroup_leftlog->IsWorkerSelectable(idx)) {
+      /* Simulate change to left table */
+      if (x10_mode == EMode::TextScroll)
+        ChangeMode(EMode::RightTable, false);
+      if (x10_mode == EMode::RightTable)
+        ChangeMode(EMode::LeftTable, false);
+      /* Simulate selection change */
+      int oldSel = x70_tablegroup_leftlog->GetUserSelection();
+      x70_tablegroup_leftlog->SelectWorker(idx);
+      OnTableSelectionChange(x70_tablegroup_leftlog, oldSel);
+      /* Simulate change to right table if able */
+      if (ShouldLeftTableAdvance())
+        ChangeMode(EMode::RightTable, false);
+    }
+  } else if (widget->GetParent() == x84_tablegroup_rightlog) {
+    if (m_isLogBook && x10_mode == EMode::TextScroll)
+      return;
+    int idx = int(std::find(x15c_model_righttitledecos.begin(), x15c_model_righttitledecos.end(), widget) -
+                    x15c_model_righttitledecos.begin()) + 1;
+    if (x10_mode == EMode::LeftTable) {
+      if (ShouldLeftTableAdvance())
+        ChangeMode(EMode::RightTable, false);
+      else
+        return;
+    }
+    if (x84_tablegroup_rightlog->IsWorkerSelectable(idx)) {
+      /* Simulate change to right table */
+      if (x10_mode == EMode::TextScroll)
+        ChangeMode(EMode::RightTable, false);
+      /* Simulate selection change */
+      int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+      x84_tablegroup_rightlog->SelectWorker(idx);
+      OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+      /* Simulate change to text scroll if able */
+      if (ShouldRightTableAdvance())
+        ChangeMode(EMode::TextScroll, false);
+    }
+  } else if (widget == x174_textpane_body) {
+    m_bodyClicked = true;
+  } else if (widget == x90_model_textarrowtop) {
+    m_bodyUpClicked = true;
+  } else if (widget == x94_model_textarrowbottom) {
+    m_bodyDownClicked = true;
+  }
+}
 
 static const char* PaneSuffixes[] = {"0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
                                      "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567"};

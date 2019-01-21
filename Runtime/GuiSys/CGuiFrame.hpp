@@ -42,11 +42,12 @@ private:
   float m_maxAspect = -1.f;
 
   mutable bool m_inMouseDown = false;
+  mutable bool m_inCancel = false;
   mutable CGuiWidget* m_mouseDownWidget = nullptr;
   mutable CGuiWidget* m_lastMouseOverWidget = nullptr;
   std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
-  std::function<void(CGuiWidget*)> m_mouseDownCb;
-  std::function<void(CGuiWidget*)> m_mouseUpCb;
+  std::function<void(CGuiWidget*, bool)> m_mouseDownCb;
+  std::function<void(CGuiWidget*, bool)> m_mouseUpCb;
 
 public:
   CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
@@ -76,10 +77,10 @@ public:
   void SetMouseOverChangeCallback(std::function<void(CGuiWidget*, CGuiWidget*)>&& cb) {
     m_mouseOverChangeCb = std::move(cb);
   }
-  void SetMouseDownCallback(std::function<void(CGuiWidget*)>&& cb) {
+  void SetMouseDownCallback(std::function<void(CGuiWidget*, bool)>&& cb) {
     m_mouseDownCb = std::move(cb);
   }
-  void SetMouseUpCallback(std::function<void(CGuiWidget*)>&& cb) {
+  void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) {
     m_mouseUpCb = std::move(cb);
   }
 
@@ -89,6 +90,7 @@ public:
   void Initialize();
   void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
   void ProcessUserInput(const CFinalInput& input) const;
+  bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) const;
 
   CGuiWidgetIdDB& GetWidgetIdDB() { return x18_idDB; }
 

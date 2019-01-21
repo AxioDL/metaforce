@@ -24,6 +24,11 @@ CPauseScreen::CPauseScreen(ESubScreen subscreen, const CDependencyGroup& suitDgr
   x60_loadTok = g_ResFactory->LoadResourceAsync(frmeTag, x5c_frmePauseScreenBuf.get());
   CSfxManager::SfxStart(SFXui_pause_screen_enter, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
   x7c_screens.resize(2);
+  m_returnDown = false;
+  m_nextDown = false;
+  m_backDown = false;
+  m_lDown = false;
+  m_rDown = false;
 }
 
 CPauseScreen::~CPauseScreen() {
@@ -47,12 +52,19 @@ std::unique_ptr<CPauseScreenBase> CPauseScreen::BuildPauseSubScreen(ESubScreen s
 
 void CPauseScreen::InitializeFrameGlue() {
   x38_textpane_l1 = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_l1"));
+  x38_textpane_l1->SetMouseActive(true);
   x3c_textpane_r = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_r"));
+  x3c_textpane_r->SetMouseActive(true);
   x40_textpane_a = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_a"));
+  x40_textpane_a->SetMouseActive(true);
   x44_textpane_b = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_b"));
+  x44_textpane_b->SetMouseActive(true);
   x48_textpane_return = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_return"));
+  x48_textpane_return->SetMouseActive(true);
   x4c_textpane_next = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_next"));
+  x4c_textpane_next->SetMouseActive(true);
   x50_textpane_back = static_cast<CGuiTextPane*>(x34_loadedPauseScreenInstructions->FindWidget("textpane_back"));
+  x50_textpane_back->SetMouseActive(true);
 
   x40_textpane_a->TextSupport().SetText(x14_strgPauseScreen->GetString(7)); // OPTIONS
   x40_textpane_a->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
@@ -66,6 +78,11 @@ void CPauseScreen::InitializeFrameGlue() {
     color.a() *= 0.75f;
     deco->SetColor(color);
   }
+
+  x34_loadedPauseScreenInstructions->SetMouseDownCallback(std::bind(&CPauseScreen::OnWidgetMouseDown, this,
+                                                          std::placeholders::_1, std::placeholders::_2));
+  x34_loadedPauseScreenInstructions->SetMouseUpCallback(std::bind(&CPauseScreen::OnWidgetMouseUp, this,
+                                                        std::placeholders::_1, std::placeholders::_2));
 }
 
 bool CPauseScreen::CheckLoadComplete(const CStateManager& mgr) {
@@ -163,8 +180,20 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
   if (x8_curSubscreen == ESubScreen::ToGame)
     return;
 
+  m_returnClicked = false;
+  m_nextClicked = false;
+  m_backClicked = false;
+  m_lClicked = false;
+  m_rClicked = false;
+
   bool bExits = false;
   if (std::unique_ptr<CPauseScreenBase>& curScreen = x7c_screens[x78_activeIdx]) {
+    float yOff = 0.f;
+    if (curScreen->CanDraw())
+      yOff = curScreen->GetCameraYBias();
+    CGuiWidgetDrawParms parms(1.f, zeus::CVector3f{0.f, 15.f * yOff, 0.f});
+    x34_loadedPauseScreenInstructions->ProcessMouseInput(input, parms);
+
     if (curScreen->GetMode() == CPauseScreenBase::EMode::LeftTable)
       bExits = true;
     curScreen->ProcessControllerInput(input);
@@ -172,15 +201,16 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
 
   if (InputEnabled()) {
     bool invalid = x8_curSubscreen == ESubScreen::ToGame;
-    if (input.PStart() || (input.PB() && bExits) ||
+    if (input.PStart() || m_returnClicked ||
+        ((input.PB() || m_backClicked || input.PSpecialKey(boo::ESpecialKey::Esc)) && bExits) ||
         (x7c_screens[x78_activeIdx] && x7c_screens[x78_activeIdx]->ShouldExitPauseScreen())) {
       CSfxManager::SfxStart(SFXui_pause_screen_exit, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       StartTransition(0.5f, mgr, ESubScreen::ToGame, 2);
     } else {
-      if (ControlMapper::GetPressInput(ControlMapper::ECommands::PreviousPauseScreen, input)) {
+      if (ControlMapper::GetPressInput(ControlMapper::ECommands::PreviousPauseScreen, input) || m_lClicked) {
         CSfxManager::SfxStart(SFXui_pause_screen_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         StartTransition(0.5f, mgr, GetPreviousSubscreen(x8_curSubscreen), invalid ? 2 : 0);
-      } else if (ControlMapper::GetPressInput(ControlMapper::ECommands::NextPauseScreen, input)) {
+      } else if (ControlMapper::GetPressInput(ControlMapper::ECommands::NextPauseScreen, input) || m_rClicked) {
         CSfxManager::SfxStart(SFXui_pause_screen_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         StartTransition(0.5f, mgr, GetNextSubscreen(x8_curSubscreen), invalid ? 2 : 1);
       }
@@ -188,15 +218,15 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
   }
 
   x38_textpane_l1->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger()].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[input.DLTrigger() || m_lDown].Value())));
   x3c_textpane_r->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger()].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[input.DRTrigger() || m_rDown].Value())));
   x48_textpane_return->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart()].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[input.DStart() || m_returnDown].Value())));
   x50_textpane_back->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA()].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x98_aButton[input.DA() || m_backDown].Value())));
   x4c_textpane_next->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB()].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xa4_bButton[input.DB() || m_nextDown].Value())));
 }
 
 void CPauseScreen::TransitionComplete() {
@@ -206,6 +236,44 @@ void CPauseScreen::TransitionComplete() {
   x8_curSubscreen = xc_nextSubscreen;
   x40_textpane_a->TextSupport().SetText(x14_strgPauseScreen->GetString(int(GetPreviousSubscreen(x8_curSubscreen)) + 6));
   x44_textpane_b->TextSupport().SetText(x14_strgPauseScreen->GetString(int(GetNextSubscreen(x8_curSubscreen)) + 6));
+}
+
+void CPauseScreen::OnWidgetMouseDown(CGuiWidget* widget, bool resume) {
+  if (widget == x48_textpane_return)
+    m_returnDown = true;
+  else if (widget == x4c_textpane_next)
+    m_backDown = true;
+  else if (widget == x50_textpane_back)
+    m_nextDown = true;
+  else if (widget == x38_textpane_l1 || widget == x40_textpane_a)
+    m_lDown = true;
+  else if (widget == x3c_textpane_r || widget == x44_textpane_b)
+    m_rDown = true;
+}
+
+void CPauseScreen::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
+  if (widget == x48_textpane_return)
+    m_returnDown = false;
+  else if (widget == x4c_textpane_next)
+    m_backDown = false;
+  else if (widget == x50_textpane_back)
+    m_nextDown = false;
+  else if (widget == x38_textpane_l1 || widget == x40_textpane_a)
+    m_lDown = false;
+  else if (widget == x3c_textpane_r || widget == x44_textpane_b)
+    m_rDown = false;
+  if (cancel)
+    return;
+  if (widget == x48_textpane_return)
+    m_returnClicked = true;
+  else if (widget == x4c_textpane_next)
+    m_backClicked = true;
+  else if (widget == x50_textpane_back)
+    m_nextClicked = true;
+  else if (widget == x38_textpane_l1 || widget == x40_textpane_a)
+    m_lClicked = true;
+  else if (widget == x3c_textpane_r || widget == x44_textpane_b)
+    m_rClicked = true;
 }
 
 void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, CArchitectureQueue& archQueue) {

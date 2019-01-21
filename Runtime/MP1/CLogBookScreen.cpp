@@ -8,7 +8,7 @@
 namespace urde::MP1 {
 
 CLogBookScreen::CLogBookScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg)
-: CPauseScreenBase(mgr, frame, pauseStrg) {
+: CPauseScreenBase(mgr, frame, pauseStrg, true) {
   x19c_scanCompletes.resize(5);
   x200_viewScans.resize(5);
   x258_artifactDoll = std::make_unique<CArtifactDoll>();
@@ -256,22 +256,24 @@ void CLogBookScreen::Update(float dt, CRandom16& rand, CArchitectureQueue& archQ
     else
       x254_viewInterp = std::max(0.f, x254_viewInterp - 4.f * dt);
 
-    zeus::CColor color(1.f, x254_viewInterp);
-    x74_basewidget_leftguages->SetColor(color);
-    x88_basewidget_rightguages->SetColor(color);
-
-    zeus::CColor invColor(1.f, 1.f - x254_viewInterp);
-    x70_tablegroup_leftlog->SetColor(invColor);
-    x84_tablegroup_rightlog->SetColor(invColor);
-    x17c_model_textalpha->SetColor(invColor);
-    x174_textpane_body->SetColor(color);
-
-    for (CAuiImagePane* pane : xf0_imagePanes)
-      pane->SetDeResFactor(1.f - x254_viewInterp);
-
     if (x254_viewInterp == 0.f && x25c_leavePauseState == ELeavePauseState::InPause)
       ChangeMode(EMode::RightTable);
+  } else {
+    x254_viewInterp = std::max(0.f, x254_viewInterp - 4.f * dt);
   }
+
+  zeus::CColor color(1.f, x254_viewInterp);
+  x74_basewidget_leftguages->SetColor(color);
+  x88_basewidget_rightguages->SetColor(color);
+
+  zeus::CColor invColor(1.f, 1.f - x254_viewInterp);
+  x70_tablegroup_leftlog->SetColor(invColor);
+  x84_tablegroup_rightlog->SetColor(invColor);
+  x17c_model_textalpha->SetColor(invColor);
+  x174_textpane_body->SetColor(color);
+
+  for (CAuiImagePane* pane : xf0_imagePanes)
+    pane->SetDeResFactor(1.f - x254_viewInterp);
 
   if (x25c_leavePauseState == ELeavePauseState::LeavingPause && x254_viewInterp == 0.f)
     x25c_leavePauseState = ELeavePauseState::LeftPause;
@@ -293,9 +295,10 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
     int pageCount = x174_textpane_body->TextSupport().GetTotalPageCount();
     bool lastPage = (pageCount - 1) == oldPage;
     if (pageCount != -1) {
-      if (input.PLAUp())
+      if (input.PLAUp() || m_bodyUpClicked)
         newPage = std::max(oldPage - 1, 0);
-      else if (input.PLADown() || (input.PA() && !lastPage))
+      else if (input.PLADown() || m_bodyDownClicked ||
+      ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && !lastPage))
         newPage = std::min(oldPage + 1, pageCount - 1);
       x174_textpane_body->TextSupport().SetPage(newPage);
       if (oldPage != newPage)
@@ -308,7 +311,8 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
     }
 
     if (!x260_26_exitTextScroll)
-      x260_26_exitTextScroll = input.PB() || (input.PA() && lastPage);
+      x260_26_exitTextScroll = input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
+        ((input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter) || m_bodyClicked) && lastPage);
 
     if (g_tweakGui->GetLatchArticleText())
       x260_25_inTextScroll = !x260_26_exitTextScroll;
@@ -322,6 +326,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
   if (x25c_leavePauseState == ELeavePauseState::LeavingPause)
     x260_25_inTextScroll = false;
 
+  CPauseScreenBase::ProcessMouseInput(input, 0.f);
   CPauseScreenBase::ProcessControllerInput(input);
 }
 

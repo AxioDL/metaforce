@@ -28,8 +28,6 @@ private:
   std::function<void(CGuiTableGroup*)> xec_doMenuCancel;
   std::function<void(CGuiTableGroup*, int)> x104_doMenuSelChange;
 
-  bool IsWorkerSelectable(int) const;
-  void SelectWorker(int);
   void DeactivateWorker(CGuiWidget* widget);
   void ActivateWorker(CGuiWidget* widget);
 
@@ -77,6 +75,10 @@ public:
   int GetElementCount() const { return xc0_elementCount; }
 
   int GetUserSelection() const { return xc4_userSelection; }
+
+  bool IsWorkerSelectable(int) const;
+
+  void SelectWorker(int);
 
   void ProcessUserInput(const CFinalInput& input);
 

@@ -61,6 +61,13 @@ struct CFinalInput {
 
   std::experimental::optional<CKeyboardMouseControllerData> m_kbm;
 
+  bool m_PCharKeys[256] = {};
+  bool m_PSpecialKeys[26] = {};
+  bool m_PMouseButtons[6] = {};
+
+  float m_leftMul = 1.f;
+  float m_rightMul = 1.f;
+
   CFinalInput();
   CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
@@ -145,6 +152,16 @@ struct CFinalInput {
   float ARightTrigger() const { return x1c_anaRightTrigger; }
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
+
+  bool PKey(char k) const { return m_kbm && m_PCharKeys[k]; }
+  bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[int(k)]; }
+  bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[int(k)]; }
+  bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[k]; }
+  bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[int(k)]; }
+  bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[int(k)]; }
+  bool AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
+  bool ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  bool AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::experimental::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };

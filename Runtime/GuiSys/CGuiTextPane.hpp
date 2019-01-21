@@ -22,6 +22,7 @@ public:
   void SetDimensions(const zeus::CVector2f& dim, bool initVBO);
   void ScaleDimensions(const zeus::CVector3f& scale);
   void Draw(const CGuiWidgetDrawParms& parms) const;
+  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

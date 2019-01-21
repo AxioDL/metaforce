@@ -92,6 +92,36 @@ void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
 #endif
 }
 
+static const zeus::CVector3f NormalPoints[] = {
+  {0.f, 0.f, -1.f},
+  {1.f, 0.f, -1.f},
+  {1.f, 0.f, 0.f},
+  {0.f, 0.f, 0.f}
+};
+
+static bool testProjectedLine(const zeus::CVector2f& a, const zeus::CVector2f& b, const zeus::CVector2f& point) {
+  zeus::CVector2f normal = (b - a).perpendicularVector().normalized();
+  return point.dot(normal) >= a.dot(normal);
+}
+
+bool CGuiTextPane::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
+  zeus::CVector2f dims = GetDimensions();
+  zeus::CTransform local = zeus::CTransform::Translate(xc0_verts.front().m_pos + xc8_scaleCenter) *
+                           zeus::CTransform::Scale(dims.x(), 1.f, dims.y());
+  zeus::CMatrix4f mvp = vp * (x34_worldXF * local).toMatrix4f();
+
+  zeus::CVector2f projPoints[4];
+  for (int i = 0; i < 4; ++i)
+    projPoints[i] = mvp.multiplyOneOverW(NormalPoints[i]).toVec2f();
+
+  int j;
+  for (j = 0; j < 3; ++j) {
+    if (!testProjectedLine(projPoints[j], projPoints[j + 1], point))
+      break;
+  }
+  return j == 3 && testProjectedLine(projPoints[3], projPoints[0], point);
+}
+
 std::shared_ptr<CGuiWidget> CGuiTextPane::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {
   CGuiWidgetParms parms = ReadWidgetHeader(frame, in);
   zeus::CVector2f dim = zeus::CVector2f::ReadBig(in);

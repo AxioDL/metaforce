@@ -746,10 +746,14 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction CFrontEndUI::SFusionBonus
   case EUIType::LinkFailed:
   case EUIType::LinkCompleteOrLinking:
   case EUIType::TurnOffGBA:
-    if (input.PA() || tbAction == CFrontEndUITouchBar::EAction::Confirm) {
+    if (input.PA() ||
+        input.PSpecialKey(boo::ESpecialKey::Enter) ||
+        input.PMouseButton(boo::EMouseButton::Primary) ||
+        tbAction == CFrontEndUITouchBar::EAction::Confirm) {
       PlayAdvanceSfx();
       SetUIText(NextLinkUI[int(x0_uiType)]);
-    } else if (input.PB() || tbAction == CFrontEndUITouchBar::EAction::Back) {
+    } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
+               tbAction == CFrontEndUITouchBar::EAction::Back) {
       EUIType prevUi = PrevLinkUI[int(x0_uiType)];
       if (prevUi == EUIType::Empty)
         break;
@@ -938,7 +942,7 @@ CFrontEndUI::SFusionBonusFrame::EAction CFrontEndUI::SFusionBonusFrame::ProcessU
       }
     } else if (x24_loadedFrame) {
       CFinalInput useInput = input;
-      if (input.PZ()) {
+      if (input.PZ() || input.PKey('\t')) {
         useInput.x2d_b28_PA = true;
         m_gbaOverride = true;
       }
@@ -1251,7 +1255,7 @@ void CFrontEndUI::SNesEmulatorFrame::ProcessUserInput(const CFinalInput& input, 
   switch (x0_mode) {
   case EMode::Emulator:
     x4_nesEmu->ProcessUserInput(input, 4);
-    if (input.ControllerIdx() == 0 && input.PL())
+    if ((input.ControllerIdx() == 0 && input.PL()) || input.PSpecialKey(boo::ESpecialKey::Esc))
       SetMode(EMode::QuitNESMetroid);
     break;
   case EMode::SaveProgress:
@@ -1592,7 +1596,7 @@ bool CFrontEndUI::SOptionsFrontEndFrame::ProcessUserInput(const CFinalInput& inp
   if (sui)
     sui->ProcessUserInput(input);
   if (x1c_loadedFrame && x134_24_visible) {
-    if (input.PB() && x24_tablegroup_leftmenu->GetIsActive()) {
+    if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x24_tablegroup_leftmenu->GetIsActive()) {
       x134_25_exitOptions = true;
       CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     } else {
@@ -2034,14 +2038,22 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
 
   if (x50_curScreen != x54_nextScreen) {
     if (x54_nextScreen == EScreen::AttractMovie &&
-        (input.PStart() || input.PA() || touchBarAction == CFrontEndUITouchBar::EAction::Start)) {
+        (input.PStart() || input.PA() ||
+         input.PSpecialKey(boo::ESpecialKey::Esc) ||
+         input.PSpecialKey(boo::ESpecialKey::Enter) ||
+         input.PMouseButton(boo::EMouseButton::Primary) ||
+         touchBarAction == CFrontEndUITouchBar::EAction::Start)) {
       /* Player wants to return to opening credits from attract movie */
       SetFadeBlackTimer(std::min(1.f, x58_fadeBlackTimer));
       PlayAdvanceSfx();
       return;
     }
 
-    if (input.PA() || input.PStart() || touchBarAction == CFrontEndUITouchBar::EAction::Start) {
+    if (input.PA() || input.PStart() ||
+        input.PSpecialKey(boo::ESpecialKey::Esc) ||
+        input.PSpecialKey(boo::ESpecialKey::Enter) ||
+        input.PMouseButton(boo::EMouseButton::Primary) ||
+        touchBarAction == CFrontEndUITouchBar::EAction::Start) {
       if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title && x58_fadeBlackTimer > 1.f) {
         /* Player is too impatient to view opening credits */
         xd0_playerSkipToTitle = true;
@@ -2051,7 +2063,11 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
     }
   } else {
     if (x50_curScreen == EScreen::Title) {
-      if (input.PStart() || input.PA() || touchBarAction == CFrontEndUITouchBar::EAction::Start) {
+      if (input.PStart() || input.PA() ||
+          input.PSpecialKey(boo::ESpecialKey::Esc) ||
+          input.PSpecialKey(boo::ESpecialKey::Enter) ||
+          input.PMouseButton(boo::EMouseButton::Primary) ||
+          touchBarAction == CFrontEndUITouchBar::EAction::Start) {
         if (x58_fadeBlackTimer < 30.f - g_tweakGame->GetPressStartDelay()) {
           /* Proceed to file select UI */
           CSfxManager::SfxStart(FETransitionBackSFX[x18_rndA][0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
