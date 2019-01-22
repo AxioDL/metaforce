@@ -82,6 +82,7 @@ protected:
       bool m_bodyUpClicked : 1;
       bool m_bodyDownClicked : 1;
       bool m_bodyClicked : 1;
+      bool m_playRightTableSfx : 1;
     };
     u32 _dummy = 0;
   };
@@ -96,6 +97,7 @@ protected:
   void OnRightTableCancel(CGuiTableGroup* caller);
 
   void OnWidgetMouseUp(CGuiWidget* widget, bool cancel);
+  void OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY);
 
 public:
   static std::string GetImagePaneName(u32 i);

@@ -80,6 +80,10 @@ public:
 
   void SelectWorker(int);
 
+  void DoSelectWorker(int);
+
+  void SetWorkersMouseActive(bool);
+
   void ProcessUserInput(const CFinalInput& input);
 
   bool AddWorkerWidget(CGuiWidget* worker) { return true; }

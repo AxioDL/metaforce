@@ -17,6 +17,7 @@ CPauseScreenBase::CPauseScreenBase(const CStateManager& mgr, CGuiFrame& frame, c
                                    bool isLogBook)
 : x4_mgr(mgr), x8_frame(frame), xc_pauseStrg(pauseStrg) {
   m_isLogBook = isLogBook;
+  m_playRightTableSfx = true;
   InitializeFrameGlue();
 }
 
@@ -42,7 +43,9 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x98_model_scrollleftup = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollleftup"));
   x9c_model_scrollleftdown = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollleftdown"));
   xa0_model_scrollrightup = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollrightup"));
+  xa0_model_scrollrightup->SetMouseActive(true);
   xa4_model_scrollrightdown = static_cast<CGuiModel*>(x8_frame.FindWidget("model_scrollrightdown"));
+  xa4_model_scrollrightdown->SetMouseActive(true);
   x178_textpane_title = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_title"));
   x178_textpane_title->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x174_textpane_body = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_body"));
@@ -65,6 +68,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
+  x18c_slidergroup_slider->SetMouseActive(true);
   x190_tablegroup_double = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_double"));
   x194_tablegroup_triple = static_cast<CGuiTableGroup*>(x8_frame.FindWidget("tablegroup_triple"));
 
@@ -145,6 +149,8 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x194_tablegroup_triple->SetIsVisible(false);
   x190_tablegroup_double->SetVertical(false);
   x194_tablegroup_triple->SetVertical(false);
+  x190_tablegroup_double->SetWorkersMouseActive(false);
+  x194_tablegroup_triple->SetWorkersMouseActive(false);
 
   x70_tablegroup_leftlog->SetMenuAdvanceCallback(
       std::bind(&CPauseScreenBase::OnLeftTableAdvance, this, std::placeholders::_1));
@@ -162,6 +168,9 @@ void CPauseScreenBase::InitializeFrameGlue() {
 
   x8_frame.SetMouseUpCallback(std::bind(&CPauseScreenBase::OnWidgetMouseUp, this,
                                         std::placeholders::_1, std::placeholders::_2));
+  x8_frame.SetMouseScrollCallback(std::bind(&CPauseScreenBase::OnWidgetScroll, this,
+                                            std::placeholders::_1, std::placeholders::_2,
+                                            std::placeholders::_3, std::placeholders::_4));
 }
 
 bool CPauseScreenBase::IsReady() {
@@ -345,7 +354,7 @@ void CPauseScreenBase::UpdateRightTable() {
 void CPauseScreenBase::SetRightTableSelection(int oldSel, int newSel) {
   int oldRightSel = x1c_rightSel;
   x1c_rightSel = zeus::clamp(0, x1c_rightSel + (newSel - oldSel), int(GetRightTableCount()) - 1);
-  if (oldRightSel != x1c_rightSel)
+  if (m_playRightTableSfx && oldRightSel != x1c_rightSel)
     CSfxManager::SfxStart(SFXui_table_selection_change, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
   if (x1c_rightSel < x18_firstViewRightSel)
@@ -425,10 +434,11 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
       /* Simulate selection change */
       int oldSel = x84_tablegroup_rightlog->GetUserSelection();
       x84_tablegroup_rightlog->SelectWorker(idx);
+      m_playRightTableSfx = !ShouldRightTableAdvance();
       OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+      m_playRightTableSfx = true;
       /* Simulate change to text scroll if able */
-      if (ShouldRightTableAdvance())
-        ChangeMode(EMode::TextScroll, false);
+      OnRightTableAdvance(nullptr);
     }
   } else if (widget == x174_textpane_body) {
     m_bodyClicked = true;
@@ -436,6 +446,66 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
     m_bodyUpClicked = true;
   } else if (widget == x94_model_textarrowbottom) {
     m_bodyDownClicked = true;
+  } else if (widget == xa0_model_scrollrightup) {
+    if (x10_mode == EMode::LeftTable) {
+      if (ShouldLeftTableAdvance())
+        ChangeMode(EMode::RightTable, false);
+      else
+        return;
+    }
+    if (x10_mode == EMode::RightTable && x18_firstViewRightSel > 0) {
+      /* Simulate selection change */
+      int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+      x84_tablegroup_rightlog->SelectWorker(0);
+      OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+    }
+  } else if (widget == xa4_model_scrollrightdown) {
+    if (x10_mode == EMode::LeftTable) {
+      if (ShouldLeftTableAdvance())
+        ChangeMode(EMode::RightTable, false);
+      else
+        return;
+    }
+    if (x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < GetRightTableCount()) {
+      /* Simulate selection change */
+      int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+      x84_tablegroup_rightlog->SelectWorker(6);
+      OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+    }
+  }
+}
+
+void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY) {
+  if (!widget || accumY == 0)
+    return;
+  if (widget->GetParent() == x84_tablegroup_rightlog) {
+    if (x10_mode == EMode::LeftTable) {
+      if (ShouldLeftTableAdvance())
+        ChangeMode(EMode::RightTable, false);
+      else
+        return;
+    }
+    if (accumY < 0) do {
+      if (x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < GetRightTableCount()) {
+        /* Simulate selection change */
+        int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+        x84_tablegroup_rightlog->SelectWorker(6);
+        OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+      }
+    } while (++accumY < 0);
+    else if (accumY > 0) do {
+      if (x10_mode == EMode::RightTable && x18_firstViewRightSel > 0) {
+        /* Simulate selection change */
+        int oldSel = x84_tablegroup_rightlog->GetUserSelection();
+        x84_tablegroup_rightlog->SelectWorker(0);
+        OnTableSelectionChange(x84_tablegroup_rightlog, oldSel);
+      }
+    } while (--accumY > 0);
+  } else if (widget == x174_textpane_body) {
+    if (accumY < 0)
+      m_bodyDownClicked = true;
+    else if (accumY > 0)
+      m_bodyUpClicked = true;
   }
 }
 

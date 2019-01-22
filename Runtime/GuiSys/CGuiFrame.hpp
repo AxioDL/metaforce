@@ -4,6 +4,7 @@
 #include "CGuiHeadWidget.hpp"
 #include "CGuiWidgetIdDB.hpp"
 #include "IObj.hpp"
+#include "boo/IWindow.hpp"
 #include <array>
 
 namespace urde {
@@ -48,6 +49,7 @@ private:
   std::function<void(CGuiWidget*, CGuiWidget*)> m_mouseOverChangeCb;
   std::function<void(CGuiWidget*, bool)> m_mouseDownCb;
   std::function<void(CGuiWidget*, bool)> m_mouseUpCb;
+  std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)> m_mouseScrollCb;
 
 public:
   CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool* sp);
@@ -82,6 +84,9 @@ public:
   }
   void SetMouseUpCallback(std::function<void(CGuiWidget*, bool)>&& cb) {
     m_mouseUpCb = std::move(cb);
+  }
+  void SetMouseScrollCallback(std::function<void(CGuiWidget*, const boo::SScrollDelta&, int, int)>&& cb) {
+    m_mouseScrollCb = std::move(cb);
   }
 
   void Update(float dt);

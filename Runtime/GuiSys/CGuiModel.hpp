@@ -16,7 +16,8 @@ public:
   CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag);
   FourCC GetWidgetTypeID() const { return FOURCC('MODL'); }
 
-  std::vector<CAssetId> GetModelAssets() const;
+  std::vector<CAssetId> GetModelAssets() const { return {xc8_modelId}; }
+  const TLockedToken<CModel>& GetModel() const { return xb8_model; }
   bool GetIsFinishedLoadingWidgetSpecific() const;
   void Touch() const;
   void Draw(const CGuiWidgetDrawParms& parms) const;

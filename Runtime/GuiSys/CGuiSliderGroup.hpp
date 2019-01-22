@@ -8,7 +8,7 @@ class CSimplePool;
 
 class CGuiSliderGroup : public CGuiCompoundWidget {
 public:
-  enum class EState { None, Decreasing, Increasing };
+  enum class EState { None, Decreasing, Increasing, MouseMove };
 
 private:
   float xb8_minVal;
@@ -22,9 +22,13 @@ private:
   union {
     struct {
       bool xf4_24_inputPending : 1;
+      mutable bool m_mouseInside : 1;
+      bool m_mouseDown : 1;
     };
-    u8 _dummy = 0;
+    u32 _dummy = 0;
   };
+
+  mutable float m_mouseT = 0.f;
 
   void StartDecreasing();
   void StartIncreasing();
@@ -46,6 +50,8 @@ public:
   }
   void SetCurVal(float cur);
   float GetGurVal() const { return xc0_roundedCurVal; }
+
+  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const;
 
   void ProcessUserInput(const CFinalInput& input);
   void Update(float dt);
