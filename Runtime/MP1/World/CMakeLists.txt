@@ -12,6 +12,7 @@ set(MP1_WORLD_SOURCES
     CFireFlea.hpp CFireFlea.cpp
     CEyeball.hpp CEyeball.cpp
     CAtomicAlpha.hpp CAtomicAlpha.cpp
+    CAtomicBeta.hpp CAtomicBeta.cpp
     CFlickerBat.hpp CFlickerBat.cpp
     CFlyingPirate.hpp CFlyingPirate.cpp
     CMetroidPrimeRelay.hpp CMetroidPrimeRelay.cpp

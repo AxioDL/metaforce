@@ -91,6 +91,7 @@
 #include "MP1/World/CPuddleToadGamma.hpp"
 #include "CScriptSpindleCamera.hpp"
 #include "MP1/World/CAtomicAlpha.hpp"
+#include "MP1/World/CAtomicBeta.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "CWallCrawlerSwarm.hpp"
@@ -3044,7 +3045,35 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
 }
 
 CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 21, "AtomicBeta"))
+    return nullptr;
+  SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  CAssetId electricId(in);
+  CAssetId weaponId(in);
+  CDamageInfo dInfo(in);
+  CAssetId particleId(in);
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  CDamageVulnerability dVuln(in);
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  s16 sId1 = s16(in.readInt32Big() & 0xFFFF);
+  s16 sId2 = s16(in.readInt32Big() & 0xFFFF);
+  s16 sId3 = s16(in.readInt32Big() & 0xFFFF);
+  float f7 = in.readFloatBig();
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+  return new MP1::CAtomicBeta(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData),
+                              actParms, pInfo, electricId, weaponId, dInfo, particleId, f1, f2, f3, dVuln, f4, f5, f6,
+                              sId1, sId2, sId3, f7);
 }
 
 CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

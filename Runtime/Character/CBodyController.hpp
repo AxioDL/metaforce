@@ -103,6 +103,7 @@ public:
   EBodyType GetBodyType() const { return x2f4_bodyType; }
   bool HasBeenFrozen() const { return x300_27_hasBeenFrozen; }
   float GetRestrictedFlyerMoveSpeed() const { return x330_restrictedFlyerMoveSpeed; }
+  void SetRestrictedFlyerMoveSpeed(float s) { x330_restrictedFlyerMoveSpeed = s; }
   bool GetActive() const { return x300_25_active; }
 };
 } // namespace urde
