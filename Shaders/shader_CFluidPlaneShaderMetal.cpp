@@ -230,7 +230,7 @@ static const char* FS =
 "        float angAtt = lu.lights[i].angAtt[2] * angDot * angDot +\n"
 "                       lu.lights[i].angAtt[1] * angDot +\n"
 "                       lu.lights[i].angAtt[0];\n"
-"        ret += lu.lights[i].color * clamp(angAtt, 0.0, 1.0) * att * clamp(dot(normalize(-delta), mvNormIn), 0.0, 1.0);\n"
+"        ret += lu.lights[i].color * angAtt * att * saturate(dot(normalize(-delta), mvNormIn));\n"
 "    }\n"
 "    \n"
 "    return ret;\n"

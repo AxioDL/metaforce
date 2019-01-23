@@ -393,6 +393,7 @@ void CGraphics::SetViewportResolution(const zeus::CVector2i& res) {
   g_CroppedViewport.x10_height = res.y;
   g_Viewport.x10_halfWidth = res.x / 2.f;
   g_Viewport.x14_halfHeight = res.y / 2.f;
+  g_Viewport.aspect = res.x / float(res.y);
   if (g_GuiSys)
     g_GuiSys->OnViewportResize();
 }

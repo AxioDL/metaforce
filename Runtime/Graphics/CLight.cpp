@@ -15,11 +15,13 @@ float CLight::CalculateLightRadius() const {
   if (x2c_distQ > FLT_EPSILON) {
     if (intens <= FLT_EPSILON)
       return 0.f;
-    return std::sqrt(intens / 5.f * intens / 255.f * x2c_distQ);
+    return std::sqrt(intens / (0.0588235f * x2c_distQ));
   }
 
-  float nextIntens = 5.f * intens / 255.f;
-  return intens / std::min(0.2f, nextIntens) * x28_distL;
+  if (x28_distL > FLT_EPSILON)
+    return intens / (0.0588235f * x28_distL);
+
+  return 0.f;
 }
 
 float CLight::GetIntensity() const {

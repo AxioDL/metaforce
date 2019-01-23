@@ -232,8 +232,6 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
       m_inMouseDown = false;
       m_inCancel = false;
       if (m_mouseDownWidget == m_lastMouseOverWidget) {
-        if (m_mouseUpCb)
-          m_mouseUpCb(m_mouseDownWidget, false);
         if (m_mouseDownWidget) {
           if (CGuiTableGroup* p = static_cast<CGuiTableGroup*>(m_mouseDownWidget->GetParent())) {
             if (p->GetWidgetTypeID() == FOURCC('TBGP')) {
@@ -243,10 +241,19 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
             }
           }
         }
+        if (m_mouseUpCb)
+          m_mouseUpCb(m_mouseDownWidget, false);
       }
     }
   }
   return false;
+}
+
+void CGuiFrame::ResetMouseState() {
+  m_inMouseDown = false;
+  m_inCancel = false;
+  m_mouseDownWidget = nullptr;
+  m_lastMouseOverWidget = nullptr;
 }
 
 std::unique_ptr<CGuiFrame> CGuiFrame::CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp) {

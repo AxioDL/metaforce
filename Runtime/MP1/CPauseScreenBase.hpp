@@ -82,6 +82,8 @@ protected:
       bool m_bodyUpClicked : 1;
       bool m_bodyDownClicked : 1;
       bool m_bodyClicked : 1;
+      bool m_leftClicked : 1;
+      bool m_rightClicked : 1;
       bool m_playRightTableSfx : 1;
     };
     u32 _dummy = 0;
@@ -117,6 +119,7 @@ public:
   virtual void Touch() {}
   virtual void ProcessControllerInput(const CFinalInput& input);
   bool ProcessMouseInput(const CFinalInput& input, float yOff);
+  void ResetMouseState();
   virtual void Draw(float transInterp, float totalAlpha, float yOff);
   virtual float GetCameraYBias() const { return 0.f; }
   virtual bool VReady() const = 0;

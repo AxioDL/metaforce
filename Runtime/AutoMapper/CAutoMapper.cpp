@@ -480,43 +480,20 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   float down = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
   float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
   float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
-  int flags = 0x0;
-  if (up > 0.f)
-    flags |= 0x2;
-  if (down > 0.f)
-    flags |= 0x1;
-  if (left > 0.f)
-    flags |= 0x4;
-  if (right > 0.f)
-    flags |= 0x8;
 
-  switch (flags) {
-  case 1: // Down
-    x2e4_lStickPos = 1;
-    break;
-  case 2: // Up
-    x2e4_lStickPos = 5;
-    break;
-  case 4: // Left
-    x2e4_lStickPos = 3;
-    break;
-  case 5: // Down-Left
-    x2e4_lStickPos = 2;
-    break;
-  case 6: // Up-Left
-    x2e4_lStickPos = 4;
-    break;
-  case 8: // Right
-    x2e4_lStickPos = 7;
-    break;
-  case 9: // Down-Right
-    x2e4_lStickPos = 8;
-    break;
-  case 10: // Up-Right
-    x2e4_lStickPos = 6;
-    break;
-  default:
-    break;
+  bool mouseHeld = false;
+  if (const auto& kbm = input.GetKBM()) {
+    if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)]) {
+      mouseHeld = true;
+      if (float(m_mouseDelta.x()) < 0.f)
+        right += -m_mouseDelta.x();
+      else if (float(m_mouseDelta.x()) > 0.f)
+        left += m_mouseDelta.x();
+      if (float(m_mouseDelta.y()) < 0.f)
+        up += -m_mouseDelta.y();
+      else if (float(m_mouseDelta.y()) > 0.f)
+        down += m_mouseDelta.y();
+    }
   }
 
   float maxMag = up;
@@ -537,9 +514,48 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   float dirs[4] = {};
   dirs[dirSlot] = maxMag;
 
-  if (dirs[0] > 0.f || dirs[1] > 0.f || dirs[2] > 0.f || dirs[3] > 0.f) {
+  if (dirs[0] > 0.f || dirs[1] > 0.f || dirs[2] > 0.f || dirs[3] > 0.f || mouseHeld) {
+    int flags = 0x0;
+    if (up > 0.f)
+      flags |= 0x2;
+    if (down > 0.f)
+      flags |= 0x1;
+    if (left > 0.f)
+      flags |= 0x4;
+    if (right > 0.f)
+      flags |= 0x8;
+
+    switch (flags) {
+    case 1: // Down
+      x2e4_lStickPos = 1;
+      break;
+    case 2: // Up
+      x2e4_lStickPos = 5;
+      break;
+    case 4: // Left
+      x2e4_lStickPos = 3;
+      break;
+    case 5: // Down-Left
+      x2e4_lStickPos = 2;
+      break;
+    case 6: // Up-Left
+      x2e4_lStickPos = 4;
+      break;
+    case 8: // Right
+      x2e4_lStickPos = 7;
+      break;
+    case 9: // Down-Right
+      x2e4_lStickPos = 8;
+      break;
+    case 10: // Up-Right
+      x2e4_lStickPos = 6;
+      break;
+    default:
+      break;
+    }
+
     float deltaFrames = input.DeltaTime() * 60.f;
-    SetShouldRotatingSoundBePlaying(true);
+    SetShouldRotatingSoundBePlaying(dirs[0] > 0.f || dirs[1] > 0.f || dirs[2] > 0.f || dirs[3] > 0.f);
     zeus::CEulerAngles eulers(xa8_renderStates[0].x8_camOrientation);
     zeus::CRelAngle angX(eulers.x());
     angX.makeRel();
@@ -571,6 +587,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
     quat.rotateY(0.f);
     xa8_renderStates[0].x8_camOrientation = quat;
   } else {
+    x2e4_lStickPos = 0;
     SetShouldRotatingSoundBePlaying(false);
   }
 }
@@ -578,6 +595,18 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
 void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateManager& mgr) {
   bool in = ControlMapper::GetDigitalInput(ControlMapper::ECommands::MapZoomIn, input);
   bool out = ControlMapper::GetDigitalInput(ControlMapper::ECommands::MapZoomOut, input);
+
+  if (const auto& kbm = input.GetKBM()) {
+    m_mapScroll += kbm->m_accumScroll - m_lastAccumScroll;
+    m_lastAccumScroll = kbm->m_accumScroll;
+    if (m_mapScroll.delta[1] > 0.0) {
+      in = true;
+      m_mapScroll.delta[1] = std::max(0.0, m_mapScroll.delta[1] - (15.0 / 60.0));
+    } else if (m_mapScroll.delta[1] < 0.0) {
+      out = true;
+      m_mapScroll.delta[1] = std::min(0.0, m_mapScroll.delta[1] + (15.0 / 60.0));
+    }
+  }
 
   EZoomState nextZoomState = EZoomState::None;
   switch (x324_zoomState) {
@@ -617,10 +646,7 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
     x324_zoomState = EZoomState::Out;
   }
 
-  if (oldDist == xa8_renderStates[0].x18_camDist)
-    SetShouldZoomingSoundBePlaying(false);
-  else
-    SetShouldZoomingSoundBePlaying(true);
+  SetShouldZoomingSoundBePlaying(oldDist != xa8_renderStates[0].x18_camDist);
 }
 
 void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManager& mgr) {
@@ -628,8 +654,24 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
   float back = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveBack, input);
   float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveLeft, input);
   float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveRight, input);
+
+  bool mouseHeld = false;
+  if (const auto& kbm = input.GetKBM()) {
+    if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      mouseHeld = true;
+      if (float(m_mouseDelta.x()) < 0.f)
+        right += -m_mouseDelta.x();
+      else if (float(m_mouseDelta.x()) > 0.f)
+        left += m_mouseDelta.x();
+      if (float(m_mouseDelta.y()) < 0.f)
+        forward += -m_mouseDelta.y();
+      else if (float(m_mouseDelta.y()) > 0.f)
+        back += m_mouseDelta.y();
+    }
+  }
+
   zeus::CTransform camRot = xa8_renderStates[0].x8_camOrientation.toTransform();
-  if (forward > 0.f || back > 0.f || left > 0.f || right > 0.f) {
+  if (forward > 0.f || back > 0.f || left > 0.f || right > 0.f || mouseHeld) {
     float deltaFrames = 60.f * input.DeltaTime();
     float speed = GetFinalMapScreenCameraMoveSpeed();
     int flags = 0x0;
@@ -674,10 +716,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
     zeus::CVector3f dirVec(right - left, 0.f, forward - back);
     zeus::CVector3f deltaVec = camRot * (dirVec * deltaFrames * speed);
     zeus::CVector3f newPoint = xa8_renderStates[0].x20_areaPoint + deltaVec;
-    if (deltaVec.magnitude() > input.DeltaTime())
-      SetShouldPanningSoundBePlaying(true);
-    else
-      SetShouldPanningSoundBePlaying(false);
+    SetShouldPanningSoundBePlaying(deltaVec.magnitude() > input.DeltaTime());
 
     if (x1bc_state == EAutoMapperState::MapScreen) {
       xa8_renderStates[0].x20_areaPoint = x24_world->IGetMapWorld()->ConstrainToWorldVolume(newPoint, camRot.basis[1]);
@@ -688,6 +727,7 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
       xa8_renderStates[0].x20_areaPoint = newPoint;
     }
   } else {
+    x2e8_rStickPos = 0;
     SetShouldPanningSoundBePlaying(false);
     float speed = g_tweakAutoMapper->GetCamPanUnitsPerFrame() * GetBaseMapScreenCameraMoveSpeed();
     if (x1bc_state == EAutoMapperState::MapScreen) {
@@ -764,11 +804,22 @@ void CAutoMapper::ProcessMapScreenInput(const CFinalInput& input, const CStateMa
   if (input.PA() || input.PSpecialKey(boo::ESpecialKey::Enter))
     x2f4_aButtonPos = 1;
 
-  if (IsInMapperState(EAutoMapperState::MapScreen) || IsInMapperState(EAutoMapperState::MapScreenUniverse)) {
-    x2e4_lStickPos = 0;
-    x2e8_rStickPos = 0;
+  if (IsInPlayerControlState()) {
     x2ec_lTriggerPos = 0;
     x2f0_rTriggerPos = 0;
+
+    if (const auto& kbm = input.GetKBM()) {
+      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+      if (!m_lastMouseCoord) {
+        m_lastMouseCoord.emplace(mouseCoord);
+      } else {
+        m_mouseDelta = mouseCoord - *m_lastMouseCoord;
+        m_lastMouseCoord.emplace(mouseCoord);
+        m_mouseDelta.x() *= g_Viewport.aspect;
+        m_mouseDelta *= 100.f;
+      }
+    }
+
     ProcessMapRotateInput(input, mgr);
     ProcessMapZoomInput(input, mgr);
     ProcessMapPanInput(input, mgr);
@@ -919,6 +970,12 @@ float CAutoMapper::GetClampedMapScreenCameraDistance(float v) {
   return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), v, g_tweakAutoMapper->GetMaxCamDist());
 }
 
+void CAutoMapper::MuteAllLoopedSounds() {
+  CSfxManager::SfxVolume(x1cc_panningSfx, 0.f);
+  CSfxManager::SfxVolume(x1d0_rotatingSfx, 0.f);
+  CSfxManager::SfxVolume(x1d4_zoomingSfx, 0.f);
+}
+
 void CAutoMapper::UnmuteAllLoopedSounds() {
   CSfxManager::SfxVolume(x1cc_panningSfx, 1.f);
   CSfxManager::SfxVolume(x1d0_rotatingSfx, 1.f);
@@ -927,7 +984,7 @@ void CAutoMapper::UnmuteAllLoopedSounds() {
 
 void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager& mgr) {
   if (!IsRenderStateInterpolating()) {
-    if (IsInMapperState(EAutoMapperState::MapScreen) || IsInMapperState(EAutoMapperState::MapScreenUniverse)) {
+    if (IsInPlayerControlState()) {
       if (x32c_loadingDummyWorld)
         CheckDummyWorldLoad(mgr);
       else if (x1e0_hintSteps.size())
@@ -1003,7 +1060,7 @@ void CAutoMapper::ProcessControllerInput(const CFinalInput& input, CStateManager
     }
   }
 
-  if (input.PY()) {
+  if (input.PY() || input.PKey(' ')) {
     CPersistentOptions& sysOpts = g_GameState->SystemOptions();
     switch (sysOpts.GetAutoMapperKeyState()) {
     case 0:
@@ -1110,7 +1167,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
   x320_bottomPanePos = std::max(0.f, std::min(x320_bottomPanePos, 1.f));
 
   if (x30c_basewidget_leftPane) {
-    float vpAspectRatio = std::max(1.78f, g_Viewport.x8_width / float(g_Viewport.xc_height));
+    float vpAspectRatio = std::max(1.78f, g_Viewport.aspect);
     x30c_basewidget_leftPane->SetLocalTransform(
         zeus::CTransform::Translate(x318_leftPanePos * vpAspectRatio * -9.f, 0.f, 0.f) *
         x30c_basewidget_leftPane->GetTransform());

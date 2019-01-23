@@ -610,8 +610,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
   const CGameCamera* cam = x870_cameraManager->GetCurrentCamera(*this);
 
   zeus::CFrustum frustum;
-  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()),
-                                                          g_Viewport.x8_width / float(g_Viewport.xc_height),
+  frustum.updatePlanes(backupViewMatrix, zeus::SProjPersp(zeus::degToRad(cam->GetFov()), g_Viewport.aspect,
                                                           cam->GetNearClipDistance(), cam->GetFarClipDistance()));
   g_Renderer->SetClippingPlanes(frustum);
 

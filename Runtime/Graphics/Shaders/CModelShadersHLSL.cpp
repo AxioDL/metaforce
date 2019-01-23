@@ -83,7 +83,7 @@ FOG_STRUCT_HLSL
 "        float angAtt = lights[i].angAtt[2] * angDot * angDot +\n"
 "                       lights[i].angAtt[1] * angDot +\n"
 "                       lights[i].angAtt[0];\n"
-"        ret += lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn));\n"
+"        ret += lights[i].color * angAtt * att * saturate(dot(normalize(-delta), mvNormIn));\n"
 "    }\n"
 "    \n"
 "    return ret;\n"

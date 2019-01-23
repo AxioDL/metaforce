@@ -882,7 +882,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location, floa
         CSfxManager::SfxStop(x770_damageLoopSfx);
         x770_damageLoopSfx.reset();
       }
-      x770_damageLoopSfx = CSfxManager::SfxStart(suitDamageSfx, 1.f, 0.f, false, 0x7f, true, kInvalidAreaId);
+      CSfxManager::SfxStart(suitDamageSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       x788_damageLoopSfxId = suitDamageSfx;
       xa2c_damageLoopSfxDelayTicks = 0;
       doRumble = true;

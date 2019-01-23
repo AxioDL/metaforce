@@ -262,8 +262,7 @@ void CWorldTransManager::DrawEnabled() {
 void CWorldTransManager::DrawDisabled() { m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01f}); }
 
 void CWorldTransManager::DrawText() {
-  float vpAspectRatio = g_Viewport.x8_width / float(g_Viewport.xc_height);
-  float width = 448.f * vpAspectRatio;
+  float width = 448.f * g_Viewport.aspect;
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));

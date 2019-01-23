@@ -44,7 +44,16 @@ void CQuitGameScreen::FinishedLoading() {
       .SetText(g_MainStringTable->GetString(23));
 
   x14_tablegroup_quitgame->SetUserSelection(DefaultSelections[int(x0_type)]);
+  x14_tablegroup_quitgame->SetWorkersMouseActive(true);
+  x10_loadedFrame->SetMouseUpCallback(std::bind(&CQuitGameScreen::OnWidgetMouseUp, this,
+                                      std::placeholders::_1, std::placeholders::_2));
   SetColors();
+}
+
+void CQuitGameScreen::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
+  if (!widget || cancel)
+    return;
+  DoAdvance(static_cast<CGuiTableGroup*>(widget->GetParent()));
 }
 
 void CQuitGameScreen::DoSelectionChange(CGuiTableGroup* caller, int oldSel) {
@@ -83,6 +92,8 @@ void CQuitGameScreen::ProcessUserInput(const CFinalInput& input) {
     return;
   if (!x10_loadedFrame)
     return;
+  x10_loadedFrame->ProcessMouseInput(input,
+    CGuiWidgetDrawParms{1.f, zeus::CVector3f{0.f, 0.f, VerticalOffsets[int(x0_type)]}});
   x10_loadedFrame->ProcessUserInput(input);
   if ((input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc)) && x0_type != EQuitType::ContinueFromLastSave)
     x18_action = EQuitAction::No;

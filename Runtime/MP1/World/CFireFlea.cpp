@@ -54,7 +54,7 @@ s32 CFireFlea::sLightIdx = 0;
 CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo, float f1)
 : CPatterned(ECharacter::FireFlea, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
-             EMovementType::Flyer, EColliderType::One, EBodyType::NewFlyer, actParms, EKnockBackVariant::Small)
+             EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Small)
 , x56c_(f1)
 , xd8c_pathFind(nullptr, 2, pInfo.GetPathfindingIndex(), 1.f, 1.f) {
   CMaterialFilter filter = GetMaterialFilter();
@@ -145,7 +145,7 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
             zeus::CVector3f down = -up;
             CRayCastResult res4 = mgr.RayStaticIntersection(GetTranslation(), down, 1.f,
                                                             CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
-            if (res4.IsValid()) {
+            if (res4.IsInvalid()) {
               return mag * down;
             } else {
               return -forward;

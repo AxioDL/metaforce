@@ -12,7 +12,7 @@ public:
     Additive,
     Additive2,
     Opaque,
-    Opaque2,
+    OpaqueAdd,
   };
   enum class EFadeState { A2B, B2A };
 

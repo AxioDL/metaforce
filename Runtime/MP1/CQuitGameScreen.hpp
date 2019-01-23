@@ -9,6 +9,7 @@ struct CFinalInput;
 class CGuiFrame;
 class CGuiTableGroup;
 class CGuiTextPane;
+class CGuiWidget;
 
 namespace MP1 {
 
@@ -27,6 +28,7 @@ class CQuitGameScreen {
 
 public:
   void FinishedLoading();
+  void OnWidgetMouseUp(CGuiWidget* widget, bool cancel);
   void DoSelectionChange(CGuiTableGroup* caller, int oldSel);
   void DoAdvance(CGuiTableGroup* caller);
   EQuitAction Update(float dt);

@@ -103,6 +103,7 @@ struct SViewport {
   u32 xc_height;
   float x10_halfWidth;
   float x14_halfHeight;
+  float aspect;
 };
 
 extern SViewport g_Viewport;

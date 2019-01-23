@@ -96,6 +96,7 @@ public:
   void LoadWidgetsInGame(CInputStream& in, CSimplePool* sp);
   void ProcessUserInput(const CFinalInput& input) const;
   bool ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDrawParms& parms) const;
+  void ResetMouseState();
 
   CGuiWidgetIdDB& GetWidgetIdDB() { return x18_idDB; }
 

@@ -83,7 +83,7 @@ FOG_STRUCT_METAL
 "        float angAtt = lu.lights[i].angAtt[2] * angDot * angDot +\n"
 "                       lu.lights[i].angAtt[1] * angDot +\n"
 "                       lu.lights[i].angAtt[0];\n"
-"        ret += lu.lights[i].color * saturate(angAtt) * att * saturate(dot(normalize(-delta), mvNormIn));\n"
+"        ret += lu.lights[i].color * angAtt * att * saturate(dot(normalize(-delta), mvNormIn));\n"
 "    }\n"
 "    \n"
 "    return ret;\n"

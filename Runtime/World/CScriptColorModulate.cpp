@@ -138,11 +138,11 @@ CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const 
       ret.x1_matSetIdx = 0;
       ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
       ret.x4_color = col;
-    } else if (x48_blendMode == EBlendMode::Opaque2) {
+    } else if (x48_blendMode == EBlendMode::OpaqueAdd) {
       ret.x0_blendMode = 2;
       ret.x1_matSetIdx = 0;
       ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1 | 0x8;
-      ret.x4_color = col;
+      ret.addColor = col;
     } else {
       ret.x2_flags = 3;
       ret.x4_color = zeus::CColor::skWhite;
@@ -182,11 +182,11 @@ CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const 
         ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
         ret.x4_color = col;
       }
-    } else if (x48_blendMode == EBlendMode::Opaque2) {
+    } else if (x48_blendMode == EBlendMode::OpaqueAdd) {
       ret.x0_blendMode = 2;
       ret.x1_matSetIdx = 0;
       ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-      ret.x4_color = col;
+      ret.addColor = col;
     } else {
       ret.x2_flags = 3;
       ret.x4_color = zeus::CColor::skWhite;

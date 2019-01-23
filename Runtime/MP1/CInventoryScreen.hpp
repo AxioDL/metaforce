@@ -19,6 +19,10 @@ class CInventoryScreen : public CPauseScreenBase {
   bool x1ac_textLeaveRequested = false;
   bool x1ad_textViewing;
 
+  zeus::CVector2f m_lastMouseCoord;
+  boo::SScrollDelta m_lastAccumScroll;
+  boo::SScrollDelta m_dollScroll;
+
   void UpdateSamusDollPulses();
   bool HasLeftInventoryItem(int idx) const;
   bool HasRightInventoryItem(int idx) const;

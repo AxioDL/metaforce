@@ -172,6 +172,11 @@ private:
   u32 x328_ = 0;
   bool x32c_loadingDummyWorld = false;
 
+  std::experimental::optional<zeus::CVector2f> m_lastMouseCoord;
+  zeus::CVector2f m_mouseDelta;
+  boo::SScrollDelta m_lastAccumScroll;
+  boo::SScrollDelta m_mapScroll;
+
   template <class T>
   static void SetResLockState(T& list, bool lock) {
     for (auto& res : list)
@@ -215,20 +220,20 @@ public:
   CAutoMapper(CStateManager& stateMgr);
   bool CheckLoadComplete();
   bool CanLeaveMapScreen(const CStateManager&) const;
-  float GetMapRotationX() const;
-  float GetMapRotationZ() const;
-  u32 GetFocusAreaIndex() const;
-  CAssetId GetCurrWorldAssetId() const;
+  float GetMapRotationX() const { return xa8_renderStates[0].x1c_camAngle; }
+  float GetMapRotationZ() const { return xa8_renderStates[0].x8_camOrientation.yaw(); }
+  TAreaId GetFocusAreaIndex() const { return xa0_curAreaId; }
+  CAssetId GetCurrWorldAssetId() const { return x24_world->IGetWorldAssetId(); }
   void SetCurWorldAssetId(CAssetId mlvlId);
   void MuteAllLoopedSounds();
   void UnmuteAllLoopedSounds();
   void ProcessControllerInput(const CFinalInput&, CStateManager&);
-  bool IsInPlayerControlState() const;
+  bool IsInPlayerControlState() const {
+    return IsInMapperState(EAutoMapperState::MapScreen) || IsInMapperState(EAutoMapperState::MapScreenUniverse);
+  }
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager&, const zeus::CTransform&, float) const;
-  bool IsInOrTransitioningToMapScreenState() const;
-  float GetTimeIntoInterpolation() const;
-  bool IsFullyInMapScreenState() const;
+  float GetTimeIntoInterpolation() const { return x1c8_interpTime; }
   void BeginMapperStateTransition(EAutoMapperState, const CStateManager&);
   void CompleteMapperStateTransition(const CStateManager&);
   void ResetInterpolationTimer(float);

@@ -329,8 +329,19 @@ bool CPauseScreenBase::ProcessMouseInput(const CFinalInput& input, float yOff) {
   m_bodyUpClicked = false;
   m_bodyDownClicked = false;
   m_bodyClicked = false;
+  m_leftClicked = false;
+  m_rightClicked = false;
   CGuiWidgetDrawParms parms(1.f, zeus::CVector3f{0.f, 15.f * yOff, 0.f});
   return x8_frame.ProcessMouseInput(input, parms);
+}
+
+void CPauseScreenBase::ResetMouseState() {
+  m_bodyUpClicked = false;
+  m_bodyDownClicked = false;
+  m_bodyClicked = false;
+  m_leftClicked = false;
+  m_rightClicked = false;
+  x8_frame.ResetMouseState();
 }
 
 void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff) {
@@ -415,6 +426,7 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
       /* Simulate change to right table if able */
       if (ShouldLeftTableAdvance())
         ChangeMode(EMode::RightTable, false);
+      m_leftClicked = true;
     }
   } else if (widget->GetParent() == x84_tablegroup_rightlog) {
     if (m_isLogBook && x10_mode == EMode::TextScroll)
@@ -439,6 +451,7 @@ void CPauseScreenBase::OnWidgetMouseUp(CGuiWidget* widget, bool cancel) {
       m_playRightTableSfx = true;
       /* Simulate change to text scroll if able */
       OnRightTableAdvance(nullptr);
+      m_rightClicked = true;
     }
   } else if (widget == x174_textpane_body) {
     m_bodyClicked = true;

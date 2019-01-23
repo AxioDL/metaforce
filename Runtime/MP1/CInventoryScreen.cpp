@@ -116,8 +116,17 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     return;
 
   float absViewInterp = std::fabs(viewInterp);
-  if (input.PY() && x19c_samusDoll->IsLoaded() && (absViewInterp > 0.f || x10_mode != EMode::TextScroll))
+  if ((input.PY() || ((m_bodyUpClicked || m_bodyClicked) && absViewInterp == 0.f)) &&
+      x19c_samusDoll->IsLoaded() && (absViewInterp > 0.f || x10_mode != EMode::TextScroll)) {
     x19c_samusDoll->BeginViewInterpolate(absViewInterp == 0.f);
+    if (absViewInterp == 0.f) {
+      if (const auto& kbm = input.GetKBM()) {
+        m_lastMouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+        m_lastAccumScroll = kbm->m_accumScroll;
+        m_dollScroll = boo::SScrollDelta();
+      }
+    }
+  }
 
   if (absViewInterp == 1.f) {
     if (input.PStart()) {
@@ -129,6 +138,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
   }
 
   if (std::fabs(x19c_samusDoll->GetViewInterpolation()) > 0.f) {
+    CPauseScreenBase::ResetMouseState();
+
     float motionAmt = input.DeltaTime() * 6.f;
     float circleUp = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
     float circleDown = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
@@ -140,6 +151,48 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
     float moveRight = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapMoveRight, input);
     float zoomIn = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapZoomIn, input);
     float zoomOut = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapZoomOut, input);
+
+    if (const auto& kbm = input.GetKBM()) {
+      zeus::CVector2f mouseCoord = zeus::CVector2f(kbm->m_mouseCoord.norm[0], kbm->m_mouseCoord.norm[1]);
+      zeus::CVector2f mouseDelta = mouseCoord - m_lastMouseCoord;
+      m_lastMouseCoord = mouseCoord;
+      mouseDelta.x() *= g_Viewport.aspect;
+      mouseDelta *= 100.f;
+      if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+        if (float(mouseDelta.x()) < 0.f)
+          moveRight += -mouseDelta.x();
+        else if (float(mouseDelta.x()) > 0.f)
+          moveLeft += mouseDelta.x();
+        if (float(mouseDelta.y()) < 0.f)
+          moveForward += -mouseDelta.y();
+        else if (float(mouseDelta.y()) > 0.f)
+          moveBack += mouseDelta.y();
+      }
+      if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)]) {
+        if (float(mouseDelta.x()) < 0.f)
+          circleRight += -mouseDelta.x();
+        else if (float(mouseDelta.x()) > 0.f)
+          circleLeft += mouseDelta.x();
+        if (float(mouseDelta.y()) < 0.f)
+          circleUp += -mouseDelta.y();
+        else if (float(mouseDelta.y()) > 0.f)
+          circleDown += mouseDelta.y();
+      }
+
+      m_dollScroll += kbm->m_accumScroll - m_lastAccumScroll;
+      m_lastAccumScroll = kbm->m_accumScroll;
+      if (m_dollScroll.delta[1] > 0.0) {
+        zoomIn = 1.f;
+        m_dollScroll.delta[1] = std::max(0.0, m_dollScroll.delta[1] - (15.0 / 60.0));
+      } else if (m_dollScroll.delta[1] < 0.0) {
+        if (x19c_samusDoll->IsZoomedOut()) {
+          x19c_samusDoll->BeginViewInterpolate(false);
+          return;
+        }
+        zoomOut = 1.f;
+        m_dollScroll.delta[1] = std::min(0.0, m_dollScroll.delta[1] + (15.0 / 60.0));
+      }
+    }
 
     zeus::CVector3f moveVec = {(moveRight - moveLeft) * 0.25f * motionAmt, (zoomIn - zoomOut) * 0.5f * motionAmt,
                                (moveForward - moveBack) * 0.25f * motionAmt};

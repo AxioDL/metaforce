@@ -102,6 +102,7 @@ public:
   void SetPulseGrapple(bool b) { x270_28_pulseGrapple = b; }
   void SetPulseBeam(bool b) { x270_27_pulseBeam = b; }
   float GetViewInterpolation() const { return xc4_viewInterp; }
+  bool IsZoomedOut() const { return xc0_userZoom == -4.f; }
 };
 
 } // namespace MP1

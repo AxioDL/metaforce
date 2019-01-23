@@ -40,7 +40,6 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
                         {{1.f, -1.f, 0.f}, {1.f, 0.f}}};
       m_blurVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, blurVerts, sizeof(BlurVert), 4);
 
-      float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
       struct Vert {
         zeus::CVector3f pos;
         zeus::CVector2f screenUv;
@@ -48,8 +47,8 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
         zeus::CVector2f maskUv;
       } verts[4] = {{{-1.f, 1.f, 0.f}, {0.01f, 0.99f}, {0.f, 4.f}, {0.f, 1.f}},
                     {{-1.f, -1.f, 0.f}, {0.01f, 0.01f}, {0.f, 0.f}, {0.f, 0.f}},
-                    {{1.f, 1.f, 0.f}, {0.99f, 0.99f}, {aspect * 4.f, 4.f}, {1.f, 1.f}},
-                    {{1.f, -1.f, 0.f}, {0.99f, 0.01f}, {aspect * 4.f, 0.f}, {1.f, 0.f}}};
+                    {{1.f, 1.f, 0.f}, {0.99f, 0.99f}, {g_Viewport.aspect * 4.f, 4.f}, {1.f, 1.f}},
+                    {{1.f, -1.f, 0.f}, {0.99f, 0.01f}, {g_Viewport.aspect * 4.f, 0.f}, {1.f, 0.f}}};
       m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
 
       boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBufBlurX.get()};

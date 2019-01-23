@@ -74,20 +74,19 @@ void CGuiSys::OnViewportResize() {
 }
 
 void CGuiSys::ViewportResizeFrame(CGuiFrame* frame) {
-  float vpAspectRatio = g_Viewport.x8_width / float(g_Viewport.xc_height);
   if (frame->m_aspectConstraint > 0.f) {
     float hPad, vPad;
-    if (vpAspectRatio >= frame->m_aspectConstraint) {
-      hPad = frame->m_aspectConstraint / vpAspectRatio;
+    if (g_Viewport.aspect >= frame->m_aspectConstraint) {
+      hPad = frame->m_aspectConstraint / g_Viewport.aspect;
       vPad = frame->m_aspectConstraint / 1.38f;
     } else {
       hPad = 1.f;
-      vPad = vpAspectRatio / 1.38f;
+      vPad = g_Viewport.aspect / 1.38f;
     }
     frame->m_aspectTransform = zeus::CTransform::Scale({hPad, 1.f, vPad});
   } else if (frame->m_maxAspect > 0.f) {
-    if (vpAspectRatio > frame->m_maxAspect)
-      frame->m_aspectTransform = zeus::CTransform::Scale({frame->m_maxAspect / vpAspectRatio, 1.f, 1.f});
+    if (g_Viewport.aspect > frame->m_maxAspect)
+      frame->m_aspectTransform = zeus::CTransform::Scale({frame->m_maxAspect / g_Viewport.aspect, 1.f, 1.f});
     else
       frame->m_aspectTransform = zeus::CTransform::Identity();
   }

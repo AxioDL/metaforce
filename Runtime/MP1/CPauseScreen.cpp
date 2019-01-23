@@ -223,9 +223,11 @@ void CPauseScreen::ProcessControllerInput(const CStateManager& mgr, const CFinal
   }
 
   x38_textpane_l1->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[useInput.DLTrigger() || m_lDown].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x74_lTrigger[
+        ControlMapper::GetDigitalInput(ControlMapper::ECommands::PreviousPauseScreen, useInput) || m_lDown].Value())));
   x3c_textpane_r->TextSupport().SetText(
-      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[useInput.DRTrigger() || m_rDown].Value())));
+      hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x80_rTrigger[
+        ControlMapper::GetDigitalInput(ControlMapper::ECommands::NextPauseScreen, useInput) || m_rDown].Value())));
   x48_textpane_return->TextSupport().SetText(
       hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->x8c_startButton[useInput.DStart() || m_returnDown].Value())));
   x50_textpane_back->TextSupport().SetText(

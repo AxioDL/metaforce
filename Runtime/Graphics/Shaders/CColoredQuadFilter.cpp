@@ -66,8 +66,7 @@ void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle&
 }
 
 void CWideScreenFilter::draw(const zeus::CColor& color, float t) {
-  float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
-  if (aspect < 1.7777f) {
+  if (g_Viewport.aspect < 1.7777f) {
     float targetHeight = g_Viewport.x8_width / 1.7777f;
     float delta = (g_Viewport.xc_height - targetHeight) * t / 2.f;
     delta /= float(g_Viewport.xc_height);
@@ -81,8 +80,7 @@ void CWideScreenFilter::draw(const zeus::CColor& color, float t) {
 void CWideScreenFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) {}
 
 float CWideScreenFilter::SetViewportToMatch(float t) {
-  float aspect = g_Viewport.x8_width / float(g_Viewport.xc_height);
-  if (aspect < 1.7777f) {
+  if (g_Viewport.aspect < 1.7777f) {
     float targetHeight = g_Viewport.x8_width / 1.7777f;
     float delta = (g_Viewport.xc_height - targetHeight) * t / 2.f;
     boo::SWindowRect rect = {};
@@ -94,7 +92,7 @@ float CWideScreenFilter::SetViewportToMatch(float t) {
     return 1.7777f;
   } else {
     SetViewportToFull();
-    return aspect;
+    return g_Viewport.aspect;
   }
 }
 

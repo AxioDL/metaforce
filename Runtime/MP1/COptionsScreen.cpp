@@ -147,13 +147,17 @@ void COptionsScreen::Touch() {
 
 void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
   if (!x19c_quitGame) {
+    bool leftClicked = m_leftClicked;
+    bool rightClicked = m_rightClicked;
     CPauseScreenBase::ProcessMouseInput(input, 0.f);
     CPauseScreenBase::ProcessControllerInput(input);
-    CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false, false);
-    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && (input.PA() ||
+    CGameOptions::TryRestoreDefaults(input, x70_tablegroup_leftlog->GetUserSelection(), x1c_rightSel, false,
+                                     rightClicked);
+    if (x70_tablegroup_leftlog->GetUserSelection() == 4 && (input.PA() || leftClicked ||
                                                             input.PSpecialKey(boo::ESpecialKey::Enter)))
       x19c_quitGame = std::make_unique<CQuitGameScreen>(EQuitType::QuitGame);
   } else {
+    CPauseScreenBase::ResetMouseState();
     x19c_quitGame->ProcessUserInput(input);
   }
 }
