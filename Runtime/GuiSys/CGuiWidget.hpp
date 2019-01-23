@@ -3,6 +3,7 @@
 #include "IOStreams.hpp"
 #include "CGuiObject.hpp"
 #include "zeus/CColor.hpp"
+#include "boo/IWindow.hpp"
 
 namespace urde {
 class CGuiFrame;
@@ -69,6 +70,9 @@ protected:
   bool xb7_24_depthWrite : 1;
   bool xb7_25_ : 1;
   bool m_mouseActive : 1;
+
+  std::experimental::optional<boo::SScrollDelta> m_lastScroll;
+  boo::SScrollDelta m_integerScroll;
 
 public:
   CGuiWidget(const CGuiWidgetParms& parms);

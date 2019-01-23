@@ -122,7 +122,7 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2d_b24_DPRight(data.m_specialKeys[int(boo::ESpecialKey::Right)])
 , x2d_b25_DPDown(data.m_specialKeys[int(boo::ESpecialKey::Down)])
 , x2d_b26_DPLeft(data.m_specialKeys[int(boo::ESpecialKey::Left)])
-, x2d_b27_Start(data.m_specialKeys[int(boo::ESpecialKey::Esc)])
+, x2d_b27_Start(false)
 , x2d_b28_PA(DA() && !prevInput.DA())
 , x2d_b29_PB(DB() && !prevInput.DB())
 , x2d_b30_PX(DX() && !prevInput.DX())

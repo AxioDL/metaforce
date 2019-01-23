@@ -40,7 +40,6 @@ public:
   CGuiObject* GetChildObject() const { return x68_child; }
   CGuiObject* GetNextSibling() const { return x6c_nextSibling; }
   void RecalculateTransforms();
-  void Reorthogonalize();
   void SetO2WTransform(const zeus::CTransform& xf);
   void SetLocalTransform(const zeus::CTransform& xf);
 };

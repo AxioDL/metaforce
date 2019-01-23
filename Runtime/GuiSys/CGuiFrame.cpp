@@ -10,6 +10,7 @@
 #include "CSimplePool.hpp"
 #include "Graphics/CModel.hpp"
 #include "CGuiWidgetDrawParms.hpp"
+#include "CGuiTableGroup.hpp"
 
 namespace urde {
 
@@ -204,7 +205,20 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
       }
       if (m_mouseOverChangeCb)
         m_mouseOverChangeCb(m_lastMouseOverWidget, hit);
+      if (hit)
+        hit->m_lastScroll.emplace(kbm->m_accumScroll);
       m_lastMouseOverWidget = hit;
+    }
+    if (hit && hit->m_lastScroll) {
+      boo::SScrollDelta delta = kbm->m_accumScroll - *hit->m_lastScroll;
+      hit->m_lastScroll.emplace(kbm->m_accumScroll);
+      if (!delta.isZero()) {
+        hit->m_integerScroll += delta;
+        if (m_mouseScrollCb)
+          m_mouseScrollCb(hit, delta, int(hit->m_integerScroll.delta[0]), int(hit->m_integerScroll.delta[1]));
+        hit->m_integerScroll.delta[0] -= std::trunc(hit->m_integerScroll.delta[0]);
+        hit->m_integerScroll.delta[1] -= std::trunc(hit->m_integerScroll.delta[1]);
+      }
     }
     if (!m_inMouseDown && kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
       m_inMouseDown = true;
@@ -217,8 +231,19 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
     } else if (m_inMouseDown && !kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
       m_inMouseDown = false;
       m_inCancel = false;
-      if (m_mouseUpCb && m_mouseDownWidget == m_lastMouseOverWidget)
-        m_mouseUpCb(m_mouseDownWidget, false);
+      if (m_mouseDownWidget == m_lastMouseOverWidget) {
+        if (m_mouseUpCb)
+          m_mouseUpCb(m_mouseDownWidget, false);
+        if (m_mouseDownWidget) {
+          if (CGuiTableGroup* p = static_cast<CGuiTableGroup*>(m_mouseDownWidget->GetParent())) {
+            if (p->GetWidgetTypeID() == FOURCC('TBGP')) {
+              s16 workerIdx = m_mouseDownWidget->GetWorkerId();
+              if (workerIdx >= 0)
+                p->DoSelectWorker(workerIdx);
+            }
+          }
+        }
+      }
     }
   }
   return false;

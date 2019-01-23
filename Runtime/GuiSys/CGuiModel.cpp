@@ -15,8 +15,6 @@ CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId mod
   xb8_model = sp->GetObj({SBIG('CMDL'), modelId});
 }
 
-std::vector<CAssetId> CGuiModel::GetModelAssets() const { return {xc8_modelId}; }
-
 bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const {
   if (!xb8_model)
     return true;

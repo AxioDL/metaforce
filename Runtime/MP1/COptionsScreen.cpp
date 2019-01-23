@@ -38,6 +38,7 @@ void COptionsScreen::UpdateOptionView() {
     x190_tablegroup_double->SetUserSelection(CGameOptions::GetOption(opt.option));
     x190_tablegroup_double->SetIsVisible(true);
     x190_tablegroup_double->SetIsActive(true);
+    x190_tablegroup_double->SetWorkersMouseActive(true);
     UpdateSideTable(x190_tablegroup_double);
     x190_tablegroup_double->SetLocalPosition(x48_tableDoubleStart + zeus::CVector3f(0.f, 0.f, zOff));
     break;
@@ -45,12 +46,15 @@ void COptionsScreen::UpdateOptionView() {
     x194_tablegroup_triple->SetUserSelection(CGameOptions::GetOption(opt.option));
     x194_tablegroup_triple->SetIsVisible(true);
     x194_tablegroup_triple->SetIsActive(true);
+    x194_tablegroup_triple->SetWorkersMouseActive(true);
     UpdateSideTable(x194_tablegroup_triple);
     x194_tablegroup_triple->SetLocalPosition(x54_tableTripleStart + zeus::CVector3f(0.f, 0.f, zOff));
     break;
   default:
     break;
   }
+
+  x174_textpane_body->SetMouseActive(false);
 }
 
 void COptionsScreen::ResetOptionWidgetVisibility() {
@@ -58,8 +62,11 @@ void COptionsScreen::ResetOptionWidgetVisibility() {
   x18c_slidergroup_slider->SetVisibility(false, ETraversalMode::Children);
   x190_tablegroup_double->SetIsVisible(false);
   x190_tablegroup_double->SetIsActive(false);
+  x190_tablegroup_double->SetWorkersMouseActive(false);
   x194_tablegroup_triple->SetIsActive(false);
   x194_tablegroup_triple->SetIsVisible(false);
+  x194_tablegroup_triple->SetWorkersMouseActive(false);
+  x174_textpane_body->SetMouseActive(true);
 }
 
 void COptionsScreen::OnSliderChanged(CGuiSliderGroup* caller, float val) {

@@ -78,6 +78,26 @@ void CGuiTableGroup::SelectWorker(int idx) {
   }
 }
 
+void CGuiTableGroup::DoSelectWorker(int worker) {
+  if (worker == xc4_userSelection)
+    return;
+  if (IsWorkerSelectable(worker)) {
+    int oldSel = xc4_userSelection;
+    SelectWorker(worker);
+    if (x104_doMenuSelChange)
+      x104_doMenuSelChange(this, oldSel);
+  }
+}
+
+void CGuiTableGroup::SetWorkersMouseActive(bool active) {
+  CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
+  while (child) {
+    if (child->GetWorkerId() != -1)
+      child->SetMouseActive(active);
+    child = static_cast<CGuiWidget*>(child->GetNextSibling());
+  }
+}
+
 void CGuiTableGroup::DeactivateWorker(CGuiWidget* widget) { widget->SetIsActive(false); }
 
 void CGuiTableGroup::ActivateWorker(CGuiWidget* widget) { widget->SetIsActive(true); }

@@ -120,7 +120,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       if (input.ControllerIdx() == 0) {
         const CEntity* cam = x14_stateManager->GetCameraManager()->GetCurrentCamera(*x14_stateManager);
         TCastToConstPtr<CCinematicCamera> cineCam = cam;
-        if (input.PStart() && input.PSpecialKey(boo::ESpecialKey::Esc)) {
+        if (input.PStart() || input.PSpecialKey(boo::ESpecialKey::Esc)) {
           if (cineCam && x14_stateManager->GetSkipCinematicSpecialFunction() != kInvalidUniqueId) {
             CMidiManager::StopAll();
             x28_skippedCineCam = cineCam->GetUniqueId();

@@ -21,10 +21,9 @@ void CGuiObject::Draw(const CGuiWidgetDrawParms& parms) const {
 }
 
 void CGuiObject::MoveInWorld(const zeus::CVector3f& vec) {
-  if (x64_parent)
-    x64_parent->RotateW2O(vec);
+  //if (x64_parent)
+  //  x64_parent->RotateW2O(vec);
   x4_localXF.origin += vec;
-  Reorthogonalize();
   RecalculateTransforms();
 }
 
@@ -32,7 +31,6 @@ void CGuiObject::SetLocalPosition(const zeus::CVector3f& pos) { MoveInWorld(pos 
 
 void CGuiObject::RotateReset() {
   x4_localXF.basis = zeus::CMatrix3f::skIdentityMatrix3f;
-  Reorthogonalize();
   RecalculateTransforms();
 }
 
@@ -46,7 +44,6 @@ zeus::CVector3f CGuiObject::RotateTranslateW2O(const zeus::CVector3f& vec) const
 
 void CGuiObject::MultiplyO2P(const zeus::CTransform& xf) {
   x4_localXF = xf * x4_localXF;
-  Reorthogonalize();
   RecalculateTransforms();
 }
 
@@ -110,14 +107,6 @@ void CGuiObject::RecalculateTransforms() {
     x6c_nextSibling->RecalculateTransforms();
   if (x68_child)
     x68_child->RecalculateTransforms();
-}
-
-void CGuiObject::Reorthogonalize() {
-  static bool Global = false;
-  if (Global) {
-    x4_localXF.orthonormalize();
-    RecalculateTransforms();
-  }
 }
 
 void CGuiObject::SetO2WTransform(const zeus::CTransform& xf) {

@@ -1,5 +1,6 @@
 #include "CGuiSliderGroup.hpp"
 #include "Input/CFinalInput.hpp"
+#include "CGuiModel.hpp"
 
 namespace urde {
 
@@ -30,7 +31,42 @@ void CGuiSliderGroup::StartIncreasing() {
   xf4_24_inputPending = true;
 }
 
+bool CGuiSliderGroup::TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const {
+  if (xcc_sliderRangeWidgets[0]->GetWidgetTypeID() != FOURCC('MODL'))
+    return false;
+  CGuiModel* bar = static_cast<CGuiModel*>(xcc_sliderRangeWidgets[0]);
+  auto& modelTok = bar->GetModel();
+  if (!modelTok || !modelTok.IsLoaded())
+    return false;
+
+  const zeus::CVector3f& s0 = xcc_sliderRangeWidgets[0]->GetIdlePosition();
+  const zeus::CVector3f& s1 = xcc_sliderRangeWidgets[1]->GetIdlePosition();
+
+  zeus::CVector3f backupPos = bar->GetLocalPosition();
+  bar->SetLocalPosition(s0);
+  zeus::CVector2f p0 = vp.multiplyOneOverW(bar->GetWorldPosition()).toVec2f();
+  auto aabb = modelTok->GetAABB().getTransformedAABox(bar->GetWorldTransform());
+  bar->SetLocalPosition(s1);
+  zeus::CVector2f p1 = vp.multiplyOneOverW(bar->GetWorldPosition()).toVec2f();
+  aabb.accumulateBounds(modelTok->GetAABB().getTransformedAABox(bar->GetWorldTransform()));
+  bar->SetLocalPosition(backupPos);
+
+  zeus::CVector2f pDelta = p1 - p0;
+  float magSq = pDelta.magSquared();
+  float t = 0.f;
+  if (magSq > 0.00001f)
+    t = pDelta.dot(point - p0) / magSq;
+  m_mouseT = zeus::clamp(0.f, t, 1.f);
+
+  m_mouseInside = aabb.projectedPointTest(vp, point);
+  return m_mouseInside;
+}
+
 void CGuiSliderGroup::ProcessUserInput(const CFinalInput& input) {
+  if (input.DMouseButton(boo::EMouseButton::Primary) && m_mouseInside)
+    m_mouseDown = true;
+  else if (!input.DMouseButton(boo::EMouseButton::Primary))
+    m_mouseDown = false;
   if (input.DLALeft()) {
     StartDecreasing();
     return;
@@ -70,6 +106,11 @@ void CGuiSliderGroup::Update(float dt) {
       xc4_curVal = std::min(oldCurVal + t1, xbc_maxVal);
     else if (xc4_curVal != lowerIncVal)
       xc4_curVal = std::min(oldCurVal + t1, upperIncVal);
+  }
+
+  if (m_mouseDown) {
+    xc4_curVal = m_mouseT * fullRange + xb8_minVal;
+    xf0_state = EState::MouseMove;
   }
 
   if (xc4_curVal == oldCurVal)
