@@ -38,6 +38,7 @@ include_directories(quazip/quazip)
 add_definitions(-DQUAZIP_STATIC=1)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
+    ArgumentEditor.ui ArgumentEditor.cpp ArgumentEditor.hpp
     MainWindow.ui MainWindow.hpp MainWindow.cpp
     LaunchMenu.hpp LaunchMenu.cpp
     EscapeSequenceParser.hpp EscapeSequenceParser.cpp

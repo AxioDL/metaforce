@@ -1,5 +1,7 @@
 #include "LaunchMenu.hpp"
 #include "hecl/CVarCommons.hpp"
+#include "ArgumentEditor.hpp"
+#include <QList>
 
 extern hecl::CVar* hecl::com_developer;
 
@@ -12,6 +14,7 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 , m_apiGroup(this)
 , m_msaaGroup(this)
 , m_anisoGroup(this) {
+  setToolTipsVisible(true);
 #ifdef _WIN32
   initApiAction(QStringLiteral("D3D11"));
   initApiAction(QStringLiteral("Vulkan"));
@@ -42,9 +45,11 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
   addMenu(&m_apiMenu)->setToolTip(m_commons.m_graphicsApi->rawHelp().data());
   addMenu(&m_msaaMenu)->setToolTip(m_commons.m_drawSamples->rawHelp().data());
   addMenu(&m_anisoMenu)->setToolTip(m_commons.m_texAnisotropy->rawHelp().data());
-
+  QAction* argumentEditor = addAction("Edit Runtime Arguments");
+  connect(argumentEditor, SIGNAL(triggered()), this, SLOT(editRuntimeArgs()));
   initDeepColor();
   initDeveloperMode();
+  initCheats();
 }
 
 void LaunchMenu::initApiAction(const QString& action) {
@@ -87,6 +92,14 @@ void LaunchMenu::initDeveloperMode() {
   connect(act, SIGNAL(triggered()), this, SLOT(developerModeTriggered()));
 }
 
+void LaunchMenu::initCheats() {
+  QAction* act = addAction("Enable Cheats");
+  act->setToolTip(hecl::com_enableCheats->rawHelp().data());
+  act->setCheckable(true);
+  act->setChecked(hecl::com_enableCheats->toBoolean());
+  connect(act, SIGNAL(triggered()), this, SLOT(cheatsTriggered()));
+}
+
 void LaunchMenu::apiTriggered() {
   QString apiStr = qobject_cast<QAction*>(sender())->text();
   apiStr = apiStr.remove('&');
@@ -110,6 +123,34 @@ void LaunchMenu::deepColorTriggered() {
 }
 
 void LaunchMenu::developerModeTriggered() {
-  hecl::CVarManager::instance()->setDeveloperMode(qobject_cast<QAction*>(sender())->isChecked(), true);
+  bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+  if (hecl::com_enableCheats->toBoolean() && !isChecked) {
+    for (QAction* action : actions()) {
+      QString text = action->text().remove('&');
+      if (text == "Enable Cheats" && action->isChecked())
+        action->setChecked(false);
+    }
+  }
+
+  hecl::CVarManager::instance()->setDeveloperMode(isChecked, true);
   m_commons.serialize();
+}
+
+void LaunchMenu::cheatsTriggered() {
+  bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+  if (!hecl::com_developer->toBoolean() && isChecked) {
+      for (QAction* action : actions()) {
+        QString text = action->text().remove('&');
+        if (text == "Developer Mode" && !action->isChecked())
+          action->setChecked(true);
+      }
+  }
+
+  hecl::CVarManager::instance()->setCheatsEnabled(isChecked, true);
+  m_commons.serialize();
+}
+
+void LaunchMenu::editRuntimeArgs() {
+  ArgumentEditor editor(this);
+  editor.exec();
 }

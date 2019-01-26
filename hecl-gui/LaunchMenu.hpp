@@ -22,6 +22,7 @@ class LaunchMenu : public QMenu {
   void initAnisoAction(const QString& action);
   void initDeepColor();
   void initDeveloperMode();
+  void initCheats();
 
 public:
   LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
@@ -32,4 +33,6 @@ public slots:
   void anisoTriggered();
   void deepColorTriggered();
   void developerModeTriggered();
+  void cheatsTriggered();
+  void editRuntimeArgs();
 };

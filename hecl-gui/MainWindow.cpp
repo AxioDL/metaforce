@@ -59,8 +59,10 @@ MainWindow::MainWindow(QWidget* parent)
 , m_ui(new Ui::MainWindow)
 , m_heclProc(this)
 , m_dlManager(this)
-, m_launchMenu(m_cvarCommons, this)
-, m_settings("AxioDL", "HECL", this) {
+, m_launchMenu(m_cvarCommons, this) {
+  if (m_settings.value("urde_arguments").isNull())
+    m_settings.setValue("urde_arguments", QStringList() << "--no-shader-warmup");
+
   m_ui->setupUi(this);
   m_ui->heclTabs->setCurrentIndex(0);
 
@@ -187,7 +189,9 @@ void MainWindow::onLaunch() {
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
   connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onLaunchFinished(int)));
-  m_heclProc.start(m_urdePath, {"--no-shader-warmup", m_path + "/out"}, QIODevice::ReadOnly | QIODevice::Unbuffered);
+  m_heclProc.start(m_urdePath, QStringList() << (m_path + "/out")
+                                             << m_settings.value("urde_arguments").toStringList().join(' ').split(' '),
+                   QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
 
