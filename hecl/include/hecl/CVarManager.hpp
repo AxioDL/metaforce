@@ -74,6 +74,7 @@ public:
   void getCVar(class Console* con, const std::vector<std::string>& args);
 
   void setDeveloperMode(bool v, bool setDeserialized = false);
+  void setCheatsEnabled(bool v, bool setDeserialized = false);
   bool restartRequired() const;
 
   void parseCommandLine(const std::vector<SystemString>& args);

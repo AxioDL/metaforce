@@ -24,7 +24,8 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
   com_developer = newCVar("developer", "Enables developer mode", false,
                           (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
   com_enableCheats =
-      newCVar("cheats", "Enable cheats", false, (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden));
+    newCVar("cheats", "Enable cheats", false,
+            (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
 }
 
 CVarManager::~CVarManager() {}
@@ -249,6 +250,15 @@ void CVarManager::setDeveloperMode(bool v, bool setDeserialized) {
     com_developer->m_wasDeserialized = true;
   com_developer->lock();
   com_developer->setModified();
+}
+
+void CVarManager::setCheatsEnabled(bool v, bool setDeserialized) {
+  com_enableCheats->unlock();
+  com_enableCheats->fromBoolean(v);
+  if (setDeserialized)
+    com_enableCheats->m_wasDeserialized = true;
+  com_enableCheats->lock();
+  com_enableCheats->setModified();
 }
 
 bool CVarManager::restartRequired() const {
