@@ -163,9 +163,9 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w, unsigned s, si
         "    float4 objNorm = float4(0.0,0.0,0.0,0.0);\n";
     for (size_t i = 0; i < s; ++i)
       retval += hecl::Format(
-          "    objPos += mul(mv[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize
+          "    objPos += mul(objs[%" PRISize "], float4(v.posIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize
           "];\n"
-          "    objNorm += mul(mvInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
+          "    objNorm += mul(objsInv[%" PRISize "], float4(v.normIn, 1.0)) * v.weightIn[%" PRISize "][%" PRISize "];\n",
           i, i / 4, i % 4, i, i / 4, i % 4);
     retval +=
         "    objPos[3] = 1.0;\n"
@@ -176,11 +176,11 @@ std::string HLSL::makeVert(unsigned col, unsigned uv, unsigned w, unsigned s, si
   } else {
     /* non-skinned */
     retval +=
-        "    float4 objPos = float4(posIn, 1.0);\n"
-        "    float4 objNorm = float4(normIn, 0.0);\n"
+        "    float4 objPos = float4(v.posIn, 1.0);\n"
+        "    float4 objNorm = float4(v.normIn, 0.0);\n"
         "    vtf.mvPos = mul(mv, objPos);\n"
         "    vtf.mvNorm = mul(mvInv, objNorm);\n"
-        "    gl_Position = mul(proj, vtf.mvPos);\n";
+        "    vtf.mvpPos = mul(proj, vtf.mvPos);\n";
   }
 
   retval += "    float4 tmpProj;\n";
