@@ -29,7 +29,7 @@ void CCameraFilterPass<S>::Update(float dt) {
   }
 
   if (x0_curType == EFilterType::Passthru)
-    m_shader = std::experimental::nullopt;
+    m_shader = rstl::nullopt;
   else if (x0_curType != origType)
     m_shader.emplace(x0_curType, x24_texObj);
 }
@@ -44,7 +44,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
     if (txtr.IsValid())
       x24_texObj = g_SimplePool->GetObj({FOURCC('TXTR'), txtr});
     if (type == EFilterType::Passthru)
-      m_shader = std::experimental::nullopt;
+      m_shader = rstl::nullopt;
     else if (x0_curType != type || (x20_nextTxtr != txtr && txtr.IsValid()))
       m_shader.emplace(type, x24_texObj);
 
@@ -88,7 +88,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
     }
 
     if (x0_curType == EFilterType::Passthru)
-      m_shader = std::experimental::nullopt;
+      m_shader = rstl::nullopt;
     else if (x0_curType != origType || (x20_nextTxtr != origTxtr && x20_nextTxtr.IsValid()))
       m_shader.emplace(x0_curType, x24_texObj);
   }

@@ -14,10 +14,10 @@ class CMetroidData {
   float xdc_;
   float xe0_;
   float xe4_;
-  std::experimental::optional<CAnimationParameters> xe8_animParms1;
-  std::experimental::optional<CAnimationParameters> xf8_animParms2;
-  std::experimental::optional<CAnimationParameters> x108_animParms3;
-  std::experimental::optional<CAnimationParameters> x118_animParms4;
+  rstl::optional<CAnimationParameters> xe8_animParms1;
+  rstl::optional<CAnimationParameters> xf8_animParms2;
+  rstl::optional<CAnimationParameters> x108_animParms3;
+  rstl::optional<CAnimationParameters> x118_animParms4;
   bool x128_24_ : 1;
 
 public:

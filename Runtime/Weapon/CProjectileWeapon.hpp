@@ -42,7 +42,7 @@ class CProjectileWeapon {
   std::unique_ptr<CElementGen> xfc_APSMGen;
   std::unique_ptr<CElementGen> x100_APS2Gen;
   std::unique_ptr<CElementGen> x104_;
-  std::experimental::optional<TLockedToken<CModel>> x108_model;
+  rstl::optional<TLockedToken<CModel>> x108_model;
   std::unique_ptr<CParticleSwoosh> x118_swoosh1;
   std::unique_ptr<CParticleSwoosh> x11c_swoosh2;
   std::unique_ptr<CParticleSwoosh> x120_swoosh3;
@@ -65,16 +65,16 @@ public:
                     const zeus::CTransform& orient, const zeus::CVector3f& scale, s32);
   virtual ~CProjectileWeapon() = default;
   bool IsProjectileActive() const { return x124_24_active; }
-  std::experimental::optional<zeus::CAABox> GetBounds() const;
+  rstl::optional<zeus::CAABox> GetBounds() const;
   const zeus::CVector3f& GetVelocity() const { return xb0_velocity; }
   void SetVelocity(const zeus::CVector3f& vel) { xb0_velocity = vel; }
   float GetMaxTurnRate() const { return xe0_maxTurnRate; }
   float GetAudibleFallOff() const;
   float GetAudibleRange() const;
-  std::experimental::optional<TLockedToken<CDecalDescription>>
+  rstl::optional<TLockedToken<CDecalDescription>>
   GetDecalForCollision(EWeaponCollisionResponseTypes type) const;
   s32 GetSoundIdForCollision(EWeaponCollisionResponseTypes type) const;
-  std::experimental::optional<TLockedToken<CGenDescription>> CollisionOccured(EWeaponCollisionResponseTypes type,
+  rstl::optional<TLockedToken<CGenDescription>> CollisionOccured(EWeaponCollisionResponseTypes type,
                                                                               bool deflected, bool useTarget,
                                                                               const zeus::CVector3f& pos,
                                                                               const zeus::CVector3f& normal,

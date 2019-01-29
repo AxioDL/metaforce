@@ -920,7 +920,7 @@ bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const {
   return false;
 }
 
-std::experimental::optional<zeus::CAABox> CPlayer::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CPlayer::GetTouchBounds() const {
   if (x2f8_morphBallState == EPlayerMorphBallState::Morphed) {
     float ballTouchRad = x768_morphball->GetBallTouchRadius();
     zeus::CVector3f ballCenter = GetTranslation() + zeus::CVector3f(0.f, 0.f, x768_morphball->GetBallRadius());
@@ -1545,7 +1545,7 @@ void CPlayer::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     rstl::reserved_vector<TUniqueId, 1024> nearList;
     mgr.BuildColliderList(nearList, *this, expandedBounds);
-    std::experimental::optional<zeus::CVector3f> nonIntVec =
+    rstl::optional<zeus::CVector3f> nonIntVec =
         CGameCollision::FindNonIntersectingVector(mgr, cache, *this, *prim, nearList);
     if (nonIntVec) {
       x4a0_failsafeTest->Reset();
@@ -1780,7 +1780,7 @@ void CPlayer::UnFreeze(CStateManager& stateMgr) {
     ClearForcesAndTorques();
     RemoveMaterial(EMaterialTypes::Immovable, stateMgr);
     if (!stateMgr.GetCameraManager()->IsInCinematicCamera() && xa0c_iceTextureId.IsValid()) {
-      std::experimental::optional<TToken<CGenDescription>> gpsm;
+      rstl::optional<TToken<CGenDescription>> gpsm;
       gpsm.emplace(g_SimplePool->GetObj(SObjectTag(FOURCC('PART'), xa0c_iceTextureId)));
       CHUDBillboardEffect* effect = new CHUDBillboardEffect(
           gpsm, {}, stateMgr.AllocateUniqueId(), true, "FrostExplosion",

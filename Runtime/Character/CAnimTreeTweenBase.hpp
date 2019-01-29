@@ -30,8 +30,8 @@ public:
   zeus::CVector3f VGetOffset(const CSegId& seg) const;
   zeus::CQuaternion VGetRotation(const CSegId& seg) const;
 
-  std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
-  virtual std::experimental::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() {
+  rstl::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  virtual rstl::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() {
     return CAnimTreeTweenBase::VSimplified();
   }
 

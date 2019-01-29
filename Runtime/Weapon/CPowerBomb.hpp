@@ -25,7 +25,7 @@ public:
   void Think(float, CStateManager&);
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void Render(const CStateManager&) const {}
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
+  rstl::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
   void Touch(CActor&, CStateManager&) { /*x158_24_canStartFilter; */
   }
   float GetCurTime() const { return x15c_curTime; }

@@ -97,7 +97,7 @@ struct SShader {
   std::vector<TCachedToken<CTexture>> x0_textures;
   std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
   MaterialSet m_matSet;
-  std::experimental::optional<GeometryUniformLayout> m_geomLayout;
+  rstl::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
   SShader(int idx) : m_matSetIdx(idx) {
     x0_textures.clear();

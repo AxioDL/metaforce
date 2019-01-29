@@ -18,7 +18,7 @@ class CBoneTracking {
   float x18_time = 0.f;
   float x1c_maxTrackingAngle;
   float x20_angSpeed;
-  std::experimental::optional<zeus::CVector3f> x24_targetPosition;
+  rstl::optional<zeus::CVector3f> x24_targetPosition;
   TUniqueId x34_target = kInvalidUniqueId;
   union {
     struct {

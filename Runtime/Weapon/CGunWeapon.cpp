@@ -94,7 +94,7 @@ void CGunWeapon::BuildDependencyList(CPlayerState::EBeamId beam) {
 
 void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr) {
 
-  xb0_suitArmModelData = std::experimental::nullopt;
+  xb0_suitArmModelData = rstl::nullopt;
   x13c_armCharacter = g_SimplePool->GetObj(skSuitArmNames[int(NWeaponTypes::get_current_suit(mgr))]);
   x13c_armCharacter.Lock();
   x218_28_suitArmLocked = true;
@@ -450,9 +450,9 @@ void CGunWeapon::Unload(CStateManager& mgr) {
   UnlockTokens();
   x210_loadFlags = 0;
   x204_frozenEffect = EFrozenFxType::None;
-  x10_solidModelData = std::experimental::nullopt;
-  x60_holoModelData = std::experimental::nullopt;
-  xb0_suitArmModelData = std::experimental::nullopt;
+  x10_solidModelData = rstl::nullopt;
+  x60_holoModelData = rstl::nullopt;
+  xb0_suitArmModelData = rstl::nullopt;
   x100_gunController.reset();
   x1bc_rainSplashGenerator = nullptr;
   x1b8_frozenGenerator.reset();

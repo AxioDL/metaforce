@@ -28,7 +28,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void AddToRenderer(const zeus::CFrustum&, CStateManager&) const;
   void CalculateRenderBounds();
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
 };
 } // namespace urde

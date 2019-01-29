@@ -89,7 +89,7 @@ private:
   s32 x1bc_areaSaveId;
   s32 x1c0_layerIdx;
   CPlayerState::EItemType x1c4_item;
-  std::experimental::optional<zeus::CAABox> x1c8_;
+  rstl::optional<zeus::CAABox> x1c8_;
   union {
     struct {
       bool x1e4_24_ : 1;

@@ -200,7 +200,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
 
 std::list<CScriptTrigger::CObjectTracker>& CScriptTrigger::GetInhabitants() { return xe8_inhabitants; }
 
-std::experimental::optional<zeus::CAABox> CScriptTrigger::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CScriptTrigger::GetTouchBounds() const {
   if (x30_24_active)
     return {GetTriggerBoundsWR()};
   return {};

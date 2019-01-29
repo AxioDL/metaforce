@@ -82,7 +82,7 @@ std::unique_ptr<CAnimData> CCharacterFactory::CreateCharacter(int charIdx, bool 
   TToken<CSkinnedModel> skinnedModel = const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
       {FourCC(drawInsts << 16), charInfo.GetModelId()}, charParm);
 
-  std::experimental::optional<TToken<CMorphableSkinnedModel>> iceModel;
+  rstl::optional<TToken<CMorphableSkinnedModel>> iceModel;
   if (charInfo.GetIceModelId().IsValid() && charInfo.GetIceSkinRulesId().IsValid())
     iceModel.emplace(const_cast<CCharacterFactory*>(this)->x70_cacheResPool.GetObj(
         {FourCC((drawInsts << 16) | 1), charInfo.GetIceModelId()}, charParm));

@@ -83,7 +83,7 @@ private:
                   boo::ObjToken<boo::ITexture> tex,
                   boo::ObjToken<boo::ITexture> glowTex);
   };
-  mutable std::optional<RenderObjects> m_renderObjs;
+  mutable rstl::optional<RenderObjects> m_renderObjs;
 
   void SetLightsActive(bool active, CStateManager& mgr);
   void CreatePlasmaLights(u32 sourceId, const CLight& l, CStateManager& mgr);
@@ -94,8 +94,8 @@ private:
   void RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
                   CColoredStripShader& shader) const;
   float UpdateBeamState(float dt, CStateManager& mgr);
-  void MakeBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
-                           const std::experimental::optional<TToken<CElectricDescription>>& electric,
+  void MakeBillboardEffect(const rstl::optional<TToken<CGenDescription>>& particle,
+                           const rstl::optional<TToken<CElectricDescription>>& electric,
                            std::string_view name, CStateManager& mgr);
   void UpdatePlayerEffects(float dt, CStateManager& mgr);
 public:

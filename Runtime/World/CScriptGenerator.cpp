@@ -55,7 +55,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
         activates.emplace_back(uid, conn.x8_objId);
       }
 
-      stateMgr.SendScriptMsgAlways(GetUniqueId(), uid, conn.x4_msg);
+      stateMgr.SendScriptMsgAlways(uid, GetUniqueId(), conn.x4_msg);
     }
 
     if (activates.empty())

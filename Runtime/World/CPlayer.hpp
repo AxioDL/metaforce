@@ -382,7 +382,7 @@ public:
   void Accept(IVisitor& visitor);
   CHealthInfo* HealthInfo(CStateManager& mgr);
   bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor& actor, CStateManager& mgr);
   void DoPreThink(float dt, CStateManager& mgr);
   void DoThink(float dt, CStateManager& mgr);

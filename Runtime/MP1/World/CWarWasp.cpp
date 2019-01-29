@@ -118,7 +118,7 @@ void CWarWasp::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStat
   }
 }
 
-std::experimental::optional<zeus::CAABox> CWarWasp::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CWarWasp::GetTouchBounds() const {
   return {x570_cSphere.CalculateAABox(GetTransform())};
 }
 

@@ -23,7 +23,7 @@ class CQuitGameScreen {
   CGuiFrame* x10_loadedFrame = nullptr;
   CGuiTableGroup* x14_tablegroup_quitgame = nullptr;
   EQuitAction x18_action = EQuitAction::None;
-  std::experimental::optional<CColoredQuadFilter> m_blackScreen;
+  rstl::optional<CColoredQuadFilter> m_blackScreen;
   void SetColors();
 
 public:

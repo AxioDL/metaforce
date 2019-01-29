@@ -684,7 +684,7 @@ bool CParticleElectric::IsSystemDeletable() const {
   return true;
 }
 
-std::experimental::optional<zeus::CAABox> CParticleElectric::GetBounds() const {
+rstl::optional<zeus::CAABox> CParticleElectric::GetBounds() const {
   if (GetParticleCount() <= 0)
     return {};
   else

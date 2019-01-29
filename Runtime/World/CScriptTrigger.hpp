@@ -76,7 +76,7 @@ public:
   CObjectTracker* FindObject(TUniqueId);
   void UpdateInhabitants(float, CStateManager&);
   std::list<CObjectTracker>& GetInhabitants();
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
   const zeus::CAABox& GetTriggerBoundsOR() const { return x130_bounds; }
   zeus::CAABox GetTriggerBoundsWR() const;

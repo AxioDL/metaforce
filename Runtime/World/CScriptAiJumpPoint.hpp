@@ -26,7 +26,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
   void Render(const CStateManager&) const {}
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   bool GetInUse(TUniqueId uid) const;
   TUniqueId GetJumpPoint() const { return x10c_currentWaypoint; }
   TUniqueId GetJumpTarget() const { return x10e_nextWaypoint; }

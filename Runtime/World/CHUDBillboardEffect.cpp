@@ -12,8 +12,8 @@ namespace urde {
 u32 CHUDBillboardEffect::g_IndirectTexturedBillboardCount = 0;
 u32 CHUDBillboardEffect::g_BillboardCount = 0;
 
-CHUDBillboardEffect::CHUDBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
-                                         const std::experimental::optional<TToken<CElectricDescription>>& electric,
+CHUDBillboardEffect::CHUDBillboardEffect(const rstl::optional<TToken<CGenDescription>>& particle,
+                                         const rstl::optional<TToken<CElectricDescription>>& electric,
                                          TUniqueId uid, bool active, std::string_view name, float dist,
                                          const zeus::CVector3f& scale0, const zeus::CColor& color,
                                          const zeus::CVector3f& scale1, const zeus::CVector3f& translation)

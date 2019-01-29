@@ -19,7 +19,7 @@ public:
     u32 x4_ = -1;
     u32 x8_ = -1;
 
-    std::experimental::optional<CTexturedQuadFilterAlpha> m_texQuad;
+    rstl::optional<CTexturedQuadFilterAlpha> m_texQuad;
     zeus::CVector2f x18_vpOffset;
     zeus::CVector2f x20_vpSize;
     zeus::CVector2f x28_canvasSize;

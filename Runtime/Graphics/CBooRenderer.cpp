@@ -687,7 +687,7 @@ void CBooRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
   xe0_pvsAreaIdx = areaIdx;
 }
 
-void CBooRenderer::DisablePVS() { xc8_pvs = std::experimental::nullopt; }
+void CBooRenderer::DisablePVS() { xc8_pvs = rstl::nullopt; }
 
 void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights) {
   SetupRendererStates();

@@ -134,14 +134,14 @@ public:
     }
   }
 
-  std::experimental::optional<T> GetAverage() const {
+  rstl::optional<T> GetAverage() const {
     if (this->empty())
       return {};
 
     return {urde::GetAverage<T>(this->data(), this->size())};
   }
 
-  std::experimental::optional<T> GetEntry(int i) const {
+  rstl::optional<T> GetEntry(int i) const {
     if (i >= this->size())
       return {};
     return this->operator[](i);

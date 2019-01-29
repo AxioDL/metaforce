@@ -126,7 +126,7 @@ void CGuiTextSupport::Update(float dt) {
 }
 
 void CGuiTextSupport::ClearRenderBuffer() {
-  x60_renderBuf = std::experimental::nullopt;
+  x60_renderBuf = rstl::nullopt;
   x2ec_renderBufferPages.clear();
 }
 

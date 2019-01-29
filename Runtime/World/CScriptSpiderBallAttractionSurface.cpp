@@ -24,7 +24,7 @@ void CScriptSpiderBallAttractionSurface::AcceptScriptMsg(EScriptObjectMessage ms
   CActor::AcceptScriptMsg(msg, sender, mgr);
 }
 
-std::experimental::optional<zeus::CAABox> CScriptSpiderBallAttractionSurface::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CScriptSpiderBallAttractionSurface::GetTouchBounds() const {
   if (GetActive())
     return {zeus::CAABox(xf4_aabb.min + GetTranslation(), xf4_aabb.max + GetTranslation())};
   return {};

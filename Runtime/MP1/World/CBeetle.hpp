@@ -21,7 +21,7 @@ private:
   float x5a0_headbuttDist = FLT_MAX;
   float x5a4_jumpBackwardDist = FLT_MAX;
   float x5a8_animTimeRem = 0.f;
-  std::experimental::optional<CModelData> x5ac_tailModel;
+  rstl::optional<CModelData> x5ac_tailModel;
   CPathFindSearch x5fc_pathFindSearch;
   rstl::reserved_vector<zeus::CVector3f, 8> x6e0_retreatPoints;
   CDamageVulnerability x744_platingVuln;
@@ -57,7 +57,7 @@ public:
           const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
           float initialAttackDelay, float retreatTime, float f3,
           const CDamageVulnerability& tailVuln, const CActorParameters& aParams,
-          const std::experimental::optional<CStaticRes>& tailModel);
+          const rstl::optional<CStaticRes>& tailModel);
 
   void Accept(IVisitor& visitor);
   void Think(float dt, CStateManager& mgr);

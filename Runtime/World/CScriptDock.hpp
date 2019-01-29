@@ -29,7 +29,7 @@ public:
   void Accept(IVisitor& visitor);
   void Think(float, CStateManager&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
   void CleanUp() {}
   zeus::CPlane GetPlane(const CStateManager&) const;

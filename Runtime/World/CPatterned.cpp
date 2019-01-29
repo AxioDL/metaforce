@@ -381,7 +381,7 @@ void CPatterned::Touch(CActor& act, CStateManager& mgr) {
   }
 }
 
-std::experimental::optional<zeus::CAABox> CPatterned::GetTouchBounds() const { return GetBoundingBox(); }
+rstl::optional<zeus::CAABox> CPatterned::GetTouchBounds() const { return GetBoundingBox(); }
 
 bool CPatterned::CanRenderUnsorted(const urde::CStateManager& mgr) const {
   return x64_modelData->GetAnimationData()->GetParticleDB().AreAnySystemsDrawnWithModel()
@@ -1069,7 +1069,7 @@ void CPatterned::SetupPlayerCollision(bool v) {
 
 void CPatterned::LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed,
                                   EProjectileAttrib attrib, bool playerHoming,
-                                  const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
+                                  const rstl::optional<TLockedToken<CGenDescription>>& visorParticle,
                                   u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale) {
   CProjectileInfo* pInfo = GetProjectileInfo();
   if (pInfo->Token().IsLoaded()) {

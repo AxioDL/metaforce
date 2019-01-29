@@ -112,7 +112,7 @@ public:
   static void CollisionFailsafe(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
                                 const CCollisionPrimitive& prim, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                 float, u32 failsafeTicks);
-  static std::experimental::optional<zeus::CVector3f>
+  static rstl::optional<zeus::CVector3f>
   FindNonIntersectingVector(const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor,
                             const CCollisionPrimitive& prim, const rstl::reserved_vector<TUniqueId, 1024>& nearList);
 };

@@ -71,7 +71,7 @@ class CGuiTextSupport {
   float x58_chRate = 10.0f;
   CAssetId x5c_fontId;
   CGuiWidget::EGuiModelDrawFlags m_drawFlags;
-  std::experimental::optional<CTextRenderBuffer> x60_renderBuf;
+  rstl::optional<CTextRenderBuffer> x60_renderBuf;
   std::vector<CToken> x2bc_assets;
   TLockedToken<CRasterFont> x2cc_font;
   std::pair<zeus::CVector2i, zeus::CVector2i> x2dc_oneBufBounds;

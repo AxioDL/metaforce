@@ -46,7 +46,7 @@ bool CStaticAudioPlayer::IsReady() {
 
 void CStaticAudioPlayer::DecodeMonoAndMix(s16* bufOut, u32 numSamples, u32 cur, u32 loopEndCur, u32 loopStartCur,
                                           int vol, g72x_state& state,
-                                          std::experimental::optional<g72x_state>& loopState) const {
+                                          rstl::optional<g72x_state>& loopState) const {
   for (u32 remBytes = numSamples / 2; remBytes;) {
     u32 curBuf = cur / RSF_BUFFER_SIZE;
     u32 thisBytes = (curBuf + 1) * RSF_BUFFER_SIZE - cur;

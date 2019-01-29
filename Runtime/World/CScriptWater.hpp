@@ -31,12 +31,12 @@ class CScriptWater : public CScriptTrigger {
   CAssetId x230_splashParticle2Id;
   CAssetId x234_splashParticle3Id;
   CAssetId x238_visorRunoffParticleId;
-  std::experimental::optional<TLockedToken<CGenDescription>> x23c_visorRunoffEffect;
+  rstl::optional<TLockedToken<CGenDescription>> x23c_visorRunoffEffect;
   CAssetId x24c_unmorphVisorRunoffParticleId;
-  std::experimental::optional<TLockedToken<CGenDescription>> x250_unmorphVisorRunoffEffect;
+  rstl::optional<TLockedToken<CGenDescription>> x250_unmorphVisorRunoffEffect;
   u16 x260_visorRunoffSfx;
   u16 x262_unmorphVisorRunoffSfx;
-  rstl::reserved_vector<std::experimental::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
+  rstl::reserved_vector<rstl::optional<TLockedToken<CGenDescription>>, 3> x264_splashEffects;
   rstl::reserved_vector<u16, 3> x298_splashSounds;
   zeus::CColor x2a4_splashColor;
   zeus::CColor x2a8_insideFogColor;
@@ -102,7 +102,7 @@ public:
                                                          const CWeaponMode&, EProjectileAttrib) const;
 
   u16 GetSplashSound(float) const;
-  const std::experimental::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;
+  const rstl::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;
   float GetSplashEffectScale(float) const;
   u32 GetSplashIndex(float) const;
   CFluidPlaneCPU& FluidPlane() { return *x1b4_fluidPlane; }
@@ -115,11 +115,11 @@ public:
   void SetFrustumPlanes(const zeus::CFrustum& frustum) { x150_frustum = frustum; }
   const zeus::CFrustum& GetFrustumPlanes() const { return x150_frustum; }
   CFluidPlaneCPU& GetFluidPlane() const { return *x1b4_fluidPlane; }
-  const std::experimental::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const {
+  const rstl::optional<TLockedToken<CGenDescription>>& GetVisorRunoffEffect() const {
     return x23c_visorRunoffEffect;
   }
   u16 GetVisorRunoffSfx() const { return x260_visorRunoffSfx; }
-  const std::experimental::optional<TLockedToken<CGenDescription>>& GetUnmorphVisorRunoffEffect() const {
+  const rstl::optional<TLockedToken<CGenDescription>>& GetUnmorphVisorRunoffEffect() const {
     return x250_unmorphVisorRunoffEffect;
   }
   u16 GetUnmorphVisorRunoffSfx() const { return x262_unmorphVisorRunoffSfx; }

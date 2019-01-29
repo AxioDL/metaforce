@@ -23,7 +23,7 @@ public:
 
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
-              const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+              const rstl::optional<CRippleManager>& rippleManager, TUniqueId waterId,
               const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const;
 };
 

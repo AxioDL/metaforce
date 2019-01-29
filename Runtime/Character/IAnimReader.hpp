@@ -119,7 +119,7 @@ public:
   virtual void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut,
                                    const CCharAnimTime& time) const = 0;
   virtual std::unique_ptr<IAnimReader> VClone() const = 0;
-  virtual std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified() { return {}; }
+  virtual rstl::optional<std::unique_ptr<IAnimReader>> VSimplified() { return {}; }
   virtual void VSetPhase(float) = 0;
   virtual SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 
@@ -128,7 +128,7 @@ public:
   u32 GetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
   u32 GetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
 
-  std::experimental::optional<std::unique_ptr<IAnimReader>> Simplified() { return VSimplified(); }
+  rstl::optional<std::unique_ptr<IAnimReader>> Simplified() { return VSimplified(); }
 
   std::unique_ptr<IAnimReader> Clone() const { return VClone(); }
 };

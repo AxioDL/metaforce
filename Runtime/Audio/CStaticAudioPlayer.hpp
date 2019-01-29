@@ -23,8 +23,8 @@ class CStaticAudioPlayer {
   std::vector<std::unique_ptr<u8[]>> x48_buffers;
   g72x_state x58_leftState;
   g72x_state x8c_rightState;
-  std::experimental::optional<g72x_state> m_leftStateLoop;
-  std::experimental::optional<g72x_state> m_rightStateLoop;
+  rstl::optional<g72x_state> m_leftStateLoop;
+  rstl::optional<g72x_state> m_rightStateLoop;
   u32 xc0_volume = 32768; // Out of 32768
 
   static int16_t SampClamp(int32_t val) {
@@ -57,7 +57,7 @@ public:
 
   bool IsReady();
   void DecodeMonoAndMix(s16* bufOut, u32 numSamples, u32 cur, u32 loopEndCur, u32 loopStartCur, int vol,
-                        g72x_state& state, std::experimental::optional<g72x_state>& loopState) const;
+                        g72x_state& state, rstl::optional<g72x_state>& loopState) const;
   void Decode(s16* bufOut, u32 numSamples);
   void SetVolume(float vol) { xc0_volume = zeus::clamp(0.f, vol, 1.f) * 32768.f; }
 

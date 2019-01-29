@@ -100,7 +100,7 @@ class CBooRenderer final : public IRenderer {
   zeus::CPlane xb0_viewPlane = {0.f, 1.f, 0.f, 0.f};
 
   enum class EPVSMode { Mask, PVS, PVSAndMask } xc4_pvsMode = EPVSMode::Mask;
-  std::experimental::optional<CPVSVisSet> xc8_pvs;
+  rstl::optional<CPVSVisSet> xc8_pvs;
   u32 xe0_pvsAreaIdx = 0;
 
   // boo::ITextureS* xe4_blackTex = nullptr;
@@ -142,7 +142,7 @@ class CBooRenderer final : public IRenderer {
   float x2f8_thermColdScale = 0.f;
   zeus::CColor x2fc_tevReg1Color = {1.f, 0.f, 1.f, 1.f};
   CThermalColdFilter m_thermColdFilter;
-  std::experimental::optional<CThermalHotFilter> m_thermHotFilter;
+  rstl::optional<CThermalHotFilter> m_thermHotFilter;
 
   std::vector<CLight> x300_dynamicLights;
 

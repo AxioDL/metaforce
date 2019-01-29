@@ -21,7 +21,7 @@ void CDecalManager::Initialize() {
 
   m_DecalPool.clear();
   for (int i = 0; i < 64; ++i)
-    m_DecalPool.emplace_back(std::experimental::optional<CDecal>{}, 0, i - 1, false);
+    m_DecalPool.emplace_back(rstl::optional<CDecal>{}, 0, i - 1, false);
 
   m_FreeIndex = 63;
   m_PoolInitialized = true;
@@ -39,7 +39,7 @@ void CDecalManager::Reinitialize() {
 
   m_DecalPool.clear();
   for (int i = 0; i < 64; ++i)
-    m_DecalPool.emplace_back(std::experimental::optional<CDecal>{}, 0, i - 1, false);
+    m_DecalPool.emplace_back(rstl::optional<CDecal>{}, 0, i - 1, false);
 
   m_ActiveIndexList.clear();
 

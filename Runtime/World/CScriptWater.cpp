@@ -424,7 +424,7 @@ void CScriptWater::Render(const CStateManager& mgr) const {
     zeus::CTransform xf = x34_transform;
     xf.origin.z() += zOffset;
     zeus::CVector3f areaCenter = mgr.GetWorld()->GetAreaAlways(mgr.GetNextAreaId())->GetAABB().center();
-    std::experimental::optional<CRippleManager> rippleMan(mgr.GetFluidPlaneManager()->GetRippleManager());
+    rstl::optional<CRippleManager> rippleMan(mgr.GetFluidPlaneManager()->GetRippleManager());
     x1b4_fluidPlane->Render(mgr, x2bc_alpha, aabb, xf, mgr.GetWorld()->GetAreaAlways(x4_areaId)->GetTransform(), false,
                             x150_frustum, rippleMan, x8_uid, x2d8_tileIntersects.get(), x2c4_gridDimX, x2c8_gridDimY,
                             areaCenter);
@@ -499,7 +499,7 @@ EWeaponCollisionResponseTypes CScriptWater::GetCollisionResponseType(const zeus:
 
 u16 CScriptWater::GetSplashSound(float mag) const { return x298_splashSounds[GetSplashIndex(mag)]; }
 
-const std::experimental::optional<TLockedToken<CGenDescription>>& CScriptWater::GetSplashEffect(float mag) const {
+const rstl::optional<TLockedToken<CGenDescription>>& CScriptWater::GetSplashEffect(float mag) const {
   return x264_splashEffects[GetSplashIndex(mag)];
 }
 

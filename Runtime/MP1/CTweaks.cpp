@@ -27,7 +27,7 @@ namespace MP1 {
 static logvisor::Module Log("MP1::CTweaks");
 
 void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
-  std::experimental::optional<CMemoryInStream> strm;
+  rstl::optional<CMemoryInStream> strm;
   const SObjectTag* tag;
 
   /* Particle */
@@ -110,7 +110,7 @@ void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
 }
 
 void CTweaks::RegisterResourceTweaks(hecl::CVarManager* cvarMgr) {
-  std::experimental::optional<CMemoryInStream> strm;
+  rstl::optional<CMemoryInStream> strm;
 
   const SObjectTag* tag = g_ResFactory->GetResourceIdByName("GunRes");
   strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);

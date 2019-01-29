@@ -75,7 +75,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
   void Think(float dt, CStateManager& mgr);
   void Touch(CActor& other, CStateManager& mgr);
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
   void Render(const CStateManager& mgr) const;
 

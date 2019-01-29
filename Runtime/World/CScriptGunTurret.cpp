@@ -298,7 +298,7 @@ void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
   }
 }
 
-std::experimental::optional<zeus::CAABox> CScriptGunTurret::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CScriptGunTurret::GetTouchBounds() const {
   if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid))
     return {GetBoundingBox()};
   return {};

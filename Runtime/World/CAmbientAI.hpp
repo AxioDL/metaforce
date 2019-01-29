@@ -34,7 +34,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   CHealthInfo* HealthInfo(CStateManager&) { return &x260_healthInfo; }
   const CDamageVulnerability* GetDamageVulnerability() const { return &x268_dVuln; }
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&) {}
   void RandomizePlaybackRate(CStateManager&);
 };

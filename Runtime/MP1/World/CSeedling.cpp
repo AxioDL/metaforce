@@ -124,7 +124,7 @@ void CSeedling::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-std::experimental::optional<zeus::CAABox> CSeedling::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CSeedling::GetTouchBounds() const {
   return x704_modelBounds.getTransformedAABox(GetTransform());
 }
 

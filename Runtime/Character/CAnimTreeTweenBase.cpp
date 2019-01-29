@@ -104,7 +104,7 @@ zeus::CQuaternion CAnimTreeTweenBase::VGetRotation(const CSegId& seg) const {
   return zeus::CQuaternion::slerp(qA, qB, weight);
 }
 
-std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTweenBase::VSimplified() {
+rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTweenBase::VSimplified() {
   if (x20_25_cullSelector == 0) {
     auto simpA = x14_a->Simplified();
     auto simpB = x18_b->Simplified();
