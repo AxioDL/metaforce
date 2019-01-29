@@ -705,7 +705,7 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(CFluidPlaneRender::SHFieldSample (&h
 bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info,
                                  CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
                                  const zeus::CVector3f& areaCenter,
-                                 const std::experimental::optional<CRippleManager>& rippleManager, int fromX, int toX,
+                                 const rstl::optional<CRippleManager>& rippleManager, int fromX, int toX,
                                  int fromY, int toY) const {
   rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32> rippleInfos;
   if (rippleManager) {
@@ -743,7 +743,7 @@ static u8 lc_flags[9][9] = {};
 
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
-                            const std::experimental::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+                            const rstl::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                             const zeus::CVector3f& areaCenter) const {
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);

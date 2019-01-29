@@ -33,7 +33,7 @@ public:
   void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
   void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
   std::unique_ptr<IAnimReader> VClone() const;
-  std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  rstl::optional<std::unique_ptr<IAnimReader>> VSimplified();
   void VSetPhase(float);
   SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
 };

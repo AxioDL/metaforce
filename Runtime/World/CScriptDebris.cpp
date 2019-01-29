@@ -349,7 +349,7 @@ void CScriptDebris::Touch(CActor& other, CStateManager& mgr) {
   }
 }
 
-std::experimental::optional<zeus::CAABox> CScriptDebris::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CScriptDebris::GetTouchBounds() const {
   if (x281_31_dieOnProjectile)
     return {GetBoundingBox()};
   return {};

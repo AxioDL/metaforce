@@ -32,7 +32,7 @@ public:
   void Touch(CActor&, CStateManager&);
   void Explode(const zeus::CVector3f&, CStateManager&);
   void UpdateLight(float, CStateManager&);
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
 };
 
 } // namespace urde

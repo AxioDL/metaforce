@@ -45,7 +45,7 @@ public:
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const;
   zeus::CTransform GetPrimitiveTransform() const;
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void SetDamageVulnerability(const CDamageVulnerability& vuln);
   const zeus::CVector3f& GetBoxSize() const { return x260_boxSize; }
   TUniqueId GetOwnerId() const { return x25c_owner; }

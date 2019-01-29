@@ -71,9 +71,9 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
             float t = (x108_maxDist - eyeToGooDist) / (x108_maxDist - x104_minDist);
             if (mgr.GetActiveRandom()->Float() * 100.f <= (1.f - t) * x110_farProb + t * x10c_nearProb) {
               mgr.AddObject(new CHUDBillboardEffect(
-                  xfc_particleId.IsValid() ? xe8_particleDesc : std::experimental::optional<TToken<CGenDescription>>(),
+                  xfc_particleId.IsValid() ? xe8_particleDesc : rstl::optional<TToken<CGenDescription>>(),
                   x100_electricId.IsValid() ? xf0_electricDesc
-                                            : std::experimental::optional<TToken<CElectricDescription>>(),
+                                            : rstl::optional<TToken<CElectricDescription>>(),
                   mgr.AllocateUniqueId(), true, "VisorGoo", CHUDBillboardEffect::GetNearClipDistance(mgr),
                   CHUDBillboardEffect::GetScaleForPOV(mgr), x114_color, zeus::CVector3f::skOne,
                   zeus::CVector3f::skZero));
@@ -108,7 +108,7 @@ void CScriptVisorGoo::Render(const CStateManager& mgr) const {
   // Empty
 }
 
-std::experimental::optional<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const { return {}; }
+rstl::optional<zeus::CAABox> CScriptVisorGoo::GetTouchBounds() const { return {}; }
 
 void CScriptVisorGoo::Touch(CActor& other, CStateManager& mgr) {
   // Empty

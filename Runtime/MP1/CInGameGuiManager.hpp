@@ -78,7 +78,7 @@ private:
   SOnScreenTex x1c4_onScreenTex;
   float x1d8_onScreenTexAlpha = 0.f;
   TLockedToken<CTexture> x1dc_onScreenTexTok; // Used to be heap-allocated
-  std::experimental::optional<CTexturedQuadFilterAlpha> m_onScreenQuad;
+  rstl::optional<CTexturedQuadFilterAlpha> m_onScreenQuad;
   EHelmetVisMode x1e0_helmetVisMode;
   bool x1e4_enableTargetingManager;
   bool x1e8_enableAutoMapper;
@@ -86,8 +86,8 @@ private:
   u32 x1f0_enablePlayerVisor;
   float x1f4_visorStaticAlpha;
 
-  std::experimental::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
-  std::experimental::optional<CTexturedQuadFilter> m_deathDotQuad;
+  rstl::optional<CTexturedQuadFilter> m_deathRenderTexQuad;
+  rstl::optional<CTexturedQuadFilter> m_deathDotQuad;
   CRandomStaticFilter m_randomStatic = {EFilterType::Blend};
   CColoredQuadFilter m_deathWhiteout = {EFilterType::Blend};
   CColoredQuadFilter m_deathBlackout = {EFilterType::Blend};

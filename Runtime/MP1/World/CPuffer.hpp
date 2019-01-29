@@ -31,7 +31,7 @@ public:
   void Accept(IVisitor&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float, CStateManager&);
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
   void Death(CStateManager&, zeus::CVector3f&, EScriptObjectState);
 };

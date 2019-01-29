@@ -204,11 +204,11 @@ static std::string_view DisintegratePostHLSL = FOG_STRUCT_HLSL
     "    float4 addColor;\n"
     "    Fog fog;\n"
     "};\n"
-    "float4 DisintegratePostFunc(float4 colorIn)\n"
+    "static float4 DisintegratePostFunc(in VertToFrag vtf, float4 colorIn)\n"
     "{\n"
     "    float4 texel0 = extTex7.Sample(samp, vtf.extTcgs[0]);\n"
     "    float4 texel1 = extTex7.Sample(samp, vtf.extTcgs[1]);\n"
-    "    colorIn = mix(float4(0.0), texel1, texel0);\n"
+    "    colorIn = lerp(float4(0.0,0.0,0.0,0.0), texel1, texel0);\n"
     "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_HLSL
     "}\n"
     "\n"sv;

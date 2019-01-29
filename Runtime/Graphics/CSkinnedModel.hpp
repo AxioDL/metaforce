@@ -35,7 +35,7 @@ public:
   const TLockedToken<CCharLayoutInfo>& GetLayoutInfo() const { return x1c_layoutInfo; }
 
   void Calculate(const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                 const std::experimental::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+                 const rstl::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   void Draw(const CModelFlags& drawFlags) const;
 
   typedef void (*FPointGenerator)(void* item, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn);

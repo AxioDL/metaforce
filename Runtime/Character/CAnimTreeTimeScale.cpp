@@ -43,7 +43,7 @@ CCharAnimTime CAnimTreeTimeScale::GetRealLifeTime(const CCharAnimTime& time) con
 
 void CAnimTreeTimeScale::VSetPhase(float phase) { x14_child->VSetPhase(phase); }
 
-std::experimental::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
+rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
   if (auto simp = x14_child->Simplified()) {
     CAnimTreeTimeScale* newNode = new CAnimTreeTimeScale(CAnimTreeNode::Cast(std::move(*simp)), x18_timeScale->Clone(),
                                                          x28_targetAccelTime, x4_name);

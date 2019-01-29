@@ -1376,7 +1376,7 @@ void CStateManager::ProcessRadiusDamage(const CActor& damager, CActor& damagee, 
 void CStateManager::ApplyRadiusDamage(const CActor& a1, const zeus::CVector3f& pos, CActor& a2,
                                       const CDamageInfo& info) {
   zeus::CVector3f delta = a2.GetTranslation() - pos;
-  std::experimental::optional<zeus::CAABox> bounds;
+  rstl::optional<zeus::CAABox> bounds;
   if (delta.magSquared() < info.GetRadius() * info.GetRadius() ||
       ((bounds = a2.GetTouchBounds()) &&
        CCollidableSphere::Sphere_AABox_Bool(zeus::CSphere{pos, info.GetRadius()}, *bounds))) {
@@ -1426,7 +1426,7 @@ bool CStateManager::TestRayDamage(const zeus::CVector3f& pos, const CActor& dama
                                     EMaterialTypes::Occluder, EMaterialTypes::Character);
   static const CMaterialFilter filter(incList, exList, CMaterialFilter::EFilterType::IncludeExclude);
 
-  std::experimental::optional<zeus::CAABox> bounds = damagee.GetTouchBounds();
+  rstl::optional<zeus::CAABox> bounds = damagee.GetTouchBounds();
   if (!bounds)
     return false;
 
@@ -1930,7 +1930,7 @@ void CStateManager::CrossTouchActors() {
     CActor& actor = static_cast<CActor&>(*ent);
     if (!actor.GetActive() || !actor.GetCallTouch())
       continue;
-    std::experimental::optional<zeus::CAABox> touchAABB = actor.GetTouchBounds();
+    rstl::optional<zeus::CAABox> touchAABB = actor.GetTouchBounds();
     if (!touchAABB)
       continue;
 
@@ -1946,7 +1946,7 @@ void CStateManager::CrossTouchActors() {
       if (!ent2)
         continue;
 
-      std::experimental::optional<zeus::CAABox> touchAABB2 = ent2->GetTouchBounds();
+      rstl::optional<zeus::CAABox> touchAABB2 = ent2->GetTouchBounds();
       if (!ent2->GetActive() || !touchAABB2)
         continue;
 
@@ -2217,7 +2217,7 @@ void CStateManager::UpdateActorInSortedLists(CActor& act) {
   if (!act.GetUseInSortedLists() || !act.xe4_27_notInSortedLists)
     return;
 
-  std::experimental::optional<zeus::CAABox> aabb = CalculateObjectBounds(act);
+  rstl::optional<zeus::CAABox> aabb = CalculateObjectBounds(act);
   bool actorInLists = x874_sortedListManager->ActorInLists(&act);
   if (actorInLists || aabb) {
     act.xe4_27_notInSortedLists = false;
@@ -2240,8 +2240,8 @@ void CStateManager::UpdateSortedLists() {
     UpdateActorInSortedLists(static_cast<CActor&>(*actor));
 }
 
-std::experimental::optional<zeus::CAABox> CStateManager::CalculateObjectBounds(const CActor& actor) {
-  std::experimental::optional<zeus::CAABox> bounds = actor.GetTouchBounds();
+rstl::optional<zeus::CAABox> CStateManager::CalculateObjectBounds(const CActor& actor) {
+  rstl::optional<zeus::CAABox> bounds = actor.GetTouchBounds();
   if (bounds) {
     zeus::CAABox aabb;
     aabb.accumulateBounds(bounds->min);

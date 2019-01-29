@@ -122,7 +122,7 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   CPhysicsActor::AcceptScriptMsg(msg, uid, mgr);
 }
 
-std::experimental::optional<zeus::CAABox> CAmbientAI::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CAmbientAI::GetTouchBounds() const {
   if (GetActive())
     return {GetBoundingBox()};
   return {};

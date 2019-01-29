@@ -20,7 +20,7 @@ public:
 
   CCharAnimTime GetRealLifeTime(const CCharAnimTime&) const;
   void VSetPhase(float);
-  std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  rstl::optional<std::unique_ptr<IAnimReader>> VSimplified();
 
   u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
   u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;

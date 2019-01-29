@@ -67,7 +67,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   bool xe8_silent = true;
   u8 xec_readState = 0; // 0: NoRead 1: Read 2: ReadWrap
 
-  std::experimental::optional<CDvdFile> m_file;
+  rstl::optional<CDvdFile> m_file;
   std::shared_ptr<IDvdRequest> m_readReqs[2];
 
   void ReadBuffer(int buf) {
@@ -262,7 +262,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
           stream.m_readReqs[j].reset();
         }
       stream.xd4_ringBuffer.reset();
-      stream.m_file = std::experimental::nullopt;
+      stream.m_file = rstl::nullopt;
     }
   }
 
@@ -340,7 +340,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   void StopStream() {
     x0_active = false;
     m_booVoice->stop();
-    m_file = std::experimental::nullopt;
+    m_file = rstl::nullopt;
   }
 
   static bool IsStreamActive(s32 id) {

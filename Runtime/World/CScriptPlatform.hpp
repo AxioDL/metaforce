@@ -34,7 +34,7 @@ class CScriptPlatform : public CPhysicsActor {
   CHealthInfo x28c_initialHealth;
   CHealthInfo x294_health;
   CDamageVulnerability x29c_damageVuln;
-  std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
+  rstl::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> x304_treeGroupContainer;
   std::unique_ptr<CCollidableOBBTreeGroup> x314_treeGroup;
   std::vector<SRiders> x318_riders;
   std::vector<SRiders> x328_slavesStatic;
@@ -73,7 +73,7 @@ public:
                   CModelData&& mData, const CActorParameters& actParms, const zeus::CAABox& aabb, float speed,
                   bool detectCollision, float xrayAlpha, bool active, const CHealthInfo& hInfo,
                   const CDamageVulnerability& dVuln,
-                  const std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
+                  const rstl::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
                   bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate);
 
   void Accept(IVisitor& visitor);
@@ -82,7 +82,7 @@ public:
   void Think(float, CStateManager&);
   void PreRender(CStateManager&, const zeus::CFrustum&);
   void Render(const CStateManager&) const;
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   zeus::CTransform GetPrimitiveTransform() const;
   const CCollisionPrimitive* GetCollisionPrimitive() const;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;

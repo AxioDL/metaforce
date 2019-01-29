@@ -14,7 +14,7 @@ class CAreaOctTree {
 public:
   struct SRayResult {
     zeus::CPlane x0_plane;
-    std::experimental::optional<CCollisionSurface> x10_surface;
+    rstl::optional<CCollisionSurface> x10_surface;
     float x3c_t;
   };
 

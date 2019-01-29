@@ -1081,7 +1081,7 @@ void CMorphBall::UpdateEffects(float dt, CStateManager& mgr) {
   if (x1c10_ballInnerGlowLight != kInvalidUniqueId) {
     if (TCastToPtr<CGameLight> light = mgr.ObjectById(x1c10_ballInnerGlowLight)) {
       light->SetTranslation(swooshToWorld.origin + zeus::CVector3f(0.f, 0.f, GetBallRadius()));
-      std::experimental::optional<CLight> lObj;
+      rstl::optional<CLight> lObj;
       if (IsMorphBallTransitionFlashValid() && x19dc_morphBallTransitionFlashGen->SystemHasLight())
         lObj.emplace(x19dc_morphBallTransitionFlashGen->GetLight());
       else if (x19d0_ballInnerGlowGen->SystemHasLight())

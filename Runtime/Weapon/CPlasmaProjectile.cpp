@@ -280,8 +280,8 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
   CGameProjectile::AcceptScriptMsg(msg, sender, mgr);
 }
 
-void CPlasmaProjectile::MakeBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
-                                            const std::experimental::optional<TToken<CElectricDescription>>& electric,
+void CPlasmaProjectile::MakeBillboardEffect(const rstl::optional<TToken<CGenDescription>>& particle,
+                                            const rstl::optional<TToken<CElectricDescription>>& electric,
                                             std::string_view name, CStateManager& mgr) {
   auto* effect = new CHUDBillboardEffect(particle, electric, mgr.AllocateUniqueId(), true, name,
                                          CHUDBillboardEffect::GetNearClipDistance(mgr),

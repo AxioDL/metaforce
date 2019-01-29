@@ -391,7 +391,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
   if (!active) {
     xc_state = EScanState::Inactive;
     x10_objId = kInvalidUniqueId;
-    x14_scannableInfo = std::experimental::nullopt;
+    x14_scannableInfo = rstl::nullopt;
     xa8_message->TextSupport().SetText(u"");
     xac_scrollMessage->TextSupport().SetText(u"");
     xa4_textGroup->SetVisibility(false, ETraversalMode::Children);

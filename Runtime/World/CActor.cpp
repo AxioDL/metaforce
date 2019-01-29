@@ -301,7 +301,7 @@ const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f
   return GetDamageVulnerability();
 }
 
-std::experimental::optional<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
+rstl::optional<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
 
 void CActor::Touch(CActor&, CStateManager&) {}
 

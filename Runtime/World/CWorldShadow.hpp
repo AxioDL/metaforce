@@ -20,7 +20,7 @@ class CWorldShadow {
   s32 x84_lightIdx = -1;
   bool x88_blurReset = true;
 #if CWORLDSHADOW_FEEDBACK
-  std::experimental::optional<CTexturedQuadFilter> m_feedback;
+  rstl::optional<CTexturedQuadFilter> m_feedback;
 #endif
 public:
   CWorldShadow(u32 w, u32 h, bool rgba8);

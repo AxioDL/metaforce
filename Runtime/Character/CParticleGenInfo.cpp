@@ -113,7 +113,7 @@ void CParticleGenInfoGeneric::SetParticleEmission(bool emission, CStateManager& 
 
 bool CParticleGenInfoGeneric::IsSystemDeletable() const { return x84_system->IsSystemDeletable(); }
 
-std::experimental::optional<zeus::CAABox> CParticleGenInfoGeneric::GetBounds() const { return x84_system->GetBounds(); }
+rstl::optional<zeus::CAABox> CParticleGenInfoGeneric::GetBounds() const { return x84_system->GetBounds(); }
 
 bool CParticleGenInfoGeneric::HasActiveParticles() const { return x84_system->GetParticleCount() != 0; }
 

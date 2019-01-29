@@ -516,7 +516,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
 
   CPlayer& player = mgr.GetPlayer();
   zeus::CAABox playerAABB = zeus::CAABox::skNullBox;
-  if (std::experimental::optional<zeus::CAABox> aabb = player.GetTouchBounds())
+  if (rstl::optional<zeus::CAABox> aabb = player.GetTouchBounds())
     playerAABB = *aabb;
 
   zeus::CAABox aabb;
@@ -533,7 +533,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
         continue;
       if (trigger->GetDamageInfo().GetDamage() == 0.f)
         continue;
-      if (std::experimental::optional<zeus::CAABox> aabb = trigger->GetTouchBounds()) {
+      if (rstl::optional<zeus::CAABox> aabb = trigger->GetTouchBounds()) {
         float dist = playerAABB.distanceBetween(*aabb);
         if (dist < threatDist)
           threatDist = dist;

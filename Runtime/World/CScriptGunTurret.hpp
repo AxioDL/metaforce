@@ -109,7 +109,7 @@ private:
   TUniqueId x498_lightId = kInvalidUniqueId;
   std::unique_ptr<CCollisionActorManager> x49c_collisionManager;
   TUniqueId x4a0_ = kInvalidUniqueId;
-  std::experimental::optional<CModelData> x4a4_;
+  rstl::optional<CModelData> x4a4_;
   float x4f4_ = 0.f;
   float x4f8_ = 0.f;
   zeus::CVector3f x4fc_;
@@ -158,7 +158,7 @@ public:
   void Touch(CActor&, CStateManager&);
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&);
   void Render(const CStateManager&) const;
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
 

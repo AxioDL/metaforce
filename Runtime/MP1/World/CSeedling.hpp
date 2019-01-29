@@ -30,7 +30,7 @@ public:
   void Render(const CStateManager&) const;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
   CProjectileInfo* GetProjectileInfo() { return &x6c0_projectileInfo; }
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
   CPathFindSearch* GetSearchPath() { return &x5d8_searchPath; }
   void Patrol(CStateManager&, EStateMsg, float);

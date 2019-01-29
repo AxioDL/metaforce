@@ -987,7 +987,7 @@ bool CParticleSwoosh::IsSystemDeletable() const {
   return true;
 }
 
-std::experimental::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const {
+rstl::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const {
   if (GetParticleCount() <= 1) {
     zeus::CVector3f trans = x38_translation + xa4_globalTranslation;
     return zeus::CAABox(trans, trans);

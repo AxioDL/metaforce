@@ -12,11 +12,11 @@ class CStateManager;
 
 class CDecalManager {
   struct SDecal {
-    std::experimental::optional<CDecal> x0_decal;
+    rstl::optional<CDecal> x0_decal;
     TAreaId x70_areaId;
     s8 x74_index;
     bool x75_24_notIce : 1;
-    SDecal(const std::experimental::optional<CDecal>& decal, TAreaId aid, s8 idx, bool notIce)
+    SDecal(const rstl::optional<CDecal>& decal, TAreaId aid, s8 idx, bool notIce)
     : x0_decal(decal), x70_areaId(aid), x74_index(idx) {
       x75_24_notIce = notIce;
     }

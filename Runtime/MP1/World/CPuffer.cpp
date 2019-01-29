@@ -69,7 +69,7 @@ void CPuffer::Think(float dt, CStateManager& mgr) {
   }
 }
 
-std::experimental::optional<zeus::CAABox> CPuffer::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CPuffer::GetTouchBounds() const {
   auto touchBounds = CPatterned::GetTouchBounds();
   if (touchBounds) {
     touchBounds->accumulateBounds(touchBounds->min - 0.5f);

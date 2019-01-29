@@ -48,7 +48,7 @@ public:
   CVisorFlare(EBlendMode blendMode, bool, float, float, float, u32, u32, const std::vector<CFlareDef>& flares);
   void Update(float dt, const zeus::CVector3f& pos, const CActor* act, CStateManager& mgr);
   void Render(const zeus::CVector3f& pos, const CStateManager& mgr) const;
-  static std::experimental::optional<CFlareDef> LoadFlareDef(CInputStream& in);
+  static rstl::optional<CFlareDef> LoadFlareDef(CInputStream& in);
 };
 
 } // namespace urde

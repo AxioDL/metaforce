@@ -349,7 +349,7 @@ private:
   CStaticAudioPlayer* xf4_curAudio = nullptr;
 
   CColoredQuadFilter m_fadeToBlack = {EFilterType::Blend};
-  std::experimental::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
+  rstl::optional<CTexturedQuadFilterAlpha> m_pressStartQuad;
 
   std::unique_ptr<CFrontEndUITouchBar> m_touchBar;
 

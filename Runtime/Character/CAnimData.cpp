@@ -37,7 +37,7 @@ void CAnimData::InitializeCache() {}
 
 CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout, const TToken<CSkinnedModel>& model,
-                     const std::experimental::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const rstl::optional<TToken<CMorphableSkinnedModel>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx, const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
                      const TLockedToken<CCharacterFactory>& charFactory, int drawInstCount)
@@ -541,14 +541,14 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                       const rstl::optional<CVertexMorphEffect>& morphEffect,
                        const float* morphMagnitudes) {
   SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
   DrawSkinnedModel(model, drawFlags);
 }
 
 void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                            const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                            const rstl::optional<CVertexMorphEffect>& morphEffect,
                             const float* morphMagnitudes) {
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
@@ -741,7 +741,7 @@ SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random
 
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat) {
   SAdvancementResults results;
-  std::experimental::optional<std::unique_ptr<IAnimReader>> simplified;
+  rstl::optional<std::unique_ptr<IAnimReader>> simplified;
 
   if (x104_animDir == EAnimDir::Forward) {
     results = x1f8_animRoot->VAdvanceView(time);
@@ -798,7 +798,7 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                                 const std::experimental::optional<CVertexMorphEffect>& morphEffect,
+                                 const rstl::optional<CVertexMorphEffect>& morphEffect,
                                  const float* morphMagnitudes) {
   model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
 }

@@ -17,7 +17,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
-                                 const std::experimental::optional<TLockedToken<CGenDescription>>& visorParticle,
+                                 const rstl::optional<TLockedToken<CGenDescription>>& visorParticle,
                                  u16 visorSfx, bool sendCollideMsg)
 : CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
@@ -49,7 +49,7 @@ void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActo
       if (zeus::radToDeg(std::acos(
               mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(revDir))) <= 45.f) {
         /* Hit us head on! Draw Billboard! */
-        std::experimental::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
+        rstl::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
         CHUDBillboardEffect* effect = new CHUDBillboardEffect(
             bb, {}, mgr.AllocateUniqueId(), true, "VisorAcid", CHUDBillboardEffect::GetNearClipDistance(mgr),
             CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::CColor::skWhite, zeus::CVector3f::skOne,
@@ -423,7 +423,7 @@ zeus::CAABox CGameProjectile::GetProjectileBounds() const {
            std::max(x298_previousPos.z(), GetTranslation().z()) + x2a4_projExtent}};
 }
 
-std::experimental::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
   if (x2e4_24_active)
     return {GetProjectileBounds()};
   return {};

@@ -61,7 +61,7 @@ void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, CStateManager&
 
 void CScriptEMPulse::CalculateRenderBounds() { x9c_renderBounds = CalculateBoundingBox(); }
 
-std::experimental::optional<zeus::CAABox> CScriptEMPulse::GetTouchBounds() const { return {CalculateBoundingBox()}; }
+rstl::optional<zeus::CAABox> CScriptEMPulse::GetTouchBounds() const { return {CalculateBoundingBox()}; }
 
 void CScriptEMPulse::Touch(CActor& act, CStateManager& mgr) {
   if (!GetActive())

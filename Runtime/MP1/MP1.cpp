@@ -683,7 +683,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
         if (layerStr[0] == _SYS_STR('0') || layerStr[0] == _SYS_STR('1'))
           for (const auto* cur = layerStr; *cur != _SYS_STR('\0'); ++cur)
             if (*cur == _SYS_STR('1'))
-              m_warpLayerBits |= 1 << (cur - layerStr);
+              m_warpLayerBits |= u64(1) << (cur - layerStr);
       }
 
       SetFlowState(EFlowState::StateSetter);

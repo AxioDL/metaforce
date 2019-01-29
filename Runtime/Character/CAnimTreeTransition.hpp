@@ -27,8 +27,8 @@ public:
   CCharAnimTime VGetTimeRemaining() const;
   CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
   std::unique_ptr<IAnimReader> VClone() const;
-  std::experimental::optional<std::unique_ptr<IAnimReader>> VSimplified();
-  std::experimental::optional<std::unique_ptr<IAnimReader>> VReverseSimplified();
+  rstl::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  rstl::optional<std::unique_ptr<IAnimReader>> VReverseSimplified();
   SAdvancementResults VAdvanceView(const CCharAnimTime& a);
   void SetBlendingWeight(float w);
   float VGetBlendingWeight() const;

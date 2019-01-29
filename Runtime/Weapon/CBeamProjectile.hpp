@@ -54,7 +54,7 @@ public:
   s32 GetIntMaxLength() const { return x2e8_intMaxLength; }
   TUniqueId GetCollisionActorId() const { return x2fe_collisionActorId; }
 
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void CalculateRenderBounds();
   virtual void ResetBeam(CStateManager&, bool);
   virtual void UpdateFx(const zeus::CTransform&, float, CStateManager&);

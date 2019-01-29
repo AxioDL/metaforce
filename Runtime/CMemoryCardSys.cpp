@@ -146,7 +146,7 @@ bool CMemoryCardSys::InitializePump() {
     std::sort(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& a, const auto& b) -> bool {
       return g_ResFactory->TranslateNewToOriginal(a.first) < g_ResFactory->TranslateNewToOriginal(b.first);
     });
-    x1c_worldInter = std::experimental::nullopt;
+    x1c_worldInter = rstl::nullopt;
   }
 
   return false;

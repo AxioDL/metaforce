@@ -25,7 +25,7 @@ class CScriptCoverPoint : public CActor {
   };
   TUniqueId xfa_occupant = kInvalidUniqueId;
   TUniqueId xfc_retreating = kInvalidUniqueId;
-  std::experimental::optional<zeus::CAABox> x100_touchBounds;
+  rstl::optional<zeus::CAABox> x100_touchBounds;
   float x11c_timeLeft = 0.f;
 
 public:
@@ -37,7 +37,7 @@ public:
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Render(const CStateManager&) const {}
-  std::experimental::optional<zeus::CAABox> GetTouchBounds() const;
+  rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void SetInUse(bool inUse);
   bool GetInUse(TUniqueId uid) const;
   bool ShouldLandHere() const { return xe8_26_landHere; }

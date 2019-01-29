@@ -4,7 +4,7 @@
 
 namespace urde {
 
-std::experimental::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CInputStream& in) {
+rstl::optional<CVisorFlare::CFlareDef> CVisorFlare::LoadFlareDef(CInputStream& in) {
   u32 propCount = in.readUint32Big();
   if (propCount != 4)
     return {};

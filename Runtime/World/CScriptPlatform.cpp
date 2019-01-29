@@ -26,7 +26,7 @@ CScriptPlatform::CScriptPlatform(
     TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
     const CActorParameters& actParms, const zeus::CAABox& aabb, float speed, bool detectCollision, float xrayAlpha,
     bool active, const CHealthInfo& hInfo, const CDamageVulnerability& dVuln,
-    const std::experimental::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
+    const rstl::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln, bool rainSplashes,
     u32 maxRainSplashes, u32 rainGenRate)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), MakePlatformMaterialList(), aabb, SMoverData(15000.f),
                 actParms, 0.3f, 0.1f)
@@ -300,7 +300,7 @@ void CScriptPlatform::Render(const CStateManager& mgr) const {
     mgr.SetupFogForArea(x4_areaId);
 }
 
-std::experimental::optional<zeus::CAABox> CScriptPlatform::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CScriptPlatform::GetTouchBounds() const {
   if (x314_treeGroup)
     return {x314_treeGroup->CalculateAABox(GetTransform())};
 

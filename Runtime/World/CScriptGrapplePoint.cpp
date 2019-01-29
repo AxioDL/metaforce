@@ -42,7 +42,7 @@ void CScriptGrapplePoint::Render(const CStateManager&) const {
   // Empty
 }
 
-std::experimental::optional<zeus::CAABox> CScriptGrapplePoint::GetTouchBounds() const { return {xe8_touchBounds}; }
+rstl::optional<zeus::CAABox> CScriptGrapplePoint::GetTouchBounds() const { return {xe8_touchBounds}; }
 
 void CScriptGrapplePoint::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
   CActor::EnsureRendered(mgr);

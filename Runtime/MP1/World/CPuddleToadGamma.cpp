@@ -83,7 +83,7 @@ void CPuddleToadGamma::Think(float dt, CStateManager& mgr) {
     x56c_ += dt;
 }
 
-std::experimental::optional<zeus::CAABox> CPuddleToadGamma::GetTouchBounds() const {
+rstl::optional<zeus::CAABox> CPuddleToadGamma::GetTouchBounds() const {
   if (!GetActive())
     return {};
 

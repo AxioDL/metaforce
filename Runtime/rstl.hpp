@@ -646,4 +646,9 @@ string string_l(const char* data)
 }
 #endif
 
+template <class T>
+using optional = std::experimental::optional<T>;
+using nullopt_t = std::experimental::nullopt_t;
+constexpr nullopt_t nullopt{nullopt_t::init()};
+
 } // namespace rstl

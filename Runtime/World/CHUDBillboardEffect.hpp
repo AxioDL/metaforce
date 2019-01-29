@@ -25,8 +25,8 @@ class CHUDBillboardEffect : public CEffect {
   static float CalcGenRate();
 
 public:
-  CHUDBillboardEffect(const std::experimental::optional<TToken<CGenDescription>>& particle,
-                      const std::experimental::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
+  CHUDBillboardEffect(const rstl::optional<TToken<CGenDescription>>& particle,
+                      const rstl::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
                       bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,
                       const zeus::CColor& color, const zeus::CVector3f& scale1, const zeus::CVector3f& translation);
   ~CHUDBillboardEffect();

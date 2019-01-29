@@ -50,9 +50,9 @@ public:
 protected:
   static const s32 skShootAnim[2];
   zeus::CVector3f x4_scale;
-  std::experimental::optional<CModelData> x10_solidModelData;
-  std::experimental::optional<CModelData> x60_holoModelData;
-  std::experimental::optional<CModelData> xb0_suitArmModelData;
+  rstl::optional<CModelData> x10_solidModelData;
+  rstl::optional<CModelData> x60_holoModelData;
+  rstl::optional<CModelData> xb0_suitArmModelData;
   std::unique_ptr<CGunController> x100_gunController;
   TToken<CAnimCharacterSet> x104_gunCharacter;
   std::vector<CToken> x10c_anims;
