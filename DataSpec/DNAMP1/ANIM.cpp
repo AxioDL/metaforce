@@ -19,8 +19,12 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
 
   for (const std::pair<atUint32, bool>& bone : bones) {
     const std::string* bName = rig.getCINF().getBoneNameFromId(bone.first);
-    if (!bName)
+    if (!bName) {
+      ++kit;
+      if (bone.second)
+        ++kit;
       continue;
+    }
 
     os.format("bone_string = '%s'\n", bName->c_str());
     os << "action_group = act.groups.new(bone_string)\n"
