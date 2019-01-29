@@ -233,7 +233,7 @@ static const char* FS =
 "        ret += lu.lights[i].color * angAtt * att * saturate(dot(normalize(-delta), mvNormIn));\n"
 "    }\n"
 "    \n"
-"    return ret;\n"
+"    return saturate(ret);\n"
 "}\n"
 "\n"
 "struct VertToFrag\n"
