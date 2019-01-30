@@ -486,7 +486,7 @@ bool CSpacePirate::ShouldFrenzy(CStateManager& mgr) {
 }
 
 void CSpacePirate::SquadReset(CStateManager& mgr) {
-  CTeamAiMgr::ResetTeamAiRole(!x634_27_melee ? CTeamAiMgr::EAttackType::Projectile : CTeamAiMgr::EAttackType::Melee,
+  CTeamAiMgr::ResetTeamAiRole(!x634_27_melee ? CTeamAiMgr::EAttackType::Ranged : CTeamAiMgr::EAttackType::Melee,
                               mgr, x8c8_teamAiMgrId, GetUniqueId(), true);
 }
 
@@ -496,7 +496,7 @@ void CSpacePirate::SquadAdd(CStateManager& mgr) {
   if (x8c8_teamAiMgrId != kInvalidUniqueId) {
     if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x8c8_teamAiMgrId)) {
       aimgr->AssignTeamAiRole(*this,
-                              x634_27_melee ? CTeamAiRole::ETeamAiRole::Melee : CTeamAiRole::ETeamAiRole::Projectile,
+                              x634_27_melee ? CTeamAiRole::ETeamAiRole::Melee : CTeamAiRole::ETeamAiRole::Ranged,
                               CTeamAiRole::ETeamAiRole::Unknown, CTeamAiRole::ETeamAiRole::Invalid);
     }
   }
@@ -565,9 +565,9 @@ void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
         x7bc_attackRemTime -= dt;
         if (x7bc_attackRemTime < 0.f) {
           const CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x8c8_teamAiMgrId, GetUniqueId());
-          if (!role || role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Projectile) {
+          if (!role || role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Ranged) {
             if (x8c8_teamAiMgrId == kInvalidUniqueId ||
-                CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Projectile, mgr, x8c8_teamAiMgrId, GetUniqueId())) {
+                CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Ranged, mgr, x8c8_teamAiMgrId, GetUniqueId())) {
               if (ShouldFrenzy(mgr))
                 x7c4_burstFire.SetBurstType(2);
               if (x635_26_seated)

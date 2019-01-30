@@ -29,13 +29,13 @@ struct TeamAiRoleSorter {
 CTeamAiData::CTeamAiData(CInputStream& in, s32 propCount)
 : x0_aiCount(in.readUint32Big())
 , x4_meleeCount(in.readUint32Big())
-, x8_projectileCount(in.readUint32Big())
+, x8_rangedCount(in.readUint32Big())
 , xc_unknownCount(in.readUint32Big())
 , x10_maxMeleeAttackerCount(in.readUint32Big())
-, x14_maxProjectileAttackerCount(in.readUint32Big())
+, x14_maxRangedAttackerCount(in.readUint32Big())
 , x18_positionMode(in.readUint32Big())
 , x1c_meleeTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f)
-, x20_projectileTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f) {}
+, x20_rangedTimeInterval(propCount > 8 ? in.readFloatBig() : 0.f) {}
 
 CTeamAiMgr::CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data)
 : CEntity(uid, info, true, name), x34_data(data) {
@@ -43,8 +43,8 @@ CTeamAiMgr::CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& 
     x58_roles.reserve(x34_data.x0_aiCount);
   if (x34_data.x4_meleeCount)
     x68_meleeAttackers.reserve(x34_data.x4_meleeCount);
-  if (x34_data.x8_projectileCount)
-    x78_projectileAttackers.reserve(x34_data.x8_projectileCount);
+  if (x34_data.x8_rangedCount)
+    x78_rangedAttackers.reserve(x34_data.x8_rangedCount);
 }
 
 void CTeamAiMgr::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -158,7 +158,7 @@ void CTeamAiMgr::UpdateRoles(CStateManager& mgr) {
   TeamAiRoleSorter sorter(aimPos, 1);
   std::sort(x58_roles.begin(), x58_roles.end(), sorter);
   AssignRoles(CTeamAiRole::ETeamAiRole::Melee, x34_data.x4_meleeCount);
-  AssignRoles(CTeamAiRole::ETeamAiRole::Projectile, x34_data.x8_projectileCount);
+  AssignRoles(CTeamAiRole::ETeamAiRole::Ranged, x34_data.x8_rangedCount);
   AssignRoles(CTeamAiRole::ETeamAiRole::Unknown, x34_data.xc_unknownCount);
   for (auto& role : x58_roles) {
     if (role.GetTeamAiRole() <= CTeamAiRole::ETeamAiRole::Initial ||
@@ -176,7 +176,7 @@ void CTeamAiMgr::Think(float dt, CStateManager& mgr) {
     UpdateRoles(mgr);
   PositionTeam(mgr);
   x90_timeSinceMelee += dt;
-  x94_timeSinceProjectile += dt;
+  x94_timeSinceRanged += dt;
 }
 
 void CTeamAiMgr::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
@@ -233,36 +233,36 @@ void CTeamAiMgr::RemoveMeleeAttacker(TUniqueId aiId) {
     x68_meleeAttackers.erase(search);
 }
 
-bool CTeamAiMgr::IsProjectileAttacker(TUniqueId aiId) const {
-  auto search = rstl::binary_find(x78_projectileAttackers.begin(), x78_projectileAttackers.end(), aiId);
-  return search != x78_projectileAttackers.end();
+bool CTeamAiMgr::IsRangedAttacker(TUniqueId aiId) const {
+  auto search = rstl::binary_find(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId);
+  return search != x78_rangedAttackers.end();
 }
 
-bool CTeamAiMgr::CanAcceptProjectileAttacker(TUniqueId aiId) const {
-  if (x94_timeSinceProjectile >= x34_data.x20_projectileTimeInterval &&
-      x78_projectileAttackers.size() < x34_data.x14_maxProjectileAttackerCount)
+bool CTeamAiMgr::CanAcceptRangedAttacker(TUniqueId aiId) const {
+  if (x94_timeSinceRanged >= x34_data.x20_rangedTimeInterval &&
+      x78_rangedAttackers.size() < x34_data.x14_maxRangedAttackerCount)
     return true;
-  return IsProjectileAttacker(aiId);
+  return IsRangedAttacker(aiId);
 }
 
-bool CTeamAiMgr::AddProjectileAttacker(TUniqueId aiId) {
-  if (x94_timeSinceProjectile >= x34_data.x20_projectileTimeInterval &&
-      x78_projectileAttackers.size() < x34_data.x14_maxProjectileAttackerCount && HasTeamAiRole(aiId)) {
-    auto search = rstl::binary_find(x78_projectileAttackers.begin(), x78_projectileAttackers.end(), aiId);
-    if (search == x78_projectileAttackers.end()) {
-      x78_projectileAttackers.insert(
-          std::lower_bound(x78_projectileAttackers.begin(), x78_projectileAttackers.end(), aiId), aiId);
-      x94_timeSinceProjectile = 0.f;
+bool CTeamAiMgr::AddRangedAttacker(TUniqueId aiId) {
+  if (x94_timeSinceRanged >= x34_data.x20_rangedTimeInterval &&
+      x78_rangedAttackers.size() < x34_data.x14_maxRangedAttackerCount && HasTeamAiRole(aiId)) {
+    auto search = rstl::binary_find(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId);
+    if (search == x78_rangedAttackers.end()) {
+      x78_rangedAttackers.insert(
+          std::lower_bound(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId), aiId);
+      x94_timeSinceRanged = 0.f;
     }
     return true;
   }
   return false;
 }
 
-void CTeamAiMgr::RemoveProjectileAttacker(TUniqueId aiId) {
-  auto search = rstl::binary_find(x78_projectileAttackers.begin(), x78_projectileAttackers.end(), aiId);
-  if (search != x78_projectileAttackers.end())
-    x78_projectileAttackers.erase(search);
+void CTeamAiMgr::RemoveRangedAttacker(TUniqueId aiId) {
+  auto search = rstl::binary_find(x78_rangedAttackers.begin(), x78_rangedAttackers.end(), aiId);
+  if (search != x78_rangedAttackers.end())
+    x78_rangedAttackers.erase(search);
 }
 
 bool CTeamAiMgr::AssignTeamAiRole(const CAi& ai, CTeamAiRole::ETeamAiRole roleA, CTeamAiRole::ETeamAiRole roleB,
@@ -283,8 +283,8 @@ bool CTeamAiMgr::AssignTeamAiRole(const CAi& ai, CTeamAiRole::ETeamAiRole roleA,
 void CTeamAiMgr::RemoveTeamAiRole(TUniqueId aiId) {
   if (IsMeleeAttacker(aiId))
     RemoveMeleeAttacker(aiId);
-  if (IsProjectileAttacker(aiId))
-    RemoveProjectileAttacker(aiId);
+  if (IsRangedAttacker(aiId))
+    RemoveRangedAttacker(aiId);
   auto search =
       rstl::binary_find(x58_roles.begin(), x58_roles.end(), aiId, [](const auto& obj) { return obj.GetOwnerId(); });
   x58_roles.erase(search);
@@ -328,9 +328,9 @@ void CTeamAiMgr::ResetTeamAiRole(EAttackType type, CStateManager& mgr, TUniqueId
       if (type == EAttackType::Melee) {
         if (tmgr->IsMeleeAttacker(aiId))
           tmgr->RemoveMeleeAttacker(aiId);
-      } else if (type == EAttackType::Projectile) {
-        if (tmgr->IsProjectileAttacker(aiId))
-          tmgr->RemoveProjectileAttacker(aiId);
+      } else if (type == EAttackType::Ranged) {
+        if (tmgr->IsRangedAttacker(aiId))
+          tmgr->RemoveRangedAttacker(aiId);
       }
       if (clearRole)
         tmgr->ClearTeamAiRole(aiId);
@@ -343,8 +343,8 @@ bool CTeamAiMgr::CanAcceptAttacker(EAttackType type, CStateManager& mgr, TUnique
     if (tmgr->HasTeamAiRole(aiId)) {
       if (type == EAttackType::Melee)
         return tmgr->CanAcceptMeleeAttacker(aiId);
-      else if (type == EAttackType::Projectile)
-        return tmgr->CanAcceptProjectileAttacker(aiId);
+      else if (type == EAttackType::Ranged)
+        return tmgr->CanAcceptRangedAttacker(aiId);
     }
   }
   return false;
@@ -355,8 +355,8 @@ bool CTeamAiMgr::AddAttacker(EAttackType type, CStateManager& mgr, TUniqueId mgr
     if (tmgr->HasTeamAiRole(aiId)) {
       if (type == EAttackType::Melee)
         return tmgr->AddMeleeAttacker(aiId);
-      else if (type == EAttackType::Projectile)
-        return tmgr->AddProjectileAttacker(aiId);
+      else if (type == EAttackType::Ranged)
+        return tmgr->AddRangedAttacker(aiId);
     }
   }
   return false;

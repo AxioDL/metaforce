@@ -41,7 +41,7 @@ void CWarWasp::SwarmAdd(CStateManager& mgr) {
   if (x674_aiMgr != kInvalidUniqueId) {
     if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x674_aiMgr)) {
       CTeamAiRole::ETeamAiRole role = x3fc_flavor == EFlavorType::Two ?
-        CTeamAiRole::ETeamAiRole::Projectile : CTeamAiRole::ETeamAiRole::Melee;
+        CTeamAiRole::ETeamAiRole::Ranged : CTeamAiRole::ETeamAiRole::Melee;
       if (!aimgr->IsPartOfTeam(GetUniqueId())) {
         aimgr->AssignTeamAiRole(*this, role, CTeamAiRole::ETeamAiRole::Invalid, CTeamAiRole::ETeamAiRole::Invalid);
       }
@@ -343,7 +343,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
         float useSep = sep;
         if (CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, ai->GetUniqueId())) {
           if (role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Melee ||
-              role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Projectile)
+              role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Ranged)
             useSep *= 2.f;
         }
         zeus::CVector3f separation = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), useSep);
@@ -724,7 +724,7 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Activate:
     x72e_28_inProjectileAttack = true;
     if (x674_aiMgr != kInvalidUniqueId) {
-      x568_stateProg = CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Projectile,
+      x568_stateProg = CTeamAiMgr::AddAttacker(CTeamAiMgr::EAttackType::Ranged,
                                                mgr, x674_aiMgr, GetUniqueId()) ? 0 : 3;
     } else {
       x568_stateProg = 0;
@@ -752,7 +752,7 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     break;
   case EStateMsg::Deactivate:
-    CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Projectile, mgr, x674_aiMgr, GetUniqueId(), false);
+    CTeamAiMgr::ResetTeamAiRole(CTeamAiMgr::EAttackType::Ranged, mgr, x674_aiMgr, GetUniqueId(), false);
     x700_attackRemTime = CalcTimeToNextAttack(mgr);
     x72e_28_inProjectileAttack = false;
     break;
@@ -778,9 +778,9 @@ float CWarWasp::CalcTimeToNextAttack(CStateManager& mgr) {
   float mul = 1.f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     s32 maxCount = (x3fc_flavor == EFlavorType::Two) ?
-                      aimgr->GetMaxProjectileAttackerCount() : aimgr->GetMaxMeleeAttackerCount();
+                   aimgr->GetMaxRangedAttackerCount() : aimgr->GetMaxMeleeAttackerCount();
     s32 count = (x3fc_flavor == EFlavorType::Two) ?
-                   aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Projectile) :
+                   aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Ranged) :
                    aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Melee);
     if (count <= maxCount)
       mul *= 0.5f;
@@ -1122,11 +1122,11 @@ bool CWarWasp::HearShot(CStateManager& mgr, float arg) {
 bool CWarWasp::ShouldFire(CStateManager& mgr, float arg) {
   if (x700_attackRemTime <= 0.f) {
     if (CTeamAiRole* role = CTeamAiMgr::GetTeamAiRole(mgr, x674_aiMgr, GetUniqueId())) {
-      if (role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Projectile) {
+      if (role->GetTeamAiRole() == CTeamAiRole::ETeamAiRole::Ranged) {
         zeus::CVector3f delta = GetProjectileAimPos(mgr, -1.25f) - GetTranslation();
         if (delta.canBeNormalized() && GetTransform().basis[1].dot(delta.normalized()) >= 0.906f) {
           if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x674_aiMgr)) {
-            return !aimgr->HasProjectileAttackers();
+            return !aimgr->HasRangedAttackers();
           }
         }
       }

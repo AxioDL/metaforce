@@ -11,7 +11,7 @@ class CTeamAiRole {
   friend class CTeamAiMgr;
 
 public:
-  enum class ETeamAiRole { Invalid = -1, Initial, Melee, Projectile, Unknown, Unassigned };
+  enum class ETeamAiRole { Invalid = -1, Initial, Melee, Ranged, Unknown, Unassigned };
 
 private:
   TUniqueId x0_ownerId;
@@ -41,13 +41,13 @@ class CTeamAiData {
   friend class CTeamAiMgr;
   u32 x0_aiCount;
   u32 x4_meleeCount;
-  u32 x8_projectileCount;
+  u32 x8_rangedCount;
   u32 xc_unknownCount;
   u32 x10_maxMeleeAttackerCount;
-  u32 x14_maxProjectileAttackerCount;
+  u32 x14_maxRangedAttackerCount;
   u32 x18_positionMode;
   float x1c_meleeTimeInterval;
-  float x20_projectileTimeInterval;
+  float x20_rangedTimeInterval;
 
 public:
   CTeamAiData(CInputStream& in, s32 propCount);
@@ -55,17 +55,17 @@ public:
 
 class CTeamAiMgr : public CEntity {
 public:
-  enum class EAttackType { Melee, Projectile };
+  enum class EAttackType { Melee, Ranged };
 
 private:
   CTeamAiData x34_data;
   std::vector<CTeamAiRole> x58_roles;
   std::vector<TUniqueId> x68_meleeAttackers;
-  std::vector<TUniqueId> x78_projectileAttackers;
+  std::vector<TUniqueId> x78_rangedAttackers;
   float x88_timeDirty = 0.f;
   TUniqueId x8c_teamCaptainId = kInvalidUniqueId;
   float x90_timeSinceMelee;
-  float x94_timeSinceProjectile;
+  float x94_timeSinceRanged;
 
   void UpdateTeamCaptain();
   bool ShouldUpdateRoles(float dt);
@@ -95,17 +95,17 @@ public:
   bool CanAcceptMeleeAttacker(TUniqueId aiId) const;
   bool AddMeleeAttacker(TUniqueId aiId);
   void RemoveMeleeAttacker(TUniqueId aiId);
-  bool IsProjectileAttacker(TUniqueId aiId) const;
-  bool CanAcceptProjectileAttacker(TUniqueId aiId) const;
-  bool AddProjectileAttacker(TUniqueId aiId);
-  void RemoveProjectileAttacker(TUniqueId aiId);
+  bool IsRangedAttacker(TUniqueId aiId) const;
+  bool CanAcceptRangedAttacker(TUniqueId aiId) const;
+  bool AddRangedAttacker(TUniqueId aiId);
+  void RemoveRangedAttacker(TUniqueId aiId);
 
   bool HasMeleeAttackers() const { return !x68_meleeAttackers.empty(); }
-  bool HasProjectileAttackers() const { return !x78_projectileAttackers.empty(); }
+  bool HasRangedAttackers() const { return !x78_rangedAttackers.empty(); }
   s32 GetNumRoles() const { return x58_roles.size(); }
   const std::vector<CTeamAiRole>& GetRoles() const { return x58_roles; }
   s32 GetMaxMeleeAttackerCount() const { return x34_data.x10_maxMeleeAttackerCount; }
-  s32 GetMaxProjectileAttackerCount() const { return x34_data.x14_maxProjectileAttackerCount; }
+  s32 GetMaxRangedAttackerCount() const { return x34_data.x14_maxRangedAttackerCount; }
 
   static CTeamAiRole* GetTeamAiRole(CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId);
   static void ResetTeamAiRole(EAttackType type, CStateManager& mgr, TUniqueId mgrId, TUniqueId aiId, bool clearRole);

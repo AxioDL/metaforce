@@ -688,17 +688,15 @@ bool CPatterned::OffLine(CStateManager&, float arg) {
 
 void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
   if (CPathFindSearch* search = GetSearchPath()) {
-    u32 curWp = search->GetCurrentWaypoint();
-    const auto& waypoints = search->GetWaypoints();
     switch (msg) {
     case EStateMsg::Activate: {
       if (search->Search(GetTranslation(), x2e0_destPos) == CPathFindSearch::EResult::Success) {
         x2ec_reflectedDestPos = GetTranslation();
         zeus::CVector3f destPos;
-        if (curWp + 1 < waypoints.size())
-          destPos = waypoints[curWp + 1];
+        if (search->GetCurrentWaypoint() + 1 < search->GetWaypoints().size())
+          destPos = search->GetWaypoints()[search->GetCurrentWaypoint() + 1];
         else
-          destPos = waypoints[curWp];
+          destPos = search->GetWaypoints()[search->GetCurrentWaypoint()];
         SetDestPos(destPos);
         x328_24_inPosition = false;
         ApproachDest(mgr);
@@ -706,7 +704,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       break;
     }
     case EStateMsg::Update: {
-      if (curWp < waypoints.size() - 1) {
+      if (search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
         if (x328_24_inPosition || x328_27_onGround)
           x401_24_pathOverCount += 1;
         zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::CVector3f::skUp;

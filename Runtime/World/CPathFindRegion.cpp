@@ -188,14 +188,14 @@ zeus::CVector3f CPFRegion::FitThroughLink2d(const zeus::CVector3f& p1, const CPF
   zeus::CVector3f nodeDelta = nextNode.GetPos() - node.GetPos();
   float t = 0.5f;
   if (chRadius < 0.5f * link.Get2dWidth()) {
-    zeus::CVector2f delta2d(nodeDelta.x(), nodeDelta.y());
+    zeus::CVector2f delta2d = nodeDelta.toVec2f();
     delta2d *= link.GetOO2dWidth();
     zeus::CVector3f nodeToP1 = p1 - node.GetPos();
     float f27 = nodeToP1.dot(node.GetNormal());
-    float f31 = delta2d.dot(zeus::CVector2f(nodeToP1.y(), nodeToP1.y()));
+    float f31 = delta2d.dot(nodeToP1.toVec2f());
     zeus::CVector3f nodeToP2 = p2 - node.GetPos();
     float f26 = -nodeToP2.dot(node.GetNormal());
-    float f1b = delta2d.dot(zeus::CVector2f(nodeToP2.y(), nodeToP2.y()));
+    float f1b = delta2d.dot(nodeToP2.toVec2f());
     float f3 = f27 + f26;
     if (f3 > FLT_EPSILON)
       t = zeus::clamp(chRadius, 1.f / f3 * (f26 * f31 + f27 * f1b), link.Get2dWidth() - chRadius) * link.GetOO2dWidth();
