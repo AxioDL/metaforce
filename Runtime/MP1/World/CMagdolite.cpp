@@ -19,4 +19,24 @@ CMagdolite::CMagdolite(TUniqueId uid, std::string_view name, const CEntityInfo& 
                        const urde::MP1::CMagdolite::CMagdoliteData& magData, float f7, float f8, float f9)
 : CPatterned(ECharacter::Magdolite, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::BiPedal, actParms, EKnockBackVariant::Large) {}
+
+void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+
+  switch(msg) {
+  case EScriptObjectMessage::Damage:
+  case EScriptObjectMessage::InvulnDamage:
+    /* TODO Implement */
+    return;
+  case EScriptObjectMessage::Registered:
+    x450_bodyController->Activate(mgr);
+    RemoveMaterial(EMaterialTypes::Solid, mgr);
+    AddMaterial(EMaterialTypes::NonSolidDamageable, mgr);
+    //x584_boneTracker.SetActive(false);
+    CreateShadow(false);
+    /* TODO Finish */
+  default:
+    break;
+  }
+  CPatterned::AcceptScriptMsg(msg, uid, mgr);
+}
 } // namespace urde::MP1

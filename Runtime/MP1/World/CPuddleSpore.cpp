@@ -12,22 +12,9 @@
 
 namespace urde::MP1 {
 const std::string_view CPuddleSpore::kEyeLocators[16] = {
-  "Glow_1_LCTR"sv,
-  "Glow_2_LCTR"sv,
-  "Glow_3_LCTR"sv,
-  "Glow_4_LCTR"sv,
-  "Glow_5_LCTR"sv,
-  "Glow_6_LCTR"sv,
-  "Glow_7_LCTR"sv,
-  "Glow_8_LCTR"sv,
-  "Glow_9_LCTR"sv,
-  "Glow_10_LCTR"sv,
-  "Glow_11_LCTR"sv,
-  "Glow_12_LCTR"sv,
-  "Glow_13_LCTR"sv,
-  "Glow_14_LCTR"sv,
-  "Glow_15_LCTR"sv,
-  "Glow_16_LCTR"sv,
+    "Glow_1_LCTR"sv,  "Glow_2_LCTR"sv,  "Glow_3_LCTR"sv,  "Glow_4_LCTR"sv,  "Glow_5_LCTR"sv,  "Glow_6_LCTR"sv,
+    "Glow_7_LCTR"sv,  "Glow_8_LCTR"sv,  "Glow_9_LCTR"sv,  "Glow_10_LCTR"sv, "Glow_11_LCTR"sv, "Glow_12_LCTR"sv,
+    "Glow_13_LCTR"sv, "Glow_14_LCTR"sv, "Glow_15_LCTR"sv, "Glow_16_LCTR"sv,
 };
 CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
@@ -56,9 +43,10 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 }
 
 zeus::CAABox CPuddleSpore::CalculateBoundingBox() const {
-  return {((zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.5f) +
+  return {
+      ((zeus::CVector3f(-x590_halfExtent, -x590_halfExtent, x598_) + x584_bodyOrigin) * 0.5f) +
           (GetBaseBoundingBox().min * 0.95f),
-          ((zeus::CVector3f(x590_halfExtent, x590_halfExtent, (x594_height * x59c_) + x598_) + x584_bodyOrigin) * 0.5f) +
+      ((zeus::CVector3f(x590_halfExtent, x590_halfExtent, (x594_height * x59c_) + x598_) + x584_bodyOrigin) * 0.5f) +
           (GetBaseBoundingBox().max * 0.95f)};
 }
 
@@ -78,9 +66,7 @@ bool CPuddleSpore::HitShell(const zeus::CVector3f& point) const {
   return (distance <= -0.5f || distance >= 0.5f);
 }
 
-void CPuddleSpore::KnockPlayer(CStateManager&, float) {
-
-}
+void CPuddleSpore::KnockPlayer(CStateManager&, float) {}
 
 void CPuddleSpore::UpdateBoundingState(const zeus::CAABox& box, CStateManager& mgr, float dt) {
   SetBoundingBox(box);
@@ -133,7 +119,7 @@ void CPuddleSpore::Think(float dt, CStateManager& mgr) {
   HealthInfo(mgr)->SetHP(1000000.0f);
   float t = (x56c_ / x570_) - 1.f >= -0.f ? 1.f : x56c_ / x570_;
   zeus::CColor modColor = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(1.f, 1.f, 1.f, 0.f), t);
-  for (u32 i = 0 ; i < kEyeCount ; ++i) {
+  for (u32 i = 0; i < kEyeCount; ++i) {
     const auto& elemGen = x5dc_elemGens[i];
     elemGen->SetModulationColor(modColor);
     elemGen->SetTranslation(GetLctrTransform(kEyeLocators[i]).origin);
@@ -178,11 +164,10 @@ void CPuddleSpore::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
     CProjectileInfo* projInfo = GetProjectileInfo();
     if (projInfo->Token() && projInfo->Token().IsLocked() &&
         mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 16)) {
-      mgr.AddObject(new CEnergyProjectile(true, projInfo->Token(), EWeaponType::AI,
-                                          GetLctrTransform(node.GetLocatorName()), EMaterialTypes::Character,
-                                          projInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(),
-                                          GetUniqueId(), kInvalidUniqueId, EProjectileAttrib::None, false,
-                                          zeus::CVector3f::skOne, {}, 0xFFFF, false));
+      mgr.AddObject(new CEnergyProjectile(
+          true, projInfo->Token(), EWeaponType::AI, GetLctrTransform(node.GetLocatorName()), EMaterialTypes::Character,
+          projInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), kInvalidUniqueId,
+          EProjectileAttrib::None, false, zeus::CVector3f::skOne, {}, 0xFFFF, false));
     }
   } else
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
@@ -192,11 +177,8 @@ bool CPuddleSpore::ShouldTurn(CStateManager& mgr, float) {
   zeus::CAABox plBox = mgr.GetPlayer().GetBoundingBox();
   zeus::CAABox selfBox = GetBoundingBox();
 
-  if (plBox.max.z() >= selfBox.min.z() + selfBox.max.z() * 0.5f ||
-      plBox.max.x() < selfBox.min.x() ||
-      plBox.max.y() < selfBox.min.y() ||
-      selfBox.max.x() < plBox.min.y() ||
-      selfBox.max.y() < plBox.min.y() ||
+  if (plBox.max.z() >= selfBox.min.z() + selfBox.max.z() * 0.5f || plBox.max.x() < selfBox.min.x() ||
+      plBox.max.y() < selfBox.min.y() || selfBox.max.x() < plBox.min.y() || selfBox.max.y() < plBox.min.y() ||
       x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup)
     return x568_ >= x578_;
 
@@ -270,7 +252,8 @@ void CPuddleSpore::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockDownCmd({1.f, 0.f, 0.f}, pas::ESeverity::One));
       }
-    } else if (x5cc_ == 1 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
+    } else if (x5cc_ == 1 &&
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
       x5cc_ = 2;
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -291,7 +274,8 @@ void CPuddleSpore::GetUp(CStateManager& mgr, EStateMsg msg, float) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType::Zero));
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Getup)
         x5cc_ = 1;
-    } else if (x5cc_ == 1 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup) {
+    } else if (x5cc_ == 1 &&
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup) {
       x5cc_ = 1;
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -309,4 +293,4 @@ void CPuddleSpore::Attack(CStateManager& mgr, EStateMsg msg, float) {
     x32c_animState = EAnimState::NotReady;
   }
 }
-}
+} // namespace urde::MP1

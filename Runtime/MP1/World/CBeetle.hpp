@@ -51,11 +51,10 @@ private:
 
 public:
   DEFINE_PATTERNED(Beetle)
-  CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-          CModelData&& mData, const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor,
-          CBeetle::EEntranceType entranceType, const CDamageInfo& touchDamage,
-          const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
-          float initialAttackDelay, float retreatTime, float f3,
+  CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf, CModelData&& mData,
+          const CPatternedInfo& pInfo, CPatterned::EFlavorType flavor, CBeetle::EEntranceType entranceType,
+          const CDamageInfo& touchDamage, const CDamageVulnerability& platingVuln,
+          const zeus::CVector3f& tailAimReference, float initialAttackDelay, float retreatTime, float f3,
           const CDamageVulnerability& tailVuln, const CActorParameters& aParams,
           const rstl::optional<CStaticRes>& tailModel);
 
@@ -66,22 +65,18 @@ public:
   void Render(const CStateManager& mgr) const;
 
   const CDamageVulnerability* GetDamageVulnerability() const;
-  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos,
-                                                     const zeus::CVector3f& dir,
+  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
                                                      const CDamageInfo& dInfo) const;
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
-  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos,
-                                                         const zeus::CVector3f& dir,
-                                                         const CWeaponMode& wMode,
-                                                         EProjectileAttrib attribs) const;
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
+                                                         const CWeaponMode& wMode, EProjectileAttrib attribs) const;
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
   void TakeDamage(const zeus::CVector3f& direction, float magnitude);
   bool IsListening() const;
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
-                            const zeus::CVector3f& aimPos) const;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role, const zeus::CVector3f& aimPos) const;
 
   void FollowPattern(CStateManager&, EStateMsg msg, float dt);
   void PathFind(CStateManager& mgr, EStateMsg msg, float dt);
@@ -118,7 +113,6 @@ public:
 
   CPathFindSearch* GetSearchPath();
   float GetGravityConstant() const;
-
 };
 } // namespace MP1
 } // namespace urde

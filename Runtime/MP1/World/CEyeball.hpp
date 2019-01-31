@@ -39,8 +39,8 @@ public:
   CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, float attackDelay,
            float attackStartTime, CAssetId wpscId, const CDamageInfo& dInfo, CAssetId beamContactFxId,
-           CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1,
-           u32 anim2, u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms);
+           CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1, u32 anim2,
+           u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms);
 
   void Accept(IVisitor& visitor);
   void PreRender(CStateManager&, const zeus::CFrustum&);

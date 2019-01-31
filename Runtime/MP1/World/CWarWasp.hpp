@@ -67,6 +67,7 @@ class CWarWasp : public CPatterned {
   bool PathToHiveIsClear(CStateManager& mgr);
   bool SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt);
   zeus::CVector3f CalcShuffleDest(CStateManager& mgr);
+
 public:
   DEFINE_PATTERNED(WarWasp)
   CWarWasp(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -84,8 +85,7 @@ public:
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
   bool IsListening() const;
   bool Listen(const zeus::CVector3f&, EListenNoiseType);
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
-                            const zeus::CVector3f& aimPos) const;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role, const zeus::CVector3f& aimPos) const;
   void UpdateTouchBounds();
   bool IsRetreating() const { return x72e_30_isRetreating; }
 

@@ -124,8 +124,8 @@ std::string_view ScriptObjectTypeToStr(EScriptObjectType type) {
     return "PointOfInterest"sv;
   case EScriptObjectType::Drone:
     return "Drone"sv;
-  case EScriptObjectType::MetroidAlpha:
-    return "MetroidAlpha"sv;
+  case EScriptObjectType::Metroid:
+    return "Metroid"sv;
   case EScriptObjectType::DebrisExtended:
     return "DebrisExtended"sv;
   case EScriptObjectType::Steam:

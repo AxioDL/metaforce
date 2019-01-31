@@ -22,6 +22,7 @@ private:
   void NotifyNeighbors(CStateManager&);
   void ToggleVisible(CStateManager&);
   void SetHeardShot(bool heardShot) { x580_25_heardShot = heardShot; }
+
 public:
   DEFINE_PATTERNED(FlickerBat)
   CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

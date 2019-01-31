@@ -120,9 +120,9 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
   if (x5ec_projectileId != kInvalidUniqueId)
     return;
 
-  CBeamInfo beamInfo(3, x5dc_beamContactFxId, x5e0_beamPulseFxId, x5e4_beamTextureId, x5e8_beamGlowTextureId,
-                     50, 0.05f, 1.f, 2.f, 20.f, 1.f, 1.f, 2.f, zeus::CColor(1.f, 1.f, 1.f, 0.f),
-                     zeus::CColor(0.f, 1.f, 0.5f, 0.f), 150.f);
+  CBeamInfo beamInfo(3, x5dc_beamContactFxId, x5e0_beamPulseFxId, x5e4_beamTextureId, x5e8_beamGlowTextureId, 50, 0.05f,
+                     1.f, 2.f, 20.f, 1.f, 1.f, 2.f, zeus::CColor(1.f, 1.f, 1.f, 0.f), zeus::CColor(0.f, 1.f, 0.5f, 0.f),
+                     150.f);
   x5ec_projectileId = mgr.AllocateUniqueId();
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
                                       zeus::CTransform::Identity(), EMaterialTypes::Immovable,

@@ -141,7 +141,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
   x90c_loaderFuncs[int(EScriptObjectType::AIKeyframe)] = ScriptLoader::LoadAIKeyframe;
   x90c_loaderFuncs[int(EScriptObjectType::PointOfInterest)] = ScriptLoader::LoadPointOfInterest;
   x90c_loaderFuncs[int(EScriptObjectType::Drone)] = ScriptLoader::LoadDrone;
-  x90c_loaderFuncs[int(EScriptObjectType::MetroidAlpha)] = ScriptLoader::LoadMetroidAlpha;
+  x90c_loaderFuncs[int(EScriptObjectType::Metroid)] = ScriptLoader::LoadMetroid;
   x90c_loaderFuncs[int(EScriptObjectType::DebrisExtended)] = ScriptLoader::LoadDebrisExtended;
   x90c_loaderFuncs[int(EScriptObjectType::Steam)] = ScriptLoader::LoadSteam;
   x90c_loaderFuncs[int(EScriptObjectType::Ripple)] = ScriptLoader::LoadRipple;

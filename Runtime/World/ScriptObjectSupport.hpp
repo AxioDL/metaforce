@@ -64,7 +64,7 @@ enum class EScriptObjectType {
   AIKeyframe = 0x41,
   PointOfInterest = 0x42,
   Drone = 0x43,
-  MetroidAlpha = 0x44,
+  Metroid = 0x44,
   DebrisExtended = 0x45,
   Steam = 0x46,
   Ripple = 0x47,

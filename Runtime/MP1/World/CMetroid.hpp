@@ -6,6 +6,7 @@
 namespace urde::MP1 {
 
 class CMetroidData {
+  static constexpr u32 skNumProperties = 20;
   CDamageVulnerability x0_dVuln1;
   CDamageVulnerability x68_dVuln2;
   float xd0_;
@@ -22,6 +23,7 @@ class CMetroidData {
 
 public:
   CMetroidData(CInputStream& in);
+  static u32 GetNumProperties() { return skNumProperties; }
 };
 
 class CMetroid : public CPatterned {
@@ -31,11 +33,12 @@ class CMetroid : public CPatterned {
     };
     u32 _dummy = 0;
   };
+
 public:
   DEFINE_PATTERNED(Metroid)
   CMetroid(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
            const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& aParms,
-           const CMetroidData& metroidData);
+           const CMetroidData& metroidData, TUniqueId);
   bool GetX9BF_29() const { return x9bf_29_; }
 };
 

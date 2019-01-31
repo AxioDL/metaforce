@@ -29,14 +29,15 @@ class CPuddleSpore : public CPatterned {
   bool x614_24 : 1;
   bool x614_25 : 1;
 
-  bool HitShell(const zeus::CVector3f& ) const;
+  bool HitShell(const zeus::CVector3f&) const;
   void KnockPlayer(CStateManager&, float);
   void UpdateBoundingState(const zeus::CAABox&, CStateManager&, float);
+
 public:
   DEFINE_PATTERNED(PuddleSpore)
 
-  CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&,
-               CModelData&&, const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,
+  CPuddleSpore(TUniqueId, std::string_view, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
+               const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,
                const CActorParameters&, CAssetId, const CDamageInfo&);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
@@ -46,20 +47,17 @@ public:
   void Touch(CActor&, CStateManager&);
   void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
   void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& dInfo, EKnockBackType type,
-                 bool inDeferred, float dt)
-  {
+                 bool inDeferred, float dt) {
     if (x5c8_ == 1)
       return;
     CPatterned::KnockBack(dir, mgr, dInfo, type, inDeferred, dt);
   }
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& point, const zeus::CVector3f&,
-    const CWeaponMode&, EProjectileAttrib) const
-  {
+                                                         const CWeaponMode&, EProjectileAttrib) const {
     return HitShell(point) ? EWeaponCollisionResponseTypes::Unknown84 : EWeaponCollisionResponseTypes::Unknown34;
   }
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float);
-  void CollidedWith(TUniqueId uid, const CCollisionInfoList& colList, CStateManager& mgr)
-  {
+  void CollidedWith(TUniqueId uid, const CCollisionInfoList& colList, CStateManager& mgr) {
     if (x5c8_ == 2)
       return;
     CPatterned::CollidedWith(uid, colList, mgr);
@@ -80,4 +78,4 @@ public:
   void GetUp(CStateManager&, EStateMsg, float);
   void Attack(CStateManager&, EStateMsg, float);
 };
-}
+} // namespace urde::MP1

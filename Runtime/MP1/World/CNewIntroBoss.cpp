@@ -14,8 +14,9 @@ namespace urde::MP1 {
 
 CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
-                             float minTurnAngle, CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId,
-                             CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId)
+                             float minTurnAngle, CAssetId projectile, const CDamageInfo& dInfo,
+                             CAssetId beamContactFxId, CAssetId beamPulseFxId, CAssetId beamTextureId,
+                             CAssetId beamGlowTextureId)
 : CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x570_minTurnAngle(minTurnAngle)
@@ -225,7 +226,8 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
     zeus::CTransform xf = GetLctrTransform(x5dc_damageLocator);
 
     if (x400_25_alive) {
-      zeus::CQuaternion clampedQuat = zeus::CQuaternion::clampedRotateTo(xf.frontVector(),
+      zeus::CQuaternion clampedQuat = zeus::CQuaternion::clampedRotateTo(
+          xf.frontVector(),
           (x610_lookPos + (zeus::min(x628_firingTime / 1.5f, 1.f) * (x61c_startPlayerPos - x610_lookPos))) - xf.origin,
           zeus::CRelAngle::FromDegrees(30.f));
       zeus::CTransform newXf = clampedQuat.toTransform() * xf.getRotation();
@@ -328,7 +330,7 @@ bool CNewIntroBoss::ShouldTurn(CStateManager& mgr, float dt) {
   zeus::CVector2f diffPos = (x604_predictedPlayerPos - GetTranslation()).toVec2f();
 
   return zeus::CVector2f::getAngleDiff(GetTransform().frontVector().toVec2f(), diffPos) >
-  zeus::degToRad(x570_minTurnAngle);
+         zeus::degToRad(x570_minTurnAngle);
 }
 
 bool CNewIntroBoss::ShouldAttack(CStateManager& mgr, float dt) {

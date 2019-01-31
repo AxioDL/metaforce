@@ -219,4 +219,4 @@ void CSeedling::MassiveDeath(CStateManager& mgr) {
   CPatterned::MassiveDeath(mgr);
 }
 
-}
+} // namespace urde::MP1

@@ -145,8 +145,7 @@ bool CFlickerBat::CanBeShot(CStateManager& mgr, int) {
           mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay);
 }
 
-void CFlickerBat::Patrol(CStateManager& mgr, EStateMsg state, float dt)
-{
+void CFlickerBat::Patrol(CStateManager& mgr, EStateMsg state, float dt) {
   CPatterned::Patrol(mgr, state, dt);
   x450_bodyController->GetCommandMgr().DeliverFaceVector((x2e0_destPos - GetTranslation()).normalized());
 }
@@ -154,7 +153,7 @@ void CFlickerBat::Patrol(CStateManager& mgr, EStateMsg state, float dt)
 void CFlickerBat::Attack(CStateManager&, EStateMsg msg, float) {
   if (msg == EStateMsg::Update) {
     x450_bodyController->GetCommandMgr().DeliverCmd(
-      CBCLocomotionCmd((x2e0_destPos - GetTranslation()).normalized(), {}, 1.f));
+        CBCLocomotionCmd((x2e0_destPos - GetTranslation()).normalized(), {}, 1.f));
   }
 }
 

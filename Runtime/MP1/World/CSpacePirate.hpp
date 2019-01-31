@@ -32,6 +32,7 @@ public:
 
 class CSpacePirate : public CPatterned {
   friend class CPirateRagDoll;
+
 public:
   DEFINE_PATTERNED(SpacePirate)
 private:
@@ -263,8 +264,7 @@ public:
                  float magnitude);
   bool IsListening() const;
   bool Listen(const zeus::CVector3f&, EListenNoiseType);
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
-                            const zeus::CVector3f& aimPos) const;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role, const zeus::CVector3f& aimPos) const;
   void DetachActorFromPirate() { x7b4_attachedActor = kInvalidUniqueId; }
   bool AttachActorToPirate(TUniqueId id);
   void SetAttackTarget(TUniqueId id);

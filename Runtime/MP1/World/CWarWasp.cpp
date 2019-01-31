@@ -62,9 +62,9 @@ void CWarWasp::SwarmRemove(CStateManager& mgr) {
 void CWarWasp::ApplyDamage(CStateManager& mgr) {
   if (x72e_25_canApplyDamage && x450_bodyController->GetCurrentStateId() == pas::EAnimationState::MeleeAttack) {
     if (mgr.GetPlayer().GetBoundingBox().pointInside(
-        GetTransform() * (GetLocatorTransform("LCTR_WARTAIL"sv).origin * x64_modelData->GetScale()))) {
+            GetTransform() * (GetLocatorTransform("LCTR_WARTAIL"sv).origin * x64_modelData->GetScale()))) {
       mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
-        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
       x72e_25_canApplyDamage = false;
     }
   }
@@ -77,8 +77,10 @@ void CWarWasp::Think(float dt, CStateManager& mgr) {
   if (x700_attackRemTime > 0.f) {
     float rate = 1.f;
     if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed)
-      rate = 1.f - zeus::CVector2f::getAngleDiff(mgr.GetPlayer().GetTransform().basis[1].toVec2f(),
-        GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()) / M_PIF * 0.666f;
+      rate =
+          1.f - zeus::CVector2f::getAngleDiff(mgr.GetPlayer().GetTransform().basis[1].toVec2f(),
+                                              GetTranslation().toVec2f() - mgr.GetPlayer().GetTranslation().toVec2f()) /
+                    M_PIF * 0.666f;
     x700_attackRemTime -= rate * dt;
   }
 
@@ -141,15 +143,15 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
         rstl::reserved_vector<TUniqueId, 1024> nearList;
         TUniqueId bestId = kInvalidUniqueId;
         CRayCastResult res = mgr.RayWorldIntersection(bestId, xf.origin, delta.normalized(), delta.magnitude(),
-          CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), nearList);
+                                                      CMaterialFilter::MakeInclude({EMaterialTypes::Solid}), nearList);
         if (res.IsValid())
           aimPos = res.GetPoint();
       }
     }
     LaunchProjectile(
-      zeus::lookAt(xf.origin, GetProjectileInfo()->PredictInterceptPos(xf.origin, aimPos, mgr.GetPlayer(), true, dt)),
-      mgr, 4, EProjectileAttrib::None, false, {x71c_projectileVisorParticle}, x72c_projectileVisorSfx, true,
-      zeus::CVector3f::skOne);
+        zeus::lookAt(xf.origin, GetProjectileInfo()->PredictInterceptPos(xf.origin, aimPos, mgr.GetPlayer(), true, dt)),
+        mgr, 4, EProjectileAttrib::None, false, {x71c_projectileVisorParticle}, x72c_projectileVisorSfx, true,
+        zeus::CVector3f::skOne);
     handled = true;
     break;
   }
@@ -175,9 +177,7 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-const CCollisionPrimitive* CWarWasp::GetCollisionPrimitive() const {
-  return &x570_cSphere;
-}
+const CCollisionPrimitive* CWarWasp::GetCollisionPrimitive() const { return &x570_cSphere; }
 
 void CWarWasp::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
   CPatterned::Death(mgr, direction, state);
@@ -186,9 +186,7 @@ void CWarWasp::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScri
   SwarmRemove(mgr);
 }
 
-bool CWarWasp::IsListening() const {
-  return true;
-}
+bool CWarWasp::IsListening() const { return true; }
 
 bool CWarWasp::Listen(const zeus::CVector3f& pos, EListenNoiseType type) {
   switch (type) {
@@ -247,7 +245,7 @@ void CWarWasp::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
     if (maxSpeed > 0.f) {
       x450_bodyController->GetCommandMgr().SetSteeringBlendMode(ESteeringBlendMode::FullSpeed);
       float speedFactor =
-        x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::ELocomotionAnim::Walk) * 0.9f / maxSpeed;
+          x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::ELocomotionAnim::Walk) * 0.9f / maxSpeed;
       x450_bodyController->GetCommandMgr().SetSteeringSpeedRange(speedFactor, speedFactor);
     }
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
@@ -279,8 +277,9 @@ void CWarWasp::SetUpPathFindBehavior(CStateManager& mgr) {
       zeus::CVector3f delta = x2e0_destPos - aimPos;
       if (delta.canBeNormalized()) {
         zeus::CVector3f dir = delta.normalized();
-        CRayCastResult res = mgr.RayStaticIntersection(aimPos, dir, delta.magnitude(),
-          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player}));
+        CRayCastResult res = mgr.RayStaticIntersection(
+            aimPos, dir, delta.magnitude(),
+            CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player}));
         if (res.IsValid()) {
           SetDestPos(dir * res.GetT() * 0.5f + aimPos);
           x72e_29_pathObstructed = true;
@@ -306,13 +305,12 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), zeus::CVector3f::skZero, 1.f));
+          CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), zeus::CVector3f::skZero, 1.f));
       zeus::CVector3f target = GetTranslation();
       target.z() = float(teamPos.z());
       zeus::CVector3f moveVec = x45c_steeringBehaviors.Arrival(*this, target, 3.f);
       if (moveVec.magSquared() > 0.01f) {
-        x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 3.f));
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 3.f));
       }
     }
   } else {
@@ -326,7 +324,7 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
     case 2:
       if (ShouldTurn(mgr, 30.f) && delta.canBeNormalized()) {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(zeus::CVector3f::skZero, delta.normalized(), 1.f));
+            CBCLocomotionCmd(zeus::CVector3f::skZero, delta.normalized(), 1.f));
       }
       break;
     default:
@@ -348,8 +346,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
         }
         zeus::CVector3f separation = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), useSep);
         if (!separation.isZero()) {
-          x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCLocomotionCmd(separation, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(separation, zeus::CVector3f::skZero, 1.f));
         }
       }
     }
@@ -387,8 +384,8 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
       float maxSpeed = x450_bodyController->GetBodyStateInfo().GetMaxSpeed();
       float minMoveFactor;
       if (maxSpeed > 0.f)
-        minMoveFactor = x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(
-          pas::ELocomotionAnim::Walk) * 0.5f / maxSpeed;
+        minMoveFactor =
+            x450_bodyController->GetBodyStateInfo().GetLocomotionSpeed(pas::ELocomotionAnim::Walk) * 0.5f / maxSpeed;
       else
         minMoveFactor = 1.f;
       float moveFactor = zeus::clamp(minMoveFactor, arrival1.magnitude(), 1.f);
@@ -403,8 +400,7 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
         if (GetSearchPath() && !PathShagged(mgr, 0.f) && !GetSearchPath()->IsOver()) {
           CPatterned::PathFind(mgr, msg, dt);
         } else {
-          x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
         }
       } else {
         RemoveMaterial(EMaterialTypes::Solid, mgr);
@@ -412,11 +408,9 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
         target.z() = float(x3a0_latestLeashPosition.z());
         zeus::CVector3f arrival2 = x45c_steeringBehaviors.Arrival(*this, target, 2.5f);
         if (arrival2.magSquared() > 0.01f) {
-          x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCLocomotionCmd(arrival2, zeus::CVector3f::skZero, 3.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(arrival2, zeus::CVector3f::skZero, 3.f));
         }
-        x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
       }
     }
     return false;
@@ -425,8 +419,9 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
     zeus::CQuaternion q;
     q.rotateZ(zeus::degToRad(180.f));
     SetTranslation(GetTranslation() * 0.9f + x3a0_latestLeashPosition * 0.1f);
-    SetTransform(zeus::CQuaternion::slerpShort(zeus::CQuaternion(GetTransform().basis), x6a0_initialRot * q, 0.1f).
-      normalized().toTransform(GetTranslation()));
+    SetTransform(zeus::CQuaternion::slerpShort(zeus::CQuaternion(GetTransform().basis), x6a0_initialRot * q, 0.1f)
+                     .normalized()
+                     .toTransform(GetTranslation()));
     return false;
   }
   return true;
@@ -637,7 +632,7 @@ void CWarWasp::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
         x568_stateProg = 2;
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
+            CBCStepCmd(pas::EStepDirection::Backward, pas::EStepType::Normal));
       }
       break;
     case 2:
@@ -700,7 +695,7 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
           } else {
             x450_bodyController->GetCommandMgr().DeliverCmd(
-              CBCLocomotionCmd(x45c_steeringBehaviors.Seek(*this, shuffleDest), zeus::CVector3f::skZero, 1.f));
+                CBCLocomotionCmd(x45c_steeringBehaviors.Seek(*this, shuffleDest), zeus::CVector3f::skZero, 1.f));
             ApplySeparationBehavior(mgr, 15.f);
           }
         } else {
@@ -738,7 +733,7 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
       } else {
         SetDestPos(GetProjectileAimPos(mgr, -0.07f));
         x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCProjectileAttackCmd(pas::ESeverity::One, x2e0_destPos, false));
+            CBCProjectileAttackCmd(pas::ESeverity::One, x2e0_destPos, false));
       }
       break;
     case 2:
@@ -828,8 +823,8 @@ void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
             }
           }
         }
-        if (!rejoinInitial && (x70c_initialCircleAttackTeam != -1 ||
-                               targetUnitSize >= aimgr->GetMaxMeleeAttackerCount()))
+        if (!rejoinInitial &&
+            (x70c_initialCircleAttackTeam != -1 || targetUnitSize >= aimgr->GetMaxMeleeAttackerCount()))
           ++teamUnit;
         JoinCircleAttackTeam(teamUnit, mgr);
         x714_circleTelegraphSeekHeight = mgr.GetActiveRandom()->Float() * -0.5f;
@@ -881,9 +876,7 @@ float CWarWasp::GetTeamZStratum(s32 team) {
   return 0.f;
 }
 
-static const float Table[] = {
-  0.4f, 0.6f, 1.f
-};
+static const float Table[] = {0.4f, 0.6f, 1.f};
 
 float CWarWasp::CalcSeekMagnitude(CStateManager& mgr) {
   float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
@@ -897,8 +890,8 @@ float CWarWasp::CalcSeekMagnitude(CStateManager& mgr) {
             if (const CWarWasp* other = CPatterned::CastTo<CWarWasp>(mgr.GetObjectById(role.GetOwnerId()))) {
               if (x708_circleAttackTeam == other->x708_circleAttackTeam &&
                   GetTransform().basis[1].dot(other->GetTranslation() - GetTranslation()) > 0.f) {
-                float angle = zeus::CVector3f::getAngleDiff(
-                  fromPlatformCenter, other->GetTranslation() - x6b0_circleBurstPos);
+                float angle =
+                    zeus::CVector3f::getAngleDiff(fromPlatformCenter, other->GetTranslation() - x6b0_circleBurstPos);
                 if (angle < minAngle)
                   minAngle = angle;
               }
@@ -957,8 +950,9 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
           moveVec = moveVec * -1.f;
         float seekHeight = x714_circleTelegraphSeekHeight + GetTeamZStratum(x708_circleAttackTeam);
         float seekMag = CalcSeekMagnitude(mgr);
-        moveVec = x45c_steeringBehaviors.Seek(*this,
-          seekOrigin + moveVec * 5.f + zeus::CVector3f(0.f, 0.f, seekHeight)) * seekMag;
+        moveVec =
+            x45c_steeringBehaviors.Seek(*this, seekOrigin + moveVec * 5.f + zeus::CVector3f(0.f, 0.f, seekHeight)) *
+            seekMag;
       }
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
       UpdateTelegraphMoveSpeed(mgr);
@@ -999,8 +993,8 @@ void CWarWasp::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
     break;
   case EStateMsg::Update:
     x450_bodyController->GetCommandMgr().DeliverCmd(
-      CBCLocomotionCmd(x45c_steeringBehaviors.Flee2D(
-        *this, mgr.GetPlayer().GetTranslation().toVec2f()), zeus::CVector3f::skZero, 1.f));
+        CBCLocomotionCmd(x45c_steeringBehaviors.Flee2D(*this, mgr.GetPlayer().GetTranslation().toVec2f()),
+                         zeus::CVector3f::skZero, 1.f));
     break;
   case EStateMsg::Deactivate:
     x400_24_hitByPlayerProjectile = false;
@@ -1054,8 +1048,10 @@ bool CWarWasp::InAttackPosition(CStateManager& mgr, float arg) {
   bool ret = magSq > negTest * negTest && magSq < posTest * posTest && !ShouldTurn(mgr, 45.f);
   if (ret && delta.canBeNormalized()) {
     float deltaMag = delta.magnitude();
-    ret = mgr.RayStaticIntersection(GetTranslation(), delta / deltaMag, deltaMag,
-      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player})).IsInvalid();
+    ret = mgr.RayStaticIntersection(
+                 GetTranslation(), delta / deltaMag, deltaMag,
+                 CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Player}))
+              .IsInvalid();
   }
   return ret;
 }
@@ -1063,7 +1059,8 @@ bool CWarWasp::InAttackPosition(CStateManager& mgr, float arg) {
 bool CWarWasp::Leash(CStateManager& mgr, float arg) {
   if ((x3a0_latestLeashPosition - GetTranslation()).magSquared() > x3c8_leashRadius * x3c8_leashRadius) {
     if ((mgr.GetPlayer().GetTranslation() - GetTranslation()).magSquared() >
-        x3cc_playerLeashRadius * x3cc_playerLeashRadius && x3d4_curPlayerLeashTime > x3d0_playerLeashTime) {
+            x3cc_playerLeashRadius * x3cc_playerLeashRadius &&
+        x3d4_curPlayerLeashTime > x3d0_playerLeashTime) {
       return true;
     }
   }
@@ -1076,9 +1073,7 @@ bool CWarWasp::PathShagged(CStateManager& mgr, float arg) {
   return false;
 }
 
-bool CWarWasp::AnimOver(CStateManager& mgr, float arg) {
-  return x568_stateProg == 3;
-}
+bool CWarWasp::AnimOver(CStateManager& mgr, float arg) { return x568_stateProg == 3; }
 
 bool CWarWasp::ShouldAttack(CStateManager& mgr, float arg) {
   if (x700_attackRemTime <= 0.f) {
@@ -1108,7 +1103,8 @@ bool CWarWasp::InPosition(CStateManager& mgr, float arg) {
 
 bool CWarWasp::ShouldTurn(CStateManager& mgr, float arg) {
   return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(),
-    (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) > zeus::degToRad(arg);
+                                       (mgr.GetPlayer().GetTranslation() - GetTranslation()).toVec2f()) >
+         zeus::degToRad(arg);
 }
 
 bool CWarWasp::HearShot(CStateManager& mgr, float arg) {
@@ -1149,8 +1145,8 @@ bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
       if (mgr.GetPlayer().GetUniqueId() == proj->GetOwnerId()) {
         zeus::CVector3f delta = proj->GetTranslation() - GetTranslation();
         if (zeus::CVector3f::getAngleDiff(GetTransform().basis[1], delta) < zeus::degToRad(45.f)) {
-          x704_dodgeDir = GetTransform().basis[0].dot(delta) > 0.f ?
-            pas::EStepDirection::Right : pas::EStepDirection::Left;
+          x704_dodgeDir =
+              GetTransform().basis[0].dot(delta) > 0.f ? pas::EStepDirection::Right : pas::EStepDirection::Left;
           return true;
         }
       }
@@ -1175,8 +1171,8 @@ bool CWarWasp::CheckCircleAttackSpread(CStateManager& mgr, s32 team) {
           if (wasp2->x708_circleAttackTeam == team) {
             if (leaderWasp->GetTransform().basis[1].dot(wasp2->GetTranslation() - leaderWasp->GetTranslation()) > 0.f)
               return false;
-            float angle = zeus::CVector3f::getAngleDiff(wasp2->GetTranslation() - x6b0_circleBurstPos,
-                                                        platformToLeaderWasp);
+            float angle =
+                zeus::CVector3f::getAngleDiff(wasp2->GetTranslation() - x6b0_circleBurstPos, platformToLeaderWasp);
             if (angle > maxAng)
               maxAng = angle;
           }
@@ -1199,8 +1195,8 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
             zeus::CVector3f fromPlatformCenter = GetTranslation() - x6b0_circleBurstPos;
             zeus::CVector3f thresholdVec = x6bc_circleBurstDir;
             if (x718_circleBurstOffTotemAngle <= zeus::degToRad(90.f)) {
-              thresholdVec = zeus::CVector3f::slerp(x6c8_circleBurstRight, x6bc_circleBurstDir,
-                                                    x718_circleBurstOffTotemAngle);
+              thresholdVec =
+                  zeus::CVector3f::slerp(x6c8_circleBurstRight, x6bc_circleBurstDir, x718_circleBurstOffTotemAngle);
             } else {
               thresholdVec = zeus::CVector3f::slerp(x6bc_circleBurstDir, -x6c8_circleBurstRight,
                                                     x718_circleBurstOffTotemAngle - zeus::degToRad(90.f));
@@ -1221,11 +1217,7 @@ bool CWarWasp::ShouldSpecialAttack(CStateManager& mgr, float arg) {
   return false;
 }
 
-CPathFindSearch* CWarWasp::GetSearchPath() {
-  return &x590_pfSearch;
-}
+CPathFindSearch* CWarWasp::GetSearchPath() { return &x590_pfSearch; }
 
-CProjectileInfo* CWarWasp::GetProjectileInfo() {
-  return &x6d4_projectileInfo;
-}
+CProjectileInfo* CWarWasp::GetProjectileInfo() { return &x6d4_projectileInfo; }
 } // namespace urde::MP1

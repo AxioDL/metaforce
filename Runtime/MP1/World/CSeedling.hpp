@@ -41,4 +41,4 @@ public:
   bool ShouldAttack(CStateManager&, float);
   void MassiveDeath(CStateManager&);
 };
-} // namespace urde
+} // namespace urde::MP1

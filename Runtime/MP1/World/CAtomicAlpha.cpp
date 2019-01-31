@@ -7,17 +7,13 @@
 
 #include "CStateManager.hpp"
 namespace urde::MP1 {
-const std::string_view CAtomicAlpha::skBombLocators[4] = {
-  "bomb1_LCTR"sv,
-  "bomb2_LCTR"sv,
-  "bomb3_LCTR"sv,
-  "bomb4_LCTR"sv
-};
+const std::string_view CAtomicAlpha::skBombLocators[4] = {"bomb1_LCTR"sv, "bomb2_LCTR"sv, "bomb3_LCTR"sv,
+                                                          "bomb4_LCTR"sv};
 
 CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
-                           CAssetId bombWeapon, const CDamageInfo& bombDamage, float bombDropDelay, float f2, float f3, CAssetId cmdl,
-                           bool invisible, bool b2)
+                           CAssetId bombWeapon, const CDamageInfo& bombDamage, float bombDropDelay, float f2, float f3,
+                           CAssetId cmdl, bool invisible, bool b2)
 : CPatterned(ECharacter::AtomicAlpha, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Flyer, actParms, EKnockBackVariant::Medium)
 , x568_24_inRange(false)
@@ -32,7 +28,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
   const_cast<TToken<CWeaponDescription>*>(&x668_bombProjectile.Token())->Lock();
   for (u32 i = 0; i < skBombCount; ++i) {
     x6dc_bombLocators.push_back(
-      SBomb(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i)));
+        SBomb(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i)));
   }
 }
 
@@ -54,8 +50,10 @@ void CAtomicAlpha::Render(const CStateManager& mgr) const {
 
   CPatterned::Render(mgr);
   for (const SBomb& bomb : x6dc_bombLocators) {
-    zeus::CTransform locatorXf = GetTransform() * GetScaledLocatorTransform(bomb.x0_locatorName) *
-                                zeus::CTransform::Scale(std::min(1.f, std::max(0.f, bomb.x14_scaleTime - x570_bombReappearDelay) / x570_bombReappearDelay));
+    zeus::CTransform locatorXf =
+        GetTransform() * GetScaledLocatorTransform(bomb.x0_locatorName) *
+        zeus::CTransform::Scale(
+            std::min(1.f, std::max(0.f, bomb.x14_scaleTime - x570_bombReappearDelay) / x570_bombReappearDelay));
     CModelFlags flags;
     flags.x2_flags = 1 | 2;
     flags.x4_color = zeus::CColor::skWhite;

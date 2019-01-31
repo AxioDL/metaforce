@@ -47,9 +47,8 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   x460_knockBackController.SetAutoResetImpulse(false);
 }
 
-static const SSphereJointInfo kArmCollision[] = {{"Arm_4", 1.5f},      {"Arm_6", 1.f}, {"Arm_7", 1.f},
-                                                        {"Arm_8", 1.f},       {"Arm_9", 1.f}, {"Arm_11", 1.f},
-                                                        {"Swoosh_LCTR", 1.5f}};
+static const SSphereJointInfo kArmCollision[] = {{"Arm_4", 1.5f}, {"Arm_6", 1.f},  {"Arm_7", 1.f}, {"Arm_8", 1.f},
+                                                 {"Arm_9", 1.f},  {"Arm_11", 1.f}, {"Swoosh_LCTR", 1.5f}};
 
 void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool oldActive = GetActive();
@@ -119,7 +118,7 @@ void CSpankWeed::Think(float dt, CStateManager& mgr) {
 
   if (!x598_isHiding) {
     zeus::CVector3f eyeOrigin = GetLocatorTransform("Eye"sv).origin;
-    MoveCollisionPrimitive(GetModelData()->GetScale() * eyeOrigin);
+    MoveCollisionPrimitive(GetTransform().rotate(GetModelData()->GetScale() * eyeOrigin));
     x594_collisionMgr->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
     xe4_27_notInSortedLists = true;
   }

@@ -92,7 +92,7 @@ public:
   static CEntity* LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadPointOfInterest(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
-  static CEntity* LoadMetroidAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
+  static CEntity* LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
   static CEntity* LoadRipple(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);

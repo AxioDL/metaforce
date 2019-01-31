@@ -119,7 +119,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
       }
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f), {}, 1.f));
+          CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f), {}, 1.f));
     }
   }
 }

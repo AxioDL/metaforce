@@ -82,10 +82,14 @@ void ViewManager::TestGameView::think() {
       overlayText += hecl::Format(
           "Player Position: x %f, y %f, z %f\n"
           "       Roll: %f, Pitch: %f, Yaw: %f\n"
+          "       Momentum: x %f, y: %f, z: %f\n"
+          "       Velocity: x %f, y: %f, z: %f\n"
           "Camera Position: x %f, y %f, z %f\n"
           "       Roll: %f, Pitch: %f, Yaw: %f\n",
           pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
           zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
+          pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(),
+          pl.GetVelocity().x(), pl.GetVelocity().y(), pl.GetVelocity().z(),
           camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
           zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
     }
