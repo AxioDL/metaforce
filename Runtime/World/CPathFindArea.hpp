@@ -67,7 +67,7 @@ class CPFArea {
   rstl::prereserved_vector<CPFRegion*>* x20_cachedRegionList = nullptr;
   zeus::CVector3f x24_cachedRegionListPoint;
   bool x30_hasCachedRegionList = false;
-  s32 x34_curCookie = 0;
+  s32 x34_regionFindCookie = 0;
   CPFBitSet x38_closedSet;
   CPFOpenList x78_openList;
   // u32 x138_;

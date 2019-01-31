@@ -290,8 +290,8 @@ void AROTBuilder::Node::pathWrite(DNAMP1::PATH& path, const zeus::CAABox& curAAB
     atUint32 children[8];
     for (int i = 0; i < 8; ++i) {
       /* Head recursion (first node will be a leaf) */
-      children[i] = path.octree.size();
       childNodes[i].pathWrite(path, SplitAABB(curAABB, i));
+      children[i] = path.octree.size() - 1;
     }
 
     path.octree.emplace_back();

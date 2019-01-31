@@ -481,18 +481,19 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
   float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
 
+  float dirs[4] = {};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)]) {
+    if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
-        right += -m_mouseDelta.x();
+        dirs[3] = -m_mouseDelta.x();
       else if (float(m_mouseDelta.x()) > 0.f)
-        left += m_mouseDelta.x();
+        dirs[2] = m_mouseDelta.x();
       if (float(m_mouseDelta.y()) < 0.f)
-        up += -m_mouseDelta.y();
+        dirs[0] = -m_mouseDelta.y();
       else if (float(m_mouseDelta.y()) > 0.f)
-        down += m_mouseDelta.y();
+        dirs[1] = m_mouseDelta.y();
     }
   }
 
@@ -511,8 +512,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
     dirSlot = 3;
   }
 
-  float dirs[4] = {};
-  dirs[dirSlot] = maxMag;
+  dirs[dirSlot] += maxMag;
 
   if (dirs[0] > 0.f || dirs[1] > 0.f || dirs[2] > 0.f || dirs[3] > 0.f || mouseHeld) {
     int flags = 0x0;
@@ -596,14 +596,17 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
   bool in = ControlMapper::GetDigitalInput(ControlMapper::ECommands::MapZoomIn, input);
   bool out = ControlMapper::GetDigitalInput(ControlMapper::ECommands::MapZoomOut, input);
 
+  float zoomSpeed = 1.f;
   if (const auto& kbm = input.GetKBM()) {
     m_mapScroll += kbm->m_accumScroll - m_lastAccumScroll;
     m_lastAccumScroll = kbm->m_accumScroll;
     if (m_mapScroll.delta[1] > 0.0) {
       in = true;
+      zoomSpeed = std::max(1.f, float(m_mapScroll.delta[1]));
       m_mapScroll.delta[1] = std::max(0.0, m_mapScroll.delta[1] - (15.0 / 60.0));
     } else if (m_mapScroll.delta[1] < 0.0) {
       out = true;
+      zoomSpeed = std::max(1.f, float(-m_mapScroll.delta[1]));
       m_mapScroll.delta[1] = std::min(0.0, m_mapScroll.delta[1] + (15.0 / 60.0));
     }
   }
@@ -634,7 +637,7 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
 
   x324_zoomState = nextZoomState;
   float delta = input.DeltaTime() * 60.f * (x1bc_state == EAutoMapperState::MapScreen ? 1.f : 4.f) *
-                g_tweakAutoMapper->GetCamZoomUnitsPerFrame();
+                g_tweakAutoMapper->GetCamZoomUnitsPerFrame() * zoomSpeed;
   float oldDist = xa8_renderStates[0].x18_camDist;
   if (x324_zoomState == EZoomState::In) {
     xa8_renderStates[0].x18_camDist = GetClampedMapScreenCameraDistance(xa8_renderStates[0].x18_camDist - delta);
@@ -646,6 +649,8 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
     x324_zoomState = EZoomState::Out;
   }
 
+  if (oldDist == xa8_renderStates[0].x18_camDist)
+    m_mapScroll.delta[1] = 0.0;
   SetShouldZoomingSoundBePlaying(oldDist != xa8_renderStates[0].x18_camDist);
 }
 
@@ -657,7 +662,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
 
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+    if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)] ||
+        kbm->m_mouseButtons[int(boo::EMouseButton::Secondary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         right += -m_mouseDelta.x();

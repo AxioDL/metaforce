@@ -5,6 +5,25 @@
 
 namespace DataSpec::DNAMP1 {
 
+#define DUMP_OCTREE 0
+
+#if DUMP_OCTREE
+/* octree dumper */
+static void OutputOctreeNode(hecl::blender::PyOutStream& os, int idx, const zeus::CAABox& aabb) {
+  const zeus::CVector3f pos = aabb.center();
+  const zeus::CVector3f extent = aabb.extents();
+  os.format(
+    "obj = bpy.data.objects.new('Leaf_%d', None)\n"
+    "bpy.context.scene.objects.link(obj)\n"
+    "obj.location = (%f,%f,%f)\n"
+    "obj.scale = (%f,%f,%f)\n"
+    "obj.empty_draw_type = 'CUBE'\n"
+    "obj.layers[1] = True\n"
+    "obj.layers[0] = False\n", idx,
+    pos.x(), pos.y(), pos.z(), extent.x(), extent.y(), extent.z());
+}
+#endif
+
 void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf) {
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
@@ -85,7 +104,7 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
         r.meshIndexMask, r.meshTypeMask, r.height);
 
 #if 0
-        zeus::CVector3f center = xf->multiplyOneOverW(r.centroid);
+        const zeus::CVector3f center = xf->multiplyOneOverW(r.centroid);
         zeus::CAABox aabb(xf->multiplyOneOverW(r.aabb[0]), xf->multiplyOneOverW(r.aabb[1]));
         os.format("aabb = bpy.data.objects.new('AABB', None)\n"
                   "aabb.location = (%f,%f,%f)\n"
@@ -95,13 +114,13 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
                   "centr = bpy.data.objects.new('Center', None)\n"
                   "centr.location = (%f,%f,%f)\n"
                   "bpy.context.scene.objects.link(centr)\n",
-                  aabb.min.v[0] + (aabb.max.v[0] - aabb.min.v[0]) / 2.f,
-                  aabb.min.v[1] + (aabb.max.v[1] - aabb.min.v[1]) / 2.f,
-                  aabb.min.v[2] + (aabb.max.v[2] - aabb.min.v[2]) / 2.f,
-                  (aabb.max.v[0] - aabb.min.v[0]) / 2.f,
-                  (aabb.max.v[1] - aabb.min.v[1]) / 2.f,
-                  (aabb.max.v[2] - aabb.min.v[2]) / 2.f,
-                  center.x, center.y, center.z);
+                  aabb.min[0] + (aabb.max[0] - aabb.min[0]) / 2.f,
+                  aabb.min[1] + (aabb.max[1] - aabb.min[1]) / 2.f,
+                  aabb.min[2] + (aabb.max[2] - aabb.min[2]) / 2.f,
+                  (aabb.max[0] - aabb.min[0]) / 2.f,
+                  (aabb.max[1] - aabb.min[1]) / 2.f,
+                  (aabb.max[2] - aabb.min[2]) / 2.f,
+                  center.x(), center.y(), center.z());
 #endif
   }
 
@@ -151,6 +170,17 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
         xfMtxF[0][2], xfMtxF[1][2], xfMtxF[2][2], xfMtxF[3][2]);
   }
 
+#if DUMP_OCTREE
+  {
+    int idx = 0;
+    for (const auto& n : octree) {
+      if (n.isLeaf)
+        OutputOctreeNode(os, idx, zeus::CAABox(n.aabb[0], n.aabb[1]));
+      ++idx;
+    }
+  }
+#endif
+
   os.linkBackground("//!area.blend");
   os.centerView();
   os.close();
@@ -170,7 +200,8 @@ bool PATH::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   return conn.saveBlend();
 }
 
-bool PATH::Cook(const hecl::ProjectPath& outPath, const PathMesh& mesh) {
+bool PATH::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                const PathMesh& mesh, hecl::blender::Token& btok) {
   athena::io::MemoryReader r(mesh.data.data(), mesh.data.size());
   PATH path;
   path.read(r);
@@ -187,6 +218,18 @@ bool PATH::Cook(const hecl::ProjectPath& outPath, const PathMesh& mesh) {
     for (int i = 0; i < 8; ++i)
       n.children[i] = 0xffffffff;
   }
+
+#if DUMP_OCTREE
+  {
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.createBlend(inPath.getWithExtension(_SYS_STR(".octree.blend"), true), hecl::blender::BlendType::PathMesh))
+      return false;
+
+    zeus::CMatrix4f xf;
+    path.sendToBlender(conn, "PATH"sv, &xf);
+    conn.saveBlend();
+  }
+#endif
 
   athena::io::FileWriter w(outPath.getAbsolutePath());
   path.write(w);

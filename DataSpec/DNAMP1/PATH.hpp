@@ -72,6 +72,7 @@ struct PATH : BigDNA {
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                       std::function<void(const hecl::SystemChar*)> fileChanged);
 
-  static bool Cook(const hecl::ProjectPath& outPath, const PathMesh& mesh);
+  static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                   const PathMesh& mesh, hecl::blender::Token& btok);
 };
 } // namespace DataSpec::DNAMP1

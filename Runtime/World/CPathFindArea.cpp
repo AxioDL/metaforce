@@ -204,7 +204,7 @@ CPFRegion* CPFArea::FindClosestRegion(const zeus::CVector3f& point, u32 flags, u
   CPFRegion* ret = nullptr;
   for (rstl::prereserved_vector<CPFRegion*>* list : regionListList) {
     for (CPFRegion* region : *list) {
-      if (region->Data()->GetCookie() != x34_curCookie) {
+      if (region->Data()->GetCookie() != x34_regionFindCookie) {
         if (region->GetFlags() & 0xff & flags && (region->GetFlags() >> 16) & 0xff & indexMask &&
             region->IsPointInsidePaddedAABox(point, padding) && (isFlyer || region->PointHeight(point) < 3.f)) {
           if (region->FindBestPoint(x10_tmpPolyPoints, point, flags, padding * padding)) {
@@ -215,10 +215,11 @@ CPFRegion* CPFArea::FindClosestRegion(const zeus::CVector3f& point, u32 flags, u
             x4_closestPoint = region->Data()->GetBestPoint();
           }
         }
-        region->Data()->SetCookie(x34_curCookie);
+        region->Data()->SetCookie(x34_regionFindCookie);
       }
     }
   }
+  ++x34_regionFindCookie;
   return ret;
 }
 

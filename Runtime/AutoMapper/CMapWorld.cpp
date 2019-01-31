@@ -421,14 +421,14 @@ static bool PointInsideCircle(const zeus::CVector2f& point, const Circle2& circ,
   return intersect <= 0.f;
 }
 
-static Circle2 UpdateSupport1(int idx, zeus::CVector2f** list, Support& support) {
+static Circle2 UpdateSupport1(int idx, const zeus::CVector2f** list, Support& support) {
   Circle2 ret = ExactCircle2(list[support.x4_[0]], list[idx]);
   support.x0_ = 2;
   support.x4_[1] = idx;
   return ret;
 }
 
-static Circle2 UpdateSupport2(int idx, zeus::CVector2f** list, Support& support) {
+static Circle2 UpdateSupport2(int idx, const zeus::CVector2f** list, Support& support) {
   Circle2 circs[3] = {};
   float intersect;
   int circIdx = -1;
@@ -441,12 +441,11 @@ static Circle2 UpdateSupport2(int idx, zeus::CVector2f** list, Support& support)
   }
 
   circs[1] = ExactCircle2(list[support.x4_[1]], list[idx]);
-  if (circs[1].x8_radiusSq < minRad && PointInsideCircle(*list[support.x4_[1]], circs[1], intersect)) {
-    minRad = circs[1].x8_radiusSq;
+  if (circs[1].x8_radiusSq < minRad && PointInsideCircle(*list[support.x4_[0]], circs[1], intersect)) {
     circIdx = 1;
   }
 
-  Circle2 ret = {};
+  Circle2 ret;
   if (circIdx != -1) {
     ret = circs[circIdx];
     support.x4_[1 - circIdx] = idx;
@@ -458,7 +457,7 @@ static Circle2 UpdateSupport2(int idx, zeus::CVector2f** list, Support& support)
   return ret;
 }
 
-static Circle2 UpdateSupport3(int idx, zeus::CVector2f** list, Support& support) {
+static Circle2 UpdateSupport3(int idx, const zeus::CVector2f** list, Support& support) {
   Circle2 circs[6] = {};
   float intersect;
   int circIdxA = -1;
@@ -576,15 +575,15 @@ static Circle2 UpdateSupport3(int idx, zeus::CVector2f** list, Support& support)
   return circs[circIdxA];
 }
 
-typedef Circle2 (*FSupport)(int idx, zeus::CVector2f** list, Support& support);
+typedef Circle2 (*FSupport)(int idx, const zeus::CVector2f** list, Support& support);
 static const FSupport SupportFuncs[] = {nullptr, UpdateSupport1, UpdateSupport2, UpdateSupport3};
 
 static Circle MinCircle(const std::vector<zeus::CVector2f>& coords) {
   Circle2 ret = {};
   if (coords.size() >= 1) {
-    std::unique_ptr<zeus::CVector2f*[]> randArr(new zeus::CVector2f*[coords.size()]);
+    std::unique_ptr<const zeus::CVector2f*[]> randArr(new const zeus::CVector2f*[coords.size()]);
     for (int i = 0; i < coords.size(); ++i)
-      randArr[i] = const_cast<zeus::CVector2f*>(&coords[i]);
+      randArr[i] = &coords[i];
     for (int i = coords.size() - 1; i >= 0; --i) {
       int shuf = rand() % (i + 1);
       if (shuf != i)
