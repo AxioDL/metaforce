@@ -177,7 +177,11 @@ struct ShaderCompiler<PlatformType::Metal> {
         close(compilerIn[1]);
 
         execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "-o", "/dev/stdout", "-Wno-unused-variable",
-               "-Wno-unused-const-variable", "-Wno-unused-function", "-c", "-x", "metal", "-", NULL);
+               "-Wno-unused-const-variable", "-Wno-unused-function", "-c", "-x", "metal",
+#ifndef NDEBUG
+               "-gline-tables-only", "-MO",
+#endif
+               "-", NULL);
         fprintf(stderr, "execlp fail %s\n", strerror(errno));
         exit(1);
       }
