@@ -212,10 +212,10 @@ static std::string_view DisintegratePostMetal = FOG_STRUCT_METAL
     "static float4 EXTDisintegratePostFunc(thread VertToFrag& vtf, constant DisintegrateUniform& lu, sampler samp,\n"
     "                                      sampler clampSamp, texture2d<float> extTex7, float4 colorIn)\n"
     "{\n"
-    "    float4 texel0 = extTex7.sample(samp, vtf.extTcgs[0]);\n"
-    "    float4 texel1 = extTex7.sample(samp, vtf.extTcgs[1]);\n"
+    "    float4 texel0 = extTex7.sample(samp, vtf.extTcgs0);\n"
+    "    float4 texel1 = extTex7.sample(samp, vtf.extTcgs1);\n"
     "    colorIn = mix(float4(0.0), texel1, texel0);\n"
-    "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_METAL
+    "    colorIn.rgb += lu.addColor.rgb;\n" FOG_ALGORITHM_METAL
     "}\n"
     "\n"sv;
 
@@ -266,10 +266,5 @@ const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {DisintegratePostMetal, "EXTDisintegratePostFunc"},
     {MainPostMetal, "MainPostFunc"},
 };
-
-static const char* BlockNames[] = {"LightingUniform"};
-static const char* ThermalBlockNames[] = {"ThermalUniform"};
-static const char* SolidBlockNames[] = {"SolidUniform"};
-static const char* MBShadowBlockNames[] = {"MBShadowUniform"};
 
 } // namespace urde

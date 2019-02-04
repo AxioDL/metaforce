@@ -75,6 +75,7 @@ static const char* BlockNames[] = {"LightingUniform"};
 static const char* ThermalBlockNames[] = {"ThermalUniform"};
 static const char* SolidBlockNames[] = {"SolidUniform"};
 static const char* MBShadowBlockNames[] = {"MBShadowUniform"};
+static const char* DisintegrateBlockNames[] = {"DisintegrateUniform"};
 
 static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     /* Default solid shading */
@@ -138,7 +139,7 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::GEqual, hecl::Backend::CullMode::Backface, true, false, true},
     /* Disintegration */
-    {1, BlockNames, 2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
+    {1, DisintegrateBlockNames, 2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
      hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false,
      false, true, false, false, true},
     /* Forced additive shading without culling or Z-write and greater depth test */
@@ -185,11 +186,15 @@ CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Ba
   auto search = g_ShaderPipelines.find(tag.val64());
   if (search != g_ShaderPipelines.cend())
     return search->second;
+
   ShaderPipelines& newPipelines = g_ShaderPipelines[tag.val64()];
   newPipelines = std::make_shared<ShaderPipelinesData>();
-  size_t idx = 0;
-  for (const auto& ext : g_ExtensionSlots)
-    (*newPipelines)[idx++] = hecl::conv->convert(hecl::HECLIR(ir, tag, ext));
+  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+    size_t idx = 0;
+    for (const auto& ext : g_ExtensionSlots)
+      (*newPipelines)[idx++] = hecl::conv->convert(ctx, hecl::HECLIR(ir, tag, ext));
+    return true;
+  } BooTrace);
   return newPipelines;
 }
 } // namespace urde

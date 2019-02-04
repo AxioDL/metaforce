@@ -57,13 +57,13 @@ struct Application : boo::IApplicationCallback {
 
   std::atomic_bool m_running = {true};
 
-  Application() : m_fileMgr(_SYS_STR("urde")), m_cvarManager(m_fileMgr), m_cvarCommons(m_cvarManager) {}
+  Application() : m_fileMgr(_SYS_STR("urde")), m_cvarManager(m_fileMgr), m_cvarCommons(m_cvarManager),
+                  m_viewManager(std::make_unique<ViewManager>(m_fileMgr, m_cvarManager)) {}
 
   virtual ~Application() = default;
 
   int appMain(boo::IApplication* app) {
     initialize(app);
-    m_viewManager = std::make_unique<ViewManager>(m_fileMgr, m_cvarManager);
     m_viewManager->init(app);
     while (m_running.load()) {
       if (!m_viewManager->proc())
@@ -186,6 +186,9 @@ int main(int argc, const boo::SystemChar** argv)
     if (lastIdx != hecl::SystemString::npos)
       ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
   }
+
+  /* Handle -j argument */
+  hecl::SetCpuCountOverride(argc, argv);
 
   urde::Application appCb;
   int ret = boo::ApplicationRun(boo::IApplication::EPlatformType::Auto, appCb, _SYS_STR("urde"), _SYS_STR("URDE"), argc,
