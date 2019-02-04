@@ -3,6 +3,7 @@
 #include "athena/FileReader.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
+#include "boo/IApplication.hpp"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -18,14 +19,41 @@ static logvisor::Module CP_Log("hecl::ClientProcess");
 
 ThreadLocalPtr<ClientProcess::Worker> ClientProcess::ThreadWorker;
 
+int CpuCountOverride = 0;
+
+void SetCpuCountOverride(int argc, const SystemChar** argv) {
+  bool threadArg = false;
+  for (int i = 1; i < argc; ++i) {
+    if (threadArg) {
+      if (int count = int(hecl::StrToUl(argv[i], nullptr, 0))) {
+        CpuCountOverride = count;
+        return;
+      }
+    }
+    if (!hecl::StrNCmp(argv[i], _SYS_STR("-j"), 2)) {
+      if (int count = int(hecl::StrToUl(argv[i] + 2, nullptr, 0))) {
+        CpuCountOverride = count;
+        return;
+      }
+      threadArg = true;
+    }
+  }
+}
+
 static int GetCPUCount() {
+  int ret;
 #if _WIN32
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
-  return sysinfo.dwNumberOfProcessors;
+  ret = sysinfo.dwNumberOfProcessors;
 #else
-  return sysconf(_SC_NPROCESSORS_ONLN);
+  ret = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
+
+  if (CpuCountOverride)
+    return std::min(CpuCountOverride, ret);
+
+  return ret;
 }
 
 void ClientProcess::BufferTransaction::run(blender::Token& btok) {

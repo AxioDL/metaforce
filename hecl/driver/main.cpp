@@ -192,8 +192,15 @@ int main(int argc, const char** argv)
     }
 
     /* Iterate flags */
+    bool threadArg = false;
     for (auto it = args.cbegin(); it != args.cend();) {
       const hecl::SystemString& arg = *it;
+      if (threadArg) {
+        threadArg = false;
+        hecl::CpuCountOverride = int(hecl::StrToUl(arg.c_str(), nullptr, 0));
+        it = args.erase(it);
+        continue;
+      }
       if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-')) {
         ++it;
         continue;
@@ -208,6 +215,14 @@ int main(int argc, const char** argv)
           info.yes = true;
         else if (*chit == _SYS_STR('g'))
           info.gui = true;
+        else if (*chit == _SYS_STR('j')) {
+          ++chit;
+          if (*chit)
+            hecl::CpuCountOverride = int(hecl::StrToUl(&*chit, nullptr, 0));
+          else
+            threadArg = true;
+          break;
+        }
         else
           info.flags.push_back(*chit);
       }

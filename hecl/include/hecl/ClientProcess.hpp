@@ -11,6 +11,9 @@
 
 namespace hecl {
 
+extern int CpuCountOverride;
+void SetCpuCountOverride(int argc, const SystemChar** argv);
+
 class ClientProcess {
   std::mutex m_mutex;
   std::condition_variable m_cv;

@@ -67,11 +67,12 @@ public:
   std::string makeVert() const {
     return m_backend.makeVert(m_tag.getColorCount(), m_tag.getUvCount(), m_tag.getWeightCount(),
                               m_tag.getSkinSlotCount(), m_extension.texCount, m_extension.texs,
-                              m_tag.getReflectionType());
+                              m_extension.noReflection ? Backend::ReflectionType::None : m_tag.getReflectionType());
   }
   std::string makeFrag() const {
     return m_backend.makeFrag(m_extension.blockCount, m_extension.blockNames,
-                              m_tag.getAlphaTest() || m_extension.forceAlphaTest, m_tag.getReflectionType(),
+                              m_tag.getAlphaTest() || m_extension.forceAlphaTest,
+                              m_extension.noReflection ? Backend::ReflectionType::None : m_tag.getReflectionType(),
                               m_backend.m_blendSrc, m_backend.m_blendDst, m_extension.lighting, m_extension.post,
                               m_extension.texCount, m_extension.texs);
   }
