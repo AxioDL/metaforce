@@ -26,6 +26,8 @@
 
 namespace urde::MP1 {
 
+#define FE_USE_SECONDS_IN_ELAPSED 1
+
 /* Music volume constants */
 static const float FE1_VOL = 0.7421875f;
 static const float FE2_VOL = 0.7421875f;
@@ -455,7 +457,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
         case 0:
           // Completion percent
           if (data) {
-            std::u16string fileStr = g_MainStringTable->GetString(data->x20_hardMode ? 106 : 39);
+            std::u16string fileStr = g_MainStringTable->GetString((data->x20_hardMode ? 106 : 39) + i);
             str = fileStr + hecl::Char16Format(L"  %02d%%", data->x18_itemPercent);
             break;
           }
@@ -473,7 +475,21 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
           }
           str = g_MainStringTable->GetString(51);
           break;
-
+#if FE_USE_SECONDS_IN_ELAPSED
+          case 2:
+          // Formatted time
+          if (data) {
+            auto pt = std::div(data->x0_playTime, 3600);
+            str = hecl::Char16Format(L"%02d:%02d:%02d", pt.quot, pt.rem / 60, pt.rem % 60);
+            break;
+          }
+          str = g_MainStringTable->GetString(52);
+          break;
+        case 3:
+          // "Elapsed"
+          str = std::u16string(u"    ") + std::u16string(g_MainStringTable->GetString(data ? 54 : 53));
+          break;
+#else
         case 2:
           // Formatted time
           if (data) {
@@ -488,6 +504,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
           // "Elapsed"
           str = g_MainStringTable->GetString(data ? 54 : 53);
           break;
+#endif
 
         default:
           break;

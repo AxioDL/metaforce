@@ -464,7 +464,33 @@ void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager&) {}
 void CScriptSpecialFunction::ThinkSpinnerController(float, CStateManager&,
                                                     CScriptSpecialFunction::ESpinnerControllerMode) {}
 
-void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager&) {}
+void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr) {
+  TUniqueId followerAct = kInvalidUniqueId;
+  TUniqueId followedAct = kInvalidUniqueId;
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state != EScriptObjectState::Play)
+      continue;
+
+    auto search = mgr.GetIdListForScript(conn.x8_objId);
+    for (auto it = search.first; it != search.second; ++it) {
+      if (TCastToConstPtr<CActor> act = mgr.GetObjectById(it->second)) {
+        if (conn.x4_msg == EScriptObjectMessage::Activate &&
+            (act->HasModelData() && act->GetModelData()->HasAnimData()) && act->GetActive()) {
+          followedAct = it->second;
+        } else if (conn.x4_msg == EScriptObjectMessage::Deactivate) {
+          followerAct = it->second;
+        }
+      }
+    }
+  }
+
+  if (followerAct == kInvalidUniqueId || followedAct == kInvalidUniqueId)
+    return;
+
+  TCastToConstPtr<CActor> fromAct = mgr.GetObjectById(followedAct);
+  TCastToPtr<CActor> toAct = mgr.ObjectById(followerAct);
+  toAct->SetTransform(fromAct->GetTransform() * fromAct->GetScaledLocatorTransform(xec_locatorName));
+}
 
 void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager&) {}
 
@@ -509,7 +535,11 @@ void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager& mgr) {
     SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
 }
 
-void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager&) {}
+void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager& mgr) {
+  const auto& playerState = mgr.GetPlayerState();
+  const CPlayer& player = mgr.GetPlayer();
+
+}
 
 void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr) {
   if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {

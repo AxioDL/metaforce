@@ -417,12 +417,12 @@ void CStateManager::SetupParticleHook(const CActor& actor) const {
 void CStateManager::MurderScriptInstanceNames() { xb40_uniqueInstanceNames.clear(); }
 
 std::string CStateManager::HashInstanceName(CInputStream& in) {
-#ifdef NDEBUG
-  while (in.readByte() != 0) {};
-  return "";
-#else
-  return in.readString();
-#endif
+  if (hecl::com_developer && hecl::com_developer->toBoolean()) {
+    return in.readString();
+  } else {
+    while (in.readByte() != 0) {};
+    return "";
+  }
 }
 
 void CStateManager::SetActorAreaId(CActor& actor, TAreaId aid) {
