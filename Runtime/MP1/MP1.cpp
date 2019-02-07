@@ -438,6 +438,21 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   console->report(hecl::Console::Level::Info, "Cheater....., Greatly increasing Metroid encounters, have fun!");
 }
 
+void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
+  if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
+    return;
+
+  std::string type = args[0];
+  athena::utility::tolower(type);
+  std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
+  CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
+  if (eType != CPlayerState::EItemType::Invalid) {
+    pState->ReInitalizePowerUp(eType, 0);
+    if (g_StateManager)
+      g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+  }
+}
+
 void CMain::God(hecl::Console* con, const std::vector<std::string>&) {
   if (g_GameState && g_GameState->GetPlayerState()) {
     g_GameState->GetPlayerState()->SetCanTakeDamage(!g_GameState->GetPlayerState()->CanTakeDamage());
@@ -630,6 +645,9 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
                              std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
   m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv,
                              std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2),
+                             hecl::SConsoleCommand::ECommandFlags::Cheat);
+  m_console->registerCommand("Remove"sv, "Removes the specified item from the player"sv, ""sv,
+                             std::bind(&CMain::Remove, this, std::placeholders::_1, std::placeholders::_2),
                              hecl::SConsoleCommand::ECommandFlags::Cheat);
   m_console->registerCommand(
       "Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv,

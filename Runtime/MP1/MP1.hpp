@@ -303,6 +303,7 @@ public:
   size_t GetExpectedIdSize() const { return sizeof(u32); }
   void quit(hecl::Console*, const std::vector<std::string>&) { m_doQuit = true; }
   void Give(hecl::Console*, const std::vector<std::string>&);
+  void Remove(hecl::Console*, const std::vector<std::string>&);
   void God(hecl::Console*, const std::vector<std::string>&);
   void Teleport(hecl::Console*, const std::vector<std::string>&);
   void ListWorlds(hecl::Console*, const std::vector<std::string>&);
