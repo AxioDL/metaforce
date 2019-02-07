@@ -48,83 +48,99 @@ if(APPLE)
   list(APPEND PLAT_SRCS startButton.cpp CGameOptionsTouchBarMac.mm)
 endif()
 
-add_library(RuntimeCommon
-            RetroTypes.hpp RetroTypes.cpp
-            ${CLIENT_SOURCES}
-            ${MP1_SOURCES}
-            ${AUDIO_SOURCES}
-            ${AUTOMAPPER_SOURCES}
-            ${CAMERA_SOURCES}
-            ${CHARACTER_SOURCES}
-            ${COLLISION_SOURCES}
-            ${GRAPHICS_SOURCES}
-            ${GUISYS_SOURCES}
-            ${INPUT_SOURCES}
-            ${PARTICLE_SOURCES}
-            ${WORLD_SOURCES}
-            ${WEAPON_SOURCES}
-            ITweak.hpp
-            IMain.hpp
-            CStopwatch.hpp
-            CGameAllocator.hpp CGameAllocator.cpp
-            CMemoryCardSys.hpp CMemoryCardSys.cpp
-            CScannableObjectInfo.hpp CScannableObjectInfo.cpp
-            CSaveWorld.hpp CSaveWorld.cpp
-            CDependencyGroup.hpp CDependencyGroup.cpp
-            CBasics.hpp CBasicsPC.cpp
-            CIOWin.hpp
-            CIOWinManager.hpp CIOWinManager.cpp
-            CStateManager.hpp CStateManager.cpp
-            CGameState.hpp CGameState.cpp
-            CRelayTracker.hpp CRelayTracker.cpp
-            CPlayerState.hpp CPlayerState.cpp
-            CRandom16.hpp CRandom16.cpp
-            CResFactory.hpp CResFactory.cpp
-            CResLoader.hpp CResLoader.cpp
-            CDvdRequest.hpp
-            CDvdFile.hpp CDvdFile.cpp
-            IObjectStore.hpp
-            CSimplePool.hpp CSimplePool.cpp
-            CGameOptions.hpp CGameOptions.cpp
-            CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
-            CStaticInterference.hpp CStaticInterference.cpp
-            CCRC32.hpp CCRC32.cpp
-            IFactory.hpp
-            IObjFactory.hpp
-            CObjectList.hpp CObjectList.cpp
-            GameObjectLists.hpp GameObjectLists.cpp
-            CSortedLists.hpp CSortedLists.cpp
-            CArchitectureMessage.hpp
-            CArchitectureQueue.hpp
-            IObj.hpp
-            IVParamObj.hpp
-            CTimeProvider.hpp CTimeProvider.cpp
-            CToken.hpp CToken.cpp
-            CFactoryMgr.hpp CFactoryMgr.cpp
-            CPakFile.hpp CPakFile.cpp
-            CStringExtras.hpp
-            IOStreams.hpp IOStreams.cpp
-            CMainFlowBase.hpp CMainFlowBase.cpp
-            CMFGameBase.hpp
-            CInGameTweakManagerBase.hpp
-            CPlayMovieBase.hpp
-            CGameDebug.hpp
-            CGameHintInfo.hpp CGameHintInfo.cpp
-            rstl.hpp
-            GameGlobalObjects.hpp GameGlobalObjects.cpp
-            MkCastTo.py
-            TCastTo.hpp TCastTo.cpp
-            GCNTypes.hpp
-            ${PLAT_SRCS})
+set(RUNTIME_SOURCES_A
+    RetroTypes.hpp RetroTypes.cpp
+    ${CLIENT_SOURCES}
+    ${MP1_SOURCES}
+    ${AUDIO_SOURCES}
+    ${AUTOMAPPER_SOURCES}
+    ${CAMERA_SOURCES}
+    ${CHARACTER_SOURCES}
+    ${COLLISION_SOURCES})
+
+set(RUNTIME_SOURCES_B
+    ${GRAPHICS_SOURCES}
+    ${GUISYS_SOURCES}
+    ${INPUT_SOURCES}
+    ${PARTICLE_SOURCES}
+    ${WORLD_SOURCES}
+    ${WEAPON_SOURCES}
+    ITweak.hpp
+    IMain.hpp
+    CStopwatch.hpp
+    CGameAllocator.hpp CGameAllocator.cpp
+    CMemoryCardSys.hpp CMemoryCardSys.cpp
+    CScannableObjectInfo.hpp CScannableObjectInfo.cpp
+    CSaveWorld.hpp CSaveWorld.cpp
+    CDependencyGroup.hpp CDependencyGroup.cpp
+    CBasics.hpp CBasicsPC.cpp
+    CIOWin.hpp
+    CIOWinManager.hpp CIOWinManager.cpp
+    CStateManager.hpp CStateManager.cpp
+    CGameState.hpp CGameState.cpp
+    CRelayTracker.hpp CRelayTracker.cpp
+    CPlayerState.hpp CPlayerState.cpp
+    CRandom16.hpp CRandom16.cpp
+    CResFactory.hpp CResFactory.cpp
+    CResLoader.hpp CResLoader.cpp
+    CDvdRequest.hpp
+    CDvdFile.hpp CDvdFile.cpp
+    IObjectStore.hpp
+    CSimplePool.hpp CSimplePool.cpp
+    CGameOptions.hpp CGameOptions.cpp
+    CGameOptionsTouchBar.hpp CGameOptionsTouchBar.cpp
+    CStaticInterference.hpp CStaticInterference.cpp
+    CCRC32.hpp CCRC32.cpp
+    IFactory.hpp
+    IObjFactory.hpp
+    CObjectList.hpp CObjectList.cpp
+    GameObjectLists.hpp GameObjectLists.cpp
+    CSortedLists.hpp CSortedLists.cpp
+    CArchitectureMessage.hpp
+    CArchitectureQueue.hpp
+    IObj.hpp
+    IVParamObj.hpp
+    CTimeProvider.hpp CTimeProvider.cpp
+    CToken.hpp CToken.cpp
+    CFactoryMgr.hpp CFactoryMgr.cpp
+    CPakFile.hpp CPakFile.cpp
+    CStringExtras.hpp
+    IOStreams.hpp IOStreams.cpp
+    CMainFlowBase.hpp CMainFlowBase.cpp
+    CMFGameBase.hpp
+    CInGameTweakManagerBase.hpp
+    CPlayMovieBase.hpp
+    CGameDebug.hpp
+    CGameHintInfo.hpp CGameHintInfo.cpp
+    rstl.hpp
+    GameGlobalObjects.hpp GameGlobalObjects.cpp
+    MkCastTo.py
+    TCastTo.hpp TCastTo.cpp
+    GCNTypes.hpp
+    ${PLAT_SRCS})
+
+function(add_runtime_common_library name)
+add_library(${name} ${ARGN})
 if(COMMAND add_sanitizers)
-  add_sanitizers(RuntimeCommon)
+  add_sanitizers(${name})
 endif()
 if(COMMAND cotire)
-  set_target_properties(RuntimeCommon PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-  cotire(RuntimeCommon)
+  set_target_properties(${name} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
+  cotire(${name})
 endif()
-add_dependencies(RuntimeCommon ${HECL_APPLICATION_REPS_TARGETS_LIST})
+add_dependencies(${name} ${HECL_APPLICATION_REPS_TARGETS_LIST})
 
 if(WINDOWS_STORE)
-  set_property(TARGET RuntimeCommon PROPERTY VS_WINRT_COMPONENT TRUE)
+  set_property(TARGET ${name} PROPERTY VS_WINRT_COMPONENT TRUE)
+endif()
+endfunction()
+
+if(MSVC)
+  # WTF MS???? LINK.EXE is unable to address static libraries larger than 4GB.
+  # This is a hack to split this large library in two.
+  add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
+  add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
+  target_link_libraries(RuntimeCommon RuntimeCommonB)
+else()
+  add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A} ${RUNTIME_SOURCES_B})
 endif()
