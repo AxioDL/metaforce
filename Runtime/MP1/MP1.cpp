@@ -496,7 +496,7 @@ void CMain::ListWorlds(hecl::Console* con, const std::vector<std::string>&) {
   }
 }
 
-void CMain::WarpTo(hecl::Console* con, const std::vector<std::string>& args) {
+void CMain::Warp(hecl::Console* con, const std::vector<std::string>& args) {
   if (!g_StateManager)
     return;
 
@@ -659,8 +659,8 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   m_console->registerCommand("ListWorlds"sv, "Lists loaded worlds"sv, ""sv,
                              std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2),
                              hecl::SConsoleCommand::ECommandFlags::Normal);
-  m_console->registerCommand("WarpTo"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
-                             std::bind(&CMain::WarpTo, this, std::placeholders::_1, std::placeholders::_2),
+  m_console->registerCommand("Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
+                             std::bind(&CMain::Warp, this, std::placeholders::_1, std::placeholders::_2),
                              hecl::SConsoleCommand::ECommandFlags::Normal);
 
   InitializeSubsystems();
