@@ -261,6 +261,7 @@ public:
   void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_preThinkDt, mgr); }
   void Think(float, CStateManager&);
   void PreRender(CStateManager&, const zeus::CFrustum&);
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void Render(const CStateManager& mgr) const;
 
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);

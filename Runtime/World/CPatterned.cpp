@@ -1552,6 +1552,18 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CActor::PreRender(mgr, frustum);
 }
 
+void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+  if (x402_29_drawParticles) {
+    if (x64_modelData && !x64_modelData->IsNull()) {
+      int mask, target;
+      mgr.GetCharacterRenderMaskAndTarget(x402_31_thawed, mask, target);
+      if (CAnimData* aData = x64_modelData->AnimationData())
+        aData->GetParticleDB().AddToRendererClippedMasked(frustum, mask, target);
+    }
+  }
+  CActor::AddToRenderer(frustum, mgr);
+}
+
 void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;

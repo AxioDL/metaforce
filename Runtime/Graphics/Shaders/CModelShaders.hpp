@@ -55,6 +55,7 @@ public:
     zeus::CColor ambient;
     zeus::CColor colorRegs[3];
     zeus::CColor mulColor;
+    zeus::CColor addColor;
     CGraphics::CFogState fog;
 
     void ActivateLights(const std::vector<CLight>& lts);

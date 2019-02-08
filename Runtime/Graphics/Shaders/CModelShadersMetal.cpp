@@ -65,6 +65,7 @@ FOG_STRUCT_METAL
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
 "    float4 mulColor;\n"
+"    float4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -114,6 +115,7 @@ static std::string_view LightingShadowMetal =
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
 "    float4 mulColor;\n"
+"    float4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -161,14 +163,14 @@ static std::string_view ThermalPostMetal =
     "struct ThermalUniform\n"
     "{\n"
     "    float4 tmulColor;\n"
-    "    float4 addColor;\n"
+    "    float4 taddColor;\n"
     "};\n"
     "static float4 EXTThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu,\n"
     "    sampler samp, sampler clampSamp, texture2d<float> extTex7, float4 colorIn)\n"
     "{\n"
     "    //return float4(vtf.extTcgs0.xy, 0.0, 1.0);\n"
-    "    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.addColor.rgb,\n"
-    "                  lu.tmulColor.a + lu.addColor.a);\n"
+    "    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.taddColor.rgb,\n"
+    "                  lu.tmulColor.a + lu.taddColor.a);\n"
     "}\n"
     "\n"sv;
 
@@ -206,7 +208,7 @@ static std::string_view MBShadowPostMetal =
 static std::string_view DisintegratePostMetal = FOG_STRUCT_METAL
     "struct DisintegrateUniform\n"
     "{\n"
-    "    float4 addColor;\n"
+    "    float4 daddColor;\n"
     "    Fog fog;\n"
     "};\n"
     "static float4 EXTDisintegratePostFunc(thread VertToFrag& vtf, constant DisintegrateUniform& lu, sampler samp,\n"
@@ -215,7 +217,7 @@ static std::string_view DisintegratePostMetal = FOG_STRUCT_METAL
     "    float4 texel0 = extTex7.sample(samp, vtf.extTcgs0);\n"
     "    float4 texel1 = extTex7.sample(samp, vtf.extTcgs1);\n"
     "    colorIn = mix(float4(0.0), texel1, texel0);\n"
-    "    colorIn.rgb += lu.addColor.rgb;\n" FOG_ALGORITHM_METAL
+    "    colorIn.rgb += lu.daddColor.rgb;\n" FOG_ALGORITHM_METAL
     "}\n"
     "\n"sv;
 

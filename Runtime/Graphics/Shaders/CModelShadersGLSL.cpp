@@ -66,6 +66,7 @@ FOG_STRUCT_GLSL
 "    vec4 colorReg1;\n"
 "    vec4 colorReg2;\n"
 "    vec4 mulColor;\n"
+"    vec4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -116,6 +117,7 @@ static std::string_view LightingShadowGLSL =
 "    vec4 colorReg1;\n"
 "    vec4 colorReg2;\n"
 "    vec4 mulColor;\n"
+"    vec4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -167,11 +169,11 @@ static std::string_view ThermalPostGLSL =
     "UBINDING2 uniform ThermalUniform\n"
     "{\n"
     "    vec4 tmulColor;\n"
-    "    vec4 addColor;\n"
+    "    vec4 taddColor;\n"
     "};\n"
     "vec4 ThermalPostFunc(vec4 colorIn)\n"
     "{\n"
-    "    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + addColor.a);\n"
+    "    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + taddColor.rgb, tmulColor.a + taddColor.a);\n"
     "}\n"
     "\n"sv;
 
@@ -207,7 +209,7 @@ static std::string_view MBShadowPostGLSL =
 static std::string_view DisintegratePostGLSL = FOG_STRUCT_GLSL
     "UBINDING2 uniform DisintegrateUniform\n"
     "{\n"
-    "    vec4 addColor;\n"
+    "    vec4 daddColor;\n"
     "    Fog fog;\n"
     "};\n"
     "vec4 DisintegratePostFunc(vec4 colorIn)\n"
@@ -215,7 +217,7 @@ static std::string_view DisintegratePostGLSL = FOG_STRUCT_GLSL
     "    vec4 texel0 = texture(extTex7, vtf.extTcgs[0]);\n"
     "    vec4 texel1 = texture(extTex7, vtf.extTcgs[1]);\n"
     "    colorIn = mix(vec4(0.0), texel1, texel0);\n"
-    "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_GLSL
+    "    colorIn.rgb += daddColor.rgb;\n" FOG_ALGORITHM_GLSL
     "}\n"
     "\n"sv;
 

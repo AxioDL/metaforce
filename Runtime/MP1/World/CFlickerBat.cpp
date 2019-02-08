@@ -15,8 +15,8 @@ CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlav
              colType, EBodyType::Pitchable, actParms, EKnockBackVariant::Small)
 , x580_24_wasInXray(false)
 , x580_25_heardShot(false)
-, x580_26_(false)
-, x580_27_(b2)
+, x580_26_inLOS(false)
+, x580_27_enableLOSCheck(b2)
 , x574_state(EFlickerBatState(b1)) {
 
   SetupPlayerCollision(b1);
@@ -45,26 +45,26 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
 
   x402_29_drawParticles = mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::XRay;
 
-  if (GetFlickerBatState() == EFlickerBatState::Two || GetFlickerBatState() == EFlickerBatState::Three) {
-    x578_ -= dt;
-    if (x578_ <= 0.f) {
-      if (GetFlickerBatState() == EFlickerBatState::Two)
-        SetFlickerBatState(EFlickerBatState::Zero, mgr);
+  if (GetFlickerBatState() == EFlickerBatState::FadeIn || GetFlickerBatState() == EFlickerBatState::FadeOut) {
+    x578_fadeRemTime -= dt;
+    if (x578_fadeRemTime <= 0.f) {
+      if (GetFlickerBatState() == EFlickerBatState::FadeIn)
+        SetFlickerBatState(EFlickerBatState::Visible, mgr);
       else
-        SetFlickerBatState(EFlickerBatState::One, mgr);
+        SetFlickerBatState(EFlickerBatState::Hidden, mgr);
     }
   }
 
   bool inXray = mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay;
   if (inXray != x580_24_wasInXray) {
     if (inXray) {
-      if (GetFlickerBatState() == EFlickerBatState::One) {
+      if (GetFlickerBatState() == EFlickerBatState::Hidden) {
         AddMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         SetMuted(false);
       }
       CreateShadow(false);
     } else {
-      if (GetFlickerBatState() == EFlickerBatState::One) {
+      if (GetFlickerBatState() == EFlickerBatState::Hidden) {
         RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         SetMuted(true);
       }
@@ -75,11 +75,11 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
 
   float alpha = 0.f;
   if (!x580_24_wasInXray) {
-    if (GetFlickerBatState() == EFlickerBatState::Zero)
+    if (GetFlickerBatState() == EFlickerBatState::Visible)
       alpha = 1.f;
-    else if (GetFlickerBatState() == EFlickerBatState::Two || GetFlickerBatState() == EFlickerBatState::Three) {
-      alpha = x578_ * x57c_;
-      if (GetFlickerBatState() == EFlickerBatState::Two)
+    else if (GetFlickerBatState() == EFlickerBatState::FadeIn || GetFlickerBatState() == EFlickerBatState::FadeOut) {
+      alpha = x578_fadeRemTime * x57c_ooFadeDur;
+      if (GetFlickerBatState() == EFlickerBatState::FadeIn)
         alpha = 1.f - alpha;
     }
   } else
@@ -90,26 +90,26 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
 
   bool targetable = true;
   if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay &&
-      (x574_state == EFlickerBatState::Zero || x574_state == EFlickerBatState::Two))
+      (x574_state == EFlickerBatState::Visible || x574_state == EFlickerBatState::FadeIn))
     targetable = false;
   xe7_31_targetable = targetable;
   CPatterned::Think(dt, mgr);
 }
 
 void CFlickerBat::Render(const CStateManager& mgr) const {
-  if (!x580_24_wasInXray && x580_26_ &&
-      (GetFlickerBatState() == EFlickerBatState::Two || GetFlickerBatState() == EFlickerBatState::Three)) {
+  if (!x580_24_wasInXray && x580_26_inLOS &&
+      (GetFlickerBatState() == EFlickerBatState::FadeIn || GetFlickerBatState() == EFlickerBatState::FadeOut)) {
     float strength = 0.f;
-    if (GetFlickerBatState() == EFlickerBatState::Two) {
-      strength = 4.f * (x578_ - .75f);
-    } else if (GetFlickerBatState() == EFlickerBatState::Three) {
-      strength = 4.f * x578_;
+    if (GetFlickerBatState() == EFlickerBatState::FadeIn) {
+      strength = 4.f * (x578_fadeRemTime - .75f);
+    } else if (GetFlickerBatState() == EFlickerBatState::FadeOut) {
+      strength = 4.f * x578_fadeRemTime;
     }
     if (strength > 0.f && strength < 1.f)
       mgr.DrawSpaceWarp(GetTranslation(), 0.3f * std::sin(M_PIF * strength));
   }
 
-  if (x580_26_) {
+  if (x580_26_inLOS) {
     mgr.SetupFogForAreaNonCurrent(GetAreaIdAlways());
     CPatterned::Render(mgr);
     mgr.SetupFogForArea(GetAreaIdAlways());
@@ -136,12 +136,12 @@ void CFlickerBat::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node,
 }
 
 void CFlickerBat::Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) {
-  SetFlickerBatState(EFlickerBatState::Zero, mgr);
+  SetFlickerBatState(EFlickerBatState::Visible, mgr);
   CPatterned::Death(mgr, direction, state);
 }
 
 bool CFlickerBat::CanBeShot(CStateManager& mgr, int) {
-  return (GetFlickerBatState() == EFlickerBatState::Zero || GetFlickerBatState() == EFlickerBatState::Two ||
+  return (GetFlickerBatState() == EFlickerBatState::Visible || GetFlickerBatState() == EFlickerBatState::FadeIn ||
           mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay);
 }
 
@@ -196,15 +196,15 @@ void CFlickerBat::SetFlickerBatState(EFlickerBatState state, CStateManager& mgr)
 }
 
 void CFlickerBat::FlickerBatStateChanged(EFlickerBatState state, CStateManager& mgr) {
-  if (state == EFlickerBatState::Zero) {
+  if (state == EFlickerBatState::Visible) {
     if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay)
       CreateShadow(true);
 
     AddMaterial(EMaterialTypes::Target, mgr);
-  } else if (state == EFlickerBatState::One) {
+  } else if (state == EFlickerBatState::Hidden) {
     SetMuted(true);
     RemoveMaterial(EMaterialTypes::Target, mgr);
-  } else if (state == EFlickerBatState::Two) {
+  } else if (state == EFlickerBatState::FadeIn) {
     if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay) {
       CreateShadow(true);
       SetMuted(false);
@@ -212,7 +212,7 @@ void CFlickerBat::FlickerBatStateChanged(EFlickerBatState state, CStateManager& 
 
     CheckStaticIntersection(mgr);
     SetupPlayerCollision(true);
-  } else if (state == EFlickerBatState::Three) {
+  } else if (state == EFlickerBatState::FadeOut) {
     if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay)
       CreateShadow(true);
 
@@ -222,8 +222,8 @@ void CFlickerBat::FlickerBatStateChanged(EFlickerBatState state, CStateManager& 
 }
 
 void CFlickerBat::CheckStaticIntersection(CStateManager& mgr) {
-  if (!x580_27_) {
-    x580_26_ = false;
+  if (!x580_27_enableLOSCheck) {
+    x580_26_inLOS = false;
     return;
   }
 
@@ -231,7 +231,7 @@ void CFlickerBat::CheckStaticIntersection(CStateManager& mgr) {
   zeus::CVector3f diff = GetBoundingBox().center() - camPos;
   float mag = diff.magnitude();
   diff *= zeus::CVector3f(1.f / mag);
-  x580_26_ = CGameCollision::RayStaticIntersectionBool(mgr, camPos, diff, mag,
+  x580_26_inLOS = CGameCollision::RayStaticIntersectionBool(mgr, camPos, diff, mag,
                                                        CMaterialFilter::MakeExclude({EMaterialTypes::SeeThrough}));
 }
 
@@ -244,12 +244,12 @@ void CFlickerBat::NotifyNeighbors(CStateManager& mgr) {
 }
 
 void CFlickerBat::ToggleVisible(CStateManager& mgr) {
-  if (GetFlickerBatState() == EFlickerBatState::Zero || GetFlickerBatState() == EFlickerBatState::Two)
-    SetFlickerBatState(EFlickerBatState::Three, mgr);
+  if (GetFlickerBatState() == EFlickerBatState::Visible || GetFlickerBatState() == EFlickerBatState::FadeIn)
+    SetFlickerBatState(EFlickerBatState::FadeOut, mgr);
   else
-    SetFlickerBatState(EFlickerBatState::Two, mgr);
+    SetFlickerBatState(EFlickerBatState::FadeIn, mgr);
 
-  x578_ = 1.f;
-  x57c_ = 1.f / x578_;
+  x578_fadeRemTime = 1.f;
+  x57c_ooFadeDur = 1.f / x578_fadeRemTime;
 }
 } // namespace urde::MP1

@@ -36,6 +36,14 @@ float CLight::GetIntensity() const {
   return x48_cachedIntensity;
 }
 
+float CLight::GetRadius() const {
+  if (x4c_25_radiusDirty) {
+    const_cast<CLight*>(this)->x44_cachedRadius = CalculateLightRadius();
+    const_cast<CLight*>(this)->x4c_25_radiusDirty = false;
+  }
+  return x44_cachedRadius;
+}
+
 CLight::CLight(const zeus::CVector3f& pos, const zeus::CVector3f& dir, const zeus::CColor& color, float distC,
                float distL, float distQ, float angleC, float angleL, float angleQ)
 : x0_pos(pos)

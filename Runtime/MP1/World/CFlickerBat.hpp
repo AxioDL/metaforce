@@ -5,19 +5,19 @@
 namespace urde::MP1 {
 class CFlickerBat final : public CPatterned {
 public:
-  enum class EFlickerBatState { Zero, One, Two, Three };
+  enum class EFlickerBatState { Visible, Hidden, FadeIn, FadeOut };
 
 private:
   float x568_ = 0.f;
   float x56c_ = 0.f;
   float x570_ = 0.f;
   EFlickerBatState x574_state;
-  float x578_ = 1.f;
-  float x57c_ = 0.f;
+  float x578_fadeRemTime = 1.f;
+  float x57c_ooFadeDur = 0.f;
   bool x580_24_wasInXray : 1;
   bool x580_25_heardShot : 1;
-  bool x580_26_ : 1;
-  bool x580_27_ : 1;
+  bool x580_26_inLOS : 1;
+  bool x580_27_enableLOSCheck : 1;
 
   void NotifyNeighbors(CStateManager&);
   void ToggleVisible(CStateManager&);

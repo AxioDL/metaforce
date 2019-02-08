@@ -65,7 +65,7 @@ void CMetaree::Touch(CActor& act, CStateManager& mgr) {
   }
 }
 
-void CMetaree::CollidedWith(TUniqueId& id, const CCollisionInfoList& colList, CStateManager& mgr) {
+void CMetaree::CollidedWith(TUniqueId id, const CCollisionInfoList& colList, CStateManager& mgr) {
   if (!x400_25_alive || colList.GetCount() <= 0)
     return;
 

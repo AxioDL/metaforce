@@ -201,28 +201,28 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
       if (lightOctreeWords && !TestBit(lightOctreeWords, model.x44_areaInstanceIdx))
         continue;
 
+      float radius = model.x20_aabb.intersectionRadius(zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
+
       bool foundLight = false;
       for (int j = 0; j < i; ++j) {
         if (lightRefs[j] == &refLight)
           continue;
-        float radius = model.x20_aabb.intersectionRadius(zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
         if (radius < 0.f)
           break;
         if (lightRads[j] <= radius)
           break;
         lightRads[j] = radius;
-        lightRefs[j] = &refLight;
         thisLights.push_back(refLight);
         foundLight = true;
+        break;
       }
 
       if (foundLight)
         continue;
 
-      float radius = model.x20_aabb.intersectionRadius(zeus::CSphere(refLight.GetPosition(), refLight.GetRadius()));
+      lightRads[i] = radius;
       if (radius < 0.f)
         continue;
-      lightRads[i] = radius;
       lightRefs[i] = &refLight;
       thisLights.push_back(refLight);
       ++i;

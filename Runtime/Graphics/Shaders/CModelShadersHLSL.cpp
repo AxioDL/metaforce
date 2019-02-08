@@ -65,6 +65,7 @@ FOG_STRUCT_HLSL
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
 "    float4 mulColor;\n"
+"    float4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -114,6 +115,7 @@ static std::string_view LightingShadowHLSL =
 "    float4 colorReg1;\n"
 "    float4 colorReg2;\n"
 "    float4 mulColor;\n"
+"    float4 addColor;\n"
 "    Fog fog;\n"
 "};\n"
 "\n"
@@ -160,12 +162,12 @@ static std::string_view ThermalPostHLSL =
     "cbuffer ThermalUniform : register(b2)\n"
     "{\n"
     "    float4 tmulColor;\n"
-    "    float4 addColor;\n"
+    "    float4 taddColor;\n"
     "};\n"
     "static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
     "{\n"
-    "    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + addColor.rgb, tmulColor.a + "
-    "addColor.a);\n"
+    "    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + taddColor.rgb, tmulColor.a + "
+    "taddColor.a);\n"
     "}\n"
     "\n"sv;
 
@@ -201,7 +203,7 @@ static std::string_view MBShadowPostHLSL =
 static std::string_view DisintegratePostHLSL = FOG_STRUCT_HLSL
     "cbuffer DisintegrateUniform : register(b2)\n"
     "{\n"
-    "    float4 addColor;\n"
+    "    float4 daddColor;\n"
     "    Fog fog;\n"
     "};\n"
     "static float4 DisintegratePostFunc(in VertToFrag vtf, float4 colorIn)\n"
@@ -209,7 +211,7 @@ static std::string_view DisintegratePostHLSL = FOG_STRUCT_HLSL
     "    float4 texel0 = extTex7.Sample(samp, vtf.extTcgs[0]);\n"
     "    float4 texel1 = extTex7.Sample(samp, vtf.extTcgs[1]);\n"
     "    colorIn = lerp(float4(0.0,0.0,0.0,0.0), texel1, texel0);\n"
-    "    colorIn.rgb += addColor.rgb;\n" FOG_ALGORITHM_HLSL
+    "    colorIn.rgb += daddColor.rgb;\n" FOG_ALGORITHM_HLSL
     "}\n"
     "\n"sv;
 

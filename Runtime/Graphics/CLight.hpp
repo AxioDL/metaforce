@@ -89,17 +89,10 @@ public:
   float GetAngleAttenuationLinear() const { return x34_angleL; }
   float GetAngleAttenuationQuadratic() const { return x38_angleQ; }
 
-  float GetRadius() const {
-    if (x4c_25_radiusDirty) {
-      const_cast<CLight*>(this)->x44_cachedRadius = CalculateLightRadius();
-      const_cast<CLight*>(this)->x4c_25_radiusDirty = false;
-    }
-    return x44_cachedRadius;
-  }
-
   ELightType GetType() const { return x1c_type; }
 
   float GetIntensity() const;
+  float GetRadius() const;
   const zeus::CColor& GetColor() const { return x18_color; }
   zeus::CColor GetNormalIndependentLightingAtPoint(const zeus::CVector3f& point) const;
 

@@ -78,8 +78,9 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
   case EScriptObjectMessage::Deleted: // 34
   {
     RemoveEmitter();
-    if (HasModelData() && x64_modelData->AnimationData() && x64_modelData->GetNormalModel())
-      x64_modelData->AnimationData()->GetParticleDB().DeleteAllLights(mgr);
+    if (HasModelData() && !x64_modelData->IsNull())
+      if (CAnimData* aData = x64_modelData->AnimationData())
+        aData->GetParticleDB().DeleteAllLights(mgr);
     break;
   }
   case EScriptObjectMessage::Registered: // 33

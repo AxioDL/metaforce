@@ -40,7 +40,7 @@ public:
   void Think(float, CStateManager&);
 
   void Touch(CActor&, CStateManager&);
-  void CollidedWith(TUniqueId&, const CCollisionInfoList&, CStateManager&);
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
   void ThinkAboutMove(float){};
   bool Delay(CStateManager&, float) { return x330_stateMachineState.GetTime() > x568_delay; }
   void Explode(CStateManager&, EStateMsg, float);
