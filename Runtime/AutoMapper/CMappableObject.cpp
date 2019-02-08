@@ -50,7 +50,7 @@ zeus::CTransform CMappableObject::AdjustTransformForType() {
     orientation.origin = {-0.49f * doorCenterX, 0.f, -1.f * doorCenterZ};
     orientation.rotateLocalY(zeus::degToRad(90.f));
     return x10_transform * orientation;
-  } else if (x0_type >= EMappableObjectType::BlueDoor || x0_type <= EMappableObjectType::PlasmaDoorFloor2) {
+  } else if (x0_type >= EMappableObjectType::BlueDoor && x0_type <= EMappableObjectType::PlasmaDoorFloor2) {
     return x10_transform;
   }
   return zeus::CTransform::Translate(x10_transform.origin);

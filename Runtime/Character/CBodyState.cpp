@@ -1888,13 +1888,13 @@ CBSWallWalkerLocomotion::CBSWallWalkerLocomotion(CActor& actor) : CBSBiPedLocomo
 float CBSWallWalkerLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) {
   if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
     float maxSpeed = bc.GetBodyStateInfo().GetMaxSpeed();
-    zeus::CVector3f x40 = bc.GetCommandMgr().GetMoveVector() * maxSpeed;
-    if ((zeus::CVector3f::getAngleDiff(bc.GetCommandMgr().GetFaceVector(), x40) < (M_PIF / 2.f)
-             ? x40
+    zeus::CVector3f scaledMove = bc.GetCommandMgr().GetMoveVector() * maxSpeed;
+    if ((zeus::CVector3f::getAngleDiff(bc.GetCommandMgr().GetFaceVector(), scaledMove) < (M_PIF / 2.f)
+             ? scaledMove
              : bc.GetCommandMgr().GetFaceVector())
             .canBeNormalized())
-      bc.FaceDirection3D(x40.normalized(), act->GetTransform().basis[1], dt);
-    zeus::CVector3f impulse = act->GetMoveToORImpulseWR(act->GetTransform().transposeRotate(x40 * dt), dt);
+      bc.FaceDirection3D(scaledMove.normalized(), act->GetTransform().basis[1], dt);
+    zeus::CVector3f impulse = act->GetMoveToORImpulseWR(act->GetTransform().transposeRotate(scaledMove * dt), dt);
     impulse = act->GetMass() > FLT_EPSILON ? impulse / act->GetMass()
                                            : zeus::CVector3f(0.f, act->GetVelocity().magnitude(), 0.f);
     if (maxSpeed > FLT_EPSILON)

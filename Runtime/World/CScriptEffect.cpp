@@ -59,7 +59,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
     newXf.origin = zeus::CVector3f::skZero;
     x104_particleSystem->SetOrientation(newXf);
     x104_particleSystem->SetGlobalTranslation(xf.origin);
-    x104_particleSystem->SetLocalScale(scale);
+    x104_particleSystem->SetGlobalScale(scale);
     x104_particleSystem->SetParticleEmission(active);
     x104_particleSystem->SetModulationColor(lParms.GetNoLightsAmbient());
     x104_particleSystem->SetModelsUseLights(x138_actorLights != nullptr);
@@ -72,7 +72,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
     newXf.origin = zeus::CVector3f::skZero;
     xf4_electric->SetOrientation(newXf);
     xf4_electric->SetGlobalTranslation(xf.origin);
-    xf4_electric->SetLocalScale(scale);
+    xf4_electric->SetGlobalScale(scale);
     xf4_electric->SetParticleEmission(active);
   }
   xe7_29_drawEnabled = true;
@@ -94,7 +94,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         newXf.origin = zeus::CVector3f::skZero;
         x104_particleSystem->SetOrientation(newXf);
         x104_particleSystem->SetGlobalTranslation(GetTranslation());
-        x104_particleSystem->SetLocalScale(scale);
+        x104_particleSystem->SetGlobalScale(scale);
         x104_particleSystem->SetParticleEmission(oldActive);
         x104_particleSystem->SetModulationColor(color);
         x104_particleSystem->SetModelsUseLights(x138_actorLights != nullptr);
@@ -108,7 +108,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         newXf.origin = zeus::CVector3f::skZero;
         xf4_electric->SetOrientation(newXf);
         xf4_electric->SetGlobalTranslation(GetTranslation());
-        xf4_electric->SetLocalScale(scale);
+        xf4_electric->SetGlobalScale(scale);
         xf4_electric->SetParticleEmission(oldActive);
         xf4_electric->SetModulationColor(color);
       }

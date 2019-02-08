@@ -17,7 +17,9 @@ bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRa
   for (int i = 0; i < leaf.GetSurfaceVector().size(); ++i) {
     u16 surfIdx = leaf.GetSurfaceVector()[i];
     CCollisionSurface surface = x10_tree->GetSurface(surfIdx);
-    if (info.GetMaterialFilter().Passes(GetMaterial())) {
+    CMaterialList matList = GetMaterial();
+    matList.Add(surface.GetSurfaceFlags());
+    if (info.GetMaterialFilter().Passes(matList)) {
       if (CollisionUtil::RayTriangleIntersection(info.GetRay().start, info.GetRay().dir, surface.GetVerts(),
                                                  info.Magnitude())) {
         intersectIdx = surfIdx;

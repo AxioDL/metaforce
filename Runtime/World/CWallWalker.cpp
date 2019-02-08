@@ -65,7 +65,9 @@ void CWallWalker::AlignToFloor(CStateManager& mgr, float radius, const zeus::CVe
         for (u16 i = 0; i < triArr.GetSize(); ++i) {
           u16 triIdx = triArr.GetAt(i);
           CCollisionSurface surf = leaf.GetOctTree().GetMasterListTriangle(triIdx);
-          if (std::fabs(surf.GetPlane().pointToPlaneDist(newPos)) < margin && PointOnSurface(surf, newPos)) {
+          float dist = std::fabs(surf.GetPlane().pointToPlaneDist(newPos));
+          if (dist < margin && PointOnSurface(surf, newPos)) {
+            margin = dist;
             x568_alignNormal = surf;
             hasSurface = true;
           }

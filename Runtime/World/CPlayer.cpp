@@ -4210,19 +4210,15 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
     case EPlayerOrbitState::NoOrbit:
       /* Disabled transitions directly from NoOrbit to OrbitObject for better keyboard handling */
 #if 0
-            if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input))
-            {
-                SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
-                if (x310_orbitTargetId != kInvalidUniqueId)
-                {
-                    if (ValidateAimTargetId(x310_orbitTargetId, mgr))
-                        ResetAimTargetPrediction(x310_orbitTargetId);
-                    SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
-                    UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
-                }
-            }
-            else
-            {
+      if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input)) {
+        SetOrbitTargetId(x33c_orbitNextTargetId, mgr);
+        if (x310_orbitTargetId != kInvalidUniqueId) {
+          if (ValidateAimTargetId(x310_orbitTargetId, mgr))
+            ResetAimTargetPrediction(x310_orbitTargetId);
+          SetOrbitState(EPlayerOrbitState::OrbitObject, mgr);
+          UpdateOrbitPosition(g_tweakPlayer->GetOrbitNormalDistance(int(x308_orbitType)), mgr);
+        }
+      } else {
 #else
       m_deferredOrbitObject = ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitObject, input);
 #endif
@@ -4231,7 +4227,7 @@ void CPlayer::UpdateOrbitInput(const CFinalInput& input, CStateManager& mgr) {
       if (ControlMapper::GetPressInput(ControlMapper::ECommands::OrbitClose, input))
         OrbitPoint(EPlayerOrbitType::Close, mgr);
 #if 0
-            }
+      }
 #endif
       break;
     case EPlayerOrbitState::Grapple:
