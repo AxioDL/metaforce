@@ -270,13 +270,15 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         "    float4 colorReg0 = block0.colorReg0;\n"
         "    float4 colorReg1 = block0.colorReg1;\n"
         "    float4 colorReg2 = block0.colorReg2;\n"
-        "    float4 mulColor = block0.mulColor;\n";
+        "    float4 mulColor = block0.mulColor;\n"
+        "    float4 addColor = block0.addColor;\n";
   } else {
     retval +=
         "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
         "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
         "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
-        "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
+        "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n"
+        "    float4 addColor = float4(0.0, 0.0, 0.0, 0.0);\n";
   }
 
   if (m_lighting) {
@@ -295,9 +297,10 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
   std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
 
   if (m_alphaExpr.size())
-    retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ") * mulColor;\n";
+    retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr +
+      ") * mulColor + addColor;\n";
   else
-    retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor;\n";
+    retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor + addColor;\n";
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") +
          "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
@@ -382,13 +385,15 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
         "    float4 colorReg0 = block0.colorReg0;\n"
         "    float4 colorReg1 = block0.colorReg1;\n"
         "    float4 colorReg2 = block0.colorReg2;\n"
-        "    float4 mulColor = block0.mulColor;\n";
+        "    float4 mulColor = block0.mulColor;\n"
+        "    float4 addColor = block0.addColor;\n";
   } else {
     retval +=
         "    float4 colorReg0 = float4(1.0, 1.0, 1.0, 1.0);\n"
         "    float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);\n"
         "    float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);\n"
-        "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n";
+        "    float4 mulColor = float4(1.0, 1.0, 1.0, 1.0);\n"
+        "    float4 addColor = float4(0.0, 0.0, 0.0, 0.0);\n";
   }
 
   if (m_lighting) {
@@ -417,7 +422,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
                                         ? (extTexCall.size() ? ("samp, clampSamp," + extTexCall + ", ") : "")
                                         : ""))
                                 : "") +
-              "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor;\n";
+              "float4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ")) * mulColor + addColor;\n";
   } else {
     retval += "    out.color = " + postEntry + "(" +
               (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
@@ -425,7 +430,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
                                         ? (extTexCall.size() ? ("samp, clampSamp," + extTexCall + ", ") : "")
                                         : ""))
                                 : "") +
-              "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
+              "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor + addColor;\n";
   }
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") +

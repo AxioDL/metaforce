@@ -234,6 +234,7 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
         "const vec4 colorReg1 = vec4(1.0);\n"
         "const vec4 colorReg2 = vec4(1.0);\n"
         "const vec4 mulColor = vec4(1.0);\n"
+        "const vec4 addColor = vec4(0.0);\n"
         "\n";
 
   std::string texMapDecl;
@@ -274,9 +275,10 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
   std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
 
   if (m_alphaExpr.size())
-    retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr + ") * mulColor;\n";
+    retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr +
+      ") * mulColor + addColor;\n";
   else
-    retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor;\n";
+    retval += "    colorOut = vec4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor + addColor;\n";
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
@@ -293,6 +295,7 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
         "const vec4 colorReg1 = vec4(1.0);\n"
         "const vec4 colorReg2 = vec4(1.0);\n"
         "const vec4 mulColor = vec4(1.0);\n"
+        "const vec4 addColor = vec4(0.0);\n"
         "\n";
 
   std::string postSrc;
@@ -351,9 +354,10 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
 
   if (m_alphaExpr.size())
     retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr +
-              ")) * mulColor;\n";
+              ")) * mulColor + addColor;\n";
   else
-    retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor;\n";
+    retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr +
+      ", 1.0)) * mulColor + addColor;\n";
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }
