@@ -474,7 +474,7 @@ void CMain::Teleport(hecl::Console*, const std::vector<std::string>& args) {
   zeus::CTransform xf = g_StateManager->Player()->GetTransform();
   xf.origin = loc;
 
-  if (args.size() == 6) {
+  if (args.size() >= 6) {
     zeus::CVector3f angle;
     for (u32 i = 0; i < 3; ++i)
       angle[i] = zeus::degToRad(strtof(args[i + 3].c_str(), nullptr));
@@ -676,10 +676,10 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       const hecl::SystemChar* areaIdxStr = (*(it + 2)).c_str();
 
       hecl::SystemChar* endptr;
-      m_warpWorldIdx = hecl::StrToUl(worldIdxStr, &endptr, 0);
+      m_warpWorldIdx = TAreaId(hecl::StrToUl(worldIdxStr, &endptr, 0));
       if (endptr == worldIdxStr)
         m_warpWorldIdx = 0;
-      m_warpAreaId = hecl::StrToUl(areaIdxStr, &endptr, 0);
+      m_warpAreaId = TAreaId(hecl::StrToUl(areaIdxStr, &endptr, 0));
       if (endptr == areaIdxStr)
         m_warpAreaId = 0;
 
@@ -696,15 +696,21 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
         break;
       }
 
-      if (args.end() - it >= 4) {
+      while (args.end() - it >= 4) {
         const hecl::SystemChar* layerStr = (*(it + 3)).c_str();
-        if (layerStr[0] == _SYS_STR('0') || layerStr[0] == _SYS_STR('1'))
+        if (!(layerStr[0] == _SYS_STR('0') && layerStr[1] == _SYS_STR('x')) &&
+            (layerStr[0] == _SYS_STR('0') || layerStr[0] == _SYS_STR('1'))) {
           for (const auto* cur = layerStr; *cur != _SYS_STR('\0'); ++cur)
             if (*cur == _SYS_STR('1'))
               m_warpLayerBits |= u64(1) << (cur - layerStr);
+        } else if (layerStr[0] == _SYS_STR('0') && layerStr[1] == _SYS_STR('x')) {
+          m_warpMemoryRelays.push_back(TAreaId(hecl::StrToUl(layerStr + 2, nullptr, 16)));
+        }
+        ++it;
       }
 
       SetFlowState(EFlowState::StateSetter);
+      break;
     }
   }
 
@@ -712,7 +718,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
-  std::srand(std::time(nullptr));
+  std::srand(static_cast<unsigned int>(std::time(nullptr)));
   // g_TweakManager->ReadFromMemoryCard("AudioTweaks");
 }
 

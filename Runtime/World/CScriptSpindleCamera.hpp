@@ -4,59 +4,102 @@
 
 namespace urde {
 
+enum class ESpindleInput {
+  Constant,
+  HintToBallDist,
+  HintToBallVOff,
+  HintBallAngle,
+  HintBallRightAngle,
+  HintBallLeftAngle,
+  HintDeltaDist,
+  HintDeltaVOff
+};
+
 struct SSpindleProperty {
-  u32 x0_;
-  u32 x4_paramFlags;
-  float x8_;
-  float xc_;
-  float x10_;
-  float x14_;
+  u32 x0_flags;
+  ESpindleInput x4_input;
+  float x8_lowOut;
+  float xc_highOut;
+  float x10_lowIn;
+  float x14_highIn;
 
   SSpindleProperty(CInputStream& in);
   void FixupAngles() {
-    x8_ = zeus::degToRad(x8_);
-    xc_ = zeus::degToRad(xc_);
+    x8_lowOut = zeus::degToRad(x8_lowOut);
+    xc_highOut = zeus::degToRad(xc_highOut);
   }
+  float GetValue(float inVar) const;
 };
 
 class CScriptSpindleCamera : public CGameCamera {
-  u32 x188_r9;
-  u32 x18c_ = 0;
-  float x1b0_f1;
-  float x1b4_f2;
-  float x1b8_f3;
-  float x1bc_f4;
-  SSpindleProperty x1c0_seg1;
-  SSpindleProperty x1d8_seg2;
-  SSpindleProperty x1f0_seg3;
-  SSpindleProperty x208_seg4;
-  SSpindleProperty x220_seg5;
-  SSpindleProperty x238_seg6;
-  SSpindleProperty x250_seg7;
-  SSpindleProperty x268_seg8;
-  SSpindleProperty x280_seg9;
-  SSpindleProperty x298_seg10;
-  SSpindleProperty x2b0_seg11;
-  SSpindleProperty x2c8_seg12;
-  SSpindleProperty x2e0_seg13;
-  SSpindleProperty x2f8_seg14;
-  SSpindleProperty x310_seg15;
-  float x328_ = 0.f;
-  bool x32c_24 = false;
+  /*
+   * 0x1: Look toward hint
+   * 0x2: Flat look delta
+   * 0x8: force minimum-clamp ball-to-cam azimuth
+   * 0x10: minimum-clamp ball-to-cam azimuth
+   * 0x20: Enable clampedAzimuthFromHintDir
+   * 0x40: Enable distOffsetFromBallDist
+   * 0x80: Use ball pos for cam pos Z (vs. hint pos)
+   * 0x100: Enable deltaAngleScaleWithCamDist
+   * 0x200: Use ball pos for look pos Z (vs. hint pos)
+   * 0x400: unused
+   * 0x800: Variable hint-to-ball direction
+   * 0x1000: Damp look azimuth with hint ball-to-cam azimuth < 10-degrees
+   * 0x2000: Enable deleteHintBallDist
+   * 0x4000: Ignore ball-to-cam azimuth sign
+   */
+  u32 x188_flags;
+  rstl::reserved_vector<float, 8> x18c_inVars;
+  float x1b0_hintToCamDistMin;
+  float x1b4_hintToCamDistMax;
+  float x1b8_hintToCamVOffMin;
+  float x1bc_hintToCamVOffMax;
+  SSpindleProperty x1c0_targetHintToCamDeltaAngleVel;
+  SSpindleProperty x1d8_deltaAngleScaleWithCamDist;
+  SSpindleProperty x1f0_hintToCamDist;
+  SSpindleProperty x208_distOffsetFromBallDist;
+  SSpindleProperty x220_hintBallToCamAzimuth;
+  SSpindleProperty x238_unused;
+  SSpindleProperty x250_maxHintBallToCamAzimuth;
+  SSpindleProperty x268_camLookRelAzimuth;
+  SSpindleProperty x280_lookPosZOffset;
+  SSpindleProperty x298_camPosZOffset;
+  SSpindleProperty x2b0_clampedAzimuthFromHintDir;
+  SSpindleProperty x2c8_dampingAzimuthSpeed;
+  SSpindleProperty x2e0_targetHintToCamDeltaAngleVelRange;
+  SSpindleProperty x2f8_deleteHintBallDist;
+  SSpindleProperty x310_recoverClampedAzimuthFromHintDir;
+  float x328_maxAzimuthInterpTimer = 0.f;
+  bool x32c_outsideClampedAzimuth = false;
   zeus::CVector3f x330_lookDir;
-  bool x33c_24_;
+  bool x33c_24_inResetThink;
+
+  float GetInVar(const SSpindleProperty& seg) const { return x18c_inVars[int(seg.x4_input)]; }
 
 public:
-  CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
-                       bool active, u32 r9, float f1, float f2, float f3, float f4, const SSpindleProperty& seg1,
-                       const SSpindleProperty& seg2, const SSpindleProperty& seg3, const SSpindleProperty& seg4,
-                       const SSpindleProperty& seg5, const SSpindleProperty& seg6, const SSpindleProperty& seg7,
-                       const SSpindleProperty& seg8, const SSpindleProperty& seg9, const SSpindleProperty& seg10,
-                       const SSpindleProperty& seg11, const SSpindleProperty& seg12, const SSpindleProperty& seg13,
-                       const SSpindleProperty& seg14, const SSpindleProperty& seg15);
+  CScriptSpindleCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info,
+                       const zeus::CTransform& xf, bool active, u32 flags, float hintToCamDistMin,
+                       float hintToCamDistMax, float hintToCamVOffMin, float hintToCamVOffMax,
+                       const SSpindleProperty& targetHintToCamDeltaAngleVel,
+                       const SSpindleProperty& deltaAngleScaleWithCamDist,
+                       const SSpindleProperty& hintToCamDist,
+                       const SSpindleProperty& distOffsetFromBallDist,
+                       const SSpindleProperty& hintBallToCamAzimuth,
+                       const SSpindleProperty& unused,
+                       const SSpindleProperty& maxHintBallToCamAzimuth,
+                       const SSpindleProperty& camLookRelAzimuth,
+                       const SSpindleProperty& lookPosZOffset,
+                       const SSpindleProperty& camPosZOffset,
+                       const SSpindleProperty& clampedAzimuthFromHintDir,
+                       const SSpindleProperty& dampingAzimuthSpeed,
+                       const SSpindleProperty& targetHintToCamDeltaAngleVelRange,
+                       const SSpindleProperty& deleteHintBallDist,
+                       const SSpindleProperty& recoverClampedAzimuthFromHintDir);
 
   void Accept(IVisitor& visitor);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float, CStateManager&);
+  void Render(const CStateManager&) const;
   void Reset(const zeus::CTransform& xf, CStateManager& mgr);
   void ProcessInput(const CFinalInput& input, CStateManager& mgr);
 };

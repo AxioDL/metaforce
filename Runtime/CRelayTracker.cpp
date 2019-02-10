@@ -35,7 +35,7 @@ void CRelayTracker::RemoveRelay(TEditorId id) {
     x0_relayStates.erase(std::remove(x0_relayStates.begin(), x0_relayStates.end(), id), x0_relayStates.end());
 }
 
-void CRelayTracker::SendMsgs(const TAreaId& areaId, CStateManager& stateMgr) {
+void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
   const CWorld* world = stateMgr.WorldNC();
   u32 relayCount = world->GetRelayCount();
 
@@ -73,8 +73,11 @@ void CRelayTracker::PutTo(CBitStreamWriter& out, const CSaveWorld& saveworld) {
   u32 relayCount = saveworld.GetRelayCount();
   std::vector<bool> relays(relayCount);
 
-  for (const TEditorId& id : x0_relayStates)
-    relays[saveworld.GetRelayIndex(id)] = true;
+  for (const TEditorId& id : x0_relayStates) {
+    s32 idx = saveworld.GetRelayIndex(id);
+    if (idx >= 0)
+      relays[idx] = true;
+  }
 
   for (u32 i = 0; i < relayCount; ++i)
     out.WriteEncoded(u32(relays[i]), 1);

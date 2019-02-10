@@ -31,7 +31,7 @@ public:
   bool HasRelay(TEditorId);
   void AddRelay(TEditorId);
   void RemoveRelay(TEditorId);
-  void SendMsgs(const TAreaId&, CStateManager&);
+  void SendMsgs(TAreaId, CStateManager&);
   void PutTo(CBitStreamWriter&, const CSaveWorld&);
 };
 

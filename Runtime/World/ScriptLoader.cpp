@@ -2943,39 +2943,43 @@ CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, i
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
   u32 flags = LoadParameterFlags(in);
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  float f4 = in.readFloatBig();
+  float hintToCamDistMin = in.readFloatBig();
+  float hintToCamDistMax = in.readFloatBig();
+  float hintToCamVOffMin = in.readFloatBig();
+  float hintToCamVOffMax = in.readFloatBig();
 
-  SSpindleProperty seg1(in);
-  seg1.FixupAngles();
-  SSpindleProperty seg2(in);
-  SSpindleProperty seg3(in);
-  SSpindleProperty seg4(in);
-  SSpindleProperty seg5(in);
-  seg5.FixupAngles();
-  SSpindleProperty seg6(in);
-  seg6.FixupAngles();
-  SSpindleProperty seg7(in);
-  seg7.FixupAngles();
-  SSpindleProperty seg8(in);
-  seg8.FixupAngles();
-  SSpindleProperty seg9(in);
-  SSpindleProperty seg10(in);
-  SSpindleProperty seg11(in);
-  seg11.FixupAngles();
-  SSpindleProperty seg12(in);
-  seg12.FixupAngles();
-  SSpindleProperty seg13(in);
-  seg13.FixupAngles();
-  SSpindleProperty seg14(in);
-  SSpindleProperty seg15(in);
-  seg15.FixupAngles();
+  SSpindleProperty targetHintToCamDeltaAngleVel(in);
+  targetHintToCamDeltaAngleVel.FixupAngles();
+  SSpindleProperty deltaAngleScaleWithCamDist(in);
+  SSpindleProperty hintToCamDist(in);
+  SSpindleProperty distOffsetFromBallDist(in);
+  SSpindleProperty hintBallToCamAzimuth(in);
+  hintBallToCamAzimuth.FixupAngles();
+  SSpindleProperty unused(in);
+  unused.FixupAngles();
+  SSpindleProperty maxHintBallToCamAzimuth(in);
+  maxHintBallToCamAzimuth.FixupAngles();
+  SSpindleProperty camLookRelAzimuth(in);
+  camLookRelAzimuth.FixupAngles();
+  SSpindleProperty lookPosZOffset(in);
+  SSpindleProperty camPosZOffset(in);
+  SSpindleProperty clampedAzimuthFromHintDir(in);
+  clampedAzimuthFromHintDir.FixupAngles();
+  SSpindleProperty dampingAzimuthSpeed(in);
+  dampingAzimuthSpeed.FixupAngles();
+  SSpindleProperty targetHintToCamDeltaAngleVelRange(in);
+  targetHintToCamDeltaAngleVelRange.FixupAngles();
+  SSpindleProperty deleteHintBallDist(in);
+  SSpindleProperty recoverClampedAzimuthFromHintDir(in);
+  recoverClampedAzimuthFromHintDir.FixupAngles();
 
-  return new CScriptSpindleCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, flags, f1,
-                                  f2, f3, f4, seg1, seg2, seg3, seg4, seg5, seg6, seg7, seg8, seg9, seg10, seg11, seg12,
-                                  seg13, seg14, seg15);
+  return new CScriptSpindleCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, flags,
+                                  hintToCamDistMin, hintToCamDistMax, hintToCamVOffMin, hintToCamVOffMax,
+                                  targetHintToCamDeltaAngleVel, deltaAngleScaleWithCamDist, hintToCamDist,
+                                  distOffsetFromBallDist, hintBallToCamAzimuth, unused, maxHintBallToCamAzimuth,
+                                  camLookRelAzimuth, lookPosZOffset, camPosZOffset, clampedAzimuthFromHintDir,
+                                  dampingAzimuthSpeed, targetHintToCamDeltaAngleVelRange, deleteHintBallDist,
+                                  recoverClampedAzimuthFromHintDir);
 }
 
 CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

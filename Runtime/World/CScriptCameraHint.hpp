@@ -101,5 +101,6 @@ public:
   s32 GetPriority() const { return xe8_priority; }
   const CCameraHint& GetHint() const { return xec_hint; }
   TUniqueId GetDelegatedCamera() const { return x164_delegatedCamera; }
+  const zeus::CTransform& GetOriginalTransform() const { return x168_origXf; }
 };
 } // namespace urde

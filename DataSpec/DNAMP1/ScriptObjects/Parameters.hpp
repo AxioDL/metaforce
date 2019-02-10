@@ -350,7 +350,7 @@ struct VisorParameters : BigDNA {
   Value<atUint32> visorMask;
 };
 
-struct PlayerParameters : BigDNA {
+struct PropertyFlags : BigDNA {
   AT_DECL_DNA_YAML
   Value<atUint32> propertyCount;
   Vector<bool, AT_DNA_COUNT(propertyCount)> bools;

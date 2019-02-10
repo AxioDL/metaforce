@@ -313,6 +313,7 @@ public:
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;
   u64 m_warpLayerBits = 0;
+  std::vector<TEditorId> m_warpMemoryRelays;
 };
 
 } // namespace MP1

@@ -322,7 +322,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
 
         for (int k = 0; k < 3; ++k) {
           u16 vertIdx = vertIndices[k];
-          const zeus::CVector3f& vtx = x10_tree->GetVert(vertIdx);
+          const zeus::CVector3f& vtx = surf.GetVert(k);
           if (CMetroidAreaCollider::g_DupPrimitiveCheckCount != CMetroidAreaCollider::g_DupVertexList[vertIdx]) {
             CMetroidAreaCollider::g_DupVertexList[vertIdx] = CMetroidAreaCollider::g_DupPrimitiveCheckCount;
             if (movedAABB.pointInside(vtx)) {
@@ -346,7 +346,6 @@ bool CCollidableOBBTree::AABoxCollideWithLeafMoving(const COBBTree::CLeafData& l
             CMaterialList edgeMat(x10_tree->GetEdgeMaterial(edgeIdx));
             if (!edgeMat.HasMaterial(EMaterialTypes::NoEdgeCollision)) {
               d = dOut;
-              const CCollisionEdge& edge = x10_tree->GetEdge(edgeIdx);
               if (CMetroidAreaCollider::MovingAABoxCollisionCheck_Edge(surf.GetVert(k), surf.GetVert((k + 1) % 3),
                                                                        components.x0_edges, dir, d, normal, point) &&
                   d < dOut) {

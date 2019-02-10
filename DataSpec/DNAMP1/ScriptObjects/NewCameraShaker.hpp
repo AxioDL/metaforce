@@ -11,15 +11,15 @@ struct NewCameraShaker : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<bool> active;
-  PlayerParameters flags;
+  PropertyFlags flags;
   Value<float> duration;
   Value<float> sfxDist;
   struct CameraShakerComponent : BigDNA {
     AT_DECL_DNA
-    PlayerParameters flags;
+    PropertyFlags flags;
     struct CameraShakePoint : BigDNA {
       AT_DECL_DNA
-      PlayerParameters flags;
+      PropertyFlags flags;
       Value<float> attackTime;
       Value<float> sustainTime;
       Value<float> duration;

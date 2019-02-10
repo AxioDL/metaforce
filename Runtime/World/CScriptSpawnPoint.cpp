@@ -13,6 +13,8 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
                                      bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts) {
 #ifndef NDEBUG
+  x64_itemCounts[int(CPlayerState::EItemType::MorphBall)] = 1;
+  x64_itemCounts[int(CPlayerState::EItemType::MorphBallBombs)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::GravitySuit)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::ThermalVisor)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::XRayVisor)] = 1;

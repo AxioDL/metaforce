@@ -25,7 +25,7 @@ struct PlayerActor : IScriptObject {
   Value<bool> snow;
   Value<bool> solid;
   Value<bool> active;
-  PlayerParameters playerParameters;
+  PropertyFlags playerParameters;
   Value<atUint32> beamId;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {

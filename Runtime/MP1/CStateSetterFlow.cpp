@@ -24,13 +24,17 @@ CIOWin::EMessageReturn CStateSetterFlow::OnMessage(const CArchitectureMessage& m
         m->ResetGameState();
 
         g_GameState->SetCurrentWorldId(worldId);
-        CWorldLayerState& layers = *g_GameState->StateForWorld(worldId).GetLayerState();
+        CWorldState& ws = g_GameState->StateForWorld(worldId);
+        CWorldLayerState& layers = *ws.GetLayerState();
         if (m->m_warpAreaId < layers.GetAreaCount()) {
-          g_GameState->StateForWorld(worldId).SetAreaId(m->m_warpAreaId);
+          ws.SetAreaId(m->m_warpAreaId);
           if (m->m_warpLayerBits) {
             for (u32 i = 0; i < layers.GetAreaLayerCount(m->m_warpAreaId); ++i)
               layers.SetLayerActive(m->m_warpAreaId, i, ((m->m_warpLayerBits >> i) & 1) != 0);
           }
+          CRelayTracker& relays = *ws.RelayTracker();
+          for (const auto& r : m->m_warpMemoryRelays)
+            relays.AddRelay(r);
         }
         g_GameState->GameOptions().ResetToDefaults();
         g_GameState->WriteBackupBuf();
