@@ -33,8 +33,9 @@ def write_out_material(writebuf, mat, mesh_obj):
 
 # If this returns true, the material geometry will be split into contiguous faces
 def should_split_into_contiguous_faces(mat):
-    return mat.game_settings.alpha_blend != 'OPAQUE' and \
-           'retro_depth_sort' in mat and mat['retro_depth_sort']
+    return False
+    #return mat.game_settings.alpha_blend != 'OPAQUE' and \
+    #       'retro_depth_sort' in mat and mat['retro_depth_sort']
 
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
