@@ -29,6 +29,7 @@
 #include "CScriptCameraShaker.hpp"
 #include "CScriptCameraWaypoint.hpp"
 #include "CScriptColorModulate.hpp"
+#include "MP1/World/CJellyZap.hpp"
 #include "CScriptControllerAction.hpp"
 #include "CScriptCounter.hpp"
 #include "MP1/World/CElitePirate.hpp"
@@ -2368,8 +2369,39 @@ CEntity* ScriptLoader::LoadVisorGoo(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadJellyZap(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("JellyZap");
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 20, "JellyZap"))
+    return nullptr;
+
+  SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  CDamageInfo dInfo(in);
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  float f7 = in.readFloatBig();
+  float f8 = in.readFloatBig();
+  float f9 = in.readFloatBig();
+  float f10 = in.readFloatBig();
+  float f11 = in.readFloatBig();
+  float f12 = in.readFloatBig();
+  bool b1 = in.readBool();
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (g_ResFactory->GetResourceTypeById(animParms.GetACSFile()) != SBIG('ANCS'))
+    return nullptr;
+
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+  return new MP1::CJellyZap(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData), dInfo,
+                            b1, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, pInfo, actParms);
 }
 
 CEntity* ScriptLoader::LoadControllerAction(CStateManager& mgr, CInputStream& in, int propCount,
@@ -3116,8 +3148,38 @@ CEntity* ScriptLoader::LoadAtomicBeta(CStateManager& mgr, CInputStream& in, int 
 }
 
 CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("IceZoomer");
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 16, "IceZoomer"))
+    return nullptr;
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+
+  float advanceWpRadius = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float alignAngleVel = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float playerObstructionMinDist = in.readFloatBig();
+  float moveFowardWeight = in.readFloatBig();
+  CAssetId modelRes(in.readUint32Big());
+  CAssetId skinRes(in.readUint32Big());
+  CDamageVulnerability dVuln(in);
+  float iceZoomerJointHP = in.readFloatBig();
+
+  CModelData mData(
+    CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actHead.x40_scale, animParms.GetInitialAnimation(),
+             true));
+  return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info,
+                            actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, advanceWpRadius,
+                            f2, alignAngleVel, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, moveFowardWeight, 0.f, 0.f,
+                            playerObstructionMinDist, 0.f, false, CWallWalker::EWalkerType::IceZoomer, dVuln,
+                            CDamageInfo(), 0xFFFF, 0xFFFF, 0xFFFF, modelRes, skinRes, iceZoomerJointHP, actParms);
 }
 
 CEntity* ScriptLoader::LoadPuffer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

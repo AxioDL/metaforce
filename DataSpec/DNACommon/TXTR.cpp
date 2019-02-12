@@ -238,8 +238,8 @@ static void DecodeIA4(png_structp png, png_infop info, const uint8_t* texels, in
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x) {
       uint8_t texel = Lookup8BPP(texels, width, x, y);
-      buf[x * 2] = Convert4To8(texel >> 4 & 0xf);
-      buf[x * 2 + 1] = Convert4To8(texel & 0xf);
+      buf[x * 2 ] = Convert4To8(texel & 0xf);
+      buf[x * 2 + 1] = Convert4To8(texel >> 4 & 0xf);
     }
     png_write_row(png, buf.get());
   }
@@ -252,8 +252,8 @@ static void EncodeIA4(const uint8_t* rgbaIn, uint8_t* texels, int width, int hei
     {
         for (int x=0 ; x<width ; ++x)
         {
-            uint8_t texel = Convert8To4(rgbaIn[x*2]) << 4;
-            texel |= Convert8To4(rgbaIn[x*2+1]);
+            uint8_t texel = Convert8To4(rgbaIn[x*2+1]) << 4;
+            texel |= Convert8To4(rgbaIn[x*2]);
             Set8BPP(texels, width, x, y, texel);
             rgbaIn += width * 2;
         }

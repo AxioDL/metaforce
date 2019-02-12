@@ -928,6 +928,10 @@ void CPatterned::TryWallHang(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCWallHangCmd(x2dc_destObj));
 }
 
+void CPatterned::TryKnockBack(CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTranslation(), pas::ESeverity(arg)));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController)
     return;
