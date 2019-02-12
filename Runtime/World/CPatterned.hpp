@@ -333,6 +333,7 @@ public:
   void TryBreakDodge(CStateManager& mgr, int arg);
   void TryCover(CStateManager& mgr, int arg);
   void TryWallHang(CStateManager& mgr, int arg);
+  void TryKnockBack(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);

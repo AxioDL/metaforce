@@ -27,8 +27,7 @@ void CScriptWaypoint::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptWaypoint::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, sender, mgr);
-  if (GetActive())
-    if (msg == EScriptObjectMessage::Arrived)
+  if (GetActive() && msg == EScriptObjectMessage::Arrived)
       SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);
 }
 
