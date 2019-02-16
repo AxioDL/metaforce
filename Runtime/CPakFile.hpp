@@ -16,7 +16,7 @@ public:
   struct SResInfo {
     CAssetId x0_id;
     bool x4_compressed : 1;
-    CFactoryMgr::ETypeTable x4_typeIdx : 7;
+    CFactoryMgr::ETypeTable x4_typeIdx;
     u32 x5_offsetDiv32 : 27;
     u32 x7_sizeDiv32 : 27;
     SResInfo(CAssetId id, FourCC fcc, u32 offset, u32 size, u32 flags) : x0_id(id) {

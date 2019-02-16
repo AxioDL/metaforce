@@ -7,6 +7,7 @@
 #include <../ucrt/malloc.h>
 #else
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Winclude-next-absolute-path"
 #include_next <malloc.h>
 #pragma GCC diagnostic pop
