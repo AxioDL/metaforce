@@ -326,8 +326,6 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {SCAN::Extract, {_SYS_STR(".yaml")}, 0, SCAN::Name};
   case SBIG('HINT'):
     return {HINT::Extract, {_SYS_STR(".yaml")}};
-  case SBIG('SAVW'):
-    return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
   case SBIG('TXTR'):
     return {TXTR::Extract, {_SYS_STR(".png")}};
   case SBIG('AFSM'):
