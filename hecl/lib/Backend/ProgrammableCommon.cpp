@@ -160,6 +160,7 @@ std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& d
     default:
       diag.reportBackendErr(inst.m_loc, "invalid arithmetic op");
     }
+    break;
   }
   case IR::OpType::Swizzle: {
     const IR::Instruction& aInst = inst.getChildInst(ir, 0);
@@ -179,7 +180,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
   case IR::OpType::Call: {
     const std::string& name = inst.m_call.m_name;
     bool normalize = false;
-    if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN"))) {
+    if (!name.compare("Texture") || ((normalize = true) && !name.compare("TextureN"))) {
       if (inst.getChildCount() < 2)
         diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
@@ -230,6 +231,7 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
     default:
       diag.reportBackendErr(inst.m_loc, "invalid arithmetic op");
     }
+    break;
   }
   case IR::OpType::Swizzle: {
     const IR::Instruction& aInst = inst.getChildInst(ir, 0);

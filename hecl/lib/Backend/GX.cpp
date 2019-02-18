@@ -325,6 +325,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
     }
 
     diag.reportBackendErr(inst.m_loc, "unable to convert arithmetic to TEV stage");
+    break;
   }
   case IR::OpType::Swizzle: {
     if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 && inst.m_swizzle.m_idxs[2] == 3 &&
@@ -335,6 +336,7 @@ GX::TraceResult GX::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const I
       return RecursiveTraceColor(ir, diag, cInst, true);
     } else
       diag.reportBackendErr(inst.m_loc, "only alpha extract may be performed with swizzle operation");
+    break;
   }
   default:
     diag.reportBackendErr(inst.m_loc, "invalid color op");
@@ -573,6 +575,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
     }
 
     diag.reportBackendErr(inst.m_loc, "unable to convert arithmetic to TEV stage");
+    break;
   }
   case IR::OpType::Swizzle: {
     if (inst.m_swizzle.m_idxs[0] == 3 && inst.m_swizzle.m_idxs[1] == 3 && inst.m_swizzle.m_idxs[2] == 3 &&
@@ -583,6 +586,7 @@ GX::TraceResult GX::RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const I
       return RecursiveTraceAlpha(ir, diag, cInst);
     } else
       diag.reportBackendErr(inst.m_loc, "only alpha extract may be performed with swizzle operation");
+    break;
   }
   default:
     diag.reportBackendErr(inst.m_loc, "invalid alpha op");

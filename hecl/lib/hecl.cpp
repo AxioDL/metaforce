@@ -423,6 +423,7 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
     if (mode == Mode::DirsSorted)
       break;
     rewinddir(dir);
+    [[fallthrough]];
   }
   case Mode::FilesSorted: {
     if (mode == Mode::FilesSorted)
