@@ -153,6 +153,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr) {
         break;
       case EInventoryStatus::Depleted:
         string = g_MainStringTable->GetString(13); // Depleted
+        break;
       default:
         break;
       }

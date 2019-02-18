@@ -509,6 +509,7 @@ void CSaveGameScreen::DoAdvance(CGuiTableGroup* caller) {
         sfx = x8c_navBackSfx;
       }
     }
+    break;
 
   default:
     break;

@@ -639,6 +639,7 @@ void CHintOptions::Update(float dt, const CStateManager& stateMgr) {
     case EHintState::Displaying:
       if (x10_nextHintIdx == -1)
         x10_nextHintIdx = idx;
+      break;
     default:
       break;
     }

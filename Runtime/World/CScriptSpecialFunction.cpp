@@ -431,6 +431,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     case ESpecialFunction::Ending: {
       if (msg == EScriptObjectMessage::Action && GetSpecialEnding(mgr) == u32(xfc_))
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+      break;
     }
     default:
       break;

@@ -43,6 +43,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
     case SBIG('1TEX'):
     case SBIG('1ADD'):
       loadFirstDesc = true;
+      [[fallthrough]];
     case SBIG('2LFT'):
     case SBIG('2SZE'):
     case SBIG('2ROT'):

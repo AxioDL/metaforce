@@ -8,16 +8,19 @@ set_target_properties(tinyxml2_static PROPERTIES
         VERSION "${TINYXML_LIB_VERSION}"
         SOVERSION "${TINYXML_LIB_SOVERSION}")
 set_target_properties( tinyxml2_static PROPERTIES OUTPUT_NAME tinyxml2 )
+if (NOT MSVC)
+  set_target_properties( tinyxml2_static PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough )
+endif()
 
 add_executable(assetnameparser "main.cpp")
 include_directories(${LOGVISOR_INCLUDE_DIR})
 
 set(AN_PARSER_LIBS "")
 if (UNIX)
-    list(APPEND AN_PARSER_LIBS pthread)
-    if(UNIX AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        list(APPEND AN_PARSER_LIBS dl)
-    endif()
+  list(APPEND AN_PARSER_LIBS pthread)
+  if(UNIX AND ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    list(APPEND AN_PARSER_LIBS dl)
+  endif()
 endif()
 
 

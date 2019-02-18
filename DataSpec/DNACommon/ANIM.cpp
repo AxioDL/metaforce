@@ -11,6 +11,7 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
     switch (chan.type) {
     case Channel::Type::Rotation:
       bitsPerKeyFrame += 1;
+      [[fallthrough]];
     case Channel::Type::Translation:
     case Channel::Type::Scale:
       bitsPerKeyFrame += chan.q[0];

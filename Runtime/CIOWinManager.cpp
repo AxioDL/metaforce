@@ -73,6 +73,7 @@ bool CIOWinManager::DistributeOneMessage(const CArchitectureMessage& msg, CArchi
     case CIOWin::EMessageReturn::RemoveIOWinAndExit:
     case CIOWin::EMessageReturn::RemoveIOWin:
       RemoveIOWin(iow);
+      break;
     default:
       break;
     }

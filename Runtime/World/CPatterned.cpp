@@ -487,6 +487,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       break;
     case EKnockBackAnimationFollowUp::LaggedBurnDeath:
       x401_29_laggedBurnDeath = true;
+      [[fallthrough]];
     case EKnockBackAnimationFollowUp::BurnDeath:
       Burn(x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
       Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
@@ -518,6 +519,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
         MassiveFrozenDeath(mgr);
       else if (x450_bodyController->IsFrozen())
         x450_bodyController->FrozenBreakout();
+      break;
     default:
       break;
     }
@@ -1639,6 +1641,7 @@ void CPatterned::ThinkAboutMove(float dt) {
     case EMoveState::Zero:
       if (!x328_26_solidCollision)
         break;
+      [[fallthrough]];
     case EMoveState::One:
       doMove = false;
       if (mag > 0.85f) {
@@ -1650,6 +1653,7 @@ void CPatterned::ThinkAboutMove(float dt) {
       break;
     case EMoveState::Two:
       x3f8_moveState = EMoveState::Three;
+      [[fallthrough]];
     case EMoveState::Three:
       doMove = true;
       if (!x328_26_solidCollision) {

@@ -46,6 +46,7 @@ void CPowerBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
         x234_shotSmokeGen->SetParticleEmission(false);
       x240_smokeState = ESmokeState::Done;
     }
+    [[fallthrough]];
   case ESmokeState::Done:
     if (x234_shotSmokeGen) {
       zeus::CTransform locator = x10_solidModelData->GetScaledLocatorTransform("LBEAM");

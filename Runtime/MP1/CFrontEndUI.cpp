@@ -1816,6 +1816,7 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
       CSfxManager::SfxStart(SFXfnt_fromfusion_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       CSfxManager::SfxStart(SFXfnt_fromfusion_R, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
     }
+    break;
   default:
     break;
   }
@@ -1829,6 +1830,7 @@ void CFrontEndUI::StartStateTransition(EScreen screen) {
   case EScreen::AttractMovie:
     StartAttractMovie();
     SetFadeBlackWithMovie();
+    break;
   default:
     break;
   }
@@ -2202,6 +2204,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       /* No memory card available, fallback to non-save UI */
       xe0_frontendCardFrme.reset();
       xdc_saveUI.reset();
+      break;
     default:
       break;
     }
@@ -2218,6 +2221,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     FinishedLoadingDepsGroup();
     x20_depsGroup.Unlock();
     x14_phase = EPhase::LoadDeps;
+    [[fallthrough]];
 
   case EPhase::LoadDeps:
     /* Poll loading DGRP resources */
@@ -2233,6 +2237,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     }
     if (x14_phase == EPhase::LoadDeps)
       return EMessageReturn::Exit;
+    [[fallthrough]];
 
   case EPhase::LoadFrames:
     /* Poll loading music and FRME resources */
@@ -2242,6 +2247,7 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     xf4_curAudio = xd4_audio1.get();
     xf4_curAudio->StartMixing();
     x14_phase = EPhase::LoadMovies;
+    [[fallthrough]];
 
   case EPhase::LoadMovies: {
     /* Poll loading movies */
@@ -2263,8 +2269,10 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
       x14_phase = EPhase::DisplayFrontEnd;
       m_touchBar->SetPhase(CFrontEndUITouchBar::EPhase::PressStart);
       StartStateTransition(EScreen::Title);
-    } else
+    } else {
       return EMessageReturn::Exit;
+    }
+    [[fallthrough]];
   }
 
   case EPhase::DisplayFrontEnd:

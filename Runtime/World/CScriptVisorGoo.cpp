@@ -94,6 +94,7 @@ void CScriptVisorGoo::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId,
       xe8_particleDesc.Lock();
     if (x100_electricId.IsValid())
       xf0_electricDesc.Lock();
+    break;
   default:
     break;
   }

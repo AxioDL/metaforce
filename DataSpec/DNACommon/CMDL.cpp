@@ -652,6 +652,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           lastDlSec = s + reader.readUint32Big() + 1;
           break;
         }
+        [[fallthrough]];
       }
       default: {
         if (!visitedDLOffsets) {
@@ -786,6 +787,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           visitedDLOffsets = true;
           break;
         }
+        [[fallthrough]];
       }
       default: {
         if (!visitedDLOffsets) {

@@ -63,6 +63,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
   switch (x5d0_walkerType) {
   case EWalkerType::Geemer:
     x460_knockBackController.SetEnableFreeze(false);
+    [[fallthrough]];
   case EWalkerType::Oculus:
     x460_knockBackController.SetAutoResetImpulse(false);
     break;
@@ -72,6 +73,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
     x624_extraModel =
         CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
             model, skin, x64_modelData->AnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
+    break;
   }
   default:
     break;

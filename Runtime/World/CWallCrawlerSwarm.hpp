@@ -57,7 +57,7 @@ public:
                     u32, const CActorParameters&);
 
   void Accept(IVisitor& visitor);
-  zeus::CVector3f GetLastKilledOffset() const { return x130_lastKilledOffset; }
+  const zeus::CVector3f& GetLastKilledOffset() const { return x130_lastKilledOffset; }
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
   const std::vector<CBoid>& GetBoids() const { return x108_boids; }
   int GetCurrentLockOnId() const { return x42c_lockOnId; }

@@ -612,6 +612,7 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   case CPlayer::EPlayerMorphBallState::Unmorphed:
     if ((x2f8_stateFlags & 0x10) != 0x10)
       HandleWeaponChange(input, mgr);
+    [[fallthrough]];
   case CPlayer::EPlayerMorphBallState::Morphed:
     x2f4_fireButtonStates = ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ? 1 : 0;
     x2f4_fireButtonStates |=
@@ -1038,6 +1039,7 @@ void CPlayerGun::EnableChargeFx(EChargeState state, CStateManager& mgr) {
   case CPlayerState::EBeamId::Plasma:
   case CPlayerState::EBeamId::Power:
     x832_25_chargeEffectVisible = true;
+    break;
   default:
     break;
   }

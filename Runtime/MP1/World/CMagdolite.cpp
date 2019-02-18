@@ -34,6 +34,7 @@ void CMagdolite::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     //x584_boneTracker.SetActive(false);
     CreateShadow(false);
     /* TODO Finish */
+    break;
   default:
     break;
   }

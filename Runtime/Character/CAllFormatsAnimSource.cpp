@@ -36,6 +36,7 @@ CAnimFormatUnion::~CAnimFormatUnion() {
   case EAnimFormat::BitstreamCompressed:
   case EAnimFormat::BitstreamCompressed24:
     reinterpret_cast<CFBStreamedCompression*>(x4_storage)->~CFBStreamedCompression();
+    break;
   default:
     break;
   }

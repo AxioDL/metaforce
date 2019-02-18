@@ -526,6 +526,7 @@ void CBeetle::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
     default:
       break;
     }
+    break;
   default:
     break;
   }

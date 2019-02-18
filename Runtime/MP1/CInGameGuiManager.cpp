@@ -143,6 +143,7 @@ void CInGameGuiManager::DoStateTransition(CStateManager& stateMgr) {
       CDependencyGroup* suitGrp = x5c_pauseScreenDGRPs[suitResIdx].GetObj();
       x48_pauseScreen = std::make_unique<CPauseScreen>(screen, *suitGrp, *suitGrp);
     }
+    [[fallthrough]];
 
   case EInGameGuiState::MapScreen:
   case EInGameGuiState::PauseSaveGame:
@@ -201,6 +202,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
     }
     x0_iggmPreLoad.Unlock();
     x18_loadPhase = ELoadPhase::PreLoadDeps;
+    [[fallthrough]];
   }
   case ELoadPhase::PreLoadDeps: {
     for (CToken& tok : x8_preLoadDeps)
@@ -212,6 +214,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
     x38_autoMapper = std::make_unique<CAutoMapper>(stateMgr);
     x3c_pauseScreenBlur = std::make_unique<CPauseScreenBlur>();
     x40_samusReflection = std::make_unique<CSamusFaceReflection>(stateMgr);
+    [[fallthrough]];
   }
   case ELoadPhase::LoadDeps: {
     if (!x38_autoMapper->CheckLoadComplete())
@@ -241,6 +244,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
 
     BeginStateTransition(EInGameGuiState::InGame, stateMgr);
     x18_loadPhase = ELoadPhase::Done;
+    [[fallthrough]];
   }
   case ELoadPhase::Done: {
     x34_samusHud->Touch();

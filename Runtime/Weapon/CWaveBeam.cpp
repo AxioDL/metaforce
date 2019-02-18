@@ -88,6 +88,7 @@ void CWaveBeam::EnableSecondaryFx(ESecondaryFxType type) {
   case ESecondaryFxType::CancelCharge:
     if (x1cc_enabledSecondaryEffect == ESecondaryFxType::None)
       break;
+    [[fallthrough]];
   default:
     if (x1cc_enabledSecondaryEffect != ESecondaryFxType::ToCombo) {
       auto& fx = type == ESecondaryFxType::Charge ? x228_wave2nd1 : x234_wave2nd2;
@@ -111,6 +112,7 @@ void CWaveBeam::EnableSecondaryFx(ESecondaryFxType type) {
       x254_chargeFx->SetGlobalScale(x4_scale);
       x24c_effectTimer = 0.f;
       x258_25_effectTimerActive = true;
+      break;
     default:
       break;
     }

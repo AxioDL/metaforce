@@ -161,11 +161,13 @@ void CGuiWidget::RecalcWidgetColor(ETraversalMode mode) {
     CGuiWidget* nextSib = static_cast<CGuiWidget*>(GetNextSibling());
     if (nextSib)
       nextSib->RecalcWidgetColor(ETraversalMode::ChildrenAndSiblings);
+    [[fallthrough]];
   }
   case ETraversalMode::Children: {
     CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
     if (child)
       child->RecalcWidgetColor(ETraversalMode::ChildrenAndSiblings);
+    break;
   }
   default:
     break;

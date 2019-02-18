@@ -124,12 +124,14 @@ bool CAutoMapper::CheckLoadComplete() {
     if (!x3c_hintBeacon.IsLoaded())
       return false;
     x4_loadPhase = ELoadPhase::LoadUniverse;
+    [[fallthrough]];
   case ELoadPhase::LoadUniverse:
     if (!x8_mapu.IsLoaded())
       return false;
     x14_dummyWorlds.resize(x8_mapu->GetNumMapWorldDatas());
     SetCurWorldAssetId(x24_world->IGetWorldAssetId());
     x4_loadPhase = ELoadPhase::Done;
+    [[fallthrough]];
   case ELoadPhase::Done:
     return true;
   default:

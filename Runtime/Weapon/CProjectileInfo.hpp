@@ -21,7 +21,7 @@ public:
   zeus::CVector3f PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
                                       const CPlayer& player, bool gravity, float dt);
 
-  CDamageInfo GetDamage() const { return xc_damageInfo; }
+  const CDamageInfo& GetDamage() const { return xc_damageInfo; }
   TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
 } // namespace urde

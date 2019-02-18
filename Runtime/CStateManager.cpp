@@ -1691,6 +1691,7 @@ void CStateManager::SetGameState(EGameState state) {
     if (!x88c_rumbleManager->IsDisabled())
       x88c_rumbleManager->SetDisabled(true);
     x850_world->SetLoadPauseState(true);
+    break;
   default:
     break;
   }

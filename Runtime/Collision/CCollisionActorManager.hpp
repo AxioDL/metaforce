@@ -27,6 +27,7 @@ public:
   void Update(float dt, CStateManager& mgr, CCollisionActorManager::EUpdateOptions opts);
   void Destroy(CStateManager& mgr) const;
   void SetActive(CStateManager& mgr, bool active);
+  bool GetActive() const { return x12_active; }
   void AddMaterial(CStateManager& mgr, const CMaterialList& list);
   void SetMovable(CStateManager& mgr, bool movable);
 

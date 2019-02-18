@@ -267,6 +267,7 @@ void CSamusHud::InitializeFrameGlueMutable(const CStateManager& mgr) {
   }
   case EHudState::None:
     UninitializeFrameGlueMutable();
+    break;
   default:
     break;
   }
@@ -1137,10 +1138,13 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, CInGameGuiManager::EH
       break;
     case CInGameGuiManager::EHelmetVisMode::GlowHelmetDeco:
       glowVisible = true;
+      [[fallthrough]];
     case CInGameGuiManager::EHelmetVisMode::HelmetDeco:
       helmetVisible = true;
+      [[fallthrough]];
     case CInGameGuiManager::EHelmetVisMode::Deco:
       decoVisible = true;
+      break;
     default:
       break;
     }
@@ -1492,6 +1496,7 @@ void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr) {
     }
     if (x2c4_activeTransState != ETransitionState::Loading)
       return;
+    [[fallthrough]];
   case ETransitionState::Loading:
     if (x278_selectedHud) {
       if (!x278_selectedHud.IsLoaded() || !x278_selectedHud->GetIsFinishedLoading())
@@ -1513,6 +1518,7 @@ void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr) {
     x2c8_transT = std::min(1.f, 5.f * dt + x2c8_transT);
     if (x2c8_transT == 1.f)
       x2c4_activeTransState = ETransitionState::NotTransitioning;
+    break;
   default:
     break;
   }
@@ -1524,17 +1530,20 @@ bool CSamusHud::CheckLoadComplete(CStateManager& stateMgr) {
     if (!x8_targetingMgr.CheckLoadComplete())
       return false;
     x4_loadPhase = ELoadPhase::One;
+    [[fallthrough]];
   case ELoadPhase::One:
     UpdateStateTransition(1.f, stateMgr);
     if (x2bc_nextState != x2c0_setState)
       return false;
     x4_loadPhase = ELoadPhase::Two;
+    [[fallthrough]];
   case ELoadPhase::Two:
     if (!x264_loadedFrmeHelmet->GetIsFinishedLoading())
       return false;
     if (!x274_loadedFrmeBaseHud->GetIsFinishedLoading())
       return false;
     x4_loadPhase = ELoadPhase::Three;
+    [[fallthrough]];
   case ELoadPhase::Three:
     return true;
   default:

@@ -799,6 +799,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, b
             model->x40_25_modelVisible = false;
             continue;
           }
+          break;
         }
         default:
           break;

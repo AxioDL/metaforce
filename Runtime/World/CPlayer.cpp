@@ -508,6 +508,7 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
   case EPlayerMorphBallState::Morphing:
   case EPlayerMorphBallState::Unmorphing:
     x7f4_gunWorldXf = x34_transform * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
+    break;
   case EPlayerMorphBallState::Morphed:
     break;
   }
@@ -838,6 +839,7 @@ void CPlayer::TakeDamage(bool significant, const zeus::CVector3f& location, floa
       break;
     case EWeaponType::Lava:
       damageLoopSfx = SFXpds_lava_damage_lp;
+      [[fallthrough]];
     case EWeaponType::Heat:
       damageSamusVoiceSfx = SFXsam_vox_damage_heat;
       break;
@@ -4382,6 +4384,7 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
   case EPlayerOrbitState::OrbitPoint:
     if (x3dc_inFreeLook)
       return;
+    [[fallthrough]];
   case EPlayerOrbitState::OrbitObject:
   case EPlayerOrbitState::OrbitCarcass:
   case EPlayerOrbitState::ForcedOrbitObject: {
@@ -5382,6 +5385,7 @@ void CPlayer::UpdateCinematicState(CStateManager& mgr) {
             ForceGunOrientation(x34_transform, mgr);
             DrawGun(mgr);
           }
+          break;
         default:
           break;
         }
@@ -5405,6 +5409,7 @@ void CPlayer::UpdateCinematicState(CStateManager& mgr) {
           ActivateMorphBallCamera(mgr);
           mgr.GetCameraManager()->SetupBallCamera(mgr);
           mgr.GetCameraManager()->GetBallCamera()->Reset(CreateTransformFromMovementDirection(), mgr);
+          break;
         default:
           break;
         }

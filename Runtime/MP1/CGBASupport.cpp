@@ -127,6 +127,7 @@ void CGBASupport::Update(float dt) {
   case EPhase::StartProbeTimeout:
     x38_timeout = 4.f;
     x34_phase = EPhase::PollProbe;
+    [[fallthrough]];
 
   case EPhase::PollProbe:
     /* SIProbe poll normally occurs here with 4 second timeout */
@@ -136,6 +137,7 @@ void CGBASupport::Update(float dt) {
     }
     x40_siChan = g_JbusEndpoint->getChan();
     x34_phase = EPhase::StartJoyBusBoot;
+    [[fallthrough]];
 
   case EPhase::StartJoyBusBoot:
     x34_phase = EPhase::PollJoyBusBoot;

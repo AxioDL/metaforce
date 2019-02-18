@@ -15,27 +15,27 @@
 namespace urde {
 CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              CModelData&& mData, const CActorParameters& aParams, const zeus::CAABox& aabb,
-                             CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId explosionEffect,
-                             float possibility, float f2, float f3, float f4, bool active)
+                             CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,
+                             float possibility, float lifeTime, float fadeInTime, float startDelay, bool active)
 : CPhysicsActor(uid, active, name, info, xf, std::move(mData), CMaterialList(), aabb, SMoverData(1.f), aParams, 0.3f,
                 0.1f)
 , x258_itemType(itemType)
 , x25c_amount(amount)
 , x260_capacity(capacity)
 , x264_possibility(possibility)
-, x268_(f3)
-, x26c_(f2)
-, x278_(f4)
-, x28c_24_(false)
-, x28c_25_(false)
-, x28c_26_(false) {
-  if (explosionEffect.IsValid())
-    x27c_explosionDesc = g_SimplePool->GetObj({SBIG('PART'), explosionEffect});
+, x268_fadeInTime(fadeInTime)
+, x26c_lifeTime(lifeTime)
+, x278_delayTimer(startDelay)
+, x28c_24_generated(false)
+, x28c_25_inTractor(false)
+, x28c_26_enableTractorTest(false) {
+  if (pickupEffect.IsValid())
+    x27c_pickupParticleDesc = g_SimplePool->GetObj({SBIG('PART'), pickupEffect});
 
   if (x64_modelData && x64_modelData->AnimationData())
     x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
 
-  if (x278_ != 0.f) {
+  if (x278_delayTimer != 0.f) {
     xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 0.f));
     xb4_drawFlags.x2_flags &= 0xFFFC;
     xb4_drawFlags.x2_flags |= 1;
@@ -48,93 +48,90 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
 
-  if (x278_ >= 0.f) {
+  if (x278_delayTimer >= 0.f) {
     CPhysicsActor::Stop();
-    x278_ -= dt;
+    x278_delayTimer -= dt;
     return;
   }
 
-  x270_ += dt;
-  if (x28c_25_ && (x270_ - x26c_) < 2.f)
-    x270_ = zeus::max(2.f * dt - x270_, (2.f - x26c_) - FLT_EPSILON);
+  x270_curTime += dt;
+  if (x28c_25_inTractor && (x26c_lifeTime - x270_curTime) < 2.f)
+    x270_curTime = zeus::max(x270_curTime - 2.f * dt, x26c_lifeTime - 2.f - FLT_EPSILON);
 
   CModelFlags drawFlags{0, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 1.f)};
 
-  if (x268_ != 0.f) {
-    if (x270_ < x268_) {
-      drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, x270_ / x268_));
+  if (x268_fadeInTime != 0.f) {
+    if (x270_curTime < x268_fadeInTime) {
+      drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, x270_curTime / x268_fadeInTime));
       drawFlags.x2_flags &= 0xFFFC;
       drawFlags.x2_flags |= 1;
-    } else
-      x268_ = 0.f;
-  } else if (x26c_ != 0.f) {
+    } else {
+      x268_fadeInTime = 0.f;
+    }
+  } else if (x26c_lifeTime != 0.f) {
     float alpha = 1.f;
-    if (x26c_ < 2.f)
-      alpha = 1.f - (x26c_ / x270_);
-    else if ((x270_ - x26c_) < 2.f)
-      alpha = (x270_ - x26c_) * 0.5f;
+    if (x26c_lifeTime < 2.f)
+      alpha = 1.f - (x26c_lifeTime / x270_curTime);
+    else if ((x26c_lifeTime - x270_curTime) < 2.f)
+      alpha = (x26c_lifeTime - x270_curTime) * 0.5f;
 
-    drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, 1.f, alpha));
+    drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, alpha));
     drawFlags.x2_flags &= 0xFFFC;
     drawFlags.x2_flags |= 1;
   }
 
   xb4_drawFlags = drawFlags;
 
-  if (x64_modelData) {
-    if (x64_modelData->HasAnimData()) {
-      SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
-      MoveToOR(deltas.x0_posDelta, dt);
-      RotateToOR(deltas.xc_rotDelta, dt);
+  if (x64_modelData && x64_modelData->HasAnimData()) {
+    SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
+    MoveToOR(deltas.x0_posDelta, dt);
+    RotateToOR(deltas.xc_rotDelta, dt);
+  }
+
+  if (x28c_25_inTractor) {
+    zeus::CVector3f posDelta = mgr.GetPlayer().GetTranslation() + (2.f * zeus::CVector3f::skUp) - GetTranslation();
+    x274_tractorTime += dt;
+    posDelta = (20.f * (0.5f * zeus::min(2.f, x274_tractorTime))) * posDelta.normalized();
+
+    if (x28c_26_enableTractorTest && (mgr.GetPlayer().GetPlayerGun()->IsCharging() ?
+        mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f) < CPlayerGun::skTractorBeamFactor) {
+      x28c_26_enableTractorTest = false;
+      x28c_25_inTractor = false;
+      posDelta.zeroOut();
     }
+    SetVelocityOR(posDelta);
+  } else if (x28c_24_generated) {
+    float chargeFactor =
+        mgr.GetPlayer().GetPlayerGun()->IsCharging() ? mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f;
 
-    if (x28c_25_) {
-      zeus::CVector3f posVec = GetTranslation() - mgr.GetPlayer().GetTranslation() + (2.f * zeus::CVector3f::skUp);
-      posVec = (20.f * (0.5f * zeus::max(2.f, x274_ + dt))) * posVec.normalized();
-
-      float chargeFactor = 0.f;
-      if (x28c_26_ && mgr.GetPlayer().GetPlayerGun()->IsCharging())
-        chargeFactor = mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor();
-
-      if (chargeFactor < CPlayerGun::skTractorBeamFactor) {
-        x28c_26_ = false;
-        x28c_25_ = false;
-        posVec.zeroOut();
-      }
-      SetVelocityOR(posVec);
-    } else if (x28c_24_) {
-      float chargeFactor =
-          mgr.GetPlayer().GetPlayerGun()->IsCharging() ? mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f;
-
-      if (chargeFactor > CPlayerGun::skTractorBeamFactor) {
-        zeus::CVector3f posVec =
-            (GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation()).normalized();
-        float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
-        if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().upVector().dot(posVec) > std::cos(relFov) &&
-            posVec.magSquared() < (30.f * 30.f)) {
-          x28c_25_ = true;
-          x28c_26_ = true;
-          x274_ = 0.f;
-        }
+    if (chargeFactor > CPlayerGun::skTractorBeamFactor) {
+      zeus::CVector3f posDelta = GetTranslation() - mgr.GetCameraManager()->GetFirstPersonCamera()->GetTranslation();
+      float relFov = zeus::CRelAngle(zeus::degToRad(g_tweakGame->GetFirstPersonFOV())).asRel();
+      if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().
+          frontVector().dot(posDelta.normalized()) > std::cos(relFov) &&
+          posDelta.magSquared() < (30.f * 30.f)) {
+        x28c_25_inTractor = true;
+        x28c_26_enableTractorTest = true;
+        x274_tractorTime = 0.f;
       }
     }
   }
 
-  if (x26c_ != 0.f && x270_ > x26c_)
+  if (x26c_lifeTime != 0.f && x270_curTime > x26c_lifeTime)
     mgr.FreeScriptObject(GetUniqueId());
 }
 
 void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
-  if (GetActive() && x278_ < 0.f && TCastToPtr<CPlayer>(act)) {
+  if (GetActive() && x278_delayTimer < 0.f && TCastToPtr<CPlayer>(act)) {
     if (x258_itemType >= CPlayerState::EItemType::Truth && x258_itemType <= CPlayerState::EItemType::Newborn) {
       CAssetId id = MP1::CArtifactDoll::GetArtifactHeadScanFromItemType(x258_itemType);
       if (id.IsValid())
         mgr.GetPlayerState()->SetScanTime(id, 0.5f);
     }
 
-    if (x27c_explosionDesc) {
+    if (x27c_pickupParticleDesc) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal) {
-        mgr.AddObject(new CExplosion(x27c_explosionDesc, mgr.AllocateUniqueId(), true,
+        mgr.AddObject(new CExplosion(x27c_pickupParticleDesc, mgr.AllocateUniqueId(), true,
                                      CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList, kInvalidEditorId),
                                      "Explosion - Pickup Effect", x34_transform, 0, zeus::CVector3f::skOne,
                                      zeus::CColor::skWhite));

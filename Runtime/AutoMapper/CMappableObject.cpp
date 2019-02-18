@@ -85,6 +85,7 @@ std::pair<zeus::CColor, zeus::CColor> CMappableObject::GetDoorColors(int curArea
       case EMappableObjectType::PlasmaDoorFloor:
       case EMappableObjectType::PlasmaDoorFloor2:
         colorIdx = 4;
+        break;
       default:
         break;
       }

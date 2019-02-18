@@ -373,6 +373,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         case LITEInfo::ELightType::Spot:
         case LITEInfo::ELightType::Directional:
           os << "angle = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))\n";
+          [[fallthrough]];
         default: {
           zeus::simd_floats colorF(w.header.color.simd);
           os.format(

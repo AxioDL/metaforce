@@ -159,11 +159,13 @@ void CGBASupport::Update(float dt) {
   case EPhase::StartProbeTimeout:
     x38_timeout = 4.f;
     x34_phase = EPhase::PollProbe;
+    [[fallthrough]];
 
   case EPhase::PollProbe:
     /* SIProbe poll normally occurs here with 4 second timeout */
     x40_siChan = m_endpoint->getChan();
     x34_phase = EPhase::StartJoyBusBoot;
+    [[fallthrough]];
 
   case EPhase::StartJoyBusBoot:
     x34_phase = EPhase::PollJoyBusBoot;

@@ -900,18 +900,18 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
   SScaledActorHead head = LoadScaledActorHead(in, mgr);
   zeus::CVector3f extent = zeus::CVector3f::ReadBig(in);
   zeus::CVector3f offset = zeus::CVector3f::ReadBig(in);
-  CPlayerState::EItemType w1 = CPlayerState::EItemType(in.readUint32Big());
-  u32 w2 = in.readUint32Big();
-  u32 w3 = in.readUint32Big();
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
+  CPlayerState::EItemType itemType = CPlayerState::EItemType(in.readUint32Big());
+  u32 capacity = in.readUint32Big();
+  u32 amount = in.readUint32Big();
+  float possibility = in.readFloatBig();
+  float lifeTime = in.readFloatBig();
+  float fadeInTime = in.readFloatBig();
   CAssetId staticModel = in.readUint32Big();
   CAnimationParameters animParms = LoadAnimationParameters(in);
   CActorParameters actorParms = LoadActorParameters(in);
   bool active = in.readBool();
-  float f4 = in.readFloatBig();
-  CAssetId w4(in);
+  float startDelay = in.readFloatBig();
+  CAssetId pickupEffect(in);
 
   FourCC acsType = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
   if (g_ResFactory->GetResourceTypeById(staticModel) == 0 && acsType == 0)
@@ -931,7 +931,8 @@ CEntity* ScriptLoader::LoadPickup(CStateManager& mgr, CInputStream& in, int prop
     aabb = data.GetBounds(head.x10_transform.getRotation());
 
   return new CScriptPickup(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, std::move(data), actorParms,
-                           aabb, w1, w3, w2, w4, f1, f2, f3, f4, active);
+                           aabb, itemType, amount, capacity, pickupEffect, possibility, lifeTime, fadeInTime,
+                           startDelay, active);
 }
 
 CEntity* ScriptLoader::LoadMemoryRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

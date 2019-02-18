@@ -11,6 +11,8 @@
 #include "Character/CPASAnimParmData.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "TCastTo.hpp"
+#include "Weapon/CEnergyProjectile.hpp"
+
 namespace urde {
 
 static const CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterialTypes::Character, EMaterialTypes::Orbit,
@@ -18,43 +20,43 @@ static const CMaterialList skGunMaterialList = {EMaterialTypes::Solid, EMaterial
 static const CMaterialList skTurretMaterialList = {EMaterialTypes::Character};
 
 CScriptGunTurretData::CScriptGunTurretData(CInputStream& in, s32 propCount)
-: x0_(in.readFloatBig())
-, x4_(in.readFloatBig())
-, x8_(in.readFloatBig())
-, xc_(in.readFloatBig())
-, x10_(in.readFloatBig())
-, x14_(in.readFloatBig())
-, x1c_(zeus::degToRad(in.readFloatBig()))
-, x20_(zeus::degToRad(in.readFloatBig()))
-, x24_(zeus::degToRad(in.readFloatBig()))
-, x28_(zeus::degToRad(in.readFloatBig()))
-, x2c_(in.readFloatBig())
-, x30_(in.readFloatBig())
-, x34_(in.readFloatBig())
-, x38_(in.readFloatBig())
-, x3c_(propCount >= 48 ? in.readBool() : false)
+: x0_intoDeactivateDelay(in.readFloatBig())
+, x4_intoActivateDelay(in.readFloatBig())
+, x8_reloadTime(in.readFloatBig())
+, xc_reloadTimeVariance(in.readFloatBig())
+, x10_panStartTime(in.readFloatBig())
+, x14_panHoldTime(in.readFloatBig())
+, x1c_leftMaxAngle(zeus::degToRad(in.readFloatBig()))
+, x20_rightMaxAngle(zeus::degToRad(in.readFloatBig()))
+, x24_downMaxAngle(zeus::degToRad(in.readFloatBig()))
+, x28_turnSpeed(zeus::degToRad(in.readFloatBig()))
+, x2c_detectionRange(in.readFloatBig())
+, x30_detectionZRange(in.readFloatBig())
+, x34_freezeDuration(in.readFloatBig())
+, x38_freezeVariance(in.readFloatBig())
+, x3c_freezeTimeout(propCount >= 48 ? in.readBool() : false)
 , x40_projectileRes(in)
 , x44_projectileDamage(in)
-, x60_(in.readUint32Big())
-, x64_(in.readUint32Big())
-, x68_(in.readUint32Big())
-, x6c_(in.readUint32Big())
-, x70_(in.readUint32Big())
-, x74_(in.readUint32Big())
-, x78_(propCount >= 44 ? in.readUint32Big() : -1)
-, x7c_(CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF))
-, x7e_(CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF))
-, x80_unfreezeSound(CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF))
-, x82_(CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF))
-, x84_(CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF))
-, x86_(propCount >= 45 ? CSfxManager::TranslateSFXID(in.readUint32Big() & 0xFFFF) : -1)
-, x88_(in.readUint32Big())
-, x8c_(in.readUint32Big())
-, x90_(in.readUint32Big())
-, x94_(in.readUint32Big())
-, x98_(in.readUint32Big())
-, x9c_(propCount >= 47 ? in.readFloatBig() : 3.f)
-, xa0_(propCount >= 46 ? in.readBool() : false) {}
+, x60_idleLightRes(in.readUint32Big())
+, x64_deactivateLightRes(in.readUint32Big())
+, x68_targettingLightRes(in.readUint32Big())
+, x6c_frozenEffectRes(in.readUint32Big())
+, x70_chargingEffectRes(in.readUint32Big())
+, x74_panningEffectRes(in.readUint32Big())
+, x78_visorEffectRes(propCount >= 44 ? in.readUint32Big() : -1)
+, x7c_trackingSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
+, x7e_lockOnSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
+, x80_unfreezeSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
+, x82_stopClankSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
+, x84_chargingSoundId(CSfxManager::TranslateSFXID(u16(in.readUint32Big())))
+, x86_visorSoundId(propCount >= 45 ? CSfxManager::TranslateSFXID(u16(in.readUint32Big())) : u16(0xFFFF))
+, x88_extensionModelResId(in.readUint32Big())
+, x8c_extensionDropDownDist(in.readFloatBig())
+, x90_numInitialShots(in.readUint32Big())
+, x94_initialShotTableIndex(in.readUint32Big())
+, x98_numSubsequentShots(in.readUint32Big())
+, x9c_frenzyDuration(propCount >= 47 ? in.readFloatBig() : 3.f)
+, xa0_scriptedStartOnly(propCount >= 46 ? in.readBool() : false) {}
 
 const SBurst CScriptGunTurret::skBurst2InfoTemplate[] = {
     {3, {1, 2, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},  {3, {7, 6, -1, -1, 0, 0, 0, 0}, 0.150000, 0.050000},
@@ -115,37 +117,37 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 , x2d4_data(turretData)
 , x37c_projectileInfo(turretData.GetProjectileRes(), turretData.GetProjectileDamage())
 , x3a4_burstFire(skBursts, 1)
-, x410_(g_SimplePool->GetObj({SBIG('PART'), turretData.x60_}))
-, x41c_(g_SimplePool->GetObj({SBIG('PART'), turretData.x64_}))
-, x428_(g_SimplePool->GetObj({SBIG('PART'), turretData.x68_}))
-, x434_(g_SimplePool->GetObj({SBIG('PART'), turretData.x6c_}))
-, x440_(g_SimplePool->GetObj({SBIG('PART'), turretData.x70_}))
-, x44c_(g_SimplePool->GetObj({SBIG('PART'), turretData.x74_})) {
-  if (turretData.x78_.IsValid())
-    x458_ = g_SimplePool->GetObj({SBIG('PART'), turretData.x78_});
-  x468_.reset(new CElementGen(x410_));
-  x470_.reset(new CElementGen(x41c_));
-  x478_.reset(new CElementGen(x428_));
-  x480_.reset(new CElementGen(x434_));
-  x488_.reset(new CElementGen(x440_));
-  x490_.reset(new CElementGen(x44c_));
-  x4fc_ = xf.origin;
-  x514_ = xf.frontVector();
-  x544_ = xf.frontVector();
-  x550_ = xf.rightVector();
-  x560_24_ = false;
-  x560_25_ = false;
-  x560_26_ = false;
-  x560_27_ = false;
-  x560_28_ = false;
-  x560_29_ = false;
-  x560_30_ = true;
-  x560_31_ = false;
+, x410_idleLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetIdleLightRes()}))
+, x41c_deactivateLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetDeactivateLightRes()}))
+, x428_targettingLightDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetTargettingLightRes()}))
+, x434_frozenEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetFrozenEffectRes()}))
+, x440_chargingEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetChargingEffectRes()}))
+, x44c_panningEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetPanningEffectRes()})) {
+  if (turretData.GetVisorEffectRes().IsValid())
+    x458_visorEffectDesc = g_SimplePool->GetObj({SBIG('PART'), turretData.GetVisorEffectRes()});
+  x468_idleLight.reset(new CElementGen(x410_idleLightDesc));
+  x470_deactivateLight.reset(new CElementGen(x41c_deactivateLightDesc));
+  x478_targettingLight.reset(new CElementGen(x428_targettingLightDesc));
+  x480_frozenEffect.reset(new CElementGen(x434_frozenEffectDesc));
+  x488_chargingEffect.reset(new CElementGen(x440_chargingEffectDesc));
+  x490_panningEffect.reset(new CElementGen(x44c_panningEffectDesc));
+  x4fc_extensionOffset = xf.origin;
+  x514_lastFrontVector = xf.frontVector();
+  x544_originalFrontVec = xf.frontVector();
+  x550_originalRightVec = xf.rightVector();
+  x560_24_dead = false;
+  x560_25_frozen = false;
+  x560_26_firedWithSetBurst = false;
+  x560_27_burstSet = false;
+  x560_28_hasBeenActivated = false;
+  x560_29_scriptedStart = false;
+  x560_30_needsStopClankSound = true;
+  x560_31_frenzyReverse = false;
 
   if (comp == ETurretComponent::Base && HasModelData() && GetModelData()->HasAnimData())
     ModelData()->EnableLooping(true);
 
-  const_cast<TToken<CWeaponDescription>*>(&x37c_projectileInfo.Token())->Lock();
+  x37c_projectileInfo.Token().Lock();
 }
 
 void CScriptGunTurret::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -164,21 +166,21 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     break;
   case EScriptObjectMessage::Registered:
     if (x258_type == ETurretComponent::Gun) {
-      if (x478_->SystemHasLight()) {
+      if (x478_targettingLight->SystemHasLight()) {
         x498_lightId = mgr.AllocateUniqueId();
         mgr.AddObject(new CGameLight(x498_lightId, GetAreaIdAlways(), GetActive(),
                                      std::string("ParticleLight_") + GetName().data(), GetTransform(), GetUniqueId(),
-                                     x478_->GetLight(), 0, 1, 0.f));
+                                     x478_targettingLight->GetLight(), 0, 1, 0.f));
       }
       SetupCollisionManager(mgr);
     } else if (x258_type == ETurretComponent::Base) {
       zeus::CVector3f scale = GetModelData()->GetScale();
-      if (x2d4_data.x88_.IsValid()) {
-        CModelData mData(CStaticRes(x2d4_data.x88_, scale));
-        x4a4_.emplace(std::move(mData));
-        x4f4_ = x4a4_->GetBounds().max.z() - x4a4_->GetBounds().min.z();
+      if (x2d4_data.GetExtensionModelResId().IsValid()) {
+        CModelData mData(CStaticRes(x2d4_data.GetExtensionModelResId(), scale));
+        x4a4_extensionModel.emplace(std::move(mData));
+        x4f4_extensionRange = x4a4_extensionModel->GetBounds().max.z() - x4a4_extensionModel->GetBounds().min.z();
       }
-      sub80219b18(5, mgr);
+      SetTurretState(ETurretState::Inactive, mgr);
     }
     break;
   case EScriptObjectMessage::Deleted: {
@@ -186,35 +188,37 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
       if (x498_lightId != kInvalidUniqueId)
         mgr.FreeScriptObject(x498_lightId);
     }
-    if (x50c_)
-      CSfxManager::RemoveEmitter(x50c_);
+    if (x50c_targetingEmitter)
+      CSfxManager::RemoveEmitter(x50c_targetingEmitter);
 
     if (x49c_collisionManager)
       x49c_collisionManager->Destroy(mgr);
     break;
   }
   case EScriptObjectMessage::Start:
-    if (x258_type == ETurretComponent::Base && x520_ == 5)
-      x560_29_ = true;
+    if (x258_type == ETurretComponent::Base && x520_state == ETurretState::Inactive)
+      x560_29_scriptedStart = true;
     break;
   case EScriptObjectMessage::Stop:
-    if (x258_type == ETurretComponent::Base && x520_ != 1 && x520_ != 2 && x520_ != 3)
-      sub80219b18((!x560_28_ ? 3 : 4), mgr);
+    if (x258_type == ETurretComponent::Base && x520_state != ETurretState::Deactive &&
+        x520_state != ETurretState::DeactiveFromReady && x520_state != ETurretState::Deactivating)
+      SetTurretState((x560_28_hasBeenActivated ?
+      ETurretState::DeactivatingFromReady : ETurretState::Deactivating), mgr);
     break;
   case EScriptObjectMessage::Action: {
     if (x258_type == ETurretComponent::Gun)
-      sub80217408(mgr);
+      LaunchProjectile(mgr);
     else if (x258_type == ETurretComponent::Base)
-      sub802172b8(mgr);
+      PlayAdditiveFlinchAnimation(mgr);
     break;
   }
   case EScriptObjectMessage::SetToMax: {
-    x560_25_ = false;
+    x560_25_frozen = false;
     SetMuted(false);
     break;
   }
   case EScriptObjectMessage::SetToZero: {
-    x560_25_ = true;
+    x560_25_frozen = true;
     SetMuted(true);
     break;
   }
@@ -226,7 +230,7 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
 
         if (TCastToConstPtr<CScriptGunTurret> gun = mgr.GetObjectById(mgr.GetIdForScript(conn.x8_objId))) {
           x25c_gunId = mgr.GetIdForScript(conn.x8_objId);
-          x260_ = gun->GetHealthInfo(mgr)->GetHP();
+          x260_lastGunHP = gun->GetHealthInfo(mgr)->GetHP();
           return;
         }
       }
@@ -237,11 +241,11 @@ void CScriptGunTurret::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     if (x258_type == ETurretComponent::Gun && GetHealthInfo(mgr)->GetHP() > 0.f) {
       if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(uid)) {
         if ((proj->GetAttribField() & EProjectileAttrib::Wave) == EProjectileAttrib::Wave) {
-          x520_ = 12;
+          x520_state = ETurretState::Frenzy;
           RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
           mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource,
                                                    mgr);
-          x53c_ = 0.f;
+          x53c_freezeRemTime = 0.f;
         }
       }
     }
@@ -257,26 +261,27 @@ void CScriptGunTurret::Think(float dt, CStateManager& mgr) {
     return;
 
   if (x258_type == ETurretComponent::Base) {
-    if (!x560_25_) {
-      sub80219a00(dt, mgr);
-      sub802189c8();
-      sub80217f5c(dt, mgr);
-      zeus::CVector3f vec = sub80217e34(dt);
+    if (!x560_25_frozen) {
+      ProcessGunStateMachine(dt, mgr);
+      UpdateTurretAnimation();
+      UpdateGunOrientation(dt, mgr);
+      zeus::CVector3f vec = UpdateExtensionModelState(dt);
       SAdvancementDeltas advancementDeltas = UpdateAnimation(dt, mgr, true);
       SetTranslation(vec + advancementDeltas.x0_posDelta + GetTranslation());
       RotateToOR(advancementDeltas.xc_rotDelta, dt);
     } else
       Stop();
 
-    sub80216288(dt);
+    UpdateTargettingSound(dt);
   } else if (x258_type == ETurretComponent::Gun) {
     UpdateGunParticles(dt, mgr);
     SAdvancementDeltas deltas = UpdateAnimation(dt, mgr, true);
     MoveToOR(deltas.x0_posDelta, dt);
     RotateToOR(deltas.xc_rotDelta, dt);
     UpdateGunCollisionManager(dt, mgr);
-    GetUnFreezeSoundId(dt, mgr);
+    UpdateFrozenState(dt, mgr);
   }
+  UpdateHealthInfo(mgr);
 }
 
 void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
@@ -286,11 +291,13 @@ void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
     const CPlayer& player = mgr.GetPlayer();
     if (proj->GetOwnerId() == player.GetUniqueId()) {
       const CDamageVulnerability* dVuln = GetDamageVulnerability();
-      if (!x560_24_ && x520_ != 12 && (proj->GetAttribField() & EProjectileAttrib::Ice) == EProjectileAttrib::Ice &&
+      if (!x560_24_dead && x520_state != ETurretState::Frenzy &&
+          (proj->GetAttribField() & EProjectileAttrib::Ice) == EProjectileAttrib::Ice &&
           dVuln->WeaponHits(CWeaponMode::Ice(), false)) {
-        x560_24_ = true;
+        x560_25_frozen = true;
         SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
-        x53c_ = mgr.GetActiveRandom()->Float() * x2d4_data.x38_ + x2d4_data.x34_;
+        x53c_freezeRemTime = mgr.GetActiveRandom()->Float() *
+          x2d4_data.GetFreezeVariance() + x2d4_data.GetFreezeDuration();
         SetMuted(true);
       }
       SendScriptMsgs(EScriptObjectState::Damage, mgr, EScriptObjectMessage::None);
@@ -324,48 +331,130 @@ void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr) {
   jointDescs.push_back(CJointCollisionDescription::SphereCollision(blastLCTR, 0.3f, "Blast_LCTR"sv, 1000.f));
 
   x49c_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true));
+
+  x49c_collisionManager->SetActive(mgr, GetActive());
+
+  for (int i = 0; i < x49c_collisionManager->GetNumCollisionActors(); ++i) {
+    auto& desc = x49c_collisionManager->GetCollisionDescFromIndex(i);
+    if (TCastToPtr<CCollisionActor> cAct = mgr.ObjectById(desc.GetCollisionActorId())) {
+      cAct->AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
+      cAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Player},
+        {EMaterialTypes::Character, EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision}));
+      if (desc.GetName().find("Blast_LCTR"sv) != std::string_view::npos)
+        x4a0_collisionActor = desc.GetCollisionActorId();
+    }
+  }
 }
 
-void CScriptGunTurret::sub80219b18(s32 w1, CStateManager& mgr) {
+static const char* StateNames[] = {
+  "Destroyed",
+  "Deactive",
+  "DeactiveFromReady",
+  "Deactivating",
+  "DeactivatingFromReady",
+  "Inactive",
+  "Ready",
+  "PanningA",
+  "PanningB",
+  "Targeting",
+  "Firing",
+  "ExitTargeting",
+  "Frenzy"
+};
 
-  if (w1 < 0 || w1 > 12)
+void CScriptGunTurret::SetTurretState(ETurretState state, CStateManager& mgr) {
+  if (state < ETurretState::Destroyed || state > ETurretState::Frenzy)
     return;
 
-  if (x520_ != -1)
-    sub8021998c(2, mgr, 0.f);
+  if (x520_state != ETurretState::Invalid)
+    ProcessCurrentState(EStateMsg::Deactivate, mgr, 0.f);
 
-  x520_ = w1;
-  x524_ = 0.f;
-  sub8021998c(0, mgr, 0.f);
+  if (state != ETurretState::Invalid && x520_state != state)
+    printf("%04X %08X %s - %s\n", GetUniqueId().Value(), GetEditorId().id, GetName().data(), StateNames[int(state)]);
+  x520_state = state;
+  x524_curStateTime = 0.f;
+  ProcessCurrentState(EStateMsg::Activate, mgr, 0.f);
 }
 
-void CScriptGunTurret::sub80217408(CStateManager&) {}
+static const u32 skStateToLocoTypeLookup[13] = {5, 7, 9, 0, 1, 0, 1, 2, 3, 1, 1, 1, 1};
 
-void CScriptGunTurret::sub802172b8(CStateManager& mgr) {
+void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
+  if (x37c_projectileInfo.Token().IsLoaded() && mgr.CanCreateProjectile(GetUniqueId(), EWeaponType::AI, 8)) {
+    zeus::CTransform xf = GetLocatorTransform("Blast_LCTR"sv);
+    zeus::CVector3f projPt = GetTranslation() + GetTransform().rotate(xf.origin);
+    zeus::CVector3f lookPt = x404_targetPosition;
+    zeus::CVector3f aimDelta = x404_targetPosition - projPt;
+    if (zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), aimDelta) > zeus::degToRad(20.f)) {
+      if (aimDelta.canBeNormalized()) {
+        zeus::CVector3f lookDir =
+          zeus::CVector3f::slerp(GetTransform().frontVector(), aimDelta.normalized(), zeus::degToRad(20.f));
+        lookPt = lookDir * aimDelta.magnitude() + projPt;
+      } else {
+        lookPt = projPt + GetTransform().frontVector();
+      }
+    } else if (!aimDelta.canBeNormalized()) {
+      lookPt = projPt + GetTransform().frontVector();
+    }
+    zeus::CTransform useXf = zeus::lookAt(projPt, lookPt);
+    CEnergyProjectile* proj =
+    new CEnergyProjectile(true, x37c_projectileInfo.Token(), EWeaponType::AI, useXf, EMaterialTypes::Character,
+                          x37c_projectileInfo.GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(),
+                          kInvalidUniqueId, EProjectileAttrib::None, false, zeus::CVector3f::skOne,
+                          x458_visorEffectDesc, x2d4_data.GetVisorSoundId(), false);
+    mgr.AddObject(proj);
+    auto pair =
+    x64_modelData->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+    CPASAnimParmData(18, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f),
+      CPASAnimParm::FromEnum(skStateToLocoTypeLookup[int(x520_state)])), -1);
+    if (pair.first > 0.f) {
+      x64_modelData->EnableLooping(false);
+      x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
+    }
+  }
+}
+
+void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
   auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
       CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
   if (pair.first > 0.f)
     ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
 }
 
-void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) {
+void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
   CActor::AddToRenderer(frustum, mgr);
 
   if (x258_type != ETurretComponent::Gun)
     return;
 
-  if (!x560_25_) {
-    if (x520_ == 6 || (x520_ >= 9 && x520_ <= 12)) {
-      g_Renderer->AddParticleGen(*x478_);
-      if (x520_ == 10 || x520_ == 12)
-        g_Renderer->AddParticleGen(*x488_);
-    } else if (x520_ == 5) {
-      g_Renderer->AddParticleGen(*x468_);
-    } else if (x520_ >= 1) {
-      g_Renderer->AddParticleGen(*x470_);
+  if (!x560_25_frozen) {
+    switch (x520_state) {
+    case ETurretState::Deactive:
+    case ETurretState::DeactiveFromReady:
+    case ETurretState::Deactivating:
+    case ETurretState::DeactivatingFromReady:
+      g_Renderer->AddParticleGen(*x470_deactivateLight);
+      break;
+    case ETurretState::Inactive:
+      g_Renderer->AddParticleGen(*x468_idleLight);
+      break;
+    case ETurretState::PanningA:
+    case ETurretState::PanningB:
+      g_Renderer->AddParticleGen(*x490_panningEffect);
+      break;
+    case ETurretState::Ready:
+    case ETurretState::Targeting:
+    case ETurretState::Firing:
+    case ETurretState::ExitTargeting:
+    case ETurretState::Frenzy:
+      g_Renderer->AddParticleGen(*x478_targettingLight);
+      if (x520_state == ETurretState::Firing || x520_state == ETurretState::Frenzy)
+        g_Renderer->AddParticleGen(*x488_chargingEffect);
+      break;
+    default:
+      break;
     }
   } else {
-    g_Renderer->AddParticleGen(*x480_);
+    g_Renderer->AddParticleGen(*x480_frozenEffect);
   }
 }
 
@@ -373,47 +462,70 @@ void CScriptGunTurret::Render(const CStateManager& mgr) const {
   CPhysicsActor::Render(mgr);
 
   if (x258_type == ETurretComponent::Gun) {
-    if (!x560_25_) {
-      if (x520_ == 6 || (x520_ >= 9 && x520_ <= 12)) {
-        x478_->Render(x90_actorLights.get());
-        if (x520_ == 10)
-          x488_->Render(x90_actorLights.get());
-      } else if (x520_ == 5)
-        x468_->Render(x90_actorLights.get());
-      else if (x520_ >= 1)
-        x470_->Render(x90_actorLights.get());
+    if (!x560_25_frozen) {
+      switch (x520_state) {
+      case ETurretState::Deactive:
+      case ETurretState::DeactiveFromReady:
+      case ETurretState::Deactivating:
+      case ETurretState::DeactivatingFromReady:
+        x470_deactivateLight->Render(x90_actorLights.get());
+        break;
+      case ETurretState::Inactive:
+        x468_idleLight->Render(x90_actorLights.get());
+        break;
+      case ETurretState::PanningA:
+      case ETurretState::PanningB:
+        x490_panningEffect->Render(x90_actorLights.get());
+        break;
+      case ETurretState::Ready:
+      case ETurretState::Targeting:
+      case ETurretState::Firing:
+      case ETurretState::ExitTargeting:
+      case ETurretState::Frenzy:
+        x478_targettingLight->Render(x90_actorLights.get());
+        if (x520_state == ETurretState::Firing)
+          x488_chargingEffect->Render(x90_actorLights.get());
+        break;
+      default:
+        break;
+      }
+    } else {
+      x480_frozenEffect->Render(x90_actorLights.get());
     }
   } else if (x258_type == ETurretComponent::Base) {
-    if (x4a4_ && x4f8_ > 0.f) {
+    if (x4a4_extensionModel && x4f8_extensionT > 0.f) {
       zeus::CTransform xf = GetTransform();
-      xf.origin = x4fc_ + (x4f4_ * 0.5f * zeus::CVector3f::skDown);
+      xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::CVector3f::skDown);
       CModelFlags flags;
       flags.x2_flags = 3;
       flags.x1_matSetIdx = 0;
       flags.x4_color = zeus::CColor::skWhite;
-      x4a4_->Render(mgr, xf, x90_actorLights.get(), flags);
+      x4a4_extensionModel->Render(mgr, xf, x90_actorLights.get(), flags);
     }
   }
 }
 
 void CScriptGunTurret::UpdateGunCollisionManager(float dt, CStateManager& mgr) {
-  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x4a0_))
-    colAct->SetActive(mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed);
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x4a0_collisionActor))
+    colAct->SetActive(mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed);
 
   x49c_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
 }
 
-void CScriptGunTurret::GetUnFreezeSoundId(float dt, CStateManager& mgr) {
-  if (x560_25_) {
-    if (x53c_ <= 0.f) {
+void CScriptGunTurret::UpdateFrozenState(float dt, CStateManager& mgr) {
+  if (x560_25_frozen) {
+    if (x53c_freezeRemTime <= 0.f) {
+      x560_25_frozen = false;
       SendScriptMsgs(EScriptObjectState::UnFrozen, mgr, EScriptObjectMessage::None);
-      CSfxManager::AddEmitter(x2d4_data.x80_unfreezeSound, GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
-                              GetAreaIdAlways());
+      CSfxManager::AddEmitter(x2d4_data.GetUnFreezeSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+                              0x7f, GetAreaIdAlways());
       SetMuted(false);
-    } else if (x2d4_data.x3c_)
-      x53c_ -= dt;
-  } else
-    x53c_ = 0.f;
+    } else if (x2d4_data.GetFreezeTimeout()) {
+      x53c_freezeRemTime -= dt;
+    }
+  } else {
+    x53c_freezeRemTime = 0.f;
+  }
 }
 
 void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
@@ -421,29 +533,80 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
   if (x498_lightId != kInvalidUniqueId)
     light = TCastToPtr<CGameLight>(mgr.ObjectById(x498_lightId));
 
-  if (!x560_25_) {
+  if (!x560_25_frozen) {
     zeus::CTransform lightXf = GetLocatorTransform("light_LCTR"sv);
     zeus::CVector3f pos = x34_transform.rotate(lightXf.origin);
     pos += GetTranslation();
     if (light)
       light->SetActive(true);
 
-    if (x520_ == 6 || (x520_ >= 9 && x520_ <= 12)) {
-      bool doEmission = false;
-      if (x520_ != 10 && x520_ != 12)
-        doEmission = true;
-
-      x468_->SetParticleEmission(false);
-      x470_->SetParticleEmission(false);
-      x478_->SetParticleEmission(true);
-      x480_->SetParticleEmission(false);
-      x488_->SetParticleEmission(doEmission);
-      x478_->SetOrientation(GetTransform().getRotation());
-      x478_->SetGlobalTranslation(pos);
-      x478_->SetGlobalScale(GetModelData()->GetScale());
-      x478_->Update(dt);
-      if (x478_->SystemHasLight())
-        light->SetLight(x478_->GetLight());
+    switch (x520_state) {
+    case ETurretState::Deactive:
+    case ETurretState::DeactiveFromReady:
+    case ETurretState::Deactivating:
+    case ETurretState::DeactivatingFromReady:
+      x468_idleLight->SetParticleEmission(false);
+      x470_deactivateLight->SetParticleEmission(true);
+      x478_targettingLight->SetParticleEmission(false);
+      x480_frozenEffect->SetParticleEmission(false);
+      x488_chargingEffect->SetParticleEmission(false);
+      x490_panningEffect->SetParticleEmission(false);
+      x470_deactivateLight->SetOrientation(GetTransform().getRotation());
+      x470_deactivateLight->SetGlobalTranslation(pos);
+      x470_deactivateLight->SetGlobalScale(GetModelData()->GetScale());
+      x470_deactivateLight->Update(dt);
+      if (light) {
+        if (x470_deactivateLight->SystemHasLight())
+          light->SetLight(x470_deactivateLight->GetLight());
+        else
+          light->SetActive(false);
+      }
+      break;
+    case ETurretState::Inactive:
+      x468_idleLight->SetParticleEmission(true);
+      x470_deactivateLight->SetParticleEmission(false);
+      x478_targettingLight->SetParticleEmission(false);
+      x480_frozenEffect->SetParticleEmission(false);
+      x488_chargingEffect->SetParticleEmission(false);
+      x490_panningEffect->SetParticleEmission(false);
+      x468_idleLight->SetOrientation(GetTransform().getRotation());
+      x468_idleLight->SetGlobalTranslation(pos);
+      x468_idleLight->SetGlobalScale(GetModelData()->GetScale());
+      x468_idleLight->Update(dt);
+      if (light)
+        light->SetActive(false);
+      break;
+    case ETurretState::PanningA:
+    case ETurretState::PanningB:
+      x468_idleLight->SetParticleEmission(false);
+      x470_deactivateLight->SetParticleEmission(false);
+      x478_targettingLight->SetParticleEmission(false);
+      x480_frozenEffect->SetParticleEmission(false);
+      x488_chargingEffect->SetParticleEmission(false);
+      x490_panningEffect->SetParticleEmission(true);
+      x490_panningEffect->SetOrientation(GetTransform().getRotation());
+      x490_panningEffect->SetGlobalTranslation(GetTranslation());
+      x490_panningEffect->SetGlobalScale(GetModelData()->GetScale());
+      x490_panningEffect->Update(dt);
+      if (light)
+        light->SetActive(false);
+      break;
+    case ETurretState::Targeting:
+    case ETurretState::Firing:
+    case ETurretState::ExitTargeting:
+    case ETurretState::Frenzy: {
+      bool doEmission = x520_state == ETurretState::Firing || x520_state == ETurretState::Frenzy;
+      x468_idleLight->SetParticleEmission(false);
+      x470_deactivateLight->SetParticleEmission(false);
+      x478_targettingLight->SetParticleEmission(true);
+      x480_frozenEffect->SetParticleEmission(false);
+      x488_chargingEffect->SetParticleEmission(doEmission);
+      x478_targettingLight->SetOrientation(GetTransform().getRotation());
+      x478_targettingLight->SetGlobalTranslation(pos);
+      x478_targettingLight->SetGlobalScale(GetModelData()->GetScale());
+      x478_targettingLight->Update(dt);
+      if (x478_targettingLight->SystemHasLight())
+        light->SetLight(x478_targettingLight->GetLight());
       else
         light->SetActive(false);
 
@@ -451,74 +614,51 @@ void CScriptGunTurret::UpdateGunParticles(float dt, CStateManager& mgr) {
         zeus::CTransform blastXf = GetLocatorTransform("Blast_LCTR"sv);
         zeus::CVector3f blastPos = GetTransform().rotate(blastXf.origin);
         blastPos += GetTranslation();
-        x488_->SetOrientation(GetTransform().getRotation());
-        x488_->SetGlobalTranslation(blastPos);
-        x488_->SetGlobalScale(GetModelData()->GetScale());
-        x488_->Update(dt);
+        x488_chargingEffect->SetOrientation(GetTransform().getRotation());
+        x488_chargingEffect->SetGlobalTranslation(blastPos);
+        x488_chargingEffect->SetGlobalScale(GetModelData()->GetScale());
+        x488_chargingEffect->Update(dt);
       }
-    } else if (x520_ == 5) {
-      x468_->SetParticleEmission(true);
-      x470_->SetParticleEmission(false);
-      x478_->SetParticleEmission(false);
-      x480_->SetParticleEmission(false);
-      x488_->SetParticleEmission(false);
-      x490_->SetParticleEmission(false);
-      x468_->SetOrientation(GetTransform().getRotation());
-      x468_->SetGlobalTranslation(pos);
-      x468_->SetGlobalScale(GetModelData()->GetScale());
-    } else if (x520_ > 0 && x520_ < 5) {
-      x468_->SetParticleEmission(false);
-      x470_->SetParticleEmission(true);
-      x478_->SetParticleEmission(false);
-      x480_->SetParticleEmission(false);
-      x488_->SetParticleEmission(false);
-      x490_->SetParticleEmission(false);
-      x470_->SetOrientation(GetTransform().getRotation());
-      x470_->SetGlobalTranslation(pos);
-      x470_->SetGlobalScale(GetModelData()->GetScale());
-      x470_->Update(dt);
-      if (light && x470_->SystemHasLight())
-        light->SetLight(x470_->GetLight());
-    } else {
-      x468_->SetParticleEmission(false);
-      x470_->SetParticleEmission(false);
-      x478_->SetParticleEmission(false);
-      x480_->SetParticleEmission(false);
-      x488_->SetParticleEmission(false);
-      x490_->SetParticleEmission(false);
-      x480_->SetOrientation(GetTransform().getRotation());
-      x480_->SetGlobalTranslation(GetTranslation());
-      x480_->SetGlobalScale(GetModelData()->GetScale());
-      x480_->Update(dt);
+      break;
+    }
+    default:
+      x468_idleLight->SetParticleEmission(false);
+      x470_deactivateLight->SetParticleEmission(false);
+      x478_targettingLight->SetParticleEmission(false);
+      x480_frozenEffect->SetParticleEmission(false);
+      x488_chargingEffect->SetParticleEmission(false);
+      x490_panningEffect->SetParticleEmission(false);
+      x490_panningEffect->Update(dt);
       if (light)
         light->SetActive(false);
+      break;
     }
   } else {
-    x468_->SetParticleEmission(false);
-    x470_->SetParticleEmission(false);
-    x478_->SetParticleEmission(false);
-    x480_->SetParticleEmission(false);
-    x488_->SetParticleEmission(false);
-    x490_->SetParticleEmission(false);
-    x480_->SetOrientation(GetTransform().getRotation());
-    x480_->SetGlobalTranslation(GetTranslation());
-    x480_->SetGlobalScale(GetModelData()->GetScale());
-    x480_->Update(dt);
+    x468_idleLight->SetParticleEmission(false);
+    x470_deactivateLight->SetParticleEmission(false);
+    x478_targettingLight->SetParticleEmission(false);
+    x480_frozenEffect->SetParticleEmission(true);
+    x488_chargingEffect->SetParticleEmission(false);
+    x490_panningEffect->SetParticleEmission(false);
+    x480_frozenEffect->SetOrientation(GetTransform().getRotation());
+    x480_frozenEffect->SetGlobalTranslation(GetTranslation());
+    x480_frozenEffect->SetGlobalScale(GetModelData()->GetScale());
+    x480_frozenEffect->Update(dt);
     if (light)
       light->SetActive(false);
   }
 }
 
-void CScriptGunTurret::sub80219a00(float dt, CStateManager& mgr) {
-  sub80219b18(1, mgr);
-  x524_ += dt;
-  sub80217124(mgr);
+void CScriptGunTurret::ProcessGunStateMachine(float dt, CStateManager& mgr) {
+  ProcessCurrentState(EStateMsg::Update, mgr, dt);
+  x524_curStateTime += dt;
+  PlayAdditiveChargingAnimation(mgr);
   if (x25c_gunId != kInvalidUniqueId) {
     if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId)) {
-      if (gunTurret->x520_ != 12)
-        gunTurret->x520_ = x520_;
-      else if (x520_ != 12) {
-        sub80219b18(12, mgr);
+      if (gunTurret->x520_state != ETurretState::Frenzy)
+        gunTurret->x520_state = x520_state;
+      else if (x520_state != ETurretState::Frenzy) {
+        SetTurretState(ETurretState::Frenzy, mgr);
         gunTurret->RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
         mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
       }
@@ -526,252 +666,342 @@ void CScriptGunTurret::sub80219a00(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptGunTurret::sub802189c8() {
+void CScriptGunTurret::UpdateTurretAnimation() {
   if (!HasModelData() || !GetModelData()->HasAnimData())
     return;
 
-  if (x520_ > 12)
+  if (x520_state > ETurretState::Frenzy)
     return;
 
-  static const u32 animIds[13] = {5, 7, 9, 0, 1, 0, 1, 2, 3, 1, 1, 1, 1};
-  CPASAnimParmData parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0), CPASAnimParm::FromEnum(animIds[x520_]));
+  CPASAnimParmData parmData = CPASAnimParmData(5, CPASAnimParm::FromEnum(0),
+                              CPASAnimParm::FromEnum(skStateToLocoTypeLookup[int(x520_state)]));
   auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
 
-  if (pair.first > 0.f && pair.second != x540_) {
+  if (pair.first > 0.f && pair.second != x540_turretAnim) {
     ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
     ModelData()->AnimationData()->EnableLooping(true);
-    x540_ = pair.second;
+    x540_turretAnim = pair.second;
   }
 }
 
-void CScriptGunTurret::sub8021998c(s32 w1, CStateManager& mgr, float dt) {
-  switch (x520_) {
-  case 3:
-  case 4:
-    sub80219938(w1, mgr);
+void CScriptGunTurret::ProcessCurrentState(EStateMsg msg, CStateManager& mgr, float dt) {
+  switch (x520_state) {
+  case ETurretState::Deactivating:
+  case ETurretState::DeactivatingFromReady:
+    ProcessDeactivatingState(msg, mgr);
     break;
-  case 5:
-    sub802196c4(w1, mgr, dt);
+  case ETurretState::Inactive:
+    ProcessInactiveState(msg, mgr, dt);
     break;
-  case 6:
-    sub802195bc(w1, mgr, dt);
+  case ETurretState::Ready:
+    ProcessReadyState(msg, mgr, dt);
     break;
-  case 7:
-  case 8:
-    sub8021942c(w1, mgr, dt);
+  case ETurretState::PanningA:
+  case ETurretState::PanningB:
+    ProcessPanningState(msg, mgr, dt);
     break;
-  case 9:
-  case 10:
-    sub80218f50(w1, mgr, dt);
+  case ETurretState::Targeting:
+  case ETurretState::Firing:
+    ProcessTargettingState(msg, mgr, dt);
     break;
-  case 11:
-    sub80218e34(w1, mgr);
+  case ETurretState::ExitTargeting:
+    ProcessExitTargettingState(msg, mgr);
     break;
-  case 12:
-    sub80218bb4(w1, mgr, dt);
+  case ETurretState::Frenzy:
+    ProcessFrenzyState(msg, mgr, dt);
     break;
   default:
     break;
   }
 }
 
-void CScriptGunTurret::sub80219938(s32 w1, CStateManager& mgr) {
-  if (w1 == 1) {
-    float f1 = x524_;
-    float f0 = x2d4_data.x0_;
-    if (f1 >= f0 && x560_28_)
-      w1 = 2;
+void CScriptGunTurret::ProcessDeactivatingState(EStateMsg msg, CStateManager& mgr) {
+  if (msg == EStateMsg::Update && x524_curStateTime >= x2d4_data.GetIntoDeactivateDelay())
+    SetTurretState(x560_28_hasBeenActivated ? ETurretState::DeactiveFromReady : ETurretState::Deactive, mgr);
+}
 
-    sub80219b18(w1, mgr);
+void CScriptGunTurret::ProcessInactiveState(EStateMsg msg, CStateManager& mgr, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x528_curInactiveTime = 0.f;
+    x560_27_burstSet = false;
+    if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
+      x260_lastGunHP = gunTurret->HealthInfo(mgr)->GetHP();
+  } else if (msg == EStateMsg::Update) {
+    bool forceActivate = false;
+    if (x25c_gunId != kInvalidUniqueId)
+      if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
+        forceActivate = gun->HealthInfo(mgr)->GetHP() < x260_lastGunHP;
+    if (x2d4_data.GetScriptedStartOnly() ? (forceActivate || x560_29_scriptedStart) :
+        (forceActivate || x560_29_scriptedStart || InDetectionRange(mgr))) {
+      x528_curInactiveTime += dt;
+      if (forceActivate || x528_curInactiveTime >= x2d4_data.GetIntoActivateDelay())
+        SetTurretState(ETurretState::Ready, mgr);
+    } else {
+      x468_idleLight->SetParticleEmission(true);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x560_28_hasBeenActivated = true;
+    x468_idleLight->SetParticleEmission(false);
+
+    if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
+      x260_lastGunHP = gunTurret->GetHealthInfo(mgr)->GetHP();
   }
 }
 
-void CScriptGunTurret::sub802196c4(s32 w1, CStateManager& mgr, float dt) {
-  if (w1 == 0) {
-    x528_ = 0.f;
-    x560_27_ = false;
-    if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
-      x260_ = gunTurret->HealthInfo(mgr)->GetHP();
-  } else if (w1 == 1) {
-  } else if (w1 == 2) {
-    x560_28_ = true;
-    x468_->SetParticleEmission(false);
-
-    if (TCastToPtr<CScriptGunTurret> gunTurret = mgr.ObjectById(x25c_gunId))
-      x260_ = gunTurret->GetHealthInfo(mgr)->GetHP();
-  }
-}
-
-void CScriptGunTurret::sub802195bc(s32 w1, CStateManager& mgr, float dt) {
-  if (w1 == 0) {
-    x52c_ = 0.f;
-  } else if (w1 == 1) {
-    x52c_ += dt;
-    if (x52c_ < x2d4_data.x10_)
+void CScriptGunTurret::ProcessReadyState(EStateMsg msg, CStateManager& mgr, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x52c_curActiveTime = 0.f;
+  } else if (msg == EStateMsg::Update) {
+    x52c_curActiveTime += dt;
+    if (x52c_curActiveTime < x2d4_data.GetPanStartTime())
       return;
 
-    if (sub80217ad8(mgr) && sub802179a4(mgr)) {
-      sub80219b18(9, mgr);
-      CSfxManager::AddEmitter(x2d4_data.x7e_, GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
+    if (IsPlayerInFiringRange(mgr) && InDetectionRange(mgr)) {
+      SetTurretState(ETurretState::Targeting, mgr);
+      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
                               GetAreaIdAlways());
     } else {
-      sub80219b18(7, mgr);
-      x530_ = 0.f;
+      SetTurretState(ETurretState::PanningA, mgr);
+      x530_curPanTime = 0.f;
     }
   }
 }
 
-void CScriptGunTurret::sub8021942c(s32 state, CStateManager& mgr, float dt) {
-  if (state == 0) {
-    x52c_ = 0.f;
-  } else if (state == 1) {
-    if (sub80217ad8(mgr) && sub802179a4(mgr)) {
-      sub80219b18(9, mgr);
-      CSfxManager::AddEmitter(x2d4_data.x7e_, GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
+void CScriptGunTurret::ProcessPanningState(EStateMsg msg, CStateManager& mgr, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x52c_curActiveTime = 0.f;
+  } else if (msg == EStateMsg::Update) {
+    if (IsPlayerInFiringRange(mgr) && InDetectionRange(mgr)) {
+      SetTurretState(ETurretState::Targeting, mgr);
+      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
                               GetAreaIdAlways());
     } else {
-      x52c_ += dt;
-      x530_ += dt;
-      if (x530_ >= x2d4_data.x18_ && !x4a4_ && !x2d4_data.xa0_)
-        sub80219b18(5, mgr);
-      else if (x52c_ >= x2d4_data.x14_)
-        sub80219b18(x520_ != 7 ? 7 : 8, mgr);
+      x52c_curActiveTime += dt;
+      x530_curPanTime += dt;
+      if (x530_curPanTime >= x2d4_data.GetTotalPanSearchTime() &&
+          !x4a4_extensionModel && !x2d4_data.GetScriptedStartOnly())
+        SetTurretState(ETurretState::Inactive, mgr);
+      else if (x52c_curActiveTime >= x2d4_data.GetPanHoldTime())
+        SetTurretState(x520_state != ETurretState::PanningA ? ETurretState::PanningA : ETurretState::PanningB, mgr);
     }
   }
 }
 
-void CScriptGunTurret::sub80218f50(s32 state, CStateManager& mgr, float dt) {
-  if (state == 0) {
-    x52c_ = 0.f;
-  } else if (state == 1) {
-    if (!x560_26_) {
-      if (sub802179a4(mgr)) {
-        sub80218830(dt, mgr);
-        if (x25c_gunId != kInvalidUniqueId) {
-          if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
-            zeus::CVector3f vec = x404_;
-            if (sub80217ad8(mgr)) {
-              zeus::CTransform blastXf = gun->GetLocatorTransform("Blast_LCTR"sv);
-              zeus::CVector3f rotatedBlastVec = GetTransform().rotate(blastXf.origin) + GetTranslation();
-              x404_ = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
-              vec = x37c_projectileInfo.PredictInterceptPos(rotatedBlastVec, mgr.GetPlayer().GetAimPosition(mgr, dt),
-                                                            mgr.GetPlayer(), false, dt);
-            }
-
-            zeus::CVector3f compensated =
-                x3a4_burstFire.GetDistanceCompensatedError((x404_ - gun->GetTranslation()).magnitude(), 20.f);
-
-            compensated = gun->GetTransform().rotate(compensated);
-
-            gun->x404_ = x404_ + (vec - x404_) + compensated;
+void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x52c_curActiveTime = 0.f;
+  } else if (msg == EStateMsg::Update) {
+    if (x560_26_firedWithSetBurst || InDetectionRange(mgr)) {
+      UpdateTargettingMode(dt, mgr);
+      if (x25c_gunId != kInvalidUniqueId) {
+        if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
+          zeus::CVector3f vec = x404_targetPosition;
+          if (IsPlayerInFiringRange(mgr)) {
+            zeus::CTransform blastXf = gun->GetLocatorTransform("Blast_LCTR"sv);
+            zeus::CVector3f rotatedBlastVec = GetTransform().rotate(blastXf.origin) + GetTranslation();
+            x404_targetPosition = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+            vec = x37c_projectileInfo.PredictInterceptPos(rotatedBlastVec, mgr.GetPlayer().GetAimPosition(mgr, dt),
+                                                          mgr.GetPlayer(), false, dt);
           }
-        }
 
-        zeus::CVector3f diffVec = x404_ - GetTranslation();
-        if (diffVec.canBeNormalized()) {
-          zeus::CVector3f normDiff = diffVec.normalized();
-          float angDif = zeus::CVector3f::getAngleDiff(normDiff, GetTransform().frontVector());
-          zeus::CQuaternion quat = zeus::CQuaternion::lookAt(GetTransform().frontVector(), normDiff,
-                                                             std::min(angDif, (dt * x2d4_data.x28_)));
+          zeus::CVector3f compensated =
+              x3a4_burstFire.GetDistanceCompensatedError(
+                (x404_targetPosition - gun->GetTranslation()).magnitude(), 20.f);
 
-          quat.setImaginary(GetTransform().transposeRotate(quat.getImaginary()));
-          RotateInOneFrameOR(quat, dt);
+          compensated = gun->GetTransform().rotate(compensated);
+
+          gun->x404_targetPosition = x404_targetPosition + (vec - x404_targetPosition) + compensated;
         }
       }
 
-      if (sub80217950(mgr)) {
+      zeus::CVector3f diffVec = x404_targetPosition - GetTranslation();
+      if (diffVec.canBeNormalized()) {
+        zeus::CVector3f normDiff = diffVec.normalized();
+        float angDif = zeus::CVector3f::getAngleDiff(normDiff, GetTransform().frontVector());
+        zeus::CQuaternion quat = zeus::CQuaternion::lookAt(GetTransform().frontVector(), normDiff,
+                                                           std::min(angDif, (dt * x2d4_data.GetTurnSpeed())));
+
+        quat.setImaginary(GetTransform().transposeRotate(quat.getImaginary()));
+        RotateInOneFrameOR(quat, dt);
+      }
+
+      if (ShouldFire(mgr)) {
         SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
-        x560_26_ = true;
+        x560_26_firedWithSetBurst = true;
       }
 
-      x52c_ = 0.f;
+      x52c_curActiveTime = 0.f;
     } else {
-      x52c_ += dt;
-      if (x52c_ >= 10.f)
-        sub80219b18(11, mgr);
+      x52c_curActiveTime += dt;
+      if (x52c_curActiveTime >= 10.f)
+        SetTurretState(ETurretState::ExitTargeting, mgr);
     }
-  } else if (state == 2) {
-    x560_30_ = true;
+  } else if (msg == EStateMsg::Deactivate) {
+    x560_30_needsStopClankSound = true;
   }
 }
 
-void CScriptGunTurret::sub80218e34(s32 state, CStateManager& mgr) {
-  if (state != 1 || x25c_gunId == kInvalidUniqueId)
+void CScriptGunTurret::ProcessExitTargettingState(EStateMsg msg, CStateManager& mgr) {
+  if (msg != EStateMsg::Update || x25c_gunId == kInvalidUniqueId)
     return;
 
   if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
     zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
 
-    if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_) < zeus::degToRad(0.9f))
-      sub80219b18(6, mgr);
+    if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_originalFrontVec) < zeus::degToRad(0.9f))
+      SetTurretState(ETurretState::Ready, mgr);
   }
 }
 
-void CScriptGunTurret::sub80218bb4(s32 state, CStateManager& mgr, float dt) {
-  if (state == 0) {
-    x560_31_ = mgr.GetActiveRandom()->Float() < 0.f;
-    x534_ = 0.15f;
+void CScriptGunTurret::ProcessFrenzyState(EStateMsg msg, CStateManager& mgr, float dt) {
+  if (msg == EStateMsg::Activate) {
+    x560_31_frenzyReverse = mgr.GetActiveRandom()->Float() < 0.f;
+    x534_fireCycleRemTime = 0.15f;
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     mgr.GetPlayer().SetOrbitRequestForTarget(GetUniqueId(), CPlayer::EPlayerOrbitRequest::ActivateOrbitSource, mgr);
-  } else if (state == 1) {
-    if (x524_ >= x2d4_data.x9c_) {
-      sub80219b18(0, mgr);
+  } else if (msg == EStateMsg::Update) {
+    if (x524_curStateTime >= x2d4_data.GetFrenzyDuration()) {
+      SetTurretState(ETurretState::Destroyed, mgr);
       if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId))
-        gun->x520_ = 0;
+        gun->x520_state = ETurretState::Destroyed;
       return;
     }
 
     zeus::CVector3f frontVec = GetTransform().frontVector();
-    if (x560_31_ && x550_.magSquared() < 0.f &&
-        zeus::CVector3f::getAngleDiff(x544_, frontVec) >= zeus::degToRad(45.f)) {
-      x560_31_ = false;
-    } else if (!x560_31_ && x550_.magSquared() < 0.f &&
-               zeus::CVector3f::getAngleDiff(x544_, frontVec) >= zeus::degToRad(45.f)) {
-      x560_31_ = true;
+    if (x560_31_frenzyReverse && x550_originalRightVec.magSquared() < 0.f &&
+        zeus::CVector3f::getAngleDiff(x544_originalFrontVec, frontVec) >= zeus::degToRad(45.f)) {
+      x560_31_frenzyReverse = false;
+    } else if (!x560_31_frenzyReverse && x550_originalRightVec.magSquared() < 0.f &&
+               zeus::CVector3f::getAngleDiff(x544_originalFrontVec, frontVec) >= zeus::degToRad(45.f)) {
+      x560_31_frenzyReverse = true;
     }
 
     if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
-      x534_ -= dt;
-      if (x534_ >= 0.f)
+      x534_fireCycleRemTime -= dt;
+      if (x534_fireCycleRemTime >= 0.f)
         return;
 
-      x404_ = gun->GetTranslation() + (100.f * gun->GetTransform().frontVector());
+      x404_targetPosition = gun->GetTranslation() + (100.f * gun->GetTransform().frontVector());
       SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
-      x534_ = 0.15f;
+      x534_fireCycleRemTime = 0.15f;
     }
   }
 }
 
-bool CScriptGunTurret::sub80217ad8(CStateManager& mgr) {
+bool CScriptGunTurret::IsPlayerInFiringRange(CStateManager& mgr) const {
   zeus::CVector3f posDif = mgr.GetPlayer().GetTranslation() - GetTranslation();
   zeus::CVector3f someVec(posDif.x(), posDif.y(), 0.f);
-  if (x550_.dot(posDif) >= 0.f)
-    return zeus::CVector3f::getAngleDiff(x544_, someVec) <= x2d4_data.x20_;
+  if (x550_originalRightVec.dot(posDif) >= 0.f)
+    return zeus::CVector3f::getAngleDiff(x544_originalFrontVec, someVec) <= x2d4_data.GetRightMaxAngle();
 
-  if (zeus::CVector3f::getAngleDiff(x544_, someVec) <= x2d4_data.x20_)
+  if (zeus::CVector3f::getAngleDiff(x544_originalFrontVec, someVec) <= x2d4_data.GetLeftMaxAngle())
     return true;
 
   float biasedAngle = zeus::CVector3f::getAngleDiff(posDif, zeus::CVector3f::skUp) - zeus::degToRad(90.f);
 
-  return (biasedAngle >= zeus::degToRad(-20.f) && biasedAngle <= x2d4_data.x24_);
+  return (biasedAngle >= zeus::degToRad(-20.f) && biasedAngle <= x2d4_data.GetDownMaxAngle());
 }
 
-bool CScriptGunTurret::sub802179a4(CStateManager&) { return false; }
+bool CScriptGunTurret::LineOfSightTest(CStateManager& mgr) const {
+  if (x25c_gunId == kInvalidUniqueId)
+    return false;
+  if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
+    if (x560_27_burstSet || (x520_state == ETurretState::Inactive && x4a4_extensionModel))
+      return true;
+    zeus::CTransform xf = GetLocatorTransform("Blast_LCTR"sv);
+    zeus::CVector3f muzzlePos = gun->GetTransform().rotate(xf.origin) + gun->GetTranslation();
+    zeus::CVector3f dir = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - muzzlePos;
+    float mag = dir.magnitude();
+    dir = dir / mag;
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    CMaterialFilter filter = CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
+                             {EMaterialTypes::Player, EMaterialTypes::CollisionActor});
+    mgr.BuildNearList(nearList, muzzlePos, dir, mag, filter, gun.GetPtr());
+    TUniqueId id = kInvalidUniqueId;
+    return mgr.RayWorldIntersection(id, muzzlePos, dir, mag, filter, nearList).IsInvalid();
+  }
+  return false;
+}
 
-zeus::CVector3f CScriptGunTurret::sub80217e34(float dt) {
-  if (!x4a4_)
+bool CScriptGunTurret::InDetectionRange(CStateManager& mgr) const {
+  zeus::CVector3f delta = mgr.GetPlayer().GetTranslation() - GetTranslation();
+  if (delta.dot(zeus::CVector3f::skDown) >= 0.f ||
+      zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), delta) <= zeus::degToRad(20.f))
+    if (delta.magSquared() <= x2d4_data.GetDetectionRange() * x2d4_data.GetDetectionRange())
+      if (x2d4_data.GetDetectionZRange() == 0.f || std::fabs(delta.z()) < x2d4_data.GetDetectionZRange())
+        return LineOfSightTest(mgr);
+  return false;
+}
+
+zeus::CVector3f CScriptGunTurret::UpdateExtensionModelState(float dt) {
+  if (!x4a4_extensionModel)
     return {};
 
-  if (x520_ >= 7 && x520_ < 12)
-    x4f8_ = std::min(0.9f, x4f8_ + 1.5f * dt);
-  else if ((x520_ >= 0 && x520_ < 3) || x520_ == 5 || x520_ == 13)
-    x4f8_ = std::max(0.f, x4f8_ - 1.f * dt);
-
-  return (x4fc_ + (x2d4_data.x8c_ * x4f8_ * zeus::CVector3f::skDown)) - GetTranslation();
+  switch (x520_state) {
+  case ETurretState::PanningA:
+  case ETurretState::PanningB:
+  case ETurretState::Targeting:
+  case ETurretState::Firing:
+  case ETurretState::ExitTargeting:
+    x4f8_extensionT = std::min(0.9f, x4f8_extensionT + 1.5f * dt);
+    break;
+  default:
+    x4f8_extensionT = std::max(0.f, x4f8_extensionT - 1.5f * dt);
+    break;
+  case ETurretState::Ready:
+  case ETurretState::Deactivating:
+  case ETurretState::DeactivatingFromReady:
+  case ETurretState::Frenzy:
+    break;
+  }
+  return (x4fc_extensionOffset + (x2d4_data.GetExtensionDropDownDist() * x4f8_extensionT * zeus::CVector3f::skDown)) -
+    GetTranslation();
 }
 
-void CScriptGunTurret::sub80217f5c(float dt, CStateManager& mgr) {
-  /* TODO: Finish */
+void CScriptGunTurret::UpdateHealthInfo(CStateManager& mgr) {
+  switch (x258_type) {
+  case ETurretComponent::Base:
+    if (x25c_gunId != kInvalidUniqueId) {
+      if (!TCastToPtr<CScriptGunTurret>(mgr.ObjectById(x25c_gunId))) {
+        SetTurretState(ETurretState::Destroyed, mgr);
+        x560_25_frozen = false;
+        x25c_gunId = kInvalidUniqueId;
+        if (x50c_targetingEmitter) {
+          CSfxManager::RemoveEmitter(x50c_targetingEmitter);
+          x50c_targetingEmitter.reset();
+        }
+      }
+    } else {
+      SetTurretState(ETurretState::Destroyed, mgr);
+    }
+    break;
+  case ETurretComponent::Gun:
+    if (!x560_24_dead && x520_state != ETurretState::Frenzy && HealthInfo(mgr)->GetHP() <= 0.f) {
+      x560_24_dead = true;
+      SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+      mgr.FreeScriptObject(GetUniqueId());
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+bool CScriptGunTurret::PlayerInsideTurretSphere(CStateManager& mgr) const {
+  if (TCastToConstPtr<CCollisionActor> cAct = mgr.GetObjectById(x4a0_collisionActor)) {
+    if (cAct->GetActive()) {
+      zeus::CVector3f delta = mgr.GetPlayer().GetAimPosition(mgr, 0.f) - GetTranslation();
+      if (delta.z() < 0.f) {
+        float rad = cAct->GetSphereRadius() * 2.f +
+        (cAct->GetTranslation() - GetTranslation()).magnitude();
+        return delta.magSquared() < rad * rad;
+      }
+    }
+  }
+  return false;
+}
+
+void CScriptGunTurret::UpdateGunOrientation(float dt, CStateManager& mgr) {
   if (x25c_gunId == kInvalidUniqueId)
     return;
 
@@ -779,19 +1009,70 @@ void CScriptGunTurret::sub80217f5c(float dt, CStateManager& mgr) {
     zeus::CTransform xf = GetLocatorTransform("Gun_SDK"sv);
     xf = GetTransform() * xf;
 
-    switch (x520_) {
-    case 11: {
-      zeus::CVector3f frontVec = GetTransform().frontVector();
-      zeus::CVector3f gunFrontVec = gun->GetTransform().frontVector();
-      zeus::CQuaternion quat = zeus::CQuaternion::lookAt(gunFrontVec, frontVec, 0.3f * dt * x2d4_data.x28_);
-      zeus::CVector3f xposVec = gun->GetTransform().transposeRotate(quat.getImaginary());
-      quat.setImaginary(xposVec);
-      gun->RotateInOneFrameOR(quat, dt);
-      RotateInOneFrameOR(quat, dt);
+    switch (x520_state) {
+    case ETurretState::Targeting:
+    case ETurretState::Firing: {
+      float xyMagSq = xf.frontVector().toVec2f().magSquared();
+      float useYaw = 0.f;
+      if (std::sqrt(xyMagSq) > 0.001f)
+        useYaw = -std::atan2(xf.frontVector().x(), xf.frontVector().y());
+      float oldPitch = gun->GetPitch();
+      float usePitch = 0.f;
+      if (!gun->PlayerInsideTurretSphere(mgr)) {
+        zeus::CTransform newXf;
+        if ((x404_targetPosition - xf.origin).canBeNormalized())
+          newXf = zeus::lookAt(xf.origin, x404_targetPosition);
+        else
+          newXf = GetTransform();
+        float newPitch = -std::atan2(-newXf.frontVector().z(), newXf.frontVector().toVec2f().magnitude());
+        float newPitchDelta = newPitch - oldPitch;
+        float f2 = newPitchDelta > 0.f ? dt * x2d4_data.GetTurnSpeed() : dt * -x2d4_data.GetTurnSpeed();
+        usePitch = std::max(std::fabs(newPitchDelta) <=
+          std::fabs(f2) ? newPitch : oldPitch + f2, -x2d4_data.GetDownMaxAngle());
+      }
+      zeus::CQuaternion qy, qx, qz;
+      qy.rotateY(0.f);
+      qx.rotateX(usePitch);
+      qz.rotateZ(useYaw);
+      gun->SetTransform((qz * qx * qy).toTransform(xf.origin));
       break;
     }
-    case 12:
+    case ETurretState::ExitTargeting: {
+      zeus::CVector3f frontVec = GetTransform().frontVector();
+      zeus::CVector3f gunFrontVec = gun->GetTransform().frontVector();
+      float rotAngle = 0.3f * dt * x2d4_data.GetTurnSpeed();
+      zeus::CQuaternion quat = zeus::CQuaternion::lookAt(gunFrontVec, frontVec, rotAngle);
+      quat.setImaginary(gun->GetTransform().transposeRotate(quat.getImaginary()));
+      gun->RotateInOneFrameOR(quat, dt);
+      zeus::CQuaternion quat2 = zeus::CQuaternion::lookAt(frontVec, x544_originalFrontVec, rotAngle);
+      quat2.setImaginary(GetTransform().transposeRotate(quat2.getImaginary()));
+      RotateInOneFrameOR(quat2, dt);
       break;
+    }
+    case ETurretState::Frenzy: {
+      float xyMagSq = xf.frontVector().toVec2f().magSquared();
+      float useYaw = 0.f;
+      if (std::sqrt(xyMagSq) > 0.001f)
+        useYaw = -std::atan2(xf.frontVector().x(), xf.frontVector().y());
+      float f28 = -0.5f * x2d4_data.GetDownMaxAngle() *
+        (1.f - std::cos(2.f * x524_curStateTime * x2d4_data.GetTurnSpeed()));
+      float pitch = gun->GetPitch();
+      float f2 = f28 - pitch;
+      float f31 = x2d4_data.GetTurnSpeed() * dt;
+      float f3 = f2 > 0.f ? f31 : -f31;
+      float usePitch = std::fabs(f2) <= std::fabs(f3) ? f28 : pitch + f3;
+      usePitch = std::max(usePitch, -x2d4_data.GetDownMaxAngle());
+      zeus::CQuaternion qy, qx, qz;
+      qy.rotateY(0.f);
+      qx.rotateX(usePitch);
+      qz.rotateZ(useYaw);
+      gun->SetTransform((qz * qx * qy).toTransform(xf.origin));
+      zeus::CQuaternion rot = zeus::CQuaternion::lookAt(GetTransform().frontVector(),
+        x560_31_frenzyReverse ? -x550_originalRightVec : x550_originalRightVec, f31);
+      rot.setImaginary(GetTransform().transposeRotate(rot.getImaginary()));
+      RotateInOneFrameOR(rot, dt);
+      break;
+    }
     default:
       gun->SetTransform(xf);
       break;
@@ -799,130 +1080,136 @@ void CScriptGunTurret::sub80217f5c(float dt, CStateManager& mgr) {
   }
 }
 
-void CScriptGunTurret::sub80216288(float dt) {
-  x510_ += dt;
-  float angleDiff2D = zeus::CVector2f::getAngleDiff(x514_.toVec2f(), GetTransform().frontVector().toVec2f());
+void CScriptGunTurret::UpdateTargettingSound(float dt) {
+  x510_timeSinceLastTargetSfx += dt;
+  float angleDiff2D = zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(),
+                                                    GetTransform().frontVector().toVec2f());
 
-  if (x560_30_ && angleDiff2D < zeus::degToRad(20.f) && (x520_ == 9 || x520_ == 10)) {
-    if (!x560_25_)
-      CSfxManager::AddEmitter(x2d4_data.x82_, GetTranslation(), zeus::CVector3f::skUp, false, false, 127,
-                              GetAreaIdAlways());
-    x560_30_ = false;
+  if (x560_30_needsStopClankSound && angleDiff2D < zeus::degToRad(20.f) &&
+      (x520_state == ETurretState::Targeting || x520_state == ETurretState::Firing)) {
+    if (!x560_25_frozen)
+      CSfxManager::AddEmitter(x2d4_data.GetStopClankSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+                              127, GetAreaIdAlways());
+    x560_30_needsStopClankSound = false;
   }
 
-  if (x510_ >= 0.5f && !x560_25_) {
-    if (x520_ == 9 || x520_ == 10 || x520_ == 12) {
-      bool res = sub80217c24(dt);
-      if (!res && !x50c_)
-        x50c_ = CSfxManager::AddEmitter(x2d4_data.x7c_, GetTranslation(), zeus::CVector3f::skUp, false, true, 127,
-                                        GetAreaIdAlways());
-      else if (res && x50c_) {
-        CSfxManager::RemoveEmitter(x50c_);
-        x50c_.reset();
-        x510_ = 0.f;
+  if (x510_timeSinceLastTargetSfx >= 0.5f && !x560_25_frozen) {
+    if (x520_state == ETurretState::Targeting || x520_state == ETurretState::Firing ||
+        x520_state == ETurretState::Frenzy) {
+      bool insignificant = IsInsignificantRotation(dt);
+      if (!insignificant && !x50c_targetingEmitter)
+        x50c_targetingEmitter = CSfxManager::AddEmitter(x2d4_data.GetTrackingSoundId(), GetTranslation(),
+                                                        zeus::CVector3f::skUp, false, true, 127, GetAreaIdAlways());
+      else if (insignificant && x50c_targetingEmitter) {
+        CSfxManager::RemoveEmitter(x50c_targetingEmitter);
+        x50c_targetingEmitter.reset();
+        x510_timeSinceLastTargetSfx = 0.f;
       }
 
-      if (x50c_) {
-        float bendScale = dt * x2d4_data.x28_;
-        CSfxManager::PitchBend(x50c_, std::max(1.f, 8192.f * (bendScale > 0.f ? angleDiff2D / bendScale : 0.f)) + 8192);
+      if (x50c_targetingEmitter) {
+        float bendScale = dt * x2d4_data.GetTurnSpeed();
+        CSfxManager::PitchBend(x50c_targetingEmitter,
+          std::max(0.f, (bendScale > 0.f ? angleDiff2D / bendScale : 0.f)));
       }
     }
-  } else if (x560_25_ && x50c_) {
-    CSfxManager::RemoveEmitter(x50c_);
-    x50c_.reset();
+  } else if (x560_25_frozen && x50c_targetingEmitter) {
+    CSfxManager::RemoveEmitter(x50c_targetingEmitter);
+    x50c_targetingEmitter.reset();
   }
 
-  x514_ = GetTransform().frontVector();
+  x514_lastFrontVector = GetTransform().frontVector();
 }
 
-void CScriptGunTurret::sub80217124(CStateManager& mgr) {
-  if (x520_ == 10) {
-    if (x55c_ != -1)
+void CScriptGunTurret::PlayAdditiveChargingAnimation(CStateManager& mgr) {
+  if (x520_state == ETurretState::Firing) {
+    if (x55c_additiveChargeAnim != -1)
       return;
 
     auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
         CPASAnimParmData(24, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
     if (pair.first > 0.f) {
-      x55c_ = pair.second;
+      x55c_additiveChargeAnim = pair.second;
       ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);
     }
-  } else if (x55c_ != -1) {
-    ModelData()->AnimationData()->DelAdditiveAnimation(x55c_);
-    x55c_ = -1;
+  } else if (x55c_additiveChargeAnim != -1) {
+    ModelData()->AnimationData()->DelAdditiveAnimation(x55c_additiveChargeAnim);
+    x55c_additiveChargeAnim = -1;
   }
 }
 
-void CScriptGunTurret::sub80218830(float dt, CStateManager& mgr) {
+void CScriptGunTurret::UpdateTargettingMode(float dt, CStateManager& mgr) {
   if (mgr.GetCameraManager()->IsInCinematicCamera()) {
-    x534_ = mgr.GetActiveRandom()->Float() * x2d4_data.xc_ + x2d4_data.x8_;
-    x538_ = 0.5f * x534_;
+    x534_fireCycleRemTime = mgr.GetActiveRandom()->Float() * x2d4_data.GetReloadTimeVariance() +
+      x2d4_data.GetReloadTime();
+    x538_halfFireCycleDur = 0.5f * x534_fireCycleRemTime;
   }
 
-  if (x534_ > 0.f) {
-    x534_ -= dt;
-    if (x534_ < x538_ && x520_ != 10) {
-      CSfxManager::AddEmitter(x2d4_data.x84_, GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
-                              GetAreaIdAlways());
-      sub80219b18(10, mgr);
+  if (x534_fireCycleRemTime > 0.f) {
+    x534_fireCycleRemTime -= dt;
+    if (x534_fireCycleRemTime < x538_halfFireCycleDur && x520_state != ETurretState::Firing) {
+      CSfxManager::AddEmitter(x2d4_data.GetChargingSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+                              0x7f, GetAreaIdAlways());
+      SetTurretState(ETurretState::Firing, mgr);
       return;
     }
+  } else {
+    if (x520_state != ETurretState::Targeting)
+      SetTurretState(ETurretState::Targeting, mgr);
 
-    if (x520_ != 9)
-      sub80219b18(9, mgr);
-
-    if (x2d4_data.x18_ == 0) {
-      sub80216594(mgr);
-      x534_ = mgr.GetActiveRandom()->Float() * x2d4_data.xc_ + x2d4_data.x8_;
-      x538_ = 0.5f * x534_;
-      return;
+    if (!x3a4_burstFire.IsBurstSet()) {
+      UpdateBurstType(mgr);
+      x534_fireCycleRemTime = mgr.GetActiveRandom()->Float() * x2d4_data.GetReloadTimeVariance() +
+        x2d4_data.GetReloadTime();
+      x538_halfFireCycleDur = 0.5f * x534_fireCycleRemTime;
+    } else {
+      x3a4_burstFire.Update(mgr, dt);
     }
-
-    x3a4_burstFire.Update(mgr, dt);
   }
 }
 
-void CScriptGunTurret::sub80216594(CStateManager& mgr) {
-  if (x560_27_) {
-    u32 r0 = 1;
+void CScriptGunTurret::UpdateBurstType(CStateManager& mgr) {
+  if (x560_27_burstSet) {
+    bool inView = true;
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
       zeus::CVector3f frontVec = GetTransform().frontVector();
       zeus::CVector3f plFrontVec = mgr.GetPlayer().GetTransform().frontVector();
       float dot = frontVec.dot(plFrontVec);
 
-      if (dot > 0.f)
-        r0 = 0;
+      if (dot >= 0.f)
+        inView = false;
     }
-    bool r29 = r0 != 0;
     u32 r3 = mgr.GetActiveRandom()->Range(0, 3);
     r3 += 2;
-    if (r3 > 2 && x2d4_data.x98_ < 3)
-      r0 = 0;
-    else if (r3 > 5 || r3 > 3)
-      r0 = 2;
+    u32 type;
+    if (r3 <= 2 || x2d4_data.GetNumSubsequentShots() < 3)
+      type = 0;
+    else if (r3 >= 5 && x2d4_data.GetNumSubsequentShots() > 3)
+      type = 2;
     else
-      r0 = 1;
+      type = 1;
 
-    x3a4_burstFire.SetBurstType(r0 + r29);
+    x3a4_burstFire.SetBurstType(type + (inView ? 0 : 3));
   } else {
-    u32 r3 = x2d4_data.x90_ - 2;
-    x3a4_burstFire.SetBurstType(r3);
-    x3a4_burstFire.SetFirstBurstIndex(x2d4_data.x94_);
+    u32 type = x2d4_data.GetNumInitialShots() - 2;
+    x3a4_burstFire.SetBurstType(type);
+    x3a4_burstFire.SetFirstBurstIndex(x2d4_data.GetInitialShotTableIndex());
   }
 
   x3a4_burstFire.Start(mgr);
-  x560_26_ = false;
-  x560_27_ = true;
+  x560_26_firedWithSetBurst = false;
+  x560_27_burstSet = true;
 }
 
-bool CScriptGunTurret::sub80217950(CStateManager& mgr) {
-  if (x520_ == 9 && x534_ <= 0.f && x3a4_burstFire.ShouldFire())
-    return sub80217ad8(mgr);
+bool CScriptGunTurret::ShouldFire(CStateManager& mgr) const {
+  if (x520_state == ETurretState::Targeting && x534_fireCycleRemTime <= 0.f && x3a4_burstFire.ShouldFire())
+    return IsPlayerInFiringRange(mgr);
 
   return false;
 }
 
-bool CScriptGunTurret::sub80217c24(float) {
-  return zeus::CVector2f::getAngleDiff(x514_.toVec2f(), GetTransform().frontVector().toVec2f()) < zeus::degToRad(20.f);
+bool CScriptGunTurret::IsInsignificantRotation(float dt) const {
+  return zeus::CVector2f::getAngleDiff(x514_lastFrontVector.toVec2f(), GetTransform().frontVector().toVec2f()) <
+         zeus::degToRad(2.f) * dt;
 }
 
 } // namespace urde

@@ -131,8 +131,10 @@ void CGunController::ReturnToDefault(CStateManager& mgr, float dt, bool setState
   switch (x50_gunState) {
   case EGunState::Strike:
     x50_gunState = EGunState::FreeLook;
+    [[fallthrough]];
   case EGunState::Idle:
     x4_freeLook.SetIdle(false);
+    [[fallthrough]];
   case EGunState::FreeLook:
     if (setState)
       break;

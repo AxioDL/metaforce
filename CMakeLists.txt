@@ -130,7 +130,7 @@ else()
     message(STATUS "Building with x87 Vector ISA")
   endif()
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-multichar -fno-exceptions -fno-rtti -Werror")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-multichar -Werror=implicit-fallthrough -fno-exceptions -fno-rtti -Werror")
 
   if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations")

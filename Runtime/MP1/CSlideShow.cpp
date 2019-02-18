@@ -85,6 +85,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
       //    return EMessageReturn::Exit;
       //}
       x14_phase = Phase::One;
+      [[fallthrough]];
     }
     case Phase::One: {
       if (x18_galleryTXTRDeps.empty()) {
@@ -100,12 +101,13 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
         return EMessageReturn::Exit;
 
       x14_phase = Phase::Three;
+      [[fallthrough]];
     }
     case Phase::Two:
-    case Phase::Three: {
-    }
+    case Phase::Three:
     case Phase::Four:
     case Phase::Five:
+      break;
     default:
       break;
     }

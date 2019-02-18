@@ -710,6 +710,7 @@ void CElementGen::UpdateLightParameters() {
       if (CRealElement* lsla = desc->x11c_x108_LSLA.get())
         lsla->GetValue(x74_curFrame, x334_LSLA);
     }
+    [[fallthrough]];
   }
   case LightType::Directional: {
     if (x308_lightType != LightType::Custom) {

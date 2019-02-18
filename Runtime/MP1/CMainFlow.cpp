@@ -31,6 +31,7 @@ void CMainFlow::AdvanceGameState(CArchitectureQueue& queue) {
     MP1::CMain* main = static_cast<MP1::CMain*>(g_Main);
     if (main->GetFlowState() != EFlowState::None && main->GetFlowState() != EFlowState::StateSetter)
       main->SetX30(true);
+    [[fallthrough]];
   }
   case EClientFlowStates::Unspecified:
     SetGameState(EClientFlowStates::PreFrontEnd, queue);

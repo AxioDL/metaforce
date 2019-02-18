@@ -322,7 +322,7 @@ void CPlayerState::IncrPickup(EItemType type, u32 amount) {
   }
   case EItemType::HealthRefill:
     xc_health.SetHP(std::min(amount + xc_health.GetHP(), CalculateHealth()));
-    [[fallthrough]];
+    break;
   default:
     break;
   }

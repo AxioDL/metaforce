@@ -32,6 +32,7 @@ void DPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
       case SBIG('1TEX'):
       case SBIG('1ADD'):
         loadFirstDesc = true;
+        [[fallthrough]];
       case SBIG('2SZE'):
       case SBIG('2LFT'):
       case SBIG('2ROT'):
@@ -250,6 +251,7 @@ void DPSM<IDType>::_read(athena::io::IStreamReader& r) {
     case SBIG('1TEX'):
     case SBIG('1ADD'):
       loadFirstDesc = true;
+      [[fallthrough]];
     case SBIG('2SZE'):
     case SBIG('2LFT'):
     case SBIG('2ROT'):

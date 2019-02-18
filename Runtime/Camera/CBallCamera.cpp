@@ -249,6 +249,7 @@ void CBallCamera::SetState(EBallCameraState state, CStateManager& mgr) {
     SetFovInterpolation(mgr.GetCameraManager()->GetFirstPersonCamera()->GetFov(), CCameraManager::ThirdPersonFOV(), 1.f,
                         0.f);
     x36c_splineState = ESplineState::Invalid;
+    [[fallthrough]];
   }
   case EBallCameraState::Default:
   case EBallCameraState::Chase:
@@ -1804,6 +1805,7 @@ void CBallCamera::Think(float dt, CStateManager& mgr) {
         colAct->SetActive(false);
       return;
     }
+    [[fallthrough]];
   case CPlayer::EPlayerCameraState::Ball:
   case CPlayer::EPlayerCameraState::Transitioning:
   case CPlayer::EPlayerCameraState::Two: {

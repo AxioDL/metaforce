@@ -50,6 +50,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
         x28_skippedCineCam = kInvalidUniqueId;
         break;
       }
+      [[fallthrough]];
     }
     case EGameFlowState::InGame: {
       x14_stateManager->SetActiveRandomToDefault();
@@ -101,6 +102,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
         x14_stateManager->Update(dt);
         x14_stateManager->ClearActiveRandom();
       }
+      break;
     }
     default:
       break;
@@ -261,6 +263,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
                                                                    16.f, 1.f);
       }
     }
+    break;
   }
   default:
     break;
@@ -346,6 +349,7 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
                                             std::make_shared<CMFGame>(x14_stateMgr, x18_guiMgr, queue)));
       return EMessageReturn::RemoveIOWinAndExit;
     }
+    break;
   }
   default:
     break;

@@ -314,6 +314,7 @@ void CScriptPlayerActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid
     }
     if (!(x350_flags & 0x4))
       break;
+    [[fallthrough]];
   case EScriptObjectMessage::Reset:
     if (GetActive() || msg == EScriptObjectMessage::Reset) {
       x30c_setBeamId = CPlayerState::EBeamId::Invalid;

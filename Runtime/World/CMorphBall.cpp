@@ -296,6 +296,7 @@ void CMorphBall::UpdateMorphBallSounds(float dt) {
       CSfxManager::UpdateEmitter(x1e2c_rollSfxHandle, x0_player.GetTranslation(), zeus::CVector3f::skZero, maxVol);
       break;
     }
+    [[fallthrough]];
   }
   default:
     if (x1e2c_rollSfxHandle) {

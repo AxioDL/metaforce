@@ -94,6 +94,7 @@ void CPlasmaBeam::EnableSecondaryFx(ESecondaryFxType type) {
   case ESecondaryFxType::Charge:
     x228_chargeFx = std::make_unique<CElementGen>(x21c_plasma2nd1);
     x228_chargeFx->SetGlobalScale(x4_scale);
+    break;
   default:
     break;
   }

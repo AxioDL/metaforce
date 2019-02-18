@@ -50,6 +50,7 @@ void CAdditiveAnimPlayback::Update(float dt) {
 
     if (std::fabs(x10_curWeight) < 0.00001f)
       x1c_phase = EAdditivePlaybackPhase::FadedOut;
+    break;
   }
   default:
     break;
@@ -64,6 +65,7 @@ void CAdditiveAnimPlayback::FadeOut() {
     break;
   case EAdditivePlaybackPhase::FadingIn:
     x18_weightTimer = x18_weightTimer / x0_info.GetFadeInDuration() * x0_info.GetFadeOutDuration();
+    break;
   default:
     break;
   }

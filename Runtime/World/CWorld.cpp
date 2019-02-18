@@ -147,6 +147,7 @@ bool CDummyWorld::ICheckWorldComplete() {
       x8_phase = Phase::Done;
       return false;
     }
+    [[fallthrough]];
   }
   case Phase::LoadingMap: {
     if (!x2c_mapWorld.IsLoaded() || !x2c_mapWorld.GetObj())
@@ -154,12 +155,14 @@ bool CDummyWorld::ICheckWorldComplete() {
 
     x2c_mapWorld->SetWhichMapAreasLoaded(*this, 0, 9999);
     x8_phase = Phase::LoadingMapAreas;
+    [[fallthrough]];
   }
   case Phase::LoadingMapAreas: {
     if (x2c_mapWorld->IsMapAreasStreaming())
       return false;
 
     x8_phase = Phase::Done;
+    [[fallthrough]];
   }
   case Phase::Done:
     return true;
@@ -336,6 +339,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     CWorldLayers::ReadWorldLayers(r, version, x8_mlvlId);
 
     x4_phase = Phase::LoadingMap;
+    [[fallthrough]];
   }
   case Phase::LoadingMap: {
     if (!x28_mapWorld.IsLoaded() || !x28_mapWorld.GetObj())
@@ -347,12 +351,14 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
       x28_mapWorld->SetWhichMapAreasLoaded(*this, x68_curAreaId, 3);
 
     x4_phase = Phase::LoadingMapAreas;
+    [[fallthrough]];
   }
   case Phase::LoadingMapAreas: {
     if (x28_mapWorld->IsMapAreasStreaming())
       return false;
 
     x4_phase = Phase::LoadingSkyBox;
+    [[fallthrough]];
   }
   case Phase::LoadingSkyBox: {
     x70_26_skyboxActive = true;
@@ -375,6 +381,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
       group.x1c_groupData.Lock();
 
     x4_phase = Phase::LoadingSoundGroups;
+    [[fallthrough]];
   }
   case Phase::LoadingSoundGroups: {
     bool allLoaded = true;
@@ -392,6 +399,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 
     LoadSoundGroups();
     x4_phase = Phase::Done;
+    [[fallthrough]];
   }
   case Phase::Done:
     return true;

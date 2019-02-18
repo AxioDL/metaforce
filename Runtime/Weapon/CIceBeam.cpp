@@ -77,6 +77,7 @@ void CIceBeam::EnableSecondaryFx(ESecondaryFxType type) {
   case ESecondaryFxType::None:
     if (x1cc_enabledSecondaryEffect == ESecondaryFxType::None)
       break;
+    [[fallthrough]];
   default:
     switch (type) {
     case ESecondaryFxType::None:
