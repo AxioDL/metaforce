@@ -3,6 +3,7 @@
 #include "TXTR.hpp"
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
+#include "hecl/hecl.hpp"
 
 namespace DataSpec {
 
@@ -268,7 +269,7 @@ static void DecodeIA8(png_structp png, png_infop info, const uint8_t* texels, in
   std::unique_ptr<uint16_t[]> buf(new uint16_t[width]);
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x)
-      buf[x] = Lookup16BPP(texels, width, x, y);
+      buf[x] = hecl::SBig(Lookup16BPP(texels, width, x, y));
     png_write_row(png, (png_bytep)buf.get());
   }
 }
@@ -276,7 +277,7 @@ static void DecodeIA8(png_structp png, png_infop info, const uint8_t* texels, in
 static void EncodeIA8(const uint8_t* rgbaIn, uint8_t* texels, int width, int height) {
   for (int y = height - 1; y >= 0; --y) {
     for (int x = 0; x < width; ++x)
-      Set16BPP(texels, width, x, y, ((uint16_t*)rgbaIn)[x]);
+      Set16BPP(texels, width, x, y, hecl::SBig(((uint16_t*)rgbaIn)[x]));
     rgbaIn += width * 2;
   }
 }
@@ -1588,6 +1589,62 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     outf.writeUBytes(bufOut.get(), bufLen);
 
   return true;
+}
+
+static const atInt32 RetroToDol[11] {
+  0, 1, 2, 3, 8, 9, -1, 4, 5, 6, 14
+};
+
+std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
+  atUint32 format = RetroToDol[rs.readUint32Big()];
+  if (format == -1)
+    return {};
+
+  atUint16 width = rs.readUint16Big();
+  atUint16 height = rs.readUint16Big();
+  atUint32 mips = rs.readUint32Big();
+  std::string res = hecl::Format("tex1_%dx%d%s", width, height, mips > 1 ? "_m" : "");
+  atUint64 palHash = 0;
+  bool hasPalette = false;
+  atUint32 textureSize = width * height;
+  if (format == 8 || format == 9) {
+    hasPalette = true;
+    atUint32 paletteFormat = rs.readUint32Big();
+    atUint16 palWidth = rs.readUint16Big();
+    atUint16 palHeight = rs.readUint16Big();
+    atUint32 palSize = atUint32(palWidth * palHeight * 2);
+    if (format == 4)
+      textureSize /= 2;
+    std::unique_ptr<u8[]> palData(new u8[palSize]);
+    rs.readUBytesToBuf(palData.get(), palSize);
+    palHash = XXH64(palData.get(), palSize, 0);
+  } else {
+    switch(format) {
+    case 0: // I4
+    case 14: // DXT1
+      textureSize /= 2;
+      break;
+    case 3:
+    case 4:
+    case 5:
+      textureSize *= 2;
+      break;
+    case 6:
+      textureSize *= 4;
+      break;
+    default:
+      break;
+    }
+  }
+  std::unique_ptr<u8[]> textureData(new u8[textureSize]);
+  rs.readUBytesToBuf(textureData.get(), textureSize);
+  atUint64 texHash = XXH64(textureData.get(), textureSize, 0);
+  res += hecl::Format("_%016" PRIx64, texHash);
+  if (hasPalette)
+    res += hecl::Format("_%016" PRIx64, palHash);
+  res += hecl::Format("_%d", format);
+
+  return res;
 }
 
 } // namespace DataSpec

@@ -56,7 +56,7 @@ std::shared_ptr<CGuiWidget> CGuiCamera::Create(CGuiFrame* frame, CInputStream& i
     float zfar = in.readFloatBig();
     ret = std::make_shared<CGuiCamera>(parms, left, right, top, bottom, znear, zfar);
     break;
-  } break;
+  }
   }
   frame->SetFrameCamera(ret->shared_from_this());
   ret->ParseBaseInfo(frame, in, parms);
