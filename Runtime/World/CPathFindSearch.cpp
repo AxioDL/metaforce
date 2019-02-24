@@ -352,7 +352,7 @@ bool CPathFindSearch::Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const 
 void CPathFindVisualizer::Draw(const CPathFindSearch& path) {
   m_spline.Reset();
   for (const auto& wp : path.GetWaypoints())
-    m_spline.AddVertex(wp, zeus::CColor::skBlue, 2.f);
+    m_spline.AddVertex(wp, zeus::skBlue, 2.f);
   m_spline.Render();
 }
 

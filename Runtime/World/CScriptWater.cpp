@@ -161,7 +161,7 @@ void CScriptWater::SetupGridClipping(CStateManager& mgr, int computeVerts) {
     zeus::CVector3f pos = basePos;
     pos.x() += xOffset;
     pos.y() += yOffset;
-    x2dc_vertIntersects[i] = mgr.RayStaticIntersection(pos, zeus::CVector3f::skDown, mag, SolidFilter).IsValid();
+    x2dc_vertIntersects[i] = mgr.RayStaticIntersection(pos, zeus::skDown, mag, SolidFilter).IsValid();
     gridDiv.rem += 1;
     xOffset += x2c0_tileSize;
     if (gridDiv.rem > x2c4_gridDimX) {
@@ -410,7 +410,7 @@ void CScriptWater::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
 
 void CScriptWater::AddToRenderer(const zeus::CFrustum& /*frustum*/, const CStateManager& mgr) const {
   if (!xe4_30_outOfFrustum) {
-    zeus::CPlane plane(zeus::CVector3f::skUp, x34_transform.origin.z() + x130_bounds.max.z());
+    zeus::CPlane plane(zeus::skUp, x34_transform.origin.z() + x130_bounds.max.z());
     zeus::CAABox renderBounds = GetSortingBounds(mgr);
     mgr.AddDrawableActorPlane(*this, plane, renderBounds);
   }
@@ -438,9 +438,9 @@ void CScriptWater::Render(const CStateManager& mgr) const {
           fogBox.max.z() += fogLevel;
           zeus::CTransform modelXf =
               zeus::CTransform::Translate(fogBox.center()) * zeus::CTransform::Scale((fogBox.max - fogBox.min) * 0.5f);
-          zeus::CAABox renderAABB(zeus::CVector3f::skNegOne, zeus::CVector3f::skOne);
+          zeus::CAABox renderAABB(zeus::skNegOne3f, zeus::skOne3f);
           CGraphics::SetModelMatrix(modelXf);
-          g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+          g_Renderer->SetAmbientColor(zeus::skWhite);
           g_Renderer->RenderFogVolume(x228_fogColor, renderAABB, nullptr, nullptr);
         }
       }

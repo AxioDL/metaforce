@@ -315,7 +315,7 @@ void CSaveGameScreen::SetUIText() {
 }
 
 void CSaveGameScreen::SetUIColors() {
-  x58_tablegroup_choices->SetColors(zeus::CColor::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
+  x58_tablegroup_choices->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
 void CSaveGameScreen::Draw() const {

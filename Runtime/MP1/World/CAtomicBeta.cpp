@@ -56,7 +56,7 @@ void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fireBeam) {
 
   for (u32 i = 0; i < kBombCount; ++i) {
     zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-    zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::CVector3f::skUp);
+    zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
     if (CElectricBeamProjectile* proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
       if (fireBeam)
         proj->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
@@ -131,7 +131,7 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
       if (!proj->GetActive())
         continue;
       zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
-      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::CVector3f::skUp), dt, mgr);
+      proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp), dt, mgr);
     }
   }
 

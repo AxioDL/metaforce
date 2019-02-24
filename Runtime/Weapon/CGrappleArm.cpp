@@ -101,7 +101,7 @@ void CGrappleArm::AsyncLoadSuit(CStateManager& mgr) {
 void CGrappleArm::ResetAuxParams(bool resetGunController) {
   x3b2_24_active = false;
   x3b2_27_armMoving = false;
-  x2e0_auxXf = zeus::CTransform::Identity();
+  x2e0_auxXf = zeus::CTransform();
   if (resetGunController)
     x328_gunController->Reset();
 }
@@ -192,7 +192,7 @@ void CGrappleArm::RenderGrappleBeam(const CStateManager& mgr, const zeus::CVecto
       x390_grappleSegmentGen->Render();
       zeus::CTransform backupViewMtx = CGraphics::g_ViewMatrix;
       CGraphics::SetViewPointMatrix(tmpXf.inverse() * backupViewMtx);
-      CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+      CGraphics::SetModelMatrix(zeus::CTransform());
       x39c_grappleMuzzleGen->Render();
       CGraphics::SetViewPointMatrix(backupViewMtx);
     }
@@ -475,11 +475,11 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
                                   const CModelFlags& flags) const {
   CGraphics::SetModelMatrix(modelXf * zeus::CTransform::Scale(x0_grappleArmModel->GetScale()));
   // CGraphics::DisableAllLights();
-  // g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+  // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = const_cast<CSkinnedModel&>(*x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData());
-  model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::CColor::skWhite)});
+  model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
   const_cast<CGrappleArm*>(this)->x0_grappleArmModel->AnimationData()->Render(model, flags, {}, nullptr);
-  // g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+  // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }
 

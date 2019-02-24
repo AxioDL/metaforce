@@ -168,9 +168,7 @@ static std::string_view ThermalPostMetal =
     "static float4 EXTThermalPostFunc(thread VertToFrag& vtf, constant ThermalUniform& lu,\n"
     "    sampler samp, sampler clampSamp, texture2d<float> extTex7, float4 colorIn)\n"
     "{\n"
-    "    //return float4(vtf.extTcgs0.xy, 0.0, 1.0);\n"
-    "    return float4(extTex7.sample(samp, vtf.extTcgs0).rrr * lu.tmulColor.rgb + lu.taddColor.rgb,\n"
-    "                  lu.tmulColor.a + lu.taddColor.a);\n"
+    "    return extTex7.sample(samp, vtf.extTcgs0).rrrr * lu.tmulColor + lu.taddColor;\n"
     "}\n"
     "\n"sv;
 
@@ -221,6 +219,13 @@ static std::string_view DisintegratePostMetal = FOG_STRUCT_METAL
     "}\n"
     "\n"sv;
 
+static std::string_view ThermalColdPostMetal =
+  "static float4 ThermalColdPostFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn)\n"
+  "{\n"
+  "    return colorIn * float4(0.75, 0.75, 0.75, 0.75);\n"
+  "}\n"
+  "\n"sv;
+
 const hecl::Backend::Function ExtensionLightingFuncsMetal[] = {{},
                                                                {LightingMetal, "LightingFunc"},
                                                                {},
@@ -242,7 +247,8 @@ const hecl::Backend::Function ExtensionLightingFuncsMetal[] = {{},
                                                                {LightingMetal, "LightingFunc"},
                                                                {LightingMetal, "LightingFunc"},
                                                                {},
-                                                               {LightingMetal, "LightingFunc"}};
+                                                               {LightingMetal, "LightingFunc"},
+                                                               {}};
 
 const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {},
@@ -267,6 +273,7 @@ const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {MainPostMetal, "MainPostFunc"},
     {DisintegratePostMetal, "EXTDisintegratePostFunc"},
     {MainPostMetal, "MainPostFunc"},
+    {ThermalColdPostMetal, "ThermalColdPostFunc"},
 };
 
 } // namespace urde

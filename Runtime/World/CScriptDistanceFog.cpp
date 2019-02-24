@@ -21,7 +21,7 @@ CScriptDistanceFog::CScriptDistanceFog(TUniqueId uid, std::string_view name, con
 , x60_explicit(expl)
 
 {
-  if (zeus::close_enough(rangeDelta, zeus::CVector2f::skZero) && zeus::close_enough(colorDelta, 0.f))
+  if (zeus::close_enough(rangeDelta, zeus::skZero2f) && zeus::close_enough(colorDelta, 0.f))
     x61_nonZero = false;
   else
     x61_nonZero = true;

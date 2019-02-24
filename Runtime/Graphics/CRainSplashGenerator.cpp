@@ -151,7 +151,7 @@ u32 CRainSplashGenerator::GetNextBestPt(u32 pt, const std::vector<std::pair<zeus
     auto idx = u32(rand.Range(0, int(vn.size() - 1)));
     auto& vert = vn[idx];
     float distSq = (refVert.first - vert.first).magSquared();
-    if (distSq > maxDist && vert.second.dot(zeus::CVector3f::skUp) >= 0.f &&
+    if (distSq > maxDist && vert.second.dot(zeus::skUp) >= 0.f &&
         (vert.first.z() <= 0.f || vert.first.z() > minZ)) {
       nextPt = idx;
       maxDist = distSq;

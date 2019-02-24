@@ -440,7 +440,7 @@ CAreaOctTree::Node CAreaOctTree::Node::GetChild(int idx) const {
     zeus::CAABox aabbObj(aabb[0], aabb[1], aabb[2], aabb[3], aabb[4], aabb[5]);
     return Node(aabb, aabbObj, x1c_owner, ETreeType::Leaf);
   } else {
-    return Node(nullptr, zeus::CAABox::skNullBox, x1c_owner, ETreeType::Invalid);
+    return Node(nullptr, zeus::skNullBox, x1c_owner, ETreeType::Invalid);
   }
 }
 

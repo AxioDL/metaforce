@@ -23,7 +23,7 @@ class CCollisionActor : public CPhysicsActor {
   CDamageVulnerability x294_damageVuln = CDamageVulnerability::NormalVulnerabilty();
   TUniqueId x2fc_lastTouched = kInvalidUniqueId;
   EWeaponCollisionResponseTypes x300_responseType = EWeaponCollisionResponseTypes::EnemyNormal;
-  zeus::CVector3f x304_extendedTouchBounds = zeus::CVector3f::skZero;
+  zeus::CVector3f x304_extendedTouchBounds = zeus::skZero3f;
 
 public:
   CCollisionActor(TUniqueId, TAreaId, TUniqueId, const zeus::CVector3f&, const zeus::CVector3f&, bool, float,

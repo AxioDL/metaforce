@@ -332,7 +332,7 @@ void CActor::RemoveEmitter() {
 
 void CActor::SetVolume(float vol) {
   if (x8c_loopingSfxHandle)
-    CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, GetTranslation(), zeus::CVector3f::skZero, vol);
+    CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, GetTranslation(), zeus::skZero3f, vol);
   xd4_maxVol = vol;
 }
 
@@ -506,7 +506,7 @@ void CActor::EnsureRendered(const CStateManager& stateMgr, const zeus::CVector3f
 
 void CActor::UpdateSfxEmitters() {
   for (CSfxHandle& sfx : xd8_nonLoopingSfxHandles)
-    CSfxManager::UpdateEmitter(sfx, x34_transform.origin, zeus::CVector3f::skZero, xd4_maxVol);
+    CSfxManager::UpdateEmitter(sfx, x34_transform.origin, zeus::skZero3f, xd4_maxVol);
 }
 
 void CActor::ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist, float minVol,
@@ -522,7 +522,7 @@ void CActor::ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff
 
   CAudioSys::C3DEmitterParmData parms;
   parms.x0_pos = position;
-  parms.xc_dir = zeus::CVector3f::skZero;
+  parms.xc_dir = zeus::skZero3f;
   parms.x18_maxDist = maxDist;
   parms.x1c_distComp = falloff;
   parms.x20_flags = musyxFlags;
@@ -555,7 +555,7 @@ void CActor::ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff
           CSfxManager::PitchBend(handle, xc0_pitchBend);
       }
     } else if (curId == id) {
-      CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, position, zeus::CVector3f::skZero, maxVol);
+      CSfxManager::UpdateEmitter(x8c_loopingSfxHandle, position, zeus::skZero3f, maxVol);
     } else if (flags & 0x4) {
       CSfxManager::RemoveEmitter(x8c_loopingSfxHandle);
       CSfxHandle handle = CSfxManager::AddEmitter(parms, useAcoustics, 0x7f, true, aid);
@@ -652,7 +652,7 @@ const CScannableObjectInfo* CActor::GetScannableObjectInfo() const {
 
 void CActor::SetCalculateLighting(bool c) {
   if (!x90_actorLights)
-    x90_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
+    x90_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   xe4_31_calculateLighting = c;
 }
 

@@ -173,7 +173,7 @@ static std::string_view ThermalPostGLSL =
     "};\n"
     "vec4 ThermalPostFunc(vec4 colorIn)\n"
     "{\n"
-    "    return vec4(texture(extTex7, vtf.extTcgs[0]).rrr * tmulColor.rgb + taddColor.rgb, tmulColor.a + taddColor.a);\n"
+    "    return texture(extTex7, vtf.extTcgs[0]).rrrr * tmulColor + taddColor;\n"
     "}\n"
     "\n"sv;
 
@@ -221,6 +221,13 @@ static std::string_view DisintegratePostGLSL = FOG_STRUCT_GLSL
     "}\n"
     "\n"sv;
 
+static std::string_view ThermalColdPostGLSL =
+    "vec4 ThermalColdPostFunc(vec4 colorIn)\n"
+    "{\n"
+    "    return colorIn * vec4(0.75);\n"
+    "}\n"
+    "\n"sv;
+
 const hecl::Backend::Function ExtensionLightingFuncsGLSL[] = {
     {},
     {LightingGLSL, "LightingFunc"},
@@ -244,6 +251,7 @@ const hecl::Backend::Function ExtensionLightingFuncsGLSL[] = {
     {LightingGLSL, "LightingFunc"},
     {},
     {LightingGLSL, "LightingFunc"},
+    {},
 };
 
 const hecl::Backend::Function ExtensionPostFuncsGLSL[] = {
@@ -269,6 +277,7 @@ const hecl::Backend::Function ExtensionPostFuncsGLSL[] = {
     {MainPostGLSL, "MainPostFunc"},
     {DisintegratePostGLSL, "DisintegratePostFunc"},
     {MainPostGLSL, "MainPostFunc"},
+    {ThermalColdPostGLSL, "ThermalColdPostFunc"},
 };
 
 } // namespace urde

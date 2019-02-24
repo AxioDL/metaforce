@@ -57,7 +57,7 @@ static CCameraShakerComponent BuildCameraShakerComponent(CameraShakeData::Camera
 static CCameraShakeData LoadCameraShakeData(CInputStream& in) {
   CameraShakeData shakeData;
   shakeData.read(in);
-  return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx), zeus::CVector3f::skZero,
+  return CCameraShakeData(shakeData.duration, shakeData.sfxDist, u32(shakeData.useSfx), zeus::skZero3f,
                           BuildCameraShakerComponent(shakeData.shakerComponents[0]),
                           BuildCameraShakerComponent(shakeData.shakerComponents[1]),
                           BuildCameraShakerComponent(shakeData.shakerComponents[2]));

@@ -32,7 +32,7 @@ protected:
 
 public:
   CSaveableState() {
-    x54_colors.resize(3, zeus::CColor::skBlack);
+    x54_colors.resize(3, zeus::skBlack);
     x64_colorOverrides.resize(16);
   }
 

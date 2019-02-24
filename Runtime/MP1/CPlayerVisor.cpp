@@ -67,7 +67,7 @@ bool CPlayerVisor::DrawScanObjectIndicators(const CStateManager& mgr) const {
   CGraphics::SetModelMatrix(zeus::CTransform::Scale(x48_interpWindowDims.x() * 17.f * vpScale, 1.f,
                                                     x48_interpWindowDims.y() * 17.f * vpScale));
 
-  x114_scanShield->Draw(CModelFlags(5, 0, 3, zeus::CColor::skClear));
+  x114_scanShield->Draw(CModelFlags(5, 0, 3, zeus::skClear));
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   zeus::CTransform camMtx = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
@@ -467,7 +467,7 @@ void CPlayerVisor::UpdateCurrentVisor(float transFactor) {
     break;
   case CPlayerState::EPlayerVisor::Scan: {
     zeus::CColor dimColor =
-        zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorHudLightMultiply(), zeus::CColor::skWhite, 1.f - transFactor);
+        zeus::CColor::lerp(g_tweakGuiColors->GetScanVisorHudLightMultiply(), zeus::skWhite, 1.f - transFactor);
     x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, dimColor, -1);
     break;
   }
@@ -516,7 +516,7 @@ void CPlayerVisor::BeginTransitionIn(const CStateManager&) {
     break;
   case CPlayerState::EPlayerVisor::Scan:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
-    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::CColor::skWhite, -1);
+    x64_scanDim.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skWhite, -1);
     break;
   case CPlayerState::EPlayerVisor::Thermal:
     CSfxManager::SfxStart(SFXui_into_visor, x24_visorSfxVol, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -635,7 +635,7 @@ void CPlayerVisor::Update(float dt, const CStateManager& mgr) {
 }
 
 void CPlayerVisor::Draw(const CStateManager& mgr, const CTargetingManager* tgtManager) const {
-  CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+  CGraphics::SetAmbientColor(zeus::skWhite);
   CGraphics::DisableAllLights();
   switch (mgr.GetPlayerState()->GetActiveVisor(mgr)) {
   case CPlayerState::EPlayerVisor::XRay:

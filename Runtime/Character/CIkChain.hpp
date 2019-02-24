@@ -13,8 +13,8 @@ class CIkChain {
   CSegId x0_bone;
   CSegId x1_p1;
   CSegId x2_p2;
-  zeus::CVector3f x4_p2p1Dir = zeus::CVector3f::skForward;
-  zeus::CVector3f x10_p1BoneDir = zeus::CVector3f::skForward;
+  zeus::CVector3f x4_p2p1Dir = zeus::skForward;
+  zeus::CVector3f x10_p1BoneDir = zeus::skForward;
   float x1c_p2p1Length = 1.f;
   float x20_p1BoneLength = 1.f;
   zeus::CQuaternion x24_holdRot;

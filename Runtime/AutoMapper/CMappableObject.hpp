@@ -49,7 +49,7 @@ public:
   enum class EVisMode { Always, MapStationOrVisit, Visit, Never, MapStationOrVisit2 };
 
 private:
-  static const zeus::CVector3f skDoorVerts[8];
+  static zeus::CVector3f skDoorVerts[8];
 
   EMappableObjectType x0_type;
   EVisMode x4_visibilityMode;

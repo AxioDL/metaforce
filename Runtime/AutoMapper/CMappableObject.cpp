@@ -6,7 +6,7 @@
 #include "Graphics/CTexture.hpp"
 
 namespace urde {
-const zeus::CVector3f CMappableObject::skDoorVerts[8] = {};
+zeus::CVector3f CMappableObject::skDoorVerts[8] = {};
 
 static const u32 DoorIndices[] = {6, 4, 2, 0, 3, 1, 7, 5, 1, 0, 5, 4, 7, 6, 3, 2, 3, 2, 1, 0, 5, 4, 7, 6};
 
@@ -94,7 +94,7 @@ std::pair<zeus::CColor, zeus::CColor> CMappableObject::GetDoorColors(int curArea
   } else if (mwInfo.IsDoorVisited(x8_objId)) {
     color = g_tweakAutoMapper->GetOpenDoorColor();
   } else {
-    color = zeus::CColor::skClear;
+    color = zeus::skClear;
   }
 
   color.a() *= alpha;
@@ -121,7 +121,7 @@ void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha
     }
   } else {
     CAssetId iconRes;
-    zeus::CColor iconColor = zeus::CColor::skWhite;
+    zeus::CColor iconColor = zeus::skWhite;
     switch (x0_type) {
     case EMappableObjectType::DownArrowYellow:
       iconRes = g_tweakPlayerRes->x10_minesBreakFirstTopIcon;
@@ -193,7 +193,7 @@ zeus::CVector3f CMappableObject::BuildSurfaceCenterPoint(int surfIdx) const {
 
   switch (surfIdx) {
   case 0:
-    return x10_transform * zeus::CVector3f::skZero;
+    return x10_transform * zeus::skZero3f;
   case 1:
     return x10_transform * zeus::CVector3f{0.f, 0.f, 2.f * doorCenter.x()};
   case 2:
@@ -235,7 +235,7 @@ boo::ObjToken<boo::IGraphicsBufferS> CMappableObject::g_doorIbo;
 void CMappableObject::ReadAutoMapperTweaks(const ITweakAutoMapper& tweaks) {
   const zeus::CVector3f& center = tweaks.GetDoorCenter();
   zeus::simd_floats centerF(center.mSimd);
-  zeus::CVector3f* doorVerts = const_cast<zeus::CVector3f*>(&CMappableObject::skDoorVerts[0]);
+  zeus::CVector3f* doorVerts = CMappableObject::skDoorVerts;
   /* Wrap door verts around -Z to build surface */
   doorVerts[0].assign(-centerF[2], -centerF[1], 0.f);
   doorVerts[1].assign(-centerF[2], -centerF[1], 2.f * centerF[0]);

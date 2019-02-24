@@ -71,8 +71,8 @@ public:
 
   void Reset();
   void AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,
-                 const zeus::CVector2f& uv = zeus::CVector2f::skZero);
-  void Render(const zeus::CColor& moduColor = zeus::CColor::skWhite);
+                 const zeus::CVector2f& uv = zeus::skZero2f);
+  void Render(const zeus::CColor& moduColor = zeus::skWhite);
 
   static void UpdateBuffers() {
     s_vertPoolTex.updateBuffers();

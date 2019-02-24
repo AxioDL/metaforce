@@ -98,7 +98,7 @@ class CParticleSwoosh : public CParticleGen {
   zeus::CVector3f x1f0_aabbMin;
   zeus::CVector3f x1fc_aabbMax;
   float x208_maxRadius = 0.f;
-  zeus::CColor x20c_moduColor = zeus::CColor::skWhite;
+  zeus::CColor x20c_moduColor = zeus::skWhite;
 
   boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
   boo::ObjToken<boo::IGraphicsBufferD> m_vertBuf;
@@ -203,7 +203,7 @@ public:
   }
 
   void DoSpiderBallWarmup(zeus::CVector3f& translation, const zeus::CVector3f& transInc) {
-    SetOrientation(zeus::lookAt(zeus::CVector3f::skZero, transInc));
+    SetOrientation(zeus::lookAt(zeus::skZero3f, transInc));
     for (int i = 0; i < 6; ++i) {
       SetTranslation(translation);
       x1d0_26_forceOneUpdate = true;

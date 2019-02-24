@@ -23,7 +23,7 @@ public:
     zeus::CVector2f x18_vpOffset;
     zeus::CVector2f x20_vpSize;
     zeus::CVector2f x28_canvasSize;
-    zeus::CColor x30_mulColor = zeus::CColor::skWhite;
+    zeus::CColor x30_mulColor = zeus::skWhite;
 
     SSlideData(CSlideShow& parent) : x0_parent(parent) { x30_mulColor.a() = 0.f; }
 

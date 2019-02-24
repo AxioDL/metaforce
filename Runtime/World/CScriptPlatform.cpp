@@ -115,7 +115,7 @@ void CScriptPlatform::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
         rstl::reserved_vector<u16, 1024> draggedSet;
         DragSlaves(mgr, draggedSet, x270_dragDelta);
       }
-      x270_dragDelta = zeus::CVector3f::skZero;
+      x270_dragDelta = zeus::skZero3f;
     }
     break;
   }
@@ -178,7 +178,7 @@ void CScriptPlatform::MoveRiders(CStateManager& mgr, float dt, bool active, std:
           act->MoveCollisionPrimitive(delta);
           bool collision = CGameCollision::DetectStaticCollisionBoolean(
               mgr, *act->GetCollisionPrimitive(), act->GetPrimitiveTransform(), act->GetMaterialFilter());
-          act->MoveCollisionPrimitive(zeus::CVector3f::skZero);
+          act->MoveCollisionPrimitive(zeus::skZero3f);
           if (collision) {
             AddRider(collidedRiders, act->GetUniqueId(), act.GetPtr(), mgr);
             it = riders.erase(it);
@@ -215,7 +215,7 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
   x264_collisionRecoverDelay -= dt;
   x260_moveDelay -= dt;
   if (x260_moveDelay <= 0.f) {
-    x270_dragDelta = zeus::CVector3f::skZero;
+    x270_dragDelta = zeus::skZero3f;
     zeus::CTransform oldXf = x34_transform;
     CMotionState mState = GetMotionState();
     if (GetActive()) {
@@ -239,7 +239,7 @@ void CScriptPlatform::PreThink(float dt, CStateManager& mgr) {
         x260_moveDelay = 0.035f;
         MoveRiders(mgr, dt, GetActive(), x318_riders, collidedRiders, x34_transform, oldXf, -x270_dragDelta,
                    x27c_rotDelta.inverse());
-        x270_dragDelta = zeus::CVector3f::skZero;
+        x270_dragDelta = zeus::skZero3f;
         SendScriptMsgs(EScriptObjectState::Modify, mgr, EScriptObjectMessage::None);
         x356_27_squishedRider = true;
       }
@@ -284,7 +284,7 @@ void CScriptPlatform::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
     } else if (x356_29_setXrayDrawFlags) {
       x356_29_setXrayDrawFlags = false;
       if (xb4_drawFlags == flags && !x356_30_disableXrayAlpha)
-        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
     }
   }
   if (!mgr.GetObjectById(x354_boundsTrigger))
@@ -294,7 +294,7 @@ void CScriptPlatform::PreRender(CStateManager& mgr, const zeus::CFrustum& frustu
 void CScriptPlatform::Render(const CStateManager& mgr) const {
   bool xray = mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay;
   if (xray && !x356_31_xrayFog)
-    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
   CPhysicsActor::Render(mgr);
   if (xray && !x356_31_xrayFog)
     mgr.SetupFogForArea(x4_areaId);
@@ -437,12 +437,12 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
   }
 
   if (nextWaypoint == kInvalidUniqueId)
-    return zeus::CQuaternion::skNoRotation;
+    return zeus::CQuaternion();
 
   while (nextWaypoint != kInvalidUniqueId) {
     if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(nextWaypoint)) {
       zeus::CVector3f platToWp = wp->GetTranslation() - GetTranslation();
-      if (zeus::close_enough(platToWp, zeus::CVector3f::skZero)) {
+      if (zeus::close_enough(platToWp, zeus::skZero3f)) {
         x258_currentWaypoint = nextWaypoint;
         mgr.SendScriptMsg(wp.GetPtr(), GetUniqueId(), EScriptObjectMessage::Arrived);
         if (zeus::close_enough(x25c_currentSpeed, 0.f, 0.02)) {
@@ -459,7 +459,7 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
         mgr.SendScriptMsg(this, GetUniqueId(), EScriptObjectMessage::Stop);
       }
 
-      if (zeus::close_enough(platToWp, zeus::CVector3f::skZero)) {
+      if (zeus::close_enough(platToWp, zeus::skZero3f)) {
         x270_dragDelta = wp->GetTranslation() - GetTranslation();
         MoveToWR(GetTranslation(), dt);
 
@@ -483,7 +483,7 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
         MoveCollisionPrimitive(mState.x0_translation);
         bool collision = CGameCollision::DetectDynamicCollisionBoolean(*GetCollisionPrimitive(),
                                                                        GetPrimitiveTransform(), nonRiders, mgr);
-        MoveCollisionPrimitive(zeus::CVector3f::skZero);
+        MoveCollisionPrimitive(zeus::skZero3f);
         if (collision || x356_27_squishedRider) {
           if (x356_26_detectCollision) {
             if (x264_collisionRecoverDelay <= 0.f && !x356_27_squishedRider) {
@@ -518,7 +518,7 @@ zeus::CQuaternion CScriptPlatform::Move(float dt, CStateManager& mgr) {
   }
 
   x25a_targetWaypoint = nextWaypoint;
-  return zeus::CQuaternion::skNoRotation;
+  return zeus::CQuaternion();
 }
 
 } // namespace urde

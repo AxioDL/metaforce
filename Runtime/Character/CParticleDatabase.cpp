@@ -105,7 +105,7 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
         switch (info.GetParentedMode()) {
         case CParticleData::EParentedMode::Initial: {
           if (info.GetIsGrabInitialData()) {
-            zeus::CTransform segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f::skIdentityMatrix3f
+            zeus::CTransform segXf((info.GetFlags() & 0x10) ? zeus::CMatrix3f()
                                                             : pose.GetTransformMinusOffset(segId),
                                    off * scale);
             zeus::CTransform compXf = xf * segXf;

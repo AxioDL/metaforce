@@ -18,7 +18,7 @@ CGuiLight::CGuiLight(const CGuiWidgetParms& parms, const CLight& light)
 CGuiLight::~CGuiLight() { xb0_frame->RemoveLight(this); }
 
 CLight CGuiLight::BuildLight() const {
-  CLight ret = CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skBlack);
+  CLight ret = CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skBlack);
 
   switch (xb8_type) {
   case ELightType::Spot:
@@ -63,7 +63,7 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
   switch (tp) {
   case ELightType::Spot: {
     float cutoff = in.readFloatBig();
-    CLight lt = CLight::BuildSpot(zeus::CVector3f::skZero, zeus::CVector3f::skZero, parms.x10_color, cutoff);
+    CLight lt = CLight::BuildSpot(zeus::skZero3f, zeus::skZero3f, parms.x10_color, cutoff);
     lt.SetAttenuation(distC, distL, distQ);
     lt.SetAngleAttenuation(angC, angL, angQ);
     lt.x40_lightId = lightId;
@@ -71,14 +71,14 @@ std::shared_ptr<CGuiWidget> CGuiLight::Create(CGuiFrame* frame, CInputStream& in
     break;
   }
   case ELightType::Point: {
-    CLight lt = CLight::BuildPoint(zeus::CVector3f::skZero, parms.x10_color);
+    CLight lt = CLight::BuildPoint(zeus::skZero3f, parms.x10_color);
     lt.SetAttenuation(distC, distL, distQ);
     lt.x40_lightId = lightId;
     ret = std::make_shared<CGuiLight>(parms, lt);
     break;
   }
   case ELightType::Directional: {
-    CLight lt = CLight::BuildDirectional(zeus::CVector3f::skZero, parms.x10_color);
+    CLight lt = CLight::BuildDirectional(zeus::skZero3f, parms.x10_color);
     lt.x40_lightId = lightId;
     ret = std::make_shared<CGuiLight>(parms, lt);
     break;

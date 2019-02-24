@@ -98,7 +98,7 @@ void CPlasmaProjectile::UpdateLights(float expansion, float dt, CStateManager& m
   if (x520_weaponGen) {
     x520_weaponGen->Update(dt);
     CLight l = x520_weaponGen->GetLight();
-    l.SetColor(zeus::CColor::lerp(zeus::CColor::skClear, l.GetColor(), expansion));
+    l.SetColor(zeus::CColor::lerp(zeus::skClear, l.GetColor(), expansion));
     float halfLen = 0.5f * GetCurrentLength();
     float y = 0.f;
     for (TUniqueId lid : x468_lights) {
@@ -148,7 +148,7 @@ void CPlasmaProjectile::RenderMotionBlur() const {
     v2.m_pos = GetPointCache()[i];
     v2.m_color = v1.m_color;
   }
-  m_renderObjs->m_motionBlurStrip.draw(zeus::CColor::skWhite, 16, verts);
+  m_renderObjs->m_motionBlurStrip.draw(zeus::skWhite, 16, verts);
 }
 
 void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor& color, s32 flags,
@@ -184,7 +184,7 @@ void CPlasmaProjectile::RenderBeam(s32 subdivs, float width, const zeus::CColor&
       v1.m_uv = zeus::CVector2f(uvX, uvY2);
       angle += angIncrement;
     }
-    shader.draw(zeus::CColor::skWhite, numNodes * 2, verts);
+    shader.draw(zeus::skWhite, numNodes * 2, verts);
   }
 }
 
@@ -286,7 +286,7 @@ void CPlasmaProjectile::MakeBillboardEffect(const rstl::optional<TToken<CGenDesc
   auto* effect = new CHUDBillboardEffect(particle, electric, mgr.AllocateUniqueId(), true, name,
                                          CHUDBillboardEffect::GetNearClipDistance(mgr),
                                          CHUDBillboardEffect::GetScaleForPOV(mgr),
-                                         zeus::CColor::skWhite, zeus::CVector3f::skOne, zeus::CVector3f::skZero);
+                                         zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
   mgr.AddObject(effect);
 }
 
@@ -326,7 +326,7 @@ void CPlasmaProjectile::UpdatePlayerEffects(float dt, CStateManager& mgr) {
   if (x548_29_activePlayerPhazon) {
     CDamageInfo scaledDamage(x498_phazonDamage, dt);
     mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), xec_ownerId, scaledDamage, xf8_filter,
-                    zeus::CVector3f::skZero);
+                    zeus::skZero3f);
     x4e4_playerDamageTimer += dt;
     if (x4e4_playerDamageTimer >= x4e0_playerDamageDuration) {
       mgr.GetPlayer().DecrementPhazon();
@@ -352,7 +352,7 @@ void CPlasmaProjectile::UpdateFx(const zeus::CTransform& xf, float dt, CStateMan
   if (x518_contactGen) {
     x4d4_contactPulseTimer -= dt;
     if ((GetDamageType() != EDamageType::None ? x548_25_enableEnergyPulse : false) && x4d4_contactPulseTimer <= 0.f) {
-      x518_contactGen->SetOrientation(zeus::lookAt(zeus::CVector3f::skZero, GetSurfaceNormal()));
+      x518_contactGen->SetOrientation(zeus::lookAt(zeus::skZero3f, GetSurfaceNormal()));
       x518_contactGen->SetTranslation(GetSurfaceNormal() * 0.001f + GetCurrentPos());
       x518_contactGen->SetParticleEmission(true);
       x4d4_contactPulseTimer = 1.f / 16.f;

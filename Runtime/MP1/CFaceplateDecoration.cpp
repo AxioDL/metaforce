@@ -35,7 +35,7 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr) {
 
 void CFaceplateDecoration::Draw(CStateManager& stateMgr) {
   if (xc_ready && m_texFilter) {
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = stateMgr.GetPlayer().GetVisorSteam().GetAlpha();
     m_texFilter->draw(color, 1.f);
   }

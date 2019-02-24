@@ -46,7 +46,7 @@ void CWorldTransManager::UpdateLights(float dt) {
 
   x4_modelData->x1a0_lights.clear();
   zeus::CVector3f lightPos(0.f, 10.f, 0.f);
-  CLight spot = CLight::BuildSpot(lightPos, zeus::CVector3f::skBack, zeus::CColor::skWhite, 90.f);
+  CLight spot = CLight::BuildSpot(lightPos, zeus::skBack, zeus::skWhite, 90.f);
   spot.SetAttenuation(1.f, 0.f, 0.f);
 
   CLight s1 = spot;
@@ -63,9 +63,9 @@ void CWorldTransManager::UpdateLights(float dt) {
     CLight s2 = spot;
     float pos = x44_26_goingUp ? x1c_bgHeight : -x1c_bgHeight;
     s2.SetPosition(lightPos + zeus::CVector3f{0.f, 0.f, pos});
-    s2.SetColor(zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite, 1.f - z));
+    s2.SetColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, 1.f - z));
     x4_modelData->x1a0_lights.push_back(std::move(s2));
-    s1.SetColor(zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite, z));
+    s1.SetColor(zeus::CColor::lerp(zeus::skBlack, zeus::skWhite, z));
   }
 
   x4_modelData->x1a0_lights.push_back(std::move(s1));
@@ -168,7 +168,7 @@ void CWorldTransManager::Update(float dt) {
 }
 
 void CWorldTransManager::DrawAllModels() {
-  CActorLights lights(0, zeus::CVector3f::skZero, 4, 4, 0, 0, 0, 0.1f);
+  CActorLights lights(0, zeus::skZero3f, 4, 4, 0, 0, 0, 0.1f);
   lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
 
   CModelFlags flags = {};
@@ -188,13 +188,13 @@ void CWorldTransManager::DrawAllModels() {
   }
 
   if (!x4_modelData->xb4_platformModelData.IsNull()) {
-    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(), &lights,
+    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), &lights,
                                                flags);
   }
 
   if (!x4_modelData->x1c_samusModelData.IsNull()) {
     x4_modelData->x1c_samusModelData.AnimationData()->PreRender();
-    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(), &lights,
+    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), &lights,
                                             flags);
 
     if (!x4_modelData->x68_beamModelData.IsNull()) {
@@ -246,7 +246,7 @@ void CWorldTransManager::DrawEnabled() {
   }
 
   CWideScreenFilter::SetViewportToFull();
-  m_widescreen.draw(zeus::CColor::skBlack, 1.f);
+  m_widescreen.draw(zeus::skBlack, 1.f);
 
   float ftbT = 0.f;
   if (x0_curTime < 0.25f)
@@ -264,7 +264,7 @@ void CWorldTransManager::DrawDisabled() { m_fadeToBlack.draw(zeus::CColor{0.f, 0
 void CWorldTransManager::DrawText() {
   float width = 448.f * g_Viewport.aspect;
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+  CGraphics::SetViewPointMatrix(zeus::CTransform());
   CGraphics::SetModelMatrix(zeus::CTransform::Translate((width - 640.f) / 2.f, 0.f, 448.f));
   x8_textData->Render();
 
@@ -275,7 +275,7 @@ void CWorldTransManager::DrawText() {
     filterAlpha = std::min(1.f, x0_curTime - x34_stopTime);
 
   if (filterAlpha > 0.f) {
-    zeus::CColor filterColor = x44_27_fadeWhite ? zeus::CColor::skWhite : zeus::CColor::skBlack;
+    zeus::CColor filterColor = x44_27_fadeWhite ? zeus::skWhite : zeus::skBlack;
     filterColor.a() = filterAlpha;
     m_fadeToBlack.draw(filterColor);
   }
@@ -380,8 +380,8 @@ void CWorldTransManager::EnableTransition(CAssetId fontId, CAssetId stringId, u3
   x44_27_fadeWhite = fadeWhite;
 
   CGuiTextProperties props(false, true, EJustification::Center, EVerticalJustification::Center);
-  x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::CColor::skWhite, zeus::CColor::skBlack,
-                                        zeus::CColor::skWhite, 640, 448, g_SimplePool,
+  x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::skWhite, zeus::skBlack,
+                                        zeus::skWhite, 640, 448, g_SimplePool,
                                         CGuiWidget::EGuiModelDrawFlags::Additive));
 
   x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);

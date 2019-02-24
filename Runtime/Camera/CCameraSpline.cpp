@@ -72,7 +72,7 @@ void CCameraSpline::SetKnotPosition(int idx, const zeus::CVector3f& pos) {
 
 const zeus::CVector3f& CCameraSpline::GetKnotPosition(int idx) const {
   if (idx >= x4_positions.size())
-    return zeus::CVector3f::skZero;
+    return zeus::skZero3f;
   return x4_positions[idx];
 }
 
@@ -211,12 +211,12 @@ zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) co
   if (GetSurroundingPoints(baseIdx, positions, directions)) {
     float f1 = zeus::clamp(-1.f, directions[1].dot(directions[2]), 1.f);
     if (f1 >= 1.f) {
-      zeus::CTransform ret = zeus::lookAt(zeus::CVector3f::skZero, directions[2]);
+      zeus::CTransform ret = zeus::lookAt(zeus::skZero3f, directions[2]);
       ret.origin = zeus::getCatmullRomSplinePoint(positions[0], positions[1], positions[2], positions[3], t);
       return ret;
     } else {
       zeus::CTransform ret = zeus::lookAt(
-          zeus::CVector3f::skZero,
+          zeus::skZero3f,
           zeus::CQuaternion::lookAt(directions[1], directions[2], std::acos(f1) * t).transform(directions[1]));
       ret.origin = zeus::getCatmullRomSplinePoint(positions[0], positions[1], positions[2], positions[3], t);
       return ret;

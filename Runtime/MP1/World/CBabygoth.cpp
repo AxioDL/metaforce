@@ -391,7 +391,7 @@ void CBabygoth::AvoidPlayerCollision(float dt, CStateManager& mgr) {
              posDiff.magSquared()) *
             posDiff);
 
-        ApplyImpulseWR(GetMoveToORImpulseWR(xpos, dt), zeus::CAxisAngle::sIdentity);
+        ApplyImpulseWR(GetMoveToORImpulseWR(xpos, dt), zeus::CAxisAngle());
       }
     }
   }

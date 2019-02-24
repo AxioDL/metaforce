@@ -76,7 +76,7 @@ CPlayerGun::CPlayerGun(TUniqueId playerId)
   InitMuzzleData();
   InitCTData();
   LoadHandAnimTokens();
-  x550_camBob.SetPlayerVelocity(zeus::CVector3f::skZero);
+  x550_camBob.SetPlayerVelocity(zeus::skZero3f);
   x550_camBob.SetBobMagnitude(0.f);
   x550_camBob.SetBobTimeScale(0.f);
 
@@ -145,7 +145,7 @@ void CPlayerGun::TakeDamage(bool bigStrike, bool notFromMetroid, CStateManager& 
   }
 
   x398_damageAmt = 0.f;
-  x3dc_damageLocation = zeus::CVector3f::skZero;
+  x3dc_damageLocation = zeus::skZero3f;
 }
 
 void CPlayerGun::CreateGunLight(CStateManager& mgr) {
@@ -153,7 +153,7 @@ void CPlayerGun::CreateGunLight(CStateManager& mgr) {
     return;
   x53c_lightId = mgr.AllocateUniqueId();
   CGameLight* light = new CGameLight(x53c_lightId, kInvalidAreaId, false, "GunLite", x3e8_xf, x538_playerId,
-                                     CLight::BuildDirectional(zeus::CVector3f::skForward, zeus::CColor::skBlack),
+                                     CLight::BuildDirectional(zeus::skForward, zeus::skBlack),
                                      x53c_lightId.Value(), 0, 0.f);
   mgr.AddObject(light);
 }
@@ -176,7 +176,7 @@ void CPlayerGun::UpdateGunLight(const zeus::CTransform& xf, CStateManager& mgr) 
       light->SetTranslation(xf.origin);
       if (chargeFx && chargeFx->SystemHasLight()) {
         CLight l = chargeFx->GetLight();
-        l.SetColor(zeus::CColor::lerp(zeus::CColor::skClear, l.GetColor(), x340_chargeBeamFactor));
+        l.SetColor(zeus::CColor::lerp(zeus::skClear, l.GetColor(), x340_chargeBeamFactor));
         light->SetLight(l);
       }
     }
@@ -193,7 +193,7 @@ void CPlayerGun::SetGunLightActive(bool active, CStateManager& mgr) {
       if (CElementGen* gen = x72c_currentBeam->GetChargeMuzzleFx()) {
         if (gen->SystemHasLight()) {
           CLight genLight = gen->GetLight();
-          genLight.SetColor(zeus::CColor::skBlack);
+          genLight.SetColor(zeus::skBlack);
           light->SetLight(genLight);
         }
       }
@@ -822,7 +822,7 @@ void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mDa
 
 void CPlayerGun::UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr) {
   if (x834_26_animPlaying)
-    x740_grappleArm->AuxTransform() = zeus::CTransform::Identity();
+    x740_grappleArm->AuxTransform() = zeus::CTransform();
   else
     GetLctrWithShake(x740_grappleArm->AuxTransform(), mData, "elbow", true, false);
 
@@ -2022,10 +2022,10 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
     g_Renderer->AllocatePhazonSuitMaskTexture();
 }
 
-static const CModelFlags kThermalFlags[] = {{0, 0, 3, zeus::CColor::skWhite},
+static const CModelFlags kThermalFlags[] = {{0, 0, 3, zeus::skWhite},
                                             {5, 0, 3, zeus::CColor(0.f, 0.5f)},
-                                            {0, 0, 3, zeus::CColor::skWhite},
-                                            {0, 0, 3, zeus::CColor::skWhite}};
+                                            {0, 0, 3, zeus::skWhite},
+                                            {0, 0, 3, zeus::skWhite}};
 
 void CPlayerGun::RenderEnergyDrainEffects(const CStateManager& mgr) const {
   if (TCastToConstPtr<CPlayer> player = mgr.GetObjectById(x538_playerId)) {
@@ -2049,7 +2049,7 @@ void CPlayerGun::DrawArm(const CStateManager& mgr, const zeus::CVector3f& pos, c
     if (x740_grappleArm->IsArmMoving())
       useFlags = flags;
     else
-      useFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+      useFlags = CModelFlags(0, 0, 3, zeus::skWhite);
 
     x740_grappleArm->Render(mgr, pos, useFlags, &x0_lights);
   }
@@ -2068,16 +2068,16 @@ void CPlayerGun::DrawScreenTex(float z) const {
   // Use CopyScreenTex rendering to draw over framebuffer pixels in front of `z`
   // This is accomplished using orthographic projection quad with sweeping `y` coordinates
   // Depth is set to GEQUAL to obscure pixels in front rather than behind
-  m_screenQuad.draw(zeus::CColor::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
+  m_screenQuad.draw(zeus::skWhite, 1.f, CTexturedQuadFilter::DefaultRect, z);
 }
 
 void CPlayerGun::DrawClipCube(const zeus::CAABox& aabb) const {
   // Render AABB as completely transparent object, only modifying Z-buffer
   // AABB has already been set in constructor (since it's constant)
-  m_aaboxShader.draw(zeus::CColor::skClear);
+  m_aaboxShader.draw(zeus::skClear);
 }
 
-static const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::CColor::skWhite};
+static const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
 static const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const {
@@ -2089,7 +2089,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal)
     beamFlags = kThermalFlags[int(x310_currentBeam)];
   else if (x835_26_phazonBeamMorphing)
-    beamFlags.x4_color = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor::skBlack, x39c_phazonMorphT);
+    beamFlags.x4_color = zeus::CColor::lerp(zeus::skWhite, zeus::skBlack, x39c_phazonMorphT);
 
   const CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
   CGraphics::SetDepthRange(DEPTH_GUN, DEPTH_WORLD);
@@ -2100,7 +2100,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 
   zeus::CTransform oldViewMtx = CGraphics::g_ViewMatrix;
   CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
   if (x32c_chargePhase >= EChargePhase::FxGrown && x32c_chargePhase < EChargePhase::ComboXfer)
     x800_auxMuzzleGenerators[int(x320_currentAuxBeam)]->Render();
 
@@ -2144,7 +2144,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
-      x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+      x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::skWhite));
       DrawScreenTex(ConvertToScreenSpace(morphXf.origin, *cam).z());
       if (x0_lights.HasShadowLight())
         x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
@@ -2157,7 +2157,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
                                  mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal
                                      ? kHandThermalFlag
                                      : kHandHoloFlag);
-      x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+      x72c_currentBeam->DrawHologram(mgr, offsetWorldXf, CModelFlags(0, 0, 3, zeus::skWhite));
       if (x0_lights.HasShadowLight())
         x82c_shadow->EnableModelProjectedShadow(offsetWorldXf, x0_lights.GetShadowLightArrIndex(), 2.15f);
       DrawArm(mgr, pos, useFlags);
@@ -2168,7 +2168,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
 
   oldViewMtx = CGraphics::g_ViewMatrix;
   CGraphics::SetViewPointMatrix(offsetWorldXf.inverse() * oldViewMtx);
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
   x72c_currentBeam->PostRenderGunFx(mgr, offsetWorldXf);
   if (x832_26_comboFiring && x77c_comboXferGen)
     x77c_comboXferGen->Render();

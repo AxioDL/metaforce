@@ -40,7 +40,7 @@ void CWorldShadowShader::drawBase(float extent) {
   m_vbo->load(verts, sizeof(zeus::CVector3f) * 4);
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
-  m_uniform.m_color = zeus::CColor::skWhite;
+  m_uniform.m_color = zeus::skWhite;
   m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
   CGraphics::SetShaderDataBinding(m_zDataBind);

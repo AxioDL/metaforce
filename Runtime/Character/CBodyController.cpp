@@ -66,7 +66,7 @@ void CBodyController::Update(float dt, CStateManager& mgr) {
   if (x300_25_active) {
     x300_24_animationOver = !x0_actor.GetModelData()->GetAnimationData()->IsAnimTimeRemaining(dt, "Whole Body"sv);
     x4_cmdMgr.BlendSteeringCmds();
-    x2dc_rot = zeus::CQuaternion::skNoRotation;
+    x2dc_rot = zeus::CQuaternion();
     UpdateBody(dt, mgr);
     if (TCastToPtr<CPhysicsActor> act = x0_actor)
       act->RotateInOneFrameOR(x2dc_rot, dt);
@@ -158,8 +158,8 @@ void CBodyController::Freeze(float intoFreezeDur, float frozenDur, float breakou
 
   if (TCastToPtr<CPhysicsActor> act = x0_actor) {
     x314_backedUpForce = act->GetConstantForce();
-    act->SetConstantForce(zeus::CVector3f::skZero);
-    act->SetMomentumWR(zeus::CVector3f::skZero);
+    act->SetConstantForce(zeus::skZero3f);
+    act->SetMomentumWR(zeus::skZero3f);
   }
 
   x320_fireDur = 0.f;

@@ -138,8 +138,8 @@ void CBallCamera::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
     colAct->SetTranslation(GetTranslation());
     stateMgr.AddObject(colAct);
     colAct->SetMovable(false);
-    CMotionState mState(GetTranslation(), zeus::CNUQuaternion::fromAxisAngle(zeus::CVector3f::skForward, 0.f),
-                        zeus::CVector3f::skZero, zeus::CAxisAngle::sIdentity);
+    CMotionState mState(GetTranslation(), zeus::CNUQuaternion::fromAxisAngle(zeus::skForward, 0.f),
+                        zeus::skZero3f, zeus::CAxisAngle());
     colAct->SetLastNonCollidingState(mState);
     SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
         {}, {EMaterialTypes::Solid, EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player,
@@ -212,15 +212,15 @@ void CBallCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
     x2e8_ballVelFlat = 0.f;
     x2ec_maxBallVel = 0.f;
     x190_curMinDistance = x194_targetMinDistance;
-    x2fc_ballDeltaFlat = zeus::CVector3f::skZero;
-    x2f0_ballDelta = zeus::CVector3f::skZero;
+    x2fc_ballDeltaFlat = zeus::skZero3f;
+    x2f0_ballDelta = zeus::skZero3f;
     x18d_28_obtuseDirection = false;
     x308_speedFactor = 0.f;
     x2dc_prevBallPos = player->GetBallPosition();
     x294_dampedPos = GetTranslation();
-    x2a0_smallCentroid = zeus::CVector3f::skZero;
-    x2ac_mediumCentroid = zeus::CVector3f::skZero;
-    x2b8_largeCentroid = zeus::CVector3f::skZero;
+    x2a0_smallCentroid = zeus::skZero3f;
+    x2ac_mediumCentroid = zeus::skZero3f;
+    x2b8_largeCentroid = zeus::skZero3f;
     x2c4_smallCollidersObsCount = 0;
     x2c8_mediumCollidersObsCount = 0;
     x2cc_largeCollidersObsCount = 0;
@@ -278,27 +278,27 @@ void CBallCamera::BuildSplineNav(CStateManager& mgr) {
   TUniqueId intersectId = kInvalidUniqueId;
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   CRayCastResult result =
-      mgr.RayWorldIntersection(intersectId, ballPos, zeus::CVector3f::skDown, 20.f, BallCameraFilter, nearList);
+      mgr.RayWorldIntersection(intersectId, ballPos, zeus::skDown, 20.f, BallCameraFilter, nearList);
   float downFactor = result.IsValid() ? zeus::clamp(0.f, result.GetT() / 20.f, 1.f) : 1.f;
   x36c_splineState = ESplineState::Nav;
   x370_24_reevalSplineEnd = true;
   x3d0_24_camBehindFloorOrWall = false;
   x37c_camSpline.Reset(4);
-  x37c_camSpline.AddKnot(GetTranslation(), zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(GetTranslation(), zeus::skForward);
   float elevation = x1a0_elevation;
   float distance = x190_curMinDistance;
   ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);
   zeus::CVector3f pt1(x35c_splineIntermediatePos.x(), x35c_splineIntermediatePos.y(), GetTranslation().z());
-  x37c_camSpline.AddKnot(pt1, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(pt1, zeus::skForward);
   zeus::CVector3f pt2 = pt1 + (x35c_splineIntermediatePos - GetTranslation()) * (0.5f + downFactor);
-  x37c_camSpline.AddKnot(pt2, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(pt2, zeus::skForward);
   zeus::CVector3f pt2Ball = ballPos - pt2;
   if (pt2Ball.canBeNormalized())
     pt2Ball.normalize();
   else
     pt2Ball = mgr.GetPlayer().GetMoveDir();
   zeus::CVector3f desiredPosition = FindDesiredPosition(distance, elevation, pt2Ball, mgr, false);
-  x37c_camSpline.AddKnot(desiredPosition, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(desiredPosition, zeus::skForward);
   x37c_camSpline.UpdateSplineLength();
   x3d0_24_camBehindFloorOrWall = false;
   CMaterialList intersectMat;
@@ -318,7 +318,7 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr) {
   x36c_splineState = ESplineState::Arc;
   x370_24_reevalSplineEnd = false;
   x37c_camSpline.Reset(4);
-  x37c_camSpline.AddKnot(GetTranslation(), zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(GetTranslation(), zeus::skForward);
   float elevation = x1a0_elevation;
   float distance = x190_curMinDistance;
   ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);
@@ -341,7 +341,7 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr) {
     pt1 = delta.normalized() * 1.5f + result.GetPoint();
   else
     pt1 = halfwayPoint + delta;
-  x37c_camSpline.AddKnot(pt1, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(pt1, zeus::skForward);
   FindDesiredPosition(distance, elevation, mgr.GetPlayer().GetMoveDir(), mgr, false);
   delta = rot.transform(delta);
   zeus::CVector3f pt2 = halfwayPoint + delta;
@@ -351,7 +351,7 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr) {
     pt2 = delta.normalized() * 2.f + result.GetPoint();
   else
     pt2 = halfwayPoint + delta;
-  x37c_camSpline.AddKnot(pt2, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(pt2, zeus::skForward);
   delta = rot.transform(delta);
   zeus::CVector3f pt3 = delta + halfwayPoint;
   result =
@@ -360,7 +360,7 @@ void CBallCamera::BuildSplineArc(CStateManager& mgr) {
     pt3 = delta.normalized() * 2.f + result.GetPoint();
   else
     pt3 = halfwayPoint + delta;
-  x37c_camSpline.AddKnot(pt3, zeus::CVector3f::skForward);
+  x37c_camSpline.AddKnot(pt3, zeus::skForward);
   CMaterialList intersectMat;
   if (!SplineIntersectTest(intersectMat, mgr) && intersectMat.HasMaterial(EMaterialTypes::Wall)) {
     delta = pt1 - halfwayPoint;
@@ -451,7 +451,7 @@ void CBallCamera::UpdateTransform(const zeus::CVector3f& lookDir, const zeus::CV
   } else {
     float angleSpeedMul = zeus::clamp(0.f, std::acos(lookDirDot) / (zeus::degToRad(60.f) * dt), 1.f);
     float angleDelta = dt * x1a4_curAnglePerSecond * angleSpeedMul;
-    float lookUpDot = std::fabs(zeus::clamp(-1.f, useLookDir.dot(zeus::CVector3f::skUp), 1.f));
+    float lookUpDot = std::fabs(zeus::clamp(-1.f, useLookDir.dot(zeus::skUp), 1.f));
     float maxAngleDelta = (1.f - lookUpDot) * zeus::degToRad(720.f) * dt;
     if (x36c_splineState == ESplineState::Nav) {
       maxAngleDelta = zeus::degToRad(240.f) * dt;
@@ -622,8 +622,8 @@ zeus::CVector3f CBallCamera::GetFixedLookTarget(const zeus::CVector3f& hintToLoo
     hintDir.normalize();
     hintDirFlat.normalize();
   } else {
-    hintDir = zeus::CVector3f::skForward;
-    hintDirFlat = zeus::CVector3f::skForward;
+    hintDir = zeus::skForward;
+    hintDirFlat = zeus::skForward;
   }
 
   zeus::CVector3f hintToLookDirFlat = hintToLookDir;
@@ -848,7 +848,7 @@ zeus::CVector3f CBallCamera::InterpolateCameraElevation(const zeus::CVector3f& c
 zeus::CVector3f CBallCamera::CalculateCollidersCentroid(const std::vector<CCameraCollider>& colliderList,
                                                         int numObscured) const {
   if (colliderList.size() < 3)
-    return zeus::CVector3f::skForward;
+    return zeus::skForward;
 
   int clearColliders = 0;
   const CCameraCollider* prevCol = &colliderList.back();
@@ -873,7 +873,7 @@ zeus::CVector3f CBallCamera::CalculateCollidersCentroid(const std::vector<CCamer
   }
 
   if (clearColliders / float(colliderList.size()) <= x330_clearColliderThreshold) {
-    return zeus::CVector3f::skForward;
+    return zeus::skForward;
   } else if (0.f != accumCross) {
     float baryCross = 3.f * accumCross;
     return {accumX / baryCross, 0.f, accumZ / baryCross};
@@ -890,7 +890,7 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
   if (smallCentroid.y() == 0.f)
     x2a0_smallCentroid = smallCentroid;
   else
-    x2a0_smallCentroid = zeus::CVector3f::skZero;
+    x2a0_smallCentroid = zeus::skZero3f;
 
   float centroidX = x2a0_smallCentroid.x();
   float centroidZ = x2a0_smallCentroid.z();
@@ -898,7 +898,7 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
   if (mediumCentroid.y() == 0.f)
     x2ac_mediumCentroid = mediumCentroid;
   else
-    x2ac_mediumCentroid = zeus::CVector3f::skZero;
+    x2ac_mediumCentroid = zeus::skZero3f;
 
   centroidX += x2ac_mediumCentroid.x();
   centroidZ += x2ac_mediumCentroid.z();
@@ -906,7 +906,7 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
   if (largeCentroid.y() == 0.f)
     x2b8_largeCentroid = largeCentroid;
   else
-    x2b8_largeCentroid = zeus::CVector3f::skZero;
+    x2b8_largeCentroid = zeus::skZero3f;
 
   centroidX += x2b8_largeCentroid.x();
   centroidZ += x2b8_largeCentroid.z();
@@ -927,7 +927,7 @@ zeus::CVector3f CBallCamera::ApplyColliders() {
   }
 
   if (!x18c_28_volumeCollider)
-    return zeus::CVector3f::skZero;
+    return zeus::skZero3f;
 
   if (std::fabs(centroidX) < 0.05f)
     centroidX = 0.f;
@@ -1224,7 +1224,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr) {
           colliderPointLocal = colliderPointLocal * x308_speedFactor;
       }
       if (d < 1.f)
-        colliderPointLocal = zeus::CVector3f::skZero;
+        colliderPointLocal = zeus::skZero3f;
     }
 
     zeus::CVector3f camDelta = lookXf.rotate(colliderPointLocal) + desiredCamPos - ballPos;
@@ -1379,7 +1379,7 @@ void CBallCamera::UpdateUsingTransitions(float dt, CStateManager& mgr) {
           SetTransform(zeus::CQuaternion::lookAt(xe8.basis[1], camToLookDir, devAngle).toTransform() *
                        xe8.getRotation());
         else
-          SetTransform(zeus::lookAt(zeus::CVector3f::skZero, camToLookDir));
+          SetTransform(zeus::lookAt(zeus::skZero3f, camToLookDir));
       }
     }
     SetTransform(ValidateCameraTransform(x34_transform, xe8));
@@ -1613,9 +1613,9 @@ zeus::CVector3f CBallCamera::FindDesiredPosition(float distance, float elevation
 
   zeus::CVector3f useDir = dir;
   if (!dir.canBeNormalized())
-    useDir = zeus::CVector3f::skForward;
+    useDir = zeus::skForward;
 
-  zeus::CTransform lookDirXf = zeus::lookAt(zeus::CVector3f::skZero, useDir);
+  zeus::CTransform lookDirXf = zeus::lookAt(zeus::skZero3f, useDir);
   zeus::CVector3f ballPos = player->GetBallPosition();
   float elev = elevation;
   float dist = distance;
@@ -1763,7 +1763,7 @@ bool CBallCamera::DetectCollision(const zeus::CVector3f& from, const zeus::CVect
     CGameCollision::BuildAreaCollisionCache(mgr, cache);
     if (cache.HasCacheOverflowed())
       clear = false;
-    CCollidableSphere cSphere({zeus::CVector3f::skZero, radius}, {EMaterialTypes::Solid});
+    CCollidableSphere cSphere({zeus::skZero3f, radius}, {EMaterialTypes::Solid});
     if (CGameCollision::DetectCollisionBoolean_Cached(
             mgr, cache, cSphere, zeus::CTransform::Translate(from),
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
@@ -1881,7 +1881,7 @@ bool CBallCamera::CheckTransitionLineOfSight(const zeus::CVector3f& eyePos, cons
       CCollisionInfo cinfo;
       double d = eyeToBehindMag;
       TUniqueId intersectId = kInvalidUniqueId;
-      CCollidableSphere cSphere({zeus::CVector3f::skZero, colRadius}, {EMaterialTypes::Solid});
+      CCollidableSphere cSphere({zeus::skZero3f, colRadius}, {EMaterialTypes::Solid});
       if (CGameCollision::DetectCollision_Cached_Moving(
               mgr, cache, cSphere, zeus::CTransform::Translate(eyePos),
               CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid},
@@ -2052,7 +2052,7 @@ void CBallCamera::UpdateLookAtPosition(float dt, CStateManager& mgr) {
 zeus::CTransform CBallCamera::UpdateLookDirection(const zeus::CVector3f& dir, CStateManager& mgr) {
   zeus::CVector3f useDir = dir;
   if (!dir.canBeNormalized())
-    useDir = zeus::CVector3f::skForward;
+    useDir = zeus::skForward;
   float elevation = x1a0_elevation;
   float distance = x190_curMinDistance;
   ConstrainElevationAndDistance(elevation, distance, 0.f, mgr);

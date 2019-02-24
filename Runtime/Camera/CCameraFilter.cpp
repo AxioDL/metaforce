@@ -71,13 +71,13 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
     x4_nextType = type;
     if (type == EFilterType::Passthru) {
       if (x0_curType == EFilterType::Multiply)
-        x1c_nextColor = zeus::CColor::skWhite;
+        x1c_nextColor = zeus::skWhite;
       else if (x0_curType == EFilterType::Add || x0_curType == EFilterType::Blend)
         x1c_nextColor.a() = 0.f;
     } else {
       if (x0_curType == EFilterType::Passthru) {
         if (type == EFilterType::Multiply) {
-          x18_curColor = zeus::CColor::skWhite;
+          x18_curColor = zeus::skWhite;
         } else if (type == EFilterType::Add || type == EFilterType::Blend) {
           x18_curColor = x1c_nextColor;
           x18_curColor.a() = 0.f;
@@ -96,7 +96,7 @@ void CCameraFilterPass<S>::SetFilter(EFilterType type, EFilterShape shape, float
 
 template <class S>
 void CCameraFilterPass<S>::DisableFilter(float time) {
-  SetFilter(EFilterType::Passthru, x8_shape, time, zeus::CColor::skWhite, -1);
+  SetFilter(EFilterType::Passthru, x8_shape, time, zeus::skWhite, -1);
 }
 
 template <class S>

@@ -109,7 +109,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
         InhabitantIdle(*act, mgr);
         if (act->HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f)
           mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), {x100_damageInfo, dt},
-                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
 
         if (x128_forceMagnitude > 0.f) {
           if (TCastToPtr<CPhysicsActor> pact = act.GetPtr()) {
@@ -119,10 +119,10 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
 
             zeus::CVector3f force = forceMult * x11c_forceField;
             if ((x12c_flags & ETriggerFlags::UseCollisionImpulses) != ETriggerFlags::None) {
-              pact->ApplyImpulseWR(force, zeus::CAxisAngle::sIdentity);
+              pact->ApplyImpulseWR(force, zeus::CAxisAngle());
               pact->UseCollisionImpulses();
             } else
-              pact->ApplyForceWR(force, zeus::CAxisAngle::sIdentity);
+              pact->ApplyForceWR(force, zeus::CAxisAngle());
           }
         }
       } else {
@@ -268,14 +268,14 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
         if (act.HealthInfo(mgr) && x100_damageInfo.GetDamage() > 0.f) {
           mgr.ApplyDamage(x8_uid, act.GetUniqueId(), x8_uid, x100_damageInfo,
                           CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}),
-                          zeus::CVector3f::skZero);
+                          zeus::skZero3f);
         }
       }
 
       if ((x12c_flags & ETriggerFlags::KillOnEnter) != ETriggerFlags::None && act.HealthInfo(mgr)) {
         CHealthInfo* hInfo = act.HealthInfo(mgr);
         mgr.ApplyDamage(x8_uid, act.GetUniqueId(), x8_uid, {sktonOHurtWeaponMode, 10.f * hInfo->GetHP(), 0.f, 0.f},
-                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}), zeus::CVector3f::skZero);
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}), zeus::skZero3f);
       }
     } else
       InhabitantRejected(act, mgr);

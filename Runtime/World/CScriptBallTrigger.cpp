@@ -17,7 +17,7 @@ CScriptBallTrigger::CScriptBallTrigger(TUniqueId uid, std::string_view name, con
                                        const zeus::CVector3f& pos, const zeus::CVector3f& scale, bool active, float f1,
                                        float f2, float f3, const zeus::CVector3f& vec, bool b2)
 : CScriptTrigger(uid, name, info, pos, calculate_ball_aabox(), CDamageInfo(CWeaponMode::Power(), 0.f, 0.f, 0.f),
-                 zeus::CVector3f::skZero, ETriggerFlags::DetectMorphedPlayer, active, false, false)
+                 zeus::skZero3f, ETriggerFlags::DetectMorphedPlayer, active, false, false)
 , x150_force(f1)
 , x154_minAngle(f2)
 , x158_maxDistance(f3)
@@ -62,7 +62,7 @@ void CScriptBallTrigger::Think(float dt, CStateManager& mgr) {
       zeus::CVector3f offset = radiusPosDif.normalized();
       if (std::cos(zeus::degToRad(x154_minAngle)) < (-offset).dot(x15c_forceAngle) && distance < x158_maxDistance) {
         float force = zeus::min((1.f / dt * distance), x150_force * (distance * distance));
-        player.ApplyForceWR(force * (player.GetMass() * offset), zeus::CAxisAngle::sIdentity);
+        player.ApplyForceWR(force * (player.GetMass() * offset), zeus::CAxisAngle());
       }
     }
   }

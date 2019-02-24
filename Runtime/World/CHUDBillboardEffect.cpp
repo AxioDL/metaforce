@@ -17,7 +17,7 @@ CHUDBillboardEffect::CHUDBillboardEffect(const rstl::optional<TToken<CGenDescrip
                                          TUniqueId uid, bool active, std::string_view name, float dist,
                                          const zeus::CVector3f& scale0, const zeus::CColor& color,
                                          const zeus::CVector3f& scale1, const zeus::CVector3f& translation)
-: CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform::Identity()) {
+: CEffect(uid, CEntityInfo(kInvalidAreaId, CEntity::NullConnectionList), active, name, zeus::CTransform()) {
   xec_translation = translation;
   xec_translation.y() += dist;
   xf8_localScale = scale1 * scale0;

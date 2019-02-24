@@ -95,11 +95,11 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
 
     /* Reflection map matrix */
     zeus::CVector3f v1 = playerToSurf * (1.f / surfSize);
-    zeus::CVector3f v2 = v1.cross(zeus::CVector3f::skUp);
+    zeus::CVector3f v2 = v1.cross(zeus::skUp);
     if (v2.canBeNormalized())
       v2.normalize();
     else
-      v2 = zeus::CVector3f::skRight;
+      v2 = zeus::skRight;
 
     float timeScale = 0.32258067f * (0.02f * distance + 1.f);
     float f1 = timeScale * g_TransformedTime;
@@ -407,11 +407,11 @@ void CBooModel::MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOu
 void CBooModel::ActivateLights(const std::vector<CLight>& lights) { m_lightingData.ActivateLights(lights); }
 
 void CBooModel::DisableAllLights() {
-  m_lightingData.ambient = zeus::CColor::skBlack;
+  m_lightingData.ambient = zeus::skBlack;
 
   for (size_t curLight = 0; curLight < URDE_MAX_LIGHTS; ++curLight) {
     CModelShaders::Light& lightOut = m_lightingData.lights[curLight];
-    lightOut.color = zeus::CColor::skClear;
+    lightOut.color = zeus::skClear;
     lightOut.linAtt[0] = 1.f;
     lightOut.angAtt[0] = 1.f;
   }
@@ -529,6 +529,9 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
 
   EExtendedShader extended = EExtendedShader::Flat;
   if (flags.m_extendedShader == EExtendedShader::Lighting) {
+    /* Transform lighting into thermal cold if the thermal visor is active */
+    if (g_Renderer->IsThermalVisorActive())
+      return EExtendedShader::ThermalCold;
     if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero) {
       /* Override shader if originally opaque (typical for FRME models) */
       if (flags.x0_blendMode > 6) {
@@ -630,58 +633,58 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
   switch (anim.mode) {
   case UVAnimation::Mode::MvInvNoTranslation: {
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut.m[3].w() = 1.f;
-    postMtxOut.m[0].x() = 0.5f;
-    postMtxOut.m[1].y() = 0.5f;
-    postMtxOut.m[3].x() = 0.5f;
-    postMtxOut.m[3].y() = 0.5f;
+    texMtxOut[3].w() = 1.f;
+    postMtxOut[0].x() = 0.5f;
+    postMtxOut[1].y() = 0.5f;
+    postMtxOut[3].x() = 0.5f;
+    postMtxOut[3].y() = 0.5f;
     break;
   }
   case UVAnimation::Mode::MvInv: {
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut.m[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
-    texMtxOut.m[3].w() = 1.f;
-    postMtxOut.m[0].x() = 0.5f;
-    postMtxOut.m[1].y() = 0.5f;
-    postMtxOut.m[3].x() = 0.5f;
-    postMtxOut.m[3].y() = 0.5f;
+    texMtxOut[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
+    texMtxOut[3].w() = 1.f;
+    postMtxOut[0].x() = 0.5f;
+    postMtxOut[1].y() = 0.5f;
+    postMtxOut[3].x() = 0.5f;
+    postMtxOut[3].y() = 0.5f;
     break;
   }
   case UVAnimation::Mode::Scroll: {
-    texMtxOut.m[3].x() = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
-    texMtxOut.m[3].y() = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
+    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
+    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
     break;
   }
   case UVAnimation::Mode::Rotation: {
     float angle = CGraphics::GetSecondsMod900() * anim.vals[1] + anim.vals[0];
     float acos = std::cos(angle);
     float asin = std::sin(angle);
-    texMtxOut.m[0].x() = acos;
-    texMtxOut.m[0].y() = asin;
-    texMtxOut.m[1].x() = -asin;
-    texMtxOut.m[1].y() = acos;
-    texMtxOut.m[3].x() = (1.0f - (acos - asin)) * 0.5f;
-    texMtxOut.m[3].y() = (1.0f - (asin + acos)) * 0.5f;
+    texMtxOut[0].x() = acos;
+    texMtxOut[0].y() = asin;
+    texMtxOut[1].x() = -asin;
+    texMtxOut[1].y() = acos;
+    texMtxOut[3].x() = (1.0f - (acos - asin)) * 0.5f;
+    texMtxOut[3].y() = (1.0f - (asin + acos)) * 0.5f;
     break;
   }
   case UVAnimation::Mode::HStrip: {
     float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut.m[3].x() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+    texMtxOut[3].x() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
     break;
   }
   case UVAnimation::Mode::VStrip: {
     float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut.m[3].y() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+    texMtxOut[3].y() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
     break;
   }
   case UVAnimation::Mode::Model: {
     texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
-    texMtxOut.m[3].zeroOut();
-    postMtxOut.m[0].x() = 0.5f;
-    postMtxOut.m[1].y() = 0.f;
-    postMtxOut.m[2].y() = 0.5f;
-    postMtxOut.m[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
-    postMtxOut.m[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
+    texMtxOut[3].zeroOut();
+    postMtxOut[0].x() = 0.5f;
+    postMtxOut[1].y() = 0.f;
+    postMtxOut[2].y() = 0.5f;
+    postMtxOut[3].x() = CGraphics::g_GXModelMatrix.origin.x() * 0.05f;
+    postMtxOut[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
     break;
   }
   case UVAnimation::Mode::CylinderEnvironment: {
@@ -770,18 +773,16 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     specialMtxOut.emplace();
 
-    /* This part handled in-shader
     zeus::CMatrix4f& texMtxOut = (*specialMtxOut)[0];
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
-    texMtxOut.vec[3].zeroOut();
-    texMtxOut.vec[3].w = 1.f;
-     */
+    texMtxOut[3].zeroOut();
+    texMtxOut[3].w() = 1.f;
 
     zeus::CMatrix4f& postMtxOut = (*specialMtxOut)[1];
-    postMtxOut.m[0].x() = 0.5f;
-    postMtxOut.m[1].y() = 0.5f;
-    postMtxOut.m[3].x() = 0.5f;
-    postMtxOut.m[3].y() = 0.5f;
+    postMtxOut[0].x() = 0.5f;
+    postMtxOut[1].y() = 0.5f;
+    postMtxOut[3].x() = 0.5f;
+    postMtxOut[3].y() = 0.5f;
   } else if (flags.m_extendedShader == EExtendedShader::WorldShadow) {
     /* Special matrix for mapping world shadow */
     specialMtxOut.emplace();
@@ -830,7 +831,7 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
         for (size_t w = 0; w < weightCount; ++w) {
           zeus::CMatrix4f& obj = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
           if (w >= bankTransforms.size())
-            obj = zeus::CMatrix4f::skIdentityMatrix4f;
+            obj = zeus::CMatrix4f();
           else
             obj = bankTransforms[w]->toMatrix4f();
           dataCur += sizeof(zeus::CMatrix4f);
@@ -838,7 +839,7 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
         for (size_t w = 0; w < weightCount; ++w) {
           zeus::CMatrix4f& objInv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
           if (w >= bankTransforms.size())
-            objInv = zeus::CMatrix4f::skIdentityMatrix4f;
+            objInv = zeus::CMatrix4f();
           else
             objInv = bankTransforms[w]->basis;
           dataCur += sizeof(zeus::CMatrix4f);
@@ -848,12 +849,12 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
       } else {
         for (size_t w = 0; w < weightCount; ++w) {
           zeus::CMatrix4f& mv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mv = zeus::CMatrix4f::skIdentityMatrix4f;
+          mv = zeus::CMatrix4f();
           dataCur += sizeof(zeus::CMatrix4f);
         }
         for (size_t w = 0; w < weightCount; ++w) {
           zeus::CMatrix4f& mvinv = reinterpret_cast<zeus::CMatrix4f&>(*dataCur);
-          mvinv = zeus::CMatrix4f::skIdentityMatrix4f;
+          mvinv = zeus::CMatrix4f();
           dataCur += sizeof(zeus::CMatrix4f);
         }
       }
@@ -947,7 +948,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
   {
     CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
-    shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::CVector3f::skUp;
+    shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::skUp;
     shadowOut.shadowUp.w() = flags.x4_color.a();
     shadowOut.shadowId = flags.x4_color.r();
   } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {
@@ -992,7 +993,7 @@ void CBooModel::DrawAlpha(const CModelFlags& flags, const CSkinRules* cskr, cons
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
     rFlags.m_extendedShader = EExtendedShader::SolidColor;
-    rFlags.x4_color = zeus::CColor::skBlack;
+    rFlags.x4_color = zeus::skBlack;
   }
 
   if (TryLockTextures()) {
@@ -1006,7 +1007,7 @@ void CBooModel::DrawNormal(const CModelFlags& flags, const CSkinRules* cskr, con
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
     rFlags.m_extendedShader = EExtendedShader::SolidColor;
-    rFlags.x4_color = zeus::CColor::skBlack;
+    rFlags.x4_color = zeus::skBlack;
   }
   if (TryLockTextures()) {
     UpdateUniformData(rFlags, cskr, pose);
@@ -1019,7 +1020,7 @@ void CBooModel::Draw(const CModelFlags& flags, const CSkinRules* cskr, const CPo
   /* Check if we're overriding with RenderModelBlack */
   if (g_RenderModelBlack) {
     rFlags.m_extendedShader = EExtendedShader::SolidColor;
-    rFlags.x4_color = zeus::CColor::skBlack;
+    rFlags.x4_color = zeus::skBlack;
   }
 
   if (TryLockTextures()) {
@@ -1235,7 +1236,7 @@ void CModel::RestoreVerticesCPU(const boo::ObjToken<boo::IGraphicsBufferD>& vert
 
 void CModel::_WarmupShaders() {
   CBooModel::SetDummyTextures(true);
-  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform::Identity());
+  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
   CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
   zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;

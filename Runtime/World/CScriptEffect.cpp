@@ -56,7 +56,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
     xf8_particleSystemToken = g_SimplePool->GetObj({FOURCC('PART'), partId});
     x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken));
     zeus::CTransform newXf = xf;
-    newXf.origin = zeus::CVector3f::skZero;
+    newXf.origin = zeus::skZero3f;
     x104_particleSystem->SetOrientation(newXf);
     x104_particleSystem->SetGlobalTranslation(xf.origin);
     x104_particleSystem->SetGlobalScale(scale);
@@ -69,7 +69,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
     xe8_electricToken = g_SimplePool->GetObj({FOURCC('ELSC'), elscId});
     xf4_electric.reset(new CParticleElectric(xe8_electricToken));
     zeus::CTransform newXf = xf;
-    newXf.origin = zeus::CVector3f::skZero;
+    newXf.origin = zeus::skZero3f;
     xf4_electric->SetOrientation(newXf);
     xf4_electric->SetGlobalTranslation(xf.origin);
     xf4_electric->SetGlobalScale(scale);
@@ -91,7 +91,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         zeus::CColor color = x104_particleSystem->GetModulationColor();
         x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken));
         zeus::CTransform newXf = GetTransform();
-        newXf.origin = zeus::CVector3f::skZero;
+        newXf.origin = zeus::skZero3f;
         x104_particleSystem->SetOrientation(newXf);
         x104_particleSystem->SetGlobalTranslation(GetTranslation());
         x104_particleSystem->SetGlobalScale(scale);
@@ -105,7 +105,7 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
         zeus::CColor color = xf4_electric->GetModulationColor();
         xf4_electric.reset(new CParticleElectric(xe8_electricToken));
         zeus::CTransform newXf = GetTransform();
-        newXf.origin = zeus::CVector3f::skZero;
+        newXf.origin = zeus::skZero3f;
         xf4_electric->SetOrientation(newXf);
         xf4_electric->SetGlobalTranslation(GetTranslation());
         xf4_electric->SetGlobalScale(scale);
@@ -253,13 +253,13 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
   if (xe4_28_transformDirty) {
     if (x104_particleSystem) {
       zeus::CTransform newXf = x34_transform;
-      newXf.origin = zeus::CVector3f::skZero;
+      newXf.origin = zeus::skZero3f;
       x104_particleSystem->SetOrientation(newXf);
       x104_particleSystem->SetGlobalTranslation(x34_transform.origin);
     }
     if (xf4_electric) {
       zeus::CTransform newXf = x34_transform;
-      newXf.origin = zeus::CVector3f::skZero;
+      newXf.origin = zeus::skZero3f;
       xf4_electric->SetOrientation(newXf);
       xf4_electric->SetGlobalTranslation(x34_transform.origin);
     }
@@ -313,7 +313,7 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
     if (xb4_drawFlags.x0_blendMode != 0)
       x104_particleSystem->SetModulationColor(xb4_drawFlags.x4_color);
     else
-      x104_particleSystem->SetModulationColor(zeus::CColor::skWhite);
+      x104_particleSystem->SetModulationColor(zeus::skWhite);
   }
 }
 
@@ -327,7 +327,7 @@ void CScriptEffect::CalculateRenderBounds() {
     electricBounds = xf4_electric->GetBounds();
 
   if (particleBounds || electricBounds) {
-    zeus::CAABox renderBounds = zeus::CAABox::skInvertedBox;
+    zeus::CAABox renderBounds = zeus::CAABox();
     if (particleBounds) {
       renderBounds.accumulateBounds(particleBounds->min);
       renderBounds.accumulateBounds(particleBounds->max);

@@ -35,7 +35,7 @@ std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream
 void CAuiImagePane::Update(float dt) {
   xd0_uvBias0.x() = std::fmod(xd0_uvBias0.x(), 1.f);
   xd0_uvBias0.y() = std::fmod(xd0_uvBias0.y(), 1.f);
-  if (x138_tileSize != zeus::CVector2f::skZero && xb8_tex0Tok.IsLoaded()) {
+  if (x138_tileSize != zeus::skZero2f && xb8_tex0Tok.IsLoaded()) {
     zeus::CVector2f tmp = zeus::CVector2f(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight()) / x138_tileSize;
     x144_frameTimer = std::fmod(x144_frameTimer + dt * x140_interval, std::floor(tmp.x()) * std::floor(tmp.y()));
   }
@@ -57,7 +57,7 @@ void CAuiImagePane::DoDrawImagePane(const zeus::CColor& color, const CTexture& t
 
   rstl::reserved_vector<zeus::CVector2f, 4> vec;
   const rstl::reserved_vector<zeus::CVector2f, 4>* useUVs;
-  if (x138_tileSize != zeus::CVector2f::skZero) {
+  if (x138_tileSize != zeus::skZero2f) {
     zeus::CVector2f res(xb8_tex0Tok->GetWidth(), xb8_tex0Tok->GetHeight());
     zeus::CVector2f tmp = res / x138_tileSize;
     zeus::CVector2f tmpRecip = x138_tileSize / res;

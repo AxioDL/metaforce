@@ -22,7 +22,7 @@ float CCameraManager::sFirstPersonFOV = 55.f;
 float CCameraManager::sThirdPersonFOV = 60.f;
 
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId) {
-  CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::CVector3f::skZero, zeus::CVector3f::skZero,
+  CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::skZero3f, zeus::skZero3f,
                            {1.f, 0.f, 0.f}, {0.f, 0.f, 1.f}, 50.f, 50.f, 1000.f, 1, 1.f);
   sFirstPersonFOV = g_tweakGame->GetFirstPersonFOV();
 }
@@ -58,7 +58,7 @@ int CCameraManager::AddCameraShaker(const CCameraShakeData& data, bool sfx) {
     float vol = zeus::clamp(100.f, std::max(data.GetMaxAMComponent(), data.GetMaxFMComponent()) * 9.f + 100.f, 127.f);
     CSfxHandle sfxHandle;
     if (data.xc0_flags & 0x1)
-      sfxHandle = CSfxManager::AddEmitter(SFXamb_x_rumble_lp_00, data.xc4_sfxPos, zeus::CVector3f::skZero, vol / 127.f,
+      sfxHandle = CSfxManager::AddEmitter(SFXamb_x_rumble_lp_00, data.xc4_sfxPos, zeus::skZero3f, vol / 127.f,
                                           false, false, 0x7f, kInvalidAreaId);
     else
       sfxHandle = CSfxManager::SfxStart(SFXamb_x_rumble_lp_00, vol / 127.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -134,17 +134,17 @@ const CGameCamera* CCameraManager::GetCurrentCamera(const CStateManager& stateMg
 void CCameraManager::CreateStandardCameras(CStateManager& stateMgr) {
   TUniqueId fpId = stateMgr.AllocateUniqueId();
   x7c_fpCamera =
-      new CFirstPersonCamera(fpId, zeus::CTransform::Identity(), stateMgr.Player()->GetUniqueId(),
+      new CFirstPersonCamera(fpId, zeus::CTransform(), stateMgr.Player()->GetUniqueId(),
                              g_tweakPlayer->GetOrbitCameraSpeed(), sFirstPersonFOV, sNearPlane, sFarPlane, sAspect);
   stateMgr.AddObject(x7c_fpCamera);
   stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::FirstPerson, stateMgr);
   SetCurrentCameraId(fpId, stateMgr);
 
   x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(),
-                                   zeus::CTransform::Identity(), sThirdPersonFOV, sNearPlane, sFarPlane, sAspect);
+                                   zeus::CTransform(), sThirdPersonFOV, sNearPlane, sFarPlane, sAspect);
   stateMgr.AddObject(x80_ballCamera);
 
-  x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform::Identity());
+  x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform());
   stateMgr.AddObject(x88_interpCamera);
 }
 
@@ -500,7 +500,7 @@ void CCameraManager::UpdateFog(float dt, CStateManager& mgr) {
 }
 
 void CCameraManager::UpdateRumble(float dt, CStateManager& mgr) {
-  x30_shakeOffset = zeus::CVector3f::skZero;
+  x30_shakeOffset = zeus::skZero3f;
   for (auto it = x14_shakers.begin(); it != x14_shakers.end();) {
     CCameraShakeData& shaker = *it;
     shaker.Update(dt, mgr);
@@ -525,12 +525,12 @@ void CCameraManager::UpdateRumble(float dt, CStateManager& mgr) {
   }
 
   if (mgr.GetPlayer().GetCameraState() != CPlayer::EPlayerCameraState::FirstPerson && !IsInCinematicCamera())
-    x30_shakeOffset = zeus::CVector3f::skZero;
+    x30_shakeOffset = zeus::skZero3f;
 }
 
 void CCameraManager::UpdateListener(CStateManager& mgr) {
   const zeus::CTransform xf = GetCurrentCameraTransform(mgr);
-  CSfxManager::UpdateListener(xf.origin, zeus::CVector3f::skZero, xf.frontVector(), xf.upVector(), 1.f);
+  CSfxManager::UpdateListener(xf.origin, zeus::skZero3f, xf.frontVector(), xf.upVector(), 1.f);
 }
 
 float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water) {
@@ -600,7 +600,7 @@ void CCameraManager::SetPlayerCamera(CStateManager& mgr, TUniqueId newCamId) {
 float CCameraManager::GetCameraBobMagnitude() const {
   return 1.f - zeus::clamp(
                    -1.f,
-                   std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().basis[1].dot(zeus::CVector3f::skUp), 1.f)) /
+                   std::fabs(zeus::clamp(-1.f, x7c_fpCamera->GetTransform().basis[1].dot(zeus::skUp), 1.f)) /
                        std::cos(2.f * M_PIF / 12.f),
                    1.f);
 }

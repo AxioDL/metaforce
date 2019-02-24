@@ -14,12 +14,12 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x5c_slideA(*this), x90_slideB(*t
   if (font) {
     CGuiTextProperties propsA(false, true, EJustification::Center, EVerticalJustification::Bottom);
     xc4_textA = std::make_unique<CGuiTextSupport>(font->id, propsA, g_tweakSlideShow->GetFontColor(),
-                                                  g_tweakSlideShow->GetOutlineColor(), zeus::CColor::skWhite, 640, 480,
+                                                  g_tweakSlideShow->GetOutlineColor(), zeus::skWhite, 640, 480,
                                                   g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
 
     CGuiTextProperties propsB(false, true, EJustification::Right, EVerticalJustification::Bottom);
     xc8_textB = std::make_unique<CGuiTextSupport>(font->id, propsB, g_tweakSlideShow->GetFontColor(),
-                                                  g_tweakSlideShow->GetOutlineColor(), zeus::CColor::skWhite, 640, 480,
+                                                  g_tweakSlideShow->GetOutlineColor(), zeus::skWhite, 640, 480,
                                                   g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Alpha);
   }
 

@@ -176,7 +176,7 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
   }
   x64_modelData->EnableLooping(false);
   x64_modelData->Touch(mgr, 0);
-  x150_momentum = zeus::CVector3f::skZero;
+  x150_momentum = zeus::skZero3f;
   CPhysicsActor::Stop();
   SetMorphBallState(EPlayerMorphBallState::Morphing, mgr);
   SetCameraState(EPlayerCameraState::Transitioning, mgr);
@@ -186,8 +186,8 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
   if (x50c_moveDir.canBeNormalized()) {
     x50c_moveDir.normalize();
   } else {
-    x500_lookDir = zeus::CVector3f::skForward;
-    x50c_moveDir = zeus::CVector3f::skForward;
+    x500_lookDir = zeus::skForward;
+    x50c_moveDir = zeus::skForward;
   }
   CBallCamera* ballCam = mgr.GetCameraManager()->GetBallCamera();
   mgr.GetCameraManager()->SetPlayerCamera(mgr, ballCam->GetUniqueId());
@@ -289,9 +289,9 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr) {
   DrawGun(mgr);
   ballCam->SetState(CBallCamera::EBallCameraState::FromBall, mgr);
   ClearForcesAndTorques();
-  SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+  SetAngularVelocityWR(zeus::CAxisAngle());
   AddMaterial(EMaterialTypes::GroundCollider, mgr);
-  x150_momentum = zeus::CVector3f::skZero;
+  x150_momentum = zeus::skZero3f;
   SetCameraState(EPlayerCameraState::Transitioning, mgr);
   x824_transitionFilterTimer = 0.01f;
   x57c_ = 0;
@@ -404,14 +404,14 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
   case EPlayerMorphBallState::Unmorphing:
     GetCollisionPrimitive()->CalculateAABox(GetPrimitiveTransform()).center();
     ClearForcesAndTorques();
-    SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+    SetAngularVelocityWR(zeus::CAxisAngle());
     if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera()) {
       x824_transitionFilterTimer = std::max(x824_transitionFilterTimer, 0.95f);
       zeus::CVector3f pos;
       if (CanLeaveMorphBallState(mgr, pos)) {
         SetTranslation(GetTranslation() + pos);
         LeaveMorphBallState(mgr);
-        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
       } else {
         x574_morphTime = x578_morphDuration - x574_morphTime;
         TransitionToMorphBallState(dt, mgr);
@@ -421,12 +421,12 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
   case EPlayerMorphBallState::Morphing:
     ClearForcesAndTorques();
     ClearForcesAndTorques();
-    SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+    SetAngularVelocityWR(zeus::CAxisAngle());
     if (x574_morphTime >= x578_morphDuration || mgr.GetCameraManager()->IsInCinematicCamera()) {
       if (CanEnterMorphBallState(mgr, 1.f)) {
         ActivateMorphBallCamera(mgr);
         EnterMorphBallState(mgr);
-        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+        xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
       } else {
         x574_morphTime = x578_morphDuration - x574_morphTime;
         TransitionFromMorphBallState(mgr);
@@ -729,7 +729,7 @@ const CDamageVulnerability* CPlayer::GetDamageVulnerability(const zeus::CVector3
 
 const CDamageVulnerability* CPlayer::GetDamageVulnerability() const {
   CDamageInfo info(CWeaponMode(EWeaponType::Power, false, false, false), 0.f, 0.f, 0.f);
-  return GetDamageVulnerability(zeus::CVector3f::skZero, zeus::CVector3f::skUp, info);
+  return GetDamageVulnerability(zeus::skZero3f, zeus::skUp, info);
 }
 
 zeus::CVector3f CPlayer::GetHomingPosition(const CStateManager& mgr, float dt) const {
@@ -1160,7 +1160,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
       CPhysicsActor::Render(mgr);
       if (HasTransitionBeamModel()) {
         x7f0_ballTransitionBeamModel->Touch(mgr, 0);
-        CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+        CModelFlags flags(0, 0, 3, zeus::skWhite);
         x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, x90_actorLights.get(), flags);
       }
       break;
@@ -1276,7 +1276,7 @@ void CPlayer::RenderReflectedPlayer(CStateManager& mgr) {
       CActor::PreRender(mgr, frustum);
     CPhysicsActor::Render(mgr);
     if (HasTransitionBeamModel()) {
-      CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+      CModelFlags flags(0, 0, 3, zeus::skWhite);
       x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, nullptr, flags);
     }
     break;
@@ -1656,14 +1656,14 @@ void CPlayer::CalculatePlayerControlDirection(CStateManager& mgr) {
       if (x54c_controlDirFlat.canBeNormalized())
         x54c_controlDirFlat.normalize();
       else
-        x540_controlDir = x54c_controlDirFlat = zeus::CVector3f::skForward;
+        x540_controlDir = x54c_controlDirFlat = zeus::skForward;
     } else {
-      x540_controlDir = x54c_controlDirFlat = zeus::CVector3f::skForward;
+      x540_controlDir = x54c_controlDirFlat = zeus::skForward;
     }
   } else {
     zeus::CVector3f camToPlayer = GetTranslation() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     if (!camToPlayer.canBeNormalized()) {
-      x540_controlDir = x54c_controlDirFlat = zeus::CVector3f::skForward;
+      x540_controlDir = x54c_controlDirFlat = zeus::skForward;
     } else {
       zeus::CVector3f camToPlayerFlat(camToPlayer.x(), camToPlayer.y(), 0.f);
       if (camToPlayerFlat.canBeNormalized()) {
@@ -1787,7 +1787,7 @@ void CPlayer::UnFreeze(CStateManager& stateMgr) {
       CHUDBillboardEffect* effect = new CHUDBillboardEffect(
           gpsm, {}, stateMgr.AllocateUniqueId(), true, "FrostExplosion",
           CHUDBillboardEffect::GetNearClipDistance(stateMgr), CHUDBillboardEffect::GetScaleForPOV(stateMgr),
-          zeus::CColor::skWhite, zeus::CVector3f::skOne, zeus::CVector3f::skZero);
+          zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
       stateMgr.AddObject(effect);
       CSfxHandle hnd = CSfxManager::SfxStart(SFXcrk_break_final, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
@@ -1953,12 +1953,12 @@ void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr) {
                              primMaterial);
       rstl::reserved_vector<TUniqueId, 1024> nearList;
       mgr.BuildColliderList(nearList, *this, prim.CalculateLocalAABox());
-      if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform::Identity(), filter)) {
+      if (CGameCollision::DetectStaticCollisionBoolean(mgr, prim, zeus::CTransform(), filter)) {
         touchingPhazon = true;
       } else {
         for (TUniqueId id : nearList) {
           if (TCastToConstPtr<CPhysicsActor> act = mgr.GetObjectById(id)) {
-            CInternalCollisionStructure::CPrimDesc prim0(prim, filter, zeus::CTransform::Identity());
+            CInternalCollisionStructure::CPrimDesc prim0(prim, filter, zeus::CTransform());
             CInternalCollisionStructure::CPrimDesc prim1(
                 *act->GetCollisionPrimitive(), CMaterialFilter::skPassEverything, act->GetPrimitiveTransform());
             if (CCollisionPrimitive::CollideBoolean(prim0, prim1)) {
@@ -1980,7 +1980,7 @@ void CPlayer::UpdatePhazonDamage(float dt, CStateManager& mgr) {
           CWeaponMode(phazonType == EPhazonType::Orange ? EWeaponType::OrangePhazon : EWeaponType::Phazon), damage, 0.f,
           0.f);
       mgr.ApplyDamage(kInvalidUniqueId, GetUniqueId(), kInvalidUniqueId, dInfo,
-                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
     }
   } else {
     xa18_phazonDamageLag -= dt;
@@ -2021,22 +2021,22 @@ bool CPlayer::SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mg
   bool switchedVisor = false;
   if ((hint.GetOverrideFlags() & 0x200) != 0) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::CombatVisor))
-      mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Combat);
+      mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::Combat);
     switchedVisor = true;
   }
   if ((hint.GetOverrideFlags() & 0x400) != 0) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ScanVisor))
-      mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Scan);
+      mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::Scan);
     switchedVisor = true;
   }
   if ((hint.GetOverrideFlags() & 0x800) != 0) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::ThermalVisor))
-      mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Thermal);
+      mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::Thermal);
     switchedVisor = true;
   }
   if ((hint.GetOverrideFlags() & 0x1000) != 0) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::XRayVisor))
-      mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::XRay);
+      mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::XRay);
     switchedVisor = true;
   }
   return switchedVisor;
@@ -2279,8 +2279,8 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
       if (const auto& effect = water->GetVisorRunoffEffect()) {
         CHUDBillboardEffect* sheets = new CHUDBillboardEffect(
             *effect, {}, mgr.AllocateUniqueId(), true, "WaterSheets", CHUDBillboardEffect::GetNearClipDistance(mgr),
-            CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::CColor::skWhite, zeus::CVector3f::skOne,
-            zeus::CVector3f::skZero);
+            CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f,
+            zeus::skZero3f);
         mgr.AddObject(sheets);
       }
       CSfxHandle hnd = CSfxManager::SfxStart(water->GetVisorRunoffSfx(), 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -2294,9 +2294,9 @@ void CPlayer::Think(float dt, CStateManager& mgr) {
       zeus::CVector3f backupTranslation = GetTranslation();
       zeus::CVector3f lookDirFlat(x34_transform.basis[1].x(), x34_transform.basis[1].y(), 0.f);
       if (lookDirFlat.canBeNormalized()) {
-        SetTransform(zeus::lookAt(zeus::CVector3f::skZero, lookDirFlat.normalized()));
+        SetTransform(zeus::lookAt(zeus::skZero3f, lookDirFlat.normalized()));
       } else {
-        SetTransform(zeus::CTransform::Identity());
+        SetTransform(zeus::CTransform());
       }
       SetTranslation(backupTranslation);
     }
@@ -2309,7 +2309,7 @@ void CPlayer::PreThink(float dt, CStateManager& mgr) {
   x558_wasDamaged = false;
   x55c_damageAmt = 0.f;
   x560_prevDamageAmt = 0.f;
-  x564_damageLocation = zeus::CVector3f::skZero;
+  x564_damageLocation = zeus::skZero3f;
   xa04_preThinkDt = dt;
 }
 
@@ -2451,7 +2451,7 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
   case EScriptObjectMessage::AddSplashInhabitant: {
     SetInFluid(true, sender);
     UpdateSubmerged(mgr);
-    CRayCastResult result = mgr.RayStaticIntersection(x34_transform.origin, zeus::CVector3f::skDown,
+    CRayCastResult result = mgr.RayStaticIntersection(x34_transform.origin, zeus::skDown,
                                                       0.5f * GetEyeHeight(), SolidMaterialFilter);
     if (result.IsInvalid()) {
       SetVelocityWR(x138_velocity * 0.095f);
@@ -2649,11 +2649,11 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
 u16 CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16* table, u32 length, u16 defId) {
   u16 ret = defId;
   zeus::CAABox aabb = GetBoundingBox();
-  aabb.accumulateBounds(x34_transform.origin + zeus::CVector3f::skDown);
+  aabb.accumulateBounds(x34_transform.origin + zeus::skDown);
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildNearList(nearList, aabb, SolidMaterialFilter, nullptr);
   TUniqueId collideId = kInvalidUniqueId;
-  CRayCastResult result = mgr.RayWorldIntersection(collideId, x34_transform.origin, zeus::CVector3f::skDown, 1.5f,
+  CRayCastResult result = mgr.RayWorldIntersection(collideId, x34_transform.origin, zeus::skDown, 1.5f,
                                                    SolidMaterialFilter, nearList);
   if (result.IsValid())
     ret = SfxIdFromMaterial(result.GetMaterial(), table, length, defId);
@@ -2699,7 +2699,7 @@ void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager
       (ControlMapper::GetDigitalInput(ControlMapper::ECommands::FireOrBomb, input) ||
        ControlMapper::GetDigitalInput(ControlMapper::ECommands::MissileOrPowerBomb, input)) &&
       mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::CombatVisor)) {
-    mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Combat);
+    mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::Combat);
     DrawGun(mgr);
   }
 
@@ -2709,7 +2709,7 @@ void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager
       x9c4_24_visorChangeRequested = true;
       CPlayerState::EPlayerVisor visor = CPlayerState::EPlayerVisor(i);
       if (mgr.GetPlayerState()->GetTransitioningVisor() != visor) {
-        mgr.GetPlayerState()->StartVisorTransition(visor);
+        mgr.GetPlayerState()->StartTransitionToVisor(visor);
         if (visor == CPlayerState::EPlayerVisor::Scan)
           HolsterGun(mgr);
         else
@@ -2799,7 +2799,7 @@ void CPlayer::UpdateArmAndGunTransforms(float dt, CStateManager& mgr) {
   } else {
     gunOffset = g_tweakPlayerGun->GetGunPosition();
     grappleOffset =
-        x490_gun->GetGrappleArm().IsArmMoving() ? zeus::CVector3f::skZero : g_tweakPlayerGun->GetGrapplingArmPosition();
+        x490_gun->GetGrappleArm().IsArmMoving() ? zeus::skZero3f : g_tweakPlayerGun->GetGrapplingArmPosition();
     gunOffset.z() += GetEyeHeight();
     grappleOffset.z() += GetEyeHeight();
   }
@@ -2986,7 +2986,7 @@ void CPlayer::UpdateAssistedAiming(const zeus::CTransform& xf, const CStateManag
       gunToTarget.y() = std::cos(hAngleDelta) * std::cos(vAngleDelta);
       gunToTarget.z() = std::sin(vAngleDelta);
       gunToTarget = xf.rotate(gunToTarget);
-      assistXf = zeus::lookAt(zeus::CVector3f::skZero, gunToTarget, zeus::CVector3f::skUp);
+      assistXf = zeus::lookAt(zeus::skZero3f, gunToTarget, zeus::skUp);
     }
   }
 
@@ -3004,7 +3004,7 @@ void CPlayer::UpdateAimTargetPrediction(const zeus::CTransform& xf, const CState
       zeus::CVector3f predictOffset = predictTarget - instantTarget;
       x3f8_targetAimPosition = instantTarget;
       if (predictOffset.magnitude() < 0.1f)
-        x404_aimTargetAverage.AddValue(zeus::CVector3f::skZero);
+        x404_aimTargetAverage.AddValue(zeus::skZero3f);
       else
         x404_aimTargetAverage.AddValue(predictOffset);
       if (auto avg = x404_aimTargetAverage.GetAverage())
@@ -3079,7 +3079,7 @@ void CPlayer::UpdateGrappleArmTransform(const zeus::CVector3f& offset, CStateMan
           }
         }
       }
-      armXf = zeus::lookAt(zeus::CVector3f::skZero, armToTarget, zeus::CVector3f::skUp);
+      armXf = zeus::lookAt(zeus::skZero3f, armToTarget, zeus::skUp);
       armXf.origin = armPosition;
       x490_gun->GetGrappleArm().SetTransform(armXf);
     }
@@ -3136,13 +3136,13 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
                   leftDirFlat.normalize();
                 if (newPlayerToPointFlat.dot(leftDirFlat) >= 0.f)
                   deltaAngle = -deltaAngle;
-                RotateToOR(zeus::CQuaternion::fromAxisAngle(zeus::CVector3f::skUp, deltaAngle), dt);
+                RotateToOR(zeus::CQuaternion::fromAxisAngle(zeus::skUp, deltaAngle), dt);
               } else if (std::fabs(lookToPointAngle - M_PIF) > 0.001f) {
                 RotateToOR(zeus::CQuaternion::shortestRotationArc(lookDirFlat, newPlayerToPointFlat), dt);
               }
             } else {
-              SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
-              x174_torque = zeus::CAxisAngle::sIdentity;
+              SetAngularVelocityWR(zeus::CAxisAngle());
+              x174_torque = zeus::CAxisAngle();
             }
           }
         } else {
@@ -3180,7 +3180,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
 
       zeus::CVector3f swingAxis = x3c0_grappleSwingAxis;
       if (x3bc_grappleSwingTimer < 0.5f * g_tweakPlayer->GetGrappleSwingPeriod())
-        swingAxis *= zeus::CVector3f::skNegOne;
+        swingAxis *= zeus::skNegOne3f;
 
       float pullSpeed =
           std::fabs(zeus::clamp(
@@ -3232,7 +3232,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
           x3c0_grappleSwingAxis = turnRot.transform(x3c0_grappleSwingAxis);
           x3c0_grappleSwingAxis.normalize();
           zeus::CVector3f swingForward(-x3c0_grappleSwingAxis.y(), x3c0_grappleSwingAxis.x(), 0.f);
-          SetTransform(zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::CVector3f::skUp, GetTranslation()));
+          SetTransform(zeus::CTransform(x3c0_grappleSwingAxis, swingForward, zeus::skUp, GetTranslation()));
           SetVelocityWR(pullVec);
 
           if (!ValidateFPPosition(GetTranslation(), mgr)) {
@@ -3248,7 +3248,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
     }
     case EGrappleState::JumpOff: {
       zeus::CVector3f gravForce = {0.f, 0.f, GetGravity() * xe8_mass};
-      ApplyForceOR(gravForce, zeus::CAxisAngle::sIdentity);
+      ApplyForceOR(gravForce, zeus::CAxisAngle());
       break;
     }
     default:
@@ -3266,7 +3266,7 @@ bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr)
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildColliderList(nearList, *this, aabb);
   CCollidableAABox colAABB({GetBaseBoundingBox().min + pos, GetBaseBoundingBox().max + pos}, {});
-  return !CGameCollision::DetectCollisionBoolean(mgr, colAABB, zeus::CTransform::Identity(), solidFilter, nearList);
+  return !CGameCollision::DetectCollisionBoolean(mgr, colAABB, zeus::CTransform(), solidFilter, nearList);
 }
 
 void CPlayer::UpdateGrappleState(const CFinalInput& input, CStateManager& mgr) {
@@ -3467,14 +3467,14 @@ void CPlayer::ApplyGrappleJump(CStateManager& mgr) {
   if (TCastToPtr<CScriptGrapplePoint> point = mgr.ObjectById(x310_orbitTargetId)) {
     zeus::CVector3f tmp = x3c0_grappleSwingAxis;
     if (x3bc_grappleSwingTimer < 0.5f * g_tweakPlayer->GetGrappleSwingPeriod())
-      tmp *= zeus::CVector3f::skNegOne;
+      tmp *= zeus::skNegOne3f;
     zeus::CVector3f pointToPlayer = GetTranslation() - point->GetTranslation();
     zeus::CVector3f cross = pointToPlayer.normalized().cross(tmp);
     zeus::CVector3f pointToPlayerFlat(pointToPlayer.x(), pointToPlayer.y(), 0.f);
     float dot = 1.f;
     if (pointToPlayerFlat.canBeNormalized() && cross.canBeNormalized())
       dot = zeus::clamp(-1.f, std::fabs(cross.normalized().dot(pointToPlayerFlat.normalized())), 1.f);
-    ApplyForceWR(g_tweakPlayer->GetGrappleJumpForce() * cross * 10000.f * dot, zeus::CAxisAngle::sIdentity);
+    ApplyForceWR(g_tweakPlayer->GetGrappleJumpForce() * cross * 10000.f * dot, zeus::CAxisAngle());
   }
 }
 
@@ -4393,7 +4393,7 @@ void CPlayer::UpdateOrbitOrientation(CStateManager& mgr) {
       playerToPoint = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform().basis[1];
     playerToPoint.z() = 0.f;
     if (playerToPoint.canBeNormalized()) {
-      zeus::CTransform xf = zeus::lookAt(zeus::CVector3f::skZero, playerToPoint);
+      zeus::CTransform xf = zeus::lookAt(zeus::skZero3f, playerToPoint);
       xf.origin = GetTranslation();
       SetTransform(xf);
     }
@@ -4632,7 +4632,7 @@ void CPlayer::Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool rese
   zeus::CVector3f lookDir = xf.basis[1];
   if (lookDir.canBeNormalized()) {
     lookDir.normalize();
-    SetTransform(zeus::lookAt(zeus::CVector3f::skZero, lookDir));
+    SetTransform(zeus::lookAt(zeus::skZero3f, lookDir));
     SetTranslation(xf.origin);
     x500_lookDir = lookDir;
     x50c_moveDir = lookDir;
@@ -4668,7 +4668,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {
         GetTranslation() + zeus::CVector3f(0.f, 0.f, g_tweakPlayer->GetPlayerBallHalfExtent()) - pos;
     float maxJump = g_tweakPlayer->GetBombJumpHeight();
     if (posToBall.magSquared() < maxJump * maxJump &&
-        posToBall.dot(zeus::CVector3f::skUp) >= -g_tweakPlayer->GetPlayerBallHalfExtent()) {
+        posToBall.dot(zeus::skUp) >= -g_tweakPlayer->GetPlayerBallHalfExtent()) {
       float upVel =
           std::sqrt(2.f * std::fabs(g_tweakPlayer->GetNormalGravAccel()) * g_tweakPlayer->GetBombJumpRadius());
       mgr.GetRumbleManager().Rumble(mgr, ERumbleFxId::PlayerBump, 0.3f, ERumblePriority::One);
@@ -4703,7 +4703,7 @@ void CPlayer::BombJump(const zeus::CVector3f& pos, CStateManager& mgr) {
           x9d4_bombJumpCheckDelayFrames = 2;
         }
       }
-      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::CVector3f::skZero, false,
+      CSfxHandle hnd = CSfxManager::AddEmitter(SFXsam_ball_jump, GetTranslation(), zeus::skZero3f, false,
                                                false, 0x7f, kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
     }
@@ -4715,9 +4715,9 @@ zeus::CTransform CPlayer::CreateTransformFromMovementDirection() const {
   if (moveDir.canBeNormalized())
     moveDir.normalize();
   else
-    moveDir = zeus::CVector3f::skForward;
+    moveDir = zeus::skForward;
 
-  return {zeus::CVector3f(moveDir.y(), -moveDir.x(), 0.f), moveDir, zeus::CVector3f::skUp, GetTranslation()};
+  return {zeus::CVector3f(moveDir.y(), -moveDir.x(), 0.f), moveDir, zeus::skUp, GetTranslation()};
 }
 
 const CCollisionPrimitive* CPlayer::GetCollisionPrimitive() const {
@@ -4874,7 +4874,7 @@ float CPlayer::JumpInput(const CFinalInput& input, CStateManager& mgr) {
       x380_strafeInputAtDash = StrafeInput(input);
       if (g_tweakPlayer->GetImpulseDoubleJump()) {
         zeus::CVector3f impulse(0.f, 0.f, (doubleJumpImpulse - x138_velocity.z()) * xe8_mass);
-        ApplyImpulseWR(impulse, zeus::CAxisAngle::sIdentity);
+        ApplyImpulseWR(impulse, zeus::CAxisAngle());
       }
 
       float forwards = ControlMapper::GetAnalogInput(ControlMapper::ECommands::Forward, input);
@@ -5093,7 +5093,7 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
   float f3 = strafeVel / orbitToPlayer.magnitude();
   float f2 = dt * (x37c_sidewaysDashing ? M_PIF : (M_PIF * 2.f / 3.f));
   useOrbitToPlayer =
-      zeus::CQuaternion::fromAxisAngle(zeus::CVector3f::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
+      zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
   orbitPointFlattened += useOrbitToPlayer;
   if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input))
     x388_dashButtonHoldTime = 0.f;
@@ -5165,9 +5165,9 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     forwardForce = 0.f;
 
   if (x304_orbitState == EPlayerOrbitState::NoOrbit || x3dd_lookButtonHeld) {
-    ApplyForceOR({0.f, forwardForce, jumpInput}, zeus::CAxisAngle::sIdentity);
+    ApplyForceOR({0.f, forwardForce, jumpInput}, zeus::CAxisAngle());
     if (zRotateInput != 0.f)
-      ApplyForceOR(zeus::CVector3f::skZero, zeus::CAxisAngle({0.f, 0.f, 1.f}, zRotateInput));
+      ApplyForceOR(zeus::skZero3f, zeus::CAxisAngle({0.f, 0.f, 1.f}, zRotateInput));
     if (x37c_sidewaysDashing)
       x38c_doneSidewaysDashing = true;
     x37c_sidewaysDashing = false;
@@ -5185,7 +5185,7 @@ void CPlayer::ComputeMovement(const CFinalInput& input, CStateManager& mgr, floa
     default:
       break;
     }
-    ApplyForceOR({0.f, 0.f, jumpInput}, zeus::CAxisAngle::sIdentity);
+    ApplyForceOR({0.f, 0.f, jumpInput}, zeus::CAxisAngle());
   }
 
   if (x3dc_inFreeLook || x3dd_lookButtonHeld) {
@@ -5253,8 +5253,8 @@ void CPlayer::SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr)
         if (const auto& effect = water->GetUnmorphVisorRunoffEffect()) {
           CHUDBillboardEffect* sheets = new CHUDBillboardEffect(
               *effect, {}, mgr.AllocateUniqueId(), true, "WaterSheets", CHUDBillboardEffect::GetNearClipDistance(mgr),
-              CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::CColor::skWhite, zeus::CVector3f::skOne,
-              zeus::CVector3f::skZero);
+              CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f,
+              zeus::skZero3f);
           mgr.AddObject(sheets);
         }
         CSfxHandle hnd =
@@ -5284,11 +5284,11 @@ bool CPlayer::CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) c
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildColliderList(nearList, *this, aabb);
   const zeus::CAABox& baseAABB = GetBaseBoundingBox();
-  pos = zeus::CVector3f::skZero;
+  pos = zeus::skZero3f;
   for (int i = 0; i < 8; ++i) {
     zeus::CAABox aabb(baseAABB.min + pos + GetTranslation(), baseAABB.max + pos + GetTranslation());
     CCollidableAABox cAABB(aabb, CMaterialList());
-    if (!CGameCollision::DetectCollisionBoolean(mgr, cAABB, zeus::CTransform::Identity(), filter, nearList))
+    if (!CGameCollision::DetectCollisionBoolean(mgr, cAABB, zeus::CTransform(), filter, nearList))
       return true;
     pos.z() += 0.1f;
   }
@@ -5318,7 +5318,7 @@ void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
 void CPlayer::LeaveMorphBallState(CStateManager& mgr) {
   x730_transitionModels.clear();
   AddMaterial(EMaterialTypes::GroundCollider, mgr);
-  x150_momentum = zeus::CVector3f::skZero;
+  x150_momentum = zeus::skZero3f;
   SetMorphBallState(EPlayerMorphBallState::Unmorphed, mgr);
   SetHudDisable(FLT_EPSILON, 0.f, 2.f);
   SetHudDisable(FLT_EPSILON, 0.f, 2.f);
@@ -5354,7 +5354,7 @@ void CPlayer::EnterMorphBallState(CStateManager& mgr) {
   x768_morphball->EnterMorphBallState(mgr);
   x768_morphball->TakeDamage(-1.f);
   x768_morphball->SetDamageTimer(0.f);
-  mgr.GetPlayerState()->StartVisorTransition(CPlayerState::EPlayerVisor::Combat);
+  mgr.GetPlayerState()->StartTransitionToVisor(CPlayerState::EPlayerVisor::Combat);
 }
 
 void CPlayer::ActivateMorphBallCamera(CStateManager& mgr) {
@@ -5581,7 +5581,7 @@ bool CPlayer::CFailsafeTest::Passes() const {
   if (notEqualStates == 0 && x0_stateSamples[0] == EInputState::StartingJump) {
     float inputMag = (inputAABB.max - inputAABB.min).magnitude();
     zeus::CAABox inputFrom0AABB(inputAABB);
-    inputFrom0AABB.accumulateBounds(zeus::CVector3f::skZero);
+    inputFrom0AABB.accumulateBounds(zeus::skZero3f);
     bool test2 = true;
     if ((inputFrom0AABB.max - inputFrom0AABB.min).magnitude() >= 0.01f && inputMag <= 1.5f)
       test2 = false;
@@ -5649,7 +5649,7 @@ void CPlayer::UpdateSubmerged(CStateManager& mgr) {
   if (xe6_24_fluidCounter != 0) {
     if (TCastToPtr<CScriptWater> water = mgr.ObjectById(xc4_fluidId)) {
       x828_distanceUnderWater =
-          -(zeus::CVector3f::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z());
+          -(zeus::skUp.dot(x34_transform.origin) - water->GetTriggerBoundsWR().max.z());
       EFluidType fluidType = water->GetFluidPlane().GetFluidType();
       x82c_inLava = (fluidType == EFluidType::Lava || fluidType == EFluidType::ThickLava);
       CheckSubmerged();

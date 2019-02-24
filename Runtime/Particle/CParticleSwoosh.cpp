@@ -45,11 +45,11 @@ CParticleSwoosh::CParticleSwoosh(const TToken<CSwooshDescription>& desc, int len
     x15c_swooshes.clear();
     x15c_swooshes.reserve(x1b4_LENG);
     for (int i = 0; i < x1b4_LENG; ++i)
-      x15c_swooshes.emplace_back(zeus::CVector3f::skZero, zeus::CVector3f::skZero, 0.f, 0.f, 0, false,
-                                 zeus::CTransform::Identity(), zeus::CVector3f::skZero, 0.f, 0.f,
-                                 zeus::CColor::skClear);
+      x15c_swooshes.emplace_back(zeus::skZero3f, zeus::skZero3f, 0.f, 0.f, 0, false,
+                                 zeus::CTransform(), zeus::skZero3f, 0.f, 0.f,
+                                 zeus::skClear);
 
-    SetOrientation(zeus::CTransform::Identity());
+    SetOrientation(zeus::CTransform());
 
     x16c_p0.resize(x1b8_SIDE);
     x17c_p1.resize(x1b8_SIDE);
@@ -234,7 +234,7 @@ bool CParticleSwoosh::Update(double dt) {
       if (CColorElement* colr = x1c_desc->x14_COLR.get())
         colr->GetValue(x28_curFrame, x15c_swooshes[x158_curParticle].x6c_color);
       else
-        x15c_swooshes[x158_curParticle].x6c_color = zeus::CColor::skWhite;
+        x15c_swooshes[x158_curParticle].x6c_color = zeus::skWhite;
 
       int tspn = 0;
       if (CIntElement* tspnElem = x1c_desc->x40_TSPN.get())
@@ -452,7 +452,7 @@ void CParticleSwoosh::Render3SidedSolidSpline() {
 
   int curIdx = x158_curParticle;
   float curUvSpan = -x1e8_uvSpan;
-  zeus::CColor prevColor0 = zeus::CColor::skClear;
+  zeus::CColor prevColor0 = zeus::skClear;
   for (int i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[curIdx];
 
@@ -517,10 +517,10 @@ void CParticleSwoosh::Render3SidedSolidSpline() {
         // int vertCount = (x1b0_SPLN + 1) * 12;
         float uv1 = 0.f;
         zeus::CColor useColor1 = prevColor1;
-        zeus::CVector3f v01 = zeus::CVector3f::skZero;
-        zeus::CVector3f v11 = zeus::CVector3f::skZero;
-        zeus::CVector3f v21 = zeus::CVector3f::skZero;
-        zeus::CColor c1 = zeus::CColor::skClear;
+        zeus::CVector3f v01 = zeus::skZero3f;
+        zeus::CVector3f v11 = zeus::skZero3f;
+        zeus::CVector3f v21 = zeus::skZero3f;
+        zeus::CColor c1 = zeus::skClear;
         float uvDelta = prevUvSpan - curUvSpan;
         for (int j = 0; j < x1b0_SPLN + 1; ++j) {
           float uv0 = uv1;
@@ -578,7 +578,7 @@ void CParticleSwoosh::Render3SidedSolidNoSplineNoGaps() {
 
   int curIdx = x158_curParticle;
   bool lastActive = false;
-  zeus::CColor c0 = zeus::CColor::skClear;
+  zeus::CColor c0 = zeus::skClear;
   float uv0 = -x1e8_uvSpan;
   for (int i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[curIdx];
@@ -726,7 +726,7 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
           ((zeus::CTransform::Translate(xa4_globalTranslation) * xb0_globalOrientation * xec_scaleXf).inverse() *
            CGraphics::g_ViewMatrix)
               .origin;
-      zeus::CVector3f dotVec = zeus::CVector3f::skZero;
+      zeus::CVector3f dotVec = zeus::skZero3f;
 
       for (int i = 0; i < x15c_swooshes.size(); ++i) {
         SSwooshData& swoosh = x15c_swooshes[curIdx];
@@ -1002,7 +1002,7 @@ u32 CParticleSwoosh::GetParticleCount() const { return x1ac_particleCount; }
 bool CParticleSwoosh::SystemHasLight() const { return false; }
 
 CLight CParticleSwoosh::GetLight() const {
-  return CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite);
+  return CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite);
 }
 
 bool CParticleSwoosh::GetParticleEmission() const { return x1d0_24_emitting; }

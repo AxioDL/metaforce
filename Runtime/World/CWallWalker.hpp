@@ -11,7 +11,7 @@ public:
 
 protected:
   CCollisionSurface x568_alignNormal =
-      CCollisionSurface(zeus::CVector3f(), zeus::CVector3f::skForward, zeus::CVector3f::skRight, -1);
+      CCollisionSurface(zeus::CVector3f(), zeus::skForward, zeus::skRight, -1);
   CCollidableSphere x590_colSphere;
   float x5b0_collisionCloseMargin;
   float x5b4_alignAngVel;

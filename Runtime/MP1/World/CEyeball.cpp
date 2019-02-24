@@ -125,7 +125,7 @@ void CEyeball::CreateBeam(CStateManager& mgr) {
                      150.f);
   x5ec_projectileId = mgr.AllocateUniqueId();
   mgr.AddObject(new CPlasmaProjectile(x5b4_projectileInfo.Token(), "EyeBall_Beam"sv, EWeaponType::AI, beamInfo,
-                                      zeus::CTransform::Identity(), EMaterialTypes::Immovable,
+                                      zeus::CTransform(), EMaterialTypes::Immovable,
                                       x5b4_projectileInfo.GetDamage(), x5ec_projectileId, GetAreaIdAlways(),
                                       GetUniqueId(), {}, false, EProjectileAttrib::KeepInCinematic));
 }

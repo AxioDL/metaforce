@@ -374,7 +374,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
   if (phazonSuit) {
     // Draw into alpha buffer
     CModelFlags flags = xb4_drawFlags;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
     x64_modelData->Render(which, x34_transform, x90_actorLights.get(), flags);
@@ -384,7 +384,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
 
   if (x314_beamModelData && !x314_beamModelData->IsNull() && x64_modelData && !x64_modelData->IsNull()) {
     zeus::CTransform modelXf = GetTransform() * x64_modelData->GetScaledLocatorTransform("GUN_LCTR");
-    CModelFlags flags(5, 0, 3, zeus::CColor::skWhite);
+    CModelFlags flags(5, 0, 3, zeus::skWhite);
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
     flags.m_extendedShader = EExtendedShader::Lighting;
@@ -398,7 +398,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
     float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);
     float offsetX = std::sin(x34c_phazonOffsetAngle);
     float offsetY = std::sin(x34c_phazonOffsetAngle) * 0.5f;
-    g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::CColor::skWhite,
+    g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.1f, 1.f), x338_phazonIndirectTexture, zeus::skWhite,
                                              radius, 0.05f, offsetX, offsetY);
   }
 }

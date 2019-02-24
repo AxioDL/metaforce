@@ -60,7 +60,7 @@ void CHudDecoInterfaceCombat::SetDamageTransform(const zeus::CMatrix3f& rotation
 }
 
 void CHudDecoInterfaceCombat::SetFrameColorValue(float v) {
-  zeus::CColor color = v > 0.f ? zeus::CColor::skWhite : g_tweakGuiColors->GetHudFrameColor();
+  zeus::CColor color = v > 0.f ? zeus::skWhite : g_tweakGuiColors->GetHudFrameColor();
   x7c_basewidget_frame->SetColor(color);
 }
 
@@ -76,7 +76,7 @@ void CHudDecoInterfaceCombat::UpdateCameraDebugSettings(float fov, float y, floa
 }
 
 void CHudDecoInterfaceCombat::UpdateHudAlpha() {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   x70_basewidget_pivot->SetColor(color);
 }
@@ -180,8 +180,8 @@ void CHudDecoInterfaceScan::InitializeFlatFrame() {
   x25c_flat_energybart01_scanbar->SetCoordFunc(CAuiEnergyBarT01::DownloadBarCoordFunc);
   x25c_flat_energybart01_scanbar->ResetMaxEnergy();
   x25c_flat_energybart01_scanbar->SetFilledColor(zeus::CColor(0.4f, 0.68f, 0.88f, 1.f));
-  x25c_flat_energybart01_scanbar->SetShadowColor(zeus::CColor::skClear);
-  x25c_flat_energybart01_scanbar->SetEmptyColor(zeus::CColor::skClear);
+  x25c_flat_energybart01_scanbar->SetShadowColor(zeus::skClear);
+  x25c_flat_energybart01_scanbar->SetEmptyColor(zeus::skClear);
   x25c_flat_energybart01_scanbar->SetFilledDrainSpeed(999.f);
   x25c_flat_energybart01_scanbar->SetShadowDrainSpeed(999.f);
   x25c_flat_energybart01_scanbar->SetShadowDrainDelay(0.f);
@@ -262,7 +262,7 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
       x238_scanningTextAlpha = std::max(0.f, x238_scanningTextAlpha - dt);
 
   if (x238_scanningTextAlpha > 0.f) {
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = std::min(x238_scanningTextAlpha, 1.f);
     x254_flat_textpane_scanning->SetColor(color);
     x254_flat_textpane_scanning->SetIsVisible(true);
@@ -276,7 +276,7 @@ void CHudDecoInterfaceScan::UpdateScanDisplay(const CStateManager& stateMgr, flo
     x23c_scanBarAlpha = std::max(0.f, x23c_scanBarAlpha - 2.f * dt);
 
   if (x23c_scanBarAlpha > 0.f) {
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = std::min(x23c_scanBarAlpha, 1.f);
     x258_flat_basewidget_scanguage->SetColor(color);
     x258_flat_basewidget_scanguage->SetVisibility(true, ETraversalMode::Children);
@@ -337,7 +337,7 @@ void CHudDecoInterfaceScan::UpdateCameraDebugSettings(float fov, float y, float 
 }
 
 void CHudDecoInterfaceScan::UpdateHudAlpha() {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   x248_basewidget_pivot->SetColor(color);
 }
@@ -429,7 +429,7 @@ void CHudDecoInterfaceXRay::UpdateCameraDebugSettings(float fov, float y, float 
 }
 
 void CHudDecoInterfaceXRay::UpdateHudAlpha() {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   xa4_basewidget_pivot->SetColor(color);
 }
@@ -520,7 +520,7 @@ void CHudDecoInterfaceThermal::Update(float dt, const CStateManager& stateMgr) {
   if (x6c_retflashTimer > 1.f)
     x6c_retflashTimer -= 2.f;
 
-  zeus::CColor flashColor = zeus::CColor::skWhite;
+  zeus::CColor flashColor = zeus::skWhite;
   flashColor.a() = std::fabs(x6c_retflashTimer) * 0.5f + 0.5f;
   x80_model_retflash->SetColor(flashColor);
 
@@ -537,7 +537,7 @@ void CHudDecoInterfaceThermal::UpdateCameraDebugSettings(float fov, float y, flo
 }
 
 void CHudDecoInterfaceThermal::UpdateHudAlpha() {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   x78_basewidget_pivot->SetColor(color);
 }

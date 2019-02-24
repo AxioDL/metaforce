@@ -44,7 +44,7 @@ public:
     std::unique_ptr<CRainSplashGenerator> xd4_rainSplashGen;
     TToken<CTexture> xdc_ashy;
     std::unique_ptr<CElementGen> xe4_icePopGen;
-    zeus::CVector3f xec_particleOffsetScale = zeus::CVector3f::skOne;
+    zeus::CVector3f xec_particleOffsetScale = zeus::skOne3f;
     zeus::CTransform xf8_iceXf;
     CActorModelParticles& x128_parent;
     union {

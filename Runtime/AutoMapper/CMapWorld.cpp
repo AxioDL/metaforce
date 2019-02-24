@@ -259,7 +259,7 @@ void CMapWorld::DrawAreas(const CMapWorld::CMapWorldDrawParms& parms, int selAre
     }
 
     zeus::CColor hintFlashColor =
-        zeus::CColor::lerp(zeus::CColor::skClear, zeus::CColor{1.f, 1.f, 1.f, 0.f}, parms.GetHintAreaFlashIntensity());
+        zeus::CColor::lerp(zeus::skClear, zeus::CColor{1.f, 1.f, 1.f, 0.f}, parms.GetHintAreaFlashIntensity());
 
     zeus::CColor finalSurfColor, finalOutlineColor;
     if (thisArea == selArea && inMapScreen) {

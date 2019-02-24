@@ -21,26 +21,32 @@ void MaterialSet::RegisterMaterialProps(Stream& out) {
          "\n";
 }
 
-void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx) {
+void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx, bool diffuse) {
   char mtxLabel[64];
   if (mtxIdx == -1)
     strncpy(mtxLabel, "IDENTITY", 64);
   else
     snprintf(mtxLabel, 64, "MTX_%u", mtxIdx);
 
+  char texLabel[64];
+  if (diffuse)
+    strncpy(texLabel, "Diffuse", 64);
+  else
+    strncpy(texLabel, "Texture", 64);
+
   out.format(
       "# Texture\n"
       "tex_uv_node = new_nodetree.nodes.new('ShaderNodeGeometry')\n"
       "tex_uv_node.label = '%s'\n"
       "tex_node = new_nodetree.nodes.new('ShaderNodeTexture')\n"
-      "tex_node.label = 'Texture %u'\n"
+      "tex_node.label = '%s %u'\n"
       "texture_nodes.append(tex_node)\n"
       "gridder.place_node(tex_uv_node, 1)\n"
       "gridder.place_node(tex_node, 1)\n"
       "tex_uv_node.location[0] -= 120\n"
       "tex_node.location[0] += 120\n"
       "tex_node.location[1] += 176\n",
-      mtxLabel, texIdx);
+      mtxLabel, texLabel, texIdx);
 
   if (texIdx != 0xff)
     out.format("tex_node.texture = tex_maps[%u]\n", texIdx);
@@ -750,6 +756,7 @@ void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, uns
 
   /* Add texture maps/tcgs */
   unsigned addedTcgs = 0;
+  bool diffuseStage = false;
   for (i = 0; i < material.tevStageCount; ++i) {
     if (material.tevStageTexInfo[i].tcgSlot != 0xff && !(addedTcgs >> material.tevStageTexInfo[i].tcgSlot & 1)) {
       const Material::TexCoordGen& tcg = material.tcgs[material.tevStageTexInfo[i].tcgSlot];
@@ -757,14 +764,15 @@ void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, uns
       int mtxIdx = -1;
       if (mtx >= GX::TEXMTX0 && mtx <= GX::TEXMTX9)
         mtxIdx = (mtx - GX::TEXMTX0) / 3;
-      Material::AddTexture(out, tcg.source(), mtxIdx, material.tevStageTexInfo[i].texSlot);
+      Material::AddTexture(out, tcg.source(), mtxIdx, material.tevStageTexInfo[i].texSlot, diffuseStage);
       addedTcgs |= 1 << material.tevStageTexInfo[i].tcgSlot;
     }
+    diffuseStage = material.tevStages[i].colorOpOutReg() == GX::TEVREG0;
   }
 
   /* Indirect texture node */
   if (material.flags.samusReflectionIndirectTexture()) {
-    Material::AddTexture(out, GX::TexGenSrc::TG_POS, -1, material.indTexSlot[0]);
+    Material::AddTexture(out, GX::TexGenSrc::TG_POS, -1, material.indTexSlot[0], false);
     out << "# Indirect Texture\n"
            "ind_out = new_nodetree.nodes.new('ShaderNodeOutput')\n"
            "gridder.place_node(ind_out, 3)\n"

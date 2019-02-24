@@ -138,7 +138,7 @@ zeus::CVector3f CSpankWeed::GetOrbitPosition(const CStateManager& mgr) const {
 }
 
 zeus::CVector3f CSpankWeed::GetAimPosition(const CStateManager&, float dt) const {
-  zeus::CVector3f pos = (dt > 0.f ? PredictMotion(dt).x0_translation : zeus::CVector3f::skZero);
+  zeus::CVector3f pos = (dt > 0.f ? PredictMotion(dt).x0_translation : zeus::skZero3f);
 
   CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
   if (id != 0xFF) {

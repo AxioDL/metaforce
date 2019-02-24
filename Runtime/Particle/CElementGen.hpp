@@ -70,14 +70,14 @@ private:
   zeus::CVector3f xe8_globalTranslation;
   zeus::CVector3f xf4_POFS;
   zeus::CVector3f x100_globalScale = {1.f, 1.f, 1.f};
-  zeus::CTransform x10c_globalScaleTransform = zeus::CTransform::Identity();
-  zeus::CTransform x13c_globalScaleTransformInverse = zeus::CTransform::Identity();
+  zeus::CTransform x10c_globalScaleTransform = zeus::CTransform();
+  zeus::CTransform x13c_globalScaleTransformInverse = zeus::CTransform();
   zeus::CVector3f x16c_localScale = {1.f, 1.f, 1.f};
-  zeus::CTransform x178_localScaleTransform = zeus::CTransform::Identity();
-  zeus::CTransform x1a8_localScaleTransformInverse = zeus::CTransform::Identity();
-  zeus::CTransform x1d8_orientation = zeus::CTransform::Identity();
-  zeus::CTransform x208_orientationInverse = zeus::CTransform::Identity();
-  zeus::CTransform x22c_globalOrientation = zeus::CTransform::Identity();
+  zeus::CTransform x178_localScaleTransform = zeus::CTransform();
+  zeus::CTransform x1a8_localScaleTransformInverse = zeus::CTransform();
+  zeus::CTransform x1d8_orientation = zeus::CTransform();
+  zeus::CTransform x208_orientationInverse = zeus::CTransform();
+  zeus::CTransform x22c_globalOrientation = zeus::CTransform();
 
   u32 x25c_activeParticleCount = 0;
   u32 x260_cumulativeParticles = 0;
@@ -123,9 +123,9 @@ private:
   zeus::CVector3f x2d4_aabbMin;
   zeus::CVector3f x2e0_aabbMax;
   float x2ec_maxSize = 0.f;
-  zeus::CAABox x2f0_systemBounds = zeus::CAABox::skInvertedBox;
+  zeus::CAABox x2f0_systemBounds = zeus::CAABox();
   LightType x308_lightType;
-  zeus::CColor x30c_LCLR = zeus::CColor::skWhite;
+  zeus::CColor x30c_LCLR = zeus::skWhite;
   float x310_LINT = 1.f;
   zeus::CVector3f x314_LOFF;
   zeus::CVector3f x320_LDIR = {1.f, 0.f, 0.f};

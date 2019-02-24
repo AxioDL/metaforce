@@ -17,7 +17,7 @@ CPhysicsActor::CPhysicsActor(TUniqueId uid, bool active, std::string_view name, 
 , x240_stepDownHeight(stepDown) {
   xf8_24_movable = true;
   SetMass(moverData.x30_mass);
-  MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  MoveCollisionPrimitive(zeus::skZero3f);
   SetVelocityOR(moverData.x0_velocity);
   SetAngularVelocityOR(moverData.xc_angularVelocity);
   ComputeDerivedQuantities();
@@ -54,7 +54,7 @@ void CPhysicsActor::MoveCollisionPrimitive(const zeus::CVector3f& offset) { x1e8
 
 void CPhysicsActor::SetBoundingBox(const zeus::CAABox& box) {
   x1a4_baseBoundingBox = box;
-  MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  MoveCollisionPrimitive(zeus::skZero3f);
 }
 
 zeus::CAABox CPhysicsActor::GetMotionVolume(float dt) const {
@@ -182,7 +182,7 @@ void CPhysicsActor::MoveToWR(const zeus::CVector3f& trans, float d) {
 
 zeus::CAxisAngle CPhysicsActor::GetRotateToORAngularMomentumWR(const zeus::CQuaternion& q, float d) const {
   if (q.w() > 0.99999976)
-    return zeus::CAxisAngle::skZero;
+    return zeus::CAxisAngle();
   return (xf0_inertiaTensor *
           (((2.f * std::acos(q.w())) * (1.f / d)) * x34_transform.rotate(q.getImaginary()).normalized()));
 }
@@ -192,19 +192,19 @@ zeus::CVector3f CPhysicsActor::GetMoveToORImpulseWR(const zeus::CVector3f& trans
 }
 
 void CPhysicsActor::ClearImpulses() {
-  x18c_moveImpulse = x168_impulse = zeus::CVector3f::skZero;
-  x198_moveAngularImpulse = x180_angularImpulse = zeus::CAxisAngle::skZero;
+  x18c_moveImpulse = x168_impulse = zeus::skZero3f;
+  x198_moveAngularImpulse = x180_angularImpulse = zeus::CAxisAngle();
 }
 
 void CPhysicsActor::ClearForcesAndTorques() {
-  x18c_moveImpulse = x168_impulse = x15c_force = zeus::CVector3f::skZero;
-  x198_moveAngularImpulse = x180_angularImpulse = x174_torque = zeus::CAxisAngle::skZero;
+  x18c_moveImpulse = x168_impulse = x15c_force = zeus::skZero3f;
+  x198_moveAngularImpulse = x180_angularImpulse = x174_torque = zeus::CAxisAngle();
 }
 
 void CPhysicsActor::Stop() {
   ClearForcesAndTorques();
-  xfc_constantForce = zeus::CVector3f::skZero;
-  x108_angularMomentum = zeus::CAxisAngle::skZero;
+  xfc_constantForce = zeus::skZero3f;
+  x108_angularMomentum = zeus::CAxisAngle();
   ComputeDerivedQuantities();
 }
 
@@ -215,14 +215,14 @@ void CPhysicsActor::ComputeDerivedQuantities() {
 }
 
 bool CPhysicsActor::WillMove(const CStateManager&) {
-  return !zeus::close_enough(zeus::CVector3f::skZero, x138_velocity) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x168_impulse) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x174_torque) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x18c_moveImpulse) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x144_angularVelocity) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x180_angularImpulse) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, x198_moveAngularImpulse) ||
-         !zeus::close_enough(zeus::CVector3f::skZero, GetTotalForcesWR());
+  return !zeus::close_enough(zeus::skZero3f, x138_velocity) ||
+         !zeus::close_enough(zeus::skZero3f, x168_impulse) ||
+         !zeus::close_enough(zeus::skZero3f, x174_torque) ||
+         !zeus::close_enough(zeus::skZero3f, x18c_moveImpulse) ||
+         !zeus::close_enough(zeus::skZero3f, x144_angularVelocity) ||
+         !zeus::close_enough(zeus::skZero3f, x180_angularImpulse) ||
+         !zeus::close_enough(zeus::skZero3f, x198_moveAngularImpulse) ||
+         !zeus::close_enough(zeus::skZero3f, GetTotalForcesWR());
 }
 
 void CPhysicsActor::SetPhysicsState(const CPhysicsState& state) {
@@ -265,16 +265,16 @@ CMotionState CPhysicsActor::PredictMotion(float dt) const {
 CMotionState CPhysicsActor::PredictLinearMotion(float dt) const {
   zeus::CVector3f velocity = CalculateNewVelocityWR_UsingImpulses();
   return {velocity * dt,
-          {0.f, zeus::CVector3f::skZero},
+          {0.f, zeus::skZero3f},
           ((x15c_force + x150_momentum) * dt) + x168_impulse,
-          zeus::CAxisAngle::skZero};
+          zeus::CAxisAngle()};
 }
 
 CMotionState CPhysicsActor::PredictAngularMotion(float dt) const {
   const zeus::CVector3f v1 = xf4_inertiaTensorRecip * (x180_angularImpulse + x198_moveAngularImpulse);
   zeus::CNUQuaternion q = 0.5f * zeus::CNUQuaternion(0.f, x144_angularVelocity.getVector() + v1);
-  CMotionState ret = {zeus::CVector3f::skZero, (q * zeus::CNUQuaternion(x34_transform.buildMatrix3f())) * dt,
-                      zeus::CVector3f::skZero, (x174_torque * dt) + x180_angularImpulse};
+  CMotionState ret = {zeus::skZero3f, (q * zeus::CNUQuaternion(x34_transform.buildMatrix3f())) * dt,
+                      zeus::skZero3f, (x174_torque * dt) + x180_angularImpulse};
   return ret;
 }
 
@@ -304,8 +304,8 @@ void CPhysicsActor::UseCollisionImpulses() {
   xfc_constantForce += x168_impulse;
   x108_angularMomentum += x180_angularImpulse;
 
-  x168_impulse = zeus::CVector3f::skZero;
-  x180_angularImpulse = zeus::CAxisAngle::skZero;
+  x168_impulse = zeus::skZero3f;
+  x180_angularImpulse = zeus::CAxisAngle();
   ComputeDerivedQuantities();
 }
 

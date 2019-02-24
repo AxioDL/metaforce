@@ -399,7 +399,7 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
     CEnergyProjectile* proj =
     new CEnergyProjectile(true, x37c_projectileInfo.Token(), EWeaponType::AI, useXf, EMaterialTypes::Character,
                           x37c_projectileInfo.GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(),
-                          kInvalidUniqueId, EProjectileAttrib::None, false, zeus::CVector3f::skOne,
+                          kInvalidUniqueId, EProjectileAttrib::None, false, zeus::skOne3f,
                           x458_visorEffectDesc, x2d4_data.GetVisorSoundId(), false);
     mgr.AddObject(proj);
     auto pair =
@@ -495,11 +495,11 @@ void CScriptGunTurret::Render(const CStateManager& mgr) const {
   } else if (x258_type == ETurretComponent::Base) {
     if (x4a4_extensionModel && x4f8_extensionT > 0.f) {
       zeus::CTransform xf = GetTransform();
-      xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::CVector3f::skDown);
+      xf.origin = x4fc_extensionOffset + (x4f4_extensionRange * 0.5f * zeus::skDown);
       CModelFlags flags;
       flags.x2_flags = 3;
       flags.x1_matSetIdx = 0;
-      flags.x4_color = zeus::CColor::skWhite;
+      flags.x4_color = zeus::skWhite;
       x4a4_extensionModel->Render(mgr, xf, x90_actorLights.get(), flags);
     }
   }
@@ -517,7 +517,7 @@ void CScriptGunTurret::UpdateFrozenState(float dt, CStateManager& mgr) {
     if (x53c_freezeRemTime <= 0.f) {
       x560_25_frozen = false;
       SendScriptMsgs(EScriptObjectState::UnFrozen, mgr, EScriptObjectMessage::None);
-      CSfxManager::AddEmitter(x2d4_data.GetUnFreezeSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+      CSfxManager::AddEmitter(x2d4_data.GetUnFreezeSoundId(), GetTranslation(), zeus::skUp, false, false,
                               0x7f, GetAreaIdAlways());
       SetMuted(false);
     } else if (x2d4_data.GetFreezeTimeout()) {
@@ -758,7 +758,7 @@ void CScriptGunTurret::ProcessReadyState(EStateMsg msg, CStateManager& mgr, floa
 
     if (IsPlayerInFiringRange(mgr) && InDetectionRange(mgr)) {
       SetTurretState(ETurretState::Targeting, mgr);
-      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
+      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                               GetAreaIdAlways());
     } else {
       SetTurretState(ETurretState::PanningA, mgr);
@@ -773,7 +773,7 @@ void CScriptGunTurret::ProcessPanningState(EStateMsg msg, CStateManager& mgr, fl
   } else if (msg == EStateMsg::Update) {
     if (IsPlayerInFiringRange(mgr) && InDetectionRange(mgr)) {
       SetTurretState(ETurretState::Targeting, mgr);
-      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false, 0x7f,
+      CSfxManager::AddEmitter(x2d4_data.GetLockOnSoundId(), GetTranslation(), zeus::skUp, false, false, 0x7f,
                               GetAreaIdAlways());
     } else {
       x52c_curActiveTime += dt;
@@ -897,7 +897,7 @@ bool CScriptGunTurret::IsPlayerInFiringRange(CStateManager& mgr) const {
   if (zeus::CVector3f::getAngleDiff(x544_originalFrontVec, someVec) <= x2d4_data.GetLeftMaxAngle())
     return true;
 
-  float biasedAngle = zeus::CVector3f::getAngleDiff(posDif, zeus::CVector3f::skUp) - zeus::degToRad(90.f);
+  float biasedAngle = zeus::CVector3f::getAngleDiff(posDif, zeus::skUp) - zeus::degToRad(90.f);
 
   return (biasedAngle >= zeus::degToRad(-20.f) && biasedAngle <= x2d4_data.GetDownMaxAngle());
 }
@@ -925,7 +925,7 @@ bool CScriptGunTurret::LineOfSightTest(CStateManager& mgr) const {
 
 bool CScriptGunTurret::InDetectionRange(CStateManager& mgr) const {
   zeus::CVector3f delta = mgr.GetPlayer().GetTranslation() - GetTranslation();
-  if (delta.dot(zeus::CVector3f::skDown) >= 0.f ||
+  if (delta.dot(zeus::skDown) >= 0.f ||
       zeus::CVector3f::getAngleDiff(GetTransform().frontVector(), delta) <= zeus::degToRad(20.f))
     if (delta.magSquared() <= x2d4_data.GetDetectionRange() * x2d4_data.GetDetectionRange())
       if (x2d4_data.GetDetectionZRange() == 0.f || std::fabs(delta.z()) < x2d4_data.GetDetectionZRange())
@@ -954,7 +954,7 @@ zeus::CVector3f CScriptGunTurret::UpdateExtensionModelState(float dt) {
   case ETurretState::Frenzy:
     break;
   }
-  return (x4fc_extensionOffset + (x2d4_data.GetExtensionDropDownDist() * x4f8_extensionT * zeus::CVector3f::skDown)) -
+  return (x4fc_extensionOffset + (x2d4_data.GetExtensionDropDownDist() * x4f8_extensionT * zeus::skDown)) -
     GetTranslation();
 }
 
@@ -1088,7 +1088,7 @@ void CScriptGunTurret::UpdateTargettingSound(float dt) {
   if (x560_30_needsStopClankSound && angleDiff2D < zeus::degToRad(20.f) &&
       (x520_state == ETurretState::Targeting || x520_state == ETurretState::Firing)) {
     if (!x560_25_frozen)
-      CSfxManager::AddEmitter(x2d4_data.GetStopClankSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+      CSfxManager::AddEmitter(x2d4_data.GetStopClankSoundId(), GetTranslation(), zeus::skUp, false, false,
                               127, GetAreaIdAlways());
     x560_30_needsStopClankSound = false;
   }
@@ -1099,7 +1099,7 @@ void CScriptGunTurret::UpdateTargettingSound(float dt) {
       bool insignificant = IsInsignificantRotation(dt);
       if (!insignificant && !x50c_targetingEmitter)
         x50c_targetingEmitter = CSfxManager::AddEmitter(x2d4_data.GetTrackingSoundId(), GetTranslation(),
-                                                        zeus::CVector3f::skUp, false, true, 127, GetAreaIdAlways());
+                                                        zeus::skUp, false, true, 127, GetAreaIdAlways());
       else if (insignificant && x50c_targetingEmitter) {
         CSfxManager::RemoveEmitter(x50c_targetingEmitter);
         x50c_targetingEmitter.reset();
@@ -1147,7 +1147,7 @@ void CScriptGunTurret::UpdateTargettingMode(float dt, CStateManager& mgr) {
   if (x534_fireCycleRemTime > 0.f) {
     x534_fireCycleRemTime -= dt;
     if (x534_fireCycleRemTime < x538_halfFireCycleDur && x520_state != ETurretState::Firing) {
-      CSfxManager::AddEmitter(x2d4_data.GetChargingSoundId(), GetTranslation(), zeus::CVector3f::skUp, false, false,
+      CSfxManager::AddEmitter(x2d4_data.GetChargingSoundId(), GetTranslation(), zeus::skUp, false, false,
                               0x7f, GetAreaIdAlways());
       SetTurretState(ETurretState::Firing, mgr);
       return;

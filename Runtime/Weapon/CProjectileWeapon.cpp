@@ -58,7 +58,7 @@ CProjectileWeapon::CProjectileWeapon(const TToken<CWeaponDescription>& wDesc, co
     xf.rotateLocalZ(zeus::degToRad(orn.z()));
     SetRelativeOrientation(xf);
   } else {
-    SetRelativeOrientation(zeus::CTransform::Identity());
+    SetRelativeOrientation(zeus::CTransform());
   }
   if (x4_weaponDesc->x84_OHEF)
     x108_model.emplace(x4_weaponDesc->x84_OHEF.m_token);
@@ -152,11 +152,11 @@ rstl::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccure
   zeus::CVector3f posToTarget = target - GetTranslation();
   if (deflected) {
     if (useTarget && posToTarget.canBeNormalized()) {
-      SetWorldSpaceOrientation(zeus::lookAt(zeus::CVector3f::skZero, posToTarget.normalized()));
+      SetWorldSpaceOrientation(zeus::lookAt(zeus::skZero3f, posToTarget.normalized()));
     } else {
       zeus::CTransform xf = GetTransform();
       SetWorldSpaceOrientation(
-          zeus::lookAt(zeus::CVector3f::skZero, xf.basis[1] - normal * (normal.dot(xf.basis[1]) * 2.f), normal));
+          zeus::lookAt(zeus::skZero3f, xf.basis[1] - normal * (normal.dot(xf.basis[1]) * 2.f), normal));
     }
     return {};
   } else {
@@ -219,7 +219,7 @@ void CProjectileWeapon::Render() const {
   std::vector<CLight> useLights;
   useLights.push_back(CLight::BuildLocalAmbient({}, xc8_ambientLightColor));
   const_cast<CModel&>(**x108_model).GetInstance().ActivateLights(useLights);
-  CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+  CModelFlags flags(0, 0, 3, zeus::skWhite);
   (*x108_model)->Draw(flags);
 }
 

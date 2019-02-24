@@ -164,7 +164,7 @@ const zeus::CVector3f& CMapArea::GetAreaPostTranslate(const IWorld& world, TArea
   if (world.IGetWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0xB1AC4D65)) // Phazon Mines
     return MinesPostTransforms[MinesPostTransformIndices[aid]];
   else
-    return zeus::CVector3f::skZero;
+    return zeus::skZero3f;
 }
 
 CMapArea::CMapAreaSurface::CMapAreaSurface(const void* surfBuf) {

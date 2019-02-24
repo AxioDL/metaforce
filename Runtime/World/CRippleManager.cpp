@@ -5,7 +5,7 @@ namespace urde {
 CRippleManager::CRippleManager(int maxRipples, float alpha) : x14_alpha(alpha) { Init(maxRipples); }
 
 void CRippleManager::Init(int maxRipples) {
-  x4_ripples.resize(maxRipples, CRipple(kInvalidUniqueId, zeus::CVector3f::skZero, 0.f));
+  x4_ripples.resize(maxRipples, CRipple(kInvalidUniqueId, zeus::skZero3f, 0.f));
   for (CRipple& r : x4_ripples)
     r.SetTime(9999.f);
 }

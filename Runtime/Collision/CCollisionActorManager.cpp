@@ -73,7 +73,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
                 zeus::CVector3f upVector = locXf.basis[2];
                 if (zeus::close_enough(std::fabs(delta.dot(upVector)), 1.f))
                   upVector = locXf.basis[1];
-                zeus::CTransform lookAt = zeus::lookAt(zeus::CVector3f::skZero, delta, upVector);
+                zeus::CTransform lookAt = zeus::lookAt(zeus::skZero3f, delta, upVector);
                 newAct2->SetTransform(zeus::CTransform::Translate(lookAt.basis[1] * separation + locXf.origin));
               }
               mgr.AddObject(newAct2);

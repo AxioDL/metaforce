@@ -10,7 +10,7 @@ CTargetableProjectile::CTargetableProjectile(
 : CEnergyProjectile(true, desc, type, xf, materials, damage, uid, aid, owner, homingTarget,
                     attribs | EProjectileAttrib::BigProjectile | EProjectileAttrib::PartialCharge |
                         EProjectileAttrib::PlasmaProjectile,
-                    false, zeus::CVector3f::skOne, visorParticle, visorSfx, sendCollideMsg)
+                    false, zeus::skOne3f, visorParticle, visorSfx, sendCollideMsg)
 , x3e0_dInfo2(damage2) {
   x68_material.Add(EMaterialTypes::Target);
   x68_material.Add(EMaterialTypes::Orbit);

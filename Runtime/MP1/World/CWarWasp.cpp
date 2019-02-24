@@ -64,7 +64,7 @@ void CWarWasp::ApplyDamage(CStateManager& mgr) {
     if (mgr.GetPlayer().GetBoundingBox().pointInside(
             GetTransform() * (GetLocatorTransform("LCTR_WARTAIL"sv).origin * x64_modelData->GetScale()))) {
       mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
-                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
       x72e_25_canApplyDamage = false;
     }
   }
@@ -151,7 +151,7 @@ void CWarWasp::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EU
     LaunchProjectile(
         zeus::lookAt(xf.origin, GetProjectileInfo()->PredictInterceptPos(xf.origin, aimPos, mgr.GetPlayer(), true, dt)),
         mgr, 4, EProjectileAttrib::None, false, {x71c_projectileVisorParticle}, x72c_projectileVisorSfx, true,
-        zeus::CVector3f::skOne);
+        zeus::skOne3f);
     handled = true;
     break;
   }
@@ -305,12 +305,12 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
     } else {
       x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), zeus::CVector3f::skZero, 1.f));
+          CBCLocomotionCmd(x45c_steeringBehaviors.Arrival(*this, teamPos, 3.f), zeus::skZero3f, 1.f));
       zeus::CVector3f target = GetTranslation();
       target.z() = float(teamPos.z());
       zeus::CVector3f moveVec = x45c_steeringBehaviors.Arrival(*this, target, 3.f);
       if (moveVec.magSquared() > 0.01f) {
-        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 3.f));
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 3.f));
       }
     }
   } else {
@@ -324,7 +324,7 @@ void CWarWasp::ApplyNormalSteering(CStateManager& mgr) {
     case 2:
       if (ShouldTurn(mgr, 30.f) && delta.canBeNormalized()) {
         x450_bodyController->GetCommandMgr().DeliverCmd(
-            CBCLocomotionCmd(zeus::CVector3f::skZero, delta.normalized(), 1.f));
+            CBCLocomotionCmd(zeus::skZero3f, delta.normalized(), 1.f));
       }
       break;
     default:
@@ -346,7 +346,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
         }
         zeus::CVector3f separation = x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), useSep);
         if (!separation.isZero()) {
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(separation, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(separation, zeus::skZero3f, 1.f));
         }
       }
     }
@@ -400,7 +400,7 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
         if (GetSearchPath() && !PathShagged(mgr, 0.f) && !GetSearchPath()->IsOver()) {
           CPatterned::PathFind(mgr, msg, dt);
         } else {
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 1.f));
         }
       } else {
         RemoveMaterial(EMaterialTypes::Solid, mgr);
@@ -408,9 +408,9 @@ bool CWarWasp::SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt)
         target.z() = float(x3a0_latestLeashPosition.z());
         zeus::CVector3f arrival2 = x45c_steeringBehaviors.Arrival(*this, target, 2.5f);
         if (arrival2.magSquared() > 0.01f) {
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(arrival2, zeus::CVector3f::skZero, 3.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(arrival2, zeus::skZero3f, 3.f));
         }
-        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 1.f));
       }
     }
     return false;
@@ -660,7 +660,7 @@ zeus::CVector3f CWarWasp::CalcShuffleDest(CStateManager& mgr) {
   if (playerDir2d.canBeNormalized())
     useDir = playerDir2d.normalized();
   else
-    useDir = zeus::CVector3f::skForward;
+    useDir = zeus::skForward;
   aimPos2d += useDir.toVec2f() * (7.5f + x300_maxAttackRange);
   zeus::CVector3f ret(aimPos2d);
   ret.z() = GetCloseInZBasis(mgr);
@@ -685,7 +685,7 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
         dest.z() = float(shuffleDest.z());
         zeus::CVector3f moveVec = x45c_steeringBehaviors.Arrival(*this, dest, 1.f);
         if (moveVec.magSquared() > 0.01f)
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 1.f));
       } else {
         zeus::CVector3f moveVec = shuffleDest - GetTranslation();
         moveVec.z() = zDelta;
@@ -695,7 +695,7 @@ void CWarWasp::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
           } else {
             x450_bodyController->GetCommandMgr().DeliverCmd(
-                CBCLocomotionCmd(x45c_steeringBehaviors.Seek(*this, shuffleDest), zeus::CVector3f::skZero, 1.f));
+                CBCLocomotionCmd(x45c_steeringBehaviors.Seek(*this, shuffleDest), zeus::skZero3f, 1.f));
             ApplySeparationBehavior(mgr, 15.f);
           }
         } else {
@@ -944,7 +944,7 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
       zeus::CVector3f moveVec = GetTransform().basis[1];
       if (closeInDelta.canBeNormalized()) {
         zeus::CVector3f closeInDeltaNorm = closeInDelta.normalized();
-        moveVec = closeInDeltaNorm.cross(zeus::CVector3f::skUp);
+        moveVec = closeInDeltaNorm.cross(zeus::skUp);
         zeus::CVector3f seekOrigin = x6b0_circleBurstPos + closeInDeltaNorm * x2fc_minAttackRange;
         if (x708_circleAttackTeam > 0)
           moveVec = moveVec * -1.f;
@@ -954,7 +954,7 @@ void CWarWasp::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float dt) {
             x45c_steeringBehaviors.Seek(*this, seekOrigin + moveVec * 5.f + zeus::CVector3f(0.f, 0.f, seekHeight)) *
             seekMag;
       }
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::CVector3f::skZero, 1.f));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(moveVec, zeus::skZero3f, 1.f));
       UpdateTelegraphMoveSpeed(mgr);
     }
     break;
@@ -994,7 +994,7 @@ void CWarWasp::Retreat(CStateManager& mgr, EStateMsg msg, float dt) {
   case EStateMsg::Update:
     x450_bodyController->GetCommandMgr().DeliverCmd(
         CBCLocomotionCmd(x45c_steeringBehaviors.Flee2D(*this, mgr.GetPlayer().GetTranslation().toVec2f()),
-                         zeus::CVector3f::skZero, 1.f));
+                         zeus::skZero3f, 1.f));
     break;
   case EStateMsg::Deactivate:
     x400_24_hitByPlayerProjectile = false;

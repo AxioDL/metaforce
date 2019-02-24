@@ -56,7 +56,7 @@ void CAtomicAlpha::Render(const CStateManager& mgr) const {
             std::min(1.f, std::max(0.f, bomb.x14_scaleTime - x570_bombReappearDelay) / x570_bombReappearDelay));
     CModelFlags flags;
     flags.x2_flags = 1 | 2;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     x690_bombModel.Render(mgr, locatorXf, x90_actorLights.get(), flags);
   }
 }
@@ -81,7 +81,7 @@ void CAtomicAlpha::Think(float dt, CStateManager& mgr) {
 void CAtomicAlpha::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::Projectile) {
     zeus::CVector3f origin = GetLctrTransform(node.GetLocatorName()).origin;
-    zeus::CTransform xf = zeus::lookAt(origin, origin + zeus::CVector3f::skDown, zeus::CVector3f::skUp);
+    zeus::CTransform xf = zeus::lookAt(origin, origin + zeus::skDown, zeus::skUp);
     LaunchProjectile(xf, mgr, 4, EProjectileAttrib::None, false, {}, 0xFFFF, false, zeus::CVector3f(1.f));
     x578_bombTime = 0.f;
     x57c_curBomb = (x57c_curBomb + 1) & (x6dc_bombLocators.size() - 1);

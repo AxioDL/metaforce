@@ -111,7 +111,7 @@ void CExplosion::Render(const CStateManager& mgr) const {
   }
 
   CElementGen::SetSubtractBlend(xf4_24_renderThermalHot);
-  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 74.f, zeus::CColor::skBlack);
+  CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 74.f, zeus::skBlack);
   xe8_particleGen->Render();
   mgr.SetupFogForArea(GetAreaIdAlways());
   CElementGen::SetSubtractBlend(false);

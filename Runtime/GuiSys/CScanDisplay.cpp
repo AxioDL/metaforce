@@ -182,7 +182,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
     color.a() = 0.f;
     pane->SetColor(color);
     pane->SetTextureID0(-1, g_SimplePool);
-    pane->SetAnimationParms(zeus::CVector2f::skZero, 0.f, 0.f);
+    pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
     int pos = -1;
     for (int j = 0; j < 4; ++j) {
       if (x14_scannableInfo->GetBucket(j).x8_imagePos == i) {
@@ -226,7 +226,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
       } else {
         dot.SetDesiredAlpha(1.f);
         dot.SetDotState(CDataDot::EDotState::Seek);
-        dot.StartTransitionTo(zeus::CVector2f::skZero, FLT_EPSILON);
+        dot.StartTransitionTo(zeus::skZero2f, FLT_EPSILON);
         dot.Update(FLT_EPSILON);
       }
     } else {
@@ -328,7 +328,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
       case CDataDot::EDotState::Seek:
       case CDataDot::EDotState::Hold:
         dot.SetDotState(CDataDot::EDotState::RevealPane);
-        dot.StartTransitionTo(zeus::CVector2f::skZero, g_tweakGui->GetScanAppearanceDuration());
+        dot.StartTransitionTo(zeus::skZero2f, g_tweakGui->GetScanAppearanceDuration());
         break;
       case CDataDot::EDotState::RevealPane: {
         float tmp = dot.GetTransitionFactor();

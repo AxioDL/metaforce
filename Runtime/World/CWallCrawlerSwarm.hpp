@@ -44,7 +44,7 @@ public:
   };
 
 private:
-  zeus::CAABox xe8_aabox = zeus::CAABox::skNullBox;
+  zeus::CAABox xe8_aabox = zeus::skNullBox;
   std::vector<CBoid> x108_boids;
   zeus::CVector3f x130_lastKilledOffset;
   int x42c_lockOnId = -1;

@@ -4,9 +4,9 @@
 namespace urde {
 
 CFontRenderState::CFontRenderState() {
-  x54_colors[0] = zeus::CColor::skWhite;
-  x54_colors[1] = zeus::CColor::skGrey;
-  x54_colors[2] = zeus::CColor::skWhite;
+  x54_colors[0] = zeus::skWhite;
+  x54_colors[1] = zeus::skGrey;
+  x54_colors[2] = zeus::skWhite;
   RefreshPalette();
 }
 

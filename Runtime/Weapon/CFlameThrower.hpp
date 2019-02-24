@@ -8,7 +8,7 @@ class CElementGen;
 class CFlameThrower : public CGameProjectile {
   static const zeus::CVector3f kLightOffset;
   zeus::CTransform x2e8_;
-  zeus::CAABox x318_ = zeus::CAABox::skNullBox;
+  zeus::CAABox x318_ = zeus::skNullBox;
   TToken<CGenDescription> x33c_flameDesc;
   std::unique_ptr<CElementGen> x348_flameGen;
 

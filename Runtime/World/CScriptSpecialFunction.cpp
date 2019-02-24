@@ -142,7 +142,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       }
       case EScriptObjectMessage::Play: {
         x1e4_25_spinnerCanMove = true;
-        mgr.Player()->SetAngularVelocityWR(zeus::CAxisAngle::sIdentity);
+        mgr.Player()->SetAngularVelocityWR(zeus::CAxisAngle());
         break;
       }
       case EScriptObjectMessage::Deactivate:
@@ -220,7 +220,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
             if (TCastToPtr<CActor> act = mgr.ObjectById(cont.x0_id))
               cont.xc_ = act->GetTransform().frontVector();
             else
-              cont.xc_ = zeus::CVector3f::skForward;
+              cont.xc_ = zeus::skForward;
           }
 
           x1a8_ = 3;

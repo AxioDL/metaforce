@@ -69,8 +69,8 @@ CSamusDoll::CSamusDoll(const CDependencyGroup& suitDgrp, const CDependencyGroup&
   x224_ballInnerGlow = g_SimplePool->GetObj("BallInnerGlow");
   x22c_ballInnerGlowGen = std::make_unique<CElementGen>(x224_ballInnerGlow);
   x230_ballTransitionFlash = g_SimplePool->GetObj("MorphBallTransitionFlash");
-  x23c_lights.push_back(CLight::BuildDirectional(zeus::CVector3f::skForward, zeus::CColor::skWhite));
-  x24c_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
+  x23c_lights.push_back(CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
+  x24c_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   x270_24_hasSpiderBall = hasSpiderBall;
   x270_25_hasGrappleBeam = hasGrappleBeam;
   x22c_ballInnerGlowGen->SetGlobalScale(zeus::CVector3f(0.625f));
@@ -105,7 +105,7 @@ bool CSamusDoll::IsLoaded() const {
 
 CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character1Idxs[int(suit)],
-                          zeus::CVector3f::skOne, 2, true));
+                          zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.AnimationData()->SetAnimation(parms, false);
   return ret;
@@ -113,7 +113,7 @@ CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
 
 CModelData CSamusDoll::BuildSuitModelDataBoots(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, CharacterBootsIdxs[int(suit)],
-                          zeus::CVector3f::skOne, 2, true));
+                          zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
   ret.AnimationData()->SetAnimation(parms, false);
   return ret;
@@ -130,7 +130,7 @@ bool CSamusDoll::CheckLoadComplete() {
   xc8_suitModel0.emplace(BuildSuitModelData1(x44_suit));
   for (int i = 0; i < 2; ++i) {
     CAnimRes res(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character2and3Idxs[int(x44_suit)][i],
-                 zeus::CVector3f::skOne, 2, true);
+                 zeus::skOne3f, 2, true);
     CModelData mData(res);
     x118_suitModel1and2.push_back(mData.GetAnimationData()->GetModelData());
     x118_suitModel1and2.back().Lock();
@@ -141,7 +141,7 @@ bool CSamusDoll::CheckLoadComplete() {
                    ->GetResourceIdByName(x270_24_hasSpiderBall ? SpiderBallCharacters[int(x44_suit)].first
                                                                : BallCharacters[int(x44_suit)].first)
                    ->id,
-               0, zeus::CVector3f::skOne, 0, true);
+               0, zeus::skOne3f, 0, true);
   x184_ballModelData.emplace(res);
   x1e0_ballMatIdx =
       x270_24_hasSpiderBall ? SpiderBallCharacters[int(x44_suit)].second : BallCharacters[int(x44_suit)].second;
@@ -293,12 +293,12 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       TCachedToken<CSkinnedModel> backupModelData = xc8_suitModel0->GetAnimationData()->GetModelData();
       if (i < x118_suitModel1and2.size())
         xc8_suitModel0->AnimationData()->SubstituteModelData(x118_suitModel1and2[i]);
-      xc8_suitModel0->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(), x24c_actorLights.get(),
+      xc8_suitModel0->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(), x24c_actorLights.get(),
                                   zeus::CColor(1.f, alpha), zeus::CColor(1.f, alpha * suitPulse));
       xc8_suitModel0->AnimationData()->SubstituteModelData(backupModelData);
     }
 
-    x134_suitModelBoots->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform::Identity(),
+    x134_suitModelBoots->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(),
                                      x24c_actorLights.get(), zeus::CColor(1.f, alpha),
                                      zeus::CColor(1.f, alpha * bootsPulse));
 
@@ -308,7 +308,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       CModelFlags flags = {};
 
       flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-      flags.x4_color = zeus::CColor::skWhite;
+      flags.x4_color = zeus::skWhite;
       x1f4_invBeam->Draw(flags);
 
       flags.m_extendedShader = EExtendedShader::ForcedAlpha;
@@ -378,16 +378,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
         CModelFlags flags = {};
         flags.x1_matSetIdx = x1e0_ballMatIdx;
         flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = alpha * ballAlpha;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = x6c_ballPulseFactor * alpha * ballAlpha * itemPulse;
         x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
       }
@@ -427,16 +427,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
         x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
 
         flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         x1d4_spiderBallGlass->Draw(flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = alpha;
         x1d4_spiderBallGlass->Draw(flags);
 
         flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-        flags.x4_color = zeus::CColor::skWhite;
+        flags.x4_color = zeus::skWhite;
         flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
         x1d4_spiderBallGlass->Draw(flags);
       }
@@ -454,16 +454,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     CModelFlags flags = {};
     flags.x1_matSetIdx = x1e0_ballMatIdx;
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
     flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     flags.x4_color.a() = alpha;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
     flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
@@ -493,16 +493,16 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
       x1d4_spiderBallGlass->GetInstance().ActivateLights(x23c_lights);
 
       flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-      flags.x4_color = zeus::CColor::skWhite;
+      flags.x4_color = zeus::skWhite;
       x1d4_spiderBallGlass->Draw(flags);
 
       flags.m_extendedShader = EExtendedShader::ForcedAlpha;
-      flags.x4_color = zeus::CColor::skWhite;
+      flags.x4_color = zeus::skWhite;
       flags.x4_color.a() = alpha;
       x1d4_spiderBallGlass->Draw(flags);
 
       flags.m_extendedShader = EExtendedShader::ForcedAdditive;
-      flags.x4_color = zeus::CColor::skWhite;
+      flags.x4_color = zeus::skWhite;
       flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
       x1d4_spiderBallGlass->Draw(flags);
     }
@@ -531,7 +531,7 @@ void CSamusDoll::Touch() {
 
 void CSamusDoll::SetupLights() {
   x23c_lights[0] = CLight::BuildDirectional(xb0_userRot.toTransform().basis[1], zeus::CColor(0.75f, 1.f));
-  x24c_actorLights->BuildFakeLightList(x23c_lights, zeus::CColor::skBlack);
+  x24c_actorLights->BuildFakeLightList(x23c_lights, zeus::skBlack);
 }
 
 void CSamusDoll::SetInMorphball(bool morphball) {

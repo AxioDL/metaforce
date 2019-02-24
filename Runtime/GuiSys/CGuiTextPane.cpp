@@ -12,7 +12,7 @@ CGuiTextPane::CGuiTextPane(const CGuiWidgetParms& parms, CSimplePool* sp, const 
                            const zeus::CVector3f& vec, CAssetId fontId, const CGuiTextProperties& props,
                            const zeus::CColor& fontCol, const zeus::CColor& outlineCol, s32 extentX, s32 extentY)
 : CGuiPane(parms, dim, vec)
-, xd4_textSupport(fontId, props, fontCol, outlineCol, zeus::CColor::skWhite, extentX, extentY, sp, xac_drawFlags) {}
+, xd4_textSupport(fontId, props, fontCol, outlineCol, zeus::skWhite, extentX, extentY, sp, xac_drawFlags) {}
 
 void CGuiTextPane::Update(float dt) {
   CGuiWidget::Update(dt);

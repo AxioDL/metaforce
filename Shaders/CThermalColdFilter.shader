@@ -1,6 +1,7 @@
 #shader CThermalColdFilter
 #attribute position4
-#attribute uv4
+#attribute uv4 0
+#attribute uv4 1
 #srcfac one
 #dstfac zero
 #primitive tristrips
@@ -11,15 +12,15 @@
 #vertex glsl
 layout(location=0) in vec4 posIn;
 layout(location=1) in vec4 uvIn;
+layout(location=2) in vec4 uvNoiseIn;
 
 UBINDING0 uniform ThermalColdUniform
 {
-    mat4 shiftMtx;
     mat4 indMtx;
-    vec4 shiftScale;
     vec4 colorReg0;
     vec4 colorReg1;
     vec4 colorReg2;
+    float randOff;
 };
 
 struct VertToFrag
@@ -29,8 +30,8 @@ struct VertToFrag
     vec4 colorReg1;
     vec4 colorReg2;
     vec2 sceneUv;
-    vec2 shiftUv;
-    vec2 shiftScale;
+    vec2 noiseUv;
+    float randOff;
 };
 
 SBINDING(0) out VertToFrag vtf;
@@ -41,8 +42,8 @@ void main()
     vtf.colorReg1 = colorReg1;
     vtf.colorReg2 = colorReg2;
     vtf.sceneUv = uvIn.xy;
-    vtf.shiftUv = (mat3(shiftMtx) * uvIn.xyz).xy;
-    vtf.shiftScale = shiftScale.xy;
+    vtf.noiseUv = uvNoiseIn.xy;
+    vtf.randOff = randOff;
     gl_Position = vec4(posIn.xyz, 1.0);
 }
 
@@ -54,24 +55,33 @@ struct VertToFrag
     vec4 colorReg1;
     vec4 colorReg2;
     vec2 sceneUv;
-    vec2 shiftUv;
-    vec2 shiftScale;
+    vec2 noiseUv;
+    float randOff;
 };
+
+ivec2 Lookup8BPP(in vec2 uv, in float randOff)
+{
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return ivec2(addr & 0x3ff, addr >> 10);
+}
 
 SBINDING(0) in VertToFrag vtf;
 layout(location=0) out vec4 colorOut;
 TBINDING0 uniform sampler2D sceneTex;
-TBINDING1 uniform sampler2D shiftTex;
+TBINDING1 uniform sampler2D noiseTex;
 const vec4 kRGBToYPrime = vec4(0.299, 0.587, 0.114, 0.0);
 void main()
 {
-    vec2 shiftCoordTexel = texture(shiftTex, vtf.shiftUv).xy;
-    vec2 shiftCoord = vtf.sceneUv + shiftCoordTexel * vtf.shiftScale;
-    float shiftScene0 = dot(texture(sceneTex, shiftCoord), kRGBToYPrime);
-    float shiftScene1 = dot(texture(sceneTex, shiftCoord + vec2(vtf.shiftScale.x / 8.0, 0.0)), kRGBToYPrime);
-    vec2 indCoord = (vtf.indMtx * vec3(shiftScene0 - 0.5, shiftScene1 - 0.5, 1.0)).xy;
+    vec4 noiseTexel = texelFetch(noiseTex, Lookup8BPP(vtf.noiseUv, vtf.randOff), 0);
+    vec2 indCoord = (vtf.indMtx * vec3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
     float indScene = dot(texture(sceneTex, vtf.sceneUv + indCoord), kRGBToYPrime);
-    colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * shiftScene0 + vtf.colorReg2;
+    colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
 }
 
 #vertex hlsl
@@ -120,7 +130,7 @@ VertToFrag main(in VertData v)
 
 #fragment hlsl
 Texture2D sceneTex : register(t0);
-Texture2D shiftTex : register(t1);
+Texture2D noiseTex : register(t1);
 SamplerState samp : register(s3);
 struct VertToFrag
 {
@@ -134,16 +144,26 @@ struct VertToFrag
     float2 shiftScale : SHIFTSCALE;
 };
 
+static int3 Lookup8BPP(float2 uv, float randOff)
+{
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return int3(addr & 0x3ff, addr >> 10, 0);
+}
+
 static const float4 kRGBToYPrime = {0.299, 0.587, 0.114, 0.0};
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float2 shiftCoordTexel = shiftTex.Sample(samp, vtf.shiftUv).xy;
-    float2 shiftCoord = vtf.sceneUv + shiftCoordTexel * vtf.shiftScale;
-    float shiftScene0 = dot(sceneTex.Sample(samp, shiftCoord), kRGBToYPrime);
-    float shiftScene1 = dot(sceneTex.Sample(samp, shiftCoord + float2(vtf.shiftScale.x / 8.0, 0.0)), kRGBToYPrime);
-    float2 indCoord = (mul(vtf.indMtx, float3(shiftScene0 - 0.5, shiftScene1 - 0.5, 1.0))).xy;
+    float4 noiseTexel = noiseTex.Load(Lookup8BPP(vtf.noiseUv, vtf.randOff));
+    float2 indCoord = mul(vtf.indMtx, float3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.Sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
-    return vtf.colorReg0 * indScene + vtf.colorReg1 * shiftScene0 + vtf.colorReg2;
+    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
+    return colorOut;
 }
 
 #vertex metal
@@ -209,17 +229,27 @@ struct VertToFrag
     float2 shiftScale;
 };
 
+static uint2 Lookup8BPP(float2 uv, float randOff)
+{
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return uint2(addr & 0x3ff, addr >> 10);
+}
+
 constant float4 kRGBToYPrime = {0.299, 0.587, 0.114, 0.0};
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(3) ]],
                       texture2d<float> sceneTex [[ texture(0) ]],
-                      texture2d<float> shiftTex [[ texture(1) ]])
+                      texture2d<float> noiseTex [[ texture(1) ]])
 {
-    float2 shiftCoordTexel = shiftTex.sample(samp, vtf.shiftUv).xy;
-    float2 shiftCoord = vtf.sceneUv + shiftCoordTexel * vtf.shiftScale;
-    float shiftScene0 = dot(sceneTex.sample(samp, shiftCoord), kRGBToYPrime);
-    float shiftScene1 = dot(sceneTex.sample(samp, shiftCoord + float2(vtf.shiftScale.x / 8.0, 0.0)), kRGBToYPrime);
-    float2 indCoord = (float3x3(vtf.indMtx0, vtf.indMtx1, vtf.indMtx2) * float3(shiftScene0 - 0.5, shiftScene1 - 0.5, 1.0)).xy;
+    float4 noiseTexel = noiseTex.read(Lookup8BPP(vtf.noiseUv, vtf.randOff));
+    float2 indCoord = (vtf.indMtx * float3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
-    return vtf.colorReg0 * indScene + vtf.colorReg1 * shiftScene0 + vtf.colorReg2;
+    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
+    return colorOut;
 }

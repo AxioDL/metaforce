@@ -246,7 +246,7 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
   if (!active)
     return;
 
-  active->SetColors(zeus::CColor::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
+  active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 
   if (active == x20_tablegroup_fileselect) {
     x24_model_erase->SetLocalTransform(zeus::CTransform::Translate(
@@ -284,7 +284,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateEraseGamePopup() {
 
   HandleActiveChange(x20_tablegroup_fileselect);
 
-  x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].x0_base->SetColor(zeus::CColor::skWhite);
+  x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].x0_base->SetColor(zeus::skWhite);
 }
 
 void CFrontEndUI::SNewFileSelectFrame::ActivateEraseGamePopup() {
@@ -318,7 +318,7 @@ void CFrontEndUI::SNewFileSelectFrame::DeactivateNewGamePopup() {
 
   HandleActiveChange(x20_tablegroup_fileselect);
 
-  x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].x0_base->SetColor(zeus::CColor::skWhite);
+  x64_fileSelections[x20_tablegroup_fileselect->GetUserSelection()].x0_base->SetColor(zeus::skWhite);
   x60_textpane_cancel->TextSupport().SetText(u"");
 }
 
@@ -357,10 +357,10 @@ void CFrontEndUI::SNewFileSelectFrame::ResetFrame() {
   x8_subMenu = ESubMenu::Root;
 
   x38_textpane_gba.x0_panes[0]->SetIsSelectable(true);
-  x38_textpane_gba.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+  x38_textpane_gba.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
 
   x30_textpane_cheats.x0_panes[0]->SetIsSelectable(true);
-  x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+  x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
 
   ClearFrameContents();
 
@@ -372,7 +372,7 @@ void CFrontEndUI::SNewFileSelectFrame::ResetFrame() {
 void CFrontEndUI::SNewFileSelectFrame::ActivateErase() {
   x8_subMenu = ESubMenu::EraseGame;
   x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
-  zeus::CColor color = zeus::CColor::skGrey;
+  zeus::CColor color = zeus::skGrey;
   color.a() = 0.5f;
   x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(color);
   x38_textpane_gba.x0_panes[0]->TextSupport().SetFontColor(color);
@@ -417,10 +417,10 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
 
   if (hasSave) {
     x28_textpane_erase.x0_panes[0]->SetIsSelectable(true);
-    x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+    x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
   } else {
     x28_textpane_erase.x0_panes[0]->SetIsSelectable(false);
-    zeus::CColor color = zeus::CColor::skGrey;
+    zeus::CColor color = zeus::skGrey;
     color.a() = 0.5f;
     x28_textpane_erase.x0_panes[0]->TextSupport().SetFontColor(color);
   }
@@ -429,10 +429,10 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
   CGuiTextPane* cheats = static_cast<CGuiTextPane*>(x20_tablegroup_fileselect->GetWorkerWidget(5));
   if (CSlideShow::SlideShowGalleryFlags()) {
     cheats->SetIsSelectable(true);
-    x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+    x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
   } else {
     cheats->SetIsSelectable(false);
-    zeus::CColor color = zeus::CColor::skGrey;
+    zeus::CColor color = zeus::skGrey;
     color.a() = 0.5f;
     x30_textpane_cheats.x0_panes[0]->TextSupport().SetFontColor(color);
   }
@@ -892,7 +892,7 @@ bool CFrontEndUI::SFusionBonusFrame::PumpLoad() {
 }
 
 void CFrontEndUI::SFusionBonusFrame::SetTableColors(CGuiTableGroup* tbgp) const {
-  tbgp->SetColors(zeus::CColor::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
+  tbgp->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
 void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
@@ -917,7 +917,7 @@ void CFrontEndUI::SFusionBonusFrame::Update(float dt, CSaveGameScreen* saveUI) {
   x24_loadedFrame->FindWidget("textpane_proceed")->SetIsVisible(showFusionSuitProceed);
 
   std::u16string instructionStr;
-  x30_textpane_instructions.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+  x30_textpane_instructions.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
   if (x28_tablegroup_options->GetUserSelection() == 1) {
     /* Fusion Suit */
     if (x3a_mpNotComplete)
@@ -1139,10 +1139,10 @@ void CFrontEndUI::SFrontEndFrame::Update(float dt) {
 
   if (CSlideShow::SlideShowGalleryFlags()) {
     imageGallery->SetIsSelectable(true);
-    x24_cheatPair.x0_panes[0]->TextSupport().SetFontColor(zeus::CColor::skWhite);
+    x24_cheatPair.x0_panes[0]->TextSupport().SetFontColor(zeus::skWhite);
   } else {
     imageGallery->SetIsSelectable(false);
-    zeus::CColor color = zeus::CColor::skGrey;
+    zeus::CColor color = zeus::skGrey;
     color.a() = 0.5f;
     x24_cheatPair.x0_panes[0]->TextSupport().SetFontColor(color);
   }
@@ -1189,7 +1189,7 @@ CFrontEndUI::SFrontEndFrame::ProcessUserInput(const CFinalInput& input, CFrontEn
 void CFrontEndUI::SFrontEndFrame::Draw() const { x14_loadedFrme->Draw(CGuiWidgetDrawParms::Default); }
 
 void CFrontEndUI::SFrontEndFrame::HandleActiveChange(CGuiTableGroup* active) {
-  active->SetColors(zeus::CColor::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
+  active->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
 void CFrontEndUI::SFrontEndFrame::DoCancel(CGuiTableGroup* caller) { /* Intentionally empty */ }
@@ -1232,8 +1232,8 @@ CFrontEndUI::SNesEmulatorFrame::SNesEmulatorFrame() {
 
   const SObjectTag* deface = g_ResFactory->GetResourceIdByName("FONT_Deface14B");
   CGuiTextProperties props(false, true, EJustification::Left, EVerticalJustification::Center);
-  xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::CColor::skWhite, zeus::CColor::skBlack,
-                                                     zeus::CColor::skWhite, 0, 0, g_SimplePool,
+  xc_textSupport = std::make_unique<CGuiTextSupport>(deface->id, props, zeus::skWhite, zeus::skBlack,
+                                                     zeus::skWhite, 0, 0, g_SimplePool,
                                                      CGuiWidget::EGuiModelDrawFlags::Alpha);
   xc_textSupport->SetText(g_MainStringTable->GetString(103));
   xc_textSupport->AutoSetExtent();
@@ -1289,7 +1289,7 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi) {
   bool doUpdate = (saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady) ? false : true;
   x10_remTime = std::max(x10_remTime - dt, 0.f);
 
-  zeus::CColor geomCol(zeus::CColor::skWhite);
+  zeus::CColor geomCol(zeus::skWhite);
   geomCol.a() = std::min(x10_remTime, 1.f);
   xc_textSupport->SetGeometryColor(geomCol);
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
@@ -1359,11 +1359,11 @@ bool CFrontEndUI::SNesEmulatorFrame::Update(float dt, CSaveGameScreen* saveUi) {
 }
 
 void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
-  zeus::CColor mulColor = zeus::CColor::skWhite;
+  zeus::CColor mulColor = zeus::skWhite;
   bool blackout = saveUi && saveUi->GetUIType() != CSaveGameScreen::EUIType::SaveReady;
 
   if (blackout)
-    mulColor = zeus::CColor::skBlack;
+    mulColor = zeus::skBlack;
   else if (x8_quitScreen)
     mulColor = zeus::CColor{0.376470f, 0.376470f, 0.376470f, 1.f};
 
@@ -1378,7 +1378,7 @@ void CFrontEndUI::SNesEmulatorFrame::Draw(CSaveGameScreen* saveUi) const {
   if (xc_textSupport->GetIsTextSupportFinishedLoading()) {
     float aspect = g_Viewport.aspect / 1.33f;
     CGraphics::SetOrtho(-320.f * aspect, 320.f * aspect, 240.f, -240.f, -4096.f, 4096.f);
-    CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
+    CGraphics::SetViewPointMatrix(zeus::CTransform());
     CGraphics::SetModelMatrix(zeus::CTransform::Translate(-220.f, 0.f, -200.f));
     xc_textSupport->Render();
   }
@@ -1518,7 +1518,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::SetTableColors(CGuiTableGroup* tbgp) const {
-  tbgp->SetColors(zeus::CColor::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
+  tbgp->SetColors(zeus::skWhite, zeus::CColor{0.627450f, 0.627450f, 0.627450f, 0.784313f});
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
@@ -1710,7 +1710,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::Update(float dt, CSaveGameScreen* sui) 
 
 void CFrontEndUI::SOptionsFrontEndFrame::Draw() const {
   if (x1c_loadedFrame && x134_24_visible) {
-    CGuiWidgetDrawParms params(x0_uiAlpha, zeus::CVector3f::skZero);
+    CGuiWidgetDrawParms params(x0_uiAlpha, zeus::skZero3f);
     x1c_loadedFrame->Draw(params);
   }
 }
@@ -1925,7 +1925,7 @@ void CFrontEndUI::Draw() const {
       zeus::CRectangle rect(0.5f - x38_pressStart->GetWidth() / 2.f / 640.f * hPad,
                             0.5f + (x38_pressStart->GetHeight() / 2.f - 240.f + 72.f) / 480.f * vPad,
                             x38_pressStart->GetWidth() / 640.f * hPad, x38_pressStart->GetHeight() / 480.f * vPad);
-      zeus::CColor color = zeus::CColor::skWhite;
+      zeus::CColor color = zeus::skWhite;
       color.a() = x64_pressStartAlpha;
       const_cast<CTexturedQuadFilterAlpha&>(*m_pressStartQuad).draw(color, 1.f, rect);
     }
@@ -1936,7 +1936,7 @@ void CFrontEndUI::Draw() const {
            x54_nextScreen == EScreen::AttractMovie) &&
           x58_fadeBlackTimer < 1.f) {
         /* To black */
-        zeus::CColor color = zeus::CColor::skBlack;
+        zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - x58_fadeBlackTimer;
         const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
       }
@@ -1946,12 +1946,12 @@ void CFrontEndUI::Draw() const {
       /* Render fade-through-black into title if player skips */
       if (x50_curScreen == EScreen::OpenCredits && x54_nextScreen == EScreen::Title) {
         /* To black */
-        zeus::CColor color = zeus::CColor::skBlack;
+        zeus::CColor color = zeus::skBlack;
         color.a() = zeus::clamp(0.f, 1.f - x58_fadeBlackTimer, 1.f);
         const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
       } else if (x50_curScreen == EScreen::Title && x54_nextScreen == EScreen::Title) {
         /* From black with 30-sec skip to title */
-        zeus::CColor color = zeus::CColor::skBlack;
+        zeus::CColor color = zeus::skBlack;
         color.a() = 1.f - zeus::clamp(0.f, 30.f - x58_fadeBlackTimer, 1.f);
         const_cast<CColoredQuadFilter&>(m_fadeToBlack).draw(color);
       }

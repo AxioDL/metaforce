@@ -11,7 +11,7 @@
 
 namespace urde {
 const CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f,
-                                                                             zeus::CVector3f::skZero, 0.f, 1.f, true);
+                                                                             zeus::skZero3f, 0.f, 1.f, true);
 
 static float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::sin((f3 - 0.5f) * f2); }
 
@@ -311,7 +311,7 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
       if (xf0_targetId == kInvalidUniqueId)
         x12c_currGroupA.SetTargetId(targetId);
       x14c_currGroupB = CTargetReticleRenderState(
-          targetId, 1.f, zeus::CVector3f::skZero, 1.f,
+          targetId, 1.f, zeus::skZero3f, 1.f,
           IsGrappleTarget(targetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, false);
       x16c_currGroupDur = xf0_targetId == kInvalidUniqueId ? g_tweakTargeting->GetCurrLockOnExitDuration()
                                                            : g_tweakTargeting->GetCurrLockOnSwitchDuration();
@@ -381,7 +381,7 @@ void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager
     } else {
       x194_nextGroupA = x174_nextGroupInterp;
       x1b4_nextGroupB = CTargetReticleRenderState(
-          nextTargetId, 1.f, zeus::CVector3f::skZero, 1.f,
+          nextTargetId, 1.f, zeus::skZero3f, 1.f,
           IsGrappleTarget(nextTargetId, mgr) ? g_tweakTargeting->GetGrappleMinClampScale() : 1.f, true);
       x1d4_nextGroupDur = x1d8_nextGroupTimer = xf2_nextTargetId == kInvalidUniqueId
                                                     ? g_tweakTargeting->GetNextLockOnEnterDuration()
@@ -511,7 +511,7 @@ void CCompoundTargetReticle::DrawCurrLockOnGroup(const zeus::CMatrix3f& rot, con
   }
 
   zeus::CMatrix3f lockBreakXf;
-  zeus::CColor lockBreakColor = zeus::CColor::skClear;
+  zeus::CColor lockBreakColor = zeus::skClear;
   if (IsDamageOrbit(mgr.GetPlayer().GetOrbitRequest()) && x14c_currGroupB.GetFactor() == 0.f) {
     zeus::CMatrix3f lockBreakRM;
     for (int i = 0; i < 4; ++i) {

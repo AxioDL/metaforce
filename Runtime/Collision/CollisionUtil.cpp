@@ -115,7 +115,7 @@ u32 RayAABoxIntersection(const zeus::CMRay& ray, const zeus::CAABox& aabb, zeus:
   }
 
   d = maxComp;
-  norm = zeus::CVector3f::skZero;
+  norm = zeus::skZero3f;
   norm[maxCompIdx] = (sign[maxCompIdx] == 1) ? -1.f : 1.f;
   return 2;
 }
@@ -195,7 +195,7 @@ u32 RayAABoxIntersection_Double(const zeus::CMRay& ray, const zeus::CAABox& aabb
   }
 
   d = maxComp;
-  norm = zeus::CVector3f::skZero;
+  norm = zeus::skZero3f;
   norm[maxCompIdx] = (sign[maxCompIdx] == 1) ? -1.0 : 1.0;
   return 2;
 }
@@ -1059,7 +1059,7 @@ bool AABox_AABox_Moving(const zeus::CAABox& aabb0, const zeus::CAABox& aabb1, co
     return false;
   d = vecMin[maxAxis];
 
-  normal = zeus::CVector3f::skZero;
+  normal = zeus::skZero3f;
   normal[maxAxis] = dir[maxAxis] > 0.f ? -1.f : 1.f;
 
   for (int i = 0; i < 3; ++i)

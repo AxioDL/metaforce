@@ -8,9 +8,9 @@ namespace urde {
 CWorldShadow::CWorldShadow(u32 w, u32 h, bool rgba8) : m_shader(w, h) {}
 
 void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 lightIdx, float f1) {
-  zeus::CTransform texTransform = zeus::lookAt(zeus::CVector3f::skZero, x74_lightPos - x68_objPos);
+  zeus::CTransform texTransform = zeus::lookAt(zeus::skZero3f, x74_lightPos - x68_objPos);
   zeus::CTransform posXf = pos;
-  posXf.origin = zeus::CVector3f::skZero;
+  posXf.origin = zeus::skZero3f;
   texTransform = posXf.inverse() * texTransform;
   texTransform = (texTransform * zeus::CTransform::Scale(float(M_SQRT2) * x64_objHalfExtent * f1)).inverse();
   texTransform = zeus::CTransform::Translate(0.5f, 0.f, 0.5f) * texTransform;
@@ -21,7 +21,7 @@ void CWorldShadow::EnableModelProjectedShadow(const zeus::CTransform& pos, s32 l
     m_feedback.emplace(EFilterType::Blend, m_shader.GetTexture().get());
 
   zeus::CRectangle rect(0.4f, 0.4f, 0.2f, 0.2f);
-  m_feedback->draw(zeus::CColor::skWhite, 1.f, rect);
+  m_feedback->draw(zeus::skWhite, 1.f, rect);
 #endif
 }
 
@@ -54,7 +54,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
       float fov = zeus::radToDeg(std::atan2(x64_objHalfExtent, distance)) * 2.f;
       if (fov >= 0.00001f) {
         lightToPoint.normalize();
-        x4_view = zeus::lookAt(light.GetPosition(), centerPoint, zeus::CVector3f::skDown);
+        x4_view = zeus::lookAt(light.GetPosition(), centerPoint, zeus::skDown);
         x68_objPos = centerPoint;
         x74_lightPos = light.GetPosition();
         CGraphics::SetViewPointMatrix(x4_view);
@@ -76,7 +76,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         /* Color white 100% alpha */
         m_shader.drawBase(extent);
 
-        CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+        CGraphics::SetModelMatrix(zeus::CTransform());
         CBooModel::SetDrawingOccluders(true);
         g_Renderer->PrepareDynamicLights({});
         g_Renderer->UpdateAreaUniforms(aid, true);

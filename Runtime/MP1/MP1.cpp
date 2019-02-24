@@ -258,8 +258,8 @@ CMain::BooSetter::BooSetter(boo::IGraphicsDataFactory* factory, boo::IGraphicsCo
 void CMain::RegisterResourceTweaks() {}
 
 void CGameGlobalObjects::AddPaksAndFactories() {
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetViewPointMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform());
   if (CResLoader* loader = g_ResFactory->GetResLoader()) {
     loader->AddPakFileAsync("Tweaks", false, false);
     loader->AddPakFileAsync("NoARAM", false, false);

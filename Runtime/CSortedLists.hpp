@@ -18,7 +18,7 @@ class CActor;
 class CSortedListManager {
   struct SNode {
     const CActor* x0_actor = nullptr;
-    zeus::CAABox x4_box = zeus::CAABox::skNullBox;
+    zeus::CAABox x4_box = zeus::skNullBox;
     s16 x1c_selfIdxs[6] = {-1, -1, -1, -1, -1, -1};
     s16 x28_next = -1;
     bool x2a_populated = false;

@@ -12,7 +12,7 @@ class CAnimData;
 class CStateManager;
 class CBodyController;
 class CBoneTracking {
-  zeus::CQuaternion x0_curRotation = zeus::CQuaternion::skNoRotation;
+  zeus::CQuaternion x0_curRotation = zeus::CQuaternion();
   float x10_ = 0.f;
   CSegId x14_segId;
   float x18_time = 0.f;

@@ -21,7 +21,7 @@ CMaterialList MakeDockMaterialList() {
 CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f position,
                          const zeus::CVector3f& extents, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
                          bool loadConnected)
-: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f::skIdentityMatrix3f, position),
+: CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f(), position),
                 CModelData::CModelDataNull(), MakeDockMaterialList(), zeus::CAABox(-extents * 0.5f, extents * 0.5f),
                 SMoverData(1.f), CActorParameters::None(), 0.3f, 0.1f)
 , x258_dockReferenceCount(dockReferenceCount)

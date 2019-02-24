@@ -459,7 +459,8 @@ struct MaterialSet : BigDNA {
     };
     Vector<UVAnimation, AT_DNA_COUNT(uvAnimsCount)> uvAnims;
 
-    static void AddTexture(hecl::blender::PyOutStream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx);
+    static void AddTexture(hecl::blender::PyOutStream& out, GX::TexGenSrc type, int mtxIdx, uint32_t texIdx,
+                           bool diffuse);
     static void AddTextureAnim(hecl::blender::PyOutStream& out, MaterialSet::Material::UVAnimation::Mode type,
                                unsigned idx, const float* vals);
     static void AddKcolor(hecl::blender::PyOutStream& out, const GX::Color& col, unsigned idx);

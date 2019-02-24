@@ -7,15 +7,15 @@ namespace urde::MP1 {
 
 CGameCubeDoll::CGameCubeDoll() {
   x0_model = g_SimplePool->GetObj("CMDL_GameCube");
-  x8_lights.push_back(CLight::BuildDirectional(zeus::CVector3f::skForward, zeus::CColor::skWhite));
-  x18_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
+  x8_lights.push_back(CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
+  x18_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   x20_24_loaded = false;
 }
 
 void CGameCubeDoll::UpdateActorLights() {
   x8_lights[0] = CLight::BuildDirectional(
-      (zeus::CVector3f::skForward + zeus::CVector3f::skRight * 0.25f + zeus::CVector3f::skDown * 0.1f).normalized(),
-      zeus::CColor::skWhite);
+      (zeus::skForward + zeus::skRight * 0.25f + zeus::skDown * 0.1f).normalized(),
+      zeus::skWhite);
   x18_actorLights->BuildFakeLightList(x8_lights, zeus::CColor(0.25f, 1.f));
 }
 

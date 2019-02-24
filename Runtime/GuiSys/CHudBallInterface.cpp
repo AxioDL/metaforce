@@ -44,8 +44,8 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
     fontColor = g_tweakGuiColors->GetPowerBombDigitDelpetedFont();
     outlineColor = g_tweakGuiColors->GetPowerBombDigitDelpetedOutline();
   } else {
-    fontColor = zeus::CColor::skClear;
-    outlineColor = zeus::CColor::skClear;
+    fontColor = zeus::skClear;
+    outlineColor = zeus::skClear;
   }
   x10_textpane_bombdigits->TextSupport().SetFontColor(fontColor);
   x10_textpane_bombdigits->TextSupport().SetOutlineColor(outlineColor);
@@ -56,7 +56,7 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
   else if (x44_pbCapacity > 0)
     iconColor = g_tweakGuiColors->GetPowerBombIconDepletedColor();
   else
-    iconColor = zeus::CColor::skClear;
+    iconColor = zeus::skClear;
 
   xc_model_bombicon->SetColor(iconColor);
 }

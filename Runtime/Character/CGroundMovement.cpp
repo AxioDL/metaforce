@@ -29,7 +29,7 @@ void CGroundMovement::CheckFalling(CPhysicsActor& actor, CStateManager& mgr, flo
     zeus::CVector3f vel = actor.GetTransform().transposeRotate(actor.GetVelocity());
     vel.z() = 0.f;
     actor.SetVelocityOR(vel);
-    actor.SetMomentumWR(zeus::CVector3f::skZero);
+    actor.SetMomentumWR(zeus::skZero3f);
   }
 }
 
@@ -105,7 +105,7 @@ void CGroundMovement::MoveGroundCollider(CStateManager& mgr, CPhysicsActor& acto
   }
 
   actor.ClearForcesAndTorques();
-  actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  actor.MoveCollisionPrimitive(zeus::skZero3f);
   if (actor.GetMaterialList().HasMaterial(EMaterialTypes::Player)) {
     CGameCollision::CollisionFailsafe(mgr, cache, actor, *actor.GetCollisionPrimitive(), useColliderList, 0.f, 1);
   }
@@ -118,8 +118,8 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
   if (list.GetCount() <= 0)
     return true;
 
-  zeus::CAABox aabb = zeus::CAABox::skInvertedBox;
-  zeus::CVector3f normAccum = zeus::CVector3f::skZero;
+  zeus::CAABox aabb = zeus::CAABox();
+  zeus::CVector3f normAccum = zeus::skZero3f;
   for (CCollisionInfo& info : list) {
     if (CGameCollision::IsFloor(info.GetMaterialLeft(), info.GetNormalLeft())) {
       aabb.accumulateBounds(info.GetPoint());
@@ -150,7 +150,7 @@ bool CGroundMovement::ResolveUpDown(CAreaCollisionCache& cache, CStateManager& m
                                                      actor.GetPrimitiveTransform(), filter, nearList)) {
     fOut = zextent;
     actor.SetTranslation(actor.GetTranslation() + zeus::CVector3f(0.f, 0.f, zextent));
-    actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+    actor.MoveCollisionPrimitive(zeus::skZero3f);
 
     bool floor = false;
     for (CCollisionInfo& info : list) {
@@ -175,7 +175,7 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
                                           CCollisionInfoList& list, TUniqueId& idOut) {
   actor.MoveCollisionPrimitive({0.f, 0.f, amt});
 
-  zeus::CAABox aabb = zeus::CAABox::skInvertedBox;
+  zeus::CAABox aabb = zeus::CAABox();
   if (CGameCollision::DetectCollision_Cached(mgr, cache, *actor.GetCollisionPrimitive(), actor.GetPrimitiveTransform(),
                                              filter, nearList, idOut, list)) {
     for (CCollisionInfo& info : list) {
@@ -195,7 +195,7 @@ bool CGroundMovement::MoveGroundColliderZ(CAreaCollisionCache& cache, CStateMana
     if (!CGameCollision::DetectCollisionBoolean_Cached(mgr, cache, *actor.GetCollisionPrimitive(),
                                                        actor.GetPrimitiveTransform(), filter, nearList)) {
       actor.SetTranslation(actor.GetTranslation() + zeus::CVector3f(0.f, 0.f, zextent));
-      actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+      actor.MoveCollisionPrimitive(zeus::skZero3f);
     }
 
     bool floor = false;
@@ -259,7 +259,7 @@ void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateMan
                                                actor.GetPrimitiveTransform(), filter, nearList, otherId, collisionList);
     if (collided)
       otherActor = mgr.ObjectById(otherId);
-    actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+    actor.MoveCollisionPrimitive(zeus::skZero3f);
     if (collided) {
       didCollide = true;
       if (newMState.x0_translation.magnitude() < divMag) {
@@ -297,7 +297,7 @@ void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateMan
       actor.AddMotionState(newMState);
       remDt -= dt;
       dt = nonCollideDt;
-      actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+      actor.MoveCollisionPrimitive(zeus::skZero3f);
     }
 
     newMState = actor.PredictMotion_Internal(dt);
@@ -306,7 +306,7 @@ void CGroundMovement::MoveGroundColliderXY(CAreaCollisionCache& cache, CStateMan
   if (!didCollide && !actor.GetMaterialList().HasMaterial(EMaterialTypes::GroundCollider))
     mgr.SendScriptMsg(&actor, kInvalidUniqueId, EScriptObjectMessage::Falling);
 
-  actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  actor.MoveCollisionPrimitive(zeus::skZero3f);
 }
 
 zeus::CVector3f CGroundMovement::CollisionDamping(const zeus::CVector3f& vel, const zeus::CVector3f& dir,
@@ -610,7 +610,7 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
                                                     SMoveObjectResult& result) {
   result.x6c_processedCollisions = 0;
   CMaterialList ret;
-  zeus::CVector3f floorPlaneNormal = opts.x3c_floorPlaneNormal ? *opts.x3c_floorPlaneNormal : zeus::CVector3f::skZero;
+  zeus::CVector3f floorPlaneNormal = opts.x3c_floorPlaneNormal ? *opts.x3c_floorPlaneNormal : zeus::skZero3f;
   bool floorCollision = opts.x3c_floorPlaneNormal.operator bool();
   float remDt = dt;
   for (int i = 0; remDt > 0.f; ++i) {
@@ -678,7 +678,7 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
           actor.GetVelocity().canBeNormalized()
               ? CGroundMovement::CollisionDamping(actor.GetVelocity(), actor.GetVelocity().normalized(), collisionNorm,
                                                   opts.x24_dampedNormalCoefficient, opts.x28_dampedDeltaCoefficient)
-              : zeus::CVector3f::skZero;
+              : zeus::skZero3f;
       float elasticForce = floor ? opts.x2c_floorElasticForce
                                  : opts.x34_wallElasticLinear * collisionFloorDot + opts.x30_wallElasticConstant;
       float dot = collisionNorm.dot(vel);

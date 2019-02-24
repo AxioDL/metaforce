@@ -72,7 +72,7 @@ private:
   zeus::CColor x118_;
   CDamageInfo x11c_damageInfo;
   float x138_ = 0.f;
-  zeus::CTransform x13c_ = zeus::CTransform::Identity();
+  zeus::CTransform x13c_ = zeus::CTransform();
   float x16c_ = 0.f;
   s16 x170_;
   s16 x172_;
@@ -84,7 +84,7 @@ private:
   float x194_ = 0.f;
   std::vector<SRingController> x198_ringControllers;
   u32 x1a8_ = 2;
-  zeus::CVector3f x1ac_ = zeus::CVector3f::skZero;
+  zeus::CVector3f x1ac_ = zeus::skZero3f;
   bool x1b8_ = true;
   s32 x1bc_areaSaveId;
   s32 x1c0_layerIdx;

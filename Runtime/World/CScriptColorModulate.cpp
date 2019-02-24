@@ -145,15 +145,15 @@ CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const 
       ret.addColor = col;
     } else {
       ret.x2_flags = 3;
-      ret.x4_color = zeus::CColor::skWhite;
+      ret.x4_color = zeus::skWhite;
     }
   } else {
     if (x48_blendMode == EBlendMode::Alpha) {
-      if (col == zeus::CColor::skWhite) {
+      if (col == zeus::skWhite) {
         ret.x0_blendMode = 3;
         ret.x1_matSetIdx = 0;
         ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = zeus::CColor::skWhite;
+        ret.x4_color = zeus::skWhite;
       } else {
         ret.x0_blendMode = 5;
         ret.x1_matSetIdx = 0;
@@ -171,11 +171,11 @@ CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const 
       ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
       ret.x4_color = col;
     } else if (x48_blendMode == EBlendMode::Opaque) {
-      if (col == zeus::CColor::skWhite) {
+      if (col == zeus::skWhite) {
         ret.x0_blendMode = 3;
         ret.x1_matSetIdx = 0;
         ret.x2_flags = x54_26_depthCompare << 0 | x54_27_depthUpdate << 1;
-        ret.x4_color = zeus::CColor::skWhite;
+        ret.x4_color = zeus::skWhite;
       } else {
         ret.x0_blendMode = 1;
         ret.x1_matSetIdx = 0;
@@ -189,7 +189,7 @@ CModelFlags CScriptColorModulate::CalculateFlags(const zeus::CColor& col) const 
       ret.addColor = col;
     } else {
       ret.x2_flags = 3;
-      ret.x4_color = zeus::CColor::skWhite;
+      ret.x4_color = zeus::skWhite;
     }
   }
   return ret;
@@ -263,7 +263,7 @@ void CScriptColorModulate::End(CStateManager& stateMgr) {
   x54_30_enable = false;
   x54_29_reversing = false;
   if (x54_25_resetTargetWhenDone)
-    SetTargetFlags(stateMgr, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+    SetTargetFlags(stateMgr, CModelFlags(0, 0, 3, zeus::skWhite));
 
   if (x55_24_isFadeOutHelper)
     stateMgr.SendScriptMsgAlways(x34_parent, x8_uid, EScriptObjectMessage::Deactivate);

@@ -74,9 +74,9 @@ void CEnvFxManager::UpdateRainSounds(const CStateManager& mgr) {
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     float rainVol = CalcRainVolume(x30_fxDensity);
     if (!xb6a_rainSoundActive) {
-      xb6c_leftRainSound = CSfxManager::AddEmitter(SFXsfx09F0, zeus::CVector3f::skZero, zeus::CVector3f::skZero, false,
+      xb6c_leftRainSound = CSfxManager::AddEmitter(SFXsfx09F0, zeus::skZero3f, zeus::skZero3f, false,
                                                    true, 0xff, kInvalidAreaId);
-      xb70_rightRainSound = CSfxManager::AddEmitter(SFXsfx09F1, zeus::CVector3f::skZero, zeus::CVector3f::skZero, false,
+      xb70_rightRainSound = CSfxManager::AddEmitter(SFXsfx09F1, zeus::skZero3f, zeus::skZero3f, false,
                                                     true, 0xff, kInvalidAreaId);
       xb6a_rainSoundActive = true;
     }
@@ -106,7 +106,7 @@ void CEnvFxManager::UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::
   if (xb68_envRainSplashId != kInvalidUniqueId)
     if (TCastToPtr<CHUDBillboardEffect> splashEffect = mgr.ObjectById(xb68_envRainSplashId))
       mgr.SetActorAreaId(*splashEffect, mgr.GetNextAreaId());
-  float camUpness = camXf.basis[1].dot(zeus::CVector3f::skUp);
+  float camUpness = camXf.basis[1].dot(zeus::skUp);
   float splashRateFactor;
   if (x24_enableSplash)
     splashRateFactor = std::max(0.f, camUpness) * x30_fxDensity;
@@ -118,7 +118,7 @@ void CEnvFxManager::UpdateVisorSplash(CStateManager& mgr, float dt, const zeus::
     if (pRelVel.canBeNormalized()) {
       float velMag = pRelVel.magnitude();
       zeus::CVector3f normRelVel = pRelVel * (1.f / velMag);
-      forwardRateFactor = std::min(velMag / 60.f, 1.f) * normRelVel.dot(zeus::CVector3f::skForward);
+      forwardRateFactor = std::min(velMag / 60.f, 1.f) * normRelVel.dot(zeus::skForward);
     }
   }
   float additionalFactor;
@@ -207,9 +207,9 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
             CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid, EMaterialTypes::Trigger},
                                                 {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::SeeThrough});
         zeus::CVector3f pos = xf * zeus::CVector3f((grid.x4_position + grid.xc_extent * 0).toVec2f() / 256.f) +
-                              zeus::CVector3f::skUp * 500.f;
+                              zeus::skUp * 500.f;
         CRayCastResult result =
-            CGameCollision::RayStaticIntersection(mgr, pos, zeus::CVector3f::skDown, 1000.f, filter);
+            CGameCollision::RayStaticIntersection(mgr, pos, zeus::skDown, 1000.f, filter);
         if (result.IsValid()) {
           if (!blockListBuilt) {
             BuildBlockObjectList(blockList, mgr);
@@ -219,7 +219,7 @@ void CEnvFxManager::UpdateBlockedGrids(CStateManager& mgr, EEnvFxType type, cons
             if (TCastToConstPtr<CScriptTrigger> trig = mgr.GetObjectById(id)) {
               if (auto tb = trig->GetTouchBounds()) {
                 CCollidableAABox caabb(*tb, {EMaterialTypes::Trigger});
-                CRayCastResult result2 = caabb.CastRayInternal({pos, zeus::CVector3f::skDown, 1000.f, {}, filter});
+                CRayCastResult result2 = caabb.CastRayInternal({pos, zeus::skDown, 1000.f, {}, filter});
                 if (result2.IsValid() && result2.GetT() < result.GetT())
                   result = result2;
               }
@@ -395,7 +395,7 @@ void CEnvFxManagerGrid::RenderSnowParticles(const zeus::CTransform& camXf) const
 
 void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) const {
   m_lineRenderer.Reset();
-  float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::CVector3f::skUp))) + 1.f;
+  float zOffset = 2.f * (1.f - std::fabs(camXf.basis[2].dot(zeus::skUp))) + 1.f;
   zeus::CColor color0(1.f, 10.f / 15.f);
   for (const auto& particle : x1c_particles) {
     zeus::CVector3f pos0 = particle.toVec3f();
@@ -403,8 +403,8 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) const
     pos1.z() += zOffset;
     float uvy0 = pos0.z() * 10.f + m_uvyOffset;
     float uvy1 = pos1.z() * 10.f + m_uvyOffset;
-    m_lineRenderer.AddVertex(pos0, zeus::CColor::skWhite, 1.f, {0.f, uvy0});
-    m_lineRenderer.AddVertex(pos1, zeus::CColor::skClear, 1.f, {0.f, uvy1});
+    m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
+    m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
   m_lineRenderer.Render(zeus::CColor(1.f, 0.15f));
 }
@@ -441,7 +441,7 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
     case EEnvFxType::Rain: {
       zeus::CMatrix4f envTexMtx(true);
       envTexMtx[2][1] = 10.f;
-      envTexMtx[3][1] = 0.5f - (invXf * (zeus::CVector3f::skUp * x14_block.second)).z() * 10.f;
+      envTexMtx[3][1] = 0.5f - (invXf * (zeus::skUp * x14_block.second)).z() * 10.f;
       m_uvyOffset = envTexMtx[3][1];
       parent.m_uniformData.envMtx = envTexMtx;
       break;
@@ -469,10 +469,10 @@ void CEnvFxManagerGrid::Render(const zeus::CTransform& xf, const zeus::CTransfor
 void CEnvFxManager::SetupSnowTevs(const CStateManager& mgr) const {
   mgr.GetCameraManager()->GetCurrentCamera(mgr);
   if (mgr.GetCameraManager()->GetFluidCounter() != 0) {
-    g_Renderer->SetWorldFog(ERglFogMode::PerspExp, 0.f, 35.f, zeus::CColor::skBlack);
+    g_Renderer->SetWorldFog(ERglFogMode::PerspExp, 0.f, 35.f, zeus::skBlack);
     m_uniformData.moduColor = zeus::CColor(1.f, 0.5f);
   } else {
-    g_Renderer->SetWorldFog(ERglFogMode::PerspLin, 52.f, 57.f, zeus::CColor::skBlack);
+    g_Renderer->SetWorldFog(ERglFogMode::PerspLin, 52.f, 57.f, zeus::skBlack);
   }
 
   // Blend One One
@@ -517,7 +517,7 @@ void CEnvFxManager::SetupUnderwaterTevs(const zeus::CTransform& invXf, const CSt
     if (TCastToPtr<CScriptWater> water = ent)
       if (auto tb = water->GetTouchBounds())
         waterTop = std::min(waterTop, float(tb->max.z()));
-  zeus::CVector3f localWaterTop = invXf * (zeus::CVector3f::skUp * waterTop);
+  zeus::CVector3f localWaterTop = invXf * (zeus::skUp * waterTop);
   zeus::CMatrix4f envTexMtx(true);
   envTexMtx[2][1] = -10.f;
   envTexMtx[3][1] = localWaterTop.z() * -10.f + 0.5f;
@@ -543,7 +543,7 @@ void CEnvFxManager::Render(const CStateManager& mgr) const {
       zeus::CTransform xf = GetParticleBoundsToWorldTransform();
       zeus::CTransform invXf = xf.inverse();
       zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
-      m_uniformData.moduColor = zeus::CColor::skWhite;
+      m_uniformData.moduColor = zeus::skWhite;
       switch (fxType) {
       case EEnvFxType::Snow:
         SetupSnowTevs(mgr);
@@ -573,7 +573,7 @@ void CEnvFxManager::AsyncLoadResources(CStateManager& mgr) {
   CHUDBillboardEffect* effect =
       new CHUDBillboardEffect(xb58_envRainSplash, {}, xb68_envRainSplashId, true, "VisorRainSplashes",
                               CHUDBillboardEffect::GetNearClipDistance(mgr), CHUDBillboardEffect::GetScaleForPOV(mgr),
-                              zeus::CColor::skWhite, zeus::CVector3f::skOne, zeus::CVector3f::skZero);
+                              zeus::skWhite, zeus::skOne3f, zeus::skZero3f);
   effect->SetRunIndefinitely(true);
   mgr.AddObject(effect);
 }

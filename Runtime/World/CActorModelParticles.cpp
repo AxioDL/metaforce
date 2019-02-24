@@ -61,7 +61,7 @@ void CActorModelParticles::CItem::GeneratePoints(const std::vector<std::pair<zeu
       if (v.canBeNormalized()) {
         v.normalize();
         x78_ashGen->SetOrientation(
-            zeus::CTransform{v.cross(zeus::CVector3f::skUp), v, zeus::CVector3f::skUp, zeus::CVector3f::skZero});
+            zeus::CTransform{v.cross(zeus::skUp), v, zeus::skUp, zeus::skZero3f});
       }
       x78_ashGen->ForceParticleCreation(1);
     }
@@ -140,7 +140,7 @@ bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateMa
         }
         if (!x74_sfx) {
           x74_sfx = CSfxManager::AddEmitter(SFXsfx0480 + (IsMediumOrLarge(*actor) ? 1 : 0), actor->GetTranslation(),
-                                            zeus::CVector3f::skZero, true, true, 0x7f, kInvalidAreaId);
+                                            zeus::skZero3f, true, true, 0x7f, kInvalidAreaId);
         }
         x70_onFire = false;
       }
@@ -161,7 +161,7 @@ bool CActorModelParticles::CItem::UpdateOnFire(float dt, CActor* actor, CStateMa
   }
   if (x74_sfx) {
     if (sfxActive) {
-      CSfxManager::UpdateEmitter(x74_sfx, xf8_iceXf.origin, zeus::CVector3f::skZero, 1.f);
+      CSfxManager::UpdateEmitter(x74_sfx, xf8_iceXf.origin, zeus::skZero3f, 1.f);
     } else {
       CSfxManager::RemoveEmitter(x74_sfx);
       x74_sfx.reset();
@@ -581,7 +581,7 @@ void CActorModelParticles::StopThermalHotParticles(CActor& act) {
 void CActorModelParticles::StartBurnDeath(CActor& act) {
   auto iter = FindOrCreateSystem(act);
   u16 sfx = SFXeff_x_smallburndeath_lp_00 - s16(IsMediumOrLarge(act));
-  CSfxManager::AddEmitter(sfx, act.GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f, kInvalidAreaId);
+  CSfxManager::AddEmitter(sfx, act.GetTranslation(), zeus::skZero3f, true, false, 0x7f, kInvalidAreaId);
   iter->xdc_ashy.Lock();
 }
 

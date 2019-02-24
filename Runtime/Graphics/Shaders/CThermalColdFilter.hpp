@@ -9,13 +9,10 @@ namespace urde {
 
 class CThermalColdFilter {
   struct Uniform {
-    zeus::CMatrix4f m_shiftTexMtx;
     zeus::CMatrix4f m_indMtx;
-    zeus::CVector2f m_shiftTexScale;
     zeus::CColor m_colorRegs[3];
+    float m_randOff = 0.f;
   };
-  u8 m_shiftTexture[4][8][4] = {};
-  boo::ObjToken<boo::ITextureD> m_shiftTex;
   boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
   boo::ObjToken<boo::IShaderDataBinding> m_dataBind;
@@ -25,7 +22,7 @@ public:
   static void Initialize();
   static void Shutdown();
   CThermalColdFilter();
-  void setShift(unsigned shift);
+  void setNoiseOffset(unsigned shift) { m_uniform.m_randOff = float(shift); }
   void setColorA(const zeus::CColor& color) { m_uniform.m_colorRegs[0] = color; }
   void setColorB(const zeus::CColor& color) { m_uniform.m_colorRegs[1] = color; }
   void setColorC(const zeus::CColor& color) { m_uniform.m_colorRegs[2] = color; }

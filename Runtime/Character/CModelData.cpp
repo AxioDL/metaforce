@@ -307,7 +307,7 @@ void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& 
     lights->ActivateLights(*model);
   } else {
     std::vector<CLight> useLights;
-    useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+    useLights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, x18_ambientColor));
     model->ActivateLights(useLights);
   }
 
@@ -331,7 +331,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
         lights->ActivateLights(*model.GetModelInst());
       } else {
         std::vector<CLight> useLights;
-        useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+        useLights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, x18_ambientColor));
         model.GetModelInst()->ActivateLights(useLights);
       }
 
@@ -342,7 +342,7 @@ void CModelData::Render(EWhichModel which, const zeus::CTransform& xf, const CAc
         lights->ActivateLights(*model);
       } else {
         std::vector<CLight> useLights;
-        useLights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, x18_ambientColor));
+        useLights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, x18_ambientColor));
         model->ActivateLights(useLights);
       }
 
@@ -368,7 +368,7 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
 
     /* Z-prime */
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     x10_animData->Render(model, flags, {}, nullptr);
 
     /* Normal Blended */
@@ -388,7 +388,7 @@ void CModelData::InvSuitDraw(EWhichModel which, const zeus::CTransform& xf, cons
 
     /* Z-prime */
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
     model.Draw(flags, nullptr, nullptr);
 
     /* Normal Blended */
@@ -415,7 +415,7 @@ void CModelData::DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf,
   CGraphics::SetModelMatrix(scaledXf);
 
   CBooModel::SetDisintegrateTexture(tex.GetBooTexture());
-  CModelFlags flags(5, 0, 3, zeus::CColor::skWhite);
+  CModelFlags flags(5, 0, 3, zeus::skWhite);
   flags.m_extendedShader = EExtendedShader::Disintegrate;
   flags.addColor = addColor;
   flags.addColor.a() = t; // Stash T value in here (shader does not care)

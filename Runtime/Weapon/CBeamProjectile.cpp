@@ -9,7 +9,7 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
                                  EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid,
                                  TUniqueId owner, EProjectileAttrib attribs, bool growingBeam)
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId, attribs, false,
-                  zeus::CVector3f::skOne, {}, 0xffff, false)
+                  zeus::skOne3f, {}, 0xffff, false)
 , x2e8_intMaxLength(std::abs(maxLength))
 , x2ec_maxLength(x2e8_intMaxLength)
 , x2f0_invMaxLength(1.f / x2ec_maxLength)

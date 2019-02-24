@@ -522,7 +522,7 @@ bool CCollidableOBBTree::AABoxCollideWithLeaf(const COBBTree::CLeafData& leaf, c
     triMat.Add(CMaterialList(surf.GetSurfaceFlags()));
     if (filter.Passes(triMat) &&
         CollisionUtil::TriBoxOverlap(center, extent, surf.GetVert(0), surf.GetVert(1), surf.GetVert(2))) {
-      zeus::CAABox newAABB = zeus::CAABox::skInvertedBox;
+      zeus::CAABox newAABB = zeus::CAABox();
       const_cast<CCollidableOBBTree&>(*this).x1c_hits += 1;
       if (CMetroidAreaCollider::ConvexPolyCollision(planes, surf.GetVerts(), newAABB)) {
         zeus::CPlane plane = surf.GetPlane();

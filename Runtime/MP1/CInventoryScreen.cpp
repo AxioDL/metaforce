@@ -69,11 +69,11 @@ CInventoryScreen::CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, c
 
 CInventoryScreen::~CInventoryScreen() {
   for (int i = 0; i < 5; ++i) {
-    xd8_textpane_titles[i]->TextSupport().SetFontColor(zeus::CColor::skWhite);
-    x15c_model_righttitledecos[i]->SetColor(zeus::CColor::skWhite);
-    x144_model_titles[i]->SetColor(zeus::CColor::skWhite);
+    xd8_textpane_titles[i]->TextSupport().SetFontColor(zeus::skWhite);
+    x15c_model_righttitledecos[i]->SetColor(zeus::skWhite);
+    x144_model_titles[i]->SetColor(zeus::skWhite);
   }
-  x8c_model_righthighlight->SetColor(zeus::CColor::skWhite);
+  x8c_model_righthighlight->SetColor(zeus::skWhite);
 }
 
 bool CInventoryScreen::InputDisabled() const {
@@ -481,7 +481,7 @@ bool CInventoryScreen::IsRightLogDynamic() const { return true; }
 
 void CInventoryScreen::UpdateRightLogColors(bool active, const zeus::CColor& activeColor,
                                             const zeus::CColor& inactiveColor) {
-  x80_basewidget_rightlog->SetColor(active ? zeus::CColor::skWhite : zeus::CColor(1.f, 0.71f));
+  x80_basewidget_rightlog->SetColor(active ? zeus::skWhite : zeus::CColor(1.f, 0.71f));
   const std::pair<u32, const SInventoryItem*>& cat = InventoryRegistry[x70_tablegroup_leftlog->GetUserSelection()];
   for (u32 i = 0; i < 5; ++i) {
     if (i < cat.first && IsRightInventoryItemEquipped(cat.second[i].idx)) {

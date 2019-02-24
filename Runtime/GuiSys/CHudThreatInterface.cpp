@@ -180,12 +180,12 @@ void CHudThreatInterface::Update(float dt) {
   if (x68_textpane_threatwarning) {
     if (x4c_threatStatus != EThreatStatus::Normal) {
       x48_warningLerpAlpha = std::min(x48_warningLerpAlpha + 2.f * dt, 1.f);
-      zeus::CColor color = zeus::CColor::skWhite;
+      zeus::CColor color = zeus::skWhite;
       color.a() = x48_warningLerpAlpha * xc_damagePulse;
       x68_textpane_threatwarning->SetColor(color);
     } else {
       x48_warningLerpAlpha = std::max(0.f, x48_warningLerpAlpha - 2.f * dt);
-      zeus::CColor color = zeus::CColor::skWhite;
+      zeus::CColor color = zeus::skWhite;
       color.a() = x48_warningLerpAlpha * xc_damagePulse;
       x68_textpane_threatwarning->SetColor(color);
     }

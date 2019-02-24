@@ -10,7 +10,7 @@ class CRayCastInfo {
   const zeus::CMRay& x0_ray;
   const CMaterialFilter& x4_filter;
   float x8_mag;
-  zeus::CPlane xc_plane = {zeus::CVector3f::skUp, 0.f};
+  zeus::CPlane xc_plane = {zeus::skUp, 0.f};
   CMaterialList x20_material;
 
 public:

@@ -88,9 +88,9 @@ void CPauseScreenBlur::Draw(const CStateManager&) const {
   float t = std::fabs(x18_blurAmt);
   if (x1c_camBlur.GetCurrType() != EBlurType::NoBlur) {
     zeus::CColor filterColor =
-        zeus::CColor::lerp(zeus::CColor::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
+        zeus::CColor::lerp(zeus::skWhite, g_tweakGuiColors->GetPauseBlurFilterColor(), t);
     const_cast<CTexturedQuadFilter&>(m_quarterFilter).DrawFilter(EFilterShape::FullscreenQuarters, filterColor, t);
-    zeus::CColor scanLinesColor = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(0.75f, 1.f), t);
+    zeus::CColor scanLinesColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(0.75f, 1.f), t);
     const_cast<CScanLinesFilterEven&>(m_linesFilter).draw(scanLinesColor);
   }
 

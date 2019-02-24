@@ -399,7 +399,7 @@ CGameArea::CGameArea(CAssetId mreaId) : x84_mrea(mreaId) {
   FillInStaticGeometry(false);
 
   CBooModel::SetDummyTextures(true);
-  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform::Identity());
+  CBooModel::EnableShadowMaps(g_Renderer->x220_sphereRamp.get(), zeus::CTransform());
   CGraphics::CProjectionState backupProj = CGraphics::GetProjectionState();
   zeus::CTransform backupViewPoint = CGraphics::g_ViewMatrix;
   zeus::CTransform backupModel = CGraphics::g_GXModelMatrix;

@@ -28,7 +28,7 @@ void CBSAttack::Start(CBodyController& bc, CStateManager& mgr) {
                                                                                   CCharAnimTime::Infinity());
     x30_alignTargetPosTime = (evTime != CCharAnimTime::Infinity()) ? evTime.GetSeconds() : bc.GetAnimTimeRemaining();
   } else {
-    x20_targetPos = zeus::CVector3f::skZero;
+    x20_targetPos = zeus::skZero3f;
     x2c_alignTargetPosStartTime = -1.f;
     x30_alignTargetPosTime = -1.f;
   }
@@ -78,7 +78,7 @@ void CBSAttack::UpdatePhysicsActor(CBodyController& bc, float dt) {
       if (dur > 0.f)
         delta *= zeus::CVector3f(dt / dur);
       zeus::CVector3f localDelta = act->GetTransform().transposeRotate(delta);
-      act->ApplyImpulseWR(act->GetMoveToORImpulseWR(localDelta, dt), zeus::CAxisAngle::sIdentity);
+      act->ApplyImpulseWR(act->GetMoveToORImpulseWR(localDelta, dt), zeus::CAxisAngle());
     }
   }
 }
@@ -810,7 +810,7 @@ void CBSJump::Start(CBodyController& bc, CStateManager& mgr) {
   x30_27_wallBounceComplete = false;
   if (x30_25_wallJump)
     x30_26_wallBounceRight =
-        (xc_waypoint1 - bc.GetOwner().GetTranslation()).cross(zeus::CVector3f::skUp).dot(x24_waypoint2 - xc_waypoint1) <
+        (xc_waypoint1 - bc.GetOwner().GetTranslation()).cross(zeus::skUp).dot(x24_waypoint2 - xc_waypoint1) <
         0.f;
   if (!cmd->StartInJumpLoop()) {
     x4_state = pas::EJumpState::IntoJump;
@@ -921,7 +921,7 @@ pas::EAnimationState CBSJump::UpdateBody(float dt, CBodyController& bc, CStateMa
     case pas::EJumpState::WallBounceRight:
       if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
         act->Stop();
-        act->SetMomentumWR(zeus::CVector3f::skZero);
+        act->SetMomentumWR(zeus::skZero3f);
       }
       if (bc.IsAnimationOver()) {
         mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Falling);
@@ -977,7 +977,7 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   xc_animSeries = hurledState->GetAnimParmData(best.second, 0).GetInt32Value();
   mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Falling);
   mgr.SendScriptMsg(&bc.GetOwner(), kInvalidUniqueId, EScriptObjectMessage::Jumped);
-  if (!zeus::close_enough(cmd->GetLaunchVelocity(), zeus::CVector3f::skZero, 0.0001f))
+  if (!zeus::close_enough(cmd->GetLaunchVelocity(), zeus::skZero3f, 0.0001f))
     if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
       act->SetConstantForce(act->GetMass() * cmd->GetLaunchVelocity());
   float animAngle = zeus::degToRad(hurledState->GetAnimParmData(best.second, 1).GetReal32Value());
@@ -1014,7 +1014,7 @@ void CBSHurled::Recover(CStateManager& mgr, CBodyController& bc, pas::EHurledSta
     bc.SetCurrentAnimation(playParms, false, false);
     x4_state = state;
     if (TCastToPtr<CPhysicsActor> act = bc.GetOwner())
-      act->SetMomentumWR(zeus::CVector3f::skZero);
+      act->SetMomentumWR(zeus::skZero3f);
   }
   x2c_24_needsRecover = false;
 }
@@ -1099,7 +1099,7 @@ pas::EAnimationState CBSHurled::UpdateBody(float dt, CBodyController& bc, CState
       } else if (ShouldStartStrikeWall(bc)) {
         PlayStrikeWallAnimation(bc, mgr);
         if (TCastToPtr<CPatterned> ai = bc.GetOwner())
-          ai->SetVelocityWR(zeus::CVector3f::skDown * (2.f * dt * ai->GetGravityConstant()));
+          ai->SetVelocityWR(zeus::skDown * (2.f * dt * ai->GetGravityConstant()));
       } else if (x2c_24_needsRecover) {
         Recover(mgr, bc, pas::EHurledState::Six);
       }
@@ -1268,7 +1268,7 @@ void CBSCover::Start(CBodyController& bc, CStateManager& mgr) {
   CPASAnimParmData parms(19, CPASAnimParm::FromEnum(s32(x4_state)), CPASAnimParm::FromEnum(s32(x8_coverDirection)));
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   zeus::CQuaternion orientDelta =
-      zeus::CQuaternion::lookAt(zeus::CVector3f::skForward, cmd->GetAlignDirection(), 2.f * M_PIF);
+      zeus::CQuaternion::lookAt(zeus::skForward, cmd->GetAlignDirection(), 2.f * M_PIF);
   CAnimPlaybackParms playParms(best.second, &orientDelta, &cmd->GetTarget(), &bc.GetOwner().GetTransform(),
                                &bc.GetOwner().GetModelData()->GetScale(), false);
   bc.SetCurrentAnimation(playParms, false, false);
@@ -1354,8 +1354,8 @@ pas::EAnimationState CBSWallHang::GetBodyStateTransition(float dt, CBodyControll
 
 void CBSWallHang::FixInPlace(CBodyController& bc) {
   if (TCastToPtr<CAi> ai = bc.GetOwner()) {
-    ai->SetConstantForce(zeus::CVector3f::skZero);
-    ai->SetVelocityWR(zeus::CVector3f::skZero);
+    ai->SetConstantForce(zeus::skZero3f);
+    ai->SetVelocityWR(zeus::skZero3f);
   }
 }
 
@@ -1387,8 +1387,8 @@ bool CBSWallHang::CheckForWall(CBodyController& bc, CStateManager& mgr) {
       CAnimPlaybackParms playParms(best.second, nullptr, &target, &bc.GetOwner().GetTransform(),
                                    &bc.GetOwner().GetModelData()->GetScale(), false);
       bc.SetCurrentAnimation(playParms, false, false);
-      ai->SetVelocityWR(zeus::CVector3f::skZero);
-      ai->SetMomentumWR(zeus::CVector3f::skZero);
+      ai->SetVelocityWR(zeus::skZero3f);
+      ai->SetMomentumWR(zeus::skZero3f);
       mgr.SendScriptMsg(ai.GetPtr(), kInvalidUniqueId, EScriptObjectMessage::OnFloor);
       return true;
     }
@@ -1515,7 +1515,7 @@ pas::EAnimationState CBSWallHang::UpdateBody(float dt, CBodyController& bc, CSta
           } else {
             xc_launchVel = -15.f * act->GetTransform().basis[1];
           }
-          act->SetAngularMomentum(zeus::CAxisAngle::sIdentity);
+          act->SetAngularMomentum(zeus::CAxisAngle());
         }
       }
       break;
@@ -1639,7 +1639,7 @@ void CBSLocomotion::Shutdown(CBodyController& bc) { bc.MultiplyPlaybackRate(1.f)
 
 float CBSLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) {
   if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
-    zeus::CVector3f vec = (zeus::close_enough(bc.GetCommandMgr().GetFaceVector(), zeus::CVector3f::skZero, 0.0001f))
+    zeus::CVector3f vec = (zeus::close_enough(bc.GetCommandMgr().GetFaceVector(), zeus::skZero3f, 0.0001f))
                               ? bc.GetCommandMgr().GetMoveVector()
                               : bc.GetCommandMgr().GetFaceVector();
     if (vec.canBeNormalized()) {
@@ -1861,8 +1861,8 @@ float CBSBiPedLocomotion::UpdateLocomotionAnimation(float dt, float velMag, CBod
 }
 
 bool CBSBiPedLocomotion::IsStrafing(const CBodyController& bc) const {
-  if (!zeus::close_enough(bc.GetCommandMgr().GetMoveVector(), zeus::CVector3f::skZero, 0.0001f))
-    if (!zeus::close_enough(bc.GetCommandMgr().GetFaceVector(), zeus::CVector3f::skZero, 0.0001f))
+  if (!zeus::close_enough(bc.GetCommandMgr().GetMoveVector(), zeus::skZero3f, 0.0001f))
+    if (!zeus::close_enough(bc.GetCommandMgr().GetFaceVector(), zeus::skZero3f, 0.0001f))
       return true;
   return false;
 }
@@ -1877,7 +1877,7 @@ float CBSFlyerLocomotion::ApplyLocomotionPhysics(float dt, CBodyController& bc) 
         (!x3cc_pitchable || bc.GetBodyStateInfo().GetMaximumPitch() < 0.17453292f)) {
       zeus::CVector3f dir;
       dir.z() = dt * bc.GetBodyStateInfo().GetMaxSpeed() * bc.GetCommandMgr().GetMoveVector().z();
-      act->ApplyImpulseWR(act->GetMoveToORImpulseWR(dir, dt), zeus::CAxisAngle::sIdentity);
+      act->ApplyImpulseWR(act->GetMoveToORImpulseWR(dir, dt), zeus::CAxisAngle());
     }
   }
   return ret;
@@ -1969,7 +1969,7 @@ float CBSRestrictedFlyerLocomotion::ApplyLocomotionPhysics(float dt, CBodyContro
   if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
     bc.FaceDirection(bc.GetCommandMgr().GetFaceVector(), dt);
     act->ApplyImpulseWR(bc.GetCommandMgr().GetMoveVector() * bc.GetRestrictedFlyerMoveSpeed() * act->GetMass(),
-                        zeus::CAxisAngle::sIdentity);
+                        zeus::CAxisAngle());
   }
   return 0.f;
 }

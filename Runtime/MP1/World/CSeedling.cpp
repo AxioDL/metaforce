@@ -106,7 +106,7 @@ void CSeedling::Render(const CStateManager& mgr) const {
     u32 index = x722_24_renderOnlyClusterA ? 0 : u32(x722_25_curNeedleCluster);
     CModelFlags flags;
     flags.x2_flags = 3;
-    flags.x4_color = zeus::CColor::skWhite;
+    flags.x4_color = zeus::skWhite;
 
     for (const std::string& sv : skNeedleLocators[index])
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);

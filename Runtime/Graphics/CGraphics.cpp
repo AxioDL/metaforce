@@ -21,7 +21,7 @@ ERglLightBits CGraphics::g_LightActive = ERglLightBits::None;
 ERglLightBits CGraphics::g_LightsWereOn = ERglLightBits::None;
 zeus::CTransform CGraphics::g_GXModelView;
 zeus::CTransform CGraphics::g_GXModelViewInvXpose;
-zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform::Identity();
+zeus::CTransform CGraphics::g_GXModelMatrix = zeus::CTransform();
 zeus::CTransform CGraphics::g_ViewMatrix;
 zeus::CVector3f CGraphics::g_ViewPoint;
 zeus::CTransform CGraphics::g_GXViewPointMatrix;

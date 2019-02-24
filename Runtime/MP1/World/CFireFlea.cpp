@@ -11,7 +11,7 @@ namespace urde::MP1 {
 
 const zeus::CColor CFireFlea::CDeathCameraEffect::skEndFadeColor{1.f, 1.f, 0.5f, 1.f};
 const zeus::CColor CFireFlea::CDeathCameraEffect::skStartFadeColor{1.f, 0.f, 0.f, 0.f};
-zeus::CColor CFireFlea::CDeathCameraEffect::sCurrentFadeColor = zeus::CColor::skClear;
+zeus::CColor CFireFlea::CDeathCameraEffect::sCurrentFadeColor = zeus::skClear;
 
 CFireFlea::CDeathCameraEffect::CDeathCameraEffect(TUniqueId uid, TAreaId areaId, std::string_view name)
 : CEntity(uid, CEntityInfo(areaId, CEntity::NullConnectionList), true, name) {}
@@ -45,7 +45,7 @@ void CFireFlea::CDeathCameraEffect::PreThink(float dt, CStateManager& mgr) {
     filterPass.DisableFilter(0.f);
 }
 
-void CFireFlea::CDeathCameraEffect::Think(float dt, CStateManager& mgr) { sCurrentFadeColor = zeus::CColor::skClear; }
+void CFireFlea::CDeathCameraEffect::Think(float dt, CStateManager& mgr) { sCurrentFadeColor = zeus::skClear; }
 
 // endregion
 
@@ -109,7 +109,7 @@ void CFireFlea::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   } else if (msg == EStateMsg::Update) {
     if (auto* pathFind = GetSearchPath()) {
       if (pathFind->GetResult() != CPathFindSearch::EResult::Success) {
-        zeus::CVector3f closestPoint = zeus::CVector3f::skZero;
+        zeus::CVector3f closestPoint = zeus::skZero3f;
         if (pathFind->FindClosestReachablePoint(GetTranslation(), closestPoint) == CPathFindSearch::EResult::Success) {
           zeus::CVector3f delta = FindSafeRoute(mgr, x45c_steeringBehaviors.Arrival(*this, xd80_targetPos, 5.f));
           x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(delta, {}, 1.f));
@@ -130,7 +130,7 @@ zeus::CVector3f CFireFlea::FindSafeRoute(CStateManager& mgr, const zeus::CVector
     CRayCastResult res = mgr.RayStaticIntersection(GetTranslation(), forward.normalized(), 1.f,
                                                    CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
     if (res.IsValid() || CheckNearWater(mgr, forward.normalized())) {
-      zeus::CVector3f right = forward.normalized().cross(zeus::CVector3f::skUp).normalized();
+      zeus::CVector3f right = forward.normalized().cross(zeus::skUp).normalized();
       CRayCastResult res1 = mgr.RayStaticIntersection(GetTranslation(), right, 1.f,
                                                       CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
       if (res1.IsValid()) {

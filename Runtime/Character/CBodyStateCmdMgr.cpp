@@ -52,14 +52,14 @@ void CBodyStateCmdMgr::BlendSteeringCmds() {
       x0_move *= zeus::CVector3f(stepMul);
       break;
     case ESteeringBlendMode::FullSpeed:
-      if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f)) {
+      if (!zeus::close_enough(x0_move, zeus::skZero3f, 0.0001f)) {
         x0_move.normalize();
         x0_move *= zeus::CVector3f(x38_steeringSpeedMax);
       }
       break;
     case ESteeringBlendMode::Clamped:
       x0_move *= zeus::CVector3f(stepMul);
-      if (!zeus::close_enough(x0_move, zeus::CVector3f::skZero, 0.0001f)) {
+      if (!zeus::close_enough(x0_move, zeus::skZero3f, 0.0001f)) {
         if (x0_move.magnitude() < x34_steeringSpeedMin)
           x0_move = x0_move.normalized() * x34_steeringSpeedMin;
         else if (x0_move.magnitude() > x38_steeringSpeedMax)
@@ -73,16 +73,16 @@ void CBodyStateCmdMgr::BlendSteeringCmds() {
 }
 
 void CBodyStateCmdMgr::Reset() {
-  x0_move = zeus::CVector3f::skZero;
-  xc_face = zeus::CVector3f::skZero;
-  x18_target = zeus::CVector3f::skZero;
+  x0_move = zeus::skZero3f;
+  xc_face = zeus::skZero3f;
+  x18_target = zeus::skZero3f;
   x3c_steeringSpeed = 0.f;
   xb4_deliveredCmdMask = 0;
 }
 
 void CBodyStateCmdMgr::ClearLocomotionCmds() {
-  x0_move = zeus::CVector3f::skZero;
-  xc_face = zeus::CVector3f::skZero;
+  x0_move = zeus::skZero3f;
+  xc_face = zeus::skZero3f;
   x3c_steeringSpeed = 0.f;
 }
 

@@ -78,7 +78,7 @@ void CMetaree::CollidedWith(TUniqueId id, const CCollisionInfoList& colList, CSt
 void CMetaree::Flee(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     ApplyImpulseWR(5.f * (GetMass() * (x590_projectileDelta * zeus::CVector3f{1.f, 1.f, 0.f})),
-                   zeus::CAxisAngle::sIdentity);
+                   zeus::CAxisAngle());
 
     SetMomentumWR({0.f, 0.f, -GetGravityConstant() * GetMass()});
     SetTranslation(GetTranslation());

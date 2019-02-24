@@ -132,7 +132,7 @@ class CBooRenderer final : public IRenderer {
   std::list<CFogVolumeFilter>::iterator m_nextFogVolumeFilter;
   std::list<std::pair<zeus::CVector3f, float>> x2c4_spaceWarps;
   u32 x2dc_reflectionAge = 2;
-  zeus::CColor x2e0_ = zeus::CColor::skWhite;
+  zeus::CColor x2e0_ = zeus::skWhite;
   zeus::CVector3f x2e4_ = {0.f, 1.f, 0.f};
 
   CSpaceWarpFilter m_spaceWarpFilter;
@@ -141,7 +141,7 @@ class CBooRenderer final : public IRenderer {
   zeus::CColor x2f4_thermColor;
   float x2f8_thermColdScale = 0.f;
   zeus::CColor x2fc_tevReg1Color = {1.f, 0.f, 1.f, 1.f};
-  CThermalColdFilter m_thermColdFilter;
+  rstl::optional<CThermalColdFilter> m_thermColdFilter;
   rstl::optional<CThermalHotFilter> m_thermHotFilter;
 
   std::vector<CLight> x300_dynamicLights;
@@ -292,6 +292,8 @@ public:
   int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
   void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
                                         float alpha) const;
+
+  bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
 };
 
 } // namespace urde

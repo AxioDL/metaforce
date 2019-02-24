@@ -118,12 +118,12 @@ CCollisionSurface COBBTree::GetTransformedSurface(u16 idx, const zeus::CTransfor
                            xf * x18_indexData.x60_vertices[vert3], mat);
 }
 
-zeus::CAABox COBBTree::CalculateLocalAABox() const { return CalculateAABox(zeus::CTransform::Identity()); }
+zeus::CAABox COBBTree::CalculateLocalAABox() const { return CalculateAABox(zeus::CTransform()); }
 
 zeus::CAABox COBBTree::CalculateAABox(const zeus::CTransform& xf) const {
   if (x88_root)
     return x88_root->GetOBB().calculateAABox(xf);
-  return zeus::CAABox::skInvertedBox;
+  return zeus::CAABox();
 }
 
 COBBTree::SIndexData::SIndexData(CInputStream& in) {

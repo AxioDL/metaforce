@@ -77,7 +77,7 @@ public:
     zeus::CColor x58_outlineColorSelected = zeus::CColor(1.0f, 0.0f, 1.0f);
     zeus::CColor x5c_surfColorUnselected = zeus::CColor(1.0f, 0.0f, 1.0f);
     zeus::CColor x60_outlineColorUnselected = zeus::CColor(1.0f, 0.0f, 1.0f);
-    zeus::CVector3f x64_centerPoint = zeus::CVector3f::skZero;
+    zeus::CVector3f x64_centerPoint = zeus::skZero3f;
 
   public:
     CMapWorldData(CInputStream& in, u32 version);
@@ -97,7 +97,7 @@ private:
   CAssetId x0_hexagonId;
   TLockedToken<CMapArea> x4_hexagonToken;
   std::vector<CMapWorldData> x10_worldDatas;
-  zeus::CVector3f x20_universeCenter = zeus::CVector3f::skZero;
+  zeus::CVector3f x20_universeCenter = zeus::skZero3f;
   float x2c_universeRadius = 1600.f;
 
 public:

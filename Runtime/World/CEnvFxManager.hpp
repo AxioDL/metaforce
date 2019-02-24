@@ -88,7 +88,7 @@ class CEnvFxManager {
   boo::ObjToken<boo::IGraphicsBufferD> m_fogUniformBuf;
 
   zeus::CAABox x0_particleBounds = zeus::CAABox(-63.5f, 63.5f);
-  zeus::CVector3f x18_focusCellPosition = zeus::CVector3f::skZero;
+  zeus::CVector3f x18_focusCellPosition = zeus::skZero3f;
   bool x24_enableSplash = false;
   float x28_firstSnowForce = 0.f;
   s32 x2c_lastBlockedGridIdx = -1;

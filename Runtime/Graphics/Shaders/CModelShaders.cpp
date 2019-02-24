@@ -7,7 +7,7 @@ namespace urde {
 std::unordered_map<uint64_t, CModelShaders::ShaderPipelines> CModelShaders::g_ShaderPipelines;
 
 void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& lts) {
-  ambient = zeus::CColor::skClear;
+  ambient = zeus::skClear;
   size_t curLight = 0;
 
   for (const CLight& light : lts) {
@@ -42,9 +42,9 @@ void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& l
 
   for (; curLight < URDE_MAX_LIGHTS; ++curLight) {
     CModelShaders::Light& lightOut = lights[curLight];
-    lightOut.pos = zeus::CVector3f::skZero;
-    lightOut.dir = zeus::CVector3f::skDown;
-    lightOut.color = zeus::CColor::skClear;
+    lightOut.pos = zeus::skZero3f;
+    lightOut.dir = zeus::skDown;
+    lightOut.color = zeus::skClear;
     lightOut.linAtt[0] = 1.f;
     lightOut.linAtt[1] = 0.f;
     lightOut.linAtt[2] = 0.f;
@@ -144,7 +144,11 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
      false, true, false, false, true},
     /* Forced additive shading without culling or Z-write and greater depth test */
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
-     hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true}};
+     hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true},
+    /* Thermal cold shading */
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original,
+     false, false, true, false, false, false, true}};
 
 extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];
 extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];

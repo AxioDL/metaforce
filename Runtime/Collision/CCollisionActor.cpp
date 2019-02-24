@@ -14,8 +14,8 @@ static const CMaterialList gkDefaultCollisionActorMaterials =
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& extent,
                                  const zeus::CVector3f& center, bool active, float mass, std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
-                zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
-                zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+                zeus::CTransform(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
+                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::OBBTreeGroup)
 , x25c_owner(uid2)
 , x260_boxSize(extent)
@@ -33,8 +33,8 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, const zeus::CVector3f& boxSize,
                                  bool active, float mass, std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
-                zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
-                zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+                zeus::CTransform(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
+                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::AABox)
 , x25c_owner(uid2)
 , x260_boxSize(boxSize)
@@ -51,11 +51,11 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bool active, float radius, float mass,
                                  std::string_view name)
 : CPhysicsActor(uid1, active, "CollisionActor", CEntityInfo(aId, CEntity::NullConnectionList),
-                zeus::CTransform::Identity(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
-                zeus::CAABox::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
+                zeus::CTransform(), CModelData::CModelDataNull(), gkDefaultCollisionActorMaterials,
+                zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::Sphere)
 , x25c_owner(uid2)
-, x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::CVector3f::skZero, radius),
+, x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::skZero3f, radius),
                                              CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
 , x288_sphereRadius(radius) {
   x10_name += ' ';

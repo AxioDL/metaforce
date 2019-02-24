@@ -115,7 +115,7 @@ void CJellyZap::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     if (x5b8_26_) {
       zeus::CVector3f moveToImpulse =
           GetMoveToORImpulseWR(GetTransform().transposeRotate(arg * (zeus::CVector3f(0.f, 1.f, 0.f) * x598_)), arg);
-      ApplyImpulseOR(moveToImpulse, zeus::CAxisAngle::sIdentity);
+      ApplyImpulseOR(moveToImpulse, zeus::CAxisAngle());
     }
   } else if (msg == EStateMsg::Deactivate) {
     x5b8_24_ = false;

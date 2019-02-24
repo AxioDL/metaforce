@@ -189,7 +189,7 @@ void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch,
     inst.SetMetrics(*glyph, offset);
     inst.m_fontColor = m_main * color;
     inst.m_outlineColor = m_outline * color;
-    inst.m_mulColor = zeus::CColor::skWhite;
+    inst.m_mulColor = zeus::skWhite;
   }
 }
 

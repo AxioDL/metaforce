@@ -336,7 +336,7 @@ void CParasite::CollidedWith(TUniqueId uid, const CCollisionInfoList& list, CSta
       if (!x5d6_24_alignToFloor && info.GetMaterialLeft().Intersection(testList) == 0) {
         OrientToSurfaceNormal(info.GetNormalLeft(), 360.f);
         CPhysicsActor::Stop();
-        SetVelocityWR(zeus::CVector3f::skZero);
+        SetVelocityWR(zeus::skZero3f);
         x742_27_landed = true;
         x742_28_onGround = true;
       }
@@ -358,7 +358,7 @@ void CParasite::Patrol(CStateManager& mgr, EStateMsg msg, float dt) {
     x5d6_24_alignToFloor = true;
     if (!x5d6_27_disableMove && x5d0_walkerType == EWalkerType::Parasite)
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
-    SetMomentumWR(zeus::CVector3f::skZero);
+    SetMomentumWR(zeus::skZero3f);
     x5d6_25_hasAlignSurface = false;
     xf8_24_movable = false;
     break;
@@ -415,7 +415,7 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
           x45c_steeringBehaviors.Separation(*this, closestParasite->GetTranslation(), x6e8_parasiteSeparationDist) *
           x604_activeSpeed;
     else
-      x628_parasiteSeparationMove = zeus::CVector3f::skZero;
+      x628_parasiteSeparationMove = zeus::skZero3f;
     x634_parasiteCohesionMove = x45c_steeringBehaviors.Cohesion(*this, parasiteList, 0.6f, mgr) * x604_activeSpeed;
     x640_parasiteAlignmentMove = x45c_steeringBehaviors.Alignment(*this, parasiteList, mgr) * x604_activeSpeed;
   }
@@ -427,12 +427,12 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
                                                                                 x700_playerSeparationDist),
                                               upVec) *
                              x604_activeSpeed,
-                         zeus::CVector3f::skZero, x704_playerSeparationWeight));
+                         zeus::skZero3f, x704_playerSeparationWeight));
   }
 
-  if (x628_parasiteSeparationMove != zeus::CVector3f::skZero) {
+  if (x628_parasiteSeparationMove != zeus::skZero3f) {
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(ProjectVectorToPlane(x628_parasiteSeparationMove, upVec), zeus::CVector3f::skZero,
+        CBCLocomotionCmd(ProjectVectorToPlane(x628_parasiteSeparationMove, upVec), zeus::skZero3f,
                          x6ec_parasiteSeparationWeight));
   }
 
@@ -441,22 +441,22 @@ void CParasite::DoFlockingBehavior(CStateManager& mgr) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
           ProjectVectorToPlane(x45c_steeringBehaviors.Separation(*this, r.GetVector(), r.GetFloat()) * x604_activeSpeed,
                                upVec),
-          zeus::CVector3f::skZero, 1.f));
+          zeus::skZero3f, 1.f));
     }
   }
 
   if (x608_telegraphRemTime <= 0.f) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
-        ProjectVectorToPlane(x634_parasiteCohesionMove, upVec), zeus::CVector3f::skZero, x6f4_parasiteCohesionWeight));
+        ProjectVectorToPlane(x634_parasiteCohesionMove, upVec), zeus::skZero3f, x6f4_parasiteCohesionWeight));
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(ProjectVectorToPlane(x640_parasiteAlignmentMove, upVec), zeus::CVector3f::skZero,
+        CBCLocomotionCmd(ProjectVectorToPlane(x640_parasiteAlignmentMove, upVec), zeus::skZero3f,
                          x6f0_parasiteAlignmentWeight));
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
         ProjectVectorToPlane(
             ProjectVectorToPlane(x45c_steeringBehaviors.Seek(*this, x2e0_destPos), upVec) * x604_activeSpeed, upVec),
-        zeus::CVector3f::skZero, x6f8_destinationSeekWeight));
+        zeus::skZero3f, x6f8_destinationSeekWeight));
     x450_bodyController->GetCommandMgr().DeliverCmd(
-        CBCLocomotionCmd(x34_transform.basis[1] * x604_activeSpeed, zeus::CVector3f::skZero, x6fc_forwardMoveWeight));
+        CBCLocomotionCmd(x34_transform.basis[1] * x604_activeSpeed, zeus::skZero3f, x6fc_forwardMoveWeight));
   }
 }
 
@@ -467,7 +467,7 @@ void CParasite::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
     x5d6_24_alignToFloor = true;
     if (x5d0_walkerType == EWalkerType::Parasite)
       x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
-    SetMomentumWR(zeus::CVector3f::skZero);
+    SetMomentumWR(zeus::skZero3f);
     xf8_24_movable = false;
     break;
   case EStateMsg::Update:
@@ -545,7 +545,7 @@ TUniqueId CParasite::GetClosestWaypointForState(EScriptObjectState state, CState
 
 void CParasite::TargetPatrol(CStateManager& mgr, EStateMsg msg, float dt) {
   if (msg == EStateMsg::Activate) {
-    SetMomentumWR(zeus::CVector3f::skZero);
+    SetMomentumWR(zeus::skZero3f);
     TUniqueId wpId = GetClosestWaypointForState(EScriptObjectState::Patrol, mgr);
     if (wpId != kInvalidUniqueId)
       x2dc_destObj = wpId;
@@ -560,7 +560,7 @@ void CParasite::Halt(CStateManager& mgr, EStateMsg msg, float) {
     x743_24_halted = true;
     x5d6_24_alignToFloor = true;
     if (x5d0_walkerType == EWalkerType::Geemer)
-      CSfxManager::AddEmitter(x73c_haltSfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f,
+      CSfxManager::AddEmitter(x73c_haltSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
                               kInvalidAreaId);
     break;
   case EStateMsg::Update:
@@ -679,7 +679,7 @@ void CParasite::Crouch(CStateManager&, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
     if (x5d0_walkerType == EWalkerType::Geemer)
-      CSfxManager::AddEmitter(x740_crouchSfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f,
+      CSfxManager::AddEmitter(x740_crouchSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
                               kInvalidAreaId);
   }
 }
@@ -688,7 +688,7 @@ void CParasite::GetUp(CStateManager&, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
     if (x5d0_walkerType == EWalkerType::Geemer)
-      CSfxManager::AddEmitter(x73e_getUpSfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f,
+      CSfxManager::AddEmitter(x73e_getUpSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
                               kInvalidAreaId);
   }
 }
@@ -733,7 +733,7 @@ void CParasite::Jump(CStateManager& mgr, EStateMsg msg, float) {
     break;
   case EStateMsg::Deactivate:
     RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
-    SetMomentumWR(zeus::CVector3f::skZero);
+    SetMomentumWR(zeus::skZero3f);
     x742_28_onGround = true;
     x742_27_landed = false;
     x743_27_inJump = false;
@@ -742,7 +742,7 @@ void CParasite::Jump(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CParasite::FaceTarget(const zeus::CVector3f& target) {
-  zeus::CQuaternion q = zeus::CQuaternion::lookAt(zeus::CTransform::Identity().basis[1], target - GetTranslation(),
+  zeus::CQuaternion q = zeus::CQuaternion::lookAt(zeus::CTransform().basis[1], target - GetTranslation(),
                                                   zeus::degToRad(360.f));
   SetTransform(q.toTransform(GetTranslation()));
 }

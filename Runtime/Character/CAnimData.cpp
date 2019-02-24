@@ -300,7 +300,7 @@ void CAnimData::SetRandomPlaybackRate(CRandom16& r) {
 void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
                                            const std::shared_ptr<CAnimTreeNode>& node) {
   zeus::CQuaternion orient;
-  x1e8_alignRot = zeus::CQuaternion::skNoRotation;
+  x1e8_alignRot = zeus::CQuaternion();
 
   x220_27_ = false;
   if (parms.GetDeltaOrient() && parms.GetObjectXform()) {
@@ -311,7 +311,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
       CInt32POINode& poi = g_Int32POINodes[i];
       if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetRot) {
         SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
-        orient = zeus::CQuaternion::slerp(zeus::CQuaternion::skNoRotation,
+        orient = zeus::CQuaternion::slerp(zeus::CQuaternion(),
                                           *parms.GetDeltaOrient() *
                                               zeus::CQuaternion(parms.GetObjectXform()->buildMatrix3f().inverted()) *
                                               res.x8_deltas.xc_rotDelta.inverse(),
@@ -369,7 +369,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
         x220_28_ = true;
         x220_26_aligningPos = false;
       } else {
-        x1dc_alignPos = zeus::CVector3f::skZero;
+        x1dc_alignPos = zeus::skZero3f;
         x220_28_ = false;
         x220_26_aligningPos = false;
       }
@@ -402,8 +402,8 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
 
       if (didAlign && didStart) {
         CCharAnimTime frameInterval(1.f / 60.f);
-        orient = zeus::CQuaternion::skNoRotation;
-        x1e8_alignRot = zeus::CQuaternion::skNoRotation;
+        orient = zeus::CQuaternion();
+        x1e8_alignRot = zeus::CQuaternion();
         x220_27_ = true;
         CCharAnimTime time;
         zeus::CVector3f pos;
@@ -427,12 +427,12 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
         x220_28_ = true;
         x220_26_aligningPos = false;
       } else {
-        x1dc_alignPos = zeus::CVector3f::skZero;
+        x1dc_alignPos = zeus::skZero3f;
         x220_28_ = false;
         x220_26_aligningPos = false;
       }
     } else {
-      x1dc_alignPos = zeus::CVector3f::skZero;
+      x1dc_alignPos = zeus::skZero3f;
       x220_28_ = false;
       x220_26_aligningPos = false;
     }
@@ -702,7 +702,7 @@ SAdvancementDeltas CAnimData::DoAdvance(float dt, bool& suspendParticles, CRando
         time = std::max(0.f, std::min(remTime.GetSeconds(), time.GetSeconds()));
         if (remTime.EpsilonZero()) {
           x220_24_animating = false;
-          x1dc_alignPos = zeus::CVector3f::skZero;
+          x1dc_alignPos = zeus::skZero3f;
           x220_28_ = false;
           x220_26_aligningPos = false;
         }
@@ -761,13 +761,13 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
           break;
         }
         case EUserEventType::AlignTargetPos: {
-          x1dc_alignPos = zeus::CVector3f::skZero;
+          x1dc_alignPos = zeus::skZero3f;
           x220_28_ = false;
           x220_26_aligningPos = false;
           break;
         }
         case EUserEventType::AlignTargetRot: {
-          x1e8_alignRot = zeus::CQuaternion::skNoRotation;
+          x1e8_alignRot = zeus::CQuaternion();
           x220_27_ = false;
           break;
         }

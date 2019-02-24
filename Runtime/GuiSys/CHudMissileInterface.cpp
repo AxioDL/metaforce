@@ -184,7 +184,7 @@ void CHudMissileInterface::Update(float dt, const CStateManager& mgr) {
     else
       tmp = (0.5f - tmp) / 0.25f;
 
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = x40_missileWarningAlpha * tmp * warnPulse;
     x68_textpane_missilewarning->SetColor(color);
     if (x68_textpane_missilewarning->GetGeometryColor().a())

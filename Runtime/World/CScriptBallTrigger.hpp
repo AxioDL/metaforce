@@ -7,7 +7,7 @@ class CScriptBallTrigger : public CScriptTrigger {
   float x150_force;
   float x154_minAngle;
   float x158_maxDistance;
-  zeus::CVector3f x15c_forceAngle = zeus::CVector3f::skZero;
+  zeus::CVector3f x15c_forceAngle = zeus::skZero3f;
   bool x168_24_canApplyForce : 1;
   bool x168_25_stopPlayer : 1;
 

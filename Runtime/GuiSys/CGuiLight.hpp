@@ -16,7 +16,7 @@ class CGuiLight : public CGuiWidget {
   float xd0_angleL;
   float xd4_angleQ;
   u32 xd8_lightId;
-  zeus::CColor xdc_ambColor = zeus::CColor::skBlack;
+  zeus::CColor xdc_ambColor = zeus::skBlack;
 
 public:
   ~CGuiLight();

@@ -52,8 +52,8 @@ void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActo
         rstl::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
         CHUDBillboardEffect* effect = new CHUDBillboardEffect(
             bb, {}, mgr.AllocateUniqueId(), true, "VisorAcid", CHUDBillboardEffect::GetNearClipDistance(mgr),
-            CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::CColor::skWhite, zeus::CVector3f::skOne,
-            zeus::CVector3f::skZero);
+            CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f,
+            zeus::skZero3f);
         mgr.AddObject(effect);
         CSfxManager::SfxStart(x168_visorSfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
         if (x2e4_28_sendProjectileCollideMsg)

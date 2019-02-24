@@ -384,7 +384,7 @@ void CKnockBackController::ApplyImpulse(float dt, CPatterned& parent) {
             parent.GetTransform().transposeRotate(
                 x50_impulseDir * (remFac * x5c_impulseMag * dt / ImpulseDurationTable[x20_impulseDurationIdx])),
             dt),
-        zeus::CAxisAngle::sIdentity);
+        zeus::CAxisAngle());
   }
 }
 
@@ -481,7 +481,7 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
     if (CHealthInfo* hInfo = parent.HealthInfo(mgr))
       hurlVel += CalculateExtraHurlVelocity(mgr, magnitude, hInfo->GetKnockbackResistance());
     hurlVel = std::sqrt(parent.GetGravityConstant() * 0.5f * hurlVel);
-    zeus::CVector3f backUpVec = backVec + backVec.magnitude() * zeus::CVector3f::skUp;
+    zeus::CVector3f backUpVec = backVec + backVec.magnitude() * zeus::skUp;
     if (backUpVec.canBeNormalized()) {
       parent.BodyController()->GetCommandMgr().DeliverCmd(CBCHurledCmd(-backVec, backUpVec.normalized() * hurlVel));
       parent.SetMomentumWR({0.f, 0.f, parent.GetGravityConstant() * -parent.GetMass()});

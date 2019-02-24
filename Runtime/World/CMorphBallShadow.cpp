@@ -41,7 +41,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
   CGraphics::CProjectionState backupProjection = CGraphics::g_Proj;
   zeus::CVector2f backupDepth = CGraphics::g_CachedDepthRange;
   zeus::CTransform viewMtx(
-      zeus::CVector3f::skRight, zeus::CVector3f::skDown, zeus::CVector3f::skForward,
+      zeus::skRight, zeus::skDown, zeus::skForward,
       zeus::CVector3f((aabb.min.x() + aabb.max.x()) * 0.5f, (aabb.min.y() + aabb.max.y()) * 0.5f, aabb.max.z()));
 
   CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_FAR);
@@ -78,7 +78,7 @@ void CMorphBallShadow::RenderIdBuffer(const zeus::CAABox& aabb, const CStateMana
     alphaVal += 4;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
 
   g_Renderer->FindOverlappingWorldModels(x30_worldModelBits, aabb);
   alphaVal = g_Renderer->DrawOverlappingWorldModelIDs(alphaVal, x30_worldModelBits, aabb);
@@ -132,7 +132,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
     alphaVal += 4;
   }
 
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
   g_Renderer->DrawOverlappingWorldModelShadows(alphaVal, x30_worldModelBits, xb8_shadowVolume, alpha);
 }
 

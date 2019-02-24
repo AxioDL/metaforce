@@ -75,8 +75,8 @@ void CScriptVisorGoo::Think(float, CStateManager& mgr) {
                   x100_electricId.IsValid() ? xf0_electricDesc
                                             : rstl::optional<TToken<CElectricDescription>>(),
                   mgr.AllocateUniqueId(), true, "VisorGoo", CHUDBillboardEffect::GetNearClipDistance(mgr),
-                  CHUDBillboardEffect::GetScaleForPOV(mgr), x114_color, zeus::CVector3f::skOne,
-                  zeus::CVector3f::skZero));
+                  CHUDBillboardEffect::GetScaleForPOV(mgr), x114_color, zeus::skOne3f,
+                  zeus::skZero3f));
               CSfxManager::SfxStart(xf8_sfx, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
             }
           }

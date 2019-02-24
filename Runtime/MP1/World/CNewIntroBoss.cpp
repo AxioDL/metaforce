@@ -60,10 +60,10 @@ void CNewIntroBoss::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
 
     if (x5d4_stage1Projectile == kInvalidUniqueId) {
       CBeamInfo stage1BeamInfo(3, x5f0_beamContactFxId, x5f4_beamPulseFxId, x5f8_beamTextureId, x5fc_beamGlowTextureId,
-                               50, 1.f, 1.f, 1.5f, 20.f, 1.f, 4.f, 8.f, zeus::CColor::skYellow,
+                               50, 1.f, 1.f, 1.5f, 20.f, 1.f, 4.f, 8.f, zeus::skYellow,
                                zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
       CBeamInfo stage2BeamInfo(3, x5f0_beamContactFxId, x5f4_beamPulseFxId, x5f8_beamTextureId, x5fc_beamGlowTextureId,
-                               50, 1.f, 1.f, 2.f, 20.f, 1.f, 4.f, 8.f, zeus::CColor::skYellow,
+                               50, 1.f, 1.f, 2.f, 20.f, 1.f, 4.f, 8.f, zeus::skYellow,
                                zeus::CColor(0.1098f, 0.5764f, 0.1592f), 150.f);
 
       x5d4_stage1Projectile = mgr.AllocateUniqueId();
@@ -315,7 +315,7 @@ float CNewIntroBoss::GetNextAttackTime(CStateManager& mgr) const {
 zeus::CVector3f CNewIntroBoss::PlayerPos(const CStateManager& mgr) const {
   CRayCastResult result = CGameCollision::RayStaticIntersection(
       mgr, mgr.GetPlayer().GetTranslation() + zeus::CVector3f{0.f, 0.f, mgr.GetPlayer().GetEyeHeight() * 0.5f},
-      zeus::CVector3f::skDown, 30.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
+      zeus::skDown, 30.f, CMaterialFilter::MakeInclude({EMaterialTypes::Solid}));
   if (result.IsValid())
     return result.GetPoint() + zeus::CVector3f{0.f, 0.f, (mgr.GetPlayer().GetEyeHeight() * 0.5f) + 0.2f};
 

@@ -11,9 +11,9 @@ namespace urde::MP1 {
 static const zeus::CTransform PreXf = zeus::CTransform::Scale(0.3f) * zeus::CTransform::Translate(0.f, 0.5f, 0.f);
 
 CSamusFaceReflection::CSamusFaceReflection(CStateManager& stateMgr)
-: x0_modelData(CAnimRes(g_ResFactory->GetResourceIdByName("ACS_SamusFace")->id, 0, zeus::CVector3f::skOne, 0, true))
-, x4c_lights(std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, 0, 0, 0.1f)) {
-  x60_lookDir = zeus::CVector3f::skForward;
+: x0_modelData(CAnimRes(g_ResFactory->GetResourceIdByName("ACS_SamusFace")->id, 0, zeus::skOne3f, 0, true))
+, x4c_lights(std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, 0, 0, 0.1f)) {
+  x60_lookDir = zeus::skForward;
   CAnimPlaybackParms parms(0, -1, 1.f, true);
   x0_modelData.AnimationData()->SetAnimation(parms, false);
 }
@@ -53,7 +53,7 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
 
     CActorLights* lights = x6c_ == 1 ? nullptr : x4c_lights.get();
     if (x6c_ == 3) {
-      x0_modelData.Render(mgr, modelXf, lights, CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+      x0_modelData.Render(mgr, modelXf, lights, CModelFlags(0, 0, 3, zeus::skWhite));
     } else {
       float transFactor;
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Combat)
@@ -61,7 +61,7 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
       else
         transFactor = 0.f;
       if (transFactor > 0.f) {
-        x0_modelData.Render(mgr, modelXf, nullptr, CModelFlags(7, 0, 3, zeus::CColor::skBlack));
+        x0_modelData.Render(mgr, modelXf, nullptr, CModelFlags(7, 0, 3, zeus::skBlack));
         x0_modelData.Render(mgr, modelXf, lights, CModelFlags(7, 0, 1, zeus::CColor(1.f, transFactor)));
       }
     }
@@ -82,8 +82,8 @@ void CSamusFaceReflection::Update(float dt, const CStateManager& mgr, CRandom16&
 
     zeus::CUnitVector3f lookDir(fpCam->GetTransform().basis[1]);
     zeus::CUnitVector3f xfLook =
-        zeus::CQuaternion::lookAt(lookDir, zeus::CVector3f::skForward, 2.f * M_PIF).transform(x60_lookDir);
-    zeus::CQuaternion xfLook2 = zeus::CQuaternion::lookAt(zeus::CVector3f::skForward, xfLook, 2.f * M_PIF);
+        zeus::CQuaternion::lookAt(lookDir, zeus::skForward, 2.f * M_PIF).transform(x60_lookDir);
+    zeus::CQuaternion xfLook2 = zeus::CQuaternion::lookAt(zeus::skForward, xfLook, 2.f * M_PIF);
     xfLook2 *= xfLook2;
     zeus::CMatrix3f newXf(xfLook2);
     zeus::CMatrix3f prevXf(x50_lookRot);

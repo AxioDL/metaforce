@@ -70,8 +70,8 @@ void CPauseScreen::InitializeFrameGlue() {
   x40_textpane_a->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x44_textpane_b->TextSupport().SetText(x14_strgPauseScreen->GetString(6)); // LOG BOOK
   x44_textpane_b->TextSupport().SetFontColor(g_tweakGuiColors->GetPauseItemAmberColor());
-  x40_textpane_a->SetColor(zeus::CColor::skClear);
-  x44_textpane_b->SetColor(zeus::CColor::skClear);
+  x40_textpane_a->SetColor(zeus::skClear);
+  x44_textpane_b->SetColor(zeus::skClear);
 
   if (CGuiWidget* deco = x34_loadedPauseScreenInstructions->FindWidget("basewidget_deco")) {
     zeus::CColor color = g_tweakGuiColors->GetPauseItemAmberColor();
@@ -302,7 +302,7 @@ void CPauseScreen::Update(float dt, const CStateManager& mgr, CRandom16& rand, C
 
   if (std::unique_ptr<CPauseScreenBase>& curScreen = x7c_screens[x78_activeIdx]) {
     curScreen->Update(dt, rand, archQueue);
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = std::min(curScreen->GetAlpha(), x8_curSubscreen != xc_nextSubscreen ? x10_alphaInterp / 0.5f : 1.f);
     x40_textpane_a->SetColor(color);
     x44_textpane_b->SetColor(color);

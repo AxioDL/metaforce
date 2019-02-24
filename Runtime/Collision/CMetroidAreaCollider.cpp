@@ -152,7 +152,7 @@ CMovingAABoxComponents::CMovingAABoxComponents(const zeus::CAABox& aabb, const z
       x6c4_vertIdxs.push_back(i);
 
   if (useFaces == 1) {
-    x6e8_aabb = zeus::CAABox::skInvertedBox;
+    x6e8_aabb = zeus::CAABox();
     x6e8_aabb.accumulateBounds(aabb.getPoint(x6c4_vertIdxs[0]));
     x6e8_aabb.accumulateBounds(aabb.getPoint(x6c4_vertIdxs[1]));
     x6e8_aabb.accumulateBounds(aabb.getPoint(x6c4_vertIdxs[2]));
@@ -353,12 +353,12 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& le
                                                       const CMaterialFilter& filter, const CMaterialList& matList,
                                                       CCollisionInfoList& list) {
   bool ret = false;
-  zeus::CPlane planes[] = {{zeus::CVector3f::skRight, aabb.min.dot(zeus::CVector3f::skRight)},
-                           {zeus::CVector3f::skLeft, aabb.max.dot(zeus::CVector3f::skLeft)},
-                           {zeus::CVector3f::skForward, aabb.min.dot(zeus::CVector3f::skForward)},
-                           {zeus::CVector3f::skBack, aabb.max.dot(zeus::CVector3f::skBack)},
-                           {zeus::CVector3f::skUp, aabb.min.dot(zeus::CVector3f::skUp)},
-                           {zeus::CVector3f::skDown, aabb.max.dot(zeus::CVector3f::skDown)}};
+  zeus::CPlane planes[] = {{zeus::skRight, aabb.min.dot(zeus::skRight)},
+                           {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
+                           {zeus::skForward, aabb.min.dot(zeus::skForward)},
+                           {zeus::skBack, aabb.max.dot(zeus::skBack)},
+                           {zeus::skUp, aabb.min.dot(zeus::skUp)},
+                           {zeus::skDown, aabb.max.dot(zeus::skDown)}};
   CAABoxAreaCache cache(aabb, planes, filter, matList, list);
 
   ResetInternalCounters();
@@ -378,7 +378,7 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Cached(const COctreeLeafCache& le
           if (cache.x8_filter.Passes(material)) {
             if (CollisionUtil::TriBoxOverlap(cache.x14_center, cache.x20_halfExtent, surf.GetVert(0), surf.GetVert(1),
                                              surf.GetVert(2))) {
-              zeus::CAABox aabb = zeus::CAABox::skInvertedBox;
+              zeus::CAABox aabb = zeus::CAABox();
               if (ConvexPolyCollision(cache.x4_planes, surf.GetVerts(), aabb)) {
                 zeus::CPlane plane = surf.GetPlane();
                 CCollisionInfo collision(aabb, cache.xc_material, material, plane.normal(), -plane.normal());
@@ -424,7 +424,7 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
         if (cache.x8_filter.Passes(material)) {
           if (CollisionUtil::TriBoxOverlap(cache.x14_center, cache.x20_halfExtent, surf.GetVert(0), surf.GetVert(1),
                                            surf.GetVert(2))) {
-            zeus::CAABox aabb = zeus::CAABox::skInvertedBox;
+            zeus::CAABox aabb = zeus::CAABox();
             if (ConvexPolyCollision(cache.x4_planes, surf.GetVerts(), aabb)) {
               zeus::CPlane plane = surf.GetPlane();
               CCollisionInfo collision(aabb, cache.xc_material, material, plane.normal(), -plane.normal());
@@ -447,12 +447,12 @@ bool CMetroidAreaCollider::AABoxCollisionCheck_Internal(const CAreaOctTree::Node
 bool CMetroidAreaCollider::AABoxCollisionCheck(const CAreaOctTree& octTree, const zeus::CAABox& aabb,
                                                const CMaterialFilter& filter, const CMaterialList& matList,
                                                CCollisionInfoList& list) {
-  zeus::CPlane planes[] = {{zeus::CVector3f::skRight, aabb.min.dot(zeus::CVector3f::skRight)},
-                           {zeus::CVector3f::skLeft, aabb.max.dot(zeus::CVector3f::skLeft)},
-                           {zeus::CVector3f::skForward, aabb.min.dot(zeus::CVector3f::skForward)},
-                           {zeus::CVector3f::skBack, aabb.max.dot(zeus::CVector3f::skBack)},
-                           {zeus::CVector3f::skUp, aabb.min.dot(zeus::CVector3f::skUp)},
-                           {zeus::CVector3f::skDown, aabb.max.dot(zeus::CVector3f::skDown)}};
+  zeus::CPlane planes[] = {{zeus::skRight, aabb.min.dot(zeus::skRight)},
+                           {zeus::skLeft, aabb.max.dot(zeus::skLeft)},
+                           {zeus::skForward, aabb.min.dot(zeus::skForward)},
+                           {zeus::skBack, aabb.max.dot(zeus::skBack)},
+                           {zeus::skUp, aabb.min.dot(zeus::skUp)},
+                           {zeus::skDown, aabb.max.dot(zeus::skDown)}};
   CAABoxAreaCache cache(aabb, planes, filter, matList, list);
 
   ResetInternalCounters();

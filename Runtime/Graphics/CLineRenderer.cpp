@@ -368,14 +368,18 @@ void CLineRenderer::Render(const zeus::CColor& moduColor) {
 
   m_uniformBuf.access() = SDrawUniform{moduColor};
   if (m_textured) {
-    memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
-    CGraphics::SetShaderDataBinding(m_shaderBind);
-    CGraphics::DrawArray(0, g_StaticLineVertsTex.size());
+    if (!g_StaticLineVertsTex.empty()) {
+      memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
+      CGraphics::SetShaderDataBinding(m_shaderBind);
+      CGraphics::DrawArray(0, g_StaticLineVertsTex.size());
+    }
   } else {
-    memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(),
-            sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
-    CGraphics::SetShaderDataBinding(m_shaderBind);
-    CGraphics::DrawArray(0, g_StaticLineVertsNoTex.size());
+    if (!g_StaticLineVertsNoTex.empty()) {
+      memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(),
+              sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
+      CGraphics::SetShaderDataBinding(m_shaderBind);
+      CGraphics::DrawArray(0, g_StaticLineVertsNoTex.size());
+    }
   }
 }
 

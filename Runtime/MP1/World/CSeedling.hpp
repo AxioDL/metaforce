@@ -11,7 +11,7 @@ class CSeedling : public CWallWalker {
   std::unique_ptr<CModelData> x6bc_spikeData;
   CProjectileInfo x6c0_projectileInfo;
   CDamageInfo x6e8_deathDamage;
-  zeus::CAABox x704_modelBounds = zeus::CAABox::skNullBox;
+  zeus::CAABox x704_modelBounds = zeus::skNullBox;
   float x71c_attackCoolOff = 0.f;
   TUniqueId x720_prevObj = kInvalidUniqueId;
   bool x722_24_renderOnlyClusterA : 1;

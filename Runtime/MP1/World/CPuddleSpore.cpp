@@ -118,7 +118,7 @@ void CPuddleSpore::Think(float dt, CStateManager& mgr) {
     x568_ += dt;
   HealthInfo(mgr)->SetHP(1000000.0f);
   float t = (x56c_ / x570_) - 1.f >= -0.f ? 1.f : x56c_ / x570_;
-  zeus::CColor modColor = zeus::CColor::lerp(zeus::CColor::skWhite, zeus::CColor(1.f, 1.f, 1.f, 0.f), t);
+  zeus::CColor modColor = zeus::CColor::lerp(zeus::skWhite, zeus::CColor(1.f, 1.f, 1.f, 0.f), t);
   for (u32 i = 0; i < kEyeCount; ++i) {
     const auto& elemGen = x5dc_elemGens[i];
     elemGen->SetModulationColor(modColor);
@@ -167,7 +167,7 @@ void CPuddleSpore::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
       mgr.AddObject(new CEnergyProjectile(
           true, projInfo->Token(), EWeaponType::AI, GetLctrTransform(node.GetLocatorName()), EMaterialTypes::Character,
           projInfo->GetDamage(), mgr.AllocateUniqueId(), GetAreaIdAlways(), GetUniqueId(), kInvalidUniqueId,
-          EProjectileAttrib::None, false, zeus::CVector3f::skOne, {}, 0xFFFF, false));
+          EProjectileAttrib::None, false, zeus::skOne3f, {}, 0xFFFF, false));
     }
   } else
     CPatterned::DoUserAnimEvent(mgr, node, type, dt);

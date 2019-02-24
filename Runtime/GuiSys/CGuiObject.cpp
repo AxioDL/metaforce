@@ -30,7 +30,7 @@ void CGuiObject::MoveInWorld(const zeus::CVector3f& vec) {
 void CGuiObject::SetLocalPosition(const zeus::CVector3f& pos) { MoveInWorld(pos - x4_localXF.origin); }
 
 void CGuiObject::RotateReset() {
-  x4_localXF.basis = zeus::CMatrix3f::skIdentityMatrix3f;
+  x4_localXF.basis = zeus::CMatrix3f();
   RecalculateTransforms();
 }
 

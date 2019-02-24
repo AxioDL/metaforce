@@ -133,7 +133,7 @@ specter::View* ViewManager::BuildSpaceViews() {
 
 specter::RootView* ViewManager::SetupRootView() {
   m_rootView.reset(new specter::RootView(*this, m_viewResources, m_mainWindow.get()));
-  m_rootView->setBackground(zeus::CColor::skBlack);
+  m_rootView->setBackground(zeus::skBlack);
   return m_rootView.get();
 }
 

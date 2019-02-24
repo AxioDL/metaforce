@@ -53,7 +53,7 @@ float CScriptSound::GetOccludedVolumeAmount(const zeus::CVector3f& pos, const CS
   zeus::CVector3f soundToCam = camXf.origin - pos;
   float soundToCamMag = soundToCam.magnitude();
   zeus::CVector3f soundToCamNorm = soundToCam * (1.f / soundToCamMag);
-  zeus::CVector3f thirdEdge = zeus::CVector3f::skUp - soundToCamNorm * soundToCamNorm.dot(zeus::CVector3f::skUp);
+  zeus::CVector3f thirdEdge = zeus::skUp - soundToCamNorm * soundToCamNorm.dot(zeus::skUp);
   zeus::CVector3f cross = soundToCamNorm.cross(thirdEdge);
   static float kInfluenceAmount = 3.f / soundToCamMag;
   static float kInfluenceIncrement = kInfluenceAmount;
@@ -88,7 +88,7 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
     if (!x11c_26_nonEmitter && xec_sfxHandle) {
       if (xf8_updateTimer <= 0.f) {
         xf8_updateTimer = 0.25f;
-        CSfxManager::UpdateEmitter(xec_sfxHandle, GetTranslation(), zeus::CVector3f::skZero, xf2_maxVolUpd);
+        CSfxManager::UpdateEmitter(xec_sfxHandle, GetTranslation(), zeus::skZero3f, xf2_maxVolUpd);
       } else {
         xf8_updateTimer -= dt;
       }
@@ -121,7 +121,7 @@ void CScriptSound::Think(float dt, CStateManager& mgr) {
           xf2_maxVolUpd = xf0_maxVol;
         if (xf4_maxVolUpdDelta < 0.f && xf2_maxVolUpd < xf0_maxVol)
           xf2_maxVolUpd = xf0_maxVol;
-        CSfxManager::UpdateEmitter(xec_sfxHandle, GetTranslation(), zeus::CVector3f::skZero, xf2_maxVolUpd);
+        CSfxManager::UpdateEmitter(xec_sfxHandle, GetTranslation(), zeus::skZero3f, xf2_maxVolUpd);
       }
     }
 

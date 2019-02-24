@@ -11,7 +11,7 @@ CNewFlameThrower::CNewFlameThrower(const TToken<CWeaponDescription>& desc, std::
                                    const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                    EProjectileAttrib attribs)
 : CGameProjectile(false, desc, name, wType, xf, matType, dInfo, uid, aid, owner, kInvalidUniqueId, attribs, false,
-                  zeus::CVector3f::skOne, {}, -1, false)
+                  zeus::skOne3f, {}, -1, false)
 , x304_mainFire(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), resInfo[0]}))
 , x310_mainSmoke(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), resInfo[1]}))
 , x31c_secondarySmoke(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), resInfo[4]}))
@@ -45,7 +45,7 @@ void CNewFlameThrower::CreateLightObjects(CStateManager& mgr) {
   for (int i = 0; i < 4; ++i) {
     TUniqueId uid = mgr.AllocateUniqueId();
     CLight lObj = x358_mainFireGen->GetLight();
-    CGameLight* light = new CGameLight(uid, GetAreaId(), false, "FlamethrowerLight", zeus::CTransform::Identity(),
+    CGameLight* light = new CGameLight(uid, GetAreaId(), false, "FlamethrowerLight", zeus::CTransform(),
                                        x8_uid, lObj, u32(reinterpret_cast<uintptr_t>(this) + (i & 0x1)), 0, 0.f);
     mgr.AddObject(light);
     x3b8_lightIds.push_back(uid);

@@ -82,7 +82,7 @@ void do_sound_event(std::pair<u16, CSfxHandle>& sfxHandle, float& pitch, bool do
 
   CAudioSys::C3DEmitterParmData parms;
   parms.x0_pos = pos;
-  parms.xc_dir = zeus::CVector3f::skUp;
+  parms.xc_dir = zeus::skUp;
   parms.x18_maxDist = maxDist;
   parms.x1c_distComp = falloff;
   parms.x20_flags = useFlags;

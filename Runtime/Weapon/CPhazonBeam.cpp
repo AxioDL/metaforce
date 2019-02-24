@@ -55,7 +55,7 @@ void CPhazonBeam::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransfor
   if (IsFiring()) {
     zeus::CTransform backupView = CGraphics::g_ViewMatrix;
     CGraphics::SetViewPointMatrix(xf.inverse() * backupView);
-    CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+    CGraphics::SetModelMatrix(zeus::CTransform());
     CGunWeapon::DrawMuzzleFx(mgr);
     CGraphics::SetViewPointMatrix(backupView);
   }
@@ -168,12 +168,12 @@ bool CPhazonBeam::IsLoaded() const { return CGunWeapon::IsLoaded() && x274_24_lo
 
 void CPhazonBeam::DrawClipScaleCube() const {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderScale.draw(zeus::CColor::skClear);
+  m_aaboxShaderScale.draw(zeus::skClear);
 }
 
 void CPhazonBeam::DrawClipTranslateCube() const {
   // Render AABB as completely transparent object, only modifying Z-buffer
-  m_aaboxShaderTranslate.draw(zeus::CColor::skClear);
+  m_aaboxShaderTranslate.draw(zeus::skClear);
 }
 
 void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
@@ -193,7 +193,7 @@ void CPhazonBeam::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::C
   if (drawIndirect) {
     g_Renderer->DrawPhazonSuitIndirectEffect(zeus::CColor(0.3f * x270_indirectAlpha, 0.6f * x270_indirectAlpha,
                                                           x270_indirectAlpha, 0.5f * x270_indirectAlpha),
-                                             {}, zeus::CColor::skWhite, 1.f, 0.f, 0.f, 0.f);
+                                             {}, zeus::skWhite, 1.f, 0.f, 0.f, 0.f);
   }
 
   if (x224_phazonVeinsData) {

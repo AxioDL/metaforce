@@ -8,7 +8,7 @@ CWaveBuster::CWaveBuster(const TToken<CWeaponDescription>& desc, EWeaponType typ
                          EMaterialTypes matType, const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                          TUniqueId homingTarget, EProjectileAttrib attrib)
 : CGameProjectile(true, desc, "WaveBuster", type, xf, matType, dInfo, uid, aid, owner, homingTarget, attrib, false,
-                  zeus::CVector3f::skOne, {}, -1, false)
+                  zeus::skOne3f, {}, -1, false)
 , x2e8_originalXf(xf)
 , x348_targetPoint(x2e8_originalXf.basis[1].normalized() * 25.f + x2e8_originalXf.origin)
 , x354_busterSwoosh1(g_SimplePool->GetObj("BusterSwoosh1"))

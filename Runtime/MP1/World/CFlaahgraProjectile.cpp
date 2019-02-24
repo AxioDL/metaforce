@@ -6,7 +6,7 @@ CFlaahgraProjectile::CFlaahgraProjectile(bool bigStrike, const TToken<CWeaponDes
                                          const zeus::CTransform& xf, const CDamageInfo& damage, TUniqueId uid,
                                          TAreaId aid, TUniqueId owner)
 : CEnergyProjectile(true, desc, EWeaponType::AI, xf, EMaterialTypes::Character, damage, uid, aid, owner,
-                    kInvalidUniqueId, EProjectileAttrib::BigProjectile, false, zeus::CVector3f::skOne, {}, 0xffff,
+                    kInvalidUniqueId, EProjectileAttrib::BigProjectile, false, zeus::skOne3f, {}, 0xffff,
                     false)
 , x3d8_bigStrike(bigStrike) {
   if (x3d8_bigStrike) {

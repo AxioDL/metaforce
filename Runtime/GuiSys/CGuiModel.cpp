@@ -50,7 +50,7 @@ void CGuiModel::Draw(const CGuiWidgetDrawParms& parms) const {
 
     switch (xac_drawFlags) {
     case EGuiModelDrawFlags::Shadeless: {
-      CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+      CModelFlags flags(0, 0, 3, zeus::skWhite);
       flags.m_extendedShader = EExtendedShader::Flat;
       model->Draw(flags);
       break;

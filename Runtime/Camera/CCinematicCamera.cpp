@@ -159,7 +159,7 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
           x1f8_passedTarget = idx;
           SendArrivedMsg(x1c8_targetArrivals[x1f8_passedTarget], mgr);
         }
-        zeus::CVector3f upVec = orientation.transform(zeus::CVector3f::skUp);
+        zeus::CVector3f upVec = orientation.transform(zeus::skUp);
         if ((target - viewPoint).toVec2f().magnitude() < 0.0011920929f)
           SetTranslation(target);
         else
@@ -174,7 +174,7 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
       else
         target.z() += mgr.GetPlayer().GetEyeHeight();
 
-      zeus::CVector3f upVec = orientation.transform(zeus::CVector3f::skUp);
+      zeus::CVector3f upVec = orientation.transform(zeus::skUp);
       if ((target - viewPoint).toVec2f().magnitude() < 0.0011920929f)
         SetTranslation(target);
       else

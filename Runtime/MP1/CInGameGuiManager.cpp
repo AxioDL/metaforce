@@ -235,7 +235,7 @@ bool CInGameGuiManager::CheckLoadComplete(CStateManager& stateMgr) {
 
     x154_automapperRotate = zeus::CQuaternion(x144_basewidget_automapper->GetWorldTransform().basis);
     x164_automapperOffset = x144_basewidget_automapper->GetLocalPosition();
-    x170_camRotate = zeus::CQuaternion::skNoRotation;
+    x170_camRotate = zeus::CQuaternion();
     x180_camOffset =
         x14c_basehud_camera->GetLocalPosition() + zeus::CVector3f(0.f, 2.f, g_tweakAutoMapper->GetCamVerticalOffset());
 
@@ -539,10 +539,10 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
     else
       mapAlpha = 0.f;
 
-    x34_samusHud->GetBaseHudFrame()->GetFrameCamera()->Draw(CGuiWidgetDrawParms(0.f, zeus::CVector3f::skZero));
+    x34_samusHud->GetBaseHudFrame()->GetFrameCamera()->Draw(CGuiWidgetDrawParms(0.f, zeus::skZero3f));
     CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_HUD);
     x148_model_automapper->SetIsVisible(true);
-    x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::CVector3f::skZero));
+    x148_model_automapper->Draw(CGuiWidgetDrawParms(1.f, zeus::skZero3f));
     // ZTest no write
     x38_autoMapper->Draw(stateMgr, zeus::CTransform::Translate(0.f, 0.02f, 0.f) * x18c_mapCamXf,
                          mapAlpha * x1f4_visorStaticAlpha * t);
@@ -592,7 +592,7 @@ void CInGameGuiManager::Draw(CStateManager& stateMgr) {
       float colT = 1.f - zeus::clamp(0.f, (stateMgr.GetPlayer().GetDeathTime() - colStart) / 0.5f, 1.f);
       SClipScreenRect rect(g_Viewport);
       CGraphics::ResolveSpareTexture(rect);
-      m_deathBlackout.draw(zeus::CColor::skBlack);
+      m_deathBlackout.draw(zeus::skBlack);
       float z = 0.5f * (zT * zT * zT * zT * zT * (g_Viewport.xc_height - 12.f) + 12.f);
       float x = 0.5f * (xT * (g_Viewport.x8_width - 12.f) + 12.f);
 
@@ -625,7 +625,7 @@ void CInGameGuiManager::PauseGame(CStateManager& stateMgr, EInGameGuiState state
 }
 
 void CInGameGuiManager::StartFadeIn() {
-  xf8_camFilter.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::CColor::skBlack, -1);
+  xf8_camFilter.SetFilter(EFilterType::Multiply, EFilterShape::Fullscreen, 0.f, zeus::skBlack, -1);
   xf8_camFilter.DisableFilter(0.5f);
 }
 

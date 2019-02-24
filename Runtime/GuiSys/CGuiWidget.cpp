@@ -116,7 +116,7 @@ void CGuiWidget::SetIdlePosition(const zeus::CVector3f& pos, bool reapply) {
 
 void CGuiWidget::ReapplyXform() {
   RotateReset();
-  SetLocalPosition(zeus::CVector3f::skZero);
+  SetLocalPosition(zeus::skZero3f);
   MultiplyO2P(x74_transform);
 }
 

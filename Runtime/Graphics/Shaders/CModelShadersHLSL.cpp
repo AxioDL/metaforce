@@ -166,8 +166,7 @@ static std::string_view ThermalPostHLSL =
     "};\n"
     "static float4 ThermalPostFunc(in VertToFrag vtf, float4 colorIn)\n"
     "{\n"
-    "    return float4(extTex7.Sample(samp, vtf.extTcgs[0]).rrr * tmulColor.rgb + taddColor.rgb, tmulColor.a + "
-    "taddColor.a);\n"
+    "    return extTex7.Sample(samp, vtf.extTcgs[0]).rrrr * tmulColor + taddColor;\n"
     "}\n"
     "\n"sv;
 
@@ -215,6 +214,13 @@ static std::string_view DisintegratePostHLSL = FOG_STRUCT_HLSL
     "}\n"
     "\n"sv;
 
+static std::string_view ThermalColdPostHLSL =
+  "static float4 ThermalColdPostFunc(in VertToFrag vtf, float4 colorIn)\n"
+  "{\n"
+  "    return colorIn * float4(0.75, 0.75, 0.75, 0.75);\n"
+  "}\n"
+  "\n"sv;
+
 const hecl::Backend::Function ExtensionLightingFuncsHLSL[] = {{},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {},
@@ -236,7 +242,8 @@ const hecl::Backend::Function ExtensionLightingFuncsHLSL[] = {{},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {LightingHLSL, "LightingFunc"},
                                                               {},
-                                                              {LightingHLSL, "LightingFunc"}};
+                                                              {LightingHLSL, "LightingFunc"},
+                                                              {}};
 
 const hecl::Backend::Function ExtensionPostFuncsHLSL[] = {
     {},
@@ -261,6 +268,7 @@ const hecl::Backend::Function ExtensionPostFuncsHLSL[] = {
     {MainPostHLSL, "MainPostFunc"},
     {DisintegratePostHLSL, "DisintegratePostFunc"},
     {MainPostHLSL, "MainPostFunc"},
+    {ThermalColdPostHLSL, "ThermalColdPostFunc"},
 };
 
 } // namespace urde

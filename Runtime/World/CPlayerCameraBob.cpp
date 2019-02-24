@@ -27,7 +27,7 @@ const float CPlayerCameraBob::kCameraDamping = 6.f * std::sqrt(80.f);
 
 CPlayerCameraBob::CPlayerCameraBob(ECameraBobType type, const zeus::CVector2f& vec, float bobPeriod)
 : x0_type(type), x4_vec(vec), xc_bobPeriod(bobPeriod) {
-  std::fill(std::begin(x7c_wanderPoints), std::end(x7c_wanderPoints), zeus::CVector3f::skForward);
+  std::fill(std::begin(x7c_wanderPoints), std::end(x7c_wanderPoints), zeus::skForward);
 }
 
 zeus::CTransform CPlayerCameraBob::GetViewWanderTransform() const { return xd0_viewWanderXf; }
@@ -104,7 +104,7 @@ void CPlayerCameraBob::UpdateViewWander(float dt, CStateManager& mgr) {
                                       xb0_wanderPitches[(xcc_wanderIndex + 2) & 3],
                                       xb0_wanderPitches[(xcc_wanderIndex + 3) & 3], xc4_wanderTime) *
        x100_wanderMagnitude));
-  xd0_viewWanderXf = zeus::lookAt(zeus::CVector3f::skZero, pt, zeus::CVector3f::skUp) * orient;
+  xd0_viewWanderXf = zeus::lookAt(zeus::skZero3f, pt, zeus::skUp) * orient;
 
   xc4_wanderTime += xc8_viewWanderSpeed * dt;
   if (xc4_wanderTime >= 1.f) {
@@ -162,7 +162,7 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
   UpdateViewWander(dt, mgr);
 
   x2c_cameraBobTransform = CalculateCameraBobTransformation() * GetViewWanderTransform() *
-                           zeus::lookAt(zeus::CVector3f::skZero, {0.f, 2.f, x78_camTranslation}, zeus::CVector3f::skUp);
+                           zeus::lookAt(zeus::skZero3f, {0.f, 2.f, x78_camTranslation}, zeus::skUp);
 }
 
 zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) {

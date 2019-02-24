@@ -246,12 +246,12 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
     if (x218_29_drawHologram) {
       DrawHologram(mgr, xf, flags);
     } else {
-      CModelFlags useFlags(0, 0, 3, zeus::CColor::skWhite);
+      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       x10_solidModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
 
     if (drawSuitArm && xb0_suitArmModelData) {
-      CModelFlags useFlags(0, 0, 3, zeus::CColor::skWhite);
+      CModelFlags useFlags(0, 0, 3, zeus::skWhite);
       xb0_suitArmModelData->RenderThermal(xf, mulColor, addColor, useFlags);
     }
   } else {
@@ -345,7 +345,7 @@ void CGunWeapon::LoadProjectileData(CStateManager& mgr) {
     if (weaponVel.y() > 0.f)
       x1d0_velInfo.x0_vel.back() *= zeus::CVector3f(60.f);
     else
-      x1d0_velInfo.x0_vel.back() = zeus::CVector3f::skForward;
+      x1d0_velInfo.x0_vel.back() = zeus::skForward;
   }
 }
 
@@ -474,11 +474,11 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
   } else {
     CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x10_solidModelData->GetScale()));
     // CGraphics::DisableAllLights();
-    // g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+    // g_Renderer->SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = const_cast<CSkinnedModel&>(*x60_holoModelData->GetAnimationData()->GetModelData());
-    model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::CColor::skWhite)});
+    model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
     const_cast<CGunWeapon*>(this)->x10_solidModelData->AnimationData()->Render(model, flags, {}, nullptr);
-    // g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+    // g_Renderer->SetAmbientColor(zeus::skWhite);
     // CGraphics::DisableAllLights();
   }
 }
@@ -543,13 +543,13 @@ const SWeaponInfo& CGunWeapon::GetWeaponInfo() const { return g_tweakPlayerGun->
 zeus::CAABox CGunWeapon::GetBounds() const {
   if (x10_solidModelData)
     return x10_solidModelData->GetBounds();
-  return zeus::CAABox::skNullBox;
+  return zeus::skNullBox;
 }
 
 zeus::CAABox CGunWeapon::GetBounds(const zeus::CTransform& xf) const {
   if (x10_solidModelData)
     return x10_solidModelData->GetBounds(xf);
-  return zeus::CAABox::skNullBox;
+  return zeus::skNullBox;
 }
 
 bool CGunWeapon::IsChargeAnimOver() const {

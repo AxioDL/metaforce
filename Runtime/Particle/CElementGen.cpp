@@ -506,7 +506,7 @@ void CElementGen::CreateNewParticles(int count) {
     if (CColorElement* colr = desc->x30_x24_COLR.get())
       colr->GetValue(0, particle.x34_color);
     else
-      particle.x34_color = zeus::CColor::skWhite;
+      particle.x34_color = zeus::skWhite;
 
     if (CEmitterElement* emtr = desc->x40_x2c_EMTR.get()) {
       emtr->GetValue(x74_curFrame, particle.x4_pos, particle.x1c_vel);
@@ -771,7 +771,7 @@ void CElementGen::BuildParticleSystemBounds() {
     zeus::CVector3f max = box.max + xe8_globalTranslation + scale;
     x2f0_systemBounds = zeus::CAABox(min, max);
   } else
-    x2f0_systemBounds = zeus::CAABox::skInvertedBox;
+    x2f0_systemBounds = zeus::CAABox();
 
   if (accumulated)
     x2f0_systemBounds.accumulateBounds(aabb);
@@ -886,7 +886,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
       CGraphics::SetShaderDataBinding(m_normalDataBindPmus);
   }
 
-  zeus::CTransform orient = zeus::CTransform::Identity();
+  zeus::CTransform orient = zeus::CTransform();
   if (desc->x45_25_x31_27_PMOO)
     orient = x1d8_orientation;
   orient = orient * x22c_globalOrientation;
@@ -898,7 +898,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
 
   zeus::CVector3f trans = (x13c_globalScaleTransformInverse * x1a8_localScaleTransformInverse) * xe8_globalTranslation;
 
-  zeus::CTransform rot = zeus::CTransform::Identity();
+  zeus::CTransform rot = zeus::CTransform();
   if (pmrtConst) {
     zeus::CVector3f pmrtVal;
     pmrt->GetValue(x74_curFrame, pmrtVal);
@@ -1018,7 +1018,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         model->Draw({7, 0, 1, col});
       } else {
         if (1.f == col.a())
-          model->Draw({0, 0, 3, zeus::CColor::skWhite});
+          model->Draw({0, 0, 3, zeus::skWhite});
         else
           model->Draw({5, 0, 1, col});
       }
@@ -1085,7 +1085,7 @@ void CElementGen::RenderLines() {
   bool constTexr = true;
   bool constUVs = true;
   CTexture* cachedTex = nullptr;
-  zeus::CColor moduColor = zeus::CColor::skWhite;
+  zeus::CColor moduColor = zeus::skWhite;
   if (texr) {
     CParticle& target = x30_particles[0];
     int partFrame = x74_curFrame - target.x28_startFrame;
@@ -1094,7 +1094,7 @@ void CElementGen::RenderLines() {
 
     /* Set TEXC * RASC */
 
-    if (x338_moduColor != zeus::CColor::skBlack) {
+    if (x338_moduColor != zeus::skBlack) {
       /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
       moduColor = x338_moduColor;
     }
@@ -1200,7 +1200,7 @@ void CElementGen::RenderParticles() {
     cachedTex = texr->GetValueTexture(partFrame).GetObj();
     cachedTex->Load(0, CTexture::EClampMode::One);
 
-    if (x338_moduColor != zeus::CColor::skBlack) {
+    if (x338_moduColor != zeus::skBlack) {
       /* Add RASC * PREVC pass for MODU color loaded into channel mat-color */
       uniformData.moduColor = x338_moduColor;
     }
@@ -1397,7 +1397,7 @@ void CElementGen::RenderParticles() {
           if (delta.canBeNormalized())
             dir = delta.normalized();
           else
-            dir = zeus::CVector3f::skUp;
+            dir = zeus::skUp;
         }
 
         zeus::CVector3f foreVec = particle.x2c_lineLengthOrSize * dir;
@@ -1778,7 +1778,7 @@ void CElementGen::SetGlobalTranslation(const zeus::CVector3f& translation) {
 void CElementGen::SetGlobalScale(const zeus::CVector3f& scale) {
   x100_globalScale = scale;
   x10c_globalScaleTransform = zeus::CTransform::Scale(scale);
-  x13c_globalScaleTransformInverse = zeus::CTransform::Scale(zeus::CVector3f::skOne / scale);
+  x13c_globalScaleTransformInverse = zeus::CTransform::Scale(zeus::skOne3f / scale);
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren)
     ch->SetGlobalScale(scale);
@@ -1787,7 +1787,7 @@ void CElementGen::SetGlobalScale(const zeus::CVector3f& scale) {
 void CElementGen::SetLocalScale(const zeus::CVector3f& scale) {
   x16c_localScale = scale;
   x178_localScaleTransform = zeus::CTransform::Scale(scale);
-  x1a8_localScaleTransformInverse = zeus::CTransform::Scale(zeus::CVector3f::skOne / scale);
+  x1a8_localScaleTransformInverse = zeus::CTransform::Scale(zeus::skOne3f / scale);
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren)
     ch->SetLocalScale(scale);

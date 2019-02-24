@@ -142,7 +142,7 @@ void CPirateRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData) {
     CAnimData* aData = mData.AnimationData();
     for (CSegId id : aData->GetCharLayoutInfo().GetSegIdList().GetList())
       if (aData->GetCharLayoutInfo().GetRootNode()->GetBoneMap()[id].x10_children.size() > 1)
-        aData->PoseBuilder().GetTreeMap()[id].x4_rotation = zeus::CQuaternion::skNoRotation;
+        aData->PoseBuilder().GetTreeMap()[id].x4_rotation = zeus::CQuaternion();
     CSegId rootId = aData->GetLocatorSegId("Skeleton_Root"sv);
     // R_hip, L_hip
     aData->PoseBuilder().GetTreeMap()[rootId].x14_offset =
@@ -209,7 +209,7 @@ void CPirateRagDoll::Update(CStateManager& mgr, float dt, float waterTop) {
     x4_particles[11].Velocity() += accDelta;
     x4_particles[8].Velocity() += accDelta;
     x4_particles[0].Velocity() += accDelta;
-    x84_torsoImpulse = zeus::CVector3f::skZero;
+    x84_torsoImpulse = zeus::skZero3f;
     CRagDoll::Update(mgr, dt, waterTop);
     auto particleIdxIt = x9c_wpParticleIdxs.begin();
     for (TUniqueId id : x90_waypoints) {
@@ -230,14 +230,14 @@ void CPirateRagDoll::Update(CStateManager& mgr, float dt, float waterTop) {
     x74_sfxTimer -= dt;
     if (x54_impactVel > 2.5f && x74_sfxTimer < 0.f &&
         (xb0_24_initSfx || (x6c_spacePirate->GetTranslation() - x78_lastSFXPos).magSquared() > 0.1f)) {
-      CSfxManager::AddEmitter(x70_thudSfx, x6c_spacePirate->GetTranslation(), zeus::CVector3f::skZero,
+      CSfxManager::AddEmitter(x70_thudSfx, x6c_spacePirate->GetTranslation(), zeus::skZero3f,
                               std::min(25.f * x54_impactVel, 127.f) / 127.f, true, false, 0x7f, kInvalidAreaId);
       x74_sfxTimer = mgr.GetActiveRandom()->Float() * 0.222f + 0.222f;
       xb0_24_initSfx = false;
       x78_lastSFXPos = x6c_spacePirate->GetTranslation();
     }
   } else {
-    x6c_spacePirate->SetMomentumWR(zeus::CVector3f::skZero);
+    x6c_spacePirate->SetMomentumWR(zeus::skZero3f);
     x6c_spacePirate->Stop();
   }
 }
@@ -402,7 +402,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
     if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Plasma), false))
       x8cc_trooperColor = zeus::CColor(0.996f, 0.f, 0.157f, 1.f);
     else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Ice), false))
-      x8cc_trooperColor = zeus::CColor::skWhite;
+      x8cc_trooperColor = zeus::skWhite;
     else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Power), false))
       x8cc_trooperColor = zeus::CColor(0.992f, 0.937f, 0.337f, 1.f);
     else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Wave), false))
@@ -519,7 +519,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
   bool ret = false;
   zeus::CTransform gunXf = GetLctrTransform(x7b6_gunSeg);
   if (!x400_25_alive) {
-    LaunchProjectile(gunXf, mgr, 6, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::CVector3f::skOne);
+    LaunchProjectile(gunXf, mgr, 6, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::skOne3f);
     ret = true;
   } else {
     if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x7c0_targetId)) {
@@ -536,7 +536,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
           LineOfSightTest(mgr, gunXf.origin, pos, {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough})) {
         pos += GetTransform().rotate(x7c4_burstFire.GetDistanceCompensatedError(mag, 6.f));
         LaunchProjectile(zeus::lookAt(gunXf.origin, pos), mgr, 6, EProjectileAttrib::None, false, {}, 0xffff, false,
-                         zeus::CVector3f::skOne);
+                         zeus::skOne3f);
         ret = true;
       }
     }
@@ -546,7 +546,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
                                                                             *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f)
       x64_modelData->AnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
-    CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::CVector3f::skZero, true,
+    CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::skZero3f, true,
                             false, 0x7f, kInvalidAreaId);
   }
   return ret;
@@ -752,7 +752,7 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
     UpdateAlphaDelta(dt, mgr);
     UpdateDamageColor(dt);
     if (CSfxHandle hnd = GetSfxHandle())
-      CSfxManager::UpdateEmitter(hnd, GetTranslation(), zeus::CVector3f::skZero, 1.f);
+      CSfxManager::UpdateEmitter(hnd, GetTranslation(), zeus::skZero3f, 1.f);
   }
   if (x85c_ragDoll) {
     if (!x85c_ragDoll->IsPrimed()) {
@@ -776,7 +776,7 @@ void CSpacePirate::Think(float dt, CStateManager& mgr) {
       AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
       x3e8_alphaDelta = -0.333333f;
       x638_30_ragdollOver = true;
-      SetMomentumWR(zeus::CVector3f::skZero);
+      SetMomentumWR(zeus::skZero3f);
       CPhysicsActor::Stop();
     }
   }
@@ -831,7 +831,7 @@ void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
               (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Jump &&
                !x450_bodyController->GetBodyStateInfo().GetCurrentState()->IsMoving())) {
             CPhysicsActor::Stop();
-            SetMomentumWR(zeus::CVector3f::skZero);
+            SetMomentumWR(zeus::skZero3f);
             return;
           }
         }
@@ -1106,14 +1106,14 @@ void CSpacePirate::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr,
     if (x400_25_alive) {
       if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled) {
         x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "GetUpNow"sv);
-        CSfxManager::AddEmitter(x568_pirateData.xc0_Sound_Hurled, GetTranslation(), zeus::CVector3f::skZero, 1.f, true,
+        CSfxManager::AddEmitter(x568_pirateData.xc0_Sound_Hurled, GetTranslation(), zeus::skZero3f, 1.f, true,
                                 false, 0x7f, kInvalidAreaId);
       }
     } else {
       if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled &&
           x460_knockBackController.GetActiveParms().x4_animFollowup != EKnockBackAnimationFollowUp::LaggedBurnDeath &&
           x460_knockBackController.GetActiveParms().x4_animFollowup != EKnockBackAnimationFollowUp::BurnDeath) {
-        CSfxManager::AddEmitter(x568_pirateData.xc2_Sound_Death, GetTranslation(), zeus::CVector3f::skZero, 1.f, true,
+        CSfxManager::AddEmitter(x568_pirateData.xc2_Sound_Death, GetTranslation(), zeus::skZero3f, 1.f, true,
                                 false, 0x7f, kInvalidAreaId);
       }
     }
@@ -1148,7 +1148,7 @@ void CSpacePirate::AvoidActors(CStateManager& mgr) {
         zeus::CVector3f deltaVec =
             x45c_steeringBehaviors.Separation(*this, ai->GetTranslation(), x568_pirateData.xc8_AvoidDistance);
         if (!deltaVec.isZero()) {
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(deltaVec, zeus::CVector3f::skZero, 1.f));
+          x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(deltaVec, zeus::skZero3f, 1.f));
           if (x748_steeringDelayTimer == 0.f) {
             if (CSpacePirate* otherSp = CPatterned::CastTo<CSpacePirate>(ai.GetPtr())) {
               if (otherSp->x748_steeringDelayTimer == 0.f &&
@@ -1227,7 +1227,7 @@ void CSpacePirate::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
       RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
       RemoveMaterial(EMaterialTypes::GroundCollider, EMaterialTypes::NoStaticCollision, EMaterialTypes::AIBlock, mgr);
       AddMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
-      SetMomentumWR(zeus::CVector3f::skZero);
+      SetMomentumWR(zeus::skZero3f);
       CPhysicsActor::Stop();
     }
     break;
@@ -1258,7 +1258,7 @@ void CSpacePirate::UpdateCantSeePlayer(CStateManager& mgr) {
         break;
       }
     } else {
-      eyePos += (aimPos - eyePos).normalized().cross(zeus::CVector3f::skUp) * 1.1f;
+      eyePos += (aimPos - eyePos).normalized().cross(zeus::skUp) * 1.1f;
     }
     x637_28_noPlayerLos = !LineOfSightTest(mgr, eyePos, mgr.GetPlayer().GetAimPosition(mgr, 0.f),
                                            {EMaterialTypes::Player, EMaterialTypes::ProjectilePassthrough});
@@ -1291,7 +1291,7 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
                          : GetSearchPath()->GetWaypoints()[GetSearchPath()->GetCurrentWaypoint()];
       x328_24_inPosition = false;
       x450_bodyController->GetCommandMgr().DeliverCmd(
-          CBCLocomotionCmd(x2e0_destPos - GetTranslation(), zeus::CVector3f::skZero, 1.f));
+          CBCLocomotionCmd(x2e0_destPos - GetTranslation(), zeus::skZero3f, 1.f));
     } else {
       CScriptAiJumpPoint* bestJp = nullptr;
       float minDist = FLT_MAX;
@@ -1342,7 +1342,7 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
           if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(bestJp->GetJumpPoint())) {
             x828_patrolDestPos = wp->GetTranslation();
             x450_bodyController->GetCommandMgr().DeliverCmd(
-                CBCLocomotionCmd(x2e0_destPos, zeus::CVector3f::skZero, 1.f));
+                CBCLocomotionCmd(x2e0_destPos, zeus::skZero3f, 1.f));
             x30c_behaviourOrient = EBehaviourOrient::MoveDir;
           }
         }
@@ -1459,7 +1459,7 @@ void CSpacePirate::Generate(CStateManager& mgr, EStateMsg msg, float dt) {
     }
     x32c_animState = EAnimState::Ready;
     if (x634_25_ceilingAmbush) {
-      x2e0_destPos = GetTranslation() + zeus::CVector3f::skDown;
+      x2e0_destPos = GetTranslation() + zeus::skDown;
       x828_patrolDestPos = x2e0_destPos;
       x824_jumpHeight = 0.f;
     } else {
@@ -1501,7 +1501,7 @@ void CSpacePirate::CheckBlade(CStateManager& mgr) {
       zeus::CVector3f swooshPos = GetLctrTransform(x7b9_swooshSeg).origin;
       if (zeus::CAABox(swooshPos - extent, swooshPos + extent).intersects(act->GetBoundingBox())) {
         mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x568_pirateData.x4c_BladeDamage,
-                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
         x638_25_appliedBladeDamage = true;
       }
     }
@@ -1522,7 +1522,7 @@ void CSpacePirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
       x636_26_enableMeleeAttack = true;
       x638_25_appliedBladeDamage = false;
     } else if (x648_targetDelta.normalized().dot(GetTransform().basis[1]) < 0.8f) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::CVector3f::skZero, x648_targetDelta, 1.f));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, x648_targetDelta, 1.f));
     }
     x636_31_inAttackState = true;
     x8bc_maxCloakAlpha = 0.75f;
@@ -1557,10 +1557,10 @@ bool CSpacePirate::CantJumpBack(CStateManager& mgr, const zeus::CVector3f& dir, 
   if (!LineOfSightTest(mgr, center, center + dist * dir, {}))
     return false;
   zeus::CVector3f center2 = (dist * 0.5f) * dir + center;
-  if (LineOfSightTest(mgr, center2, center2 + 5.f * zeus::CVector3f::skDown, {}))
+  if (LineOfSightTest(mgr, center2, center2 + 5.f * zeus::skDown, {}))
     return false;
   zeus::CVector3f center3 = dist * dir + center;
-  if (LineOfSightTest(mgr, center3, center3 + 5.f * zeus::CVector3f::skDown, {}))
+  if (LineOfSightTest(mgr, center3, center3 + 5.f * zeus::skDown, {}))
     return false;
   return true;
 }
@@ -1670,7 +1670,7 @@ void CSpacePirate::Shuffle(CStateManager& mgr, EStateMsg msg, float dt) {
       SetDestPos(mgr.GetPlayer().GetTranslation() +
                  (x300_maxAttackRange * mgr.GetActiveRandom()->Float() + x300_maxAttackRange) *
                      fromPlayer.normalized() +
-                 zeus::CVector3f::skUp.cross(fromPlayer).normalized() *
+                 zeus::skUp.cross(fromPlayer).normalized() *
                      (2.f * x300_maxAttackRange * (mgr.GetActiveRandom()->Float() - 0.5f)));
       x2dc_destObj = kInvalidUniqueId;
       x30c_behaviourOrient = EBehaviourOrient::MoveDir;
@@ -1823,7 +1823,7 @@ void CSpacePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
       }
       x32c_animState = EAnimState::Ready;
     }
-    CSfxManager::AddEmitter(x568_pirateData.xa4_Sound_Alert, GetTranslation(), zeus::CVector3f::skZero, true, false,
+    CSfxManager::AddEmitter(x568_pirateData.xa4_Sound_Alert, GetTranslation(), zeus::skZero3f, true, false,
                             0x7f, kInvalidAreaId);
     break;
   case EStateMsg::Update:
@@ -1907,7 +1907,7 @@ void CSpacePirate::Jump(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case EStateMsg::Activate:
     x32c_animState = EAnimState::Ready;
-    x828_patrolDestPos = GetTranslation() + zeus::CVector3f::skDown;
+    x828_patrolDestPos = GetTranslation() + zeus::skDown;
     x824_jumpHeight = 0.f;
     x8dc_leashTimer = 0.f;
     break;

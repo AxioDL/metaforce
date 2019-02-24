@@ -74,7 +74,7 @@ void CDecal::SetGlobalSeed(u16 seed) { sDecalRandom.SetSeed(seed); }
 void CDecal::SetMoveRedToAlphaBuffer(bool move) { sMoveRedToAlphaBuffer = move; }
 
 void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   float size = 1.f;
   zeus::CVector3f offset;
   if (CColorElement* clr = desc.x10_CLR.get())
@@ -166,7 +166,7 @@ void CDecal::RenderQuad(CQuadDecal& decal, const SQuadDescr& desc) const {
 
 void CDecal::RenderMdl() const {
   const CDecalDescription& desc = *x0_description;
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   zeus::CVector3f dmop;
   zeus::CTransform rotXf;
 
@@ -223,7 +223,7 @@ void CDecal::RenderMdl() const {
     desc.x38_DMDL.m_token->Draw(flags);
   } else {
     if (color.a() == 1.f) {
-      CModelFlags flags(0, 0, 3, zeus::CColor::skWhite);
+      CModelFlags flags(0, 0, 3, zeus::skWhite);
       desc.x38_DMDL.m_token->Draw(flags);
     } else {
       CModelFlags flags(5, 0, 1, color);

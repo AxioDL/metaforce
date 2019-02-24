@@ -58,7 +58,7 @@ bool CPFRegion::IsPointInside(const zeus::CVector3f& point) const {
     return false;
   zeus::CVector3f nodeToPoint = point - x4_startNode->GetPos();
   return nodeToPoint.dot(x18_normal) >= 0.f &&
-         (nodeToPoint - x14_height * zeus::CVector3f::skUp).dot(x18_normal) <= 0.f;
+         (nodeToPoint - x14_height * zeus::skUp).dot(x18_normal) <= 0.f;
 }
 
 float CPFRegion::PointHeight(const zeus::CVector3f& point) const {

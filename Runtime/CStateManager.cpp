@@ -544,7 +544,7 @@ void CStateManager::DrawE3DeathEffect() const {
       }
     }
     float whiteAmt = zeus::clamp(0.f, 1.f - player.x9f4_deathTime / (0.05f * 6.f), 1.f);
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = whiteAmt;
     const_cast<CColoredQuadFilter&>(m_deathWhiteout).draw(color);
   }
@@ -552,7 +552,7 @@ void CStateManager::DrawE3DeathEffect() const {
 
 void CStateManager::DrawAdditionalFilters() const {
   if (xf0c_escapeTimer < 1.f && xf0c_escapeTimer > 0.f && !x870_cameraManager->IsInCinematicCamera()) {
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = 1.f - xf0c_escapeTimer;
     const_cast<CColoredQuadFilter&>(m_escapeWhiteout).draw(color);
   }
@@ -596,8 +596,8 @@ zeus::CFrustum CStateManager::SetupViewForDraw(const SViewport& vp) const {
   proj.setPersp(zeus::SProjPersp{fov, width / height, cam->GetNearClipDistance(), cam->GetFarClipDistance()});
   frustum.updatePlanes(camXf, proj);
   g_Renderer->SetClippingPlanes(frustum);
-  // g_Renderer->PrimColor(zeus::CColor::skWhite);
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  // g_Renderer->PrimColor(zeus::skWhite);
+  CGraphics::SetModelMatrix(zeus::CTransform());
   x87c_fluidPlaneManager->StartFrame(false);
   g_Renderer->SetDebugOption(IRenderer::EDebugOption::One, 1);
   return frustum;
@@ -689,7 +689,7 @@ void CStateManager::DrawWorld() const {
   }
 
   if (!SetupFogForDraw())
-    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
 
   x850_world->DrawSky(zeus::CTransform::Translate(CGraphics::g_ViewPoint));
 
@@ -819,7 +819,7 @@ void CStateManager::DrawWorld() const {
 
   x87c_fluidPlaneManager->EndFrame();
 
-  g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+  g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
 
 #if 0
     if (false)
@@ -840,7 +840,7 @@ void CStateManager::DrawWorld() const {
 
   if (thermal) {
     g_Renderer->DoThermalBlendHot();
-    g_Renderer->SetThermal(false, 0.f, zeus::CColor::skBlack);
+    g_Renderer->SetThermal(false, 0.f, zeus::skBlack);
     const_cast<CStateManager&>(*this).xf34_thermalFlag = EThermalDrawFlag::Bypass;
   }
 
@@ -896,7 +896,7 @@ void CStateManager::SetupFogForAreaNonCurrent(const CGameArea& area) const {
 bool CStateManager::SetupFogForDraw() const {
   switch (x8b8_playerState->GetActiveVisor(*this)) {
   case CPlayerState::EPlayerVisor::Thermal:
-    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::CColor::skBlack);
+    g_Renderer->SetWorldFog(ERglFogMode::None, 0.f, 1.f, zeus::skBlack);
     return true;
   case CPlayerState::EPlayerVisor::XRay:
   default:
@@ -1272,7 +1272,7 @@ void CStateManager::ApplyKnockBack(CActor& actor, const CDamageInfo& info, const
         if (physActor->GetMaterialList().HasMaterial(EMaterialTypes::Immovable) ||
             !physActor->GetMaterialList().HasMaterial(EMaterialTypes::Grass))
           return;
-        physActor->ApplyImpulseWR(kbVec, zeus::CAxisAngle::sIdentity);
+        physActor->ApplyImpulseWR(kbVec, zeus::CAxisAngle());
         return;
       }
     }
@@ -1303,7 +1303,7 @@ void CStateManager::KnockBackPlayer(CPlayer& player, const zeus::CVector3f& pos,
   float maxVel = std::max(playerVel, minVel);
   zeus::CVector3f negVel = -player.x138_velocity;
   usePower *= (1.f - 0.5f * zeus::CVector3f::getAngleDiff(pos, negVel) / M_PIF);
-  player.ApplyImpulseWR(pos * usePower, zeus::CAxisAngle::sIdentity);
+  player.ApplyImpulseWR(pos * usePower, zeus::CAxisAngle());
   player.UseCollisionImpulses();
   player.x2d4_accelerationChangeTimer = 0.25f;
 
@@ -1515,7 +1515,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
         zeus::CAABox bounds = water->GetTriggerBoundsWR();
         zeus::CVector3f hitPos(pos.x(), pos.y(), bounds.max.z());
         float bombRad = powerBomb ? 4.f : 2.f;
-        float delta = bounds.max.z() - pos.dot(zeus::CVector3f::skUp);
+        float delta = bounds.max.z() - pos.dot(zeus::skUp);
         if (delta <= bombRad && delta > 0.f) {
           // Below surface
           float rippleFactor = 1.f - delta / bombRad;
@@ -1532,7 +1532,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
           if (delta <= -bombMag || delta >= 0.f)
             return;
           CRayCastResult res =
-              RayStaticIntersection(pos, zeus::CVector3f::skDown, -delta, CMaterialFilter::skPassEverything);
+              RayStaticIntersection(pos, zeus::skDown, -delta, CMaterialFilter::skPassEverything);
           if (res.IsInvalid() && x87c_fluidPlaneManager->GetLastRippleDeltaTime(damager.GetUniqueId()) >= 0.15f) {
             // Not blocked by static geometry
             float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * -delta / bombMag * 0.25f);
@@ -1615,7 +1615,7 @@ bool CStateManager::ApplyDamage(TUniqueId damagerId, TUniqueId damageeId, TUniqu
   if (damagee) {
     if (CHealthInfo* hInfo = damagee->HealthInfo(*this)) {
       zeus::CVector3f position;
-      zeus::CVector3f direction = zeus::CVector3f::skRight;
+      zeus::CVector3f direction = zeus::skRight;
       bool alive = hInfo->GetHP() > 0.f;
       if (damager) {
         position = damager->GetTranslation();

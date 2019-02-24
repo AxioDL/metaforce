@@ -65,7 +65,7 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
     x20_textpane_menu->TextSupport().SetOutlineColor(g_tweakGuiColors->GetBeamMenuTextOutline());
   }
 
-  zeus::CColor titleColor = zeus::CColor::skWhite;
+  zeus::CColor titleColor = zeus::skWhite;
   titleColor.a() = 0.f;
   x1c_basewidget_menutitle->SetColor(titleColor);
 
@@ -150,7 +150,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     SMenuItem& item = x28_menuItems[i];
     if (item.xc_opacity > 0.f)
       item.xc_opacity = std::min(item.xc_opacity + dt, 1.f);
-    tmpColors[i] = zeus::CColor::lerp(activeColor, zeus::CColor::skClear, item.xc_opacity);
+    tmpColors[i] = zeus::CColor::lerp(activeColor, zeus::skClear, item.xc_opacity);
   }
 
   switch (x6c_animPhase) {
@@ -159,7 +159,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
       SMenuItem& item = x28_menuItems[i];
       zeus::CColor& color0 = (x8_selectedItem == i) ? activeColor : inactiveColor;
       zeus::CColor& color1 = (x8_selectedItem == i) ? lozColor : inactiveColor;
-      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::CColor::skClear : color0 + tmpColors[i];
+      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::skClear : color0 + tmpColors[i];
       zeus::CColor lColor = (item.xc_opacity == 0.f) ? lozColor : color1 + tmpColors[i];
       item.x4_model_icon->SetColor(iconColor);
       item.x0_model_loz->SetColor(lColor);
@@ -168,7 +168,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     x24_model_ghost->SetColor(activeColor);
     break;
   case EAnimPhase::SelectFlash: {
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = 0.f;
     x1c_basewidget_menutitle->SetColor(color);
 
@@ -193,7 +193,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
     for (int i = 0; i < 4; ++i) {
       SMenuItem& item = x28_menuItems[i];
       zeus::CColor& color0 = (x8_selectedItem == i) ? activeColor : inactiveColor;
-      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::CColor::skClear : color0 + tmpColors[i];
+      zeus::CColor iconColor = (item.xc_opacity == 0.f) ? zeus::skClear : color0 + tmpColors[i];
       item.x4_model_icon->SetColor(iconColor);
       item.x0_model_loz->SetColor((item.xc_opacity == 0.f || x8_selectedItem == i) ? lozColor : inactiveColor);
       item.x8_positioner = (x8_selectedItem == i) ? 1.f - x10_interp : 1.f;
@@ -207,7 +207,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
 
   if (x78_textFader > 0.f) {
     x78_textFader = std::max(0.f, x78_textFader - dt);
-    zeus::CColor color = zeus::CColor::skWhite;
+    zeus::CColor color = zeus::skWhite;
     color.a() = x78_textFader / x7c_animDur;
     x1c_basewidget_menutitle->SetColor(color);
   }
@@ -234,7 +234,7 @@ void CHudVisorBeamMenu::Update(float dt, bool init) {
 }
 
 void CHudVisorBeamMenu::UpdateHudAlpha(float alpha) {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = g_GameState->GameOptions().GetHUDAlpha() / 255.f * alpha;
   x18_basewidget_menu->SetColor(color);
 }

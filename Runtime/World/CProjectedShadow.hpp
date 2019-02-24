@@ -9,11 +9,11 @@ class CStateManager;
 class CModelData;
 class CProjectedShadow {
   CTexture x0_texture;
-  zeus::CAABox x68_ = zeus::CAABox::skInvertedBox;
+  zeus::CAABox x68_ = zeus::CAABox();
   bool x80_;
   bool x81_persistent;
   float x84_ = 1.f;
-  zeus::CVector3f x88_ = zeus::CVector3f::skZero;
+  zeus::CVector3f x88_ = zeus::skZero3f;
   float x94_zDistanceAdjust = 0.f;
   float x98_ = 1.f;
 

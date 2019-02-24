@@ -35,6 +35,7 @@ enum EExtendedShader : uint8_t {
   DepthGEqualNoZWrite,
   Disintegrate,
   ForcedAdditiveNoZWriteDepthGreater,
+  ThermalCold,
   MAX
 };
 
@@ -45,7 +46,7 @@ public:
   struct Light {
     zeus::CVector3f pos;
     zeus::CVector3f dir;
-    zeus::CColor color = zeus::CColor::skClear;
+    zeus::CColor color = zeus::skClear;
     float linAtt[4] = {1.f, 0.f, 0.f};
     float angAtt[4] = {1.f, 0.f, 0.f};
   };

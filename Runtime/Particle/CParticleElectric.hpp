@@ -20,7 +20,7 @@ public:
     std::vector<zeus::CVector3f> x0_verts;
     float x10_widths[3] = {1.f, 2.f, 3.f};
     zeus::CColor x1c_colors[3];
-    zeus::CAABox x28_aabb = zeus::CAABox::skInvertedBox;
+    zeus::CAABox x28_aabb = zeus::CAABox();
   };
 
   class CParticleElectricManager {
@@ -47,18 +47,18 @@ private:
   zeus::CTransform x74_invOrientation;
   zeus::CVector3f xa4_globalTranslation;
   zeus::CTransform xb0_globalOrientation;
-  zeus::CVector3f xe0_globalScale = zeus::CVector3f::skOne;
-  zeus::CVector3f xec_localScale = zeus::CVector3f::skOne;
+  zeus::CVector3f xe0_globalScale = zeus::skOne3f;
+  zeus::CVector3f xec_localScale = zeus::skOne3f;
   zeus::CTransform xf8_cachedXf;
   float x128 = 0.f;
   float x12c = 0.f;
-  zeus::CAABox x130_buildBounds = zeus::CAABox::skInvertedBox;
+  zeus::CAABox x130_buildBounds = zeus::CAABox();
   CRandom16 x14c_randState;
   int x150_SSEG = 8;
   int x154_SCNT = 1;
   int x158 = 0;
   float x15c_genRem = 0.f;
-  zeus::CAABox x160_systemBounds = zeus::CAABox::skInvertedBox;
+  zeus::CAABox x160_systemBounds = zeus::CAABox();
   rstl::optional<zeus::CVector3f> x178_overrideIPos;
   rstl::optional<zeus::CVector3f> x188_overrideIVel;
   rstl::optional<zeus::CVector3f> x198_overrideFPos;

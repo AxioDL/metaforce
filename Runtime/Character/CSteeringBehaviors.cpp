@@ -272,7 +272,7 @@ bool CSteeringBehaviors::ProjectOrbitalIntersection(const zeus::CVector3f& v0, f
         float f18 = FLT_MAX;
         zeus::CVector3f _150 = _12c.normalized();
         float f26 = _150.dot(f22);
-        float f27 = _150.cross(zeus::CVector3f::skUp).dot(f22);
+        float f27 = _150.cross(zeus::skUp).dot(f22);
         for (float f19 = 0.f; f17 < f18 && f19 < 4.f;) {
           if (zeus::close_enough(f17, f2) || f17 < 0.f) {
             v4 = f25;
@@ -284,7 +284,7 @@ bool CSteeringBehaviors::ProjectOrbitalIntersection(const zeus::CVector3f& v0, f
           if (!_12c.canBeNormalized())
             break;
           zeus::CVector3f _168 = _12c.normalized();
-          f22 = _168.cross(zeus::CVector3f::skUp) * f27 + f26 * _168;
+          f22 = _168.cross(zeus::skUp) * f27 + f26 * _168;
           f19 += f2;
           f17 = (f25 - v0).magnitude() / f1 - f19;
         }
@@ -312,7 +312,7 @@ bool CSteeringBehaviors::ProjectOrbitalIntersection(const zeus::CVector3f& v0, f
       float f17 = FLT_MAX;
       zeus::CVector3f _150 = _12c.normalized();
       float f25 = _150.dot(f21);
-      float f26 = _150.cross(zeus::CVector3f::skUp).dot(f21);
+      float f26 = _150.cross(zeus::skUp).dot(f21);
       for (float f18 = 0.f; f16 < f17 && f18 < 4.f;) {
         if (zeus::close_enough(f16, f2) || f16 < 0.f) {
           v5 = f24;
@@ -326,7 +326,7 @@ bool CSteeringBehaviors::ProjectOrbitalIntersection(const zeus::CVector3f& v0, f
         if (!_12c.canBeNormalized())
           break;
         zeus::CVector3f _168 = _12c.normalized();
-        f21 = _168.cross(zeus::CVector3f::skUp) * f26 + f25 * _168;
+        f21 = _168.cross(zeus::skUp) * f26 + f25 * _168;
       }
     } else {
       return ProjectLinearIntersection(v0, f1, v1, v2, v3, v5);
@@ -346,14 +346,14 @@ zeus::CVector3f CSteeringBehaviors::ProjectOrbitalPosition(const zeus::CVector3f
       zeus::CVector3f useVel = vel;
       pointToPos.normalize();
       float f29 = pointToPos.dot(useVel);
-      float f30 = pointToPos.cross(zeus::CVector3f::skUp).dot(useVel);
+      float f30 = pointToPos.cross(zeus::skUp).dot(useVel);
       for (float curDt = 0.f; curDt < dt;) {
         usePos += preThinkDt * useVel;
         zeus::CVector3f usePointToPos = usePos - orbitPoint;
         usePointToPos.z() = 0.f;
         if (usePointToPos.canBeNormalized()) {
           usePointToPos.normalize();
-          useVel = usePointToPos.cross(zeus::CVector3f::skUp) * f30 + usePointToPos * f29;
+          useVel = usePointToPos.cross(zeus::skUp) * f30 + usePointToPos * f29;
         }
         curDt += std::min(dt - curDt, preThinkDt);
       }

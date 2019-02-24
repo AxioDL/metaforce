@@ -140,7 +140,7 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) {
 
   zeus::CVector3f playerOffset =
       player.GetTranslation() + zeus::CVector3f{0.f, 0.f, player.GetMorphBall()->GetBallRadius()};
-  zeus::CVector3f rotatedOffset = GetTransform().rotate(zeus::CVector3f::skForward);
+  zeus::CVector3f rotatedOffset = GetTransform().rotate(zeus::skForward);
 
   zeus::CVector3f vec1 = (playerOffset - (xf.origin - (1.f * rotatedOffset)));
   float f31 = vec1.normalized().dot(rotatedOffset);
@@ -214,7 +214,7 @@ void CPuddleToadGamma::SuckPlayer(CStateManager& mgr, float arg) {
 
   float d = x5a8_ * (x5b0_ / (posDiff.magnitude() * posDiff.magnitude()));
   zeus::CVector3f force = d * (player.GetMass() * -posDiff);
-  player.ApplyForceWR(force, zeus::CAxisAngle::sIdentity);
+  player.ApplyForceWR(force, zeus::CAxisAngle());
 }
 
 void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {

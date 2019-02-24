@@ -1084,17 +1084,17 @@ u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags) {
 
   u32 ret = 0;
   if (flags & 0x01)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skForward);
+    ret |= ClassifyVector(rotation * zeus::skForward);
   if (flags & 0x02)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skBack);
+    ret |= ClassifyVector(rotation * zeus::skBack);
   if (flags & 0x04)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skLeft);
+    ret |= ClassifyVector(rotation * zeus::skLeft);
   if (flags & 0x08)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skRight);
+    ret |= ClassifyVector(rotation * zeus::skRight);
   if (flags & 0x10)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skUp);
+    ret |= ClassifyVector(rotation * zeus::skUp);
   if (flags & 0x20)
-    ret |= ClassifyVector(rotation * zeus::CVector3f::skDown);
+    ret |= ClassifyVector(rotation * zeus::skDown);
   return ret;
 }
 
@@ -1831,7 +1831,7 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
     return nullptr;
 
   return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction,
-                                    str, f1, f2, f3, f4, zeus::CVector3f::skZero, zeus::CColor::skBlack, active1,
+                                    str, f1, f2, f3, f4, zeus::skZero3f, zeus::skBlack, active1,
                                     CDamageInfo(), w2, w3, w4, w5, w6, w7);
 }
 
@@ -2254,8 +2254,8 @@ CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int p
   bool b3 = in.readBool();
   bool b4 = in.readBool();
 
-  CModelData mData(CStaticRes(w1, zeus::CVector3f::skOne));
-  CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::CVector3f::skOne,
+  CModelData mData(CStaticRes(w1, zeus::skOne3f));
+  CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f,
                    animParms.GetInitialAnimation(), true);
   return new CFishCloud(mgr.AllocateUniqueId(), b1, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform,
                         std::move(mData), animRes, w5, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, w6, col,
@@ -2762,11 +2762,11 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
   bool active = in.readBool();
   CDamageInfo dInfo(in);
   float radius = in.readFloatBig();
-  zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, center);
+  zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::skZero3f, center);
 
   return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, xf,
                                     CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f, 0.f, 0.f,
-                                    zeus::CVector3f::skZero, zeus::CColor::skBlack, active, dInfo, -1, -1,
+                                    zeus::skZero3f, zeus::skBlack, active, dInfo, -1, -1,
                                     CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
@@ -2795,9 +2795,9 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
   float density = in.readFloatBig();
   u32 w1 = in.readUint32Big();
 
-  return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform::Identity(),
+  return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform(),
                                     CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density, w1,
-                                    0.f, 0.f, zeus::CVector3f::skZero, zeus::CColor::skBlack, active, CDamageInfo(), -1,
+                                    0.f, 0.f, zeus::skZero3f, zeus::skBlack, active, CDamageInfo(), -1,
                                     -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
@@ -3055,9 +3055,9 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
   bool b3 = in.readBool();
 
   zeus::CTransform xfRot = aHead.x10_transform.getRotation();
-  if (xfRot == zeus::CTransform::Identity())
+  if (xfRot == zeus::CTransform())
     return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
-                              zeus::CAABox(-scale, scale), CDamageInfo(), zeus::CVector3f::skZero,
+                              zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f,
                               ETriggerFlags::DetectPlayer, active, b2, b3);
 
   return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform,
@@ -3077,9 +3077,9 @@ CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, in
   u32 pFlags = LoadParameterFlags(in);
 
   return new CScriptSpecialFunction(
-      mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(zeus::CVector3f::skZero, position),
-      CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "", f1, w1, pFlags, 0.f, zeus::CVector3f::skZero,
-      zeus::CColor::skBlack, active, {}, {}, {}, CPlayerState::EItemType::Invalid, -1, -1, -1);
+      mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(zeus::skZero3f, position),
+      CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "", f1, w1, pFlags, 0.f, zeus::skZero3f,
+      zeus::skBlack, active, {}, {}, {}, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3302,7 +3302,7 @@ CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in
   bool active = in.readBool();
   float fadedLevel = in.readFloatBig();
   float initialLevel = in.readFloatBig();
-  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::CColor::skBlack,
+  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack,
                                 zeus::CVector2f(), 0.f, zeus::CVector2f(), false, active, fadedLevel, initialLevel, 0.f,
                                 0.f);
 }
@@ -3366,8 +3366,8 @@ CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();
 
-  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::CColor::skBlack,
-                                zeus::CVector2f::skZero, 0.f, zeus::CVector2f::skZero, false, active, 0.f, 0.f, f1, f2);
+  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack,
+                                zeus::skZero2f, 0.f, zeus::skZero2f, false, active, 0.f, 0.f, f1, f2);
 }
 
 CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount,

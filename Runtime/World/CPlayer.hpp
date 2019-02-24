@@ -187,7 +187,7 @@ private:
   TUniqueId x3b4_scanningObject = kInvalidUniqueId;
   EGrappleState x3b8_grappleState = EGrappleState::None;
   float x3bc_grappleSwingTimer = 0.f;
-  zeus::CVector3f x3c0_grappleSwingAxis = zeus::CVector3f::skRight;
+  zeus::CVector3f x3c0_grappleSwingAxis = zeus::skRight;
   float x3cc_ = 0.f;
   float x3d0_ = 0.f;
   float x3d4_ = 0.f;
@@ -201,9 +201,9 @@ private:
   float x3ec_freeLookPitchAngle = 0.f;
   float x3f0_vertFreeLookAngleVel = 0.f;
   TUniqueId x3f4_aimTarget = kInvalidUniqueId;
-  zeus::CVector3f x3f8_targetAimPosition = zeus::CVector3f::skZero;
+  zeus::CVector3f x3f8_targetAimPosition = zeus::skZero3f;
   TReservedAverage<zeus::CVector3f, 20> x404_aimTargetAverage;
-  zeus::CVector3f x480_assistedTargetAim = zeus::CVector3f::skZero;
+  zeus::CVector3f x480_assistedTargetAim = zeus::skZero3f;
   float x48c_aimTargetTimer = 0.f;
   std::unique_ptr<CPlayerGun> x490_gun;
   float x494_gunAlpha = 1.f;
@@ -315,7 +315,7 @@ private:
   float x9cc_stepCameraZBias = 0.f;
   u32 x9d0_bombJumpCount = 0;
   s32 x9d4_bombJumpCheckDelayFrames = 0;
-  zeus::CVector3f x9d8_controlDirOverrideDir = zeus::CVector3f::skForward;
+  zeus::CVector3f x9d8_controlDirOverrideDir = zeus::skForward;
   rstl::reserved_vector<TUniqueId, 5> x9e4_orbitDisableList;
 
   float x9f4_deathTime = 0.f;

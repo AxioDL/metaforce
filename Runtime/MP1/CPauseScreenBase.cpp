@@ -259,7 +259,7 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table) {
   if (!table)
     return;
 
-  zeus::CColor selColor = zeus::CColor::skWhite;
+  zeus::CColor selColor = zeus::skWhite;
   zeus::CColor deselColor = {1.f, 1.f, 1.f, 0.5f};
 
   bool tableActive = true;
@@ -345,7 +345,7 @@ void CPauseScreenBase::ResetMouseState() {
 }
 
 void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff) {
-  zeus::CColor color = zeus::CColor::skWhite;
+  zeus::CColor color = zeus::skWhite;
   color.a() = mainAlpha * x14_alpha;
   x60_basewidget_pivot->SetColor(color);
   color.a() = frameAlpha;

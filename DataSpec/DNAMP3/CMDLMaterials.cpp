@@ -193,10 +193,10 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
     if (uvAnim.size()) {
       const UVAnimation& uva = uvAnim[0];
       DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 2)), texMtxIdx,
-                                                texMapIdx++);
+                                                texMapIdx++, false);
       DNAMP1::MaterialSet::Material::AddTextureAnim(out, uva.anim.mode, texMtxIdx++, uva.anim.vals);
     } else
-      DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc + 4), -1, texMapIdx++);
+      DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uvSrc + 4), -1, texMapIdx++, false);
   }
 
   /* Special case for RFLV (environment UV mask) */

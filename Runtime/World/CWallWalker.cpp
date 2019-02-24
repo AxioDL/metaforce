@@ -14,7 +14,7 @@ CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, E
                          EKnockBackVariant kbVariant, float advanceWpRadius, EWalkerType wType,
                          float playerObstructionMinDist, bool disableMove)
 : CPatterned(chr, uid, name, flavType, eInfo, xf, std::move(mData), pInfo, mType, colType, bType, aParms, kbVariant)
-, x590_colSphere(zeus::CSphere(zeus::CVector3f::skZero, pInfo.GetHalfExtent()), x68_material)
+, x590_colSphere(zeus::CSphere(zeus::skZero3f, pInfo.GetHalfExtent()), x68_material)
 , x5b0_collisionCloseMargin(collisionCloseMargin)
 , x5b4_alignAngVel(alignAngVel)
 , x5c0_advanceWpRadius(advanceWpRadius)
@@ -127,7 +127,7 @@ void CWallWalker::PreThink(float dt, CStateManager& mgr) {
             (plane.pointToPlaneDist(GetTranslation()) - x590_colSphere.GetSphere().radius - 0.01f) * plane.normal(),
         futureDt));
   }
-  MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  MoveCollisionPrimitive(zeus::skZero3f);
 }
 
 void CWallWalker::Think(float dt, CStateManager& mgr) {

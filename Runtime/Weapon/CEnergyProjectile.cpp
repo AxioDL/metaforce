@@ -160,7 +160,7 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
 
   x170_projectile.UpdateParticleFX();
   if (x2e4_24_active && x3d0_26_)
-    Explode(GetTranslation(), zeus::CVector3f::skUp, EWeaponCollisionResponseTypes::Default, mgr,
+    Explode(GetTranslation(), zeus::skUp, EWeaponCollisionResponseTypes::Default, mgr,
             CDamageVulnerability::NormalVulnerabilty(), kInvalidUniqueId);
 
   if (x2c8_projectileLight != kInvalidUniqueId) {
@@ -196,7 +196,7 @@ void CEnergyProjectile::Render(const CStateManager& mgr) const {
 
   if (visor == CPlayerState::EPlayerVisor::XRay) {
     CElementGen::SetSubtractBlend((xe8_projectileAttribs & EProjectileAttrib::Ice) != EProjectileAttrib::Ice);
-    CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::CColor::skBlack);
+    CGraphics::SetFog(ERglFogMode::PerspLin, 0.f, 75.f, zeus::skBlack);
     x170_projectile.RenderParticles();
     CGameProjectile::Render(mgr);
     mgr.SetupFogForArea(GetAreaIdAlways());
@@ -289,7 +289,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   PlayImpactSound(pos, type);
   mgr.InformListeners(pos, EListenNoiseType::ProjectileExplode);
   if (auto particle = x170_projectile.CollisionOccured(type, !done, retargetPlayer, offsetPos, normal, targetPos)) {
-    zeus::CTransform particleXf = zeus::lookAt(zeus::CVector3f::skZero, normal);
+    zeus::CTransform particleXf = zeus::lookAt(zeus::skZero3f, normal);
     particleXf.origin = offsetPos;
     if (xf0_weaponType != EWeaponType::Power || !xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player) ||
         !x2e4_27_inWater) {
@@ -297,7 +297,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
         CDecalManager::AddDecal(*decal, particleXf,
                                 (xe8_projectileAttribs & EProjectileAttrib::Ice) != EProjectileAttrib::Ice, mgr);
       }
-      zeus::CVector3f scale = zeus::CVector3f::skOne;
+      zeus::CVector3f scale = zeus::skOne3f;
       bool camClose = false;
       if (mgr.GetPlayer().GetCameraState() == CPlayer::EPlayerCameraState::FirstPerson) {
         float mag = (offsetPos - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation()).magnitude();
@@ -314,7 +314,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
       CEntityInfo explosionInfo(GetAreaIdAlways(), CEntity::NullConnectionList);
       CExplosion* explosion =
           new CExplosion(*particle, mgr.AllocateUniqueId(), true, explosionInfo, "Projectile collision response",
-                         particleXf, explodeFlags, scale, zeus::CColor::skWhite);
+                         particleXf, explodeFlags, scale, zeus::skWhite);
       mgr.AddObject(explosion);
       if (TCastToPtr<CActor> hActor = mgr.ObjectById(hitActor)) {
         bool validPlat = false;
@@ -346,7 +346,7 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
       flags |= 0x2;
       CIceImpact* iceImpact =
           new CIceImpact(iceSpreadParticle, mgr.AllocateUniqueId(), GetAreaIdAlways(), true, "Ice spread explosion",
-                         particleXf, flags, zeus::CVector3f::skOne, zeus::CColor::skWhite);
+                         particleXf, flags, zeus::skOne3f, zeus::skWhite);
       mgr.AddObject(iceImpact);
     }
   }

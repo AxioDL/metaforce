@@ -124,7 +124,7 @@ void CGameCollision::MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, fl
         DetectCollision_Cached(mgr, cache, *actor.GetCollisionPrimitive(), actor.GetPrimitiveTransform(),
                                actor.GetMaterialFilter(), useColliderList, id, accumList);
         TCastToPtr<CPhysicsActor> otherActor = mgr.ObjectById(id);
-        actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+        actor.MoveCollisionPrimitive(zeus::skZero3f);
         zeus::CVector3f relVel = GetActorRelativeVelocities(actor, otherActor.GetPtr());
         CCollisionInfoList filterList0, filterList1;
         CollisionUtil::FilterOutBackfaces(relVel, accumList, filterList0);
@@ -152,7 +152,7 @@ void CGameCollision::MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, fl
       _4AC4 -= f31;
       f31 = f27;
       actor.ClearImpulses();
-      actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+      actor.MoveCollisionPrimitive(zeus::skZero3f);
     }
 
     ++r26;
@@ -170,7 +170,7 @@ void CGameCollision::MoveAndCollide(CStateManager& mgr, CPhysicsActor& actor, fl
     CollisionFailsafe(mgr, cache, actor, *actor.GetCollisionPrimitive(), useColliderList, f27, 2);
 
   actor.ClearForcesAndTorques();
-  actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  actor.MoveCollisionPrimitive(zeus::skZero3f);
 }
 
 zeus::CVector3f CGameCollision::GetActorRelativeVelocities(const CPhysicsActor& act0, const CPhysicsActor* act1) {
@@ -755,19 +755,19 @@ void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActo
     if (a0Move) {
       if (a1Move) {
         float impulse = CollisionImpulseFiniteVsFinite(a0.GetMass(), a1.GetMass(), velNormDot, restitution);
-        a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
-        a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle::sIdentity);
+        a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle());
+        a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle());
       } else {
         float impulse = CollisionImpulseFiniteVsInfinite(a0.GetMass(), velNormDot, restitution);
-        a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+        a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle());
       }
     } else {
       if (a1Move) {
         float impulse = CollisionImpulseFiniteVsInfinite(a1.GetMass(), velNormDot, restitution);
-        a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle::sIdentity);
+        a1.ApplyImpulseWR(normal * -impulse, zeus::CAxisAngle());
       } else {
-        a0.SetVelocityWR(zeus::CVector3f::skZero);
-        a1.SetVelocityWR(zeus::CVector3f::skZero);
+        a0.SetVelocityWR(zeus::skZero3f);
+        a1.SetVelocityWR(zeus::skZero3f);
       }
     }
     a0.UseCollisionImpulses();
@@ -775,12 +775,12 @@ void CGameCollision::CollideWithDynamicBodyNoRot(CPhysicsActor& a0, CPhysicsActo
   } else if (velNormDot < 0.1f) {
     if (a0Move) {
       float impulse = 0.05f * a0.GetMass();
-      a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+      a0.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle());
       a0.UseCollisionImpulses();
     }
     if (a1Move) {
       float impulse = -0.05f * a1.GetMass();
-      a1.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle::sIdentity);
+      a1.ApplyImpulseWR(normal * impulse, zeus::CAxisAngle());
       a1.UseCollisionImpulses();
     }
   }
@@ -802,10 +802,10 @@ void CGameCollision::CollideWithStaticBodyNoRot(CPhysicsActor& a0, const CMateri
     float velNormDot = a0.GetVelocity().dot(useNorm);
     if (velNormDot < 0.0001f) {
       a0.ApplyImpulseWR(useNorm * CollisionImpulseFiniteVsInfinite(a0.GetMass(), velNormDot, restitution),
-                        zeus::CAxisAngle::sIdentity);
+                        zeus::CAxisAngle());
       a0.UseCollisionImpulses();
     } else if (velNormDot < 0.001f) {
-      a0.ApplyImpulseWR(0.05f * a0.GetMass() * useNorm, zeus::CAxisAngle::sIdentity);
+      a0.ApplyImpulseWR(0.05f * a0.GetMass() * useNorm, zeus::CAxisAngle());
       a0.UseCollisionImpulses();
     }
   }
@@ -815,7 +815,7 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
                                        const CCollisionPrimitive& prim,
                                        const rstl::reserved_vector<TUniqueId, 1024>& nearList, float f1,
                                        u32 failsafeTicks) {
-  actor.MoveCollisionPrimitive(zeus::CVector3f::skZero);
+  actor.MoveCollisionPrimitive(zeus::skZero3f);
   if (f1 > 0.5f)
     actor.SetNumTicksPartialUpdate(actor.GetNumTicksPartialUpdate() + 1);
 

@@ -19,7 +19,7 @@ CGuiFrame::CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool
   x3c_lights.reserve(8);
   m_indexedLights.reserve(8);
   x10_rootWidget.reset(new CGuiWidget(CGuiWidget::CGuiWidgetParms(
-      this, false, 0, 0, false, false, false, zeus::CColor::skWhite, CGuiWidget::EGuiModelDrawFlags::Alpha, false,
+      this, false, 0, 0, false, false, false, zeus::skWhite, CGuiWidget::EGuiModelDrawFlags::Alpha, false,
       x8_guiSys.x8_mode != CGuiSys::EUsageMode::Zero)));
   x8_guiSys.m_registeredFrames.insert(this);
 }
@@ -47,7 +47,7 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
   lightsOut.reserve(m_indexedLights.size() + 1);
   CGraphics::DisableAllLights();
 
-  zeus::CColor ambColor(zeus::CColor::skBlack);
+  zeus::CColor ambColor(zeus::skBlack);
   ERglLight lightId = ERglLight::Zero;
   int idx = 0;
   for (CGuiLight* light : m_indexedLights) {
@@ -71,11 +71,11 @@ void CGuiFrame::EnableLights(u32 lights, CBooModel& model) const {
     ++idx;
   }
   if (lightsOut.empty()) {
-    // CGraphics::SetAmbientColor(zeus::CColor::skWhite);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite));
+    // CGraphics::SetAmbientColor(zeus::skWhite);
+    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
   } else {
     // CGraphics::SetAmbientColor(ambColor);
-    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
+    lightsOut.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
   }
 
   model.ActivateLights(lightsOut);
@@ -128,7 +128,7 @@ void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
 
 void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {
   CGraphics::SetCullMode(ERglCullMode::None);
-  CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+  CGraphics::SetAmbientColor(zeus::skWhite);
   DisableLights();
   x14_camera->Draw(parms);
   // Set one-stage modulate

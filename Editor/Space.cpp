@@ -25,7 +25,7 @@ specter::View* Space::buildSpaceView(specter::ViewResources& res) {
     const zeus::CColor* classColor = SpaceMenuNode::LookupClassColor(m_class);
     m_spaceSelectButton.reset(new specter::Button(res, tb, &m_spaceSelectBind, "", classIcon,
                                                   specter::Button::Style::Block,
-                                                  classColor ? *classColor : zeus::CColor::skWhite));
+                                                  classColor ? *classColor : zeus::skWhite));
     tb.push_back(m_spaceSelectButton.get(), 0);
     buildToolbarView(res, tb);
     return m_spaceView.get();

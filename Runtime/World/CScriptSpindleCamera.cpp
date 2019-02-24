@@ -131,7 +131,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
   if (hintDir.canBeNormalized())
     hintDir.normalize();
   else
-    hintDir = zeus::CVector3f::skForward;
+    hintDir = zeus::skForward;
   float hintToBallDist = 0.f;
   if (hintToBallDir.canBeNormalized()) {
     hintToBallDist = hintToBallDir.magnitude();
@@ -314,7 +314,7 @@ void CScriptSpindleCamera::Think(float dt, CStateManager& mgr) {
       if (newHintToCamDirFlat.canBeNormalized())
         newHintToCamDirFlat.normalize();
       else
-        newHintToCamDirFlat = zeus::CVector3f::skForward;
+        newHintToCamDirFlat = zeus::skForward;
       if (newHintToCamDirFlat.cross(hintToBallDir).z() >= 0.f)
         camLookRelAzimuth = -camLookRelAzimuth;
       if (x188_flags & 0x1000)

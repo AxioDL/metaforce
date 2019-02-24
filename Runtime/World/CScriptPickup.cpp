@@ -89,7 +89,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
   }
 
   if (x28c_25_inTractor) {
-    zeus::CVector3f posDelta = mgr.GetPlayer().GetTranslation() + (2.f * zeus::CVector3f::skUp) - GetTranslation();
+    zeus::CVector3f posDelta = mgr.GetPlayer().GetTranslation() + (2.f * zeus::skUp) - GetTranslation();
     x274_tractorTime += dt;
     posDelta = (20.f * (0.5f * zeus::min(2.f, x274_tractorTime))) * posDelta.normalized();
 
@@ -133,8 +133,8 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
       if (mgr.GetPlayerState()->GetActiveVisor(mgr) != CPlayerState::EPlayerVisor::Thermal) {
         mgr.AddObject(new CExplosion(x27c_pickupParticleDesc, mgr.AllocateUniqueId(), true,
                                      CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList, kInvalidEditorId),
-                                     "Explosion - Pickup Effect", x34_transform, 0, zeus::CVector3f::skOne,
-                                     zeus::CColor::skWhite));
+                                     "Explosion - Pickup Effect", x34_transform, 0, zeus::skOne3f,
+                                     zeus::skWhite));
       }
     }
 

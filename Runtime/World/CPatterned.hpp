@@ -204,7 +204,7 @@ protected:
   float x420_curDamageRemTime = 0.f;
   float x424_damageWaitTime;
   float x428_damageCooldownTimer = -1.f;
-  zeus::CColor x42c_color = zeus::CColor::skBlack;
+  zeus::CColor x42c_color = zeus::skBlack;
   zeus::CColor x430_damageColor = skDamageColor;
   zeus::CVector3f x434_posDelta;
   zeus::CQuaternion x440_rotDelta;
@@ -229,7 +229,7 @@ protected:
   rstl::optional<TLockedToken<CElectricDescription>> x530_deathExplosionElectric;
   zeus::CVector3f x540_iceDeathExplosionOffset;
   rstl::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
-  zeus::CVector3f x55c_moveScale = zeus::CVector3f::skOne;
+  zeus::CVector3f x55c_moveScale = zeus::skOne3f;
 
   void MakeThermalColdAndHot();
   void UpdateThermalFrozenState(bool thawed);

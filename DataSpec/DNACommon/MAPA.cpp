@@ -279,7 +279,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         "bm.free()\n";
 
   const zeus::CMatrix4f* tmpMtx = pakRouter.lookupMAPATransform(entry.id);
-  const zeus::CMatrix4f& mtx = tmpMtx ? *tmpMtx : zeus::CMatrix4f::skIdentityMatrix4f;
+  const zeus::CMatrix4f& mtx = tmpMtx ? *tmpMtx : zeus::skIdentityMatrix4f;
   os.format(
       "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
       "mtxd = mtx.decompose()\n"

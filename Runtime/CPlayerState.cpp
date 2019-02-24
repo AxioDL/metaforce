@@ -6,6 +6,7 @@
 #include "Camera/CFirstPersonCamera.hpp"
 #include "CMemoryCardSys.hpp"
 #include "GameGlobalObjects.hpp"
+#include "TCastTo.hpp"
 
 namespace urde {
 const u32 CPlayerState::PowerUpMaxValues[41] = {1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -186,7 +187,7 @@ bool CPlayerState::CanVisorSeeFog(const CStateManager& stateMgr) const {
 
 CPlayerState::EPlayerVisor CPlayerState::GetActiveVisor(const CStateManager& stateMgr) const {
   const CFirstPersonCamera* cam =
-      static_cast<const CFirstPersonCamera*>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr));
+      TCastToConstPtr<CFirstPersonCamera>(stateMgr.GetCameraManager()->GetCurrentCamera(stateMgr)).GetPtr();
   return (cam ? x14_currentVisor : EPlayerVisor::Combat);
 }
 
@@ -235,9 +236,10 @@ void CPlayerState::UpdateVisorTransition(float dt) {
   }
 }
 
-bool CPlayerState::StartVisorTransition(CPlayerState::EPlayerVisor visor) {
+void CPlayerState::StartTransitionToVisor(CPlayerState::EPlayerVisor visor) {
+  if (x18_transitioningVisor == visor)
+    return;
   x18_transitioningVisor = visor;
-  return x14_currentVisor == x18_transitioningVisor;
 }
 
 void CPlayerState::ResetVisor() {

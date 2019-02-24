@@ -100,7 +100,7 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
   if (act) {
     if (!act->GetActive())
       mgr.SendScriptMsg(act, GetUniqueId(), EScriptObjectMessage::Activate);
-    act->SetDrawFlags({0, 0, 3, zeus::CColor::skWhite});
+    act->SetDrawFlags({0, 0, 3, zeus::skWhite});
     if (act->HasModelData() && act->GetModelData()->HasAnimData()) {
       CAnimData* animData = act->ModelData()->AnimationData();
       if (animData->IsAdditiveAnimation(x34_animationId)) {

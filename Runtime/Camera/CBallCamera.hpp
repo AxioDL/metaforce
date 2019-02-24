@@ -114,9 +114,9 @@ private:
   std::vector<CCameraCollider> x274_mediumColliders;
   std::vector<CCameraCollider> x284_largeColliders;
   zeus::CVector3f x294_dampedPos;
-  zeus::CVector3f x2a0_smallCentroid = zeus::CVector3f::skUp;
-  zeus::CVector3f x2ac_mediumCentroid = zeus::CVector3f::skUp;
-  zeus::CVector3f x2b8_largeCentroid = zeus::CVector3f::skUp;
+  zeus::CVector3f x2a0_smallCentroid = zeus::skUp;
+  zeus::CVector3f x2ac_mediumCentroid = zeus::skUp;
+  zeus::CVector3f x2b8_largeCentroid = zeus::skUp;
   int x2c4_smallCollidersObsCount = 0;
   int x2c8_mediumCollidersObsCount = 0;
   int x2cc_largeCollidersObsCount = 0;
@@ -135,7 +135,7 @@ private:
   u32 x328_avoidGeomCycle = 0;
   float x32c_colliderMag = 1.f;
   float x330_clearColliderThreshold = 0.2f;
-  zeus::CAABox x334_collidersAABB = zeus::CAABox::skNullBox;
+  zeus::CAABox x334_collidersAABB = zeus::skNullBox;
   float x34c_obscuredTime = 0.f;
   CMaterialList x350_obscuringMaterial = {EMaterialTypes::NoStepLogic};
   float x358_unobscureMag = 0.f;

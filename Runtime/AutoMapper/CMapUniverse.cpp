@@ -28,9 +28,9 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
   else
     x54_surfColorSelected.fromRGBA32(255 | (u32(x10_worldAssetId.Value()) & 0xFFFFFF00));
 
-  x58_outlineColorSelected = zeus::CColor::lerp(zeus::CColor::skWhite, x54_surfColorSelected, 0.5f);
-  x5c_surfColorUnselected = zeus::CColor::lerp(zeus::CColor::skBlack, x54_surfColorSelected, 0.5f);
-  x60_outlineColorUnselected = zeus::CColor::lerp(zeus::CColor::skWhite, x5c_surfColorUnselected, 0.5f);
+  x58_outlineColorSelected = zeus::CColor::lerp(zeus::skWhite, x54_surfColorSelected, 0.5f);
+  x5c_surfColorUnselected = zeus::CColor::lerp(zeus::skBlack, x54_surfColorSelected, 0.5f);
+  x60_outlineColorUnselected = zeus::CColor::lerp(zeus::skWhite, x5c_surfColorUnselected, 0.5f);
 
   for (const zeus::CTransform& xf : x44_hexagonXfs)
     x64_centerPoint += xf.origin;

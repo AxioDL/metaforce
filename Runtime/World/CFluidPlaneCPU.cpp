@@ -139,7 +139,7 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     // Light 3 in channel 1
     // Vertex colors in channel 0
     out.lights.resize(4);
-    out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::CColor::skGrey);
+    out.lights[3] = CLight::BuildDirectional(xf0_bumpLightDir, zeus::skGrey);
   } else {
     // Normal light mask in channel 1
     // Vertex colors in channel 0
@@ -258,8 +258,8 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     out.kColors[2] = zeus::CColor(lowLightBlend * lightLevel, 1.f);
   }
 
-  float waterPlaneOrthoDot = xf.transposeRotate(zeus::CVector3f::skUp)
-                                 .dot(CGraphics::g_ViewMatrix.inverse().transposeRotate(zeus::CVector3f::skForward));
+  float waterPlaneOrthoDot = xf.transposeRotate(zeus::skUp)
+                                 .dot(CGraphics::g_ViewMatrix.inverse().transposeRotate(zeus::skForward));
   if (waterPlaneOrthoDot < 0.f)
     waterPlaneOrthoDot = -waterPlaneOrthoDot;
 
@@ -801,7 +801,7 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
 
   if (water) {
     float cameraPenetration =
-        mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::CVector3f::skUp) -
+        mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation().dot(zeus::skUp) -
         water->GetTriggerBoundsWR().max.z();
     wavecapIntensityScale *= (cameraPenetration >= 0.5f || cameraPenetration < 0.f) ? 1.f : 2.f * cameraPenetration;
   }

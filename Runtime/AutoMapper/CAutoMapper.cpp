@@ -1420,7 +1420,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
 
     CMapUniverse::CMapUniverseDrawParms parms(universeInterp, x9c_worldIdx, g_GameState->CurrentWorldAssetId(), hexIdx,
                                               x1dc_playerFlashPulse, mgr, planeXf, camXf);
-    x8_mapu->Draw(parms, zeus::CVector3f::skZero, 0.f, 0.f);
+    x8_mapu->Draw(parms, zeus::skZero3f, 0.f, 0.f);
   }
 
   if (!IsInMapperState(EAutoMapperState::MapScreenUniverse)) {
@@ -1467,7 +1467,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
         const CMapArea* mapa = mw->GetMapArea(loc.xc_areaId);
         if (!mapa)
           continue;
-        zeus::CTransform camRot(camXf.buildMatrix3f(), zeus::CVector3f::skZero);
+        zeus::CTransform camRot(camXf.buildMatrix3f(), zeus::skZero3f);
         CGraphics::SetModelMatrix(
             mapXf * zeus::CTransform::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
             zeus::CTransform::Translate(mapa->GetAreaCenterPoint()) * zeus::CTransform::Scale(objectScale) * camRot);
@@ -1484,7 +1484,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
           } else
             alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
           alpha *= mapAlpha;
-          zeus::CColor color = zeus::CColor::skWhite;
+          zeus::CColor color = zeus::skWhite;
           color.a() = alpha;
           filter.drawVerts(color, verts);
         }
@@ -1510,7 +1510,7 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
       }
     }
     CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_NEAR);
-    CGuiWidgetDrawParms parms(frmeAlpha, zeus::CVector3f::skZero);
+    CGuiWidgetDrawParms parms(frmeAlpha, zeus::skZero3f);
     x28_frmeMapScreen->Draw(parms);
     CGraphics::SetDepthRange(DEPTH_NEAR, DEPTH_HUD);
   }

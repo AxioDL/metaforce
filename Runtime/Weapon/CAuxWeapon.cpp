@@ -8,7 +8,7 @@
 namespace urde {
 
 static const CCameraShakeData skHardShake = {
-    0.3f, 100.f, 0, zeus::CVector3f::skZero, {}, {1, {0, 0.f, 0.f, 0.3f, -2.f}, {1, 0.f, 0.f, 0.05f, 0.5f}}, {}};
+    0.3f, 100.f, 0, zeus::skZero3f, {}, {1, {0, 0.f, 0.f, 0.3f, -2.f}, {1, 0.f, 0.f, 0.05f, 0.5f}}, {}};
 
 CAuxWeapon::CAuxWeapon(TUniqueId playerId)
 : x0_missile(g_SimplePool->GetObj("Missile"))
@@ -252,7 +252,7 @@ void CAuxWeapon::LaunchMissile(float dt, bool underwater, bool charged, CPlayerS
   CEnergyProjectile* proj = new CEnergyProjectile(
       true, charged ? x28_combos[int(currentBeam)] : x0_missile, charged ? EWeaponType::Power : EWeaponType::Missile,
       xf, EMaterialTypes::Player, CGunWeapon::GetShotDamageInfo(info, mgr), mgr.AllocateUniqueId(), kInvalidAreaId,
-      x6c_playerId, homingId, attrib | EProjectileAttrib::ArmCannon, underwater, zeus::CVector3f::skOne, {}, -1, false);
+      x6c_playerId, homingId, attrib | EProjectileAttrib::ArmCannon, underwater, zeus::skOne3f, {}, -1, false);
   mgr.AddObject(proj);
   proj->Think(dt, mgr);
   if (charged) {

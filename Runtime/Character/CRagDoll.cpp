@@ -154,7 +154,7 @@ void CRagDoll::CheckStatic(float dt) {
   x54_impactVel = 0.f;
   float halfDt = 0.5f * dt;
   float halfDeltaUnitSq = halfDt * halfDt;
-  x58_averageVel = zeus::CVector3f::skZero;
+  x58_averageVel = zeus::skZero3f;
   bool movingSlowly = true;
   for (auto& particle : x4_particles) {
     zeus::CVector3f delta = particle.x4_curPos - particle.x14_prevPos;
@@ -181,7 +181,7 @@ void CRagDoll::CheckStatic(float dt) {
 
 void CRagDoll::ClearForces() {
   for (auto& particle : x4_particles)
-    particle.x20_velocity = zeus::CVector3f::skZero;
+    particle.x20_velocity = zeus::skZero3f;
 }
 
 void CRagDoll::SatisfyConstraints(CStateManager& mgr) {
@@ -285,7 +285,7 @@ void CRagDoll::Verlet(float dt) {
     if (deltaPos.magSquared() > 4.f)
       particle.x4_curPos = deltaPos.normalized() * 2.f + particle.x14_prevPos;
     particle.x3c_24_impactPending = false;
-    particle.x2c_impactResponseDelta = zeus::CVector3f::skZero;
+    particle.x2c_impactResponseDelta = zeus::skZero3f;
   }
 }
 

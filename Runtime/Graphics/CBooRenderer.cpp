@@ -371,15 +371,15 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
     if (pass == 0) {
       zeus::CAABox xfAABB = aabb.getTransformedAABox(modelMtx);
       zeus::CUnitVector3f viewNormal(viewMtx.basis[1]);
-      zeus::CPlane planes[7] = {{zeus::CVector3f::skRight, xfAABB.min.x()},
-                                {zeus::CVector3f::skLeft, -xfAABB.max.x()},
-                                {zeus::CVector3f::skForward, xfAABB.min.y()},
-                                {zeus::CVector3f::skBack, -xfAABB.max.y()},
-                                {zeus::CVector3f::skUp, xfAABB.min.z()},
-                                {zeus::CVector3f::skDown, -xfAABB.max.z()},
+      zeus::CPlane planes[7] = {{zeus::skRight, xfAABB.min.x()},
+                                {zeus::skLeft, -xfAABB.max.x()},
+                                {zeus::skForward, xfAABB.min.y()},
+                                {zeus::skBack, -xfAABB.max.y()},
+                                {zeus::skUp, xfAABB.min.z()},
+                                {zeus::skDown, -xfAABB.max.z()},
                                 {viewNormal, viewNormal.dot(viewMtx.origin) + 0.2f + 0.1f}};
 
-      CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+      CGraphics::SetModelMatrix(zeus::CTransform());
 
       float longestAxis = std::max(std::max(xfAABB.max.x() - xfAABB.min.x(), xfAABB.max.y() - xfAABB.min.y()),
                                    xfAABB.max.z() - xfAABB.min.z()) *
@@ -424,7 +424,7 @@ void CBooRenderer::RenderFogVolumeModel(const zeus::CAABox& aabb, const CModel* 
 }
 
 void CBooRenderer::SetupRendererStates() const {
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
   CGraphics::g_ColorRegs[1] = x2fc_tevReg1Color;
 }
 
@@ -634,6 +634,7 @@ CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
   } BooTrace);
   LoadThermoPalette();
   LoadBallFade();
+  m_thermColdFilter.emplace();
   m_thermHotFilter.emplace();
 
   Buckets::Init();
@@ -696,7 +697,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activ
   int bufIdx;
   if (shadowRender) {
     flags.m_extendedShader = EExtendedShader::SolidColor;
-    flags.x4_color = zeus::CColor::skBlack;
+    flags.x4_color = zeus::skBlack;
     bufIdx = 1;
   } else {
     flags.m_extendedShader = EExtendedShader::Lighting;
@@ -913,7 +914,7 @@ void CBooRenderer::AddPlaneObject(const void* obj, const zeus::CAABox& aabb, con
   float closeDist = xb0_viewPlane.pointToPlaneDist(closePoint);
   float farDist = xb0_viewPlane.pointToPlaneDist(farPoint);
   if (closeDist >= 0.f || farDist >= 0.f) {
-    bool zOnly = plane.normal() == zeus::CVector3f::skUp;
+    bool zOnly = plane.normal() == zeus::skUp;
     bool invert;
     if (zOnly)
       invert = CGraphics::g_ViewMatrix.origin.z() >= plane.d();
@@ -956,8 +957,8 @@ std::pair<zeus::CVector2f, zeus::CVector2f> CBooRenderer::SetViewportOrtho(bool 
   float right = centered ? g_Viewport.x4_top + g_Viewport.x10_halfWidth : g_Viewport.x8_width;
 
   CGraphics::SetOrtho(left, right, top, bottom, znear, zfar);
-  CGraphics::SetViewPointMatrix(zeus::CTransform::Identity());
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetViewPointMatrix(zeus::CTransform());
+  CGraphics::SetModelMatrix(zeus::CTransform());
 
   return {{left, bottom}, {right, top}};
 }
@@ -974,7 +975,7 @@ void CBooRenderer::SetDebugOption(EDebugOption, int) {}
 void CBooRenderer::BeginScene() {
   CGraphics::SetViewport(0, 0, g_Viewport.x8_width, g_Viewport.xc_height);
   CGraphics::SetPerspective(75.f, CGraphics::g_ProjAspect, 1.f, 4096.f);
-  CGraphics::SetModelMatrix(zeus::CTransform::Identity());
+  CGraphics::SetModelMatrix(zeus::CTransform());
 #if 0
     if (x310_phazonSuitMaskCountdown != 0)
     {
@@ -1090,8 +1091,8 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
 void CBooRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }
 
 void CBooRenderer::DoThermalBlendCold() {
-  zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::CColor::skWhite, x2f8_thermColdScale);
-  m_thermColdFilter.setColorA(a);
+  zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::skWhite, x2f8_thermColdScale);
+  m_thermColdFilter->setColorA(a);
   float bFac = 0.f;
   float bAlpha = 1.f;
   if (x2f8_thermColdScale < 0.5f) {
@@ -1099,15 +1100,15 @@ void CBooRenderer::DoThermalBlendCold() {
     bFac = (1.f - bAlpha) / 8.f;
   }
   zeus::CColor b{bFac, bFac, bFac, bAlpha};
-  m_thermColdFilter.setColorB(b);
-  zeus::CColor c = zeus::CColor::lerp(zeus::CColor::skBlack, zeus::CColor::skWhite,
+  m_thermColdFilter->setColorB(b);
+  zeus::CColor c = zeus::CColor::lerp(zeus::skBlack, zeus::skWhite,
                                       zeus::clamp(0.f, (x2f8_thermColdScale - 0.25f) * 4.f / 3.f, 1.f));
-  m_thermColdFilter.setColorC(c);
+  m_thermColdFilter->setColorC(c);
 
-  m_thermColdFilter.setScale(x2f8_thermColdScale);
+  m_thermColdFilter->setScale(x2f8_thermColdScale);
 
-  m_thermColdFilter.setShift(x2a8_thermalRand.Next() % 32);
-  m_thermColdFilter.draw();
+  m_thermColdFilter->setNoiseOffset(x2a8_thermalRand.Next() % 32);
+  m_thermColdFilter->draw();
   CElementGen::SetMoveRedToAlphaBuffer(true);
   CDecal::SetMoveRedToAlphaBuffer(true);
 }
@@ -1169,7 +1170,7 @@ void CBooRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectM
 
   /* Draw effect; subtracting binding 1 from binding 2 for the filter 'cutout' */
   if (indTex && indTex.IsLoaded())
-    ReallyDrawPhazonSuitIndirectEffect(zeus::CColor::skWhite, *indTex, indirectMod, scale, offX, offY);
+    ReallyDrawPhazonSuitIndirectEffect(zeus::skWhite, *indTex, indirectMod, scale, offX, offY);
   else
     ReallyDrawPhazonSuitEffect(nonIndirectMod);
 }

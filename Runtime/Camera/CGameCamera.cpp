@@ -69,7 +69,7 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& ne
       !zeus::close_enough(newXf.frontVector().magnitude(), 1.f) ||
       !zeus::close_enough(newXf.upVector().magnitude(), 1.f))
     xfCpy.orthonormalize();
-  float f2 = zeus::clamp(-1.f, newXf.frontVector().dot(zeus::CVector3f::skUp), 1.f);
+  float f2 = zeus::clamp(-1.f, newXf.frontVector().dot(zeus::skUp), 1.f);
   if (std::fabs(f2) > 0.999f)
     xfCpy = oldXf;
 
@@ -78,7 +78,7 @@ zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& ne
 
   if (!zeus::close_enough(xfCpy.rightVector().z(), 0.f) && !zeus::close_enough(xfCpy.upVector().z(), 0.f)) {
     if (xfCpy.frontVector().canBeNormalized())
-      xfCpy = zeus::lookAt(zeus::CVector3f::skZero, xfCpy.frontVector());
+      xfCpy = zeus::lookAt(zeus::skZero3f, xfCpy.frontVector());
     else
       xfCpy = oldXf;
   }

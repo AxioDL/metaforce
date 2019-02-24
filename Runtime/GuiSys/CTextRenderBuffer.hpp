@@ -91,7 +91,7 @@ private:
   u32 m_activeFontCh = -1;
 
   zeus::CColor m_main;
-  zeus::CColor m_outline = zeus::CColor::skBlack;
+  zeus::CColor m_outline = zeus::skBlack;
 
   CGuiWidget::EGuiModelDrawFlags m_drawFlags;
 

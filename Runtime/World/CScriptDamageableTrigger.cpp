@@ -50,7 +50,7 @@ CScriptDamageableTrigger::CScriptDamageableTrigger(TUniqueId uid, std::string_vi
     x1e4_faceDir = zeus::CTransform::RotateY(M_PIF / 2.f);
   } else if (x1dc_faceFlag & 0x10) {
     x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.max.z());
-    x1e4_faceDir = zeus::CTransform::Identity();
+    x1e4_faceDir = zeus::CTransform();
   } else if (x1dc_faceFlag & 0x20) {
     x244_faceTranslate = zeus::CVector3f(0.f, 0.f, x14c_bounds.min.z());
     x1e4_faceDir = zeus::CTransform::RotateY(M_PIF);
@@ -107,8 +107,8 @@ void CScriptDamageableTrigger::Render(const CStateManager& mgr) const {
   if (x30_24_active && x1dc_faceFlag != 0 && std::fabs(x1e0_alpha) >= 0.00001f) {
     zeus::CAABox aabb = x14c_bounds.getTransformedAABox(x214_faceDirInv);
     zeus::CTransform xf = x34_transform * zeus::CTransform::Translate(x244_faceTranslate) * x1e4_faceDir;
-    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform::Identity(), false, xe8_frustum, {},
-                           kInvalidUniqueId, nullptr, 0, 0, zeus::CVector3f::skZero);
+    x254_fluidPlane.Render(mgr, x1e0_alpha, aabb, xf, zeus::CTransform(), false, xe8_frustum, {},
+                           kInvalidUniqueId, nullptr, 0, 0, zeus::skZero3f);
   }
 
   CActor::Render(mgr);

@@ -167,7 +167,7 @@ void CParticleElectric::UpdateElectricalEffects() {
 
     if (x450_27_haveSSWH) {
       CParticleSwoosh& swoosh = *x1e0_swooshGenerators[elec.x0_idx];
-      zeus::CColor color = zeus::CColor::skWhite;
+      zeus::CColor color = zeus::skWhite;
       if (CColorElement* colr = x1c_elecDesc->x14_COLR.get())
         colr->GetValue(frame, color);
       swoosh.SetModulationColor(color * x1b8_moduColor);
@@ -215,7 +215,7 @@ void CParticleElectric::CalculatePoints() {
     points.push_back(pos);
   }
 
-  zeus::CVector3f fpos = zeus::CVector3f::skForward;
+  zeus::CVector3f fpos = zeus::skForward;
   zeus::CVector3f fvel;
   if (CEmitterElement* femt = x1c_elecDesc->x1c_FEMT.get())
     femt->GetValue(x28_currentFrame, fpos, fvel);
@@ -279,7 +279,7 @@ void CParticleElectric::CalculatePoints() {
 
   zeus::CVector3f v0 = x420_calculatedVerts[0] - x420_calculatedVerts[1];
   zeus::CVector3f v1 = x420_calculatedVerts[x420_calculatedVerts.size() - 1] - x420_calculatedVerts[1];
-  zeus::CVector3f upVec = zeus::CVector3f::skUp;
+  zeus::CVector3f upVec = zeus::skUp;
   if (v0.canBeNormalized() && v1.canBeNormalized()) {
     v0.normalize();
     v1.normalize();
@@ -343,7 +343,7 @@ void CParticleElectric::CreateNewParticles(int count) {
           swoosh.SetGlobalOrientation(cachedRot);
           swoosh.SetGlobalScale(xe0_globalScale);
           swoosh.SetLocalScale(xec_localScale);
-          zeus::CColor color = zeus::CColor::skWhite;
+          zeus::CColor color = zeus::skWhite;
           if (CColorElement* colr = x1c_elecDesc->x14_COLR.get())
             colr->GetValue(frame, color);
           swoosh.SetModulationColor(color * x1b8_moduColor);
@@ -355,7 +355,7 @@ void CParticleElectric::CreateNewParticles(int count) {
           line.x0_verts = x420_calculatedVerts;
           UpdateLine(allocIdx, 0);
           if (x450_27_haveSSWH) {
-            x130_buildBounds = zeus::CAABox::skInvertedBox;
+            x130_buildBounds = zeus::CAABox();
             for (const zeus::CVector3f& vec : x420_calculatedVerts)
               x130_buildBounds.accumulateBounds(vec);
             line.x28_aabb = x130_buildBounds;
@@ -415,11 +415,11 @@ void CParticleElectric::AddElectricalEffects() {
 
 void CParticleElectric::BuildBounds() {
   if (GetParticleCount() <= 0) {
-    x160_systemBounds = zeus::CAABox::skInvertedBox;
+    x160_systemBounds = zeus::CAABox();
     return;
   }
 
-  x160_systemBounds = zeus::CAABox::skInvertedBox;
+  x160_systemBounds = zeus::CAABox();
 
   if (x450_27_haveSSWH) {
     for (CParticleElectricManager& elec : x3e8_electricManagers) {
@@ -428,7 +428,7 @@ void CParticleElectric::BuildBounds() {
         x160_systemBounds.accumulateBounds(*bounds);
     }
   } else if (x450_28_haveLWD) {
-    zeus::CAABox tmp = zeus::CAABox::skInvertedBox;
+    zeus::CAABox tmp = zeus::CAABox();
     for (CParticleElectricManager& elec : x3e8_electricManagers) {
       CLineManager& line = *x2e4_lineManagers[elec.x0_idx];
       tmp.accumulateBounds(line.x28_aabb);
@@ -727,7 +727,7 @@ CLight CParticleElectric::GetLight() const {
     return x400_gpsmGenerators.front()->GetLight();
   else if (x450_26_haveEPSM)
     return x410_epsmGenerators.front()->GetLight();
-  return CLight::BuildLocalAmbient(GetGlobalTranslation(), zeus::CColor::skOrange);
+  return CLight::BuildLocalAmbient(GetGlobalTranslation(), zeus::skOrange);
 }
 
 bool CParticleElectric::GetParticleEmission() const { return x450_24_emitting; }

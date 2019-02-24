@@ -127,7 +127,7 @@ void CMessageScreen::Draw() const {
   if (!x18_loadedMsgScreen)
     return;
 
-  x18_loadedMsgScreen->Draw(CGuiWidgetDrawParms(x70_blurAmt, zeus::CVector3f::skZero));
+  x18_loadedMsgScreen->Draw(CGuiWidgetDrawParms(x70_blurAmt, zeus::skZero3f));
 }
 
 } // namespace urde::MP1

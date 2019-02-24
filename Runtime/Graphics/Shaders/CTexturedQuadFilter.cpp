@@ -260,7 +260,7 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[
 }
 
 void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) {
-  m_uniform.m_matrix = zeus::CMatrix4f::skIdentityMatrix4f;
+  m_uniform.m_matrix = zeus::CMatrix4f();
   m_uniform.m_lod = 0.f;
   m_uniform.m_color = color;
   m_uniBuf->load(&m_uniform, sizeof(m_uniform));

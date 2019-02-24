@@ -40,8 +40,8 @@ static const zeus::CColor ArtifactPreColor = {0.4f, 0.68f, 0.88f, 0.8f};
 static const zeus::CColor ArtifactPostColor = {1.f, 0.63f, 0.02f, 1.f};
 
 CArtifactDoll::CArtifactDoll() {
-  x10_lights.resize(2, CLight::BuildDirectional(zeus::CVector3f::skForward, zeus::CColor::skWhite));
-  x20_actorLights = std::make_unique<CActorLights>(8, zeus::CVector3f::skZero, 4, 4, false, false, false, 0.1f);
+  x10_lights.resize(2, CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
+  x20_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   x28_24_loaded = false;
   x0_models.reserve(12);
   for (int i = 0; i < 12; ++i)
@@ -96,9 +96,9 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
         CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
         float interp = (playerState.GetScanTime(newId) - 0.5f) * 2.f;
         if (interp < 0.5f)
-          color = zeus::CColor::lerp(ArtifactPreColor, zeus::CColor::skWhite, 2.f * interp);
+          color = zeus::CColor::lerp(ArtifactPreColor, zeus::skWhite, 2.f * interp);
         else
-          color = zeus::CColor::lerp(zeus::CColor::skWhite, ArtifactPostColor, 2.f * (interp - 0.5f));
+          color = zeus::CColor::lerp(zeus::skWhite, ArtifactPostColor, 2.f * (interp - 0.5f));
       } else {
         color = ArtifactPostColor;
       }
@@ -106,7 +106,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
 
     if (inArtifactCategory && i == selectedArtifact) {
       float interp = (std::sin(CGraphics::GetSecondsMod900() * 2.f * M_PIF) + 1.f) * 0.5f;
-      color = zeus::CColor::lerp(zeus::CColor::skWhite, color, interp);
+      color = zeus::CColor::lerp(zeus::skWhite, color, interp);
       color.a() *= zeus::clamp(0.f, 1.25f - interp, 1.f);
     }
 
@@ -124,9 +124,9 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
 
 void CArtifactDoll::UpdateActorLights() {
   x10_lights[0] = CLight::BuildDirectional(
-      (zeus::CVector3f::skForward + 0.25f * zeus::CVector3f::skRight + 0.1f * zeus::CVector3f::skDown).normalized(),
-      zeus::CColor::skWhite);
-  x10_lights[1] = CLight::BuildDirectional(-zeus::CVector3f::skForward, zeus::CColor::skBlack);
+      (zeus::skForward + 0.25f * zeus::skRight + 0.1f * zeus::skDown).normalized(),
+      zeus::skWhite);
+  x10_lights[1] = CLight::BuildDirectional(-zeus::skForward, zeus::skBlack);
   x20_actorLights->BuildFakeLightList(x10_lights, zeus::CColor(0.25f, 1.f));
 }
 

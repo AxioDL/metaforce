@@ -18,7 +18,7 @@ void CTargetingManager::Update(float dt, const CStateManager& stateMgr) {
 }
 
 void CTargetingManager::Draw(const CStateManager& mgr, bool hideLockon) const {
-  CGraphics::SetAmbientColor(zeus::CColor::skWhite);
+  CGraphics::SetAmbientColor(zeus::skWhite);
   CGraphics::DisableAllLights();
   x21c_orbitPointMarker.Draw(mgr);
   const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);

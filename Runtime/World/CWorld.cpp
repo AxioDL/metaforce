@@ -640,10 +640,10 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const {
 
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix(xf);
-  g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
+  g_Renderer->SetAmbientColor(zeus::skWhite);
   CGraphics::SetDepthRange(DEPTH_SKY, DEPTH_FAR);
 
-  CModelFlags flags(0, 0, 1, zeus::CColor::skWhite);
+  CModelFlags flags(0, 0, 1, zeus::skWhite);
   flags.m_noZWrite = true;
   model->Draw(flags);
 

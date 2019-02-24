@@ -62,7 +62,7 @@ void CFirstPersonCamera::Reset(const zeus::CTransform& xf, CStateManager& mgr) {
 }
 
 void CFirstPersonCamera::SkipCinematic() {
-  x1c8_closeInVec = zeus::CVector3f::skZero;
+  x1c8_closeInVec = zeus::skZero3f;
   x1d4_closeInTimer = 0.f;
 }
 
@@ -92,7 +92,7 @@ void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransf
 void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
   TCastToPtr<CPlayer> player(mgr.ObjectById(GetWatchedObject()));
   if (!player) {
-    SetTransform(zeus::CTransform::Identity());
+    SetTransform(zeus::CTransform());
     return;
   }
 
@@ -109,7 +109,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
     vec.x() = std::sin(-player->x3e4_freeLookYawAngle) * std::cos(angle);
     if (g_tweakPlayer->GetFreeLookTurnsPlayer()) {
       vec.x() = 0.f;
-      if (!zeus::close_enough(vec, zeus::CVector3f::skZero))
+      if (!zeus::close_enough(vec, zeus::skZero3f))
         vec.normalize();
     }
 
@@ -120,7 +120,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
   if (x1d4_closeInTimer > 0.f) {
     eyePos += zeus::clamp(0.f, 0.5f * x1d4_closeInTimer, 1.f) * x1c8_closeInVec;
     player->GetCameraBob()->ResetCameraBobTime();
-    player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform::Identity());
+    player->GetCameraBob()->SetCameraBobTransform(zeus::CTransform());
   }
 
   switch (player->GetOrbitState()) {
@@ -183,7 +183,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
     rVec.normalize();
 
   zeus::CTransform gunXf = x190_gunFollowXf;
-  zeus::CQuaternion qGun = zeus::CQuaternion::skNoRotation;
+  zeus::CQuaternion qGun;
 
   if (!player->x3dc_inFreeLook) {
     switch (player->GetOrbitState()) {
@@ -275,7 +275,7 @@ void CFirstPersonCamera::UpdateTransform(CStateManager& mgr, float dt) {
       player->GetGrappleState() != CPlayer::EGrappleState::None ||
       mgr.GetGameState() == CStateManager::EGameState::SoftPaused || mgr.GetCameraManager()->IsInCinematicCamera() ||
       x1d4_closeInTimer > 0.f) {
-    bobXf = zeus::CTransform::Identity();
+    bobXf = zeus::CTransform();
     player->GetCameraBob()->SetCameraBobTransform(bobXf);
   }
 
@@ -294,7 +294,7 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr) {
         zeus::CVector3f pitchDirFlat = pvol->GetTransform().basis[1];
         pitchDirFlat.z() = 0.f;
         if (!pitchDirFlat.canBeNormalized())
-          pitchDirFlat = zeus::CVector3f::skForward;
+          pitchDirFlat = zeus::skForward;
 
         zeus::CVector3f playerDirFlat = player->GetTransform().basis[1];
         playerDirFlat.z() = 0.f;

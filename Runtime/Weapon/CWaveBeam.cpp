@@ -65,7 +65,7 @@ void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const 
       CEnergyProjectile* proj = new CEnergyProjectile(
           true, weaponDesc, x1c0_weaponType, shotXf, x1c8_playerMaterial,
           GetDamageInfo(mgr, chargeState, chargeFactor1), mgr.AllocateUniqueId(), kInvalidAreaId, x1c4_playerId,
-          homingTarget, EProjectileAttrib::ArmCannon, underwater, zeus::CVector3f::skOne, {}, -1, false);
+          homingTarget, EProjectileAttrib::ArmCannon, underwater, zeus::skOne3f, {}, -1, false);
       mgr.AddObject(proj);
       proj->Think(dt, mgr);
     }

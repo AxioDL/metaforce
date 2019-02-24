@@ -145,7 +145,7 @@ public:
   bool GetIsVisorTransitioning() const;
   float GetVisorTransitionFactor() const;
   void UpdateVisorTransition(float dt);
-  bool StartVisorTransition(EPlayerVisor visor);
+  void StartTransitionToVisor(EPlayerVisor visor);
   void ResetVisor();
   bool ItemEnabled(EItemType type) const;
   void DisableItem(EItemType type);

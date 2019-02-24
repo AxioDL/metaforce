@@ -321,28 +321,28 @@ bool CREConstantRange::GetValue(int frame, float& valOut) const {
 }
 
 bool CREGetComponentRed::GetValue(int frame, float& valOut) const {
-  zeus::CColor a = zeus::CColor::skBlack;
+  zeus::CColor a = zeus::skBlack;
   x4_a->GetValue(frame, a);
   valOut = a.r();
   return false;
 }
 
 bool CREGetComponentGreen::GetValue(int frame, float& valOut) const {
-  zeus::CColor a = zeus::CColor::skBlack;
+  zeus::CColor a = zeus::skBlack;
   x4_a->GetValue(frame, a);
   valOut = a.g();
   return false;
 }
 
 bool CREGetComponentBlue::GetValue(int frame, float& valOut) const {
-  zeus::CColor a = zeus::CColor::skBlack;
+  zeus::CColor a = zeus::skBlack;
   x4_a->GetValue(frame, a);
   valOut = a.b();
   return false;
 }
 
 bool CREGetComponentAlpha::GetValue(int frame, float& valOut) const {
-  zeus::CColor a = zeus::CColor::skBlack;
+  zeus::CColor a = zeus::skBlack;
   x4_a->GetValue(frame, a);
   valOut = a.a();
   return false;

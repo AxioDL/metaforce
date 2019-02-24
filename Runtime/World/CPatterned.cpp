@@ -119,7 +119,7 @@ void CPatterned::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (HasModelData() && GetModelData()->HasAnimData() && GetModelData()->GetAnimationData()->GetIceModel()) {
       const auto& baseAABB = GetBaseBoundingBox();
       float diagExtent = (baseAABB.max - baseAABB.min).magnitude() * 0.5f;
-      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::CVector3f::skRight, zeus::CVector3f{}, diagExtent,
+      x510_vertexMorph = std::make_shared<CVertexMorphEffect>(zeus::skRight, zeus::CVector3f{}, diagExtent,
                                                               0.f, *mgr.GetActiveRandom());
     }
 
@@ -348,7 +348,7 @@ void CPatterned::CollidedWith(TUniqueId other, const CCollisionInfoList& list, C
           player->ResetTimeSinceJump();
         } else if (x400_25_alive && !x450_bodyController->IsFrozen()) {
           mgr.ApplyDamage(GetUniqueId(), player->GetUniqueId(), GetUniqueId(), cDamage,
-                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
         }
         x420_curDamageRemTime = x424_damageWaitTime;
       }
@@ -442,7 +442,7 @@ void CPatterned::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptOb
       }
     }
     if (x400_28_pendingMassiveDeath || x400_29_pendingMassiveFrozenDeath) {
-      if (x328_30_lookAtDeathDir && x3e0_xDamageDelay <= 0.f && dir != zeus::CVector3f::skZero) {
+      if (x328_30_lookAtDeathDir && x3e0_xDamageDelay <= 0.f && dir != zeus::skZero3f) {
         SetTransform(zeus::lookAt(GetTranslation(), GetTranslation() - dir) *
                      zeus::CTransform::RotateX(zeus::degToRad(45.f)));
       }
@@ -454,7 +454,7 @@ void CPatterned::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptOb
     x400_25_alive = false;
     if (x450_bodyController->HasBodyState(pas::EAnimationState::Hurled) &&
         x450_bodyController->GetBodyType() == EBodyType::Flyer) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCHurledCmd(-dir, zeus::CVector3f::skZero));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCHurledCmd(-dir, zeus::skZero3f));
     } else if (x450_bodyController->HasBodyState(pas::EAnimationState::Fall)) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockDownCmd(-dir, pas::ESeverity::One));
     }
@@ -473,7 +473,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       x450_bodyController->FrozenBreakout();
     switch (x460_knockBackController.GetActiveParms().x4_animFollowup) {
     case EKnockBackAnimationFollowUp::Freeze:
-      Freeze(mgr, zeus::CVector3f::skZero, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
+      Freeze(mgr, zeus::skZero3f, zeus::CUnitVector3f(x34_transform.transposeRotate(backVec)),
              x460_knockBackController.GetActiveParms().x8_followupDuration);
       break;
     case EKnockBackAnimationFollowUp::PhazeOut:
@@ -490,7 +490,7 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       [[fallthrough]];
     case EKnockBackAnimationFollowUp::BurnDeath:
       Burn(x460_knockBackController.GetActiveParms().x8_followupDuration, -1.f);
-      Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+      Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
       x400_28_pendingMassiveDeath = x400_29_pendingMassiveFrozenDeath = false;
       x400_27_fadeToDeath = x401_28_burning = true;
       x3f4_burnThinkRateTimer = 1.5f;
@@ -504,17 +504,17 @@ void CPatterned::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr, c
       }
       break;
     case EKnockBackAnimationFollowUp::Death:
-      Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+      Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
       break;
     case EKnockBackAnimationFollowUp::ExplodeDeath:
-      Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+      Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
       if (GetDeathExplosionParticle() || x530_deathExplosionElectric)
         MassiveDeath(mgr);
       else if (x450_bodyController->IsFrozen())
         x450_bodyController->FrozenBreakout();
       break;
     case EKnockBackAnimationFollowUp::IceDeath:
-      Death(mgr, zeus::CVector3f::skZero, EScriptObjectState::DeathRattle);
+      Death(mgr, zeus::skZero3f, EScriptObjectState::DeathRattle);
       if (x54c_iceDeathExplosionParticle)
         MassiveFrozenDeath(mgr);
       else if (x450_bodyController->IsFrozen())
@@ -585,7 +585,7 @@ bool CPatterned::PathShagged(CStateManager&, float arg) {
     if (search->IsShagged())
       return true;
     if (search->GetCurrentWaypoint() > 0 && x401_24_pathOverCount == 0) {
-      zeus::CVector3f origPoint = GetTranslation() + 0.3f * zeus::CVector3f::skUp;
+      zeus::CVector3f origPoint = GetTranslation() + 0.3f * zeus::skUp;
       zeus::CVector3f point = origPoint;
       search->GetSplinePoint(point, GetTranslation());
       return (point - origPoint).magSquared() > 4.f * skActorApproachDistance * skActorApproachDistance;
@@ -709,7 +709,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
       if (search->GetCurrentWaypoint() < search->GetWaypoints().size() - 1) {
         if (x328_24_inPosition || x328_27_onGround)
           x401_24_pathOverCount += 1;
-        zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::CVector3f::skUp;
+        zeus::CVector3f biasedPos = GetTranslation() + 0.3f * zeus::skUp;
         x2ec_reflectedDestPos = biasedPos - (x2e0_destPos - biasedPos);
         ApproachDest(mgr);
         zeus::CVector3f biasedForward = x34_transform.basis[1] * x64_modelData->GetScale().y() + biasedPos;
@@ -729,7 +729,7 @@ void CPatterned::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
 void CPatterned::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
   switch (msg) {
   case EStateMsg::Activate:
-    x31c_faceVec = zeus::CVector3f::skZero;
+    x31c_faceVec = zeus::skZero3f;
     break;
   case EStateMsg::Update:
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Die));
@@ -892,7 +892,7 @@ void CPatterned::TryJump(CStateManager& mgr, int arg) {
 
 void CPatterned::TryTurn(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(
-    CBCLocomotionCmd(zeus::CVector3f::skZero, (x2e0_destPos - GetTranslation()).normalized(), 1.f));
+    CBCLocomotionCmd(zeus::skZero3f, (x2e0_destPos - GetTranslation()).normalized(), 1.f));
 }
 
 void CPatterned::TryGetUp(CStateManager& mgr, int arg) {
@@ -950,20 +950,20 @@ void CPatterned::GenerateDeathExplosion(CStateManager& mgr) {
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
     CExplosion* explo = new CExplosion(*particle, mgr.AllocateUniqueId(), true,
                                        CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::CVector3f::skOne, zeus::CColor::skWhite);
+                                       zeus::skOne3f, zeus::skWhite);
     mgr.AddObject(explo);
   } else if (x530_deathExplosionElectric) {
     zeus::CTransform xf(GetTransform());
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
     CExplosion* explo = new CExplosion(*x530_deathExplosionElectric, mgr.AllocateUniqueId(), true,
                                        CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::CVector3f::skOne, zeus::CColor::skWhite);
+                                       zeus::skOne3f, zeus::skWhite);
     mgr.AddObject(explo);
   }
 }
 
 void CPatterned::MassiveDeath(CStateManager& mgr) {
-  CSfxManager::AddEmitter(x454_deathSfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f, kInvalidAreaId);
+  CSfxManager::AddEmitter(x454_deathSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f, kInvalidAreaId);
   if (!x401_28_burning) {
     SendScriptMsgs(EScriptObjectState::MassiveDeath, mgr, EScriptObjectMessage::None);
     GenerateDeathExplosion(mgr);
@@ -978,7 +978,7 @@ void CPatterned::GenerateIceDeathExplosion(CStateManager& mgr) {
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x540_iceDeathExplosionOffset);
     CExplosion* explo = new CExplosion(*x54c_iceDeathExplosionParticle, mgr.AllocateUniqueId(), true,
                                        CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
-                                       zeus::CVector3f::skOne, zeus::CColor::skWhite);
+                                       zeus::skOne3f, zeus::skWhite);
     mgr.AddObject(explo);
   }
 }
@@ -986,7 +986,7 @@ void CPatterned::GenerateIceDeathExplosion(CStateManager& mgr) {
 void CPatterned::MassiveFrozenDeath(CStateManager& mgr) {
   if (x458_iceShatterSfx == 0xffff)
     x458_iceShatterSfx = x454_deathSfx;
-  CSfxManager::AddEmitter(x458_iceShatterSfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f,
+  CSfxManager::AddEmitter(x458_iceShatterSfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
                           kInvalidAreaId);
   SendScriptMsgs(EScriptObjectState::MassiveFrozenDeath, mgr, EScriptObjectMessage::None);
   GenerateIceDeathExplosion(mgr);
@@ -1052,7 +1052,7 @@ void CPatterned::Freeze(CStateManager& mgr, const zeus::CVector3f& pos, const ze
       sfx = SFXsfx0701;
     else
       sfx = SFXsfx0708;
-    CSfxManager::AddEmitter(sfx, GetTranslation(), zeus::CVector3f::skZero, true, false, 0x7f, kInvalidAreaId);
+    CSfxManager::AddEmitter(sfx, GetTranslation(), zeus::skZero3f, true, false, 0x7f, kInvalidAreaId);
   }
 }
 
@@ -1095,9 +1095,9 @@ void CPatterned::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, 
     zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     if ((aimPos - lctrXf.origin).normalized().dot(lctrXf.basis[1]) > 0.f) {
       zeus::CTransform gunXf = zeus::lookAt(lctrXf.origin, aimPos);
-      LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::CVector3f::skOne);
+      LaunchProjectile(gunXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::skOne3f);
     } else {
-      LaunchProjectile(lctrXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::CVector3f::skOne);
+      LaunchProjectile(lctrXf, mgr, 1, EProjectileAttrib::None, false, {}, 0xffff, false, zeus::skOne3f);
     }
     break;
   }
@@ -1107,7 +1107,7 @@ void CPatterned::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, 
     zeus::CVector3f margin = zeus::CVector3f(1.f, 1.f, 0.5f) * x64_modelData->GetScale();
     if (zeus::CAABox(xfOrigin - margin, xfOrigin + margin).intersects(mgr.GetPlayer().GetBoundingBox())) {
       mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
-                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::CVector3f::skZero);
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
     }
     break;
   }
@@ -1172,7 +1172,7 @@ void CPatterned::UpdateDamageColor(float dt) {
     x428_damageCooldownTimer = std::max(0.f, x428_damageCooldownTimer - dt);
     float alpha = x42c_color.a();
     x42c_color =
-        zeus::CColor::lerp(zeus::CColor::skBlack, x430_damageColor, std::min(x428_damageCooldownTimer / 0.33f, 1.f));
+        zeus::CColor::lerp(zeus::skBlack, x430_damageColor, std::min(x428_damageCooldownTimer / 0.33f, 1.f));
     x42c_color.a() = alpha;
     if (!x450_bodyController->IsFrozen())
       xd0_damageMag = x50c_baseDamageMag + x428_damageCooldownTimer;
@@ -1228,12 +1228,12 @@ void CPatterned::UpdateActorKeyframe(CStateManager& mgr) const {
 
 pas::EStepDirection CPatterned::GetStepDirection(const zeus::CVector3f& moveVec) const {
   zeus::CVector3f localMove = x34_transform.transposeRotate(moveVec);
-  float angle = zeus::CVector3f::getAngleDiff(localMove, zeus::CVector3f::skForward);
+  float angle = zeus::CVector3f::getAngleDiff(localMove, zeus::skForward);
   if (angle < zeus::degToRad(45.f))
     return pas::EStepDirection::Forward;
   else if (angle > zeus::degToRad(135.f))
     return pas::EStepDirection::Backward;
-  else if (localMove.dot(zeus::CVector3f::skRight) > 0.f)
+  else if (localMove.dot(zeus::skRight) > 0.f)
     return pas::EStepDirection::Right;
   else
     return pas::EStepDirection::Left;
@@ -1324,17 +1324,17 @@ void CPatterned::ApproachDest(CStateManager& mgr) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, x31c_faceVec, 1.f));
     } else if (x30c_behaviourOrient == EBehaviourOrient::MoveDir ||
                !x450_bodyController->HasBodyState(pas::EAnimationState::Step)) {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::CVector3f::skZero, 1.f));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::skZero3f, 1.f));
     } else if ((stepDir = GetStepDirection(x310_moveVec)) != pas::EStepDirection::Forward) {
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCStepCmd(stepDir, pas::EStepType::Normal));
     } else {
-      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::CVector3f::skZero, 1.f));
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x310_moveVec, zeus::skZero3f, 1.f));
     }
     x450_bodyController->GetCommandMgr().DeliverTargetVector(x31c_faceVec);
   } else if (x450_bodyController->GetBodyStateInfo().GetMaxSpeed() > FLT_EPSILON) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(
         (x138_velocity.magnitude() / x450_bodyController->GetBodyStateInfo().GetMaxSpeed()) * x34_transform.basis[1],
-        zeus::CVector3f::skZero, 1.f));
+        zeus::skZero3f, 1.f));
   }
 }
 
@@ -1394,7 +1394,7 @@ zeus::CVector3f CPatterned::FindPatternDir(CStateManager& mgr) const {
 
 void CPatterned::UpdatePatternDestPos(CStateManager& mgr) {
   if (x39c_curPattern < x38c_patterns.size()) {
-    if (x368_destWPDelta != zeus::CVector3f::skZero) {
+    if (x368_destWPDelta != zeus::skZero3f) {
       zeus::CVector3f patternDir = FindPatternDir(mgr);
       SetDestPos(FindPatternRotation(patternDir).transform(x38c_patterns[x39c_curPattern].GetPos()));
       if (x37c_patternFit == EPatternFit::Zero) {
@@ -1442,7 +1442,7 @@ void CPatterned::SetupPattern(CStateManager& mgr) {
       if (destWPs.second)
         x368_destWPDelta = destWPs.second->GetTranslation() - destWPs.first->GetTranslation();
       else
-        x368_destWPDelta = zeus::CVector3f::skZero;
+        x368_destWPDelta = zeus::skZero3f;
 
       int numPatterns = 0;
       CScriptWaypoint* curWp = destWPs.first;
@@ -1470,7 +1470,7 @@ void CPatterned::SetupPattern(CStateManager& mgr) {
       curWp = destWPs.first;
       do {
         zeus::CVector3f wpForward = curWp->GetTransform().basis[1];
-        if (x368_destWPDelta != zeus::CVector3f::skZero)
+        if (x368_destWPDelta != zeus::skZero3f)
           wpForward = FindPatternRotation(FindPatternDir(mgr)).transform(wpForward);
         x38c_patterns.emplace_back(curWp->GetTranslation() - basePos, wpForward, curWp->GetSpeed(),
                                    curWp->GetBehaviour(), curWp->GetBehaviourOrient(), curWp->GetBehaviourModifiers(),
@@ -1517,7 +1517,7 @@ float CPatterned::GetAnimationDistance(const CPASAnimParmData& data) const {
 void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::Thermal) {
     SetCalculateLighting(false);
-    x90_actorLights->BuildConstantAmbientLighting(zeus::CColor::skWhite);
+    x90_actorLights->BuildConstantAmbientLighting(zeus::skWhite);
   } else
     SetCalculateLighting(true);
 
@@ -1528,7 +1528,7 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 
   if (alpha < 255) {
     if (col.r() == 0.f && col.g() == 0.f && col.b() == 0.f)
-      col = zeus::CColor::skWhite; /* Not being damaged */
+      col = zeus::skWhite; /* Not being damaged */
 
     if (x401_29_laggedBurnDeath) {
       int stripedAlpha = 255;
@@ -1547,11 +1547,11 @@ void CPatterned::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
       /* Being damaged */
       zeus::CColor col2 = col;
       col2.a() = alpha / 255.f;
-      xb4_drawFlags = CModelFlags(2, 0, 3, zeus::CColor::skWhite);
+      xb4_drawFlags = CModelFlags(2, 0, 3, zeus::skWhite);
       /* Make color additive */
       xb4_drawFlags.addColor = col2;
     } else {
-      xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+      xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
     }
   }
 
@@ -1596,9 +1596,9 @@ void CPatterned::Render(const CStateManager& mgr) const {
           mgr.SetupParticleHook(*this);
         zeus::CColor addColor;
         if (x401_29_laggedBurnDeath) {
-          addColor = zeus::CColor::skClear;
+          addColor = zeus::skClear;
         } else {
-          addColor = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot ? zeus::CColor::skWhite : zeus::CColor::skBlack;
+          addColor = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot ? zeus::skWhite : zeus::skBlack;
         }
         x64_modelData->DisintegrateDraw(mgr, GetTransform(), *ashy, addColor,
                                         alpha * (x401_29_laggedBurnDeath ? 0.00787402f : 0.00392157f));
@@ -1614,7 +1614,7 @@ void CPatterned::Render(const CStateManager& mgr) const {
     }
 
     if (x450_bodyController->IsFrozen() && !x401_28_burning) {
-      RenderIceModelWithFlags(CModelFlags(0, 0, 3, zeus::CColor::skWhite));
+      RenderIceModelWithFlags(CModelFlags(0, 0, 3, zeus::skWhite));
     }
   }
 

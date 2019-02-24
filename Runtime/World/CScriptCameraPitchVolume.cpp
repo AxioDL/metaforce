@@ -37,7 +37,7 @@ void CScriptCameraPitchVolume::Think(float, CStateManager& mgr) {
 }
 
 rstl::optional<zeus::CAABox> CScriptCameraPitchVolume::GetTouchBounds() const {
-  return {xe8_obbox.calculateAABox(zeus::CTransform::Identity())};
+  return {xe8_obbox.calculateAABox(zeus::CTransform())};
 }
 
 void CScriptCameraPitchVolume::Touch(CActor& act, CStateManager& mgr) {

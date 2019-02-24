@@ -22,8 +22,8 @@ class CLight {
   friend class CGameLight;
 
   zeus::CVector3f x0_pos;
-  zeus::CVector3f xc_dir = zeus::CVector3f::skDown;
-  zeus::CColor x18_color = zeus::CColor::skClear;
+  zeus::CVector3f xc_dir = zeus::skDown;
+  zeus::CColor x18_color = zeus::skClear;
   ELightType x1c_type = ELightType::Custom;
   float x20_spotCutoff = 0.f;
   float x24_distC = 1.f;

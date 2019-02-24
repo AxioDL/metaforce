@@ -64,7 +64,7 @@ CRayCastResult CCollidableOBBTreeGroup::CastRayInternal(const CInternalRayCastSt
     float tMin = 0.f;
     float tMax = 0.f;
     if (CollisionUtil::RayAABoxIntersection(xfRay, *aabbIt++, tMin, tMax)) {
-      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform::Identity(),
+      CInternalRayCastStructure localCast(xfRay.start, xfRay.dir, mag, zeus::CTransform(),
                                           rayCast.GetFilter());
       CRayCastResult localResult = obbTree.CastRayInternal(localCast);
       if (localResult.IsValid()) {
@@ -157,12 +157,12 @@ bool CCollidableOBBTreeGroup::AABoxCollide(const CInternalCollisionStructure& co
   zeus::COBBox p0Obb = zeus::COBBox::FromAABox(p0.CalculateLocalAABox(), collision.GetRight().GetTransform().inverse() *
                                                                              collision.GetLeft().GetTransform());
 
-  zeus::CPlane planes[] = {{zeus::CVector3f::skRight, b0.min.dot(zeus::CVector3f::skRight)},
-                           {zeus::CVector3f::skLeft, b0.max.dot(zeus::CVector3f::skLeft)},
-                           {zeus::CVector3f::skForward, b0.min.dot(zeus::CVector3f::skForward)},
-                           {zeus::CVector3f::skBack, b0.max.dot(zeus::CVector3f::skBack)},
-                           {zeus::CVector3f::skUp, b0.min.dot(zeus::CVector3f::skUp)},
-                           {zeus::CVector3f::skDown, b0.max.dot(zeus::CVector3f::skDown)}};
+  zeus::CPlane planes[] = {{zeus::skRight, b0.min.dot(zeus::skRight)},
+                           {zeus::skLeft, b0.max.dot(zeus::skLeft)},
+                           {zeus::skForward, b0.min.dot(zeus::skForward)},
+                           {zeus::skBack, b0.max.dot(zeus::skBack)},
+                           {zeus::skUp, b0.min.dot(zeus::skUp)},
+                           {zeus::skDown, b0.max.dot(zeus::skDown)}};
 
   for (const std::unique_ptr<COBBTree>& tree : p1.x10_container->x0_trees) {
     CCollidableOBBTree obbTree(tree.get(), p1.GetMaterial());

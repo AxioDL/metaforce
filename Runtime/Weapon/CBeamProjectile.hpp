@@ -21,11 +21,11 @@ private:
   float x300_intBeamLength;
   float x304_beamLength;
   float x308_travelSpeed;
-  zeus::CVector3f x30c_collisionNormal = zeus::CVector3f::skUp;
-  zeus::CVector3f x318_collisionPoint = zeus::CVector3f::skZero;
+  zeus::CVector3f x30c_collisionNormal = zeus::skUp;
+  zeus::CVector3f x318_collisionPoint = zeus::skZero3f;
   zeus::CTransform x324_xf;
-  zeus::CAABox x354_ = zeus::CAABox::skNullBox;
-  zeus::CAABox x36c_ = zeus::CAABox::skNullBox;
+  zeus::CAABox x354_ = zeus::skNullBox;
+  zeus::CAABox x36c_ = zeus::skNullBox;
   rstl::reserved_vector<zeus::CVector3f, 10> x384_;
   rstl::reserved_vector<zeus::CVector3f, 8> x400_pointCache;
   bool x464_24_growingBeam : 1;

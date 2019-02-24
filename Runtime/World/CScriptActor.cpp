@@ -134,7 +134,7 @@ void CScriptActor::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
       } else if (x2e2_28_inXrayAlpha) {
         x2e2_28_inXrayAlpha = false;
         if (xb4_drawFlags == xrayFlags)
-          xb4_drawFlags = CModelFlags(0, 0, 3, zeus::CColor::skWhite);
+          xb4_drawFlags = CModelFlags(0, 0, 3, zeus::skWhite);
       }
     }
 

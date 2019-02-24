@@ -59,9 +59,9 @@ void CActorLights::BuildFakeLightList(const std::vector<CLight>& lights, const z
 
 void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb) {
   zeus::CTransform fpTransform = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
-  x288_ambientColor = zeus::CColor::skBlack;
+  x288_ambientColor = zeus::skBlack;
   x144_dynamicLights.clear();
-  zeus::CColor accumColor = zeus::CColor::skBlack;
+  zeus::CColor accumColor = zeus::skBlack;
   for (CEntity* light : mgr.GetLightObjectList()) {
     if (!light || !light->GetActive())
       continue;
@@ -74,7 +74,7 @@ void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea&
           explosionLight.GetAttenuationLinear() * g_tweakGui->GetExplosionLightFalloffMultLinear(),
           explosionLight.GetAttenuationQuadratic() * g_tweakGui->GetExplosionLightFalloffMultQuadratic());
       zeus::CVector3f camToExplo = explosion->GetTranslation() - fpTransform.origin;
-      if (fpTransform.transposeRotate(camToExplo).dot(zeus::CVector3f::skForward) >= 0.f) {
+      if (fpTransform.transposeRotate(camToExplo).dot(zeus::skForward) >= 0.f) {
         camToExplo.y() = -camToExplo.y() + ITweakGui::FaceReflectionDistanceDebugValueToActualValue(
                                                g_tweakGui->GetFaceReflectionDistance());
         camToExplo.z() = -camToExplo.z() +
@@ -207,7 +207,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   x298_24_dirty = false;
   x294_aid = area.GetAreaId();
   x29c_shadowLightArrIdx = -1;
-  x288_ambientColor = zeus::CColor::skClear;
+  x288_ambientColor = zeus::skClear;
 
   /* Find candidate lights via PVS */
   bool use2ndLayer;
@@ -292,12 +292,12 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   }
 
   /* Ambient color for overflow area lights */
-  zeus::CColor overflowAmbColor = zeus::CColor::skClear;
+  zeus::CColor overflowAmbColor = zeus::skClear;
 
   /* Averaged light for overflow area lights */
-  CLight overflowLight = CLight::BuildCustom(zeus::CVector3f::skZero, zeus::CVector3f::skZero, zeus::CColor::skBlack,
+  CLight overflowLight = CLight::BuildCustom(zeus::skZero3f, zeus::skZero3f, zeus::skBlack,
                                              0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-  zeus::CColor overflowLightColor = zeus::CColor::skClear;
+  zeus::CColor overflowLightColor = zeus::skClear;
   float overflowMag = 0.f;
 
   /* Max significant lights */
@@ -461,7 +461,7 @@ std::vector<CLight> CActorLights::BuildLightVector() const {
 
   zeus::CColor ambColor = x288_ambientColor;
   ambColor.a() = 1.f;
-  lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, ambColor));
+  lights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, ambColor));
 
   return lights;
 }
@@ -471,8 +471,8 @@ void CActorLights::ActivateLights(CBooModel& model) const {
 
   if (x298_28_inArea) {
     if (!x298_26_hasAreaLights || x299_26_ambientOnly) {
-      // g_Renderer->SetAmbientColor(zeus::CColor::skWhite);
-      lights.push_back(CLight::BuildLocalAmbient(zeus::CVector3f::skZero, zeus::CColor::skWhite));
+      // g_Renderer->SetAmbientColor(zeus::skWhite);
+      lights.push_back(CLight::BuildLocalAmbient(zeus::skZero3f, zeus::skWhite));
       model.ActivateLights(lights);
       return;
     }

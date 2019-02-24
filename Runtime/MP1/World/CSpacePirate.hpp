@@ -151,7 +151,7 @@ private:
   TUniqueId x640_coverPoint = kInvalidUniqueId;
   TUniqueId x642_previousCoverPoint = kInvalidUniqueId;
   float x644_steeringSpeed = 1.f;
-  zeus::CVector3f x648_targetDelta = zeus::CVector3f::skForward;
+  zeus::CVector3f x648_targetDelta = zeus::skForward;
   zeus::CVector3f x654_coverPointRearDir;
   CPathFindSearch x660_pathFindSearch;
   float x744_unkTimer = 0.f;
@@ -199,7 +199,7 @@ private:
   float x8c0_dodgeDelayTimer;
   float x8c4_aimDelayTimer;
   TUniqueId x8c8_teamAiMgrId = kInvalidUniqueId;
-  zeus::CColor x8cc_trooperColor = zeus::CColor::skWhite;
+  zeus::CColor x8cc_trooperColor = zeus::skWhite;
   zeus::CVector2f x8d0_heldPosition;
   float x8d8_holdPositionTime = 0.f;
   float x8dc_leashTimer = 0.f;
