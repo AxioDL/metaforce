@@ -10,6 +10,7 @@
 namespace hecl::Backend {
 
 struct ProgrammableCommon : IBackend {
+  std::string m_diffuseColorExpr;
   std::string m_colorExpr;
   std::string m_alphaExpr;
   BlendFactor m_blendSrc;
@@ -43,6 +44,7 @@ struct ProgrammableCommon : IBackend {
 private:
   unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize);
   unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);
+  std::string RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
   std::string RecursiveTraceColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
   std::string RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
   unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, int mtx, bool normalize);

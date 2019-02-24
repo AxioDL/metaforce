@@ -303,14 +303,14 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
     retval += "    out.color = float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0) * mulColor + addColor;\n";
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") +
-         "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
          "    return out;\n"
          "}\n";
 }
 
 std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest, ReflectionType reflectionType,
                             BlendFactor srcFactor, BlendFactor dstFactor, const Function& lighting,
-                            const Function& post, size_t extTexCount, const TextureInfo* extTexs) const {
+                            const Function& post, size_t extTexCount, const TextureInfo* extTexs,
+                            bool diffuseOnly) const {
   std::string lightingSrc;
   if (!lighting.m_source.empty())
     lightingSrc = lighting.m_source;
@@ -415,7 +415,7 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
 
   std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
 
-  if (m_alphaExpr.size()) {
+  if (m_alphaExpr.size() && !diffuseOnly) {
     retval += "    out.color = " + postEntry + "(" +
               (postEntry.size() ? ("vtf, " + (blockCall.size() ? (blockCall + ", ") : "") +
                                    (!strncmp(post.m_entry.data(), "EXT", 3)
@@ -430,11 +430,11 @@ std::string Metal::makeFrag(size_t blockCount, const char** blockNames, bool alp
                                         ? (extTexCall.size() ? ("samp, clampSamp," + extTexCall + ", ") : "")
                                         : ""))
                                 : "") +
-              "float4(" + m_colorExpr + " + " + reflectionExpr + ", 1.0)) * mulColor + addColor;\n";
+              "float4(" + (diffuseOnly ? m_diffuseColorExpr : m_colorExpr) + " + " + reflectionExpr +
+              ", 1.0)) * mulColor + addColor;\n";
   }
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") +
-         "    //out.depth = 1.0 - float(int((1.0 - vtf.mvpPos.z) * 16777216.0)) / 16777216.0;\n"
          "    return out;\n"
          "}\n";
 }

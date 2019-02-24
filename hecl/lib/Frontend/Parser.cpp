@@ -29,7 +29,8 @@ std::string IRNode::fmt(int level, bool stripUVAnims) const {
   auto indent = rep(level, "\t"sv);
   switch (kind) {
   case Kind::Call:
-    if (stripUVAnims && (str == "Texture" || str == "TextureN") && children.size() >= 2) {
+    if (stripUVAnims && (str == "Texture" || str == "TextureD" || str == "TextureN" || str == "TextureDN") &&
+        children.size() >= 2) {
       auto it = children.begin();
       IRNode& uvNode = const_cast<IRNode&>(*++it);
       if (uvNode.str != "UV" && uvNode.str != "Normal" && uvNode.str != "View") {

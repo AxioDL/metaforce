@@ -285,7 +285,7 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
 
 std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alphaTest, ReflectionType reflectionType,
                            BlendFactor srcFactor, BlendFactor dstFactor, const Function& lighting, const Function& post,
-                           size_t extTexCount, const TextureInfo* extTexs) const {
+                           size_t extTexCount, const TextureInfo* extTexs, bool diffuseOnly) const {
   std::string lightingSrc;
   if (!lighting.m_source.empty())
     lightingSrc = lighting.m_source;
@@ -352,12 +352,12 @@ std::string GLSL::makeFrag(size_t blockCount, const char** blockNames, bool alph
 
   std::string reflectionExpr = GenerateReflectionExpr(reflectionType);
 
-  if (m_alphaExpr.size())
+  if (m_alphaExpr.size() && !diffuseOnly)
     retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr + ", " + m_alphaExpr +
               ")) * mulColor + addColor;\n";
   else
-    retval += "    colorOut = " + postEntry + "(vec4(" + m_colorExpr + " + " + reflectionExpr +
-      ", 1.0)) * mulColor + addColor;\n";
+    retval += "    colorOut = " + postEntry + "(vec4(" + (diffuseOnly ? m_diffuseColorExpr : m_colorExpr) + " + " +
+      reflectionExpr + ", 1.0)) * mulColor + addColor;\n";
 
   return retval + (alphaTest ? GenerateAlphaTest() : "") + "}\n";
 }

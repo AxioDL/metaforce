@@ -95,13 +95,63 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
   return idx;
 }
 
+std::string ProgrammableCommon::RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst,
+                                                           bool toSwizzle) {
+  switch (inst.m_op) {
+  case IR::OpType::Call: {
+    const std::string& name = inst.m_call.m_name;
+    bool normalize = false;
+    if (!name.compare("TextureD") ||
+        ((normalize = true) && !name.compare("TextureDN"))) {
+      if (inst.getChildCount() < 2)
+        diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
+
+      const IR::Instruction& mapInst = inst.getChildInst(ir, 0);
+      auto& mapImm = mapInst.getImmVec();
+      unsigned mapIdx = unsigned(mapImm.simd[0]);
+
+      const IR::Instruction& tcgInst = inst.getChildInst(ir, 1);
+      unsigned texGenIdx = RecursiveTraceTexGen(ir, diag, tcgInst, -1, normalize);
+
+      return toSwizzle ? EmitSamplingUseRaw(addTexSampling(mapIdx, texGenIdx))
+                       : EmitSamplingUseRGB(addTexSampling(mapIdx, texGenIdx));
+    } else
+      return std::string();
+  }
+  case IR::OpType::LoadImm: {
+    const atVec4f& vec = inst.m_loadImm.m_immVec;
+    return EmitVec3(vec);
+  }
+  case IR::OpType::Arithmetic: {
+    const IR::Instruction& aInst = inst.getChildInst(ir, 0);
+    const IR::Instruction& bInst = inst.getChildInst(ir, 1);
+    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, false);
+    std::string bTrace = RecursiveTraceDiffuseColor(ir, diag, bInst, false);
+    return (!aTrace.empty()) ? aTrace : bTrace;
+  }
+  case IR::OpType::Swizzle: {
+    const IR::Instruction& aInst = inst.getChildInst(ir, 0);
+    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, true);
+    if (!aTrace.empty())
+      return EmitSwizzle3(diag, inst.m_loc, aTrace, inst.m_swizzle.m_idxs);
+    return std::string();
+  }
+  default:
+    diag.reportBackendErr(inst.m_loc, "invalid color op");
+  }
+
+  return std::string();
+}
+
 std::string ProgrammableCommon::RecursiveTraceColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst,
                                                     bool toSwizzle) {
   switch (inst.m_op) {
   case IR::OpType::Call: {
     const std::string& name = inst.m_call.m_name;
     bool normalize = false;
-    if (!name.compare("Texture") || (normalize = true && !name.compare("TextureN"))) {
+    if (!name.compare("Texture") || !name.compare("TextureD") ||
+        ((normalize = true) && !name.compare("TextureN")) ||
+        ((normalize = true) && !name.compare("TextureDN"))) {
       if (inst.getChildCount() < 2)
         diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
@@ -180,7 +230,9 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
   case IR::OpType::Call: {
     const std::string& name = inst.m_call.m_name;
     bool normalize = false;
-    if (!name.compare("Texture") || ((normalize = true) && !name.compare("TextureN"))) {
+    if (!name.compare("Texture") || !name.compare("TextureD") ||
+        ((normalize = true) && !name.compare("TextureN")) ||
+        ((normalize = true) && !name.compare("TextureDN"))) {
       if (inst.getChildCount() < 2)
         diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
@@ -275,6 +327,7 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
 
   /* Follow Color Chain */
   const IR::Instruction& colorRoot = ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
+  m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false);
   m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot, false);
 
   /* Follow Alpha Chain */

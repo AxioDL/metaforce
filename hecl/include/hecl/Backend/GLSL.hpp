@@ -15,7 +15,7 @@ struct GLSL : ProgrammableCommon {
                        BlendFactor srcFactor, BlendFactor dstFactor, const Function& lighting = Function()) const;
   std::string makeFrag(size_t blockCount, const char** blockNames, bool alphaTest, ReflectionType reflectionType,
                        BlendFactor srcFactor, BlendFactor dstFactor, const Function& lighting, const Function& post,
-                       size_t extTexCount, const TextureInfo* extTexs) const;
+                       size_t extTexCount, const TextureInfo* extTexs, bool diffuseOnly) const;
 
 private:
   std::string GenerateVertInStruct(unsigned col, unsigned uv, unsigned w) const;

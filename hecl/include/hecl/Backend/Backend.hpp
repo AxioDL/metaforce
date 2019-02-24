@@ -186,6 +186,7 @@ struct ExtensionSlot {
   bool noAlphaOverwrite = false;
   bool noReflection = false;
   bool forceAlphaTest = false;
+  bool diffuseOnly = false;
 
   ExtensionSlot(size_t blockCount = 0, const char** blockNames = nullptr, size_t texCount = 0,
                 const Backend::TextureInfo* texs = nullptr,
@@ -194,7 +195,7 @@ struct ExtensionSlot {
                 Backend::ZTest depthTest = Backend::ZTest::Original,
                 Backend::CullMode cullMode = Backend::CullMode::Backface, bool noDepthWrite = false,
                 bool noColorWrite = false, bool noAlphaWrite = false, bool noAlphaOverwrite = false,
-                bool noReflection = false, bool forceAlphaTest = false)
+                bool noReflection = false, bool forceAlphaTest = false, bool diffuseOnly = false)
   : blockCount(blockCount)
   , blockNames(blockNames)
   , texCount(texCount)
@@ -208,7 +209,8 @@ struct ExtensionSlot {
   , noAlphaWrite(noAlphaWrite)
   , noAlphaOverwrite(noAlphaOverwrite)
   , noReflection(noReflection)
-  , forceAlphaTest(forceAlphaTest) {}
+  , forceAlphaTest(forceAlphaTest)
+  , diffuseOnly(diffuseOnly) {}
 
   mutable uint64_t m_hash = 0;
   void calculateHash() const {

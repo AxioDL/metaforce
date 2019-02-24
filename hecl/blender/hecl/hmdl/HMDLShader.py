@@ -130,14 +130,18 @@ def recursive_color_trace(mat_obj, mesh_obj, tex_list, node, socket=None):
         else:
             raise RuntimeError("Only the 'UV', 'Normal' and 'View' sockets may be used from 'Geometry' nodes")
 
+        call_name = 'Texture'
+        if node.label.startswith('Diffuse'):
+            call_name = 'TextureD'
+
         if socket.name == 'Value':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'Texture(%d, %s).aaa' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return '%s(%d, %s).aaa' % (call_name, get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         if socket.name == 'Color':
             if matrix_str:
                 uvsource_str = matrix_str % uvsource_str
-            return 'Texture(%d, %s)' % (get_texmap_idx(tex_list, node.texture.name), uvsource_str)
+            return '%s(%d, %s)' % (call_name, get_texmap_idx(tex_list, node.texture.name), uvsource_str)
         else:
             raise RuntimeError("Only the 'Value' or 'Color' output sockets may be used from Texture nodes")
 

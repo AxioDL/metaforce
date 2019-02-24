@@ -74,7 +74,7 @@ public:
                               m_tag.getAlphaTest() || m_extension.forceAlphaTest,
                               m_extension.noReflection ? Backend::ReflectionType::None : m_tag.getReflectionType(),
                               m_backend.m_blendSrc, m_backend.m_blendDst, m_extension.lighting, m_extension.post,
-                              m_extension.texCount, m_extension.texs);
+                              m_extension.texCount, m_extension.texs, m_extension.diffuseOnly);
   }
   const hecl::Backend::ShaderTag& getTag() const { return m_tag; }
   const hecl::Backend::ExtensionSlot& extension() const { return m_extension; }
