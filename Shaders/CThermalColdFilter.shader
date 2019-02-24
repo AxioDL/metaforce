@@ -88,17 +88,17 @@ void main()
 struct VertData
 {
     float4 posIn : POSITION;
-    float4 uvIn : UV;
+    float4 uvIn : UV0;
+    float4 uvNoiseIn : UV1;
 };
 
 cbuffer ThermalColdUniform : register(b0)
 {
-    float4x4 shiftMtx;
     float4x4 indMtx;
-    float4 shiftScale;
     float4 colorReg0;
     float4 colorReg1;
     float4 colorReg2;
+    float randOff;
 };
 
 struct VertToFrag
@@ -109,8 +109,8 @@ struct VertToFrag
     float4 colorReg1 : COLORREG1;
     float4 colorReg2 : COLORREG2;
     float2 sceneUv : SCENEUV;
-    float2 shiftUv : SHIFTUV;
-    float2 shiftScale : SHIFTSCALE;
+    float2 noiseUv : NOISEUV;
+    float randOff : RANDOFF;
 };
 
 VertToFrag main(in VertData v)
@@ -121,9 +121,8 @@ VertToFrag main(in VertData v)
     vtf.colorReg1 = colorReg1;
     vtf.colorReg2 = colorReg2;
     vtf.sceneUv = v.uvIn.xy;
-    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;
-    vtf.shiftUv = (mul(float3x3(shiftMtx[0].xyz, shiftMtx[1].xyz, shiftMtx[2].xyz), v.uvIn.xyz)).xy;
-    vtf.shiftScale = shiftScale.xy;
+    vtf.noiseUv = v.uvNoiseIn.xy;
+    vtf.randOff = randOff;
     vtf.position = float4(v.posIn.xyz, 1.0);
     return vtf;
 }
@@ -140,8 +139,8 @@ struct VertToFrag
     float4 colorReg1 : COLORREG1;
     float4 colorReg2 : COLORREG2;
     float2 sceneUv : SCENEUV;
-    float2 shiftUv : SHIFTUV;
-    float2 shiftScale : SHIFTSCALE;
+    float2 noiseUv : NOISEUV;
+    float randOff : RANDOFF;
 };
 
 static int3 Lookup8BPP(float2 uv, float randOff)
@@ -171,16 +170,16 @@ struct VertData
 {
     float4 posIn [[ attribute(0) ]];
     float4 uvIn [[ attribute(1) ]];
+    float4 uvNoiseIn [[ attribute(2) ]];
 };
 
 struct ThermalColdUniform
 {
-    float4x4 shiftMtx;
     float4x4 indMtx;
-    float4 shiftScale;
     float4 colorReg0;
     float4 colorReg1;
     float4 colorReg2;
+    float randOff;
 };
 
 struct VertToFrag
@@ -193,8 +192,8 @@ struct VertToFrag
     float4 colorReg1;
     float4 colorReg2;
     float2 sceneUv;
-    float2 shiftUv;
-    float2 shiftScale;
+    float2 noiseUv;
+    float randOff;
 };
 
 vertex VertToFrag vmain(VertData v [[ stage_in ]], constant ThermalColdUniform& tcu [[ buffer(2) ]])
@@ -207,9 +206,8 @@ vertex VertToFrag vmain(VertData v [[ stage_in ]], constant ThermalColdUniform& 
     vtf.colorReg1 = tcu.colorReg1;
     vtf.colorReg2 = tcu.colorReg2;
     vtf.sceneUv = v.uvIn.xy;
-    vtf.sceneUv.y = 1.0 - vtf.sceneUv.y;
-    vtf.shiftUv = (float3x3(tcu.shiftMtx[0].xyz, tcu.shiftMtx[1].xyz, tcu.shiftMtx[2].xyz) * v.uvIn.xyz).xy;
-    vtf.shiftScale = tcu.shiftScale.xy;
+    vtf.noiseUv = v.uvNoiseIn.xy;
+    vtf.randOff = tcu.randOff;
     vtf.position = float4(v.posIn.xyz, 1.0);
     return vtf;
 }
@@ -225,8 +223,8 @@ struct VertToFrag
     float4 colorReg1;
     float4 colorReg2;
     float2 sceneUv;
-    float2 shiftUv;
-    float2 shiftScale;
+    float2 noiseUv;
+    float randOff;
 };
 
 static uint2 Lookup8BPP(float2 uv, float randOff)
