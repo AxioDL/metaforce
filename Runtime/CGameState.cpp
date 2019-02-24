@@ -99,7 +99,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
 
   ret.x20_hardMode = stream.ReadEncoded(1);
   stream.ReadEncoded(1);
-  CAssetId origMLVL = stream.ReadEncoded(32);
+  CAssetId origMLVL = u32(stream.ReadEncoded(32));
   ret.x8_mlvlId = g_ResFactory->TranslateOriginalToNew(origMLVL);
 
   BitsToDouble conv;
@@ -146,7 +146,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
 
   x228_24_hardMode = stream.ReadEncoded(1);
   x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1);
-  x84_mlvlId = g_ResFactory->TranslateOriginalToNew(stream.ReadEncoded(32));
+  x84_mlvlId = g_ResFactory->TranslateOriginalToNew(u32(stream.ReadEncoded(32)));
   MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 
   BitsToDouble conv;

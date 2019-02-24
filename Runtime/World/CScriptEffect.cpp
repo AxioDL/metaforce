@@ -163,10 +163,12 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
     if (playIds.size() > 0) {
       TCastToConstPtr<CActor> otherAct =
           mgr.GetObjectById(playIds[u32(0.99f * playIds.size() * mgr.GetActiveRandom()->Float())]);
-      if (otherAct)
-        light->SetTransform(otherAct->GetTransform());
-      else
-        light->SetTransform(GetTransform());
+      if (otherAct) {
+        if (light)
+          light->SetTransform(otherAct->GetTransform());
+        else
+          SetTransform(otherAct->GetTransform());
+      }
     }
     x110_24_enable = true;
     if (x104_particleSystem)
