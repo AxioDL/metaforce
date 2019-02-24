@@ -35,7 +35,7 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, std::string_view title, s
   m_title.reset(new TextView(res, *this, res.m_heading14));
   m_title->typesetGlyphs(m_titleStr);
   m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
-  m_message->typesetGlyphs(m_messageStr, zeus::CColor::skWhite, int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
+  m_message->typesetGlyphs(m_messageStr, zeus::skWhite, int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
 
   float pf = res.pixelFactor();
   std::pair<int, int> margin = m_cornersOutline[0]->queryGlyphDimensions(0);

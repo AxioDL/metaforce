@@ -25,8 +25,8 @@ public:
                     TextView::Alignment align = TextView::Alignment::Left, size_t lineCapacity = 256,
                     float lineHeight = 1.0);
 
-  void typesetGlyphs(std::string_view str, const zeus::CColor& defaultColor = zeus::CColor::skWhite, unsigned wrap = 0);
-  void typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor = zeus::CColor::skWhite,
+  void typesetGlyphs(std::string_view str, const zeus::CColor& defaultColor = zeus::skWhite, unsigned wrap = 0);
+  void typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor = zeus::skWhite,
                      unsigned wrap = 0);
 
   void colorGlyphs(const zeus::CColor& newColor);

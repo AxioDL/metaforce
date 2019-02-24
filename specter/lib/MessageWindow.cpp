@@ -18,10 +18,10 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView, Type type, st
   constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());
 
   m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name, nullptr, Button::Style::Block,
-                               zeus::CColor::skWhite, RectangleConstraint(150 * res.pixelFactor())));
+                               zeus::skWhite, RectangleConstraint(150 * res.pixelFactor())));
   if (type == Type::ConfirmOkCancel)
     m_cancel.m_view.reset(new Button(res, *this, &m_cancelBind, m_cancelBind.m_name, nullptr, Button::Style::Block,
-                                     zeus::CColor::skWhite, RectangleConstraint(150 * res.pixelFactor())));
+                                     zeus::skWhite, RectangleConstraint(150 * res.pixelFactor())));
 
   updateContentOpacity(0.0);
 }

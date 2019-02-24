@@ -89,8 +89,8 @@ public:
   std::vector<RenderGlyph>& accessGlyphs() { return m_glyphs; }
   const std::vector<RenderGlyph>& accessGlyphs() const { return m_glyphs; }
 
-  void typesetGlyphs(std::string_view str, const zeus::CColor& defaultColor = zeus::CColor::skWhite);
-  void typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor = zeus::CColor::skWhite);
+  void typesetGlyphs(std::string_view str, const zeus::CColor& defaultColor = zeus::skWhite);
+  void typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultColor = zeus::skWhite);
   void invalidateGlyphs();
 
   void colorGlyphs(const zeus::CColor& newColor);

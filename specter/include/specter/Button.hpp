@@ -82,11 +82,11 @@ public:
 
   ~Button() { closeMenu({}); }
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
-         Icon* icon = nullptr, Style style = Style::Block, const zeus::CColor& bgColor = zeus::CColor::skWhite,
+         Icon* icon = nullptr, Style style = Style::Block, const zeus::CColor& bgColor = zeus::skWhite,
          RectangleConstraint constraint = RectangleConstraint());
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
          const zeus::CColor& textColor, Icon* icon = nullptr, Style style = Style::Block,
-         const zeus::CColor& bgColor = zeus::CColor::skWhite, RectangleConstraint constraint = RectangleConstraint());
+         const zeus::CColor& bgColor = zeus::skWhite, RectangleConstraint constraint = RectangleConstraint());
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
   void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
   void mouseMove(const boo::SWindowCoord&);

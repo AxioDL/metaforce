@@ -16,7 +16,7 @@ IconView::IconView(ViewResources& res, View& parentView, Icon& icon) : View(res,
       {{1, 0, 0}, icon.m_uvCoords[3]},
   };
   m_vertexBinding.load<decltype(verts)>(verts);
-  setBackground(zeus::CColor::skBlue);
+  setBackground(zeus::skBlue);
 }
 
 void IconView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {

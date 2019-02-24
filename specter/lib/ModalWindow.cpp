@@ -122,12 +122,12 @@ void ModalWindow::setLineColors(float t) {
 
   m_cornersOutline[0]->colorGlyphs(c1);
   if (t < 0.5) {
-    m_cornersOutline[1]->colorGlyphs(zeus::CColor::skClear);
-    m_cornersOutline[2]->colorGlyphs(zeus::CColor::skClear);
-    m_cornersOutline[3]->colorGlyphs(zeus::CColor::skClear);
+    m_cornersOutline[1]->colorGlyphs(zeus::skClear);
+    m_cornersOutline[2]->colorGlyphs(zeus::skClear);
+    m_cornersOutline[3]->colorGlyphs(zeus::skClear);
   } else if (t < 1.0) {
     m_cornersOutline[1]->colorGlyphs(c2);
-    m_cornersOutline[2]->colorGlyphs(zeus::CColor::skClear);
+    m_cornersOutline[2]->colorGlyphs(zeus::skClear);
     m_cornersOutline[3]->colorGlyphs(c2);
   } else {
     m_cornersOutline[1]->colorGlyphs(c2);
@@ -173,12 +173,12 @@ void ModalWindow::setLineColorsOut(float t) {
 
   m_cornersOutline[2]->colorGlyphs(c1);
   if (t < 0.5) {
-    m_cornersOutline[1]->colorGlyphs(zeus::CColor::skClear);
-    m_cornersOutline[0]->colorGlyphs(zeus::CColor::skClear);
-    m_cornersOutline[3]->colorGlyphs(zeus::CColor::skClear);
+    m_cornersOutline[1]->colorGlyphs(zeus::skClear);
+    m_cornersOutline[0]->colorGlyphs(zeus::skClear);
+    m_cornersOutline[3]->colorGlyphs(zeus::skClear);
   } else if (t < 1.0) {
     m_cornersOutline[1]->colorGlyphs(c2);
-    m_cornersOutline[0]->colorGlyphs(zeus::CColor::skClear);
+    m_cornersOutline[0]->colorGlyphs(zeus::skClear);
     m_cornersOutline[3]->colorGlyphs(c2);
   } else {
     m_cornersOutline[1]->colorGlyphs(c2);

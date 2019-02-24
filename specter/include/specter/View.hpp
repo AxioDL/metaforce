@@ -73,7 +73,7 @@ class View {
 public:
   struct SolidShaderVert {
     zeus::CVector3f m_pos;
-    zeus::CColor m_color = zeus::CColor::skClear;
+    zeus::CColor m_color = zeus::skClear;
   };
   struct TexShaderVert {
     zeus::CVector3f m_pos;
@@ -81,7 +81,7 @@ public:
   };
   struct ViewBlock {
     zeus::CMatrix4f m_mv;
-    zeus::CColor m_color = zeus::CColor::skWhite;
+    zeus::CColor m_color = zeus::skWhite;
     void setViewRect(const boo::SWindowRect& root, const boo::SWindowRect& sub) {
       m_mv[0][0] = 2.0f / root.size[0];
       m_mv[1][1] = 2.0f / root.size[1];

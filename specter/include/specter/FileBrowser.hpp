@@ -49,7 +49,7 @@ private:
     std::string m_text;
     OKButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
       m_button.m_view.reset(
-          new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
+          new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
                      RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
     }
     std::string_view name(const Control* control) const { return m_text; }
@@ -63,7 +63,7 @@ private:
     std::string m_text;
     CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
       m_button.m_view.reset(new Button(
-          res, fb, this, text, nullptr, Button::Style::Block, zeus::CColor::skWhite,
+          res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
           RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
     }
     std::string_view name(const Control* control) const { return m_text; }

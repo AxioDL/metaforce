@@ -85,11 +85,11 @@ void Table::_setHeaderVerts(const boo::SWindowRect& sub) {
     zeus::CColor cm2 = *c2;
     if (sCol == c) {
       if (sDir == SortDirection::Ascending) {
-        cm1 *= zeus::CColor::skGreen;
-        cm2 *= zeus::CColor::skGreen;
+        cm1 *= zeus::skGreen;
+        cm2 *= zeus::skGreen;
       } else if (sDir == SortDirection::Descending) {
-        cm1 *= zeus::CColor::skRed;
-        cm2 *= zeus::CColor::skRed;
+        cm1 *= zeus::skRed;
+        cm2 *= zeus::skRed;
       }
     }
 

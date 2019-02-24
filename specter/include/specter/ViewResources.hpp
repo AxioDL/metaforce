@@ -55,11 +55,11 @@ public:
 };
 
 class DefaultThemeData : public IThemeData {
-  zeus::CColor m_uiText = zeus::CColor::skWhite;
-  zeus::CColor m_uiAltText = zeus::CColor::skGrey;
-  zeus::CColor m_fieldText = zeus::CColor::skBlack;
+  zeus::CColor m_uiText = zeus::skWhite;
+  zeus::CColor m_uiAltText = zeus::skGrey;
+  zeus::CColor m_fieldText = zeus::skBlack;
   zeus::CColor m_fieldMarkedText = {0.25, 0.25, 0.25, 1.0};
-  zeus::CColor m_selectedFieldText = zeus::CColor::skWhite;
+  zeus::CColor m_selectedFieldText = zeus::skWhite;
 
   zeus::CColor m_vpBg = {0.2, 0.2, 0.2, 1.0};
   zeus::CColor m_tbBg = {0.2, 0.2, 0.2, 0.9};
