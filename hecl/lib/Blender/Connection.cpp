@@ -20,6 +20,12 @@
 #if _WIN32
 #include <io.h>
 #include <fcntl.h>
+#else
+#include <unistd.h>
+#if __linux__ || __APPLE__
+extern "C" int rep_closefrom(int lower);
+#define closefrom rep_closefrom
+#endif
 #endif
 
 #undef min
@@ -385,8 +391,13 @@ Connection::Connection(int verbosityLevel) {
 #else
     pid_t pid = fork();
     if (!pid) {
-      close(m_writepipe[1]);
-      close(m_readpipe[0]);
+      /* Close all file descriptors besides those this blender instance uses */
+      int upper_fd = std::max(m_writepipe[0], m_readpipe[1]);
+      for (int i = 3; i < upper_fd; ++i) {
+        if (i != m_writepipe[0] && i != m_readpipe[1])
+          close(i);
+      }
+      closefrom(upper_fd + 1);
 
       if (verbosityLevel == 0) {
         int devNull = open("/dev/null", O_WRONLY);
