@@ -44,7 +44,8 @@ struct ProgrammableCommon : IBackend {
 private:
   unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize);
   unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);
-  std::string RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
+  std::string RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle,
+                                         bool fallback);
   std::string RecursiveTraceColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
   std::string RecursiveTraceAlpha(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle);
   unsigned RecursiveTraceTexGen(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, int mtx, bool normalize);

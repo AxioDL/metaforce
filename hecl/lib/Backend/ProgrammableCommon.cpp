@@ -96,13 +96,15 @@ unsigned ProgrammableCommon::RecursiveTraceTexGen(const IR& ir, Diagnostics& dia
 }
 
 std::string ProgrammableCommon::RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst,
-                                                           bool toSwizzle) {
+                                                           bool toSwizzle, bool fallback) {
   switch (inst.m_op) {
   case IR::OpType::Call: {
     const std::string& name = inst.m_call.m_name;
     bool normalize = false;
     if (!name.compare("TextureD") ||
-        ((normalize = true) && !name.compare("TextureDN"))) {
+        (fallback && !name.compare("Texture")) ||
+        ((normalize = true) && !name.compare("TextureDN")) ||
+        ((normalize = true) && fallback && !name.compare("TextureN"))) {
       if (inst.getChildCount() < 2)
         diag.reportBackendErr(inst.m_loc, "Texture(map, texgen) requires 2 arguments");
 
@@ -125,13 +127,13 @@ std::string ProgrammableCommon::RecursiveTraceDiffuseColor(const IR& ir, Diagnos
   case IR::OpType::Arithmetic: {
     const IR::Instruction& aInst = inst.getChildInst(ir, 0);
     const IR::Instruction& bInst = inst.getChildInst(ir, 1);
-    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, false);
-    std::string bTrace = RecursiveTraceDiffuseColor(ir, diag, bInst, false);
+    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, false, fallback);
+    std::string bTrace = RecursiveTraceDiffuseColor(ir, diag, bInst, false, fallback);
     return (!aTrace.empty()) ? aTrace : bTrace;
   }
   case IR::OpType::Swizzle: {
     const IR::Instruction& aInst = inst.getChildInst(ir, 0);
-    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, true);
+    std::string aTrace = RecursiveTraceDiffuseColor(ir, diag, aInst, true, fallback);
     if (!aTrace.empty())
       return EmitSwizzle3(diag, inst.m_loc, aTrace, inst.m_swizzle.m_idxs);
     return std::string();
@@ -327,7 +329,9 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
 
   /* Follow Color Chain */
   const IR::Instruction& colorRoot = ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
-  m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false);
+  m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false, false);
+  if (m_diffuseColorExpr.empty())
+    m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false, true);
   m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot, false);
 
   /* Follow Alpha Chain */
