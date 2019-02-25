@@ -35,6 +35,8 @@ struct CModelFlags {
   CModelFlags(u8 blendMode, u8 shadIdx, u16 flags, const zeus::CColor& col)
   : x0_blendMode(blendMode), x1_matSetIdx(shadIdx), x2_flags(flags), x4_color(col) {
     /* Blend mode will override this if the surface's original material is opaque */
+    m_noZWrite = !(x2_flags & 0x2);
+    m_depthGreater = (x2_flags & 0x8);
   }
 
   /* Flags

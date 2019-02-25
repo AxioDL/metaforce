@@ -530,7 +530,9 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
   EExtendedShader extended = EExtendedShader::Flat;
   if (flags.m_extendedShader == EExtendedShader::Lighting) {
     /* Transform lighting into thermal cold if the thermal visor is active */
-    if (g_Renderer->IsThermalVisorActive())
+    if (g_Renderer->IsThermalVisorHotPass())
+      return EExtendedShader::LightingAlphaWrite;
+    else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
     if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero) {
       /* Override shader if originally opaque (typical for FRME models) */

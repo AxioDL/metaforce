@@ -248,7 +248,8 @@ const hecl::Backend::Function ExtensionLightingFuncsMetal[] = {{},
                                                                {LightingMetal, "LightingFunc"},
                                                                {},
                                                                {LightingMetal, "LightingFunc"},
-                                                               {}};
+                                                               {},
+                                                               {LightingMetal, "LightingFunc"},};
 
 const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {},
@@ -274,6 +275,7 @@ const hecl::Backend::Function ExtensionPostFuncsMetal[] = {
     {DisintegratePostMetal, "EXTDisintegratePostFunc"},
     {MainPostMetal, "MainPostFunc"},
     {ThermalColdPostMetal, "ThermalColdPostFunc"},
+    {MainPostMetal, "MainPostFunc"},
 };
 
 } // namespace urde

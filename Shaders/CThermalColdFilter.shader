@@ -78,7 +78,7 @@ const vec4 kRGBToYPrime = vec4(0.299, 0.587, 0.114, 0.0);
 void main()
 {
     vec4 noiseTexel = texelFetch(noiseTex, Lookup8BPP(vtf.noiseUv, vtf.randOff), 0);
-    vec2 indCoord = (vtf.indMtx * vec3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
+    vec2 indCoord = (vtf.indMtx * vec3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(texture(sceneTex, vtf.sceneUv + indCoord), kRGBToYPrime);
     colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
     colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
@@ -158,7 +158,7 @@ static const float4 kRGBToYPrime = {0.299, 0.587, 0.114, 0.0};
 float4 main(in VertToFrag vtf) : SV_Target0
 {
     float4 noiseTexel = noiseTex.Load(Lookup8BPP(vtf.noiseUv, vtf.randOff));
-    float2 indCoord = mul(vtf.indMtx, float3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
+    float2 indCoord = mul(vtf.indMtx, float3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.Sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
     float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
     colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
@@ -245,7 +245,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> noiseTex [[ texture(1) ]])
 {
     float4 noiseTexel = noiseTex.read(Lookup8BPP(vtf.noiseUv, vtf.randOff));
-    float2 indCoord = (vtf.indMtx * float3(noiseTexel.x - 0.5, noiseTexel.y - 0.5, 1.0)).xy;
+    float2 indCoord = (vtf.indMtx * float3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
     float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
     colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;

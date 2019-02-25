@@ -91,7 +91,7 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Forced additive shading */
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, true, false, true},
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Solid color */
     {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::Zero,
      hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Backface, false, false, false},
@@ -148,7 +148,10 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     /* Thermal cold shading */
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original,
-     false, false, true, false, false, false, true}};
+     false, false, true, false, false, false, true},
+    /* Normal lit shading with alpha */
+    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface}};
 
 extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];
 extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];

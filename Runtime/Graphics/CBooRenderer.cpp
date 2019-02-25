@@ -1111,9 +1111,13 @@ void CBooRenderer::DoThermalBlendCold() {
   m_thermColdFilter->draw();
   CElementGen::SetMoveRedToAlphaBuffer(true);
   CDecal::SetMoveRedToAlphaBuffer(true);
+  m_thermalHotPass = true;
 }
 
-void CBooRenderer::DoThermalBlendHot() { m_thermHotFilter->draw(); }
+void CBooRenderer::DoThermalBlendHot() {
+  m_thermHotFilter->draw();
+  m_thermalHotPass = false;
+}
 
 u32 CBooRenderer::GetStaticWorldDataSize() { return 0; }
 

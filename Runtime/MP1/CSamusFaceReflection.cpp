@@ -12,7 +12,7 @@ static const zeus::CTransform PreXf = zeus::CTransform::Scale(0.3f) * zeus::CTra
 
 CSamusFaceReflection::CSamusFaceReflection(CStateManager& stateMgr)
 : x0_modelData(CAnimRes(g_ResFactory->GetResourceIdByName("ACS_SamusFace")->id, 0, zeus::skOne3f, 0, true))
-, x4c_lights(std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, 0, 0, 0.1f)) {
+, x4c_lights(std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f)) {
   x60_lookDir = zeus::skForward;
   CAnimPlaybackParms parms(0, -1, 1.f, true);
   x0_modelData.AnimationData()->SetAnimation(parms, false);

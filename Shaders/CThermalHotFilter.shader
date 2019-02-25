@@ -46,7 +46,7 @@ void main()
 {
     float sceneSample = dot(texture(sceneTex, vtf.sceneUv), kRGBToYPrime);
     vec4 colorSample = texture(paletteTex, vec2(sceneSample / 17.0, 0.5));
-    colorOut = vec4((colorSample * sceneSample).rgb, 0.0);
+    colorOut = vec4(colorSample.rgb, 0.0);
 }
 
 #vertex hlsl
@@ -93,7 +93,7 @@ float4 main(in VertToFrag vtf) : SV_Target0
 {
     float sceneSample = dot(sceneTex.Sample(samp, vtf.sceneUv), kRGBToYPrime);
     float4 colorSample = paletteTex.Sample(samp, float2(sceneSample / 17.0, 0.5));
-    return float4((colorSample * sceneSample).rgb, 0.0);
+    return float4(colorSample.rgb, 0.0);
 }
 
 #vertex metal
@@ -140,5 +140,5 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 {
     float sceneSample = dot(sceneTex.sample(samp, vtf.sceneUv), kRGBToYPrime);
     float4 colorSample = paletteTex.sample(samp, float2(sceneSample / 17.0, 0.5));
-    return float4((colorSample * sceneSample).rgb, 0.0);
+    return float4(colorSample.rgb, 0.0);
 }

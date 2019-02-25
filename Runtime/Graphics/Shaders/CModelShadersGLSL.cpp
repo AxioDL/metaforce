@@ -252,6 +252,7 @@ const hecl::Backend::Function ExtensionLightingFuncsGLSL[] = {
     {},
     {LightingGLSL, "LightingFunc"},
     {},
+    {LightingGLSL, "LightingFunc"},
 };
 
 const hecl::Backend::Function ExtensionPostFuncsGLSL[] = {
@@ -278,6 +279,7 @@ const hecl::Backend::Function ExtensionPostFuncsGLSL[] = {
     {DisintegratePostGLSL, "DisintegratePostFunc"},
     {MainPostGLSL, "MainPostFunc"},
     {ThermalColdPostGLSL, "ThermalColdPostFunc"},
+    {MainPostGLSL, "MainPostFunc"},
 };
 
 } // namespace urde

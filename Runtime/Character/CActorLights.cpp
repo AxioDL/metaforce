@@ -24,7 +24,7 @@ CActorLights::CActorLights(u32 areaUpdateFramePeriod, const zeus::CVector3f& act
   x298_24_dirty = true;
   x298_25_castShadows = true;
 
-  x298_28_inArea = (!disableWorldLights && maxAreaLights > 0) ? true : false;
+  x298_28_inArea = !disableWorldLights && maxAreaLights > 0;
   x298_29_ambienceGenerated = ambientChannelOverflow;
   x298_30_layer2 = layer2;
   x298_31_disableWorldLights = disableWorldLights;
@@ -59,6 +59,7 @@ void CActorLights::BuildFakeLightList(const std::vector<CLight>& lights, const z
 
 void CActorLights::BuildFaceLightList(const CStateManager& mgr, const CGameArea& area, const zeus::CAABox& aabb) {
   zeus::CTransform fpTransform = mgr.GetCameraManager()->GetFirstPersonCamera()->GetTransform();
+  x298_26_hasAreaLights = true;
   x288_ambientColor = zeus::skBlack;
   x144_dynamicLights.clear();
   zeus::CColor accumColor = zeus::skBlack;

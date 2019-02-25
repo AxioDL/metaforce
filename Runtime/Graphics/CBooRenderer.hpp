@@ -160,6 +160,7 @@ class CBooRenderer final : public IRenderer {
       bool x318_29_thermalVisor : 1;
       bool x318_30_inAreaDraw : 1;
       bool x318_31_persistRGBA6 : 1;
+      bool m_thermalHotPass : 1;
     };
     u16 dummy = 0;
   };
@@ -294,6 +295,7 @@ public:
                                         float alpha) const;
 
   bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
+  bool IsThermalVisorHotPass() const { return m_thermalHotPass; }
 };
 
 } // namespace urde
