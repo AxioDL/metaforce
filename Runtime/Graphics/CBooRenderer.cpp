@@ -1093,17 +1093,19 @@ void CBooRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus
 void CBooRenderer::DoThermalBlendCold() {
   zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::skWhite, x2f8_thermColdScale);
   m_thermColdFilter->setColorA(a);
-  float bFac = 0.f;
   float bAlpha = 1.f;
-  if (x2f8_thermColdScale < 0.5f) {
+  if (x2f8_thermColdScale < 0.5f)
     bAlpha = x2f8_thermColdScale * 2.f;
-    bFac = (1.f - bAlpha) / 8.f;
-  }
-  zeus::CColor b{bFac, bFac, bFac, bAlpha};
-  m_thermColdFilter->setColorB(b);
-  zeus::CColor c = zeus::CColor::lerp(zeus::skBlack, zeus::skWhite,
-                                      zeus::clamp(0.f, (x2f8_thermColdScale - 0.25f) * 4.f / 3.f, 1.f));
-  m_thermColdFilter->setColorC(c);
+  float bFac = (1.f - bAlpha) / 8.f;
+  m_thermColdFilter->setColorB(zeus::CColor(bFac, bAlpha));
+  float cFac;
+  if (x2f8_thermColdScale < 0.25f)
+    cFac = 0.f;
+  else if (x2f8_thermColdScale >= 1.f)
+    cFac = 1.f;
+  else
+    cFac = (x2f8_thermColdScale - 0.25f) * 4.f / 3.f;
+  m_thermColdFilter->setColorC(zeus::CColor(cFac, cFac));
 
   m_thermColdFilter->setScale(x2f8_thermColdScale);
 

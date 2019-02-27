@@ -681,7 +681,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
   }
   case UVAnimation::Mode::Model: {
     texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
-    texMtxOut[3].zeroOut();
+    texMtxOut[3] = zeus::CVector4f(0.f, 0.f, 0.f, 1.f);
     postMtxOut[0].x() = 0.5f;
     postMtxOut[1].y() = 0.f;
     postMtxOut[2].y() = 0.5f;

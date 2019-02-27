@@ -80,8 +80,8 @@ void main()
     vec4 noiseTexel = texelFetch(noiseTex, Lookup8BPP(vtf.noiseUv, vtf.randOff), 0);
     vec2 indCoord = (vtf.indMtx * vec3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(texture(sceneTex, vtf.sceneUv + indCoord), kRGBToYPrime);
-    colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
-    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
+    colorOut = vtf.colorReg0 * indScene + vtf.colorReg2 - vtf.colorReg1 * noiseTexel.r;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.r + vtf.colorReg2.a;
 }
 
 #vertex hlsl
@@ -160,8 +160,8 @@ float4 main(in VertToFrag vtf) : SV_Target0
     float4 noiseTexel = noiseTex.Load(Lookup8BPP(vtf.noiseUv, vtf.randOff));
     float2 indCoord = mul(vtf.indMtx, float3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.Sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
-    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
-    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
+    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg2 - vtf.colorReg1 * noiseTexel.r;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.r + vtf.colorReg2.a;
     return colorOut;
 }
 
@@ -247,7 +247,6 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     float4 noiseTexel = noiseTex.read(Lookup8BPP(vtf.noiseUv, vtf.randOff));
     float2 indCoord = (vtf.indMtx * float3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
     float indScene = dot(sceneTex.sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime);
-    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg1 * noiseTexel + vtf.colorReg2;
-    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.a + vtf.colorReg2.a;
-    return colorOut;
+    float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg2 - vtf.colorReg1 * noiseTexel.r;
+    colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.r + vtf.colorReg2.a;
 }

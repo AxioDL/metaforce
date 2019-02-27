@@ -172,8 +172,8 @@ layout(location=0) out vec4 colorOut;
 TBINDING0 uniform sampler2D tex;
 void main()
 {
-    colorOut = vtf.color;
-    colorOut.a = texture(tex, vtf.uv).r;
+    colorOut = vtf.color * texture(tex, vtf.uv);
+    colorOut.a = colorOut.r;
 }
 
 
@@ -189,7 +189,9 @@ struct VertToFrag
 
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    return float4(vtf.color.rgb, tex0.Sample(samp, vtf.uv).r);
+    float4 colorOut = vtf.color * tex0.Sample(samp, vtf.uv);
+    colorOut.a = colorOut.r;
+    return colorOut;
 }
 
 
@@ -205,7 +207,9 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(0) ]],
                       texture2d<float> tex0 [[ texture(0) ]])
 {
-    return float4(vtf.color.rgb, tex0.sample(samp, vtf.uv).r);
+    float4 colorOut = vtf.color * tex0.sample(samp, vtf.uv);
+    colorOut.a = colorOut.r;
+    return colorOut;
 }
 
 
