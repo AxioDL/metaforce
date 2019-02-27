@@ -299,6 +299,13 @@ std::string ProgrammableCommon::RecursiveTraceAlpha(const IR& ir, Diagnostics& d
   return std::string();
 }
 
+void ProgrammableCommon::resetResourceAccumulators() {
+  m_texSamplings.clear();
+  m_texMapEnd = 0;
+  m_tcgs.clear();
+  m_texMtxRefs.clear();
+}
+
 void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* backendName) {
   m_lighting = false;
   m_texSamplings.clear();
@@ -330,8 +337,11 @@ void ProgrammableCommon::reset(const IR& ir, Diagnostics& diag, const char* back
   /* Follow Color Chain */
   const IR::Instruction& colorRoot = ir.m_instructions.at(rootCall.m_call.m_argInstIdxs.at(0));
   m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false, false);
-  if (m_diffuseColorExpr.empty())
+  resetResourceAccumulators();
+  if (m_diffuseColorExpr.empty()) {
     m_diffuseColorExpr = RecursiveTraceDiffuseColor(ir, diag, colorRoot, false, true);
+    resetResourceAccumulators();
+  }
   m_colorExpr = RecursiveTraceColor(ir, diag, colorRoot, false);
 
   /* Follow Alpha Chain */

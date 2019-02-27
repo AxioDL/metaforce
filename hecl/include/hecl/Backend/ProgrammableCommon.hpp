@@ -42,6 +42,7 @@ struct ProgrammableCommon : IBackend {
   static const char* BlendFactorToDefine(BlendFactor factor, BlendFactor defaultFactor);
 
 private:
+  void resetResourceAccumulators();
   unsigned addTexCoordGen(TexGenSrc src, int uvIdx, int mtx, bool normalize);
   unsigned addTexSampling(unsigned mapIdx, unsigned tcgIdx);
   std::string RecursiveTraceDiffuseColor(const IR& ir, Diagnostics& diag, const IR::Instruction& inst, bool toSwizzle,
