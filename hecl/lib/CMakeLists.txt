@@ -75,6 +75,10 @@ set(COMMON_SOURCES
     atdna_Frontend.cpp
     atdna_CVar.cpp)
 
+if(UNIX)
+  list(APPEND PLAT_SRCS closefrom.c)
+endif()
+
 add_library(hecl-full
             ${BACKEND_SOURCES}
             ${FRONTEND_SOURCES}

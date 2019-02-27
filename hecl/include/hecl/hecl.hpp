@@ -9,6 +9,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/statvfs.h>
+#if __linux__ || __APPLE__
+extern "C" int rep_closefrom(int lower);
+#define closefrom rep_closefrom
+#endif
 #else
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1

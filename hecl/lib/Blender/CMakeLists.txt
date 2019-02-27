@@ -3,8 +3,4 @@ set(BLENDER_SOURCES
     SDNARead.cpp
     HMDL.cpp)
 
-if(UNIX)
-  list(APPEND BLENDER_SOURCES closefrom.c)
-endif()
-
 hecl_add_list(Blender BLENDER_SOURCES)

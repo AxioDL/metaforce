@@ -853,6 +853,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 #else
   pid_t pid = fork();
   if (!pid) {
+    closefrom(3);
     execvp(path, (char* const*)args);
     exit(1);
   }

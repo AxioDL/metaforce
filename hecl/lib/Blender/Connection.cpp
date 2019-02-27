@@ -20,12 +20,6 @@
 #if _WIN32
 #include <io.h>
 #include <fcntl.h>
-#else
-#include <unistd.h>
-#if __linux__ || __APPLE__
-extern "C" int rep_closefrom(int lower);
-#define closefrom rep_closefrom
-#endif
 #endif
 
 #undef min
