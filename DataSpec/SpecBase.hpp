@@ -199,4 +199,6 @@ protected:
   bool m_standalone;
 };
 
+bool IsPathAudioGroup(const hecl::ProjectPath& path);
+
 } // namespace DataSpec

@@ -207,35 +207,53 @@ bool AGSC::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& dir) {
   return true;
 }
 
-bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath) {
-  athena::io::FileWriter w(outPath.getAbsolutePath());
-  if (w.hasError())
-    return false;
+static std::atomic_bool DidCook = {false};
 
-  Header head;
-  head.audioDir = "Audio/"sv;
-  head.groupName = dir.getLastComponentUTF8();
-  head.write(w);
+bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& refOutPath) {
+  /* This will cook all AGSCs in the local directory, ensuring unique ObjectIDs
+   * across all Amuse subprojects */
+  if (DidCook.exchange(true))
+    return true; /* We've already cooked all AGSCs */
 
   amuse::ProjectDatabase projDb;
   projDb.setIdDatabases();
-  amuse::AudioGroupDatabase group(dir.getAbsolutePath());
 
-  auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
-  auto pool = group.getPool().toData<athena::Big>();
-  auto sdirSamp = group.getSdir().toGCNData(group);
+  auto parentDir = dir.getParentPath();
+  auto outParentDir = refOutPath.getParentPath();
+  for (const auto& ent : dir.getParentPath().enumerateDir()) {
+    if (!ent.m_isDir)
+      continue;
+    hecl::ProjectPath path(parentDir, ent.m_name);
+    if (IsPathAudioGroup(path)) {
+      hecl::ProjectPath outPath(outParentDir, ent.m_name);
+      athena::io::FileWriter w(outPath.getAbsolutePath());
+      if (w.hasError())
+        return false;
 
-  w.writeUint32Big(pool.size());
-  w.writeUBytes(pool.data(), pool.size());
+      Header head;
+      head.audioDir = "Audio/"sv;
+      head.groupName = path.getLastComponentUTF8();
+      head.write(w);
 
-  w.writeUint32Big(proj.size());
-  w.writeUBytes(proj.data(), proj.size());
+      amuse::AudioGroupDatabase group(path.getAbsolutePath());
 
-  w.writeUint32Big(sdirSamp.second.size());
-  w.writeUBytes(sdirSamp.second.data(), sdirSamp.second.size());
+      auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
+      auto pool = group.getPool().toData<athena::Big>();
+      auto sdirSamp = group.getSdir().toGCNData(group);
 
-  w.writeUint32Big(sdirSamp.first.size());
-  w.writeUBytes(sdirSamp.first.data(), sdirSamp.first.size());
+      w.writeUint32Big(pool.size());
+      w.writeUBytes(pool.data(), pool.size());
+
+      w.writeUint32Big(proj.size());
+      w.writeUBytes(proj.data(), proj.size());
+
+      w.writeUint32Big(sdirSamp.second.size());
+      w.writeUBytes(sdirSamp.second.data(), sdirSamp.second.size());
+
+      w.writeUint32Big(sdirSamp.first.size());
+      w.writeUBytes(sdirSamp.first.data(), sdirSamp.first.size());
+    }
+  }
 
   return true;
 }

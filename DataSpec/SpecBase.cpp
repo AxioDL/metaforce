@@ -176,7 +176,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressP
   extractFromDisc(*m_disc, info.force, progress);
 }
 
-static bool IsPathAudioGroup(const hecl::ProjectPath& path) {
+bool IsPathAudioGroup(const hecl::ProjectPath& path) {
   return (path.getPathType() == hecl::ProjectPath::Type::Directory &&
           hecl::ProjectPath(path, _SYS_STR("!project.yaml")).isFile() &&
           hecl::ProjectPath(path, _SYS_STR("!pool.yaml")).isFile());
