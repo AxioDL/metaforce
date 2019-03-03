@@ -123,7 +123,7 @@ std::string HLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionC
 }
 
 std::string HLSL::GenerateAlphaTest() const {
-  return "    if (colorOut.a < 0.01)\n"
+  return "    if (colorOut.a < 0.25)\n"
          "    {\n"
          "        discard;\n"
          "    }\n";

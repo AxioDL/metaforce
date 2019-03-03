@@ -127,7 +127,7 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionC
 }
 
 std::string GLSL::GenerateAlphaTest() const {
-  return "    if (colorOut.a < 0.01)\n"
+  return "    if (colorOut.a < 0.25)\n"
          "    {\n"
          "        discard;\n"
          "    }\n";

@@ -123,7 +123,7 @@ std::string Metal::GenerateFragOutStruct() const {
 }
 
 std::string Metal::GenerateAlphaTest() const {
-  return "    if (out.color.a < 0.01)\n"
+  return "    if (out.color.a < 0.25)\n"
          "    {\n"
          "        discard_fragment();\n"
          "    }\n";

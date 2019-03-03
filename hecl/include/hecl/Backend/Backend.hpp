@@ -259,8 +259,10 @@ inline boo::AdditionalPipelineInfo ShaderTag::additionalInfo(const ExtensionSlot
     break;
   }
 
-  return {boo::BlendFactor((ext.srcFactor == BlendFactor::Original) ? blendFactors.first : ext.srcFactor),
-          boo::BlendFactor((ext.dstFactor == BlendFactor::Original) ? blendFactors.second : ext.dstFactor),
+  BlendFactor srcFactor = m_alphaTest ? BlendFactor::One : blendFactors.first;
+  BlendFactor dstFactor = m_alphaTest ? BlendFactor::Zero : blendFactors.second;
+  return {boo::BlendFactor((ext.srcFactor == BlendFactor::Original) ? srcFactor : ext.srcFactor),
+          boo::BlendFactor((ext.dstFactor == BlendFactor::Original) ? dstFactor : ext.dstFactor),
           getPrimType(),
           zTest,
           ext.noDepthWrite ? false : getDepthWrite(),
