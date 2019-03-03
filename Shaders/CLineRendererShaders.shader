@@ -7,17 +7,13 @@
 #primitive tristrips
 #depthtest none
 #depthwrite false
+#alphawrite false
 #culling none
 
 #vertex glsl
 layout(location=0) in vec4 posIn;
 layout(location=1) in vec4 colorIn;
 layout(location=2) in vec4 uvIn;
-
-UBINDING0 uniform LineUniform
-{
-    vec4 moduColor;
-};
 
 struct VertToFrag
 {
@@ -28,24 +24,68 @@ struct VertToFrag
 SBINDING(0) out VertToFrag vtf;
 void main()
 {
-    vtf.color = colorIn * moduColor;
+    vtf.color = colorIn;
     vtf.uv = uvIn.xy;
     gl_Position = posIn;
 }
 
 #fragment glsl
+struct Fog
+{
+    int mode;
+    vec4 color;
+    float A;
+    float B;
+    float C;
+};
+
+UBINDING0 uniform LineUniform
+{
+    vec4 moduColor;
+    Fog fog;
+};
+
 struct VertToFrag
 {
     vec4 color;
     vec2 uv;
 };
 
+vec4 MainPostFunc(vec4 colorIn)
+{
+    float fogZ;
+    float fogF = clamp((fog.A / (fog.B - gl_FragCoord.z)) - fog.C, 0.0, 1.0);
+    switch (fog.mode)
+    {
+    case 2:
+        fogZ = fogF;
+        break;
+    case 4:
+        fogZ = 1.0 - exp2(-8.0 * fogF);
+        break;
+    case 5:
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
+        break;
+    case 6:
+        fogZ = exp2(-8.0 * (1.0 - fogF));
+        break;
+    case 7:
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
+        break;
+    default:
+        fogZ = 0.0;
+        break;
+    }
+    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);
+}
+
 SBINDING(0) in VertToFrag vtf;
 layout(location=0) out vec4 colorOut;
 TBINDING0 uniform sampler2D tex;
 void main()
 {
-    colorOut = vtf.color * texture(tex, vtf.uv);
+    colorOut = MainPostFunc(vtf.color * moduColor * texture(tex, vtf.uv));
 }
 
 #vertex hlsl
@@ -139,20 +179,35 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     return vtf.color * tex0.sample(samp, vtf.uv);
 }
 
+#shader CLineRendererShaderTexAlphaAWrite : CLineRendererShaderTexAlpha
+#alphawrite true
+
 #shader CLineRendererShaderTexAdditive : CLineRendererShaderTexAlpha
 #srcfac srcalpha
 #dstfac one
 #depthtest none
+#alphawrite false
+
+#shader CLineRendererShaderTexAdditiveAWrite : CLineRendererShaderTexAdditive
+#alphawrite true
 
 #shader CLineRendererShaderTexAlphaZ : CLineRendererShaderTexAlpha
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest lequal
+#alphawrite false
+
+#shader CLineRendererShaderTexAlphaZAWrite : CLineRendererShaderTexAlphaZ
+#alphawrite true
 
 #shader CLineRendererShaderTexAdditiveZ : CLineRendererShaderTexAlpha
 #srcfac srcalpha
 #dstfac one
 #depthtest lequal
+#alphawrite false
+
+#shader CLineRendererShaderTexAdditiveZAWrite : CLineRendererShaderTexAdditiveZ
+#alphawrite true
 
 #shader CLineRendererShaderNoTexAlpha
 #attribute position4
@@ -162,16 +217,12 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #primitive tristrips
 #depthtest none
 #depthwrite false
+#alphawrite false
 #culling none
 
 #vertex glsl
 layout(location=0) in vec4 posIn;
 layout(location=1) in vec4 colorIn;
-
-UBINDING0 uniform LineUniform
-{
-    vec4 moduColor;
-};
 
 struct VertToFrag
 {
@@ -181,21 +232,65 @@ struct VertToFrag
 SBINDING(0) out VertToFrag vtf;
 void main()
 {
-    vtf.color = colorIn * moduColor;
+    vtf.color = colorIn;
     gl_Position = posIn;
 }
 
 #fragment glsl
+struct Fog
+{
+    int mode;
+    vec4 color;
+    float A;
+    float B;
+    float C;
+};
+
+UBINDING0 uniform LineUniform
+{
+    vec4 moduColor;
+    Fog fog;
+};
+
 struct VertToFrag
 {
     vec4 color;
 };
 
+vec4 MainPostFunc(vec4 colorIn)
+{
+    float fogZ;
+    float fogF = clamp((fog.A / (fog.B - gl_FragCoord.z)) - fog.C, 0.0, 1.0);
+    switch (fog.mode)
+    {
+    case 2:
+        fogZ = fogF;
+        break;
+    case 4:
+        fogZ = 1.0 - exp2(-8.0 * fogF);
+        break;
+    case 5:
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
+        break;
+    case 6:
+        fogZ = exp2(-8.0 * (1.0 - fogF));
+        break;
+    case 7:
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
+        break;
+    default:
+        fogZ = 0.0;
+        break;
+    }
+    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);
+}
+
 SBINDING(0) in VertToFrag vtf;
 layout(location=0) out vec4 colorOut;
 void main()
 {
-    colorOut = vtf.color;
+    colorOut = MainPostFunc(vtf.color * moduColor);
 }
 
 #vertex hlsl
@@ -203,11 +298,6 @@ struct VertData
 {
     float4 posIn : POSITION;
     float4 colorIn : COLOR;
-};
-
-cbuffer LineUniform : register(b0)
-{
-    float4 moduColor;
 };
 
 struct VertToFrag
@@ -219,21 +309,65 @@ struct VertToFrag
 VertToFrag main(in VertData v)
 {
     VertToFrag vtf;
-    vtf.color = v.colorIn * moduColor;
+    vtf.color = v.colorIn;
     vtf.position = v.posIn;
     return vtf;
 }
 
 #fragment hlsl
+struct Fog
+{
+    int mode;
+    float4 color;
+    float A;
+    float B;
+    float C;
+};
+
+cbuffer LineUniform : register(b0)
+{
+    float4 moduColor;
+    Fog fog;
+};
+
 struct VertToFrag
 {
     float4 position : SV_Position;
     float4 color : COLOR;
 };
 
+static float4 MainPostFunc(float4 colorIn, float4 FragCoord)
+{
+    float fogZ;
+    float fogF = saturate((fog.A / (fog.B - FragCoord.z)) - fog.C);
+    switch (fog.mode)
+    {
+    case 2:
+        fogZ = fogF;
+        break;
+    case 4:
+        fogZ = 1.0 - exp2(-8.0 * fogF);
+        break;
+    case 5:
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
+        break;
+    case 6:
+        fogZ = exp2(-8.0 * (1.0 - fogF));
+        break;
+    case 7:
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
+        break;
+    default:
+        fogZ = 0.0;
+        break;
+    }
+    return float4(lerp(colorIn, float4(0.0,0.0,0.0,0.0), saturate(fogZ)).rgb, colorIn.a);
+}
+
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    return vtf.color;
+    return MainPostFunc(vtf.color * moduColor, vtf.position);
 }
 
 #vertex metal
@@ -243,11 +377,6 @@ struct VertData
     float4 colorIn;
 };
 
-struct LineUniform
-{
-    float4 moduColor;
-};
-
 struct VertToFrag
 {
     float4 position [[ position ]];
@@ -255,44 +384,107 @@ struct VertToFrag
 };
 
 vertex VertToFrag vmain(constant VertData* va [[ buffer(0) ]],
-                        uint vertId [[ vertex_id ]],
-                        constant LineUniform& line [[ buffer(2) ]])
+                        uint vertId [[ vertex_id ]])
 {
     VertToFrag vtf;
     constant VertData& v = va[vertId];
-    vtf.color = v.colorIn * line.moduColor;
+    vtf.color = v.colorIn;
     vtf.position = v.posIn;
     return vtf;
 }
 
 #fragment metal
+struct Fog
+{
+    int mode;
+    float4 color;
+    float A;
+    float B;
+    float C;
+};
+
+struct LineUniform
+{
+    float4 moduColor;
+    Fog fog;
+};
+
 struct VertToFrag
 {
     float4 position [[ position ]];
     float4 color;
 };
 
-fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
+static float4 MainPostFunc(float4 colorIn, constant LineUniform& line, float FragCoord)
 {
-    return vtf.color;
+    float fogZ;
+    float fogF = saturate((line.fog.A / (line.fog.B - FragCoord.z)) - line.fog.C);
+    switch (line.fog.mode)
+    {
+    case 2:
+        fogZ = fogF;
+        break;
+    case 4:
+        fogZ = 1.0 - exp2(-8.0 * fogF);
+        break;
+    case 5:
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
+        break;
+    case 6:
+        fogZ = exp2(-8.0 * (1.0 - fogF));
+        break;
+    case 7:
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
+        break;
+    default:
+        fogZ = 0.0;
+        break;
+    }
+    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);
 }
+
+fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
+                      constant LineUniform& line [[ buffer(2) ]])
+{
+    return MainPostFunc(vtf.color * line.moduColor, line, vtf.position);
+}
+
+#shader CLineRendererShaderNoTexAlphaAWrite : CLineRendererShaderNoTexAlpha
+#alphawrite true
 
 #shader CLineRendererShaderNoTexAdditive : CLineRendererShaderNoTexAlpha
 #srcfac srcalpha
 #dstfac one
 #depthtest none
+#alphawrite false
+
+#shader CLineRendererShaderNoTexAdditiveAWrite : CLineRendererShaderNoTexAdditive
+#alphawrite true
 
 #shader CLineRendererShaderNoTexAlphaZ : CLineRendererShaderNoTexAlpha
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest lequal
+#alphawrite false
+
+#shader CLineRendererShaderNoTexAlphaZAWrite : CLineRendererShaderNoTexAlphaZ
+#alphawrite true
 
 #shader CLineRendererShaderNoTexAdditiveZ : CLineRendererShaderNoTexAlpha
 #srcfac srcalpha
 #dstfac one
 #depthtest lequal
+#alphawrite false
+
+#shader CLineRendererShaderNoTexAdditiveZAWrite : CLineRendererShaderNoTexAdditiveZ
+#alphawrite true
 
 #shader CLineRendererShaderNoTexAlphaZGEqual : CLineRendererShaderNoTexAlpha
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest gequal
+#alphawrite false
+
+#shader CLineRendererShaderNoTexAlphaZGEqualAWrite : CLineRendererShaderNoTexAlphaZGEqual
+#alphawrite true

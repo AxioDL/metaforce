@@ -49,6 +49,7 @@ private:
   void BuildC8(const void* data, size_t length);
   void BuildC8Font(const void* data, EFontType ftype);
   void BuildDXT1(const void* data, size_t length);
+  void BuildDXT3(const void* data, size_t length);
 
 public:
   CTexture(ETexelFormat, s16, s16, s32);

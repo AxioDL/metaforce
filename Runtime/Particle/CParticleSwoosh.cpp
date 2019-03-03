@@ -1,6 +1,8 @@
 #include "CParticleSwoosh.hpp"
 #include "CSwooshDescription.hpp"
 #include "CParticleGlobals.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 #include <chrono>
 
 namespace urde {
@@ -441,7 +443,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
   }
 
   if (x1bc_prim == GX::LINES)
-    m_lineRenderer->Render();
+    m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass());
 }
 
 void CParticleSwoosh::RenderNSidedNoSpline() { RenderNSidedSpline(); }
@@ -870,8 +872,8 @@ void CParticleSwoosh::Render(const CActorLights*) {
     return;
 
   m_cachedVerts.clear();
-  if (m_dataBind)
-    CGraphics::SetShaderDataBinding(m_dataBind);
+  if (m_dataBind[0])
+    CGraphics::SetShaderDataBinding(m_dataBind[g_Renderer->IsThermalVisorHotPass()]);
 
   CParticleGlobals::SetParticleLifetime(x1b4_LENG);
   CGlobalRandom gr(x1c0_rand);

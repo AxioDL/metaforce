@@ -11,33 +11,33 @@ public:
   enum class EShaderClass { Tex, IndTex, NoTex };
 
 private:
-  static boo::ObjToken<boo::IShaderPipeline> m_texZTestZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveNoZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaNoZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_texZTestNoZWriteSub;
-  static boo::ObjToken<boo::IShaderPipeline> m_texNoZTestNoZWriteSub;
-  static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaZTestSub;
-  static boo::ObjToken<boo::IShaderPipeline> m_texRedToAlphaNoZTestSub;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZTestZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZTestZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZTestNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZTestNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveNoZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texRedToAlphaZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texRedToAlphaNoZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texZTestNoZWriteSub;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texNoZTestNoZWriteSub;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texRedToAlphaZTestSub;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texRedToAlphaNoZTestSub;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_indTexZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_indTexNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_indTexAdditive;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_indTexZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_indTexNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_indTexAdditive;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_cindTexZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_cindTexNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_cindTexAdditive;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_cindTexZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_cindTexNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_cindTexAdditive;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexZTestZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexNoZTestZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexNoZTestNoZWrite;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZTest;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveNoZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexZTestZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexNoZTestZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexZTestNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexNoZTestNoZWrite;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveZTest;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveNoZTest;
 
 public:
   static void Initialize();

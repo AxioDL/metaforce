@@ -205,7 +205,7 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info) {
   for (int i = 0; i < 3; ++i)
     uni.m_lighting.colorRegs[i] = info.kColors[i];
   uni.m_lighting.mulColor = info.kColors[3];
-  uni.m_lighting.fog.m_rangeScale = info.indScale;
+  uni.m_pad2.x() = info.indScale;
   m_uniBuf->unmap();
 }
 

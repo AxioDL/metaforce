@@ -66,37 +66,38 @@ UBINDING1 uniform FogUniform
 {
     int mode;
     vec4 color;
-    float rangeScale;
-    float start;
+    float A;
+    float B;
+    float C;
 };
 
 vec4 MainPostFunc(vec4 colorIn)
 {
-    float fogZ, temp;
+    float fogZ;
+    float fogF = clamp((A / (B - gl_FragCoord.z)) - C, 0.0, 1.0);
     switch (mode)
     {
     case 2:
-        fogZ = (-vtf.mvPos.z - start) * rangeScale;
+        fogZ = fogF;
         break;
     case 4:
-        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - start) * rangeScale);
+        fogZ = 1.0 - exp2(-8.0 * fogF);
         break;
     case 5:
-        temp = (-vtf.mvPos.z - start) * rangeScale;
-        fogZ = 1.0 - exp2(-8.0 * temp * temp);
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
         break;
     case 6:
-        fogZ = exp2(-8.0 * (start + vtf.mvPos.z) * rangeScale);
+        fogZ = exp2(-8.0 * (1.0 - fogF));
         break;
     case 7:
-        temp = (start + vtf.mvPos.z) * rangeScale;
-        fogZ = exp2(-8.0 * temp * temp);
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
         break;
     default:
         fogZ = 0.0;
         break;
     }
-    return vec4(mix(colorIn, color, clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);
+    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);
 }
 
 void main()
@@ -159,37 +160,38 @@ cbuffer FogUniform : register(b1)
 {
     int mode;
     float4 color;
-    float rangeScale;
-    float start;
+    float A;
+    float B;
+    float C;
 };
 
 static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)
 {
-    float fogZ, temp;
+    float fogZ;
+    float fogF = saturate((A / (B - vtf.position.z)) - C);
     switch (mode)
     {
     case 2:
-        fogZ = (-vtf.mvPos.z - start) * rangeScale;
+        fogZ = fogF;
         break;
     case 4:
-        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - start) * rangeScale);
+        fogZ = 1.0 - exp2(-8.0 * fogF);
         break;
     case 5:
-        temp = (-vtf.mvPos.z - start) * rangeScale;
-        fogZ = 1.0 - exp2(-8.0 * temp * temp);
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
         break;
     case 6:
-        fogZ = exp2(-8.0 * (start + vtf.mvPos.z) * rangeScale);
+        fogZ = exp2(-8.0 * (1.0 - fogF));
         break;
     case 7:
-        temp = (start + vtf.mvPos.z) * rangeScale;
-        fogZ = exp2(-8.0 * temp * temp);
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
         break;
     default:
         fogZ = 0.0;
         break;
     }
-    return float4(lerp(colorIn, color, saturate(fogZ)).rgb, colorIn.a);
+    return float4(lerp(colorIn, float4(0.0,0.0,0.0,0.0), saturate(fogZ)).rgb, colorIn.a);
 }
 
 float4 main(in VertToFrag vtf) : SV_Target0
@@ -251,37 +253,38 @@ struct FogUniform
 {
     int mode;
     float4 color;
-    float rangeScale;
-    float start;
+    float A;
+    float B;
+    float C;
 };
 
 float4 MainPostFunc(thread VertToFrag& vtf, constant FogUniform& fu, float4 colorIn)
 {
-    float fogZ, temp;
+    float fogZ;
+    float fogF = saturate((fu.A / (fu.B - vtf.position.z)) - fu.C);
     switch (fu.mode)
     {
     case 2:
-        fogZ = (-vtf.mvPos.z - fu.start) * fu.rangeScale;
+        fogZ = fogF;
         break;
     case 4:
-        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fu.start) * fu.rangeScale);
+        fogZ = 1.0 - exp2(-8.0 * fogF);
         break;
     case 5:
-        temp = (-vtf.mvPos.z - fu.start) * fu.rangeScale;
-        fogZ = 1.0 - exp2(-8.0 * temp * temp);
+        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);
         break;
     case 6:
-        fogZ = exp2(-8.0 * (fu.start + vtf.mvPos.z) * fu.rangeScale);
+        fogZ = exp2(-8.0 * (1.0 - fogF));
         break;
     case 7:
-        temp = (fu.start + vtf.mvPos.z) * fu.rangeScale;
-        fogZ = exp2(-8.0 * temp * temp);
+        fogF = 1.0 - fogF;
+        fogZ = exp2(-8.0 * fogF * fogF);
         break;
     default:
         fogZ = 0.0;
         break;
     }
-    return float4(mix(colorIn, fu.color, saturate(fogZ)).rgb, colorIn.a);
+    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);
 }
 
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],

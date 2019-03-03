@@ -1,6 +1,8 @@
 #include "CRainSplashGenerator.hpp"
 #include "CStateManager.hpp"
 #include "World/CWorld.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde {
 
@@ -32,7 +34,7 @@ void CRainSplashGenerator::SSplashLine::Draw(float alpha, float dt, const zeus::
       vt += delta;
       m_renderer.AddVertex(vec, zeus::CColor(1.f, vertAlpha), 1);
     }
-    m_renderer.Render();
+    m_renderer.Render(g_Renderer->IsThermalVisorHotPass());
   }
 }
 

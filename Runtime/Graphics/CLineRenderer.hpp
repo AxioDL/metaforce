@@ -7,6 +7,7 @@
 #include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 #include "hecl/VertexBufferPool.hpp"
 #include "hecl/UniformBufferPool.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde {
 
@@ -27,6 +28,7 @@ public:
 
   struct SDrawUniform {
     zeus::CColor moduColor;
+    CGraphics::CFogState fog;
   };
 
 private:
@@ -61,7 +63,7 @@ public:
   hecl::VertexBufferPool<SDrawVertTex>::Token m_vertBufTex;
   hecl::VertexBufferPool<SDrawVertNoTex>::Token m_vertBufNoTex;
   hecl::UniformBufferPool<SDrawUniform>::Token m_uniformBuf;
-  boo::ObjToken<boo::IShaderDataBinding> m_shaderBind;
+  boo::ObjToken<boo::IShaderDataBinding> m_shaderBind[2];
 
   CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitiveMode mode, u32 maxVerts,
                 const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest = false, bool zGEqual = false);
@@ -72,7 +74,7 @@ public:
   void Reset();
   void AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,
                  const zeus::CVector2f& uv = zeus::skZero2f);
-  void Render(const zeus::CColor& moduColor = zeus::skWhite);
+  void Render(bool alphaWrite = false, const zeus::CColor& moduColor = zeus::skWhite);
 
   static void UpdateBuffers() {
     s_vertPoolTex.updateBuffers();

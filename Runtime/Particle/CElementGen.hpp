@@ -144,15 +144,15 @@ public:
               EOptionalSystemFlags flags = EOptionalSystemFlags::One);
   ~CElementGen();
 
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind;
-  boo::ObjToken<boo::IShaderDataBinding> m_normalSubDataBind;
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind;
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaSubDataBind;
+  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind[2];
+  boo::ObjToken<boo::IShaderDataBinding> m_normalSubDataBind[2];
+  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBind[2];
+  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaSubDataBind[2];
   boo::ObjToken<boo::IGraphicsBufferD> m_instBuf;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniformBuf;
 
-  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBindPmus;
-  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBindPmus;
+  boo::ObjToken<boo::IShaderDataBinding> m_normalDataBindPmus[2];
+  boo::ObjToken<boo::IShaderDataBinding> m_redToAlphaDataBindPmus[2];
   boo::ObjToken<boo::IGraphicsBufferD> m_instBufPmus;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniformBufPmus;
 

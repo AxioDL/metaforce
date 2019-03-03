@@ -107,7 +107,7 @@ void CLineRenderer::Reset() {
 
 void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColor& color, float width,
                               const zeus::CVector2f& uv) {
-  if (m_final || !m_shaderBind || m_nextVert >= m_maxVerts)
+  if (m_final || !m_shaderBind[0] || m_nextVert >= m_maxVerts)
     return;
 
   float adjWidth = width / 480.f;
@@ -237,7 +237,7 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
   ++m_nextVert;
 }
 
-void CLineRenderer::Render(const zeus::CColor& moduColor) {
+void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
   if (!m_final && m_nextVert > 1) {
     if (m_mode == EPrimitiveMode::LineLoop) {
       {
@@ -366,18 +366,18 @@ void CLineRenderer::Render(const zeus::CColor& moduColor) {
     m_final = true;
   }
 
-  m_uniformBuf.access() = SDrawUniform{moduColor};
+  m_uniformBuf.access() = SDrawUniform{moduColor, CGraphics::g_Fog};
   if (m_textured) {
     if (!g_StaticLineVertsTex.empty()) {
       memmove(m_vertBufTex.access(), g_StaticLineVertsTex.data(), sizeof(SDrawVertTex) * g_StaticLineVertsTex.size());
-      CGraphics::SetShaderDataBinding(m_shaderBind);
+      CGraphics::SetShaderDataBinding(m_shaderBind[alphaWrite]);
       CGraphics::DrawArray(0, g_StaticLineVertsTex.size());
     }
   } else {
     if (!g_StaticLineVertsNoTex.empty()) {
       memmove(m_vertBufNoTex.access(), g_StaticLineVertsNoTex.data(),
               sizeof(SDrawVertNoTex) * g_StaticLineVertsNoTex.size());
-      CGraphics::SetShaderDataBinding(m_shaderBind);
+      CGraphics::SetShaderDataBinding(m_shaderBind[alphaWrite]);
       CGraphics::DrawArray(0, g_StaticLineVertsNoTex.size());
     }
   }

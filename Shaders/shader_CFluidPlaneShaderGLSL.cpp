@@ -1,5 +1,50 @@
 #include "shader_CFluidPlaneShader.hpp"
 
+#define FOG_STRUCT_GLSL                                                                                                \
+  "struct Fog\n"                                                                                                       \
+  "{\n"                                                                                                                \
+  "    int mode;\n"                                                                                                    \
+  "    vec4 color;\n"                                                                                                  \
+  "    float A;\n"                                                                                                     \
+  "    float B;\n"                                                                                                     \
+  "    float C;\n"                                                                                                     \
+  "    float indScale;\n"                                                                                              \
+"};\n"
+
+#define FOG_ALGORITHM_GLSL                                                                                             \
+  "vec4 MainPostFunc(vec4 colorIn)\n"                                                                                  \
+  "{\n"                                                                                                                \
+  "    float fogZ;\n"                                                                                                  \
+  "    float fogF = clamp((fog.A / (fog.B - gl_FragCoord.z)) - fog.C, 0.0, 1.0);\n"                                    \
+  "    switch (fog.mode)\n"                                                                                            \
+  "    {\n"                                                                                                            \
+  "    case 2:\n"                                                                                                      \
+  "        fogZ = fogF;\n"                                                                                             \
+  "        break;\n"                                                                                                   \
+  "    case 4:\n"                                                                                                      \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF);\n"                                                                          \
+  "        break;\n"                                                                                                   \
+  "    case 5:\n"                                                                                                      \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);\n"                                                                   \
+  "        break;\n"                                                                                                   \
+  "    case 6:\n"                                                                                                      \
+  "        fogZ = exp2(-8.0 * (1.0 - fogF));\n"                                                                        \
+  "        break;\n"                                                                                                   \
+  "    case 7:\n"                                                                                                      \
+  "        fogF = 1.0 - fogF;\n"                                                                                       \
+  "        fogZ = exp2(-8.0 * fogF * fogF);\n"                                                                         \
+  "        break;\n"                                                                                                   \
+  "    default:\n"                                                                                                     \
+  "        fogZ = 0.0;\n"                                                                                              \
+  "        break;\n"                                                                                                   \
+  "    }\n"                                                                                                            \
+  "#if %d\n"                                                                                                           \
+  "    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"                                  \
+  "#else\n"                                                                                                            \
+  "    return vec4(mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"                                  \
+  "#endif\n"                                                                                                           \
+  "}\n"
+
 static const char* VS =
     "layout(location=0) in vec4 posIn;\n"
     "layout(location=1) in vec4 normalIn;\n"
@@ -175,14 +220,7 @@ static const char* FS =
 "    vec4 linAtt;\n"
 "    vec4 angAtt;\n"
 "};\n"
-"struct Fog\n" // Reappropriated for indirect texture scaling
-"{\n"
-"    int mode;\n"
-"    vec4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"    float indScale;\n"
-"};\n"
+FOG_STRUCT_GLSL
 "\n"
 "UBINDING2 uniform LightingUniform\n"
 "{\n"
@@ -229,38 +267,7 @@ static const char* FS =
 "};\n"
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
-"vec4 MainPostFunc(vec4 colorIn)\n"
-"{\n"
-"    float fogZ, temp;\n"
-"    switch (fog.mode)\n"
-"    {\n"
-"    case 2:\n"
-"        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-"        break;\n"
-"    case 4:\n"
-"        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"
-"        break;\n"
-"    case 5:\n"
-"        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"
-"        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"
-"        break;\n"
-"    case 6:\n"
-"        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"
-"        break;\n"
-"    case 7:\n"
-"        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"
-"        fogZ = exp2(-8.0 * temp * temp);\n"
-"        break;\n"
-"    default:\n"
-"        fogZ = 0.0;\n"
-"        break;\n"
-"    }\n"
-"#if %d\n"
-"    return vec4(mix(colorIn, vec4(0.0), clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
-"#else\n"
-"    return vec4(mix(colorIn, fog.color, clamp(fogZ, 0.0, 1.0)).rgb, colorIn.a);\n"
-"#endif\n"
-"}\n"
+FOG_ALGORITHM_GLSL
 "\n"
 "layout(location=0) out vec4 colorOut;\n"
 "%s" // Textures here
@@ -281,14 +288,7 @@ static const char* FSDoor =
 "    vec4 linAtt;\n"
 "    vec4 angAtt;\n"
 "};\n"
-"struct Fog\n" // Reappropriated for indirect texture scaling
-"{\n"
-"    int mode;\n"
-"    vec4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"    float indScale;\n"
-"};\n"
+FOG_STRUCT_GLSL
 "\n"
 "UBINDING2 uniform LightingUniform\n"
 "{\n"
@@ -311,6 +311,7 @@ static const char* FSDoor =
 "    vec4 color;\n"
 "    vec2 uvs[7];\n"
 "};\n"
+FOG_ALGORITHM_GLSL
 "\n"
 "SBINDING(0) in VertToFrag vtf;\n"
 "layout(location=0) out vec4 colorOut;\n"
@@ -318,6 +319,7 @@ static const char* FSDoor =
 "void main()\n"
 "{\n"
 "%s" // Combiner expression here
+"    colorOut = MainPostFunc(colorOut);\n"
 "}\n";
 
 static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
@@ -766,7 +768,7 @@ static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info) {
   combiner += "    colorOut.a = kColor0.a;\n";
 
   char* finalFSs;
-  asprintf(&finalFSs, FSDoor, textures.c_str(), combiner.c_str());
+  asprintf(&finalFSs, FSDoor, 0, textures.c_str(), combiner.c_str());
   std::string ret(finalFSs);
   free(finalFSs);
   return ret;

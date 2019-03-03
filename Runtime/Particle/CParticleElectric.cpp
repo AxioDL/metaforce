@@ -9,6 +9,8 @@
 #include "CParticleGlobals.hpp"
 #include "zeus/CRelAngle.hpp"
 #include "zeus/CQuaternion.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 namespace urde {
 
@@ -96,7 +98,7 @@ void CParticleElectric::DrawLineStrip(const std::vector<zeus::CVector3f>& verts,
   renderer.Reset();
   for (const zeus::CVector3f& vert : verts)
     renderer.AddVertex(vert, useColor, width);
-  renderer.Render();
+  renderer.Render(g_Renderer->IsThermalVisorHotPass());
 }
 
 void CParticleElectric::RenderLines() {

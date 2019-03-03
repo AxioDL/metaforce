@@ -12,30 +12,31 @@ extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];
   "{\n"                                                                                                                \
   "    int mode;\n"                                                                                                    \
   "    vec4 color;\n"                                                                                                  \
-  "    float rangeScale;\n"                                                                                            \
-  "    float start;\n"                                                                                                 \
+  "    float A;\n"                                                                                                     \
+  "    float B;\n"                                                                                                     \
+  "    float C;\n"                                                                                                     \
   "};\n"
 
 #define FOG_ALGORITHM_GLSL                                                                                             \
-  "    float fogZ, temp;\n"                                                                                            \
+  "    float fogZ;\n"                                                                                                  \
+  "    float fogF = clamp((fog.A / (fog.B - gl_FragCoord.z)) - fog.C, 0.0, 1.0);\n"                                    \
   "    switch (fog.mode)\n"                                                                                            \
   "    {\n"                                                                                                            \
   "    case 2:\n"                                                                                                      \
-  "        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
+  "        fogZ = fogF;\n"                                                                                             \
   "        break;\n"                                                                                                   \
   "    case 4:\n"                                                                                                      \
-  "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"                                   \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF);\n"                                                                          \
   "        break;\n"                                                                                                   \
   "    case 5:\n"                                                                                                      \
-  "        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
-  "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"                                                                   \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);\n"                                                                   \
   "        break;\n"                                                                                                   \
   "    case 6:\n"                                                                                                      \
-  "        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"                                          \
+  "        fogZ = exp2(-8.0 * (1.0 - fogF));\n"                                                                        \
   "        break;\n"                                                                                                   \
   "    case 7:\n"                                                                                                      \
-  "        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"                                                       \
-  "        fogZ = exp2(-8.0 * temp * temp);\n"                                                                         \
+  "        fogF = 1.0 - fogF;\n"                                                                                       \
+  "        fogZ = exp2(-8.0 * fogF * fogF);\n"                                                                         \
   "        break;\n"                                                                                                   \
   "    default:\n"                                                                                                     \
   "        fogZ = 0.0;\n"                                                                                              \
@@ -101,13 +102,7 @@ static std::string_view LightingShadowGLSL =
 "    vec4 linAtt;\n"
 "    vec4 angAtt;\n"
 "};\n"
-"struct Fog\n"
-"{\n"
-"    int mode;\n"
-"    vec4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"};\n"
+FOG_STRUCT_GLSL
 "\n"
 "UBINDING2 uniform LightingUniform\n"
 "{\n"

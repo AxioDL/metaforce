@@ -7,19 +7,19 @@ namespace urde {
 class CLineRenderer;
 
 class CLineRendererShaders {
-  static boo::ObjToken<boo::IShaderPipeline> m_texAlpha;
-  static boo::ObjToken<boo::IShaderPipeline> m_texAdditive;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAlpha;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditive;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAlpha;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditive;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAlpha;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditive;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_texAlphaZ;
-  static boo::ObjToken<boo::IShaderPipeline> m_texAdditiveZ;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAlphaZ;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_texAdditiveZ;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAlphaZ;
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAdditiveZ;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAlphaZ;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAdditiveZ;
 
-  static boo::ObjToken<boo::IShaderPipeline> m_noTexAlphaZGEqual;
+  static std::array<boo::ObjToken<boo::IShaderPipeline>, 2> m_noTexAlphaZGEqual;
 
 public:
   static void Initialize();

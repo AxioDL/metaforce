@@ -175,9 +175,9 @@ void CEnvFxManager::CalculateSnowForces(const CVectorFixed8_8& zVec,
 
 void CEnvFxManager::BuildBlockObjectList(rstl::reserved_vector<TUniqueId, 1024>& list, CStateManager& mgr) {
   for (CEntity* ent : mgr.GetAllObjectList()) {
-    if (TCastToPtr<CScriptTrigger> trig = ent) {
-      if ((trig->GetTriggerFlags() & ETriggerFlags::BlockEnvironmentalEffects) != ETriggerFlags::None)
-        list.push_back(ent->GetUniqueId());
+    TCastToPtr<CScriptTrigger> trig = ent;
+    if (trig && (trig->GetTriggerFlags() & ETriggerFlags::BlockEnvironmentalEffects) != ETriggerFlags::None) {
+      list.push_back(ent->GetUniqueId());
     } else if (TCastToPtr<CScriptWater> water = ent) {
       list.push_back(ent->GetUniqueId());
     }
@@ -406,7 +406,7 @@ void CEnvFxManagerGrid::RenderRainParticles(const zeus::CTransform& camXf) const
     m_lineRenderer.AddVertex(pos0, zeus::skWhite, 1.f, {0.f, uvy0});
     m_lineRenderer.AddVertex(pos1, zeus::skClear, 1.f, {0.f, uvy1});
   }
-  m_lineRenderer.Render(zeus::CColor(1.f, 0.15f));
+  m_lineRenderer.Render(g_Renderer->IsThermalVisorHotPass(), zeus::CColor(1.f, 0.15f));
 }
 
 void CEnvFxManagerGrid::RenderUnderwaterParticles(const zeus::CTransform& camXf) const {

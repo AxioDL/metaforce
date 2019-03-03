@@ -9,6 +9,8 @@
 #include "Graphics/Shaders/CElementGenShaders.hpp"
 #include "Character/CActorLights.hpp"
 #include "CWarp.hpp"
+#include "GameGlobalObjects.hpp"
+#include "Graphics/CBooRenderer.hpp"
 
 #define MAX_GLOBAL_PARTICLES 2560
 
@@ -881,9 +883,9 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
     m_uniformBufPmus->load(&uniformData, sizeof(SParticleUniforms));
 
     if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus);
+      CGraphics::SetShaderDataBinding(m_redToAlphaDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
     else
-      CGraphics::SetShaderDataBinding(m_normalDataBindPmus);
+      CGraphics::SetShaderDataBinding(m_normalDataBindPmus[g_Renderer->IsThermalVisorHotPass()]);
   }
 
   zeus::CTransform orient = zeus::CTransform();
@@ -1149,7 +1151,7 @@ void CElementGen::RenderLines() {
     }
   }
 
-  m_lineRenderer->Render(moduColor);
+  m_lineRenderer->Render(g_Renderer->IsThermalVisorHotPass(), moduColor);
 }
 
 void CElementGen::RenderParticles() {
@@ -1234,14 +1236,14 @@ void CElementGen::RenderParticles() {
 
   if (g_subtractBlend) {
     if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind);
+      CGraphics::SetShaderDataBinding(m_redToAlphaSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
-      CGraphics::SetShaderDataBinding(m_normalSubDataBind);
+      CGraphics::SetShaderDataBinding(m_normalSubDataBind[g_Renderer->IsThermalVisorHotPass()]);
   } else {
     if (moveRedToAlphaBuffer)
-      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind);
+      CGraphics::SetShaderDataBinding(m_redToAlphaDataBind[g_Renderer->IsThermalVisorHotPass()]);
     else
-      CGraphics::SetShaderDataBinding(m_normalDataBind);
+      CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
   }
 
   int mbspVal = std::max(1, x270_MBSP);
@@ -1657,7 +1659,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
   g_instIndTexData.reserve(x30_particles.size());
 
   if (!x30_particles.empty())
-    CGraphics::SetShaderDataBinding(m_normalDataBind);
+    CGraphics::SetShaderDataBinding(m_normalDataBind[g_Renderer->IsThermalVisorHotPass()]);
 
   for (int i = 0; i < x30_particles.size(); ++i) {
     int partIdx = desc->x44_28_x30_28_SORT ? sortItems[i].x0_partIdx : i;

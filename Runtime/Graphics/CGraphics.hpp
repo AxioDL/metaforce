@@ -165,6 +165,7 @@ enum class ETexelFormat {
   RGBA8PC = 16,
   C8PC = 17,
   CMPRPC = 18,
+  CMPRPCA = 19,
 };
 
 #define DEPTH_FAR 1.f
@@ -191,8 +192,9 @@ public:
   struct CFogState {
     ERglFogMode m_mode;
     zeus::CColor m_color;
-    float m_rangeScale = 0.f;
-    float m_start = 4096.f;
+    float m_A = 0.f;
+    float m_B = 0.5f;
+    float m_C = 0.f;
   };
 
   static CProjectionState g_Proj;

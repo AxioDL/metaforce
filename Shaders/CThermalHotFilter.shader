@@ -41,11 +41,11 @@ SBINDING(0) in VertToFrag vtf;
 layout(location=0) out vec4 colorOut;
 TBINDING0 uniform sampler2D sceneTex;
 TBINDING1 uniform sampler2D paletteTex;
-const vec4 kRGBToYPrime = vec4(0.299, 0.587, 0.114, 0.0);
+const vec4 kRGBToYPrime = vec4(0.257, 0.504, 0.098, 0.0);
 void main()
 {
-    float sceneSample = dot(texture(sceneTex, vtf.sceneUv), kRGBToYPrime);
-    vec4 colorSample = texture(paletteTex, vec2(sceneSample / 17.0, 0.5));
+    float sceneSample = dot(texture(sceneTex, vtf.sceneUv), kRGBToYPrime) + 16.0 / 255.0;
+    vec4 colorSample = texture(paletteTex, vec2(sceneSample / 16.0, 0.5));
     colorOut = vec4(colorSample.rgb, 0.0);
 }
 
@@ -88,11 +88,11 @@ struct VertToFrag
     float2 sceneUv : UV;
 };
 
-static const float4 kRGBToYPrime = float4(0.299, 0.587, 0.114, 0.0);
+static const float4 kRGBToYPrime = float4(0.257, 0.504, 0.098, 0.0);
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float sceneSample = dot(sceneTex.Sample(samp, vtf.sceneUv), kRGBToYPrime);
-    float4 colorSample = paletteTex.Sample(samp, float2(sceneSample / 17.0, 0.5));
+    float sceneSample = dot(sceneTex.Sample(samp, vtf.sceneUv), kRGBToYPrime) + 16.0 / 255.0;
+    float4 colorSample = paletteTex.Sample(samp, float2(sceneSample / 16.0, 0.5));
     return float4(colorSample.rgb, 0.0);
 }
 
@@ -132,13 +132,13 @@ struct VertToFrag
     float2 sceneUv;
 };
 
-constant float4 kRGBToYPrime = float4(0.299, 0.587, 0.114, 0.0);
+constant float4 kRGBToYPrime = float4(0.257, 0.504, 0.098, 0.0);
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(0) ]],
                       texture2d<float> sceneTex [[ texture(0) ]],
                       texture2d<float> paletteTex [[ texture(1) ]])
 {
-    float sceneSample = dot(sceneTex.sample(samp, vtf.sceneUv), kRGBToYPrime);
-    float4 colorSample = paletteTex.sample(samp, float2(sceneSample / 17.0, 0.5));
+    float sceneSample = dot(sceneTex.sample(samp, vtf.sceneUv), kRGBToYPrime) + 16.0 / 255.0;
+    float4 colorSample = paletteTex.sample(samp, float2(sceneSample / 16.0, 0.5));
     return float4(colorSample.rgb, 0.0);
 }

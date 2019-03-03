@@ -13,6 +13,7 @@
 #primitive tristrips
 #depthtest lequal
 #depthwrite true
+#alphawrite false
 #culling none
 
 #vertex glsl
@@ -149,47 +150,79 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     return vtf.color * tex0.sample(samp, vtf.uv);
 }
 
+#shader CElementGenShaderTexZTestZWriteAWrite : CElementGenShaderTexZTestZWrite
+#alphawrite true
+
 #shader CElementGenShaderTexNoZTestZWrite : CElementGenShaderTexZTestZWrite
 #depthtest none
 #depthwrite true
+#alphawrite false
+
+#shader CElementGenShaderTexNoZTestZWriteAWrite : CElementGenShaderTexNoZTestZWrite
+#alphawrite true
 
 #shader CElementGenShaderTexZTestNoZWrite : CElementGenShaderTexZTestZWrite
 #depthtest lequal
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexZTestNoZWriteAWrite : CElementGenShaderTexZTestNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderTexNoZTestNoZWrite : CElementGenShaderTexZTestZWrite
 #depthtest none
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexNoZTestNoZWriteAWrite : CElementGenShaderTexNoZTestNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderTexAdditiveZTest : CElementGenShaderTexZTestZWrite
 #srcfac srcalpha
 #dstfac one
 #depthtest lequal
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexAdditiveZTestAWrite : CElementGenShaderTexAdditiveZTest
+#alphawrite true
 
 #shader CElementGenShaderTexAdditiveNoZTest : CElementGenShaderTexZTestZWrite
 #srcfac srcalpha
 #dstfac one
 #depthtest none
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexAdditiveNoZTestAWrite : CElementGenShaderTexAdditiveNoZTest
+#alphawrite true
 
 #shader CElementGenShaderTexZTestNoZWriteSub : CElementGenShaderTexZTestZWrite
 #srcfac subtract
 #dstfac subtract
 #depthtest lequal
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexZTestNoZWriteSubAWrite : CElementGenShaderTexZTestNoZWriteSub
+#alphawrite true
 
 #shader CElementGenShaderTexNoZTestNoZWriteSub : CElementGenShaderTexZTestZWrite
 #srcfac subtract
 #dstfac subtract
 #depthtest none
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderTexNoZTestNoZWriteSubAWrite : CElementGenShaderTexNoZTestNoZWriteSub
+#alphawrite true
 
 #shader CElementGenShaderTexRedToAlphaZTest : CElementGenShaderTexZTestZWrite
-#srcfac srcalpha
-#dstfac invsrcalpha
+#srcfac one
+#dstfac one
 #depthtest lequal
 #depthwrite false
+#alphawrite false
 
 #fragment glsl
 struct VertToFrag
@@ -203,8 +236,10 @@ layout(location=0) out vec4 colorOut;
 TBINDING0 uniform sampler2D tex;
 void main()
 {
-    colorOut = vtf.color;
-    colorOut.a = texture(tex, vtf.uv).r;
+    vec4 texel = texture(tex, vtf.uv);
+    vec4 tmp = texel * vtf.color;
+    colorOut = tmp * tmp.a;
+    colorOut.a = tmp.a * texel.r;
 }
 
 #fragment hlsl
@@ -219,7 +254,9 @@ struct VertToFrag
 
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    return float4(vtf.color.rgb, tex0.Sample(samp, vtf.uv).r);
+    float4 texel = tex0.Sample(samp, vtf.uv);
+    float4 tmp = texel * vtf.color;
+    return float4(tmp * tmp.a, tmp.a * texel.r);
 }
 
 #fragment metal
@@ -234,21 +271,38 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(0) ]],
                       texture2d<float> tex0 [[ texture(0) ]])
 {
-    return float4(vtf.color.rgb, tex0.sample(samp, vtf.uv).r);
+    float4 texel = tex0.sample(samp, vtf.uv);
+    float4 tmp = texel * vtf.color;
+    return float4(tmp * tmp.a, tmp.a * texel.r);
 }
+
+#shader CElementGenShaderTexRedToAlphaZTestAWrite : CElementGenShaderTexRedToAlphaZTest
+#alphawrite true
 
 #shader CElementGenShaderTexRedToAlphaNoZTest : CElementGenShaderTexRedToAlphaZTest
 #depthtest none
+#alphawrite false
+
+#shader CElementGenShaderTexRedToAlphaNoZTestAWrite : CElementGenShaderTexRedToAlphaNoZTest
+#alphawrite true
 
 #shader CElementGenShaderTexRedToAlphaZTestSub : CElementGenShaderTexRedToAlphaZTest
 #srcfac subtract
 #dstfac subtract
 #depthtest lequal
+#alphawrite false
+
+#shader CElementGenShaderTexRedToAlphaZTestSubAWrite : CElementGenShaderTexRedToAlphaZTestSub
+#alphawrite true
 
 #shader CElementGenShaderTexRedToAlphaNoZTestSub : CElementGenShaderTexRedToAlphaZTest
 #srcfac subtract
 #dstfac subtract
 #depthtest none
+#alphawrite false
+
+#shader CElementGenShaderTexRedToAlphaNoZTestSubAWrite : CElementGenShaderTexRedToAlphaNoZTestSub
+#alphawrite true
 
 #shader CElementGenShaderIndTexZWrite
 #instattribute position4 0
@@ -265,6 +319,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #dstfac invsrcalpha
 #depthtest none
 #depthwrite true
+#alphawrite false
 
 #vertex glsl
 layout(location=0) in vec4 posIn[4];
@@ -444,19 +499,31 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     return float4(colr.rgb, vtf.color.a * texrTexel.a);
 }
 
+#shader CElementGenShaderIndTexZWriteAWrite : CElementGenShaderIndTexZWrite
+#alphawrite true
+
 #shader CElementGenShaderIndTexNoZWrite : CElementGenShaderIndTexZWrite
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderIndTexNoZWriteAWrite : CElementGenShaderIndTexNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderIndTexAdditive : CElementGenShaderIndTexZWrite
 #depthwrite true
 #srcfac srcalpha
 #dstfac one
+#alphawrite false
+
+#shader CElementGenShaderIndTexAdditiveAWrite : CElementGenShaderIndTexAdditive
+#alphawrite true
 
 #shader CElementGenShaderCindTexZWrite : CElementGenShaderIndTexZWrite
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest none
 #depthwrite true
+#alphawrite false
 
 #fragment glsl
 struct VertToFrag
@@ -521,13 +588,24 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     return vtf.color * float4(sceneTexel.rgb, 1.0) * tex0.sample(samp, vtf.uvTexr);
 }
 
+#shader CElementGenShaderCindTexZWriteAWrite : CElementGenShaderCindTexZWrite
+#alphawrite true
+
 #shader CElementGenShaderCindTexNoZWrite : CElementGenShaderCindTexZWrite
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderCindTexNoZWriteAWrite : CElementGenShaderCindTexNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderCindTexAdditive : CElementGenShaderCindTexZWrite
 #depthwrite true
 #srcfac srcalpha
 #dstfac one
+#alphawrite false
+
+#shader CElementGenShaderCindTexAdditiveAWrite : CElementGenShaderCindTexAdditive
+#alphawrite true
 
 #shader CElementGenShaderNoTexZTestZWrite
 #instattribute position4 0
@@ -541,6 +619,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #depthtest lequal
 #depthwrite true
 #culling none
+#alphawrite false
 
 #vertex glsl
 layout(location=0) in vec4 posIn[4];
@@ -659,26 +738,49 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
     return vtf.color;
 }
 
+#shader CElementGenShaderNoTexZTestZWriteAWrite : CElementGenShaderNoTexZTestZWrite
+#alphawrite true
+
 #shader CElementGenShaderNoTexNoZTestZWrite : CElementGenShaderNoTexZTestZWrite
 #depthtest none
 #depthwrite true
+#alphawrite false
+
+#shader CElementGenShaderNoTexNoZTestZWriteAWrite : CElementGenShaderNoTexNoZTestZWrite
+#alphawrite true
 
 #shader CElementGenShaderNoTexZTestNoZWrite : CElementGenShaderNoTexZTestZWrite
 #depthtest lequal
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderNoTexZTestNoZWriteAWrite : CElementGenShaderNoTexZTestNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderNoTexNoZTestNoZWrite : CElementGenShaderNoTexZTestZWrite
 #depthtest none
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderNoTexNoZTestNoZWriteAWrite : CElementGenShaderNoTexNoZTestNoZWrite
+#alphawrite true
 
 #shader CElementGenShaderNoTexAdditiveZTest : CElementGenShaderNoTexZTestZWrite
 #srcfac srcalpha
 #dstfac one
 #depthtest lequal
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderNoTexAdditiveZTestAWrite : CElementGenShaderNoTexAdditiveZTest
+#alphawrite true
 
 #shader CElementGenShaderNoTexAdditiveNoZTest : CElementGenShaderNoTexZTestZWrite
 #srcfac srcalpha
 #dstfac one
 #depthtest none
 #depthwrite false
+#alphawrite false
+
+#shader CElementGenShaderNoTexAdditiveNoZTestAWrite : CElementGenShaderNoTexAdditiveNoZTest
+#alphawrite true

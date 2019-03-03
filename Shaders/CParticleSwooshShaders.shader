@@ -7,6 +7,7 @@
 #primitive tristrips
 #depthtest lequal
 #depthwrite true
+#alphawrite false
 #culling none
 
 #vertex glsl
@@ -136,27 +137,42 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     return vtf.color * tex.sample(samp, vtf.uv);
 }
 
+#shader CParticleSwooshShaderTexZWriteAWrite : CParticleSwooshShaderTexZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderTexNoZWrite : CParticleSwooshShaderTexZWrite
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthwrite false
+#alphawrite false
+
+#shader CParticleSwooshShaderTexNoZWriteAWrite : CParticleSwooshShaderTexNoZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderTexAdditiveZWrite : CParticleSwooshShaderTexZWrite
 #srcfac srcalpha
 #dstfac one
 #depthwrite true
+#alphawrite false
+
+#shader CParticleSwooshShaderTexAdditiveZWriteAWrite : CParticleSwooshShaderTexAdditiveZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderTexAdditiveNoZWrite : CParticleSwooshShaderTexZWrite
 #srcfac srcalpha
 #dstfac one
 #depthwrite false
+#alphawrite false
+
+#shader CParticleSwooshShaderTexAdditiveNoZWriteAWrite : CParticleSwooshShaderTexAdditiveNoZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderNoTexZWrite : CParticleSwooshShaderTexZWrite
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest lequal
 #depthwrite true
+#alphawrite false
 
 #fragment glsl
 struct VertToFrag
@@ -198,19 +214,32 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
     return vtf.color;
 }
 
+#shader CParticleSwooshShaderNoTexZWriteAWrite : CParticleSwooshShaderNoTexZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderNoTexNoZWrite : CParticleSwooshShaderNoTexZWrite
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthwrite false
+#alphawrite false
+
+#shader CParticleSwooshShaderNoTexNoZWriteAWrite : CParticleSwooshShaderNoTexNoZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderNoTexAdditiveZWrite : CParticleSwooshShaderNoTexZWrite
 #srcfac srcalpha
 #dstfac one
 #depthwrite true
+#alphawrite false
+
+#shader CParticleSwooshShaderNoTexAdditiveZWriteAWrite : CParticleSwooshShaderNoTexAdditiveZWrite
+#alphawrite true
 
 #shader CParticleSwooshShaderNoTexAdditiveNoZWrite : CParticleSwooshShaderNoTexZWrite
 #srcfac srcalpha
 #dstfac one
 #depthwrite false
+#alphawrite false
 
+#shader CParticleSwooshShaderNoTexAdditiveNoZWriteAWrite : CParticleSwooshShaderNoTexAdditiveNoZWrite
+#alphawrite true
