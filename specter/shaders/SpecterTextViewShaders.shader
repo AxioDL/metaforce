@@ -142,6 +142,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #shader SpecterTextViewShaderSubpixel : SpecterTextViewShader
 #srcfac srccolor1
 #dstfac invsrccolor1
+#overwritealpha true
 
 #fragment glsl
 TBINDING0 uniform sampler2DArray fontTex;
