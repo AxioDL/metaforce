@@ -9,39 +9,40 @@ extern const hecl::Backend::Function ExtensionPostFuncsHLSL[];
 #define FOG_STRUCT_HLSL                                                                                                \
   "struct Fog\n"                                                                                                       \
   "{\n"                                                                                                                \
-  "    int mode;\n"                                                                                                    \
   "    float4 color;\n"                                                                                                \
-  "    float rangeScale;\n"                                                                                            \
-  "    float start;\n"                                                                                                 \
+  "    float A;\n"                                                                                                     \
+  "    float B;\n"                                                                                                     \
+  "    float C;\n"                                                                                                     \
+  "    int mode;\n"                                                                                                    \
   "};\n"
 
 #define FOG_ALGORITHM_HLSL                                                                                             \
-  "    float fogZ, temp;\n"                                                                                            \
+  "    float fogZ;\n"                                                                                                  \
+  "    float fogF = saturate((fog.A / (fog.B - (1.0 - vtf.mvpPos.z))) - fog.C);\n"                                     \
   "    switch (fog.mode)\n"                                                                                            \
   "    {\n"                                                                                                            \
   "    case 2:\n"                                                                                                      \
-  "        fogZ = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
+  "        fogZ = fogF;\n"                                                                                             \
   "        break;\n"                                                                                                   \
   "    case 4:\n"                                                                                                      \
-  "        fogZ = 1.0 - exp2(-8.0 * (-vtf.mvPos.z - fog.start) * fog.rangeScale);\n"                                   \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF);\n"                                                                          \
   "        break;\n"                                                                                                   \
   "    case 5:\n"                                                                                                      \
-  "        temp = (-vtf.mvPos.z - fog.start) * fog.rangeScale;\n"                                                      \
-  "        fogZ = 1.0 - exp2(-8.0 * temp * temp);\n"                                                                   \
+  "        fogZ = 1.0 - exp2(-8.0 * fogF * fogF);\n"                                                                   \
   "        break;\n"                                                                                                   \
   "    case 6:\n"                                                                                                      \
-  "        fogZ = exp2(-8.0 * (fog.start + vtf.mvPos.z) * fog.rangeScale);\n"                                          \
+  "        fogZ = exp2(-8.0 * (1.0 - fogF));\n"                                                                        \
   "        break;\n"                                                                                                   \
   "    case 7:\n"                                                                                                      \
-  "        temp = (fog.start + vtf.mvPos.z) * fog.rangeScale;\n"                                                       \
-  "        fogZ = exp2(-8.0 * temp * temp);\n"                                                                         \
+  "        fogF = 1.0 - fogF;\n"                                                                                       \
+  "        fogZ = exp2(-8.0 * fogF * fogF);\n"                                                                         \
   "        break;\n"                                                                                                   \
   "    default:\n"                                                                                                     \
   "        fogZ = 0.0;\n"                                                                                              \
   "        break;\n"                                                                                                   \
   "    }\n"                                                                                                            \
   "#ifdef BLEND_DST_ONE\n"                                                                                             \
-  "    return float4(lerp(colorIn, float4(0.0, 0.0, 0.0, 0.0), saturate(fogZ)).rgb, colorIn.a);\n"                     \
+  "    return float4(lerp(colorIn, float4(0.0,0.0,0.0,0.0), saturate(fogZ)).rgb, colorIn.a);\n"                        \
   "#else\n"                                                                                                            \
   "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                      \
   "#endif\n"
@@ -99,13 +100,7 @@ static std::string_view LightingShadowHLSL =
 "    float4 linAtt;\n"
 "    float4 angAtt;\n"
 "};\n"
-"struct Fog\n"
-"{\n"
-"    int mode;\n"
-"    float4 color;\n"
-"    float rangeScale;\n"
-"    float start;\n"
-"};\n"
+FOG_STRUCT_HLSL
 "\n"
 "cbuffer LightingUniform : register(b2)\n"
 "{\n"

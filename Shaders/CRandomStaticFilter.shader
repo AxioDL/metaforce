@@ -200,10 +200,12 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #shader CRandomStaticFilterMult : CRandomStaticFilterAlpha
 #srcfac zero
 #dstfac srccolor
+#overwritealpha true
 
 #shader CRandomStaticFilterCookieCutter : CRandomStaticFilterAlpha
 #srcfac zero
 #dstfac srccolor
+#overwritealpha true
 #depthwrite true
 #colorwrite false
 #depthtest lequal

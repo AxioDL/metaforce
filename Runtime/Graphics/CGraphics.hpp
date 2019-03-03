@@ -190,11 +190,11 @@ public:
   };
 
   struct CFogState {
-    ERglFogMode m_mode;
     zeus::CColor m_color;
     float m_A = 0.f;
     float m_B = 0.5f;
     float m_C = 0.f;
+    ERglFogMode m_mode;
   };
 
   static CProjectionState g_Proj;

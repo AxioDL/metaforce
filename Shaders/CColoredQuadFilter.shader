@@ -128,3 +128,4 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
 #shader CColoredQuadFilterMul : CColoredQuadFilter
 #srcfac zero
 #dstfac srccolor
+#overwritealpha true

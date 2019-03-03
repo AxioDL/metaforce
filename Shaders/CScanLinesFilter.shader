@@ -121,3 +121,4 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]])
 #shader CScanLinesFilterMult : CScanLinesFilterAlpha
 #srcfac zero
 #dstfac srccolor
+#overwritealpha true

@@ -3,11 +3,11 @@
 #define FOG_STRUCT_HLSL                                                                                                \
   "struct Fog\n"                                                                                                       \
   "{\n"                                                                                                                \
-  "    int mode;\n"                                                                                                    \
   "    float4 color;\n"                                                                                                \
   "    float A;\n"                                                                                                     \
   "    float B;\n"                                                                                                     \
   "    float C;\n"                                                                                                     \
+  "    int mode;\n"                                                                                                    \
   "    float indScale;\n"                                                                                              \
 "};\n"
 
@@ -15,7 +15,7 @@
   "static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)\n"                                                    \
   "{\n"                                                                                                                \
   "    float fogZ;\n"                                                                                                  \
-  "    float fogF = saturate((fog.A / (fog.B - vtf.pos.z)) - fog.C);\n"                                                \
+  "    float fogF = saturate((fog.A / (fog.B - (1.0 - vtf.pos.z))) - fog.C);\n"                                        \
   "    switch (fog.mode)\n"                                                                                            \
   "    {\n"                                                                                                            \
   "    case 2:\n"                                                                                                      \

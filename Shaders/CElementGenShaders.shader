@@ -256,7 +256,9 @@ float4 main(in VertToFrag vtf) : SV_Target0
 {
     float4 texel = tex0.Sample(samp, vtf.uv);
     float4 tmp = texel * vtf.color;
-    return float4(tmp * tmp.a, tmp.a * texel.r);
+    float4 colorOut = tmp * tmp.a;
+    colorOut.a = tmp.a * texel.r;
+    return colorOut;
 }
 
 #fragment metal
@@ -273,7 +275,9 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 {
     float4 texel = tex0.sample(samp, vtf.uv);
     float4 tmp = texel * vtf.color;
-    return float4(tmp * tmp.a, tmp.a * texel.r);
+    float4 colorOut = tmp * tmp.a;
+    colorOut.a = tmp.a * texel.r;
+    return colorOut;
 }
 
 #shader CElementGenShaderTexRedToAlphaZTestAWrite : CElementGenShaderTexRedToAlphaZTest
@@ -404,8 +408,6 @@ VertToFrag main(in VertData v, in uint vertId : SV_VertexID)
     VertToFrag vtf;
     vtf.color = v.colorIn * moduColor;
     vtf.uvScene = v.uvsInScene;
-    vtf.uvScene.y = 1.0 - vtf.uvScene.y;
-    vtf.uvScene.w = 1.0 - vtf.uvScene.w;
     vtf.uvTexr = v.uvsInTexrTind[vertId].xy;
     vtf.uvTind = v.uvsInTexrTind[vertId].zw;
     vtf.position = mul(mvp, v.posIn[vertId]);
@@ -495,8 +497,9 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
     float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;
     float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     float4 texrTexel = tex0.sample(samp, vtf.uvTexr);
-    float4 colr = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;
-    return float4(colr.rgb, vtf.color.a * texrTexel.a);
+    float4 colorOut = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;
+    colorOut.a = vtf.color.a * texrTexel.a;
+    return colorOut;
 }
 
 #shader CElementGenShaderIndTexZWriteAWrite : CElementGenShaderIndTexZWrite

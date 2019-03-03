@@ -9,10 +9,11 @@ extern const hecl::Backend::Function ExtensionPostFuncsMetal[];
 #define FOG_STRUCT_METAL                                                                                               \
   "struct Fog\n"                                                                                                       \
   "{\n"                                                                                                                \
-  "    int mode;\n"                                                                                                    \
   "    float4 color;\n"                                                                                                \
-  "    float rangeScale;\n"                                                                                            \
-  "    float start;\n"                                                                                                 \
+  "    float A;\n"                                                                                                     \
+  "    float B;\n"                                                                                                     \
+  "    float C;\n"                                                                                                     \
+  "    int mode;\n"                                                                                                    \
   "};\n"
 
 #define FOG_ALGORITHM_METAL                                                                                            \

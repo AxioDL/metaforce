@@ -64,11 +64,11 @@ TBINDING1 uniform sampler2D texEnv;
 
 UBINDING1 uniform FogUniform
 {
-    int mode;
     vec4 color;
     float A;
     float B;
     float C;
+    int mode;
 };
 
 vec4 MainPostFunc(vec4 colorIn)
@@ -158,17 +158,17 @@ struct VertToFrag
 
 cbuffer FogUniform : register(b1)
 {
-    int mode;
     float4 color;
     float A;
     float B;
     float C;
+    int mode;
 };
 
 static float4 MainPostFunc(in VertToFrag vtf, float4 colorIn)
 {
     float fogZ;
-    float fogF = saturate((A / (B - vtf.position.z)) - C);
+    float fogF = saturate((A / (B - (1.0 - vtf.position.z))) - C);
     switch (mode)
     {
     case 2:
@@ -251,11 +251,11 @@ struct VertToFrag
 
 struct FogUniform
 {
-    int mode;
     float4 color;
     float A;
     float B;
     float C;
+    int mode;
 };
 
 float4 MainPostFunc(thread VertToFrag& vtf, constant FogUniform& fu, float4 colorIn)

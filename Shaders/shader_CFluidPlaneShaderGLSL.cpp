@@ -3,11 +3,11 @@
 #define FOG_STRUCT_GLSL                                                                                                \
   "struct Fog\n"                                                                                                       \
   "{\n"                                                                                                                \
-  "    int mode;\n"                                                                                                    \
   "    vec4 color;\n"                                                                                                  \
   "    float A;\n"                                                                                                     \
   "    float B;\n"                                                                                                     \
   "    float C;\n"                                                                                                     \
+  "    int mode;\n"                                                                                                    \
   "    float indScale;\n"                                                                                              \
 "};\n"
 

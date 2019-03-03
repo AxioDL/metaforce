@@ -159,7 +159,9 @@ float4 main(in VertToFrag vtf) : SV_Target0
 {
     float4 noiseTexel = noiseTex.Load(Lookup8BPP(vtf.noiseUv, vtf.randOff));
     float2 indCoord = mul(vtf.indMtx, float3(noiseTexel.r - 0.5, noiseTexel.a - 0.5, 1.0)).xy;
-    float indScene = dot(sceneTex.Sample(samp, vtf.sceneUv + indCoord), kRGBToYPrime) + 16.0 / 255.0;
+    float2 sceneUv = vtf.sceneUv + indCoord;
+    sceneUv.y = 1.0 - sceneUv.y;
+    float indScene = dot(sceneTex.Sample(samp, sceneUv), kRGBToYPrime) + 16.0 / 255.0;
     float4 colorOut = vtf.colorReg0 * indScene + vtf.colorReg2 - vtf.colorReg1 * noiseTexel.r;
     colorOut.a = vtf.colorReg1.a + vtf.colorReg1.a * noiseTexel.r + vtf.colorReg2.a;
     return colorOut;

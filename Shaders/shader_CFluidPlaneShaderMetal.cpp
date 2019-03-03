@@ -3,11 +3,11 @@
 #define FOG_STRUCT_METAL                                                                                               \
   "struct Fog\n"                                                                                                       \
   "{\n"                                                                                                                \
-  "    int mode;\n"                                                                                                    \
   "    float4 color;\n"                                                                                                \
   "    float A;\n"                                                                                                     \
   "    float B;\n"                                                                                                     \
   "    float C;\n"                                                                                                     \
+  "    int mode;\n"                                                                                                    \
   "    float indScale;\n"                                                                                              \
 "};\n"
 

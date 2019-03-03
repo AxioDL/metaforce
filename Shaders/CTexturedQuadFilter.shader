@@ -180,6 +180,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #srcfac zero
 #dstfac srccolor
 #depthtest none
+#overwritealpha true
 
 #shader CTexturedQuadFilterMultGEqual : CTexturedQuadFilterMult
 #depthtest gequal
@@ -191,6 +192,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #srcfac zero
 #dstfac invsrccolor
 #depthtest none
+#overwritealpha true
 
 #shader CTexturedQuadFilterInvDstMultGEqual : CTexturedQuadFilterInvDstMult
 #depthtest gequal
@@ -204,6 +206,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #srcfac srcalpha
 #dstfac invsrcalpha
 #depthtest none
+#overwritealpha false
 
 #fragment glsl
 struct VertToFrag
@@ -265,10 +268,12 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
 #shader CTexturedQuadFilterAlphaTexMult : CTexturedQuadFilterAlphaTexAlpha
 #srcfac zero
 #dstfac srccolor
+#overwritealpha true
 
 #shader CTexturedQuadFilterAlphaTexInvDstMult : CTexturedQuadFilterAlphaTexAlpha
 #srcfac zero
 #dstfac invsrccolor
+#overwritealpha true
 
 #shader CTexturedQuadFilterAlphaGEqualZWrite : CTexturedQuadFilterAlpha
 #depthtest gequal
