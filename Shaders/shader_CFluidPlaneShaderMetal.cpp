@@ -15,7 +15,7 @@
   "static float4 MainPostFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn)\n"                 \
   "{\n"                                                                                                                \
   "    float fogZ;\n"                                                                                                  \
-  "    float fogF = saturate((lu.fog.A / (lu.fog.B - vtf.pos.z)) - lu.fog.C);\n"                                       \
+  "    float fogF = saturate((lu.fog.A / (lu.fog.B - (1.0 - vtf.pos.z))) - lu.fog.C);\n"                                       \
   "    switch (lu.fog.mode)\n"                                                                                         \
   "    {\n"                                                                                                            \
   "    case 2:\n"                                                                                                      \
@@ -41,7 +41,7 @@
   "#if %d\n"                                                                                                           \
   "    return float4(mix(colorIn, float4(0.0), saturate(fogZ)).rgb, colorIn.a);\n"                                     \
   "#else\n"                                                                                                            \
-  "    return float4(mix(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                       \
+  "    return float4(mix(colorIn, lu.fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                       \
   "#endif\n"                                                                                                           \
   "}\n"
 

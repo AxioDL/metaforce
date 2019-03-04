@@ -470,8 +470,6 @@ vertex VertToFrag vmain(constant VertData* va [[ buffer(1) ]],
     constant VertData& v = va[instId];
     vtf.color = v.colorIn * particle.moduColor;
     vtf.uvScene = v.uvsInScene;
-    vtf.uvScene.y = 1.0 - vtf.uvScene.y;
-    vtf.uvScene.w = 1.0 - vtf.uvScene.w;
     vtf.uvTexr = v.uvsInTexrTind[vertId].xy;
     vtf.uvTind = v.uvsInTexrTind[vertId].zw;
     vtf.position = particle.mvp * v.posIn[vertId];

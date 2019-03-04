@@ -261,7 +261,7 @@ struct FogUniform
 float4 MainPostFunc(thread VertToFrag& vtf, constant FogUniform& fu, float4 colorIn)
 {
     float fogZ;
-    float fogF = saturate((fu.A / (fu.B - vtf.position.z)) - fu.C);
+    float fogF = saturate((fu.A / (fu.B - (1.0 - vtf.position.z))) - fu.C);
     switch (fu.mode)
     {
     case 2:

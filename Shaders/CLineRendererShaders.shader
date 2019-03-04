@@ -223,7 +223,7 @@ struct VertToFrag
 static float4 MainPostFunc(thread VertToFrag& vtf, constant LineUniform& line, float4 colorIn)
 {
     float fogZ;
-    float fogF = saturate((line.fog.A / (line.fog.B - vtf.position.z)) - line.fog.C);
+    float fogF = saturate((line.fog.A / (line.fog.B - (1.0 - vtf.position.z))) - line.fog.C);
     switch (line.fog.mode)
     {
     case 2:
@@ -410,7 +410,7 @@ struct VertToFrag
 static float4 MainPostFunc(thread VertToFrag& vtf, constant LineUniform& line, float4 colorIn)
 {
     float fogZ;
-    float fogF = saturate((line.fog.A / (line.fog.B - vtf.position.z)) - line.fog.C);
+    float fogF = saturate((line.fog.A / (line.fog.B - (1.0 - vtf.position.z))) - line.fog.C);
     switch (line.fog.mode)
     {
     case 2:
@@ -671,10 +671,10 @@ struct VertToFrag
     float4 color;
 };
 
-static float4 MainPostFunc(float4 colorIn, constant LineUniform& line, float FragCoord)
+static float4 MainPostFunc(float4 colorIn, constant LineUniform& line, float4 FragCoord)
 {
     float fogZ;
-    float fogF = saturate((line.fog.A / (line.fog.B - FragCoord.z)) - line.fog.C);
+    float fogF = saturate((line.fog.A / (line.fog.B - (1.0 - FragCoord.z))) - line.fog.C);
     switch (line.fog.mode)
     {
     case 2:
@@ -850,10 +850,10 @@ struct VertToFrag
     float4 color;
 };
 
-static float4 MainPostFunc(float4 colorIn, constant LineUniform& line, float FragCoord)
+static float4 MainPostFunc(float4 colorIn, constant LineUniform& line, float4 FragCoord)
 {
     float fogZ;
-    float fogF = saturate((line.fog.A / (line.fog.B - FragCoord.z)) - line.fog.C);
+    float fogF = saturate((line.fog.A / (line.fog.B - (1.0 - FragCoord.z))) - line.fog.C);
     switch (line.fog.mode)
     {
     case 2:

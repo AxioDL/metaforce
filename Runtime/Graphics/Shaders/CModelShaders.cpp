@@ -146,7 +146,7 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true},
     /* Thermal cold shading */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original,
      false, false, true, false, false, false, true},
     /* Normal lit shading with alpha */
