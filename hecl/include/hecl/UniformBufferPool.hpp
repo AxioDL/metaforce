@@ -65,7 +65,11 @@ private:
     Bucket& operator=(Bucket&& other) = default;
 
     void updateBuffer() {
-      if (cpuBuffer) {
+      if (useCount == 0) {
+        destroy();
+        return;
+      }
+      if (dirty && cpuBuffer) {
         buffer->unmap();
         cpuBuffer = nullptr;
       }
@@ -73,18 +77,20 @@ private:
     }
 
     void increment(UniformBufferPool& pool) {
-      if (useCount.fetch_add(1) == 0)
+      if (useCount.fetch_add(1) == 0 && !buffer)
         buffer = pool.m_factory->newPoolBuffer(boo::BufferUse::Uniform, pool.m_stride, pool.m_countPerBucket BooTrace);
     }
 
     void decrement(UniformBufferPool& pool) {
-      if (useCount.fetch_sub(1) == 1) {
-        if (cpuBuffer) {
-          buffer->unmap();
-          cpuBuffer = nullptr;
-        }
-        buffer.reset();
+      --useCount;
+    }
+
+    void destroy() {
+      if (cpuBuffer) {
+        buffer->unmap();
+        cpuBuffer = nullptr;
       }
+      buffer.reset();
     }
   };
   std::vector<std::unique_ptr<Bucket>> m_buckets;
@@ -157,8 +163,7 @@ public:
   /** Load dirty buffer data into GPU */
   void updateBuffers() {
     for (auto& bucket : m_buckets)
-      if (bucket->dirty)
-        bucket->updateBuffer();
+      bucket->updateBuffer();
   }
 
   /** Allocate free block into client-owned Token */
