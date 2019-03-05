@@ -255,7 +255,8 @@ void CScriptPlatform::Think(float dt, CStateManager& mgr) {
     if (!x356_25_notAnimating)
       UpdateAnimation(dt, mgr, true);
     if (x356_28_rainSplashes && mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain) {
-      if (HasModelData() && !GetModelData()->IsNull() && mgr.GetEnvFxManager()->GetRainMagnitude() != 0.f)
+      if (HasModelData() && !GetModelData()->IsNull() && mgr.GetEnvFxManager()->IsSplashActive() &&
+          mgr.GetEnvFxManager()->GetRainMagnitude() != 0.f)
         mgr.GetActorModelParticles()->AddRainSplashGenerator(*this, mgr, x34c_maxRainSplashes, x350_rainGenRate, 0.f);
     }
   }

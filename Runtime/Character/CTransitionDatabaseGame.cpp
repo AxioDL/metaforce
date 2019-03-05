@@ -18,12 +18,14 @@ CTransitionDatabaseGame::CTransitionDatabaseGame(const std::vector<CTransition>&
 }
 
 const std::shared_ptr<IMetaTrans>& CTransitionDatabaseGame::GetMetaTrans(u32 a, u32 b) const {
-  auto it = std::find_if(x14_transitions.cbegin(), x14_transitions.cend(),
-                         [&](const std::pair<std::pair<u32, u32>, std::shared_ptr<IMetaTrans>>& elem) -> bool {
-                           return elem.first.first == a && elem.first.second == b;
-                         });
+  auto it = rstl::binary_find(x14_transitions.cbegin(), x14_transitions.cend(), std::make_pair(a, b),
+    [](const std::pair<std::pair<u32, u32>, std::shared_ptr<IMetaTrans>>& p) { return p.first; });
   if (it != x14_transitions.cend())
     return it->second;
+  auto it2 = rstl::binary_find(x24_halfTransitions.cbegin(), x24_halfTransitions.cend(), b,
+    [](const std::pair<u32, std::shared_ptr<IMetaTrans>>& p) { return p.first; });
+  if (it2 != x24_halfTransitions.cend())
+    return it2->second;
   return x10_defaultTrans;
 }
 
