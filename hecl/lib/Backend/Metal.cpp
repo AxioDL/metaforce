@@ -137,7 +137,7 @@ std::string Metal::GenerateReflectionExpr(ReflectionType type) const {
   case ReflectionType::Simple:
     return "reflectionTex.sample(reflectSamp, vtf.reflectTcgs1).rgb * vtf.reflectAlpha";
   case ReflectionType::Indirect:
-    return "reflectionTex.sample(reflectSamp, (reflectionIndTex.sample(samp, vtf.reflectTcgs0).rg - "
+    return "reflectionTex.sample(reflectSamp, (reflectionIndTex.sample(samp, vtf.reflectTcgs0).ab - "
            "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs1).rgb * vtf.reflectAlpha";
   }
 }

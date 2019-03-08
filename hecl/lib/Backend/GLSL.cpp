@@ -141,7 +141,7 @@ std::string GLSL::GenerateReflectionExpr(ReflectionType type) const {
   case ReflectionType::Simple:
     return "texture(reflectionTex, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
   case ReflectionType::Indirect:
-    return "texture(reflectionTex, (texture(reflectionIndTex, vtf.reflectTcgs[0]).rg - "
+    return "texture(reflectionTex, (texture(reflectionIndTex, vtf.reflectTcgs[0]).ab - "
            "vec2(0.5, 0.5)) * vec2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
   }
 }

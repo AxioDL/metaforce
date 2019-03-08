@@ -481,7 +481,8 @@ Connection::Connection(int verbosityLevel) {
         BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s'"), DEFAULT_BLENDER_BIN);
     } else if (!strcmp(lineBuf, "NOADDON")) {
       _closePipe();
-      InstallAddon(blenderAddonPath.c_str());
+      if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
+        InstallAddon(blenderAddonPath.c_str());
       ++installAttempt;
       if (installAttempt >= 2)
         BlenderLog.report(logvisor::Fatal, _SYS_STR("unable to install blender addon using '%s'"),

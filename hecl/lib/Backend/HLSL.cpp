@@ -137,7 +137,7 @@ std::string HLSL::GenerateReflectionExpr(ReflectionType type) const {
   case ReflectionType::Simple:
     return "reflectionTex.Sample(reflectSamp, vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
   case ReflectionType::Indirect:
-    return "reflectionTex.Sample(reflectSamp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).rg - "
+    return "reflectionTex.Sample(reflectSamp, (reflectionIndTex.Sample(samp, vtf.reflectTcgs[0]).ab - "
            "float2(0.5, 0.5)) * float2(0.5, 0.5) + vtf.reflectTcgs[1]).rgb * vtf.reflectAlpha";
   }
 }
