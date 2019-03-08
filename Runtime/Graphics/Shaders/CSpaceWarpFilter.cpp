@@ -24,8 +24,9 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
         vec.normalize();
         vec *= zeus::CVector2f(std::sqrt(mag));
       }
-      data[y][x][0] = zeus::clamp(0, int((((vec.x() / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
-      data[y][x][1] = zeus::clamp(0, int((((vec.y() / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+      data[y][x][3] = zeus::clamp(0, int((((vec.x() / 2.f + 0.5f) - x / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+      data[y][x][2] = zeus::clamp(0, int((((vec.y() / 2.f + 0.5f) - y / float(WARP_RAMP_RES)) + 0.5f) * 255), 255);
+      data[y][x][0] = data[y][x][1] = data[y][x][2];
     }
   }
   m_warpTex =
@@ -41,10 +42,10 @@ CSpaceWarpFilter::CSpaceWarpFilter() {
       zeus::CVector2f m_pos;
       zeus::CVector2f m_uv;
     } verts[4] = {
-        {{-1.0, -1.0}, {0.0, 0.0}},
-        {{-1.0, 1.0}, {0.0, 1.0}},
-        {{1.0, -1.0}, {1.0, 0.0}},
-        {{1.0, 1.0}, {1.0, 1.0}},
+      {{-1.f, -1.f}, {0.f, 0.f}},
+      {{-1.f, 1.f}, {0.f, 1.f}},
+      {{1.f, -1.f}, {1.f, 0.f}},
+      {{1.f, 1.f}, {1.f, 1.f}},
     };
     m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
@@ -117,10 +118,13 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   m_uniform.m_matrix[1][1] = clipRect.x10_height / vp.y();
   m_uniform.m_matrix[3][0] = pt.x() + (1.f / vp.x());
   m_uniform.m_matrix[3][1] = pt.y() + (1.f / vp.y());
-  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL)
+  if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
     m_uniform.m_matrix[3][2] = pt.z() * 2.f - 1.f;
-  else
+  } else {
+    m_uniform.m_matrix[1][1] *= -1.f;
+    m_uniform.m_matrix[3][1] *= -1.f;
     m_uniform.m_matrix[3][2] = pt.z();
+  }
 
   if (clipRect.x4_left) {
     clipRect.x4_left -= 1;

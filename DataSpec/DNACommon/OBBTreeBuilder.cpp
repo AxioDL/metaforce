@@ -49,15 +49,17 @@ static FittedOBB BuildFromCovarianceMatrix(gmm::dense_matrix<float>& C, const Co
 
   // find the right, up and forward vectors from the eigenvectors
   zeus::CVector3f r(eigvec(0, 0), eigvec(1, 0), eigvec(2, 0));
-  zeus::CVector3f u(eigvec(0, 1), eigvec(1, 1), eigvec(2, 1));
-  zeus::CVector3f f(eigvec(0, 2), eigvec(1, 2), eigvec(2, 2));
+  zeus::CVector3f f(eigvec(0, 1), eigvec(1, 1), eigvec(2, 1));
+  zeus::CVector3f u(eigvec(0, 2), eigvec(1, 2), eigvec(2, 2));
   r.normalize();
-  u.normalize(), f.normalize();
+  f.normalize();
+  u.normalize();
 
   // set the rotation matrix using the eigvenvectors
   ret.xf.basis[0] = r;
-  ret.xf.basis[1] = u;
-  ret.xf.basis[2] = f;
+  ret.xf.basis[1] = f;
+  ret.xf.basis[2] = u;
+  ret.xf.orthonormalize();
 
   // now build the bounding box extents in the rotated frame
   zeus::CVector3f minim(1e10f, 1e10f, 1e10f), maxim(-1e10f, -1e10f, -1e10f);
@@ -65,7 +67,7 @@ static FittedOBB BuildFromCovarianceMatrix(gmm::dense_matrix<float>& C, const Co
     std::unordered_set<uint32_t> verts = GetTriangleVerts(mesh, triIdx);
     for (uint32_t v : verts) {
       const zeus::CVector3f& p = mesh.verts[v].val;
-      zeus::CVector3f p_prime(r.dot(p), u.dot(p), f.dot(p));
+      zeus::CVector3f p_prime(ret.xf.basis[0].dot(p), ret.xf.basis[1].dot(p), ret.xf.basis[2].dot(p));
       minim = zeus::min(minim, p_prime);
       maxim = zeus::max(maxim, p_prime);
     }

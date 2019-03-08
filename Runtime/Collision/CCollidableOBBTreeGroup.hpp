@@ -24,9 +24,8 @@ class CCollidableOBBTreeGroup : public CCollisionPrimitive {
   const CCollidableOBBTreeGroupContainer* x10_container;
 
 public:
-  CCollidableOBBTreeGroup(CInputStream& in);
   CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer*, const CMaterialList&);
-  virtual ~CCollidableOBBTreeGroup() {}
+  virtual ~CCollidableOBBTreeGroup() = default;
 
   void ResetTestStats() const;
   virtual u32 GetTableIndex() const;

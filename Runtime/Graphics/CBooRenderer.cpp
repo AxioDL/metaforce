@@ -56,7 +56,7 @@ void Buckets::Sort() {
   u32 precision = 50;
   if (sPlaneObjectBucket->size()) {
     std::sort(sPlaneObjectBucket->begin(), sPlaneObjectBucket->end(),
-              [](u16 a, u16 b) { return (*sPlaneObjectData)[a].GetDistance() > (*sPlaneObjectData)[b].GetDistance(); });
+              [](u16 a, u16 b) { return (*sPlaneObjectData)[a].GetDistance() < (*sPlaneObjectData)[b].GetDistance(); });
     precision = 50 / u32(sPlaneObjectBucket->size() + 1);
     pitch = 1.f / (delta / float(precision - 2));
 

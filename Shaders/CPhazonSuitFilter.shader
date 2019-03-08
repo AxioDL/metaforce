@@ -60,7 +60,7 @@ TBINDING2 uniform sampler2D maskTex;
 TBINDING3 uniform sampler2D maskTexBlur;
 void main()
 {
-    vec2 indUv = (texture(indTex, vtf.indUv).ra - vec2(0.5, 0.5)) * 
+    vec2 indUv = (texture(indTex, vtf.indUv).ab - vec2(0.5, 0.5)) *
         vtf.indScaleOff.xy + vtf.indScaleOff.zw;
     float maskBlurAlpha = clamp(0.0, (texture(maskTexBlur, vtf.maskUv).a - texture(maskTex, vtf.maskUv).a) * 2.0, 1.0);
     colorOut = vtf.color * texture(screenTex, indUv + vtf.screenUv) * maskBlurAlpha;
@@ -123,7 +123,7 @@ Texture2D maskTex : register(t2);
 Texture2D maskTexBlur : register(t3);
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float2 indUv = (indTex.Sample(samp, vtf.indUv).ra - float2(0.5, 0.5)) * 
+    float2 indUv = (indTex.Sample(samp, vtf.indUv).ab - float2(0.5, 0.5)) *
         vtf.indScaleOff.xy + vtf.indScaleOff.zw;
     float maskBlurAlpha = saturate((maskTexBlur.Sample(samp, vtf.maskUv).a - maskTex.Sample(samp, vtf.maskUv).a) * 2.0);
     return float4((vtf.color * screenTex.Sample(samp, indUv + vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);
@@ -186,7 +186,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> maskTex [[ texture(2) ]],
                       texture2d<float> maskTexBlur [[ texture(3) ]])
 {
-    float2 indUv = (indTex.sample(samp, vtf.indUv).ra - float2(0.5, 0.5)) * 
+    float2 indUv = (indTex.sample(samp, vtf.indUv).ab - float2(0.5, 0.5)) *
         vtf.indScaleOff.xy + vtf.indScaleOff.zw;
     float maskBlurAlpha = saturate((maskTexBlur.sample(samp, vtf.maskUv).a - maskTex.sample(samp, vtf.maskUv).a) * 2.0);
     return float4((vtf.color * screenTex.sample(samp, indUv + vtf.screenUv) * maskBlurAlpha).rgb, vtf.color.a);

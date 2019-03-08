@@ -372,7 +372,7 @@ TBINDING1 uniform sampler2D sceneMap;
 TBINDING2 uniform sampler2D tindMap;
 void main()
 {
-    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;
+    vec2 tindTexel = texture(tindMap, vtf.uvTind).ab;
     vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     vec4 texrTexel = texture(texrMap, vtf.uvTexr);
     colorOut = vtf.color * vec4(sceneTexel.rgb, 1.0) + texrTexel;
@@ -430,7 +430,7 @@ struct VertToFrag
 
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).zw;
+    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ab;
     float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     float4 texrTexel = tex0.Sample(samp, vtf.uvTexr);
     float4 colorOut = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;
@@ -492,7 +492,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> tex1 [[ texture(1) ]],
                       texture2d<float> tex2 [[ texture(2) ]])
 {
-    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;
+    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ab;
     float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     float4 texrTexel = tex0.sample(samp, vtf.uvTexr);
     float4 colorOut = vtf.color * float4(sceneTexel.rgb, 1.0) + texrTexel;
@@ -542,7 +542,7 @@ TBINDING1 uniform sampler2D sceneMap;
 TBINDING2 uniform sampler2D tindMap;
 void main()
 {
-    vec2 tindTexel = texture(tindMap, vtf.uvTind).zw;
+    vec2 tindTexel = texture(tindMap, vtf.uvTind).ab;
     vec4 sceneTexel = texture(sceneMap, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     colorOut = vtf.color * vec4(sceneTexel.rgb, 1.0) * texture(texrMap, vtf.uvTexr);
 }
@@ -563,7 +563,7 @@ struct VertToFrag
 
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ba;
+    float2 tindTexel = tex2.Sample(samp, vtf.uvTind).ab;
     float4 sceneTexel = tex1.Sample(samp, lerp(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     return vtf.color * float4(sceneTexel.rgb, 1.0) * tex0.Sample(samp, vtf.uvTexr);
 }
@@ -584,7 +584,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> tex1 [[ texture(1) ]],
                       texture2d<float> tex2 [[ texture(2) ]])
 {
-    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ba;
+    float2 tindTexel = tex2.sample(samp, vtf.uvTind).ab;
     float4 sceneTexel = tex1.sample(samp, mix(vtf.uvScene.xy, vtf.uvScene.zw, tindTexel));
     return vtf.color * float4(sceneTexel.rgb, 1.0) * tex0.sample(samp, vtf.uvTexr);
 }

@@ -15,9 +15,9 @@ void DCLN::Collision::Node::sendToBlender(hecl::blender::PyOutStream& os) const 
       "obj.location = mtxd[0]\n"
       "obj.rotation_quaternion = mtxd[1]\n"
       "obj.scale = (%f,%f,%f)\n",
-      isLeaf ? "leaf" : "branch", xf[0].vec[0], xf[0].vec[1], xf[0].vec[2], xf[0].vec[3], xf[1].vec[0], xf[1].vec[1],
-      xf[1].vec[2], xf[1].vec[3], xf[2].vec[0], xf[2].vec[1], xf[2].vec[2], xf[2].vec[3], halfExtent.vec[0],
-      halfExtent.vec[1], halfExtent.vec[2]);
+      isLeaf ? "leaf" : "branch", xf[0].simd[0], xf[0].simd[1], xf[0].simd[2], xf[0].simd[3], xf[1].simd[0],
+      xf[1].simd[1], xf[1].simd[2], xf[1].simd[3], xf[2].simd[0], xf[2].simd[1], xf[2].simd[2], xf[2].simd[3],
+      halfExtent.simd[0], halfExtent.simd[1], halfExtent.simd[2]);
   if (isLeaf)
     os << "obj.show_name = True\n";
   if (!isLeaf) {

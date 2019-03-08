@@ -49,7 +49,7 @@ TBINDING0 uniform sampler2D sceneTex;
 TBINDING1 uniform sampler2D indTex;
 void main()
 {
-    vec2 indUv = texture(indTex, vtf.indUv).xy * vec2(2.0) - vec2(1.0 - 1.0 / 256.0);
+    vec2 indUv = texture(indTex, vtf.indUv).ab * vec2(2.0) - vec2(1.0 - 1.0 / 256.0);
     colorOut = vec4(texture(sceneTex, vtf.sceneUv + indUv * vtf.strength.xy).rgb, 1.0);
 }
 
@@ -100,7 +100,7 @@ struct VertToFrag
 
 float4 main(in VertToFrag vtf) : SV_Target0
 {
-    float2 indUv = indTex.Sample(samp, vtf.indUv).xy * float2(2.0, 2.0) - float2(1.0 - 1.0 / 256.0, 1.0 - 1.0 / 256.0);
+    float2 indUv = indTex.Sample(samp, vtf.indUv).ab * float2(2.0, 2.0) - float2(1.0 - 1.0 / 256.0, 1.0 - 1.0 / 256.0);
     return float4(sceneTex.Sample(samp, vtf.sceneUv + indUv * vtf.strength.xy).rgb, 1.0);
 }
 
@@ -151,6 +151,6 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> sceneTex [[ texture(0) ]],
                       texture2d<float> indTex [[ texture(1) ]])
 {
-    float2 indUv = indTex.sample(samp, vtf.indUv).xy * float2(2.0) - float2(1.0 - 1.0 / 256.0);
+    float2 indUv = indTex.sample(samp, vtf.indUv).ab * float2(2.0) - float2(1.0 - 1.0 / 256.0);
     return float4(sceneTex.sample(samp, vtf.sceneUv + indUv * vtf.strength.xy).rgb, 1.0);
 }

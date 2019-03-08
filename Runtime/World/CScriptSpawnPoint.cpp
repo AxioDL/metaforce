@@ -12,7 +12,7 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
                                      const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts,
                                      bool defaultSpawn, bool active, bool morphed)
 : CEntity(uid, info, active, name), x34_xf(xf), x64_itemCounts(itemCounts) {
-//#ifndef NDEBUG
+#ifndef NDEBUG
   x64_itemCounts[int(CPlayerState::EItemType::MorphBall)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::MorphBallBombs)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::GravitySuit)] = 1;
@@ -25,7 +25,7 @@ CScriptSpawnPoint::CScriptSpawnPoint(TUniqueId uid, std::string_view name, const
   x64_itemCounts[int(CPlayerState::EItemType::SpaceJumpBoots)] = 1;
   x64_itemCounts[int(CPlayerState::EItemType::Missiles)] =
     std::max(x64_itemCounts[int(CPlayerState::EItemType::Missiles)], u32(5));
-//#endif
+#endif
   x10c_24_firstSpawn = defaultSpawn;
   x10c_25_morphed = morphed;
 }

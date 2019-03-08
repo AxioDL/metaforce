@@ -21,7 +21,7 @@ struct Actor : IScriptObject {
   AnimationParameters animationParameters;
   ActorParameters actorParameters;
   Value<bool> looping;
-  Value<bool> snow;
+  Value<bool> immovable;
   Value<bool> solid;
   Value<bool> cameraPassthrough;
   Value<bool> active;

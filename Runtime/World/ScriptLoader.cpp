@@ -409,7 +409,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
   CActorParameters actParms = LoadActorParameters(in);
 
   bool looping = in.readBool();
-  bool snow = in.readBool();
+  bool immovable = in.readBool();
   bool solid = in.readBool();
   bool cameraPassthrough = in.readBool();
   bool active = in.readBool();
@@ -427,8 +427,8 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, centroid);
 
   CMaterialList list;
-  if (snow) // Bool 2
-    list.Add(EMaterialTypes::Snow);
+  if (immovable) // Bool 2
+    list.Add(EMaterialTypes::Immovable);
 
   if (solid) // Bool 3
     list.Add(EMaterialTypes::Solid);
