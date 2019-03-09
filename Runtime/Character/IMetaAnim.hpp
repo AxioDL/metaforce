@@ -46,7 +46,6 @@ struct CMetaAnimTreeBuildOrders {
   static CMetaAnimTreeBuildOrders NoSpecialOrders() { return {}; }
   static CMetaAnimTreeBuildOrders PreAdvanceForAll(const CPreAdvanceIndicator& ind) {
     CMetaAnimTreeBuildOrders ret;
-    ret.x0_recursiveAdvance.emplace(ind);
     ret.x44_singleAdvance.emplace(ind);
     return ret;
   }

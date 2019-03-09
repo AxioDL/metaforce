@@ -76,7 +76,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   if (x570_babyData.x148_.IsValid())
     xa38_ = g_SimplePool->GetObj({SBIG('PART'), babyData.x148_});
   xa48_31_ = true;
-  const_cast<TToken<CWeaponDescription>*>(&x958_.Token())->Lock();
+  x958_.Token().Lock();
   UpdateTouchBounds();
   x460_knockBackController.SetEnableFreeze(false);
   x460_knockBackController.SetAutoResetImpulse(true);

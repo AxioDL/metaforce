@@ -18,6 +18,7 @@ class CDvdFile {
   friend class CResLoader;
   friend class CFileDvdRequest;
   static hecl::ProjectPath m_DvdRoot;
+  static std::unordered_map<std::string, std::string> m_caseInsensitiveMap;
   static std::thread m_WorkerThread;
   static std::mutex m_WorkerMutex;
   static std::condition_variable m_WorkerCV;
@@ -29,16 +30,19 @@ class CDvdFile {
   std::string x18_path;
   std::shared_ptr<athena::io::FileReader> m_reader;
 
+  static hecl::ProjectPath ResolvePath(std::string_view path);
+  static void RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, std::string::size_type prefixLen);
+
 public:
   static void Initialize(const hecl::ProjectPath& path);
   static void Shutdown();
 
   CDvdFile(std::string_view path)
   : x18_path(path)
-  , m_reader(std::make_shared<athena::io::FileReader>(hecl::ProjectPath(m_DvdRoot, path).getAbsolutePath())) {}
+  , m_reader(std::make_shared<athena::io::FileReader>(ResolvePath(path).getAbsolutePath())) {}
   operator bool() const { return m_reader->isOpen(); }
   void UpdateFilePos(int pos) { m_reader->seek(pos, athena::SeekOrigin::Begin); }
-  static bool FileExists(std::string_view path) { return hecl::ProjectPath(m_DvdRoot, path).isFile(); }
+  static bool FileExists(std::string_view path) { return ResolvePath(path).isFile(); }
   void CloseFile() { m_reader->close(); }
   std::shared_ptr<IDvdRequest> AsyncSeekRead(void* buf, u32 len, ESeekOrigin whence, int off,
                                              std::function<void(u32)>&& cb = {});

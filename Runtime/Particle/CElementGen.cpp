@@ -237,7 +237,7 @@ bool CElementGen::Update(double t) {
   if (pswtElem && !x26d_25_warmedUp) {
     int pswt = 0;
     pswtElem->GetValue(x74_curFrame, pswt);
-    Log.report(logvisor::Info, "Running warmup on particle system 0x%08x for %d ticks.", desc, pswt);
+    //Log.report(logvisor::Info, "Running warmup on particle system 0x%08x for %d ticks.", desc, pswt);
     InternalUpdate((1.f / 60.f) * pswt);
     x26d_25_warmedUp = true;
   }

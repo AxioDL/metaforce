@@ -358,7 +358,8 @@ void CSamusHud::UpdateEnergy(float dt, const CStateManager& mgr, bool init) {
         float curLastTankEnergy = x2d0_playerHealth;
         while (curLastTankEnergy > CPlayerState::GetBaseHealthCapacity())
           curLastTankEnergy -= CPlayerState::GetEnergyTankCapacity();
-        x28c_energyIntf->SetCurrEnergy(lastTankEnergy, curLastTankEnergy < lastTankEnergy);
+        x28c_energyIntf->SetCurrEnergy(lastTankEnergy,
+          curLastTankEnergy > lastTankEnergy != x2d0_playerHealth > energy);
       }
       x2d0_playerHealth = energy;
       if (x28c_energyIntf) {

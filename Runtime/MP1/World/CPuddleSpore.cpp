@@ -38,7 +38,7 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
   x5dc_elemGens.reserve(kEyeCount);
   for (u32 i = 0; i < kEyeCount; ++i)
     x5dc_elemGens.emplace_back(new CElementGen(x5d0_));
-  const_cast<TToken<CWeaponDescription>*>(&x5ec_projectileInfo.Token())->Lock();
+  x5ec_projectileInfo.Token().Lock();
   x460_knockBackController.SetAutoResetImpulse(false);
 }
 

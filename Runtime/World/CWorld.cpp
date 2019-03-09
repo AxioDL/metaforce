@@ -18,7 +18,8 @@ CWorld::CSoundGroupData::CSoundGroupData(int grpId, CAssetId agsc) : x0_groupId(
 
 CDummyWorld::CDummyWorld(CAssetId mlvlId, bool loadMap) : x4_loadMap(loadMap), xc_mlvlId(mlvlId) {
   SObjectTag tag{FOURCC('MLVL'), mlvlId};
-  x34_loadBuf.reset(new u8[g_ResFactory->ResourceSize(tag)]);
+  x38_bufSz = g_ResFactory->ResourceSize(tag);
+  x34_loadBuf.reset(new u8[x38_bufSz]);
   x30_loadToken = g_ResFactory->LoadResourceAsync(tag, x34_loadBuf.get());
 }
 
@@ -99,10 +100,9 @@ void CWorldLayers::ReadWorldLayers(athena::io::MemoryReader& r, int version, CAs
 bool CDummyWorld::ICheckWorldComplete() {
   switch (x8_phase) {
   case Phase::Loading: {
-    if (x30_loadToken && !x30_loadToken->IsComplete())
+    if (!x30_loadToken->IsComplete())
       return false;
-    x30_loadToken.reset();
-    athena::io::MemoryReader r(x34_loadBuf.get(), UINT32_MAX, false);
+    athena::io::MemoryReader r(x34_loadBuf.get(), x38_bufSz);
     r.readUint32Big();
     int version = r.readUint32Big();
     x10_strgId = r.readUint32Big();
@@ -140,6 +140,10 @@ bool CDummyWorld::ICheckWorldComplete() {
       r.readString();
 
     CWorldLayers::ReadWorldLayers(r, version, xc_mlvlId);
+
+    x30_loadToken.reset();
+    x34_loadBuf.reset();
+    x38_bufSz = 0;
 
     if (x4_loadMap)
       x8_phase = Phase::LoadingMap;
@@ -179,8 +183,9 @@ CWorld::CWorld(IObjectStore& objStore, IFactory& resFactory, CAssetId mlvlId)
 : x8_mlvlId(mlvlId), x60_objectStore(objStore), x64_resFactory(resFactory) {
   x70_24_currentAreaNeedsAllocation = true;
   SObjectTag tag{FOURCC('MLVL'), mlvlId};
-  x40_loadBuf.reset(new u8[resFactory.ResourceSize(tag)]);
-  resFactory.LoadResourceAsync(tag, x40_loadBuf.get());
+  x44_bufSz = resFactory.ResourceSize(tag);
+  x40_loadBuf.reset(new u8[x44_bufSz]);
+  x3c_loadToken = resFactory.LoadResourceAsync(tag, x40_loadBuf.get());
 }
 
 CWorld::~CWorld() {
@@ -277,9 +282,9 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 
   switch (x4_phase) {
   case Phase::Loading: {
-    if (!x40_loadBuf)
+    if (!x3c_loadToken->IsComplete())
       return false;
-    athena::io::MemoryReader r(x40_loadBuf.get(), UINT32_MAX);
+    athena::io::MemoryReader r(x40_loadBuf.get(), x44_bufSz);
     r.readUint32Big();
     int version = r.readUint32Big();
     xc_strgId = r.readUint32Big();
@@ -338,6 +343,9 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
 
     CWorldLayers::ReadWorldLayers(r, version, x8_mlvlId);
 
+    x3c_loadToken.reset();
+    x40_loadBuf.reset();
+    x44_bufSz = 0;
     x4_phase = Phase::LoadingMap;
     [[fallthrough]];
   }

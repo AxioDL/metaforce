@@ -242,6 +242,7 @@ private:
   std::vector<SObjectTag> m_warmupTags;
   std::vector<SObjectTag>::iterator m_warmupIt;
   bool m_needsWarmupClear = false;
+  bool m_loadedPersistentResources = false;
   bool m_doQuit = false;
 
   void InitializeSubsystems();

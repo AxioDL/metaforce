@@ -18,11 +18,10 @@ CGuiModel::CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId mod
 bool CGuiModel::GetIsFinishedLoadingWidgetSpecific() const {
   if (!xb8_model)
     return true;
-  const CModel* model = xb8_model.GetObj();
-  if (!model)
+  if (!xb8_model.IsLoaded())
     return false;
-  model->GetInstance().Touch(0);
-  return model->IsLoaded(0);
+  xb8_model->GetInstance().Touch(0);
+  return xb8_model->IsLoaded(0);
 }
 
 void CGuiModel::Touch() const {

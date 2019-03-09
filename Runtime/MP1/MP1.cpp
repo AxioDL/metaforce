@@ -759,6 +759,10 @@ bool CMain::Proc() {
   // Warmup cycle overrides update
   if (m_warmupTags.size())
     return false;
+  if (!m_loadedPersistentResources) {
+    x128_globalObjects.m_gameResFactory->LoadPersistentResources(*g_SimplePool);
+    m_loadedPersistentResources = true;
+  }
 
   m_console->proc();
   if (!m_console->isOpen()) {
@@ -832,6 +836,7 @@ void CMain::ShutdownSubsystems() {
 
 void CMain::Shutdown() {
   m_console->unregisterCommand("Give");
+  x128_globalObjects.m_gameResFactory->UnloadPersistentResources();
   x164_archSupport.reset();
   ShutdownSubsystems();
   CParticleSwooshShaders::Shutdown();

@@ -34,7 +34,7 @@ class CNewIntroBoss : public CPatterned {
   float x638_ = 0.2f;
   float x63c_attackTime = 8.f;
   float x640_initialHp = 0.f;
-  zeus::CTransform x644_;
+  zeus::CTransform x644_initialXf;
   s16 x674_rumbleVoice = -1;
   TUniqueId x676_curProjectile = kInvalidUniqueId;
   bool x678_ = false;

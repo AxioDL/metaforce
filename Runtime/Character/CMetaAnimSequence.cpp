@@ -24,25 +24,20 @@ void CMetaAnimSequence::GetUniquePrimitives(std::set<CPrimitive>& primsOut) cons
 
 std::shared_ptr<CAnimTreeNode> CMetaAnimSequence::VGetAnimationTree(const CAnimSysContext& animSys,
                                                                     const CMetaAnimTreeBuildOrders& orders) const {
-  if (orders.x0_recursiveAdvance) {
-    CMetaAnimTreeBuildOrders modOrders;
-    modOrders.PreAdvanceForAll(*orders.x0_recursiveAdvance);
-    return GetAnimationTree(animSys, modOrders);
-  }
+  if (orders.x0_recursiveAdvance)
+    return GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance));
 
 #if 0
-    std::vector<std::string> anims;
-    anims.reserve(anims.size());
-    for (const std::shared_ptr<IMetaAnim>& anim : x4_sequence)
-    {
-        std::shared_ptr<CAnimTreeNode> chNode = anim->GetAnimationTree(animSys, orders);
-        anims.emplace_back(chNode->GetName());
-    }
+  /* Originally used to generate name string */
+  std::vector<std::string> anims;
+  anims.reserve(anims.size());
+  for (const std::shared_ptr<IMetaAnim>& anim : x4_sequence) {
+    std::shared_ptr<CAnimTreeNode> chNode = anim->GetAnimationTree(animSys, orders);
+    anims.emplace_back(chNode->GetName());
+  }
 #endif
 
-  std::shared_ptr<CAnimTreeNode> ret = std::make_shared<CAnimTreeSequence>(x4_sequence, animSys, "");
-
-  return ret;
+  return std::make_shared<CAnimTreeSequence>(x4_sequence, animSys, "");
 }
 
 } // namespace urde

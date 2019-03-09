@@ -117,7 +117,7 @@ zeus::CVector3f CCollisionActor::GetScanObjectIndicatorPosition(const CStateMana
   }
   scanScale *= 3.0f;
   zeus::CVector3f orbitPos = GetOrbitPosition(mgr);
-  return (scanScale * (orbitPos - gameCamera->GetTransform().origin).normalized()) - orbitPos;
+  return orbitPos - scanScale * (orbitPos - gameCamera->GetTranslation()).normalized();
 }
 
 const CCollisionPrimitive* CCollisionActor::GetCollisionPrimitive() const {

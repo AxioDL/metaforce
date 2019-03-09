@@ -11,10 +11,14 @@ CTransitionDatabaseGame::CTransitionDatabaseGame(const std::vector<CTransition>&
   x14_transitions.reserve(transitions.size());
   for (const CTransition& trans : transitions)
     x14_transitions.emplace_back(trans.GetAnimPair(), trans.GetMetaTrans());
+  std::sort(x14_transitions.begin(), x14_transitions.end(),
+    [](const auto& a, const auto& b) { return a.first < b.first; });
 
   x24_halfTransitions.reserve(halfTransitions.size());
   for (const CHalfTransition& trans : halfTransitions)
     x24_halfTransitions.emplace_back(trans.GetId(), trans.GetMetaTrans());
+  std::sort(x24_halfTransitions.begin(), x24_halfTransitions.end(),
+    [](const auto& a, const auto& b) { return a.first < b.first; });
 }
 
 const std::shared_ptr<IMetaTrans>& CTransitionDatabaseGame::GetMetaTrans(u32 a, u32 b) const {

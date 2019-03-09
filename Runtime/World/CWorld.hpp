@@ -47,7 +47,7 @@ class CDummyWorld : public IWorld {
   TLockedToken<CMapWorld> x2c_mapWorld;
   std::shared_ptr<IDvdRequest> x30_loadToken;
   std::unique_ptr<uint8_t[]> x34_loadBuf;
-  // u32 x38_bufSz;
+  u32 x38_bufSz;
   TAreaId x3c_curAreaId = kInvalidAreaId;
 
 public:
@@ -116,9 +116,9 @@ private:
   CAssetId x24_mapwId;
   TLockedToken<CMapWorld> x28_mapWorld;
   std::vector<CRelay> x2c_relays;
-  // AsyncTask x3c_loadToken;
+  std::shared_ptr<IDvdRequest> x3c_loadToken;
   std::unique_ptr<uint8_t[]> x40_loadBuf;
-  // u32 x44_bufSz;
+  u32 x44_bufSz;
   u32 x48_chainCount = 0;
   CGameArea* x4c_chainHeads[5] = {};
 

@@ -53,10 +53,17 @@ public:
     One,
   };
 
+  enum class ERingState {
+    Scramble,
+    Rotate,
+    Stopped,
+    Breakup
+  };
+
   struct SRingController {
     TUniqueId x0_id;
-    float x4_;
-    bool x8_;
+    float x4_rotateSpeed;
+    bool x8_reachedTarget;
     zeus::CVector3f xc_;
     SRingController(TUniqueId uid, float f, bool b);
   };
@@ -64,28 +71,28 @@ public:
 private:
   ESpecialFunction xe8_function;
   std::string xec_locatorName;
-  float xfc_;
-  float x100_;
-  float x104_;
-  float x108_;
-  zeus::CVector3f x10c_;
-  zeus::CColor x118_;
+  float xfc_float1;
+  float x100_float2;
+  float x104_float3;
+  float x108_float4;
+  zeus::CVector3f x10c_vector3f;
+  zeus::CColor x118_color;
   CDamageInfo x11c_damageInfo;
   float x138_ = 0.f;
   zeus::CTransform x13c_ = zeus::CTransform();
   float x16c_ = 0.f;
-  s16 x170_;
-  s16 x172_;
-  s16 x174_;
+  s16 x170_sfx1;
+  s16 x172_sfx2;
+  s16 x174_sfx3;
   CSfxHandle x178_sfxHandle;
   u32 x17c_;
   float x180_ = 0.f;
   std::vector<float> x184_;
   float x194_ = 0.f;
   std::vector<SRingController> x198_ringControllers;
-  u32 x1a8_ = 2;
-  zeus::CVector3f x1ac_ = zeus::skZero3f;
-  bool x1b8_ = true;
+  ERingState x1a8_ringState = ERingState::Stopped;
+  zeus::CVector3f x1ac_ringRotateTarget = zeus::skZero3f;
+  bool x1b8_ringReverse = true;
   s32 x1bc_areaSaveId;
   s32 x1c0_layerIdx;
   CPlayerState::EItemType x1c4_item;
@@ -120,9 +127,6 @@ public:
   void Render(const CStateManager&) const;
 
   void SkipCinematic(CStateManager&);
-  void RingMoveCloser(CStateManager&, float);
-  void RingMoveAway(CStateManager&, float);
-  void ThinkRingPuller(float, CStateManager&);
   void RingScramble(CStateManager&);
   void ThinkIntroBossRingController(float, CStateManager&);
   void ThinkPlayerFollowLocator(float, CStateManager&);

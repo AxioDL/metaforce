@@ -5,6 +5,7 @@
 namespace urde {
 
 hecl::ProjectPath CDvdFile::m_DvdRoot;
+std::unordered_map<std::string, std::string> CDvdFile::m_caseInsensitiveMap;
 
 class CFileDvdRequest : public IDvdRequest {
   std::shared_ptr<athena::io::FileReader> m_reader;
@@ -90,8 +91,34 @@ std::shared_ptr<IDvdRequest> CDvdFile::AsyncSeekRead(void* buf, u32 len, ESeekOr
   return ret;
 }
 
+hecl::ProjectPath CDvdFile::ResolvePath(std::string_view path) {
+  auto start = path.begin();
+  while (*start == '/') ++start;
+  std::string lowerChStr(start, path.end());
+  std::transform(lowerChStr.begin(), lowerChStr.end(), lowerChStr.begin(), ::tolower);
+  auto search = m_caseInsensitiveMap.find(lowerChStr);
+  if (search == m_caseInsensitiveMap.end())
+    return {};
+  return hecl::ProjectPath(m_DvdRoot, search->second);
+}
+
+void CDvdFile::RecursiveBuildCaseInsensitiveMap(const hecl::ProjectPath& path, std::string::size_type prefixLen) {
+  for (const auto& p : path.enumerateDir()) {
+    if (p.m_isDir) {
+      RecursiveBuildCaseInsensitiveMap(hecl::ProjectPath(path, p.m_name), prefixLen);
+    } else {
+      hecl::ProjectPath ch(path, p.m_name);
+      std::string chStr(ch.getAbsolutePathUTF8().begin() + prefixLen, ch.getAbsolutePathUTF8().end());
+      std::string lowerChStr(chStr);
+      std::transform(lowerChStr.begin(), lowerChStr.end(), lowerChStr.begin(), ::tolower);
+      m_caseInsensitiveMap[lowerChStr] = chStr;
+    }
+  }
+}
+
 void CDvdFile::Initialize(const hecl::ProjectPath& path) {
   m_DvdRoot = path;
+  RecursiveBuildCaseInsensitiveMap(path, path.getAbsolutePathUTF8().length() + 1);
   if (m_WorkerRun.load())
     return;
   m_WorkerRun.store(true);

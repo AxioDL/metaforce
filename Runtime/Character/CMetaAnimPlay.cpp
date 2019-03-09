@@ -12,17 +12,13 @@ void CMetaAnimPlay::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const { 
 
 std::shared_ptr<CAnimTreeNode> CMetaAnimPlay::VGetAnimationTree(const CAnimSysContext& animSys,
                                                                 const CMetaAnimTreeBuildOrders& orders) const {
-  if (orders.x0_recursiveAdvance) {
-    CMetaAnimTreeBuildOrders modOrders;
-    modOrders.PreAdvanceForAll(*orders.x0_recursiveAdvance);
-    return GetAnimationTree(animSys, modOrders);
-  }
+  if (orders.x0_recursiveAdvance)
+    return GetAnimationTree(animSys, CMetaAnimTreeBuildOrders::PreAdvanceForAll(*orders.x0_recursiveAdvance));
 
   TLockedToken<CAllFormatsAnimSource> prim =
       animSys.xc_store.GetObj(SObjectTag{FOURCC('ANIM'), x4_primitive.GetAnimResId()});
-  std::shared_ptr<CAnimTreeNode> ret = std::make_shared<CAnimTreeAnimReaderContainer>(
+  return std::make_shared<CAnimTreeAnimReaderContainer>(
       x4_primitive.GetName(), CAllFormatsAnimSource::GetNewReader(prim, x1c_startTime), x4_primitive.GetAnimDbIdx());
-  return ret;
 }
 
 } // namespace urde

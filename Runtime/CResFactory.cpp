@@ -97,6 +97,19 @@ void CResFactory::CancelBuild(const SObjectTag& tag) {
   }
 }
 
+void CResFactory::LoadPersistentResources(CSimplePool& sp) {
+  const auto& paks = x4_loader.GetPaks();
+  for (auto it = paks.begin(); it != paks.end(); ++it) {
+    if (!(*it)->IsWorldPak()) {
+      for (const CAssetId& id : (*it)->GetDepList()) {
+        SObjectTag tag(GetResourceTypeById(id), id);
+        m_nonWorldTokens.push_back(sp.GetObj(tag));
+        m_nonWorldTokens.back().Lock();
+      }
+    }
+  }
+}
+
 void CResFactory::LoadOriginalIDs(CSimplePool& sp) {
 #if RUNTIME_ORIGINAL_IDS
   m_origIds = sp.GetObj("MP1OriginalIDs");

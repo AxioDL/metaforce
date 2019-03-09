@@ -38,6 +38,7 @@ public:
 private:
   std::list<SLoadingData> m_loadList;
   std::unordered_map<SObjectTag, std::list<SLoadingData>::iterator> m_loadMap;
+  std::vector<CToken> m_nonWorldTokens; /* URDE: always keep non-world resources resident */
   void AddToLoadList(SLoadingData&& data);
   CFactoryFnReturn BuildSync(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef);
   bool PumpResource(SLoadingData& data);
@@ -86,6 +87,9 @@ public:
   void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const {
     return x4_loader.EnumerateNamedResources(lambda);
   }
+
+  void LoadPersistentResources(CSimplePool& sp);
+  void UnloadPersistentResources() { m_nonWorldTokens.clear(); }
 
   void LoadOriginalIDs(CSimplePool& sp);
   CAssetId TranslateOriginalToNew(CAssetId id) const;

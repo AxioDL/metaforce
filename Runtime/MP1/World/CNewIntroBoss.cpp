@@ -25,8 +25,9 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntity
 , x5f0_beamContactFxId(beamContactFxId)
 , x5f4_beamPulseFxId(beamPulseFxId)
 , x5f8_beamTextureId(beamTextureId)
-, x5fc_beamGlowTextureId(beamGlowTextureId) {
-  const_cast<TToken<CWeaponDescription>*>(&x5ac_projectileInfo.Token())->Lock();
+, x5fc_beamGlowTextureId(beamGlowTextureId)
+, x644_initialXf(xf) {
+  x5ac_projectileInfo.Token().Lock();
   x574_boneTracking.SetActive(true);
 }
 
@@ -257,7 +258,7 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
       curProjectile->ResetBeam(mgr, true);
 
     x450_bodyController->SetPlaybackRate(1.f);
-    SetTransform(x644_);
+    SetTransform(x644_initialXf);
     StopRumble(mgr);
     Death(mgr, GetTransform().frontVector(), EScriptObjectState::DeathRattle);
   }

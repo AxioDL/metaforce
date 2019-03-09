@@ -22,7 +22,7 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x6e8_deathDamage(dInfo2)
 , x722_24_renderOnlyClusterA(true)
 , x722_25_curNeedleCluster(false) {
-  const_cast<TToken<CWeaponDescription>*>(&x6c0_projectileInfo.Token())->Lock();
+  x6c0_projectileInfo.Token().Lock();
   CreateShadow(false);
   MakeThermalColdAndHot();
 }
