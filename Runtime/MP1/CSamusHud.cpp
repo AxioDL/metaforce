@@ -1503,6 +1503,7 @@ void CSamusHud::UpdateStateTransition(float dt, const CStateManager& mgr) {
       if (!x278_selectedHud.IsLoaded() || !x278_selectedHud->GetIsFinishedLoading())
         return;
       x288_loadedSelectedHud = x278_selectedHud.GetObj();
+      x288_loadedSelectedHud->Reset();
       x288_loadedSelectedHud->SetMaxAspect(1.78f);
       x2b8_curState = x2bc_nextState;
       x2bc_nextState = x2c0_setState;

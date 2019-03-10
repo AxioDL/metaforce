@@ -7,6 +7,7 @@ static logvisor::Module Log("urde::CGuiWidget");
 CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 : x70_selfId(parms.x6_selfId)
 , x72_parentId(parms.x8_parentId)
+, m_initColor(parms.x10_color)
 , xa4_color(parms.x10_color)
 , xa8_color2(parms.x10_color)
 , xac_drawFlags(parms.x14_drawFlags)
@@ -60,6 +61,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
   zeus::CVector3f trans = zeus::CVector3f::ReadBig(in);
   zeus::CMatrix3f orient = zeus::CMatrix3f::ReadBig(in);
   x74_transform = zeus::CTransform(orient, trans);
+  m_initTransform = x74_transform;
   ReapplyXform();
   zeus::CVector3f::ReadBig(in);
   in.readUint32Big();
@@ -71,6 +73,36 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
     }
   }
   parent->AddChildWidget(this, false, true);
+  m_initLocalXF = x4_localXF;
+}
+
+void CGuiWidget::Reset(ETraversalMode mode) {
+  xa4_color = m_initColor;
+  xa8_color2 = m_initColor;
+  x74_transform = m_initTransform;
+  ReapplyXform();
+  x4_localXF = m_initLocalXF;
+  RecalculateTransforms();
+
+  switch (mode) {
+  case ETraversalMode::Children: {
+    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
+    if (child)
+      child->Reset(ETraversalMode::ChildrenAndSiblings);
+    break;
+  }
+  case ETraversalMode::ChildrenAndSiblings: {
+    CGuiWidget* child = static_cast<CGuiWidget*>(GetChildObject());
+    if (child)
+      child->Reset(ETraversalMode::ChildrenAndSiblings);
+    CGuiWidget* nextSib = static_cast<CGuiWidget*>(GetNextSibling());
+    if (nextSib)
+      nextSib->Reset(ETraversalMode::ChildrenAndSiblings);
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 void CGuiWidget::Update(float dt) {

@@ -174,6 +174,8 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
   xb8_dash = dash;
   xa4_textGroup->SetVisibility(true, ETraversalMode::Children);
   xa4_textGroup->SetColor(zeus::CColor(1.f, 0.f));
+  xa8_message->TextSupport().SetText(u"");
+  xac_scrollMessage->TextSupport().SetText(u"");
 
   for (int i = 0; i < 20; ++i) {
     CAuiImagePane* pane =
@@ -181,7 +183,7 @@ void CScanDisplay::StartScan(TUniqueId id, const CScannableObjectInfo& scanInfo,
     zeus::CColor color = g_tweakGuiColors->GetScanDisplayImagePaneColor();
     color.a() = 0.f;
     pane->SetColor(color);
-    pane->SetTextureID0(-1, g_SimplePool);
+    pane->SetTextureID0({}, g_SimplePool);
     pane->SetAnimationParms(zeus::skZero2f, 0.f, 0.f);
     int pos = -1;
     for (int j = 0; j < 4; ++j) {
@@ -304,7 +306,7 @@ void CScanDisplay::Update(float dt, float scanningTime) {
   }
 
   for (int i = 0; i < 4; ++i) {
-    if (x170_paneStates[i].second == 0)
+    if (x170_paneStates[i].second == nullptr)
       continue;
     if (x170_paneStates[i].first > 0.f) {
       x170_paneStates[i].first = std::max(0.f, x170_paneStates[i].first - dt);

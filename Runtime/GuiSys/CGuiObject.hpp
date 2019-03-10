@@ -10,6 +10,7 @@ struct CGuiWidgetDrawParms;
 
 class CGuiObject : public std::enable_shared_from_this<CGuiObject> {
 protected:
+  zeus::CTransform m_initLocalXF;
   zeus::CTransform x4_localXF;
   zeus::CTransform x34_worldXF;
   CGuiObject* x64_parent = nullptr;
@@ -24,6 +25,8 @@ public:
   virtual void Initialize() = 0;
 
   void MoveInWorld(const zeus::CVector3f& vec);
+  const zeus::CVector3f& GetInitialLocalPosition() const { return m_initLocalXF.origin; }
+  const zeus::CTransform& GetInitialLocalTransform() const { return m_initLocalXF; }
   const zeus::CVector3f& GetLocalPosition() const { return x4_localXF.origin; }
   const zeus::CTransform& GetLocalTransform() const { return x4_localXF; }
   void SetLocalPosition(const zeus::CVector3f& pos);

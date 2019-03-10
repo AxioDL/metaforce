@@ -41,6 +41,7 @@ public:
   FourCC GetWidgetTypeID() const { return FOURCC('IMGP'); }
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
+  void Reset(ETraversalMode mode);
   void Update(float dt);
   void Draw(const CGuiWidgetDrawParms& params) const;
   bool GetIsFinishedLoadingWidgetSpecific() const;

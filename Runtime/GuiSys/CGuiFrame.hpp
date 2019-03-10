@@ -89,6 +89,7 @@ public:
     m_mouseScrollCb = std::move(cb);
   }
 
+  void Reset();
   void Update(float dt);
   void Draw(const CGuiWidgetDrawParms& parms) const;
   CGuiWidget* BestCursorHit(const zeus::CVector2f& point, const CGuiWidgetDrawParms& parms) const;

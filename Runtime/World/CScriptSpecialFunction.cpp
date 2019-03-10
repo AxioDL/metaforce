@@ -48,6 +48,8 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptSpecialFunction::Think(float dt, CStateManager& mgr) {
+  if (!GetActive())
+    return;
   switch (xe8_function) {
   case ESpecialFunction::PlayerFollowLocator:
     ThinkPlayerFollowLocator(dt, mgr);
@@ -655,6 +657,7 @@ u32 CScriptSpecialFunction::GetSpecialEnding(const CStateManager& mgr) const {
   return 2;
 }
 
-CScriptSpecialFunction::SRingController::SRingController(TUniqueId uid, float f, bool b) : x0_id(uid), x4_rotateSpeed(f), x8_reachedTarget(b) {}
+CScriptSpecialFunction::SRingController::SRingController(TUniqueId uid, float rotateSpeed, bool reachedTarget)
+: x0_id(uid), x4_rotateSpeed(rotateSpeed), x8_reachedTarget(reachedTarget) {}
 
 } // namespace urde

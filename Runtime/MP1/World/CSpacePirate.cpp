@@ -408,6 +408,9 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
     else if (GetDamageVulnerability()->WeaponHurts(CWeaponMode(EWeaponType::Wave), false))
       x8cc_trooperColor = zeus::CColor(0.776f, 0.054f, 1.f, 1.f);
   }
+
+  x568_pirateData.x20_Projectile.Token().Lock();
+  x568_pirateData.x6c_KneelAttackShot.Token().Lock();
 }
 
 void CSpacePirate::Accept(IVisitor& visitor) { visitor.Visit(this); }

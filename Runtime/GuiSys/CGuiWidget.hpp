@@ -53,7 +53,9 @@ public:
 protected:
   s16 x70_selfId;
   s16 x72_parentId;
+  zeus::CTransform m_initTransform;
   zeus::CTransform x74_transform;
+  zeus::CColor m_initColor;
   zeus::CColor xa4_color;
   zeus::CColor xa8_color2;
   EGuiModelDrawFlags xac_drawFlags;
@@ -80,6 +82,7 @@ public:
   static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in);
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
+  virtual void Reset(ETraversalMode mode);
   virtual void Update(float dt);
   virtual void Draw(const CGuiWidgetDrawParms& drawParms) const;
   virtual void Initialize();

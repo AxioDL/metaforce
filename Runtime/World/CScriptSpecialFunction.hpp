@@ -65,7 +65,7 @@ public:
     float x4_rotateSpeed;
     bool x8_reachedTarget;
     zeus::CVector3f xc_;
-    SRingController(TUniqueId uid, float f, bool b);
+    SRingController(TUniqueId uid, float rotateSpeed, bool reachedTarget);
   };
 
 private:

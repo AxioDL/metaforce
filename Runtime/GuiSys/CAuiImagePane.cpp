@@ -32,6 +32,12 @@ std::shared_ptr<CGuiWidget> CAuiImagePane::Create(CGuiFrame* frame, CInputStream
   return ret;
 }
 
+void CAuiImagePane::Reset(ETraversalMode mode) {
+  xc8_tex0 = CAssetId();
+  xb8_tex0Tok = TLockedToken<CTexture>();
+  CGuiWidget::Reset(mode);
+}
+
 void CAuiImagePane::Update(float dt) {
   xd0_uvBias0.x() = std::fmod(xd0_uvBias0.x(), 1.f);
   xd0_uvBias0.y() = std::fmod(xd0_uvBias0.y(), 1.f);

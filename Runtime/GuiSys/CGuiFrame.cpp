@@ -124,6 +124,10 @@ void CGuiFrame::SetMaxAspect(float c) {
   CGuiSys::ViewportResizeFrame(this);
 }
 
+void CGuiFrame::Reset() {
+  x10_rootWidget->Reset(ETraversalMode::Children);
+}
+
 void CGuiFrame::Update(float dt) { xc_headWidget->Update(dt); }
 
 void CGuiFrame::Draw(const CGuiWidgetDrawParms& parms) const {

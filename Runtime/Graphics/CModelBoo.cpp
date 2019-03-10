@@ -1188,15 +1188,7 @@ void CModel::Draw(const CModelFlags& flags) const {
 
 bool CModel::IsLoaded(int shaderIdx) const {
   const_cast<CBooModel&>(*x28_modelInst).VerifyCurrentShader(shaderIdx);
-  std::vector<TCachedToken<CTexture>>& texs = x28_modelInst->x1c_textures;
-  bool loaded = true;
-  for (TCachedToken<CTexture>& tex : texs) {
-    if (!tex.IsLoaded()) {
-      loaded = false;
-      break;
-    }
-  }
-  return loaded;
+  return const_cast<CBooModel&>(*x28_modelInst).TryLockTextures();
 }
 
 size_t CModel::GetPoolVertexOffset(size_t idx) const { return m_hmdlMeta.vertStride * idx; }

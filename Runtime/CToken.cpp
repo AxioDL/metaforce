@@ -91,7 +91,7 @@ void CToken::Lock() {
   }
 }
 bool CToken::IsLoaded() const {
-  if (!x0_objRef)
+  if (!x0_objRef || !x4_lockHeld)
     return false;
   return x0_objRef->IsLoaded();
 }
