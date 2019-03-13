@@ -71,6 +71,7 @@ CFrontEndUI::SNewFileSelectFrame::SNewFileSelectFrame(CSaveGameScreen* sui, u32 
 }
 
 void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
+  x1c_loadedFrame->Reset();
   x1c_loadedFrame->SetAspectConstraint(1.78f);
 
   x20_tablegroup_fileselect = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_fileselect"));

@@ -815,6 +815,7 @@ void CScriptGunTurret::ProcessTargettingState(EStateMsg msg, CStateManager& mgr,
       }
 
       zeus::CVector3f diffVec = x404_targetPosition - GetTranslation();
+      diffVec.z() = 0.f;
       if (diffVec.canBeNormalized()) {
         zeus::CVector3f normDiff = diffVec.normalized();
         float angDif = zeus::CVector3f::getAngleDiff(normDiff, GetTransform().frontVector());

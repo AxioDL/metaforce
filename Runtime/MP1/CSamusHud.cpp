@@ -42,8 +42,10 @@ CSamusHud::CSamusHud(CStateManager& stateMgr)
     x72c_camZTweaks[i] = 0.5f * i - 8.f;
 
   x264_loadedFrmeHelmet = x258_frmeHelmet.GetObj();
+  x264_loadedFrmeHelmet->Reset();
   x264_loadedFrmeHelmet->SetMaxAspect(1.78f);
   x274_loadedFrmeBaseHud = x268_frmeBaseHud.GetObj();
+  x274_loadedFrmeBaseHud->Reset();
   x274_loadedFrmeBaseHud->SetMaxAspect(1.78f);
   x2a0_helmetIntf = std::make_unique<CHudHelmetInterface>(*x264_loadedFrmeHelmet);
 

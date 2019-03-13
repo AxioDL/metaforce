@@ -953,12 +953,12 @@ CEntity* ScriptLoader::LoadRandomRelay(CStateManager& mgr, CInputStream& in, int
   if (!EnsurePropertyCount(propCount, 5, "RandomRelay"))
     return nullptr;
   std::string name = mgr.HashInstanceName(in);
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  bool b1 = in.readBool();
-  bool b2 = in.readBool();
+  u32 sendSetSize = in.readUint32Big();
+  u32 sendSetVariance = in.readUint32Big();
+  bool percentSize = in.readBool();
+  bool active = in.readBool();
 
-  return new CScriptRandomRelay(mgr.AllocateUniqueId(), name, info, w1, w2, b1, b2);
+  return new CScriptRandomRelay(mgr.AllocateUniqueId(), name, info, sendSetSize, sendSetVariance, percentSize, active);
 }
 
 CEntity* ScriptLoader::LoadRelay(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2033,7 +2033,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   CAssetId particle3 = in.readUint32Big();
-  zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in);
+  zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   bool solid = in.readBool();
@@ -2051,7 +2051,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
                            downwardSpeed, localOffset, particle1, particle1Scale, particle1GlobalTranslation,
                            deferDeleteTillParticle1Done, particle1Or, particle2, particle2Scale,
                            particle2GlobalTranslation, deferDeleteTillParticle2Done, particle2Or, particle3,
-                           particle3Scale, particle3Or, solid, dieOnProjectile, noBounce, active);
+                           particle2Scale, particle3Or, solid, dieOnProjectile, noBounce, active);
 }
 
 CEntity* ScriptLoader::LoadSteam(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

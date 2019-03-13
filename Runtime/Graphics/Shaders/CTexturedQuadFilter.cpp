@@ -233,10 +233,10 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) 
   float yBias = CGraphics::g_CroppedViewport.x8_top / float(g_Viewport.xc_height);
 
   Vert verts[4] = {
-      {{-1.0, -1.0, 0.f}, {xBias * uvScale, yBias * uvScale}},
-      {{-1.0, 1.0, 0.f}, {xBias * uvScale, (yBias + yFac) * uvScale}},
-      {{1.0, -1.0, 0.f}, {(xBias + xFac) * uvScale, yBias * uvScale}},
-      {{1.0, 1.0, 0.f}, {(xBias + xFac) * uvScale, (yBias + yFac) * uvScale}},
+      {{-1.f, -1.f, 0.f}, {xBias * uvScale, yBias * uvScale}},
+      {{-1.f, 1.f, 0.f}, {xBias * uvScale, (yBias + yFac) * uvScale}},
+      {{1.f, -1.f, 0.f}, {(xBias + xFac) * uvScale, yBias * uvScale}},
+      {{1.f, 1.f, 0.f}, {(xBias + xFac) * uvScale, (yBias + yFac) * uvScale}},
   };
   m_vbo->load(verts, sizeof(verts));
 

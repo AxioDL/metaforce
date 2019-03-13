@@ -136,8 +136,6 @@ pas::EAnimationState CBSProjectileAttack::GetBodyStateTransition(float dt, CBody
     return pas::EAnimationState::KnockBack;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Locomotion))
     return pas::EAnimationState::Locomotion;
-  if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Generate))
-    return pas::EAnimationState::Generate;
   if (bc.IsAnimationOver() || bc.GetCommandMgr().GetCmd(EBodyStateCmd::NextState))
     return pas::EAnimationState::Locomotion;
   return pas::EAnimationState::Invalid;

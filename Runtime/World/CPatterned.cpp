@@ -952,7 +952,8 @@ void CPatterned::GenerateDeathExplosion(CStateManager& mgr) {
                                        CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "", xf, 1,
                                        zeus::skOne3f, zeus::skWhite);
     mgr.AddObject(explo);
-  } else if (x530_deathExplosionElectric) {
+  }
+  if (x530_deathExplosionElectric) {
     zeus::CTransform xf(GetTransform());
     xf.origin = GetTransform() * (x64_modelData->GetScale() * x514_deathExplosionOffset);
     CExplosion* explo = new CExplosion(*x530_deathExplosionElectric, mgr.AllocateUniqueId(), true,

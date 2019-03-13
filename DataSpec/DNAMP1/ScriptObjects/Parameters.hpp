@@ -218,18 +218,18 @@ struct HealthInfo : BigDNA {
 struct LightParameters : BigDNA {
   AT_DECL_DNA_YAML
   Value<atUint32> propertyCount;
-  Value<bool> unknown1;
-  Value<float> unknown2;
+  Value<bool> castShadow;
+  Value<float> shadowScale;
   Value<atUint32> shadowTesselation;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<atVec4f> noLightsAmbient; // CColor
+  Value<float> shadowAlpha;
+  Value<float> maxShadowHeight;
+  Value<atVec4f> ambientColor; // CColor
   Value<bool> makeLights;
   Value<atUint32> worldLightingOptions;
-  Value<atUint32> lightRecalculationOptions;
-  Value<atVec3f> actorPosBias;
-  Value<atUint32> maxDynamicLights;
-  Value<atUint32> maxAreaLights;
+  Value<atUint32> lightRecalculation;
+  Value<atVec3f> lightingPositionOffset;
+  Value<atUint32> numDynamicLights;
+  Value<atUint32> numAreaLights;
   Value<bool> ambientChannelOverflow;
   Value<atUint32> layerIndex;
 };

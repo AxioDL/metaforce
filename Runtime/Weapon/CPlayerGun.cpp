@@ -1632,7 +1632,8 @@ void CPlayerGun::UpdateGunIdle(bool inStrikeCooldown, float camBobT, float dt, C
             (x2f4_fireButtonStates & 0x3) == 0 && x32c_chargePhase == EChargePhase::NotCharging && !x832_29_lockedOn &&
             (x2f8_stateFlags & 0x8) != 0x8 && x364_gunStrikeCoolTimer <= 0.f &&
             player.GetPlayerMovementState() == CPlayer::EPlayerMovementState::OnGround && !player.IsInFreeLook() &&
-            !player.GetFreeLookStickState() && x304_ == 0 && std::fabs(player.GetAngularVelocityOR().angle()) <= 0.1f &&
+            !player.GetFreeLookStickState() && player.GetOrbitState() == CPlayer::EPlayerOrbitState::NoOrbit &&
+            std::fabs(player.GetAngularVelocityOR().angle()) <= 0.1f &&
             camBobT <= 0.01f && !mgr.GetCameraManager()->IsInCinematicCamera() &&
             player.GetGunHolsterState() == CPlayer::EGunHolsterState::Drawn &&
             player.GetGrappleState() == CPlayer::EGrappleState::None && !x834_30_inBigStrike && !x835_25_inPhazonBeam);
@@ -1933,7 +1934,7 @@ void CPlayerGun::Update(float grappleSwingT, float cameraBobT, float dt, CStateM
   UpdateAuxWeapons(advDt, beamTargetXf, mgr);
   DoUserAnimEvents(advDt, mgr);
 
-  if (x304_ == 1 && GetTargetId(mgr) != kInvalidUniqueId) {
+  if (player.GetOrbitState() == CPlayer::EPlayerOrbitState::OrbitObject && GetTargetId(mgr) != kInvalidUniqueId) {
     if (!x832_29_lockedOn && !x832_26_comboFiring && (x2f8_stateFlags & 0x10) != 0x10) {
       x832_29_lockedOn = true;
       x6a0_motionState.SetState(CMotionState::EMotionState::LockOn);

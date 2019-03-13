@@ -889,7 +889,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   }
 
   zeus::CTransform orient = zeus::CTransform();
-  if (desc->x45_25_x31_27_PMOO)
+  if (!desc->x45_25_x31_27_PMOO)
     orient = x1d8_orientation;
   orient = orient * x22c_globalOrientation;
 

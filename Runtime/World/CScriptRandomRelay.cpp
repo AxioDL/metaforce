@@ -3,12 +3,12 @@
 #include "TCastTo.hpp"
 
 namespace urde {
-CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 connCount,
-                                       s32 variance, bool clamp, bool active)
+CScriptRandomRelay::CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 sendSetSize,
+                                       s32 sendSetVariance, bool percentSize, bool active)
 : CEntity(uid, info, active, name)
-, x34_connectionCount((clamp && connCount > 100) ? 100 : connCount)
-, x38_variance(variance)
-, x3c_clamp(clamp) {}
+, x34_sendSetSize((percentSize && sendSetSize > 100) ? 100 : sendSetSize)
+, x38_sendSetVariance(sendSetVariance)
+, x3c_percentSize(percentSize) {}
 
 void CScriptRandomRelay::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -27,27 +27,36 @@ void CScriptRandomRelay::SendLocalScriptMsgs(EScriptObjectState state, CStateMan
     return;
   }
 
-#if 0
-    std::vector<std::pair<CEntity*, EScriptObjectMessage>> objs;
-    objs.reserve(10);
-    for (const SConnection& conn : x20_conns)
-    {
-        auto list = stateMgr.GetIdListForScript(conn.x8_objId);
-        auto it = list.first;
-        for (; it != list.second; ++it)
-        {
-            CEntity* ent = stateMgr.ObjectById(it->second);
-            if (ent && ent->GetActive())
-                objs.emplace_back(ent, conn.x4_msg);
-        }
+  std::vector<std::pair<CEntity*, EScriptObjectMessage>> objs;
+  objs.reserve(10);
+  for (const SConnection& conn : x20_conns) {
+    auto list = stateMgr.GetIdListForScript(conn.x8_objId);
+    for (auto it = list.first; it != list.second; ++it) {
+      CEntity* ent = stateMgr.ObjectById(it->second);
+      if (ent && ent->GetActive())
+        objs.emplace_back(ent, conn.x4_msg);
     }
+  }
 
-    u32 r0 = x34_connectionCount;
-    if (x3c_clamp)
-        r0 = u32(0.5 + (float(x34_connectionCount) / 100.f));
+  s32 targetSetSize = x34_sendSetSize;
+  if (x3c_percentSize)
+    targetSetSize = s32(0.5f + (float(x34_sendSetSize * objs.size()) / 100.f));
+  targetSetSize += s32(float(x38_sendSetVariance) * 2.f * stateMgr.GetActiveRandom()->Float()) - x38_sendSetVariance;
+  targetSetSize = zeus::clamp(0, targetSetSize, 64);
 
-    float fVariance = float(x38_variance) * (2.f * stateMgr.GetActiveRandom()->Float());
+  while (objs.size() > targetSetSize) {
+    s32 randomRemoveIdx = s32(stateMgr.GetActiveRandom()->Float() * float(objs.size()) * 0.99f);
+    auto it = objs.begin();
+    for (s32 i = 0; i < randomRemoveIdx; ++i) {
+      ++it;
+      if (it == objs.end())
+        break;
+    }
+    if (it != objs.end())
+      objs.erase(it);
+  }
 
-#endif
+  for (const auto& o : objs)
+    stateMgr.SendScriptMsg(o.first, GetUniqueId(), o.second);
 }
 } // namespace urde

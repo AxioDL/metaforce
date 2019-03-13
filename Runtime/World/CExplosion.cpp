@@ -65,7 +65,7 @@ void CExplosion::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
 void CExplosion::Think(float dt, CStateManager& mgr) {
   if (xe4_28_transformDirty) {
     xe8_particleGen->SetGlobalTranslation(GetTranslation());
-    xe8_particleGen->SetGlobalOrientation(GetTransform().getRotation());
+    xe8_particleGen->SetOrientation(GetTransform().getRotation());
     xe4_28_transformDirty = false;
   }
   xe8_particleGen->Update(dt);

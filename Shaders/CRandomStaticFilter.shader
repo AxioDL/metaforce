@@ -221,15 +221,13 @@ struct VertToFrag
 
 ivec2 Lookup8BPP(in vec2 uv, in float randOff)
 {
-    float bx;
-    float rx = modf(uv.x / 8.0, bx) * 8.0;
-    float by;
-    float ry = modf(uv.y / 4.0, by) * 4.0;
-    float bidx = by * 80.0 + bx;
-    float addr = bidx * 32.0 + ry * 8.0 + rx + randOff;
-    float y;
-    float x = modf(addr / 1024.0, y) * 1024.0;
-    return ivec2(x, y);
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return ivec2(addr & 0x3ff, addr >> 10);
 }
 
 SBINDING(0) in VertToFrag vtf;
@@ -254,15 +252,13 @@ struct VertToFrag
 
 static int3 Lookup8BPP(float2 uv, float randOff)
 {
-    float bx;
-    float rx = modf(uv.x / 8.0, bx) * 8.0;
-    float by;
-    float ry = modf(uv.y / 4.0, by) * 4.0;
-    float bidx = by * 80.0 + bx;
-    float addr = bidx * 32.0 + ry * 8.0 + rx + randOff;
-    float y;
-    float x = modf(addr / 1024.0, y) * 1024.0;
-    return int3(x, y, 0);
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return int3(addr & 0x3ff, addr >> 10, 0);
 }
 
 Texture2D tex : register(t0);
@@ -286,15 +282,13 @@ struct VertToFrag
 
 static uint2 Lookup8BPP(float2 uv, float randOff)
 {
-    float bx;
-    float rx = modf(uv.x / 8.0, bx) * 8.0;
-    float by;
-    float ry = modf(uv.y / 4.0, by) * 4.0;
-    float bidx = by * 80.0 + bx;
-    float addr = bidx * 32.0 + ry * 8.0 + rx + randOff;
-    float y;
-    float x = modf(addr / 1024.0, y) * 1024.0;
-    return uint2(x, y);
+    int bx = int(uv.x) >> 3;
+    int rx = int(uv.x) & 0x7;
+    int by = int(uv.y) >> 2;
+    int ry = int(uv.y) & 0x3;
+    int bidx = by * 128 + bx;
+    int addr = bidx * 32 + ry * 8 + rx + int(randOff);
+    return uint2(addr & 0x3ff, addr >> 10);
 }
 
 fragment float4 fmain(VertToFrag vtf [[ stage_in ]],

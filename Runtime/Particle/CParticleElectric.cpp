@@ -153,7 +153,7 @@ void CParticleElectric::UpdateLine(int idx, int frame) {
 void CParticleElectric::UpdateElectricalEffects() {
   for (auto it = x3e8_electricManagers.begin(); it != x3e8_electricManagers.end();) {
     CParticleElectricManager& elec = *it;
-    if (elec.x4_slif < 1) {
+    if (elec.x4_slif <= 1) {
       x1bc_allocated[elec.x0_idx] = false;
       if (elec.x10_gpsmIdx != -1)
         x400_gpsmGenerators[elec.x10_gpsmIdx]->SetParticleEmission(false);
@@ -373,6 +373,7 @@ void CParticleElectric::CreateNewParticles(int count) {
               gen.SetTranslation(scale * x420_calculatedVerts.front());
               gen.SetParticleEmission(true);
               elec.x10_gpsmIdx = k;
+              break;
             }
           }
         }
@@ -386,6 +387,7 @@ void CParticleElectric::CreateNewParticles(int count) {
               gen.SetTranslation(scale * x420_calculatedVerts.back());
               gen.SetParticleEmission(true);
               elec.x14_epsmIdx = k;
+              break;
             }
           }
         }

@@ -4,12 +4,13 @@
 
 namespace urde {
 class CScriptRandomRelay : public CEntity {
-  u32 x34_connectionCount;
-  u32 x38_variance;
-  bool x3c_clamp;
+  s32 x34_sendSetSize;
+  s32 x38_sendSetVariance;
+  bool x3c_percentSize;
 
 public:
-  CScriptRandomRelay(TUniqueId, std::string_view, const CEntityInfo&, s32, s32, bool, bool);
+  CScriptRandomRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 sendSetSize,
+                     s32 sendSetVariance, bool percentSize, bool active);
 
   void Accept(IVisitor& visitor);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);

@@ -46,6 +46,7 @@ bool CMessageScreen::Update(float dt, float blurAmt) {
   x70_blurAmt = blurAmt;
   if (!x18_loadedMsgScreen && xc_msgScreen.IsLoaded() && x0_msg.IsLoaded()) {
     x18_loadedMsgScreen = xc_msgScreen.GetObj();
+    x18_loadedMsgScreen->Reset();
     x1c_textpane_message = static_cast<CGuiTextPane*>(x18_loadedMsgScreen->FindWidget("textpane_message"));
     x20_basewidget_top = x18_loadedMsgScreen->FindWidget("basewidget_top");
     x24_basewidget_center = x18_loadedMsgScreen->FindWidget("basewidget_center");

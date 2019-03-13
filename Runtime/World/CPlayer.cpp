@@ -5472,7 +5472,7 @@ void CPlayer::Touch(CActor& actor, CStateManager& mgr) {
 
 void CPlayer::CVisorSteam::SetSteam(float targetAlpha, float alphaInDur, float alphaOutDur, CAssetId txtr,
                                     bool affectsThermal) {
-  if (x1c_txtr.IsValid() || targetAlpha > x10_nextTargetAlpha) {
+  if (!x1c_txtr.IsValid() || targetAlpha > x10_nextTargetAlpha) {
     x10_nextTargetAlpha = targetAlpha;
     x14_nextAlphaInDur = alphaInDur;
     x18_nextAlphaOutDur = alphaOutDur;
@@ -5484,9 +5484,9 @@ void CPlayer::CVisorSteam::SetSteam(float targetAlpha, float alphaInDur, float a
 CAssetId CPlayer::CVisorSteam::GetTextureId() const { return xc_tex; }
 
 void CPlayer::CVisorSteam::Update(float dt) {
-  if (!x1c_txtr.IsValid())
+  if (!x1c_txtr.IsValid()) {
     x0_curTargetAlpha = 0.f;
-  else {
+  } else {
     x0_curTargetAlpha = x10_nextTargetAlpha;
     x4_curAlphaInDur = x14_nextAlphaInDur;
     x8_curAlphaOutDur = x18_nextAlphaOutDur;
@@ -5494,16 +5494,18 @@ void CPlayer::CVisorSteam::Update(float dt) {
   }
 
   x1c_txtr.Reset();
-  if ((x20_alpha - x0_curTargetAlpha) < 0.000009999f || std::fabs(x20_alpha) > 0.000009999f)
+  if (zeus::close_enough(x20_alpha, x0_curTargetAlpha) && zeus::close_enough(x20_alpha, 0.f))
     return;
 
   if (x20_alpha > x0_curTargetAlpha) {
     if (x24_delayTimer <= 0.f) {
       x20_alpha -= dt / x8_curAlphaOutDur;
-      x20_alpha = std::min(x20_alpha, x0_curTargetAlpha);
+      if (x20_alpha < x0_curTargetAlpha)
+        x20_alpha = x0_curTargetAlpha;
     } else {
-      x24_delayTimer = x0_curTargetAlpha - dt;
-      x24_delayTimer = zeus::max(0.f, x24_delayTimer);
+      x24_delayTimer -= dt;
+      if (x24_delayTimer < 0.f)
+        x24_delayTimer = 0.f;
     }
     return;
   }

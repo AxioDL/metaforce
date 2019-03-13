@@ -51,7 +51,7 @@ zeus::CVector3f CSteeringBehaviors::Separation(const CPhysicsActor& actor, const
   if (!posDiff.canBeNormalized())
     return actor.GetTransform().frontVector();
 
-  return (1.f - (posDiff.magSquared() / (separation * separation))) * posDiff;
+  return (1.f - (posDiff.magSquared() / (separation * separation))) * posDiff.normalized();
 }
 
 zeus::CVector3f CSteeringBehaviors::Alignment(const CPhysicsActor& actor, rstl::reserved_vector<TUniqueId, 1024>& list,
