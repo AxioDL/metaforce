@@ -62,7 +62,7 @@ private:
   static constexpr s32 skSphereJointCount = 5;
   static const SSphereJointInfo skSphereJointList[skSphereJointCount];
   static const std::string_view skpMouthDamageJoint;
-  u32 x568_ = -1;
+  s32 x568_ = -1;
   u32 x56c_ = 0;
   CBabygothData x570_babyData;
   TUniqueId x6e8_teamMgr = kInvalidUniqueId;
@@ -115,14 +115,23 @@ private:
     };
     u32 _dummy = 0;
   };
+
   void AddSphereCollisionList(const SSphereJointInfo*, s32, std::vector<CJointCollisionDescription>&);
+
   void SetupCollisionManager(CStateManager&);
+
   void SetupHealthInfo(CStateManager&);
+
   void CreateFlameThrower(CStateManager&);
+
   void ApplyContactDamage(TUniqueId, CStateManager&);
+
   void RemoveFromTeam(CStateManager&);
+
   void ApplySeparationBehavior(CStateManager&);
+
   bool IsMouthCollisionActor(TUniqueId uid) { return x9f6_ == uid; }
+
   bool IsShell(TUniqueId uid) {
     for (TUniqueId shellId : x9f8_shellIds) {
       if (shellId == uid)
@@ -130,37 +139,64 @@ private:
     }
     return false;
   }
-  void CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform&, s16, bool);
-  void sub8021d478(CStateManager&, TUniqueId);
+
+  void ApplyDamage(CStateManager& mgr, TUniqueId uid);
+
   void AvoidPlayerCollision(float, CStateManager&);
-  s32 sub8023a180(TUniqueId, CStateManager&);
-  void sub8021d6e8(CStateManager&);
+
+  void AddToTeam(CStateManager& mgr);
+
   void sub8021e2c4(float);
+
   void sub8021e708(CStateManager&);
+
   void UpdateParticleEffects(float, CStateManager&);
+
   void TryToGetUp(CStateManager& mgr);
+
   bool CheckShouldWakeUp(CStateManager&, float);
+
   void SetProjectilePasshtrough(CStateManager&);
+
   void UpdateTouchBounds();
+
   void UpdateAttackPosition(CStateManager&, zeus::CVector3f&);
-  void sub8021d644(CStateManager&);
+
+  void sub8021e3f4(CStateManager&);
+
   bool IsDestinationObstructed(CStateManager&);
+
+  void sub8021d9d0(CStateManager&);
+
+  void CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform&, u16, bool);
+
+  void UpdateHealthInfo(CStateManager&);
+
+  float CalculateShellCrackHP(u32);
 
 public:
   DEFINE_PATTERNED(Babygoth)
+
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);
+
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     CPatterned::PreRender(mgr, frustum);
     xb4_drawFlags.x1_matSetIdx = u8(xa04_);
   }
 
   void Think(float, CStateManager&);
+
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
+
   float GetGravityConstant() const { return 10.f * 24.525f; }
+
   void SetPathFindMode(EPathFindMode mode) { x8b4_pathFindMode = mode; }
+
   const CCollisionPrimitive* GetCollisionPrimitive() const { return &x930_aabox; }
+
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
                                                          const CWeaponMode& wMode, EProjectileAttrib attrib) const {
     if (wMode.GetType() == EWeaponType::Ice)
@@ -170,26 +206,50 @@ public:
     return CPatterned::GetCollisionResponseType(v1, v2, wMode, attrib);
   }
 
+  const CDamageVulnerability* GetDamageVulnerability() const {
+    return &CDamageVulnerability::ReflectVulnerabilty();
+  }
+
+  const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                     const CDamageInfo&) const {
+    return &CDamageVulnerability::ReflectVulnerabilty();
+  }
+
   void TakeDamage(const zeus::CVector3f&, float) {
     if (x400_25_alive)
       x428_damageCooldownTimer = 0.33f;
   }
+
   void Shock(CStateManager&, float, float);
 
   void TurnAround(CStateManager&, EStateMsg, float);
+
   void GetUp(CStateManager&, EStateMsg, float);
+
   void Enraged(CStateManager&, EStateMsg, float);
+
   void FollowPattern(CStateManager&, EStateMsg, float);
+
   void Taunt(CStateManager&, EStateMsg, float);
+
   void Crouch(CStateManager&, EStateMsg, float);
+
   void Deactivate(CStateManager&, EStateMsg, float);
+
   void Generate(CStateManager&, EStateMsg, float);
+
   void TargetPatrol(CStateManager&, EStateMsg, float);
+
   void Patrol(CStateManager&, EStateMsg, float);
+
   void Approach(CStateManager&, EStateMsg, float);
+
   void PathFind(CStateManager&, EStateMsg, float);
+
   void SpecialAttack(CStateManager&, EStateMsg, float);
+
   void Attack(CStateManager&, EStateMsg, float);
+
   void ProjectileAttack(CStateManager&, EStateMsg, float);
 
   bool AnimOver(CStateManager&, float) { return x568_ == 4; }
@@ -199,9 +259,18 @@ public:
       return true;
     return CPatterned::SpotPlayer(mgr, arg);
   }
+
   bool InPosition(CStateManager&, float) { return (x8b8_ - GetTranslation()).magSquared() < 9.f; }
+  bool InMaxRange(CStateManager&, float);
 
   bool ShotAt(CStateManager&, float) { return x400_24_hitByPlayerProjectile; }
+
+  bool OffLine(CStateManager& mgr, float arg) {
+    SetPathFindMode(EPathFindMode::Zero);
+    return PathShagged(mgr, arg);
+  }
+  bool ShouldTurn(CStateManager& mgr, float arg);
+  bool Listen(const zeus::CVector3f&, EListenNoiseType);
 };
 
 } // namespace urde::MP1

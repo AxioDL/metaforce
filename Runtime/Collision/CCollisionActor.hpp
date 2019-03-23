@@ -44,6 +44,7 @@ public:
   const CCollisionPrimitive* GetCollisionPrimitive() const;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
                                                          const CWeaponMode&, EProjectileAttrib) const;
+  void SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes type) { x300_responseType = type; }
   zeus::CTransform GetPrimitiveTransform() const;
   rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void SetDamageVulnerability(const CDamageVulnerability& vuln);
