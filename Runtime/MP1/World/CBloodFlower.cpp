@@ -2,6 +2,7 @@
 #include "Particle/CGenDescription.hpp"
 #include "Particle/CElementGen.hpp"
 #include "Weapon/CProjectileWeapon.hpp"
+#include "Weapon/CTargetableProjectile.hpp"
 #include "World/CPlayer.hpp"
 #include "World/CScriptTrigger.hpp"
 #include "CSimplePool.hpp"
@@ -18,10 +19,10 @@ CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityIn
              EMovementType::Ground, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x568_podEffectDesc(g_SimplePool->GetObj({FOURCC('PART'), partId1}))
 , x574_podEffect(new CElementGen(x568_podEffectDesc))
-, x578_(g_SimplePool->GetObj({FOURCC('WPSC'), wpscId1}))
+, x578_projectileDesc(g_SimplePool->GetObj({FOURCC('WPSC'), wpscId1}))
 , x590_projectileInfo(wpscId2, dInfo1)
-, x5d4_(CSfxManager::TranslateSFXID(soundId))
-, x5dc_(dInfo2)
+, x5d4_visorSfx(CSfxManager::TranslateSFXID(soundId))
+, x5dc_projectileDamage(dInfo2)
 , x5f8_podDamage(dInfo3)
 , x614_(f1)
 , x618_(partId2)
@@ -35,7 +36,7 @@ CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityIn
   x590_projectileInfo.Token().Lock();
   x460_knockBackController.SetAutoResetImpulse(false);
   if (partId5.IsValid()) {
-    x5c4_ = g_SimplePool->GetObj({FOURCC('PART'), partId5});
+    x5c4_visorParticle = g_SimplePool->GetObj({FOURCC('PART'), partId5});
   }
 }
 
@@ -60,12 +61,10 @@ void CBloodFlower::sub80119364(CStateManager& mgr) {
 void CBloodFlower::UpdateFire(CStateManager& mgr) {
   if (x5d8_effectState == 0) {
     TurnEffectsOn(0, mgr);
-  }
-  else if (x5d8_effectState == 1) {
+  } else if (x5d8_effectState == 1) {
     TurnEffectsOff(0, mgr);
     TurnEffectsOn(1, mgr);
-  }
-  else if (x5d8_effectState == 2) {
+  } else if (x5d8_effectState == 2) {
     TurnEffectsOff(1, mgr);
     TurnEffectsOn(2, mgr);
   }
@@ -74,9 +73,9 @@ void CBloodFlower::UpdateFire(CStateManager& mgr) {
 }
 
 static std::string_view sFireEffects[3] = {
-  "Fire1"sv,
-  "Fire2"sv,
-  "Fire3"sv,
+    "Fire1"sv,
+    "Fire2"sv,
+    "Fire3"sv,
 };
 
 void CBloodFlower::TurnEffectsOn(u32 effect, CStateManager& mgr) {
@@ -106,16 +105,40 @@ void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
       x58c_projectileState = 0;
       x5bc_projectileDelay = 0.5f;
     }
-   return;
-  }
-  else if (type == EUserEventType::Delete) {
+    return;
+  } else if (type == EUserEventType::Delete) {
     if (x5d8_effectState > 0)
       TurnEffectsOff((x5d8_effectState > 3 ? x5d8_effectState - 1 : 2), mgr);
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float f1, s32 w1) {
+void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1, s32 w1) {
+  static float tickPeriod = CProjectileWeapon::GetTickPeriod();
+  CProjectileInfo* proj = GetProjectileInfo();
+  TLockedToken<CWeaponDescription> projToken = proj->Token();
+
+  if (!projToken)
+    return;
+
+  zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+
+  float zDiff = xf.origin.z() - aimPos.z();
+  float f2 = (zDiff > 0.f ? var_f1 : -zDiff + var_f1);
+  if (zDiff > 0.f)
+    var_f1 = zDiff + var_f1;
+  float f7 = std::sqrt(2.f * f2 / 4.9050002f) + std::sqrt(2.f * var_f1 / 4.9050002f);
+  float f4 = 1.f / f7;
+  zeus::CVector3f vel{f4 * (aimPos.x() - xf.origin.x()), f4 * (aimPos.y() - xf.origin.y()),
+                      2.4525001f * f7 + (-zDiff / f7)};
+  if (CTargetableProjectile* targProj =
+          CreateArcProjectile(mgr, GetProjectileInfo()->Token(), zeus::CTransform::Translate(xf.origin),
+                              GetProjectileInfo()->GetDamage(), kInvalidUniqueId)) {
+    targProj->ProjectileWeapon().SetVelocity(CProjectileWeapon::GetTickPeriod() * vel);
+    targProj->ProjectileWeapon().SetGravity(CProjectileWeapon::GetTickPeriod() *
+                                            zeus::CVector3f(0.f, 0.f, -4.9050002f));
+    mgr.AddObject(targProj);
+  }
 }
 
 void CBloodFlower::Render(const CStateManager& mgr) const {
@@ -157,7 +180,7 @@ void CBloodFlower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());
     x584_curAttackTime += arg;
     x450_bodyController->GetCommandMgr().DeliverAdditiveTargetVector(
-      GetTransform().transposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation()));
+        GetTransform().transposeRotate(mgr.GetPlayer().GetTranslation() - GetTranslation()));
   } else if (msg == EStateMsg::Deactivate) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::AdditiveIdle));
@@ -175,8 +198,8 @@ void CBloodFlower::InActive(CStateManager& mgr, EStateMsg msg, float) {
 
 void CBloodFlower::BulbAttack(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
-    x450_bodyController->GetCommandMgr().DeliverCmd(CBCProjectileAttackCmd(pas::ESeverity::Zero,
-                                                                           mgr.GetPlayer().GetTranslation(), true));
+    x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCProjectileAttackCmd(pas::ESeverity::Zero, mgr.GetPlayer().GetTranslation(), true));
     x58c_projectileState = 1;
   }
 }
@@ -209,6 +232,25 @@ void CBloodFlower::ActivateTriggers(CStateManager& mgr, bool activate) {
       }
     }
   }
+}
+
+CTargetableProjectile* CBloodFlower::CreateArcProjectile(CStateManager& mgr, const TToken<CWeaponDescription>& desc,
+                                                         const zeus::CTransform& xf, const CDamageInfo& damage,
+                                                         TUniqueId uid) {
+
+  if (!x578_projectileDesc)
+    return nullptr;
+
+  TUniqueId projId = mgr.AllocateUniqueId();
+  CTargetableProjectile* targProj = new CTargetableProjectile(
+      desc, EWeaponType::AI, xf, EMaterialTypes::Character, damage, x5dc_projectileDamage, projId, GetAreaIdAlways(),
+      GetUniqueId(), x578_projectileDesc, uid, EProjectileAttrib::None, {x5c4_visorParticle}, x5d4_visorSfx, false);
+  if (mgr.GetPlayer().GetOrbitTargetId() == GetUniqueId()) {
+    mgr.GetPlayer().ResetAimTargetPrediction(projId);
+    mgr.GetPlayer().SetOrbitTargetId(projId, mgr);
+  }
+
+  return targProj;
 }
 
 } // namespace urde::MP1

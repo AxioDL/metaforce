@@ -7,13 +7,14 @@ namespace urde {
 class CGenDescription;
 class CElementGen;
 class CWeaponDescription;
-}
+class CTargetableProjectile;
+} // namespace urde
 
 namespace urde::MP1 {
 class CBloodFlower : public CPatterned {
   TLockedToken<CGenDescription> x568_podEffectDesc;
   std::unique_ptr<CElementGen> x574_podEffect;
-  TLockedToken<CWeaponDescription> x578_;
+  TLockedToken<CWeaponDescription> x578_projectileDesc;
   float x584_curAttackTime = 0.f;
   float x588_projectileOffset = 0.f;
   u32 x58c_projectileState = 0;
@@ -21,10 +22,10 @@ class CBloodFlower : public CPatterned {
   float x5b8_ = 0.f;
   float x5bc_projectileDelay = 0.f;
   float x5c0_ = 0.f;
-  TLockedToken<CGenDescription> x5c4_;
-  s16 x5d4_;
+  TLockedToken<CGenDescription> x5c4_visorParticle;
+  s16 x5d4_visorSfx;
   u32 x5d8_effectState = 0;
-  CDamageInfo x5dc_;
+  CDamageInfo x5dc_projectileDamage;
   CDamageInfo x5f8_podDamage;
   float x614_;
   CAssetId x618_;
@@ -37,6 +38,9 @@ class CBloodFlower : public CPatterned {
   void TurnEffectsOn(u32, CStateManager&);
   void TurnEffectsOff(u32, CStateManager&);
   void LaunchPollenProjectile(const zeus::CTransform&, CStateManager&, float, s32);
+  CTargetableProjectile* CreateArcProjectile(CStateManager&, const TToken<CWeaponDescription>&, const zeus::CTransform&,
+                                             const CDamageInfo&, TUniqueId);
+
 public:
   DEFINE_PATTERNED(BloodFlower)
 
@@ -49,7 +53,6 @@ public:
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
   void Render(const CStateManager& mgr) const;
   CProjectileInfo* GetProjectileInfo() { return &x590_projectileInfo; }
-
 
   bool ShouldAttack(CStateManager&, float);
   bool ShouldTurn(CStateManager&, float);
