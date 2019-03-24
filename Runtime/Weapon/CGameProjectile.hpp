@@ -82,6 +82,8 @@ public:
   CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr);
   zeus::CAABox GetProjectileBounds() const;
   rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  CProjectileWeapon& ProjectileWeapon() { return x170_projectile; }
+  const CProjectileWeapon& GetProjectileWeapon() const { return x170_projectile; }
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }
   zeus::CVector3f GetPreviousPos() const { return x298_previousPos; }
 };

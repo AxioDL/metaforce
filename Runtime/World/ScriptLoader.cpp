@@ -118,9 +118,6 @@
 namespace urde {
 static logvisor::Module Log("urde::ScriptLoader");
 
-#define UNIMPLEMENTED(name) \
-  Log.report(logvisor::Warning, "Attempted to load unimplemented object '%s'", name);
-
 static SObjectTag MorphballDoorANCS = {};
 
 static const SObjectTag& GetMorphballDoorACS() {
@@ -1922,7 +1919,6 @@ CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int 
 }
 
 CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("Ripper");
   return nullptr;
 }
 
@@ -1939,7 +1935,6 @@ CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("AIKeyframe");
   return nullptr;
 }
 
@@ -1958,7 +1953,6 @@ CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("Drone");
   return nullptr;
 }
 
@@ -2139,7 +2133,6 @@ CEntity* ScriptLoader::LoadEMPulse(CStateManager& mgr, CInputStream& in, int pro
 }
 
 CEntity* ScriptLoader::LoadIceSheegoth(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("IceSheegoth");
   return nullptr;
 }
 
@@ -2187,7 +2180,6 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
 }
 
 CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("Flaahgra");
   return nullptr;
 }
 
@@ -2454,7 +2446,6 @@ CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& i
 }
 
 CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("Thardus");
   return nullptr;
 }
 
@@ -2526,7 +2517,6 @@ CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info) {
-  UNIMPLEMENTED("FlaahgraTentacle");
   return nullptr;
 }
 
@@ -2595,7 +2585,6 @@ CEntity* ScriptLoader::LoadColorModulate(CStateManager& mgr, CInputStream& in, i
 
 CEntity* ScriptLoader::LoadThardusRockProjectile(CStateManager& mgr, CInputStream& in, int propCount,
                                                  const CEntityInfo& info) {
-  UNIMPLEMENTED("ThardusRockProjectile");
   return nullptr;
 }
 
@@ -2934,7 +2923,6 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
 }
 
 CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("Oculus");
   return nullptr;
 }
 
@@ -3377,7 +3365,6 @@ CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
 
 CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount,
                                               const CEntityInfo& info) {
-  UNIMPLEMENTED("MetroidPrimeStage2");
   return nullptr;
 }
 
@@ -3430,18 +3417,15 @@ CEntity* ScriptLoader::LoadMazeNode(CStateManager& mgr, CInputStream& in, int pr
 }
 
 CEntity* ScriptLoader::LoadOmegaPirate(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("OmegaPirate");
   return nullptr;
 }
 
 CEntity* ScriptLoader::LoadPhazonPool(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("PhazonPool");
   return nullptr;
 }
 
 CEntity* ScriptLoader::LoadPhazonHealingNodule(CStateManager& mgr, CInputStream& in, int propCount,
                                                const CEntityInfo& info) {
-  UNIMPLEMENTED("PhazonHealingNodule");
   return nullptr;
 }
 
@@ -3485,7 +3469,6 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  UNIMPLEMENTED("EnergyBall");
   return nullptr;
 }
 } // namespace urde

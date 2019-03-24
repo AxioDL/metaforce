@@ -93,9 +93,10 @@ public:
   void UpdateParticleFX();
   virtual void Update(float dt);
   void SetGravity(const zeus::CVector3f& grav) { xbc_gravity = grav; }
+  zeus::CVector3f GetGravity() const { return xbc_gravity; }
   static void SetGlobalSeed(u16 seed) { g_GlobalSeed = seed; }
   CElementGen* GetAttachedPS1() const { return xfc_APSMGen.get(); }
   double GameTime() const { return xd0_curTime; }
-  static float GetTickPeriod() { return 0.0166667f; }
+  static constexpr float GetTickPeriod() { return 0.0166667f; }
 };
 } // namespace urde

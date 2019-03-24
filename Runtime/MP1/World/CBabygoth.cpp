@@ -10,6 +10,7 @@
 #include "Weapon/CWeapon.hpp"
 #include "Weapon/CFlameThrower.hpp"
 #include "Weapon/CFlameInfo.hpp"
+#include "World/CExplosion.hpp"
 #include "Particle/CWeaponDescription.hpp"
 #include "CStateManager.hpp"
 #include "CSimplePool.hpp"
@@ -175,9 +176,18 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
       x8e8_ = 0.f;
       mgr.InformListeners(GetTranslation(), EListenNoiseType::PlayerFire);
     } else
-      sub8021d478(mgr, uid);
+      ApplyDamage(mgr, uid);
     x400_24_hitByPlayerProjectile = true;
     break;
+  }
+  case EScriptObjectMessage::InvulnDamage: {
+    mgr.InformListeners(GetTranslation(), EListenNoiseType::PlayerFire);
+    x400_24_hitByPlayerProjectile = true;
+    xa48_24_isAlert = true;
+    x8e8_ = 0.f;
+    if (!TCastToPtr<CCollisionActor>(mgr.ObjectById(uid)))
+      ApplyDamage(mgr, uid);
+   break;
   }
   case EScriptObjectMessage::SuspendedMove: {
     if (x928_colActMgr)
@@ -196,8 +206,8 @@ void CBabygoth::Think(float dt, CStateManager& mgr) {
 
   AvoidPlayerCollision(dt, mgr);
   if (xa49_26_) {
-    if (sub8023a180(x6e8_teamMgr, mgr) == 0)
-      sub8021d6e8(mgr);
+    if (!CTeamAiMgr::GetTeamAiRole(mgr, x6e8_teamMgr, GetUniqueId()))
+      AddToTeam(mgr);
   }
 
   CPatterned::Think(dt, mgr);
@@ -257,6 +267,7 @@ void CBabygoth::DoUserAnimEvent(urde::CStateManager& mgr, const urde::CInt32POIN
   }
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
+
 const SSphereJointInfo CBabygoth::skSphereJointList[skSphereJointCount] = {
     {"L_knee", 1.2f}, {"R_knee", 1.2f}, {"LCTR_SHEMOUTH", 1.7f}, {"Pelvis", 1.2f}, {"butt_LCTR", 0.9f}};
 
@@ -345,9 +356,16 @@ void CBabygoth::RemoveFromTeam(urde::CStateManager& mgr) {
 }
 
 void CBabygoth::ApplySeparationBehavior(CStateManager& mgr) {}
-void CBabygoth::CrackShell(CStateManager&, const TLockedToken<CGenDescription>&, const zeus::CTransform&, s16, bool) {}
 
-void CBabygoth::sub8021d478(CStateManager&, TUniqueId) {}
+void CBabygoth::ApplyDamage(CStateManager& mgr, TUniqueId uid) {
+  if (TCastToConstPtr<CWeapon> weap = mgr.GetObjectById(uid)) {
+    if (x9f8_shellIds.empty())
+      return;
+
+    mgr.ApplyDamage(uid, x9f8_shellIds[0], weap->GetOwnerId(), weap->GetDamageInfo(),
+                    CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
+  }
+}
 
 void CBabygoth::Shock(CStateManager& mgr, float duration, float damage) {
   if (x9f8_shellIds.empty())
@@ -370,9 +388,64 @@ void CBabygoth::UpdateTouchBounds() {
   x930_aabox.Box() = bounds;
 }
 
-void CBabygoth::UpdateAttackPosition(CStateManager&, zeus::CVector3f&) {}
+void CBabygoth::UpdateAttackPosition(CStateManager& mgr, zeus::CVector3f& attackPos) {
+  attackPos = GetTranslation();
+  if (x8d8_ > 0.f)
+    return;
+  attackPos = mgr.GetPlayer().GetTranslation();
+  zeus::CVector3f distVec = GetTranslation() - attackPos;
+  if (distVec.canBeNormalized())
+    attackPos += x2fc_minAttackRange * distVec.normalized();
+}
 
-void CBabygoth::sub8021d644(urde::CStateManager&) {}
+void CBabygoth::sub8021e3f4(urde::CStateManager& mgr) {
+  if (xa00_shellHitPoints <= 0.f)
+    return;
+
+  float hp = 0.f;
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_))
+    hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x570_babyData.GetShellHitPoints());
+
+  for (TUniqueId uid : x9f8_shellIds) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x570_babyData.GetShellHitPoints());
+    }
+  }
+
+  xa00_shellHitPoints -= hp;
+  if (xa00_shellHitPoints <= 0.f) {
+    x56c_ = 3;
+    sub8021d9d0(mgr);
+    CrackShell(mgr, xa2c_, x34_transform, x570_babyData.x15c_, false);
+    UpdateHealthInfo(mgr);
+  } else {
+    if (xa00_shellHitPoints < CalculateShellCrackHP(2)) {
+      if (x56c_ != 2) {
+        CrackShell(mgr, xa20_, x34_transform, x570_babyData.x15a_, false);
+        x56c_ = 2;
+        xa04_ = 2;
+      }
+    } else if (xa00_shellHitPoints < CalculateShellCrackHP(1)) {
+      if (x56c_ != 1) {
+        CrackShell(mgr, xa14_, x34_transform, x570_babyData.x158_, false);
+        x56c_ = 1;
+        xa04_ = 1;
+      }
+    }
+  }
+
+  hp = (x56c_ == 3 ? x8ec_ : x570_babyData.GetShellHitPoints());
+
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_)) {
+    colAct->HealthInfo(mgr)->SetHP(hp);
+  }
+
+  for (TUniqueId uid : x9f8_shellIds) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      colAct->HealthInfo(mgr)->SetHP(hp);
+    }
+  }
+}
 
 void CBabygoth::AvoidPlayerCollision(float dt, CStateManager& mgr) {
   if (x450_bodyController->GetLocomotionType() == pas::ELocomotionType::Crouch ||
@@ -397,9 +470,15 @@ void CBabygoth::AvoidPlayerCollision(float dt, CStateManager& mgr) {
   }
 }
 
-s32 CBabygoth::sub8023a180(TUniqueId, CStateManager&) { return 0; }
-
-void CBabygoth::sub8021d6e8(CStateManager& mgr) {}
+void CBabygoth::AddToTeam(CStateManager& mgr) {
+  if (x6e8_teamMgr == kInvalidUniqueId)
+    return;
+  if (TCastToPtr<CTeamAiMgr> aiMgr = mgr.ObjectById(x6e8_teamMgr)) {
+    if (!aiMgr->IsPartOfTeam(GetUniqueId()))
+      aiMgr->AssignTeamAiRole(*this, CTeamAiRole::ETeamAiRole::Melee, CTeamAiRole::ETeamAiRole::Ranged,
+                              CTeamAiRole::ETeamAiRole::Invalid);
+  }
+}
 
 void CBabygoth::sub8021e2c4(float dt) {
   if (x8d8_ > 0.f)
@@ -412,7 +491,43 @@ void CBabygoth::sub8021e2c4(float dt) {
     x8e8_ += dt;
 }
 
-void CBabygoth::sub8021e708(CStateManager&) {}
+void CBabygoth::sub8021e708(CStateManager& mgr) {
+  if (!x400_25_alive)
+    return;
+
+  if (x56c_ == 3) {
+    float hp = 0.f;
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_)) {
+      hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x8ec_);
+    }
+
+    for (TUniqueId uid : x9f8_shellIds) {
+      if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+        hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x8ec_);
+      }
+    }
+
+    HealthInfo(mgr)->SetHP(hp - HealthInfo(mgr)->GetHP());
+    if (HealthInfo(mgr)->GetHP() <= 0.f) {
+      Death(mgr, {}, EScriptObjectState::DeathRattle);
+      xa48_26_ = true;
+      xa49_26_ = false;
+      RemoveFromTeam(mgr);
+      RemoveMaterial(EMaterialTypes::Orbit, EMaterialTypes::Target, mgr);
+    } else {
+      if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_))
+        colAct->HealthInfo(mgr)->SetHP(x8ec_);
+
+      for (TUniqueId uid : x9f8_shellIds) {
+        if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+          colAct->HealthInfo(mgr)->SetHP(x8ec_);
+        }
+      }
+    }
+  } else {
+    sub8021e3f4(mgr);
+  }
+}
 
 void CBabygoth::UpdateParticleEffects(float dt, CStateManager& mgr) {
   if (CFlameThrower* flame = static_cast<CFlameThrower*>(mgr.ObjectById(x980_flameThrower))) {
@@ -596,7 +711,7 @@ void CBabygoth::Generate(CStateManager& mgr, EStateMsg msg, float) {
 void CBabygoth::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     xa49_29_ = false;
-    sub8021d644(mgr);
+    RemoveFromTeam(mgr);
     x400_24_hitByPlayerProjectile = false;
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
     if (HasPatrolPath(mgr, 0.f)) {
@@ -732,5 +847,73 @@ bool CBabygoth::IsDestinationObstructed(CStateManager& mgr) {
     }
   }
   return false;
+}
+
+void CBabygoth::sub8021d9d0(urde::CStateManager& mgr) {
+  ModelData()->AnimationData()->SubstituteModelData(xa08_noShellModel);
+
+  for (TUniqueId uid : x9f8_shellIds) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      colAct->SetWeaponCollisionResponseType(EWeaponCollisionResponseTypes::Unknown41);
+    }
+  }
+  xa04_ = 0;
+}
+
+void CBabygoth::CrackShell(CStateManager& mgr, const TLockedToken<urde::CGenDescription>& desc,
+                           const zeus::CTransform& xf, u16 sfx, bool b1) {
+  mgr.AddObject(new CExplosion(desc, mgr.AllocateUniqueId(), true,
+                               CEntityInfo(GetAreaIdAlways(), CEntity::NullConnectionList), "Babygoth Shell Crack Fx"sv,
+                               xf, 0, GetModelData()->GetScale(), zeus::skWhite));
+
+  if (b1)
+    CSfxManager::SfxStart(sfx, 0x7f, 64 / 127.f, false, 0x7f, false, -1);
+  else
+    CSfxManager::AddEmitter(sfx, GetTranslation(), zeus::skUp, false, false, 0x7f, GetAreaIdAlways());
+}
+
+void CBabygoth::UpdateHealthInfo(urde::CStateManager& mgr) {
+  CHealthInfo* hInfo = HealthInfo(mgr);
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_)) {
+    (*colAct->HealthInfo(mgr)) = *hInfo;
+    colAct->SetDamageVulnerability(x98c_);
+  }
+
+  for (TUniqueId uid : x9f8_shellIds) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      (*colAct->HealthInfo(mgr)) = *hInfo;
+      colAct->SetDamageVulnerability(x98c_);
+    }
+  }
+}
+
+float CBabygoth::CalculateShellCrackHP(u32 w1) {
+  if (w1 == 0)
+    return x570_babyData.GetShellHitPoints();
+  else if (w1 == 1)
+    return 0.66666669f * x570_babyData.GetShellHitPoints();
+  else if (w1 == 2)
+    return 0.33333334f * x570_babyData.GetShellHitPoints();
+
+  return 0.f;
+}
+
+bool CBabygoth::ShouldTurn(urde::CStateManager& mgr, float arg) {
+  const float speedScale = GetModelData()->GetAnimationData()->GetSpeedScale();
+  zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, (speedScale > 0.f ? 1.f / speedScale : 0.f));
+  return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(), (aimPos - GetTranslation()).toVec2f()) >
+         (arg == 0.f ? 0.78539819f : arg);
+}
+
+bool CBabygoth::InMaxRange(CStateManager& mgr, float) {
+  return (GetTranslation() - mgr.GetPlayer().GetTranslation()).magSquared() < (1.5f * x300_maxAttackRange);
+}
+
+bool CBabygoth::Listen(const zeus::CVector3f& origin, EListenNoiseType noiseType) {
+  if (!x400_25_alive || noiseType != EListenNoiseType::PlayerFire || (origin - GetTranslation()).magSquared() >= 1600.f)
+    return false;
+
+  xa48_30_ = true;
+  return true;
 }
 } // namespace urde::MP1
