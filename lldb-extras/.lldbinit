@@ -14,7 +14,7 @@ type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd
 type summary add --summary-string "${var.angle}" zeus::CRelAngle
 type summary add --summary-string "(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]}, ${var.mSimd.__s_.__storage_[3]})" zeus::CQuaternion
 type summary add --summary-string "pos=${var.position} radius=${var.radius}" zeus::CSphere
-type summary add --summary-string "norm=${var.position} d=${var.d}" zeus::CPlane
+type summary add --summary-string "norm=(${var.mSimd.__s_.__storage_[0]}, ${var.mSimd.__s_.__storage_[1]}, ${var.mSimd.__s_.__storage_[2]}) d=${var.mSimd.__s_.__storage_[3]}" zeus::CPlane
 type summary add --summary-string "min=${var.min} max=${var.max}" zeus::CAABox
 type summary add --summary-string "start=${var.origin} dir=${var.dir}" zeus::CLine
 type summary add --summary-string "start=${var.x0_start} dir=${var.xc_dir} end=${var.x18_end}" zeus::CLineSeg

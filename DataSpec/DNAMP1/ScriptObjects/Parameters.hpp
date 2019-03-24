@@ -56,7 +56,7 @@ enum class ESpecialFunctionType : atUint32 {
   PlayerFollowLocator,
   SpinnerController,
   ObjectFollowLocator,
-  Function4,
+  ChaffTarget,
   InventoryActivator,
   MapStation,
   SaveStation,
@@ -74,7 +74,7 @@ enum class ESpecialFunctionType : atUint32 {
   ObjectFollowObject,
   HintSystem,
   DropBomb,
-  Function22,
+  ScaleActor,
   MissileStation,
   Billboard,
   PlayerInAreaRelay,
@@ -85,7 +85,7 @@ enum class ESpecialFunctionType : atUint32 {
   Ending,
   FusionRelay,
   WeaponSwitch // PAL Only
-} SPECTER_ENUM("Special Function", "", EPickupType);
+} SPECTER_ENUM("Special Function", "", ESpecialFunctionType);
 
 struct AnimationParameters : BigDNA {
   AT_DECL_DNA_YAML

@@ -121,8 +121,8 @@ public:
     u32 GetNumLeaves() const { return x4_nodeCache.size(); }
     bool HasCacheOverflowed() const { return x908_24_overflow; }
     const CAreaOctTree& GetOctTree() const { return x0_octTree; }
-    rstl::reserved_vector<CAreaOctTree::Node, 64>::iterator begin() { return x4_nodeCache.begin(); }
-    rstl::reserved_vector<CAreaOctTree::Node, 64>::iterator end() { return x4_nodeCache.end(); }
+    rstl::reserved_vector<CAreaOctTree::Node, 64>::const_iterator begin() const { return x4_nodeCache.begin(); }
+    rstl::reserved_vector<CAreaOctTree::Node, 64>::const_iterator end() const { return x4_nodeCache.end(); }
   };
   static void BuildOctreeLeafCache(const CAreaOctTree::Node& root, const zeus::CAABox& aabb,
                                    CMetroidAreaCollider::COctreeLeafCache& cache);
@@ -182,8 +182,10 @@ public:
   u32 GetNumCaches() const { return x18_leafCaches.size(); }
   const CMetroidAreaCollider::COctreeLeafCache& GetOctreeLeafCache(int idx) { return x18_leafCaches[idx]; }
   bool HasCacheOverflowed() const { return x1b40_24_leafOverflow; }
-  rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3>::iterator begin() { return x18_leafCaches.begin(); }
-  rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3>::iterator end() { return x18_leafCaches.end(); }
+  rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3>::const_iterator begin() const
+  { return x18_leafCaches.begin(); }
+  rstl::reserved_vector<CMetroidAreaCollider::COctreeLeafCache, 3>::const_iterator end() const
+  { return x18_leafCaches.end(); }
 };
 
 } // namespace urde

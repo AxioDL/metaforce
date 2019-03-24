@@ -2466,46 +2466,51 @@ CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   bool active = in.readBool();
   CActorParameters aParams = LoadActorParameters(in);
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  u32 w3 = in.readUint32Big();
-  u32 w4 = in.readUint32Big();
-  u32 w5 = in.readUint32Big();
-  u32 w6 = in.readUint32Big();
-  u32 w7 = in.readUint32Big();
-  u32 w8 = in.readUint32Big();
-  u32 w9 = in.readUint32Big();
-  u32 w10 = in.readUint32Big();
-  CDamageInfo dInfo1(in);
-  float f1 = in.readFloatBig();
-  CDamageInfo dInfo2(in);
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  float f4 = in.readFloatBig();
-  float f5 = in.readFloatBig();
-  u32 w11 = in.readUint32Big();
-  u32 w12 = in.readUint32Big();
-  float f6 = in.readFloatBig();
-  float f7 = in.readFloatBig();
-  float f8 = in.readFloatBig();
-  float f9 = in.readFloatBig();
-  float f10 = in.readFloatBig();
-  float f11 = in.readFloatBig();
-  float f12 = in.readFloatBig();
-  float f13 = in.readFloatBig();
-  u32 w13 = in.readUint32Big();
-  float f14 = in.readFloatBig();
-  float f15 = in.readFloatBig();
-  float f16 = in.readFloatBig();
+  CWallCrawlerSwarm::EFlavor flavor = CWallCrawlerSwarm::EFlavor(in.readUint32Big());
+  u32 actor = in.readUint32Big();
+  u32 charIdx = in.readUint32Big();
+  u32 defaultAnim = in.readUint32Big();
+  u32 launchAnim = in.readUint32Big();
+  u32 attractAnim = in.readUint32Big();
+  u32 part1 = in.readUint32Big();
+  u32 part2 = in.readUint32Big();
+  u32 part3 = in.readUint32Big();
+  u32 part4 = in.readUint32Big();
+  CDamageInfo crabDamage(in);
+  float crabDamageCooldown = in.readFloatBig();
+  CDamageInfo scarabExplodeDamage(in);
+  float boidRadius = in.readFloatBig();
+  float touchRadius = in.readFloatBig();
+  float playerTouchRadius = in.readFloatBig();
+  float animPlaybackSpeed = in.readFloatBig();
+  u32 numBoids = in.readUint32Big();
+  u32 maxCreatedBoids = in.readUint32Big();
+  float separationRadius = in.readFloatBig();
+  float cohesionMagnitude = in.readFloatBig();
+  float alignmentWeight = in.readFloatBig();
+  float separationMagnitude = in.readFloatBig();
+  float moveToWaypointWeight = in.readFloatBig();
+  float attractionMagnitude = in.readFloatBig();
+  float attractionRadius = in.readFloatBig();
+  float boidGenRate = in.readFloatBig();
+  u32 maxLaunches = in.readUint32Big();
+  float scarabBoxMargin = in.readFloatBig();
+  float scarabScatterXYVelocity = in.readFloatBig();
+  float scarabTimeToExplode = in.readFloatBig();
   CHealthInfo hInfo(in);
   CDamageVulnerability dVulns(in);
-  u32 w14 = in.readUint32Big();
-  u32 w15 = in.readUint32Big();
+  u32 launchSfx = in.readUint32Big();
+  u32 scatterSfx = in.readUint32Big();
 
   return new CWallCrawlerSwarm(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale,
-                               aHead.x10_transform, w1, CAnimRes(w2, w3, zeus::CVector3f(1.5f), w4, true), w5, w6, w7,
-                               w8, w9, w10, dInfo1, dInfo2, f1, f2, f3, f4, w11, w12, f5, f6, f7, f8, f9, f10, f11, f12,
-                               f13, w13, f14, f15, f16, hInfo, dVulns, w14, w15, aParams);
+                               aHead.x10_transform, flavor,
+                               CAnimRes(actor, charIdx, zeus::CVector3f(1.5f), defaultAnim, true),
+                               launchAnim, attractAnim, part1, part2, part3, part4, crabDamage, scarabExplodeDamage,
+                               crabDamageCooldown, boidRadius, touchRadius, playerTouchRadius, numBoids,
+                               maxCreatedBoids, animPlaybackSpeed, separationRadius, cohesionMagnitude, alignmentWeight,
+                               separationMagnitude, moveToWaypointWeight, attractionMagnitude, attractionRadius,
+                               boidGenRate, maxLaunches, scarabBoxMargin, scarabScatterXYVelocity, scarabTimeToExplode,
+                               hInfo, dVulns, launchSfx, scatterSfx, aParams);
 }
 
 CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

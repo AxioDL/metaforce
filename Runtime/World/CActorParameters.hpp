@@ -67,5 +67,7 @@ public:
   const CLightParameters& GetLightParameters() const { return x0_lightParms; }
   bool HasThermalHeat() const { return x58_25_thermalHeat; }
   float GetThermalMag() const { return x64_thermalMag; }
+  const std::pair<CAssetId, CAssetId>& GetXRayAssets() const { return x44_xrayAssets; }
+  const std::pair<CAssetId, CAssetId>& GetThermalAssets() const { return x4c_thermalAssets; }
 };
 } // namespace urde

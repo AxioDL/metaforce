@@ -48,7 +48,9 @@ public:
   void SetCharacterNodeId(s32 id) { x4_charIdx = id; }
   const zeus::CVector3f& GetScale() const { return x8_scale; }
   bool CanLoop() const { return x14_canLoop; }
+  void SetCanLoop(bool l) { x14_canLoop = l; }
   s32 GetDefaultAnim() const { return x18_defaultAnim; }
+  void SetDefaultAnim(s32 anim) { x18_defaultAnim = anim; }
 };
 
 class CModelData {
@@ -116,6 +118,8 @@ public:
   void RenderParticles(const zeus::CFrustum& frustum) const;
   void Touch(EWhichModel, int shaderIdx) const;
   void Touch(const CStateManager& stateMgr, int shaderIdx) const;
+  void RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor,
+                     const CModelFlags& flags) const;
   void RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
                      const CModelFlags& flags) const;
   void RenderUnsortedParts(EWhichModel, const zeus::CTransform& xf, const CActorLights* lights,

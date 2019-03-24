@@ -89,8 +89,7 @@ sourcef = open('TCastTo.cpp', 'w')
 
 headerf.write('''#pragma once
 
-namespace urde
-{
+namespace urde {
 class CEntity;
 ''')
 
@@ -98,58 +97,56 @@ for tp in CENTITY_TYPES:
     if type(tp) == tuple:
         headerf.write('class %s;\n' % tp[0])
     elif isinstance(tp, Namespace):
-        headerf.write('namespace %s\n{\n' % tp.name)
+        headerf.write('namespace %s {\n' % tp.name)
     elif isinstance(tp, EndNamespace):
         headerf.write('}\n')
 
-headerf.write('\nclass IVisitor\n{\npublic:\n')
+headerf.write('\nclass IVisitor {\npublic:\n')
 
 for tp in CENTITY_TYPES:
     if type(tp) == tuple:
-        headerf.write('    virtual void Visit(%s* p)=0;\n' % getqualified(tp))
+        headerf.write('  virtual void Visit(%s* p)=0;\n' % getqualified(tp))
 
 headerf.write('''};
 
 template <class T>
-class TCastToPtr : public IVisitor
-{
+class TCastToPtr : public IVisitor {
 protected:
-    T* ptr = nullptr;
+  T* ptr = nullptr;
 public:
-    TCastToPtr() = default;
-    TCastToPtr(CEntity* p);
-    TCastToPtr(CEntity& p);
-    TCastToPtr<T>& operator=(CEntity& p);
-    TCastToPtr<T>& operator=(CEntity* p);
+  TCastToPtr() = default;
+  TCastToPtr(CEntity* p);
+  TCastToPtr(CEntity& p);
+  TCastToPtr<T>& operator=(CEntity& p);
+  TCastToPtr<T>& operator=(CEntity* p);
 
 ''')
 
 for tp in CENTITY_TYPES:
     if type(tp) == tuple:
-        headerf.write('    void Visit(%s* p);\n' % getqualified(tp))
+        headerf.write('  void Visit(%s* p);\n' % getqualified(tp))
 
 headerf.write('''
-    T* GetPtr() const { return ptr; }
-    operator T*() const { return GetPtr(); }
-    T& operator*() const { return *GetPtr(); }
-    T* operator->() const { return GetPtr(); }
-    operator bool() const { return ptr != nullptr; }
+  T* GetPtr() const { return ptr; }
+  operator T*() const { return GetPtr(); }
+  T& operator*() const { return *GetPtr(); }
+  T* operator->() const { return GetPtr(); }
+  operator bool() const { return ptr != nullptr; }
 };
 
 template <class T>
-class TCastToConstPtr : TCastToPtr<T>
-{
+class TCastToConstPtr : TCastToPtr<T> {
 public:
-    TCastToConstPtr() = default;
-    TCastToConstPtr(const CEntity* p) : TCastToPtr<T>(const_cast<CEntity*>(p)) {}
-    TCastToConstPtr(const CEntity& p) : TCastToPtr<T>(const_cast<CEntity&>(p)) {}
-    TCastToConstPtr<T>& operator=(const CEntity& p) { TCastToPtr<T>::operator=(const_cast<CEntity&>(p)); return *this; }
-    TCastToConstPtr<T>& operator=(const CEntity* p) { TCastToPtr<T>::operator=(const_cast<CEntity*>(p)); return *this; }
-    const T* GetPtr() const { return TCastToPtr<T>::ptr; }
-    operator const T*() const { return GetPtr(); }
-    const T& operator*() const { return *GetPtr(); }
-    const T* operator->() const { return GetPtr(); }
-    operator bool() const { return TCastToPtr<T>::ptr != nullptr; }
+  TCastToConstPtr() = default;
+  TCastToConstPtr(const CEntity* p) : TCastToPtr<T>(const_cast<CEntity*>(p)) {}
+  TCastToConstPtr(const CEntity& p) : TCastToPtr<T>(const_cast<CEntity&>(p)) {}
+  TCastToConstPtr<T>& operator=(const CEntity& p) { TCastToPtr<T>::operator=(const_cast<CEntity&>(p)); return *this; }
+  TCastToConstPtr<T>& operator=(const CEntity* p) { TCastToPtr<T>::operator=(const_cast<CEntity*>(p)); return *this; }
+  const T* GetPtr() const { return TCastToPtr<T>::ptr; }
+  operator const T*() const { return GetPtr(); }
+  const T& operator*() const { return *GetPtr(); }
+  const T* operator->() const { return GetPtr(); }
+  operator bool() const { return TCastToPtr<T>::ptr != nullptr; }
 };
 
 }
@@ -164,8 +161,7 @@ for tp in CENTITY_TYPES:
         sourcef.write('#include "%s"\n' % tp[1])
 
 sourcef.write('''
-namespace urde
-{
+namespace urde {
 
 template <class T>
 TCastToPtr<T>::TCastToPtr(CEntity* p) { if (p) p->Accept(*this); else ptr = nullptr; }
@@ -185,10 +181,9 @@ for tp in CENTITY_TYPES:
     if type(tp) == tuple:
         qual = getqualified(tp)
         sourcef.write('''template <class T>
-void TCastToPtr<T>::Visit(%s* p)
-{
-    static_assert(sizeof(T) > 0 && !std::is_void<T>::value, "TCastToPtr can not cast to incomplete type");
-    ptr = reinterpret_cast<T*>(std::is_convertible<%s*, T*>::value ? p : nullptr);
+void TCastToPtr<T>::Visit(%s* p) {
+  static_assert(sizeof(T) > 0 && !std::is_void<T>::value, "TCastToPtr can not cast to incomplete type");
+  ptr = reinterpret_cast<T*>(std::is_convertible<%s*, T*>::value ? p : nullptr);
 }
 
 ''' % (qual, qual))

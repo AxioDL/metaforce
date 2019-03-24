@@ -447,13 +447,13 @@ bool CGameCollision::DetectStaticCollisionBoolean_Cached(const CStateManager& mg
     return DetectStaticCollisionBoolean(mgr, prim, xf, filter);
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
       if (CMetroidAreaCollider::AABoxCollisionCheckBoolean_Cached(leafCache, aabb, filter))
         return true;
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
     const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
       if (CMetroidAreaCollider::SphereCollisionCheckBoolean_Cached(leafCache, aabb, xfSphere, filter))
         return true;
   } else if (prim.GetPrimType() == FOURCC('ABSH')) {
@@ -566,13 +566,13 @@ bool CGameCollision::DetectStaticCollision_Cached(const CStateManager& mgr, CAre
     return DetectStaticCollision(mgr, prim, xf, filter, list);
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
       if (CMetroidAreaCollider::AABoxCollisionCheck_Cached(leafCache, calcAABB, filter, prim.GetMaterial(), list))
         ret = true;
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
     const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache)
       if (CMetroidAreaCollider::SphereCollisionCheck_Cached(leafCache, calcAABB, xfSphere, prim.GetMaterial(), filter,
                                                             list))
         ret = true;
@@ -604,7 +604,7 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
   }
 
   if (prim.GetPrimType() == FOURCC('AABX')) {
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
       CCollisionInfo info;
       double d = dOut;
       if (CMetroidAreaCollider::MovingAABoxCollisionCheck_Cached(
@@ -617,7 +617,7 @@ bool CGameCollision::DetectStaticCollision_Cached_Moving(const CStateManager& mg
   } else if (prim.GetPrimType() == FOURCC('SPHR')) {
     const CCollidableSphere& sphere = static_cast<const CCollidableSphere&>(prim);
     zeus::CSphere xfSphere = sphere.Transform(xf);
-    for (CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
+    for (const CMetroidAreaCollider::COctreeLeafCache& leafCache : cache) {
       CCollisionInfo info;
       double d = dOut;
       if (CMetroidAreaCollider::MovingSphereCollisionCheck_Cached(

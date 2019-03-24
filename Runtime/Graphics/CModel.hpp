@@ -200,6 +200,7 @@ public:
 
   bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }
   void ActivateLights(const std::vector<CLight>& lights);
+  void SetAmbientColor(const zeus::CColor& color) { m_lightingData.ambient = color; }
   void DisableAllLights();
   void RemapMaterialData(SShader& shader);
   void RemapMaterialData(SShader& shader, const std::unordered_map<int, CModelShaders::ShaderPipelines>& pipelines);

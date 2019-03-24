@@ -898,6 +898,9 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
                                                                   const CPoseAsTransforms* pose,
                                                                   int sharedLayoutBuf) const {
+  if (!TryLockTextures())
+    return {};
+
   /* Invalidate instances if new shadow being drawn */
   if (flags.m_extendedShader == EExtendedShader::WorldShadow && m_lastDrawnShadowMap != g_shadowMap) {
     const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
@@ -916,7 +919,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
       do {
         inst = const_cast<CBooModel*>(this)->PushNewModelInstance(m_instances.size());
         if (!inst)
-          return nullptr;
+          return {};
       } while (m_instances.size() <= sharedLayoutBuf);
     } else
       inst = &m_instances[sharedLayoutBuf];
@@ -925,7 +928,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     if (m_instances.size() <= m_uniUpdateCount) {
       inst = const_cast<CBooModel*>(this)->PushNewModelInstance(sharedLayoutBuf);
       if (!inst)
-        return nullptr;
+        return {};
     } else
       inst = &m_instances[m_uniUpdateCount];
     ++const_cast<CBooModel*>(this)->m_uniUpdateCount;

@@ -273,10 +273,8 @@ void CModelData::Touch(const CStateManager& stateMgr, int shaderIdx) const {
   Touch(const_cast<CModelData&>(*this).GetRenderingModel(stateMgr), shaderIdx);
 }
 
-void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+void CModelData::RenderThermal(const zeus::CColor& mulColor, const zeus::CColor& addColor,
                                const CModelFlags& flags) const {
-  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
-  CGraphics::DisableAllLights();
   CModelFlags drawFlags = flags;
   drawFlags.x4_color *= mulColor;
   drawFlags.addColor = addColor;
@@ -290,6 +288,13 @@ void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& m
     const auto& model = PickStaticModel(EWhichModel::ThermalHot);
     model->Draw(drawFlags, nullptr, nullptr);
   }
+}
+
+void CModelData::RenderThermal(const zeus::CTransform& xf, const zeus::CColor& mulColor, const zeus::CColor& addColor,
+                               const CModelFlags& flags) const {
+  CGraphics::SetModelMatrix(xf * zeus::CTransform::Scale(x0_scale));
+  CGraphics::DisableAllLights();
+  RenderThermal(mulColor, addColor, flags);
 }
 
 void CModelData::RenderUnsortedParts(EWhichModel which, const zeus::CTransform& xf, const CActorLights* lights,

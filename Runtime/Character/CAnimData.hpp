@@ -83,6 +83,7 @@ class CAnimData {
   friend class CActor;
   friend class CPlayerGun;
   friend class CGrappleArm;
+  friend class CWallCrawlerSwarm;
 
 public:
   enum class EAnimDir { Forward, Backward };

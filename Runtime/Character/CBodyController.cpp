@@ -117,7 +117,7 @@ void CBodyController::FaceDirection3D(const zeus::CVector3f& v0, const zeus::CVe
       zeus::CUnitVector3f uv0 = v0;
       zeus::CUnitVector3f uv1 = v1;
       float dot = uv0.dot(uv1);
-      if (std::fabs(dot - 1.f) >= 0.00001f) {
+      if (!zeus::close_enough(dot, 1.f)) {
         if (dot < -0.9999f) {
           zeus::CQuaternion rot =
               zeus::CQuaternion::fromAxisAngle(act->GetTransform().basis[2], zeus::degToRad(dt * x2fc_turnSpeed));
