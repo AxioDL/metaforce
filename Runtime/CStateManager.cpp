@@ -1321,8 +1321,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
   bool bomb = false;
   TCastToPtr<CWeapon> weapon = const_cast<CActor&>(actor);
   if (weapon)
-    bomb = (weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs)) !=
-           EProjectileAttrib::None;
+    bomb = True(weapon->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs));
 
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   BuildNearList(nearList, aabb, filter, &actor);
@@ -1508,8 +1507,7 @@ bool CStateManager::MultiRayCollideWorld(const zeus::CMRay& ray, const CMaterial
 
 void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVector3f& pos, CActor& damagee) {
   if (TCastToPtr<CWeapon> wpn = const_cast<CActor&>(damager)) {
-    if ((wpn->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs)) !=
-        EProjectileAttrib::None) {
+    if (True(wpn->GetAttribField() & (EProjectileAttrib::Bombs | EProjectileAttrib::PowerBombs))) {
       bool powerBomb = (wpn->GetAttribField() & EProjectileAttrib::PowerBombs) == EProjectileAttrib::PowerBombs;
       if (TCastToPtr<CScriptWater> water = damagee) {
         zeus::CAABox bounds = water->GetTriggerBoundsWR();

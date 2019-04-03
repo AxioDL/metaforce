@@ -17,6 +17,9 @@
         <pair source="c" header="h" fileNamingConvention="NONE" />
       </extensions>
     </Objective-C-extensions>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
     <codeStyleSettings language="ObjectiveC">
       <option name="INDENT_CASE_FROM_SWITCH" value="false" />
       <indentOptions>

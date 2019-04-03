@@ -10,10 +10,10 @@ struct FishCloudModifier : IScriptObject {
   AT_DECL_DNAV
   String<-1> name;
   Value<atVec3f> position;
-  Value<bool> unknown1;
-  Value<bool> unknown2;
-  Value<bool> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
+  Value<bool> active;
+  Value<bool> repulsor;
+  Value<bool> swirl;
+  Value<float> radius;
+  Value<float> priority;
 };
 } // namespace DataSpec::DNAMP1

@@ -341,7 +341,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x568_pirateData(in, propCount)
 , x660_pathFindSearch(nullptr, 0x1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x750_initialHP(pInfo.GetHealthInfo().GetHP())
-, x764_boneTracking(*x64_modelData->AnimationData(), "Head_1"sv, 1.22173f, 3.14159f, false)
+, x764_boneTracking(*x64_modelData->AnimationData(), "Head_1"sv, 1.22173f, 3.14159f, EBoneTrackingFlags::None)
 , x7c4_burstFire(skBursts, x568_pirateData.xac_firstBurstCount)
 , x8b8_minCloakAlpha(x568_pirateData.xb0_CloakOpacity)
 , x8bc_maxCloakAlpha(x568_pirateData.xb4_MaxCloakOpacity)
@@ -1005,7 +1005,7 @@ void CSpacePirate::Touch(CActor& other, CStateManager& mgr) {
   CPatterned::Touch(other, mgr);
   if (x85c_ragDoll && x85c_ragDoll->IsPrimed()) {
     if (TCastToPtr<CScriptTrigger> trig = other) {
-      if (trig->GetActive() && (trig->GetTriggerFlags() & ETriggerFlags::DetectAI) != ETriggerFlags::None &&
+      if (trig->GetActive() && True(trig->GetTriggerFlags() & ETriggerFlags::DetectAI) &&
           trig->GetForceMagnitude() > 0.f) {
         x85c_ragDoll->TorsoImpulse() += trig->GetForceVector();
       }

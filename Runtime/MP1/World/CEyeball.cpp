@@ -17,7 +17,8 @@ CEyeball::CEyeball(TUniqueId uid, std::string_view name, CPatterned::EFlavorType
              EColliderType::Zero, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x568_attackDelay(attackDelay)
 , x56c_attackStartTime(attackStartTime)
-, x570_boneTracking(*GetModelData()->GetAnimationData(), "Eye"sv, zeus::degToRad(45.f), zeus::degToRad(180.f), true)
+, x570_boneTracking(*GetModelData()->GetAnimationData(), "Eye"sv, zeus::degToRad(45.f), zeus::degToRad(180.f),
+                    EBoneTrackingFlags::NoParent)
 , x5b4_projectileInfo(wpscId, dInfo)
 , x5dc_beamContactFxId(beamContactFxId)
 , x5e0_beamPulseFxId(beamPulseFxId)

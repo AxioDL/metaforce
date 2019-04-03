@@ -12,38 +12,38 @@ struct FishCloud : IScriptObject {
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> volume;
-  Value<bool> unknown1;
+  Value<bool> active;
   UniqueID32 model;
   AnimationParameters animationParameters;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
-  Value<float> unknown7;
-  Value<float> unknown8;
-  Value<float> unknown9;
-  Value<float> unknown10;
-  Value<float> unknown11;
-  Value<float> unknown12;
-  Value<float> unknown13;
-  Value<float> unknown14;
-  Value<float> unknown15;
-  Value<atUint32> unknown16;
-  Value<atVec4f> unknown17; // CColor
-  Value<bool> unknown18;
-  Value<float> unknown19;
+  Value<atUint32> numBoids;
+  Value<float> speed;
+  Value<float> separationRadius;
+  Value<float> cohesionMagnitude;
+  Value<float> alignmentWeight;
+  Value<float> separationMagnitude;
+  Value<float> weaponRepelMagnitude;
+  Value<float> playerRepelMagnitude;
+  Value<float> containmentMagnitude;
+  Value<float> scatterVel;
+  Value<float> maxScatterAngle;
+  Value<float> weaponRepelDampingSpeed;
+  Value<float> playerRepelDampingSpeed;
+  Value<float> containmentRadius;
+  Value<atUint32> updateShift;
+  Value<atVec4f> color; // CColor
+  Value<bool> killable;
+  Value<float> weaponKillRadius;
   UniqueID32 deathParticle1;
-  Value<atUint32> deathParticle1Frames;
+  Value<atUint32> deathParticle1Count;
   UniqueID32 deathParticle2;
-  Value<atUint32> deathParticle2Frames;
+  Value<atUint32> deathParticle2Count;
   UniqueID32 deathParticle3;
-  Value<atUint32> deathParticle3Frames;
+  Value<atUint32> deathParticle3Count;
   UniqueID32 deathParticle4;
-  Value<atUint32> deathParticle4Frames;
+  Value<atUint32> deathParticle4Count;
   Value<atUint32> deathSFX;
-  Value<bool> unknown29;
-  Value<bool> unknown30;
+  Value<bool> repelFromThreats;
+  Value<bool> hotInThermal;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
     if (model) {

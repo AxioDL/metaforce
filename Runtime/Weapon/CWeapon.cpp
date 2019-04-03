@@ -10,7 +10,7 @@ CWeapon::CWeapon(TUniqueId uid, TAreaId aid, bool active, TUniqueId owner, EWeap
                  const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList,
                  const CDamageInfo& dInfo, EProjectileAttrib attribs, CModelData&& mData)
 : CActor(uid, active, name, CEntityInfo(aid, CEntity::NullConnectionList), xf, std::move(mData), mList,
-         CActorParameters::None(), kInvalidUniqueId)
+         CActorParameters::None().HotInThermal(true), kInvalidUniqueId)
 , xe8_projectileAttribs(attribs)
 , xec_ownerId(owner)
 , xf0_weaponType(type)
@@ -70,10 +70,10 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
     break;
   }
 
-  if ((xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::None &&
+  if (True(xe8_projectileAttribs & EProjectileAttrib::ComboShot) &&
       state != EFluidState::InFluid)
     mag += 0.5f;
-  if ((xe8_projectileAttribs & EProjectileAttrib::Charged) != EProjectileAttrib::None)
+  if (True(xe8_projectileAttribs & EProjectileAttrib::Charged))
     mag += 0.25f;
   if (mag > 1.f)
     mag = 1.f;
@@ -81,7 +81,7 @@ void CWeapon::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager
   if (doRipple) {
     zeus::CVector3f pos = GetTranslation();
     pos.z() = float(water.GetTriggerBoundsWR().max.z());
-    if ((xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::None) {
+    if (True(xe8_projectileAttribs & EProjectileAttrib::ComboShot)) {
       if (!water.CanRippleAtPoint(pos))
         doRipple = false;
     } else if (state == EFluidState::InFluid) {

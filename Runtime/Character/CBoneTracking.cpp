@@ -10,14 +10,14 @@
 namespace urde {
 
 CBoneTracking::CBoneTracking(const CAnimData& animData, std::string_view bone,
-                             float maxTrackingAngle, float angSpeed, bool parentIk)
+                             float maxTrackingAngle, float angSpeed, EBoneTrackingFlags flags)
 : x14_segId(animData.GetCharLayoutInfo().GetSegIdFromString(bone))
 , x1c_maxTrackingAngle(maxTrackingAngle)
 , x20_angSpeed(angSpeed)
-, x36_26_noParent(parentIk)
-, x36_27_noParentOrigin(parentIk)
-, x36_28_noHorizontalAim(parentIk)
-, x36_29_parentIk(parentIk) {}
+, x36_26_noParent(True(flags & EBoneTrackingFlags::NoParent))
+, x36_27_noParentOrigin(True(flags & EBoneTrackingFlags::NoParentOrigin))
+, x36_28_noHorizontalAim(True(flags & EBoneTrackingFlags::NoHorizontalAim))
+, x36_29_parentIk(True(flags & EBoneTrackingFlags::ParentIk)) {}
 
 void CBoneTracking::Update(float dt) { x18_time += dt; }
 

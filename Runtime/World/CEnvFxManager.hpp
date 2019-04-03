@@ -98,7 +98,7 @@ class CEnvFxManager {
   // bool x3c_snowflakeTextureMipBlanked = false; /* Shader simulates this texture mod */
   TLockedToken<CTexture> x40_txtrEnvGradient;
   rstl::reserved_vector<CEnvFxManagerGrid, 64> x50_grids;
-  float xb54_baseSplashRate;
+  float xb54_baseSplashRate = 0.f;
   TLockedToken<CGenDescription> xb58_envRainSplash;
   bool xb64_ = true;
   TUniqueId xb68_envRainSplashId = kInvalidUniqueId;

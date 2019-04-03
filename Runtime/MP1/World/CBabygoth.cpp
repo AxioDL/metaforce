@@ -59,7 +59,8 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x6ec_(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x7d0_(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x8d0_(x3b4_speed)
-, x8f0_boneTracking(*ModelData()->AnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f), false)
+, x8f0_boneTracking(*ModelData()->AnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
+                    EBoneTrackingFlags::None)
 , x930_aabox(GetBoundingBox(), GetMaterialList())
 , x958_(babyData.x8_, babyData.xc_)
 , x984_flameThrowerDesc(babyData.x44_.IsValid() ? g_SimplePool->GetObj({SBIG('WPSC'), babyData.x44_})

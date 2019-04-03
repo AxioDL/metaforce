@@ -76,11 +76,11 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
     if (TCastToPtr<CActor> act = mgr.ObjectById(it->GetObjectId())) {
       bool playerValid = true;
       if (it->GetObjectId() == mgr.GetPlayer().GetUniqueId()) {
-        if ((x12c_flags & ETriggerFlags::DetectPlayer) == ETriggerFlags::None &&
+        if (False(x12c_flags & ETriggerFlags::DetectPlayer) &&
             ((mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed &&
-              (x12c_flags & ETriggerFlags::DetectUnmorphedPlayer) != ETriggerFlags::None) ||
+              True(x12c_flags & ETriggerFlags::DetectUnmorphedPlayer)) ||
              (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
-              (x12c_flags & ETriggerFlags::DetectMorphedPlayer) != ETriggerFlags::None))) {
+              True(x12c_flags & ETriggerFlags::DetectMorphedPlayer)))) {
           playerValid = false;
         }
         if (!playerValid) {
@@ -114,11 +114,11 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
         if (x128_forceMagnitude > 0.f) {
           if (TCastToPtr<CPhysicsActor> pact = act.GetPtr()) {
             float forceMult = 1.f;
-            if ((x12c_flags & ETriggerFlags::UseBooleanIntersection) != ETriggerFlags::None)
+            if (True(x12c_flags & ETriggerFlags::UseBooleanIntersection))
               forceMult = touchBounds->booleanIntersection(*actTouchBounds).volume() / actTouchBounds->volume();
 
             zeus::CVector3f force = forceMult * x11c_forceField;
-            if ((x12c_flags & ETriggerFlags::UseCollisionImpulses) != ETriggerFlags::None) {
+            if (True(x12c_flags & ETriggerFlags::UseCollisionImpulses)) {
               pact->ApplyImpulseWR(force, zeus::CAxisAngle());
               pact->UseCollisionImpulses();
             } else
@@ -158,18 +158,18 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
     }
   }
 
-  if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None || x148_24_detectCamera) {
+  if (True(x12c_flags & ETriggerFlags::DetectCamera) || x148_24_detectCamera) {
     CGameCamera* cam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     bool camInTrigger = GetTriggerBoundsWR().pointInside(cam->GetTranslation());
     if (x148_25_camSubmerged) {
       if (!camInTrigger) {
         x148_25_camSubmerged = false;
-        if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None) {
+        if (True(x12c_flags & ETriggerFlags::DetectCamera)) {
           sendExited = true;
           InhabitantExited(*cam, mgr);
         }
       } else {
-        if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None) {
+        if (True(x12c_flags & ETriggerFlags::DetectCamera)) {
           InhabitantIdle(*cam, mgr);
           sendInside = true;
         }
@@ -177,7 +177,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
     } else {
       if (camInTrigger) {
         x148_25_camSubmerged = true;
-        if ((x12c_flags & ETriggerFlags::DetectCamera) != ETriggerFlags::None) {
+        if (True(x12c_flags & ETriggerFlags::DetectCamera)) {
           InhabitantAdded(*cam, mgr);
           SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
         }
@@ -215,7 +215,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
     ETriggerFlags testFlags = ETriggerFlags::None;
     TCastToPtr<CPlayer> pl(act);
     if (pl) {
-      if (x128_forceMagnitude > 0.f && (x12c_flags & ETriggerFlags::DetectPlayer) != ETriggerFlags::None &&
+      if (x128_forceMagnitude > 0.f && True(x12c_flags & ETriggerFlags::DetectPlayer) &&
           mgr.GetLastTriggerId() == kInvalidUniqueId)
         mgr.SetLastTriggerId(x8_uid);
 
@@ -238,7 +238,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
         testFlags |= ETriggerFlags::DetectPowerBombs;
     }
 
-    if ((testFlags & x12c_flags) != ETriggerFlags::None) {
+    if (True(testFlags & x12c_flags)) {
       xe8_inhabitants.push_back(act.GetUniqueId());
       InhabitantAdded(act, mgr);
 
@@ -272,7 +272,7 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
         }
       }
 
-      if ((x12c_flags & ETriggerFlags::KillOnEnter) != ETriggerFlags::None && act.HealthInfo(mgr)) {
+      if (True(x12c_flags & ETriggerFlags::KillOnEnter) && act.HealthInfo(mgr)) {
         CHealthInfo* hInfo = act.HealthInfo(mgr);
         mgr.ApplyDamage(x8_uid, act.GetUniqueId(), x8_uid, {sktonOHurtWeaponMode, 10.f * hInfo->GetHP(), 0.f, 0.f},
                         CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}), zeus::skZero3f);

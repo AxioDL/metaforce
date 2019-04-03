@@ -53,7 +53,7 @@ CElementGen::CElementGen(const TToken<CGenDescription>& gen, EModelOrientationTy
   CGenDescription* desc = x1c_genDesc.GetObj();
   x28_loadedGenDesc = desc;
 
-  x26d_27_enableOPTS = (flags & EOptionalSystemFlags::Two) != EOptionalSystemFlags::None;
+  x26d_27_enableOPTS = True(flags & EOptionalSystemFlags::Two);
 
   if (desc->x54_x40_TEXR)
     desc->x54_x40_TEXR->GetValueTexture(0).GetObj();

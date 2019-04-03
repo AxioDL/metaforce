@@ -2209,49 +2209,53 @@ CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int p
   if (!EnsurePropertyCount(propCount, 36, "FishCloud"))
     return nullptr;
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
-  bool b1 = in.readBool();
-  CAssetId w1(in);
+  bool active = in.readBool();
+  CAssetId model(in);
   CAnimationParameters animParms(in);
-  u32 w5 = u32(in.readFloatBig());
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  float f4 = in.readFloatBig();
-  float f5 = in.readFloatBig();
-  float f6 = in.readFloatBig();
-  float f7 = in.readFloatBig();
-  float f8 = in.readFloatBig();
-  float f9 = in.readFloatBig();
-  float f10 = in.readFloatBig();
-  float f11 = in.readFloatBig();
-  float f12 = in.readFloatBig();
-  float f13 = in.readFloatBig();
-  u32 w6 = in.readUint32Big();
+  u32 numBoids = u32(in.readFloatBig());
+  float speed = in.readFloatBig();
+  float separationRadius = in.readFloatBig();
+  float cohesionMagnitude = in.readFloatBig();
+  float alignmentWeight = in.readFloatBig();
+  float separationMagnitude = in.readFloatBig();
+  float weaponRepelMagnitude = in.readFloatBig();
+  float playerRepelMagnitude = in.readFloatBig();
+  float containmentMagnitude = in.readFloatBig();
+  float scatterVel = in.readFloatBig();
+  float maxScatterAngle = in.readFloatBig();
+  float weaponRepelDampingSpeed = in.readFloatBig();
+  float playerRepelDampingSpeed = in.readFloatBig();
+  float containmentRadius = in.readFloatBig();
+  u32 updateShift = in.readUint32Big();
 
-  if (!g_ResFactory->GetResourceTypeById(w1))
+  if (!g_ResFactory->GetResourceTypeById(model))
     return nullptr;
 
-  zeus::CColor col = zeus::CColor::ReadRGBABig(in);
-  bool b2 = in.readBool();
-  float f14 = in.readFloatBig();
-  CAssetId w7 = in.readUint32Big();
-  u32 w8 = in.readUint32Big();
-  CAssetId w9 = in.readUint32Big();
-  u32 w10 = in.readUint32Big();
-  CAssetId w11 = in.readUint32Big();
-  u32 w12 = in.readUint32Big();
-  CAssetId w13 = in.readUint32Big();
-  u32 w14 = in.readUint32Big();
-  u32 w15 = in.readUint32Big();
-  bool b3 = in.readBool();
-  bool b4 = in.readBool();
+  zeus::CColor color = zeus::CColor::ReadRGBABig(in);
+  bool killable = in.readBool();
+  float weaponKillRadius = in.readFloatBig();
+  CAssetId part1 = in.readUint32Big();
+  u32 partCount1 = in.readUint32Big();
+  CAssetId part2 = in.readUint32Big();
+  u32 partCount2 = in.readUint32Big();
+  CAssetId part3 = in.readUint32Big();
+  u32 partCount3 = in.readUint32Big();
+  CAssetId part4 = in.readUint32Big();
+  u32 partCount4 = in.readUint32Big();
+  u32 deathSfx = in.readUint32Big();
+  bool repelFromThreats = in.readBool();
+  bool hotInThermal = in.readBool();
 
-  CModelData mData(CStaticRes(w1, zeus::skOne3f));
+  CModelData mData(CStaticRes(model, zeus::skOne3f));
   CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f,
                    animParms.GetInitialAnimation(), true);
-  return new CFishCloud(mgr.AllocateUniqueId(), b1, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform,
-                        std::move(mData), animRes, w5, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, w6, col,
-                        b2, f14, w7, w8, w9, w10, w11, w12, w13, w14, w15, b3, b4);
+  return new CFishCloud(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform,
+                        std::move(mData), animRes, numBoids, speed, separationRadius, cohesionMagnitude,
+                        alignmentWeight, separationMagnitude, weaponRepelMagnitude, playerRepelMagnitude,
+                        containmentMagnitude, scatterVel, maxScatterAngle, weaponRepelDampingSpeed,
+                        playerRepelDampingSpeed, containmentRadius, updateShift, color, killable, weaponKillRadius,
+                        part1, partCount1, part2, partCount2, part3, partCount3, part4, partCount4, deathSfx,
+                        repelFromThreats, hotInThermal);
 }
 
 CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2260,13 +2264,14 @@ CEntity* ScriptLoader::LoadFishCloudModifier(CStateManager& mgr, CInputStream& i
     return nullptr;
 
   std::string name = mgr.HashInstanceName(in);
-  zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
-  bool b1 = in.readBool();
-  bool b2 = in.readBool();
-  bool b3 = propCount > 6 ? in.readBool() : false;
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  return new CFishCloudModifier(mgr.AllocateUniqueId(), b1, name, info, vec, b2, b3, f1, f2);
+  zeus::CVector3f pos = zeus::CVector3f::ReadBig(in);
+  bool active = in.readBool();
+  bool repulsor = in.readBool();
+  bool swirl = propCount > 6 ? in.readBool() : false;
+  float radius = in.readFloatBig();
+  float priority = in.readFloatBig();
+
+  return new CFishCloudModifier(mgr.AllocateUniqueId(), active, name, info, pos, repulsor, swirl, radius, priority);
 }
 
 CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

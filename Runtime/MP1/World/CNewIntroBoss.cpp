@@ -20,7 +20,8 @@ CNewIntroBoss::CNewIntroBoss(TUniqueId uid, std::string_view name, const CEntity
 : CPatterned(ECharacter::NewIntroBoss, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Flyer, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x570_minTurnAngle(minTurnAngle)
-, x574_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f), false)
+, x574_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
+                    EBoneTrackingFlags::None)
 , x5ac_projectileInfo(projectile, dInfo)
 , x5f0_beamContactFxId(beamContactFxId)
 , x5f4_beamPulseFxId(beamPulseFxId)

@@ -6,13 +6,14 @@
 
 namespace urde {
 CFishCloudModifier::CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
-                                       const zeus::CVector3f& pos, bool b2, bool b3, float f1, float f2)
+                                       const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
+                                       float priority)
 : CActor(uid, active, name, eInfo, zeus::CTransform::Translate(pos), CModelData::CModelDataNull(),
          {EMaterialTypes::NoStepLogic}, CActorParameters::None(), kInvalidUniqueId)
-, xe8_(f1)
-, xec_(f2)
-, xf0_isRepulsor(b2)
-, xf1_(b3) {}
+, xe8_radius(radius)
+, xec_priority(priority)
+, xf0_isRepulsor(isRepulsor)
+, xf1_swirl(swirl) {}
 
 void CFishCloudModifier::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -32,9 +33,9 @@ void CFishCloudModifier::AddSelf(CStateManager& mgr) {
 
     if (TCastToPtr<CFishCloud> fishCloud = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
       if (xf0_isRepulsor)
-        fishCloud->AddRepulsor(GetUniqueId(), xe8_, xec_);
+        fishCloud->AddRepulsor(GetUniqueId(), xf1_swirl, xe8_radius, xec_priority);
       else
-        fishCloud->AddAttractor(GetUniqueId(), xe8_, xec_);
+        fishCloud->AddAttractor(GetUniqueId(), xf1_swirl, xe8_radius, xec_priority);
     }
   }
 }
