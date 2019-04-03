@@ -405,7 +405,7 @@ void FileBrowser::touchMove(const boo::STouchCoord& coord, uintptr_t tid) {}
 void FileBrowser::charKeyDown(unsigned long charcode, boo::EModifierKey mod, bool isRepeat) {
   if (skipBuildInAnimation() || closed())
     return;
-  if ((mod & boo::EModifierKey::CtrlCommand) != boo::EModifierKey::None && !isRepeat) {
+  if (True(mod & boo::EModifierKey::CtrlCommand) && !isRepeat) {
     if (charcode == 'h' || charcode == 'H')
       setShowingHidden(!showingHidden());
     else if (charcode == 'r' || charcode == 'R')

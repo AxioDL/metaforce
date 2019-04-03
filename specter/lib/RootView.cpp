@@ -446,7 +446,7 @@ void RootView::touchMove(const boo::STouchCoord& coord, uintptr_t tid) {
 void RootView::charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) {
   for (View* v : m_views)
     v->charKeyDown(charCode, mods, isRepeat);
-  if (m_activeTextView && (mods & (boo::EModifierKey::Ctrl | boo::EModifierKey::Command)) != boo::EModifierKey::None) {
+  if (m_activeTextView && True(mods & (boo::EModifierKey::Ctrl | boo::EModifierKey::Command))) {
     if (charCode == 'c' || charCode == 'C')
       m_activeTextView->clipboardCopy();
     else if (charCode == 'x' || charCode == 'X')
@@ -462,7 +462,7 @@ void RootView::charKeyUp(unsigned long charCode, boo::EModifierKey mods) {
 }
 
 void RootView::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) {
-  if (key == boo::ESpecialKey::Enter && (mods & boo::EModifierKey::Alt) != boo::EModifierKey::None) {
+  if (key == boo::ESpecialKey::Enter && True(mods & boo::EModifierKey::Alt)) {
     m_window->setFullscreen(!m_window->isFullscreen());
     return;
   }

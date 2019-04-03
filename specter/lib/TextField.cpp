@@ -320,7 +320,7 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
     return;
 
   if (key == boo::ESpecialKey::Left) {
-    if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None) {
+    if (True(mods & boo::EModifierKey::Shift)) {
       if (m_cursorPos) {
         size_t origPos = m_cursorPos;
         if (m_selectionCount) {
@@ -338,7 +338,7 @@ void TextField::specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, boo
       setCursorPos(m_cursorPos == 0 ? 0 : (m_cursorPos - 1));
     }
   } else if (key == boo::ESpecialKey::Right) {
-    if ((mods & boo::EModifierKey::Shift) != boo::EModifierKey::None) {
+    if (True(mods & boo::EModifierKey::Shift)) {
       std::string_view textStr(m_textStr);
       size_t len = UTF8Iterator(textStr.cbegin()).countTo(textStr.cend());
       if (m_cursorPos < len) {
