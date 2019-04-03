@@ -241,7 +241,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     break;
   case boo::ESpecialKey::Backspace: {
     if (!m_commandString.empty()) {
-      if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
+      if (True(mod & boo::EModifierKey::Ctrl)) {
         size_t index = m_commandString.rfind(' ', size_t(m_cursorPosition - 1));
 
         if (index == std::string::npos) {
@@ -267,7 +267,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
       if ((m_cursorPosition + 1) >= int(m_commandString.size()))
         break;
 
-      if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
+      if (True(mod & boo::EModifierKey::Ctrl)) {
         size_t index = m_commandString.find_first_of(' ', size_t(m_cursorPosition + 1));
         if (index != std::string::npos)
           m_commandString.erase(size_t(m_cursorPosition + 1), index + 1);
@@ -303,7 +303,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     if (m_cursorPosition < 0)
       break;
 
-    if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None)
+    if (True(mod & boo::EModifierKey::Ctrl))
       m_cursorPosition = int(m_commandString.rfind(' ', size_t(m_cursorPosition) - 1));
     else
       m_cursorPosition--;
@@ -316,7 +316,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     if (m_cursorPosition >= int(m_commandString.size() - 1))
       break;
 
-    if ((mod & boo::EModifierKey::Ctrl) != boo::EModifierKey::None) {
+    if (True(mod & boo::EModifierKey::Ctrl)) {
       if (m_commandString[size_t(m_cursorPosition)] == ' ')
         m_cursorPosition++;
 

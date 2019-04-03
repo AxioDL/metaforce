@@ -555,7 +555,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
         break;
       }
       out.second += Format(fmt,
-                           (attr.first & boo::VertexSemantic::Instanced) != boo::VertexSemantic::None
+                           True(attr.first & boo::VertexSemantic::Instanced)
                                ? " | boo::VertexSemantic::Instanced"
                                : "",
                            attr.second);
