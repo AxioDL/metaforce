@@ -127,7 +127,7 @@ class CGameArchitectureSupport
   CInputGenerator x30_inputGenerator;
   CGuiSys x44_guiSys;
   CIOWinManager x58_ioWinManager;
-  s32 x78_gameFrameCount;
+  s32 x78_gameFrameCount = 0;
 
   enum class EAudioLoadStatus { Loading, Loaded, Uninitialized };
   EAudioLoadStatus x88_audioLoadStatus = EAudioLoadStatus::Uninitialized;

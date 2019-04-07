@@ -13,12 +13,11 @@ CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlav
                          EColliderType colType, bool b1, const CActorParameters& actParms, bool b2)
 : CPatterned(ECharacter::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              colType, EBodyType::Pitchable, actParms, EKnockBackVariant::Small)
+, x574_state(EFlickerBatState(b1))
 , x580_24_wasInXray(false)
 , x580_25_heardShot(false)
 , x580_26_inLOS(false)
-, x580_27_enableLOSCheck(b2)
-, x574_state(EFlickerBatState(b1)) {
-
+, x580_27_enableLOSCheck(b2) {
   SetupPlayerCollision(b1);
   x3d8_xDamageThreshold = 0.f;
   x402_27_noXrayModel = false;
@@ -140,7 +139,7 @@ void CFlickerBat::Death(CStateManager& mgr, const zeus::CVector3f& direction, ES
   CPatterned::Death(mgr, direction, state);
 }
 
-bool CFlickerBat::CanBeShot(CStateManager& mgr, int) {
+bool CFlickerBat::CanBeShot(const CStateManager& mgr, int) {
   return (GetFlickerBatState() == EFlickerBatState::Visible || GetFlickerBatState() == EFlickerBatState::FadeIn ||
           mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay);
 }

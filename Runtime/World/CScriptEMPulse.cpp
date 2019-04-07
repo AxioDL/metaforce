@@ -53,7 +53,7 @@ void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
   }
 }
 
-void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, CStateManager& mgr) const {
+void CScriptEMPulse::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
   CActor::AddToRenderer(frustum, mgr);
   if (GetActive())
     g_Renderer->AddParticleGen(*x114_particleGen);

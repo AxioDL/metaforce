@@ -21,7 +21,7 @@ public:
     u32 x0_referenceCount = 0;
     std::vector<SDockReference> x4_dockReferences;
     rstl::reserved_vector<zeus::CVector3f, 4> x14_planeVertices;
-    bool x48_isReferenced;
+    bool x48_isReferenced = false;
 
   public:
     const rstl::reserved_vector<zeus::CVector3f, 4>& GetPlaneVertices() const { return x14_planeVertices; }

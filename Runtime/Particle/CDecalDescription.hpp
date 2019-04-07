@@ -33,7 +33,7 @@ public:
       bool x5c_24_DMAB : 1;
       bool x5c_25_DMOO : 1;
     };
-    u8 dummy = 0;
+    u32 dummy = 0;
   };
 };
 

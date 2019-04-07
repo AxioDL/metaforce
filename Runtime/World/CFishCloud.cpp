@@ -110,14 +110,14 @@ zeus::CPlane CFishCloud::FindClosestPlane(const zeus::CAABox& aabb, const zeus::
     zeus::CAABox::EBoxFaceId minFace = zeus::CAABox::EBoxFaceId::YMin;
     for (int i = 0; i < 6; ++i) {
       auto tri = aabb.getTri(zeus::CAABox::EBoxFaceId(i), 0);
-      float dist = zeus::CPlane(tri.x10_[0], tri.x10_[2], tri.x10_[1]).pointToPlaneDist(point);
+      float dist = zeus::CPlane(tri.x10_verts[0], tri.x10_verts[2], tri.x10_verts[1]).pointToPlaneDist(point);
       if (dist >= 0.f && dist < minDist) {
         minDist = dist;
         minFace = zeus::CAABox::EBoxFaceId(i);
       }
     }
     auto tri = aabb.getTri(minFace, 0);
-    return zeus::CPlane(tri.x10_[0], tri.x10_[2], tri.x10_[1]);
+    return zeus::CPlane(tri.x10_verts[0], tri.x10_verts[2], tri.x10_verts[1]);
   } else {
     auto unPoint = GetTransform().transposeRotate(point - GetTranslation());
     auto unAabb = GetUntransformedBoundingBox();
@@ -125,14 +125,16 @@ zeus::CPlane CFishCloud::FindClosestPlane(const zeus::CAABox& aabb, const zeus::
     zeus::CAABox::EBoxFaceId minFace = zeus::CAABox::EBoxFaceId::YMin;
     for (int i = 0; i < 6; ++i) {
       auto tri = unAabb.getTri(zeus::CAABox::EBoxFaceId(i), 0);
-      float dist = zeus::CPlane(tri.x10_[0], tri.x10_[2], tri.x10_[1]).pointToPlaneDist(unPoint);
+      float dist = zeus::CPlane(tri.x10_verts[0], tri.x10_verts[2], tri.x10_verts[1]).pointToPlaneDist(unPoint);
       if (dist >= 0.f && dist < minDist) {
         minDist = dist;
         minFace = zeus::CAABox::EBoxFaceId(i);
       }
     }
     auto tri = unAabb.getTri(minFace, 0);
-    return zeus::CPlane(GetTransform() * tri.x10_[0], GetTransform() * tri.x10_[2], GetTransform() * tri.x10_[1]);
+    return zeus::CPlane(GetTransform() * tri.x10_verts[0],
+                        GetTransform() * tri.x10_verts[2],
+                        GetTransform() * tri.x10_verts[1]);
   }
 }
 

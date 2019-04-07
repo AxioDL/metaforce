@@ -6,7 +6,7 @@
 
 namespace urde {
 CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
-  u32 magic;
+  u32 magic = 0;
   in.readBytesToBuf(&magic, 4);
   if (magic != SBIG('FONT'))
     return;

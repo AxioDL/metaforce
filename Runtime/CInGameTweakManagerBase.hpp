@@ -13,6 +13,7 @@ public:
     float x0_fadeIn, x4_fadeOut, x8_volume;
     std::string xc_fileName;
     CAssetId x1c_res;
+    Audio() = default;
     Audio(float fadeIn, float fadeOut, float vol, std::string_view fileName, u32 handle)
     : x0_fadeIn(fadeIn), x4_fadeOut(fadeOut), x8_volume(vol), xc_fileName(fileName), x1c_res(handle) {}
     float GetFadeIn() const { return x0_fadeIn; }

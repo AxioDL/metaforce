@@ -18,7 +18,6 @@ class CProjectedShadow {
   float x98_ = 1.f;
 
 public:
-  CProjectedShadow() = default;
   CProjectedShadow(u32, u32, bool);
 
   zeus::CAABox CalculateRenderBounds();

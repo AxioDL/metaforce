@@ -35,7 +35,7 @@ public:
   void Touch(CActor&, CStateManager&);
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
-  bool CanBeShot(CStateManager&, int);
+  bool CanBeShot(const CStateManager&, int);
   void Patrol(CStateManager&, EStateMsg, float);
   void Attack(CStateManager&, EStateMsg, float);
   void Shuffle(CStateManager&, EStateMsg, float);

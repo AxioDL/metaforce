@@ -48,6 +48,7 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
 
   x24_model_ghost = static_cast<CGuiModel*>(x0_baseHud.FindWidget(hecl::Format("%sghost", ModelNames[int(x4_type)])));
 
+  x28_menuItems.resize(4);
   for (int i = 0; i < 4; ++i) {
     SMenuItem& item = x28_menuItems[i];
     item.x0_model_loz = static_cast<CGuiModel*>(

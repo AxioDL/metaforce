@@ -604,12 +604,14 @@ void CSfxManager::Update(float dt) {
       }
     }
 
+#ifndef URDE_MSAN
     for (const CSfxHandle& handle : chanObj.x48_handles) {
       if (handle->IsPlaying())
         continue;
       if (handle->Ready() && handle->IsInArea())
         handle->Play();
     }
+#endif
 
     m_doUpdate = false;
   }

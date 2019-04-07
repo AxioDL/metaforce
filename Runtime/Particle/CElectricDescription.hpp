@@ -30,6 +30,6 @@ public:
   SSwooshGeneratorDesc x40_SSWH;
   SChildGeneratorDesc x50_GPSM;
   SChildGeneratorDesc x60_EPSM;
-  bool x70_ZERY;
+  bool x70_ZERY = false;
 };
 } // namespace urde

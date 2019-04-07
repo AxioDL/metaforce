@@ -26,7 +26,7 @@ public:
   void Accept(IVisitor&);
   void Think(float, CStateManager&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, CStateManager&) const;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void CalculateRenderBounds();
   rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);

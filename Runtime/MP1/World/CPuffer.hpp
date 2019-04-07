@@ -33,6 +33,6 @@ public:
   void Think(float, CStateManager&);
   rstl::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor&, CStateManager&);
-  void Death(CStateManager&, zeus::CVector3f&, EScriptObjectState);
+  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState);
 };
 } // namespace urde::MP1

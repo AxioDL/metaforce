@@ -86,7 +86,7 @@ void CPuffer::Touch(CActor& act, CStateManager& mgr) {
     x401_30_pendingDeath = true;
 }
 
-void CPuffer::Death(CStateManager& mgr, zeus::CVector3f& vec, EScriptObjectState state) {
+void CPuffer::Death(CStateManager& mgr, const zeus::CVector3f& vec, EScriptObjectState state) {
   CPatterned::Death(mgr, vec, state);
   mgr.ApplyDamageToWorld(GetUniqueId(), *this, GetTranslation(), x59c_explosionDamage,
                          CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}));

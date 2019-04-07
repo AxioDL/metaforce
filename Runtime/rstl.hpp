@@ -477,8 +477,20 @@ public:
   const_reverse_iterator crbegin() const noexcept { return rbegin(); }
   const_reverse_iterator crend() const noexcept { return rend(); }
 
-  T& operator[](size_t idx) { return _value(idx); }
-  const T& operator[](size_t idx) const { return _value(idx); }
+  T& operator[](size_t idx) {
+#ifndef NDEBUG
+    if (idx >= x0_size)
+      Log.report(logvisor::Fatal, "out of bounds access on reserved_vector.");
+#endif
+    return _value(idx);
+  }
+  const T& operator[](size_t idx) const {
+#ifndef NDEBUG
+    if (idx >= x0_size)
+      Log.report(logvisor::Fatal, "out of bounds access on reserved_vector.");
+#endif
+    return _value(idx);
+  }
 };
 
 /**

@@ -129,10 +129,10 @@ public:
   static const CArchMsgParmVoidPtr& GetParmDeleteIOWin(const CArchitectureMessage& msg) {
     return *msg.GetParm<CArchMsgParmVoidPtr>();
   }
-  static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, const s32& a) {
+  static CArchitectureMessage CreateFrameBegin(EArchMsgTarget target, s32 a) {
     return CArchitectureMessage(target, EArchMsgType::FrameBegin, std::make_shared<CArchMsgParmInt32>(a));
   }
-  static CArchitectureMessage CreateFrameEnd(EArchMsgTarget target, const s32& a) {
+  static CArchitectureMessage CreateFrameEnd(EArchMsgTarget target, s32 a) {
     return CArchitectureMessage(target, EArchMsgType::FrameEnd, std::make_shared<CArchMsgParmInt32>(a));
   }
   /* URDE Messages */

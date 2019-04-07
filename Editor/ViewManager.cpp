@@ -353,7 +353,9 @@ bool ViewManager::proc() {
   gfxQ->execute();
   if (g_ResFactory)
     g_ResFactory->AsyncIdle();
+#ifndef URDE_MSAN
   m_voiceEngine->pumpAndMixVoices();
+#endif
   if (!m_skipWait || !hecl::com_developer->toBoolean())
     m_mainWindow->waitForRetrace();
   CBooModel::ClearModelUniformCounters();

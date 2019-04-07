@@ -4,6 +4,7 @@
 #include "zeus/CMatrix3f.hpp"
 #include "zeus/CQuaternion.hpp"
 #include "hecl/hecl.hpp"
+#include <unordered_map>
 
 namespace DataSpec::DNAANIM {
 

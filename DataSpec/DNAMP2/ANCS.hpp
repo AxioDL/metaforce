@@ -103,8 +103,8 @@ struct ANCS : BigDNA {
 
     std::vector<MP1AnimationSet::AdditiveAnimationInfo> additiveAnims;
 
-    float floatA = 0.0;
-    float floatB = 0.0;
+    float additiveDefaultFadeInDur = 0.0;
+    float additiveDefaultFadeOutDur = 0.0;
 
     std::vector<MP1AnimationSet::HalfTransition> halfTransitions;
 

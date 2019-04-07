@@ -44,7 +44,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake" "${CMAKE_SOUR
 find_package(Sanitizers)
 
 # Don't cotire when using clang-cl
-if(NOT MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+if(NOT URDE_MSAN AND (NOT MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC"))
   include(cotire)
 endif()
 
@@ -130,8 +130,15 @@ else()
     message(STATUS "Building with x87 Vector ISA")
   endif()
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-multichar -Werror=implicit-fallthrough \
-      -Wno-unknown-warning-option -Wno-lto-type-mismatch -fno-exceptions -fno-rtti -Werror")
+  if(URDE_MSAN)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+        -stdlib=libc++ -fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+        -fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all")
+  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-multichar -Werror=implicit-fallthrough \
+      -Wno-unknown-warning-option -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field \
+      -fno-exceptions -fno-rtti -Werror")
 
   if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations")

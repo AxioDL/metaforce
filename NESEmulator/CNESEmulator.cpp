@@ -41,11 +41,13 @@ extern "C" {
 #define DEBUG_KEY 0
 #define DEBUG_LOAD_INFO 1
 
+#if 0
 #ifndef _WIN32
 std::chrono::steady_clock::time_point s_tp = std::chrono::steady_clock::now();
 static std::chrono::milliseconds::rep GetTickCount() {
   return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - s_tp).count();
 }
+#endif
 #endif
 
 static const char* VERSION_STRING = "fixNES Alpha v1.0.5";

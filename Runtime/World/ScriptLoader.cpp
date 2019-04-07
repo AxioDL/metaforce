@@ -1701,7 +1701,7 @@ CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int
   rangeDelta.readBig(in);
   bool expl = in.readBool();
   bool active = in.readBool();
-  ERglFogMode realMode;
+  ERglFogMode realMode = ERglFogMode::None;
 
   if (mode == 0)
     realMode = ERglFogMode::None;

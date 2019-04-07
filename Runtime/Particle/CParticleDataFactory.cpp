@@ -22,7 +22,7 @@ bool CParticleDataFactory::GetBool(CInputStream& in) {
 }
 
 FourCC CParticleDataFactory::GetClassID(CInputStream& in) {
-  uint32_t val;
+  u32 val = 0;
   in.readBytesToBuf(&val, 4);
   return val;
 }

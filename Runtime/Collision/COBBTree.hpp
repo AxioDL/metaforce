@@ -44,7 +44,6 @@ public:
 
   public:
     CNode() = default;
-    CNode(const CNode&) = default;
     CNode(const zeus::CTransform&, const zeus::CVector3f&, std::unique_ptr<CNode>&&, std::unique_ptr<CNode>&&,
           std::unique_ptr<CLeafData>&&);
     CNode(CInputStream&);

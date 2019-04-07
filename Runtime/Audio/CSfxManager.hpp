@@ -113,8 +113,8 @@ public:
     , x14_26_looped(looped)
     , x14_27_inArea(true)
     , x14_28_isReleased(false)
-    , m_isClosed(false)
-    , x14_29_useAcoustics(useAcoustics) {}
+    , x14_29_useAcoustics(useAcoustics)
+    , m_isClosed(false) {}
   };
 
   class CSfxEmitterWrapper : public CBaseSfxWrapper {

@@ -165,3 +165,9 @@ struct hash<urde::CAssetId> {
   size_t operator()(const urde::CAssetId& id) const noexcept { return id.Value(); }
 };
 } // namespace std
+
+#if defined(__has_feature)
+#if __has_feature(memory_sanitizer)
+#define URDE_MSAN 1
+#endif
+#endif

@@ -60,7 +60,7 @@ public:
       bool x30_30_ORNT : 1;
       bool x30_31_RSOP : 1;
     };
-    uint32_t dummy1 = 0;
+    u32 dummy1 = 0;
   };
   std::unique_ptr<CIntElement> x48_x34_MBSP;
   std::unique_ptr<CRealElement> x4c_x38_SIZE;

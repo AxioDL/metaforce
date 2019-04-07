@@ -261,7 +261,7 @@ private:
   EFootstepSfx x790_footstepSfxSel = EFootstepSfx::None;
   zeus::CVector3f x794_lastVelocity;
   CVisorSteam x7a0_visorSteam = CVisorSteam(0.f, 0.f, 0.f, CAssetId() /*kInvalidAssetId*/);
-  CPlayerState::EPlayerSuit x7cc_transitionSuit;
+  CPlayerState::EPlayerSuit x7cc_transitionSuit = CPlayerState::EPlayerSuit::Invalid;
   CAnimRes x7d0_animRes;
   zeus::CVector3f x7d8_beamScale;
   bool x7e4_ = true;

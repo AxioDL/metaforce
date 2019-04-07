@@ -992,7 +992,7 @@ bool CStateManager::GetVisSetForArea(TAreaId a, TAreaId b, CPVSVisSet& setOut) c
           TAreaId connArea = dock.GetConnectedAreaId(i);
           if (connArea == a) {
             const auto& verts = dock.GetPlaneVertices();
-            zeus::CVector3f dockCenter = (verts[0] + verts[1] + verts[2] + verts[4]) * 0.25f;
+            zeus::CVector3f dockCenter = (verts[0] + verts[1] + verts[2] + verts[3]) * 0.25f;
             if (hasClosestDock)
               if ((dockCenter - viewPoint).magSquared() >= (closestDockPoint - viewPoint).magSquared())
                 continue;

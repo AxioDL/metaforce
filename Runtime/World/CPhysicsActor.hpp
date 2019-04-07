@@ -105,8 +105,8 @@ protected:
   float x240_stepDownHeight;
   float x244_restitutionCoefModifier = 0.f;
   float x248_collisionAccuracyModifier = 1.f;
-  u32 x24c_numTicksStuck;
-  u32 x250_numTicksPartialUpdate;
+  u32 x24c_numTicksStuck = 0;
+  u32 x250_numTicksPartialUpdate = 0;
 
 public:
   CPhysicsActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,

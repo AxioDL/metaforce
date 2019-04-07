@@ -777,8 +777,8 @@ void ANCS::AnimationSet::Enumerate<BigDNA::Read>(athena::io::IStreamReader& read
   if (sectionCount > 1) {
     atUint32 additiveAnimCount = reader.readUint32Big();
     reader.enumerate(additiveAnims, additiveAnimCount);
-    floatA = reader.readFloatBig();
-    floatB = reader.readFloatBig();
+    additiveDefaultFadeInDur = reader.readFloatBig();
+    additiveDefaultFadeOutDur = reader.readFloatBig();
   }
 
   halfTransitions.clear();
@@ -818,8 +818,8 @@ void ANCS::AnimationSet::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& wri
   if (sectionCount > 1) {
     writer.writeUint32Big(additiveAnims.size());
     writer.enumerate(additiveAnims);
-    writer.writeFloatBig(floatA);
-    writer.writeFloatBig(floatB);
+    writer.writeFloatBig(additiveDefaultFadeInDur);
+    writer.writeFloatBig(additiveDefaultFadeOutDur);
   }
 
   if (sectionCount > 2) {
@@ -886,8 +886,8 @@ void ANCS::AnimationSet::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& 
   additiveAnims.clear();
   if (sectionCount > 1) {
     reader.enumerate("additiveAnims", additiveAnims);
-    floatA = reader.readFloat("floatA");
-    floatB = reader.readFloat("floatB");
+    additiveDefaultFadeInDur = reader.readFloat("additiveDefaultFadeInDur");
+    additiveDefaultFadeOutDur = reader.readFloat("additiveDefaultFadeOutDur");
   }
 
   halfTransitions.clear();
@@ -922,8 +922,8 @@ void ANCS::AnimationSet::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter&
 
   if (sectionCount > 1) {
     writer.enumerate("additiveAnims", additiveAnims);
-    writer.writeFloat("floatA", floatA);
-    writer.writeFloat("floatB", floatB);
+    writer.writeFloat("additiveDefaultFadeInDur", additiveDefaultFadeInDur);
+    writer.writeFloat("additiveDefaultFadeOutDur", additiveDefaultFadeOutDur);
   }
 
   if (sectionCount > 2) {

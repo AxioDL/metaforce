@@ -153,10 +153,10 @@ struct CFinalInput {
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
 
-  bool PKey(char k) const { return m_kbm && m_PCharKeys[k]; }
+  bool PKey(char k) const { return m_kbm && m_PCharKeys[int(k)]; }
   bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[int(k)]; }
   bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[int(k)]; }
-  bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[k]; }
+  bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[int(k)]; }
   bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[int(k)]; }
   bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[int(k)]; }
   bool AKey(char k) const { return DKey(k) ? 1.f : 0.f; }

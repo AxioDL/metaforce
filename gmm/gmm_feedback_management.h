@@ -136,7 +136,7 @@ public:
 // it to gmm::default_feedback_handler.
 inline base_feedback_handler* feedback_manager::manage(enum Action action, base_feedback_handler *pHandler) {
   static std::unique_ptr<base_feedback_handler> pHandler_ =
-    std::move(std::unique_ptr<base_feedback_handler>(new default_feedback_handler));
+    std::unique_ptr<base_feedback_handler>(new default_feedback_handler);
   base_feedback_handler *rethandler = nullptr;
   switch(action) {
     case SET:

@@ -16,7 +16,7 @@ class CWorldShadow {
   float x64_objHalfExtent = 1.f;
   zeus::CVector3f x68_objPos = {0.f, 1.f, 0.f};
   zeus::CVector3f x74_lightPos;
-  TAreaId x80_aid;
+  TAreaId x80_aid = kInvalidAreaId;
   s32 x84_lightIdx = -1;
   bool x88_blurReset = true;
 #if CWORLDSHADOW_FEEDBACK

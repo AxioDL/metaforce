@@ -327,13 +327,13 @@ struct ANCS : BigDNA {
     struct AdditiveAnimationInfo : BigDNA {
       AT_DECL_DNA_YAML
       Value<atUint32> animIdx;
-      Value<float> unk1;
-      Value<float> unk2;
+      Value<float> fadeInDur;
+      Value<float> fadeOutDur;
     };
     std::vector<AdditiveAnimationInfo> additiveAnims;
 
-    float floatA = 0.0;
-    float floatB = 0.0;
+    float additiveDefaultFadeInDur = 0.0;
+    float additiveDefaultFadeOutDur = 0.0;
 
     struct HalfTransition : BigDNA {
       AT_DECL_DNA_YAML

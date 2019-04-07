@@ -42,7 +42,7 @@ public:
       bool x45_25_ORNT : 1;
       bool x45_26_CRND : 1;
     };
-    u16 dummy = 0;
+    u32 dummy = 0;
   };
 
   CSwooshDescription() { x44_25_CROS = true; }

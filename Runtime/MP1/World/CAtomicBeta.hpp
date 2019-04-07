@@ -51,7 +51,7 @@ public:
   void Think(float, CStateManager&);
   const CDamageVulnerability* GetDamageVulnerability() const;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode& mode) const {
+                                                         const CWeaponMode& mode, EProjectileAttrib) const {
     return GetDamageVulnerability()->WeaponHits(mode, false) ? EWeaponCollisionResponseTypes::AtomicBeta
                                                              : EWeaponCollisionResponseTypes::AtomicBetaReflect;
   }
