@@ -51,7 +51,7 @@ private:
   boo::IWindow* m_window = nullptr;
   std::unordered_map<std::string, SConsoleCommand> m_commands;
   std::vector<std::pair<std::string, Level>> m_log;
-  int m_logOffset;
+  int m_logOffset = 0;
   std::string m_commandString;
   std::vector<std::string> m_commandHistory;
   int m_cursorPosition = -1;

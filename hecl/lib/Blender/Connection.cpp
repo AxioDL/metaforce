@@ -224,12 +224,14 @@ void Connection::_blenderDied() {
 
 static std::atomic_bool BlenderFirstInit(false);
 
+#if _WIN32
 static bool RegFileExists(const hecl::SystemChar* path) {
   if (!path)
     return false;
   hecl::Sstat theStat;
   return !hecl::Stat(path, &theStat) && S_ISREG(theStat.st_mode);
 }
+#endif
 
 Connection::Connection(int verbosityLevel) {
 #if !WINDOWS_STORE
