@@ -4,7 +4,7 @@
 
 To enable checking for uninitialized memory accesses with
 [MemorySanitizer](https://clang.llvm.org/docs/MemorySanitizer.html), pass
-`-DURDE\_MSAN=On` to the CMake command line.
+`-DURDE_MSAN=On` to the CMake command line.
 URDE and boo will conditionally disable certain features when MemorySanitizer
 is enabled. Audio will not be processed in order to avoid the significant
 CPU expense required for mixing. Disabling audio also avoids the need to
