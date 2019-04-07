@@ -108,7 +108,10 @@ public:
   void destroyed();
   bool isDestroyed() const { return m_destroyed; }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
   void resized(const boo::SWindowRect& rect, bool) { resized(rect, rect); }
+#pragma GCC diagnostic pop
   void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
   void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
   void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);

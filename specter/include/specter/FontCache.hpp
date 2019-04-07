@@ -148,7 +148,7 @@ class FontCache {
   const hecl::Runtime::FileStoreManager& m_fileMgr;
   hecl::SystemString m_cacheRoot;
   struct Library {
-    FT_Library m_lib;
+    FT_Library m_lib = nullptr;
     Library();
     ~Library();
     operator FT_Library() { return m_lib; }

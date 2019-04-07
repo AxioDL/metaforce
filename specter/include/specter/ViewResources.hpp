@@ -177,9 +177,7 @@ public:
 
   ViewResources() = default;
   ViewResources(const ViewResources& other) = delete;
-  ViewResources(ViewResources&& other) = default;
   ViewResources& operator=(const ViewResources& other) = delete;
-  ViewResources& operator=(ViewResources&& other) = default;
 
   void updateBuffers() {
     m_viewRes.updateBuffers();
