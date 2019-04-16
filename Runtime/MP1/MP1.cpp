@@ -88,7 +88,7 @@ CGameArchitectureSupport::CGameArchitectureSupport(CMain& parent, boo::IAudioVoi
   CStreamAudioManager::SetMusicVolume(0x7f);
   m->ResetGameState();
 
-  if (false && !g_tweakGame->GetSplashScreensDisabled()) {
+  if (!g_tweakGame->GetSplashScreensDisabled()) {
     std::shared_ptr<CIOWin> splash = std::make_shared<CSplashScreen>(CSplashScreen::ESplashScreen::Nintendo);
     x58_ioWinManager.AddIOWin(splash, 1000, 10000);
   }

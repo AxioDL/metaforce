@@ -542,10 +542,28 @@ void CScriptSpecialFunction::ThinkIntroBossRingController(float dt, CStateManage
   }
 }
 
-void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager&) {}
+void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager& mgr) {
+  for (const SConnection& conn : GetConnectionList()) {
+    if (conn.x0_state == EScriptObjectState::Play && conn.x4_msg == EScriptObjectMessage::Activate) {
+      auto search = mgr.GetIdListForScript(conn.x8_objId);
+      for (auto it = search.first; it != search.second; ++it) {
+        if (TCastToConstPtr<CActor> act = mgr.GetObjectById(it->second)) {
+          zeus::CTransform xf = act->GetTransform() * act->GetLocatorTransform(xec_locatorName);
+          CPlayer& pl = mgr.GetPlayer();
+          pl.SetTransform(xf);
+          pl.SetVelocityWR({});
+          pl.SetAngularVelocityWR({});
+          pl.ClearForcesAndTorques();
+          return;
+        }
+      }
+    }
+  }
+}
 
-void CScriptSpecialFunction::ThinkSpinnerController(float, CStateManager&,
-                                                    CScriptSpecialFunction::ESpinnerControllerMode) {}
+void CScriptSpecialFunction::ThinkSpinnerController(float, CStateManager&, ESpinnerControllerMode) {
+
+}
 
 void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr) {
   TUniqueId followerAct = kInvalidUniqueId;

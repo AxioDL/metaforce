@@ -49,7 +49,9 @@ struct CTweakGame final : ITweakGame {
   CTweakGame() = default;
   CTweakGame(athena::io::IStreamReader& in) {
     this->read(in);
+#ifdef NDEBUG
     x2b_splashScreensDisabled = false;
+#endif
   }
 
   void initCVars(hecl::CVarManager* mgr);

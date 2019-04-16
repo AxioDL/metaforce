@@ -18,7 +18,7 @@ CScriptSteam::CScriptSteam(TUniqueId uid, std::string_view name, const CEntityIn
   float r3 = (aabb.max.z() < aabb.max.y() ? aabb.max.z() : aabb.max.y());
   r3 = (r3 < aabb.max.x() ? r3 : aabb.max.x());
 
-  if (f4 - 0.f >= 0.000009999999747378752f)
+  if (zeus::close_enough(f4, 0.f))
     r3 = (r3 < f2 ? r3 : f4);
 
   x164_ = r3;
