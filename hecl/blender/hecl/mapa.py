@@ -1,8 +1,233 @@
-import bpy, struct, bmesh
-from . import hmdl
+import bpy, struct, bmesh, operator
 from mathutils import Vector
-VertPool = hmdl.HMDLMesh.VertPool
-strip_next_loop = hmdl.HMDLMesh.strip_next_loop
+
+# Function to quantize normals to 15-bit precision
+def quant_norm(n):
+    nf = n.copy()
+    for i in range(3):
+        nf[i] = int(nf[i] * 16384) / 16384.0
+    return nf.freeze()
+
+# Function to quantize lightmap UVs to 15-bit precision
+def quant_luv(n):
+    uf = n.copy()
+    for i in range(2):
+        uf[i] = int(uf[i] * 32768) / 32768.0
+    return uf.freeze()
+
+# Class for building unique sets of vertex attributes for VBO generation
+class VertPool:
+
+    # Initialize hash-unique index for each available attribute
+    def __init__(self, bm, rna_loops, use_luv, material_slots):
+        self.bm = bm
+        self.rna_loops = rna_loops
+        self.material_slots = material_slots
+        self.pos = {}
+        self.norm = {}
+        self.skin = {}
+        self.color = {}
+        self.uv = {}
+        self.luv = {}
+        self.dlay = None
+        self.clays = []
+        self.ulays = []
+        self.luvlay = None
+
+        dlay = None
+        if len(bm.verts.layers.deform):
+            dlay = bm.verts.layers.deform[0]
+            self.dlay = dlay
+
+        clays = []
+        for cl in range(len(bm.loops.layers.color)):
+            clays.append(bm.loops.layers.color[cl])
+        self.clays = clays
+
+        luvlay = None
+        if use_luv:
+            luvlay = bm.loops.layers.uv[0]
+            self.luvlay = luvlay
+        ulays = []
+        for ul in range(len(bm.loops.layers.uv)):
+            ulays.append(bm.loops.layers.uv[ul])
+        self.ulays = ulays
+
+        # Per-vert pool attributes
+        for v in bm.verts:
+            pf = v.co.copy().freeze()
+            if pf not in self.pos:
+                self.pos[pf] = len(self.pos)
+            if not rna_loops:
+                nf = quant_norm(v.normal)
+                if nf not in self.norm:
+                    self.norm[nf] = len(self.norm)
+            if dlay:
+                sf = tuple(sorted(v[dlay].items()))
+                if sf not in self.skin:
+                    self.skin[sf] = len(self.skin)
+
+        # Per-loop pool attributes
+        for f in bm.faces:
+            lightmapped = f.material_index < len(material_slots) and \
+                          material_slots[f.material_index].material['retro_lightmapped']
+            for l in f.loops:
+                if rna_loops:
+                    nf = quant_norm(rna_loops[l.index].normal)
+                    if nf not in self.norm:
+                        self.norm[nf] = len(self.norm)
+                for cl in range(len(clays)):
+                    cf = l[clays[cl]].copy().freeze()
+                    if cf not in self.color:
+                        self.color[cf] = len(self.color)
+                start_uvlay = 0
+                if use_luv and lightmapped:
+                    start_uvlay = 1
+                    uf = quant_luv(l[luvlay].uv)
+                    if uf not in self.luv:
+                        self.luv[uf] = len(self.luv)
+                for ul in range(start_uvlay, len(ulays)):
+                    uf = l[ulays[ul]].uv.copy().freeze()
+                    if uf not in self.uv:
+                        self.uv[uf] = len(self.uv)
+
+    def write_out(self, writebuf, vert_groups):
+        writebuf(struct.pack('I', len(self.pos)))
+        for p in sorted(self.pos.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('fff', p[0][0], p[0][1], p[0][2]))
+
+        writebuf(struct.pack('I', len(self.norm)))
+        for n in sorted(self.norm.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('fff', n[0][0], n[0][1], n[0][2]))
+
+        writebuf(struct.pack('II', len(self.clays), len(self.color)))
+        for c in sorted(self.color.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('fff', c[0][0], c[0][1], c[0][2]))
+
+        writebuf(struct.pack('II', len(self.ulays), len(self.uv)))
+        for u in sorted(self.uv.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('ff', u[0][0], u[0][1]))
+
+        luv_count = 0
+        if self.luvlay is not None:
+            luv_count = 1
+        writebuf(struct.pack('II', luv_count, len(self.luv)))
+        for u in sorted(self.luv.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('ff', u[0][0], u[0][1]))
+
+        writebuf(struct.pack('I', len(vert_groups)))
+        for vgrp in vert_groups:
+            writebuf(struct.pack('I', len(vgrp.name)))
+            writebuf(vgrp.name.encode())
+
+        writebuf(struct.pack('I', len(self.skin)))
+        for s in sorted(self.skin.items(), key=operator.itemgetter(1)):
+            entries = s[0]
+            writebuf(struct.pack('I', len(entries)))
+            if len(entries):
+                total_len = 0.0
+                for ent in entries:
+                    total_len += ent[1]
+                for ent in entries:
+                    writebuf(struct.pack('If', ent[0], ent[1] / total_len))
+
+    def write_out_map(self, writebuf):
+        writebuf(struct.pack('I', len(self.pos)))
+        for p in sorted(self.pos.items(), key=operator.itemgetter(1)):
+            writebuf(struct.pack('fff', p[0][0], p[0][1], p[0][2]))
+
+    def get_pos_idx(self, vert):
+        pf = vert.co.copy().freeze()
+        return self.pos[pf]
+
+    def get_norm_idx(self, loop):
+        if self.rna_loops:
+            nf = quant_norm(self.rna_loops[loop.index].normal)
+        else:
+            nf = quant_norm(loop.vert.normal)
+        return self.norm[nf]
+
+    def get_skin_idx(self, vert):
+        if not self.dlay:
+            return 0
+        sf = tuple(sorted(vert[self.dlay].items()))
+        return self.skin[sf]
+
+    def get_color_idx(self, loop, cidx):
+        cf = loop[self.clays[cidx]].copy().freeze()
+        return self.color[cf]
+
+    def get_uv_idx(self, loop, uidx):
+        if self.luvlay is not None and uidx == 0:
+            if self.material_slots[loop.face.material_index].material['retro_lightmapped']:
+                uf = quant_luv(loop[self.luvlay].uv)
+                return self.luv[uf]
+        uf = loop[self.ulays[uidx]].uv.copy().freeze()
+        return self.uv[uf]
+
+    def loops_contiguous(self, la, lb):
+        if la.vert != lb.vert:
+            return False
+        if self.get_norm_idx(la) != self.get_norm_idx(lb):
+            return False
+        for cl in range(len(self.clays)):
+            if self.get_color_idx(la, cl) != self.get_color_idx(lb, cl):
+                return False
+        for ul in range(len(self.ulays)):
+            if self.get_uv_idx(la, ul) != self.get_uv_idx(lb, ul):
+                return False
+        return True
+
+    def splitable_edge(self, edge):
+        if len(edge.link_faces) < 2:
+            return False
+        for v in edge.verts:
+            found = None
+            for f in edge.link_faces:
+                for l in f.loops:
+                    if l.vert == v:
+                        if not found:
+                            found = l
+                            break
+                        else:
+                            if not self.loops_contiguous(found, l):
+                                return True
+                            break
+        return False
+
+    def loop_out(self, writebuf, loop):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('II', self.get_pos_idx(loop.vert), self.get_norm_idx(loop)))
+        for cl in range(len(self.clays)):
+            writebuf(struct.pack('I', self.get_color_idx(loop, cl)))
+        for ul in range(len(self.ulays)):
+            writebuf(struct.pack('I', self.get_uv_idx(loop, ul)))
+        sp = struct.pack('I', self.get_skin_idx(loop.vert))
+        writebuf(sp)
+
+    def null_loop_out(self, writebuf):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', 0xffffffff))
+
+    def loop_out_map(self, writebuf, loop):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', self.get_pos_idx(loop.vert)))
+
+    def vert_out_map(self, writebuf, vert):
+        writebuf(struct.pack('B', 1))
+        writebuf(struct.pack('I', self.get_pos_idx(vert)))
+
+
+def strip_next_loop(prev_loop, out_count):
+    if out_count & 1:
+        radial_loop = prev_loop.link_loop_radial_next
+        loop = radial_loop.link_loop_prev
+        return loop, loop
+    else:
+        radial_loop = prev_loop.link_loop_radial_prev
+        loop = radial_loop.link_loop_next
+        return loop.link_loop_next, loop
+
 
 def recursive_faces_islands(list_out, rem_list, face):
     if face not in rem_list:
@@ -34,13 +259,13 @@ def cook(writebuf, mesh_obj):
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
-    copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
+    copy_obj.data = mesh_obj.to_mesh(bpy.context.depsgraph, True)
     copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
-    bpy.context.scene.objects.link(copy_obj)
+    bpy.context.scene.collection.objects.link(copy_obj)
     bpy.ops.object.select_all(action='DESELECT')
-    bpy.context.scene.objects.active = copy_obj
-    copy_obj.select = True
+    bpy.context.view_layer.objects.active = copy_obj
+    copy_obj.select_set(True)
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()

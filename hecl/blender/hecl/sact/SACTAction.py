@@ -15,7 +15,7 @@ def action_type_update(self, context):
 
 # Actor action class
 class SACTAction(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(name="Action Name")
+    name: bpy.props.StringProperty(name="Action Name")
 
 # Panel draw
 def draw(layout, context):
@@ -30,8 +30,8 @@ def draw(layout, context):
         row.template_list("UI_UL_list", "SCENE_UL_SACTActions",
                           actor_data, 'actions', actor_data, 'active_action')
         col = row.column(align=True)
-        col.operator("scene.sactaction_add", icon="ZOOMIN", text="")
-        col.operator("scene.sactaction_remove", icon="ZOOMOUT", text="")
+        col.operator("scene.sactaction_add", icon="ADD", text="")
+        col.operator("scene.sactaction_remove", icon="REMOVE", text="")
 
         if len(actor_data.actions) and actor_data.active_action >= 0:
             action = actor_data.actions[actor_data.active_action]
@@ -48,7 +48,7 @@ def draw(layout, context):
 
             # Validate
             if linked_action is None:
-                layout.label("Source action not set", icon='ERROR')
+                layout.label(text="Source action not set", icon='ERROR')
             else:
                 #layout.prop(linked_action, 'hecl_index', text="Index")
                 #layout.prop(linked_action, 'hecl_anim_props', text="Props")

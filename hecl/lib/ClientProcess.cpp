@@ -166,7 +166,7 @@ ClientProcess::addLambdaTransaction(std::function<void(blender::Token&)>&& func)
 bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec* spec, blender::Token& btok, bool force,
                              bool fast) {
   if (spec->canCook(path, btok)) {
-    const Database::DataSpecEntry* specEnt = spec->overrideDataSpec(path, spec->getDataSpecEntry(), btok);
+    const Database::DataSpecEntry* specEnt = spec->overrideDataSpec(path, spec->getDataSpecEntry());
     if (specEnt) {
       hecl::ProjectPath cooked = path.getCookedPath(*specEnt);
       if (fast)

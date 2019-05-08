@@ -4,7 +4,6 @@ in an interleaved, sparse array for use by the runtime
 '''
 
 import re
-import hashlib
 import struct
 import mathutils
 

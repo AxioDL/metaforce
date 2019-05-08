@@ -138,7 +138,7 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
 
     if (weightVecCount) {
       const SkinBanks::Bank& bank = skinBanks.banks[s.skinBankIdx];
-      const std::vector<SkinBind>& binds = skins[v.iSkin];
+      const auto& binds = skins[v.iSkin];
 
       auto it = bank.m_boneIdxs.cbegin();
       for (size_t i = 0; i < weightVecCount; ++i) {
@@ -146,11 +146,14 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
         for (size_t j = 0; j < 4; ++j) {
           if (it == bank.m_boneIdxs.cend())
             break;
-          for (const SkinBind& bind : binds)
-            if (bind.boneIdx == *it) {
+          for (const SkinBind& bind : binds) {
+            if (!bind)
+              break;
+            if (bind.vg_idx == *it) {
               vec.simd[j] = bind.weight;
               break;
             }
+          }
           ++it;
         }
         vboW.writeVec4fLittle(vec);

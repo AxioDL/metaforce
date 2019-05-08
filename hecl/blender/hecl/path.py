@@ -1,5 +1,6 @@
-import bpy, bgl, sys, bmesh, struct
+import bpy, gpu, sys, bmesh, struct
 from mathutils import Vector
+from gpu_extras.batch import batch_for_shader
 
 # Convenience class that automatically brings active edit mesh's face into scope for get/set
 class HeightRef:
@@ -43,14 +44,6 @@ def set_height(self, val):
     for ar in bpy.context.screen.areas:
         if ar.type == 'VIEW_3D':
             ar.tag_redraw()
-
-# Edit panel
-def draw(layout, context):
-    layout.prop_search(context.scene, 'hecl_path_obj', context.scene, 'objects')
-    layout.operator('view3d.toggle_path_background_wireframe', text='Toggle Background Wire', icon='WIRE')
-    layout.operator('view3d.toggle_path_height_visualization', text='Toggle Height Viz', icon='MANIPUL')
-    if HeightRef().ready:
-        layout.prop(context.window_manager, 'hecl_height_prop', text='Height')
 
 # Simple AABB class
 class AABB:
@@ -226,34 +219,39 @@ def cook(writebuf, mesh_obj):
     writebuf(struct.pack('I', len(ba)))
     writebuf(ba)
 
+try:
+    line_shader = gpu.shader.from_builtin('3D_FLAT_COLOR')
+except:
+    pass
+
 # Line draw helper
-def draw_line_3d(color, start, end):
-    bgl.glColor4f(*color)
-    bgl.glBegin(bgl.GL_LINES)
-    bgl.glVertex3f(*start)
-    bgl.glVertex3f(*end)
+def draw_line_3d(pos_vbo, color_vbo, color, start, end):
+    pos_vbo.append(start)
+    pos_vbo.append(end)
+    color_vbo.append(color)
+    color_vbo.append(color)
 
 # Draw RNA polygon
-def draw_poly(p, obj, obj_mtx, height, top_color, side_color):
+def draw_poly(pos_vbo, color_vbo, p, obj, obj_mtx, height, top_color, side_color):
     for ek in p.edge_keys:
-        co0 = obj_mtx * obj.data.vertices[ek[0]].co
-        co1 = obj_mtx * obj.data.vertices[ek[1]].co
-        draw_line_3d(top_color, co0 + Vector((0.0, 0.0, height)),
+        co0 = obj_mtx @ obj.data.vertices[ek[0]].co
+        co1 = obj_mtx @ obj.data.vertices[ek[1]].co
+        draw_line_3d(pos_vbo, color_vbo, top_color, co0 + Vector((0.0, 0.0, height)),
                      co1 + Vector((0.0, 0.0, height)))
     for vk in p.vertices:
-        co = obj_mtx * obj.data.vertices[vk].co
-        draw_line_3d(side_color, co, co + Vector((0.0, 0.0, height)))
+        co = obj_mtx @ obj.data.vertices[vk].co
+        draw_line_3d(pos_vbo, color_vbo, side_color, co, co + Vector((0.0, 0.0, height)))
 
 # Draw bmesh face
-def draw_face(f, obj_mtx, height, top_color, side_color):
+def draw_face(pos_vbo, color_vbo, f, obj_mtx, height, top_color, side_color):
     for e in f.edges:
-        co0 = obj_mtx * e.verts[0].co
-        co1 = obj_mtx * e.verts[1].co
-        draw_line_3d(top_color, co0 + Vector((0.0, 0.0, height)),
+        co0 = obj_mtx @ e.verts[0].co
+        co1 = obj_mtx @ e.verts[1].co
+        draw_line_3d(pos_vbo, color_vbo, top_color, co0 + Vector((0.0, 0.0, height)),
                      co1 + Vector((0.0, 0.0, height)))
     for v in f.verts:
-        co = obj_mtx * v.co
-        draw_line_3d(side_color, co, co + Vector((0.0, 0.0, height)))
+        co = obj_mtx @ v.co
+        draw_line_3d(pos_vbo, color_vbo, side_color, co, co + Vector((0.0, 0.0, height)))
 
 # Viewport hook callback
 def draw_callback_3d(self, context):
@@ -275,6 +273,9 @@ def draw_callback_3d(self, context):
         if 'Height' in obj.data.polygon_layers_float:
             height_lay = obj.data.polygon_layers_float['Height']
 
+    pos_vbo = []
+    color_vbo = []
+
     # Deselected colors
     top_color = (0.0, 0.0, 1.0, 0.7)
     side_color = (1.0, 0.0, 0.0, 0.7)
@@ -286,33 +287,34 @@ def draw_callback_3d(self, context):
                 if selected:
                     continue
                 height = f[height_lay]
-            draw_face(f, obj_mtx, height, top_color, side_color)
+            draw_face(pos_vbo, color_vbo, f, obj_mtx, height, top_color, side_color)
     else:
         for p in obj.data.polygons:
             height = 1.0
             if height_lay is not None:
                 height = height_lay.data[p.index].value
-            draw_poly(p, obj, obj_mtx, height, top_color, side_color)
-    bgl.glEnd()
+            draw_poly(pos_vbo, color_vbo, p, obj, obj_mtx, height, top_color, side_color)
 
     # Selected colors
     if bm is not None:
         top_color = (1.0, 0.0, 1.0, 0.7)
         side_color = (0.0, 1.0, 0.0, 0.7)
         # Avoid z-fighting on selected lines
-        bgl.glDepthRange(-0.001, 0.999)
+        #bgl.glDepthRange(-0.001, 0.999)
         for f in bm.faces:
             if height_lay is not None:
                 selected = f.select
                 if not selected:
                     continue
                 height = f[height_lay]
-                draw_face(f, obj_mtx, height, top_color, side_color)
-        bgl.glEnd()
-        bgl.glDepthRange(0.0, 1.0)
+                draw_face(pos_vbo, color_vbo, f, obj_mtx, height, top_color, side_color)
+        #bgl.glEnd()
+        #bgl.glDepthRange(0.0, 1.0)
 
-    # restore opengl defaults
-    bgl.glColor4f(0.0, 0.0, 0.0, 1.0)
+    line_shader.bind()
+    batch = batch_for_shader(line_shader, 'LINES', {"pos": pos_vbo, "color": color_vbo})
+    batch.draw(line_shader)
+
 
 # Toggle height viz button
 class PathHeightDrawOperator(bpy.types.Operator):
@@ -346,16 +348,28 @@ class PathBackgroundWireframeOperator(bpy.types.Operator):
         if context.scene.background_set:
             to_wire = False
             for o in context.scene.background_set.objects:
-                if o.draw_type != 'WIRE':
+                if o.display_type != 'WIRE':
                     to_wire = True
                     break
             if to_wire:
                 for o in context.scene.background_set.objects:
-                    o.draw_type = 'WIRE'
+                    o.display_type = 'WIRE'
             else:
                 for o in context.scene.background_set.objects:
-                    o.draw_type = 'TEXTURED'
+                    o.display_type = 'TEXTURED'
         return {'FINISHED'}
+
+# Edit panel
+def draw(layout, context):
+    layout.prop_search(context.scene, 'hecl_path_obj', context.scene, 'objects')
+    layout.operator('view3d.toggle_path_background_wireframe', text='Toggle Background Wire', icon='SHADING_WIRE')
+    if PathHeightDrawOperator._handle_3d:
+        icon = 'HIDE_OFF'
+    else:
+        icon = 'HIDE_ON'
+    layout.operator('view3d.toggle_path_height_visualization', text='Toggle Height Viz', icon=icon)
+    if HeightRef().ready:
+        layout.prop(context.window_manager, 'hecl_height_prop', text='Height')
 
 # Registration
 def register():

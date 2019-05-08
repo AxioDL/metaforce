@@ -20,15 +20,19 @@
 #include <iostream>
 #include <unordered_map>
 #include <atomic>
+#include <variant>
 
 #include "hecl/hecl.hpp"
 #include "hecl/HMDLMeta.hpp"
+#include "hecl/TypedVariant.hpp"
+#include "hecl/Backend.hpp"
 #include "athena/Types.hpp"
 #include "athena/MemoryWriter.hpp"
 #include "optional.hpp"
 #include "Token.hpp"
 
 namespace hecl::blender {
+using namespace std::literals;
 
 extern logvisor::Module BlenderLog;
 class HMDLBuffers;
@@ -103,6 +107,10 @@ struct Vector2f {
   void read(Connection& conn);
   Vector2f(Connection& conn) { read(conn); }
   operator const atVec2f&() const { return val; }
+  bool operator==(const Vector2f& other) const {
+    return val.simd[0] == other.val.simd[0] &&
+           val.simd[1] == other.val.simd[1];
+  }
 };
 struct Vector3f {
   atVec3f val;
@@ -110,6 +118,11 @@ struct Vector3f {
   void read(Connection& conn);
   Vector3f(Connection& conn) { read(conn); }
   operator const atVec3f&() const { return val; }
+  bool operator==(const Vector3f& other) const {
+    return val.simd[0] == other.val.simd[0] &&
+           val.simd[1] == other.val.simd[1] &&
+           val.simd[2] == other.val.simd[2];
+  }
 };
 struct Vector4f {
   atVec4f val;
@@ -117,6 +130,12 @@ struct Vector4f {
   void read(Connection& conn);
   Vector4f(Connection& conn) { read(conn); }
   operator const atVec4f&() const { return val; }
+  bool operator==(const Vector4f& other) const {
+    return val.simd[0] == other.val.simd[0] &&
+           val.simd[1] == other.val.simd[1] &&
+           val.simd[2] == other.val.simd[2] &&
+           val.simd[3] == other.val.simd[3];
+  }
 };
 struct Matrix3f {
   atVec3f m[3];
@@ -137,26 +156,137 @@ struct Index {
   Index(Connection& conn) { read(conn); }
   operator const uint32_t&() const { return val; }
 };
+struct Float {
+  float val;
+  Float() = default;
+  void read(Connection& conn);
+  Float(Connection& conn) { read(conn); }
+  operator const float&() const { return val; }
+};
+struct Boolean {
+  bool val;
+  Boolean() = default;
+  void read(Connection& conn);
+  Boolean(Connection& conn) { read(conn); }
+  operator const bool&() const { return val; }
+};
 
 atVec3f MtxVecMul4RM(const Matrix4f& mtx, const Vector3f& vec);
 atVec3f MtxVecMul3RM(const Matrix4f& mtx, const Vector3f& vec);
 
-/** HECL source and metadata of each material */
+/** Intermediate material representation */
 struct Material {
-  std::string name;
-  std::string source;
-  std::vector<ProjectPath> texs;
-  std::unordered_map<std::string, int32_t> iprops;
-  bool transparent;
+  enum class ShaderType : uint32_t {
+    Invalid = 0,
+    RetroShader = 'RSHD',
+    RetroDynamicShader = 'RDYN',
+    RetroDynamicAlphaShader = 'RDAL',
+    RetroDynamicCharacterShader = 'RCHR',
+  };
+  enum class ChunkType : uint32_t {
+    Invalid = 0,
+    TexturePass = 'PASS',
+    ColorPass = 'CLR ',
+  };
+  enum class PassType : uint32_t {
+    Invalid = 0,
+    Lightmap = 'LMAP',
+    Diffuse = 'DIFF',
+    Emissive = 'EMIS',
+    Specular = 'SPEC',
+    ExtendedSpecular = 'ESPC',
+    Reflection = 'REFL',
+    IndirectTex = 'INDR',
+    Alpha = 'ALPH',
+  };
+  static constexpr std::string_view PassTypeToString(PassType tp) {
+    switch (tp) {
+    case PassType::Lightmap: return "lightmap"sv;
+    case PassType::Diffuse: return "diffuse"sv;
+    case PassType::Emissive: return "emissive"sv;
+    case PassType::Specular: return "specular"sv;
+    case PassType::ExtendedSpecular: return "extendedSpecular"sv;
+    case PassType::Reflection: return "reflection"sv;
+    case PassType::Alpha: return "alpha"sv;
+    default:
+      assert(false && "Unknown pass type");
+      return ""sv;
+    }
+  }
+  enum class UVAnimType : uint8_t {
+    MvInvNoTranslation,
+    MvInv,
+    Scroll,
+    Rotation,
+    HStrip,
+    VStrip,
+    Model,
+    CylinderEnvironment,
+    Eight,
+    Invalid = UINT8_MAX
+  };
+  using TexCoordSource = hecl::Backend::TexCoordSource;
+  struct PASS : hecl::TypedRecord<ChunkType::TexturePass> {
+    PassType type;
+    ProjectPath tex;
+    TexCoordSource source;
+    UVAnimType uvAnimType;
+    std::array<float, 9> uvAnimParms = {};
+    bool alpha;
+    explicit PASS(Connection& conn);
+    bool operator==(const PASS& other) const {
+      return type == other.type &&
+             tex == other.tex &&
+             source == other.source &&
+             uvAnimType == other.uvAnimType &&
+             uvAnimParms == other.uvAnimParms &&
+             alpha == other.alpha;
+    }
+    void hash(XXH64_state_t* st) const {
+      XXH64_update(st, &type, sizeof(type));
+      XXH64_update(st, &source, sizeof(source));
+      XXH64_update(st, &uvAnimType, sizeof(uvAnimType));
+      XXH64_update(st, &alpha, sizeof(alpha));
+    }
+  };
+  struct CLR : hecl::TypedRecord<ChunkType::ColorPass> {
+    PassType type;
+    Vector4f color;
+    explicit CLR(Connection& conn);
+    bool operator==(const CLR& other) const {
+      return type == other.type && color == other.color;
+    }
+    void hash(XXH64_state_t* st) const {
+      XXH64_update(st, &type, sizeof(type));
+    }
+  };
+  using Chunk = hecl::TypedVariant<PASS, CLR>;
 
-  Material(Connection& conn);
+  enum class BlendMode : uint32_t {
+    Opaque = 0,
+    Alpha = 1,
+    Additive = 2
+  };
+
+  std::string name;
+  uint32_t passIndex;
+  ShaderType shaderType;
+  std::vector<Chunk> chunks;
+  std::unordered_map<std::string, int32_t> iprops;
+  BlendMode blendMode = BlendMode::Opaque;
+
+  explicit Material(Connection& conn);
   bool operator==(const Material& other) const {
-    return source == other.source && texs == other.texs && iprops == other.iprops;
+    return chunks == other.chunks && iprops == other.iprops && blendMode == other.blendMode;
   }
 };
 
 /** Intermediate mesh representation prepared by blender from a single mesh object */
 struct Mesh {
+  static constexpr size_t MaxColorLayers = 4;
+  static constexpr size_t MaxUVLayers = 8;
+  static constexpr size_t MaxSkinEntries = 16;
+
   HMDLTopology topology;
 
   /* Object transform in scene */
@@ -181,19 +311,30 @@ struct Mesh {
   /* Skinning data */
   std::vector<std::string> boneNames;
   struct SkinBind {
-    uint32_t boneIdx;
-    float weight;
-    SkinBind(Connection& conn);
+    uint32_t vg_idx = UINT32_MAX;
+    float weight = 0.f;
+    SkinBind() = default;
+    explicit SkinBind(Connection& conn);
+    operator bool() const { return vg_idx != UINT32_MAX; }
   };
-  std::vector<std::vector<SkinBind>> skins;
+  std::vector<std::array<SkinBind, MaxSkinEntries>> skins;
   std::vector<size_t> contiguousSkinVertCounts;
 
+  static size_t countSkinBinds(const std::array<SkinBind, MaxSkinEntries>& arr) {
+    size_t ret = 0;
+    for (const auto& b : arr)
+      if (b)
+        ++ret;
+      else
+        break;
+    return ret;
+  }
   void normalizeSkinBinds();
 
   /** Islands of the same material/skinBank are represented here */
   struct Surface {
     Vector3f centroid;
-    Index materialIdx;
+    uint32_t materialIdx;
     Vector3f aabbMin;
     Vector3f aabbMax;
     Vector3f reflectionNormal;
@@ -208,12 +349,9 @@ struct Mesh {
       uint32_t iSkin = 0xffffffff;
       uint32_t iBankSkin = 0xffffffff;
 
-      Vert(Connection& conn, const Mesh& parent);
       bool operator==(const Vert& other) const;
     };
     std::vector<Vert> verts;
-
-    Surface(Connection& conn, Mesh& parent, int skinSlotCount);
   };
   std::vector<Surface> surfaces;
 
@@ -225,15 +363,13 @@ struct Mesh {
       std::vector<uint32_t> m_boneIdxs;
 
       void addSkins(const Mesh& parent, const std::vector<uint32_t>& skinIdxs);
-      size_t lookupLocalBoneIdx(uint32_t boneIdx) const;
     };
     std::vector<Bank> banks;
     std::vector<Bank>::iterator addSkinBank(int skinSlotCount);
     uint32_t addSurface(const Mesh& mesh, const Surface& surf, int skinSlotCount);
   } skinBanks;
 
-  using SurfProgFunc = std::function<void(int)>;
-  Mesh(Connection& conn, HMDLTopology topology, int skinSlotCount, SurfProgFunc& surfProg);
+  Mesh(Connection& conn, HMDLTopology topology, int skinSlotCount, bool useLuvs = false);
 
   Mesh getContiguousSkinningVersion() const;
 
@@ -486,21 +622,16 @@ public:
   static const char* MeshOutputModeString(HMDLTopology topology);
 
   /** Compile mesh by context (MESH blends only) */
-  Mesh compileMesh(HMDLTopology topology, int skinSlotCount = 10, Mesh::SurfProgFunc surfProg = [](int) {});
+  Mesh compileMesh(HMDLTopology topology, int skinSlotCount = 10);
 
   /** Compile mesh by name (AREA blends only) */
-  Mesh compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount = 10, bool useLuv = false,
-                   Mesh::SurfProgFunc surfProg = [](int) {});
+  Mesh compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount = 10, bool useLuv = false);
 
   /** Compile collision mesh by name (AREA blends only) */
   ColMesh compileColMesh(std::string_view name);
 
   /** Compile all meshes as collision meshes (CMESH blends only) */
   std::vector<ColMesh> compileColMeshes();
-
-  /** Compile all meshes into one (AREA blends only) */
-  Mesh compileAllMeshes(HMDLTopology topology, int skinSlotCount = 10, float maxOctantLength = 5.0,
-                        Mesh::SurfProgFunc surfProg = [](int) {});
 
   /** Compile world intermediate (WORLD blends only) */
   World compileWorld();
@@ -558,6 +689,8 @@ class Connection {
   friend struct Matrix3f;
   friend struct Matrix4f;
   friend struct Index;
+  friend struct Float;
+  friend struct Boolean;
 
   std::atomic_bool m_lock = {false};
   bool m_pyStreamActive = false;
@@ -571,7 +704,6 @@ class Connection {
 #endif
   int m_readpipe[2];
   int m_writepipe[2];
-  bool m_hasSlerp;
   BlendType m_loadedType = BlendType::None;
   bool m_loadedRigged = false;
   ProjectPath m_loadedBlend;
@@ -594,8 +726,6 @@ public:
   Connection& operator=(const Connection&) = delete;
   Connection(Connection&&) = delete;
   Connection& operator=(Connection&&) = delete;
-
-  bool hasSLERP() const { return m_hasSlerp; }
 
   bool createBlend(const ProjectPath& path, BlendType type);
   BlendType getBlendType() const { return m_loadedType; }
@@ -659,3 +789,46 @@ public:
 };
 
 } // namespace hecl::blender
+
+namespace std {
+template <>
+struct hash<hecl::blender::Vector2f> {
+  size_t operator()(const hecl::blender::Vector2f& val) const noexcept {
+    size_t h = std::hash<float>()(val.val.simd[0]);
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
+    return h;
+  }
+};
+template <>
+struct hash<hecl::blender::Vector3f> {
+  size_t operator()(const hecl::blender::Vector3f& val) const noexcept {
+    size_t h = std::hash<float>()(val.val.simd[0]);
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[2]));
+    return h;
+  }
+};
+template <>
+struct hash<hecl::blender::Vector4f> {
+  size_t operator()(const hecl::blender::Vector4f& val) const noexcept {
+    size_t h = std::hash<float>()(val.val.simd[0]);
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[2]));
+    hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[3]));
+    return h;
+  }
+};
+template <>
+struct hash<array<hecl::blender::Mesh::SkinBind, 16>> {
+  size_t operator()(const array<hecl::blender::Mesh::SkinBind, 16>& val) const noexcept {
+    size_t h = 0;
+    for (const auto& bind : val) {
+      if (!bind)
+        break;
+      hecl::hash_combine_impl(h, std::hash<float>()(bind.vg_idx));
+      hecl::hash_combine_impl(h, std::hash<float>()(bind.weight));
+    }
+    return h;
+  }
+};
+}

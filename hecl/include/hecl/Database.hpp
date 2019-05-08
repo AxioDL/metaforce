@@ -102,14 +102,13 @@ public:
     (void)progress;
   }
 
-  virtual bool canCook(const ProjectPath& path, blender::Token& btok, int cookPass = -1) {
+  virtual bool canCook(const ProjectPath& path, blender::Token& btok) {
     (void)path;
     LogModule.report(logvisor::Error, "not implemented");
-    (void)cookPass;
     return false;
   }
-  virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path, const Database::DataSpecEntry* oldEntry,
-                                                blender::Token& btok) const {
+  virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,
+                                                const Database::DataSpecEntry* oldEntry) const {
     (void)path;
     return oldEntry;
   }
@@ -151,12 +150,11 @@ struct DataSpecEntry {
   SystemStringView m_name;
   SystemStringView m_desc;
   SystemStringView m_pakExt;
-  int m_numCookPasses;
   std::function<std::unique_ptr<IDataSpec>(Project&, DataSpecTool)> m_factory;
 
-  DataSpecEntry(SystemStringView name, SystemStringView desc, SystemStringView pakExt, int numCookPasses,
+  DataSpecEntry(SystemStringView name, SystemStringView desc, SystemStringView pakExt,
                 std::function<std::unique_ptr<IDataSpec>(Project& project, DataSpecTool)>&& factory)
-  : m_name(name), m_desc(desc), m_pakExt(pakExt), m_numCookPasses(numCookPasses), m_factory(std::move(factory)) {}
+  : m_name(name), m_desc(desc), m_pakExt(pakExt), m_factory(std::move(factory)) {}
 };
 
 /**
@@ -399,10 +397,6 @@ public:
    * @param fast enables faster (draft) extraction for supported data types
    * @param spec if non-null, cook using a manually-selected dataspec
    * @param cp if non-null, cook asynchronously via the ClientProcess
-   * @param cookPass cookPath() should be called the number of times
-   *                 prescribed in DataSpecEntry at the root-most invocation.
-   *                 This value conveys the pass index through the call tree.
-   *                 Negative values mean "cook always".
    * @return true on success
    *
    * Object cooking is generally an expensive process for large projects.
@@ -410,8 +404,8 @@ public:
    * feedback delivered via feedbackCb.
    */
   bool cookPath(const ProjectPath& path, const MultiProgressPrinter& feedbackCb, bool recursive = false,
-                bool force = false, bool fast = false, const DataSpecEntry* spec = nullptr, ClientProcess* cp = nullptr,
-                int cookPass = -1);
+                bool force = false, bool fast = false, const DataSpecEntry* spec = nullptr,
+                ClientProcess* cp = nullptr);
 
   /**
    * @brief Begin package process for specified !world.blend or directory

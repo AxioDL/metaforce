@@ -1313,6 +1313,11 @@ static inline double SBig(double val) { return val; }
 #endif
 #endif
 
+template <typename SizeT>
+constexpr void hash_combine_impl(SizeT& seed, SizeT value) {
+  seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
 } // namespace hecl
 
 namespace std {

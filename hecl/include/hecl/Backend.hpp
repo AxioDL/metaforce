@@ -1,16 +1,24 @@
 #pragma once
 
-#include "hecl/Frontend.hpp"
+#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
 
 namespace hecl::Backend {
 struct ExtensionSlot;
+using namespace std::literals;
 
-using IR = Frontend::IR;
-using Diagnostics = Frontend::Diagnostics;
-using SourceLocation = Frontend::SourceLocation;
-using ArithmeticOp = IR::Instruction::ArithmeticOpType;
-
-enum class TexGenSrc : uint8_t { Position, Normal, UV };
+enum class TexCoordSource : uint8_t {
+  Invalid = 0xff,
+  Position = 0,
+  Normal = 1,
+  Tex0 = 2,
+  Tex1 = 3,
+  Tex2 = 4,
+  Tex3 = 5,
+  Tex4 = 6,
+  Tex5 = 7,
+  Tex6 = 8,
+  Tex7 = 9,
+};
 
 enum class BlendFactor : uint8_t {
   Zero,
@@ -28,24 +36,48 @@ enum class BlendFactor : uint8_t {
   Original = 0xff
 };
 
+constexpr std::string_view BlendFactorToDefine(BlendFactor factor, BlendFactor defaultFactor) {
+  switch (factor) {
+  case BlendFactor::Zero:
+    return "ZERO"sv;
+  case BlendFactor::One:
+    return "ONE"sv;
+  case BlendFactor::SrcColor:
+    return "SRCCOLOR"sv;
+  case BlendFactor::InvSrcColor:
+    return "INVSRCCOLOR"sv;
+  case BlendFactor::DstColor:
+    return "DSTCOLOR"sv;
+  case BlendFactor::InvDstColor:
+    return "INVDSTCOLOR"sv;
+  case BlendFactor::SrcAlpha:
+    return "SRCALPHA"sv;
+  case BlendFactor::InvSrcAlpha:
+    return "INVSRCALPHA"sv;
+  case BlendFactor::DstAlpha:
+    return "DSTALPHA"sv;
+  case BlendFactor::InvDstAlpha:
+    return "INVDSTALPHA"sv;
+  case BlendFactor::SrcColor1:
+    return "SRCCOLOR1"sv;
+  case BlendFactor::InvSrcColor1:
+    return "INVSRCCOLOR1"sv;
+  default:
+    return BlendFactorToDefine(defaultFactor, BlendFactor::Zero);
+  }
+}
+
 enum class ZTest : uint8_t { None, LEqual, Greater, Equal, GEqual, Original = 0xff };
 
 enum class CullMode : uint8_t { None, Backface, Frontface, Original = 0xff };
 
 struct TextureInfo {
-  TexGenSrc src;
-  int mapIdx;
-  int uvIdx;
-  int mtxIdx;
+  TexCoordSource src;
+  uint8_t mtxIdx;
   bool normalize;
 };
 
 enum class ReflectionType { None, Simple, Indirect };
-
-class IBackend {
-public:
-  virtual void reset(const IR& ir, Diagnostics& diag) = 0;
-};
 
 /**
  * @brief Hash subclass for identifying shaders and their metadata
@@ -73,22 +105,6 @@ public:
             Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling,
             bool alphaTest)
   : Hash(source) {
-    m_colorCount = c;
-    m_uvCount = u;
-    m_weightCount = w;
-    m_skinSlotCount = s;
-    m_primitiveType = uint8_t(pt);
-    m_reflectionType = uint8_t(reflectionType);
-    m_depthTest = depthTest;
-    m_depthWrite = depthWrite;
-    m_backfaceCulling = backfaceCulling;
-    m_alphaTest = alphaTest;
-    hash ^= m_meta;
-  }
-  ShaderTag(const hecl::Frontend::IR& ir, uint8_t c, uint8_t u, uint8_t w, uint8_t s, boo::Primitive pt,
-            Backend::ReflectionType reflectionType, bool depthTest, bool depthWrite, bool backfaceCulling,
-            bool alphaTest)
-  : Hash(ir.m_hash) {
     m_colorCount = c;
     m_uvCount = u;
     m_weightCount = w;
@@ -170,10 +186,7 @@ struct Function {
 };
 
 struct ExtensionSlot {
-  Function lighting;
-  Function post;
-  size_t blockCount = 0;
-  const char** blockNames = nullptr;
+  const char* shaderMacro;
   size_t texCount = 0;
   const Backend::TextureInfo* texs = nullptr;
   Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
@@ -188,7 +201,7 @@ struct ExtensionSlot {
   bool forceAlphaTest = false;
   bool diffuseOnly = false;
 
-  ExtensionSlot(size_t blockCount = 0, const char** blockNames = nullptr, size_t texCount = 0,
+  ExtensionSlot(size_t texCount = 0,
                 const Backend::TextureInfo* texs = nullptr,
                 Backend::BlendFactor srcFactor = Backend::BlendFactor::Original,
                 Backend::BlendFactor dstFactor = Backend::BlendFactor::Original,
@@ -196,9 +209,7 @@ struct ExtensionSlot {
                 Backend::CullMode cullMode = Backend::CullMode::Backface, bool noDepthWrite = false,
                 bool noColorWrite = false, bool noAlphaWrite = false, bool noAlphaOverwrite = false,
                 bool noReflection = false, bool forceAlphaTest = false, bool diffuseOnly = false)
-  : blockCount(blockCount)
-  , blockNames(blockNames)
-  , texCount(texCount)
+  : texCount(texCount)
   , texs(texs)
   , srcFactor(srcFactor)
   , dstFactor(dstFactor)
@@ -216,10 +227,7 @@ struct ExtensionSlot {
   void calculateHash() const {
     XXH64_state_t st;
     XXH64_reset(&st, 0);
-    if (!lighting.m_source.empty())
-      XXH64_update(&st, lighting.m_source.data(), lighting.m_source.size());
-    if (!post.m_source.empty())
-      XXH64_update(&st, post.m_source.data(), post.m_source.size());
+    XXH64_update(&st, shaderMacro, strlen(shaderMacro));
     for (size_t i = 0; i < texCount; ++i) {
       const Backend::TextureInfo& tinfo = texs[i];
       XXH64_update(&st, &tinfo, sizeof(tinfo));

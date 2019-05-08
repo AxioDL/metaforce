@@ -65,14 +65,14 @@ class PathHasher:
 # If there's a third argument, use it as the .zip path containing the addon
 did_install = False
 if len(args) >= 4 and args[3] != 'SKIPINSTALL':
-    bpy.ops.wm.addon_install(overwrite=True, target='DEFAULT', filepath=args[3])
-    bpy.ops.wm.addon_refresh()
+    bpy.ops.preferences.addon_install(overwrite=True, target='DEFAULT', filepath=args[3])
+    bpy.ops.preferences.addon_refresh()
     did_install = True
 
 # Make addon available to commands
-if bpy.context.user_preferences.addons.find('hecl') == -1:
+if bpy.context.preferences.addons.find('hecl') == -1:
     try:
-        bpy.ops.wm.addon_enable(module='hecl')
+        bpy.ops.preferences.addon_enable(module='hecl')
         bpy.ops.wm.save_userpref()
     except:
         pass
@@ -92,16 +92,6 @@ writepipestr(b'READY')
 ackbytes = readpipestr()
 if ackbytes != b'ACK':
     quitblender()
-
-# slerp branch check
-bpy.ops.mesh.primitive_cube_add()
-orig_rot = bpy.context.object.rotation_mode
-try:
-    bpy.context.object.rotation_mode = 'QUATERNION_SLERP'
-    writepipestr(b'SLERP1')
-except:
-    writepipestr(b'SLERP0')
-bpy.context.object.rotation_mode = orig_rot
 
 # Count brackets
 def count_brackets(linestr):
@@ -184,15 +174,15 @@ def writelight(obj):
     if obj.data.type == 'POINT':
         type = 2
         hasFalloff = True
-        castShadow = obj.data.shadow_method != 'NOSHADOW'
+        castShadow = obj.data.use_shadow
     elif obj.data.type == 'SPOT':
         type = 3
         hasFalloff = True
         spotCutoff = obj.data.spot_size
-        castShadow = obj.data.shadow_method != 'NOSHADOW'
+        castShadow = obj.data.use_shadow
     elif obj.data.type == 'SUN':
         type = 1
-        castShadow = obj.data.shadow_method != 'NOSHADOW'
+        castShadow = obj.data.use_shadow
 
     constant = 1.0
     linear = 0.0
@@ -236,11 +226,11 @@ def dataout_loop():
         elif cmdargs[0] == 'LIGHTLIST':
             lightCount = 0
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LAMP' and not obj.library:
+                if obj.type == 'LIGHT' and not obj.library:
                     lightCount += 1
             writepipebuf(struct.pack('I', lightCount))
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LAMP' and not obj.library:
+                if obj.type == 'LIGHT' and not obj.library:
                     writepipestr(obj.name.encode())
 
         elif cmdargs[0] == 'MESHAABB':
@@ -248,27 +238,24 @@ def dataout_loop():
             hecl.mesh_aabb(writepipebuf)
 
         elif cmdargs[0] == 'MESHCOMPILE':
-            maxSkinBanks = int(cmdargs[2])
-
             meshName = bpy.context.scene.hecl_mesh_obj
             if meshName not in bpy.data.objects:
                 writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
             writepipestr(b'OK')
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[1], maxSkinBanks)
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName])
 
         elif cmdargs[0] == 'MESHCOMPILENAME':
             meshName = cmdargs[1]
-            maxSkinBanks = int(cmdargs[3])
-            useLuv = int(cmdargs[4])
+            useLuv = int(cmdargs[2])
 
             if meshName not in bpy.data.objects:
                 writepipestr(('mesh %s not found' % meshName).encode())
                 continue
 
             writepipestr(b'OK')
-            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], cmdargs[2], maxSkinBanks, useLuv)
+            hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName], useLuv)
 
         elif cmdargs[0] == 'MESHCOMPILENAMECOLLISION':
             meshName = cmdargs[1]
@@ -292,25 +279,6 @@ def dataout_loop():
             for obj in bpy.context.scene.objects:
                 if obj.type == 'MESH' and not obj.library:
                     hecl.hmdl.cookcol(writepipebuf, obj)
-
-        elif cmdargs[0] == 'MESHCOMPILEALL':
-            maxSkinBanks = int(cmdargs[2])
-            maxOctantLength = float(cmdargs[3])
-
-            bpy.ops.object.select_all(action='DESELECT')
-            join_mesh = bpy.data.meshes.new('JOIN_MESH')
-            join_obj = bpy.data.object.new(join_mesh.name, join_mesh)
-            bpy.context.scene.objects.link(join_obj)
-            bpy.ops.object.select_by_type(type='MESH')
-            bpy.context.scene.objects.active = join_obj
-            bpy.ops.object.join()
-
-            writepipestr(b'OK')
-            hecl.hmdl.cook(writepipebuf, join_obj, cmdargs[1], maxSkinBanks, maxOctantLength)
-
-            bpy.context.scene.objects.unlink(join_obj)
-            bpy.data.objects.remove(join_obj)
-            bpy.data.meshes.remove(join_mesh)
 
         elif cmdargs[0] == 'MESHCOMPILEPATH':
             meshName = bpy.context.scene.hecl_path_obj
@@ -342,7 +310,7 @@ def dataout_loop():
             lampCount = 0
             firstSpot = None
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LAMP':
+                if obj.type == 'LIGHT':
                     lampCount += 1
                     if firstSpot is None and obj.data.type == 'SPOT':
                         firstSpot = obj
@@ -375,7 +343,7 @@ def dataout_loop():
 
             # Lamp objects
             for obj in bpy.context.scene.objects:
-                if obj != firstSpot and obj.type == 'LAMP':
+                if obj != firstSpot and obj.type == 'LIGHT':
                     writelight(obj)
 
         elif cmdargs[0] == 'GETTEXTURES':
@@ -505,7 +473,7 @@ try:
             else:
                 bpy.ops.wm.read_homefile()
                 loaded_blend = None
-            bpy.context.user_preferences.filepaths.save_version = 0
+            bpy.context.preferences.filepaths.save_version = 0
             if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
                 bpy.ops.file.hecl_patching_load()
                 bpy.context.scene.hecl_type = cmdargs[2]
@@ -527,7 +495,7 @@ try:
                     writepipestr(b'FALSE')
 
         elif cmdargs[0] == 'SAVE':
-            bpy.context.user_preferences.filepaths.save_version = 0
+            bpy.context.preferences.filepaths.save_version = 0
             print('SAVING %s' % loaded_blend)
             if loaded_blend:
                 if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=loaded_blend, check_existing=False, compress=True):

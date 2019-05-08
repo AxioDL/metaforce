@@ -62,9 +62,9 @@ def cook(writebuf):
         for ch in dock_list:
             if len(ch.data.vertices) < 4:
                 raise RuntimeError('Not enough vertices in dock %s' % ch.name)
-            wmtx = wmtx_inv * ch.matrix_world
+            wmtx = wmtx_inv @ ch.matrix_world
             for vi in range(4):
-                v = wmtx * ch.data.vertices[vi].co
+                v = wmtx @ ch.data.vertices[vi].co
                 writebuf(struct.pack('fff', v[0], v[1], v[2]))
             if ch.name in dock_conns:
                 conn_dock = dock_conns[ch.name]

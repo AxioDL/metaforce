@@ -115,13 +115,13 @@ std::string GLSL::GenerateVertUniformStruct(unsigned skinSlots, bool reflectionC
 
   if (reflectionCoords)
     retval +=
-        "UBINDING3 uniform HECLReflectMtx\n"
-        "{\n"
-        "    mat4 indMtx;\n"
-        "    mat4 reflectMtx;\n"
-        "    float reflectAlpha;\n"
-        "};\n"
-        "\n";
+          "UBINDING3 uniform HECLReflectMtx\n"
+          "{\n"
+          "    mat4 indMtx;\n"
+          "    mat4 reflectMtx;\n"
+          "    float reflectAlpha;\n"
+          "};\n"
+          "\n";
 
   return retval;
 }

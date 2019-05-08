@@ -1,35 +1,24 @@
 from . import SACTSubtype, SACTAction, ANIM
-from .. import hmdl
 
 import bpy
 import bpy.path
 import re
-import os.path
-import posixpath
 import struct
 from mathutils import Vector, Quaternion, Euler
 
 # Actor data class
 class SACTData(bpy.types.PropertyGroup):
 
-    subtypes =\
-    bpy.props.CollectionProperty(type=SACTSubtype.SACTSubtype, name="Actor Subtype List")
-    active_subtype =\
-    bpy.props.IntProperty(name="Active Actor Subtype", default=0, update=SACTSubtype.active_subtype_update)
-    show_subtypes =\
-    bpy.props.BoolProperty()
+    subtypes: bpy.props.CollectionProperty(type=SACTSubtype.SACTSubtype, name="Actor Subtype List")
+    active_subtype: bpy.props.IntProperty(name="Active Actor Subtype", default=0, update=SACTSubtype.active_subtype_update)
+    show_subtypes: bpy.props.BoolProperty()
 
-    attachments = \
-    bpy.props.CollectionProperty(type=SACTSubtype.SACTAttachment, name="Attachment List")
-    active_attachment = \
-    bpy.props.IntProperty(name="Active Attachment", default=0, update=SACTSubtype.active_subtype_update)
+    attachments: bpy.props.CollectionProperty(type=SACTSubtype.SACTAttachment, name="Attachment List")
+    active_attachment: bpy.props.IntProperty(name="Active Attachment", default=0, update=SACTSubtype.active_subtype_update)
 
-    actions =\
-    bpy.props.CollectionProperty(type=SACTAction.SACTAction, name="Actor Action List")
-    active_action =\
-    bpy.props.IntProperty(name="Active Actor Action", default=0, update=SACTAction.active_action_update)
-    show_actions =\
-    bpy.props.BoolProperty()
+    actions: bpy.props.CollectionProperty(type=SACTAction.SACTAction, name="Actor Action List")
+    active_action: bpy.props.IntProperty(name="Active Actor Action", default=0, update=SACTAction.active_action_update)
+    show_actions: bpy.props.BoolProperty()
 
 # Regex RNA path matchers
 scale_matcher = re.compile(r'pose.bones\["(\S+)"\].scale')

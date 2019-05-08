@@ -134,11 +134,11 @@ def load_func(self, context):
 def register():
     bpy.utils.register_class(FILE_OT_hecl_patching_save)
     bpy.utils.register_class(FILE_OT_hecl_patching_load)
-    bpy.types.INFO_MT_file_external_data.append(load_func)
-    bpy.types.INFO_MT_file_external_data.append(save_func)
+    bpy.types.TOPBAR_MT_file_external_data.append(load_func)
+    bpy.types.TOPBAR_MT_file_external_data.append(save_func)
 
 def unregister():
     bpy.utils.unregister_class(FILE_OT_hecl_patching_save)
     bpy.utils.unregister_class(FILE_OT_hecl_patching_load)
-    bpy.types.INFO_MT_file_external_data.remove(load_func)
-    bpy.types.INFO_MT_file_external_data.remove(save_func)
+    bpy.types.TOPBAR_MT_file_external_data.remove(load_func)
+    bpy.types.TOPBAR_MT_file_external_data.remove(save_func)

@@ -9,28 +9,26 @@ def active_subtype_update(self, context):
 
 # Actor subtype overlay class
 class SACTSubtypeOverlay(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(name="Overlay Name")
-    linked_mesh = bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
-    show_overlay = bpy.props.BoolProperty(name="Show Overlay Mesh", update=active_subtype_update)
+    name: bpy.props.StringProperty(name="Overlay Name")
+    linked_mesh: bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
+    show_overlay: bpy.props.BoolProperty(name="Show Overlay Mesh", update=active_subtype_update)
 
 # Actor attachment class
 class SACTAttachment(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(name="Attachment Name")
-    linked_armature = bpy.props.StringProperty(name="Linked Armature Object Source", update=active_subtype_update)
-    linked_mesh = bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
-    show_attachment = bpy.props.BoolProperty(name="Show Attachment Mesh", update=active_subtype_update)
+    name: bpy.props.StringProperty(name="Attachment Name")
+    linked_armature: bpy.props.StringProperty(name="Linked Armature Object Source", update=active_subtype_update)
+    linked_mesh: bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
+    show_attachment: bpy.props.BoolProperty(name="Show Attachment Mesh", update=active_subtype_update)
 
 # Actor subtype class
 class SACTSubtype(bpy.types.PropertyGroup):
-    name = bpy.props.StringProperty(name="Actor Mesh Name")
-    linked_armature = bpy.props.StringProperty(name="Linked Armature Object Source", update=active_subtype_update)
-    linked_mesh = bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
-    show_mesh = bpy.props.BoolProperty(name="Show Mesh", default=True, update=active_subtype_update)
+    name: bpy.props.StringProperty(name="Actor Mesh Name")
+    linked_armature: bpy.props.StringProperty(name="Linked Armature Object Source", update=active_subtype_update)
+    linked_mesh: bpy.props.StringProperty(name="Linked Mesh Object Source", update=active_subtype_update)
+    show_mesh: bpy.props.BoolProperty(name="Show Mesh", default=True, update=active_subtype_update)
 
-    overlays =\
-    bpy.props.CollectionProperty(type=SACTSubtypeOverlay, name="Subtype Overlay List")
-    active_overlay =\
-    bpy.props.IntProperty(name="Active Subtype Overlay", default=0, update=active_subtype_update)
+    overlays: bpy.props.CollectionProperty(type=SACTSubtypeOverlay, name="Subtype Overlay List")
+    active_overlay: bpy.props.IntProperty(name="Active Subtype Overlay", default=0, update=active_subtype_update)
 
 # Panel draw
 def draw(layout, context):
@@ -45,8 +43,8 @@ def draw(layout, context):
         row.template_list("UI_UL_list", "SCENE_UL_SACTSubtypes",
                           actor_data, 'subtypes', actor_data, 'active_subtype')
         col = row.column(align=True)
-        col.operator("scene.sactsubtype_add", icon="ZOOMIN", text="")
-        col.operator("scene.sactsubtype_remove", icon="ZOOMOUT", text="")
+        col.operator("scene.sactsubtype_add", icon="ADD", text="")
+        col.operator("scene.sactsubtype_remove", icon="REMOVE", text="")
 
         if len(actor_data.subtypes) and actor_data.active_subtype >= 0:
             subtype = actor_data.subtypes[actor_data.active_subtype]
@@ -67,9 +65,9 @@ def draw(layout, context):
 
             # Validate
             if linked_armature is None:
-                layout.label("Source armature not set", icon='ERROR')
+                layout.label(text="Source armature not set", icon='ERROR')
             elif linked_armature is not None and linked_armature.type != 'ARMATURE':
-                layout.label("Source armature is not an 'ARMATURE'", icon='ERROR')
+                layout.label(text="Source armature is not an 'ARMATURE'", icon='ERROR')
 
 
             # Link external mesh search
@@ -80,13 +78,13 @@ def draw(layout, context):
             layout.prop(subtype, 'show_mesh', text="Show Mesh")
 
             # Mesh overlays
-            layout.label("Overlay Meshes:")
+            layout.label(text="Overlay Meshes:")
             row = layout.row()
             row.template_list("UI_UL_list", "SCENE_UL_SACTSubtypeOverlays",
                               subtype, 'overlays', subtype, 'active_overlay')
             col = row.column(align=True)
-            col.operator("scene.sactsubtypeoverlay_add", icon="ZOOMIN", text="")
-            col.operator("scene.sactsubtypeoverlay_remove", icon="ZOOMOUT", text="")
+            col.operator("scene.sactsubtypeoverlay_add", icon="ADD", text="")
+            col.operator("scene.sactsubtypeoverlay_remove", icon="REMOVE", text="")
 
             overlay_mesh = None
             if len(subtype.overlays) and subtype.active_overlay >= 0:
@@ -98,13 +96,13 @@ def draw(layout, context):
                 layout.prop(overlay, 'show_overlay', text="Show Overlay")
 
             # Mesh attachments
-            layout.label("Attachment Meshes:")
+            layout.label(text="Attachment Meshes:")
             row = layout.row()
             row.template_list("UI_UL_list", "SCENE_UL_SACTAttachments",
                               actor_data, 'attachments', actor_data, 'active_attachment')
             col = row.column(align=True)
-            col.operator("scene.sactattachment_add", icon="ZOOMIN", text="")
-            col.operator("scene.sactattachment_remove", icon="ZOOMOUT", text="")
+            col.operator("scene.sactattachment_add", icon="ADD", text="")
+            col.operator("scene.sactattachment_remove", icon="REMOVE", text="")
 
             attachment_armature = linked_armature
             attachment_mesh = None
@@ -121,27 +119,27 @@ def draw(layout, context):
 
             # Validate
             if linked_mesh is None:
-                layout.label("Source mesh not set", icon='ERROR')
+                layout.label(text="Source mesh not set", icon='ERROR')
             elif linked_mesh.type != 'MESH':
-                layout.label("Source mesh not 'MESH'", icon='ERROR')
+                layout.label(text="Source mesh not 'MESH'", icon='ERROR')
             elif linked_armature is not None and linked_mesh not in linked_armature.children:
                 layout.label(linked_mesh.name+" not a child of "+linked_armature.name, icon='ERROR')
             elif linked_mesh.parent_type != 'ARMATURE':
-                layout.label("Source mesh not 'ARMATURE' parent type", icon='ERROR')
+                layout.label(text="Source mesh not 'ARMATURE' parent type", icon='ERROR')
 
             if overlay_mesh:
                 if overlay_mesh.type != 'MESH':
-                    layout.label("Overlay mesh not 'MESH'", icon='ERROR')
+                    layout.label(text="Overlay mesh not 'MESH'", icon='ERROR')
                 elif overlay_mesh.parent_type != 'ARMATURE':
-                    layout.label("Overlay mesh not 'ARMATURE' parent type", icon='ERROR')
+                    layout.label(text="Overlay mesh not 'ARMATURE' parent type", icon='ERROR')
 
             if attachment_mesh:
                 if attachment_mesh.type != 'MESH':
-                    layout.label("Attachment mesh not 'MESH'", icon='ERROR')
+                    layout.label(text="Attachment mesh not 'MESH'", icon='ERROR')
                 elif attachment_armature is not None and attachment_mesh not in attachment_armature.children:
                     layout.label(attachment_mesh.name+" not a child of "+attachment_armature.name, icon='ERROR')
                 elif attachment_mesh.parent_type != 'ARMATURE':
-                    layout.label("Attachment mesh not 'ARMATURE' parent type", icon='ERROR')
+                    layout.label(text="Attachment mesh not 'ARMATURE' parent type", icon='ERROR')
 
 
 # Subtype 'add' operator
@@ -195,6 +193,17 @@ class SACTSubtype_remove(bpy.types.Operator):
         return {'FINISHED'}
 
 
+def parent_armature(mesh_obj, arm_obj):
+    mesh_obj.parent = None
+    for mod in mesh_obj.modifiers:
+        if mod.type == 'ARMATURE':
+            mod.object = arm_obj
+            return
+    mod = mesh_obj.modifiers.new('Parent', 'ARMATURE')
+    mod.object = arm_obj
+    #mesh_obj.parent = arm_obj
+    #mesh_obj.parent_type = 'ARMATURE'
+
 # Subtype 'load' operator
 class SACTSubtype_load(bpy.types.Operator):
     bl_idname = "scene.sactsubtype_load"
@@ -222,49 +231,46 @@ class SACTSubtype_load(bpy.types.Operator):
         # Hide armature children
         for object in linked_armature.children:
             if object.name in context.scene.objects:
-                object.hide = True
+                object.hide_set(True)
 
         # Hide all meshes (incl overlays)
         for subtype_data in actor_data.subtypes:
             if subtype_data.linked_mesh in bpy.data.objects:
                 mesh = bpy.data.objects[subtype_data.linked_mesh]
                 if mesh.name in context.scene.objects:
-                    mesh.hide = True
+                    mesh.hide_set(True)
             for overlay in subtype_data.overlays:
                 if overlay.linked_mesh in bpy.data.objects:
                     mesh = bpy.data.objects[overlay.linked_mesh]
                     if mesh.name in context.scene.objects:
-                        mesh.hide = True
+                        mesh.hide_set(True)
 
         # Hide/Show selected attachment meshes
         for attachment in actor_data.attachments:
             if attachment.linked_mesh in bpy.data.objects:
                 mesh_obj = bpy.data.objects[attachment.linked_mesh]
                 if mesh_obj.name in context.scene.objects:
-                    mesh_obj.hide = not attachment.show_attachment
+                    mesh_obj.hide_set(not attachment.show_attachment)
                 attachment_armature = linked_armature
                 if attachment.linked_armature in bpy.data.objects:
                     attachment_armature = bpy.data.objects[attachment.linked_armature]
                 if mesh_obj != attachment_armature:
-                    mesh_obj.parent = attachment_armature
-                    mesh_obj.parent_type = 'ARMATURE'
+                    parent_armature(mesh_obj, attachment_armature)
 
         # Show only the chosen subtype (and selected overlays)
         if subtype.linked_mesh in bpy.data.objects:
             mesh_obj = bpy.data.objects[subtype.linked_mesh]
             if subtype.show_mesh:
-                mesh_obj.hide = False
+                mesh_obj.hide_set(False)
             if mesh_obj != linked_armature:
-                mesh_obj.parent = linked_armature
-                mesh_obj.parent_type = 'ARMATURE'
+                parent_armature(mesh_obj, linked_armature)
             for overlay in subtype.overlays:
                 if overlay.linked_mesh in bpy.data.objects:
                     mesh_obj = bpy.data.objects[overlay.linked_mesh]
                     if overlay.show_overlay:
-                        mesh_obj.hide = False
+                        mesh_obj.hide_set(False)
                     if mesh_obj != linked_armature:
-                        mesh_obj.parent = linked_armature
-                        mesh_obj.parent_type = 'ARMATURE'
+                        parent_armature(mesh_obj, linked_armature)
 
         return {'FINISHED'}
 

@@ -16,6 +16,7 @@
 #include "logvisor/logvisor.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/SteamFinder.hpp"
+#include "MeshOptimizer.hpp"
 
 #if _WIN32
 #include <io.h>
@@ -46,7 +47,7 @@ Token SharedBlenderToken;
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
 #else
-#define DEFAULT_BLENDER_BIN "blender"
+#define DEFAULT_BLENDER_BIN "blender-2.8"
 #endif
 
 extern "C" uint8_t HECL_BLENDERSHELL[];
@@ -500,16 +501,6 @@ Connection::Connection(int verbosityLevel) {
     }
     _writeStr("ACK");
 
-    _readStr(lineBuf, 7);
-    if (!strcmp(lineBuf, "SLERP0"))
-      m_hasSlerp = false;
-    else if (!strcmp(lineBuf, "SLERP1"))
-      m_hasSlerp = true;
-    else {
-      _closePipe();
-      BlenderLog.report(logvisor::Fatal, "read '%s' from blender; expected 'SLERP(0|1)'", lineBuf);
-    }
-
     break;
   }
 #else
@@ -524,6 +515,8 @@ void Vector3f::read(Connection& conn) { conn._readBuf(&val, 12); }
 void Vector4f::read(Connection& conn) { conn._readBuf(&val, 16); }
 void Matrix4f::read(Connection& conn) { conn._readBuf(&val, 64); }
 void Index::read(Connection& conn) { conn._readBuf(&val, 4); }
+void Float::read(Connection& conn) { conn._readBuf(&val, 4); }
+void Boolean::read(Connection& conn) { conn._readBuf(&val, 1); }
 
 std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
   if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
@@ -755,10 +748,11 @@ void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
 
 void PyOutStream::centerView() {
   *this << "for obj in bpy.context.scene.objects:\n"
-           "    if obj.type == 'CAMERA' or obj.type == 'LAMP':\n"
-           "        obj.hide = True\n"
+           "    if obj.type == 'CAMERA' or obj.type == 'LIGHT':\n"
+           "        obj.hide_set(True)\n"
            "\n"
-           "bpy.context.user_preferences.view.smooth_view = 0\n"
+           "old_smooth_view = bpy.context.preferences.view.smooth_view\n"
+           "bpy.context.preferences.view.smooth_view = 0\n"
            "for window in bpy.context.window_manager.windows:\n"
            "    screen = window.screen\n"
            "    for area in screen.areas:\n"
@@ -769,10 +763,11 @@ void PyOutStream::centerView() {
            "area, 'region': region}\n"
            "                    bpy.ops.view3d.view_all(override)\n"
            "                    break\n"
+           "bpy.context.preferences.view.smooth_view = old_smooth_view\n"
            "\n"
            "for obj in bpy.context.scene.objects:\n"
-           "    if obj.type == 'CAMERA' or obj.type == 'LAMP':\n"
-           "        obj.hide = False\n";
+           "    if obj.type == 'CAMERA' or obj.type == 'LIGHT':\n"
+           "        obj.hide_set(True)\n";
 }
 
 ANIMOutStream::ANIMOutStream(Connection* parent) : m_parent(parent) {
@@ -821,118 +816,65 @@ void ANIMOutStream::write(unsigned frame, float val) {
     BlenderLog.report(logvisor::Fatal, "ANIMOutStream keyCount overflow");
 }
 
-Mesh::SkinBind::SkinBind(Connection& conn) { conn._readBuf(&boneIdx, 8); }
+Mesh::SkinBind::SkinBind(Connection& conn) {
+  vg_idx = Index(conn).val;
+  weight = Float(conn).val;
+}
 
 void Mesh::normalizeSkinBinds() {
-  for (std::vector<SkinBind>& skin : skins) {
+  for (auto& skin : skins) {
     float accum = 0.f;
     for (const SkinBind& bind : skin)
-      accum += bind.weight;
+      if (bind)
+        accum += bind.weight;
     if (accum > FLT_EPSILON) {
       for (SkinBind& bind : skin)
-        bind.weight /= accum;
+        if (bind)
+          bind.weight /= accum;
     }
   }
 }
 
-Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, SurfProgFunc& surfProg)
+Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool useLuvs)
 : topology(topologyIn), sceneXf(conn), aabbMin(conn), aabbMax(conn) {
-  uint32_t matSetCount;
-  conn._readBuf(&matSetCount, 4);
-  materialSets.reserve(matSetCount);
-  for (uint32_t i = 0; i < matSetCount; ++i) {
+  Index matSetCount(conn);
+  materialSets.reserve(matSetCount.val);
+  for (uint32_t i = 0; i < matSetCount.val; ++i) {
     materialSets.emplace_back();
     std::vector<Material>& materials = materialSets.back();
-    uint32_t matCount;
-    conn._readBuf(&matCount, 4);
-    materials.reserve(matCount);
-    for (uint32_t i = 0; i < matCount; ++i)
+    Index matCount(conn);
+    materials.reserve(matCount.val);
+    for (uint32_t j = 0; j < matCount.val; ++j)
       materials.emplace_back(conn);
   }
 
-  uint32_t count;
-  conn._readBuf(&count, 4);
-  pos.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    pos.emplace_back(conn);
+  MeshOptimizer opt(conn, materialSets[0], useLuvs);
+  opt.optimize(*this, skinSlotCount);
 
-  conn._readBuf(&count, 4);
-  norm.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    norm.emplace_back(conn);
-
-  conn._readBuf(&colorLayerCount, 4);
-  if (colorLayerCount > 4)
-    LogModule.report(logvisor::Fatal, "mesh has %u color-layers; max 4", colorLayerCount);
-  conn._readBuf(&count, 4);
-  color.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    color.emplace_back(conn);
-
-  conn._readBuf(&uvLayerCount, 4);
-  if (uvLayerCount > 8)
-    LogModule.report(logvisor::Fatal, "mesh has %u UV-layers; max 8", uvLayerCount);
-  conn._readBuf(&count, 4);
-  uv.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    uv.emplace_back(conn);
-
-  conn._readBuf(&luvLayerCount, 4);
-  if (luvLayerCount > 1)
-    LogModule.report(logvisor::Fatal, "mesh has %u LUV-layers; max 1", luvLayerCount);
-  conn._readBuf(&count, 4);
-  luv.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    luv.emplace_back(conn);
-
-  conn._readBuf(&count, 4);
-  boneNames.reserve(count);
+  Index count(conn);
+  boneNames.reserve(count.val);
   for (uint32_t i = 0; i < count; ++i) {
     char name[128];
     conn._readStr(name, 128);
     boneNames.emplace_back(name);
   }
 
-  conn._readBuf(&count, 4);
-  skins.reserve(count);
-  for (uint32_t i = 0; i < count; ++i) {
-    skins.emplace_back();
-    std::vector<SkinBind>& binds = skins.back();
-    uint32_t bindCount;
-    conn._readBuf(&bindCount, 4);
-    binds.reserve(bindCount);
-    for (uint32_t j = 0; j < bindCount; ++j)
-      binds.emplace_back(conn);
-  }
-  normalizeSkinBinds();
-
-  /* Assume 16 islands per material for reserve */
-  if (materialSets.size())
-    surfaces.reserve(materialSets.front().size() * 16);
-  uint8_t isSurf;
-  conn._readBuf(&isSurf, 1);
-  int prog = 0;
-  while (isSurf) {
-    surfaces.emplace_back(conn, *this, skinSlotCount);
-    surfProg(++prog);
-    conn._readBuf(&isSurf, 1);
-  }
+  if (boneNames.size())
+    for (Surface& s : surfaces)
+      s.skinBankIdx = skinBanks.addSurface(*this, s, skinSlotCount);
 
   /* Custom properties */
-  uint32_t propCount;
-  conn._readBuf(&propCount, 4);
+  Index propCount(conn);
   std::string keyBuf;
   std::string valBuf;
-  for (uint32_t i = 0; i < propCount; ++i) {
-    uint32_t kLen;
-    conn._readBuf(&kLen, 4);
-    keyBuf.assign(kLen, '\0');
-    conn._readBuf(&keyBuf[0], kLen);
+  for (uint32_t i = 0; i < propCount.val; ++i) {
+    Index kLen(conn);
+    keyBuf.assign(kLen.val, '\0');
+    conn._readBuf(&keyBuf[0], kLen.val);
 
-    uint32_t vLen;
-    conn._readBuf(&vLen, 4);
-    valBuf.assign(vLen, '\0');
-    conn._readBuf(&valBuf[0], vLen);
+    Index vLen(conn);
+    valBuf.assign(vLen.val, '\0');
+    conn._readBuf(&valBuf[0], vLen.val);
 
     customProps[keyBuf] = valBuf;
   }
@@ -991,28 +933,58 @@ Mesh Mesh::getContiguousSkinningVersion() const {
   return newMesh;
 }
 
+template <typename T>
+static T SwapFourCC(T fcc) {
+  return T(hecl::SBig(std::underlying_type_t<T>(fcc)));
+}
+
+Material::PASS::PASS(Connection& conn) {
+  conn._readBuf(&type, 4);
+  type = SwapFourCC(type);
+
+  uint32_t bufSz;
+  conn._readBuf(&bufSz, 4);
+  std::string readStr(bufSz, ' ');
+  conn._readBuf(&readStr[0], bufSz);
+  SystemStringConv absolute(readStr);
+
+  SystemString relative =
+    conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
+  tex.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), relative);
+
+  conn._readBuf(&source, 1);
+  conn._readBuf(&uvAnimType, 1);
+  uint32_t argCount;
+  conn._readBuf(&argCount, 4);
+  for (uint32_t i = 0; i < argCount; ++i)
+    conn._readBuf(&uvAnimParms[i], 4);
+  conn._readBuf(&alpha, 1);
+}
+
+Material::CLR::CLR(Connection& conn) {
+  conn._readBuf(&type, 4);
+  type = SwapFourCC(type);
+  color.read(conn);
+}
+
 Material::Material(Connection& conn) {
   uint32_t bufSz;
   conn._readBuf(&bufSz, 4);
   name.assign(bufSz, ' ');
   conn._readBuf(&name[0], bufSz);
 
-  conn._readBuf(&bufSz, 4);
-  source.assign(bufSz, ' ');
-  conn._readBuf(&source[0], bufSz);
+  conn._readBuf(&passIndex, 4);
+  conn._readBuf(&shaderType, 4);
+  shaderType = SwapFourCC(shaderType);
 
-  uint32_t texCount;
-  conn._readBuf(&texCount, 4);
-  texs.reserve(texCount);
-  for (uint32_t i = 0; i < texCount; ++i) {
-    conn._readBuf(&bufSz, 4);
-    std::string readStr(bufSz, ' ');
-    conn._readBuf(&readStr[0], bufSz);
-    SystemStringConv absolute(readStr);
-
-    SystemString relative =
-        conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
-    texs.emplace_back(conn.getBlendPath().getProject().getProjectWorkingPath(), relative);
+  uint32_t chunkCount;
+  conn._readBuf(&chunkCount, 4);
+  chunks.reserve(chunkCount);
+  for (uint32_t i = 0; i < chunkCount; ++i) {
+    ChunkType type;
+    conn._readBuf(&type, 4);
+    type = SwapFourCC(type);
+    chunks.push_back(Chunk::Build(type, conn));
   }
 
   uint32_t iPropCount;
@@ -1028,36 +1000,7 @@ Material::Material(Connection& conn) {
     iprops[readStr] = val;
   }
 
-  conn._readBuf(&transparent, 1);
-}
-
-Mesh::Surface::Surface(Connection& conn, Mesh& parent, int skinSlotCount)
-: centroid(conn), materialIdx(conn), aabbMin(conn), aabbMax(conn), reflectionNormal(conn) {
-  uint32_t countEstimate;
-  conn._readBuf(&countEstimate, 4);
-  verts.reserve(countEstimate);
-
-  uint8_t isVert;
-  conn._readBuf(&isVert, 1);
-  while (isVert) {
-    verts.emplace_back(conn, parent);
-    conn._readBuf(&isVert, 1);
-  }
-
-  if (parent.boneNames.size())
-    skinBankIdx = parent.skinBanks.addSurface(parent, *this, skinSlotCount);
-}
-
-Mesh::Surface::Vert::Vert(Connection& conn, const Mesh& parent) {
-  conn._readBuf(&iPos, 4);
-  if (iPos == 0xffffffff)
-    return;
-  conn._readBuf(&iNorm, 4);
-  for (uint32_t i = 0; i < parent.colorLayerCount; ++i)
-    conn._readBuf(&iColor[i], 4);
-  for (uint32_t i = 0; i < parent.uvLayerCount; ++i)
-    conn._readBuf(&iUv[i], 4);
-  conn._readBuf(&iSkin, 4);
+  conn._readBuf(&blendMode, 4);
 }
 
 bool Mesh::Surface::Vert::operator==(const Vert& other) const {
@@ -1087,24 +1030,19 @@ void Mesh::SkinBanks::Bank::addSkins(const Mesh& parent, const std::vector<uint3
   for (uint32_t sidx : skinIdxs) {
     m_skinIdxs.push_back(sidx);
     for (const SkinBind& bind : parent.skins[sidx]) {
+      if (!bind)
+        break;
       bool found = false;
       for (uint32_t bidx : m_boneIdxs) {
-        if (bidx == bind.boneIdx) {
+        if (bidx == bind.vg_idx) {
           found = true;
           break;
         }
       }
       if (!found)
-        m_boneIdxs.push_back(bind.boneIdx);
+        m_boneIdxs.push_back(bind.vg_idx);
     }
   }
-}
-
-size_t Mesh::SkinBanks::Bank::lookupLocalBoneIdx(uint32_t boneIdx) const {
-  for (size_t i = 0; i < m_boneIdxs.size(); ++i)
-    if (m_boneIdxs[i] == boneIdx)
-      return i;
-  return -1;
 }
 
 std::vector<Mesh::SkinBanks::Bank>::iterator Mesh::SkinBanks::addSkinBank(int skinSlotCount) {
@@ -1631,32 +1569,28 @@ const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
   return STRS[int(topology)];
 }
 
-Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount, Mesh::SurfProgFunc surfProg) {
+Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount) {
   if (m_parent->getBlendType() != BlendType::Mesh)
     BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MESH blend"),
                       m_parent->getBlendPath().getAbsolutePath().data());
 
-  char req[128];
-  snprintf(req, 128, "MESHCOMPILE %s %d", MeshOutputModeString(topology), skinSlotCount);
-  m_parent->_writeStr(req);
+  m_parent->_writeStr("MESHCOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
     BlenderLog.report(logvisor::Fatal, "unable to cook mesh: %s", readBuf);
 
-  return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+  return Mesh(*m_parent, topology, skinSlotCount);
 }
 
-Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount, bool useLuv,
-                             Mesh::SurfProgFunc surfProg) {
+Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount, bool useLuv) {
   if (m_parent->getBlendType() != BlendType::Area)
     BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
                       m_parent->getBlendPath().getAbsolutePath().data());
 
   char req[128];
-  snprintf(req, 128, "MESHCOMPILENAME %s %s %d %d", name.data(), MeshOutputModeString(topology), skinSlotCount,
-           int(useLuv));
+  snprintf(req, 128, "MESHCOMPILENAME %s %d", name.data(), int(useLuv));
   m_parent->_writeStr(req);
 
   char readBuf[256];
@@ -1664,7 +1598,7 @@ Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int s
   if (strcmp(readBuf, "OK"))
     BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.data(), readBuf);
 
-  return Mesh(*m_parent, topology, skinSlotCount, surfProg);
+  return Mesh(*m_parent, topology, skinSlotCount, useLuv);
 }
 
 ColMesh DataStream::compileColMesh(std::string_view name) {
@@ -1708,24 +1642,6 @@ std::vector<ColMesh> DataStream::compileColMeshes() {
     ret.emplace_back(*m_parent);
 
   return ret;
-}
-
-Mesh DataStream::compileAllMeshes(HMDLTopology topology, int skinSlotCount, float maxOctantLength,
-                                  Mesh::SurfProgFunc surfProg) {
-  if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
-
-  char req[128];
-  snprintf(req, 128, "MESHCOMPILEALL %s %d %f", MeshOutputModeString(topology), skinSlotCount, maxOctantLength);
-  m_parent->_writeStr(req);
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to cook all meshes: %s", readBuf);
-
-  return Mesh(*m_parent, topology, skinSlotCount, surfProg);
 }
 
 std::vector<Light> DataStream::compileLights() {

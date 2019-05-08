@@ -22,11 +22,11 @@ protected:
   };
 
 public:
-  FourCC() /* Sentinel FourCC */
+  constexpr FourCC() /* Sentinel FourCC */
   : num(0) {}
-  FourCC(const FourCC& other) { num = other.num; }
-  FourCC(const char* name) : num(*(uint32_t*)name) {}
-  FourCC(uint32_t n) : num(n) {}
+  constexpr FourCC(const FourCC& other) : num(other.num) {}
+  constexpr FourCC(const char* name) : num(*(uint32_t*)name) {}
+  constexpr FourCC(uint32_t n) : num(n) {}
   bool operator==(const FourCC& other) const { return num == other.num; }
   bool operator!=(const FourCC& other) const { return num != other.num; }
   bool operator==(const char* other) const { return num == *(uint32_t*)other; }

@@ -4,7 +4,7 @@ from mathutils import Quaternion
 def draw(layout, context):
     if bpy.context.active_object:
         obj = bpy.context.active_object
-        layout.label("Widget Settings:", icon='OBJECT_DATA')
+        layout.label(text="Widget Settings:", icon='OBJECT_DATA')
         layout.prop_menu_enum(obj, 'retro_widget_type', text='Widget Type')
         #layout.prop_search(obj, 'retro_widget_parent', context.scene, 'objects', text='Widget Parent')
         row = layout.row(align=True)
@@ -56,9 +56,9 @@ def draw(layout, context):
             layout.prop(obj, 'retro_meter_max_capacity', text='Max Capacity')
             layout.prop(obj, 'retro_meter_worker_count', text='Worker Count')
         elif obj.retro_widget_type == 'RETRO_LITE':
-            if obj.data and obj.type == 'LAMP':
+            if obj.data and obj.type == 'LIGHT':
                 layout.prop(obj.data, 'retro_light_index', text='Index')
-                layout.label("Angular Falloff:", icon='LAMP_SPOT')
+                layout.label(text="Angular Falloff:", icon='LIGHT')
                 row = layout.row(align=True)
                 row.prop(obj.data, 'retro_light_angle_constant', text='Constant')
                 row.prop(obj.data, 'retro_light_angle_linear', text='Linear')
@@ -201,7 +201,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
         cutoff = 0.0
         if obj.data.type == 'POINT':
             type_enum = 4
-        elif obj.data.type == 'HEMI':
+        elif obj.data.type == 'SUN':
             type_enum = 2
         elif obj.data.type == 'SPOT':
             type_enum = 0
@@ -231,10 +231,10 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
         path_hash = 0xffffffff
         if len(obj.data.materials):
             material = obj.data.materials[0]
-            if len(material.texture_slots) and material.texture_slots[0]:
-                tex_slot = material.texture_slots[0]
-                if tex_slot.texture.type == 'IMAGE' and tex_slot.texture.image:
-                    image = tex_slot.texture.image
+            if 'Image Texture' in material.node_tree.nodes:
+                image_node = material.node_tree.nodes['Image Texture']
+                if image_node.image:
+                    image = image_node.image
                     path = bpy.path.abspath(image.filepath)
                     path_hash = path_hasher.hashpath32(path)
 
@@ -254,7 +254,7 @@ def recursive_cook(buffer, obj, version, path_hasher, parent_name):
     else:
         buffer += struct.pack('>b', False)
 
-    angMtx = angle.to_matrix() * obj.matrix_local.to_3x3()
+    angMtx = angle.to_matrix() @ obj.matrix_local.to_3x3()
     buffer += struct.pack('>fffffffffffffffIH',
         obj.matrix_local[0][3],
         obj.matrix_local[1][3],
@@ -384,8 +384,8 @@ def register():
     bpy.types.Object.retro_meter_max_capacity = bpy.props.IntProperty(name='Retro: Max Capacity', min=0, default=100)
     bpy.types.Object.retro_meter_worker_count = bpy.props.IntProperty(name='Retro: Worker Count', min=0, default=1)
 
-    bpy.types.Lamp.retro_light_index = bpy.props.IntProperty(name='Retro: Light Index', min=0, default=0)
-    bpy.types.Lamp.retro_light_angle_constant = bpy.props.FloatProperty(name='Retro: Light Angle Constant', min=0.0, default=0.0)
-    bpy.types.Lamp.retro_light_angle_linear = bpy.props.FloatProperty(name='Retro: Light Angle Linear', min=0.0, default=0.0)
-    bpy.types.Lamp.retro_light_angle_quadratic = bpy.props.FloatProperty(name='Retro: Light Angle Quadratic', min=0.0, default=0.0)
+    bpy.types.Light.retro_light_index = bpy.props.IntProperty(name='Retro: Light Index', min=0, default=0)
+    bpy.types.Light.retro_light_angle_constant = bpy.props.FloatProperty(name='Retro: Light Angle Constant', min=0.0, default=0.0)
+    bpy.types.Light.retro_light_angle_linear = bpy.props.FloatProperty(name='Retro: Light Angle Linear', min=0.0, default=0.0)
+    bpy.types.Light.retro_light_angle_quadratic = bpy.props.FloatProperty(name='Retro: Light Angle Quadratic', min=0.0, default=0.0)
 

@@ -2,7 +2,7 @@ bl_info = {
     "name": "HECL",
     "author": "Jack Andersen <jackoalan@gmail.com>",
     "version": (1, 0),
-    "blender": (2, 78),
+    "blender": (2, 80, 0),
     "tracker_url": "https://github.com/AxioDL/hecl/issues/new",
     "location": "Properties > Scene > HECL",
     "description": "Enables blender to gather meshes, materials, and textures for hecl",
@@ -11,10 +11,9 @@ bl_info = {
 # Package import
 from . import hmdl, sact, srea, swld, mapa, mapu, frme, path, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
-import bpy, os, sys, struct
-from bpy.app.handlers import persistent
+parent_armature = sact.SACTSubtype.parent_armature
+import bpy, os, sys, struct, math
 from mathutils import Vector
-
 
 # Appendable list allowing external addons to register additional resource types
 hecl_typeS = [
@@ -46,11 +45,33 @@ class hecl_scene_panel(bpy.types.Panel):
         type_row = layout.row(align=True)
         type_row.prop_menu_enum(context.scene, 'hecl_type', text='Export Type')
 
+        if context.scene.hecl_type == 'MESH' or context.scene.hecl_type == 'AREA' or context.scene.hecl_type == 'ACTOR':
+            sm_row = layout.row(align=True)
+            sm_row.prop_enum(context.scene, 'hecl_shader_model', 'ORIGINAL')
+            sm_row.prop_enum(context.scene, 'hecl_shader_model', 'PBR')
+
         for exp_type in hecl_typeS:
             if exp_type[0] == context.scene.hecl_type and callable(exp_type[3]):
                 exp_type[3](self.layout, context)
                 break
 
+# Light Panel
+class hecl_light_panel(bpy.types.Panel):
+    bl_idname = "DATA_PT_hecl_light"
+    bl_label = "HECL"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+
+    @classmethod
+    def poll(cls, context):
+        return context.light
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(context.light, 'hecl_falloff_constant')
+        layout.prop(context.light, 'hecl_falloff_linear')
+        layout.prop(context.light, 'hecl_falloff_quadratic')
 
 # Blender export-type registration
 def register_export_type_enum():
@@ -107,6 +128,14 @@ def mesh_aabb(writepipebuf):
     writepipebuf(struct.pack('fff', total_min[0], total_min[1], total_min[2]))
     writepipebuf(struct.pack('fff', total_max[0], total_max[1], total_max[2]))
 
+def shader_model_update(self, context):
+    value = 0.0
+    if self.hecl_shader_model == 'PBR':
+        value = 1.0
+    for shad in ('RetroShader', 'RetroDynamicShader', 'RetroDynamicAlphaShader', 'RetroDynamicCharacterShader'):
+        if shad in bpy.data.node_groups and 'NewShaderModel' in bpy.data.node_groups[shad].nodes:
+            bpy.data.node_groups[shad].nodes['NewShaderModel'].outputs[0].default_value = value
+
 # Load scene callback
 from bpy.app.handlers import persistent
 @persistent
@@ -114,13 +143,13 @@ def scene_loaded(dummy):
     # Hide everything from an external library
     for o in bpy.context.scene.objects:
         if o.library:
-            o.hide = True
+            o.hide_set(True)
 
     # Show PATH library objects as wireframes
     if bpy.context.scene.hecl_type == 'PATH':
         if bpy.context.scene.background_set:
             for o in bpy.context.scene.background_set.objects:
-                o.draw_type = 'WIRE'
+                o.display_type = 'WIRE'
         if bpy.context.scene.hecl_path_obj in bpy.context.scene.objects:
             path_obj = bpy.context.scene.objects[bpy.context.scene.hecl_path_obj]
             path_obj.show_wire = True
@@ -134,14 +163,11 @@ def scene_loaded(dummy):
                     mesh_obj = bpy.data.objects[subtype.linked_mesh]
                     if subtype.linked_armature in bpy.data.objects:
                         arm_obj = bpy.data.objects[subtype.linked_armature]
-                        mesh_obj.parent = arm_obj
-                        mesh_obj.parent_type = 'ARMATURE'
+                        parent_armature(mesh_obj, arm_obj)
                         for overlay in subtype.overlays:
                             if overlay.linked_mesh in bpy.data.objects:
                                 mesh_obj = bpy.data.objects[overlay.linked_mesh]
-                                mesh_obj.parent = arm_obj
-                                mesh_obj.parent_type = 'ARMATURE'
-
+                                parent_armature(mesh_obj, arm_obj)
 
     # Show only the active mesh and action
     if sact.SACTSubtype.SACTSubtype_load.poll(bpy.context):
@@ -149,6 +175,28 @@ def scene_loaded(dummy):
     if sact.SACTAction.SACTAction_load.poll(bpy.context):
         bpy.ops.scene.sactaction_load()
 
+    shader_model_update(bpy.context.scene, bpy.context)
+
+def power_of_distance(context, light, dist):
+    color = light.color
+    return dist * dist * context.scene.eevee.light_threshold / max(color[0], max(color[1], color[2]))
+
+def power_of_coefficients(context, light):
+    epsilon = 1.19e-07
+    if light.hecl_falloff_linear < epsilon and light.hecl_falloff_quadratic < epsilon:
+        return 0.0
+    color = light.color
+    intens = max(color[0], max(color[1], color[2]))
+    if light.hecl_falloff_quadratic > epsilon:
+        if intens <= epsilon:
+            return 0.0
+        return power_of_distance(context, light, math.sqrt(intens / (0.0588235 * light.hecl_falloff_quadratic)))
+    if light.hecl_falloff_linear > epsilon:
+        return power_of_distance(context, light, intens / (0.0588235 * light.hecl_falloff_linear))
+    return 0.0
+
+def set_light_falloff(self, context):
+    self.energy = power_of_coefficients(context, self)
 
 # Registration
 def register():
@@ -161,7 +209,33 @@ def register():
     mapu.register()
     path.register()
     bpy.utils.register_class(hecl_scene_panel)
+    bpy.utils.register_class(hecl_light_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)
+    bpy.types.Light.hecl_falloff_constant =  bpy.props.FloatProperty(
+        name="HECL Falloff Constant",
+        description="Constant falloff coefficient",
+        update=set_light_falloff,
+        default=1.0,
+        min=0.0)
+    bpy.types.Light.hecl_falloff_linear =  bpy.props.FloatProperty(
+        name="HECL Falloff Linear",
+        description="Linear falloff coefficient",
+        update=set_light_falloff,
+        default=0.0,
+        min=0.0)
+    bpy.types.Light.hecl_falloff_quadratic =  bpy.props.FloatProperty(
+        name="HECL Falloff Quadratic",
+        description="Quadratic falloff coefficient",
+        update=set_light_falloff,
+        default=0.0,
+        min=0.0)
+    bpy.types.Scene.hecl_shader_model = bpy.props.EnumProperty(name="HECL Shader Model",
+                                        description="Which shader model to use for rendering",
+                                        items=[
+                                            ('ORIGINAL', "Original", "Close approximation of GameCube materials"),
+                                            ('PBR', "PBR", "Hybrid PBR materials replacing original reflection")],
+                                        update=shader_model_update,
+                                        default='ORIGINAL')
     bpy.app.handlers.load_post.append(scene_loaded)
     Patching.register()
 
@@ -172,6 +246,7 @@ def unregister():
     srea.unregister()
     path.unregister()
     bpy.utils.unregister_class(hecl_scene_panel)
+    bpy.utils.unregister_class(hecl_light_panel)
     Patching.unregister()
 
 if __name__ == "__main__":

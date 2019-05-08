@@ -88,9 +88,6 @@ public:
 template <typename P>
 class FinalPipeline;
 
-template <typename P>
-class HECLBackend;
-
 template <class T>
 using __IsStageSubclass =
     typename std::disjunction<std::is_base_of<StageRep<typename T::Platform, PipelineStage::Vertex>, T>,
@@ -138,7 +135,6 @@ public:
     m_hash ^= m_evaluation.Hash();
     m_hash ^= XXH64(&m_additionalInfo, sizeof(m_additionalInfo), 0);
   }
-  StageCollection(PipelineConverter<P>& conv, FactoryCtx& ctx, const HECLBackend<P>& in);
   template <typename I>
   StageCollection(PipelineConverter<P>& conv, FactoryCtx& ctx, const I& in,
                   typename std::enable_if_t<std::is_base_of_v<GeneralShader, I>>* = 0) {

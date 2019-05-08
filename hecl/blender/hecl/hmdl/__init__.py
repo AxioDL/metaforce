@@ -1,17 +1,13 @@
 import struct, bpy, bmesh
-from mathutils import Vector
 from . import HMDLShader, HMDLMesh
 
 def write_out_material(writebuf, mat, mesh_obj):
-    hecl_str, texs = HMDLShader.shader(mat, mesh_obj)
     writebuf(struct.pack('I', len(mat.name)))
     writebuf(mat.name.encode())
-    writebuf(struct.pack('I', len(hecl_str)))
-    writebuf(hecl_str.encode())
-    writebuf(struct.pack('I', len(texs)))
-    for tex in texs:
-        writebuf(struct.pack('I', len(tex)))
-        writebuf(tex.encode())
+
+    writebuf(struct.pack('I', mat.pass_index))
+
+    HMDLShader.write_chunks(writebuf, mat, mesh_obj)
 
     prop_count = 0
     for prop in mat.items():
@@ -24,22 +20,16 @@ def write_out_material(writebuf, mat, mesh_obj):
             writebuf(prop[0].encode())
             writebuf(struct.pack('i', prop[1]))
 
-    transparent = False
-    if mat.game_settings.alpha_blend == 'ALPHA' or mat.game_settings.alpha_blend == 'ALPHA_SORT':
-        transparent = True
-    elif mat.game_settings.alpha_blend == 'ADD':
-        transparent = True
-    writebuf(struct.pack('b', int(transparent)))
-
-# If this returns true, the material geometry will be split into contiguous faces
-def should_split_into_contiguous_faces(mat):
-    return False
-    #return mat.game_settings.alpha_blend != 'OPAQUE' and \
-    #       'retro_depth_sort' in mat and mat['retro_depth_sort']
+    blend = 0
+    if mat.blend_method == 'BLEND':
+        blend = 1
+    elif mat.blend_method == 'ADD':
+        blend = 2
+    writebuf(struct.pack('I', blend))
 
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
-def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
+def cook(writebuf, mesh_obj, use_luv=False):
     if mesh_obj.type != 'MESH':
         raise RuntimeError("%s is not a mesh" % mesh_obj.name)
 
@@ -47,13 +37,13 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
-    copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
+    copy_obj.data = mesh_obj.to_mesh(bpy.context.depsgraph, True)
     copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
-    bpy.context.scene.objects.link(copy_obj)
+    bpy.context.scene.collection.objects.link(copy_obj)
     bpy.ops.object.select_all(action='DESELECT')
-    bpy.context.scene.objects.active = copy_obj
-    copy_obj.select = True
+    bpy.context.view_layer.objects.active = copy_obj
+    copy_obj.select_set(True)
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()
@@ -77,26 +67,9 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
     pt = copy_obj.bound_box[6]
     writebuf(struct.pack('fff', pt[0], pt[1], pt[2]))
 
-    # Create master BMesh and VertPool
+    # Create master BMesh
     bm_master = bmesh.new()
     bm_master.from_mesh(copy_mesh)
-    vert_pool = HMDLMesh.VertPool(bm_master, rna_loops, use_luv, mesh_obj.material_slots)
-
-    # Tag edges where there are distinctive loops
-    for e in bm_master.edges:
-        e.tag = vert_pool.splitable_edge(e)
-
-    # Sort materials by pass index first
-    sorted_material_idxs = []
-    source_mat_set = set(range(len(mesh_obj.data.materials)))
-    while len(source_mat_set):
-        min_mat_idx = source_mat_set.pop()
-        source_mat_set.add(min_mat_idx)
-        for mat_idx in source_mat_set:
-            if mesh_obj.data.materials[mat_idx].pass_index < mesh_obj.data.materials[min_mat_idx].pass_index:
-                min_mat_idx = mat_idx
-        sorted_material_idxs.append(min_mat_idx)
-        source_mat_set.discard(min_mat_idx)
 
     # Generate shaders
     if mesh_obj.data.hecl_material_count > 0:
@@ -121,84 +94,14 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
         for mat in mesh_obj.data.materials:
             write_out_material(writebuf, mat, mesh_obj)
 
-    # Output vert pool
-    vert_pool.write_out(writebuf, mesh_obj.vertex_groups)
+    # Output attribute lists
+    HMDLMesh.write_mesh_attrs(writebuf, bm_master, rna_loops, use_luv, mesh_obj.material_slots)
 
-    dlay = None
-    if len(bm_master.verts.layers.deform):
-        dlay = bm_master.verts.layers.deform[0]
-
-    # Generate material meshes (if opaque)
-    for mat_idx in sorted_material_idxs:
-        mat = mesh_obj.data.materials[mat_idx]
-        if should_split_into_contiguous_faces(mat):
-            continue
-        mat_faces_rem = []
-        for face in bm_master.faces:
-            if face.material_index == mat_idx:
-                mat_faces_rem.append(face)
-        if dlay:
-            mat_faces_rem = HMDLMesh.sort_faces_by_skin_group(dlay, mat_faces_rem)
-        while len(mat_faces_rem):
-            the_list = []
-            skin_slot_set = set()
-            faces = list(mat_faces_rem)
-            for f in faces:
-                if dlay:
-                    ret_faces = None
-                    for v in f.verts:
-                        sg = tuple(sorted(v[dlay].items()))
-                        if sg not in skin_slot_set:
-                            if max_skin_banks > 0 and len(skin_slot_set) == max_skin_banks:
-                                ret_faces = False
-                                break
-                            skin_slot_set.add(sg)
-
-                    if ret_faces == False:
-                        break
-
-                the_list.append(f)
-                mat_faces_rem.remove(f)
-
-            writebuf(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuf, output_mode, vert_pool, the_list, mat_idx)
-
-
-    # Generate island meshes (if transparent)
-    for mat_idx in sorted_material_idxs:
-        mat = mesh_obj.data.materials[mat_idx]
-        if not should_split_into_contiguous_faces(mat):
-            continue
-        mat_faces_rem = []
-        for face in bm_master.faces:
-            if face.material_index == mat_idx:
-                mat_faces_rem.append(face)
-        if dlay:
-            mat_faces_rem = HMDLMesh.sort_faces_by_skin_group(dlay, mat_faces_rem)
-        while len(mat_faces_rem):
-            the_list = []
-            skin_slot_set = set()
-            faces = [mat_faces_rem[0]]
-            while len(faces):
-                next_faces = []
-                ret_faces = None
-                for f in faces:
-                    ret_faces = HMDLMesh.recursive_faces_islands(dlay, the_list,
-                                                                 mat_faces_rem,
-                                                                 skin_slot_set,
-                                                                 max_skin_banks, f)
-                    if ret_faces == False:
-                        break
-                    next_faces.extend(ret_faces)
-                if ret_faces == False:
-                    break
-                faces = next_faces
-
-            writebuf(struct.pack('B', 1))
-            HMDLMesh.write_out_surface(writebuf, output_mode, vert_pool, the_list, mat_idx)
-
-    # No more surfaces
-    writebuf(struct.pack('B', 0))
+    # Vertex groups
+    writebuf(struct.pack('I', len(mesh_obj.vertex_groups)))
+    for vgrp in mesh_obj.vertex_groups:
+        writebuf(struct.pack('I', len(vgrp.name)))
+        writebuf(vgrp.name.encode())
 
     # Enumerate custom props
     writebuf(struct.pack('I', len(mesh_obj.keys())))
@@ -211,7 +114,7 @@ def cook(writebuf, mesh_obj, output_mode, max_skin_banks, use_luv=False):
 
     # Delete copied mesh from scene
     bm_master.free()
-    bpy.context.scene.objects.unlink(copy_obj)
+    #bpy.context.scene.objects.unlink(copy_obj)
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)
 
@@ -231,13 +134,13 @@ def cookcol(writebuf, mesh_obj):
     copy_name = mesh_obj.name + "_hmdltri"
     copy_mesh = bpy.data.meshes.new(copy_name)
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
-    copy_obj.data = mesh_obj.to_mesh(bpy.context.scene, True, 'RENDER')
+    copy_obj.data = mesh_obj.to_mesh(bpy.context.depsgraph, True)
     copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
-    bpy.context.scene.objects.link(copy_obj)
+    bpy.context.scene.collection.objects.link(copy_obj)
     bpy.ops.object.select_all(action='DESELECT')
-    bpy.context.scene.objects.active = copy_obj
-    copy_obj.select = True
+    bpy.context.view_layer.objects.active = copy_obj
+    copy_obj.select_set(True)
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()
@@ -320,7 +223,7 @@ def cookcol(writebuf, mesh_obj):
     # Send verts
     writebuf(struct.pack('I', len(copy_mesh.vertices)))
     for v in copy_mesh.vertices:
-        xfVert = wmtx * v.co
+        xfVert = wmtx @ v.co
         writebuf(struct.pack('fff', xfVert[0], xfVert[1], xfVert[2]))
 
     # Send edges
@@ -340,7 +243,7 @@ def cookcol(writebuf, mesh_obj):
         writebuf(struct.pack('IIIIb', edge_idxs[0], edge_idxs[1], edge_idxs[2], p.material_index, flip))
 
     # Delete copied mesh from scene
-    bpy.context.scene.objects.unlink(copy_obj)
+    #bpy.context.scene.objects.unlink(copy_obj)
     bpy.data.objects.remove(copy_obj)
     bpy.data.meshes.remove(copy_mesh)
 
@@ -348,13 +251,13 @@ def cookcol(writebuf, mesh_obj):
 def draw(layout, context):
     layout.prop_search(context.scene, 'hecl_mesh_obj', context.scene, 'objects')
     if not len(context.scene.hecl_mesh_obj):
-        layout.label("Mesh not specified", icon='ERROR')
+        layout.label(text="Mesh not specified", icon='ERROR')
     elif context.scene.hecl_mesh_obj not in context.scene.objects:
-        layout.label("'"+context.scene.hecl_mesh_obj+"' not in scene", icon='ERROR')
+        layout.label(text="'"+context.scene.hecl_mesh_obj+"' not in scene", icon='ERROR')
     else:
         obj = context.scene.objects[context.scene.hecl_mesh_obj]
         if obj.type != 'MESH':
-            layout.label("'"+context.scene.hecl_mesh_obj+"' not a 'MESH'", icon='ERROR')
+            layout.label(text="'"+context.scene.hecl_mesh_obj+"' not a 'MESH'", icon='ERROR')
         layout.prop(obj.data, 'hecl_active_material')
         layout.prop(obj.data, 'hecl_material_count')
 
@@ -398,10 +301,8 @@ def register():
         description='Blender Empty Object to export during HECL\'s cook process')
     bpy.types.Mesh.hecl_material_count = bpy.props.IntProperty(name='HECL Material Count', default=0, min=0)
     bpy.types.Mesh.hecl_active_material = bpy.props.IntProperty(name='HECL Active Material', default=0, min=0, update=material_update)
-    bpy.utils.register_class(HMDLShader.hecl_shader_operator)
     bpy.utils.register_class(hecl_mesh_operator)
     pass
 def unregister():
-    bpy.utils.unregister_class(HMDLShader.hecl_shader_operator)
     bpy.utils.unregister_class(hecl_mesh_operator)
     pass

@@ -3,9 +3,6 @@
 #include <type_traits>
 #include <cassert>
 #include "hecl/hecl.hpp"
-#include "hecl/Backend/GLSL.hpp"
-#include "hecl/Backend/HLSL.hpp"
-#include "hecl/Backend/Metal.hpp"
 #include "PipelineBase.hpp"
 
 /* CMake-curated rep classes for the application */
@@ -28,108 +25,7 @@ public:
   }
   boo::ObjToken<boo::IShaderStage> stage() const { return m_stage; }
 };
-#endif
 
-class HECLIR : public PipelineRep<PlatformType::Null> {
-  const hecl::Backend::IR& m_ir;
-  const hecl::Backend::ShaderTag& m_tag;
-  const hecl::Backend::ExtensionSlot& m_extension;
-  uint64_t m_hash;
-
-public:
-  HECLIR(const hecl::Backend::IR& ir, const hecl::Backend::ShaderTag& tag,
-         const hecl::Backend::ExtensionSlot& extension)
-  : m_ir(ir), m_tag(tag), m_extension(extension) {
-    m_hash = tag.val64();
-    m_hash ^= extension.hash();
-  }
-  static constexpr bool HasHash = true;
-  uint64_t Hash() const { return m_hash; }
-
-  const hecl::Backend::IR& ir() const { return m_ir; }
-  const hecl::Backend::ShaderTag& tag() const { return m_tag; }
-  const hecl::Backend::ExtensionSlot& extension() const { return m_extension; }
-};
-
-template <typename P, class BackendTp>
-class HECLBackendImpl : public PipelineRep<P> {
-  hecl::Backend::ShaderTag m_tag;
-  BackendTp m_backend;
-  const hecl::Backend::ExtensionSlot& m_extension;
-
-public:
-  static constexpr bool HasHash = false;
-  HECLBackendImpl(PipelineConverter<P>& conv, FactoryCtx& ctx, const HECLIR& in)
-  : m_tag(in.tag()), m_extension(in.extension()) {
-    hecl::Backend::Diagnostics diag;
-    m_backend.reset(in.ir(), diag);
-  }
-  std::string makeVert() const {
-    return m_backend.makeVert(m_tag.getColorCount(), m_tag.getUvCount(), m_tag.getWeightCount(),
-                              m_tag.getSkinSlotCount(), m_extension.texCount, m_extension.texs,
-                              m_extension.noReflection ? Backend::ReflectionType::None : m_tag.getReflectionType());
-  }
-  std::string makeFrag() const {
-    return m_backend.makeFrag(m_extension.blockCount, m_extension.blockNames,
-                              m_tag.getAlphaTest() || m_extension.forceAlphaTest,
-                              m_extension.noReflection ? Backend::ReflectionType::None : m_tag.getReflectionType(),
-                              m_backend.m_blendSrc, m_backend.m_blendDst, m_extension.lighting, m_extension.post,
-                              m_extension.texCount, m_extension.texs, m_extension.diffuseOnly);
-  }
-  const hecl::Backend::ShaderTag& getTag() const { return m_tag; }
-  const hecl::Backend::ExtensionSlot& extension() const { return m_extension; }
-  std::pair<hecl::Backend::BlendFactor, hecl::Backend::BlendFactor> blendFactors() const {
-    return {m_backend.m_blendSrc, m_backend.m_blendDst};
-  }
-};
-
-template <typename P>
-class HECLBackend : public PipelineRep<P> {
-public:
-  static constexpr bool HasHash = false;
-};
-
-template <>
-class HECLBackend<PlatformType::OpenGL> : public HECLBackendImpl<PlatformType::OpenGL, hecl::Backend::GLSL> {
-public:
-  using HECLBackendImpl::HECLBackendImpl;
-};
-
-template <>
-class HECLBackend<PlatformType::Vulkan> : public HECLBackendImpl<PlatformType::Vulkan, hecl::Backend::GLSL> {
-public:
-  using HECLBackendImpl::HECLBackendImpl;
-};
-
-template <>
-class HECLBackend<PlatformType::D3D11> : public HECLBackendImpl<PlatformType::D3D11, hecl::Backend::HLSL> {
-public:
-  using HECLBackendImpl::HECLBackendImpl;
-};
-
-template <>
-class HECLBackend<PlatformType::Metal> : public HECLBackendImpl<PlatformType::Metal, hecl::Backend::Metal> {
-public:
-  using HECLBackendImpl::HECLBackendImpl;
-};
-
-template <>
-class HECLBackend<PlatformType::NX> : public HECLBackendImpl<PlatformType::NX, hecl::Backend::GLSL> {
-public:
-  using HECLBackendImpl::HECLBackendImpl;
-};
-
-template <template <typename, typename> class T, typename P, typename... Rest>
-StageCollection<T<P, Rest...>>::StageCollection(PipelineConverter<P>& conv, FactoryCtx& ctx, const HECLBackend<P>& in) {
-  m_vertex = conv.getVertexConverter().convert(ctx, StageSourceText<P, PipelineStage::Vertex>(in.makeVert()));
-  m_fragment = conv.getFragmentConverter().convert(ctx, StageSourceText<P, PipelineStage::Fragment>(in.makeFrag()));
-  m_vtxFmtData = in.getTag().vertexFormat();
-  m_vtxFmt = boo::VertexFormatInfo(m_vtxFmtData.size(), m_vtxFmtData.data());
-  m_additionalInfo = in.getTag().additionalInfo(in.extension(), in.blendFactors());
-  MakeHash();
-}
-
-#if HECL_RUNTIME
 template <typename P>
 class FinalPipeline : public PipelineRep<P> {
   boo::ObjToken<boo::IShaderPipeline> m_pipeline;
@@ -155,10 +51,9 @@ struct ShaderDB {};
 
 #define STAGE_COLLECTION_SPECIALIZATIONS(T, P) StageCollection<T<P, PipelineStage::Null>>,
 #define PIPELINE_RUNTIME_SPECIALIZATIONS(P)                                                                            \
-  HECLBackend<P>,                                                                                                      \
       STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, P) STAGE_COLLECTION_SPECIALIZATIONS(StageBinary, P)            \
           STAGE_COLLECTION_SPECIALIZATIONS(StageRuntimeObject, P) FinalPipeline<P>,
-#define PIPELINE_OFFLINE_SPECIALIZATIONS(P) HECLBackend<P>, STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, P)
+#define PIPELINE_OFFLINE_SPECIALIZATIONS(P) STAGE_COLLECTION_SPECIALIZATIONS(StageSourceText, P)
 #define STAGE_RUNTIME_SPECIALIZATIONS(P, S)                                                                            \
   StageBinary<P, S>, HECL_APPLICATION_STAGE_REPS(P, S) StageRuntimeObject<P, S>,
 #define STAGE_OFFLINE_SPECIALIZATIONS(P, S) HECL_APPLICATION_STAGE_REPS(P, S)

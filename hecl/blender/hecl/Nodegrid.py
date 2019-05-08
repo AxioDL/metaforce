@@ -1,11 +1,11 @@
 # Node Grid Arranger Class
 NODE_PADDING = 80
-FRAME_NAMES = ['Dynamics','Textures','Combiners','Output']
-FRAME_WIDTHS = [250, 250, 800, 180]
+FRAME_NAMES = ['Textures','Output']
+FRAME_WIDTHS = [400, 180]
 TOTAL_WIDTH = 0.0
 for width in FRAME_WIDTHS:
     TOTAL_WIDTH += width + NODE_PADDING
-FRAME_COLORS = [(0.6,0.46,0.6),(0.6,0.48,0.44),(0.33,0.48,0.6),(0.53,0.6,0.47)]
+FRAME_COLORS = [(0.6,0.48,0.44),(0.53,0.6,0.47)]
 class Nodegrid:
 
     def __init__(self, nodetree, cycles=False):

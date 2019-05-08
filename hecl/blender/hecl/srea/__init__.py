@@ -3,7 +3,7 @@ from bpy.app.handlers import persistent
 from mathutils import Quaternion, Color
 import math
 import os.path
-from .. import Nodegrid, swld
+from .. import swld
 
 # Preview update func (for lighting preview)
 def preview_update(self, context):
@@ -13,30 +13,26 @@ def preview_update(self, context):
         # Original Lightmaps
         if area_data.lightmap_mode == 'ORIGINAL':
             for material in bpy.data.materials:
-                if material.hecl_lightmap:
-                    material.use_shadeless = False
-
+                if material.hecl_lightmap and 'Lightmap' in material.node_tree.nodes:
+                    lm_node = material.node_tree.nodes['Lightmap']
                     # Reference original game lightmaps
-                    if material.hecl_lightmap in bpy.data.textures:
-                        img_name = material.hecl_lightmap
-                        if img_name in bpy.data.images:
-                            bpy.data.textures[material.hecl_lightmap].image = bpy.data.images[img_name]
-                        else:
-                            bpy.data.textures[material.hecl_lightmap].image = None
+                    if material.hecl_lightmap in bpy.data.images:
+                        lm_node.image = bpy.data.images[material.hecl_lightmap]
+                    else:
+                        lm_node.image = None
 
         # Cycles Lightmaps
         elif area_data.lightmap_mode == 'CYCLES':
             for material in bpy.data.materials:
-                if material.hecl_lightmap:
-                    material.use_shadeless = False
-
+                if material.hecl_lightmap and 'Lightmap' in material.node_tree.nodes:
+                    lm_node = material.node_tree.nodes['Lightmap']
                     # Reference newly-generated lightmaps
-                    if material.hecl_lightmap in bpy.data.textures:
-                        img_name = material.hecl_lightmap + '_CYCLES'
-                        if img_name in bpy.data.images:
-                            bpy.data.textures[material.hecl_lightmap].image = bpy.data.images[img_name]
-                        else:
-                            bpy.data.textures[material.hecl_lightmap].image = None
+                    img_name = material.hecl_lightmap + '_CYCLES'
+                    if img_name in bpy.data.images:
+                        lm_node.image = bpy.data.images[img_name]
+                    else:
+                        lm_node.image = None
+
         # White Lightmaps
         elif area_data.lightmap_mode == 'NONE':
             img_name = 'NONE'
@@ -51,13 +47,11 @@ def preview_update(self, context):
                 img.file_format = 'PNG'
 
             for material in bpy.data.materials:
-                if material.hecl_lightmap:
-                    material.use_shadeless = False
-
+                if material.hecl_lightmap and 'Lightmap' in material.node_tree.nodes:
+                    lm_node = material.node_tree.nodes['Lightmap']
                     # Reference NONE
-                    if material.hecl_lightmap in bpy.data.textures:
-                        bpy.data.textures[material.hecl_lightmap].image = img
-                            
+                    lm_node.image = img
+
 
 # Update lightmap output-resolution
 def set_lightmap_resolution(self, context):
@@ -153,17 +147,17 @@ def set_adjacent_area(self, context):
 
     adjacent = dock_idx >= 0
     if len(context.scene.render.layers):
-        context.scene.render.layers[0].use_sky = not adjacent
+        context.scene.view_layers[0].use_sky = not adjacent
 
     # Remove linked lamps and show/hide locals
     for obj in bpy.data.objects:
-        if obj.library is not None and (obj.type == 'LAMP' or obj.type == 'MESH'):
+        if obj.library is not None and (obj.type == 'LIGHT' or obj.type == 'MESH'):
             try:
-                context.scene.objects.unlink(obj)
+                context.scene.collection.children.unlink(obj)
             except:
                 pass
             continue
-        if obj.type == 'LAMP':
+        if obj.type == 'LIGHT':
             obj.hide_render = adjacent
 
     # Remove linked scenes
@@ -200,8 +194,8 @@ def set_adjacent_area(self, context):
             bpy.data.scenes.remove(other_scene)
             return
         for obj in other_scene.objects:
-            if (obj.type == 'LAMP' or obj.type == 'MESH') and obj.layers[0]:
-                context.scene.objects.link(obj)
+            if (obj.type == 'LIGHT' or obj.type == 'MESH') and obj.layers[0]:
+                context.scene.collection.objects.link(obj)
                 obj.hide_render = False
 
     # Ensure filepaths target the current dock index
@@ -212,7 +206,7 @@ def set_adjacent_area(self, context):
 
 # Area data class
 class SREAData(bpy.types.PropertyGroup):
-    lightmap_resolution = bpy.props.EnumProperty(name="HECL Area Lightmap Resolution",
+    lightmap_resolution: bpy.props.EnumProperty(name="HECL Area Lightmap Resolution",
             description="Set square resolution to use when rendering new lightmaps",
             items=[
             ('256', "256", "256x256 (original quality)"),
@@ -223,7 +217,7 @@ class SREAData(bpy.types.PropertyGroup):
             update=set_lightmap_resolution,
             default='1024')
 
-    lightmap_mode = bpy.props.EnumProperty(name="HECL Area Lightmap Mode",
+    lightmap_mode: bpy.props.EnumProperty(name="HECL Area Lightmap Mode",
             description="Simple way to manipulate all lightmap-using materials",
             items=[
             ('NONE', "None", "Pure white lightmaps"),
@@ -232,7 +226,7 @@ class SREAData(bpy.types.PropertyGroup):
             update=preview_update,
             default='ORIGINAL')
 
-    adjacent_area = bpy.props.IntProperty(name="HECL Adjacent Area Lightmap",
+    adjacent_area: bpy.props.IntProperty(name="HECL Adjacent Area Lightmap",
             description="Dock index of adjacent area to render, or -1 for local lights",
             update=set_adjacent_area,
             default=-1,
@@ -296,179 +290,6 @@ def get_de_sockets(chain):
 
     return found_mul, found_add
 
-# Get texture node from node
-def tex_node_from_node(node):
-    if node.type == 'TEXTURE':
-        return node
-    elif node.type == 'MIX_RGB':
-        if node.inputs[1].is_linked and node.inputs[1].links[0].from_node.type == 'TEXTURE':
-            return node.inputs[1].links[0].from_node
-        if node.inputs[2].is_linked and node.inputs[2].links[0].from_node.type == 'TEXTURE':
-            return node.inputs[2].links[0].from_node
-    return None
-
-# Delete existing cycles nodes and convert from GLSL nodes
-CYCLES_TYPES = {'OUTPUT_MATERIAL', 'ADD_SHADER', 'BSDF_DIFFUSE', 'BSDF_TRANSPARENT',
-                'EMISSION', 'MIX_SHADER', 'TEX_IMAGE'}
-def initialize_nodetree_cycles(mat, area_data):
-    nt = mat.node_tree
-    to_remove = set()
-    for node in nt.nodes:
-        if node.type in CYCLES_TYPES:
-            to_remove.add(node)
-            if node.parent:
-                to_remove.add(node.parent)
-    for node in to_remove:
-        nt.nodes.remove(node)
-
-    gridder = Nodegrid.Nodegrid(nt, cycles=True)
-
-    if mat.hecl_lightmap and not mat.library:
-        # Get name of lightmap texture
-        if mat.hecl_lightmap in bpy.data.textures:
-            img_name = mat.hecl_lightmap
-            if img_name in bpy.data.images:
-                bpy.data.textures[mat.hecl_lightmap].image = bpy.data.images[img_name]
-            else:
-                bpy.data.textures[mat.hecl_lightmap].image = None
-
-        # Get image already established or make new one
-        new_image = make_or_load_cycles_image(mat, area_data)
-
-        image_out_node = nt.nodes.new('ShaderNodeTexImage')
-        image_out_node.name = 'CYCLES_OUT'
-        gridder.place_node(image_out_node, 3)
-        image_out_node.image = new_image
-
-    if mat.game_settings.alpha_blend == 'ADD':
-        transp = nt.nodes.new('ShaderNodeBsdfTransparent')
-        gridder.place_node(transp, 2)
-        material_output = nt.nodes.new('ShaderNodeOutputMaterial')
-        gridder.place_node(material_output, 3)
-        nt.links.new(transp.outputs[0], material_output.inputs[0])
-
-    elif mat.game_settings.alpha_blend == 'ALPHA':
-        diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
-        gridder.place_node(diffuse, 2)
-        transp = nt.nodes.new('ShaderNodeBsdfTransparent')
-        gridder.place_node(transp, 2)
-        mix_shader = nt.nodes.new('ShaderNodeMixShader')
-        gridder.place_node(mix_shader, 2)
-        nt.links.new(transp.outputs[0], mix_shader.inputs[1])
-        nt.links.new(diffuse.outputs[0], mix_shader.inputs[2])
-        material_output = nt.nodes.new('ShaderNodeOutputMaterial')
-        gridder.place_node(material_output, 3)
-        nt.links.new(mix_shader.outputs[0], material_output.inputs[0])
-
-        # Classify connected transparent textures
-        chain = recursive_build_material_chain(nt.nodes['Output'])
-        if chain:
-            diffuse_soc, emissive_soc = get_de_sockets(chain)
-            tex_node = tex_node_from_node(diffuse_soc.node)
-            if tex_node and tex_node.inputs[0].links[0].from_socket.name == 'UV':
-                diffuse_image_node = nt.nodes.new('ShaderNodeTexImage')
-                gridder.place_node(diffuse_image_node, 1)
-                diffuse_image_node.image = tex_node.texture.image
-                mixrgb_node = nt.nodes.new('ShaderNodeMixRGB')
-                gridder.place_node(mixrgb_node, 1)
-                mixrgb_node.inputs[1].default_value = (1.0,1.0,1.0,1.0)
-                mapping = nt.nodes.new('ShaderNodeUVMap')
-                gridder.place_node(mapping, 1)
-                mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
-                nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
-                light_path = nt.nodes.new('ShaderNodeLightPath')
-                gridder.place_node(light_path, 2)
-                mixrgb_reflect = nt.nodes.new('ShaderNodeMixRGB')
-                gridder.place_node(mixrgb_reflect, 2)
-                nt.links.new(light_path.outputs['Is Reflection Ray'], mixrgb_reflect.inputs[0])
-                mixrgb_reflect.inputs[1].default_value = (1.0,1.0,1.0,1.0)
-                nt.links.new(diffuse_image_node.outputs[0], mixrgb_reflect.inputs[2])
-                nt.links.new(mixrgb_reflect.outputs[0], diffuse.inputs[0])
-                nt.links.new(mixrgb_reflect.outputs[0], mixrgb_node.inputs[2])
-                if nt.nodes['Output'].inputs[1].is_linked:
-                    nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mix_shader.inputs[0])
-                    nt.links.new(nt.nodes['Output'].inputs[1].links[0].from_socket, mixrgb_node.inputs[0])
-                nt.links.new(mixrgb_node.outputs[0], transp.inputs[0])
-
-    else:
-        # Classify connected opaque textures
-        chain = recursive_build_material_chain(nt.nodes['Output'])
-        if chain:
-            diffuse = None
-            emissive = None
-            diffuse_soc, emissive_soc = get_de_sockets(chain)
-            if diffuse_soc:
-                tex_node = tex_node_from_node(diffuse_soc.node)
-                if tex_node and tex_node.inputs[0].links[0].from_socket.name == 'UV':
-                    diffuse_image_node = nt.nodes.new('ShaderNodeTexImage')
-                    gridder.place_node(diffuse_image_node, 1)
-                    diffuse_image_node.image = tex_node.texture.image
-                    mapping = nt.nodes.new('ShaderNodeUVMap')
-                    gridder.place_node(mapping, 1)
-                    mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
-                    nt.links.new(mapping.outputs[0], diffuse_image_node.inputs[0])
-                    light_path = nt.nodes.new('ShaderNodeLightPath')
-                    gridder.place_node(light_path, 2)
-                    mixrgb_reflect = nt.nodes.new('ShaderNodeMixRGB')
-                    gridder.place_node(mixrgb_reflect, 2)
-                    nt.links.new(light_path.outputs['Is Reflection Ray'], mixrgb_reflect.inputs[0])
-                    mixrgb_reflect.inputs[1].default_value = (1.0,1.0,1.0,1.0)
-                    nt.links.new(diffuse_image_node.outputs[0], mixrgb_reflect.inputs[2])
-                    diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
-                    gridder.place_node(diffuse, 2)
-                    nt.links.new(mixrgb_reflect.outputs[0], diffuse.inputs[0])
-                else:
-                    diffuse = nt.nodes.new('ShaderNodeBsdfDiffuse')
-                    gridder.place_node(diffuse, 2)
-            if emissive_soc:
-                tex_node = tex_node_from_node(emissive_soc.node)
-                if tex_node and tex_node.inputs[0].links[0].from_socket.name == 'UV':
-                    emissive_image_node = nt.nodes.new('ShaderNodeTexImage')
-                    gridder.place_node(emissive_image_node, 1)
-                    emissive_image_node.image = tex_node.texture.image
-                    mapping = nt.nodes.new('ShaderNodeUVMap')
-                    gridder.place_node(mapping, 1)
-                    mapping.uv_map = tex_node.inputs[0].links[0].from_node.uv_layer
-                    nt.links.new(mapping.outputs[0], emissive_image_node.inputs[0])
-                    emissive = nt.nodes.new('ShaderNodeEmission')
-                    gridder.place_node(emissive, 2)
-                    nt.links.new(emissive_image_node.outputs[0], emissive.inputs[0])
-
-            material_output = nt.nodes.new('ShaderNodeOutputMaterial')
-            gridder.place_node(material_output, 3)
-            if diffuse and emissive:
-                shader_add = nt.nodes.new('ShaderNodeAddShader')
-                gridder.place_node(shader_add, 2)
-                nt.links.new(diffuse.outputs[0], shader_add.inputs[0])
-                nt.links.new(emissive.outputs[0], shader_add.inputs[1])
-                nt.links.new(shader_add.outputs[0], material_output.inputs[0])
-            elif diffuse_soc:
-                nt.links.new(diffuse.outputs[0], material_output.inputs[0])
-            elif emissive_soc:
-                nt.links.new(emissive.outputs[0], material_output.inputs[0])
-
-# Lightmap setup operator
-class SREAInitializeCycles(bpy.types.Operator):
-    bl_idname = "scene.hecl_area_initialize_cycles"
-    bl_label = "HECL Initialize Cycles"
-    bl_description = "Initialize Cycles nodes for lightmap baking (WILL DELETE EXISTING CYCLES NODES!)"
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene is not None and context.scene.hecl_type == 'AREA'
-
-    def execute(self, context):
-        area_data = context.scene.hecl_srea_data
-
-        # Iterate materials and setup cycles
-        for mat in bpy.data.materials:
-            if mat.use_nodes:
-                initialize_nodetree_cycles(mat, area_data)
-        return {'FINISHED'}
-
-    def invoke(self, context, event):
-        return context.window_manager.invoke_confirm(self, event)
-
 # Lookup the directory name of other area via dock link
 def get_other_area_name(op, bg_scene, dock_idx):
     dock_conns = swld.build_dock_connections(bg_scene)
@@ -501,7 +322,6 @@ def render_lightmaps(context):
         pixel_size = int(area_data.lightmap_resolution)
 
         # Mmm Cycles
-        context.scene.render.engine = 'CYCLES'
         context.scene.render.bake.margin = pixel_size // 256
 
         # Iterate materials and setup cycles
@@ -547,8 +367,8 @@ class SREARenderLightmaps(bpy.types.Operator):
         if not context.selected_objects:
             for obj in context.scene.objects:
                 if obj.type == 'MESH' and not obj.library:
-                    obj.select = True
-                    context.scene.objects.active = obj
+                    obj.select_set(True)
+                    context.view_layer.objects.active = obj
 
         render_lightmaps(context)
 
@@ -559,7 +379,6 @@ def shadeless_material(idx):
     if name in bpy.data.materials:
         return bpy.data.materials[name]
     mat = bpy.data.materials.new(name)
-    mat.use_shadeless = True
     r = idx % 256
     g = (idx % 65536) // 256
     b = idx // 65536
@@ -567,11 +386,11 @@ def shadeless_material(idx):
     return mat
 
 look_forward = Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-look_backward = Quaternion((0.0, 0.0, 1.0), math.radians(180.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_backward = Quaternion((0.0, 0.0, 1.0), math.radians(180.0)) @ Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
 look_up = Quaternion((1.0, 0.0, 0.0), math.radians(180.0))
 look_down = Quaternion((1.0, 0.0, 0.0), math.radians(0.0))
-look_left = Quaternion((0.0, 0.0, 1.0), math.radians(90.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-look_right = Quaternion((0.0, 0.0, 1.0), math.radians(-90.0)) * Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_left = Quaternion((0.0, 0.0, 1.0), math.radians(90.0)) @ Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
+look_right = Quaternion((0.0, 0.0, 1.0), math.radians(-90.0)) @ Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
 look_list = (look_forward, look_backward, look_up, look_down, look_left, look_right)
 
 # Render PVS for location
@@ -585,7 +404,6 @@ def render_pvs(pathOut, location):
     bpy.context.scene.render.use_sss = False
     bpy.context.scene.render.use_envmaps = False
     bpy.context.scene.render.use_raytrace = False
-    bpy.context.scene.render.engine = 'BLENDER_RENDER'
     bpy.context.scene.display_settings.display_device = 'None'
     bpy.context.scene.render.image_settings.file_format = 'PNG'
     bpy.context.scene.world.horizon_color = Color((1.0, 1.0, 1.0))
@@ -593,7 +411,7 @@ def render_pvs(pathOut, location):
 
     cam = bpy.data.cameras.new('CUBIC_CAM')
     cam_obj = bpy.data.objects.new('CUBIC_CAM', cam)
-    bpy.context.scene.objects.link(cam_obj)
+    bpy.context.scene.collection.objects.link(cam_obj)
     bpy.context.scene.camera = cam_obj
     cam.lens_unit = 'FOV'
     cam.angle = math.radians(90.0)
@@ -617,7 +435,7 @@ def render_pvs(pathOut, location):
         bpy.ops.render.render(write_still=True)
 
     bpy.context.scene.camera = None
-    bpy.context.scene.objects.unlink(cam_obj)
+    #bpy.context.scene.objects.unlink(cam_obj)
     bpy.data.objects.remove(cam_obj)
     bpy.data.cameras.remove(cam)
 
@@ -634,16 +452,15 @@ def cook(writebuffunc, platform, endianchar):
 # Panel draw
 def draw(layout, context):
     area_data = context.scene.hecl_srea_data
-    layout.label("Lighting:", icon='LAMP_SPOT')
+    layout.label(text="Lighting:", icon='LIGHT')
     light_row = layout.row(align=True)
     light_row.prop_enum(area_data, 'lightmap_mode', 'NONE')
     light_row.prop_enum(area_data, 'lightmap_mode', 'ORIGINAL')
     light_row.prop_enum(area_data, 'lightmap_mode', 'CYCLES')
     layout.prop(area_data, 'lightmap_resolution', text="Resolution")
-    layout.menu("CYCLES_MT_sampling_presets", text=bpy.types.CYCLES_MT_sampling_presets.bl_label)
+    layout.popover("CYCLES_PT_sampling_presets", text=bpy.types.CYCLES_PT_sampling_presets.bl_label)
     layout.prop(context.scene.render.bake, "use_clear", text="Clear Before Baking")
-    layout.prop(area_data, 'adjacent_area', text='Adjacent Dock Index', icon='OOPS')
-    layout.operator("scene.hecl_area_initialize_cycles", text="Initialize Cycles Nodes", icon='NODETREE')
+    layout.prop(area_data, 'adjacent_area', text='Adjacent Dock Index', icon='MOD_OPACITY')
     layout.operator("scene.hecl_area_render_lightmaps", text="Bake Cycles Lightmaps", icon='RENDER_STILL')
     layout.operator("image.save_dirty", text="Save Lightmaps", icon='FILE_TICK')
 
@@ -656,7 +473,6 @@ def scene_loaded(dummy):
 # Registration
 def register():
     bpy.utils.register_class(SREAData)
-    bpy.utils.register_class(SREAInitializeCycles)
     bpy.utils.register_class(SREARenderLightmaps)
     bpy.types.Scene.hecl_srea_data = bpy.props.PointerProperty(type=SREAData)
     bpy.types.Material.hecl_lightmap = bpy.props.StringProperty(name='HECL: Lightmap Base Name')
@@ -664,6 +480,5 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(SREAData)
-    bpy.utils.unregister_class(SREAInitializeCycles)
     bpy.utils.unregister_class(SREARenderLightmaps)
 
