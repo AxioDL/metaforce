@@ -1081,7 +1081,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
 
       TToken<CModel> nullModel;
       inst.m_instance = std::make_unique<CBooModel>(nullModel, nullptr, &inst.m_surfaces, matSet, vbo, ibo,
-                                                    inst.x34_aabb, inst.x0_visorFlags, 0, nullptr);
+                                                    inst.x34_aabb, inst.x0_visorFlags, 0);
     }
 
     return true;

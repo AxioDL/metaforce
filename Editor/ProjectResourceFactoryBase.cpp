@@ -61,7 +61,7 @@ void ProjectResourceFactoryBase::AsyncTask::EnsurePath(const urde::SObjectTag& t
       m_cookedPath = path.getCookedPath(*m_parent.m_origSpec);
     if (!m_cookedPath.isFile() || m_cookedPath.getModtime() < path.getModtime()) {
       /* Last chance type validation */
-      urde::SObjectTag verifyTag = m_parent.TagFromPath(path, hecl::blender::SharedBlenderToken);
+      urde::SObjectTag verifyTag = m_parent.TagFromPath(path);
       if (verifyTag.type != tag.type) {
         Log.report(logvisor::Error, _SYS_STR("%s: expected type '%.4s', found '%.4s'"), path.getRelativePath().data(),
                    tag.type.getChars(), verifyTag.type.getChars());
@@ -179,7 +179,7 @@ bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const he
     cooked = path.getCookedPath(*m_origSpec);
   if (!cooked.isFile() || cooked.getModtime() < path.getModtime()) {
     /* Last chance type validation */
-    urde::SObjectTag verifyTag = TagFromPath(path, hecl::blender::SharedBlenderToken);
+    urde::SObjectTag verifyTag = TagFromPath(path);
     if (verifyTag.type != tag.type) {
       Log.report(logvisor::Error, _SYS_STR("%s: expected type '%.4s', found '%.4s'"), path.getRelativePath().data(),
                  tag.type.getChars(), verifyTag.type.getChars());

@@ -2,6 +2,661 @@
 
 import bpy
 
+# Root Eevee Nodes
+
+#0 - RetroShader
+def make_retro_shader():
+    new_grp = bpy.data.node_groups.new('RetroShader', 'ShaderNodeTree')
+    lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
+    lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
+    diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
+    emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
+    specular_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    ext_spec_input = new_grp.inputs.new('NodeSocketColor', 'ExtendedSpecular')
+    ext_spec_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    reflection_input = new_grp.inputs.new('NodeSocketColor', 'Reflection')
+    reflection_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    indirect_tex = new_grp.inputs.new('NodeSocketColor', 'IndirectTex')
+    indirect_tex.default_value = (0.0, 0.0, 0.0, 0.0)
+    alpha_input = new_grp.inputs.new('NodeSocketFloatFactor', 'Alpha')
+    alpha_input.default_value = 1.0
+    alpha_input.min_value = 0.0
+    alpha_input.max_value = 1.0
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-1280, 27)
+
+    # New shader model
+    new_shader_model = new_grp.nodes.new('ShaderNodeValue')
+    new_shader_model.name = 'NewShaderModel'
+    new_shader_model.label = 'NewShaderModel'
+    new_shader_model.location = (-1280, 118)
+    new_shader_model.outputs[0].default_value = 0.0
+
+    # Principled BSDF (For new shader model)
+    principled_bsdf = new_grp.nodes.new('ShaderNodeBsdfPrincipled')
+    principled_bsdf.location = (-1038, 874)
+    principled_bsdf.inputs['Metallic'].default_value = 0.5
+
+    # Invert (for roughness)
+    invert = new_grp.nodes.new('ShaderNodeInvert')
+    invert.location = (-1256, 492)
+    invert.inputs[0].default_value = 1.0
+
+    # Gamma (for roughness)
+    gamma = new_grp.nodes.new('ShaderNodeGamma')
+    gamma.location = (-1256, 640)
+    gamma.inputs[1].default_value = 10.0
+
+    # Diffuse BSDF (Multiplies dynamic lighting with diffuse)
+    diffuse_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    diffuse_bdsf.location = (-945, 293)
+
+    # Mix shader (interpolates Principled and Diffuse BSDF)
+    new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiplies static lightmap with diffuse)
+    lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_mult.location = (-944, 122)
+    lightmap_mult.blend_type = 'MULTIPLY'
+    lightmap_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies specular with reflection)
+    specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    specular_mult.location = (-940, -105)
+    specular_mult.blend_type = 'MULTIPLY'
+    specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies extended specular with reflection)
+    extended_specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    extended_specular_mult.location = (-941, -304)
+    extended_specular_mult.blend_type = 'MULTIPLY'
+    extended_specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Add Shader (Adds dynamic diffuse with static diffuse)
+    diffuse_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    diffuse_add_shader.location = (-587, 209)
+
+    # Mix shader (interpolates resolved reflection with nothing)
+    new_shader_model_mix2 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix2.location = (-512, -38)
+
+    # Add Shader (Adds emissive with resolved reflection)
+    emissive_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    emissive_add_shader.location = (-320, 8)
+
+    # Add Shader (Adds specular and extended specular reflections)
+    specular_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    specular_add_shader.location = (-734, -81)
+
+    # Diffuse BDSF (Multiplies extended specular with dynamic lighting)
+    extended_specular_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    extended_specular_bdsf.location = (-738, -280)
+
+    # Add shader (Adds diffuse with all emissive sources)
+    final_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    final_add_shader.location = (-184, 234)
+
+    # Transparent BDSF (Provides alpha)
+    transparent_bdsf = new_grp.nodes.new('ShaderNodeBsdfTransparent')
+    transparent_bdsf.location = (-224, -160)
+    transparent_bdsf.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+
+    # Mix Shader (Applies alpha proportion)
+    alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
+    alpha_mix.location = (-40, -112)
+
+    # Material Output (Final output)
+    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out.location = (150, -88)
+
+    # Links
+    new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(grp_in.outputs['Emissive'], emissive_add_shader.inputs[0])
+    new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
+    new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
+    new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
+    new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])
+    new_grp.links.new(invert.outputs['Color'], gamma.inputs['Color'])
+    new_grp.links.new(gamma.outputs['Color'], principled_bsdf.inputs['Roughness'])
+    new_grp.links.new(principled_bsdf.outputs['BSDF'], new_shader_model_mix1.inputs[2])
+    new_grp.links.new(new_shader_model_mix1.outputs['Shader'], diffuse_add_shader.inputs[0])
+    new_grp.links.new(lightmap_mult.outputs['Color'], diffuse_add_shader.inputs[1])
+    new_grp.links.new(specular_mult.outputs['Color'], specular_add_shader.inputs[0])
+    new_grp.links.new(extended_specular_mult.outputs['Color'], extended_specular_bdsf.inputs['Color'])
+    new_grp.links.new(extended_specular_bdsf.outputs['BSDF'], specular_add_shader.inputs[1])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix2.inputs[0])
+    new_grp.links.new(specular_add_shader.outputs['Shader'], new_shader_model_mix2.inputs[1])
+    new_grp.links.new(new_shader_model_mix2.outputs['Shader'], emissive_add_shader.inputs[1])
+    new_grp.links.new(diffuse_add_shader.outputs['Shader'], final_add_shader.inputs[0])
+    new_grp.links.new(emissive_add_shader.outputs['Shader'], final_add_shader.inputs[1])
+    new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
+    new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
+    new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
+def make_retro_dynamic_shader():
+    new_grp = bpy.data.node_groups.new('RetroDynamicShader', 'ShaderNodeTree')
+    lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
+    lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
+    diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
+    emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
+    specular_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    ext_spec_input = new_grp.inputs.new('NodeSocketColor', 'ExtendedSpecular')
+    ext_spec_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    reflection_input = new_grp.inputs.new('NodeSocketColor', 'Reflection')
+    reflection_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    indirect_tex = new_grp.inputs.new('NodeSocketColor', 'IndirectTex')
+    indirect_tex.default_value = (0.0, 0.0, 0.0, 0.0)
+    alpha_input = new_grp.inputs.new('NodeSocketFloatFactor', 'Alpha')
+    alpha_input.default_value = 1.0
+    alpha_input.min_value = 0.0
+    alpha_input.max_value = 1.0
+    dynamic_input = new_grp.inputs.new('NodeSocketColor', 'DynamicTest')
+    dynamic_input.default_value = (1.0, 1.0, 1.0, 1.0)
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-1460, 27)
+
+    # Multiply (Lightmap dynamic)
+    lightmap_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_dynamic.location = (-1174, 158)
+    lightmap_dynamic.blend_type = 'MULTIPLY'
+    lightmap_dynamic.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Diffuse dynamic)
+    diffuse_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    diffuse_dynamic.location = (-1174, -32)
+    diffuse_dynamic.blend_type = 'MULTIPLY'
+    diffuse_dynamic.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Emissive dynamic)
+    emissive_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    emissive_dynamic.location = (-1174, -222)
+    emissive_dynamic.blend_type = 'MULTIPLY'
+    emissive_dynamic.inputs['Fac'].default_value = 1.0
+
+    # New shader model
+    new_shader_model = new_grp.nodes.new('ShaderNodeValue')
+    new_shader_model.name = 'NewShaderModel'
+    new_shader_model.label = 'NewShaderModel'
+    new_shader_model.location = (-1460, 118)
+    new_shader_model.outputs[0].default_value = 0.0
+
+    # Principled BSDF (For new shader model)
+    principled_bsdf = new_grp.nodes.new('ShaderNodeBsdfPrincipled')
+    principled_bsdf.location = (-1038, 874)
+    principled_bsdf.inputs['Metallic'].default_value = 0.5
+
+    # Invert (for roughness)
+    invert = new_grp.nodes.new('ShaderNodeInvert')
+    invert.location = (-1256, 492)
+    invert.inputs[0].default_value = 1.0
+
+    # Gamma (for roughness)
+    gamma = new_grp.nodes.new('ShaderNodeGamma')
+    gamma.location = (-1256, 640)
+    gamma.inputs[1].default_value = 10.0
+
+    # Diffuse BSDF (Multiplies dynamic lighting with diffuse)
+    diffuse_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    diffuse_bdsf.location = (-945, 293)
+
+    # Mix shader (interpolates Principled and Diffuse BSDF)
+    new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiplies static lightmap with diffuse)
+    lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_mult.location = (-944, 122)
+    lightmap_mult.blend_type = 'MULTIPLY'
+    lightmap_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies specular with reflection)
+    specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    specular_mult.location = (-940, -105)
+    specular_mult.blend_type = 'MULTIPLY'
+    specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies extended specular with reflection)
+    extended_specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    extended_specular_mult.location = (-941, -304)
+    extended_specular_mult.blend_type = 'MULTIPLY'
+    extended_specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Add Shader (Adds dynamic diffuse with static diffuse)
+    diffuse_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    diffuse_add_shader.location = (-587, 209)
+
+    # Mix shader (interpolates resolved reflection with nothing)
+    new_shader_model_mix2 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix2.location = (-512, -38)
+
+    # Add Shader (Adds emissive with resolved reflection)
+    emissive_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    emissive_add_shader.location = (-320, 8)
+
+    # Add Shader (Adds specular and extended specular reflections)
+    specular_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    specular_add_shader.location = (-734, -81)
+
+    # Diffuse BDSF (Multiplies extended specular with dynamic lighting)
+    extended_specular_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    extended_specular_bdsf.location = (-738, -280)
+
+    # Add shader (Adds diffuse with all emissive sources)
+    final_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    final_add_shader.location = (-184, 234)
+
+    # Transparent BDSF (Provides alpha)
+    transparent_bdsf = new_grp.nodes.new('ShaderNodeBsdfTransparent')
+    transparent_bdsf.location = (-224, -160)
+    transparent_bdsf.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+
+    # Mix Shader (Applies alpha proportion)
+    alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
+    alpha_mix.location = (-40, -112)
+
+    # Material Output (Final output)
+    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out.location = (150, -88)
+
+    # Links
+    new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], lightmap_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], diffuse_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Emissive'], emissive_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], emissive_dynamic.inputs['Color2'])
+    new_grp.links.new(lightmap_dynamic.outputs['Color'], lightmap_mult.inputs['Color1'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(emissive_dynamic.outputs['Color'], emissive_add_shader.inputs[0])
+    new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
+    new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
+    new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
+    new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])
+    new_grp.links.new(invert.outputs['Color'], gamma.inputs['Color'])
+    new_grp.links.new(gamma.outputs['Color'], principled_bsdf.inputs['Roughness'])
+    new_grp.links.new(principled_bsdf.outputs['BSDF'], new_shader_model_mix1.inputs[2])
+    new_grp.links.new(new_shader_model_mix1.outputs['Shader'], diffuse_add_shader.inputs[0])
+    new_grp.links.new(lightmap_mult.outputs['Color'], diffuse_add_shader.inputs[1])
+    new_grp.links.new(specular_mult.outputs['Color'], specular_add_shader.inputs[0])
+    new_grp.links.new(extended_specular_mult.outputs['Color'], extended_specular_bdsf.inputs['Color'])
+    new_grp.links.new(extended_specular_bdsf.outputs['BSDF'], specular_add_shader.inputs[1])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix2.inputs[0])
+    new_grp.links.new(specular_add_shader.outputs['Shader'], new_shader_model_mix2.inputs[1])
+    new_grp.links.new(new_shader_model_mix2.outputs['Shader'], emissive_add_shader.inputs[1])
+    new_grp.links.new(diffuse_add_shader.outputs['Shader'], final_add_shader.inputs[0])
+    new_grp.links.new(emissive_add_shader.outputs['Shader'], final_add_shader.inputs[1])
+    new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
+    new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
+    new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
+def make_retro_dynamic_alpha_shader():
+    new_grp = bpy.data.node_groups.new('RetroDynamicAlphaShader', 'ShaderNodeTree')
+    lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
+    lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
+    diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
+    emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
+    specular_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    ext_spec_input = new_grp.inputs.new('NodeSocketColor', 'ExtendedSpecular')
+    ext_spec_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    reflection_input = new_grp.inputs.new('NodeSocketColor', 'Reflection')
+    reflection_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    indirect_tex = new_grp.inputs.new('NodeSocketColor', 'IndirectTex')
+    indirect_tex.default_value = (0.0, 0.0, 0.0, 0.0)
+    alpha_input = new_grp.inputs.new('NodeSocketFloatFactor', 'Alpha')
+    alpha_input.default_value = 1.0
+    alpha_input.min_value = 0.0
+    alpha_input.max_value = 1.0
+    dynamic_input = new_grp.inputs.new('NodeSocketColor', 'DynamicTest')
+    dynamic_input.default_value = (1.0, 1.0, 1.0, 1.0)
+    dynamic_alpha_input = new_grp.inputs.new('NodeSocketFloatFactor', 'DynamicAlphaTest')
+    dynamic_alpha_input.default_value = 1.0
+    dynamic_alpha_input.min_value = 0.0
+    dynamic_alpha_input.max_value = 1.0
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-1460, 27)
+
+    # Multiply (Lightmap dynamic)
+    lightmap_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_dynamic.location = (-1174, 158)
+    lightmap_dynamic.blend_type = 'MULTIPLY'
+    lightmap_dynamic.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Diffuse dynamic)
+    diffuse_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    diffuse_dynamic.location = (-1174, -32)
+    diffuse_dynamic.blend_type = 'MULTIPLY'
+    diffuse_dynamic.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Emissive dynamic)
+    emissive_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    emissive_dynamic.location = (-1174, -222)
+    emissive_dynamic.blend_type = 'MULTIPLY'
+    emissive_dynamic.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Alpha dynamic)
+    alpha_dynamic = new_grp.nodes.new('ShaderNodeMath')
+    alpha_dynamic.location = (-1174, -410)
+    alpha_dynamic.operation = 'MULTIPLY'
+
+    # New shader model
+    new_shader_model = new_grp.nodes.new('ShaderNodeValue')
+    new_shader_model.name = 'NewShaderModel'
+    new_shader_model.label = 'NewShaderModel'
+    new_shader_model.location = (-1460, 118)
+    new_shader_model.outputs[0].default_value = 0.0
+
+    # Principled BSDF (For new shader model)
+    principled_bsdf = new_grp.nodes.new('ShaderNodeBsdfPrincipled')
+    principled_bsdf.location = (-1038, 874)
+    principled_bsdf.inputs['Metallic'].default_value = 0.5
+
+    # Invert (for roughness)
+    invert = new_grp.nodes.new('ShaderNodeInvert')
+    invert.location = (-1256, 492)
+    invert.inputs[0].default_value = 1.0
+
+    # Gamma (for roughness)
+    gamma = new_grp.nodes.new('ShaderNodeGamma')
+    gamma.location = (-1256, 640)
+    gamma.inputs[1].default_value = 10.0
+
+    # Diffuse BSDF (Multiplies dynamic lighting with diffuse)
+    diffuse_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    diffuse_bdsf.location = (-945, 293)
+
+    # Mix shader (interpolates Principled and Diffuse BSDF)
+    new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiplies static lightmap with diffuse)
+    lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_mult.location = (-944, 122)
+    lightmap_mult.blend_type = 'MULTIPLY'
+    lightmap_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies specular with reflection)
+    specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    specular_mult.location = (-940, -105)
+    specular_mult.blend_type = 'MULTIPLY'
+    specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies extended specular with reflection)
+    extended_specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    extended_specular_mult.location = (-941, -304)
+    extended_specular_mult.blend_type = 'MULTIPLY'
+    extended_specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Add Shader (Adds dynamic diffuse with static diffuse)
+    diffuse_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    diffuse_add_shader.location = (-587, 209)
+
+    # Mix shader (interpolates resolved reflection with nothing)
+    new_shader_model_mix2 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix2.location = (-512, -38)
+
+    # Add Shader (Adds emissive with resolved reflection)
+    emissive_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    emissive_add_shader.location = (-320, 8)
+
+    # Add Shader (Adds specular and extended specular reflections)
+    specular_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    specular_add_shader.location = (-734, -81)
+
+    # Diffuse BDSF (Multiplies extended specular with dynamic lighting)
+    extended_specular_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    extended_specular_bdsf.location = (-738, -280)
+
+    # Add shader (Adds diffuse with all emissive sources)
+    final_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    final_add_shader.location = (-184, 234)
+
+    # Transparent BDSF (Provides alpha)
+    transparent_bdsf = new_grp.nodes.new('ShaderNodeBsdfTransparent')
+    transparent_bdsf.location = (-224, -160)
+    transparent_bdsf.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+
+    # Mix Shader (Applies alpha proportion)
+    alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
+    alpha_mix.location = (-40, -112)
+
+    # Material Output (Final output)
+    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out.location = (150, -88)
+
+    # Links
+    new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], lightmap_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], diffuse_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Emissive'], emissive_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], emissive_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_dynamic.inputs[0])
+    new_grp.links.new(grp_in.outputs['DynamicAlphaTest'], alpha_dynamic.inputs[1])
+    new_grp.links.new(lightmap_dynamic.outputs['Color'], lightmap_mult.inputs['Color1'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(diffuse_dynamic.outputs['Color'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(emissive_dynamic.outputs['Color'], emissive_add_shader.inputs[0])
+    new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
+    new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
+    new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
+    new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])
+    new_grp.links.new(invert.outputs['Color'], gamma.inputs['Color'])
+    new_grp.links.new(gamma.outputs['Color'], principled_bsdf.inputs['Roughness'])
+    new_grp.links.new(principled_bsdf.outputs['BSDF'], new_shader_model_mix1.inputs[2])
+    new_grp.links.new(new_shader_model_mix1.outputs['Shader'], diffuse_add_shader.inputs[0])
+    new_grp.links.new(alpha_dynamic.outputs['Value'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(lightmap_mult.outputs['Color'], diffuse_add_shader.inputs[1])
+    new_grp.links.new(specular_mult.outputs['Color'], specular_add_shader.inputs[0])
+    new_grp.links.new(extended_specular_mult.outputs['Color'], extended_specular_bdsf.inputs['Color'])
+    new_grp.links.new(extended_specular_bdsf.outputs['BSDF'], specular_add_shader.inputs[1])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix2.inputs[0])
+    new_grp.links.new(specular_add_shader.outputs['Shader'], new_shader_model_mix2.inputs[1])
+    new_grp.links.new(new_shader_model_mix2.outputs['Shader'], emissive_add_shader.inputs[1])
+    new_grp.links.new(diffuse_add_shader.outputs['Shader'], final_add_shader.inputs[0])
+    new_grp.links.new(emissive_add_shader.outputs['Shader'], final_add_shader.inputs[1])
+    new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
+    new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
+    new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
+def make_retro_dynamic_character_shader():
+    new_grp = bpy.data.node_groups.new('RetroDynamicCharacterShader', 'ShaderNodeTree')
+    lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
+    lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
+    diffuse_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    emissive_input = new_grp.inputs.new('NodeSocketColor', 'Emissive')
+    emissive_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    specular_input = new_grp.inputs.new('NodeSocketColor', 'Specular')
+    specular_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    ext_spec_input = new_grp.inputs.new('NodeSocketColor', 'ExtendedSpecular')
+    ext_spec_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    reflection_input = new_grp.inputs.new('NodeSocketColor', 'Reflection')
+    reflection_input.default_value = (0.0, 0.0, 0.0, 0.0)
+    indirect_tex = new_grp.inputs.new('NodeSocketColor', 'IndirectTex')
+    indirect_tex.default_value = (0.0, 0.0, 0.0, 0.0)
+    alpha_input = new_grp.inputs.new('NodeSocketFloatFactor', 'Alpha')
+    alpha_input.default_value = 1.0
+    alpha_input.min_value = 0.0
+    alpha_input.max_value = 1.0
+    dynamic_input = new_grp.inputs.new('NodeSocketColor', 'DynamicTest')
+    dynamic_input.default_value = (1.0, 1.0, 1.0, 1.0)
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (-1460, 27)
+
+    # Multiply (Emissive dynamic)
+    emissive_dynamic = new_grp.nodes.new('ShaderNodeMixRGB')
+    emissive_dynamic.location = (-1174, -32)
+    emissive_dynamic.blend_type = 'MULTIPLY'
+    emissive_dynamic.inputs['Fac'].default_value = 1.0
+
+    # New shader model
+    new_shader_model = new_grp.nodes.new('ShaderNodeValue')
+    new_shader_model.name = 'NewShaderModel'
+    new_shader_model.label = 'NewShaderModel'
+    new_shader_model.location = (-1460, 118)
+    new_shader_model.outputs[0].default_value = 0.0
+
+    # Principled BSDF (For new shader model)
+    principled_bsdf = new_grp.nodes.new('ShaderNodeBsdfPrincipled')
+    principled_bsdf.location = (-1038, 874)
+    principled_bsdf.inputs['Metallic'].default_value = 0.5
+
+    # Invert (for roughness)
+    invert = new_grp.nodes.new('ShaderNodeInvert')
+    invert.location = (-1256, 492)
+    invert.inputs[0].default_value = 1.0
+
+    # Gamma (for roughness)
+    gamma = new_grp.nodes.new('ShaderNodeGamma')
+    gamma.location = (-1256, 640)
+    gamma.inputs[1].default_value = 10.0
+
+    # Diffuse BSDF (Multiplies dynamic lighting with diffuse)
+    diffuse_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    diffuse_bdsf.location = (-945, 293)
+
+    # Mix shader (interpolates Principled and Diffuse BSDF)
+    new_shader_model_mix1 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix1.location = (-760, 340)
+
+    # Multiply (Multiplies static lightmap with diffuse)
+    lightmap_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    lightmap_mult.location = (-944, 122)
+    lightmap_mult.blend_type = 'MULTIPLY'
+    lightmap_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies specular with reflection)
+    specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    specular_mult.location = (-940, -105)
+    specular_mult.blend_type = 'MULTIPLY'
+    specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Multiply (Multiplies extended specular with reflection)
+    extended_specular_mult = new_grp.nodes.new('ShaderNodeMixRGB')
+    extended_specular_mult.location = (-941, -304)
+    extended_specular_mult.blend_type = 'MULTIPLY'
+    extended_specular_mult.inputs['Fac'].default_value = 1.0
+
+    # Add Shader (Adds dynamic diffuse with static diffuse)
+    diffuse_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    diffuse_add_shader.location = (-587, 209)
+
+    # Mix shader (interpolates resolved reflection with nothing)
+    new_shader_model_mix2 = new_grp.nodes.new('ShaderNodeMixShader')
+    new_shader_model_mix2.location = (-512, -38)
+
+    # Add Shader (Adds emissive with resolved reflection)
+    emissive_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    emissive_add_shader.location = (-320, 8)
+
+    # Add Shader (Adds specular and extended specular reflections)
+    specular_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    specular_add_shader.location = (-734, -81)
+
+    # Diffuse BDSF (Multiplies extended specular with dynamic lighting)
+    extended_specular_bdsf = new_grp.nodes.new('ShaderNodeBsdfDiffuse')
+    extended_specular_bdsf.location = (-738, -280)
+
+    # Add shader (Adds diffuse with all emissive sources)
+    final_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    final_add_shader.location = (-184, 234)
+
+    # Transparent BDSF (Provides alpha)
+    transparent_bdsf = new_grp.nodes.new('ShaderNodeBsdfTransparent')
+    transparent_bdsf.location = (-224, -160)
+    transparent_bdsf.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+
+    # Mix Shader (Applies alpha proportion)
+    alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
+    alpha_mix.location = (-40, -112)
+
+    # Material Output (Final output)
+    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out.location = (150, -88)
+
+    # Links
+    new_grp.links.new(grp_in.outputs['Emissive'], emissive_dynamic.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['DynamicTest'], emissive_dynamic.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Lightmap'], lightmap_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], lightmap_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], diffuse_bdsf.inputs['Color'])
+    new_grp.links.new(grp_in.outputs['Diffuse'], principled_bsdf.inputs['Base Color'])
+    new_grp.links.new(emissive_dynamic.outputs['Color'], emissive_add_shader.inputs[0])
+    new_grp.links.new(grp_in.outputs['Specular'], specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Specular'], principled_bsdf.inputs['Specular'])
+    new_grp.links.new(grp_in.outputs['ExtendedSpecular'], extended_specular_mult.inputs['Color1'])
+    new_grp.links.new(grp_in.outputs['Reflection'], specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Reflection'], extended_specular_mult.inputs['Color2'])
+    new_grp.links.new(grp_in.outputs['Alpha'], alpha_mix.inputs['Fac'])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix1.inputs[0])
+    new_grp.links.new(diffuse_bdsf.outputs['BSDF'], new_shader_model_mix1.inputs[1])
+    new_grp.links.new(grp_in.outputs['Specular'], invert.inputs['Color'])
+    new_grp.links.new(invert.outputs['Color'], gamma.inputs['Color'])
+    new_grp.links.new(gamma.outputs['Color'], principled_bsdf.inputs['Roughness'])
+    new_grp.links.new(principled_bsdf.outputs['BSDF'], new_shader_model_mix1.inputs[2])
+    new_grp.links.new(new_shader_model_mix1.outputs['Shader'], diffuse_add_shader.inputs[0])
+    new_grp.links.new(lightmap_mult.outputs['Color'], diffuse_add_shader.inputs[1])
+    new_grp.links.new(specular_mult.outputs['Color'], specular_add_shader.inputs[0])
+    new_grp.links.new(extended_specular_mult.outputs['Color'], extended_specular_bdsf.inputs['Color'])
+    new_grp.links.new(extended_specular_bdsf.outputs['BSDF'], specular_add_shader.inputs[1])
+    new_grp.links.new(new_shader_model.outputs['Value'], new_shader_model_mix2.inputs[0])
+    new_grp.links.new(specular_add_shader.outputs['Shader'], new_shader_model_mix2.inputs[1])
+    new_grp.links.new(new_shader_model_mix2.outputs['Shader'], emissive_add_shader.inputs[1])
+    new_grp.links.new(diffuse_add_shader.outputs['Shader'], final_add_shader.inputs[0])
+    new_grp.links.new(emissive_add_shader.outputs['Shader'], final_add_shader.inputs[1])
+    new_grp.links.new(transparent_bdsf.outputs['BSDF'], alpha_mix.inputs[1])
+    new_grp.links.new(final_add_shader.outputs['Shader'], alpha_mix.inputs[2])
+    new_grp.links.new(alpha_mix.outputs['Shader'], mat_out.inputs['Surface'])
+
+ROOT_SHADER_GROUPS = (
+    make_retro_shader,
+    make_retro_dynamic_shader,
+    make_retro_dynamic_alpha_shader,
+    make_retro_dynamic_character_shader
+)
+
 # UV animation nodes:
 # http://www.metroid2002.com/retromodding/wiki/Materials_(Metroid_Prime)#UV_Animations
 
@@ -18,17 +673,28 @@ def make_uva0():
     
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
-    grp_out.location = (500, 0)
-    
-    # UV vertical-flip (to match GameCube's UV-coordinate space)
-    v_flip = new_grp.nodes.new('ShaderNodeMapping')
-    v_flip.location = (100, 0)
-    v_flip.vector_type = 'TEXTURE'
-    v_flip.scale[1] = -1.0
+    grp_out.location = (1000, 0)
+
+    # Vector Transform to bring world space into camera space
+    vec_xf = new_grp.nodes.new('ShaderNodeVectorTransform')
+    vec_xf.location = (100, 0)
+    vec_xf.vector_type = 'NORMAL'
+    vec_xf.convert_from = 'WORLD'
+    vec_xf.convert_to = 'CAMERA'
+
+    # UV scale (to match GameCube's UV-coordinate space)
+    uv_scale = new_grp.nodes.new('ShaderNodeMapping')
+    uv_scale.location = (400, -400)
+    uv_scale.vector_type = 'TEXTURE'
+    uv_scale.scale[0] = 2.0
+    uv_scale.scale[1] = 2.0
+    uv_scale.translation[0] = 1.0
+    uv_scale.translation[1] = 1.0
     
     # Links
-    new_grp.links.new(grp_in.outputs[0], v_flip.inputs[0])
-    new_grp.links.new(v_flip.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[0], vec_xf.inputs[0])
+    new_grp.links.new(vec_xf.outputs[0], uv_scale.inputs[0])
+    new_grp.links.new(uv_scale.outputs[0], grp_out.inputs[0])
 
 # 1 - Modelview Inverse
 def make_uva1():
@@ -36,42 +702,17 @@ def make_uva1():
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-300, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (500, 0)
     
-    # Geometry input
-    geom_in = new_grp.nodes.new('ShaderNodeGeometry')
-    geom_in.location = (-700, 0)
-    
-    # View flip
-    view_flip = new_grp.nodes.new('ShaderNodeMapping')
-    view_flip.location = (-500, -100)
-    view_flip.vector_type = 'TEXTURE'
-    view_flip.scale = (-1.0, -1.0, 1.0)
-
-    # Normal/translation add
-    adder = new_grp.nodes.new('ShaderNodeVectorMath')
-    adder.location = (-100, 0)
-    adder.operation = 'ADD'
-    
-    # UV vertical-flip (to match GameCube's UV-coordinate space)
-    v_flip = new_grp.nodes.new('ShaderNodeMapping')
-    v_flip.location = (100, 0)
-    v_flip.vector_type = 'TEXTURE'
-    v_flip.scale[1] = -1.0
-    
     # Links
-    new_grp.links.new(grp_in.outputs[0], adder.inputs[0])
-    new_grp.links.new(geom_in.outputs['View'], view_flip.inputs[0])
-    new_grp.links.new(view_flip.outputs[0], adder.inputs[1])
-    new_grp.links.new(adder.outputs[0], v_flip.inputs[0])
-    new_grp.links.new(v_flip.outputs[0], grp_out.inputs[0])
+    new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
 
 # 2 - UV Scroll
 def make_uva2():
@@ -84,11 +725,18 @@ def make_uva2():
     
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
-    grp_in.location = (-100, 0)
+    grp_in.location = (-457, 22)
     
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (500, 0)
+
+    # Mapping
+    mapping = new_grp.nodes.new('ShaderNodeMapping')
+    mapping.location = (-235, 125)
+    drvs = mapping.driver_add('scale')
+    for drv in drvs:
+        drv.driver.expression = 'frame/60'
     
     # Adder1
     adder1 = new_grp.nodes.new('ShaderNodeVectorMath')
@@ -103,7 +751,8 @@ def make_uva2():
     # Links
     new_grp.links.new(grp_in.outputs[0], adder2.inputs[0])
     new_grp.links.new(grp_in.outputs[1], adder1.inputs[0])
-    new_grp.links.new(grp_in.outputs[2], adder1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], mapping.inputs[0])
+    new_grp.links.new(mapping.outputs[0], adder1.inputs[1])
     new_grp.links.new(adder1.outputs[0], adder2.inputs[1])
     new_grp.links.new(adder2.outputs[0], grp_out.inputs[0])
 
@@ -128,11 +777,19 @@ def make_uva3():
     add1 = new_grp.nodes.new('ShaderNodeMath')
     add1.operation = 'ADD'
     add1.location = (500, 0)
+
+    # Multiply
+    mult = new_grp.nodes.new('ShaderNodeMath')
+    mult.operation = 'MULTIPLY'
+    mult.location = (230, -112)
+    drv = mult.inputs[1].driver_add('default_value')
+    drv.driver.expression = 'frame/60'
     
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
     new_grp.links.new(grp_in.outputs[1], add1.inputs[0])
-    new_grp.links.new(grp_in.outputs[2], add1.inputs[1])
+    new_grp.links.new(grp_in.outputs[2], mult.inputs[0])
+    new_grp.links.new(mult.outputs[0], add1.inputs[1])
 
 # 4 - Horizontal Filmstrip Animation
 def make_uva4():
@@ -166,7 +823,7 @@ def make_uva4():
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
-    mod1.inputs[1].default_value = 900.0
+    mod1.inputs[1].default_value = 1.0
     mod1.location = (-400, 0)
     
     # Multiply3
@@ -188,6 +845,19 @@ def make_uva4():
     add1 = new_grp.nodes.new('ShaderNodeVectorMath')
     add1.operation = 'ADD'
     add1.location = (600, 0)
+
+    # Timing Add
+    time_add = new_grp.nodes.new('ShaderNodeMath')
+    time_add.operation = 'ADD'
+    time_add.location = (-802, -180)
+    drv = time_add.inputs[1].driver_add('default_value')
+    drv.driver.expression = 'frame/60'
+
+    # Floor
+    floor = new_grp.nodes.new('ShaderNodeMath')
+    floor.operation = 'FLOOR'
+    floor.location = (-204, -180)
+    floor.inputs[1].default_value = 0.0
     
     # Links
     new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
@@ -195,11 +865,13 @@ def make_uva4():
     new_grp.links.new(grp_in.outputs[2], mult3.inputs[1])
     new_grp.links.new(grp_in.outputs[3], mult4.inputs[1])
     new_grp.links.new(grp_in.outputs[3], mult1.inputs[0])
-    new_grp.links.new(grp_in.outputs[4], mult2.inputs[1])
+    new_grp.links.new(grp_in.outputs[4], time_add.inputs[0])
+    new_grp.links.new(time_add.outputs[0], mult2.inputs[1])
     new_grp.links.new(mult1.outputs[0], mult2.inputs[0])
     new_grp.links.new(mult2.outputs[0], mod1.inputs[0])
     new_grp.links.new(mod1.outputs[0], mult3.inputs[0])
-    new_grp.links.new(mult3.outputs[0], mult4.inputs[0])
+    new_grp.links.new(mult3.outputs[0], floor.inputs[0])
+    new_grp.links.new(floor.outputs[0], mult4.inputs[0])
     new_grp.links.new(mult4.outputs[0], map1.inputs[0])
     new_grp.links.new(map1.outputs[0], add1.inputs[0])
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
@@ -236,7 +908,7 @@ def make_uva5():
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
-    mod1.inputs[1].default_value = 900.0
+    mod1.inputs[1].default_value = 1.0
     mod1.location = (-400, 0)
     
     # Multiply3
@@ -258,6 +930,19 @@ def make_uva5():
     add1 = new_grp.nodes.new('ShaderNodeVectorMath')
     add1.operation = 'ADD'
     add1.location = (600, 0)
+
+    # Timing Add
+    time_add = new_grp.nodes.new('ShaderNodeMath')
+    time_add.operation = 'ADD'
+    time_add.location = (-802, -180)
+    drv = time_add.inputs[1].driver_add('default_value')
+    drv.driver.expression = 'frame/60'
+
+    # Floor
+    floor = new_grp.nodes.new('ShaderNodeMath')
+    floor.operation = 'FLOOR'
+    floor.location = (-204, -180)
+    floor.inputs[1].default_value = 0.0
     
     # Links
     new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
@@ -265,11 +950,13 @@ def make_uva5():
     new_grp.links.new(grp_in.outputs[2], mult3.inputs[1])
     new_grp.links.new(grp_in.outputs[3], mult4.inputs[1])
     new_grp.links.new(grp_in.outputs[3], mult1.inputs[0])
-    new_grp.links.new(grp_in.outputs[4], mult2.inputs[1])
+    new_grp.links.new(grp_in.outputs[4], time_add.inputs[0])
+    new_grp.links.new(time_add.outputs[0], mult2.inputs[1])
     new_grp.links.new(mult1.outputs[0], mult2.inputs[0])
     new_grp.links.new(mult2.outputs[0], mod1.inputs[0])
     new_grp.links.new(mod1.outputs[0], mult3.inputs[0])
-    new_grp.links.new(mult3.outputs[0], mult4.inputs[0])
+    new_grp.links.new(mult3.outputs[0], floor.inputs[0])
+    new_grp.links.new(floor.outputs[0], mult4.inputs[0])
     new_grp.links.new(mult4.outputs[0], map1.inputs[0])
     new_grp.links.new(map1.outputs[0], add1.inputs[0])
     new_grp.links.new(add1.outputs[0], grp_out.inputs[0])
@@ -290,7 +977,7 @@ def make_uva6():
     grp_out.location = (300, 0)
     
     # Geometry input
-    geom_in = new_grp.nodes.new('ShaderNodeGeometry')
+    geom_in = new_grp.nodes.new('ShaderNodeTexCoord')
     geom_in.location = (-300, 0)
     
     # Adder1
@@ -300,7 +987,7 @@ def make_uva6():
     
     # Links
     new_grp.links.new(grp_in.outputs[0], adder1.inputs[0])
-    new_grp.links.new(geom_in.outputs['Global'], adder1.inputs[1])
+    new_grp.links.new(geom_in.outputs['Object'], adder1.inputs[1])
     new_grp.links.new(adder1.outputs[0], grp_out.inputs[0])
 
 # 7 - Mode Who Must Not Be Named
@@ -321,7 +1008,7 @@ def make_uva7():
     grp_out.location = (0, 0)
     
     # Geometry input
-    geom_in = new_grp.nodes.new('ShaderNodeGeometry')
+    geom_in = new_grp.nodes.new('ShaderNodeTexCoord')
     geom_in.location = (-1000, 0)
     
     # View flip
@@ -382,7 +1069,7 @@ def make_uva7():
     
     # Links
     new_grp.links.new(grp_in.outputs[0], add2.inputs[0])
-    new_grp.links.new(geom_in.outputs['View'], view_flip.inputs[0])
+    new_grp.links.new(geom_in.outputs['Window'], view_flip.inputs[0])
     new_grp.links.new(view_flip.outputs[0], sep1.inputs[0])
     new_grp.links.new(grp_in.outputs[1], comb2.inputs[0])
     new_grp.links.new(grp_in.outputs[1], comb2.inputs[1])
@@ -850,6 +1537,8 @@ MP3_PASS_GROUPS = (
 )
 
 def make_master_shader_library():
+    for shad in ROOT_SHADER_GROUPS:
+        shad()
     for uva in UV_ANIMATION_GROUPS:
         uva()
     for aPass in MP3_PASS_GROUPS:

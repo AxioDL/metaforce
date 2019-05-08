@@ -67,11 +67,12 @@ bool CMDL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       writer.writeString(boneName);
 
     writer.writeUint32Big(skinMesh.skins.size());
-    for (const std::vector<DNACMDL::Mesh::SkinBind> skin : skinMesh.skins) {
-      writer.writeUint32Big(skin.size());
-      for (const DNACMDL::Mesh::SkinBind& bind : skin) {
-        writer.writeUint32Big(bind.boneIdx);
-        writer.writeFloatBig(bind.weight);
+    for (const auto& skin : skinMesh.skins) {
+      size_t numBinds = skinMesh.countSkinBinds(skin);
+      writer.writeUint32Big(numBinds);
+      for (size_t i = 0; i < numBinds; ++i) {
+        writer.writeUint32Big(skin[i].vg_idx);
+        writer.writeFloatBig(skin[i].weight);
       }
       writer.writeUint32Big(*vertCountIt++);
     }
@@ -103,10 +104,11 @@ bool CMDL::HMDLCook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
     /* CVirtualBone structure just like original (for CPU skinning) */
     writer.writeUint32Big(mesh.skins.size());
     for (auto& s : mesh.skins) {
-      writer.writeUint32Big(s.size());
-      for (auto& b : s) {
-        writer.writeUint32Big(b.boneIdx);
-        writer.writeFloatBig(b.weight);
+      size_t numBinds = mesh.countSkinBinds(s);
+      writer.writeUint32Big(numBinds);
+      for (size_t i = 0; i < numBinds; ++i) {
+        writer.writeUint32Big(s[i].vg_idx);
+        writer.writeFloatBig(s[i].weight);
       }
     }
 

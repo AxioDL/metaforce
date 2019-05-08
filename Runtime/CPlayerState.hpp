@@ -160,7 +160,7 @@ public:
   static float GetBaseHealthCapacity() { return 99.f; }
   float CalculateHealth();
   void ReInitalizePowerUp(EItemType type, u32 capacity);
-  void InitializePowerUp(EItemType type, u32 capacity);
+  void AddPowerUp(EItemType type, u32 capacity);
   u32 GetLogScans() const { return x180_scanCompletionRate.first; }
   u32 GetTotalLogScans() const { return x180_scanCompletionRate.second; }
   void SetScanCompletionRate(const std::pair<u32, u32>& p) { x180_scanCompletionRate = p; }

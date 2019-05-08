@@ -80,15 +80,12 @@ void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os, const Material
     hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
     hecl::SystemUTF8Conv resPathView(resPath);
     os.format(
-        "if '%s' in bpy.data.textures:\n"
+        "if '%s' in bpy.data.images:\n"
         "    image = bpy.data.images['%s']\n"
-        "    texture = bpy.data.textures[image.name]\n"
         "else:\n"
         "    image = bpy.data.images.load('''//%s''')\n"
         "    image.name = '%s'\n"
-        "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
-        "    texture.image = image\n"
-        "texmap_list.append(texture)\n"
+        "texmap_list.append(image)\n"
         "\n",
         texName.c_str(), texName.c_str(), resPathView.c_str(), texName.c_str());
   }
@@ -375,19 +372,13 @@ public:
   }
 };
 
-void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectPath& masterShaderPath,
-                            bool solidShading) {
+void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectPath& masterShaderPath) {
   os << "import math\n"
         "from mathutils import Vector\n"
         "\n"
-        "# Using 'Blender Game'\n"
-        "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-        "\n"
         "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'LAMP' and ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
         "\n"
         "def loop_from_facevert(bm, face, vert_idx):\n"
         "    for loop in face.loops:\n"
@@ -422,7 +413,7 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
         "        if od_entry is None:\n"
         "            bm_cpy = bm.copy()\n"
         "            od_entry = {'material':mat_nr, 'bm':bm_cpy}\n"
-        "            bmesh.ops.delete(od_entry['bm'], geom=od_entry['bm'].faces, context=3)\n"
+        "            bmesh.ops.delete(od_entry['bm'], geom=od_entry['bm'].faces, context='FACES_ONLY')\n"
         "            od_list.append(od_entry)\n"
         "        od_entry['bm'].verts.ensure_lookup_table()\n"
         "        verts = [od_entry['bm'].verts[i] for i in vert_indices]\n"
@@ -469,13 +460,6 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
         "    return result\n"
         "\n";
 
-  if (solidShading) {
-    os << "for ar in bpy.context.screen.areas:\n"
-          "    for sp in ar.spaces:\n"
-          "        if sp.type == 'VIEW_3D':\n"
-          "            sp.viewport_shade = 'SOLID'\n";
-  }
-
   /* Link master shader library */
   os.format(
       "# Master shader library\n"
@@ -486,26 +470,27 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
 }
 
 void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int meshIdx) {
-  if (meshIdx < 0)
-    os.format(
-        "mesh = bpy.data.meshes.new(bpy.context.scene.name)\n"
-        "obj = bpy.data.objects.new(mesh.name, mesh)\n"
-        "obj.show_transparent = True\n"
-        "bpy.context.scene.objects.link(obj)\n"
-        "mesh.hecl_material_count = %u\n",
-        matSetCount);
-  else
-    os.format(
-        "mesh = bpy.data.meshes.new(bpy.context.scene.name + '_%03d')\n"
-        "obj = bpy.data.objects.new(mesh.name, mesh)\n"
-        "obj.show_transparent = True\n"
-        "bpy.context.scene.objects.link(obj)\n"
-        "mesh.hecl_material_count = %u\n",
-        meshIdx, matSetCount);
+  os << "if 'Render' not in bpy.data.collections:\n"
+        "    coll = bpy.data.collections.new('Render')\n"
+        "    bpy.context.scene.collection.children.link(coll)\n"
+        "else:\n"
+        "    coll = bpy.data.collections['Render']\n";
+  if (meshIdx < 0) {
+    os << "mesh = bpy.data.meshes.new(bpy.context.scene.name)\n"
+          "obj = bpy.data.objects.new(mesh.name, mesh)\n"
+          "obj.show_transparent = True\n"
+          "coll.objects.link(obj)\n";
+    os.format("mesh.hecl_material_count = %u\n", matSetCount);
+  } else {
+    os.format("mesh = bpy.data.meshes.new(bpy.context.scene.name + '_%03d')\n", meshIdx);
+    os << "obj = bpy.data.objects.new(mesh.name, mesh)\n"
+          "obj.show_transparent = True\n"
+          "coll.objects.link(obj)\n";
+    os.format("mesh.hecl_material_count = %u\n", matSetCount);
+  }
 
   os << "mesh.use_auto_smooth = True\n"
         "mesh.auto_smooth_angle = math.pi\n"
-        "mesh.show_edge_sharp = True\n"
         "\n"
         "for material in materials:\n"
         "    mesh.materials.append(material)\n"
@@ -549,7 +534,7 @@ void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int
         "for v in bm.verts:\n"
         "    if len(v.link_faces) == 0:\n"
         "        verts_to_del.append(v)\n"
-        "bmesh.ops.delete(bm, geom=verts_to_del, context=1)\n"
+        "bmesh.ops.delete(bm, geom=verts_to_del, context='VERTS')\n"
         "\n"
         "for edge in bm.edges:\n"
         "    if edge.is_manifold:\n"
@@ -1037,7 +1022,7 @@ bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReade
       "bpy.context.scene.name = '%s'\n"
       "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n",
       pakRouter.getBestEntryName(entry).c_str());
-  InitGeomBlenderContext(os, dataspec.getMasterShaderPath(), false);
+  InitGeomBlenderContext(os, dataspec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
 
   os << "# Materials\n"
@@ -1142,9 +1127,9 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
   /* Build material sets */
   std::vector<MaterialSet> matSets;
+#if 0
   matSets.reserve(mesh.materialSets.size());
   {
-    hecl::Frontend::Frontend FE;
     for (const std::vector<Material>& mset : mesh.materialSets) {
       matSets.emplace_back();
       MaterialSet& targetMSet = matSets.back();
@@ -1191,6 +1176,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
       paddingSizes.push_back(secSz32 - secSz);
     }
   }
+#endif
 
   /* Vertex Positions */
   size_t secSz = mesh.pos.size() * 12;
@@ -1435,44 +1421,24 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
   /* Build material sets */
   std::vector<MaterialSet> matSets;
   matSets.reserve(mesh.materialSets.size());
-  {
-    hecl::Frontend::Frontend FE;
-    for (const std::vector<Material>& mset : mesh.materialSets) {
-      matSets.emplace_back();
-      MaterialSet& targetMSet = matSets.back();
-      std::vector<hecl::ProjectPath> texPaths;
-      texPaths.reserve(mset.size() * 4);
-      for (const Material& mat : mset) {
-        for (const hecl::ProjectPath& path : mat.texs) {
-          bool found = false;
-          for (const hecl::ProjectPath& ePath : texPaths) {
-            if (path == ePath) {
-              found = true;
-              break;
-            }
-          }
-          if (!found)
-            texPaths.push_back(path);
-        }
-      }
 
-      size_t endOff = 0;
-      for (const Material& mat : mset) {
-        std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
-        targetMSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
-        targetMSet.materials.back().binarySize(endOff);
-        targetMSet.head.addMaterialEndOff(endOff);
-      }
+  for (const std::vector<Material>& mset : mesh.materialSets) {
+    matSets.emplace_back();
+    MaterialSet& targetMSet = matSets.back();
 
-      for (const hecl::ProjectPath& path : texPaths)
-        targetMSet.head.addTexture(path);
-
-      size_t secSz = 0;
-      targetMSet.binarySize(secSz);
-      size_t secSz32 = ROUND_UP_32(secSz);
-      head.secSizes.push_back(secSz32);
-      paddingSizes.push_back(secSz32 - secSz);
+    size_t endOff = 0;
+    for (const Material& mat : mset) {
+      ++targetMSet.materialCount;
+      targetMSet.materials.emplace_back(mat);
+      targetMSet.materials.back().binarySize(endOff);
+      targetMSet.materialEndOffs.push_back(endOff);
     }
+
+    size_t secSz = 0;
+    targetMSet.binarySize(secSz);
+    size_t secSz32 = ROUND_UP_32(secSz);
+    head.secSizes.push_back(secSz32);
+    paddingSizes.push_back(secSz32 - secSz);
   }
 
   hecl::blender::HMDLBuffers bufs = mesh.getHMDLBuffers(false, poolSkinIndex);
@@ -1614,10 +1580,8 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
       surfCount += mesh.surfaces.size();
     surfToGlobalMats.reserve(surfCount);
 
-    hecl::Frontend::Frontend FE;
     size_t endOff = 0;
     std::vector<hecl::ProjectPath> texPaths;
-    std::vector<hecl::Backend::GX> setBackends;
     for (const Mesh& mesh : meshes) {
       if (mesh.materialSets.size()) {
         std::vector<size_t> meshToGlobalMats;
@@ -1630,28 +1594,24 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
           if (!newMat)
             continue;
 
-          for (const hecl::ProjectPath& path : mat.texs) {
-            bool found = false;
-            for (const hecl::ProjectPath& ePath : texPaths) {
-              if (path == ePath) {
-                found = true;
-                break;
+          for (const auto& chunk : mat.chunks) {
+            if (auto pass = chunk.get_if<Material::PASS>()) {
+              bool found = false;
+              for (const hecl::ProjectPath& ePath : texPaths) {
+                if (pass->tex == ePath) {
+                  found = true;
+                  break;
+                }
               }
+              if (!found)
+                texPaths.push_back(pass->tex);
             }
-            if (!found)
-              texPaths.push_back(path);
           }
-
-          std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
-          hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
-          setBackends.emplace_back();
-          hecl::Backend::GX& matGX = setBackends.back();
-          matGX.reset(matIR, FE.getDiagnostics());
 
           auto lightmapped = mat.iprops.find("retro_lightmapped");
           bool lm = lightmapped != mat.iprops.cend() && lightmapped->second != 0;
 
-          matSet.materials.emplace_back(matGX, mat.iprops, mat.texs, texPaths, mesh.colorLayerCount, lm, false);
+          matSet.materials.emplace_back(mat, texPaths, mesh.colorLayerCount, lm, false);
 
           matSet.materials.back().binarySize(endOff);
           matSet.head.addMaterialEndOff(endOff);
@@ -1917,10 +1877,8 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
       surfCount += mesh.surfaces.size();
     surfToGlobalMats.reserve(surfCount);
 
-    MaterialSet matSet;
-    hecl::Frontend::Frontend FE;
+    MaterialSet matSet = {};
     size_t endOff = 0;
-    std::vector<hecl::ProjectPath> texPaths;
     for (const Mesh& mesh : meshes) {
       if (mesh.materialSets.size()) {
         std::vector<size_t> meshToGlobalMats;
@@ -1933,30 +1891,16 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
           if (!newMat)
             continue;
 
-          for (const hecl::ProjectPath& path : mat.texs) {
-            bool found = false;
-            for (const hecl::ProjectPath& ePath : texPaths) {
-              if (path == ePath) {
-                found = true;
-                break;
-              }
-            }
-            if (!found)
-              texPaths.push_back(path);
-          }
-
-          std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
-          matSet.materials.emplace_back(FE, diagName, mat, mat.iprops, texPaths);
+          ++matSet.materialCount;
+          matSet.materials.emplace_back(mat);
           matSet.materials.back().binarySize(endOff);
-          matSet.head.addMaterialEndOff(endOff);
+          matSet.materialEndOffs.push_back(endOff);
         }
 
         for (const Mesh::Surface& surf : mesh.surfaces)
           surfToGlobalMats.push_back(meshToGlobalMats[surf.materialIdx]);
       }
     }
-    for (const hecl::ProjectPath& path : texPaths)
-      matSet.head.addTexture(path);
 
     size_t secSz = 0;
     matSet.binarySize(secSz);

@@ -14,10 +14,10 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, int idx, const zeus
   const zeus::CVector3f extent = aabb.extents();
   os.format(
     "obj = bpy.data.objects.new('Leaf_%d', None)\n"
-    "bpy.context.scene.objects.link(obj)\n"
+    "bpy.context.scene.collection.objects.link(obj)\n"
     "obj.location = (%f,%f,%f)\n"
     "obj.scale = (%f,%f,%f)\n"
-    "obj.empty_draw_type = 'CUBE'\n"
+    "obj.empty_display_type = 'CUBE'\n"
     "obj.layers[1] = True\n"
     "obj.layers[0] = False\n", idx,
     pos.x(), pos.y(), pos.z(), extent.x(), extent.y(), extent.z());
@@ -39,15 +39,15 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
       "material_index = []\n"
       "def make_ground_material(idxMask):\n"
       "    mat = bpy.data.materials.new('Ground %%X' %% idxMask)\n"
-      "    mat.diffuse_color = (0.8, 0.460, 0.194)\n"
+      "    mat.diffuse_color = (0.8, 0.460, 0.194, 1.0)\n"
       "    return mat\n"
       "def make_flyer_material(idxMask):\n"
       "    mat = bpy.data.materials.new('Flyer %%X' %% idxMask)\n"
-      "    mat.diffuse_color = (0.016, 0.8, 0.8)\n"
+      "    mat.diffuse_color = (0.016, 0.8, 0.8, 1.0)\n"
       "    return mat\n"
       "def make_swimmer_material(idxMask):\n"
       "    mat = bpy.data.materials.new('Swimmer %%X' %% idxMask)\n"
-      "    mat.diffuse_color = (0.074, 0.293, 0.8)\n"
+      "    mat.diffuse_color = (0.074, 0.293, 0.8, 1.0)\n"
       "    return mat\n"
       "def select_material(meshIdxMask, meshTypeMask):\n"
       "    key = (meshIdxMask, meshTypeMask)\n"
@@ -71,10 +71,8 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
       "\n"
       "bpy.context.scene.name = '%s'\n"
       "# Clear Scene\n"
-      "for ob in bpy.data.objects:\n"
-      "    if ob.type != 'CAMERA':\n"
-      "        bpy.context.scene.objects.unlink(ob)\n"
-      "        bpy.data.objects.remove(ob)\n"
+      "if 'Collection 1' in bpy.data.collections:\n"
+      "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
       "\n"
       "bm = bmesh.new()\n"
       "height_lay = bm.faces.layers.float.new('Height')\n",
@@ -109,11 +107,11 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
         os.format("aabb = bpy.data.objects.new('AABB', None)\n"
                   "aabb.location = (%f,%f,%f)\n"
                   "aabb.scale = (%f,%f,%f)\n"
-                  "aabb.empty_draw_type = 'CUBE'\n"
-                  "bpy.context.scene.objects.link(aabb)\n"
+                  "aabb.empty_display_type = 'CUBE'\n"
+                  "bpy.context.scene.collection.objects.link(aabb)\n"
                   "centr = bpy.data.objects.new('Center', None)\n"
                   "centr.location = (%f,%f,%f)\n"
-                  "bpy.context.scene.objects.link(centr)\n",
+                  "bpy.context.scene.collection.objects.link(centr)\n",
                   aabb.min[0] + (aabb.max[0] - aabb.min[0]) / 2.f,
                   aabb.min[1] + (aabb.max[1] - aabb.min[1]) / 2.f,
                   aabb.min[2] + (aabb.max[2] - aabb.min[2]) / 2.f,
@@ -143,16 +141,10 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
         "    mat = material_dict[mat_name]\n"
         "    path_mesh.materials.append(mat)\n"
         "\n"
-        "bpy.context.scene.objects.link(path_mesh_obj)\n"
-        "path_mesh_obj.draw_type = 'SOLID'\n"
-        "path_mesh_obj.game.physics_type = 'STATIC'\n"
-        "path_mesh_obj.layers[1] = True\n"
+        "bpy.context.scene.collection.objects.link(path_mesh_obj)\n"
+        "path_mesh_obj.display_type = 'SOLID'\n"
         "bpy.context.scene.hecl_path_obj = path_mesh_obj.name\n"
-        "\n"
-        "for ar in bpy.context.screen.areas:\n"
-        "    for sp in ar.spaces:\n"
-        "        if sp.type == 'VIEW_3D':\n"
-        "            sp.viewport_shade = 'SOLID'\n";
+        "\n";
 
   if (xf) {
     const zeus::CMatrix4f& w = *xf;

@@ -168,7 +168,7 @@ void Buckets::Init() {
 
 CBooRenderer::CAreaListItem::CAreaListItem(const std::vector<CMetroidModelInstance>* geom,
                                            const CAreaRenderOctTree* octTree,
-                                           std::vector<TCachedToken<CTexture>>&& textures,
+                                           std::unordered_map<CAssetId, TCachedToken<CTexture>>&& textures,
                                            std::vector<CBooModel*>&& models, int areaIdx, const SShader* shaderSet)
 : x0_geometry(geom)
 , x4_octTree(octTree)
@@ -593,6 +593,22 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
   m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
 }
 
+boo::ObjToken<boo::ITexture> CBooRenderer::GetColorTexture(const zeus::CColor& color) {
+  auto search = m_colorTextures.find(color);
+  if (search != m_colorTextures.end())
+    return search->second;
+  u8 pixel[4];
+  color.toRGBA8(pixel[0], pixel[1], pixel[2], pixel[3]);
+  boo::ObjToken<boo::ITexture> tex;
+  CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+    tex = ctx.newStaticTexture(1, 1, 1, boo::TextureFormat::RGBA8,
+                               boo::TextureClampMode::Repeat, pixel, 4).get();
+    return true;
+  } BooTrace);
+  m_colorTextures.insert(std::make_pair(color, tex));
+  return tex;
+}
+
 void CBooRenderer::LoadThermoPalette() {
   m_thermoPaletteTex = xc_store.GetObj("TXTR_ThermoPalette");
   CTexture* thermoTexObj = m_thermoPaletteTex.GetObj();
@@ -652,8 +668,7 @@ void CBooRenderer::AddWorldSurfaces(CBooModel& model) {
     zeus::CAABox aabb = surf->GetBounds();
     zeus::CVector3f pt = aabb.closestPointAlongVector(xb0_viewPlane.normal());
     Buckets::Insert(pt, aabb, EDrawableType::WorldSurface, surf, xb0_viewPlane,
-                    mat.heclIr.m_blendSrc == boo::BlendFactor::SrcAlpha &&
-                        mat.heclIr.m_blendDst == boo::BlendFactor::InvSrcAlpha);
+                    mat.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Alpha);
     surf = surf->m_next;
   }
 }
@@ -668,7 +683,7 @@ void CBooRenderer::AddStaticGeometry(const std::vector<CMetroidModelInstance>* g
                                      const CAreaRenderOctTree* octTree, int areaIdx, const SShader* shaderSet) {
   auto search = FindStaticGeometry(geometry);
   if (search == x1c_areaListItems.end()) {
-    std::vector<TCachedToken<CTexture>> textures;
+    std::unordered_map<CAssetId, TCachedToken<CTexture>> textures;
     std::vector<CBooModel*> models;
     if (geometry->size()) {
       (*geometry)[0].m_instance->MakeTexturesFromMats(textures, xc_store);

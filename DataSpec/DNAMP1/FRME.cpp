@@ -292,10 +292,8 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   os << "import bpy, math, bmesh\n"
         "from mathutils import Matrix, Quaternion\n"
         "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
         "\n"
         "def duplicateObject(copy_obj):\n"
         "    # Create new mesh\n"
@@ -307,16 +305,14 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "    ob_new.scale = copy_obj.scale\n"
         "    ob_new.location = copy_obj.location\n"
         "    # Link new object to the given scene and select it\n"
-        "    bpy.context.scene.objects.link(ob_new)\n"
+        "    bpy.context.scene.collection.objects.link(ob_new)\n"
         "    return ob_new\n";
 
   os.format(
       "bpy.context.scene.name = '%s'\n"
       "bpy.context.scene.render.resolution_x = 640\n"
       "bpy.context.scene.render.resolution_y = 480\n"
-      "bpy.context.scene.render.engine = 'CYCLES'\n"
       "bpy.context.scene.world.use_nodes = True\n"
-      "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
       "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
       "bg_node.inputs[1].default_value = 0.0\n",
       pakRouter.getBestEntryName(entry).c_str());
@@ -377,12 +373,11 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         default: {
           zeus::simd_floats colorF(w.header.color.simd);
           os.format(
-              "lamp = bpy.data.lamps.new(name='%s', type='POINT')\n"
+              "lamp = bpy.data.lights.new(name='%s', type='POINT')\n"
               "lamp.color = (%f, %f, %f)\n"
-              "lamp.falloff_type = 'INVERSE_COEFFICIENTS'\n"
-              "lamp.constant_coefficient = %f\n"
-              "lamp.linear_coefficient = %f\n"
-              "lamp.quadratic_coefficient = %f\n"
+              "lamp.hecl_falloff_constant = %f\n"
+              "lamp.hecl_falloff_linear = %f\n"
+              "lamp.hecl_falloff_quadratic = %f\n"
               "lamp.retro_light_angle_constant = %f\n"
               "lamp.retro_light_angle_linear = %f\n"
               "lamp.retro_light_angle_quadratic = %f\n"
@@ -396,7 +391,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
                 "lamp.spot_size = %f\n",
                 info->cutoff);
           else if (info->type == LITEInfo::ELightType::Directional)
-            os << "lamp.type = 'HEMI'\n";
+            os << "lamp.type = 'SUN'\n";
         }
         }
       }
@@ -433,14 +428,15 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
         os.format(
             "material = bpy.data.materials.new('%s')\n"
-            "material.specular_intensity = 0.0\n"
-            "tex_slot = material.texture_slots.add()\n"
-            "tex_slot.texture = bpy.data.textures.new('%s', 'IMAGE')\n"
-            "tex_slot.texture.image = image\n"
-            "material.active_texture = tex_slot.texture\n"
+            "material.use_nodes = True\n"
+            "new_nodetree = material.node_tree\n"
+            "for n in new_nodetree.nodes:\n"
+            "    new_nodetree.nodes.remove(n)\n"
+            "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
+            "tex_node.image = image\n"
             "bm = bmesh.new()\n"
             "verts = []\n",
-            w.header.name.c_str(), w.header.name.c_str());
+            w.header.name.c_str());
 
         for (int i = 0; i < info->quadCoordCount; ++i) {
           int ti;
@@ -511,12 +507,12 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       os << "print(obj.name)\n"
             "copy_obj = duplicateObject(obj)\n"
             "copy_obj.parent = frme_obj\n"
-            "copy_obj.hide = False\n";
+            "copy_obj.hide_set(False)\n";
     } else if (w.type == SBIG('CAMR')) {
       os << "bpy.context.scene.camera = frme_obj\n"
             "if 'Camera' in bpy.data.objects:\n"
             "    cam = bpy.data.objects['Camera']\n"
-            "    bpy.context.scene.objects.unlink(cam)\n"
+            "    #bpy.context.scene.objects.unlink(cam)\n"
             "    bpy.data.objects.remove(cam)\n";
     } else if (w.type == SBIG('PANE')) {
       using PANEInfo = Widget::PANEInfo;
@@ -611,9 +607,9 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "mtxd = mtx.decompose()\n"
         "frme_obj.rotation_mode = 'QUATERNION'\n"
         "frme_obj.location = mtxd[0]\n"
-        "frme_obj.rotation_quaternion = mtxd[1] * angle\n"
+        "frme_obj.rotation_quaternion = mtxd[1] @ angle\n"
         "frme_obj.scale = mtxd[2]\n"
-        "bpy.context.scene.objects.link(frme_obj)\n",
+        "bpy.context.scene.collection.objects.link(frme_obj)\n",
         xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], originF[0], xfMtxF[1][0], xfMtxF[1][1], xfMtxF[1][2], originF[1],
         xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], originF[2]);
   }

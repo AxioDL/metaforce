@@ -4,6 +4,7 @@
 #include "DataSpec/DNACommon/GX.hpp"
 #include "DataSpec/DNACommon/CMDL.hpp"
 #include "DNAMP1.hpp"
+#include "hecl/Blender/Connection.hpp"
 
 namespace DataSpec::DNAMP1 {
 
@@ -60,7 +61,7 @@ struct MaterialSet : BigDNA {
         flags |= atUint32(enabled) << 4;
       }
       bool alphaTest() const { return (flags & 0x20) != 0; }
-      void setPunchthroughAlpha(bool enabled) {
+      void setAlphaTest(bool enabled) {
         flags &= ~0x20;
         flags |= atUint32(enabled) << 5;
       }
@@ -468,8 +469,8 @@ struct MaterialSet : BigDNA {
     static void AddDynamicAlpha(hecl::blender::PyOutStream& out, unsigned idx);
 
     Material() = default;
-    Material(const hecl::Backend::GX& gx, const std::unordered_map<std::string, int32_t>& iprops,
-             const std::vector<hecl::ProjectPath>& texPathsIn, std::vector<hecl::ProjectPath>& texPathsOut,
+    Material(const hecl::blender::Material& material,
+             std::vector<hecl::ProjectPath>& texPathsOut,
              int colorCount, bool lightmapUVs, bool matrixSkinning);
   };
   Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
@@ -528,29 +529,114 @@ struct HMDLMaterialSet : BigDNA {
   static constexpr bool OneSection() { return false; }
 
   AT_DECL_DNA
-  MaterialSet::MaterialSetHead head;
+  Value<atUint32> materialCount = 0;
+  Vector<atUint32, AT_DNA_COUNT(materialCount)> materialEndOffs;
 
   struct Material : BigDNA {
     AT_DECL_DNA
     MaterialSet::Material::Flags flags;
 
-    Value<atUint32> textureCount = 0;
-    Vector<atUint32, AT_DNA_COUNT(textureCount)> textureIdxs;
+    using BlendMaterial = hecl::blender::Material;
 
-    Vector<atUint32, AT_DNA_COUNT(flags.samusReflectionIndirectTexture())> indTexSlot;
+    struct PASS : hecl::TypedRecordBigDNA<BlendMaterial::ChunkType::TexturePass> {
+      AT_DECL_EXPLICIT_DNA
+      Value<BlendMaterial::PassType> type;
+      UniqueID32 texId;
+      Value<BlendMaterial::TexCoordSource> source;
+      Value<BlendMaterial::UVAnimType> uvAnimType;
+      Value<float> uvAnimParms[9] = {};
+      Value<bool> alpha;
+      PASS() = default;
+      explicit PASS(const BlendMaterial::PASS& pass)
+      : type(pass.type), texId(pass.tex), source(pass.source), uvAnimType(pass.uvAnimType), alpha(pass.alpha) {
+        std::copy(pass.uvAnimParms.begin(), pass.uvAnimParms.end(), std::begin(uvAnimParms));
+      }
+      bool shouldNormalizeUv() const {
+        switch (uvAnimType) {
+        case BlendMaterial::UVAnimType::MvInvNoTranslation:
+        case BlendMaterial::UVAnimType::MvInv:
+        case BlendMaterial::UVAnimType::Model:
+        case BlendMaterial::UVAnimType::CylinderEnvironment:
+          return true;
+        default:
+          return false;
+        }
+      }
+      size_t uvAnimParamsCount() const {
+        switch (uvAnimType) {
+        default:
+          return 0;
+        case BlendMaterial::UVAnimType::Scroll:
+        case BlendMaterial::UVAnimType::HStrip:
+        case BlendMaterial::UVAnimType::VStrip:
+          return 4;
+        case BlendMaterial::UVAnimType::Rotation:
+        case BlendMaterial::UVAnimType::CylinderEnvironment:
+          return 2;
+        case BlendMaterial::UVAnimType::Eight:
+          return 9;
+        }
+      }
+    };
+    struct CLR : hecl::TypedRecordBigDNA<BlendMaterial::ChunkType::ColorPass> {
+      AT_DECL_DNA
+      Value<BlendMaterial::PassType> type;
+      Value<atVec4f> color;
+      CLR() = default;
+      explicit CLR(const BlendMaterial::CLR& clr) : type(clr.type), color(clr.color.val) {}
+    };
+    using Chunk = hecl::TypedVariantBigDNA<PASS, CLR>;
 
-    Value<atUint32> uvAnimsSize = 4;
-    Value<atUint32> uvAnimsCount = 0;
-    Vector<MaterialSet::Material::UVAnimation, AT_DNA_COUNT(uvAnimsCount)> uvAnims;
+    static unsigned TexMapIdx(BlendMaterial::PassType type) {
+      switch (type) {
+      case BlendMaterial::PassType::Lightmap:
+        return 0;
+      case BlendMaterial::PassType::Diffuse:
+        return 1;
+      case BlendMaterial::PassType::Emissive:
+        return 2;
+      case BlendMaterial::PassType::Specular:
+        return 3;
+      case BlendMaterial::PassType::ExtendedSpecular:
+        return 4;
+      case BlendMaterial::PassType::Reflection:
+        return 5;
+      case BlendMaterial::PassType::Alpha:
+        return 6;
+      case BlendMaterial::PassType::IndirectTex:
+        return 7;
+      default:
+        assert(false && "Unknown pass type");
+        return 0;
+      }
+    }
 
-    String<-1> heclSource;
-    hecl::Frontend::IR heclIr;
+    Value<atUint64> hash;
+    Value<BlendMaterial::ShaderType> shaderType;
+    Value<atUint32> chunkCount;
+    Vector<Chunk, AT_DNA_COUNT(chunkCount)> chunks;
+    Value<BlendMaterial::BlendMode> blendMode = BlendMaterial::BlendMode::Opaque;
+
+    std::pair<hecl::Backend::BlendFactor, hecl::Backend::BlendFactor>
+    blendFactors() const {
+      switch (blendMode) {
+      case BlendMaterial::BlendMode::Opaque:
+      default:
+        return {hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::Zero};
+      case BlendMaterial::BlendMode::Alpha:
+        return {hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha};
+      case BlendMaterial::BlendMode::Additive:
+        return {hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One};
+      }
+    }
 
     Material() = default;
-    Material(hecl::Frontend::Frontend& FE, const std::string& diagName, const hecl::blender::Material& mat,
-             const std::unordered_map<std::string, int32_t>& iprops, const std::vector<hecl::ProjectPath>& texPaths);
+    Material(const hecl::blender::Material& mat);
   };
-  Vector<Material, AT_DNA_COUNT(head.materialCount)> materials;
+  Vector<Material, AT_DNA_COUNT(materialCount)> materials;
 };
 
 } // namespace DataSpec::DNAMP1
+
+AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(DataSpec::DNAMP1::HMDLMaterialSet::Material::PASS,
+                                   DataSpec::DNAMP1::HMDLMaterialSet::Material::CLR)

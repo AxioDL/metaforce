@@ -14,7 +14,7 @@ CToken ProjectResourcePool::GetObj(std::string_view name) {
 
   hecl::ProjectPath path(*m_parent.project(), name);
   SObjectTag tag =
-      static_cast<ProjectResourceFactoryBase&>(x18_factory).TagFromPath(path, hecl::blender::SharedBlenderToken);
+      static_cast<ProjectResourceFactoryBase&>(x18_factory).TagFromPath(path);
   if (tag)
     return CSimplePool::GetObj(tag);
 
@@ -28,7 +28,7 @@ CToken ProjectResourcePool::GetObj(std::string_view name, const CVParamTransfer&
 
   hecl::ProjectPath path(*m_parent.project(), name);
   SObjectTag tag =
-      static_cast<ProjectResourceFactoryBase&>(x18_factory).TagFromPath(path, hecl::blender::SharedBlenderToken);
+      static_cast<ProjectResourceFactoryBase&>(x18_factory).TagFromPath(path);
   if (tag)
     return CSimplePool::GetObj(tag, pvxfer);
 

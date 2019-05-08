@@ -21,10 +21,8 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
         "from mathutils import Matrix\n"
         "\n"
         "# Clear Scene\n"
-        "bpy.context.scene.camera = None\n"
-        "for ob in bpy.data.objects:\n"
-        "    bpy.context.scene.objects.unlink(ob)\n"
-        "    bpy.data.objects.remove(ob)\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
         "\n"
         "bpy.types.Object.retro_mapworld_color = bpy.props.FloatVectorProperty(name='Retro: MapWorld Color',"
         " description='Sets map world color', subtype='COLOR', size=4, min=0.0, max=1.0)\n"
@@ -53,7 +51,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
         "wldObj.scale = mtxd[2]\n"
         "wldObj.retro_mapworld_color = (%f, %f, %f, %f)\n"
         "wldObj.retro_mapworld_path = '''%s'''\n"
-        "bpy.context.scene.objects.link(wldObj)\n",
+        "bpy.context.scene.collection.objects.link(wldObj)\n",
         wld.name.c_str(), wldXfF[0][0], wldXfF[0][1], wldXfF[0][2], wldXfF[0][3], wldXfF[1][0], wldXfF[1][1],
         wldXfF[1][2], wldXfF[1][3], wldXfF[2][0], wldXfF[2][1], wldXfF[2][2], wldXfF[2][3], hexColorF[0], hexColorF[1],
         hexColorF[2], hexColorF[3], path.getParentPath().getRelativePathUTF8().data());
@@ -70,7 +68,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
           "obj.scale = mtxd[2]\n"
-          "bpy.context.scene.objects.link(obj)\n"
+          "bpy.context.scene.collection.objects.link(obj)\n"
           "obj.parent = wldObj\n",
           wld.name.c_str(), idx++, hexXfF[0][0], hexXfF[0][1], hexXfF[0][2], hexXfF[0][3], hexXfF[1][0], hexXfF[1][1],
           hexXfF[1][2], hexXfF[1][3], hexXfF[2][0], hexXfF[2][1], hexXfF[2][2], hexXfF[2][3]);
@@ -81,7 +79,6 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
         "    for area in screen.areas:\n"
         "        for space in area.spaces:\n"
         "            if space.type == 'VIEW_3D':\n"
-        "                space.viewport_shade = 'SOLID'\n"
         "                space.clip_end = 8000.0\n";
 
   os.centerView();

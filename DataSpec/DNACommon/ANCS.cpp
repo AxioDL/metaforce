@@ -100,14 +100,9 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
         "bpy.context.scene.name = '%s'\n"
         "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
         "\n"
-        "# Using 'Blender Game'\n"
-        "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
-        "\n"
         "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'LAMP' and ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
         "\n"
         "actor_data = bpy.context.scene.hecl_sact_data\n"
         "arm_obj = None\n",
@@ -143,7 +138,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
         /* Attach CMDL to CINF */
         os << "if obj.name not in bpy.context.scene.objects:\n"
-              "    bpy.context.scene.objects.link(obj)\n"
+              "    bpy.context.scene.collection.objects.link(obj)\n"
               "obj.parent = arm_obj\n"
               "obj.parent_type = 'ARMATURE'\n"
               "actor_subtype.linked_mesh = obj.name\n\n";
@@ -162,7 +157,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
           /* Attach CMDL to CINF */
           os << "if obj.name not in bpy.context.scene.objects:\n"
-                "    bpy.context.scene.objects.link(obj)\n"
+                "    bpy.context.scene.collection.objects.link(obj)\n"
                 "obj.parent = arm_obj\n"
                 "obj.parent_type = 'ARMATURE'\n"
                 "overlay.linked_mesh = obj.name\n\n";
@@ -202,7 +197,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
         /* Attach CMDL to CINF */
         os << "if obj.name not in bpy.context.scene.objects:\n"
-              "    bpy.context.scene.objects.link(obj)\n"
+              "    bpy.context.scene.collection.objects.link(obj)\n"
               "obj.parent = arm_obj\n"
               "obj.parent_type = 'ARMATURE'\n"
               "attachment.linked_mesh = obj.name\n\n";

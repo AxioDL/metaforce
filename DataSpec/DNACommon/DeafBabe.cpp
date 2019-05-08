@@ -75,18 +75,18 @@ void DeafBabeSendToBlender(hecl::blender::PyOutStream& os, const DEAFBABE& db, b
         "    mat = material_dict[mat_name]\n"
         "    col_mesh.materials.append(mat)\n"
         "\n"
-        "bpy.context.scene.objects.link(col_mesh_obj)\n"
-        "bpy.context.scene.objects.active = col_mesh_obj\n"
+        "if 'Collision' not in bpy.data.collections:\n"
+        "    coll = bpy.data.collections.new('Collision')\n"
+        "    bpy.context.scene.collection.children.link(coll)\n"
+        "else:\n"
+        "    coll = bpy.data.collections['Collision']\n"
+        "coll.objects.link(col_mesh_obj)\n"
+        "bpy.context.view_layer.objects.active = col_mesh_obj\n"
         "bpy.ops.object.mode_set(mode='EDIT')\n"
         "bpy.ops.mesh.tris_convert_to_quads()\n"
         "bpy.ops.object.mode_set(mode='OBJECT')\n"
-        "bpy.context.scene.objects.active = None\n";
-  if (!isDcln)
-    os << "col_mesh_obj.layers[1] = True\n"
-          "col_mesh_obj.layers[0] = False\n";
-
-  os << "col_mesh_obj.draw_type = 'SOLID'\n"
-        "col_mesh_obj.game.physics_type = 'STATIC'\n"
+        "bpy.context.view_layer.objects.active = None\n"
+        "col_mesh_obj.display_type = 'SOLID'\n"
         "\n";
 }
 

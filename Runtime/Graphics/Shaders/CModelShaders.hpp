@@ -1,11 +1,12 @@
 #pragma once
 
 #include "hecl/Runtime.hpp"
-#include "hecl/Backend/Backend.hpp"
+#include "hecl/Backend.hpp"
 #include "optional.hpp"
 #include "zeus/CVector3f.hpp"
 #include "zeus/CColor.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include <array>
 
 #define URDE_MAX_LIGHTS 8
@@ -88,7 +89,8 @@ public:
   using ShaderPipelinesData = std::array<boo::ObjToken<boo::IShaderPipeline>, EExtendedShader::MAX>;
   using ShaderPipelines = std::shared_ptr<ShaderPipelinesData>;
 
-  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const hecl::Frontend::IR& ir);
+  using Material = DataSpec::DNAMP1::HMDLMaterialSet::Material;
+  static ShaderPipelines BuildExtendedShader(const hecl::Backend::ShaderTag& tag, const Material& material);
 
 private:
   static std::unordered_map<uint64_t, ShaderPipelines> g_ShaderPipelines;

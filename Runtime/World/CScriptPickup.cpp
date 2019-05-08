@@ -138,7 +138,7 @@ void CScriptPickup::Touch(CActor& act, CStateManager& mgr) {
       }
     }
 
-    mgr.GetPlayerState()->InitializePowerUp(x258_itemType, x260_capacity);
+    mgr.GetPlayerState()->AddPowerUp(x258_itemType, x260_capacity);
     mgr.GetPlayerState()->IncrPickup(x258_itemType, x25c_amount);
     mgr.FreeScriptObject(GetUniqueId());
     SendScriptMsgs(EScriptObjectState::Arrived, mgr, EScriptObjectMessage::None);

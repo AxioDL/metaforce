@@ -1,8 +1,6 @@
 #pragma once
 
 #include "athena/FileWriter.hpp"
-#include "hecl/Frontend.hpp"
-#include "hecl/Backend/GX.hpp"
 #include "PAK.hpp"
 #include "GX.hpp"
 #include "TXTR.hpp"
@@ -121,8 +119,7 @@ template <class PAKRouter, class MaterialSet>
 void ReadMaterialSetToBlender_3(hecl::blender::PyOutStream& os, const MaterialSet& matSet, const PAKRouter& pakRouter,
                                 const typename PAKRouter::EntryType& entry, unsigned setIdx);
 
-void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectPath& masterShaderPath,
-                            bool solidShading);
+void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectPath& masterShaderPath);
 void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int meshIdx);
 
 template <class PAKRouter, class MaterialSet, class RigPair, class SurfaceHeader>
