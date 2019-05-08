@@ -10,7 +10,7 @@ template <typename T>
 static void insert_unique_attr(std::unordered_map<T, uint32_t>& set, const T& attr) {
   if (set.find(attr) == set.cend()) {
     size_t sz = set.size();
-    set[attr] = sz;
+    set.insert(std::make_pair(attr, sz));
   }
 }
 
@@ -391,7 +391,7 @@ MeshOptimizer::MeshOptimizer(Connection& conn, const std::vector<Material>& mate
   for (uint32_t i = 0; i < vert_count.val; ++i) {
     verts.emplace_back(conn);
     insert_unique_attr(b_pos, verts.back().co);
-    if (verts.back().skin_ents[0])
+    if (verts.back().skin_ents[0].valid())
       insert_unique_attr(b_skin, verts.back().skin_ents);
   }
 

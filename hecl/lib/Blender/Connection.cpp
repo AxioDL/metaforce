@@ -825,11 +825,11 @@ void Mesh::normalizeSkinBinds() {
   for (auto& skin : skins) {
     float accum = 0.f;
     for (const SkinBind& bind : skin)
-      if (bind)
+      if (bind.valid())
         accum += bind.weight;
     if (accum > FLT_EPSILON) {
       for (SkinBind& bind : skin)
-        if (bind)
+        if (bind.valid())
           bind.weight /= accum;
     }
   }
@@ -1030,7 +1030,7 @@ void Mesh::SkinBanks::Bank::addSkins(const Mesh& parent, const std::vector<uint3
   for (uint32_t sidx : skinIdxs) {
     m_skinIdxs.push_back(sidx);
     for (const SkinBind& bind : parent.skins[sidx]) {
-      if (!bind)
+      if (!bind.valid())
         break;
       bool found = false;
       for (uint32_t bidx : m_boneIdxs) {

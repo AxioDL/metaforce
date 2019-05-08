@@ -147,7 +147,7 @@ HMDLBuffers Mesh::getHMDLBuffers(bool absoluteCoords, PoolSkinIndex& poolSkinInd
           if (it == bank.m_boneIdxs.cend())
             break;
           for (const SkinBind& bind : binds) {
-            if (!bind)
+            if (!bind.valid())
               break;
             if (bind.vg_idx == *it) {
               vec.simd[j] = bind.weight;

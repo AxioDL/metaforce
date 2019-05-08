@@ -315,7 +315,8 @@ struct Mesh {
     float weight = 0.f;
     SkinBind() = default;
     explicit SkinBind(Connection& conn);
-    operator bool() const { return vg_idx != UINT32_MAX; }
+    bool valid() const { return vg_idx != UINT32_MAX; }
+    bool operator==(const SkinBind& other) const { return vg_idx == other.vg_idx && weight == other.weight; }
   };
   std::vector<std::array<SkinBind, MaxSkinEntries>> skins;
   std::vector<size_t> contiguousSkinVertCounts;
@@ -323,7 +324,7 @@ struct Mesh {
   static size_t countSkinBinds(const std::array<SkinBind, MaxSkinEntries>& arr) {
     size_t ret = 0;
     for (const auto& b : arr)
-      if (b)
+      if (b.valid())
         ++ret;
       else
         break;
@@ -823,7 +824,7 @@ struct hash<array<hecl::blender::Mesh::SkinBind, 16>> {
   size_t operator()(const array<hecl::blender::Mesh::SkinBind, 16>& val) const noexcept {
     size_t h = 0;
     for (const auto& bind : val) {
-      if (!bind)
+      if (!bind.valid())
         break;
       hecl::hash_combine_impl(h, std::hash<float>()(bind.vg_idx));
       hecl::hash_combine_impl(h, std::hash<float>()(bind.weight));
