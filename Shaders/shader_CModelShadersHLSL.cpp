@@ -84,8 +84,8 @@ static std::string _BuildVS(const SModelShadersInfo& info) {
   vertOut << "#define URDE_UV_SLOTS "sv << unsigned(info.m_tag.getUvCount()) << '\n';
   vertOut << "#define URDE_SKIN_SLOTS "sv << unsigned(info.m_tag.getSkinSlotCount()) << '\n';
   vertOut << "#define URDE_WEIGHT_SLOTS "sv << unsigned(info.m_tag.getWeightCount()) << '\n';
-  vertOut << "#define URDE_TCG_EXPR "sv;
 
+  vertOut << "#define URDE_TCG_EXPR "sv;
   using UVAnimType = BlendMaterial::UVAnimType;
   using PassType = BlendMaterial::PassType;
   int mtxIdx = 0;

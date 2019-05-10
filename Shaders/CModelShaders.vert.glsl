@@ -22,17 +22,7 @@ UBINDING3 uniform URDEReflectMtx {
   float reflectAlpha;
 };
 
-layout(location=0) in vec3 posIn;
-layout(location=1) in vec3 normIn;
-#if URDE_COL_SLOTS
-layout(location=2) in vec4 colIn[URDE_COL_SLOTS];
-#endif
-#if URDE_UV_SLOTS
-layout(location=2 + URDE_COL_SLOTS) in vec2 uvIn[URDE_UV_SLOTS];
-#endif
-#if URDE_WEIGHT_SLOTS
-layout(location=2 + URDE_COL_SLOTS + URDE_UV_SLOTS) in vec4 weightIn[URDE_WEIGHT_SLOTS];
-#endif
+URDE_VERT_DATA_DECL
 
 SBINDING(0) out VertToFrag vtf;
 void main() {

@@ -1,4 +1,3 @@
-#extension GL_ARB_enhanced_layouts: enable
 #extension GL_ARB_shader_image_load_store: enable
 
 struct VertToFrag {

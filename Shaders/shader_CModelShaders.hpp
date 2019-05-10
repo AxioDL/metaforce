@@ -18,7 +18,7 @@ struct SModelShadersInfo {
                              const hecl::Backend::ExtensionSlot& extension)
   : m_material(material), m_tag(tag), m_extension(extension) {
     m_hash = m_tag.val64();
-    hecl::hash_combine_impl(m_hash, std::hash<uint64_t>()(m_extension.hash()));
+    hecl::hash_combine_impl<uint64_t>(m_hash, std::hash<uint64_t>()(m_extension.hash()));
 
     m_vtxFmtData = tag.vertexFormat();
     m_vtxFmt = boo::VertexFormatInfo(m_vtxFmtData.size(), m_vtxFmtData.data());
