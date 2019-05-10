@@ -34,5 +34,11 @@ public:
   void Activate(bool val) { xa0_24_activated = val; }
   bool IsActivated() { return xa0_24_activated; }
   FourCC Get4CharID() { return FOURCC('FWRP'); }
+  void ResetPosition(const zeus::CVector3f& pos) {
+    for (auto& vec : x4_vecs) {
+      vec = pos;
+    }
+    xa0_26_processed = false;
+  }
 };
 } // namespace urde

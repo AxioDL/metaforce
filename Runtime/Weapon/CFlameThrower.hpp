@@ -17,7 +17,7 @@ class CFlameThrower : public CGameProjectile {
   TToken<CGenDescription> x33c_flameDesc;
   std::unique_ptr<CElementGen> x348_flameGen;
   CFlameWarp x34c_;
-  u32 x3f0_;
+  u32 x3f0_flameState;
   CAssetId x3f4_;
   s16 x3f8_;
   CAssetId x3fc_;
@@ -33,6 +33,8 @@ class CFlameThrower : public CGameProjectile {
   };
 
   void CreateFlameParticles(CStateManager&);
+  void SetFlameLightActive(CStateManager&, bool);
+  void UpdateFlameState(float, CStateManager&);
 public:
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                 const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
@@ -40,6 +42,8 @@ public:
                 CAssetId w2, s16 sId, CAssetId w3);
 
   void Accept(IVisitor& visitor);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Think(float, CStateManager&);
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void SetTransform(const zeus::CTransform& xf, float);
   void Reset(CStateManager&, bool);

@@ -1,7 +1,9 @@
 #include "Weapon/CFlameThrower.hpp"
 #include "Weapon/CFlameInfo.hpp"
+#include "World/CGameLight.hpp"
 #include "Particle/CElementGen.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "TCastTo.hpp"
@@ -33,15 +35,43 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 
 void CFlameThrower::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
+void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  if (msg == EScriptObjectMessage::Registered) {
+    xe6_27_thermalVisorFlags |= 2;
+    mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
+  } else if (msg == EScriptObjectMessage::Deleted) {
+    mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
+    DeleteProjectileLight(mgr);
+  }
+
+  CGameProjectile::AcceptScriptMsg(msg, uid, mgr);
+}
+
 void CFlameThrower::SetTransform(const zeus::CTransform& xf, float) { x2e8_ = xf; }
 
-void CFlameThrower::Reset(CStateManager&, bool) {}
+void CFlameThrower::Reset(CStateManager& mgr, bool resetWarp) {
+  SetFlameLightActive(mgr, false);
+  if (resetWarp) {
+    SetActive(false);
+    x400_25_ = false;
+    x3f0_flameState = 0;
+    x330_ = 0.f;
+    x334_ = 0.f;
+    x318_ = zeus::skNullBox;
+    x348_flameGen->SetParticleEmission(false);
+    x34c_.ResetPosition(x2e8_.origin);
+  } else {
+    x348_flameGen->SetParticleEmission(false);
+    x400_25_ = false;
+    x3f0_flameState = 3;
+  }
+}
 
 void CFlameThrower::Fire(const zeus::CTransform&, CStateManager& mgr, bool) {
   SetActive(true);
   x400_25_ = true;
   x400_24_ = true;
-  x3f0_ = 1;
+  x3f0_flameState = 1;
   CreateFlameParticles(mgr);
 }
 
@@ -58,5 +88,46 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
 void CFlameThrower::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
   g_Renderer->AddParticleGen(*x348_flameGen);
   EnsureRendered(mgr, x2e8_.origin, GetRenderBounds());
+}
+
+void CFlameThrower::SetFlameLightActive(CStateManager& mgr, bool active) {
+  if (x2c8_projectileLight == kInvalidUniqueId)
+    return;
+
+  if (TCastToPtr<CGameLight> light = mgr.ObjectById(x2c8_projectileLight))
+    light->SetActive(active);
+}
+
+void CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
+  switch(x3f0_flameState) {
+  case 1:
+    x3f0_flameState = 2;
+    break;
+  case 3:
+    x334_ += 4.f * dt;
+    if (x334_ > 1.f) {
+      x334_ = 1.f;
+      x3f0_flameState = 4;
+      x400_24_ = false;
+    }
+    break;
+  case 4:
+    x330_ += dt;
+    if (x330_ > 0.1f && x348_flameGen && x348_flameGen->GetParticleCountAll() == 0) {
+      x3f0_flameState = 0;
+      Reset(mgr, true);
+    }
+    break;
+  default:
+    break;
+  }
+}
+
+void CFlameThrower::Think(float dt, CStateManager& mgr) {
+  CWeapon::Think(dt, mgr);
+  if (!GetActive())
+    return;
+
+  UpdateFlameState(dt, mgr);
 }
 } // namespace urde

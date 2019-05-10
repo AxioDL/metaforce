@@ -5,6 +5,7 @@
 #include "Graphics/CTexture.hpp"
 #include "World/CActorParameters.hpp"
 #include "World/CPlayer.hpp"
+#include "Weapon/CEnergyProjectile.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CMemoryCardSys.hpp"
 #include "CGameState.hpp"
@@ -569,7 +570,8 @@ void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr)
   TUniqueId followerAct = kInvalidUniqueId;
   TUniqueId followedAct = kInvalidUniqueId;
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::Play)
+    if (conn.x0_state != EScriptObjectState::Play || (conn.x4_msg != EScriptObjectMessage::Activate &&
+                                                      conn.x4_msg != EScriptObjectMessage::Deactivate))
       continue;
 
     auto search = mgr.GetIdListForScript(conn.x8_objId);
@@ -593,9 +595,65 @@ void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr)
   toAct->SetTransform(fromAct->GetTransform() * fromAct->GetScaledLocatorTransform(xec_locatorName));
 }
 
-void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager&) {}
+void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager& mgr) {
+  TUniqueId followerAct = kInvalidUniqueId;
+  TUniqueId followedAct = kInvalidUniqueId;
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state != EScriptObjectState::Play || (conn.x4_msg != EScriptObjectMessage::Activate &&
+                                                      conn.x4_msg != EScriptObjectMessage::Deactivate))
+      continue;
 
-void CScriptSpecialFunction::ThinkChaffTarget(float, CStateManager&) {}
+    auto search = mgr.GetIdListForScript(conn.x8_objId);
+    for (auto it = search.first; it != search.second; ++it) {
+      if (TCastToConstPtr<CActor> act = mgr.GetObjectById(it->second)) {
+        if (conn.x4_msg == EScriptObjectMessage::Activate && act->GetActive()) {
+          followedAct = it->second;
+        } else if (conn.x4_msg == EScriptObjectMessage::Deactivate) {
+          followerAct = it->second;
+        }
+      }
+    }
+  }
+
+  TCastToConstPtr<CActor> followed = mgr.GetObjectById(followedAct);
+  TCastToPtr<CActor> follower = mgr.ObjectById(followerAct);
+  if (followed && follower)
+    follower->SetTransform(followed->GetTransform());
+}
+
+void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
+  zeus::CAABox box(5.f - GetTranslation(), 5.f + GetTranslation());
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, box, CMaterialFilter::MakeInclude({EMaterialTypes::Projectile}), nullptr);
+  CCameraFilterPassPoly& filter = mgr.GetCameraFilterPass(7);
+
+  for (TUniqueId uid : nearList) {
+    if (TCastToPtr<CEnergyProjectile> proj = mgr.ObjectById(uid)) {
+      if (proj->GetHomingTargetId() == GetUniqueId()) {
+        proj->Set3d0_26(true);
+        if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
+          mgr.GetPlayer().SetHudDisable(x100_float2, 0.5f, 2.5f);
+          filter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::skWhite, {});
+          filter.DisableFilter(0.1f);
+        }
+      }
+    }
+  }
+
+  x194_ = zeus::max(0.f, x194_ - dt);
+  if (x194_ != 0.f && mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
+    float intfMag = x104_float3 * (0.5f + ((0.5f + x194_) / xfc_float1);
+    if (x194_ < 1.f)
+      intfMag *= x194_;
+
+    mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), intfMag, .5f);
+
+    if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
+      mgr.GetPlayer().AddOrbitDisableSource(mgr, GetUniqueId()).
+    else
+      mgr.GetPlayer().RemoveOrbitDisableSource(GetUniqueId());
+  }
+}
 
 void CScriptSpecialFunction::ThinkActorScale(float dt, CStateManager& mgr) {
   float deltaScale = dt * xfc_float1;

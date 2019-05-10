@@ -44,6 +44,7 @@ public:
   void Touch(CActor& act, CStateManager& mgr);
   virtual bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
                        CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);
+  void Set3d0_26(bool v) { x3d0_26_ = v; }
 };
 
 } // namespace urde
