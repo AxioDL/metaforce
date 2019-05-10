@@ -44,7 +44,7 @@ foreach(name ${HECL_APPLICATION_STAGE_REPS})
   set(HECL_APPLICATION_STAGE_REPS_LOCAL "${HECL_APPLICATION_STAGE_REPS_LOCAL}STAGES_${name}(P, S) \\\n")
 endforeach()
 
-configure_file(include/hecl/ApplicationReps.hpp.in ApplicationReps.hpp @ONLY)
+configure_file(include/hecl/ApplicationReps.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/ApplicationReps.hpp @ONLY)
 
 set(ATHENA_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/athena/include)
 set(ATHENA_INCLUDE_DIR ${ATHENA_INCLUDE_DIR} PARENT_SCOPE)
