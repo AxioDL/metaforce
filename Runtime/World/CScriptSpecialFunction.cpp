@@ -562,7 +562,9 @@ void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager& mgr)
   }
 }
 
-void CScriptSpecialFunction::ThinkSpinnerController(float, CStateManager&, ESpinnerControllerMode) {
+void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr, ESpinnerControllerMode mode) {
+  bool allowWrap = xec_locatorName.find("AllowWrap") != std::string::npos;
+  bool noBackward = xec_locatorName.find("NoBackward") != std::string::npos;
 
 }
 
@@ -633,7 +635,7 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
         proj->Set3d0_26(true);
         if (mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
           mgr.GetPlayer().SetHudDisable(x100_float2, 0.5f, 2.5f);
-          filter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, zeus::skWhite, {});
+          filter.SetFilter(EFilterType::Blend, EFilterShape::Fullscreen, 0.f, zeus::skWhite, CAssetId());
           filter.DisableFilter(0.1f);
         }
       }
@@ -642,14 +644,14 @@ void CScriptSpecialFunction::ThinkChaffTarget(float dt, CStateManager& mgr) {
 
   x194_ = zeus::max(0.f, x194_ - dt);
   if (x194_ != 0.f && mgr.GetPlayer().GetAreaIdAlways() == GetAreaIdAlways()) {
-    float intfMag = x104_float3 * (0.5f + ((0.5f + x194_) / xfc_float1);
+    float intfMag = x104_float3 * (0.5f + ((0.5f + x194_) / xfc_float1));
     if (x194_ < 1.f)
       intfMag *= x194_;
 
     mgr.GetPlayerState()->GetStaticInterference().AddSource(GetUniqueId(), intfMag, .5f);
 
     if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Scan)
-      mgr.GetPlayer().AddOrbitDisableSource(mgr, GetUniqueId()).
+      mgr.GetPlayer().AddOrbitDisableSource(mgr, GetUniqueId());
     else
       mgr.GetPlayer().RemoveOrbitDisableSource(GetUniqueId());
   }
