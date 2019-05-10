@@ -13,7 +13,7 @@ make_dnalist(liblist DNACommon
 set(DNACOMMON_SOURCES
     DNACommon.hpp DNACommon.cpp
     PAK.hpp PAK.cpp
-    GX.hpp
+    GX.hpp GX.cpp
     FSM2.hpp FSM2.cpp
     MLVL.hpp MLVL.cpp
     CMDL.cpp

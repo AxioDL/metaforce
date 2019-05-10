@@ -339,7 +339,7 @@ float CPlayerState::CalculateHealth() {
   return (GetEnergyTankCapacity() * x24_powerups[u32(EItemType::EnergyTanks)].x0_amount) + GetBaseHealthCapacity();
 }
 
-void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity) {
+void CPlayerState::AddPowerUp(CPlayerState::EItemType type, u32 capacity) {
   if (type >= EItemType::Max)
     return;
 
@@ -360,7 +360,7 @@ void CPlayerState::InitializePowerUp(CPlayerState::EItemType type, u32 capacity)
 
 void CPlayerState::ReInitalizePowerUp(CPlayerState::EItemType type, u32 capacity) {
   x24_powerups[u32(type)].x4_capacity = 0;
-  InitializePowerUp(type, capacity);
+  AddPowerUp(type, capacity);
 }
 
 void CPlayerState::InitializeScanTimes() {

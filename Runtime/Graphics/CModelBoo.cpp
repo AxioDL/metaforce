@@ -141,8 +141,7 @@ CBooModel::~CBooModel() {
 
 CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
                      const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
-                     const zeus::CAABox& aabb, u8 renderMask, int numInsts,
-                     const boo::ObjToken<boo::ITexture> txtrOverrides[8])
+                     const zeus::CAABox& aabb, u8 renderMask, int numInsts)
 : m_modelTok(token)
 , m_model(parent)
 , x0_surfaces(surfaces)
@@ -157,10 +156,6 @@ CBooModel::CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurf
 , x41_mask(renderMask)
 , m_staticVbo(vbo)
 , m_staticIbo(ibo) {
-  if (txtrOverrides)
-    for (int i = 0; i < 8; ++i)
-      m_txtrOverrides[i] = txtrOverrides[i];
-
   if (!g_FirstModel)
     g_FirstModel = this;
   else {
@@ -291,10 +286,6 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
     /* Binding for each surface */
     newInst.m_shaderDataBindings.reserve(x0_surfaces->size());
 
-    boo::ObjToken<boo::ITexture> mbShadowTexs[8] = {
-        g_Renderer->m_ballShadowId.get(),  g_Renderer->x220_sphereRamp.get(), g_Renderer->m_ballFade.get(),
-        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-        g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get()};
     size_t thisOffs[4];
     size_t thisSizes[4];
 
@@ -306,20 +297,23 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
     for (const CBooSurface& surf : *x0_surfaces) {
       const MaterialSet::Material& mat = x4_matSet->materials.at(surf.m_data.matIdx);
 
-      boo::ObjToken<boo::ITexture> texs[8] = {g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-                                              g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-                                              g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
-                                              g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get()};
-      u32 texCount = 0;
-      for (atUint32 idx : mat.textureIdxs) {
-        if (boo::ObjToken<boo::ITexture> overtex = m_txtrOverrides[texCount]) {
-          texs[texCount++] = overtex;
-        } else if (g_DummyTextures) {
-          texs[texCount++] = g_Renderer->x220_sphereRamp.get();
-        } else {
-          TCachedToken<CTexture>& tex = x1c_textures[idx];
-          if (boo::ObjToken<boo::ITexture> btex = tex.GetObj()->GetBooTexture())
-            texs[texCount++] = btex;
+      boo::ObjToken<boo::ITexture> texs[12] = {g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
+                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
+                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
+                                               g_Renderer->m_clearTexture.get(), g_Renderer->m_clearTexture.get(),
+                                               g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get(),
+                                               g_Renderer->x220_sphereRamp.get(), g_Renderer->x220_sphereRamp.get()};
+      if (!g_DummyTextures) {
+        for (const auto& ch : mat.chunks) {
+          if (auto pass = ch.get_if<MaterialSet::Material::PASS>()) {
+            auto search = x1c_textures.find(pass->texId.toUint32());
+            boo::ObjToken<boo::ITexture> btex;
+            if (search != x1c_textures.cend() && (btex = search->second.GetObj()->GetBooTexture()))
+              texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
+          } else if (auto pass = ch.get_if<MaterialSet::Material::CLR>()) {
+            boo::ObjToken<boo::ITexture> btex = g_Renderer->GetColorTexture(zeus::CColor(pass->color));
+            texs[MaterialSet::Material::TexMapIdx(pass->type)] = btex;
+          }
         }
       }
 
@@ -340,9 +334,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
       bool useReflection = mat.flags.samusReflection() || mat.flags.samusReflectionSurfaceEye();
       if (useReflection) {
         if (g_Renderer->x14c_reflectionTex)
-          texs[texCount] = g_Renderer->x14c_reflectionTex.get();
-        else
-          texs[texCount] = g_Renderer->x220_sphereRamp.get();
+          texs[11] = g_Renderer->x14c_reflectionTex.get();
         thisOffs[3] = curReflect;
         curReflect += 256;
       } else {
@@ -358,31 +350,25 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
 
       int idx = 0;
       for (const auto& pipeline : *pipelines) {
-        boo::ObjToken<boo::ITexture>* ltexs;
         if (idx == EExtendedShader::Thermal) {
-          texs[7] = g_Renderer->x220_sphereRamp.get();
-          ltexs = texs;
+          texs[8] = g_Renderer->x220_sphereRamp.get();
         } else if (idx == EExtendedShader::MorphBallShadow) {
-          ltexs = mbShadowTexs;
+          texs[8] = g_Renderer->m_ballShadowId.get();
+          texs[9] = g_Renderer->x220_sphereRamp.get();
+          texs[10] = g_Renderer->m_ballFade.get();
         } else if (idx == EExtendedShader::WorldShadow) {
           if (g_shadowMap)
-            texs[7] = g_shadowMap;
+            texs[8] = g_shadowMap;
           else
-            texs[7] = g_Renderer->x220_sphereRamp.get();
-          ltexs = texs;
+            texs[8] = g_Renderer->x220_sphereRamp.get();
         } else if (idx == EExtendedShader::Disintegrate) {
           if (g_disintegrateTexture)
-            texs[7] = g_disintegrateTexture;
+            texs[8] = g_disintegrateTexture;
           else
-            texs[7] = g_Renderer->x220_sphereRamp.get();
-          ltexs = texs;
-        } else if (useReflection) {
-          ltexs = texs;
-        } else {
-          ltexs = texs;
+            texs[8] = g_Renderer->x220_sphereRamp.get();
         }
         extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr,
-                                                     m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 8, ltexs,
+                                                     m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 12, texs,
                                                      nullptr, nullptr));
         ++idx;
       }
@@ -393,14 +379,20 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
   return &newInst;
 }
 
-void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet, std::vector<TCachedToken<CTexture>>& toksOut,
+void CBooModel::MakeTexturesFromMats(const MaterialSet& matSet,
+                                     std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
                                      IObjectStore& store) {
-  toksOut.reserve(matSet.head.textureIDs.size());
-  for (const DataSpec::UniqueID32& id : matSet.head.textureIDs)
-    toksOut.emplace_back(store.GetObj({SBIG('TXTR'), id.toUint32()}));
+  for (const auto& mat : matSet.materials) {
+    for (const auto& chunk : mat.chunks) {
+      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+        toksOut.emplace(std::make_pair(pass->texId.toUint32(), store.GetObj({SBIG('TXTR'), pass->texId.toUint32()})));
+      }
+    }
+  }
 }
 
-void CBooModel::MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOut, IObjectStore& store) {
+void CBooModel::MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
+                                     IObjectStore& store) {
   MakeTexturesFromMats(*x4_matSet, toksOut, store);
 }
 
@@ -445,9 +437,9 @@ void CBooModel::RemapMaterialData(SShader& shader,
 bool CBooModel::TryLockTextures() const {
   if (!x40_24_texturesLoaded) {
     bool allLoad = true;
-    for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures)) {
-      tex.Lock();
-      if (!tex.IsLoaded())
+    for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures)) {
+      tex.second.Lock();
+      if (!tex.second.IsLoaded())
         allLoad = false;
     }
 
@@ -459,15 +451,15 @@ bool CBooModel::TryLockTextures() const {
 
 void CBooModel::UnlockTextures() const {
   const_cast<CBooModel*>(this)->m_instances.clear();
-  for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
-    tex.Unlock();
+  for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures))
+    tex.second.Unlock();
   const_cast<CBooModel*>(this)->x40_24_texturesLoaded = false;
 }
 
 void CBooModel::SyncLoadTextures() const {
   if (!x40_24_texturesLoaded) {
-    for (TCachedToken<CTexture>& tex : const_cast<std::vector<TCachedToken<CTexture>>&>(x1c_textures))
-      tex.GetObj();
+    for (auto& tex : const_cast<std::unordered_map<CAssetId, TCachedToken<CTexture>>&>(x1c_textures))
+      tex.second.GetObj();
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = true;
   }
 }
@@ -534,7 +526,7 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
       return EExtendedShader::LightingAlphaWrite;
     else if (g_Renderer->IsThermalVisorActive())
       return EExtendedShader::ThermalCold;
-    if (data.heclIr.m_blendSrc == boo::BlendFactor::One && data.heclIr.m_blendDst == boo::BlendFactor::Zero) {
+    if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Opaque) {
       /* Override shader if originally opaque (typical for FRME models) */
       if (flags.x0_blendMode > 6) {
         if (flags.m_depthGreater)
@@ -555,19 +547,19 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
       }
     } else if (flags.m_noCull && noZWrite) {
       /* Substitute no-cull,no-zwrite pipeline if available */
-      if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
         extended = EExtendedShader::ForcedAdditiveNoCullNoZWrite;
       else
         extended = EExtendedShader::ForcedAlphaNoCullNoZWrite;
     } else if (flags.m_noCull) {
       /* Substitute no-cull pipeline if available */
-      if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
         extended = EExtendedShader::ForcedAdditiveNoCull;
       else
         extended = EExtendedShader::ForcedAlphaNoCull;
     } else if (noZWrite) {
       /* Substitute no-zwrite pipeline if available */
-      if (data.heclIr.m_blendDst == boo::BlendFactor::One)
+      if (data.blendMode == MaterialSet::Material::BlendMaterial::BlendMode::Additive)
         extended = EExtendedShader::ForcedAdditiveNoZWrite;
       else
         extended = EExtendedShader::ForcedAlphaNoZWrite;
@@ -619,21 +611,22 @@ void CBooModel::WarmupDrawSurface(const CBooSurface& surf) const {
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
 
-  // Only warmup normal lighting and thermal visor
-  for (int i = 1; i <= 2; ++i) {
-    auto& binding = inst.m_shaderDataBindings[surf.selfIdx][i];
+  for (auto& binding : inst.m_shaderDataBindings[surf.selfIdx]) {
     CGraphics::SetShaderDataBinding(binding);
     CGraphics::DrawArrayIndexed(surf.m_data.idxStart, std::min(u32(3), surf.m_data.idxCount));
   }
 }
 
-void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimation& anim) {
+void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim) {
+  using UVAnimType = MaterialSet::Material::BlendMaterial::UVAnimType;
+  if (anim.uvAnimType == UVAnimType::Invalid)
+    return;
   zeus::CMatrix4f& texMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*bufOut);
   zeus::CMatrix4f& postMtxOut = reinterpret_cast<zeus::CMatrix4f&>(*(bufOut + sizeof(zeus::CMatrix4f)));
   texMtxOut = zeus::CMatrix4f();
   postMtxOut = zeus::CMatrix4f();
-  switch (anim.mode) {
-  case UVAnimation::Mode::MvInvNoTranslation: {
+  switch (anim.uvAnimType) {
+  case UVAnimType::MvInvNoTranslation: {
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
     texMtxOut[3].w() = 1.f;
     postMtxOut[0].x() = 0.5f;
@@ -642,7 +635,7 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     postMtxOut[3].y() = 0.5f;
     break;
   }
-  case UVAnimation::Mode::MvInv: {
+  case UVAnimType::MvInv: {
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
     texMtxOut[3] = CGraphics::g_ViewMatrix.inverse() * CGraphics::g_GXModelMatrix.origin;
     texMtxOut[3].w() = 1.f;
@@ -652,13 +645,13 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     postMtxOut[3].y() = 0.5f;
     break;
   }
-  case UVAnimation::Mode::Scroll: {
-    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.vals[2] + anim.vals[0];
-    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.vals[3] + anim.vals[1];
+  case UVAnimType::Scroll: {
+    texMtxOut[3].x() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[2] + anim.uvAnimParms[0];
+    texMtxOut[3].y() = CGraphics::GetSecondsMod900() * anim.uvAnimParms[3] + anim.uvAnimParms[1];
     break;
   }
-  case UVAnimation::Mode::Rotation: {
-    float angle = CGraphics::GetSecondsMod900() * anim.vals[1] + anim.vals[0];
+  case UVAnimType::Rotation: {
+    float angle = CGraphics::GetSecondsMod900() * anim.uvAnimParms[1] + anim.uvAnimParms[0];
     float acos = std::cos(angle);
     float asin = std::sin(angle);
     texMtxOut[0].x() = acos;
@@ -669,17 +662,17 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     texMtxOut[3].y() = (1.0f - (asin + acos)) * 0.5f;
     break;
   }
-  case UVAnimation::Mode::HStrip: {
-    float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].x() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+  case UVAnimType::HStrip: {
+    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
+    texMtxOut[3].x() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
     break;
   }
-  case UVAnimation::Mode::VStrip: {
-    float value = anim.vals[0] * anim.vals[2] * (anim.vals[3] + CGraphics::GetSecondsMod900());
-    texMtxOut[3].y() = std::trunc(anim.vals[1] * fmod(value, 1.0f)) * anim.vals[2];
+  case UVAnimType::VStrip: {
+    float value = anim.uvAnimParms[0] * anim.uvAnimParms[2] * (anim.uvAnimParms[3] + CGraphics::GetSecondsMod900());
+    texMtxOut[3].y() = std::trunc(anim.uvAnimParms[1] * fmod(value, 1.0f)) * anim.uvAnimParms[2];
     break;
   }
-  case UVAnimation::Mode::Model: {
+  case UVAnimType::Model: {
     texMtxOut = CGraphics::g_GXModelMatrix.toMatrix4f();
     texMtxOut[3] = zeus::CVector4f(0.f, 0.f, 0.f, 1.f);
     postMtxOut[0].x() = 0.5f;
@@ -689,16 +682,16 @@ void CBooModel::UVAnimationBuffer::ProcessAnimation(u8*& bufOut, const UVAnimati
     postMtxOut[3].y() = CGraphics::g_GXModelMatrix.origin.y() * 0.05f;
     break;
   }
-  case UVAnimation::Mode::CylinderEnvironment: {
+  case UVAnimType::CylinderEnvironment: {
     texMtxOut = CGraphics::g_GXModelViewInvXpose.toMatrix4f();
 
     const zeus::CVector3f& viewOrigin = CGraphics::g_ViewMatrix.origin;
-    float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.vals[1];
+    float xy = (viewOrigin.x() + viewOrigin.y()) * 0.025f * anim.uvAnimParms[1];
     xy = (xy - std::trunc(xy));
-    float z = (viewOrigin.z()) * 0.05f * anim.vals[1];
+    float z = (viewOrigin.z()) * 0.05f * anim.uvAnimParms[1];
     z = (z - std::trunc(z));
 
-    float halfA = anim.vals[0] * 0.5f;
+    float halfA = anim.uvAnimParms[0] * 0.5f;
 
     postMtxOut =
         zeus::CTransform(zeus::CMatrix3f(halfA, 0.0, 0.0, 0.0, 0.0, halfA, 0.0, 0.0, 0.0), zeus::CVector3f(xy, z, 1.0))
@@ -808,8 +801,11 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
       mtxs[7][1] = (*specialMtxOut)[1];
     }
     u8* bufOrig = bufOut;
-    for (const UVAnimation& anim : mat.uvAnims)
-      ProcessAnimation(bufOut, anim);
+    for (const auto& chunk : mat.chunks) {
+      if (auto pass = chunk.get_if<MaterialSet::Material::PASS>()) {
+        ProcessAnimation(bufOut, *pass);
+      }
+    }
     bufOut = bufOrig + sizeof(zeus::CMatrix4f) * 2 * 8;
     PadOutBuffer(start, bufOut);
   }
@@ -898,7 +894,7 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
                                                                   const CPoseAsTransforms* pose,
                                                                   int sharedLayoutBuf) const {
-  if (!TryLockTextures())
+  if (!g_DummyTextures && !TryLockTextures())
     return {};
 
   /* Invalidate instances if new shadow being drawn */
@@ -1046,13 +1042,11 @@ static const u8* MemoryFromPartData(const u8*& dataCur, const u32*& secSizeCur) 
   return ret;
 }
 
-std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts,
-                                                   const boo::ObjToken<boo::ITexture> txtrOverrides[8],
-                                                   bool lockParent) {
+std::unique_ptr<CBooModel> CModel::MakeNewInstance(int shaderIdx, int subInsts, bool lockParent) {
   if (shaderIdx >= x18_matSets.size())
     shaderIdx = 0;
   auto ret = std::make_unique<CBooModel>(m_selfToken, this, &x8_surfaces, x18_matSets[shaderIdx], m_staticVbo, m_ibo,
-                                         m_aabb, (m_flags & 0x2) != 0, subInsts, txtrOverrides);
+                                         m_aabb, (m_flags & 0x2) != 0, subInsts);
   if (lockParent)
     ret->LockParent();
   return ret;
@@ -1066,9 +1060,9 @@ CModelShaders::ShaderPipelines SShader::BuildShader(const hecl::HMDLMeta& meta, 
     reflectionType = hecl::Backend::ReflectionType::Simple;
   else
     reflectionType = hecl::Backend::ReflectionType::None;
-  hecl::Backend::ShaderTag tag(mat.heclIr, meta.colorCount, meta.uvCount, meta.weightCount, meta.weightCount * 4,
+  hecl::Backend::ShaderTag tag(mat.hash, meta.colorCount, meta.uvCount, meta.weightCount, meta.weightCount * 4,
                                boo::Primitive(meta.topology), reflectionType, true, true, true, mat.flags.alphaTest());
-  return CModelShaders::BuildExtendedShader(tag, mat.heclIr);
+  return CModelShaders::BuildExtendedShader(tag, mat);
 }
 
 void SShader::BuildShaders(const hecl::HMDLMeta& meta,
@@ -1156,12 +1150,12 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   const float* aabbPtr = reinterpret_cast<const float*>(data.get() + 0xc);
   m_aabb = zeus::CAABox(hecl::SBig(aabbPtr[0]), hecl::SBig(aabbPtr[1]), hecl::SBig(aabbPtr[2]), hecl::SBig(aabbPtr[3]),
                         hecl::SBig(aabbPtr[4]), hecl::SBig(aabbPtr[5]));
-  x28_modelInst = MakeNewInstance(0, 1, nullptr, false);
+  x28_modelInst = MakeNewInstance(0, 1, false);
 }
 
 void SShader::UnlockTextures() {
-  for (TCachedToken<CTexture>& tex : x0_textures)
-    tex.Unlock();
+  for (auto& tex : x0_textures)
+    tex.second.Unlock();
 }
 
 void CBooModel::VerifyCurrentShader(int shaderIdx) {

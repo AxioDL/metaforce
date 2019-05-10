@@ -36,34 +36,37 @@ void Material::AddTexture(Stream& out, GX::TexGenSrc type, int mtxIdx, uint32_t 
 
   out.format(
       "# Texture\n"
-      "tex_uv_node = new_nodetree.nodes.new('ShaderNodeGeometry')\n"
-      "tex_uv_node.label = '%s'\n"
-      "tex_node = new_nodetree.nodes.new('ShaderNodeTexture')\n"
+      "tex_node = new_nodetree.nodes.new('ShaderNodeTexImage')\n"
       "tex_node.label = '%s %u'\n"
-      "texture_nodes.append(tex_node)\n"
-      "gridder.place_node(tex_uv_node, 1)\n"
-      "gridder.place_node(tex_node, 1)\n"
-      "tex_uv_node.location[0] -= 120\n"
-      "tex_node.location[0] += 120\n"
-      "tex_node.location[1] += 176\n",
-      mtxLabel, texLabel, texIdx);
+      "texture_nodes.append(tex_node)\n",
+      texLabel, texIdx);
 
   if (texIdx != 0xff)
-    out.format("tex_node.texture = tex_maps[%u]\n", texIdx);
+    out.format("tex_node.image = tex_maps[%u]\n", texIdx);
 
   if (type == GX::TG_POS)
-    out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['View'], tex_node.inputs['Vector']))\n");
+    out << "tex_uv_node = new_nodetree.nodes.new('ShaderNodeTexCoord')\n"
+           "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Window'], tex_node.inputs['Vector']))\n";
   else if (type == GX::TG_NRM)
-    out.format("tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n");
+    out << "tex_uv_node = new_nodetree.nodes.new('ShaderNodeTexCoord')\n"
+           "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['Normal'], tex_node.inputs['Vector']))\n";
   else if (type >= GX::TG_TEX0 && type <= GX::TG_TEX7) {
     uint8_t texIdx = type - GX::TG_TEX0;
     out.format(
+        "tex_uv_node = new_nodetree.nodes.new('ShaderNodeUVMap')\n"
         "tex_links.append(new_nodetree.links.new(tex_uv_node.outputs['UV'], tex_node.inputs['Vector']))\n"
-        "tex_uv_node.uv_layer = 'UV_%u'\n",
+        "tex_uv_node.uv_map = 'UV_%u'\n",
         texIdx);
   }
 
-  out << "\n";
+  out.format("tex_uv_node.label = '%s'\n", mtxLabel);
+
+  out << "gridder.place_node(tex_uv_node, 0)\n"
+         "gridder.place_node(tex_node, 0)\n"
+         "tex_uv_node.location[0] -= 120\n"
+         "tex_node.location[0] += 120\n"
+         "tex_node.location[1] += 176\n"
+         "\n";
 }
 
 void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx, const float* vals) {
@@ -242,466 +245,226 @@ void Material::AddTextureAnim(Stream& out, UVAnimation::Mode type, unsigned idx,
 
 void Material::AddKcolor(Stream& out, const GX::Color& col, unsigned idx) {
   out.format(
-      "# KColor\n"
-      "kc_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
-      "kc_node.label = 'KColor %u'\n"
-      "kc_node.outputs['Color'].default_value[0] = %f\n"
-      "kc_node.outputs['Color'].default_value[1] = %f\n"
-      "kc_node.outputs['Color'].default_value[2] = %f\n"
-      "kc_node.outputs['Color'].default_value[3] = %f\n"
-      "gridder.place_node(kc_node, 1)\n"
-      "\n"
-      "ka_node = new_nodetree.nodes.new('ShaderNodeValue')\n"
-      "ka_node.label = 'KAlpha %u'\n"
-      "ka_node.outputs['Value'].default_value = %f\n"
-      "gridder.place_node(ka_node, 1)\n"
-      "\n"
-      "kcolor_nodes.append((kc_node,ka_node))\n"
+      "kcolors[%d] = (%f, %f, %f, %f)\n"
+      "kalphas[%d] = %f\n"
       "\n",
       idx, (float)col.color[0] / (float)0xff, (float)col.color[1] / (float)0xff, (float)col.color[2] / (float)0xff,
       (float)col.color[3] / (float)0xff, idx, (float)col.color[3] / (float)0xff);
 }
 
-void Material::AddDynamicColor(Stream& out, unsigned idx) {
-  out.format(
-      "# Dynamic Color\n"
-      "node_name = 'DYNAMIC_C_%u'\n"
-      "if node_name not in new_nodetree.nodes:\n"
-      "    dyn_c_node = new_nodetree.nodes.new('ShaderNodeRGB')\n"
-      "    dyn_c_node.name = node_name\n"
-      "    dyn_c_node.label = 'DYNAMIC_%u'\n"
-      "    dyn_c_node.outputs['Color'].default_value = (1.0,1.0,1.0,1.0)\n"
-      "    gridder.place_node(dyn_c_node, 1)\n"
-      "\n",
-      idx, idx);
+template <class MAT>
+static uint32_t _HashTextureConfig(const MAT& mat) {
+  XXH32_state_t xxHash;
+  XXH32_reset(&xxHash, 0);
+  for (int i = 0; i < mat.tevStageCount; ++i) {
+    const auto& stage = mat.tevStages[i];
+    XXH32_update(&xxHash, &stage.ciFlags, sizeof(stage.ciFlags));
+    XXH32_update(&xxHash, &stage.aiFlags, sizeof(stage.aiFlags));
+    XXH32_update(&xxHash, &stage.ccFlags, sizeof(stage.ccFlags));
+    XXH32_update(&xxHash, &stage.acFlags, sizeof(stage.acFlags));
+    XXH32_update(&xxHash, &stage.kaInput, sizeof(stage.kaInput));
+    XXH32_update(&xxHash, &stage.kcInput, sizeof(stage.kcInput));
+    XXH32_update(&xxHash, &stage.rascInput, sizeof(stage.rascInput));
+  }
+  bool hasInd = mat.flags.samusReflectionIndirectTexture();
+  XXH32_update(&xxHash, &hasInd, sizeof(hasInd));
+  bool hasLm = mat.flags.lightmap();
+  XXH32_update(&xxHash, &hasLm, sizeof(hasLm));
+  return XXH32_digest(&xxHash);
 }
 
-void Material::AddDynamicAlpha(Stream& out, unsigned idx) {
-  out.format(
-      "# Dynamic Alpha\n"
-      "node_name = 'DYNAMIC_A_%u'\n"
-      "if node_name not in new_nodetree.nodes:\n"
-      "    dyn_a_node = new_nodetree.nodes.new('ShaderNodeValue')\n"
-      "    dyn_a_node.name = node_name\n"
-      "    dyn_a_node.label = 'DYNAMIC_%u'\n"
-      "    dyn_a_node.outputs['Value'].default_value = 1.0\n"
-      "    gridder.place_node(dyn_a_node, 1)\n"
-      "\n",
-      idx, idx);
+static const char* ToString(GX::TevColorArg arg) {
+  switch (arg) {
+  case GX::CC_CPREV:
+    return "CC_CPREV";
+  case GX::CC_APREV:
+    return "CC_APREV";
+  case GX::CC_C0:
+    return "CC_C0";
+  case GX::CC_A0:
+    return "CC_A0";
+  case GX::CC_C1:
+    return "CC_C1";
+  case GX::CC_A1:
+    return "CC_A1";
+  case GX::CC_C2:
+    return "CC_C2";
+  case GX::CC_A2:
+    return "CC_A2";
+  case GX::CC_TEXC:
+    return "CC_TEXC";
+  case GX::CC_TEXA:
+    return "CC_TEXA";
+  case GX::CC_RASC:
+    return "CC_RASC";
+  case GX::CC_RASA:
+    return "CC_RASA";
+  case GX::CC_ONE:
+    return "CC_ONE";
+  case GX::CC_HALF:
+    return "CC_HALF";
+  case GX::CC_KONST:
+    return "CC_KONST";
+  case GX::CC_ZERO:
+    return "CC_ZERO";
+  default:
+    return "UNKNOWN";
+  }
 }
 
-enum class Combiner { Add, Sub, Mult };
-static void AddColorCombiner(Stream& out, Combiner type, const char* a, const char* b, const char* v) {
-  out << "combiner_node = new_nodetree.nodes.new('ShaderNodeMixRGB')\n"
-         "combiner_node.inputs[0].default_value = 1.0\n"
-         "gridder.place_node_right(combiner_node, 2, 0)\n";
-  if (type == Combiner::Add)
-    out << "combiner_node.blend_type = 'ADD'\n";
-  else if (type == Combiner::Sub)
-    out << "combiner_node.blend_type = 'SUBTRACT'\n";
-  else if (type == Combiner::Mult)
-    out << "combiner_node.blend_type = 'MULTIPLY'\n";
-
-  if (a) {
-    if (!strcmp(a, "ZERO"))
-      out << "combiner_node.inputs['Color1'].default_value = (0.0, 0.0, 0.0, 0.0)\n";
-    else if (!strcmp(a, "HALF"))
-      out << "combiner_node.inputs['Color1'].default_value = (0.5, 0.5, 0.5, 0.5)\n";
-    else if (!strcmp(a, "ONE"))
-      out << "combiner_node.inputs['Color1'].default_value = (1.0, 1.0, 1.0, 1.0)\n";
-    else if (!strcmp(a, "D0")) {
-      Material::AddDynamicColor(out, 0);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_0'].outputs['Color'], "
-             "combiner_node.inputs['Color1'])\n";
-    } else if (!strcmp(a, "D1")) {
-      Material::AddDynamicColor(out, 1);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_1'].outputs['Color'], "
-             "combiner_node.inputs['Color1'])\n";
-    } else if (!strcmp(a, "D2")) {
-      Material::AddDynamicColor(out, 2);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_2'].outputs['Color'], "
-             "combiner_node.inputs['Color1'])\n";
-    } else if (!strlen(a)) {
-    } else
-      out.format("new_nodetree.links.new(%s, combiner_node.inputs['Color1'])\n", a);
+static const char* ToString(GX::TevAlphaArg arg) {
+  switch (arg) {
+  case GX::CA_APREV:
+    return "CA_APREV";
+  case GX::CA_A0:
+    return "CA_A0";
+  case GX::CA_A1:
+    return "CA_A1";
+  case GX::CA_A2:
+    return "CA_A2";
+  case GX::CA_TEXA:
+    return "CA_TEXA";
+  case GX::CA_RASA:
+    return "CA_RASA";
+  case GX::CA_KONST:
+    return "CA_KONST";
+  case GX::CA_ZERO:
+    return "CA_ZERO";
+  default:
+    return "UNKNOWN";
   }
-
-  if (b) {
-    if (!strcmp(b, "ZERO"))
-      out << "combiner_node.inputs['Color2'].default_value = (0.0, 0.0, 0.0, 0.0)\n";
-    else if (!strcmp(b, "HALF"))
-      out << "combiner_node.inputs['Color2'].default_value = (0.5, 0.5, 0.5, 0.5)\n";
-    else if (!strcmp(b, "ONE"))
-      out << "combiner_node.inputs['Color2'].default_value = (1.0, 1.0, 1.0, 1.0)\n";
-    else if (!strcmp(b, "D0")) {
-      Material::AddDynamicColor(out, 0);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_0'].outputs['Color'], "
-             "combiner_node.inputs['Color2'])\n";
-    } else if (!strcmp(b, "D1")) {
-      Material::AddDynamicColor(out, 1);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_1'].outputs['Color'], "
-             "combiner_node.inputs['Color2'])\n";
-    } else if (!strcmp(b, "D2")) {
-      Material::AddDynamicColor(out, 2);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_C_2'].outputs['Color'], "
-             "combiner_node.inputs['Color2'])\n";
-    } else if (!strlen(b)) {
-    } else
-      out.format("new_nodetree.links.new(%s, combiner_node.inputs['Color2'])\n", b);
-  }
-
-  if (v)
-    out.format("new_nodetree.links.new(combiner_node.outputs['Color'], %s)\n", v);
-
-  out << "color_combiner_sockets.append(combiner_node.outputs['Color'])\n\n";
 }
 
-static void AddAlphaCombiner(Stream& out, Combiner type, const char* a, const char* b, const char* v) {
-  out << "combiner_node = new_nodetree.nodes.new('ShaderNodeMath')\n"
-         "gridder.place_node_right(combiner_node, 2, 1)\n";
-  if (type == Combiner::Add)
-    out << "combiner_node.operation = 'ADD'\n";
-  else if (type == Combiner::Sub)
-    out << "combiner_node.operation = 'SUBTRACT'\n";
-  else if (type == Combiner::Mult)
-    out << "combiner_node.operation = 'MULTIPLY'\n";
-
-  if (a) {
-    if (!strcmp(a, "ZERO"))
-      out << "combiner_node.inputs[0].default_value = 0.0\n";
-    else if (!strcmp(a, "HALF"))
-      out << "combiner_node.inputs[0].default_value = 0.5\n";
-    else if (!strcmp(a, "ONE"))
-      out << "combiner_node.inputs[0].default_value = 1.0\n";
-    else if (!strcmp(a, "D0")) {
-      Material::AddDynamicAlpha(out, 0);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_0'].outputs[0], combiner_node.inputs[0])\n";
-    } else if (!strcmp(a, "D1")) {
-      Material::AddDynamicAlpha(out, 1);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_1'].outputs[0], combiner_node.inputs[0])\n";
-    } else if (!strcmp(a, "D2")) {
-      Material::AddDynamicAlpha(out, 2);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_2'].outputs[0], combiner_node.inputs[0])\n";
-    } else
-      out.format("new_nodetree.links.new(%s, combiner_node.inputs[0])\n", a);
+static const char* ToString(GX::TevRegID arg) {
+  switch (arg) {
+  case GX::TEVPREV:
+    return "TEVPREV";
+  case GX::TEVREG0:
+    return "TEVREG0";
+  case GX::TEVREG1:
+    return "TEVREG1";
+  case GX::TEVREG2:
+    return "TEVREG2";
+  default:
+    return "UNKNOWN";
   }
-
-  if (b) {
-    if (!strcmp(b, "ZERO"))
-      out << "combiner_node.inputs[1].default_value = 0.0\n";
-    else if (!strcmp(b, "HALF"))
-      out << "combiner_node.inputs[1].default_value = 0.5\n";
-    else if (!strcmp(b, "ONE"))
-      out << "combiner_node.inputs[1].default_value = 1.0\n";
-    else if (!strcmp(b, "D0")) {
-      Material::AddDynamicAlpha(out, 0);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_0'].outputs[0], combiner_node.inputs[1])\n";
-    } else if (!strcmp(b, "D1")) {
-      Material::AddDynamicAlpha(out, 1);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_1'].outputs[0], combiner_node.inputs[1])\n";
-    } else if (!strcmp(b, "D2")) {
-      Material::AddDynamicAlpha(out, 2);
-      out << "new_nodetree.links.new(new_nodetree.nodes['DYNAMIC_A_2'].outputs[0], combiner_node.inputs[1])\n";
-    } else
-      out.format("new_nodetree.links.new(%s, combiner_node.inputs[1])\n", b);
-  }
-
-  if (v)
-    out.format("new_nodetree.links.new(combiner_node.outputs[0], %s)\n", v);
-
-  out << "alpha_combiner_sockets.append(combiner_node.outputs[0])\n\n";
-}
-
-static void TranslateColorSocket(char* socketOut, GX::TevColorArg arg, GX::TevKColorSel kcolor,
-                                 const MaterialSet::Material::TEVStageTexInfo& stageTex, char c_regs[4][64],
-                                 char a_regs[4][64]) {
-  if (arg == GX::CC_ZERO)
-    strcpy(socketOut, "ZERO");
-  else if (arg == GX::CC_HALF)
-    strcpy(socketOut, "HALF");
-  else if (arg == GX::CC_ONE)
-    strcpy(socketOut, "ONE");
-  else if (arg == GX::CC_TEXC) {
-    if (stageTex.tcgSlot == 0xff)
-      strcpy(socketOut, "ONE");
-    else
-      sprintf(socketOut, "texture_nodes[%u].outputs['Color']", stageTex.tcgSlot);
-  } else if (arg == GX::CC_TEXA) {
-    if (stageTex.tcgSlot == 0xff)
-      strcpy(socketOut, "ONE");
-    else
-      sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-  } else if (arg == GX::CC_RASC)
-    strcpy(socketOut, "material_node.outputs['Color']");
-  else if (arg == GX::CC_RASA)
-    strcpy(socketOut, "material_node.outputs['Alpha']");
-  else if (arg == GX::CC_KONST) {
-    int kreg = (kcolor - GX::TEV_KCSEL_K0) % 4;
-    if (kcolor < GX::TEV_KCSEL_K0)
-      strcpy(socketOut, "ONE");
-    else if (kreg == 0)
-      strcpy(socketOut, "kcolor_nodes[0][0].outputs[0]");
-    else if (kreg == 1)
-      strcpy(socketOut, "kcolor_nodes[1][0].outputs[0]");
-    else if (kreg == 2)
-      strcpy(socketOut, "kcolor_nodes[2][0].outputs[0]");
-    else if (kreg == 3)
-      strcpy(socketOut, "kcolor_nodes[3][0].outputs[0]");
-    else
-      strcpy(socketOut, "ONE");
-  } else if (arg == GX::CC_CPREV)
-    strcpy(socketOut, c_regs[GX::TEVPREV]);
-  else if (arg == GX::CC_APREV)
-    strcpy(socketOut, a_regs[GX::TEVPREV]);
-  else if (arg == GX::CC_C0)
-    strcpy(socketOut, c_regs[GX::TEVREG0]);
-  else if (arg == GX::CC_A0)
-    strcpy(socketOut, a_regs[GX::TEVREG0]);
-  else if (arg == GX::CC_C1)
-    strcpy(socketOut, c_regs[GX::TEVREG1]);
-  else if (arg == GX::CC_A1)
-    strcpy(socketOut, a_regs[GX::TEVREG1]);
-  else if (arg == GX::CC_C2)
-    strcpy(socketOut, c_regs[GX::TEVREG2]);
-  else if (arg == GX::CC_A2)
-    strcpy(socketOut, a_regs[GX::TEVREG2]);
-}
-
-static void TranslateAlphaSocket(char* socketOut, GX::TevAlphaArg arg, GX::TevKAlphaSel kalpha,
-                                 const MaterialSet::Material::TEVStageTexInfo& stageTex, char a_regs[4][64]) {
-  if (arg == GX::CA_ZERO)
-    strcpy(socketOut, "ZERO");
-  else if (arg == GX::CA_TEXA) {
-    if (stageTex.tcgSlot == 0xff)
-      strcpy(socketOut, "ONE");
-    else
-      sprintf(socketOut, "texture_nodes[%u].outputs['Value']", stageTex.tcgSlot);
-  } else if (arg == GX::CA_RASA)
-    strcpy(socketOut, "material_node.outputs['Alpha']");
-  else if (arg == GX::CA_KONST) {
-    int kreg = kalpha - GX::TEV_KASEL_K0_A;
-    if (kreg == 0)
-      strcpy(socketOut, "kcolor_nodes[0][1].outputs[0]");
-    else if (kreg == 1)
-      strcpy(socketOut, "kcolor_nodes[1][1].outputs[0]");
-    else if (kreg == 2)
-      strcpy(socketOut, "kcolor_nodes[2][1].outputs[0]");
-    else if (kreg == 3)
-      strcpy(socketOut, "kcolor_nodes[3][1].outputs[0]");
-    else
-      strcpy(socketOut, "ONE");
-  } else if (arg == GX::CA_APREV)
-    strcpy(socketOut, a_regs[GX::TEVPREV]);
-  else if (arg == GX::CA_A0)
-    strcpy(socketOut, a_regs[GX::TEVREG0]);
-  else if (arg == GX::CA_A1)
-    strcpy(socketOut, a_regs[GX::TEVREG1]);
-  else if (arg == GX::CA_A2)
-    strcpy(socketOut, a_regs[GX::TEVREG2]);
-}
-
-static void AddTEVStage(Stream& out, const MaterialSet::Material::TEVStage& stage,
-                        const MaterialSet::Material::TEVStageTexInfo& stageTex, char c_regs[4][64], char a_regs[4][64],
-                        unsigned& c_combiner_idx, unsigned& a_combiner_idx) {
-  char ca[64];
-  char cb[64];
-  char cc[64];
-  char cd[64];
-  TranslateColorSocket(ca, stage.colorInA(), stage.kColorIn(), stageTex, c_regs, a_regs);
-  TranslateColorSocket(cb, stage.colorInB(), stage.kColorIn(), stageTex, c_regs, a_regs);
-  TranslateColorSocket(cc, stage.colorInC(), stage.kColorIn(), stageTex, c_regs, a_regs);
-  TranslateColorSocket(cd, stage.colorInD(), stage.kColorIn(), stageTex, c_regs, a_regs);
-
-  char aa[64];
-  char ab[64];
-  char ac[64];
-  char ad[64];
-  TranslateAlphaSocket(aa, stage.alphaInA(), stage.kAlphaIn(), stageTex, a_regs);
-  TranslateAlphaSocket(ab, stage.alphaInB(), stage.kAlphaIn(), stageTex, a_regs);
-  TranslateAlphaSocket(ac, stage.alphaInC(), stage.kAlphaIn(), stageTex, a_regs);
-  TranslateAlphaSocket(ad, stage.alphaInD(), stage.kAlphaIn(), stageTex, a_regs);
-
-  /* Apply color optimizations */
-  unsigned c_tev_opts = 0;
-  if (stage.colorInA() == GX::CC_ZERO || stage.colorInC() == GX::CC_ONE)
-    c_tev_opts |= 1;
-  if (stage.colorInB() == GX::CC_ZERO || stage.colorInC() == GX::CC_ZERO)
-    c_tev_opts |= 2;
-  if (c_tev_opts & 1 || c_tev_opts & 2)
-    c_tev_opts |= 4;
-  if (stage.colorInD() == GX::CC_ZERO || (c_tev_opts & 7) == 7)
-    c_tev_opts |= 8;
-
-  /* Special A/D (additive) optimization */
-  if (stage.colorInA() != GX::CC_ZERO && stage.colorInB() == GX::CC_ZERO && stage.colorInC() == GX::CC_ZERO &&
-      stage.colorInD() != GX::CC_ZERO) {
-    c_tev_opts |= 0x1f;
-    AddColorCombiner(out, Combiner::Add, cd, ca, nullptr);
-    ++c_combiner_idx;
-  } else if (stage.colorInA() != GX::CC_ZERO && stage.colorInB() == GX::CC_ZERO && stage.colorInC() == GX::CC_ZERO &&
-             stage.colorInD() == GX::CC_ZERO) {
-    c_tev_opts |= 0xf;
-  } else if (stage.colorInA() == GX::CC_ZERO && stage.colorInB() == GX::CC_ZERO && stage.colorInC() == GX::CC_ZERO &&
-             stage.colorInD() != GX::CC_ZERO) {
-    c_tev_opts |= 0xf;
-  }
-
-  if (!(c_tev_opts & 1)) {
-    /* A nodes */
-    AddColorCombiner(out, Combiner::Sub, "ONE", ca, nullptr);
-    ++c_combiner_idx;
-    if (strcmp(cc, "ONE")) {
-      AddColorCombiner(out, Combiner::Mult, cc, "color_combiner_sockets[-1]", nullptr);
-      ++c_combiner_idx;
-    }
-  }
-
-  const char* c_soc_log[2] = {"color_combiner_sockets[-1]", "color_combiner_sockets[-2]"};
-
-  if (!(c_tev_opts & 2)) {
-    /* B nodes */
-    if (!strcmp(cc, "ONE")) {
-      if (strcmp(cb, "ZERO") && strcmp(cb, "HALF") && strcmp(cb, "ONE") && strcmp(cb, "D0") && strcmp(cb, "D1") &&
-          strcmp(cb, "D2")) {
-        out.format("color_combiner_sockets.append(%s)\n", cb);
-        ++c_combiner_idx;
-      } else {
-        c_soc_log[1] = c_soc_log[0];
-        c_soc_log[0] = cb;
-      }
-    } else {
-      AddColorCombiner(out, Combiner::Mult, cc, cb, nullptr);
-      ++c_combiner_idx;
-    }
-  }
-
-  if (!(c_tev_opts & 4)) {
-    /* A+B node */
-    AddColorCombiner(out, Combiner::Add, c_soc_log[0], c_soc_log[1], nullptr);
-    ++c_combiner_idx;
-  }
-
-  if (!(c_tev_opts & 8)) {
-    /* +D node */
-    AddColorCombiner(out, Combiner::Add, cd, c_soc_log[0], nullptr);
-    ++c_combiner_idx;
-  }
-
-  /* Apply alpha optimizations */
-  unsigned a_tev_opts = 0;
-  if (stage.alphaInA() == GX::CA_ZERO)
-    a_tev_opts |= 1;
-  if (stage.alphaInB() == GX::CA_ZERO || stage.alphaInC() == GX::CA_ZERO)
-    a_tev_opts |= 2;
-  if (a_tev_opts & 1 || a_tev_opts & 2)
-    a_tev_opts |= 4;
-  if (stage.alphaInD() == GX::CA_ZERO || (a_tev_opts & 7) == 7)
-    a_tev_opts |= 8;
-
-  /* Special A/D (additive) optimization */
-  if (stage.alphaInA() != GX::CA_ZERO && stage.alphaInB() == GX::CA_ZERO && stage.alphaInC() == GX::CA_ZERO &&
-      stage.alphaInD() != GX::CA_ZERO) {
-    a_tev_opts |= 0x1f;
-    AddAlphaCombiner(out, Combiner::Add, ad, aa, nullptr);
-    ++a_combiner_idx;
-  } else if (stage.alphaInA() != GX::CA_ZERO && stage.alphaInB() == GX::CA_ZERO && stage.alphaInC() == GX::CA_ZERO &&
-             stage.alphaInD() == GX::CA_ZERO) {
-    a_tev_opts |= 0xf;
-  } else if (stage.alphaInA() == GX::CA_ZERO && stage.alphaInB() == GX::CA_ZERO && stage.alphaInC() == GX::CA_ZERO &&
-             stage.alphaInD() != GX::CA_ZERO) {
-    a_tev_opts |= 0xf;
-  }
-
-  if (!(a_tev_opts & 1)) {
-    /* A nodes */
-    AddAlphaCombiner(out, Combiner::Sub, "ONE", aa, nullptr);
-    ++a_combiner_idx;
-    if (strcmp(ac, "ONE")) {
-      AddAlphaCombiner(out, Combiner::Mult, ac, "alpha_combiner_sockets[-1]", nullptr);
-      ++a_combiner_idx;
-    }
-  }
-
-  const char* a_soc_log[2] = {"alpha_combiner_sockets[-1]", "alpha_combiner_sockets[-2]"};
-
-  if (!(a_tev_opts & 2)) {
-    /* B nodes */
-    if (!strcmp(ac, "ONE")) {
-      if (strcmp(ab, "ZERO") && strcmp(ab, "HALF") && strcmp(ab, "ONE") && strcmp(ab, "D0") && strcmp(ab, "D1") &&
-          strcmp(ab, "D2")) {
-        out.format("alpha_combiner_sockets.append(%s)\n", ab);
-        ++a_combiner_idx;
-      } else {
-        a_soc_log[1] = a_soc_log[0];
-        a_soc_log[0] = ab;
-      }
-    } else {
-      AddAlphaCombiner(out, Combiner::Mult, ac, ab, nullptr);
-      ++a_combiner_idx;
-    }
-  }
-
-  if (!(a_tev_opts & 4)) {
-    /* A+B node */
-    AddAlphaCombiner(out, Combiner::Add, a_soc_log[0], a_soc_log[1], nullptr);
-    ++a_combiner_idx;
-  }
-
-  if (!(a_tev_opts & 8)) {
-    /* +D node */
-    AddAlphaCombiner(out, Combiner::Add, ad, a_soc_log[0], nullptr);
-    ++a_combiner_idx;
-  }
-
-  /* Update TEV regs */
-  if (c_tev_opts == 0xf) {
-    if (stage.colorInD() != GX::CC_ZERO)
-      strncpy(c_regs[stage.colorOpOutReg()], cd, 64);
-    else if (stage.colorInA() != GX::CC_ZERO)
-      strncpy(c_regs[stage.colorOpOutReg()], ca, 64);
-  } else
-    snprintf(c_regs[stage.colorOpOutReg()], 64, "color_combiner_sockets[%u]", c_combiner_idx - 1);
-  if (a_tev_opts == 0xf) {
-    if (stage.alphaInD() != GX::CA_ZERO)
-      strncpy(a_regs[stage.alphaOpOutReg()], ad, 64);
-    else if (stage.alphaInA() != GX::CA_ZERO)
-      strncpy(a_regs[stage.alphaOpOutReg()], aa, 64);
-  } else
-    snprintf(a_regs[stage.alphaOpOutReg()], 64, "alpha_combiner_sockets[%u]", a_combiner_idx - 1);
-
-  /* Row Break in gridder */
-  out << "gridder.row_break(2)\n";
 }
 
 template <class MAT>
-void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, unsigned matIdx) {
+static void _DescribeTEV(const MAT& mat) {
+  for (int i = 0; i < mat.tevStageCount; ++i) {
+    const auto& stage = mat.tevStages[i];
+    fprintf(stderr, "A:%s B:%s C:%s D:%s -> %s | A:%s B:%s C:%s D:%s -> %s\n",
+            ToString(stage.colorInA()), ToString(stage.colorInB()),
+            ToString(stage.colorInC()), ToString(stage.colorInD()), ToString(stage.colorOpOutReg()),
+            ToString(stage.alphaInA()), ToString(stage.alphaInB()),
+            ToString(stage.alphaInC()), ToString(stage.alphaInD()), ToString(stage.alphaOpOutReg()));
+  }
+  bool hasInd = mat.flags.samusReflectionIndirectTexture();
+  bool hasLm = mat.flags.lightmap();
+  fprintf(stderr, "HasIndirect: %d HasLightmap: %d\n", hasInd, hasLm);
+}
+
+struct TexLink {
+  const char* shaderInput;
+  int texidx;
+  bool alpha;
+  TexLink(const char* shaderInput, int texidx = -1, bool alpha = false)
+  : shaderInput(shaderInput), texidx(texidx), alpha(alpha) {}
+};
+
+struct ExtendedSpecularLink {
+  int texidx;
+  ExtendedSpecularLink(int texidx = -1) : texidx(texidx) {}
+};
+
+struct KColLink {
+  const char* shaderInput;
+  int kcidx;
+  bool alpha;
+  KColLink(const char* shaderInput, int kcidx = 0, bool alpha = false)
+  : shaderInput(shaderInput), kcidx(kcidx), alpha(alpha) {}
+};
+
+struct WhiteColorLink {
+  const char* shaderInput;
+  explicit WhiteColorLink(const char* shaderInput)
+  : shaderInput(shaderInput) {}
+};
+
+static void _GenerateRootShader(Stream& out, int) {
+  /* End of shader links */
+}
+
+template <typename... Targs>
+static void _GenerateRootShader(Stream& out, int tidx, TexLink tex, Targs... args) {
+  int texIdx = tex.texidx == -1 ? tidx : tex.texidx;
+  out << "texture_nodes[" << texIdx << "].name = '" << tex.shaderInput << "'\n";
+  out << "texture_nodes[" << texIdx << "].label = '" << tex.shaderInput << "'\n";
+  out << "new_nodetree.links.new(texture_nodes[" << texIdx << "].outputs['" <<
+    (tex.alpha ? "Alpha" : "Color") << "'], node.inputs['" << tex.shaderInput << "'])\n";
+  if (tex.texidx == -1)
+    ++tidx;
+  _GenerateRootShader(out, tidx, args...);
+}
+
+template <typename... Targs>
+static void _GenerateRootShader(Stream& out, int tidx, ExtendedSpecularLink tex, Targs... args) {
+  int texIdx = tex.texidx == -1 ? tidx : tex.texidx;
+  out << "texture_nodes[" << texIdx << "].name = 'Specular'\n";
+  out << "texture_nodes[" << texIdx << "].label = 'Specular'\n";
+  out << "new_nodetree.links.new(texture_nodes[" << texIdx << "].outputs['Color'], node.inputs['Specular'])\n";
+  out << "new_nodetree.links.new(texture_nodes[" << texIdx << "].outputs['Alpha'], node.inputs['ExtendedSpecular'])\n";
+  if (tex.texidx == -1)
+    ++tidx;
+  _GenerateRootShader(out, tidx, args...);
+}
+
+template <typename... Targs>
+static void _GenerateRootShader(Stream& out, int tidx, KColLink kcol, Targs... args) {
+  out << "node.inputs['" << kcol.shaderInput << "'].default_value = " <<
+    (kcol.alpha ? "kalphas[" : "kcolors[") << kcol.kcidx << "]\n";
+  _GenerateRootShader(out, tidx, args...);
+}
+
+template <typename... Targs>
+static void _GenerateRootShader(Stream& out, int tidx, WhiteColorLink wcol, Targs... args) {
+  out << "node.inputs['" << wcol.shaderInput << "'].default_value = (1.0, 1.0, 1.0, 1.0)\n";
+  _GenerateRootShader(out, tidx, args...);
+}
+
+template <typename... Targs>
+static void _GenerateRootShader(Stream& out, const char* type, Targs... args) {
+  out << "node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+         "node.name = 'Output'\n"
+         "node.node_tree = bpy.data.node_groups['" << type << "']\n"
+         "gridder.place_node(node, 1)\n";
+  _GenerateRootShader(out, 0, args...);
+}
+
+static TexLink operator "" _tex(const char* str, size_t) { return TexLink(str); }
+static TexLink operator "" _texa(const char* str, size_t) { return TexLink(str, -1, true); }
+static KColLink operator "" _kcol(const char* str, size_t) { return KColLink(str); }
+static KColLink operator "" _kcola(const char* str, size_t) { return KColLink(str, 0, true); }
+
+template <class MAT>
+static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, unsigned matIdx) {
   unsigned i;
 
-  out.format(
-      "new_material = bpy.data.materials.new('MAT_%u_%u')\n"
-      "new_material.use_shadows = True\n"
-      "new_material.use_transparent_shadows = True\n"
-      "new_material.diffuse_color = (1.0,1.0,1.0)\n"
-      "new_material.diffuse_intensity = 1.0\n"
-      "new_material.specular_intensity = 0.0\n"
-      "new_material.use_nodes = True\n"
-      "new_nodetree = new_material.node_tree\n"
-      "material_node = new_nodetree.nodes['Material']\n"
-      "final_node = new_nodetree.nodes['Output']\n"
-      "\n"
-      "gridder = hecl.Nodegrid(new_nodetree)\n"
-      "gridder.place_node(final_node, 3)\n"
-      "gridder.place_node(material_node, 0)\n"
-      "material_node.material = new_material\n"
-      "\n"
-      "texture_nodes = []\n"
-      "kcolor_nodes = []\n"
-      "color_combiner_sockets = []\n"
-      "alpha_combiner_sockets = []\n"
-      "tex_links = []\n"
-      "tev_reg_sockets = [None]*4\n"
-      "\n",
-      groupIdx, matIdx);
+  out.format("new_material = bpy.data.materials.new('MAT_%u_%u')\n", groupIdx, matIdx);
+  out << "new_material.use_fake_user = True\n"
+         "new_material.use_nodes = True\n"
+         "new_nodetree = new_material.node_tree\n"
+         "for n in new_nodetree.nodes:\n"
+         "    new_nodetree.nodes.remove(n)\n"
+         "\n"
+         "gridder = hecl.Nodegrid(new_nodetree)\n"
+         "\n"
+         "texture_nodes = []\n"
+         "kcolors = {}\n"
+         "kalphas = {}\n"
+         "tex_links = []\n"
+         "\n";
 
   /* Material Flags */
   out.format(
@@ -713,13 +476,13 @@ void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, uns
       "new_material.retro_shadow_occluder = %s\n"
       "new_material.retro_samus_reflection_indirect = %s\n"
       "new_material.retro_lightmapped = %s\n"
-      "new_material.game_settings.invisible = %s\n",
+      "new_material.diffuse_color = (1, 1, 1, %s)\n",
       material.flags.depthSorting() ? "True" : "False", material.flags.alphaTest() ? "True" : "False",
       material.flags.samusReflection() ? "True" : "False", material.flags.depthWrite() ? "True" : "False",
       material.flags.samusReflectionSurfaceEye() ? "True" : "False",
       material.flags.shadowOccluderMesh() ? "True" : "False",
       material.flags.samusReflectionIndirectTexture() ? "True" : "False", material.flags.lightmap() ? "True" : "False",
-      material.flags.shadowOccluderMesh() ? "True" : "False");
+      material.flags.shadowOccluderMesh() ? "0" : "1");
 
   /* Texture Indices */
   out << "tex_maps = []\n";
@@ -737,21 +500,9 @@ void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, uns
   using BlendFactor = Material::BlendFactor;
   if (material.blendDstFac != BlendFactor::BL_ZERO) {
     if (material.blendDstFac == BlendFactor::BL_ONE)
-      out << "new_material.game_settings.alpha_blend = 'ADD'\n"
-             "new_material.use_transparency = True\n"
-             "new_material.transparency_method = 'RAYTRACE'\n"
-             "new_material.alpha = 1.0\n";
+      out << "new_material.blend_method = 'ADD'\n";
     else
-      out << "new_material.game_settings.alpha_blend = 'ALPHA'\n"
-             "new_material.use_transparency = True\n"
-             "new_material.transparency_method = 'RAYTRACE'\n"
-             "new_material.alpha = 1.0\n";
-  }
-
-  /* Color channels (for combining dynamic lighting) */
-  for (const Material::ColorChannel& chan : material.colorChannels) {
-    if (!chan.lighting())
-      out << "new_material.use_shadeless = True\n";
+      out << "new_material.blend_method = 'BLEND'\n";
   }
 
   /* Add texture maps/tcgs */
@@ -771,48 +522,141 @@ void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupIdx, uns
   }
 
   /* Indirect texture node */
-  if (material.flags.samusReflectionIndirectTexture()) {
+  if (material.flags.samusReflectionIndirectTexture())
     Material::AddTexture(out, GX::TexGenSrc::TG_POS, -1, material.indTexSlot[0], false);
-    out << "# Indirect Texture\n"
-           "ind_out = new_nodetree.nodes.new('ShaderNodeOutput')\n"
-           "gridder.place_node(ind_out, 3)\n"
-           "ind_out.name = 'IndirectOutput'\n"
-           "ind_out.label = 'Indirect'\n"
-           "new_nodetree.links.new(tex_node.outputs['Color'], ind_out.inputs['Color'])\n";
+
+  /* Select appropriate root shader and link textures */
+  uint32_t hash = _HashTextureConfig(material);
+  switch (hash) {
+  case 0x0473AE40: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex); break;
+  case 0x072D2CB3: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+  case 0x0879D346: /* RetroShader: KColorDiffuse, Alpha=Texture */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_tex); break;
+  case 0x0DA256BB: /* Lightmap, Diffuse, Specular, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+  case 0x11C41DA4: /* RetroDynamicCharacterShader: Diffuse, DynamicMaskTex, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicCharacterShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0x1218F83E: /* RetroShader: ObjLightmap, Diffuse, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x129B8578: /* RetroShader: KColorDiffuse, Emissive, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Emissive"_tex, "Alpha"_kcola); break;
+  case 0x15A3E6E5: /* RetroShader: Diffuse, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola); break;
+  case 0x1BEB3E15: /* RetroShader: Diffuse, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x2261E0EB: /* RetroShader: Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0x239C7724: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex); break;
+  case 0x240C4C84: /* RetroShader: Lightmap, KColorDiffuse, Specular, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+  case 0x2523A379: /* RetroDynamicShader: Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0x25E85017: /* RetroShader: Lightmap, KColorDiffuse, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola); break;
+  case 0x27FD5C6C: /* RetroShader: ObjLightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x2AD9F535: /* RetroShader: Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+  case 0x2C9F5104: /* RetroShader: Diffuse, Specular, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+  case 0x2D059429: /* RetroShader: Diffuse, Emissive, ExtendedSpecular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex); break;
+  case 0x30AC64BB: /* RetroShader: Diffuse, Specular, Reflection, Alpha=KAlpha, IndirectTex */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, "Alpha"_kcola); break;
+  case 0x39BC4809: /* RetroDynamicShader: ObjLightmap*Dynamic, Diffuse*Dynamic, Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0x3BF97299: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=KAlpha, IndirectTex */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, "Alpha"_kcola); break;
+  case 0x47ECF3ED: /* RetroShader: Diffuse, Specular, Reflection, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Emissive"_tex); break;
+  case 0x4BBDFFA6: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+  case 0x4D4127A3: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x54A92F25: /* RetroShader: ObjLightmap, KColorDiffuse, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola); break;
+  case 0x5A62D5F0: /* RetroShader: Lightmap, Diffuse, UnusedExtendedSpecular?, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x5CB59821: /* RetroShader: Diffuse, UnusedSpecular?, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Alpha"_kcola); break;
+  case 0x5D0F0069: /* RetroShader: Diffuse, Emissive, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x5D80E53C: /* RetroShader: Emissive, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0x5F0AB0E9: /* RetroShader: Lightmap, Diffuse, UnusedSpecular?, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x5F189425: /* RetroShader: Lightmap, Diffuse, UnusedSpecular?, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola); break;
+  case 0x6601D113: /* RetroShader: Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex); break;
+  case 0x694287FA: /* RetroShader: Diffuse, Emissive, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, WhiteColorLink("Specular"), "Reflection"_tex); break;
+  case 0x6D98D689: /* RetroDynamicAlphaShader: Diffuse*Dynamic, Specular, Reflection, Alpha=KAlpha*Dynamic */
+    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "Alpha"_kcola); break;
+  case 0x7252CB90: /* RetroShader: Lightmap, Diffuse, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Alpha"_kcola); break;
+  case 0x76BEA57E: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0, IndirectTex */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex); break;
+  case 0x7D6A4487: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x84319328: /* RetroShader: Reflection, UnusedSpecular?, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", WhiteColorLink("Specular"), "Reflection"_tex); break;
+  case 0x846215DA: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x957709F8: /* RetroShader: Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Emissive"_tex); break;
+  case 0x96ABB2D3: /* RetroShader: Lightmap, Diffuse, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+  case 0x985A0B67: /* RetroShader: Diffuse, UnusedSpecular?, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x9B4453A2: /* RetroShader: Diffuse, Emissive, ExtendedSpecular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, ExtendedSpecularLink(), "Reflection"_tex); break;
+  case 0xA187C630: /* RetroShader: Diffuse, Emissive, UnusedReflection?, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+  case 0xC138DCFA: /* RetroShader: Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex); break;
+  case 0xC3C8B1C8: /* RetroShader: KColorDiffuse, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_kcol, "Alpha"_kcola); break;
+  case 0xC689C8C6: /* RetroShader: Diffuse, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, ExtendedSpecularLink(), "Reflection"_tex, TexLink("Alpha", 0, true)); break;
+  case 0xC6B18B28: /* RetroShader: Diffuse, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+  case 0xCD92D4C5: /* RetroShader: Diffuse, Reflection, Alpha=KAlpha */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, WhiteColorLink("Specular"), "Reflection"_tex, "Alpha"_kcola); break;
+  case 0xD73E7728: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+  case 0xDB8F01AD: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, UnusedSpecular?, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex); break;
+  case 0xE6784B10: /* RetroShader: Lightmap, Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, TexLink("Alpha", 1, true)); break;
+  case 0xE68FF182: /* RetroShader: Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0xEB4645CF: /* RetroDynamicAlphaShader: Diffuse*Dynamic, Alpha=DiffuseAlpha*Dynamic */
+    _GenerateRootShader(out, "RetroDynamicAlphaShader", "Diffuse"_tex, TexLink("Alpha", 0, true)); break;
+  case 0xECEF8D1F: /* RetroDynamicShader: Diffuse*Dynamic, Emissive*Dynamic, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroDynamicShader", "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0xF1C26570: /* RetroShader: Lightmap, Diffuse, Specular, ExtendedSpecular, Reflection, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "ExtendedSpecular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
+  case 0xF559DB08: /* RetroShader: Lightmap, Diffuse, Emissive, Specular, Reflection, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex, "Specular"_tex, "Reflection"_tex); break;
+  case 0xF9324367: /* RetroShader: Lightmap, Diffuse, Emissive, Alpha=1.0 */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Emissive"_tex); break;
+  case 0xFD95D7FD: /* RetroShader: ObjLightmap, Diffuse, Alpha=DiffuseAlpha */
+    _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
+  default:
+    _DescribeTEV(material);
+    Log.report(logvisor::Fatal, "Unable to resolve shader hash %08X\n", hash); break;
   }
-
-  /* TEV-emulation combiner-node index context */
-  unsigned c_combiner_idx = 0;
-  unsigned a_combiner_idx = 0;
-
-  /* Initialze TEV register sockets */
-  char c_regs[4][64] = {"ONE", "D0", "D1", "D2"};
-  char a_regs[4][64] = {"ONE", "D0", "D1", "D2"};
 
   /* Has Lightmap? */
   if (material.flags.lightmap()) {
     if (material.tevStageTexInfo[0].texSlot != 0xff)
       out << "new_material.hecl_lightmap = tex_maps[0].name\n"
-             "tex_maps[0].image.use_fake_user = True\n";
+             "tex_maps[0].use_fake_user = True\n";
   }
-
-  /* Add TEV stages */
-  for (i = 0; i < material.tevStageCount; ++i) {
-    const Material::TEVStage& stage = material.tevStages[i];
-    const Material::TEVStageTexInfo& stage_tex = material.tevStageTexInfo[i];
-    AddTEVStage(out, stage, stage_tex, c_regs, a_regs, c_combiner_idx, a_combiner_idx);
-  }
-
-  /* Connect final prev register */
-  if (!strcmp(c_regs[GX::TEVPREV], "ONE"))
-    out << "final_node.inputs['Color'].default_value = (1.0,1.0,1.0,1.0)\n";
-  else
-    out.format("new_nodetree.links.new(%s, final_node.inputs['Color'])\n", c_regs[GX::TEVPREV]);
-
-  if (!strcmp(a_regs[GX::TEVPREV], "ONE"))
-    out << "final_node.inputs['Alpha'].default_value = 1.0\n";
-  else
-    out.format("new_nodetree.links.new(%s, final_node.inputs['Alpha'])\n", a_regs[GX::TEVPREV]);
 
   /* Texmtx Animation Section */
   i = 0;
@@ -825,52 +669,55 @@ void MaterialSet::ConstructMaterial(Stream& out, const MaterialSet::Material& ma
   _ConstructMaterial(out, material, groupIdx, matIdx);
 }
 
-MaterialSet::Material::Material(const hecl::Backend::GX& gx, const std::unordered_map<std::string, int32_t>& iprops,
-                                const std::vector<hecl::ProjectPath>& texPathsIn,
-                                std::vector<hecl::ProjectPath>& texPathsOut, int colorCount, bool lightmapUVs,
-                                bool matrixSkinning) {
+MaterialSet::Material::Material(const hecl::blender::Material& mat,
+                                std::vector<hecl::ProjectPath>& texPathsOut,
+                                int colorCount, bool lightmapUVs, bool matrixSkinning) {
+  /* TODO: Rewrite for new shader rep */
   XXH32_state_t xxHash;
   XXH32_reset(&xxHash, 0);
 
+#if 0
   if (gx.m_kcolorCount) {
     flags.setKonstValuesEnabled(true);
     konstCount.push_back(gx.m_kcolorCount);
   }
+#endif
 
-  auto search = iprops.find("retro_depth_sort");
-  if (search != iprops.end())
+  auto search = mat.iprops.find("retro_depth_sort");
+  if (search != mat.iprops.end())
     flags.setDepthSorting(search->second != 0);
 
-  search = iprops.find("retro_alpha_test");
-  if (search != iprops.end())
-    flags.setPunchthroughAlpha(search->second != 0);
+  search = mat.iprops.find("retro_alpha_test");
+  if (search != mat.iprops.end())
+    flags.setAlphaTest(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection");
+  if (search != mat.iprops.end())
     flags.setSamusReflection(search->second != 0);
 
-  search = iprops.find("retro_depth_write");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_depth_write");
+  if (search != mat.iprops.end())
     flags.setDepthWrite(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection_persp");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection_persp");
+  if (search != mat.iprops.end())
     flags.setSamusReflectionSurfaceEye(search->second != 0);
 
-  search = iprops.find("retro_shadow_occluder");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_shadow_occluder");
+  if (search != mat.iprops.end())
     flags.setShadowOccluderMesh(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection_indirect");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection_indirect");
+  if (search != mat.iprops.end())
     flags.setSamusReflectionIndirectTexture(search->second != 0);
 
-  search = iprops.find("retro_lightmapped");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_lightmapped");
+  if (search != mat.iprops.end())
     flags.setLightmap(search->second != 0);
 
   flags.setLightmapUVArray(lightmapUVs);
 
+#if 0
   atUint16 texFlags = 0;
   atUint16 tcgFlags = 0;
   tevStageTexInfo.reserve(gx.m_tevCount);
@@ -1074,91 +921,71 @@ MaterialSet::Material::Material(const hecl::Backend::GX& gx, const std::unordere
 
   XXH32_update(&xxHash, &uvAnimsSize, sizeof(uvAnimsSize));
   XXH32_update(&xxHash, &uvAnimsCount, sizeof(uvAnimsCount));
+#endif
 
   uniqueIdx = XXH32_digest(&xxHash);
 }
 
-HMDLMaterialSet::Material::Material(hecl::Frontend::Frontend& FE, const std::string& diagName,
-                                    const hecl::blender::Material& mat,
-                                    const std::unordered_map<std::string, int32_t>& iprops,
-                                    const std::vector<hecl::ProjectPath>& texPaths) {
-  auto search = iprops.find("retro_depth_sort");
-  if (search != iprops.end())
+HMDLMaterialSet::Material::Material(const hecl::blender::Material& mat) {
+  auto search = mat.iprops.find("retro_depth_sort");
+  if (search != mat.iprops.end())
     flags.setDepthSorting(search->second != 0);
 
-  search = iprops.find("retro_alpha_test");
-  if (search != iprops.end())
-    flags.setPunchthroughAlpha(search->second != 0);
+  search = mat.iprops.find("retro_alpha_test");
+  if (search != mat.iprops.end())
+    flags.setAlphaTest(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection");
+  if (search != mat.iprops.end())
     flags.setSamusReflection(search->second != 0);
 
-  search = iprops.find("retro_depth_write");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_depth_write");
+  if (search != mat.iprops.end())
     flags.setDepthWrite(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection_persp");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection_persp");
+  if (search != mat.iprops.end())
     flags.setSamusReflectionSurfaceEye(search->second != 0);
 
-  search = iprops.find("retro_shadow_occluder");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_shadow_occluder");
+  if (search != mat.iprops.end())
     flags.setShadowOccluderMesh(search->second != 0);
 
-  search = iprops.find("retro_samus_reflection_indirect");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_samus_reflection_indirect");
+  if (search != mat.iprops.end())
     flags.setSamusReflectionIndirectTexture(search->second != 0);
 
-  search = iprops.find("retro_lightmapped");
-  if (search != iprops.end())
+  search = mat.iprops.find("retro_lightmapped");
+  if (search != mat.iprops.end())
     flags.setLightmap(search->second != 0);
 
-  for (const hecl::ProjectPath& path : mat.texs) {
-    size_t idx = 0;
-    for (const hecl::ProjectPath& tPath : texPaths) {
-      if (path == tPath) {
-        textureIdxs.push_back(idx);
-        ++textureCount;
-        break;
-      }
-      ++idx;
-    }
+  XXH64_state_t xxh;
+  XXH64_reset(&xxh, 0);
+  shaderType = mat.shaderType;
+  XXH64_update(&xxh, &shaderType, sizeof(shaderType));
+  chunkCount = 0;
+  chunks.reserve(mat.chunks.size());
+  for (const auto& chunk : mat.chunks) {
+    chunk.visit([this, &xxh](const auto& var) {
+      using T = std::decay_t<decltype(var)>;
+      chunks.push_back(Chunk::Build(T::variant_type(), var));
+      var.hash(&xxh);
+      ++chunkCount;
+    });
   }
-
+  blendMode = mat.blendMode;
+  XXH64_update(&xxh, &blendMode, sizeof(blendMode));
+  int hashFlags = 0;
+  if (flags.samusReflection())
+    hashFlags |= 1;
   if (flags.samusReflectionIndirectTexture())
-    indTexSlot.push_back(textureIdxs.size());
-
-  heclSource = mat.source;
-  heclIr = FE.compileSource(mat.source, diagName);
-
-  uvAnimsSize = 4;
-  uvAnimsCount = 0;
-  for (const hecl::Frontend::IR::Instruction& inst : heclIr.m_instructions) {
-    if (inst.m_op != hecl::Frontend::IR::OpType::Call)
-      continue;
-    if (inst.m_call.m_name.compare("Texture"))
-      continue;
-
-    const hecl::Frontend::IR::Instruction& sourceInst = inst.getChildInst(heclIr, 1);
-    if (sourceInst.m_op != hecl::Frontend::IR::OpType::Call)
-      continue;
-    if (sourceInst.m_call.m_name.compare(0, 11, "RetroUVMode"))
-      continue;
-
-    std::vector<atVec4f> gameArgs;
-    gameArgs.reserve(sourceInst.getChildCount() - 1);
-    for (int i = 1; i < sourceInst.getChildCount(); ++i) {
-      const hecl::Frontend::IR::Instruction& ci = sourceInst.getChildInst(heclIr, i);
-      gameArgs.push_back(ci.getImmVec());
-    }
-
-    ++uvAnimsCount;
-    uvAnims.emplace_back(sourceInst.m_call.m_name, gameArgs);
-    size_t tmpUvAnimsSize = uvAnimsSize;
-    uvAnims.back().binarySize(tmpUvAnimsSize);
-    uvAnimsSize = tmpUvAnimsSize;
-  }
+    hashFlags |= 2;
+  if (flags.depthWrite())
+    hashFlags |= 4;
+  if (flags.alphaTest())
+    hashFlags |= 8;
+  XXH64_update(&xxh, &hashFlags, sizeof(hashFlags));
+  hash = XXH64_digest(&xxh);
 }
 
 MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction, const std::vector<atVec4f>& gameArgs) {
@@ -1235,6 +1062,25 @@ void MaterialSet::Material::UVAnimation::Enumerate(typename Op::StreamT& s) {
 }
 
 AT_SPECIALIZE_DNA(MaterialSet::Material::UVAnimation)
+
+template <class Op>
+void HMDLMaterialSet::Material::PASS::Enumerate(typename Op::StreamT& s) {
+  Do<Op>({"type"}, type, s);
+  Do<Op>({"texId"}, texId, s);
+  Do<Op>({"source"}, source, s);
+  Do<Op>({"uvAnimType"}, uvAnimType, s);
+  size_t uvParmCount = uvAnimParamsCount();
+  for (size_t i = 0; i < uvParmCount; ++i)
+    Do<Op>({}, uvAnimParms[i], s);
+  Do<Op>({"alpha"}, alpha, s);
+}
+
+AT_SPECIALIZE_DNA(HMDLMaterialSet::Material::PASS)
+
+
+const char* HMDLMaterialSet::Material::PASS::DNAType() {
+  return "DataSpec::DNAMP1::HMDLMaterialSet::Material::PASS";
+}
 
 } // namespace DataSpec::DNAMP1
 

@@ -2068,7 +2068,7 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
         u32 spawnPu = sp->GetPowerup(iType);
         u32 statePu = x8b8_playerState->GetItemAmount(iType);
         if (statePu < spawnPu)
-          x8b8_playerState->InitializePowerUp(iType, spawnPu - statePu);
+          x8b8_playerState->AddPowerUp(iType, spawnPu - statePu);
 
         spawnPu = sp->GetPowerup(iType);
         statePu = x8b8_playerState->GetItemAmount(iType);

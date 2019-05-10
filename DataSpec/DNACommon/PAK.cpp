@@ -322,7 +322,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCooked(const EntryType* entry) const
   auto overrideSearch = m_overrideEntries.find(entry->id);
   if (overrideSearch != m_overrideEntries.end()) {
     return overrideSearch->second.getCookedPath(*m_dataSpec.overrideDataSpec(
-        overrideSearch->second, m_dataSpec.getDataSpecEntry(), hecl::blender::SharedBlenderToken));
+        overrideSearch->second, m_dataSpec.getDataSpecEntry()));
   }
 
   const PAKType* pak = m_pak.get();

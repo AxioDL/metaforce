@@ -136,7 +136,7 @@ struct MLVL : BigDNA {
   static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld,
                    hecl::blender::Token& btok);
 
-  static bool CookMAPW(const hecl::ProjectPath& outPath, const World& wld, hecl::blender::Token& btok);
+  static bool CookMAPW(const hecl::ProjectPath& outPath, const World& wld);
 
   static bool CookSAVW(const hecl::ProjectPath& outPath, const World& wld);
 };

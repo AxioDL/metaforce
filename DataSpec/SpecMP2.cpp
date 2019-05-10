@@ -359,7 +359,7 @@ struct SpecMP2 : SpecBase {
     });
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const { return {}; }
+  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const { return {}; }
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                 hecl::blender::Token& btok, FCookProgress progress) {}
@@ -430,14 +430,13 @@ struct SpecMP2 : SpecBase {
 };
 
 hecl::Database::DataSpecEntry SpecEntMP2(
-    _SYS_STR("MP2"sv), _SYS_STR("Data specification for original Metroid Prime 2 engine"sv), _SYS_STR(".pak"sv), 2,
+    _SYS_STR("MP2"sv), _SYS_STR("Data specification for original Metroid Prime 2 engine"sv), _SYS_STR(".pak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> std::unique_ptr<hecl::Database::IDataSpec> {
       return std::make_unique<SpecMP2>(&SpecEntMP2, project, false);
     });
 
 hecl::Database::DataSpecEntry SpecEntMP2PC = {
     _SYS_STR("MP2-PC"sv), _SYS_STR("Data specification for PC-optimized Metroid Prime 2 engine"sv), _SYS_STR(".upak"sv),
-    2,
     [](hecl::Database::Project& project,
        hecl::Database::DataSpecTool tool) -> std::unique_ptr<hecl::Database::IDataSpec> {
       if (tool != hecl::Database::DataSpecTool::Extract)
@@ -446,6 +445,6 @@ hecl::Database::DataSpecEntry SpecEntMP2PC = {
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP2ORIG = {
-    _SYS_STR("MP2-ORIG"sv), _SYS_STR("Data specification for unmodified Metroid Prime 2 resources"sv), {}, 2, {}};
+    _SYS_STR("MP2-ORIG"sv), _SYS_STR("Data specification for unmodified Metroid Prime 2 resources"sv), {}, {}};
 
 } // namespace DataSpec

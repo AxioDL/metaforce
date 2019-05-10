@@ -193,7 +193,7 @@ static bool IsPathSong(const hecl::ProjectPath& path) {
   return true;
 }
 
-bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass) {
+bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok) {
   if (!checkPathPrefix(path))
     return false;
 
@@ -205,15 +205,8 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok
 
   if (hecl::IsPathBlend(asBlend)) {
     hecl::blender::BlendType type = hecl::blender::GetBlendType(asBlend.getAbsolutePath());
-    if (type != hecl::blender::BlendType::None)
-      return cookPass < 0 || (cookPass == 0 && type == hecl::blender::BlendType::Mesh) || // CMDL only
-             (cookPass == 1 && type != hecl::blender::BlendType::Mesh);                   // Non-CMDL only
-    return false;
+    return type != hecl::blender::BlendType::None;
   }
-
-  /* Non-CMDLs shall not pass */
-  if (cookPass == 0)
-    return false;
 
   if (hecl::IsPathPNG(path)) {
     return true;
@@ -230,8 +223,7 @@ bool SpecBase::canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok
 }
 
 const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::ProjectPath& path,
-                                                                const hecl::Database::DataSpecEntry* oldEntry,
-                                                                hecl::blender::Token& btok) const {
+                                                                const hecl::Database::DataSpecEntry* oldEntry) const {
   if (!checkPathPrefix(path))
     return nullptr;
 
@@ -487,7 +479,7 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
       if (hecl::ProjectPath(childPath, _SYS_STR("!project.yaml")).isFile() &&
           hecl::ProjectPath(childPath, _SYS_STR("!pool.yaml")).isFile()) {
         /* Handle AudioGroup case */
-        if (urde::SObjectTag tag = tagFromPath(childPath, btok)) {
+        if (urde::SObjectTag tag = tagFromPath(childPath)) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -501,7 +493,7 @@ void SpecBase::recursiveBuildResourceList(std::vector<urde::SObjectTag>& listOut
       std::vector<hecl::ProjectPath> subPaths;
       flattenDependencies(childPath, subPaths, btok);
       for (const auto& subPath : subPaths) {
-        if (urde::SObjectTag tag = tagFromPath(subPath, btok)) {
+        if (urde::SObjectTag tag = tagFromPath(subPath)) {
           if (addedTags.find(tag) != addedTags.end())
             continue;
           addedTags.insert(tag);
@@ -637,7 +629,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     std::unordered_set<urde::SObjectTag> addedTags;
     std::vector<std::pair<urde::SObjectTag, std::string>> nameList;
     for (const auto& subPath : subPaths) {
-      if (urde::SObjectTag tag = tagFromPath(subPath, btok)) {
+      if (urde::SObjectTag tag = tagFromPath(subPath)) {
         if (addedTags.find(tag) != addedTags.end())
           continue;
         addedTags.insert(tag);
@@ -664,20 +656,30 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
   if (cp) {
     Log.report(logvisor::Info, _SYS_STR("Validating resources"));
     progress.setMainIndeterminate(true);
-    for (int i = 0; i < entry->m_numCookPasses; ++i) {
+    std::vector<urde::SObjectTag> cookTags;
+    cookTags.reserve(buildList.size());
+
+    /* Ensure CMDLs are enqueued first to minimize synchronous dependency cooking */
+    for (int i = 0; i < 2; ++i) {
       std::unordered_set<urde::SObjectTag> addedTags;
       addedTags.reserve(buildList.size());
       for (auto& tag : buildList) {
-        if (addedTags.find(tag) != addedTags.end())
-          continue;
-        addedTags.insert(tag);
-
-        hecl::ProjectPath depPath = pathFromTag(tag);
-        if (!depPath) {
-          Log.report(logvisor::Fatal, _SYS_STR("Unable to resolve %.4s %08X"), tag.type.getChars(), tag.id.Value());
+        if ((i == 0 && tag.type == FOURCC('CMDL')) ||
+            (i == 1 && tag.type != FOURCC('CMDL'))) {
+          if (addedTags.find(tag) != addedTags.end())
+            continue;
+          addedTags.insert(tag);
+          cookTags.push_back(tag);
         }
-        m_project.cookPath(depPath, progress, false, false, fast, entry, cp, i);
       }
+    }
+
+    /* Cook ordered tags */
+    for (auto& tag : cookTags) {
+      hecl::ProjectPath depPath = pathFromTag(tag);
+      if (!depPath)
+        Log.report(logvisor::Fatal, _SYS_STR("Unable to resolve %.4s %08X"), tag.type.getChars(), tag.id.Value());
+      m_project.cookPath(depPath, progress, false, false, fast, entry, cp);
     }
     progress.setMainIndeterminate(false);
     cp->waitUntilComplete();
@@ -699,7 +701,7 @@ void SpecBase::interruptCook() { cancelBackgroundIndex(); }
 hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const {
   const hecl::Database::DataSpecEntry* spec = &getOriginalSpec();
   if (pcTarget)
-    spec = overrideDataSpec(working, getDataSpecEntry(), hecl::blender::SharedBlenderToken);
+    spec = overrideDataSpec(working, getDataSpecEntry());
   if (!spec)
     return {};
   return working.getCookedPath(*spec);
@@ -771,11 +773,11 @@ hecl::ProjectPath SpecBase::pathFromTag(const urde::SObjectTag& tag) const {
   return {};
 }
 
-urde::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const {
+urde::SObjectTag SpecBase::tagFromPath(const hecl::ProjectPath& path) const {
   auto search = m_pathToTag.find(path.hash());
   if (search != m_pathToTag.cend())
     return search->second;
-  return buildTagFromPath(path, btok);
+  return buildTagFromPath(path);
 }
 
 bool SpecBase::waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
@@ -920,7 +922,7 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAM
     }
     if (path.isNone())
       continue;
-    urde::SObjectTag pathTag = tagFromPath(path, m_backgroundBlender);
+    urde::SObjectTag pathTag = tagFromPath(path);
     if (pathTag) {
       std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
       m_catalogNameToTag[pLower] = pathTag;
@@ -981,7 +983,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
     return true;
 
   /* Classify intermediate into tag */
-  urde::SObjectTag pathTag = buildTagFromPath(path, m_backgroundBlender);
+  urde::SObjectTag pathTag = buildTagFromPath(path);
   if (pathTag) {
     std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
     bool useGlob = false;
@@ -1004,7 +1006,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       for (const std::string& arm : armatureNames) {
         hecl::SystemStringConv sysStr(arm);
         hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".CINF"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+        urde::SObjectTag pathTag = buildTagFromPath(subPath);
         m_tagToPath[pathTag] = subPath;
         m_pathToTag[subPath.hash()] = pathTag;
         WriteTag(cacheWriter, pathTag, subPath);
@@ -1016,7 +1018,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       for (const std::string& sub : subtypeNames) {
         hecl::SystemStringConv sysStr(sub);
         hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".CSKR"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+        urde::SObjectTag pathTag = buildTagFromPath(subPath);
         m_tagToPath[pathTag] = subPath;
         m_pathToTag[subPath.hash()] = pathTag;
         WriteTag(cacheWriter, pathTag, subPath);
@@ -1029,7 +1031,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
           hecl::SystemStringConv overlaySys(overlay);
           hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR('.') +
                                                            overlaySys.c_str() + _SYS_STR(".CSKR"));
-          urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+          urde::SObjectTag pathTag = buildTagFromPath(subPath);
           m_tagToPath[pathTag] = subPath;
           m_pathToTag[subPath.hash()] = pathTag;
           WriteTag(cacheWriter, pathTag, subPath);
@@ -1044,7 +1046,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
         hecl::SystemStringConv attachmentSys(attachment);
         hecl::ProjectPath subPath =
             asGlob.ensureAuxInfo(hecl::SystemString(_SYS_STR("ATTACH.")) + attachmentSys.c_str() + _SYS_STR(".CSKR"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+        urde::SObjectTag pathTag = buildTagFromPath(subPath);
         m_tagToPath[pathTag] = subPath;
         m_pathToTag[subPath.hash()] = pathTag;
         WriteTag(cacheWriter, pathTag, subPath);
@@ -1056,7 +1058,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       for (const std::string& act : actionNames) {
         hecl::SystemStringConv sysStr(act);
         hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+        urde::SObjectTag pathTag = buildTagFromPath(subPath);
         m_tagToPath[pathTag] = subPath;
         m_pathToTag[subPath.hash()] = pathTag;
         WriteTag(cacheWriter, pathTag, subPath);
@@ -1070,7 +1072,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       useGlob = true;
 
       hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_SYS_STR("MAPW"));
-      urde::SObjectTag pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+      urde::SObjectTag pathTag = buildTagFromPath(subPath);
       m_tagToPath[pathTag] = subPath;
       m_pathToTag[subPath.hash()] = pathTag;
       WriteTag(cacheWriter, pathTag, subPath);
@@ -1079,7 +1081,7 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
 #endif
 
       subPath = asGlob.ensureAuxInfo(_SYS_STR("SAVW"));
-      pathTag = buildTagFromPath(subPath, m_backgroundBlender);
+      pathTag = buildTagFromPath(subPath);
       m_tagToPath[pathTag] = subPath;
       m_pathToTag[subPath.hash()] = pathTag;
       WriteTag(cacheWriter, pathTag, subPath);
@@ -1216,7 +1218,7 @@ void SpecBase::backgroundIndexProc() {
 
   /* Add special original IDs resource if exists (not name-cached to disk) */
   hecl::ProjectPath oidsPath(specRoot, "!original_ids.yaml");
-  urde::SObjectTag oidsTag = buildTagFromPath(oidsPath, m_backgroundBlender);
+  urde::SObjectTag oidsTag = buildTagFromPath(oidsPath);
   if (oidsTag) {
     m_catalogNameToTag["mp1originalids"] = oidsTag;
     m_catalogTagToNames[oidsTag].insert("MP1OriginalIDs");

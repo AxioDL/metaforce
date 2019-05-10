@@ -480,7 +480,7 @@ struct SpecMP1 : SpecBase {
     });
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const {
+  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const {
     if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CINF")))
       return {SBIG('CINF'), path.hash().val32()};
     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
@@ -655,9 +655,7 @@ struct SpecMP1 : SpecBase {
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                 hecl::blender::Token& btok, FCookProgress progress) {
-    Mesh mesh =
-        ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1,
-                       [&progress](int surfCount) { progress(hecl::SysFormat(_SYS_STR("%d"), surfCount).c_str()); });
+    Mesh mesh = ds.compileMesh(fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, m_pc ? 16 : -1);
 
     if (m_pc)
       DNAMP1::CMDL::HMDLCook(out, in, mesh);
@@ -747,8 +745,7 @@ struct SpecMP1 : SpecBase {
         continue;
       }
       meshCompiles.push_back(ds.compileMesh(
-          mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1, !m_pc,
-          [&](int surfCount) { progress(hecl::SysFormat(_SYS_STR("%s %d"), meshSys.c_str(), surfCount).c_str()); }));
+          mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1, !m_pc));
     }
 
     if (!colMesh)
@@ -773,7 +770,7 @@ struct SpecMP1 : SpecBase {
     if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR("MAPW"))) {
       hecl::blender::World world = ds.compileWorld();
       ds.close();
-      DNAMP1::MLVL::CookMAPW(out, world, btok);
+      DNAMP1::MLVL::CookMAPW(out, world);
     } else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR("SAVW"))) {
       hecl::blender::World world = ds.compileWorld();
       ds.close();
@@ -1028,7 +1025,7 @@ struct SpecMP1 : SpecBase {
     }
     listOut.reserve(count);
 
-    urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_SYS_STR(".*"), true), btok);
+    urde::SObjectTag worldTag = tagFromPath(worldPath.getWithExtension(_SYS_STR(".*"), true));
 
     w.writeUint32Big(m_pc ? 0x80030005 : 0x00030005);
     w.writeUint32Big(0);
@@ -1131,7 +1128,7 @@ struct SpecMP1 : SpecBase {
         auto data = btok.getBlenderConnection().beginData();
         std::vector<hecl::ProjectPath> textures = data.getTextures();
         for (const auto& tex : textures) {
-          urde::SObjectTag texTag = tagFromPath(tex, btok);
+          urde::SObjectTag texTag = tagFromPath(tex);
           if (!texTag)
             Log.report(logvisor::Fatal, _SYS_STR("Unable to resolve %s"), tex.getRelativePath().data());
           listOut.push_back(texTag);
@@ -1270,14 +1267,13 @@ struct SpecMP1 : SpecBase {
 };
 
 hecl::Database::DataSpecEntry SpecEntMP1 = {
-    _SYS_STR("MP1"sv), _SYS_STR("Data specification for original Metroid Prime engine"sv), _SYS_STR(".pak"sv), 2,
+    _SYS_STR("MP1"sv), _SYS_STR("Data specification for original Metroid Prime engine"sv), _SYS_STR(".pak"sv),
     [](hecl::Database::Project& project, hecl::Database::DataSpecTool) -> std::unique_ptr<hecl::Database::IDataSpec> {
       return std::make_unique<SpecMP1>(&SpecEntMP1, project, false);
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1PC = {
     _SYS_STR("MP1-PC"sv), _SYS_STR("Data specification for PC-optimized Metroid Prime engine"sv), _SYS_STR(".upak"sv),
-    2,
     [](hecl::Database::Project& project,
        hecl::Database::DataSpecTool tool) -> std::unique_ptr<hecl::Database::IDataSpec> {
       if (tool != hecl::Database::DataSpecTool::Extract)
@@ -1286,5 +1282,5 @@ hecl::Database::DataSpecEntry SpecEntMP1PC = {
     }};
 
 hecl::Database::DataSpecEntry SpecEntMP1ORIG = {
-    _SYS_STR("MP1-ORIG"sv), _SYS_STR("Data specification for unmodified Metroid Prime resources"sv), {}, 2, {}};
+    _SYS_STR("MP1-ORIG"sv), _SYS_STR("Data specification for unmodified Metroid Prime resources"sv), {}, {}};
 } // namespace DataSpec

@@ -245,7 +245,6 @@ int main(int argc, const char** argv) {
   int x11Fd = ConnectionNumber(xDisp);
 
   /* Spawn client thread */
-  bool clientRunning = true;
   std::mutex initmt;
   std::condition_variable initcv;
   std::unique_lock<std::mutex> outerLk(initmt);
@@ -260,7 +259,6 @@ int main(int argc, const char** argv) {
     XUnlockDisplay(xDisp);
 
     renderer.Run(UpdatePercent);
-    clientRunning = false;
 
     XLockDisplay(xDisp);
     XClientMessageEvent exitEvent = {};
@@ -270,10 +268,12 @@ int main(int argc, const char** argv) {
     XSendEvent(xDisp, windowId, 0, 0, reinterpret_cast<XEvent*>(&exitEvent));
     XFlush(xDisp);
     XUnlockDisplay(xDisp);
+    pthread_kill(mainThread, SIGUSR2);
   });
   initcv.wait(outerLk);
 
   /* Begin application event loop */
+  bool clientRunning = true;
   while (clientRunning) {
     fd_set fds;
     FD_ZERO(&fds);
@@ -291,6 +291,8 @@ int main(int argc, const char** argv) {
         XNextEvent(xDisp, &event);
         if (XFilterEvent(&event, None))
           continue;
+        if (event.type == ClientMessage)
+          clientRunning = false;
       }
       XUnlockDisplay(xDisp);
     }

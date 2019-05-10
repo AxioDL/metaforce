@@ -19,7 +19,7 @@ void CScriptPlayerStateChange::Accept(IVisitor& visitor) { visitor.Visit(this); 
 
 void CScriptPlayerStateChange::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) {
   if (GetActive() && msg == EScriptObjectMessage::SetToZero) {
-    stateMgr.GetPlayerState()->InitializePowerUp(CPlayerState::EItemType(x34_itemType), x3c_itemCapacity);
+    stateMgr.GetPlayerState()->AddPowerUp(CPlayerState::EItemType(x34_itemType), x3c_itemCapacity);
     stateMgr.GetPlayerState()->IncrPickup(CPlayerState::EItemType(x34_itemType), x38_itemCount);
 
     if (x44_ctrlCmdOpt == EControlCommandOption::Filtered && x40_ctrl == EControl::Filtered) {

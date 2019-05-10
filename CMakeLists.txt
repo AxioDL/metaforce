@@ -130,6 +130,13 @@ else()
     message(STATUS "Building with x87 Vector ISA")
   endif()
 
+  include(CheckCXXCompilerFlag)
+  check_cxx_compiler_flag(-fno-plt HAS_NO_PLT)
+  if (HAS_NO_PLT)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-plt")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-plt")
+  endif()
+
   if(URDE_MSAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
         -stdlib=libc++ -fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all")
@@ -138,7 +145,7 @@ else()
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-multichar -Werror=implicit-fallthrough \
       -Wno-unknown-warning-option -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field \
-      -fno-exceptions -fno-rtti -Werror")
+      -Wno-unused-function -fno-exceptions -fno-rtti -Werror")
 
   if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations")
@@ -194,6 +201,8 @@ set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)
 set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
                      ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)
+set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
+set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
 
 set(DATA_SPEC_LIBS RetroDataSpec amuse)
 set(HECL_DATASPEC_DECLS
@@ -222,6 +231,9 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
+add_definitions(-DZE_ATHENA_TYPES=1)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SPECTER_INCLUDE_DIR} ${NOD_INCLUDE_DIR}
+                    ${ZEUS_INCLUDE_DIR})
 add_subdirectory(hecl/shaderc)
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(specter/shaders)
@@ -232,6 +244,20 @@ if(NOT TARGET bintoc)
   # Use native if cross compiling
   find_package(hecl-bintoc REQUIRED)
 endif()
+
+bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
+bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
+bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
+bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
+bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
+bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
+bintoc(CModelShaders.common.metal.cpp Shaders/CModelShaders.common.metal CMODELSHADERS_COMMON_METAL)
+bintoc(CModelShaders.vert.metal.cpp Shaders/CModelShaders.vert.metal CMODELSHADERS_VERT_METAL)
+bintoc(CModelShaders.frag.metal.cpp Shaders/CModelShaders.frag.metal CMODELSHADERS_FRAG_METAL)
+add_library(CModelShaders
+    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
+    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
+    CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -245,14 +271,11 @@ add_definitions(${BOO_SYS_DEFINES})
 include_directories(${BOO_SYS_INCLUDES})
 add_subdirectory(amuse)
 add_subdirectory(specter)
-set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
 add_subdirectory(assetnameparser)
-add_definitions(-DZE_ATHENA_TYPES=1)
-set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${NOD_INCLUDE_DIR} ${ZEUS_INCLUDE_DIR} ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR}
-                    ${SPECTER_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/NESEmulator)
+                    ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/NESEmulator
+                    ${ZLIB_INCLUDE_DIR})
+add_definitions(-DURDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(NESEmulator)
 add_subdirectory(DataSpec)
 add_subdirectory(kabufuda)

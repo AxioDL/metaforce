@@ -2,7 +2,7 @@ include_directories(../hecl/include
                     ../hecl/extern/boo/include
                     ../hecl/extern/boo/logvisor/include
                     ../hecl/extern/athena/include
-                    ../specter/zeus/include
+                    ../DataSpec
                     ../Runtime)
 add_shader(CAABoxShader)
 add_shader(CCameraBlurFilter)
@@ -35,3 +35,7 @@ add_special_shader(shader_CFluidPlaneShader
                    shader_CFluidPlaneShaderGLSL.cpp
                    shader_CFluidPlaneShaderHLSL.cpp
                    shader_CFluidPlaneShaderMetal.cpp)
+add_special_shader(shader_CModelShaders
+                   shader_CModelShadersGLSL.cpp
+                   shader_CModelShadersHLSL.cpp
+                   shader_CModelShadersMetal.cpp)

@@ -120,16 +120,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         "('MAPSTATIONORVISIT2', 'Map Station or Visit 2', 'Visible after Map Station or Visit', 4)],"
         "name='Retro: Map Object Visibility Mode')\n"
         "\n"
-        "for ar in bpy.context.screen.areas:\n"
-        "    for sp in ar.spaces:\n"
-        "        if sp.type == 'VIEW_3D':\n"
-        "            sp.viewport_shade = 'SOLID'\n"
-        "\n"
         "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
         "\n"
         "def add_triangle(bm, verts):\n"
         "    verts = [bm.verts[vi] for vi in verts]\n"
@@ -164,7 +157,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         moMP12->transformMtx[i].simd.copy_to(mtxF[i]);
       os.format(
           "obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
-          "bpy.context.scene.objects.link(obj)\n"
+          "bpy.context.scene.collection.objects.link(obj)\n"
           "obj.retro_mappable_type = %d\n"
           "obj.retro_mapobj_vis_mode = '%s'\n"
           "obj.retro_mappable_sclyid = '0x%08X'\n"
@@ -185,7 +178,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         moMP3->transformMtx[i].simd.copy_to(mtxF[i]);
       os.format(
           "obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
-          "bpy.context.scene.objects.link(obj)\n"
+          "bpy.context.scene.collection.objects.link(obj)\n"
           "obj.retro_mappable_type = %d\n"
           "obj.retro_mapobj_vis_mode = '%s'\n"
           "obj.retro_mappable_sclyid = '0x%08X'\n"
@@ -272,10 +265,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
   }
 
   os << "mesh = bpy.data.meshes.new('MAP')\n"
-        "mesh.show_edge_seams = True\n"
         "obj = bpy.data.objects.new(mesh.name, mesh)\n"
         "bm.to_mesh(mesh)\n"
-        "bpy.context.scene.objects.link(obj)\n"
+        "bpy.context.scene.collection.objects.link(obj)\n"
         "bm.free()\n";
 
   const zeus::CMatrix4f* tmpMtx = pakRouter.lookupMAPATransform(entry.id);

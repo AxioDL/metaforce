@@ -215,8 +215,6 @@ void DeafBabe::BlenderInit(hecl::blender::PyOutStream& os) {
         "        return len(material_index)-1\n"
         "    else:\n"
         "        mat = make_color(len(material_dict), mat_type, mat_name)\n"
-        "        mat.diffuse_intensity = 1.0\n"
-        "        mat.specular_intensity = 0.0\n"
         "        mat.retro_unknown = ((data >> 0) & 1)\n"
         "        mat.retro_surface_stone = ((data >> 1) & 1)\n"
         "        mat.retro_surface_metal = ((data >> 2) & 1)\n"

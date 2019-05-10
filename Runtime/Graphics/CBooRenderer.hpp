@@ -58,7 +58,7 @@ class CBooRenderer final : public IRenderer {
     const std::vector<CMetroidModelInstance>* x0_geometry;
     const CAreaRenderOctTree* x4_octTree;
     /* originally auto_ptrs of vectors */
-    std::vector<TCachedToken<CTexture>> x8_textures;
+    std::unordered_map<CAssetId, TCachedToken<CTexture>> x8_textures;
     std::vector<CBooModel*> x10_models;
     int x18_areaIdx;
     /* Per-area octree-word major, light bits minor */
@@ -66,8 +66,8 @@ class CBooRenderer final : public IRenderer {
     const SShader* m_shaderSet;
 
     CAreaListItem(const std::vector<CMetroidModelInstance>* geom, const CAreaRenderOctTree* octTree,
-                  std::vector<TCachedToken<CTexture>>&& textures, std::vector<CBooModel*>&& models, int areaIdx,
-                  const SShader* shaderSet);
+                  std::unordered_map<CAssetId, TCachedToken<CTexture>>&& textures, std::vector<CBooModel*>&& models,
+                  int areaIdx, const SShader* shaderSet);
     ~CAreaListItem();
   };
 
@@ -109,6 +109,7 @@ class CBooRenderer final : public IRenderer {
   boo::ObjToken<boo::ITexture> m_clearTexture;
   boo::ObjToken<boo::ITexture> m_blackTexture;
   boo::ObjToken<boo::ITexture> m_whiteTexture;
+  std::unordered_map<zeus::CColor, boo::ObjToken<boo::ITexture>> m_colorTextures;
 
   boo::ObjToken<boo::ITextureR> x14c_reflectionTex;
   // boo::ITextureS* x150_mirrorRamp = nullptr;
@@ -277,6 +278,8 @@ public:
   const boo::ObjToken<boo::ITexture>& GetClearTexture() { return m_clearTexture; }
   const boo::ObjToken<boo::ITexture>& GetBlackTexture() { return m_blackTexture; }
   const boo::ObjToken<boo::ITexture>& GetWhiteTexture() { return m_whiteTexture; }
+
+  boo::ObjToken<boo::ITexture> GetColorTexture(const zeus::CColor& color);
 
   static void BindMainDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(CGraphics::g_SpareTexture); }
   void BindReflectionDrawTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(x14c_reflectionTex); }

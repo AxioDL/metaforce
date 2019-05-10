@@ -9,8 +9,8 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID64& c
   os.format("arm = bpy.data.armatures.new('CINF_%016" PRIX64
             "')\n"
             "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
-            "bpy.context.scene.objects.link(arm_obj)\n"
-            "bpy.context.scene.objects.active = arm_obj\n"
+            "bpy.context.scene.collection.objects.link(arm_obj)\n"
+            "bpy.context.view_layer.objects.active = arm_obj\n"
             "bpy.ops.object.mode_set(mode='EDIT')\n"
             "arm_bone_table = {}\n",
             cinfId.toUint64());
@@ -37,10 +37,9 @@ void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID64& c
 
   os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
 
-  const char* rotMode = os.getConnection().hasSLERP() ? "QUATERNION_SLERP" : "QUATERNION";
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones())
-    os.format("arm_obj.pose.bones['%s'].rotation_mode = '%s'\n", getBoneNameFromId(bone.m_origBone.id)->c_str(),
-              rotMode);
+    os.format("arm_obj.pose.bones['%s'].rotation_mode = 'QUATERNION'\n",
+              getBoneNameFromId(bone.m_origBone.id)->c_str());
 }
 
 std::string CINF::GetCINFArmatureName(const UniqueID64& cinfId) {

@@ -298,7 +298,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       areaOut.depLayers.push_back(areaOut.deps.size());
       for (const std::pair<hecl::ProjectPath, bool>& path : layer) {
         if (path.first) {
-          urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first, btok);
+          urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
           if (tag.id.IsValid()) {
             if (path.second)
               areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
@@ -326,7 +326,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         layerResources.addSharedPath(path, false);
 
       for (const std::pair<hecl::ProjectPath, bool>& path : layerResources.sharedPaths) {
-        urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first, btok);
+        urde::SObjectTag tag = g_curSpec->buildTagFromPath(path.first);
         if (tag.id.IsValid()) {
           if (path.second)
             areaOut.lazyDeps.emplace_back(tag.id.Value(), tag.type);
@@ -337,7 +337,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       }
 
       hecl::ProjectPath pathPath(areaPath.getParentPath(), _SYS_STR("!path.blend"));
-      urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath, btok);
+      urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
       if (pathTag.id.IsValid()) {
         areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
         areaOut.lazyDeps.emplace_back(0, FOURCC('NONE'));
@@ -369,7 +369,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   return true;
 }
 
-bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld, hecl::blender::Token& btok) {
+bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld) {
   std::vector<urde::SObjectTag> mapaTags;
   mapaTags.reserve(wld.areas.size());
 
@@ -380,7 +380,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld, hecl::bl
     /* Area map */
     hecl::ProjectPath mapPath(area.path, _SYS_STR("/!map.blend"));
     if (mapPath.isFile())
-      mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath, btok));
+      mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath));
   }
 
   /* Write out MAPW */

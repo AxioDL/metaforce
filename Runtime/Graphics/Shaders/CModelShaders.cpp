@@ -54,142 +54,136 @@ void CModelShaders::LightingUniform::ActivateLights(const std::vector<CLight>& l
   }
 }
 
-static const hecl::Backend::TextureInfo ThermalTextures[] = {{hecl::Backend::TexGenSrc::Normal, 7, 0, 7, true}};
+using TexCoordSource = hecl::Backend::TexCoordSource;
+
+static const hecl::Backend::TextureInfo ThermalTextures[] = {{TexCoordSource::Normal, 7, true}};
 
 static const hecl::Backend::TextureInfo BallFadeTextures[] = {
-    {hecl::Backend::TexGenSrc::Position, 0, 0, 0, false}, // ID tex
-    {hecl::Backend::TexGenSrc::Position, 1, 0, 0, false}, // Sphere ramp
-    {hecl::Backend::TexGenSrc::Position, 2, 0, 1, false}  // TXTR_BallFade
+    {TexCoordSource::Position, 0, false}, // ID tex
+    {TexCoordSource::Position, 0, false}, // Sphere ramp
+    {TexCoordSource::Position, 1, false}  // TXTR_BallFade
 };
 
 static const hecl::Backend::TextureInfo WorldShadowTextures[] = {
-    {hecl::Backend::TexGenSrc::Position, 7, 0, 7, false} // Shadow tex
+    {TexCoordSource::Position, 7, false} // Shadow tex
 };
 
 static const hecl::Backend::TextureInfo DisintegrateTextures[] = {
-    {hecl::Backend::TexGenSrc::Position, 7, 0, 0, false}, // Ashy tex
-    {hecl::Backend::TexGenSrc::Position, 7, 0, 1, false}  // Ashy tex
+    {TexCoordSource::Position, 0, false}, // Ashy tex
+    {TexCoordSource::Position, 1, false}  // Ashy tex
 };
-
-static const char* BlockNames[] = {"LightingUniform"};
-static const char* ThermalBlockNames[] = {"ThermalUniform"};
-static const char* SolidBlockNames[] = {"SolidUniform"};
-static const char* MBShadowBlockNames[] = {"MBShadowUniform"};
-static const char* DisintegrateBlockNames[] = {"DisintegrateUniform"};
 
 static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     /* Default solid shading */
     {},
     /* Normal lit shading */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Thermal Visor shading */
-    {1, ThermalBlockNames, 1, ThermalTextures, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
+    {1, ThermalTextures, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, false, true},
     /* Forced alpha shading */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Forced additive shading */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Solid color */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::Zero,
+    {0, nullptr, hecl::Backend::BlendFactor::One, hecl::Backend::BlendFactor::Zero,
      hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Backface, false, false, false},
     /* Solid color additive */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Backface, true, false, true},
     /* Alpha-only Solid color frontface cull, LEqual */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Frontface, false, true, false},
     /* Alpha-only Solid color frontface cull, Always, No Z-write */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::None, hecl::Backend::CullMode::Frontface, true, true, false},
     /* Alpha-only Solid color backface cull, LEqual */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Backface, false, true, false},
     /* Alpha-only Solid color backface cull, Greater, No Z-write */
-    {1, SolidBlockNames, 0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::Backface, true, true, false},
     /* MorphBall shadow shading */
-    {1, MBShadowBlockNames, 3, BallFadeTextures, hecl::Backend::BlendFactor::SrcAlpha,
-     hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Equal, hecl::Backend::CullMode::Backface, false,
-     false, true, false, true},
+    {3, BallFadeTextures, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+     hecl::Backend::ZTest::Equal, hecl::Backend::CullMode::Backface, false, false, true, false, true},
     /* World shadow shading (modified lighting) */
-    {1, BlockNames, 1, WorldShadowTextures, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {1, WorldShadowTextures, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Forced alpha shading without culling */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, false, false, true},
     /* Forced additive shading without culling */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, false, false, true},
     /* Forced alpha shading without Z-write */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, true, false, true},
     /* Forced additive shading without Z-write */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original, true, false, true},
     /* Forced alpha shading without culling or Z-write */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, true, false, true},
     /* Forced additive shading without culling or Z-write */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::None, true, false, true},
     /* Depth GEqual no Z-write */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::GEqual, hecl::Backend::CullMode::Backface, true, false, true},
     /* Disintegration */
-    {1, DisintegrateBlockNames, 2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
-     hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false,
-     false, true, false, false, true},
+    {2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+     hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false, false, true, false, false, true},
     /* Forced additive shading without culling or Z-write and greater depth test */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
+    {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true},
     /* Thermal cold shading */
-    {0, nullptr, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Original,
      false, false, true, false, false, false, true},
     /* Normal lit shading with alpha */
-    {1, BlockNames, 0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface}};
 
-extern const hecl::Backend::Function ExtensionLightingFuncsGLSL[];
-extern const hecl::Backend::Function ExtensionPostFuncsGLSL[];
-extern const hecl::Backend::Function ExtensionLightingFuncsHLSL[];
-extern const hecl::Backend::Function ExtensionPostFuncsHLSL[];
-extern const hecl::Backend::Function ExtensionLightingFuncsMetal[];
-extern const hecl::Backend::Function ExtensionPostFuncsMetal[];
+static const char* ShaderMacros[] = {
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_THERMAL_HOT",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_SOLID",
+    "URDE_SOLID",
+    "URDE_SOLID",
+    "URDE_SOLID",
+    "URDE_SOLID",
+    "URDE_SOLID",
+    "URDE_MB_SHADOW",
+    "URDE_LIGHTING_SHADOW",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_LIGHTING",
+    "URDE_DISINTEGRATE",
+    "URDE_LIGHTING",
+    "URDE_THERMAL_COLD",
+    "URDE_LIGHTING",
+};
 
 void CModelShaders::Initialize() {
-  const hecl::Backend::Function* lightingFuncs;
-  const hecl::Backend::Function* postFuncs;
-  switch (CGraphics::g_BooPlatform) {
-  case boo::IGraphicsDataFactory::Platform::OpenGL:
-  case boo::IGraphicsDataFactory::Platform::Vulkan:
-  case boo::IGraphicsDataFactory::Platform::NX:
-  default:
-    lightingFuncs = ExtensionLightingFuncsGLSL;
-    postFuncs = ExtensionPostFuncsGLSL;
-    break;
-  case boo::IGraphicsDataFactory::Platform::D3D11:
-    lightingFuncs = ExtensionLightingFuncsHLSL;
-    postFuncs = ExtensionPostFuncsHLSL;
-    break;
-  case boo::IGraphicsDataFactory::Platform::Metal:
-    lightingFuncs = ExtensionLightingFuncsMetal;
-    postFuncs = ExtensionPostFuncsMetal;
-    break;
-  }
-  for (auto& ext : g_ExtensionSlots) {
-    ext.lighting = *lightingFuncs++;
-    ext.post = *postFuncs++;
-  }
+  const char** macro = ShaderMacros;
+  for (auto& ext : g_ExtensionSlots)
+    ext.shaderMacro = *macro++;
 }
 
 void CModelShaders::Shutdown() { g_ShaderPipelines.clear(); }
 
 CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Backend::ShaderTag& tag,
-                                                                  const hecl::Frontend::IR& ir) {
+                                                                  const Material& material) {
   auto search = g_ShaderPipelines.find(tag.val64());
   if (search != g_ShaderPipelines.cend())
     return search->second;
@@ -199,9 +193,10 @@ CModelShaders::ShaderPipelines CModelShaders::BuildExtendedShader(const hecl::Ba
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     size_t idx = 0;
     for (const auto& ext : g_ExtensionSlots)
-      (*newPipelines)[idx++] = hecl::conv->convert(ctx, hecl::HECLIR(ir, tag, ext));
+      (*newPipelines)[idx++] = hecl::conv->convert(ctx, Shader_CModelShaders(SModelShadersInfo(material, tag, ext)));
     return true;
   } BooTrace);
   return newPipelines;
 }
+
 } // namespace urde

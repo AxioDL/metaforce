@@ -43,9 +43,7 @@ void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::I
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
     Log.report(logvisor::Fatal, "invalid BABEDEAD magic");
-  os << "bpy.context.scene.render.engine = 'CYCLES'\n"
-        "bpy.context.scene.world.use_nodes = True\n"
-        "bpy.context.scene.render.engine = 'BLENDER_GAME'\n"
+  os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
   for (atUint32 s = 0; s < 4; ++s) {
@@ -102,15 +100,14 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       "\n"
       "bpy.context.scene.name = '%s'\n",
       pakRouter.getBestEntryName(entry, false).c_str());
-  DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath(), true);
+  DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
-        "bpy.types.Lamp.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
-        "bpy.types.Lamp.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "\n"
+        "bpy.types.Light.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
+        "bpy.types.Light.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
         "\n";
 
   /* One shared material set for all meshes */
@@ -213,11 +210,11 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   }
 
   /* Origins to center of mass */
-  os << "bpy.context.scene.layers[1] = True\n"
+  os << "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = False\n"
         "bpy.ops.object.select_by_type(type='MESH')\n"
         "bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS')\n"
         "bpy.ops.object.select_all(action='DESELECT')\n"
-        "bpy.context.scene.layers[1] = False\n";
+        "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = True\n";
 
   os.centerView();
   os.close();

@@ -18,18 +18,15 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
   if (!conn.createBlend(blendPath, hecl::blender::BlendType::World))
     return false;
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(
-      "import bpy\n"
-      "import bmesh\n"
-      "from mathutils import Matrix\n"
-      "\n"
-      "bpy.context.scene.name = 'World'\n"
-      "\n"
-      "# Clear Scene\n"
-      "for ob in bpy.data.objects:\n"
-      "    if ob.type != 'CAMERA':\n"
-      "        bpy.context.scene.objects.unlink(ob)\n"
-      "        bpy.data.objects.remove(ob)\n");
+  os << "import bpy\n"
+        "import bmesh\n"
+        "from mathutils import Matrix\n"
+        "\n"
+        "bpy.context.scene.name = 'World'\n"
+        "\n"
+        "# Clear Scene\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n";
 
   /* Insert area empties */
   int areaIdx = 0;
@@ -46,7 +43,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
         "bm.to_mesh(box_mesh)\n"
         "bm.free()\n"
         "box = bpy.data.objects.new(box_mesh.name, box_mesh)\n"
-        "bpy.context.scene.objects.link(box)\n"
+        "bpy.context.scene.collection.objects.link(box)\n"
         "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
         "mtxd = mtx.decompose()\n"
         "box.rotation_mode = 'QUATERNION'\n"
@@ -78,7 +75,7 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
       os << "bm.edges.new((bm.verts[-1], bm.verts[0]))\n";
       os.format("dockMesh = bpy.data.meshes.new('DOCK_%02d_%02d')\n", areaIdx, dockIdx);
       os << "dockObj = bpy.data.objects.new(dockMesh.name, dockMesh)\n"
-            "bpy.context.scene.objects.link(dockObj)\n"
+            "bpy.context.scene.collection.objects.link(dockObj)\n"
             "bm.to_mesh(dockMesh)\n"
             "bm.free()\n"
             "dockObj.parent = box\n";

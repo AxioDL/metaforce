@@ -75,7 +75,6 @@ struct CBooSurface {
 };
 
 using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
-using UVAnimation = DataSpec::DNAMP1::MaterialSet::Material::UVAnimation;
 
 struct GeometryUniformLayout {
   boo::ObjToken<boo::IGraphicsBufferD> m_sharedBuffer[2];
@@ -96,7 +95,7 @@ struct GeometryUniformLayout {
 };
 
 struct SShader {
-  std::vector<TCachedToken<CTexture>> x0_textures;
+  std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
   std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
   MaterialSet m_matSet;
   rstl::optional<GeometryUniformLayout> m_geomLayout;
@@ -134,7 +133,7 @@ private:
   const GeometryUniformLayout* m_geomLayout;
   int m_matSetIdx = -1;
   const std::unordered_map<int, CModelShaders::ShaderPipelines>* m_pipelines;
-  std::vector<TCachedToken<CTexture>> x1c_textures;
+  std::unordered_map<CAssetId, TCachedToken<CTexture>> x1c_textures;
   zeus::CAABox x20_aabb;
   CBooSurface* x38_firstUnsortedSurface = nullptr;
   CBooSurface* x3c_firstSortedSurface = nullptr;
@@ -144,7 +143,7 @@ private:
   u32 x44_areaInstanceIdx = -1;
 
   struct UVAnimationBuffer {
-    static void ProcessAnimation(u8*& bufOut, const UVAnimation& anim);
+    static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);
     static void PadOutBuffer(u8*& bufStart, u8*& bufOut);
     static void Update(u8*& bufOut, const MaterialSet* matSet, const CModelFlags& flags, const CBooModel* parent);
   };
@@ -165,8 +164,6 @@ private:
 
   boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
   boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;
-
-  boo::ObjToken<boo::ITexture> m_txtrOverrides[8];
 
   boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
   boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
@@ -192,11 +189,12 @@ public:
   ~CBooModel();
   CBooModel(TToken<CModel>& token, CModel* parent, std::vector<CBooSurface>* surfaces, SShader& shader,
             const boo::ObjToken<boo::IGraphicsBufferS>& vbo, const boo::ObjToken<boo::IGraphicsBufferS>& ibo,
-            const zeus::CAABox& aabb, u8 renderMask, int numInsts, const boo::ObjToken<boo::ITexture> txtrOverrides[8]);
+            const zeus::CAABox& aabb, u8 renderMask, int numInsts);
 
-  static void MakeTexturesFromMats(const MaterialSet& matSet, std::vector<TCachedToken<CTexture>>& toksOut,
+  static void MakeTexturesFromMats(const MaterialSet& matSet,
+                                   std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut,
                                    IObjectStore& store);
-  void MakeTexturesFromMats(std::vector<TCachedToken<CTexture>>& toksOut, IObjectStore& store);
+  void MakeTexturesFromMats(std::unordered_map<CAssetId, TCachedToken<CTexture>>& toksOut, IObjectStore& store);
 
   bool IsOpaque() const { return x3c_firstSortedSurface == nullptr; }
   void ActivateLights(const std::vector<CLight>& lights);
@@ -284,9 +282,7 @@ public:
   const zeus::CAABox& GetAABB() const { return m_aabb; }
   CBooModel& GetInstance() { return *x28_modelInst; }
   const CBooModel& GetInstance() const { return *x28_modelInst; }
-  std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts,
-                                             const boo::ObjToken<boo::ITexture> txtrOverrides[8] = nullptr,
-                                             bool lockParent = true);
+  std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, bool lockParent = true);
   void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
 
   size_t GetPoolVertexOffset(size_t idx) const;

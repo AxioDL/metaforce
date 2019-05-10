@@ -91,4 +91,27 @@ struct DCLN : BigDNA {
   static bool Cook(const hecl::ProjectPath& outPath, const std::vector<Mesh>& meshes);
 };
 
+template <class Op>
+void DCLN::Collision::Node::Enumerate(typename Op::StreamT& s) {
+  Do<Op>({"xf[0]"}, xf[0], s);
+  Do<Op>({"xf[1]"}, xf[1], s);
+  Do<Op>({"xf[2]"}, xf[2], s);
+  Do<Op>({"halfExtent"}, halfExtent, s);
+  Do<Op>({"isLeaf"}, isLeaf, s);
+  if (isLeaf) {
+    if (!leafData)
+      leafData.reset(new LeafData);
+    Do<Op>({"leafData"}, *leafData, s);
+  } else {
+    if (!left)
+      left.reset(new Node);
+    Do<Op>({"left"}, *left, s);
+    if (!right)
+      right.reset(new Node);
+    Do<Op>({"right"}, *right, s);
+  }
+}
+
+AT_SPECIALIZE_DNA(DCLN::Collision::Node)
+
 } // namespace DataSpec::DNAMP1

@@ -36,10 +36,9 @@ struct SpecBase : hecl::Database::IDataSpec {
   bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps);
   void doExtract(const ExtractPassInfo& info, const hecl::MultiProgressPrinter& progress);
 
-  bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok, int cookPass);
+  bool canCook(const hecl::ProjectPath& path, hecl::blender::Token& btok);
   const hecl::Database::DataSpecEntry* overrideDataSpec(const hecl::ProjectPath& path,
-                                                        const hecl::Database::DataSpecEntry* oldEntry,
-                                                        hecl::blender::Token& btok) const;
+                                                        const hecl::Database::DataSpecEntry* oldEntry) const;
   void doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& cookedPath, bool fast, hecl::blender::Token& btok,
               FCookProgress progress);
 
@@ -59,7 +58,7 @@ struct SpecBase : hecl::Database::IDataSpec {
   virtual bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) = 0;
 
   /* Convert path to object tag */
-  virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const = 0;
+  virtual urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const = 0;
 
   /* Even if PC spec is being cooked, this will return the vanilla GCN spec */
   virtual const hecl::Database::DataSpecEntry& getOriginalSpec() const = 0;
@@ -145,7 +144,7 @@ struct SpecBase : hecl::Database::IDataSpec {
   void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
 
   /* Tag cache functions */
-  urde::SObjectTag tagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const;
+  urde::SObjectTag tagFromPath(const hecl::ProjectPath& path) const;
   hecl::ProjectPath pathFromTag(const urde::SObjectTag& tag) const;
   bool waitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut);
   const urde::SObjectTag* getResourceIdByName(std::string_view name) const;

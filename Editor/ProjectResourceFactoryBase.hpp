@@ -96,11 +96,11 @@ protected:
   bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).waitForTagReady(tag, pathOut);
   }
-  SObjectTag TagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const {
-    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).tagFromPath(path, btok);
+  SObjectTag TagFromPath(const hecl::ProjectPath& path) const {
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).tagFromPath(path);
   }
-  SObjectTag BuildTagFromPath(const hecl::ProjectPath& path, hecl::blender::Token& btok) const {
-    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).buildTagFromPath(path, btok);
+  SObjectTag BuildTagFromPath(const hecl::ProjectPath& path) const {
+    return static_cast<DataSpec::SpecBase&>(*m_cookSpec).buildTagFromPath(path);
   }
   void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getTagListForFile(pakName, out);
@@ -150,7 +150,7 @@ public:
   bool IsBusy() const { return m_asyncLoadMap.size() != 0; }
 
   SObjectTag TagFromPath(hecl::SystemStringView path) const {
-    return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path), hecl::blender::SharedBlenderToken);
+    return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path));
   }
 
   ~ProjectResourceFactoryBase() { Shutdown(); }

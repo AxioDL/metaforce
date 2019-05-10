@@ -87,8 +87,6 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       "new_material.use_shadows = True\n"
       "new_material.use_transparent_shadows = True\n"
       "new_material.diffuse_color = (1.0,1.0,1.0)\n"
-      "new_material.diffuse_intensity = 1.0\n"
-      "new_material.specular_intensity = 0.0\n"
       "new_material.use_nodes = True\n"
       "new_nodetree = new_material.node_tree\n"
       "material_node = new_nodetree.nodes['Material']\n"
@@ -112,22 +110,16 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
   out.format(
       "new_material.retro_alpha_test = %s\n"
       "new_material.retro_shadow_occluder = %s\n"
-      "new_material.game_settings.invisible = %s\n",
+      "new_material.diffuse_color = (1, 1, 1, %s)\n",
       material.header.flags.alphaTest() ? "True" : "False",
       material.header.flags.shadowOccluderMesh() ? "True" : "False",
-      material.header.flags.shadowOccluderMesh() ? "True" : "False");
+      material.header.flags.shadowOccluderMesh() ? "0" : "1");
 
   /* Blend factors */
   if (material.header.flags.alphaBlending())
-    out << "new_material.game_settings.alpha_blend = 'ALPHA'\n"
-           "new_material.use_transparency = True\n"
-           "new_material.transparency_method = 'RAYTRACE'\n"
-           "new_material.alpha = 1.0\n";
+    out << "new_material.blend_method = 'BLEND'\n";
   else if (material.header.flags.additiveBlending())
-    out << "new_material.game_settings.alpha_blend = 'ADD'\n"
-           "new_material.use_transparency = True\n"
-           "new_material.transparency_method = 'RAYTRACE'\n"
-           "new_material.alpha = 1.0\n";
+    out << "new_material.blend_method = 'ADD'\n";
 
   /* Texmap list */
   out << "tex_maps = []\n"

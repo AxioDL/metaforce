@@ -197,15 +197,14 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       "\n"
       "bpy.context.scene.name = '%s'\n",
       pakRouter.getBestEntryName(entry, false).c_str());
-  DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath(), true);
+  DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
-        "for ob in bpy.data.objects:\n"
-        "    if ob.type != 'CAMERA':\n"
-        "        bpy.context.scene.objects.unlink(ob)\n"
-        "        bpy.data.objects.remove(ob)\n"
-        "bpy.types.Lamp.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
-        "bpy.types.Lamp.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
+        "if 'Collection 1' in bpy.data.collections:\n"
+        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "\n"
+        "bpy.types.Light.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
+        "bpy.types.Light.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
         "bpy.types.Object.retro_disable_enviro_visor = bpy.props.BoolProperty(name='Retro: Disable in Combat/Scan "
         "Visor')\n"
         "bpy.types.Object.retro_disable_thermal_visor = bpy.props.BoolProperty(name='Retro: Disable in Thermal "
@@ -284,11 +283,11 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
 
   /* Origins to center of mass */
-  os << "bpy.context.scene.layers[1] = True\n"
+  os << "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = False\n"
         "bpy.ops.object.select_by_type(type='MESH')\n"
         "bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_MASS')\n"
         "bpy.ops.object.select_all(action='DESELECT')\n"
-        "bpy.context.scene.layers[1] = False\n";
+        "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = True\n";
 
   os.centerView();
   os.close();
