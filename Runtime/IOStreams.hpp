@@ -1,11 +1,13 @@
 #pragma once
 
 #include "GCNTypes.hpp"
-#include <athena/IStreamReader.hpp>
-#include <athena/IStreamWriter.hpp>
-#include <athena/MemoryReader.hpp>
-#include <athena/MemoryWriter.hpp>
+#include "athena/IStreamReader.hpp"
+#include "athena/IStreamWriter.hpp"
+#include "athena/MemoryReader.hpp"
+#include "athena/MemoryWriter.hpp"
+#ifdef URDE_ZIP_INPUT_STREAM
 #include <zlib.h>
+#endif
 
 namespace urde {
 using CInputStream = athena::io::IStreamReader;
@@ -50,6 +52,7 @@ public:
 using CMemoryInStream = athena::io::MemoryReader;
 using CMemoryOutStream = athena::io::MemoryWriter;
 
+#ifdef URDE_ZIP_INPUT_STREAM
 class CZipInputStream : public CInputStream {
   std::unique_ptr<u8[]> x24_compBuf;
   std::unique_ptr<CInputStream> x28_strm;
@@ -63,5 +66,6 @@ public:
   atUint64 position() const { return 0; }
   atUint64 length() const { return 0; }
 };
+#endif
 
 } // namespace urde

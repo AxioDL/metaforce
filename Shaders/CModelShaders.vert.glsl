@@ -1,4 +1,4 @@
-UBINDING0 uniform HECLVertUniform {
+UBINDING0 uniform URDEVertUniform {
 #if URDE_SKIN_SLOTS
   mat4 objs[URDE_SKIN_SLOTS];
   mat4 objsInv[URDE_SKIN_SLOTS];
@@ -8,15 +8,15 @@ UBINDING0 uniform HECLVertUniform {
   mat4 proj;
 };
 
-struct HECLTCGMatrix {
+struct URDETCGMatrix {
   mat4 mtx;
   mat4 postMtx;
 };
-UBINDING1 uniform HECLTexMtxUniform {
-  HECLTCGMatrix texMtxs[8];
+UBINDING1 uniform URDETexMtxUniform {
+  URDETCGMatrix texMtxs[8];
 };
 
-UBINDING3 uniform HECLReflectMtx {
+UBINDING3 uniform URDEReflectMtx {
   mat4 indMtx;
   mat4 reflectMtx;
   float reflectAlpha;
@@ -37,8 +37,8 @@ layout(location=2 + URDE_COL_SLOTS + URDE_UV_SLOTS) in vec4 weightIn[URDE_WEIGHT
 SBINDING(0) out VertToFrag vtf;
 void main() {
 #if URDE_SKIN_SLOTS
-  vec4 objPos = vec4(0.0,0.0,0.0,0.0);
-  vec4 objNorm = vec4(0.0,0.0,0.0,0.0);
+  vec4 objPos = vec4(0.0);
+  vec4 objNorm = vec4(0.0);
   for (int i = 0; i < URDE_SKIN_SLOTS; ++i) {
     objPos += (objs[i] * vec4(posIn, 1.0)) * weightIn[i / 4][i % 4];
     objNorm += (objsInv[i] * vec4(normIn, 1.0)) * weightIn[i / 4][i % 4];
@@ -57,5 +57,12 @@ void main() {
 #endif
 
   vec4 tmpProj;
+  vtf.lightmapUv = vec2(0.0);
+  vtf.diffuseUv = vec2(0.0);
+  vtf.emissiveUv = vec2(0.0);
+  vtf.specularUv = vec2(0.0);
+  vtf.extendedSpecularUv = vec2(0.0);
+  vtf.reflectionUv = vec2(0.0);
+  vtf.alphaUv = vec2(0.0);
   URDE_TCG_EXPR
 }

@@ -107,9 +107,8 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {0, nullptr, hecl::Backend::BlendFactor::Zero, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::Backface, true, true, false},
     /* MorphBall shadow shading */
-    {3, BallFadeTextures, hecl::Backend::BlendFactor::SrcAlpha,
-     hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::Equal, hecl::Backend::CullMode::Backface, false,
-     false, true, false, true},
+    {3, BallFadeTextures, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+     hecl::Backend::ZTest::Equal, hecl::Backend::CullMode::Backface, false, false, true, false, true},
     /* World shadow shading (modified lighting) */
     {1, WorldShadowTextures, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
@@ -135,9 +134,8 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
      hecl::Backend::ZTest::GEqual, hecl::Backend::CullMode::Backface, true, false, true},
     /* Disintegration */
-    {2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha,
-     hecl::Backend::BlendFactor::InvSrcAlpha, hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false,
-     false, true, false, false, true},
+    {2, DisintegrateTextures, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::InvSrcAlpha,
+     hecl::Backend::ZTest::LEqual, hecl::Backend::CullMode::Original, false, false, true, false, false, true},
     /* Forced additive shading without culling or Z-write and greater depth test */
     {0, nullptr, hecl::Backend::BlendFactor::SrcAlpha, hecl::Backend::BlendFactor::One,
      hecl::Backend::ZTest::Greater, hecl::Backend::CullMode::None, true, false, true},
@@ -149,7 +147,7 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface}};
 
-const char* ShaderMacros[] = {
+static const char* ShaderMacros[] = {
     "URDE_LIGHTING",
     "URDE_LIGHTING",
     "URDE_THERMAL_HOT",

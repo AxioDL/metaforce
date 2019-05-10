@@ -112,9 +112,9 @@ static std::string _BuildVS(const SModelShadersInfo& info) {
                "vtf.dynReflectionUvs[1] = (reflectMtx * vec4(objPos.xyz, 1.0)).xy;"
                "vtf.dynReflectionAlpha = reflectAlpha;";
 
-  for (int i = 0; i < info.m_extension.texCount; ++i) {
+  for (size_t i = 0; i < info.m_extension.texCount; ++i) {
     const auto& extTex = info.m_extension.texs[i];
-    if (extTex.mtxIdx < 0)
+    if (extTex.mtxIdx == 0xff)
       vertOut << "vtf.extUvs["sv << i << "] = "sv << EmitTexGenSource2(extTex.src) << ";"sv;
     else
       vertOut << "tmpProj = texMtxs["sv << unsigned(extTex.mtxIdx) << "].postMtx * vec4("sv <<

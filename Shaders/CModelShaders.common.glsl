@@ -4,7 +4,6 @@
 struct VertToFrag {
   vec4 mvPos;
   vec4 mvNorm;
-  vec4 color;
   vec2 lightmapUv;
   vec2 diffuseUv;
   vec2 emissiveUv;

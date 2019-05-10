@@ -114,17 +114,17 @@ UBINDING2 uniform LightingUniform {
   Fog fog;
 };
 #else
-const vec4 colorReg0 = vec4(1.0, 1.0, 1.0, 1.0);
-const vec4 colorReg1 = vec4(1.0, 1.0, 1.0, 1.0);
-const vec4 colorReg2 = vec4(1.0, 1.0, 1.0, 1.0);
+const vec4 colorReg0 = vec4(1.0);
+const vec4 colorReg1 = vec4(1.0);
+const vec4 colorReg2 = vec4(1.0);
 #endif
 
 #if defined(URDE_LIGHTING)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
+vec3 LightingFunc() {
   vec4 ret = ambient;
 
   for (int i = 0; i < URDE_MAX_LIGHTS; ++i) {
-    vec3 delta = mvPosIn - lights[i].pos.xyz;
+    vec3 delta = vtf.mvPos.xyz - lights[i].pos.xyz;
     float dist = length(delta);
     vec3 deltaNorm = delta / dist;
     float angDot = max(dot(deltaNorm, lights[i].dir.xyz), 0.0);
@@ -134,7 +134,7 @@ vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
     float angAtt = lights[i].angAtt[2] * angDot * angDot +
                    lights[i].angAtt[1] * angDot +
                    lights[i].angAtt[0];
-    ret += lights[i].color * angAtt * att * max(dot(-deltaNorm, mvNormIn), 0.0);
+    ret += lights[i].color * angAtt * att * max(dot(-deltaNorm, vtf.mvNorm.xyz), 0.0);
   }
 
   return clamp(ret.rgb, vec3(0.0), vec3(1.0));
@@ -142,8 +142,8 @@ vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
 #endif
 
 #if defined(URDE_THERMAL_HOT)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
-  return vec3(1.0,1.0,1.0);
+vec3 LightingFunc() {
+  return vec3(1.0);
 }
 UBINDING2 uniform ThermalUniform {
   vec4 tmulColor;
@@ -152,14 +152,14 @@ UBINDING2 uniform ThermalUniform {
 #endif
 
 #if defined(URDE_THERMAL_COLD)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
-  return vec3(1.0,1.0,1.0);
+vec3 LightingFunc() {
+  return vec3(1.0);
 }
 #endif
 
 #if defined(URDE_SOLID)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
-  return vec3(1.0,1.0,1.0);
+vec3 LightingFunc() {
+  return vec3(1.0);
 }
 UBINDING2 uniform SolidUniform {
   vec4 solidColor;
@@ -167,8 +167,8 @@ UBINDING2 uniform SolidUniform {
 #endif
 
 #if defined(URDE_MB_SHADOW)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
-  return vec3(1.0,1.0,1.0);
+vec3 LightingFunc() {
+  return vec3(1.0);
 }
 UBINDING2 uniform MBShadowUniform {
   vec4 shadowUp;
@@ -177,13 +177,13 @@ UBINDING2 uniform MBShadowUniform {
 #endif
 
 #if defined(URDE_LIGHTING_SHADOW)
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
+vec3 LightingFunc() {
   vec2 shadowUV = vtf.extUvs[0];
   shadowUV.y = 1.0 - shadowUV.y;
 
   vec4 ret = ambient;
 
-  vec3 delta = mvPosIn - lights[0].pos.xyz;
+  vec3 delta = vtf.mvPos.xyz - lights[0].pos.xyz;
   float dist = length(delta);
   vec3 deltaNorm = delta / dist;
   float angDot = max(dot(deltaNorm, lights[0].dir.xyz), 0.0);
@@ -193,11 +193,11 @@ vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
   float angAtt = lights[0].angAtt[2] * angDot * angDot +
                  lights[0].angAtt[1] * angDot +
                  lights[0].angAtt[0];
-  ret += lights[0].color * angAtt * att * max(dot(-deltaNorm, mvNormIn), 0.0) *
+  ret += lights[0].color * angAtt * att * max(dot(-deltaNorm, vtf.mvNorm.xyz), 0.0) *
          texture(extTex0, shadowUV).r;
 
   for (int i = 1; i < URDE_MAX_LIGHTS; ++i) {
-    vec3 delta = mvPosIn - lights[i].pos.xyz;
+    vec3 delta = vtf.mvPos.xyz - lights[i].pos.xyz;
     float dist = length(delta);
     vec3 deltaNorm = delta / dist;
     float angDot = max(dot(deltaNorm, lights[i].dir.xyz), 0.0);
@@ -207,7 +207,7 @@ vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
     float angAtt = lights[i].angAtt[2] * angDot * angDot +
                    lights[i].angAtt[1] * angDot +
                    lights[i].angAtt[0];
-    ret += lights[i].color * angAtt * att * max(dot(-deltaNorm, mvNormIn), 0.0);
+    ret += lights[i].color * angAtt * att * max(dot(-deltaNorm, vtf.mvNorm.xyz), 0.0);
   }
 
   return clamp(ret.rgb, vec3(0.0), vec3(1.0));
@@ -219,8 +219,8 @@ UBINDING2 uniform DisintegrateUniform {
   vec4 daddColor;
   Fog fog;
 };
-vec3 LightingFunc(vec3 mvPosIn, vec3 mvNormIn) {
-  return vec3(1.0,1.0,1.0);
+vec3 LightingFunc() {
+  return vec3(1.0);
 }
 #endif
 
@@ -309,12 +309,12 @@ vec3 ReflectionFunc() { return texture(reflectionTex, vtf.dynReflectionUvs[1]).r
 vec3 ReflectionFunc() { return texture(reflectionTex, (texture(reflectionIndTex, vtf.dynReflectionUvs[0]).ab -
                         vec2(0.5, 0.5)) * vec2(0.5, 0.5) + vtf.dynReflectionUvs[1]).rgb * vtf.dynReflectionAlpha; }
 #else
-vec3 ReflectionFunc() { return vec3(0.0, 0.0, 0.0); }
+vec3 ReflectionFunc() { return vec3(0.0); }
 #endif
 
 layout(location=0) out vec4 colorOut;
 void main() {
-  vec3 lighting = LightingFunc(vtf.mvPos.xyz, vtf.mvNorm.xyz);
+  vec3 lighting = LightingFunc();
   vec4 tmp;
 #if defined(URDE_DIFFUSE_ONLY)
   tmp.rgb = SampleTexture_diffuse();

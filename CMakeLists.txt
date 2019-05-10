@@ -248,7 +248,12 @@ endif()
 bintoc(CModelShaders.common.glsl.cpp Shaders/CModelShaders.common.glsl CMODELSHADERS_COMMON_GLSL)
 bintoc(CModelShaders.vert.glsl.cpp Shaders/CModelShaders.vert.glsl CMODELSHADERS_VERT_GLSL)
 bintoc(CModelShaders.frag.glsl.cpp Shaders/CModelShaders.frag.glsl CMODELSHADERS_FRAG_GLSL)
-add_library(CModelShaders CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp)
+bintoc(CModelShaders.common.hlsl.cpp Shaders/CModelShaders.common.hlsl CMODELSHADERS_COMMON_HLSL)
+bintoc(CModelShaders.vert.hlsl.cpp Shaders/CModelShaders.vert.hlsl CMODELSHADERS_VERT_HLSL)
+bintoc(CModelShaders.frag.hlsl.cpp Shaders/CModelShaders.frag.hlsl CMODELSHADERS_FRAG_HLSL)
+add_library(CModelShaders
+    CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
+    CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -264,8 +269,9 @@ add_subdirectory(amuse)
 add_subdirectory(specter)
 add_subdirectory(assetnameparser)
 include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/NESEmulator)
+                    ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/NESEmulator
+                    ${ZLIB_INCLUDE_DIR})
+add_definitions(-DURDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(NESEmulator)
 add_subdirectory(DataSpec)
 add_subdirectory(kabufuda)
