@@ -275,7 +275,7 @@ Connection::Connection(int verbosityLevel) {
 
     SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
     HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
-    if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0))
+    if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 1024))
       BlenderLog.report(logvisor::Fatal, "Error with CreatePipe");
 
     if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
@@ -362,7 +362,7 @@ Connection::Connection(int verbosityLevel) {
 
     m_consoleThreadRunning = true;
     m_consoleThread = std::thread([=]() {
-      CHAR lpBuffer[256];
+      CHAR lpBuffer[1024];
       DWORD nBytesRead;
       DWORD nCharsWritten;
 
@@ -482,6 +482,9 @@ Connection::Connection(int verbosityLevel) {
                           DEFAULT_BLENDER_BIN);
       else
         BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s'"), DEFAULT_BLENDER_BIN);
+    } else if (!strcmp(lineBuf, "NOT280")) {
+      _closePipe();
+      BlenderLog.report(logvisor::Fatal, _SYS_STR("Installed blender version must be >= 2.80"));
     } else if (!strcmp(lineBuf, "NOADDON")) {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))

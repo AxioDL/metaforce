@@ -15,7 +15,6 @@ endif()
 endif()
 
 include(ApplicationTools.cmake)
-add_shader(test/test)
 
 configure_file(DataSpecRegistry.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/DataSpecRegistry.hpp @ONLY)
 
@@ -78,6 +77,3 @@ add_subdirectory(lib)
 add_subdirectory(blender)
 add_subdirectory(driver)
 install(DIRECTORY include/hecl DESTINATION include/hecl)
-
-# Runtime test
-add_subdirectory(test)

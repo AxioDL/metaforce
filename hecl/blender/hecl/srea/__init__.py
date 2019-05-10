@@ -322,6 +322,7 @@ def render_lightmaps(context):
         pixel_size = int(area_data.lightmap_resolution)
 
         # Mmm Cycles
+        context.scene.render.engine = 'CYCLES'
         context.scene.render.bake.margin = pixel_size // 256
 
         # Iterate materials and setup cycles
@@ -330,6 +331,11 @@ def render_lightmaps(context):
                 # Set bake target node active
                 if 'CYCLES_OUT' in mat.node_tree.nodes:
                     mat.node_tree.nodes.active = mat.node_tree.nodes['CYCLES_OUT']
+                elif mat.hecl_lightmap and not mat.library:
+                    image_out_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
+                    mat.node_tree.nodes.active = image_out_node
+                    image_out_node.name = 'CYCLES_OUT'
+                    image_out_node.image = make_or_load_cycles_image(mat, area_data)
                 else:
                     image_out_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
                     mat.node_tree.nodes.active = image_out_node
@@ -344,11 +350,11 @@ def render_lightmaps(context):
         for obj in context.scene.objects:
             if obj.type == 'MESH':
 
-                if not len(obj.data.uv_textures):
+                if not len(obj.data.uv_layers):
                     continue
 
                 # Make correct UV layer active
-                obj.data.uv_textures.active_index = 0
+                obj.data.uv_layers.active_index = 0
 
         # Make lightmaps
         bpy.ops.object.bake('INVOKE_DEFAULT', type='DIFFUSE', pass_filter={'DIRECT', 'INDIRECT'})

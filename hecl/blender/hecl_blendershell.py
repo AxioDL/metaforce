@@ -2,10 +2,15 @@ import bpy, sys, os, re, struct, traceback
 
 ARGS_PATTERN = re.compile(r'''(?:"([^"]+)"|'([^']+)'|(\S+))''')
 
+# Background mode seems to require quit() in some 2.80 builds
+def _quitblender():
+    bpy.ops.wm.quit_blender()
+    quit()
+
 # Extract pipe file descriptors from arguments
 print('HECL Blender Launch', sys.argv)
 if '--' not in sys.argv:
-    bpy.ops.wm.quit_blender()
+    _quitblender()
 args = sys.argv[sys.argv.index('--')+1:]
 readfd = int(args[0])
 writefd = int(args[1])
@@ -29,7 +34,7 @@ def readpipestr():
     read_bytes = os.read(readfd, 4)
     if len(read_bytes) != 4:
         print('HECL connection lost or desynchronized')
-        bpy.ops.wm.quit_blender()
+        _quitblender()
     read_len = struct.unpack('I', read_bytes)[0]
     return os.read(readfd, read_len)
 
@@ -44,7 +49,7 @@ def writepipebuf(linebytes):
 
 def quitblender():
     writepipestr(b'QUITTING')
-    bpy.ops.wm.quit_blender()
+    _quitblender()
 
 class PathHasher:
     def hashpath32(self, path):
@@ -61,6 +66,11 @@ class PathHasher:
         if len(read_str) >= 16:
             return int(read_str[0:16], 16)
         return 0
+
+# Ensure Blender 2.8 is being used
+if bpy.app.version < (2, 80, 0):
+    writepipestr(b'NOT280')
+    _quitblender()
 
 # If there's a third argument, use it as the .zip path containing the addon
 did_install = False
@@ -80,12 +90,12 @@ try:
     import hecl
 except:
     writepipestr(b'NOADDON')
-    bpy.ops.wm.quit_blender()
+    _quitblender()
 
 # Quit if just installed
 if did_install:
     writepipestr(b'ADDONINSTALLED')
-    bpy.ops.wm.quit_blender()
+    _quitblender()
 
 # Intro handshake
 writepipestr(b'READY')
@@ -108,7 +118,7 @@ def read_cmdargs():
     cmdline = readpipestr()
     if cmdline == b'':
         print('HECL connection lost')
-        bpy.ops.wm.quit_blender()
+        _quitblender()
     cmdargs = []
     for match in ARGS_PATTERN.finditer(cmdline.decode()):
         cmdargs.append(match.group(match.lastindex))
