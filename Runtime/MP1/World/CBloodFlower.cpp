@@ -49,12 +49,12 @@ void CBloodFlower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     if (x450_bodyController->IsFrozen()) {
       x450_bodyController->FrozenBreakout();
     }
-    sub80119364(mgr);
+    CalculateAttackTime(mgr);
     UpdateFire(mgr);
   }
 }
 
-void CBloodFlower::sub80119364(CStateManager& mgr) {
+void CBloodFlower::CalculateAttackTime(CStateManager& mgr) {
   x584_curAttackTime = x308_attackTimeVariation * -mgr.GetActiveRandom()->Float();
 }
 
@@ -114,7 +114,6 @@ void CBloodFlower::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
 }
 
 void CBloodFlower::LaunchPollenProjectile(const zeus::CTransform& xf, CStateManager& mgr, float var_f1, s32 w1) {
-  static float tickPeriod = CProjectileWeapon::GetTickPeriod();
   CProjectileInfo* proj = GetProjectileInfo();
   TLockedToken<CWeaponDescription> projToken = proj->Token();
 
@@ -174,7 +173,7 @@ bool CBloodFlower::ShouldTurn(CStateManager& mgr, float) {
 void CBloodFlower::Active(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
-    sub80119364(mgr);
+    CalculateAttackTime(mgr);
   } else if (msg == EStateMsg::Update) {
     TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCAdditiveAimCmd());

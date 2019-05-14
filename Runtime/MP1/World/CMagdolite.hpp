@@ -20,7 +20,14 @@ public:
   };
 
 private:
-  //CBoneTracking x584_boneTracker;
+  float x568_;
+  float x56c_;
+  float x570_;
+  float x574_;
+  float x578_;
+  float x57c_;
+  u32 x580_;
+  CBoneTracking x584_boneTracker;
 public:
   DEFINE_PATTERNED(Magdolite)
   CMagdolite(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
