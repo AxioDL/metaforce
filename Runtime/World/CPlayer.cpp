@@ -118,6 +118,8 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
   x64_modelData->SetScale(playerScale);
   x7f0_ballTransitionBeamModel->SetScale(playerScale);
   LoadAnimationTokens();
+
+  _CreateReflectionCube();
 }
 
 void CPlayer::InitializeBallTransition() {
@@ -1141,7 +1143,9 @@ void CPlayer::RenderGun(const CStateManager& mgr, const zeus::CVector3f& pos) co
   if ((mgr.GetCameraManager()->IsInFirstPersonCamera() && x2f4_cameraState == EPlayerCameraState::FirstPerson) ||
       (x2f8_morphBallState == EPlayerMorphBallState::Morphing &&
        x498_gunHolsterState == EGunHolsterState::Holstering)) {
+    CBooModel::SetReflectionCube(m_reflectionCube);
     CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x494_gunAlpha));
+    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     x490_gun->Render(mgr, pos, flags);
   }
 }
@@ -1152,6 +1156,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
     if (TCastToConstPtr<CCinematicCamera> cam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
       doRender = (x2f8_morphBallState == EPlayerMorphBallState::Morphed && cam->GetFlags() & 0x40);
   if (x2f4_cameraState != EPlayerCameraState::FirstPerson && doRender) {
+    CBooModel::SetReflectionCube(m_reflectionCube);
     bool doTransitionRender = false;
     bool doBallRender = false;
     switch (x2f8_morphBallState) {
@@ -1161,6 +1166,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
       if (HasTransitionBeamModel()) {
         x7f0_ballTransitionBeamModel->Touch(mgr, 0);
         CModelFlags flags(0, 0, 3, zeus::skWhite);
+        flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
         x7f0_ballTransitionBeamModel->Render(mgr, x7f4_gunWorldXf, x90_actorLights.get(), flags);
       }
       break;
@@ -1184,6 +1190,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
       CPhysicsActor::Render(mgr);
       if (HasTransitionBeamModel()) {
         CModelFlags flags(5, 0, 3, zeus::CColor(1.f, x588_alpha));
+        flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
         x7f0_ballTransitionBeamModel->Render(CModelData::EWhichModel::Normal, x7f4_gunWorldXf, x90_actorLights.get(),
                                              flags);
       }
@@ -1206,10 +1213,12 @@ void CPlayer::Render(const CStateManager& mgr) const {
         if (alpha != 0.f) {
           CModelData& data = *x730_transitionModels[i];
           CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha));
+          flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
           data.Render(CModelData::GetRenderingModel(mgr), *x658_transitionModelXfs.GetEntry(ni), x90_actorLights.get(),
                       flags);
           if (HasTransitionBeamModel()) {
             CModelFlags flags(5, 0, 3, zeus::CColor(1.f, alpha));
+            flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
             x7f0_ballTransitionBeamModel->Render(CModelData::EWhichModel::Normal, *x594_transisionBeamXfs.GetEntry(ni),
                                                  x90_actorLights.get(), flags);
           }
@@ -1229,6 +1238,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
         if (morphFactor > ballAlphaStart) {
           CModelFlags flags(5, u8(x768_morphball->GetMorphballModelShader()), 3,
                             zeus::CColor(1.f, ballAlphaMag * (morphFactor - ballAlphaStart)));
+          flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
           x768_morphball->GetMorphballModelData().Render(mgr, x768_morphball->GetBallToWorld(), x90_actorLights.get(),
                                                          flags);
         }
@@ -1252,6 +1262,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
             ballAlpha *= 0.5f;
             if (ballAlpha > 0.f) {
               CModelFlags flags(7, 0, 3, zeus::CColor(1.f, ballAlpha));
+              flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
               x768_morphball->GetMorphballModelData().Render(
                   mgr,
                   x768_morphball->GetBallToWorld() * zeus::CTransform::RotateZ(theta) * zeus::CTransform::Scale(scale),

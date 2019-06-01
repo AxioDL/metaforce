@@ -167,64 +167,107 @@ void CWorldTransManager::Update(float dt) {
   }
 }
 
-void CWorldTransManager::DrawAllModels() {
-  CActorLights lights(0, zeus::skZero3f, 4, 4, 0, 0, 0, 0.1f);
-  lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
-
+void CWorldTransManager::DrawPlatformModels(CActorLights* lights) {
   CModelFlags flags = {};
   flags.m_extendedShader = EExtendedShader::Lighting;
 
   if (!x4_modelData->x100_bgModelData[0].IsNull()) {
     zeus::CTransform xf0 = zeus::CTransform::Translate(0.f, 0.f, -(2.f * x1c_bgHeight - x18_bgOffset));
-    x4_modelData->x100_bgModelData[0].Render(CModelData::EWhichModel::Normal, xf0, &lights, flags);
+    x4_modelData->x100_bgModelData[0].Render(CModelData::EWhichModel::Normal, xf0, lights, flags);
   }
   if (!x4_modelData->x100_bgModelData[1].IsNull()) {
     zeus::CTransform xf1 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset - x1c_bgHeight);
-    x4_modelData->x100_bgModelData[1].Render(CModelData::EWhichModel::Normal, xf1, &lights, flags);
+    x4_modelData->x100_bgModelData[1].Render(CModelData::EWhichModel::Normal, xf1, lights, flags);
   }
   if (!x4_modelData->x100_bgModelData[2].IsNull()) {
     zeus::CTransform xf2 = zeus::CTransform::Translate(0.f, 0.f, x18_bgOffset);
-    x4_modelData->x100_bgModelData[2].Render(CModelData::EWhichModel::Normal, xf2, &lights, flags);
+    x4_modelData->x100_bgModelData[2].Render(CModelData::EWhichModel::Normal, xf2, lights, flags);
   }
 
   if (!x4_modelData->xb4_platformModelData.IsNull()) {
-    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), &lights,
+    x4_modelData->xb4_platformModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights,
                                                flags);
   }
+}
+
+void CWorldTransManager::DrawAllModels(CActorLights* lights) {
+  DrawPlatformModels(lights);
 
   if (!x4_modelData->x1c_samusModelData.IsNull()) {
+    CModelFlags flags = {};
+    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+
     x4_modelData->x1c_samusModelData.AnimationData()->PreRender();
-    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), &lights,
+    x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights,
                                             flags);
 
     if (!x4_modelData->x68_beamModelData.IsNull()) {
-      x4_modelData->x68_beamModelData.Render(CModelData::EWhichModel::Normal, x4_modelData->x170_gunXf, &lights, flags);
+      x4_modelData->x68_beamModelData.Render(CModelData::EWhichModel::Normal, x4_modelData->x170_gunXf, lights, flags);
     }
   }
 }
 
-void CWorldTransManager::DrawFirstPass() {
+void CWorldTransManager::DrawFirstPass(CActorLights* lights) {
+  CBooModel::SetReflectionCube(m_reflectionCube[0]);
   zeus::CTransform translateXf = zeus::CTransform::Translate(
       x4_modelData->x1b4_shakeResult.x(), -3.5f * (1.f - zeus::clamp(0.f, x0_curTime / 10.f, 1.f)) - 3.5f,
       x4_modelData->x1b4_shakeResult.y() + 2.f);
   zeus::CTransform rotateXf =
       zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
   CGraphics::SetViewPointMatrix(rotateXf * translateXf);
-  DrawAllModels();
+  DrawAllModels(lights);
   m_camblur.draw(x4_modelData->x1c8_blurResult);
 }
 
-void CWorldTransManager::DrawSecondPass() {
+void CWorldTransManager::DrawSecondPass(CActorLights* lights) {
+  CBooModel::SetReflectionCube(m_reflectionCube[1]);
   const zeus::CVector3f& samusScale = x4_modelData->x0_samusRes.GetScale();
   zeus::CTransform translateXf =
       zeus::CTransform::Translate(-0.1f * samusScale.x(), -0.5f * samusScale.y(), 1.5f * samusScale.z());
   zeus::CTransform rotateXf = zeus::CTransform::RotateZ(zeus::degToRad(
       48.f * zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
   CGraphics::SetViewPointMatrix(rotateXf * translateXf);
-  DrawAllModels();
+  DrawAllModels(lights);
 }
 
 void CWorldTransManager::DrawEnabled() {
+  CActorLights lights(0, zeus::skZero3f, 4, 4, 0, 0, 0, 0.1f);
+  lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
+
+  SViewport backupVp = g_Viewport;
+  constexpr float width = CUBEMAP_RES;
+  CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], 0);
+  g_Renderer->SetViewport(0, 0, width, width);
+  g_Renderer->SetPerspective(90.f, width, width, 0.2f, 750.f);
+
+  if (x0_curTime < x4_modelData->x1d4_dissolveEndTime) {
+    zeus::CTransform mainCamXf =
+        zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
+    for (int face = 0; face < 6; ++face) {
+      CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], face);
+      CGraphics::g_BooMainCommandQueue->clearTarget();
+      zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
+      g_Renderer->SetWorldViewpoint(camXf);
+      DrawPlatformModels(&lights);
+    }
+    CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[0]);
+  }
+  if (x0_curTime > x4_modelData->x1d0_dissolveStartTime) {
+    zeus::CTransform mainCamXf = zeus::CTransform::RotateZ(zeus::degToRad(
+        48.f * zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
+    for (int face = 0; face < 6; ++face) {
+      CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[1], face);
+      CGraphics::g_BooMainCommandQueue->clearTarget();
+      zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
+      g_Renderer->SetWorldViewpoint(camXf);
+      DrawPlatformModels(&lights);
+    }
+    CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[1]);
+  }
+
+  CBooRenderer::BindMainDrawTarget();
+  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
+
   float wsAspect = CWideScreenFilter::SetViewportToMatch(1.f);
 
   g_Renderer->SetPerspective(CCameraManager::FirstPersonFOV(), wsAspect, CCameraManager::NearPlane(),
@@ -232,16 +275,16 @@ void CWorldTransManager::DrawEnabled() {
   g_Renderer->x318_26_requestRGBA6 = true;
 
   if (x0_curTime <= x4_modelData->x1d0_dissolveStartTime)
-    DrawFirstPass();
+    DrawFirstPass(&lights);
   else if (x0_curTime >= x4_modelData->x1d4_dissolveEndTime)
-    DrawSecondPass();
+    DrawSecondPass(&lights);
   else {
     float t = zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime) / 2.f, 1.f);
-    DrawFirstPass();
+    DrawFirstPass(&lights);
     SClipScreenRect rect(g_Viewport);
     CGraphics::ResolveSpareTexture(rect);
     CGraphics::g_BooMainCommandQueue->clearTarget(true, true);
-    DrawSecondPass();
+    DrawSecondPass(&lights);
     m_dissolve.drawCropped(zeus::CColor{1.f, 1.f, 1.f, 1.f - t}, 1.f);
   }
 
@@ -334,6 +377,13 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId pla
   x44_26_goingUp = goingUp;
   x30_type = ETransType::Enabled;
   x4_modelData.reset(new SModelDatas(samusRes));
+
+  if (!m_reflectionCube[0])
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+      m_reflectionCube[0] = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+      m_reflectionCube[1] = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+      return true;
+    } BooTrace);
 
   x8_textData.reset();
   x20_random.SetSeed(99);

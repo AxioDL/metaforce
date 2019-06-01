@@ -705,7 +705,7 @@ void CBooRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
 
 void CBooRenderer::DisablePVS() { xc8_pvs = rstl::nullopt; }
 
-void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights) {
+void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights, int cubeFace) {
   SetupRendererStates();
 
   CModelFlags flags;
@@ -716,7 +716,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activ
     bufIdx = 1;
   } else {
     flags.m_extendedShader = EExtendedShader::Lighting;
-    bufIdx = 0;
+    bufIdx = cubeFace == -1 ? 0 : 2 + cubeFace;
   }
 
   for (CAreaListItem& item : x1c_areaListItems) {
@@ -724,7 +724,7 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activ
       continue;
 
     item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
-                                           item.m_shaderSet->m_geomLayout->m_sharedBuffer[bufIdx], nullptr);
+                                           item.m_shaderSet->m_geomLayout->GetSharedBuffer(bufIdx), nullptr);
 
     for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
       CBooModel* model = *it;

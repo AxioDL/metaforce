@@ -2085,7 +2085,7 @@ void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, co
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
   CModelFlags useFlags = flags;
   if (x0_lights.HasShadowLight())
-    useFlags.m_extendedShader = EExtendedShader::WorldShadow;
+    useFlags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
   CModelFlags beamFlags = useFlags;
   if (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::Thermal)
     beamFlags = kThermalFlags[int(x310_currentBeam)];

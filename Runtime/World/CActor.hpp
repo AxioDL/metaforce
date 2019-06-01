@@ -76,7 +76,11 @@ protected:
     };
     u32 dummy = 0;
   };
+
+  boo::ObjToken<boo::ITextureCubeR> m_reflectionCube;
+
   void _CreateShadow();
+  void _CreateReflectionCube();
   void UpdateSfxEmitters();
   void DrawTouchBounds() const;
   void RenderInternal(const CStateManager& mgr) const;

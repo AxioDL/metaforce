@@ -431,6 +431,13 @@ void CActor::_CreateShadow() {
     x94_simpleShadow.reset(new CSimpleShadow(1.f, 1.f, 20.f, 0.05f));
 }
 
+void CActor::_CreateReflectionCube() {
+  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+    m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+    return true;
+  } BooTrace);
+}
+
 void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }
 
 bool CActor::GetCallTouch() const { return xe5_28_callTouch; }

@@ -77,7 +77,7 @@ struct CBooSurface {
 using MaterialSet = DataSpec::DNAMP1::HMDLMaterialSet;
 
 struct GeometryUniformLayout {
-  boo::ObjToken<boo::IGraphicsBufferD> m_sharedBuffer[2];
+  mutable std::vector<boo::ObjToken<boo::IGraphicsBufferD>> m_sharedBuffer;
   size_t m_geomBufferSize = 0;
   size_t m_skinBankCount = 0;
   size_t m_weightVecCount = 0;
@@ -92,6 +92,9 @@ struct GeometryUniformLayout {
   void Update(const CModelFlags& flags, const CSkinRules* cskr, const CPoseAsTransforms* pose,
               const MaterialSet* matSet, const boo::ObjToken<boo::IGraphicsBufferD>& buf,
               const CBooModel* parent) const;
+
+  void ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size);
+  boo::ObjToken<boo::IGraphicsBufferD> GetSharedBuffer(int idx) const;
 };
 
 struct SShader {
@@ -167,6 +170,7 @@ private:
 
   boo::ObjToken<boo::ITexture> m_lastDrawnShadowMap;
   boo::ObjToken<boo::ITexture> m_lastDrawnOneTexture;
+  boo::ObjToken<boo::ITextureCubeR> m_lastDrawnReflectionCube;
 
   ModelInstance* PushNewModelInstance(int sharedLayoutBuf = -1);
   void DrawAlphaSurfaces(const CModelFlags& flags) const;
@@ -240,10 +244,13 @@ public:
   static boo::ObjToken<boo::ITexture> g_disintegrateTexture;
   static void SetDisintegrateTexture(const boo::ObjToken<boo::ITexture>& map) { g_disintegrateTexture = map; }
 
+  static boo::ObjToken<boo::ITextureCubeR> g_reflectionCube;
+  static void SetReflectionCube(const boo::ObjToken<boo::ITextureCubeR>& map) { g_reflectionCube = map; }
+
   static void SetDummyTextures(bool b) { g_DummyTextures = b; }
   static void SetRenderModelBlack(bool b) { g_RenderModelBlack = b; }
 
-  static void AssertAllFreed();
+  static void Shutdown();
 
   const zeus::CAABox& GetAABB() const { return x20_aabb; }
 };

@@ -35,6 +35,8 @@ CScriptPlayerActor::CScriptPlayerActor(TUniqueId uid, std::string_view name, con
   SetActorLights(aParams.GetLightParameters().MakeActorLights());
   xe7_29_drawEnabled = true;
   x2e3_24_isPlayerActor = true;
+
+  _CreateReflectionCube();
 }
 
 u32 CScriptPlayerActor::GetSuitCharIdx(const CStateManager& mgr, CPlayerState::EPlayerSuit suit) const {
@@ -360,6 +362,7 @@ void CScriptPlayerActor::PreRender(CStateManager& mgr, const zeus::CFrustum& fru
   }
   if (x2e8_suitRes.GetCharacterNodeId() == 3)
     g_Renderer->AllocatePhazonSuitMaskTexture();
+  xb4_drawFlags.m_extendedShader = EExtendedShader::LightingCubeReflection;
   CScriptActor::PreRender(mgr, frustum);
 }
 
@@ -370,6 +373,8 @@ void CScriptPlayerActor::AddToRenderer(const zeus::CFrustum& frustum, const CSta
 }
 
 void CScriptPlayerActor::Render(const CStateManager& mgr) const {
+  CBooModel::SetReflectionCube(m_reflectionCube);
+
   bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
   if (phazonSuit) {
     // Draw into alpha buffer
@@ -387,7 +392,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
     CModelFlags flags(5, 0, 3, zeus::skWhite);
     flags.m_extendedShader = EExtendedShader::SolidColorBackfaceCullLEqualAlphaOnly;
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
-    flags.m_extendedShader = EExtendedShader::Lighting;
+    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     flags.x4_color = zeus::CColor{1.f, xb4_drawFlags.x4_color.a()};
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
   }

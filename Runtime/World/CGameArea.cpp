@@ -1033,12 +1033,10 @@ void CGameArea::FillInStaticGeometry(bool textures) {
     matSet.InitializeLayout(nullptr);
     ++secIt;
   }
-
+  
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    /* Shared geometry uniform buffer - one for normal render, one for shadow render */
-    for (int i = 0; i < 2; ++i)
-      matSet.m_geomLayout->m_sharedBuffer[i] =
-          ctx.newDynamicBuffer(boo::BufferUse::Uniform, matSet.m_geomLayout->m_geomBufferSize, 1);
+    /* Reserve extra buffers for 16 cubemaps and shadow rendering */
+    matSet.m_geomLayout->ReserveSharedBuffers(ctx, 98);
 
     /* Models */
     for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {

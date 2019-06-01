@@ -38,6 +38,8 @@ enum EExtendedShader : uint8_t {
   ForcedAdditiveNoZWriteDepthGreater,
   ThermalCold,
   LightingAlphaWrite,
+  LightingCubeReflection,
+  LightingCubeReflectionWorldShadow,
   MAX
 };
 

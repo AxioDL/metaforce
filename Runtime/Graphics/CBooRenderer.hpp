@@ -201,7 +201,7 @@ public:
                          const SShader* shaderSet);
   void EnablePVS(const CPVSVisSet&, u32);
   void DisablePVS();
-  void UpdateAreaUniforms(int areaIdx, bool shadowRender = false, bool activateLights = true);
+  void UpdateAreaUniforms(int areaIdx, bool shadowRender = false, bool activateLights = true, int cubeFace = -1);
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
   void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
   void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false);

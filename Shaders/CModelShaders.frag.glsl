@@ -14,7 +14,12 @@ TBINDING7 uniform sampler2D reflectionIndTex;
 TBINDING8 uniform sampler2D extTex0;
 TBINDING9 uniform sampler2D extTex1;
 TBINDING10 uniform sampler2D extTex2;
+
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+TBINDING11 uniform samplerCube reflectionTex;
+#else
 TBINDING11 uniform sampler2D reflectionTex;
+#endif
 
 const vec3 kRGBToYPrime = vec3(0.257, 0.504, 0.098);
 
@@ -84,7 +89,7 @@ vec3 SampleTexture_alpha() { return texture(alpha, vtf.alphaUv).rgb; }
 float SampleTextureAlpha_alpha() { return dot(texture(alpha, vtf.alphaUv).rgb, kRGBToYPrime); }
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_DISINTEGRATE)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW) || defined(URDE_DISINTEGRATE)
 struct Fog {
   vec4 color;
   float A;
@@ -94,7 +99,7 @@ struct Fog {
 };
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 struct Light {
   vec4 pos;
   vec4 dir;
@@ -119,7 +124,7 @@ const vec4 colorReg1 = vec4(1.0);
 const vec4 colorReg2 = vec4(1.0);
 #endif
 
-#if defined(URDE_LIGHTING)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_CUBE_REFLECTION)
 vec3 LightingFunc() {
   vec4 ret = ambient;
 
@@ -176,7 +181,7 @@ UBINDING2 uniform MBShadowUniform {
 };
 #endif
 
-#if defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 vec3 LightingFunc() {
   vec2 shadowUV = vtf.extUvs[0];
   shadowUV.y = 1.0 - shadowUV.y;
@@ -224,7 +229,7 @@ vec3 LightingFunc() {
 }
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_DISINTEGRATE)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW) || defined(URDE_DISINTEGRATE)
 vec4 FogFunc(vec4 colorIn) {
   float fogZ;
   float fogF = clamp((fog.A / (fog.B - gl_FragCoord.z)) - fog.C, 0.0, 1.0);
@@ -257,7 +262,7 @@ vec4 FogFunc(vec4 colorIn) {
 }
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 vec4 PostFunc(vec4 colorIn) {
   return FogFunc(colorIn) * mulColor + addColor;
 }
@@ -303,7 +308,10 @@ vec4 PostFunc(vec4 colorIn) {
 }
 #endif
 
-#if defined(URDE_REFLECTION_SIMPLE)
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+vec3 ReflectionFunc(float roughness) { return texture(reflectionTex, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz),
+                                       roughness * 5.0).rgb; }
+#elif defined(URDE_REFLECTION_SIMPLE)
 vec3 ReflectionFunc() { return texture(reflectionTex, vtf.dynReflectionUvs[1]).rgb * vtf.dynReflectionAlpha; }
 #elif defined(URDE_REFLECTION_INDIRECT)
 vec3 ReflectionFunc() { return texture(reflectionTex, (texture(reflectionIndTex, vtf.dynReflectionUvs[0]).ab -
@@ -316,7 +324,12 @@ layout(location=0) out vec4 colorOut;
 void main() {
   vec3 lighting = LightingFunc();
   vec4 tmp;
-#if defined(URDE_DIFFUSE_ONLY)
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+  tmp.rgb = (SampleTexture_lightmap() * colorReg1.rgb + lighting) * SampleTexture_diffuse() +
+  SampleTexture_emissive() + (SampleTexture_specular() + SampleTexture_extendedSpecular() * lighting) *
+  (SampleTexture_reflection() * ReflectionFunc(clamp(0.5 - SampleTextureAlpha_specular(), 0.0, 1.0)) * 2.0);
+  tmp.a = SampleTextureAlpha_alpha();
+#elif defined(URDE_DIFFUSE_ONLY)
   tmp.rgb = SampleTexture_diffuse();
   tmp.a = SampleTextureAlpha_alpha();
 #elif defined(RETRO_SHADER)

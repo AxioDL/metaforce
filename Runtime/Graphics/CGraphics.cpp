@@ -31,6 +31,33 @@ bool CGraphics::g_IsGXModelMatrixIdentity = true;
 SViewport g_Viewport = {0, 0, 640, 480, 640 / 2.f, 480 / 2.f};
 u32 CGraphics::g_FrameCounter = 0;
 
+const zeus::CMatrix3f CGraphics::skCubeBasisMats[] = {
+  /* Right */
+  {0.f, 1.f, 0.f,
+   1.f, 0.f, 0.f,
+   0.f, 0.f, -1.f},
+  /* Left */
+  {0.f, -1.f, 0.f,
+   -1.f, 0.f, 0.f,
+   0.f, 0.f, -1.f},
+  /* Up */
+  {1.f, 0.f, 0.f,
+   0.f, 0.f, -1.f,
+   0.f, 1.f, 0.f},
+  /* Down */
+  {1.f, 0.f, 0.f,
+   0.f, 0.f, 1.f,
+   0.f, -1.f, 0.f},
+  /* Back */
+  {1.f, 0.f, 0.f,
+   0.f, -1.f, 0.f,
+   0.f, 0.f, -1.f},
+  /* Forward */
+  {-1.f, 0.f, 0.f,
+   0.f, 1.f, 0.f,
+   0.f, 0.f, -1.f},
+};
+
 void CGraphics::DisableAllLights() {
   g_NumLightsActive = 0;
   g_LightActive = ERglLightBits::None;

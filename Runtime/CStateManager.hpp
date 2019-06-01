@@ -245,8 +245,11 @@ public:
   void DrawAdditionalFilters() const;
   zeus::CFrustum SetupDrawFrustum(const SViewport& vp) const;
   zeus::CFrustum SetupViewForDraw(const SViewport& vp) const;
+  zeus::CFrustum SetupViewForCubeFaceDraw(const zeus::CVector3f& pos, int face) const;
   void ResetViewAfterDraw(const SViewport& backupViewport, const zeus::CTransform& backupViewMatrix) const;
   void DrawWorld() const;
+  void DrawActorCubeFaces(CActor& actor, int& cubeInst) const;
+  void DrawWorldCubeFaces() const;
   void SetupFogForArea(TAreaId area) const;
   void SetupFogForAreaNonCurrent(TAreaId area) const;
   void SetupFogForArea(const CGameArea& area) const;

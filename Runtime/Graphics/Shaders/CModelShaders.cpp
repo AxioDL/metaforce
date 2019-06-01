@@ -145,7 +145,13 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
      false, false, true, false, false, false, true},
     /* Normal lit shading with alpha */
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
-     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface}};
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface},
+    /* Normal lit shading with cube reflection */
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
+    /* Normal lit shading with cube reflection and world shadow */
+    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true}};
 
 static const char* ShaderMacros[] = {
     "URDE_LIGHTING",
@@ -172,6 +178,8 @@ static const char* ShaderMacros[] = {
     "URDE_LIGHTING",
     "URDE_THERMAL_COLD",
     "URDE_LIGHTING",
+    "URDE_LIGHTING_CUBE_REFLECTION",
+    "URDE_LIGHTING_CUBE_REFLECTION_SHADOW",
 };
 
 void CModelShaders::Initialize() {

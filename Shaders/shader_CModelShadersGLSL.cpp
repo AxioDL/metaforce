@@ -96,6 +96,7 @@ static std::string _BuildVS(const SModelShadersInfo& info) {
   if (info.m_tag.getWeightCount())
     vertOut << "layout(location="sv << 2 + info.m_tag.getColorCount() + info.m_tag.getUvCount() <<
     ") in vec4 weightIn["sv << unsigned(info.m_tag.getWeightCount()) << "];"sv;
+  vertOut << '\n';
 
   vertOut << "#define URDE_TCG_EXPR "sv;
   using UVAnimType = BlendMaterial::UVAnimType;

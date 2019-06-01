@@ -176,6 +176,8 @@ enum class ETexelFormat {
 #define DEPTH_SCREEN_ACTORS (1.f / 64.f)
 #define DEPTH_HUD (1.f / 512.f)
 #define DEPTH_NEAR 0.f
+#define CUBEMAP_RES 256
+#define CUBEMAP_MIPS 6
 
 class CGraphics {
 public:
@@ -267,6 +269,8 @@ public:
   static boo::IGraphicsDataFactory* g_BooFactory;
   static boo::IGraphicsCommandQueue* g_BooMainCommandQueue;
   static boo::ObjToken<boo::ITextureR> g_SpareTexture;
+
+  static const zeus::CMatrix3f skCubeBasisMats[6];
 
   static void InitializeBoo(boo::IGraphicsDataFactory* factory, boo::IGraphicsCommandQueue* cc,
                             const boo::ObjToken<boo::ITextureR>& spareTex) {

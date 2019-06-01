@@ -77,10 +77,13 @@ private:
   CWideScreenFilter m_widescreen = {EFilterType::Blend};
   CCameraBlurFilter m_camblur;
 
+  boo::ObjToken<boo::ITextureCubeR> m_reflectionCube[2];
+
   static int GetSuitCharIdx();
-  void DrawFirstPass();
-  void DrawSecondPass();
-  void DrawAllModels();
+  void DrawFirstPass(CActorLights* lights);
+  void DrawSecondPass(CActorLights* lights);
+  void DrawPlatformModels(CActorLights* lights);
+  void DrawAllModels(CActorLights* lights);
   void UpdateLights(float dt);
   void UpdateEnabled(float);
   void UpdateDisabled(float);

@@ -864,9 +864,9 @@ void CMain::Shutdown() {
   CFluidPlaneShader::Shutdown();
   CFluidPlaneManager::RippleMapTex.reset();
   CNESShader::Shutdown();
+  CBooModel::Shutdown();
   CGraphics::ShutdownBoo();
   ShutdownDiscord();
-  CBooModel::AssertAllFreed();
 }
 
 boo::IWindow* CMain::GetMainWindow() const { return m_mainWindow; }

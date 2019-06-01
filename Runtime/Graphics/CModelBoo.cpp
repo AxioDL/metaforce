@@ -18,7 +18,12 @@ bool CBooModel::g_DrawingOccluders = false;
 
 static CBooModel* g_FirstModel = nullptr;
 
-void CBooModel::AssertAllFreed() { assert(g_FirstModel == nullptr && "Dangling CBooModels detected"); }
+void CBooModel::Shutdown() {
+  g_shadowMap.reset();
+  g_disintegrateTexture.reset();
+  g_reflectionCube.reset();
+  assert(g_FirstModel == nullptr && "Dangling CBooModels detected");
+}
 
 void CBooModel::ClearModelUniformCounters() {
   for (CBooModel* model = g_FirstModel; model; model = model->m_next)
@@ -123,6 +128,7 @@ void CBooModel::EnsureViewDepStateCached(const CBooModel& model, const CBooSurfa
 boo::ObjToken<boo::ITexture> CBooModel::g_shadowMap;
 zeus::CTransform CBooModel::g_shadowTexXf;
 boo::ObjToken<boo::ITexture> CBooModel::g_disintegrateTexture;
+boo::ObjToken<boo::ITextureCubeR> CBooModel::g_reflectionCube;
 
 void CBooModel::EnableShadowMaps(const boo::ObjToken<boo::ITexture>& map, const zeus::CTransform& texXf) {
   g_shadowMap = map;
@@ -248,7 +254,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
     /* Build geometry uniform buffer if shared not available */
     boo::ObjToken<boo::IGraphicsBufferD> geomUniformBuf;
     if (sharedLayoutBuf >= 0) {
-      geomUniformBuf = m_geomLayout->m_sharedBuffer[sharedLayoutBuf];
+      geomUniformBuf = m_geomLayout->GetSharedBuffer(sharedLayoutBuf);
     } else {
       geomUniformBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomLayout->m_geomBufferSize, 1);
       newInst.m_geomUniformBuffer = geomUniformBuf;
@@ -356,7 +362,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
           texs[8] = g_Renderer->m_ballShadowId.get();
           texs[9] = g_Renderer->x220_sphereRamp.get();
           texs[10] = g_Renderer->m_ballFade.get();
-        } else if (idx == EExtendedShader::WorldShadow) {
+        } else if (idx == EExtendedShader::WorldShadow || idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
           if (g_shadowMap)
             texs[8] = g_shadowMap;
           else
@@ -366,6 +372,12 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
             texs[8] = g_disintegrateTexture;
           else
             texs[8] = g_Renderer->x220_sphereRamp.get();
+        } else if (idx == EExtendedShader::LightingCubeReflection ||
+                   idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
+          if (m_lastDrawnReflectionCube)
+            texs[11] = m_lastDrawnReflectionCube.get();
+          else
+            texs[11] = g_Renderer->x220_sphereRamp.get();
         }
         extendeds.push_back(ctx.newShaderDataBinding(pipeline, newInst.GetBooVBO(*this, ctx), nullptr,
                                                      m_staticIbo.get(), 4, bufs, stages, thisOffs, thisSizes, 12, texs,
@@ -778,7 +790,8 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     postMtxOut[1].y() = 0.5f;
     postMtxOut[3].x() = 0.5f;
     postMtxOut[3].y() = 0.5f;
-  } else if (flags.m_extendedShader == EExtendedShader::WorldShadow) {
+  } else if (flags.m_extendedShader == EExtendedShader::WorldShadow ||
+             flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) {
     /* Special matrix for mapping world shadow */
     specialMtxOut.emplace();
 
@@ -891,6 +904,31 @@ void GeometryUniformLayout::Update(const CModelFlags& flags, const CSkinRules* c
   buf->unmap();
 }
 
+void GeometryUniformLayout::ReserveSharedBuffers(boo::IGraphicsDataFactory::Context& ctx, int size) {
+  if (m_sharedBuffer.size() < size)
+    m_sharedBuffer.resize(size);
+  for (int i = 0; i < size; ++i) {
+    auto& buf = m_sharedBuffer[i];
+    if (!buf)
+      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
+  }
+}
+
+boo::ObjToken<boo::IGraphicsBufferD> GeometryUniformLayout::GetSharedBuffer(int idx) const {
+  if (idx >= m_sharedBuffer.size())
+    m_sharedBuffer.resize(idx + 1);
+
+  auto& buf = m_sharedBuffer[idx];
+  if (!buf) {
+    CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
+      buf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, m_geomBufferSize, 1);
+      return true;
+    } BooTrace);
+  }
+
+  return buf;
+}
+
 boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFlags& flags, const CSkinRules* cskr,
                                                                   const CPoseAsTransforms* pose,
                                                                   int sharedLayoutBuf) const {
@@ -898,7 +936,9 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     return {};
 
   /* Invalidate instances if new shadow being drawn */
-  if (flags.m_extendedShader == EExtendedShader::WorldShadow && m_lastDrawnShadowMap != g_shadowMap) {
+  if ((flags.m_extendedShader == EExtendedShader::WorldShadow || 
+       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
+      m_lastDrawnShadowMap != g_shadowMap) {
     const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
     const_cast<CBooModel*>(this)->m_instances.clear();
   }
@@ -906,6 +946,14 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   /* Invalidate instances if new one-texture being drawn */
   if (flags.m_extendedShader == EExtendedShader::Disintegrate && m_lastDrawnOneTexture != g_disintegrateTexture) {
     const_cast<CBooModel*>(this)->m_lastDrawnOneTexture = g_disintegrateTexture;
+    const_cast<CBooModel*>(this)->m_instances.clear();
+  }
+
+  /* Invalidate instances if new reflection cube being drawn */
+  if ((flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
+       flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
+      m_lastDrawnReflectionCube != g_reflectionCube) {
+    const_cast<CBooModel*>(this)->m_lastDrawnReflectionCube = g_reflectionCube;
     const_cast<CBooModel*>(this)->m_instances.clear();
   }
 

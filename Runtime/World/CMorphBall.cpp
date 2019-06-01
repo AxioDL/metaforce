@@ -1418,6 +1418,7 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (dying) {
     zeus::CColor modColor(0.f, zeus::clamp(0.f, 1.f - x0_player.x9f4_deathTime / 0.2f * 6.f, 1.f));
     CModelFlags flags(7, u8(x5c_ballModelShader), 1, modColor);
+    flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     x58_ballModel->Render(mgr, ballToWorld, nullptr, flags);
   }
 
@@ -1426,13 +1427,15 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (x1e44_damageEffect > 0.f)
     flags = CModelFlags(1, 0, 3, zeus::CColor(1.f, 1.f - x1e44_damageEffect, 1.f - x1e44_damageEffect, 1.f));
 
+  flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
+
   if (x1c1c_rainSplashGen && x1c1c_rainSplashGen->IsRaining())
     CSkinnedModel::SetPointGeneratorFunc(x1c1c_rainSplashGen.get(), PointGenerator);
 
   if (x1c34_boostLightFactor != 1.f) {
     if (lights->HasShadowLight()) {
       x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
-      flags.m_extendedShader = EExtendedShader::WorldShadow;
+      flags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
     }
     x58_ballModel->Render(mgr, ballToWorld, lights, flags);
     x1c14_worldShadow->DisableModelProjectedShadow();
@@ -1493,10 +1496,11 @@ void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) co
   if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::SpiderBall) && x60_spiderBallGlassModel) {
     float tmp = std::max(x1c38_spiderLightFactor, x1c34_boostLightFactor);
     CModelFlags sflags(0, u8(x64_spiderBallGlassModelShader), 3, zeus::skWhite);
+    sflags.m_extendedShader = EExtendedShader::LightingCubeReflection;
     if (tmp != 1.f) {
       if (lights->HasShadowLight()) {
         x1c14_worldShadow->EnableModelProjectedShadow(ballToWorld, lights->GetShadowLightArrIndex(), 1.f);
-        sflags.m_extendedShader = EExtendedShader::WorldShadow;
+        sflags.m_extendedShader = EExtendedShader::LightingCubeReflectionWorldShadow;
       }
       x60_spiderBallGlassModel->Render(mgr, ballToWorld, x1c18_actorLights.get(), sflags);
       x1c14_worldShadow->DisableModelProjectedShadow();
