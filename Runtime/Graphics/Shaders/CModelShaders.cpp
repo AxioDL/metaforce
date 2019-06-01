@@ -150,7 +150,7 @@ static hecl::Backend::ExtensionSlot g_ExtensionSlots[] = {
     {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
      hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true},
     /* Normal lit shading with cube reflection and world shadow */
-    {0, nullptr, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
+    {1, WorldShadowTextures, hecl::Backend::BlendFactor::Original, hecl::Backend::BlendFactor::Original,
     hecl::Backend::ZTest::Original, hecl::Backend::CullMode::Backface, false, false, true}};
 
 static const char* ShaderMacros[] = {

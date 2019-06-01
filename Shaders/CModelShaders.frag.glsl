@@ -309,8 +309,7 @@ vec4 PostFunc(vec4 colorIn) {
 #endif
 
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
-vec3 ReflectionFunc(float roughness) { return texture(reflectionTex, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz),
-                                       roughness * 5.0).rgb; }
+vec3 ReflectionFunc(float roughness) { return texture(reflectionTex, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz), roughness).rgb; }
 #elif defined(URDE_REFLECTION_SIMPLE)
 vec3 ReflectionFunc() { return texture(reflectionTex, vtf.dynReflectionUvs[1]).rgb * vtf.dynReflectionAlpha; }
 #elif defined(URDE_REFLECTION_INDIRECT)
