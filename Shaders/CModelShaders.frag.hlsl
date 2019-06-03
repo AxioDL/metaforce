@@ -330,7 +330,7 @@ float4 main(in VertToFrag vtf) : SV_Target0 {
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
   tmp.rgb = (SampleTexture_lightmap(vtf) * colorReg1.rgb + lighting) * SampleTexture_diffuse(vtf) +
   SampleTexture_emissive(vtf) + (SampleTexture_specular(vtf) + SampleTexture_extendedSpecular(vtf) * lighting) *
-  (SampleTexture_reflection(vtf) * ReflectionFunc(vtf, clamp(0.5 - SampleTextureAlpha_specular(vtf), 0.0, 1.0)) * 2.0);
+  (SampleTexture_reflection(vtf) * ReflectionFunc(vtf, saturate(0.5 - SampleTextureAlpha_specular(vtf))) * 2.0);
   tmp.a = SampleTextureAlpha_alpha(vtf);
 #elif defined(URDE_DIFFUSE_ONLY)
   tmp.rgb = SampleTexture_diffuse(vtf);

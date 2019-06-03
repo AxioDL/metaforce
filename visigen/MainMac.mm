@@ -46,6 +46,7 @@ static void UpdatePercent(float percent)
 }
 - (void)prepareOpenGL
 {
+    [super prepareOpenGL];
     s_task = std::thread([self](){
         [[self openGLContext] makeCurrentContext];
         m_renderer->Run(UpdatePercent);

@@ -66,7 +66,7 @@ constant float3 kRGBToYPrime = float3(0.257, 0.504, 0.098);
 #define SampleTextureAlpha_alpha() dot(alpha.sample(samp, vtf.alphaUv).rgb, kRGBToYPrime)
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_DISINTEGRATE)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW) || defined(URDE_DISINTEGRATE)
 struct Fog {
   float4 color;
   float A;
@@ -76,7 +76,7 @@ struct Fog {
 };
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 struct Light {
   float4 pos;
   float4 dir;
@@ -104,7 +104,7 @@ constant float4 colorReg1 = float4(1.0, 1.0, 1.0, 1.0);
 constant float4 colorReg2 = float4(1.0, 1.0, 1.0, 1.0);
 #endif
 
-#if defined(URDE_LIGHTING)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_CUBE_REFLECTION)
 float3 LightingFunc(thread VertToFrag& vtf, constant LightingUniform& lu, texture2d<float> extTex0, sampler clampSamp) {
   float4 ret = lu.ambient;
 
@@ -162,7 +162,7 @@ float3 LightingFunc(thread VertToFrag& vtf, constant LightingUniform& lu, textur
 }
 #endif
 
-#if defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 float3 LightingFunc(thread VertToFrag& vtf, constant LightingUniform& lu, texture2d<float> extTex0, sampler clampSamp) {
   float2 shadowUV = vtf.extUvs0;
   shadowUV.y = 1.0 - shadowUV.y;
@@ -210,7 +210,7 @@ float3 LightingFunc(thread VertToFrag& vtf, constant LightingUniform& lu, textur
 }
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_DISINTEGRATE)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW) || defined(URDE_DISINTEGRATE)
 float4 FogFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colorIn) {
   float fogZ;
   float fogF = saturate((lu.fog.A / (lu.fog.B - (1.0 - vtf.mvpPos.z))) - lu.fog.C);
@@ -243,7 +243,7 @@ float4 FogFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colo
 }
 #endif
 
-#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW)
+#if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
                 sampler samp, float4 colorIn) {
@@ -301,7 +301,10 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 }
 #endif
 
-#if defined(URDE_REFLECTION_SIMPLE)
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+#define ReflectionFunc(roughness) \
+  (reflectionTex.sample(reflectSamp, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz), bias(roughness)).rgb)
+#elif defined(URDE_REFLECTION_SIMPLE)
 #define ReflectionFunc() \
   (reflectionTex.sample(reflectSamp, vtf.dynReflectionUvs1).rgb * vtf.dynReflectionAlpha)
 #elif defined(URDE_REFLECTION_INDIRECT)
@@ -330,11 +333,20 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       texture2d<float> extTex0 [[ texture(8) ]],
                       texture2d<float> extTex1 [[ texture(9) ]],
                       texture2d<float> extTex2 [[ texture(10) ]],
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+                      texturecube<float> reflectionTex [[ texture(11) ]],
+#else
                       texture2d<float> reflectionTex [[ texture(11) ]],
+#endif
                       constant LightingUniform& lu [[ buffer(4) ]]) {
   float3 lighting = LightingFunc(vtf, lu, extTex0, clampSamp);
   float4 tmp;
-#if defined(URDE_DIFFUSE_ONLY)
+#if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+  tmp.rgb = (SampleTexture_lightmap() * colorReg1.rgb + lighting) * SampleTexture_diffuse() +
+  SampleTexture_emissive() + (SampleTexture_specular() + SampleTexture_extendedSpecular() * lighting) *
+  (SampleTexture_reflection() * ReflectionFunc(saturate(0.5 - SampleTextureAlpha_specular())) * 2.0);
+  tmp.a = SampleTextureAlpha_alpha();
+#elif defined(URDE_DIFFUSE_ONLY)
   tmp.rgb = SampleTexture_diffuse();
   tmp.a = SampleTextureAlpha_alpha();
 #elif defined(RETRO_SHADER)
