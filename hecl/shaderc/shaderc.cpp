@@ -31,6 +31,14 @@ Format(const char* format, ...) {
   return std::string(resultBuf, printSz);
 }
 
+static const char* StageNames[] = {
+  "hecl::PipelineStage::Vertex",
+  "hecl::PipelineStage::Fragment",
+  "hecl::PipelineStage::Geometry",
+  "hecl::PipelineStage::Control",
+  "hecl::PipelineStage::Evaluation"
+};
+
 const std::string* Compiler::getFileContents(SystemStringView path) {
   auto search = m_fileContents.find(path.data());
   if (search == m_fileContents.end()) {
@@ -59,6 +67,9 @@ static const char* ShaderHeaderTemplate =
     "    static const boo::AdditionalPipelineInfo PipelineInfo;\n"
     "    static constexpr bool HasHash = true;\n"
     "    static constexpr uint64_t Hash() { return 0x%016llX; }\n"
+    "    static constexpr bool HasStageHash = true;\n"
+    "    template <typename S>\n"
+    "    static constexpr uint64_t StageHash();\n"
     "};\n\n";
 
 static const char* StageObjectHeaderTemplate =
@@ -445,7 +456,12 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
   StageType stageType;
   auto stageBegin = includesPass.cend();
   auto stageEnd = includesPass.cend();
-  std::unordered_map<std::string, std::pair<std::bitset<6>, std::set<std::string>>> shaderStageUses;
+  struct ShaderStageUse {
+    std::bitset<6> stages;
+    std::array<unsigned long long, 6> stageHashes = {};
+    std::set<std::string> platforms;
+  };
+  std::unordered_map<std::string, ShaderStageUse> shaderStageUses;
   std::unordered_map<std::string, std::string> shaderBases;
 
   auto _DoCompile = [&]() {
@@ -465,9 +481,10 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
       }
     }
     stageBegin = includesPass.end();
-    std::pair<std::bitset<6>, std::set<std::string>>& uses = shaderStageUses[shaderName];
-    uses.first.set(size_t(stageType));
-    uses.second.insert(stagePlatforms);
+    ShaderStageUse& uses = shaderStageUses[shaderName];
+    uses.stages.set(size_t(stageType));
+    uses.stageHashes[size_t(stageType)] = XXH64(stage.c_str(), stage.size(), 0);
+    uses.platforms.insert(stagePlatforms);
     return StageAction<CompileStageAction>(stagePlatforms, stageType, shaderName, shaderBase, stage, out.second);
   };
   auto DoCompile = [&](std::string platform, StageType type, std::string::const_iterator end,
@@ -482,8 +499,8 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
   auto DoShader = [&]() {
     if (shaderBase.empty() && shaderStageUses.find(shaderName) == shaderStageUses.cend())
       return true;
-    std::pair<std::bitset<6>, std::set<std::string>>& uses = shaderStageUses[shaderName];
-    if (uses.first.test(5))
+    ShaderStageUse& uses = shaderStageUses[shaderName];
+    if (uses.stages.test(5))
       return true;
 
     out.first += Format(ShaderHeaderTemplate, shaderName.c_str(), XXH64(shaderName.c_str(), shaderName.size(), 0));
@@ -494,22 +511,23 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
       shaderBases[shaderName] = shaderBase;
 
       for (int i = 0; i < 5; ++i) {
-        if (uses.first.test(size_t(i)))
+        if (uses.stages.test(size_t(i)))
           continue;
 
         std::string useBase = shaderBase;
-        std::unordered_map<std::string, std::pair<std::bitset<6>, std::set<std::string>>>::const_iterator baseUses =
+        std::unordered_map<std::string, ShaderStageUse>::const_iterator baseUses =
             shaderStageUses.find(useBase);
-        while (baseUses == shaderStageUses.cend() || !baseUses->second.first.test(size_t(i))) {
+        while (baseUses == shaderStageUses.cend() || !baseUses->second.stages.test(size_t(i))) {
           auto search = shaderBases.find(useBase);
           if (search == shaderBases.cend())
             break;
           useBase = search->second;
           baseUses = shaderStageUses.find(useBase);
         }
-        if (baseUses == shaderStageUses.cend() || !baseUses->second.first.test(size_t(i)))
+        if (baseUses == shaderStageUses.cend() || !baseUses->second.stages.test(size_t(i)))
           continue;
-        for (const std::string& basePlatforms : baseUses->second.second) {
+        for (const std::string& basePlatforms : baseUses->second.platforms) {
+          uses.stageHashes[size_t(i)] = baseUses->second.stageHashes[size_t(i)];
           StageAction<CompileSubStageAction>(basePlatforms, StageType(i), shaderName, useBase, {}, out.second);
         }
       }
@@ -587,7 +605,7 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
     out.second += ", ";
     out.second += "};\n\n";
 
-    uses.first.set(5);
+    uses.stages.set(5);
 
     return true;
   };
@@ -750,6 +768,17 @@ bool Compiler::compileFile(SystemStringView file, std::string_view baseName, std
   stageEnd = begin;
   if (!_DoCompile() || !DoShader())
     return false;
+
+  for (const auto& shader : shaderStageUses) {
+    for (int i = 0; i < 5; ++i) {
+      if (shader.second.stageHashes[i]) {
+        out.first += "template <> constexpr uint64_t Shader_";
+        out.first += shader.first;
+        out.first += Format("::StageHash<%s>() { return 0x%016llX; }\n", StageNames[i], shader.second.stageHashes[i]);
+      }
+    }
+  }
+  out.first += "\n";
 
   out.first += "#define UNIVERSAL_PIPELINES_";
   out.first += baseName;

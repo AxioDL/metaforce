@@ -12,6 +12,7 @@ class FileStoreManager;
 extern CVar* com_developer;
 extern CVar* com_configfile;
 extern CVar* com_enableCheats;
+extern CVar* com_cubemaps;
 class CVarManager final {
   using CVarContainer = DNACVAR::CVarContainer;
   template <typename T>

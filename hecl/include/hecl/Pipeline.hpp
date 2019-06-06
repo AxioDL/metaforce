@@ -295,8 +295,8 @@ public:
 
   template <class FromTp>
   StageTargetTp convert(FactoryCtx& ctx, const FromTp& in) {
-    if (FromTp::HasHash) {
-      uint64_t hash = in.Hash();
+    if constexpr (FromTp::HasStageHash) {
+      uint64_t hash = in.template StageHash<S>();
       auto search = m_stageCache.find(hash);
       if (search != m_stageCache.end())
         return search->second;
@@ -406,7 +406,7 @@ public:
 
   template <class FromTp>
   PipelineTargetTp convert(FactoryCtx& ctx, const FromTp& in) {
-    if (FromTp::HasHash) {
+    if constexpr (FromTp::HasHash) {
       uint64_t hash = in.Hash();
       auto search = m_pipelineCache.find(hash);
       if (search != m_pipelineCache.end())

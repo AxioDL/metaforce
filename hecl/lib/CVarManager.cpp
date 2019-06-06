@@ -12,6 +12,7 @@ namespace hecl {
 CVar* com_developer = nullptr;
 CVar* com_configfile = nullptr;
 CVar* com_enableCheats = nullptr;
+CVar* com_cubemaps = nullptr;
 
 static const std::regex cmdLineRegex("\\+([\\w\\.]+)=([\\w\\.\\-]+)");
 CVarManager* CVarManager::m_instance = nullptr;
@@ -26,6 +27,9 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
   com_enableCheats =
     newCVar("cheats", "Enable cheats", false,
             (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
+  com_cubemaps =
+    newCVar("cubemaps", "Enable cubemaps", false,
+            (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
 }
 
 CVarManager::~CVarManager() {}
