@@ -14,6 +14,7 @@
 #include "Character/CActorLights.hpp"
 #include "GuiSys/CStringTable.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "hecl/CVarManager.hpp"
 
 namespace urde {
 
@@ -234,39 +235,41 @@ void CWorldTransManager::DrawEnabled() {
   CActorLights lights(0, zeus::skZero3f, 4, 4, 0, 0, 0, 0.1f);
   lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
 
-  SViewport backupVp = g_Viewport;
-  constexpr float width = CUBEMAP_RES;
-  CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], 0);
-  g_Renderer->SetViewport(0, 0, width, width);
-  g_Renderer->SetPerspective(90.f, width, width, 0.2f, 750.f);
+  if (m_reflectionCube[0]) {
+    SViewport backupVp = g_Viewport;
+    constexpr float width = CUBEMAP_RES;
+    CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], 0);
+    g_Renderer->SetViewport(0, 0, width, width);
+    g_Renderer->SetPerspective(90.f, width, width, 0.2f, 750.f);
 
-  if (x0_curTime < x4_modelData->x1d4_dissolveEndTime) {
-    zeus::CTransform mainCamXf =
+    if (x0_curTime < x4_modelData->x1d4_dissolveEndTime) {
+      zeus::CTransform mainCamXf =
         zeus::CTransform::RotateZ(zeus::degToRad(zeus::clamp(0.f, x0_curTime / 25.f, 100.f) * 360.f + 180.f - 90.f));
-    for (int face = 0; face < 6; ++face) {
-      CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], face);
-      CGraphics::g_BooMainCommandQueue->clearTarget();
-      zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
-      g_Renderer->SetWorldViewpoint(camXf);
-      DrawPlatformModels(&lights);
+      for (int face = 0; face < 6; ++face) {
+        CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[0], face);
+        CGraphics::g_BooMainCommandQueue->clearTarget();
+        zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
+        g_Renderer->SetWorldViewpoint(camXf);
+        DrawPlatformModels(&lights);
+      }
+      CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[0]);
     }
-    CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[0]);
-  }
-  if (x0_curTime > x4_modelData->x1d0_dissolveStartTime) {
-    zeus::CTransform mainCamXf = zeus::CTransform::RotateZ(zeus::degToRad(
+    if (x0_curTime > x4_modelData->x1d0_dissolveStartTime) {
+      zeus::CTransform mainCamXf = zeus::CTransform::RotateZ(zeus::degToRad(
         48.f * zeus::clamp(0.f, (x0_curTime - x4_modelData->x1d0_dissolveStartTime + 2.f) / 5.f, 1.f) + 180.f - 24.f));
-    for (int face = 0; face < 6; ++face) {
-      CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[1], face);
-      CGraphics::g_BooMainCommandQueue->clearTarget();
-      zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
-      g_Renderer->SetWorldViewpoint(camXf);
-      DrawPlatformModels(&lights);
+      for (int face = 0; face < 6; ++face) {
+        CGraphics::g_BooMainCommandQueue->setRenderTarget(m_reflectionCube[1], face);
+        CGraphics::g_BooMainCommandQueue->clearTarget();
+        zeus::CTransform camXf = zeus::CTransform(mainCamXf.basis * CGraphics::skCubeBasisMats[face], zeus::CVector3f(0.f, 0.f, 1.5f));
+        g_Renderer->SetWorldViewpoint(camXf);
+        DrawPlatformModels(&lights);
+      }
+      CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[1]);
     }
-    CGraphics::g_BooMainCommandQueue->generateMipmaps(m_reflectionCube[1]);
-  }
 
-  CBooRenderer::BindMainDrawTarget();
-  g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
+    CBooRenderer::BindMainDrawTarget();
+    g_Renderer->SetViewport(backupVp.x0_left, backupVp.x4_top, backupVp.x8_width, backupVp.xc_height);
+  }
 
   float wsAspect = CWideScreenFilter::SetViewportToMatch(1.f);
 
@@ -378,7 +381,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId pla
   x30_type = ETransType::Enabled;
   x4_modelData.reset(new SModelDatas(samusRes));
 
-  if (!m_reflectionCube[0])
+  if (!m_reflectionCube[0] && hecl::com_cubemaps->toBoolean())
     CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
       m_reflectionCube[0] = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
       m_reflectionCube[1] = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);

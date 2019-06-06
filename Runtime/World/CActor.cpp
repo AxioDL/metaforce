@@ -13,6 +13,7 @@
 #include "Graphics/CBooRenderer.hpp"
 #include "CTimeProvider.hpp"
 #include "Graphics/CSkinnedModel.hpp"
+#include "hecl/CVarManager.hpp"
 
 namespace urde {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {
@@ -432,10 +433,12 @@ void CActor::_CreateShadow() {
 }
 
 void CActor::_CreateReflectionCube() {
-  CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
-    m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
-    return true;
-  } BooTrace);
+  if (hecl::com_cubemaps->toBoolean()) {
+    CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
+      m_reflectionCube = ctx.newCubeRenderTexture(CUBEMAP_RES, CUBEMAP_MIPS);
+      return true;
+    } BooTrace);
+  }
 }
 
 void CActor::SetCallTouch(bool callTouch) { xe5_28_callTouch = callTouch; }

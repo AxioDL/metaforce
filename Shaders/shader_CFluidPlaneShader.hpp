@@ -66,7 +66,7 @@ public:
   const boo::AdditionalPipelineInfo PipelineInfo;
   bool HasTessellation;
   static constexpr bool HasHash = false;
-  static constexpr uint64_t Hash() { return 0; }
+  static constexpr bool HasStageHash = false;
   const SFluidPlaneShaderInfo& info() const { return m_info; }
 };
 
@@ -93,7 +93,7 @@ public:
   const boo::VertexFormatInfo VtxFmt;
   const boo::AdditionalPipelineInfo PipelineInfo;
   static constexpr bool HasHash = false;
-  static constexpr uint64_t Hash() { return 0; }
+  static constexpr bool HasStageHash = false;
   const SFluidPlaneDoorShaderInfo& info() const { return m_info; }
 };
 

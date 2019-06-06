@@ -32,9 +32,14 @@ struct SModelShadersInfo {
 
 class Shader_CModelShaders : public hecl::GeneralShader {
   const SModelShadersInfo& m_info;
+  uint64_t m_vertHash, m_fragHash;
+  static uint64_t BuildVertHash(const SModelShadersInfo& in);
+  static uint64_t BuildFragHash(const SModelShadersInfo& in);
 public:
   Shader_CModelShaders(const SModelShadersInfo& in)
     : m_info(in)
+    , m_vertHash(BuildVertHash(in))
+    , m_fragHash(BuildFragHash(in))
     , VtxFmt(in.m_vtxFmt)
     , PipelineInfo(in.m_additionalInfo) {}
 
@@ -42,8 +47,12 @@ public:
   const boo::AdditionalPipelineInfo PipelineInfo;
   static constexpr bool HasHash = true;
   uint64_t Hash() const { return m_info.m_hash; }
+  static constexpr bool HasStageHash = true;
+  template <typename S> uint64_t StageHash() const;
   const SModelShadersInfo& info() const { return m_info; }
 };
+template <> inline uint64_t Shader_CModelShaders::StageHash<hecl::PipelineStage::Vertex>() const { return m_vertHash; }
+template <> inline uint64_t Shader_CModelShaders::StageHash<hecl::PipelineStage::Fragment>() const { return m_fragHash; }
 
 template <typename P, typename S>
 class StageObject_CModelShaders : public hecl::StageBinary<P, S> {

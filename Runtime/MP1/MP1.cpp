@@ -65,6 +65,7 @@
 namespace hecl {
 extern CVar* com_enableCheats;
 extern CVar* com_developer;
+extern CVar* com_cubemaps;
 }; // namespace hecl
 
 namespace urde {

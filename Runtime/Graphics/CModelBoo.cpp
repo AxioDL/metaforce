@@ -4,6 +4,7 @@
 #include "Graphics/CLight.hpp"
 #include "hecl/HMDLMeta.hpp"
 #include "hecl/Runtime.hpp"
+#include "hecl/CVarManager.hpp"
 #include "boo/graphicsdev/Metal.hpp"
 #include "Shaders/CModelShaders.hpp"
 #include "Graphics/CBooRenderer.hpp"
@@ -372,8 +373,8 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
             texs[8] = g_disintegrateTexture;
           else
             texs[8] = g_Renderer->x220_sphereRamp.get();
-        } else if (idx == EExtendedShader::LightingCubeReflection ||
-                   idx == EExtendedShader::LightingCubeReflectionWorldShadow) {
+        } else if (hecl::com_cubemaps->toBoolean() && (idx == EExtendedShader::LightingCubeReflection ||
+                   idx == EExtendedShader::LightingCubeReflectionWorldShadow)) {
           if (m_lastDrawnReflectionCube)
             texs[11] = m_lastDrawnReflectionCube.get();
           else
@@ -531,8 +532,17 @@ void CBooModel::DrawSurfaces(const CModelFlags& flags) const {
 static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, const CModelFlags& flags) {
   bool noZWrite = flags.m_noZWrite || !data.flags.depthWrite();
 
+  /* Ensure cubemap extension shaders fall back to non-cubemap equivalents if necessary */
+  EExtendedShader intermediateExtended = flags.m_extendedShader;
+  if (!hecl::com_cubemaps->toBoolean() || g_Renderer->IsThermalVisorHotPass() || g_Renderer->IsThermalVisorActive()) {
+    if (intermediateExtended == EExtendedShader::LightingCubeReflection)
+      intermediateExtended = EExtendedShader::Lighting;
+    else if (intermediateExtended == EExtendedShader::LightingCubeReflectionWorldShadow)
+      intermediateExtended = EExtendedShader::WorldShadow;
+  }
+
   EExtendedShader extended = EExtendedShader::Flat;
-  if (flags.m_extendedShader == EExtendedShader::Lighting) {
+  if (intermediateExtended == EExtendedShader::Lighting) {
     /* Transform lighting into thermal cold if the thermal visor is active */
     if (g_Renderer->IsThermalVisorHotPass())
       return EExtendedShader::LightingAlphaWrite;
@@ -578,8 +588,8 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
     } else {
       extended = EExtendedShader::Lighting;
     }
-  } else if (flags.m_extendedShader < EExtendedShader::MAX) {
-    extended = flags.m_extendedShader;
+  } else if (intermediateExtended < EExtendedShader::MAX) {
+    extended = intermediateExtended;
   }
 
   return extended;
@@ -936,7 +946,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
     return {};
 
   /* Invalidate instances if new shadow being drawn */
-  if ((flags.m_extendedShader == EExtendedShader::WorldShadow || 
+  if ((flags.m_extendedShader == EExtendedShader::WorldShadow ||
        flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
       m_lastDrawnShadowMap != g_shadowMap) {
     const_cast<CBooModel*>(this)->m_lastDrawnShadowMap = g_shadowMap;
@@ -950,7 +960,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   }
 
   /* Invalidate instances if new reflection cube being drawn */
-  if ((flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
+  if (hecl::com_cubemaps->toBoolean() && (flags.m_extendedShader == EExtendedShader::LightingCubeReflection ||
        flags.m_extendedShader == EExtendedShader::LightingCubeReflectionWorldShadow) &&
       m_lastDrawnReflectionCube != g_reflectionCube) {
     const_cast<CBooModel*>(this)->m_lastDrawnReflectionCube = g_reflectionCube;

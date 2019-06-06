@@ -141,6 +141,39 @@ static std::string _BuildVS(const SModelShadersInfo& info) {
   return vertOut.str();
 }
 
+template <typename T>
+static void _Hash(XXH64_state_t& st, T val) {
+  XXH64_update(&st, &val, sizeof(val));
+}
+
+uint64_t Shader_CModelShaders::BuildVertHash(const SModelShadersInfo& info) {
+  XXH64_state_t st;
+  XXH64_reset(&st, 0);
+  _Hash(st, info.m_tag.getColorCount());
+  _Hash(st, info.m_tag.getUvCount());
+  _Hash(st, info.m_tag.getSkinSlotCount());
+  _Hash(st, info.m_tag.getWeightCount());
+  for (const auto& chunk : info.m_material.chunks) {
+    if (auto passChunk = chunk.get_if<SModelShadersInfo::Material::PASS>()) {
+      _Hash(st, passChunk->type);
+      _Hash(st, passChunk->uvAnimType);
+      _Hash(st, passChunk->source);
+      _Hash(st, passChunk->shouldNormalizeUv());
+    } else if (auto clrChunk = chunk.get_if<SModelShadersInfo::Material::CLR>()) {
+      _Hash(st, clrChunk->type);
+    }
+  }
+  _Hash(st, info.m_extension.noReflection);
+  _Hash(st, info.m_tag.getReflectionType());
+  for (size_t i = 0; i < info.m_extension.texCount; ++i) {
+    const auto& extTex = info.m_extension.texs[i];
+    _Hash(st, extTex.mtxIdx);
+    _Hash(st, extTex.src);
+    _Hash(st, extTex.normalize);
+  }
+  return XXH64_digest(&st);
+}
+
 static std::string _BuildFS(const SModelShadersInfo& info) {
   std::stringstream fragOut;
   fragOut << CMODELSHADERS_COMMON_GLSL_SV;
@@ -195,6 +228,29 @@ static std::string _BuildFS(const SModelShadersInfo& info) {
 
   fragOut << CMODELSHADERS_FRAG_GLSL_SV;
   return fragOut.str();
+}
+
+uint64_t Shader_CModelShaders::BuildFragHash(const SModelShadersInfo& info) {
+  XXH64_state_t st;
+  XXH64_reset(&st, 0);
+  XXH64_update(&st, info.m_extension.shaderMacro, strlen(info.m_extension.shaderMacro));
+  _Hash(st, info.m_material.shaderType);
+  _Hash(st, info.m_additionalInfo.srcFac);
+  _Hash(st, info.m_additionalInfo.dstFac);
+  for (const auto& chunk : info.m_material.chunks) {
+    if (auto passChunk = chunk.get_if<SModelShadersInfo::Material::PASS>()) {
+      _Hash(st, passChunk->alpha);
+      _Hash(st, passChunk->type);
+    } else if (auto clrChunk = chunk.get_if<SModelShadersInfo::Material::CLR>()) {
+      _Hash(st, clrChunk->type);
+    }
+  }
+  _Hash(st, info.m_tag.getAlphaTest());
+  _Hash(st, info.m_extension.forceAlphaTest);
+  _Hash(st, info.m_extension.diffuseOnly);
+  _Hash(st, info.m_extension.noReflection);
+  _Hash(st, info.m_tag.getReflectionType());
+  return XXH64_digest(&st);
 }
 
 template <>

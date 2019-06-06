@@ -1,6 +1,7 @@
 #include "CModelShaders.hpp"
 #include "Graphics/CLight.hpp"
 #include "hecl/Pipeline.hpp"
+#include "CStopwatch.hpp"
 
 namespace urde {
 
