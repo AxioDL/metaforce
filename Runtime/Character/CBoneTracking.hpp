@@ -56,4 +56,5 @@ public:
   void SetTargetPosition(const zeus::CVector3f& pos);
   void SetNoHorizontalAim(bool b);
 };
+
 } // namespace urde

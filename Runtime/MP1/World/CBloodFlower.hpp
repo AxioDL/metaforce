@@ -33,7 +33,7 @@ class CBloodFlower : public CPatterned {
   CAssetId x620_;
 
   void ActivateTriggers(CStateManager& mgr, bool activate);
-  void sub80119364(CStateManager&);
+  void CalculateAttackTime(CStateManager&);
   void UpdateFire(CStateManager& mgr);
   void TurnEffectsOn(u32, CStateManager&);
   void TurnEffectsOff(u32, CStateManager&);
@@ -52,6 +52,7 @@ public:
   void Think(float dt, CStateManager& mgr);
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
   void Render(const CStateManager& mgr) const;
+  void Touch(CActor&, CStateManager&) {}
   CProjectileInfo* GetProjectileInfo() { return &x590_projectileInfo; }
 
   bool ShouldAttack(CStateManager&, float);
