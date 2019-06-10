@@ -30,6 +30,8 @@ set(MP1_WORLD_SOURCES
     CSeedling.hpp CSeedling.cpp
     CRidley.hpp CRidley.cpp
     CPuddleToadGamma.hpp CPuddleToadGamma.cpp
+    CFlaahgra.hpp CFlaahgra.cpp
+    CFlaahgraTentacle.hpp CFlaahgraTentacle.cpp
     CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
     CSpankWeed.hpp CSpankWeed.cpp
     CPuddleSpore.hpp CPuddleSpore.cpp)
