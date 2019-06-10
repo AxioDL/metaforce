@@ -14,7 +14,7 @@ CFlaahgraTentacle::CFlaahgraTentacle(TUniqueId uid, std::string_view name, const
   x58e_24_ = false;
   ActorLights()->SetCastShadows(false);
   x460_knockBackController.SetAutoResetImpulse(false);
-  CreateShadow(true);
+  CreateShadow(false);
 }
 void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
 
