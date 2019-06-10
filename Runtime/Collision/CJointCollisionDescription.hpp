@@ -4,6 +4,12 @@
 #include "zeus/CAABox.hpp"
 
 namespace urde {
+struct SJointInfo {
+  const char* from;
+  const char* to;
+  float radius;
+  float separation;
+};
 struct SOBBJointInfo {
   const char* from;
   const char* to;

@@ -68,10 +68,12 @@ public:
   std::vector<CLight> BuildLightVector() const;
   void ActivateLights(CBooModel& model) const;
   void SetCastShadows(bool v) { x298_25_castShadows = v; }
+  void SetHasAreaLights(bool v) { x298_26_hasAreaLights = v; }
   void SetFindShadowLight(bool v) { x298_27_findShadowLight = v; }
   void SetShadowDynamicRangeThreshold(float t) { x2d0_shadowDynamicRangeThreshold = t; }
   void SetAmbienceGenerated(bool v) { x298_29_ambienceGenerated = v; }
   void DisableAreaLights();
+  void SetMaxAreaLights(int l) { x2b8_maxAreaLights = l; }
   void SetMaxDynamicLights(int l) { x2bc_maxDynamicLights = l; }
   void SetFindNearestDynamicLights(bool v) { x29a_findNearestDynamicLights = v; }
   void SetAmbientColor(const zeus::CColor& color) { x288_ambientColor = color; }

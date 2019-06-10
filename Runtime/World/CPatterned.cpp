@@ -97,8 +97,10 @@ CPatterned::CPatterned(ECharacter character, TUniqueId uid, std::string_view nam
     x404_contactDamage.SetRadius(0.f);
 
   xe6_29_renderParticleDBInside = false;
-  x402_27_noXrayModel = !x64_modelData->HasModel(CModelData::EWhichModel::XRay);
-  BuildBodyController(bodyType);
+  if (x64_modelData) {
+    x402_27_noXrayModel = !x64_modelData->HasModel(CModelData::EWhichModel::XRay);
+    BuildBodyController(bodyType);
+  }
 }
 
 void CPatterned::Accept(urde::IVisitor& visitor) { visitor.Visit(this); }
