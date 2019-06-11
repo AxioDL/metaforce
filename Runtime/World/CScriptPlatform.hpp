@@ -46,7 +46,7 @@ class CScriptPlatform : public CPhysicsActor {
   union {
     struct {
       bool x356_24_dead : 1;
-      bool x356_25_notAnimating : 1;
+      bool x356_25_controlledAnimation : 1;
       bool x356_26_detectCollision : 1;
       bool x356_27_squishedRider : 1;
       bool x356_28_rainSplashes : 1;
@@ -103,6 +103,7 @@ public:
 
   const CDamageVulnerability* GetDamageVulnerability() const { return &x29c_damageVuln; }
   CHealthInfo* HealthInfo(CStateManager&) { return &x294_health; }
+  void SetControlledAnimation(bool controlled) { x356_25_controlledAnimation = controlled; }
 
   virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;
   virtual zeus::CQuaternion Move(float, CStateManager&);

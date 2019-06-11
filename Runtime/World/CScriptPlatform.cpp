@@ -40,7 +40,7 @@ CScriptPlatform::CScriptPlatform(
   x350_rainGenRate = rainGenRate;
   x356_24_dead = false;
   ;
-  x356_25_notAnimating = false;
+  x356_25_controlledAnimation = false;
   x356_26_detectCollision = detectCollision;
   x356_27_squishedRider = false;
   x356_28_rainSplashes = rainSplashes;
@@ -252,7 +252,7 @@ void CScriptPlatform::Think(float dt, CStateManager& mgr) {
     return;
 
   if (HasModelData() && GetModelData()->HasAnimData()) {
-    if (!x356_25_notAnimating)
+    if (!x356_25_controlledAnimation)
       UpdateAnimation(dt, mgr, true);
     if (x356_28_rainSplashes && mgr.GetWorld()->GetNeededEnvFx() == EEnvFxType::Rain) {
       if (HasModelData() && !GetModelData()->IsNull() && mgr.GetEnvFxManager()->IsSplashActive() &&
