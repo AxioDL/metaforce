@@ -289,7 +289,7 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     bool phazonSuit = x44_suit == CPlayerState::EPlayerSuit::Phazon;
     // Enable dst alpha 1.0
 
-    for (int i = 0; i <= x118_suitModel1and2.size(); ++i) {
+    for (size_t i = 0; i <= x118_suitModel1and2.size(); ++i) {
       TCachedToken<CSkinnedModel> backupModelData = xc8_suitModel0->GetAnimationData()->GetModelData();
       if (i < x118_suitModel1and2.size())
         xc8_suitModel0->AnimationData()->SubstituteModelData(x118_suitModel1and2[i]);

@@ -292,8 +292,8 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   os << "import bpy, math, bmesh\n"
         "from mathutils import Matrix, Quaternion\n"
         "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
         "\n"
         "def duplicateObject(copy_obj):\n"
         "    # Create new mesh\n"
@@ -438,7 +438,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
             "verts = []\n",
             w.header.name.c_str());
 
-        for (int i = 0; i < info->quadCoordCount; ++i) {
+        for (uint32_t i = 0; i < info->quadCoordCount; ++i) {
           int ti;
           if (i == 2)
             ti = 3;
@@ -452,7 +452,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         os << "bm.faces.new(verts)\n"
               "bm.loops.layers.uv.new('UV')\n"
               "bm.verts.ensure_lookup_table()\n";
-        for (int i = 0; i < info->uvCoordCount; ++i) {
+        for (uint32_t i = 0; i < info->uvCoordCount; ++i) {
           int ti;
           if (i == 2)
             ti = 3;

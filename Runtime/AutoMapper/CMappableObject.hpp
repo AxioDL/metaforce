@@ -64,8 +64,8 @@ private:
     : m_surface(ctx, g_doorVbo, g_doorIbo)
     , m_outline(ctx, CLineRenderer::EPrimitiveMode::LineLoop, 5, nullptr, false, false, true) {}
   };
-  rstl::optional<DoorSurface> m_doorSurface;
-  rstl::optional<CTexturedQuadFilter> m_texQuadFilter;
+  std::optional<DoorSurface> m_doorSurface;
+  std::optional<CTexturedQuadFilter> m_texQuadFilter;
 
   zeus::CTransform AdjustTransformForType();
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;

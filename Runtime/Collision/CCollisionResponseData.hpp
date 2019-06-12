@@ -112,9 +112,9 @@ enum class EWeaponCollisionResponseTypes {
 class CCollisionResponseData {
   static const EWeaponCollisionResponseTypes skWorldMaterialTable[32];
   static const s32 kInvalidSFX;
-  std::vector<rstl::optional<TLockedToken<CGenDescription>>> x0_generators;
+  std::vector<std::optional<TLockedToken<CGenDescription>>> x0_generators;
   std::vector<s32> x10_sfx;
-  std::vector<rstl::optional<TLockedToken<CDecalDescription>>> x20_decals;
+  std::vector<std::optional<TLockedToken<CDecalDescription>>> x20_decals;
   float x30_RNGE;
   float x34_FOFF;
 
@@ -126,9 +126,9 @@ class CCollisionResponseData {
 
 public:
   CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
-  const rstl::optional<TLockedToken<CGenDescription>>&
+  const std::optional<TLockedToken<CGenDescription>>&
       GetParticleDescription(EWeaponCollisionResponseTypes) const;
-  const rstl::optional<TLockedToken<CDecalDescription>>&
+  const std::optional<TLockedToken<CDecalDescription>>&
   GetDecalDescription(EWeaponCollisionResponseTypes type) const;
   s32 GetSoundEffectId(EWeaponCollisionResponseTypes) const;
   static EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);

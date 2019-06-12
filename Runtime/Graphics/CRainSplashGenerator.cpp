@@ -15,7 +15,7 @@ CRainSplashGenerator::CRainSplashGenerator(const zeus::CVector3f& scale, u32 max
   x48_25_raining = true;
   x0_rainSplashes.reserve(maxSplashes);
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
-    for (int i = 0; i < maxSplashes; ++i)
+    for (u32 i = 0; i < maxSplashes; ++i)
       x0_rainSplashes.emplace_back(ctx);
     return true;
   } BooTrace);
@@ -47,16 +47,16 @@ void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) const {
   CGraphics::SetModelMatrix(xf);
   if (x40_queueSize > 0) {
     if (x38_queueTail <= x3c_queueHead) {
-      for (int i = x3c_queueHead; i < x0_rainSplashes.size(); ++i) {
+      for (size_t i = x3c_queueHead; i < x0_rainSplashes.size(); ++i) {
         const SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
-      for (int i = 0; i < x38_queueTail; ++i) {
+      for (size_t i = 0; i < x38_queueTail; ++i) {
         const SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
     } else {
-      for (int i = x3c_queueHead; i < x38_queueTail; ++i) {
+      for (size_t i = x3c_queueHead; i < x38_queueTail; ++i) {
         const SRainSplash& splash = x0_rainSplashes[i];
         splash.Draw(x30_alpha, x28_dt, splash.x64_pos);
       }
@@ -181,7 +181,7 @@ void CRainSplashGenerator::GeneratePoints(const std::vector<std::pair<zeus::CVec
     return;
 
   if (x20_generateTimer > x24_generateInterval) {
-    for (int i = 0; i < x44_genRate; ++i) {
+    for (u32 i = 0; i < x44_genRate; ++i) {
       if (x40_queueSize >= x0_rainSplashes.size())
         break;
       x34_curPoint = GetNextBestPt(x34_curPoint, vn, x10_random, x2c_minZ);

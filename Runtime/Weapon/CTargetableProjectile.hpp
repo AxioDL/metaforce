@@ -13,7 +13,7 @@ public:
                         EMaterialTypes materials, const CDamageInfo& damage, const CDamageInfo& damage2, TUniqueId uid,
                         TAreaId aid, TUniqueId owner, const TLockedToken<CWeaponDescription>& weapDesc,
                         TUniqueId homingTarget, EProjectileAttrib attribs,
-                        const rstl::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
+                        const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                         bool sendCollideMsg);
 
   void Accept(IVisitor&);

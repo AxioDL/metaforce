@@ -1,5 +1,4 @@
-make_dnalist(liblist DNAMP2
-             MLVL
+make_dnalist(MLVL
              ANIM
              AGSC
              ANCS
@@ -28,4 +27,3 @@ set(DNAMP2_SOURCES
     STRG.hpp STRG.cpp)
 
 dataspec_add_list(DNAMP2 DNAMP2_SOURCES)
-list(APPEND DNAMP2_SOURCES ${liblist})

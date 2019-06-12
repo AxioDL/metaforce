@@ -208,7 +208,7 @@ void CMemoryCardDriver::IndexFiles() {
         if (CMemoryCardSys::GetStatus(info.second.x0_fileInfo.slot, info.second.x0_fileInfo.getFileNo(), stat) ==
             ECardResult::READY) {
           u32 comment = stat.GetCommentAddr();
-          if (comment == -1)
+          if (comment == UINT32_MAX)
             info.first = EFileState::BadFile;
           else
             info.first = EFileState::File;

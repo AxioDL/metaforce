@@ -202,7 +202,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
             areaOut.docks.emplace_back();
             MLVL::Area::Dock& dockOut = areaOut.docks.back();
 
-            if (dock.targetArea != -1 && dock.targetDock != -1) {
+            if (dock.targetArea != UINT32_MAX && dock.targetDock != UINT32_MAX) {
               dockOut.endpointCount = 1;
               dockOut.endpoints.emplace_back();
               MLVL::Area::Dock::Endpoint& ep = dockOut.endpoints.back();

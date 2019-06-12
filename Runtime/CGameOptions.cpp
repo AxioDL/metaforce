@@ -513,8 +513,8 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
   for (const auto& hint : hints) {
     (void)hint;
     EHintState state = EHintState(stream.ReadEncoded(2));
-    u32 timeBits = stream.ReadEncoded(32);
-    float time = reinterpret_cast<float&>(timeBits);
+    union { s32 i; float f; } timeBits = {stream.ReadEncoded(32)};
+    float time = timeBits.f;
     if (state == EHintState::Zero)
       time = 0.f;
 
@@ -529,7 +529,8 @@ CHintOptions::CHintOptions(CBitStreamReader& stream) {
 void CHintOptions::PutTo(CBitStreamWriter& writer) const {
   for (const SHintState& hint : x0_hintStates) {
     writer.WriteEncoded(u32(hint.x0_state), 2);
-    writer.WriteEncoded(reinterpret_cast<const u32&>(hint.x4_time), 32);
+    union { float f; u32 i; } timeBits = {hint.x4_time};
+    writer.WriteEncoded(timeBits.i, 32);
   }
 }
 

@@ -36,7 +36,7 @@ void CStringTable::LoadStringTable(CInputStream& in) {
    * If we fail to get a language, default to the first in the list
    * This way we always display _something_
    */
-  if (offset == -1)
+  if (offset == UINT32_MAX)
     offset = langOffsets[0].second;
 
   in.seek(offset);

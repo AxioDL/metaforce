@@ -1376,8 +1376,8 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
 
   /* Build bone ID map */
   std::unordered_map<std::string, atInt32> boneIdMap;
-  std::experimental::optional<CINF> rigCinf;
-  std::experimental::optional<DNAANIM::RigInverter<CINF>> rigInv;
+  std::optional<CINF> rigCinf;
+  std::optional<DNAANIM::RigInverter<CINF>> rigInv;
   for (const DNAANCS::Armature& arm : actor.armatures) {
     if (!rigInv) {
       rigCinf.emplace(arm, boneIdMap);

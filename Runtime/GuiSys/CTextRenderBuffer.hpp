@@ -88,7 +88,7 @@ private:
   };
   std::vector<BooPrimitiveMark> m_primitiveMarks;
   u32 m_imagesCount = 0;
-  u32 m_activeFontCh = -1;
+  u32 m_activeFontCh = UINT32_MAX;
 
   zeus::CColor m_main;
   zeus::CColor m_outline = zeus::skBlack;

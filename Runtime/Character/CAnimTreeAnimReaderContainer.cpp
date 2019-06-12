@@ -82,7 +82,7 @@ std::unique_ptr<IAnimReader> CAnimTreeAnimReaderContainer::VClone() const {
   return std::make_unique<CAnimTreeAnimReaderContainer>(x4_name, x14_reader->Clone(), x1c_animDbIdx);
 }
 
-rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeAnimReaderContainer::VSimplified() { return {}; }
+std::optional<std::unique_ptr<IAnimReader>> CAnimTreeAnimReaderContainer::VSimplified() { return {}; }
 
 void CAnimTreeAnimReaderContainer::VSetPhase(float ph) { x14_reader->VSetPhase(ph); }
 

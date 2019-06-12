@@ -88,7 +88,7 @@ float CCameraSpline::CalculateSplineLength() {
   if (x4_positions.size() > 0) {
     zeus::CVector3f prevPoint = x4_positions[0];
     float tDiv = 1.f / float(x4_positions.size() - 1);
-    for (int i = 0; i < x4_positions.size(); ++i) {
+    for (size_t i = 0; i < x4_positions.size(); ++i) {
       float subT = 0.f;
       float baseT = i * tDiv;
       x24_t.push_back(ret);
@@ -169,8 +169,8 @@ zeus::CTransform CCameraSpline::GetInterpolatedSplinePointByLength(float pos) co
   if (x4_positions.empty())
     return zeus::CTransform();
 
-  int baseIdx = 0;
-  int i;
+  size_t baseIdx = 0;
+  size_t i;
   for (i = 1; i < x4_positions.size(); ++i) {
     if (x24_t[i] > pos) {
       baseIdx = i - 1;

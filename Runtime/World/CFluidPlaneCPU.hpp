@@ -75,7 +75,7 @@ protected:
                                      const CFluidPlaneRender::SPatchInfo& info);
   bool UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info,
                    CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
-                   const zeus::CVector3f& areaCenter, const rstl::optional<CRippleManager>& rippleManager,
+                   const zeus::CVector3f& areaCenter, const std::optional<CRippleManager>& rippleManager,
                    int fromX, int toX, int fromY, int toY) const;
 
 public:
@@ -94,7 +94,7 @@ public:
                                                  const CScriptWater* water) const;
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
-              const rstl::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+              const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
               const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const;
   float GetReflectionBlend() const { return x114_reflectionBlend; }
   float GetSpecularMax() const { return x110_specularMax; }

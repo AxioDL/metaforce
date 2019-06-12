@@ -192,7 +192,7 @@ public:
   struct CPostConstructed {
     std::unique_ptr<CAreaOctTree> x0_collision;
     u32 x8_collisionSize = 0;
-    rstl::optional<CAreaRenderOctTree> xc_octTree;
+    std::optional<CAreaRenderOctTree> xc_octTree;
     std::vector<CMetroidModelInstance> x4c_insts;
     SShader m_materialSet = {0};
     // std::unique_ptr<from unknown, pointless MREA section> x5c_;

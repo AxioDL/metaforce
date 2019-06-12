@@ -207,8 +207,8 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
         "\n"
         "bpy.types.Light.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
         "bpy.types.Light.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"
@@ -296,7 +296,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       rs.seek(18, athena::Current);
       uint32_t entityCount = rs.readUint32Big();
       rs.seek(8, athena::Current);
-      for (int i = 0; i < entityCount; ++i) {
+      for (uint32_t i = 0; i < entityCount; ++i) {
         uint32_t entityId = rs.readUint32Big();
         visiWriter.writeUint32(nullptr, entityId);
       }
@@ -584,7 +584,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
     w.writeUint32Big(0xBABEDEAD);
 
-    for (int lay = 0; lay < 2; ++lay) {
+    for (uint32_t lay = 0; lay < 2; ++lay) {
       int lightCount = 0;
       for (const Light& l : lights) {
         if (l.layer == lay)

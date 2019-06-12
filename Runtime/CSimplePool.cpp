@@ -1,6 +1,7 @@
 #include "CSimplePool.hpp"
 #include "IVParamObj.hpp"
 #include "CToken.hpp"
+#include <cassert>
 
 namespace urde {
 

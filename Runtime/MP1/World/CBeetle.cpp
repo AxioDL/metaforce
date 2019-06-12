@@ -18,15 +18,15 @@ CBeetle::CBeetle(TUniqueId uid, std::string_view name, const CEntityInfo& info, 
                  const CDamageVulnerability& platingVuln, const zeus::CVector3f& tailAimReference,
                  float initialAttackDelay, float retreatTime, float f3,
                  const CDamageVulnerability& tailVuln, const CActorParameters& aParams,
-                 const rstl::optional<CStaticRes>& tailModel)
+                 const std::optional<CStaticRes>& tailModel)
 : CPatterned(ECharacter::Beetle, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Ground,
              EColliderType::One, EBodyType::BiPedal, aParams, EKnockBackVariant(flavor))
 , x56c_entranceType(entranceType)
 , x574_tailAimReference(tailAimReference)
 , x580_f3(f3)
 , x584_touchDamage(touchDamage)
-, x5ac_tailModel(tailModel ? rstl::optional<CModelData>(CModelData(*tailModel)) :
-                             rstl::optional<CModelData>())
+, x5ac_tailModel(tailModel ? std::optional<CModelData>(CModelData(*tailModel)) :
+                             std::optional<CModelData>())
 , x5fc_pathFindSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x744_platingVuln(platingVuln)
 , x7ac_tailVuln(tailVuln)

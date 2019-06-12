@@ -30,7 +30,7 @@ class CAuiImagePane : public CGuiWidget {
     CTexturedQuadFilterAlpha m_addQuad[2];
     Filters(TLockedToken<CTexture>& tex);
   };
-  rstl::optional<Filters> m_filters;
+  std::optional<Filters> m_filters;
   void DoDrawImagePane(const zeus::CColor& color, const CTexture& tex, int frame, float blurAmt, bool noBlur,
                        CTexturedQuadFilterAlpha& quad) const;
 

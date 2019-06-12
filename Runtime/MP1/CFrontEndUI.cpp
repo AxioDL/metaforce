@@ -446,7 +446,7 @@ void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
     SFileMenuOption& option = x64_fileSelections[i];
     if (option.x28_curField == 4)
       continue;
-    SGuiTextPair* pair = (option.x28_curField == -1) ? nullptr : &option.x4_textpanes[option.x28_curField];
+    SGuiTextPair* pair = (option.x28_curField == UINT32_MAX) ? nullptr : &option.x4_textpanes[option.x28_curField];
     if (!pair || pair->x0_panes[0]->GetTextSupport().GetNumCharsPrinted() >=
                      pair->x0_panes[0]->GetTextSupport().GetNumCharsTotal()) {
       if (++option.x28_curField < 4) {

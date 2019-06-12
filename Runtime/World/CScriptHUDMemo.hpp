@@ -14,7 +14,7 @@ public:
   CHUDMemoParms x34_parms;
   EDisplayType x3c_dispType;
   CAssetId x40_stringTableId;
-  rstl::optional<TLockedToken<CStringTable>> x44_stringTable;
+  std::optional<TLockedToken<CStringTable>> x44_stringTable;
 
 private:
 public:

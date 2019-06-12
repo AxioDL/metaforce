@@ -59,7 +59,7 @@ static u8 lc_flags[9][9] = {};
 void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb,
                              const zeus::CTransform& xf, const zeus::CTransform& areaXf, bool noNormals,
                              const zeus::CFrustum& frustum,
-                             const rstl::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                              const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                              const zeus::CVector3f& areaCenter) const {
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);

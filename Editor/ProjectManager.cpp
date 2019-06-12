@@ -1,6 +1,6 @@
 #include "ProjectManager.hpp"
 #include "ViewManager.hpp"
-#include "../DataSpecRegistry.hpp"
+#include "DataSpecRegistry.hpp"
 #include "hecl/Blender/Connection.hpp"
 
 namespace urde {
@@ -174,7 +174,7 @@ void ProjectManager::mainUpdate() {
   if (m_mainMP1) {
     if (m_mainMP1->Proc()) {
       m_mainMP1->Shutdown();
-      m_mainMP1 = std::experimental::nullopt;
+      m_mainMP1 = std::nullopt;
     }
   }
 }

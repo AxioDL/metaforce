@@ -25,16 +25,27 @@ void MP1::CActorContraption::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void MP1::CActorContraption::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   bool curActive = GetActive();
-  if (msg == EScriptObjectMessage::Registered)
+  switch (msg) {
+  case EScriptObjectMessage::Registered:
     AddMaterial(EMaterialTypes::ScanPassthrough, mgr);
-  else if (msg == EScriptObjectMessage::SetToZero)
+    break;
+  case EScriptObjectMessage::Deleted:
+    for (const std::pair<TUniqueId, std::string>& p : x2e8_children)
+      mgr.FreeScriptObject(p.first);
+    x2e8_children.clear();
+    break;
+  case EScriptObjectMessage::SetToZero:
     ResetFlameThrowers(mgr);
+    break;
+  default:
+    break;
+  }
 
   CScriptActor::AcceptScriptMsg(msg, uid, mgr);
-  if (curActive == GetActive() || !GetActive())
-    return;
-
-  ResetFlameThrowers(mgr);
+  if (curActive != GetActive() && !GetActive()) {
+    ResetFlameThrowers(mgr);
+    CActor::RemoveEmitter();
+  }
 }
 
 void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
@@ -44,14 +55,14 @@ void MP1::CActorContraption::Think(float dt, CStateManager& mgr) {
     CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
 
     if (act && act->GetActive())
-      act->SetTransform(x34_transform * act->GetScaledLocatorTransform(uid.second), dt);
+      act->SetTransform(x34_transform * GetScaledLocatorTransform(uid.second), dt);
   }
 }
 
 void MP1::CActorContraption::ResetFlameThrowers(CStateManager& mgr) {
   for (const std::pair<TUniqueId, std::string>& uid : x2e8_children) {
     CFlameThrower* act = static_cast<CFlameThrower*>(mgr.ObjectById(uid.first));
-    if (act && !act->GetX400_25())
+    if (act && act->GetParticlesActive())
       act->Reset(mgr, false);
   }
 }
@@ -62,15 +73,15 @@ void MP1::CActorContraption::DoUserAnimEvent(CStateManager& mgr, const CInt32POI
     ResetFlameThrowers(mgr);
   } else if (evType == EUserEventType::DamageOn) {
     CFlameThrower* fl = CreateFlameThrower(node.GetLocatorName(), mgr);
-    if (fl && fl->GetX400_25())
+    if (fl && !fl->GetParticlesActive())
       fl->Fire(GetTransform(), mgr, false);
   } else
     CActor::DoUserAnimEvent(mgr, node, evType, dt);
 }
 
 CFlameThrower* MP1::CActorContraption::CreateFlameThrower(std::string_view name, CStateManager& mgr) {
-  const auto& it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
-                                [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });
+  auto it = std::find_if(x2e8_children.begin(), x2e8_children.end(),
+                         [&name](const std::pair<TUniqueId, std::string>& p) { return p.second == name; });
 
   if (it == x2e8_children.end()) {
     TUniqueId id = mgr.AllocateUniqueId();

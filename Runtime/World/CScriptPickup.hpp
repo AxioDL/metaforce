@@ -29,7 +29,7 @@ public:
   void Accept(IVisitor& visitor);
   void Think(float, CStateManager&);
   void Touch(CActor&, CStateManager&);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const { return CPhysicsActor::GetBoundingBox(); }
+  std::optional<zeus::CAABox> GetTouchBounds() const { return CPhysicsActor::GetBoundingBox(); }
   float GetPossibility() const { return x264_possibility; }
   CPlayerState::EItemType GetItem() const { return x258_itemType; }
   void SetGenerated() { x28c_24_generated = true; }

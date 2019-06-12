@@ -2,7 +2,7 @@
 
 #include "VISIRenderer.hpp"
 #include "zeus/CAABox.hpp"
-#include "hecl/extern/boo/xxhash/xxhash.h"
+#include "xxhash/xxhash.h"
 #include "athena/MemoryWriter.hpp"
 #include <unordered_map>
 
@@ -54,7 +54,7 @@ struct VISIBuilder {
     Leaf& operator|=(const Leaf& other) {
       if (bits.size() < other.bits.size())
         bits.resize(other.bits.size());
-      for (int i = 0; i < other.bits.size(); ++i)
+      for (size_t i = 0; i < other.bits.size(); ++i)
         bits[i] |= other.bits[i];
       return *this;
     }

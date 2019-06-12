@@ -190,7 +190,7 @@ zeus::CTransform CCollisionActorManager::GetWRLocatorTransform(const CAnimData& 
   return locXf;
 }
 
-rstl::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CStateManager& mgr, CSegId seg) {
+std::optional<zeus::CVector3f> CCollisionActorManager::GetDeviation(const CStateManager& mgr, CSegId seg) {
   for (const CJointCollisionDescription& desc : x0_jointDescriptions) {
     if (desc.GetPivotId() != seg)
       continue;

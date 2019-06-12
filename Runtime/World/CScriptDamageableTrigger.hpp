@@ -55,6 +55,6 @@ public:
   const CDamageVulnerability* GetDamageVulnerability() const { return &x174_dVuln; }
   CHealthInfo* HealthInfo(CStateManager&) { return &x16c_hInfo; }
   void Think(float, CStateManager&);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
 };
 } // namespace urde

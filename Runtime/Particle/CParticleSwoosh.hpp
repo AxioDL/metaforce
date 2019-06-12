@@ -150,7 +150,7 @@ public:
   const zeus::CVector3f& GetGlobalScale() const;
   const zeus::CColor& GetModulationColor() const;
   bool IsSystemDeletable() const;
-  rstl::optional<zeus::CAABox> GetBounds() const;
+  std::optional<zeus::CAABox> GetBounds() const;
   u32 GetParticleCount() const;
   bool SystemHasLight() const;
   CLight GetLight() const;
@@ -166,7 +166,7 @@ public:
   }
 
   void DoElectricWarmup() {
-    for (int i = 0; i < x15c_swooshes.size(); ++i) {
+    for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
       x1d0_26_forceOneUpdate = true;
       Update(0.0);
     }
@@ -174,14 +174,14 @@ public:
 
   void DoElectricCreate(const std::vector<zeus::CVector3f>& offsets) {
     u32 curIdx = x158_curParticle;
-    for (int i = 0; i < x15c_swooshes.size(); ++i) {
+    for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
       curIdx = u32((curIdx + 1) % x15c_swooshes.size());
       x15c_swooshes[curIdx].xc_translation = offsets[i];
     }
   }
 
   void DoGrappleWarmup() {
-    for (int i = 0; i < x15c_swooshes.size() - 1; ++i) {
+    for (size_t i = 0; i < x15c_swooshes.size() - 1; ++i) {
       x1d0_26_forceOneUpdate = true;
       Update(0.0);
     }
@@ -191,7 +191,7 @@ public:
                        float xAmplitude, float zAmplitude, const zeus::CVector3f& swooshSegDelta) {
     float rot = x15c_swooshes.back().x30_irot;
     zeus::CVector3f trans = beamGunPos;
-    for (int i = 0; i < x15c_swooshes.size(); ++i) {
+    for (size_t i = 0; i < x15c_swooshes.size(); ++i) {
       SSwooshData& data = x15c_swooshes[i];
       zeus::CVector3f vec;
       if (i > 0)

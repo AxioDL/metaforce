@@ -64,7 +64,7 @@ void CLogBookScreen::InitializeLogBook() {
 
 void CLogBookScreen::UpdateRightTitles() {
   std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
-  for (int i = 0; i < xd8_textpane_titles.size(); ++i) {
+  for (size_t i = 0; i < xd8_textpane_titles.size(); ++i) {
     std::u16string string;
     size_t scanIndex = x18_firstViewRightSel + i;
     if (scanIndex < x1f0_curViewScans.size()) {
@@ -88,7 +88,7 @@ void CLogBookScreen::UpdateRightTitles() {
 
   int rightSelMod = x18_firstViewRightSel % 5;
   int rightSelRem = 5 - rightSelMod;
-  for (int i = 0; i < x144_model_titles.size(); ++i) {
+  for (size_t i = 0; i < x144_model_titles.size(); ++i) {
     float zOff = ((i >= rightSelMod) ? rightSelRem - 5 : rightSelRem) * x38_highlightPitch;
     x144_model_titles[i]->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, zOff) *
                                             x144_model_titles[i]->GetTransform());
@@ -191,7 +191,7 @@ void CLogBookScreen::UpdateBodyImagesAndText() {
 
   for (int i = 0; i < 4; ++i) {
     const CScannableObjectInfo::SBucket& bucket = scan->GetBucket(i);
-    if (bucket.x8_imagePos == -1)
+    if (bucket.x8_imagePos == UINT32_MAX)
       continue;
     CAuiImagePane* pane = xf0_imagePanes[bucket.x8_imagePos];
     if (bucket.x14_interval > 0.f) {

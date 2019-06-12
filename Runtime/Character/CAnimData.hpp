@@ -147,7 +147,7 @@ private:
 public:
   CAnimData(CAssetId, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
             const TLockedToken<CCharLayoutInfo>& layout, const TToken<CSkinnedModel>& model,
-            const rstl::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+            const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
             const std::weak_ptr<CAnimSysContext>& ctx, const std::shared_ptr<CAnimationManager>& animMgr,
             const std::shared_ptr<CTransitionManager>& transMgr, const TLockedToken<CCharacterFactory>& charFactory,
             int drawInstCount);
@@ -196,9 +196,9 @@ public:
   void RecalcPoseBuilder(const CCharAnimTime*);
   void RenderAuxiliary(const zeus::CFrustum& frustum) const;
   void Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-              const rstl::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+              const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   void SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                   const rstl::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
+                   const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes);
   static void DrawSkinnedModel(CSkinnedModel& model, const CModelFlags& flags);
   void PreRender();
   void BuildPose();
@@ -218,7 +218,7 @@ public:
   const TLockedToken<CSkinnedModel>& GetModelData() const { return xd8_modelData; }
 
   static void PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                               const rstl::optional<CVertexMorphEffect>& morphEffect,
+                               const std::optional<CVertexMorphEffect>& morphEffect,
                                const float* morphMagnitudes);
   void AdvanceParticles(const zeus::CTransform& xf, float dt, const zeus::CVector3f&, CStateManager& stateMgr);
   float GetAverageVelocity(int animIn) const;

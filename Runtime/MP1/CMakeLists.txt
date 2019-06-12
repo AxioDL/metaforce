@@ -1,4 +1,3 @@
-include_directories(. ..)
 add_subdirectory(World)
 
 if(APPLE)

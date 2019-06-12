@@ -587,7 +587,7 @@ void CSfxManager::Update(float dt) {
     std::sort(rankedSfx.begin(), rankedSfx.end(),
               [](const CSfxHandle& a, const CSfxHandle& b) -> bool { return a->GetRank() < b->GetRank(); });
 
-    for (int i = 48; i < rankedSfx.size(); ++i) {
+    for (size_t i = 48; i < rankedSfx.size(); ++i) {
       const CSfxHandle& handle = rankedSfx[i];
       if (handle->IsPlaying()) {
         handle->Stop();

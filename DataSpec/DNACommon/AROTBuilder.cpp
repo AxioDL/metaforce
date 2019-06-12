@@ -59,7 +59,7 @@ bool AROTBuilder::Node::compareSets(int a, int b) const {
 void AROTBuilder::Node::addChild(int level, int minChildren, const std::vector<zeus::CAABox>& triBoxes,
                                  const zeus::CAABox& curAABB, BspNodeType& typeOut) {
   /* Gather intersecting faces */
-  for (int i = 0; i < triBoxes.size(); ++i)
+  for (size_t i = 0; i < triBoxes.size(); ++i)
     if (triBoxes[i].intersects(curAABB))
       childIndices.insert(i);
 
@@ -343,7 +343,7 @@ void AROTBuilder::build(std::vector<std::vector<uint8_t>>& secs, const zeus::CAA
     auto bmpIt = bmp.cbegin();
     if (bmpIt != bmp.cend()) {
       int curIdx = 0;
-      for (int w = 0; w < bmpWordCount; ++w) {
+      for (size_t w = 0; w < bmpWordCount; ++w) {
         for (int b = 0; b < 32; ++b) {
           if (*bmpIt == curIdx) {
             bmpWords[w] |= 1 << b;

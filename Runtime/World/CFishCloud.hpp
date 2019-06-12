@@ -141,7 +141,7 @@ public:
   void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
   void Render(const CStateManager& mgr) const;
   void CalculateRenderBounds();
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor& other, CStateManager& mgr);
   void RemoveRepulsor(TUniqueId source);
   void RemoveAttractor(TUniqueId source);

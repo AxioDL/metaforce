@@ -1,5 +1,4 @@
-make_dnalist(liblist DNACommon
-             CMDL
+make_dnalist(CMDL
              FONT
              DGRP
              FSM2
@@ -54,4 +53,3 @@ set(DNACOMMON_SOURCES
     Tweaks/ITweakGuiColors.hpp)
 
 dataspec_add_list(DNACommon DNACOMMON_SOURCES)
-list(APPEND DNACOMMON_SOURCES ${liblist})

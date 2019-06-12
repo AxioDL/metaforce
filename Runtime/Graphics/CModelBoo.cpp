@@ -785,7 +785,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
     return;
   }
 
-  rstl::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
+  std::optional<std::array<zeus::CMatrix4f, 2>> specialMtxOut;
   if (flags.m_extendedShader == EExtendedShader::Thermal) {
     /* Special Mode0 matrix for exclusive Thermal Visor use */
     specialMtxOut.emplace();

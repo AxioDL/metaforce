@@ -25,9 +25,6 @@
 [submodule "sanitizers-cmake"]
 	path = sanitizers-cmake
 	url = https://github.com/arsenm/sanitizers-cmake.git
-[submodule "cotire"]
-	path = cotire
-	url = https://github.com/sakra/cotire.git
 [submodule "discord-rpc"]
 	path = discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git

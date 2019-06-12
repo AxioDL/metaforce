@@ -84,7 +84,7 @@ void CGuiTextSupport::SetTypeWriteEffectOptions(bool enable, float chFadeTime, f
   if (enable) {
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
       float chStartTime = 0.f;
-      for (s32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
+      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
         for (const std::pair<float, int>& p : x40_primStartTimes) {
           if (p.second < i)
             continue;
@@ -105,7 +105,7 @@ void CGuiTextSupport::Update(float dt) {
   if (x50_typeEnable) {
     if (CTextRenderBuffer* buf = GetCurrentPageRenderBuffer()) {
       float chStartTime = 0.f;
-      for (s32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
+      for (u32 i = 0; i < buf->GetPrimitiveCount(); ++i) {
         for (const std::pair<float, int>& p : x40_primStartTimes) {
           if (p.second < i)
             continue;
@@ -126,7 +126,7 @@ void CGuiTextSupport::Update(float dt) {
 }
 
 void CGuiTextSupport::ClearRenderBuffer() {
-  x60_renderBuf = rstl::nullopt;
+  x60_renderBuf = std::nullopt;
   x2ec_renderBufferPages.clear();
 }
 

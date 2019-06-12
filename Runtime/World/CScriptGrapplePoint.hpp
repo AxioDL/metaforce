@@ -16,7 +16,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float, CStateManager&);
   void Render(const CStateManager&) const;
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };

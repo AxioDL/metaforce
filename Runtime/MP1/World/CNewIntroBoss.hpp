@@ -63,7 +63,7 @@ public:
     return zeus::CAABox({-0.5f, -0.5f, box.min.z()}, {0.5f, 0.5f, box.max.z()}).getTransformedAABox(x34_transform);
   }
 
-  rstl::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
+  std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
   void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
   void Generate(CStateManager&, EStateMsg, float);
   void Attack(CStateManager&, EStateMsg, float);

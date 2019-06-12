@@ -361,7 +361,7 @@ void CSamusHud::UpdateEnergy(float dt, const CStateManager& mgr, bool init) {
         while (curLastTankEnergy > CPlayerState::GetBaseHealthCapacity())
           curLastTankEnergy -= CPlayerState::GetEnergyTankCapacity();
         x28c_energyIntf->SetCurrEnergy(lastTankEnergy,
-          curLastTankEnergy > lastTankEnergy != x2d0_playerHealth > energy);
+          (curLastTankEnergy > lastTankEnergy) != (x2d0_playerHealth > energy));
       }
       x2d0_playerHealth = energy;
       if (x28c_energyIntf) {
@@ -520,7 +520,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
 
   CPlayer& player = mgr.GetPlayer();
   zeus::CAABox playerAABB = zeus::skNullBox;
-  if (rstl::optional<zeus::CAABox> aabb = player.GetTouchBounds())
+  if (std::optional<zeus::CAABox> aabb = player.GetTouchBounds())
     playerAABB = *aabb;
 
   zeus::CAABox aabb;
@@ -537,7 +537,7 @@ void CSamusHud::UpdateThreatAssessment(float dt, const CStateManager& mgr) {
         continue;
       if (trigger->GetDamageInfo().GetDamage() == 0.f)
         continue;
-      if (rstl::optional<zeus::CAABox> aabb = trigger->GetTouchBounds()) {
+      if (std::optional<zeus::CAABox> aabb = trigger->GetTouchBounds()) {
         float dist = playerAABB.distanceBetween(*aabb);
         if (dist < threatDist)
           threatDist = dist;

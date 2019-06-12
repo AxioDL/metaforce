@@ -355,13 +355,13 @@ void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type) {
     modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);
 }
 
-rstl::optional<zeus::CAABox> CScriptDoor::GetTouchBounds() const {
+std::optional<zeus::CAABox> CScriptDoor::GetTouchBounds() const {
   if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid))
     return {CPhysicsActor::GetBoundingBox()};
   return {};
 }
 
-rstl::optional<zeus::CAABox> CScriptDoor::GetProjectileBounds() const {
+std::optional<zeus::CAABox> CScriptDoor::GetProjectileBounds() const {
   if (x2a8_28_projectilesCollide)
     return {{x284_modelBounds.min + GetTranslation(), x284_modelBounds.max + GetTranslation()}};
   return {};

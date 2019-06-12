@@ -44,11 +44,11 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() {
   std::vector<CSoundPOINode> soundNodes;
   if (x10_treeNodes.size() > 0) {
     std::shared_ptr<CAnimTreeNode> node = CAnimTreeNode::Cast(x10_treeNodes[0]->Clone());
-    for (int i = 0; i < x10_treeNodes.size(); ++i) {
+    for (size_t i = 0; i < x10_treeNodes.size(); ++i) {
       CBoolPOINode boolNodeArr[64];
       u32 numBools = node->GetBoolPOIList(CCharAnimTime::Infinity(), boolNodeArr, 64, 0, 0);
       boolNodes.reserve(boolNodes.size() + numBools);
-      for (int j = 0; j < numBools; ++j) {
+      for (u32 j = 0; j < numBools; ++j) {
         CBoolPOINode& n = boolNodeArr[j];
         n.SetTime(n.GetTime() + duration);
         boolNodes.push_back(n);
@@ -57,7 +57,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() {
       CInt32POINode int32NodeArr[64];
       u32 numInt32s = node->GetInt32POIList(CCharAnimTime::Infinity(), int32NodeArr, 64, 0, 0);
       int32Nodes.reserve(int32Nodes.size() + numInt32s);
-      for (int j = 0; j < numInt32s; ++j) {
+      for (u32 j = 0; j < numInt32s; ++j) {
         CInt32POINode& n = int32NodeArr[j];
         n.SetTime(n.GetTime() + duration);
         int32Nodes.push_back(n);
@@ -66,7 +66,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() {
       CParticlePOINode particleNodeArr[64];
       u32 numParticles = node->GetParticlePOIList(CCharAnimTime::Infinity(), particleNodeArr, 64, 0, 0);
       particleNodes.reserve(particleNodes.size() + numParticles);
-      for (int j = 0; j < numParticles; ++j) {
+      for (u32 j = 0; j < numParticles; ++j) {
         CParticlePOINode& n = particleNodeArr[j];
         n.SetTime(n.GetTime() + duration);
         particleNodes.push_back(n);
@@ -75,7 +75,7 @@ CSequenceFundamentals CSequenceHelper::ComputeSequenceFundamentals() {
       CSoundPOINode soundNodeArr[64];
       u32 numSounds = node->GetSoundPOIList(CCharAnimTime::Infinity(), soundNodeArr, 64, 0, 0);
       soundNodes.reserve(soundNodes.size() + numSounds);
-      for (int j = 0; j < numSounds; ++j) {
+      for (u32 j = 0; j < numSounds; ++j) {
         CSoundPOINode& n = soundNodeArr[j];
         n.SetTime(n.GetTime() + duration);
         soundNodes.push_back(n);

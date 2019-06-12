@@ -49,7 +49,7 @@ public:
   virtual const zeus::CColor& GetModulationColor() const = 0;
   virtual float GetGeneratorRate() const { return 1.f; }
   virtual bool IsSystemDeletable() const = 0;
-  virtual rstl::optional<zeus::CAABox> GetBounds() const = 0;
+  virtual std::optional<zeus::CAABox> GetBounds() const = 0;
   virtual u32 GetParticleCount() const = 0;
   virtual bool SystemHasLight() const = 0;
   virtual CLight GetLight() const = 0;

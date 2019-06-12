@@ -9,16 +9,10 @@
 namespace urde {
 
 CProjectileInfo::CProjectileInfo(urde::CInputStream& in)
-: x0_weaponDescription(g_SimplePool->GetObj({SBIG('WPSC'), CAssetId(in)})), xc_damageInfo(in) {
-  if (x0_weaponDescription.GetObjectTag()->id == 0xB4CB4495)
-    printf("");
-}
+: x0_weaponDescription(g_SimplePool->GetObj({SBIG('WPSC'), CAssetId(in)})), xc_damageInfo(in) {}
 
 CProjectileInfo::CProjectileInfo(CAssetId proj, const CDamageInfo& dInfo)
-: x0_weaponDescription(g_SimplePool->GetObj({SBIG('WPSC'), proj})), xc_damageInfo(dInfo) {
-  if (x0_weaponDescription.GetObjectTag()->id == 0xB4CB4495)
-    printf("");
-}
+: x0_weaponDescription(g_SimplePool->GetObj({SBIG('WPSC'), proj})), xc_damageInfo(dInfo) {}
 
 zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
                                                      const CPlayer& player, bool gravity, float speed, float dt) {

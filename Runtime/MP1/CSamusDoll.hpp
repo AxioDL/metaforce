@@ -37,10 +37,10 @@ class CSamusDoll {
   zeus::CQuaternion xb0_userRot;
   float xc0_userZoom = -3.6f;
   float xc4_viewInterp = 0.f;
-  rstl::optional<CModelData> xc8_suitModel0;
+  std::optional<CModelData> xc8_suitModel0;
   rstl::reserved_vector<TCachedToken<CSkinnedModel>, 2> x118_suitModel1and2;
-  rstl::optional<CModelData> x134_suitModelBoots;
-  rstl::optional<CModelData> x184_ballModelData;
+  std::optional<CModelData> x134_suitModelBoots;
+  std::optional<CModelData> x184_ballModelData;
   TLockedToken<CModel> x1d4_spiderBallGlass;
   u32 x1e0_ballMatIdx;
   u32 x1e4_glassMatIdx;

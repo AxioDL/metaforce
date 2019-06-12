@@ -857,7 +857,7 @@ void CGameCollision::CollisionFailsafe(const CStateManager& mgr, CAreaCollisionC
   }
 }
 
-rstl::optional<zeus::CVector3f> CGameCollision::FindNonIntersectingVector(
+std::optional<zeus::CVector3f> CGameCollision::FindNonIntersectingVector(
     const CStateManager& mgr, CAreaCollisionCache& cache, CPhysicsActor& actor, const CCollisionPrimitive& prim,
     const rstl::reserved_vector<TUniqueId, 1024>& nearList) {
   zeus::CTransform xf = actor.GetPrimitiveTransform();

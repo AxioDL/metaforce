@@ -121,8 +121,8 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         "name='Retro: Map Object Visibility Mode')\n"
         "\n"
         "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
         "\n"
         "def add_triangle(bm, verts):\n"
         "    verts = [bm.verts[vi] for vi in verts]\n"
@@ -167,8 +167,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
           "obj.scale = mtxd[2]\n",
-          moIdx, moMP12->type, RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId, mtxF[0][0], mtxF[0][1], mtxF[0][2],
-          mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2], mtxF[2][3]);
+          moIdx, int(moMP12->type), RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId, mtxF[0][0], mtxF[0][1],
+          mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
+          mtxF[2][3]);
       ++moIdx;
       continue;
     } else {
@@ -188,8 +189,9 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
           "obj.scale = mtxd[2]\n",
-          moIdx, moMP3->type, RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId, mtxF[0][0], mtxF[0][1], mtxF[0][2],
-          mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2], mtxF[2][3]);
+          moIdx, int(moMP3->type), RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId, mtxF[0][0], mtxF[0][1],
+          mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
+          mtxF[2][3]);
       ++moIdx;
       continue;
     }

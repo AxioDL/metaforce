@@ -7,13 +7,12 @@ set_target_properties(tinyxml2_static PROPERTIES
         COMPILE_DEFINITONS "TINYXML2_EXPORT"
         VERSION "${TINYXML_LIB_VERSION}"
         SOVERSION "${TINYXML_LIB_SOVERSION}")
-set_target_properties( tinyxml2_static PROPERTIES OUTPUT_NAME tinyxml2 )
+set_target_properties(tinyxml2_static PROPERTIES OUTPUT_NAME tinyxml2)
 if (NOT MSVC)
-  set_target_properties( tinyxml2_static PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough )
+  target_compile_options(tinyxml2_static PRIVATE -Wno-implicit-fallthrough)
 endif()
 
 add_executable(assetnameparser "main.cpp")
-include_directories(${LOGVISOR_INCLUDE_DIR})
 
 set(AN_PARSER_LIBS "")
 if (UNIX)
@@ -22,6 +21,5 @@ if (UNIX)
     list(APPEND AN_PARSER_LIBS dl)
   endif()
 endif()
-
 
 target_link_libraries(assetnameparser tinyxml2_static logvisor ${AN_PARSER_LIBS})

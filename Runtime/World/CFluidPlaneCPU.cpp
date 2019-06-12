@@ -147,24 +147,20 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
   }
 
   int curTex = 3;
-  int bumpMapId;
-  int envMapId;
-  int envBumpMapId;
-  int lightmapId;
 
   if (hasBumpMap) {
     // Load into next
-    bumpMapId = curTex++;
+    curTex++;
   }
 
   if (hasEnvMap) {
     // Load into next
-    envMapId = curTex++;
+    curTex++;
   }
 
   if (hasEnvBumpMap) {
     // Load into next
-    envBumpMapId = curTex++;
+    curTex++;
   }
 
   float fluidUVs[3][2];
@@ -229,18 +225,15 @@ CFluidPlaneShader::RenderSetupInfo CFluidPlaneCPU::RenderSetup(const CStateManag
     float lightLevel = area->GetPostConstructed()->x1128_worldLightingLevel;
     const CScriptWater* nextWater = water->GetNextConnectedWater(mgr);
     if (std::fabs(water->GetMorphFactor()) < 0.00001f || !nextWater || !nextWater->GetFluidPlane().HasLightMap()) {
-      lightmapId = curTex;
       // Load lightmap
       CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
       // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
     } else if (nextWater && nextWater->GetFluidPlane().HasLightMap()) {
       if (std::fabs(water->GetMorphFactor() - 1.f) < 0.00001f) {
-        lightmapId = curTex;
         // Load lightmap
         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
       } else {
-        lightmapId = curTex;
         // Load lightmap
         CalculateLightmapMatrix(areaXf, xf, aabb, out.texMtxs[nextTexMtx++]);
         // Next: GX_TG_MTX2x4 GX_TG_POS, mtxNext, false, GX_PTIDENTITY
@@ -705,7 +698,7 @@ void CFluidPlaneCPU::UpdatePatchWithNormals(CFluidPlaneRender::SHFieldSample (&h
 bool CFluidPlaneCPU::UpdatePatch(float time, const CFluidPlaneRender::SPatchInfo& info,
                                  CFluidPlaneRender::SHFieldSample (&heights)[46][46], u8 (&flags)[9][9],
                                  const zeus::CVector3f& areaCenter,
-                                 const rstl::optional<CRippleManager>& rippleManager, int fromX, int toX,
+                                 const std::optional<CRippleManager>& rippleManager, int fromX, int toX,
                                  int fromY, int toY) const {
   rstl::reserved_vector<CFluidPlaneRender::SRippleInfo, 32> rippleInfos;
   if (rippleManager) {
@@ -743,7 +736,7 @@ static u8 lc_flags[9][9] = {};
 
 void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
                             const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
-                            const rstl::optional<CRippleManager>& rippleManager, TUniqueId waterId,
+                            const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                             const zeus::CVector3f& areaCenter) const {
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);

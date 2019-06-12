@@ -32,6 +32,6 @@ if(APPLE)
   set(PLAT_LIBS ${OPENGL_LIBRARY})
 endif()
 
-target_link_libraries(visigen logvisor athena-core athena-libyaml zeus glew
-                      xxhash ${ZLIB_LIBRARIES} lzokay ${BOO_SYS_LIBS} ${PLAT_LIBS})
+target_link_libraries(visigen logvisor athena-core zeus boo
+                      xxhash ${ZLIB_LIBRARIES} lzokay hecl-light ${PLAT_LIBS})
 endif()

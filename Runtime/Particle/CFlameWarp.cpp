@@ -65,17 +65,24 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
 
   for (int i = 0; i < 9; ++i) {
     CParticle& part = particles[vec[i].second];
-    x4_vecs[i] = part.x4_pos;
+    x4_points[i] = part.x4_pos;
     if (i > 0) {
-      zeus::CVector3f delta = x4_vecs[i] - x4_vecs[i - 1];
+      zeus::CVector3f delta = x4_points[i] - x4_points[i - 1];
       if (delta.magnitude() < 0.0011920929f)
-        x4_vecs[i] += delta.normalized() * 0.0011920929f;
+        x4_points[i] += delta.normalized() * 0.0011920929f;
     }
   }
 
-  x4_vecs[0] = x74_warpPoint;
-  x80_floatingPoint = x4_vecs[8];
+  x4_points[0] = x74_warpPoint;
+  x80_floatingPoint = x4_points[8];
   xa0_26_processed = true;
+}
+
+zeus::CAABox CFlameWarp::CalculateBounds() const {
+  zeus::CAABox ret;
+  for (const auto& v : x4_points)
+    ret.accumulateBounds(v);
+  return ret;
 }
 
 } // namespace urde

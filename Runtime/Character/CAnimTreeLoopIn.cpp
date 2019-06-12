@@ -31,7 +31,7 @@ CAnimTreeEffectiveContribution CAnimTreeLoopIn::VGetContributionOfHighestInfluen
   return x14_child->GetContributionOfHighestInfluence();
 }
 
-rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeLoopIn::VSimplified() {
+std::optional<std::unique_ptr<IAnimReader>> CAnimTreeLoopIn::VSimplified() {
   CCharAnimTime remTime = x14_child->VGetTimeRemaining();
   if (remTime.GreaterThanZero() && !remTime.EpsilonZero()) {
     auto simp = x14_child->Simplified();

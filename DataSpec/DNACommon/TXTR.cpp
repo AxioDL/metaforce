@@ -1148,7 +1148,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   bool doDXT1 = (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_RGB_ALPHA) && width >= 4 && height >= 4;
 
   /* Read into mip0 image buffer */
-  for (int r = 0; r < height; ++r) {
+  for (png_uint_32 r = 0; r < height; ++r) {
     if (colorType == PNG_COLOR_TYPE_RGB) {
       png_read_row(pngRead, rowBuf.get(), nullptr);
       for (unsigned i = 0; i < width; ++i) {
@@ -1175,7 +1175,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   fclose(inf);
 
   /* Reduce mipmaps to minimum allowed dimensions */
-  int minDimX, minDimY;
+  unsigned minDimX, minDimY;
   if (doDXT1) {
     minDimX = minDimY = 4;
   } else {
@@ -1601,7 +1601,7 @@ static const atInt32 RetroToDol[11] {
 
 std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
   atUint32 format = RetroToDol[rs.readUint32Big()];
-  if (format == -1)
+  if (format == UINT32_MAX)
     return {};
 
   atUint16 width = rs.readUint16Big();

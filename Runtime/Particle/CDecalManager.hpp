@@ -2,7 +2,7 @@
 
 #include "RetroTypes.hpp"
 #include "rstl.hpp"
-#include "optional.hpp"
+#include <optional>
 #include "CToken.hpp"
 #include "CDecal.hpp"
 #include "zeus/CFrustum.hpp"
@@ -12,11 +12,11 @@ class CStateManager;
 
 class CDecalManager {
   struct SDecal {
-    rstl::optional<CDecal> x0_decal;
+    std::optional<CDecal> x0_decal;
     TAreaId x70_areaId;
     s8 x74_index;
     bool x75_24_notIce : 1;
-    SDecal(const rstl::optional<CDecal>& decal, TAreaId aid, s8 idx, bool notIce)
+    SDecal(const std::optional<CDecal>& decal, TAreaId aid, s8 idx, bool notIce)
     : x0_decal(decal), x70_areaId(aid), x74_index(idx) {
       x75_24_notIce = notIce;
     }

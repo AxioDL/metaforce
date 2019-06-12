@@ -3,6 +3,8 @@
 namespace urde {
 logvisor::Module AllocLog("urde::CGameAllocator");
 
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+
 std::vector<CGameAllocator::SAllocationDescription> CGameAllocator::m_allocations;
 
 u8* CGameAllocator::Alloc(size_t len) {

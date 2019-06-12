@@ -30,8 +30,8 @@ public:
   };
 
 private:
-  rstl::optional<CModelData> x0_grappleArmModel;
-  rstl::optional<CModelData> x50_grappleArmSkeletonModel;
+  std::optional<CModelData> x0_grappleArmModel;
+  std::optional<CModelData> x50_grappleArmSkeletonModel;
   CModelData xa0_grappleGearModel;
   CModelData xec_grapNoz1Model;
   CModelData x138_grapNoz2Model;

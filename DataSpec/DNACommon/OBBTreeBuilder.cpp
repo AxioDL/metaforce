@@ -17,7 +17,7 @@ struct FittedOBB {
 static std::vector<int> MakeRootTriangleIndex(const ColMesh& mesh) {
   std::vector<int> ret;
   ret.reserve(mesh.trianges.size());
-  for (int i = 0; i < mesh.trianges.size(); ++i)
+  for (size_t i = 0; i < mesh.trianges.size(); ++i)
     ret.push_back(i);
   return ret;
 }

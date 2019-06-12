@@ -14,7 +14,7 @@ CCollidableOBBTree::CCollidableOBBTree(const COBBTree* tree, const urde::CMateri
 bool CCollidableOBBTree::LineIntersectsLeaf(const COBBTree::CLeafData& leaf, CRayCastInfo& info) const {
   bool ret = false;
   u16 intersectIdx = 0;
-  for (int i = 0; i < leaf.GetSurfaceVector().size(); ++i) {
+  for (size_t i = 0; i < leaf.GetSurfaceVector().size(); ++i) {
     u16 surfIdx = leaf.GetSurfaceVector()[i];
     CCollisionSurface surface = x10_tree->GetSurface(surfIdx);
     CMaterialList matList = GetMaterial();

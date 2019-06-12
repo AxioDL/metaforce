@@ -25,8 +25,8 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
         "bpy.context.scene.name = 'World'\n"
         "\n"
         "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n";
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n";
 
   /* Insert area empties */
   int areaIdx = 0;

@@ -1,5 +1,5 @@
-include_directories(${LIBPNG_INCLUDE_DIR})
 add_executable(mkwmicon mkwmicon.c)
+target_include_directories(mkwmicon PRIVATE ${LIBPNG_INCLUDE_DIR})
 target_link_libraries(mkwmicon ${PNG_LIB} ${ZLIB_LIBRARIES})
 
 macro(declare_wmicon_target)

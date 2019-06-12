@@ -200,8 +200,8 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
         "\n"
         "bpy.types.Light.retro_layer = bpy.props.IntProperty(name='Retro: Light Layer')\n"
         "bpy.types.Light.retro_origtype = bpy.props.IntProperty(name='Retro: Original Type')\n"

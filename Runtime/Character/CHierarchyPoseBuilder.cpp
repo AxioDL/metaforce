@@ -1,6 +1,7 @@
 #include "CHierarchyPoseBuilder.hpp"
 #include "CAnimData.hpp"
 #include "CCharLayoutInfo.hpp"
+#include "zeus/CEulerAngles.hpp"
 
 namespace urde {
 
@@ -54,6 +55,15 @@ void CHierarchyPoseBuilder::RecursivelyBuild(const CSegId& boneId, const CTreeNo
                                              const zeus::CQuaternion& parentRot, const zeus::CMatrix3f& parentXf,
                                              const zeus::CVector3f& parentOffset) const {
   zeus::CQuaternion quat = parentRot * node.x4_rotation;
+  if (boneId == 4 && x0_layoutDesc.GetCharLayoutInfo().GetObjectTag()->id == 1683497588) {
+    zeus::CQuaternion rootq(CGraphics::g_GXModelMatrix.basis);
+    printf("WTF3 %f\n", zeus::radToDeg(zeus::CEulerAngles(rootq).z()));
+    printf("WTF4 %f\n", zeus::radToDeg(zeus::CEulerAngles(node.x4_rotation).z()));
+  }
+  if (boneId == 6 && x0_layoutDesc.GetCharLayoutInfo().GetObjectTag()->id == 1683497588)
+    printf("WTF6 %f %f %f %f\n",
+           float(node.x4_rotation.w()), float(node.x4_rotation.x()),
+           float(node.x4_rotation.y()), float(node.x4_rotation.z()));
 
   float scale;
   zeus::CVector3f bindOffset;

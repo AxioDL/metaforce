@@ -43,7 +43,7 @@ CCharAnimTime CAnimTreeTimeScale::GetRealLifeTime(const CCharAnimTime& time) con
 
 void CAnimTreeTimeScale::VSetPhase(float phase) { x14_child->VSetPhase(phase); }
 
-rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
+std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
   if (auto simp = x14_child->Simplified()) {
     CAnimTreeTimeScale* newNode = new CAnimTreeTimeScale(CAnimTreeNode::Cast(std::move(*simp)), x18_timeScale->Clone(),
                                                          x28_targetAccelTime, x4_name);
@@ -61,7 +61,7 @@ u32 CAnimTreeTimeScale::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode*
   CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
   u32 ret = x14_child->GetBoolPOIList(useTime, listOut, capacity, iterator, unk);
   if (x28_targetAccelTime > CCharAnimTime())
-    for (int i = 0; i < ret; ++i)
+    for (u32 i = 0; i < ret; ++i)
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
   return ret;
 }
@@ -71,7 +71,7 @@ u32 CAnimTreeTimeScale::VGetInt32POIList(const CCharAnimTime& time, CInt32POINod
   CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
   u32 ret = x14_child->GetInt32POIList(useTime, listOut, capacity, iterator, unk);
   if (x28_targetAccelTime > CCharAnimTime())
-    for (int i = 0; i < ret; ++i)
+    for (u32 i = 0; i < ret; ++i)
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
   return ret;
 }
@@ -81,7 +81,7 @@ u32 CAnimTreeTimeScale::VGetParticlePOIList(const CCharAnimTime& time, CParticle
   CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
   u32 ret = x14_child->GetParticlePOIList(useTime, listOut, capacity, iterator, unk);
   if (x28_targetAccelTime > CCharAnimTime())
-    for (int i = 0; i < ret; ++i)
+    for (u32 i = 0; i < ret; ++i)
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
   return ret;
 }
@@ -91,7 +91,7 @@ u32 CAnimTreeTimeScale::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINod
   CCharAnimTime useTime = (time == CCharAnimTime::Infinity()) ? x14_child->VGetTimeRemaining() : GetRealLifeTime(time);
   u32 ret = x14_child->GetSoundPOIList(useTime, listOut, capacity, iterator, unk);
   if (x28_targetAccelTime > CCharAnimTime())
-    for (int i = 0; i < ret; ++i)
+    for (u32 i = 0; i < ret; ++i)
       listOut[iterator + i].SetTime(GetRealLifeTime(listOut[i].GetTime()));
   return ret;
 }

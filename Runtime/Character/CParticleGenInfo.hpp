@@ -42,7 +42,7 @@ public:
   virtual void SetGlobalScale(const zeus::CVector3f& scale) = 0;
   virtual void SetParticleEmission(bool, CStateManager& stateMgr) = 0;
   virtual bool IsSystemDeletable() const = 0;
-  virtual rstl::optional<zeus::CAABox> GetBounds() const = 0;
+  virtual std::optional<zeus::CAABox> GetBounds() const = 0;
   virtual bool HasActiveParticles() const = 0;
   virtual void DestroyParticles() = 0;
   virtual bool HasLight() const = 0;
@@ -95,7 +95,7 @@ public:
   void SetGlobalScale(const zeus::CVector3f& scale);
   void SetParticleEmission(bool, CStateManager& stateMgr);
   bool IsSystemDeletable() const;
-  rstl::optional<zeus::CAABox> GetBounds() const;
+  std::optional<zeus::CAABox> GetBounds() const;
   bool HasActiveParticles() const;
   void DestroyParticles();
   bool HasLight() const;

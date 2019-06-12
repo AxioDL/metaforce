@@ -91,7 +91,7 @@ void CRSM<IDType>::_write(athena::io::YAMLDocWriter& w) const {
         pair.second.write(w);
 
   for (const auto& pair : x10_sfx)
-    if (pair.second != ~0)
+    if (pair.second != UINT32_MAX)
       w.writeUint32(pair.first.toString().c_str(), pair.second);
 
   for (const auto& pair : x20_decals)
@@ -115,7 +115,7 @@ void CRSM<IDType>::_binarySize(size_t& __isz) const {
     }
   }
   for (const auto& pair : x10_sfx) {
-    if (pair.second != ~0)
+    if (pair.second != UINT32_MAX)
       __isz += 12;
   }
 
@@ -193,7 +193,7 @@ void CRSM<IDType>::_write(athena::io::IStreamWriter& w) const {
 
   for (const auto& pair : x10_sfx) {
     w.writeBytes(pair.first.getChars(), 4);
-    if (pair.second != ~0) {
+    if (pair.second != UINT32_MAX) {
       w.writeBytes("CNST", 4);
       w.writeUint32Big(pair.second);
     } else {

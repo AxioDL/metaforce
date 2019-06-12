@@ -312,7 +312,7 @@ bool CActorLights::BuildAreaLightList(const CStateManager& mgr, const CGameArea&
   u32 mostSigLightIdx = 0;
 
   /* Narrowphase test candidates starting with most intense */
-  for (int i = 0; i < valList.size(); ++i) {
+  for (size_t i = 0; i < valList.size(); ++i) {
     const SLightValue& value = valList[i];
     const CLight& light = gfxLightList[value.x0_areaLightIdx];
     if (x0_areaLights.size() < maxAreaLights) {

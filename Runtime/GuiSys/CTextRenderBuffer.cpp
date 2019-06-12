@@ -177,7 +177,7 @@ void CTextRenderBuffer::AddImage(const zeus::CVector2i& offset, const CFontImage
 }
 
 void CTextRenderBuffer::AddCharacter(const zeus::CVector2i& offset, char16_t ch, const zeus::CColor& color) {
-  if (m_activeFontCh == -1)
+  if (m_activeFontCh == UINT32_MAX)
     return;
   BooFontCharacters& chs = m_fontCharacters[m_activeFontCh];
   if (x0_mode == EMode::AllocTally)
@@ -199,7 +199,7 @@ void CTextRenderBuffer::AddPaletteChange(const zeus::CColor& main, const zeus::C
 }
 
 void CTextRenderBuffer::AddFontChange(const TToken<CRasterFont>& font) {
-  for (int i = 0; i < m_fontCharacters.size(); ++i) {
+  for (size_t i = 0; i < m_fontCharacters.size(); ++i) {
     BooFontCharacters& chs = m_fontCharacters[i];
     if (*chs.m_font.GetObjectTag() == *font.GetObjectTag()) {
       m_activeFontCh = i;

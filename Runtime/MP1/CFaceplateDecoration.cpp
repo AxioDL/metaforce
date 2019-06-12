@@ -16,13 +16,13 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr) {
       x4_tex.Unlock();
       x0_id = txtrId;
       if (m_texFilter)
-        m_texFilter = rstl::nullopt;
+        m_texFilter = std::nullopt;
     }
   }
 
   if (x0_id != txtrId && txtrId.IsValid()) {
     if (m_texFilter)
-      m_texFilter = rstl::nullopt;
+      m_texFilter = std::nullopt;
     x0_id = txtrId;
     x4_tex = g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), txtrId});
     xc_ready = true;

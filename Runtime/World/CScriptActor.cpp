@@ -8,6 +8,8 @@
 #include "Character/IAnimReader.hpp"
 #include "TCastTo.hpp"
 #include "CActorParameters.hpp"
+#include "MP1/World/CActorContraption.hpp"
+#include "zeus/CEulerAngles.hpp"
 
 namespace urde {
 
@@ -103,6 +105,9 @@ void CScriptActor::Think(float dt, CStateManager& mgr) {
       else
         MoveToOR(deltas.x0_posDelta, dt);
 
+      //if (TCastToPtr<MP1::CActorContraption>(this))
+        //printf("DEL %f\n", zeus::radToDeg(zeus::CEulerAngles(deltas.xc_rotDelta).z()));
+        //printf("DEL %f %f %f %f\n", float(deltas.xc_rotDelta[0]), float(deltas.xc_rotDelta[1]), float(deltas.xc_rotDelta[2]), float(deltas.xc_rotDelta[3]));
       RotateToOR(deltas.xc_rotDelta, dt);
     }
 
@@ -176,7 +181,7 @@ EWeaponCollisionResponseTypes CScriptActor::GetCollisionResponseType(const zeus:
   return CActor::GetCollisionResponseType(v1, v2, wMode, w);
 }
 
-rstl::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
+std::optional<zeus::CAABox> CScriptActor::GetTouchBounds() const {
   if (GetActive() && x68_material.HasMaterial(EMaterialTypes::Solid))
     return {CPhysicsActor::GetBoundingBox()};
   return {};

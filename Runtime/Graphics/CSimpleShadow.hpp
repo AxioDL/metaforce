@@ -18,7 +18,7 @@ class CSimpleShadow {
   bool x48_24_collision : 1;
   bool x48_25_alwaysCalculateRadius : 1;
   bool x48_26_radiusCalculated : 1;
-  mutable rstl::optional<CTexturedQuadFilter> m_filter;
+  mutable std::optional<CTexturedQuadFilter> m_filter;
 
 public:
   CSimpleShadow(float scale, float userAlpha, float maxObjHeight, float displacement);

@@ -26,7 +26,7 @@ public:
   CEnergyProjectile(bool active, const TToken<CWeaponDescription>& desc, EWeaponType type, const zeus::CTransform& xf,
                     EMaterialTypes excludeMat, const CDamageInfo& damage, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater, const zeus::CVector3f& scale,
-                    const rstl::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
+                    const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                     bool sendCollideMsg);
   void SetCameraShake(const CCameraShakeData& data) {
     x2fc_camShake = data;

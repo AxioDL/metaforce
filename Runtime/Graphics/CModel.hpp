@@ -101,7 +101,7 @@ struct SShader {
   std::unordered_map<CAssetId, TCachedToken<CTexture>> x0_textures;
   std::unordered_map<int, CModelShaders::ShaderPipelines> m_shaders;
   MaterialSet m_matSet;
-  rstl::optional<GeometryUniformLayout> m_geomLayout;
+  std::optional<GeometryUniformLayout> m_geomLayout;
   int m_matSetIdx;
   SShader(int idx) : m_matSetIdx(idx) {
     x0_textures.clear();
@@ -128,7 +128,7 @@ public:
 private:
   CBooModel* m_next = nullptr;
   CBooModel* m_prev = nullptr;
-  int m_uniUpdateCount = 0;
+  size_t m_uniUpdateCount = 0;
   TToken<CModel> m_modelTok;
   CModel* m_model;
   std::vector<CBooSurface>* x0_surfaces;
@@ -143,7 +143,7 @@ private:
   bool x40_24_texturesLoaded : 1;
   bool x40_25_modelVisible : 1;
   u8 x41_mask;
-  u32 x44_areaInstanceIdx = -1;
+  u32 x44_areaInstanceIdx = UINT32_MAX;
 
   struct UVAnimationBuffer {
     static void ProcessAnimation(u8*& bufOut, const MaterialSet::Material::PASS& anim);

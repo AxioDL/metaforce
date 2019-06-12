@@ -2,8 +2,12 @@ include_directories(../hecl/include
                     ../hecl/extern/boo/include
                     ../hecl/extern/boo/logvisor/include
                     ../hecl/extern/athena/include
+                    ../specter/zeus/include
+                    ../nod/include
                     ../DataSpec
-                    ../Runtime)
+                    ../Runtime
+                    ..)
+add_compile_definitions(ZE_ATHENA_TYPES=1)
 add_shader(CAABoxShader)
 add_shader(CCameraBlurFilter)
 add_shader(CColoredQuadFilter)

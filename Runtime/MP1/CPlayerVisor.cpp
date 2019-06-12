@@ -37,7 +37,7 @@ CPlayerVisor::~CPlayerVisor() {
 }
 
 int CPlayerVisor::FindEmptyInactiveScanTarget() const {
-  for (int i = 0; i < x13c_scanTargets.size(); ++i) {
+  for (size_t i = 0; i < x13c_scanTargets.size(); ++i) {
     const SScanTarget& tgt = x13c_scanTargets[i];
     if (tgt.x4_timer == 0.f)
       return i;
@@ -46,7 +46,7 @@ int CPlayerVisor::FindEmptyInactiveScanTarget() const {
 }
 
 int CPlayerVisor::FindCachedInactiveScanTarget(TUniqueId uid) const {
-  for (int i = 0; i < x13c_scanTargets.size(); ++i) {
+  for (size_t i = 0; i < x13c_scanTargets.size(); ++i) {
     const SScanTarget& tgt = x13c_scanTargets[i];
     if (tgt.x0_objId == uid && tgt.x4_timer > 0.f)
       return i;

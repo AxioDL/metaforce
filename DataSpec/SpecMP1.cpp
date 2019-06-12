@@ -735,7 +735,7 @@ struct SpecMP1 : SpecBase {
     std::vector<Mesh> meshCompiles;
     meshCompiles.reserve(meshes.size());
 
-    std::experimental::optional<ColMesh> colMesh;
+    std::optional<ColMesh> colMesh;
 
     for (const std::string& mesh : meshes) {
       hecl::SystemStringConv meshSys(mesh);
@@ -1110,7 +1110,7 @@ struct SpecMP1 : SpecBase {
             Log.report(logvisor::Fatal, _SYS_STR("Corrupt MAPW %s"), mapCookedPath.getRelativePath().data());
           r.readUint32Big();
           atUint32 mapaCount = r.readUint32Big();
-          for (int i = 0; i < mapaCount; ++i) {
+          for (atUint32 i = 0; i < mapaCount; ++i) {
             UniqueID32 id;
             id.read(r);
             listOut.push_back({FOURCC('MAPA'), originalToNew(id)});

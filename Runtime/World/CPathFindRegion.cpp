@@ -48,7 +48,7 @@ void CPFRegion::Fixup(CPFArea& area, u32& maxRegionNodes) {
 bool CPFRegion::IsPointInside(const zeus::CVector3f& point) const {
   if (!x34_aabb.pointInside(point))
     return false;
-  int i;
+  u32 i;
   for (i = 0; i < x0_numNodes; ++i) {
     CPFNode& node = x4_startNode[i];
     if ((point - node.GetPos()).dot(node.GetNormal()) < 0.f)
@@ -68,7 +68,7 @@ float CPFRegion::PointHeight(const zeus::CVector3f& point) const {
 bool CPFRegion::FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& normal,
                                           const zeus::CVector3f& point, bool excludePolyPoints) {
   bool found = false;
-  int i;
+  size_t i;
   for (i = 0; i < polyPoints.size(); ++i) {
     const zeus::CVector3f& p0 = polyPoints[i];
     const zeus::CVector3f& p1 = polyPoints[(i + 1) % polyPoints.size()];
@@ -127,7 +127,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
   bool isFlyer = (flags & 0x2) != 0;
   x4c_regionData->SetBestPointDistanceSquared(paddingSq);
   if (!isFlyer) {
-    for (int i = 0; i < x0_numNodes; ++i) {
+    for (u32 i = 0; i < x0_numNodes; ++i) {
       CPFNode& node = x4_startNode[i];
       CPFNode& nextNode = x4_startNode[(i + 1) % x0_numNodes];
       polyPoints.clear();
@@ -142,7 +142,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
   }
 
   polyPoints.clear();
-  for (int i = 0; i < x0_numNodes; ++i) {
+  for (u32 i = 0; i < x0_numNodes; ++i) {
     CPFNode& node = x4_startNode[i];
     polyPoints.push_back(node.GetPos());
   }
@@ -150,7 +150,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
 
   if (!isFlyer) {
     polyPoints.clear();
-    for (int i = x0_numNodes - 1; i >= 0; --i) {
+    for (u32 i = x0_numNodes - 1; i >= 0; --i) {
       CPFNode& node = x4_startNode[i];
       polyPoints.push_back(node.GetPos());
       polyPoints.back().z() += x14_height;
@@ -164,7 +164,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
 void CPFRegion::SetLinkTo(s32 idx) {
   if (x8_numLinks <= 0)
     return;
-  for (s32 i = 0; i < x8_numLinks; ++i)
+  for (u32 i = 0; i < x8_numLinks; ++i)
     if (xc_startLink[i].GetRegion() == idx) {
       Data()->SetPathLink(i);
       return;

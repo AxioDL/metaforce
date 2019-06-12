@@ -59,7 +59,7 @@ public:
 
 template <class S>
 class CCameraFilterPass final : public CCameraFilterPassBase {
-  rstl::optional<S> m_shader;
+  std::optional<S> m_shader;
 
 public:
   void Update(float dt);
@@ -103,8 +103,8 @@ class CCameraBlurPass {
   // bool x2d_noPersistentCopy = false;
   // u32 x30_persistentBuf = 0;
 
-  mutable rstl::optional<CCameraBlurFilter> m_shader;
-  mutable rstl::optional<CXRayBlurFilter> m_xrayShader;
+  mutable std::optional<CCameraBlurFilter> m_shader;
+  mutable std::optional<CXRayBlurFilter> m_xrayShader;
 
 public:
   void Draw(bool clearDepth = false);

@@ -47,8 +47,8 @@ public:
   void OpenDoor(TUniqueId, CStateManager&);
   u32 GetDoorOpenCondition(CStateManager& mgr);
   void SetDoorAnimation(EDoorAnimType);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
-  rstl::optional<zeus::CAABox> GetProjectileBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetProjectileBounds() const;
   bool IsOpen() const { return x2a8_26_isOpen; }
 };
 

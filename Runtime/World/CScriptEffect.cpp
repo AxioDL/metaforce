@@ -320,11 +320,11 @@ void CScriptEffect::Think(float dt, CStateManager& mgr) {
 }
 
 void CScriptEffect::CalculateRenderBounds() {
-  rstl::optional<zeus::CAABox> particleBounds;
+  std::optional<zeus::CAABox> particleBounds;
   if (x104_particleSystem)
     particleBounds = x104_particleSystem->GetBounds();
 
-  rstl::optional<zeus::CAABox> electricBounds;
+  std::optional<zeus::CAABox> electricBounds;
   if (xf4_electric)
     electricBounds = xf4_electric->GetBounds();
 

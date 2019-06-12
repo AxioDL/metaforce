@@ -7,7 +7,7 @@ namespace urde {
 
 class CWorldShadowShader {
   boo::ObjToken<boo::ITextureR> m_tex;
-  rstl::optional<CTexturedQuadFilter> m_prevQuad;
+  std::optional<CTexturedQuadFilter> m_prevQuad;
   u32 m_w, m_h;
 
   struct Uniform {

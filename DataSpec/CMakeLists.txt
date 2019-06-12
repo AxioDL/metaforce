@@ -1,19 +1,17 @@
-include_directories(${LIBPNG_INCLUDE_DIR} ${SQUISH_INCLUDE_DIR})
-
 # Assembles a source/header pair list for use in a DNA library
-macro(make_dnalist outlist subdir)
-  file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${subdir}")
+macro(make_dnalist)
+  file(RELATIVE_PATH subdir "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_DIR}")
+  set(CMAKE_CURRENT_LIST_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/${subdir}")
+  file(MAKE_DIRECTORY "${CMAKE_CURRENT_LIST_BINARY_DIR}")
   foreach(type ${ARGN})
     get_filename_component(dir ${type} DIRECTORY)
     if(dir)
-      file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${subdir}/${dir}")
+      file(MAKE_DIRECTORY "${CMAKE_CURRENT_LIST_BINARY_DIR}/${dir}")
       set(dir "${dir}/")
     endif()
     get_filename_component(name ${type} NAME)
-    atdna("${subdir}/${dir}atdna_${name}.cpp" "${subdir}/${dir}${name}.hpp")
-    list(APPEND ${outlist}
-         ${subdir}/${dir}atdna_${name}.cpp
-         ${subdir}/${dir}${name}.hpp)
+    list(APPEND DNA_SOURCES "${subdir}/${dir}atdna_${name}.cpp")
+    list(APPEND DNA_HEADERS "${subdir}/${dir}${name}.hpp")
   endforeach()
 endmacro()
 
@@ -30,9 +28,9 @@ macro(dataspec_add_list rel_path a_list)
   set(${a_list} "${tmp_list}")
 endmacro(dataspec_add_list)
 
-include_directories(${ZLIB_INCLUDE_DIR} ${LZOKAY_INCLUDE_DIR})
-
 # Each game's DNA library
+unset(DNA_SOURCES)
+unset(DNA_HEADERS)
 include(DNACommon/CMakeLists.txt)
 include(DNAMP1/CMakeLists.txt)
 include(DNAMP2/CMakeLists.txt)
@@ -70,10 +68,22 @@ add_library(RetroDataSpec
             AssetNameMap32.bin AssetNameMap32.cpp
             AssetNameMap64.bin AssetNameMap64.cpp
             RetroMasterShader.cpp)
+
+get_target_property(HECL_INCLUDES hecl-full INCLUDE_DIRECTORIES)
+target_include_directories(RetroDataSpec PUBLIC ${LIBPNG_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR}
+                           ${HECL_INCLUDES} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
+target_link_libraries(RetroDataSpec PUBLIC amuse zeus nod specter squish ${PNG_LIB} ${ZLIB_LIBRARIES} lzokay logvisor)
 if(COMMAND add_sanitizers)
   add_sanitizers(RetroDataSpec)
 endif()
-if(COMMAND cotire)
-  set_target_properties(RetroDataSpec PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-  cotire(RetroDataSpec)
-endif()
+
+# Resolve all DNA sources into target
+list(LENGTH DNA_SOURCES count)
+math(EXPR count "${count}-1")
+foreach(i RANGE ${count})
+  list(GET DNA_SOURCES ${i} src)
+  list(GET DNA_HEADERS ${i} header)
+  target_atdna(RetroDataSpec ${src} ${header})
+endforeach()
+
+add_custom_target(genexdebug COMMAND ${CMAKE_COMMAND} -E echo "$<TARGET_PROPERTY:RetroDataSpec,INCLUDE_DIRECTORIES>")

@@ -303,7 +303,7 @@ struct CTweakGui final : ITweakGui {
   float GetHudLightAttMulQuadratic() const { return x2c0_hudLightAttMulQuadratic; }
 
   float GetScanSpeed(int idx) const {
-    if (idx < 0 || idx >= x2c4_scanSpeeds.size())
+    if (idx < 0 || size_t(idx) >= x2c4_scanSpeeds.size())
       return 0.f;
     return x2c4_scanSpeeds[idx];
   }

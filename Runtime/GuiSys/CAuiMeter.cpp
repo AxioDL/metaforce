@@ -10,19 +10,19 @@ CAuiMeter::CAuiMeter(const CGuiWidgetParms& parms, bool noRoundUp, u32 maxCapaci
 void CAuiMeter::UpdateMeterWorkers() {
   float scale = xd4_workers.size() / float(xc8_maxCapacity);
 
-  int etankCap;
+  size_t etankCap;
   if (xc4_noRoundUp)
     etankCap = xcc_capacity * scale;
   else
     etankCap = xcc_capacity * scale + 0.5f;
 
-  int etankFill;
+  size_t etankFill;
   if (xc4_noRoundUp)
     etankFill = xd0_value * scale;
   else
     etankFill = xd0_value * scale + 0.5f;
 
-  for (int i = 0; i < xd4_workers.size(); ++i) {
+  for (size_t i = 0; i < xd4_workers.size(); ++i) {
     CGuiGroup* worker = xd4_workers[i];
     if (!worker)
       continue;

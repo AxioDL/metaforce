@@ -76,7 +76,7 @@ zeus::CVector3f CProjectileWeapon::GetTranslation() const {
   return x14_localToWorldXf * (x44_localXf * x8c_projOffset + x80_localOffset) + x74_worldOffset;
 }
 
-rstl::optional<zeus::CAABox> CProjectileWeapon::GetBounds() const {
+std::optional<zeus::CAABox> CProjectileWeapon::GetBounds() const {
   zeus::CAABox aabb;
   bool ret = false;
 
@@ -132,7 +132,7 @@ float CProjectileWeapon::GetAudibleRange() const {
   return x4_weaponDesc->x94_COLR.m_res->GetAudibleRange();
 }
 
-rstl::optional<TLockedToken<CDecalDescription>>
+std::optional<TLockedToken<CDecalDescription>>
 CProjectileWeapon::GetDecalForCollision(EWeaponCollisionResponseTypes type) const {
   if (!x4_weaponDesc->x94_COLR)
     return {};
@@ -145,7 +145,7 @@ s32 CProjectileWeapon::GetSoundIdForCollision(EWeaponCollisionResponseTypes type
   return x4_weaponDesc->x94_COLR.m_res->GetSoundEffectId(type);
 }
 
-rstl::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured(
+std::optional<TLockedToken<CGenDescription>> CProjectileWeapon::CollisionOccured(
     EWeaponCollisionResponseTypes type, bool deflected, bool useTarget, const zeus::CVector3f& pos,
     const zeus::CVector3f& normal, const zeus::CVector3f& target) {
   x80_localOffset = x14_localToWorldXf.transposeRotate(pos - x74_worldOffset) - x8c_projOffset;

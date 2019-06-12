@@ -28,6 +28,7 @@ CENTITY_TYPES = (
     Namespace('MP1'),
     ('CMetroidPrimeRelay', 'MP1/World/CMetroidPrimeRelay.hpp', 'MP1'),
     ('CWarWasp', 'MP1/World/CWarWasp.hpp', 'MP1'),
+    ('CActorContraption', 'MP1/World/CActorContraption.hpp', 'MP1'),
     EndNamespace(),
     ('CPathCamera', 'Camera/CPathCamera.hpp'),
     ('CAi', 'World/CAi.hpp'),

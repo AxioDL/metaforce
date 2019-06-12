@@ -188,7 +188,7 @@ public:
   void Render(const CStateManager&) const;
   bool CanRenderUnsorted(const CStateManager&) const;
   void CalculateRenderBounds();
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor& other, CStateManager&);
   zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const;

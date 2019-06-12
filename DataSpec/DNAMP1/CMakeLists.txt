@@ -1,8 +1,7 @@
 include(DNAMP1/ScriptObjects/CMakeLists.txt)
 include(DNAMP1/SFX/CMakeLists.txt)
 
-make_dnalist(liblist DNAMP1
-             PAK
+make_dnalist(PAK
              MLVL
              AGSC
              CSNG
@@ -68,4 +67,3 @@ set(DNAMP1_SOURCES
     Tweaks/CTweakGame.cpp)
 
 dataspec_add_list(DNAMP1 DNAMP1_SOURCES)
-list(APPEND DNAMP1_SOURCES ${liblist})

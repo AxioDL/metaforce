@@ -39,11 +39,11 @@ bool CSNG::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   hecl::ProjectPath audGrp(outPath.getParentPath().getParentPath(), _SYS_STR("AudioGrp"));
   audGrp.makeDirChain(true);
   hecl::ProjectPath songsPath(audGrp, _SYS_STR("!songs.yaml"));
-  std::experimental::optional<athena::io::FileReader> r;
+  std::optional<athena::io::FileReader> r;
   if (songsPath.isFile())
     r.emplace(songsPath.getAbsolutePath());
   athena::io::YAMLDocWriter ydw("amuse::Songs", r ? &*r : nullptr);
-  r = std::experimental::nullopt;
+  r = std::nullopt;
   char id[16];
   snprintf(id, 16, "%04X", head.midiSetupId);
   ydw.writeString(id, hecl::Format("../MidiData/%s", midPath.getLastComponentUTF8().data()));

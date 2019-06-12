@@ -67,7 +67,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   bool xe8_silent = true;
   u8 xec_readState = 0; // 0: NoRead 1: Read 2: ReadWrap
 
-  rstl::optional<CDvdFile> m_file;
+  std::optional<CDvdFile> m_file;
   std::shared_ptr<IDvdRequest> m_readReqs[2];
 
   void ReadBuffer(int buf) {
@@ -262,7 +262,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
           stream.m_readReqs[j].reset();
         }
       stream.xd4_ringBuffer.reset();
-      stream.m_file = rstl::nullopt;
+      stream.m_file = std::nullopt;
     }
   }
 
@@ -340,7 +340,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   void StopStream() {
     x0_active = false;
     m_booVoice->stop();
-    m_file = rstl::nullopt;
+    m_file = std::nullopt;
   }
 
   static bool IsStreamActive(s32 id) {
@@ -472,7 +472,7 @@ public:
   static bool FindUnclaimedStereoPair(s32& left, s32& right) {
     s32 idx = FindUnclaimedStreamIdx();
 
-    for (u32 i = 0; i < 4; ++i) {
+    for (s32 i = 0; i < 4; ++i) {
       CDSPStreamManager& stream = g_Streams[i];
       if (stream.x70_24_unclaimed && idx != i) {
         left = idx;

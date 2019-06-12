@@ -79,7 +79,7 @@ public:
   void Think(float dt, CStateManager& mgr);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
 
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
   const CCollisionPrimitive* GetCollisionPrimitive() const;
   void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);

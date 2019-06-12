@@ -191,9 +191,9 @@ void CCinematicCamera::Think(float dt, CStateManager& mgr) {
 
     x1ec_t += dt;
     if (x1ec_t > x1e8_duration) {
-      for (int i = x1f4_passedViewPoint + 1; i < x1a8_viewPointArrivals.size(); ++i)
+      for (size_t i = x1f4_passedViewPoint + 1; i < x1a8_viewPointArrivals.size(); ++i)
         SendArrivedMsg(x1a8_viewPointArrivals[i], mgr);
-      for (int i = x1f8_passedTarget + 1; i < x1c8_targetArrivals.size(); ++i)
+      for (size_t i = x1f8_passedTarget + 1; i < x1c8_targetArrivals.size(); ++i)
         SendArrivedMsg(x1c8_targetArrivals[i], mgr);
       DeactivateSelf(mgr);
     }

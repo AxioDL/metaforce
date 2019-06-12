@@ -1069,7 +1069,7 @@ void CBallCamera::UpdateUsingColliders(float dt, CStateManager& mgr) {
     }
   } else if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed ||
              x18d_25_avoidGeometryFull) {
-    zeus::CTransform oldXf = x34_transform;
+    //zeus::CTransform oldXf = x34_transform;
     zeus::CVector3f oldPos = GetTranslation();
     x2c4_smallCollidersObsCount = CountObscuredColliders(x264_smallColliders);
     x2c8_mediumCollidersObsCount = CountObscuredColliders(x274_mediumColliders);
@@ -1486,7 +1486,7 @@ bool CBallCamera::CheckFailsafeFromMorphBallState(CStateManager& mgr) const {
     }
     curT += 1.f;
   }
-  for (int i = 0; i < resultsA.size(); ++i) {
+  for (size_t i = 0; i < resultsA.size(); ++i) {
     const CRayCastResult& resA = resultsA[i];
     const CRayCastResult& resB = resultsB[i];
     if (resA.IsValid()) {
@@ -1523,7 +1523,7 @@ bool CBallCamera::SplineIntersectTest(CMaterialList& intersectMat, CStateManager
     }
     curT += 1.f;
   }
-  for (int i = 0; i < xacc.size(); ++i) {
+  for (size_t i = 0; i < xacc.size(); ++i) {
     const CRayCastResult& resA = xacc[i];
     const CRayCastResult& resB = xd10[i];
     if (resA.IsValid()) {

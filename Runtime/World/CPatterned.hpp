@@ -225,10 +225,10 @@ protected:
   float x50c_baseDamageMag;
   std::shared_ptr<CVertexMorphEffect> x510_vertexMorph;
   zeus::CVector3f x514_deathExplosionOffset;
-  rstl::optional<TLockedToken<CGenDescription>> x520_deathExplosionParticle;
-  rstl::optional<TLockedToken<CElectricDescription>> x530_deathExplosionElectric;
+  std::optional<TLockedToken<CGenDescription>> x520_deathExplosionParticle;
+  std::optional<TLockedToken<CElectricDescription>> x530_deathExplosionElectric;
   zeus::CVector3f x540_iceDeathExplosionOffset;
-  rstl::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
+  std::optional<TLockedToken<CGenDescription>> x54c_iceDeathExplosionParticle;
   zeus::CVector3f x55c_moveScale = zeus::skOne3f;
 
   void MakeThermalColdAndHot();
@@ -266,7 +266,7 @@ public:
 
   void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
   void Touch(CActor& act, CStateManager& mgr);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   bool CanRenderUnsorted(const CStateManager& mgr) const;
   zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const { return GetAimPosition(mgr, 0.f); }
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
@@ -349,7 +349,7 @@ public:
   virtual float GetGravityConstant() const { return 24.525002f; }
   virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
   virtual void PhazeOut(CStateManager&);
-  virtual const rstl::optional<TLockedToken<CGenDescription>>& GetDeathExplosionParticle() const {
+  virtual const std::optional<TLockedToken<CGenDescription>>& GetDeathExplosionParticle() const {
     return x520_deathExplosionParticle;
   }
   float GetDamageDuration() const { return x504_damageDur; }
@@ -363,7 +363,7 @@ public:
   void SetupPlayerCollision(bool);
   void LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed, EProjectileAttrib attrib,
                         bool playerHoming,
-                        const rstl::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
+                        const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                         bool sendCollideMsg, const zeus::CVector3f& scale);
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
 

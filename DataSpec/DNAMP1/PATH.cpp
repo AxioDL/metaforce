@@ -71,8 +71,8 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
       "\n"
       "bpy.context.scene.name = '%s'\n"
       "# Clear Scene\n"
-      "if 'Collection 1' in bpy.data.collections:\n"
-      "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+      "if len(bpy.data.collections):\n"
+      "    bpy.data.collections.remove(bpy.data.collections[0])\n"
       "\n"
       "bm = bmesh.new()\n"
       "height_lay = bm.faces.layers.float.new('Height')\n",
@@ -87,7 +87,7 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
 
   for (const Region& r : regions) {
     os << "tri_verts = []\n";
-    for (int i = 0; i < r.nodeCount; ++i)
+    for (atUint32 i = 0; i < r.nodeCount; ++i)
       os.format("tri_verts.append(bm.verts[%u])\n", r.nodeStart + i);
 
     os.format(

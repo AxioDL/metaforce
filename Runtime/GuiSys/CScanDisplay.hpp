@@ -56,7 +56,7 @@ private:
   TLockedToken<CTexture> x0_dataDot;
   EScanState xc_state = EScanState::Inactive;
   TUniqueId x10_objId = kInvalidUniqueId;
-  rstl::optional<CScannableObjectInfo> x14_scannableInfo;
+  std::optional<CScannableObjectInfo> x14_scannableInfo;
   const CGuiFrame& xa0_selHud;
   CGuiWidget* xa4_textGroup = nullptr;
   CGuiTextPane* xa8_message = nullptr;

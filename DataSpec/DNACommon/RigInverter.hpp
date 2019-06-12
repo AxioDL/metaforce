@@ -15,8 +15,8 @@ class RigInverter {
 public:
   struct Bone {
     const typename CINFType::Bone& m_origBone;
-    zeus::CMatrix3f m_inverter;
-    zeus::CMatrix3f m_restorer;
+    zeus::CQuaternion m_inverter;
+    zeus::CQuaternion m_restorer;
     zeus::CVector3f m_tail;
     zeus::CVector3f m_parentDelta;
     Bone(const CINFType& cinf, const typename CINFType::Bone& origBone);

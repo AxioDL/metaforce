@@ -114,7 +114,7 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
       s16* bufferCur = buffer + i;
       int16_t prev1 = header.channelPrevs[i][0];
       int16_t prev2 = header.channelPrevs[i][1];
-      for (int f = 0; f < (header.numSamples + 13) / 14; ++f) {
+      for (u32 f = 0; f < (header.numSamples + 13) / 14; ++f) {
         DSPDecompressFrameStereoStride(bufferCur, audioFrame, header.channelCoefs[i], &prev1, &prev2, samples);
         samples -= 14;
         bufferCur += 28;
@@ -126,7 +126,7 @@ u32 CMoviePlayer::THPAudioDecode(s16* buffer, const u8* audioFrame, bool stereo)
     s16* bufferCur = buffer;
     int16_t prev1 = header.channelPrevs[0][0];
     int16_t prev2 = header.channelPrevs[0][1];
-    for (int f = 0; f < (header.numSamples + 13) / 14; ++f) {
+    for (u32 f = 0; f < (header.numSamples + 13) / 14; ++f) {
       DSPDecompressFrameStereoDupe(bufferCur, audioFrame, header.channelCoefs[0], &prev1, &prev2, samples);
       samples -= 14;
       bufferCur += 28;
@@ -154,7 +154,7 @@ CMoviePlayer::CMoviePlayer(const char* path, float preLoadSeconds, bool loop, bo
   cur += 20;
   x58_thpComponents.swapBig();
 
-  for (int i = 0; i < x58_thpComponents.numComponents; ++i) {
+  for (u32 i = 0; i < x58_thpComponents.numComponents; ++i) {
     switch (x58_thpComponents.comps[i]) {
     case THPComponents::Type::Video:
       SyncSeekRead(buf, 32, ESeekOrigin::Begin, cur);
@@ -277,7 +277,7 @@ void CMoviePlayer::SetSfxVolume(u8 volume) { SfxVolume = std::min(volume, u8(127
 
 void CMoviePlayer::MixAudio(s16* out, const s16* in, u32 samples) {
   /* No audio frames ready */
-  if (xd4_audioSlot == -1) {
+  if (xd4_audioSlot == UINT32_MAX) {
     if (in)
       memmove(out, in, samples * 4);
     else
@@ -404,7 +404,7 @@ void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, 
 }
 
 void CMoviePlayer::DrawFrame() {
-  if (xd0_drawTexSlot == -1)
+  if (xd0_drawTexSlot == UINT32_MAX)
     return;
 
   /* draw appropriate field */
@@ -458,7 +458,7 @@ void CMoviePlayer::Update(float dt) {
   if (xd8_decodedTexCount < 2) {
     if (xe0_playMode == EPlayMode::Playing && xc4_requestFrameWrapped < xf0_preLoadFrames) {
       u32 minFrame = std::min(u32(xa0_bufferQueue.size()) - 1, xc4_requestFrameWrapped);
-      if (minFrame == -1)
+      if (minFrame == UINT32_MAX)
         return;
       std::unique_ptr<uint8_t[]>& frameData = xa0_bufferQueue[minFrame];
       DecodeFromRead(frameData.get());
@@ -489,7 +489,7 @@ void CMoviePlayer::Update(float dt) {
       ++xd0_drawTexSlot;
       if (xd0_drawTexSlot >= x80_textures.size())
         xd0_drawTexSlot = 0;
-      if (xd4_audioSlot == -1)
+      if (xd4_audioSlot == UINT32_MAX)
         xd4_audioSlot = 0;
       --xd8_decodedTexCount;
       ++xc8_curFrame;
@@ -514,7 +514,7 @@ void CMoviePlayer::DecodeFromRead(const void* data) {
   frameHeader.swapBig();
   inptr += 8 + x58_thpComponents.numComponents * 4;
 
-  for (int i = 0; i < x58_thpComponents.numComponents; ++i) {
+  for (u32 i = 0; i < x58_thpComponents.numComponents; ++i) {
     switch (x58_thpComponents.comps[i]) {
     case THPComponents::Type::Video: {
       tjDecompressToYUV(TjHandle, (u8*)inptr, frameHeader.imageSize, m_yuvBuf.get(), 0);

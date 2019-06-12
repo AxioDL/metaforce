@@ -73,7 +73,7 @@ protected:
   bool xb7_25_ : 1;
   bool m_mouseActive : 1;
 
-  rstl::optional<boo::SScrollDelta> m_lastScroll;
+  std::optional<boo::SScrollDelta> m_lastScroll;
   boo::SScrollDelta m_integerScroll;
 
 public:

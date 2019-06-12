@@ -445,7 +445,7 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
       } else {
         float maxFloat = -1.0e10f;
         int maxIdx = -1;
-        for (int i = 0; i < physStateList.size(); ++i) {
+        for (size_t i = 0; i < physStateList.size(); ++i) {
           if (maxFloat < stepDeltaList[i]) {
             maxFloat = stepDeltaList[i];
             maxIdx = i;
@@ -613,7 +613,7 @@ CMaterialList CGroundMovement::MoveObjectAnalytical(CStateManager& mgr, CPhysics
   zeus::CVector3f floorPlaneNormal = opts.x3c_floorPlaneNormal ? *opts.x3c_floorPlaneNormal : zeus::skZero3f;
   bool floorCollision = opts.x3c_floorPlaneNormal.operator bool();
   float remDt = dt;
-  for (int i = 0; remDt > 0.f; ++i) {
+  for (size_t i = 0; remDt > 0.f; ++i) {
     float collideDt = remDt;
 
     CMotionState mState = actor.PredictMotion_Internal(remDt);

@@ -29,7 +29,7 @@ class ProjectManager {
   hecl::ClientProcess m_clientProc;
   ProjectResourceFactoryMP1 m_factoryMP1;
   ProjectResourcePool m_objStore;
-  std::experimental::optional<MP1::CMain> m_mainMP1;
+  std::optional<MP1::CMain> m_mainMP1;
   bool m_precooking = false;
 
 public:

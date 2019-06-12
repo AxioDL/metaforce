@@ -75,7 +75,7 @@ void ReadBabeDeadLightToBlender(hecl::blender::PyOutStream& os, const BabeDeadLi
       "lamp_obj.location = (%f,%f,%f)\n"
       "bpy.context.scene.collection.objects.link(lamp_obj)\n"
       "\n",
-      s, light.lightType, light.q / 8.f, light.color.simd[0], light.color.simd[1], light.color.simd[2],
+      s, unsigned(light.lightType), light.q / 8.f, light.color.simd[0], light.color.simd[1], light.color.simd[2],
       light.position.simd[0], light.position.simd[1], light.position.simd[2]);
 
   switch (light.falloff) {

@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR) # because of c++17
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_policy(SET CMP0079 NEW)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
@@ -33,7 +34,7 @@ if(CMAKE_CROSSCOMPILING)
   set(HAVE_WORDS_BIGENDIAN_EXITCODE 0 CACHE INTEGER "Makes soxr happy" FORCE)
 endif()
 
-project(urde)
+project(urde VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -43,11 +44,6 @@ set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake" "${CMAKE_SOURCE_DIR}/cotire/CMake" ${CMAKE_MODULE_PATH})
 find_package(Sanitizers)
 
-# Don't cotire when using clang-cl
-if(NOT URDE_MSAN AND (NOT MSVC OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC"))
-  include(cotire)
-endif()
-
 if (NX)
   set(URDE_VECTOR_ISA "neon")
 else()
@@ -56,16 +52,15 @@ endif()
 
 if(MSVC)
   if(${URDE_VECTOR_ISA} STREQUAL "avx2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2 -D__SSE4_1__=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX2 -D__SSE4_1__=1")
+    add_compile_options(/arch:AVX2)
+    add_definitions(-D__SSE4_1__=1)
     message(STATUS "Building with AVX2 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX -D__SSE4_1__=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX -D__SSE4_1__=1")
+    add_compile_options(/arch:AVX)
+    add_definitions(-D__SSE4_1__=1)
     message(STATUS "Building with AVX Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__SSE4_1__=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__SSE4_1__=1")
+    add_definitions(-D__SSE4_1__=1)
     message(STATUS "Building with SSE4.1 Vector ISA")
   else()
     message(STATUS "Building with SSE2 Vector ISA")
@@ -105,24 +100,19 @@ if(MSVC)
 
 else()
   if(${URDE_VECTOR_ISA} STREQUAL "avx2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
+    add_compile_options(-mavx2)
     message(STATUS "Building with AVX2 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx")
+    add_compile_options(-mavx)
     message(STATUS "Building with AVX Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
+    add_compile_options(-msse4.1)
     message(STATUS "Building with SSE4.1 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "sse3")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3")
+    add_compile_options(-msse3)
     message(STATUS "Building with SSE3 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "sse2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+    add_compile_options(-msse2)
     message(STATUS "Building with SSE2 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "neon")
     message(STATUS "Building with NEON Vector ISA")
@@ -133,19 +123,17 @@ else()
   include(CheckCXXCompilerFlag)
   check_cxx_compiler_flag(-fno-plt HAS_NO_PLT)
   if (HAS_NO_PLT)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-plt")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-plt")
+    add_compile_options(-fno-plt)
   endif()
 
   if(URDE_MSAN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
-        -stdlib=libc++ -fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
-        -fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    add_compile_options(-fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-multichar -Werror=implicit-fallthrough \
-      -Wno-unknown-warning-option -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field \
-      -Wno-unused-function -fno-exceptions -fno-rtti -Werror")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+    add_compile_options(-Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
+                        -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
+                        -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -fno-exceptions -Werror)
 
   if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=deprecated-declarations")
@@ -158,8 +146,8 @@ else()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
+  include_directories(/usr/local/include)
+  link_directories(/usr/local/lib)
 endif()
 
 if(("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
@@ -173,8 +161,7 @@ if(USE_LD_GOLD AND ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_
     if("${LD_VERSION}" MATCHES "GNU gold")
        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
-       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -flto=thin")
-       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto=thin")
+       add_compile_options(-flto=thin)
        message(STATUS "GNU gold linker enabled.")
     else()
        message(WARNING "GNU gold linker isn't available, using the default system linker.")
@@ -184,27 +171,19 @@ endif()
 
 # Add discord-rpc here
 if(NOT GEKKO AND NOT NX)
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include)
   set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc)
   if (NOT CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR ${CMAKE_BINARY_DIR}/fake-prefix)
   endif()
   add_subdirectory(discord-rpc/src)
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/discord-rpc/include)
+  target_include_directories(discord-rpc PRIVATE rapidjson/include PUBLIC discord-rpc/include)
 endif()
 
 add_subdirectory(nod)
-set(NOD_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nod/include)
 
 set(HECL_DLPACKAGE ${URDE_DLPACKAGE})
 
-set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/extern/boo/include)
-set(HECL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/hecl/include
-                     ${CMAKE_CURRENT_SOURCE_DIR}/hecl/blender)
-set(SPECTER_INCLUDE_DIR specter/include specter/freetype2/include)
-set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/specter/zeus/include)
-
-set(DATA_SPEC_LIBS RetroDataSpec amuse)
+set(DATA_SPEC_LIBS RetroDataSpec)
 set(HECL_DATASPEC_DECLS
 "/* RetroCommon specs */
 namespace DataSpec
@@ -231,14 +210,16 @@ set(HECL_DATASPEC_PUSHES
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3PC);
     hecl::Database::DATA_SPEC_REGISTRY.push_back(&DataSpec::SpecEntMP3ORIG);")
-add_definitions(-DZE_ATHENA_TYPES=1)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${SPECTER_INCLUDE_DIR} ${NOD_INCLUDE_DIR}
-                    ${ZEUS_INCLUDE_DIR})
+
 add_subdirectory(hecl/shaderc)
 include(hecl/ApplicationTools.cmake)
 add_subdirectory(specter/shaders)
 add_subdirectory(Shaders)
 add_subdirectory(hecl)
+target_include_directories(hecl-full PRIVATE ${CMAKE_SOURCE_DIR})
+target_include_directories(hecl-light PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(hecl-full PRIVATE zeus nod)
+target_link_libraries(hecl-light PRIVATE zeus nod)
 
 if(NOT TARGET bintoc)
   # Use native if cross compiling
@@ -258,6 +239,7 @@ add_library(CModelShaders
     CModelShaders.common.glsl.cpp CModelShaders.vert.glsl.cpp CModelShaders.frag.glsl.cpp
     CModelShaders.common.hlsl.cpp CModelShaders.vert.hlsl.cpp CModelShaders.frag.hlsl.cpp
     CModelShaders.common.metal.cpp CModelShaders.vert.metal.cpp CModelShaders.frag.metal.cpp)
+target_link_libraries(shader_CModelShaders PUBLIC CModelShaders)
 
 if(NOT TARGET atdna)
   # Import native atdna if cross-compiling
@@ -267,19 +249,14 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-add_definitions(${BOO_SYS_DEFINES})
-include_directories(${BOO_SYS_INCLUDES})
 add_subdirectory(amuse)
 add_subdirectory(specter)
+target_include_directories(specter PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(specter PRIVATE nod)
 add_subdirectory(assetnameparser)
-include_directories(${ATHENA_INCLUDE_DIR} ${LOGVISOR_INCLUDE_DIR} ${HECL_INCLUDE_DIR}
-                    ${BOO_INCLUDE_DIR} ${AMUSE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/NESEmulator
-                    ${ZLIB_INCLUDE_DIR})
 add_definitions(-DURDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
-add_subdirectory(NESEmulator)
 add_subdirectory(DataSpec)
 add_subdirectory(kabufuda)
-include_directories(${KABUFUDA_INCLUDE_DIR})
 add_subdirectory(Editor)
 
 add_subdirectory(jbus)
@@ -290,6 +267,7 @@ set(CLIENT_SOURCES
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryBase.cpp
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.hpp
     ${CMAKE_SOURCE_DIR}/Editor/ProjectResourceFactoryMP1.cpp)
+add_subdirectory(NESEmulator)
 add_subdirectory(Runtime)
 add_subdirectory(mpcksum)
 add_subdirectory(gbalink)
@@ -311,7 +289,7 @@ unset(GIT_EXECUTABLE CACHE)
 find_package(Git)
 if(GIT_FOUND)
     # Get the current working branch
-    execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    execute_process(COMMAND "${GIT_EXECUTABLE}" regiv-parse --abbrev-ref HEAD WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         OUTPUT_VARIABLE GIT_BRANCH OUTPUT_STRIP_TRAILING_WHITESPACE )
 
     # Get the latest abbreviated commit hash of the working branch
@@ -329,4 +307,4 @@ else()
     set(GIT_COMMIT_DATE "")
 endif()
 
-configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_SOURCE_DIR}/version.h)
+configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)

@@ -49,7 +49,7 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
   std::vector<CMapObjectSortInfo> sortInfos;
   sortInfos.reserve(totalSurfaceCount);
 
-  for (int w = 0; w < x10_worldDatas.size(); ++w) {
+  for (size_t w = 0; w < x10_worldDatas.size(); ++w) {
     const CMapWorldData& data = x10_worldDatas[w];
     const CMapWorldInfo& mwInfo = *g_GameState->StateForWorld(data.GetWorldAssetId()).MapWorldInfo();
     if (!mwInfo.IsAnythingSet())
@@ -67,9 +67,9 @@ void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3
       outlineColor.a() *= parms.GetAlpha();
     }
 
-    for (int h = 0; h < data.GetNumMapAreaDatas(); ++h) {
+    for (u32 h = 0; h < data.GetNumMapAreaDatas(); ++h) {
       zeus::CTransform hexXf = parms.GetCameraTransform().inverse() * data.GetMapAreaData(h);
-      for (int s = 0; s < x4_hexagonToken->GetNumSurfaces(); ++s) {
+      for (u32 s = 0; s < x4_hexagonToken->GetNumSurfaces(); ++s) {
         const CMapArea::CMapAreaSurface& surf = x4_hexagonToken->GetSurface(s);
         zeus::CVector3f centerPos = hexXf * surf.GetCenterPosition();
         sortInfos.emplace_back(centerPos.y(), w, h, s, surfColor, outlineColor);

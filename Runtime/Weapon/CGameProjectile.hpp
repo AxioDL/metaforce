@@ -15,10 +15,10 @@ class CWeaponDescription;
 
 class CProjectileTouchResult {
   TUniqueId x0_id;
-  rstl::optional<CRayCastResult> x4_result;
+  std::optional<CRayCastResult> x4_result;
 
 public:
-  CProjectileTouchResult(TUniqueId id, const rstl::optional<CRayCastResult>& result)
+  CProjectileTouchResult(TUniqueId id, const std::optional<CRayCastResult>& result)
   : x0_id(id), x4_result(result) {}
   TUniqueId GetActorId() const { return x0_id; }
   bool HasRayCastResult() const { return x4_result.operator bool(); }
@@ -27,7 +27,7 @@ public:
 
 class CGameProjectile : public CWeapon {
 protected:
-  rstl::optional<TLockedToken<CGenDescription>> x158_visorParticle;
+  std::optional<TLockedToken<CGenDescription>> x158_visorParticle;
   u16 x168_visorSfx;
   CProjectileWeapon x170_projectile;
   zeus::CVector3f x298_previousPos;
@@ -58,7 +58,7 @@ public:
                   const zeus::CTransform& xf, EMaterialTypes excludeMat, const CDamageInfo& dInfo, TUniqueId uid,
                   TAreaId aid, TUniqueId owner, TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                   const zeus::CVector3f& scale,
-                  const rstl::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
+                  const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                   bool sendCollideMsg);
 
   virtual void Accept(IVisitor& visitor);
@@ -76,12 +76,12 @@ public:
   CRayCastResult RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVector3f& start, const zeus::CVector3f& end,
                                             float mag, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             CStateManager& mgr);
-  CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr);
-  CProjectileTouchResult CanCollideWithComplexCollision(CActor& act, CStateManager& mgr);
-  CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr);
-  CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr);
+  CProjectileTouchResult CanCollideWith(CActor& act, CStateManager& mgr) const;
+  CProjectileTouchResult CanCollideWithComplexCollision(CActor& act, CStateManager& mgr) const;
+  CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr) const;
+  CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr) const;
   zeus::CAABox GetProjectileBounds() const;
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   CProjectileWeapon& ProjectileWeapon() { return x170_projectile; }
   const CProjectileWeapon& GetProjectileWeapon() const { return x170_projectile; }
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }

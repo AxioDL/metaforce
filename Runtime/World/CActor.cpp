@@ -14,6 +14,7 @@
 #include "CTimeProvider.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 #include "hecl/CVarManager.hpp"
+#include "zeus/CEulerAngles.hpp"
 
 namespace urde {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {
@@ -303,7 +304,7 @@ const CDamageVulnerability* CActor::GetDamageVulnerability(const zeus::CVector3f
   return GetDamageVulnerability();
 }
 
-rstl::optional<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
+std::optional<zeus::CAABox> CActor::GetTouchBounds() const { return {}; }
 
 void CActor::Touch(CActor&, CStateManager&) {}
 
@@ -493,6 +494,8 @@ void CActor::SetTransform(const zeus::CTransform& tr) {
   xe4_27_notInSortedLists = true;
   xe4_28_transformDirty = true;
   xe4_29_actorLightsDirty = true;
+  //if (TCastToPtr<MP1::CActorContraption>(this))
+  //  printf("ACC %f\n", zeus::radToDeg(zeus::CEulerAngles(tr).z()));
 }
 
 void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }

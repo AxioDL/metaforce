@@ -88,7 +88,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
                             zeus::CTransform::RotateX(M_PIF / 2.f) * zeus::CTransform::Scale(0.2f));
 
   CPlayerState& playerState = *mgr.GetPlayerState();
-  for (int i = 0; i < x0_models.size(); ++i) {
+  for (size_t i = 0; i < x0_models.size(); ++i) {
     TLockedToken<CModel>& model = x0_models[i];
     zeus::CColor color = ArtifactPreColor;
     if (playerState.HasPowerUp(CPlayerState::EItemType(i + 29))) {

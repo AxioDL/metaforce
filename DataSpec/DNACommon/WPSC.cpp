@@ -205,7 +205,7 @@ void WPSM<IDType>::_write(athena::io::YAMLDocWriter& w) const {
   if (!xa6_SWTR)
     if (auto rec = w.enterSubRecord("SWTR"))
       xa6_SWTR.write(w);
-  if (xa8_PJFX != ~0)
+  if (xa8_PJFX != UINT32_MAX)
     w.writeUint32("PJFX", xa8_PJFX);
   if (xac_RNGE)
     if (auto rec = w.enterSubRecord("RNGE"))
@@ -339,7 +339,7 @@ void WPSM<IDType>::_binarySize(size_t& __isz) const {
     __isz += 4;
     xa6_SWTR.binarySize(__isz);
   }
-  if (xa8_PJFX != ~0)
+  if (xa8_PJFX != UINT32_MAX)
     __isz += 12;
   if (xac_RNGE) {
     __isz += 4;
@@ -606,7 +606,7 @@ void WPSM<IDType>::_write(athena::io::IStreamWriter& w) const {
     w.writeBytes("SWTR", 4);
     xa6_SWTR.write(w);
   }
-  if (xa8_PJFX != ~0) {
+  if (xa8_PJFX != UINT32_MAX) {
     w.writeBytes("PJFXCNST", 8);
     w.writeUint32(xa8_PJFX);
   }

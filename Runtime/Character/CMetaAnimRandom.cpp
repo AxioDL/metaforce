@@ -26,7 +26,7 @@ void CMetaAnimRandom::GetUniquePrimitives(std::set<CPrimitive>& primsOut) const 
 
 std::shared_ptr<CAnimTreeNode> CMetaAnimRandom::VGetAnimationTree(const CAnimSysContext& animSys,
                                                                   const CMetaAnimTreeBuildOrders& orders) const {
-  s32 r = animSys.x8_random->Range(1, 100);
+  u32 r = animSys.x8_random->Range(1, 100);
   const std::pair<std::shared_ptr<IMetaAnim>, u32>* useRd = nullptr;
   for (auto& rd : x4_randomData) {
     useRd = &rd;

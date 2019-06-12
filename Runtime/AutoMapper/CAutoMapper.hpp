@@ -172,7 +172,7 @@ private:
   u32 x328_ = 0;
   bool x32c_loadingDummyWorld = false;
 
-  rstl::optional<zeus::CVector2f> m_lastMouseCoord;
+  std::optional<zeus::CVector2f> m_lastMouseCoord;
   zeus::CVector2f m_mouseDelta;
   boo::SScrollDelta m_lastAccumScroll;
   boo::SScrollDelta m_mapScroll;

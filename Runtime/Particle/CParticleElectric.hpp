@@ -59,10 +59,10 @@ private:
   int x158 = 0;
   float x15c_genRem = 0.f;
   zeus::CAABox x160_systemBounds = zeus::CAABox();
-  rstl::optional<zeus::CVector3f> x178_overrideIPos;
-  rstl::optional<zeus::CVector3f> x188_overrideIVel;
-  rstl::optional<zeus::CVector3f> x198_overrideFPos;
-  rstl::optional<zeus::CVector3f> x1a8_overrideFVel;
+  std::optional<zeus::CVector3f> x178_overrideIPos;
+  std::optional<zeus::CVector3f> x188_overrideIVel;
+  std::optional<zeus::CVector3f> x198_overrideFPos;
+  std::optional<zeus::CVector3f> x1a8_overrideFVel;
   zeus::CColor x1b8_moduColor;
   rstl::reserved_vector<bool, 32> x1bc_allocated;
   rstl::reserved_vector<std::unique_ptr<CParticleSwoosh>, 32> x1e0_swooshGenerators;
@@ -126,7 +126,7 @@ public:
   const zeus::CVector3f& GetGlobalScale() const;
   const zeus::CColor& GetModulationColor() const;
   bool IsSystemDeletable() const;
-  rstl::optional<zeus::CAABox> GetBounds() const;
+  std::optional<zeus::CAABox> GetBounds() const;
   u32 GetParticleCount() const;
   bool SystemHasLight() const;
   CLight GetLight() const;

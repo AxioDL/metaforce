@@ -212,7 +212,7 @@ bool CMetroidAreaCollider::ConvexPolyCollision(const zeus::CPlane* planes, const
     otherVec.clear();
 
     bool inFrontOf = planes[i].pointToPlaneDist(vec.front()) >= 0.f;
-    for (int j = 0; j < vec.size(); ++j) {
+    for (size_t j = 0; j < vec.size(); ++j) {
       const zeus::CVector3f& b = vec[(j + 1) % vec.size()];
       if (inFrontOf)
         otherVec.push_back(vec[j]);
@@ -915,9 +915,9 @@ void CMetroidAreaCollider::ResetInternalCounters() {
   g_TrianglesProcessed = 0;
   g_DupTrianglesProcessed = 0;
   if (g_DupPrimitiveCheckCount == 0xffff) {
-    memset(g_DupVertexList, 0, 0x5000);
-    memset(g_DupEdgeList, 0, 0xC000);
-    memset(g_DupTriangleList, 0, 0x8000);
+    std::fill(std::begin(g_DupVertexList), std::end(g_DupVertexList), 0);
+    std::fill(std::begin(g_DupEdgeList), std::end(g_DupEdgeList), 0);
+    std::fill(std::begin(g_DupTriangleList), std::end(g_DupTriangleList), 0);
     g_DupPrimitiveCheckCount += 1;
   }
   g_DupPrimitiveCheckCount += 1;

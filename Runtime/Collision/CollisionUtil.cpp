@@ -932,7 +932,7 @@ bool MovingSphereAABox(const zeus::CSphere& sphere, const zeus::CAABox& aabb, co
       for (int i = 0; i < 3; ++i) {
         if (std::fabs(dir[i]) > FLT_EPSILON) {
           bool pointMax = pointFlags & (1 << i);
-          if (pointMax != dir[i] > 0.f) {
+          if (pointMax != (dir[i] > 0.f)) {
             ++reverseCount;
             float d = 1.f / dir[i] * ((pointMax ? aabb.max[i] : aabb.min[i]) - sphere.position[i]);
             if (d < 0.f)

@@ -647,7 +647,7 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
   FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
-  rstl::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
+  std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
   if (dclnType) {
     dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));
     dclnToken->GetObj();
@@ -997,7 +997,7 @@ CEntity* ScriptLoader::LoadBeetle(CStateManager& mgr, CInputStream& in, int prop
   if (animType != SBIG('ANCS'))
     return nullptr;
 
-  rstl::optional<CStaticRes> tailRes;
+  std::optional<CStaticRes> tailRes;
   if (flavor == CPatterned::EFlavorType::One)
     tailRes.emplace(CStaticRes(tailModel, scale));
 
@@ -2027,7 +2027,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   CAssetId particle3 = in.readUint32Big();
-  zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
+  //zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   bool solid = in.readBool();

@@ -1849,9 +1849,9 @@ bool CElementGen::IsSystemDeletable() const {
   return false;
 }
 
-rstl::optional<zeus::CAABox> CElementGen::GetBounds() const {
+std::optional<zeus::CAABox> CElementGen::GetBounds() const {
   if (GetParticleCountAll() == 0)
-    return rstl::nullopt;
+    return std::nullopt;
   else
     return {x2f0_systemBounds};
 }

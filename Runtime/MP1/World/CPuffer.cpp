@@ -63,13 +63,13 @@ void CPuffer::Think(float dt, CStateManager& mgr) {
 
   x450_bodyController->GetCommandMgr().ClearLocomotionCmds();
   if (moveVector.canBeNormalized()) {
-    zeus::CVector3f vec = x5c0_move * (1.f - (dt / 0.5f)) + (moveVector * (dt / 0.5f));
+    //zeus::CVector3f vec = x5c0_move * (1.f - (dt / 0.5f)) + (moveVector * (dt / 0.5f));
     x5c0_move = moveVector.normalized();
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x5c0_move, x568_face, 1.f));
   }
 }
 
-rstl::optional<zeus::CAABox> CPuffer::GetTouchBounds() const {
+std::optional<zeus::CAABox> CPuffer::GetTouchBounds() const {
   auto touchBounds = CPatterned::GetTouchBounds();
   if (touchBounds) {
     touchBounds->accumulateBounds(touchBounds->min - 0.5f);

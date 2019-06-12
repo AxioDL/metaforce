@@ -256,7 +256,7 @@ template <class MAT>
 static uint32_t _HashTextureConfig(const MAT& mat) {
   XXH32_state_t xxHash;
   XXH32_reset(&xxHash, 0);
-  for (int i = 0; i < mat.tevStageCount; ++i) {
+  for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
     const auto& stage = mat.tevStages[i];
     XXH32_update(&xxHash, &stage.ciFlags, sizeof(stage.ciFlags));
     XXH32_update(&xxHash, &stage.aiFlags, sizeof(stage.aiFlags));
@@ -352,7 +352,7 @@ static const char* ToString(GX::TevRegID arg) {
 
 template <class MAT>
 static void _DescribeTEV(const MAT& mat) {
-  for (int i = 0; i < mat.tevStageCount; ++i) {
+  for (uint32_t i = 0; i < mat.tevStageCount; ++i) {
     const auto& stage = mat.tevStages[i];
     fprintf(stderr, "A:%s B:%s C:%s D:%s -> %s | A:%s B:%s C:%s D:%s -> %s\n",
             ToString(stage.colorInA()), ToString(stage.colorInB()),

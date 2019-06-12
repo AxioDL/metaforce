@@ -23,7 +23,7 @@ public:
                   const CCharAnimTime& time);
   CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
   bool VSupportsReverseView() const { return false; }
-  rstl::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  std::optional<std::unique_ptr<IAnimReader>> VSimplified();
   std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
   std::unique_ptr<IAnimReader> VClone() const;
   u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;

@@ -30,7 +30,7 @@ extern "C" {
 #include "fixNES/mapper_h/nsf.h"
 
 /*
- * Portions Copyright (C) 2017 FIX94
+ * Portions Copyright (C) 2017 - 2019 FIX94
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -50,7 +50,7 @@ static std::chrono::milliseconds::rep GetTickCount() {
 #endif
 #endif
 
-static const char* VERSION_STRING = "fixNES Alpha v1.0.5";
+const char *VERSION_STRING = "fixNES Alpha v1.2.7";
 static char window_title[256];
 static char window_title_pause[256];
 
@@ -65,22 +65,39 @@ enum {
 #endif
 };
 
-// static void nesEmuFdsSetup(uint8_t *src, uint8_t *dst);
-
 static int emuFileType = FTYPE_UNK;
 static char emuFileName[1024];
-static uint8_t* emuNesROM = NULL;
-static uint32_t emuNesROMsize = 0;
+uint8_t *emuNesROM = NULL;
+uint32_t emuNesROMsize = 0;
+#ifndef __LIBRETRO__
 static char emuSaveName[1024];
-static uint8_t* emuPrgRAM = NULL;
-static uint32_t emuPrgRAMsize = 0;
-// used externally
+#endif
+uint8_t *emuPrgRAM = NULL;
+uint32_t emuPrgRAMsize = 0;
+//used externally
+#ifdef COL_32BIT
 uint32_t textureImage[0xF000];
+#define TEXIMAGE_LEN VISIBLE_DOTS*VISIBLE_LINES*4
+#ifdef COL_GL_BSWAP
+#define GL_TEX_FMT GL_UNSIGNED_INT_8_8_8_8_REV
+#else //no REVerse
+#define GL_TEX_FMT GL_UNSIGNED_INT_8_8_8_8
+#endif
+#else //COL_16BIT
+uint16_t textureImage[0xF000];
+#define TEXIMAGE_LEN VISIBLE_DOTS*VISIBLE_LINES*2
+#ifdef COL_GL_BSWAP
+#define GL_TEX_FMT GL_UNSIGNED_SHORT_5_6_5_REV
+#else //no REVerse
+#define GL_TEX_FMT GL_UNSIGNED_SHORT_5_6_5
+#endif
+#endif
 bool nesPause = false;
 bool ppuDebugPauseFrame = false;
 bool doOverscan = false;
 bool nesPAL = false;
 bool nesEmuNSFPlayback = false;
+uint8_t emuInitialNT = NT_UNKNOWN;
 
 // static bool inPause = false;
 // static bool inOverscanToggle = false;
@@ -112,14 +129,20 @@ static bool emuSaveEnabled = false;
 static bool emuFdsHasSideB = false;
 
 // static uint16_t ppuCycleTimer;
+//static uint16_t ppuCycleTimer;
 uint32_t cpuCycleTimer;
 uint32_t vrc7CycleTimer;
-// from input.c
+//from input.c
 extern uint8_t inValReads[8];
-// from mapper.c
-extern bool mapperUse78A;
-// from m32.c
+//from m30.c
+extern bool m30_flashable;
+extern bool m30_singlescreen;
+//from m32.c
 extern bool m32_singlescreen;
+//from p16c8.c
+extern bool m78_m78a;
+//from ppu.c
+extern bool ppuMapper5;
 
 static volatile bool emuRenderFrame = false;
 extern uint8_t audioExpansion;
@@ -507,7 +530,7 @@ struct BitstreamState {
 
 // Based on https://gist.github.com/FIX94/7593640c5cee6c37e3b23e7fcf8fe5b7
 void CNESEmulator::DecryptMetroid(u8* dataIn, u8* dataOut, u32 decLen, u8 decByte, u32 xorLen, u32 xorVal) {
-  int i, j;
+  u32 i, j;
   // simple add obfuscation
   for (i = 0; i < 0x100; i++) {
     dataIn[i] += decByte;

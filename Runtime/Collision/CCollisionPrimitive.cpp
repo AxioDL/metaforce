@@ -34,7 +34,7 @@ bool CCollisionPrimitive::InternalCollide(const CInternalCollisionStructure& col
   u32 idx1 = collision.GetRight().GetPrim().GetTableIndex();
 
   ComparisonFunc func;
-  if (idx0 == -1 || idx1 == -1) {
+  if (idx0 == UINT32_MAX || idx1 == UINT32_MAX) {
     sNullCollider = nullptr;
     func = sNullCollider;
   } else {
@@ -48,7 +48,7 @@ bool CCollisionPrimitive::InternalCollide(const CInternalCollisionStructure& col
     return func(collision, list);
   }
 
-  if (idx0 == -1 || idx1 == -1) {
+  if (idx0 == UINT32_MAX || idx1 == UINT32_MAX) {
     sNullCollider = nullptr;
     func = sNullCollider;
   } else {
@@ -81,7 +81,7 @@ bool CCollisionPrimitive::InternalCollideBoolean(const CInternalCollisionStructu
   u32 idx1 = collision.GetRight().GetPrim().GetTableIndex();
 
   BooleanComparisonFunc func;
-  if (idx0 == -1 || idx1 == -1) {
+  if (idx0 == UINT32_MAX || idx1 == UINT32_MAX) {
     sNullBooleanCollider = nullptr;
     func = sNullBooleanCollider;
   } else {
@@ -95,7 +95,7 @@ bool CCollisionPrimitive::InternalCollideBoolean(const CInternalCollisionStructu
     return func(collision);
   }
 
-  if (idx0 == -1 || idx1 == -1) {
+  if (idx0 == UINT32_MAX || idx1 == UINT32_MAX) {
     sNullBooleanCollider = nullptr;
     func = sNullBooleanCollider;
   } else {
@@ -125,7 +125,7 @@ bool CCollisionPrimitive::InternalCollideMoving(const CInternalCollisionStructur
   u32 idx1 = collision.GetRight().GetPrim().GetTableIndex();
 
   MovingComparisonFunc func;
-  if (idx0 == -1 || idx1 == -1) {
+  if (idx0 == UINT32_MAX || idx1 == UINT32_MAX) {
     sNullMovingCollider = nullptr;
     func = sNullMovingCollider;
   } else {

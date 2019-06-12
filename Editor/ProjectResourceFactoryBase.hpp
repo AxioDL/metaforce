@@ -6,7 +6,7 @@
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CResFactory.hpp"
 #include "DataSpec/SpecBase.hpp"
-#include "optional.hpp"
+#include <optional>
 
 #include <thread>
 #include <mutex>
@@ -91,7 +91,7 @@ protected:
   }
 
   bool PrepForReadSync(const SObjectTag& tag, const hecl::ProjectPath& path,
-                       std::experimental::optional<athena::io::FileReader>& fr);
+                       std::optional<athena::io::FileReader>& fr);
 
   bool WaitForTagReady(const urde::SObjectTag& tag, const hecl::ProjectPath*& pathOut) {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).waitForTagReady(tag, pathOut);

@@ -137,8 +137,8 @@ private:
   u32 x228_;
 
   struct SScanReticuleRenderer {
-    rstl::optional<CLineRenderer> m_lineRenderers[2];
-    rstl::optional<CLineRenderer> m_stripRenderers[2][4];
+    std::optional<CLineRenderer> m_lineRenderers[2];
+    std::optional<CLineRenderer> m_stripRenderers[2][4];
     SScanReticuleRenderer();
   };
   mutable SScanReticuleRenderer m_scanRetRenderer;

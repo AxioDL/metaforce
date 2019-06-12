@@ -26,7 +26,7 @@ bool ProjectResourceFactoryBase::SyncCook(const hecl::ProjectPath& working) {
 CFactoryFnReturn ProjectResourceFactoryBase::BuildSync(const SObjectTag& tag, const hecl::ProjectPath& path,
                                                        const CVParamTransfer& paramXfer, CObjectReference* selfRef) {
   /* Ensure cooked rep is on the filesystem */
-  std::experimental::optional<athena::io::FileReader> fr;
+  std::optional<athena::io::FileReader> fr;
   if (!PrepForReadSync(tag, path, fr))
     return {};
 
@@ -166,7 +166,7 @@ ProjectResourceFactoryBase::_RemoveTask(const SObjectTag& tag) {
 };
 
 bool ProjectResourceFactoryBase::PrepForReadSync(const SObjectTag& tag, const hecl::ProjectPath& path,
-                                                 std::experimental::optional<athena::io::FileReader>& fr) {
+                                                 std::optional<athena::io::FileReader>& fr) {
   /* Ensure requested resource is on the filesystem */
   if (!path.isFileOrGlob()) {
     Log.report(logvisor::Error, _SYS_STR("unable to find resource path '%s'"), path.getAbsolutePath().data());
@@ -288,7 +288,7 @@ u32 ProjectResourceFactoryBase::ResourceSize(const SObjectTag& tag) {
     return {};
 
   /* Ensure cooked rep is on the filesystem */
-  std::experimental::optional<athena::io::FileReader> fr;
+  std::optional<athena::io::FileReader> fr;
   if (!PrepForReadSync(tag, *resPath, fr))
     return {};
 
@@ -325,7 +325,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadResourceSync(const urde::S
     return {};
 
   /* Ensure cooked rep is on the filesystem */
-  std::experimental::optional<athena::io::FileReader> fr;
+  std::optional<athena::io::FileReader> fr;
   if (!PrepForReadSync(tag, *resPath, fr))
     return {};
 
@@ -343,7 +343,7 @@ std::unique_ptr<u8[]> ProjectResourceFactoryBase::LoadNewResourcePartSync(const 
     return {};
 
   /* Ensure cooked rep is on the filesystem */
-  std::experimental::optional<athena::io::FileReader> fr;
+  std::optional<athena::io::FileReader> fr;
   if (!PrepForReadSync(tag, *resPath, fr))
     return {};
 

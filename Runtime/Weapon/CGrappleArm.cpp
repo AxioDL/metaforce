@@ -75,7 +75,7 @@ void CGrappleArm::BuildSuitDependencyList() {
 
 void CGrappleArm::LoadAnimations() {
   NWeaponTypes::get_token_vector(*x0_grappleArmModel->GetAnimationData(), 0, 42, x18c_anims, true);
-  x0_grappleArmModel = rstl::nullopt;
+  x0_grappleArmModel = std::nullopt;
 }
 
 void CGrappleArm::AsyncLoadSuit(CStateManager& mgr) {
@@ -83,7 +83,7 @@ void CGrappleArm::AsyncLoadSuit(CStateManager& mgr) {
   if (suit == x3a8_loadedSuit)
     return;
 
-  x0_grappleArmModel = rstl::nullopt;
+  x0_grappleArmModel = std::nullopt;
   x3b2_29_suitLoading = true;
   if (x3a8_loadedSuit != CPlayerState::EPlayerSuit::Invalid) {
     NWeaponTypes::unlock_tokens(x19c_suitDeps[int(x3a8_loadedSuit)]);
@@ -438,7 +438,7 @@ void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr) {
       BuildXRayModel();
   } else {
     if (x50_grappleArmSkeletonModel)
-      x50_grappleArmSkeletonModel = rstl::nullopt;
+      x50_grappleArmSkeletonModel = std::nullopt;
   }
 
   float speed = 1.f;

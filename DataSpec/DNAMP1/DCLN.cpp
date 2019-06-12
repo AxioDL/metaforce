@@ -37,8 +37,8 @@ void DCLN::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
       "\n"
       "bpy.context.scene.name = '%s'\n"
       "# Clear Scene\n"
-      "if 'Collection 1' in bpy.data.collections:\n"
-      "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n",
+      "if len(bpy.data.collections):\n"
+      "    bpy.data.collections.remove(bpy.data.collections[0])\n",
       entryName.data());
 
   DeafBabe::BlenderInit(os);

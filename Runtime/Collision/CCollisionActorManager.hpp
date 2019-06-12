@@ -32,7 +32,7 @@ public:
   void SetMovable(CStateManager& mgr, bool movable);
 
   u32 GetNumCollisionActors() const { return x0_jointDescriptions.size(); }
-  rstl::optional<zeus::CVector3f> GetDeviation(const CStateManager&, CSegId);
+  std::optional<zeus::CVector3f> GetDeviation(const CStateManager&, CSegId);
   const CJointCollisionDescription& GetCollisionDescFromIndex(u32 i) const { return x0_jointDescriptions[i]; }
   static zeus::CTransform GetWRLocatorTransform(const CAnimData& animData, CSegId id, const zeus::CTransform& worldXf,
                                                 const zeus::CTransform& localXf);

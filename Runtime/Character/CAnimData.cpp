@@ -37,7 +37,7 @@ void CAnimData::InitializeCache() {}
 
 CAnimData::CAnimData(CAssetId id, const CCharacterInfo& character, int defaultAnim, int charIdx, bool loop,
                      const TLockedToken<CCharLayoutInfo>& layout, const TToken<CSkinnedModel>& model,
-                     const rstl::optional<TToken<CMorphableSkinnedModel>>& iceModel,
+                     const std::optional<TToken<CMorphableSkinnedModel>>& iceModel,
                      const std::weak_ptr<CAnimSysContext>& ctx, const std::shared_ptr<CAnimationManager>& animMgr,
                      const std::shared_ptr<CTransitionManager>& transMgr,
                      const TLockedToken<CCharacterFactory>& charFactory, int drawInstCount)
@@ -265,7 +265,7 @@ SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const
 
 CCharAnimTime CAnimData::GetTimeOfUserEvent(EUserEventType type, const CCharAnimTime& time) const {
   u32 count = x1f8_animRoot->GetInt32POIList(time, g_TransientInt32POINodes.data(), 16, 0, 64);
-  for (int i = 0; i < count; ++i) {
+  for (u32 i = 0; i < count; ++i) {
     CInt32POINode& poi = g_TransientInt32POINodes[i];
     if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == type) {
       CCharAnimTime ret = poi.GetTime();
@@ -284,7 +284,7 @@ void CAnimData::MultiplyPlaybackRate(float mul) { x200_speedScale *= mul; }
 void CAnimData::SetPlaybackRate(float set) { x200_speedScale = set; }
 
 void CAnimData::SetRandomPlaybackRate(CRandom16& r) {
-  for (int i = 0; i < x210_passedIntCount; ++i) {
+  for (u32 i = 0; i < x210_passedIntCount; ++i) {
     CInt32POINode& poi = g_Int32POINodes[i];
     if (poi.GetPoiType() == EPOIType::RandRate) {
       float tmp = (r.Next() % poi.GetValue()) / 100.f;
@@ -307,7 +307,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
     ResetPOILists();
     x210_passedIntCount +=
         node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-    for (int i = 0; i < x210_passedIntCount; ++i) {
+    for (u32 i = 0; i < x210_passedIntCount; ++i) {
       CInt32POINode& poi = g_Int32POINodes[i];
       if (poi.GetPoiType() == EPOIType::UserEvent && EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetRot) {
         SAdvancementResults res = node->VGetAdvancementResults(poi.GetTime(), 0.f);
@@ -331,7 +331,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
       ResetPOILists();
       x210_passedIntCount +=
           node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-      for (int i = 0; i < x210_passedIntCount; ++i) {
+      for (u32 i = 0; i < x210_passedIntCount; ++i) {
         CInt32POINode& poi = g_Int32POINodes[i];
         if (poi.GetPoiType() == EPOIType::UserEvent) {
           if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart) {
@@ -383,7 +383,7 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
       ResetPOILists();
       x210_passedIntCount +=
           node->GetInt32POIList(CCharAnimTime::Infinity(), g_Int32POINodes.data(), 16, x210_passedIntCount, 64);
-      for (int i = 0; i < x210_passedIntCount; ++i) {
+      for (u32 i = 0; i < x210_passedIntCount; ++i) {
         CInt32POINode& poi = g_Int32POINodes[i];
         if (poi.GetPoiType() == EPOIType::UserEvent) {
           if (EUserEventType(poi.GetValue()) == EUserEventType::AlignTargetPosStart) {
@@ -541,14 +541,14 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const rstl::optional<CVertexMorphEffect>& morphEffect,
+                       const std::optional<CVertexMorphEffect>& morphEffect,
                        const float* morphMagnitudes) {
   SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
   DrawSkinnedModel(model, drawFlags);
 }
 
 void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                            const rstl::optional<CVertexMorphEffect>& morphEffect,
+                            const std::optional<CVertexMorphEffect>& morphEffect,
                             const float* morphMagnitudes) {
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
@@ -723,7 +723,7 @@ SAdvancementDeltas CAnimData::Advance(float dt, const zeus::CVector3f& scale, CS
   if (suspendParticles)
     x120_particleDB.SuspendAllActiveEffects(stateMgr);
 
-  for (int i = 0; i < x214_passedParticleCount; ++i) {
+  for (u32 i = 0; i < x214_passedParticleCount; ++i) {
     CParticlePOINode& node = g_ParticlePOINodes[i];
     if (node.GetCharacterIndex() == -1 || node.GetCharacterIndex() == x204_charIdx) {
       x120_particleDB.AddParticleEffect(node.GetString(), node.GetFlags(), node.GetParticleData(), scale, stateMgr, aid,
@@ -741,7 +741,7 @@ SAdvancementDeltas CAnimData::AdvanceIgnoreParticles(float dt, CRandom16& random
 
 void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::CQuaternion& quat) {
   SAdvancementResults results;
-  rstl::optional<std::unique_ptr<IAnimReader>> simplified;
+  std::optional<std::unique_ptr<IAnimReader>> simplified;
 
   if (x104_animDir == EAnimDir::Forward) {
     results = x1f8_animRoot->VAdvanceView(time);
@@ -752,7 +752,7 @@ void CAnimData::AdvanceAnim(CCharAnimTime& time, zeus::CVector3f& offset, zeus::
     x1f8_animRoot = CAnimTreeNode::Cast(std::move(*simplified));
 
   if ((x220_28_ || x220_27_) && x210_passedIntCount > 0) {
-    for (int i = 0; i < x210_passedIntCount; ++i) {
+    for (u32 i = 0; i < x210_passedIntCount; ++i) {
       CInt32POINode& node = g_Int32POINodes[i];
       if (node.GetPoiType() == EPOIType::UserEvent) {
         switch (EUserEventType(node.GetValue())) {
@@ -798,7 +798,7 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                                 const rstl::optional<CVertexMorphEffect>& morphEffect,
+                                 const std::optional<CVertexMorphEffect>& morphEffect,
                                  const float* morphMagnitudes) {
   model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
 }

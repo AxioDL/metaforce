@@ -17,7 +17,7 @@ CGameProjectile::CGameProjectile(bool active, const TToken<CWeaponDescription>& 
                                  const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                                  TUniqueId homingTarget, EProjectileAttrib attribs, bool underwater,
                                  const zeus::CVector3f& scale,
-                                 const rstl::optional<TLockedToken<CGenDescription>>& visorParticle,
+                                 const std::optional<TLockedToken<CGenDescription>>& visorParticle,
                                  u16 visorSfx, bool sendCollideMsg)
 : CWeapon(uid, aid, active, owner, wType, name, xf,
           CMaterialFilter::MakeIncludeExclude(
@@ -49,7 +49,7 @@ void CGameProjectile::ResolveCollisionWithActor(const CRayCastResult& res, CActo
       if (zeus::radToDeg(std::acos(
               mgr.GetCameraManager()->GetCurrentCameraTransform(mgr).basis[1].normalized().dot(revDir))) <= 45.f) {
         /* Hit us head on! Draw Billboard! */
-        rstl::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
+        std::optional<TToken<CGenDescription>> bb = {*x158_visorParticle};
         CHUDBillboardEffect* effect = new CHUDBillboardEffect(
             bb, {}, mgr.AllocateUniqueId(), true, "VisorAcid", CHUDBillboardEffect::GetNearClipDistance(mgr),
             CHUDBillboardEffect::GetScaleForPOV(mgr), zeus::skWhite, zeus::skOne3f,
@@ -303,7 +303,7 @@ CRayCastResult CGameProjectile::RayCollisionCheckWithWorld(TUniqueId& idOut, con
   return res;
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManager& mgr) {
+CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManager& mgr) const {
   if (act.GetDamageVulnerability()->GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false) ==
       EVulnerability::PassThrough) {
     return {kInvalidUniqueId, {}};
@@ -319,7 +319,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWith(CActor& act, CStateManage
   }
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& act, CStateManager& mgr) {
+CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& act, CStateManager& mgr) const {
   CPhysicsActor* useAct = nullptr;
   if (TCastToPtr<CScriptPlatform> plat = act) {
     if (plat->HasComplexCollision())
@@ -370,7 +370,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithComplexCollision(CActor& a
   }
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CStateManager& mgr) {
+CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CStateManager& mgr) const {
   TCastToPtr<CGameProjectile> proj = act;
   if (!proj) {
     if (!act.GetMaterialList().HasMaterial(EMaterialTypes::Solid) && !act.HealthInfo(mgr)) {
@@ -395,7 +395,7 @@ CProjectileTouchResult CGameProjectile::CanCollideWithGameObject(CActor& act, CS
   return {act.GetUniqueId(), {}};
 }
 
-CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStateManager& mgr) {
+CProjectileTouchResult CGameProjectile::CanCollideWithTrigger(CActor& act, CStateManager& mgr) const {
   bool isWater = TCastToPtr<CScriptWater>(act).operator bool();
   if (isWater) {
     bool enteredWater = false;
@@ -423,7 +423,7 @@ zeus::CAABox CGameProjectile::GetProjectileBounds() const {
            std::max(x298_previousPos.z(), GetTranslation().z()) + x2a4_projExtent}};
 }
 
-rstl::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
+std::optional<zeus::CAABox> CGameProjectile::GetTouchBounds() const {
   if (x2e4_24_active)
     return {GetProjectileBounds()};
   return {};

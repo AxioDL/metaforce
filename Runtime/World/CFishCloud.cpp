@@ -554,7 +554,7 @@ void CFishCloud::CalculateRenderBounds() {
   x9c_renderBounds = GetBoundingBox();
 }
 
-rstl::optional<zeus::CAABox> CFishCloud::GetTouchBounds() const {
+std::optional<zeus::CAABox> CFishCloud::GetTouchBounds() const {
   return {GetBoundingBox()};
 }
 

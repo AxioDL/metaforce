@@ -818,7 +818,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
     const RGBA8* paletteTexels = reinterpret_cast<const RGBA8*>(data + 4);
     const u8* sourceMip = data + 4 + nentries * 4;
 
-    for (int i = 0; i < 256; ++i) {
+    for (u32 i = 0; i < 256; ++i) {
       u16& color = paletteColors[i];
       if (i >= nentries) {
         color = 0;

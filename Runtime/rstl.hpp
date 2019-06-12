@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <type_traits>
 #include <cstdlib>
-#include "optional.hpp"
+#include <optional>
 #include "logvisor/logvisor.hpp"
 
 namespace rstl {
@@ -657,10 +657,5 @@ string string_l(const char* data)
     return string(string::literal_t(), data);
 }
 #endif
-
-template <class T>
-using optional = std::experimental::optional<T>;
-using nullopt_t = std::experimental::nullopt_t;
-constexpr nullopt_t nullopt{nullopt_t::init()};
 
 } // namespace rstl

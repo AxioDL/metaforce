@@ -338,7 +338,7 @@ public:
                      const CActor*) const;
   void UpdateActorInSortedLists(CActor&);
   void UpdateSortedLists();
-  rstl::optional<zeus::CAABox> CalculateObjectBounds(const CActor&);
+  std::optional<zeus::CAABox> CalculateObjectBounds(const CActor&);
   void AddObject(CEntity&);
   void AddObject(CEntity*);
   CRayCastResult RayStaticIntersection(const zeus::CVector3f& pos, const zeus::CVector3f& dir, float length,

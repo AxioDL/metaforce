@@ -1056,7 +1056,7 @@ void CWallCrawlerSwarm::CalculateRenderBounds() {
   x9c_renderBounds = GetBoundingBox();
 }
 
-rstl::optional<zeus::CAABox> CWallCrawlerSwarm::GetTouchBounds() const {
+std::optional<zeus::CAABox> CWallCrawlerSwarm::GetTouchBounds() const {
   return {xe8_aabox};
 }
 

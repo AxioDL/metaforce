@@ -6,7 +6,7 @@ namespace urde {
 class CStateManager;
 
 class CFlameWarp : public CWarp {
-  rstl::reserved_vector<zeus::CVector3f, 9> x4_vecs;
+  rstl::reserved_vector<zeus::CVector3f, 9> x4_points;
   zeus::CVector3f x74_warpPoint;
   zeus::CVector3f x80_floatingPoint;
   float x8c_maxDistSq = 0.f;
@@ -23,22 +23,32 @@ public:
   : x74_warpPoint(warpPoint)
   , x80_floatingPoint(warpPoint)
   , x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist) {
-    x4_vecs.resize(9, warpPoint);
+    x4_points.resize(9, warpPoint);
     xa0_24_activated = false;
     xa0_25_collisionWarp = collisionWarp;
     xa0_26_processed = false;
   }
 
+  const rstl::reserved_vector<zeus::CVector3f, 9>& GetPoints() const { return x4_points; }
+  float GetMinSize() const { return x90_minSize; }
+  float GetMaxSize() const { return x94_maxSize; }
+  void SetWarpPoint(const zeus::CVector3f& p) { x74_warpPoint = p; }
+  void SetFloatingPoint(const zeus::CVector3f& p) { x80_floatingPoint = p; }
+  const zeus::CVector3f& GetFloatingPoint() const { return x80_floatingPoint; }
+  void SetMaxDistSq(float d) { x8c_maxDistSq = d; }
+  void SetStateManager(CStateManager& mgr) { x9c_stateMgr = &mgr; }
   bool UpdateWarp() { return xa0_24_activated; }
   void ModifyParticles(std::vector<CParticle>& particles);
   void Activate(bool val) { xa0_24_activated = val; }
   bool IsActivated() { return xa0_24_activated; }
+  bool IsProcessed() const { return xa0_26_processed; }
   FourCC Get4CharID() { return FOURCC('FWRP'); }
   void ResetPosition(const zeus::CVector3f& pos) {
-    for (auto& vec : x4_vecs) {
+    for (auto& vec : x4_points) {
       vec = pos;
     }
     xa0_26_processed = false;
   }
+  zeus::CAABox CalculateBounds() const;
 };
 } // namespace urde

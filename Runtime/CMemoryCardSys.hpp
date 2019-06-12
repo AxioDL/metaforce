@@ -56,7 +56,7 @@ public:
 class CMemoryCardSys {
   TLockedToken<CGameHintInfo> x0_hints;
   std::vector<std::pair<CAssetId, CSaveWorldMemory>> xc_memoryWorlds;              /* MLVL as key */
-  rstl::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
+  std::optional<std::vector<CSaveWorldIntermediate>> x1c_worldInter; /* used to be auto_ptr of vector */
   std::vector<std::pair<CAssetId, CSaveWorld::EScanCategory>> x20_scanStates;
   rstl::reserved_vector<u32, 6> x30_scanCategoryCounts;
 
@@ -113,7 +113,7 @@ public:
     std::string x18_fileName;
     std::string x28_comment;
     CAssetId x3c_bannerTex;
-    rstl::optional<TLockedToken<CTexture>> x40_bannerTok;
+    std::optional<TLockedToken<CTexture>> x40_bannerTok;
     rstl::reserved_vector<Icon, 8> x50_iconToks;
     std::vector<u8> xf4_saveBuffer;
     std::vector<u8> x104_cardBuffer;

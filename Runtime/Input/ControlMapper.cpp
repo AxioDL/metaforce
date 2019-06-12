@@ -258,6 +258,8 @@ static float KBToWASDX(const CKeyboardMouseControllerData& data) {
     retval -= 1.0;
   if (data.m_charKeys[int('d')])
     retval += 1.0;
+  if (data.m_charKeys[int('w')] ^ data.m_charKeys[int('s')])
+    retval *= 0.555f;
   return retval;
 }
 
@@ -267,6 +269,8 @@ static float KBToWASDY(const CKeyboardMouseControllerData& data) {
     retval -= 1.0;
   if (data.m_charKeys[int('w')])
     retval += 1.0;
+  if (data.m_charKeys[int('a')] ^ data.m_charKeys[int('d')])
+    retval *= 0.555f;
   return retval;
 }
 
@@ -303,27 +307,27 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
     case ECommands::LookDown:
     case ECommands::OrbitUp:
     case ECommands::MapCircleDown:
-      ret = std::max(ret, KBToWASDY(*kbm) * input.m_leftMul);
+      ret = std::max(ret, zeus::clamp(-1.f, KBToWASDY(*kbm) * input.m_leftMul, 1.f));
       break;
     case ECommands::Backward:
     case ECommands::LookUp:
     case ECommands::OrbitDown:
     case ECommands::MapCircleUp:
-      ret = std::max(ret, -KBToWASDY(*kbm) * input.m_leftMul);
+      ret = std::max(ret, zeus::clamp(-1.f, -KBToWASDY(*kbm) * input.m_leftMul, 1.f));
       break;
     case ECommands::TurnLeft:
     case ECommands::StrafeLeft:
     case ECommands::LookLeft:
     case ECommands::OrbitLeft:
     case ECommands::MapCircleLeft:
-      ret = std::max(ret, -KBToWASDX(*kbm) * input.m_leftMul);
+      ret = std::max(ret, zeus::clamp(-1.f, -KBToWASDX(*kbm) * input.m_leftMul, 1.f));
       break;
     case ECommands::TurnRight:
     case ECommands::StrafeRight:
     case ECommands::LookRight:
     case ECommands::OrbitRight:
     case ECommands::MapCircleRight:
-      ret = std::max(ret, KBToWASDX(*kbm) * input.m_leftMul);
+      ret = std::max(ret, zeus::clamp(-1.f, KBToWASDX(*kbm) * input.m_leftMul, 1.f));
       break;
     case ECommands::MapMoveForward:
       ret = std::max(ret, KBToArrowsY(*kbm));

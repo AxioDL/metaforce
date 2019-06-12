@@ -1,7 +1,3 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
-                    ${BOO_INCLUDE_DIR} ${LIBJPEG_INCLUDE_DIR}
-                    ${ZLIB_INCLUDE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec ${JBUS_INCLUDE_DIR})
-
 macro(runtime_add_list rel_path a_list)
   unset(tmp_list)
   foreach(path IN LISTS ${a_list})
@@ -128,25 +124,26 @@ add_library(${name} ${ARGN})
 if(COMMAND add_sanitizers)
   add_sanitizers(${name})
 endif()
-if(COMMAND cotire)
-  set_target_properties(${name} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-  cotire(${name})
-endif()
-add_dependencies(${name} ${HECL_APPLICATION_REPS_TARGETS_LIST})
 
 if(WINDOWS_STORE)
   set_property(TARGET ${name} PROPERTY VS_WINRT_COMPONENT TRUE)
 endif()
 endfunction()
 
+set(RUNTIME_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+set(RUNTIME_LIBRARIES ${HECL_APPLICATION_REPS_TARGETS_LIST} RetroDataSpec NESEmulator
+        libjpeg-turbo jbus kabufuda discord-rpc logvisor)
+
 if(MSVC)
   # WTF MS???? LINK.EXE is unable to address static libraries larger than 4GB.
   # This is a hack to split this large library in two.
   add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A})
   add_runtime_common_library(RuntimeCommonB ${RUNTIME_SOURCES_B})
-  target_link_libraries(RuntimeCommon RuntimeCommonB)
+  target_include_directories(RuntimeCommonB PUBLIC ${RUNTIME_INCLUDES})
+  target_link_libraries(RuntimeCommonB PUBLIC ${RUNTIME_LIBRARIES})
+  target_link_libraries(RuntimeCommon PUBLIC RuntimeCommonB)
 else()
   add_runtime_common_library(RuntimeCommon ${RUNTIME_SOURCES_A} ${RUNTIME_SOURCES_B})
+  target_include_directories(RuntimeCommon PUBLIC ${RUNTIME_INCLUDES})
+  target_link_libraries(RuntimeCommon PUBLIC ${RUNTIME_LIBRARIES})
 endif()
-
-target_link_libraries(RuntimeCommon CModelShaders)

@@ -105,7 +105,7 @@ SPrimeExoParameters::SPrimeExoParameters(CInputStream& in)
 
 SPrimeExoRoomParameters::SPrimeExoRoomParameters(CInputStream& in) {
   u32 propCount = std::min(u32(14), in.readUint32Big());
-  for (int i = 0; i < propCount; ++i)
+  for (u32 i = 0; i < propCount; ++i)
     x0_.push_back(in.readFloatBig());
 }
 

@@ -1,3 +1,3 @@
-include_directories(. ./../Runtime ${ATHENA_INCLUDE_DIR} ${JBUS_INCLUDE_DIR})
 add_executable(gbalink main.cpp)
 target_link_libraries(gbalink jbus)
+target_include_directories(gbalink PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ../Runtime ${ATHENA_INCLUDE_DIR})

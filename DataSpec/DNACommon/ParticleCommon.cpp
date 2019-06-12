@@ -49,7 +49,7 @@ template <>
 void VEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
   size_t elemCount;
   if (auto v = r.enterSubVector(nullptr, elemCount)) {
-    for (int i = 0; i < 3 && i < elemCount; ++i) {
+    for (size_t i = 0; i < 3 && i < elemCount; ++i) {
       if (auto rec = r.enterSubRecord(nullptr))
         comps[i].read(r);
     }

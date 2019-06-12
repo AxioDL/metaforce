@@ -1,8 +1,10 @@
 #include "Weapon/CFlameThrower.hpp"
 #include "Weapon/CFlameInfo.hpp"
 #include "World/CGameLight.hpp"
+#include "World/CPlayer.hpp"
 #include "Particle/CElementGen.hpp"
 #include "Graphics/CBooRenderer.hpp"
+#include "Collision/CInternalRayCastStructure.hpp"
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
@@ -18,18 +20,18 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
                              EProjectileAttrib attribs, CAssetId assetId1, s16 sId, CAssetId assetId2)
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, uid, aId, owner, kInvalidUniqueId, attribs, false,
                   zeus::CVector3f(1.f), {}, -1, false)
-, x2e8_(xf)
+, x2e8_flameXf(xf)
 , x338_(flameInfo.x10_)
 , x33c_flameDesc(g_SimplePool->GetObj({FOURCC('PART'), flameInfo.GetFlameFxId()}))
 , x348_flameGen(new CElementGen(x33c_flameDesc))
-, x34c_(176.f - float(flameInfo.GetLength()), xf.origin, bool(flameInfo.GetAttributes() & 0x4))
-, x3f4_(assetId1)
-, x3f8_(sId)
-, x3fc_(assetId2)
-, x400_24_(false)
-, x400_25_(false)
+, x34c_flameWarp(176.f - float(flameInfo.GetLength()), xf.origin, bool(flameInfo.GetAttributes() & 0x4))
+, x3f4_playerSteamTxtr(assetId1)
+, x3f8_playerHitSfx(sId)
+, x3fc_playerIceTxtr(assetId2)
+, x400_24_active(false)
+, x400_25_particlesActive(false)
 , x400_26_(!(flameInfo.GetAttributes() & 1))
-, x400_27_((flameInfo.GetAttributes() & 0x2) != 0) {
+, x400_27_detailedParticles((flameInfo.GetAttributes() & 0x2) != 0) {
 
 }
 
@@ -47,31 +49,31 @@ void CFlameThrower::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   CGameProjectile::AcceptScriptMsg(msg, uid, mgr);
 }
 
-void CFlameThrower::SetTransform(const zeus::CTransform& xf, float) { x2e8_ = xf; }
+void CFlameThrower::SetTransform(const zeus::CTransform& xf, float) { x2e8_flameXf = xf; }
 
 void CFlameThrower::Reset(CStateManager& mgr, bool resetWarp) {
   SetFlameLightActive(mgr, false);
   if (resetWarp) {
     SetActive(false);
-    x400_25_ = false;
-    x3f0_flameState = 0;
-    x330_ = 0.f;
-    x334_ = 0.f;
-    x318_ = zeus::skNullBox;
+    x400_25_particlesActive = false;
+    x3f0_flameState = EFlameState::Default;
+    x330_particleWaitDelayTimer = 0.f;
+    x334_fireStopTimer = 0.f;
+    x318_flameBounds = zeus::skNullBox;
     x348_flameGen->SetParticleEmission(false);
-    x34c_.ResetPosition(x2e8_.origin);
+    x34c_flameWarp.ResetPosition(x2e8_flameXf.origin);
   } else {
     x348_flameGen->SetParticleEmission(false);
-    x400_25_ = false;
-    x3f0_flameState = 3;
+    x400_25_particlesActive = false;
+    x3f0_flameState = EFlameState::FireStopTimer;
   }
 }
 
 void CFlameThrower::Fire(const zeus::CTransform&, CStateManager& mgr, bool) {
   SetActive(true);
-  x400_25_ = true;
-  x400_24_ = true;
-  x3f0_flameState = 1;
+  x400_25_particlesActive = true;
+  x400_24_active = true;
+  x3f0_flameState = EFlameState::FireStart;
   CreateFlameParticles(mgr);
 }
 
@@ -79,15 +81,15 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
   x348_flameGen.reset(new CElementGen(x33c_flameDesc));
   x348_flameGen->SetParticleEmission(true);
-  x348_flameGen->SetZTest(x400_27_);
-  x348_flameGen->AddModifier(&x34c_);
+  x348_flameGen->SetZTest(x400_27_detailedParticles);
+  x348_flameGen->AddModifier(&x34c_flameWarp);
   if (x348_flameGen->SystemHasLight() && x2c8_projectileLight == kInvalidUniqueId)
     CreateProjectileLight("FlameThrower_Light"sv, x348_flameGen->GetLight(), mgr);
 }
 
 void CFlameThrower::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
   g_Renderer->AddParticleGen(*x348_flameGen);
-  EnsureRendered(mgr, x2e8_.origin, GetRenderBounds());
+  EnsureRendered(mgr, x2e8_flameXf.origin, GetRenderBounds());
 }
 
 void CFlameThrower::SetFlameLightActive(CStateManager& mgr, bool active) {
@@ -100,21 +102,21 @@ void CFlameThrower::SetFlameLightActive(CStateManager& mgr, bool active) {
 
 void CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
   switch(x3f0_flameState) {
-  case 1:
-    x3f0_flameState = 2;
+  case EFlameState::FireStart:
+    x3f0_flameState = EFlameState::FireActive;
     break;
-  case 3:
-    x334_ += 4.f * dt;
-    if (x334_ > 1.f) {
-      x334_ = 1.f;
-      x3f0_flameState = 4;
-      x400_24_ = false;
+  case EFlameState::FireStopTimer:
+    x334_fireStopTimer += 4.f * dt;
+    if (x334_fireStopTimer > 1.f) {
+      x334_fireStopTimer = 1.f;
+      x3f0_flameState = EFlameState::FireWaitForParticlesDone;
+      x400_24_active = false;
     }
     break;
-  case 4:
-    x330_ += dt;
-    if (x330_ > 0.1f && x348_flameGen && x348_flameGen->GetParticleCountAll() == 0) {
-      x3f0_flameState = 0;
+  case EFlameState::FireWaitForParticlesDone:
+    x330_particleWaitDelayTimer += dt;
+    if (x330_particleWaitDelayTimer > 0.1f && x348_flameGen && x348_flameGen->GetParticleCountAll() == 0) {
+      x3f0_flameState = EFlameState::Default;
       Reset(mgr, true);
     }
     break;
@@ -123,11 +125,110 @@ void CFlameThrower::UpdateFlameState(float dt, CStateManager& mgr) {
   }
 }
 
+CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAABox& aabb, CStateManager& mgr) {
+  CRayCastResult ret;
+  rstl::reserved_vector<TUniqueId, 1024> nearList;
+  mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, this);
+  if (x400_27_detailedParticles && x34c_flameWarp.GetPoints().size() > 0) {
+    float pitch = (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) /
+        float(x34c_flameWarp.GetPoints().size()) * 0.5f;
+    float curOffset = pitch;
+    for (int i = 1; i < x34c_flameWarp.GetPoints().size(); ++i) {
+      zeus::CVector3f delta = x34c_flameWarp.GetPoints()[i] - x34c_flameWarp.GetPoints()[i - 1];
+      zeus::CTransform lookXf = zeus::lookAt(x34c_flameWarp.GetPoints()[i - 1], x34c_flameWarp.GetPoints()[i]);
+      lookXf.origin = delta * 0.5f + x34c_flameWarp.GetPoints()[i - 1];
+      zeus::COBBox obb(lookXf, {curOffset, delta.magnitude() * 0.5f, curOffset});
+      for (TUniqueId id : nearList) {
+        if (CActor* act = static_cast<CActor*>(mgr.ObjectById(id))) {
+          CProjectileTouchResult tres = CanCollideWith(*act, mgr);
+          if (tres.GetActorId() == kInvalidUniqueId)
+            continue;
+          auto tb = act->GetTouchBounds();
+          if (!tb)
+            continue;
+          if (obb.AABoxIntersectsBox(*tb)) {
+            CCollidableAABox caabb(*tb, act->GetMaterialList());
+            zeus::CVector3f flameToAct = act->GetAimPosition(mgr, 0.f) - x2e8_flameXf.origin;
+            float flameToActDist = flameToAct.magnitude();
+            CInternalRayCastStructure rc(x2e8_flameXf.origin, flameToAct.normalized(), flameToActDist,
+                                         {}, CMaterialFilter::skPassEverything);
+            CRayCastResult cres = caabb.CastRayInternal(rc);
+            if (cres.IsInvalid())
+              continue;
+            return cres;
+          }
+        }
+      }
+      curOffset += pitch;
+    }
+  } else {
+    for (int i = 0; i < x34c_flameWarp.GetPoints().size() - 1; ++i) {
+      zeus::CVector3f delta = x34c_flameWarp.GetPoints()[i + 1] - x34c_flameWarp.GetPoints()[i];
+      float deltaMag = delta.magnitude();
+      if (deltaMag <= 0.f)
+        break;
+      CRayCastResult cres = RayCollisionCheckWithWorld(idOut, x34c_flameWarp.GetPoints()[i],
+                                                       x34c_flameWarp.GetPoints()[i + 1], deltaMag, nearList, mgr);
+      if (cres.IsValid())
+        return cres;
+    }
+  }
+  return ret;
+}
+
+void CFlameThrower::ApplyDamageToActor(CStateManager& mgr, TUniqueId id, float dt) {
+  if (mgr.GetPlayer().GetUniqueId() == id && x3f4_playerSteamTxtr.IsValid() && x3fc_playerIceTxtr.IsValid())
+    mgr.GetPlayer().Freeze(mgr, x3f4_playerSteamTxtr, x3f8_playerHitSfx, x3fc_playerIceTxtr);
+  CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
+  ApplyDamageToActors(mgr, useDInfo);
+}
+
 void CFlameThrower::Think(float dt, CStateManager& mgr) {
   CWeapon::Think(dt, mgr);
   if (!GetActive())
     return;
 
   UpdateFlameState(dt, mgr);
+
+  zeus::CVector3f flamePoint = x2e8_flameXf.origin;
+  bool r28 = x3f0_flameState == EFlameState::FireActive || x3f0_flameState == EFlameState::FireStopTimer;
+  if (r28) {
+    x34c_flameWarp.Activate(true);
+    x34c_flameWarp.SetWarpPoint(flamePoint);
+    x34c_flameWarp.SetStateManager(mgr);
+    x348_flameGen->SetTranslation(flamePoint);
+    x348_flameGen->SetOrientation(x2e8_flameXf.getRotation());
+  } else {
+    x34c_flameWarp.Activate(false);
+  }
+
+  x348_flameGen->Update(dt);
+  x34c_flameWarp.SetMaxDistSq(0.f);
+  x34c_flameWarp.SetFloatingPoint(flamePoint);
+
+  if (r28 && x34c_flameWarp.IsProcessed()) {
+    x318_flameBounds = x34c_flameWarp.CalculateBounds();
+    TUniqueId id = kInvalidUniqueId;
+    CRayCastResult res = DoCollisionCheck(id, x318_flameBounds, mgr);
+    if (TCastToPtr<CActor> act = mgr.ObjectById(id)) {
+      ApplyDamageToActor(mgr, id, dt);
+    } else if (res.IsValid()) {
+      CMaterialFilter useFilter = xf8_filter;
+      CDamageInfo useDInfo = CDamageInfo(x12c_curDamageInfo, dt);
+      mgr.ApplyDamageToWorld(xec_ownerId, *this, res.GetPoint(), useDInfo, useFilter);
+    }
+  }
+
+  CActor::SetTransform(x2e8_flameXf.getRotation());
+  CActor::SetTranslation(x2e8_flameXf.origin);
+
+  if (x2c8_projectileLight != kInvalidUniqueId) {
+    if (TCastToPtr<CGameLight> light = mgr.ObjectById(x2c8_projectileLight)) {
+      light->SetTransform(GetTransform());
+      light->SetTranslation(x34c_flameWarp.GetFloatingPoint());
+      if (x348_flameGen && x348_flameGen->SystemHasLight())
+        light->SetLight(x348_flameGen->GetLight());
+    }
+  }
 }
 } // namespace urde

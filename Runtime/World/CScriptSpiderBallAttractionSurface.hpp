@@ -14,7 +14,7 @@ public:
   void Accept(IVisitor& visitor);
   void Think(float dt, CStateManager& mgr);
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
   void Touch(CActor& actor, CStateManager& mgr);
   const zeus::CVector3f& GetScale() const { return xe8_scale; }
 };

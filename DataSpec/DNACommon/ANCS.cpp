@@ -101,8 +101,8 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
         "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"
         "\n"
         "# Clear Scene\n"
-        "if 'Collection 1' in bpy.data.collections:\n"
-        "    bpy.data.collections.remove(bpy.data.collections['Collection 1'])\n"
+        "if len(bpy.data.collections):\n"
+        "    bpy.data.collections.remove(bpy.data.collections[0])\n"
         "\n"
         "actor_data = bpy.context.scene.hecl_sact_data\n"
         "arm_obj = None\n",

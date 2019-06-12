@@ -63,7 +63,7 @@ float CPathFindSearch::RemainingPathDistance(const zeus::CVector3f& pos) const {
   float f31 = 0.f;
   if (xc8_curWaypoint < x4_waypoints.size() - 1) {
     f31 += (x4_waypoints[xc8_curWaypoint + 1] - pos).magnitude();
-    for (int i = xc8_curWaypoint + 1; i < x4_waypoints.size() - 1; ++i) {
+    for (size_t i = xc8_curWaypoint + 1; i < x4_waypoints.size() - 1; ++i) {
       f31 += (x4_waypoints[i + 1] - x4_waypoints[i]).magnitude();
     }
   }

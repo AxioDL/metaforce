@@ -12,7 +12,7 @@ class CFaceplateDecoration {
   CAssetId x0_id;
   TToken<CTexture> x4_tex;
   bool xc_ready = false;
-  rstl::optional<CTexturedQuadFilter> m_texFilter;
+  std::optional<CTexturedQuadFilter> m_texFilter;
 
 public:
   CFaceplateDecoration(CStateManager& stateMgr);

@@ -10,7 +10,7 @@ class CFire : public CActor {
   TUniqueId xec_ownerId;
   CDamageInfo xf0_damageInfo;
   CDamageInfo x10c_damageInfo;
-  rstl::optional<zeus::CAABox> x128_;
+  std::optional<zeus::CAABox> x128_;
   float x144_;
   bool x148_24_ : 1;
   bool x148_25_ : 1;
@@ -31,7 +31,7 @@ public:
   void Accept(IVisitor&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float, CStateManager&);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const {
+  std::optional<zeus::CAABox> GetTouchBounds() const {
     if (GetActive())
       return x128_;
 

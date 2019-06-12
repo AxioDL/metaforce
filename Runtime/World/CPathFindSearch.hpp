@@ -27,7 +27,7 @@ private:
   float xd8_padding = 10.f;
   u32 xdc_flags; // 0x2: flyer, 0x4: path-always-exists (swimmers)
   u32 xe0_indexMask;
-  mutable rstl::optional<CPathFindVisualizer> m_viz;
+  mutable std::optional<CPathFindVisualizer> m_viz;
   bool Search(rstl::reserved_vector<CPFRegion*, 4>& regs1, const zeus::CVector3f& p1,
               rstl::reserved_vector<CPFRegion*, 4>& regs2, const zeus::CVector3f& p2);
   void GetSplinePoint(zeus::CVector3f& pOut, const zeus::CVector3f& p1, u32 wpIdx) const;

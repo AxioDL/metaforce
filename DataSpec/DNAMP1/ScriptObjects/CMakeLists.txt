@@ -1,4 +1,4 @@
-make_dnalist(liblist DNAMP1/ScriptObjects
+make_dnalist(
         IScriptObject
         Parameters
         Actor
@@ -141,4 +141,3 @@ set(ScriptObjectsMP1_SOURCES
     WorldTeleporter.cpp)
 
 dataspec_add_list(DNAMP1/ScriptObjects ScriptObjectsMP1_SOURCES)
-list(APPEND ScriptObjectsMP1_SOURCES ${liblist})

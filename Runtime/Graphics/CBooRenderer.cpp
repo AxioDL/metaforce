@@ -188,7 +188,7 @@ void CBooRenderer::ActivateLightsForModel(CAreaListItem* item, CBooModel& model)
   if (x300_dynamicLights.size()) {
     u32 lightOctreeWordCount = 0;
     u32* lightOctreeWords = nullptr;
-    if (item && model.x44_areaInstanceIdx != -1) {
+    if (item && model.x44_areaInstanceIdx != UINT32_MAX) {
       lightOctreeWordCount = item->x4_octTree->x14_bitmapWordCount;
       lightOctreeWords = item->x1c_lightOctreeWords.data();
     }
@@ -441,7 +441,6 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
   zeus::CVector2i vpMax(0, 0);
   zeus::CVector2i vpMin(g_Viewport.x8_width, g_Viewport.xc_height);
 
-  bool vpInvalid = true;
   for (int i = 0; i < 20; ++i) {
     zeus::CVector3f overW;
     if (i < 8) {
@@ -476,7 +475,6 @@ void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::
     vpMin.x = std::min(vpMin.x, vpX);
     vpMax.y = std::max(vpMax.y, vpY);
     vpMin.y = std::min(vpMin.y, vpY);
-    vpInvalid = false;
   }
 
   zeus::CVector2i vpSize = {vpMax.x - vpMin.x, vpMax.y - vpMin.y};
@@ -703,7 +701,7 @@ void CBooRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
   xe0_pvsAreaIdx = areaIdx;
 }
 
-void CBooRenderer::DisablePVS() { xc8_pvs = rstl::nullopt; }
+void CBooRenderer::DisablePVS() { xc8_pvs = std::nullopt; }
 
 void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights, int cubeFace) {
   SetupRendererStates();
@@ -1223,7 +1221,7 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
     item.x4_octTree->FindOverlappingModels(modelBits.data() + curWord, aabb);
 
     u32 wordModel = 0;
-    for (int i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       u32& word = modelBits[curWord + i];
       if (!word)
         continue;
@@ -1254,7 +1252,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
       continue;
 
     u32 wordModel = 0;
-    for (int i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       const u32& word = modelBits[curWord + i];
       if (!word)
         continue;
@@ -1292,7 +1290,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
       continue;
 
     u32 wordModel = 0;
-    for (int i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
+    for (u32 i = 0; i < item.x4_octTree->x14_bitmapWordCount; ++i, wordModel += 32) {
       const u32& word = modelBits[curWord + i];
       if (!word)
         continue;

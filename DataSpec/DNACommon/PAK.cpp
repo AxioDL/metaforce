@@ -370,7 +370,7 @@ hecl::SystemString PAKRouter<BRIDGETYPE>::getResourceRelativePath(const EntryTyp
     return hecl::SystemString();
   hecl::ProjectPath aPath = getWorking(&a, BRIDGETYPE::LookupExtractor(*node, *pak, a));
   hecl::SystemString ret;
-  for (int i = 0; i < aPath.levelCount(); ++i)
+  for (size_t i = 0; i < aPath.levelCount(); ++i)
     ret += _SYS_STR("../");
   hecl::ProjectPath bPath = getWorking(be, BRIDGETYPE::LookupExtractor(*node, *pak, *be));
   ret += bPath.getRelativePath();

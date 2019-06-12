@@ -233,8 +233,8 @@ void CBabygoth::DoUserAnimEvent(urde::CStateManager& mgr, const urde::CInt32POIN
                                 float dt) {
   switch (type) {
   case EUserEventType::Projectile: {
-    zeus::CTransform xf = GetLctrTransform(node.GetLocatorName());
-    zeus::CVector3f plAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+    //zeus::CTransform xf = GetLctrTransform(node.GetLocatorName());
+    //zeus::CVector3f plAimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
     return;
   }
   case EUserEventType::DamageOn: {

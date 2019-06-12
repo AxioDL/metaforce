@@ -277,14 +277,14 @@ void CPauseScreenBase::UpdateSideTable(CGuiTableGroup* table) {
     if (IsRightLogDynamic()) {
       UpdateRightLogHighlight(tableActive, selInView, selColor, deselColor);
     } else {
-      for (int i = 0; i < x144_model_titles.size(); ++i)
+      for (size_t i = 0; i < x144_model_titles.size(); ++i)
         x144_model_titles[i]->SetColor((i == selInView && tableActive) ? selColor : deselColor);
     }
   } else {
     int sel = x70_tablegroup_leftlog->GetUserSelection();
     x78_model_lefthighlight->SetLocalTransform(x78_model_lefthighlight->GetTransform() *
                                                zeus::CTransform::Translate(0.f, 0.f, x38_highlightPitch * sel));
-    for (int i = 0; i < xc0_model_categories.size(); ++i)
+    for (size_t i = 0; i < xc0_model_categories.size(); ++i)
       xc0_model_categories[i]->SetColor(i == sel ? selColor : deselColor);
   }
 }
@@ -294,7 +294,7 @@ void CPauseScreenBase::Update(float dt, CRandom16& rand, CArchitectureQueue& arc
   x8_frame.Update(dt);
   x14_alpha = std::min(2.f * dt + x14_alpha, 1.f);
 
-  u32 rightCount = GetRightTableCount();
+  int rightCount = GetRightTableCount();
   bool pulseRightUp = x10_mode == EMode::RightTable && x18_firstViewRightSel > 0;
   bool pulseRightDown = x10_mode == EMode::RightTable && x18_firstViewRightSel + 5 < rightCount;
   float rightUpT = pulseRightUp ? CGraphics::GetSecondsMod900() : 0.f;

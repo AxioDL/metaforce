@@ -23,7 +23,7 @@ CBeamProjectile::CBeamProjectile(const TToken<CWeaponDescription>& wDesc, std::s
   x400_pointCache.resize(8);
 }
 
-rstl::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const {
+std::optional<zeus::CAABox> CBeamProjectile::GetTouchBounds() const {
   if (!GetActive())
     return {};
   if (x464_25_enableTouchDamage) {

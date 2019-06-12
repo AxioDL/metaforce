@@ -59,7 +59,7 @@ struct CFinalInput {
   bool x2e_b30_PDPLeft : 1;
   bool x2e_b31_PStart : 1;
 
-  rstl::optional<CKeyboardMouseControllerData> m_kbm;
+  std::optional<CKeyboardMouseControllerData> m_kbm;
 
   bool m_PCharKeys[256] = {};
   bool m_PSpecialKeys[26] = {};
@@ -163,7 +163,7 @@ struct CFinalInput {
   bool ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
   bool AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
-  const rstl::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
+  const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };
 
 } // namespace urde

@@ -52,7 +52,7 @@ std::unique_ptr<IAnimReader> CAnimTreeTransition::VClone() const {
       x2c_timeInTrans, x34_runA, x35_loopA, x1c_flags, x4_name, x36_initialized);
 }
 
-rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VSimplified() {
+std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VSimplified() {
   if (zeus::close_enough(GetBlendingWeight(), 1.f)) {
     if (auto simp = x18_b->Simplified())
       return simp;
@@ -61,7 +61,7 @@ rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VSimplified() 
   return CAnimTreeTweenBase::VSimplified();
 }
 
-rstl::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VReverseSimplified() {
+std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTransition::VReverseSimplified() {
   if (zeus::close_enough(GetBlendingWeight(), 0.f))
     return {x14_a->Clone()};
   return CAnimTreeTweenBase::VReverseSimplified();

@@ -305,7 +305,7 @@ void CScriptGunTurret::Touch(CActor& act, CStateManager& mgr) {
   }
 }
 
-rstl::optional<zeus::CAABox> CScriptGunTurret::GetTouchBounds() const {
+std::optional<zeus::CAABox> CScriptGunTurret::GetTouchBounds() const {
   if (GetActive() && GetMaterialList().HasMaterial(EMaterialTypes::Solid))
     return {GetBoundingBox()};
   return {};
@@ -847,7 +847,7 @@ void CScriptGunTurret::ProcessExitTargettingState(EStateMsg msg, CStateManager& 
     return;
 
   if (TCastToPtr<CScriptGunTurret> gun = mgr.ObjectById(x25c_gunId)) {
-    zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
+    //zeus::CTransform gunXf = GetTransform() * GetLocatorTransform("Gun_SDK"sv);
 
     if (zeus::CVector3f::getAngleDiff(gun->GetTransform().frontVector(), x544_originalFrontVec) < zeus::degToRad(0.9f))
       SetTurretState(ETurretState::Ready, mgr);

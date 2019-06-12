@@ -99,7 +99,7 @@ protected:
   CCollidableAABox x1c0_collisionPrimitive;
   zeus::CVector3f x1e8_primitiveOffset;
   CMotionState x1f4_lastNonCollidingState;
-  rstl::optional<zeus::CVector3f> x228_lastFloorPlaneNormal;
+  std::optional<zeus::CVector3f> x228_lastFloorPlaneNormal;
   float x238_maximumCollisionVelocity = 1000000.0f;
   float x23c_stepUpHeight;
   float x240_stepDownHeight;
@@ -186,10 +186,10 @@ public:
   void SetNumTicksPartialUpdate(u32 t) { x250_numTicksPartialUpdate = t; }
   u32 GetNumTicksStuck() const { return x24c_numTicksStuck; }
   void SetNumTicksStuck(u32 t) { x24c_numTicksStuck = t; }
-  const rstl::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const {
+  const std::optional<zeus::CVector3f>& GetLastFloorPlaneNormal() const {
     return x228_lastFloorPlaneNormal;
   }
-  void SetLastFloorPlaneNormal(const rstl::optional<zeus::CVector3f>& n) { x228_lastFloorPlaneNormal = n; }
+  void SetLastFloorPlaneNormal(const std::optional<zeus::CVector3f>& n) { x228_lastFloorPlaneNormal = n; }
 
   CMotionState PredictMotion_Internal(float) const;
   CMotionState PredictMotion(float dt) const;

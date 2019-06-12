@@ -18,6 +18,6 @@ public:
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void Render(const CStateManager&) const;
   void CalculateRenderBounds();
-  rstl::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const;
 };
 } // namespace urde

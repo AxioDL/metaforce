@@ -1,14 +1,6 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/DataSpec ${CMAKE_SOURCE_DIR}/Runtime)
 add_subdirectory(locale)
 add_subdirectory(icons)
 add_subdirectory(badging)
-
-atdna(atdna_Space.cpp Space.hpp)
-atdna(atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
-atdna(atdna_ModelViewer.cpp ModelViewer.hpp)
-atdna(atdna_ParticleEditor.cpp ParticleEditor.hpp)
-atdna(atdna_InformationCenter.cpp InformationCenter.hpp)
-atdna(atdna_GameMode.cpp GameMode.hpp)
 
 if(URDE_DLPACKAGE)
   set(METADATA_VERSION_STRING ${URDE_DLPACKAGE})
@@ -82,39 +74,36 @@ endif()
 
 add_executable(urde WIN32 MACOSX_BUNDLE
                main.cpp ${PLAT_SRCS}
-               Space.hpp Space.cpp atdna_Space.cpp
+               Space.hpp Space.cpp
                SplashScreen.hpp SplashScreen.cpp
-               ResourceBrowser.hpp ResourceBrowser.cpp atdna_ResourceBrowser.cpp
-               ModelViewer.hpp ModelViewer.cpp atdna_ModelViewer.cpp
-               ParticleEditor.hpp ParticleEditor.cpp atdna_ParticleEditor.cpp
-               InformationCenter.hpp InformationCenter.hpp atdna_InformationCenter.cpp
+               ResourceBrowser.hpp ResourceBrowser.cpp
+               ModelViewer.hpp ModelViewer.cpp
+               ParticleEditor.hpp ParticleEditor.cpp
+               InformationCenter.hpp InformationCenter.hpp
                ProjectManager.hpp ProjectManager.cpp
                ViewManager.hpp ViewManager.cpp
                Resource.hpp Resource.cpp
                Camera.hpp Camera.cpp
-               GameMode.hpp GameMode.cpp atdna_GameMode.cpp)
+               GameMode.hpp GameMode.cpp)
+target_atdna(urde atdna_Space.cpp Space.hpp)
+target_atdna(urde atdna_ResourceBrowser.cpp ResourceBrowser.hpp)
+target_atdna(urde atdna_ModelViewer.cpp ModelViewer.hpp)
+target_atdna(urde atdna_ParticleEditor.cpp ParticleEditor.hpp)
+target_atdna(urde atdna_InformationCenter.cpp InformationCenter.hpp)
+target_atdna(urde atdna_GameMode.cpp GameMode.hpp)
 
-set_target_properties(urde PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
+target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
+
+target_include_directories(urde PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 
 target_link_libraries(urde
                       UrdeLocales
                       UrdeIcons
                       UrdeBadging
-                      RuntimeCommon NESEmulator
-                      specter specter-fonts
-                      ${HECL_APPLICATION_REPS_TARGETS_LIST}
-                      freetype ${DATA_SPEC_LIBS}
-                      hecl-full hecl-blender-addon
-                      athena-core nod logvisor athena-libyaml amuse boo
-                      ${PNG_LIB} libjpeg-turbo squish xxhash zeus
-                      kabufuda jbus discord-rpc ${ZLIB_LIBRARIES} lzokay
-                      ${BOO_SYS_LIBS} ${URDE_PLAT_LIBS})
+                      RuntimeCommon
+                      ${URDE_PLAT_LIBS})
 if(COMMAND add_sanitizers)
   add_sanitizers(urde)
-endif()
-if(COMMAND cotire)
-  set_target_properties(urde PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE)
-  cotire(urde)
 endif()
 
 set_target_properties(urde PROPERTIES

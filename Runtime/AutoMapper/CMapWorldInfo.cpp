@@ -8,13 +8,13 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, C
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
   x4_visitedAreas.reserve((worldMem.GetAreaCount() + 31) / 32);
-  for (int i = 0; i < worldMem.GetAreaCount(); ++i) {
+  for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     bool visited = reader.ReadEncoded(1);
     SetAreaVisited(i, visited);
   }
 
   x18_mappedAreas.reserve((worldMem.GetAreaCount() + 31) / 32);
-  for (int i = 0; i < worldMem.GetAreaCount(); ++i) {
+  for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     bool mapped = reader.ReadEncoded(1);
     SetIsMapped(i, mapped);
   }
@@ -28,14 +28,14 @@ CMapWorldInfo::CMapWorldInfo(CBitStreamReader& reader, const CSaveWorld& savw, C
 void CMapWorldInfo::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw, CAssetId mlvlId) const {
   const CSaveWorldMemory& worldMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
 
-  for (int i = 0; i < worldMem.GetAreaCount(); ++i) {
+  for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     if (i < x0_visitedAreasAllocated)
       writer.WriteEncoded(IsAreaVisted(i), 1);
     else
       writer.WriteEncoded(0, 1);
   }
 
-  for (int i = 0; i < worldMem.GetAreaCount(); ++i) {
+  for (u32 i = 0; i < worldMem.GetAreaCount(); ++i) {
     if (i < x14_mappedAreasAllocated)
       writer.WriteEncoded(IsMapped(i), 1);
     else
@@ -95,10 +95,10 @@ bool CMapWorldInfo::IsWorldVisible(TAreaId aid) const { return x38_mapStationUse
 bool CMapWorldInfo::IsAreaVisible(TAreaId aid) const { return IsAreaVisted(aid) || IsMapped(aid); }
 
 bool CMapWorldInfo::IsAnythingSet() const {
-  for (int i = 0; i < x0_visitedAreasAllocated; ++i)
+  for (u32 i = 0; i < x0_visitedAreasAllocated; ++i)
     if (x4_visitedAreas[i / 32] & (1 << (i % 32)))
       return true;
-  for (int i = 0; i < x14_mappedAreasAllocated; ++i)
+  for (u32 i = 0; i < x14_mappedAreasAllocated; ++i)
     if (x18_mappedAreas[i / 32] & (1 << (i % 32)))
       return true;
   return x38_mapStationUsed;

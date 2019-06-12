@@ -12,7 +12,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
   atUint32 parentIdx = cinf.getInternalBoneIdxFromId(origBone.parentId);
   zeus::CVector3f boneOrigin(origBone.origin);
   zeus::CVector3f naturalTail = boneOrigin + zeus::CVector3f{0.f, 0.5f, 0.f};
-  if (parentIdx != -1) {
+  if (parentIdx != UINT32_MAX) {
     const typename CINFType::Bone& pBone = cinf.bones[parentIdx];
     m_parentDelta = boneOrigin - zeus::CVector3f(pBone.origin);
   }
@@ -22,7 +22,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
     if (chId == origBone.parentId)
       continue;
     atUint32 chIdx = cinf.getInternalBoneIdxFromId(chId);
-    if (chIdx != -1)
+    if (chIdx != UINT32_MAX)
       ++actualChildren;
   }
 
@@ -31,7 +31,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
   if (bName)
     isLCTR = bName->find("_LCTR") != std::string::npos;
 
-  if (parentIdx == -1) {
+  if (parentIdx == UINT32_MAX) {
     /* Root will always use +Y tail */
     m_tail = naturalTail;
   } else if (actualChildren) {
@@ -40,7 +40,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
       if (chId == origBone.parentId)
         continue;
       atUint32 chIdx = cinf.getInternalBoneIdxFromId(chId);
-      if (chIdx != -1) {
+      if (chIdx != UINT32_MAX) {
         const typename CINFType::Bone& chBone = cinf.bones[chIdx];
         m_tail += chBone.origin;
       }
@@ -50,7 +50,7 @@ RigInverter<CINFType>::Bone::Bone(const CINFType& cinf, const typename CINFType:
       m_tail = naturalTail;
     else if (isLCTR)
       m_tail = boneOrigin + zeus::CVector3f{0.f, 1.0f, 0.f} * (m_tail - boneOrigin).magnitude();
-  } else if (parentIdx != -1) {
+  } else if (parentIdx != UINT32_MAX) {
     /* Extrapolate by delta with parent */
     m_tail = boneOrigin + m_parentDelta;
     float deltaMag = m_parentDelta.magnitude();
@@ -91,8 +91,8 @@ RigInverter<CINFType>::RigInverter(const CINFType& cinf,
       auto search = matrices.find(*name);
       if (search != matrices.cend()) {
         zeus::CMatrix3f boneMtx(search->second[0], search->second[1], search->second[2]);
-        m_bones.back().m_inverter = boneMtx.transposed();
         m_bones.back().m_restorer = boneMtx;
+        m_bones.back().m_inverter = m_bones.back().m_restorer.inverse();
       }
     }
   }
@@ -102,7 +102,7 @@ template <class CINFType>
 zeus::CQuaternion RigInverter<CINFType>::invertRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const {
   for (const Bone& b : m_bones)
     if (b.m_origBone.id == boneId)
-      return b.m_restorer * zeus::CMatrix3f(origRot) * b.m_inverter;
+      return b.m_restorer * origRot * b.m_inverter;
   return origRot;
 }
 
@@ -114,7 +114,7 @@ zeus::CVector3f RigInverter<CINFType>::invertPosition(atUint32 boneId, const zeu
       zeus::CVector3f localPos = origPos;
       if (subDelta)
         localPos -= b.m_parentDelta;
-      return b.m_restorer * localPos;
+      return b.m_restorer.transform(localPos);
     }
   return origPos;
 }
@@ -123,7 +123,7 @@ template <class CINFType>
 zeus::CQuaternion RigInverter<CINFType>::restoreRotation(atUint32 boneId, const zeus::CQuaternion& origRot) const {
   for (const Bone& b : m_bones)
     if (b.m_origBone.id == boneId)
-      return b.m_inverter * zeus::CMatrix3f(origRot) * b.m_restorer;
+      return b.m_inverter * origRot * b.m_restorer;
   return origRot;
 }
 
@@ -132,7 +132,7 @@ zeus::CVector3f RigInverter<CINFType>::restorePosition(atUint32 boneId, const ze
                                                        bool subDelta) const {
   for (const Bone& b : m_bones)
     if (b.m_origBone.id == boneId) {
-      zeus::CVector3f localPos = b.m_inverter * origPos;
+      zeus::CVector3f localPos = b.m_inverter.transform(origPos);
       if (subDelta)
         localPos += b.m_parentDelta;
       return localPos;

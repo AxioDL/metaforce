@@ -30,12 +30,12 @@ public:
     float x30_wallElasticConstant;
     float x34_wallElasticLinear;
     float x38_maxPositiveVerticalVelocity;
-    rstl::optional<zeus::CVector3f> x3c_floorPlaneNormal;
+    std::optional<zeus::CVector3f> x3c_floorPlaneNormal;
   };
 
   struct SMoveObjectResult {
-    rstl::optional<TUniqueId> x0_id;
-    rstl::optional<CCollisionInfo> x8_collision;
+    std::optional<TUniqueId> x0_id;
+    std::optional<CCollisionInfo> x8_collision;
     u32 x6c_processedCollisions;
     float x70_processedDt;
   };

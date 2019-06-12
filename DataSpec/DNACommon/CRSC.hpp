@@ -3,7 +3,7 @@
 #include "ParticleCommon.hpp"
 #include "PAK.hpp"
 #include "athena/FileWriter.hpp"
-#include "optional.hpp"
+#include <optional>
 
 namespace DataSpec::DNAParticle {
 template <class IDType>
