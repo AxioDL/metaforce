@@ -84,5 +84,10 @@ public:
   ETriggerFlags GetTriggerFlags() const { return x12c_flags; }
   float GetForceMagnitude() const { return x128_forceMagnitude; }
   const zeus::CVector3f& GetForceVector() const { return x11c_forceField; }
+  void SetForceVector(const zeus::CVector3f& force) {
+    x11c_forceField = force;
+    x128_forceMagnitude = x11c_forceField.magnitude();
+  }
+  bool IsPlayerTriggerProc() const { return x148_28_playerTriggerProc; }
 };
 } // namespace urde

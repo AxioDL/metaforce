@@ -242,12 +242,12 @@ void CScriptEffect::Render(const CStateManager& mgr) const {
   */
   if (x104_particleSystem && x104_particleSystem->GetParticleCountAll() > 0) {
     g_NumParticlesRendered += x104_particleSystem->GetParticleCountAll();
-    x104_particleSystem->Render(GetActorLights());
+    x104_particleSystem->Render(x138_actorLights.get());
   }
 
   if (xf4_electric && xf4_electric->GetParticleCount() > 0) {
     g_NumParticlesRendered += xf4_electric->GetParticleCount();
-    xf4_electric->Render(GetActorLights());
+    xf4_electric->Render(x138_actorLights.get());
   }
 }
 

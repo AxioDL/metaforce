@@ -10,6 +10,8 @@
 #include "CScriptActorKeyframe.hpp"
 #include "CScriptActorRotate.hpp"
 #include "CScriptAiJumpPoint.hpp"
+#include "MP1/World/CFlaahgra.hpp"
+#include "MP1/World/CFlaahgraTentacle.hpp"
 #include "CScriptAreaAttributes.hpp"
 #include "MP1/World/CSeedling.hpp"
 #include "MP1/World/CBurrower.hpp"
@@ -2180,7 +2182,32 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
 }
 
 CEntity* ScriptLoader::LoadFlaahgra(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, MP1::CFlaahgraData::GetNumProperties(), "Flaahgra"))
+    return nullptr;
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  MP1::CFlaahgraData flaahgraData(in);
+
+  CAnimRes animRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
+                   actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true);
+
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid()) {
+    animRes = CAnimRes(flaahgraData.GetAnimationParameters().GetACSFile(),
+                       flaahgraData.GetAnimationParameters().GetCharacter(), actHead.x40_scale,
+                       flaahgraData.GetAnimationParameters().GetInitialAnimation(), true);
+  }
+
+  if (!animRes.GetId().IsValid())
+    return nullptr;
+
+  return new MP1::CFlaahgra(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, animRes, pInfo,
+                            actParms, flaahgraData);
 }
 
 CEntity* ScriptLoader::LoadAreaAttributes(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2522,7 +2549,26 @@ CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int
 
 CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount,
                                             const CEntityInfo& info) {
-  return nullptr;
+
+  if (!EnsurePropertyCount(propCount, 6, "FlaahgraTentacle"))
+    return nullptr;
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+    return nullptr;
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+
+  return new MP1::CFlaahgraTentacle(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform,
+                                    std::move(mData), pInfo, actParms);
 }
 
 CEntity* ScriptLoader::LoadRoomAcoustics(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

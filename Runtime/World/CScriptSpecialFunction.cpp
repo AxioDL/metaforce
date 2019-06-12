@@ -5,6 +5,7 @@
 #include "Graphics/CTexture.hpp"
 #include "World/CActorParameters.hpp"
 #include "World/CPlayer.hpp"
+#include "World/CScriptPlatform.hpp"
 #include "Weapon/CEnergyProjectile.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CMemoryCardSys.hpp"
@@ -38,10 +39,11 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x170_sfx1(CSfxManager::TranslateSFXID(sId1))
 , x172_sfx2(CSfxManager::TranslateSFXID(sId2))
 , x174_sfx3(CSfxManager::TranslateSFXID(sId3))
+, x184_(0.f)
 , x1bc_areaSaveId(aId1)
 , x1c0_layerIdx(aId2)
 , x1c4_item(itemType) {
-  x1e4_26_ = true;
+  x1e4_26_sfx2Played = true;
   if (xe8_function == ESpecialFunction::HUDTarget)
     x1c8_ = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
 }
@@ -565,7 +567,102 @@ void CScriptSpecialFunction::ThinkPlayerFollowLocator(float, CStateManager& mgr)
 void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr, ESpinnerControllerMode mode) {
   bool allowWrap = xec_locatorName.find("AllowWrap") != std::string::npos;
   bool noBackward = xec_locatorName.find("NoBackward") != std::string::npos;
+  float pointOneByDt = 0.1f * dt;
+  float twoByDt = 2.f * dt;
 
+  for (const SConnection& conn : x20_conns) {
+    if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
+      continue;
+
+    auto search = mgr.GetIdListForScript(conn.x8_objId);
+    for (auto it = search.first; it != search.second; ++it) {
+      if (TCastToPtr<CScriptPlatform> plat = mgr.ObjectById((*it).second)) {
+        if (plat->HasModelData() && plat->GetModelData()->HasAnimData()) {
+          plat->SetControlledAnimation(true);
+          if (!x1e4_24_) {
+            x13c_ = plat->GetTransform();
+            x1e4_24_ = true;
+          }
+
+          float f28 = x138_;
+          float f29 = pointOneByDt * x100_float2;
+
+          if (mode == ESpinnerControllerMode::Zero) {
+            if (x1e4_25_spinnerCanMove) {
+              CPlayer& pl = mgr.GetPlayer();
+              zeus::CVector3f angVel = pl.GetAngularVelocityOR().getVector();
+              float mag = 0.f;
+              if (angVel.canBeNormalized())
+                mag = angVel.magnitude();
+
+              float spinImpulse = (pl.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 0.025f * mag
+                                                                                                       : 0.f);
+              if (spinImpulse > x180_)
+                SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
+
+              x180_ = spinImpulse;
+              x138_ += 0.01f * spinImpulse * xfc_float1;
+
+              if (!noBackward)
+                x138_ -= f29;
+            } else if (!noBackward) {
+              x138_ = twoByDt - f28;
+            }
+          } else if (mode == ESpinnerControllerMode::One) {
+            x138_ = (0.1f * x16c_) * xfc_float1 + f28;
+
+            if (!noBackward) {
+              x138_ -= f29;
+
+              if (std::fabs(x16c_) < dt)
+                x16c_ = 0.f;
+              else
+                x16c_ += (dt * (x16c_ < 0 ? -1.f : 1.f));
+            }
+
+            if (allowWrap) {
+              x138_ = std::fmod(x138_, 1.f);
+              if (x138_ < 0.f)
+                x138_ += 1.f;
+            } else {
+              x138_ = zeus::clamp(0.f, x138_, 1.f);
+            }
+
+            f28 = f28 - x138_;
+            bool r23 = true;
+            if (zeus::close_enough(1.f, x138_, FLT_EPSILON)) {
+              if (!x1e4_27_sfx3Played) {
+                if (x174_sfx3 != 0xFFFF)
+                  CSfxManager::AddEmitter(x174_sfx3, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
+
+                x1e4_27_sfx3Played = true;
+              }
+
+              SendScriptMsgs(EScriptObjectState::MaxReached, mgr, EScriptObjectMessage::None);
+              r23 = false;
+            } else
+              x1e4_27_sfx3Played = false;
+
+            if (zeus::close_enough(0.f, x138_, FLT_EPSILON)) {
+              if (!x1e4_26_sfx2Played) {
+                if (x172_sfx2 != 0xFFFF)
+                  CSfxManager::AddEmitter(x172_sfx2, GetTranslation(), {}, true, false, 0x7F, kInvalidAreaId);
+
+                x1e4_26_sfx2Played = true;
+              }
+
+              SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
+              r23 = false;
+            } else
+              x1e4_26_sfx2Played = false;
+          }
+
+          auto average = x184_.GetAverage();
+          /* TODO Finish */
+        }
+      }
+    }
+  }
 }
 
 void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr) {

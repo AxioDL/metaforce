@@ -81,13 +81,13 @@ private:
   float x138_ = 0.f;
   zeus::CTransform x13c_ = zeus::CTransform();
   float x16c_ = 0.f;
-  s16 x170_sfx1;
-  s16 x172_sfx2;
-  s16 x174_sfx3;
+  u16 x170_sfx1;
+  u16 x172_sfx2;
+  u16 x174_sfx3;
   CSfxHandle x178_sfxHandle;
   u32 x17c_;
   float x180_ = 0.f;
-  std::vector<float> x184_;
+  TReservedAverage<float, 6> x184_;
   float x194_ = 0.f;
   std::vector<SRingController> x198_ringControllers;
   ERingState x1a8_ringState = ERingState::Stopped;
@@ -101,8 +101,8 @@ private:
     struct {
       bool x1e4_24_ : 1;
       bool x1e4_25_spinnerCanMove : 1;
-      bool x1e4_26_ : 1;
-      bool x1e4_27_ : 1;
+      bool x1e4_26_sfx2Played : 1;
+      bool x1e4_27_sfx3Played : 1;
       bool x1e4_28_frustumEntered : 1;
       bool x1e4_29_frustumExited : 1;
       bool x1e4_30_ : 1;
