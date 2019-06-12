@@ -39,7 +39,7 @@ struct SDNABlock : public athena::io::DNA<athena::Little> {
   };
   Vector<SDNAStruct, AT_DNA_COUNT(numStrcs)> strcs;
 
-  const SDNAStruct* lookupStruct(const char* n, int& idx) const;
+  const SDNAStruct* lookupStruct(const char* n, atUint32& idx) const;
 };
 
 struct FileBlock : public athena::io::DNA<athena::Little> {

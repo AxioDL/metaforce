@@ -1,12 +1,7 @@
-include_directories(../include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/athena/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/boo
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/boo/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extern/boo/logvisor/include)
 add_library(shaderc_lib shaderc.cpp shaderc.hpp)
+target_link_libraries(shaderc_lib PUBLIC hecl-compilers athena-core logvisor)
 add_executable(shaderc main.cpp)
-target_link_libraries(shaderc shaderc_lib hecl-compilers glslang soxr xxhash OSDependent OGLCompiler
-                      SPIRV glslang-default-resource-limits athena-core logvisor)
+target_link_libraries(shaderc shaderc_lib)
 if (NOT WIN32)
   target_link_libraries(shaderc pthread)
   if(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")

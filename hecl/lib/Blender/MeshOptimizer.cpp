@@ -354,7 +354,7 @@ void MeshOptimizer::optimize(Mesh& mesh, int max_skin_banks) const {
             const Vertex& v = verts[loops[l].vert];
             uint32_t skin_idx = get_skin_idx(v);
             if (skin_slot_set.find(skin_idx) == skin_slot_set.end()) {
-              if (max_skin_banks > 0 && skin_slot_set.size() == max_skin_banks) {
+              if (max_skin_banks > 0 && skin_slot_set.size() == size_t(max_skin_banks)) {
                 brk = true;
                 break;
               }

@@ -22,7 +22,6 @@ add_custom_command(OUTPUT hecl.zip DEPENDS ${PY_SOURCES}
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMENT "Generating addon package")
 bintoc(hecl_addon.cpp "${CMAKE_CURRENT_BINARY_DIR}/hecl.zip" HECL_ADDON)
-bintoc(hecl_startup.cpp hecl_startup.blend HECL_STARTUP)
 
 add_library(hecl-blender-addon
             hecl_blendershell.py
@@ -30,5 +29,4 @@ add_library(hecl-blender-addon
             zip_package.py
             hecl.zip
             hecl_addon.cpp
-            hecl_startup.cpp
             ${PY_SOURCES})

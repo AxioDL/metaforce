@@ -28,7 +28,7 @@
 #include "hecl/Backend.hpp"
 #include "athena/Types.hpp"
 #include "athena/MemoryWriter.hpp"
-#include "optional.hpp"
+#include <optional>
 #include "Token.hpp"
 
 namespace hecl::blender {
@@ -708,7 +708,6 @@ class Connection {
   BlendType m_loadedType = BlendType::None;
   bool m_loadedRigged = false;
   ProjectPath m_loadedBlend;
-  std::string m_startupBlend;
   hecl::SystemString m_errPath;
   uint32_t _readStr(char* buf, uint32_t bufSz);
   uint32_t _writeStr(const char* str, uint32_t len, int wpipe);

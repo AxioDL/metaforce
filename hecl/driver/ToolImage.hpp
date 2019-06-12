@@ -111,7 +111,7 @@ public:
       };
       if (id[0] == 'G') {
         fileOut += _SYS_STR(".gcm");
-        if (nod::DiscBuilderGCN::CalculateTotalSizeRequired(outPath.getAbsolutePath()) == -1)
+        if (nod::DiscBuilderGCN::CalculateTotalSizeRequired(outPath.getAbsolutePath()) == UINT64_MAX)
           return 1;
         LogModule.report(logvisor::Info, _SYS_STR("Generating %s as GameCube image"), fileOut.c_str());
         nod::DiscBuilderGCN db(fileOut, progFunc);
@@ -120,7 +120,7 @@ public:
       } else {
         fileOut += _SYS_STR(".iso");
         bool dualLayer;
-        if (nod::DiscBuilderWii::CalculateTotalSizeRequired(outPath.getAbsolutePath(), dualLayer) == -1)
+        if (nod::DiscBuilderWii::CalculateTotalSizeRequired(outPath.getAbsolutePath(), dualLayer) == UINT64_MAX)
           return 1;
         LogModule.report(logvisor::Info, _SYS_STR("Generating %s as %s-layer Wii image"), fileOut.c_str(),
                          dualLayer ? _SYS_STR("dual") : _SYS_STR("single"));

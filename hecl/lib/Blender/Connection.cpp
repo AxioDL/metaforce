@@ -75,14 +75,6 @@ static void InstallAddon(const SystemChar* path) {
   fclose(fp);
 }
 
-static void InstallStartup(const char* path) {
-  FILE* fp = fopen(path, "wb");
-  if (!fp)
-    BlenderLog.report(logvisor::Fatal, "Unable to place hecl_startup.blend at '%s'", path);
-  fwrite(HECL_STARTUP, 1, HECL_STARTUP_SZ, fp);
-  fclose(fp);
-}
-
 static int Read(int fd, void* buf, size_t size) {
   int intrCount = 0;
   do {
@@ -245,7 +237,6 @@ Connection::Connection(int verbosityLevel) {
   m_startupBlend = hecl::WideToUTF8(TMPDIR);
 #else
   signal(SIGPIPE, SIG_IGN);
-  m_startupBlend = TMPDIR;
 #endif
 
   hecl::SystemString blenderShellPath(TMPDIR);
@@ -253,13 +244,11 @@ Connection::Connection(int verbosityLevel) {
 
   hecl::SystemString blenderAddonPath(TMPDIR);
   blenderAddonPath += _SYS_STR("/hecl_blenderaddon.zip");
-  m_startupBlend += "/hecl_startup.blend";
 
   bool FalseCmp = false;
   if (BlenderFirstInit.compare_exchange_strong(FalseCmp, true)) {
     InstallBlendershell(blenderShellPath.c_str());
     InstallAddon(blenderAddonPath.c_str());
-    InstallStartup(m_startupBlend.c_str());
   }
 
   int installAttempt = 0;
@@ -549,9 +538,7 @@ bool Connection::createBlend(const ProjectPath& path, BlendType type) {
     BlenderLog.report(logvisor::Fatal, "BlenderConnection::createBlend() musn't be called with stream active");
     return false;
   }
-  _writeStr(("CREATE \""s + path.getAbsolutePathUTF8().data() + "\" " + BlendTypeStrs[int(type)] + " \"" +
-             m_startupBlend + "\"")
-                .c_str());
+  _writeStr(("CREATE \""s + path.getAbsolutePathUTF8().data() + "\" " + BlendTypeStrs[int(type)]).c_str());
   char lineBuf[256];
   _readStr(lineBuf, sizeof(lineBuf));
   if (!strcmp(lineBuf, "FINISHED")) {
@@ -1072,7 +1059,7 @@ uint32_t Mesh::SkinBanks::addSurface(const Mesh& mesh, const Surface& surf, int 
           continue;
         if (!VertInBank(bank.m_skinIdxs, v.iSkin) && !VertInBank(toAdd, v.iSkin)) {
           toAdd.push_back(v.iSkin);
-          if (skinSlotCount > 0 && bank.m_skinIdxs.size() + toAdd.size() > skinSlotCount) {
+          if (skinSlotCount > 0 && bank.m_skinIdxs.size() + toAdd.size() > size_t(skinSlotCount)) {
             toAdd.clear();
             done = false;
             break;
@@ -1190,7 +1177,7 @@ MapArea::Surface::Surface(Connection& conn) {
   uint32_t borderCount;
   conn._readBuf(&borderCount, 4);
   borders.reserve(borderCount);
-  for (int i = 0; i < borderCount; ++i) {
+  for (uint32_t i = 0; i < borderCount; ++i) {
     borders.emplace_back();
     std::pair<Index, Index>& idx = borders.back();
     conn._readBuf(&idx, 8);
@@ -1208,7 +1195,7 @@ MapArea::MapArea(Connection& conn) {
   uint32_t vertCount;
   conn._readBuf(&vertCount, 4);
   verts.reserve(vertCount);
-  for (int i = 0; i < vertCount; ++i)
+  for (uint32_t i = 0; i < vertCount; ++i)
     verts.emplace_back(conn);
 
   uint8_t isIdx;
@@ -1221,13 +1208,13 @@ MapArea::MapArea(Connection& conn) {
   uint32_t surfCount;
   conn._readBuf(&surfCount, 4);
   surfaces.reserve(surfCount);
-  for (int i = 0; i < surfCount; ++i)
+  for (uint32_t i = 0; i < surfCount; ++i)
     surfaces.emplace_back(conn);
 
   uint32_t poiCount;
   conn._readBuf(&poiCount, 4);
   pois.reserve(poiCount);
-  for (int i = 0; i < poiCount; ++i)
+  for (uint32_t i = 0; i < poiCount; ++i)
     pois.emplace_back(conn);
 }
 
@@ -1244,7 +1231,7 @@ MapUniverse::World::World(Connection& conn) {
   uint32_t hexCount;
   conn._readBuf(&hexCount, 4);
   hexagons.reserve(hexCount);
-  for (int i = 0; i < hexCount; ++i)
+  for (uint32_t i = 0; i < hexCount; ++i)
     hexagons.emplace_back(conn);
 
   color.read(conn);
@@ -1278,7 +1265,7 @@ MapUniverse::MapUniverse(Connection& conn) {
   uint32_t worldCount;
   conn._readBuf(&worldCount, 4);
   worlds.reserve(worldCount);
-  for (int i = 0; i < worldCount; ++i)
+  for (uint32_t i = 0; i < worldCount; ++i)
     worlds.emplace_back(conn);
 }
 

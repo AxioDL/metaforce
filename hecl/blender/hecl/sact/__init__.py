@@ -179,7 +179,7 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
         scene.frame_set(frame_idx)
 
         root_bone.location = (0.0,0.0,0.0)
-        scene.update()
+        scene.update_tag()
         if root_bone.rotation_mode == 'QUATERNION':
             root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
         else:

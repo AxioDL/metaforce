@@ -69,7 +69,7 @@ std::u16string Char16Format(const wchar_t* format, ...) {
   wchar_t resultBuf[FORMAT_BUF_SZ];
   va_list va;
   va_start(va, format);
-  int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
+  size_t printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
   va_end(va);
   std::u16string res;
   res.reserve(printSz);

@@ -31,7 +31,7 @@ logvisor::Module LogModule("hecl::Driver");
 
 /* Static reference to dataspec additions
  * (used by MSVC to definitively link DataSpecs) */
-#include "../DataSpecRegistry.hpp"
+#include "DataSpecRegistry.hpp"
 
 bool XTERM_COLOR = false;
 

@@ -35,10 +35,9 @@ def cook(writebuf, mesh_obj, use_luv=False):
 
     # Copy mesh (and apply mesh modifiers with triangulation)
     copy_name = mesh_obj.name + "_hmdltri"
-    copy_mesh = bpy.data.meshes.new(copy_name)
+    copy_mesh = bpy.data.meshes.new_from_object(mesh_obj, preserve_all_data_layers=True,
+                                                depsgraph=bpy.context.evaluated_depsgraph_get())
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
-    copy_obj.data = mesh_obj.to_mesh(bpy.context.depsgraph, True)
-    copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
     bpy.context.scene.collection.objects.link(copy_obj)
     bpy.ops.object.select_all(action='DESELECT')
@@ -48,7 +47,7 @@ def cook(writebuf, mesh_obj, use_luv=False):
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()
     bpy.ops.mesh.select_all(action='DESELECT')
-    bpy.context.scene.update()
+    bpy.context.scene.update_tag()
     bpy.ops.object.mode_set(mode='OBJECT')
     copy_mesh.calc_normals_split()
     rna_loops = copy_mesh.loops
@@ -132,10 +131,9 @@ def cookcol(writebuf, mesh_obj):
 
     # Copy mesh (and apply mesh modifiers with triangulation)
     copy_name = mesh_obj.name + "_hmdltri"
-    copy_mesh = bpy.data.meshes.new(copy_name)
+    copy_mesh = bpy.data.meshes.new_from_object(mesh_obj, preserve_all_data_layers=True,
+                                                depsgraph=bpy.context.evaluated_depsgraph_get())
     copy_obj = bpy.data.objects.new(copy_name, copy_mesh)
-    copy_obj.data = mesh_obj.to_mesh(bpy.context.depsgraph, True)
-    copy_mesh = copy_obj.data
     copy_obj.scale = mesh_obj.scale
     bpy.context.scene.collection.objects.link(copy_obj)
     bpy.ops.object.select_all(action='DESELECT')
@@ -145,7 +143,7 @@ def cookcol(writebuf, mesh_obj):
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.mesh.quads_convert_to_tris()
     bpy.ops.mesh.select_all(action='DESELECT')
-    bpy.context.scene.update()
+    bpy.context.scene.update_tag()
     bpy.ops.object.mode_set(mode='OBJECT')
     copy_mesh.calc_normals_split()
     rna_loops = copy_mesh.loops

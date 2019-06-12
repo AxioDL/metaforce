@@ -39,7 +39,7 @@ static const int maxscale = 7;
 
 std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int scale, HNFlags flags) {
   const char *prefixes, *sep;
-  int i, r, remainder, s1, s2, sign;
+  int i, remainder, s1, s2, sign;
   int divisordeccut;
   int64_t divisor, max;
   size_t baselen;
@@ -143,11 +143,10 @@ std::string HumanizeNumber(int64_t quotient, size_t len, const char* suffix, int
       (flags & HNFlags::Decimal) != HNFlags::None) {
     s1 = (int)quotient + ((remainder * 10 + divisor / 2) / divisor / 10);
     s2 = ((remainder * 10 + divisor / 2) / divisor) % 10;
-    r = snprintf(&ret[0], len, "%d%s%d%s%s%s", sign * s1, localeconv()->decimal_point, s2, sep, SCALE2PREFIX(i),
-                 suffix);
+    snprintf(&ret[0], len, "%d%s%d%s%s%s", sign * s1, localeconv()->decimal_point, s2, sep, SCALE2PREFIX(i), suffix);
   } else
-    r = snprintf(&ret[0], len, "%" PRId64 "%s%s%s", sign * (quotient + (remainder + divisor / 2) / divisor), sep,
-                 SCALE2PREFIX(i), suffix);
+    snprintf(&ret[0], len, "%" PRId64 "%s%s%s", sign * (quotient + (remainder + divisor / 2) / divisor), sep,
+             SCALE2PREFIX(i), suffix);
 
   return ret;
 }

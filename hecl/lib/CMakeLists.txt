@@ -6,18 +6,12 @@ macro(hecl_add_list rel_path a_list)
   set(${a_list} "${tmp_list}" PARENT_SCOPE)
 endmacro(hecl_add_list)
 
-include_directories(../extern/boo/glslang ../extern/boo)
-
 add_subdirectory(Blender)
 add_subdirectory(Runtime)
 
 if(WIN32)
 list(APPEND PLAT_SRCS winsupport.cpp ../include/hecl/winsupport.hpp)
 endif()
-
-atdna(atdna_HMDLMeta.cpp ../include/hecl/HMDLMeta.hpp)
-atdna(atdna_CVar.cpp ../include/hecl/CVar.hpp)
-atdna(atdna_SDNARead.cpp ../include/hecl/Blender/SDNARead.hpp)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
   add_definitions(-DHECL_MULTIPROCESSOR)
@@ -62,9 +56,7 @@ set(COMMON_SOURCES
     SteamFinder.cpp
     WideStringConvert.cpp
     Compilers.cpp
-    Pipeline.cpp
-    atdna_HMDLMeta.cpp
-    atdna_CVar.cpp)
+    Pipeline.cpp)
 
 if(UNIX)
   list(APPEND PLAT_SRCS closefrom.c)
@@ -74,19 +66,29 @@ add_library(hecl-full
             ${FRONTEND_SOURCES}
             ${RUNTIME_SOURCES}
             ${BLENDER_SOURCES}
-            atdna_SDNARead.cpp
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
             ${PLAT_SRCS})
+target_include_directories(hecl-full PUBLIC ../include)
+target_link_libraries(hecl-full PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST}
+                      hecl-blender-addon boo athena-core logvisor)
+target_atdna(hecl-full atdna_HMDLMeta_full.cpp ../include/hecl/HMDLMeta.hpp)
+target_atdna(hecl-full atdna_CVar_full.cpp ../include/hecl/CVar.hpp)
+target_atdna(hecl-full atdna_SDNARead_full.cpp ../include/hecl/Blender/SDNARead.hpp)
+
 add_library(hecl-light
             ${RUNTIME_SOURCES}
             ${COMMON_SOURCES}
             ${HECL_HEADERS}
             ${PLAT_SRCS})
-add_library(hecl-compilers Compilers.cpp WideStringConvert.cpp)
+target_include_directories(hecl-light PUBLIC ../include)
+target_link_libraries(hecl-light PUBLIC ${HECL_APPLICATION_REPS_TARGETS_LIST} boo athena-core logvisor)
+target_atdna(hecl-light atdna_HMDLMeta_light.cpp ../include/hecl/HMDLMeta.hpp)
+target_atdna(hecl-light atdna_CVar_light.cpp ../include/hecl/CVar.hpp)
 
-add_dependencies(hecl-full ${HECL_APPLICATION_REPS_TARGETS_LIST})
-add_dependencies(hecl-light ${HECL_APPLICATION_REPS_TARGETS_LIST})
+add_library(hecl-compilers Compilers.cpp WideStringConvert.cpp)
+target_include_directories(hecl-compilers PUBLIC ../include)
+target_link_libraries(hecl-compilers PUBLIC boo athena-core logvisor)
 
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-full)

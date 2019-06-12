@@ -80,7 +80,7 @@ static std::vector<boo::VertexElementDescriptor> ReadVertexFormat(ShaderCacheZip
   uint32_t count = r.readUint32Big();
   ret.reserve(count);
 
-  for (int i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < count; ++i) {
     ret.emplace_back();
     ret.back().semantic = boo::VertexSemantic(r.readUint32Big());
     ret.back().semanticIdx = int(r.readUint32Big());

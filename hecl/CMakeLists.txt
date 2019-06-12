@@ -16,7 +16,7 @@ endif()
 
 include(ApplicationTools.cmake)
 
-configure_file(DataSpecRegistry.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/DataSpecRegistry.hpp @ONLY)
+configure_file(DataSpecRegistry.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/DataSpecRegistry.hpp @ONLY)
 
 unset(HECL_APPLICATION_REPS_INCLUDES_LOCAL)
 foreach(theHeader ${HECL_APPLICATION_REPS_INCLUDES_LIST})
@@ -46,13 +46,6 @@ endforeach()
 
 configure_file(include/hecl/ApplicationReps.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/ApplicationReps.hpp @ONLY)
 
-set(ATHENA_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/athena/include)
-set(ATHENA_INCLUDE_DIR ${ATHENA_INCLUDE_DIR} PARENT_SCOPE)
-set(SQUISH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/libSquish)
-set(SQUISH_INCLUDE_DIR ${SQUISH_INCLUDE_DIR} PARENT_SCOPE)
-
-set(BOO_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/boo/include)
-
 add_subdirectory(bintoc)
 
 if(NOT TARGET bintoc)
@@ -70,9 +63,6 @@ if(NOT TARGET atdna)
   endif()
 endif()
 
-add_definitions(${BOO_SYS_DEFINES})
-include_directories(include blender shaderc ${LOGVISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
-                    ${BOO_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR} ${BOO_SYS_INCLUDES})
 add_subdirectory(lib)
 add_subdirectory(blender)
 add_subdirectory(driver)

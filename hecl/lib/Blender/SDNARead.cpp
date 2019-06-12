@@ -35,7 +35,7 @@ const SDNABlock::SDNAStruct::SDNAField* SDNABlock::SDNAStruct::lookupField(const
   return nullptr;
 }
 
-const SDNABlock::SDNAStruct* SDNABlock::lookupStruct(const char* n, int& idx) const {
+const SDNABlock::SDNAStruct* SDNABlock::lookupStruct(const char* n, atUint32& idx) const {
   idx = 0;
   for (const SDNAStruct& strc : strcs) {
     const auto& name = types[strc.type];
@@ -131,7 +131,7 @@ BlendType GetBlendType(SystemStringView path) {
   if (!r)
     return BlendType::None;
 
-  int idPropIdx;
+  atUint32 idPropIdx;
   const auto* idPropStruct = r.sdnaBlock().lookupStruct("IDProperty", idPropIdx);
   if (!idPropStruct)
     return BlendType::None;
@@ -148,7 +148,7 @@ BlendType GetBlendType(SystemStringView path) {
     return BlendType::None;
   atUint32 dataOffset = dataField->offset;
 
-  int idPropDataIdx;
+  atUint32 idPropDataIdx;
   const auto* idPropDataStruct = r.sdnaBlock().lookupStruct("IDPropertyData", idPropDataIdx);
   if (!idPropDataStruct)
     return BlendType::None;

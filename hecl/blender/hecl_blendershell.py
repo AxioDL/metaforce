@@ -479,10 +479,9 @@ try:
         elif cmdargs[0] == 'CREATE':
             if len(cmdargs) >= 4:
                 bpy.ops.wm.open_mainfile(filepath=cmdargs[3])
-                loaded_blend = cmdargs[1]
             else:
                 bpy.ops.wm.read_homefile()
-                loaded_blend = None
+            loaded_blend = cmdargs[1]
             bpy.context.preferences.filepaths.save_version = 0
             if 'FINISHED' in bpy.ops.wm.save_as_mainfile(filepath=cmdargs[1]):
                 bpy.ops.file.hecl_patching_load()
