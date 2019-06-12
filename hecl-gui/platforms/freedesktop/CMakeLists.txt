@@ -1,6 +1,6 @@
-include_directories(${LIBPNG_INCLUDE_DIR})
 add_executable(mkqticon mkqticon.c)
 target_link_libraries(mkqticon ${PNG_LIB} ${ZLIB_LIBRARIES})
+target_include_directories(mkqticon PRIVATE ${LIBPNG_INCLUDE_DIR})
 
 macro(declare_qticon_target)
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/hecl-gui/platforms/freedesktop/mainicon_qt.bin

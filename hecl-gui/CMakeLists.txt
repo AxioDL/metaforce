@@ -34,8 +34,6 @@ file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h)
-include_directories(quazip/quazip)
-add_definitions(-DQUAZIP_STATIC=1)
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     ArgumentEditor.ui ArgumentEditor.cpp ArgumentEditor.hpp
@@ -54,11 +52,18 @@ if(COMMAND add_sanitizers)
   add_sanitizers(hecl-gui)
 endif()
 
+if (NOT MSVC)
+  target_compile_options(hecl-gui PRIVATE -Wno-misleading-indentation)
+endif()
+
 set_target_properties(hecl-gui PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
+
+target_include_directories(hecl-gui PRIVATE quazip/quazip)
+target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
 
 target_link_libraries(hecl-gui ${PLAT_LIBS}
                       ${Qt5Widgets_LIBRARIES}
                       ${Qt5Network_LIBRARIES}
                       ${Qt5Xml_LIBRARIES}
-                      hecl-light logvisor zeus athena-core athena-libyaml xxhash z)
+                      hecl-light logvisor zeus athena-core xxhash z)
