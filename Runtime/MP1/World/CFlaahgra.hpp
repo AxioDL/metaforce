@@ -46,7 +46,7 @@ public:
 
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void Accept(IVisitor&);
-  rstl::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
+  std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
 };
 
 class CFlaahgra : public CPatterned {
@@ -101,7 +101,7 @@ class CFlaahgra : public CPatterned {
   zeus::CVector3f x894_;
   zeus::CVector3f x8a0_;
   CAnimRes x8ac_;
-  rstl::optional<TToken<CDependencyGroup>> x8c8_depGroup;
+  std::optional<TToken<CDependencyGroup>> x8c8_depGroup;
   bool x8d0_ = false;
   std::vector<CToken> x8d4_tokens;
   union {

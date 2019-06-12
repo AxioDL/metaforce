@@ -53,31 +53,31 @@ endif()
 if(MSVC)
   if(${URDE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(/arch:AVX2)
-    add_definitions(-D__SSE4_1__=1)
+    add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX2 Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "avx")
     add_compile_options(/arch:AVX)
-    add_definitions(-D__SSE4_1__=1)
+    add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with AVX Vector ISA")
   elseif(${URDE_VECTOR_ISA} STREQUAL "sse41")
-    add_definitions(-D__SSE4_1__=1)
+    add_compile_definitions(__SSE4_1__=1)
     message(STATUS "Building with SSE4.1 Vector ISA")
   else()
     message(STATUS "Building with SSE2 Vector ISA")
   endif()
 
   if(${CMAKE_GENERATOR} MATCHES "Visual Studio*")
-    set(VS_DEFINES "/MP")
+    set(VS_OPTIONS "/MP")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT urde)
   endif()
 
   # Shaddup MSVC
-  add_definitions(-DUNICODE=1 -D_UNICODE=1 -D__SSE__=1
-      -D_CRT_SECURE_NO_WARNINGS=1 -DD_SCL_SECURE_NO_WARNINGS=1
-      -D_SCL_SECURE_NO_DEPRECATE=1 -D_CRT_NONSTDC_NO_WARNINGS=1
-      /IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4068
-      /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805
-      -D_ENABLE_EXTENDED_ALIGNED_STORAGE=1 ${VS_DEFINES})
+  add_compile_definitions(UNICODE=1 _UNICODE=1 __SSE__=1
+      _CRT_SECURE_NO_WARNINGS=1 D_SCL_SECURE_NO_WARNINGS=1
+      _SCL_SECURE_NO_DEPRECATE=1 _CRT_NONSTDC_NO_WARNINGS=1
+      _ENABLE_EXTENDED_ALIGNED_STORAGE=1)
+  add_compile_options(/IGNORE:4221 /wd4018 /wd4800 /wd4005 /wd4311 /wd4068
+      /wd4267 /wd4244 /wd4200 /wd4305 /wd4067 /wd4146 /wd4309 /wd4805 ${VS_OPTIONS})
 
   if(WINDOWS_STORE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /AI\"$ENV{PROGRAMFILES\(X86\)}/Microsoft Visual Studio/2017/Community/Common7/IDE/VC/vcpackages\" /AI\"$ENV{PROGRAMFILES\(X86\)}/Windows Kits/10/UnionMetadata\"")
@@ -254,7 +254,7 @@ add_subdirectory(specter)
 target_include_directories(specter PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(specter PRIVATE nod)
 add_subdirectory(assetnameparser)
-add_definitions(-DURDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
+add_compile_definitions(URDE_ZIP_INPUT_STREAM=1) # Enable CZipInputStream now that zlib header is known
 add_subdirectory(DataSpec)
 add_subdirectory(kabufuda)
 add_subdirectory(Editor)
