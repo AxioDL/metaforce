@@ -27,7 +27,7 @@ class Menu : public View {
     SolidShaderVert m_hlVerts[4];
     VertexBufferBindingSolid m_hlVertsBinding;
 
-    size_t m_highlightedItem = -1;
+    size_t m_highlightedItem = SIZE_MAX;
     void setHighlightedItem(size_t idx);
     void unsetHighlightedItem(size_t idx) {
       if (m_highlightedItem == idx)

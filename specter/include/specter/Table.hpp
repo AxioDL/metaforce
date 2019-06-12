@@ -37,14 +37,14 @@ class Table : public View {
   size_t m_maxColumns;
   size_t m_rows = 0;
   size_t m_columns = 0;
-  size_t m_selectedRow = -1;
-  size_t m_deferredActivation = -1;
+  size_t m_selectedRow = SIZE_MAX;
+  size_t m_deferredActivation = SIZE_MAX;
   size_t m_clickFrames = 15;
 
   struct CellView : public View {
     Table& m_t;
     std::unique_ptr<TextView> m_text;
-    size_t m_c, m_r;
+    size_t m_c = SIZE_MAX, m_r = SIZE_MAX;
     boo::SWindowRect m_scissorRect;
     uint64_t m_textHash = 0;
     CellView(Table& t, ViewResources& res);
@@ -68,7 +68,7 @@ class Table : public View {
   std::vector<ColumnPool> m_cellPools;
   size_t m_ensuredRows = 0;
   std::vector<ColumnPool>& ensureCellPools(size_t rows, size_t cols, ViewResources& res);
-  size_t m_activePool = -1;
+  size_t m_activePool = SIZE_MAX;
   bool m_header = false;
 
   std::vector<boo::SWindowRect> m_hCellRects;

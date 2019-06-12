@@ -186,7 +186,7 @@ private:
     }
 
     void setSelectedRow(size_t rIdx) {
-      if (rIdx != -1)
+      if (rIdx != SIZE_MAX)
         m_fb.m_fileField.m_view->setText(m_entries.at(rIdx).m_name);
       else
         m_fb.m_fileField.m_view->setText("");
@@ -239,7 +239,7 @@ private:
     std::string_view cell(size_t, size_t rIdx) const { return m_entries.at(rIdx).m_name; }
 
     void setSelectedRow(size_t rIdx) {
-      if (rIdx != -1)
+      if (rIdx != SIZE_MAX)
         m_fb.navigateToPath(m_entries.at(rIdx).m_path);
     }
 

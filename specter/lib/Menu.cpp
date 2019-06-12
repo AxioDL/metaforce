@@ -112,14 +112,14 @@ void Menu::setVerts(int width, int height, float pf) {
 }
 
 void Menu::ContentView::setHighlightedItem(size_t idx) {
-  if (idx == -1) {
-    m_highlightedItem = -1;
+  if (idx == SIZE_MAX) {
+    m_highlightedItem = SIZE_MAX;
     return;
   }
   ViewChild<std::unique_ptr<ItemView>>& vc = m_menu.m_items[idx];
 
   if (!vc.m_view) {
-    m_highlightedItem = -1;
+    m_highlightedItem = SIZE_MAX;
     return;
   }
 
@@ -250,7 +250,7 @@ void Menu::draw(boo::IGraphicsCommandQueue* gfxQ) {
 void Menu::ContentView::draw(boo::IGraphicsCommandQueue* gfxQ) {
   View::draw(gfxQ);
   gfxQ->setScissor(m_scissorRect);
-  if (m_highlightedItem != -1) {
+  if (m_highlightedItem != SIZE_MAX) {
     gfxQ->setShaderDataBinding(m_hlVertsBinding);
     gfxQ->draw(0, 4);
   }

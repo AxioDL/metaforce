@@ -41,7 +41,7 @@ Table::RowsView::RowsView(Table& t, ViewResources& res)
 }
 
 Table::CellView::CellView(Table& t, ViewResources& res)
-: View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont)), m_c(-1), m_r(-1) {}
+: View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont)) {}
 
 void Table::_setHeaderVerts(const boo::SWindowRect& sub) {
   ;
@@ -164,7 +164,7 @@ void Table::RowsView::_setRowVerts(const boo::SWindowRect& sub, const boo::SWind
   }
   m_visibleStart = std::max(0, startIdx);
   m_visibleRows = r;
-  if (r * c)
+  if (r && c)
     m_vertsBinding.load(m_verts.get(), 6 * r * c);
 }
 
@@ -186,7 +186,7 @@ void Table::cycleSortColumn(size_t c) {
 void Table::selectRow(size_t r) {
   if (m_inSelectRow)
     return;
-  if (r >= m_rows && r != -1)
+  if (r >= m_rows && r != SIZE_MAX)
     Log.report(logvisor::Fatal, "selectRow out of bounds (%" PRISize ", %" PRISize ")", r, m_rows);
   if (r == m_selectedRow) {
     if (m_state) {
@@ -197,7 +197,7 @@ void Table::selectRow(size_t r) {
     return;
   }
 
-  if (m_selectedRow != -1 && m_activePool != -1) {
+  if (m_selectedRow != SIZE_MAX && m_activePool != SIZE_MAX) {
     size_t poolIdx = m_selectedRow / SPECTER_TABLE_MAX_ROWS;
     int pool0 = (poolIdx & 1) != 0;
     int pool1 = (poolIdx & 1) == 0;
@@ -218,7 +218,7 @@ void Table::selectRow(size_t r) {
 
   m_selectedRow = r;
 
-  if (m_selectedRow != -1 && m_activePool != -1) {
+  if (m_selectedRow != SIZE_MAX && m_activePool != SIZE_MAX) {
     size_t poolIdx = m_selectedRow / SPECTER_TABLE_MAX_ROWS;
     int pool0 = (poolIdx & 1) != 0;
     int pool1 = (poolIdx & 1) == 0;
@@ -296,9 +296,9 @@ void Table::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, 
   if (m_headerNeedsUpdate)
     _setHeaderVerts(subRect());
 
-  if (m_deferredActivation != -1 && m_state) {
+  if (m_deferredActivation != SIZE_MAX && m_state) {
     m_state->rowActivated(m_deferredActivation);
-    m_deferredActivation = -1;
+    m_deferredActivation = SIZE_MAX;
   }
 }
 
@@ -315,7 +315,7 @@ void Table::RowsView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButto
 }
 
 void Table::CellView::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod) {
-  if (m_r != -1) {
+  if (m_r != SIZE_MAX) {
     m_t.selectRow(m_r);
     if (m_t.m_clickFrames < 15)
       m_t.m_deferredActivation = m_r;
@@ -352,7 +352,7 @@ void Table::RowsView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton 
 }
 
 void Table::CellView::mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod) {
-  if (m_r == -1)
+  if (m_r == SIZE_MAX)
     m_t.m_headerNeedsUpdate = true;
 }
 
@@ -413,7 +413,7 @@ void Table::mouseEnter(const boo::SWindowCoord& coord) {
 }
 
 void Table::CellView::mouseEnter(const boo::SWindowCoord& coord) {
-  if (m_r == -1)
+  if (m_r == SIZE_MAX)
     m_t.m_headerNeedsUpdate = true;
 }
 
@@ -435,7 +435,7 @@ void Table::RowsView::mouseLeave(const boo::SWindowCoord& coord) {
 }
 
 void Table::CellView::mouseLeave(const boo::SWindowCoord& coord) {
-  if (m_r == -1)
+  if (m_r == SIZE_MAX)
     m_t.m_headerNeedsUpdate = true;
 }
 

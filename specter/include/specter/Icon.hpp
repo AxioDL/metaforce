@@ -39,13 +39,13 @@ public:
   operator bool() const { return m_tex; }
   void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex) {
     m_tex = tex;
-    for (int c = 0; c < COLS; ++c)
-      for (int r = 0; r < ROWS; ++r)
+    for (size_t c = 0; c < COLS; ++c)
+      for (size_t r = 0; r < ROWS; ++r)
         m_icons[c][r] = MakeIcon(c, r);
   }
   void destroyAtlas() {
-    for (int c = 0; c < COLS; ++c)
-      for (int r = 0; r < ROWS; ++r)
+    for (size_t c = 0; c < COLS; ++c)
+      for (size_t r = 0; r < ROWS; ++r)
         m_icons[c][r].m_tex.reset();
     m_tex.reset();
   }

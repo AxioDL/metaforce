@@ -94,7 +94,7 @@ void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultCo
     _commitResources(charLen);
   }
 
-  uint32_t lCh = -1;
+  uint32_t lCh = UINT32_MAX;
   m_glyphs.clear();
   m_glyphs.reserve(charLen);
   m_glyphInfo.clear();
@@ -115,7 +115,7 @@ void TextView::typesetGlyphs(std::string_view str, const zeus::CColor& defaultCo
       if (!glyph)
         continue;
 
-      if (lCh != -1)
+      if (lCh != UINT32_MAX)
         adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
       m_glyphs.emplace_back(adv, *glyph, defaultColor);
       m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);
@@ -157,7 +157,7 @@ void TextView::typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultC
     _commitResources(charLen);
   }
 
-  uint32_t lCh = -1;
+  uint32_t lCh = UINT32_MAX;
   m_glyphs.clear();
   m_glyphs.reserve(charLen);
   m_glyphInfo.clear();
@@ -172,7 +172,7 @@ void TextView::typesetGlyphs(std::wstring_view str, const zeus::CColor& defaultC
     if (!glyph)
       continue;
 
-    if (lCh != -1)
+    if (lCh != UINT32_MAX)
       adv += DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
     m_glyphs.emplace_back(adv, *glyph, defaultColor);
     m_glyphInfo.emplace_back(ch, glyph->m_width, glyph->m_height, adv);

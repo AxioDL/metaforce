@@ -1,34 +1,11 @@
 add_subdirectory(freetype2)
-add_definitions("-DZE_ATHENA_TYPES=1")
+if (NOT MSVC)
+  target_compile_options(freetype PRIVATE -Wno-implicit-fallthrough)
+endif()
 add_subdirectory(zeus)
 set(ZEUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zeus/include)
 
-if(NOT DEFINED HECL_INCLUDE_DIR)
-  message(FATAL_ERROR "Specter may only be built as a sub-project containing hecl with
-                       HECL_INCLUDE_DIR set")
-endif()
-
-if(NOT DEFINED BOO_INCLUDE_DIR)
-  message(FATAL_ERROR "Specter may only be built as a sub-project containing boo with
-                       BOO_INCLUDE_DIR set")
-endif()
-
-if(NOT DEFINED ATHENA_INCLUDE_DIR)
-  message(FATAL_ERROR "Specter may only be built as a sub-project containing Athena with
-                       ATHENA_INCLUDE_DIR set")
-endif()
-
-if(NOT DEFINED LOGVISOR_INCLUDE_DIR)
-  message(FATAL_ERROR "Specter may only be built as a sub-project containing logvisor with
-                       LOGVISOR_INCLUDE_DIR set")
-endif()
-
 add_subdirectory(resources/fonts)
-
-include_directories(include ${HECL_INCLUDE_DIR} ${BOO_INCLUDE_DIR}
-                    ${LOGVISOR_INCLUDE_DIR} ${ATHENA_INCLUDE_DIR}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/freetype2/include
-                    ${ZEUS_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 list(APPEND SPECTER_HEADERS
      include/specter/specter.hpp
@@ -63,8 +40,6 @@ list(APPEND SPECTER_HEADERS
      include/specter/Translator.hpp
      include/specter/genie.hpp)
 
-atdna(atdna_FontCache.cpp include/specter/FontCache.hpp)
-
 list(APPEND SPECTER_SOURCES
      lib/ViewResources.cpp
      lib/View.cpp
@@ -87,8 +62,9 @@ list(APPEND SPECTER_SOURCES
      lib/FileBrowser.cpp
      lib/Icon.cpp
      lib/FontCache.cpp
-     lib/Translator.cpp
-     atdna_FontCache.cpp)
+     lib/Translator.cpp)
 
 add_library(specter ${SPECTER_SOURCES} ${SPECTER_HEADERS})
-add_dependencies(specter hecl-light)
+target_link_libraries(specter PUBLIC specter-fonts freetype hecl-full zeus)
+target_include_directories(specter PUBLIC include freetype2/include)
+target_atdna(specter atdna_FontCache.cpp include/specter/FontCache.hpp)

@@ -5,6 +5,7 @@
 namespace specter {
 
 struct IMenuNode {
+  virtual ~IMenuNode() = default;
   virtual boo::ITexture* icon() const { return nullptr; }
   virtual const std::string* text() const { return nullptr; }
   virtual size_t subNodeCount() const { return 0; }

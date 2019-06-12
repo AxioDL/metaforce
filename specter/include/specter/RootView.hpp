@@ -9,7 +9,7 @@
 #include "FontCache.hpp"
 #include "IMenuNode.hpp"
 #include "IViewManager.hpp"
-#include "optional.hpp"
+#include <optional>
 #include "boo/boo.hpp"
 
 namespace specter {
@@ -99,7 +99,7 @@ class RootView : public View {
       }
     } m_joinActionNode;
   };
-  std::experimental::optional<SplitMenuSystem> m_splitMenuSystem;
+  std::optional<SplitMenuSystem> m_splitMenuSystem;
 
 public:
   RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);

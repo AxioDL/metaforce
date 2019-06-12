@@ -7,7 +7,7 @@ static logvisor::Module Log("specter::MultiLineTextView");
 std::string MultiLineTextView::LineWrap(std::string_view str, int wrap) {
   size_t rem = str.size();
   const utf8proc_uint8_t* it = reinterpret_cast<const utf8proc_uint8_t*>(str.data());
-  uint32_t lCh = -1;
+  uint32_t lCh = UINT32_MAX;
   int adv = 0;
 
   std::string ret;
@@ -37,14 +37,14 @@ std::string MultiLineTextView::LineWrap(std::string_view str, int wrap) {
       continue;
     }
 
-    if (lCh != -1)
+    if (lCh != UINT32_MAX)
       adv += TextView::DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
     adv += glyph->m_advance;
 
     if (adv > wrap && lastSpaceIt) {
       ret.assign(ret.cbegin(), ret.cbegin() + rollbackPos);
       ret += '\n';
-      lCh = -1;
+      lCh = UINT32_MAX;
       rem = lastSpaceRem;
       it = lastSpaceIt;
       lastSpaceIt = nullptr;
@@ -68,7 +68,7 @@ std::string MultiLineTextView::LineWrap(std::string_view str, int wrap) {
 }
 
 std::wstring MultiLineTextView::LineWrap(std::wstring_view str, int wrap) {
-  uint32_t lCh = -1;
+  uint32_t lCh = UINT32_MAX;
   int adv = 0;
 
   std::wstring ret;
@@ -89,14 +89,14 @@ std::wstring MultiLineTextView::LineWrap(std::wstring_view str, int wrap) {
     if (!glyph)
       continue;
 
-    if (lCh != -1)
+    if (lCh != UINT32_MAX)
       adv += TextView::DoKern(m_fontAtlas.lookupKern(lCh, glyph->m_glyphIdx), m_fontAtlas);
     adv += glyph->m_advance;
 
     if (adv > wrap && lastSpaceIt != str.cend()) {
       ret.assign(ret.cbegin(), ret.cbegin() + rollbackPos);
       ret += L'\n';
-      lCh = -1;
+      lCh = UINT32_MAX;
       it = lastSpaceIt;
       lastSpaceIt = str.cend();
       adv = 0;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "boo/boo.hpp"
-#include "optional.hpp"
+#include <optional>
 #include "zeus/CVector3f.hpp"
 #include "zeus/CMatrix4f.hpp"
 #include "zeus/CTransform.hpp"
