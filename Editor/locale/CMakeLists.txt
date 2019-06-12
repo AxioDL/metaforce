@@ -6,3 +6,4 @@ add_library(UrdeLocales
             en_GB.yaml en_GB.cpp
             ja_JP.yaml ja_JP.cpp
             locale.hpp locale.cpp)
+target_link_libraries(UrdeLocales specter)
