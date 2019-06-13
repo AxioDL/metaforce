@@ -233,9 +233,7 @@ Connection::Connection(int verbosityLevel) {
 
   /* Put hecl_blendershell.py in temp dir */
   const SystemChar* TMPDIR = GetTmpDir();
-#ifdef _WIN32
-  m_startupBlend = hecl::WideToUTF8(TMPDIR);
-#else
+#ifndef _WIN32
   signal(SIGPIPE, SIG_IGN);
 #endif
 

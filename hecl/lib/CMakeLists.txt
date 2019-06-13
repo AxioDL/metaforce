@@ -10,7 +10,7 @@ add_subdirectory(Blender)
 add_subdirectory(Runtime)
 
 if(WIN32)
-list(APPEND PLAT_SRCS winsupport.cpp ../include/hecl/winsupport.hpp)
+list(APPEND PLAT_SRCS ../include/hecl/winsupport.hpp)
 endif()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo")
