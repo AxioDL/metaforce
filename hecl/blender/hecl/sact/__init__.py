@@ -158,11 +158,12 @@ def write_action_channels(writebuf, action):
                 writebuf(struct.pack('fff', writevec[0], writevec[1], writevec[2]))
 
 
-def write_action_aabb(writebuf, arm_obj, mesh_obj):
+def write_action_aabb(writebuf, arm_obj, mesh_obj, action):
     scene = bpy.context.scene
 
-    # Frame 1
-    scene.frame_set(1)
+    # Mute root channels
+    for fcurve in action.fcurves:
+        fcurve.mute = fcurve.data_path == 'pose.bones["root"].location'
 
     # Transform against root
     root_bone = arm_obj.pose.bones['root']
@@ -171,6 +172,10 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
         root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
     else:
         root_bone.rotation_euler = (0.0,0.0,0.0)
+
+    # Frame 1
+    scene.frame_set(1)
+
     root_aabb_min = Vector(mesh_obj.bound_box[0])
     root_aabb_max = Vector(mesh_obj.bound_box[6])
 
@@ -178,12 +183,6 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
     for frame_idx in range(2, scene.frame_end + 1):
         scene.frame_set(frame_idx)
 
-        root_bone.location = (0.0,0.0,0.0)
-        scene.update_tag()
-        if root_bone.rotation_mode == 'QUATERNION':
-            root_bone.rotation_quaternion = (1.0,0.0,0.0,0.0)
-        else:
-            root_bone.rotation_euler = (0.0,0.0,0.0)
         test_aabb_min = Vector(mesh_obj.bound_box[0])
         test_aabb_max = Vector(mesh_obj.bound_box[6])
 
@@ -193,6 +192,10 @@ def write_action_aabb(writebuf, arm_obj, mesh_obj):
         for comp in range(3):
             if test_aabb_max[comp] > root_aabb_max[comp]:
                 root_aabb_max[comp] = test_aabb_max[comp]
+
+    # Unmute root channels
+    for fcurve in action.fcurves:
+        fcurve.mute = False
 
     writebuf(struct.pack('ffffff',
                          root_aabb_min[0], root_aabb_min[1], root_aabb_min[2],
@@ -318,7 +321,7 @@ def _out_actions(sact_data, writebuf):
             if subtype.linked_mesh not in bpy.data.objects:
                 raise RuntimeError('mesh %s not found' % subtype.linked_mesh)
             mesh = bpy.data.objects[subtype.linked_mesh]
-            write_action_aabb(writebuf, arm, mesh)
+            write_action_aabb(writebuf, arm, mesh, bact)
 
 def _out_action_no_subtypes(sact_data, writebuf, action_name):
     for action_idx in range(len(sact_data.actions)):

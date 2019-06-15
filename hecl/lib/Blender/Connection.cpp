@@ -1454,10 +1454,12 @@ Action::Action(Connection& conn) {
   conn._readBuf(&aabbCount, 4);
   subtypeAABBs.reserve(aabbCount);
   for (uint32_t i = 0; i < aabbCount; ++i) {
-    // printf("AABB %s %d\n", name.c_str(), i);
     subtypeAABBs.emplace_back();
     subtypeAABBs.back().first.read(conn);
     subtypeAABBs.back().second.read(conn);
+    //printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
+    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]), float(subtypeAABBs.back().first.val.simd[2]),
+    //    float(subtypeAABBs.back().second.val.simd[0]), float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
   }
 }
 
