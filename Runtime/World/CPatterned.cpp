@@ -400,8 +400,8 @@ zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float
   if (segId != 0xFF) {
     zeus::CTransform xf = GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
     zeus::CVector3f scaledOrigin = GetModelData()->GetScale() * xf.origin;
-    if (GetTouchBounds())
-      return offset + GetTouchBounds()->clampToBox(x34_transform * scaledOrigin);
+    if (auto tb = GetTouchBounds())
+      return offset + tb->clampToBox(x34_transform * scaledOrigin);
 
     zeus::CAABox aabox = GetBaseBoundingBox();
 

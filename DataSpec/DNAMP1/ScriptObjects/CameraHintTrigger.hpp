@@ -12,8 +12,8 @@ struct CameraHintTrigger : IScriptObject {
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> volume;
-  Value<bool> unknown1;
-  Value<bool> unknown2;
-  Value<bool> unknown3;
+  Value<bool> active;
+  Value<bool> deactivateOnEntered;
+  Value<bool> deactivateOnExited;
 };
 } // namespace DataSpec::DNAMP1

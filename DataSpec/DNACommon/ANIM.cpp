@@ -37,6 +37,9 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div) {
   float q = M_PIF / 2.0f / float(div);
   zeus::simd_floats f(quat.simd);
+  assert(std::abs(f[1]) <= 1.f && "Out of range quat X component");
+  assert(std::abs(f[2]) <= 1.f && "Out of range quat Y component");
+  assert(std::abs(f[3]) <= 1.f && "Out of range quat Z component");
   return {{
               atInt32(std::asin(f[1]) / q),
               atInt32(std::asin(f[2]) / q),

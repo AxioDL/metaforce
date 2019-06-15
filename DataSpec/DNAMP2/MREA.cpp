@@ -47,8 +47,8 @@ void MREA::StreamReader::nextBlock() {
         rem -= chunkSz;
       } else {
         m_source.readUBytesToBuf(m_compBuf.get(), chunkSz);
-        size_t dsz = rem;
-        lzokay::decompress(m_compBuf.get(), chunkSz, bufCur, dsz);
+        size_t dsz;
+        lzokay::decompress(m_compBuf.get(), chunkSz, bufCur, rem, dsz);
         bufCur += dsz;
         rem -= dsz;
       }

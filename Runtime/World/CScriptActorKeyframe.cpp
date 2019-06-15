@@ -39,7 +39,6 @@ void CScriptActorKeyframe::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId u
       }
 
       x44_28_playing = true;
-      printf("%s\n", x10_name.c_str());
       SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
     }
   } else if (msg == EScriptObjectMessage::InitializedInArea) {

@@ -23,7 +23,9 @@ struct QuantizedValue {
     atInt32 delta = std::abs(v[idx] - other.v[idx]);
     if (delta == 0)
       return 1;
-    return int(std::ceil(std::log2(delta))) + 1;
+    int ret = int(std::ceil(std::log2(delta))) + 1;
+    assert(ret <= 24 && "Bad q value");
+    return ret;
   }
 };
 struct QuantizedRot {

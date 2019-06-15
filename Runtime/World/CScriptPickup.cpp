@@ -99,7 +99,7 @@ void CScriptPickup::Think(float dt, CStateManager& mgr) {
       x28c_25_inTractor = false;
       posDelta.zeroOut();
     }
-    SetVelocityOR(posDelta);
+    SetVelocityWR(posDelta);
   } else if (x28c_24_generated) {
     float chargeFactor =
         mgr.GetPlayer().GetPlayerGun()->IsCharging() ? mgr.GetPlayer().GetPlayerGun()->GetChargeBeamFactor() : 0.f;

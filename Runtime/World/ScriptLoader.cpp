@@ -3095,17 +3095,17 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
   SActorHead aHead = LoadActorHead(in, mgr);
   zeus::CVector3f scale = 0.5f * zeus::CVector3f::ReadBig(in);
   bool active = in.readBool();
-  bool b2 = in.readBool();
-  bool b3 = in.readBool();
+  bool deactivateOnEnter = in.readBool();
+  bool deactivateOnExit = in.readBool();
 
   zeus::CTransform xfRot = aHead.x10_transform.getRotation();
   if (xfRot == zeus::CTransform())
     return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
                               zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f,
-                              ETriggerFlags::DetectPlayer, active, b2, b3);
+                              ETriggerFlags::DetectPlayer, active, deactivateOnEnter, deactivateOnExit);
 
   return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform,
-                                      b2, b3);
+                                      deactivateOnEnter, deactivateOnExit);
 }
 
 CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

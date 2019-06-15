@@ -597,6 +597,7 @@ ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt
       if (sign == 0.f)
         sign = q.w() < 0.f ? -1.f : 1.f;
       q *= sign;
+      q.normalize();
       rotVals.emplace_back(q.mSimd);
     }
 
