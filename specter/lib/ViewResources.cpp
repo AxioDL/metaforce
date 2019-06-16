@@ -18,6 +18,7 @@ void ViewResources::init(boo::IGraphicsDataFactory* factory, FontCache* fcache, 
     init(ctx, *theme, fcache);
     return true;
   } BooTrace);
+  factory->waitUntilShadersReady();
 }
 
 void ViewResources::destroyResData() {
