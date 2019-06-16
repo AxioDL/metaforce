@@ -63,24 +63,25 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
 
   std::sort(vec.begin(), vec.end(), [](auto& a, auto& b) { return a.first < b.first; });
 
+  int pitch = particles.size() / 9;
   for (int i = 0; i < 9; ++i) {
-    CParticle& part = particles[vec[i].second];
-    x4_points[i] = part.x4_pos;
+    CParticle& part = particles[vec[i * pitch].second];
+    x4_collisionPoints[i] = part.x4_pos;
     if (i > 0) {
-      zeus::CVector3f delta = x4_points[i] - x4_points[i - 1];
+      zeus::CVector3f delta = x4_collisionPoints[i] - x4_collisionPoints[i - 1];
       if (delta.magnitude() < 0.0011920929f)
-        x4_points[i] += delta.normalized() * 0.0011920929f;
+        x4_collisionPoints[i] += delta.normalized() * 0.0011920929f;
     }
   }
 
-  x4_points[0] = x74_warpPoint;
-  x80_floatingPoint = x4_points[8];
+  x4_collisionPoints[0] = x74_warpPoint;
+  x80_floatingPoint = x4_collisionPoints[8];
   xa0_26_processed = true;
 }
 
 zeus::CAABox CFlameWarp::CalculateBounds() const {
   zeus::CAABox ret;
-  for (const auto& v : x4_points)
+  for (const auto& v : x4_collisionPoints)
     ret.accumulateBounds(v);
   return ret;
 }

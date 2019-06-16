@@ -283,28 +283,32 @@ std::unique_ptr<atUint8[]> BitstreamWriter::write(const std::vector<std::vector<
   float quantRangeF = float(quantRange);
 
   /* Pre-pass to calculate translation multiplier */
-  float maxTransVal = 0.0f;
-  float maxScaleVal = 0.0f;
+  float maxTransDelta = 0.0f;
+  float maxScaleDelta = 0.0f;
   auto kit = chanKeys.begin();
   for (Channel& chan : channels) {
     switch (chan.type) {
     case Channel::Type::Translation: {
+      zeus::simd<float> lastVal = {};
       for (auto it = kit->begin(); it != kit->end(); ++it) {
         const Value* key = &*it;
-        zeus::simd_floats f(key->simd);
-        maxTransVal = std::max(maxTransVal, std::fabs(f[0]));
-        maxTransVal = std::max(maxTransVal, std::fabs(f[1]));
-        maxTransVal = std::max(maxTransVal, std::fabs(f[2]));
+        zeus::simd_floats f(key->simd - lastVal);
+        lastVal = key->simd;
+        maxTransDelta = std::max(maxTransDelta, std::fabs(f[0]));
+        maxTransDelta = std::max(maxTransDelta, std::fabs(f[1]));
+        maxTransDelta = std::max(maxTransDelta, std::fabs(f[2]));
       }
       break;
     }
     case Channel::Type::Scale: {
+      zeus::simd<float> lastVal = {};
       for (auto it = kit->begin(); it != kit->end(); ++it) {
         const Value* key = &*it;
-        zeus::simd_floats f(key->simd);
-        maxScaleVal = std::max(maxScaleVal, std::fabs(f[0]));
-        maxScaleVal = std::max(maxScaleVal, std::fabs(f[1]));
-        maxScaleVal = std::max(maxScaleVal, std::fabs(f[2]));
+        zeus::simd_floats f(key->simd - lastVal);
+        lastVal = key->simd;
+        maxScaleDelta = std::max(maxScaleDelta, std::fabs(f[0]));
+        maxScaleDelta = std::max(maxScaleDelta, std::fabs(f[1]));
+        maxScaleDelta = std::max(maxScaleDelta, std::fabs(f[2]));
       }
       break;
     }
@@ -313,8 +317,8 @@ std::unique_ptr<atUint8[]> BitstreamWriter::write(const std::vector<std::vector<
     }
     ++kit;
   }
-  transMultOut = maxTransVal / quantRangeF;
-  scaleMultOut = maxScaleVal / quantRangeF;
+  transMultOut = std::max(maxTransDelta / quantRangeF, FLT_EPSILON);
+  scaleMultOut = std::max(maxScaleDelta / quantRangeF, FLT_EPSILON);
 
   /* Output channel inits */
   std::vector<QuantizedValue> initVals;

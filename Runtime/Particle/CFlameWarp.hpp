@@ -6,7 +6,7 @@ namespace urde {
 class CStateManager;
 
 class CFlameWarp : public CWarp {
-  rstl::reserved_vector<zeus::CVector3f, 9> x4_points;
+  rstl::reserved_vector<zeus::CVector3f, 9> x4_collisionPoints;
   zeus::CVector3f x74_warpPoint;
   zeus::CVector3f x80_floatingPoint;
   float x8c_maxDistSq = 0.f;
@@ -23,13 +23,13 @@ public:
   : x74_warpPoint(warpPoint)
   , x80_floatingPoint(warpPoint)
   , x98_maxInfluenceDistSq(maxInfluenceDist * maxInfluenceDist) {
-    x4_points.resize(9, warpPoint);
+    x4_collisionPoints.resize(9, warpPoint);
     xa0_24_activated = false;
     xa0_25_collisionWarp = collisionWarp;
     xa0_26_processed = false;
   }
 
-  const rstl::reserved_vector<zeus::CVector3f, 9>& GetPoints() const { return x4_points; }
+  const rstl::reserved_vector<zeus::CVector3f, 9>& GetCollisionPoints() const { return x4_collisionPoints; }
   float GetMinSize() const { return x90_minSize; }
   float GetMaxSize() const { return x94_maxSize; }
   void SetWarpPoint(const zeus::CVector3f& p) { x74_warpPoint = p; }
@@ -44,7 +44,7 @@ public:
   bool IsProcessed() const { return xa0_26_processed; }
   FourCC Get4CharID() { return FOURCC('FWRP'); }
   void ResetPosition(const zeus::CVector3f& pos) {
-    for (auto& vec : x4_points) {
+    for (auto& vec : x4_collisionPoints) {
       vec = pos;
     }
     xa0_26_processed = false;

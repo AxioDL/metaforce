@@ -31,7 +31,7 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 , x400_24_active(false)
 , x400_25_particlesActive(false)
 , x400_26_(!(flameInfo.GetAttributes() & 1))
-, x400_27_detailedParticles((flameInfo.GetAttributes() & 0x2) != 0) {
+, x400_27_coneCollision((flameInfo.GetAttributes() & 0x2) != 0) {
 
 }
 
@@ -81,7 +81,7 @@ void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
   x348_flameGen.reset(new CElementGen(x33c_flameDesc));
   x348_flameGen->SetParticleEmission(true);
-  x348_flameGen->SetZTest(x400_27_detailedParticles);
+  x348_flameGen->SetZTest(x400_27_coneCollision);
   x348_flameGen->AddModifier(&x34c_flameWarp);
   if (x348_flameGen->SystemHasLight() && x2c8_projectileLight == kInvalidUniqueId)
     CreateProjectileLight("FlameThrower_Light"sv, x348_flameGen->GetLight(), mgr);
@@ -129,15 +129,16 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
   CRayCastResult ret;
   rstl::reserved_vector<TUniqueId, 1024> nearList;
   mgr.BuildNearList(nearList, aabb, CMaterialFilter::skPassEverything, this);
-  if (x400_27_detailedParticles && x34c_flameWarp.GetPoints().size() > 0) {
-    float pitch = (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) /
-        float(x34c_flameWarp.GetPoints().size()) * 0.5f;
-    float curOffset = pitch;
-    for (int i = 1; i < x34c_flameWarp.GetPoints().size(); ++i) {
-      zeus::CVector3f delta = x34c_flameWarp.GetPoints()[i] - x34c_flameWarp.GetPoints()[i - 1];
-      zeus::CTransform lookXf = zeus::lookAt(x34c_flameWarp.GetPoints()[i - 1], x34c_flameWarp.GetPoints()[i]);
-      lookXf.origin = delta * 0.5f + x34c_flameWarp.GetPoints()[i - 1];
-      zeus::COBBox obb(lookXf, {curOffset, delta.magnitude() * 0.5f, curOffset});
+  const auto& colPoints = x34c_flameWarp.GetCollisionPoints();
+  if (x400_27_coneCollision && colPoints.size() > 0) {
+    float radiusPitch = (x34c_flameWarp.GetMaxSize() - x34c_flameWarp.GetMinSize()) /
+        float(colPoints.size()) * 0.5f;
+    float curRadius = radiusPitch;
+    for (int i = 1; i < colPoints.size(); ++i) {
+      zeus::CVector3f delta = colPoints[i] - colPoints[i - 1];
+      zeus::CTransform lookXf = zeus::lookAt(colPoints[i - 1], colPoints[i]);
+      lookXf.origin = delta * 0.5f + colPoints[i - 1];
+      zeus::COBBox obb(lookXf, {curRadius, delta.magnitude() * 0.5f, curRadius});
       for (TUniqueId id : nearList) {
         if (CActor* act = static_cast<CActor*>(mgr.ObjectById(id))) {
           CProjectileTouchResult tres = CanCollideWith(*act, mgr);
@@ -159,16 +160,15 @@ CRayCastResult CFlameThrower::DoCollisionCheck(TUniqueId& idOut, const zeus::CAA
           }
         }
       }
-      curOffset += pitch;
+      curRadius += radiusPitch;
     }
   } else {
-    for (int i = 0; i < x34c_flameWarp.GetPoints().size() - 1; ++i) {
-      zeus::CVector3f delta = x34c_flameWarp.GetPoints()[i + 1] - x34c_flameWarp.GetPoints()[i];
+    for (int i = 0; i < colPoints.size() - 1; ++i) {
+      zeus::CVector3f delta = colPoints[i + 1] - colPoints[i];
       float deltaMag = delta.magnitude();
       if (deltaMag <= 0.f)
         break;
-      CRayCastResult cres = RayCollisionCheckWithWorld(idOut, x34c_flameWarp.GetPoints()[i],
-                                                       x34c_flameWarp.GetPoints()[i + 1], deltaMag, nearList, mgr);
+      CRayCastResult cres = RayCollisionCheckWithWorld(idOut, colPoints[i], colPoints[i + 1], deltaMag, nearList, mgr);
       if (cres.IsValid())
         return cres;
     }

@@ -20,7 +20,7 @@ class CAABoxShader {
 public:
   static void Initialize();
   static void Shutdown();
-  CAABoxShader(bool zOnly);
+  CAABoxShader(bool zOnly = false);
   void setAABB(const zeus::CAABox& aabb);
   void draw(const zeus::CColor& color);
 };

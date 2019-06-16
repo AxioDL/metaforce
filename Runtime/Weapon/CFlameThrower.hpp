@@ -2,6 +2,7 @@
 
 #include "Weapon/CGameProjectile.hpp"
 #include "Particle/CFlameWarp.hpp"
+#include "Graphics/Shaders/CAABoxShader.hpp"
 
 namespace urde {
 class CFlameInfo;
@@ -35,7 +36,7 @@ private:
       bool x400_24_active : 1;
       bool x400_25_particlesActive : 1;
       bool x400_26_ : 1;
-      bool x400_27_detailedParticles : 1; /* Z-sort and finer collision detection */
+      bool x400_27_coneCollision : 1; /* Z-sort and finer collision detection */
     };
     u32 _dummy = 0;
   };
