@@ -150,7 +150,7 @@ bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const ze
 
   if (!isFlyer) {
     polyPoints.clear();
-    for (u32 i = x0_numNodes - 1; i >= 0; --i) {
+    for (int i = int(x0_numNodes) - 1; i >= 0; --i) {
       CPFNode& node = x4_startNode[i];
       polyPoints.push_back(node.GetPos());
       polyPoints.back().z() += x14_height;

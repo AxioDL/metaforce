@@ -357,6 +357,7 @@ void CMain::InitializeSubsystems() {
   CAnimData::InitializeCache();
   CDecalManager::Initialize();
   CGBASupport::Initialize();
+  CGraphics::g_BooFactory->waitUntilShadersReady();
 }
 
 void CMain::MemoryCardInitializePump() {

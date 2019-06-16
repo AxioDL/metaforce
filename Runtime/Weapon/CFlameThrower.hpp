@@ -2,7 +2,6 @@
 
 #include "Weapon/CGameProjectile.hpp"
 #include "Particle/CFlameWarp.hpp"
-#include "Graphics/Shaders/CAABoxShader.hpp"
 
 namespace urde {
 class CFlameInfo;
