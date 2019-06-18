@@ -56,6 +56,7 @@ class CFlaahgra : public CPatterned {
   static const SSphereJointInfo skSphereJointList[5];
   static constexpr zeus::CColor skDamageColor = zeus::CColor(0.5f, 0.5f, 0.f, 1.f);
   static constexpr zeus::CColor skUnkColor = zeus::CColor(0.5f, 0.f, 0.f, 1.f);
+  static constexpr zeus::CVector3f skUnkVec1 = zeus::CVector3f(0.5f, 7.f, 0.f);
   s32 x568_ = -1;
   CFlaahgraData x56c_;
   std::unique_ptr<CBoneTracking> x6cc_boneTracking; // Used to be an rstl::pair<bool,CBoneTracking>
@@ -95,6 +96,7 @@ class CFlaahgra : public CPatterned {
   float x810_ = 0.f;
   float x814_ = 0.f;
   float x818_ = 0.f;
+  float x81c_ = 0.f;
   zeus::CVector3f x820_;
   u32 x82c_ = 0;
   u32 x860_ = 0;
@@ -111,7 +113,7 @@ class CFlaahgra : public CPatterned {
       bool x8e4_26_ : 1;
       bool x8e4_27_ : 1;
       bool x8e4_28_ : 1;
-      bool x8e4_29_ : 1;
+      bool x8e4_29_getup : 1;
       bool x8e4_30_ : 1;
       bool x8e4_31_ : 1;
       bool x8e5_24_ : 1;
@@ -141,7 +143,12 @@ class CFlaahgra : public CPatterned {
   void UpdateHealthInfo(CStateManager&);
   void UpdateAimPosition(CStateManager&, float);
   void SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>&, CStateManager&);
-  
+  bool sub801ae670();
+  bool sub801aebb8(TUniqueId);
+  void SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
+                               const zeus::CVector3f& extendedBounds);
+
+  void UpdateScale(float, float, float);
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
@@ -154,10 +161,15 @@ public:
   zeus::CVector3f GetAimPosition(const CStateManager&, float) const { return x820_; }
 
   bool AnimOver(CStateManager&, float) { return x568_ == 4; }
+  bool AIStage(CStateManager&, float arg) { return x780_ == u32(arg); }
+  bool HitSomething(CStateManager&, float arg) { return x7d0_ <= 0; }
+  bool OffLine(CStateManager&, float) { return (x8e5_29_ && x8e5_28_); }
   bool ShouldTurn(CStateManager&, float);
+  bool ShouldAttacK(CStateManager&, float) { return true; }
 
   void FadeIn(CStateManager&, EStateMsg, float);
   void FadeOut(CStateManager&, EStateMsg, float);
   void TurnAround(CStateManager&, EStateMsg, float);
+  void GetUp(CStateManager&, EStateMsg, float);
 };
 }
