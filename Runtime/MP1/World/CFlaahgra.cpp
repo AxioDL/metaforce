@@ -226,6 +226,56 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   }
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
+
+void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObjectState state) {
+  if (!x400_25_alive)
+    return;
+
+  x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "Dead"sv);
+  if (x450_bodyController->GetPercentageFrozen() > 0.f)
+    x450_bodyController->UnFreeze();
+
+  x400_25_alive = false;
+}
+
+void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
+  switch(type) {
+  case EUserEventType::Projectile: {
+    // TODO: Implement
+    break;
+  }
+  case EUserEventType::BeginAction: {
+    x8e4_26_ = true;
+    x7c4_ = GetEndActionTime();
+    break;
+  }
+  case EUserEventType::ScreenShake: {
+    // TODO: Implement
+    break;
+  }
+  case EUserEventType::AlignTargetRot: {
+    if (x77c_ == kInvalidUniqueId)
+      break;
+    if (TCastToPtr<CScriptWaypoint> wp = mgr.ObjectById(x77c_)) {
+      mgr.SendScriptMsg(wp, GetUniqueId(), EScriptObjectMessage::Arrived);
+      if (x7f8_ > 0)
+        --x7f8_;
+    }
+    break;
+  }
+  case EUserEventType::GenerateEnd: {
+    // TODO: Implement
+    break;
+  }
+  case EUserEventType::ObjectDrop: {
+    SendScriptMsgs(EScriptObjectState::Modify, mgr, EScriptObjectMessage::None);
+    break;
+  }
+  default: break;
+  }
+
+  CPatterned::DoUserAnimEvent(mgr, node, type, dt);
+}
 void CFlaahgra::LoadDependencies(CAssetId dgrpId) {
   if (!dgrpId.IsValid()) {
     ResetModelDataAndBodyController();
@@ -420,6 +470,12 @@ void CFlaahgra::sub801ae980(CStateManager& mgr) {
   ++x788_;
 }
 
+void CFlaahgra::UpdateHeadDamageVulnerability(CStateManager& mgr, bool b) {
+  if (TCastToPtr<CCollisionActor> head = mgr.ObjectById(x80c_headActor)) {
+    head->SetDamageVulnerability(b ? *GetDamageVulnerability() : x56c_.x10_);
+  }
+}
+
 void CFlaahgra::FadeIn(CStateManager& mgr, EStateMsg msg, float) {
   if (msg != EStateMsg::Activate)
     return;
@@ -475,7 +531,38 @@ void CFlaahgra::UpdateSmallScaleReGrowth(float dt) {
   x7d8_ += dt;
 }
 
-void CFlaahgra::UpdateHealthInfo(CStateManager&) {}
+void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
+  float tmp = 0.f;
+  for (const TUniqueId& uid : x7fc_sphereColliders) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      CHealthInfo* inf = colAct->HealthInfo(mgr);
+
+      tmp = zeus::max(tmp, x818_ - inf->GetHP());
+    }
+  }
+
+  if (x780_ == 3) {
+       if (!IsDizzy(mgr, 0.f))
+         x814_ += tmp;
+       else
+         x810_ += tmp;
+  } else {
+    x814_ = 0.f;
+    x810_ = 0.f;
+  }
+
+  CHealthInfo* hInfo = HealthInfo(mgr);
+  if (hInfo->GetHP() <= 0.f) {
+    Death(mgr, {}, EScriptObjectState::DeathRattle);
+    RemoveMaterial(EMaterialTypes::Orbit, mgr);
+    return;
+  }
+  for (const TUniqueId& uid : x7fc_sphereColliders) {
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      colAct->HealthInfo(mgr)->SetHP(x818_);
+    }
+  }
+}
 void CFlaahgra::UpdateAimPosition(CStateManager& mgr, float dt) {
   if (TCastToConstPtr<CCollisionActor> head = mgr.GetObjectById(x80c_headActor)) {
     pas::EAnimationState animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
@@ -643,4 +730,12 @@ void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float) {
     x7c0_ = 11.f;
   }
 }
+zeus::CVector3f CFlaahgra::GetAttacktargetPos(CStateManager& mgr) const {
+  if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
+    return mgr.GetPlayer().GetMorphBall()->GetBallToWorld().origin;
+
+  return mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, -.5f + mgr.GetPlayer().GetEyeHeight());
+}
+
+
 } // namespace urde::MP1
