@@ -90,9 +90,9 @@ class CFlaahgra : public CPatterned {
   float x7d4_ = 0.f;
   float x7d8_ = 0.f;
   CDamageInfo x7dc_;
-  u32 x7f8_ = 0;
-  u32 x7fc_ = 0;
-  TUniqueId x80c_ = kInvalidUniqueId;
+  u32 x7f8_;
+  rstl::reserved_vector<TUniqueId, 8> x7fc_sphereColliders;
+  TUniqueId x80c_headActor = kInvalidUniqueId;
   float x810_ = 0.f;
   float x814_ = 0.f;
   float x818_ = 0.f;
@@ -149,6 +149,10 @@ class CFlaahgra : public CPatterned {
                                const zeus::CVector3f& extendedBounds);
 
   void UpdateScale(float, float, float);
+  float GetEndActionTime();
+  void SetupHealthInfo(CStateManager&);
+
+  bool sub801e4f8() { return x7a8_ == 0 || x7a8_ == 1; }
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
@@ -162,8 +166,8 @@ public:
 
   bool AnimOver(CStateManager&, float) { return x568_ == 4; }
   bool AIStage(CStateManager&, float arg) { return x780_ == u32(arg); }
-  bool HitSomething(CStateManager&, float arg) { return x7d0_ <= 0; }
-  bool OffLine(CStateManager&, float) { return (x8e5_29_ && x8e5_28_); }
+  bool HitSomething(CStateManager&, float arg) { return x7d0_ > 0; }
+  bool OffLine(CStateManager&, float) { return (!x8e5_29_ && !x8e5_28_); }
   bool ShouldTurn(CStateManager&, float);
   bool ShouldAttacK(CStateManager&, float) { return true; }
 
@@ -171,5 +175,7 @@ public:
   void FadeOut(CStateManager&, EStateMsg, float);
   void TurnAround(CStateManager&, EStateMsg, float);
   void GetUp(CStateManager&, EStateMsg, float);
+  void Growth(CStateManager&, EStateMsg, float);
+  void Generate(CStateManager&, EStateMsg, float);
 };
 }

@@ -167,7 +167,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
 
           if ((x56c_.x140_ - proj->GetDamageInfo().GetDamage()) >= x810_) {
             x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopHitReactionCmd(pas::EReactionType::One));
-          } else if (uid == x80c_) {
+          } else if (uid == x80c_headActor) {
             if (proj->GetDamageInfo().GetWeaponMode().IsCharged() ||
                 proj->GetDamageInfo().GetWeaponMode().IsComboed() ||
                 proj->GetDamageInfo().GetWeaponMode().GetType() == EWeaponType::Missile) {
@@ -363,8 +363,27 @@ void CFlaahgra::AddSphereCollisionList(const SSphereJointInfo* joints, int count
   }
 }
 
+void CFlaahgra::SetupHealthInfo(CStateManager& mgr) {
+  x7fc_sphereColliders.clear();
+
+  for (u32 i = 0; i < x7a4_sphereCollision->GetNumCollisionActors(); ++i) {
+    const auto& desc = x7a4_sphereCollision->GetCollisionDescFromIndex(i);
+    TUniqueId uid = desc.GetCollisionActorId();
+    if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
+      *colAct->HealthInfo(mgr) = *HealthInfo(mgr);
+      if (desc.GetName() == "Head_1"sv)
+        x80c_headActor = uid;
+
+      x7fc_sphereColliders.push_back(uid);
+    }
+  }
+
+  x818_ = HealthInfo(mgr)->GetHP();
+}
+
 void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> leftArmjointList;
+  zeus::CVector3f oldScale = GetModelData()->GetScale();
   leftArmjointList.reserve(3);
   AddCollisionList(skLeftArmJointList, 3, leftArmjointList);
   x79c_leftArmCollision.reset(
@@ -381,6 +400,16 @@ void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
   AddSphereCollisionList(skSphereJointList, 5, sphereJointList);
   x7a4_sphereCollision.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJointList, true));
   SetMaterialProperties(x7a4_sphereCollision, mgr);
+  SetupHealthInfo(mgr);
+  SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+      {EMaterialTypes::Solid},
+      {EMaterialTypes::CollisionActor, EMaterialTypes::AIPassthrough, EMaterialTypes::Player}));
+  AddMaterial(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
+  RemoveMaterial(EMaterialTypes::Solid, mgr);
+  ModelData()->SetScale(oldScale);
+  x7a4_sphereCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
+  x79c_leftArmCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
+  x7a0_rightArmCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
 }
 
 void CFlaahgra::sub801ae980(CStateManager& mgr) {
@@ -425,9 +454,50 @@ void CFlaahgra::UpdateCollisionManagers(float dt, CStateManager& mgr) {
   x79c_leftArmCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   x7a0_rightArmCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
 }
-void CFlaahgra::UpdateSmallScaleReGrowth(float) {}
+void CFlaahgra::UpdateSmallScaleReGrowth(float dt) {
+  if (x7c0_ > 0.f)
+    x7c0_ -= (x788_ < 2 ? dt : 1.25f * dt);
+
+  if (x7bc_ > 0.f)
+    x7bc_ -= dt;
+
+  if (x7d0_ > 0.f)
+    x7d0_ -= dt;
+
+  if (x7cc_ > 0.f)
+    x7cc_ -= dt;
+
+  if (!x8e4_29_getup || x7d8_ > 6.f)
+    return;
+
+  x430_damageColor = zeus::CColor::lerp(skUnkColor, zeus::skBlack, (M_PIF * std::cos(x7d8_)));
+  TakeDamage({}, 0.f);
+  x7d8_ += dt;
+}
+
 void CFlaahgra::UpdateHealthInfo(CStateManager&) {}
-void CFlaahgra::UpdateAimPosition(CStateManager&, float) {}
+void CFlaahgra::UpdateAimPosition(CStateManager& mgr, float dt) {
+  if (TCastToConstPtr<CCollisionActor> head = mgr.GetObjectById(x80c_headActor)) {
+    pas::EAnimationState animState = x450_bodyController->GetBodyStateInfo().GetCurrentStateId();
+    if (animState == pas::EAnimationState::GroundHit || animState == pas::EAnimationState::LieOnGround)
+      return;
+
+    zeus::CVector3f vec;
+    if (x780_ != 0 && !x8e4_28_ && !sub801e4f8())
+      vec = head->GetTranslation();
+    else
+      vec = GetTranslation() + zeus::CVector3f(0.f, 0.f, 3.7674999f) +
+            (zeus::CVector3f(0.f, 0.f, 4.1550002f) * GetModelData()->GetScale());
+
+    zeus::CVector3f diff = vec - x820_;
+    if (diff.canBeNormalized()) {
+      if (diff.magnitude() > (125.f * dt))
+        x820_ += ((1.f / diff.magnitude()) * diff) * (125.f * dt);
+      else
+        x820_ = vec;
+    }
+  }
+}
 void CFlaahgra::SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>& actMgr, CStateManager& mgr) {
   for (u32 i = 0; i < actMgr->GetNumCollisionActors(); ++i) {
     TUniqueId uid = actMgr->GetCollisionDescFromIndex(i).GetCollisionActorId();
@@ -497,6 +567,40 @@ void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float) {
     x430_damageColor = skDamageColor;
   }
 }
+
+void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x568_ = 0;
+    x8e4_26_ = false;
+    x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
+    x81c_ = GetModelData()->GetScale().z();
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == 0) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Generate)
+        x568_ = 2;
+      else
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Two));
+    } else if (x568_ == 2) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Generate) {
+        x568_ = 4;
+      } else if (x8e4_26_) {
+        UpdateScale((x7c4_ > 0.f ? 1.f - (GetEndActionTime() / x7c4_) : 1.f), x81c_, x56c_.x4_);
+      }
+
+      x450_bodyController->GetCommandMgr().SetTargetVector(mgr.GetPlayer().GetTranslation() - GetTranslation());
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    UpdateScale(1.f, x81c_, x56c_.x4_);
+    x8e4_26_ = false;
+    x780_ = 3;
+    x79c_leftArmCollision->SetActive(mgr, true);
+    x7a0_rightArmCollision->SetActive(mgr, true);
+    x8e4_29_getup = false;
+    x430_damageColor = skDamageColor;
+  }
+}
+
+
 void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
                                         const zeus::CVector3f& extendedBounds) {
   for (u32 i = 0; i < colMgr->GetNumCollisionActors(); ++i) {
@@ -506,7 +610,37 @@ void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_pt
     }
   }
 }
-void CFlaahgra::UpdateScale(float alpha, float min, float max) {
-  ModelData()->SetScale(zeus::skOne3f * (alpha * (max - min) + min));
+void CFlaahgra::UpdateScale(float t, float min, float max) {
+  ModelData()->SetScale(zeus::skOne3f * (t * (max - min) + min));
+}
+
+float CFlaahgra::GetEndActionTime() {
+  CCharAnimTime eventTime =
+      GetModelData()->GetAnimationData()->GetTimeOfUserEvent(EUserEventType::EndAction, CCharAnimTime::Infinity());
+  if (eventTime == CCharAnimTime::Infinity())
+    return 0.f;
+
+  return eventTime.GetSeconds();
+}
+
+void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    x568_ = 0;
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == 0) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Generate) {
+        x568_ = 2;
+        x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType::Zero));
+      }
+    } else if (x568_ == 2 &&
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Generate) {
+      x568_ = 4;
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x7a4_sphereCollision->SetActive(mgr, true);
+    x7c0_ = 11.f;
+  }
 }
 } // namespace urde::MP1

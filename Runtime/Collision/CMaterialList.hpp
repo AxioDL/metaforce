@@ -57,6 +57,7 @@ enum class EMaterialTypes {
   NonSolidDamageable = 50,
   RadarObject = 51,
   PlatformSlave = 52,
+  Unknown53 = 53,
   Unknown54 = 54,
   SolidCharacter = 55,
   ExcludeFromLineOfSightTest = 56,
