@@ -30,7 +30,7 @@ static std::string_view RecursiveLookup(const athena::io::YAMLNode* node, std::s
     if (*it == '/') {
       const athena::io::YAMLNode* ch = node->findMapChild(std::string(start, it));
       if (!ch)
-        return nullptr;
+        return {};
       return RecursiveLookup(ch, it + 1, end);
     }
   }
@@ -42,7 +42,7 @@ static std::string_view RecursiveLookup(const athena::io::YAMLNode* node, std::s
 
 std::string_view Translator::translate(std::string_view key) const {
   if (!m_targetLocale->rootNode())
-    return nullptr;
+    return {};
 
   return RecursiveLookup(m_targetLocale->rootNode(), key.cbegin(), key.cend());
 }
