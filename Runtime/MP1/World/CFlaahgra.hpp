@@ -10,6 +10,7 @@ class CCollisionActorManager;
 class CGenDescription;
 class CBoneTracking;
 class CDependencyGroup;
+class CElementGen;
 }
 
 namespace urde::MP1 {
@@ -47,6 +48,26 @@ public:
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
   void Accept(IVisitor&);
   std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
+};
+
+class CFlaahgraPlants : public CActor {
+  std::unique_ptr<CElementGen> xe8_elementGen;
+  TUniqueId xf0_ownerId;
+  CDamageInfo xf4_damageInfo;
+  std::optional<zeus::CAABox> x110_aabox;
+  float x12c_lastDt = 0.f;
+  zeus::COBBox x130_obbox;
+  TUniqueId x16c_colAct = kInvalidUniqueId;
+public:
+  CFlaahgraPlants(const TToken<CGenDescription>&, const CActorParameters&, TUniqueId, TAreaId, TUniqueId,
+                  const zeus::CTransform&, const CDamageInfo&, const zeus::CVector3f&);
+
+  void Accept(IVisitor&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Think(float, CStateManager&);
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  std::optional<zeus::CAABox> GetTouchBounds() const { return x110_aabox; }
+  void Touch(CActor&, CStateManager&);
 };
 
 class CFlaahgra : public CPatterned {
@@ -126,7 +147,6 @@ class CFlaahgra : public CPatterned {
     };
     u32 _dummy = 0;
   };
-
 
   void LoadDependencies(CAssetId);
   void ResetModelDataAndBodyController();

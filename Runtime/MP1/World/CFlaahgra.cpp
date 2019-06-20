@@ -4,6 +4,7 @@
 #include "Collision/CCollisionActor.hpp"
 #include "Collision/CCollisionActorManager.hpp"
 #include "MP1/World/CFlaahgraProjectile.hpp"
+#include "Particle/CElementGen.hpp"
 #include "World/CActorParameters.hpp"
 #include "World/CGameArea.hpp"
 #include "World/CPlayer.hpp"
@@ -737,5 +738,69 @@ zeus::CVector3f CFlaahgra::GetAttacktargetPos(CStateManager& mgr) const {
   return mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, -.5f + mgr.GetPlayer().GetEyeHeight());
 }
 
+CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,
+                                 TUniqueId uid, TAreaId aId, TUniqueId owner, const zeus::CTransform& xf,
+                                 const CDamageInfo& dInfo, const zeus::CVector3f& extents)
+: CActor(uid, true, "Flaahgra Plants"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
+         CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
+, xe8_elementGen(new CElementGen(genDesc))
+, xf0_ownerId(owner)
+, x130_obbox(xf, extents) {
+  xe8_elementGen->SetGlobalOrientation(xf.getRotation());
+  xe8_elementGen->SetGlobalTranslation(xf.origin);
+  x110_aabox = {x130_obbox.calculateAABox(xf)};
+}
+void CFlaahgraPlants::Accept(IVisitor& visitor) {
+  visitor.Visit(this);
+}
+void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
+  CActor::AcceptScriptMsg(msg, uid, mgr);
 
+  if (msg == EScriptObjectMessage::Registered) {
+    xe8_elementGen->SetParticleEmission(true);
+    if (x16c_colAct == kInvalidUniqueId) {
+      x16c_colAct = mgr.AllocateUniqueId();
+      CCollisionActor* colAct = new CCollisionActor(x16c_, GetAreaIdAlways(), GetUniqueId(),
+                                                    x130_obbox.extents + zeus::CVector3f(10.f, 0.f, 10.f), {}, true,
+                                                    0.001f, "Flaahgra Plants"sv);
+
+      colAct->SetTransform(GetTransform());
+      colAct->SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
+          {EMaterialTypes::Player}, {EMaterialTypes::Trigger, EMaterialTypes::CollisionActor,
+                                     EMaterialTypes::NoStaticCollision, EMaterialTypes::Character}));
+      CMaterialList materialList = colAct->GetMaterialList();
+      materialList.Add(EMaterialTypes::ProjectilePassthrough);
+      materialList.Add(EMaterialTypes::Immovable);
+      colAct->SetMaterialList(materialList);
+      mgr.AddObject(colAct);
+      mgr.SetActorAreaId(*colAct, GetAreaIdAlways());
+    }
+  } else if (msg == EScriptObjectMessage::Deleted && (x16c_colAct != kInvalidUniqueId) {
+    mgr.FreeScriptObject(x16c_colAct);
+  }
+}
+void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
+  if (GetActive()) {
+    xe8_elementGen->Update(dt);
+    x12c_lastDt = dt;
+  }
+
+  if (xe8_elementGen->IsSystemDeletable())
+    mgr.FreeScriptObject(GetUniqueId());
+}
+void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
+  g_Renderer->AddParticleGen(*xe8_elementGen.get());
+  CActor::AddToRenderer(frustum, mgr);
+}
+
+void CFlaahgraPlants::Touch(CActor& act, CStateManager& mgr) {
+  if (act.GetUniqueId() != mgr.GetPlayer().GetUniqueId() || !x110_aabox)
+    return;
+
+  zeus::COBBox plObb = zeus::COBBox::FromAABox(mgr.GetPlayer().GetBoundingBox(), {});
+
+  if (x130_obbox.OBBIntersectsBox(plObb)) {
+    /* TODO: Finish */
+  }
+}
 } // namespace urde::MP1

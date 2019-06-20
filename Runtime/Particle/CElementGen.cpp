@@ -1843,10 +1843,7 @@ bool CElementGen::IsSystemDeletable() const {
     if (!ch->IsSystemDeletable())
       return false;
 
-  if (x268_PSLT < x74_curFrame && x25c_activeParticleCount == 0)
-    return true;
-
-  return false;
+  return x268_PSLT < x74_curFrame && x25c_activeParticleCount == 0;
 }
 
 std::optional<zeus::CAABox> CElementGen::GetBounds() const {
