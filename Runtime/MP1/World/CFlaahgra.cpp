@@ -887,8 +887,8 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float) {
         x450_bodyController->GetCommandMgr().SetTargetVector(x78c_);
     }
   } else if (msg == EStateMsg::Deactivate) {
-    SetCollisionActorBounds(x79c_leftArmCollision, {});
-    SetCollisionActorBounds(x7a0_rightArmCollision, {});
+    SetCollisionActorBounds(mgr, x79c_leftArmCollision, {});
+    SetCollisionActorBounds(mgr, x7a0_rightArmCollision, {});
 
     if (sub801ae670())
       x7c0_ = (1.f + x788_) / (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime);
@@ -938,7 +938,7 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
     xe8_elementGen->SetParticleEmission(true);
     if (x16c_colAct == kInvalidUniqueId) {
       x16c_colAct = mgr.AllocateUniqueId();
-      CCollisionActor* colAct = new CCollisionActor(x16c_, GetAreaIdAlways(), GetUniqueId(),
+      CCollisionActor* colAct = new CCollisionActor(x16c_colAct, GetAreaIdAlways(), GetUniqueId(),
                                                     x130_obbox.extents + zeus::CVector3f(10.f, 0.f, 10.f), {}, true,
                                                     0.001f, "Flaahgra Plants"sv);
 
@@ -953,7 +953,7 @@ void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, C
       mgr.AddObject(colAct);
       mgr.SetActorAreaId(*colAct, GetAreaIdAlways());
     }
-  } else if (msg == EScriptObjectMessage::Deleted && (x16c_colAct != kInvalidUniqueId) {
+  } else if (msg == EScriptObjectMessage::Deleted && x16c_colAct != kInvalidUniqueId) {
     mgr.FreeScriptObject(x16c_colAct);
   }
 }
