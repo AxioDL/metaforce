@@ -1,8 +1,11 @@
 #include "CFlaahgra.hpp"
+#include "Camera/CCameraManager.hpp"
+#include "Camera/CFirstPersonCamera.hpp"
 #include "CDependencyGroup.hpp"
 #include "Character/CBoneTracking.hpp"
 #include "Collision/CCollisionActor.hpp"
 #include "Collision/CCollisionActorManager.hpp"
+#include "Graphics/CBooRenderer.hpp"
 #include "MP1/World/CFlaahgraProjectile.hpp"
 #include "Particle/CElementGen.hpp"
 #include "World/CActorParameters.hpp"
@@ -156,7 +159,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
     if (HealthInfo(mgr)->GetHP() <= 0.f)
       break;
 
-    if (!sub801aebb8(uid))
+    if (!IsSphereCollider(uid))
       break;
 
     if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
@@ -228,6 +231,16 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
 }
 
+void CFlaahgra::AddToRenderer(const zeus::CFrustum& frustum, const urde::CStateManager& mgr) const {
+  if ((!GetModelData()->HasAnimData() && !GetModelData()->HasNormalModel()) || xe4_30_outOfFrustum)
+    return;
+
+  if (CanRenderUnsorted(mgr))
+    Render(mgr);
+  else
+    EnsureRendered(mgr);
+}
+
 void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObjectState state) {
   if (!x400_25_alive)
     return;
@@ -240,10 +253,9 @@ void CFlaahgra::Death(CStateManager& mgr, const zeus::CVector3f& dir, EScriptObj
 }
 
 void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
-  switch(type) {
+  switch (type) {
   case EUserEventType::Projectile: {
-    // TODO: Implement
-    break;
+    return;
   }
   case EUserEventType::BeginAction: {
     x8e4_26_ = true;
@@ -251,8 +263,8 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     break;
   }
   case EUserEventType::ScreenShake: {
-    // TODO: Implement
-    break;
+    RattlePlayer(mgr, GetLctrTransform(node.GetLocatorName()).origin);
+    return;
   }
   case EUserEventType::AlignTargetRot: {
     if (x77c_ == kInvalidUniqueId)
@@ -265,14 +277,33 @@ void CFlaahgra::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, E
     break;
   }
   case EUserEventType::GenerateEnd: {
-    // TODO: Implement
+    zeus::CVector3f boneOrigin = GetLctrTransform(node.GetLocatorName()).origin;
+    zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
+    boneOrigin.z() = zeus::max<float>(aimPos.z(), boneOrigin.z());
+    zeus::CTransform xf = GetTransform();
+    xf.origin = boneOrigin;
+
+    CRayCastResult res = mgr.RayStaticIntersection(xf.origin, zeus::skDown, 100.f,
+                                                   CMaterialFilter::MakeInclude({EMaterialTypes::Floor}));
+
+    if (res.IsValid()) {
+#if 0
+      CFlaahgraPlants* plants = new CFlaahgraPlants(x6d4_, x56c_.xd8_, mgr.AllocateUniqueId(), GetAreaIdAlways(),
+                                                    GetUniqueId(), xf, x56c_.xbc_, {5.f, 10.f, 5.f});
+      mgr.AddObject(plants);
+      mgr.SetActorAreaId(*plants, GetAreaIdAlways());
+#endif
+      x7cc_ = 8.f;
+    }
+    x8e4_27_ = true;
     break;
   }
   case EUserEventType::ObjectDrop: {
     SendScriptMsgs(EScriptObjectState::Modify, mgr, EScriptObjectMessage::None);
     break;
   }
-  default: break;
+  default:
+    break;
   }
 
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
@@ -429,7 +460,7 @@ void CFlaahgra::SetupHealthInfo(CStateManager& mgr) {
     }
   }
 
-  x818_ = HealthInfo(mgr)->GetHP();
+  x818_curHp = HealthInfo(mgr)->GetHP();
 }
 
 void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
@@ -506,11 +537,13 @@ void CFlaahgra::FadeOut(CStateManager& mgr, EStateMsg msg, float) {
   x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
   x8e5_29_ = false;
 }
+
 void CFlaahgra::UpdateCollisionManagers(float dt, CStateManager& mgr) {
   x7a4_sphereCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   x79c_leftArmCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
   x7a0_rightArmCollision->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);
 }
+
 void CFlaahgra::UpdateSmallScaleReGrowth(float dt) {
   if (x7c0_ > 0.f)
     x7c0_ -= (x788_ < 2 ? dt : 1.25f * dt);
@@ -538,15 +571,15 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       CHealthInfo* inf = colAct->HealthInfo(mgr);
 
-      tmp = zeus::max(tmp, x818_ - inf->GetHP());
+      tmp = zeus::max(tmp, x818_curHp - inf->GetHP());
     }
   }
 
   if (x780_ == 3) {
-       if (!IsDizzy(mgr, 0.f))
-         x814_ += tmp;
-       else
-         x810_ += tmp;
+    if (!IsDizzy(mgr, 0.f))
+      x814_ += tmp;
+    else
+      x810_ += tmp;
   } else {
     x814_ = 0.f;
     x810_ = 0.f;
@@ -560,7 +593,7 @@ void CFlaahgra::UpdateHealthInfo(CStateManager& mgr) {
   }
   for (const TUniqueId& uid : x7fc_sphereColliders) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
-      colAct->HealthInfo(mgr)->SetHP(x818_);
+      colAct->HealthInfo(mgr)->SetHP(x818_curHp);
     }
   }
 }
@@ -626,7 +659,12 @@ void CFlaahgra::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 bool CFlaahgra::sub801ae670() { return (x7a8_ == 2 || x7a8_ == 3 || x7a8_ == 4); }
-bool CFlaahgra::sub801aebb8(TUniqueId) { return false; }
+bool CFlaahgra::IsSphereCollider(TUniqueId uid) {
+
+  auto it = std::find(x7fc_sphereColliders.begin(), x7fc_sphereColliders.end(), uid);
+  return it != x7fc_sphereColliders.end();
+}
+
 void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x568_ = 0;
@@ -642,7 +680,8 @@ void CFlaahgra::GetUp(CStateManager& mgr, EStateMsg msg, float) {
       } else {
         x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType(x8e4_29_getup)));
       }
-    } else if (x568_ == 2 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup) {
+    } else if (x568_ == 2 &&
+               x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Getup) {
       x568_ = 4;
     }
   } else if (msg == EStateMsg::Deactivate) {
@@ -687,7 +726,6 @@ void CFlaahgra::Growth(CStateManager& mgr, EStateMsg msg, float arg) {
     x430_damageColor = skDamageColor;
   }
 }
-
 
 void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
                                         const zeus::CVector3f& extendedBounds) {
@@ -738,21 +776,161 @@ zeus::CVector3f CFlaahgra::GetAttacktargetPos(CStateManager& mgr) const {
   return mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, -.5f + mgr.GetPlayer().GetEyeHeight());
 }
 
+void CFlaahgra::RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec) {
+  CPlayer& player = mgr.GetPlayer();
+  /*
+   zeus::CVector3f direction = vec - mgr.GetPlayer().GetTranslation();
+   float dir = direction.magnitude(); Unused
+  */
+
+  if (player.GetSurfaceRestraint() == CPlayer::ESurfaceRestraints::Air || player.IsInWaterMovement())
+    return;
+
+  if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
+    if (mgr.GetCameraManager()->GetFirstPersonCamera()->GetUniqueId() != mgr.GetCameraManager()->GetCurrentCameraId())
+      return;
+
+    mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData(2.f, 0.75f), true);
+  } else {
+    player.ApplyImpulseWR((mgr.GetPlayer().GetMass() * 0.75f) * (25.f * zeus::skUp), {});
+    player.SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+  }
+}
+
+static const pas::ESeverity kSeverities[2]{pas::ESeverity::Zero, pas::ESeverity::Eight};
+void CFlaahgra::Faint(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x568_ = 0;
+    x7d4_ = 0.f;
+    x8e5_24_ = false;
+    x7f8_ = 0;
+    SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+    SendScriptMsgs(EScriptObjectState::Retreat, mgr, EScriptObjectMessage::None);
+    x450_bodyController->GetCommandMgr().DeliverCmd(
+        CBCKnockBackCmd(-GetTransform().frontVector(), kSeverities[u32(x7ac_)]));
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == 0) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall) {
+        x568_ = 2;
+        sub801ade80();
+        UpdateHeadDamageVulnerability(mgr, true);
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(
+            CBCKnockBackCmd(-GetTransform().frontVector(), kSeverities[u32(x7ac_)]));
+      }
+    } else if (x568_ == 2) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LieOnGround) {
+        x7d4_ += arg;
+        if (x7d4_ >= x56c_.xc_)
+          x568_ = 4;
+        else
+          x450_bodyController->FaceDirection(x894_, arg);
+      }
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x8e4_27_ = false;
+    x7ac_ = !x7ac_;
+    x780_ = 3;
+    UpdateHeadDamageVulnerability(mgr, false);
+  }
+}
+
+void CFlaahgra::Dead(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    bool r29 = true;
+    if (x450_bodyController->GetFallState() == pas::EFallState::Zero &&
+        x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Fall)
+      r29 = false;
+    x568_ = r29;
+    SendScriptMsgs(EScriptObjectState::CloseIn, mgr, EScriptObjectMessage::None);
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == 0) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Getup)
+        return;
+
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Fall) {
+        x450_bodyController->GetCommandMgr().DeliverCmd(
+            CBCKnockDownCmd(-GetTransform().frontVector(), pas::ESeverity::Two));
+      } else {
+        x568_ = 2;
+        zeus::CTransform xf = zeus::lookAt(GetTranslation(), GetTranslation() + x8a0_, zeus::skUp);
+        xf.origin = GetTranslation();
+        SetTransform(xf);
+        SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
+        x8e5_26_ = true;
+      }
+    } else if (x568_ == 1) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Getup) {
+        x568_ = 0;
+        return;
+      }
+
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType::Two));
+    } else if (x568_ == 2 && x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::Fall)
+      mgr.FreeScriptObject(GetUniqueId());
+  }
+}
+void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    x568_ = 0;
+    x7a8_ = sub801ae828(mgr);
+    SendScriptMsgs(EScriptObjectState::Attack, mgr, EScriptObjectMessage::None);
+  } else if (msg == EStateMsg::Update) {
+    if (x568_ == 0) {
+
+    } else if (x568_ == 1) {
+
+    } else if (x568_ == 2) {
+      if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() != pas::EAnimationState::MeleeAttack)
+        x568_ = 4;
+      else
+        x450_bodyController->GetCommandMgr().SetTargetVector(x78c_);
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    SetCollisionActorBounds(x79c_leftArmCollision, {});
+    SetCollisionActorBounds(x7a0_rightArmCollision, {});
+
+    if (sub801ae670())
+      x7c0_ = (1.f + x788_) / (x308_attackTimeVariation * mgr.GetActiveRandom()->Float() + x304_averageAttackTime);
+
+    x7a8_ = -1;
+
+    if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::MeleeAttack) {
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::NextState));
+    }
+  }
+}
+
+u32 CFlaahgra::sub801ae828(CStateManager& mgr) {
+  const CPlayer& player = mgr.GetPlayer();
+  if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
+    if (x7cc_ > 0.f || player.GetVelocity().magSquared() < 25.f)
+      return 3;
+  }
+
+  if (GetTransform().basis[0].dot(player.GetVelocity()) > 0.f)
+    return 1;
+
+  return 0;
+}
+
 CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const CActorParameters& actParms,
                                  TUniqueId uid, TAreaId aId, TUniqueId owner, const zeus::CTransform& xf,
                                  const CDamageInfo& dInfo, const zeus::CVector3f& extents)
-: CActor(uid, true, "Flaahgra Plants"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
-         CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
-, xe8_elementGen(new CElementGen(genDesc))
-, xf0_ownerId(owner)
-, x130_obbox(xf, extents) {
+    : CActor(uid, true, "Flaahgra Plants"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
+             CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
+    , xe8_elementGen(new CElementGen(genDesc))
+    , xf0_ownerId(owner)
+    , x130_obbox(xf, extents) {
   xe8_elementGen->SetGlobalOrientation(xf.getRotation());
   xe8_elementGen->SetGlobalTranslation(xf.origin);
   x110_aabox = {x130_obbox.calculateAABox(xf)};
 }
+
 void CFlaahgraPlants::Accept(IVisitor& visitor) {
   visitor.Visit(this);
 }
+
 void CFlaahgraPlants::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
 
@@ -788,6 +966,7 @@ void CFlaahgraPlants::Think(float dt, CStateManager& mgr) {
   if (xe8_elementGen->IsSystemDeletable())
     mgr.FreeScriptObject(GetUniqueId());
 }
+
 void CFlaahgraPlants::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
   g_Renderer->AddParticleGen(*xe8_elementGen.get());
   CActor::AddToRenderer(frustum, mgr);
