@@ -1671,21 +1671,22 @@ CEntity* ScriptLoader::LoadPuddleToadGamma(CStateManager& mgr, CInputStream& in,
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  zeus::CVector3f vec = zeus::CVector3f::ReadBig(in);
-  float f4 = in.readFloatBig();
-  float f5 = in.readFloatBig();
-  float f6 = in.readFloatBig();
-  CDamageInfo dInfo1(in);
+  float suckForceMultiplier = in.readFloatBig();
+  float suckAngle = in.readFloatBig();
+  float playerSuckRange = in.readFloatBig();
+  zeus::CVector3f localShootDir = zeus::CVector3f::ReadBig(in);
+  float playerShootSpeed = in.readFloatBig();
+  float shouldAttackWaitTime = in.readFloatBig();
+  float spotPlayerWaitTime = in.readFloatBig();
+  CDamageInfo playerShootDamage(in);
   CDamageInfo dInfo2(in);
   CAssetId collisionData(in);
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   return new MP1::CPuddleToadGamma(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
-                                   f1, f2, f3, vec, f4, f5, f6, dInfo1, dInfo2, collisionData);
+                                   suckForceMultiplier, suckAngle, playerSuckRange, localShootDir, playerShootSpeed,
+                                   shouldAttackWaitTime, spotPlayerWaitTime, playerShootDamage, dInfo2, collisionData);
 }
 
 CEntity* ScriptLoader::LoadDistanceFog(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2029,7 +2030,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   CAssetId particle3 = in.readUint32Big();
-  //zeus::CVector3f particle3Scale = zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
+  /*zeus::CVector3f particle3Scale =*/ zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   bool solid = in.readBool();

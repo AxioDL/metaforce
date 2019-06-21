@@ -20,10 +20,13 @@ struct QuantizedValue {
   atInt32 operator[](size_t idx) const { return v[idx]; }
 
   int qFrom(const QuantizedValue& other, size_t idx) const {
-    atInt32 delta = std::abs(v[idx] - other.v[idx]);
-    if (delta == 0)
+    atInt32 delta = v[idx] - other.v[idx];
+    atInt32 absDelta = std::abs(delta);
+    if (absDelta == 0)
       return 1;
-    int ret = int(std::ceil(std::log2(delta))) + 1;
+    int ret = int(std::ceil(std::log2(absDelta))) + 1;
+    if (delta > 0 && (delta >> (ret - 1)))
+      ++ret;
     assert(ret <= 24 && "Bad q value");
     return ret;
   }

@@ -555,7 +555,8 @@ void CBooRenderer::GenerateSphereRampTex(boo::IGraphicsDataFactory::Context& ctx
     }
   }
   x220_sphereRamp = ctx.newStaticTexture(SPHERE_RAMP_RES, SPHERE_RAMP_RES, 1, boo::TextureFormat::I8,
-                                         boo::TextureClampMode::Repeat, data[0], SPHERE_RAMP_RES * SPHERE_RAMP_RES);
+                                         boo::TextureClampMode::ClampToEdge, data[0],
+                                         SPHERE_RAMP_RES * SPHERE_RAMP_RES);
 }
 
 void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx) {
@@ -617,8 +618,10 @@ void CBooRenderer::LoadThermoPalette() {
 void CBooRenderer::LoadBallFade() {
   m_ballFadeTex = xc_store.GetObj("TXTR_BallFade");
   CTexture* ballFadeTexObj = m_ballFadeTex.GetObj();
-  if (ballFadeTexObj)
+  if (ballFadeTexObj) {
     m_ballFade = ballFadeTexObj->GetBooTexture();
+    m_ballFade->setClampMode(boo::TextureClampMode::ClampToEdge);
+  }
 }
 
 CBooRenderer::CBooRenderer(IObjectStore& store, IFactory& resFac)
@@ -703,18 +706,25 @@ void CBooRenderer::EnablePVS(const CPVSVisSet& set, u32 areaIdx) {
 
 void CBooRenderer::DisablePVS() { xc8_pvs = std::nullopt; }
 
-void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activateLights, int cubeFace) {
+void CBooRenderer::UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode, bool activateLights, int cubeFace,
+                                      const CModelFlags* ballShadowFlags) {
   SetupRendererStates();
 
   CModelFlags flags;
   int bufIdx;
-  if (shadowRender) {
+  if (shadowMode == EWorldShadowMode::WorldOnActorShadow) {
     flags.m_extendedShader = EExtendedShader::SolidColor;
     flags.x4_color = zeus::skBlack;
     bufIdx = 1;
+  } else if (shadowMode == EWorldShadowMode::BallOnWorldShadow) {
+    flags = *ballShadowFlags;
+    bufIdx = 2;
+  } else if (shadowMode == EWorldShadowMode::BallOnWorldIds) {
+    flags.m_extendedShader = EExtendedShader::SolidColor;
+    bufIdx = 3;
   } else {
     flags.m_extendedShader = EExtendedShader::Lighting;
-    bufIdx = cubeFace == -1 ? 0 : 2 + cubeFace;
+    bufIdx = cubeFace == -1 ? 0 : 4 + cubeFace;
   }
 
   for (CAreaListItem& item : x1c_areaListItems) {
@@ -723,6 +733,9 @@ void CBooRenderer::UpdateAreaUniforms(int areaIdx, bool shadowRender, bool activ
 
     item.m_shaderSet->m_geomLayout->Update(flags, nullptr, nullptr, &item.m_shaderSet->m_matSet,
                                            item.m_shaderSet->m_geomLayout->GetSharedBuffer(bufIdx), nullptr);
+
+    if (shadowMode == EWorldShadowMode::BallOnWorldShadow || shadowMode == EWorldShadowMode::BallOnWorldIds)
+      continue;
 
     for (auto it = item.x10_models.begin(); it != item.x10_models.end(); ++it) {
       CBooModel* model = *it;
@@ -1239,9 +1252,9 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
 }
 
 int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
-                                               const zeus::CAABox& aabb) const {
+                                               const zeus::CAABox& aabb) {
   SetupRendererStates();
-  const_cast<CBooRenderer&>(*this).UpdateAreaUniforms(-1, false, false);
+  UpdateAreaUniforms(-1, EWorldShadowMode::BallOnWorldIds, false);
 
   CModelFlags flags;
   flags.m_extendedShader = EExtendedShader::SolidColor; // Do solid color draw
@@ -1263,6 +1276,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
 
           flags.x4_color.a() = alphaVal / 255.f;
           const CBooModel& model = *item.x10_models[wordModel + j];
+          const_cast<CBooModel&>(model).UpdateUniformData(flags, nullptr, nullptr, 3);
           const_cast<CBooModel&>(model).VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
             if (surf->GetBounds().intersects(aabb))
@@ -1279,10 +1293,13 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
 }
 
 void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
-                                                    const zeus::CAABox& aabb, float alpha) const {
+                                                    const zeus::CAABox& aabb, float alpha) {
   CModelFlags flags;
   flags.x4_color.a() = alpha;
   flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw
+  flags.mbShadowBox = aabb;
+
+  UpdateAreaUniforms(-1, EWorldShadowMode::BallOnWorldShadow, false, -1, &flags);
 
   u32 curWord = 0;
   for (const CAreaListItem& item : x1c_areaListItems) {
@@ -1301,6 +1318,7 @@ void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vec
 
           flags.x4_color.r() = alphaVal / 255.f;
           const CBooModel& model = *item.x10_models[wordModel + j];
+          const_cast<CBooModel&>(model).UpdateUniformData(flags, nullptr, nullptr, 2);
           const_cast<CBooModel&>(model).VerifyCurrentShader(0);
           for (const CBooSurface* surf = model.x38_firstUnsortedSurface; surf; surf = surf->m_next)
             if (surf->GetBounds().intersects(aabb))

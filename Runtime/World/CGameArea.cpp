@@ -996,6 +996,10 @@ void CGameArea::PostConstructArea() {
   x12c_postConstructed->x10c0_areaObjs.reset(new CAreaObjectList(x4_selfIdx));
   x12c_postConstructed->x10c4_areaFog.reset(new CAreaFog());
 
+  /* URDE addition: preemptively fill in area models so shaders may be polled for completion */
+  if (!x12c_postConstructed->x1108_25_modelsConstructed)
+    FillInStaticGeometry();
+
   xf0_24_postConstructed = true;
 
   /* Resolve layer pointers */
@@ -1036,7 +1040,7 @@ void CGameArea::FillInStaticGeometry(bool textures) {
   
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     /* Reserve extra buffers for 16 cubemaps and shadow rendering */
-    matSet.m_geomLayout->ReserveSharedBuffers(ctx, 98);
+    matSet.m_geomLayout->ReserveSharedBuffers(ctx, 96 + int(EWorldShadowMode::MAX));
 
     /* Models */
     for (CMetroidModelInstance& inst : x12c_postConstructed->x4c_insts) {

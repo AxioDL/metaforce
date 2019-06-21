@@ -456,6 +456,19 @@ bool CBooModel::TryLockTextures() const {
         allLoad = false;
     }
 
+    if (allLoad) {
+      for (auto& pipeline : *m_pipelines) {
+        for (auto& subpipeline : *pipeline.second) {
+          if (!subpipeline->isReady()) {
+            allLoad = false;
+            break;
+          }
+        }
+        if (!allLoad)
+          break;
+      }
+    }
+
     const_cast<CBooModel*>(this)->x40_24_texturesLoaded = allLoad;
   }
 
@@ -730,8 +743,10 @@ void CBooModel::UVAnimationBuffer::PadOutBuffer(u8*& bufStart, u8*& bufOut) {
   bufOut = bufStart + ROUND_UP_256(bufOut - bufStart);
 }
 
-static const zeus::CMatrix4f MBShadowPost0(1.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 1.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f,
-                                           1.f);
+static const zeus::CMatrix4f MBShadowPost0(1.f, 0.f, 0.f, 0.f,
+                                           0.f, -1.f, 0.f, 1.f,
+                                           0.f, 0.f, 0.f, 1.f,
+                                           0.f, 0.f, 0.f, 1.f);
 
 static const zeus::CMatrix4f MBShadowPost1(0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f, -0.0625f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f,
                                            0.f, 1.f);
@@ -746,7 +761,7 @@ void CBooModel::UVAnimationBuffer::Update(u8*& bufOut, const MaterialSet* matSet
   if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) {
     /* Special matrices for MorphBall shadow rendering */
     zeus::CMatrix4f texMtx = (zeus::CTransform::Scale(1.f / (flags.mbShadowBox.max - flags.mbShadowBox.min)) *
-                              zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelView)
+                              zeus::CTransform::Translate(-flags.mbShadowBox.min) * CGraphics::g_GXModelMatrix)
                                  .toMatrix4f();
     for (const MaterialSet::Material& mat : matSet->materials) {
       (void)mat;
@@ -1007,7 +1022,7 @@ boo::ObjToken<boo::IGraphicsBufferD> CBooModel::UpdateUniformData(const CModelFl
   } else if (flags.m_extendedShader == EExtendedShader::MorphBallShadow) /* MorphBall shadow render */
   {
     CModelShaders::MBShadowUniform& shadowOut = *reinterpret_cast<CModelShaders::MBShadowUniform*>(dataCur);
-    shadowOut.shadowUp = CGraphics::g_GXModelView * zeus::skUp;
+    shadowOut.shadowUp = CGraphics::g_GXModelView.rotate(zeus::skUp);
     shadowOut.shadowUp.w() = flags.x4_color.a();
     shadowOut.shadowId = flags.x4_color.r();
   } else if (flags.m_extendedShader == EExtendedShader::Disintegrate) {

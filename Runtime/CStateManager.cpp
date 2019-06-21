@@ -924,7 +924,7 @@ void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
       SetupFogForArea(area);
       g_Renderer->EnablePVS(pvsArr[i], area.x4_selfIdx);
       g_Renderer->SetWorldLightFadeLevel(area.GetPostConstructed()->x1128_worldLightingLevel);
-      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, false, true, cubeInst * 6 + f);
+      g_Renderer->UpdateAreaUniforms(area.x4_selfIdx, EWorldShadowMode::None, true, cubeInst * 6 + f);
       g_Renderer->DrawUnsortedGeometry(area.x4_selfIdx, 0x2, 0x0);
     }
 

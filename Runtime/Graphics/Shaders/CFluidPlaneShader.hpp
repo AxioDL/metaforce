@@ -102,6 +102,7 @@ private:
   boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
   boo::ObjToken<boo::IGraphicsBufferD> m_pvbo;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;
+  ShaderPair m_pipelines;
   BindingPair m_dataBind;
   int m_lastBind = -1;
 
@@ -129,7 +130,7 @@ private:
   template <class F>
   static void _Shutdown();
 
-  void PrepareBinding(const ShaderPair& pipeline, u32 maxVertCount);
+  void PrepareBinding(u32 maxVertCount);
 
 public:
   CFluidPlaneShader(EFluidType type, const TLockedToken<CTexture>& patternTex1,
@@ -158,6 +159,10 @@ public:
   }
   void doneDrawing() { m_lastBind = -1; }
   void loadVerts(const std::vector<Vertex>& verts, const std::vector<PatchVertex>& pVerts);
+  bool isReady() const {
+    return m_pipelines.m_regular->isReady() &&
+    (!m_pipelines.m_tessellation || m_pipelines.m_tessellation->isReady());
+  }
 
   static void Shutdown();
 };

@@ -742,6 +742,9 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
 
+  if (!m_shader->isReady())
+    return;
+
   CFluidPlaneRender::NormalMode normalMode;
   if (xb0_bumpMap && kEnableWaterBumpMaps)
     normalMode = CFluidPlaneRender::NormalMode::NBT;

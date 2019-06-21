@@ -63,6 +63,10 @@ void CFluidPlaneDoor::Render(const CStateManager& mgr, float alpha, const zeus::
                              const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                              const zeus::CVector3f& areaCenter) const {
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, aabb, noNormals);
+
+  if (!m_shader->isReady())
+    return;
+
   CFluidPlaneRender::numSubdivisionsInTile = xa4_tileSubdivisions;
   CFluidPlaneRender::numTilesInHField = 42 / xa4_tileSubdivisions;
   CFluidPlaneRender::numSubdivisionsInHField = CFluidPlaneRender::numTilesInHField * xa4_tileSubdivisions;

@@ -258,7 +258,7 @@ public:
 
   void Accept(IVisitor&);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void PreThink(float, CStateManager& mgr) { CEntity::Think(x500_preThinkDt, mgr); }
+  void PreThink(float dt, CStateManager& mgr) { x500_preThinkDt = dt; CEntity::Think(x500_preThinkDt, mgr); }
   void Think(float, CStateManager&);
   void PreRender(CStateManager&, const zeus::CFrustum&);
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;

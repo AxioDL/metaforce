@@ -164,6 +164,7 @@ private:
     boo::ObjToken<boo::IGraphicsBuffer> GetBooVBO(const CBooModel& model, boo::IGraphicsDataFactory::Context& ctx);
   };
   std::vector<ModelInstance> m_instances;
+  ModelInstance m_ballShadowInstance;
 
   boo::ObjToken<boo::IGraphicsBufferS> m_staticVbo;
   boo::ObjToken<boo::IGraphicsBufferS> m_staticIbo;

@@ -12,6 +12,12 @@ public:
     Ready,
   };
 
+  enum class EDoorOpenCondition {
+    NotReady,
+    Loading,
+    Ready
+  };
+
   float x258_animLen;
   float x25c_animTime = 0.f;
   EDoorAnimType x260_doorAnimState = EDoorAnimType::Open;
@@ -45,7 +51,7 @@ public:
   void ForceClosed(CStateManager&);
   bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
   void OpenDoor(TUniqueId, CStateManager&);
-  u32 GetDoorOpenCondition(CStateManager& mgr);
+  EDoorOpenCondition GetDoorOpenCondition(CStateManager& mgr);
   void SetDoorAnimation(EDoorAnimType);
   std::optional<zeus::CAABox> GetTouchBounds() const;
   std::optional<zeus::CAABox> GetProjectileBounds() const;

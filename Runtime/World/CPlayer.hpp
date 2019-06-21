@@ -233,7 +233,7 @@ private:
   int x584_ballTransitionAnim = -1;
   float x588_alpha = 1.f;
   float x58c_transitionVel = 0.f;
-  bool x590_ = true;
+  bool x590_leaveMorphballAllowed = true;
   TReservedAverage<zeus::CTransform, 4> x594_transisionBeamXfs;
   TReservedAverage<zeus::CTransform, 4> x658_transitionModelXfs;
   TReservedAverage<float, 4> x71c_transitionModelAlphas;
@@ -611,7 +611,7 @@ public:
   EPlayerOrbitRequest GetOrbitRequest() const { return x30c_orbitRequest; }
   bool IsShowingCrosshairs() const { return x9c4_25_showCrosshairs; }
   bool IsSidewaysDashing() const { return x37c_sidewaysDashing; }
-  void Set_X590(bool b) { x590_ = b; }
+  void SetLeaveMorphBallAllowed(bool b) { x590_leaveMorphballAllowed = b; }
   const zeus::CVector3f& GetOrbitPoint() const { return x314_orbitPoint; }
   float GetAverageSpeed() const;
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }

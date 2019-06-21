@@ -1,7 +1,5 @@
 #include "CPhysicsActor.hpp"
 #include "TCastTo.hpp"
-#include "MP1/World/CActorContraption.hpp"
-#include "zeus/CEulerAngles.hpp"
 
 namespace urde {
 
@@ -93,10 +91,8 @@ void CPhysicsActor::AddMotionState(const CMotionState& mst) {
   zeus::CNUQuaternion q{x34_transform.buildMatrix3f()};
   q += mst.xc_orientation;
   zeus::CQuaternion quat = zeus::CQuaternion::fromNUQuaternion(q);
-  //if (TCastToPtr<MP1::CActorContraption>(this)) {
-  //  float a1 = zeus::radToDeg(zeus::CEulerAngles(zeus::CQuaternion(x34_transform.buildMatrix3f())).z());
-  //  float a2 = zeus::radToDeg(zeus::CEulerAngles(quat).z());
-  //  printf("ADD %f\n", a2 - a1);
+  //if (TCastToPtr<CPlayer>(this)) {
+  //  printf("ADD %f %f %f\n", float(mst.x0_translation.x()), float(mst.x0_translation.y()), float(mst.x0_translation.z()));
   //}
   SetTransform(zeus::CTransform(quat, x34_transform.origin));
 

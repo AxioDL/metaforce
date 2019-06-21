@@ -339,6 +339,9 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
 
     x1c_loadList.clear();
 
+    if (!CGraphics::g_BooFactory->areShadersReady())
+      return EMessageReturn::Exit;
+
     wtMgr->StartTextFadeOut();
     x2c_25_transitionFinished = wtMgr->IsTransitionFinished();
     return EMessageReturn::Exit;

@@ -14,7 +14,6 @@
 #include "CTimeProvider.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 #include "hecl/CVarManager.hpp"
-#include "zeus/CEulerAngles.hpp"
 
 namespace urde {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {
@@ -494,8 +493,6 @@ void CActor::SetTransform(const zeus::CTransform& tr) {
   xe4_27_notInSortedLists = true;
   xe4_28_transformDirty = true;
   xe4_29_actorLightsDirty = true;
-  //if (TCastToPtr<MP1::CActorContraption>(this))
-  //  printf("ACC %f\n", zeus::radToDeg(zeus::CEulerAngles(tr).z()));
 }
 
 void CActor::SetAddedToken(u32 tok) { xcc_addedToken = tok; }

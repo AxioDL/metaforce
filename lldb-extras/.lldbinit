@@ -24,6 +24,11 @@ type summary add --summary-string "${var.origin}" zeus::CTransform
 type summary add --summary-string "${var.id%x} area=${var.id[16-25]}, layer=${var.id[26-31]}, id=${var.id[0-15]}" urde::TEditorId
 type summary add --summary-string "${var.id}" urde::TUniqueId
 
+type summary add --summary-string "${var.x0_time}" urde::CCharAnimTime
+
+type summary add --summary-string "${var.id%x}" urde::CAssetId
+type summary add --summary-string "${var.type.fcc} ${var.id.id%x}" urde::SObjectTag
+
 # \s*(\S+) \((\S+)\)
 # type summary add --summary-string "\${var.x10_name} \${var.xc_editorId}" $2::$1\n
 type summary add --summary-string "${var.x10_name} ${var.xc_editorId}, active=${var.x30_24_active}" urde::CEntity

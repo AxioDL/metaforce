@@ -118,6 +118,7 @@ void CMorphBallShadow::Render(const CStateManager& mgr, float alpha) {
   CModelFlags flags;
   flags.x4_color.a() = alpha;
   flags.m_extendedShader = EExtendedShader::MorphBallShadow;
+  flags.mbShadowBox = xb8_shadowVolume;
 
   int alphaVal = 4;
   for (const CActor* actor : x0_actors) {

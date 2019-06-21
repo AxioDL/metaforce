@@ -119,10 +119,10 @@ void CFluidPlaneShader::Cache::Clear() {
     p.reset();
 }
 
-void CFluidPlaneShader::PrepareBinding(const ShaderPair& pipeline, u32 maxVertCount) {
+void CFluidPlaneShader::PrepareBinding(u32 maxVertCount) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
-    if (pipeline.m_tessellation)
+    if (m_pipelines.m_tessellation)
       m_pvbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(PatchVertex), maxVertCount);
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
 
@@ -147,12 +147,12 @@ void CFluidPlaneShader::PrepareBinding(const ShaderPair& pipeline, u32 maxVertCo
       texs[texCount++] = m_envBumpMap->GetBooTexture();
     if (m_lightmap)
       texs[texCount++] = m_lightmap->GetBooTexture();
-    auto regular = ctx.newShaderDataBinding(pipeline.m_regular, m_vbo.get(), nullptr, nullptr, 3, ubufs, ubufStages,
+    auto regular = ctx.newShaderDataBinding(m_pipelines.m_regular, m_vbo.get(), nullptr, nullptr, 3, ubufs, ubufStages,
                                             ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
     boo::ObjToken<boo::IShaderDataBinding> tessellation;
-    if (pipeline.m_tessellation) {
+    if (m_pipelines.m_tessellation) {
       texs[texCount++] = m_rippleMap.get();
-      tessellation = ctx.newShaderDataBinding(pipeline.m_tessellation, m_pvbo.get(), nullptr, nullptr, 3, ubufs,
+      tessellation = ctx.newShaderDataBinding(m_pipelines.m_tessellation, m_pvbo.get(), nullptr, nullptr, 3, ubufs,
                                               ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
     }
     m_dataBind = {regular, tessellation};
@@ -180,8 +180,8 @@ CFluidPlaneShader::CFluidPlaneShader(EFluidType type, const TLockedToken<CTextur
                                    m_colorTex.operator bool(), m_bumpMap.operator bool(), m_envMap.operator bool(),
                                    m_envBumpMap.operator bool(), m_lightmap.operator bool(),
                                    m_rippleMap.operator bool(), doubleLightmapBlend, additive);
-  ShaderPair pipeline = _cache.GetOrBuildShader(shaderInfo);
-  PrepareBinding(pipeline, maxVertCount);
+  m_pipelines = _cache.GetOrBuildShader(shaderInfo);
+  PrepareBinding(maxVertCount);
 }
 
 CFluidPlaneShader::CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1,
@@ -190,8 +190,8 @@ CFluidPlaneShader::CFluidPlaneShader(const TLockedToken<CTexture>& patternTex1,
 : m_patternTex1(patternTex1), m_patternTex2(patternTex2), m_colorTex(colorTex) {
   SFluidPlaneDoorShaderInfo shaderInfo(m_patternTex1.operator bool(), m_patternTex2.operator bool(),
                                        m_colorTex.operator bool());
-  ShaderPair pipeline = _cache.GetOrBuildShader(shaderInfo);
-  PrepareBinding(pipeline, maxVertCount);
+  m_pipelines = _cache.GetOrBuildShader(shaderInfo);
+  PrepareBinding(maxVertCount);
 }
 
 void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info) {

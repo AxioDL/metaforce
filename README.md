@@ -8,7 +8,7 @@ Everything else is much too experimental to make portable/stable release builds 
 
 ### Platform Support
 * Windows 7+ (64-bit support only)
-* macOS 10.9+
+* macOS 10.11+
 * Linux
     * Arch is known to function with [`glx` vendor setup instructions](https://wiki.archlinux.org/index.php/Category:Graphics) *(main development/testing OS)*
     * **[WIP]** Vulkan loader detection is also integrated into the cmake for Linux
@@ -16,12 +16,12 @@ Everything else is much too experimental to make portable/stable release builds 
     * Much multimedia functionality is in place, but not fully tested
 
 ### Build Prerequisites:
-* [CMake 3.10+](https://cmake.org)
+* [CMake 3.13+](https://cmake.org)
 * [Python 3+](https://python.org)
 * LLVM development package *(headers and libs)*
     * [Specialized Windows Package](https://axiodl.com/LLVM-9.0.0svn-win64.exe)
     * [macOS Package](http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz)
-* **[Windows]** [Visual Studio 2017 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
+* **[Windows]** [Visual Studio 2017/2019 and Windows SDK](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx)
 * **[macOS]** [Xcode Tools](https://developer.apple.com/xcode/download/)
 * **[Linux]** recent development packages of `udev`, `x11`, `xcb`, `xinput`, `glx`, `asound`
 

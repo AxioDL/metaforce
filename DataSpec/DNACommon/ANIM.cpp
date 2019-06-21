@@ -35,21 +35,21 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
 }
 
 static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div) {
-  float q = M_PIF / 2.0f / float(div);
+  float q = float(div) / (M_PIF / 2.0f);
   zeus::simd_floats f(quat.simd);
   assert(std::abs(f[1]) <= 1.f && "Out of range quat X component");
   assert(std::abs(f[2]) <= 1.f && "Out of range quat Y component");
   assert(std::abs(f[3]) <= 1.f && "Out of range quat Z component");
   return {{
-              atInt32(std::asin(f[1]) / q),
-              atInt32(std::asin(f[2]) / q),
-              atInt32(std::asin(f[3]) / q),
+              atInt32(std::asin(f[1]) * q),
+              atInt32(std::asin(f[2]) * q),
+              atInt32(std::asin(f[3]) * q),
           },
           (f[0] < 0.f)};
 }
 
 static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div) {
-  float q = M_PIF / 2.0f / float(div);
+  float q = (M_PIF / 2.0f) / float(div);
   athena::simd_floats f = {
       0.0f,
       std::sin(v.v[0] * q),
@@ -259,6 +259,7 @@ void BitstreamWriter::quantize(atUint8* data, atUint8 q, atInt32 val) {
   atUint32 bitRem = m_bitCur % 32;
 
   atUint32 masked = val & ((1 << q) - 1);
+  assert(((((val >> 31) & 0x1) == 0x1) || (((masked >> (q - 1)) & 0x1) == 0)) && "Twos compliment fail");
 
   /* Fill 32 bit buffer with region containing bits */
   /* Make them least significant */
@@ -317,8 +318,8 @@ std::unique_ptr<atUint8[]> BitstreamWriter::write(const std::vector<std::vector<
     }
     ++kit;
   }
-  transMultOut = std::max(maxTransDelta / quantRangeF, FLT_EPSILON);
-  scaleMultOut = std::max(maxScaleDelta / quantRangeF, FLT_EPSILON);
+  transMultOut = maxTransDelta / quantRangeF + FLT_EPSILON;
+  scaleMultOut = maxScaleDelta / quantRangeF + FLT_EPSILON;
 
   /* Output channel inits */
   std::vector<QuantizedValue> initVals;
@@ -404,11 +405,11 @@ std::unique_ptr<atUint8[]> BitstreamWriter::write(const std::vector<std::vector<
   memset(newData.get(), 0, sizeOut);
 
   lastVals = initVals;
-  for (size_t f = 0; f < keyFrameCount; ++f) {
+  for (size_t frame = 0; frame < keyFrameCount; ++frame) {
     kit = chanKeys.begin();
     vit = lastVals.begin();
     for (const Channel& chan : channels) {
-      const Value& val = (*kit++)[f + 1];
+      const Value& val = (*kit++)[frame + 1];
       QuantizedValue& last = *vit++;
       switch (chan.type) {
       case Channel::Type::Rotation: {

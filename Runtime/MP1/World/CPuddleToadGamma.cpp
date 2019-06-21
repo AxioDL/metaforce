@@ -4,6 +4,7 @@
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
 #include "Collision/CGameCollision.hpp"
+#include "Weapon/CBomb.hpp"
 #include "TCastTo.hpp"
 
 namespace urde::MP1 {
@@ -12,23 +13,24 @@ const zeus::CVector3f CPuddleToadGamma::skBellyOffset(0.f, 0.1f, -.3f);
 
 CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
-                                   const CActorParameters& aParms, float f1, float f2, float f3,
-                                   const zeus::CVector3f& v1, float f4, float f5, float f6, const CDamageInfo& dInfo1,
-                                   const CDamageInfo& dInfo2, CAssetId dcln)
+                                   const CActorParameters& aParms, float suckForceMultiplier, float suckAngle,
+                                   float playerSuckRange, const zeus::CVector3f& localShootDir, float playerShootSpeed,
+                                   float shouldAttackWaitTime, float spotPlayerWaitTime,
+                                   const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2, CAssetId dcln)
 : CPatterned(ECharacter::PuddleToad, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              EColliderType::Zero, EBodyType::Restricted, aParms, EKnockBackVariant::Large)
-, x570_(dInfo1)
+, x570_playerShootDamage(playerShootDamage)
 , x58c_(dInfo2)
-, x5a8_(f1)
-, x5ac_(std::cos(zeus::degToRad(f2 * 0.5f)))
-, x5b0_(f3)
-, x5b4_(v1)
-, x5c0_(f4)
-, x5c4_(f5)
-, x5c8_(f6)
-, x5e8_24_(false)
-, x5e8_25_(false)
-, x5e8_26_(false) {
+, x5a8_suckForceMultiplier(suckForceMultiplier)
+, x5ac_minSuckAngleProj(std::cos(zeus::degToRad(suckAngle * 0.5f)))
+, x5b0_playerSuckRange(playerSuckRange)
+, x5b4_localShootDir(localShootDir)
+, x5c0_playerShootSpeed(playerShootSpeed)
+, x5c4_shouldAttackWaitTime(shouldAttackWaitTime)
+, x5c8_spotPlayerWaitTime(spotPlayerWaitTime)
+, x5e8_24_playerInside(false)
+, x5e8_25_waitTimerActive(false)
+, x5e8_26_shotPlayer(false) {
   x401_26_disableMove = true;
   x460_knockBackController.SetEnableBurn(false);
   x460_knockBackController.SetEnableLaggedBurnDeath(false);
@@ -70,7 +72,7 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
     x450_bodyController->Activate(mgr);
     zeus::CTransform bellyXf = GetLctrTransform(mBellyLocatorName);
     zeus::CVector3f bellyOffset = GetTransform().rotate(skBellyOffset);
-    x5d8_ = x5cc_ = bellyXf.origin + bellyOffset;
+    x5d8_damageablePoint = x5cc_suckPoint = bellyXf.origin + bellyOffset;
     RemoveMaterial(EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
     AddMaterial(EMaterialTypes::Immovable, mgr);
     AddMaterial(EMaterialTypes::SolidCharacter);
@@ -79,8 +81,8 @@ void CPuddleToadGamma::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, 
 
 void CPuddleToadGamma::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
-  if (x5e8_25_)
-    x56c_ += dt;
+  if (x5e8_25_waitTimerActive)
+    x56c_waitTimer += dt;
 }
 
 std::optional<zeus::CAABox> CPuddleToadGamma::GetTouchBounds() const {
@@ -91,14 +93,14 @@ std::optional<zeus::CAABox> CPuddleToadGamma::GetTouchBounds() const {
 }
 
 void CPuddleToadGamma::CenterPlayer(CStateManager& mgr, const zeus::CVector3f& pos, float dt) {
-  zeus::CVector3f dir = (mgr.GetPlayer().GetTranslation() - pos).normalized();
+  zeus::CVector3f dir = (pos - mgr.GetPlayer().GetTranslation()).normalized();
   mgr.GetPlayer().SetVelocityWR((1.f / (2.f * dt)) * dir);
 }
 
 const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability(const zeus::CVector3f& pos,
                                                                      const zeus::CVector3f& dir,
                                                                      const CDamageInfo& dInfo) const {
-  if (x5e8_24_ && (x5d8_ - pos).magSquared() < 4.f)
+  if (x5e8_24_playerInside && (x5d8_damageablePoint - pos).magSquared() < 4.f)
     return CAi::GetDamageVulnerability();
 
   return &CDamageVulnerability::ImmuneVulnerabilty();
@@ -106,16 +108,16 @@ const CDamageVulnerability* CPuddleToadGamma::GetDamageVulnerability(const zeus:
 
 void CPuddleToadGamma::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) {
   if (type == EUserEventType::Projectile) {
-    ShootPlayer(mgr, x5c0_);
+    ShootPlayer(mgr, x5c0_playerShootSpeed);
     return;
   }
 
   CPatterned::DoUserAnimEvent(mgr, node, type, dt);
 }
 
-bool CPuddleToadGamma::SpotPlayer(CStateManager&, float arg) { return x56c_ >= x5c8_; }
+bool CPuddleToadGamma::SpotPlayer(CStateManager&, float arg) { return x56c_waitTimer >= x5c8_spotPlayerWaitTime; }
 
-bool CPuddleToadGamma::ShouldAttack(CStateManager&, float) { return x56c_ >= x5c4_; }
+bool CPuddleToadGamma::ShouldAttack(CStateManager&, float) { return x56c_waitTimer >= x5c4_shouldAttackWaitTime; }
 
 bool CPuddleToadGamma::LostInterest(CStateManager& mgr, float) {
   zeus::CAABox box = *GetTouchBounds();
@@ -123,7 +125,28 @@ bool CPuddleToadGamma::LostInterest(CStateManager& mgr, float) {
   return !box.intersects(plBox);
 }
 
-void CPuddleToadGamma::ShootPlayer(CStateManager&, float) {}
+void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
+  zeus::CVector3f shootDir = x34_transform.rotate(x5b4_localShootDir.normalized());
+  mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+  if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed) {
+    x5e8_26_shotPlayer = true;
+    mgr.GetPlayer().Stop();
+    mgr.GetPlayer().SetVelocityWR(zeus::skZero3f);
+    mgr.GetPlayer().ApplyImpulseWR(mgr.GetPlayer().GetMass() * shootDir * speed, {});
+    mgr.GetPlayer().SetMoveState(CPlayer::EPlayerMovementState::ApplyJump, mgr);
+    mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), x570_playerShootDamage,
+      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+    mgr.GetPlayer().GetMorphBall()->SetAsProjectile();
+    rstl::reserved_vector<TUniqueId, 1024> nearList;
+    mgr.BuildNearList(nearList, GetBoundingBox(), CMaterialFilter::MakeInclude({EMaterialTypes::Bomb}), this);
+    for (TUniqueId id : nearList) {
+      if (TCastToPtr<CBomb> bomb = mgr.ObjectById(id)) {
+        bomb->SetVelocityWR((mgr.GetActiveRandom()->Float() * 5.f + 20.f) * shootDir);
+        bomb->SetConstantAccelerationWR({0.f, 0.f, -24.525f});
+      }
+    }
+  }
+}
 
 bool CPuddleToadGamma::InAttackPosition(CStateManager& mgr, float) {
   return mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed &&
@@ -140,27 +163,28 @@ bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) {
 
   zeus::CVector3f playerOffset =
       player.GetTranslation() + zeus::CVector3f{0.f, 0.f, player.GetMorphBall()->GetBallRadius()};
-  zeus::CVector3f rotatedOffset = GetTransform().rotate(zeus::skForward);
+  zeus::CVector3f rotatedDir = GetTransform().rotate(zeus::skForward);
 
-  zeus::CVector3f vec1 = (playerOffset - (xf.origin - (1.f * rotatedOffset)));
-  float f31 = vec1.normalized().dot(rotatedOffset);
-  float f28 = vec1.magnitude();
-  float f26 = (player.GetTranslation() - (xf.origin - (4.f * rotatedOffset))).normalized().dot(rotatedOffset);
-  if (f28 > 2.f) {
+  zeus::CVector3f suckPointToPlayer = (playerOffset - (xf.origin - (1.f * rotatedDir)));
+  float suckProj = suckPointToPlayer.normalized().dot(rotatedDir);
+  float playerDist = suckPointToPlayer.magnitude();
+  float suckAngleProj = (player.GetTranslation() - (xf.origin - (4.f * rotatedDir))).normalized().dot(rotatedDir);
+  if (playerDist > 2.f) {
     CRayCastResult result =
-        mgr.RayStaticIntersection(vec1, 1.f / f28 * vec1, f28 - player.GetMorphBall()->GetBallRadius(), kSolidFilter);
+        mgr.RayStaticIntersection(suckPointToPlayer, 1.f / playerDist * suckPointToPlayer,
+            playerDist - player.GetMorphBall()->GetBallRadius(), kSolidFilter);
     if (result.IsValid())
       return false;
   }
 
-  return (f28 < x5b0_ && f31 > 0.f && f26 > x5ac_);
+  return (playerDist < x5b0_playerSuckRange && suckProj > 0.f && suckAngleProj > x5ac_minSuckAngleProj);
 }
 
 void CPuddleToadGamma::InActive(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
     SetSolid(mgr, true);
-    mgr.GetPlayer().Set_X590(true);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
     x330_stateMachineState.SetDelay(2.f);
   }
 }
@@ -169,31 +193,30 @@ void CPuddleToadGamma::Active(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     x450_bodyController->SetLocomotionType(pas::ELocomotionType::Lurk);
     zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
-    x5cc_ = xf.origin + GetTransform().rotate(skBellyOffset);
-    x56c_ = 0.f;
-    x5e8_25_ = true;
+    x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+    x56c_waitTimer = 0.f;
+    x5e8_25_waitTimerActive = true;
     SetSolid(mgr, true);
-    mgr.GetPlayer().Set_X590(true);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
   } else if (msg == EStateMsg::Deactivate) {
-    x5e8_25_ = false;
+    x5e8_25_waitTimerActive = false;
   }
 }
 
 void CPuddleToadGamma::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
-  return;
   if (msg == EStateMsg::Activate) {
     SetSolid(mgr, false);
-    mgr.GetPlayer().Set_X590(false);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(false);
     mgr.GetPlayer().GetMorphBall()->DisableHalfPipeStatus();
   } else if (msg == EStateMsg::Update) {
-    if (x568_ == 0) {
+    if (x568_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LoopReaction) {
-        x568_ = 1;
+        x568_stateProg = 1;
         return;
       }
 
       x450_bodyController->GetCommandMgr().DeliverCmd(CBCLoopReactionCmd(pas::EReactionType::Zero));
-    } else if (x568_ == 1)
+    } else if (x568_stateProg == 1)
       SuckPlayer(mgr, arg);
   } else if (msg == EStateMsg::Deactivate) {
     x450_bodyController->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
@@ -205,38 +228,38 @@ void CPuddleToadGamma::SuckPlayer(CStateManager& mgr, float arg) {
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     return;
 
-  zeus::CVector3f posDiff = player.GetTranslation() - x5cc_;
-  if (posDiff.magnitude() < 3.f) {
+  zeus::CVector3f posDiff = player.GetTranslation() - x5cc_suckPoint;
+  float posMag = posDiff.magnitude();
+  if (posMag < 3.f) {
     player.Stop();
-    CenterPlayer(mgr, x5cc_, arg);
+    CenterPlayer(mgr, x5cc_suckPoint, arg);
     return;
   }
 
-  float d = x5a8_ * (x5b0_ / (posDiff.magnitude() * posDiff.magnitude()));
-  zeus::CVector3f force = d * (player.GetMass() * -posDiff);
+  float forceMag = x5a8_suckForceMultiplier * (x5b0_playerSuckRange / (posMag * posMag));
+  zeus::CVector3f force = forceMag * (player.GetMass() * -posDiff);
   player.ApplyForceWR(force, zeus::CAxisAngle());
 }
 
 void CPuddleToadGamma::Attack(CStateManager& mgr, EStateMsg msg, float) {
-  return;
   if (msg == EStateMsg::Activate) {
     mgr.GetPlayer().Stop();
     mgr.GetPlayer().SetVelocityWR({});
     x450_bodyController->GetCommandMgr().DeliverCmd(CBCMeleeAttackCmd(pas::ESeverity::One));
-    x5e8_26_ = false;
+    x5e8_26_shotPlayer = false;
     mgr.GetPlayer().GetMorphBall()->SetBombJumpState(CMorphBall::EBombJumpState::BombJumpDisabled);
   } else if (msg == EStateMsg::Update) {
-    if (!x5e8_26_) {
+    if (!x5e8_26_shotPlayer) {
       zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
-      x5cc_ = xf.origin + GetTransform().rotate(skBellyOffset);
-      SetPlayerPosition(mgr, x5cc_);
+      x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+      SetPlayerPosition(mgr, x5cc_suckPoint);
     } else if (LostInterest(mgr, 0.f))
       SetSolid(mgr, true);
   } else if (msg == EStateMsg::Deactivate) {
     SetSolid(mgr, true);
-    mgr.GetPlayer().Set_X590(true);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
     mgr.GetPlayer().GetMorphBall()->SetBombJumpState(CMorphBall::EBombJumpState::BombJumpAvailable);
-    x5e8_24_ = false;
+    x5e8_24_playerInside = false;
   }
 }
 
@@ -272,42 +295,41 @@ bool CPuddleToadGamma::Inside(CStateManager& mgr, float) {
   if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     return false;
 
-  zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - x5cc_;
+  zeus::CVector3f posDiff = mgr.GetPlayer().GetTranslation() - x5cc_suckPoint;
   return posDiff.dot(GetTransform().frontVector()) <= 0.f && posDiff.magSquared() < 2.f;
 }
 
 void CPuddleToadGamma::Crouch(CStateManager& mgr, EStateMsg msg, float) {
-  return;
   if (msg == EStateMsg::Activate) {
-    x568_ = 0;
-    x56c_ = 0.f;
-    x5e8_25_ = true;
-    x5e8_24_ = true;
+    x568_stateProg = 0;
+    x56c_waitTimer = 0.f;
+    x5e8_25_waitTimerActive = true;
+    x5e8_24_playerInside = true;
     mgr.GetPlayer().Stop();
     mgr.GetPlayer().SetVelocityWR({});
     SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
     if (!mgr.GetPlayer().AttachActorToPlayer(GetUniqueId(), false))
-      x56c_ = 100.f;
+      x56c_waitTimer = 100.f;
 
     SetSolid(mgr, false);
-    mgr.GetPlayer().Set_X590(false);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(false);
     mgr.GetPlayer().GetMorphBall()->DisableHalfPipeStatus();
     SetSolid(mgr, false);
   } else if (msg == EStateMsg::Update) {
     zeus::CTransform xf = GetLctrTransform(mBellyLocatorName);
-    x5cc_ = xf.origin + GetTransform().rotate(skBellyOffset);
-    SetPlayerPosition(mgr, x5cc_);
-    if (x568_ == 0) {
+    x5cc_suckPoint = xf.origin + GetTransform().rotate(skBellyOffset);
+    SetPlayerPosition(mgr, x5cc_suckPoint);
+    if (x568_stateProg == 0) {
       if (x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::Locomotion)
-        x568_ = 1;
+        x568_stateProg = 1;
       else
         x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
     }
   } else if (msg == EStateMsg::Deactivate) {
     if (mgr.GetPlayer().GetAttachedActor() == GetUniqueId())
       mgr.GetPlayer().DetachActorFromPlayer();
-    mgr.GetPlayer().Set_X590(true);
-    x5e8_25_ = false;
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+    x5e8_25_waitTimerActive = false;
   }
 }
 

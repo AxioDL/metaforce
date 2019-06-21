@@ -79,7 +79,7 @@ void CWorldShadow::BuildLightShadowTexture(const CStateManager& mgr, TAreaId aid
         CGraphics::SetModelMatrix(zeus::CTransform());
         CBooModel::SetDrawingOccluders(true);
         g_Renderer->PrepareDynamicLights({});
-        g_Renderer->UpdateAreaUniforms(aid, true);
+        g_Renderer->UpdateAreaUniforms(aid, EWorldShadowMode::WorldOnActorShadow);
         g_Renderer->DrawUnsortedGeometry(aid, 0, 0, true);
         CBooModel::SetDrawingOccluders(false);
 

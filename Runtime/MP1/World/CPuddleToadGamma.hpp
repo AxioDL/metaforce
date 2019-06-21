@@ -9,23 +9,23 @@ class CPuddleToadGamma final : public CPatterned {
   static constexpr std::string_view mMouthLocatorName = "MOUTH_LCTR_SDK"sv;
   static constexpr std::string_view mBellyLocatorName = "SAMUS_POS_LCTR_SDK"sv;
   static const zeus::CVector3f skBellyOffset;
-  u32 x568_ = 0;
-  float x56c_ = 0.f;
-  CDamageInfo x570_;
+  u32 x568_stateProg = 0;
+  float x56c_waitTimer = 0.f;
+  CDamageInfo x570_playerShootDamage;
   CDamageInfo x58c_;
-  float x5a8_;
-  float x5ac_;
-  float x5b0_;
-  zeus::CVector3f x5b4_;
-  float x5c0_;
-  float x5c4_;
-  float x5c8_;
-  zeus::CVector3f x5cc_;
-  zeus::CVector3f x5d8_;
+  float x5a8_suckForceMultiplier;
+  float x5ac_minSuckAngleProj;
+  float x5b0_playerSuckRange;
+  zeus::CVector3f x5b4_localShootDir;
+  float x5c0_playerShootSpeed;
+  float x5c4_shouldAttackWaitTime;
+  float x5c8_spotPlayerWaitTime;
+  zeus::CVector3f x5cc_suckPoint;
+  zeus::CVector3f x5d8_damageablePoint;
   std::unique_ptr<CCollidableOBBTreeGroup> x5e4_collisionTreePrim;
-  bool x5e8_24_ : 1;
-  bool x5e8_25_ : 1;
-  bool x5e8_26_ : 1;
+  bool x5e8_24_playerInside : 1;
+  bool x5e8_25_waitTimerActive : 1;
+  bool x5e8_26_shotPlayer : 1;
 
   void SetSolid(CStateManager&, bool);
 
@@ -40,8 +40,10 @@ public:
 
   CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                    const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
-                   const CActorParameters& aParms, float f1, float f2, float f3, const zeus::CVector3f& v1, float f4,
-                   float f5, float f6, const CDamageInfo& dInfo1, const CDamageInfo& dInfo2, CAssetId dcln);
+                   const CActorParameters& aParms, float suckForceMultiplier, float suckAngle, float playerSuckRange,
+                   const zeus::CVector3f& localShootDir, float playerShootSpeed, float shouldAttackWaitTime,
+                   float spotPlayerWaitTime, const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2,
+                   CAssetId dcln);
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
   void Think(float dt, CStateManager& mgr);

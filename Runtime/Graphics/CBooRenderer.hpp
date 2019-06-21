@@ -47,6 +47,14 @@ public:
   static void Init();
 };
 
+enum class EWorldShadowMode {
+  None,
+  WorldOnActorShadow,
+  BallOnWorldShadow,
+  BallOnWorldIds,
+  MAX
+};
+
 class CBooRenderer final : public IRenderer {
   friend class CBooModel;
   friend class CModel;
@@ -201,7 +209,8 @@ public:
                          const SShader* shaderSet);
   void EnablePVS(const CPVSVisSet&, u32);
   void DisablePVS();
-  void UpdateAreaUniforms(int areaIdx, bool shadowRender = false, bool activateLights = true, int cubeFace = -1);
+  void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None,
+                          bool activateLights = true, int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
   void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
   void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
   void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false);
@@ -293,9 +302,9 @@ public:
   }
 
   void FindOverlappingWorldModels(std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
-  int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb) const;
+  int DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb);
   void DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits, const zeus::CAABox& aabb,
-                                        float alpha) const;
+                                        float alpha);
 
   bool IsThermalVisorActive() const { return x318_29_thermalVisor; }
   bool IsThermalVisorHotPass() const { return m_thermalHotPass; }

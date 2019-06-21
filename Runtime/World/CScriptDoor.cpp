@@ -81,16 +81,17 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   case EScriptObjectMessage::Action: {
     if (x27c_partner1 != kInvalidUniqueId) {
       if (TCastToPtr<CScriptDoor> door = mgr.ObjectById(x27c_partner1)) {
-        if (!x2a8_26_isOpen)
-          return;
-        x2a8_30_doClose = true;
-        mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
+        if (door->x2a8_26_isOpen) {
+          x2a8_30_doClose = true;
+          mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
+          door->x2a8_30_doClose = true;
+        }
       }
     } else if (x2a8_26_isOpen) {
       x2a8_30_doClose = true;
       if (TCastToPtr<CScriptDoor> door = mgr.ObjectById(x27e_partner2)) {
         mgr.SendScriptMsg(door, GetUniqueId(), EScriptObjectMessage::Close);
-        x2a8_30_doClose = true;
+        door->x2a8_30_doClose = true;
       }
       x2a8_26_isOpen = false;
       SetDoorAnimation(EDoorAnimType::Close);
@@ -102,13 +103,14 @@ void CScriptDoor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
     if (!GetActive() || x2a8_26_isOpen)
       return;
 
-    u32 doorCond = TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid)) ? 2 : GetDoorOpenCondition(mgr);
+    EDoorOpenCondition doorCond =
+      TCastToConstPtr<CScriptDoor>(mgr.GetObjectById(uid)) ? EDoorOpenCondition::Ready : GetDoorOpenCondition(mgr);
     switch (doorCond) {
-    case 1:
+    case EDoorOpenCondition::Loading:
       x2a8_27_conditionsMet = true;
       x280_prevDoor = uid;
       break;
-    case 2:
+    case EDoorOpenCondition::Ready:
       OpenDoor(uid, mgr);
       break;
     default:
@@ -151,7 +153,7 @@ void CScriptDoor::Think(float dt, CStateManager& mgr) {
   if (!x2a8_26_isOpen && x25c_animTime < 0.5f)
     x25c_animTime += dt;
 
-  if (x2a8_27_conditionsMet && GetDoorOpenCondition(mgr) == 2) {
+  if (x2a8_27_conditionsMet && GetDoorOpenCondition(mgr) == EDoorOpenCondition::Ready) {
     x2a8_27_conditionsMet = false;
     OpenDoor(x280_prevDoor, mgr);
   }
@@ -176,6 +178,8 @@ void CScriptDoor::Think(float dt, CStateManager& mgr) {
       x2a8_28_projectilesCollide = false;
       x2a8_27_conditionsMet = false;
       SendScriptMsgs(EScriptObjectState::Closed, mgr, EScriptObjectMessage::None);
+      x25c_animTime = 0.f;
+      x2a8_30_doClose = false;
     }
 
     if (GetScannableObjectInfo())
@@ -282,23 +286,23 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr) {
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007ED4C */
-u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
+CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
   const TCastToPtr<CScriptDock> dock = mgr.ObjectById(x282_dockId);
   if (!dock)
-    return 2;
+    return EDoorOpenCondition::Ready;
 
   if (x25c_animTime < 0.05f || x2a8_30_doClose)
-    return 1;
+    return EDoorOpenCondition::Loading;
 
   TAreaId destArea = dock->GetAreaId();
   if (destArea < 0 || destArea >= mgr.GetWorld()->GetNumAreas())
-    return 0;
+    return EDoorOpenCondition::NotReady;
 
   if (!mgr.GetWorld()->GetAreaAlways(destArea)->IsPostConstructed())
-    return 1;
+    return EDoorOpenCondition::Loading;
 
   if (!mgr.GetWorld()->AreSkyNeedsMet())
-    return 1;
+    return EDoorOpenCondition::Loading;
 
   TAreaId connArea = mgr.GetWorld()
                          ->GetAreaAlways(dock->GetAreaId())
@@ -306,18 +310,18 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
                          ->GetConnectedAreaId(dock->GetDockReference(mgr));
 
   if (connArea == kInvalidAreaId)
-    return 0;
+    return EDoorOpenCondition::NotReady;
 
   const CWorld* world = mgr.GetWorld();
   const CGameArea* area = world->GetAreaAlways(connArea);
 
   if (!area->IsPostConstructed()) {
     mgr.SendScriptMsg(dock, GetUniqueId(), EScriptObjectMessage::SetToMax);
-    return 1;
+    return EDoorOpenCondition::Loading;
   }
 
   if (area->GetPostConstructed()->x113c_playerActorsLoading != 0)
-    return 1;
+    return EDoorOpenCondition::Loading;
 
   for (CEntity* ent : mgr.GetPlatformAndDoorObjectList()) {
     TCastToPtr<CScriptDoor> door(ent);
@@ -326,7 +330,7 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
 
     if (door->GetAreaIdAlways() == GetAreaIdAlways() && door->x2a8_25_wasOpen) {
       if (door->x282_dockId != kInvalidUniqueId)
-        return 1;
+        return EDoorOpenCondition::Loading;
     }
   }
 
@@ -335,16 +339,19 @@ u32 CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
       continue;
 
     if (!aliveArea.IsFinishedOccluding())
-      return 1;
+      return EDoorOpenCondition::Loading;
   }
 
   // if (area->TryTakingOutOfARAM())
   {
     if (world->GetMapWorld()->IsMapAreasStreaming())
-      return 1;
+      return EDoorOpenCondition::Loading;
   }
 
-  return 2;
+  if (!CGraphics::g_BooFactory->areShadersReady())
+    return EDoorOpenCondition::Loading;
+
+  return EDoorOpenCondition::Ready;
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007E9D0 */

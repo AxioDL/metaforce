@@ -5284,7 +5284,7 @@ void CPlayer::SetMorphBallState(EPlayerMorphBallState state, CStateManager& mgr)
 }
 
 bool CPlayer::CanLeaveMorphBallState(CStateManager& mgr, zeus::CVector3f& pos) const {
-  if (x768_morphball->IsProjectile() || !x590_ ||
+  if (x768_morphball->IsProjectile() || !x590_leaveMorphballAllowed ||
       (IsUnderBetaMetroidAttack(mgr) && x2f8_morphBallState == EPlayerMorphBallState::Morphed))
     return false;
   if (!x9c4_28_canLeaveMorphBall)

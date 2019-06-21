@@ -9,20 +9,20 @@ struct PuddleToadGamma : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<atUint32> unknown1;
+  Value<atUint32> flavor;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<atVec3f> unknown5;
-  Value<float> unknown6;
-  Value<float> unknown7;
-  Value<float> unknown8;
-  DamageInfo damageInfo1;
+  Value<float> suckForceMultiplier;
+  Value<float> suckAngle;
+  Value<float> playerSuckRange;
+  Value<atVec3f> localShootDir;
+  Value<float> playerShootSpeed;
+  Value<float> shouldAttackWaitTime;
+  Value<float> spotPlayerWaitTime;
+  DamageInfo playerShootDamage;
   DamageInfo damageInfo2;
   UniqueID32 dcln;
 

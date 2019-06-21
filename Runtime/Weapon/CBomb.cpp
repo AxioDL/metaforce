@@ -87,12 +87,12 @@ void CBomb::Think(float dt, urde::CStateManager& mgr) {
 
   if (x190_24_isNotDetonated) {
 
-    if (x164_.magSquared() > 0.f)
-      x158_ += dt * x164_;
+    if (x164_acceleration.magSquared() > 0.f)
+      x158_velocity += dt * x164_acceleration;
 
-    if (x158_.magSquared() > 0.f) {
+    if (x158_velocity.magSquared() > 0.f) {
       x170_prevLocation = GetTranslation();
-      CActor::SetTranslation((dt * x158_) + GetTranslation());
+      CActor::SetTranslation((dt * x158_velocity) + GetTranslation());
 
       zeus::CVector3f diffVec = (GetTranslation() - x170_prevLocation);
       float diffMag = diffVec.magnitude();

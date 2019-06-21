@@ -289,7 +289,7 @@ vec4 PostFunc(vec4 colorIn) {
 #if defined(URDE_MB_SHADOW)
 vec4 PostFunc(vec4 colorIn) {
   float idTexel = texture(extTex0, vtf.extUvs[0]).a;
-  float sphereTexel = texture(extTex1, vtf.extUvs[1]).a;
+  float sphereTexel = texture(extTex1, vtf.extUvs[1]).r;
   float fadeTexel = texture(extTex2, vtf.extUvs[2]).a;
   float val = ((abs(idTexel - shadowId) < 0.001) ?
       (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *

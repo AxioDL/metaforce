@@ -618,7 +618,8 @@ ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt
     }
   }
 
-  newAnim.mainInterval = act.interval;
+  /* Retro's original data uses microsecond precision */
+  newAnim.mainInterval = std::trunc(act.interval * 1000000.0) / 1000000.0;
 }
 
 } // namespace DataSpec::DNAMP1
