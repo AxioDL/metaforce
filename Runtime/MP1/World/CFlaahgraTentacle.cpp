@@ -34,7 +34,7 @@ void CFlaahgraTentacle::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid,
   case EScriptObjectMessage::Touched: {
     if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
       if (colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId() && x420_curDamageRemTime <= 0.f) {
-        mgr.ApplyDamage(mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetUniqueId(), GetContactDamage(),
+        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), GetContactDamage(),
                         CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
         x420_curDamageRemTime = x424_damageWaitTime;
       }

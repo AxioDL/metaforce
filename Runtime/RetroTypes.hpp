@@ -132,7 +132,7 @@ public:
       this->pop_back();
       this->insert(this->begin(), t);
     }
-  }
+  } 
 
   std::optional<T> GetAverage() const {
     if (this->empty())

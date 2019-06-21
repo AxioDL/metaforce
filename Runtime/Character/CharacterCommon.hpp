@@ -80,7 +80,7 @@ enum class EStepType { Normal = 0, Dodge = 1, BreakDodge = 2, RollDodge = 3 };
 
 enum class ESeverity { Invalid = -1, Zero = 0, One = 1, Two = 2, Eight = 8 };
 
-enum class EGetupType { Invalid = -1, Zero = 0 };
+enum class EGetupType { Invalid = -1, Zero = 0, One = 1, Two = 2 };
 
 enum class ELoopState { Invalid = -1, Begin, Loop, End };
 
