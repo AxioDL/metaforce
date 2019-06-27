@@ -46,6 +46,7 @@ public:
   void SetDamage(float d) { x8_damage = d; }
   float GetDamage(const CDamageVulnerability& dVuln) const;
   float GetRadiusDamage() const { return xc_radiusDamage; }
+  void SetRadiusDamage(float r) { xc_radiusDamage = r; }
   float GetRadiusDamage(const CDamageVulnerability& dVuln) const;
   bool NoImmunity() const { return x18_noImmunity; }
   void SetNoImmunity(bool b) { x18_noImmunity = b; }

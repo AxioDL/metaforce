@@ -93,12 +93,12 @@ class CFlaahgra : public CPatterned {
   u32 x784_ = 1;
   u32 x788_ = 0;
   zeus::CVector3f x78c_;
-  s32 x798_ = -1;
+  pas::EAnimationState x798_animState = pas::EAnimationState::Invalid;
   std::unique_ptr<CCollisionActorManager> x79c_leftArmCollision;
   std::unique_ptr<CCollisionActorManager> x7a0_rightArmCollision;
   std::unique_ptr<CCollisionActorManager> x7a4_sphereCollision;
   s32 x7a8_ = -1;
-  bool x7ac_ = true;
+  bool x7ac_ = true; // Was an enum
   u32 x7b0_ = 1;
   s32 x7b4_ = -1;
   float x7b8_ = 0.f;
@@ -111,7 +111,7 @@ class CFlaahgra : public CPatterned {
   float x7d4_ = 0.f;
   float x7d8_ = 0.f;
   CDamageInfo x7dc_;
-  u32 x7f8_;
+  u32 x7f8_ = 0;
   rstl::reserved_vector<TUniqueId, 8> x7fc_sphereColliders;
   TUniqueId x80c_headActor = kInvalidUniqueId;
   float x810_ = 0.f;
@@ -119,13 +119,12 @@ class CFlaahgra : public CPatterned {
   float x818_curHp = 0.f;
   float x81c_ = 0.f;
   zeus::CVector3f x820_;
-  u32 x82c_ = 0;
-  u32 x860_ = 0;
+  rstl::reserved_vector<zeus::CVector3f, 4> x82c_;
+  rstl::reserved_vector<zeus::CVector3f, 4> x860_;
   zeus::CVector3f x894_;
   zeus::CVector3f x8a0_;
   CAnimRes x8ac_;
   std::optional<TToken<CDependencyGroup>> x8c8_depGroup;
-  bool x8d0_ = false;
   std::vector<CToken> x8d4_tokens;
   union {
     struct {
@@ -163,7 +162,8 @@ class CFlaahgra : public CPatterned {
   void UpdateHealthInfo(CStateManager&);
   void UpdateAimPosition(CStateManager&, float);
   void SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>&, CStateManager&);
-  bool sub801ae670();
+  bool sub801ae650() const { return (x7a8_ == 0 || x7a8_ == 1); }
+  bool sub801ae670() const { return (x7a8_ == 2 || x7a8_ == 3 || x7a8_ == 4); }
   bool IsSphereCollider(TUniqueId);
   void SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
                                const zeus::CVector3f& extendedBounds);
@@ -174,10 +174,13 @@ class CFlaahgra : public CPatterned {
   zeus::CVector3f GetAttacktargetPos(CStateManager&) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
   bool sub801e4f8() { return x7a8_ == 0 || x7a8_ == 1; }
-  void sub801ade80() {}
+  void sub801ade80();
   void UpdateHeadDamageVulnerability(CStateManager&, bool);
 
   u32 sub801ae828(CStateManager&);
+  zeus::CVector3f sub801ae754(CStateManager&);
+
+  TUniqueId GetMirrorNearestPlayer(CStateManager&);
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
@@ -196,14 +199,15 @@ public:
 
   bool AnimOver(CStateManager&, float) { return x568_ == 4; }
   bool AIStage(CStateManager&, float arg) { return x780_ == u32(arg); }
-  bool HitSomething(CStateManager&, float arg) { return x7d0_ > 0; }
+  bool HitSomething(CStateManager&, float arg) { return x7d0_ > 0.f; }
   bool OffLine(CStateManager&, float) { return (!x8e5_29_ && !x8e5_28_); }
   bool ShouldTurn(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float) { return true; }
+  bool ShouldAttack(CStateManager&, float);
   bool BreakAttack(CStateManager&, float) { return x7d4_ >= x56c_.xc_ && !x8e4_29_getup; }
   bool IsDizzy(CStateManager&, float) {
     return x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LoopReaction;
   }
+  bool CoverCheck(CStateManager&, float);
 
   void FadeIn(CStateManager&, EStateMsg, float);
   void FadeOut(CStateManager&, EStateMsg, float);
@@ -214,5 +218,11 @@ public:
   void Faint(CStateManager&, EStateMsg, float);
   void Dead(CStateManager&, EStateMsg, float);
   void Attack(CStateManager&, EStateMsg, float);
+  void Dizzy(CStateManager&, EStateMsg, float);
+  void Suck(CStateManager&, EStateMsg, float);
+  void ProjectileAttack(CStateManager&, EStateMsg, float);
+  void Cover(CStateManager&, EStateMsg, float);
+  void SpecialAttack(CStateManager&, EStateMsg, float);
+
 };
 }

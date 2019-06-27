@@ -655,9 +655,11 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               r23 = false;
             } else
               x1e4_26_sfx2Played = false;
+            (void)r23;
           }
 
           auto average = x184_.GetAverage();
+          (void)average;
           /* TODO Finish */
         }
       }
