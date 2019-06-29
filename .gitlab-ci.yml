@@ -182,4 +182,5 @@ deploy:
   variables:
     GIT_STRATEGY: none
   script:
-    - python3 /var/lib/gitlab-runner/deploy_urde.py $CI_PIPELINE_ID
+    - python3 /var/lib/gitlab-runner/deploy_urde.py $CI_PIPELINE_ID $CI_COMMIT_REF_NAME
+
