@@ -19,6 +19,7 @@ class MainWindow;
 }
 
 class MainWindow : public QMainWindow {
+  static const QStringList skUpdateTracks;
   Q_OBJECT
   hecl::Runtime::FileStoreManager m_fileMgr;
   hecl::CVarManager m_cvarManager;
@@ -52,6 +53,7 @@ private slots:
   void onReturnPressed();
   void onDownloadPressed();
   void onUpdateURDEPressed();
+  void onUpdateTrackChanged(int index);
 
 private:
   bool checkDownloadedBinary();

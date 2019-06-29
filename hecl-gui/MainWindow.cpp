@@ -2,6 +2,8 @@
 #include "ui_MainWindow.h"
 #include <QFontDatabase>
 #include <QMessageBox>
+#include <QComboBox>
+#include <QLabel>
 #include "EscapeSequenceParser.hpp"
 #include "FileDirDialog.hpp"
 #include "ExtractZip.hpp"
@@ -51,6 +53,8 @@ static void KillProcessTree(QProcess& proc) {
 }
 #endif
 
+const QStringList MainWindow::skUpdateTracks = QStringList() << "stable" << "dev";
+
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
 , m_fileMgr(_SYS_STR("urde"))
@@ -62,6 +66,8 @@ MainWindow::MainWindow(QWidget* parent)
 , m_launchMenu(m_cvarCommons, this) {
   if (m_settings.value("urde_arguments").isNull())
     m_settings.setValue("urde_arguments", QStringList() << "--no-shader-warmup");
+  if (m_settings.value("update_track").isNull())
+    m_settings.setValue("update_track", "stable");
 
   m_ui->setupUi(this);
   m_ui->heclTabs->setCurrentIndex(0);
@@ -83,6 +89,11 @@ MainWindow::MainWindow(QWidget* parent)
   pal.setColor(QPalette::Button, QColor(53, 53, 72));
   m_updateURDEButton->setPalette(pal);
   connect(m_updateURDEButton, SIGNAL(clicked()), this, SLOT(onUpdateURDEPressed()));
+  qDebug() << "Stored track " << m_settings.value("update_track");
+  int index = skUpdateTracks.indexOf(m_settings.value("update_track").toString());
+  m_ui->devTrackWarning->setVisible(index == 1);
+  m_ui->updateTrackComboBox->setCurrentIndex(index);
+  connect(m_ui->updateTrackComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onUpdateTrackChanged(int)));
 
   m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
                              std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
@@ -514,3 +525,10 @@ void MainWindow::insertContinueNote(const QString& text) {
   m_cursor.insertBlock();
   m_ui->processOutput->ensureCursorVisible();
 }
+void MainWindow::onUpdateTrackChanged(int index)  {
+  qDebug() << "Track changed from " << m_settings.value("update_track") << " to " << skUpdateTracks[index];
+  m_settings.setValue("update_track", skUpdateTracks[index]);
+  m_dlManager.fetchIndex();
+  m_ui->devTrackWarning->setVisible(index == 1);
+}
+

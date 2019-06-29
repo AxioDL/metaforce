@@ -51,8 +51,8 @@ void DownloadManager::fetchIndex() {
     return;
 
   resetError();
-
-  QString url = Domain + CurPlatformString + '/' + Index;
+  QString track = QSettings().value("update_track").toString();
+  QString url = Domain + track + '/' + CurPlatformString + '/' + Index;
   m_indexInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_indexInProgress, SIGNAL(finished()), this, SLOT(indexFinished()));
   connect(m_indexInProgress, SIGNAL(error(QNetworkReply::NetworkError)), this,
@@ -67,7 +67,8 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
   resetError();
   m_outPath = outPath;
 
-  QString url = Domain + CurPlatformString + '/' + str;
+  QString track = QSettings().value("update_track").toString();
+  QString url = Domain + track + '/' + CurPlatformString + '/' + str;
   m_binaryInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_binaryInProgress, SIGNAL(finished()), this, SLOT(binaryFinished()));
   connect(m_binaryInProgress, SIGNAL(error(QNetworkReply::NetworkError)), this,
