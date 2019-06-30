@@ -49,7 +49,7 @@ public:
   CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                 const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner, EProjectileAttrib attribs,
-                CAssetId w2, s16 sId, CAssetId w3);
+                CAssetId playerSteamTxtr, s16 playerHitSfx, CAssetId playerIceTxtr);
 
   void Accept(IVisitor& visitor);
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);

@@ -78,8 +78,10 @@ void CStateMachineState::Update(CStateManager& mgr, CAi& ai, float delta) {
       if (andPassed && state) {
         x4_state->CallFunc(mgr, ai, EStateMsg::Deactivate, 0.f);
         x4_state = state;
+#ifndef NDEBUG
         printf("%04X %08X %s - %s %d\n", ai.GetUniqueId().Value(), ai.GetEditorId().id, ai.GetName().data(),
                state->xc_name, int(state - x0_machine->GetStateVector().data()));
+#endif
         x8_time = 0.f;
         x18_24_codeTrigger = false;
         xc_random = mgr.GetActiveRandom()->Float();

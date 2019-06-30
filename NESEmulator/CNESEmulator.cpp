@@ -264,13 +264,23 @@ void CNESEmulator::InitializeEmulator() {
     // Nearest-neighbor FTW!
     m_texture = ctx.newDynamicTexture(VISIBLE_DOTS, linesToDraw, boo::TextureFormat::RGBA8,
                                       boo::TextureClampMode::ClampToEdgeNearest);
-    Vert verts[4] = {
-        {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
-        {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
-        {{1.f, -1.f, 0.f}, {1.f, 1.f}},
-        {{1.f, 1.f, 0.f}, {1.f, 0.f}},
-    };
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+    if (ctx.platform() == boo::IGraphicsDataFactory::Platform::OpenGL) {
+      Vert verts[4] = {
+          {{-1.f, -1.f, 0.f}, {0.f, 1.f}},
+          {{-1.f, 1.f, 0.f}, {0.f, 0.f}},
+          {{1.f, -1.f, 0.f}, {1.f, 1.f}},
+          {{1.f, 1.f, 0.f}, {1.f, 0.f}},
+      };
+      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+    } else {
+      Vert verts[4] = {
+          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
+          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
+          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
+      };
+      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+    }
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
     m_shadBind = CNESShader::BuildShaderDataBinding(ctx, m_vbo, m_uniBuf, m_texture);
     return true;

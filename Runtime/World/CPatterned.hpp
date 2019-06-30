@@ -362,9 +362,8 @@ public:
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
   void LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed, EProjectileAttrib attrib,
-                        bool playerHoming,
-                        const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
-                        bool sendCollideMsg, const zeus::CVector3f& scale);
+                        bool playerHoming, const std::optional<TLockedToken<CGenDescription>>& visorParticle,
+                        u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale);
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
 
   void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }

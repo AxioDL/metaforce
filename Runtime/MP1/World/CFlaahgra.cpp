@@ -495,9 +495,9 @@ void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
   AddMaterial(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
   RemoveMaterial(EMaterialTypes::Solid, mgr);
   ModelData()->SetScale(oldScale);
-  x7a4_sphereCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
-  x79c_leftArmCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
-  x7a0_rightArmCollision->AddMaterial(mgr, {EMaterialTypes::Unknown53, EMaterialTypes::CameraPassthrough});
+  x7a4_sphereCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
+  x79c_leftArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
+  x7a0_rightArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
 }
 
 void CFlaahgra::sub801ae980(CStateManager& mgr) {

@@ -17,7 +17,8 @@ const zeus::CVector3f CFlameThrower::kLightOffset(0, 3.f, 2.f);
 CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::string_view name, EWeaponType wType,
                              const CFlameInfo& flameInfo, const zeus::CTransform& xf, EMaterialTypes matType,
                              const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner,
-                             EProjectileAttrib attribs, CAssetId assetId1, s16 sId, CAssetId assetId2)
+                             EProjectileAttrib attribs, CAssetId playerSteamTxtr, s16 playerHitSfx,
+                             CAssetId playerIceTxtr)
 : CGameProjectile(false, wDesc, name, wType, xf, matType, dInfo, uid, aId, owner, kInvalidUniqueId, attribs, false,
                   zeus::CVector3f(1.f), {}, -1, false)
 , x2e8_flameXf(xf)
@@ -25,9 +26,9 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 , x33c_flameDesc(g_SimplePool->GetObj({FOURCC('PART'), flameInfo.GetFlameFxId()}))
 , x348_flameGen(new CElementGen(x33c_flameDesc))
 , x34c_flameWarp(176.f - float(flameInfo.GetLength()), xf.origin, bool(flameInfo.GetAttributes() & 0x4))
-, x3f4_playerSteamTxtr(assetId1)
-, x3f8_playerHitSfx(sId)
-, x3fc_playerIceTxtr(assetId2)
+, x3f4_playerSteamTxtr(playerSteamTxtr)
+, x3f8_playerHitSfx(playerHitSfx)
+, x3fc_playerIceTxtr(playerIceTxtr)
 , x400_24_active(false)
 , x400_25_particlesActive(false)
 , x400_26_(!(flameInfo.GetAttributes() & 1))

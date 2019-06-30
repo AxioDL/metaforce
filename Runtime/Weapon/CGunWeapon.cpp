@@ -135,6 +135,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   if (x218_26_loaded && x204_frozenEffect != EFrozenFxType::None) {
     if (x204_frozenEffect == EFrozenFxType::Thawed) {
       if (x1b8_frozenGenerator->IsSystemDeletable()) {
+        x204_frozenEffect = EFrozenFxType::None;
         x1b8_frozenGenerator.reset();
       } else {
         x1b8_frozenGenerator->SetTranslation(xf.origin);
