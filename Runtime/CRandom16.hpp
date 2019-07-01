@@ -5,20 +5,20 @@
 namespace urde {
 
 class CRandom16 {
-  u32 m_seed;
+  s32 m_seed;
   static CRandom16* g_randomNumber;
 
 public:
-  CRandom16(u32 p = 99) : m_seed(p) {}
+  CRandom16(s32 p = 99) : m_seed(p) {}
 
-  u32 Next() {
+  s32 Next() {
     m_seed = (m_seed * 0x41c64e6d) + 0x00003039;
-    return m_seed >> 16;
+    return (m_seed >> 16) & 0xffff;
   }
 
-  u32 GetSeed() const { return m_seed; }
+  s32 GetSeed() const { return m_seed; }
 
-  void SetSeed(u32 p) { m_seed = p; }
+  void SetSeed(s32 p) { m_seed = p; }
 
   float Float() { return Next() * 0.000015259022f; }
 

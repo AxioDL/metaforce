@@ -146,6 +146,8 @@ void CBabygoth::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   case EScriptObjectMessage::InitializedInArea: {
     x6ec_pathSearch.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
     x7d0_approachPathSearch.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed()->x10bc_pathArea);
+    if (x6e8_teamMgr == kInvalidUniqueId)
+      x6e8_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
     break;
   }
   case EScriptObjectMessage::Touched: {
@@ -1075,7 +1077,7 @@ bool CBabygoth::Leash(CStateManager& mgr, float) {
 }
 
 bool CBabygoth::IsDestinationObstructed(CStateManager& mgr) {
-  for (auto obj : mgr.GetListeningAiObjectList()) {
+  for (CEntity* obj : mgr.GetListeningAiObjectList()) {
     if (TCastToPtr<CAi> ai = obj) {
       if (ai->GetAreaIdAlways() == GetAreaIdAlways()) {
         if ((x8b8_backupDestPos - ai->GetTranslation()).magSquared() <= 10.f)
@@ -1128,9 +1130,9 @@ float CBabygoth::CalculateShellCrackHP(EShellState state) {
   if (state == EShellState::Default)
     return x570_babyData.GetShellHitPoints();
   else if (state == EShellState::CrackOne)
-    return 0.66666669f * x570_babyData.GetShellHitPoints();
+    return (2.f / 3.f) * x570_babyData.GetShellHitPoints();
   else if (state == EShellState::CrackTwo)
-    return 0.33333334f * x570_babyData.GetShellHitPoints();
+    return (1.f / 3.f) * x570_babyData.GetShellHitPoints();
 
   return 0.f;
 }
@@ -1139,7 +1141,7 @@ bool CBabygoth::ShouldTurn(CStateManager& mgr, float arg) {
   const float speedScale = GetModelData()->GetAnimationData()->GetSpeedScale();
   zeus::CVector3f aimPos = mgr.GetPlayer().GetAimPosition(mgr, (speedScale > 0.f ? 1.f / speedScale : 0.f));
   return zeus::CVector2f::getAngleDiff(GetTransform().basis[1].toVec2f(), (aimPos - GetTranslation()).toVec2f()) >
-         (arg == 0.f ? 0.78539819f : arg);
+         (arg == 0.f ? zeus::degToRad(45.f) : arg);
 }
 
 bool CBabygoth::ShouldAttack(CStateManager& mgr, float arg) {
