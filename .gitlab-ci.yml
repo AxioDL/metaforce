@@ -1,7 +1,6 @@
 .build:variables:
   variables: &build_variables
     GIT_SUBMODULE_STRATEGY: recursive
-    URDE_MACOS_CODESIGN_UID: VMFVV424V2
 
 .build:macos: &macos_definition
   stage: build
@@ -25,7 +24,7 @@
     - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
     - strip -S -o URDE.app/Contents/MacOS/hecl URDE.app/Contents/MacOS/hecl
     - strip -S -o URDE.app/Contents/MacOS/visigen URDE.app/Contents/MacOS/visigen
-    - codesign -s $URDE_MACOS_CODESIGN_UID -v --deep URDE.app
+    - (if [ "${URDE_MACOS_CODESIGN}" != "" ]; then echo "Unable to sign app bundle :("; else codesign -s $URDE_MACOS_CODESIGN_UID --deep URDE.app; fi);
   only:
     - release
     - dev
@@ -63,7 +62,6 @@ build:macos:avx2:
   stage: build
   tags:
     - linux
-    - master
   script:
     - mkdir build
     - cd build
