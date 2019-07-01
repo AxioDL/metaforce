@@ -124,7 +124,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
     pid_t pid = fork();
     if (!pid) {
-      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", NULL);
+      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "--version", NULL);
       /* xcrun returns 72 if metal command not found;
        * emulate that if xcrun not found */
       exit(72);
@@ -134,7 +134,7 @@ struct ShaderCompiler<PlatformType::Metal> {
     while ((ret = waitpid(pid, &status, 0)) < 0 && errno == EINTR) {}
     if (ret < 0)
       return false;
-    return WEXITSTATUS(status) == 1;
+    return WEXITSTATUS(status) == 0;
   }
 
   template <typename S>
