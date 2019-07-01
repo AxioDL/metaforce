@@ -121,7 +121,7 @@ build:linux:avx2:
   tags:
     - win32
   script:
-    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64'
+    - 'call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64'
     - mkdir build
     - cd build
     - >
