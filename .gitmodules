@@ -33,7 +33,7 @@
 	url = https://github.com/Tencent/rapidjson.git
 [submodule "NESEmulator/fixNES"]
 	path = NESEmulator/fixNES
-	url = https://github.com/FIX94/fixNES.git
+	url = https://github.com/Antidote/fixNES.git
 [submodule "Editor/locale"]
 	path = Editor/locale
 	url = ../urde-translations.git
