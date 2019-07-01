@@ -44,7 +44,7 @@ void CFlameWarp::ModifyParticles(std::vector<CParticle>& particles) {
         if (result.IsValid()) {
           float dist = result.GetPlane().pointToPlaneDist(particle.x4_pos);
           if (dist <= 0.f) {
-            particle.x4_pos = -result.GetPlane().normal() * dist;
+            particle.x4_pos -= result.GetPlane().normal() * dist;
             if (result.GetPlane().normal().dot(particle.x1c_vel) < 0.f) {
               zeus::CVector3f prevStepPos = particle.x4_pos - particle.x1c_vel;
               particle.x4_pos +=

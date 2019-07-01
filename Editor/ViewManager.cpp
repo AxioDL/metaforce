@@ -365,14 +365,13 @@ bool ViewManager::proc() {
 }
 
 void ViewManager::stop() {
-  m_videoVoice.reset();
+  m_mainWindow->getCommandQueue()->stopRenderer();
   m_projManager.shutdown();
   CDvdFile::Shutdown();
   DestroyIcons();
   DestroyBadging();
   m_viewResources.destroyResData();
   m_fontCache.destroyAtlases();
-  m_mainWindow->getCommandQueue()->stopRenderer();
 }
 
 } // namespace urde

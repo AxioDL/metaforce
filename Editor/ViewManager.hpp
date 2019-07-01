@@ -120,7 +120,6 @@ class ViewManager final : public specter::IViewManager {
   };
   std::unique_ptr<TestGameView> m_testGameView;
   std::unique_ptr<boo::IAudioVoiceEngine> m_voiceEngine;
-  std::unique_ptr<boo::IAudioVoice> m_videoVoice;
   std::optional<amuse::BooBackendVoiceAllocator> m_amuseAllocWrapper;
 
   hecl::SystemString m_recentProjectsPath;
