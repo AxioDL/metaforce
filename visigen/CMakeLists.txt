@@ -13,7 +13,7 @@ else()
 endif()
 
 if(APPLE)
-  set(PLAT_SRCS MainMac.mm)
+  set(PLAT_SRCS MainMac.mm glew.c)
   set_source_files_properties(MainMac.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 elseif(WIN32)
   set(PLAT_SRCS MainWin.cpp)
