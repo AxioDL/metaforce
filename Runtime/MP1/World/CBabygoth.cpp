@@ -302,12 +302,13 @@ void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   x928_colActMgr->SetActive(mgr, GetActive());
 
   for (u32 i = 0; i < x928_colActMgr->GetNumCollisionActors(); ++i) {
-    TUniqueId id = x928_colActMgr->GetCollisionDescFromIndex(i).GetCollisionActorId();
+    const CJointCollisionDescription& desc = x928_colActMgr->GetCollisionDescFromIndex(i);
+    TUniqueId id = desc.GetCollisionActorId();
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(id)) {
       colAct->SetDamageVulnerability(x570_babyData.x68_mouthVulnerabilities);
-      if (colAct->GetName().find(skpMouthDamageJoint))
+      if (desc.GetName().find(skpMouthDamageJoint) == 0)
         x9f6_mouthCollisionActor = id;
-      else if (colAct->GetName().find("Pelvis"sv)) {
+      else if (desc.GetName().find("Pelvis"sv) == 0 || desc.GetName().find("butt_LCTR"sv) == 0) {
         x9f8_shellIds.push_back(id);
         x300_maxAttackRange = 66;
       }
@@ -325,6 +326,10 @@ void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
 void CBabygoth::SetupHealthInfo(CStateManager& mgr) {
   CHealthInfo* thisHealth = HealthInfo(mgr);
   x8ec_bodyHP = thisHealth->GetHP();
+
+  if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_mouthCollisionActor))
+    colAct->HealthInfo(mgr)->SetHP(x570_babyData.GetShellHitPoints());
+
   for (const TUniqueId& uid : x9f8_shellIds) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       CHealthInfo* colHealth = colAct->HealthInfo(mgr);
@@ -474,17 +479,17 @@ void CBabygoth::UpdateShellHealth(CStateManager& mgr) {
   if (xa00_shellHitPoints <= 0.f)
     return;
 
-  float hp = 0.f;
+  float dam = 0.f;
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_mouthCollisionActor))
-    hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x570_babyData.GetShellHitPoints());
+    dam = zeus::max(dam, x570_babyData.GetShellHitPoints() - colAct->GetHealthInfo(mgr)->GetHP());
 
   for (TUniqueId uid : x9f8_shellIds) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
-      hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x570_babyData.GetShellHitPoints());
+      dam = zeus::max(dam, x570_babyData.GetShellHitPoints() - colAct->GetHealthInfo(mgr)->GetHP());
     }
   }
 
-  xa00_shellHitPoints -= hp;
+  xa00_shellHitPoints -= dam;
   if (xa00_shellHitPoints <= 0.f) {
     x56c_shellState = EShellState::Destroyed;
     DestroyShell(mgr);
@@ -506,7 +511,7 @@ void CBabygoth::UpdateShellHealth(CStateManager& mgr) {
     }
   }
 
-  hp = (x56c_shellState == EShellState::Destroyed ? x8ec_bodyHP : x570_babyData.GetShellHitPoints());
+  float hp = (x56c_shellState == EShellState::Destroyed ? x8ec_bodyHP : x570_babyData.GetShellHitPoints());
 
   if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_mouthCollisionActor)) {
     colAct->HealthInfo(mgr)->SetHP(hp);
@@ -568,18 +573,18 @@ void CBabygoth::UpdateHealth(CStateManager& mgr) {
     return;
 
   if (x56c_shellState == EShellState::Destroyed) {
-    float hp = 0.f;
+    float dam = 0.f;
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(x9f6_mouthCollisionActor)) {
-      hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x8ec_bodyHP);
+      dam = zeus::max(dam, x8ec_bodyHP - colAct->GetHealthInfo(mgr)->GetHP());
     }
 
     for (TUniqueId uid : x9f8_shellIds) {
       if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
-        hp = zeus::max(hp, colAct->GetHealthInfo(mgr)->GetHP() - x8ec_bodyHP);
+        dam = zeus::max(dam, x8ec_bodyHP - colAct->GetHealthInfo(mgr)->GetHP());
       }
     }
 
-    HealthInfo(mgr)->SetHP(hp - HealthInfo(mgr)->GetHP());
+    HealthInfo(mgr)->SetHP(HealthInfo(mgr)->GetHP() - dam);
     if (HealthInfo(mgr)->GetHP() <= 0.f) {
       Death(mgr, {}, EScriptObjectState::DeathRattle);
       xa48_26_inProjectileAttack = true;

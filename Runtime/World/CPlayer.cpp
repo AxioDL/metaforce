@@ -1804,7 +1804,7 @@ void CPlayer::UnFreeze(CStateManager& stateMgr) {
       ApplySubmergedPitchBend(hnd);
     }
     x768_morphball->Stop();
-    SetVisorSteam(0.f, 0.42857146f, 0.071428575f, xa08_steamTextureId, false);
+    SetVisorSteam(0.f, 6.f / 14.f, 1.f / 14.f, xa08_steamTextureId, false);
   }
 }
 
@@ -1846,13 +1846,15 @@ bool CPlayer::GetFrozenState() const { return x750_frozenTimeout > 0.f; }
 
 void CPlayer::UpdateFrozenState(const CFinalInput& input, CStateManager& mgr) {
   x750_frozenTimeout -= input.DeltaTime();
-  if (x750_frozenTimeout > 0.f)
-    SetVisorSteam(0.7f, 0.42857146f, 0.071428575f, xa08_steamTextureId, false);
-  else
+  if (x750_frozenTimeout > 0.f) {
+    SetVisorSteam(0.7f, 6.f / 14.f, 1.f / 14.f, xa08_steamTextureId, false);
+  } else {
     UnFreeze(mgr);
+    return;
+  }
   if (x258_movementState == EPlayerMovementState::OnGround ||
       x258_movementState == EPlayerMovementState::FallingMorphed) {
-    UnFreeze(mgr);
+    Stop();
     ClearForcesAndTorques();
   }
   x7a0_visorSteam.Update(input.DeltaTime());

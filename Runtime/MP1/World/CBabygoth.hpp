@@ -88,7 +88,7 @@ private:
   CDamageVulnerability x98c_dVuln;
   CSegId x9f4_mouthLocator;
   TUniqueId x9f6_mouthCollisionActor = kInvalidUniqueId;
-  rstl::reserved_vector<TUniqueId, 1> x9f8_shellIds;
+  rstl::reserved_vector<TUniqueId, 2> x9f8_shellIds;
   float xa00_shellHitPoints;
   u32 xa04_drawMaterialIdx = 0;
   TLockedToken<CSkinnedModel> xa08_noShellModel;

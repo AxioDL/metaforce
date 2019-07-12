@@ -99,6 +99,11 @@ if(MSVC)
   endif()
 
 else()
+  if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    # For libstdc++ shipped with GCC 9.1, this is required to summarize std::string
+    add_compile_definitions(_GLIBCXX_DEBUG=1)
+  endif()
+
   if(${URDE_VECTOR_ISA} STREQUAL "avx2")
     add_compile_options(-mavx2)
     message(STATUS "Building with AVX2 Vector ISA")

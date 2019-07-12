@@ -906,7 +906,7 @@ void CSamusHud::UpdateHudDamage(float dt, const CStateManager& mgr, DataSpec::IT
   if (color2.a()) {
     if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed)
       color2.a() *= 0.75f;
-    x3a8_camFilter.SetFilter(EFilterType::Add, EFilterShape::Fullscreen, 0.f, color2, -1);
+    x3a8_camFilter.SetFilter(EFilterType::Add, EFilterShape::Fullscreen, 0.f, color2, {});
   } else {
     x3a8_camFilter.DisableFilter(0.f);
   }
@@ -1382,6 +1382,7 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::E
                      bool targetingManager) const {
   if (x2bc_nextState == EHudState::None)
     return;
+  x3a8_camFilter.Draw();
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
     DrawAttachedEnemyEffect(mgr);
     x51c_camFilter2.Draw();
