@@ -12,7 +12,7 @@ class CTryclops : public CPatterned {
   float x67c_;
   float x680_;
   float x684_;
-  float x688_;
+  float x688_launchSpeed;
   float x68c_ = 0.f;
   u32 x690_ = 0;
   TUniqueId x694_bombId = kInvalidUniqueId;
@@ -27,10 +27,11 @@ class CTryclops : public CPatterned {
   void ApplySeparation(CStateManager&);
   void GrabBomb(CStateManager& mgr);
   void DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig);
-  bool sub802600c8(const zeus::CVector3f&, float);
+  bool InRangeToLocator(const zeus::CVector3f& vec, float);
   bool sub80260180(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CAABox&, CStateManager&);
   void SuckPlayer(CStateManager& mgr, float);
   void AttractPlayer(CStateManager& mgr, const zeus::CVector3f& dest, float);
+  void AttractBomb(CStateManager& mgr, float);
 
 public:
   DEFINE_PATTERNED(Tryclops)

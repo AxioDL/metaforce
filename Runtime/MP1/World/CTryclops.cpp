@@ -23,7 +23,7 @@ CTryclops::CTryclops(urde::TUniqueId uid, std::string_view name, const CEntityIn
 , x67c_(f1)
 , x680_(std::cos(zeus::degToRad(0.5f * f2)))
 , x684_(f3)
-, x688_(f4)
+, x688_launchSpeed(f4)
 , x698_24_(false)
 , x698_25_(false)
 , x698_26_(false)
@@ -61,7 +61,7 @@ void CTryclops::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& poi, EU
   switch (type) {
   case EUserEventType::Projectile:
     if (x694_bombId == kInvalidUniqueId) {
-      LaunchPlayer(mgr, GetLctrTransform(poi.GetLocatorName()), (x698_27_dizzy ? 5.f : x688_));
+      LaunchPlayer(mgr, GetLctrTransform(poi.GetLocatorName()), (x698_27_dizzy ? 5.f : x688_launchSpeed));
     } else {
       DragBomb(mgr, GetLctrTransform(poi.GetLocatorName()));
     }
@@ -112,11 +112,35 @@ void CTryclops::PathFind(CStateManager& mgr, EStateMsg msg, float arg) {
   ApplySeparation(mgr);
 }
 
-void CTryclops::SelectTarget(CStateManager&, EStateMsg, float) {}
+void CTryclops::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+    mgr.GetPlayer().AddMaterial(EMaterialTypes::Solid, mgr);
+    x698_25_ = true;
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Internal6);
+  } else if (msg == EStateMsg::Update) {
+    AttractBomb(mgr, arg);
+  }
+}
 
-void CTryclops::TargetPatrol(CStateManager&, EStateMsg, float) {}
+void CTryclops::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate)
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
 
-void CTryclops::TargetPlayer(CStateManager&, EStateMsg, float) {}
+  CPatterned::TargetPatrol(mgr, msg, arg);
+}
+
+void CTryclops::TargetPlayer(CStateManager& mgr, EStateMsg msg, float arg) {
+  CPatterned::TargetPlayer(mgr, msg, arg);
+
+  if (msg == EStateMsg::Update && x694_bombId != kInvalidUniqueId) {
+    if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId)) {
+      bomb->SetFuseDisabled(false);
+      bomb->SetIsBeingDragged(false);
+      x694_bombId = kInvalidUniqueId;
+    }
+  }
+}
 
 void CTryclops::TargetCover(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Update) {
@@ -131,10 +155,90 @@ void CTryclops::TargetCover(CStateManager& mgr, EStateMsg msg, float) {
   }
 }
 
-void CTryclops::Attack(CStateManager&, EStateMsg, float) {}
-void CTryclops::JumpBack(CStateManager&, EStateMsg, float) {}
+void CTryclops::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    mgr.GetPlayer().Stop();
+    mgr.GetPlayer().RemoveMaterial(EMaterialTypes::Solid, mgr);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(false);
+    x32c_animState = EAnimState::Ready;
+    x698_24_ = false;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 1);
+    if (!x698_24_)
+      DragPlayer(mgr, GetLctrTransform("bombGrab_locator"sv).origin);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    if (mgr.GetPlayer().GetAttachedActor() == GetUniqueId())
+      mgr.GetPlayer().DetachActorFromPlayer();
+
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+    mgr.GetPlayer().AddMaterial(EMaterialTypes::Solid, mgr);
+  }
+}
+
+void CTryclops::JumpBack(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(GetWaypointForState(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow))) {
+      SetDestPos(wp->GetTranslation());
+    }
+
+    if (x694_bombId != kInvalidUniqueId) {
+      if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId))
+        bomb->SetFuseDisabled(false);
+      else
+        x694_bombId = kInvalidUniqueId;
+    }
+
+    SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Combat);
+  } else if (msg == EStateMsg::Update) {
+    GrabBomb(mgr);
+  }
+}
+
 void CTryclops::Shuffle(CStateManager& mgr, EStateMsg msg, float arg) { PathFind(mgr, msg, arg); }
-void CTryclops::TurnAround(CStateManager&, EStateMsg, float) {}
+
+void CTryclops::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
+  CPlayer& player = mgr.GetPlayer();
+  if (msg == EStateMsg::Activate) {
+    if (x694_bombId == kInvalidUniqueId) {
+      player.Stop();
+      player.RemoveMaterial(EMaterialTypes::Solid, mgr);
+      player.SetLeaveMorphBallAllowed(true);
+    }
+
+    TUniqueId uid = GetWaypointForState(mgr, EScriptObjectState::Modify, EScriptObjectMessage::Follow);
+    bool retreat = false;
+    if (uid == kInvalidUniqueId) {
+      uid = GetWaypointForState(mgr, EScriptObjectState::Retreat, EScriptObjectMessage::Follow);
+      retreat = true;
+    }
+
+    if (TCastToConstPtr<CActor> wp = mgr.GetObjectById(uid)) {
+      zeus::CVector3f destVec =
+          (retreat ? wp->GetTransform().basis[1] : GetTranslation() - wp->GetTranslation()).normalized();
+      destVec.z() = 0.f;
+      SetDestPos(GetTranslation() + destVec);
+
+      if (std::fabs(zeus::CVector3f(GetTransform().basis[1].x(), GetTransform().basis[1].y(), 0.f).dot(destVec)) < 0.9998)
+        x32c_animState = EAnimState::Ready;
+    }
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Turn, &CPatterned::TryTurn, 0);
+
+    if (x694_bombId == kInvalidUniqueId)
+      DragPlayer(mgr, GetLctrTransform("ballGrab_locator"sv).origin);
+    else
+      GrabBomb(mgr);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+    mgr.GetPlayer().AddMaterial(EMaterialTypes::Solid, mgr);
+    if (mgr.GetPlayer().GetAttachedActor() == GetUniqueId())
+      mgr.GetPlayer().DetachActorFromPlayer();
+  }
+}
+
 void CTryclops::Crouch(CStateManager& mgr, EStateMsg msg, float) {
   if (msg == EStateMsg::Activate) {
     if (TCastToConstPtr<CActor> wp =
@@ -186,8 +290,26 @@ void CTryclops::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-void CTryclops::Cover(CStateManager&, EStateMsg, float) {}
-void CTryclops::Approach(CStateManager&, EStateMsg, float) {}
+void CTryclops::Cover(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    if (!x698_25_)
+      x68c_ = 1.5f;
+
+    if (mgr.GetPlayer().GetAttachedActor() == GetUniqueId()) {
+      mgr.GetPlayer().SetLeaveMorphBallAllowed(true);
+      mgr.GetPlayer().AddMaterial(EMaterialTypes::Solid, mgr);
+      mgr.GetPlayer().DetachActorFromPlayer();
+    }
+  }
+}
+
+void CTryclops::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
+  PathFind(mgr, msg, arg);
+  ApplySeparation(mgr);
+  if (msg == EStateMsg::Update)
+    GrabBomb(mgr);
+}
+
 void CTryclops::PathFindEx(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::PathFind(mgr, msg, arg);
   ApplySeparation(mgr);
@@ -202,7 +324,27 @@ void CTryclops::PathFindEx(CStateManager& mgr, EStateMsg msg, float arg) {
     DragPlayer(mgr, GetLctrTransform("ballGrab_locator"sv).origin);
   }
 }
-void CTryclops::Dizzy(CStateManager&, EStateMsg, float) {}
+
+void CTryclops::Dizzy(CStateManager& mgr, EStateMsg msg, float) {
+  if (msg == EStateMsg::Activate) {
+    mgr.GetPlayer().Stop();
+    mgr.GetPlayer().RemoveMaterial(EMaterialTypes::Solid, mgr);
+    mgr.GetPlayer().SetLeaveMorphBallAllowed(false);
+    x32c_animState = EAnimState::Ready;
+    x698_24_ = false;
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::MeleeAttack, &CPatterned::TryMeleeAttack, 0);
+    if (!x698_24_)
+      DragPlayer(mgr, GetLctrTransform("ballGrab_locator"sv).origin);
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+    if (mgr.GetPlayer().GetAttachedActor() == GetUniqueId()) {
+      mgr.GetPlayer().DetachActorFromPlayer();
+      x698_27_dizzy = false;
+    }
+  }
+}
+
 bool CTryclops::InAttackPosition(CStateManager& mgr, float) {
   if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     return false;
@@ -295,7 +437,7 @@ bool CTryclops::SpotPlayer(CStateManager& mgr, float) {
 bool CTryclops::InPosition(CStateManager& mgr, float arg) {
   if (x694_bombId != kInvalidUniqueId) {
     if (TCastToConstPtr<CBomb> bomb = mgr.GetObjectById(x694_bombId)) {
-      return sub802600c8(bomb->GetTranslation(), arg);
+      return InRangeToLocator(bomb->GetTranslation(), arg);
     }
   }
 
@@ -323,7 +465,7 @@ bool CTryclops::Inside(CStateManager& mgr, float arg) {
   const zeus::CTransform xf = mgr.GetPlayer().GetTransform();
   x64c_ = xf.getRotation();
 
-  return sub802600c8(xf.origin + zeus::CVector3f(0.f, 0.f, mgr.GetPlayer().GetMorphBall()->GetBallRadius()), arg);
+  return InRangeToLocator(xf.origin + zeus::CVector3f(0.f, 0.f, mgr.GetPlayer().GetMorphBall()->GetBallRadius()), arg);
 }
 
 bool CTryclops::ShouldRetreat(CStateManager& mgr, float) {
@@ -387,7 +529,7 @@ void CTryclops::ApplySeparation(CStateManager& mgr) {
 void CTryclops::GrabBomb(CStateManager& mgr) {
   if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId)) {
     zeus::CTransform grabLctr = GetLctrTransform("ballGrab_locator"sv);
-    grabLctr.origin += zeus::CVector3f(0.f, 0.f, -3.f);
+    grabLctr.origin += zeus::CVector3f(0.f, 0.f, -.3f);
     bomb->SetTransform(grabLctr);
   }
 }
@@ -401,7 +543,7 @@ void CTryclops::DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig) {
   player.SetTransform(xf);
 }
 
-bool CTryclops::sub802600c8(const zeus::CVector3f& vec, float arg) {
+bool CTryclops::InRangeToLocator(const zeus::CVector3f& vec, float arg) {
   return (vec - GetLctrTransform("ballGrab_locator"sv).origin).magSquared() <= arg;
 }
 
@@ -451,6 +593,15 @@ void CTryclops::AttractPlayer(CStateManager& mgr, const zeus::CVector3f& dest, f
   const float ballRad = player.GetMorphBall()->GetBallRadius();
   player.SetVelocityWR(1.f / (2.f * arg) *
                        (dest - (player.GetTranslation() + zeus::CVector3f(0.f, 0.f, ballRad))).normalized());
+}
+
+void CTryclops::AttractBomb(CStateManager& mgr, float arg) {
+  if (TCastToPtr<CBomb> bomb = mgr.ObjectById(x694_bombId)) {
+    bomb->SetVelocityWR(
+        1.f / (2.f * arg) *
+        (GetLctrTransform("ballGrab_locator"sv).origin + zeus::CVector3f(0.f, 0.f, -.3f) - bomb->GetTranslation())
+            .normalized());
+  }
 }
 
 } // namespace urde::MP1
