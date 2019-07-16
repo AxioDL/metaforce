@@ -304,7 +304,7 @@ void CTryclops::Cover(CStateManager& mgr, EStateMsg msg, float) {
 }
 
 void CTryclops::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
-  PathFind(mgr, msg, arg);
+  CPatterned::PathFind(mgr, msg, arg);
   ApplySeparation(mgr);
   if (msg == EStateMsg::Update)
     GrabBomb(mgr);
