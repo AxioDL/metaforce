@@ -197,7 +197,7 @@ public:
 
   void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
 
-  float GetGravityConstant() const { return 10.f * 24.525f; }
+  float GetGravityConstant() const { return 10.f * CPhysicsActor::GravityConstant(); }
 
   void SetPathFindMode(EPathFindMode mode) { x8b4_pathFindMode = mode; }
 

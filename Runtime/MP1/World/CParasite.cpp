@@ -17,11 +17,11 @@
 
 namespace urde::MP1 {
 
-const float CParasite::flt_805A8FB0 = 2.f * std::sqrt(2.5f / 24.525002f);
-const float CParasite::skAttackVelocity = 15.f / 2.f * (std::sqrt(2.5f / 24.525002f));
+const float CParasite::flt_805A8FB0 = 2.f * std::sqrt(2.5f / CPhysicsActor::GravityConstant());
+const float CParasite::skAttackVelocity = 15.f / 2.f * (std::sqrt(2.5f / CPhysicsActor::GravityConstant()));
 short CParasite::word_805A8FC0 = 0;
-const float CParasite::flt_805A8FB8 = 2.f * std::sqrt(2.5f / 24.525002f);
-const float CParasite::skRetreatVelocity = 3.f / 2.f * std::sqrt(2.5f / 24.525002f);
+const float CParasite::flt_805A8FB8 = 2.f * std::sqrt(2.5f / CPhysicsActor::GravityConstant());
+const float CParasite::skRetreatVelocity = 3.f / 2.f * std::sqrt(2.5f / CPhysicsActor::GravityConstant());
 
 CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,
                      const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo, EBodyType bodyType,

@@ -15,9 +15,9 @@ class CBomb : public CWeapon {
   std::unique_ptr<CElementGen> x180_particle1;
   std::unique_ptr<CElementGen> x184_particle2;
   TUniqueId x188_lightId = kInvalidUniqueId;
-  const CGenDescription* x18c_;
+  const CGenDescription* x18c_particle2Obj;
   bool x190_24_isNotDetonated : 1;
-  bool x190_25_ : 1;
+  bool x190_25_beingDragged : 1;
   bool x190_26_disableFuse : 1;
 
 public:
@@ -35,6 +35,9 @@ public:
   std::optional<zeus::CAABox> GetTouchBounds() const;
   void SetVelocityWR(const zeus::CVector3f& vel) { x158_velocity = vel; }
   void SetConstantAccelerationWR(const zeus::CVector3f& acc) { x164_acceleration = acc; }
+  void SetFuseDisabled(bool b) { x190_26_disableFuse = false; }
+  void SetIsBeingDragged(bool b) { x190_25_beingDragged = b; }
+  bool IsBeingDragged() const { return x190_25_beingDragged; }
 };
 
 } // namespace urde

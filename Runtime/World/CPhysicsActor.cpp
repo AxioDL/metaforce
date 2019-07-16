@@ -47,7 +47,7 @@ float CPhysicsActor::GetStepUpHeight() const { return x23c_stepUpHeight; }
 
 float CPhysicsActor::GetStepDownHeight() const { return x240_stepDownHeight; }
 
-float CPhysicsActor::GetWeight() const { return 24.525002f * xe8_mass; }
+float CPhysicsActor::GetWeight() const { return CPhysicsActor::GravityConstant() * xe8_mass; }
 
 void CPhysicsActor::SetPrimitiveOffset(const zeus::CVector2f& offset) { x1e8_primitiveOffset = offset; }
 

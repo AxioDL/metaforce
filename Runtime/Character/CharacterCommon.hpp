@@ -64,7 +64,7 @@ enum class EHurledState {
   Seven
 };
 
-enum class EFallState { Invalid = -1, Zero };
+enum class EFallState { Invalid = -1, Zero, One };
 
 enum class EReactionType { Invalid = -1, Zero, One, Two, Three };
 
@@ -77,8 +77,18 @@ enum class EJumpState { Invalid = -1, IntoJump, AmbushJump, Loop, OutOfJump, Wal
 enum class EStepDirection { Invalid = -1, Forward = 0, Backward = 1, Left = 2, Right = 3, Up = 4, Down = 5 };
 
 enum class EStepType { Normal = 0, Dodge = 1, BreakDodge = 2, RollDodge = 3 };
-
-enum class ESeverity { Invalid = -1, Zero = 0, One = 1, Two = 2, Three, Four, Seven = 7, Eight = 8 };
+enum class ESeverity {
+  Invalid = -1,
+  Zero = 0,
+  One = 1,
+  Two = 2,
+  Three = 3,
+  Four = 4,
+  Five = 5,
+  Six = 6,
+  Seven = 7,
+  Eight = 8
+};
 
 enum class EGetupType { Invalid = -1, Zero = 0, One = 1, Two = 2 };
 
