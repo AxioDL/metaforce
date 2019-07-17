@@ -5,10 +5,10 @@
 
 namespace urde {
 
-CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool b1,
+CScriptMemoryRelay::CScriptMemoryRelay(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool defaultActive,
                                        bool skipSendActive, bool ignoreMessages)
 : CEntity(uid, info, true, name)
-, x34_24_(b1)
+, x34_24_defaultActive(defaultActive)
 , x34_25_skipSendActive(skipSendActive)
 , x34_26_ignoreMessages(ignoreMessages) {}
 

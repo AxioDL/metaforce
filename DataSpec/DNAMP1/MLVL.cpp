@@ -124,8 +124,9 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         r.enumerate<atUint32>("memrelays", memRelays);
     }
 
+    std::vector<MemRelayLink> memRelayLinks;
     /* Bare minimum we'll need exactly the same number of links as relays */
-    std::vector<MemRelayLink> memRelayLinks(memRelays.size());
+    memRelayLinks.reserve(memRelays.size());
 
     hecl::DirectoryEnumerator dEnum(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted);
     bool areaInit = false;
@@ -256,13 +257,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 /* We must have a new relay, let's track it */
                 memRelayLinks.push_back(linkOut);
                 memRelays.push_back(memRelay.id);
-              } else /* Lets insert this in it's appropriate location, target order doesn't matter */
-              {
-                atUint32 idx = iter - memRelays.begin();
-                if (idx >= memRelayLinks.size())
+              } else {
                   memRelayLinks.push_back(linkOut);
-                else
-                  memRelayLinks.insert(memRelayLinks.begin() + idx, linkOut);
               }
             }
           }
@@ -311,7 +307,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     }
 
     /* Append Memory Relays */
-    mlvl.memRelayLinks.insert(mlvl.memRelayLinks.end(), memRelayLinks.begin(), memRelayLinks.end());
+    if (!memRelayLinks.empty())
+      mlvl.memRelayLinks.insert(mlvl.memRelayLinks.end(), memRelayLinks.begin(), memRelayLinks.end());
 
     /* Cull duplicate area paths and add typed hash to list */
     auto& conn = btok.getBlenderConnection();

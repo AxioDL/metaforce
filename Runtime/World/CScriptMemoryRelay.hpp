@@ -6,7 +6,7 @@ namespace urde {
 class CScriptMemoryRelay : public CEntity {
   union {
     struct {
-      bool x34_24_;
+      bool x34_24_defaultActive;
       bool x34_25_skipSendActive;
       bool x34_26_ignoreMessages;
     };
