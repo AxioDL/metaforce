@@ -560,12 +560,12 @@ CEntity* ScriptLoader::LoadCounter(CStateManager& mgr, CInputStream& in, int pro
 
   std::string name = mgr.HashInstanceName(in);
 
-  u32 w1 = in.readUint32Big();
-  u32 w2 = in.readUint32Big();
-  bool b1 = in.readBool();
-  bool b2 = in.readBool();
+  u32 initial = in.readUint32Big();
+  u32 max = in.readUint32Big();
+  bool autoReset = in.readBool();
+  bool active = in.readBool();
 
-  return new CScriptCounter(mgr.AllocateUniqueId(), name, info, w1, w2, b1, b2);
+  return new CScriptCounter(mgr.AllocateUniqueId(), name, info, initial, max, autoReset, active);
 }
 
 CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1557,9 +1557,9 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
 
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
-  bool b1 = in.readBool();
-  bool b2 = in.readBool();
-  bool b3 = in.readBool();
+  bool collider = in.readBool();
+  bool excludePlayer = in.readBool();
+  bool enableLineOfSight = in.readBool();
 
   if (g_ResFactory->GetResourceTypeById(pInfo.GetAnimationParameters().GetACSFile()) != SBIG('ANCS'))
     return nullptr;
@@ -1567,7 +1567,7 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
   return new MP1::CFlickerBat(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
-                              CPatterned::EColliderType(b1), b2, actParms, b3);
+                              CPatterned::EColliderType(collider), excludePlayer, actParms, enableLineOfSight);
 }
 
 CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1631,7 +1631,7 @@ CEntity* ScriptLoader::LoadPuddleSpore(CStateManager& mgr, CInputStream& in, int
     return nullptr;
 
   CModelData mData(
-    CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+      CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   return new MP1::CPuddleSpore(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo,
                                CPatterned::EColliderType(b1), w1, f1, f2, f3, f4, f5, actParms, w2, dInfo);
 }
@@ -1831,8 +1831,8 @@ CEntity* ScriptLoader::LoadSpecialFunction(CStateManager& mgr, CInputStream& in,
     return nullptr;
 
   return new CScriptSpecialFunction(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform, specialFunction,
-                                    str, f1, f2, f3, f4, zeus::skZero3f, zeus::skBlack, active1,
-                                    CDamageInfo(), w2, w3, w4, w5, w6, w7);
+                                    str, f1, f2, f3, f4, zeus::skZero3f, zeus::skBlack, active1, CDamageInfo(), w2, w3,
+                                    w4, w5, w6, w7);
 }
 
 CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1846,10 +1846,10 @@ CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int p
   CPatternedInfo pInfo(in, pair.second);
   CActorParameters actParms = LoadActorParameters(in);
   in.readBool();
-  float f1 = in.readFloatBig();
-  float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
-  float f4 = in.readFloatBig();
+  float maxDetectionRange = in.readFloatBig();
+  float maxHearingRange = in.readFloatBig();
+  float maxSightRange = in.readFloatBig();
+  float hideTime = in.readFloatBig();
 
   const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
   if (!animParms.GetACSFile().IsValid())
@@ -1858,7 +1858,7 @@ CEntity* ScriptLoader::LoadSpankWeed(CStateManager& mgr, CInputStream& in, int p
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
   return new MP1::CSpankWeed(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(mData),
-                             actParms, pInfo, f1, f2, f3, f4);
+                             actParms, pInfo, maxDetectionRange, maxHearingRange, maxSightRange, hideTime);
 }
 
 CEntity* ScriptLoader::LoadParasite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1915,10 +1915,11 @@ CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int 
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
-  u32 w2 = LoadParameterFlags(in);
-  u32 w1 = in.readUint32Big();
+  u32 overrideFlags = LoadParameterFlags(in);
+  u32 priority = in.readUint32Big();
 
-  return new CScriptPlayerHint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, w1, w2);
+  return new CScriptPlayerHint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, priority,
+                               overrideFlags);
 }
 
 CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1938,6 +1939,10 @@ CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadAIKeyframe(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
+  if (CScriptActorKeyframe* kf = static_cast<CScriptActorKeyframe*>(LoadActorKeyframe(mgr, in, propCount, info))) {
+    kf->SetIsPassive(true);
+    return kf;
+  }
   return nullptr;
 }
 
@@ -1949,10 +1954,10 @@ CEntity* ScriptLoader::LoadPointOfInterest(CStateManager& mgr, CInputStream& in,
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
   CScannableParameters sParms = LoadScannableParameters(in);
-  float f1 = in.readFloatBig();
+  float pointSize = in.readFloatBig();
 
   return new CScriptPointOfInterest(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, sParms,
-                                    f1);
+                                    pointSize);
 }
 
 CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1979,7 +1984,7 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
     return nullptr;
 
   CModelData mData(
-    CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+      CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms, metData,
                            kInvalidUniqueId);
 }
@@ -2030,7 +2035,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   CScriptDebris::EOrientationType particle2Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   CAssetId particle3 = in.readUint32Big();
-  /*zeus::CVector3f particle3Scale =*/ zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
+  /*zeus::CVector3f particle3Scale =*/zeus::CVector3f::ReadBig(in); /* Not actually used, go figure */
   CScriptDebris::EOrientationType particle3Or = CScriptDebris::EOrientationType(in.readUint32Big());
 
   bool solid = in.readBool();
@@ -2275,8 +2280,8 @@ CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int p
   bool hotInThermal = in.readBool();
 
   CModelData mData(CStaticRes(model, zeus::skOne3f));
-  CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f,
-                   animParms.GetInitialAnimation(), true);
+  CAnimRes animRes(animParms.GetACSFile(), animParms.GetCharacter(), zeus::skOne3f, animParms.GetInitialAnimation(),
+                   true);
   return new CFishCloud(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform,
                         std::move(mData), animRes, numBoids, speed, separationRadius, cohesionMagnitude,
                         alignmentWeight, separationMagnitude, weaponRepelMagnitude, playerRepelMagnitude,
@@ -2526,15 +2531,13 @@ CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in
   u32 launchSfx = in.readUint32Big();
   u32 scatterSfx = in.readUint32Big();
 
-  return new CWallCrawlerSwarm(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale,
-                               aHead.x10_transform, flavor,
-                               CAnimRes(actor, charIdx, zeus::CVector3f(1.5f), defaultAnim, true),
-                               launchAnim, attractAnim, part1, part2, part3, part4, crabDamage, scarabExplodeDamage,
-                               crabDamageCooldown, boidRadius, touchRadius, playerTouchRadius, numBoids,
-                               maxCreatedBoids, animPlaybackSpeed, separationRadius, cohesionMagnitude, alignmentWeight,
-                               separationMagnitude, moveToWaypointWeight, attractionMagnitude, attractionRadius,
-                               boidGenRate, maxLaunches, scarabBoxMargin, scarabScatterXYVelocity, scarabTimeToExplode,
-                               hInfo, dVulns, launchSfx, scatterSfx, aParams);
+  return new CWallCrawlerSwarm(
+      mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale, aHead.x10_transform, flavor,
+      CAnimRes(actor, charIdx, zeus::CVector3f(1.5f), defaultAnim, true), launchAnim, attractAnim, part1, part2, part3,
+      part4, crabDamage, scarabExplodeDamage, crabDamageCooldown, boidRadius, touchRadius, playerTouchRadius, numBoids,
+      maxCreatedBoids, animPlaybackSpeed, separationRadius, cohesionMagnitude, alignmentWeight, separationMagnitude,
+      moveToWaypointWeight, attractionMagnitude, attractionRadius, boidGenRate, maxLaunches, scarabBoxMargin,
+      scarabScatterXYVelocity, scarabTimeToExplode, hInfo, dVulns, launchSfx, scatterSfx, aParams);
 }
 
 CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2543,9 +2546,9 @@ CEntity* ScriptLoader::LoadAiJumpPoint(CStateManager& mgr, CInputStream& in, int
 
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
-  float f1 = in.readFloat();
+  float apex = in.readFloat();
 
-  return new CScriptAiJumpPoint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, f1);
+  return new CScriptAiJumpPoint(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, apex);
 }
 
 CEntity* ScriptLoader::LoadFlaahgraTentacle(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2810,10 +2813,9 @@ CEntity* ScriptLoader::LoadRadialDamage(CStateManager& mgr, CInputStream& in, in
   float radius = in.readFloatBig();
   zeus::CTransform xf = ConvertEditorEulerToTransform4f(zeus::skZero3f, center);
 
-  return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, xf,
-                                    CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f, 0.f, 0.f,
-                                    zeus::skZero3f, zeus::skBlack, active, dInfo, -1, -1,
-                                    CPlayerState::EItemType::Invalid, -1, -1, -1);
+  return new CScriptSpecialFunction(
+      mgr.AllocateUniqueId(), name, info, xf, CScriptSpecialFunction::ESpecialFunction::RadialDamage, "", radius, 0.f,
+      0.f, 0.f, zeus::skZero3f, zeus::skBlack, active, dInfo, -1, -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2823,12 +2825,12 @@ CEntity* ScriptLoader::LoadCameraPitchVolume(CStateManager& mgr, CInputStream& i
 
   SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
   bool active = in.readBool();
-  zeus::CRelAngle f1 = zeus::CRelAngle::FromDegrees(in.readFloatBig());
-  zeus::CRelAngle f2 = zeus::CRelAngle::FromDegrees(in.readFloatBig());
-  float f3 = in.readFloatBig();
+  zeus::CRelAngle upPitch = zeus::CRelAngle::FromDegrees(in.readFloatBig());
+  zeus::CRelAngle downPitch = zeus::CRelAngle::FromDegrees(in.readFloatBig());
+  float scale = in.readFloatBig();
 
   return new CScriptCameraPitchVolume(mgr.AllocateUniqueId(), active, aHead.x0_name, info, aHead.x40_scale,
-                                      aHead.x10_transform, f1, f2, f3);
+                                      aHead.x10_transform, upPitch, downPitch, scale);
 }
 
 CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2839,12 +2841,12 @@ CEntity* ScriptLoader::LoadEnvFxDensityController(CStateManager& mgr, CInputStre
   std::string name = mgr.HashInstanceName(in);
   bool active = in.readBool();
   float density = in.readFloatBig();
-  u32 w1 = in.readUint32Big();
+  u32 maxDensityDeltaSpeed = in.readUint32Big();
 
   return new CScriptSpecialFunction(mgr.AllocateUniqueId(), name, info, zeus::CTransform(),
-                                    CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density, w1,
-                                    0.f, 0.f, zeus::skZero3f, zeus::skBlack, active, CDamageInfo(), -1,
-                                    -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
+                                    CScriptSpecialFunction::ESpecialFunction::EnvFxDensityController, "", density,
+                                    maxDensityDeltaSpeed, 0.f, 0.f, zeus::skZero3f, zeus::skBlack, active,
+                                    CDamageInfo(), -1, -1, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadMagdolite(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2993,25 +2995,26 @@ CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int prop
   if (pInfo.GetAnimationParameters().GetACSFile() == CAssetId())
     return nullptr;
 
-  float f1 = in.readFloatBig();
+  float advanceWpRadius = in.readFloatBig();
   float f2 = in.readFloatBig();
-  float f3 = in.readFloatBig();
+  float alignAngVel = in.readFloatBig();
   float f4 = in.readFloatBig();
-  float f5 = in.readFloatBig();
-  float f6 = in.readFloatBig();
-  float f7 = in.readFloatBig();
-  u16 sId1 = in.readUint32Big() & 0xFFFF;
-  u16 sId2 = in.readUint32Big() & 0xFFFF;
-  u16 sId3 = in.readUint32Big() & 0xFFFF;
+  float playerObstructionMinDist = in.readFloatBig();
+  float haltDelay = in.readFloatBig();
+  float forwardMoveWeight = in.readFloatBig();
+  u16 haltSfx = in.readUint32Big() & 0xFFFF;
+  u16 getUpSfx = in.readUint32Big() & 0xFFFF;
+  u16 crouchSfx = in.readUint32Big() & 0xFFFF;
 
   CModelData mData(CAnimRes(pInfo.GetAnimationParameters().GetACSFile(), pInfo.GetAnimationParameters().GetCharacter(),
                             actHead.x40_scale, pInfo.GetAnimationParameters().GetInitialAnimation(), true));
 
   return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info,
-                            actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, f1, f2, f3, f4,
-                            0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f, f5, f6, false,
-                            CWallWalker::EWalkerType::Geemer, CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(),
-                            sId1, sId2, sId3, -1, -1, 0.f, actParms);
+                            actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, advanceWpRadius,
+                            f2, alignAngVel, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, forwardMoveWeight, 0.f, 0.f,
+                            playerObstructionMinDist, haltDelay, false, CWallWalker::EWalkerType::Geemer,
+                            CDamageVulnerability::NormalVulnerabilty(), CDamageInfo(), haltSfx, getUpSfx, crouchSfx, -1,
+                            -1, 0.f, actParms);
 }
 
 CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3051,13 +3054,12 @@ CEntity* ScriptLoader::LoadSpindleCamera(CStateManager& mgr, CInputStream& in, i
   SSpindleProperty recoverClampedAzimuthFromHintDir(in);
   recoverClampedAzimuthFromHintDir.FixupAngles();
 
-  return new CScriptSpindleCamera(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, flags,
-                                  hintToCamDistMin, hintToCamDistMax, hintToCamVOffMin, hintToCamVOffMax,
-                                  targetHintToCamDeltaAngleVel, deltaAngleScaleWithCamDist, hintToCamDist,
-                                  distOffsetFromBallDist, hintBallToCamAzimuth, unused, maxHintBallToCamAzimuth,
-                                  camLookRelAzimuth, lookPosZOffset, camPosZOffset, clampedAzimuthFromHintDir,
-                                  dampingAzimuthSpeed, targetHintToCamDeltaAngleVelRange, deleteHintBallDist,
-                                  recoverClampedAzimuthFromHintDir);
+  return new CScriptSpindleCamera(
+      mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, active, flags, hintToCamDistMin,
+      hintToCamDistMax, hintToCamVOffMin, hintToCamVOffMax, targetHintToCamDeltaAngleVel, deltaAngleScaleWithCamDist,
+      hintToCamDist, distOffsetFromBallDist, hintBallToCamAzimuth, unused, maxHintBallToCamAzimuth, camLookRelAzimuth,
+      lookPosZOffset, camPosZOffset, clampedAzimuthFromHintDir, dampingAzimuthSpeed, targetHintToCamDeltaAngleVelRange,
+      deleteHintBallDist, recoverClampedAzimuthFromHintDir);
 }
 
 CEntity* ScriptLoader::LoadAtomicAlpha(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3102,8 +3104,8 @@ CEntity* ScriptLoader::LoadCameraHintTrigger(CStateManager& mgr, CInputStream& i
   zeus::CTransform xfRot = aHead.x10_transform.getRotation();
   if (xfRot == zeus::CTransform())
     return new CScriptTrigger(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform.origin,
-                              zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f,
-                              ETriggerFlags::DetectPlayer, active, deactivateOnEnter, deactivateOnExit);
+                              zeus::CAABox(-scale, scale), CDamageInfo(), zeus::skZero3f, ETriggerFlags::DetectPlayer,
+                              active, deactivateOnEnter, deactivateOnExit);
 
   return new CScriptCameraHintTrigger(mgr.AllocateUniqueId(), active, aHead.x0_name, info, scale, aHead.x10_transform,
                                       deactivateOnEnter, deactivateOnExit);
@@ -3123,8 +3125,8 @@ CEntity* ScriptLoader::LoadRumbleEffect(CStateManager& mgr, CInputStream& in, in
 
   return new CScriptSpecialFunction(
       mgr.AllocateUniqueId(), name, info, ConvertEditorEulerToTransform4f(zeus::skZero3f, position),
-      CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "", f1, w1, pFlags, 0.f, zeus::skZero3f,
-      zeus::skBlack, active, {}, {}, {}, CPlayerState::EItemType::Invalid, -1, -1, -1);
+      CScriptSpecialFunction::ESpecialFunction::RumbleEffect, "", f1, w1, pFlags, 0.f, zeus::skZero3f, zeus::skBlack,
+      active, {}, {}, {}, CPlayerState::EItemType::Invalid, -1, -1, -1);
 }
 
 CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3218,9 +3220,8 @@ CEntity* ScriptLoader::LoadIceZoomer(CStateManager& mgr, CInputStream& in, int p
   CDamageVulnerability dVuln(in);
   float iceZoomerJointHP = in.readFloatBig();
 
-  CModelData mData(
-    CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actHead.x40_scale, animParms.GetInitialAnimation(),
-             true));
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
   return new MP1::CParasite(mgr.AllocateUniqueId(), actHead.x0_name, CPatterned::EFlavorType::Zero, info,
                             actHead.x10_transform, std::move(mData), pInfo, EBodyType::WallWalker, 0.f, advanceWpRadius,
                             f2, alignAngleVel, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, moveFowardWeight, 0.f, 0.f,
@@ -3347,9 +3348,8 @@ CEntity* ScriptLoader::LoadThermalHeatFader(CStateManager& mgr, CInputStream& in
   bool active = in.readBool();
   float fadedLevel = in.readFloatBig();
   float initialLevel = in.readFloatBig();
-  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack,
-                                zeus::CVector2f(), 0.f, zeus::CVector2f(), false, active, fadedLevel, initialLevel, 0.f,
-                                0.f);
+  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack, zeus::CVector2f(),
+                                0.f, zeus::CVector2f(), false, active, fadedLevel, initialLevel, 0.f, 0.f);
 }
 
 CEntity* ScriptLoader::LoadBurrower(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -3411,8 +3411,8 @@ CEntity* ScriptLoader::LoadWorldLightFader(CStateManager& mgr, CInputStream& in,
   float f1 = in.readFloatBig();
   float f2 = in.readFloatBig();
 
-  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack,
-                                zeus::skZero2f, 0.f, zeus::skZero2f, false, active, 0.f, 0.f, f1, f2);
+  return new CScriptDistanceFog(mgr.AllocateUniqueId(), name, info, ERglFogMode::None, zeus::skBlack, zeus::skZero2f,
+                                0.f, zeus::skZero2f, false, active, 0.f, 0.f, f1, f2);
 }
 
 CEntity* ScriptLoader::LoadMetroidPrimeStage2(CStateManager& mgr, CInputStream& in, int propCount,

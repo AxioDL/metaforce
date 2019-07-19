@@ -11,11 +11,11 @@ struct BallTrigger : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> volume;
-  Value<bool> unknown1;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<atVec3f> unknown5;
-  Value<bool> unknown6;
+  Value<bool> active;
+  Value<float> force;
+  Value<float> minAngle;
+  Value<float> maxDistance;
+  Value<atVec3f> forceAngle;
+  Value<bool> stopPlayer;
 };
 } // namespace DataSpec::DNAMP1

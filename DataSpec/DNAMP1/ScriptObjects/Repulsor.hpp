@@ -11,6 +11,6 @@ struct Repulsor : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<bool> active;
-  Value<float> unknown;
+  Value<float> radius;
 };
 } // namespace DataSpec::DNAMP1

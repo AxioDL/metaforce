@@ -11,11 +11,11 @@ struct CoverPoint : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
-  Value<atUint32> unknown2;
-  Value<bool> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
+  Value<bool> active;
+  Value<atUint32> flags;
+  Value<bool> crouch;
+  Value<float> horizontalAngle;
+  Value<float> verticleAngle;
+  Value<float> coverTime;
 };
 } // namespace DataSpec::DNAMP1

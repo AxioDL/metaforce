@@ -6,26 +6,26 @@ template <class Op>
 void WorldTeleporter::Enumerate(typename Op::StreamT& s) {
   IScriptObject::Enumerate<Op>(s);
   Do<Op>({"name"}, name, s);
-  Do<Op>({"unknown1"}, unknown1, s);
+  Do<Op>({"active"}, active, s);
   Do<Op>({"mlvl"}, mlvl, s);
   Do<Op>({"mrea"}, mrea, s);
   Do<Op>({"animationParameters"}, animationParameters, s);
-  Do<Op>({"unknown2"}, unknown2, s);
-  Do<Op>({"model1"}, model1, s);
-  Do<Op>({"unknown3"}, unknown3, s);
-  Do<Op>({"model2"}, model2, s);
-  Do<Op>({"unknown4"}, unknown4, s);
-  Do<Op>({"unknown5"}, unknown5, s);
-  Do<Op>({"soundID"}, soundID, s);
-  Do<Op>({"unknown6"}, unknown6, s);
-  Do<Op>({"unknown7"}, unknown7, s);
-  Do<Op>({"unknown8"}, unknown8, s);
+  Do<Op>({"playerScale"}, playerScale, s);
+  Do<Op>({"platformModel"}, platformModel, s);
+  Do<Op>({"platformScale"}, platformScale, s);
+  Do<Op>({"blackgroundModel"}, backgroundModel, s);
+  Do<Op>({"backgroundScale"}, backgroundScale, s);
+  Do<Op>({"upElevator"}, upElevator, s);
+  Do<Op>({"elevatorSound"}, elevatorSound, s);
+  Do<Op>({"volume"}, volume, s);
+  Do<Op>({"panning"}, panning, s);
+  Do<Op>({"showText"}, showText, s);
   Do<Op>({"font"}, font, s);
   Do<Op>({"strg"}, strg, s);
-  Do<Op>({"unknown9"}, unknown9, s);
-  Do<Op>({"unknown10"}, unknown10, s);
-  Do<Op>({"unknown11"}, unknown11, s);
-  Do<Op>({"unknown12"}, unknown12, s);
+  Do<Op>({"fadeWhite"}, fadeWhite, s);
+  Do<Op>({"charFadeInTime"}, charFadeInTime, s);
+  Do<Op>({"charsPerSecond"}, charFadeInTime, s);
+  Do<Op>({"showDelay"}, showDelay, s);
 
   if (propertyCount == 26) {
     Do<Op>({"audioStream"}, audioStream, s);

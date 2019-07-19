@@ -30,5 +30,6 @@ public:
   void Think(float, CStateManager&);
   void UpdateEntity(TUniqueId, CStateManager&);
   bool IsPassive() const { return x44_25_isPassive; }
+  void SetIsPassive(bool b) { x44_25_isPassive = b; }
 };
 } // namespace urde

@@ -9,8 +9,8 @@ struct Switch : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<bool> unknown1;
-  Value<bool> unknown2;
-  Value<bool> unknown3;
+  Value<bool> active;
+  Value<bool> opened;
+  Value<bool> closeOnOpened;
 };
 } // namespace DataSpec::DNAMP1

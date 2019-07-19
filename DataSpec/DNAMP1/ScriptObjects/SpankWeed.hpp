@@ -14,11 +14,11 @@ struct SpankWeed : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<bool> unknown1;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
+  Value<bool> unused;
+  Value<float> maxDetectionRange;
+  Value<float> maxHearingrange;
+  Value<float> maxSightRange;
+  Value<float> hideTime;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);

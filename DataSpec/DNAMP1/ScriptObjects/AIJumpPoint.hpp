@@ -12,6 +12,6 @@ struct AIJumpPoint : IScriptObject {
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<bool> active;
-  Value<float> unknown1;
+  Value<float> apex;
 };
 } // namespace DataSpec::DNAMP1

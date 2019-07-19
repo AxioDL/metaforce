@@ -14,14 +14,14 @@ struct IceZoomer : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> unknown1;
+  Value<float> advanceWpRadius;
   Value<float> unknown2;
-  Value<float> unknown3;
+  Value<float> alignAngleVel;
   Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
-  Value<atUint32> unknown7;
-  Value<atUint32> unknown8;
+  Value<float> playerObstructionMinDist;
+  Value<float> moveForwardWeight;
+  UniqueID32 modelRes;
+  UniqueID32 skinRes;
   DamageVulnerability damageVulnerabilty;
   Value<float> unknown9;
 
@@ -37,6 +37,8 @@ struct IceZoomer : IScriptObject {
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
     patternedInfo.depIDs(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
+    g_curSpec->flattenDependencies(modelRes, pathsOut);
+    g_curSpec->flattenDependencies(skinRes, pathsOut);
   }
 
   void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }

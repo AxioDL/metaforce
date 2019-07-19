@@ -11,9 +11,9 @@ struct PointOfInterest : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
+  Value<bool> active;
   ScannableParameters scannableParameters;
-  Value<float> unknown2;
+  Value<float> pointSize;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const { scannableParameters.nameIDs(pakRouter, name + "_scanp"); }
 

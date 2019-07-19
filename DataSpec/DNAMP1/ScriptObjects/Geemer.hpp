@@ -14,16 +14,16 @@ struct Geemer : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<float> unknown1;
+  Value<float> advanceWpRadius;
   Value<float> unknown2;
-  Value<float> unknown3;
+  Value<float> alignAngVel;
   Value<float> unknown4;
-  Value<float> unknown5;
-  Value<float> unknown6;
-  Value<float> unknown7;
-  Value<atUint32> unknown8;
-  Value<atUint32> unknown9;
-  Value<atUint32> unknown10;
+  Value<float> playerObstructionMinDist;
+  Value<float> haltDelay;
+  Value<float> forwardMoveWeight;
+  Value<atUint32> haltSfx;
+  Value<atUint32> getUpSfx;
+  Value<atUint32> crouchSfx;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);

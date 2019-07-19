@@ -12,10 +12,10 @@ struct ActorContraption : IScriptObject {
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<atVec3f> scale;
-  Value<atVec3f> unknown1;
-  Value<atVec3f> scanOffset;
-  Value<float> unknown2;
-  Value<float> unknown3;
+  Value<atVec3f> collisionExtent;
+  Value<atVec3f> collisionOrigin;
+  Value<float> mass;
+  Value<float> zMomentum;
   HealthInfo healthInfo;
   DamageVulnerability damageVulnerability;
   AnimationParameters animationParameters;

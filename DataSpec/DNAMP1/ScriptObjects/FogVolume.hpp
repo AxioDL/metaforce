@@ -11,9 +11,9 @@ struct FogVolume : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> volume;
-  Value<float> unknown1;
+  Value<float> flickerSpeed;
   Value<float> unknown2;
-  Value<atVec4f> unkonwn3;
-  Value<bool> unknown4;
+  Value<atVec4f> fogColor;
+  Value<bool> active;
 };
 } // namespace DataSpec::DNAMP1

@@ -51,7 +51,7 @@ PROJECT_BRIEF          =
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = /home/antidote/Projects/urde/Editor/platforms/freedesktop/128x128/apps/urde.png
+PROJECT_LOGO           = ./Editor/platforms/freedesktop/128x128/apps/urde.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is

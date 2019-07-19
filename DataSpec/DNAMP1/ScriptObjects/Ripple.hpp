@@ -10,7 +10,7 @@ struct Ripple : IScriptObject {
   AT_DECL_DNAV
   String<-1> name;
   Value<atVec3f> location;
-  Value<bool> unknown1;
-  Value<float> unknown2;
+  Value<bool> active;
+  Value<float> mag;
 };
 } // namespace DataSpec::DNAMP1

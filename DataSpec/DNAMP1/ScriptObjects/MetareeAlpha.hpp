@@ -15,11 +15,11 @@ struct MetareeAlpha : IScriptObject {
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
   DamageInfo damageInfo;
-  Value<float> unknown1;
-  Value<atVec3f> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
+  Value<float> dropHeight;
+  Value<atVec3f> offset;
+  Value<float> attackSpeed;
+  Value<float> delay;
+  Value<float> unknown5; // Appears to be unused
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
