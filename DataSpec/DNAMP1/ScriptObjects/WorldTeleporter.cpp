@@ -24,7 +24,7 @@ void WorldTeleporter::Enumerate(typename Op::StreamT& s) {
   Do<Op>({"strg"}, strg, s);
   Do<Op>({"fadeWhite"}, fadeWhite, s);
   Do<Op>({"charFadeInTime"}, charFadeInTime, s);
-  Do<Op>({"charsPerSecond"}, charFadeInTime, s);
+  Do<Op>({"charsPerSecond"}, charsPerSecond, s);
   Do<Op>({"showDelay"}, showDelay, s);
 
   if (propertyCount == 26) {
