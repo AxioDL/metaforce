@@ -6,54 +6,32 @@
 #undef min
 #undef max
 
-extern "C" const uint8_t L_en_US[];
-extern "C" size_t L_en_US_SZ;
-
-extern "C" const uint8_t L_en_GB[];
-extern "C" size_t L_en_GB_SZ;
-
-extern "C" const uint8_t L_ja_JP[];
-extern "C" size_t L_ja_JP_SZ;
-
-namespace urde {
-
-using namespace std::literals;
-
-static const specter::Locale Locales[] = {{"en_US"sv, "US English"sv, L_en_US, L_en_US_SZ},
-                                          {"en_GB"sv, "British English"sv, L_en_GB, L_en_GB_SZ},
-                                          {"ja_JP"sv, "Japanese"sv, L_ja_JP, L_ja_JP_SZ}};
+namespace locale {
 
 std::vector<std::pair<std::string_view, std::string_view>> ListLocales() {
-  constexpr size_t localeCount = std::extent<decltype(Locales)>::value;
   std::vector<std::pair<std::string_view, std::string_view>> ret;
-  ret.reserve(localeCount);
-  for (size_t i = 0; i < localeCount; ++i) {
-    const specter::Locale& l = Locales[i];
-    ret.emplace_back(l.name(), l.fullName());
-  }
+  ret.reserve(std::size_t(ELocale::MAXLocale));
+  for (ELocale l = ELocale(0); l < ELocale::MAXLocale; l = ELocale(int(l) + 1))
+    ret.emplace_back(GetName(l), GetFullName(l));
   return ret;
 }
 
-const specter::Locale* LookupLocale(std::string_view name) {
-  constexpr size_t localeCount = std::extent<decltype(Locales)>::value;
-  for (size_t i = 0; i < localeCount; ++i) {
-    const specter::Locale& l = Locales[i];
-    if (!name.compare(l.name()))
-      return &l;
-  }
-  return nullptr;
+ELocale LookupLocale(std::string_view name) {
+  for (ELocale l = ELocale(0); l < ELocale::MAXLocale; l = ELocale(int(l) + 1))
+    if (!name.compare(GetName(l)))
+      return l;
+  return ELocale::Invalid;
 }
 
-const specter::Locale* SystemLocaleOrEnglish() {
+ELocale SystemLocaleOrEnglish() {
   const char* sysLocale = std::setlocale(LC_ALL, nullptr);
   size_t sysLocaleLen = std::strlen(sysLocale);
-  constexpr size_t localeCount = std::extent<decltype(Locales)>::value;
-  for (size_t i = 0; i < localeCount; ++i) {
-    const specter::Locale& l = Locales[i];
-    if (!l.name().compare(0, std::min(l.name().size(), sysLocaleLen), sysLocale))
-      return &l;
+  for (ELocale l = ELocale(0); l < ELocale::MAXLocale; l = ELocale(int(l) + 1)) {
+    auto name = GetName(l);
+    if (!name.compare(0, std::min(name.size(), sysLocaleLen), sysLocale))
+      return l;
   }
-  return Locales;
+  return ELocale::en_US;
 }
 
-} // namespace urde
+} // namespace locale

@@ -1,9 +1,15 @@
-bintoc(en_US.cpp en_US.yaml L_en_US)
-bintoc(en_GB.cpp en_GB.yaml L_en_GB)
-bintoc(ja_JP.cpp ja_JP.yaml L_ja_JP)
-add_library(UrdeLocales
-            en_US.yaml en_US.cpp
-            en_GB.yaml en_GB.cpp
-            ja_JP.yaml ja_JP.cpp
-            locale.hpp locale.cpp)
-target_link_libraries(UrdeLocales specter)
+add_executable(genlocales genlocales.cpp)
+target_link_libraries(genlocales fmt athena-core)
+
+set(LOCALES_IN en_US.yaml en_GB.yaml ja_JP.yaml)
+set(LOCALES_OUT ${CMAKE_CURRENT_BINARY_DIR}/locales-inl.hpp)
+add_custom_command(OUTPUT ${LOCALES_OUT} COMMAND $<TARGET_FILE:genlocales>
+                   ARGS ${LOCALES_OUT} ${LOCALES_IN}
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                   DEPENDS genlocales ${LOCALES_IN})
+
+add_library(UrdeLocales ${LOCALES_OUT} locale.hpp locale.cpp)
+target_link_libraries(UrdeLocales fmt)
+target_include_directories(UrdeLocales PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+target_link_libraries(specter PUBLIC UrdeLocales)
