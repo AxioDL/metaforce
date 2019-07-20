@@ -9,10 +9,10 @@ using ANIMOutStream = hecl::blender::ANIMOutStream;
 
 void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig,
                                     bool additive) const {
-  os.format(
-      "act.hecl_fps = round(%f)\n"
-      "act.hecl_additive = %s\n"
-      "act.hecl_looping = %s\n",
+  os.format(fmt(
+      "act.hecl_fps = round({})\n"
+      "act.hecl_additive = {}\n"
+      "act.hecl_looping = {}\n"),
       1.0f / mainInterval, additive ? "True" : "False", looping ? "True" : "False");
 
   auto kit = chanKeys.begin() + 1;
@@ -32,7 +32,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
       continue;
     }
 
-    os.format("bone_string = '%s'\n", bName->c_str());
+    os.format(fmt("bone_string = '{}'\n"), *bName);
     os << "action_group = act.groups.new(bone_string)\n"
           "\n";
 
@@ -138,7 +138,7 @@ void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
     m_anim->read(reader);
     break;
   default:
-    Log.report(logvisor::Fatal, "unrecognized ANIM version");
+    Log.report(logvisor::Fatal, fmt("unrecognized ANIM version"));
     break;
   }
 }

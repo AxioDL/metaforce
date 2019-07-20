@@ -12,9 +12,9 @@ CAssetId::CAssetId(CInputStream& in) {
     else if (g_Main->GetExpectedIdSize() == sizeof(u64))
       Assign(in.readUint64Big());
     else
-      Log.report(logvisor::Fatal, "Unsupported id length %i", g_Main->GetExpectedIdSize());
+      Log.report(logvisor::Fatal, fmt("Unsupported id length {}"), g_Main->GetExpectedIdSize());
   } else
-    Log.report(logvisor::Fatal, "Input constructor called before runtime Main entered!");
+    Log.report(logvisor::Fatal, fmt("Input constructor called before runtime Main entered!"));
 }
 
 void CAssetId::PutTo(COutputStream& out) {
@@ -24,9 +24,9 @@ void CAssetId::PutTo(COutputStream& out) {
     else if (g_Main->GetExpectedIdSize() == sizeof(u64))
       out.writeUint64Big(id);
     else
-      Log.report(logvisor::Fatal, "Unsupported id length %i", g_Main->GetExpectedIdSize());
+      Log.report(logvisor::Fatal, fmt("Unsupported id length {}"), g_Main->GetExpectedIdSize());
   } else
-    Log.report(logvisor::Fatal, "PutTo called before runtime Main entered!");
+    Log.report(logvisor::Fatal, fmt("PutTo called before runtime Main entered!"));
 }
 
 } // namespace urde

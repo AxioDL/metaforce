@@ -37,7 +37,7 @@ struct DPSM : BigDNA {
     uint8_t dummy;
   };
   template <class Reader>
-  void readQuadDecalInfo(Reader& r, uint32_t clsId, SQuadDescr& quad);
+  void readQuadDecalInfo(Reader& r, FourCC clsId, SQuadDescr& quad);
   void writeQuadDecalInfo(athena::io::YAMLDocWriter& w, const SQuadDescr& quad, bool first) const;
   void getQuadDecalBinarySize(size_t& s, const SQuadDescr& desc) const;
   void writeQuadDecalInfo(athena::io::IStreamWriter& w, const SQuadDescr& quad, bool first) const;

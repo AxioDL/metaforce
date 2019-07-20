@@ -30,11 +30,11 @@ struct PuddleSpore : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }
-    if (wpsc) {
+    if (wpsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }

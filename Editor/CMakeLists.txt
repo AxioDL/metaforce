@@ -97,7 +97,6 @@ target_compile_definitions(urde PUBLIC URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 target_include_directories(urde PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 
 target_link_libraries(urde
-                      UrdeLocales
                       UrdeIcons
                       UrdeBadging
                       RuntimeCommon

@@ -104,7 +104,7 @@ void Buckets::Sort() {
     if (bucket.size() < bucket.capacity())
       bucket.push_back(&drawable);
     // else
-    //    Log.report(logvisor::Fatal, "Full bucket!!!");
+    //    Log.report(logvisor::Fatal, fmt("Full bucket!!!"));
   }
 
   u16 bucketIdx = u16(sBuckets->size());
@@ -145,7 +145,7 @@ void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDraw
     if (sMinMaxDistance[1] < dist)
       sMinMaxDistance[1] = dist;
   } else {
-    Log.report(logvisor::Fatal, "Rendering buckets filled to capacity");
+    Log.report(logvisor::Fatal, fmt("Rendering buckets filled to capacity"));
   }
 }
 

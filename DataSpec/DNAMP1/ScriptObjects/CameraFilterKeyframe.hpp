@@ -20,7 +20,7 @@ struct CameraFilterKeyframe : IScriptObject {
   UniqueID32 texture;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (texture) {
+    if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }

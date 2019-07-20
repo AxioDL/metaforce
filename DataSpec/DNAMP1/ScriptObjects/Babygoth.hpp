@@ -46,7 +46,7 @@ struct Babygoth : IScriptObject {
     UniqueID32 cinf = patternedInfo.animationParameters.getCINF(pakRouter);
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
 
-    if (noShellModel && noShellSkin) {
+    if (noShellModel.isValid() && noShellSkin.isValid()) {
       charAssoc.m_cmdlRigs[noShellModel] = std::make_pair(noShellSkin, cinf);
       charAssoc.m_cskrCinfToCharacter[noShellSkin] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet, "ATTACH.SHELLESS.CSKR");
@@ -55,47 +55,47 @@ struct Babygoth : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (fireballWeapon) {
+    if (fireballWeapon.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(fireballWeapon);
       ent->name = name + "_wpsc1";
     }
-    if (fireBreathWeapon) {
+    if (fireBreathWeapon.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(fireBreathWeapon);
       ent->name = name + "_wpsc2";
     }
-    if (fireBreathRes) {
+    if (fireBreathRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(fireBreathRes);
       ent->name = name + "_part1";
     }
-    if (noShellModel) {
+    if (noShellModel.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(noShellModel);
       ent->name = name + "_emodel";
     }
-    if (noShellSkin) {
+    if (noShellSkin.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(noShellSkin);
       ent->name = name + "_eskin";
     }
-    if (intermediateCrackParticle) {
+    if (intermediateCrackParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(intermediateCrackParticle);
       ent->name = name + "_part2";
     }
-    if (crackOneParticle) {
+    if (crackOneParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(crackOneParticle);
       ent->name = name + "_part3";
     }
-    if (crackTwoParticle) {
+    if (crackTwoParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(crackTwoParticle);
       ent->name = name + "_part4";
     }
-    if (destroyShellParticle) {
+    if (destroyShellParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(destroyShellParticle);
       ent->name = name + "_part5";
     }
-    if (flamePlayerSteamTxtr) {
+    if (flamePlayerSteamTxtr.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(flamePlayerSteamTxtr);
       ent->name = name + "_tex";
     }
-    if (flamePlayerIceTxtr) {
+    if (flamePlayerIceTxtr.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(flamePlayerIceTxtr);
       ent->name = name + "_part6";
     }

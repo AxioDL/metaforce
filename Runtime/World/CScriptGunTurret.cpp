@@ -370,7 +370,7 @@ void CScriptGunTurret::SetTurretState(ETurretState state, CStateManager& mgr) {
     ProcessCurrentState(EStateMsg::Deactivate, mgr, 0.f);
 
   if (state != ETurretState::Invalid && x520_state != state)
-    printf("%04X %08X %s - %s\n", GetUniqueId().Value(), GetEditorId().id, GetName().data(), StateNames[int(state)]);
+    fmt::print(fmt("{} {} {} - {}\n"), GetUniqueId(), GetEditorId(), GetName(), StateNames[int(state)]);
   x520_state = state;
   x524_curStateTime = 0.f;
   ProcessCurrentState(EStateMsg::Activate, mgr, 0.f);

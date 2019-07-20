@@ -28,24 +28,26 @@ hecl::ProjectPath UniqueIDBridge::TranslatePakIdToPath(const IDType& id, bool si
   hecl::Database::Project* project = s_Project.get();
   if (!project) {
     if (pakRouter) {
-      if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id)
-        LogDNACommon.report(logvisor::Warning, "unable to translate %s to path", id.toString().c_str());
+      if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id.isValid())
+        LogDNACommon.report(logvisor::Warning, fmt("unable to translate {} to path"), id);
       return {};
     }
     LogDNACommon.report(logvisor::Fatal,
-                        "g_PakRouter or s_Project must be set to non-null before "
-                        "calling UniqueIDBridge::TranslatePakIdToPath");
+                        fmt("g_PakRouter or s_Project must be set to non-null before "
+                            "calling UniqueIDBridge::TranslatePakIdToPath"));
     return {};
   }
 
   const hecl::ProjectPath* search = project->lookupBridgePath(id.toUint64());
   if (!search) {
-    if (IDRestorer<IDType>* restorer = GetIDRestorer<IDType>())
-      if (IDType newId = restorer->originalToNew(id))
+    if (IDRestorer<IDType>* restorer = GetIDRestorer<IDType>()) {
+      IDType newId = restorer->originalToNew(id);
+      if (newId.isValid())
         if (const hecl::ProjectPath* newSearch = project->lookupBridgePath(newId.toUint64()))
           return *newSearch;
-    if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id)
-      LogDNACommon.report(logvisor::Warning, "unable to translate %s to path", id.toString().c_str());
+    }
+    if (hecl::VerbosityLevel >= 1 && !silenceWarnings && id.isValid())
+      LogDNACommon.report(logvisor::Warning, fmt("unable to translate {} to path"), id);
     return {};
   }
   return *search;
@@ -60,7 +62,7 @@ hecl::ProjectPath UniqueIDBridge::MakePathFromString(std::string_view str) {
     return {};
   hecl::Database::Project* project = s_Project.get();
   if (!project)
-    LogDNACommon.report(logvisor::Fatal, "UniqueIDBridge::setGlobalProject must be called before MakePathFromString");
+    LogDNACommon.report(logvisor::Fatal, fmt("UniqueIDBridge::setGlobalProject must be called before MakePathFromString"));
   hecl::ProjectPath path = hecl::ProjectPath(*project, str);
   project->addBridgePathToCache(IDType(path).toUint64(), path);
   return path;
@@ -81,9 +83,11 @@ void UniqueIDBridge::SetThreadProject(hecl::Database::Project& project) { s_Proj
 void UniqueID32::assign(uint32_t id, bool noOriginal) {
   m_id = id ? id : 0xffffffff;
   if (!noOriginal)
-    if (IDRestorer<UniqueID32>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID32>())
-      if (UniqueID32 origId = restorer->newToOriginal(*this))
+    if (IDRestorer<UniqueID32>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID32>()) {
+      UniqueID32 origId = restorer->newToOriginal(*this);
+      if (origId.isValid())
         *this = origId;
+    }
 }
 
 template <>
@@ -100,7 +104,7 @@ void UniqueID32::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 }
 template <>
 void UniqueID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
-  if (!operator bool())
+  if (!isValid())
     return;
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
@@ -115,9 +119,7 @@ void UniqueID32::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) 
 }
 
 std::string UniqueID32::toString() const {
-  char buf[9];
-  snprintf(buf, 9, "%08X", m_id);
-  return std::string(buf);
+  return fmt::format(fmt("{}"), *this);
 }
 
 template <>
@@ -126,7 +128,7 @@ void UniqueID32Zero::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
 }
 template <>
 void UniqueID32Zero::Enumerate<BigDNA::Write>(typename Write::StreamT& writer) {
-  writer.writeUint32Big(*this ? m_id : 0);
+  writer.writeUint32Big(isValid() ? m_id : 0);
 }
 template <>
 void UniqueID32Zero::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader) {
@@ -173,7 +175,7 @@ void AuxiliaryID32::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& read
 }
 template <>
 void AuxiliaryID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
-  if (!operator bool())
+  if (!isValid())
     return;
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath<UniqueID32>(*this, true);
   if (!path)
@@ -190,9 +192,11 @@ void AuxiliaryID32::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& wr
 void UniqueID64::assign(uint64_t id, bool noOriginal) {
   m_id = id ? id : 0xffffffffffffffff;
   if (!noOriginal)
-    if (IDRestorer<UniqueID64>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID64>())
-      if (UniqueID64 origId = restorer->newToOriginal(*this))
+    if (IDRestorer<UniqueID64>* restorer = UniqueIDBridge::GetIDRestorer<UniqueID64>()) {
+      UniqueID64 origId = restorer->newToOriginal(*this);
+      if (origId.isValid())
         *this = origId;
+    }
 }
 
 template <>
@@ -209,7 +213,7 @@ void UniqueID64::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader)
 }
 template <>
 void UniqueID64::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
-  if (!operator bool())
+  if (!isValid())
     return;
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
@@ -224,9 +228,7 @@ void UniqueID64::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) 
 }
 
 std::string UniqueID64::toString() const {
-  char buf[17];
-  snprintf(buf, 17, "%016" PRIX64, m_id);
-  return std::string(buf);
+  return fmt::format(fmt("{}"), *this);
 }
 
 /** PAK 128-bit Unique ID */
@@ -246,7 +248,7 @@ void UniqueID128::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader
 }
 template <>
 void UniqueID128::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
-  if (!operator bool())
+  if (!isValid())
     return;
   hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(*this);
   if (!path)
@@ -261,9 +263,7 @@ void UniqueID128::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
 }
 
 std::string UniqueID128::toString() const {
-  char buf[33];
-  snprintf(buf, 33, "%016" PRIX64 "%016" PRIX64, m_id.id[0], m_id.id[1]);
-  return std::string(buf);
+  return fmt::format(fmt("{}"), *this);
 }
 
 /** Word Bitmap reader/writer */

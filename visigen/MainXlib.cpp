@@ -54,12 +54,9 @@ static int ctxErrorHandler(Display* /*dpy*/, XErrorEvent* /*ev*/) {
 
 static logvisor::Module Log("visigen-xlib");
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* /*file*/, const char*, int /*line*/, const char* fmt,
-                      ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  AthenaLog.report(logvisor::Level(level), fmt, ap);
-  va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* /*file*/, const char*, int /*line*/,
+                      fmt::string_view fmt, fmt::format_args args) {
+  AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
 static Display* xDisp;
@@ -67,10 +64,9 @@ static Window windowId;
 
 static void UpdatePercent(float percent) {
   XLockDisplay(xDisp);
-  char title[256];
-  snprintf(title, 256, "VISIGen [%g%%]", double(percent * 100.f));
-  XChangeProperty(xDisp, windowId, XA_WM_NAME, XA_STRING, 8, PropModeReplace, reinterpret_cast<unsigned char*>(title),
-                  int(strlen(title)));
+  std::string title = fmt::format(fmt("VISIGen [{:g}%]"), double(percent * 100.f));
+  XChangeProperty(xDisp, windowId, XA_WM_NAME, XA_STRING, 8, PropModeReplace,
+                  reinterpret_cast<const unsigned char*>(title.c_str()), int(title.size()));
   XUnlockDisplay(xDisp);
 }
 
@@ -79,7 +75,7 @@ static void _sigint(int) {}
 
 int main(int argc, const char** argv) {
   if (argc > 1 && !strcmp(argv[1], "--dlpackage")) {
-    printf("%s\n", URDE_DLPACKAGE);
+    fmt::print(fmt("{}\n"), URDE_DLPACKAGE);
     return 100;
   }
 
@@ -92,14 +88,14 @@ int main(int argc, const char** argv) {
   VISIRenderer renderer(argc, argv);
 
   if (!XInitThreads()) {
-    Log.report(logvisor::Error, "X doesn't support multithreading");
+    Log.report(logvisor::Error, fmt("X doesn't support multithreading"));
     return 1;
   }
 
   /* Open Xlib Display */
   xDisp = XOpenDisplay(nullptr);
   if (!xDisp) {
-    Log.report(logvisor::Error, "Can't open X display");
+    Log.report(logvisor::Error, fmt("Can't open X display"));
     return 1;
   }
 
@@ -112,7 +108,7 @@ int main(int argc, const char** argv) {
   int numFBConfigs = 0;
   fbConfigs = glXGetFBConfigs(xDisp, xDefaultScreen, &numFBConfigs);
   if (!fbConfigs || numFBConfigs == 0) {
-    Log.report(logvisor::Error, "glXGetFBConfigs failed");
+    Log.report(logvisor::Error, fmt("glXGetFBConfigs failed"));
     return 1;
   }
 
@@ -139,7 +135,7 @@ int main(int argc, const char** argv) {
   XFree(fbConfigs);
 
   if (!selFBConfig) {
-    Log.report(logvisor::Error, "unable to find suitable pixel format");
+    Log.report(logvisor::Error, fmt("unable to find suitable pixel format"));
     return 1;
   }
 
@@ -183,7 +179,7 @@ int main(int argc, const char** argv) {
     glXCreateContextAttribsARB = reinterpret_cast<glXCreateContextAttribsARBProc>(
         glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXCreateContextAttribsARB")));
     if (!glXCreateContextAttribsARB) {
-      Log.report(logvisor::Error, "unable to resolve glXCreateContextAttribsARB");
+      Log.report(logvisor::Error, fmt("unable to resolve glXCreateContextAttribsARB"));
       return 1;
     }
   }
@@ -198,12 +194,12 @@ int main(int argc, const char** argv) {
   }
   XSetErrorHandler(oldHandler);
   if (!glxCtx) {
-    Log.report(logvisor::Fatal, "unable to make new GLX context");
+    Log.report(logvisor::Fatal, fmt("unable to make new GLX context"));
     return 1;
   }
   GLXWindow glxWindow = glXCreateWindow(xDisp, selFBConfig, windowId, nullptr);
   if (!glxWindow) {
-    Log.report(logvisor::Fatal, "unable to make new GLX window");
+    Log.report(logvisor::Fatal, fmt("unable to make new GLX window"));
     return 1;
   }
 
@@ -255,7 +251,7 @@ int main(int argc, const char** argv) {
 
     XLockDisplay(xDisp);
     if (!glXMakeContextCurrent(xDisp, glxWindow, glxWindow, glxCtx))
-      Log.report(logvisor::Fatal, "unable to make GLX context current");
+      Log.report(logvisor::Fatal, fmt("unable to make GLX context current"));
     XUnlockDisplay(xDisp);
 
     renderer.Run(UpdatePercent);

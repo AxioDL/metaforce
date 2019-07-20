@@ -20,7 +20,7 @@ namespace DataSpec::DNAMP1 {
 void MREA::ReadBabeDeadToBlender_1_2(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs) {
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
-    Log.report(logvisor::Fatal, "invalid BABEDEAD magic");
+    Log.report(logvisor::Fatal, fmt("invalid BABEDEAD magic"));
   os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
@@ -202,8 +202,8 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "from mathutils import Vector\n"
         "bpy.context.scene.render.fps = 60\n"
         "\n";
-  os.format("bpy.context.scene.name = '%s'\n",
-      pakRouter.getBestEntryName(entry, false).c_str());
+  os.format(fmt("bpy.context.scene.name = '{}'\n"),
+      pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
@@ -244,11 +244,11 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1>(
         os, rs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(
-        "obj.retro_disable_enviro_visor = %s\n"
-        "obj.retro_disable_thermal_visor = %s\n"
-        "obj.retro_disable_xray_visor = %s\n"
-        "obj.retro_thermal_level = '%s'\n",
+    os.format(fmt(
+        "obj.retro_disable_enviro_visor = {}\n"
+        "obj.retro_disable_thermal_visor = {}\n"
+        "obj.retro_disable_xray_visor = {}\n"
+        "obj.retro_thermal_level = '{}'\n"),
         mHeader.visorFlags.disableEnviro() ? "True" : "False", mHeader.visorFlags.disableThermal() ? "True" : "False",
         mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
   }
@@ -331,7 +331,7 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
   atUint64 secStart = rs.position();
   MaterialSet matSet;
   matSet.read(rs);
-  matSet.nameTextures(pakRouter, hecl::Format("MREA_%s", entry.id.toString().c_str()).c_str(), -1);
+  matSet.nameTextures(pakRouter, fmt::format(fmt("MREA_{}"), entry.id).c_str(), -1);
   rs.seek(secStart + head.secSizes[0], athena::Begin);
 
   /* Skip to SCLY */
@@ -499,7 +499,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   /* SCLY */
   DNAMP1::SCLY sclyData = {};
   {
-    sclyData.fourCC = 'SCLY';
+    sclyData.fourCC = FOURCC('SCLY');
     sclyData.version = 1;
     for (const hecl::ProjectPath& layer : layerScriptPaths) {
       athena::io::FileReader freader(layer.getAbsolutePath());
@@ -699,19 +699,18 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 #if _WIN32
         VisiGenPath += _SYS_STR(".exe");
 #endif
-        hecl::SystemChar thrIdx[16];
-        hecl::SNPrintf(thrIdx, 16, _SYS_STR("%d"), hecl::ClientProcess::GetThreadWorkerIdx());
-        hecl::SystemChar parPid[32];
+        hecl::SystemString thrIdx = fmt::format(fmt(_SYS_STR("{}")), hecl::ClientProcess::GetThreadWorkerIdx());
+        hecl::SystemString parPid;
 #if _WIN32
-        hecl::SNPrintf(parPid, 32, _SYS_STR("%lluX"), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
+        parPid = fmt::format(fmt(_SYS_STR("{}")), reinterpret_cast<unsigned long long>(GetCurrentProcess()));
 #else
-        hecl::SNPrintf(parPid, 32, _SYS_STR("%lluX"), (unsigned long long)getpid());
+        parPid = fmt::format(fmt(_SYS_STR("{}")), (unsigned long long)getpid());
 #endif
         const hecl::SystemChar* args[] = {VisiGenPath.c_str(),
                                           visiIntOut.getAbsolutePath().data(),
                                           preVisiPath.getAbsolutePath().data(),
-                                          thrIdx,
-                                          parPid,
+                                          thrIdx.c_str(),
+                                          parPid.c_str(),
                                           nullptr};
         if (0 == hecl::RunProcess(VisiGenPath.c_str(), args)) {
           athena::io::FileReader r(preVisiPath.getAbsolutePath());
@@ -720,7 +719,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           r.readBytesToBuf(secs.back().data(), length);
           visiGood = true;
         } else {
-          Log.report(logvisor::Fatal, _SYS_STR("Unable to launch %s"), VisiGenPath.c_str());
+          Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to launch {}")), VisiGenPath);
         }
       }
 #endif

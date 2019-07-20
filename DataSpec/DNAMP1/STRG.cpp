@@ -58,7 +58,7 @@ static std::u16string_view::const_iterator CookTextureList(std::u16string& ret, 
   while (true) {
     auto end = str.find_first_of(u",;", it - str.begin());
     if (end == std::u16string::npos)
-      Log.report(logvisor::Fatal, "Missing comma/semicolon token while pasing font tag");
+      Log.report(logvisor::Fatal, fmt("Missing comma/semicolon token while pasing font tag"));
     auto endIt = str.begin() + end;
     hecl::ProjectPath path =
         UniqueIDBridge::MakePathFromString<UniqueID32>(hecl::Char16ToUTF8(std::u16string(it, endIt)));
@@ -88,7 +88,7 @@ static std::u16string_view::const_iterator GatherTextureList(std::vector<hecl::P
   while (true) {
     auto end = str.find_first_of(u",;", it - str.begin());
     if (end == std::u16string::npos)
-      Log.report(logvisor::Fatal, "Missing comma/semicolon token while pasing font tag");
+      Log.report(logvisor::Fatal, fmt("Missing comma/semicolon token while pasing font tag"));
     auto endIt = str.begin() + end;
     hecl::ProjectPath path =
         UniqueIDBridge::MakePathFromString<UniqueID32>(hecl::Char16ToUTF8(std::u16string(it, endIt)));
@@ -194,7 +194,7 @@ static std::u16string CookString(std::u16string_view str) {
         it += 5;
         auto scpos = str.find(u';', it - str.begin());
         if (scpos == std::u16string::npos)
-          Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
+          Log.report(logvisor::Fatal, fmt("Missing semicolon token while pasing font tag"));
         hecl::ProjectPath path =
             UniqueIDBridge::MakePathFromString<UniqueID32>(hecl::Char16ToUTF8(std::u16string(it, str.begin() + scpos)));
         ret.append(hecl::UTF8ToChar16(UniqueID32(path).toString()));
@@ -245,7 +245,7 @@ void STRG::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
             it += 5;
             auto scpos = str.find(u';', it - strView.begin());
             if (scpos == std::u16string::npos)
-              Log.report(logvisor::Fatal, "Missing semicolon token while pasing font tag");
+              Log.report(logvisor::Fatal, fmt("Missing semicolon token while pasing font tag"));
             hecl::ProjectPath path = UniqueIDBridge::MakePathFromString<UniqueID32>(
                 hecl::Char16ToUTF8(std::u16string(it, strView.begin() + scpos)));
             if (path)
@@ -307,11 +307,11 @@ template <>
 void STRG::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   atUint32 magic = reader.readUint32Big();
   if (magic != 0x87654321)
-    Log.report(logvisor::Error, "invalid STRG magic");
+    Log.report(logvisor::Error, fmt("invalid STRG magic"));
 
   atUint32 version = reader.readUint32Big();
   if (version != 0)
-    Log.report(logvisor::Error, "invalid STRG version");
+    Log.report(logvisor::Error, fmt("invalid STRG version"));
 
   _read(reader);
 }
@@ -408,24 +408,22 @@ void STRG::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader) {
         continue;
 
       if (lang.first.size() != 4) {
-        Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping",
-                   lang.first.c_str());
+        Log.report(logvisor::Warning, fmt("STRG language string '{}' must be exactly 4 characters; skipping"), lang.first);
         return;
       }
       if (lang.second->m_type != YAML_SEQUENCE_NODE) {
-        Log.report(logvisor::Warning, "STRG language string '%s' must contain a sequence; skipping",
-                   lang.first.c_str());
+        Log.report(logvisor::Warning, fmt("STRG language string '{}' must contain a sequence; skipping"), lang.first);
         return;
       }
       for (const auto& str : lang.second->m_seqChildren) {
         if (str->m_type != YAML_SCALAR_NODE) {
-          Log.report(logvisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+          Log.report(logvisor::Warning, fmt("STRG language '{}' must contain all scalars; skipping"), lang.first);
           return;
         }
       }
     }
   } else {
-    Log.report(logvisor::Warning, "STRG must have a mapping root node; skipping");
+    Log.report(logvisor::Warning, fmt("STRG must have a mapping root node; skipping"));
     return;
   }
 

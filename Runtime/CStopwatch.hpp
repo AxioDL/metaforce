@@ -11,13 +11,13 @@ public:
   double report(const char* name) const {
     double t = std::chrono::duration_cast<std::chrono::microseconds>(
       std::chrono::steady_clock::now() - m_start).count() / 1000000.0;
-    printf("%s %f\n", name, t);
+    fmt::print(fmt("{} {}\n"), name, t);
     return t;
   }
   double reportReset(const char* name) {
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
     double t = std::chrono::duration_cast<std::chrono::microseconds>(now - m_start).count() / 1000000.0;
-    printf("%s %f\n", name, t);
+    fmt::print(fmt("{} {}\n"), name, t);
     m_start = now;
     return t;
   }

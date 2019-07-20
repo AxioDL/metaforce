@@ -16,7 +16,7 @@ template <class IDType>
 void SWSH<IDType>::_read(typename BigDNA::ReadYaml::StreamT& r) {
   for (const auto& elem : r.getCurNode()->m_mapChildren) {
     if (elem.first.size() < 4) {
-      LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+      LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), elem.first);
       continue;
     }
 
@@ -288,16 +288,16 @@ void SWSH<IDType>::_binarySize(typename BigDNA::BinarySize::StreamT& s) const {
 
 template <class IDType>
 void SWSH<IDType>::_read(typename BigDNA::Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
+  DNAFourCC clsId;
+  clsId.read(r);
   if (clsId != SBIG('SWSH')) {
-    LogModule.report(logvisor::Warning, "non SWSH provided to SWSH parser");
+    LogModule.report(logvisor::Warning, fmt("non SWSH provided to SWSH parser"));
     return;
   }
 
-  r.readBytesToBuf(&clsId, 4);
+  clsId.read(r);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('PSLT'):
       x0_PSLT.read(r);
       break;
@@ -394,10 +394,10 @@ void SWSH<IDType>::_read(typename BigDNA::Read::StreamT& r) {
       x45_26_CRND = r.readBool();
       break;
     default:
-      LogModule.report(logvisor::Fatal, "Unknown SWSH class %.4s @%" PRIi64, &clsId, r.position());
+      LogModule.report(logvisor::Fatal, fmt("Unknown SWSH class {} @{}"), clsId, r.position());
       break;
     }
-    r.readBytesToBuf(&clsId, 4);
+    clsId.read(r);
   }
 }
 

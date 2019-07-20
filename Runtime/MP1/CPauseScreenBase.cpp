@@ -63,8 +63,7 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x17c_model_textalpha = static_cast<CGuiModel*>(x8_frame.FindWidget("model_textalpha"));
   x184_textpane_yicon = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_yicon"));
   x188_textpane_ytext = static_cast<CGuiTextPane*>(x8_frame.FindWidget("textpane_ytext"));
-  x184_textpane_yicon->TextSupport().SetText(
-      hecl::UTF8ToChar16(hecl::Format("&image=%8.8X;", u32(g_tweakPlayerRes->xbc_yButton[0].Value()))));
+  x184_textpane_yicon->TextSupport().SetText(fmt::format(fmt(u"&image={};"), g_tweakPlayerRes->xbc_yButton[0]));
   x188_textpane_ytext->TextSupport().SetText(xc_pauseStrg.GetString(99));
   x188_textpane_ytext->SetColor(g_tweakGuiColors->GetPauseItemAmberColor());
   x18c_slidergroup_slider = static_cast<CGuiSliderGroup*>(x8_frame.FindWidget("slidergroup_slider"));
@@ -90,18 +89,18 @@ void CPauseScreenBase::InitializeFrameGlue() {
 
   for (int i = 0; i < 5; ++i) {
     xd8_textpane_titles.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_title%d", i + 1))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(fmt("textpane_title{}"), i + 1))));
     xd8_textpane_titles.back()->TextSupport().SetText(u"");
-    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_title%d", i + 1))));
+    x144_model_titles.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_title{}"), i + 1))));
     m_model_lefttitledecos.push_back(
-      static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_lefttitledeco%d", i))));
+      static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_lefttitledeco{}"), i))));
     m_model_lefttitledecos.back()->SetMouseActive(true);
     x15c_model_righttitledecos.push_back(
-        static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_righttitledeco%d", i + 1))));
+        static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_righttitledeco{}"), i + 1))));
     x15c_model_righttitledecos.back()->SetMouseActive(true);
     xa8_textpane_categories.push_back(
-        static_cast<CGuiTextPane*>(x8_frame.FindWidget(hecl::Format("textpane_category%d", i))));
-    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(hecl::Format("model_category%d", i))));
+        static_cast<CGuiTextPane*>(x8_frame.FindWidget(fmt::format(fmt("textpane_category{}"), i))));
+    xc0_model_categories.push_back(static_cast<CGuiModel*>(x8_frame.FindWidget(fmt::format(fmt("model_category{}"), i))));
   }
 
   for (int i = 0; i < 20; ++i)
@@ -525,6 +524,6 @@ void CPauseScreenBase::OnWidgetScroll(CGuiWidget* widget, const boo::SScrollDelt
 static const char* PaneSuffixes[] = {"0", "1", "2", "3", "01", "12", "23", "012", "123", "0123",
                                      "4", "5", "6", "7", "45", "56", "67", "456", "567", "4567"};
 
-std::string CPauseScreenBase::GetImagePaneName(u32 i) { return hecl::Format("imagepane_pane%s", PaneSuffixes[i]); }
+std::string CPauseScreenBase::GetImagePaneName(u32 i) { return fmt::format(fmt("imagepane_pane{}"), PaneSuffixes[i]); }
 
 } // namespace urde::MP1

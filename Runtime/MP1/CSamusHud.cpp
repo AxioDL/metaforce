@@ -108,7 +108,7 @@ void CSamusHud::InitializeFrameGluePermanent(const CStateManager& mgr) {
   for (int i = 0; i < 4; ++i) {
     SVideoBand& band = x5a4_videoBands[i];
     band.x0_videoband =
-        static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget(hecl::Format("model_videoband%d", i)));
+        static_cast<CGuiModel*>(x274_loadedFrmeBaseHud->FindWidget(fmt::format(fmt("model_videoband{}"), i)));
     band.x4_randA = 6 + (std::rand() % ((66 - 6) + 1));
     band.x8_randB = 16 + (std::rand() % ((256 - 16) + 1));
   }
@@ -1287,7 +1287,7 @@ void CSamusHud::Update(float dt, const CStateManager& mgr, CInGameGuiManager::EH
     int minutes = mgr.GetEscapeSequenceTimer() / 60.f;
     int seconds = std::fmod(mgr.GetEscapeSequenceTimer(), 60.f);
     int hundredths = std::fmod(mgr.GetEscapeSequenceTimer() * 100.f, 100.f);
-    std::string timeStr = hecl::Format("%02d:%02d:%02d", int(minutes), int(seconds), int(hundredths));
+    std::string timeStr = fmt::format(fmt("{:02d}:{:02d}:{:02d}"), int(minutes), int(seconds), int(hundredths));
     x594_base_textpane_counter->TextSupport().SetText(timeStr);
     x594_base_textpane_counter->SetIsVisible(true);
 

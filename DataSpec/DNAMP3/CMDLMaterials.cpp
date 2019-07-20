@@ -82,8 +82,8 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
                                     const Material& material, unsigned groupIdx, unsigned matIdx) {
   unsigned i;
 
-  out.format(
-      "new_material = bpy.data.materials.new('MAT_%u_%u')\n"
+  out.format(fmt(
+      "new_material = bpy.data.materials.new('MAT_{}_{}')\n"
       "new_material.use_shadows = True\n"
       "new_material.use_transparent_shadows = True\n"
       "new_material.diffuse_color = (1.0,1.0,1.0)\n"
@@ -103,14 +103,14 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       "alpha_combiner_nodes = []\n"
       "tex_links = []\n"
       "tev_reg_sockets = [None]*4\n"
-      "\n",
+      "\n"),
       groupIdx, matIdx);
 
   /* Material Flags */
-  out.format(
-      "new_material.retro_alpha_test = %s\n"
-      "new_material.retro_shadow_occluder = %s\n"
-      "new_material.diffuse_color = (1, 1, 1, %s)\n",
+  out.format(fmt(
+      "new_material.retro_alpha_test = {}\n"
+      "new_material.retro_shadow_occluder = {}\n"
+      "new_material.diffuse_color = (1, 1, 1, {})\n"),
       material.header.flags.alphaTest() ? "True" : "False",
       material.header.flags.shadowOccluderMesh() ? "True" : "False",
       material.header.flags.shadowOccluderMesh() ? "0" : "1");
@@ -158,7 +158,7 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
                                           const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
                                           unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const {
   /* Add Texture nodes */
-  if (txtrId) {
+  if (txtrId.isValid()) {
     std::string texName = pakRouter.getBestEntryName(txtrId);
     const nod::Node* node;
     const PAK::Entry* texEntry = pakRouter.lookupEntry(txtrId, &node);
@@ -170,18 +170,18 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
     }
     hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, txtrId);
     hecl::SystemUTF8Conv resPathView(resPath);
-    out.format(
-        "if '%s' in bpy.data.textures:\n"
-        "    image = bpy.data.images['%s']\n"
+    out.format(fmt(
+        "if '{}' in bpy.data.textures:\n"
+        "    image = bpy.data.images['{}']\n"
         "    texture = bpy.data.textures[image.name]\n"
         "else:\n"
-        "    image = bpy.data.images.load('''//%s''')\n"
-        "    image.name = '%s'\n"
+        "    image = bpy.data.images.load('''//{}''')\n"
+        "    image.name = '{}'\n"
         "    texture = bpy.data.textures.new(image.name, 'IMAGE')\n"
         "    texture.image = image\n"
         "tex_maps.append(texture)\n"
-        "\n",
-        texName.c_str(), texName.c_str(), resPathView.c_str(), texName.c_str());
+        "\n"),
+        texName, texName, resPathView, texName);
     if (uvAnim.size()) {
       const UVAnimation& uva = uvAnim[0];
       DNAMP1::MaterialSet::Material::AddTexture(out, GX::TexGenSrc(uva.unk1 + (uva.unk1 < 2 ? 0 : 2)), texMtxIdx,
@@ -193,7 +193,7 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
 
   /* Special case for RFLV (environment UV mask) */
   if (Subtype(subtype.toUint32()) == Subtype::RFLV) {
-    if (txtrId)
+    if (txtrId.isValid())
       out << "rflv_tex_node = texture_nodes[-1]\n";
     return;
   }
@@ -205,7 +205,7 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
   switch (Subtype(subtype.toUint32())) {
   case Subtype::DIFF: {
     out << "pnode.node_tree = bpy.data.node_groups['RetroPassDIFF']\n";
-    if (txtrId) {
+    if (txtrId.isValid()) {
       out << "new_material.hecl_lightmap = texture.name\n"
           << "texture.image.use_fake_user = True\n";
     }
@@ -270,7 +270,7 @@ void Material::SectionPASS::constructNode(hecl::blender::PyOutStream& out, const
   }
   out << "gridder.place_node(pnode, 2)\n";
 
-  if (txtrId) {
+  if (txtrId.isValid()) {
     out << "new_nodetree.links.new(texture_nodes[-1].outputs['Color'], pnode.inputs['Tex Color'])\n"
            "new_nodetree.links.new(texture_nodes[-1].outputs['Value'], pnode.inputs['Tex Alpha'])\n";
   }
@@ -312,23 +312,23 @@ void Material::SectionINT::constructNode(hecl::blender::PyOutStream& out, const 
   switch (Subtype(subtype.toUint32())) {
   case Subtype::OPAC: {
     GX::Color clr(value);
-    out.format(
+    out.format(fmt(
         "anode = new_nodetree.nodes.new('ShaderNodeValue')\n"
-        "anode.outputs['Value'].default_value = %f\n",
+        "anode.outputs['Value'].default_value = {}\n"),
         float(clr[3]) / float(0xff));
     out << "gridder.place_node(anode, 1)\n";
   } break;
   case Subtype::BLOD:
-    out.format("new_material.retro_blod = %d\n", value);
+    out.format(fmt("new_material.retro_blod = {}\n"), value);
     break;
   case Subtype::BLOI:
-    out.format("new_material.retro_bloi = %d\n", value);
+    out.format(fmt("new_material.retro_bloi = {}\n"), value);
     break;
   case Subtype::BNIF:
-    out.format("new_material.retro_bnif = %d\n", value);
+    out.format(fmt("new_material.retro_bnif = {}\n"), value);
     break;
   case Subtype::XRBR:
-    out.format("new_material.retro_xrbr = %d\n", value);
+    out.format(fmt("new_material.retro_xrbr = {}\n"), value);
     break;
   default:
     break;

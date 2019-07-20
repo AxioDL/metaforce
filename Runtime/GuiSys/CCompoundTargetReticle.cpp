@@ -17,7 +17,7 @@ static float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + 
 
 static float calculate_premultiplied_overshoot_offset(float f1) { return 2.f * (M_PIF - std::asin(1.f / f1)); }
 
-CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(const char* res) : x0_model(g_SimplePool->GetObj(res)) {}
+CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(std::string_view res) : x0_model(g_SimplePool->GetObj(res)) {}
 
 CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 : x0_leadingOrientation(mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform().buildMatrix3f())
@@ -42,11 +42,8 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
 , x100_laggingTargetPos(CalculateOrbitZoneReticlePosition(mgr, true))
 , x208_lockonTimer(g_tweakTargeting->GetLockonDuration()) {
   xe0_outerBeamIconSquares.reserve(9);
-  for (u32 i = 0; i < 9; ++i) {
-    char name[1024];
-    sprintf(name, "%s%d", skOuterBeamIconSquareNameBase, i);
-    xe0_outerBeamIconSquares.emplace_back(name);
-  }
+  for (u32 i = 0; i < 9; ++i)
+    xe0_outerBeamIconSquares.emplace_back(fmt::format(fmt("{}{}"), skOuterBeamIconSquareNameBase, i));
   x34_crosshairs.Lock();
 }
 

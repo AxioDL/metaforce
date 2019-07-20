@@ -28,11 +28,11 @@ struct AtomicAlpha : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc) {
+    if (wpsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }

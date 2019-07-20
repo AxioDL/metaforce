@@ -44,7 +44,7 @@ struct Magdolite : IScriptObject {
     UniqueID32 cinf = patternedInfo.animationParameters.getCINF(pakRouter);
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
 
-    if (cmdlHeadless && cskrHeadless) {
+    if (cmdlHeadless.isValid() && cskrHeadless.isValid()) {
       charAssoc.m_cmdlRigs[cmdlHeadless] = std::make_pair(cskrHeadless, cinf);
       charAssoc.m_cskrCinfToCharacter[cskrHeadless] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet, "ATTACH.HEADLESS.CSKR");
@@ -53,15 +53,15 @@ struct Magdolite : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (cmdlHeadless) {
+    if (cmdlHeadless.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cmdlHeadless);
       ent->name = name + "_emodel";
     }
-    if (cskrHeadless) {
+    if (cskrHeadless.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cskrHeadless);
       ent->name = name + "_eskin";
     }
-    if (magdoliteParameters.particle) {
+    if (magdoliteParameters.particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(magdoliteParameters.particle);
       ent->name = name + "_part";
     }

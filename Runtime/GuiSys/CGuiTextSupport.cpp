@@ -141,7 +141,7 @@ void CGuiTextSupport::CheckAndRebuildTextBuffer() {
 
   std::u16string initStr;
   if (x5c_fontId.IsValid())
-    initStr = hecl::Char16Format(L"&font=%08X;", u32(x5c_fontId.Value()));
+    initStr = fmt::format(fmt(u"&font={};"), x5c_fontId);
   initStr += x0_string;
 
   g_TextParser->ParseText(*g_TextExecuteBuf, initStr.c_str(), initStr.size(), x14_props.xc_txtrMap);

@@ -30,16 +30,16 @@ void DCLN::Collision::Node::sendToBlender(hecl::blender::PyOutStream& os) const 
 void DCLN::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName) {
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(
+  os.format(fmt(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector, Matrix\n"
       "\n"
-      "bpy.context.scene.name = '%s'\n"
+      "bpy.context.scene.name = '{}'\n"
       "# Clear Scene\n"
       "if len(bpy.data.collections):\n"
-      "    bpy.data.collections.remove(bpy.data.collections[0])\n",
-      entryName.data());
+      "    bpy.data.collections.remove(bpy.data.collections[0])\n"),
+      entryName);
 
   DeafBabe::BlenderInit(os);
   atInt32 idx = 0;

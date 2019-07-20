@@ -12,7 +12,7 @@ template <class Op>
 void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
   Do<Op>({"header"}, header, s);
   if (header.magic != SBIG('FSM2')) {
-    LogDNAFSM2.report(logvisor::Fatal, "Invalid FSM2 magic '%.4s' expected 'FSM2'", header.magic.toString().c_str());
+    LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 magic '{}' expected 'FSM2'"), header.magic);
     return;
   }
 
@@ -25,7 +25,7 @@ void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
       detail.reset(new FSMV2);
     Do<Op>({"detail"}, static_cast<FSMV2&>(*detail), s);
   } else {
-    LogDNAFSM2.report(logvisor::Fatal, "Invalid FSM2 version '%i'", header.version);
+    LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 version '{}'"), header.version);
     return;
   }
 }

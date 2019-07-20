@@ -382,7 +382,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(athena::io::ISt
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;
@@ -449,7 +449,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(size_t& __
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;
@@ -559,7 +559,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;
@@ -986,19 +986,19 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   /* Search for yaml */
   hecl::ProjectPath yamlPath = inPath.getWithExtension(_SYS_STR(".yaml"), true);
   if (!yamlPath.isFile())
-    Log.report(logvisor::Fatal, _SYS_STR("'%s' not found as file"), yamlPath.getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("'{}' not found as file")), yamlPath.getRelativePath());
 
   athena::io::FileReader reader(yamlPath.getAbsolutePath());
   if (!reader.isOpen())
-    Log.report(logvisor::Fatal, _SYS_STR("can't open '%s' for reading"), yamlPath.getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("can't open '{}' for reading")), yamlPath.getRelativePath());
 
   if (!athena::io::ValidateFromYAMLStream<ANCS>(reader)) {
-    Log.report(logvisor::Fatal, _SYS_STR("'%s' is not urde::DNAMP1::ANCS type"), yamlPath.getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("'{}' is not urde::DNAMP1::ANCS type")), yamlPath.getRelativePath());
   }
 
   athena::io::YAMLDocReader yamlReader;
   if (!yamlReader.parse(&reader)) {
-    Log.report(logvisor::Fatal, _SYS_STR("unable to parse '%s'"), yamlPath.getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to parse '{}'")), yamlPath.getRelativePath());
   }
   ANCS ancs;
   ancs.read(yamlReader);
@@ -1132,7 +1132,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
       }
     }
     if (!subtype)
-      Log.report(logvisor::Fatal, _SYS_STR("unable to find subtype '%s'"), subName.c_str());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find subtype '{}'")), subName);
   }
 
   const hecl::ProjectPath* modelPath = nullptr;
@@ -1145,7 +1145,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
       }
     }
     if (!attachment)
-      Log.report(logvisor::Fatal, _SYS_STR("unable to find attachment '%s'"), overName.c_str());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find attachment '{}'")), overName);
     modelPath = &attachment->mesh;
   } else if (overName.empty()) {
     modelPath = &subtype->mesh;
@@ -1157,15 +1157,15 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
       }
   }
   if (!modelPath)
-    Log.report(logvisor::Fatal, _SYS_STR("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve model path of {}:{}")), subName, overName);
 
   if (!modelPath->isFile())
-    Log.report(logvisor::Fatal, _SYS_STR("unable to resolve '%s'"), modelPath->getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}'")), modelPath->getRelativePath());
 
   hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1).getWithExtension(_SYS_STR(".skinint"));
   if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
     if (!modelCookFunc(*modelPath))
-      Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to cook '{}'")), modelPath->getRelativePath());
 
   std::vector<std::pair<std::vector<std::pair<uint32_t, float>>, uint32_t>> skins;
   uint32_t posCount = 0;
@@ -1190,8 +1190,8 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
         const std::string& name = boneNames[bIdx];
         auto search = boneIdMap.find(name);
         if (search == boneIdMap.cend())
-          Log.report(logvisor::Fatal, "unable to find bone '%s' in %s", name.c_str(),
-                     inPath.getRelativePathUTF8().data());
+          Log.report(logvisor::Fatal, fmt("unable to find bone '{}' in {}"), name,
+                     inPath.getRelativePathUTF8());
         virtualBone.first.emplace_back(search->second, weight);
       }
       virtualBone.second = skinIO.readUint32Big();
@@ -1250,7 +1250,7 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
       }
     }
     if (!subtype)
-      Log.report(logvisor::Fatal, _SYS_STR("unable to find subtype '%s'"), subName.c_str());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find subtype '{}'")), subName);
   }
 
   const hecl::ProjectPath* modelPath = nullptr;
@@ -1263,7 +1263,7 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
       }
     }
     if (!attachment)
-      Log.report(logvisor::Fatal, _SYS_STR("unable to find attachment '%s'"), overName.c_str());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to find attachment '{}'")), overName);
     modelPath = &attachment->mesh;
   } else if (overName.empty()) {
     modelPath = &subtype->mesh;
@@ -1275,15 +1275,15 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
       }
   }
   if (!modelPath)
-    Log.report(logvisor::Fatal, _SYS_STR("unable to resolve model path of %s:%s"), subName.c_str(), overName.c_str());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve model path of {}:{}")), subName, overName);
 
   if (!modelPath->isFile())
-    Log.report(logvisor::Fatal, _SYS_STR("unable to resolve '%s'"), modelPath->getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}'")), modelPath->getRelativePath());
 
   hecl::ProjectPath skinIntPath = modelPath->getCookedPath(SpecEntMP1PC).getWithExtension(_SYS_STR(".skinint"));
   if (!skinIntPath.isFileOrGlob() || skinIntPath.getModtime() < modelPath->getModtime())
     if (!modelCookFunc(*modelPath))
-      Log.report(logvisor::Fatal, _SYS_STR("unable to cook '%s'"), modelPath->getRelativePath().data());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to cook '{}'")), modelPath->getRelativePath());
 
   uint32_t bankCount = 0;
   std::vector<std::vector<uint32_t>> skinBanks;
@@ -1323,8 +1323,8 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
         const std::string& name = boneNames[bIdx];
         auto search = boneIdMap.find(name);
         if (search == boneIdMap.cend())
-          Log.report(logvisor::Fatal, "unable to find bone '%s' in %s", name.c_str(),
-                     inPath.getRelativePathUTF8().data());
+          Log.report(logvisor::Fatal, fmt("unable to find bone '{}' in {}"), name,
+                     inPath.getRelativePathUTF8());
         virtualBone.emplace_back(search->second, weight);
       }
     }
@@ -1344,8 +1344,8 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
       const std::string& name = boneNames[bIdx];
       auto search = boneIdMap.find(name);
       if (search == boneIdMap.cend())
-        Log.report(logvisor::Fatal, "unable to find bone '%s' in %s", name.c_str(),
-                   inPath.getRelativePathUTF8().data());
+        Log.report(logvisor::Fatal, fmt("unable to find bone '{}' in {}"), name,
+                   inPath.getRelativePathUTF8());
       skinOut.writeUint32Big(search->second);
     }
   }
@@ -1372,7 +1372,7 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
   DNAANCS::Action action = ds.compileActionChannelsOnly(actNameView.str());
 
   if (!actor.armatures.size())
-    Log.report(logvisor::Fatal, _SYS_STR("0 armatures in %s"), inPath.getRelativePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("0 armatures in {}")), inPath.getRelativePath());
 
   /* Build bone ID map */
   std::unordered_map<std::string, atInt32> boneIdMap;

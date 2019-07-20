@@ -34,7 +34,7 @@ size_t ComputeBitstreamSize(size_t keyFrameCount, const std::vector<Channel>& ch
   return (bitsPerKeyFrame * keyFrameCount + 31) / 32 * 4;
 }
 
-static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div) {
+static QuantizedRot QuantizeRotation(const Value& quat, atUint32 div) {
   float q = float(div) / (M_PIF / 2.0f);
   zeus::simd_floats f(quat.simd);
   assert(std::abs(f[1]) <= 1.f && "Out of range quat X component");
@@ -48,7 +48,7 @@ static inline QuantizedRot QuantizeRotation(const Value& quat, atUint32 div) {
           (f[0] < 0.f)};
 }
 
-static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div) {
+static Value DequantizeRotation(const QuantizedRot& v, atUint32 div) {
   float q = (M_PIF / 2.0f) / float(div);
   athena::simd_floats f = {
       0.0f,
@@ -63,7 +63,7 @@ static inline Value DequantizeRotation(const QuantizedRot& v, atUint32 div) {
   return retval;
 }
 
-static inline Value DequantizeRotation_3(const QuantizedRot& v, atUint32 div) {
+static Value DequantizeRotation_3(const QuantizedRot& v, atUint32 div) {
   float q = 1.0f / float(div);
   athena::simd_floats f = {
       0.0f,

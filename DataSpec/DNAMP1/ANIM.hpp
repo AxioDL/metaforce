@@ -191,7 +191,7 @@ struct ANIM : BigDNA {
 
   void extractEVNT(const DNAANCS::AnimationResInfo<UniqueID32>& animInfo, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, bool force) const {
-    if (m_anim->evnt) {
+    if (m_anim->evnt.isValid()) {
       hecl::SystemStringConv sysStr(animInfo.name);
       hecl::ProjectPath evntYamlPath = outPath.getWithExtension(
           (hecl::SystemString(_SYS_STR(".")) + sysStr.c_str() + _SYS_STR(".evnt.yaml")).c_str(), true);

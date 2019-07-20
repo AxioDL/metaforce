@@ -564,13 +564,15 @@ struct SpecMP3 : SpecBase {
                        hecl::blender::Token& btok, FCookProgress progress) {}
 
   UniqueID64 newToOriginal(urde::CAssetId id) const {
-    if (UniqueID64 origId = m_idRestorer.newToOriginal({id.Value(), true}))
+    UniqueID64 origId = m_idRestorer.newToOriginal({id.Value(), true});
+    if (origId.isValid())
       return {origId.toUint64(), true};
     return {uint32_t(id.Value()), true};
   }
 
   urde::CAssetId originalToNew(UniqueID64 id) const {
-    if (UniqueID64 newId = m_idRestorer.originalToNew(id))
+    UniqueID64 newId = m_idRestorer.originalToNew(id);
+    if (newId.isValid())
       return newId.toUint64();
     return id.toUint64();
   }

@@ -9,7 +9,7 @@ template <>
 void PAK::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
   m_header.read(reader);
   if (m_header.version != 2)
-    Log.report(logvisor::Fatal, "unexpected PAK magic");
+    Log.report(logvisor::Fatal, fmt("unexpected PAK magic"));
 
   reader.seek(8, athena::Current);
   atUint32 strgSz = reader.readUint32Big();
@@ -141,7 +141,7 @@ std::unique_ptr<atUint8[]> PAK::Entry::getBuffer(const nod::Node& pak, atUint64&
     } head;
     strm->read(&head, 8);
     if (head.magic != CMPD) {
-      Log.report(logvisor::Error, "invalid CMPD block");
+      Log.report(logvisor::Error, fmt("invalid CMPD block"));
       return std::unique_ptr<atUint8[]>();
     }
     head.blockCount = hecl::SBig(head.blockCount);

@@ -26,7 +26,7 @@ CFactoryFnReturn CResFactory::BuildSync(const SObjectTag& tag, const CVParamTran
     else
       ret = std::make_unique<TObjOwnerDerivedFromIObjUntyped>(nullptr);
   }
-  Log.report(logvisor::Warning, "sync-built %.4s %08X", tag.type.getChars(), tag.id.Value());
+  Log.report(logvisor::Warning, fmt("sync-built {}"), tag);
   return ret;
 }
 
@@ -36,7 +36,7 @@ bool CResFactory::PumpResource(SLoadingData& data) {
     *data.xc_targetPtr =
         x5c_factoryMgr.MakeObjectFromMemory(data.x0_tag, std::move(data.x10_loadBuffer), data.x14_resSize,
                                             data.m_compressed, data.x18_cvXfer, data.m_selfRef);
-    Log.report(logvisor::Info, "async-built %.4s %08X", data.x0_tag.type.getChars(), data.x0_tag.id.Value());
+    Log.report(logvisor::Info, fmt("async-built {}"), data.x0_tag);
     return true;
   }
   return false;

@@ -91,7 +91,7 @@ CIOWin::EMessageReturn CSlideShow::OnMessage(const CArchitectureMessage& msg, CA
       if (x18_galleryTXTRDeps.empty()) {
         x18_galleryTXTRDeps.reserve(5);
         for (int i = 1; true; ++i) {
-          std::string depResName = hecl::Format("Gallery%02d_DGRP", i);
+          std::string depResName = fmt::format(fmt("Gallery{:02d}_DGRP"), i);
           if (!LoadTXTRDep(depResName))
             break;
         }

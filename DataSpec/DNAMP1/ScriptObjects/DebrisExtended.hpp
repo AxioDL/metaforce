@@ -49,19 +49,19 @@ struct DebrisExtended : IScriptObject {
   Value<bool> active;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
-    if (particle3) {
+    if (particle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
       ent->name = name + "_part3";
     }

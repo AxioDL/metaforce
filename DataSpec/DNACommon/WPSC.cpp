@@ -6,7 +6,7 @@ template <class IDType>
 void WPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
   for (const auto& elem : r.getCurNode()->m_mapChildren) {
     if (elem.first.size() < 4) {
-      LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+      LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), elem.first);
       continue;
     }
 
@@ -365,15 +365,15 @@ void WPSM<IDType>::_binarySize(size_t& __isz) const {
 
 template <class IDType>
 void WPSM<IDType>::_read(athena::io::IStreamReader& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
+  DNAFourCC clsId;
+  clsId.read(r);
   if (clsId != SBIG('WPSM')) {
-    LogModule.report(logvisor::Warning, "non WPSM provided to WPSM parser");
+    LogModule.report(logvisor::Warning, fmt("non WPSM provided to WPSM parser"));
     return;
   }
-  r.readBytesToBuf(&clsId, 4);
+  clsId.read(r);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('IORN'):
       x0_IORN.read(r);
       break;
@@ -484,10 +484,10 @@ void WPSM<IDType>::_read(athena::io::IStreamReader& r) {
       xunk_SPS2.read(r);
       break;
     default:
-      LogModule.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsId, r.position());
+      LogModule.report(logvisor::Fatal, fmt("Unknown WPSM class {} @{}"), clsId, r.position());
       break;
     }
-    r.readBytesToBuf(&clsId, 4);
+    clsId.read(r);
   }
 }
 

@@ -86,19 +86,19 @@ struct MetroidPrimeStage1 : IScriptObject {
       Value<atUint32> unknown8;
 
       void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-        if (particle1) {
+        if (particle1.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
           ent->name = name + "_part1";
         }
-        if (particle2) {
+        if (particle2.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
           ent->name = name + "_part2";
         }
-        if (particle3) {
+        if (particle3.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
           ent->name = name + "_part3";
         }
-        if (texture1) {
+        if (texture1.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
           ent->name = name + "_tex1";
         }
@@ -132,15 +132,15 @@ struct MetroidPrimeStage1 : IScriptObject {
         Value<atUint32> unknown8;
 
         void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-          if (unknown1) {
+          if (unknown1.isValid()) {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown1);
             ent->name = name + "_unk1";
           }
-          if (unknown3) {
+          if (unknown3.isValid()) {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown3);
             ent->name = name + "_unk3";
           }
-          if (unknown4) {
+          if (unknown4.isValid()) {
             PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown4);
             ent->name = name + "_unk4";
           }
@@ -157,7 +157,7 @@ struct MetroidPrimeStage1 : IScriptObject {
 
       void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
         beamInfo.nameIDs(pakRouter, name + "_beamInfo");
-        if (wpsc) {
+        if (wpsc.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
           ent->name = name + "_wpsc";
         }
@@ -193,11 +193,11 @@ struct MetroidPrimeStage1 : IScriptObject {
       Value<bool> unknown15;
 
       void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-        if (particle) {
+        if (particle.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
           ent->name = name + "_part";
         }
-        if (texture) {
+        if (texture.isValid()) {
           PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
           ent->name = name + "_tex";
         }
@@ -227,31 +227,31 @@ struct MetroidPrimeStage1 : IScriptObject {
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
       primeStruct2b.nameIDs(pakRouter, name + "_prime2b");
-      if (particle4) {
+      if (particle4.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
         ent->name = name + "_part4";
       }
-      if (particle6) {
+      if (particle6.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
         ent->name = name + "_part6";
       }
-      if (particle7) {
+      if (particle7.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
         ent->name = name + "_part7";
       }
-      if (particle8) {
+      if (particle8.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle8);
         ent->name = name + "_part8";
       }
-      if (swhc) {
+      if (swhc.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(swhc);
         ent->name = name + "_swhc";
       }
-      if (wpsc1) {
+      if (wpsc1.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
         ent->name = name + "_wpsc1";
       }
-      if (wpsc2) {
+      if (wpsc2.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
         ent->name = name + "_wpsc2";
       }

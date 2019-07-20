@@ -39,28 +39,39 @@ specter::View* Space::buildSpaceView(specter::ViewResources& res) {
 
 std::vector<Space::SpaceMenuNode::SubNodeData> Space::SpaceMenuNode::s_subNodeDats = {
     {Class::ResourceBrowser,
-     "resource_browser",
      "Resource Browser",
      GetIcon(SpaceIcon::ResourceBrowser),
      {0.0f, 1.0f, 0.0f, 1.0f}},
     {Class::EffectEditor,
-     "effect_editor",
      "Effect Editor",
      GetIcon(SpaceIcon::ParticleEditor),
      {1.0f, 0.5f, 0.0f, 1.0f}},
-    {Class::ModelViewer, "model_viewer", "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.95f, 0.95f, 0.95f, 1.0f}},
+    {Class::ModelViewer, "Model Viewer", GetIcon(SpaceIcon::ModelViewer), {0.95f, 0.95f, 0.95f, 1.0f}},
     {Class::InformationCenter,
-     "information_center",
      "Information Center",
      GetIcon(SpaceIcon::InformationCenter),
      {0.0f, 1.0f, 1.0f, 1.0f}},
-    {Class::GameMode, "game_mode", "Game Mode", GetIcon(SpaceIcon::GameMode), {}}};
+    {Class::GameMode, "Game Mode", GetIcon(SpaceIcon::GameMode), {}}};
 std::string Space::SpaceMenuNode::s_text = "Space Types";
 
+template <typename Key>
+static void RecurseTranslations(ViewManager& vm, std::vector<Space::SpaceMenuNode::SubNodeData>::iterator it) {
+  it->m_text = vm.translate<Key>();
+}
+
+template <typename Key, typename Key2, typename... RemKeys>
+static void RecurseTranslations(ViewManager& vm, std::vector<Space::SpaceMenuNode::SubNodeData>::iterator it) {
+  RecurseTranslations<Key>(vm, it);
+  RecurseTranslations<Key2, RemKeys...>(vm, ++it);
+}
+
 void Space::SpaceMenuNode::InitializeStrings(ViewManager& vm) {
-  s_text = vm.translateOr("space_types", s_text.c_str());
-  for (SubNodeData& sn : s_subNodeDats)
-    sn.m_text = vm.translateOr(sn.m_key, sn.m_text.c_str());
+  s_text = vm.translate<locale::space_types>();
+  RecurseTranslations<locale::resource_browser,
+                      locale::effect_editor,
+                      locale::model_viewer,
+                      locale::information_center,
+                      locale::game_mode>(vm, s_subNodeDats.begin());
 }
 
 std::unique_ptr<specter::View> Space::SpaceSelectBind::buildMenu(const specter::Button* button) {
@@ -89,7 +100,7 @@ specter::View* SplitSpace::buildContentView(specter::ViewResources& res) {
 
 void SplitSpace::setChildSlot(unsigned slot, std::unique_ptr<Space>&& space) {
   if (slot > 1)
-    Log.report(logvisor::Fatal, "invalid slot %u for SplitView", slot);
+    Log.report(logvisor::Fatal, fmt("invalid slot {} for SplitView"), slot);
   m_slots[slot] = std::move(space);
   m_slots[slot]->m_parent = this;
 }
@@ -151,7 +162,7 @@ std::unique_ptr<Space> RootSpace::exchangeSpaceSplitJoin(Space* removeSpace, std
     m_spaceTree.swap(ret);
     m_spaceTree->m_parent = this;
   } else
-    Log.report(logvisor::Fatal, "RootSpace::exchangeSpaceSplitJoin() failure");
+    Log.report(logvisor::Fatal, fmt("RootSpace::exchangeSpaceSplitJoin() failure"));
 
   return ret;
 }
@@ -166,7 +177,7 @@ std::unique_ptr<Space> SplitSpace::exchangeSpaceSplitJoin(Space* removeSpace, st
     m_slots[1].swap(ret);
     m_slots[1]->m_parent = this;
   } else
-    Log.report(logvisor::Fatal, "SplitSpace::exchangeSpaceSplitJoin() failure");
+    Log.report(logvisor::Fatal, fmt("SplitSpace::exchangeSpaceSplitJoin() failure"));
 
   return ret;
 }

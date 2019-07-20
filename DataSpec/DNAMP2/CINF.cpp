@@ -34,7 +34,7 @@ void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const {
   for (atUint32 bid : boneIds) {
     for (const Name& name : names) {
       if (name.boneId == bid) {
-        os.format("obj.vertex_groups.new(name='%s')\n", name.name.c_str());
+        os.format(fmt("obj.vertex_groups.new(name='{}')\n"), name.name);
         break;
       }
     }
@@ -44,39 +44,39 @@ void CINF::sendVertexGroupsToBlender(hecl::blender::PyOutStream& os) const {
 void CINF::sendCINFToBlender(hecl::blender::PyOutStream& os, const UniqueID32& cinfId) const {
   DNAANIM::RigInverter<CINF> inverter(*this);
 
-  os.format(
-      "arm = bpy.data.armatures.new('CINF_%08X')\n"
+  os.format(fmt(
+      "arm = bpy.data.armatures.new('CINF_{}')\n"
       "arm_obj = bpy.data.objects.new(arm.name, arm)\n"
       "bpy.context.scene.collection.objects.link(arm_obj)\n"
       "bpy.context.view_layer.objects.active = arm_obj\n"
       "bpy.ops.object.mode_set(mode='EDIT')\n"
-      "arm_bone_table = {}\n",
-      cinfId.toUint32());
+      "arm_bone_table = {{}}\n"),
+      cinfId);
 
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones()) {
     zeus::simd_floats originF(bone.m_origBone.origin.simd);
     zeus::simd_floats tailF(bone.m_tail.mSimd);
-    os.format(
-        "bone = arm.edit_bones.new('%s')\n"
-        "bone.head = (%f,%f,%f)\n"
-        "bone.tail = (%f,%f,%f)\n"
+    os.format(fmt(
+        "bone = arm.edit_bones.new('{}')\n"
+        "bone.head = ({},{},{})\n"
+        "bone.tail = ({},{},{})\n"
         "bone.use_inherit_scale = False\n"
-        "arm_bone_table[%u] = bone\n",
-        getBoneNameFromId(bone.m_origBone.id)->c_str(), originF[0], originF[1], originF[2], tailF[0], tailF[1],
+        "arm_bone_table[{}] = bone\n"),
+        *getBoneNameFromId(bone.m_origBone.id), originF[0], originF[1], originF[2], tailF[0], tailF[1],
         tailF[2], bone.m_origBone.id);
   }
 
   for (const Bone& bone : bones)
     if (bone.parentId != 97)
-      os.format("arm_bone_table[%u].parent = arm_bone_table[%u]\n", bone.id, bone.parentId);
+      os.format(fmt("arm_bone_table[{}].parent = arm_bone_table[{}]\n"), bone.id, bone.parentId);
 
   os << "bpy.ops.object.mode_set(mode='OBJECT')\n";
 
   for (const DNAANIM::RigInverter<CINF>::Bone& bone : inverter.getBones())
-    os.format("arm_obj.pose.bones['%s'].rotation_mode = 'QUATERNION'\n",
-              getBoneNameFromId(bone.m_origBone.id)->c_str());
+    os.format(fmt("arm_obj.pose.bones['{}'].rotation_mode = 'QUATERNION'\n"),
+              *getBoneNameFromId(bone.m_origBone.id));
 }
 
-std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId) { return hecl::Format("CINF_%08X", cinfId.toUint32()); }
+std::string CINF::GetCINFArmatureName(const UniqueID32& cinfId) { return fmt::format(fmt("CINF_{}"), cinfId); }
 
 } // namespace DataSpec::DNAMP2

@@ -660,9 +660,9 @@ void CMemoryCardDriver::InitializeFileInfo() {
   ExportPersistentOptions();
 
   OSCalendarTime time = CBasics::ToCalendarTime(std::chrono::system_clock::now());
-  char timeString[32];
-  snprintf(timeString, 32, "%02d.%02d.%02d  %02d:%02d", time.x10_mon + 1, time.xc_mday, time.x14_year % 100,
-           time.x8_hour, time.x4_min);
+  std::string timeString = fmt::format(fmt("{:02d}.{:02d}.{:02d}  {:02d}:{:02d}"),
+                                       time.x10_mon + 1, time.xc_mday, time.x14_year % 100,
+                                       time.x8_hour, time.x4_min);
   std::string comment("Metroid Prime                   ");
   comment += timeString;
   x198_fileInfo->SetComment(comment);

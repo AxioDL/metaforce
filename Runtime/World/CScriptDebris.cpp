@@ -46,7 +46,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
       {EMaterialTypes::Solid},
       {EMaterialTypes::Debris, EMaterialTypes::Character, EMaterialTypes::Player, EMaterialTypes::Projectile}));
 
-  if (g_ResFactory->GetResourceTypeById(particleId)) {
+  if (g_ResFactory->GetResourceTypeById(particleId).IsValid()) {
     TToken<CGenDescription> desc = g_SimplePool->GetObj({FOURCC('PART'), particleId});
     x2d4_particleGens[0] = std::make_unique<CElementGen>(desc, CElementGen::EModelOrientationType::Normal,
                                                          CElementGen::EOptionalSystemFlags::One);
@@ -115,21 +115,21 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
                                                                EMaterialTypes::Solid}));
   }
 
-  if (g_ResFactory->GetResourceTypeById(particle1)) {
+  if (g_ResFactory->GetResourceTypeById(particle1).IsValid()) {
     TToken<CGenDescription> desc = g_SimplePool->GetObj({FOURCC('PART'), particle1});
     x2d4_particleGens[0] = std::make_unique<CElementGen>(desc, CElementGen::EModelOrientationType::Normal,
                                                          CElementGen::EOptionalSystemFlags::One);
     x2d4_particleGens[0]->SetGlobalScale(particle1Scale);
   }
 
-  if (g_ResFactory->GetResourceTypeById(particle2)) {
+  if (g_ResFactory->GetResourceTypeById(particle2).IsValid()) {
     TToken<CGenDescription> desc = g_SimplePool->GetObj({FOURCC('PART'), particle2});
     x2d4_particleGens[1] = std::make_unique<CElementGen>(desc, CElementGen::EModelOrientationType::Normal,
                                                          CElementGen::EOptionalSystemFlags::One);
     x2d4_particleGens[1]->SetGlobalScale(particle2Scale);
   }
 
-  if (g_ResFactory->GetResourceTypeById(particle3)) {
+  if (g_ResFactory->GetResourceTypeById(particle3).IsValid()) {
     TToken<CGenDescription> desc = g_SimplePool->GetObj({FOURCC('PART'), particle3});
     x2d4_particleGens[2] = std::make_unique<CElementGen>(desc, CElementGen::EModelOrientationType::Normal,
                                                          CElementGen::EOptionalSystemFlags::One);

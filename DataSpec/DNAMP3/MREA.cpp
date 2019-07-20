@@ -42,7 +42,7 @@ void MREA::StreamReader::writeSecIdxs(athena::io::IStreamWriter& writer) const {
 void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::IStreamReader& rs) {
   atUint32 bdMagic = rs.readUint32Big();
   if (bdMagic != 0xBABEDEAD)
-    Log.report(logvisor::Fatal, "invalid BABEDEAD magic");
+    Log.report(logvisor::Fatal, fmt("invalid BABEDEAD magic"));
   os << "bpy.context.scene.world.use_nodes = True\n"
         "bg_node = bpy.context.scene.world.node_tree.nodes['Background']\n"
         "bg_node.inputs[1].default_value = 0.0\n";
@@ -93,13 +93,13 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(
+  os.format(fmt(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector\n"
       "\n"
-      "bpy.context.scene.name = '%s'\n",
-      pakRouter.getBestEntryName(entry, false).c_str());
+      "bpy.context.scene.name = '{}'\n"),
+      pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"

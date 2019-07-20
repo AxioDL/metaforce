@@ -183,7 +183,7 @@ static logvisor::Module Log("CNESEmulator");
 
 CNESEmulator::CNESEmulator() {
   if (EmulatorConstructed)
-    Log.report(logvisor::Fatal, "Attempted constructing more than 1 CNESEmulator");
+    Log.report(logvisor::Fatal, fmt("Attempted constructing more than 1 CNESEmulator"));
   EmulatorConstructed = true;
 
   CDvdFile NESEmuFile("NESemuP.rel");
@@ -191,7 +191,7 @@ CNESEmulator::CNESEmulator() {
     m_nesEmuPBuf.reset(new u8[0x20000]);
     m_dvdReq = NESEmuFile.AsyncSeekRead(m_nesEmuPBuf.get(), 0x20000, ESeekOrigin::Begin, NESEMUP_ROM_OFFSET);
   } else {
-    Log.report(logvisor::Fatal, "Unable to open NESemuP.rel");
+    Log.report(logvisor::Fatal, fmt("Unable to open NESemuP.rel"));
   }
 }
 

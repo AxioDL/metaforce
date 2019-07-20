@@ -3587,7 +3587,7 @@ void CPlayer::SetOrbitState(EPlayerOrbitState state, CStateManager& mgr) {
 #ifndef NDEBUG
     if (x310_orbitTargetId != kInvalidUniqueId) {
       if (const CEntity* ent = mgr.GetObjectById(x310_orbitTargetId))
-        Log.report(logvisor::Info, "Orbiting %08X %s", ent->GetEditorId(), ent->GetName().data());
+        Log.report(logvisor::Info, fmt("Orbiting {} {}"), ent->GetEditorId(), ent->GetName());
     }
 #endif
     cam->SetLockCamera(false);

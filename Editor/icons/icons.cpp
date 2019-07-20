@@ -14,7 +14,7 @@ void InitializeIcons(specter::ViewResources& viewRes) {
   athena::io::MemoryReader r(URDE_ICONS, URDE_ICONS_SZ);
   size_t fmt = r.readUint32Big();
   if (fmt != 16)
-    Log.report(logvisor::Fatal, "incorrect icon texture format");
+    Log.report(logvisor::Fatal, fmt("incorrect icon texture format"));
   size_t width = r.readUint16Big();
   size_t height = r.readUint16Big();
   size_t mips = r.readUint32Big();
@@ -24,7 +24,7 @@ void InitializeIcons(specter::ViewResources& viewRes) {
   uLongf destSz = decompSz;
   size_t pos = r.position();
   if (uncompress(texels.get(), &destSz, URDE_ICONS + pos, URDE_ICONS_SZ - pos) != Z_OK)
-    Log.report(logvisor::Fatal, "unable to decompress icons");
+    Log.report(logvisor::Fatal, fmt("unable to decompress icons"));
 
   viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     g_IconAtlas.initializeAtlas(ctx.newStaticTexture(width, height, mips, boo::TextureFormat::RGBA8,

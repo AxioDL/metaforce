@@ -6,10 +6,10 @@ logvisor::Module LogModule("urde::DNAFont");
 template <class IDType>
 void FONT<IDType>::_read(athena::io::IStreamReader& __dna_reader) {
   /* magic */
-  atUint32 magic;
-  __dna_reader.readBytesToBuf(&magic, 4);
+  DNAFourCC magic;
+  magic.read(__dna_reader);
   if (magic != SBIG('FONT')) {
-    LogModule.report(logvisor::Fatal, "Invalid FONT magic '%s'", &magic);
+    LogModule.report(logvisor::Fatal, fmt("Invalid FONT magic '{}'"), magic);
     return;
   }
   /* version */

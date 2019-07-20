@@ -14,7 +14,7 @@ void InitializeBadging(specter::ViewResources& viewRes) {
 
   size_t fmt = r.readUint32Big();
   if (fmt != 16)
-    Log.report(logvisor::Fatal, "incorrect icon texture format");
+    Log.report(logvisor::Fatal, fmt("incorrect icon texture format"));
   size_t width = r.readUint16Big();
   size_t height = r.readUint16Big();
   size_t mips = r.readUint32Big();
@@ -24,7 +24,7 @@ void InitializeBadging(specter::ViewResources& viewRes) {
   uLongf destSz = decompSz;
   size_t pos = r.position();
   if (uncompress(texels.get(), &destSz, URDE_BADGE + pos, URDE_BADGE_SZ - pos) != Z_OK)
-    Log.report(logvisor::Fatal, "unable to decompress badge");
+    Log.report(logvisor::Fatal, fmt("unable to decompress badge"));
 
   viewRes.m_factory->commitTransaction([&](boo::IGraphicsDataFactory::Context& ctx) {
     specter::IconAtlas<1, 1> atlas;

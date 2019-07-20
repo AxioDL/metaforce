@@ -23,7 +23,7 @@ struct PhazonHealingNodule : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }

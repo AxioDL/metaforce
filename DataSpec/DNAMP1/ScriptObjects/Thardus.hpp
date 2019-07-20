@@ -38,107 +38,107 @@ struct Thardus : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (models[0]) {
+    if (models[0].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[0]);
       ent->name = name + "_model1";
     }
-    if (models[1]) {
+    if (models[1].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[1]);
       ent->name = name + "_model2";
     }
-    if (models[2]) {
+    if (models[2].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[2]);
       ent->name = name + "_model3";
     }
-    if (models[3]) {
+    if (models[3].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[3]);
       ent->name = name + "_model4";
     }
-    if (models[4]) {
+    if (models[4].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[4]);
       ent->name = name + "_model5";
     }
-    if (models[5]) {
+    if (models[5].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[5]);
       ent->name = name + "_model6";
     }
-    if (models[6]) {
+    if (models[6].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[6]);
       ent->name = name + "_model7";
     }
-    if (models[7]) {
+    if (models[7].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[7]);
       ent->name = name + "_model8";
     }
-    if (models[8]) {
+    if (models[8].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[8]);
       ent->name = name + "_model9";
     }
-    if (models[9]) {
+    if (models[9].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[9]);
       ent->name = name + "_model10";
     }
-    if (models[10]) {
+    if (models[10].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[10]);
       ent->name = name + "_model11";
     }
-    if (models[11]) {
+    if (models[11].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[11]);
       ent->name = name + "_model12";
     }
-    if (models[12]) {
+    if (models[12].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[12]);
       ent->name = name + "_model13";
     }
-    if (models[13]) {
+    if (models[13].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(models[13]);
       ent->name = name + "_model14";
     }
-    if (particles1[0]) {
+    if (particles1[0].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles1[0]);
       ent->name = name + "_part1";
     }
-    if (particles1[1]) {
+    if (particles1[1].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles1[1]);
       ent->name = name + "_part2";
     }
-    if (particles1[2]) {
+    if (particles1[2].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles1[2]);
       ent->name = name + "_part3";
     }
-    if (stateMachine) {
+    if (stateMachine.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(stateMachine);
       ent->name = name + "_fsm";
     }
-    if (particles2[0]) {
+    if (particles2[0].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[0]);
       ent->name = name + "_part4";
     }
-    if (particles2[1]) {
+    if (particles2[1].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[1]);
       ent->name = name + "_part5";
     }
-    if (particles2[2]) {
+    if (particles2[2].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[2]);
       ent->name = name + "_part6";
     }
-    if (particles2[3]) {
+    if (particles2[3].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[3]);
       ent->name = name + "_part7";
     }
-    if (particles2[4]) {
+    if (particles2[4].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[4]);
       ent->name = name + "_part8";
     }
-    if (particles2[5]) {
+    if (particles2[5].isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particles2[5]);
       ent->name = name + "_part9";
     }
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part10";
     }
-    if (texture) {
+    if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }

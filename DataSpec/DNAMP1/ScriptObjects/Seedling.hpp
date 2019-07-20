@@ -28,11 +28,11 @@ struct Seedling : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (unknown1) {
+    if (unknown1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown1);
       ent->name = name + "_unk1";
     }
-    if (unknown2) {
+    if (unknown2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unknown2);
       ent->name = name + "_unk2";
     }

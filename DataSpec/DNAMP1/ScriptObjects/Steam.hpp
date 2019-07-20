@@ -23,7 +23,7 @@ struct Steam : IScriptObject {
   Value<bool> unknown8;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (texture) {
+    if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }

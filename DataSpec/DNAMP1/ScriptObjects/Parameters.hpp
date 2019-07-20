@@ -96,7 +96,7 @@ struct AnimationParameters : BigDNA {
   UniqueID32 getCINF(PAKRouter<PAKBridge>& pakRouter) const;
 
   void nameANCS(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-    if (!animationCharacterSet)
+    if (!animationCharacterSet.isValid())
       return;
     PAK::Entry* ancsEnt = (PAK::Entry*)pakRouter.lookupEntry(animationCharacterSet);
     if (ancsEnt->name.empty())
@@ -182,7 +182,7 @@ struct FlareDefinition : BigDNA {
   Value<atVec4f> unknown4; // CColor
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-    if (texture) {
+    if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }
@@ -278,19 +278,19 @@ struct PatternedInfo : BigDNA {
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
     animationParameters.nameANCS(pakRouter, name + "_animp");
-    if (stateMachine) {
+    if (stateMachine.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(stateMachine);
       ent->name = name + "_fsm";
     }
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (electric) {
+    if (electric.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(electric);
       ent->name = name + "_elsc";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
@@ -331,7 +331,7 @@ struct ScannableParameters : BigDNA {
   UniqueID32 scanId;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-    if (scanId) {
+    if (scanId.isValid()) {
       PAK::Entry* scanEnt = (PAK::Entry*)pakRouter.lookupEntry(scanId);
       scanEnt->name = name + "_scan";
     }
@@ -377,12 +377,12 @@ struct ActorParameters : BigDNA {
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc,
                        const AnimationParameters& animParms) const {
     auto cinf = animParms.getCINF(pakRouter);
-    if (cmdlXray && cskrXray) {
+    if (cmdlXray.isValid() && cskrXray.isValid()) {
       charAssoc.m_cmdlRigs[cmdlXray] = std::make_pair(cskrXray, cinf);
       charAssoc.m_cskrCinfToCharacter[cskrXray] = std::make_pair(animParms.animationCharacterSet, "ATTACH.XRAY.CSKR");
       charAssoc.addAttachmentRig(animParms.animationCharacterSet, {}, cmdlXray, "XRAY");
     }
-    if (cmdlThermal && cskrThermal) {
+    if (cmdlThermal.isValid() && cskrThermal.isValid()) {
       charAssoc.m_cmdlRigs[cmdlThermal] = std::make_pair(cskrThermal, cinf);
       charAssoc.m_cskrCinfToCharacter[cskrThermal] =
           std::make_pair(animParms.animationCharacterSet, "ATTACH.THERMAL.CSKR");
@@ -392,19 +392,19 @@ struct ActorParameters : BigDNA {
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
     scannableParameters.nameIDs(pakRouter, name);
-    if (cmdlXray) {
+    if (cmdlXray.isValid()) {
       PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(cmdlXray);
       xmEnt->name = name + "_xraymodel";
     }
-    if (cskrXray) {
+    if (cskrXray.isValid()) {
       PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(cskrXray);
       xsEnt->name = name + "_xrayskin";
     }
-    if (cmdlThermal) {
+    if (cmdlThermal.isValid()) {
       PAK::Entry* xmEnt = (PAK::Entry*)pakRouter.lookupEntry(cmdlThermal);
       xmEnt->name = name + "_thermalmodel";
     }
-    if (cskrThermal) {
+    if (cskrThermal.isValid()) {
       PAK::Entry* xsEnt = (PAK::Entry*)pakRouter.lookupEntry(cskrThermal);
       xsEnt->name = name + "_thermalskin";
     }
@@ -442,19 +442,19 @@ struct BeamInfo : BigDNA {
   DNAColor outerColor;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-    if (contactFxId) {
+    if (contactFxId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(contactFxId);
       ent->name = name + "_part1";
     }
-    if (pulseFxId) {
+    if (pulseFxId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(pulseFxId);
       ent->name = name + "_part2";
     }
-    if (textureId) {
+    if (textureId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(textureId);
       ent->name = name + "_tex1";
     }
-    if (glowTextureId) {
+    if (glowTextureId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(glowTextureId);
       ent->name = name + "_tex2";
     }

@@ -34,7 +34,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
   FourCC clsId = CPF::GetClassID(in);
 
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('IORN'):
       desc->x0_IORN = CPF::GetVectorElement(in);
       break;
@@ -146,8 +146,7 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
       desc->xb0_FOFF = CPF::GetRealElement(in);
       break;
     default: {
-      uint32_t clsName = clsId.toUint32();
-      Log.report(logvisor::Fatal, "Unknown WPSM class %.4s @%" PRIi64, &clsName, in.position());
+      Log.report(logvisor::Fatal, fmt("Unknown WPSM class {} @{}"), clsId, in.position());
       return false;
     }
     }

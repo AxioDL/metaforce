@@ -38,19 +38,19 @@ struct Flaahgra : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc1) {
+    if (wpsc1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
       ent->name = name + "_wpsc1";
     }
-    if (wpsc2) {
+    if (wpsc2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
       ent->name = name + "_wpsc2";
     }
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }
-    if (dependencyGroup) {
+    if (dependencyGroup.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dependencyGroup);
       ent->name = name + "_dgrp";
     }

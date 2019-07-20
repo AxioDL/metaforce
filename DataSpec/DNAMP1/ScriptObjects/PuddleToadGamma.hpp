@@ -31,7 +31,7 @@ struct PuddleToadGamma : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (dcln) {
+    if (dcln.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dcln);
       ent->name = name + "_dcln";
     }

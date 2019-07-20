@@ -32,7 +32,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
   FourCC clsId = CPF::GetClassID(in);
   while (clsId != SBIG('_END')) {
     CGlobalRandom gr(rand);
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('PSLT'):
       desc->x0_PSLT = CPF::GetIntElement(in);
       break;
@@ -118,8 +118,7 @@ bool CParticleSwooshDataFactory::CreateWPSM(CSwooshDescription* desc, CInputStre
       desc->x45_26_CRND = CPF::GetBool(in);
       break;
     default: {
-      uint32_t clsName = clsId.toUint32();
-      Log.report(logvisor::Fatal, "Unknown SWSH class %.4s @%" PRIi64, &clsName, in.position());
+      Log.report(logvisor::Fatal, fmt("Unknown SWSH class {} @{}"), clsId, in.position());
       return false;
     }
     }

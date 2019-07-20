@@ -26,11 +26,10 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
     float scale = modelScale.magnitude() / std::sqrt(3.f);
 
     ModelData()->SetScale(zeus::CVector3f(scale));
-    zeus::simd_floats scaleF(modelScale.mSimd);
     SpankLog.report(logvisor::Level::Warning,
-                    "WARNING: Non-uniform scale (%.2f, %.2f, %.2f) applied to Spank Weed"
-                    "...changing scale to (%.2f, %.2f, %.2f)\n",
-                    scaleF[0], scaleF[1], scaleF[2], scale, scale, scale);
+                    fmt("WARNING: Non-uniform scale {} applied to Spank Weed"
+                        "...changing scale to ({} {} {})\n"),
+                    modelScale, scale, scale, scale);
   }
   CMaterialList list = GetMaterialFilter().GetExcludeList();
   list.Add(EMaterialTypes::Character);

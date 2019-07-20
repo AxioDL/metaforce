@@ -10,7 +10,7 @@ template <>
 void PAK::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
   atUint32 version = reader.readUint32Big();
   if (version != 0x00030005)
-    Log.report(logvisor::Fatal, "unexpected PAK magic");
+    Log.report(logvisor::Fatal, fmt("unexpected PAK magic"));
   reader.readUint32Big();
 
   atUint32 nameCount = reader.readUint32Big();

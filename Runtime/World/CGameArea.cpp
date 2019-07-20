@@ -251,7 +251,7 @@ std::pair<std::unique_ptr<u8[]>, s32> GetScriptingMemoryAlways(const IGameArea& 
   CMemoryInStream r(data.get() + 4, 96 - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");
+    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
 
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
@@ -1005,8 +1005,9 @@ void CGameArea::PostConstructArea() {
   /* Resolve layer pointers */
   if (x12c_postConstructed->x10c8_sclyBuf) {
     athena::io::MemoryReader r(x12c_postConstructed->x10c8_sclyBuf, x12c_postConstructed->x10d0_sclySize);
-    u32 magic = r.readUint32Big();
-    if (magic == 'SCLY') {
+    hecl::DNAFourCC magic;
+    magic.read(r);
+    if (magic == FOURCC('SCLY')) {
       r.readUint32Big();
       u32 layerCount = r.readUint32Big();
       x12c_postConstructed->x110c_layerPtrs.resize(layerCount);
@@ -1143,7 +1144,7 @@ SMREAHeader CGameArea::VerifyHeader() const {
   CMemoryInStream r(x110_mreaSecBufs[0].first.get() + 4, x110_mreaSecBufs[0].second - 4);
   u32 version = r.readUint32Big();
   if (!(version & 0x10000))
-    Log.report(logvisor::Fatal, "Attempted to load non-URDE MREA");
+    Log.report(logvisor::Fatal, fmt("Attempted to load non-URDE MREA"));
   version &= ~0x10000;
   header.version = (version >= 12 && version <= 15) ? version : 0;
   if (!header.version)

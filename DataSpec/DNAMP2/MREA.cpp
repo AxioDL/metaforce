@@ -13,7 +13,7 @@ namespace DNAMP2 {
 
 void MREA::StreamReader::nextBlock() {
   if (m_nextBlk >= m_blkCount)
-    Log.report(logvisor::Fatal, "MREA stream overrun");
+    Log.report(logvisor::Fatal, fmt("MREA stream overrun"));
 
   BlockInfo& info = m_blockInfos[m_nextBlk++];
 
@@ -86,7 +86,7 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
     target = m_totalDecompLen - diff;
 
   if (target >= m_totalDecompLen)
-    Log.report(logvisor::Fatal, "MREA stream seek overrun");
+    Log.report(logvisor::Fatal, fmt("MREA stream seek overrun"));
 
   /* Determine which block contains position */
   atUint32 dAccum = 0;
@@ -190,13 +190,13 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(
+  os.format(fmt(
       "import bpy\n"
       "import bmesh\n"
       "from mathutils import Vector\n"
       "\n"
-      "bpy.context.scene.name = '%s'\n",
-      pakRouter.getBestEntryName(entry, false).c_str());
+      "bpy.context.scene.name = '{}'\n"),
+      pakRouter.getBestEntryName(entry, false));
   DNACMDL::InitGeomBlenderContext(os, dataSpec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
   os << "# Clear Scene\n"
@@ -237,11 +237,11 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>(
         os, drs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
-    os.format(
-        "obj.retro_disable_enviro_visor = %s\n"
-        "obj.retro_disable_thermal_visor = %s\n"
-        "obj.retro_disable_xray_visor = %s\n"
-        "obj.retro_thermal_level = '%s'\n",
+    os.format(fmt(
+        "obj.retro_disable_enviro_visor = {}\n"
+        "obj.retro_disable_thermal_visor = {}\n"
+        "obj.retro_disable_xray_visor = {}\n"
+        "obj.retro_thermal_level = '{}'\n"),
         mHeader.visorFlags.disableEnviro() ? "True" : "False", mHeader.visorFlags.disableThermal() ? "True" : "False",
         mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
 

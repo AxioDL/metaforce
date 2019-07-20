@@ -7,9 +7,9 @@ namespace DataSpec::DNAMP1 {
 using ANIMOutStream = hecl::blender::ANIMOutStream;
 
 void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANIM::RigInverter<CINF>& rig) const {
-  os.format(
-      "act.hecl_fps = round(%f)\n"
-      "act.hecl_looping = %s\n",
+  os.format(fmt(
+      "act.hecl_fps = round({})\n"
+      "act.hecl_looping = {}\n"),
       (1.0f / mainInterval), looping ? "True" : "False");
 
   auto kit = chanKeys.begin();
@@ -26,7 +26,7 @@ void ANIM::IANIM::sendANIMToBlender(hecl::blender::PyOutStream& os, const DNAANI
       continue;
     }
 
-    os.format("bone_string = '%s'\n", bName->c_str());
+    os.format(fmt("bone_string = '{}'\n"), *bName);
     os << "action_group = act.groups.new(bone_string)\n"
           "\n"
           "rotCurves = []\n"
@@ -111,7 +111,7 @@ UniqueID32 ANIM::GetEVNTId(athena::io::IStreamReader& reader) {
     reader.seek(4);
     return reader.readUint32Big();
   default:
-    Log.report(logvisor::Error, "unrecognized ANIM version");
+    Log.report(logvisor::Error, fmt("unrecognized ANIM version"));
     break;
   }
   return {};
@@ -134,7 +134,7 @@ void ANIM::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
     m_anim->read(reader);
     break;
   default:
-    Log.report(logvisor::Error, "unrecognized ANIM version");
+    Log.report(logvisor::Error, fmt("unrecognized ANIM version"));
     break;
   }
 }
@@ -559,7 +559,7 @@ ANIM::ANIM(const BlenderAction& act, const std::unordered_map<std::string, atInt
   for (const BlenderAction::Channel& chan : act.channels) {
     auto search = idMap.find(chan.boneName);
     if (search == idMap.cend()) {
-      Log.report(logvisor::Warning, "unable to find id for bone '%s'", chan.boneName.c_str());
+      Log.report(logvisor::Warning, fmt("unable to find id for bone '{}'"), chan.boneName);
       continue;
     }
     if (addedBones.find(search->second) != addedBones.cend())

@@ -28,11 +28,11 @@ struct Debris : IScriptObject {
   Value<bool> active;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }

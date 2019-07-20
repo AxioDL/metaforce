@@ -59,13 +59,13 @@ template <>
 void STRG::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
   atUint32 magic = reader.readUint32Big();
   if (magic != 0x87654321) {
-    Log.report(logvisor::Error, "invalid STRG magic");
+    Log.report(logvisor::Error, fmt("invalid STRG magic"));
     return;
   }
 
   atUint32 version = reader.readUint32Big();
   if (version != 3) {
-    Log.report(logvisor::Error, "invalid STRG version");
+    Log.report(logvisor::Error, fmt("invalid STRG version"));
     return;
   }
 
@@ -82,24 +82,22 @@ void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
       if (!lang.first.compare("names"))
         continue;
       if (lang.first.size() != 4) {
-        Log.report(logvisor::Warning, "STRG language string '%s' must be exactly 4 characters; skipping",
-                   lang.first.c_str());
+        Log.report(logvisor::Warning, fmt("STRG language string '{}' must be exactly 4 characters; skipping"), lang.first);
         return;
       }
       if (lang.second->m_type != YAML_SEQUENCE_NODE) {
-        Log.report(logvisor::Warning, "STRG language string '%s' must contain a sequence; skipping",
-                   lang.first.c_str());
+        Log.report(logvisor::Warning, fmt("STRG language string '{}' must contain a sequence; skipping"), lang.first);
         return;
       }
       for (const auto& str : lang.second->m_seqChildren) {
         if (str->m_type != YAML_SCALAR_NODE) {
-          Log.report(logvisor::Warning, "STRG language '%s' must contain all scalars; skipping", lang.first.c_str());
+          Log.report(logvisor::Warning, fmt("STRG language '{}' must contain all scalars; skipping"), lang.first);
           return;
         }
       }
     }
   } else {
-    Log.report(logvisor::Warning, "STRG must have a mapping root node; skipping");
+    Log.report(logvisor::Warning, fmt("STRG must have a mapping root node; skipping"));
     return;
   }
 

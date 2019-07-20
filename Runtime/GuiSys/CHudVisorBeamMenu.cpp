@@ -46,15 +46,15 @@ CHudVisorBeamMenu::CHudVisorBeamMenu(CGuiFrame& baseHud, EHudVisorBeamMenu type,
   x1c_basewidget_menutitle = x0_baseHud.FindWidget(BaseTitleNames[int(swappedType)]);
   x18_basewidget_menu = x0_baseHud.FindWidget(BaseMenuNames[int(swappedType)]);
 
-  x24_model_ghost = static_cast<CGuiModel*>(x0_baseHud.FindWidget(hecl::Format("%sghost", ModelNames[int(x4_type)])));
+  x24_model_ghost = static_cast<CGuiModel*>(x0_baseHud.FindWidget(fmt::format(fmt("{}ghost"), ModelNames[int(x4_type)])));
 
   x28_menuItems.resize(4);
   for (int i = 0; i < 4; ++i) {
     SMenuItem& item = x28_menuItems[i];
     item.x0_model_loz = static_cast<CGuiModel*>(
-        x0_baseHud.FindWidget(hecl::Format("%sloz%c", ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
+        x0_baseHud.FindWidget(fmt::format(fmt("{}loz{}"), ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
     item.x4_model_icon = static_cast<CGuiModel*>(
-        x0_baseHud.FindWidget(hecl::Format("%sicon%c", ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
+        x0_baseHud.FindWidget(fmt::format(fmt("{}icon{}"), ModelNames[int(x4_type)], MenuItemOrders[int(x4_type)][i])));
     item.xc_opacity = enables[i] ? 1.f : 0.f;
   }
 

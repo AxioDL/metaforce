@@ -35,15 +35,15 @@ struct AtomicBeta : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }
-    if (wpsc) {
+    if (wpsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }
-    if (part) {
+    if (part.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part);
       ent->name = name + "_part";
     }

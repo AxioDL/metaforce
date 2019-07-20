@@ -180,7 +180,7 @@ struct ANCS : BigDNA {
       chOut.cskr = ci.cskr;
       chOut.cinf = ci.cinf;
 
-      if (ci.cmdlIce)
+      if (ci.cmdlIce.isValid())
         chOut.overlays.emplace_back("ICE", std::make_pair(ci.cmdlIce, ci.cskrIce));
     }
   }

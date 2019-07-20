@@ -4,16 +4,16 @@ namespace DataSpec::DNAParticle {
 
 template <class IDType>
 void ELSM<IDType>::_read(athena::io::IStreamReader& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
+  DNAFourCC clsId;
+  clsId.read(r);
   if (clsId != SBIG('ELSM')) {
-    LogModule.report(logvisor::Warning, "non ELSM provided to ELSM parser");
+    LogModule.report(logvisor::Warning, fmt("non ELSM provided to ELSM parser"));
     return;
   }
 
-  r.readBytesToBuf(&clsId, 4);
+  clsId.read(r);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('LIFE'):
       x0_LIFE.read(r);
       break;
@@ -75,10 +75,10 @@ void ELSM<IDType>::_read(athena::io::IStreamReader& r) {
       x70_ZERY.read(r);
       break;
     default:
-      LogModule.report(logvisor::Fatal, "Unknown ELSM class %.4s @%" PRIi64, &clsId, r.position());
+      LogModule.report(logvisor::Fatal, fmt("Unknown ELSM class {} @{}"), clsId, r.position());
       break;
     }
-    r.readBytesToBuf(&clsId, 4);
+    clsId.read(r);
   }
 }
 
@@ -257,7 +257,7 @@ template <class IDType>
 void ELSM<IDType>::_read(athena::io::YAMLDocReader& r) {
   for (const auto& elem : r.getCurNode()->m_mapChildren) {
     if (elem.first.size() < 4) {
-      LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+      LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), elem.first);
       continue;
     }
 

@@ -53,19 +53,19 @@ struct WallCrawlerSwarm : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (part1) {
+    if (part1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part1);
       ent->name = name + "_part1";
     }
-    if (part2) {
+    if (part2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part2);
       ent->name = name + "_part2";
     }
-    if (part3) {
+    if (part3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part3);
       ent->name = name + "_part3";
     }
-    if (part4) {
+    if (part4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part4);
       ent->name = name + "_part4";
     }

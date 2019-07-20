@@ -262,10 +262,10 @@ void DeafBabe::insertNoClimb(hecl::blender::PyOutStream& os) const {
     if (edgeIdx == -1)
       continue;
     const Edge& edge = edgeVertConnections[edgeIdx];
-    os.format(
-        "edge = col_bm.edges.get((col_bm.verts[%u], col_bm.verts[%u]))\n"
+    os.format(fmt(
+        "edge = col_bm.edges.get((col_bm.verts[{}], col_bm.verts[{}]))\n"
         "if edge:\n"
-        "    edge.seam = True\n",
+        "    edge.seam = True\n"),
         edge.verts[0], edge.verts[1]);
   }
 }

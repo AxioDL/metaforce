@@ -33,11 +33,11 @@ struct Pickup : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (pickupParticle) {
+    if (pickupParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(pickupParticle);
       ent->name = name + "_part";
     }
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }

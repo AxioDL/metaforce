@@ -57,64 +57,64 @@ struct OmegaPirate : IScriptObject {
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters1.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     actorParameters2.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
-    if (cmdlPhazonVeins && cskrPhazonVeins && cinfPhazonVeins) {
+    if (cmdlPhazonVeins.isValid() && cskrPhazonVeins.isValid() && cinfPhazonVeins.isValid()) {
       charAssoc.m_cmdlRigs[cmdlPhazonVeins] = std::make_pair(cskrPhazonVeins, cinfPhazonVeins);
       charAssoc.m_cskrCinfToCharacter[cskrPhazonVeins] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet, "ATTACH.VEINS.CSKR");
       charAssoc.m_cskrCinfToCharacter[cinfPhazonVeins] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
-                         hecl::Format("CINF_%08X.CINF", cinfPhazonVeins.toUint32()));
+                         fmt::format(fmt("CINF_{}.CINF"), cinfPhazonVeins));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, cinfPhazonVeins,
                                  cmdlPhazonVeins, "VEINS");
     }
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
-    if (particle3) {
+    if (particle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
       ent->name = name + "_part3";
     }
-    if (particle4) {
+    if (particle4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
       ent->name = name + "_part4";
     }
-    if (particle5) {
+    if (particle5.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
       ent->name = name + "_part5";
     }
-    if (particle6) {
+    if (particle6.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
       ent->name = name + "_part6";
     }
-    if (particle7) {
+    if (particle7.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
       ent->name = name + "_part7";
     }
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }
-    if (model1) {
+    if (model1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
       ent->name = name + "_model1";
     }
-    if (cmdlPhazonVeins) {
+    if (cmdlPhazonVeins.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cmdlPhazonVeins);
       ent->name = name + "_model2";
     }
-    if (cskrPhazonVeins) {
+    if (cskrPhazonVeins.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cskrPhazonVeins);
       ent->name = name + "_skin";
     }
-    if (cinfPhazonVeins) {
+    if (cinfPhazonVeins.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(cinfPhazonVeins);
       ent->name = name + "_rig";
     }

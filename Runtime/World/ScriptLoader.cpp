@@ -132,7 +132,7 @@ static const SObjectTag& GetMorphballDoorACS() {
 
 static bool EnsurePropertyCount(int count, int expected, const char* structName) {
   if (count < expected) {
-    Log.report(logvisor::Warning, "Insufficient number of props (%d/%d) for %s entity", count, expected, structName);
+    Log.report(logvisor::Warning, fmt("Insufficient number of props ({}/{}) for {} entity"), count, expected, structName);
     return false;
   }
   return true;
@@ -259,11 +259,11 @@ CActorParameters ScriptLoader::LoadActorParameters(CInputStream& in) {
       thermalMag = in.readFloatBig();
 
     std::pair<CAssetId, CAssetId> xray = {};
-    if (g_ResFactory->GetResourceTypeById(xrayModel))
+    if (g_ResFactory->GetResourceTypeById(xrayModel).IsValid())
       xray = {xrayModel, xraySkin};
 
     std::pair<CAssetId, CAssetId> infra = {};
-    if (g_ResFactory->GetResourceTypeById(infraModel))
+    if (g_ResFactory->GetResourceTypeById(infraModel).IsValid())
       infra = {infraModel, infraSkin};
 
     return CActorParameters(lParms, sParams, xray, infra, vParms, globalTimeProvider, thermalHeat, renderUnsorted,
@@ -420,7 +420,7 @@ CEntity* ScriptLoader::LoadActor(CStateManager& mgr, CInputStream& in, int propC
   bool materialFlag54 = in.readBool();
 
   FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
-  if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
+  if (!g_ResFactory->GetResourceTypeById(staticId).IsValid() && !animType.IsValid())
     return nullptr;
 
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, centroid);
@@ -493,7 +493,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
 
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, offset);
 
-  if (!g_ResFactory->GetResourceTypeById(aParms.GetACSFile()))
+  if (!g_ResFactory->GetResourceTypeById(aParms.GetACSFile()).IsValid())
     return nullptr;
 
   CModelData mData = CAnimRes(aParms.GetACSFile(), aParms.GetCharacter(), head.x40_scale, 0, false);
@@ -584,7 +584,7 @@ CEntity* ScriptLoader::LoadEffect(CStateManager& mgr, CInputStream& in, int prop
   if (!partId.IsValid() && !elscId.IsValid())
     return nullptr;
 
-  if (!g_ResFactory->GetResourceTypeById(partId) && !g_ResFactory->GetResourceTypeById(elscId))
+  if (!g_ResFactory->GetResourceTypeById(partId).IsValid() && !g_ResFactory->GetResourceTypeById(elscId).IsValid())
     return nullptr;
 
   bool useRateInverseCamDist = in.readBool();
@@ -643,14 +643,14 @@ CEntity* ScriptLoader::LoadPlatform(CStateManager& mgr, CInputStream& in, int pr
   u32 rainGenRate = in.readUint32Big();
 
   FourCC animType = g_ResFactory->GetResourceTypeById(aParms.GetACSFile());
-  if (!g_ResFactory->GetResourceTypeById(staticId) && !animType)
+  if (!g_ResFactory->GetResourceTypeById(staticId).IsValid() && !animType.IsValid())
     return nullptr;
 
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), extent, centroid);
 
   FourCC dclnType = g_ResFactory->GetResourceTypeById(dclnId);
   std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>> dclnToken;
-  if (dclnType) {
+  if (dclnType.IsValid()) {
     dclnToken.emplace(g_SimplePool->GetObj({SBIG('DCLN'), dclnId}));
     dclnToken->GetObj();
   }
@@ -846,7 +846,7 @@ CEntity* ScriptLoader::LoadSpawnPoint(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadCameraHint(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (propCount > 25) {
-    Log.report(logvisor::Warning, "Too many props (%d > 25) for CameraHint entity", propCount);
+    Log.report(logvisor::Warning, fmt("Too many props ({} > 25) for CameraHint entity"), propCount);
     return nullptr;
   }
 
@@ -1141,7 +1141,7 @@ CEntity* ScriptLoader::LoadDebris(CStateManager& mgr, CInputStream& in, int prop
   bool b1 = in.readBool();
   bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(model))
+  if (!g_ResFactory->GetResourceTypeById(model).IsValid())
     return nullptr;
   return new CScriptDebris(mgr.AllocateUniqueId(), head.x0_name, info, head.x10_transform,
                            CStaticRes(model, head.x40_scale), aParams, particleId, particleScale, zImpulse, velocity,
@@ -1346,8 +1346,8 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
 
   if (animParms.GetCharacter() == 0) {
-    Log.report(logvisor::Warning, "SpacePirate <%s> has AnimationInformation property with invalid character selected",
-               head.x0_name.c_str());
+    Log.report(logvisor::Warning, fmt("SpacePirate <{}> has AnimationInformation property with invalid character selected"),
+               head.x0_name);
     animParms.SetCharacter(2);
   }
 
@@ -1572,7 +1572,7 @@ CEntity* ScriptLoader::LoadFlickerBat(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadPathCamera(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (propCount > 15) {
-    Log.report(logvisor::Warning, "Too many props (%d > 15) for PathCamera entity", propCount);
+    Log.report(logvisor::Warning, fmt("Too many props ({} > 15) for PathCamera entity"), propCount);
     return nullptr;
   }
 
@@ -2039,7 +2039,7 @@ CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, 
   bool active = in.readBool();
 
   CModelData modelData;
-  if (g_ResFactory->GetResourceTypeById(model))
+  if (g_ResFactory->GetResourceTypeById(model).IsValid())
     modelData = CModelData(CStaticRes(model, aHead.x40_scale));
 
   return new CScriptDebris(mgr.AllocateUniqueId(), aHead.x0_name, info, aHead.x10_transform, std::move(modelData),
@@ -2161,7 +2161,7 @@ CEntity* ScriptLoader::LoadPlayerActor(CStateManager& mgr, CInputStream& in, int
   CPlayerState::EBeamId beam = CPlayerState::EBeamId(in.readUint32Big() - 1);
 
   FourCC fcc = g_ResFactory->GetResourceTypeById(animParms.GetACSFile());
-  if (!fcc || fcc != SBIG('ANCS'))
+  if (!fcc.IsValid() || fcc != SBIG('ANCS'))
     return nullptr;
 
   zeus::CAABox aabox = GetCollisionBox(mgr, info.GetAreaId(), extents, offset);
@@ -2256,7 +2256,7 @@ CEntity* ScriptLoader::LoadFishCloud(CStateManager& mgr, CInputStream& in, int p
   float containmentRadius = in.readFloatBig();
   u32 updateShift = in.readUint32Big();
 
-  if (!g_ResFactory->GetResourceTypeById(model))
+  if (!g_ResFactory->GetResourceTypeById(model).IsValid())
     return nullptr;
 
   zeus::CColor color = zeus::CColor::ReadRGBABig(in);
@@ -2327,7 +2327,7 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
 CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
   if (propCount < 4 || propCount > 21) {
-    Log.report(logvisor::Warning, "Incorrect number of props for WorldTeleporter");
+    Log.report(logvisor::Warning, fmt("Incorrect number of props for WorldTeleporter"));
     return nullptr;
   }
 
@@ -2699,7 +2699,7 @@ CEntity* ScriptLoader::LoadGunTurret(CStateManager& mgr, CInputStream& in, int p
   CDamageVulnerability dVuln(in);
   CScriptGunTurretData turretData(in, propCount);
 
-  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()))
+  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()).IsValid())
     return nullptr;
 
   CModelData mData(
@@ -2956,7 +2956,7 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
   CDamageInfo dInfo(in);
   bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(animParams.GetACSFile()))
+  if (!g_ResFactory->GetResourceTypeById(animParams.GetACSFile()).IsValid())
     return nullptr;
 
   zeus::CAABox aabb = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOrigin);
@@ -3145,7 +3145,7 @@ CEntity* ScriptLoader::LoadAmbientAI(CStateManager& mgr, CInputStream& in, int p
   s32 impactAnim = in.readInt32Big();
   bool active = in.readBool();
 
-  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()))
+  if (!g_ResFactory->GetResourceTypeById(animParms.GetACSFile()).IsValid())
     return nullptr;
 
   zeus::CAABox aabox = GetCollisionBox(mgr, info.GetAreaId(), collisionExtent, collisionOffset);
@@ -3390,7 +3390,7 @@ CEntity* ScriptLoader::LoadBeam(CStateManager& mgr, CInputStream& in, int propCo
   SActorHead aHead = LoadActorHead(in, mgr);
   bool active = in.readBool();
   u32 weaponDescId = in.readUint32Big();
-  if (!g_ResFactory->GetResourceTypeById(weaponDescId))
+  if (!g_ResFactory->GetResourceTypeById(weaponDescId).IsValid())
     return nullptr;
 
   CBeamInfo beamInfo(in);

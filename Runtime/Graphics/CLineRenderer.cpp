@@ -21,7 +21,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
                              const boo::ObjToken<boo::ITexture>& texture, bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts) {
   if (maxVerts < 2) {
-    LineRendererLog.report(logvisor::Fatal, _SYS_STR("maxVerts < 2, maxVerts = %i"), maxVerts);
+    LineRendererLog.report(logvisor::Fatal, fmt(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
   }
   m_textured = texture;
@@ -51,7 +51,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
                              bool additive, bool zTest, bool zGEqual)
 : m_mode(mode), m_maxVerts(maxVerts) {
   if (maxVerts < 2) {
-    LineRendererLog.report(logvisor::Fatal, _SYS_STR("maxVerts < 2, maxVerts = %i"), maxVerts);
+    LineRendererLog.report(logvisor::Fatal, fmt(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
   }
   m_textured = texture;

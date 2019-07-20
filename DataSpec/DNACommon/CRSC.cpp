@@ -49,7 +49,7 @@ template <class IDType>
 void CRSM<IDType>::_read(athena::io::YAMLDocReader& r) {
   for (const auto& elem : r.getCurNode()->m_mapChildren) {
     if (elem.first.size() < 4) {
-      LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+      LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), elem.first);
       continue;
     }
 
@@ -134,15 +134,15 @@ void CRSM<IDType>::_binarySize(size_t& __isz) const {
 
 template <class IDType>
 void CRSM<IDType>::_read(athena::io::IStreamReader& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
+  DNAFourCC clsId;
+  clsId.read(r);
   if (clsId != SBIG('CRSM')) {
-    LogModule.report(logvisor::Warning, "non CRSM provided to CRSM parser");
+    LogModule.report(logvisor::Warning, fmt("non CRSM provided to CRSM parser"));
     return;
   }
 
   while (clsId != SBIG('_END')) {
-    r.readBytesToBuf(&clsId, 4);
+    clsId.read(r);
     auto gen = std::find_if(GeneratorTypes.begin(), GeneratorTypes.end(),
                             [&clsId](const FourCC& other) -> bool { return clsId == other; });
     if (gen != GeneratorTypes.end()) {
@@ -153,8 +153,8 @@ void CRSM<IDType>::_read(athena::io::IStreamReader& r) {
     auto sfx = std::find_if(SFXTypes.begin(), SFXTypes.end(),
                             [&clsId](const FourCC& other) -> bool { return clsId == other; });
     if (sfx != SFXTypes.end()) {
-      uint32_t fcc;
-      r.readBytesToBuf(&fcc, 4);
+      DNAFourCC fcc;
+      fcc.read(r);
       if (fcc != SBIG('NONE'))
         x10_sfx[clsId] = r.readInt32Big();
       else
@@ -179,7 +179,7 @@ void CRSM<IDType>::_read(athena::io::IStreamReader& r) {
       continue;
     }
     if (clsId != SBIG('_END'))
-      LogModule.report(logvisor::Fatal, "Unknown CRSM class %.4s @%" PRIi64, &clsId, r.position());
+      LogModule.report(logvisor::Fatal, fmt("Unknown CRSM class {} @{}"), clsId, r.position());
   }
 }
 

@@ -41,7 +41,7 @@ public:
     ComboXferDone,
     ComboFire,
     ComboFireDone,
-    ChargeCancelled,
+    ChargeCooldown,
     ChargeDone
   };
   enum class ENextState {
@@ -148,7 +148,7 @@ private:
   EPhazonBeamState x33c_phazonBeamState = EPhazonBeamState::Inactive;
   float x340_chargeBeamFactor = 0.f;
   float x344_comboXferTimer = 0.f;
-  float x348_chargeCancelTimer = 0.f;
+  float x348_chargeCooldownTimer = 0.f;
   float x34c_shakeX = 0.f;
   float x350_shakeZ = 0.f;
   float x354_bombFuseTime;
@@ -220,7 +220,7 @@ private:
 
   union {
     struct {
-      bool x832_24_cancellingCharge : 1;
+      bool x832_24_coolingCharge : 1;
       bool x832_25_chargeEffectVisible : 1;
       bool x832_26_comboFiring : 1;
       bool x832_27_chargeAnimStarted : 1;

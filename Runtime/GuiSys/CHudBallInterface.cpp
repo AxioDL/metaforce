@@ -17,7 +17,7 @@ CHudBallInterface::CHudBallInterface(CGuiFrame& selHud, int pbAmount, int pbCapa
   xc_model_bombicon = static_cast<CGuiModel*>(selHud.FindWidget("model_bombicon"));
   x10_textpane_bombdigits = static_cast<CGuiTextPane*>(selHud.FindWidget("textpane_bombdigits"));
   for (int i = 0; i < 3; ++i) {
-    CGuiGroup* grp = static_cast<CGuiGroup*>(selHud.FindWidget(hecl::Format("group_bombcount%d", i).c_str()));
+    CGuiGroup* grp = static_cast<CGuiGroup*>(selHud.FindWidget(fmt::format(fmt("group_bombcount{}"), i).c_str()));
     CGuiWidget* filled = grp->GetWorkerWidget(1);
     CGuiWidget* empty = grp->GetWorkerWidget(0);
     x14_group_bombfilled.push_back(filled);
@@ -64,7 +64,7 @@ void CHudBallInterface::UpdatePowerBombReadoutColors() {
 void CHudBallInterface::SetBombParams(int pbAmount, int pbCapacity, int availableBombs, bool hasBombs, bool hasPb,
                                       bool init) {
   if (pbAmount != x40_pbAmount || init) {
-    x10_textpane_bombdigits->TextSupport().SetText(hecl::Format("%02d", pbAmount));
+    x10_textpane_bombdigits->TextSupport().SetText(fmt::format(fmt("{:02d}"), pbAmount));
     x40_pbAmount = pbAmount;
     UpdatePowerBombReadoutColors();
   }

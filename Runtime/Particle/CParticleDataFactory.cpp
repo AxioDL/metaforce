@@ -17,7 +17,7 @@ s32 CParticleDataFactory::GetInt(CInputStream& in) { return in.readInt32Big(); }
 bool CParticleDataFactory::GetBool(CInputStream& in) {
   FourCC cid = GetClassID(in);
   if (cid != FOURCC('CNST'))
-    Log.report(logvisor::Fatal, "bool element does not begin with CNST");
+    Log.report(logvisor::Fatal, fmt("bool element does not begin with CNST"));
   return in.readBool();
 }
 
@@ -77,7 +77,7 @@ SElectricGeneratorDesc CParticleDataFactory::GetElectricGeneratorDesc(CInputStre
 
 std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream& in, CSimplePool* resPool) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('CNST'): {
     FourCC subId = GetClassID(in);
     if (subId == SBIG('NONE'))
@@ -109,7 +109,7 @@ std::unique_ptr<CUVElement> CParticleDataFactory::GetTextureElement(CInputStream
 
 std::unique_ptr<CColorElement> CParticleDataFactory::GetColorElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('KEYE'):
   case SBIG('KEYP'): {
     return std::make_unique<CCEKeyframeEmitter>(in);
@@ -167,7 +167,7 @@ std::unique_ptr<CColorElement> CParticleDataFactory::GetColorElement(CInputStrea
 
 std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('IMPL'): {
     auto a = GetVectorElement(in);
     auto b = GetRealElement(in);
@@ -261,7 +261,7 @@ std::unique_ptr<CModVectorElement> CParticleDataFactory::GetModVectorElement(CIn
 
 std::unique_ptr<CEmitterElement> CParticleDataFactory::GetEmitterElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('SETR'): {
     FourCC prop = GetClassID(in);
     if (prop == SBIG('ILOC')) {
@@ -304,7 +304,7 @@ std::unique_ptr<CEmitterElement> CParticleDataFactory::GetEmitterElement(CInputS
 
 std::unique_ptr<CVectorElement> CParticleDataFactory::GetVectorElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('CONE'): {
     auto a = GetVectorElement(in);
     auto b = GetRealElement(in);
@@ -416,7 +416,7 @@ std::unique_ptr<CVectorElement> CParticleDataFactory::GetVectorElement(CInputStr
 
 std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('LFTW'): {
     auto a = GetRealElement(in);
     auto b = GetRealElement(in);
@@ -599,7 +599,7 @@ std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream&
 
 std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& in) {
   FourCC clsId = GetClassID(in);
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('KEYE'):
   case SBIG('KEYP'): {
     return std::make_unique<CIEKeyframeEmitter>(in);
@@ -722,7 +722,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
   CGlobalRandom gr(rand);
   FourCC clsId = GetClassID(in);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('PMCL'):
       fillDesc->x78_x64_PMCL = GetColorElement(in);
       break;
@@ -976,8 +976,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       fillDesc->xec_xd8_SELC = GetElectricGeneratorDesc(in, resPool);
       break;
     default: {
-      uint32_t clsName = clsId.toUint32();
-      Log.report(logvisor::Fatal, "Unknown GPSM class %.4s @%" PRIi64, &clsName, in.position());
+      Log.report(logvisor::Fatal, fmt("Unknown GPSM class {} @{}"), clsId, in.position());
       return false;
     }
     }
@@ -991,7 +990,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       return true;
 
     while (clsId != SBIG('_END') && !in.atEnd()) {
-      switch (clsId) {
+      switch (clsId.toUint32()) {
       case SBIG('BGCL'):
         fillDesc->m_bevelGradient = GetColorElement(in);
         break;

@@ -33,11 +33,11 @@ struct Platform : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (dcln) {
+    if (dcln.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(dcln);
       ent->name = name + "_dcln";
     }
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }

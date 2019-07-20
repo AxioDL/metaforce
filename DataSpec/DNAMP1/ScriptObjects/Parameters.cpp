@@ -4,7 +4,7 @@
 namespace DataSpec::DNAMP1 {
 
 UniqueID32 AnimationParameters::getCINF(PAKRouter<PAKBridge>& pakRouter) const {
-  if (!animationCharacterSet)
+  if (!animationCharacterSet.isValid())
     return UniqueID32();
   const nod::Node* node;
   const PAK::Entry* ancsEnt = pakRouter.lookupEntry(animationCharacterSet, &node);

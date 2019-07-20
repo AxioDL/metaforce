@@ -39,15 +39,15 @@ struct WorldTeleporter : IScriptObject {
   Value<float> unknown16;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model1) {
+    if (model1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
       ent->name = name + "_model1";
     }
-    if (model2) {
+    if (model2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
       ent->name = name + "_model2";
     }
-    if (strg) {
+    if (strg.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(strg);
       ent->name = name + "_strg";
     }

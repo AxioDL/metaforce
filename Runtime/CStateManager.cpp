@@ -1161,8 +1161,8 @@ void CStateManager::RecursiveDrawTree(TUniqueId node) const {
 void CStateManager::SendScriptMsg(CEntity* dest, TUniqueId src, EScriptObjectMessage msg) {
   if (dest && !dest->x30_26_scriptingBlocked) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X", ScriptObjectMessageToStr(msg).data(),
-                       dest->GetName().data(), dest->GetUniqueId().id);
+      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+                       dest->GetName(), dest->GetUniqueId());
     dest->AcceptScriptMsg(msg, src, *this);
   }
 }
@@ -1176,8 +1176,8 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
   CEntity* dst = ObjectById(dest);
   if (dst) {
     if (sm_logScripting && sm_logScripting->toBoolean())
-      LogModule.report(logvisor::Info, "Sending '%s' to '%s' id= 0x%.4X", ScriptObjectMessageToStr(msg).data(),
-                       dst->GetName().data(), dst->GetUniqueId().id);
+      LogModule.report(logvisor::Info, fmt("Sending '{}' to '{}' id= {}"), ScriptObjectMessageToStr(msg),
+                       dst->GetName(), dst->GetUniqueId());
     dst->AcceptScriptMsg(msg, src, *this);
   }
 }
@@ -1232,7 +1232,7 @@ void CStateManager::FreeScriptObject(TUniqueId id) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, "Removed '%s'", ent->GetName().data());
+    LogModule.report(logvisor::Info, fmt("Removed '{}'"), ent->GetName());
 }
 
 std::pair<const SScriptObjectStream*, TEditorId> CStateManager::GetBuildForScript(TEditorId id) const {
@@ -1323,13 +1323,13 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   u32 readAmt = in.position() - startPos;
   if (readAmt > length)
-    LogModule.report(logvisor::Fatal, "Script object overread while reading %s", ScriptObjectTypeToStr(type).data());
+    LogModule.report(logvisor::Fatal, fmt("Script object overread while reading {}"), ScriptObjectTypeToStr(type));
   u32 leftover = length - readAmt;
   for (u32 i = 0; i < leftover; ++i)
     in.readByte();
 
   if (error || ent == nullptr) {
-    LogModule.report(logvisor::Error, "Script load error while loading %s", ScriptObjectTypeToStr(type).data());
+    LogModule.report(logvisor::Error, fmt("Script load error while loading {}"), ScriptObjectTypeToStr(type));
     return {kInvalidEditorId, kInvalidUniqueId};
   } else
     return {id, ent->GetUniqueId()};
@@ -2407,7 +2407,7 @@ void CStateManager::AddObject(CEntity& ent) {
   }
 
   if (sm_logScripting && sm_logScripting->toBoolean())
-    LogModule.report(logvisor::Info, "Added '%s'", ent.GetName().data());
+    LogModule.report(logvisor::Info, fmt("Added '{}'"), ent.GetName());
 }
 
 void CStateManager::AddObject(CEntity* ent) {
@@ -2452,7 +2452,7 @@ TUniqueId CStateManager::AllocateUniqueId() {
     ourIndex = x0_nextFreeIndex;
     x0_nextFreeIndex = (x0_nextFreeIndex + 1) & 0x3ff;
     if (x0_nextFreeIndex == lastIndex)
-      LogModule.report(logvisor::Fatal, "Object List Full!");
+      LogModule.report(logvisor::Fatal, fmt("Object List Full!"));
   } while (GetAllObjectList().GetObjectByIndex(ourIndex) != nullptr);
 
   x8_idArr[ourIndex] = (x8_idArr[ourIndex] + 1) & 0x3f;

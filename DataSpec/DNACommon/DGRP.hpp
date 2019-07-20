@@ -15,7 +15,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) DGRP : Bi
     Value<IDType> id;
 
     bool validate() const {
-      if (!id.operator bool())
+      if (!id.isValid())
         return false;
       hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(id);
       return path && !path.isNone();

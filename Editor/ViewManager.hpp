@@ -41,7 +41,7 @@ class ViewManager final : public specter::IViewManager {
   specter::FontCache m_fontCache;
   specter::DefaultThemeData m_themeData;
   specter::ViewResources m_viewResources;
-  specter::Translator m_translator;
+  locale::ELocale m_locale = locale::ELocale::en_US;
   boo::IGraphicsDataFactory* m_mainBooFactory = nullptr;
   boo::IGraphicsCommandQueue* m_mainCommandQueue = nullptr;
   std::unique_ptr<hecl::PipelineConverterBase> m_pipelineConv;
@@ -166,7 +166,7 @@ public:
 
   ProjectManager& projectManager() { return m_projManager; }
   hecl::Database::Project* project() { return m_projManager.project(); }
-  const specter::Translator* getTranslator() const { return &m_translator; }
+  locale::ELocale getTranslatorLocale() const { return m_locale; }
 
   void deferSpaceSplit(specter::ISpaceController* split, specter::SplitView::Axis axis, int thisSlot,
                        const boo::SWindowCoord& coord) {

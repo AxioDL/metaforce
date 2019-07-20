@@ -211,7 +211,7 @@ void CHudMissileInterface::SetChargeBeamFactor(float t) { x4c_chargeBeamFactor =
 void CHudMissileInterface::SetNumMissiles(int numMissiles, const CStateManager& mgr) {
   numMissiles = zeus::clamp(0, numMissiles, 999);
 
-  x60_textpane_missiledigits->TextSupport().SetText(hecl::Format("%3d", numMissiles));
+  x60_textpane_missiledigits->TextSupport().SetText(fmt::format(fmt("{:3d}"), numMissiles));
 
   if (x8_numMissles < numMissiles) {
     xc_arrowTimer = g_tweakGui->GetMissileArrowVisTime();

@@ -8,7 +8,7 @@ namespace urde {
 #if DUMP_BITS
 static void PrintBinary(u32 val, u32 count) {
   for (int i = 0; i < count; ++i) {
-    printf("%d", (val >> (count - i - 1)) & 0x1);
+    fmt::print(fmt("{}"), (val >> (count - i - 1)) & 0x1);
   }
 }
 #endif

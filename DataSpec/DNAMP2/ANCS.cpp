@@ -81,7 +81,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::Write>(typename Write:
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;
@@ -159,7 +159,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::BinarySize>(typename B
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;
@@ -292,7 +292,7 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(typename Wr
     sectionCount = 6;
   else if (animIdxs.size())
     sectionCount = 5;
-  else if (cmdlIce)
+  else if (cmdlIce.isValid())
     sectionCount = 4;
   else if (effects.size())
     sectionCount = 3;

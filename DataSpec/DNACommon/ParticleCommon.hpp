@@ -803,7 +803,7 @@ struct ChildResourceFactory : BigDNA {
   IDType id;
   AT_DECL_EXPLICIT_DNA_YAML
   AT_SUBDECL_DNA
-  operator bool() const { return id.operator bool(); }
+  operator bool() const { return id.isValid(); }
 };
 
 } // namespace DataSpec::DNAParticle

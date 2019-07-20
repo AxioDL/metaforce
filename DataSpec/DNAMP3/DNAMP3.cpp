@@ -119,8 +119,7 @@ void PAKBridge::build() {
             areaDeps.name = hecl::SystemString(_SYS_STR("MREA_")) + hecl::SystemStringConv(idStr).c_str();
           }
         }
-        hecl::SystemChar num[16];
-        hecl::SNPrintf(num, 16, _SYS_STR("%02u "), ai);
+        hecl::SystemString num = fmt::format(fmt(_SYS_STR("{:02d} ")), ai);
         areaDeps.name = num + areaDeps.name;
 
         const MLVL::LayerFlags& layerFlags = *layerFlagsIt++;
@@ -132,7 +131,7 @@ void PAKBridge::build() {
             layer.name = LayerName(mlvl.layerNames[layerIdx++]);
             layer.active = layerFlags.flags >> (l - 1) & 0x1;
             layer.name = hecl::StringUtils::TrimWhitespace(layer.name);
-            hecl::SNPrintf(num, 16, _SYS_STR("%02u "), l - 1);
+            num = fmt::format(fmt(_SYS_STR("{:02d} ")), l - 1);
             layer.name = num + layer.name;
           }
         }
@@ -166,13 +165,13 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
       const CHAR::CharacterInfo& ci = aChar.characterInfo;
       charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
       charAssoc.m_cskrCinfToCharacter[ci.cskr] =
-          std::make_pair(entry.second.id, hecl::Format("%s.CSKR", ci.name.c_str()));
+          std::make_pair(entry.second.id, fmt::format(fmt("{}.CSKR"), ci.name));
       charAssoc.m_cskrCinfToCharacter[ci.cinf] =
-          std::make_pair(entry.second.id, hecl::Format("CINF_%" PRIX64 ".CINF", ci.cinf.toUint64()));
+          std::make_pair(entry.second.id, fmt::format(fmt("CINF_{}.CINF"), ci.cinf));
       for (const CHAR::CharacterInfo::Overlay& overlay : ci.overlays) {
         charAssoc.m_cmdlRigs[overlay.cmdl] = std::make_pair(overlay.cskr, ci.cinf);
         charAssoc.m_cskrCinfToCharacter[overlay.cskr] =
-            std::make_pair(entry.second.id, hecl::Format("%s.%.4s.CSKR", ci.name.c_str(), overlay.type.getChars()));
+            std::make_pair(entry.second.id, fmt::format(fmt("{}.{}.CSKR"), ci.name, overlay.type));
       }
     }
   }
@@ -192,16 +191,16 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
       }
       hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
-      if (mlvl.worldNameId)
+      if (mlvl.worldNameId.isValid())
         pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _SYS_STR("!name.yaml"));
 
       for (const MLVL::Area& area : mlvl.areas) {
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
-        if (area.areaNameId)
+        if (area.areaNameId.isValid())
           pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _SYS_STR("!name.yaml"));
       }
 
-      if (mlvl.worldMap) {
+      if (mlvl.worldMap.isValid()) {
         const nod::Node* mapNode;
         const PAK::Entry* mapEntry = pakRouter.lookupEntry(mlvl.worldMap, &mapNode);
         if (mapEntry) {
@@ -226,7 +225,7 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 }
 
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry) {
-  switch (entry.type) {
+  switch (entry.type.toUint32()) {
     //    case SBIG('CAUD'):
     //        return {CAUD::Extract, {_SYS_STR(".yaml")}};
   case SBIG('STRG'):

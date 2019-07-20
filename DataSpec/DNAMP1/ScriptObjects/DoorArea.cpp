@@ -7,7 +7,7 @@ zeus::CAABox DoorArea::getVISIAABB(hecl::blender::Token& btok) const {
   hecl::blender::Connection& conn = btok.getBlenderConnection();
   zeus::CAABox aabbOut;
 
-  if (animationParameters.animationCharacterSet) {
+  if (animationParameters.animationCharacterSet.isValid()) {
     hecl::ProjectPath path = UniqueIDBridge::TranslatePakIdToPath(animationParameters.animationCharacterSet);
     conn.openBlend(path.getWithExtension(_SYS_STR(".blend"), true));
     hecl::blender::DataStream ds = conn.beginData();

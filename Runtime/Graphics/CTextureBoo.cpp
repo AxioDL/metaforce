@@ -7,22 +7,22 @@ namespace urde {
 static logvisor::Module Log("urde::CTextureBoo");
 
 /* GX uses this upsampling technique to extract full 8-bit range */
-static inline uint8_t Convert3To8(uint8_t v) {
+constexpr uint8_t Convert3To8(uint8_t v) {
   /* Swizzle bits: 00000123 -> 12312312 */
   return (v << 5) | (v << 2) | (v >> 1);
 }
 
-static inline uint8_t Convert4To8(uint8_t v) {
+constexpr uint8_t Convert4To8(uint8_t v) {
   /* Swizzle bits: 00001234 -> 12341234 */
   return (v << 4) | v;
 }
 
-static inline uint8_t Convert5To8(uint8_t v) {
+constexpr uint8_t Convert5To8(uint8_t v) {
   /* Swizzle bits: 00012345 -> 12345123 */
   return (v << 3) | (v >> 2);
 }
 
-static inline uint8_t Convert6To8(uint8_t v) {
+constexpr uint8_t Convert6To8(uint8_t v) {
   /* Swizzle bits: 00123456 -> 12345612 */
   return (v << 2) | (v >> 4);
 }
@@ -549,7 +549,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length) {
   size_t texelCount = ComputeMippedTexelCount();
   size_t expectedSize = texelCount * 4;
   if (expectedSize > length)
-    Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")", length, expectedSize);
+    Log.report(logvisor::Fatal, fmt("insufficient TXTR length ({}/{})"), length, expectedSize);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_booTex = ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::RGBA8, boo::TextureClampMode::Repeat, data,
@@ -562,7 +562,7 @@ void CTexture::BuildRGBA8(const void* data, size_t length) {
 void CTexture::BuildC8(const void* data, size_t length) {
   size_t texelCount = ComputeMippedTexelCount();
   if (texelCount > length)
-    Log.report(logvisor::Fatal, "insufficient TXTR length (%" PRISize "/%" PRISize ")", length, texelCount);
+    Log.report(logvisor::Fatal, fmt("insufficient TXTR length ({}/{})"), length, texelCount);
 
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     uint32_t nentries = hecl::SBig(*reinterpret_cast<const uint32_t*>(data));
@@ -759,7 +759,7 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex) {
     BuildDXT3(owned.get() + 12, length - 12);
     break;
   default:
-    Log.report(logvisor::Fatal, "invalid texture type %d for boo", int(x0_fmt));
+    Log.report(logvisor::Fatal, fmt("invalid texture type {} for boo"), int(x0_fmt));
   }
 
   if (otex)
@@ -771,7 +771,7 @@ void CTexture::Load(int slot, EClampMode clamp) const {}
 std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut,
                                                    std::unique_ptr<u8[]>& paletteOut) const {
   if (!m_otex)
-    Log.report(logvisor::Fatal, "MemoryCard TXTR not loaded with 'otex'");
+    Log.report(logvisor::Fatal, fmt("MemoryCard TXTR not loaded with 'otex'"));
 
   size_t texelCount = x4_w * x6_h;
   std::unique_ptr<u8[]> ret;
@@ -847,7 +847,7 @@ std::unique_ptr<u8[]> CTexture::BuildMemoryCardTex(u32& sizeOut, ETexelFormat& f
       }
     }
   } else
-    Log.report(logvisor::Fatal, "MemoryCard texture may only use RGBA8PC or C8PC format");
+    Log.report(logvisor::Fatal, fmt("MemoryCard texture may only use RGBA8PC or C8PC format"));
 
   return ret;
 }

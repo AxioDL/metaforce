@@ -55,7 +55,7 @@ public:
     float x10_rotAng = 0.f;
     float x14_baseAngle = 0.f;
     float x18_offshootAngleDelta = 0.f;
-    SOuterItemInfo(const char*);
+    SOuterItemInfo(std::string_view);
   };
 
 private:

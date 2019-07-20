@@ -8,7 +8,7 @@ void CSKR::weightVertex(hecl::blender::PyOutStream& os, const CINF& cinf, atUint
   for (const SkinningRule& rule : skinningRules) {
     if (idx >= accum && idx < accum + rule.vertCount)
       for (const SkinningRule::Weight& weight : rule.weights)
-        os.format("vert[dvert_lay][%u] = %f\n", cinf.getBoneIdxFromId(weight.boneId), weight.weight);
+        os.format(fmt("vert[dvert_lay][{}] = {}\n"), cinf.getBoneIdxFromId(weight.boneId), weight.weight);
     accum += rule.vertCount;
   }
 }

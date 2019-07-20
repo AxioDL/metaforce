@@ -69,11 +69,11 @@ struct SpacePirate : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (Projectile) {
+    if (Projectile.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(Projectile);
       ent->name = name + "_Projectile";
     }
-    if (KneelAttackShot) {
+    if (KneelAttackShot.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(KneelAttackShot);
       ent->name = name + "_KneelAttackShot";
     }

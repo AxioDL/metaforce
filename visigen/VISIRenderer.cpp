@@ -59,7 +59,7 @@ bool VISIRenderer::SetupShaders() {
     glGetShaderiv(m_vtxShader, GL_INFO_LOG_LENGTH, &logLen);
     char* log = (char*)malloc(logLen);
     glGetShaderInfoLog(m_vtxShader, logLen, nullptr, log);
-    Log.report(logvisor::Error, "unable to compile vert source\n%s\n%s\n", log, VS);
+    Log.report(logvisor::Error, fmt("unable to compile vert source\n{}\n{}\n"), log, VS);
     free(log);
     return false;
   }
@@ -72,7 +72,7 @@ bool VISIRenderer::SetupShaders() {
     glGetShaderiv(m_fragShader, GL_INFO_LOG_LENGTH, &logLen);
     char* log = (char*)malloc(logLen);
     glGetShaderInfoLog(m_fragShader, logLen, nullptr, log);
-    Log.report(logvisor::Error, "unable to compile frag source\n%s\n%s\n", log, FS);
+    Log.report(logvisor::Error, fmt("unable to compile frag source\n{}\n{}\n"), log, FS);
     free(log);
     return false;
   }
@@ -87,7 +87,7 @@ bool VISIRenderer::SetupShaders() {
     glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &logLen);
     char* log = (char*)malloc(logLen);
     glGetProgramInfoLog(m_program, logLen, nullptr, log);
-    Log.report(logvisor::Error, "unable to link shader program\n%s\n", log);
+    Log.report(logvisor::Error, fmt("unable to link shader program\n{}\n"), log);
     free(log);
     return false;
   }
@@ -414,13 +414,13 @@ void VISIRenderer::Run(FPercent updatePercent) {
   CalculateProjMatrix();
 
   if (glewInit() != GLEW_OK) {
-    Log.report(logvisor::Error, "unable to init glew");
+    Log.report(logvisor::Error, fmt("unable to init glew"));
     m_return = 1;
     return;
   }
 
   if (!GLEW_ARB_occlusion_query2) {
-    Log.report(logvisor::Error, "GL_ARB_occlusion_query2 extension not present");
+    Log.report(logvisor::Error, fmt("GL_ARB_occlusion_query2 extension not present"));
     m_return = 1;
     return;
   }
@@ -431,7 +431,7 @@ void VISIRenderer::Run(FPercent updatePercent) {
   }
 
   if (m_argc < 3) {
-    Log.report(logvisor::Error, "Missing input/output file args");
+    Log.report(logvisor::Error, fmt("Missing input/output file args"));
     m_return = 1;
     return;
   }

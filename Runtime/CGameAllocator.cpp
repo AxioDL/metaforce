@@ -44,7 +44,7 @@ u8* CGameAllocator::Alloc(size_t len) {
 void CGameAllocator::Free(u8* ptr) {
   SChunkDescription* info = reinterpret_cast<SChunkDescription*>(ptr - sizeof(SChunkDescription));
   if (info->magic != 0xE8E8E8E8 || info->sentinal != 0xEFEFEFEF) {
-    AllocLog.report(logvisor::Fatal, _SYS_STR("Invalid chunk description, memory corruption!"));
+    AllocLog.report(logvisor::Fatal, fmt(_SYS_STR("Invalid chunk description, memory corruption!")));
     return;
   }
 

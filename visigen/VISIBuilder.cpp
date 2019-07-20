@@ -18,11 +18,11 @@ static std::unique_ptr<VISIRenderer::RGBA8[]> RGBABuf(new VISIRenderer::RGBA8[25
 const VISIBuilder::Leaf& VISIBuilder::PVSRenderCache::GetLeaf(const zeus::CVector3f& vec) {
   auto search = m_cache.find(vec);
   if (search != m_cache.cend()) {
-    // Log.report(logvisor::Info, "Cache hit");
+    // Log.report(logvisor::Info, fmt("Cache hit"));
     return *search->second;
   }
 
-  // Log.report(logvisor::Info, "Rendering");
+  // Log.report(logvisor::Info, fmt("Rendering"));
   bool needsTransparent = false;
   m_renderer.RenderPVSOpaque(RGBABuf.get(), vec, needsTransparent);
   std::unique_ptr<Leaf> leafOut = std::make_unique<Leaf>();
@@ -107,19 +107,19 @@ void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAAB
         if (flags & 0x4 && childNodes[0] == childNodes[4] && (!(flags & 0x1) || childNodes[1] == childNodes[5]) &&
             (!(flags & 0x2) || childNodes[2] == childNodes[6]) && (!(flags & 0x3) || childNodes[3] == childNodes[7])) {
           flags &= ~0x4;
-          // Log.report(logvisor::Info, "Unsub Z");
+          // Log.report(logvisor::Info, fmt("Unsub Z"));
           continue;
         }
         if (flags & 0x2 && childNodes[0] == childNodes[2] && (!(flags & 0x1) || childNodes[1] == childNodes[3]) &&
             (!(flags & 0x4) || childNodes[4] == childNodes[6]) && (!(flags & 0x5) || childNodes[5] == childNodes[7])) {
           flags &= ~0x2;
-          // Log.report(logvisor::Info, "Unsub Y");
+          // Log.report(logvisor::Info, fmt("Unsub Y"));
           continue;
         }
         if (flags & 0x1 && childNodes[0] == childNodes[1] && (!(flags & 0x2) || childNodes[2] == childNodes[3]) &&
             (!(flags & 0x4) || childNodes[4] == childNodes[5]) && (!(flags & 0x6) || childNodes[6] == childNodes[7])) {
           flags &= ~0x1;
-          // Log.report(logvisor::Info, "Unsub X");
+          // Log.report(logvisor::Info, fmt("Unsub X"));
           continue;
         }
         break;
@@ -129,7 +129,7 @@ void VISIBuilder::Node::buildChildren(int level, int divisions, const zeus::CAAB
         // This is now a leaf node
         for (int i = 0; i < 8; ++i)
           leaf |= childNodes[i].leaf;
-        // Log.report(logvisor::Info, "Leaf Promote");
+        // Log.report(logvisor::Info, fmt("Leaf Promote"));
         return;
       }
     }
@@ -258,7 +258,7 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb, size_t mod
                                         const std::vector<VISIRenderer::Entity>& entities,
                                         const std::vector<VISIRenderer::Light>& lights, size_t layer2LightCount,
                                         FPercent updatePercent, ProcessType parentPid) {
-  // Log.report(logvisor::Info, "Started!");
+  // Log.report(logvisor::Info, fmt("Started!"));
 
   size_t featureCount = modelCount + entities.size();
   renderCache.m_lightMetaBit = featureCount;
@@ -323,6 +323,6 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb, size_t mod
 
   w.seekAlign32();
 
-  // Log.report(logvisor::Info, "Finished!");
+  // Log.report(logvisor::Info, fmt("Finished!"));
   return dataOut;
 }

@@ -10,7 +10,7 @@ void ISTRG::gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
 std::unique_ptr<ISTRG> LoadSTRG(athena::io::IStreamReader& reader) {
   uint32_t magic = reader.readUint32Big();
   if (magic != 0x87654321) {
-    LogDNACommon.report(logvisor::Error, "invalid STRG magic");
+    LogDNACommon.report(logvisor::Error, fmt("invalid STRG magic"));
     return std::unique_ptr<ISTRG>();
   }
 

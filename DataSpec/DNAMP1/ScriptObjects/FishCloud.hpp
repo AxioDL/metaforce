@@ -46,24 +46,24 @@ struct FishCloud : IScriptObject {
   Value<bool> hotInThermal;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }
     animationParameters.nameANCS(pakRouter, name + "_animp");
-    if (deathParticle1) {
+    if (deathParticle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle1);
       ent->name = name + "_deathParticle1";
     }
-    if (deathParticle2) {
+    if (deathParticle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle2);
       ent->name = name + "_deathParticle2";
     }
-    if (deathParticle3) {
+    if (deathParticle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle3);
       ent->name = name + "_deathParticle3";
     }
-    if (deathParticle4) {
+    if (deathParticle4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deathParticle4);
       ent->name = name + "_deathParticle4";
     }

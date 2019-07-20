@@ -16,7 +16,7 @@ template <class IDType>
 void DPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
   for (const auto& elem : r.getCurNode()->m_mapChildren) {
     if (elem.first.size() < 4) {
-      LogModule.report(logvisor::Warning, "short FourCC in element '%s'", elem.first.c_str());
+      LogModule.report(logvisor::Warning, fmt("short FourCC in element '{}'"), elem.first);
       continue;
     }
 
@@ -106,8 +106,8 @@ void DPSM<IDType>::_write(athena::io::YAMLDocWriter& w) const {
 
 template <class IDType>
 template <class Reader>
-void DPSM<IDType>::readQuadDecalInfo(Reader& r, uint32_t clsId, typename DPSM<IDType>::SQuadDescr& quad) {
-  switch (clsId) {
+void DPSM<IDType>::readQuadDecalInfo(Reader& r, FourCC clsId, typename DPSM<IDType>::SQuadDescr& quad) {
+  switch (clsId.toUint32()) {
   case SBIG('1LFT'):
   case SBIG('2LFT'):
     quad.x0_LFT.read(r);
@@ -233,16 +233,16 @@ void DPSM<IDType>::getQuadDecalBinarySize(size_t& s, const typename DPSM<IDType>
 
 template <class IDType>
 void DPSM<IDType>::_read(athena::io::IStreamReader& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
+  DNAFourCC clsId;
+  clsId.read(r);
   if (clsId != SBIG('DPSM')) {
-    LogModule.report(logvisor::Warning, "non DPSM provided to DPSM parser");
+    LogModule.report(logvisor::Warning, fmt("non DPSM provided to DPSM parser"));
     return;
   }
   bool loadFirstDesc = false;
-  r.readBytesToBuf(&clsId, 4);
+  clsId.read(r);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('1SZE'):
     case SBIG('1LFT'):
     case SBIG('1ROT'):
@@ -291,10 +291,10 @@ void DPSM<IDType>::_read(athena::io::IStreamReader& r) {
       x5c_25_DMOO = r.readBool();
       break;
     default:
-      LogModule.report(logvisor::Fatal, "Unknown DPSM class %.4s @%" PRIi64, &clsId, r.position());
+      LogModule.report(logvisor::Fatal, fmt("Unknown DPSM class {} @{}"), clsId, r.position());
       break;
     }
-    r.readBytesToBuf(&clsId, 4);
+    clsId.read(r);
   }
 }
 

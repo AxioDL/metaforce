@@ -1,4 +1,6 @@
 #include "shader_CFluidPlaneShader.hpp"
+#include <fmt/ostream.h>
+#include <sstream>
 
 #define FOG_STRUCT_HLSL                                                                                                \
   "struct Fog\n"                                                                                                       \
@@ -38,7 +40,7 @@
   "        fogZ = 0.0;\n"                                                                                              \
   "        break;\n"                                                                                                   \
   "    }\n"                                                                                                            \
-  "#if %d\n"                                                                                                           \
+  "#if IS_ADDITIVE\n"                                                                                                  \
   "    return float4(lerp(colorIn, float4(0.0,0.0,0.0,0.0), saturate(fogZ)).rgb, colorIn.a);\n"                        \
   "#else\n"                                                                                                            \
   "    return float4(lerp(colorIn, fog.color, saturate(fogZ)).rgb, colorIn.a);\n"                                      \
@@ -88,7 +90,7 @@ static const char* VS =
     "    vtf.uvs[0] = mul(texMtxs[0], pos).xy;\n"
     "    vtf.uvs[1] = mul(texMtxs[1], pos).xy;\n"
     "    vtf.uvs[2] = mul(texMtxs[2], pos).xy;\n"
-    "%s" // Additional TCGs here
+    "    ADDITIONAL_TCGS\n" // Additional TCGs here
     "    return vtf;\n"
     "}\n";
 
@@ -195,7 +197,7 @@ static const char* TessES =
     "struct ControlPoint\n"
     "{};\n"
     "\n"
-    "Texture2D RippleMap : register(t%d);\n"
+    "Texture2D RippleMap : register(t##RIPPLE_TEXTURE_IDX);\n"
     "SamplerState samp : register(s2);\n"
     "\n"
     "static const float PI_X2 = 6.283185307179586;\n"
@@ -243,7 +245,7 @@ static const char* TessES =
     "    vtf.uvs[0] = mul(texMtxs[0], pos).xy;\n"
     "    vtf.uvs[1] = mul(texMtxs[1], pos).xy;\n"
     "    vtf.uvs[2] = mul(texMtxs[2], pos).xy;\n"
-    "%s\n" // Additional TCGs here
+    "    ADDITIONAL_TCGS\n" // Additional TCGs here
     "    return vtf;\n"
     "}\n";
 
@@ -305,12 +307,12 @@ FOG_STRUCT_HLSL
 FOG_ALGORITHM_HLSL
 "\n"
 "SamplerState samp : register(s0);\n"
-"%s" // Textures here
+"TEXTURE_DECLS\n" // Textures here
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float4 lighting = LightingFunc(vtf.mvPos.xyz, normalize(vtf.mvNorm.xyz));\n"
 "    float4 colorOut;\n"
-"%s" // Combiner expression here
+"    COMBINER_EXPRS\n" // Combiner expression here
 "    return MainPostFunc(vtf, colorOut);\n"
 "}\n";
 
@@ -349,61 +351,63 @@ FOG_STRUCT_HLSL
 FOG_ALGORITHM_HLSL
 "\n"
 "SamplerState samp : register(s0);\n"
-"%s" // Textures here
+"TEXTURE_DECLS\n" // Textures here
 "float4 main(in VertToFrag vtf) : SV_Target0\n"
 "{\n"
 "    float4 colorOut;\n"
-"%s" // Combiner expression here
+"    COMBINER_EXPRS\n" // Combiner expression here
 "    return MainPostFunc(vtf, colorOut);\n"
 "}\n";
 
 static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
-  std::string additionalTCGs;
-  std::string textures;
-  std::string combiner;
+  std::stringstream out;
   int nextTex = 0;
   int nextTCG = 3;
   int nextMtx = 4;
   int bumpMapUv, envBumpMapUv, envMapUv, lightmapUv;
 
+  out << "#define TEXTURE_DECLS ";
   if (info.m_hasPatternTex1)
-    textures += hecl::Format("Texture2D patternTex1 : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D patternTex1 : register(t{});"), nextTex++);
   if (info.m_hasPatternTex2)
-    textures += hecl::Format("Texture2D patternTex2 : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D patternTex2 : register(t{});"), nextTex++);
   if (info.m_hasColorTex)
-    textures += hecl::Format("Texture2D colorTex : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D colorTex : register(t{});"), nextTex++);
   if (info.m_hasBumpMap)
-    textures += hecl::Format("Texture2D bumpMap : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D bumpMap : register(t{});"), nextTex++);
   if (info.m_hasEnvMap)
-    textures += hecl::Format("Texture2D envMap : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D envMap : register(t{});"), nextTex++);
   if (info.m_hasEnvBumpMap)
-    textures += hecl::Format("Texture2D envBumpMap : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D envBumpMap : register(t{});"), nextTex++);
   if (info.m_hasLightmap)
-    textures += hecl::Format("Texture2D lightMap : register(t%d);\n", nextTex++);
+    fmt::print(out, fmt("Texture2D lightMap : register(t{});"), nextTex++);
+  out << '\n';
 
+  out << "#define ADDITIONAL_TCGS ";
   if (info.m_hasBumpMap) {
     bumpMapUv = nextTCG;
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[0], pos).xy;\n", nextTCG++);
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[0], pos).xy;"), nextTCG++);
   }
   if (info.m_hasEnvBumpMap) {
     envBumpMapUv = nextTCG;
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;\n", nextTCG++);
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;"), nextTCG++);
   }
   if (info.m_hasEnvMap) {
     envMapUv = nextTCG;
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[{}], pos).xy;"), nextTCG++, nextMtx++);
   }
   if (info.m_hasLightmap) {
     lightmapUv = nextTCG;
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[{}], pos).xy;"), nextTCG++, nextMtx++);
   }
 
+  out << "#define COMBINER_EXPRS ";
   switch (info.m_type) {
   case EFluidType::NormalWater:
   case EFluidType::PhazonFluid:
   case EFluidType::Four:
     if (info.m_hasLightmap) {
-      combiner += hecl::Format("    float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[%d]);\n", lightmapUv);
+      fmt::print(out, fmt("float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[{}]);"), lightmapUv);
       // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
       // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
       // Output reg 2
@@ -414,10 +418,10 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
         // Output reg 2
         // KColor 3
         // Tex * K2 + Lighting
-        combiner += "    lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
+        out << "lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);";
       } else {
         // mix(Tex * K2, Tex, K3) + Lighting
-        combiner += "    lighting += lightMapTexel * kColor2;\n";
+        out << "lighting += lightMapTexel * kColor2;";
       }
     }
 
@@ -437,22 +441,22 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     // (Tex0 * kColor0 + Lighting) * Tex1 + VertColor + Tex2 * Lighting
     if (info.m_hasPatternTex2) {
       if (info.m_hasPatternTex1)
-        combiner +=
-            "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) *\n"
-            "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out <<
+            "colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) * "
+            "patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
       else
-        combiner += "    colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out << "colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
     } else {
-      combiner += "    colorOut = vtf.color;\n";
+      out << "colorOut = vtf.color;";
     }
 
     if (info.m_hasColorTex && !info.m_hasEnvMap && info.m_hasEnvBumpMap) {
       // Make previous stage indirect, mtx0
-      combiner += hecl::Format(
-          "    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-          "        float2(fog.indScale, -fog.indScale);\n",
+      fmt::print(out, fmt(
+          "float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[{}]).ra - float2(0.5, 0.5)) * "
+          "float2(fog.indScale, -fog.indScale);"),
           envBumpMapUv);
-      combiner += "    colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
+      out << "colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;";
     } else if (info.m_hasEnvMap) {
       // Next: envTCG, envTex, NULL
       // PREV, TEX, KONST, ZERO
@@ -461,22 +465,21 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
 
       // Make previous stage indirect, mtx0
       if (info.m_hasColorTex)
-        combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;\n";
-      combiner += hecl::Format(
-          "    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-          "        float2(fog.indScale, -fog.indScale);\n",
+        out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;";
+      fmt::print(out, fmt(
+          "float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[{}]).ra - float2(0.5, 0.5)) * "
+          "float2(fog.indScale, -fog.indScale);"),
           envBumpMapUv);
-      combiner += hecl::Format("    colorOut = lerp(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[%d]), kColor1);\n",
-                               envMapUv);
+      fmt::print(out, fmt("colorOut = lerp(colorOut, envMap.Sample(samp, indUvs + vtf.uvs[{}]), kColor1);"), envMapUv);
     } else if (info.m_hasColorTex) {
-      combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;\n";
+      out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;";
     }
 
     break;
 
   case EFluidType::PoisonWater:
     if (info.m_hasLightmap) {
-      combiner += hecl::Format("    float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[%d]);\n", lightmapUv);
+      fmt::print(out, fmt("float4 lightMapTexel = lightMap.Sample(samp, vtf.uvs[{}]);"), lightmapUv);
       // 0: Tex4TCG, Tex4, doubleLightmapBlend ? NULL : GX_COLOR1A1
       // ZERO, TEX, KONST, doubleLightmapBlend ? ZERO : RAS
       // Output reg 2
@@ -487,10 +490,10 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
         // Output reg 2
         // KColor 3
         // Tex * K2 + Lighting
-        combiner += "    lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);\n";
+        out << "lighting += lerp(lightMapTexel * kColor2, lightMapTexel, kColor3);";
       } else {
         // mix(Tex * K2, Tex, K3) + Lighting
-        combiner += "    lighting += lightMapTexel * kColor2;\n";
+        out << "lighting += lightMapTexel * kColor2;";
       }
     }
 
@@ -510,25 +513,25 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     // (Tex0 * kColor0 + Lighting) * Tex1 + VertColor + Tex2 * Lighting
     if (info.m_hasPatternTex2) {
       if (info.m_hasPatternTex1)
-        combiner +=
-            "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) *\n"
-            "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out <<
+            "colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + lighting) * "
+            "patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
       else
-        combiner += "    colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out << "colorOut = lighting * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
     } else {
-      combiner += "    colorOut = vtf.color;\n";
+      out << "colorOut = vtf.color;";
     }
 
     if (info.m_hasColorTex) {
       if (info.m_hasEnvBumpMap) {
         // Make previous stage indirect, mtx0
-        combiner += hecl::Format(
-            "    float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[%d]).ra - float2(0.5, 0.5)) *\n"
-            "        float2(fog.indScale, -fog.indScale);\n",
+        fmt::print(out, fmt(
+            "float2 indUvs = (envBumpMap.Sample(samp, vtf.uvs[{}]).ra - float2(0.5, 0.5)) * "
+            "float2(fog.indScale, -fog.indScale);"),
             envBumpMapUv);
-        combiner += "    colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;\n";
+        out << "colorOut += colorTex.Sample(samp, indUvs + vtf.uvs[2]) * lighting;";
       } else {
-        combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;\n";
+        out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]) * lighting;";
       }
     }
 
@@ -551,17 +554,17 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     // (Tex0 * kColor0 + VertColor) * Tex1 + VertColor + Tex2
     if (info.m_hasPatternTex2) {
       if (info.m_hasPatternTex1)
-        combiner +=
-            "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) *\n"
-            "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out <<
+            "colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) * "
+            "patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
       else
-        combiner += "    colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out << "colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
     } else {
-      combiner += "    colorOut = vtf.color;\n";
+      out << "colorOut = vtf.color;";
     }
 
     if (info.m_hasColorTex)
-      combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]);\n";
+      out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]);";
 
     if (info.m_hasBumpMap) {
       // 3: bumpMapTCG, bumpMap, NULL
@@ -572,13 +575,13 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
       // ZERO, TEX, ONE, C0
       // Output reg 0, subtract, clamp, no bias
 
-      combiner +=
-          "    float3 lightVec = lights[3].pos.xyz - vtf.mvPos.xyz;\n"
-          "    float lx = dot(vtf.mvTangent.xyz, lightVec);\n"
-          "    float ly = dot(vtf.mvBinorm.xyz, lightVec);\n";
-      combiner += hecl::Format(
-          "    float4 emboss1 = bumpMap.Sample(samp, vtf.uvs[%d]) + float4(0.5);\n"
-          "    float4 emboss2 = bumpMap.Sample(samp, vtf.uvs[%d] + float2(lx, ly));\n",
+      out <<
+          "float3 lightVec = lights[3].pos.xyz - vtf.mvPos.xyz;"
+          "float lx = dot(vtf.mvTangent.xyz, lightVec);"
+          "float ly = dot(vtf.mvBinorm.xyz, lightVec);";
+      fmt::print(out, fmt(
+          "float4 emboss1 = bumpMap.Sample(samp, vtf.uvs[{}]) + float4(0.5);"
+          "float4 emboss2 = bumpMap.Sample(samp, vtf.uvs[{}] + float2(lx, ly));"),
           bumpMapUv, bumpMapUv);
 
       // 5: NULL, NULL, NULL
@@ -586,7 +589,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
       // Output reg prev, scale 2, clamp
 
       // colorOut * clamp(emboss1 + 0.5 - emboss2, 0.0, 1.0) * 2.0
-      combiner += "colorOut *= clamp((emboss1 + float4(0.5) - emboss2) * float4(2.0), float4(0.0), float4(1.0));\n";
+      out << "colorOut *= clamp((emboss1 + float4(0.5) - emboss2) * float4(2.0), float4(0.0), float4(1.0));";
     }
 
     break;
@@ -608,70 +611,60 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     // (Tex0 * kColor0 + VertColor) * Tex1 + VertColor + Tex2
     if (info.m_hasPatternTex2) {
       if (info.m_hasPatternTex1)
-        combiner +=
-            "    colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) *\n"
-            "               patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out <<
+            "colorOut = (patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 + vtf.color) * "
+            "patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
       else
-        combiner += "    colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;\n";
+        out << "colorOut = vtf.color * patternTex2.Sample(samp, vtf.uvs[1]) + vtf.color;";
     } else {
-      combiner += "    colorOut = vtf.color;\n";
+      out << "colorOut = vtf.color;";
     }
 
     if (info.m_hasColorTex)
-      combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]);\n";
+      out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]);";
 
     if (info.m_hasBumpMap) {
       // 3: bumpMapTCG, bumpMap, NULL
       // ZERO, TEX, PREV, ZERO
       // Output reg prev, scale 2
-      combiner += hecl::Format("    float4 emboss1 = bumpMap.Sample(samp, vtf.uvs[%d]) + float4(0.5);\n", bumpMapUv);
-      combiner += "colorOut *= emboss1 * float4(2.0);\n";
+      fmt::print(out, fmt("float4 emboss1 = bumpMap.Sample(samp, vtf.uvs[{}]) + float4(0.5);"), bumpMapUv);
+      out << "colorOut *= emboss1 * float4(2.0);";
     }
 
     break;
   }
 
-  combiner += "    colorOut.a = kColor0.a;\n";
+  out << "colorOut.a = kColor0.a;\n";
 
-  char* finalFS;
-  asprintf(&finalFS, FS, int(info.m_additive), textures.c_str(), combiner.c_str());
-  std::string ret(finalFS);
-  free(finalFS);
-  return ret;
+  out << "#define IS_ADDITIVE " << int(info.m_additive) << '\n';
+  out << FS;
+  return out.str();
 }
 
-static std::string _BuildAdditionalTCGs(const SFluidPlaneShaderInfo& info) {
-  std::string additionalTCGs;
+static void _BuildAdditionalTCGs(std::stringstream& out, const SFluidPlaneShaderInfo& info) {
   int nextTCG = 3;
   int nextMtx = 4;
 
-  if (info.m_hasBumpMap) {
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[0], pos).xy;\n", nextTCG++);
-  }
-  if (info.m_hasEnvBumpMap) {
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;\n", nextTCG++);
-  }
-  if (info.m_hasEnvMap) {
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG++, nextMtx++);
-  }
-  if (info.m_hasLightmap) {
-    additionalTCGs += hecl::Format("    vtf.uvs[%d] = mul(texMtxs[%d], pos).xy;\n", nextTCG, nextMtx);
-  }
-
-  return additionalTCGs;
+  out << "#define ADDITIONAL_TCGS ";
+  if (info.m_hasBumpMap)
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[0], pos).xy;"), nextTCG++);
+  if (info.m_hasEnvBumpMap)
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[3], float4(normalIn.xyz, 1.0)).xy;"), nextTCG++);
+  if (info.m_hasEnvMap)
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[{}], pos).xy;"), nextTCG++, nextMtx++);
+  if (info.m_hasLightmap)
+    fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[{}], pos).xy;"), nextTCG, nextMtx);
+  out << '\n';
 }
 
 static std::string _BuildVS(const SFluidPlaneShaderInfo& info, bool tessellation) {
   if (tessellation)
     return TessVS;
 
-  std::string additionalTCGs = _BuildAdditionalTCGs(info);
-
-  char* finalVSs;
-  asprintf(&finalVSs, VS, additionalTCGs.c_str());
-  std::string ret(finalVSs);
-  free(finalVSs);
-  return ret;
+  std::stringstream out;
+  _BuildAdditionalTCGs(out, info);
+  out << VS;
+  return out.str();
 }
 template <>
 std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Vertex>::BuildShader(
@@ -708,14 +701,11 @@ static std::string BuildES(const SFluidPlaneShaderInfo& info) {
   if (info.m_hasLightmap)
     nextTex++;
 
-  std::string additionalTCGs = _BuildAdditionalTCGs(info);
-
-  char* finalESs;
-  asprintf(&finalESs, TessES, nextTex, additionalTCGs.c_str());
-  std::string ret(finalESs);
-  free(finalESs);
-
-  return ret;
+  std::stringstream out;
+  _BuildAdditionalTCGs(out, info);
+  out << "#define RIPPLE_TEXTURE_IDX " << nextTex << '\n';
+  out << TessES;
+  return out.str();
 }
 template <>
 std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::PipelineStage::Evaluation>::BuildShader(
@@ -724,48 +714,44 @@ std::string StageObject_CFluidPlaneShader<hecl::PlatformType::D3D11, hecl::Pipel
 }
 
 static std::string _BuildVS(const SFluidPlaneDoorShaderInfo& info) {
-  char* finalVSs;
-  asprintf(&finalVSs, VS, "");
-  std::string ret(finalVSs);
-  free(finalVSs);
-  return ret;
+  std::stringstream out;
+  out << "#define ADDITIONAL_TCGS\n";
+  out << VS;
+  return out.str();
 }
 
 static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info) {
   int nextTex = 0;
-  std::string textures;
-  std::string combiner;
+  std::stringstream out;
 
-  if (info.m_hasPatternTex1) {
-    textures += hecl::Format("Texture2D patternTex1 : register(t%d);\n", nextTex++);
-  }
-  if (info.m_hasPatternTex2) {
-    textures += hecl::Format("Texture2D patternTex2 : register(t%d);\n", nextTex++);
-  }
-  if (info.m_hasColorTex) {
-    textures += hecl::Format("Texture2D colorTex : register(t%d);\n", nextTex++);
-  }
+  out << "#define TEXTURE_PARAMS ";
+  if (info.m_hasPatternTex1)
+    fmt::print(out, fmt("Texture2D patternTex1 : register(t{});"), nextTex++);
+  if (info.m_hasPatternTex2)
+    fmt::print(out, fmt("Texture2D patternTex2 : register(t{});"), nextTex++);
+  if (info.m_hasColorTex)
+    fmt::print(out, fmt("Texture2D colorTex : register(t{});"), nextTex++);
+  out << '\n';
 
   // Tex0 * kColor0 * Tex1 + Tex2
+  out << "#define COMBINER_EXPRS ";
   if (info.m_hasPatternTex1 && info.m_hasPatternTex2) {
-    combiner +=
-        "    colorOut = patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 *\n"
-        "               patternTex2.Sample(samp, vtf.uvs[1]);\n";
+    out <<
+        "colorOut = patternTex1.Sample(samp, vtf.uvs[0]) * kColor0 * "
+        "patternTex2.Sample(samp, vtf.uvs[1]);";
   } else {
-    combiner += "    colorOut = float4(0.0);\n";
+    out << "colorOut = float4(0.0);";
   }
 
   if (info.m_hasColorTex) {
-    combiner += "    colorOut += colorTex.Sample(samp, vtf.uvs[2]);\n";
+    out << "colorOut += colorTex.Sample(samp, vtf.uvs[2]);";
   }
 
-  combiner += "    colorOut.a = kColor0.a;\n";
+  out << "colorOut.a = kColor0.a;\n";
 
-  char* finalFSs;
-  asprintf(&finalFSs, FSDoor, 0, textures.c_str(), combiner.c_str());
-  std::string ret(finalFSs);
-  free(finalFSs);
-  return ret;
+  out << "#define IS_ADDITIVE 0\n";
+  out << FSDoor;
+  return out.str();
 }
 
 template <>

@@ -25,15 +25,15 @@ struct MetroidPrimeStage2 : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }

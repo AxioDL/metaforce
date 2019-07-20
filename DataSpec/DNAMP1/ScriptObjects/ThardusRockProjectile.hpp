@@ -25,11 +25,11 @@ struct ThardusRockProjectile : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }
-    if (stateMachine) {
+    if (stateMachine.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(stateMachine);
       ent->name = name + "_fsm";
     }

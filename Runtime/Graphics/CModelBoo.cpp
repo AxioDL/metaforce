@@ -247,7 +247,7 @@ CBooModel::ModelInstance* CBooModel::PushNewModelInstance(int sharedLayoutBuf) {
     return nullptr;
 
   if (m_instances.size() >= 512)
-    Log.report(logvisor::Fatal, "Model buffer overflow");
+    Log.report(logvisor::Fatal, fmt("Model buffer overflow"));
   m_instances.emplace_back();
   ModelInstance& newInst = m_instances.back();
 
@@ -610,7 +610,7 @@ static EExtendedShader ResolveExtendedShader(const MaterialSet::Material& data, 
 
 void CBooModel::DrawSurface(const CBooSurface& surf, const CModelFlags& flags) const {
   // if (m_uniUpdateCount == 0)
-  //    Log.report(logvisor::Fatal, "UpdateUniformData() not called");
+  //    Log.report(logvisor::Fatal, fmt("UpdateUniformData() not called"));
   if (m_uniUpdateCount == 0 || m_uniUpdateCount > m_instances.size())
     return;
   const ModelInstance& inst = m_instances[m_uniUpdateCount - 1];
@@ -1154,7 +1154,7 @@ CModel::CModel(std::unique_ptr<u8[]>&& in, u32 /* dataLen */, IObjectStore* stor
   u32 version = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x4));
   m_flags = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x8));
   if (version != 0x10002)
-    Log.report(logvisor::Fatal, "invalid CMDL for loading with boo");
+    Log.report(logvisor::Fatal, fmt("invalid CMDL for loading with boo"));
 
   u32 secCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x24));
   u32 matSetCount = hecl::SBig(*reinterpret_cast<u32*>(data.get() + 0x28));

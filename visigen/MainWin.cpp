@@ -43,7 +43,7 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 int wmain(int argc, const hecl::SystemChar** argv) {
   if (argc > 1 && !wcscmp(argv[1], L"--dlpackage")) {
-    printf("%s\n", URDE_DLPACKAGE);
+    fmt::print(fmt("{}\n"), URDE_DLPACKAGE);
     return 100;
   }
 
@@ -127,9 +127,8 @@ int wmain(int argc, const hecl::SystemChar** argv) {
         continue;
       case WM_USER + 1:
         /* Update window title from client thread */
-        wchar_t title[256];
-        StringCbPrintfW(title, 512, L"VISIGen [%g%%]", s_Percent * 100.f);
-        SetWindowTextW(window, title);
+        std::wstring title = fmt::format(fmt(L"VISIGen [{:g}%]"), s_Percent * 100.f);
+        SetWindowTextW(window, title.c_str());
         continue;
       default:
         break;

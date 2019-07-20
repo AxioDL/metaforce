@@ -79,15 +79,15 @@ public:
   PAKRouterBase(const SpecBase& dataSpec) : m_dataSpec(dataSpec) {}
   hecl::Database::Project& getProject() const { return m_dataSpec.getProject(); }
   virtual hecl::ProjectPath getWorking(const UniqueID32&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, "PAKRouter IDType mismatch; expected UniqueID32 specialization");
+    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID32 specialization"));
     return hecl::ProjectPath();
   }
   virtual hecl::ProjectPath getWorking(const UniqueID64&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, "PAKRouter IDType mismatch; expected UniqueID64 specialization");
+    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID64 specialization"));
     return hecl::ProjectPath();
   }
   virtual hecl::ProjectPath getWorking(const UniqueID128&, bool silenceWarnings = false) const {
-    LogDNACommon.report(logvisor::Fatal, "PAKRouter IDType mismatch; expected UniqueID128 specialization");
+    LogDNACommon.report(logvisor::Fatal, fmt("PAKRouter IDType mismatch; expected UniqueID128 specialization"));
     return hecl::ProjectPath();
   }
 };
@@ -158,7 +158,7 @@ public:
   using value_type = uint32_t;
   static UniqueID32 kInvalidId;
   AT_DECL_EXPLICIT_DNA_YAML
-  operator bool() const { return m_id != 0xffffffff && m_id != 0; }
+  bool isValid() const { return m_id != 0xffffffff && m_id != 0; }
   void assign(uint32_t id, bool noOriginal = false);
 
   UniqueID32& operator=(const hecl::ProjectPath& path) {
@@ -225,7 +225,7 @@ class UniqueID64 : public BigDNA {
 public:
   using value_type = uint64_t;
   AT_DECL_EXPLICIT_DNA_YAML
-  operator bool() const { return m_id != 0xffffffffffffffff && m_id != 0; }
+  bool isValid() const { return m_id != 0xffffffffffffffff && m_id != 0; }
   void assign(uint64_t id, bool noOriginal = false);
 
   UniqueID64& operator=(const hecl::ProjectPath& path) {
@@ -292,7 +292,7 @@ public:
     m_id.id[0] = idin;
     m_id.id[1] = 0;
   }
-  operator bool() const {
+  bool isValid() const {
     return m_id.id[0] != 0xffffffffffffffff && m_id.id[0] != 0 && m_id.id[1] != 0xffffffffffffffff && m_id.id[1] != 0;
   }
 
@@ -320,6 +320,9 @@ public:
 #else
     return (m_id.id[0] == other.m_id.id[0]) && (m_id.id[1] == other.m_id.id[1]);
 #endif
+  }
+  bool operator<(const UniqueID128& other) const {
+    return m_id.id[0] < other.m_id.id[0] || (m_id.id[0] == other.m_id.id[0] && m_id.id[1] < other.m_id.id[1]);
   }
   void clear() {
     m_id.id[0] = 0xffffffffffffffff;
@@ -449,3 +452,7 @@ struct hash<DataSpec::UniqueID128> {
   size_t operator()(const DataSpec::UniqueID128& id) const { return id.toHighUint64() ^ id.toLowUint64(); }
 };
 } // namespace std
+
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID32, fmt("{:08X}"), obj.toUint32())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID64, fmt("{:016X}"), obj.toUint64())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID128, fmt("{:016X}{:016X}"), obj.toHighUint64(), obj.toLowUint64())

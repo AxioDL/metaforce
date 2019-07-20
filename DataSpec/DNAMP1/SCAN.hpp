@@ -85,15 +85,15 @@ struct SCAN : BigDNA {
                    PAK::Entry& entry) {
     SCAN scan;
     scan.read(rs);
-    if (scan.string) {
+    if (scan.string.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(scan.string);
-      ent->name = hecl::Format("SCAN_%s_strg", entry.id.toString().c_str());
+      ent->name = fmt::format(fmt("SCAN_{}_strg"), entry.id);
     }
     for (int i = 0; i < 4; ++i) {
       const Texture& tex = scan.textures[i];
-      if (tex.texture) {
+      if (tex.texture.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tex.texture);
-        ent->name = hecl::Format("SCAN_%s_tex%d", entry.id.toString().c_str(), i + 1);
+        ent->name = fmt::format(fmt("SCAN_{}_tex{}"), entry.id, i + 1);
       }
     }
   }

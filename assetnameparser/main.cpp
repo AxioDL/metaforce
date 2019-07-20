@@ -36,7 +36,7 @@ static logvisor::Module Log("AssetNameParser");
 
 /* Type-sensitive byte swappers */
 template <typename T>
-static inline T bswap16(T val) {
+constexpr T bswap16(T val) {
 #if __GNUC__
   return __builtin_bswap16(val);
 #elif _WIN32
@@ -47,7 +47,7 @@ static inline T bswap16(T val) {
 }
 
 template <typename T>
-static inline T bswap32(T val) {
+constexpr T bswap32(T val) {
 #if __GNUC__
   return __builtin_bswap32(val);
 #elif _WIN32
@@ -60,7 +60,7 @@ static inline T bswap32(T val) {
 }
 
 template <typename T>
-static inline T bswap64(T val) {
+constexpr T bswap64(T val) {
 #if __GNUC__
   return __builtin_bswap64(val);
 #elif _WIN32
@@ -74,8 +74,8 @@ static inline T bswap64(T val) {
 }
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-static inline uint32_t SBig(uint32_t val) { return bswap32(val); }
-static inline uint64_t SBig(uint64_t val) { return bswap64(val); }
+constexpr uint32_t SBig(uint32_t val) { return bswap32(val); }
+constexpr uint64_t SBig(uint64_t val) { return bswap64(val); }
 #ifndef SBIG
 #define SBIG(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
@@ -88,8 +88,8 @@ static inline uint64_t SBig(uint64_t val) { return bswap64(val); }
 #define SLITTLE(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
 
-static inline uint32_t SBig(uint32_t val) { return val; }
-static inline uint64_t SBig(uint64_t val) { return val; }
+constexpr uint32_t SBig(uint32_t val) { return val; }
+constexpr uint64_t SBig(uint64_t val) { return val; }
 #ifndef SBIG
 #define SBIG(q) (q)
 #endif
@@ -146,7 +146,7 @@ typedef std::string SystemString;
 typedef struct stat Sstat;
 #endif
 
-static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
+static FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
 #if IS_UCS2
   FILE* fp = _wfopen(path, mode);
   if (!fp)
@@ -180,7 +180,7 @@ int main(int argc, const char* argv[])
   logvisor::RegisterStandardExceptions();
   logvisor::RegisterConsoleLogger();
   if (argc < 3) {
-    Log.report(logvisor::Error, _SYS_STR("Usage: %s <input> <output>"), argv[0]);
+    Log.report(logvisor::Error, fmt(_SYS_STR("Usage: {} <input> <output>")), argv[0]);
     return 1;
   }
 
@@ -193,13 +193,13 @@ int main(int argc, const char* argv[])
   if (!doc.LoadFile(docF)) {
     const tinyxml2::XMLElement* elm = doc.RootElement();
     if (strcmp(elm->Name(), "AssetNameMap")) {
-      Log.report(logvisor::Fatal, _SYS_STR("Invalid database supplied"));
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("Invalid database supplied")));
       return 1;
     }
 
     elm = elm->FirstChildElement("AssetNameMap");
     if (elm == nullptr) {
-      Log.report(logvisor::Fatal, _SYS_STR("Malformed AssetName database"));
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed AssetName database")));
       return 1;
     }
 
@@ -210,7 +210,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* valueElm = elm->FirstChildElement("Value");
 
       if (!keyElm || !valueElm) {
-        Log.report(logvisor::Fatal, _SYS_STR("Malformed Asset entry, [Key,Value] required"));
+        Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed Asset entry, [Key,Value] required")));
         return 0;
       }
 
@@ -219,7 +219,7 @@ int main(int argc, const char* argv[])
       const tinyxml2::XMLElement* typeElm = valueElm->FirstChildElement("Type");
 
       if (!nameElm || !dirElm || !typeElm) {
-        Log.report(logvisor::Fatal, _SYS_STR("Malformed Value entry, [Name,Directory,Type] required"));
+        Log.report(logvisor::Fatal, fmt(_SYS_STR("Malformed Value entry, [Name,Directory,Type] required")));
         return 0;
       }
       assets.emplace_back();
@@ -233,7 +233,7 @@ int main(int argc, const char* argv[])
 
     FILE* f = Fopen(outPath.c_str(), _SYS_STR("wb"));
     if (!f) {
-      Log.report(logvisor::Fatal, _SYS_STR("Unable to open destination"));
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open destination")));
       return 0;
     }
 
@@ -261,6 +261,6 @@ int main(int argc, const char* argv[])
   if (docF)
     fclose(docF);
 
-  Log.report(logvisor::Fatal, _SYS_STR("failed to load"));
+  Log.report(logvisor::Fatal, fmt(_SYS_STR("failed to load")));
   return 1;
 }

@@ -8,6 +8,11 @@
 #include "rstl.hpp"
 #include "IOStreams.hpp"
 #include "hecl/hecl.hpp"
+#include "zeus/CVector3f.hpp"
+#include "zeus/CVector2f.hpp"
+#include "zeus/CMatrix3f.hpp"
+#include "zeus/CMatrix4f.hpp"
+#include "zeus/CTransform.hpp"
 
 #undef min
 #undef max
@@ -165,6 +170,34 @@ struct hash<urde::CAssetId> {
   size_t operator()(const urde::CAssetId& id) const noexcept { return id.Value(); }
 };
 } // namespace std
+
+FMT_CUSTOM_FORMATTER(urde::CAssetId, fmt("{:08X}"), obj.Value())
+FMT_CUSTOM_FORMATTER(urde::TEditorId, fmt("{:08X}"), obj.id)
+FMT_CUSTOM_FORMATTER(urde::TUniqueId, fmt("{:04X}"), obj.id)
+FMT_CUSTOM_FORMATTER(urde::SObjectTag, fmt("{} {}"), obj.type, obj.id)
+
+FMT_CUSTOM_FORMATTER(zeus::CVector3f, fmt("({} {} {})"), float(obj.x()), float(obj.y()), float(obj.z()))
+FMT_CUSTOM_FORMATTER(zeus::CVector2f, fmt("({} {})"), float(obj.x()), float(obj.y()))
+FMT_CUSTOM_FORMATTER(zeus::CMatrix3f, fmt("\n({} {} {})"
+                                          "\n({} {} {})"
+                                          "\n({} {} {})"),
+                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]),
+                     float(obj[0][1]), float(obj[1][1]), float(obj[2][1]),
+                     float(obj[0][2]), float(obj[1][2]), float(obj[2][2]))
+FMT_CUSTOM_FORMATTER(zeus::CMatrix4f, fmt("\n({} {} {} {})"
+                                          "\n({} {} {} {})"
+                                          "\n({} {} {} {})"
+                                          "\n({} {} {} {})"),
+                     float(obj[0][0]), float(obj[1][0]), float(obj[2][0]), float(obj[3][0]),
+                     float(obj[0][1]), float(obj[1][1]), float(obj[2][1]), float(obj[3][1]),
+                     float(obj[0][2]), float(obj[1][2]), float(obj[2][2]), float(obj[3][2]),
+                     float(obj[0][3]), float(obj[1][3]), float(obj[2][3]), float(obj[3][3]))
+FMT_CUSTOM_FORMATTER(zeus::CTransform, fmt("\n({} {} {} {})"
+                                           "\n({} {} {} {})"
+                                           "\n({} {} {} {})"),
+                     float(obj.basis[0][0]), float(obj.basis[1][0]), float(obj.basis[2][0]), float(obj.origin[0]),
+                     float(obj.basis[0][1]), float(obj.basis[1][1]), float(obj.basis[2][1]), float(obj.origin[1]),
+                     float(obj.basis[0][2]), float(obj.basis[1][2]), float(obj.basis[2][2]), float(obj.origin[2]))
 
 #if defined(__has_feature)
 #if __has_feature(memory_sanitizer)

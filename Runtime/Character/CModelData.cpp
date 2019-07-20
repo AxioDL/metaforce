@@ -24,7 +24,7 @@ CModelData CModelData::CModelDataNull() { return CModelData(); }
 CModelData::CModelData(const CStaticRes& res, int instCount) : x0_scale(res.GetScale()), m_drawInstCount(instCount) {
   x1c_normalModel = g_SimplePool->GetObj({SBIG('CMDL'), res.GetId()});
   if (!x1c_normalModel)
-    Log.report(logvisor::Fatal, "unable to find CMDL %08X", res.GetId());
+    Log.report(logvisor::Fatal, fmt("unable to find CMDL {}"), res.GetId());
   m_normalModelInst = x1c_normalModel->MakeNewInstance(0, instCount);
 }
 
@@ -130,7 +130,7 @@ void CModelData::SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
       } else {
         x2c_xrayModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x2c_xrayModel)
-          Log.report(logvisor::Fatal, "unable to find CMDL %08X", modelSkin.first);
+          Log.report(logvisor::Fatal, fmt("unable to find CMDL {}"), modelSkin.first);
         m_xrayModelInst = x2c_xrayModel->MakeNewInstance(0, m_drawInstCount);
       }
     }
@@ -147,7 +147,7 @@ void CModelData::SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
       } else {
         x3c_infraModel = g_SimplePool->GetObj({SBIG('CMDL'), modelSkin.first});
         if (!x3c_infraModel)
-          Log.report(logvisor::Fatal, "unable to find CMDL %08X", modelSkin.first);
+          Log.report(logvisor::Fatal, fmt("unable to find CMDL {}"), modelSkin.first);
         m_infraModelInst = x3c_infraModel->MakeNewInstance(0, m_drawInstCount);
       }
     }

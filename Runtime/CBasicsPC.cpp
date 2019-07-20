@@ -37,15 +37,6 @@ void CBasics::Initialize() {
 #endif
 }
 
-const char* CBasics::Stringize(const char* fmt, ...) {
-  static char STRINGIZE_STR[2048] = {0};
-  va_list ap;
-  va_start(ap, fmt);
-  vsnprintf(STRINGIZE_STR, 2048, fmt, ap);
-  va_end(ap);
-  return STRINGIZE_STR;
-}
-
 u64 CBasics::GetGCTicks() {
 #if __APPLE__
   return mach_absolute_time() * MachToDolphinNum / MachToDolphinDenom;

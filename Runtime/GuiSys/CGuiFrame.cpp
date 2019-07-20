@@ -170,7 +170,7 @@ void CGuiFrame::LoadWidgetsInGame(CInputStream& in, CSimplePool* sp) {
     type.read(in);
     std::shared_ptr<CGuiWidget> widget = CGuiSys::CreateWidgetInGame(type, in, this, sp);
     type = widget->GetWidgetTypeID();
-    switch (type) {
+    switch (type.toUint32()) {
     case SBIG('CAMR'):
     case SBIG('LITE'):
     case SBIG('BGND'):

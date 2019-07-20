@@ -27,23 +27,23 @@ struct Burrower : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc) {
+    if (wpsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
-    if (particle3) {
+    if (particle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
       ent->name = name + "_part3";
     }
-    if (particle4) {
+    if (particle4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
       ent->name = name + "_part4";
     }

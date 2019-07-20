@@ -18,7 +18,7 @@ void MAPA::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader) {
   /* magic */
   magic = __dna_reader.readUint32Big();
   if (magic != 0xDEADD00D) {
-    LogDNACommon.report(logvisor::Error, "invalid MAPA magic");
+    LogDNACommon.report(logvisor::Error, fmt("invalid MAPA magic"));
     return;
   }
   /* version */
@@ -30,7 +30,7 @@ void MAPA::Enumerate<BigDNA::Read>(typename Read::StreamT& __dna_reader) {
   else if (version == 5)
     header.reset(new HeaderMP3);
   else {
-    LogDNACommon.report(logvisor::Error, "invalid MAPA version");
+    LogDNACommon.report(logvisor::Error, fmt("invalid MAPA version"));
     return;
   }
 
@@ -142,10 +142,10 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         "    edge.seam = True\n"
         "\n";
 
-  os.format(
-      "bpy.context.scene.name = 'MAPA_%s'\n"
-      "bpy.context.scene.retro_map_vis_mode = '%s'\n",
-      entry.id.toString().c_str(), RetroMapVisModes[mapa.header->visMode()]);
+  os.format(fmt(
+      "bpy.context.scene.name = 'MAPA_{}'\n"
+      "bpy.context.scene.retro_map_vis_mode = '{}'\n"),
+      entry.id, RetroMapVisModes[mapa.header->visMode()]);
 
   /* Add empties representing MappableObjects */
   int moIdx = 0;
@@ -155,18 +155,18 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
       zeus::simd_floats mtxF[3];
       for (int i = 0; i < 3; ++i)
         moMP12->transformMtx[i].simd.copy_to(mtxF[i]);
-      os.format(
-          "obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
+      os.format(fmt(
+          "obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
           "bpy.context.scene.collection.objects.link(obj)\n"
-          "obj.retro_mappable_type = %d\n"
-          "obj.retro_mapobj_vis_mode = '%s'\n"
-          "obj.retro_mappable_sclyid = '0x%08X'\n"
-          "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+          "obj.retro_mappable_type = {}\n"
+          "obj.retro_mapobj_vis_mode = '{}'\n"
+          "obj.retro_mappable_sclyid = '0x{:08X}'\n"
+          "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
           "mtxd = mtx.decompose()\n"
           "obj.rotation_mode = 'QUATERNION'\n"
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
-          "obj.scale = mtxd[2]\n",
+          "obj.scale = mtxd[2]\n"),
           moIdx, int(moMP12->type), RetroMapObjVisModes[moMP12->visMode], moMP12->sclyId, mtxF[0][0], mtxF[0][1],
           mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
           mtxF[2][3]);
@@ -177,18 +177,18 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
       zeus::simd_floats mtxF[3];
       for (int i = 0; i < 3; ++i)
         moMP3->transformMtx[i].simd.copy_to(mtxF[i]);
-      os.format(
-          "obj = bpy.data.objects.new('MAPOBJ_%02d', None)\n"
+      os.format(fmt(
+          "obj = bpy.data.objects.new('MAPOBJ_{:02d}', None)\n"
           "bpy.context.scene.collection.objects.link(obj)\n"
-          "obj.retro_mappable_type = %d\n"
-          "obj.retro_mapobj_vis_mode = '%s'\n"
-          "obj.retro_mappable_sclyid = '0x%08X'\n"
-          "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+          "obj.retro_mappable_type = {}\n"
+          "obj.retro_mapobj_vis_mode = '{}'\n"
+          "obj.retro_mappable_sclyid = '0x{:08X}'\n"
+          "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
           "mtxd = mtx.decompose()\n"
           "obj.rotation_mode = 'QUATERNION'\n"
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
-          "obj.scale = mtxd[2]\n",
+          "obj.scale = mtxd[2]\n"),
           moIdx, int(moMP3->type), RetroMapObjVisModes[moMP3->visMode], moMP3->sclyId, mtxF[0][0], mtxF[0][1],
           mtxF[0][2], mtxF[0][3], mtxF[1][0], mtxF[1][1], mtxF[1][2], mtxF[1][3], mtxF[2][0], mtxF[2][1], mtxF[2][2],
           mtxF[2][3]);
@@ -204,7 +204,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
   /* Read in verts */
   for (const atVec3f& vert : mapa.vertices) {
     zeus::simd_floats f(vert.simd);
-    os.format("bm.verts.new((%f,%f,%f))\n", f[0], f[1], f[2]);
+    os.format(fmt("bm.verts.new(({},{},{}))\n"), f[0], f[1], f[2]);
   }
   os << "bm.verts.ensure_lookup_table()\n";
 
@@ -221,10 +221,10 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         atUint8 flip = 0;
         for (size_t v = 0; v < prim.indexCount - 2; ++v) {
           if (flip) {
-            os.format("add_triangle(bm, (%u,%u,%u))\n", primVerts[c % 3], primVerts[(c + 2) % 3],
+            os.format(fmt("add_triangle(bm, ({},{},{}))\n"), primVerts[c % 3], primVerts[(c + 2) % 3],
                       primVerts[(c + 1) % 3]);
           } else {
-            os.format("add_triangle(bm, (%u,%u,%u))\n", primVerts[c % 3], primVerts[(c + 1) % 3],
+            os.format(fmt("add_triangle(bm, ({},{},{}))\n"), primVerts[c % 3], primVerts[(c + 1) % 3],
                       primVerts[(c + 2) % 3]);
           }
           flip ^= 1;
@@ -244,7 +244,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
         }
       } else if (GX::Primitive(prim.type) == GX::TRIANGLES) {
         for (size_t v = 0; v < prim.indexCount; v += 3) {
-          os.format("add_triangle(bm, (%u,%u,%u))\n", primVerts[0], primVerts[1], primVerts[2]);
+          os.format(fmt("add_triangle(bm, ({},{},{}))\n"), primVerts[0], primVerts[1], primVerts[2]);
 
           /* Break if done */
           if (v + 3 >= prim.indexCount)
@@ -260,7 +260,7 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
     for (const typename MAPA::Surface::Border& border : surf.borders) {
       auto iit = border.indices.cbegin();
       for (size_t i = 0; i < border.indexCount - 1; ++i) {
-        os.format("add_border(bm, (%u,%u))\n", *iit, *(iit + 1));
+        os.format(fmt("add_border(bm, ({},{}))\n"), *iit, *(iit + 1));
         ++iit;
       }
     }
@@ -274,13 +274,13 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
 
   const zeus::CMatrix4f* tmpMtx = pakRouter.lookupMAPATransform(entry.id);
   const zeus::CMatrix4f& mtx = tmpMtx ? *tmpMtx : zeus::skIdentityMatrix4f;
-  os.format(
-      "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+  os.format(fmt(
+      "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
       "mtxd = mtx.decompose()\n"
       "obj.rotation_mode = 'QUATERNION'\n"
       "obj.location = mtxd[0]\n"
       "obj.rotation_quaternion = mtxd[1]\n"
-      "obj.scale = mtxd[2]\n",
+      "obj.scale = mtxd[2]\n"),
       mtx[0][0], mtx[1][0], mtx[2][0], mtx[3][0], mtx[0][1], mtx[1][1], mtx[2][1], mtx[3][1], mtx[0][2], mtx[1][2],
       mtx[2][2], mtx[3][2]);
 
@@ -316,7 +316,7 @@ template bool ReadMAPAToBlender<PAKRouter<DNAMP3::PAKBridge>>(hecl::blender::Con
 template <typename MAPAType>
 bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out) {
   if (mapaIn.verts.size() >= 256) {
-    Log.report(logvisor::Error, _SYS_STR("MAPA %s vertex range exceeded [%d/%d]"), out.getRelativePath().data(),
+    Log.report(logvisor::Error, fmt(_SYS_STR("MAPA {} vertex range exceeded [{}/{}]")), out.getRelativePath(),
                mapaIn.verts.size(), 255);
     return false;
   }

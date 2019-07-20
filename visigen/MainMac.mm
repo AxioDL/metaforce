@@ -117,7 +117,7 @@ int main(int argc, const char** argv)
 {
     if (argc > 1 && !strcmp(argv[1], "--dlpackage"))
     {
-        printf("%s\n", URDE_DLPACKAGE);
+        fmt::print(fmt("{}\n"), URDE_DLPACKAGE);
         return 100;
     }
     

@@ -62,39 +62,39 @@ struct GunTurret : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (projectileRes) {
+    if (projectileRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(projectileRes);
       ent->name = name + "_projectileRes";
     }
-    if (idleLightRes) {
+    if (idleLightRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(idleLightRes);
       ent->name = name + "_idleLightRes";
     }
-    if (deactivateLightRes) {
+    if (deactivateLightRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(deactivateLightRes);
       ent->name = name + "_deactivateLightRes";
     }
-    if (targettingLightRes) {
+    if (targettingLightRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(targettingLightRes);
       ent->name = name + "_targettingLightRes";
     }
-    if (frozenEffectRes) {
+    if (frozenEffectRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(frozenEffectRes);
       ent->name = name + "_frozenEffectRes";
     }
-    if (chargingEffectRes) {
+    if (chargingEffectRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(chargingEffectRes);
       ent->name = name + "_chargingEffectRes";
     }
-    if (panningEffectRes) {
+    if (panningEffectRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(panningEffectRes);
       ent->name = name + "_panningEffectRes";
     }
-    if (visorEffectRes) {
+    if (visorEffectRes.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(visorEffectRes);
       ent->name = name + "_visorEffectRes";
     }
-    if (extensionModelResId) {
+    if (extensionModelResId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(extensionModelResId);
       ent->name = name + "_extensionModelResId";
     }

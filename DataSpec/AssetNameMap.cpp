@@ -32,7 +32,7 @@ void LoadAssetMap(athena::io::MemoryReader& ar) {
       ar.readBytesToBuf(&magic, 4);
     if (magic != FOURCC('AIDM'))
       Log.report(logvisor::Warning,
-                 _SYS_STR("Unable to load asset map; Assets will not have proper filenames for most files."));
+                 fmt(_SYS_STR("Unable to load asset map; Assets will not have proper filenames for most files.")));
     else {
       uint32_t assetCount = ar.readUint32Big();
       g_AssetNameMap.reserve(assetCount);
@@ -50,7 +50,7 @@ void InitAssetNameMap() {
   if (g_AssetNameMapInit)
     return;
 
-  Log.report(logvisor::Info, "Initializing asset name database...");
+  Log.report(logvisor::Info, fmt("Initializing asset name database..."));
 
   /* First load the 32bit map for MP1/2 */
   {

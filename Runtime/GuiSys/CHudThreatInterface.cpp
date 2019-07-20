@@ -82,7 +82,7 @@ void CHudThreatInterface::Update(float dt) {
   if (x70_textpane_threatdigits) {
     if (x10_threatDist < maxThreatEnergy) {
       x70_textpane_threatdigits->SetIsVisible(true);
-      x70_textpane_threatdigits->TextSupport().SetText(hecl::Format("%01.1f", std::max(0.f, x10_threatDist)));
+      x70_textpane_threatdigits->TextSupport().SetText(fmt::format(fmt("{:01.1f}"), std::max(0.f, x10_threatDist)));
     } else {
       x70_textpane_threatdigits->SetIsVisible(false);
     }

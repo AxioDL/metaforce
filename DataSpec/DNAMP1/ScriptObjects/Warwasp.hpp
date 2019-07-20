@@ -27,11 +27,11 @@ struct Warwasp : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (projectileWeapon) {
+    if (projectileWeapon.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(projectileWeapon);
       ent->name = name + "_wpsc";
     }
-    if (projectileVisorParticle) {
+    if (projectileVisorParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(projectileVisorParticle);
       ent->name = name + "_part";
     }

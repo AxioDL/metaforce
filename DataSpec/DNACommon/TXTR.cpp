@@ -59,35 +59,35 @@ static size_t ComputeMippedTexelCount(unsigned inWidth, unsigned inHeight) {
 }
 
 /* GX uses this upsampling technique to extract full 8-bit range */
-static inline uint8_t Convert3To8(uint8_t v) {
+constexpr uint8_t Convert3To8(uint8_t v) {
   /* Swizzle bits: 00000123 -> 12312312 */
   return (v << 5) | (v << 2) | (v >> 1);
 }
 
-static inline uint8_t Convert8To3(uint8_t v) { return v >> 5; }
+constexpr uint8_t Convert8To3(uint8_t v) { return v >> 5; }
 
-static inline uint8_t Convert4To8(uint8_t v) {
+constexpr uint8_t Convert4To8(uint8_t v) {
   /* Swizzle bits: 00001234 -> 12341234 */
   return (v << 4) | v;
 }
 
-static inline uint8_t Convert8To4(uint8_t v) { return v >> 4; }
+constexpr uint8_t Convert8To4(uint8_t v) { return v >> 4; }
 
-static inline uint8_t Convert5To8(uint8_t v) {
+constexpr uint8_t Convert5To8(uint8_t v) {
   /* Swizzle bits: 00012345 -> 12345123 */
   return (v << 3) | (v >> 2);
 }
 
-static inline uint8_t Convert8To5(uint8_t v) { return v >> 3; }
+constexpr uint8_t Convert8To5(uint8_t v) { return v >> 3; }
 
-static inline uint8_t Convert6To8(uint8_t v) {
+constexpr uint8_t Convert6To8(uint8_t v) {
   /* Swizzle bits: 00123456 -> 12345612 */
   return (v << 2) | (v >> 4);
 }
 
-static inline uint8_t Convert8To6(uint8_t v) { return v >> 2; }
+constexpr uint8_t Convert8To6(uint8_t v) { return v >> 2; }
 
-static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y) {
+static uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y) {
   int bwidth = (width + 7) / 8;
   int bx = x / 8;
   int by = y / 8;
@@ -98,7 +98,7 @@ static inline uint8_t Lookup4BPP(const uint8_t* texels, int width, int x, int y)
   return btexels[ry * 4 + rx / 2] >> ((rx & 1) ? 0 : 4) & 0xf;
 }
 
-static inline void Set4BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
+static void Set4BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
   int bwidth = (width + 7) / 8;
   int bx = x / 8;
   int by = y / 8;
@@ -109,7 +109,7 @@ static inline void Set4BPP(uint8_t* texels, int width, int x, int y, uint8_t val
   btexels[ry * 4 + rx / 2] |= (val & 0xf) << ((rx & 1) ? 0 : 4);
 }
 
-static inline uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y) {
+static uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y) {
   int bwidth = (width + 7) / 8;
   int bx = x / 8;
   int by = y / 4;
@@ -120,7 +120,7 @@ static inline uint8_t Lookup8BPP(const uint8_t* texels, int width, int x, int y)
   return btexels[ry * 8 + rx];
 }
 
-static inline void Set8BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
+static void Set8BPP(uint8_t* texels, int width, int x, int y, uint8_t val) {
   int bwidth = (width + 7) / 8;
   int bx = x / 8;
   int by = y / 4;
@@ -131,7 +131,7 @@ static inline void Set8BPP(uint8_t* texels, int width, int x, int y, uint8_t val
   btexels[ry * 8 + rx] = val;
 }
 
-static inline uint16_t Lookup16BPP(const uint8_t* texels, int width, int x, int y) {
+static uint16_t Lookup16BPP(const uint8_t* texels, int width, int x, int y) {
   int bwidth = (width + 3) / 4;
   int bx = x / 4;
   int by = y / 4;
@@ -142,7 +142,7 @@ static inline uint16_t Lookup16BPP(const uint8_t* texels, int width, int x, int 
   return btexels[ry * 4 + rx];
 }
 
-static inline void Set16BPP(uint8_t* texels, int width, int x, int y, uint16_t val) {
+static void Set16BPP(uint8_t* texels, int width, int x, int y, uint16_t val) {
   int bwidth = (width + 3) / 4;
   int bx = x / 4;
   int by = y / 4;
@@ -153,8 +153,8 @@ static inline void Set16BPP(uint8_t* texels, int width, int x, int y, uint16_t v
   btexels[ry * 4 + rx] = val;
 }
 
-static inline void LookupRGBA8(const uint8_t* texels, int width, int x, int y, uint8_t* r, uint8_t* g, uint8_t* b,
-                               uint8_t* a) {
+static void LookupRGBA8(const uint8_t* texels, int width, int x, int y, uint8_t* r, uint8_t* g, uint8_t* b,
+                        uint8_t* a) {
   int bwidth = (width + 3) / 4;
   int bx = x / 4;
   int by = y / 4;
@@ -171,7 +171,7 @@ static inline void LookupRGBA8(const uint8_t* texels, int width, int x, int y, u
   *b = gb & 0xff;
 }
 
-static inline void SetRGBA8(uint8_t* texels, int width, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+static void SetRGBA8(uint8_t* texels, int width, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   int bwidth = (width + 3) / 4;
   int bx = x / 4;
   int by = y / 4;
@@ -796,9 +796,9 @@ static void EncodeCMPR(const uint8_t* rgbaIn, uint8_t* texels, int width, int he
   }
 }
 
-static void PNGErr(png_structp png, png_const_charp msg) { Log.report(logvisor::Error, msg); }
+static void PNGErr(png_structp png, png_const_charp msg) { Log.report(logvisor::Error, fmt("{}"), msg); }
 
-static void PNGWarn(png_structp png, png_const_charp msg) { Log.report(logvisor::Warning, msg); }
+static void PNGWarn(png_structp png, png_const_charp msg) { Log.report(logvisor::Warning, fmt("{}"), msg); }
 
 bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   uint32_t format = rs.readUint32Big();
@@ -808,7 +808,7 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
 
   FILE* fp = hecl::Fopen(outPath.getAbsolutePath().data(), _SYS_STR("wb"));
   if (!fp) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for writing"), outPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
     return false;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -1013,7 +1013,7 @@ static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
 bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
   FILE* inf = hecl::Fopen(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
   if (!inf) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for reading"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1021,7 +1021,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   char header[8];
   fread(header, 1, 8, inf);
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
-    Log.report(logvisor::Error, _SYS_STR("invalid PNG signature in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     return false;
   }
@@ -1029,20 +1029,20 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   /* Setup PNG reader */
   png_structp pngRead = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!pngRead) {
-    Log.report(logvisor::Error, "unable to initialize libpng");
+    Log.report(logvisor::Error, fmt("unable to initialize libpng"));
     fclose(inf);
     return false;
   }
   png_infop info = png_create_info_struct(pngRead);
   if (!info) {
-    Log.report(logvisor::Error, "unable to initialize libpng info");
+    Log.report(logvisor::Error, fmt("unable to initialize libpng info"));
     fclose(inf);
     png_destroy_read_struct(&pngRead, nullptr, nullptr);
     return false;
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, _SYS_STR("unable to initialize libpng I/O for '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1059,7 +1059,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   png_byte bitDepth = png_get_bit_depth(pngRead, info);
 
   if (width < 4 || height < 4) {
-    Log.report(logvisor::Error, "image must be 4x4 or larger");
+    Log.report(logvisor::Error, fmt("image must be 4x4 or larger"));
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1085,7 +1085,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   }
 
   if (bitDepth != 8) {
-    Log.report(logvisor::Error, _SYS_STR("'%s' is not 8 bits-per-channel"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1117,7 +1117,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     nComps = 1;
     break;
   default:
-    Log.report(logvisor::Error, _SYS_STR("unsupported color type in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1138,7 +1138,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   bufOut.reset(new uint8_t[bufLen]);
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, _SYS_STR("unable to read image in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1318,7 +1318,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   /* Do write out */
   athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
   if (outf.hasError()) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for writing"), outPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
     return false;
   }
 
@@ -1334,7 +1334,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
   FILE* inf = hecl::Fopen(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
   if (!inf) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for reading"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
     return false;
   }
 
@@ -1342,7 +1342,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   char header[8];
   fread(header, 1, 8, inf);
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
-    Log.report(logvisor::Error, _SYS_STR("invalid PNG signature in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     return false;
   }
@@ -1350,20 +1350,20 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   /* Setup PNG reader */
   png_structp pngRead = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!pngRead) {
-    Log.report(logvisor::Error, "unable to initialize libpng");
+    Log.report(logvisor::Error, fmt("unable to initialize libpng"));
     fclose(inf);
     return false;
   }
   png_infop info = png_create_info_struct(pngRead);
   if (!info) {
-    Log.report(logvisor::Error, "unable to initialize libpng info");
+    Log.report(logvisor::Error, fmt("unable to initialize libpng info"));
     fclose(inf);
     png_destroy_read_struct(&pngRead, nullptr, nullptr);
     return false;
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, _SYS_STR("unable to initialize libpng I/O for '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1399,7 +1399,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   }
 
   if (bitDepth != 8) {
-    Log.report(logvisor::Error, _SYS_STR("'%s' is not 8 bits-per-channel"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1429,7 +1429,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     paletteBuf = ReadPalette(pngRead, info, paletteSize);
     break;
   default:
-    Log.report(logvisor::Error, _SYS_STR("unsupported color type in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1448,7 +1448,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   bufOut.reset(new uint8_t[bufLen]);
 
   if (setjmp(png_jmpbuf(pngRead))) {
-    Log.report(logvisor::Error, _SYS_STR("unable to read image in '%s'"), inPath.getAbsolutePath().data());
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
     fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
@@ -1570,7 +1570,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   /* Do write out */
   athena::io::FileWriter outf(outPath.getAbsolutePath(), true, false);
   if (outf.hasError()) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for writing"), outPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
     return false;
   }
 
@@ -1607,7 +1607,7 @@ std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
   atUint16 width = rs.readUint16Big();
   atUint16 height = rs.readUint16Big();
   atUint32 mips = rs.readUint32Big();
-  std::string res = hecl::Format("tex1_%dx%d%s", width, height, mips > 1 ? "_m" : "");
+  std::string res = fmt::format(fmt("tex1_{}x{}{}"), width, height, mips > 1 ? "_m" : "");
   atUint64 palHash = 0;
   bool hasPalette = false;
   atUint32 textureSize = width * height;
@@ -1643,10 +1643,10 @@ std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
   std::unique_ptr<u8[]> textureData(new u8[textureSize]);
   rs.readUBytesToBuf(textureData.get(), textureSize);
   atUint64 texHash = XXH64(textureData.get(), textureSize, 0);
-  res += hecl::Format("_%016" PRIx64, texHash);
+  res += fmt::format(fmt("_{:016X}"), texHash);
   if (hasPalette)
-    res += hecl::Format("_%016" PRIx64, palHash);
-  res += hecl::Format("_%d", format);
+    res += fmt::format(fmt("_{:016X}"), palHash);
+  res += fmt::format(fmt("_{}"), format);
 
   return res;
 }

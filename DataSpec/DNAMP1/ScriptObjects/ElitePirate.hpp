@@ -57,39 +57,39 @@ struct ElitePirate : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle1) {
+    if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
     }
-    if (particle2) {
+    if (particle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
       ent->name = name + "_part2";
     }
-    if (model) {
+    if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
     }
-    if (particle3) {
+    if (particle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle3);
       ent->name = name + "_part3";
     }
-    if (particle4) {
+    if (particle4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle4);
       ent->name = name + "_part4";
     }
-    if (particle5) {
+    if (particle5.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle5);
       ent->name = name + "_part5";
     }
-    if (particle6) {
+    if (particle6.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle6);
       ent->name = name + "_part6";
     }
-    if (particle7) {
+    if (particle7.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle7);
       ent->name = name + "_part7";
     }
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }

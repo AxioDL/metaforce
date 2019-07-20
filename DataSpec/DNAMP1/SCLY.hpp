@@ -7,7 +7,7 @@
 namespace DataSpec::DNAMP1 {
 struct SCLY : BigDNA {
   AT_DECL_EXPLICIT_DNA_YAML
-  Value<FourCC> fourCC;
+  DNAFourCC fourCC;
   Value<atUint32> version;
   Value<atUint32> layerCount;
 

@@ -125,12 +125,12 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
     void rowActivated(size_t rIdx) {}
 
     ResListingDataBind(ResourceBrowser& rb, const specter::IViewManager& vm) : m_rb(rb) {
-      m_nameCol = vm.translateOr("name", "Name");
-      m_typeCol = vm.translateOr("type", "Type");
-      m_sizeCol = vm.translateOr("size", "Size");
-      m_dirStr = vm.translateOr("directory", "Directory");
-      m_projStr = vm.translateOr("hecl_project", "HECL Project");
-      m_fileStr = vm.translateOr("file", "File");
+      m_nameCol = vm.translate<locale::name>();
+      m_typeCol = vm.translate<locale::type>();
+      m_sizeCol = vm.translate<locale::size>();
+      m_dirStr = vm.translate<locale::directory>();
+      m_projStr = vm.translate<locale::hecl_project>();
+      m_fileStr = vm.translate<locale::file>();
     }
 
   } m_resListingBind;

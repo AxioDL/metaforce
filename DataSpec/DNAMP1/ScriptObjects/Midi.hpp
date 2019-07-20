@@ -16,7 +16,7 @@ struct Midi : IScriptObject {
   Value<atUint32> volume;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (song) {
+    if (song.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(song);
       ent->name = name + "_song";
     }

@@ -22,7 +22,7 @@ public:
   s32 GetStateId() const { return x0_stateId; }
   const rstl::reserved_vector<CPASAnimParm, 8>& GetAnimParmData() const { return x4_parms; }
 
-  static inline CPASAnimParmData NoParameters(s32 stateId) {
+  static CPASAnimParmData NoParameters(s32 stateId) {
     return {stateId,
             CPASAnimParm::NoParameter(),
             CPASAnimParm::NoParameter(),

@@ -59,7 +59,7 @@ struct Drone : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (crsc) {
+    if (crsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(crsc);
       ent->name = name + "_crsc";
     }

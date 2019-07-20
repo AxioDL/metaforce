@@ -9,11 +9,9 @@
 #include "hecl/Console.hpp"
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  AthenaLog.report(logvisor::Level(level), fmt, ap);
-  va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* file, const char*, int line,
+                      fmt::string_view fmt, fmt::format_args args) {
+  AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
 namespace urde {
@@ -93,16 +91,16 @@ struct Application : boo::IApplicationCallback {
       if (arg.find(_SYS_STR("--verbosity=")) == 0 || arg.find(_SYS_STR("-v=")) == 0) {
         hecl::SystemUTF8Conv utf8Arg(arg.substr(arg.find_last_of('=') + 1));
         hecl::VerbosityLevel = atoi(utf8Arg.c_str());
-        hecl::LogModule.report(logvisor::Info, "Set verbosity level to %i", hecl::VerbosityLevel);
+        hecl::LogModule.report(logvisor::Info, fmt("Set verbosity level to {}"), hecl::VerbosityLevel);
       }
     }
 
     m_cvarManager.parseCommandLine(app->getArgs());
 
     const zeus::CPUInfo& cpuInf = zeus::cpuFeatures();
-    Log.report(logvisor::Info, "CPU Name: %s", cpuInf.cpuBrand);
-    Log.report(logvisor::Info, "CPU Vendor: %s", cpuInf.cpuVendor);
-    Log.report(logvisor::Info, _SYS_STR("CPU Features: %s"), CPUFeatureString(cpuInf).c_str());
+    Log.report(logvisor::Info, fmt("CPU Name: {}"), cpuInf.cpuBrand);
+    Log.report(logvisor::Info, fmt("CPU Vendor: {}"), cpuInf.cpuVendor);
+    Log.report(logvisor::Info, fmt(_SYS_STR("CPU Features: {}")), CPUFeatureString(cpuInf));
   }
 
   std::string getGraphicsApi() const { return m_cvarCommons.getGraphicsApi(); }
@@ -139,14 +137,12 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    char* msg;
-    asprintf(&msg, "ERROR: This build of URDE requires the following CPU features:\n%s\n",
-             urde::CPUFeatureString(result.second).c_str());
-    MessageBoxA(nullptr, msg, "CPU error", MB_OK | MB_ICONERROR);
-    free(msg);
+    std::string msg = fmt::format(fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+                                  urde::CPUFeatureString(result.second));
+    MessageBoxA(nullptr, msg.c_str(), "CPU error", MB_OK | MB_ICONERROR);
 #else
-    fprintf(stderr, "ERROR: This build of URDE requires the following CPU features:\n%s\n",
-            urde::CPUFeatureString(result.second).c_str());
+    fmt::print(stderr, fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+               urde::CPUFeatureString(result.second));
 #endif
     exit(1);
   }
@@ -172,7 +168,7 @@ int main(int argc, const boo::SystemChar** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    printf("%s\n", URDE_DLPACKAGE);
+    fmt::print(fmt("{}\n"), URDE_DLPACKAGE);
     return 100;
   }
 

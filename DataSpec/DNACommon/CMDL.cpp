@@ -79,15 +79,15 @@ void ReadMaterialSetToBlender_1_2(hecl::blender::PyOutStream& os, const Material
     }
     hecl::SystemString resPath = pakRouter.getResourceRelativePath(entry, tex);
     hecl::SystemUTF8Conv resPathView(resPath);
-    os.format(
-        "if '%s' in bpy.data.images:\n"
-        "    image = bpy.data.images['%s']\n"
+    os.format(fmt(
+        "if '{}' in bpy.data.images:\n"
+        "    image = bpy.data.images['{}']\n"
         "else:\n"
-        "    image = bpy.data.images.load('''//%s''')\n"
-        "    image.name = '%s'\n"
+        "    image = bpy.data.images.load('''//{}''')\n"
+        "    image.name = '{}'\n"
         "texmap_list.append(image)\n"
-        "\n",
-        texName.c_str(), texName.c_str(), resPathView.c_str(), texName.c_str());
+        "\n"),
+        texName, texName, resPathView, texName);
   }
 
   unsigned m = 0;
@@ -143,10 +143,10 @@ public:
         for (const std::pair<atUint16, std::vector<std::pair<atInt16, atUint16>>>& ev : m_extraVerts) {
           for (const std::pair<atInt16, atUint16>& se : ev.second) {
             if (se.second == nextVert) {
-              os.format(
+              os.format(fmt(
                   "bm.verts.ensure_lookup_table()\n"
-                  "orig_vert = bm.verts[%u]\n"
-                  "vert = bm.verts.new(orig_vert.co)\n",
+                  "orig_vert = bm.verts[{}]\n"
+                  "vert = bm.verts.new(orig_vert.co)\n"),
                   ev.first + baseVert);
               rp.first->weightVertex(os, *rp.second, se.first);
               ++nextVert;
@@ -461,12 +461,12 @@ void InitGeomBlenderContext(hecl::blender::PyOutStream& os, const hecl::ProjectP
         "\n";
 
   /* Link master shader library */
-  os.format(
+  os.format(fmt(
       "# Master shader library\n"
-      "with bpy.data.libraries.load('%s', link=True, relative=True) as (data_from, data_to):\n"
+      "with bpy.data.libraries.load('{}', link=True, relative=True) as (data_from, data_to):\n"
       "    data_to.node_groups = data_from.node_groups\n"
-      "\n",
-      masterShaderPath.getAbsolutePathUTF8().data());
+      "\n"),
+      masterShaderPath.getAbsolutePathUTF8());
 }
 
 void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int meshIdx) {
@@ -480,13 +480,13 @@ void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int
           "obj = bpy.data.objects.new(mesh.name, mesh)\n"
           "obj.show_transparent = True\n"
           "coll.objects.link(obj)\n";
-    os.format("mesh.hecl_material_count = %u\n", matSetCount);
+    os.format(fmt("mesh.hecl_material_count = {}\n"), matSetCount);
   } else {
-    os.format("mesh = bpy.data.meshes.new(bpy.context.scene.name + '_%03d')\n", meshIdx);
+    os.format(fmt("mesh = bpy.data.meshes.new(bpy.context.scene.name + '_{:03d}')\n"), meshIdx);
     os << "obj = bpy.data.objects.new(mesh.name, mesh)\n"
           "obj.show_transparent = True\n"
           "coll.objects.link(obj)\n";
-    os.format("mesh.hecl_material_count = %u\n", matSetCount);
+    os.format(fmt("mesh.hecl_material_count = {}\n"), matSetCount);
   }
 
   os << "mesh.use_auto_smooth = True\n"
@@ -692,7 +692,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         for (size_t i = 0; i <= maxIdxs.pos; ++i) {
           positions.push_back(reader.readVec3fBig());
           const atVec3f& pos = positions.back();
-          os.format("vert = bm.verts.new((%f,%f,%f))\n", pos.simd[0], pos.simd[1], pos.simd[2]);
+          os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
           if (rp.first) {
             if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
               rp.first->weightVertex(os, *rp.second, skinIndices[i]);
@@ -702,10 +702,10 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         }
         if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
           vertCount += extraTracker.sendAdditionalVertsToBlender(os, rp, 0);
-        os.format("two_face_vert = %u\n", vertCount);
+        os.format(fmt("two_face_vert = {}\n"), vertCount);
         for (size_t i = 0; i <= maxIdxs.pos; ++i) {
           const atVec3f& pos = positions[i];
-          os.format("vert = bm.verts.new((%f,%f,%f))\n", pos.simd[0], pos.simd[1], pos.simd[2]);
+          os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
           if (rp.first) {
             if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
               rp.first->weightVertex(os, *rp.second, skinIndices[i]);
@@ -726,13 +726,13 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
             float x = reader.readInt16Big() / 16384.0f;
             float y = reader.readInt16Big() / 16384.0f;
             float z = reader.readInt16Big() / 16384.0f;
-            os.format("norm_list.append((%f,%f,%f))\n", x, y, z);
+            os.format(fmt("norm_list.append(({},{},{}))\n"), x, y, z);
           }
         } else {
           size_t normCount = secSizes[s] / 12;
           for (size_t i = 0; i < normCount; ++i) {
             const atVec3f norm = reader.readVec3fBig();
-            os.format("norm_list.append((%f,%f,%f))\n", norm.simd[0], norm.simd[1], norm.simd[2]);
+            os.format(fmt("norm_list.append(({},{},{}))\n"), norm.simd[0], norm.simd[1], norm.simd[2]);
           }
         }
         break;
@@ -747,7 +747,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         size_t uvCount = secSizes[s] / 8;
         for (size_t i = 0; i < uvCount; ++i) {
           const atVec2f uv = reader.readVec2fBig();
-          os.format("uv_list.append((%f,%f))\n", uv.simd[0], uv.simd[1]);
+          os.format(fmt("uv_list.append(({},{}))\n"), uv.simd[0], uv.simd[1]);
         }
         break;
       }
@@ -763,7 +763,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
             for (size_t i = 0; i < uvCount; ++i) {
               float x = reader.readInt16Big() / 32768.0f;
               float y = reader.readInt16Big() / 32768.0f;
-              os.format("suv_list.append((%f,%f))\n", x, y);
+              os.format(fmt("suv_list.append(({},{}))\n"), x, y);
             }
             break;
           }
@@ -790,10 +790,10 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         if (SurfaceHeader::UseMatrixSkinning() && rp.first)
           bankIn = rp.first->getMatrixBank(sHead.skinMatrixBankIdx());
 
-        os.format("materials[%u].pass_index = %u\n", sHead.matIdx, surfIdx++);
+        os.format(fmt("materials[{}].pass_index = {}\n"), sHead.matIdx, surfIdx++);
         if (matUVCount > createdUVLayers) {
           for (unsigned l = createdUVLayers; l < matUVCount; ++l)
-            os.format("bm.loops.layers.uv.new('UV_%u')\n", l);
+            os.format(fmt("bm.loops.layers.uv.new('UV_{}')\n"), l);
           createdUVLayers = matUVCount;
         }
 
@@ -815,67 +815,67 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
             atUint8 flip = 0;
             for (int v = 0; v < vertCount - 2; ++v) {
               if (flip) {
-                os.format(
-                    "last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, "
-                    "two_face_vert)\n",
+                os.format(fmt(
+                    "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
+                    "two_face_vert)\n"),
                     primVerts[c % 3].pos, primVerts[(c + 2) % 3].pos, primVerts[(c + 1) % 3].pos, primVerts[c % 3].norm,
                     primVerts[(c + 2) % 3].norm, primVerts[(c + 1) % 3].norm, sHead.matIdx);
                 if (matUVCount) {
                   os << "if last_face is not None:\n";
                   for (unsigned j = 0; j < matUVCount; ++j) {
                     if (j == 0 && matShortUVs)
-                      os.format(
-                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], "
-                          "suv_list[%u])\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                      os.format(fmt(
+                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                          "suv_list[{}])\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                           "uv_tri[0]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                           "uv_tri[1]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_tri[2]\n",
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_tri[2]\n"),
                           primVerts[c % 3].uvs[j], primVerts[(c + 2) % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j],
                           primVerts[c % 3].pos, j, primVerts[(c + 2) % 3].pos, j, primVerts[(c + 1) % 3].pos, j);
                     else
-                      os.format(
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n",
+                      os.format(fmt(
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"),
                           primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j], primVerts[(c + 2) % 3].pos, j,
                           primVerts[(c + 2) % 3].uvs[j], primVerts[(c + 1) % 3].pos, j, primVerts[(c + 1) % 3].uvs[j]);
                   }
                 }
               } else {
-                os.format(
-                    "last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, "
-                    "two_face_vert)\n",
+                os.format(fmt(
+                    "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
+                    "two_face_vert)\n"),
                     primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, primVerts[(c + 2) % 3].pos, primVerts[c % 3].norm,
                     primVerts[(c + 1) % 3].norm, primVerts[(c + 2) % 3].norm, sHead.matIdx);
                 if (matUVCount) {
                   os << "if last_face is not None:\n";
                   for (unsigned j = 0; j < matUVCount; ++j) {
                     if (j == 0 && matShortUVs)
-                      os.format(
-                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], "
-                          "suv_list[%u])\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                      os.format(fmt(
+                          "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                          "suv_list[{}])\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                           "uv_tri[0]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                           "uv_tri[1]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_tri[2]\n",
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_tri[2]\n"),
                           primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j], primVerts[(c + 2) % 3].uvs[j],
                           primVerts[c % 3].pos, j, primVerts[(c + 1) % 3].pos, j, primVerts[(c + 2) % 3].pos, j);
                     else
-                      os.format(
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n"
-                          "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                          "uv_list[%u]\n",
+                      os.format(fmt(
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"
+                          "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                          "uv_list[{}]\n"),
                           primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].pos, j,
                           primVerts[(c + 1) % 3].uvs[j], primVerts[(c + 2) % 3].pos, j, primVerts[(c + 2) % 3].uvs[j]);
                   }
@@ -892,34 +892,34 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           } else if (ptype == GX::TRIANGLES) {
             for (int v = 0; v < vertCount; v += 3) {
 
-              os.format(
-                  "last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, "
-                  "two_face_vert)\n",
+              os.format(fmt(
+                  "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
+                  "two_face_vert)\n"),
                   primVerts[0].pos, primVerts[1].pos, primVerts[2].pos, primVerts[0].norm, primVerts[1].norm,
                   primVerts[2].norm, sHead.matIdx);
               if (matUVCount) {
                 os << "if last_face is not None:\n";
                 for (unsigned j = 0; j < matUVCount; ++j) {
                   if (j == 0 && matShortUVs)
-                    os.format(
-                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], "
-                        "suv_list[%u])\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                    os.format(fmt(
+                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                        "suv_list[{}])\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                         "uv_tri[0]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                         "uv_tri[1]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_tri[2]\n",
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_tri[2]\n"),
                         primVerts[0].uvs[j], primVerts[1].uvs[j], primVerts[2].uvs[j], primVerts[0].pos, j,
                         primVerts[1].pos, j, primVerts[2].pos, j);
                   else
-                    os.format(
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n",
+                    os.format(fmt(
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"),
                         primVerts[0].pos, j, primVerts[0].uvs[j], primVerts[1].pos, j, primVerts[1].uvs[j],
                         primVerts[2].pos, j, primVerts[2].uvs[j]);
                 }
@@ -936,34 +936,34 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           } else if (ptype == GX::TRIANGLEFAN) {
             ++c;
             for (int v = 0; v < vertCount - 2; ++v) {
-              os.format(
-                  "last_face, last_mesh = add_triangle(bm, bm.verts, (%u,%u,%u), norm_list, (%u,%u,%u), %u, od_list, "
-                  "two_face_vert)\n",
+              os.format(fmt(
+                  "last_face, last_mesh = add_triangle(bm, bm.verts, ({},{},{}), norm_list, ({},{},{}), {}, od_list, "
+                  "two_face_vert)\n"),
                   firstPrimVert.pos, primVerts[c % 3].pos, primVerts[(c + 1) % 3].pos, firstPrimVert.norm,
                   primVerts[c % 3].norm, primVerts[(c + 1) % 3].norm, sHead.matIdx);
               if (matUVCount) {
                 os << "if last_face is not None:\n";
                 for (unsigned j = 0; j < matUVCount; ++j) {
                   if (j == 0 && matShortUVs)
-                    os.format(
-                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[%u], suv_list[%u], "
-                        "suv_list[%u])\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                    os.format(fmt(
+                        "    uv_tri = expand_lightmap_triangle(lightmap_tri_tracker, suv_list[{}], suv_list[{}], "
+                        "suv_list[{}])\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                         "uv_tri[0]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
                         "uv_tri[1]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_tri[2]\n",
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_tri[2]\n"),
                         firstPrimVert.uvs[j], primVerts[c % 3].uvs[j], primVerts[(c + 1) % 3].uvs[j], firstPrimVert.pos,
                         j, primVerts[c % 3].pos, j, primVerts[(c + 1) % 3].pos, j);
                   else
-                    os.format(
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n"
-                        "    loop_from_facevert(last_mesh, last_face, %u)[last_mesh.loops.layers.uv[%u]].uv = "
-                        "uv_list[%u]\n",
+                    os.format(fmt(
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"
+                        "    loop_from_facevert(last_mesh, last_face, {})[last_mesh.loops.layers.uv[{}]].uv = "
+                        "uv_list[{}]\n"),
                         firstPrimVert.pos, j, firstPrimVert.uvs[j], primVerts[c % 3].pos, j, primVerts[c % 3].uvs[j],
                         primVerts[(c + 1) % 3].pos, j, primVerts[(c + 1) % 3].uvs[j]);
                 }
@@ -1004,24 +1004,24 @@ bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReade
   head.read(reader);
 
   if (head.magic != 0xDEADBABE) {
-    LogDNACommon.report(logvisor::Error, "invalid CMDL magic");
+    LogDNACommon.report(logvisor::Error, fmt("invalid CMDL magic"));
     return false;
   }
 
   if (head.version != Version) {
-    LogDNACommon.report(logvisor::Error, "invalid CMDL version");
+    LogDNACommon.report(logvisor::Error, fmt("invalid CMDL version"));
     return false;
   }
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-  os.format(
+  os.format(fmt(
       "import bpy\n"
       "import bmesh\n"
       "\n"
-      "bpy.context.scene.name = '%s'\n"
-      "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n",
-      pakRouter.getBestEntryName(entry).c_str());
+      "bpy.context.scene.name = '{}'\n"
+      "bpy.context.scene.hecl_mesh_obj = bpy.context.scene.name\n"),
+      pakRouter.getBestEntryName(entry));
   InitGeomBlenderContext(os, dataspec.getMasterShaderPath());
   MaterialSet::RegisterMaterialProps(os);
 
@@ -1066,7 +1066,7 @@ void NameCMDL(athena::io::IStreamReader& reader, PAKRouter& pakRouter, typename 
               const SpecBase& dataspec) {
   Header head;
   head.read(reader);
-  std::string bestName = hecl::Format("CMDL_%s", entry.id.toString().c_str());
+  std::string bestName = fmt::format(fmt("CMDL_{}"), entry.id);
 
   /* Pre-read pass to determine maximum used vert indices */
   atUint32 matSecCount = 0;
@@ -1139,7 +1139,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
 
       size_t endOff = 0;
       for (const Material& mat : mset) {
-        std::string diagName = hecl::Format("%s:%s", inPath.getLastComponentUTF8().data(), mat.name.c_str());
+        std::string diagName = fmt::format(fmt("{}:{}"), inPath.getLastComponentUTF8(), mat.name);
         hecl::Frontend::IR matIR = FE.compileSource(mat.source, diagName);
         setBackends.emplace_back();
         hecl::Backend::GX& matGX = setBackends.back();
@@ -1232,7 +1232,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
   for (const Mesh::Surface& surf : mesh.surfaces) {
     size_t vertSz = matSets.at(0).materials.at(surf.materialIdx).getVAFlags().vertDLSize();
     if (surf.verts.size() > 65536)
-      LogDNACommon.report(logvisor::Fatal, "GX DisplayList overflow");
+      LogDNACommon.report(logvisor::Fatal, fmt("GX DisplayList overflow"));
     size_t secSz = 64;
     for (auto it = surf.verts.cbegin(); it != surf.verts.cend();) {
       atUint16 vertCount = 0;
@@ -1326,7 +1326,7 @@ bool WriteCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath
   else if (mesh.topology == hecl::HMDLTopology::TriStrips)
     prim = GX::TRIANGLESTRIP;
   else
-    LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
+    LogDNACommon.report(logvisor::Fatal, fmt("unrecognized mesh output mode"));
   auto surfSizeIt = head.secSizes.begin() + firstSurfSec;
   for (const Mesh::Surface& surf : mesh.surfaces) {
     const typename MaterialSet::Material::VAFlags& vaFlags = matSets.at(0).materials.at(surf.materialIdx).getVAFlags();
@@ -1774,7 +1774,7 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
     else if (mesh.topology == hecl::HMDLTopology::TriStrips)
       prim = GX::TRIANGLESTRIP;
     else
-      LogDNACommon.report(logvisor::Fatal, "unrecognized mesh output mode");
+      LogDNACommon.report(logvisor::Fatal, fmt("unrecognized mesh output mode"));
     auto surfEndOffIt = surfEndOffs.begin();
     size_t lastEndOff = 0;
     for (const Mesh::Surface& surf : mesh.surfaces) {

@@ -51,15 +51,14 @@ public:
   struct SpaceMenuNode final : specter::IMenuNode {
     struct SubNodeData final : specter::IMenuNode {
       Class m_cls;
-      std::string m_key;
       std::string m_text;
       specter::Icon& m_icon;
       zeus::CColor m_color;
       const std::string* text() const { return &m_text; }
       void activated(const boo::SWindowCoord& coord) {}
 
-      SubNodeData(Class cls, const char* key, const char* text, specter::Icon& icon, const zeus::CColor& color)
-      : m_cls(cls), m_key(key), m_text(text), m_icon(icon), m_color(color) {}
+      SubNodeData(Class cls, const char* text, specter::Icon& icon, const zeus::CColor& color)
+      : m_cls(cls), m_text(text), m_icon(icon), m_color(color) {}
     };
     static std::vector<SubNodeData> s_subNodeDats;
 

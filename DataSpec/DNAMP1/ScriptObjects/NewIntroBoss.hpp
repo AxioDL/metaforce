@@ -27,19 +27,19 @@ struct NewIntroBoss : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (beamContactFxId) {
+    if (beamContactFxId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamContactFxId);
       ent->name = name + "_beamContactFxId";
     }
-    if (beamPulseFxId) {
+    if (beamPulseFxId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamPulseFxId);
       ent->name = name + "_beamPulseFxId";
     }
-    if (beamTextureId) {
+    if (beamTextureId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamTextureId);
       ent->name = name + "_beamTextureId";
     }
-    if (beamGlowTextureId) {
+    if (beamGlowTextureId.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(beamGlowTextureId);
       ent->name = name + "_beamGlowTextureId";
     }

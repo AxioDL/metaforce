@@ -158,7 +158,7 @@ void RealElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT&
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('LFTW'):
@@ -285,9 +285,9 @@ void RealElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::Stre
 
 template <>
 void RealElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('LFTW'):
     m_elem.reset(new struct RELifetimeTween);
     break;
@@ -393,7 +393,7 @@ void RealElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown RealElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown RealElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -418,7 +418,7 @@ void IntElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& 
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('KEYE'):
@@ -497,9 +497,9 @@ void IntElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::Strea
 
 template <>
 void IntElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('KEYE'):
   case SBIG('KEYP'):
     m_elem.reset(new struct IEKeyframeEmitter);
@@ -557,7 +557,7 @@ void IntElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown IntElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown IntElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -582,7 +582,7 @@ void VectorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::Stream
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('CONE'):
@@ -661,9 +661,9 @@ void VectorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::St
 
 template <>
 void VectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('CONE'):
     m_elem.reset(new struct VECone);
     break;
@@ -721,7 +721,7 @@ void VectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown VectorElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown VectorElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -746,7 +746,7 @@ void ColorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('KEYE'):
@@ -792,9 +792,9 @@ void ColorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::Str
 
 template <>
 void ColorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('KEYE'):
   case SBIG('KEYP'):
     m_elem.reset(new struct CEKeyframeEmitter);
@@ -819,7 +819,7 @@ void ColorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown ColorElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown ColorElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -844,7 +844,7 @@ void ModVectorElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::Str
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('IMPL'):
@@ -907,9 +907,9 @@ void ModVectorElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize:
 
 template <>
 void ModVectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('IMPL'):
     m_elem.reset(new struct MVEImplosion);
     break;
@@ -951,7 +951,7 @@ void ModVectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown ModVectorElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown ModVectorElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -976,7 +976,7 @@ void EmitterElementFactory::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::Strea
 
   const auto& elem = mapChildren[0];
   if (elem.first.size() < 4)
-    LogModule.report(logvisor::Fatal, "short FourCC in element '%s'", elem.first.c_str());
+    LogModule.report(logvisor::Fatal, fmt("short FourCC in element '{}'"), elem.first);
 
   switch (*reinterpret_cast<const uint32_t*>(elem.first.data())) {
   case SBIG('SETR'):
@@ -1015,9 +1015,9 @@ void EmitterElementFactory::Enumerate<BigDNA::BinarySize>(typename BinarySize::S
 
 template <>
 void EmitterElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  uint32_t clsId;
-  r.readBytesToBuf(&clsId, 4);
-  switch (clsId) {
+  DNAFourCC clsId;
+  clsId.read(r);
+  switch (clsId.toUint32()) {
   case SBIG('SETR'):
     m_elem.reset(new struct EESimpleEmitterTR);
     break;
@@ -1035,7 +1035,7 @@ void EmitterElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
     return;
   default:
     m_elem.reset();
-    LogModule.report(logvisor::Fatal, "Unknown EmitterElement class %.4s @%" PRIi64, &clsId, r.position());
+    LogModule.report(logvisor::Fatal, fmt("Unknown EmitterElement class {} @{}"), clsId, r.position());
     return;
   }
   m_elem->read(r);
@@ -1480,14 +1480,14 @@ void ChildResourceFactory<IDType>::_read(typename ReadYaml::StreamT& r) {
 
 template <class IDType>
 void ChildResourceFactory<IDType>::_write(typename WriteYaml::StreamT& w) const {
-  if (id)
+  if (id.isValid())
     if (auto rec = w.enterSubRecord("CNST"))
       id.write(w);
 }
 
 template <class IDType>
 void ChildResourceFactory<IDType>::_binarySize(typename BinarySize::StreamT& s) const {
-  if (id)
+  if (id.isValid())
     id.binarySize(s);
   s += 4;
 }
@@ -1503,7 +1503,7 @@ void ChildResourceFactory<IDType>::_read(typename Read::StreamT& r) {
 
 template <class IDType>
 void ChildResourceFactory<IDType>::_write(typename Write::StreamT& w) const {
-  if (id) {
+  if (id.isValid()) {
     w.writeBytes((atInt8*)"CNST", 4);
     id.write(w);
   } else

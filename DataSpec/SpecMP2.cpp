@@ -417,13 +417,15 @@ struct SpecMP2 : SpecBase {
   }
 
   UniqueID32 newToOriginal(urde::CAssetId id) const {
-    if (UniqueID32 origId = m_idRestorer.newToOriginal({uint32_t(id.Value()), true}))
+    UniqueID32 origId = m_idRestorer.newToOriginal({uint32_t(id.Value()), true});
+    if (origId.isValid())
       return {origId.toUint32(), true};
     return {uint32_t(id.Value()), true};
   }
 
   urde::CAssetId originalToNew(UniqueID32 id) const {
-    if (UniqueID32 newId = m_idRestorer.originalToNew(id))
+    UniqueID32 newId = m_idRestorer.originalToNew(id);
+    if (newId.isValid())
       return newId.toUint32();
     return id.toUint32();
   }

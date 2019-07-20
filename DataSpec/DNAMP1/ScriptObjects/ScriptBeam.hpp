@@ -17,7 +17,7 @@ struct ScriptBeam : IScriptObject {
   DamageInfo damageInfo;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (wpsc) {
+    if (wpsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc);
       ent->name = name + "_wpsc";
     }

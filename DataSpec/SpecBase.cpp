@@ -80,16 +80,18 @@ IDRestorer<IDType>::IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Da
   }
 
   std::sort(m_newToOrig.begin(), m_newToOrig.end(),
-            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b) { return a.first < b.first; });
+            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b)
+            { return a.first.toUint64() < b.first.toUint64(); });
   std::sort(m_origToNew.begin(), m_origToNew.end(),
-            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b) { return a.first < b.first; });
+            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b)
+            { return a.first.toUint64() < b.first.toUint64(); });
 
-  Log.report(logvisor::Info, _SYS_STR("Loaded Original IDs '%s'"), yamlPath.getRelativePath().data());
+  Log.report(logvisor::Info, fmt(_SYS_STR("Loaded Original IDs '{}'")), yamlPath.getRelativePath());
 }
 
 template <typename IDType>
 IDType IDRestorer<IDType>::newToOriginal(IDType id) const {
-  if (!id)
+  if (!id.isValid())
     return {};
   auto search =
       rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id, [](const auto& id) { return id.first; });
@@ -100,7 +102,7 @@ IDType IDRestorer<IDType>::newToOriginal(IDType id) const {
 
 template <typename IDType>
 IDType IDRestorer<IDType>::originalToNew(IDType id) const {
-  if (!id)
+  if (!id.isValid())
     return {};
   auto search =
       rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id, [](const auto& id) { return id.first; });
@@ -122,7 +124,7 @@ bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport
   if (!memcmp(gameID, "R3O", 3)) {
     std::srand(std::time(0));
     int r = std::rand() % MomErrCount;
-    Log.report(logvisor::Fatal, MomErr[r]);
+    Log.report(logvisor::Fatal, fmt("{}"), MomErr[r]);
   }
 
   m_standalone = true;
@@ -156,7 +158,7 @@ void SpecBase::doExtract(const ExtractPassInfo& info, const hecl::MultiProgressP
   setThreadProject();
   DataSpec::g_curSpec.reset(this);
   if (!Blender::BuildMasterShader(m_masterShader))
-    Log.report(logvisor::Fatal, "Unable to build master shader blend");
+    Log.report(logvisor::Fatal, fmt("Unable to build master shader blend"));
   if (m_isWii) {
     /* Extract root files for repacking later */
     hecl::ProjectPath outDir(m_project.getProjectWorkingPath(), _SYS_STR("out"));
@@ -240,7 +242,7 @@ const hecl::Database::DataSpecEntry* SpecBase::overrideDataSpec(const hecl::Proj
 
     hecl::blender::BlendType type = hecl::blender::GetBlendType(asBlend.getAbsolutePath());
     if (type == hecl::blender::BlendType::None) {
-      Log.report(logvisor::Error, _SYS_STR("unable to cook '%s'"), path.getAbsolutePath().data());
+      Log.report(logvisor::Error, fmt(_SYS_STR("unable to cook '{}'")), path.getAbsolutePath());
       return nullptr;
     }
     if (type == hecl::blender::BlendType::Mesh || type == hecl::blender::BlendType::Area)
@@ -402,7 +404,7 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
       pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _SYS_STR(".ANIM")));
       hecl::ProjectPath evntPath =
           asGlob.ensureAuxInfo(hecl::SystemStringView{})
-              .getWithExtension(hecl::SysFormat(_SYS_STR(".%s.evnt.yaml"), actSysName.c_str()).c_str(), true);
+              .getWithExtension(fmt::format(fmt(_SYS_STR(".{}.evnt.yaml")), actSysName).c_str(), true);
       if (evntPath.isFile())
         pathsOut.push_back(evntPath);
     }
@@ -512,8 +514,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
   fileIndex.reserve(buildList.size());
   int loadIdx = 0;
   for (const auto& tag : buildList) {
-    hecl::SystemString str = hecl::SysFormat(_SYS_STR("Copying %.4") FMT_CSTR_SYS " %08X", tag.type.getChars(),
-                                             (unsigned int)tag.id.Value());
+    hecl::SystemString str = fmt::format(fmt(_SYS_STR("Copying {}")), tag);
     progress.print(str.c_str(), nullptr, ++loadIdx / float(buildList.size()));
 
     fileIndex.emplace_back();
@@ -522,7 +523,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     if (tag.type == FOURCC('MLVL')) {
       auto search = mlvlData.find(tag.id);
       if (search == mlvlData.end())
-        Log.report(logvisor::Fatal, _SYS_STR("Unable to find MLVL %08X"), tag.id.Value());
+        Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find MLVL {}")), tag.id);
 
       std::get<0>(thisIdx) = pakOut.position();
       std::get<1>(thisIdx) = ROUND_UP_32(search->second.size());
@@ -538,7 +539,7 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     hecl::ProjectPath cooked = getCookedPath(path, true);
     athena::io::FileReader r(cooked.getAbsolutePath());
     if (r.hasError())
-      Log.report(logvisor::Fatal, _SYS_STR("Unable to open resource %s"), cooked.getRelativePath().data());
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to open resource {}")), cooked.getRelativePath());
     atUint64 size = r.length();
     auto data = r.readUBytes(size);
     auto compData = compressPakData(tag, data.get(), size);
@@ -654,7 +655,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
   /* Async cook resource list if using ClientProcess */
   if (cp) {
-    Log.report(logvisor::Info, _SYS_STR("Validating resources"));
+    Log.report(logvisor::Info, fmt(_SYS_STR("Validating resources")));
     progress.setMainIndeterminate(true);
     std::vector<urde::SObjectTag> cookTags;
     cookTags.reserve(buildList.size());
@@ -678,7 +679,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
     for (auto& tag : cookTags) {
       hecl::ProjectPath depPath = pathFromTag(tag);
       if (!depPath)
-        Log.report(logvisor::Fatal, _SYS_STR("Unable to resolve %.4s %08X"), tag.type.getChars(), tag.id.Value());
+        Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to resolve {}")), tag);
       m_project.cookPath(depPath, progress, false, false, fast, entry, cp);
     }
     progress.setMainIndeterminate(false);
@@ -688,7 +689,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 
   /* Write resource data and build file index */
   std::vector<std::tuple<size_t, size_t, bool>> fileIndex;
-  Log.report(logvisor::Info, _SYS_STR("Copying data into %s"), outPath.getRelativePath().data());
+  Log.report(logvisor::Info, fmt(_SYS_STR("Copying data into {}")), outPath.getRelativePath());
   copyBuildListData(fileIndex, buildList, entry, fast, progress, pakOut, mlvlData);
 
   /* Write file index */
@@ -707,11 +708,11 @@ hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool
   return working.getCookedPath(*spec);
 }
 
-static void PNGErr(png_structp png, png_const_charp msg) { Log.report(logvisor::Error, msg); }
+static void PNGErr(png_structp png, png_const_charp msg) { Log.report(logvisor::Error, fmt("{}"), msg); }
 
-static void PNGWarn(png_structp png, png_const_charp msg) { Log.report(logvisor::Warning, msg); }
+static void PNGWarn(png_structp png, png_const_charp msg) { Log.report(logvisor::Warning, fmt("{}"), msg); }
 
-static inline uint8_t Convert4To8(uint8_t v) {
+constexpr uint8_t Convert4To8(uint8_t v) {
   /* Swizzle bits: 00001234 -> 12341234 */
   return (v << 4) | v;
 }
@@ -721,13 +722,13 @@ void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::Projec
   hecl::ProjectPath catalogPath(noAramPath, _SYS_STR("!catalog.yaml"));
 
   if (FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-    fprintf(fp, "RandomStaticEntropy: %s\n", entropyPath.getRelativePathUTF8().data());
+    fmt::print(fp, fmt("RandomStaticEntropy: {}\n"), entropyPath.getRelativePathUTF8());
     fclose(fp);
   }
 
   FILE* fp = hecl::Fopen(entropyPath.getAbsolutePath().data(), _SYS_STR("wb"));
   if (!fp) {
-    Log.report(logvisor::Error, _SYS_STR("Unable to open '%s' for writing"), entropyPath.getAbsolutePath().data());
+    Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), entropyPath.getAbsolutePath());
     return;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
@@ -872,9 +873,7 @@ void SpecBase::enumerateNamedResources(
 
 static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& pathTag,
                      const hecl::ProjectPath& path) {
-  char idStr[9];
-  snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
-  if (auto v = cacheWriter.enterSubVector(idStr)) {
+  if (auto v = cacheWriter.enterSubVector(fmt::format(fmt("{}"), pathTag.id).c_str())) {
     cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
     cacheWriter.writeString(nullptr, path.getAuxInfo().size() ? (std::string(path.getRelativePathUTF8()) + '|' +
                                                                  path.getAuxInfoUTF8().data())
@@ -884,9 +883,7 @@ static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObject
 
 static void WriteNameTag(athena::io::YAMLDocWriter& nameWriter, const urde::SObjectTag& pathTag,
                          std::string_view name) {
-  char idStr[9];
-  snprintf(idStr, 9, "%08X", uint32_t(pathTag.id.Value()));
-  nameWriter.writeString(name.data(), idStr);
+  nameWriter.writeString(name.data(), fmt::format(fmt("{}"), pathTag.id));
 }
 
 void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAMLDocWriter& nameWriter) {
@@ -967,8 +964,7 @@ void SpecBase::backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir, at
 
 #if DUMP_CACHE_FILL
 static void DumpCacheAdd(const urde::SObjectTag& pathTag, const hecl::ProjectPath& path) {
-  fprintf(stderr, "%s %08X %s\n", pathTag.type.toString().c_str(), uint32_t(pathTag.id.Value()),
-          path.getRelativePathUTF8().data());
+  fmt::print(stderr, fmt("{} {}\n"), pathTag, path.getRelativePathUTF8());
 }
 #endif
 
@@ -1156,7 +1152,7 @@ void SpecBase::backgroundIndexProc() {
   if (tagCachePath.isFile()) {
     athena::io::FileReader reader(tagCachePath.getAbsolutePath());
     if (reader.isOpen()) {
-      Log.report(logvisor::Info, _SYS_STR("Cache index of '%s' loading"), getOriginalSpec().m_name.data());
+      Log.report(logvisor::Info, fmt(_SYS_STR("Cache index of '{}' loading")), getOriginalSpec().m_name);
       athena::io::YAMLDocReader cacheReader;
       if (cacheReader.parse(&reader)) {
         std::unique_lock<std::mutex> lk(m_backgroundIndexMutex);
@@ -1182,16 +1178,16 @@ void SpecBase::backgroundIndexProc() {
 
           ++loadIdx;
           if (!(loadIdx % 100))
-            fprintf(stderr, "\r %" PRISize " / %" PRISize, loadIdx, tagCount);
+            fmt::print(stderr, fmt("\r {} / {}"), loadIdx, tagCount);
         }
-        fprintf(stderr, "\r %" PRISize " / %" PRISize "\n", loadIdx, tagCount);
+        fmt::print(stderr, fmt("\r {} / {}\n"), loadIdx, tagCount);
       }
-      Log.report(logvisor::Info, _SYS_STR("Cache index of '%s' loaded; %d tags"), getOriginalSpec().m_name.data(),
+      Log.report(logvisor::Info, fmt(_SYS_STR("Cache index of '{}' loaded; {} tags")), getOriginalSpec().m_name,
                  m_tagToPath.size());
 
       if (nameCachePath.isFile()) {
         /* Read in name cache */
-        Log.report(logvisor::Info, _SYS_STR("Name index of '%s' loading"), getOriginalSpec().m_name.data());
+        Log.report(logvisor::Info, fmt(_SYS_STR("Name index of '{}' loading")), getOriginalSpec().m_name);
         athena::io::FileReader nreader(nameCachePath.getAbsolutePath());
         athena::io::YAMLDocReader nameReader;
         if (nameReader.parse(&nreader)) {
@@ -1210,7 +1206,7 @@ void SpecBase::backgroundIndexProc() {
             }
           }
         }
-        Log.report(logvisor::Info, _SYS_STR("Name index of '%s' loaded; %d names"), getOriginalSpec().m_name.data(),
+        Log.report(logvisor::Info, fmt(_SYS_STR("Name index of '{}' loaded; {} names")), getOriginalSpec().m_name,
                    m_catalogNameToTag.size());
       }
     }
@@ -1224,7 +1220,7 @@ void SpecBase::backgroundIndexProc() {
     m_catalogTagToNames[oidsTag].insert("MP1OriginalIDs");
   }
 
-  Log.report(logvisor::Info, _SYS_STR("Background index of '%s' started"), getOriginalSpec().m_name.data());
+  Log.report(logvisor::Info, fmt(_SYS_STR("Background index of '{}' started")), getOriginalSpec().m_name);
   backgroundIndexRecursiveProc(specRoot, cacheWriter, nameWriter, 0);
 
   tagCachePath.makeDirChain(false);
@@ -1235,8 +1231,8 @@ void SpecBase::backgroundIndexProc() {
   nameWriter.finish(&nwriter);
 
   m_backgroundBlender.shutdown();
-  Log.report(logvisor::Info, _SYS_STR("Background index of '%s' complete; %d tags, %d names"),
-             getOriginalSpec().m_name.data(), m_tagToPath.size(), m_catalogNameToTag.size());
+  Log.report(logvisor::Info, fmt(_SYS_STR("Background index of '{}' complete; {} tags, {} names")),
+             getOriginalSpec().m_name, m_tagToPath.size(), m_catalogNameToTag.size());
   m_backgroundRunning = false;
 }
 

@@ -89,51 +89,51 @@ struct Water : IScriptObject {
   struct UnusedBitset : BigDNA{AT_DECL_EXPLICIT_DNA} unusedBitset;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (patternMap1) {
+    if (patternMap1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap1);
       ent->name = name + "_patternMap1";
     }
-    if (patternMap2) {
+    if (patternMap2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap2);
       ent->name = name + "_patternMap2";
     }
-    if (colorMap) {
+    if (colorMap.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(colorMap);
       ent->name = name + "_colorMap";
     }
-    if (bumpMap) {
+    if (bumpMap.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(bumpMap);
       ent->name = name + "_bumpMap";
     }
-    if (envMap) {
+    if (envMap.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envMap);
       ent->name = name + "_envMap";
     }
-    if (envBumpMap) {
+    if (envBumpMap.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(envBumpMap);
       ent->name = name + "_envBumpMap";
     }
-    if (lightmap) {
+    if (lightmap.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(lightmap);
       ent->name = name + "_lightmap";
     }
-    if (splashParticle1) {
+    if (splashParticle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle1);
       ent->name = name + "_splashParticle1";
     }
-    if (splashParticle2) {
+    if (splashParticle2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle2);
       ent->name = name + "_splashParticle2";
     }
-    if (splashParticle3) {
+    if (splashParticle3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(splashParticle3);
       ent->name = name + "_splashParticle3";
     }
-    if (visorRunoffParticle) {
+    if (visorRunoffParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(visorRunoffParticle);
       ent->name = name + "_visorRunoffParticle";
     }
-    if (unmorphVisorRunoffParticle) {
+    if (unmorphVisorRunoffParticle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(unmorphVisorRunoffParticle);
       ent->name = name + "_unmorphVisorRunoffParticle";
     }

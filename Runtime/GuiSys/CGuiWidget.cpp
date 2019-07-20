@@ -68,7 +68,7 @@ void CGuiWidget::ParseBaseInfo(CGuiFrame* frame, CInputStream& in, const CGuiWid
   in.readUint16Big();
   if (isWorker) {
     if (!parent->AddWorkerWidget(this)) {
-      Log.report(logvisor::Warning, "Warning: Discarding useless worker id. Parent is not a compound widget.");
+      Log.report(logvisor::Warning, fmt("Warning: Discarding useless worker id. Parent is not a compound widget."));
       xb4_workerId = -1;
     }
   }

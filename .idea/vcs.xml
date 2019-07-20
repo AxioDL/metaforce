@@ -10,6 +10,7 @@
     <mapping directory="$PROJECT_DIR$/hecl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl-gui" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/hecl/extern/athena/extern/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/athena/extern/lzokay" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/glslang" vcs="Git" />
@@ -22,6 +23,7 @@
     <mapping directory="$PROJECT_DIR$/kabufuda" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/nod" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/nod/logvisor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/nod/logvisor/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rapidjson" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/rapidjson/thirdparty/gtest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sanitizers-cmake" vcs="Git" />

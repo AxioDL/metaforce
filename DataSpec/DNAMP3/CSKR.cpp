@@ -8,7 +8,7 @@ void CSKR::weightVertex(hecl::blender::PyOutStream& os, const CINF& cinf, atInt1
     return;
   const DNAMP2::CSKR::SkinningRule& rule = data.skinningRules[skinIdx];
   for (const DNAMP2::CSKR::SkinningRule::Weight& weight : rule.weights)
-    os.format("vert[dvert_lay][%u] = %f\n", cinf.getBoneIdxFromId(weight.boneId), weight.weight);
+    os.format(fmt("vert[dvert_lay][{}] = {}\n"), cinf.getBoneIdxFromId(weight.boneId), weight.weight);
 }
 
 } // namespace DataSpec::DNAMP3

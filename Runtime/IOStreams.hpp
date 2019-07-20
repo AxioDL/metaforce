@@ -18,7 +18,7 @@ struct CBitStreamReader : athena::io::MemoryReader {
   u32 x20_bitOffset = 0;
 
 public:
-  static u32 GetBitCount(u32 maxVal) {
+  static constexpr u32 GetBitCount(u32 maxVal) {
     u32 ret = 0;
     while (maxVal != 0) {
       maxVal /= 2;
@@ -38,7 +38,7 @@ class CBitStreamWriter : public athena::io::MemoryWriter {
   u32 x18_bitOffset = 0x20;
 
 public:
-  static inline u32 GetBitCount(u32 maxVal) { return CBitStreamReader::GetBitCount(maxVal); }
+  static constexpr u32 GetBitCount(u32 maxVal) { return CBitStreamReader::GetBitCount(maxVal); }
 
   CBitStreamWriter(atUint8* data = nullptr, atUint64 length = 0x10) : MemoryWriter(data, length) {}
 

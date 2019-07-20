@@ -54,19 +54,19 @@ struct Ridley : IScriptObject {
     Value<atVec4f> unknown13; // CColor
 
     void nameIDs(PAKRouter<PAKBridge>& pakRouter, const std::string& name) const {
-      if (particle1) {
+      if (particle1.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
         ent->name = name + "_part1";
       }
-      if (particle2) {
+      if (particle2.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle2);
         ent->name = name + "_part2";
       }
-      if (texture1) {
+      if (texture1.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture1);
         ent->name = name + "_tex1";
       }
-      if (texture2) {
+      if (texture2.isValid()) {
         PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture2);
         ent->name = name + "_tex2";
       }
@@ -125,75 +125,75 @@ struct Ridley : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }
-    if (model1) {
+    if (model1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model1);
       ent->name = name + "_model1";
     }
-    if (model2) {
+    if (model2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model2);
       ent->name = name + "_model2";
     }
-    if (model3) {
+    if (model3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model3);
       ent->name = name + "_model3";
     }
-    if (model4) {
+    if (model4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model4);
       ent->name = name + "_model4";
     }
-    if (model5) {
+    if (model5.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model5);
       ent->name = name + "_model5";
     }
-    if (model6) {
+    if (model6.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model6);
       ent->name = name + "_model6";
     }
-    if (model7) {
+    if (model7.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model7);
       ent->name = name + "_model7";
     }
-    if (model8) {
+    if (model8.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model8);
       ent->name = name + "_model8";
     }
-    if (model9) {
+    if (model9.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model9);
       ent->name = name + "_model9";
     }
-    if (model10) {
+    if (model10.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model10);
       ent->name = name + "_model10";
     }
-    if (model11) {
+    if (model11.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model11);
       ent->name = name + "_model11";
     }
-    if (model12) {
+    if (model12.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model12);
       ent->name = name + "_model12";
     }
-    if (wpsc1) {
+    if (wpsc1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
       ent->name = name + "_wpsc1";
     }
-    if (wpsc2) {
+    if (wpsc2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc2);
       ent->name = name + "_wpsc2";
     }
-    if (wpsc3) {
+    if (wpsc3.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc3);
       ent->name = name + "_wpsc3";
     }
-    if (wpsc4) {
+    if (wpsc4.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc4);
       ent->name = name + "_wpsc4";
     }
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }

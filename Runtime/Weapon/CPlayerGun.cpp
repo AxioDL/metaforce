@@ -465,9 +465,9 @@ void CPlayerGun::SetPhazonBeamMorph(bool intoPhazonBeam) {
 void CPlayerGun::Reset(CStateManager& mgr, bool b1) {
   x72c_currentBeam->Reset(mgr);
   x832_25_chargeEffectVisible = false;
-  x832_24_cancellingCharge = false;
+  x832_24_coolingCharge = false;
   x833_26_ = false;
-  x348_chargeCancelTimer = 0.f;
+  x348_chargeCooldownTimer = 0.f;
   SetGunLightActive(false, mgr);
   if ((x2f8_stateFlags & 0x10) != 0x10) {
     if (!b1 && (x2f8_stateFlags & 0x2) != 0x2) {
@@ -533,14 +533,14 @@ void CPlayerGun::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
 
 void CPlayerGun::CancelCharge(CStateManager& mgr, bool withEffect) {
   if (withEffect) {
-    x32c_chargePhase = EChargePhase::ChargeCancelled;
+    x32c_chargePhase = EChargePhase::ChargeCooldown;
     x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::CancelCharge);
   } else {
     x72c_currentBeam->EnableSecondaryFx(CGunWeapon::ESecondaryFxType::None);
   }
 
   x834_24_charging = false;
-  x348_chargeCancelTimer = 0.f;
+  x348_chargeCooldownTimer = 0.f;
   x72c_currentBeam->ActivateCharge(false, false);
   SetGunLightActive(false, mgr);
 }
@@ -596,7 +596,7 @@ void CPlayerGun::ProcessInput(const CFinalInput& input, CStateManager& mgr) {
   CPlayerState& state = *mgr.GetPlayerState();
   bool damageNotMorphed =
       (x834_30_inBigStrike && mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed);
-  if (x832_24_cancellingCharge || damageNotMorphed || (x2f8_stateFlags & 0x8) == 0x8)
+  if (x832_24_coolingCharge || damageNotMorphed || (x2f8_stateFlags & 0x8) == 0x8)
     return;
   if (state.HasPowerUp(CPlayerState::EItemType::ChargeBeam)) {
     if (!state.ItemEnabled(CPlayerState::EItemType::ChargeBeam))
@@ -1109,7 +1109,7 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
     break;
   case EChargePhase::ComboXferDone:
     x32c_chargePhase = EChargePhase::ComboFire;
-    x348_chargeCancelTimer = 0.f;
+    x348_chargeCooldownTimer = 0.f;
     break;
   case EChargePhase::ComboFire:
     x740_grappleArm->EnterComboFire(s32(x310_currentBeam), mgr);
@@ -1118,13 +1118,13 @@ void CPlayerGun::UpdateChargeState(float dt, CStateManager& mgr) {
     x833_31_inFreeLook = false;
     x32c_chargePhase = EChargePhase::ComboFireDone;
     break;
-  case EChargePhase::ChargeCancelled:
+  case EChargePhase::ChargeCooldown:
     if ((x2f8_stateFlags & 0x10) != 0x10) {
-      x348_chargeCancelTimer += dt;
-      if (x348_chargeCancelTimer >= 0.3f && x72c_currentBeam->IsChargeAnimOver())
+      x348_chargeCooldownTimer += dt;
+      if (x348_chargeCooldownTimer >= 0.3f && x72c_currentBeam->IsChargeAnimOver())
         x32c_chargePhase = EChargePhase::ChargeDone;
     } else {
-      x832_24_cancellingCharge = false;
+      x832_24_coolingCharge = false;
     }
     break;
   case EChargePhase::ChargeDone:
@@ -1314,7 +1314,7 @@ void CPlayerGun::ResetCharged(float dt, CStateManager& mgr) {
   if (x32c_chargePhase >= EChargePhase::FxGrowing) {
     x833_30_canShowAuxMuzzleEffect = false;
     UpdateNormalShotCycle(dt, mgr);
-    x832_24_cancellingCharge = true;
+    x832_24_coolingCharge = true;
     CancelCharge(mgr, true);
   } else if (x32c_chargePhase != EChargePhase::NotCharging) {
     x320_currentAuxBeam = x310_currentBeam;
@@ -1354,7 +1354,7 @@ void CPlayerGun::ProcessChargeState(u32 releasedStates, u32 pressedStates, CStat
   if ((releasedStates & 0x1) != 0)
     ResetCharged(dt, mgr);
   if ((pressedStates & 0x1) != 0) {
-    if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 && x348_chargeCancelTimer == 0.f &&
+    if (x32c_chargePhase == EChargePhase::NotCharging && (pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f &&
         x832_28_readyForShot) {
       UpdateNormalShotCycle(dt, mgr);
       x32c_chargePhase = EChargePhase::ChargeRequested;
@@ -1403,7 +1403,7 @@ void CPlayerGun::UpdateNormalShotCycle(float dt, CStateManager& mgr) {
 void CPlayerGun::ProcessNormalState(u32 releasedStates, u32 pressedStates, CStateManager& mgr, float dt) {
   if ((releasedStates & 0x1) != 0)
     ResetNormal(mgr);
-  if ((pressedStates & 0x1) != 0 && x348_chargeCancelTimer == 0.f && x832_28_readyForShot)
+  if ((pressedStates & 0x1) != 0 && x348_chargeCooldownTimer == 0.f && x832_28_readyForShot)
     UpdateNormalShotCycle(dt, mgr);
   else if ((pressedStates & 0x2) != 0)
     FireSecondary(dt, mgr);
@@ -1418,7 +1418,7 @@ void CPlayerGun::UpdateWeaponFire(float dt, const CPlayerState& playerState, CSt
   x832_28_readyForShot = false;
 
   CPlayer& player = mgr.GetPlayer();
-  if (!x832_24_cancellingCharge && !x834_30_inBigStrike) {
+  if (!x832_24_coolingCharge && !x834_30_inBigStrike) {
     float coolDown = x72c_currentBeam->GetWeaponInfo().x0_coolDown;
     if ((pressedStates & 0x1) == 0) {
       if (x390_cooldown >= coolDown) {

@@ -38,19 +38,19 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
     zeus::simd_floats xfMtxF[3];
     for (int i = 0; i < 3; ++i)
       area.transformMtx[i].simd.copy_to(xfMtxF[i]);
-    os.format(
-        "box_mesh = bpy.data.meshes.new('''%s''')\n"
+    os.format(fmt(
+        "box_mesh = bpy.data.meshes.new('''{}''')\n"
         "bm.to_mesh(box_mesh)\n"
         "bm.free()\n"
         "box = bpy.data.objects.new(box_mesh.name, box_mesh)\n"
         "bpy.context.scene.collection.objects.link(box)\n"
-        "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+        "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
         "mtxd = mtx.decompose()\n"
         "box.rotation_mode = 'QUATERNION'\n"
         "box.location = mtxd[0]\n"
         "box.rotation_quaternion = mtxd[1]\n"
-        "box.scale = mtxd[2]\n",
-        areaDirName.str().data(), xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
+        "box.scale = mtxd[2]\n"),
+        areaDirName, xfMtxF[0][0], xfMtxF[0][1], xfMtxF[0][2], xfMtxF[0][3], xfMtxF[1][0], xfMtxF[1][1],
         xfMtxF[1][2], xfMtxF[1][3], xfMtxF[2][0], xfMtxF[2][1], xfMtxF[2][2], xfMtxF[2][3]);
 
     /* Insert dock planes */
@@ -64,22 +64,22 @@ bool ReadMLVLToBlender(hecl::blender::Connection& conn, const MLVL& mlvl, const 
       int idx = 0;
       for (const atVec3f& pv : dock.planeVerts) {
         const zeus::CVector3f pvRel = zeus::CVector3f(pv) - pvAvg;
-        os.format(
-            "bm.verts.new((%f,%f,%f))\n"
-            "bm.verts.ensure_lookup_table()\n",
+        os.format(fmt(
+            "bm.verts.new(({},{},{}))\n"
+            "bm.verts.ensure_lookup_table()\n"),
             pvRel[0], pvRel[1], pvRel[2]);
         if (idx)
           os << "bm.edges.new((bm.verts[-2], bm.verts[-1]))\n";
         ++idx;
       }
       os << "bm.edges.new((bm.verts[-1], bm.verts[0]))\n";
-      os.format("dockMesh = bpy.data.meshes.new('DOCK_%02d_%02d')\n", areaIdx, dockIdx);
+      os.format(fmt("dockMesh = bpy.data.meshes.new('DOCK_{:02d}_{:02d}')\n"), areaIdx, dockIdx);
       os << "dockObj = bpy.data.objects.new(dockMesh.name, dockMesh)\n"
             "bpy.context.scene.collection.objects.link(dockObj)\n"
             "bm.to_mesh(dockMesh)\n"
             "bm.free()\n"
             "dockObj.parent = box\n";
-      os.format("dockObj.location = (%f,%f,%f)\n", float(pvAvg[0]), float(pvAvg[1]), float(pvAvg[2]));
+      os.format(fmt("dockObj.location = ({},{},{})\n"), float(pvAvg[0]), float(pvAvg[1]), float(pvAvg[2]));
       ++dockIdx;
     }
     ++areaIdx;

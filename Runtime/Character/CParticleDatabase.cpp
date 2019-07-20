@@ -337,7 +337,7 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(std::string_view name, int fl
     scaleVec = scale * data.GetScale();
 
   std::unique_ptr<CParticleGenInfo> newGen;
-  switch (data.GetTag().type) {
+  switch (data.GetTag().type.toUint32()) {
   case SBIG('PART'): {
     auto search = x0_particleDescs.find(data.GetTag().id);
     if (search != x0_particleDescs.end()) {
@@ -378,7 +378,7 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
     scaleVec = scale * data.GetScale();
 
   std::unique_ptr<CParticleGenInfo> newGen;
-  switch (data.GetTag().type) {
+  switch (data.GetTag().type.toUint32()) {
   case SBIG('PART'): {
     auto search = x0_particleDescs.find(data.GetTag().id);
     if (search != x0_particleDescs.end()) {

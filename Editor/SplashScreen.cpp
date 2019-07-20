@@ -27,26 +27,26 @@ SplashScreen::SplashScreen(ViewManager& vm, specter::ViewResources& res)
 , m_vm(vm)
 , m_textColor(res.themeData().uiText())
 , m_textColorClear(m_textColor)
-, m_newString(m_vm.translateOr("new_project", "New Project"))
-, m_openString(m_vm.translateOr("open_project", "Open Project"))
-, m_extractString(m_vm.translateOr("extract_game", "Extract Game"))
+, m_newString(m_vm.translate<locale::new_project>())
+, m_openString(m_vm.translate<locale::open_project>())
+, m_extractString(m_vm.translate<locale::extract_game>())
 , m_newProjBind(*this)
 , m_openProjBind(*this)
 , m_extractProjBind(*this) {
   if (GIT_COMMIT_DATE[0] != '\0' && GIT_COMMIT_HASH[0] != '\0' && GIT_BRANCH[0] != '\0') {
 #ifdef URDE_DLPACKAGE
     if ((URDE_DLPACKAGE)[0])
-      m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s", vm.translateOr("release", "Release").data(),
-                                    URDE_DLPACKAGE, vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
-                                    vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
+      m_buildInfoStr = fmt::format(fmt("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::release>(),
+                                   URDE_DLPACKAGE, vm.translate<locale::commit>(), GIT_COMMIT_HASH,
+                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
     else
 #endif
-      m_buildInfoStr = hecl::Format("%s: %s\n%s: %s\n%s: %s", vm.translateOr("branch", "Branch").data(), GIT_BRANCH,
-                                    vm.translateOr("commit", "Commit").data(), GIT_COMMIT_HASH,
-                                    vm.translateOr("date", "Date").data(), GIT_COMMIT_DATE);
+      m_buildInfoStr = fmt::format(fmt("{}: {}\n{}: {}\n{}: {}"), vm.translate<locale::branch>(), GIT_BRANCH,
+                                   vm.translate<locale::commit>(), GIT_COMMIT_HASH,
+                                   vm.translate<locale::date>(), GIT_COMMIT_DATE);
   }
 
-  m_openProjBind.m_openRecentMenuRoot.m_text = vm.translateOr("recent_projects", "Recent Projects");
+  m_openProjBind.m_openRecentMenuRoot.m_text = vm.translate<locale::recent_projects>();
   m_textColorClear[3] = 0.0;
 }
 
@@ -65,15 +65,15 @@ void SplashScreen::think() {
     m_openButt.m_view->think();
 
   if (m_newProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, _SYS_STR("Making project '%s'"), m_newProjBind.m_deferPath.c_str());
+    Log.report(logvisor::Info, fmt(_SYS_STR("Making project '{}'")), m_newProjBind.m_deferPath);
     m_vm.projectManager().newProject(m_newProjBind.m_deferPath);
     m_newProjBind.m_deferPath.clear();
   } else if (m_openProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, _SYS_STR("Opening project '%s'"), m_openProjBind.m_deferPath.c_str());
+    Log.report(logvisor::Info, fmt(_SYS_STR("Opening project '{}'")), m_openProjBind.m_deferPath);
     m_vm.projectManager().openProject(m_openProjBind.m_deferPath);
     m_openProjBind.m_deferPath.clear();
   } else if (m_extractProjBind.m_deferPath.size()) {
-    Log.report(logvisor::Info, _SYS_STR("Extracting game '%s'"), m_extractProjBind.m_deferPath.c_str());
+    Log.report(logvisor::Info, fmt(_SYS_STR("Extracting game '{}'")), m_extractProjBind.m_deferPath);
     m_vm.projectManager().extractGame(m_extractProjBind.m_deferPath);
     m_extractProjBind.m_deferPath.clear();
   }

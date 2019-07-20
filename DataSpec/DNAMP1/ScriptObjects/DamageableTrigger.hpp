@@ -22,15 +22,15 @@ struct DamageableTrigger : IScriptObject {
   VisorParameters visorParameters;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (patternTex1) {
+    if (patternTex1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternTex1);
       ent->name = name + "_patternTex1";
     }
-    if (patternTex2) {
+    if (patternTex2.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternTex2);
       ent->name = name + "_patternTex2";
     }
-    if (colorTex) {
+    if (colorTex.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(colorTex);
       ent->name = name + "_colorTex";
     }

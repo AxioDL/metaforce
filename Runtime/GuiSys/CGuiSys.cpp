@@ -25,7 +25,7 @@ CTextParser* g_TextParser = nullptr;
 
 std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStream& in, CGuiFrame* frame,
                                                         CSimplePool* sp) {
-  switch (type) {
+  switch (type.toUint32()) {
   case SBIG('BWIG'):
     return CGuiWidget::Create(frame, in, sp);
   case SBIG('HWIG'):
@@ -53,9 +53,8 @@ std::shared_ptr<CGuiWidget> CGuiSys::CreateWidgetInGame(FourCC type, CInputStrea
   case SBIG('ENRG'):
     return CAuiEnergyBarT01::Create(frame, in, sp);
   default:
-    break;
+    return {};
   }
-  return {};
 }
 
 CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)

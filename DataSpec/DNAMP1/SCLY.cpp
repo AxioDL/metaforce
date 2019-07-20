@@ -5,7 +5,7 @@ namespace DataSpec::DNAMP1 {
 
 template <>
 void SCLY::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
-  fourCC = rs.readUint32Little();
+  fourCC.read(rs);
   version = rs.readUint32Big();
   layerCount = rs.readUint32Big();
   rs.enumerateBig(layerSizes, layerCount);
@@ -19,7 +19,7 @@ void SCLY::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
 
 template <>
 void SCLY::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& ws) {
-  ws.writeUint32Big(fourCC);
+  fourCC.write(ws);
   ws.writeUint32Big(version);
   ws.writeUint32Big(layerCount);
   ws.enumerateBig(layerSizes);
@@ -77,7 +77,7 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
 
 template <>
 void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
-  fourCC = docin.readUint32("fourCC");
+  Do<BigDNA::ReadYaml>({"fourCC"}, fourCC, docin);
   version = docin.readUint32("version");
   layerCount = docin.enumerate("layerSizes", layerSizes);
   docin.enumerate("layers", layers);
@@ -85,7 +85,7 @@ void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
 
 template <>
 void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout) {
-  docout.writeUint32("fourCC", fourCC);
+  Do<BigDNA::WriteYaml>({"fourCC"}, fourCC, docout);
   docout.writeUint32("version", version);
   docout.enumerate("layerSizes", layerSizes);
   docout.enumerate("layers", layers);
@@ -115,12 +115,12 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
       size_t actualLen = rs.position() - start;
       if (actualLen != len)
         Log.report(logvisor::Fatal,
-                   _SYS_STR("Error while reading object of type 0x%.2X, did not read the expected amount of data, read "
-                            "0x%x, expected 0x%x"),
+                   fmt(_SYS_STR("Error while reading object of type 0x{:02X}, did not read the expected amount of "
+                                "data, read 0x{:x}, expected 0x{:x}")),
                    (atUint32)type, actualLen, len);
       rs.seek(start + len, athena::Begin);
     } else
-      Log.report(logvisor::Fatal, _SYS_STR("Unable to find type 0x%X in object database"), (atUint32)type);
+      Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find type 0x{:X} in object database")), (atUint32)type);
   }
 }
 
@@ -144,7 +144,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& r
           obj->type = type;
           objects.push_back(std::move(obj));
         } else
-          Log.report(logvisor::Fatal, _SYS_STR("Unable to find type 0x%X in object database"), (atUint32)type);
+          Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find type 0x{:X} in object database")), (atUint32)type);
       }
     }
   } else
@@ -164,7 +164,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& ws) 
     obj->write(ws);
     auto wrote = ws.position() - start;
     if (wrote != expLen)
-      Log.report(logvisor::Error, "expected writing %lu byte SCLY obj; wrote %llu", expLen, wrote);
+      Log.report(logvisor::Error, fmt("expected writing {} byte SCLY obj; wrote {}"), expLen, wrote);
   }
 }
 

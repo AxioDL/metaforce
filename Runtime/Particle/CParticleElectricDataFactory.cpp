@@ -34,7 +34,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
 
   FourCC clsId = CPF::GetClassID(in);
   while (clsId != SBIG('_END')) {
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('LIFE'):
       desc->x0_LIFE = CPF::GetIntElement(in);
       break;
@@ -102,8 +102,7 @@ bool CParticleElectricDataFactory::CreateELSM(CElectricDescription* desc, CInput
       desc->x70_ZERY = CPF::GetBool(in);
       break;
     default: {
-      uint32_t clsName = clsId.toUint32();
-      Log.report(logvisor::Fatal, "Unknown ELSM class %.4s @%" PRIi64, &clsName, in.position());
+      Log.report(logvisor::Fatal, fmt("Unknown ELSM class {} @{}"), clsId, in.position());
       return false;
     }
     }

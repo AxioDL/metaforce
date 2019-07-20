@@ -34,11 +34,11 @@ struct Effect : IScriptObject {
   LightParameters lightParameters;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (part) {
+    if (part.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part);
       ent->name = name + "_part";
     }
-    if (elsc) {
+    if (elsc.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(elsc);
       ent->name = name + "_elsc";
     }

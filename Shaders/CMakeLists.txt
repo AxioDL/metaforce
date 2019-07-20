@@ -1,9 +1,10 @@
 include_directories(../hecl/include
                     ../hecl/extern/boo/include
-                    ../hecl/extern/boo/logvisor/include
                     ../hecl/extern/athena/include
                     ../specter/zeus/include
                     ../nod/include
+                    ../nod/logvisor/include
+                    ../nod/logvisor/fmt/include
                     ../DataSpec
                     ../Runtime
                     ..)

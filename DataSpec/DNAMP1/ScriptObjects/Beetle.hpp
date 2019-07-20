@@ -30,7 +30,7 @@ struct Beetle : IScriptObject {
   }
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (tailModel) {
+    if (tailModel.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(tailModel);
       ent->name = name + "_tailModel";
     }

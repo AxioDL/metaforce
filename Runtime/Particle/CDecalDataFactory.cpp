@@ -34,7 +34,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
 
   while (clsId != SBIG('_END')) {
     bool loadFirstDesc = false;
-    switch (clsId) {
+    switch (clsId.toUint32()) {
     case SBIG('1SZE'):
     case SBIG('1LFT'):
     case SBIG('1ROT'):
@@ -82,8 +82,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
       desc->x5c_25_DMOO = CPF::GetBool(in);
       break;
     default: {
-      uint32_t clsName = clsId.toUint32();
-      Log.report(logvisor::Fatal, "Unknown DPSC class %.4s @%" PRIi64, &clsName, in.position());
+      Log.report(logvisor::Fatal, fmt("Unknown DPSC class {} @{}"), clsId, in.position());
       return false;
     }
     }
@@ -94,7 +93,7 @@ bool CDecalDataFactory::CreateDPSM(CDecalDescription* desc, CInputStream& in, CS
 }
 
 void CDecalDataFactory::GetQuadDecalInfo(CInputStream& in, CSimplePool* resPool, FourCC clsId, SQuadDescr& quad) {
-  switch (clsId) {
+  switch (clsId.toUint32()) {
   case SBIG('1LFT'):
   case SBIG('2LFT'):
     quad.x0_LFT = CPF::GetIntElement(in);

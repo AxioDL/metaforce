@@ -21,11 +21,11 @@ struct VisorGoo : IScriptObject {
   Value<bool> skipAngleTest;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (particle) {
+    if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }
-    if (electric) {
+    if (electric.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(electric);
       ent->name = name + "_elsc";
     }

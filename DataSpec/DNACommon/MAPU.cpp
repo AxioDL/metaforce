@@ -41,36 +41,36 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
     for (int i = 0; i < 3; ++i)
       wldXf.xf[i].simd.copy_to(wldXfF[i]);
     zeus::simd_floats hexColorF(wld.hexColor.mSimd);
-    os.format(
-        "wldObj = bpy.data.objects.new('%s', None)\n"
-        "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+    os.format(fmt(
+        "wldObj = bpy.data.objects.new('{}', None)\n"
+        "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
         "mtxd = mtx.decompose()\n"
         "wldObj.rotation_mode = 'QUATERNION'\n"
         "wldObj.location = mtxd[0]\n"
         "wldObj.rotation_quaternion = mtxd[1]\n"
         "wldObj.scale = mtxd[2]\n"
-        "wldObj.retro_mapworld_color = (%f, %f, %f, %f)\n"
-        "wldObj.retro_mapworld_path = '''%s'''\n"
-        "bpy.context.scene.collection.objects.link(wldObj)\n",
-        wld.name.c_str(), wldXfF[0][0], wldXfF[0][1], wldXfF[0][2], wldXfF[0][3], wldXfF[1][0], wldXfF[1][1],
+        "wldObj.retro_mapworld_color = ({}, {}, {}, {})\n"
+        "wldObj.retro_mapworld_path = '''{}'''\n"
+        "bpy.context.scene.collection.objects.link(wldObj)\n"),
+        wld.name, wldXfF[0][0], wldXfF[0][1], wldXfF[0][2], wldXfF[0][3], wldXfF[1][0], wldXfF[1][1],
         wldXfF[1][2], wldXfF[1][3], wldXfF[2][0], wldXfF[2][1], wldXfF[2][2], wldXfF[2][3], hexColorF[0], hexColorF[1],
-        hexColorF[2], hexColorF[3], path.getParentPath().getRelativePathUTF8().data());
+        hexColorF[2], hexColorF[3], path.getParentPath().getRelativePathUTF8());
     int idx = 0;
     for (const MAPU::Transform& hexXf : wld.hexTransforms) {
       zeus::simd_floats hexXfF[3];
       for (int i = 0; i < 3; ++i)
         hexXf.xf[i].simd.copy_to(hexXfF[i]);
-      os.format(
-          "obj = bpy.data.objects.new('%s_%d', hexMesh)\n"
-          "mtx = Matrix(((%f,%f,%f,%f),(%f,%f,%f,%f),(%f,%f,%f,%f),(0.0,0.0,0.0,1.0)))\n"
+      os.format(fmt(
+          "obj = bpy.data.objects.new('{}_{}', hexMesh)\n"
+          "mtx = Matrix((({},{},{},{}),({},{},{},{}),({},{},{},{}),(0.0,0.0,0.0,1.0)))\n"
           "mtxd = mtx.decompose()\n"
           "obj.rotation_mode = 'QUATERNION'\n"
           "obj.location = mtxd[0]\n"
           "obj.rotation_quaternion = mtxd[1]\n"
           "obj.scale = mtxd[2]\n"
           "bpy.context.scene.collection.objects.link(obj)\n"
-          "obj.parent = wldObj\n",
-          wld.name.c_str(), idx++, hexXfF[0][0], hexXfF[0][1], hexXfF[0][2], hexXfF[0][3], hexXfF[1][0], hexXfF[1][1],
+          "obj.parent = wldObj\n"),
+          wld.name, idx++, hexXfF[0][0], hexXfF[0][1], hexXfF[0][2], hexXfF[0][3], hexXfF[1][0], hexXfF[1][1],
           hexXfF[1][2], hexXfF[1][3], hexXfF[2][0], hexXfF[2][1], hexXfF[2][2], hexXfF[2][3]);
     }
   }

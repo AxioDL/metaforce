@@ -16,7 +16,7 @@ struct HUDMemo : IScriptObject {
   Value<bool> active;
 
   void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
-    if (message) {
+    if (message.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(message);
       ent->name = name + "_message";
     }

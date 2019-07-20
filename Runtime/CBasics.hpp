@@ -27,7 +27,6 @@ struct OSCalendarTime {
 class CBasics {
 public:
   static void Initialize();
-  static const char* Stringize(const char* fmt, ...);
 
   static const u64 SECONDS_TO_2000;
   static const u64 TICKS_PER_SECOND;
