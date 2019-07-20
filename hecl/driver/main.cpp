@@ -45,20 +45,20 @@ bool XTERM_COLOR = false;
 /* Main usage message */
 static void printHelp(const hecl::SystemChar* pname) {
   if (XTERM_COLOR)
-    hecl::Printf(_SYS_STR("" BOLD "HECL" NORMAL ""));
+    fmt::print(fmt(_SYS_STR("" BOLD "HECL" NORMAL "")));
   else
-    hecl::Printf(_SYS_STR("HECL"));
+    fmt::print(fmt(_SYS_STR("HECL")));
 #if HECL_HAS_NOD
 #define TOOL_LIST "extract|init|cook|package|image|help"
 #else
 #define TOOL_LIST "extract|init|cook|package|help"
 #endif
 #if HECL_GIT
-  hecl::Printf(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+  fmt::print(fmt(_SYS_STR(" Commit " HECL_GIT_S " " HECL_BRANCH_S "\nUsage: {} " TOOL_LIST "\n")), pname);
 #elif HECL_VER
-  hecl::Printf(_SYS_STR(" Version " HECL_VER_S "\nUsage: %s " TOOL_LIST "\n"), pname);
+  fmt::print(fmt(_SYS_STR(" Version " HECL_VER_S "\nUsage: {} " TOOL_LIST "\n")), pname);
 #else
-  hecl::Printf(_SYS_STR("\nUsage: %s " TOOL_LIST "\n"), pname);
+  fmt::print(fmt(_SYS_STR("\nUsage: {} " TOOL_LIST "\n")), pname);
 #endif
 }
 
@@ -77,11 +77,9 @@ static void SIGINTHandler(int sig) {
 }
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  AthenaLog.report(logvisor::Level(level), fmt, ap);
-  va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* file, const char*, int line,
+                      fmt::string_view fmt, fmt::format_args args) {
+  AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
 static hecl::SystemChar cwdbuf[1024];
@@ -96,7 +94,7 @@ int main(int argc, const char** argv)
 #endif
 {
   if (argc > 1 && !hecl::StrCmp(argv[1], _SYS_STR("--dlpackage"))) {
-    printf("%s\n", HECL_DLPACKAGE);
+    fmt::print(fmt("{}\n"), HECL_DLPACKAGE);
     return 100;
   }
 
@@ -278,7 +276,7 @@ int main(int argc, const char** argv)
   else {
     FILE* fp = hecl::Fopen(argv[1], _SYS_STR("rb"));
     if (!fp)
-      LogModule.report(logvisor::Error, _SYS_STR("unrecognized tool '%s'"), toolName.c_str());
+      LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}'")), toolName);
     else {
       /* Shortcut-case: implicit extract */
       fclose(fp);
@@ -295,8 +293,7 @@ int main(int argc, const char** argv)
   }
 
   if (info.verbosityLevel)
-    LogModule.report(logvisor::Info, _SYS_STR("Constructed tool '%s' %d\n"), tool->toolName().c_str(),
-                     info.verbosityLevel);
+    LogModule.report(logvisor::Info, fmt(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(), info.verbosityLevel);
 
   /* Run tool */
   ErrorRef = logvisor::ErrorCount;

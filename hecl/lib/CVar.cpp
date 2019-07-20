@@ -226,7 +226,7 @@ bool CVar::fromVec4f(const atVec4f& val) {
     return false;
 
   athena::simd_floats f(val.simd);
-  m_value.assign(hecl::Format("%f %f %f %f", f[0], f[1], f[2], f[3]));
+  m_value.assign(fmt::format(fmt("{} {} {} {}"), f[0], f[1], f[2], f[3]));
   m_flags |= EFlags::Modified;
   return true;
 }
@@ -243,7 +243,7 @@ bool CVar::fromFloat(float val) {
   if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
     return false;
 
-  m_value.assign(hecl::Format("%f", val));
+  m_value.assign(fmt::format(fmt("{}"), val));
   setModified();
   return true;
 }
@@ -281,7 +281,7 @@ bool CVar::fromInteger(int val) {
   if (isReadOnly() && (com_developer && !com_developer->toBoolean()))
     return false;
 
-  m_value = hecl::Format("%i", val);
+  m_value = fmt::format(fmt("{}"), val);
   setModified();
   return true;
 }

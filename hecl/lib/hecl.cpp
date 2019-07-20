@@ -26,58 +26,6 @@ bool GuiMode = false;
 logvisor::Module LogModule("hecl");
 static const std::string Illegals{"<>?\""};
 
-#if __GNUC__
-__attribute__((__format__(__printf__, 1, 2)))
-#endif
-SystemString
-SysFormat(const SystemChar* format, ...) {
-  SystemChar resultBuf[FORMAT_BUF_SZ];
-  va_list va;
-  va_start(va, format);
-#if HECL_UCS2
-  int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
-#else
-  int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
-#endif
-  va_end(va);
-  return SystemString(resultBuf, printSz);
-}
-
-#if __GNUC__
-__attribute__((__format__(__printf__, 1, 2)))
-#endif
-std::string
-Format(const char* format, ...) {
-  char resultBuf[FORMAT_BUF_SZ];
-  va_list va;
-  va_start(va, format);
-  int printSz = vsnprintf(resultBuf, FORMAT_BUF_SZ, format, va);
-  va_end(va);
-  return std::string(resultBuf, printSz);
-}
-
-std::wstring WideFormat(const wchar_t* format, ...) {
-  wchar_t resultBuf[FORMAT_BUF_SZ];
-  va_list va;
-  va_start(va, format);
-  int printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
-  va_end(va);
-  return std::wstring(resultBuf, printSz);
-}
-
-std::u16string Char16Format(const wchar_t* format, ...) {
-  wchar_t resultBuf[FORMAT_BUF_SZ];
-  va_list va;
-  va_start(va, format);
-  size_t printSz = vswprintf(resultBuf, FORMAT_BUF_SZ, format, va);
-  va_end(va);
-  std::u16string res;
-  res.reserve(printSz);
-  for (size_t i = 0; i < printSz; ++i)
-    res.push_back(resultBuf[i]);
-  return res;
-}
-
 void SanitizePath(std::string& path) {
   if (path.empty())
     return;
@@ -146,7 +94,7 @@ SystemString GetcwdStr() {
     return SystemString(stackBuffer);
   if (errno != ERANGE) {
     // It's not ERANGE, so we don't know how to handle it
-    LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
+    LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
     // Of course you may choose a different error reporting method
   }
   // Ok, the stack buffer isn't long enough; fallback to heap allocation
@@ -158,11 +106,11 @@ SystemString GetcwdStr() {
       return SystemString(cwd.get());
     if (errno != ERANGE) {
       // It's not ERANGE, so we don't know how to handle it
-      LogModule.report(logvisor::Fatal, "Cannot determine the current path.");
+      LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
       // Of course you may choose a different error reporting method
     }
   }
-  LogModule.report(logvisor::Fatal, "Cannot determine the current path; the path is apparently unreasonably long");
+  LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path; the path is apparently unreasonably long"));
   return SystemString();
 }
 
@@ -180,7 +128,7 @@ bool ResourceLock::InProgress(const ProjectPath& path) {
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
   std::unique_lock<std::mutex> lk(PathsMutex);
   if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend())
-    LogModule.report(logvisor::Fatal, "multiple resource locks on thread");
+    LogModule.report(logvisor::Fatal, fmt("multiple resource locks on thread"));
 
   for (const auto& p : PathsInProgress)
     if (p.second == path)
@@ -752,13 +700,13 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
   SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
   HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
   if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0)) {
-    LogModule.report(logvisor::Fatal, "Error with CreatePipe");
+    LogModule.report(logvisor::Fatal, fmt("Error with CreatePipe"));
     return -1;
   }
 
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, "Error with DuplicateHandle");
+    LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     return -1;
@@ -768,7 +716,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
                        &consoleOutRead, // Address of new handle.
                        0, FALSE,        // Make it uninheritable.
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, "Error with DupliateHandle");
+    LogModule.report(logvisor::Fatal, fmt("Error with DupliateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     CloseHandle(consoleErrWrite);
@@ -825,13 +773,13 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
         if (err == ERROR_BROKEN_PIPE)
           break; // pipe done - normal exit path.
         else
-          LogModule.report(logvisor::Error, "Error with ReadFile: %08X", err); // Something bad happened.
+          LogModule.report(logvisor::Error, fmt("Error with ReadFile: %08X"), err); // Something bad happened.
       }
 
       // Display the character read on the screen.
       auto lk = logvisor::LockLog();
       if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
-        // LogModule.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
+        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
       }
     }
 

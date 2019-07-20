@@ -30,6 +30,7 @@
 #include "athena/MemoryWriter.hpp"
 #include <optional>
 #include "Token.hpp"
+#include <fmt/ostream.h>
 
 namespace hecl::blender {
 using namespace std::literals;
@@ -86,11 +87,8 @@ public:
   }
   ~PyOutStream() { close(); }
   void close();
-#if __GNUC__
-  __attribute__((__format__(__printf__, 2, 3)))
-#endif
-  void
-  format(const char* fmt, ...);
+  template <typename S, typename... Args, typename Char = fmt::char_t<S>>
+  void format(const S& format, Args&&... args);
   void linkBlend(const char* target, const char* objName, bool link = true);
   void linkBackground(const char* target, const char* sceneName = nullptr);
   void AABBToBMesh(const atVec3f& min, const atVec3f& max);
@@ -713,6 +711,7 @@ class Connection {
   uint32_t _writeStr(const char* str, uint32_t len, int wpipe);
   uint32_t _writeStr(const char* str, uint32_t len) { return _writeStr(str, len, m_writepipe[1]); }
   uint32_t _writeStr(const char* str) { return _writeStr(str, strlen(str)); }
+  uint32_t _writeStr(const std::string& str) { return _writeStr(str.c_str(), str.size()); }
   size_t _readBuf(void* buf, size_t len);
   size_t _writeBuf(const void* buf, size_t len);
   void _closePipe();
@@ -738,14 +737,14 @@ public:
   PyOutStream beginPythonOut(bool deleteOnError = false) {
     bool expect = false;
     if (!m_lock.compare_exchange_strong(expect, true))
-      BlenderLog.report(logvisor::Fatal, "lock already held for blender::Connection::beginPythonOut()");
+      BlenderLog.report(logvisor::Fatal, fmt("lock already held for blender::Connection::beginPythonOut()"));
     return PyOutStream(this, deleteOnError);
   }
 
   DataStream beginData() {
     bool expect = false;
     if (!m_lock.compare_exchange_strong(expect, true))
-      BlenderLog.report(logvisor::Fatal, "lock already held for blender::Connection::beginDataIn()");
+      BlenderLog.report(logvisor::Fatal, fmt("lock already held for blender::Connection::beginDataIn()"));
     return DataStream(this);
   }
 
@@ -759,6 +758,14 @@ public:
   static Connection& SharedConnection();
   static void Shutdown();
 };
+
+template <typename S, typename... Args, typename Char>
+void PyOutStream::format(const S& format, Args&&... args)
+{
+  if (!m_parent || !m_parent->m_lock)
+    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream::format()"));
+  fmt::print(*this, format, std::forward<Args>(args)...);
+}
 
 class HMDLBuffers {
 public:

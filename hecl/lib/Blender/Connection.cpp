@@ -62,7 +62,7 @@ extern "C" size_t HECL_STARTUP_SZ;
 static void InstallBlendershell(const SystemChar* path) {
   FILE* fp = hecl::Fopen(path, _SYS_STR("w"));
   if (!fp)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("unable to open %s for writing"), path);
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("unable to open {} for writing")), path);
   fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
   fclose(fp);
 }
@@ -70,7 +70,7 @@ static void InstallBlendershell(const SystemChar* path) {
 static void InstallAddon(const SystemChar* path) {
   FILE* fp = hecl::Fopen(path, _SYS_STR("wb"));
   if (!fp)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to install blender addon at '%s'"), path);
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to install blender addon at '{}'")), path);
   fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
   fclose(fp);
 }
@@ -109,20 +109,20 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   uint32_t readLen;
   int ret = Read(m_readpipe[0], &readLen, 4);
   if (ret < 4) {
-    BlenderLog.report(logvisor::Error, "Pipe error %d %s", ret, strerror(errno));
+    BlenderLog.report(logvisor::Error, fmt("Pipe error {} {}"), ret, strerror(errno));
     _blenderDied();
     return 0;
   }
 
   if (readLen >= bufSz) {
-    BlenderLog.report(logvisor::Fatal, "Pipe buffer overrun [%d/%d]", readLen, bufSz);
+    BlenderLog.report(logvisor::Fatal, fmt("Pipe buffer overrun [{}/{}]"), readLen, bufSz);
     *buf = '\0';
     return 0;
   }
 
   ret = Read(m_readpipe[0], buf, readLen);
   if (ret < 0) {
-    BlenderLog.report(logvisor::Fatal, strerror(errno));
+    BlenderLog.report(logvisor::Fatal, fmt("{}"), strerror(errno));
     return 0;
   } else if (readLen >= 9) {
     if (!memcmp(buf, "EXCEPTION", std::min(readLen, uint32_t(9)))) {
@@ -209,10 +209,10 @@ void Connection::_blenderDied() {
       std::unique_ptr<char[]> buf(new char[len + 1]);
       memset(buf.get(), 0, len + 1);
       fread(buf.get(), 1, len, errFp);
-      BlenderLog.report(logvisor::Fatal, "\n%.*s", int(len), buf.get());
+      BlenderLog.report(logvisor::Fatal, fmt("\n{:.{}s}"), buf.get(), len);
     }
   }
-  BlenderLog.report(logvisor::Fatal, "Blender Exception");
+  BlenderLog.report(logvisor::Fatal, fmt("Blender Exception"));
 }
 
 static std::atomic_bool BlenderFirstInit(false);
@@ -229,7 +229,7 @@ static bool RegFileExists(const hecl::SystemChar* path) {
 Connection::Connection(int verbosityLevel) {
 #if !WINDOWS_STORE
   if (hecl::VerbosityLevel >= 1)
-    BlenderLog.report(logvisor::Info, "Establishing BlenderConnection...");
+    BlenderLog.report(logvisor::Info, fmt("Establishing BlenderConnection..."));
 
   /* Put hecl_blendershell.py in temp dir */
   const SystemChar* TMPDIR = GetTmpDir();
@@ -263,20 +263,20 @@ Connection::Connection(int verbosityLevel) {
     SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
     HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
     if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 1024))
-      BlenderLog.report(logvisor::Fatal, "Error with CreatePipe");
+      BlenderLog.report(logvisor::Fatal, fmt("Error with CreatePipe"));
 
     if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
                          DUPLICATE_SAME_ACCESS))
-      BlenderLog.report(logvisor::Fatal, "Error with DuplicateHandle");
+      BlenderLog.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
 
     if (!DuplicateHandle(GetCurrentProcess(), consoleOutReadTmp, GetCurrentProcess(),
                          &consoleOutRead, // Address of new handle.
                          0, FALSE,        // Make it uninheritable.
                          DUPLICATE_SAME_ACCESS))
-      BlenderLog.report(logvisor::Fatal, "Error with DupliateHandle");
+      BlenderLog.report(logvisor::Fatal, fmt("Error with DupliateHandle"));
 
     if (!CloseHandle(consoleOutReadTmp))
-      BlenderLog.report(logvisor::Fatal, "Error with CloseHandle");
+      BlenderLog.report(logvisor::Fatal, fmt("Error with CloseHandle"));
 #else
     pipe(m_readpipe);
     pipe(m_writepipe);
@@ -359,13 +359,13 @@ Connection::Connection(int verbosityLevel) {
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
           else
-            BlenderLog.report(logvisor::Error, "Error with ReadFile: %08X", err); // Something bad happened.
+            BlenderLog.report(logvisor::Error, fmt("Error with ReadFile: %08X"), err); // Something bad happened.
         }
 
         // Display the character read on the screen.
         auto lk = logvisor::LockLog();
         if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
-          // BlenderLog.report(logvisor::Error, "Error with WriteConsole: %08X", GetLastError());
+          // BlenderLog.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
         }
       }
 
@@ -390,21 +390,18 @@ Connection::Connection(int verbosityLevel) {
         close(devNull);
       }
 
-      char errbuf[256];
-      char readfds[32];
-      snprintf(readfds, 32, "%d", m_writepipe[0]);
-      char writefds[32];
-      snprintf(writefds, 32, "%d", m_readpipe[1]);
-      char vLevel[32];
-      snprintf(vLevel, 32, "%d", verbosityLevel);
+      std::string errbuf;
+      std::string readfds = fmt::format(fmt("{}"), m_writepipe[0]);
+      std::string writefds = fmt::format(fmt("{}"), m_readpipe[1]);
+      std::string vLevel = fmt::format(fmt("{}"), verbosityLevel);
 
       /* Try user-specified blender first */
       if (blenderBin) {
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds, writefds, vLevel,
-               blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
+               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
         if (errno != ENOENT) {
-          snprintf(errbuf, 256, "NOLAUNCH %s", strerror(errno));
-          _writeStr(errbuf, strlen(errbuf), m_readpipe[1]);
+          errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
+          _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
           exit(1);
         }
       }
@@ -418,21 +415,21 @@ Connection::Connection(int verbosityLevel) {
         steamBlender += "/blender";
 #endif
         blenderBin = steamBlender.c_str();
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds, writefds, vLevel,
-               blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
+               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
         if (errno != ENOENT) {
-          snprintf(errbuf, 256, "NOLAUNCH %s", strerror(errno));
-          _writeStr(errbuf, strlen(errbuf), m_readpipe[1]);
+          errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
+          _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
           exit(1);
         }
       }
 
       /* Otherwise default blender */
-      execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--", readfds,
-             writefds, vLevel, blenderAddonPath.c_str(), NULL);
+      execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--",
+             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
       if (errno != ENOENT) {
-        snprintf(errbuf, 256, "NOLAUNCH %s", strerror(errno));
-        _writeStr(errbuf, strlen(errbuf), m_readpipe[1]);
+        errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
+        _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
         exit(1);
       }
 
@@ -448,10 +445,10 @@ Connection::Connection(int verbosityLevel) {
     /* Stash error path and unlink existing file */
 #if _WIN32
     m_errPath = hecl::SystemString(TMPDIR) +
-                hecl::SysFormat(_SYS_STR("/hecl_%016llX.derp"), (unsigned long long)m_pinfo.dwProcessId);
+                fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_pinfo.dwProcessId);
 #else
     m_errPath =
-        hecl::SystemString(TMPDIR) + hecl::SysFormat(_SYS_STR("/hecl_%016llX.derp"), (unsigned long long)m_blenderProc);
+        hecl::SystemString(TMPDIR) + fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
 #endif
     hecl::Unlink(m_errPath.c_str());
 
@@ -461,24 +458,24 @@ Connection::Connection(int verbosityLevel) {
 
     if (!strncmp(lineBuf, "NOLAUNCH", 8)) {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, "Unable to launch blender: %s", lineBuf + 9);
+      BlenderLog.report(logvisor::Fatal, fmt("Unable to launch blender: {}"), lineBuf + 9);
     } else if (!strncmp(lineBuf, "NOBLENDER", 9)) {
       _closePipe();
       if (blenderBin)
-        BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s' or '%s'"), blenderBin,
+        BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}' or '{}'")), blenderBin,
                           DEFAULT_BLENDER_BIN);
       else
-        BlenderLog.report(logvisor::Fatal, _SYS_STR("Unable to find blender at '%s'"), DEFAULT_BLENDER_BIN);
+        BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
     } else if (!strcmp(lineBuf, "NOT280")) {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, _SYS_STR("Installed blender version must be >= 2.80"));
+      BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Installed blender version must be >= 2.80")));
     } else if (!strcmp(lineBuf, "NOADDON")) {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
         InstallAddon(blenderAddonPath.c_str());
       ++installAttempt;
       if (installAttempt >= 2)
-        BlenderLog.report(logvisor::Fatal, _SYS_STR("unable to install blender addon using '%s'"),
+        BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("unable to install blender addon using '{}'")),
                           blenderAddonPath.c_str());
       continue;
     } else if (!strcmp(lineBuf, "ADDONINSTALLED")) {
@@ -487,14 +484,14 @@ Connection::Connection(int verbosityLevel) {
       continue;
     } else if (strcmp(lineBuf, "READY")) {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, "read '%s' from blender; expected 'READY'", lineBuf);
+      BlenderLog.report(logvisor::Fatal, fmt("read '{}' from blender; expected 'READY'"), lineBuf);
     }
     _writeStr("ACK");
 
     break;
   }
 #else
-  BlenderLog.report(logvisor::Fatal, "BlenderConnection not available on UWP");
+  BlenderLog.report(logvisor::Fatal, fmt("BlenderConnection not available on UWP"));
 #endif
 }
 
@@ -510,13 +507,13 @@ void Boolean::read(Connection& conn) { conn._readBuf(&val, 1); }
 
 std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
   if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
-    BlenderLog.report(logvisor::Fatal, "lock not held for PyOutStream writing");
+    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream writing"));
   if (ch != traits_type::eof() && ch != '\n' && ch != '\0') {
     m_lineBuf += char_type(ch);
     return ch;
   }
   // printf("FLUSHING %s\n", m_lineBuf.c_str());
-  m_parent.m_parent->_writeStr(m_lineBuf.c_str());
+  m_parent.m_parent->_writeStr(m_lineBuf);
   char readBuf[16];
   m_parent.m_parent->_readStr(readBuf, 16);
   if (strcmp(readBuf, "OK")) {
@@ -533,10 +530,10 @@ static const char* BlendTypeStrs[] = {"NONE",    "MESH",        "CMESH", "ACTOR"
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, "BlenderConnection::createBlend() musn't be called with stream active");
+    BlenderLog.report(logvisor::Fatal, fmt("BlenderConnection::createBlend() musn't be called with stream active"));
     return false;
   }
-  _writeStr(("CREATE \""s + path.getAbsolutePathUTF8().data() + "\" " + BlendTypeStrs[int(type)]).c_str());
+  _writeStr(fmt::format(fmt("CREATE \"{}\" {}"), path.getAbsolutePathUTF8(), BlendTypeStrs[int(type)]));
   char lineBuf[256];
   _readStr(lineBuf, sizeof(lineBuf));
   if (!strcmp(lineBuf, "FINISHED")) {
@@ -551,12 +548,12 @@ bool Connection::createBlend(const ProjectPath& path, BlendType type) {
 
 bool Connection::openBlend(const ProjectPath& path, bool force) {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, "BlenderConnection::openBlend() musn't be called with stream active");
+    BlenderLog.report(logvisor::Fatal, fmt("BlenderConnection::openBlend() musn't be called with stream active"));
     return false;
   }
   if (!force && path == m_loadedBlend)
     return true;
-  _writeStr(("OPEN \""s + path.getAbsolutePathUTF8().data() + "\"").c_str());
+  _writeStr(fmt::format(fmt("OPEN \"{}\""), path.getAbsolutePathUTF8()));
   char lineBuf[256];
   _readStr(lineBuf, sizeof(lineBuf));
   if (!strcmp(lineBuf, "FINISHED")) {
@@ -586,7 +583,7 @@ bool Connection::openBlend(const ProjectPath& path, bool force) {
 
 bool Connection::saveBlend() {
   if (m_lock) {
-    BlenderLog.report(logvisor::Fatal, "BlenderConnection::saveBlend() musn't be called with stream active");
+    BlenderLog.report(logvisor::Fatal, fmt("BlenderConnection::saveBlend() musn't be called with stream active"));
     return false;
   }
   _writeStr("SAVE");
@@ -600,7 +597,7 @@ bool Connection::saveBlend() {
 void Connection::deleteBlend() {
   if (m_loadedBlend) {
     hecl::Unlink(m_loadedBlend.getAbsolutePath().data());
-    BlenderLog.report(logvisor::Info, _SYS_STR("Deleted '%s'"), m_loadedBlend.getAbsolutePath().data());
+    BlenderLog.report(logvisor::Info, fmt(_SYS_STR("Deleted '{}'")), m_loadedBlend.getAbsolutePath());
     m_loadedBlend = ProjectPath();
   }
 }
@@ -612,7 +609,7 @@ PyOutStream::PyOutStream(Connection* parent, bool deleteOnError)
   char readBuf[16];
   m_parent->_readStr(readBuf, 16);
   if (strcmp(readBuf, "READY"))
-    BlenderLog.report(logvisor::Fatal, "unable to open PyOutStream with blender");
+    BlenderLog.report(logvisor::Fatal, fmt("unable to open PyOutStream with blender"));
 }
 
 void PyOutStream::close() {
@@ -621,85 +618,62 @@ void PyOutStream::close() {
     char readBuf[16];
     m_parent->_readStr(readBuf, 16);
     if (strcmp(readBuf, "DONE"))
-      BlenderLog.report(logvisor::Fatal, "unable to close PyOutStream with blender");
+      BlenderLog.report(logvisor::Fatal, fmt("unable to close PyOutStream with blender"));
     m_parent->m_pyStreamActive = false;
     m_parent->m_lock = false;
   }
 }
 
-#if __GNUC__
-__attribute__((__format__ (__printf__, 2, 3)))
-#endif
-void PyOutStream::format(const char* fmt, ...)
-{
-  if (!m_parent || !m_parent->m_lock)
-    BlenderLog.report(logvisor::Fatal, "lock not held for PyOutStream::format()");
-  va_list ap;
-  va_start(ap, fmt);
-  char* result = nullptr;
-#ifdef _WIN32
-  int length = _vscprintf(fmt, ap);
-  result = (char*)malloc(length);
-  vsnprintf(result, length, fmt, ap);
-#else
-  int length = vasprintf(&result, fmt, ap);
-#endif
-  va_end(ap);
-  if (length > 0)
-    this->write(result, length);
-  free(result);
-}
-
 void PyOutStream::linkBlend(const char* target, const char* objName, bool link) {
-  format(
-      "if '%s' not in bpy.data.scenes:\n"
-      "    with bpy.data.libraries.load('''%s''', link=%s, relative=True) as (data_from, data_to):\n"
+  format(fmt(
+      "if '{}' not in bpy.data.scenes:\n"
+      "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
       "        data_to.scenes = data_from.scenes\n"
       "    obj_scene = None\n"
       "    for scene in data_to.scenes:\n"
-      "        if scene.name == '%s':\n"
+      "        if scene.name == '{}':\n"
       "            obj_scene = scene\n"
       "            break\n"
       "    if not obj_scene:\n"
-      "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
+      "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
       "    obj = None\n"
       "    for object in obj_scene.objects:\n"
       "        if object.name == obj_scene.name:\n"
       "            obj = object\n"
       "else:\n"
-      "    obj = bpy.data.objects['%s']\n"
-      "\n",
+      "    obj = bpy.data.objects['{}']\n"
+      "\n"),
       objName, target, link ? "True" : "False", objName, objName, target, objName);
 }
 
 void PyOutStream::linkBackground(const char* target, const char* sceneName) {
   if (!sceneName) {
-    format(
-        "with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
+    format(fmt(
+        "with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
         "    data_to.scenes = data_from.scenes\n"
         "obj_scene = None\n"
         "for scene in data_to.scenes:\n"
         "    obj_scene = scene\n"
         "    break\n"
         "if not obj_scene:\n"
-        "    raise RuntimeError('''unable to find %s. try deleting it and restart the extract.''')\n"
+        "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
         "\n"
-        "bpy.context.scene.background_set = obj_scene\n",
+        "bpy.context.scene.background_set = obj_scene\n"),
         target, target);
   } else {
-    format(
-        "if '%s' not in bpy.data.scenes:\n"
-        "    with bpy.data.libraries.load('''%s''', link=True, relative=True) as (data_from, data_to):\n"
+    format(fmt(
+        "if '{}' not in bpy.data.scenes:\n"
+        "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
         "        data_to.scenes = data_from.scenes\n"
         "    obj_scene = None\n"
         "    for scene in data_to.scenes:\n"
-        "        if scene.name == '%s':\n"
+        "        if scene.name == '{}':\n"
         "            obj_scene = scene\n"
         "            break\n"
         "    if not obj_scene:\n"
-        "        raise RuntimeError('''unable to find %s in %s. try deleting it and restart the extract.''')\n"
+        "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
         "\n"
-        "bpy.context.scene.background_set = bpy.data.scenes['%s']\n",
+        "bpy.context.scene.background_set = bpy.data.scenes['{}']\n"),
         sceneName, target, sceneName, sceneName, target, sceneName);
   }
 }
@@ -707,16 +681,16 @@ void PyOutStream::linkBackground(const char* target, const char* sceneName) {
 void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
   athena::simd_floats minf(min.simd);
   athena::simd_floats maxf(max.simd);
-  format(
+  format(fmt(
       "bm = bmesh.new()\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
-      "bm.verts.new((%f,%f,%f))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
+      "bm.verts.new(({},{},{}))\n"
       "bm.verts.ensure_lookup_table()\n"
       "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
       "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
@@ -729,7 +703,7 @@ void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
       "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
       "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
       "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[7]))\n",
+      "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
       minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
       minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
 }
@@ -763,7 +737,7 @@ ANIMOutStream::ANIMOutStream(Connection* parent) : m_parent(parent) {
   char readBuf[16];
   m_parent->_readStr(readBuf, 16);
   if (strcmp(readBuf, "ANIMREADY"))
-    BlenderLog.report(logvisor::Fatal, "unable to open ANIMOutStream");
+    BlenderLog.report(logvisor::Fatal, fmt("unable to open ANIMOutStream"));
 }
 
 ANIMOutStream::~ANIMOutStream() {
@@ -772,12 +746,12 @@ ANIMOutStream::~ANIMOutStream() {
   char readBuf[16];
   m_parent->_readStr(readBuf, 16);
   if (strcmp(readBuf, "ANIMDONE"))
-    BlenderLog.report(logvisor::Fatal, "unable to close ANIMOutStream");
+    BlenderLog.report(logvisor::Fatal, fmt("unable to close ANIMOutStream"));
 }
 
 void ANIMOutStream::changeCurve(CurveType type, unsigned crvIdx, unsigned keyCount) {
   if (m_curCount != m_totalCount)
-    BlenderLog.report(logvisor::Fatal, "incomplete ANIMOutStream for change");
+    BlenderLog.report(logvisor::Fatal, fmt("incomplete ANIMOutStream for change"));
   m_curCount = 0;
   m_totalCount = keyCount;
   char tp = char(type);
@@ -792,7 +766,7 @@ void ANIMOutStream::changeCurve(CurveType type, unsigned crvIdx, unsigned keyCou
 
 void ANIMOutStream::write(unsigned frame, float val) {
   if (!m_inCurve)
-    BlenderLog.report(logvisor::Fatal, "changeCurve not called before write");
+    BlenderLog.report(logvisor::Fatal, fmt("changeCurve not called before write"));
   if (m_curCount < m_totalCount) {
     struct {
       uint32_t frm;
@@ -801,7 +775,7 @@ void ANIMOutStream::write(unsigned frame, float val) {
     m_parent->_writeBuf(reinterpret_cast<const char*>(&key), 8);
     ++m_curCount;
   } else
-    BlenderLog.report(logvisor::Fatal, "ANIMOutStream keyCount overflow");
+    BlenderLog.report(logvisor::Fatal, fmt("ANIMOutStream keyCount overflow"));
 }
 
 Mesh::SkinBind::SkinBind(Connection& conn) {
@@ -1495,7 +1469,7 @@ DataStream::DataStream(Connection* parent) : m_parent(parent) {
   char readBuf[16];
   m_parent->_readStr(readBuf, 16);
   if (strcmp(readBuf, "READY"))
-    BlenderLog.report(logvisor::Fatal, "unable to open DataStream with blender");
+    BlenderLog.report(logvisor::Fatal, fmt("unable to open DataStream with blender"));
 }
 
 void DataStream::close() {
@@ -1504,7 +1478,7 @@ void DataStream::close() {
     char readBuf[16];
     m_parent->_readStr(readBuf, 16);
     if (strcmp(readBuf, "DONE"))
-      BlenderLog.report(logvisor::Fatal, "unable to close DataStream with blender");
+      BlenderLog.report(logvisor::Fatal, fmt("unable to close DataStream with blender"));
     m_parent->m_dataStreamActive = false;
     m_parent->m_lock = false;
   }
@@ -1540,14 +1514,14 @@ std::vector<std::string> DataStream::getLightList() {
 
 std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
   if (m_parent->m_loadedType != BlendType::Mesh && m_parent->m_loadedType != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MESH or ACTOR blend"),
-                      m_parent->m_loadedBlend.getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a MESH or ACTOR blend")),
+                      m_parent->m_loadedBlend.getAbsolutePath());
 
   m_parent->_writeStr("MESHAABB");
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable get AABB: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable get AABB: {}"), readBuf);
 
   Vector3f minPt(*m_parent);
   Vector3f maxPt(*m_parent);
@@ -1561,66 +1535,60 @@ const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
 
 Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount) {
   if (m_parent->getBlendType() != BlendType::Mesh)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MESH blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a MESH blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to cook mesh: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to cook mesh: {}"), readBuf);
 
   return Mesh(*m_parent, topology, skinSlotCount);
 }
 
 Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int skinSlotCount, bool useLuv) {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an AREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "MESHCOMPILENAME %s %d", name.data(), int(useLuv));
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("MESHCOMPILENAME {} {}"), name, int(useLuv)));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to cook mesh '%s': %s", name.data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to cook mesh '{}': {}"), name, readBuf);
 
   return Mesh(*m_parent, topology, skinSlotCount, useLuv);
 }
 
 ColMesh DataStream::compileColMesh(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an AREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "MESHCOMPILENAMECOLLISION %s", name.data());
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("MESHCOMPILENAMECOLLISION {}"), name));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to cook collision mesh '%s': %s", name.data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to cook collision mesh '{}': {}"), name, readBuf);
 
   return ColMesh(*m_parent);
 }
 
 std::vector<ColMesh> DataStream::compileColMeshes() {
   if (m_parent->getBlendType() != BlendType::ColMesh)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a CMESH blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a CMESH blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "MESHCOMPILECOLLISIONALL");
-  m_parent->_writeStr(req);
+  m_parent->_writeStr("MESHCOMPILECOLLISIONALL");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to cook collision meshes: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to cook collision meshes: {}"), readBuf);
 
   uint32_t meshCount;
   m_parent->_readBuf(&meshCount, 4);
@@ -1636,15 +1604,15 @@ std::vector<ColMesh> DataStream::compileColMeshes() {
 
 std::vector<Light> DataStream::compileLights() {
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an AREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("LIGHTCOMPILEALL");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to gather all lights: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to gather all lights: {}"), readBuf);
 
   uint32_t lightCount;
   m_parent->_readBuf(&lightCount, 4);
@@ -1660,15 +1628,15 @@ std::vector<Light> DataStream::compileLights() {
 
 PathMesh DataStream::compilePathMesh() {
   if (m_parent->getBlendType() != BlendType::PathMesh)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a PATH blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a PATH blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILEPATH");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to path collision mesh: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to path collision mesh: {}"), readBuf);
 
   return PathMesh(*m_parent);
 }
@@ -1676,17 +1644,15 @@ PathMesh DataStream::compilePathMesh() {
 std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
   std::vector<uint8_t> ret;
   if (m_parent->getBlendType() != BlendType::Frame)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a FRAME blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a FRAME blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[512];
-  snprintf(req, 512, "FRAMECOMPILE %d", version);
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("FRAMECOMPILE {}"), version));
 
   char readBuf[1024];
   m_parent->_readStr(readBuf, 1024);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile frame: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile frame: {}"), readBuf);
 
   while (true) {
     m_parent->_readStr(readBuf, 1024);
@@ -1703,8 +1669,7 @@ std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
       relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
     hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
 
-    snprintf(req, 512, "%016" PRIX64, path.hash().val64());
-    m_parent->_writeStr(req);
+    m_parent->_writeStr(fmt::format(fmt("{:016X}"), path.hash().val64()));
   }
 
   uint32_t len;
@@ -1720,7 +1685,7 @@ std::vector<ProjectPath> DataStream::getTextures() {
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get textures: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get textures: {}"), readBuf);
 
   uint32_t texCount;
   m_parent->_readBuf(&texCount, 4);
@@ -1743,77 +1708,75 @@ std::vector<ProjectPath> DataStream::getTextures() {
 
 Actor DataStream::compileActor() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile actor: {}"), readBuf);
 
   return Actor(*m_parent);
 }
 
 Actor DataStream::compileActorCharacterOnly() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILECHARACTERONLY");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile actor: {}"), readBuf);
 
   return Actor(*m_parent);
 }
 
 Action DataStream::compileActionChannelsOnly(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "ACTIONCOMPILECHANNELSONLY %s", name.data());
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("ACTIONCOMPILECHANNELSONLY {}"), name));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile action: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile action: {}"), readBuf);
 
   return Action(*m_parent);
 }
 
 World DataStream::compileWorld() {
   if (m_parent->getBlendType() != BlendType::World)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an WORLD blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an WORLD blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("WORLDCOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile world: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile world: {}"), readBuf);
 
   return World(*m_parent);
 }
 
 std::vector<std::string> DataStream::getArmatureNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETARMATURENAMES");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get armatures of actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get armatures of actor: {}"), readBuf);
 
   std::vector<std::string> ret;
 
@@ -1834,15 +1797,15 @@ std::vector<std::string> DataStream::getArmatureNames() {
 
 std::vector<std::string> DataStream::getSubtypeNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETSUBTYPENAMES");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get subtypes of actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get subtypes of actor: {}"), readBuf);
 
   std::vector<std::string> ret;
 
@@ -1863,15 +1826,15 @@ std::vector<std::string> DataStream::getSubtypeNames() {
 
 std::vector<std::string> DataStream::getActionNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETACTIONNAMES");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get actions of actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get actions of actor: {}"), readBuf);
 
   std::vector<std::string> ret;
 
@@ -1892,17 +1855,15 @@ std::vector<std::string> DataStream::getActionNames() {
 
 std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "GETSUBTYPEOVERLAYNAMES %s", name.data());
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("GETSUBTYPEOVERLAYNAMES {}"), name));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get subtype overlays of actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get subtype overlays of actor: {}"), readBuf);
 
   std::vector<std::string> ret;
 
@@ -1923,15 +1884,15 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
 
 std::vector<std::string> DataStream::getAttachmentNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETATTACHMENTNAMES");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get attachments of actor: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get attachments of actor: {}"), readBuf);
 
   std::vector<std::string> ret;
 
@@ -1955,17 +1916,15 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
     return {};
 
   if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an ACTOR blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[128];
-  snprintf(req, 128, "GETBONEMATRICES %s", name.data());
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("GETBONEMATRICES {}"), name));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to get matrices of armature: %s", readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to get matrices of armature: {}"), readBuf);
 
   std::unordered_map<std::string, Matrix3f> ret;
 
@@ -2000,19 +1959,17 @@ bool DataStream::renderPvs(std::string_view path, const atVec3f& location) {
     return false;
 
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an AREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[256];
   athena::simd_floats f(location.simd);
-  snprintf(req, 256, "RENDERPVS %s %f %f %f", path.data(), f[0], f[1], f[2]);
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("RENDERPVS {} {} {} {}"), path, f[0], f[1], f[2]));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to render PVS for: %s; %s",
-                      m_parent->getBlendPath().getAbsolutePathUTF8().data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to render PVS for: {}; {}"),
+                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
 
   return true;
 }
@@ -2022,50 +1979,48 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
     return false;
 
   if (m_parent->getBlendType() != BlendType::Area)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not an AREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an AREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
-  char req[256];
-  snprintf(req, 256, "RENDERPVSLIGHT %s %s", path.data(), lightName.data());
-  m_parent->_writeStr(req);
+  m_parent->_writeStr(fmt::format(fmt("RENDERPVSLIGHT {} {}"), path, lightName));
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to render PVS light %s for: %s; %s", lightName.data(),
-                      m_parent->getBlendPath().getAbsolutePathUTF8().data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to render PVS light {} for: {}; {}"), lightName,
+                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
 
   return true;
 }
 
 MapArea DataStream::compileMapArea() {
   if (m_parent->getBlendType() != BlendType::MapArea)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MAPAREA blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a MAPAREA blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPAREACOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile map area: %s; %s",
-                      m_parent->getBlendPath().getAbsolutePathUTF8().data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile map area: {}; {}"),
+                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
 
   return {*m_parent};
 }
 
 MapUniverse DataStream::compileMapUniverse() {
   if (m_parent->getBlendType() != BlendType::MapUniverse)
-    BlenderLog.report(logvisor::Fatal, _SYS_STR("%s is not a MAPUNIVERSE blend"),
-                      m_parent->getBlendPath().getAbsolutePath().data());
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a MAPUNIVERSE blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPUNIVERSECOMPILE");
 
   char readBuf[256];
   m_parent->_readStr(readBuf, 256);
   if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, "unable to compile map universe: %s; %s",
-                      m_parent->getBlendPath().getAbsolutePathUTF8().data(), readBuf);
+    BlenderLog.report(logvisor::Fatal, fmt("unable to compile map universe: {}; {}"),
+                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
 
   return {*m_parent};
 }
@@ -2103,7 +2058,7 @@ void Token::shutdown() {
     m_conn->quitBlender();
     m_conn.reset();
     if (hecl::VerbosityLevel >= 1)
-      BlenderLog.report(logvisor::Info, "Blender Shutdown Successful");
+      BlenderLog.report(logvisor::Info, fmt("Blender Shutdown Successful"));
   }
 }
 

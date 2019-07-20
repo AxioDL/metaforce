@@ -26,13 +26,13 @@ class Console {
     Console* m_con;
     LogVisorAdapter(Console* con) : m_con(con) {}
 
-    ~LogVisorAdapter() {}
-    void report(const char* modName, logvisor::Level severity, const char* format, va_list ap);
-    void report(const char* modName, logvisor::Level severity, const wchar_t* format, va_list ap);
+    ~LogVisorAdapter() = default;
+    void report(const char* modName, logvisor::Level severity, fmt::string_view format, fmt::format_args args);
+    void report(const char* modName, logvisor::Level severity, fmt::wstring_view format, fmt::wformat_args args);
     void reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum,
-                      const char* format, va_list ap);
+                      fmt::string_view format, fmt::format_args args);
     void reportSource(const char* modName, logvisor::Level severity, const char* file, unsigned linenum,
-                      const wchar_t* format, va_list ap);
+                      fmt::wstring_view format, fmt::wformat_args args);
   };
 
 public:
@@ -80,8 +80,13 @@ public:
   void listCommands(Console* con, const std::vector<std::string>& args);
   bool commandExists(std::string_view cmd);
 
-  void report(Level level, const char* fmt, va_list list);
-  void report(Level level, const char* fmt, ...);
+  void vreport(Level level, fmt::string_view format, fmt::format_args args);
+  template <typename S, typename... Args, typename Char = fmt::char_t<S>>
+  void report(Level level, const S& format, Args&&... args) {
+    vreport(level, fmt::to_string_view<Char>(format),
+            fmt::basic_format_args<fmt::buffer_context<Char>>(
+                fmt::internal::make_args_checked<Args...>(format, args...)));
+  }
 
   void init(boo::IWindow* ctx);
   void proc();

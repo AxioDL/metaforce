@@ -90,7 +90,7 @@ void Console::executeString(const std::string& str) {
 
     if (isInLiteral) {
       if ((curLiteral.back() != '\'' && curLiteral.back() != '"') || depth > 1) {
-        report(Level::Warning, "Unterminated string literal");
+        report(Level::Warning, fmt("Unterminated string literal"));
         return;
       }
       args.push_back(curLiteral);
@@ -104,12 +104,12 @@ void Console::executeString(const std::string& str) {
     if (m_commands.find(lowComName) != m_commands.end()) {
       const SConsoleCommand& cmd = m_commands[lowComName];
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean()) {
-        report(Level::Error, "This command can only be executed in developer mode", commandName.c_str());
+        report(Level::Error, fmt("This command can only be executed in developer mode"), commandName);
         return;
       }
 
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Cheat) && !com_enableCheats->toBoolean()) {
-        report(Level::Error, "This command can only be executed with cheats enabled", commandName.c_str());
+        report(Level::Error, fmt("This command can only be executed with cheats enabled"), commandName);
         return;
       }
       m_commands[lowComName].m_func(this, args);
@@ -120,31 +120,31 @@ void Console::executeString(const std::string& str) {
       else
         m_cvarMgr->getCVar(this, args);
     } else
-      report(Level::Error, "Command '%s' is not valid!", commandName.c_str());
+      report(Level::Error, fmt("Command '{}' is not valid!"), commandName);
   }
 }
 
 void Console::help(Console* /*con*/, const std::vector<std::string>& args) {
   if (args.empty()) {
-    report(Level::Info, "Expected usage: help <command>");
+    report(Level::Info, fmt("Expected usage: help <command>"));
     return;
   }
   std::string cmd = args.front();
   athena::utility::tolower(cmd);
   auto it = m_commands.find(cmd);
   if (it == m_commands.end()) {
-    report(Level::Error, "No such command '%s'", args.front().c_str());
+    report(Level::Error, fmt("No such command '{}'"), args.front());
     return;
   }
 
-  report(Level::Info, "%s: %s", it->second.m_displayName.c_str(), it->second.m_helpString.c_str());
+  report(Level::Info, fmt("{}: {}"), it->second.m_displayName, it->second.m_helpString);
   if (!it->second.m_usage.empty())
-    report(Level::Info, "Usage: %s %s", it->second.m_displayName.c_str(), it->second.m_usage.c_str());
+    report(Level::Info, fmt("Usage: {} {}"), it->second.m_displayName, it->second.m_usage);
 }
 
 void Console::listCommands(Console* /*con*/, const std::vector<std::string>& /*args*/) {
   for (const auto& comPair : m_commands)
-    report(Level::Info, "'%s': %s", comPair.second.m_displayName.c_str(), comPair.second.m_helpString.c_str());
+    report(Level::Info, fmt("'{}': {}"), comPair.second.m_displayName, comPair.second.m_helpString);
 }
 
 bool Console::commandExists(std::string_view cmd) {
@@ -154,23 +154,14 @@ bool Console::commandExists(std::string_view cmd) {
   return m_commands.find(cmdName) != m_commands.end();
 }
 
-void Console::report(Level level, const char* fmt, va_list list) {
-  char tmp[2048];
-  vsnprintf(tmp, 2048, fmt, list);
+void Console::vreport(Level level, fmt::string_view fmt, fmt::format_args args) {
+  std::string tmp = fmt::vformat(fmt, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
-  for (const std::string& line : lines) {
-    std::string v = athena::utility::sprintf("%s", line.c_str());
-    m_log.emplace_back(v, level);
-  }
-  printf("%s\n", tmp);
+  for (const std::string& line : lines)
+    m_log.emplace_back(line, level);
+  fmt::print(fmt("{}\n"), tmp);
 }
 
-void Console::report(Level level, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  report(level, fmt, ap);
-  va_end(ap);
-}
 void Console::init(boo::IWindow* window) {
   m_window = window;
 }
@@ -187,7 +178,7 @@ void Console::proc() {
   }
 
   if (m_state == State::Opened) {
-    printf("\r%s                                   ", m_commandString.c_str());
+    fmt::print(fmt("\r{}                                   "), m_commandString);
     fflush(stdout);
   } else if (m_state == State::Opening)
     m_state = State::Opened;
@@ -290,7 +281,7 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
     break;
   }
   case boo::ESpecialKey::Enter: {
-    printf("\n");
+    fmt::print(fmt("\n"));
     executeString(m_commandString);
     m_cursorPosition = -1;
     m_commandHistory.insert(m_commandHistory.begin(), m_commandString);
@@ -372,42 +363,39 @@ void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, b
 
 void Console::handleSpecialKeyUp(boo::ESpecialKey /*sp*/, boo::EModifierKey /*mod*/) {}
 
-void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const char* format, va_list ap) {
-  char tmp[2048];
-  vsnprintf(tmp, 2048, format, ap);
+void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity,
+                                      fmt::string_view format, fmt::format_args args) {
+  auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
   for (const std::string& line : lines) {
-    std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+    auto v = fmt::format(fmt("[%s] %s"), modName, line.c_str());
     m_con->m_log.emplace_back(v, Console::Level(severity));
   }
 }
 
-void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity, const wchar_t* format,
-                                      va_list ap) {
-  wchar_t tmp[2048];
-  vswprintf(tmp, 2048, format, ap);
+void Console::LogVisorAdapter::report(const char* modName, logvisor::Level severity,
+                                      fmt::wstring_view format, fmt::wformat_args args) {
+  auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    std::string v = athena::utility::sprintf("[%s] %s", modName, line.c_str());
+    auto v = fmt::format(fmt("[%s] %s"), modName, line.c_str());
     m_con->m_log.emplace_back(v, Console::Level(severity));
   }
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
-                                            unsigned linenum, const char* format, va_list ap) {
-  char tmp[2048];
-  vsnprintf(tmp, 2048, format, ap);
-  std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, tmp, file, linenum);
+                                            unsigned linenum, fmt::string_view format, fmt::format_args args) {
+  auto tmp = fmt::internal::vformat(format, args);
+  auto v = fmt::format(fmt("[%s] %s %s:%i"), modName, tmp, file, linenum);
   m_con->m_log.emplace_back(v, Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
-                                            unsigned linenum, const wchar_t* format, va_list ap) {
-  wchar_t tmp[2048];
-  vswprintf(tmp, 2048, format, ap);
+                                            unsigned linenum, fmt::wstring_view format, fmt::wformat_args args) {
+  auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    std::string v = athena::utility::sprintf("[%s] %s %s:%i", modName, line.c_str(), file, linenum);
+    auto v = fmt::format(fmt("[%s] %s %s:%i"), modName, line.c_str(), file, linenum);
     m_con->m_log.emplace_back(v, Console::Level(severity));
   }
 }
@@ -416,16 +404,16 @@ void Console::dumpLog() {
   for (const auto& l : m_log) {
     switch (l.second) {
     case Level::Info:
-      printf("%s\n", l.first.c_str());
+      fmt::print(fmt("{}\n"), l.first);
       break;
     case Level::Warning:
-      printf("[Warning] %s\n", l.first.c_str());
+      fmt::print(fmt("[Warning] {}\n"), l.first);
       break;
     case Level::Error:
-      printf("[ Error ] %s\n", l.first.c_str());
+      fmt::print(fmt("[ Error ] {}\n"), l.first);
       break;
     case Level::Fatal:
-      printf("[ Fatal ] %s\n", l.first.c_str());
+      fmt::print(fmt("[ Fatal ] {}\n"), l.first);
       break;
     }
   }

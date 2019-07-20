@@ -94,7 +94,7 @@ public:
   virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps) {
     (void)info;
     (void)reps;
-    LogModule.report(logvisor::Error, "not implemented");
+    LogModule.report(logvisor::Error, fmt("not implemented"));
     return false;
   }
   virtual void doExtract(const ExtractPassInfo& info, const MultiProgressPrinter& progress) {
@@ -104,7 +104,7 @@ public:
 
   virtual bool canCook(const ProjectPath& path, blender::Token& btok) {
     (void)path;
-    LogModule.report(logvisor::Error, "not implemented");
+    LogModule.report(logvisor::Error, fmt("not implemented"));
     return false;
   }
   virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,

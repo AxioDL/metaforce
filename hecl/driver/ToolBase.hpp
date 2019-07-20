@@ -55,9 +55,9 @@ protected:
   bool continuePrompt() {
     if (!m_info.yes) {
       if (XTERM_COLOR)
-        hecl::Printf(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) "));
+        fmt::print(fmt(_SYS_STR("\n" BLUE BOLD "Continue?" NORMAL " (Y/n) ")));
       else
-        hecl::Printf(_SYS_STR("\nContinue? (Y/n) "));
+        fmt::print(fmt(_SYS_STR("\nContinue? (Y/n) ")));
       fflush(stdout);
 
       int ch;
@@ -73,7 +73,7 @@ protected:
 #endif
       {
         if (ch == 'n' || ch == 'N') {
-          hecl::Printf(_SYS_STR("\n"));
+          fmt::print(fmt(_SYS_STR("\n")));
           return false;
         }
         if (ch == 'y' || ch == 'Y' || ch == '\r' || ch == '\n')
@@ -83,7 +83,7 @@ protected:
       tcsetattr(0, TCSANOW, &tioOld);
 #endif
     }
-    hecl::Printf(_SYS_STR("\n"));
+    fmt::print(fmt(_SYS_STR("\n")));
     return true;
   }
 
@@ -175,27 +175,27 @@ public:
 #endif
   }
 
-  void print(const hecl::SystemChar* str) { hecl::FPrintf(m_sout, _SYS_STR("%s"), str); }
+  void print(const hecl::SystemChar* str) { fmt::print(m_sout, fmt(_SYS_STR("{}")), str); }
 
   void printBold(const hecl::SystemChar* str) {
     if (XTERM_COLOR)
-      hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL ""), str);
+      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL "")), str);
     else
-      hecl::FPrintf(m_sout, _SYS_STR("%s"), str);
+      fmt::print(m_sout, fmt(_SYS_STR("{}")), str);
   }
 
   void secHead(const hecl::SystemChar* headName) {
     if (XTERM_COLOR)
-      hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL "\n"), headName);
+      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL "\n")), headName);
     else
-      hecl::FPrintf(m_sout, _SYS_STR("%s\n"), headName);
+      fmt::print(m_sout, fmt(_SYS_STR("{}\n")), headName);
   }
 
   void optionHead(const hecl::SystemChar* flag, const hecl::SystemChar* synopsis) {
     if (XTERM_COLOR)
-      hecl::FPrintf(m_sout, _SYS_STR("" BOLD "%s" NORMAL " (%s)\n"), flag, synopsis);
+      fmt::print(m_sout, fmt(_SYS_STR("" BOLD "{}" NORMAL " ({})\n")), flag, synopsis);
     else
-      hecl::FPrintf(m_sout, _SYS_STR("%s (%s)\n"), flag, synopsis);
+      fmt::print(m_sout, fmt(_SYS_STR("{} ({})\n")), flag, synopsis);
   }
 
   void beginWrap() { m_wrapBuffer.clear(); }
@@ -213,7 +213,7 @@ public:
   void endWrap() {
     _wrapBuf(m_wrapBuffer);
     m_wrapBuffer += _SYS_STR('\n');
-    hecl::FPrintf(m_sout, _SYS_STR("%s"), m_wrapBuffer.c_str());
+    fmt::print(m_sout, fmt(_SYS_STR("{}")), m_wrapBuffer);
     m_wrapBuffer.clear();
   }
 };

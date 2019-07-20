@@ -154,7 +154,7 @@ inline std::string operator+(std::string_view lhs, const SystemStringConv& rhs) 
 void SanitizePath(std::string& path);
 void SanitizePath(std::wstring& path);
 
-static inline void Unlink(const SystemChar* file) {
+inline void Unlink(const SystemChar* file) {
 #if _WIN32
   _wunlink(file);
 #else
@@ -162,31 +162,31 @@ static inline void Unlink(const SystemChar* file) {
 #endif
 }
 
-static inline void MakeDir(const char* dir) {
+inline void MakeDir(const char* dir) {
 #if _WIN32
   HRESULT err;
   if (!CreateDirectoryA(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, "MakeDir(%s)", dir);
+      LogModule.report(logvisor::Fatal, fmt("MakeDir(%s)"), dir);
 #else
   if (mkdir(dir, 0755))
     if (errno != EEXIST)
-      LogModule.report(logvisor::Fatal, "MakeDir(%s): %s", dir, strerror(errno));
+      LogModule.report(logvisor::Fatal, fmt("MakeDir({}): {}"), dir, strerror(errno));
 #endif
 }
 
 #if _WIN32
-static inline void MakeDir(const wchar_t* dir) {
+inline void MakeDir(const wchar_t* dir) {
   HRESULT err;
   if (!CreateDirectoryW(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, _SYS_STR("MakeDir(%s)"), dir);
+      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("MakeDir(%s)")), dir);
 }
 #endif
 
 int RecursiveMakeDir(const SystemChar* dir);
 
-static inline const SystemChar* GetEnv(const SystemChar* name) {
+inline const SystemChar* GetEnv(const SystemChar* name) {
 #if WINDOWS_STORE
   return nullptr;
 #else
@@ -198,7 +198,7 @@ static inline const SystemChar* GetEnv(const SystemChar* name) {
 #endif
 }
 
-static inline SystemChar* Getcwd(SystemChar* buf, int maxlen) {
+inline SystemChar* Getcwd(SystemChar* buf, int maxlen) {
 #if HECL_UCS2
   return _wgetcwd(buf, maxlen);
 #else
@@ -208,7 +208,7 @@ static inline SystemChar* Getcwd(SystemChar* buf, int maxlen) {
 
 SystemString GetcwdStr();
 
-static inline bool IsAbsolute(SystemStringView path) {
+inline bool IsAbsolute(SystemStringView path) {
 #if _WIN32
   if (path.size() && (path[0] == _SYS_STR('\\') || path[0] == _SYS_STR('/')))
     return true;
@@ -228,7 +228,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]);
 #endif
 
 enum class FileLockType { None = 0, Read, Write };
-static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
+inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType lock = FileLockType::None) {
 #if HECL_UCS2
   FILE* fp = _wfopen(path, mode);
   if (!fp)
@@ -246,14 +246,14 @@ static inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLo
                &ov);
 #else
     if (flock(fileno(fp), ((lock == FileLockType::Write) ? LOCK_EX : LOCK_SH) | LOCK_NB))
-      LogModule.report(logvisor::Error, "flock %s: %s", path, strerror(errno));
+      LogModule.report(logvisor::Error, fmt("flock {}: {}"), path, strerror(errno));
 #endif
   }
 
   return fp;
 }
 
-static inline int FSeek(FILE* fp, int64_t offset, int whence) {
+inline int FSeek(FILE* fp, int64_t offset, int whence) {
 #if _WIN32
   return _fseeki64(fp, offset, whence);
 #elif __APPLE__ || __FreeBSD__
@@ -263,7 +263,7 @@ static inline int FSeek(FILE* fp, int64_t offset, int whence) {
 #endif
 }
 
-static inline int64_t FTell(FILE* fp) {
+inline int64_t FTell(FILE* fp) {
 #if _WIN32
   return _ftelli64(fp);
 #elif __APPLE__ || __FreeBSD__
@@ -273,7 +273,7 @@ static inline int64_t FTell(FILE* fp) {
 #endif
 }
 
-static inline int Rename(const SystemChar* oldpath, const SystemChar* newpath) {
+inline int Rename(const SystemChar* oldpath, const SystemChar* newpath) {
 #if HECL_UCS2
   // return _wrename(oldpath, newpath);
   return MoveFileExW(oldpath, newpath, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) == 0;
@@ -282,7 +282,7 @@ static inline int Rename(const SystemChar* oldpath, const SystemChar* newpath) {
 #endif
 }
 
-static inline int Stat(const SystemChar* path, Sstat* statOut) {
+inline int Stat(const SystemChar* path, Sstat* statOut) {
 #if HECL_UCS2
   size_t pos;
   for (pos = 0; pos < 3 && path[pos] != L'\0'; ++pos) {}
@@ -296,52 +296,7 @@ static inline int Stat(const SystemChar* path, Sstat* statOut) {
 #endif
 }
 
-#if __GNUC__
-__attribute__((__format__(__printf__, 1, 2)))
-#endif
-static inline void
-Printf(const SystemChar* format, ...) {
-  va_list va;
-  va_start(va, format);
-#if HECL_UCS2
-  vwprintf(format, va);
-#else
-  vprintf(format, va);
-#endif
-  va_end(va);
-}
-
-#if __GNUC__
-__attribute__((__format__(__printf__, 2, 3)))
-#endif
-static inline void
-FPrintf(FILE* fp, const SystemChar* format, ...) {
-  va_list va;
-  va_start(va, format);
-#if HECL_UCS2
-  vfwprintf(fp, format, va);
-#else
-  vfprintf(fp, format, va);
-#endif
-  va_end(va);
-}
-
-#if __GNUC__
-__attribute__((__format__(__printf__, 3, 4)))
-#endif
-static inline void
-SNPrintf(SystemChar* str, size_t maxlen, const SystemChar* format, ...) {
-  va_list va;
-  va_start(va, format);
-#if HECL_UCS2
-  _vsnwprintf(str, maxlen, format, va);
-#else
-  vsnprintf(str, maxlen, format, va);
-#endif
-  va_end(va);
-}
-
-static inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
+inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
   if (!str1 || !str2)
     return str1 != str2;
 #if HECL_UCS2
@@ -351,7 +306,7 @@ static inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
 #endif
 }
 
-static inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count) {
+inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count) {
   if (!str1 || !str2)
     return str1 != str2;
 #if HECL_UCS2
@@ -361,7 +316,7 @@ static inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t
 #endif
 }
 
-static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
+inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
   if (!str1 || !str2)
     return str1 != str2;
 #if HECL_UCS2
@@ -371,7 +326,7 @@ static inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
 #endif
 }
 
-static inline unsigned long StrToUl(const SystemChar* str, SystemChar** endPtr, int base) {
+inline unsigned long StrToUl(const SystemChar* str, SystemChar** endPtr, int base) {
 #if HECL_UCS2
   return wcstoul(str, endPtr, base);
 #else
@@ -379,46 +334,28 @@ static inline unsigned long StrToUl(const SystemChar* str, SystemChar** endPtr, 
 #endif
 }
 
-#define FORMAT_BUF_SZ 1024
-
-#if __GNUC__
-__attribute__((__format__(__printf__, 1, 2)))
-#endif
-SystemString
-SysFormat(const SystemChar* format, ...);
-
-#if __GNUC__
-__attribute__((__format__(__printf__, 1, 2)))
-#endif
-std::string
-Format(const char* format, ...);
-
-std::wstring WideFormat(const wchar_t* format, ...);
-
-std::u16string Char16Format(const wchar_t* format, ...);
-
-static inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
+inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
 #if _WIN32
   ULARGE_INTEGER freeBytes;
   wchar_t buf[1024];
   wchar_t* end;
   DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
   if (!ret || ret > 1024)
-    LogModule.report(logvisor::Fatal, _SYS_STR("GetFullPathNameW %s"), path);
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetFullPathNameW %s")), path);
   if (end)
     end[0] = L'\0';
   if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-    LogModule.report(logvisor::Fatal, _SYS_STR("GetDiskFreeSpaceExW %s: %d"), path, GetLastError());
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetDiskFreeSpaceExW %s: %d")), path, GetLastError());
   return reqSz < freeBytes.QuadPart;
 #else
   struct statvfs svfs;
   if (statvfs(path, &svfs))
-    LogModule.report(logvisor::Fatal, "statvfs %s: %s", path, strerror(errno));
+    LogModule.report(logvisor::Fatal, fmt("statvfs {}: {}"), path, strerror(errno));
   return reqSz < svfs.f_frsize * svfs.f_bavail;
 #endif
 }
 
-static inline bool PathRelative(const SystemChar* path) {
+inline bool PathRelative(const SystemChar* path) {
   if (!path || !path[0])
     return false;
 #if _WIN32 && !WINDOWS_STORE
@@ -428,7 +365,7 @@ static inline bool PathRelative(const SystemChar* path) {
 #endif
 }
 
-static inline int ConsoleWidth(bool* ok = nullptr) {
+inline int ConsoleWidth(bool* ok = nullptr) {
   int retval = 80;
 #if _WIN32
 #if !WINDOWS_STORE
@@ -640,8 +577,7 @@ public:
         return SystemString(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, "unable to resolve '%s' as project relative '%s'", absPath.data(),
-                     m_projRoot.c_str());
+    LogModule.report(logvisor::Fatal, fmt("unable to resolve '{}' as project relative '{}'"), absPath, m_projRoot);
     return SystemString();
   }
 
@@ -813,7 +749,7 @@ public:
    */
   ProjectPath getParentPath() const {
     if (m_relPath == _SYS_STR("."))
-      LogModule.report(logvisor::Fatal, "attempted to resolve parent of root project path");
+      LogModule.report(logvisor::Fatal, fmt("attempted to resolve parent of root project path"));
     size_t pos = m_relPath.rfind(_SYS_STR('/'));
     if (pos == SystemString::npos)
       return ProjectPath(*m_proj, _SYS_STR(""));
@@ -1082,7 +1018,7 @@ public:
    */
   Database::Project& getProject() const {
     if (!m_proj)
-      LogModule.report(logvisor::Fatal, "ProjectPath::getProject() called on unqualified path");
+      LogModule.report(logvisor::Fatal, fmt("ProjectPath::getProject() called on unqualified path"));
     return *m_proj;
   }
 
@@ -1214,7 +1150,7 @@ bool IsPathYAML(const hecl::ProjectPath& path);
 
 /* Type-sensitive byte swappers */
 template <typename T>
-static inline T bswap16(T val) {
+constexpr T bswap16(T val) {
 #if __GNUC__
   return __builtin_bswap16(val);
 #elif _WIN32
@@ -1225,7 +1161,7 @@ static inline T bswap16(T val) {
 }
 
 template <typename T>
-static inline T bswap32(T val) {
+constexpr T bswap32(T val) {
 #if __GNUC__
   return __builtin_bswap32(val);
 #elif _WIN32
@@ -1238,7 +1174,7 @@ static inline T bswap32(T val) {
 }
 
 template <typename T>
-static inline T bswap64(T val) {
+constexpr T bswap64(T val) {
 #if __GNUC__
   return __builtin_bswap64(val);
 #elif _WIN32
@@ -1252,18 +1188,18 @@ static inline T bswap64(T val) {
 }
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-static inline int16_t SBig(int16_t val) { return bswap16(val); }
-static inline uint16_t SBig(uint16_t val) { return bswap16(val); }
-static inline int32_t SBig(int32_t val) { return bswap32(val); }
-static inline uint32_t SBig(uint32_t val) { return bswap32(val); }
-static inline int64_t SBig(int64_t val) { return bswap64(val); }
-static inline uint64_t SBig(uint64_t val) { return bswap64(val); }
-inline float SBig(float val) {
+constexpr int16_t SBig(int16_t val) { return bswap16(val); }
+constexpr uint16_t SBig(uint16_t val) { return bswap16(val); }
+constexpr int32_t SBig(int32_t val) { return bswap32(val); }
+constexpr uint32_t SBig(uint32_t val) { return bswap32(val); }
+constexpr int64_t SBig(int64_t val) { return bswap64(val); }
+constexpr uint64_t SBig(uint64_t val) { return bswap64(val); }
+constexpr float SBig(float val) {
   union { float f; atInt32 i; } uval1 = {val};
   union { atInt32 i; float f; } uval2 = {bswap32(uval1.i)};
   return uval2.f;
 }
-inline double SBig(double val) {
+constexpr double SBig(double val) {
   union { double f; atInt64 i; } uval1 = {val};
   union { atInt64 i; double f; } uval2 = {bswap64(uval1.i)};
   return uval2.f;
@@ -1272,29 +1208,29 @@ inline double SBig(double val) {
 #define SBIG(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
 
-static inline int16_t SLittle(int16_t val) { return val; }
-static inline uint16_t SLittle(uint16_t val) { return val; }
-static inline int32_t SLittle(int32_t val) { return val; }
-static inline uint32_t SLittle(uint32_t val) { return val; }
-static inline int64_t SLittle(int64_t val) { return val; }
-static inline uint64_t SLittle(uint64_t val) { return val; }
-static inline float SLittle(float val) { return val; }
-static inline double SLittle(double val) { return val; }
+constexpr int16_t SLittle(int16_t val) { return val; }
+constexpr uint16_t SLittle(uint16_t val) { return val; }
+constexpr int32_t SLittle(int32_t val) { return val; }
+constexpr uint32_t SLittle(uint32_t val) { return val; }
+constexpr int64_t SLittle(int64_t val) { return val; }
+constexpr uint64_t SLittle(uint64_t val) { return val; }
+constexpr float SLittle(float val) { return val; }
+constexpr double SLittle(double val) { return val; }
 #ifndef SLITTLE
 #define SLITTLE(q) (q)
 #endif
 #else
-static inline int16_t SLittle(int16_t val) { return bswap16(val); }
-static inline uint16_t SLittle(uint16_t val) { return bswap16(val); }
-static inline int32_t SLittle(int32_t val) { return bswap32(val); }
-static inline uint32_t SLittle(uint32_t val) { return bswap32(val); }
-static inline int64_t SLittle(int64_t val) { return bswap64(val); }
-static inline uint64_t SLittle(uint64_t val) { return bswap64(val); }
-static inline float SLittle(float val) {
+constexpr int16_t SLittle(int16_t val) { return bswap16(val); }
+constexpr uint16_t SLittle(uint16_t val) { return bswap16(val); }
+constexpr int32_t SLittle(int32_t val) { return bswap32(val); }
+constexpr uint32_t SLittle(uint32_t val) { return bswap32(val); }
+constexpr int64_t SLittle(int64_t val) { return bswap64(val); }
+constexpr uint64_t SLittle(uint64_t val) { return bswap64(val); }
+constexpr float SLittle(float val) {
   int32_t ival = bswap32(*((int32_t*)(&val)));
   return *((float*)(&ival));
 }
-static inline double SLittle(double val) {
+constexpr double SLittle(double val) {
   int64_t ival = bswap64(*((int64_t*)(&val)));
   return *((double*)(&ival));
 }
@@ -1302,14 +1238,14 @@ static inline double SLittle(double val) {
 #define SLITTLE(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
 
-static inline int16_t SBig(int16_t val) { return val; }
-static inline uint16_t SBig(uint16_t val) { return val; }
-static inline int32_t SBig(int32_t val) { return val; }
-static inline uint32_t SBig(uint32_t val) { return val; }
-static inline int64_t SBig(int64_t val) { return val; }
-static inline uint64_t SBig(uint64_t val) { return val; }
-static inline float SBig(float val) { return val; }
-static inline double SBig(double val) { return val; }
+constexpr int16_t SBig(int16_t val) { return val; }
+constexpr uint16_t SBig(uint16_t val) { return val; }
+constexpr int32_t SBig(int32_t val) { return val; }
+constexpr uint32_t SBig(uint32_t val) { return val; }
+constexpr int64_t SBig(int64_t val) { return val; }
+constexpr uint64_t SBig(uint64_t val) { return val; }
+constexpr float SBig(float val) { return val; }
+constexpr double SBig(double val) { return val; }
 #ifndef SBIG
 #define SBIG(q) (q)
 #endif
@@ -1332,3 +1268,6 @@ struct hash<hecl::Hash> {
   size_t operator()(const hecl::Hash& val) const noexcept { return val.valSizeT(); }
 };
 } // namespace std
+
+FMT_CUSTOM_FORMATTER(hecl::SystemUTF8Conv, fmt("{}"), obj.str())
+FMT_CUSTOM_FORMATTER(hecl::SystemStringConv, fmt("{}"), obj.sys_str())

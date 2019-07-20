@@ -19,7 +19,7 @@ static SystemString CanonRelPath(SystemStringView path) {
     else if (!match.compare(_SYS_STR(".."))) {
       if (comps.empty()) {
         /* Unable to resolve outside project */
-        LogModule.report(logvisor::Fatal, _SYS_STR("Unable to resolve outside project root in %s"), path.data());
+        LogModule.report(logvisor::Fatal, fmt(_SYS_STR("Unable to resolve outside project root in {}")), path);
         return _SYS_STR(".");
       }
       comps.pop_back();
@@ -180,7 +180,7 @@ Time ProjectPath::getModtime() const {
       return Time(latestTime);
     }
   }
-  LogModule.report(logvisor::Fatal, _SYS_STR("invalid path type for computing modtime in '%s'"), m_absPath.c_str());
+  LogModule.report(logvisor::Fatal, fmt(_SYS_STR("invalid path type for computing modtime in '{}'")), m_absPath);
   return Time();
 }
 

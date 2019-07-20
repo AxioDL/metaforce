@@ -12,7 +12,7 @@ HMDLData::HMDLData(boo::IGraphicsDataFactory::Context& ctx, const void* metaData
     meta.read(r);
   }
   if (meta.magic != 'TACO')
-    HMDL_Log.report(logvisor::Fatal, "invalid HMDL magic");
+    HMDL_Log.report(logvisor::Fatal, fmt("invalid HMDL magic"));
 
   m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, vbo, meta.vertStride, meta.vertCount);
   m_ibo = ctx.newStaticBuffer(boo::BufferUse::Index, ibo, 4, meta.indexCount);

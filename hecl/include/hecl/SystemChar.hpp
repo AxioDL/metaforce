@@ -34,9 +34,6 @@ static inline void ToUpper(SystemString& str) { std::transform(str.begin(), str.
 #ifndef _SYS_STR
 #define _SYS_STR(val) L##val
 #endif
-#ifndef FMT_CSTR_SYS
-#define FMT_CSTR_SYS "S"
-#endif
 typedef struct _stat Sstat;
 #else
 typedef char SystemChar;
@@ -47,9 +44,6 @@ static inline void ToLower(SystemString& str) { std::transform(str.begin(), str.
 static inline void ToUpper(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), toupper); }
 #ifndef _SYS_STR
 #define _SYS_STR(val) val
-#endif
-#ifndef FMT_CSTR_SYS
-#define FMT_CSTR_SYS "s"
 #endif
 typedef struct stat Sstat;
 #endif

@@ -64,15 +64,15 @@ struct ShaderCompiler<PlatformType::Vulkan> {
     const char* strings[] = {"#version 330\n", BOO_GLSL_BINDING_HEAD, text.data()};
     shader.setStrings(strings, 3);
     if (!shader.parse(&glslang::DefaultTBuiltInResource, 110, false, messages)) {
-      printf("%s\n", text.data());
-      Log.report(logvisor::Fatal, "unable to compile shader\n%s", shader.getInfoLog());
+      fmt::print(fmt("{}\n"), text);
+      Log.report(logvisor::Fatal, fmt("unable to compile shader\n{}"), shader.getInfoLog());
       return {};
     }
 
     glslang::TProgram prog;
     prog.addShader(&shader);
     if (!prog.link(messages)) {
-      Log.report(logvisor::Fatal, "unable to link shader program\n%s", prog.getInfoLog());
+      Log.report(logvisor::Fatal, fmt("unable to link shader program\n{}"), prog.getInfoLog());
       return {};
     }
 
@@ -100,7 +100,7 @@ struct ShaderCompiler<PlatformType::D3D11> {
     if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
                               D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob))) {
       printf("%s\n", text.data());
-      Log.report(logvisor::Fatal, "error compiling shader: %s", errBlob->GetBufferPointer());
+      Log.report(logvisor::Fatal, fmt("error compiling shader: %s"), errBlob->GetBufferPointer());
       return {};
     }
     std::pair<StageBinaryData, size_t> ret(MakeStageBinaryData(blobOut->GetBufferSize()), blobOut->GetBufferSize());
@@ -162,8 +162,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
       pid_t pid = getpid();
       const char* tmpdir = getenv("TMPDIR");
-      char libFile[1024];
-      snprintf(libFile, 1024, "%sboo_metal_shader%d.metallib", tmpdir, pid);
+      std::string libFile = fmt::format(fmt("{}boo_metal_shader{}.metallib"), tmpdir, pid);
 
       /* Pipe source write to compiler */
       pid_t compilerPid = fork();
@@ -197,7 +196,7 @@ struct ShaderCompiler<PlatformType::Metal> {
         close(compilerIn[1]);
 
         /* metallib doesn't like outputting to a pipe, so temp file will have to do */
-        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile, NULL);
+        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), NULL);
         fprintf(stderr, "execlp fail %s\n", strerror(errno));
         exit(1);
       }
@@ -222,29 +221,29 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(compilerPid, &compilerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, "waitpid fail %s", strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
         return {};
       }
 
       if (WEXITSTATUS(compilerStat)) {
-        Log.report(logvisor::Fatal, "compile fail");
+        Log.report(logvisor::Fatal, fmt("compile fail"));
         return {};
       }
 
       while (waitpid(linkerPid, &linkerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, "waitpid fail %s", strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
         return {};
       }
 
       if (WEXITSTATUS(linkerStat)) {
-        Log.report(logvisor::Fatal, "link fail");
+        Log.report(logvisor::Fatal, fmt("link fail"));
         return {};
       }
 
       /* Copy temp file into buffer with first byte set to indicate binary data */
-      FILE* fin = fopen(libFile, "rb");
+      FILE* fin = fopen(libFile.c_str(), "rb");
       fseek(fin, 0, SEEK_END);
       long libLen = ftell(fin);
       fseek(fin, 0, SEEK_SET);

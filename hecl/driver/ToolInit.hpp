@@ -18,18 +18,18 @@ public:
     if (hecl::Stat(dir->c_str(), &theStat)) {
       hecl::MakeDir(dir->c_str());
       if (hecl::Stat(dir->c_str(), &theStat)) {
-        LogModule.report(logvisor::Fatal, _SYS_STR("unable to stat '%s'"), dir->c_str());
+        LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to stat '{}'")), *dir);
         return;
       }
     }
     if (!S_ISDIR(theStat.st_mode)) {
-      LogModule.report(logvisor::Fatal, _SYS_STR("'%s' is not a directory"), dir->c_str());
+      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("'{}' is not a directory")), *dir);
       return;
     }
 
     hecl::SystemString testPath = *dir + _SYS_STR("/.hecl/beacon");
     if (!hecl::Stat(testPath.c_str(), &theStat)) {
-      LogModule.report(logvisor::Fatal, _SYS_STR("project already exists at '%s'"), dir->c_str());
+      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("project already exists at '{}'")), *dir);
       return;
     }
 
@@ -43,7 +43,7 @@ public:
     hecl::Database::Project proj((hecl::ProjectRootPath(*m_dir)));
     if (logvisor::ErrorCount > ErrorRef)
       return 1;
-    LogModule.report(logvisor::Info, _SYS_STR("initialized project at '%s/.hecl'"), m_dir->c_str());
+    LogModule.report(logvisor::Info, fmt(_SYS_STR("initialized project at '{}/.hecl'")), *m_dir);
     return 0;
   }
 

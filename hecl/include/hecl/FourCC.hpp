@@ -37,9 +37,9 @@ public:
   bool operator!=(uint32_t other) const { return num != other; }
   std::string toString() const { return std::string(fcc, 4); }
   uint32_t toUint32() const { return num; }
-  operator uint32_t() const { return num; }
   const char* getChars() const { return fcc; }
   char* getChars() { return fcc; }
+  bool IsValid() const { return num != 0; }
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
@@ -84,3 +84,6 @@ struct hash<hecl::FourCC> {
   size_t operator()(const hecl::FourCC& val) const noexcept { return val.toUint32(); }
 };
 } // namespace std
+
+FMT_CUSTOM_FORMATTER(hecl::FourCC, fmt("{:.4s}"), obj.getChars())
+FMT_CUSTOM_FORMATTER(hecl::DNAFourCC, fmt("{:.4s}"), obj.getChars())

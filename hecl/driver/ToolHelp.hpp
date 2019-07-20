@@ -9,7 +9,7 @@ class ToolHelp final : public ToolBase {
 public:
   ToolHelp(const ToolPassInfo& info) : ToolBase(info) {
     if (m_info.args.empty()) {
-      LogModule.report(logvisor::Error, "help requires a tool name argument");
+      LogModule.report(logvisor::Error, fmt("help requires a tool name argument"));
       return;
     }
     m_good = true;
@@ -64,7 +64,7 @@ public:
     else if (toolName == _SYS_STR("help"))
       helpFunc = ToolHelp::Help;
     else {
-      LogModule.report(logvisor::Error, _SYS_STR("unrecognized tool '%s' - can't help"), toolName.c_str());
+      LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}' - can't help")), toolName);
       return;
     }
 

@@ -77,12 +77,12 @@ struct Evaluation {
 
 #ifdef _LIBCPP_VERSION
 using StageBinaryData = std::shared_ptr<uint8_t>;
-static inline StageBinaryData MakeStageBinaryData(size_t sz) {
+inline StageBinaryData MakeStageBinaryData(size_t sz) {
   return StageBinaryData(new uint8_t[sz], std::default_delete<uint8_t[]>{});
 }
 #else
 using StageBinaryData = std::shared_ptr<uint8_t[]>;
-static inline StageBinaryData MakeStageBinaryData(size_t sz) { return StageBinaryData(new uint8_t[sz]); }
+inline StageBinaryData MakeStageBinaryData(size_t sz) { return StageBinaryData(new uint8_t[sz]); }
 #endif
 
 template <typename P, typename S>

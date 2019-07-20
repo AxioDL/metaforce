@@ -16,7 +16,7 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
 #if !WINDOWS_STORE
   WCHAR home[MAX_PATH];
   if (!SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, home)))
-    Log.report(logvisor::Fatal, _SYS_STR("unable to locate profile for file store"));
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to locate profile for file store")));
 
   SystemString path(home);
 #else
@@ -34,15 +34,15 @@ FileStoreManager::FileStoreManager(SystemStringView domain) : m_domain(domain) {
 #else
   const char* home = getenv("HOME");
   if (!home)
-    Log.report(logvisor::Fatal, "unable to locate $HOME for file store");
+    Log.report(logvisor::Fatal, fmt("unable to locate $HOME for file store"));
   std::string path(home);
   path += "/.heclrun";
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-    Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
+    Log.report(logvisor::Fatal, fmt("unable to mkdir at {}"), path);
   path += '/';
   path += domain.data();
   if (mkdir(path.c_str(), 0755) && errno != EEXIST)
-    Log.report(logvisor::Fatal, "unable to mkdir at %s", path.c_str());
+    Log.report(logvisor::Fatal, fmt("unable to mkdir at {}"), path);
   m_storeRoot = path;
 #endif
 }
