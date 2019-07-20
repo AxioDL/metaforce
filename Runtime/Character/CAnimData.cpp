@@ -188,25 +188,22 @@ bool CAnimData::IsAdditiveAnimation(s32 idx) const {
 
 bool CAnimData::IsAdditiveAnimationAdded(s32 idx) const {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-      std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [animIdx](const auto& pair) { return pair.first == animIdx; });
+  auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
   return search != x434_additiveAnims.cend();
 }
 
 const std::shared_ptr<CAnimTreeNode>& CAnimData::GetAdditiveAnimationTree(s32 idx) const {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-      std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [animIdx](const auto& pair) { return pair.first == animIdx; });
+  auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
   return search->second.GetAnim();
 }
 
 bool CAnimData::IsAdditiveAnimationActive(s32 idx) const {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-      std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                   [animIdx](const auto& pair) { return pair.first == animIdx; });
+  auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
   if (search == x434_additiveAnims.cend())
     return false;
   return search->second.IsActive();
@@ -214,11 +211,9 @@ bool CAnimData::IsAdditiveAnimationActive(s32 idx) const {
 
 void CAnimData::DelAdditiveAnimation(s32 idx) {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-    std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
-                 [animIdx](const auto& pair) { return pair.first == animIdx; });
-  if (search != x434_additiveAnims.cend() &&
-      search->second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
+  auto search = std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
+  if (search != x434_additiveAnims.cend() && search->second.GetPhase() != EAdditivePlaybackPhase::FadingOut &&
       search->second.GetPhase() != EAdditivePlaybackPhase::FadedOut) {
     search->second.FadeOut();
   }
@@ -226,26 +221,25 @@ void CAnimData::DelAdditiveAnimation(s32 idx) {
 
 void CAnimData::AddAdditiveAnimation(s32 idx, float weight, bool active, bool fadeOut) {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-    std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
-                 [animIdx](const auto& pair) { return pair.first == animIdx; });
+  auto search = std::find_if(x434_additiveAnims.begin(), x434_additiveAnims.end(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
   if (search != x434_additiveAnims.cend()) {
     search->second.SetActive(active);
     search->second.SetWeight(weight);
     search->second.SetNeedsFadeOut(!search->second.IsActive() && fadeOut);
   } else {
     std::shared_ptr<CAnimTreeNode> node =
-      GetAnimationManager()->GetAnimationTree(animIdx, CMetaAnimTreeBuildOrders::NoSpecialOrders());
+        GetAnimationManager()->GetAnimationTree(animIdx, CMetaAnimTreeBuildOrders::NoSpecialOrders());
     const CAdditiveAnimationInfo& info = x0_charFactory->FindAdditiveInfo(animIdx);
-    x434_additiveAnims.emplace_back(std::make_pair(animIdx, CAdditiveAnimPlayback(node, weight, active, info, fadeOut)));
+    x434_additiveAnims.emplace_back(
+        std::make_pair(animIdx, CAdditiveAnimPlayback(node, weight, active, info, fadeOut)));
   }
 }
 
 float CAnimData::GetAdditiveAnimationWeight(s32 idx) const {
   s32 animIdx = xc_charInfo.GetAnimationIndex(idx);
-  auto search =
-    std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
-                 [animIdx](const auto& pair) { return pair.first == animIdx; });
+  auto search = std::find_if(x434_additiveAnims.cbegin(), x434_additiveAnims.cend(),
+                             [animIdx](const auto& pair) { return pair.first == animIdx; });
   if (search != x434_additiveAnims.cend())
     return search->second.GetTargetWeight();
   return 0.f;
@@ -541,15 +535,13 @@ void CAnimData::RecalcPoseBuilder(const CCharAnimTime* time) {
 void CAnimData::RenderAuxiliary(const zeus::CFrustum& frustum) const { x120_particleDB.AddToRendererClipped(frustum); }
 
 void CAnimData::Render(CSkinnedModel& model, const CModelFlags& drawFlags,
-                       const std::optional<CVertexMorphEffect>& morphEffect,
-                       const float* morphMagnitudes) {
+                       const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
   SetupRender(model, drawFlags, morphEffect, morphMagnitudes);
   DrawSkinnedModel(model, drawFlags);
 }
 
 void CAnimData::SetupRender(CSkinnedModel& model, const CModelFlags& drawFlags,
-                            const std::optional<CVertexMorphEffect>& morphEffect,
-                            const float* morphMagnitudes) {
+                            const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
   if (!x220_30_poseBuilt) {
     x2fc_poseBuilder.BuildNoScale(x224_pose);
     x220_30_poseBuilt = true;
@@ -798,8 +790,7 @@ void CAnimData::SetInfraModel(const TLockedToken<CModel>& model, const TLockedTo
 }
 
 void CAnimData::PoseSkinnedModel(CSkinnedModel& model, const CPoseAsTransforms& pose, const CModelFlags& drawFlags,
-                                 const std::optional<CVertexMorphEffect>& morphEffect,
-                                 const float* morphMagnitudes) {
+                                 const std::optional<CVertexMorphEffect>& morphEffect, const float* morphMagnitudes) {
   model.Calculate(pose, drawFlags, morphEffect, morphMagnitudes);
 }
 

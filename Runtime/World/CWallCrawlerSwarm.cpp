@@ -16,6 +16,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CStateManager.hpp"
 #include "CSimplePool.hpp"
+#include "World/CPhysicsActor.hpp"
 #include "TCastTo.hpp"
 
 namespace urde {
@@ -490,7 +491,7 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
       f28 += f25;
     }
     if (!found) {
-      boid.x30_velocity += zeus::CVector3f(0.f, 0.f, -(x558_flavor == EFlavor::Scarab ? 3.f * 24.525f : 24.525f)) * dt;
+      boid.x30_velocity += zeus::CVector3f(0.f, 0.f, -(x558_flavor == EFlavor::Scarab ? 3.f * CPhysicsActor::GravityConstant() : CPhysicsActor::GravityConstant())) * dt;
       if (boid.x7c_remainingLaunchNotOnSurfaceFrames)
         boid.x7c_remainingLaunchNotOnSurfaceFrames -= 1;
     }
@@ -561,7 +562,7 @@ void CWallCrawlerSwarm::UpdateBoid(const CAreaCollisionCache& ccache, CStateMana
 
 void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const zeus::CVector3f& dir) {
   zeus::CVector3f pos = boid.GetTranslation();
-  static float skAttackTime = std::sqrt(2.5f / 24.525f) * 2.f;
+  static float skAttackTime = std::sqrt(2.5f / CPhysicsActor::GravityConstant()) * 2.f;
   static float skAttackVelocity = 15.f / skAttackTime;
   zeus::CVector3f deltaFlat = dir - pos;
   float deltaZ = deltaFlat.z();
@@ -578,14 +579,14 @@ void CWallCrawlerSwarm::LaunchBoid(CBoid& boid, const zeus::CVector3f& dir) {
       bool r29 = deltaZ < 0.f;
       float _12c, _130;
       float f25 = 0.f;
-      if (CSteeringBehaviors::SolveQuadratic(-24.525f, vec.z(), -deltaZ, _12c, _130))
+      if (CSteeringBehaviors::SolveQuadratic(-CPhysicsActor::GravityConstant(), vec.z(), -deltaZ, _12c, _130))
         f25 = r29 ? _130 : _12c;
       if (!r29)
         f25 += deltaMag / dot;
       if (f25 < 10.f) {
         vec.x() = deltaMag / f25 * deltaFlat.x() * 0.6f;
         vec.y() = deltaMag / f25 * deltaFlat.y() * 0.6f;
-        vec.z() = deltaZ / f25 - 0.5f * -24.525f * f25;
+        vec.z() = deltaZ / f25 - 0.5f * -CPhysicsActor::GravityConstant() * f25;
       }
     }
   }

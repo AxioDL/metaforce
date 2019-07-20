@@ -11,7 +11,7 @@ struct SpiderBallWaypoint : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
+  Value<bool> active;
   Value<atUint32> unknown2;
 };
 } // namespace DataSpec::DNAMP1

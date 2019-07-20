@@ -9,8 +9,8 @@ struct EnvFxDensityController : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<bool> unknown1;
-  Value<float> unknown2;
-  Value<atUint32> unknown3;
+  Value<bool> active;
+  Value<float> density;
+  Value<atUint32> maxDensityDeltaSpeed;
 };
 } // namespace DataSpec::DNAMP1

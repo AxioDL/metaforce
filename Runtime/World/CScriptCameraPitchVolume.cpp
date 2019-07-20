@@ -12,13 +12,13 @@ const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = zeus::CVector3f(
 
 CScriptCameraPitchVolume::CScriptCameraPitchVolume(TUniqueId uid, bool active, std::string_view name,
                                                    const CEntityInfo& info, const zeus::CVector3f& scale,
-                                                   const zeus::CTransform& xf, const zeus::CRelAngle& r1,
-                                                   const zeus::CRelAngle& r2, float maxInterpDistance)
+                                                   const zeus::CTransform& xf, const zeus::CRelAngle& upPitch,
+                                                   const zeus::CRelAngle& downPitch, float maxInterpDistance)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(EMaterialTypes::Trigger),
          CActorParameters::None(), kInvalidUniqueId)
 , xe8_obbox(xf, scale * skScaleFactor)
-, x124_upPitch(r1)
-, x128_downPitch(r2)
+, x124_upPitch(upPitch)
+, x128_downPitch(downPitch)
 , x12c_scale(scale * skScaleFactor)
 , x138_maxInterpDistance(maxInterpDistance) {}
 

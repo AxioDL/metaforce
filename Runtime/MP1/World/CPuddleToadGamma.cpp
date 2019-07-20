@@ -142,7 +142,7 @@ void CPuddleToadGamma::ShootPlayer(CStateManager& mgr, float speed) {
     for (TUniqueId id : nearList) {
       if (TCastToPtr<CBomb> bomb = mgr.ObjectById(id)) {
         bomb->SetVelocityWR((mgr.GetActiveRandom()->Float() * 5.f + 20.f) * shootDir);
-        bomb->SetConstantAccelerationWR({0.f, 0.f, -24.525f});
+        bomb->SetConstantAccelerationWR({0.f, 0.f, -CPhysicsActor::GravityConstant()});
       }
     }
   }

@@ -982,6 +982,6 @@ void CBeetle::Shock(CStateManager& mgr, float duration, float damage) {
 
 CPathFindSearch* CBeetle::GetSearchPath() { return &x5fc_pathFindSearch; }
 
-float CBeetle::GetGravityConstant() const { return 4.f * 24.525f; }
+float CBeetle::GetGravityConstant() const { return 4.f * CPhysicsActor::GravityConstant(); }
 
 } // namespace urde::MP1

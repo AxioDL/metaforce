@@ -13,15 +13,15 @@ struct Camera : IScriptObject {
   Value<atVec3f> orientation;
   Value<bool> active;
   Value<float> shotDuration;
-  Value<bool> unknown3;
-  Value<bool> unknown4;
-  Value<bool> unknown5;
-  Value<bool> unknown6;
-  Value<bool> unknown7;
+  Value<bool> lookAtPlayer;
+  Value<bool> outOfPlayerEye;
+  Value<bool> intoPlayerEye;
+  Value<bool> drawPlayer;
   Value<bool> disableInput;
-  Value<bool> unknown9;
+  Value<bool> unknown;
+  Value<bool> finishCineSkip;
   Value<float> fov;
-  Value<bool> unknown11;
-  Value<bool> unknown12;
+  Value<bool> checkFailsafe;
+  Value<bool> disableOutOfInto;
 };
 } // namespace DataSpec::DNAMP1

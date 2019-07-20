@@ -17,11 +17,11 @@ struct AtomicAlpha : IScriptObject {
   UniqueID32 wpsc;
   UniqueID32 model;
   DamageInfo damageInfo;
-  Value<float> unknown1;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<bool> unknown4;
-  Value<bool> unknown5;
+  Value<float> bombDropDelay;
+  Value<float> bombReappearDelay;
+  Value<float> bombReappearTime;
+  Value<bool> invisible;
+  Value<bool> applyBeamAttraction;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);

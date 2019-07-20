@@ -11,6 +11,7 @@ class CInt32POINode : public CPOINode {
 
 public:
   CInt32POINode();
+  CInt32POINode(std::string_view, EPOIType, const CCharAnimTime&, s32, bool, float, s32, s32, s32, std::string_view);
   CInt32POINode(CInputStream& in);
   s32 GetValue() const { return x38_val; }
   std::string_view GetLocatorName() const { return x3c_locatorName; }

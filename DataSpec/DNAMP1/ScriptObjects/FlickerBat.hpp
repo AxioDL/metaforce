@@ -15,9 +15,9 @@ struct FlickerBat : IScriptObject {
   Value<atVec3f> scale;
   PatternedInfo patternedInfo;
   ActorParameters actorParameters;
-  Value<bool> unknown2;
-  Value<bool> unknown3;
-  Value<bool> unknown4;
+  Value<bool> collider;
+  Value<bool> startsHidden;
+  Value<bool> enableLineOfSight;
 
   void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);

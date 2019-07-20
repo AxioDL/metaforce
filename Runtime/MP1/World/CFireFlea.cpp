@@ -171,7 +171,7 @@ bool CFireFlea::CheckNearWater(const CStateManager& mgr, const zeus::CVector3f& 
   mgr.BuildNearList(nearList, GetTranslation(), dir, 2.f, CMaterialFilter::skPassEverything, nullptr);
 
   for (TUniqueId id : nearList) {
-    if (TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(id))
+    if (TCastToConstPtr<CScriptWater>(mgr.GetObjectById(id)))
       return true;
   }
 

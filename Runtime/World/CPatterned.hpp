@@ -346,7 +346,7 @@ public:
   virtual CDamageInfo GetContactDamage() const { return x404_contactDamage; }
   virtual u8 GetModelAlphau8(const CStateManager&) const { return u8(x42c_color.a() * 255); }
   virtual bool IsOnGround() const { return x328_27_onGround; }
-  virtual float GetGravityConstant() const { return 24.525002f; }
+  virtual float GetGravityConstant() const { return CPhysicsActor::GravityConstant(); }
   virtual CProjectileInfo* GetProjectileInfo() { return nullptr; }
   virtual void PhazeOut(CStateManager&);
   virtual const std::optional<TLockedToken<CGenDescription>>& GetDeathExplosionParticle() const {

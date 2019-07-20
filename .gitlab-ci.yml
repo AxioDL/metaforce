@@ -24,7 +24,7 @@
     - strip -S -o URDE.app/Contents/MacOS/urde URDE.app/Contents/MacOS/urde
     - strip -S -o URDE.app/Contents/MacOS/hecl URDE.app/Contents/MacOS/hecl
     - strip -S -o URDE.app/Contents/MacOS/visigen URDE.app/Contents/MacOS/visigen
-    - (if [ "${URDE_MACOS_CODESIGN}" != "" ]; then codesign -s $URDE_MACOS_CODESIGN_UID --deep URDE.app; else echo "Unable to sign app bundle :("; fi);
+    - (if [ "${URDE_MACOS_CODESIGN_UID}" != "" ]; then codesign -s $URDE_MACOS_CODESIGN_UID --deep URDE.app; else echo "Unable to sign app bundle :("; fi);
   only:
     - release
     - dev

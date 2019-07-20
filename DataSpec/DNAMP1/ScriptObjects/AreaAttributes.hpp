@@ -10,15 +10,15 @@ struct AreaAttributes : IScriptObject {
   AT_DECL_DNAV
   enum class EWeatherType : atUint32 { None, Snow, Rain };
 
-  Value<atUint32> unknown1;
+  Value<atUint32> load; /* 0 causes the loader to bail and return null */
   Value<bool> skyboxEnabled;
   Value<EWeatherType> weather;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
+  Value<float> envFxDensity;
+  Value<float> thermalHeat;
+  Value<float> xrayFogDistance;
+  Value<float> worldLightingLevel;
   UniqueID32 skybox;
-  Value<atUint32> unknown6;
+  Value<atUint32> phazonType;
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
     g_curSpec->flattenDependencies(skybox, pathsOut);

@@ -10,15 +10,16 @@ namespace urde::MP1 {
 
 CFlickerBat::CFlickerBat(TUniqueId uid, std::string_view name, CPatterned::EFlavorType flavor, const CEntityInfo& info,
                          const zeus::CTransform& xf, CModelData&& mData, const CPatternedInfo& pInfo,
-                         EColliderType colType, bool b1, const CActorParameters& actParms, bool b2)
+                         EColliderType colType, bool startsHidden, const CActorParameters& actParms,
+                         bool enableLineOfSight)
 : CPatterned(ECharacter::FlickerBat, uid, name, flavor, info, xf, std::move(mData), pInfo, EMovementType::Flyer,
              colType, EBodyType::Pitchable, actParms, EKnockBackVariant::Small)
-, x574_state(EFlickerBatState(b1))
+, x574_state(EFlickerBatState(startsHidden))
 , x580_24_wasInXray(false)
 , x580_25_heardShot(false)
 , x580_26_inLOS(false)
-, x580_27_enableLOSCheck(b2) {
-  SetupPlayerCollision(b1);
+, x580_27_enableLOSCheck(enableLineOfSight) {
+  SetupPlayerCollision(startsHidden);
   x3d8_xDamageThreshold = 0.f;
   x402_27_noXrayModel = false;
 }

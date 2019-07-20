@@ -12,7 +12,7 @@ struct CameraWaypoint : IScriptObject {
   Value<atVec3f> location;
   Value<atVec3f> orientation;
   Value<bool> active;
-  Value<float> unknown2;
+  Value<float> hFov;
   Value<atUint32> unknown3;
 };
 } // namespace DataSpec::DNAMP1

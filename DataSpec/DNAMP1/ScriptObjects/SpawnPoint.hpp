@@ -31,7 +31,7 @@ struct SpawnPoint : IScriptObject {
   Value<atUint32> combatVisor;
   Value<atUint32> boostBall;
   Value<atUint32> spiderBall;
-  Value<atUint32> powerSuit; // verification needed
+  Value<atUint32> powerSuit;
   Value<atUint32> gravitySuit;
   Value<atUint32> variaSuit;
   Value<atUint32> phazonSuit;

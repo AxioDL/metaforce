@@ -53,7 +53,7 @@ CScriptDebris::CScriptDebris(TUniqueId uid, std::string_view name, const CEntity
     x2d4_particleGens[0]->SetGlobalScale(particleScale);
   }
 
-  x150_momentum = zeus::CVector3f(0.f, 0.f, -24.525f * xe8_mass);
+  x150_momentum = zeus::CVector3f(0.f, 0.f, -CPhysicsActor::GravityConstant() * xe8_mass);
 
   if (x90_actorLights)
     x90_actorLights->SetAmbienceGenerated(true);

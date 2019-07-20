@@ -11,13 +11,13 @@ struct ElectroMagneticPulse : IScriptObject {
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
-  Value<bool> unknown1;
-  Value<float> unknown2;
-  Value<float> unknown3;
-  Value<float> unknown4;
-  Value<float> unknown5;
+  Value<bool> active;
+  Value<float> initialRadius;
+  Value<float> finalRadius;
+  Value<float> duration;
+  Value<float> interferenceDur;
   Value<float> unknown6;
-  Value<float> unknown7;
+  Value<float> interferenceMag;
   Value<float> unknown8;
   UniqueID32 particle;
 

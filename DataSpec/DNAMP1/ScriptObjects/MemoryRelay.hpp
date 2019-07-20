@@ -9,7 +9,7 @@ struct MemoryRelay : IScriptObject {
   AT_DECL_DNA_YAML
   AT_DECL_DNAV
   String<-1> name;
-  Value<bool> unknown;
   Value<bool> active;
+  Value<bool> skipSendActive;
 };
 } // namespace DataSpec::DNAMP1

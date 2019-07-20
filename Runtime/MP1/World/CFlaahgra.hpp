@@ -200,7 +200,7 @@ public:
   bool AnimOver(CStateManager&, float) { return x568_ == 4; }
   bool AIStage(CStateManager&, float arg) { return x780_ == u32(arg); }
   bool HitSomething(CStateManager&, float arg) { return x7d0_ > 0.f; }
-  bool OffLine(CStateManager&, float) { return (!x8e5_29_ && !x8e5_28_); }
+  bool OffLine(CStateManager&, float) { return (x8e5_29_ && x8e5_28_); }
   bool ShouldTurn(CStateManager&, float);
   bool ShouldAttack(CStateManager&, float);
   bool BreakAttack(CStateManager&, float) { return x7d4_ >= x56c_.xc_ && !x8e4_29_getup; }
@@ -223,6 +223,7 @@ public:
   void ProjectileAttack(CStateManager&, EStateMsg, float);
   void Cover(CStateManager&, EStateMsg, float);
   void SpecialAttack(CStateManager&, EStateMsg, float);
+  void Enraged(CStateManager&, EStateMsg, float);
 
 };
 }

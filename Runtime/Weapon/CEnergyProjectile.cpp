@@ -241,14 +241,14 @@ bool CEnergyProjectile::Explode(const zeus::CVector3f& pos, const zeus::CVector3
   EVulnerability vulnType = dVuln.GetVulnerability(x12c_curDamageInfo.GetWeaponMode(), false);
   if (vulnType == EVulnerability::Deflect) {
     deflect = true;
-    EVulnerability deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
+    EDeflectType deflectType = dVuln.GetDeflectionType(x12c_curDamageInfo.GetWeaponMode());
     switch (deflectType) {
-    case EVulnerability::Weak:
+    case EDeflectType::None:
       deflect = false;
       break;
-    case EVulnerability::Deflect:
-    case EVulnerability::Immune:
-      if (deflectType != EVulnerability::Deflect ||
+    case EDeflectType::Two:
+    case EDeflectType::Three:
+      if (deflectType != EDeflectType::Two ||
           (xf0_weaponType != EWeaponType::Missile &&
            (xe8_projectileAttribs & EProjectileAttrib::ComboShot) != EProjectileAttrib::ComboShot))
         if (xf8_filter.GetExcludeList().HasMaterial(EMaterialTypes::Player))

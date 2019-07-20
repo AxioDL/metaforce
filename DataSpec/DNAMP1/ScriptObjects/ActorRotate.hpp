@@ -11,8 +11,8 @@ struct ActorRotate : IScriptObject {
   String<-1> name;
   Value<atVec3f> rotationOffset;
   Value<float> timeScale;
-  Value<bool> unknown1;
-  Value<bool> unknown2;
+  Value<bool> updateActors;
+  Value<bool> updateOnCreation;
   Value<bool> active;
 };
 } // namespace DataSpec::DNAMP1

@@ -24,9 +24,9 @@ CBomb::CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<
       new CElementGen(particle1, CElementGen::EModelOrientationType::Normal, CElementGen::EOptionalSystemFlags::One))
 , x184_particle2(
       new CElementGen(particle2, CElementGen::EModelOrientationType::Normal, CElementGen::EOptionalSystemFlags::One))
-, x18c_(particle2.GetObj())
+, x18c_particle2Obj(particle2.GetObj())
 , x190_24_isNotDetonated(true)
-, x190_25_(false)
+, x190_25_beingDragged(false)
 , x190_26_disableFuse(false) {
   x180_particle1->SetGlobalTranslation(xf.origin);
   x184_particle2->SetGlobalTranslation(xf.origin);
@@ -40,7 +40,7 @@ void CBomb::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManag
     x188_lightId = mgr.AllocateUniqueId();
     CGameLight* gameLight = new CGameLight(x188_lightId, GetAreaIdAlways(), false,
                                            std::string("Bomb_PLight") + GetName().data(), GetTransform(), GetUniqueId(),
-                                           x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_), 1, 0.f);
+                                           x184_particle2->GetLight(), reinterpret_cast<size_t>(x18c_particle2Obj), 1, 0.f);
     mgr.AddObject(gameLight);
     mgr.AddWeaponId(xec_ownerId, xf0_weaponType);
     CSfxManager::AddEmitter(SFXwpn_bomb_drop, GetTranslation(), {}, true, false, 0x7f, -1);
