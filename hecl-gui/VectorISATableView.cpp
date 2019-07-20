@@ -64,9 +64,9 @@ VectorISATableView::VectorISATableView(QWidget* parent) : QTableView(parent) {
 
     QPalette pal = palette();
     if (i == 0)
-      pal.setColor(QPalette::Background, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
     else
-      pal.setColor(QPalette::Background, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
 
     w->setAutoFillBackground(true);
     w->setPalette(pal);

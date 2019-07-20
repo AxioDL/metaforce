@@ -258,9 +258,9 @@ void SysReqTableView::paintEvent(QPaintEvent* e) {
 
     QPalette pal = palette();
     if (m_model.data(m_model.index(i, 0), Qt::UserRole).toBool())
-      pal.setColor(QPalette::Background, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
     else
-      pal.setColor(QPalette::Background, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
     w->setPalette(pal);
 
     QSequentialAnimationGroup* animation = std::get<1>(m_backgroundWidgets[i]);
@@ -297,9 +297,9 @@ SysReqTableView::SysReqTableView(QWidget* parent) : QTableView(parent), m_vector
 
     QPalette pal = palette();
     if (m_model.data(m_model.index(i, 0), Qt::UserRole).toBool())
-      pal.setColor(QPalette::Background, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(0.f, 1.f, 0.f, 0.2f));
     else
-      pal.setColor(QPalette::Background, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
+      pal.setColor(QPalette::Window, QColor::fromRgbF(1.f, 0.f, 0.f, 0.2f));
 
     w->setAutoFillBackground(true);
     w->setPalette(pal);
