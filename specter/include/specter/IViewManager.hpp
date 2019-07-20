@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Translator.hpp"
+#include <locale.hpp>
 #include "SplitView.hpp"
 #include <hecl/hecl.hpp>
 
@@ -9,12 +9,10 @@ struct ISpaceController;
 
 struct IViewManager {
 public:
-  virtual const Translator* getTranslator() const { return nullptr; }
-  virtual std::string_view translateOr(std::string_view key, std::string_view vor) const {
-    const Translator* trans = getTranslator();
-    if (trans)
-      return trans->translateOr(key, vor);
-    return vor;
+  virtual locale::ELocale getTranslatorLocale() const { return locale::ELocale::en_US; }
+  template <typename Key, typename... Args>
+  constexpr auto translate(Args&&... args) const {
+    return locale::Translate<Key>(getTranslatorLocale(), std::forward<Args>(args)...);
   }
 
   virtual void deferSpaceSplit(ISpaceController* split, SplitView::Axis axis, int thisSlot,

@@ -19,7 +19,7 @@ std::string MultiLineTextView::LineWrap(std::string_view str, int wrap) {
     utf8proc_int32_t ch;
     utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
     if (sz < 0)
-      Log.report(logvisor::Fatal, "invalid UTF-8 char");
+      Log.report(logvisor::Fatal, fmt("invalid UTF-8 char"));
     if (ch == '\n') {
       ret += '\n';
       lCh = -1;
@@ -147,7 +147,7 @@ void MultiLineTextView::typesetGlyphs(std::string_view str, const zeus::CColor& 
     utf8proc_int32_t ch;
     utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
     if (sz < 0)
-      Log.report(logvisor::Fatal, "invalid UTF-8 char");
+      Log.report(logvisor::Fatal, fmt("invalid UTF-8 char"));
     if (ch == '\n' || ch == '\0')
       ++lineCount;
     rem -= sz;

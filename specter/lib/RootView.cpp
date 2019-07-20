@@ -23,7 +23,7 @@ RootView::~RootView() { m_window->setCallback(nullptr); }
 
 RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFactory::Context& ctx)
 : m_rv(rv)
-, m_text(rv.m_viewMan.translateOr("boundary_action", "Boundary Action"))
+, m_text(rv.m_viewMan.translate<locale::boundary_action>())
 , m_splitActionNode(*this)
 , m_joinActionNode(*this) {
   ViewResources& res = *rv.m_viewRes;
@@ -76,10 +76,10 @@ RootView::SplitMenuSystem::SplitMenuSystem(RootView& rv, boo::IGraphicsDataFacto
 }
 
 RootView::SplitMenuSystem::SplitActionNode::SplitActionNode(SplitMenuSystem& smn)
-: m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("split", "Split")) {}
+: m_smn(smn), m_text(smn.m_rv.m_viewMan.translate<locale::split>()) {}
 
 RootView::SplitMenuSystem::JoinActionNode::JoinActionNode(SplitMenuSystem& smn)
-: m_smn(smn), m_text(smn.m_rv.m_viewMan.translateOr("join", "Join")) {}
+: m_smn(smn), m_text(smn.m_rv.m_viewMan.translate<locale::join>()) {}
 
 void RootView::SplitMenuSystem::setArrowVerts(const boo::SWindowRect& rect, SplitView::ArrowDir dir) {
   const boo::SWindowRect& root = m_rv.subRect();

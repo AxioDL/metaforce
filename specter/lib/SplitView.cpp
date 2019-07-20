@@ -31,7 +31,7 @@ SplitView::SplitView(ViewResources& res, View& parentView, ISplitSpaceController
 
 View* SplitView::setContentView(int slot, View* view) {
   if (slot < 0 || slot > 1)
-    Log.report(logvisor::Fatal, "out-of-range slot to RootView::SplitView::setContentView");
+    Log.report(logvisor::Fatal, fmt("out-of-range slot to RootView::SplitView::setContentView"));
   View* ret = m_views[slot].m_view;
   m_views[slot].m_view = view;
   m_views[slot].m_mouseDown = 0;

@@ -11,8 +11,8 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView, Type type, st
               type == Type::ErrorOk ? res.themeData().splashErrorBackground() : res.themeData().splashBackground())
 , m_type(type)
 , m_func(func)
-, m_okBind(*this, rootView().viewManager().translateOr("ok", "OK"))
-, m_cancelBind(*this, rootView().viewManager().translateOr("cancel", "Cancel")) {
+, m_okBind(*this, rootView().viewManager().translate<locale::ok>())
+, m_cancelBind(*this, rootView().viewManager().translate<locale::cancel>()) {
   m_text.reset(new MultiLineTextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
   m_text->typesetGlyphs(message, res.themeData().uiText(), 380 * res.pixelFactor());
   constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());

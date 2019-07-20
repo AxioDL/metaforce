@@ -37,7 +37,6 @@ list(APPEND SPECTER_HEADERS
      include/specter/FileBrowser.hpp
      include/specter/Icon.hpp
      include/specter/FontCache.hpp
-     include/specter/Translator.hpp
      include/specter/genie.hpp)
 
 list(APPEND SPECTER_SOURCES
@@ -61,8 +60,7 @@ list(APPEND SPECTER_SOURCES
      lib/PathButtons.cpp
      lib/FileBrowser.cpp
      lib/Icon.cpp
-     lib/FontCache.cpp
-     lib/Translator.cpp)
+     lib/FontCache.cpp)
 
 add_library(specter ${SPECTER_SOURCES} ${SPECTER_HEADERS})
 target_link_libraries(specter PUBLIC specter-fonts freetype hecl-full zeus)

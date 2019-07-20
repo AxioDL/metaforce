@@ -111,7 +111,7 @@ void Toolbar::setVerticalVerts(int height) {
 
 void Toolbar::push_back(View* v, unsigned unit) {
   if (unit >= m_units)
-    Log.report(logvisor::Fatal, "unit %u out of range %u", unit, m_units);
+    Log.report(logvisor::Fatal, fmt("unit {} out of range {}"), unit, m_units);
   std::vector<ViewChild<View*>>& u = m_children[unit];
   u.emplace_back();
   u.back().m_view = v;

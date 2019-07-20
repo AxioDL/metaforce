@@ -365,7 +365,7 @@ void Button::MenuTarget::mouseDown(const boo::SWindowCoord& coord, boo::EMouseBu
   m_pressed = true;
   setPressed();
   if (m_hovered) {
-    Log.report(logvisor::Info, "button menu '%s' activated", m_button.m_textStr.c_str());
+    Log.report(logvisor::Info, fmt("button menu '{}' activated"), m_button.m_textStr);
     if (m_button.m_controlBinding) {
       m_button.m_modalMenu.m_view = static_cast<IButtonBinding&>(*m_button.m_controlBinding).buildMenu(&m_button);
       rootView().setActiveMenuButton(&m_button);
@@ -385,7 +385,7 @@ void Button::ButtonTarget::mouseUp(const boo::SWindowCoord& coord, boo::EMouseBu
     if (m_button.m_controlBinding)
       static_cast<IButtonBinding&>(*m_button.m_controlBinding).up(&m_button, coord);
     if (m_hovered) {
-      Log.report(logvisor::Info, "button '%s' activated", m_button.m_textStr.c_str());
+      Log.report(logvisor::Info, fmt("button '{}' activated"), m_button.m_textStr);
       if (m_button.m_controlBinding)
         static_cast<IButtonBinding&>(*m_button.m_controlBinding).activated(&m_button, coord);
     }

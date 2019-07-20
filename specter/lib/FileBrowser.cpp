@@ -46,7 +46,7 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view 
 , m_left(*this, res)
 , m_right(*this, res)
 , m_ok(*this, res, title)
-, m_cancel(*this, res, rootView().viewManager().translateOr("cancel", "Cancel"))
+, m_cancel(*this, res, rootView().viewManager().translate<locale::cancel>())
 , m_fileFieldBind(*this, rootView().viewManager())
 , m_fileListingBind(*this, rootView().viewManager())
 , m_systemBookmarkBind(*this)
@@ -61,15 +61,15 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view 
   m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, &m_fileListingBind, 3));
   m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, &m_systemBookmarkBind, 1));
   m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-  m_systemBookmarksLabel->typesetGlyphs(vm.translateOr("system_locations", "System Locations"),
+  m_systemBookmarksLabel->typesetGlyphs(vm.translate<locale::system_locations>(),
                                         res.themeData().uiText());
   m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind, &m_projectBookmarkBind, 1));
   m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-  m_projectBookmarksLabel->typesetGlyphs(vm.translateOr("recent_projects", "Recent Projects"),
+  m_projectBookmarksLabel->typesetGlyphs(vm.translate<locale::recent_projects>(),
                                          res.themeData().uiText());
   m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind, &m_recentBookmarkBind, 1));
   m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-  m_recentBookmarksLabel->typesetGlyphs(vm.translateOr("recent_files", "Recent Files"), res.themeData().uiText());
+  m_recentBookmarksLabel->typesetGlyphs(vm.translate<locale::recent_files>(), res.themeData().uiText());
 
   /* Populate system bookmarks */
   std::vector<std::pair<hecl::SystemString, std::string>> systemLocs = hecl::GetSystemLocations();
@@ -184,8 +184,7 @@ void FileBrowser::okActivated(bool viaButton) {
   hecl::Sstat theStat;
   if (hecl::Stat(path.c_str(), &theStat) || !S_ISDIR(theStat.st_mode)) {
     hecl::SystemUTF8Conv utf8(path);
-    m_fileField.m_view->setErrorState(
-        hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").data(), utf8.c_str()));
+    m_fileField.m_view->setErrorState(vm.translate<locale::no_access_as_dir>(utf8));
     return;
   }
 
@@ -195,13 +194,13 @@ void FileBrowser::okActivated(bool viaButton) {
   int err = hecl::Stat(path.c_str(), &theStat);
   if (m_type == Type::SaveFile) {
     if (m_fileField.m_view->getText().empty()) {
-      m_fileField.m_view->setErrorState(vm.translateOr("file_field_empty", "Unable to save empty file"));
+      m_fileField.m_view->setErrorState(vm.translate<locale::file_field_empty>());
       return;
     }
     if (!err && !S_ISDIR(theStat.st_mode)) {
       m_confirmWindow.reset(
           new MessageWindow(rootView().viewRes(), *this, MessageWindow::Type::ConfirmOkCancel,
-                            hecl::Format(vm.translateOr("overwrite_confirm", "Overwrite '%s'?").data(), path.c_str()),
+                            vm.translate<locale::overwrite_confirm>(path),
                             [&, path](bool ok) {
                               if (ok) {
                                 m_returnFunc(true, path);
@@ -222,20 +221,18 @@ void FileBrowser::okActivated(bool viaButton) {
     return;
   } else if (m_type == Type::SaveDirectory || m_type == Type::NewHECLProject) {
     if (m_fileField.m_view->getText().empty()) {
-      m_fileField.m_view->setErrorState(
-          vm.translateOr("directory_field_empty", "Unable to make empty-named directory"));
+      m_fileField.m_view->setErrorState(vm.translate<locale::directory_field_empty>());
       return;
     }
     if (!err && !S_ISDIR(theStat.st_mode)) {
-      m_fileField.m_view->setErrorState(vm.translateOr("no_overwrite_file", "Unable to make directory over file"));
+      m_fileField.m_view->setErrorState(vm.translate<locale::no_overwrite_file>());
       return;
     }
     if (!err && S_ISDIR(theStat.st_mode)) {
       if (m_type == Type::NewHECLProject) {
         hecl::ProjectRootPath projRoot = hecl::SearchForProject(path);
         if (projRoot) {
-          m_fileField.m_view->setErrorState(
-              vm.translateOr("no_overwrite_project", "Unable to make project within existing project"));
+          m_fileField.m_view->setErrorState(vm.translate<locale::no_overwrite_project>());
           return;
         }
       }
@@ -253,8 +250,7 @@ void FileBrowser::okActivated(bool viaButton) {
       return;
     } else if (err || !S_ISREG(theStat.st_mode)) {
       hecl::SystemUTF8Conv utf8(path);
-      m_fileField.m_view->setErrorState(
-          hecl::Format(vm.translateOr("no_access_as_file", "Unable to access '%s' as file").data(), utf8.c_str()));
+      m_fileField.m_view->setErrorState(vm.translate<locale::no_access_as_file>(utf8));
       return;
     }
     m_returnFunc(true, path);
@@ -275,8 +271,7 @@ void FileBrowser::okActivated(bool viaButton) {
     }
     if (err || !S_ISDIR(theStat.st_mode)) {
       hecl::SystemUTF8Conv utf8(path);
-      m_fileField.m_view->setErrorState(
-          hecl::Format(vm.translateOr("no_access_as_dir", "Unable to access '%s' as directory").data(), utf8.c_str()));
+      m_fileField.m_view->setErrorState(vm.translate<locale::no_access_as_dir>(utf8));
       return;
     }
     m_returnFunc(true, path);
