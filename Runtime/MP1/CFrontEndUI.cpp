@@ -1884,6 +1884,7 @@ void CFrontEndUI::HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArch
 void CFrontEndUI::Draw() const {
   if (x14_phase < EPhase::DisplayFrontEnd)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CFrontEndUI::Draw", zeus::skGreen);
 
   if (xec_emuFrme) {
     xec_emuFrme->Draw(xdc_saveUI.get());

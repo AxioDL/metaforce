@@ -430,6 +430,7 @@ void CBooRenderer::SetupRendererStates() const {
 
 void CBooRenderer::ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                                          const CSkinnedModel* sModel) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::ReallyRenderFogVolume", zeus::skPurple);
   zeus::CMatrix4f proj = CGraphics::GetPerspectiveProjectionMatrix(false);
   zeus::CVector4f points[8];
 
@@ -755,6 +756,7 @@ void CBooRenderer::RemoveStaticGeometry(const std::vector<CMetroidModelInstance>
 }
 
 void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawAreaGeometry", zeus::skPurple);
   x318_30_inAreaDraw = true;
   // SetupRendererStates();
   CModelFlags flags;
@@ -789,6 +791,7 @@ void CBooRenderer::DrawAreaGeometry(int areaIdx, int mask, int targetMask) {
 }
 
 void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawUnsortedGeometry", zeus::skPurple);
   // SetupRendererStates();
   CModelFlags flags;
   flags.m_extendedShader = shadowRender ? EExtendedShader::SolidColor : EExtendedShader::Lighting;
@@ -858,6 +861,7 @@ void CBooRenderer::DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, b
 }
 
 void CBooRenderer::DrawSortedGeometry(int areaIdx, int mask, int targetMask) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawSortedGeometry", zeus::skPurple);
   // SetupRendererStates();
 
   CAreaListItem* lastOctreeItem = nullptr;
@@ -1035,6 +1039,7 @@ void CBooRenderer::DrawString(const char*, int, int) {}
 u32 CBooRenderer::GetFPS() { return 0; }
 
 void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clearAfter) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::CacheReflection", zeus::skPurple);
   if (!x318_24_refectionDirty)
     return;
   x318_24_refectionDirty = false;
@@ -1052,11 +1057,13 @@ void CBooRenderer::CacheReflection(TReflectionCallback cb, void* ctx, bool clear
 }
 
 void CBooRenderer::DrawSpaceWarp(const zeus::CVector3f& pt, float strength) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawSpaceWarp", zeus::skPurple);
   m_spaceWarpFilter.setStrength(strength);
   m_spaceWarpFilter.draw(pt);
 }
 
 void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mulCol, const zeus::CColor& addCol) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawThermalModel", zeus::skPurple);
   CModelFlags flags;
   flags.m_extendedShader = EExtendedShader::Thermal;
   flags.x4_color = mulCol;
@@ -1066,6 +1073,7 @@ void CBooRenderer::DrawThermalModel(const CModel& model, const zeus::CColor& mul
 }
 
 void CBooRenderer::DrawXRayOutline(const zeus::CAABox& aabb) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawXRayOutline", zeus::skPurple);
   CModelFlags flags;
   flags.m_extendedShader = EExtendedShader::ForcedAlpha;
 
@@ -1117,6 +1125,7 @@ void CBooRenderer::SetThermal(bool thermal, float level, const zeus::CColor& col
 void CBooRenderer::SetThermalColdScale(float scale) { x2f8_thermColdScale = zeus::clamp(0.f, scale, 1.f); }
 
 void CBooRenderer::DoThermalBlendCold() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DoThermalBlendCold", zeus::skMagenta);
   zeus::CColor a = zeus::CColor::lerp(x2f4_thermColor, zeus::skWhite, x2f8_thermColdScale);
   m_thermColdFilter->setColorA(a);
   float bAlpha = 1.f;
@@ -1143,6 +1152,7 @@ void CBooRenderer::DoThermalBlendCold() {
 }
 
 void CBooRenderer::DoThermalBlendHot() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DoThermalBlendHot", zeus::skMagenta);
   m_thermHotFilter->draw();
   m_thermalHotPass = false;
 }
@@ -1175,22 +1185,26 @@ void CBooRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeu
 void CBooRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, /*const CTexture& maskTex,*/
                                                       const CTexture& indTex, const zeus::CColor& modColor, float scale,
                                                       float offX, float offY) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::ReallyDrawPhazonSuitIndirectEffect", zeus::skMagenta);
   float qScale = scale / 8.f; // Adjustment for URDE
   m_phazonSuitFilter.draw(modColor, scale, offX * qScale, offY * qScale);
 }
 
 void CBooRenderer::ReallyDrawPhazonSuitEffect(const zeus::CColor& modColor /*, const CTexture& maskTex*/) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::ReallyDrawPhazonSuitEffect", zeus::skMagenta);
   m_phazonSuitFilter.draw(modColor, 0.f, 0.f, 0.f);
 }
 
 void CBooRenderer::DoPhazonSuitIndirectAlphaBlur(float blurRadius /*, float f2*/,
                                                  const TLockedToken<CTexture>& indTex) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DoPhazonSuitIndirectAlphaBlur", zeus::skMagenta);
   m_phazonSuitFilter.drawBlurPasses(blurRadius, indTex.IsLoaded() ? indTex.GetObj() : nullptr);
 }
 
 void CBooRenderer::DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod,
                                                 const TLockedToken<CTexture>& indTex, const zeus::CColor& indirectMod,
                                                 float blurRadius, float scale, float offX, float offY) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawPhazonSuitIndirectEffect", zeus::skPurple);
   /* Indirect background already in binding 0 */
 
   /* Resolve alpha channel of just-drawn phazon suit into binding 1 */
@@ -1253,6 +1267,7 @@ void CBooRenderer::FindOverlappingWorldModels(std::vector<u32>& modelBits, const
 
 int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u32>& modelBits,
                                                const zeus::CAABox& aabb) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawOverlappingWorldModelIDs", zeus::skGrey);
   SetupRendererStates();
   UpdateAreaUniforms(-1, EWorldShadowMode::BallOnWorldIds, false);
 
@@ -1294,6 +1309,7 @@ int CBooRenderer::DrawOverlappingWorldModelIDs(int alphaVal, const std::vector<u
 
 void CBooRenderer::DrawOverlappingWorldModelShadows(int alphaVal, const std::vector<u32>& modelBits,
                                                     const zeus::CAABox& aabb, float alpha) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CBooRenderer::DrawOverlappingWorldModelShadows", zeus::skGrey);
   CModelFlags flags;
   flags.x4_color.a() = alpha;
   flags.m_extendedShader = EExtendedShader::MorphBallShadow; // Do shadow draw

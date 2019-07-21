@@ -461,6 +461,7 @@ void CInGameGuiManager::PreDraw(CStateManager& stateMgr, bool cameraActive) {
 }
 
 void CInGameGuiManager::Draw(CStateManager& stateMgr) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CInGameGuiManager::Draw", zeus::skBlue);
   // if (!GetIsGameDraw())
   //    g_Renderer->x318_26_requestRGBA6 = true;
   if (x1d8_onScreenTexAlpha > 0.f && x1dc_onScreenTexTok.IsLoaded()) {

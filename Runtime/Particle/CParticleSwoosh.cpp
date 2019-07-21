@@ -870,6 +870,8 @@ void CParticleSwoosh::Render2SidedNoSplineNoGaps() {
 void CParticleSwoosh::Render(const CActorLights*) {
   if (x1b4_LENG < 2 || x1ac_particleCount <= 1)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CParticleSwoosh::Render {}"),
+    *x1c_desc.GetObjectTag()).c_str(), zeus::skYellow);
 
   m_cachedVerts.clear();
   if (m_dataBind[0])

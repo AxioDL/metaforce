@@ -77,6 +77,7 @@ void CArtifactDoll::CompleteArtifactHeadScan(const CStateManager& mgr) { UpdateA
 void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactCategory, int selectedArtifact) {
   if (!IsLoaded())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CArtifactDoll::Draw", zeus::skPurple);
 
   alpha *= x24_fader;
   g_Renderer->SetPerspective(55.f, g_Viewport.x8_width, g_Viewport.xc_height, 0.2f, 4096.f);

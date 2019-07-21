@@ -238,6 +238,8 @@ void CLineRenderer::AddVertex(const zeus::CVector3f& position, const zeus::CColo
 }
 
 void CLineRenderer::Render(bool alphaWrite, const zeus::CColor& moduColor) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CLineRenderer::Render", zeus::skGrey);
+
   if (!m_final && m_nextVert > 1) {
     if (m_mode == EPrimitiveMode::LineLoop) {
       {

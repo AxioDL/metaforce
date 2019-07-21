@@ -163,6 +163,7 @@ void COptionsScreen::ProcessControllerInput(const CFinalInput& input) {
 }
 
 void COptionsScreen::Draw(float transInterp, float totalAlpha, float yOff) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("COptionsScreen::Draw", zeus::skPurple);
   CPauseScreenBase::Draw(transInterp, totalAlpha, yOff);
   x1a0_gameCube->Draw(transInterp * (1.f - x29c_optionAlpha));
   if (x19c_quitGame) {

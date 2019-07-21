@@ -291,7 +291,7 @@ void CSamusHud::InitializeDamageLight() {
   s16 parentId = x288_loadedSelectedHud->FindWidget("basewidget_pivot")->GetSelfId();
   CGuiWidget::CGuiWidgetParms parms(x288_loadedSelectedHud, false, lightId, parentId, true, true, false,
                                     g_tweakGuiColors->GetHudDamageLightColor(), CGuiWidget::EGuiModelDrawFlags::Alpha,
-                                    false, false);
+                                    false, false, "DamageSpotLight"s);
 
   std::shared_ptr<CGuiLight> light = std::make_shared<CGuiLight>(
       parms, CLight::BuildSpot(zeus::skZero3f, zeus::skForward, zeus::skWhite,
@@ -1382,6 +1382,7 @@ void CSamusHud::Draw(const CStateManager& mgr, float alpha, CInGameGuiManager::E
                      bool targetingManager) const {
   if (x2bc_nextState == EHudState::None)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSamusHud::Draw", zeus::skBlue);
   x3a8_camFilter.Draw();
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
     DrawAttachedEnemyEffect(mgr);

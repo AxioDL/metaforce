@@ -49,6 +49,8 @@ CScanLinesFilter::CScanLinesFilter(EFilterType type, bool even) : m_even(even) {
 }
 
 void CScanLinesFilter::draw(const zeus::CColor& color) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CScanLinesFilter::draw", zeus::skMagenta);
+
   m_uniform.color = color;
   m_uniBuf->load(&m_uniform, sizeof(Uniform));
 

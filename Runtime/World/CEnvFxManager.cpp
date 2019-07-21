@@ -538,6 +538,7 @@ void CEnvFxManager::Render(const CStateManager& mgr) const {
     if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Unmorphed ||
         (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::Thermal &&
          (fxType != EEnvFxType::Snow || mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay))) {
+      SCOPED_GRAPHICS_DEBUG_GROUP("CEnvFxManager::Render", zeus::skCyan);
       // No Cull
       // ZTest, No ZWrite
       zeus::CTransform xf = GetParticleBoundsToWorldTransform();

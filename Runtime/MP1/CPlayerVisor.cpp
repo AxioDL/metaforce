@@ -320,6 +320,8 @@ void CPlayerVisor::LockUnlockAssets() {
 }
 
 void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingManager* tgtMgr) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerVisor::DrawScanEffect", zeus::skMagenta);
+
   bool indicatorsDrawn = DrawScanObjectIndicators(mgr);
   if (tgtMgr && indicatorsDrawn) {
     CGraphics::SetDepthRange(DEPTH_TARGET_MANAGER, DEPTH_TARGET_MANAGER);
@@ -454,7 +456,10 @@ void CPlayerVisor::DrawScanEffect(const CStateManager& mgr, const CTargetingMana
   // cull faces
 }
 
-void CPlayerVisor::DrawXRayEffect(const CStateManager&) const { const_cast<CCameraBlurPass&>(x90_xrayBlur).Draw(); }
+void CPlayerVisor::DrawXRayEffect(const CStateManager&) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerVisor::DrawXRayEffect", zeus::skMagenta);
+  const_cast<CCameraBlurPass&>(x90_xrayBlur).Draw();
+}
 
 void CPlayerVisor::DrawThermalEffect(const CStateManager&) const {
   // Empty

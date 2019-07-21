@@ -44,6 +44,7 @@ void CRainSplashGenerator::SRainSplash::Draw(float alpha, float dt, const zeus::
 }
 
 void CRainSplashGenerator::DoDraw(const zeus::CTransform& xf) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CRainSplashGenerator::DoDraw", zeus::skYellow);
   CGraphics::SetModelMatrix(xf);
   if (x40_queueSize > 0) {
     if (x38_queueTail <= x3c_queueHead) {

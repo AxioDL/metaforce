@@ -1,4 +1,5 @@
 #include "CErrorOutputWindow.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde {
 
@@ -13,6 +14,8 @@ CIOWin::EMessageReturn CErrorOutputWindow::OnMessage(const CArchitectureMessage&
   return EMessageReturn::Normal;
 }
 
-void CErrorOutputWindow::Draw() const {}
+void CErrorOutputWindow::Draw() const {
+  //SCOPED_GRAPHICS_DEBUG_GROUP("CErrorOutputWindow::Draw", zeus::skGreen);
+}
 
 } // namespace urde

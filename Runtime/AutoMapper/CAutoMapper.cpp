@@ -1293,6 +1293,7 @@ void CAutoMapper::Update(float dt, const CStateManager& mgr) {
 }
 
 void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, float alpha) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CAutoMapper::Draw", zeus::skPurple);
   alpha *= g_GameState->GameOptions().GetHUDAlpha() / 255.f;
   // Blend mode alpha
   // Backface cull

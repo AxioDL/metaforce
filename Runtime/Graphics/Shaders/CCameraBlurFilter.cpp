@@ -26,6 +26,7 @@ CCameraBlurFilter::CCameraBlurFilter() {
 void CCameraBlurFilter::draw(float amount, bool clearDepth) {
   if (amount <= 0.f)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCameraBlurFilter::draw", zeus::skMagenta);
 
   SClipScreenRect clipRect(g_Viewport);
   CGraphics::ResolveSpareTexture(clipRect, 0, clearDepth);

@@ -646,6 +646,8 @@ void CWorld::DrawSky(const zeus::CTransform& xf) const {
   if (!x70_27_skyboxVisible)
     return;
 
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorld::DrawSky", zeus::skCyan);
+
   CGraphics::DisableAllLights();
   CGraphics::SetModelMatrix(xf);
   g_Renderer->SetAmbientColor(zeus::skWhite);

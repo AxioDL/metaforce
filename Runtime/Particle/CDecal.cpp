@@ -233,6 +233,7 @@ void CDecal::RenderMdl() const {
 }
 
 void CDecal::Render() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CDecal::Render", zeus::skYellow);
   CGlobalRandom gr(sDecalRandom);
   if (x5c_29_modelInvalid && x5c_30_quad2Invalid && x5c_31_quad1Invalid)
     return;

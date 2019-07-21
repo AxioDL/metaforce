@@ -17,6 +17,7 @@
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/libdrm_nouveau" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/lib/graphicsdev/nx/mesa" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/boo/logvisor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/hecl/extern/boo/logvisor/fmt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/libSquish" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl/extern/libjpeg-turbo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jbus" vcs="Git" />

@@ -54,6 +54,8 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
 }
 
 void CColoredQuadFilter::draw(const zeus::CColor& color, const zeus::CRectangle& rect) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CColoredQuadFilter::draw", zeus::skMagenta);
+
   m_uniform.m_matrix[0][0] = rect.size.x() * 2.f;
   m_uniform.m_matrix[1][1] = rect.size.y() * 2.f;
   m_uniform.m_matrix[3][0] = rect.position.x() * 2.f - 1.f;

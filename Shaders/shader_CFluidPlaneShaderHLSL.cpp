@@ -197,7 +197,7 @@ static const char* TessES =
     "struct ControlPoint\n"
     "{};\n"
     "\n"
-    "Texture2D RippleMap : register(t##RIPPLE_TEXTURE_IDX);\n"
+    "Texture2D RippleMap : register(RIPPLE_TEXTURE_REG);\n"
     "SamplerState samp : register(s2);\n"
     "\n"
     "static const float PI_X2 = 6.283185307179586;\n"
@@ -703,7 +703,7 @@ static std::string BuildES(const SFluidPlaneShaderInfo& info) {
 
   std::stringstream out;
   _BuildAdditionalTCGs(out, info);
-  out << "#define RIPPLE_TEXTURE_IDX " << nextTex << '\n';
+  out << "#define RIPPLE_TEXTURE_REG t" << nextTex << '\n';
   out << TessES;
   return out.str();
 }
@@ -724,7 +724,7 @@ static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info) {
   int nextTex = 0;
   std::stringstream out;
 
-  out << "#define TEXTURE_PARAMS ";
+  out << "#define TEXTURE_DECLS ";
   if (info.m_hasPatternTex1)
     fmt::print(out, fmt("Texture2D patternTex1 : register(t{});"), nextTex++);
   if (info.m_hasPatternTex2)

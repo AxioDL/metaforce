@@ -406,6 +406,7 @@ void CPlasmaProjectile::AddToRenderer(const zeus::CFrustum& frustum, const CStat
 void CPlasmaProjectile::Render(const CStateManager& mgr) const {
   if (!GetActive())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlasmaProjectile::Render", zeus::skOrange);
 
   zeus::CTransform xf = GetBeamTransform();
 

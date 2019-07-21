@@ -9,6 +9,8 @@ CIOWin::EMessageReturn CConsoleOutputWindow::OnMessage(const CArchitectureMessag
   return EMessageReturn::Normal;
 }
 
-void CConsoleOutputWindow::Draw() const {}
+void CConsoleOutputWindow::Draw() const {
+  //SCOPED_GRAPHICS_DEBUG_GROUP("CConsoleOutputWindow::Draw", zeus::skGreen);
+}
 
 } // namespace urde

@@ -309,7 +309,13 @@ vec4 PostFunc(vec4 colorIn) {
 #endif
 
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
-vec3 ReflectionFunc(float roughness) { return texture(reflectionTex, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz), roughness).rgb; }
+vec3 ReflectionFunc(float roughness) {
+  vec3 coords = reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz);
+#ifdef VULKAN
+  coords = vec3(coords.x, -coords.y, coords.z);
+#endif
+  return texture(reflectionTex, coords, roughness).rgb;
+}
 #elif defined(URDE_REFLECTION_SIMPLE)
 vec3 ReflectionFunc() { return texture(reflectionTex, vtf.dynReflectionUvs[1]).rgb * vtf.dynReflectionAlpha; }
 #elif defined(URDE_REFLECTION_INDIRECT)

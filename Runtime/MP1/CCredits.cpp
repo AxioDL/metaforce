@@ -1,4 +1,5 @@
 #include "CCredits.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde::MP1 {
 
@@ -8,6 +9,8 @@ CIOWin::EMessageReturn CCredits::OnMessage(const CArchitectureMessage& msg, CArc
   return EMessageReturn::Normal;
 }
 
-void CCredits::Draw() const {}
+void CCredits::Draw() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CCredits::Draw", zeus::skGreen);
+}
 
 } // namespace urde::MP1

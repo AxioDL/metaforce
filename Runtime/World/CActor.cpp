@@ -204,6 +204,9 @@ void CActor::DrawTouchBounds() const {
 }
 
 void CActor::RenderInternal(const CStateManager& mgr) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CActor::RenderInternal {} {} {}"),
+    x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
+
   CModelData::EWhichModel which = CModelData::GetRenderingModel(mgr);
   if (which == CModelData::EWhichModel::ThermalHot) {
     if (x64_modelData->GetSortThermal()) {

@@ -240,6 +240,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
 }
 
 void CInventoryScreen::Draw(float transInterp, float totalAlpha, float yOff) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CInventoryScreen::Draw", zeus::skPurple);
   CPauseScreenBase::Draw(transInterp, totalAlpha, std::fabs(x19c_samusDoll->GetViewInterpolation()));
   x19c_samusDoll->Draw(x4_mgr, transInterp * (1.f - x1a4_textBodyAlpha));
 }

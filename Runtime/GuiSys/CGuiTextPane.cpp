@@ -34,6 +34,7 @@ void CGuiTextPane::ScaleDimensions(const zeus::CVector3f& scale) {}
 void CGuiTextPane::Draw(const CGuiWidgetDrawParms& parms) const {
   if (!GetIsVisible())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CGuiTextPane::Draw {}"), m_name).c_str(), zeus::skCyan);
 
   zeus::CVector2f dims = GetDimensions();
 

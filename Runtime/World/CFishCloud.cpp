@@ -523,6 +523,8 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
 void CFishCloud::Render(const CStateManager& mgr) const {
   if (!GetActive())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CFishCloud::Render {} {} {}"),
+                                          x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
   bool thermalHot = mgr.GetThermalDrawFlag() == EThermalDrawFlag::Hot;
   CModelFlags flags(0, 0, 3, zeus::skWhite);
   if (mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay)

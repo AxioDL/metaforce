@@ -47,12 +47,16 @@ CFogVolumeFilter::CFogVolumeFilter() {
 }
 
 void CFogVolumeFilter::draw2WayPass(const zeus::CColor& color) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CFogVolumeFilter::draw2WayPass", zeus::skMagenta);
+
   m_uniBuf->load(&color, sizeof(zeus::CColor));
   CGraphics::SetShaderDataBinding(m_dataBind2Way);
   CGraphics::DrawArray(0, 4);
 }
 
 void CFogVolumeFilter::draw1WayPass(const zeus::CColor& color) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CFogVolumeFilter::draw1WayPass", zeus::skMagenta);
+
   m_uniBuf->load(&color, sizeof(zeus::CColor));
   CGraphics::SetShaderDataBinding(m_dataBind1Way);
   CGraphics::DrawArray(0, 4);

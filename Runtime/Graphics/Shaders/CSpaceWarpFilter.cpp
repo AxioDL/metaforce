@@ -59,6 +59,8 @@ CSpaceWarpFilter::CSpaceWarpFilter() {
 }
 
 void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSpaceWarpFilter::draw", zeus::skMagenta);
+
   /* Indirect coords are full-texture sampling when warp is completely in viewport */
   m_uniform.m_indXf[1][1] = 1.f;
   m_uniform.m_indXf[0][0] = 1.f;

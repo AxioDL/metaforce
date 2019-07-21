@@ -308,7 +308,8 @@ float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
 
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 float3 ReflectionFunc(in VertToFrag vtf, float roughness) {
-  return reflectionTex.SampleBias(reflectSamp, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz), roughness).rgb;
+  float3 coords = reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz);
+  return reflectionTex.SampleBias(reflectSamp, float3(coords.x, -coords.y, coords.z), roughness).rgb;
 }
 #elif defined(URDE_REFLECTION_SIMPLE)
 float3 ReflectionFunc(in VertToFrag vtf)

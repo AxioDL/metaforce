@@ -41,6 +41,7 @@ CMapUniverse::CMapWorldData::CMapWorldData(CInputStream& in, u32 version)
 void CMapUniverse::Draw(const CMapUniverseDrawParms& parms, const zeus::CVector3f&, float, float) const {
   if (!x4_hexagonToken.IsLoaded())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMapUniverse::Draw", zeus::skBlue);
 
   u32 totalSurfaceCount = 0;
   for (const CMapWorldData& data : x10_worldDatas)

@@ -62,6 +62,8 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter) : 
 }
 
 void CRandomStaticFilter::draw(const zeus::CColor& color, float t) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CRandomStaticFilter::draw", zeus::skMagenta);
+
   m_uniform.color = color;
   m_uniform.randOff = ROUND_UP_32(int64_t(rand()) * 32767 / RAND_MAX);
   m_uniform.discardThres = 1.f - t;

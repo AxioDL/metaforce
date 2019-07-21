@@ -34,6 +34,7 @@ void CSamusFaceReflection::Draw(const CStateManager& mgr) const {
     return;
 
   if (TCastToConstPtr<CFirstPersonCamera> fpCam = (mgr.GetCameraManager()->GetCurrentCamera(mgr))) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CSamusFaceReflection::Draw", zeus::skBlue);
     zeus::CQuaternion camRot(fpCam->GetTransform().basis);
     float dist = ITweakGui::FaceReflectionDistanceDebugValueToActualValue(g_tweakGui->GetFaceReflectionDistance());
     float height = ITweakGui::FaceReflectionHeightDebugValueToActualValue(g_tweakGui->GetFaceReflectionHeight());

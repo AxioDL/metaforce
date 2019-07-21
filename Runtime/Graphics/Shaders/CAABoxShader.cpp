@@ -60,6 +60,8 @@ void CAABoxShader::setAABB(const zeus::CAABox& aabb) {
 }
 
 void CAABoxShader::draw(const zeus::CColor& color) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CAABoxShader::draw", zeus::skMagenta);
+
   m_uniform.m_xf = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = color;
   m_uniBuf->load(&m_uniform, sizeof(Uniform));

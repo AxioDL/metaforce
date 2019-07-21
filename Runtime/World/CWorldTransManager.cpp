@@ -232,6 +232,7 @@ void CWorldTransManager::DrawSecondPass(CActorLights* lights) {
 }
 
 void CWorldTransManager::DrawEnabled() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawEnabled", zeus::skPurple);
   CActorLights lights(0, zeus::skZero3f, 4, 4, 0, 0, 0, 0.1f);
   lights.BuildFakeLightList(x4_modelData->x1a0_lights, zeus::CColor{0.1f, 0.1f, 0.1f, 1.0f});
 
@@ -305,9 +306,13 @@ void CWorldTransManager::DrawEnabled() {
     m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, ftbT});
 }
 
-void CWorldTransManager::DrawDisabled() { m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01f}); }
+void CWorldTransManager::DrawDisabled() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawDisabled", zeus::skPurple);
+  m_fadeToBlack.draw(zeus::CColor{0.f, 0.f, 0.f, 0.01f});
+}
 
 void CWorldTransManager::DrawText() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldTransManager::DrawText", zeus::skPurple);
   float width = 448.f * g_Viewport.aspect;
   CGraphics::SetOrtho(0.f, width, 448.f, 0.f, -4096.f, 4096.f);
   CGraphics::SetViewPointMatrix(zeus::CTransform());

@@ -412,6 +412,7 @@ void CCompoundTargetReticle::UpdateOrbitZoneGroup(float dt, const CStateManager&
 void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) const {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed &&
       !mgr.GetCameraManager()->IsInCinematicCamera()) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CCompoundTargetReticle::Draw", zeus::skCyan);
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
     if (!hideLockon) {

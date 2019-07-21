@@ -127,6 +127,7 @@ bool CMessageScreen::Update(float dt, float blurAmt) {
 void CMessageScreen::Draw() const {
   if (!x18_loadedMsgScreen)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMessageScreen::Draw", zeus::skPurple);
 
   x18_loadedMsgScreen->Draw(CGuiWidgetDrawParms(x70_blurAmt, zeus::skZero3f));
 }

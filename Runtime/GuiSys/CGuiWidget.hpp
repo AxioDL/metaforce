@@ -34,9 +34,10 @@ public:
     bool xe_h;
     zeus::CColor x10_color;
     EGuiModelDrawFlags x14_drawFlags;
+    std::string m_name;
     CGuiWidgetParms(CGuiFrame* frame, bool useAnimController, s16 selfId, s16 parentId, bool defaultVisible,
                     bool defaultActive, bool cullFaces, const zeus::CColor& color, EGuiModelDrawFlags drawFlags, bool g,
-                    bool h)
+                    bool h, std::string&& name)
     : x0_frame(frame)
     , x4_useAnimController(useAnimController)
     , x6_selfId(selfId)
@@ -47,7 +48,8 @@ public:
     , xd_g(g)
     , xe_h(h)
     , x10_color(color)
-    , x14_drawFlags(drawFlags) {}
+    , x14_drawFlags(drawFlags)
+    , m_name(std::move(name)) {}
   };
 
 protected:
@@ -75,6 +77,8 @@ protected:
 
   std::optional<boo::SScrollDelta> m_lastScroll;
   boo::SScrollDelta m_integerScroll;
+
+  std::string m_name;
 
 public:
   CGuiWidget(const CGuiWidgetParms& parms);

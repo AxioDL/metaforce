@@ -49,6 +49,7 @@ void CFogVolumePlaneShader::addFan(const zeus::CVector3f* verts, int numVerts) {
 void CFogVolumePlaneShader::draw(int pass) {
   if (m_verts.empty())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CFogVolumePlaneShader::draw", zeus::skMagenta);
   if (pass == 0) {
     if (m_vertCapacity < m_verts.size())
       CommitResources(m_verts.size());

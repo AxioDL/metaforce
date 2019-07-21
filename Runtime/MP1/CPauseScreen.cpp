@@ -320,6 +320,7 @@ void CPauseScreen::PreDraw() {
 void CPauseScreen::Draw() {
   if (!IsLoaded())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPauseScreen::Draw", zeus::skPurple);
 
   float totalAlpha = 0.f;
   float yOff = 0.f;

@@ -319,6 +319,7 @@ void CSaveGameScreen::SetUIColors() {
 }
 
 void CSaveGameScreen::Draw() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSaveGameScreen::Draw", zeus::skPurple);
   if (x50_loadedFrame)
     x50_loadedFrame->Draw(CGuiWidgetDrawParms::Default);
 }

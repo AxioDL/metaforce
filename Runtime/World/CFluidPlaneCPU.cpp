@@ -739,11 +739,12 @@ void CFluidPlaneCPU::Render(const CStateManager& mgr, float alpha, const zeus::C
                             const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
                             const bool* gridFlags, u32 gridDimX, u32 gridDimY,
                             const zeus::CVector3f& areaCenter) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CFluidPlaneCPU::Render", zeus::skCyan);
   TCastToConstPtr<CScriptWater> water = mgr.GetObjectById(waterId);
   CFluidPlaneShader::RenderSetupInfo setupInfo = RenderSetup(mgr, alpha, xf, areaXf, aabb, water.GetPtr());
 
-  if (!m_shader->isReady())
-    return;
+  //if (!m_shader->isReady())
+  //  return;
 
   CFluidPlaneRender::NormalMode normalMode;
   if (xb0_bumpMap && kEnableWaterBumpMaps)

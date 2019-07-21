@@ -200,6 +200,8 @@ CTexturedQuadFilter::CTexturedQuadFilter(EFilterType type, TLockedToken<CTexture
 }
 
 void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const zeus::CRectangle& rect, float z) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::draw", zeus::skMagenta);
+
   Vert verts[4] = {
       {{0.f, 0.f, z}, {0.f, 0.f}},
       {{0.f, 1.f, z}, {0.f, uvScale}},
@@ -227,6 +229,8 @@ void CTexturedQuadFilter::draw(const zeus::CColor& color, float uvScale, const z
 }
 
 void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::drawCropped", zeus::skMagenta);
+
   float xFac = CGraphics::g_CroppedViewport.xc_width / float(g_Viewport.x8_width);
   float yFac = CGraphics::g_CroppedViewport.x10_height / float(g_Viewport.xc_height);
   float xBias = CGraphics::g_CroppedViewport.x4_left / float(g_Viewport.x8_width);
@@ -248,6 +252,8 @@ void CTexturedQuadFilter::drawCropped(const zeus::CColor& color, float uvScale) 
 }
 
 void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[4], float lod) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::drawVerts", zeus::skMagenta);
+
   m_vbo->load(verts, sizeof(Vert) * 4);
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
@@ -260,6 +266,8 @@ void CTexturedQuadFilter::drawVerts(const zeus::CColor& color, const Vert verts[
 }
 
 void CTexturedQuadFilter::DrawFilter(EFilterShape shape, const zeus::CColor& color, float t) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CTexturedQuadFilter::DrawFilter", zeus::skMagenta);
+
   m_uniform.m_matrix = zeus::CMatrix4f();
   m_uniform.m_lod = 0.f;
   m_uniform.m_color = color;

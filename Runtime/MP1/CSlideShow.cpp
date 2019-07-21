@@ -134,6 +134,7 @@ void CSlideShow::SSlideData::Draw() const {
 }
 
 void CSlideShow::Draw() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSlideShow::Draw", zeus::skGreen);
   if (x14_phase == Phase::Five) {
     x5c_slideA.Draw();
     x90_slideB.Draw();

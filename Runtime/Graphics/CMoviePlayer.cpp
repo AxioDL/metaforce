@@ -406,6 +406,7 @@ void CMoviePlayer::SetFrame(const zeus::CVector3f& a, const zeus::CVector3f& b, 
 void CMoviePlayer::DrawFrame() {
   if (xd0_drawTexSlot == UINT32_MAX)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMoviePlayer::DrawFrame", zeus::skYellow);
 
   /* draw appropriate field */
   CTHPTextureSet& tex = x80_textures[xd0_drawTexSlot];

@@ -184,6 +184,8 @@ void CEnergyProjectile::Think(float dt, CStateManager& mgr) {
 }
 
 void CEnergyProjectile::Render(const CStateManager& mgr) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CEnergyProjectile::Render WPSC_{}"), x2cc_wpscId).c_str(), zeus::skOrange);
+
   CPlayerState::EPlayerVisor visor = mgr.GetPlayerState()->GetActiveVisor(mgr);
   if (visor == CPlayerState::EPlayerVisor::Combat) {
     if ((xe8_projectileAttribs & EProjectileAttrib::Charged) == EProjectileAttrib::Charged ||

@@ -67,6 +67,7 @@ void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
 void COrbitPointMarker::Draw(const CStateManager& mgr) const {
   if ((x1c_lastFreeOrbit || x20_interpTimer > 0.f) && g_tweakTargeting->DrawOrbitPoint() &&
       x28_orbitPointModel.IsLoaded()) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("COrbitPointMarker::Draw", zeus::skCyan);
     const CGameCamera* curCam = mgr.GetCameraManager()->GetCurrentCamera(mgr);
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);

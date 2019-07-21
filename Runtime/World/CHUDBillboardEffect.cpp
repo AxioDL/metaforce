@@ -96,6 +96,7 @@ void CHUDBillboardEffect::PreRender(CStateManager& mgr, const zeus::CFrustum& fr
 
 void CHUDBillboardEffect::Render(const CStateManager& mgr) const {
   if (x104_25_enableRender && !x104_24_renderAsParticleGen) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CHUDBillboardEffect::Render", zeus::skPurple);
     xe8_generator->Render();
   }
 }

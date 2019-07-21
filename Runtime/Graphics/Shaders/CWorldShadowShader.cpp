@@ -35,6 +35,8 @@ CWorldShadowShader::CWorldShadowShader(u32 w, u32 h) : m_w(w), m_h(h) {
 void CWorldShadowShader::bindRenderTarget() { CGraphics::g_BooMainCommandQueue->setRenderTarget(m_tex); }
 
 void CWorldShadowShader::drawBase(float extent) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::drawBase", zeus::skMagenta);
+
   zeus::CVector3f verts[] = {
       {-extent, 0.f, extent}, {extent, 0.f, extent}, {-extent, 0.f, -extent}, {extent, 0.f, -extent}};
   m_vbo->load(verts, sizeof(zeus::CVector3f) * 4);
@@ -48,6 +50,8 @@ void CWorldShadowShader::drawBase(float extent) {
 }
 
 void CWorldShadowShader::lightenShadow() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::lightenShadow", zeus::skMagenta);
+
   m_uniform.m_color = zeus::CColor(1.f, 0.25f);
   m_uniBuf->load(&m_uniform, sizeof(m_uniform));
 
@@ -56,6 +60,8 @@ void CWorldShadowShader::lightenShadow() {
 }
 
 void CWorldShadowShader::blendPreviousShadow() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::blendPreviousShadow", zeus::skMagenta);
+
   if (!m_prevQuad)
     m_prevQuad.emplace(EFilterType::Blend, m_tex.get());
   zeus::CRectangle rect(0.f, 1.f, 1.f, -1.f);

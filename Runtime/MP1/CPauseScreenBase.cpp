@@ -344,6 +344,8 @@ void CPauseScreenBase::ResetMouseState() {
 }
 
 void CPauseScreenBase::Draw(float mainAlpha, float frameAlpha, float yOff) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPauseScreenBase::Draw", zeus::skBlue);
+
   zeus::CColor color = zeus::skWhite;
   color.a() = mainAlpha * x14_alpha;
   x60_basewidget_pivot->SetColor(color);

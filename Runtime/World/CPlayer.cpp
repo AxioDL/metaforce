@@ -1156,6 +1156,7 @@ void CPlayer::Render(const CStateManager& mgr) const {
     if (TCastToConstPtr<CCinematicCamera> cam = mgr.GetCameraManager()->GetCurrentCamera(mgr))
       doRender = (x2f8_morphBallState == EPlayerMorphBallState::Morphed && cam->GetFlags() & 0x40);
   if (x2f4_cameraState != EPlayerCameraState::FirstPerson && doRender) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skOrange);
     CBooModel::SetReflectionCube(m_reflectionCube);
     bool doTransitionRender = false;
     bool doBallRender = false;

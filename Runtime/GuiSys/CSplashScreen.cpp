@@ -49,6 +49,7 @@ CIOWin::EMessageReturn CSplashScreen::OnMessage(const CArchitectureMessage& msg,
 void CSplashScreen::Draw() const {
   if (!x25_textureLoaded)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSplashScreen::Draw", zeus::skGreen);
 
   zeus::CColor color;
   if (x14_which == ESplashScreen::Nintendo)

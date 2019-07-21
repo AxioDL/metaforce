@@ -2082,6 +2082,8 @@ static const CModelFlags kHandThermalFlag = {7, 0, 3, zeus::skWhite};
 static const CModelFlags kHandHoloFlag = {1, 0, 3, zeus::CColor(0.75f, 0.5f, 0.f, 1.f)};
 
 void CPlayerGun::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayerGun::Render", zeus::skMagenta);
+
   CGraphics::CProjectionState projState = CGraphics::GetProjectionState();
   CModelFlags useFlags = flags;
   if (x0_lights.HasShadowLight())

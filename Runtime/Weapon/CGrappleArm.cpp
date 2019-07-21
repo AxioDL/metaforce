@@ -490,6 +490,7 @@ void CGrappleArm::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CV
 void CGrappleArm::Render(const CStateManager& mgr, const zeus::CVector3f& pos, const CModelFlags& flags,
                          const CActorLights* lights) const {
   if (x3b2_24_active && !x3b2_29_suitLoading) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CGrappleArm::Render", zeus::skOrange);
     zeus::CTransform modelXf = zeus::CTransform::Translate(pos) * x220_xf * x2e0_auxXf;
     if (x50_grappleArmSkeletonModel)
       RenderXRayModel(mgr, modelXf, flags);

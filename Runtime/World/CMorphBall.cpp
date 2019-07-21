@@ -1407,6 +1407,7 @@ static const u8 BallSwooshColorsJaggy[9][3] = {{0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 
                                                {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}};
 
 void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skPurple);
   zeus::CTransform ballToWorld = GetBallToWorld();
   if (x28_tireMode) {
     ballToWorld = ballToWorld * zeus::CQuaternion::fromAxisAngle(ballToWorld.transposeRotate(x0_player.x500_lookDir),

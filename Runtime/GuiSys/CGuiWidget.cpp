@@ -11,7 +11,8 @@ CGuiWidget::CGuiWidget(const CGuiWidgetParms& parms)
 , xa4_color(parms.x10_color)
 , xa8_color2(parms.x10_color)
 , xac_drawFlags(parms.x14_drawFlags)
-, xb0_frame(parms.x0_frame) {
+, xb0_frame(parms.x0_frame)
+, m_name(parms.m_name) {
   xb6_24_pg = parms.xd_g;
   xb6_25_isVisible = parms.xa_defaultVisible;
   xb6_26_isActive = parms.xb_defaultActive;
@@ -41,7 +42,7 @@ CGuiWidget::CGuiWidgetParms CGuiWidget::ReadWidgetHeader(CGuiFrame* frame, CInpu
   EGuiModelDrawFlags df = EGuiModelDrawFlags(in.readUint32Big());
 
   return CGuiWidget::CGuiWidgetParms(frame, useAnimController, selfId, parentId, defaultVis, defaultActive, cullFaces,
-                                     color, df, true, false);
+                                     color, df, true, false, std::move(name));
 }
 
 std::shared_ptr<CGuiWidget> CGuiWidget::Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp) {

@@ -18,6 +18,8 @@ void CEnergyBarShader::updateModelMatrix() {
 void CEnergyBarShader::draw(const zeus::CColor& color0, const std::vector<Vertex>& verts0, const zeus::CColor& color1,
                             const std::vector<Vertex>& verts1, const zeus::CColor& color2,
                             const std::vector<Vertex>& verts2, const CTexture* tex) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CEnergyBarShader::draw", zeus::skMagenta);
+
   size_t totalVerts = verts0.size() + verts1.size() + verts2.size();
   if (!totalVerts)
     return;

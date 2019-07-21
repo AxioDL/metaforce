@@ -792,6 +792,9 @@ u32 CElementGen::GetSystemCount() {
 }
 
 void CElementGen::Render(const CActorLights* actorLights) {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CElementGen::Render {}"),
+    *x1c_genDesc.GetObjectTag()).c_str(), zeus::skYellow);
+
   CGenDescription* desc = x1c_genDesc.GetObj();
 
   x274_backupLightActive = CGraphics::g_LightActive;

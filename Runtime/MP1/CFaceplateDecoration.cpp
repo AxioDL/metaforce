@@ -35,6 +35,7 @@ void CFaceplateDecoration::Update(float dt, CStateManager& stateMgr) {
 
 void CFaceplateDecoration::Draw(CStateManager& stateMgr) {
   if (xc_ready && m_texFilter) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CFaceplateDecoration::Draw", zeus::skPurple);
     zeus::CColor color = zeus::skWhite;
     color.a() = stateMgr.GetPlayer().GetVisorSteam().GetAlpha();
     m_texFilter->DrawFilter(EFilterShape::FullscreenQuarters, color, 1.f);

@@ -105,6 +105,7 @@ std::pair<zeus::CColor, zeus::CColor> CMappableObject::GetDoorColors(int curArea
 void CMappableObject::PostConstruct(const void*) { x10_transform = AdjustTransformForType(); }
 
 void CMappableObject::Draw(int curArea, const CMapWorldInfo& mwInfo, float alpha, bool needsVtxLoad) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMappableObject::Draw", zeus::skCyan);
   if (IsDoorType(x0_type)) {
     std::pair<zeus::CColor, zeus::CColor> colors = GetDoorColors(curArea, mwInfo, alpha);
     for (int s = 0; s < 6; ++s) {

@@ -14,6 +14,7 @@ void CRadarPaintShader::Shutdown() { s_Pipeline.reset(); }
 void CRadarPaintShader::draw(const std::vector<Instance>& instances, const CTexture* tex) {
   if (!instances.size())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CRadarPaintShader::draw", zeus::skMagenta);
 
   if (instances.size() > m_maxInsts) {
     m_maxInsts = instances.size();

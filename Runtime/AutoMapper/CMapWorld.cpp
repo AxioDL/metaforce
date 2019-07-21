@@ -121,6 +121,7 @@ void CMapWorld::Draw(const CMapWorld::CMapWorldDrawParms& parms, int curArea, in
                      bool inMapScreen) const {
   if (depth1 == 0.f && depth2 == 0.f)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMapWorld::Draw", zeus::skBlue);
 
   ClearTraversedFlags();
   int areaDepth = std::ceil(std::max(depth1, depth2));

@@ -8,6 +8,7 @@
 #include "GuiSys/CStringTable.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Audio/CSfxManager.hpp"
+#include "Graphics/CGraphics.hpp"
 
 namespace urde::MP1 {
 
@@ -80,6 +81,7 @@ EQuitAction CQuitGameScreen::Update(float dt) {
 }
 
 void CQuitGameScreen::Draw() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CQuitGameScreen::Draw", zeus::skPurple);
   if (x0_type == EQuitType::QuitGame)
     m_blackScreen->draw(zeus::CColor(0.f, 0.5f));
 

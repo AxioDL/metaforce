@@ -331,6 +331,7 @@ void CLogBookScreen::ProcessControllerInput(const CFinalInput& input) {
 }
 
 void CLogBookScreen::Draw(float transInterp, float totalAlpha, float yOff) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CInventoryScreen::Draw", zeus::skPurple);
   CPauseScreenBase::Draw(transInterp, totalAlpha, yOff);
   bool artifactSel = x10_mode == EMode::RightTable && IsArtifactCategorySelected();
   x258_artifactDoll->Draw(transInterp * (1.f - x254_viewInterp), x4_mgr, artifactSel,

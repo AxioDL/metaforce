@@ -40,6 +40,8 @@ CThermalColdFilter::CThermalColdFilter() {
 }
 
 void CThermalColdFilter::draw() {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CThermalColdFilter::draw", zeus::skMagenta);
+
   CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
   m_uniBuf->load(&m_uniform, sizeof(m_uniform));
   CGraphics::SetShaderDataBinding(m_dataBind);

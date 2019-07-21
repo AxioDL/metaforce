@@ -303,7 +303,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 #define ReflectionFunc(roughness) \
-  (reflectionTex.sample(reflectSamp, reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz), bias(roughness)).rgb)
+  (reflectionTex.sample(reflectSamp, float3(reflectionCoords.x, -reflectionCoords.y, reflectionCoords.z), bias(roughness)).rgb)
 #elif defined(URDE_REFLECTION_SIMPLE)
 #define ReflectionFunc() \
   (reflectionTex.sample(reflectSamp, vtf.dynReflectionUvs1).rgb * vtf.dynReflectionAlpha)
@@ -342,6 +342,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
   float3 lighting = LightingFunc(vtf, lu, extTex0, clampSamp);
   float4 tmp;
 #if defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
+  float3 reflectionCoords = reflect(vtf.mvPos.xyz, vtf.mvNorm.xyz);
   tmp.rgb = (SampleTexture_lightmap() * colorReg1.rgb + lighting) * SampleTexture_diffuse() +
   SampleTexture_emissive() + (SampleTexture_specular() + SampleTexture_extendedSpecular() * lighting) *
   (SampleTexture_reflection() * ReflectionFunc(saturate(0.5 - SampleTextureAlpha_specular())) * 2.0);

@@ -991,6 +991,8 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
 }
 
 void CWallCrawlerSwarm::Render(const CStateManager& mgr) const {
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CWallCrawlerSwarm::Render {} {} {}"),
+                                          x8_uid, xc_editorId, x10_name).c_str(), zeus::skOrange);
   u32 drawMask = 0xffffffff;
   bool r24 = x560_24_enableLighting;
   bool r23 = x560_25_useSoftwareLight;

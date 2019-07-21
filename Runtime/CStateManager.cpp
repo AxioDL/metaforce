@@ -638,6 +638,7 @@ void CStateManager::ResetViewAfterDraw(const SViewport& backupViewport,
 }
 
 void CStateManager::DrawWorld() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::DrawWorld", zeus::skBlue);
   CTimeProvider timeProvider(xf14_curTimeMod900);
   SViewport backupViewport = g_Viewport;
 
@@ -894,6 +895,8 @@ void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
   }
 
   for (int f = 0; f < 6; ++f) {
+    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CStateManager::DrawActorCubeFaces [{}] {} {} {}"),
+      f, actor.GetUniqueId(), actor.GetEditorId(), actor.GetName()).c_str(), zeus::skOrange);
     CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
     SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
     CGraphics::g_BooMainCommandQueue->clearTarget();
@@ -1036,6 +1039,7 @@ bool CStateManager::SetupFogForDraw() const {
 
 void CStateManager::PreRender() {
   if (xf94_24_readyToRender) {
+    SCOPED_GRAPHICS_DEBUG_GROUP("CStateManager::PreRender", zeus::skBlue);
     zeus::CFrustum frustum = SetupDrawFrustum(g_Viewport);
     x86c_stateManagerContainer->xf370_.clear();
     x86c_stateManagerContainer->xf39c_renderLast.clear();

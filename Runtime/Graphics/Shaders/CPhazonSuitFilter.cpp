@@ -24,6 +24,7 @@ void CPhazonSuitFilter::Shutdown() {
 #define BLUR_SCALE (1.f / 128.f)
 
 void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::drawBlurPasses", zeus::skMagenta);
   if (!m_dataBind || indTex != m_indTex) {
     m_indTex = indTex;
     CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
@@ -120,6 +121,7 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
 }
 
 void CPhazonSuitFilter::draw(const zeus::CColor& color, float indScale, float indOffX, float indOffY) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CPhazonSuitFilter::draw", zeus::skMagenta);
   struct Uniform {
     zeus::CColor color;
     zeus::CVector4f indScaleOff;

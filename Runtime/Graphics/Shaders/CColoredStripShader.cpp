@@ -67,6 +67,8 @@ CColoredStripShader::CColoredStripShader(boo::IGraphicsDataFactory::Context& ctx
 }
 
 void CColoredStripShader::draw(const zeus::CColor& color, size_t numVerts, const Vert* verts) {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CColoredStripShader::draw", zeus::skMagenta);
+
   m_vbo->load(verts, sizeof(Vert) * numVerts);
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();

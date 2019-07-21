@@ -194,6 +194,7 @@ void CMFGame::Touch() {
 void CMFGame::Draw() const {
   if (!x2a_24_initialized)
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMFGame::Draw", zeus::skGreen);
 
   const_cast<CMFGame&>(*this).Touch();
   if (x18_guiManager->GetIsGameDraw()) {
@@ -360,6 +361,9 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
   return EMessageReturn::Exit;
 }
 
-void CMFGameLoader::Draw() const { g_GameState->GetWorldTransitionManager()->Draw(); }
+void CMFGameLoader::Draw() const {
+  SCOPED_GRAPHICS_DEBUG_GROUP("CMFGameLoader::Draw", zeus::skGreen);
+  g_GameState->GetWorldTransitionManager()->Draw();
+}
 
 } // namespace urde::MP1

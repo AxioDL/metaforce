@@ -101,6 +101,7 @@ void CAuiImagePane::Draw(const CGuiWidgetDrawParms& params) const {
   CGraphics::SetModelMatrix(x34_worldXF);
   if (!GetIsVisible() || !xb8_tex0Tok.IsLoaded())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CAuiImagePane::Draw {}"), m_name).c_str(), zeus::skCyan);
   GetIsFinishedLoadingWidgetSpecific();
   if (!m_filters || m_filters->m_texId != xb8_tex0Tok.GetObjectTag()->id)
     const_cast<CAuiImagePane*>(this)->m_filters.emplace(const_cast<CAuiImagePane*>(this)->xb8_tex0Tok);

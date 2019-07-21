@@ -166,7 +166,7 @@ static const char* TessES =
     "SBINDING(0) patch in vec4 minMaxPos;\n"
     "SBINDING(0) out VertToFrag vtf;\n"
     "\n"
-    "TBINDING##RIPPLE_TEXTURE_IDX uniform sampler2D RippleMap;\n"
+    "RIPPLE_TEXTURE_BINDING uniform sampler2D RippleMap;\n"
     "\n"
     "const float PI_X2 = 6.283185307179586;\n"
     "\n"
@@ -600,6 +600,7 @@ static void _BuildAdditionalTCGs(std::stringstream& out, const SFluidPlaneShader
   int nextTCG = 3;
   int nextMtx = 4;
 
+  out << "#define ADDITIONAL_TCGS ";
   if (info.m_hasBumpMap)
     fmt::print(out, fmt("vtf.uvs[{}] = (texMtxs[0] * pos).xy;"), nextTCG++);
   if (info.m_hasEnvBumpMap)
@@ -687,7 +688,7 @@ static std::string BuildES(const SFluidPlaneShaderInfo& info) {
 
   std::stringstream out;
   _BuildAdditionalTCGs(out, info);
-  out << "#define RIPPLE_TEXTURE_IDX " << nextTex << '\n';
+  out << "#define RIPPLE_TEXTURE_BINDING TBINDING" << nextTex << '\n';
   out << TessES;
   return out.str();
 }
@@ -718,7 +719,7 @@ static std::string _BuildFS(const SFluidPlaneDoorShaderInfo& info) {
   int nextTex = 0;
   std::stringstream out;
 
-  out << "#define TEXTURE_PARAMS ";
+  out << "#define TEXTURE_DECLS ";
   if (info.m_hasPatternTex1)
     fmt::print(out, fmt("TBINDING{} uniform sampler2D patternTex1;"), nextTex++);
   if (info.m_hasPatternTex2)

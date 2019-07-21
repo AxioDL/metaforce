@@ -267,6 +267,7 @@ void CSamusDoll::Update(float dt, CRandom16& rand) {
 void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
   if (!IsLoaded())
     return;
+  SCOPED_GRAPHICS_DEBUG_GROUP("CSamusDoll::Draw", zeus::skPurple);
 
   alpha *= x40_alphaIn;
 
