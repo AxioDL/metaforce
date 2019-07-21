@@ -209,7 +209,7 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string>& args) {
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
   if (m_cvars.find(cvName) == m_cvars.end()) {
-    con->report(Console::Level::Error, fmt("CVar '%s' does not exist"), args[0].c_str());
+    con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
@@ -225,9 +225,9 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string>& args) {
     return;
 
   if (!cv->fromLiteralToType(value))
-    con->report(Console::Level::Warning, fmt("Unable to set cvar '%s' to value '%s'"), cv->name().data(), value.c_str());
+    con->report(Console::Level::Warning, fmt("Unable to set cvar '{}' to value '{}'"), cv->name(), value);
   else
-    con->report(Console::Level::Info, fmt("Set '%s' from '%s' to '%s'"), cv->name().data(), oldVal.c_str(), value.c_str());
+    con->report(Console::Level::Info, fmt("Set '{}' from '{}' to '{}'"), cv->name(), oldVal, value);
 }
 
 void CVarManager::getCVar(Console* con, const std::vector<std::string>& args) {
@@ -239,12 +239,12 @@ void CVarManager::getCVar(Console* con, const std::vector<std::string>& args) {
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
   if (m_cvars.find(cvName) == m_cvars.end()) {
-    con->report(Console::Level::Error, fmt("CVar '%s' does not exist"), args[0].c_str());
+    con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
   const auto& cv = m_cvars[cvName];
-  con->report(Console::Level::Info, fmt("'%s' = '%s'"), cv->name().data(), cv->value().c_str());
+  con->report(Console::Level::Info, fmt("'{}' = '{}'"), cv->name(), cv->value());
 }
 
 void CVarManager::setDeveloperMode(bool v, bool setDeserialized) {
