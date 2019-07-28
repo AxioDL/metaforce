@@ -637,7 +637,7 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
   /* Nada, build and cache now */
   athena::io::FileWriter w(cachePath);
   if (w.hasError())
-    Log.report(logvisor::Fatal, fmt("unable to open '{}' for writing"), cachePath);
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to open '{}' for writing")), cachePath);
   w.writeUint32Big('FONT');
   m_cachedAtlases.emplace(tag, std::make_unique<FontAtlas>(face, dpi, subpixel, filter, w));
   return tag;

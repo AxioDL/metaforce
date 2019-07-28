@@ -200,7 +200,7 @@ void FileBrowser::okActivated(bool viaButton) {
     if (!err && !S_ISDIR(theStat.st_mode)) {
       m_confirmWindow.reset(
           new MessageWindow(rootView().viewRes(), *this, MessageWindow::Type::ConfirmOkCancel,
-                            vm.translate<locale::overwrite_confirm>(path),
+                            vm.translate<locale::overwrite_confirm>(hecl::SystemUTF8Conv(path)),
                             [&, path](bool ok) {
                               if (ok) {
                                 m_returnFunc(true, path);
