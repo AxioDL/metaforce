@@ -34,7 +34,9 @@ file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h)
-set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
+if (NOT MSVC)
+  set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
+endif()
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
     ArgumentEditor.ui ArgumentEditor.cpp ArgumentEditor.hpp
