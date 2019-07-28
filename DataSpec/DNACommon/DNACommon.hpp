@@ -453,6 +453,6 @@ struct hash<DataSpec::UniqueID128> {
 };
 } // namespace std
 
-FMT_CUSTOM_FORMATTER(DataSpec::UniqueID32, fmt("{:08X}"), obj.toUint32())
-FMT_CUSTOM_FORMATTER(DataSpec::UniqueID64, fmt("{:016X}"), obj.toUint64())
-FMT_CUSTOM_FORMATTER(DataSpec::UniqueID128, fmt("{:016X}{:016X}"), obj.toHighUint64(), obj.toLowUint64())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID32, "{:08X}", obj.toUint32())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID64, "{:016X}", obj.toUint64())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID128, "{:016X}{:016X}", obj.toHighUint64(), obj.toLowUint64())

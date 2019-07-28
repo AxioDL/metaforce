@@ -122,9 +122,11 @@ void CSpaceWarpFilter::draw(const zeus::CVector3f& pt) {
   m_uniform.m_matrix[3][1] = pt.y() + (1.f / vp.y());
   if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::OpenGL) {
     m_uniform.m_matrix[3][2] = pt.z() * 2.f - 1.f;
-  } else {
+  } else if (CGraphics::g_BooPlatform == boo::IGraphicsDataFactory::Platform::Vulkan) {
     m_uniform.m_matrix[1][1] *= -1.f;
     m_uniform.m_matrix[3][1] *= -1.f;
+    m_uniform.m_matrix[3][2] = pt.z();
+  } else {
     m_uniform.m_matrix[3][2] = pt.z();
   }
 

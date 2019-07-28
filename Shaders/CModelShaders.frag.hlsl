@@ -1,6 +1,7 @@
 SamplerState samp : register(s0);
 SamplerState clampSamp : register(s1);
 SamplerState reflectSamp : register(s2);
+SamplerState clampEdgeSamp : register(s3);
 Texture2D lightmap : register(t0);
 Texture2D diffuse : register(t1);
 Texture2D emissive : register(t2);
@@ -287,8 +288,8 @@ float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
 #if defined(URDE_MB_SHADOW)
 float4 PostFunc(in VertToFrag vtf, float4 colorIn) {
   float idTexel = extTex0.Sample(samp, vtf.extUvs[0]).a;
-  float sphereTexel = extTex1.Sample(clampSamp, vtf.extUvs[1]).r;
-  float fadeTexel = extTex2.Sample(clampSamp, vtf.extUvs[2]).a;
+  float sphereTexel = extTex1.Sample(clampEdgeSamp, vtf.extUvs[1]).r;
+  float fadeTexel = extTex2.Sample(clampEdgeSamp, vtf.extUvs[2]).a;
   float val = ((abs(idTexel - shadowId) < 0.001) ?
       (dot(vtf.mvNorm.xyz, shadowUp.xyz) * shadowUp.w) : 0.0) *
       sphereTexel * fadeTexel;

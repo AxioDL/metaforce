@@ -41,7 +41,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force shared libs off" FORCE)
 set(BUILD_STATIC_LIBS ON CACHE BOOL "Force static libs on" FORCE)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake" "${CMAKE_SOURCE_DIR}/cotire/CMake" ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sanitizers-cmake/cmake")
 find_package(Sanitizers)
 
 if (NX)

@@ -8,11 +8,9 @@
 #include <thread>
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, const char* fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-  AthenaLog.report(logvisor::Level(level), fmt, ap);
-  va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* /*file*/, const char*, int /*line*/,
+                      fmt::string_view fmt, fmt::format_args args) {
+  AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
 static float s_Percent = 0.f;
@@ -125,11 +123,12 @@ int wmain(int argc, const hecl::SystemChar** argv) {
         /* Quit message from client thread */
         PostQuitMessage(0);
         continue;
-      case WM_USER + 1:
+      case WM_USER + 1: {
         /* Update window title from client thread */
         std::wstring title = fmt::format(fmt(L"VISIGen [{:g}%]"), s_Percent * 100.f);
         SetWindowTextW(window, title.c_str());
         continue;
+      }
       default:
         break;
       }

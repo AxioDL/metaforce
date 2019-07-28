@@ -13,7 +13,7 @@ else()
 endif()
 
 if(APPLE)
-  set(PLAT_SRCS MainMac.mm glew.c)
+  set(PLAT_SRCS MainMac.mm)
   set_source_files_properties(MainMac.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 elseif(WIN32)
   set(PLAT_SRCS MainWin.cpp)
@@ -32,6 +32,6 @@ if(APPLE)
   set(PLAT_LIBS ${OPENGL_LIBRARY})
 endif()
 
-target_link_libraries(visigen logvisor athena-core zeus boo
+target_link_libraries(visigen logvisor athena-core zeus glew
                       xxhash ${ZLIB_LIBRARIES} lzokay hecl-light ${PLAT_LIBS})
 endif()

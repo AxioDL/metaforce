@@ -400,6 +400,7 @@ static std::string _BuildFS(const SFluidPlaneShaderInfo& info) {
     lightmapUv = nextTCG;
     fmt::print(out, fmt("vtf.uvs[{}] = mul(texMtxs[{}], pos).xy;"), nextTCG++, nextMtx++);
   }
+  out << '\n';
 
   out << "#define COMBINER_EXPRS ";
   switch (info.m_type) {

@@ -246,7 +246,7 @@ float4 FogFunc(thread VertToFrag& vtf, constant LightingUniform& lu, float4 colo
 #if defined(URDE_LIGHTING) || defined(URDE_LIGHTING_SHADOW) || defined(URDE_LIGHTING_CUBE_REFLECTION) || defined(URDE_LIGHTING_CUBE_REFLECTION_SHADOW)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   return FogFunc(vtf, lu, colorIn) * lu.mulColor + lu.addColor;
 }
 #endif
@@ -254,7 +254,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 #if defined(URDE_THERMAL_HOT)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   return extTex0.sample(samp, vtf.extUvs0).rrrr * lu.tmulColor + lu.taddColor;
 }
 #endif
@@ -262,7 +262,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 #if defined(URDE_THERMAL_COLD)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   return colorIn * float4(0.75, 0.75, 0.75, 0.75);
 }
 #endif
@@ -270,7 +270,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 #if defined(URDE_SOLID)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   return lu.solidColor;
 }
 #endif
@@ -278,10 +278,10 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 #if defined(URDE_MB_SHADOW)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   float idTexel = extTex0.sample(samp, vtf.extUvs0).a;
-  float sphereTexel = extTex1.sample(clampSamp, vtf.extUvs1).r;
-  float fadeTexel = extTex2.sample(clampSamp, vtf.extUvs2).a;
+  float sphereTexel = extTex1.sample(clampEdgeSamp, vtf.extUvs1).r;
+  float fadeTexel = extTex2.sample(clampEdgeSamp, vtf.extUvs2).a;
   float val = ((abs(idTexel - lu.shadowId) < 0.001) ?
       (dot(vtf.mvNorm.xyz, lu.shadowUp.xyz) * lu.shadowUp.w) : 0.0) *
       sphereTexel * fadeTexel;
@@ -292,7 +292,7 @@ float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
 #if defined(URDE_DISINTEGRATE)
 float4 PostFunc(thread VertToFrag& vtf, constant LightingUniform& lu,
                 texture2d<float> extTex0, texture2d<float> extTex1, texture2d<float> extTex2,
-                sampler samp, sampler clampSamp, float4 colorIn) {
+                sampler samp, sampler clampSamp, sampler clampEdgeSamp, float4 colorIn) {
   float4 texel0 = extTex0.sample(samp, vtf.extUvs0);
   float4 texel1 = extTex0.sample(samp, vtf.extUvs1);
   colorIn = mix(float4(0.0, 0.0, 0.0, 0.0), texel1, texel0);
@@ -322,6 +322,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
                       sampler samp [[ sampler(0) ]],
                       sampler clampSamp [[ sampler(1) ]],
                       sampler reflectSamp [[ sampler(2) ]],
+                      sampler clampEdgeSamp [[ sampler(3) ]],
                       texture2d<float> lightmap [[ texture(0) ]],
                       texture2d<float> diffuse [[ texture(1) ]],
                       texture2d<float> emissive [[ texture(2) ]],
@@ -371,7 +372,7 @@ fragment float4 fmain(VertToFrag vtf [[ stage_in ]],
   SampleTexture_reflection() + ReflectionFunc();
   tmp.a = SampleTextureAlpha_alpha();
 #endif
-  float4 colorOut = PostFunc(vtf, lu, extTex0, extTex1, extTex2, samp, clampSamp, tmp);
+  float4 colorOut = PostFunc(vtf, lu, extTex0, extTex1, extTex2, samp, clampSamp, clampEdgeSamp, tmp);
 #if defined(URDE_ALPHA_TEST)
   if (colorOut.a < 0.25)
     discard_fragment();

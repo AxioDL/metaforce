@@ -137,9 +137,10 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::string msg = fmt::format(fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
-                                  urde::CPUFeatureString(result.second));
-    MessageBoxA(nullptr, msg.c_str(), "CPU error", MB_OK | MB_ICONERROR);
+    std::wstring msg = fmt::format(
+          fmt(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+          urde::CPUFeatureString(result.second));
+    MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
     fmt::print(stderr, fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),
                urde::CPUFeatureString(result.second));
