@@ -577,7 +577,7 @@ public:
         return SystemString(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, fmt("unable to resolve '{}' as project relative '{}'"), absPath, m_projRoot);
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath, m_projRoot);
     return SystemString();
   }
 
@@ -1269,5 +1269,5 @@ struct hash<hecl::Hash> {
 };
 } // namespace std
 
-FMT_CUSTOM_FORMATTER(hecl::SystemUTF8Conv, fmt("{}"), obj.str())
-FMT_CUSTOM_FORMATTER(hecl::SystemStringConv, fmt("{}"), obj.sys_str())
+FMT_CUSTOM_FORMATTER(hecl::SystemUTF8Conv, "{}", obj.str())
+FMT_CUSTOM_FORMATTER(hecl::SystemStringConv, "{}", obj.sys_str())

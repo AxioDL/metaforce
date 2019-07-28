@@ -87,8 +87,10 @@ target_atdna(hecl-light atdna_HMDLMeta_light.cpp ../include/hecl/HMDLMeta.hpp)
 target_atdna(hecl-light atdna_CVar_light.cpp ../include/hecl/CVar.hpp)
 
 add_library(hecl-compilers Compilers.cpp WideStringConvert.cpp)
-target_include_directories(hecl-compilers PUBLIC ../include)
-target_link_libraries(hecl-compilers PUBLIC boo athena-core logvisor)
+get_target_property(BOO_INCLUDES boo INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(hecl-compilers PUBLIC ../include ${BOO_INCLUDES})
+target_link_libraries(hecl-compilers PUBLIC athena-core logvisor xxhash
+        glslang OSDependent OGLCompiler SPIRV glslang-default-resource-limits)
 
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-full)

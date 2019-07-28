@@ -100,7 +100,7 @@ struct ShaderCompiler<PlatformType::D3D11> {
     if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
                               D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob))) {
       printf("%s\n", text.data());
-      Log.report(logvisor::Fatal, fmt("error compiling shader: %s"), errBlob->GetBufferPointer());
+      Log.report(logvisor::Fatal, fmt("error compiling shader: {}"), (char*)errBlob->GetBufferPointer());
       return {};
     }
     std::pair<StageBinaryData, size_t> ret(MakeStageBinaryData(blobOut->GetBufferSize()), blobOut->GetBufferSize());

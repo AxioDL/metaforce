@@ -284,7 +284,7 @@ Connection::Connection(int verbosityLevel) {
 
       /* User-specified blender path */
 #if _WIN32
-    wchar_t BLENDER_BIN_BUF[2048];
+    std::wstring blenderBinBuf;
     const wchar_t* blenderBin = _wgetenv(L"BLENDER_BIN");
 #else
     const char* blenderBin = getenv("BLENDER_BIN");
@@ -307,18 +307,16 @@ Connection::Connection(int verbosityLevel) {
         /* No steam; try default */
         wchar_t progFiles[256];
         if (!GetEnvironmentVariableW(L"ProgramFiles", progFiles, 256))
-          BlenderLog.report(logvisor::Fatal, L"unable to determine 'Program Files' path");
-        _snwprintf(BLENDER_BIN_BUF, 2048, L"%s\\Blender Foundation\\Blender\\blender.exe", progFiles);
-        blenderBin = BLENDER_BIN_BUF;
+          BlenderLog.report(logvisor::Fatal, fmt(L"unable to determine 'Program Files' path"));
+        blenderBinBuf = fmt::format(fmt(L"{}\\Blender Foundation\\Blender\\blender.exe"), progFiles);
+        blenderBin = blenderBinBuf.c_str();
         if (!RegFileExists(blenderBin))
-          BlenderLog.report(logvisor::Fatal, L"unable to find blender.exe");
+          BlenderLog.report(logvisor::Fatal, fmt(L"unable to find blender.exe"));
       }
     }
 
-    wchar_t cmdLine[2048];
-    _snwprintf(cmdLine, 2048, L" --background -P \"%s\" -- %" PRIuPTR " %" PRIuPTR " %d \"%s\"",
-               blenderShellPath.c_str(), uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel,
-               blenderAddonPath.c_str());
+    std::wstring cmdLine = fmt::format(fmt(L" --background -P \"{}\" -- {} {} {} \"{}\""),
+      blenderShellPath, uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
@@ -333,11 +331,12 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, cmdLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo)) {
+    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE,
+                        NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
       FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
                      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-      BlenderLog.report(logvisor::Fatal, L"unable to launch blender from %s: %s", blenderBin, messageBuffer);
+      BlenderLog.report(logvisor::Fatal, fmt(L"unable to launch blender from {}: {}"), blenderBin, messageBuffer);
     }
 
     close(m_writepipe[0]);
@@ -359,7 +358,7 @@ Connection::Connection(int verbosityLevel) {
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
           else
-            BlenderLog.report(logvisor::Error, fmt("Error with ReadFile: %08X"), err); // Something bad happened.
+            BlenderLog.report(logvisor::Error, fmt("Error with ReadFile: {:08X}"), err); // Something bad happened.
         }
 
         // Display the character read on the screen.
@@ -461,11 +460,15 @@ Connection::Connection(int verbosityLevel) {
       BlenderLog.report(logvisor::Fatal, fmt("Unable to launch blender: {}"), lineBuf + 9);
     } else if (!strncmp(lineBuf, "NOBLENDER", 9)) {
       _closePipe();
+#if _WIN32
+      BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), blenderBin);
+#else
       if (blenderBin)
         BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}' or '{}'")), blenderBin,
                           DEFAULT_BLENDER_BIN);
       else
         BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
+#endif
     } else if (!strcmp(lineBuf, "NOT280")) {
       _closePipe();
       BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Installed blender version must be >= 2.80")));

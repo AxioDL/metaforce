@@ -62,7 +62,7 @@ public:
       newProjRoot.makeDir();
       m_fallbackProj.reset(new hecl::Database::Project(newProjRoot));
       if (logvisor::ErrorCount > ErrorRef)
-        LogModule.report(logvisor::Fatal, fmt("unable to init project at '{}'"), rootDir);
+        LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to init project at '{}'")), rootDir);
       LogModule.report(logvisor::Info, fmt(_SYS_STR("initialized project at '{}/.hecl'")), rootDir);
       m_useProj = m_fallbackProj.get();
     } else

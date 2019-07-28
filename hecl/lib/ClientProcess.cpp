@@ -89,7 +89,8 @@ ClientProcess::Worker::Worker(ClientProcess& proc, int idx) : m_proc(proc), m_id
 void ClientProcess::Worker::proc() {
   ClientProcess::ThreadWorker.reset(this);
 
-  logvisor::RegisterThreadName(fmt::format(fmt("HECL Worker {}"), m_idx).c_str());
+  std::string thrName = fmt::format(fmt("HECL Worker {}"), m_idx);
+  logvisor::RegisterThreadName(thrName.c_str());
 
   std::unique_lock<std::mutex> lk(m_proc.m_mutex);
   while (m_proc.m_running) {

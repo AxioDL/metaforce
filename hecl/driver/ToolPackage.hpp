@@ -82,7 +82,7 @@ public:
             }
           }
           if (!m_spec)
-            LogModule.report(logvisor::Fatal, fmt("unable to find data spec '{}'"), specName);
+            LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to find data spec '{}'")), specName);
           continue;
         } else if (arg.size() >= 2 && arg[0] == _SYS_STR('-') && arg[1] == _SYS_STR('-'))
           continue;

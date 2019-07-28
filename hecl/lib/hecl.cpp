@@ -747,7 +747,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     LPWSTR messageBuffer = nullptr;
     FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
                    GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-    LogModule.report(logvisor::Error, L"unable to launch process from %s: %s", path, messageBuffer);
+    LogModule.report(logvisor::Error, fmt(L"unable to launch process from {}: {}"), path, messageBuffer);
     LocalFree(messageBuffer);
 
     CloseHandle(nulHandle);
@@ -773,7 +773,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
         if (err == ERROR_BROKEN_PIPE)
           break; // pipe done - normal exit path.
         else
-          LogModule.report(logvisor::Error, fmt("Error with ReadFile: %08X"), err); // Something bad happened.
+          LogModule.report(logvisor::Error, fmt("Error with ReadFile: {:08X}"), err); // Something bad happened.
       }
 
       // Display the character read on the screen.

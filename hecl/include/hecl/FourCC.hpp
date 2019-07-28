@@ -85,5 +85,7 @@ struct hash<hecl::FourCC> {
 };
 } // namespace std
 
-FMT_CUSTOM_FORMATTER(hecl::FourCC, fmt("{:.4s}"), obj.getChars())
-FMT_CUSTOM_FORMATTER(hecl::DNAFourCC, fmt("{:.4s}"), obj.getChars())
+FMT_CUSTOM_FORMATTER(hecl::FourCC, "{:c}{:c}{:c}{:c}",
+                     obj.getChars()[0], obj.getChars()[1], obj.getChars()[2], obj.getChars()[3])
+FMT_CUSTOM_FORMATTER(hecl::DNAFourCC, "{:c}{:c}{:c}{:c}",
+                     obj.getChars()[0], obj.getChars()[1], obj.getChars()[2], obj.getChars()[3])

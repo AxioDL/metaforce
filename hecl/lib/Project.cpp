@@ -219,7 +219,7 @@ const ProjectPath& Project::getProjectCookedPath(const DataSpecEntry& spec) cons
   for (const ProjectDataSpec& sp : m_compiledSpecs)
     if (&sp.spec == &spec)
       return sp.cookedPath;
-  LogModule.report(logvisor::Fatal, fmt("Unable to find spec '{}'"), spec.m_name);
+  LogModule.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find spec '{}'")), spec.m_name);
   return m_cookedRoot;
 }
 

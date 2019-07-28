@@ -85,7 +85,7 @@ int main(int argc, const hecl::SystemChar** argv)
         else
           c.addDefine(defineU8, "");
       } else {
-        Log.report(logvisor::Error, fmt("Unrecognized flag option '{:c}'"), argv[i][1]);
+        Log.report(logvisor::Error, fmt(_SYS_STR("Unrecognized flag option '{:c}'")), argv[i][1]);
         return 1;
       }
     } else {
