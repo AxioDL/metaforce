@@ -136,6 +136,32 @@ struct OriginalIDs {
   }
 };
 
+struct TextureCache {
+  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
+    std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
+
+    pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
+      if (ent->type == FOURCC('TXTR') && metaMap.find(ent->id) == metaMap.end()) {
+        PAKEntryReadStream rs = pakRouter.beginReadStreamForId(ent->id);
+        metaMap[ent->id] = TXTR::GetMetaData(rs);
+      }
+      return true;
+    });
+
+    athena::io::YAMLDocWriter yamlW("MP1TextureCache");
+    for (const auto& pair : metaMap) {
+      hecl::ProjectPath path = pakRouter.getWorking(pair.first);
+      auto rec = yamlW.enterSubRecord(path.getRelativePathUTF8().data());
+      pair.second.write(yamlW);
+    }
+
+    hecl::ProjectPath path(project.getProjectWorkingPath(), "MP1/!texture_cache.yaml");
+    path.makeDirChain(false);
+    athena::io::FileWriter fileW(path.getAbsolutePath());
+    yamlW.finish(&fileW);
+  }
+};
+
 struct SpecMP1 : SpecBase {
   bool checkStandaloneID(const char* id) const { return !memcmp(id, "GM8", 3); }
 
@@ -394,6 +420,8 @@ struct SpecMP1 : SpecBase {
 
     /* Generate original ID mapping for MLVL and SCAN entries - marks complete project */
     OriginalIDs::Generate(m_pakRouter, m_project);
+    /* Generate Texture Cache containing meta data for every texture file */
+    TextureCache::Generate(m_pakRouter, m_project);
 
     return true;
   }
@@ -744,8 +772,8 @@ struct SpecMP1 : SpecBase {
         progress(_SYS_STR("Collision Mesh"));
         continue;
       }
-      meshCompiles.push_back(ds.compileMesh(
-          mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1, !m_pc));
+      meshCompiles.push_back(
+          ds.compileMesh(mesh, fast ? hecl::HMDLTopology::Triangles : hecl::HMDLTopology::TriStrips, -1, !m_pc));
     }
 
     if (!colMesh)

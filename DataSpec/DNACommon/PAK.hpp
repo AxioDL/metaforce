@@ -198,6 +198,12 @@ public:
     return true;
   }
 
+  PAKEntryReadStream beginReadStreamForId(const IDType& id, bool silenceWarnings = false) {
+    const nod::Node* node;
+    const EntryType* entry = lookupEntry(id, &node, silenceWarnings);
+    return entry->beginReadStream(*node);
+  }
+
   const typename CharacterAssociations<IDType>::RigPair* lookupCMDLRigPair(const IDType& id) const;
   const typename CharacterAssociations<IDType>::MultimapIteratorPair
   lookupCharacterAttachmentRigs(const IDType& id) const;

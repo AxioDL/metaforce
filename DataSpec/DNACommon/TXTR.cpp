@@ -1595,33 +1595,66 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   return true;
 }
 
+template <class Op>
+void DataSpec::TXTR::PaletteMeta::Enumerate(typename Op::StreamT& s) {
+  Do<Op>({"format"}, format, s);
+  Do<Op>({"elementCount"}, elementCount, s);
+  Do<Op>({"dolphinHash"}, dolphinHash, s);
+}
+
+AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::PaletteMeta)
+
+const char* DataSpec::TXTR::PaletteMeta::DNAType() {
+  return "DataSpec::TXTR::PaletteMeta";
+}
+
+template <class Op>
+void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
+  Do<Op>({"format"}, format, s);
+  Do<Op>({"mips"}, mips, s);
+  Do<Op>({"width"}, width, s);
+  Do<Op>({"height"}, height, s);
+  Do<Op>({"dolphinHash"}, dolphinHash, s);
+  Do<Op>({"hasPalette"}, hasPalette, s);
+  if (hasPalette)
+    Do<Op>({"palette"}, palette, s);
+}
+
+AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::Meta)
+
+const char* DataSpec::TXTR::Meta::DNAType() {
+  return "DataSpec::TXTR::Meta";
+}
+
 static const atInt32 RetroToDol[11] {
   0, 1, 2, 3, 8, 9, -1, 4, 5, 6, 14
 };
 
-std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
-  atUint32 format = RetroToDol[rs.readUint32Big()];
+TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
+  atUint32 retroFormat = rs.readUint32Big();
+  atUint32 format = RetroToDol[retroFormat];
   if (format == UINT32_MAX)
     return {};
 
-  atUint16 width = rs.readUint16Big();
-  atUint16 height = rs.readUint16Big();
-  atUint32 mips = rs.readUint32Big();
-  std::string res = fmt::format(fmt("tex1_{}x{}{}"), width, height, mips > 1 ? "_m" : "");
-  atUint64 palHash = 0;
-  bool hasPalette = false;
-  atUint32 textureSize = width * height;
+  Meta meta;
+  meta.format = retroFormat;
+  meta.width = rs.readUint16Big();
+  meta.height = rs.readUint16Big();
+  meta.mips = rs.readUint32Big();
+  atUint32 textureSize = meta.width * meta.height;
   if (format == 8 || format == 9) {
-    hasPalette = true;
-    atUint32 paletteFormat = rs.readUint32Big();
+    meta.hasPalette = true;
+    PaletteMeta& palMeta = meta.palette;
+    palMeta.format = rs.readUint32Big();
     atUint16 palWidth = rs.readUint16Big();
     atUint16 palHeight = rs.readUint16Big();
+    palMeta.elementCount = palWidth * palHeight;
     atUint32 palSize = atUint32(palWidth * palHeight * 2);
-    if (format == 4)
+    if (palMeta.format == 4)
       textureSize /= 2;
     std::unique_ptr<u8[]> palData(new u8[palSize]);
     rs.readUBytesToBuf(palData.get(), palSize);
-    palHash = XXH64(palData.get(), palSize, 0);
+    palMeta.dolphinHash = XXH64(palData.get(), palSize, 0);
   } else {
     switch(format) {
     case 0: // I4
@@ -1642,13 +1675,9 @@ std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
   }
   std::unique_ptr<u8[]> textureData(new u8[textureSize]);
   rs.readUBytesToBuf(textureData.get(), textureSize);
-  atUint64 texHash = XXH64(textureData.get(), textureSize, 0);
-  res += fmt::format(fmt("_{:016X}"), texHash);
-  if (hasPalette)
-    res += fmt::format(fmt("_{:016X}"), palHash);
-  res += fmt::format(fmt("_{}"), format);
+  meta.dolphinHash = XXH64(textureData.get(), textureSize, 0);
 
-  return res;
+  return meta;
 }
 
 } // namespace DataSpec
