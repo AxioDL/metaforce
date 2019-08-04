@@ -762,6 +762,8 @@ CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex) {
     Log.report(logvisor::Fatal, fmt("invalid texture type {} for boo"), int(x0_fmt));
   }
 
+  if (r.readBool())
+    m_dolphinName = r.readString();
   if (otex)
     m_otex = std::move(owned);
 }

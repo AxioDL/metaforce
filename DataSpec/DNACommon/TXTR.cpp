@@ -1650,7 +1650,7 @@ TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
     atUint16 palHeight = rs.readUint16Big();
     palMeta.elementCount = palWidth * palHeight;
     atUint32 palSize = atUint32(palWidth * palHeight * 2);
-    if (palMeta.format == 4)
+    if (format == 8)
       textureSize /= 2;
     std::unique_ptr<u8[]> palData(new u8[palSize]);
     rs.readUBytesToBuf(palData.get(), palSize);

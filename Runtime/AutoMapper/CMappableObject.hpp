@@ -13,7 +13,6 @@ class CStateManager;
 class CMapWorldInfo;
 
 class CMappableObject {
-  friend class CMapArea;
   static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;
   static boo::ObjToken<boo::IGraphicsBufferS> g_doorIbo;
 
@@ -83,6 +82,7 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
+  void CreateDoorSurface(boo::IGraphicsDataFactory::Context& ctx) { m_doorSurface.emplace(ctx); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
   static bool GetTweakIsMapVisibilityCheat();

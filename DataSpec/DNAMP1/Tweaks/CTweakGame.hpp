@@ -7,7 +7,7 @@ namespace DataSpec::DNAMP1 {
 struct CTweakGame final : ITweakGame {
   AT_DECL_DNA_YAML
   String<-1> x4_worldPrefix;
-  String<-1> x14_ruinsArea; // ????
+  String<-1> x14_defaultRoom;
   Value<float> x24_fov;
   Value<bool> x28_unknown1;
   Value<bool> x29_unknown2;
@@ -30,6 +30,7 @@ struct CTweakGame final : ITweakGame {
   Value<float> x64_hardmodeWeaponMult;
 
   std::string_view GetWorldPrefix() const { return x4_worldPrefix; }
+  std::string_view GetDefaultRoom() const { return x14_defaultRoom; }
   bool GetSplashScreensDisabled() const { return x2b_splashScreensDisabled; }
   float GetFirstPersonFOV() const { return x24_fov; }
   float GetPressStartDelay() const { return x30_pressStartDelay; }

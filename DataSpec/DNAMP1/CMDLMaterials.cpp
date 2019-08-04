@@ -454,6 +454,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   out.format(fmt("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
   out << "new_material.use_fake_user = True\n"
          "new_material.use_nodes = True\n"
+         "new_material.use_backface_culling = True\n"
          "new_nodetree = new_material.node_tree\n"
          "for n in new_nodetree.nodes:\n"
          "    new_nodetree.nodes.remove(n)\n"

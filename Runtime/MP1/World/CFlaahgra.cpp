@@ -163,8 +163,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
         CDamageInfo contactDamage = GetContactDamage();
         if (x7a8_ == 4)
           contactDamage = x7dc_;
-
-        if (!sub801ae670())
+        else if (!sub801ae670())
           contactDamage.SetDamage(0.5f * contactDamage.GetDamage());
 
         if (x788_ >= 2)
@@ -188,7 +187,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
       if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
         if (x780_ != 3)
           break;
-        if (IsDizzy(mgr, 0.f) && !x450_bodyController->HasBodyState(pas::EAnimationState::LoopReaction)) {
+        if (!IsDizzy(mgr, 0.f) && x450_bodyController->HasBodyState(pas::EAnimationState::LoopReaction)) {
           TakeDamage({}, 0.f);
 
           if ((x56c_.x140_ - proj->GetDamageInfo().GetDamage()) >= x810_) {

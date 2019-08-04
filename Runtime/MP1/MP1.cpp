@@ -372,7 +372,11 @@ void CMain::MemoryCardInitializePump() {
   }
 }
 
-void CMain::FillInAssetIDs() {}
+void CMain::FillInAssetIDs() {
+  if (const SObjectTag* tag = g_ResFactory->GetResourceIdByName(g_tweakGame->GetDefaultRoom())) {
+    g_GameState->SetCurrentWorldId(tag->id);
+  }
+}
 
 bool CMain::LoadAudio() {
   if (x164_archSupport)
