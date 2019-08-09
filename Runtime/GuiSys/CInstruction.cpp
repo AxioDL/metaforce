@@ -225,7 +225,7 @@ void CBlockInstruction::TestLargestFont(s32 monoW, s32 monoH, s32 baseline) {
     x28_largestBaseline = baseline;
 
   if (x20_largestMonoW < monoW)
-    monoW = x20_largestMonoW;
+    x20_largestMonoW = monoW;
 
   if (x24_largestMonoH < monoH) {
     x24_largestMonoH = monoH;
