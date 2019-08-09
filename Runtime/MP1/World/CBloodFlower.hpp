@@ -50,7 +50,7 @@ public:
 
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void Think(float dt, CStateManager& mgr) override;
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void Render(const CStateManager& mgr) const override;
   void Touch(CActor&, CStateManager&) override {}
   CProjectileInfo* GetProjectileInfo() override { return &x590_projectileInfo; }

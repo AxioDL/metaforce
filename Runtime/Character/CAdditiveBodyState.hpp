@@ -40,7 +40,7 @@ class CABSFlinch : public CAdditiveBodyState {
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 
 public:
-  void Start(CBodyController& bc, CStateManager& mgr);
+  void Start(CBodyController& bc, CStateManager& mgr) override;
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController& bc) override {}
 };
@@ -49,7 +49,7 @@ class CABSIdle : public CAdditiveBodyState {
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 
 public:
-  void Start(CBodyController& bc, CStateManager& mgr) {}
+  void Start(CBodyController& bc, CStateManager& mgr) override {}
   pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
   void Shutdown(CBodyController& bc) override {}
 };
