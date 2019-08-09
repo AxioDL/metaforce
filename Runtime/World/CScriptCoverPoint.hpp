@@ -32,12 +32,12 @@ public:
   CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf, bool active,
                     u32 flags, bool crouch, float horizontalAngle, float verticalAngle, float coverTime);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Render(const CStateManager&) const {}
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Render(const CStateManager&) const override {}
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   void SetInUse(bool inUse);
   bool GetInUse(TUniqueId uid) const;
   bool ShouldLandHere() const { return xe8_26_landHere; }

@@ -20,13 +20,13 @@ public:
   CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, TAreaId aid, TUniqueId playerId,
              const zeus::CTransform& xf, const CDamageInfo& dInfo);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const {}
-  std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
-  void Touch(CActor&, CStateManager&) { /*x158_24_canStartFilter; */
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override {}
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
+  void Touch(CActor&, CStateManager&) override { /*x158_24_canStartFilter; */
   }
   float GetCurTime() const { return x15c_curTime; }
   void ApplyDynamicDamage(const zeus::CVector3f&, CStateManager&);

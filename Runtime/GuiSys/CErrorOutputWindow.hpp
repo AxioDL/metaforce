@@ -25,9 +25,9 @@ private:
 
 public:
   CErrorOutputWindow(bool);
-  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
-  bool GetIsContinueDraw() const { return int(x14_state) < 2; }
-  void Draw() const;
+  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
+  bool GetIsContinueDraw() const override { return int(x14_state) < 2; }
+  void Draw() const override;
 };
 
 } // namespace urde

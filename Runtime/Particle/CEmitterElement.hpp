@@ -13,7 +13,7 @@ class CEESimpleEmitter : public CEmitterElement {
 public:
   CEESimpleEmitter(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
   : x4_loc(std::move(a)), x8_vec(std::move(b)) {}
-  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
+  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const override;
 };
 
 class CVESphere : public CEmitterElement {
@@ -24,7 +24,7 @@ class CVESphere : public CEmitterElement {
 public:
   CVESphere(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
   : x4_sphereOrigin(std::move(a)), x8_sphereRadius(std::move(b)), xc_velocityMag(std::move(c)) {}
-  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
+  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const override;
 };
 
 class CVEAngleSphere : public CEmitterElement {
@@ -48,7 +48,7 @@ public:
   , x14_angleYBias(std::move(e))
   , x18_angleXRange(std::move(f))
   , x1c_angleYRange(std::move(g)) {}
-  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const;
+  bool GetValue(int frame, zeus::CVector3f& pPos, zeus::CVector3f& pVel) const override;
 };
 
 } // namespace urde

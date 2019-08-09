@@ -14,8 +14,8 @@ public:
   CGameLight(TUniqueId, TAreaId, bool, std::string_view, const zeus::CTransform&, TUniqueId, const CLight&,
              u32 sourceId, u32, float);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
   void SetLightPriorityAndId();
   void SetLight(const CLight&);
   CLight GetLight() const;

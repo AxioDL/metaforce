@@ -45,16 +45,16 @@ public:
                            const CDamageVulnerability& dVuln, u32 faceFlag, CAssetId patternTex1, CAssetId patternTex2,
                            CAssetId colorTex, ECanOrbit canOrbit, bool active, const CVisorParameters& vParams);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const;
-  void Render(const CStateManager& mgr) const;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
-  const CDamageVulnerability* GetDamageVulnerability() const { return &x174_dVuln; }
-  CHealthInfo* HealthInfo(CStateManager&) { return &x16c_hInfo; }
-  void Think(float, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  void Render(const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x174_dVuln; }
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x16c_hInfo; }
+  void Think(float, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 } // namespace urde

@@ -15,9 +15,9 @@ class CScriptTimer : public CEntity {
 public:
   CScriptTimer(TUniqueId, std::string_view name, const CEntityInfo& info, float, float, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   bool IsTiming() const;
   void StartTiming(bool isTiming);
   void Reset(CStateManager&);

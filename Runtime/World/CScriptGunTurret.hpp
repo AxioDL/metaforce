@@ -221,17 +221,17 @@ public:
                    const CDamageVulnerability& dVuln, const CActorParameters& aParms,
                    const CScriptGunTurretData& turretData);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Touch(CActor&, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
-  zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Touch(CActor&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
 
-  CHealthInfo* HealthInfo(CStateManager&) { return &x264_healthInfo; }
-  const CDamageVulnerability* GetDamageVulnerability() const { return &x26c_damageVuln; }
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x264_healthInfo; }
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x26c_damageVuln; }
 };
 } // namespace urde

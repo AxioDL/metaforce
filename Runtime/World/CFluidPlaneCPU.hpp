@@ -94,8 +94,8 @@ public:
                                                  const CScriptWater* water) const;
   void Render(const CStateManager& mgr, float alpha, const zeus::CAABox& aabb, const zeus::CTransform& xf,
               const zeus::CTransform& areaXf, bool noNormals, const zeus::CFrustum& frustum,
-              const std::optional<CRippleManager>& rippleManager, TUniqueId waterId,
-              const bool* gridFlags, u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const;
+              const std::optional<CRippleManager>& rippleManager, TUniqueId waterId, const bool* gridFlags,
+              u32 gridDimX, u32 gridDimY, const zeus::CVector3f& areaCenter) const override;
   float GetReflectionBlend() const { return x114_reflectionBlend; }
   float GetSpecularMax() const { return x110_specularMax; }
   float GetSpecularMin() const { return x10c_specularMin; }

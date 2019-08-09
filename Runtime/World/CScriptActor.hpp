@@ -32,17 +32,17 @@ public:
                const CHealthInfo& hInfo, const CDamageVulnerability& dVuln, const CActorParameters& actParms,
                bool looping, bool active, s32 shaderIdx, float xrayAlpha, bool noThermalHotZ, bool castsShadow,
                bool scaleAdvancementDelta, bool materialFlag54);
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  zeus::CAABox GetSortingBounds(const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  zeus::CAABox GetSortingBounds(const CStateManager&) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
-  const CDamageVulnerability* GetDamageVulnerability() const { return &x268_damageVulnerability; }
-  CHealthInfo* HealthInfo(CStateManager&) { return &x260_currentHealth; }
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x268_damageVulnerability; }
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x260_currentHealth; }
   bool IsPlayerActor() const { return x2e3_24_isPlayerActor; }
 };
 }; // namespace urde

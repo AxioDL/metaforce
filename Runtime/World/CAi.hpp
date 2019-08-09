@@ -39,19 +39,21 @@ public:
 
   const CStateMachine* GetStateMachine() const;
 
-  virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  virtual CHealthInfo* HealthInfo(CStateManager&) { return &x258_healthInfo; }
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x258_healthInfo; }
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x260_damageVulnerability; }
+  EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  void FluidFXThink(EFluidState, CScriptWater&, CStateManager&) override;
+
   virtual void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) = 0;
   virtual void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type,
                          bool inDeferred, float magnitude) = 0;
-  virtual const CDamageVulnerability* GetDamageVulnerability() const { return &x260_damageVulnerability; }
+
   virtual void TakeDamage(const zeus::CVector3f& direction, float magnitude) {}
   virtual bool CanBeShot(const CStateManager&, int) { return true; }
   virtual bool IsListening() const { return false; }
   virtual bool Listen(const zeus::CVector3f&, EListenNoiseType) { return 0; }
-  virtual EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                                 const CWeaponMode&, EProjectileAttrib) const;
-  void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
 
   virtual zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
                                     const zeus::CVector3f& aimPos) const {

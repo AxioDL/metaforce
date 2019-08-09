@@ -104,14 +104,14 @@ public:
                     const CDamageInfo& dInfo, TUniqueId uid, TAreaId aid, TUniqueId owner,
                     const PlayerEffectResoures& res, bool growingBeam, EProjectileAttrib attribs);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void ResetBeam(CStateManager& mgr, bool fullReset);
-  void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr);
-  void Fire(const zeus::CTransform& xf, CStateManager& mgr, bool b);
-  void Touch(CActor& other, CStateManager& mgr);
-  bool CanRenderUnsorted(const CStateManager& mgr) const;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-  void Render(const CStateManager& mgr) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void ResetBeam(CStateManager& mgr, bool fullReset) override;
+  void UpdateFx(const zeus::CTransform& xf, float dt, CStateManager& mgr) override;
+  void Fire(const zeus::CTransform& xf, CStateManager& mgr, bool b) override;
+  void Touch(CActor& other, CStateManager& mgr) override;
+  bool CanRenderUnsorted(const CStateManager& mgr) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void Render(const CStateManager& mgr) const override;
 };
 } // namespace urde

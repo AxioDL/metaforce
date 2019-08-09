@@ -96,12 +96,12 @@ public:
                        const SSpindleProperty& deleteHintBallDist,
                        const SSpindleProperty& recoverClampedAzimuthFromHintDir);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  void Reset(const zeus::CTransform& xf, CStateManager& mgr);
-  void ProcessInput(const CFinalInput& input, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  void Reset(const zeus::CTransform& xf, CStateManager& mgr) override;
+  void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
 };
 
 } // namespace urde

@@ -22,13 +22,13 @@ public:
                   CAssetId particle, CAssetId electric, float minDist, float maxDist, float nearProb, float farProb,
                   const zeus::CColor& color, int sfx, bool forceShow, bool active);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager& stateMgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager& stateMgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
 };
 
 } // namespace urde

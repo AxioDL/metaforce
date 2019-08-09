@@ -17,7 +17,7 @@ class CREKeyframeEmitter : public CRealElement {
 
 public:
   CREKeyframeEmitter(CInputStream& in);
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRELifetimeTween : public CRealElement {
@@ -27,7 +27,7 @@ class CRELifetimeTween : public CRealElement {
 public:
   CRELifetimeTween(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREConstant : public CRealElement {
@@ -35,8 +35,8 @@ class CREConstant : public CRealElement {
 
 public:
   CREConstant(float val) : x4_val(val) {}
-  bool GetValue(int frame, float& valOut) const;
-  bool IsConstant() const { return true; }
+  bool GetValue(int frame, float& valOut) const override;
+  bool IsConstant() const override { return true; }
 };
 
 class CRETimeChain : public CRealElement {
@@ -47,7 +47,7 @@ class CRETimeChain : public CRealElement {
 public:
   CRETimeChain(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CIntElement>&& c)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREAdd : public CRealElement {
@@ -57,7 +57,7 @@ class CREAdd : public CRealElement {
 public:
   CREAdd(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREClamp : public CRealElement {
@@ -68,7 +68,7 @@ class CREClamp : public CRealElement {
 public:
   CREClamp(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
   : x4_min(std::move(a)), x8_max(std::move(b)), xc_val(std::move(c)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREInitialRandom : public CRealElement {
@@ -78,8 +78,8 @@ class CREInitialRandom : public CRealElement {
 public:
   CREInitialRandom(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_min(std::move(a)), x8_max(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
-  bool IsConstant() const { return true; }
+  bool GetValue(int frame, float& valOut) const override;
+  bool IsConstant() const override { return true; }
 };
 
 class CRERandom : public CRealElement {
@@ -89,7 +89,7 @@ class CRERandom : public CRealElement {
 public:
   CRERandom(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_min(std::move(a)), x8_max(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREDotProduct : public CRealElement {
@@ -99,7 +99,7 @@ class CREDotProduct : public CRealElement {
 public:
   CREDotProduct(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREMultiply : public CRealElement {
@@ -109,7 +109,7 @@ class CREMultiply : public CRealElement {
 public:
   CREMultiply(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREPulse : public CRealElement {
@@ -122,7 +122,7 @@ public:
   CREPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CRealElement>&& c,
            std::unique_ptr<CRealElement>&& d)
   : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_valA(std::move(c)), x10_valB(std::move(d)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRETimeScale : public CRealElement {
@@ -130,7 +130,7 @@ class CRETimeScale : public CRealElement {
 
 public:
   CRETimeScale(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRELifetimePercent : public CRealElement {
@@ -138,7 +138,7 @@ class CRELifetimePercent : public CRealElement {
 
 public:
   CRELifetimePercent(std::unique_ptr<CRealElement>&& a) : x4_percentVal(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRESineWave : public CRealElement {
@@ -149,7 +149,7 @@ class CRESineWave : public CRealElement {
 public:
   CRESineWave(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
   : x4_frequency(std::move(a)), x8_amplitude(std::move(b)), xc_phase(std::move(c)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREInitialSwitch : public CRealElement {
@@ -159,7 +159,7 @@ class CREInitialSwitch : public CRealElement {
 public:
   CREInitialSwitch(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRECompareLessThan : public CRealElement {
@@ -172,7 +172,7 @@ public:
   CRECompareLessThan(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
                      std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)), x10_d(std::move(d)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRECompareEquals : public CRealElement {
@@ -185,57 +185,57 @@ public:
   CRECompareEquals(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b,
                    std::unique_ptr<CRealElement>&& c, std::unique_ptr<CRealElement>&& d)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)), x10_d(std::move(d)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam1 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam2 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam3 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam4 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam5 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam6 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam7 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleAccessParam8 : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleSizeOrLineLength : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREParticleRotationOrLineWidth : public CRealElement {
 public:
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRESubtract : public CRealElement {
@@ -245,7 +245,7 @@ class CRESubtract : public CRealElement {
 public:
   CRESubtract(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREVectorMagnitude : public CRealElement {
@@ -253,7 +253,7 @@ class CREVectorMagnitude : public CRealElement {
 
 public:
   CREVectorMagnitude(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREVectorXToReal : public CRealElement {
@@ -261,7 +261,7 @@ class CREVectorXToReal : public CRealElement {
 
 public:
   CREVectorXToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREVectorYToReal : public CRealElement {
@@ -269,7 +269,7 @@ class CREVectorYToReal : public CRealElement {
 
 public:
   CREVectorYToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREVectorZToReal : public CRealElement {
@@ -277,7 +277,7 @@ class CREVectorZToReal : public CRealElement {
 
 public:
   CREVectorZToReal(std::unique_ptr<CVectorElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CRECEXT : public CRealElement {
@@ -285,7 +285,7 @@ class CRECEXT : public CRealElement {
 
 public:
   CRECEXT(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREIntTimesReal : public CRealElement {
@@ -295,7 +295,7 @@ class CREIntTimesReal : public CRealElement {
 public:
   CREIntTimesReal(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CRealElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREConstantRange : public CRealElement {
@@ -315,7 +315,7 @@ public:
   , x10_inRange(std::move(d))
   , x14_outOfRange(std::move(e)) {}
 
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREGetComponentRed : public CRealElement {
@@ -324,7 +324,7 @@ class CREGetComponentRed : public CRealElement {
 public:
   CREGetComponentRed(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREGetComponentGreen : public CRealElement {
@@ -333,7 +333,7 @@ class CREGetComponentGreen : public CRealElement {
 public:
   CREGetComponentGreen(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREGetComponentBlue : public CRealElement {
@@ -342,7 +342,7 @@ class CREGetComponentBlue : public CRealElement {
 public:
   CREGetComponentBlue(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 
 class CREGetComponentAlpha : public CRealElement {
@@ -351,6 +351,6 @@ class CREGetComponentAlpha : public CRealElement {
 public:
   CREGetComponentAlpha(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
-  bool GetValue(int frame, float& valOut) const;
+  bool GetValue(int frame, float& valOut) const override;
 };
 } // namespace urde

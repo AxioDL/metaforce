@@ -12,12 +12,12 @@ public:
   CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo, const zeus::CTransform&, bool,
                          const CScannableParameters&, float);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  void CalculateRenderBounds();
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  void CalculateRenderBounds() override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 } // namespace urde

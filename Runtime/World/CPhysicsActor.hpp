@@ -112,9 +112,9 @@ public:
   CPhysicsActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                 const CMaterialList&, const zeus::CAABox&, const SMoverData&, const CActorParameters&, float, float);
 
-  void Render(const CStateManager& mgr) const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
-  zeus::CVector3f GetAimPosition(const CStateManager&, float val) const;
+  void Render(const CStateManager& mgr) const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float val) const override;
   virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
   virtual zeus::CTransform GetPrimitiveTransform() const;
   virtual void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);

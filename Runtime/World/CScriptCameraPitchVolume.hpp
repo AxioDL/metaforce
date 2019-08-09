@@ -25,10 +25,10 @@ public:
   CScriptCameraPitchVolume(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&,
                            const zeus::CTransform&, const zeus::CRelAngle&, const zeus::CRelAngle&, float);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
   float GetUpPitch() const { return x124_upPitch; }
   float GetDownPitch() const { return x128_downPitch; }
   const zeus::CVector3f& GetScale() const { return x12c_scale; }

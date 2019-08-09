@@ -10,7 +10,7 @@ class CScriptSwitch : public CEntity {
 public:
   CScriptSwitch(TUniqueId, std::string_view, const CEntityInfo&, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 } // namespace urde

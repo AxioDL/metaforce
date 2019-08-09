@@ -30,9 +30,9 @@ public:
                        float revStdMix, float revStdTime, float revStdDamping, float revStdPreDelay, bool delay,
                        u32 delayL, u32 delayR, u32 delayS, u32 feedbackL, u32 feedbackR, u32 feedbackS, u32 outputL,
                        u32 outputR, u32 outputS);
-  void Think(float dt, CStateManager& stateMgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void Accept(IVisitor& visitor);
+  void Think(float dt, CStateManager& stateMgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void Accept(IVisitor& visitor) override;
   void EnableAuxCallbacks();
 
   static void DisableAuxCallbacks();

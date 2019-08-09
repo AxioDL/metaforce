@@ -44,8 +44,8 @@ public:
                          const zeus::CVector3f&, CAssetId, const zeus::CVector3f&, CAssetId, const zeus::CVector3f&,
                          bool, u16, u8, u8);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
   void StartTransition(CStateManager&);
 };
 } // namespace urde

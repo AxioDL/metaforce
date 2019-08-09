@@ -28,17 +28,17 @@ public:
   CFire(TToken<CGenDescription>, TUniqueId, TAreaId, bool, TUniqueId, const zeus::CTransform&, const CDamageInfo&,
         const zeus::CAABox&, const zeus::CVector3f&, bool, CAssetId, bool, bool, bool, float, float, float, float);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const {
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override {
     if (GetActive())
       return x128_;
 
     return {};
   }
 
-  void Touch(CActor&, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  void Touch(CActor&, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
 };
 } // namespace urde

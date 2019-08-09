@@ -70,15 +70,15 @@ public:
                 const zeus::CVector3f& particle3Scale, EOrientationType particle3Or, bool solid, bool dieOnProjectile,
                 bool noBounce, bool active);
 
-  void Accept(IVisitor& visitor);
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void Think(float dt, CStateManager& mgr);
-  void Touch(CActor& other, CStateManager& mgr);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
-  void Render(const CStateManager& mgr) const;
+  void Accept(IVisitor& visitor) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void Touch(CActor& other, CStateManager& mgr) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void Render(const CStateManager& mgr) const override;
 
-  void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&);
+  void CollidedWith(TUniqueId uid, const CCollisionInfoList&, CStateManager&) override;
 };
 } // namespace urde

@@ -10,9 +10,9 @@ class CScriptRelay : public CEntity {
 public:
   CScriptRelay(TUniqueId, std::string_view, const CEntityInfo&, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void Think(float, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void Think(float, CStateManager& stateMgr) override;
   void UpdateObjectRef(CStateManager& stateMgr);
 };
 } // namespace urde

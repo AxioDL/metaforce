@@ -17,7 +17,7 @@ class CVEKeyframeEmitter : public CVectorElement {
 
 public:
   CVEKeyframeEmitter(CInputStream& in);
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVECone : public CVectorElement {
@@ -28,7 +28,7 @@ class CVECone : public CVectorElement {
 
 public:
   CVECone(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CRealElement>&& b);
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVETimeChain : public CVectorElement {
@@ -40,7 +40,7 @@ public:
   CVETimeChain(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
                std::unique_ptr<CIntElement>&& c)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_swFrame(std::move(c)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEAngleCone : public CVectorElement {
@@ -58,7 +58,7 @@ public:
   , xc_angleXRange(std::move(c))
   , x10_angleYRange(std::move(d))
   , x14_magnitude(std::move(e)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEAdd : public CVectorElement {
@@ -68,7 +68,7 @@ class CVEAdd : public CVectorElement {
 public:
   CVEAdd(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVECircleCluster : public CVectorElement {
@@ -81,7 +81,7 @@ class CVECircleCluster : public CVectorElement {
 public:
   CVECircleCluster(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b,
                    std::unique_ptr<CIntElement>&& c, std::unique_ptr<CRealElement>&& d);
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEConstant : public CVectorElement {
@@ -92,7 +92,7 @@ class CVEConstant : public CVectorElement {
 public:
   CVEConstant(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b, std::unique_ptr<CRealElement>&& c)
   : x4_a(std::move(a)), x8_b(std::move(b)), xc_c(std::move(c)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEFastConstant : public CVectorElement {
@@ -100,8 +100,8 @@ class CVEFastConstant : public CVectorElement {
 
 public:
   CVEFastConstant(float a, float b, float c) : x4_val(a, b, c) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
-  bool IsFastConstant() const { return true; }
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
+  bool IsFastConstant() const override { return true; }
 };
 
 class CVECircle : public CVectorElement {
@@ -115,7 +115,7 @@ class CVECircle : public CVectorElement {
 public:
   CVECircle(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b, std::unique_ptr<CRealElement>&& c,
             std::unique_ptr<CRealElement>&& d, std::unique_ptr<CRealElement>&& e);
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEMultiply : public CVectorElement {
@@ -125,7 +125,7 @@ class CVEMultiply : public CVectorElement {
 public:
   CVEMultiply(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVERealToVector : public CVectorElement {
@@ -133,7 +133,7 @@ class CVERealToVector : public CVectorElement {
 
 public:
   CVERealToVector(std::unique_ptr<CRealElement>&& a) : x4_a(std::move(a)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEPulse : public CVectorElement {
@@ -146,42 +146,42 @@ public:
   CVEPulse(std::unique_ptr<CIntElement>&& a, std::unique_ptr<CIntElement>&& b, std::unique_ptr<CVectorElement>&& c,
            std::unique_ptr<CVectorElement>&& d)
   : x4_aDuration(std::move(a)), x8_bDuration(std::move(b)), xc_aVal(std::move(c)), x10_bVal(std::move(d)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleVelocity : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleColor : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleLocation : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleSystemOrientationFront : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleSystemOrientationUp : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleSystemOrientationRight : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEParticleSystemTranslation : public CVectorElement {
 public:
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVESubtract : public CVectorElement {
@@ -191,7 +191,7 @@ class CVESubtract : public CVectorElement {
 public:
   CVESubtract(std::unique_ptr<CVectorElement>&& a, std::unique_ptr<CVectorElement>&& b)
   : x4_a(std::move(a)), x8_b(std::move(b)) {}
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 class CVEColorToVector : public CVectorElement {
@@ -200,7 +200,7 @@ class CVEColorToVector : public CVectorElement {
 public:
   CVEColorToVector(std::unique_ptr<CColorElement>&& a) : x4_a(std::move(a)) {}
 
-  bool GetValue(int frame, zeus::CVector3f& valOut) const;
+  bool GetValue(int frame, zeus::CVector3f& valOut) const override;
 };
 
 } // namespace urde

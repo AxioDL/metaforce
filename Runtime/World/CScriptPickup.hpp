@@ -26,10 +26,10 @@ public:
                 CPlayerState::EItemType itemType, s32 amount, s32 capacity, CAssetId pickupEffect,
                 float possibility, float lifeTime, float fadeInTime, float startDelay, bool active);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void Touch(CActor&, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const { return CPhysicsActor::GetBoundingBox(); }
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void Touch(CActor&, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return CPhysicsActor::GetBoundingBox(); }
   float GetPossibility() const { return x264_possibility; }
   CPlayerState::EItemType GetItem() const { return x258_itemType; }
   void SetGenerated() { x28c_24_generated = true; }

@@ -52,19 +52,19 @@ public:
                 float rateCamDistRangeFarRate, bool combatVisorVisible, bool thermalVisorVisible, bool xrayVisorVisible,
                 const CLightParameters& lParms, bool dieWhenSystemsDone);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  void Think(float, CStateManager&);
-  bool CanRenderUnsorted(const CStateManager&) const { return false; }
-  void SetActive(bool active) {
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  void Think(float, CStateManager&) override;
+  bool CanRenderUnsorted(const CStateManager&) const override { return false; }
+  void SetActive(bool active) override {
     CActor::SetActive(active);
     xe7_29_drawEnabled = true;
   }
-  void CalculateRenderBounds();
-  zeus::CAABox GetSortingBounds(const CStateManager&) const;
+  void CalculateRenderBounds() override;
+  zeus::CAABox GetSortingBounds(const CStateManager&) const override;
   bool AreBothSystemsDeleteable();
   static void ResetParticleCounts() {
     g_NumParticlesUpdating = 0;

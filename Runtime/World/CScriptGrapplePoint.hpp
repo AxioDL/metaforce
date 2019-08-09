@@ -12,12 +12,12 @@ public:
   CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& transform,
                       bool active, const CGrappleParameters& params);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
   const CGrappleParameters& GetGrappleParameters() const { return x100_parameters; }
 };
 } // namespace urde

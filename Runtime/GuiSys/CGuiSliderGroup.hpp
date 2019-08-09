@@ -35,7 +35,7 @@ private:
 
 public:
   CGuiSliderGroup(const CGuiWidgetParms& parms, float a, float b, float c, float d);
-  FourCC GetWidgetTypeID() const { return FOURCC('SLGP'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('SLGP'); }
 
   EState GetState() const { return xf0_state; }
   void SetSelectionChangedCallback(std::function<void(CGuiSliderGroup*, float)>&& func);
@@ -51,13 +51,13 @@ public:
   void SetCurVal(float cur);
   float GetGurVal() const { return xc0_roundedCurVal; }
 
-  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const;
+  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const override;
 
-  void ProcessUserInput(const CFinalInput& input);
-  void Update(float dt);
+  void ProcessUserInput(const CFinalInput& input) override;
+  void Update(float dt) override;
 
-  bool AddWorkerWidget(CGuiWidget* worker);
-  CGuiWidget* GetWorkerWidget(int id) const;
+  bool AddWorkerWidget(CGuiWidget* worker) override;
+  CGuiWidget* GetWorkerWidget(int id) const override;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

@@ -26,11 +26,11 @@ public:
               const zeus::CVector3f& extent, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
               bool loadConnected);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
   void CleanUp() {}
   zeus::CPlane GetPlane(const CStateManager&) const;
   TAreaId GetAreaId() const { return x260_area; }

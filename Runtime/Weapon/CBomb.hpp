@@ -24,15 +24,15 @@ public:
   CBomb(const TCachedToken<CGenDescription>& particle1, const TCachedToken<CGenDescription>& particle2, TUniqueId uid,
         TAreaId aid, TUniqueId playerId, float f1, const zeus::CTransform& xf, const CDamageInfo& dInfo);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const {}
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override {}
+  void Touch(CActor&, CStateManager&) override;
   void Explode(const zeus::CVector3f&, CStateManager&);
   void UpdateLight(float, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   void SetVelocityWR(const zeus::CVector3f& vel) { x158_velocity = vel; }
   void SetConstantAccelerationWR(const zeus::CVector3f& acc) { x164_acceleration = acc; }
   void SetFuseDisabled(bool b) { x190_26_disableFuse = false; }

@@ -37,8 +37,8 @@ class CStaticAudioPlayer {
 
   struct AudioVoiceCallback : boo::IAudioVoiceCallback {
     CStaticAudioPlayer& m_parent;
-    void preSupplyAudio(boo::IAudioVoice&, double) {}
-    size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) {
+    void preSupplyAudio(boo::IAudioVoice&, double) override {}
+    size_t supplyAudio(boo::IAudioVoice& voice, size_t frames, int16_t* data) override {
       if (m_parent.IsReady()) {
         m_parent.x38_dvdRequests.clear();
         m_parent.Decode(data, frames);

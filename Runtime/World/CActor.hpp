@@ -98,8 +98,8 @@ public:
   CActor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info, const zeus::CTransform&,
          CModelData&& mData, const CMaterialList& list, const CActorParameters& params, TUniqueId otherUid);
 
-  virtual void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  virtual void SetActive(bool active) {
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void SetActive(bool active) override {
     xe4_27_notInSortedLists = true;
     xe4_28_transformDirty = true;
     xe4_29_actorLightsDirty = true;

@@ -105,39 +105,39 @@ private:
 public:
   CParticleElectric(const TToken<CElectricDescription>& desc);
 
-  bool Update(double);
-  void Render(const CActorLights* = nullptr);
-  void SetOrientation(const zeus::CTransform&);
-  void SetTranslation(const zeus::CVector3f&);
-  void SetGlobalOrientation(const zeus::CTransform&);
-  void SetGlobalTranslation(const zeus::CVector3f&);
-  void SetGlobalScale(const zeus::CVector3f&);
-  void SetLocalScale(const zeus::CVector3f&);
-  void SetParticleEmission(bool);
-  void SetModulationColor(const zeus::CColor&);
+  bool Update(double) override;
+  void Render(const CActorLights* = nullptr) override;
+  void SetOrientation(const zeus::CTransform&) override;
+  void SetTranslation(const zeus::CVector3f&) override;
+  void SetGlobalOrientation(const zeus::CTransform&) override;
+  void SetGlobalTranslation(const zeus::CVector3f&) override;
+  void SetGlobalScale(const zeus::CVector3f&) override;
+  void SetLocalScale(const zeus::CVector3f&) override;
+  void SetParticleEmission(bool) override;
+  void SetModulationColor(const zeus::CColor&) override;
   void SetOverrideIPos(const zeus::CVector3f& vec) { x178_overrideIPos.emplace(vec); }
   void SetOverrideIVel(const zeus::CVector3f& vec) { x188_overrideIVel.emplace(vec); }
   void SetOverrideFPos(const zeus::CVector3f& vec) { x198_overrideFPos.emplace(vec); }
   void SetOverrideFVel(const zeus::CVector3f& vec) { x1a8_overrideFVel.emplace(vec); }
-  const zeus::CTransform& GetOrientation() const;
-  const zeus::CVector3f& GetTranslation() const;
-  const zeus::CTransform& GetGlobalOrientation() const;
-  const zeus::CVector3f& GetGlobalTranslation() const;
-  const zeus::CVector3f& GetGlobalScale() const;
-  const zeus::CColor& GetModulationColor() const;
-  bool IsSystemDeletable() const;
-  std::optional<zeus::CAABox> GetBounds() const;
-  u32 GetParticleCount() const;
-  bool SystemHasLight() const;
-  CLight GetLight() const;
-  bool GetParticleEmission() const;
-  void DestroyParticles();
-  void Reset() {}
+  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CVector3f& GetTranslation() const override;
+  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CVector3f& GetGlobalTranslation() const override;
+  const zeus::CVector3f& GetGlobalScale() const override;
+  const zeus::CColor& GetModulationColor() const override;
+  bool IsSystemDeletable() const override;
+  std::optional<zeus::CAABox> GetBounds() const override;
+  u32 GetParticleCount() const override;
+  bool SystemHasLight() const override;
+  CLight GetLight() const override;
+  bool GetParticleEmission() const override;
+  void DestroyParticles() override;
+  void Reset() override {}
   void ForceParticleCreation(s32 count) {
     CGlobalRandom gRnd{x14c_randState};
     CreateNewParticles(count);
   }
-  FourCC Get4CharId() const { return FOURCC('ELSC'); }
+  FourCC Get4CharId() const override { return FOURCC('ELSC'); }
 };
 
 } // namespace urde

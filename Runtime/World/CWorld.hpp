@@ -52,18 +52,18 @@ class CDummyWorld : public IWorld {
 
 public:
   CDummyWorld(CAssetId mlvlId, bool loadMap);
-  ~CDummyWorld();
-  CAssetId IGetWorldAssetId() const;
-  CAssetId IGetStringTableAssetId() const;
-  CAssetId IGetSaveWorldAssetId() const;
-  const CMapWorld* IGetMapWorld() const;
-  CMapWorld* IMapWorld();
-  const IGameArea* IGetAreaAlways(TAreaId id) const;
-  TAreaId IGetCurrentAreaId() const;
-  TAreaId IGetAreaId(CAssetId id) const;
-  bool ICheckWorldComplete();
-  std::string IGetDefaultAudioTrack() const;
-  int IGetAreaCount() const;
+  ~CDummyWorld() override;
+  CAssetId IGetWorldAssetId() const override;
+  CAssetId IGetStringTableAssetId() const override;
+  CAssetId IGetSaveWorldAssetId() const override;
+  const CMapWorld* IGetMapWorld() const override;
+  CMapWorld* IMapWorld() override;
+  const IGameArea* IGetAreaAlways(TAreaId id) const override;
+  TAreaId IGetCurrentAreaId() const override;
+  TAreaId IGetAreaId(CAssetId id) const override;
+  bool ICheckWorldComplete() override;
+  std::string IGetDefaultAudioTrack() const override;
+  int IGetAreaCount() const override;
 };
 
 class CWorld : public IWorld {
@@ -173,21 +173,21 @@ public:
   u32 GetRelayCount() const { return x2c_relays.size(); }
   CRelay GetRelay(u32 idx) const { return x2c_relays[idx]; }
 
-  CAssetId IGetWorldAssetId() const;
-  CAssetId IGetStringTableAssetId() const;
-  CAssetId IGetSaveWorldAssetId() const;
-  const CMapWorld* IGetMapWorld() const;
-  CMapWorld* IMapWorld();
+  CAssetId IGetWorldAssetId() const override;
+  CAssetId IGetStringTableAssetId() const override;
+  CAssetId IGetSaveWorldAssetId() const override;
+  const CMapWorld* IGetMapWorld() const override;
+  CMapWorld* IMapWorld() override;
   const CGameArea* GetAreaAlways(TAreaId) const;
   CGameArea* GetArea(TAreaId);
   s32 GetNumAreas() const { return x18_areas.size(); }
-  const IGameArea* IGetAreaAlways(TAreaId id) const;
-  TAreaId IGetCurrentAreaId() const;
+  const IGameArea* IGetAreaAlways(TAreaId id) const override;
+  TAreaId IGetCurrentAreaId() const override;
   TAreaId GetCurrentAreaId() const { return x68_curAreaId; }
-  TAreaId IGetAreaId(CAssetId id) const;
-  bool ICheckWorldComplete();
-  std::string IGetDefaultAudioTrack() const;
-  int IGetAreaCount() const;
+  TAreaId IGetAreaId(CAssetId id) const override;
+  bool ICheckWorldComplete() override;
+  std::string IGetDefaultAudioTrack() const override;
+  int IGetAreaCount() const override;
 
   static void PropogateAreaChain(CGameArea::EOcclusionState, CGameArea*, CWorld*);
   static CGameArea::CConstChainIterator GetAliveAreasEnd() { return {skGlobalEnd}; }

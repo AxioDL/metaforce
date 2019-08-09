@@ -61,9 +61,9 @@ public:
                   const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                   bool sendCollideMsg);
 
-  virtual void Accept(IVisitor& visitor);
+  void Accept(IVisitor& visitor) override;
   virtual void ResolveCollisionWithActor(const CRayCastResult& res, CActor& act, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   static EProjectileAttrib GetBeamAttribType(EWeaponType wType);
   void DeleteProjectileLight(CStateManager&);
   void CreateProjectileLight(std::string_view, const CLight&, CStateManager&);
@@ -81,7 +81,7 @@ public:
   CProjectileTouchResult CanCollideWithGameObject(CActor& act, CStateManager& mgr) const;
   CProjectileTouchResult CanCollideWithTrigger(CActor& act, CStateManager& mgr) const;
   zeus::CAABox GetProjectileBounds() const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   CProjectileWeapon& ProjectileWeapon() { return x170_projectile; }
   const CProjectileWeapon& GetProjectileWeapon() const { return x170_projectile; }
   TUniqueId GetHomingTargetId() const { return x2c0_homingTargetId; }

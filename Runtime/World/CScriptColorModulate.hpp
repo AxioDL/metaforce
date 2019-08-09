@@ -45,9 +45,9 @@ public:
                        const zeus::CColor& colorB, EBlendMode blendMode, float timeA2B, float timeB2A, bool doReverse,
                        bool resetTargetWhenDone, bool depthCompare, bool depthUpdate, bool depthBackwards, bool active);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void Think(float, CStateManager&) override;
   CModelFlags CalculateFlags(const zeus::CColor&) const;
   void SetTargetFlags(CStateManager&, const CModelFlags&);
   static TUniqueId FadeOutHelper(CStateManager& mgr, TUniqueId obj, float fadetime);

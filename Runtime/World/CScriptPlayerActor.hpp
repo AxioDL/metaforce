@@ -59,12 +59,12 @@ public:
                      const CDamageVulnerability& dVuln, const CActorParameters& aParams, bool loop, bool active,
                      u32 flags, CPlayerState::EBeamId beam);
 
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void SetActive(bool active);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager& mgr) const;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void SetActive(bool active) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager& mgr) const override;
   void TouchModels(const CStateManager& mgr) const;
 };
 } // namespace urde

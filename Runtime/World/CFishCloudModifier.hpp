@@ -13,8 +13,8 @@ public:
   CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,
                      const zeus::CVector3f& pos, bool isRepulsor, bool swirl, float radius,
                      float priority);
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
   void AddSelf(CStateManager&);
   void RemoveSelf(CStateManager&);

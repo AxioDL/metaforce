@@ -45,7 +45,7 @@ private:
 
 public:
   CGuiTableGroup(const CGuiWidgetParms& parms, int, int, bool);
-  FourCC GetWidgetTypeID() const { return FOURCC('TBGP'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('TBGP'); }
 
   void SetMenuAdvanceCallback(std::function<void(CGuiTableGroup*)>&& cb) { xd4_doMenuAdvance = std::move(cb); }
 
@@ -84,9 +84,9 @@ public:
 
   void SetWorkersMouseActive(bool);
 
-  void ProcessUserInput(const CFinalInput& input);
+  void ProcessUserInput(const CFinalInput& input) override;
 
-  bool AddWorkerWidget(CGuiWidget* worker) { return true; }
+  bool AddWorkerWidget(CGuiWidget* worker) override { return true; }
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

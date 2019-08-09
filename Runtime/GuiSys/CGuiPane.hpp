@@ -17,7 +17,7 @@ protected:
 
 public:
   CGuiPane(const CGuiWidgetParms& parms, const zeus::CVector2f& dim, const zeus::CVector3f& scaleCenter);
-  FourCC GetWidgetTypeID() const { return FOURCC('PANE'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('PANE'); }
 
   virtual void ScaleDimensions(const zeus::CVector3f& scale);
   virtual void SetDimensions(const zeus::CVector2f& dim, bool initVBO);

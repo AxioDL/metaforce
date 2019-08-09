@@ -20,8 +20,8 @@ class CScriptControllerAction : public CEntity {
 public:
   CScriptControllerAction(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active,
                           ControlMapper::ECommands command, bool b1, u32 w1, bool b2);
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
 };
 
 } // namespace urde
