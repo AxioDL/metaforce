@@ -16,10 +16,10 @@ public:
                         const std::optional<TLockedToken<CGenDescription>>& visorParticle, u16 visorSfx,
                         bool sendCollideMsg);
 
-  void Accept(IVisitor&);
-  zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+  void Accept(IVisitor&) override;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
   bool Explode(const zeus::CVector3f& pos, const zeus::CVector3f& normal, EWeaponCollisionResponseTypes type,
-               CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor);
+               CStateManager& mgr, const CDamageVulnerability& dVuln, TUniqueId hitActor) override;
 };
 
 } // namespace urde

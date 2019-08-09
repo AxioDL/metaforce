@@ -90,8 +90,8 @@ public:
                     float clampRotRange, float elevation, float interpolateTime, float clampVelTime,
                     float controlInterpDur);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
 
   void ClearIdList() { x150_helpers.clear(); }
   void SetInactive(bool inactive) { x166_inactive = inactive; }

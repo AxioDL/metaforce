@@ -7,7 +7,7 @@ namespace urde {
 
 class IVParamObj : public IObj {
 public:
-  virtual ~IVParamObj() {}
+  ~IVParamObj() override = default;
 };
 
 template <class T>

@@ -23,9 +23,9 @@ public:
                            const zeus::CTransform& xf, bool deactivateOnEnter,
                            bool deactivateOnExit);
 
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void Touch(CActor& other, CStateManager& mgr);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void Touch(CActor& other, CStateManager& mgr) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
 };
 } // namespace urde

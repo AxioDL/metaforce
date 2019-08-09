@@ -20,9 +20,9 @@ public:
                   bool active, float speed, float pause, u32 patternTranslate, u32 patternOrient, u32 patternFit,
                   u32 behaviour, u32 behaviourOrient, u32 behaviourModifiers, u32 animation);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
   TUniqueId FollowWaypoint(CStateManager& mgr) const;
   TUniqueId NextWaypoint(CStateManager& mgr) const;
   float GetSpeed() const { return xe8_speed; }

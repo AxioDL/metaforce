@@ -129,35 +129,35 @@ class CParticleSwoosh : public CParticleGen {
 
 public:
   CParticleSwoosh(const TToken<CSwooshDescription>& desc, int);
-  ~CParticleSwoosh();
+  ~CParticleSwoosh() override;
 
   CSwooshDescription* GetDesc() { return x1c_desc.GetObj(); }
 
-  bool Update(double);
-  void Render(const CActorLights* = nullptr);
-  void SetOrientation(const zeus::CTransform&);
-  void SetTranslation(const zeus::CVector3f&);
-  void SetGlobalOrientation(const zeus::CTransform&);
-  void SetGlobalTranslation(const zeus::CVector3f&);
-  void SetGlobalScale(const zeus::CVector3f&);
-  void SetLocalScale(const zeus::CVector3f&);
-  void SetParticleEmission(bool);
-  void SetModulationColor(const zeus::CColor&);
-  const zeus::CTransform& GetOrientation() const;
-  const zeus::CVector3f& GetTranslation() const;
-  const zeus::CTransform& GetGlobalOrientation() const;
-  const zeus::CVector3f& GetGlobalTranslation() const;
-  const zeus::CVector3f& GetGlobalScale() const;
-  const zeus::CColor& GetModulationColor() const;
-  bool IsSystemDeletable() const;
-  std::optional<zeus::CAABox> GetBounds() const;
-  u32 GetParticleCount() const;
-  bool SystemHasLight() const;
-  CLight GetLight() const;
-  bool GetParticleEmission() const;
-  void DestroyParticles();
-  void Reset() {}
-  FourCC Get4CharId() const { return FOURCC('SWHC'); }
+  bool Update(double) override;
+  void Render(const CActorLights* = nullptr) override;
+  void SetOrientation(const zeus::CTransform&) override;
+  void SetTranslation(const zeus::CVector3f&) override;
+  void SetGlobalOrientation(const zeus::CTransform&) override;
+  void SetGlobalTranslation(const zeus::CVector3f&) override;
+  void SetGlobalScale(const zeus::CVector3f&) override;
+  void SetLocalScale(const zeus::CVector3f&) override;
+  void SetParticleEmission(bool) override;
+  void SetModulationColor(const zeus::CColor&) override;
+  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CVector3f& GetTranslation() const override;
+  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CVector3f& GetGlobalTranslation() const override;
+  const zeus::CVector3f& GetGlobalScale() const override;
+  const zeus::CColor& GetModulationColor() const override;
+  bool IsSystemDeletable() const override;
+  std::optional<zeus::CAABox> GetBounds() const override;
+  u32 GetParticleCount() const override;
+  bool SystemHasLight() const override;
+  CLight GetLight() const override;
+  bool GetParticleEmission() const override;
+  void DestroyParticles() override;
+  void Reset() override {}
+  FourCC Get4CharId() const override { return FOURCC('SWHC'); }
   void SetRenderGaps(bool r) { x1d0_27_renderGaps = r; }
 
   void DoWarmupUpdate() {

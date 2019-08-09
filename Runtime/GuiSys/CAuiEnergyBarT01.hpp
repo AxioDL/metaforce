@@ -36,10 +36,10 @@ private:
 
 public:
   CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId txtrId);
-  FourCC GetWidgetTypeID() const { return FOURCC('ENRG'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('ENRG'); }
   static std::pair<zeus::CVector3f, zeus::CVector3f> DownloadBarCoordFunc(float t);
-  void Update(float dt);
-  void Draw(const CGuiWidgetDrawParms& drawParms) const;
+  void Update(float dt) override;
+  void Draw(const CGuiWidgetDrawParms& drawParms) const override;
   float GetActualFraction() const { return xe0_maxEnergy == 0.f ? 0.f : xf4_setEnergy / xe0_maxEnergy; }
   float GetSetEnergy() const { return xf4_setEnergy; }
   float GetMaxEnergy() const { return xe0_maxEnergy; }

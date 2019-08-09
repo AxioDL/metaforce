@@ -30,15 +30,15 @@ public:
   }
   void DeleteBeam(CStateManager& mgr);
 
-  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
-  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf);
+  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
+  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) override;
   void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
-            TUniqueId homingTarget, float chargeFactor1, float chargeFactor2);
-  void EnableSecondaryFx(ESecondaryFxType type);
-  void Update(float dt, CStateManager& mgr);
-  void Load(CStateManager& mgr, bool subtypeBasePose);
-  void Unload(CStateManager& mgr);
-  bool IsLoaded() const;
+            TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) override;
+  void EnableSecondaryFx(ESecondaryFxType type) override;
+  void Update(float dt, CStateManager& mgr) override;
+  void Load(CStateManager& mgr, bool subtypeBasePose) override;
+  void Unload(CStateManager& mgr) override;
+  bool IsLoaded() const override;
 };
 
 } // namespace urde

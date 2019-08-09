@@ -14,14 +14,14 @@ class CGuiModel : public CGuiWidget {
 
 public:
   CGuiModel(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId modelId, u32 lightMask, bool flag);
-  FourCC GetWidgetTypeID() const { return FOURCC('MODL'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('MODL'); }
 
   std::vector<CAssetId> GetModelAssets() const { return {xc8_modelId}; }
   const TLockedToken<CModel>& GetModel() const { return xb8_model; }
-  bool GetIsFinishedLoadingWidgetSpecific() const;
-  void Touch() const;
-  void Draw(const CGuiWidgetDrawParms& parms) const;
-  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const;
+  bool GetIsFinishedLoadingWidgetSpecific() const override;
+  void Touch() const override;
+  void Draw(const CGuiWidgetDrawParms& parms) const override;
+  bool TestCursorHit(const zeus::CMatrix4f& vp, const zeus::CVector2f& point) const override;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

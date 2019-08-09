@@ -25,8 +25,8 @@ class CColorInstruction : public CInstruction {
 
 public:
   CColorInstruction(EColorType tp, const CTextColor& color) : x4_cType(tp), x8_color(color) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CColorOverrideInstruction : public CInstruction {
@@ -35,8 +35,8 @@ class CColorOverrideInstruction : public CInstruction {
 
 public:
   CColorOverrideInstruction(int idx, const CTextColor& color) : x4_overrideIdx(idx), x8_color(color) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CFontInstruction : public CInstruction {
@@ -44,10 +44,10 @@ class CFontInstruction : public CInstruction {
 
 public:
   CFontInstruction(const TToken<CRasterFont>& font) : x4_font(font) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void GetAssets(std::vector<CToken>& assetsOut) const;
-  size_t GetAssetCount() const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void GetAssets(std::vector<CToken>& assetsOut) const override;
+  size_t GetAssetCount() const override;
 };
 
 class CLineExtraSpaceInstruction : public CInstruction {
@@ -55,8 +55,8 @@ class CLineExtraSpaceInstruction : public CInstruction {
 
 public:
   CLineExtraSpaceInstruction(s32 extraSpace) : x4_extraSpace(extraSpace) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CLineInstruction : public CInstruction {
@@ -84,8 +84,8 @@ public:
   void TestLargestFont(s32 w, s32 h, s32 b);
   void TestLargestImage(s32 w, s32 h, s32 b);
   void InvokeLTR(CFontRenderState& state) const;
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 
   s32 GetHeight() const {
     if (x10_largestMonoHeight && !x30_imageBaseline)
@@ -107,20 +107,20 @@ class CLineSpacingInstruction : public CInstruction {
 
 public:
   CLineSpacingInstruction(float spacing) : x4_lineSpacing(spacing) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CPopStateInstruction : public CInstruction {
 public:
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CPushStateInstruction : public CInstruction {
 public:
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CRemoveColorOverrideInstruction : public CInstruction {
@@ -128,8 +128,8 @@ class CRemoveColorOverrideInstruction : public CInstruction {
 
 public:
   CRemoveColorOverrideInstruction(int idx) : x4_idx(idx) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CImageInstruction : public CInstruction {
@@ -137,16 +137,16 @@ class CImageInstruction : public CInstruction {
 
 public:
   CImageInstruction(const CFontImageDef& image) : x4_image(image) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void GetAssets(std::vector<CToken>& assetsOut) const;
-  size_t GetAssetCount() const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void GetAssets(std::vector<CToken>& assetsOut) const override;
+  size_t GetAssetCount() const override;
 };
 
 class CTextInstruction : public CInstruction {
   std::u16string x4_str; /* used to be a placement-new sized allocation */
 public:
   CTextInstruction(const char16_t* str, int len) : x4_str(str, len) {}
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CBlockInstruction : public CInstruction {
@@ -182,15 +182,15 @@ public:
   , x1c_vertJustification(vjust) {}
   void TestLargestFont(s32 monoW, s32 monoH, s32 baseline);
   void SetupPositionLTR(CFontRenderState& state) const;
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 class CWordInstruction : public CInstruction {
 public:
   void InvokeLTR(CFontRenderState& state) const;
-  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
-  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const;
+  void Invoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
+  void PageInvoke(CFontRenderState& state, CTextRenderBuffer* buf) const override;
 };
 
 } // namespace urde

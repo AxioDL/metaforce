@@ -20,7 +20,7 @@ public:
                               EFilterShape shape, u32 filterIdx, u32 unk, const zeus::CColor& color, float timeIn,
                               float timeOut, CAssetId txtr, bool active);
 
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void Accept(IVisitor& visitor);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void Accept(IVisitor& visitor) override;
 };
 } // namespace urde

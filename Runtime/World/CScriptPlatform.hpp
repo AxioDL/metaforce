@@ -76,18 +76,18 @@ public:
                   const std::optional<TLockedToken<CCollidableOBBTreeGroupContainer>>& dcln,
                   bool rainSplashes, u32 maxRainSplashes, u32 rainGenRate);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void PreThink(float, CStateManager&);
-  void Think(float, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void Render(const CStateManager&) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  zeus::CTransform GetPrimitiveTransform() const;
-  const CCollisionPrimitive* GetCollisionPrimitive() const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const;
-  zeus::CAABox GetSortingBounds(const CStateManager& mgr) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void PreThink(float, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void Render(const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  zeus::CTransform GetPrimitiveTransform() const override;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
+  zeus::CAABox GetSortingBounds(const CStateManager& mgr) const override;
   bool IsRider(TUniqueId id) const;
   bool IsSlave(TUniqueId id) const;
   std::vector<SRiders>& GetStaticSlaves() { return x328_slavesStatic; }
@@ -101,8 +101,8 @@ public:
   TUniqueId GetNext(TUniqueId, CStateManager&);
   TUniqueId GetWaypoint(CStateManager&);
 
-  const CDamageVulnerability* GetDamageVulnerability() const { return &x29c_damageVuln; }
-  CHealthInfo* HealthInfo(CStateManager&) { return &x294_health; }
+  const CDamageVulnerability* GetDamageVulnerability() const override { return &x29c_damageVuln; }
+  CHealthInfo* HealthInfo(CStateManager&) override { return &x294_health; }
   void SetControlledAnimation(bool controlled) { x356_25_controlledAnimation = controlled; }
 
   virtual void SplashThink(const zeus::CAABox&, const CFluidPlane&, float, CStateManager&) const;

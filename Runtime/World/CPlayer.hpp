@@ -367,23 +367,23 @@ public:
   void AsyncLoadSuit(CStateManager& mgr);
   void LoadAnimationTokens();
   bool HasTransitionBeamModel() const;
-  bool CanRenderUnsorted(const CStateManager& mgr) const;
+  bool CanRenderUnsorted(const CStateManager& mgr) const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
-                                                     const CDamageInfo& info) const;
-  const CDamageVulnerability* GetDamageVulnerability() const;
-  zeus::CVector3f GetHomingPosition(const CStateManager& mgr, float) const;
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
-  void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr);
+                                                     const CDamageInfo& info) const override;
+  const CDamageVulnerability* GetDamageVulnerability() const override;
+  zeus::CVector3f GetHomingPosition(const CStateManager& mgr, float) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
+  void FluidFXThink(CActor::EFluidState, CScriptWater& water, CStateManager& mgr) override;
   zeus::CVector3f GetDamageLocationWR() const { return x564_damageLocation; }
   float GetPrevDamageAmount() const { return x560_prevDamageAmt; }
   float GetDamageAmount() const { return x55c_damageAmt; }
   bool WasDamaged() const { return x558_wasDamaged; }
   void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
-  void Accept(IVisitor& visitor);
-  CHealthInfo* HealthInfo(CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  CHealthInfo* HealthInfo(CStateManager& mgr) override;
   bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor& actor, CStateManager& mgr);
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor& actor, CStateManager& mgr) override;
   void DoPreThink(float dt, CStateManager& mgr);
   void DoThink(float dt, CStateManager& mgr);
   void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
@@ -394,11 +394,11 @@ public:
   bool GetExplorationMode() const;
   bool GetCombatMode() const;
   void RenderGun(const CStateManager& mgr, const zeus::CVector3f&) const;
-  void Render(const CStateManager& mgr) const;
+  void Render(const CStateManager& mgr) const override;
   void RenderReflectedPlayer(CStateManager& mgr);
-  void PreRender(CStateManager& mgr, const zeus::CFrustum&);
-  void CalculateRenderBounds();
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum&) override;
+  void CalculateRenderBounds() override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
   void ComputeFreeLook(const CFinalInput& input);
   void UpdateFreeLookState(const CFinalInput&, float dt, CStateManager&);
   void UpdateFreeLook(float dt);
@@ -427,9 +427,9 @@ public:
   void ResetControlDirectionInterpolation();
   void SetControlDirectionInterpolation(float time);
   void UpdatePlayerControlDirection(float dt, CStateManager& mgr);
-  void Think(float, CStateManager&);
-  void PreThink(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Think(float, CStateManager&) override;
+  void PreThink(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetVisorSteam(float, float, float, CAssetId, bool);
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
   u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, u32, u16);
@@ -514,15 +514,15 @@ public:
   zeus::CVector3f GetEyePosition() const;
   float GetEyeHeight() const;
   float GetUnbiasedEyeHeight() const;
-  float GetStepUpHeight() const;
-  float GetStepDownHeight() const;
+  float GetStepUpHeight() const override;
+  float GetStepDownHeight() const override;
   void Teleport(const zeus::CTransform& xf, CStateManager& mgr, bool resetBallCam);
   void BombJump(const zeus::CVector3f& pos, CStateManager& mgr);
   zeus::CTransform CreateTransformFromMovementDirection() const;
-  const CCollisionPrimitive* GetCollisionPrimitive() const;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
   const CCollidableSphere* GetCollidableSphere() const;
-  zeus::CTransform GetPrimitiveTransform() const;
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
+  zeus::CTransform GetPrimitiveTransform() const override;
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
   float GetBallMaxVelocity() const;
   float GetActualBallMaxVelocity(float dt) const;
   float GetActualFirstPersonMaxVelocity(float dt) const;
@@ -536,7 +536,7 @@ public:
   void FinishSidewaysDash();
   void ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr);
   void ComputeMovement(const CFinalInput& input, CStateManager& mgr, float dt);
-  float GetWeight() const;
+  float GetWeight() const override;
   zeus::CVector3f GetDampedClampedVelocityWR() const;
   const CVisorSteam& GetVisorSteam() const { return x7a0_visorSteam; }
   float GetVisorStaticAlpha() const { return x74c_visorStaticAlpha; }

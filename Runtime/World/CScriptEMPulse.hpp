@@ -23,13 +23,13 @@ public:
   CScriptEMPulse(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, float, float, float,
                  float, float, float, float, CAssetId);
 
-  void Accept(IVisitor&);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void CalculateRenderBounds();
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor&) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void CalculateRenderBounds() override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
 };
 } // namespace urde
 #endif // __URDE_CSCRIPTEMPULSE_HPP__

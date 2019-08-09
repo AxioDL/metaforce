@@ -42,18 +42,18 @@ public:
               const CActorParameters&, const zeus::CVector3f&, const zeus::CAABox&, bool active, bool open, bool, float,
               bool ballDoor);
 
-  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const;
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  void Think(float, CStateManager& mgr);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const;
-  void Render(const CStateManager&) const {}
+  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void Think(float, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const override;
+  void Render(const CStateManager&) const override {}
   void ForceClosed(CStateManager&);
   bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
   void OpenDoor(TUniqueId, CStateManager&);
   EDoorOpenCondition GetDoorOpenCondition(CStateManager& mgr);
   void SetDoorAnimation(EDoorAnimType);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
   std::optional<zeus::CAABox> GetProjectileBounds() const;
   bool IsOpen() const { return x2a8_26_isOpen; }
 };

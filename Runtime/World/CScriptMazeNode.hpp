@@ -32,7 +32,7 @@ public:
   CScriptMazeNode(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool, s32, s32, s32,
                   const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CVector3f&);
 
-  void Accept(IVisitor& visitor);
+  void Accept(IVisitor& visitor) override;
   static void LoadMazeSeeds();
 };
 } // namespace urde

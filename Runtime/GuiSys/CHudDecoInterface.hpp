@@ -53,15 +53,15 @@ class CHudDecoInterfaceCombat : public IHudDecoInterface {
 
 public:
   CHudDecoInterfaceCombat(CGuiFrame& selHud);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetHudRotation(const zeus::CQuaternion& rot);
-  void SetHudOffset(const zeus::CVector3f& off);
-  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
-  void SetFrameColorValue(float v);
-  void Update(float dt, const CStateManager& stateMgr);
-  void UpdateCameraDebugSettings(float fov, float y, float z);
-  void UpdateHudAlpha();
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetHudRotation(const zeus::CQuaternion& rot) override;
+  void SetHudOffset(const zeus::CVector3f& off) override;
+  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) override;
+  void SetFrameColorValue(float v) override;
+  void Update(float dt, const CStateManager& stateMgr) override;
+  void UpdateCameraDebugSettings(float fov, float y, float z) override;
+  void UpdateHudAlpha() override;
 };
 
 class CHudDecoInterfaceScan : public IHudDecoInterface {
@@ -104,22 +104,22 @@ class CHudDecoInterfaceScan : public IHudDecoInterface {
 
 public:
   CHudDecoInterfaceScan(CGuiFrame& selHud);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetHudRotation(const zeus::CQuaternion& rot);
-  void SetHudOffset(const zeus::CVector3f& off);
-  void SetReticuleTransform(const zeus::CMatrix3f& xf);
-  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
-  void SetFrameColorValue(float v);
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetHudRotation(const zeus::CQuaternion& rot) override;
+  void SetHudOffset(const zeus::CVector3f& off) override;
+  void SetReticuleTransform(const zeus::CMatrix3f& xf) override;
+  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) override;
+  void SetFrameColorValue(float v) override;
   void InitializeFlatFrame();
   const CScannableObjectInfo* GetCurrScanInfo(const CStateManager& stateMgr) const;
   void UpdateScanDisplay(const CStateManager& stateMgr, float dt);
-  void Update(float dt, const CStateManager& stateMgr);
-  void Draw() const;
-  void ProcessInput(const CFinalInput& input);
-  void UpdateCameraDebugSettings(float fov, float y, float z);
-  void UpdateHudAlpha();
-  float GetHudTextAlpha() const;
+  void Update(float dt, const CStateManager& stateMgr) override;
+  void Draw() const override;
+  void ProcessInput(const CFinalInput& input) override;
+  void UpdateCameraDebugSettings(float fov, float y, float z) override;
+  void UpdateHudAlpha() override;
+  float GetHudTextAlpha() const override;
 };
 
 class CHudDecoInterfaceXRay : public IHudDecoInterface {
@@ -142,17 +142,17 @@ class CHudDecoInterfaceXRay : public IHudDecoInterface {
 
 public:
   CHudDecoInterfaceXRay(CGuiFrame& selHud);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetHudRotation(const zeus::CQuaternion& rot);
-  void SetHudOffset(const zeus::CVector3f& off);
-  void SetReticuleTransform(const zeus::CMatrix3f& xf);
-  void SetDecoRotation(float angle);
-  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
-  void SetFrameColorValue(float v);
-  void Update(float dt, const CStateManager& stateMgr);
-  void UpdateCameraDebugSettings(float fov, float y, float z);
-  void UpdateHudAlpha();
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetHudRotation(const zeus::CQuaternion& rot) override;
+  void SetHudOffset(const zeus::CVector3f& off) override;
+  void SetReticuleTransform(const zeus::CMatrix3f& xf) override;
+  void SetDecoRotation(float angle) override;
+  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) override;
+  void SetFrameColorValue(float v) override;
+  void Update(float dt, const CStateManager& stateMgr) override;
+  void UpdateCameraDebugSettings(float fov, float y, float z) override;
+  void UpdateHudAlpha() override;
 };
 
 class CHudDecoInterfaceThermal : public IHudDecoInterface {
@@ -175,15 +175,15 @@ class CHudDecoInterfaceThermal : public IHudDecoInterface {
 
 public:
   CHudDecoInterfaceThermal(CGuiFrame& selHud);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetHudRotation(const zeus::CQuaternion& rot);
-  void SetHudOffset(const zeus::CVector3f& off);
-  void SetReticuleTransform(const zeus::CMatrix3f& xf);
-  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position);
-  void Update(float dt, const CStateManager& stateMgr);
-  void UpdateCameraDebugSettings(float fov, float y, float z);
-  void UpdateHudAlpha();
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetHudRotation(const zeus::CQuaternion& rot) override;
+  void SetHudOffset(const zeus::CVector3f& off) override;
+  void SetReticuleTransform(const zeus::CMatrix3f& xf) override;
+  void SetDamageTransform(const zeus::CMatrix3f& rotation, const zeus::CVector3f& position) override;
+  void Update(float dt, const CStateManager& stateMgr) override;
+  void UpdateCameraDebugSettings(float fov, float y, float z) override;
+  void UpdateHudAlpha() override;
 };
 
 } // namespace urde

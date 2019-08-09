@@ -66,9 +66,9 @@ public:
                  const zeus::CAABox&, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce,
                  ETriggerFlags triggerFlags, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   virtual void InhabitantRejected(CActor&, CStateManager&) {}
   virtual void InhabitantExited(CActor&, CStateManager&) {}
   virtual void InhabitantIdle(CActor&, CStateManager&) {}
@@ -76,8 +76,8 @@ public:
   CObjectTracker* FindObject(TUniqueId);
   void UpdateInhabitants(float, CStateManager&);
   std::list<CObjectTracker>& GetInhabitants();
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
   const zeus::CAABox& GetTriggerBoundsOR() const { return x130_bounds; }
   zeus::CAABox GetTriggerBoundsWR() const;
   const CDamageInfo& GetDamageInfo() const { return x100_damageInfo; }

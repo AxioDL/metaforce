@@ -12,10 +12,10 @@ public:
   CScriptCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                         bool active, float hfov, u32);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
-  void Render(const CStateManager&) const {}
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void Render(const CStateManager&) const override {}
   TUniqueId GetRandomNextWaypointId(CStateManager& mgr) const;
   float GetHFov() const { return xe8_hfov; }
 };

@@ -142,7 +142,7 @@ private:
 public:
   CElementGen(const TToken<CGenDescription>& gen, EModelOrientationType orientType = EModelOrientationType::Normal,
               EOptionalSystemFlags flags = EOptionalSystemFlags::One);
-  ~CElementGen();
+  ~CElementGen() override;
 
   boo::ObjToken<boo::IShaderDataBinding> m_normalDataBind[2];
   boo::ObjToken<boo::IShaderDataBinding> m_normalSubDataBind[2];
@@ -191,34 +191,34 @@ public:
   void RenderParticles();
   void RenderParticlesIndirectTexture();
 
-  bool Update(double);
-  void Render(const CActorLights* = nullptr);
-  void SetOrientation(const zeus::CTransform&);
-  void SetTranslation(const zeus::CVector3f&);
-  void SetGlobalOrientation(const zeus::CTransform&);
-  void SetGlobalTranslation(const zeus::CVector3f&);
-  void SetGlobalScale(const zeus::CVector3f&);
-  void SetLocalScale(const zeus::CVector3f&);
+  bool Update(double) override;
+  void Render(const CActorLights* = nullptr) override;
+  void SetOrientation(const zeus::CTransform&) override;
+  void SetTranslation(const zeus::CVector3f&) override;
+  void SetGlobalOrientation(const zeus::CTransform&) override;
+  void SetGlobalTranslation(const zeus::CVector3f&) override;
+  void SetGlobalScale(const zeus::CVector3f&) override;
+  void SetLocalScale(const zeus::CVector3f&) override;
   void SetGlobalOrientAndTrans(const zeus::CTransform& xf);
-  void SetParticleEmission(bool);
-  void SetModulationColor(const zeus::CColor&);
-  void SetGeneratorRate(float rate);
-  const zeus::CTransform& GetOrientation() const;
-  const zeus::CVector3f& GetTranslation() const;
-  const zeus::CTransform& GetGlobalOrientation() const;
-  const zeus::CVector3f& GetGlobalTranslation() const;
-  const zeus::CVector3f& GetGlobalScale() const;
-  const zeus::CColor& GetModulationColor() const;
-  float GetGeneratorRate() const { return x98_generatorRate; }
-  bool IsSystemDeletable() const;
-  std::optional<zeus::CAABox> GetBounds() const;
-  u32 GetParticleCount() const;
-  bool SystemHasLight() const;
-  CLight GetLight() const;
-  bool GetParticleEmission() const;
-  void DestroyParticles();
-  void Reset();
-  FourCC Get4CharId() const { return FOURCC('PART'); }
+  void SetParticleEmission(bool) override;
+  void SetModulationColor(const zeus::CColor&) override;
+  void SetGeneratorRate(float rate) override;
+  const zeus::CTransform& GetOrientation() const override;
+  const zeus::CVector3f& GetTranslation() const override;
+  const zeus::CTransform& GetGlobalOrientation() const override;
+  const zeus::CVector3f& GetGlobalTranslation() const override;
+  const zeus::CVector3f& GetGlobalScale() const override;
+  const zeus::CColor& GetModulationColor() const override;
+  float GetGeneratorRate() const override { return x98_generatorRate; }
+  bool IsSystemDeletable() const override;
+  std::optional<zeus::CAABox> GetBounds() const override;
+  u32 GetParticleCount() const override;
+  bool SystemHasLight() const override;
+  CLight GetLight() const override;
+  bool GetParticleEmission() const override;
+  void DestroyParticles() override;
+  void Reset() override;
+  FourCC Get4CharId() const override { return FOURCC('PART'); }
   size_t GetNumActiveChildParticles() const { return x290_activePartChildren.size(); }
   CParticleGen& GetActiveChildParticle(size_t idx) const { return *x290_activePartChildren[idx]; }
   bool IsIndirectTextured() const { return x28_loadedGenDesc->x54_x40_TEXR && x28_loadedGenDesc->x58_x44_TIND; }

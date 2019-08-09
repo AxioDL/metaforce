@@ -11,12 +11,12 @@ class CGuiGroup : public CGuiCompoundWidget {
 
 public:
   CGuiGroup(const CGuiWidgetParms& parms, int defaultWorker, bool b);
-  FourCC GetWidgetTypeID() const { return FOURCC('GRUP'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('GRUP'); }
 
   void SelectWorkerWidget(int workerId, bool setActive, bool setVisible);
   CGuiWidget* GetSelectedWidget();
-  bool AddWorkerWidget(CGuiWidget* worker);
-  void OnActiveChange();
+  bool AddWorkerWidget(CGuiWidget* worker) override;
+  void OnActiveChange() override;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
   static void LoadWidgetFnMap();

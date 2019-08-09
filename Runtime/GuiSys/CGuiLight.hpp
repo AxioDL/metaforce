@@ -19,12 +19,12 @@ class CGuiLight : public CGuiWidget {
   zeus::CColor xdc_ambColor = zeus::skBlack;
 
 public:
-  ~CGuiLight();
+  ~CGuiLight() override;
   CGuiLight(const CGuiWidgetParms& parms, const CLight& light);
-  FourCC GetWidgetTypeID() const { return FOURCC('LITE'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('LITE'); }
 
   CLight BuildLight() const;
-  void SetIsVisible(bool vis);
+  void SetIsVisible(bool vis) override;
   u32 GetLightId() const { return xd8_lightId; }
   const zeus::CColor& GetAmbientLightColor() const { return xdc_ambColor; }
   void SetSpotCutoff(float v) { xbc_spotCutoff = v; }
