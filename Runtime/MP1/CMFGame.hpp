@@ -6,7 +6,6 @@
 
 namespace urde {
 class CStateManager;
-class CInGameGuiManager;
 class CToken;
 
 namespace MP1 {
