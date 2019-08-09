@@ -29,9 +29,9 @@ class CABSAim : public CAdditiveBodyState {
   pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
 
 public:
-  void Start(CBodyController& bc, CStateManager& mgr);
-  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr);
-  void Shutdown(CBodyController& bc);
+  void Start(CBodyController& bc, CStateManager& mgr) override;
+  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
+  void Shutdown(CBodyController& bc) override;
 };
 
 class CABSFlinch : public CAdditiveBodyState {
@@ -41,8 +41,8 @@ class CABSFlinch : public CAdditiveBodyState {
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr);
-  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr);
-  void Shutdown(CBodyController& bc) {}
+  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
+  void Shutdown(CBodyController& bc) override {}
 };
 
 class CABSIdle : public CAdditiveBodyState {
@@ -50,8 +50,8 @@ class CABSIdle : public CAdditiveBodyState {
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) {}
-  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr);
-  void Shutdown(CBodyController& bc) {}
+  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
+  void Shutdown(CBodyController& bc) override {}
 };
 
 class CABSReaction : public CAdditiveBodyState {
@@ -63,9 +63,9 @@ class CABSReaction : public CAdditiveBodyState {
   void StopAnimation(CBodyController& bc);
 
 public:
-  void Start(CBodyController& bc, CStateManager& mgr);
-  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr);
-  void Shutdown(CBodyController& bc) { StopAnimation(bc); }
+  void Start(CBodyController& bc, CStateManager& mgr) override;
+  pas::EAnimationState UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) override;
+  void Shutdown(CBodyController& bc) override { StopAnimation(bc); }
 };
 
 } // namespace urde

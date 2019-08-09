@@ -379,12 +379,12 @@ public:
   void StartStateTransition(EScreen screen);
   void CompleteStateTransition();
   void HandleDebugMenuReturnValue(CGameDebug::EReturnValue val, CArchitectureQueue& queue);
-  void Draw() const;
+  void Draw() const override;
   void UpdateMovies(float dt);
   bool PumpMovieLoad();
   void ProcessUserInput(const CFinalInput& input, CArchitectureQueue& queue);
   EMessageReturn Update(float dt, CArchitectureQueue& queue);
-  EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
+  EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
 };
 
 } // namespace MP1

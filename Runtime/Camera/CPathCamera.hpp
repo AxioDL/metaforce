@@ -26,12 +26,12 @@ public:
               float lengthExtent, float filterMag, float filterProportion, float minEaseDist, float maxEaseDist,
               u32 flags, EInitialSplinePosition initPos);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const {}
-  void ProcessInput(const CFinalInput&, CStateManager& mgr);
-  void Reset(const zeus::CTransform&, CStateManager& mgr);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override {}
+  void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
   zeus::CTransform MoveAlongSpline(float, CStateManager&);
   void ClampToClosedDoor(CStateManager&);
 };

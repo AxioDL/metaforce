@@ -13,11 +13,11 @@ class CMetaAnimPhaseBlend : public IMetaAnim {
 
 public:
   CMetaAnimPhaseBlend(CInputStream& in);
-  EMetaAnimType GetType() const { return EMetaAnimType::PhaseBlend; }
+  EMetaAnimType GetType() const override { return EMetaAnimType::PhaseBlend; }
 
-  void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const;
+  void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const override;
   std::shared_ptr<CAnimTreeNode> VGetAnimationTree(const CAnimSysContext& animSys,
-                                                   const CMetaAnimTreeBuildOrders& orders) const;
+                                                   const CMetaAnimTreeBuildOrders& orders) const override;
 };
 
 } // namespace urde

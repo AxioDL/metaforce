@@ -32,8 +32,8 @@ public:
               float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,
               u32 controllerIdx);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void SetActive(bool active);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void SetActive(bool active) override;
   virtual void ProcessInput(const CFinalInput&, CStateManager& mgr) = 0;
   virtual void Reset(const zeus::CTransform&, CStateManager& mgr) = 0;
 

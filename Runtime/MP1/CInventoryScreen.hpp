@@ -32,27 +32,27 @@ class CInventoryScreen : public CPauseScreenBase {
 public:
   CInventoryScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg,
                    const CDependencyGroup& suitDgrp, const CDependencyGroup& ballDgrp);
-  ~CInventoryScreen();
+  ~CInventoryScreen() override;
 
-  bool InputDisabled() const;
-  void TransitioningAway();
-  void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue);
-  void Touch();
-  void ProcessControllerInput(const CFinalInput& input);
-  void Draw(float transInterp, float totalAlpha, float yOff);
-  float GetCameraYBias() const;
-  bool VReady() const;
-  void VActivate();
-  void RightTableSelectionChanged(int oldSel, int newSel);
-  void ChangedMode(EMode oldMode);
-  void UpdateRightTable();
-  bool ShouldLeftTableAdvance() const;
-  bool ShouldRightTableAdvance() const;
-  u32 GetRightTableCount() const;
-  bool IsRightLogDynamic() const;
-  void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor);
+  bool InputDisabled() const override;
+  void TransitioningAway() override;
+  void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue) override;
+  void Touch() override;
+  void ProcessControllerInput(const CFinalInput& input) override;
+  void Draw(float transInterp, float totalAlpha, float yOff) override;
+  float GetCameraYBias() const override;
+  bool VReady() const override;
+  void VActivate() override;
+  void RightTableSelectionChanged(int oldSel, int newSel) override;
+  void ChangedMode(EMode oldMode) override;
+  void UpdateRightTable() override;
+  bool ShouldLeftTableAdvance() const override;
+  bool ShouldRightTableAdvance() const override;
+  u32 GetRightTableCount() const override;
+  bool IsRightLogDynamic() const override;
+  void UpdateRightLogColors(bool active, const zeus::CColor& activeColor, const zeus::CColor& inactiveColor) override;
   void UpdateRightLogHighlight(bool active, int idx, const zeus::CColor& activeColor,
-                               const zeus::CColor& inactiveColor);
+                               const zeus::CColor& inactiveColor) override;
 };
 
 } // namespace MP1

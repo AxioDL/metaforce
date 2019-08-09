@@ -22,18 +22,21 @@ public:
                     const std::vector<std::shared_ptr<IMetaAnim>>& metaAnims, const CAnimSysContext& animSys,
                     std::string_view name, const CSequenceFundamentals& fundamentals, const CCharAnimTime& time);
 
-  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
-  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
+  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
+  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
   bool VSupportsReverseView() const { return false; }
 
-  SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
-  CCharAnimTime VGetTimeRemaining() const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  std::unique_ptr<IAnimReader> VClone() const;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const override;
+  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator,
+                          u32) const override;
+  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  std::unique_ptr<IAnimReader> VClone() const override;
 };
 
 } // namespace urde

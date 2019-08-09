@@ -10,7 +10,7 @@ protected:
 
 public:
   CAnimTreeNode(std::string_view name) : x4_name(name) {}
-  bool IsCAnimTreeNode() const { return true; }
+  bool IsCAnimTreeNode() const override { return true; }
   static std::shared_ptr<CAnimTreeNode> Cast(std::unique_ptr<IAnimReader>&& ptr) {
     if (ptr->IsCAnimTreeNode())
       return std::static_pointer_cast<CAnimTreeNode>(std::shared_ptr<IAnimReader>(std::move(ptr)));

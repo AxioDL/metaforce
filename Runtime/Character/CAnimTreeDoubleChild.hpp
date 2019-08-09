@@ -29,21 +29,25 @@ protected:
 public:
   CAnimTreeDoubleChild(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
                        std::string_view name);
-  SAdvancementResults VAdvanceView(const CCharAnimTime& a);
-  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  bool VGetBoolPOIState(const char* name) const;
-  s32 VGetInt32POIState(const char* name) const;
-  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const;
-  void VSetPhase(float);
-  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
-  u32 Depth() const;
-  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
-  u32 VGetNumChildren() const;
-  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-  void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& a) override;
+  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const override;
+  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator,
+                          u32) const override;
+  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  bool VGetBoolPOIState(const char* name) const override;
+  s32 VGetInt32POIState(const char* name) const override;
+  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const override;
+  void VSetPhase(float) override;
+  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const override;
+  u32 Depth() const override;
+  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
+  u32 VGetNumChildren() const override;
+  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
+  void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out,
+                           float w) const override;
 
   virtual float VGetRightChildWeight() const = 0;
   float GetRightChildWeight() const { return VGetRightChildWeight(); }

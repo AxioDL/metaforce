@@ -25,11 +25,11 @@ private:
 public:
   CConstantAnimationTimeScale(float scale) : x4_scale(scale) {}
 
-  EVaryingAnimationTimeScaleType GetType() const { return EVaryingAnimationTimeScaleType::Constant; }
-  float VTimeScaleIntegral(float lowerLimit, float upperLimit) const;
-  float VFindUpperLimit(float lowerLimit, float root) const;
-  std::unique_ptr<IVaryingAnimationTimeScale> VClone() const;
-  std::unique_ptr<IVaryingAnimationTimeScale> VGetFunctionMirrored(float value) const;
+  EVaryingAnimationTimeScaleType GetType() const override { return EVaryingAnimationTimeScaleType::Constant; }
+  float VTimeScaleIntegral(float lowerLimit, float upperLimit) const override;
+  float VFindUpperLimit(float lowerLimit, float root) const override;
+  std::unique_ptr<IVaryingAnimationTimeScale> VClone() const override;
+  std::unique_ptr<IVaryingAnimationTimeScale> VGetFunctionMirrored(float value) const override;
 };
 
 class CLinearAnimationTimeScale : public IVaryingAnimationTimeScale {
@@ -46,11 +46,11 @@ class CLinearAnimationTimeScale : public IVaryingAnimationTimeScale {
 public:
   CLinearAnimationTimeScale(const CCharAnimTime& t1, float y1, const CCharAnimTime& t2, float y2);
 
-  EVaryingAnimationTimeScaleType GetType() const { return EVaryingAnimationTimeScaleType::Linear; }
-  float VTimeScaleIntegral(float lowerLimit, float upperLimit) const;
-  float VFindUpperLimit(float lowerLimit, float root) const;
-  std::unique_ptr<IVaryingAnimationTimeScale> VClone() const;
-  std::unique_ptr<IVaryingAnimationTimeScale> VGetFunctionMirrored(float value) const;
+  EVaryingAnimationTimeScaleType GetType() const override { return EVaryingAnimationTimeScaleType::Linear; }
+  float VTimeScaleIntegral(float lowerLimit, float upperLimit) const override;
+  float VFindUpperLimit(float lowerLimit, float root) const override;
+  std::unique_ptr<IVaryingAnimationTimeScale> VClone() const override;
+  std::unique_ptr<IVaryingAnimationTimeScale> VGetFunctionMirrored(float value) const override;
 };
 
 } // namespace urde

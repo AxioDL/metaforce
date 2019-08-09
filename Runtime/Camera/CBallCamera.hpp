@@ -235,15 +235,15 @@ public:
   CBallCamera(TUniqueId uid, TUniqueId watchedId, const zeus::CTransform& xf, float fovy, float znear, float zfar,
               float aspect);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void ProcessInput(const CFinalInput& input, CStateManager& mgr);
-  void Reset(const zeus::CTransform&, CStateManager& mgr);
-  void Render(const CStateManager& mgr) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void ProcessInput(const CFinalInput& input, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
+  void Render(const CStateManager& mgr) const override;
   EBallCameraBehaviour GetBehaviour() const { return x188_behaviour; }
   EBallCameraState GetState() const { return x400_state; }
   void SetState(EBallCameraState state, CStateManager& mgr);
-  void Think(float dt, CStateManager& mgr);
+  void Think(float dt, CStateManager& mgr) override;
   bool TransitionFromMorphBallState(CStateManager& mgr);
   TUniqueId GetTooCloseActorId() const { return x3dc_tooCloseActorId; }
   float GetTooCloseActorDistance() const { return x3e0_tooCloseActorDist; }

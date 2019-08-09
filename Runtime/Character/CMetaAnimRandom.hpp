@@ -12,11 +12,11 @@ class CMetaAnimRandom : public IMetaAnim {
 
 public:
   CMetaAnimRandom(CInputStream& in);
-  EMetaAnimType GetType() const { return EMetaAnimType::Random; }
+  EMetaAnimType GetType() const override { return EMetaAnimType::Random; }
 
-  void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const;
+  void GetUniquePrimitives(std::set<CPrimitive>& primsOut) const override;
   std::shared_ptr<CAnimTreeNode> VGetAnimationTree(const CAnimSysContext& animSys,
-                                                   const CMetaAnimTreeBuildOrders& orders) const;
+                                                   const CMetaAnimTreeBuildOrders& orders) const override;
 };
 
 } // namespace urde

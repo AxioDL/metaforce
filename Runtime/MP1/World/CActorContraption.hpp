@@ -18,10 +18,10 @@ public:
                     const zeus::CAABox&, const CMaterialList&, float, float, const CHealthInfo&,
                     const CDamageVulnerability&, const CActorParameters&, CAssetId, const CDamageInfo&, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
   CFlameThrower* CreateFlameThrower(std::string_view, CStateManager&);
   void ResetFlameThrowers(CStateManager& mgr);
 };

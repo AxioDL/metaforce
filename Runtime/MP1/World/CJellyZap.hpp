@@ -37,18 +37,18 @@ public:
             bool, float, float, float, float, float, float, float, float, float, float, float, float,
             const CPatternedInfo&, const CActorParameters&);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Suck(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void InActive(CStateManager&, EStateMsg, float);
-  void Flinch(CStateManager&, EStateMsg, float);
-  bool ShouldAttack(CStateManager&, float) { return x330_stateMachineState.GetTime() > x5a8_attackDelay; }
-  bool ShouldSpecialAttack(CStateManager& mgr, float) { return ClosestToPlayer(mgr); }
-  bool InAttackPosition(CStateManager&, float);
-  bool InDetectionRange(CStateManager&, float);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Suck(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void InActive(CStateManager&, EStateMsg, float) override;
+  void Flinch(CStateManager&, EStateMsg, float) override;
+  bool ShouldAttack(CStateManager&, float) override { return x330_stateMachineState.GetTime() > x5a8_attackDelay; }
+  bool ShouldSpecialAttack(CStateManager& mgr, float) override { return ClosestToPlayer(mgr); }
+  bool InAttackPosition(CStateManager&, float) override;
+  bool InDetectionRange(CStateManager&, float) override;
 };
 } // namespace urde::MP1

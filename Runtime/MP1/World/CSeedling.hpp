@@ -24,21 +24,21 @@ public:
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, const CDamageInfo&, const CDamageInfo&,
             float, float, float, float);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
-  CProjectileInfo* GetProjectileInfo() { return &x6c0_projectileInfo; }
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
-  CPathFindSearch* GetSearchPath() { return &x5d8_searchPath; }
-  void Patrol(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void Enraged(CStateManager&, EStateMsg, float);
-  void ProjectileAttack(CStateManager&, EStateMsg, float);
-  void Generate(CStateManager&, EStateMsg, float);
-  bool ShouldAttack(CStateManager&, float);
-  void MassiveDeath(CStateManager&);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
+  CProjectileInfo* GetProjectileInfo() override { return &x6c0_projectileInfo; }
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
+  CPathFindSearch* GetSearchPath() override { return &x5d8_searchPath; }
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void Enraged(CStateManager&, EStateMsg, float) override;
+  void ProjectileAttack(CStateManager&, EStateMsg, float) override;
+  void Generate(CStateManager&, EStateMsg, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
+  void MassiveDeath(CStateManager&) override;
 };
 } // namespace urde::MP1

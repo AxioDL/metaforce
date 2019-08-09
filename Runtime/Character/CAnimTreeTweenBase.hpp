@@ -21,16 +21,17 @@ public:
 
   float GetBlendingWeight() const { return VGetBlendingWeight(); }
 
-  void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out, float w) const;
-  float VGetRightChildWeight() const { return GetBlendingWeight(); }
+  void VGetWeightedReaders(rstl::reserved_vector<std::pair<float, std::weak_ptr<IAnimReader>>, 16>& out,
+                           float w) const override;
+  float VGetRightChildWeight() const override { return GetBlendingWeight(); }
 
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
-  bool VHasOffset(const CSegId& seg) const;
-  zeus::CVector3f VGetOffset(const CSegId& seg) const;
-  zeus::CQuaternion VGetRotation(const CSegId& seg) const;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const override;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const override;
+  bool VHasOffset(const CSegId& seg) const override;
+  zeus::CVector3f VGetOffset(const CSegId& seg) const override;
+  zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 
-  std::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
   virtual std::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() {
     return CAnimTreeTweenBase::VSimplified();
   }

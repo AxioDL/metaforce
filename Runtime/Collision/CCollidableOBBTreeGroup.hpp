@@ -25,14 +25,14 @@ class CCollidableOBBTreeGroup : public CCollisionPrimitive {
 
 public:
   CCollidableOBBTreeGroup(const CCollidableOBBTreeGroupContainer*, const CMaterialList&);
-  virtual ~CCollidableOBBTreeGroup() = default;
+  ~CCollidableOBBTreeGroup() override = default;
 
   void ResetTestStats() const;
-  virtual u32 GetTableIndex() const;
-  virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
-  virtual zeus::CAABox CalculateLocalAABox() const;
-  virtual FourCC GetPrimType() const;
-  virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+  u32 GetTableIndex() const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateLocalAABox() const override;
+  FourCC GetPrimType() const override;
+  CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
 
   static const Type& GetType();
   static void SetStaticTableIndex(u32 index);

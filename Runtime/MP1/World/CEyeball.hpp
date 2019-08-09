@@ -42,21 +42,21 @@ public:
            CAssetId beamPulseFxId, CAssetId beamTextureId, CAssetId beamGlowTextureId, u32 anim0, u32 anim1, u32 anim2,
            u32 anim3, u32 beamSfx, bool attackDisabled, const CActorParameters& actParms);
 
-  void Accept(IVisitor& visitor);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void Touch(CActor&, CStateManager&){};
-  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState);
+  void Accept(IVisitor& visitor) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void Touch(CActor&, CStateManager&) override {}
+  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
 
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float);
-  void Think(float, CStateManager&);
-  void Flinch(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void InActive(CStateManager&, EStateMsg, float);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float) override;
+  void Think(float, CStateManager&) override;
+  void Flinch(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void InActive(CStateManager&, EStateMsg, float) override;
 
-  void Cover(CStateManager&, EStateMsg, float);
+  void Cover(CStateManager&, EStateMsg, float) override;
 
-  bool ShouldAttack(CStateManager&, float) { return x60c_26_alert; }
-  bool ShouldFire(CStateManager&, float) { return !x60c_27_attackDisabled; }
+  bool ShouldAttack(CStateManager&, float) override { return x60c_26_alert; }
+  bool ShouldFire(CStateManager&, float) override { return !x60c_27_attackDisabled; }
 };
 } // namespace urde::MP1

@@ -73,14 +73,14 @@ class CCollidableOBBTree : public CCollisionPrimitive {
 
 public:
   CCollidableOBBTree(const COBBTree* tree, const CMaterialList& material);
-  virtual ~CCollidableOBBTree() = default;
+  ~CCollidableOBBTree() override = default;
   void ResetTestStats() const;
   void ResetTestStatsRecurse(const COBBTree::CNode&) const;
-  u32 GetTableIndex() const { return sTableIndex; }
-  zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
-  zeus::CAABox CalculateLocalAABox() const;
-  FourCC GetPrimType() const;
-  CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+  u32 GetTableIndex() const override { return sTableIndex; }
+  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateLocalAABox() const override;
+  FourCC GetPrimType() const override;
+  CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
 };
 
 } // namespace urde

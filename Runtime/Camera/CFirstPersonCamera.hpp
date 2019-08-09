@@ -18,11 +18,11 @@ public:
   CFirstPersonCamera(TUniqueId, const zeus::CTransform& xf, TUniqueId, float orbitCameraSpeed, float fov,
                      float nearplane, float farplane, float aspect);
 
-  void Accept(IVisitor& visitor);
-  void PreThink(float dt, CStateManager& mgr);
-  void Think(float dt, CStateManager& mgr);
-  void ProcessInput(const CFinalInput&, CStateManager& mgr);
-  void Reset(const zeus::CTransform&, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void PreThink(float dt, CStateManager& mgr) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
 
   void SkipCinematic();
   const zeus::CTransform& GetGunFollowTransform() const { return x190_gunFollowXf; }

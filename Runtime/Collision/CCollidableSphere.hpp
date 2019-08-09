@@ -23,11 +23,11 @@ public:
   void SetSphereCenter(const zeus::CVector3f& center) { x10_sphere.position = center; }
   zeus::CSphere Transform(const zeus::CTransform& xf) const;
 
-  virtual u32 GetTableIndex() const;
-  virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
-  virtual zeus::CAABox CalculateLocalAABox() const;
-  virtual FourCC GetPrimType() const;
-  virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+  u32 GetTableIndex() const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateLocalAABox() const override;
+  FourCC GetPrimType() const override;
+  CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
 
   static const Type& GetType() { return sType; }
   static void SetStaticTableIndex(u32 index) { sTableIndex = index; }

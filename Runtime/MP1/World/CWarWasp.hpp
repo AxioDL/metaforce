@@ -75,48 +75,49 @@ public:
            const CDamageInfo& dInfo1, const CActorParameters&, CAssetId projectileWeapon,
            const CDamageInfo& projectileDamage, CAssetId projectileVisorParticle, u32 projecileVisorSfx);
 
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
 
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
-  const CCollisionPrimitive* GetCollisionPrimitive() const;
-  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
-  bool IsListening() const;
-  bool Listen(const zeus::CVector3f&, EListenNoiseType);
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role, const zeus::CVector3f& aimPos) const;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
+  bool IsListening() const override;
+  bool Listen(const zeus::CVector3f&, EListenNoiseType) override;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+                            const zeus::CVector3f& aimPos) const override;
   void UpdateTouchBounds();
   bool IsRetreating() const { return x72e_30_isRetreating; }
 
-  void Patrol(CStateManager&, EStateMsg, float);
-  void PathFind(CStateManager& mgr, EStateMsg msg, float dt);
-  void TargetPatrol(CStateManager&, EStateMsg, float);
-  void Generate(CStateManager&, EStateMsg, float);
-  void Deactivate(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void JumpBack(CStateManager&, EStateMsg, float);
-  void Shuffle(CStateManager&, EStateMsg, float);
-  void ProjectileAttack(CStateManager&, EStateMsg, float);
-  void TelegraphAttack(CStateManager&, EStateMsg, float);
-  void Dodge(CStateManager&, EStateMsg, float);
-  void Retreat(CStateManager&, EStateMsg, float);
-  void SpecialAttack(CStateManager&, EStateMsg, float);
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  void PathFind(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void TargetPatrol(CStateManager&, EStateMsg, float) override;
+  void Generate(CStateManager&, EStateMsg, float) override;
+  void Deactivate(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void JumpBack(CStateManager&, EStateMsg, float) override;
+  void Shuffle(CStateManager&, EStateMsg, float) override;
+  void ProjectileAttack(CStateManager&, EStateMsg, float) override;
+  void TelegraphAttack(CStateManager&, EStateMsg, float) override;
+  void Dodge(CStateManager&, EStateMsg, float) override;
+  void Retreat(CStateManager&, EStateMsg, float) override;
+  void SpecialAttack(CStateManager&, EStateMsg, float) override;
 
-  bool InAttackPosition(CStateManager&, float);
-  bool Leash(CStateManager&, float);
-  bool PathShagged(CStateManager&, float);
-  bool AnimOver(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float);
-  bool InPosition(CStateManager&, float);
-  bool ShouldTurn(CStateManager&, float);
-  bool HearShot(CStateManager&, float);
-  bool ShouldFire(CStateManager&, float);
-  bool ShouldDodge(CStateManager&, float);
-  bool ShouldSpecialAttack(CStateManager&, float);
+  bool InAttackPosition(CStateManager&, float) override;
+  bool Leash(CStateManager&, float) override;
+  bool PathShagged(CStateManager&, float) override;
+  bool AnimOver(CStateManager&, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
+  bool InPosition(CStateManager&, float) override;
+  bool ShouldTurn(CStateManager&, float) override;
+  bool HearShot(CStateManager&, float) override;
+  bool ShouldFire(CStateManager&, float) override;
+  bool ShouldDodge(CStateManager&, float) override;
+  bool ShouldSpecialAttack(CStateManager&, float) override;
 
-  CPathFindSearch* GetSearchPath();
-  CProjectileInfo* GetProjectileInfo();
+  CPathFindSearch* GetSearchPath() override;
+  CProjectileInfo* GetProjectileInfo() override;
 };
 } // namespace MP1
 } // namespace urde

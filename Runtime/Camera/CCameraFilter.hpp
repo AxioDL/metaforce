@@ -62,10 +62,10 @@ class CCameraFilterPass final : public CCameraFilterPassBase {
   std::optional<S> m_shader;
 
 public:
-  void Update(float dt);
-  void SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color, CAssetId txtr);
-  void DisableFilter(float time);
-  void Draw() const;
+  void Update(float dt) override;
+  void SetFilter(EFilterType type, EFilterShape shape, float time, const zeus::CColor& color, CAssetId txtr) override;
+  void DisableFilter(float time) override;
+  void Draw() const override;
 };
 
 class CCameraFilterPassPoly {

@@ -15,8 +15,8 @@ public:
   void IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp);
   void Shutdown();
 
-  CAssetId TranslateOriginalToNew(CAssetId id) const;
-  CAssetId TranslateNewToOriginal(CAssetId id) const;
+  CAssetId TranslateOriginalToNew(CAssetId id) const override;
+  CAssetId TranslateNewToOriginal(CAssetId id) const override;
 };
 
 } // namespace urde
