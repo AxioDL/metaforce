@@ -2977,7 +2977,35 @@ CEntity* ScriptLoader::LoadActorContraption(CStateManager& mgr, CInputStream& in
 }
 
 CEntity* ScriptLoader::LoadOculus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 15, "Oculus"))
+    return nullptr;
+
+  SScaledActorHead aHead = LoadScaledActorHead(in, mgr);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  if (!pInfo.GetAnimationParameters().GetACSFile().IsValid())
+    return nullptr;
+
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  CDamageVulnerability dVuln(in);
+  float f7 = in.readFloatBig();
+  CDamageInfo dInfo(in);
+  const CAnimationParameters animParms = pInfo.GetAnimationParameters();
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), aHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+
+  return new MP1::CParasite(
+      mgr.AllocateUniqueId(), aHead.x0_name, CPatterned::EFlavorType::Zero, info, aHead.x10_transform, std::move(mData),
+      pInfo, EBodyType::WallWalker, 0.f, f1, f2, f3, f4, 0.2f, 0.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f, f7, 0.f, 0.f, f5, f6,
+      false, CWallWalker::EWalkerType::Oculus, dVuln, dInfo, -1, -1, -1, CAssetId(), CAssetId(), 0.f, actParms);
 }
 
 CEntity* ScriptLoader::LoadGeemer(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {

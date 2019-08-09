@@ -69,6 +69,7 @@ static const std::unordered_set<uint32_t> IndividualOrigIDs = {
 
 struct OriginalIDs {
   static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
+    Log.report(logvisor::Level::Info, fmt("Generating Original ID mappings..."));
     std::unordered_set<UniqueID32> addedIDs;
     std::vector<UniqueID32> originalIDs;
 
@@ -93,6 +94,7 @@ struct OriginalIDs {
     path.makeDirChain(false);
     athena::io::FileWriter fileW(path.getAbsolutePath());
     yamlW.finish(&fileW);
+    Log.report(logvisor::Level::Info, fmt("Done"));
   }
 
   static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
@@ -138,6 +140,7 @@ struct OriginalIDs {
 
 struct TextureCache {
   static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
+    Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
     std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
 
     pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
@@ -159,6 +162,36 @@ struct TextureCache {
     path.makeDirChain(false);
     athena::io::FileWriter fileW(path.getAbsolutePath());
     yamlW.finish(&fileW);
+    Log.report(logvisor::Level::Info, fmt("Done..."));
+  }
+
+  static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
+    hecl::Database::Project& project = inPath.getProject();
+    athena::io::YAMLDocReader r;
+    athena::io::FileReader fr(inPath.getAbsolutePath());
+    if (!fr.isOpen() || !r.parse(&fr))
+      return;
+
+    std::vector<std::pair<UniqueID32, TXTR::Meta>> metaPairs;
+    metaPairs.reserve(r.getRootNode()->m_mapChildren.size());
+    for (const auto& node : r.getRootNode()->m_mapChildren) {
+      hecl::ProjectPath projectPath(project, node.first);
+      auto rec = r.enterSubRecord(node.first.c_str());
+      TXTR::Meta meta;
+      meta.read(r);
+      metaPairs.push_back(std::make_pair(projectPath.hash().val32(), meta));
+    }
+
+    std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
+      return a.first < b.first;
+    });
+
+    athena::io::FileWriter w(outPath.getAbsolutePath());
+    w.writeUint32Big(metaPairs.size());
+    for (const auto& pair : metaPairs) {
+      pair.first.write(w);
+      pair.second.write(w);
+    }
   }
 };
 
@@ -504,6 +537,8 @@ struct SpecMP1 : SpecBase {
         return true;
       else if (!strcmp(classType, "MP1OriginalIDs"))
         return true;
+      else if (!strcmp(classType, "MP1TextureCache"))
+        return true;
       return false;
     });
   }
@@ -656,6 +691,9 @@ struct SpecMP1 : SpecBase {
               return true;
             } else if (!strcmp(className, "MP1OriginalIDs")) {
               resTag.type = SBIG('OIDS');
+              return true;
+            } else if (!strcmp(className, "MP1TextureCache")) {
+              resTag.type = SBIG('TMET');
               return true;
             }
 
@@ -947,6 +985,8 @@ struct SpecMP1 : SpecBase {
         DNAMP1::AFSM::Cook(in, out);
       } else if (!classStr.compare("MP1OriginalIDs")) {
         OriginalIDs::Cook(in, out);
+      } else if (!classStr.compare("MP1TextureCache")) {
+        TextureCache::Cook(in, out);
       }
     }
     progress(_SYS_STR("Done"));
