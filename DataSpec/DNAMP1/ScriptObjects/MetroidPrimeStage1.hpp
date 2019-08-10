@@ -285,19 +285,20 @@ struct MetroidPrimeStage1 : IScriptObject {
     void scanIDs(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
   } massivePrimeStruct;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     massivePrimeStruct.actorParameters.addCMDLRigPairs(pakRouter, charAssoc,
                                                        massivePrimeStruct.patternedInfo.animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     massivePrimeStruct.nameIDs(pakRouter, name + "_massiveStruct");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     massivePrimeStruct.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { massivePrimeStruct.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { massivePrimeStruct.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

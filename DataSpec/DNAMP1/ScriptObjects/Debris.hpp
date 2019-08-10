@@ -27,7 +27,7 @@ struct Debris : IScriptObject {
   Value<bool> b1;
   Value<bool> active;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
@@ -39,12 +39,13 @@ struct Debris : IScriptObject {
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(model, pathsOut);
     g_curSpec->flattenDependencies(particle, pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

@@ -20,7 +20,8 @@ struct AreaAttributes : IScriptObject {
   UniqueID32 skybox;
   Value<atUint32> phazonType;
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(skybox, pathsOut);
   }
 };

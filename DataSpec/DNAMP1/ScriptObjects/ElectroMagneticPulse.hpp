@@ -21,14 +21,15 @@ struct ElectroMagneticPulse : IScriptObject {
   Value<float> unknown8;
   UniqueID32 particle;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(particle, pathsOut);
   }
 };

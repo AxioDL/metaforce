@@ -19,14 +19,15 @@ struct CameraFilterKeyframe : IScriptObject {
   Value<float> timeOut;
   UniqueID32 texture;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(texture, pathsOut);
   }
 };

@@ -34,7 +34,7 @@ struct IScriptObject : BigDNAVYaml {
   Value<atUint32> connectionCount;
   Vector<Connection, AT_DNA_COUNT(connectionCount)> connections;
   Value<atUint32> propertyCount;
-  virtual ~IScriptObject() = default;
+  ~IScriptObject() override = default;
 
   virtual void addCMDLRigPairs(PAKRouter<PAKBridge>&, CharacterAssociations<UniqueID32>& charAssoc) const {}
   virtual void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {}

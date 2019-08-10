@@ -9,7 +9,7 @@
 
 namespace DataSpec {
 struct ISTRG : BigDNAVYaml {
-  virtual ~ISTRG() = default;
+  ~ISTRG() override = default;
 
   virtual size_t count() const = 0;
   virtual std::string getUTF8(const FourCC& lang, size_t idx) const = 0;

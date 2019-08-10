@@ -45,11 +45,11 @@ struct FlyingPirate : IScriptObject {
   Value<float> unknown19;
   Value<float> unknown20;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (wpsc1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(wpsc1);
       ent->name = name + "_wpsc1";
@@ -82,7 +82,8 @@ struct FlyingPirate : IScriptObject {
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(wpsc1, pathsOut);
     g_curSpec->flattenDependencies(wpsc2, pathsOut);
     g_curSpec->flattenDependencies(wpsc3, pathsOut);
@@ -94,6 +95,6 @@ struct FlyingPirate : IScriptObject {
     actorParameters.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

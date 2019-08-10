@@ -100,7 +100,7 @@ struct OriginalIDs {
 };
 
 struct SpecMP2 : SpecBase {
-  bool checkStandaloneID(const char* id) const {
+  bool checkStandaloneID(const char* id) const override {
     if (!memcmp(id, "G2M", 3))
       return true;
     return false;
@@ -115,7 +115,7 @@ struct SpecMP2 : SpecBase {
   PAKRouter<DNAMP2::PAKBridge> m_pakRouter;
   IDRestorer<UniqueID32> m_idRestorer;
 
-  void setThreadProject() {
+  void setThreadProject() override {
     SpecBase::setThreadProject();
     UniqueIDBridge::SetIDRestorer(&m_idRestorer);
   }
@@ -194,7 +194,7 @@ struct SpecMP2 : SpecBase {
   }
 
   bool checkFromStandaloneDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
-                               const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) {
+                               const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     nod::IPartition* partition = disc.getDataPartition();
     std::unique_ptr<uint8_t[]> dolBuf = partition->getDOLBuf();
     const char* buildInfo = (char*)memmem(dolBuf.get(), partition->getDOLSize(), "MetroidBuildInfo", 16) + 19;
@@ -218,7 +218,7 @@ struct SpecMP2 : SpecBase {
   }
 
   bool checkFromTrilogyDisc(nod::DiscBase& disc, const hecl::SystemString& regstr,
-                            const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) {
+                            const std::vector<hecl::SystemString>& args, std::vector<ExtractReport>& reps) override {
     std::vector<hecl::SystemString> mp2args;
     bool doExtract = false;
     if (args.size()) {
@@ -277,7 +277,7 @@ struct SpecMP2 : SpecBase {
     return true;
   }
 
-  bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) {
+  bool extractFromDisc(nod::DiscBase& disc, bool force, const hecl::MultiProgressPrinter& progress) override {
     nod::ExtractionContext ctx = {force, nullptr};
 
     m_workPath.makeDir();
@@ -335,17 +335,17 @@ struct SpecMP2 : SpecBase {
     return true;
   }
 
-  const hecl::Database::DataSpecEntry& getOriginalSpec() const { return SpecEntMP2; }
+  const hecl::Database::DataSpecEntry& getOriginalSpec() const override { return SpecEntMP2; }
 
-  const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const { return SpecEntMP2ORIG; }
+  const hecl::Database::DataSpecEntry& getUnmodifiedSpec() const override { return SpecEntMP2ORIG; }
 
-  hecl::ProjectPath getWorking(class UniqueID32& id) { return m_pakRouter.getWorking(id); }
+  hecl::ProjectPath getWorking(class UniqueID32& id) override { return m_pakRouter.getWorking(id); }
 
-  bool checkPathPrefix(const hecl::ProjectPath& path) const {
+  bool checkPathPrefix(const hecl::ProjectPath& path) const override {
     return path.getRelativePath().compare(0, 4, _SYS_STR("MP2/")) == 0;
   }
 
-  bool validateYAMLDNAType(athena::io::IStreamReader& fp) const {
+  bool validateYAMLDNAType(athena::io::IStreamReader& fp) const override {
     athena::io::YAMLDocReader reader;
     yaml_parser_set_input(reader.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &fp);
     return reader.ClassTypeOperation([](const char* classType) {
@@ -359,49 +359,49 @@ struct SpecMP2 : SpecBase {
     });
   }
 
-  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const { return {}; }
+  urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override { return {}; }
 
   void cookMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                hecl::blender::Token& btok, FCookProgress progress) {}
+                hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                   hecl::blender::Token& btok, FCookProgress progress) {}
+                   hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                    hecl::blender::Token& btok, FCookProgress progress) {}
+                    hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                 hecl::blender::Token& btok, FCookProgress progress) {}
+                 hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                hecl::blender::Token& btok, FCookProgress progress) {}
+                hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
-                 hecl::blender::Token& btok, FCookProgress progress) {}
+                 hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
-                    hecl::blender::Token& btok, FCookProgress progress) {}
+                    hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
-                FCookProgress progress) {}
+                FCookProgress progress) override {}
 
-  void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut) {}
+  void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut) override {}
 
   void flattenDependenciesANCSYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut,
-                                   int charIdx) {}
+                                   int charIdx) override {}
 
-  void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) {
+  void cookAudioGroup(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) override {
     DNAMP2::AGSC::Cook(in, out);
     progress(_SYS_STR("Done"));
   }
 
-  void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) {
+  void cookSong(const hecl::ProjectPath& out, const hecl::ProjectPath& in, FCookProgress progress) override {
     DNAMP1::CSNG::Cook(in, out);
     progress(_SYS_STR("Done"));
   }
 
   void cookMapArea(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
-                   hecl::blender::Token& btok, FCookProgress progress) {
+                   hecl::blender::Token& btok, FCookProgress progress) override {
     hecl::blender::MapArea mapa = ds.compileMapArea();
     ds.close();
     DNAMP2::MAPA::Cook(mapa, out);
@@ -409,7 +409,7 @@ struct SpecMP2 : SpecBase {
   }
 
   void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
-                       hecl::blender::Token& btok, FCookProgress progress) {
+                       hecl::blender::Token& btok, FCookProgress progress) override {
     hecl::blender::MapUniverse mapu = ds.compileMapUniverse();
     ds.close();
     DNAMAPU::MAPU::Cook(mapu, out);

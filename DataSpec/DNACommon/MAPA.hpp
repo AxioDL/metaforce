@@ -25,10 +25,10 @@ struct MAPA : BigDNA {
     Value<atUint32> moCount = 0;
     Value<atUint32> vtxCount = 0;
     Value<atUint32> surfCount = 0;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   struct HeaderMP2 : IMAPAHeader {
@@ -43,10 +43,10 @@ struct MAPA : BigDNA {
     Value<atUint32> moCount = 0;
     Value<atUint32> vtxCount = 0;
     Value<atUint32> surfCount = 0;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   struct HeaderMP3 : IMAPAHeader {
@@ -65,10 +65,10 @@ struct MAPA : BigDNA {
     Value<atUint32> internalNameLength = 0;
     Value<atUint32> unknown7 = 0;
     String<AT_DNA_COUNT(internalNameLength)> internalName;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   std::unique_ptr<IMAPAHeader> header;

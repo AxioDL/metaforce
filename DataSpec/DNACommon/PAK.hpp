@@ -25,7 +25,7 @@ public:
     if (m_pos >= m_sz)
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
-  void seek(atInt64 pos, athena::SeekOrigin origin) {
+  void seek(atInt64 pos, athena::SeekOrigin origin) override {
     if (origin == athena::Begin)
       m_pos = pos;
     else if (origin == athena::Current)
@@ -35,10 +35,10 @@ public:
     if (m_pos > m_sz)
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
-  atUint64 position() const { return m_pos; }
-  atUint64 length() const { return m_sz; }
+  atUint64 position() const override { return m_pos; }
+  atUint64 length() const override { return m_sz; }
   const atUint8* data() const { return m_buf.get(); }
-  atUint64 readUBytesToBuf(void* buf, atUint64 len) {
+  atUint64 readUBytesToBuf(void* buf, atUint64 len) override {
     atUint64 bufEnd = m_pos + len;
     if (bufEnd > m_sz)
       len -= bufEnd - m_sz;
@@ -172,7 +172,7 @@ public:
   using PAKRouterBase::getWorking;
   hecl::ProjectPath getWorking(const EntryType* entry, const ResExtractor<BRIDGETYPE>& extractor) const;
   hecl::ProjectPath getWorking(const EntryType* entry) const;
-  hecl::ProjectPath getWorking(const IDType& id, bool silenceWarnings = false) const;
+  hecl::ProjectPath getWorking(const IDType& id, bool silenceWarnings = false) const override;
   hecl::ProjectPath getCooked(const EntryType* entry) const;
   hecl::ProjectPath getCooked(const IDType& id, bool silenceWarnings = false) const;
 

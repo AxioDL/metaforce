@@ -7,9 +7,9 @@ extern logvisor::Module LogModule;
 
 struct IElement : BigDNAVYaml {
   Delete _d;
-  virtual ~IElement() = default;
+  ~IElement() override = default;
   virtual const char* ClassID() const = 0;
-  const char* DNATypeV() const { return ClassID(); }
+  const char* DNATypeV() const override { return ClassID(); }
 };
 
 struct IRealElement : IElement {
@@ -79,20 +79,20 @@ struct BoolHelper : IElement {
     value = val;
     return *this;
   }
-  const char* ClassID() const { return "BoolHelper"; }
+  const char* ClassID() const override { return "BoolHelper"; }
 };
 
 struct RELifetimeTween : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "LFTW"; }
+  const char* ClassID() const override { return "LFTW"; }
 };
 
 struct REConstant : IRealElement {
   AT_DECL_EXPLICIT_DNA_YAML
   Value<float> val;
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 };
 
 struct RETimeChain : IRealElement {
@@ -100,14 +100,14 @@ struct RETimeChain : IRealElement {
   RealElementFactory a;
   RealElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "CHAN"; }
+  const char* ClassID() const override { return "CHAN"; }
 };
 
 struct REAdd : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "ADD_"; }
+  const char* ClassID() const override { return "ADD_"; }
 };
 
 struct REClamp : IRealElement {
@@ -115,7 +115,7 @@ struct REClamp : IRealElement {
   RealElementFactory min;
   RealElementFactory max;
   RealElementFactory val;
-  const char* ClassID() const { return "CLMP"; }
+  const char* ClassID() const override { return "CLMP"; }
 };
 
 struct REKeyframeEmitter : IRealElement {
@@ -128,28 +128,28 @@ struct REKeyframeEmitter : IRealElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<float, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const { return percentageTween ? "KEYP" : "KEYE"; }
+  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
 };
 
 struct REInitialRandom : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "IRND"; }
+  const char* ClassID() const override { return "IRND"; }
 };
 
 struct RERandom : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "RAND"; }
+  const char* ClassID() const override { return "RAND"; }
 };
 
 struct REMultiply : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "MULT"; }
+  const char* ClassID() const override { return "MULT"; }
 };
 
 struct REPulse : IRealElement {
@@ -158,19 +158,19 @@ struct REPulse : IRealElement {
   IntElementFactory bDuration;
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "PULS"; }
+  const char* ClassID() const override { return "PULS"; }
 };
 
 struct RETimeScale : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory dv;
-  const char* ClassID() const { return "SCAL"; }
+  const char* ClassID() const override { return "SCAL"; }
 };
 
 struct RELifetimePercent : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory percent;
-  const char* ClassID() const { return "RLPT"; }
+  const char* ClassID() const override { return "RLPT"; }
 };
 
 struct RESineWave : IRealElement {
@@ -178,14 +178,14 @@ struct RESineWave : IRealElement {
   RealElementFactory frequency;
   RealElementFactory amplitude;
   RealElementFactory phase;
-  const char* ClassID() const { return "SINE"; }
+  const char* ClassID() const override { return "SINE"; }
 };
 
 struct REInitialSwitch : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "ISWT"; }
+  const char* ClassID() const override { return "ISWT"; }
 };
 
 struct RECompareLessThan : IRealElement {
@@ -194,7 +194,7 @@ struct RECompareLessThan : IRealElement {
   RealElementFactory cb;
   RealElementFactory pass;
   RealElementFactory fail;
-  const char* ClassID() const { return "CLTN"; }
+  const char* ClassID() const override { return "CLTN"; }
 };
 
 struct RECompareEquals : IRealElement {
@@ -203,101 +203,101 @@ struct RECompareEquals : IRealElement {
   RealElementFactory cb;
   RealElementFactory pass;
   RealElementFactory fail;
-  const char* ClassID() const { return "CEQL"; }
+  const char* ClassID() const override { return "CEQL"; }
 };
 
 struct REParticleAdvanceParam1 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP1"; }
+  const char* ClassID() const override { return "PAP1"; }
 };
 
 struct REParticleAdvanceParam2 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP2"; }
+  const char* ClassID() const override { return "PAP2"; }
 };
 
 struct REParticleAdvanceParam3 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP3"; }
+  const char* ClassID() const override { return "PAP3"; }
 };
 
 struct REParticleAdvanceParam4 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP4"; }
+  const char* ClassID() const override { return "PAP4"; }
 };
 
 struct REParticleAdvanceParam5 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP5"; }
+  const char* ClassID() const override { return "PAP5"; }
 };
 
 struct REParticleAdvanceParam6 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP6"; }
+  const char* ClassID() const override { return "PAP6"; }
 };
 
 struct REParticleAdvanceParam7 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP7"; }
+  const char* ClassID() const override { return "PAP7"; }
 };
 
 struct REParticleAdvanceParam8 : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PAP8"; }
+  const char* ClassID() const override { return "PAP8"; }
 };
 
 struct REParticleSizeOrLineLength : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PSLL"; }
+  const char* ClassID() const override { return "PSLL"; }
 };
 
 struct REParticleRotationOrLineWidth : IRealElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PRLW"; }
+  const char* ClassID() const override { return "PRLW"; }
 };
 
 struct RESubtract : IRealElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "SUB_"; }
+  const char* ClassID() const override { return "SUB_"; }
 };
 
 struct REVectorMagnitude : IRealElement {
   AT_DECL_DNA_YAML
   VectorElementFactory vec;
-  const char* ClassID() const { return "VMAG"; }
+  const char* ClassID() const override { return "VMAG"; }
 };
 
 struct REVectorXToReal : IRealElement {
   AT_DECL_DNA_YAML
   VectorElementFactory vec;
-  const char* ClassID() const { return "VXTR"; }
+  const char* ClassID() const override { return "VXTR"; }
 };
 
 struct REVectorYToReal : IRealElement {
   AT_DECL_DNA_YAML
   VectorElementFactory vec;
-  const char* ClassID() const { return "VYTR"; }
+  const char* ClassID() const override { return "VYTR"; }
 };
 
 struct REVectorZToReal : IRealElement {
   AT_DECL_DNA_YAML
   VectorElementFactory vec;
-  const char* ClassID() const { return "VZTR"; }
+  const char* ClassID() const override { return "VZTR"; }
 };
 
 struct RECEXT : IRealElement {
   AT_DECL_DNA_YAML
   IntElementFactory index;
-  const char* ClassID() const { return "CEXT"; }
+  const char* ClassID() const override { return "CEXT"; }
 };
 
 struct REIntTimesReal : IRealElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "ITRL"; }
+  const char* ClassID() const override { return "ITRL"; }
 };
 
 struct IEKeyframeEmitter : IIntElement {
@@ -310,14 +310,14 @@ struct IEKeyframeEmitter : IIntElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atUint32, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const { return percentageTween ? "KEYP" : "KEYE"; }
+  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
 };
 
 struct IEDeath : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory passthrough;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "DETH"; }
+  const char* ClassID() const override { return "DETH"; }
 };
 
 struct IEClamp : IIntElement {
@@ -325,7 +325,7 @@ struct IEClamp : IIntElement {
   IntElementFactory min;
   IntElementFactory max;
   IntElementFactory val;
-  const char* ClassID() const { return "CLMP"; }
+  const char* ClassID() const override { return "CLMP"; }
 };
 
 struct IETimeChain : IIntElement {
@@ -333,39 +333,39 @@ struct IETimeChain : IIntElement {
   IntElementFactory a;
   IntElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "CHAN"; }
+  const char* ClassID() const override { return "CHAN"; }
 };
 
 struct IEAdd : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "ADD_"; }
+  const char* ClassID() const override { return "ADD_"; }
 };
 
 struct IEConstant : IIntElement {
   AT_DECL_EXPLICIT_DNA_YAML
   Value<atUint32> val;
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 };
 
 struct IEImpulse : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory val;
-  const char* ClassID() const { return "IMPL"; }
+  const char* ClassID() const override { return "IMPL"; }
 };
 
 struct IELifetimePercent : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory percent;
-  const char* ClassID() const { return "ILPT"; }
+  const char* ClassID() const override { return "ILPT"; }
 };
 
 struct IEInitialRandom : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "IRND"; }
+  const char* ClassID() const override { return "IRND"; }
 };
 
 struct IEPulse : IIntElement {
@@ -374,14 +374,14 @@ struct IEPulse : IIntElement {
   IntElementFactory bDuration;
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "PULS"; }
+  const char* ClassID() const override { return "PULS"; }
 };
 
 struct IEMultiply : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "MULT"; }
+  const char* ClassID() const override { return "MULT"; }
 };
 
 struct IESampleAndHold : IIntElement {
@@ -389,46 +389,46 @@ struct IESampleAndHold : IIntElement {
   IntElementFactory val;
   IntElementFactory waitMin;
   IntElementFactory waitMax;
-  const char* ClassID() const { return "SPAH"; }
+  const char* ClassID() const override { return "SPAH"; }
 };
 
 struct IERandom : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "RAND"; }
+  const char* ClassID() const override { return "RAND"; }
 };
 
 struct IETimeScale : IIntElement {
   AT_DECL_DNA_YAML
   RealElementFactory dv;
-  const char* ClassID() const { return "TSCL"; }
+  const char* ClassID() const override { return "TSCL"; }
 };
 
 struct IEGTCP : IIntElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "GTCP"; }
+  const char* ClassID() const override { return "GTCP"; }
 };
 
 struct IEModulo : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const { return "MODU"; }
+  const char* ClassID() const override { return "MODU"; }
 };
 
 struct IESubtract : IIntElement {
   AT_DECL_DNA_YAML
   IntElementFactory direction;
   IntElementFactory baseRadius;
-  const char* ClassID() const { return "SUB_"; }
+  const char* ClassID() const override { return "SUB_"; }
 };
 
 struct VECone : IVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const { return "CONE"; }
+  const char* ClassID() const override { return "CONE"; }
 };
 
 struct VETimeChain : IVectorElement {
@@ -436,7 +436,7 @@ struct VETimeChain : IVectorElement {
   VectorElementFactory a;
   VectorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "CHAN"; }
+  const char* ClassID() const override { return "CHAN"; }
 };
 
 struct VEAngleCone : IVectorElement {
@@ -446,14 +446,14 @@ struct VEAngleCone : IVectorElement {
   RealElementFactory angleXRange;
   RealElementFactory angleYRange;
   RealElementFactory magnitude;
-  const char* ClassID() const { return "ANGC"; }
+  const char* ClassID() const override { return "ANGC"; }
 };
 
 struct VEAdd : IVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const { return "ADD_"; }
+  const char* ClassID() const override { return "ADD_"; }
 };
 
 struct VECircleCluster : IVectorElement {
@@ -462,13 +462,13 @@ struct VECircleCluster : IVectorElement {
   VectorElementFactory circleNormal;
   IntElementFactory cycleFrames;
   RealElementFactory randomFactor;
-  const char* ClassID() const { return "CCLU"; }
+  const char* ClassID() const override { return "CCLU"; }
 };
 
 struct VEConstant : IVectorElement {
   AT_DECL_EXPLICIT_DNA_YAML
   RealElementFactory comps[3];
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 };
 
 struct VECircle : IVectorElement {
@@ -478,7 +478,7 @@ struct VECircle : IVectorElement {
   RealElementFactory angleConstant;
   RealElementFactory angleLinear;
   RealElementFactory circleRadius;
-  const char* ClassID() const { return "CIRC"; }
+  const char* ClassID() const override { return "CIRC"; }
 };
 
 struct VEKeyframeEmitter : IVectorElement {
@@ -491,20 +491,20 @@ struct VEKeyframeEmitter : IVectorElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atVec3f, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const { return percentageTween ? "KEYP" : "KEYE"; }
+  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
 };
 
 struct VEMultiply : IVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const { return "MULT"; }
+  const char* ClassID() const override { return "MULT"; }
 };
 
 struct VERealToVector : IVectorElement {
   AT_DECL_DNA_YAML
   RealElementFactory a;
-  const char* ClassID() const { return "RTOV"; }
+  const char* ClassID() const override { return "RTOV"; }
 };
 
 struct VEPulse : IVectorElement {
@@ -513,23 +513,23 @@ struct VEPulse : IVectorElement {
   IntElementFactory bDuration;
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const { return "PULS"; }
+  const char* ClassID() const override { return "PULS"; }
 };
 
 struct VEParticleVelocity : IVectorElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PVEL"; }
+  const char* ClassID() const override { return "PVEL"; }
 };
 
 struct VESPOS : IVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory a;
-  const char* ClassID() const { return "SPOS"; }
+  const char* ClassID() const override { return "SPOS"; }
 };
 
 struct VEPLCO : IVectorElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PLCO"; }
+  const char* ClassID() const override { return "PLCO"; }
 };
 
 struct VEPLOC : IVectorElement {
@@ -539,12 +539,12 @@ struct VEPLOC : IVectorElement {
 
 struct VEPSOR : IVectorElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PSOR"; }
+  const char* ClassID() const override { return "PSOR"; }
 };
 
 struct VEPSOF : IVectorElement {
   AT_DECL_DNA_YAML
-  const char* ClassID() const { return "PSOF"; }
+  const char* ClassID() const override { return "PSOF"; }
 };
 
 struct CEKeyframeEmitter : IColorElement {
@@ -557,13 +557,13 @@ struct CEKeyframeEmitter : IColorElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atVec4f, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const { return percentageTween ? "KEYP" : "KEYE"; }
+  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
 };
 
 struct CEConstant : IColorElement {
   AT_DECL_EXPLICIT_DNA_YAML
   RealElementFactory comps[4];
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 };
 
 struct CETimeChain : IColorElement {
@@ -571,7 +571,7 @@ struct CETimeChain : IColorElement {
   ColorElementFactory a;
   ColorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "CHAN"; }
+  const char* ClassID() const override { return "CHAN"; }
 };
 
 struct CEFadeEnd : IColorElement {
@@ -580,7 +580,7 @@ struct CEFadeEnd : IColorElement {
   ColorElementFactory b;
   RealElementFactory startFrame;
   RealElementFactory endFrame;
-  const char* ClassID() const { return "CFDE"; }
+  const char* ClassID() const override { return "CFDE"; }
 };
 
 struct CEFade : IColorElement {
@@ -588,7 +588,7 @@ struct CEFade : IColorElement {
   ColorElementFactory a;
   ColorElementFactory b;
   RealElementFactory endFrame;
-  const char* ClassID() const { return "FADE"; }
+  const char* ClassID() const override { return "FADE"; }
 };
 
 struct CEPulse : IColorElement {
@@ -597,7 +597,7 @@ struct CEPulse : IColorElement {
   IntElementFactory bDuration;
   ColorElementFactory a;
   ColorElementFactory b;
-  const char* ClassID() const { return "PULS"; }
+  const char* ClassID() const override { return "PULS"; }
 };
 
 struct MVEImplosion : IModVectorElement {
@@ -607,7 +607,7 @@ struct MVEImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const { return "IMPL"; }
+  const char* ClassID() const override { return "IMPL"; }
 };
 
 struct MVEExponentialImplosion : IModVectorElement {
@@ -617,7 +617,7 @@ struct MVEExponentialImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const { return "EMPL"; }
+  const char* ClassID() const override { return "EMPL"; }
 };
 
 struct MVETimeChain : IModVectorElement {
@@ -625,7 +625,7 @@ struct MVETimeChain : IModVectorElement {
   ModVectorElementFactory a;
   ModVectorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const { return "CHAN"; }
+  const char* ClassID() const override { return "CHAN"; }
 };
 
 struct MVEBounce : IModVectorElement {
@@ -635,13 +635,13 @@ struct MVEBounce : IModVectorElement {
   RealElementFactory friction;
   RealElementFactory restitution;
   BoolHelper dieOnPenetrate;
-  const char* ClassID() const { return "BNCE"; }
+  const char* ClassID() const override { return "BNCE"; }
 };
 
 struct MVEConstant : IModVectorElement {
   AT_DECL_EXPLICIT_DNA_YAML
   RealElementFactory comps[3];
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 };
 
 struct MVEGravity : IModVectorElement {
@@ -654,13 +654,13 @@ struct MVEExplode : IModVectorElement {
   AT_DECL_DNA_YAML
   RealElementFactory impulseMagnitude;
   RealElementFactory falloffFactor;
-  const char* ClassID() const { return "EXPL"; }
+  const char* ClassID() const override { return "EXPL"; }
 };
 
 struct MVESetPosition : IModVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory position;
-  const char* ClassID() const { return "SPOS"; }
+  const char* ClassID() const override { return "SPOS"; }
 };
 
 struct MVELinearImplosion : IModVectorElement {
@@ -670,7 +670,7 @@ struct MVELinearImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const { return "LMPL"; }
+  const char* ClassID() const override { return "LMPL"; }
 };
 
 struct MVEPulse : IModVectorElement {
@@ -679,14 +679,14 @@ struct MVEPulse : IModVectorElement {
   IntElementFactory bDuration;
   ModVectorElementFactory a;
   ModVectorElementFactory b;
-  const char* ClassID() const { return "PULS"; }
+  const char* ClassID() const override { return "PULS"; }
 };
 
 struct MVEWind : IModVectorElement {
   AT_DECL_DNA_YAML
   VectorElementFactory windVelocity;
   RealElementFactory factor;
-  const char* ClassID() const { return "WIND"; }
+  const char* ClassID() const override { return "WIND"; }
 };
 
 struct MVESwirl : IModVectorElement {
@@ -695,14 +695,14 @@ struct MVESwirl : IModVectorElement {
   VectorElementFactory curveBinormal;
   RealElementFactory filterGain;
   RealElementFactory tangentialVelocity;
-  const char* ClassID() const { return "SWRL"; }
+  const char* ClassID() const override { return "SWRL"; }
 };
 
 struct EESimpleEmitter : IEmitterElement {
   AT_DECL_DNA_YAML
   VectorElementFactory position;
   VectorElementFactory velocity;
-  const char* ClassID() const { return "SEMR"; }
+  const char* ClassID() const override { return "SEMR"; }
 };
 
 struct VESphere : IEmitterElement {
@@ -710,7 +710,7 @@ struct VESphere : IEmitterElement {
   VectorElementFactory sphereOrigin;
   RealElementFactory sphereRadius;
   RealElementFactory magnitude;
-  const char* ClassID() const { return "SPHE"; }
+  const char* ClassID() const override { return "SPHE"; }
 };
 
 struct VEAngleSphere : IEmitterElement {
@@ -722,12 +722,12 @@ struct VEAngleSphere : IEmitterElement {
   RealElementFactory angleYBias;
   RealElementFactory angleXRange;
   RealElementFactory angleYRange;
-  const char* ClassID() const { return "ASPH"; }
+  const char* ClassID() const override { return "ASPH"; }
 };
 
 struct EESimpleEmitterTR : EESimpleEmitter {
   AT_DECL_EXPLICIT_DNA_YAML
-  const char* ClassID() const { return "SETR"; }
+  const char* ClassID() const override { return "SETR"; }
 };
 
 template <class IDType>
@@ -735,7 +735,7 @@ struct UVEConstant : IUVElement {
   AT_DECL_EXPLICIT_DNA_YAML
   AT_SUBDECL_DNA
   CastIDToZero<IDType> tex;
-  const char* ClassID() const { return "CNST"; }
+  const char* ClassID() const override { return "CNST"; }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
     g_curSpec->flattenDependencies(tex, pathsOut);
@@ -753,7 +753,7 @@ struct UVEAnimTexture : IUVElement {
   IntElementFactory strideH;
   IntElementFactory cycleFrames;
   Value<bool> loop = false;
-  const char* ClassID() const { return "ATEX"; }
+  const char* ClassID() const override { return "ATEX"; }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
     g_curSpec->flattenDependencies(tex, pathsOut);

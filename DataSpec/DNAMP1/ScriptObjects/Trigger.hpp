@@ -18,7 +18,7 @@ struct Trigger : IScriptObject {
   Value<bool> deactivateOnEntered;
   Value<bool> deactivateOnExited;
 
-  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const {
+  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const override {
     zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
     zeus::CVector3f loc(location);
     return zeus::CAABox(loc - halfExtent, loc + halfExtent);

@@ -44,13 +44,13 @@ struct GlyphMP1 : IGlyph {
   Value<atInt32> m_baseline;
   Value<atInt32> m_kerningIndex;
 
-  atInt32 leftPadding() const { return m_leftPadding; }
-  atInt32 advance() const { return m_advance; }
-  atInt32 rightPadding() const { return m_rightPadding; }
-  atInt32 width() const { return m_width; }
-  atInt32 height() const { return m_height; }
-  atInt32 baseline() const { return m_baseline; }
-  atInt32 kerningIndex() const { return m_kerningIndex; }
+  atInt32 leftPadding() const override { return m_leftPadding; }
+  atInt32 advance() const override { return m_advance; }
+  atInt32 rightPadding() const override { return m_rightPadding; }
+  atInt32 width() const override { return m_width; }
+  atInt32 height() const override { return m_height; }
+  atInt32 baseline() const override { return m_baseline; }
+  atInt32 kerningIndex() const override { return m_kerningIndex; }
 };
 
 struct GlyphMP2 : IGlyph {
@@ -65,14 +65,14 @@ struct GlyphMP2 : IGlyph {
   Value<atInt8> m_baseline;
   Value<atInt16> m_kerningIndex;
 
-  atInt32 layer() const { return m_layer; }
-  atInt32 leftPadding() const { return m_leftPadding; }
-  atInt32 advance() const { return m_advance; }
-  atInt32 rightPadding() const { return m_rightPadding; }
-  atInt32 width() const { return m_width; }
-  atInt32 height() const { return m_height; }
-  atInt32 baseline() const { return m_baseline; }
-  atInt32 kerningIndex() const { return m_kerningIndex; }
+  atInt32 layer() const override { return m_layer; }
+  atInt32 leftPadding() const override { return m_leftPadding; }
+  atInt32 advance() const override { return m_advance; }
+  atInt32 rightPadding() const override { return m_rightPadding; }
+  atInt32 width() const override { return m_width; }
+  atInt32 height() const override { return m_height; }
+  atInt32 baseline() const override { return m_baseline; }
+  atInt32 kerningIndex() const override { return m_kerningIndex; }
 };
 
 struct KerningInfo : BigDNA {
