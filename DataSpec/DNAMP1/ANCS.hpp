@@ -156,9 +156,11 @@ struct ANCS : BigDNA {
       Value<atUint32> unk2;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out);
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override;
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) { return func(*this); }
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
+        return func(*this);
+      }
     };
     struct MetaAnimBlend : IMetaAnim {
       MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
@@ -170,12 +172,12 @@ struct ANCS : BigDNA {
       Value<atUint8> unk;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override {
         animA.m_anim->gatherPrimitives(pakRouter, out);
         animB.m_anim->gatherPrimitives(pakRouter, out);
       }
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
         if (!animA.m_anim->enumeratePrimitives(func))
           return false;
         if (!animB.m_anim->enumeratePrimitives(func))
@@ -193,12 +195,12 @@ struct ANCS : BigDNA {
       Value<atUint8> unk;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override {
         animA.m_anim->gatherPrimitives(pakRouter, out);
         animB.m_anim->gatherPrimitives(pakRouter, out);
       }
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
         if (!animA.m_anim->enumeratePrimitives(func))
           return false;
         if (!animB.m_anim->enumeratePrimitives(func))
@@ -219,12 +221,12 @@ struct ANCS : BigDNA {
       Vector<Child, AT_DNA_COUNT(animCount)> children;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override {
         for (const auto& child : children)
           child.anim.m_anim->gatherPrimitives(pakRouter, out);
       }
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
         for (auto& child : children)
           if (!child.anim.m_anim->enumeratePrimitives(func))
             return false;
@@ -239,12 +241,12 @@ struct ANCS : BigDNA {
       Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override {
         for (const auto& child : children)
           child.m_anim->gatherPrimitives(pakRouter, out);
       }
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
         for (auto& child : children)
           if (!child.m_anim->enumeratePrimitives(func))
             return false;
@@ -285,11 +287,11 @@ struct ANCS : BigDNA {
       MetaAnimFactory anim;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
-                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) {
+                            std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>>& out) override {
         anim.m_anim->gatherPrimitives(pakRouter, out);
       }
 
-      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) {
+      bool enumeratePrimitives(const std::function<bool(MetaAnimPrimitive& prim)>& func) override {
         return anim.m_anim->enumeratePrimitives(func);
       }
     };

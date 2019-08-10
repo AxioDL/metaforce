@@ -42,7 +42,7 @@ struct Babygoth : IScriptObject {
   Value<atUint32> flamePlayerHitSfx;
   UniqueID32 flamePlayerIceTxtr;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     UniqueID32 cinf = patternedInfo.animationParameters.getCINF(pakRouter);
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
 
@@ -54,7 +54,7 @@ struct Babygoth : IScriptObject {
     }
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (fireballWeapon.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(fireballWeapon);
       ent->name = name + "_wpsc1";
@@ -103,7 +103,8 @@ struct Babygoth : IScriptObject {
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(fireballWeapon, pathsOut);
     g_curSpec->flattenDependencies(fireBreathWeapon, pathsOut);
     g_curSpec->flattenDependencies(fireBreathRes, pathsOut);
@@ -119,6 +120,6 @@ struct Babygoth : IScriptObject {
     actorParameters.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

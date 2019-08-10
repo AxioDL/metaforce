@@ -25,20 +25,21 @@ struct AmbientAI : IScriptObject {
   Value<atInt32> impactAnim;
   Value<bool> active;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     animationParameters.nameANCS(pakRouter, name + "_animp");
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     animationParameters.depANCS(pathsOut);
     actorParameters.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

@@ -20,7 +20,7 @@ struct VisorGoo : IScriptObject {
   Value<atUint32> sfx;
   Value<bool> skipAngleTest;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
@@ -31,7 +31,8 @@ struct VisorGoo : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(particle, pathsOut);
     g_curSpec->flattenDependencies(electric, pathsOut);
   }

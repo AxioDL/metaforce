@@ -46,19 +46,19 @@ struct FRME : BigDNA {
 
     struct BWIGInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::BWIG"; }
-      FourCC fourcc() const { return FOURCC('BWIG'); }
+      const char* DNATypeV() const override { return "FRME::BWIG"; }
+      FourCC fourcc() const override { return FOURCC('BWIG'); }
     };
 
     struct HWIGInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::HWIG"; }
-      FourCC fourcc() const { return FOURCC('HWIG'); }
+      const char* DNATypeV() const override { return "FRME::HWIG"; }
+      FourCC fourcc() const override { return FOURCC('HWIG'); }
     };
 
     struct CAMRInfo : IWidgetInfo {
       AT_DECL_EXPLICIT_DNA
-      const char* DNATypeV() const { return "FRME::CAMR"; }
+      const char* DNATypeV() const override { return "FRME::CAMR"; }
       enum class ProjectionType { Perspective, Orthographic };
 
       Value<ProjectionType> projectionType;
@@ -91,24 +91,24 @@ struct FRME : BigDNA {
       };
       std::unique_ptr<IProjection> projection;
 
-      FourCC fourcc() const { return FOURCC('CAMR'); }
+      FourCC fourcc() const override { return FOURCC('CAMR'); }
     };
 
     struct MODLInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::MODL"; }
+      const char* DNATypeV() const override { return "FRME::MODL"; }
       UniqueID32 model;
       enum class BlendMode { Unknown0, Unknown1, Unknown2, Additive };
 
       Value<atUint32> blendMode;
       Value<atUint32> lightMask;
 
-      FourCC fourcc() const { return FOURCC('MODL'); }
+      FourCC fourcc() const override { return FOURCC('MODL'); }
     };
 
     struct LITEInfo : IWidgetInfo {
       AT_DECL_EXPLICIT_DNA
-      const char* DNATypeV() const { return "FRME::LITE"; }
+      const char* DNATypeV() const override { return "FRME::LITE"; }
       enum class ELightType : atUint32 {
         Spot = 0,
         Point = 1,
@@ -127,40 +127,40 @@ struct FRME : BigDNA {
       Value<atUint32> loadedIdx;
       Value<float> cutoff; /* Spot only */
 
-      FourCC fourcc() const { return FOURCC('LITE'); }
+      FourCC fourcc() const override { return FOURCC('LITE'); }
     };
 
     struct ENRGInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::ENRG"; }
+      const char* DNATypeV() const override { return "FRME::ENRG"; }
       UniqueID32 texture;
 
-      FourCC fourcc() const { return FOURCC('ENRG'); }
+      FourCC fourcc() const override { return FOURCC('ENRG'); }
     };
 
     struct METRInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::METR"; }
+      const char* DNATypeV() const override { return "FRME::METR"; }
       Value<bool> unk1;
       Value<bool> noRoundUp;
       Value<atUint32> maxCapacity;
       Value<atUint32> workerCount;
 
-      FourCC fourcc() const { return FOURCC('METR'); }
+      FourCC fourcc() const override { return FOURCC('METR'); }
     };
 
     struct GRUPInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::GRUP"; }
+      const char* DNATypeV() const override { return "FRME::GRUP"; }
       Value<atInt16> defaultWorker;
       Value<bool> unk3;
 
-      FourCC fourcc() const { return FOURCC('GRUP'); }
+      FourCC fourcc() const override { return FOURCC('GRUP'); }
     };
 
     struct TBGPInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::TBGP"; }
+      const char* DNATypeV() const override { return "FRME::TBGP"; }
       Value<atUint16> elementCount;
       Value<atUint16> unk2;
       Value<atUint32> unkEnum;
@@ -177,32 +177,32 @@ struct FRME : BigDNA {
       Value<atUint16> unk10;
       Value<atUint16> unk11;
 
-      FourCC fourcc() const { return FOURCC('TBGP'); }
+      FourCC fourcc() const override { return FOURCC('TBGP'); }
     };
 
     struct SLGPInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::SLGP"; }
+      const char* DNATypeV() const override { return "FRME::SLGP"; }
       Value<float> min;
       Value<float> max;
       Value<float> cur;
       Value<float> increment;
 
-      FourCC fourcc() const { return FOURCC('SLGP'); }
+      FourCC fourcc() const override { return FOURCC('SLGP'); }
     };
 
     struct PANEInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::PANE"; }
+      const char* DNATypeV() const override { return "FRME::PANE"; }
       Value<float> xDim;
       Value<float> zDim;
       Value<atVec3f> scaleCenter;
 
-      FourCC fourcc() const { return FOURCC('PANE'); }
+      FourCC fourcc() const override { return FOURCC('PANE'); }
     };
 
     struct TXPNInfo : IWidgetInfo {
-      const char* DNATypeV() const { return "FRME::TXPN"; }
+      const char* DNATypeV() const override { return "FRME::TXPN"; }
       enum class Justification : atUint32 {
         Left = 0,
         Center,
@@ -249,12 +249,12 @@ struct FRME : BigDNA {
       UniqueID32 jpnFont;
       Value<atInt32> jpnPointScale[2] = {};
 
-      FourCC fourcc() const { return FOURCC('TXPN'); }
+      FourCC fourcc() const override { return FOURCC('TXPN'); }
     };
 
     struct IMGPInfo : IWidgetInfo {
       AT_DECL_DNA
-      const char* DNATypeV() const { return "FRME::IMGP"; }
+      const char* DNATypeV() const override { return "FRME::IMGP"; }
       UniqueID32 texture;
       Value<atUint32> unk1;
       Value<atUint32> unk2;
@@ -263,7 +263,7 @@ struct FRME : BigDNA {
       Value<atUint32> uvCoordCount;
       Vector<atVec2f, AT_DNA_COUNT(uvCoordCount)> uvCoords;
 
-      FourCC fourcc() const { return FOURCC('IMGP'); }
+      FourCC fourcc() const override { return FOURCC('IMGP'); }
     };
   };
 

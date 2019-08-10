@@ -27,7 +27,7 @@ struct PhazonPool : IScriptObject {
   Value<bool> unknown8;
   Value<float> unknown9;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
@@ -46,7 +46,8 @@ struct PhazonPool : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(particle1, pathsOut);
     g_curSpec->flattenDependencies(particle2, pathsOut);
     g_curSpec->flattenDependencies(model1, pathsOut);

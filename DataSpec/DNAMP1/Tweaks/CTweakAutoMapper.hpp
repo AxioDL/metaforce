@@ -77,60 +77,60 @@ struct CTweakAutoMapper final : public ITweakAutoMapper {
 
   CTweakAutoMapper() = default;
   CTweakAutoMapper(athena::io::IStreamReader& r) { this->read(r); }
-  bool GetShowOneMiniMapArea() const { return x4_24_showOneMiniMapArea; }
-  bool GetScaleMoveSpeedWithCamDist() const { return x4_26_scaleMoveSpeedWithCamDist; }
-  float GetCamDist() const { return x8_camDist; }
-  float GetMinCamDist() const { return xc_minCamDist; }
-  float GetMaxCamDist() const { return x10_maxCamDist; }
-  float GetMinCamRotateX() const { return x14_minCamRotateX; }
-  float GetMaxCamRotateX() const { return x18_maxCamRotateX; }
-  float GetCamAngle() const { return x1c_camAngle; }
-  const zeus::CColor& GetAutomapperWidgetColor() const { return x24_automapperWidgetColor; }
-  float GetMiniCamDist() const { return x28_miniCamDist; }
-  float GetMiniCamXAngle() const { return x2c_miniCamXAngle; }
-  float GetMiniCamAngle() const { return x30_miniCamAngle; }
-  const zeus::CColor& GetAutomapperWidgetMiniColor() const { return x38_automapperWidgetMiniColor; }
-  const zeus::CColor& GetSurfaceVisitedColor() const { return x3c_surfColorVisited; }
-  const zeus::CColor& GetOutlineVisitedColor() const { return x40_outlineColorVisited; }
-  const zeus::CColor& GetSurfaceUnvisitedColor() const { return x44_surfColorUnvisited; }
-  const zeus::CColor& GetOutlineUnvisitedColor() const { return x48_outlineColorUnvisited; }
-  const zeus::CColor& GetSurfaceSelectVisitedColor() const { return x4c_surfaceSelectColorVisited; }
-  const zeus::CColor& GetOutlineSelectVisitedColor() const { return x50_outlineSelectColorVisited; }
-  float GetMapSurfaceNormColorLinear() const { return x54_mapSurfaceNormColorLinear; }
-  float GetMapSurfaceNormColorConstant() const { return x58_mapSurfaceNormColorConstant; }
-  float GetOpenMapScreenTime() const { return x64_openMapScreenTime; }
-  float GetCloseMapScreenTime() const { return x68_closeMapScreenTime; }
-  float GetHintPanTime() const { return x6c_hintPanTime; }
-  float GetCamZoomUnitsPerFrame() const { return x70_zoomUnitsPerFrame; }
-  float GetCamRotateDegreesPerFrame() const { return x74_rotateDegPerFrame; }
-  float GetBaseMapScreenCameraMoveSpeed() const { return x78_baseMapScreenCameraMoveSpeed; }
-  const zeus::CColor& GetSurfaceSelectUnvisitedColor() const { return x7c_surfaceSelectColorUnvisited; }
-  const zeus::CColor& GetOutlineSelectUnvisitedColor() const { return x80_outlineSelectColorUnvisited; }
-  float GetMiniAlphaSurfaceVisited() const { return x84_miniAlphaSurfaceVisited; }
-  float GetAlphaSurfaceVisited() const { return x88_alphaSurfaceVisited; }
-  float GetMiniAlphaOutlineVisited() const { return x8c_miniAlphaOutlineVisited; }
-  float GetAlphaOutlineVisited() const { return x90_alphaOutlineVisited; }
-  float GetMiniAlphaSurfaceUnvisited() const { return x94_miniAlphaSurfaceUnvisited; }
-  float GetAlphaSurfaceUnvisited() const { return x98_alphaSurfaceUnvisited; }
-  float GetMiniAlphaOutlineUnvisited() const { return x9c_miniAlphaOutlineUnvisited; }
-  float GetAlphaOutlineUnvisited() const { return xa0_alphaOutlineUnvisited; }
-  const zeus::CVector3f& GetDoorCenter() const { return xa4_doorCenter; }
-  float GetMiniMapViewportWidth() const { return xb8_miniMapViewportWidth; }
-  float GetMiniMapViewportHeight() const { return xbc_miniMapViewportHeight; }
-  float GetMiniMapCamDistScale() const { return xc0_miniMapCamDistScale; }
-  float GetMapPlaneScaleX() const { return xc4_mapPlaneScaleX; }
-  float GetMapPlaneScaleZ() const { return xc8_mapPlaneScaleZ; }
-  float GetUniverseCamDist() const { return xd0_universeCamDist; }
-  float GetMinUniverseCamDist() const { return xd4_minUniverseCamDist; }
-  float GetMaxUniverseCamDist() const { return xd8_maxUniverseCamDist; }
-  float GetSwitchToFromUniverseTime() const { return xdc_switchToFromUniverseTime; }
-  float GetCamPanUnitsPerFrame() const { return xe0_camPanUnitsPerFrame; }
-  float GetAutomapperScaleX() const { return xe4_automapperScaleX; }
-  float GetAutomapperScaleZ() const { return xe8_automapperScaleZ; }
-  float GetCamVerticalOffset() const { return xec_camVerticalOffset; }
-  const zeus::CColor& GetMiniMapSamusModColor() const { return xf0_miniMapSamusModColor; }
-  const zeus::CColor& GetAreaFlashPulseColor() const { return xf4_areaFlashPulseColor; }
-  const zeus::CColor& GetDoorColor(int idx) const { return x104_doorColors[idx]; }
-  const zeus::CColor& GetOpenDoorColor() const { return x11c_openDoorColor; }
+  bool GetShowOneMiniMapArea() const override { return x4_24_showOneMiniMapArea; }
+  bool GetScaleMoveSpeedWithCamDist() const override { return x4_26_scaleMoveSpeedWithCamDist; }
+  float GetCamDist() const override { return x8_camDist; }
+  float GetMinCamDist() const override { return xc_minCamDist; }
+  float GetMaxCamDist() const override { return x10_maxCamDist; }
+  float GetMinCamRotateX() const override { return x14_minCamRotateX; }
+  float GetMaxCamRotateX() const override { return x18_maxCamRotateX; }
+  float GetCamAngle() const override { return x1c_camAngle; }
+  const zeus::CColor& GetAutomapperWidgetColor() const override { return x24_automapperWidgetColor; }
+  float GetMiniCamDist() const override { return x28_miniCamDist; }
+  float GetMiniCamXAngle() const override { return x2c_miniCamXAngle; }
+  float GetMiniCamAngle() const override { return x30_miniCamAngle; }
+  const zeus::CColor& GetAutomapperWidgetMiniColor() const override { return x38_automapperWidgetMiniColor; }
+  const zeus::CColor& GetSurfaceVisitedColor() const override { return x3c_surfColorVisited; }
+  const zeus::CColor& GetOutlineVisitedColor() const override { return x40_outlineColorVisited; }
+  const zeus::CColor& GetSurfaceUnvisitedColor() const override { return x44_surfColorUnvisited; }
+  const zeus::CColor& GetOutlineUnvisitedColor() const override { return x48_outlineColorUnvisited; }
+  const zeus::CColor& GetSurfaceSelectVisitedColor() const override { return x4c_surfaceSelectColorVisited; }
+  const zeus::CColor& GetOutlineSelectVisitedColor() const override { return x50_outlineSelectColorVisited; }
+  float GetMapSurfaceNormColorLinear() const override { return x54_mapSurfaceNormColorLinear; }
+  float GetMapSurfaceNormColorConstant() const override { return x58_mapSurfaceNormColorConstant; }
+  float GetOpenMapScreenTime() const override { return x64_openMapScreenTime; }
+  float GetCloseMapScreenTime() const override { return x68_closeMapScreenTime; }
+  float GetHintPanTime() const override { return x6c_hintPanTime; }
+  float GetCamZoomUnitsPerFrame() const override { return x70_zoomUnitsPerFrame; }
+  float GetCamRotateDegreesPerFrame() const override { return x74_rotateDegPerFrame; }
+  float GetBaseMapScreenCameraMoveSpeed() const override { return x78_baseMapScreenCameraMoveSpeed; }
+  const zeus::CColor& GetSurfaceSelectUnvisitedColor() const override { return x7c_surfaceSelectColorUnvisited; }
+  const zeus::CColor& GetOutlineSelectUnvisitedColor() const override { return x80_outlineSelectColorUnvisited; }
+  float GetMiniAlphaSurfaceVisited() const override { return x84_miniAlphaSurfaceVisited; }
+  float GetAlphaSurfaceVisited() const override { return x88_alphaSurfaceVisited; }
+  float GetMiniAlphaOutlineVisited() const override { return x8c_miniAlphaOutlineVisited; }
+  float GetAlphaOutlineVisited() const override { return x90_alphaOutlineVisited; }
+  float GetMiniAlphaSurfaceUnvisited() const override { return x94_miniAlphaSurfaceUnvisited; }
+  float GetAlphaSurfaceUnvisited() const override { return x98_alphaSurfaceUnvisited; }
+  float GetMiniAlphaOutlineUnvisited() const override { return x9c_miniAlphaOutlineUnvisited; }
+  float GetAlphaOutlineUnvisited() const override { return xa0_alphaOutlineUnvisited; }
+  const zeus::CVector3f& GetDoorCenter() const override { return xa4_doorCenter; }
+  float GetMiniMapViewportWidth() const override { return xb8_miniMapViewportWidth; }
+  float GetMiniMapViewportHeight() const override { return xbc_miniMapViewportHeight; }
+  float GetMiniMapCamDistScale() const override { return xc0_miniMapCamDistScale; }
+  float GetMapPlaneScaleX() const override { return xc4_mapPlaneScaleX; }
+  float GetMapPlaneScaleZ() const override { return xc8_mapPlaneScaleZ; }
+  float GetUniverseCamDist() const override { return xd0_universeCamDist; }
+  float GetMinUniverseCamDist() const override { return xd4_minUniverseCamDist; }
+  float GetMaxUniverseCamDist() const override { return xd8_maxUniverseCamDist; }
+  float GetSwitchToFromUniverseTime() const override { return xdc_switchToFromUniverseTime; }
+  float GetCamPanUnitsPerFrame() const override { return xe0_camPanUnitsPerFrame; }
+  float GetAutomapperScaleX() const override { return xe4_automapperScaleX; }
+  float GetAutomapperScaleZ() const override { return xe8_automapperScaleZ; }
+  float GetCamVerticalOffset() const override { return xec_camVerticalOffset; }
+  const zeus::CColor& GetMiniMapSamusModColor() const override { return xf0_miniMapSamusModColor; }
+  const zeus::CColor& GetAreaFlashPulseColor() const override { return xf4_areaFlashPulseColor; }
+  const zeus::CColor& GetDoorColor(int idx) const override { return x104_doorColors[idx]; }
+  const zeus::CColor& GetOpenDoorColor() const override { return x11c_openDoorColor; }
 };
 } // namespace DataSpec::DNAMP1

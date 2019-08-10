@@ -42,10 +42,10 @@ struct MREA {
 
   public:
     StreamReader(athena::io::IStreamReader& source, atUint32 blkCount);
-    void seek(atInt64 diff, athena::SeekOrigin whence);
-    atUint64 position() const { return m_pos; }
-    atUint64 length() const { return m_totalDecompLen; }
-    atUint64 readUBytesToBuf(void* buf, atUint64 len);
+    void seek(atInt64 diff, athena::SeekOrigin whence) override;
+    atUint64 position() const override { return m_pos; }
+    atUint64 length() const override { return m_totalDecompLen; }
+    atUint64 readUBytesToBuf(void* buf, atUint64 len) override;
     void writeDecompInfos(athena::io::IStreamWriter& writer) const;
   };
 

@@ -21,7 +21,7 @@ struct DamageableTrigger : IScriptObject {
   Value<bool> active;
   VisorParameters visorParameters;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (patternTex1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternTex1);
       ent->name = name + "_patternTex1";
@@ -36,13 +36,14 @@ struct DamageableTrigger : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(patternTex1, pathsOut);
     g_curSpec->flattenDependencies(patternTex2, pathsOut);
     g_curSpec->flattenDependencies(colorTex, pathsOut);
   }
 
-  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const {
+  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const override {
     zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
     zeus::CVector3f loc(location);
     return zeus::CAABox(loc - halfExtent, loc + halfExtent);

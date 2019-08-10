@@ -19,7 +19,7 @@ struct VisorFlare : IScriptObject {
   Value<atUint32> unknown7;
   FlareDefinition flareDefinitions[5];
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     flareDefinitions[0].nameIDs(pakRouter, name + "_flare1");
     flareDefinitions[1].nameIDs(pakRouter, name + "_flare2");
     flareDefinitions[2].nameIDs(pakRouter, name + "_flare3");
@@ -27,7 +27,8 @@ struct VisorFlare : IScriptObject {
     flareDefinitions[4].nameIDs(pakRouter, name + "_flare5");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     for (int i = 0; i < 5; ++i)
       flareDefinitions[i].depIDs(pathsOut);
   }

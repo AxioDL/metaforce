@@ -135,7 +135,7 @@ struct CHAR : BigDNA {
       Value<float> unk1;
       Value<atUint32> unk2;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         out[animIdx] = {animName, animId, UniqueID64(), false};
       }
     };
@@ -148,7 +148,7 @@ struct CHAR : BigDNA {
       Value<float> unkFloat;
       Value<atUint8> unk;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         animA.m_anim->gatherPrimitives(out);
         animB.m_anim->gatherPrimitives(out);
       }
@@ -162,7 +162,7 @@ struct CHAR : BigDNA {
       Value<float> unkFloat;
       Value<atUint8> unk;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         animA.m_anim->gatherPrimitives(out);
         animB.m_anim->gatherPrimitives(out);
       }
@@ -179,7 +179,7 @@ struct CHAR : BigDNA {
       };
       Vector<Child, AT_DNA_COUNT(animCount)> children;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         for (const auto& child : children)
           child.anim.m_anim->gatherPrimitives(out);
       }
@@ -191,7 +191,7 @@ struct CHAR : BigDNA {
       Value<atUint32> animCount;
       Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         for (const auto& child : children)
           child.m_anim->gatherPrimitives(out);
       }

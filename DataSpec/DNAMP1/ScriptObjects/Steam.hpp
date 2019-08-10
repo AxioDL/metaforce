@@ -22,14 +22,15 @@ struct Steam : IScriptObject {
   Value<float> unknown7;
   Value<bool> unknown8;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (texture.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(texture);
       ent->name = name + "_texture";
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(texture, lazyOut);
   }
 };

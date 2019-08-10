@@ -28,11 +28,11 @@ struct CTweakSlideShow final : ITweakSlideShow {
   CTweakSlideShow() = default;
   CTweakSlideShow(athena::io::IStreamReader& in) { read(in); }
 
-  std::string_view GetFont() const { return x14_fontAssetName; }
-  const zeus::CColor& GetFontColor() const { return x24_fontColor; }
-  const zeus::CColor& GetOutlineColor() const { return x28_outlineColor; }
-  float GetScanPercentInterval() const { return x2c_scanPercentInterval; }
-  float GetX54() const { return x54_; }
+  std::string_view GetFont() const override { return x14_fontAssetName; }
+  const zeus::CColor& GetFontColor() const override { return x24_fontColor; }
+  const zeus::CColor& GetOutlineColor() const override { return x28_outlineColor; }
+  float GetScanPercentInterval() const override { return x2c_scanPercentInterval; }
+  float GetX54() const override { return x54_; }
 };
 
 } // namespace DataSpec::DNAMP1

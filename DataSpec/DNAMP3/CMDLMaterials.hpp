@@ -113,7 +113,7 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionCLR : ISection {
       SectionCLR() : ISection(ISection::Type::CLR) {}
@@ -128,7 +128,7 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionINT : ISection {
       SectionINT() : ISection(ISection::Type::INT) {}
@@ -149,7 +149,7 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionFactory : BigDNA {
       AT_DECL_EXPLICIT_DNA
