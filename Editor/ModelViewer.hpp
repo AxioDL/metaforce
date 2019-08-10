@@ -16,7 +16,7 @@ class ModelViewer : public ViewerSpace {
 
   } m_state;
 
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
   std::unique_ptr<urde::CLineRenderer> m_lineRenderer;
   struct View : specter::View {
     ModelViewer& m_mv;
@@ -24,7 +24,7 @@ class ModelViewer : public ViewerSpace {
 
     View(ModelViewer& mv, specter::ViewResources& res) : specter::View(res, mv.m_vm.rootView()), m_mv(mv) {}
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
   };
 
   Camera m_camera;
@@ -46,19 +46,19 @@ public:
     reloadState();
   }
 
-  void reloadState() {
+  void reloadState() override {
     m_camera.setPosition(m_state.cameraPosition);
     m_camera.setOrientation(m_state.cameraOrientation);
   }
 
-  Space* copy(Space* parent) const { return new ModelViewer(m_vm, parent, *this); }
+  Space* copy(Space* parent) const override { return new ModelViewer(m_vm, parent, *this); }
 
-  virtual specter::View* buildContentView(specter::ViewResources& res) {
+  specter::View* buildContentView(specter::ViewResources& res) override {
     m_view.reset(new View(*this, res));
     return m_view.get();
   }
 
-  bool usesToolbar() const { return true; }
+  bool usesToolbar() const override { return true; }
 };
 
 } // namespace urde
