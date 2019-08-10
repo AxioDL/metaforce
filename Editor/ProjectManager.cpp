@@ -118,7 +118,12 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     return makeProj(true);
   }
 
-  yaml_parser_set_input(r.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &reader);
+  const auto readHandler = [](void* data, unsigned char* buffer, size_t size, size_t* size_read) {
+    auto* const reader = static_cast<athena::io::IStreamReader*>(data);
+    return athena::io::YAMLAthenaReader(reader, buffer, size, size_read);
+  };
+
+  yaml_parser_set_input(r.getParser(), readHandler, &reader);
   if (!r.ValidateClassType("UrdeSpacesState")) {
     return makeProj(true);
   }
