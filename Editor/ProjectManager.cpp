@@ -53,7 +53,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   }
 
   hecl::MakeDir(path.data());
-  m_proj.reset(new hecl::Database::Project(path));
+  m_proj = std::make_unique<hecl::Database::Project>(path);
   if (!*m_proj) {
     m_proj.reset();
     return false;
@@ -79,7 +79,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     return false;
   }
 
-  m_proj.reset(new hecl::Database::Project(projPath));
+  m_proj = std::make_unique<hecl::Database::Project>(projPath);
   if (!*m_proj) {
     m_proj.reset();
     return false;
