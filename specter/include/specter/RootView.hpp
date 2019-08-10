@@ -65,9 +65,9 @@ class RootView : public View {
     void draw(boo::IGraphicsCommandQueue* gfxQ);
 
     SplitMenuSystem(RootView& rv, boo::IGraphicsDataFactory::Context& ctx);
-    const std::string* text() const { return &m_text; }
-    size_t subNodeCount() const { return 2; }
-    IMenuNode* subNode(size_t idx) {
+    const std::string* text() const override { return &m_text; }
+    size_t subNodeCount() const override { return 2; }
+    IMenuNode* subNode(size_t idx) override {
       if (idx)
         return &m_joinActionNode;
       else
@@ -82,8 +82,8 @@ class RootView : public View {
       SplitMenuSystem& m_smn;
       std::string m_text;
       SplitActionNode(SplitMenuSystem& smn);
-      const std::string* text() const { return &m_text; }
-      void activated(const boo::SWindowCoord& coord) {
+      const std::string* text() const override { return &m_text; }
+      void activated(const boo::SWindowCoord& coord) override {
         m_smn.m_deferredSplit = true;
         m_smn.m_deferredCoord = coord;
       }
@@ -92,8 +92,8 @@ class RootView : public View {
       SplitMenuSystem& m_smn;
       std::string m_text;
       JoinActionNode(SplitMenuSystem& smn);
-      const std::string* text() const { return &m_text; }
-      void activated(const boo::SWindowCoord& coord) {
+      const std::string* text() const override { return &m_text; }
+      void activated(const boo::SWindowCoord& coord) override {
         m_smn.m_deferredJoin = true;
         m_smn.m_deferredCoord = coord;
       }
@@ -103,7 +103,7 @@ class RootView : public View {
 
 public:
   RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window);
-  ~RootView();
+  ~RootView() override;
 
   void destroyed();
   bool isDestroyed() const { return m_destroyed; }
@@ -112,29 +112,29 @@ public:
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
   void resized(const boo::SWindowRect& rect, bool) { resized(rect, rect); }
 #pragma GCC diagnostic pop
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
-  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods);
-  void mouseMove(const boo::SWindowCoord& coord);
-  void mouseEnter(const boo::SWindowCoord& coord);
-  void mouseLeave(const boo::SWindowCoord& coord);
-  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll);
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override;
+  void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) override;
+  void mouseMove(const boo::SWindowCoord& coord) override;
+  void mouseEnter(const boo::SWindowCoord& coord) override;
+  void mouseLeave(const boo::SWindowCoord& coord) override;
+  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) override;
 
-  void touchDown(const boo::STouchCoord& coord, uintptr_t tid);
-  void touchUp(const boo::STouchCoord& coord, uintptr_t tid);
-  void touchMove(const boo::STouchCoord& coord, uintptr_t tid);
+  void touchDown(const boo::STouchCoord& coord, uintptr_t tid) override;
+  void touchUp(const boo::STouchCoord& coord, uintptr_t tid) override;
+  void touchMove(const boo::STouchCoord& coord, uintptr_t tid) override;
 
-  void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat);
-  void charKeyUp(unsigned long charCode, boo::EModifierKey mods);
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat);
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods);
-  void modKeyDown(boo::EModifierKey mod, bool isRepeat);
-  void modKeyUp(boo::EModifierKey mod);
+  void charKeyDown(unsigned long charCode, boo::EModifierKey mods, bool isRepeat) override;
+  void charKeyUp(unsigned long charCode, boo::EModifierKey mods) override;
+  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey mods, bool isRepeat) override;
+  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override;
+  void modKeyDown(boo::EModifierKey mod, bool isRepeat) override;
+  void modKeyUp(boo::EModifierKey mod) override;
   boo::ITextInputCallback* getTextInputCallback() { return m_activeTextView; }
 
   void internalThink();
   void dispatchEvents() { m_events.dispatchEvents(); }
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   const boo::SWindowRect& rootRect() const { return m_rootRect; }
 
   boo::IWindow* window() const { return m_window; }

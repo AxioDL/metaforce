@@ -34,17 +34,19 @@ private:
     : m_sv(sv)
     , m_leftName(vm.translate<locale::scroll_left>())
     , m_rightName(vm.translate<locale::scroll_right>()) {}
-    std::string_view name(const Control* control) const {
+    std::string_view name(const Control* control) const override {
       return (control == reinterpret_cast<Control*>(m_sv.m_sideButtons[0].m_view.get())) ? m_leftName.c_str()
                                                                                          : m_rightName.c_str();
     }
-    void down(const Button* button, const boo::SWindowCoord& coord) {
+    void down(const Button* button, const boo::SWindowCoord& coord) override {
       if (button == m_sv.m_sideButtons[0].m_view.get())
         m_sv.m_sideButtonState = SideButtonState::ScrollRight;
       else
         m_sv.m_sideButtonState = SideButtonState::ScrollLeft;
     }
-    void up(const Button* button, const boo::SWindowCoord& coord) { m_sv.m_sideButtonState = SideButtonState::None; }
+    void up(const Button* button, const boo::SWindowCoord& coord) override {
+      m_sv.m_sideButtonState = SideButtonState::None;
+    }
   } m_sideButtonBind;
   ViewChild<std::unique_ptr<Button>> m_sideButtons[2];
 
@@ -58,23 +60,23 @@ public:
     updateSize();
   }
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& scroll) override;
   int getScrollX() const { return m_scroll[0]; }
   int getScrollY() const { return m_scroll[1]; }
 
-  int nominalWidth() const { return subRect().size[0]; }
-  int nominalHeight() const { return subRect().size[1]; }
+  int nominalWidth() const override { return subRect().size[0]; }
+  int nominalHeight() const override { return subRect().size[1]; }
 
-  void setMultiplyColor(const zeus::CColor& color);
+  void setMultiplyColor(const zeus::CColor& color) override;
 
-  void think();
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void think() override;
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter

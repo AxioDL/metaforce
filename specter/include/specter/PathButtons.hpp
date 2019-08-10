@@ -14,23 +14,23 @@ class PathButtons : public ScrollView {
     PathButtons& m_pb;
     boo::SWindowRect m_scissorRect;
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseMove(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseMove(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
 
-    int nominalWidth() const {
+    int nominalWidth() const override {
       int ret = 0;
       for (PathButton& b : m_pb.m_pathButtons)
         ret += b.m_button.m_view->nominalWidth() + 2;
       return ret;
     }
-    int nominalHeight() const {
+    int nominalHeight() const override {
       return m_pb.m_pathButtons.size() ? m_pb.m_pathButtons[0].m_button.m_view->nominalHeight() : 0;
     }
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
     ContentView(ViewResources& res, PathButtons& pb) : View(res, pb), m_pb(pb) {}
   };
@@ -46,8 +46,8 @@ class PathButtons : public ScrollView {
     PathButton(PathButtons& pb, ViewResources& res, size_t idx, const hecl::SystemString& str) : m_pb(pb), m_idx(idx) {
       m_button.m_view.reset(new Button(res, pb, this, hecl::SystemUTF8Conv(str).str()));
     }
-    std::string_view name(const Control* control) const { return m_button.m_view->getText(); }
-    void activated(const Button* button, const boo::SWindowCoord&) { m_pb.m_pathButtonPending = m_idx; }
+    std::string_view name(const Control* control) const override { return m_button.m_view->getText(); }
+    void activated(const Button* button, const boo::SWindowCoord&) override { m_pb.m_pathButtonPending = m_idx; }
   };
   friend struct PathButton;
   std::vector<PathButton> m_pathButtons;
@@ -56,10 +56,10 @@ public:
   PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding, bool fillContainer = false);
 
   void setButtons(const std::vector<hecl::SystemString>& comps);
-  void setMultiplyColor(const zeus::CColor& color);
+  void setMultiplyColor(const zeus::CColor& color) override;
 
   /* Fill all available space in container when requested */
-  void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
+  void containerResized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
 };
 
 } // namespace specter

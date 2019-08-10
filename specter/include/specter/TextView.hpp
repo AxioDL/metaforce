@@ -95,13 +95,13 @@ public:
 
   void colorGlyphs(const zeus::CColor& newColor);
   void colorGlyphsTypeOn(const zeus::CColor& newColor, float startInterval = 0.2, float fadeTime = 0.5);
-  void think();
+  void think() override;
 
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  int nominalWidth() const { return m_width; }
-  int nominalHeight() const { return m_fontAtlas.FT_LineHeight() >> 6; }
+  int nominalWidth() const override { return m_width; }
+  int nominalHeight() const override { return m_fontAtlas.FT_LineHeight() >> 6; }
 
   std::pair<int, int> queryGlyphDimensions(size_t pos) const;
   size_t reverseSelectGlyph(int x) const;

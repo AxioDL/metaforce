@@ -34,13 +34,13 @@ class Space : public View {
     VertexBufferBindingSolid m_vertexBinding;
     bool m_flip;
     CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
     using View::resized;
     void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, bool flip);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   };
   friend struct CornerView;
   ViewChild<std::unique_ptr<CornerView>> m_cornerView;
@@ -50,17 +50,17 @@ public:
         unsigned tbUnits);
   View* setContentView(View* view);
   Toolbar* toolbar() { return m_toolbar.m_view.get(); }
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
   SplitView* findSplitViewOnSide(SplitView::Axis axis, int side);
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     View::setMultiplyColor(color);
     if (m_contentView.m_view)
       m_contentView.m_view->setMultiplyColor(color);
@@ -68,7 +68,7 @@ public:
       m_toolbar.m_view->setMultiplyColor(color);
   }
 
-  bool isSpace() const { return true; }
+  bool isSpace() const override { return true; }
 };
 inline Space* View::castToSpace() { return isSpace() ? static_cast<Space*>(this) : nullptr; }
 

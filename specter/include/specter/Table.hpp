@@ -56,12 +56,12 @@ class Table : public View {
     bool reset(size_t c);
     bool reset(size_t c, size_t r);
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   };
   std::vector<ViewChild<std::unique_ptr<CellView>>> m_headerViews;
   using ColumnPool = std::array<std::array<ViewChild<std::unique_ptr<CellView>>, SPECTER_TABLE_MAX_ROWS>, 2>;
@@ -93,14 +93,14 @@ class Table : public View {
     void _setRowVerts(const boo::SWindowRect& rowsRect, const boo::SWindowRect& scissor);
 
     RowsView(Table& t, ViewResources& res);
-    int nominalHeight() const;
-    int nominalWidth() const { return m_t.m_scroll.m_view->nominalWidth(); }
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseMove(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    int nominalHeight() const override;
+    int nominalWidth() const override { return m_t.m_scroll.m_view->nominalWidth(); }
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseMove(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   } m_rowsView;
 
   bool m_headerNeedsUpdate = false;
@@ -114,19 +114,19 @@ public:
 
   void cycleSortColumn(size_t c);
   void selectRow(size_t r);
-  void setMultiplyColor(const zeus::CColor& color);
+  void setMultiplyColor(const zeus::CColor& color) override;
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&) override;
 
-  void think();
+  void think() override;
   void updateData();
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter

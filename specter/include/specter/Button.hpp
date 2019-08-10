@@ -42,10 +42,10 @@ private:
     void setPressed();
     void setDisabled();
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
     ButtonTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
   };
   ViewChild<std::unique_ptr<ButtonTarget>> m_buttonTarget;
@@ -61,10 +61,10 @@ private:
     void setPressed();
     void setDisabled();
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
     MenuTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
   };
   ViewChild<std::unique_ptr<MenuTarget>> m_menuTarget;
@@ -80,33 +80,33 @@ public:
     void destroy() {}
   };
 
-  ~Button() { closeMenu({}); }
+  ~Button() override { closeMenu({}); }
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
          Icon* icon = nullptr, Style style = Style::Block, const zeus::CColor& bgColor = zeus::skWhite,
          RectangleConstraint constraint = RectangleConstraint());
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
          const zeus::CColor& textColor, Icon* icon = nullptr, Style style = Style::Block,
          const zeus::CColor& bgColor = zeus::skWhite, RectangleConstraint constraint = RectangleConstraint());
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void think();
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void think() override;
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
   void setText(std::string_view text, const zeus::CColor& textColor);
   void setText(std::string_view text);
   void setIcon(Icon* icon = nullptr);
   std::string_view getText() const { return m_textStr; }
   void colorGlyphs(const zeus::CColor& newColor);
-  int nominalWidth() const { return m_nomWidth; }
-  int nominalHeight() const { return m_nomHeight; }
+  int nominalWidth() const override { return m_nomWidth; }
+  int nominalHeight() const override { return m_nomHeight; }
 
   void closeMenu(const boo::SWindowCoord& coord);
   ViewChild<std::unique_ptr<View>>& getMenu() { return m_modalMenu; }
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     View::setMultiplyColor(color);
     m_viewVertBlock.m_color = color;
     if (m_viewVertBlockBuf)

@@ -28,16 +28,16 @@ private:
     friend class FileBrowser;
     FileBrowser& m_fb;
     LeftSide(FileBrowser& fb, ViewResources& res) : View(res, fb), m_fb(fb) {}
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   } m_left;
 
   class RightSide : public View {
     friend class FileBrowser;
     FileBrowser& m_fb;
     RightSide(FileBrowser& fb, ViewResources& res) : View(res, fb), m_fb(fb) {}
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   } m_right;
 
   ViewChild<std::unique_ptr<SplitView>> m_split;
@@ -52,8 +52,8 @@ private:
           new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
                      RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
     }
-    std::string_view name(const Control* control) const { return m_text; }
-    void activated(const Button* button, const boo::SWindowCoord&) { m_fb.okActivated(true); }
+    std::string_view name(const Control* control) const override { return m_text; }
+    void activated(const Button* button, const boo::SWindowCoord&) override { m_fb.okActivated(true); }
   } m_ok;
 
   void cancelActivated();
@@ -66,11 +66,11 @@ private:
           res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
           RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
     }
-    std::string_view name(const Control* control) const { return m_text; }
-    void activated(const Button* button, const boo::SWindowCoord&) { m_fb.cancelActivated(); }
+    std::string_view name(const Control* control) const override { return m_text; }
+    void activated(const Button* button, const boo::SWindowCoord&) override { m_fb.cancelActivated(); }
   } m_cancel;
 
-  void pathButtonActivated(size_t idx);
+  void pathButtonActivated(size_t idx) override;
   ViewChild<std::unique_ptr<PathButtons>> m_pathButtons;
 
   ViewChild<std::unique_ptr<TextField>> m_fileField;
@@ -79,8 +79,8 @@ private:
     std::string m_name;
     FileFieldBind(FileBrowser& browser, const IViewManager& vm)
     : m_browser(browser), m_name(vm.translate<locale::file_name>()) {}
-    std::string_view name(const Control* control) const { return m_name; }
-    void changed(const Control* control, std::string_view val) {}
+    std::string_view name(const Control* control) const override { return m_name; }
+    void changed(const Control* control, std::string_view val) override {}
   } m_fileFieldBind;
 
   std::unique_ptr<MessageWindow> m_confirmWindow;
@@ -104,10 +104,10 @@ private:
     std::string m_projStr;
     std::string m_fileStr;
 
-    size_t columnCount() const { return 3; }
-    size_t rowCount() const { return m_entries.size(); }
+    size_t columnCount() const override { return 3; }
+    size_t rowCount() const override { return m_entries.size(); }
 
-    std::string_view header(size_t cIdx) const {
+    std::string_view header(size_t cIdx) const override {
       switch (cIdx) {
       case 0:
         return m_nameCol;
@@ -121,7 +121,7 @@ private:
       return {};
     }
 
-    std::string_view cell(size_t cIdx, size_t rIdx) const {
+    std::string_view cell(size_t cIdx, size_t rIdx) const override {
       switch (cIdx) {
       case 0:
         return m_entries.at(rIdx).m_name;
@@ -137,11 +137,11 @@ private:
 
     float m_columnSplits[3] = {0.0f, 0.7f, 0.9f};
 
-    bool columnSplitResizeAllowed() const { return true; }
+    bool columnSplitResizeAllowed() const override { return true; }
 
-    float getColumnSplit(size_t cIdx) const { return m_columnSplits[cIdx]; }
+    float getColumnSplit(size_t cIdx) const override { return m_columnSplits[cIdx]; }
 
-    void setColumnSplit(size_t cIdx, float split) { m_columnSplits[cIdx] = split; }
+    void setColumnSplit(size_t cIdx, float split) override { m_columnSplits[cIdx] = split; }
 
     void updateListing(const hecl::DirectoryEnumerator& dEnum) {
       m_entries.clear();
@@ -172,12 +172,12 @@ private:
     SortDirection m_sortDir = SortDirection::Ascending;
     bool m_needsUpdate = false;
 
-    SortDirection getSort(size_t& cIdx) const {
+    SortDirection getSort(size_t& cIdx) const override {
       cIdx = m_sizeSort ? 2 : 0;
       return m_sortDir;
     }
 
-    void setSort(size_t cIdx, SortDirection dir) {
+    void setSort(size_t cIdx, SortDirection dir) override {
       if (cIdx == 1)
         return;
       m_sizeSort = cIdx == 2;
@@ -185,7 +185,7 @@ private:
       m_needsUpdate = true;
     }
 
-    void setSelectedRow(size_t rIdx) {
+    void setSelectedRow(size_t rIdx) override {
       if (rIdx != SIZE_MAX)
         m_fb.m_fileField.m_view->setText(m_entries.at(rIdx).m_name);
       else
@@ -193,7 +193,7 @@ private:
       m_fb.m_fileField.m_view->clearErrorState();
     }
 
-    void rowActivated(size_t rIdx) { m_fb.okActivated(false); }
+    void rowActivated(size_t rIdx) override { m_fb.okActivated(false); }
 
     FileListingDataBind(FileBrowser& fb, const IViewManager& vm) : m_fb(fb) {
       m_nameCol = vm.translate<locale::name>();
@@ -233,17 +233,17 @@ private:
     };
     std::vector<Entry> m_entries;
 
-    size_t columnCount() const { return 1; }
-    size_t rowCount() const { return m_entries.size(); }
+    size_t columnCount() const override { return 1; }
+    size_t rowCount() const override { return m_entries.size(); }
 
-    std::string_view cell(size_t, size_t rIdx) const { return m_entries.at(rIdx).m_name; }
+    std::string_view cell(size_t, size_t rIdx) const override { return m_entries.at(rIdx).m_name; }
 
-    void setSelectedRow(size_t rIdx) {
+    void setSelectedRow(size_t rIdx) override {
       if (rIdx != SIZE_MAX)
         m_fb.navigateToPath(m_entries.at(rIdx).m_path);
     }
 
-    void rowActivated(size_t rIdx) { m_fb.okActivated(true); }
+    void rowActivated(size_t rIdx) override { m_fb.okActivated(true); }
   };
 
   BookmarkDataBind m_systemBookmarkBind;
@@ -276,22 +276,22 @@ public:
     m_showingHidden = showingHidden;
     navigateToPath(m_path);
   }
-  void updateContentOpacity(float opacity);
+  void updateContentOpacity(float opacity) override;
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
-  void touchDown(const boo::STouchCoord&, uintptr_t);
-  void touchUp(const boo::STouchCoord&, uintptr_t);
-  void touchMove(const boo::STouchCoord&, uintptr_t);
-  void charKeyDown(unsigned long, boo::EModifierKey, bool);
-  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&) override;
+  void touchDown(const boo::STouchCoord&, uintptr_t) override;
+  void touchUp(const boo::STouchCoord&, uintptr_t) override;
+  void touchMove(const boo::STouchCoord&, uintptr_t) override;
+  void charKeyDown(unsigned long, boo::EModifierKey, bool) override;
+  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool) override;
 
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void think();
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void think() override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter

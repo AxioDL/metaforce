@@ -24,13 +24,13 @@ class Outliner {
     };
 
     Node(ViewResources& res, View& parentView, std::string_view description);
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
-    void think();
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
+    void think() override;
   };
 };
 } // namespace specter

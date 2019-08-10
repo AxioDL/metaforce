@@ -55,14 +55,14 @@ protected:
 public:
   ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const zeus::CColor& bgColor);
   ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
-  void think();
+  void think() override;
   bool skipBuildInAnimation();
   void close(bool skipAnimation = false);
   bool closed() const { return m_phase >= Phase::BuildOut; }
   ModalWindow::Phase phase() const { return m_phase; }
 
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter
