@@ -54,8 +54,8 @@ public:
       std::string m_text;
       specter::Icon& m_icon;
       zeus::CColor m_color;
-      const std::string* text() const { return &m_text; }
-      void activated(const boo::SWindowCoord& coord) {}
+      const std::string* text() const override { return &m_text; }
+      void activated(const boo::SWindowCoord& coord) override {}
 
       SubNodeData(Class cls, const char* text, specter::Icon& icon, const zeus::CColor& color)
       : m_cls(cls), m_text(text), m_icon(icon), m_color(color) {}
@@ -65,8 +65,8 @@ public:
     struct SubNode final : specter::IMenuNode {
       Space& m_space;
       const SubNodeData& m_data;
-      const std::string* text() const { return &m_data.m_text; }
-      void activated(const boo::SWindowCoord& coord);
+      const std::string* text() const override { return &m_data.m_text; }
+      void activated(const boo::SWindowCoord& coord) override;
 
       SubNode(Space& space, const SubNodeData& data) : m_space(space), m_data(data) {}
     };
@@ -79,10 +79,10 @@ public:
     }
 
     static std::string s_text;
-    const std::string* text() const { return &s_text; }
+    const std::string* text() const override { return &s_text; }
 
-    size_t subNodeCount() const { return m_subNodes.size(); }
-    IMenuNode* subNode(size_t idx) { return &m_subNodes[idx]; }
+    size_t subNodeCount() const override { return m_subNodes.size(); }
+    IMenuNode* subNode(size_t idx) override { return &m_subNodes[idx]; }
 
     static void InitializeStrings(ViewManager& vm);
     static const std::string* LookupClassString(Class cls) {
@@ -107,10 +107,10 @@ public:
 
   struct SpaceSelectBind : specter::IButtonBinding {
     Space& m_space;
-    std::string_view name(const specter::Control* control) const { return SpaceMenuNode::s_text; }
+    std::string_view name(const specter::Control* control) const override { return SpaceMenuNode::s_text; }
 
-    MenuStyle menuStyle(const specter::Button* button) const { return MenuStyle::Primary; }
-    std::unique_ptr<specter::View> buildMenu(const specter::Button* button);
+    MenuStyle menuStyle(const specter::Button* button) const override { return MenuStyle::Primary; }
+    std::unique_ptr<specter::View> buildMenu(const specter::Button* button) override;
 
     SpaceSelectBind(Space& space) : m_space(space) {}
   } m_spaceSelectBind;
@@ -143,9 +143,9 @@ public:
   virtual void think() {}
 
   virtual Space* copy(Space* parent) const = 0;
-  bool spaceSplitAllowed() const { return true; }
+  bool spaceSplitAllowed() const override { return true; }
 
-  specter::ISplitSpaceController* spaceSplit(specter::SplitView::Axis axis, int thisSlot);
+  specter::ISplitSpaceController* spaceSplit(specter::SplitView::Axis axis, int thisSlot) override;
   virtual std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace) {
     return std::unique_ptr<Space>();
   }
@@ -159,8 +159,9 @@ class RootSpace : public Space {
   friend class ViewManager;
   std::unique_ptr<specter::RootView> m_rootView;
   std::unique_ptr<Space> m_spaceTree;
+
   struct State : Space::State{AT_DECL_DNA_YAMLV } m_state;
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
 
 public:
   RootSpace(ViewManager& vm) : Space(vm, Class::RootSpace, nullptr) {}
@@ -170,12 +171,12 @@ public:
       m_spaceTree.reset(NewSpaceFromConfigStream(vm, this, r));
   }
 
-  void think() {
+  void think() override {
     if (m_spaceTree)
       m_spaceTree->think();
   }
 
-  void saveState(athena::io::IStreamWriter& w) const {
+  void saveState(athena::io::IStreamWriter& w) const override {
     w.writeUint32Big(atUint32(m_class));
     m_state.write(w);
 
@@ -185,7 +186,7 @@ public:
       w.writeUint32Big(0);
   }
 
-  void saveState(athena::io::YAMLDocWriter& w) const {
+  void saveState(athena::io::YAMLDocWriter& w) const override {
     w.writeUint32("class", atUint32(m_class));
     m_state.write(w);
 
@@ -202,15 +203,15 @@ public:
     m_spaceTree->m_parent = this;
   }
 
-  Space* copy(Space* parent) const { return nullptr; }
-  bool spaceSplitAllowed() const { return false; }
+  Space* copy(Space* parent) const override { return nullptr; }
+  bool spaceSplitAllowed() const override { return false; }
 
-  specter::View* buildSpaceView(specter::ViewResources& res);
-  specter::View* buildContentView(specter::ViewResources& res) { return m_spaceTree->buildSpaceView(res); }
+  specter::View* buildSpaceView(specter::ViewResources& res) override;
+  specter::View* buildContentView(specter::ViewResources& res) override { return m_spaceTree->buildSpaceView(res); }
 
-  std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
+  std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace) override;
 
-  specter::View* basisView();
+  specter::View* basisView() override;
 };
 
 class SplitSpace : public Space, public specter::ISplitSpaceController {
@@ -222,7 +223,7 @@ class SplitSpace : public Space, public specter::ISplitSpaceController {
     Value<specter::SplitView::Axis> axis = specter::SplitView::Axis::Horizontal;
     Value<float> split = 0.5;
   } m_state;
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
 
 public:
   SplitSpace(ViewManager& vm, Space* parent, specter::SplitView::Axis axis) : Space(vm, Class::SplitSpace, parent) {
@@ -239,7 +240,7 @@ public:
     reloadState();
   }
 
-  void reloadState() {
+  void reloadState() override {
     m_state.split = std::min(1.f, std::max(0.f, m_state.split));
     if (m_state.axis != specter::SplitView::Axis::Horizontal && m_state.axis != specter::SplitView::Axis::Vertical)
       m_state.axis = specter::SplitView::Axis::Horizontal;
@@ -249,14 +250,14 @@ public:
     }
   }
 
-  void think() {
+  void think() override {
     if (m_slots[0])
       m_slots[0]->think();
     if (m_slots[1])
       m_slots[1]->think();
   }
 
-  void saveState(athena::io::IStreamWriter& w) const {
+  void saveState(athena::io::IStreamWriter& w) const override {
     w.writeUint32Big(atUint32(m_class));
     m_state.write(w);
 
@@ -271,7 +272,7 @@ public:
       w.writeUint32Big(0);
   }
 
-  void saveState(athena::io::YAMLDocWriter& w) const {
+  void saveState(athena::io::YAMLDocWriter& w) const override {
     w.writeUint32("class", atUint32(m_class));
     m_state.write(w);
 
@@ -292,11 +293,11 @@ public:
 
   void setChildSlot(unsigned slot, std::unique_ptr<Space>&& space);
 
-  specter::View* buildSpaceView(specter::ViewResources& res) { return buildContentView(res); }
-  specter::View* buildContentView(specter::ViewResources& res);
+  specter::View* buildSpaceView(specter::ViewResources& res) override { return buildContentView(res); }
+  specter::View* buildContentView(specter::ViewResources& res) override;
 
-  Space* copy(Space* parent) const { return nullptr; }
-  bool spaceSplitAllowed() const { return false; }
+  Space* copy(Space* parent) const override { return nullptr; }
+  bool spaceSplitAllowed() const override { return false; }
 
   ISpaceController* spaceJoin(int keepSlot) {
     if (m_parent) {
@@ -307,11 +308,11 @@ public:
     return nullptr;
   }
 
-  std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace);
+  std::unique_ptr<Space> exchangeSpaceSplitJoin(Space* removeSpace, std::unique_ptr<Space>&& keepSpace) override;
 
-  specter::SplitView* splitView() { return m_splitView.get(); }
-  void updateSplit(float split) { m_state.split = split; }
-  void joinViews(specter::SplitView* thisSplit, int thisSlot, specter::SplitView* otherSplit, int otherSlot);
+  specter::SplitView* splitView() override { return m_splitView.get(); }
+  void updateSplit(float split) override { m_state.split = split; }
+  void joinViews(specter::SplitView* thisSplit, int thisSlot, specter::SplitView* otherSplit, int otherSlot) override;
 
   void setAxis(specter::SplitView::Axis axis) {
     m_state.axis = axis;
@@ -321,7 +322,7 @@ public:
   specter::SplitView::Axis axis() const { return m_state.axis; }
   float split() const { return m_state.split; }
 
-  specter::View* basisView() { return m_splitView.get(); }
+  specter::View* basisView() override { return m_splitView.get(); }
 };
 inline SplitSpace* Space::castToSplitSpace() {
   return cls() == Class::SplitSpace ? static_cast<SplitSpace*>(this) : nullptr;
@@ -356,16 +357,21 @@ public:
             specter::IButtonBinding* binding)
   : Space(vm, Class::TestSpace, parent), m_contentStr(content), m_buttonStr(button), m_binding(binding) {}
 
+<<<<<<< HEAD
   struct State : Space::State{AT_DECL_DNA_YAMLV} m_state;
   const Space::State& spaceState() const { return m_state; }
+=======
+  struct State : Space::State{AT_DECL_DNA_YAML AT_DECL_DNAV} m_state;
+  const Space::State& spaceState() const override { return m_state; }
+>>>>>>> Editor: Use override where applicable
 
-  bool usesToolbar() const { return true; }
-  void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb) {
+  bool usesToolbar() const override { return true; }
+  void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb) override {
     m_button.reset(new specter::Button(res, tb, m_binding, m_buttonStr));
     tb.push_back(m_button.get(), 0);
   }
 
-  specter::View* buildContentView(specter::ViewResources& res) {
+  specter::View* buildContentView(specter::ViewResources& res) override {
     m_textView.reset(new specter::MultiLineTextView(res, *m_spaceView, res.m_heading14));
     m_textView->setBackground(res.themeData().viewportBackground());
     m_textView->typesetGlyphs(m_contentStr, res.themeData().uiText());
