@@ -16,12 +16,12 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
     Value<SortColumn> sortColumn = SortColumn::Name;
     Value<specter::SortDirection> sortDir = specter::SortDirection::Ascending;
   } m_state;
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
 
   hecl::ProjectPath m_path;
   std::vector<hecl::SystemString> m_comps;
 
-  void pathButtonActivated(size_t idx);
+  void pathButtonActivated(size_t idx) override;
 
   struct ResListingDataBind : specter::ITableDataBinding, specter::ITableStateBinding {
     ResourceBrowser& m_rb;
@@ -42,10 +42,10 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
     std::string m_projStr;
     std::string m_fileStr;
 
-    size_t columnCount() const { return 3; }
-    size_t rowCount() const { return m_entries.size(); }
+    size_t columnCount() const override { return 3; }
+    size_t rowCount() const override { return m_entries.size(); }
 
-    std::string_view header(size_t cIdx) const {
+    std::string_view header(size_t cIdx) const override {
       switch (cIdx) {
       case 0:
         return m_nameCol;
@@ -59,7 +59,7 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
       return {};
     }
 
-    std::string_view cell(size_t cIdx, size_t rIdx) const {
+    std::string_view cell(size_t cIdx, size_t rIdx) const override {
       switch (cIdx) {
       case 0:
         return m_entries.at(rIdx).m_name;
@@ -73,11 +73,11 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
       return {};
     }
 
-    bool columnSplitResizeAllowed() const { return true; }
+    bool columnSplitResizeAllowed() const override { return true; }
 
-    float getColumnSplit(size_t cIdx) const { return m_rb.m_state.columnSplits[cIdx]; }
+    float getColumnSplit(size_t cIdx) const override { return m_rb.m_state.columnSplits[cIdx]; }
 
-    void setColumnSplit(size_t cIdx, float split) { m_rb.m_state.columnSplits[cIdx] = split; }
+    void setColumnSplit(size_t cIdx, float split) override { m_rb.m_state.columnSplits[cIdx] = split; }
 
     void updateListing(const hecl::DirectoryEnumerator& dEnum) {
       m_entries.clear();
@@ -106,22 +106,22 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
 
     bool m_needsUpdate = false;
 
-    specter::SortDirection getSort(size_t& cIdx) const {
+    specter::SortDirection getSort(size_t& cIdx) const override {
       cIdx = size_t(m_rb.m_state.sortColumn);
       if (cIdx > 2)
         cIdx = 0;
       return m_rb.m_state.sortDir;
     }
 
-    void setSort(size_t cIdx, specter::SortDirection dir) {
+    void setSort(size_t cIdx, specter::SortDirection dir) override {
       m_rb.m_state.sortDir = dir;
       m_rb.m_state.sortColumn = State::SortColumn(cIdx);
       m_needsUpdate = true;
     }
 
-    void setSelectedRow(size_t rIdx) {}
+    void setSelectedRow(size_t rIdx) override {}
 
-    void rowActivated(size_t rIdx) {}
+    void rowActivated(size_t rIdx) override {}
 
     ResListingDataBind(ResourceBrowser& rb, const specter::IViewManager& vm) : m_rb(rb) {
       m_nameCol = vm.translate<locale::name>();
@@ -142,13 +142,13 @@ class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
       m_resListing.m_view.reset(new specter::Table(res, *this, &ro.m_resListingBind, &ro.m_resListingBind, 3));
     }
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseMove(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseMove(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   };
   std::unique_ptr<View> m_view;
 
@@ -168,7 +168,7 @@ public:
     reloadState();
   }
 
-  void reloadState() {
+  void reloadState() override {
     hecl::ProjectPath pp(*m_vm.project(), m_state.path);
     if (m_state.path.empty() || pp.isNone()) {
       m_state.path = m_vm.project()->getProjectWorkingPath().getRelativePathUTF8();
@@ -177,29 +177,29 @@ public:
       navigateToPath(pp);
   }
 
-  void think() {
+  void think() override {
     if (m_resListingBind.m_needsUpdate)
       reloadState();
   }
 
   bool navigateToPath(const hecl::ProjectPath& path);
 
-  Space* copy(Space* parent) const { return new ResourceBrowser(m_vm, parent, *this); }
+  Space* copy(Space* parent) const override { return new ResourceBrowser(m_vm, parent, *this); }
 
-  void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb) {
+  void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb) override {
     m_pathButtons.reset(new specter::PathButtons(res, tb, *this, true));
     tb.push_back(m_pathButtons.get(), 1);
     reloadState();
   }
 
-  specter::View* buildContentView(specter::ViewResources& res) {
+  specter::View* buildContentView(specter::ViewResources& res) override {
     m_view.reset(new View(*this, res));
     return m_view.get();
   }
 
-  bool usesToolbar() const { return true; }
+  bool usesToolbar() const override { return true; }
 
-  unsigned toolbarUnits() const { return 2; }
+  unsigned toolbarUnits() const override { return 2; }
 };
 
 } // namespace urde

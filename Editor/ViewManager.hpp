@@ -60,47 +60,47 @@ class ViewManager final : public specter::IViewManager {
 
   public:
     TestGameView(ViewManager& vm, specter::ViewResources& res, specter::View& parent) : View(res, parent), m_vm(vm) {}
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
-    void think();
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
+    void think() override;
 
-    void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey) {
+    void mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->mouseDown(coord, button, mkey);
     }
 
-    void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey) {
+    void mouseUp(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mkey) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->mouseUp(coord, button, mkey);
     }
 
-    void mouseMove(const boo::SWindowCoord& coord) {
+    void mouseMove(const boo::SWindowCoord& coord) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->mouseMove(coord);
     }
 
-    void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& sd) {
+    void scroll(const boo::SWindowCoord& coord, const boo::SScrollDelta& sd) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->scroll(coord, sd);
     }
 
-    void charKeyDown(unsigned long cc, boo::EModifierKey mkey, bool repeat) {
+    void charKeyDown(unsigned long cc, boo::EModifierKey mkey, bool repeat) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->charKeyDown(cc, mkey, repeat);
     }
 
-    void charKeyUp(unsigned long cc, boo::EModifierKey mkey) {
+    void charKeyUp(unsigned long cc, boo::EModifierKey mkey) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->charKeyUp(cc, mkey);
     }
 
-    void specialKeyDown(boo::ESpecialKey skey, boo::EModifierKey mkey, bool repeat) {
+    void specialKeyDown(boo::ESpecialKey skey, boo::EModifierKey mkey, bool repeat) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->specialKeyDown(skey, mkey, repeat);
@@ -109,7 +109,7 @@ class ViewManager final : public specter::IViewManager {
         m_vm.m_skipWait = true;
     }
 
-    void specialKeyUp(boo::ESpecialKey skey, boo::EModifierKey mkey) {
+    void specialKeyUp(boo::ESpecialKey skey, boo::EModifierKey mkey) override {
       if (MP1::CMain* m = m_vm.m_projManager.gameMain())
         if (MP1::CGameArchitectureSupport* as = m->GetArchSupport())
           as->specialKeyUp(skey, mkey);
@@ -166,21 +166,21 @@ public:
 
   ProjectManager& projectManager() { return m_projManager; }
   hecl::Database::Project* project() { return m_projManager.project(); }
-  locale::ELocale getTranslatorLocale() const { return m_locale; }
+  locale::ELocale getTranslatorLocale() const override { return m_locale; }
 
   void deferSpaceSplit(specter::ISpaceController* split, specter::SplitView::Axis axis, int thisSlot,
-                       const boo::SWindowCoord& coord) {
+                       const boo::SWindowCoord& coord) override {
     m_deferSplit = static_cast<Space*>(split);
     m_deferSplitAxis = axis;
     m_deferSplitThisSlot = thisSlot;
     m_deferSplitCoord = coord;
   }
 
-  const std::vector<hecl::SystemString>* recentProjects() const { return &m_recentProjects; }
-  void pushRecentProject(hecl::SystemStringView path);
+  const std::vector<hecl::SystemString>* recentProjects() const override { return &m_recentProjects; }
+  void pushRecentProject(hecl::SystemStringView path) override;
 
-  const std::vector<hecl::SystemString>* recentFiles() const { return &m_recentFiles; }
-  void pushRecentFile(hecl::SystemStringView path);
+  const std::vector<hecl::SystemString>* recentFiles() const override { return &m_recentFiles; }
+  void pushRecentFile(hecl::SystemStringView path) override;
 
   void init(boo::IApplication* app);
   const boo::SystemChar* platformName() { return m_mainPlatformName; }
