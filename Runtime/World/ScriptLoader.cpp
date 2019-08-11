@@ -65,6 +65,7 @@
 #include "CFishCloud.hpp"
 #include "CFishCloudModifier.hpp"
 #include "CScriptPlayerHint.hpp"
+#include "MP1/World/CRipper.hpp"
 #include "CScriptPlayerStateChange.hpp"
 #include "CScriptPointOfInterest.hpp"
 #include "CScriptRandomRelay.hpp"
@@ -1923,7 +1924,29 @@ CEntity* ScriptLoader::LoadPlayerHint(CStateManager& mgr, CInputStream& in, int 
 }
 
 CEntity* ScriptLoader::LoadRipper(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 8, "Ripper"))
+    return nullptr;
+
+  std::string name = mgr.HashInstanceName(in);
+  CPatterned::EFlavorType type = CPatterned::EFlavorType(in.readUint32Big());
+  zeus::CTransform xf = LoadEditorTransform(in);
+  zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
+  auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+  CPatternedInfo pInfo(in, pair.second);
+  CActorParameters actParms = LoadActorParameters(in);
+  CGrappleParameters grappleParms = LoadGrappleParameters(in);
+
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+
+  CModelData mData(
+      CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+  return new MP1::CRipper(mgr.AllocateUniqueId(), name, type, info, xf, std::move(mData), pInfo, actParms,
+                          grappleParms);
 }
 
 CEntity* ScriptLoader::LoadPickupGenerator(CStateManager& mgr, CInputStream& in, int propCount,

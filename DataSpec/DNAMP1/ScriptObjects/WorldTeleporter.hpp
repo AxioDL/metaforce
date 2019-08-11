@@ -7,8 +7,7 @@
 namespace DataSpec::DNAMP1 {
 
 struct WorldTeleporter : IScriptObject {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_EXPLICIT_DNA_YAMLV
   String<-1> name;
   Value<bool> active;
   UniqueID32 mlvl;

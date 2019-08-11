@@ -7,8 +7,7 @@
 namespace urde {
 class ModelViewer : public ViewerSpace {
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     enum class Mode { Solid, Material, Wireframe };
 
     Value<Mode> renderMode = Mode::Material;

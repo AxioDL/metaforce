@@ -127,8 +127,7 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimPrimitive : IMetaAnim {
       MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       UniqueID64 animId;
       Value<atUint32> animIdx;
       String<-1> animName;
@@ -141,8 +140,7 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimBlend : IMetaAnim {
       MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
@@ -155,8 +153,7 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimPhaseBlend : IMetaAnim {
       MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
@@ -169,8 +166,7 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimRandom : IMetaAnim {
       MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       struct Child : BigDNA {
         AT_DECL_DNA_YAML
@@ -186,8 +182,7 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimSequence : IMetaAnim {
       MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 

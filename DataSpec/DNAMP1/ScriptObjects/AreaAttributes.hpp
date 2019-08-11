@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct AreaAttributes : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   enum class EWeatherType : atUint32 { None, Snow, Rain };
 
   Value<atUint32> load; /* 0 causes the loader to bail and return null */

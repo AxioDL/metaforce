@@ -6,8 +6,7 @@
 namespace urde {
 class InformationCenter : public ViewerSpace {
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<bool> showLog;
   } m_state;
 

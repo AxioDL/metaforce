@@ -21,7 +21,7 @@ zeus::CTransform ConvertEditorEulerToTransform4f(const zeus::CVector3f& scale, c
                                                  const zeus::CVector3f& position);
 
 struct IScriptObject : BigDNAVYaml {
-  AT_DECL_DNA_YAML
+  AT_DECL_DNA_YAMLV
   atUint32 type;
   Value<atUint32> id;
   struct Connection : BigDNA {

@@ -9,8 +9,7 @@ namespace urde {
 
 class ResourceBrowser : public Space, public specter::IPathButtonsBinding {
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     String<-1> path;
     Value<float> columnSplits[3] = {0.0f, 0.7f, 0.9f};
     enum class SortColumn { Name, Type, Size };

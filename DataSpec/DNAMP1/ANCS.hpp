@@ -145,8 +145,7 @@ struct ANCS : BigDNA {
       std::unique_ptr<IMetaAnim> m_anim;
     };
     struct MetaAnimPrimitive : IMetaAnim {
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
 
       UniqueID32 animId;
@@ -164,8 +163,7 @@ struct ANCS : BigDNA {
     };
     struct MetaAnimBlend : IMetaAnim {
       MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
@@ -187,8 +185,7 @@ struct ANCS : BigDNA {
     };
     struct MetaAnimPhaseBlend : IMetaAnim {
       MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
@@ -210,8 +207,7 @@ struct ANCS : BigDNA {
     };
     struct MetaAnimRandom : IMetaAnim {
       MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       struct Child : BigDNA {
         AT_DECL_DNA
@@ -235,8 +231,7 @@ struct ANCS : BigDNA {
     };
     struct MetaAnimSequence : IMetaAnim {
       MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
@@ -282,8 +277,7 @@ struct ANCS : BigDNA {
     };
     struct MetaTransMetaAnim : IMetaTrans {
       MetaTransMetaAnim() : IMetaTrans(Type::MetaAnim, "MetaAnim") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory anim;
 
       void gatherPrimitives(PAKRouter<PAKBridge>* pakRouter,
@@ -297,8 +291,7 @@ struct ANCS : BigDNA {
     };
     struct MetaTransTrans : IMetaTrans {
       MetaTransTrans() : IMetaTrans(Type::Trans, "Trans") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<float> transDurTime;
       Value<atUint32> transDurTimeMode;
       Value<bool> unk2;
@@ -307,8 +300,7 @@ struct ANCS : BigDNA {
     };
     struct MetaTransPhaseTrans : IMetaTrans {
       MetaTransPhaseTrans() : IMetaTrans(Type::PhaseTrans, "PhaseTrans") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<float> transDurTime;
       Value<atUint32> transDurTimeMode;
       Value<bool> unk2;

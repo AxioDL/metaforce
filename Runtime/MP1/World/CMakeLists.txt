@@ -34,6 +34,7 @@ set(MP1_WORLD_SOURCES
     CFlaahgraTentacle.hpp CFlaahgraTentacle.cpp
     CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
     CSpankWeed.hpp CSpankWeed.cpp
-    CPuddleSpore.hpp CPuddleSpore.cpp)
+    CPuddleSpore.hpp CPuddleSpore.cpp
+    CRipper.hpp CRipper.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)

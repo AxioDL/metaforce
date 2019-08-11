@@ -7,15 +7,13 @@ class PAKEntryReadStream;
 
 struct TXTR {
   struct PaletteMeta : BigDNAVYaml {
-    AT_DECL_EXPLICIT_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_EXPLICIT_DNA_YAMLV
     Value<atUint32> format = UINT_MAX;
     Value<atUint32> elementCount = 0;
     Value<atUint64> dolphinHash = 0;
   };
   struct Meta : BigDNAVYaml {
-    AT_DECL_EXPLICIT_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_EXPLICIT_DNA_YAMLV
     Value<atUint32> format = UINT_MAX;
     Value<atUint32> mips = 0;
     Value<atUint16> width = 0;

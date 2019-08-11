@@ -7,8 +7,7 @@
 namespace DataSpec::DNAMP2 {
 
 struct STRG : ISTRG {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_EXPLICIT_DNA_YAMLV
   void _read(athena::io::IStreamReader& reader);
   std::vector<std::pair<FourCC, std::vector<std::u16string>>> langs;
   std::unordered_map<FourCC, std::vector<std::u16string>*> langMap;

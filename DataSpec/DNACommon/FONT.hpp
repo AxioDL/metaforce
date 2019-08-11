@@ -12,7 +12,7 @@ struct GlyphRect : BigDNA {
   Value<float> bottom;
 };
 struct IGlyph : BigDNAVYaml {
-  AT_DECL_DNA_YAML
+  AT_DECL_DNA_YAMLV
   Value<atUint16> m_character;
   GlyphRect m_glyphRect;
 
@@ -34,8 +34,7 @@ struct IGlyph : BigDNAVYaml {
 };
 
 struct GlyphMP1 : IGlyph {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   Value<atInt32> m_leftPadding;
   Value<atInt32> m_advance;
   Value<atInt32> m_rightPadding;
@@ -54,8 +53,7 @@ struct GlyphMP1 : IGlyph {
 };
 
 struct GlyphMP2 : IGlyph {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   Value<atInt8> m_layer;
   Value<atInt8> m_leftPadding;
   Value<atInt8> m_advance;

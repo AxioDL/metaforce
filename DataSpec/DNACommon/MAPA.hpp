@@ -17,7 +17,6 @@ struct MAPA : BigDNA {
   };
 
   struct HeaderMP1 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -32,7 +31,6 @@ struct MAPA : BigDNA {
   };
 
   struct HeaderMP2 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -50,7 +48,6 @@ struct MAPA : BigDNA {
   };
 
   struct HeaderMP3 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -102,7 +99,6 @@ struct MAPA : BigDNA {
   };
 
   struct MappableObjectMP1_2 : IMappableObject {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<Type> type;
     Value<atUint32> visMode;
@@ -113,7 +109,6 @@ struct MAPA : BigDNA {
   };
 
   struct MappableObjectMP3 : IMappableObject {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<Type> type;
     Value<atUint32> visMode;

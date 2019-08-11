@@ -9,8 +9,7 @@ class GameMode : public ViewerSpace {
   std::shared_ptr<IMain> m_main;
 
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<bool> showToolbar = true;
   } m_state;
 

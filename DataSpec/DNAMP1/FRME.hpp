@@ -45,19 +45,19 @@ struct FRME : BigDNA {
     Value<atInt16> unk2;
 
     struct BWIGInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::BWIG"; }
       FourCC fourcc() const override { return FOURCC('BWIG'); }
     };
 
     struct HWIGInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::HWIG"; }
       FourCC fourcc() const override { return FOURCC('HWIG'); }
     };
 
     struct CAMRInfo : IWidgetInfo {
-      AT_DECL_EXPLICIT_DNA
+      AT_DECL_EXPLICIT_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::CAMR"; }
       enum class ProjectionType { Perspective, Orthographic };
 
@@ -69,7 +69,6 @@ struct FRME : BigDNA {
       };
 
       struct PerspectiveProjection : IProjection {
-        AT_DECL_DNA
         AT_DECL_DNAV
         PerspectiveProjection() : IProjection(ProjectionType::Perspective) {}
         Value<float> fov;
@@ -79,7 +78,6 @@ struct FRME : BigDNA {
       };
 
       struct OrthographicProjection : IProjection {
-        AT_DECL_DNA
         AT_DECL_DNAV
         OrthographicProjection() : IProjection(ProjectionType::Orthographic) {}
         Value<float> left;
@@ -95,7 +93,7 @@ struct FRME : BigDNA {
     };
 
     struct MODLInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::MODL"; }
       UniqueID32 model;
       enum class BlendMode { Unknown0, Unknown1, Unknown2, Additive };
@@ -107,7 +105,7 @@ struct FRME : BigDNA {
     };
 
     struct LITEInfo : IWidgetInfo {
-      AT_DECL_EXPLICIT_DNA
+      AT_DECL_EXPLICIT_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::LITE"; }
       enum class ELightType : atUint32 {
         Spot = 0,
@@ -131,7 +129,7 @@ struct FRME : BigDNA {
     };
 
     struct ENRGInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::ENRG"; }
       UniqueID32 texture;
 
@@ -139,7 +137,7 @@ struct FRME : BigDNA {
     };
 
     struct METRInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::METR"; }
       Value<bool> unk1;
       Value<bool> noRoundUp;
@@ -150,7 +148,7 @@ struct FRME : BigDNA {
     };
 
     struct GRUPInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::GRUP"; }
       Value<atInt16> defaultWorker;
       Value<bool> unk3;
@@ -159,7 +157,7 @@ struct FRME : BigDNA {
     };
 
     struct TBGPInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::TBGP"; }
       Value<atUint16> elementCount;
       Value<atUint16> unk2;
@@ -181,7 +179,7 @@ struct FRME : BigDNA {
     };
 
     struct SLGPInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::SLGP"; }
       Value<float> min;
       Value<float> max;
@@ -192,7 +190,7 @@ struct FRME : BigDNA {
     };
 
     struct PANEInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::PANE"; }
       Value<float> xDim;
       Value<float> zDim;
@@ -229,7 +227,7 @@ struct FRME : BigDNA {
         RightMono
       };
 
-      AT_DECL_EXPLICIT_DNA
+      AT_DECL_EXPLICIT_DNAV_NO_TYPE
 
       atUint32 version = 0;
       TXPNInfo() {}
@@ -253,7 +251,7 @@ struct FRME : BigDNA {
     };
 
     struct IMGPInfo : IWidgetInfo {
-      AT_DECL_DNA
+      AT_DECL_DNAV_NO_TYPE
       const char* DNATypeV() const override { return "FRME::IMGP"; }
       UniqueID32 texture;
       Value<atUint32> unk1;

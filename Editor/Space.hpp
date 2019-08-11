@@ -159,7 +159,7 @@ class RootSpace : public Space {
   friend class ViewManager;
   std::unique_ptr<specter::RootView> m_rootView;
   std::unique_ptr<Space> m_spaceTree;
-  struct State : Space::State{AT_DECL_DNA_YAML AT_DECL_DNAV} m_state;
+  struct State : Space::State{AT_DECL_DNA_YAMLV } m_state;
   const Space::State& spaceState() const { return m_state; }
 
 public:
@@ -218,8 +218,7 @@ class SplitSpace : public Space, public specter::ISplitSpaceController {
   std::unique_ptr<Space> m_slots[2];
   std::unique_ptr<specter::SplitView> m_splitView;
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<specter::SplitView::Axis> axis = specter::SplitView::Axis::Horizontal;
     Value<float> split = 0.5;
   } m_state;
@@ -357,7 +356,7 @@ public:
             specter::IButtonBinding* binding)
   : Space(vm, Class::TestSpace, parent), m_contentStr(content), m_buttonStr(button), m_binding(binding) {}
 
-  struct State : Space::State{AT_DECL_DNA_YAML AT_DECL_DNAV} m_state;
+  struct State : Space::State{AT_DECL_DNA_YAMLV} m_state;
   const Space::State& spaceState() const { return m_state; }
 
   bool usesToolbar() const { return true; }

@@ -6,8 +6,7 @@ namespace urde {
 
 class EffectEditor : public EditorSpace {
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     String<-1> path;
   } m_state;
   const Space::State& spaceState() const { return m_state; }

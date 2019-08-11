@@ -71,7 +71,6 @@ struct MaterialSet : BigDNA {
       static SectionPASS* castTo(ISection* sec) {
         return sec->m_type == Type::PASS ? static_cast<SectionPASS*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       Value<atUint32> size;
       enum class Subtype : atUint32 {
@@ -120,7 +119,6 @@ struct MaterialSet : BigDNA {
       static SectionCLR* castTo(ISection* sec) {
         return sec->m_type == Type::CLR ? static_cast<SectionCLR*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       enum class Subtype : atUint32 { CLR = SBIG('CLR '), DIFB = SBIG('DIFB') };
       DNAFourCC subtype;
@@ -135,7 +133,6 @@ struct MaterialSet : BigDNA {
       static SectionINT* castTo(ISection* sec) {
         return sec->m_type == Type::INT ? static_cast<SectionINT*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       enum class Subtype : atUint32 {
         OPAC = SBIG('OPAC'),
