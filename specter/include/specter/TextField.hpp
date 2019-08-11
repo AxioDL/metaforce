@@ -64,37 +64,38 @@ public:
   std::string_view getText() const { return m_textStr; }
   void setText(std::string_view str);
 
-  void clipboardCopy();
-  void clipboardCut();
-  void clipboardPaste();
+  void clipboardCopy() override;
+  void clipboardCut() override;
+  void clipboardPaste() override;
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool) override;
 
-  bool hasMarkedText() const;
-  std::pair<int, int> markedRange() const;
-  std::pair<int, int> selectedRange() const;
+  bool hasMarkedText() const override;
+  std::pair<int, int> markedRange() const override;
+  std::pair<int, int> selectedRange() const override;
   void setMarkedText(std::string_view str, const std::pair<int, int>& selectedRange,
-                     const std::pair<int, int>& replacementRange);
-  void unmarkText();
+                     const std::pair<int, int>& replacementRange) override;
+  void unmarkText() override;
 
-  std::string substringForRange(const std::pair<int, int>& range, std::pair<int, int>& actualRange) const;
-  void insertText(std::string_view str, const std::pair<int, int>& range);
-  int characterIndexAtPoint(const boo::SWindowCoord& point) const;
-  boo::SWindowRect rectForCharacterRange(const std::pair<int, int>& range, std::pair<int, int>& actualRange) const;
+  std::string substringForRange(const std::pair<int, int>& range, std::pair<int, int>& actualRange) const override;
+  void insertText(std::string_view str, const std::pair<int, int>& range) override;
+  int characterIndexAtPoint(const boo::SWindowCoord& point) const override;
+  boo::SWindowRect rectForCharacterRange(const std::pair<int, int>& range,
+                                         std::pair<int, int>& actualRange) const override;
 
-  void think();
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void think() override;
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  int nominalWidth() const { return m_nomWidth; }
-  int nominalHeight() const { return m_nomHeight; }
+  int nominalWidth() const override { return m_nomWidth; }
+  int nominalHeight() const override { return m_nomHeight; }
 
-  void setActive(bool active);
+  void setActive(bool active) override;
   void setCursorPos(size_t pos);
   void setErrorState(std::string_view message);
   void clearErrorState();
@@ -102,7 +103,7 @@ public:
   void setSelectionRange(size_t start, size_t count);
   void clearSelectionRange();
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     View::setMultiplyColor(color);
     m_viewVertBlock.m_color = color;
     if (m_viewVertBlockBuf)

@@ -26,11 +26,11 @@ class Tooltip : public View {
 
 public:
   Tooltip(ViewResources& res, View& parentView, std::string_view title, std::string_view message);
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  int nominalWidth() const { return m_nomWidth; }
-  int nominalHeight() const { return m_nomHeight; }
+  int nominalWidth() const override { return m_nomWidth; }
+  int nominalHeight() const override { return m_nomHeight; }
 };
 
 } // namespace specter

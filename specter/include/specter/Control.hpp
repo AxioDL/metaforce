@@ -15,7 +15,7 @@ struct IControlBinding {
 };
 
 struct IButtonBinding : IControlBinding {
-  ControlType type() const { return ControlType::Button; }
+  ControlType type() const override { return ControlType::Button; }
   static IButtonBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::Button ? static_cast<IButtonBinding*>(bind) : nullptr;
   }
@@ -45,7 +45,7 @@ struct IButtonBinding : IControlBinding {
 };
 
 struct IFloatBinding : IControlBinding {
-  ControlType type() const { return ControlType::Float; }
+  ControlType type() const override { return ControlType::Float; }
   static IFloatBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::Float ? static_cast<IFloatBinding*>(bind) : nullptr;
   }
@@ -55,7 +55,7 @@ struct IFloatBinding : IControlBinding {
 };
 
 struct IIntBinding : IControlBinding {
-  ControlType type() const { return ControlType::Int; }
+  ControlType type() const override { return ControlType::Int; }
   static IIntBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::Int ? static_cast<IIntBinding*>(bind) : nullptr;
   }
@@ -65,7 +65,7 @@ struct IIntBinding : IControlBinding {
 };
 
 struct IStringBinding : IControlBinding {
-  ControlType type() const { return ControlType::String; }
+  ControlType type() const override { return ControlType::String; }
   static IStringBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::String ? static_cast<IStringBinding*>(bind) : nullptr;
   }
@@ -76,12 +76,12 @@ struct IStringBinding : IControlBinding {
 struct CVarControlBinding : IControlBinding {
   hecl::CVar* m_cvar;
   CVarControlBinding(hecl::CVar* cvar) : m_cvar(cvar) {}
-  ControlType type() const { return ControlType::CVar; }
+  ControlType type() const override { return ControlType::CVar; }
   static CVarControlBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::CVar ? static_cast<CVarControlBinding*>(bind) : nullptr;
   }
-  std::string_view name(const Control* control) const { return m_cvar->name(); }
-  std::string_view help(const Control* control) const { return m_cvar->rawHelp(); }
+  std::string_view name(const Control* control) const override { return m_cvar->name(); }
+  std::string_view help(const Control* control) const override { return m_cvar->rawHelp(); }
 };
 
 class Control : public View {

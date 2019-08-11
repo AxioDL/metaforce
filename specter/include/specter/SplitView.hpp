@@ -79,15 +79,15 @@ public:
   void startDragSplit(const boo::SWindowCoord& coord);
   void endDragSplit();
   void moveDragSplit(const boo::SWindowCoord& coord);
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     View::setMultiplyColor(color);
     m_splitBlock.m_color = color;
     m_splitBlockBuf.access().finalAssign(m_splitBlock);
@@ -98,7 +98,7 @@ public:
       m_views[1].m_view->setMultiplyColor(color);
   }
 
-  bool isSplitView() const { return true; }
+  bool isSplitView() const override { return true; }
 };
 inline SplitView* View::castToSplitView() { return isSplitView() ? static_cast<SplitView*>(this) : nullptr; }
 

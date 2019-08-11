@@ -99,48 +99,48 @@ class DefaultThemeData : public IThemeData {
   zeus::CColor m_spaceTriangleShading2 = {0.5725, 0.5725, 0.5725, 1.0};
 
 public:
-  virtual const zeus::CColor& uiText() const { return m_uiText; }
-  virtual const zeus::CColor& uiAltText() const { return m_uiAltText; }
-  virtual const zeus::CColor& fieldText() const { return m_fieldText; }
-  virtual const zeus::CColor& fieldMarkedText() const { return m_fieldMarkedText; }
-  virtual const zeus::CColor& selectedFieldText() const { return m_selectedFieldText; }
+  const zeus::CColor& uiText() const override { return m_uiText; }
+  const zeus::CColor& uiAltText() const override { return m_uiAltText; }
+  const zeus::CColor& fieldText() const override { return m_fieldText; }
+  const zeus::CColor& fieldMarkedText() const override { return m_fieldMarkedText; }
+  const zeus::CColor& selectedFieldText() const override { return m_selectedFieldText; }
 
-  virtual const zeus::CColor& viewportBackground() const { return m_vpBg; }
-  virtual const zeus::CColor& toolbarBackground() const { return m_tbBg; }
-  virtual const zeus::CColor& tooltipBackground() const { return m_tooltipBg; }
-  virtual const zeus::CColor& spaceBackground() const { return m_spaceBg; }
-  virtual const zeus::CColor& splashBackground() const { return m_splashBg; }
-  virtual const zeus::CColor& splashErrorBackground() const { return m_splashErrorBg; }
+  const zeus::CColor& viewportBackground() const override { return m_vpBg; }
+  const zeus::CColor& toolbarBackground() const override { return m_tbBg; }
+  const zeus::CColor& tooltipBackground() const override { return m_tooltipBg; }
+  const zeus::CColor& spaceBackground() const override { return m_spaceBg; }
+  const zeus::CColor& splashBackground() const override { return m_splashBg; }
+  const zeus::CColor& splashErrorBackground() const override { return m_splashErrorBg; }
 
-  virtual const zeus::CColor& splash1() const { return m_splash1; }
-  virtual const zeus::CColor& splash2() const { return m_splash2; }
+  const zeus::CColor& splash1() const override { return m_splash1; }
+  const zeus::CColor& splash2() const override { return m_splash2; }
 
-  virtual const zeus::CColor& button1Inactive() const { return m_button1Inactive; }
-  virtual const zeus::CColor& button2Inactive() const { return m_button2Inactive; }
-  virtual const zeus::CColor& button1Hover() const { return m_button1Hover; }
-  virtual const zeus::CColor& button2Hover() const { return m_button2Hover; }
-  virtual const zeus::CColor& button1Press() const { return m_button1Press; }
-  virtual const zeus::CColor& button2Press() const { return m_button2Press; }
-  virtual const zeus::CColor& button1Disabled() const { return m_button1Disabled; }
-  virtual const zeus::CColor& button2Disabled() const { return m_button2Disabled; }
+  const zeus::CColor& button1Inactive() const override { return m_button1Inactive; }
+  const zeus::CColor& button2Inactive() const override { return m_button2Inactive; }
+  const zeus::CColor& button1Hover() const override { return m_button1Hover; }
+  const zeus::CColor& button2Hover() const override { return m_button2Hover; }
+  const zeus::CColor& button1Press() const override { return m_button1Press; }
+  const zeus::CColor& button2Press() const override { return m_button2Press; }
+  const zeus::CColor& button1Disabled() const override { return m_button1Disabled; }
+  const zeus::CColor& button2Disabled() const override { return m_button2Disabled; }
 
-  virtual const zeus::CColor& textfield1Inactive() const { return m_textfield1Inactive; }
-  virtual const zeus::CColor& textfield2Inactive() const { return m_textfield2Inactive; }
-  virtual const zeus::CColor& textfield1Hover() const { return m_textfield1Hover; }
-  virtual const zeus::CColor& textfield2Hover() const { return m_textfield2Hover; }
-  virtual const zeus::CColor& textfield1Disabled() const { return m_textfield1Disabled; }
-  virtual const zeus::CColor& textfield2Disabled() const { return m_textfield2Disabled; }
-  virtual const zeus::CColor& textfieldSelection() const { return m_textfieldSelection; }
-  virtual const zeus::CColor& textfieldMarkSelection() const { return m_textfieldMarkSelection; }
+  const zeus::CColor& textfield1Inactive() const override { return m_textfield1Inactive; }
+  const zeus::CColor& textfield2Inactive() const override { return m_textfield2Inactive; }
+  const zeus::CColor& textfield1Hover() const override { return m_textfield1Hover; }
+  const zeus::CColor& textfield2Hover() const override { return m_textfield2Hover; }
+  const zeus::CColor& textfield1Disabled() const override { return m_textfield1Disabled; }
+  const zeus::CColor& textfield2Disabled() const override { return m_textfield2Disabled; }
+  const zeus::CColor& textfieldSelection() const override { return m_textfieldSelection; }
+  const zeus::CColor& textfieldMarkSelection() const override { return m_textfieldMarkSelection; }
 
-  virtual const zeus::CColor& tableCellBg1() const { return m_tableCellBg1; }
-  virtual const zeus::CColor& tableCellBg2() const { return m_tableCellBg2; }
-  virtual const zeus::CColor& tableCellBgSelected() const { return m_tableCellBgSelected; }
+  const zeus::CColor& tableCellBg1() const override { return m_tableCellBg1; }
+  const zeus::CColor& tableCellBg2() const override { return m_tableCellBg2; }
+  const zeus::CColor& tableCellBgSelected() const override { return m_tableCellBgSelected; }
 
-  virtual const zeus::CColor& scrollIndicator() const { return m_scrollIndicator; }
+  const zeus::CColor& scrollIndicator() const override { return m_scrollIndicator; }
 
-  virtual const zeus::CColor& spaceTriangleShading1() const { return m_spaceTriangleShading1; }
-  virtual const zeus::CColor& spaceTriangleShading2() const { return m_spaceTriangleShading2; }
+  const zeus::CColor& spaceTriangleShading1() const override { return m_spaceTriangleShading1; }
+  const zeus::CColor& spaceTriangleShading2() const override { return m_spaceTriangleShading2; }
 };
 
 class ViewResources {

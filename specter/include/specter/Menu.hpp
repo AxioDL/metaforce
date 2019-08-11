@@ -34,16 +34,16 @@ class Menu : public View {
         setHighlightedItem(-1);
     }
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseMove(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseMove(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-    int nominalWidth() const { return m_menu.m_cWidth; }
-    int nominalHeight() const { return m_menu.m_cHeight; }
+    int nominalWidth() const override { return m_menu.m_cWidth; }
+    int nominalHeight() const override { return m_menu.m_cHeight; }
   };
   std::unique_ptr<ContentView> m_content;
   ViewChild<std::unique_ptr<ScrollView>> m_scroll;
@@ -55,13 +55,13 @@ class Menu : public View {
     IMenuNode* m_node;
     ItemView(ViewResources& res, Menu& menu, std::string_view text, size_t idx, IMenuNode* node);
 
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-    void mouseEnter(const boo::SWindowCoord&);
-    void mouseLeave(const boo::SWindowCoord&);
+    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+    void mouseEnter(const boo::SWindowCoord&) override;
+    void mouseLeave(const boo::SWindowCoord&) override;
 
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   };
   std::vector<ViewChild<std::unique_ptr<ItemView>>> m_items;
   IMenuNode* m_deferredActivation = nullptr;
@@ -72,15 +72,15 @@ public:
   Menu(ViewResources& res, View& parentView, IMenuNode* rootNode);
   void reset(IMenuNode* rootNode);
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&) override;
 
-  void think();
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void think() override;
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter

@@ -31,16 +31,16 @@ public:
 
   void colorGlyphs(const zeus::CColor& newColor);
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     for (std::unique_ptr<TextView>& l : m_lines)
       l->setMultiplyColor(color);
   }
 
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  int nominalWidth() const { return m_width; }
-  int nominalHeight() const { return (int(m_lineHeight * m_fontAtlas.FT_LineHeight()) >> 6) * m_lines.size(); }
+  int nominalWidth() const override { return m_width; }
+  int nominalHeight() const override { return (int(m_lineHeight * m_fontAtlas.FT_LineHeight()) >> 6) * m_lines.size(); }
 };
 
 } // namespace specter

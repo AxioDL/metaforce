@@ -57,8 +57,8 @@ class IconView : public View {
 
 public:
   IconView(ViewResources& res, View& parentView, Icon& icon);
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace specter

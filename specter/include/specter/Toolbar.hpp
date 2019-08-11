@@ -35,15 +35,15 @@ private:
 
 public:
   Toolbar(ViewResources& res, View& parentView, Position toolbarPos, unsigned units);
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord& coord);
-  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord& coord) override;
+  void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 
-  int nominalHeight() const { return m_nomGauge; }
+  int nominalHeight() const override { return m_nomGauge; }
 
   void clear() {
     for (std::vector<ViewChild<View*>>& u : m_children)
@@ -51,7 +51,7 @@ public:
   }
   void push_back(View* v, unsigned unit);
 
-  void setMultiplyColor(const zeus::CColor& color) {
+  void setMultiplyColor(const zeus::CColor& color) override {
     View::setMultiplyColor(color);
     for (std::vector<ViewChild<View*>>& u : m_children)
       for (ViewChild<View*>& c : u)
