@@ -357,13 +357,8 @@ public:
             specter::IButtonBinding* binding)
   : Space(vm, Class::TestSpace, parent), m_contentStr(content), m_buttonStr(button), m_binding(binding) {}
 
-<<<<<<< HEAD
   struct State : Space::State{AT_DECL_DNA_YAMLV} m_state;
-  const Space::State& spaceState() const { return m_state; }
-=======
-  struct State : Space::State{AT_DECL_DNA_YAML AT_DECL_DNAV} m_state;
   const Space::State& spaceState() const override { return m_state; }
->>>>>>> Editor: Use override where applicable
 
   bool usesToolbar() const override { return true; }
   void buildToolbarView(specter::ViewResources& res, specter::Toolbar& tb) override {
