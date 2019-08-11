@@ -1,5 +1,6 @@
-#include <Runtime/MP1/World/CMetroidBeta.hpp>
-#include <Runtime/MP1/CSamusHud.hpp>
+#include "MP1/World/CMetroidBeta.hpp"
+#include "MP1/World/CMetroid.hpp"
+#include "MP1/CSamusHud.hpp"
 #include "CSimplePool.hpp"
 #include "Character/CPrimitive.hpp"
 #include "CEnergyProjectile.hpp"

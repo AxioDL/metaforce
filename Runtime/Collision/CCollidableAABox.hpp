@@ -26,6 +26,7 @@ public:
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
   const zeus::CAABox& GetBox() const { return x10_aabox; }
   zeus::CAABox& Box() { return x10_aabox; }
+  void SetBox(const zeus::CAABox& box) { x10_aabox = box; }
 
   static const CCollisionPrimitive::Type& GetType();
   static void SetStaticTableIndex(u32 index);
