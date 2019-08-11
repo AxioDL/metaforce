@@ -53,7 +53,7 @@ bool ProjectManager::newProject(hecl::SystemStringView path) {
   }
 
   hecl::MakeDir(path.data());
-  m_proj.reset(new hecl::Database::Project(path));
+  m_proj = std::make_unique<hecl::Database::Project>(path);
   if (!*m_proj) {
     m_proj.reset();
     return false;
@@ -79,58 +79,62 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
     return false;
   }
 
-  m_proj.reset(new hecl::Database::Project(projPath));
+  m_proj = std::make_unique<hecl::Database::Project>(projPath);
   if (!*m_proj) {
     m_proj.reset();
     return false;
   }
 
-  hecl::ProjectPath urdeSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
+  athena::io::YAMLDocReader r;
+  const auto makeProj = [this, &r, &subPath](bool needsSave) {
+    m_vm.ProjectChanged(*m_proj);
+
+    if (needsSave)
+      m_vm.SetupEditorView();
+    else
+      m_vm.SetupEditorView(r);
+
+    const bool doRun = hecl::StringUtils::BeginsWith(subPath, _SYS_STR("out"));
+    if (doRun) {
+      m_mainMP1.emplace(nullptr, nullptr, m_vm.m_mainBooFactory, m_vm.m_mainCommandQueue, m_vm.m_renderTex);
+      m_vm.InitMP1(*m_mainMP1);
+    }
+
+    if (needsSave)
+      saveProject();
+
+    m_vm.m_mainWindow->setTitle(fmt::format(fmt(_SYS_STR("{} - URDE [{}]")),
+                                            m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
+    m_vm.DismissSplash();
+    m_vm.FadeInEditors();
+    m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
+    return true;
+  };
+
+  const hecl::ProjectPath urdeSpacesPath(*m_proj, _SYS_STR(".hecl/urde_spaces.yaml"));
   athena::io::FileReader reader(urdeSpacesPath.getAbsolutePath());
 
-  bool needsSave = false;
-  athena::io::YAMLDocReader r;
   if (!reader.isOpen()) {
-    needsSave = true;
-    goto makeProj;
+    return makeProj(true);
   }
 
-  yaml_parser_set_input(r.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &reader);
+  const auto readHandler = [](void* data, unsigned char* buffer, size_t size, size_t* size_read) {
+    auto* const reader = static_cast<athena::io::IStreamReader*>(data);
+    return athena::io::YAMLAthenaReader(reader, buffer, size, size_read);
+  };
+
+  yaml_parser_set_input(r.getParser(), readHandler, &reader);
   if (!r.ValidateClassType("UrdeSpacesState")) {
-    needsSave = true;
-    goto makeProj;
+    return makeProj(true);
   }
 
   r.reset();
   reader.seek(0, athena::Begin);
   if (!r.parse(&reader)) {
-    needsSave = true;
-    goto makeProj;
+    return makeProj(true);
   }
 
-makeProj:
-  m_vm.ProjectChanged(*m_proj);
-
-  if (!needsSave)
-    m_vm.SetupEditorView(r);
-  else
-    m_vm.SetupEditorView();
-
-  bool doRun = hecl::StringUtils::BeginsWith(subPath, _SYS_STR("out"));
-  if (doRun) {
-    m_mainMP1.emplace(nullptr, nullptr, m_vm.m_mainBooFactory, m_vm.m_mainCommandQueue, m_vm.m_renderTex);
-    m_vm.InitMP1(*m_mainMP1);
-  }
-
-  if (needsSave)
-    saveProject();
-
-  m_vm.m_mainWindow->setTitle(fmt::format(fmt(_SYS_STR("{} - URDE [{}]")),
-    m_proj->getProjectRootPath().getLastComponent(), m_vm.platformName()));
-  m_vm.DismissSplash();
-  m_vm.FadeInEditors();
-  m_vm.pushRecentProject(m_proj->getProjectRootPath().getAbsolutePath());
-  return true;
+  return makeProj(false);
 }
 
 bool ProjectManager::extractGame(hecl::SystemStringView path) { return false; }
