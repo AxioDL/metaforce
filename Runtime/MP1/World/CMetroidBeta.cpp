@@ -5,10 +5,12 @@
 #include "Particle/CElementGen.hpp"
 #include "Particle/CParticleSwoosh.hpp"
 #include "Weapon/CGameProjectile.hpp"
+#include "World/CGameArea.hpp"
 #include "World/CPatternedInfo.hpp"
 #include "World/CPlayer.hpp"
 #include "World/ScriptLoader.hpp"
 #include "World/CTeamAiMgr.hpp"
+#include "World/CWorld.hpp"
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 
@@ -134,9 +136,28 @@ void CMetroidBeta::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSta
     break;
   }
   case EScriptObjectMessage::Touched: {
+    if (TCastToConstPtr<CCollisionActor> colAct = mgr.GetObjectById(uid)) {
+      if (HealthInfo(mgr)->GetHP() > 0.f && colAct->GetLastTouchedObject() == mgr.GetPlayer().GetUniqueId() &&
+      x420_curDamageRemTime <= 0.f) {
+        CDamageInfo dInfo = GetContactDamage();
+        dInfo.SetDamage(0.5f * dInfo.GetDamage());
+        if (x840_29_ && x840_30_)
+          dInfo = GetContactDamage();
+
+        mgr.ApplyDamage(GetUniqueId(), mgr.GetPlayer().GetUniqueId(), GetUniqueId(), dInfo,
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
+
+        x420_curDamageRemTime = x424_damageWaitTime;
+        x840_30_ = false;
+      }
+    }
     break;
   }
   case EScriptObjectMessage::InitializedInArea: {
+    if (x678_teamMgr == kInvalidUniqueId)
+      x678_teamMgr = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
+
+    x67c_pathFind.SetArea(mgr.GetWorld()->GetAreaAlways(GetAreaId())->GetPostConstructed()->x10bc_pathArea);
     break;
   }
   case EScriptObjectMessage::SuspendedMove: {
@@ -181,7 +202,9 @@ void CMetroidBeta::SelectTarget(CStateManager& mgr, EStateMsg msg, float arg) { 
 void CMetroidBeta::TargetPatrol(CStateManager& mgr, EStateMsg msg, float arg) {
   CPatterned::TargetPatrol(mgr, msg, arg);
 }
-void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Generate(mgr, msg, arg); }
+void CMetroidBeta::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
+  CAi::Generate(mgr, msg, arg);
+}
 void CMetroidBeta::Attack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::Attack(mgr, msg, arg); }
 void CMetroidBeta::TurnAround(CStateManager& mgr, EStateMsg msg, float arg) { CAi::TurnAround(mgr, msg, arg); }
 void CMetroidBeta::TelegraphAttack(CStateManager& mgr, EStateMsg msg, float arg) {
