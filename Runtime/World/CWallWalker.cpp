@@ -154,10 +154,10 @@ void CWallWalker::Think(float dt, CStateManager& mgr) {
     return;
 
   if (x5c8_bendingHackWeight > 0.0001f) {
-    ModelData()->AnimationData()->AddAdditiveAnimation(x5cc_bendingHackAnim, x5c8_bendingHackWeight, true, false);
+    GetModelData()->GetAnimationData()->AddAdditiveAnimation(x5cc_bendingHackAnim, x5c8_bendingHackWeight, true, false);
     x5d6_29_applyBendingHack = true;
   } else {
-    ModelData()->AnimationData()->DelAdditiveAnimation(x5cc_bendingHackAnim);
+    GetModelData()->GetAnimationData()->DelAdditiveAnimation(x5cc_bendingHackAnim);
     x5d6_29_applyBendingHack = false;
   }
 }

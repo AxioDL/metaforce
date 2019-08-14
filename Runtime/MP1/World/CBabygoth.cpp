@@ -59,7 +59,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
 , x6ec_pathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x7d0_approachPathSearch(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x8d0_initialSpeed(x3b4_speed)
-, x8f0_boneTracking(*ModelData()->AnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
+, x8f0_boneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f), zeus::degToRad(180.f),
                     EBoneTrackingFlags::None)
 , x930_aabox(GetBoundingBox(), GetMaterialList())
 , x958_iceProjectile(babyData.x8_fireballWeapon, babyData.xc_fireballDamage)
@@ -72,7 +72,7 @@ CBabygoth::CBabygoth(TUniqueId uid, std::string_view name, const CEntityInfo& in
   TLockedToken<CSkinRules> skin = g_SimplePool->GetObj({SBIG('CSKR'), babyData.x13c_noShellSkin});
   xa08_noShellModel =
       CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
-          model, skin, x64_modelData->AnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
+          model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
   xa14_crackOneParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x14c_crackOneParticle});
   xa20_crackTwoParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x150_crackTwoParticle});
   xa2c_destroyShellParticle = g_SimplePool->GetObj({SBIG('PART'), babyData.x154_destroyShellParticle});
@@ -218,9 +218,9 @@ void CBabygoth::Think(float dt, CStateManager& mgr) {
   if (x450_bodyController->IsElectrocuting())
     x8f0_boneTracking.SetActive(false);
   UpdateTimers(dt);
-  ModelData()->AnimationData()->PreRender();
+  GetModelData()->GetAnimationData()->PreRender();
   x8f0_boneTracking.Update(dt);
-  x8f0_boneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(), GetModelData()->GetScale(),
+  x8f0_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                               *x450_bodyController);
   x928_colActMgr->Update(dt, mgr, CCollisionActorManager::EUpdateOptions(!xa49_29_objectSpaceCollision));
   xa49_29_objectSpaceCollision = true;
@@ -1094,7 +1094,7 @@ bool CBabygoth::IsDestinationObstructed(CStateManager& mgr) {
 }
 
 void CBabygoth::DestroyShell(CStateManager& mgr) {
-  ModelData()->AnimationData()->SubstituteModelData(xa08_noShellModel);
+  GetModelData()->GetAnimationData()->SubstituteModelData(xa08_noShellModel);
 
   for (TUniqueId uid : x9f8_shellIds) {
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {

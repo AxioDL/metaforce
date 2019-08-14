@@ -15,7 +15,7 @@ CBodyController::CBodyController(CActor& actor, float turnSpeed, EBodyType bodyT
   x2a4_bodyStateInfo.x18_bodyController = this;
 }
 
-void CBodyController::EnableAnimation(bool e) { x0_actor.ModelData()->AnimationData()->EnableAnimation(e); }
+void CBodyController::EnableAnimation(bool e) { x0_actor.GetModelData()->GetAnimationData()->EnableAnimation(e); }
 
 void CBodyController::Activate(CStateManager& mgr) {
   x300_25_active = true;
@@ -77,8 +77,8 @@ void CBodyController::Update(float dt, CStateManager& mgr) {
 bool CBodyController::HasBodyState(pas::EAnimationState s) const { return GetPASDatabase().HasState(s32(s)); }
 
 void CBodyController::SetCurrentAnimation(const CAnimPlaybackParms& parms, bool loop, bool noTrans) {
-  x0_actor.ModelData()->AnimationData()->SetAnimation(parms, noTrans);
-  x0_actor.ModelData()->EnableLooping(loop);
+  x0_actor.GetModelData()->GetAnimationData()->SetAnimation(parms, noTrans);
+  x0_actor.GetModelData()->EnableLooping(loop);
   x2f8_curAnim = parms.GetAnimationId();
 }
 
@@ -86,13 +86,13 @@ float CBodyController::GetAnimTimeRemaining() const {
   return x0_actor.GetModelData()->GetAnimationData()->GetAnimTimeRemaining("Whole Body");
 }
 
-void CBodyController::SetPlaybackRate(float r) { x0_actor.ModelData()->AnimationData()->SetPlaybackRate(r); }
+void CBodyController::SetPlaybackRate(float r) { x0_actor.GetModelData()->GetAnimationData()->SetPlaybackRate(r); }
 
 const CPASDatabase& CBodyController::GetPASDatabase() const {
   return x0_actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();
 }
 
-void CBodyController::MultiplyPlaybackRate(float r) { x0_actor.ModelData()->AnimationData()->MultiplyPlaybackRate(r); }
+void CBodyController::MultiplyPlaybackRate(float r) { x0_actor.GetModelData()->GetAnimationData()->MultiplyPlaybackRate(r); }
 
 void CBodyController::FaceDirection(const zeus::CVector3f& v0, float dt) {
   if (x300_26_frozen)

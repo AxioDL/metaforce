@@ -25,7 +25,7 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   if (modelScale.x() != modelScale.y() || modelScale.x() != modelScale.z()) {
     float scale = modelScale.magnitude() / std::sqrt(3.f);
 
-    ModelData()->SetScale(zeus::CVector3f(scale));
+    GetModelData()->SetScale(zeus::CVector3f(scale));
     SpankLog.report(logvisor::Level::Warning,
                     fmt("WARNING: Non-uniform scale {} applied to Spank Weed"
                         "...changing scale to ({} {} {})\n"),

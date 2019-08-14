@@ -21,7 +21,7 @@ void CPlasmaBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CS
 
 void CPlasmaBeam::SetWorldLighting(CStateManager& mgr, TAreaId aid, float speed, float target) {
   if (x22c_25_worldLighingDim && x23c_stateArea != aid && x23c_stateArea != kInvalidAreaId) {
-    CGameArea* area = mgr.WorldNC()->GetArea(x23c_stateArea);
+    CGameArea* area = mgr.GetWorld()->GetArea(x23c_stateArea);
     if (area->IsPostConstructed())
       area->SetWeaponWorldLighting(2.f, 1.f);
   }
@@ -30,7 +30,7 @@ void CPlasmaBeam::SetWorldLighting(CStateManager& mgr, TAreaId aid, float speed,
   x22c_25_worldLighingDim = target != 1.f;
 
   if (x23c_stateArea != kInvalidAreaId) {
-    CGameArea* area = mgr.WorldNC()->GetArea(x23c_stateArea);
+    CGameArea* area = mgr.GetWorld()->GetArea(x23c_stateArea);
     if (area->IsPostConstructed())
       area->SetWeaponWorldLighting(speed, target);
   }

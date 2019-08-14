@@ -97,8 +97,8 @@ void CEyeball::Think(float dt, CStateManager& mgr) {
     x5a8_targetPosition = player.GetTranslation() - (0.5f * player.GetVelocity());
     x570_boneTracking.SetTargetPosition(x5a8_targetPosition);
     x570_boneTracking.Update(dt);
-    ModelData()->AnimationData()->PreRender();
-    x570_boneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(), GetModelData()->GetScale(),
+    GetModelData()->GetAnimationData()->PreRender();
+    x570_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                                 *x450_bodyController.get());
   } else
     x570_boneTracking.SetActive(false);
@@ -232,7 +232,7 @@ void CEyeball::FireBeam(CStateManager& mgr, const zeus::CTransform& xf) {
 
 void CEyeball::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CPatterned::PreRender(mgr, frustum);
-  x570_boneTracking.PreRender(mgr, *ModelData()->AnimationData(), GetTransform(), GetModelData()->GetScale(),
+  x570_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                               *x450_bodyController);
 }
 

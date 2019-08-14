@@ -361,7 +361,7 @@ public:
 
   void BuildBodyController(EBodyType);
   const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
-  CBodyController* BodyController() { return x450_bodyController.get(); }
+  CBodyController* GetBodyController() { return x450_bodyController.get(); }
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
   void LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed, EProjectileAttrib attrib,

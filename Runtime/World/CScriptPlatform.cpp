@@ -51,8 +51,8 @@ CScriptPlatform::CScriptPlatform(
       CMaterialList(EMaterialTypes::Solid),
       CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::NoPlatformCollision, EMaterialTypes::Platform)));
   xf8_24_movable = false;
-  if (HasModelData() && ModelData()->HasAnimData())
-    ModelData()->AnimationData()->EnableLooping(true);
+  if (HasModelData() && GetModelData()->HasAnimData())
+    GetModelData()->GetAnimationData()->EnableLooping(true);
   if (x304_treeGroupContainer)
     x314_treeGroup = std::make_unique<CCollidableOBBTreeGroup>(x304_treeGroupContainer->GetObj(), x68_material);
 }

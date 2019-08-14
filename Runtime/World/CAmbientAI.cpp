@@ -18,7 +18,7 @@ CAmbientAI::CAmbientAI(TUniqueId uid, std::string_view name, const CEntityInfo& 
 , x2dc_defaultAnim(GetModelData()->GetAnimationData()->GetDefaultAnimation())
 , x2e0_alertAnim(alertAnim)
 , x2e4_impactAnim(impactAnim) {
-  ModelData()->AnimationData()->EnableLooping(true);
+  GetModelData()->GetAnimationData()->EnableLooping(true);
 }
 
 void CAmbientAI::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -51,8 +51,8 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   case EAnimationState::Ready: {
     if (inAlertRange) {
       x2d0_animState = EAnimationState::Alert;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2e0_alertAnim, -1, 1.f, true), false);
-      ModelData()->EnableLooping(true);
+      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2e0_alertAnim, -1, 1.f, true), false);
+      GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     }
     break;
@@ -60,8 +60,8 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   case EAnimationState::Alert: {
     if (!inAlertRange) {
       x2d0_animState = EAnimationState::Ready;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
-      ModelData()->EnableLooping(true);
+      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
+      GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     } else if (inImpactRange) {
       SendScriptMsgs(EScriptObjectState::Dead, mgr, EScriptObjectMessage::None);
@@ -72,8 +72,8 @@ void CAmbientAI::Think(float dt, CStateManager& mgr) {
   case EAnimationState::Impact: {
     if (!x2e8_25_animating) {
       x2d0_animState = EAnimationState::Ready;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
-      ModelData()->EnableLooping(true);
+      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
+      GetModelData()->EnableLooping(true);
       RandomizePlaybackRate(mgr);
     }
     break;
@@ -97,8 +97,8 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     if (!GetActive())
       SetActive(true);
     x2d0_animState = EAnimationState::Ready;
-    ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
-    ModelData()->AnimationData()->EnableLooping(true);
+    GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2dc_defaultAnim, -1, 1.f, true), false);
+    GetModelData()->GetAnimationData()->EnableLooping(true);
     RandomizePlaybackRate(mgr);
     x2e8_24_dead = false;
     x260_healthInfo = x258_initialHealthInfo;
@@ -107,8 +107,8 @@ void CAmbientAI::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
   case EScriptObjectMessage::Damage: {
     if (GetActive()) {
       x2d0_animState = EAnimationState::Impact;
-      ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(x2e4_impactAnim, -1, 1.f, true), false);
-      ModelData()->AnimationData()->EnableLooping(false);
+      GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(x2e4_impactAnim, -1, 1.f, true), false);
+      GetModelData()->GetAnimationData()->EnableLooping(false);
       RandomizePlaybackRate(mgr);
     }
     break;
@@ -129,7 +129,7 @@ std::optional<zeus::CAABox> CAmbientAI::GetTouchBounds() const {
 }
 
 void CAmbientAI::RandomizePlaybackRate(CStateManager& mgr) {
-  ModelData()->AnimationData()->MultiplyPlaybackRate(0.4f * mgr.GetActiveRandom()->Float() + 0.8f);
+  GetModelData()->GetAnimationData()->MultiplyPlaybackRate(0.4f * mgr.GetActiveRandom()->Float() + 0.8f);
 }
 
 } // namespace urde

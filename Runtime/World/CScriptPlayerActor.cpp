@@ -116,7 +116,7 @@ void CScriptPlayerActor::PumpBeamModel(CStateManager& mgr) {
     return;
   BuildBeamModelData();
   x314_beamModelData->Touch(mgr, 0);
-  mgr.WorldNC()->CycleLoadPauseState();
+  mgr.GetWorld()->CycleLoadPauseState();
   x31c_beamModel = TLockedToken<CModel>();
   x354_27_beamModelLoading = false;
 }
@@ -131,7 +131,7 @@ void CScriptPlayerActor::PumpSuitModel(CStateManager& mgr) {
     return;
 
   x320_suitModel->Touch(0);
-  mgr.WorldNC()->CycleLoadPauseState();
+  mgr.GetWorld()->CycleLoadPauseState();
 
   bool didSetup = false;
   if (x354_26_deferOfflineModelData) {
@@ -155,10 +155,10 @@ void CScriptPlayerActor::SetupOfflineModelData() {
   x2e8_suitRes.SetCharacterNodeId(x310_loadedCharIdx);
   x318_suitModelData = std::make_unique<CModelData>(x2e8_suitRes);
   if (!static_cast<MP1::CMain&>(*g_Main).GetScreenFading()) {
-    x328_backupModelData = x64_modelData->AnimationData()->GetModelData();
+    x328_backupModelData = x64_modelData->GetAnimationData()->GetModelData();
     x348_deallocateBackupCountdown = 2;
   }
-  x64_modelData->AnimationData()->SubstituteModelData(x318_suitModelData->AnimationData()->GetModelData());
+  x64_modelData->GetAnimationData()->SubstituteModelData(x318_suitModelData->GetAnimationData()->GetModelData());
 }
 
 void CScriptPlayerActor::SetupOnlineModelData() {
@@ -166,7 +166,7 @@ void CScriptPlayerActor::SetupOnlineModelData() {
     x2e8_suitRes.SetCharacterNodeId(x310_loadedCharIdx);
     SetModelData(std::make_unique<CModelData>(x2e8_suitRes));
     CAnimPlaybackParms parms(x2e8_suitRes.GetDefaultAnim(), -1, 1.f, true);
-    x64_modelData->AnimationData()->SetAnimation(parms, false);
+    x64_modelData->GetAnimationData()->SetAnimation(parms, false);
     if (x354_24_setBoundingBox)
       SetBoundingBox(x64_modelData->GetBounds(GetTransform().getRotation()));
   }

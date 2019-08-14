@@ -184,7 +184,7 @@ static SScaledActorHead LoadScaledActorHead(CInputStream& in, CStateManager& sta
 static zeus::CAABox GetCollisionBox(CStateManager& stateMgr, TAreaId id, const zeus::CVector3f& extent,
                                     const zeus::CVector3f& offset) {
   zeus::CAABox box(-extent * 0.5f + offset, extent * 0.5f + offset);
-  const zeus::CTransform& rot = stateMgr.WorldNC()->GetGameAreas()[id]->GetTransform().getRotation();
+  const zeus::CTransform& rot = stateMgr.GetWorld()->GetGameAreas()[id]->GetTransform().getRotation();
   return box.getTransformedAABox(rot);
 }
 
@@ -533,7 +533,7 @@ CEntity* ScriptLoader::LoadTrigger(CStateManager& mgr, CInputStream& in, int pro
 
   zeus::CAABox box(-extent * 0.5f, extent * 0.5f);
 
-  const zeus::CTransform& areaXf = mgr.WorldNC()->GetGameAreas()[info.GetAreaId()]->GetTransform();
+  const zeus::CTransform& areaXf = mgr.GetWorld()->GetGameAreas()[info.GetAreaId()]->GetTransform();
   zeus::CVector3f orientedForce = areaXf.basis * forceVec;
 
   return new CScriptTrigger(mgr.AllocateUniqueId(), name, info, position, box, dInfo, orientedForce, flags, active, b2,
@@ -1079,7 +1079,7 @@ u32 ClassifyVector(const zeus::CVector3f& dir) {
 }
 
 u32 TransformDamagableTriggerFlags(CStateManager& mgr, TAreaId aId, u32 flags) {
-  CGameArea* area = mgr.WorldNC()->GetGameAreas().at(u32(aId)).get();
+  CGameArea* area = mgr.GetWorld()->GetGameAreas().at(u32(aId)).get();
   zeus::CTransform rotation = area->GetTransform().getRotation();
 
   u32 ret = 0;

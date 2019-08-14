@@ -119,7 +119,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea: {
     if (!x8e4_25_loading && !x8e4_24_loaded) {
-      const_cast<CGameArea::CPostConstructed*>(mgr.WorldNC()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
+      const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
           ->x113c_playerActorsLoading++;
       x8e4_25_loading = true;
     }
@@ -396,7 +396,7 @@ void CFlaahgra::LoadTokens(CStateManager& mgr) {
 void CFlaahgra::FinalizeLoad(CStateManager& mgr) {
   x8e4_24_loaded = true;
   if (x8e4_25_loading) {
-    const_cast<CGameArea::CPostConstructed*>(mgr.WorldNC()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
+    const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
         ->x113c_playerActorsLoading--;
     x8e4_25_loading = false;
   }
@@ -411,7 +411,7 @@ void CFlaahgra::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
   x6cc_boneTracking->Update(dt);
   UpdateCollisionManagers(dt, mgr);
-  x6cc_boneTracking->PreRender(mgr, *ModelData()->AnimationData(), GetTransform(), GetModelData()->GetScale(),
+  x6cc_boneTracking->PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                                *x450_bodyController);
   UpdateSmallScaleReGrowth(dt);
   UpdateHealthInfo(mgr);
@@ -508,7 +508,7 @@ void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
       {EMaterialTypes::CollisionActor, EMaterialTypes::AIPassthrough, EMaterialTypes::Player}));
   AddMaterial(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
   RemoveMaterial(EMaterialTypes::Solid, mgr);
-  ModelData()->SetScale(oldScale);
+  GetModelData()->SetScale(oldScale);
   x7a4_sphereCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
   x79c_leftArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
   x7a0_rightArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
@@ -797,7 +797,7 @@ void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_pt
 }
 void CFlaahgra::UpdateScale(float t, float min, float max) {
   float scale = (t * (max - min) + min);
-  ModelData()->SetScale(zeus::skOne3f * scale);
+  GetModelData()->SetScale(zeus::skOne3f * scale);
 }
 
 float CFlaahgra::GetEndActionTime() const {

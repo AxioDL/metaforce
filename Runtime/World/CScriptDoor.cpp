@@ -358,8 +358,8 @@ CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager&
 void CScriptDoor::SetDoorAnimation(CScriptDoor::EDoorAnimType type) {
   x260_doorAnimState = type;
   CModelData* modelData = x64_modelData.get();
-  if (modelData && modelData->AnimationData())
-    modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);
+  if (modelData && modelData->GetAnimationData())
+    modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(s32(type), -1, 1.f, true), false);
 }
 
 std::optional<zeus::CAABox> CScriptDoor::GetTouchBounds() const {

@@ -76,8 +76,8 @@ void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const 
 
   NWeaponTypes::play_sfx(kSoundId[int(chargeState)], underwater, false, 0.165f);
   CAnimPlaybackParms parms(skShootAnim[int(chargeState)], -1, 1.f, true);
-  x10_solidModelData->AnimationData()->EnableLooping(false);
-  x10_solidModelData->AnimationData()->SetAnimation(parms, false);
+  x10_solidModelData->GetAnimationData()->EnableLooping(false);
+  x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
 }
 
 void CWaveBeam::EnableSecondaryFx(ESecondaryFxType type) {

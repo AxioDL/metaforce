@@ -186,7 +186,7 @@ void CMFGame::Touch() {
   if (gunVisible)
     player.GetPlayerGun()->TouchModel(*x14_stateManager);
   if (samusVisible)
-    player.ModelData()->Touch(*x14_stateManager, 0);
+    player.GetModelData()->Touch(*x14_stateManager, 0);
   if (ballVisible)
     player.GetMorphBall()->TouchModel(*x14_stateManager);
 }

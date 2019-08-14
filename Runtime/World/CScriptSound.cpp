@@ -180,7 +180,7 @@ void CScriptSound::PlaySound(CStateManager& mgr) {
         xec_sfxHandle = CSfxManager::SfxStart(x100_soundId, x10e_vol, x114_pan, x11c_29_acoustics, x112_prio,
                                               x11c_25_looped, x11c_30_worldSfx ? kInvalidAreaId : GetAreaIdAlways());
         if (x11c_30_worldSfx)
-          mgr.WorldNC()->AddGlobalSound(xec_sfxHandle);
+          mgr.GetWorld()->AddGlobalSound(xec_sfxHandle);
       }
     } else {
       float occVol = x11c_28_occlusionTest ? GetOccludedVolumeAmount(GetTranslation(), mgr) : 1.f;
@@ -202,7 +202,7 @@ void CScriptSound::PlaySound(CStateManager& mgr) {
 void CScriptSound::StopSound(CStateManager& mgr) {
   x11c_24_playRequested = false;
   if (x11c_30_worldSfx && x11c_26_nonEmitter) {
-    mgr.WorldNC()->StopGlobalSound(x100_soundId);
+    mgr.GetWorld()->StopGlobalSound(x100_soundId);
     xec_sfxHandle.reset();
   } else if (xec_sfxHandle) {
     CSfxManager::RemoveEmitter(xec_sfxHandle);

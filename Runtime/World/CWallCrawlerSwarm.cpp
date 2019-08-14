@@ -120,7 +120,7 @@ void CWallCrawlerSwarm::AllocateSkinnedModels(CStateManager& mgr, CModelData::EW
     //x430_.push_back(x4b0_[i]->PickAnimatedModel(which).Clone());
     x4b0_modelDatas[i]->EnableLooping(true);
     x4b0_modelDatas[i]->AdvanceAnimation(
-      x4b0_modelDatas[i]->AnimationData()->GetAnimTimeRemaining("Whole Body"sv) * (i * 0.0625f),
+      x4b0_modelDatas[i]->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * (i * 0.0625f),
       mgr, x4_areaId, true);
   }
   //x430_.push_back(x4b0_.back()->PickAnimatedModel(which).Clone());
@@ -799,7 +799,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
     }
   }
 
-  x4b0_modelDatas[8]->AnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
+  x4b0_modelDatas[8]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
   x4b0_modelDatas[8]->AdvanceAnimation(dt, mgr, x4_areaId, true);
 
   SAdvancementDeltas deltas1, deltas2;
@@ -823,14 +823,14 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
   }
 
   for (int i = 0; i < 4; ++i) {
-    x4b0_modelDatas[i]->AnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
+    x4b0_modelDatas[i]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
     deltas1 = x4b0_modelDatas[i]->AdvanceAnimation(dt, mgr, x4_areaId, true);
-    x4b0_modelDatas[i+4]->AnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
+    x4b0_modelDatas[i+4]->GetAnimationData()->SetPlaybackRate(x160_animPlaybackSpeed);
     deltas2 = x4b0_modelDatas[i+4]->AdvanceAnimation(dt, mgr, x4_areaId, true);
     if (x4b0_modelDatas[i]->HasAnimData() && _38F4[i])
-      UpdateEffects(mgr, *x4b0_modelDatas[i]->AnimationData(), r8 * 44 / x548_numBoids + 0x53);
+      UpdateEffects(mgr, *x4b0_modelDatas[i]->GetAnimationData(), r8 * 44 / x548_numBoids + 0x53);
     if (x4b0_modelDatas[i+4]->HasAnimData() && _38F8[i])
-      UpdateEffects(mgr, *x4b0_modelDatas[i+4]->AnimationData(), r3 * 44 / x548_numBoids + 0x53);
+      UpdateEffects(mgr, *x4b0_modelDatas[i+4]->GetAnimationData(), r3 * 44 / x548_numBoids + 0x53);
     for (int r20 = i; r20 < x108_boids.size(); r20 += 4) {
       CBoid& b = x108_boids[r20];
       if (b.GetActive()) {
@@ -885,7 +885,7 @@ void CWallCrawlerSwarm::Think(float dt, CStateManager& mgr) {
 
 void CWallCrawlerSwarm::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   for (int i = 0; i < 5; ++i)
-    x4b0_modelDatas[i]->AnimationData()->PreRender();
+    x4b0_modelDatas[i]->GetAnimationData()->PreRender();
   bool activeBoid = false;
   for (auto& b : x108_boids) {
     if (b.GetActive()) {
@@ -946,7 +946,7 @@ void CWallCrawlerSwarm::HardwareLight(const CStateManager& mgr, const zeus::CAAB
   lights.BuildDynamicLightList(mgr, aabb);
   for (auto& m : x4b0_modelDatas) {
     lights.ActivateLights(*m->PickAnimatedModel(x4dc_whichModel).GetModelInst());
-    if (auto iceModel = m->AnimationData()->GetIceModel())
+    if (auto iceModel = m->GetAnimationData()->GetIceModel())
       lights.ActivateLights(*iceModel->GetModelInst());
   }
 }
@@ -966,27 +966,27 @@ void CWallCrawlerSwarm::RenderBoid(const CBoid* boid, u32& drawMask, bool therma
   u32 thisDrawMask = 1u << modelIndex;
   if (drawMask & thisDrawMask) {
     drawMask &= ~thisDrawMask;
-    mData.AnimationData()->BuildPose();
+    mData.GetAnimationData()->BuildPose();
   }
   model.GetModelInst()->SetAmbientColor(boid->x40_ambientLighting);
   CGraphics::SetModelMatrix(boid->GetTransform());
   if (boid->x48_timeToDie > 0.f && !thermalHot) {
     CModelFlags useFlags(0, 0, 3, zeus::skWhite);
-    mData.AnimationData()->Render(model, useFlags, {}, nullptr);
-    if (auto iceModel = mData.AnimationData()->GetIceModel()) {
+    mData.GetAnimationData()->Render(model, useFlags, {}, nullptr);
+    if (auto iceModel = mData.GetAnimationData()->GetIceModel()) {
       if (!iceModel->GetModelInst()->TryLockTextures())
         return;
       iceModel->GetModelInst()->SetAmbientColor(zeus::skWhite);
       float alpha = 1.f - boid->x48_timeToDie;
       zeus::CColor color(1.f, alpha > 0.f ? boid->x48_timeToDie : 1.f);
       CModelFlags iceFlags(5, 0, 3, color);
-      mData.AnimationData()->Render(*iceModel, iceFlags, {}, nullptr);
+      mData.GetAnimationData()->Render(*iceModel, iceFlags, {}, nullptr);
     }
   } else if (thermalHot) {
     CModelFlags thermFlags(5, 0, 3, zeus::skWhite);
     mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
-    mData.AnimationData()->Render(model, flags, {}, nullptr);
+    mData.GetAnimationData()->Render(model, flags, {}, nullptr);
   }
 }
 

@@ -46,7 +46,7 @@ pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateMa
   if (st == pas::EAnimationState::Invalid) {
     const zeus::CVector3f& target = bc.GetCommandMgr().GetAdditiveTargetVector();
     if (target.canBeNormalized()) {
-      CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+      CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
 
       float hAngle = zeus::clamp(-x18_angles[0], std::atan2(target.x(), target.y()), x18_angles[1]);
       hAngle *= 0.63661975f;
@@ -85,7 +85,7 @@ pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateMa
 }
 
 void CABSAim::Shutdown(CBodyController& bc) {
-  CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+  CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
 
   if (x28_hWeight != 0.f)
     animData.DelAdditiveAnimation(x8_anims[x28_hWeight < 0.f ? 0 : 1]);
@@ -102,7 +102,7 @@ void CABSFlinch::Start(CBodyController& bc, CStateManager& mgr) {
   std::pair<float, s32> best = bc.GetPASDatabase().FindBestAnimation(parms, *mgr.GetActiveRandom(), -1);
   x8_anim = best.second;
 
-  CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+  CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
   animData.AddAdditiveAnimation(x8_anim, x4_weight, false, true);
 }
 
@@ -115,7 +115,7 @@ pas::EAnimationState CABSFlinch::GetBodyStateTransition(float dt, CBodyControlle
 pas::EAnimationState CABSFlinch::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
   const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::EAnimationState::Invalid) {
-    CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+    CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
     CCharAnimTime rem = animData.GetAdditiveAnimationTree(x8_anim)->VGetTimeRemaining();
     if (std::fabs(rem.GetSeconds()) < 0.00001f)
       return pas::EAnimationState::AdditiveIdle;
@@ -149,7 +149,7 @@ void CABSReaction::Start(CBodyController& bc, CStateManager& mgr) {
   x8_anim = best.second;
 
   if (x8_anim != -1) {
-    CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+    CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
     animData.AddAdditiveAnimation(x8_anim, x4_weight, x10_active, false);
   }
 }
@@ -166,7 +166,7 @@ pas::EAnimationState CABSReaction::UpdateBody(float dt, CBodyController& bc, CSt
     if (x8_anim == -1)
       return pas::EAnimationState::AdditiveIdle;
 
-    CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+    CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
     if (x10_active) {
       if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::StopReaction)) {
         StopAnimation(bc);
@@ -190,7 +190,7 @@ pas::EAnimationState CABSReaction::UpdateBody(float dt, CBodyController& bc, CSt
 
 void CABSReaction::StopAnimation(CBodyController& bc) {
   if (x8_anim != -1) {
-    CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
+    CAnimData& animData = *bc.GetOwner().GetModelData()->GetAnimationData();
     animData.DelAdditiveAnimation(x8_anim);
     x8_anim = -1;
   }

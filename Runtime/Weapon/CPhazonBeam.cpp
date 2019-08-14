@@ -28,7 +28,7 @@ CPhazonBeam::CPhazonBeam(CAssetId characterId, EWeaponType type, TUniqueId playe
 void CPhazonBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   TAreaId aid = mgr.GetPlayer().GetAreaIdAlways();
   if (msg == EScriptObjectMessage::Deleted && aid != kInvalidAreaId)
-    mgr.WorldNC()->GetArea(aid)->SetWeaponWorldLighting(4.f, 1.f);
+    mgr.GetWorld()->GetArea(aid)->SetWeaponWorldLighting(4.f, 1.f);
 }
 
 void CPhazonBeam::StopBeam(CStateManager& mgr, bool b1) {
@@ -102,7 +102,7 @@ void CPhazonBeam::Update(float dt, CStateManager& mgr) {
   x278_fireTime += dt;
   TAreaId aid = mgr.GetPlayer().GetAreaIdAlways();
   if (aid != kInvalidAreaId) {
-    CGameArea* area = mgr.WorldNC()->GetArea(aid);
+    CGameArea* area = mgr.GetWorld()->GetArea(aid);
     if (x278_fireTime > 1.f / 6.f)
       area->SetWeaponWorldLighting(4.f, 1.f);
     else

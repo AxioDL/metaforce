@@ -102,8 +102,8 @@ void ViewManager::TestGameView::think() {
     }
 
     const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-    if (areaInfo && areaInfo->toBoolean() && g_StateManager->WorldNC() &&
-        g_StateManager->WorldNC()->DoesAreaExist(aId)) {
+    if (areaInfo && areaInfo->toBoolean() && g_StateManager->GetWorld() &&
+        g_StateManager->GetWorld()->DoesAreaExist(aId)) {
       const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
       std::string layerBits;
       u32 totalActive = 0;
@@ -117,7 +117,7 @@ void ViewManager::TestGameView::think() {
       overlayText += fmt::format(fmt(
           "Area AssetId: 0x{}, Total Objects: {}\n"
           "Active Layer bits: {}\n"),
-          g_StateManager->WorldNC()->GetArea(aId)->GetAreaAssetId(),
+          g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
           g_StateManager->GetAllObjectList().size(), layerBits);
     }
 
