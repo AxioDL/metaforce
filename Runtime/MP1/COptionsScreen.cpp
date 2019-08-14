@@ -207,11 +207,11 @@ void COptionsScreen::VActivate() {
       .SetText(xc_pauseStrg.GetString(98));
 
   x18c_slidergroup_slider->SetSelectionChangedCallback(
-      std::bind(&COptionsScreen::OnSliderChanged, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiSliderGroup* caller, float value) { OnSliderChanged(caller, value); });
   x190_tablegroup_double->SetMenuSelectionChangeCallback(
-      std::bind(&COptionsScreen::OnEnumChanged, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { OnEnumChanged(caller, oldSel); });
   x194_tablegroup_triple->SetMenuSelectionChangeCallback(
-      std::bind(&COptionsScreen::OnEnumChanged, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { OnEnumChanged(caller, oldSel); });
 }
 
 void COptionsScreen::RightTableSelectionChanged(int oldSel, int newSel) { UpdateOptionView(); }

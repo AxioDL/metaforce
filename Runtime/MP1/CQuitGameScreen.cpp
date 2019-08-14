@@ -29,9 +29,9 @@ void CQuitGameScreen::FinishedLoading() {
 
   x14_tablegroup_quitgame = static_cast<CGuiTableGroup*>(x10_loadedFrame->FindWidget("tablegroup_quitgame"));
   x14_tablegroup_quitgame->SetVertical(false);
-  x14_tablegroup_quitgame->SetMenuAdvanceCallback(std::bind(&CQuitGameScreen::DoAdvance, this, std::placeholders::_1));
+  x14_tablegroup_quitgame->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoAdvance(caller); });
   x14_tablegroup_quitgame->SetMenuSelectionChangeCallback(
-      std::bind(&CQuitGameScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
 
   static_cast<CGuiTextPane*>(x10_loadedFrame->FindWidget("textpane_title"))
       ->TextSupport()
@@ -46,8 +46,7 @@ void CQuitGameScreen::FinishedLoading() {
 
   x14_tablegroup_quitgame->SetUserSelection(DefaultSelections[int(x0_type)]);
   x14_tablegroup_quitgame->SetWorkersMouseActive(true);
-  x10_loadedFrame->SetMouseUpCallback(std::bind(&CQuitGameScreen::OnWidgetMouseUp, this,
-                                      std::placeholders::_1, std::placeholders::_2));
+  x10_loadedFrame->SetMouseUpCallback([this](CGuiWidget* widget, bool cancel) { OnWidgetMouseUp(widget, cancel); });
   SetColors();
 }
 
