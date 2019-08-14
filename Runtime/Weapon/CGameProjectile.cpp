@@ -229,7 +229,7 @@ void CGameProjectile::ApplyDamageToActors(CStateManager& mgr, const CDamageInfo&
   x2d0_touchResults.clear();
 }
 
-void CGameProjectile::FluidFxThink(EFluidState state, CScriptWater& water, CStateManager& mgr) {
+void CGameProjectile::FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) {
   if (x170_projectile.GetWeaponDescription()->xa6_SWTR)
     CWeapon::FluidFXThink(state, water, mgr);
 }

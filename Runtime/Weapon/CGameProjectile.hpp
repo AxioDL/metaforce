@@ -72,7 +72,7 @@ public:
   void UpdateProjectileMovement(float dt, CStateManager& mgr);
   CRayCastResult DoCollisionCheck(TUniqueId& idOut, CStateManager& mgr);
   void ApplyDamageToActors(CStateManager& mgr, const CDamageInfo& dInfo);
-  void FluidFxThink(EFluidState state, CScriptWater& water, CStateManager& mgr);
+  void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
   CRayCastResult RayCollisionCheckWithWorld(TUniqueId& idOut, const zeus::CVector3f& start, const zeus::CVector3f& end,
                                             float mag, const rstl::reserved_vector<TUniqueId, 1024>& nearList,
                                             CStateManager& mgr);
