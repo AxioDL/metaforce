@@ -141,10 +141,10 @@ void CGBASupport::Update(float dt) {
 
   case EPhase::StartJoyBusBoot:
     x34_phase = EPhase::PollJoyBusBoot;
-    if (!g_JbusEndpoint || g_JbusEndpoint->GBAJoyBootAsync(
-                               x40_siChan * 2, 2, x2c_buffer.get(), x28_fileSize, &x3c_status,
-                               std::bind(JoyBootDone, std::placeholders::_1, std::placeholders::_2)) != jbus::GBA_READY)
+    if (!g_JbusEndpoint || g_JbusEndpoint->GBAJoyBootAsync(x40_siChan * 2, 2, x2c_buffer.get(), x28_fileSize,
+                                                           &x3c_status, JoyBootDone) != jbus::GBA_READY) {
       x34_phase = EPhase::Failed;
+    }
     break;
 
   case EPhase::PollJoyBusBoot:

@@ -97,19 +97,15 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
   worker->SetIsSelectable(false);
   worker->SetVisibility(false, ETraversalMode::Children);
 
-  x20_tablegroup_fileselect->SetMenuAdvanceCallback(
-      std::bind(&SNewFileSelectFrame::DoFileMenuAdvance, this, std::placeholders::_1));
+  x20_tablegroup_fileselect->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoFileMenuAdvance(caller); });
   x20_tablegroup_fileselect->SetMenuSelectionChangeCallback(
-      std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x20_tablegroup_fileselect->SetMenuCancelCallback(
-      std::bind(&SNewFileSelectFrame::DoFileMenuCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
+  x20_tablegroup_fileselect->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoFileMenuCancel(caller); });
 
-  x40_tablegroup_popup->SetMenuAdvanceCallback(
-      std::bind(&SNewFileSelectFrame::DoPopupAdvance, this, std::placeholders::_1));
+  x40_tablegroup_popup->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoPopupAdvance(caller); });
   x40_tablegroup_popup->SetMenuSelectionChangeCallback(
-      std::bind(&SNewFileSelectFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x40_tablegroup_popup->SetMenuCancelCallback(
-      std::bind(&SNewFileSelectFrame::DoPopupCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
+  x40_tablegroup_popup->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoPopupCancel(caller); });
 
   for (int i = 0; i < 3; ++i)
     x64_fileSelections[i] = FindFileSelectOption(x1c_loadedFrame, i);
@@ -868,12 +864,12 @@ void CFrontEndUI::SFusionBonusFrame::FinishedLoading() {
   SetTableColors(x28_tablegroup_options);
   SetTableColors(x2c_tablegroup_fusionsuit);
 
-  x28_tablegroup_options->SetMenuAdvanceCallback(std::bind(&SFusionBonusFrame::DoAdvance, this, std::placeholders::_1));
+  x28_tablegroup_options->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoAdvance(caller); });
   x28_tablegroup_options->SetMenuSelectionChangeCallback(
-      std::bind(&SFusionBonusFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x28_tablegroup_options->SetMenuCancelCallback(std::bind(&SFusionBonusFrame::DoCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
+  x28_tablegroup_options->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoCancel(caller); });
   x2c_tablegroup_fusionsuit->SetMenuSelectionChangeCallback(
-      std::bind(&SFusionBonusFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
 }
 
 bool CFrontEndUI::SFusionBonusFrame::PumpLoad() {
@@ -1112,10 +1108,10 @@ void CFrontEndUI::SFrontEndFrame::FinishedLoading() {
   if (proceed)
     proceed->TextSupport().SetText(g_MainStringTable->GetString(85));
 
-  x18_tablegroup_mainmenu->SetMenuAdvanceCallback(std::bind(&SFrontEndFrame::DoAdvance, this, std::placeholders::_1));
+  x18_tablegroup_mainmenu->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoAdvance(caller); });
   x18_tablegroup_mainmenu->SetMenuSelectionChangeCallback(
-      std::bind(&SFrontEndFrame::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x18_tablegroup_mainmenu->SetMenuCancelCallback(std::bind(&SFrontEndFrame::DoCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
+  x18_tablegroup_mainmenu->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoCancel(caller); });
 
   HandleActiveChange(x18_tablegroup_mainmenu);
 }
@@ -1531,31 +1527,27 @@ void CFrontEndUI::SOptionsFrontEndFrame::FinishedLoading() {
   x30_tablegroup_triple = static_cast<CGuiTableGroup*>(x1c_loadedFrame->FindWidget("tablegroup_triple"));
   x34_slidergroup_slider = static_cast<CGuiSliderGroup*>(x1c_loadedFrame->FindWidget("slidergroup_slider"));
 
-  x24_tablegroup_leftmenu->SetMenuAdvanceCallback(
-      std::bind(&SOptionsFrontEndFrame::DoLeftMenuAdvance, this, std::placeholders::_1));
+  x24_tablegroup_leftmenu->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoLeftMenuAdvance(caller); });
   x24_tablegroup_leftmenu->SetMenuSelectionChangeCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { DoMenuSelectionChange(caller, oldSel); });
 
   x38_rowPitch = x24_tablegroup_leftmenu->GetWorkerWidget(1)->GetIdlePosition().z() -
                  x24_tablegroup_leftmenu->GetWorkerWidget(0)->GetIdlePosition().z();
 
   x28_tablegroup_rightmenu->SetMenuSelectionChangeCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x28_tablegroup_rightmenu->SetMenuCancelCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoMenuSelectionChange(caller, oldSel); });
+  x28_tablegroup_rightmenu->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoMenuCancel(caller); });
 
   x2c_tablegroup_double->SetMenuSelectionChangeCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x2c_tablegroup_double->SetMenuCancelCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoMenuSelectionChange(caller, oldSel); });
+  x2c_tablegroup_double->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoMenuCancel(caller); });
 
   x30_tablegroup_triple->SetMenuSelectionChangeCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x30_tablegroup_triple->SetMenuCancelCallback(
-      std::bind(&SOptionsFrontEndFrame::DoMenuCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { DoMenuSelectionChange(caller, oldSel); });
+  x30_tablegroup_triple->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoMenuCancel(caller); });
 
   x34_slidergroup_slider->SetSelectionChangedCallback(
-      std::bind(&SOptionsFrontEndFrame::DoSliderChange, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiSliderGroup* caller, float value) { DoSliderChange(caller, value); });
 
   FindTextPanePair(x1c_loadedFrame, "textpane_double0").SetPairText(x20_loadedPauseStrg->GetString(95)); // Off
   FindTextPanePair(x1c_loadedFrame, "textpane_double1").SetPairText(x20_loadedPauseStrg->GetString(94)); // On

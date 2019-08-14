@@ -101,9 +101,9 @@ bool CSaveGameScreen::PumpLoad() {
   x64_textpane_choice2 = static_cast<CGuiTextPane*>(x50_loadedFrame->FindWidget("textpane_choice2"));
   x68_textpane_choice3 = static_cast<CGuiTextPane*>(x50_loadedFrame->FindWidget("textpane_choice3"));
 
-  x58_tablegroup_choices->SetMenuAdvanceCallback(std::bind(&CSaveGameScreen::DoAdvance, this, std::placeholders::_1));
+  x58_tablegroup_choices->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { DoAdvance(caller); });
   x58_tablegroup_choices->SetMenuSelectionChangeCallback(
-      std::bind(&CSaveGameScreen::DoSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
+      [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
 
   if (x0_saveCtx == ESaveContext::InGame)
     x6c_cardDriver->StartCardProbe();

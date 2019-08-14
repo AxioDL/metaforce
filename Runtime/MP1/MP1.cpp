@@ -648,27 +648,33 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   m_cvarMgr = cvarMgr;
   m_console = std::make_unique<hecl::Console>(m_cvarMgr);
   m_console->init(window);
-  m_console->registerCommand("Quit"sv, "Quits the game immediately"sv, ""sv,
-                             std::bind(&CMain::quit, this, std::placeholders::_1, std::placeholders::_2));
-  m_console->registerCommand("Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv,
-                             std::bind(&CMain::Give, this, std::placeholders::_1, std::placeholders::_2),
-                             hecl::SConsoleCommand::ECommandFlags::Cheat);
-  m_console->registerCommand("Remove"sv, "Removes the specified item from the player"sv, ""sv,
-                             std::bind(&CMain::Remove, this, std::placeholders::_1, std::placeholders::_2),
-                             hecl::SConsoleCommand::ECommandFlags::Cheat);
+  m_console->registerCommand(
+      "Quit"sv, "Quits the game immediately"sv, ""sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { quit(console, args); });
+  m_console->registerCommand(
+      "Give"sv, "Gives the player the specified item, maxing it out"sv, ""sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { Give(console, args); },
+      hecl::SConsoleCommand::ECommandFlags::Cheat);
+  m_console->registerCommand(
+      "Remove"sv, "Removes the specified item from the player"sv, ""sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { Remove(console, args); },
+      hecl::SConsoleCommand::ECommandFlags::Cheat);
   m_console->registerCommand(
       "Teleport"sv, "Teleports the player to the specified coordinates in worldspace"sv, "x y z [dX dY dZ]"sv,
-      std::bind(&CMain::Teleport, this, std::placeholders::_1, std::placeholders::_2),
+      [this](hecl::Console* console, const std::vector<std::string>& args) { Teleport(console, args); },
       (hecl::SConsoleCommand::ECommandFlags::Cheat | hecl::SConsoleCommand::ECommandFlags::Developer));
-  m_console->registerCommand("God"sv, "Disables damage given by enemies and objects"sv, ""sv,
-                             std::bind(&CMain::God, this, std::placeholders::_1, std::placeholders::_2),
-                             hecl::SConsoleCommand::ECommandFlags::Cheat);
-  m_console->registerCommand("ListWorlds"sv, "Lists loaded worlds"sv, ""sv,
-                             std::bind(&CMain::ListWorlds, this, std::placeholders::_1, std::placeholders::_2),
-                             hecl::SConsoleCommand::ECommandFlags::Normal);
-  m_console->registerCommand("Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
-                             std::bind(&CMain::Warp, this, std::placeholders::_1, std::placeholders::_2),
-                             hecl::SConsoleCommand::ECommandFlags::Normal);
+  m_console->registerCommand(
+      "God"sv, "Disables damage given by enemies and objects"sv, ""sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { God(console, args); },
+      hecl::SConsoleCommand::ECommandFlags::Cheat);
+  m_console->registerCommand(
+      "ListWorlds"sv, "Lists loaded worlds"sv, ""sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { ListWorlds(console, args); },
+      hecl::SConsoleCommand::ECommandFlags::Normal);
+  m_console->registerCommand(
+      "Warp"sv, "Warps to a given area and world"sv, "[worldname] areaId"sv,
+      [this](hecl::Console* console, const std::vector<std::string>& args) { Warp(console, args); },
+      hecl::SConsoleCommand::ECommandFlags::Normal);
 
   InitializeSubsystems();
   x128_globalObjects.PostInitialize();

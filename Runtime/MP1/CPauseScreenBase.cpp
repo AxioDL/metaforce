@@ -151,25 +151,21 @@ void CPauseScreenBase::InitializeFrameGlue() {
   x190_tablegroup_double->SetWorkersMouseActive(false);
   x194_tablegroup_triple->SetWorkersMouseActive(false);
 
-  x70_tablegroup_leftlog->SetMenuAdvanceCallback(
-      std::bind(&CPauseScreenBase::OnLeftTableAdvance, this, std::placeholders::_1));
+  x70_tablegroup_leftlog->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { OnLeftTableAdvance(caller); });
   x70_tablegroup_leftlog->SetMenuSelectionChangeCallback(
-      std::bind(&CPauseScreenBase::OnTableSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x84_tablegroup_rightlog->SetMenuAdvanceCallback(
-      std::bind(&CPauseScreenBase::OnRightTableAdvance, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { OnTableSelectionChange(caller, oldSel); });
+  x84_tablegroup_rightlog->SetMenuAdvanceCallback([this](CGuiTableGroup* caller) { OnRightTableAdvance(caller); });
   x84_tablegroup_rightlog->SetMenuSelectionChangeCallback(
-      std::bind(&CPauseScreenBase::OnTableSelectionChange, this, std::placeholders::_1, std::placeholders::_2));
-  x84_tablegroup_rightlog->SetMenuCancelCallback(
-      std::bind(&CPauseScreenBase::OnRightTableCancel, this, std::placeholders::_1));
+      [this](CGuiTableGroup* caller, int oldSel) { OnTableSelectionChange(caller, oldSel); });
+  x84_tablegroup_rightlog->SetMenuCancelCallback([this](CGuiTableGroup* caller) { OnRightTableCancel(caller); });
   x18c_slidergroup_slider->SetSelectionChangedCallback({});
   x190_tablegroup_double->SetMenuSelectionChangeCallback({});
   x194_tablegroup_triple->SetMenuSelectionChangeCallback({});
 
-  x8_frame.SetMouseUpCallback(std::bind(&CPauseScreenBase::OnWidgetMouseUp, this,
-                                        std::placeholders::_1, std::placeholders::_2));
-  x8_frame.SetMouseScrollCallback(std::bind(&CPauseScreenBase::OnWidgetScroll, this,
-                                            std::placeholders::_1, std::placeholders::_2,
-                                            std::placeholders::_3, std::placeholders::_4));
+  x8_frame.SetMouseUpCallback([this](CGuiWidget* widget, bool cancel) { OnWidgetMouseUp(widget, cancel); });
+  x8_frame.SetMouseScrollCallback([this](CGuiWidget* widget, const boo::SScrollDelta& delta, int accumX, int accumY) {
+    OnWidgetScroll(widget, delta, accumX, accumY);
+  });
 }
 
 bool CPauseScreenBase::IsReady() {

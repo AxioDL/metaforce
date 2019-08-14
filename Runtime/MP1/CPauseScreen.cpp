@@ -79,10 +79,10 @@ void CPauseScreen::InitializeFrameGlue() {
     deco->SetColor(color);
   }
 
-  x34_loadedPauseScreenInstructions->SetMouseDownCallback(std::bind(&CPauseScreen::OnWidgetMouseDown, this,
-                                                          std::placeholders::_1, std::placeholders::_2));
-  x34_loadedPauseScreenInstructions->SetMouseUpCallback(std::bind(&CPauseScreen::OnWidgetMouseUp, this,
-                                                        std::placeholders::_1, std::placeholders::_2));
+  x34_loadedPauseScreenInstructions->SetMouseDownCallback(
+      [this](CGuiWidget* caller, bool resume) { OnWidgetMouseDown(caller, resume); });
+  x34_loadedPauseScreenInstructions->SetMouseUpCallback(
+      [this](CGuiWidget* caller, bool cancel) { OnWidgetMouseUp(caller, cancel); });
 }
 
 bool CPauseScreen::CheckLoadComplete(const CStateManager& mgr) {
