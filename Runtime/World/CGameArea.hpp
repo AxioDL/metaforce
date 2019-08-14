@@ -288,7 +288,7 @@ public:
 
   CAssetId GetAreaAssetId() const { return x84_mrea; }
   const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
-  CAreaFog* GetAreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
+  CAreaFog* GetAreaFog() { return GetPostConstructed()->x10c4_areaFog.get(); }
   float GetXRayFogDistance() const;
   EEnvFxType DoesAreaNeedEnvFx() const;
   bool DoesAreaNeedSkyNow() const;
