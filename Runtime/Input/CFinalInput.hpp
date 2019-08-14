@@ -159,9 +159,9 @@ struct CFinalInput {
   bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[int(k)]; }
   bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[int(k)]; }
   bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[int(k)]; }
-  bool AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
-  bool ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
-  bool AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
+  float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
+  float ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };
