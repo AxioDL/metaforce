@@ -198,7 +198,7 @@ void CWorldTransManager::DrawAllModels(CActorLights* lights) {
     CModelFlags flags = {};
     flags.m_extendedShader = EExtendedShader::LightingCubeReflection;
 
-    x4_modelData->x1c_samusModelData.AnimationData()->PreRender();
+    x4_modelData->x1c_samusModelData.GetAnimationData()->PreRender();
     x4_modelData->x1c_samusModelData.Render(CModelData::EWhichModel::Normal, zeus::CTransform(), lights,
                                             flags);
 
@@ -359,7 +359,7 @@ void CWorldTransManager::TouchModels() {
     x4_modelData->x1c_samusModelData = {animRes, 2};
 
     CAnimPlaybackParms aData(animRes.GetDefaultAnim(), -1, 1.f, true);
-    x4_modelData->x1c_samusModelData.AnimationData()->SetAnimation(aData, false);
+    x4_modelData->x1c_samusModelData.GetAnimationData()->SetAnimation(aData, false);
   }
 
   if (!x4_modelData->x1c_samusModelData.IsNull())

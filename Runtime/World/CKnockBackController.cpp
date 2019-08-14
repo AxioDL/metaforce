@@ -396,7 +396,7 @@ bool CKnockBackController::TickDeferredTimer(float dt) {
 }
 
 EKnockBackCharacterState CKnockBackController::GetKnockBackCharacterState(CPatterned& parent) {
-  if (parent.BodyController()->IsFrozen())
+  if (parent.GetBodyController()->IsFrozen())
     return parent.IsAlive() ? EKnockBackCharacterState::FrozenAlive : EKnockBackCharacterState::FrozenDead;
   return parent.IsAlive() ? EKnockBackCharacterState::Alive : EKnockBackCharacterState::Dead;
 }
@@ -409,23 +409,23 @@ void CKnockBackController::ValidateState(CPatterned& parent) {
 
   EKnockBackAnimationState useState = EKnockBackAnimationState::Invalid;
   if (parent.IsAlive()) {
-    if (parent.BodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
+    if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
         x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {
       useState = EKnockBackAnimationState::Hurled;
-    } else if (parent.BodyController()->HasBodyState(pas::EAnimationState::KnockBack) && x80_availableStates.test(2) &&
+    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::KnockBack) && x80_availableStates.test(2) &&
                x4_activeParms.x0_animState >= EKnockBackAnimationState::KnockBack) {
       useState = EKnockBackAnimationState::KnockBack;
-    } else if (parent.BodyController()->HasBodyState(pas::EAnimationState::AdditiveFlinch) &&
+    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::AdditiveFlinch) &&
                x80_availableStates.test(1) && x4_activeParms.x0_animState >= EKnockBackAnimationState::Flinch) {
       useState = EKnockBackAnimationState::Flinch;
     }
   } else {
-    if (parent.BodyController()->HasBodyState(pas::EAnimationState::Fall) && x80_availableStates.test(4) &&
+    if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Fall) && x80_availableStates.test(4) &&
         (x4_activeParms.x0_animState >= EKnockBackAnimationState::Fall ||
-         (!parent.BodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
+         (!parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) &&
           x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled))) {
       useState = EKnockBackAnimationState::Fall;
-    } else if (parent.BodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
+    } else if (parent.GetBodyController()->HasBodyState(pas::EAnimationState::Hurled) && x80_availableStates.test(3) &&
                x4_activeParms.x0_animState >= EKnockBackAnimationState::Hurled) {
       useState = EKnockBackAnimationState::Hurled;
     }
@@ -483,26 +483,26 @@ void CKnockBackController::DoKnockBackAnimation(const zeus::CVector3f& backVec, 
     hurlVel = std::sqrt(parent.GetGravityConstant() * 0.5f * hurlVel);
     zeus::CVector3f backUpVec = backVec + backVec.magnitude() * zeus::skUp;
     if (backUpVec.canBeNormalized()) {
-      parent.BodyController()->GetCommandMgr().DeliverCmd(CBCHurledCmd(-backVec, backUpVec.normalized() * hurlVel));
+      parent.GetBodyController()->GetCommandMgr().DeliverCmd(CBCHurledCmd(-backVec, backUpVec.normalized() * hurlVel));
       parent.SetMomentumWR({0.f, 0.f, parent.GetGravityConstant() * -parent.GetMass()});
     }
     break;
   }
   case EKnockBackAnimationState::Fall: {
-    parent.BodyController()->GetCommandMgr().DeliverCmd(CBCKnockDownCmd(-backVec, x7c_severity));
+    parent.GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockDownCmd(-backVec, x7c_severity));
     break;
   }
   case EKnockBackAnimationState::KnockBack: {
-    parent.BodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(-backVec, x7c_severity));
+    parent.GetBodyController()->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(-backVec, x7c_severity));
     break;
   }
   case EKnockBackAnimationState::Flinch: {
     std::pair<float, s32> bestAnim =
-        parent.BodyController()->GetPASDatabase().FindBestAnimation(CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
+        parent.GetBodyController()->GetPASDatabase().FindBestAnimation(CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f) {
-      parent.ModelData()->AnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
+      parent.GetModelData()->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
       x64_flinchRemTime =
-          std::max(parent.ModelData()->AnimationData()->GetAnimationDuration(bestAnim.second), x64_flinchRemTime);
+          std::max(parent.GetModelData()->GetAnimationData()->GetAnimationDuration(bestAnim.second), x64_flinchRemTime);
     }
     break;
   }
@@ -562,8 +562,8 @@ void CKnockBackController::Update(float dt, CStateManager& mgr, CPatterned& pare
   x64_flinchRemTime -= dt;
   if (TickDeferredTimer(dt))
     DoDeferredKnockBack(mgr, parent);
-  if (x82_26_locomotionDuringElectrocution && parent.BodyController()->IsElectrocuting())
-    parent.BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Locomotion));
+  if (x82_26_locomotionDuringElectrocution && parent.GetBodyController()->IsElectrocuting())
+    parent.GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::Locomotion));
 }
 
 EKnockBackWeaponType CKnockBackController::GetKnockBackWeaponType(const CDamageInfo& info, EWeaponType wType,

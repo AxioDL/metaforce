@@ -107,7 +107,7 @@ CModelData CSamusDoll::BuildSuitModelData1(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, Character1Idxs[int(suit)],
                           zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
-  ret.AnimationData()->SetAnimation(parms, false);
+  ret.GetAnimationData()->SetAnimation(parms, false);
   return ret;
 }
 
@@ -115,7 +115,7 @@ CModelData CSamusDoll::BuildSuitModelDataBoots(CPlayerState::EPlayerSuit suit) {
   CModelData ret(CAnimRes(g_ResFactory->GetResourceIdByName("ANCS_ItemScreenSamus")->id, CharacterBootsIdxs[int(suit)],
                           zeus::skOne3f, 2, true));
   CAnimPlaybackParms parms(2, -1, 1.f, true);
-  ret.AnimationData()->SetAnimation(parms, false);
+  ret.GetAnimationData()->SetAnimation(parms, false);
   return ret;
 }
 
@@ -177,8 +177,8 @@ void CSamusDoll::Update(float dt, CRandom16& rand) {
     if (x54_remTransitionTime == 0.f) {
       x4c_completedMorphball = x4d_selectedMorphball;
       if (!x4d_selectedMorphball) {
-        xc8_suitModel0->AnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
-        x134_suitModelBoots->AnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
+        xc8_suitModel0->GetAnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
+        x134_suitModelBoots->GetAnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
       }
     }
   }
@@ -293,10 +293,10 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     for (size_t i = 0; i <= x118_suitModel1and2.size(); ++i) {
       TCachedToken<CSkinnedModel> backupModelData = xc8_suitModel0->GetAnimationData()->GetModelData();
       if (i < x118_suitModel1and2.size())
-        xc8_suitModel0->AnimationData()->SubstituteModelData(x118_suitModel1and2[i]);
+        xc8_suitModel0->GetAnimationData()->SubstituteModelData(x118_suitModel1and2[i]);
       xc8_suitModel0->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(), x24c_actorLights.get(),
                                   zeus::CColor(1.f, alpha), zeus::CColor(1.f, alpha * suitPulse));
-      xc8_suitModel0->AnimationData()->SubstituteModelData(backupModelData);
+      xc8_suitModel0->GetAnimationData()->SubstituteModelData(backupModelData);
     }
 
     x134_suitModelBoots->InvSuitDraw(CModelData::EWhichModel::Normal, zeus::CTransform(),
@@ -522,9 +522,9 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
 void CSamusDoll::Touch() {
   if (!CheckLoadComplete())
     return;
-  xc8_suitModel0->AnimationData()->PreRender();
-  x134_suitModelBoots->AnimationData()->PreRender();
-  x184_ballModelData->AnimationData()->PreRender();
+  xc8_suitModel0->GetAnimationData()->PreRender();
+  x134_suitModelBoots->GetAnimationData()->PreRender();
+  x184_ballModelData->GetAnimationData()->PreRender();
   xc8_suitModel0->Touch(CModelData::EWhichModel::Normal, 0);
   x134_suitModelBoots->Touch(CModelData::EWhichModel::Normal, 0);
   x184_ballModelData->Touch(CModelData::EWhichModel::Normal, 0);
@@ -547,13 +547,13 @@ void CSamusDoll::SetInMorphball(bool morphball) {
 void CSamusDoll::SetTransitionAnimation() {
   if (!x4c_completedMorphball) {
     /* Into morphball */
-    xc8_suitModel0->AnimationData()->SetAnimation(CAnimPlaybackParms{0, -1, 1.f, true}, false);
-    x134_suitModelBoots->AnimationData()->SetAnimation(CAnimPlaybackParms{0, -1, 1.f, true}, false);
+    xc8_suitModel0->GetAnimationData()->SetAnimation(CAnimPlaybackParms{0, -1, 1.f, true}, false);
+    x134_suitModelBoots->GetAnimationData()->SetAnimation(CAnimPlaybackParms{0, -1, 1.f, true}, false);
     x50_totalTransitionTime = x54_remTransitionTime = xc8_suitModel0->GetAnimationData()->GetAnimationDuration(0);
   } else if (!x4d_selectedMorphball) {
     /* Outta morphball */
-    xc8_suitModel0->AnimationData()->SetAnimation(CAnimPlaybackParms{1, -1, 1.f, true}, false);
-    x134_suitModelBoots->AnimationData()->SetAnimation(CAnimPlaybackParms{1, -1, 1.f, true}, false);
+    xc8_suitModel0->GetAnimationData()->SetAnimation(CAnimPlaybackParms{1, -1, 1.f, true}, false);
+    x134_suitModelBoots->GetAnimationData()->SetAnimation(CAnimPlaybackParms{1, -1, 1.f, true}, false);
     x50_totalTransitionTime = x54_remTransitionTime = xc8_suitModel0->GetAnimationData()->GetAnimationDuration(1);
   }
 }

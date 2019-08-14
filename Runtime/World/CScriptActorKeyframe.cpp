@@ -68,7 +68,7 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
     CEntity* ent = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId));
     if (TCastToPtr<CScriptActor> act = ent) {
       if (act->HasModelData() && act->GetModelData()->HasAnimData()) {
-        CAnimData* animData = act->ModelData()->AnimationData();
+        CAnimData* animData = act->GetModelData()->GetAnimationData();
         if (animData->IsAdditiveAnimation(x34_animationId))
           animData->DelAdditiveAnimation(x34_animationId);
 
@@ -76,12 +76,12 @@ void CScriptActorKeyframe::Think(float dt, CStateManager& mgr) {
           animData->EnableLooping(false);
       }
     } else if (TCastToPtr<CPatterned> ai = ent) {
-      CAnimData* animData = ai->ModelData()->AnimationData();
+      CAnimData* animData = ai->GetModelData()->GetAnimationData();
       if (animData->IsAdditiveAnimation(x34_animationId)) {
         animData->DelAdditiveAnimation(x34_animationId);
       } else if (ai->GetBodyController()->GetCurrentStateId() == pas::EAnimationState::Scripted &&
                  animData->GetDefaultAnimation() == x34_animationId) {
-        ai->BodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
+        ai->GetBodyController()->GetCommandMgr().DeliverCmd(CBodyStateCmd(EBodyStateCmd::ExitState));
       }
     }
   }
@@ -102,21 +102,21 @@ void CScriptActorKeyframe::UpdateEntity(TUniqueId uid, CStateManager& mgr) {
       mgr.SendScriptMsg(act, GetUniqueId(), EScriptObjectMessage::Activate);
     act->SetDrawFlags({0, 0, 3, zeus::skWhite});
     if (act->HasModelData() && act->GetModelData()->HasAnimData()) {
-      CAnimData* animData = act->ModelData()->AnimationData();
+      CAnimData* animData = act->GetModelData()->GetAnimationData();
       if (animData->IsAdditiveAnimation(x34_animationId)) {
         animData->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_looping, x44_26_fadeOut);
       } else {
         animData->SetAnimation(CAnimPlaybackParms(x34_animationId, -1, 1.f, true), false);
-        act->ModelData()->EnableLooping(x44_24_looping);
+        act->GetModelData()->EnableLooping(x44_24_looping);
         animData->MultiplyPlaybackRate(x3c_playbackRate);
       }
     }
   } else if (TCastToPtr<CPatterned> ai = ent) {
-    CAnimData* animData = ai->ModelData()->AnimationData();
+    CAnimData* animData = ai->GetModelData()->GetAnimationData();
     if (animData->IsAdditiveAnimation(x34_animationId)) {
       animData->AddAdditiveAnimation(x34_animationId, 1.f, x44_24_looping, x44_26_fadeOut);
     } else {
-      ai->BodyController()->GetCommandMgr().DeliverCmd(
+      ai->GetBodyController()->GetCommandMgr().DeliverCmd(
           CBCScriptedCmd(x34_animationId, x44_24_looping, x44_27_timedLoop, x38_initialLifetime));
     }
   }

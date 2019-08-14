@@ -166,7 +166,7 @@ public:
   float GetPitch() const;
   float GetYaw() const;
   const CModelData* GetModelData() const { return x64_modelData.get(); }
-  CModelData* ModelData() { return x64_modelData.get(); }
+  CModelData* GetModelData() { return x64_modelData.get(); }
   void EnsureRendered(const CStateManager&) const;
   void EnsureRendered(const CStateManager&, const zeus::CVector3f&, const zeus::CAABox&) const;
   void ProcessSoundEvent(u32 sfxId, float weight, u32 flags, float falloff, float maxDist, float minVol, float maxVol,
@@ -175,7 +175,7 @@ public:
   SAdvancementDeltas UpdateAnimation(float, CStateManager&, bool);
   void SetActorLights(std::unique_ptr<CActorLights>&& lights);
   const CActorLights* GetActorLights() const { return x90_actorLights.get(); }
-  CActorLights* ActorLights() { return x90_actorLights.get(); }
+  CActorLights* GetActorLights() { return x90_actorLights.get(); }
   bool CanDrawStatic() const;
   bool IsDrawEnabled() const { return xe7_29_drawEnabled; }
   void SetWorldLightingDirty(bool b) { xe7_28_worldLightingDirty = b; }

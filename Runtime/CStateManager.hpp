@@ -381,7 +381,7 @@ public:
 
   CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
   const CEnvFxManager* GetEnvFxManager() const { return x880_envFxManager; }
-  CWorld* WorldNC() { return x850_world.get(); }
+  CWorld* GetWorld() { return x850_world.get(); }
   const CWorld* GetWorld() const { return x850_world.get(); }
   CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
   const CRelayTracker* GetRelayTracker() const { return x8bc_relayTracker.get(); }
@@ -391,7 +391,8 @@ public:
 
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
   const std::shared_ptr<CWorldTransManager>& WorldTransManager() const { return x8c4_worldTransManager; }
-  const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }
+  const std::shared_ptr<CWorldLayerState>& WorldLayerState() const { return x8c8_worldLayerState; }
+  std::shared_ptr<CWorldLayerState>& WorldLayerState() { return x8c8_worldLayerState; }
 
   CPlayer& GetPlayer() const { return *x84c_player; }
   CPlayer* Player() const { return x84c_player.get(); }
@@ -442,7 +443,6 @@ public:
   void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
   std::list<TUniqueId>& GetActiveFlickerBats() { return xf3c_activeFlickerBats; }
   std::list<TUniqueId>& GetActiveParasites() { return xf54_activeParasites; }
-  std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
   static float g_EscapeShakeCountdown;
   static bool g_EscapeShakeCountdownInit;
 

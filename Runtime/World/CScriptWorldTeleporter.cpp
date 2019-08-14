@@ -77,7 +77,7 @@ void CScriptWorldTeleporter::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       transMgr->SfxStart();
       break;
     case EScriptObjectMessage::SetToZero: {
-      const auto& world = mgr.WorldNC();
+      const auto& world = mgr.GetWorld();
       world->SetLoadPauseState(true);
       CAssetId currentWorld = g_GameState->CurrentWorldAssetId();
       g_GameState->SetCurrentWorldId(x34_worldId);

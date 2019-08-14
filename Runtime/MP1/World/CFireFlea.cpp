@@ -61,7 +61,7 @@ CFireFlea::CFireFlea(TUniqueId uid, std::string_view name, const CEntityInfo& in
   filter.ExcludeList().Add(EMaterialTypes::Character);
   SetMaterialFilter(filter);
 
-  ModelData()->AnimationData()->SetParticleLightIdx(sLightIdx);
+  GetModelData()->GetAnimationData()->SetParticleLightIdx(sLightIdx);
   ++sLightIdx;
 }
 

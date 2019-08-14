@@ -985,7 +985,7 @@ void CMorphBall::EnterMorphBallState(CStateManager& mgr) {
   UpdateEffects(0.f, mgr);
   x187c_spiderBallState = ESpiderBallState::Inactive;
   CAnimPlaybackParms parms(0, -1, 1.f, true);
-  x58_ballModel->AnimationData()->SetAnimation(parms, false);
+  x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
   x1e20_ballAnimIdx = 0;
   StopEffects();
   x1c30_boostOverLightFactor = 0.f;
@@ -1140,7 +1140,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
         x187c_spiderBallState != ESpiderBallState::Active) {
       if (x1e20_ballAnimIdx == 0) {
         CAnimPlaybackParms parms(1, -1, 1.f, true);
-        x58_ballModel->AnimationData()->SetAnimation(parms, false);
+        x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 1;
         x1e24_boostSfxHandle = CSfxManager::SfxStart(SFXsam_ball_charge_lp, 1.f, 0.f, true, 0x7f, true, kInvalidAreaId);
       }
@@ -1150,7 +1150,7 @@ void CMorphBall::ComputeBoostBallMovement(const CFinalInput& input, CStateManage
     } else {
       if (x1e20_ballAnimIdx == 1) {
         CAnimPlaybackParms parms(0, -1, 1.f, true);
-        x58_ballModel->AnimationData()->SetAnimation(parms, false);
+        x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
         x1e20_ballAnimIdx = 0;
         CSfxManager::RemoveEmitter(x1e24_boostSfxHandle);
         if (x1de8_boostChargeTime >= g_tweakBall->GetBoostBallMinChargeTime()) {
@@ -1251,7 +1251,7 @@ void CMorphBall::CancelBoosting() {
   x1df4_boostDrainTime = 0.f;
   if (x1e20_ballAnimIdx == 1) {
     CAnimPlaybackParms parms(0, -1, 1.f, true);
-    x58_ballModel->AnimationData()->SetAnimation(parms, false);
+    x58_ballModel->GetAnimationData()->SetAnimation(parms, false);
     x1e20_ballAnimIdx = 0;
     CSfxManager::SfxStop(x1e24_boostSfxHandle);
   }
@@ -1350,9 +1350,9 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (x1c34_boostLightFactor == 1.f)
     return;
 
-  x0_player.ActorLights()->SetFindShadowLight(x1e44_damageEffect < 0.25f);
-  x0_player.ActorLights()->SetShadowDynamicRangeThreshold(0.05f);
-  x0_player.ActorLights()->SetDirty();
+  x0_player.GetActorLights()->SetFindShadowLight(x1e44_damageEffect < 0.25f);
+  x0_player.GetActorLights()->SetShadowDynamicRangeThreshold(0.05f);
+  x0_player.GetActorLights()->SetDirty();
 
   CCollidableSphere sphere = x38_collisionSphere;
   sphere.SetSphereCenter(zeus::skZero3f);
@@ -1361,11 +1361,11 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   if (x0_player.GetAreaIdAlways() != kInvalidAreaId) {
     const CGameArea* area = mgr.GetWorld()->GetAreaAlways(x0_player.GetAreaIdAlways());
     if (area->IsPostConstructed())
-      x0_player.ActorLights()->BuildAreaLightList(mgr, *area, ballAABB);
+      x0_player.GetActorLights()->BuildAreaLightList(mgr, *area, ballAABB);
   }
 
-  x0_player.ActorLights()->BuildDynamicLightList(mgr, ballAABB);
-  if (x0_player.ActorLights()->HasShadowLight()) {
+  x0_player.GetActorLights()->BuildDynamicLightList(mgr, ballAABB);
+  if (x0_player.GetActorLights()->HasShadowLight()) {
     CCollidableSphere sphere = x38_collisionSphere;
     sphere.SetSphereCenter(zeus::skZero3f);
     x1c14_worldShadow->BuildLightShadowTexture(mgr, x0_player.GetAreaIdAlways(),
@@ -1375,17 +1375,17 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
     x1c14_worldShadow->ResetBlur();
   }
 
-  zeus::CColor ambColor = x0_player.ActorLights()->GetAmbientColor();
+  zeus::CColor ambColor = x0_player.GetActorLights()->GetAmbientColor();
   ambColor.a() = 1.f;
-  x0_player.ActorLights()->SetAmbientColor(zeus::CColor::lerp(ambColor, zeus::skWhite, x1c34_boostLightFactor));
+  x0_player.GetActorLights()->SetAmbientColor(zeus::CColor::lerp(ambColor, zeus::skWhite, x1c34_boostLightFactor));
   *x1c18_actorLights = *x0_player.GetActorLights();
 
-  ambColor = x0_player.ActorLights()->GetAmbientColor();
+  ambColor = x0_player.GetActorLights()->GetAmbientColor();
   ambColor.a() = 1.f;
   x1c18_actorLights->SetAmbientColor(
       zeus::CColor::lerp(ambColor, zeus::skWhite, std::max(x1c38_spiderLightFactor, x1c34_boostLightFactor)));
 
-  if (CAnimData* animData = x58_ballModel->AnimationData())
+  if (CAnimData* animData = x58_ballModel->GetAnimationData())
     animData->PreRender();
 }
 

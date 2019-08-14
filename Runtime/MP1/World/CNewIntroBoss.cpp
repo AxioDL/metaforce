@@ -214,10 +214,10 @@ void CNewIntroBoss::Think(float dt, CStateManager& mgr) {
   if (x63c_attackTime > 0.f)
     x63c_attackTime -= dt;
 
-  ModelData()->AnimationData()->PreRender();
+  GetModelData()->GetAnimationData()->PreRender();
 
   if (x400_25_alive)
-    x574_boneTracking.PreRender(mgr, *ModelData()->AnimationData(), x34_transform, ModelData()->GetScale(),
+    x574_boneTracking.PreRender(mgr, *GetModelData()->GetAnimationData(), x34_transform, GetModelData()->GetScale(),
                                 *x450_bodyController);
 
   x5ec_collisionManager->Update(dt, mgr, CCollisionActorManager::EUpdateOptions::ObjectSpace);

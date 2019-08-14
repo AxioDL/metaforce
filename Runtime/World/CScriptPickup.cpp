@@ -32,8 +32,8 @@ CScriptPickup::CScriptPickup(TUniqueId uid, std::string_view name, const CEntity
   if (pickupEffect.IsValid())
     x27c_pickupParticleDesc = g_SimplePool->GetObj({SBIG('PART'), pickupEffect});
 
-  if (x64_modelData && x64_modelData->AnimationData())
-    x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
+  if (x64_modelData && x64_modelData->GetAnimationData())
+    x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(0, -1, 1.f, true), false);
 
   if (x278_delayTimer != 0.f) {
     xb4_drawFlags = CModelFlags(5, 0, 3, zeus::CColor(1.f, 1.f, 1.f, 0.f));

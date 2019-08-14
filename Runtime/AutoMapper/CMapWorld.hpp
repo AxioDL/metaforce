@@ -67,9 +67,9 @@ public:
     void Unlock() { x0_area.Unlock(); }
     bool IsLoaded() const { return x0_area.IsLoaded(); }
     const CMapArea* GetMapArea() const { return x0_area.GetObj(); }
+    CMapAreaData* GetNextMapAreaData() { return x14_next; }
     const CMapAreaData* GetNextMapAreaData() const { return x14_next; }
     EMapAreaList GetContainingList() const { return x10_list; }
-    CMapAreaData* NextMapAreaData() { return x14_next; }
     void SetContainingList(EMapAreaList list) { x10_list = list; }
     void SetNextMapArea(CMapAreaData* next) { x14_next = next; }
   };

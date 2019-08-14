@@ -433,7 +433,7 @@ void CFishCloud::Think(float dt, CStateManager& mgr) {
     }
     if (x250_27_validModel) {
       for (auto& m : x1b0_models) {
-        m->AnimationData()->SetPlaybackRate(1.f);
+        m->GetAnimationData()->SetPlaybackRate(1.f);
         m->AdvanceAnimation(dt, mgr, x4_areaId, true);
       }
     }
@@ -449,7 +449,7 @@ void CFishCloud::AllocateSkinnedModels(CStateManager& mgr, CModelData::EWhichMod
   for (auto& m : x1b0_models) {
     m->EnableLooping(true);
     m->AdvanceAnimation(
-      m->AnimationData()->GetAnimTimeRemaining("Whole Body"sv) * 0.25f * idx, mgr, x4_areaId, true);
+      m->GetAnimationData()->GetAnimTimeRemaining("Whole Body"sv) * 0.25f * idx, mgr, x4_areaId, true);
     ++idx;
   }
   x230_whichModel = which;
@@ -487,7 +487,7 @@ void CFishCloud::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   CActor::PreRender(mgr, frustum);
   if (x250_27_validModel) {
     for (auto& m : x1b0_models) {
-      m->AnimationData()->PreRender();
+      m->GetAnimationData()->PreRender();
     }
   }
   xe4_30_outOfFrustum = false;
@@ -508,7 +508,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
   u32 thisDrawMask = 1u << modelIndex;
   if (drawMask & thisDrawMask) {
     drawMask &= ~thisDrawMask;
-    mData.AnimationData()->BuildPose();
+    mData.GetAnimationData()->BuildPose();
   }
   model.GetModelInst()->SetAmbientColor(zeus::skWhite);
   CGraphics::SetModelMatrix(zeus::lookAt(boid.x0_pos, boid.x0_pos + boid.xc_vel));
@@ -516,7 +516,7 @@ void CFishCloud::RenderBoid(int idx, const CBoid& boid, u32& drawMask,
     CModelFlags thermFlags(0, 0, 3, zeus::skWhite);
     mData.RenderThermal(zeus::skWhite, zeus::CColor(0.f, 0.25f), thermFlags);
   } else {
-    mData.AnimationData()->Render(model, flags, {}, nullptr);
+    mData.GetAnimationData()->Render(model, flags, {}, nullptr);
   }
 }
 

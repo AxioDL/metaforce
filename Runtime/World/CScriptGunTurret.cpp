@@ -145,7 +145,7 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
   x560_31_frenzyReverse = false;
 
   if (comp == ETurretComponent::Base && HasModelData() && GetModelData()->HasAnimData())
-    ModelData()->EnableLooping(true);
+    GetModelData()->EnableLooping(true);
 
   x37c_projectileInfo.Token().Lock();
 }
@@ -403,21 +403,21 @@ void CScriptGunTurret::LaunchProjectile(CStateManager& mgr) {
                           x458_visorEffectDesc, x2d4_data.GetVisorSoundId(), false);
     mgr.AddObject(proj);
     auto pair =
-    x64_modelData->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+    x64_modelData->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
     CPASAnimParmData(18, CPASAnimParm::FromEnum(1), CPASAnimParm::FromReal32(90.f),
       CPASAnimParm::FromEnum(skStateToLocoTypeLookup[int(x520_state)])), -1);
     if (pair.first > 0.f) {
       x64_modelData->EnableLooping(false);
-      x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
+      x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
     }
   }
 }
 
 void CScriptGunTurret::PlayAdditiveFlinchAnimation(CStateManager& mgr) {
-  auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+  auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
       CPASAnimParmData(23), *mgr.GetActiveRandom(), -1);
   if (pair.first > 0.f)
-    ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
+    GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, false, true);
 }
 
 void CScriptGunTurret::AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const {
@@ -678,8 +678,8 @@ void CScriptGunTurret::UpdateTurretAnimation() {
   auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(parmData, -1);
 
   if (pair.first > 0.f && pair.second != x540_turretAnim) {
-    ModelData()->AnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
-    ModelData()->AnimationData()->EnableLooping(true);
+    GetModelData()->GetAnimationData()->SetAnimation(CAnimPlaybackParms(pair.second, -1, 1.f, true), false);
+    GetModelData()->GetAnimationData()->EnableLooping(true);
     x540_turretAnim = pair.second;
   }
 }
@@ -1126,14 +1126,14 @@ void CScriptGunTurret::PlayAdditiveChargingAnimation(CStateManager& mgr) {
     if (x55c_additiveChargeAnim != -1)
       return;
 
-    auto pair = ModelData()->AnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
+    auto pair = GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase().FindBestAnimation(
         CPASAnimParmData(24, CPASAnimParm::FromEnum(2)), *mgr.GetActiveRandom(), -1);
     if (pair.first > 0.f) {
       x55c_additiveChargeAnim = pair.second;
-      ModelData()->AnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);
+      GetModelData()->GetAnimationData()->AddAdditiveAnimation(pair.second, 1.f, true, false);
     }
   } else if (x55c_additiveChargeAnim != -1) {
-    ModelData()->AnimationData()->DelAdditiveAnimation(x55c_additiveChargeAnim);
+    GetModelData()->GetAnimationData()->DelAdditiveAnimation(x55c_additiveChargeAnim);
     x55c_additiveChargeAnim = -1;
   }
 }

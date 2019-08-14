@@ -80,7 +80,7 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
   {
     RemoveEmitter();
     if (HasModelData() && !x64_modelData->IsNull())
-      if (CAnimData* aData = x64_modelData->AnimationData())
+      if (CAnimData* aData = x64_modelData->GetAnimationData())
         aData->GetParticleDB().DeleteAllLights(mgr);
     break;
   }
@@ -91,9 +91,9 @@ void CActor::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMana
     else
       RemoveMaterial(EMaterialTypes::Scannable, mgr);
 
-    if (HasModelData() && x64_modelData->AnimationData()) {
+    if (HasModelData() && x64_modelData->GetAnimationData()) {
       TAreaId aid = GetAreaId();
-      x64_modelData->AnimationData()->InitializeEffects(mgr, aid, x64_modelData->GetScale());
+      x64_modelData->GetAnimationData()->InitializeEffects(mgr, aid, x64_modelData->GetScale());
     }
     break;
   }
@@ -161,7 +161,7 @@ void CActor::PreRender(CStateManager& mgr, const zeus::CFrustum& planes) {
     }
 
     if (x64_modelData->HasAnimData())
-      x64_modelData->AnimationData()->PreRender();
+      x64_modelData->GetAnimationData()->PreRender();
   } else {
     if (xe4_29_actorLightsDirty) {
       xe4_29_actorLightsDirty = false;
@@ -254,7 +254,7 @@ void CActor::Render(const CStateManager& mgr) const {
   if (x64_modelData && !x64_modelData->IsNull()) {
     bool renderPrePostParticles = xe6_29_renderParticleDBInside && x64_modelData && x64_modelData->HasAnimData();
     if (renderPrePostParticles)
-      x64_modelData->AnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
+      x64_modelData->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnFirst();
 
     if (xe7_27_enableRender) {
       if (xe5_31_pointGeneratorParticles)
@@ -274,7 +274,7 @@ void CActor::Render(const CStateManager& mgr) const {
     }
 
     if (renderPrePostParticles)
-      x64_modelData->AnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
+      x64_modelData->GetAnimationData()->GetParticleDB().RenderSystemsToBeDrawnLast();
   }
   DrawTouchBounds();
 }
@@ -289,7 +289,7 @@ bool CActor::CanRenderUnsorted(const CStateManager& mgr) const {
 }
 
 void CActor::CalculateRenderBounds() {
-  if (x64_modelData && (x64_modelData->AnimationData() || x64_modelData->GetNormalModel()))
+  if (x64_modelData && (x64_modelData->GetAnimationData() || x64_modelData->GetNormalModel()))
     x9c_renderBounds = x64_modelData->GetBounds(x34_transform);
   else
     x9c_renderBounds = zeus::CAABox(x34_transform.origin, x34_transform.origin);
@@ -636,7 +636,7 @@ SAdvancementDeltas CActor::UpdateAnimation(float dt, CStateManager& mgr, bool ad
       if (poi.GetCharacterIndex() != -1 &&
           x64_modelData->GetAnimationData()->GetCharacterIndex() != poi.GetCharacterIndex())
         continue;
-      x64_modelData->AnimationData()->GetParticleDB().SetParticleEffectState(poi.GetString(), true, mgr);
+      x64_modelData->GetAnimationData()->GetParticleDB().SetParticleEffectState(poi.GetString(), true, mgr);
     }
   }
   return deltas;

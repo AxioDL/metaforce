@@ -133,7 +133,7 @@ public:
   void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
                         const zeus::CColor& addColor, float t);
 
-  CAnimData* AnimationData() { return x10_animData.get(); }
+  CAnimData* GetAnimationData() { return x10_animData.get(); }
   const CAnimData* GetAnimationData() const { return x10_animData.get(); }
   const TLockedToken<CModel>& GetNormalModel() const { return x1c_normalModel; }
   const TLockedToken<CModel>& GetXRayModel() const { return x2c_xrayModel; }

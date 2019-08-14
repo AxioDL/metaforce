@@ -36,7 +36,7 @@ void CRelayTracker::RemoveRelay(TEditorId id) {
 }
 
 void CRelayTracker::SendMsgs(TAreaId areaId, CStateManager& stateMgr) {
-  const CWorld* world = stateMgr.WorldNC();
+  const CWorld* world = stateMgr.GetWorld();
   u32 relayCount = world->GetRelayCount();
 
   bool hasActiveRelays = false;

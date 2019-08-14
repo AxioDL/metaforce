@@ -101,7 +101,7 @@ void CScriptGenerator::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sende
           }
 
           float rnd = stateMgr.GetActiveRandom()->Range(x48_minScale, x4c_maxScale);
-          CModelData* mData = activateActor->ModelData();
+          CModelData* mData = activateActor->GetModelData();
           if (mData && !mData->IsNull())
             mData->SetScale(rnd * mData->GetScale());
 

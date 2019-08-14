@@ -288,7 +288,7 @@ public:
 
   CAssetId GetAreaAssetId() const { return x84_mrea; }
   const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
-  CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
+  CAreaFog* GetAreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
   float GetXRayFogDistance() const;
   EEnvFxType DoesAreaNeedEnvFx() const;
   bool DoesAreaNeedSkyNow() const;
@@ -338,8 +338,8 @@ public:
 
   const std::vector<Dock>& GetDocks() const { return xcc_docks; }
   const Dock* GetDock(s32 dock) const { return &xcc_docks[dock]; }
+  Dock* GetDock(s32 dock) { return &xcc_docks[dock]; }
   s32 GetDockCount() const { return xcc_docks.size(); }
-  Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
   bool IsPostConstructed() const { return xf0_24_postConstructed; }
   const CPostConstructed* GetPostConstructed() const {

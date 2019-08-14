@@ -860,7 +860,7 @@ void CGameArea::Validate(CStateManager& mgr) {
 
   PostConstructArea();
   if (x4_selfIdx != kInvalidAreaId)
-    mgr.WorldNC()->MoveAreaToAliveChain(x4_selfIdx);
+    mgr.GetWorld()->MoveAreaToAliveChain(x4_selfIdx);
 
   LoadScriptObjects(mgr);
 
@@ -882,7 +882,7 @@ void CGameArea::Validate(CStateManager& mgr) {
 }
 
 void CGameArea::LoadScriptObjects(CStateManager& mgr) {
-  CWorldLayerState& layerState = *mgr.LayerState();
+  CWorldLayerState& layerState = *mgr.WorldLayerState();
   u32 layerCount = layerState.GetAreaLayerCount(x4_selfIdx);
   std::vector<TEditorId> objIds;
   for (u32 i = 0; i < layerCount; ++i) {
@@ -1113,7 +1113,7 @@ void CGameArea::VerifyTokenList(CStateManager& stateMgr) {
   auto end = xac_deps2.end();
   for (int lidx = int(xbc_layerDepOffsets.size() - 1); lidx >= 0; --lidx) {
     auto begin = xac_deps2.begin() + xbc_layerDepOffsets[lidx];
-    if (stateMgr.LayerState()->IsLayerActive(x4_selfIdx, lidx)) {
+    if (stateMgr.WorldLayerState()->IsLayerActive(x4_selfIdx, lidx)) {
       for (auto it = begin; it != end; ++it) {
         xdc_tokens.push_back(g_SimplePool->GetObj(*it));
         xdc_tokens.back().Lock();
