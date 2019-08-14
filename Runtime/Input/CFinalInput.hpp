@@ -72,8 +72,12 @@ struct CFinalInput {
   CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
+
   CFinalInput& operator|=(const CFinalInput& other);
-  bool operator==(const CFinalInput& other) { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
+
+  bool operator==(const CFinalInput& other) const { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
+  bool operator!=(const CFinalInput& other) const { return !operator==(other); }
+
   float DeltaTime() const { return x0_dt; }
   u32 ControllerIdx() const { return x4_controllerIdx; }
 
