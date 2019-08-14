@@ -15,42 +15,51 @@
 
 namespace urde {
 
-static const SGameOption VisorOpts[] = {
+constexpr std::array<SGameOption, 5> VisorOpts{{
     {EGameOption::VisorOpacity, 21, 0.f, 255.f, 1.f, EOptionType::Float},
     {EGameOption::HelmetOpacity, 22, 0.f, 255.f, 1.f, EOptionType::Float},
     {EGameOption::HUDLag, 23, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
     {EGameOption::HintSystem, 24, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
-    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}};
+    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
 
-static const SGameOption DisplayOpts[] = {
+constexpr std::array<SGameOption, 5> DisplayOpts{{
     //{EGameOption::ScreenBrightness, 25, 0.f, 8.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenBrightness, 25, -100.f, 100.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenOffsetX, 26, -30.f, 30.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenOffsetY, 27, -30.f, 30.f, 1.f, EOptionType::Float},
     {EGameOption::ScreenStretch, 28, -10.f, 10.f, 1.f, EOptionType::Float},
-    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}};
+    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
 
-static const SGameOption SoundOpts[] = {
+constexpr std::array<SGameOption, 4> SoundOpts{{
     {EGameOption::SFXVolume, 29, 0.f, 127.f, 1.f, EOptionType::Float},
     {EGameOption::MusicVolume, 30, 0.f, 127.f, 1.f, EOptionType::Float},
     {EGameOption::SoundMode, 31, 0.f, 1.f, 1.f, EOptionType::TripleEnum},
-    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}};
+    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
 
-static const SGameOption ControllerOpts[] = {
+constexpr std::array<SGameOption, 4> ControllerOpts{{
     {EGameOption::ReverseYAxis, 32, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
     {EGameOption::Rumble, 33, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
     {EGameOption::SwapBeamControls, 34, 0.f, 1.f, 1.f, EOptionType::DoubleEnum},
-    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults}};
+    {EGameOption::RestoreDefaults, 35, 0.f, 1.f, 1.f, EOptionType::RestoreDefaults},
+}};
 
-const std::pair<int, const SGameOption*> GameOptionsRegistry[] = {
-    {5, VisorOpts}, {5, DisplayOpts}, {4, SoundOpts}, {4, ControllerOpts}, {0, nullptr}};
+const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry{{
+    {VisorOpts.size(), VisorOpts.data()},
+    {DisplayOpts.size(), DisplayOpts.data()},
+    {SoundOpts.size(), SoundOpts.data()},
+    {ControllerOpts.size(), ControllerOpts.data()},
+    {0, nullptr},
+}};
 
 CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
-  for (int b = 0; b < 98; ++b)
-    x0_nesState[b] = stream.ReadEncoded(8);
+  for (u8& entry : x0_nesState)
+    entry = stream.ReadEncoded(8);
 
-  for (int b = 0; b < 64; ++b)
-    x68_[b] = stream.ReadEncoded(8);
+  for (bool& entry : x68_)
+    entry = stream.ReadEncoded(8);
 
   xc0_frozenFpsCount = stream.ReadEncoded(2);
   xc4_frozenBallCount = stream.ReadEncoded(2);
@@ -89,11 +98,11 @@ CPersistentOptions::CPersistentOptions(CBitStreamReader& stream) {
 }
 
 void CPersistentOptions::PutTo(CBitStreamWriter& w) const {
-  for (int b = 0; b < 98; ++b)
-    w.WriteEncoded(x0_nesState[b], 8);
+  for (const u8 entry : x0_nesState)
+    w.WriteEncoded(entry, 8);
 
-  for (int b = 0; b < 64; ++b)
-    w.WriteEncoded(x68_[b], 8);
+  for (const bool entry : x68_)
+    w.WriteEncoded(entry, 8);
 
   w.WriteEncoded(xc0_frozenFpsCount, 2);
   w.WriteEncoded(xc4_frozenBallCount, 2);
@@ -138,8 +147,8 @@ void CPersistentOptions::SetCinematicState(CAssetId mlvlId, TEditorId cineId, bo
 }
 
 CGameOptions::CGameOptions(CBitStreamReader& stream) {
-  for (int b = 0; b < 64; ++b)
-    x0_[b] = stream.ReadEncoded(8);
+  for (u8& entry : x0_)
+    entry = stream.ReadEncoded(8);
 
   x44_soundMode = CAudioSys::ESurroundModes(stream.ReadEncoded(2));
   x48_screenBrightness = stream.ReadEncoded(4);
@@ -179,8 +188,8 @@ void CGameOptions::ResetToDefaults() {
 }
 
 void CGameOptions::PutTo(CBitStreamWriter& writer) const {
-  for (int b = 0; b < 64; ++b)
-    writer.WriteEncoded(x0_[b], 8);
+  for (const u8 entry : x0_)
+    writer.WriteEncoded(entry, 8);
 
   writer.WriteEncoded(u32(x44_soundMode), 2);
   writer.WriteEncoded(x48_screenBrightness, 4);
@@ -311,15 +320,21 @@ void CGameOptions::SetControls(int controls) {
   ResetControllerAssets(controls);
 }
 
-static const std::pair<CAssetId, CAssetId> CStickToDPadRemap[] = {
-    {0x2A13C23E, 0xF13452F8}, {0xA91A7703, 0xC042EC91}, {0x12A12131, 0x5F556002},
-    {0xA9798329, 0xB306E26F}, {0xCD7B1ACA, 0x8ADA8184},
-};
+const std::array<std::pair<CAssetId, CAssetId>, 5> CStickToDPadRemap{{
+    {0x2A13C23E, 0xF13452F8},
+    {0xA91A7703, 0xC042EC91},
+    {0x12A12131, 0x5F556002},
+    {0xA9798329, 0xB306E26F},
+    {0xCD7B1ACA, 0x8ADA8184},
+}};
 
-static const std::pair<CAssetId, CAssetId> CStickOutlineToDPadRemap[] = {
-    {0x1A29C0E6, 0xF13452F8}, {0x5D9F9796, 0xC042EC91}, {0x951546A8, 0x5F556002},
-    {0x7946C4C5, 0xB306E26F}, {0x409AA72E, 0x8ADA8184},
-};
+const std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
+    {0x1A29C0E6, 0xF13452F8},
+    {0x5D9F9796, 0xC042EC91},
+    {0x951546A8, 0x5F556002},
+    {0x7946C4C5, 0xB306E26F},
+    {0x409AA72E, 0x8ADA8184},
+}};
 
 static std::pair<CAssetId, CAssetId> TranslatePairToNew(const std::pair<CAssetId, CAssetId>& p) {
   return {g_ResFactory->TranslateOriginalToNew(p.first), g_ResFactory->TranslateOriginalToNew(p.second)};
@@ -331,13 +346,13 @@ void CGameOptions::ResetControllerAssets(int controls) {
   } else if (x6c_controlTxtrMap.empty()) {
     x6c_controlTxtrMap.reserve(15);
 
-    for (int i = 0; i < 5; ++i) {
-      x6c_controlTxtrMap.push_back(TranslatePairToNew(CStickToDPadRemap[i]));
-      x6c_controlTxtrMap.push_back({x6c_controlTxtrMap.back().second, x6c_controlTxtrMap.back().first});
+    for (const auto& entry : CStickToDPadRemap) {
+      const auto& emplaced = x6c_controlTxtrMap.emplace_back(TranslatePairToNew(entry));
+      x6c_controlTxtrMap.emplace_back(emplaced.second, emplaced.first);
     }
 
-    for (int i = 0; i < 5; ++i)
-      x6c_controlTxtrMap.push_back(TranslatePairToNew(CStickOutlineToDPadRemap[i]));
+    for (const auto& entry : CStickOutlineToDPadRemap)
+      x6c_controlTxtrMap.emplace_back(TranslatePairToNew(entry));
 
     std::sort(x6c_controlTxtrMap.begin(), x6c_controlTxtrMap.end(),
               [](const std::pair<CAssetId, CAssetId>& a, const std::pair<CAssetId, CAssetId>& b) {
@@ -365,8 +380,8 @@ void CGameOptions::EnsureSettings() {
 
 void CGameOptions::TryRestoreDefaults(const CFinalInput& input, int category, int option, bool frontend,
                                       bool forceRestore) {
-  const std::pair<int, const SGameOption*>& options = GameOptionsRegistry[category];
-  if (!options.first)
+  const auto& options = GameOptionsRegistry[category];
+  if (options.first == 0)
     return;
 
   if (options.second[option].option != EGameOption::RestoreDefaults)

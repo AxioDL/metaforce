@@ -1502,12 +1502,12 @@ void CFrontEndUI::SOptionsFrontEndFrame::HandleRightSelectionChange() {
 }
 
 void CFrontEndUI::SOptionsFrontEndFrame::SetRightUIText() {
-  int userSel = x24_tablegroup_leftmenu->GetUserSelection();
-  const std::pair<int, const SGameOption*>& options = GameOptionsRegistry[userSel];
+  const int userSel = x24_tablegroup_leftmenu->GetUserSelection();
+  const auto& options = GameOptionsRegistry[userSel];
 
   for (int i = 0; i < 5; ++i) {
     std::string name = fmt::format(fmt("textpane_right{}"), i);
-    if (i < options.first) {
+    if (i < static_cast<int>(options.first)) {
       FindTextPanePair(x1c_loadedFrame, name.c_str()).SetPairText(
         x20_loadedPauseStrg->GetString(options.second[i].stringId));
       x28_tablegroup_rightmenu->GetWorkerWidget(i)->SetIsSelectable(true);
