@@ -164,23 +164,23 @@ class CFlaahgra : public CPatterned {
   void SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>&, CStateManager&);
   bool sub801ae650() const { return (x7a8_ == 0 || x7a8_ == 1); }
   bool sub801ae670() const { return (x7a8_ == 2 || x7a8_ == 3 || x7a8_ == 4); }
-  bool IsSphereCollider(TUniqueId);
+  bool IsSphereCollider(TUniqueId) const;
   void SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
                                const zeus::CVector3f& extendedBounds);
 
   void UpdateScale(float, float, float);
-  float GetEndActionTime();
+  float GetEndActionTime() const;
   void SetupHealthInfo(CStateManager&);
-  zeus::CVector3f GetAttacktargetPos(CStateManager&) const;
+  zeus::CVector3f GetAttacktargetPos(const CStateManager&) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
-  bool sub801e4f8() { return x7a8_ == 0 || x7a8_ == 1; }
+  bool sub801e4f8() const { return x7a8_ == 0 || x7a8_ == 1; }
   void sub801ade80();
   void UpdateHeadDamageVulnerability(CStateManager&, bool);
 
-  u32 sub801ae828(CStateManager&);
-  zeus::CVector3f sub801ae754(CStateManager&);
+  u32 sub801ae828(const CStateManager&) const;
+  zeus::CVector3f sub801ae754(const CStateManager&) const;
 
-  TUniqueId GetMirrorNearestPlayer(CStateManager&);
+  TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,

@@ -543,7 +543,7 @@ void CTryclops::DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig) {
   player.SetTransform(xf);
 }
 
-bool CTryclops::InRangeToLocator(const zeus::CVector3f& vec, float arg) {
+bool CTryclops::InRangeToLocator(const zeus::CVector3f& vec, float arg) const {
   return (vec - GetLctrTransform("ballGrab_locator"sv).origin).magSquared() <= arg;
 }
 

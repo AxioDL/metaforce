@@ -118,19 +118,19 @@ void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>&
   }
 }
 
-bool CResLoader::GetResourceCompression(const SObjectTag& tag) {
+bool CResLoader::GetResourceCompression(const SObjectTag& tag) const {
   if (FindResource(tag.id))
     return x50_cachedResInfo->IsCompressed();
   return false;
 }
 
-u32 CResLoader::ResourceSize(const SObjectTag& tag) {
+u32 CResLoader::ResourceSize(const SObjectTag& tag) const {
   if (FindResource(tag.id))
     return x50_cachedResInfo->GetSize();
   return 0;
 }
 
-bool CResLoader::ResourceExists(const SObjectTag& tag) { return FindResource(tag.id); }
+bool CResLoader::ResourceExists(const SObjectTag& tag) const { return FindResource(tag.id); }
 
 FourCC CResLoader::GetResourceTypeById(CAssetId id) const {
   if (id.IsValid() && FindResource(id))

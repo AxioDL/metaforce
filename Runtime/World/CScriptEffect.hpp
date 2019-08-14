@@ -65,7 +65,7 @@ public:
   }
   void CalculateRenderBounds() override;
   zeus::CAABox GetSortingBounds(const CStateManager&) const override;
-  bool AreBothSystemsDeleteable();
+  bool AreBothSystemsDeleteable() const;
   static void ResetParticleCounts() {
     g_NumParticlesUpdating = 0;
     g_NumParticlesRendered = 0;

@@ -28,6 +28,8 @@ void CGuiGroup::SelectWorkerWidget(int workerId, bool setActive, bool setVisible
 
 CGuiWidget* CGuiGroup::GetSelectedWidget() { return GetWorkerWidget(xbc_selectedWorker); }
 
+const CGuiWidget* CGuiGroup::GetSelectedWidget() const { return GetWorkerWidget(xbc_selectedWorker); }
+
 bool CGuiGroup::AddWorkerWidget(CGuiWidget* worker) {
   ++xb8_workerCount;
   return true;

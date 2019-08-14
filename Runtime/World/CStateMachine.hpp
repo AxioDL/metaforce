@@ -20,7 +20,7 @@ public:
   CAiTrigger() = default;
   CAiTrigger* GetAnd() const { return x10_andTrig; }
   CAiState* GetState() const { return x14_state; }
-  bool CallFunc(CStateManager& mgr, CAi& ai) {
+  bool CallFunc(CStateManager& mgr, CAi& ai) const {
     if (x0_func) {
       bool ret = (ai.*x0_func)(mgr, xc_arg);
       return x18_lNot ? !ret : ret;

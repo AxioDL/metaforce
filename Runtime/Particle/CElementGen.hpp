@@ -172,7 +172,7 @@ public:
   void CreateNewParticles(int);
   void UpdatePSTranslationAndOrientation();
   void UpdateChildParticleSystems(double);
-  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>&);
+  std::unique_ptr<CParticleGen> ConstructChildParticleSystem(const TToken<CGenDescription>&) const;
   void UpdateLightParameters();
   void BuildParticleSystemBounds();
   u32 GetEmitterTime() const { return x74_curFrame; }

@@ -57,7 +57,7 @@ ECardResult CMemoryCardDriver::SFileInfo::FileRead() {
   }
 }
 
-ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut) {
+ECardResult CMemoryCardDriver::SFileInfo::GetSaveDataOffset(u32& offOut) const {
   CMemoryCardSys::CardStat stat = {};
   ECardResult result = CMemoryCardSys::GetStatus(x0_fileInfo.slot, x0_fileInfo.getFileNo(), stat);
   if (result != ECardResult::READY) {
@@ -135,7 +135,7 @@ void CMemoryCardDriver::NoCardFound() {
   static_cast<CMain*>(g_Main)->SetCardBusy(false);
 }
 
-const CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int idx) {
+const CGameState::GameFileStateInfo* CMemoryCardDriver::GetGameFileStateInfo(int idx) const {
   SGameFileSlot* slot = xe4_fileSlots[idx].get();
   if (!slot)
     return nullptr;

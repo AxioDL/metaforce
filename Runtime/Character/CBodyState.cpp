@@ -242,7 +242,7 @@ void CBSGetup::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSGetup::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSGetup::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -289,7 +289,7 @@ void CBSKnockBack::Start(CBodyController& bc, CStateManager& mgr) {
   x4_curTime = 0.f;
 }
 
-pas::EAnimationState CBSKnockBack::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSKnockBack::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -332,7 +332,7 @@ void CBSLieOnGround::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSLieOnGround::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSLieOnGround::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Die))
     return pas::EAnimationState::Death;
   if (x4_24_hasGroundHit && bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockBack))
@@ -355,7 +355,7 @@ void CBSStep::Start(CBodyController& bc, CStateManager& mgr) {
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
 
-pas::EAnimationState CBSStep::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSStep::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -425,7 +425,7 @@ bool CBSTurn::FacingDest(CBodyController& bc) const {
   return false;
 }
 
-pas::EAnimationState CBSTurn::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSTurn::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -526,7 +526,7 @@ void CBSLoopAttack::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSLoopAttack::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSLoopAttack::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -622,7 +622,7 @@ void CBSLoopReaction::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSLoopReaction::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSLoopReaction::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -734,7 +734,7 @@ void CBSGroundHit::Start(CBodyController& bc, CStateManager& mgr) {
   xc_fallState = pas::EFallState(groundHitState->GetAnimParmData(best.second, 3).GetEnumValue());
 }
 
-pas::EAnimationState CBSGroundHit::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSGroundHit::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.IsAnimationOver()) {
     if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Die))
       return pas::EAnimationState::Death;
@@ -777,7 +777,7 @@ void CBSGenerate::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSGenerate::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSGenerate::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -819,7 +819,7 @@ void CBSJump::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSJump::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSJump::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -991,7 +991,7 @@ void CBSHurled::Start(CBodyController& bc, CStateManager& mgr) {
   x2c_24_needsRecover = false;
 }
 
-pas::EAnimationState CBSHurled::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSHurled::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::NextState))
     return pas::EAnimationState::LieOnGround;
   if (x18_curTime > 0.25f) {
@@ -1165,7 +1165,7 @@ void CBSSlide::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CBSSlide::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSSlide::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -1195,7 +1195,7 @@ void CBSTaunt::Start(CBodyController& bc, CStateManager& mgr) {
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
 
-pas::EAnimationState CBSTaunt::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSTaunt::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -1227,7 +1227,7 @@ void CBSScripted::Start(CBodyController& bc, CStateManager& mgr) {
   bc.SetCurrentAnimation(playParms, cmd->IsLooped(), false);
 }
 
-pas::EAnimationState CBSScripted::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSScripted::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -1275,7 +1275,7 @@ void CBSCover::Start(CBodyController& bc, CStateManager& mgr) {
     xc_needsExit = true;
 }
 
-pas::EAnimationState CBSCover::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSCover::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -1342,7 +1342,7 @@ void CBSWallHang::Start(CBodyController& bc, CStateManager& mgr) {
   bc.PlayBestAnimation(parms, *mgr.GetActiveRandom());
 }
 
-pas::EAnimationState CBSWallHang::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CBSWallHang::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::Hurled))
     return pas::EAnimationState::Hurled;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::KnockDown))
@@ -1595,7 +1595,7 @@ bool CBSWallHang::ApplyGravity() const {
   }
 }
 
-float CBSLocomotion::GetStartVelocityMagnitude(CBodyController& bc) {
+float CBSLocomotion::GetStartVelocityMagnitude(const CBodyController& bc) const {
   if (TCastToPtr<CPhysicsActor> act = bc.GetOwner()) {
     float maxSpeed = bc.GetBodyStateInfo().GetMaxSpeed();
     float ret = 0.f;

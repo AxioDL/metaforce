@@ -36,9 +36,9 @@ public:
   std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
   std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
   void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const;
-  bool GetResourceCompression(const SObjectTag& tag);
-  u32 ResourceSize(const SObjectTag& tag);
-  bool ResourceExists(const SObjectTag& tag);
+  bool GetResourceCompression(const SObjectTag& tag) const;
+  u32 ResourceSize(const SObjectTag& tag) const;
+  bool ResourceExists(const SObjectTag& tag) const;
   FourCC GetResourceTypeById(CAssetId id) const;
   const SObjectTag* GetResourceIdByName(std::string_view name) const;
   bool AreAllPaksLoaded() const;

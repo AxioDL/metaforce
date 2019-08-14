@@ -212,7 +212,7 @@ void CFishCloud::BuildBoidNearPartitionList(const zeus::CVector3f& pos, float ra
   }
 }
 
-void CFishCloud::PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb) {
+void CFishCloud::PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb) const {
   auto plane = FindClosestPlane(aabb, boid.x0_pos);
   boid.x0_pos -= plane.pointToPlaneDist(boid.x0_pos) * plane.normal() + 0.0001f * plane.normal();
   boid.xc_vel.y() = mgr.GetActiveRandom()->Float() - 0.5f;

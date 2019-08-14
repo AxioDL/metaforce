@@ -381,13 +381,13 @@ public:
   void TakeDamage(bool, const zeus::CVector3f&, float, EWeaponType, CStateManager& mgr);
   void Accept(IVisitor& visitor) override;
   CHealthInfo* HealthInfo(CStateManager& mgr) override;
-  bool IsUnderBetaMetroidAttack(CStateManager& mgr) const;
+  bool IsUnderBetaMetroidAttack(const CStateManager& mgr) const;
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   void Touch(CActor& actor, CStateManager& mgr) override;
   void DoPreThink(float dt, CStateManager& mgr);
   void DoThink(float dt, CStateManager& mgr);
   void UpdateScanningState(const CFinalInput& input, CStateManager& mgr, float);
-  bool ValidateScanning(const CFinalInput& input, CStateManager& mgr);
+  bool ValidateScanning(const CFinalInput& input, const CStateManager& mgr) const;
   void FinishNewScan(CStateManager& mgr);
   void SetScanningState(EPlayerScanState, CStateManager& mgr);
   void SetSpawnedMorphBallState(EPlayerMorphBallState, CStateManager&);
@@ -432,7 +432,7 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetVisorSteam(float, float, float, CAssetId, bool);
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
-  u16 GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16*, u32, u16);
+  u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16*, u32, u16) const;
   static u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
   void UpdateCrosshairsState(const CFinalInput&);
   void UpdateVisorTransition(float, CStateManager& mgr);
@@ -460,7 +460,7 @@ public:
   void UpdateGrappleArmTransform(const zeus::CVector3f&, CStateManager& mgr, float);
   float GetGravity() const;
   void ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, float);
-  bool ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr);
+  bool ValidateFPPosition(const zeus::CVector3f& pos, const CStateManager& mgr) const;
   void UpdateGrappleState(const CFinalInput& input, CStateManager& mgr);
   void ApplyGrappleJump(CStateManager& mgr);
   void BeginGrapple(zeus::CVector3f&, CStateManager& mgr);
@@ -482,11 +482,11 @@ public:
   void UpdateAimTargetTimer(float);
   bool ValidateAimTargetId(TUniqueId, CStateManager& mgr);
   bool ValidateObjectForMode(TUniqueId, CStateManager& mgr) const;
-  TUniqueId FindAimTargetId(CStateManager& mgr);
+  TUniqueId FindAimTargetId(CStateManager& mgr) const;
   TUniqueId GetAimTarget() const { return x3f4_aimTarget; }
   TUniqueId CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUniqueId, 1024>&, EPlayerZoneInfo,
                                          EPlayerZoneType, CStateManager& mgr) const;
-  TUniqueId FindOrbitTargetId(CStateManager& mgr);
+  TUniqueId FindOrbitTargetId(CStateManager& mgr) const;
   void UpdateOrbitableObjects(CStateManager& mgr);
   TUniqueId FindBestOrbitableObject(const std::vector<TUniqueId>&, EPlayerZoneInfo, CStateManager& mgr) const;
   void FindOrbitableObjects(const rstl::reserved_vector<TUniqueId, 1024>&, std::vector<TUniqueId>&, EPlayerZoneInfo,

@@ -279,15 +279,15 @@ public:
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                              const CSkinnedModel* sModel);
 
-  const boo::ObjToken<boo::ITexture>& GetThermoPalette() { return x288_thermoPalette; }
-  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() { return x1b8_fogVolumeRamp; }
+  const boo::ObjToken<boo::ITexture>& GetThermoPalette() const { return x288_thermoPalette; }
+  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() const { return x1b8_fogVolumeRamp; }
   const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
 
-  const boo::ObjToken<boo::ITexture>& GetClearTexture() { return m_clearTexture; }
-  const boo::ObjToken<boo::ITexture>& GetBlackTexture() { return m_blackTexture; }
-  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() { return m_whiteTexture; }
+  const boo::ObjToken<boo::ITexture>& GetClearTexture() const { return m_clearTexture; }
+  const boo::ObjToken<boo::ITexture>& GetBlackTexture() const { return m_blackTexture; }
+  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() const { return m_whiteTexture; }
 
   boo::ObjToken<boo::ITexture> GetColorTexture(const zeus::CColor& color);
 

@@ -27,7 +27,7 @@ public:
     }
 
     TToken<CTexture> GetTexture() const;
-    zeus::CColor GetColor() { return x10_color; }
+    zeus::CColor GetColor() const { return x10_color; }
     float GetScale() const;
     float GetPosition() const;
   };

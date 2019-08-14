@@ -41,7 +41,7 @@ public:
     SaveReady = 16
   };
 
-  bool IsHiddenFromFrontEnd() {
+  bool IsHiddenFromFrontEnd() const {
     switch (x10_uiType) {
     case EUIType::SaveReady:
     case EUIType::Empty:

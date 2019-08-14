@@ -39,6 +39,7 @@ public:
   CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode);
 
   CSimplePool& GetResStore() { return x4_resStore; }
+  const CSimplePool& GetResStore() const { return x4_resStore; }
   EUsageMode GetUsageMode() const { return x8_mode; }
 
   void OnViewportResize();

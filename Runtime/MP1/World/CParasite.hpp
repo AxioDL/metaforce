@@ -82,7 +82,7 @@ class CParasite : public CWallWalker {
     };
     u16 _dummy = 0;
   };
-  bool CloseToWall(CStateManager& mgr);
+  bool CloseToWall(const CStateManager& mgr) const;
   void FaceTarget(const zeus::CVector3f& target);
   TUniqueId RecursiveFindClosestWayPoint(CStateManager& mgr, TUniqueId id, float& dist);
   TUniqueId GetClosestWaypointForState(EScriptObjectState state, CStateManager& mgr);

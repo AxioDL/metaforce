@@ -19,7 +19,7 @@ public:
   static zeus::CVector3f PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
                                              const CPlayer& player, bool gravity, float speed, float dt);
   zeus::CVector3f PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
-                                      const CPlayer& player, bool gravity, float dt);
+                                      const CPlayer& player, bool gravity, float dt) const;
 
   const CDamageInfo& GetDamage() const { return xc_damageInfo; }
   TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }

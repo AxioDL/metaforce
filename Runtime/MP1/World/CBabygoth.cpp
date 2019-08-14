@@ -1131,7 +1131,7 @@ void CBabygoth::UpdateHealthInfo(CStateManager& mgr) {
   }
 }
 
-float CBabygoth::CalculateShellCrackHP(EShellState state) {
+float CBabygoth::CalculateShellCrackHP(EShellState state) const {
   if (state == EShellState::Default)
     return x570_babyData.GetShellHitPoints();
   else if (state == EShellState::CrackOne)

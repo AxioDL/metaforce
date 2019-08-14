@@ -67,7 +67,7 @@ void CFirstPersonCamera::SkipCinematic() {
 }
 
 void CFirstPersonCamera::CalculateGunFollowOrientationAndTransform(zeus::CTransform& gunXf, zeus::CQuaternion& gunQ,
-                                                                   float dt, zeus::CVector3f& rVec) {
+                                                                   float dt, zeus::CVector3f& rVec) const {
   zeus::CVector3f gunFrontVec = x190_gunFollowXf.frontVector();
   gunFrontVec.z() = 0.f;
   if (gunFrontVec.canBeNormalized())

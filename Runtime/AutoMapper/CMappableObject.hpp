@@ -66,7 +66,7 @@ private:
   std::optional<DoorSurface> m_doorSurface;
   std::optional<CTexturedQuadFilter> m_texQuadFilter;
 
-  zeus::CTransform AdjustTransformForType();
+  zeus::CTransform AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 
 public:

@@ -718,9 +718,9 @@ void CFlaahgra::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
     x6cc_boneTracking->SetActive(false);
   }
 }
-bool CFlaahgra::IsSphereCollider(TUniqueId uid) {
 
-  auto it = std::find(x7fc_sphereColliders.begin(), x7fc_sphereColliders.end(), uid);
+bool CFlaahgra::IsSphereCollider(TUniqueId uid) const {
+  const auto it = std::find(x7fc_sphereColliders.cbegin(), x7fc_sphereColliders.cend(), uid);
   return it != x7fc_sphereColliders.end();
 }
 
@@ -800,7 +800,7 @@ void CFlaahgra::UpdateScale(float t, float min, float max) {
   ModelData()->SetScale(zeus::skOne3f * scale);
 }
 
-float CFlaahgra::GetEndActionTime() {
+float CFlaahgra::GetEndActionTime() const {
   CCharAnimTime eventTime =
       GetModelData()->GetAnimationData()->GetTimeOfUserEvent(EUserEventType::EndAction, CCharAnimTime::Infinity());
   if (eventTime == CCharAnimTime::Infinity())
@@ -829,7 +829,7 @@ void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float) {
     x7c0_ = 11.f;
   }
 }
-zeus::CVector3f CFlaahgra::GetAttacktargetPos(CStateManager& mgr) const {
+zeus::CVector3f CFlaahgra::GetAttacktargetPos(const CStateManager& mgr) const {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
     return mgr.GetPlayer().GetMorphBall()->GetBallToWorld().origin;
 
@@ -988,7 +988,7 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-u32 CFlaahgra::sub801ae828(CStateManager& mgr) {
+u32 CFlaahgra::sub801ae828(const CStateManager& mgr) const {
   const CPlayer& player = mgr.GetPlayer();
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
     if (x7cc_ > 0.f || player.GetVelocity().magSquared() < 25.f)
@@ -1000,7 +1000,7 @@ u32 CFlaahgra::sub801ae828(CStateManager& mgr) {
 
   return 0;
 }
-zeus::CVector3f CFlaahgra::sub801ae754(CStateManager& mgr) {
+zeus::CVector3f CFlaahgra::sub801ae754(const CStateManager& mgr) const {
   float dt = (sub801ae650() && mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed
                   ? 0.75f
                   : 0.5f);
@@ -1170,7 +1170,7 @@ bool CFlaahgra::CoverCheck(CStateManager& mgr, float) {
   return false;
 }
 
-TUniqueId CFlaahgra::GetMirrorNearestPlayer(CStateManager& mgr) {
+TUniqueId CFlaahgra::GetMirrorNearestPlayer(const CStateManager& mgr) const {
   zeus::CVector3f playerPos = mgr.GetPlayer().GetTranslation();
 
   TUniqueId nearId = kInvalidUniqueId;

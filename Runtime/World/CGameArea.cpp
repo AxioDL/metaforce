@@ -895,7 +895,7 @@ void CGameArea::LoadScriptObjects(CStateManager& mgr) {
   mgr.InitScriptObjects(objIds);
 }
 
-std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer) {
+std::pair<const u8*, u32> CGameArea::GetLayerScriptBuffer(int layer) const {
   if (!xf0_24_postConstructed)
     return {};
   return x12c_postConstructed->x110c_layerPtrs[layer];

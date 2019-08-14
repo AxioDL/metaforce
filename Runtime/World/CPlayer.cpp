@@ -915,7 +915,7 @@ void CPlayer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
-bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const {
+bool CPlayer::IsUnderBetaMetroidAttack(const CStateManager& mgr) const {
   if (x274_energyDrain.GetEnergyDrainIntensity() > 0.f) {
     for (const CEnergyDrainSource& source : x274_energyDrain.GetEnergyDrainSources())
       if (CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId())))
@@ -1000,7 +1000,7 @@ void CPlayer::UpdateScanningState(const CFinalInput& input, CStateManager& mgr, 
   }
 }
 
-bool CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr) {
+bool CPlayer::ValidateScanning(const CFinalInput& input, const CStateManager& mgr) const {
   if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::ScanItem, input)) {
     if (x304_orbitState == EPlayerOrbitState::OrbitObject) {
       if (TCastToPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId)) {
@@ -2660,7 +2660,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
   }
 }
 
-u16 CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16* table, u32 length, u16 defId) {
+u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* table, u32 length, u16 defId) const {
   u16 ret = defId;
   zeus::CAABox aabb = GetBoundingBox();
   aabb.accumulateBounds(x34_transform.origin + zeus::skDown);
@@ -3274,7 +3274,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
   SetAngularVelocityOR(newAngVel);
 }
 
-bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr) {
+bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, const CStateManager& mgr) const {
   CMaterialFilter solidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
   zeus::CAABox aabb(x2d8_fpBounds.min - 1.f + pos, x2d8_fpBounds.max + 1.f + pos);
   rstl::reserved_vector<TUniqueId, 1024> nearList;
@@ -3837,7 +3837,7 @@ static zeus::CAABox BuildNearListBox(bool cropBottom, const zeus::CTransform& xf
   return aabb.getTransformedAABox(xf);
 }
 
-TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) {
+TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) const {
   float dist = g_tweakPlayer->GetAimMaxDistance();
   if (x9c6_24_extendTargetDistance)
     dist *= 5.f;
@@ -3917,7 +3917,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
   return bestId;
 }
 
-TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) {
+TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) const {
   return FindBestOrbitableObject(x354_onScreenOrbitObjects, x330_orbitZoneMode, mgr);
 }
 

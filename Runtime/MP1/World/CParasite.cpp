@@ -785,13 +785,13 @@ bool CParasite::ShouldAttack(CStateManager& mgr, float arg) {
   return false;
 }
 
-bool CParasite::CloseToWall(CStateManager& mgr) {
+bool CParasite::CloseToWall(const CStateManager& mgr) const {
   static CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
   zeus::CAABox aabb = CPhysicsActor::GetBoundingBox();
-  float margin = x590_colSphere.GetSphere().radius + x5b0_collisionCloseMargin;
+  const float margin = x590_colSphere.GetSphere().radius + x5b0_collisionCloseMargin;
   aabb.min -= zeus::CVector3f(margin);
   aabb.max += zeus::CVector3f(margin);
-  CCollidableAABox cAABB(aabb, x68_material);
+  const CCollidableAABox cAABB(aabb, x68_material);
   return CGameCollision::DetectStaticCollisionBoolean(mgr, cAABB, {}, filter);
 }
 

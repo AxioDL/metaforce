@@ -154,7 +154,7 @@ void CModelData::SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin) {
   }
 }
 
-bool CModelData::IsDefinitelyOpaque(EWhichModel which) {
+bool CModelData::IsDefinitelyOpaque(EWhichModel which) const {
   if (x10_animData) {
     CSkinnedModel& model = PickAnimatedModel(which);
     return model.GetModelInst()->IsOpaque();

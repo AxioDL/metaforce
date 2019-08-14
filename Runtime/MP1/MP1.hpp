@@ -172,7 +172,7 @@ public:
   void Update();
   void Draw();
 
-  bool isRectDirty() { return m_rectIsDirty; }
+  bool isRectDirty() const { return m_rectIsDirty; }
   const boo::SWindowRect& getWindowRect() {
     m_rectIsDirty = false;
     return m_windowRect;
@@ -278,8 +278,8 @@ public:
 
   void MemoryCardInitializePump();
 
-  bool CheckReset() { return m_doQuit; }
-  bool CheckTerminate() { return m_doQuit; }
+  bool CheckReset() const { return m_doQuit; }
+  bool CheckTerminate() const { return m_doQuit; }
   void DrawDebugMetrics(double, CStopwatch&) {}
   void DoPredrawMetrics() {}
   void FillInAssetIDs();

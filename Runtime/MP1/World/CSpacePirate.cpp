@@ -516,7 +516,7 @@ void CSpacePirate::SquadRemove(CStateManager& mgr) {
   }
 }
 
-bool CSpacePirate::CheckTargetable(CStateManager& mgr) { return GetModelAlphau8(mgr) > 127; }
+bool CSpacePirate::CheckTargetable(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 127; }
 
 bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
   bool ret = false;
@@ -619,7 +619,7 @@ void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
   xe7_31_targetable = CheckTargetable(mgr);
 }
 
-zeus::CVector3f CSpacePirate::GetTargetPos(CStateManager& mgr) {
+zeus::CVector3f CSpacePirate::GetTargetPos(const CStateManager& mgr) {
   if (x7c0_targetId != mgr.GetPlayer().GetUniqueId()) {
     if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x7c0_targetId))
       if (act->GetActive())
@@ -630,7 +630,7 @@ zeus::CVector3f CSpacePirate::GetTargetPos(CStateManager& mgr) {
   return mgr.GetPlayer().GetTranslation();
 }
 
-void CSpacePirate::UpdateAimBodyState(float dt, CStateManager& mgr) {
+void CSpacePirate::UpdateAimBodyState(float dt, const CStateManager& mgr) {
   if (x400_25_alive && x637_25_enableAim && !x637_29_inWallHang && !x450_bodyController->IsFrozen() && !x634_27_melee &&
       !x85c_ragDoll && (!x635_26_seated || x639_28_satUp) && x31c_faceVec.z() <= 0.f) {
     x8c4_aimDelayTimer = std::max(0.f, x8c4_aimDelayTimer - dt);
@@ -1239,8 +1239,8 @@ void CSpacePirate::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CSpacePirate::LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
-                                   const CMaterialList& excludeList) const {
+bool CSpacePirate::LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos,
+                                   const zeus::CVector3f& targetPos, const CMaterialList& excludeList) const {
   return mgr.RayCollideWorld(eyePos, targetPos,
                              CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, excludeList), this);
 }
@@ -1555,14 +1555,14 @@ void CSpacePirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CSpacePirate::CantJumpBack(CStateManager& mgr, const zeus::CVector3f& dir, float dist) const {
-  zeus::CVector3f center = GetBoundingBox().center();
+bool CSpacePirate::CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const {
+  const zeus::CVector3f center = GetBoundingBox().center();
   if (!LineOfSightTest(mgr, center, center + dist * dir, {}))
     return false;
-  zeus::CVector3f center2 = (dist * 0.5f) * dir + center;
+  const zeus::CVector3f center2 = (dist * 0.5f) * dir + center;
   if (LineOfSightTest(mgr, center2, center2 + 5.f * zeus::skDown, {}))
     return false;
-  zeus::CVector3f center3 = dist * dir + center;
+  const zeus::CVector3f center3 = dist * dir + center;
   if (LineOfSightTest(mgr, center3, center3 + 5.f * zeus::skDown, {}))
     return false;
   return true;

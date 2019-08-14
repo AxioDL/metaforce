@@ -20,7 +20,7 @@ class COrbitPointMarker {
 
 public:
   COrbitPointMarker();
-  bool CheckLoadComplete();
+  bool CheckLoadComplete() const;
   void Update(float dt, const CStateManager& mgr);
   void Draw(const CStateManager& mgr) const;
 };

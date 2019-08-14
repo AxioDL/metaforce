@@ -53,7 +53,7 @@ public:
   void Push(CPFRegion* reg);
   CPFRegion* Pop();
   void Pop(CPFRegion* reg);
-  bool Test(CPFRegion* reg);
+  bool Test(const CPFRegion* reg) const;
 };
 
 class CPFArea {

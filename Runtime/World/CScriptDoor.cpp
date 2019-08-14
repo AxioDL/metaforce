@@ -223,7 +223,7 @@ void CScriptDoor::ForceClosed(CStateManager& mgr) {
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007E1C4 */
-bool CScriptDoor::IsConnectedToArea(const CStateManager& mgr, TAreaId areaId) {
+bool CScriptDoor::IsConnectedToArea(const CStateManager& mgr, TAreaId areaId) const {
   const CScriptDock* dockEnt = TCastToConstPtr<CScriptDock>(mgr.GetObjectById(x282_dockId));
   if (dockEnt) {
     if (dockEnt->GetAreaId() == areaId)
@@ -286,7 +286,7 @@ void CScriptDoor::OpenDoor(TUniqueId uid, CStateManager& mgr) {
 }
 
 /* ORIGINAL 0-00 OFFSET: 8007ED4C */
-CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) {
+CScriptDoor::EDoorOpenCondition CScriptDoor::GetDoorOpenCondition(CStateManager& mgr) const {
   const TCastToPtr<CScriptDock> dock = mgr.ObjectById(x282_dockId);
   if (!dock)
     return EDoorOpenCondition::Ready;

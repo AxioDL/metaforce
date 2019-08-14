@@ -26,7 +26,7 @@ class CABSAim : public CAdditiveBodyState {
   float x2c_hWeightVel = 0.f;
   float x30_vWeight = 0.f;
   float x34_vWeightVel = 0.f;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -37,7 +37,7 @@ public:
 class CABSFlinch : public CAdditiveBodyState {
   float x4_weight = 1.f;
   u32 x8_anim = 0;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override;
@@ -46,7 +46,7 @@ public:
 };
 
 class CABSIdle : public CAdditiveBodyState {
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
 
 public:
   void Start(CBodyController& bc, CStateManager& mgr) override {}
@@ -59,7 +59,7 @@ class CABSReaction : public CAdditiveBodyState {
   s32 x8_anim = -1;
   pas::EAdditiveReactionType xc_type = pas::EAdditiveReactionType::Invalid;
   bool x10_active = false;
-  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc);
+  pas::EAnimationState GetBodyStateTransition(float dt, CBodyController& bc) const;
   void StopAnimation(CBodyController& bc);
 
 public:

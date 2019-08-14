@@ -116,7 +116,7 @@ public:
 
   bool HasMaterial(EMaterialTypes type) const { return (x0_list & (1ull << u64(type))) != 0; }
 
-  bool SharesMaterials(const CMaterialList& other) {
+  bool SharesMaterials(const CMaterialList& other) const {
     for (u32 i = 0; i < 64; i++) {
       if ((x0_list & (1ull << i)) != 0 && (other.x0_list & (1ull << i)) != 0)
         return true;

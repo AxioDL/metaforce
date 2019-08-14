@@ -90,8 +90,8 @@ public:
   CGameState();
   CGameState(CBitStreamReader& stream, u32 saveIdx);
   void SetCurrentWorldId(CAssetId id);
-  std::shared_ptr<CPlayerState> GetPlayerState() { return x98_playerState; }
-  std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() { return x9c_transManager; }
+  std::shared_ptr<CPlayerState> GetPlayerState() const { return x98_playerState; }
+  std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() const { return x9c_transManager; }
   void SetTotalPlayTime(float time);
   CPersistentOptions& SystemOptions() { return xa8_systemOptions; }
   CGameOptions& GameOptions() { return x17c_gameOptions; }

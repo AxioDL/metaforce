@@ -165,13 +165,13 @@ void CPlayerCameraBob::Update(float dt, CStateManager& mgr) {
                            zeus::lookAt(zeus::skZero3f, {0.f, 2.f, x78_camTranslation}, zeus::skUp);
 }
 
-zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) {
+zeus::CVector3f CPlayerCameraBob::CalculateRandomViewWanderPosition(CStateManager& mgr) const {
   const float angle = (2.f * (M_PIF * mgr.GetActiveRandom()->Float()));
   const float bias = kViewWanderRadius * mgr.GetActiveRandom()->Float();
   return {(bias * std::sin(angle)), 1.f, (bias * std::cos(angle))};
 }
 
-float CPlayerCameraBob::CalculateRandomViewWanderPitch(CStateManager& mgr) {
+float CPlayerCameraBob::CalculateRandomViewWanderPitch(CStateManager& mgr) const {
   return zeus::degToRad((2.f * (mgr.GetActiveRandom()->Float() - 0.5f)) * kViewWanderRollVariation);
 }
 

@@ -111,7 +111,7 @@ public:
   bool IsTransitionEnabled() const { return x30_type != ETransType::Disabled; }
   void DisableTransition();
   void TouchModels();
-  ETransType GetTransType() { return x30_type; }
+  ETransType GetTransType() const { return x30_type; }
   void SetSfx(u16 sfx, u8 volume, u8 panning) {
     x24_sfx = sfx;
     x2c_volume = volume;

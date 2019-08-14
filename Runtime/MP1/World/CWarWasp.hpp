@@ -47,26 +47,26 @@ class CWarWasp : public CPatterned {
   void SwarmRemove(CStateManager& mgr);
   void ApplyDamage(CStateManager& mgr);
   void SetUpCircleBurstWaypoint(CStateManager& mgr);
-  zeus::CVector3f GetProjectileAimPos(CStateManager& mgr, float zBias);
+  zeus::CVector3f GetProjectileAimPos(const CStateManager& mgr, float zBias) const;
   zeus::CVector3f GetCloseInPos(const CStateManager& mgr, const zeus::CVector3f& aimPos) const;
   float GetCloseInZBasis(const CStateManager& mgr) const;
   void SetUpPathFindBehavior(CStateManager& mgr);
-  s32 GetAttackTeamSize(CStateManager& mgr, s32 team);
-  float CalcTimeToNextAttack(CStateManager& mgr);
-  float CalcOffTotemAngle(CStateManager& mgr);
+  s32 GetAttackTeamSize(const CStateManager& mgr, s32 team) const;
+  float CalcTimeToNextAttack(CStateManager& mgr) const;
+  float CalcOffTotemAngle(CStateManager& mgr) const;
   void JoinCircleAttackTeam(s32 unit, CStateManager& mgr);
   void SetUpCircleTelegraphTeam(CStateManager& mgr);
-  TUniqueId GetAttackTeamLeader(CStateManager& mgr, s32 team);
+  TUniqueId GetAttackTeamLeader(const CStateManager& mgr, s32 team) const;
   void TryCircleTeamMerge(CStateManager& mgr);
-  float GetTeamZStratum(s32 team);
-  float CalcSeekMagnitude(CStateManager& mgr);
+  float GetTeamZStratum(s32 team) const;
+  float CalcSeekMagnitude(const CStateManager& mgr) const;
   void UpdateTelegraphMoveSpeed(CStateManager& mgr);
-  bool CheckCircleAttackSpread(CStateManager& mgr, s32 team);
+  bool CheckCircleAttackSpread(const CStateManager& mgr, s32 team) const;
   void ApplyNormalSteering(CStateManager& mgr);
   void ApplySeparationBehavior(CStateManager& mgr, float sep);
-  bool PathToHiveIsClear(CStateManager& mgr);
+  bool PathToHiveIsClear(CStateManager& mgr) const;
   bool SteerToDeactivatePos(CStateManager& mgr, EStateMsg msg, float dt);
-  zeus::CVector3f CalcShuffleDest(CStateManager& mgr);
+  zeus::CVector3f CalcShuffleDest(const CStateManager& mgr) const;
 
 public:
   DEFINE_PATTERNED(WarWasp)

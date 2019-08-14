@@ -116,8 +116,13 @@ public:
   void SkipCinematic(CStateManager& stateMgr);
 
   CFirstPersonCamera* GetFirstPersonCamera() { return x7c_fpCamera; }
+  const CFirstPersonCamera* GetFirstPersonCamera() const { return x7c_fpCamera; }
+
   CBallCamera* GetBallCamera() { return x80_ballCamera; }
+  const CBallCamera* GetBallCamera() const { return x80_ballCamera; }
+
   CGameArea::CAreaFog& Fog() { return x3c_fog; }
+  const CGameArea::CAreaFog& Fog() const { return x3c_fog; }
 
   float GetCameraBobMagnitude() const;
 
@@ -127,7 +132,7 @@ public:
   void UpdateRumble(float dt, CStateManager& mgr);
   void UpdateListener(CStateManager& mgr);
 
-  float CalculateFogDensity(CStateManager&, const CScriptWater*);
+  float CalculateFogDensity(CStateManager&, const CScriptWater*) const;
   void SetFogDensity(float, float);
 
   void ProcessInput(const CFinalInput& input, CStateManager& stateMgr);

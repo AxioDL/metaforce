@@ -56,10 +56,10 @@ private:
   float x10_averageVelocity;
   zeus::CVector3f x14_rootOffset;
 
-  u8* ReadBoneChannelDescriptors(u8* out, CInputStream& in);
-  u32 ComputeBitstreamWords(const u8* chans);
-  std::unique_ptr<u32[]> GetRotationsAndOffsets(u32 words, CInputStream& in);
-  float CalculateAverageVelocity(const u8* chans);
+  u8* ReadBoneChannelDescriptors(u8* out, CInputStream& in) const;
+  u32 ComputeBitstreamWords(const u8* chans) const;
+  std::unique_ptr<u32[]> GetRotationsAndOffsets(u32 words, CInputStream& in) const;
+  float CalculateAverageVelocity(const u8* chans) const;
 
 public:
   CFBStreamedCompression(CInputStream& in, IObjectStore& objStore, bool pc);

@@ -133,6 +133,7 @@ public:
   void EnterComboFire(s32 gunId, CStateManager& mgr);
   void ReturnToDefault(CStateManager& mgr, float dt, bool setState);
   CGunController* GunController() { return x328_gunController.get(); }
+  const CGunController* GunController() const { return x328_gunController.get(); }
 };
 
 } // namespace urde

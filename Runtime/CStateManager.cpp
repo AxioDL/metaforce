@@ -374,7 +374,7 @@ TAreaId CStateManager::GetVisAreaId() const {
   return curArea;
 }
 
-s32 CStateManager::GetWeaponIdCount(TUniqueId uid, EWeaponType type) {
+s32 CStateManager::GetWeaponIdCount(TUniqueId uid, EWeaponType type) const {
   return x878_weaponManager->GetNumActive(uid, type);
 }
 

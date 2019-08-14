@@ -225,11 +225,11 @@ private:
   void SquadReset(CStateManager& mgr);
   void SquadAdd(CStateManager& mgr);
   void SquadRemove(CStateManager& mgr);
-  bool CheckTargetable(CStateManager& mgr);
+  bool CheckTargetable(const CStateManager& mgr) const;
   bool FireProjectile(float dt, CStateManager& mgr);
   void UpdateAttacks(float dt, CStateManager& mgr);
-  zeus::CVector3f GetTargetPos(CStateManager& mgr);
-  void UpdateAimBodyState(float dt, CStateManager& mgr);
+  zeus::CVector3f GetTargetPos(const CStateManager& mgr);
+  void UpdateAimBodyState(float dt, const CStateManager& mgr);
   void SetCinematicCollision(CStateManager& mgr);
   void SetNonCinematicCollision(CStateManager& mgr);
   void CheckForProjectiles(CStateManager& mgr);
@@ -237,11 +237,11 @@ private:
   void SetVelocityForJump();
   void AvoidActors(CStateManager& mgr);
   void UpdateCantSeePlayer(CStateManager& mgr);
-  bool LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
+  bool LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
                        const CMaterialList& excludeList) const;
   void UpdateHeldPosition(CStateManager& mgr, float dt);
   void CheckBlade(CStateManager& mgr);
-  bool CantJumpBack(CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
+  bool CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const;
   void UpdateLeashTimer(float dt);
   pas::EStepDirection GetStrafeDir(CStateManager& mgr, float dist) const;
 

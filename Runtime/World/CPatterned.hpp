@@ -372,7 +372,7 @@ public:
   void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
   void UpdateAlphaDelta(float dt, CStateManager& mgr);
   void SetModelAlpha(float a) { x42c_color.a() = a; }
-  float CalcDyingThinkRate();
+  float CalcDyingThinkRate() const;
   void UpdateDamageColor(float dt);
   CScriptCoverPoint* GetCoverPoint(CStateManager& mgr, TUniqueId id) const;
   void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);
