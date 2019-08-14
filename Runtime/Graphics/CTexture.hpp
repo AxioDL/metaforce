@@ -33,8 +33,8 @@ private:
   EFontType m_ftype = EFontType::None;
   std::string m_dolphinName;
 
-  size_t ComputeMippedTexelCount();
-  size_t ComputeMippedBlockCountDXT1();
+  size_t ComputeMippedTexelCount() const;
+  size_t ComputeMippedBlockCountDXT1() const;
   void BuildI4FromGCN(CInputStream& in);
   void BuildI8FromGCN(CInputStream& in);
   void BuildIA4FromGCN(CInputStream& in);

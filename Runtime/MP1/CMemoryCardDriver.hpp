@@ -78,7 +78,7 @@ private:
     kabufuda::ECardResult StartRead();
     kabufuda::ECardResult TryFileRead();
     kabufuda::ECardResult FileRead();
-    kabufuda::ECardResult GetSaveDataOffset(u32& offOut);
+    kabufuda::ECardResult GetSaveDataOffset(u32& offOut) const;
   };
 
   struct SSaveHeader {
@@ -126,7 +126,7 @@ public:
                     bool importPersistent);
 
   void NoCardFound();
-  const CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx);
+  const CGameState::GameFileStateInfo* GetGameFileStateInfo(int idx) const;
   static SSaveHeader LoadSaveHeader(CMemoryInStream& in);
   static std::unique_ptr<SGameFileSlot> LoadSaveFile(CMemoryInStream& in);
   void ReadFinished();

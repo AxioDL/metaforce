@@ -32,7 +32,7 @@ class CPuddleToadGamma final : public CPatterned {
   static void CenterPlayer(CStateManager&, const zeus::CVector3f&, float);
   void ShootPlayer(CStateManager&, float);
   void SuckPlayer(CStateManager&, float);
-  bool PlayerInVortexArea(const CStateManager&);
+  bool PlayerInVortexArea(const CStateManager&) const;
   void SetPlayerPosition(CStateManager&, const zeus::CVector3f&);
 
 public:

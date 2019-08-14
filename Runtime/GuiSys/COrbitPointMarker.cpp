@@ -14,7 +14,7 @@ COrbitPointMarker::COrbitPointMarker() {
   x28_orbitPointModel = g_SimplePool->GetObj("CMDL_OrbitPoint");
 }
 
-bool COrbitPointMarker::CheckLoadComplete() { return x28_orbitPointModel.IsLoaded(); }
+bool COrbitPointMarker::CheckLoadComplete() const { return x28_orbitPointModel.IsLoaded(); }
 
 void COrbitPointMarker::Update(float dt, const CStateManager& mgr) {
   x24_curTime += dt;

@@ -811,7 +811,7 @@ void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mg
 }
 
 void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName,
-                                  bool shake, bool dyn) {
+                                  bool shake, bool dyn) const {
   if (dyn)
     xfOut = mData.GetScaledLocatorTransformDynamic(lctrName, nullptr);
   else

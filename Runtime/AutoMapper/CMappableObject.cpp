@@ -19,7 +19,7 @@ CMappableObject::CMappableObject(const void* buf) {
   x10_transform.read34RowMajor(r);
 }
 
-zeus::CTransform CMappableObject::AdjustTransformForType() {
+zeus::CTransform CMappableObject::AdjustTransformForType() const {
   const float doorCenterX = g_tweakAutoMapper->GetDoorCenter().x();
   const float doorCenterZ = g_tweakAutoMapper->GetDoorCenter().z();
   if (x0_type == EMappableObjectType::BigDoor1) {

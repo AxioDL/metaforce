@@ -31,7 +31,7 @@ void CABSAim::Start(CBodyController& bc, CStateManager& mgr) {
     x4_needsIdle = true;
 }
 
-pas::EAnimationState CABSAim::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CABSAim::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveReaction))
     return pas::EAnimationState::AdditiveReaction;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveFlinch))
@@ -42,7 +42,7 @@ pas::EAnimationState CABSAim::GetBodyStateTransition(float dt, CBodyController& 
 }
 
 pas::EAnimationState CABSAim::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  pas::EAnimationState st = GetBodyStateTransition(dt, bc);
+  const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::EAnimationState::Invalid) {
     const zeus::CVector3f& target = bc.GetCommandMgr().GetAdditiveTargetVector();
     if (target.canBeNormalized()) {
@@ -106,14 +106,14 @@ void CABSFlinch::Start(CBodyController& bc, CStateManager& mgr) {
   animData.AddAdditiveAnimation(x8_anim, x4_weight, false, true);
 }
 
-pas::EAnimationState CABSFlinch::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CABSFlinch::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveReaction))
     return pas::EAnimationState::AdditiveReaction;
   return pas::EAnimationState::Invalid;
 }
 
 pas::EAnimationState CABSFlinch::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  pas::EAnimationState st = GetBodyStateTransition(dt, bc);
+  const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::EAnimationState::Invalid) {
     CAnimData& animData = *bc.GetOwner().ModelData()->AnimationData();
     CCharAnimTime rem = animData.GetAdditiveAnimationTree(x8_anim)->VGetTimeRemaining();
@@ -123,7 +123,7 @@ pas::EAnimationState CABSFlinch::UpdateBody(float dt, CBodyController& bc, CStat
   return st;
 }
 
-pas::EAnimationState CABSIdle::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CABSIdle::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveReaction))
     return pas::EAnimationState::AdditiveReaction;
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveFlinch))
@@ -154,14 +154,14 @@ void CABSReaction::Start(CBodyController& bc, CStateManager& mgr) {
   }
 }
 
-pas::EAnimationState CABSReaction::GetBodyStateTransition(float dt, CBodyController& bc) {
+pas::EAnimationState CABSReaction::GetBodyStateTransition(float dt, CBodyController& bc) const {
   if (bc.GetCommandMgr().GetCmd(EBodyStateCmd::AdditiveReaction) && xc_type == pas::EAdditiveReactionType::IceBreakout)
     return pas::EAnimationState::AdditiveReaction;
   return pas::EAnimationState::Invalid;
 }
 
 pas::EAnimationState CABSReaction::UpdateBody(float dt, CBodyController& bc, CStateManager& mgr) {
-  pas::EAnimationState st = GetBodyStateTransition(dt, bc);
+  const pas::EAnimationState st = GetBodyStateTransition(dt, bc);
   if (st == pas::EAnimationState::Invalid) {
     if (x8_anim == -1)
       return pas::EAnimationState::AdditiveIdle;

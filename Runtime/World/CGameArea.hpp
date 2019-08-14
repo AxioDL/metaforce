@@ -315,7 +315,7 @@ public:
   void StartStreamIn(CStateManager& mgr);
   void Validate(CStateManager& mgr);
   void LoadScriptObjects(CStateManager& mgr);
-  std::pair<const u8*, u32> GetLayerScriptBuffer(int layer);
+  std::pair<const u8*, u32> GetLayerScriptBuffer(int layer) const;
   void PostConstructArea();
   void FillInStaticGeometry(bool textures = true);
   void VerifyTokenList(CStateManager& stateMgr);

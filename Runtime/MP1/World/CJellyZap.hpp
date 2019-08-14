@@ -28,7 +28,7 @@ class CJellyZap : public CPatterned {
   void AddAttractor(CStateManager&);
   void RemoveSelfFromFishCloud(CStateManager&);
   void RemoveAllAttractors(CStateManager&);
-  bool ClosestToPlayer(CStateManager&);
+  bool ClosestToPlayer(const CStateManager&) const;
 
 public:
   DEFINE_PATTERNED(JellyZap)

@@ -63,7 +63,8 @@ zeus::CVector3f CGameCamera::ConvertToScreenSpace(const zeus::CVector3f& v) cons
   return mtx.multiplyOneOverW(rVec);
 }
 
-zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& newXf, const zeus::CTransform& oldXf) {
+zeus::CTransform CGameCamera::ValidateCameraTransform(const zeus::CTransform& newXf,
+                                                      const zeus::CTransform& oldXf) const {
   zeus::CTransform xfCpy(newXf);
   if (!zeus::close_enough(newXf.rightVector().magnitude(), 1.f) ||
       !zeus::close_enough(newXf.frontVector().magnitude(), 1.f) ||

@@ -353,7 +353,7 @@ zeus::CAABox CScriptEffect::GetSortingBounds(const CStateManager& mgr) const {
     return static_cast<const CScriptTrigger*>(mgr.GetObjectById(x13c_triggerId))->GetTriggerBoundsWR();
 }
 
-bool CScriptEffect::AreBothSystemsDeleteable() {
+bool CScriptEffect::AreBothSystemsDeleteable() const {
   bool ret = true;
   if (x104_particleSystem && !x104_particleSystem->IsSystemDeletable())
     ret = false;

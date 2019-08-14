@@ -50,7 +50,7 @@ public:
   const CDamageInfo& GetFireBreathDamage() const { return x4c_fireBreathDamage; }
   const CDamageVulnerability& GetShellDamageVulnerability() const { return xd0_shellVulnerabilities; }
   float GetShellHitPoints() const { return x140_shellHitPoints; }
-  s16 GetShellCrackSfx() { return x144_shellCrackSfx; }
+  s16 GetShellCrackSfx() const { return x144_shellCrackSfx; }
 };
 
 class CBabygoth final : public CPatterned {
@@ -130,9 +130,9 @@ private:
 
   void ApplySeparationBehavior(CStateManager&);
 
-  bool IsMouthCollisionActor(TUniqueId uid) { return x9f6_mouthCollisionActor == uid; }
+  bool IsMouthCollisionActor(TUniqueId uid) const { return x9f6_mouthCollisionActor == uid; }
 
-  bool IsShell(TUniqueId uid) {
+  bool IsShell(TUniqueId uid) const {
     for (TUniqueId shellId : x9f8_shellIds) {
       if (shellId == uid)
         return true;
@@ -172,7 +172,7 @@ private:
 
   void UpdateHealth(CStateManager&);
 
-  float CalculateShellCrackHP(EShellState state);
+  float CalculateShellCrackHP(EShellState state) const;
 
   void UpdateAttackTimeLeft(CStateManager& mgr);
 

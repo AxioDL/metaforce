@@ -65,9 +65,9 @@ public:
   const CPFNode* GetNode(u32 i) const { return x4_startNode + i; }
   float PointHeight(const zeus::CVector3f& point) const;
   bool FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>&, const zeus::CVector3f&, const zeus::CVector3f&,
-                                 bool);
+                                 bool) const;
   bool FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point, u32 flags,
-                     float paddingSq);
+                     float paddingSq) const;
   void SetLinkTo(s32 idx);
   void DropToGround(zeus::CVector3f& point) const;
   zeus::CVector3f GetLinkMidPoint(const CPFLink& link) const;

@@ -49,9 +49,9 @@ public:
   void AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const override;
   void Render(const CStateManager&) const override {}
   void ForceClosed(CStateManager&);
-  bool IsConnectedToArea(const CStateManager& mgr, TAreaId area);
+  bool IsConnectedToArea(const CStateManager& mgr, TAreaId area) const;
   void OpenDoor(TUniqueId, CStateManager&);
-  EDoorOpenCondition GetDoorOpenCondition(CStateManager& mgr);
+  EDoorOpenCondition GetDoorOpenCondition(CStateManager& mgr) const;
   void SetDoorAnimation(EDoorAnimType);
   std::optional<zeus::CAABox> GetTouchBounds() const override;
   std::optional<zeus::CAABox> GetProjectileBounds() const;

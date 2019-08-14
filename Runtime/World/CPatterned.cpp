@@ -1165,7 +1165,7 @@ void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr) {
   x64_modelData->AnimationData()->GetParticleDB().SetModulationColorAllActiveEffects(zeus::CColor(1.f, alpha));
 }
 
-float CPatterned::CalcDyingThinkRate() {
+float CPatterned::CalcDyingThinkRate() const {
   float f0 = (x401_28_burning ? (x3f4_burnThinkRateTimer / 1.5f) : 1.f);
   return zeus::max(0.1f, f0);
 }

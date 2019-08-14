@@ -972,7 +972,7 @@ float CAutoMapper::GetDesiredMiniMapCameraDistance(const CStateManager& mgr) con
          std::tan(M_PIF / 2.f - 0.5f * 2.f * M_PIF * (xa8_renderStates[0].x1c_camAngle / 360.f));
 }
 
-float CAutoMapper::GetClampedMapScreenCameraDistance(float v) {
+float CAutoMapper::GetClampedMapScreenCameraDistance(float v) const {
   if (x1bc_state == EAutoMapperState::MapScreenUniverse)
     return zeus::clamp(g_tweakAutoMapper->GetMinUniverseCamDist(), v, g_tweakAutoMapper->GetMaxUniverseCamDist());
   return zeus::clamp(g_tweakAutoMapper->GetMinCamDist(), v, g_tweakAutoMapper->GetMaxCamDist());

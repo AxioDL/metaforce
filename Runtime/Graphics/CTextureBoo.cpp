@@ -27,7 +27,7 @@ constexpr uint8_t Convert6To8(uint8_t v) {
   return (v << 2) | (v >> 4);
 }
 
-size_t CTexture::ComputeMippedTexelCount() {
+size_t CTexture::ComputeMippedTexelCount() const {
   size_t w = x4_w;
   size_t h = x6_h;
   size_t ret = w * h;
@@ -41,7 +41,7 @@ size_t CTexture::ComputeMippedTexelCount() {
   return ret;
 }
 
-size_t CTexture::ComputeMippedBlockCountDXT1() {
+size_t CTexture::ComputeMippedBlockCountDXT1() const {
   size_t w = x4_w / 4;
   size_t h = x6_h / 4;
   size_t ret = w * h;

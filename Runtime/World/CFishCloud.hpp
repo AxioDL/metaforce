@@ -100,7 +100,7 @@ class CFishCloud : public CActor {
   void BuildBoidNearList(const zeus::CVector3f& pos, float radius, rstl::reserved_vector<CBoid*, 25>& nearList);
   void BuildBoidNearPartitionList(const zeus::CVector3f& pos, float radius,
                                   rstl::reserved_vector<CBoid*, 25>& nearList);
-  void PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb);
+  void PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb) const;
   void ApplySeparation(CBoid& boid, const rstl::reserved_vector<CBoid*, 25>& nearList) const;
   void ApplySeparation(CBoid& boid, const zeus::CVector3f& separateFrom,
                        float separationRadius, float separationMagnitude) const;

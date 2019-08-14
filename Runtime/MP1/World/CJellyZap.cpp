@@ -164,16 +164,16 @@ void CJellyZap::RemoveSelfFromFishCloud(CStateManager&) {}
 
 void CJellyZap::RemoveAllAttractors(CStateManager& mgr) { RemoveSelfFromFishCloud(mgr); }
 
-bool CJellyZap::ClosestToPlayer(CStateManager& mgr) {
-  zeus::CVector3f playerPos = mgr.GetPlayer().GetTranslation();
-  float ourDistance = (playerPos - GetTranslation()).magnitude();
+bool CJellyZap::ClosestToPlayer(const CStateManager& mgr) const {
+  const zeus::CVector3f playerPos = mgr.GetPlayer().GetTranslation();
+  const float ourDistance = (playerPos - GetTranslation()).magnitude();
   float closestDistance = ourDistance;
   for (CEntity* ent : mgr.GetPhysicsActorObjectList()) {
     if (CJellyZap* zap = CPatterned::CastTo<CJellyZap>(ent)) {
       if (zap->GetAreaIdAlways() != GetAreaIdAlways())
         continue;
 
-      float tmpDist = (playerPos - zap->GetTranslation()).magnitude();
+      const float tmpDist = (playerPos - zap->GetTranslation()).magnitude();
       if (tmpDist < closestDistance)
         closestDistance = tmpDist;
 

@@ -533,7 +533,7 @@ void CCameraManager::UpdateListener(CStateManager& mgr) {
   CSfxManager::UpdateListener(xf.origin, zeus::skZero3f, xf.frontVector(), xf.upVector(), 1.f);
 }
 
-float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water) {
+float CCameraManager::CalculateFogDensity(CStateManager& mgr, const CScriptWater* water) const {
   float distanceFactor = 1.f - water->GetFluidPlane().GetAlpha();
   float distance = 0;
   if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::GravitySuit))

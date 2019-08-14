@@ -28,7 +28,7 @@ public:
   const zeus::CTransform& GetGunFollowTransform() const { return x190_gunFollowXf; }
   void UpdateTransform(CStateManager& mgr, float dt);
   void UpdateElevation(CStateManager& mgr);
-  void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&);
+  void CalculateGunFollowOrientationAndTransform(zeus::CTransform&, zeus::CQuaternion&, float, zeus::CVector3f&) const;
   void SetScriptPitchId(TUniqueId uid) { x1c4_pitchId = uid; }
   void SetLockCamera(bool v) { x18c_lockCamera = v; }
   void DeferBallTransitionProcessing() { x1c6_24_deferBallTransitionProcessing = true; }

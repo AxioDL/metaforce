@@ -218,7 +218,7 @@ void CPhysicsActor::ComputeDerivedQuantities() {
   x144_angularVelocity = xf4_inertiaTensorRecip * x108_angularMomentum;
 }
 
-bool CPhysicsActor::WillMove(const CStateManager&) {
+bool CPhysicsActor::WillMove(const CStateManager&) const {
   return !zeus::close_enough(zeus::skZero3f, x138_velocity) ||
          !zeus::close_enough(zeus::skZero3f, x168_impulse) ||
          !zeus::close_enough(zeus::skZero3f, x174_torque) ||

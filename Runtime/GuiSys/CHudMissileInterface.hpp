@@ -55,7 +55,7 @@ public:
   void SetChargeBeamFactor(float t);
   void SetNumMissiles(int numMissiles, const CStateManager& mgr);
   void SetMissileCapacity(int missileCapacity);
-  EInventoryStatus GetMissileInventoryStatus();
+  EInventoryStatus GetMissileInventoryStatus() const;
   static std::pair<zeus::CVector3f, zeus::CVector3f> CombatMissileBarCoordFunc(float t);
   static std::pair<zeus::CVector3f, zeus::CVector3f> XRayMissileBarCoordFunc(float t);
   static std::pair<zeus::CVector3f, zeus::CVector3f> ThermalMissileBarCoordFunc(float t);

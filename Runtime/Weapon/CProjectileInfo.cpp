@@ -62,7 +62,7 @@ float CProjectileInfo::GetProjectileSpeed() const {
 }
 
 zeus::CVector3f CProjectileInfo::PredictInterceptPos(const zeus::CVector3f& gunPos, const zeus::CVector3f& aimPos,
-                                                     const CPlayer& player, bool gravity, float dt) {
+                                                     const CPlayer& player, bool gravity, float dt) const {
   return PredictInterceptPos(gunPos, aimPos, player, gravity, GetProjectileSpeed(), dt);
 }
 

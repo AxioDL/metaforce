@@ -87,8 +87,8 @@ public:
   void InitViewWander(CStateManager&);
   void UpdateViewWander(float, CStateManager&);
   void Update(float, CStateManager&);
-  zeus::CVector3f CalculateRandomViewWanderPosition(CStateManager&);
-  float CalculateRandomViewWanderPitch(CStateManager&);
+  zeus::CVector3f CalculateRandomViewWanderPosition(CStateManager&) const;
+  float CalculateRandomViewWanderPitch(CStateManager&) const;
   void CalculateMovingTranslation(float& x, float& y) const;
   float CalculateLandingTranslation() const;
   zeus::CTransform CalculateCameraBobTransformation() const;

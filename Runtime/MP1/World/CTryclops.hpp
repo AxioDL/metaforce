@@ -27,7 +27,7 @@ class CTryclops : public CPatterned {
   void ApplySeparation(CStateManager&);
   void GrabBomb(CStateManager& mgr);
   void DragPlayer(CStateManager& mgr, const zeus::CVector3f& locOrig);
-  bool InRangeToLocator(const zeus::CVector3f& vec, float);
+  bool InRangeToLocator(const zeus::CVector3f& vec, float) const;
   bool sub80260180(const zeus::CVector3f&, const zeus::CVector3f&, const zeus::CAABox&, CStateManager&);
   void SuckPlayer(CStateManager& mgr, float);
   void AttractPlayer(CStateManager& mgr, const zeus::CVector3f& dest, float);

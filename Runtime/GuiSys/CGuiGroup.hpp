@@ -15,6 +15,7 @@ public:
 
   void SelectWorkerWidget(int workerId, bool setActive, bool setVisible);
   CGuiWidget* GetSelectedWidget();
+  const CGuiWidget* GetSelectedWidget() const;
   bool AddWorkerWidget(CGuiWidget* worker) override;
   void OnActiveChange() override;
 

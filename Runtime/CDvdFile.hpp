@@ -55,7 +55,7 @@ public:
     return AsyncSeekRead(buf, len, ESeekOrigin::Cur, 0, std::move(cb));
   }
   u32 SyncRead(void* buf, u32 len) { return m_reader->readBytesToBuf(buf, len); }
-  u64 Length() { return m_reader->length(); }
+  u64 Length() const { return m_reader->length(); }
   std::string_view GetPath() const { return x18_path; }
 };
 } // namespace urde

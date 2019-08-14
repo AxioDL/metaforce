@@ -56,6 +56,7 @@ public:
   ~CGuiFrame();
 
   CGuiSys& GetGuiSys() { return x8_guiSys; }
+  const CGuiSys& GetGuiSys() const { return x8_guiSys; }
   CAssetId GetAssetId() const { return x0_id; }
 
   CGuiLight* GetFrameLight(int idx) const { return m_indexedLights[idx]; }
@@ -100,6 +101,7 @@ public:
   void ResetMouseState();
 
   CGuiWidgetIdDB& GetWidgetIdDB() { return x18_idDB; }
+  const CGuiWidgetIdDB& GetWidgetIdDB() const { return x18_idDB; }
 
   static std::unique_ptr<CGuiFrame> CreateFrame(CAssetId frmeId, CGuiSys& sys, CInputStream& in, CSimplePool* sp);
 };

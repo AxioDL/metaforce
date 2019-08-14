@@ -566,7 +566,7 @@ void CElementGen::UpdatePSTranslationAndOrientation() {
     sepo->GetValue(x74_curFrame, x2c0_SEPO);
 }
 
-std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc) {
+std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const {
   CElementGen* ret = new CElementGen(desc, EModelOrientationType::Normal,
                                      x26d_27_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
   ret->x26d_26_modelsUseLights = x26d_26_modelsUseLights;
