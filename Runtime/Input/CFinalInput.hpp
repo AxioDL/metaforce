@@ -72,8 +72,12 @@ struct CFinalInput {
   CFinalInput(int cIdx, float dt, const boo::DolphinControllerState& data, const CFinalInput& prevInput, float leftDiv,
               float rightDiv);
   CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData& data, const CFinalInput& prevInput);
+
   CFinalInput& operator|=(const CFinalInput& other);
-  bool operator==(const CFinalInput& other) { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
+
+  bool operator==(const CFinalInput& other) const { return memcmp(this, &other, sizeof(CFinalInput)) == 0; }
+  bool operator!=(const CFinalInput& other) const { return !operator==(other); }
+
   float DeltaTime() const { return x0_dt; }
   u32 ControllerIdx() const { return x4_controllerIdx; }
 
@@ -159,9 +163,9 @@ struct CFinalInput {
   bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[int(k)]; }
   bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[int(k)]; }
   bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[int(k)]; }
-  bool AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
-  bool ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
-  bool AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
+  float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
+  float ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
+  float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }
 
   const std::optional<CKeyboardMouseControllerData>& GetKBM() const { return m_kbm; }
 };
