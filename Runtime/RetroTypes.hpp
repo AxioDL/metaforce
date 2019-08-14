@@ -27,17 +27,17 @@ class CAssetId {
   u64 id = UINT64_MAX;
 
 public:
-  CAssetId() = default;
-  CAssetId(u64 v) { Assign(v); }
+  constexpr CAssetId() = default;
+  constexpr CAssetId(u64 v) { Assign(v); }
   explicit CAssetId(CInputStream& in);
-  bool IsValid() const { return id != UINT64_MAX; }
-  u64 Value() const { return id; }
-  void Assign(u64 v) { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
-  void Reset() { id = UINT64_MAX; }
+  constexpr bool IsValid() const { return id != UINT64_MAX; }
+  constexpr u64 Value() const { return id; }
+  constexpr void Assign(u64 v) { id = (v == UINT32_MAX ? UINT64_MAX : (v == 0 ? UINT64_MAX : v)); }
+  constexpr void Reset() { id = UINT64_MAX; }
   void PutTo(COutputStream& out);
-  bool operator==(const CAssetId& other) const { return id == other.id; }
-  bool operator!=(const CAssetId& other) const { return id != other.id; }
-  bool operator<(const CAssetId& other) const { return id < other.id; }
+  constexpr bool operator==(const CAssetId& other) const { return id == other.id; }
+  constexpr bool operator!=(const CAssetId& other) const { return !operator==(other); }
+  constexpr bool operator<(const CAssetId& other) const { return id < other.id; }
 };
 
 //#define kInvalidAssetId CAssetId()
@@ -46,12 +46,12 @@ struct SObjectTag {
   FourCC type;
   CAssetId id;
 
-  operator bool() const { return id.IsValid(); }
-  bool operator!=(const SObjectTag& other) const { return id != other.id; }
-  bool operator==(const SObjectTag& other) const { return id == other.id; }
-  bool operator<(const SObjectTag& other) const { return id < other.id; }
-  SObjectTag() = default;
-  SObjectTag(FourCC tp, CAssetId rid) : type(tp), id(rid) {}
+  constexpr operator bool() const { return id.IsValid(); }
+  constexpr bool operator==(const SObjectTag& other) const { return id == other.id; }
+  constexpr bool operator!=(const SObjectTag& other) const { return !operator==(other); }
+  constexpr bool operator<(const SObjectTag& other) const { return id < other.id; }
+  constexpr SObjectTag() = default;
+  constexpr SObjectTag(FourCC tp, CAssetId rid) : type(tp), id(rid) {}
   SObjectTag(CInputStream& in) {
     in.readBytesToBuf(&type, 4);
     id = CAssetId(in);
@@ -63,28 +63,30 @@ struct SObjectTag {
 };
 
 struct TEditorId {
-  TEditorId() = default;
-  TEditorId(u32 idin) : id(idin) {}
   u32 id = u32(-1);
-  u8 LayerNum() const { return u8((id >> 26) & 0x3f); }
-  u16 AreaNum() const { return u16((id >> 16) & 0x3ff); }
-  u16 Id() const { return u16(id & 0xffff); }
-  bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
-  bool operator!=(const TEditorId& other) const { return (id & 0x3ffffff) != (other.id & 0x3ffffff); }
-  bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
+
+  constexpr TEditorId() = default;
+  constexpr TEditorId(u32 idin) : id(idin) {}
+  constexpr u8 LayerNum() const { return u8((id >> 26) & 0x3f); }
+  constexpr u16 AreaNum() const { return u16((id >> 16) & 0x3ff); }
+  constexpr u16 Id() const { return u16(id & 0xffff); }
+  constexpr bool operator<(const TEditorId& other) const { return (id & 0x3ffffff) < (other.id & 0x3ffffff); }
+  constexpr bool operator==(const TEditorId& other) const { return (id & 0x3ffffff) == (other.id & 0x3ffffff); }
+  constexpr bool operator!=(const TEditorId& other) const { return !operator==(other); }
 };
 
 #define kInvalidEditorId TEditorId()
 
 struct TUniqueId {
-  TUniqueId() = default;
-  TUniqueId(u16 value, u16 version) : id(value | (version << 10)) {}
   u16 id = u16(-1);
-  u16 Version() const { return u16((id >> 10) & 0x3f); }
-  u16 Value() const { return u16(id & 0x3ff); }
-  bool operator<(const TUniqueId& other) const { return (id < other.id); }
-  bool operator!=(const TUniqueId& other) const { return (id != other.id); }
-  bool operator==(const TUniqueId& other) const { return (id == other.id); }
+
+  constexpr TUniqueId() = default;
+  constexpr TUniqueId(u16 value, u16 version) : id(value | (version << 10)) {}
+  constexpr u16 Version() const { return u16((id >> 10) & 0x3f); }
+  constexpr u16 Value() const { return u16(id & 0x3ff); }
+  constexpr bool operator<(const TUniqueId& other) const { return id < other.id; }
+  constexpr bool operator==(const TUniqueId& other) const { return id == other.id; }
+  constexpr bool operator!=(const TUniqueId& other) const { return !operator==(other); }
 };
 
 #define kInvalidUniqueId TUniqueId()
