@@ -514,8 +514,8 @@ public:
     size_t m_fileSz;
     bool m_isDir;
 
-    Entry(const hecl::SystemString& path, const hecl::SystemChar* name, size_t sz, bool isDir)
-    : m_path(path), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
+    Entry(hecl::SystemString path, const hecl::SystemChar* name, size_t sz, bool isDir)
+    : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
   };
 
 private:
