@@ -591,7 +591,8 @@ public:
         return SystemString(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath, m_projRoot);
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath,
+                     m_projRoot);
     return SystemString();
   }
 
@@ -1209,13 +1210,25 @@ constexpr uint32_t SBig(uint32_t val) { return bswap32(val); }
 constexpr int64_t SBig(int64_t val) { return bswap64(val); }
 constexpr uint64_t SBig(uint64_t val) { return bswap64(val); }
 constexpr float SBig(float val) {
-  union { float f; atInt32 i; } uval1 = {val};
-  union { atInt32 i; float f; } uval2 = {bswap32(uval1.i)};
+  union {
+    float f;
+    atInt32 i;
+  } uval1 = {val};
+  union {
+    atInt32 i;
+    float f;
+  } uval2 = {bswap32(uval1.i)};
   return uval2.f;
 }
 constexpr double SBig(double val) {
-  union { double f; atInt64 i; } uval1 = {val};
-  union { atInt64 i; double f; } uval2 = {bswap64(uval1.i)};
+  union {
+    double f;
+    atInt64 i;
+  } uval1 = {val};
+  union {
+    atInt64 i;
+    double f;
+  } uval2 = {bswap64(uval1.i)};
   return uval2.f;
 }
 #ifndef SBIG
@@ -1267,7 +1280,7 @@ constexpr double SBig(double val) { return val; }
 
 template <typename SizeT>
 constexpr void hash_combine_impl(SizeT& seed, SizeT value) {
-  seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
+  seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 } // namespace hecl
