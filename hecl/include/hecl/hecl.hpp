@@ -111,50 +111,66 @@ class SystemUTF8Conv {
 
 public:
   explicit SystemUTF8Conv(SystemStringView str) : m_utf8(WideToUTF8(str)) {}
+
   std::string_view str() const { return m_utf8; }
   const char* c_str() const { return m_utf8.c_str(); }
-  std::string operator+(std::string_view other) const { return m_utf8 + other.data(); }
+
+  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) { return lhs.m_utf8 + rhs.data(); }
+  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
+    return std::string(lhs).append(rhs.m_utf8);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
-  return std::string(lhs).append(rhs.str());
-}
+
 class SystemStringConv {
   std::wstring m_sys;
 
 public:
   explicit SystemStringConv(std::string_view str) : m_sys(UTF8ToWide(str)) {}
+
   SystemStringView sys_str() const { return m_sys; }
   const SystemChar* c_str() const { return m_sys.c_str(); }
-  std::wstring operator+(const std::wstring_view other) const { return m_sys + other.data(); }
+
+  friend std::wstring operator+(const SystemStringConv& lhs, const std::wstring_view rhs) {
+    return lhs.m_sys + rhs.data();
+  }
+  friend std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {
+    return std::wstring(lhs).append(rhs.m_sys);
+  }
 };
-inline std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {
-  return std::wstring(lhs).append(rhs.sys_str());
-}
 #else
 class SystemUTF8Conv {
   std::string_view m_utf8;
 
 public:
   explicit SystemUTF8Conv(SystemStringView str) : m_utf8(str) {}
+
   std::string_view str() const { return m_utf8; }
   const char* c_str() const { return m_utf8.data(); }
-  std::string operator+(std::string_view other) const { return std::string(m_utf8).append(other); }
+
+  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) {
+    return std::string(lhs.m_utf8).append(rhs);
+  }
+  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
+    return std::string(lhs).append(rhs.m_utf8);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
-  return std::string(lhs).append(rhs.str());
-}
+
 class SystemStringConv {
   std::string_view m_sys;
 
 public:
   explicit SystemStringConv(std::string_view str) : m_sys(str) {}
+
   SystemStringView sys_str() const { return m_sys; }
   const SystemChar* c_str() const { return m_sys.data(); }
-  std::string operator+(std::string_view other) const { return std::string(m_sys).append(other); }
+
+  friend std::string operator+(const SystemStringConv& lhs, std::string_view rhs) {
+    return std::string(lhs.m_sys).append(rhs);
+  }
+  friend std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {
+    return std::string(lhs).append(rhs.m_sys);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {
-  return std::string(lhs).append(rhs.sys_str());
-}
 #endif
 
 void SanitizePath(std::string& path);
