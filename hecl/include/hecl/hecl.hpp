@@ -22,20 +22,22 @@ extern "C" int rep_closefrom(int lower);
 #endif
 #include <Windows.h>
 #include <cwchar>
+#include <cwctype>
 #include <Shlwapi.h>
 #include "winsupport.hpp"
 #endif
 
+#include <algorithm>
 #include <cinttypes>
-#include <ctime>
 #include <cstdarg>
 #include <cstdio>
+#include <ctime>
 #include <functional>
-#include <string>
-#include <algorithm>
-#include <regex>
 #include <list>
 #include <map>
+#include <regex>
+#include <string>
+
 #include "logvisor/logvisor.hpp"
 #include "athena/Global.hpp"
 #include "../extern/boo/xxhash/xxhash.h"
@@ -469,20 +471,16 @@ public:
  */
 struct CaseInsensitiveCompare {
   bool operator()(std::string_view lhs, std::string_view rhs) const {
-#if _WIN32
-    if (_stricmp(lhs.data(), rhs.data()) < 0)
-#else
-    if (strcasecmp(lhs.data(), rhs.data()) < 0)
-#endif
-      return true;
-    return false;
+    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char lhs, char rhs) {
+      return std::tolower(static_cast<unsigned char>(lhs)) < std::tolower(static_cast<unsigned char>(rhs));
+    });
   }
 
 #if _WIN32
   bool operator()(std::wstring_view lhs, std::wstring_view rhs) const {
-    if (_wcsicmp(lhs.data(), rhs.data()) < 0)
-      return true;
-    return false;
+    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](wchar_t lhs, wchar_t rhs) {
+      return std::towlower(lhs) < std::towlower(rhs);
+    });
   }
 #endif
 };
