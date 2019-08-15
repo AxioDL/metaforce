@@ -43,7 +43,7 @@ public:
   bool operator==(uint32_t other) const { return num == other; }
   bool operator!=(uint32_t other) const { return !operator==(other); }
 
-  std::string toString() const { return std::string(fcc, 4); }
+  std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
   uint32_t toUint32() const { return num; }
   const char* getChars() const { return fcc; }
   char* getChars() { return fcc; }
@@ -63,25 +63,25 @@ public:
   AT_DECL_EXPLICIT_DNA_YAML
 };
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  r.readUBytesToBuf(fcc, 4);
+inline void DNAFourCC::Enumerate<BigDNA::Read>(Read::StreamT& r) {
+  r.readUBytesToBuf(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
-  w.writeUBytes((atUint8*)fcc, 4);
+inline void DNAFourCC::Enumerate<BigDNA::Write>(Write::StreamT& w) {
+  w.writeBytes(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
-  std::string rs = r.readString(nullptr);
-  strncpy(fcc, rs.c_str(), 4);
+inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(ReadYaml::StreamT& r) {
+  const std::string rs = r.readString(nullptr);
+  rs.copy(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  w.writeString(nullptr, std::string(fcc, 4));
+inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(WriteYaml::StreamT& w) {
+  w.writeString(nullptr, std::string_view{fcc, std::size(fcc)});
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
-  s += 4;
+inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(BinarySize::StreamT& s) {
+  s += std::size(fcc);
 }
 
 } // namespace hecl
