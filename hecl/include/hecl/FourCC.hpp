@@ -26,7 +26,7 @@ public:
   constexpr FourCC() noexcept = default;
   constexpr FourCC(const FourCC& other) noexcept = default;
   constexpr FourCC(FourCC&& other) noexcept = default;
-  constexpr FourCC(const char* name) noexcept : num(*(uint32_t*)name) {}
+  constexpr FourCC(const char* name) noexcept : fcc{name[0], name[1], name[2], name[3]} {}
   constexpr FourCC(uint32_t n) noexcept : num(n) {}
 
   constexpr FourCC& operator=(const FourCC&) noexcept = default;
@@ -34,8 +34,10 @@ public:
 
   bool operator==(const FourCC& other) const { return num == other.num; }
   bool operator!=(const FourCC& other) const { return num != other.num; }
-  bool operator==(const char* other) const { return num == *(uint32_t*)other; }
-  bool operator!=(const char* other) const { return num != *(uint32_t*)other; }
+  bool operator==(const char* other) const {
+    return std::memcmp(fcc, other, sizeof(fcc)) == 0;
+  }
+  bool operator!=(const char* other) const { return !operator==(other); }
   bool operator==(int32_t other) const { return num == uint32_t(other); }
   bool operator!=(int32_t other) const { return num != uint32_t(other); }
   bool operator==(uint32_t other) const { return num == other; }
