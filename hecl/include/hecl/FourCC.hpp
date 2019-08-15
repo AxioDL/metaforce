@@ -32,22 +32,22 @@ public:
   constexpr FourCC& operator=(const FourCC&) noexcept = default;
   constexpr FourCC& operator=(FourCC&&) noexcept = default;
 
-  bool operator==(const FourCC& other) const { return num == other.num; }
-  bool operator!=(const FourCC& other) const { return !operator==(other); }
-  bool operator==(const char* other) const {
-    return std::memcmp(fcc, other, sizeof(fcc)) == 0;
+  constexpr bool operator==(const FourCC& other) const { return num == other.num; }
+  constexpr bool operator!=(const FourCC& other) const { return !operator==(other); }
+  constexpr bool operator==(const char* other) const {
+    return other[0] == fcc[0] && other[1] == fcc[1] && other[2] == fcc[2] && other[3] == fcc[3];
   }
-  bool operator!=(const char* other) const { return !operator==(other); }
-  bool operator==(int32_t other) const { return num == uint32_t(other); }
-  bool operator!=(int32_t other) const { return !operator==(other); }
-  bool operator==(uint32_t other) const { return num == other; }
-  bool operator!=(uint32_t other) const { return !operator==(other); }
+  constexpr bool operator!=(const char* other) const { return !operator==(other); }
+  constexpr bool operator==(int32_t other) const { return num == uint32_t(other); }
+  constexpr bool operator!=(int32_t other) const { return !operator==(other); }
+  constexpr bool operator==(uint32_t other) const { return num == other; }
+  constexpr bool operator!=(uint32_t other) const { return !operator==(other); }
 
   std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
-  uint32_t toUint32() const { return num; }
-  const char* getChars() const { return fcc; }
-  char* getChars() { return fcc; }
-  bool IsValid() const { return num != 0; }
+  constexpr uint32_t toUint32() const { return num; }
+  constexpr const char* getChars() const { return fcc; }
+  constexpr char* getChars() { return fcc; }
+  constexpr bool IsValid() const { return num != 0; }
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
