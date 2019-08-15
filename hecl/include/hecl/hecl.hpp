@@ -311,11 +311,8 @@ inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
 inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count) {
   if (!str1 || !str2)
     return str1 != str2;
-#if HECL_UCS2
-  return wcsncmp(str1, str2, count);
-#else
-  return strncmp(str1, str2, count);
-#endif
+
+  return std::char_traits<SystemChar>::compare(str1, str2, count);
 }
 
 inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
