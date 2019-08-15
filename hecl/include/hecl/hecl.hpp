@@ -410,12 +410,11 @@ inline int ConsoleWidth(bool* ok = nullptr) {
 }
 
 class MultiProgressPrinter;
-
-typedef std::basic_regex<SystemChar> SystemRegex;
-typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexTokenIterator;
-typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
-
 class ProjectRootPath;
+
+using SystemRegex = std::basic_regex<SystemChar>;
+using SystemRegexMatch = std::match_results<SystemString::const_iterator>;
+using SystemRegexTokenIterator = std::regex_token_iterator<SystemString::const_iterator>;
 
 /**
  * @brief Hash representation used for all storable and comparable objects
