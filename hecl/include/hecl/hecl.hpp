@@ -1048,10 +1048,10 @@ public:
 
   static std::string TrimWhitespace(std::string_view str) {
     auto bit = str.begin();
-    while (bit != str.cend() && isspace(*bit))
+    while (bit != str.cend() && std::isspace(static_cast<unsigned char>(*bit)))
       ++bit;
     auto eit = str.end();
-    while (eit != str.cbegin() && isspace(*(eit - 1)))
+    while (eit != str.cbegin() && std::isspace(static_cast<unsigned char>(*(eit - 1))))
       --eit;
     return {bit, eit};
   }
@@ -1071,10 +1071,10 @@ public:
 
   static SystemString TrimWhitespace(SystemStringView str) {
     auto bit = str.begin();
-    while (bit != str.cend() && iswspace(*bit))
+    while (bit != str.cend() && std::iswspace(*bit))
       ++bit;
     auto eit = str.end();
-    while (eit != str.cbegin() && iswspace(*(eit - 1)))
+    while (eit != str.cbegin() && std::iswspace(*(eit - 1)))
       --eit;
     return {bit, eit};
   }
