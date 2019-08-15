@@ -396,7 +396,7 @@ public:
       ++m_idx;
       return *this;
     }
-    bool operator*() { return m_bmp.getBit(m_idx); }
+    bool operator*() const { return m_bmp.getBit(m_idx); }
     bool operator!=(const Iterator& other) const { return m_idx != other.m_idx; }
   };
   Iterator begin() const { return Iterator(*this, 0); }

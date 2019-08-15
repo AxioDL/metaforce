@@ -74,7 +74,7 @@ struct DCLN : BigDNA {
 #endif
     };
     Node root;
-    size_t getMemoryUsage() { return root.getMemoryUsage(); }
+    size_t getMemoryUsage() const { return root.getMemoryUsage(); }
 
     /* Dummy MP2 member */
     void insertNoClimb(hecl::blender::PyOutStream&) const {}

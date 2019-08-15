@@ -208,7 +208,7 @@ public:
     m_cur = m_dl.get();
   }
 
-  operator bool() { return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur; }
+  explicit operator bool() const { return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur; }
 
   GX::Primitive readPrimitive() { return GX::Primitive(*m_cur++ & 0xf8); }
 
