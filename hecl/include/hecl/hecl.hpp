@@ -409,35 +409,36 @@ protected:
   uint64_t hash = 0;
 
 public:
-  Hash() = default;
-  operator bool() const { return hash != 0; }
-  Hash(const void* buf, size_t len) : hash(XXH64((uint8_t*)buf, len, 0)) {}
-  Hash(std::string_view str) : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
-  Hash(std::wstring_view str) : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
-  Hash(uint64_t hashin) : hash(hashin) {}
-  Hash(const Hash& other) { hash = other.hash; }
-  uint32_t val32() const { return uint32_t(hash) ^ uint32_t(hash >> 32); }
-  uint64_t val64() const { return uint64_t(hash); }
-  size_t valSizeT() const { return size_t(hash); }
+  constexpr Hash() = default;
+  constexpr Hash(const Hash&) = default;
+  constexpr Hash(Hash&&) noexcept = default;
+  constexpr Hash(uint64_t hashin) : hash(hashin) {}
+  explicit Hash(const void* buf, size_t len) : hash(XXH64((uint8_t*)buf, len, 0)) {}
+  explicit Hash(std::string_view str) : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
+  explicit Hash(std::wstring_view str) : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
+
+  constexpr uint32_t val32() const { return uint32_t(hash) ^ uint32_t(hash >> 32); }
+  constexpr uint64_t val64() const { return uint64_t(hash); }
+  constexpr size_t valSizeT() const { return size_t(hash); }
   template <typename T>
-  T valT() const;
-  Hash& operator=(const Hash& other) {
-    hash = other.hash;
-    return *this;
-  }
-  bool operator==(const Hash& other) const { return hash == other.hash; }
-  bool operator!=(const Hash& other) const { return hash != other.hash; }
-  bool operator<(const Hash& other) const { return hash < other.hash; }
-  bool operator>(const Hash& other) const { return hash > other.hash; }
-  bool operator<=(const Hash& other) const { return hash <= other.hash; }
-  bool operator>=(const Hash& other) const { return hash >= other.hash; }
+  constexpr T valT() const;
+
+  constexpr Hash& operator=(const Hash& other) = default;
+  constexpr Hash& operator=(Hash&& other) noexcept = default;
+  constexpr bool operator==(const Hash& other) const { return hash == other.hash; }
+  constexpr bool operator!=(const Hash& other) const { return hash != other.hash; }
+  constexpr bool operator<(const Hash& other) const { return hash < other.hash; }
+  constexpr bool operator>(const Hash& other) const { return hash > other.hash; }
+  constexpr bool operator<=(const Hash& other) const { return hash <= other.hash; }
+  constexpr bool operator>=(const Hash& other) const { return hash >= other.hash; }
+  constexpr explicit operator bool() const { return hash != 0; }
 };
 template <>
-inline uint32_t Hash::valT<uint32_t>() const {
+constexpr uint32_t Hash::valT<uint32_t>() const {
   return val32();
 }
 template <>
-inline uint64_t Hash::valT<uint64_t>() const {
+constexpr uint64_t Hash::valT<uint64_t>() const {
   return val64();
 }
 
