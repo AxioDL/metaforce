@@ -17,7 +17,7 @@
 namespace hecl::Database {
 
 logvisor::Module LogModule("hecl::Database");
-static const hecl::FourCC HECLfcc("HECL");
+constexpr hecl::FourCC HECLfcc("HECL");
 
 /**********************************************
  * Project::ConfigFile
