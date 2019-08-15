@@ -18,15 +18,20 @@ class FourCC {
 protected:
   union {
     char fcc[4];
-    uint32_t num;
+    uint32_t num = 0;
   };
 
 public:
-  constexpr FourCC() /* Sentinel FourCC */
-  : num(0) {}
-  constexpr FourCC(const FourCC& other) : num(other.num) {}
-  constexpr FourCC(const char* name) : num(*(uint32_t*)name) {}
-  constexpr FourCC(uint32_t n) : num(n) {}
+  // Sentinel FourCC
+  constexpr FourCC() noexcept = default;
+  constexpr FourCC(const FourCC& other) noexcept = default;
+  constexpr FourCC(FourCC&& other) noexcept = default;
+  constexpr FourCC(const char* name) noexcept : num(*(uint32_t*)name) {}
+  constexpr FourCC(uint32_t n) noexcept : num(n) {}
+
+  constexpr FourCC& operator=(const FourCC&) noexcept = default;
+  constexpr FourCC& operator=(FourCC&&) noexcept = default;
+
   bool operator==(const FourCC& other) const { return num == other.num; }
   bool operator!=(const FourCC& other) const { return num != other.num; }
   bool operator==(const char* other) const { return num == *(uint32_t*)other; }
@@ -35,6 +40,7 @@ public:
   bool operator!=(int32_t other) const { return num != uint32_t(other); }
   bool operator==(uint32_t other) const { return num == other; }
   bool operator!=(uint32_t other) const { return num != other; }
+
   std::string toString() const { return std::string(fcc, 4); }
   uint32_t toUint32() const { return num; }
   const char* getChars() const { return fcc; }
