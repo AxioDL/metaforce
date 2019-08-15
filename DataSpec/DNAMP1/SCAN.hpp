@@ -98,7 +98,7 @@ struct SCAN : BigDNA {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const {
     g_curSpec->flattenDependencies(frame, pathsOut);
     g_curSpec->flattenDependencies(string, pathsOut);
     for (int i = 0; i < 4; ++i)
