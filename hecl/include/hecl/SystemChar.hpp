@@ -40,8 +40,14 @@ typedef char SystemChar;
 static inline size_t StrLen(const SystemChar* str) { return strlen(str); }
 typedef std::string SystemString;
 typedef std::string_view SystemStringView;
-static inline void ToLower(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), tolower); }
-static inline void ToUpper(SystemString& str) { std::transform(str.begin(), str.end(), str.begin(), toupper); }
+static inline void ToLower(SystemString& str) {
+  std::transform(str.begin(), str.end(), str.begin(),
+                 [](SystemChar c) { return std::tolower(static_cast<unsigned char>(c)); });
+}
+static inline void ToUpper(SystemString& str) {
+  std::transform(str.begin(), str.end(), str.begin(),
+                 [](SystemChar c) { return std::toupper(static_cast<unsigned char>(c)); });
+}
 #ifndef _SYS_STR
 #define _SYS_STR(val) val
 #endif
