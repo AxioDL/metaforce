@@ -1037,13 +1037,13 @@ public:
   static bool BeginsWith(SystemStringView str, SystemStringView test) {
     if (test.size() > str.size())
       return false;
-    return !StrNCmp(str.data(), test.data(), test.size());
+    return str.compare(0, test.size(), test) == 0;
   }
 
   static bool EndsWith(SystemStringView str, SystemStringView test) {
     if (test.size() > str.size())
       return false;
-    return !StrNCmp(&*(str.end() - test.size()), test.data(), test.size());
+    return str.compare(str.size() - test.size(), SystemStringView::npos, test) == 0;
   }
 
   static std::string TrimWhitespace(std::string_view str) {
@@ -1060,13 +1060,13 @@ public:
   static bool BeginsWith(std::string_view str, std::string_view test) {
     if (test.size() > str.size())
       return false;
-    return !strncmp(str.data(), test.data(), test.size());
+    return str.compare(0, test.size(), test) == 0;
   }
 
   static bool EndsWith(std::string_view str, std::string_view test) {
     if (test.size() > str.size())
       return false;
-    return !strncmp(&*(str.end() - test.size()), test.data(), test.size());
+    return str.compare(str.size() - test.size(), std::string_view::npos, test) == 0;
   }
 
   static SystemString TrimWhitespace(SystemStringView str) {
