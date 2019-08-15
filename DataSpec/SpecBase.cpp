@@ -927,9 +927,7 @@ void SpecBase::readCatalog(const hecl::ProjectPath& catalogPath, athena::io::YAM
 
       WriteNameTag(nameWriter, pathTag, p.first);
 #if 0
-            fprintf(stderr, "%s %s %08X\n",
-                    p.first.c_str(),
-                    pathTag.type.toString().c_str(), uint32_t(pathTag.id));
+      fmt::print(stderr, fmt("{} {} {:08X}\n"), p.first, pathTag.type.toString(), pathTag.id.Value());
 #endif
     }
   }
