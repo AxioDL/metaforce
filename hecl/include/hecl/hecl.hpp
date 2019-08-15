@@ -1110,9 +1110,9 @@ class ResourceLock {
   bool good;
 
 public:
-  operator bool() const { return good; }
+  explicit operator bool() const { return good; }
   static bool InProgress(const ProjectPath& path);
-  ResourceLock(const ProjectPath& path) { good = SetThreadRes(path); }
+  explicit ResourceLock(const ProjectPath& path) : good{SetThreadRes(path)} {}
   ~ResourceLock() {
     if (good)
       ClearThreadRes();
