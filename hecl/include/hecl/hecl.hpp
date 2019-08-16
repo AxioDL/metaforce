@@ -22,20 +22,22 @@ extern "C" int rep_closefrom(int lower);
 #endif
 #include <Windows.h>
 #include <cwchar>
+#include <cwctype>
 #include <Shlwapi.h>
 #include "winsupport.hpp"
 #endif
 
+#include <algorithm>
 #include <cinttypes>
-#include <ctime>
 #include <cstdarg>
 #include <cstdio>
+#include <ctime>
 #include <functional>
-#include <string>
-#include <algorithm>
-#include <regex>
 #include <list>
 #include <map>
+#include <regex>
+#include <string>
+
 #include "logvisor/logvisor.hpp"
 #include "athena/Global.hpp"
 #include "../extern/boo/xxhash/xxhash.h"
@@ -109,46 +111,66 @@ class SystemUTF8Conv {
 
 public:
   explicit SystemUTF8Conv(SystemStringView str) : m_utf8(WideToUTF8(str)) {}
+
   std::string_view str() const { return m_utf8; }
   const char* c_str() const { return m_utf8.c_str(); }
-  std::string operator+(std::string_view other) const { return m_utf8 + other.data(); }
+
+  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) { return lhs.m_utf8 + rhs.data(); }
+  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
+    return std::string(lhs).append(rhs.m_utf8);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) { return std::string(lhs) + rhs.c_str(); }
+
 class SystemStringConv {
   std::wstring m_sys;
 
 public:
   explicit SystemStringConv(std::string_view str) : m_sys(UTF8ToWide(str)) {}
+
   SystemStringView sys_str() const { return m_sys; }
   const SystemChar* c_str() const { return m_sys.c_str(); }
-  std::wstring operator+(const std::wstring_view other) const { return m_sys + other.data(); }
+
+  friend std::wstring operator+(const SystemStringConv& lhs, const std::wstring_view rhs) {
+    return lhs.m_sys + rhs.data();
+  }
+  friend std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {
+    return std::wstring(lhs).append(rhs.m_sys);
+  }
 };
-inline std::wstring operator+(std::wstring_view lhs, const SystemStringConv& rhs) {
-  return std::wstring(lhs) + rhs.c_str();
-}
 #else
 class SystemUTF8Conv {
   std::string_view m_utf8;
 
 public:
   explicit SystemUTF8Conv(SystemStringView str) : m_utf8(str) {}
+
   std::string_view str() const { return m_utf8; }
   const char* c_str() const { return m_utf8.data(); }
-  std::string operator+(std::string_view other) const { return std::string(m_utf8) + other.data(); }
+
+  friend std::string operator+(const SystemUTF8Conv& lhs, std::string_view rhs) {
+    return std::string(lhs.m_utf8).append(rhs);
+  }
+  friend std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) {
+    return std::string(lhs).append(rhs.m_utf8);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemUTF8Conv& rhs) { return std::string(lhs) + rhs.c_str(); }
+
 class SystemStringConv {
   std::string_view m_sys;
 
 public:
   explicit SystemStringConv(std::string_view str) : m_sys(str) {}
+
   SystemStringView sys_str() const { return m_sys; }
   const SystemChar* c_str() const { return m_sys.data(); }
-  std::string operator+(std::string_view other) const { return std::string(m_sys) + other.data(); }
+
+  friend std::string operator+(const SystemStringConv& lhs, std::string_view rhs) {
+    return std::string(lhs.m_sys).append(rhs);
+  }
+  friend std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {
+    return std::string(lhs).append(rhs.m_sys);
+  }
 };
-inline std::string operator+(std::string_view lhs, const SystemStringConv& rhs) {
-  return std::string(lhs) + rhs.c_str();
-}
 #endif
 
 void SanitizePath(std::string& path);
@@ -309,11 +331,8 @@ inline int StrCmp(const SystemChar* str1, const SystemChar* str2) {
 inline int StrNCmp(const SystemChar* str1, const SystemChar* str2, size_t count) {
   if (!str1 || !str2)
     return str1 != str2;
-#if HECL_UCS2
-  return wcsncmp(str1, str2, count);
-#else
-  return strncmp(str1, str2, count);
-#endif
+
+  return std::char_traits<SystemChar>::compare(str1, str2, count);
 }
 
 inline int StrCaseCmp(const SystemChar* str1, const SystemChar* str2) {
@@ -391,12 +410,11 @@ inline int ConsoleWidth(bool* ok = nullptr) {
 }
 
 class MultiProgressPrinter;
-
-typedef std::basic_regex<SystemChar> SystemRegex;
-typedef std::regex_token_iterator<SystemString::const_iterator> SystemRegexTokenIterator;
-typedef std::match_results<SystemString::const_iterator> SystemRegexMatch;
-
 class ProjectRootPath;
+
+using SystemRegex = std::basic_regex<SystemChar>;
+using SystemRegexMatch = std::match_results<SystemString::const_iterator>;
+using SystemRegexTokenIterator = std::regex_token_iterator<SystemString::const_iterator>;
 
 /**
  * @brief Hash representation used for all storable and comparable objects
@@ -409,35 +427,36 @@ protected:
   uint64_t hash = 0;
 
 public:
-  Hash() = default;
-  operator bool() const { return hash != 0; }
-  Hash(const void* buf, size_t len) : hash(XXH64((uint8_t*)buf, len, 0)) {}
-  Hash(std::string_view str) : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
-  Hash(std::wstring_view str) : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
-  Hash(uint64_t hashin) : hash(hashin) {}
-  Hash(const Hash& other) { hash = other.hash; }
-  uint32_t val32() const { return uint32_t(hash) ^ uint32_t(hash >> 32); }
-  uint64_t val64() const { return uint64_t(hash); }
-  size_t valSizeT() const { return size_t(hash); }
+  constexpr Hash() = default;
+  constexpr Hash(const Hash&) = default;
+  constexpr Hash(Hash&&) noexcept = default;
+  constexpr Hash(uint64_t hashin) : hash(hashin) {}
+  explicit Hash(const void* buf, size_t len) : hash(XXH64((uint8_t*)buf, len, 0)) {}
+  explicit Hash(std::string_view str) : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
+  explicit Hash(std::wstring_view str) : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
+
+  constexpr uint32_t val32() const { return uint32_t(hash) ^ uint32_t(hash >> 32); }
+  constexpr uint64_t val64() const { return uint64_t(hash); }
+  constexpr size_t valSizeT() const { return size_t(hash); }
   template <typename T>
-  T valT() const;
-  Hash& operator=(const Hash& other) {
-    hash = other.hash;
-    return *this;
-  }
-  bool operator==(const Hash& other) const { return hash == other.hash; }
-  bool operator!=(const Hash& other) const { return hash != other.hash; }
-  bool operator<(const Hash& other) const { return hash < other.hash; }
-  bool operator>(const Hash& other) const { return hash > other.hash; }
-  bool operator<=(const Hash& other) const { return hash <= other.hash; }
-  bool operator>=(const Hash& other) const { return hash >= other.hash; }
+  constexpr T valT() const;
+
+  constexpr Hash& operator=(const Hash& other) = default;
+  constexpr Hash& operator=(Hash&& other) noexcept = default;
+  constexpr bool operator==(const Hash& other) const { return hash == other.hash; }
+  constexpr bool operator!=(const Hash& other) const { return hash != other.hash; }
+  constexpr bool operator<(const Hash& other) const { return hash < other.hash; }
+  constexpr bool operator>(const Hash& other) const { return hash > other.hash; }
+  constexpr bool operator<=(const Hash& other) const { return hash <= other.hash; }
+  constexpr bool operator>=(const Hash& other) const { return hash >= other.hash; }
+  constexpr explicit operator bool() const { return hash != 0; }
 };
 template <>
-inline uint32_t Hash::valT<uint32_t>() const {
+constexpr uint32_t Hash::valT<uint32_t>() const {
   return val32();
 }
 template <>
-inline uint64_t Hash::valT<uint64_t>() const {
+constexpr uint64_t Hash::valT<uint64_t>() const {
   return val64();
 }
 
@@ -469,20 +488,16 @@ public:
  */
 struct CaseInsensitiveCompare {
   bool operator()(std::string_view lhs, std::string_view rhs) const {
-#if _WIN32
-    if (_stricmp(lhs.data(), rhs.data()) < 0)
-#else
-    if (strcasecmp(lhs.data(), rhs.data()) < 0)
-#endif
-      return true;
-    return false;
+    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](char lhs, char rhs) {
+      return std::tolower(static_cast<unsigned char>(lhs)) < std::tolower(static_cast<unsigned char>(rhs));
+    });
   }
 
 #if _WIN32
   bool operator()(std::wstring_view lhs, std::wstring_view rhs) const {
-    if (_wcsicmp(lhs.data(), rhs.data()) < 0)
-      return true;
-    return false;
+    return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](wchar_t lhs, wchar_t rhs) {
+      return std::towlower(lhs) < std::towlower(rhs);
+    });
   }
 #endif
 };
@@ -499,8 +514,8 @@ public:
     size_t m_fileSz;
     bool m_isDir;
 
-    Entry(const hecl::SystemString& path, const hecl::SystemChar* name, size_t sz, bool isDir)
-    : m_path(path), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
+    Entry(hecl::SystemString path, const hecl::SystemChar* name, size_t sz, bool isDir)
+    : m_path(std::move(path)), m_name(name), m_fileSz(sz), m_isDir(isDir) {}
   };
 
 private:
@@ -577,7 +592,8 @@ public:
         return SystemString(beginIt, absPathForward.cend());
       }
     }
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath, m_projRoot);
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("unable to resolve '{}' as project relative '{}'")), absPath,
+                     m_projRoot);
     return SystemString();
   }
 
@@ -1039,21 +1055,21 @@ public:
   static bool BeginsWith(SystemStringView str, SystemStringView test) {
     if (test.size() > str.size())
       return false;
-    return !StrNCmp(str.data(), test.data(), test.size());
+    return str.compare(0, test.size(), test) == 0;
   }
 
   static bool EndsWith(SystemStringView str, SystemStringView test) {
     if (test.size() > str.size())
       return false;
-    return !StrNCmp(&*(str.end() - test.size()), test.data(), test.size());
+    return str.compare(str.size() - test.size(), SystemStringView::npos, test) == 0;
   }
 
   static std::string TrimWhitespace(std::string_view str) {
     auto bit = str.begin();
-    while (bit != str.cend() && isspace(*bit))
+    while (bit != str.cend() && std::isspace(static_cast<unsigned char>(*bit)))
       ++bit;
     auto eit = str.end();
-    while (eit != str.cbegin() && isspace(*(eit - 1)))
+    while (eit != str.cbegin() && std::isspace(static_cast<unsigned char>(*(eit - 1))))
       --eit;
     return {bit, eit};
   }
@@ -1062,21 +1078,21 @@ public:
   static bool BeginsWith(std::string_view str, std::string_view test) {
     if (test.size() > str.size())
       return false;
-    return !strncmp(str.data(), test.data(), test.size());
+    return str.compare(0, test.size(), test) == 0;
   }
 
   static bool EndsWith(std::string_view str, std::string_view test) {
     if (test.size() > str.size())
       return false;
-    return !strncmp(&*(str.end() - test.size()), test.data(), test.size());
+    return str.compare(str.size() - test.size(), std::string_view::npos, test) == 0;
   }
 
   static SystemString TrimWhitespace(SystemStringView str) {
     auto bit = str.begin();
-    while (bit != str.cend() && iswspace(*bit))
+    while (bit != str.cend() && std::iswspace(*bit))
       ++bit;
     auto eit = str.end();
-    while (eit != str.cbegin() && iswspace(*(eit - 1)))
+    while (eit != str.cbegin() && std::iswspace(*(eit - 1)))
       --eit;
     return {bit, eit};
   }
@@ -1095,9 +1111,9 @@ class ResourceLock {
   bool good;
 
 public:
-  operator bool() const { return good; }
+  explicit operator bool() const { return good; }
   static bool InProgress(const ProjectPath& path);
-  ResourceLock(const ProjectPath& path) { good = SetThreadRes(path); }
+  explicit ResourceLock(const ProjectPath& path) : good{SetThreadRes(path)} {}
   ~ResourceLock() {
     if (good)
       ClearThreadRes();
@@ -1195,13 +1211,25 @@ constexpr uint32_t SBig(uint32_t val) { return bswap32(val); }
 constexpr int64_t SBig(int64_t val) { return bswap64(val); }
 constexpr uint64_t SBig(uint64_t val) { return bswap64(val); }
 constexpr float SBig(float val) {
-  union { float f; atInt32 i; } uval1 = {val};
-  union { atInt32 i; float f; } uval2 = {bswap32(uval1.i)};
+  union {
+    float f;
+    atInt32 i;
+  } uval1 = {val};
+  union {
+    atInt32 i;
+    float f;
+  } uval2 = {bswap32(uval1.i)};
   return uval2.f;
 }
 constexpr double SBig(double val) {
-  union { double f; atInt64 i; } uval1 = {val};
-  union { atInt64 i; double f; } uval2 = {bswap64(uval1.i)};
+  union {
+    double f;
+    atInt64 i;
+  } uval1 = {val};
+  union {
+    atInt64 i;
+    double f;
+  } uval2 = {bswap64(uval1.i)};
   return uval2.f;
 }
 #ifndef SBIG
@@ -1253,7 +1281,7 @@ constexpr double SBig(double val) { return val; }
 
 template <typename SizeT>
 constexpr void hash_combine_impl(SizeT& seed, SizeT value) {
-  seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
+  seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
 } // namespace hecl

@@ -264,7 +264,7 @@ ProjectRootPath SearchForProject(SystemStringView path) {
         fclose(fp);
         if (readSize != 4)
           continue;
-        static const hecl::FourCC hecl("HECL");
+        static constexpr hecl::FourCC hecl("HECL");
         if (hecl::FourCC(magic) != hecl)
           continue;
         return ProjectRootPath(testPath);
