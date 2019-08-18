@@ -36,7 +36,7 @@ class IconAtlas {
 
 public:
   IconAtlas() = default;
-  operator bool() const { return m_tex; }
+  operator bool() const { return m_tex.operator bool(); }
   void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex) {
     m_tex = tex;
     for (size_t c = 0; c < COLS; ++c)
