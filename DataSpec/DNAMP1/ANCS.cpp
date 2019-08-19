@@ -660,10 +660,6 @@ void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io
   if (!type.compare("primitive")) {
     m_anim.reset(new struct MetaAnimPrimitive);
     m_anim->read(reader);
-    if (static_cast<MetaAnimPrimitive*>(m_anim.get())->animName == "B_outofdig4_garbeetle") {
-      fmt::print(fmt("{} -> {}\n"), static_cast<MetaAnimPrimitive*>(m_anim.get())->animName,
-                 static_cast<MetaAnimPrimitive*>(m_anim.get())->animId);
-    }
   } else if (!type.compare("blend")) {
     m_anim.reset(new struct MetaAnimBlend);
     m_anim->read(reader);
@@ -1063,8 +1059,6 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     hecl::SystemStringConv sysStr(prim.animName);
     hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
     prim.animId = pathOut;
-    if (prim.animName == "B_outofdig4_garbeetle")
-      fmt::print(fmt("{}|{}\n"), pathOut.getRelativePathUTF8(), pathOut.getAuxInfoUTF8());
     return true;
   });
 
