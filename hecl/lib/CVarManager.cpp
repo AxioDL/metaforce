@@ -165,9 +165,10 @@ void CVarManager::serialize() {
   if (m_useBinary) {
     CVarContainer container;
     for (const auto& pair : m_cvars) {
-      if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue())) {
-        container.cvars.push_back(*pair.second);
+      const auto& cvar = pair.second;
+
+      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+        container.cvars.push_back(*cvar);
       }
     }
     container.cvarCount = atUint32(container.cvars.size());
@@ -185,9 +186,10 @@ void CVarManager::serialize() {
 
     docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
     for (const auto& pair : m_cvars) {
-      if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue())) {
-        docWriter.writeString(pair.second->name().data(), pair.second->toLiteral());
+      const auto& cvar = pair.second;
+
+      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+        docWriter.writeString(cvar->name().data(), cvar->toLiteral());
       }
     }
 
