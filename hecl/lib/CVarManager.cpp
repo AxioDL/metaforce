@@ -165,10 +165,12 @@ void CVarManager::serialize() {
 
   if (m_useBinary) {
     CVarContainer container;
-    for (const auto& pair : m_cvars)
+    for (const auto& pair : m_cvars) {
       if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
+          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue())) {
         container.cvars.push_back(*pair.second);
+      }
+    }
     container.cvarCount = atUint32(container.cvars.size());
 
     filename += _SYS_STR(".bin");
@@ -183,10 +185,12 @@ void CVarManager::serialize() {
     r.close();
 
     docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
-    for (const auto& pair : m_cvars)
+    for (const auto& pair : m_cvars) {
       if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
+          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue())) {
         docWriter.writeString(pair.second->name().data(), pair.second->toLiteral());
+      }
+    }
 
     athena::io::FileWriter w(filename);
     if (w.isOpen())
