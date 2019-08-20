@@ -96,7 +96,7 @@ public:
   virtual hecl::SystemString toolName() const = 0;
   virtual int run() = 0;
   virtual void cancel() {}
-  inline operator bool() const { return m_good; }
+  explicit operator bool() const { return m_good; }
 };
 
 class HelpOutput {
