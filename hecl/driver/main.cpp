@@ -331,27 +331,25 @@ int main(int argc, const char** argv)
   }
 
   /* Construct selected tool */
-  size_t ErrorRef = logvisor::ErrorCount;
+  const size_t MakeToolErrorRef = logvisor::ErrorCount;
   auto tool = MakeSelectedTool(argv[1], info);
-
-  if (logvisor::ErrorCount > ErrorRef) {
+  if (logvisor::ErrorCount > MakeToolErrorRef) {
 #if WIN_PAUSE
     system("PAUSE");
 #endif
     return 1;
   }
-
   if (info.verbosityLevel) {
     LogModule.report(logvisor::Info, fmt(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(),
                      info.verbosityLevel);
   }
 
   /* Run tool */
-  ErrorRef = logvisor::ErrorCount;
+  const size_t RunToolErrorRef = logvisor::ErrorCount;
   ToolPtr = tool.get();
-  int retval = tool->run();
+  const int retval = tool->run();
   ToolPtr = nullptr;
-  if (logvisor::ErrorCount > ErrorRef) {
+  if (logvisor::ErrorCount > RunToolErrorRef) {
     hecl::blender::Connection::Shutdown();
 #if WIN_PAUSE
     system("PAUSE");
