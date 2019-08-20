@@ -295,7 +295,7 @@ public:
 
   /**
    * @brief Get the path of project's cooked directory for a specific DataSpec
-   * @param DataSpec to retrieve path for
+   * @param spec DataSpec to retrieve path for
    * @return project cooked path
    *
    * The cooked path matches the directory layout of the working directory
@@ -304,7 +304,7 @@ public:
 
   /**
    * @brief Add given file(s) to the database
-   * @param path file or pattern within project
+   * @param paths files or patterns within project
    * @return true on success
    *
    * This method blocks while object hashing takes place
