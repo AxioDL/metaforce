@@ -27,7 +27,7 @@ class ToolExtract final : public ToolBase {
   hecl::Database::Project* m_useProj = nullptr;
 
 public:
-  ToolExtract(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolExtract(const ToolPassInfo& info) : ToolBase(info) {
     if (!m_info.args.size())
       LogModule.report(logvisor::Fatal, fmt("hecl extract needs a source path as its first argument"));
 

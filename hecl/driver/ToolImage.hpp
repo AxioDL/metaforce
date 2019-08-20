@@ -15,7 +15,7 @@ class ToolImage final : public ToolBase {
   hecl::Database::Project* m_useProj;
 
 public:
-  ToolImage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
+  explicit ToolImage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     if (!info.project)
       LogModule.report(logvisor::Fatal, fmt("hecl image must be ran within a project directory"));
 

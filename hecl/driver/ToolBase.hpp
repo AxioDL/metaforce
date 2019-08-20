@@ -88,7 +88,7 @@ protected:
   }
 
 public:
-  ToolBase(const ToolPassInfo& info) : m_info(info) {
+  explicit ToolBase(const ToolPassInfo& info) : m_info(info) {
     hecl::VerbosityLevel = info.verbosityLevel;
     hecl::GuiMode = info.gui;
   }
@@ -156,7 +156,7 @@ private:
   }
 
 public:
-  HelpOutput(HelpFunc helpFunc)
+  explicit HelpOutput(HelpFunc helpFunc)
   : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth()) {}
 
   void go() {

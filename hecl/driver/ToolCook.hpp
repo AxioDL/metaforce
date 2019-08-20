@@ -13,7 +13,7 @@ class ToolCook final : public ToolBase {
   bool m_fast = false;
 
 public:
-  ToolCook(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
+  explicit ToolCook(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     /* Check for recursive flag */
     for (hecl::SystemChar arg : info.flags)
       if (arg == _SYS_STR('r'))

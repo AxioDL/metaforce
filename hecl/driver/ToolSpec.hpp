@@ -8,7 +8,7 @@ class ToolSpec final : public ToolBase {
   enum Mode { MLIST = 0, MENABLE, MDISABLE } mode = MLIST;
 
 public:
-  ToolSpec(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolSpec(const ToolPassInfo& info) : ToolBase(info) {
     if (info.args.empty())
       return;
 

@@ -59,7 +59,7 @@ class ToolPackage final : public ToolBase {
   }
 
 public:
-  ToolPackage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
+  explicit ToolPackage(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     if (!info.project)
       LogModule.report(logvisor::Fatal, fmt("hecl package must be ran within a project directory"));
 

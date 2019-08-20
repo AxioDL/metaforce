@@ -7,7 +7,7 @@
 class ToolHelp final : public ToolBase {
 
 public:
-  ToolHelp(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolHelp(const ToolPassInfo& info) : ToolBase(info) {
     if (m_info.args.empty()) {
       LogModule.report(logvisor::Error, fmt("help requires a tool name argument"));
       return;

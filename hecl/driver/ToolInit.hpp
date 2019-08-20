@@ -7,7 +7,7 @@ class ToolInit final : public ToolBase {
   const hecl::SystemString* m_dir = NULL;
 
 public:
-  ToolInit(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolInit(const ToolPassInfo& info) : ToolBase(info) {
     hecl::Sstat theStat;
     const hecl::SystemString* dir;
     if (info.args.size())
