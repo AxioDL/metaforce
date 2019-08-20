@@ -7,7 +7,7 @@
 class ToolHelp final : public ToolBase {
 
 public:
-  ToolHelp(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolHelp(const ToolPassInfo& info) : ToolBase(info) {
     if (m_info.args.empty()) {
       LogModule.report(logvisor::Error, fmt("help requires a tool name argument"));
       return;
@@ -15,7 +15,7 @@ public:
     m_good = true;
   }
 
-  ~ToolHelp() {}
+  ~ToolHelp() override = default;
 
   static void Help(HelpOutput& help) {
     help.printBold(
@@ -50,7 +50,7 @@ public:
 
   static void ShowHelp(const hecl::SystemString& toolName) {
     /* Select tool's help-text streamer */
-    HelpOutput::HelpFunc helpFunc = NULL;
+    HelpOutput::HelpFunc helpFunc = nullptr;
     if (toolName == _SYS_STR("init"))
       helpFunc = ToolInit::Help;
     else if (toolName == _SYS_STR("spec"))
@@ -72,9 +72,9 @@ public:
     ho.go();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("help"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("help"); }
 
-  int run() {
+  int run() override {
     ShowHelp(m_info.args.front());
     return 0;
   }
