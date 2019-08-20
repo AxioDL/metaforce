@@ -25,12 +25,11 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
   com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
   com_developer = newCVar("developer", "Enables developer mode", false,
                           (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
-  com_enableCheats =
-    newCVar("cheats", "Enable cheats", false,
-            (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
-  com_cubemaps =
-    newCVar("cubemaps", "Enable cubemaps", false,
-            (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
+  com_enableCheats = newCVar(
+      "cheats", "Enable cheats", false,
+      (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
+  com_cubemaps = newCVar("cubemaps", "Enable cubemaps", false,
+                         (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
 }
 
 CVarManager::~CVarManager() {}
@@ -83,8 +82,8 @@ void CVarManager::deserialize(CVar* cvar) {
   /* First let's check for a deferred value */
   std::string lowName = cvar->name().data();
   athena::utility::tolower(lowName);
-  if (m_deferedCVars.find(lowName) != m_deferedCVars.end()) {
-    std::string val = m_deferedCVars[lowName];
+  if (const auto iter = m_deferedCVars.find(lowName); iter != m_deferedCVars.end()) {
+    std::string val = std::move(iter->second);
     m_deferedCVars.erase(lowName);
     if (cvar->fromLiteralToType(val))
       return;
@@ -215,12 +214,13 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string>& args) {
 
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
-  if (m_cvars.find(cvName) == m_cvars.end()) {
+  const auto iter = m_cvars.find(cvName);
+  if (iter == m_cvars.end()) {
     con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
-  const auto& cv = m_cvars[cvName];
+  const auto& cv = iter->second;
   std::string oldVal = cv->value();
   std::string value = args[1];
   auto it = args.begin() + 2;
@@ -245,12 +245,13 @@ void CVarManager::getCVar(Console* con, const std::vector<std::string>& args) {
 
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
-  if (m_cvars.find(cvName) == m_cvars.end()) {
+  const auto iter = m_cvars.find(cvName);
+  if (iter == m_cvars.end()) {
     con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
-  const auto& cv = m_cvars[cvName];
+  const auto& cv = iter->second;
   con->report(Console::Level::Info, fmt("'{}' = '{}'"), cv->name(), cv->value());
 }
 
