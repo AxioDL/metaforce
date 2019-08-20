@@ -101,7 +101,7 @@ public:
 
 class HelpOutput {
 public:
-  typedef void (*HelpFunc)(HelpOutput&);
+  using HelpFunc = void (*)(HelpOutput&);
 
 private:
   FILE* m_sout;
