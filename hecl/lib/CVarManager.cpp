@@ -4,6 +4,7 @@
 #include <athena/Utility.hpp>
 #include <hecl/Runtime.hpp>
 #include <hecl/hecl.hpp>
+#include <algorithm>
 #include <memory>
 #include <regex>
 
@@ -268,12 +269,9 @@ void CVarManager::setCheatsEnabled(bool v, bool setDeserialized) {
 }
 
 bool CVarManager::restartRequired() const {
-  for (const auto& cv : m_cvars) {
-    if (cv.second->isModified() && cv.second->modificationRequiresRestart())
-      return true;
-  }
-
-  return false;
+  return std::any_of(m_cvars.cbegin(), m_cvars.cend(), [](const auto& entry) {
+    return entry.second->isModified() && entry.second->modificationRequiresRestart();
+  });
 }
 
 void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
