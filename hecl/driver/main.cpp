@@ -82,8 +82,126 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
-static hecl::SystemChar cwdbuf[1024];
 hecl::SystemString ExeDir;
+
+#if _WIN32
+static ToolPassInfo CreateInfo(int argc, const wchar_t** argv) {
+#else
+static ToolPassInfo CreateInfo(int argc, const char** argv) {
+#endif
+  hecl::SystemChar cwdbuf[1024];
+
+  ToolPassInfo info;
+  info.pname = argv[0];
+
+  if (hecl::Getcwd(cwdbuf, static_cast<int>(std::size(cwdbuf)))) {
+    info.cwd = cwdbuf;
+    if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\')) {
+#if _WIN32
+      info.cwd += _SYS_STR('\\');
+#else
+      info.cwd += _SYS_STR('/');
+#endif
+    }
+
+    if (hecl::PathRelative(argv[0])) {
+      ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
+    }
+    hecl::SystemString Argv0(argv[0]);
+    hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
+    if (lastIdx != hecl::SystemString::npos) {
+      ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
+    }
+  }
+
+  /* Concatenate args */
+  std::vector<hecl::SystemString> args;
+  args.reserve(argc - 2);
+  for (int i = 2; i < argc; ++i) {
+    args.emplace_back(argv[i]);
+  }
+
+  if (!args.empty()) {
+    /* Extract output argument */
+    for (auto it = args.cbegin(); it != args.cend();) {
+      const hecl::SystemString& arg = *it;
+      hecl::SystemRegexMatch oMatch;
+
+      if (std::regex_search(arg, oMatch, regOPEN)) {
+        const hecl::SystemString& token = oMatch[1].str();
+
+        if (token.size()) {
+          if (info.output.empty()) {
+            info.output = oMatch[1].str();
+          }
+
+          it = args.erase(it);
+        } else {
+          it = args.erase(it);
+
+          if (it == args.end()) {
+            break;
+          }
+
+          if (info.output.empty()) {
+            info.output = *it;
+          }
+
+          it = args.erase(it);
+        }
+
+        continue;
+      }
+
+      ++it;
+    }
+
+    /* Iterate flags */
+    bool threadArg = false;
+    for (auto it = args.cbegin(); it != args.cend();) {
+      const hecl::SystemString& arg = *it;
+      if (threadArg) {
+        threadArg = false;
+        hecl::CpuCountOverride = int(hecl::StrToUl(arg.c_str(), nullptr, 0));
+        it = args.erase(it);
+        continue;
+      }
+      if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-')) {
+        ++it;
+        continue;
+      }
+
+      for (auto chit = arg.cbegin() + 1; chit != arg.cend(); ++chit) {
+        if (*chit == _SYS_STR('v'))
+          ++info.verbosityLevel;
+        else if (*chit == _SYS_STR('f'))
+          info.force = true;
+        else if (*chit == _SYS_STR('y'))
+          info.yes = true;
+        else if (*chit == _SYS_STR('g'))
+          info.gui = true;
+        else if (*chit == _SYS_STR('j')) {
+          ++chit;
+          if (*chit)
+            hecl::CpuCountOverride = int(hecl::StrToUl(&*chit, nullptr, 0));
+          else
+            threadArg = true;
+          break;
+        } else
+          info.flags.push_back(*chit);
+      }
+
+      it = args.erase(it);
+    }
+
+    /* Gather remaining args */
+    info.args.reserve(args.size());
+    for (const hecl::SystemString& arg : args)
+      info.args.push_back(arg);
+  }
+
+  return info;
+}
 
 static std::unique_ptr<hecl::Database::Project> FindProject(hecl::SystemStringView cwd) {
   const hecl::ProjectRootPath rootPath = hecl::SearchForProject(cwd);
@@ -204,98 +322,7 @@ int main(int argc, const char** argv)
   HECLRegisterDataSpecs();
 
   /* Assemble common tool pass info */
-  ToolPassInfo info;
-  info.pname = argv[0];
-  if (hecl::Getcwd(cwdbuf, 1024)) {
-    info.cwd = cwdbuf;
-    if (info.cwd.size() && info.cwd.back() != _SYS_STR('/') && info.cwd.back() != _SYS_STR('\\'))
-#if _WIN32
-      info.cwd += _SYS_STR('\\');
-#else
-      info.cwd += _SYS_STR('/');
-#endif
-
-    if (hecl::PathRelative(argv[0]))
-      ExeDir = hecl::SystemString(cwdbuf) + _SYS_STR('/');
-    hecl::SystemString Argv0(argv[0]);
-    hecl::SystemString::size_type lastIdx = Argv0.find_last_of(_SYS_STR("/\\"));
-    if (lastIdx != hecl::SystemString::npos)
-      ExeDir.insert(ExeDir.end(), Argv0.begin(), Argv0.begin() + lastIdx);
-  }
-
-  /* Concatenate args */
-  std::vector<hecl::SystemString> args;
-  args.reserve(argc - 2);
-  for (int i = 2; i < argc; ++i)
-    args.push_back(hecl::SystemString(argv[i]));
-
-  if (!args.empty()) {
-    /* Extract output argument */
-    for (auto it = args.cbegin(); it != args.cend();) {
-      const hecl::SystemString& arg = *it;
-      hecl::SystemRegexMatch oMatch;
-      if (std::regex_search(arg, oMatch, regOPEN)) {
-        const hecl::SystemString& token = oMatch[1].str();
-        if (token.size()) {
-          if (info.output.empty())
-            info.output = oMatch[1].str();
-          it = args.erase(it);
-        } else {
-          it = args.erase(it);
-          if (it == args.end())
-            break;
-          if (info.output.empty())
-            info.output = *it;
-          it = args.erase(it);
-        }
-        continue;
-      }
-      ++it;
-    }
-
-    /* Iterate flags */
-    bool threadArg = false;
-    for (auto it = args.cbegin(); it != args.cend();) {
-      const hecl::SystemString& arg = *it;
-      if (threadArg) {
-        threadArg = false;
-        hecl::CpuCountOverride = int(hecl::StrToUl(arg.c_str(), nullptr, 0));
-        it = args.erase(it);
-        continue;
-      }
-      if (arg.size() < 2 || arg[0] != _SYS_STR('-') || arg[1] == _SYS_STR('-')) {
-        ++it;
-        continue;
-      }
-
-      for (auto chit = arg.cbegin() + 1; chit != arg.cend(); ++chit) {
-        if (*chit == _SYS_STR('v'))
-          ++info.verbosityLevel;
-        else if (*chit == _SYS_STR('f'))
-          info.force = true;
-        else if (*chit == _SYS_STR('y'))
-          info.yes = true;
-        else if (*chit == _SYS_STR('g'))
-          info.gui = true;
-        else if (*chit == _SYS_STR('j')) {
-          ++chit;
-          if (*chit)
-            hecl::CpuCountOverride = int(hecl::StrToUl(&*chit, nullptr, 0));
-          else
-            threadArg = true;
-          break;
-        } else
-          info.flags.push_back(*chit);
-      }
-
-      it = args.erase(it);
-    }
-
-    /* Gather remaining args */
-    info.args.reserve(args.size());
-    for (const hecl::SystemString& arg : args)
-      info.args.push_back(arg);
-  }
+  ToolPassInfo info = CreateInfo(argc, argv);
 
   /* Attempt to find hecl project */
   auto project = FindProject(info.cwd);
