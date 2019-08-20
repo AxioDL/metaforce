@@ -36,7 +36,7 @@ public:
     m_dir = dir;
   }
 
-  int run() {
+  int run() override {
     if (!m_dir)
       return 1;
     size_t ErrorRef = logvisor::ErrorCount;
@@ -73,5 +73,5 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("init"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("init"); }
 };

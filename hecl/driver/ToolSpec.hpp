@@ -71,9 +71,9 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("spec"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("spec"); }
 
-  int run() {
+  int run() override {
     if (!m_info.project) {
       for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
         if (XTERM_COLOR)

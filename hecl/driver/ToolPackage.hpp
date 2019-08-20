@@ -156,9 +156,9 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("package"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("package"); }
 
-  int run() {
+  int run() override {
     if (XTERM_COLOR)
       fmt::print(fmt(_SYS_STR("" GREEN BOLD "ABOUT TO PACKAGE:" NORMAL "\n")));
     else
@@ -181,5 +181,5 @@ public:
     return 0;
   }
 
-  void cancel() { m_useProj->interruptCook(); }
+  void cancel() override { m_useProj->interruptCook(); }
 };

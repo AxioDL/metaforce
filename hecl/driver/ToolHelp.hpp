@@ -15,7 +15,7 @@ public:
     m_good = true;
   }
 
-  ~ToolHelp() {}
+  ~ToolHelp() override = default;
 
   static void Help(HelpOutput& help) {
     help.printBold(
@@ -72,9 +72,9 @@ public:
     ho.go();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("help"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("help"); }
 
-  int run() {
+  int run() override {
     ShowHelp(m_info.args.front());
     return 0;
   }

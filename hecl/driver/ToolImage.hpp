@@ -44,7 +44,7 @@ public:
                            "provided a path within a project"));
   }
 
-  ~ToolImage() {}
+  ~ToolImage() override = default;
 
   static void Help(HelpOutput& help) {
     help.secHead(_SYS_STR("NAME"));
@@ -71,9 +71,9 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("image"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("image"); }
 
-  int run() {
+  int run() override {
     if (XTERM_COLOR)
       fmt::print(fmt(_SYS_STR("" GREEN BOLD "ABOUT TO IMAGE:" NORMAL "\n")));
     else
