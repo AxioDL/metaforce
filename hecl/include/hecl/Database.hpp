@@ -180,7 +180,7 @@ protected:
     Cafe        /**< Swizzled textures and R700 shader objects */
   };
 
-  typedef std::function<void(const void* data, size_t len)> FDataAppender;
+  using FDataAppender = std::function<void(const void* data, size_t len)>;
 
   /**
    * @brief Optional private method implemented by subclasses to cook objects
@@ -198,7 +198,7 @@ protected:
     return true;
   }
 
-  typedef std::function<void(ObjectBase*)> FDepAdder;
+  using FDepAdder = std::function<void(ObjectBase*)>;
 
   /**
    * @brief Optional private method implemented by CProjectObject subclasses to resolve dependencies
