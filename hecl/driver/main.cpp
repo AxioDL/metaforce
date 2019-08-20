@@ -85,6 +85,24 @@ static void AthenaExc(athena::error::Level level, const char* file, const char*,
 static hecl::SystemChar cwdbuf[1024];
 hecl::SystemString ExeDir;
 
+static std::unique_ptr<hecl::Database::Project> FindProject(hecl::SystemStringView cwd) {
+  const hecl::ProjectRootPath rootPath = hecl::SearchForProject(cwd);
+  if (!rootPath) {
+    return nullptr;
+  }
+
+  const size_t ErrorRef = logvisor::ErrorCount;
+  auto newProj = std::make_unique<hecl::Database::Project>(rootPath);
+  if (logvisor::ErrorCount > ErrorRef) {
+#if WIN_PAUSE
+    system("PAUSE");
+#endif
+    return nullptr;
+  }
+
+  return newProj;
+}
+
 #if _WIN32
 int wmain(int argc, const wchar_t** argv)
 #else
@@ -235,20 +253,9 @@ int main(int argc, const char** argv)
   }
 
   /* Attempt to find hecl project */
-  hecl::ProjectRootPath rootPath = hecl::SearchForProject(info.cwd);
-  std::unique_ptr<hecl::Database::Project> project;
-  if (rootPath) {
-    size_t ErrorRef = logvisor::ErrorCount;
-    hecl::Database::Project* newProj = new hecl::Database::Project(rootPath);
-    if (logvisor::ErrorCount > ErrorRef) {
-#if WIN_PAUSE
-      system("PAUSE");
-#endif
-      delete newProj;
-      return 1;
-    }
-    project.reset(newProj);
-    info.project = newProj;
+  auto project = FindProject(info.cwd);
+  if (project != nullptr) {
+    info.project = project.get();
   }
 
   /* Construct selected tool */
