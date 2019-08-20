@@ -77,8 +77,8 @@ static void SIGINTHandler(int sig) {
 }
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line,
-                      fmt::string_view fmt, fmt::format_args args) {
+static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
+                      fmt::format_args args) {
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
@@ -101,6 +101,52 @@ static std::unique_ptr<hecl::Database::Project> FindProject(hecl::SystemStringVi
   }
 
   return newProj;
+}
+
+static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, ToolPassInfo& info) {
+  hecl::SystemString toolNameLower = toolName;
+  hecl::ToLower(toolNameLower);
+
+  if (toolNameLower == _SYS_STR("init")) {
+    return std::make_unique<ToolInit>(info);
+  }
+
+  if (toolNameLower == _SYS_STR("spec")) {
+    return std::make_unique<ToolSpec>(info);
+  }
+
+  if (toolNameLower == _SYS_STR("extract")) {
+    return std::make_unique<ToolExtract>(info);
+  }
+
+  if (toolNameLower == _SYS_STR("cook")) {
+    return std::make_unique<ToolCook>(info);
+  }
+
+  if (toolNameLower == _SYS_STR("package") || toolNameLower == _SYS_STR("pack")) {
+    return std::make_unique<ToolPackage>(info);
+  }
+
+#if HECL_HAS_NOD
+  if (toolNameLower == _SYS_STR("image")) {
+    return std::make_unique<ToolImage>(info);
+  }
+#endif
+
+  if (toolNameLower == _SYS_STR("help")) {
+    return std::make_unique<ToolHelp>(info);
+  }
+
+  std::unique_ptr<FILE, decltype(&std::fclose)> fp{hecl::Fopen(toolName.c_str(), _SYS_STR("rb")), std::fclose};
+  if (fp == nullptr) {
+    LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}'")), toolNameLower);
+    return nullptr;
+  }
+  fp.reset();
+
+  /* Shortcut-case: implicit extract */
+  info.args.insert(info.args.begin(), std::move(toolName));
+  return std::make_unique<ToolExtract>(info);
 }
 
 #if _WIN32
@@ -238,8 +284,7 @@ int main(int argc, const char** argv)
           else
             threadArg = true;
           break;
-        }
-        else
+        } else
           info.flags.push_back(*chit);
       }
 
@@ -259,38 +304,8 @@ int main(int argc, const char** argv)
   }
 
   /* Construct selected tool */
-  hecl::SystemString toolName(argv[1]);
-  hecl::ToLower(toolName);
-  std::unique_ptr<ToolBase> tool;
-
   size_t ErrorRef = logvisor::ErrorCount;
-  if (toolName == _SYS_STR("init"))
-    tool.reset(new ToolInit(info));
-  else if (toolName == _SYS_STR("spec"))
-    tool.reset(new ToolSpec(info));
-  else if (toolName == _SYS_STR("extract"))
-    tool.reset(new ToolExtract(info));
-  else if (toolName == _SYS_STR("cook"))
-    tool.reset(new ToolCook(info));
-  else if (toolName == _SYS_STR("package") || toolName == _SYS_STR("pack"))
-    tool.reset(new ToolPackage(info));
-#if HECL_HAS_NOD
-  else if (toolName == _SYS_STR("image"))
-    tool.reset(new ToolImage(info));
-#endif
-  else if (toolName == _SYS_STR("help"))
-    tool.reset(new ToolHelp(info));
-  else {
-    FILE* fp = hecl::Fopen(argv[1], _SYS_STR("rb"));
-    if (!fp)
-      LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}'")), toolName);
-    else {
-      /* Shortcut-case: implicit extract */
-      fclose(fp);
-      info.args.insert(info.args.begin(), argv[1]);
-      tool.reset(new ToolExtract(info));
-    }
-  }
+  auto tool = MakeSelectedTool(argv[1], info);
 
   if (logvisor::ErrorCount > ErrorRef) {
 #if WIN_PAUSE
@@ -299,8 +314,10 @@ int main(int argc, const char** argv)
     return 1;
   }
 
-  if (info.verbosityLevel)
-    LogModule.report(logvisor::Info, fmt(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(), info.verbosityLevel);
+  if (info.verbosityLevel) {
+    LogModule.report(logvisor::Info, fmt(_SYS_STR("Constructed tool '{}' {}\n")), tool->toolName(),
+                     info.verbosityLevel);
+  }
 
   /* Run tool */
   ErrorRef = logvisor::ErrorCount;
