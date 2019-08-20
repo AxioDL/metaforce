@@ -1,21 +1,17 @@
 #pragma once
 
-#include <iterator>
-#include <string>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <functional>
-#include <vector>
-#include <map>
-#include <list>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <memory>
-#include <atomic>
-#include <fstream>
-#include <stdint.h>
-#include <cassert>
+#include <vector>
 
-#include "athena/IStreamReader.hpp"
-#include "logvisor/logvisor.hpp"
+#include <logvisor/logvisor.hpp>
 
 #include "hecl.hpp"
 
