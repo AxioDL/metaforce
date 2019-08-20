@@ -4,7 +4,7 @@
 #include <cstdio>
 
 class ToolInit final : public ToolBase {
-  const hecl::SystemString* m_dir = NULL;
+  const hecl::SystemString* m_dir = nullptr;
 
 public:
   explicit ToolInit(const ToolPassInfo& info) : ToolBase(info) {

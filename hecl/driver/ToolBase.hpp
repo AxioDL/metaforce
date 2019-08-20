@@ -104,7 +104,7 @@ public:
   using HelpFunc = void (*)(HelpOutput&);
 
 private:
-  FILE* m_sout;
+  FILE* m_sout = nullptr;
   HelpFunc m_helpFunc;
   int m_lineWidth;
   hecl::SystemString m_wrapBuffer;
@@ -157,7 +157,7 @@ private:
 
 public:
   explicit HelpOutput(HelpFunc helpFunc)
-  : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth()) {}
+  : m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth()) {}
 
   void go() {
 #if _WIN32

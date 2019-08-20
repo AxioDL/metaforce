@@ -50,7 +50,7 @@ public:
 
   static void ShowHelp(const hecl::SystemString& toolName) {
     /* Select tool's help-text streamer */
-    HelpOutput::HelpFunc helpFunc = NULL;
+    HelpOutput::HelpFunc helpFunc = nullptr;
     if (toolName == _SYS_STR("init"))
       helpFunc = ToolInit::Help;
     else if (toolName == _SYS_STR("spec"))
