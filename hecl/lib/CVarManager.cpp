@@ -37,11 +37,13 @@ CVarManager::~CVarManager() {}
 CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
   std::string tmp(cvar->name());
   athena::utility::tolower(tmp);
-  if (m_cvars.find(tmp) != m_cvars.end())
+
+  if (m_cvars.find(tmp) != m_cvars.end()) {
     return nullptr;
+  }
 
   CVar* ret = cvar.get();
-  m_cvars[tmp] = std::move(cvar);
+  m_cvars.insert_or_assign(std::move(tmp), std::move(cvar));
   return ret;
 }
 
@@ -276,28 +278,31 @@ bool CVarManager::restartRequired() const {
 
 void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
   bool oldDeveloper = suppressDeveloper();
-  std::string developerName = com_developer->name().data();
+  std::string developerName(com_developer->name());
   athena::utility::tolower(developerName);
   for (const SystemString& arg : args) {
-    if (arg[0] == _SYS_STR('+')) {
-      std::string tmp = SystemUTF8Conv(arg).c_str();
+    if (arg[0] != _SYS_STR('+')) {
+      continue;
+    }
 
-      std::smatch matches;
-      if (std::regex_match(tmp, matches, cmdLineRegex)) {
-        std::string cvarName = matches[1].str();
-        std::string cvarValue = matches[2].str();
-        if (CVar* cv = findCVar(cvarName)) {
-          cv->fromLiteralToType(cvarValue);
-          athena::utility::tolower(cvarName);
-          if (developerName == cvarName)
-            /* Make sure we're not overriding developer mode when we restore */
-            oldDeveloper = com_developer->toBoolean();
-        } else {
-          /* Unable to find an existing CVar, let's defer for the time being 8 */
-          athena::utility::tolower(cvarName);
-          m_deferedCVars[cvarName] = cvarValue;
-        }
-      }
+    const std::string tmp(SystemUTF8Conv(arg).str());
+    std::smatch matches;
+    if (!std::regex_match(tmp, matches, cmdLineRegex)) {
+      continue;
+    }
+
+    std::string cvarName = matches[1].str();
+    std::string cvarValue = matches[2].str();
+    if (CVar* cv = findCVar(cvarName)) {
+      cv->fromLiteralToType(cvarValue);
+      athena::utility::tolower(cvarName);
+      if (developerName == cvarName)
+        /* Make sure we're not overriding developer mode when we restore */
+        oldDeveloper = com_developer->toBoolean();
+    } else {
+      /* Unable to find an existing CVar, let's defer for the time being 8 */
+      athena::utility::tolower(cvarName);
+      m_deferedCVars.insert_or_assign(std::move(cvarName), std::move(cvarValue));
     }
   }
 
