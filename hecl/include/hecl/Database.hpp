@@ -261,7 +261,7 @@ public:
   class ConfigFile {
     SystemString m_filepath;
     std::vector<std::string> m_lines;
-    FILE* m_lockedFile = NULL;
+    FILE* m_lockedFile = nullptr;
 
   public:
     ConfigFile(const Project& project, SystemStringView name, SystemStringView subdir = _SYS_STR("/.hecl/"));
