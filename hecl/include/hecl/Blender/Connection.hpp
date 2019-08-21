@@ -710,8 +710,7 @@ class Connection {
   uint32_t _readStr(char* buf, uint32_t bufSz);
   uint32_t _writeStr(const char* str, uint32_t len, int wpipe);
   uint32_t _writeStr(const char* str, uint32_t len) { return _writeStr(str, len, m_writepipe[1]); }
-  uint32_t _writeStr(const char* str) { return _writeStr(str, strlen(str)); }
-  uint32_t _writeStr(const std::string& str) { return _writeStr(str.c_str(), str.size()); }
+  uint32_t _writeStr(std::string_view view) { return _writeStr(view.data(), view.size()); }
   size_t _readBuf(void* buf, size_t len);
   size_t _writeBuf(const void* buf, size_t len);
   void _closePipe();
