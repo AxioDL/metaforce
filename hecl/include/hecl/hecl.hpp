@@ -275,6 +275,16 @@ inline FILE* Fopen(const SystemChar* path, const SystemChar* mode, FileLockType 
   return fp;
 }
 
+struct UniqueFileDeleter {
+  void operator()(FILE* file) const noexcept { std::fclose(file); }
+};
+using UniqueFilePtr = std::unique_ptr<FILE, UniqueFileDeleter>;
+
+inline UniqueFilePtr FopenUnique(const SystemChar* path, const SystemChar* mode,
+                                 FileLockType lock = FileLockType::None) {
+  return UniqueFilePtr{Fopen(path, mode, lock)};
+}
+
 inline int FSeek(FILE* fp, int64_t offset, int whence) {
 #if _WIN32
   return _fseeki64(fp, offset, whence);
