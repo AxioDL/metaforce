@@ -107,7 +107,7 @@ static int Write(int fd, const void* buf, size_t size) {
 
 uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   uint32_t readLen;
-  int ret = Read(m_readpipe[0], &readLen, 4);
+  int ret = Read(m_readpipe[0], &readLen, sizeof(readLen));
   if (ret < 4) {
     BlenderLog.report(logvisor::Error, fmt("Pipe error {} {}"), ret, strerror(errno));
     _blenderDied();
@@ -124,8 +124,11 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   if (ret < 0) {
     BlenderLog.report(logvisor::Fatal, fmt("{}"), strerror(errno));
     return 0;
-  } else if (readLen >= 9) {
-    if (!memcmp(buf, "EXCEPTION", std::min(readLen, uint32_t(9)))) {
+  }
+
+  constexpr std::string_view exception_str{"EXCEPTION"};
+  if (readLen >= exception_str.size()) {
+    if (exception_str.compare(0, exception_str.size(), buf) == 0) {
       _blenderDied();
       return 0;
     }
@@ -136,54 +139,75 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
 }
 
 uint32_t Connection::_writeStr(const char* buf, uint32_t len, int wpipe) {
-  int ret, nlerr;
-  nlerr = Write(wpipe, &len, 4);
-  if (nlerr < 4)
-    goto err;
-  ret = Write(wpipe, buf, len);
-  if (ret < 0)
-    goto err;
-  return (uint32_t)ret;
-err:
-  _blenderDied();
-  return 0;
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  const int nlerr = Write(wpipe, &len, 4);
+  if (nlerr < 4) {
+    return error();
+  }
+
+  const int ret = Write(wpipe, buf, len);
+  if (ret < 0) {
+    return error();
+  }
+
+  return static_cast<uint32_t>(ret);
 }
 
 size_t Connection::_readBuf(void* buf, size_t len) {
-  uint8_t* cBuf = reinterpret_cast<uint8_t*>(buf);
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  auto* cBuf = static_cast<uint8_t*>(buf);
   size_t readLen = 0;
+
   do {
-    int ret = Read(m_readpipe[0], cBuf, len);
-    if (ret < 0)
-      goto err;
-    if (len >= 9)
-      if (!memcmp((char*)cBuf, "EXCEPTION", std::min(len, size_t(9))))
+    const int ret = Read(m_readpipe[0], cBuf, len);
+    if (ret < 0) {
+      return error();
+    }
+
+    constexpr std::string_view exception_str{"EXCEPTION"};
+    if (len >= exception_str.size()) {
+      if (exception_str.compare(0, exception_str.size(), static_cast<char*>(buf)) == 0) {
         _blenderDied();
+      }
+    }
+
     readLen += ret;
     cBuf += ret;
     len -= ret;
-  } while (len);
+  } while (len != 0);
+
   return readLen;
-err:
-  _blenderDied();
-  return 0;
 }
 
 size_t Connection::_writeBuf(const void* buf, size_t len) {
-  const uint8_t* cBuf = reinterpret_cast<const uint8_t*>(buf);
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  const auto* cBuf = static_cast<const uint8_t*>(buf);
   size_t writeLen = 0;
+
   do {
-    int ret = Write(m_writepipe[1], cBuf, len);
-    if (ret < 0)
-      goto err;
+    const int ret = Write(m_writepipe[1], cBuf, len);
+    if (ret < 0) {
+      return error();
+    }
+
     writeLen += ret;
     cBuf += ret;
     len -= ret;
-  } while (len);
+  } while (len != 0);
+
   return writeLen;
-err:
-  _blenderDied();
-  return 0;
 }
 
 void Connection::_closePipe() {
