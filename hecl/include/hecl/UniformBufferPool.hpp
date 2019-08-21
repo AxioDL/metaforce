@@ -153,7 +153,7 @@ public:
       return {bucket.buffer, m_div.rem * m_pool->m_stride};
     }
 
-    operator bool() const { return m_pool != nullptr && m_index != -1; }
+    explicit operator bool() const { return m_pool != nullptr && m_index != -1; }
   };
 
   UniformBufferPool() = default;

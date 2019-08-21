@@ -67,7 +67,7 @@ public:
       return *this;
     }
 
-    operator bool() const { return ((*WordRef) & (BitWord(1) << BitPos)) != 0; }
+    explicit operator bool() const { return ((*WordRef) & (BitWord(1) << BitPos)) != 0; }
   };
 
   /// BitVector default ctor - Creates an empty bitvector.

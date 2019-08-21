@@ -158,7 +158,7 @@ public:
       return {bucket.buffer, m_div.rem};
     }
 
-    operator bool() const { return m_pool != nullptr && m_index != -1; }
+    explicit operator bool() const { return m_pool != nullptr && m_index != -1; }
   };
 
   VertexBufferPool() = default;

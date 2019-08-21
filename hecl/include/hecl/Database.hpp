@@ -246,7 +246,7 @@ private:
 
 public:
   Project(const ProjectRootPath& rootPath);
-  operator bool() const { return m_valid; }
+  explicit operator bool() const { return m_valid; }
 
   /**
    * @brief Configuration file handle

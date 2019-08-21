@@ -173,7 +173,7 @@ public:
     }, static_cast<const base&>(*this));
   }
 
-  constexpr operator bool() const noexcept {
+  constexpr explicit operator bool() const noexcept {
     return !std::holds_alternative<typename std::variant_alternative_t<0, std::variant<_Types...>>>(*this);
   }
 };

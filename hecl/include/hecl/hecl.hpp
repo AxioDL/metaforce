@@ -525,7 +525,7 @@ public:
   DirectoryEnumerator(SystemStringView path, Mode mode = Mode::DirsThenFilesSorted, bool sizeSort = false,
                       bool reverse = false, bool noHidden = false);
 
-  operator bool() const { return m_entries.size() != 0; }
+  explicit operator bool() const { return m_entries.size() != 0; }
   size_t size() const { return m_entries.size(); }
   std::vector<Entry>::const_iterator begin() const { return m_entries.cbegin(); }
   std::vector<Entry>::const_iterator end() const { return m_entries.cend(); }
@@ -557,7 +557,7 @@ public:
   /**
    * @brief Tests for non-empty project root path
    */
-  operator bool() const { return m_projRoot.size() != 0; }
+  explicit operator bool() const { return m_projRoot.size() != 0; }
 
   /**
    * @brief Construct a representation of a project root path
@@ -677,7 +677,7 @@ public:
   /**
    * @brief Tests for non-empty project path
    */
-  operator bool() const { return m_absPath.size() != 0; }
+  explicit operator bool() const { return m_absPath.size() != 0; }
 
   /**
    * @brief Clears path
