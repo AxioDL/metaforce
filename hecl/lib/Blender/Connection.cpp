@@ -339,8 +339,8 @@ Connection::Connection(int verbosityLevel) {
       }
     }
 
-    std::wstring cmdLine = fmt::format(fmt(L" --background -P \"{}\" -- {} {} {} \"{}\""),
-      blenderShellPath, uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
+    std::wstring cmdLine = fmt::format(fmt(L" --background -P \"{}\" -- {} {} {} \"{}\""), blenderShellPath,
+                                       uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
@@ -355,8 +355,8 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE,
-                        NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo)) {
+    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS,
+                        NULL, NULL, &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
       FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
                      GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
@@ -420,8 +420,8 @@ Connection::Connection(int verbosityLevel) {
 
       /* Try user-specified blender first */
       if (blenderBin) {
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
-               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -438,8 +438,8 @@ Connection::Connection(int verbosityLevel) {
         steamBlender += "/blender";
 #endif
         blenderBin = steamBlender.c_str();
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
-               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -470,8 +470,8 @@ Connection::Connection(int verbosityLevel) {
     m_errPath = hecl::SystemString(TMPDIR) +
                 fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_pinfo.dwProcessId);
 #else
-    m_errPath =
-        hecl::SystemString(TMPDIR) + fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
+    m_errPath = hecl::SystemString(TMPDIR) +
+                fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
 #endif
     hecl::Unlink(m_errPath.c_str());
 
@@ -652,87 +652,83 @@ void PyOutStream::close() {
 }
 
 void PyOutStream::linkBlend(const char* target, const char* objName, bool link) {
-  format(fmt(
-      "if '{}' not in bpy.data.scenes:\n"
-      "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
-      "        data_to.scenes = data_from.scenes\n"
-      "    obj_scene = None\n"
-      "    for scene in data_to.scenes:\n"
-      "        if scene.name == '{}':\n"
-      "            obj_scene = scene\n"
-      "            break\n"
-      "    if not obj_scene:\n"
-      "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
-      "    obj = None\n"
-      "    for object in obj_scene.objects:\n"
-      "        if object.name == obj_scene.name:\n"
-      "            obj = object\n"
-      "else:\n"
-      "    obj = bpy.data.objects['{}']\n"
-      "\n"),
-      objName, target, link ? "True" : "False", objName, objName, target, objName);
+  format(fmt("if '{}' not in bpy.data.scenes:\n"
+             "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
+             "        data_to.scenes = data_from.scenes\n"
+             "    obj_scene = None\n"
+             "    for scene in data_to.scenes:\n"
+             "        if scene.name == '{}':\n"
+             "            obj_scene = scene\n"
+             "            break\n"
+             "    if not obj_scene:\n"
+             "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+             "    obj = None\n"
+             "    for object in obj_scene.objects:\n"
+             "        if object.name == obj_scene.name:\n"
+             "            obj = object\n"
+             "else:\n"
+             "    obj = bpy.data.objects['{}']\n"
+             "\n"),
+         objName, target, link ? "True" : "False", objName, objName, target, objName);
 }
 
 void PyOutStream::linkBackground(const char* target, const char* sceneName) {
   if (!sceneName) {
-    format(fmt(
-        "with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
-        "    data_to.scenes = data_from.scenes\n"
-        "obj_scene = None\n"
-        "for scene in data_to.scenes:\n"
-        "    obj_scene = scene\n"
-        "    break\n"
-        "if not obj_scene:\n"
-        "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
-        "\n"
-        "bpy.context.scene.background_set = obj_scene\n"),
-        target, target);
+    format(fmt("with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+               "    data_to.scenes = data_from.scenes\n"
+               "obj_scene = None\n"
+               "for scene in data_to.scenes:\n"
+               "    obj_scene = scene\n"
+               "    break\n"
+               "if not obj_scene:\n"
+               "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = obj_scene\n"),
+           target, target);
   } else {
-    format(fmt(
-        "if '{}' not in bpy.data.scenes:\n"
-        "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
-        "        data_to.scenes = data_from.scenes\n"
-        "    obj_scene = None\n"
-        "    for scene in data_to.scenes:\n"
-        "        if scene.name == '{}':\n"
-        "            obj_scene = scene\n"
-        "            break\n"
-        "    if not obj_scene:\n"
-        "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
-        "\n"
-        "bpy.context.scene.background_set = bpy.data.scenes['{}']\n"),
-        sceneName, target, sceneName, sceneName, target, sceneName);
+    format(fmt("if '{}' not in bpy.data.scenes:\n"
+               "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+               "        data_to.scenes = data_from.scenes\n"
+               "    obj_scene = None\n"
+               "    for scene in data_to.scenes:\n"
+               "        if scene.name == '{}':\n"
+               "            obj_scene = scene\n"
+               "            break\n"
+               "    if not obj_scene:\n"
+               "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = bpy.data.scenes['{}']\n"),
+           sceneName, target, sceneName, sceneName, target, sceneName);
   }
 }
 
 void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
   athena::simd_floats minf(min.simd);
   athena::simd_floats maxf(max.simd);
-  format(fmt(
-      "bm = bmesh.new()\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.ensure_lookup_table()\n"
-      "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
-      minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
-      minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
+  format(fmt("bm = bmesh.new()\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.ensure_lookup_table()\n"
+             "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
+         minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
+         minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
 }
 
 void PyOutStream::centerView() {
@@ -938,7 +934,7 @@ Material::PASS::PASS(Connection& conn) {
   SystemStringConv absolute(readStr);
 
   SystemString relative =
-    conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
+      conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
   tex.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), relative);
 
   conn._readBuf(&source, 1);
@@ -1458,9 +1454,10 @@ Action::Action(Connection& conn) {
     subtypeAABBs.emplace_back();
     subtypeAABBs.back().first.read(conn);
     subtypeAABBs.back().second.read(conn);
-    //printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
-    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]), float(subtypeAABBs.back().first.val.simd[2]),
-    //    float(subtypeAABBs.back().second.val.simd[0]), float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
+    // printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
+    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]),
+    //    float(subtypeAABBs.back().first.val.simd[2]), float(subtypeAABBs.back().second.val.simd[0]),
+    //    float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
   }
 }
 
