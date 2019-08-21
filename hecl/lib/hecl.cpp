@@ -118,7 +118,7 @@ static std::mutex PathsMutex;
 static std::unordered_map<std::thread::id, ProjectPath> PathsInProgress;
 
 bool ResourceLock::InProgress(const ProjectPath& path) {
-  std::unique_lock<std::mutex> lk(PathsMutex);
+  std::unique_lock lk{PathsMutex};
   for (const auto& p : PathsInProgress)
     if (p.second == path)
       return true;
@@ -126,7 +126,7 @@ bool ResourceLock::InProgress(const ProjectPath& path) {
 }
 
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
-  std::unique_lock<std::mutex> lk(PathsMutex);
+  std::unique_lock lk{PathsMutex};
   if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend())
     LogModule.report(logvisor::Fatal, fmt("multiple resource locks on thread"));
 
@@ -139,7 +139,7 @@ bool ResourceLock::SetThreadRes(const ProjectPath& path) {
 }
 
 void ResourceLock::ClearThreadRes() {
-  std::unique_lock<std::mutex> lk(PathsMutex);
+  std::unique_lock lk{PathsMutex};
   PathsInProgress.erase(std::this_thread::get_id());
 }
 
