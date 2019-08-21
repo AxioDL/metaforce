@@ -255,7 +255,7 @@ static std::unique_ptr<ToolBase> MakeSelectedTool(hecl::SystemString toolName, T
     return std::make_unique<ToolHelp>(info);
   }
 
-  std::unique_ptr<FILE, decltype(&std::fclose)> fp{hecl::Fopen(toolName.c_str(), _SYS_STR("rb")), std::fclose};
+  auto fp = hecl::FopenUnique(toolName.c_str(), _SYS_STR("rb"));
   if (fp == nullptr) {
     LogModule.report(logvisor::Error, fmt(_SYS_STR("unrecognized tool '{}'")), toolNameLower);
     return nullptr;

@@ -144,38 +144,38 @@ void ResourceLock::ClearThreadRes() {
 }
 
 bool IsPathPNG(const hecl::ProjectPath& path) {
-  FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!fp)
-    return false;
-  uint32_t buf = 0;
-  if (fread(&buf, 1, 4, fp) != 4) {
-    fclose(fp);
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (fp == nullptr) {
     return false;
   }
-  fclose(fp);
+
+  uint32_t buf = 0;
+  if (std::fread(&buf, 1, sizeof(buf), fp.get()) != sizeof(buf)) {
+    return false;
+  }
+
   buf = hecl::SBig(buf);
-  if (buf == 0x89504e47)
-    return true;
-  return false;
+  return buf == 0x89504e47;
 }
 
 bool IsPathBlend(const hecl::ProjectPath& path) {
-  auto lastCompExt = path.getLastComponentExt();
-  if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend")))
-    return false;
-  FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!fp)
-    return false;
-  uint32_t buf = 0;
-  if (fread(&buf, 1, 4, fp) != 4) {
-    fclose(fp);
+  const auto lastCompExt = path.getLastComponentExt();
+  if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend"))) {
     return false;
   }
-  fclose(fp);
+
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (fp == nullptr) {
+    return false;
+  }
+
+  uint32_t buf = 0;
+  if (std::fread(&buf, 1, sizeof(buf), fp.get()) != sizeof(buf)) {
+    return false;
+  }
+
   buf = hecl::SLittle(buf);
-  if (buf == 0x4e454c42 || buf == 0x88b1f)
-    return true;
-  return false;
+  return buf == 0x4e454c42 || buf == 0x88b1f;
 }
 
 bool IsPathYAML(const hecl::ProjectPath& path) {

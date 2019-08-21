@@ -60,19 +60,23 @@ extern "C" uint8_t HECL_STARTUP[];
 extern "C" size_t HECL_STARTUP_SZ;
 
 static void InstallBlendershell(const SystemChar* path) {
-  FILE* fp = hecl::Fopen(path, _SYS_STR("w"));
-  if (!fp)
+  auto fp = hecl::FopenUnique(path, _SYS_STR("w"));
+
+  if (fp == nullptr) {
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("unable to open {} for writing")), path);
-  fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
-  fclose(fp);
+  }
+
+  std::fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp.get());
 }
 
 static void InstallAddon(const SystemChar* path) {
-  FILE* fp = hecl::Fopen(path, _SYS_STR("wb"));
-  if (!fp)
+  auto fp = hecl::FopenUnique(path, _SYS_STR("wb"));
+
+  if (fp == nullptr) {
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to install blender addon at '{}'")), path);
-  fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
-  fclose(fp);
+  }
+
+  std::fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp.get());
 }
 
 static int Read(int fd, void* buf, size_t size) {
@@ -200,18 +204,20 @@ void Connection::_closePipe() {
 
 void Connection::_blenderDied() {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  FILE* errFp = hecl::Fopen(m_errPath.c_str(), _SYS_STR("r"));
-  if (errFp) {
-    fseek(errFp, 0, SEEK_END);
-    int64_t len = hecl::FTell(errFp);
-    if (len) {
-      fseek(errFp, 0, SEEK_SET);
-      std::unique_ptr<char[]> buf(new char[len + 1]);
-      memset(buf.get(), 0, len + 1);
-      fread(buf.get(), 1, len, errFp);
+  auto errFp = hecl::FopenUnique(m_errPath.c_str(), _SYS_STR("r"));
+
+  if (errFp != nullptr) {
+    std::fseek(errFp.get(), 0, SEEK_END);
+    const int64_t len = hecl::FTell(errFp.get());
+
+    if (len != 0) {
+      std::fseek(errFp.get(), 0, SEEK_SET);
+      const auto buf = std::make_unique<char[]>(len + 1);
+      std::fread(buf.get(), 1, len, errFp.get());
       BlenderLog.report(logvisor::Fatal, fmt("\n{:.{}s}"), buf.get(), len);
     }
   }
+
   BlenderLog.report(logvisor::Fatal, fmt("Blender Exception"));
 }
 
