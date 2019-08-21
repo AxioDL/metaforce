@@ -76,7 +76,7 @@ class PyOutStream : public std::ostream {
     StreamBuf(PyOutStream& parent, bool deleteOnError) : m_parent(parent), m_deleteOnError(deleteOnError) {}
     StreamBuf(const StreamBuf& other) = delete;
     StreamBuf(StreamBuf&& other) = default;
-    int_type overflow(int_type ch);
+    int_type overflow(int_type ch) override;
   } m_sbuf;
   PyOutStream(Connection* parent, bool deleteOnError);
 
@@ -85,7 +85,7 @@ public:
   PyOutStream(PyOutStream&& other) : std::ostream(&m_sbuf), m_parent(other.m_parent), m_sbuf(std::move(other.m_sbuf)) {
     other.m_parent = nullptr;
   }
-  ~PyOutStream() { close(); }
+  ~PyOutStream() override { close(); }
   void close();
   template <typename S, typename... Args, typename Char = fmt::char_t<S>>
   void format(const S& format, Args&&... args);

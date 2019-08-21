@@ -24,9 +24,9 @@ public:
     m_zstrm.avail_in = 0;
     inflateInit(&m_zstrm);
   }
-  ~ShaderCacheZipStream() { inflateEnd(&m_zstrm); }
+  ~ShaderCacheZipStream() override { inflateEnd(&m_zstrm); }
   operator bool() const { return m_compBuf.operator bool(); }
-  atUint64 readUBytesToBuf(void* buf, atUint64 len) {
+  atUint64 readUBytesToBuf(void* buf, atUint64 len) override {
     m_zstrm.next_out = (Bytef*)buf;
     m_zstrm.avail_out = len;
     m_zstrm.total_out = 0;
@@ -42,9 +42,9 @@ public:
     }
     return m_zstrm.total_out;
   }
-  void seek(atInt64, athena::SeekOrigin) {}
-  atUint64 position() const { return 0; }
-  atUint64 length() const { return 0; }
+  void seek(atInt64, athena::SeekOrigin) override {}
+  atUint64 position() const override { return 0; }
+  atUint64 length() const override { return 0; }
 };
 
 template <typename P, typename S>
