@@ -256,17 +256,22 @@ ProjectRootPath SearchForProject(SystemStringView path) {
     Sstat theStat;
     if (!hecl::Stat(testIndexPath.c_str(), &theStat)) {
       if (S_ISREG(theStat.st_mode)) {
-        FILE* fp = hecl::Fopen(testIndexPath.c_str(), _SYS_STR("rb"));
-        if (!fp)
+        const auto fp = hecl::FopenUnique(testIndexPath.c_str(), _SYS_STR("rb"));
+        if (fp == nullptr) {
           continue;
+        }
+
         char magic[4];
-        size_t readSize = fread(magic, 1, 4, fp);
-        fclose(fp);
-        if (readSize != 4)
+        const size_t readSize = std::fread(magic, 1, sizeof(magic), fp.get());
+        if (readSize != sizeof(magic)) {
           continue;
+        }
+
         static constexpr hecl::FourCC hecl("HECL");
-        if (hecl::FourCC(magic) != hecl)
+        if (hecl::FourCC(magic) != hecl) {
           continue;
+        }
+
         return ProjectRootPath(testPath);
       }
     }
@@ -280,40 +285,51 @@ ProjectRootPath SearchForProject(SystemStringView path) {
 }
 
 ProjectRootPath SearchForProject(SystemStringView path, SystemString& subpathOut) {
-  ProjectRootPath testRoot(path);
+  const ProjectRootPath testRoot(path);
   auto begin = testRoot.getAbsolutePath().begin();
   auto end = testRoot.getAbsolutePath().end();
+
   while (begin != end) {
     SystemString testPath(begin, end);
     SystemString testIndexPath = testPath + _SYS_STR("/.hecl/beacon");
     Sstat theStat;
+
     if (!hecl::Stat(testIndexPath.c_str(), &theStat)) {
       if (S_ISREG(theStat.st_mode)) {
-        FILE* fp = hecl::Fopen(testIndexPath.c_str(), _SYS_STR("rb"));
-        if (!fp)
+        const auto fp = hecl::FopenUnique(testIndexPath.c_str(), _SYS_STR("rb"));
+        if (fp == nullptr) {
           continue;
+        }
+
         char magic[4];
-        size_t readSize = fread(magic, 1, 4, fp);
-        fclose(fp);
-        if (readSize != 4)
+        const size_t readSize = std::fread(magic, 1, sizeof(magic), fp.get());
+        if (readSize != sizeof(magic)) {
           continue;
-        if (hecl::FourCC(magic) != FOURCC('HECL'))
+        }
+        if (hecl::FourCC(magic) != FOURCC('HECL')) {
           continue;
-        ProjectRootPath newRootPath = ProjectRootPath(testPath);
-        auto origEnd = testRoot.getAbsolutePath().end();
-        while (end != origEnd && *end != _SYS_STR('/') && *end != _SYS_STR('\\'))
+        }
+
+        const ProjectRootPath newRootPath = ProjectRootPath(testPath);
+        const auto origEnd = testRoot.getAbsolutePath().end();
+        while (end != origEnd && *end != _SYS_STR('/') && *end != _SYS_STR('\\')) {
           ++end;
-        if (end != origEnd && (*end == _SYS_STR('/') || *end == _SYS_STR('\\')))
+        }
+        if (end != origEnd && (*end == _SYS_STR('/') || *end == _SYS_STR('\\'))) {
           ++end;
+        }
+
         subpathOut.assign(end, origEnd);
         return newRootPath;
       }
     }
 
-    while (begin != end && *(end - 1) != _SYS_STR('/') && *(end - 1) != _SYS_STR('\\'))
+    while (begin != end && *(end - 1) != _SYS_STR('/') && *(end - 1) != _SYS_STR('\\')) {
       --end;
-    if (begin != end)
+    }
+    if (begin != end) {
       --end;
+    }
   }
   return ProjectRootPath();
 }
