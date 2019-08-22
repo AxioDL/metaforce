@@ -71,7 +71,7 @@ void ClientProcess::BufferTransaction::run(blender::Token& btok) {
 void ClientProcess::CookTransaction::run(blender::Token& btok) {
   m_dataSpec->setThreadProject();
   m_returnResult = m_parent.syncCook(m_path, m_dataSpec, btok, m_force, m_fast);
-  std::unique_lock<std::mutex> lk(m_parent.m_mutex);
+  std::unique_lock lk{m_parent.m_mutex};
   ++m_parent.m_completedCooks;
   m_parent.m_progPrinter->setMainFactor(m_parent.m_completedCooks / float(m_parent.m_addedCooks));
   m_complete = true;
@@ -92,7 +92,7 @@ void ClientProcess::Worker::proc() {
   std::string thrName = fmt::format(fmt("HECL Worker {}"), m_idx);
   logvisor::RegisterThreadName(thrName.c_str());
 
-  std::unique_lock<std::mutex> lk(m_proc.m_mutex);
+  std::unique_lock lk{m_proc.m_mutex};
   while (m_proc.m_running) {
     if (!m_didInit) {
       m_proc.m_initCv.notify_one();
@@ -125,7 +125,7 @@ ClientProcess::ClientProcess(const MultiProgressPrinter* progPrinter) : m_progPr
 #endif
   m_workers.reserve(cpuCount);
   for (int i = 0; i < cpuCount; ++i) {
-    std::unique_lock<std::mutex> lk(m_mutex);
+    std::unique_lock lk{m_mutex};
     m_workers.emplace_back(*this, m_workers.size());
     m_initCv.wait(lk);
   }
@@ -134,7 +134,7 @@ ClientProcess::ClientProcess(const MultiProgressPrinter* progPrinter) : m_progPr
 std::shared_ptr<const ClientProcess::BufferTransaction> ClientProcess::addBufferTransaction(const ProjectPath& path,
                                                                                             void* target, size_t maxLen,
                                                                                             size_t offset) {
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   auto ret = std::make_shared<BufferTransaction>(*this, path, target, maxLen, offset);
   m_pendingQueue.emplace_back(ret);
   m_cv.notify_one();
@@ -144,7 +144,7 @@ std::shared_ptr<const ClientProcess::BufferTransaction> ClientProcess::addBuffer
 std::shared_ptr<const ClientProcess::CookTransaction> ClientProcess::addCookTransaction(const hecl::ProjectPath& path,
                                                                                         bool force, bool fast,
                                                                                         Database::IDataSpec* spec) {
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   auto ret = std::make_shared<CookTransaction>(*this, path, force, fast, spec);
   m_pendingQueue.emplace_back(ret);
   m_cv.notify_one();
@@ -155,7 +155,7 @@ std::shared_ptr<const ClientProcess::CookTransaction> ClientProcess::addCookTran
 
 std::shared_ptr<const ClientProcess::LambdaTransaction>
 ClientProcess::addLambdaTransaction(std::function<void(blender::Token&)>&& func) {
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   auto ret = std::make_shared<LambdaTransaction>(*this, std::move(func));
   m_pendingQueue.emplace_back(ret);
   m_cv.notify_one();
@@ -204,12 +204,12 @@ bool ClientProcess::syncCook(const hecl::ProjectPath& path, Database::IDataSpec*
 }
 
 void ClientProcess::swapCompletedQueue(std::list<std::shared_ptr<Transaction>>& queue) {
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   queue.swap(m_completedQueue);
 }
 
 void ClientProcess::waitUntilComplete() {
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   while (isBusy())
     m_waitCv.wait(lk);
 }
@@ -217,7 +217,7 @@ void ClientProcess::waitUntilComplete() {
 void ClientProcess::shutdown() {
   if (!m_running)
     return;
-  std::unique_lock<std::mutex> lk(m_mutex);
+  std::unique_lock lk{m_mutex};
   m_pendingQueue.clear();
   m_running = false;
   m_cv.notify_all();
