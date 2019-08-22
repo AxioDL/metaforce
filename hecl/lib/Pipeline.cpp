@@ -25,7 +25,7 @@ public:
     inflateInit(&m_zstrm);
   }
   ~ShaderCacheZipStream() override { inflateEnd(&m_zstrm); }
-  operator bool() const { return m_compBuf.operator bool(); }
+  explicit operator bool() const { return m_compBuf.operator bool(); }
   atUint64 readUBytesToBuf(void* buf, atUint64 len) override {
     m_zstrm.next_out = (Bytef*)buf;
     m_zstrm.avail_out = len;

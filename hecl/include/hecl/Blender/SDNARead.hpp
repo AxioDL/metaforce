@@ -57,7 +57,7 @@ class SDNARead {
 
 public:
   explicit SDNARead(SystemStringView path);
-  operator bool() const { return !m_data.empty(); }
+  explicit operator bool() const { return !m_data.empty(); }
   const SDNABlock& sdnaBlock() const { return m_sdnaBlock; }
   void enumerate(const std::function<bool(const FileBlock& block, athena::io::MemoryReader& r)>& func) const;
 };
