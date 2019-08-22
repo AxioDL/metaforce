@@ -36,7 +36,7 @@ public:
     void* m_targetBuf;
     size_t m_maxLen;
     size_t m_offset;
-    void run(blender::Token& btok);
+    void run(blender::Token& btok) override;
     BufferTransaction(ClientProcess& parent, const ProjectPath& path, void* target, size_t maxLen, size_t offset)
     : Transaction(parent, Type::Buffer), m_path(path), m_targetBuf(target), m_maxLen(maxLen), m_offset(offset) {}
   };
@@ -46,13 +46,13 @@ public:
     bool m_returnResult = false;
     bool m_force;
     bool m_fast;
-    void run(blender::Token& btok);
+    void run(blender::Token& btok) override;
     CookTransaction(ClientProcess& parent, const ProjectPath& path, bool force, bool fast, Database::IDataSpec* spec)
     : Transaction(parent, Type::Cook), m_path(path), m_dataSpec(spec), m_force(force), m_fast(fast) {}
   };
   struct LambdaTransaction final : Transaction {
     std::function<void(blender::Token&)> m_func;
-    void run(blender::Token& btok);
+    void run(blender::Token& btok) override;
     LambdaTransaction(ClientProcess& parent, std::function<void(blender::Token&)>&& func)
     : Transaction(parent, Type::Lambda), m_func(std::move(func)) {}
   };
