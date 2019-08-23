@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 
 namespace DataSpec::DNACommon {
 struct EGMC : public BigDNA {

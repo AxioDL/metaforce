@@ -1,8 +1,15 @@
-#include "BabeDead.hpp"
+#include "DataSpec/DNACommon/BabeDead.hpp"
+
 #include "DataSpec/DNAMP1/MREA.hpp"
 #include "DataSpec/DNAMP3/MREA.hpp"
-#include "zeus/CTransform.hpp"
-#include "hecl/Blender/Connection.hpp"
+
+#include <cfloat>
+
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/Math.hpp>
+
+#include <fmt/format.h>
 
 namespace DataSpec {
 

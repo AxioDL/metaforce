@@ -1,4 +1,19 @@
-#include "ATBL.hpp"
+#include "DataSpec/DNACommon/ATBL.hpp"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstdlib>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <athena/FileReader.hpp>
+#include <athena/FileWriter.hpp>
+#include <athena/YAMLDocReader.hpp>
+#include <athena/YAMLDocWriter.hpp>
+
+#include <fmt/format.h>
 
 namespace DataSpec::DNAAudio {
 

@@ -1,6 +1,11 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include <memory>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 extern logvisor::Module LogModule;

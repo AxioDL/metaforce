@@ -1,13 +1,16 @@
-#include "MAPA.hpp"
-#include "../DNAMP1/DNAMP1.hpp"
-#include "../DNAMP2/DNAMP2.hpp"
-#include "../DNAMP3/DNAMP3.hpp"
-#include "../DNAMP1/MAPA.hpp"
-#include "../DNAMP2/MAPA.hpp"
-#include "../DNAMP3/MAPA.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CAABox.hpp"
-#include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNACommon/MAPA.hpp"
+
+#include "DataSpec/DNACommon/GX.hpp"
+#include "DataSpec/DNAMP1/DNAMP1.hpp"
+#include "DataSpec/DNAMP2/DNAMP2.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
+#include "DataSpec/DNAMP1/MAPA.hpp"
+#include "DataSpec/DNAMP2/MAPA.hpp"
+#include "DataSpec/DNAMP3/MAPA.hpp"
+
+#include <hecl/Blender/Connection.hpp>
+#include <logvisor/logvisor.hpp>
+#include <zeus/CAABox.hpp>
 
 namespace DataSpec::DNAMAPA {
 

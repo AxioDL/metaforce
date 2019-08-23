@@ -1,7 +1,10 @@
-#include "athena/IStreamReader.hpp"
-#include "athena/IStreamWriter.hpp"
-#include "athena/FileWriter.hpp"
-#include "DGRP.hpp"
+#include "DataSpec/DNACommon/DGRP.hpp"
+
+#include <athena/DNAYaml.hpp>
+#include <athena/FileWriter.hpp>
+#include <athena/IStreamWriter.hpp>
+
+#include <hecl/hecl.hpp>
 
 namespace DataSpec::DNADGRP {
 

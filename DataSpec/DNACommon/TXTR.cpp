@@ -1,9 +1,15 @@
+#include "DataSpec/DNACommon/TXTR.hpp"
+
+#include <cstdint>
+#include <memory>
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <athena/FileWriter.hpp>
+#include <hecl/hecl.hpp>
+#include <logvisor/logvisor.hpp>
 #include <png.h>
 #include <squish.h>
-#include "TXTR.hpp"
-#include "PAK.hpp"
-#include "athena/FileWriter.hpp"
-#include "hecl/hecl.hpp"
 
 namespace DataSpec {
 

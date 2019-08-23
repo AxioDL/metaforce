@@ -1,8 +1,10 @@
-#include "RigInverter.hpp"
+#include "DataSpec/DNACommon/RigInverter.hpp"
+
 #include "DataSpec/DNAMP1/CINF.hpp"
 #include "DataSpec/DNAMP2/CINF.hpp"
 #include "DataSpec/DNAMP3/CINF.hpp"
-#include "hecl/Blender/Connection.hpp"
+
+#include <hecl/Blender/Connection.hpp>
 
 namespace DataSpec::DNAANIM {
 

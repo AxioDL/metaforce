@@ -1,9 +1,15 @@
-#include "athena/Types.hpp"
-#include "OBBTreeBuilder.hpp"
-#include "zeus/CTransform.hpp"
+#include "DataSpec/DNACommon/OBBTreeBuilder.hpp"
+
+#include <cstddef>
+#include <unordered_set>
+#include <vector>
+
 #include "DataSpec/DNAMP1/DCLN.hpp"
-#include "gmm/gmm.h"
-#include "hecl/Blender/Connection.hpp"
+
+#include <athena/Types.hpp>
+#include <gmm/gmm.h>
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace DataSpec {
 

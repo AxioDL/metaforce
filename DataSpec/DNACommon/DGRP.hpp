@@ -1,7 +1,9 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "PAK.hpp"
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::DNADGRP {
 

@@ -1,4 +1,9 @@
-#include "DPSC.hpp"
+#include "DataSpec/DNACommon/DPSC.hpp"
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <athena/DNAYaml.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 

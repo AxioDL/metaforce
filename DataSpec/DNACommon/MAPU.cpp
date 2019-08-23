@@ -1,9 +1,11 @@
-#include "MAPU.hpp"
-#include "../DNAMP1/DNAMP1.hpp"
-#include "../DNAMP2/DNAMP2.hpp"
-#include "../DNAMP3/DNAMP3.hpp"
-#include "zeus/CTransform.hpp"
-#include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNACommon/MAPU.hpp"
+
+#include "DataSpec/DNAMP1/DNAMP1.hpp"
+#include "DataSpec/DNAMP2/DNAMP2.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
+
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/Global.hpp>
 
 namespace DataSpec::DNAMAPU {
 
