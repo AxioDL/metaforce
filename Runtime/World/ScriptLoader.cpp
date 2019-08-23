@@ -117,6 +117,7 @@
 #include "MP1/World/CBloodFlower.hpp"
 #include "MP1/World/CFlickerBat.hpp"
 #include "Camera/CPathCamera.hpp"
+#include "MP1/World/CEnergyBall.hpp"
 
 namespace urde {
 static logvisor::Module Log("urde::ScriptLoader");
@@ -3572,6 +3573,39 @@ CEntity* ScriptLoader::LoadShadowProjector(CStateManager& mgr, CInputStream& in,
 }
 
 CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+  if (!EnsurePropertyCount(propCount, 16, "EnergyBall"))
+    return nullptr;
+
+  SScaledActorHead actorHead = LoadScaledActorHead(in, mgr);
+  const auto pair = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!pair.first)
+    return nullptr;
+
+  CPatternedInfo pInfo(in, pair.second);
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+
+  CActorParameters actParms = LoadActorParameters(in);
+  u32 w1 = in.readUint32Big();
+  float f1 = in.readFloatBig();
+  CDamageInfo dInfo1(in);
+  float f2 = in.readFloatBig();
+  CAssetId a1(in);
+  s16 sfxId1 = CSfxManager::TranslateSFXID(in.readUint32Big());
+  CAssetId a2(in);
+  CAssetId a3(in);
+  s16 sfxId2 = CSfxManager::TranslateSFXID(in.readUint32Big());
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  CAssetId a4(in);
+
+  CDamageInfo dInfo2 = propCount >= 19 ? CDamageInfo(in) : CDamageInfo();
+  float f5 = propCount >= 20 ? in.readFloatBig() : 3.0f;
+
+  CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actorHead.x40_scale,
+                            animParms.GetInitialAnimation(), true));
+  return new MP1::CEnergyBall(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform, std::move(mData),
+                              actParms, pInfo, w1, f1, dInfo1, f2, a1, sfxId1, a2, a3, sfxId2, f3, f4, a4, dInfo2, f5);
 }
 } // namespace urde

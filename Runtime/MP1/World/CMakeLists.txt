@@ -10,6 +10,7 @@ set(MP1_WORLD_SOURCES
     CBabygoth.hpp CBabygoth.cpp
     CTryclops.hpp CTryclops.cpp
     CFireFlea.hpp CFireFlea.cpp
+    CEnergyBall.hpp CEnergyBall.cpp
     CEyeball.hpp CEyeball.cpp
     CAtomicAlpha.hpp CAtomicAlpha.cpp
     CAtomicBeta.hpp CAtomicBeta.cpp
