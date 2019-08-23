@@ -17,23 +17,6 @@ extern pD3DCompile D3DCompilePROC;
 namespace hecl {
 logvisor::Module Log("hecl::Compilers");
 
-namespace PlatformType {
-const char* OpenGL::Name = "OpenGL";
-const char* Vulkan::Name = "Vulkan";
-const char* D3D11::Name = "D3D11";
-const char* Metal::Name = "Metal";
-const char* NX::Name = "NX";
-} // namespace PlatformType
-
-namespace PipelineStage {
-const char* Null::Name = "Null";
-const char* Vertex::Name = "Vertex";
-const char* Fragment::Name = "Fragment";
-const char* Geometry::Name = "Geometry";
-const char* Control::Name = "Control";
-const char* Evaluation::Name = "Evaluation";
-} // namespace PipelineStage
-
 template <typename P>
 struct ShaderCompiler {};
 
