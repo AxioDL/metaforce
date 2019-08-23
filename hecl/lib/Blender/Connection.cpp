@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cerrno>
+#include <cfloat>
 #include <chrono>
 #include <cinttypes>
 #include <csignal>
@@ -15,9 +16,11 @@
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/Token.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "MeshOptimizer.hpp"
 
+#include <athena/MemoryWriter.hpp>
 #include <logvisor/logvisor.hpp>
 
 #if _WIN32
