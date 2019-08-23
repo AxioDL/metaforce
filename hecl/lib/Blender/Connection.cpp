@@ -285,8 +285,8 @@ Connection::Connection(int verbosityLevel) {
   while (true) {
     /* Construct communication pipes */
 #if _WIN32
-    _pipe(m_readpipe, 2048, _O_BINARY);
-    _pipe(m_writepipe, 2048, _O_BINARY);
+    _pipe(m_readpipe.data(), 2048, _O_BINARY);
+    _pipe(m_writepipe.data(), 2048, _O_BINARY);
     HANDLE writehandle = HANDLE(_get_osfhandle(m_writepipe[0]));
     SetHandleInformation(writehandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
     HANDLE readhandle = HANDLE(_get_osfhandle(m_readpipe[1]));
@@ -561,8 +561,9 @@ std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
   return ch;
 }
 
-static const char* BlendTypeStrs[] = {"NONE",    "MESH",        "CMESH", "ACTOR", "AREA", "WORLD",
-                                      "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH",  nullptr};
+constexpr std::array<const char*, 11> BlendTypeStrs{
+    "NONE", "MESH", "CMESH", "ACTOR", "AREA", "WORLD", "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH", nullptr,
+};
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
   if (m_lock) {
@@ -1548,7 +1549,7 @@ std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
 }
 
 const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
-  static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
+  static constexpr std::array<const char*, 2> STRS{"TRIANGLES", "TRISTRIPS"};
   return STRS[int(topology)];
 }
 

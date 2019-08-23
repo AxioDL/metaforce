@@ -137,15 +137,15 @@ struct Vector4f {
   }
 };
 struct Matrix3f {
-  atVec3f m[3];
-  inline atVec3f& operator[](size_t idx) { return m[idx]; }
-  inline const atVec3f& operator[](size_t idx) const { return m[idx]; }
+  std::array<atVec3f, 3> m;
+  atVec3f& operator[](size_t idx) { return m[idx]; }
+  const atVec3f& operator[](size_t idx) const { return m[idx]; }
 };
 struct Matrix4f {
-  atVec4f val[4];
+  std::array<atVec4f, 4> val;
   Matrix4f() = default;
-  void read(Connection& conn);
   Matrix4f(Connection& conn) { read(conn); }
+  void read(Connection& conn);
   const atVec4f& operator[](size_t idx) const { return val[idx]; }
 };
 struct Index {
@@ -434,14 +434,14 @@ struct ColMesh {
   std::vector<Vector3f> verts;
 
   struct Edge {
-    uint32_t verts[2];
+    std::array<uint32_t, 2> verts;
     bool seam;
     Edge(Connection& conn);
   };
   std::vector<Edge> edges;
 
   struct Triangle {
-    uint32_t edges[3];
+    std::array<uint32_t, 3> edges;
     uint32_t matIdx;
     bool flip;
     Triangle(Connection& conn);
@@ -455,10 +455,10 @@ struct ColMesh {
 struct World {
   struct Area {
     ProjectPath path;
-    Vector3f aabb[2];
+    std::array<Vector3f, 2> aabb;
     Matrix4f transform;
     struct Dock {
-      Vector3f verts[4];
+      std::array<Vector3f, 4> verts;
       Index targetArea;
       Index targetDock;
       Dock(Connection& conn);
@@ -702,8 +702,8 @@ class Connection {
 #else
   pid_t m_blenderProc = 0;
 #endif
-  int m_readpipe[2];
-  int m_writepipe[2];
+  std::array<int, 2> m_readpipe{};
+  std::array<int, 2> m_writepipe{};
   BlendType m_loadedType = BlendType::None;
   bool m_loadedRigged = false;
   ProjectPath m_loadedBlend;
