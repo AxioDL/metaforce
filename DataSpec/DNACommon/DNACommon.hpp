@@ -246,23 +246,15 @@ public:
   UniqueID64(const hecl::ProjectPath& path) { *this = path; }
   UniqueID64(const char* hexStr) {
     char copy[17];
-    strncpy(copy, hexStr, 16);
+    std::strncpy(copy, hexStr, 16);
     copy[16] = '\0';
-#if _WIN32
-    assign(_strtoui64(copy, nullptr, 16));
-#else
-    assign(strtouq(copy, nullptr, 16));
-#endif
+    assign(std::strtoull(copy, nullptr, 16));
   }
   UniqueID64(const wchar_t* hexStr) {
     wchar_t copy[17];
-    wcsncpy(copy, hexStr, 16);
+    std::wcsncpy(copy, hexStr, 16);
     copy[16] = L'\0';
-#if _WIN32
-    assign(_wcstoui64(copy, nullptr, 16));
-#else
-    assign(wcstoull(copy, nullptr, 16));
-#endif
+    assign(std::wcstoull(copy, nullptr, 16));
   }
 
   static constexpr size_t BinarySize() { return 8; }
