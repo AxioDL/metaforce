@@ -40,9 +40,10 @@
 namespace hecl::blender {
 using namespace std::literals;
 
-extern logvisor::Module BlenderLog;
-class HMDLBuffers;
 class Connection;
+class HMDLBuffers;
+
+extern logvisor::Module BlenderLog;
 
 struct PoolSkinIndex {
   size_t m_poolSz = 0;
@@ -671,30 +672,30 @@ public:
 };
 
 class Connection {
+  friend class ANIMOutStream;
   friend class DataStream;
   friend class PyOutStream;
-  friend class ANIMOutStream;
-  friend struct PyOutStream::StreamBuf;
-  friend struct Mesh;
-  friend struct Material;
+  friend struct Action;
+  friend struct Actor;
+  friend struct Armature;
+  friend struct Bone;
+  friend struct Boolean;
   friend struct ColMesh;
-  friend struct World;
+  friend struct Float;
+  friend struct Index;
   friend struct Light;
   friend struct MapArea;
   friend struct MapUniverse;
-  friend struct Actor;
-  friend struct Armature;
-  friend struct Action;
-  friend struct Bone;
+  friend struct Material;
+  friend struct Matrix3f;
+  friend struct Matrix4f;
+  friend struct Mesh;
   friend struct PathMesh;
+  friend struct PyOutStream::StreamBuf;
   friend struct Vector2f;
   friend struct Vector3f;
   friend struct Vector4f;
-  friend struct Matrix3f;
-  friend struct Matrix4f;
-  friend struct Index;
-  friend struct Float;
-  friend struct Boolean;
+  friend struct World;
 
   std::atomic_bool m_lock = {false};
   bool m_pyStreamActive = false;
