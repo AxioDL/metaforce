@@ -1363,14 +1363,13 @@ Actor::Subtype::Subtype(Connection& conn) {
   name.assign(bufSz, ' ');
   conn._readBuf(&name[0], bufSz);
 
-  std::string meshPath;
   conn._readBuf(&bufSz, 4);
-  if (bufSz) {
-    meshPath.assign(bufSz, ' ');
-    conn._readBuf(&meshPath[0], bufSz);
-    SystemStringConv meshPathAbs(meshPath);
+  if (bufSz != 0) {
+    std::string meshPath(bufSz, ' ');
+    conn._readBuf(meshPath.data(), meshPath.size());
+    const SystemStringConv meshPathAbs(meshPath);
 
-    SystemString meshPathRel =
+    const SystemString meshPathRel =
         conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
     mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
   }
@@ -1386,14 +1385,13 @@ Actor::Subtype::Subtype(Connection& conn) {
     overlayName.assign(bufSz, ' ');
     conn._readBuf(&overlayName[0], bufSz);
 
-    std::string meshPath;
     conn._readBuf(&bufSz, 4);
-    if (bufSz) {
-      meshPath.assign(bufSz, ' ');
-      conn._readBuf(&meshPath[0], bufSz);
-      SystemStringConv meshPathAbs(meshPath);
+    if (bufSz != 0) {
+      std::string meshPath(bufSz, ' ');
+      conn._readBuf(meshPath.data(), meshPath.size());
+      const SystemStringConv meshPathAbs(meshPath);
 
-      SystemString meshPathRel =
+      const SystemString meshPathRel =
           conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
       overlayMeshes.emplace_back(std::move(overlayName),
                                  ProjectPath(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel));
@@ -1894,12 +1892,11 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& subtypeName = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    subtypeName.assign(bufSz, ' ');
+    m_parent->_readBuf(subtypeName.data(), subtypeName.size());
   }
 
   return ret;
@@ -1955,23 +1952,22 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
   m_parent->_readBuf(&boneCount, 4);
   ret.reserve(boneCount);
   for (uint32_t i = 0; i < boneCount; ++i) {
-    std::string name;
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    std::string mat_name(bufSz, ' ');
+    m_parent->_readBuf(mat_name.data(), bufSz);
 
     Matrix3f matOut;
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 3; ++j) {
+    for (int mat_i = 0; mat_i < 3; ++mat_i) {
+      for (int mat_j = 0; mat_j < 3; ++mat_j) {
         float val;
         m_parent->_readBuf(&val, 4);
-        matOut[i].simd[j] = val;
+        matOut[mat_i].simd[mat_j] = val;
       }
-      reinterpret_cast<atVec4f&>(matOut[i]).simd[3] = 0.f;
+      reinterpret_cast<atVec4f&>(matOut[mat_i]).simd[3] = 0.f;
     }
 
-    ret.emplace(std::make_pair(std::move(name), std::move(matOut)));
+    ret.emplace(std::move(mat_name), std::move(matOut));
   }
 
   return ret;
