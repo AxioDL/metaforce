@@ -167,7 +167,7 @@ struct ShaderCompiler<PlatformType::Metal> {
                "-gline-tables-only", "-MO",
 #endif
                "-", NULL);
-        fprintf(stderr, "execlp fail %s\n", strerror(errno));
+        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerIn[0]);
@@ -183,7 +183,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
         /* metallib doesn't like outputting to a pipe, so temp file will have to do */
         execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), NULL);
-        fprintf(stderr, "execlp fail %s\n", strerror(errno));
+        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerOut[0]);
@@ -194,7 +194,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (inRem) {
         ssize_t writeRes = write(compilerIn[1], inPtr, inRem);
         if (writeRes < 0) {
-          fprintf(stderr, "write fail %s\n", strerror(errno));
+          fmt::print(stderr, fmt("write fail {}\n"), strerror(errno));
           break;
         }
         inPtr += writeRes;
@@ -207,7 +207,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(compilerPid, &compilerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
         return {};
       }
 
@@ -219,7 +219,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(linkerPid, &linkerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
         return {};
       }
 
