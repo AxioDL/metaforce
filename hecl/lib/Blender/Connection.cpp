@@ -1,22 +1,24 @@
+#include <algorithm>
 #include <cerrno>
+#include <chrono>
+#include <cinttypes>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cinttypes>
-#include <signal.h>
-#include <system_error>
-#include <string>
-#include <algorithm>
-#include <chrono>
-#include <thread>
 #include <mutex>
+#include <string>
+#include <system_error>
+#include <thread>
+#include <tuple>
 
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
-#include "logvisor/logvisor.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "MeshOptimizer.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 #if _WIN32
 #include <io.h>
@@ -996,19 +998,8 @@ Material::Material(Connection& conn) {
 }
 
 bool Mesh::Surface::Vert::operator==(const Vert& other) const {
-  if (iPos != other.iPos)
-    return false;
-  if (iNorm != other.iNorm)
-    return false;
-  for (int i = 0; i < 4; ++i)
-    if (iColor[i] != other.iColor[i])
-      return false;
-  for (int i = 0; i < 8; ++i)
-    if (iUv[i] != other.iUv[i])
-      return false;
-  if (iSkin != other.iSkin)
-    return false;
-  return true;
+  return std::tie(iPos, iNorm, iColor, iUv, iSkin) ==
+         std::tie(other.iPos, other.iNorm, other.iColor, other.iUv, other.iSkin);
 }
 
 static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx) {

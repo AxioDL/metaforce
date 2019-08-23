@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <cfloat>
@@ -343,8 +344,8 @@ struct Mesh {
     struct Vert {
       uint32_t iPos = 0xffffffff;
       uint32_t iNorm = 0xffffffff;
-      uint32_t iColor[4] = {0xffffffff};
-      uint32_t iUv[8] = {0xffffffff};
+      std::array<uint32_t, 4> iColor = {0xffffffff};
+      std::array<uint32_t, 8> iUv = {0xffffffff};
       uint32_t iSkin = 0xffffffff;
       uint32_t iBankSkin = 0xffffffff;
 
