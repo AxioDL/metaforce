@@ -1,22 +1,27 @@
+#include <algorithm>
 #include <cerrno>
+#include <cfloat>
+#include <chrono>
+#include <cinttypes>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cinttypes>
-#include <signal.h>
-#include <system_error>
-#include <string>
-#include <algorithm>
-#include <chrono>
-#include <thread>
 #include <mutex>
+#include <string>
+#include <system_error>
+#include <thread>
+#include <tuple>
 
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
-#include "logvisor/logvisor.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/Token.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "MeshOptimizer.hpp"
+
+#include <athena/MemoryWriter.hpp>
+#include <logvisor/logvisor.hpp>
 
 #if _WIN32
 #include <io.h>
@@ -283,14 +288,14 @@ Connection::Connection(int verbosityLevel) {
   while (true) {
     /* Construct communication pipes */
 #if _WIN32
-    _pipe(m_readpipe, 2048, _O_BINARY);
-    _pipe(m_writepipe, 2048, _O_BINARY);
+    _pipe(m_readpipe.data(), 2048, _O_BINARY);
+    _pipe(m_writepipe.data(), 2048, _O_BINARY);
     HANDLE writehandle = HANDLE(_get_osfhandle(m_writepipe[0]));
     SetHandleInformation(writehandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
     HANDLE readhandle = HANDLE(_get_osfhandle(m_readpipe[1]));
     SetHandleInformation(readhandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
 
-    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
     HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
     if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 1024))
       BlenderLog.report(logvisor::Fatal, fmt("Error with CreatePipe"));
@@ -350,7 +355,7 @@ Connection::Connection(int verbosityLevel) {
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL, NULL);
+                                   FILE_ATTRIBUTE_NORMAL, nullptr);
     sinfo.dwFlags = STARTF_USESTDHANDLES;
     sinfo.hStdInput = nulHandle;
     if (verbosityLevel == 0) {
@@ -361,11 +366,12 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS,
-                        NULL, NULL, &sinfo, &m_pinfo)) {
+    if (!CreateProcessW(blenderBin, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr,
+                        &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
-      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                     GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                     nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0,
+                     nullptr);
       BlenderLog.report(logvisor::Fatal, fmt(L"unable to launch blender from {}: {}"), blenderBin, messageBuffer);
     }
 
@@ -383,7 +389,7 @@ Connection::Connection(int verbosityLevel) {
       DWORD nCharsWritten;
 
       while (m_consoleThreadRunning) {
-        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, NULL) || !nBytesRead) {
+        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, nullptr) || !nBytesRead) {
           DWORD err = GetLastError();
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
@@ -393,7 +399,7 @@ Connection::Connection(int verbosityLevel) {
 
         // Display the character read on the screen.
         auto lk = logvisor::LockLog();
-        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
+        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
           // BlenderLog.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
         }
       }
@@ -427,7 +433,7 @@ Connection::Connection(int verbosityLevel) {
       /* Try user-specified blender first */
       if (blenderBin) {
         execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -445,7 +451,7 @@ Connection::Connection(int verbosityLevel) {
 #endif
         blenderBin = steamBlender.c_str();
         execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -455,7 +461,7 @@ Connection::Connection(int verbosityLevel) {
 
       /* Otherwise default blender */
       execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--",
-             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
       if (errno != ENOENT) {
         errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
         _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -558,8 +564,9 @@ std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
   return ch;
 }
 
-static const char* BlendTypeStrs[] = {"NONE",    "MESH",        "CMESH", "ACTOR", "AREA", "WORLD",
-                                      "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH",  nullptr};
+constexpr std::array<const char*, 11> BlendTypeStrs{
+    "NONE", "MESH", "CMESH", "ACTOR", "AREA", "WORLD", "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH", nullptr,
+};
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
   if (m_lock) {
@@ -831,8 +838,7 @@ Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool us
   Index matSetCount(conn);
   materialSets.reserve(matSetCount.val);
   for (uint32_t i = 0; i < matSetCount.val; ++i) {
-    materialSets.emplace_back();
-    std::vector<Material>& materials = materialSets.back();
+    std::vector<Material>& materials = materialSets.emplace_back();
     Index matCount(conn);
     materials.reserve(matCount.val);
     for (uint32_t j = 0; j < matCount.val; ++j)
@@ -995,26 +1001,12 @@ Material::Material(Connection& conn) {
 }
 
 bool Mesh::Surface::Vert::operator==(const Vert& other) const {
-  if (iPos != other.iPos)
-    return false;
-  if (iNorm != other.iNorm)
-    return false;
-  for (int i = 0; i < 4; ++i)
-    if (iColor[i] != other.iColor[i])
-      return false;
-  for (int i = 0; i < 8; ++i)
-    if (iUv[i] != other.iUv[i])
-      return false;
-  if (iSkin != other.iSkin)
-    return false;
-  return true;
+  return std::tie(iPos, iNorm, iColor, iUv, iSkin) ==
+         std::tie(other.iPos, other.iNorm, other.iColor, other.iUv, other.iSkin);
 }
 
 static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx) {
-  for (uint32_t idx : bank)
-    if (sIdx == idx)
-      return true;
-  return false;
+  return std::any_of(bank.cbegin(), bank.cend(), [sIdx](auto index) { return index == sIdx; });
 }
 
 void Mesh::SkinBanks::Bank::addSkins(const Mesh& parent, const std::vector<uint32_t>& skinIdxs) {
@@ -1179,8 +1171,7 @@ MapArea::Surface::Surface(Connection& conn) {
   conn._readBuf(&borderCount, 4);
   borders.reserve(borderCount);
   for (uint32_t i = 0; i < borderCount; ++i) {
-    borders.emplace_back();
-    std::pair<Index, Index>& idx = borders.back();
+    std::pair<Index, Index>& idx = borders.emplace_back();
     conn._readBuf(&idx, 8);
   }
 }
@@ -1370,14 +1361,13 @@ Actor::Subtype::Subtype(Connection& conn) {
   name.assign(bufSz, ' ');
   conn._readBuf(&name[0], bufSz);
 
-  std::string meshPath;
   conn._readBuf(&bufSz, 4);
-  if (bufSz) {
-    meshPath.assign(bufSz, ' ');
-    conn._readBuf(&meshPath[0], bufSz);
-    SystemStringConv meshPathAbs(meshPath);
+  if (bufSz != 0) {
+    std::string meshPath(bufSz, ' ');
+    conn._readBuf(meshPath.data(), meshPath.size());
+    const SystemStringConv meshPathAbs(meshPath);
 
-    SystemString meshPathRel =
+    const SystemString meshPathRel =
         conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
     mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
   }
@@ -1393,14 +1383,13 @@ Actor::Subtype::Subtype(Connection& conn) {
     overlayName.assign(bufSz, ' ');
     conn._readBuf(&overlayName[0], bufSz);
 
-    std::string meshPath;
     conn._readBuf(&bufSz, 4);
-    if (bufSz) {
-      meshPath.assign(bufSz, ' ');
-      conn._readBuf(&meshPath[0], bufSz);
-      SystemStringConv meshPathAbs(meshPath);
+    if (bufSz != 0) {
+      std::string meshPath(bufSz, ' ');
+      conn._readBuf(meshPath.data(), meshPath.size());
+      const SystemStringConv meshPathAbs(meshPath);
 
-      SystemString meshPathRel =
+      const SystemString meshPathRel =
           conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
       overlayMeshes.emplace_back(std::move(overlayName),
                                  ProjectPath(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel));
@@ -1457,9 +1446,7 @@ Action::Action(Connection& conn) {
   conn._readBuf(&aabbCount, 4);
   subtypeAABBs.reserve(aabbCount);
   for (uint32_t i = 0; i < aabbCount; ++i) {
-    subtypeAABBs.emplace_back();
-    subtypeAABBs.back().first.read(conn);
-    subtypeAABBs.back().second.read(conn);
+    subtypeAABBs.emplace_back(conn, conn);
     // printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
     //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]),
     //    float(subtypeAABBs.back().first.val.simd[2]), float(subtypeAABBs.back().second.val.simd[0]),
@@ -1559,7 +1546,7 @@ std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
 }
 
 const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
-  static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
+  static constexpr std::array<const char*, 2> STRS{"TRIANGLES", "TRISTRIPS"};
   return STRS[int(topology)];
 }
 
@@ -1814,12 +1801,11 @@ std::vector<std::string> DataStream::getArmatureNames() {
   m_parent->_readBuf(&armCount, 4);
   ret.reserve(armCount);
   for (uint32_t i = 0; i < armCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1843,12 +1829,11 @@ std::vector<std::string> DataStream::getSubtypeNames() {
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1872,12 +1857,11 @@ std::vector<std::string> DataStream::getActionNames() {
   m_parent->_readBuf(&actCount, 4);
   ret.reserve(actCount);
   for (uint32_t i = 0; i < actCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1901,12 +1885,11 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& subtypeName = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    subtypeName.assign(bufSz, ' ');
+    m_parent->_readBuf(subtypeName.data(), subtypeName.size());
   }
 
   return ret;
@@ -1930,12 +1913,11 @@ std::vector<std::string> DataStream::getAttachmentNames() {
   m_parent->_readBuf(&attCount, 4);
   ret.reserve(attCount);
   for (uint32_t i = 0; i < attCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1962,23 +1944,22 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
   m_parent->_readBuf(&boneCount, 4);
   ret.reserve(boneCount);
   for (uint32_t i = 0; i < boneCount; ++i) {
-    std::string name;
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    std::string mat_name(bufSz, ' ');
+    m_parent->_readBuf(mat_name.data(), bufSz);
 
     Matrix3f matOut;
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 3; ++j) {
+    for (int mat_i = 0; mat_i < 3; ++mat_i) {
+      for (int mat_j = 0; mat_j < 3; ++mat_j) {
         float val;
         m_parent->_readBuf(&val, 4);
-        matOut[i].simd[j] = val;
+        matOut[mat_i].simd[mat_j] = val;
       }
-      reinterpret_cast<atVec4f&>(matOut[i]).simd[3] = 0.f;
+      reinterpret_cast<atVec4f&>(matOut[mat_i]).simd[3] = 0.f;
     }
 
-    ret.emplace(std::make_pair(std::move(name), std::move(matOut)));
+    ret.emplace(std::move(mat_name), std::move(matOut));
   }
 
   return ret;
