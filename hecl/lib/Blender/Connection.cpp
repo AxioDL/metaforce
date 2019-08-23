@@ -1012,10 +1012,7 @@ bool Mesh::Surface::Vert::operator==(const Vert& other) const {
 }
 
 static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx) {
-  for (uint32_t idx : bank)
-    if (sIdx == idx)
-      return true;
-  return false;
+  return std::any_of(bank.cbegin(), bank.cend(), [sIdx](auto index) { return index == sIdx; });
 }
 
 void Mesh::SkinBanks::Bank::addSkins(const Mesh& parent, const std::vector<uint32_t>& skinIdxs) {
