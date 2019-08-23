@@ -1,6 +1,6 @@
 #pragma once
 #include "Compilers.hpp"
-extern "C" unsigned long long XXH64(const void* input, size_t length, unsigned long long seed);
+#include "../extern/boo/xxhash/xxhash.h"
 
 #define HECL_RUNTIME 1
 

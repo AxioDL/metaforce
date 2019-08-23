@@ -313,8 +313,8 @@ Connection::Connection(int verbosityLevel) {
     if (!CloseHandle(consoleOutReadTmp))
       BlenderLog.report(logvisor::Fatal, fmt("Error with CloseHandle"));
 #else
-    pipe(m_readpipe);
-    pipe(m_writepipe);
+    pipe(m_readpipe.data());
+    pipe(m_writepipe.data());
 #endif
 
       /* User-specified blender path */

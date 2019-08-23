@@ -35,7 +35,6 @@
 #include <athena/Types.hpp>
 #include <fmt/ostream.h>
 #include <logvisor/logvisor.hpp>
-#include <xxhash/xxhash.h>
 
 namespace hecl::blender {
 using namespace std::literals;

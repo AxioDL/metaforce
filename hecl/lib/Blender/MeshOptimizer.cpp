@@ -1,5 +1,6 @@
 #include "MeshOptimizer.hpp"
 #include <numeric>
+#include <cfloat>
 #include <cmath>
 
 namespace hecl::blender {
