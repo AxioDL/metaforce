@@ -1,14 +1,17 @@
 #include "hecl/Compilers.hpp"
-#include "boo/graphicsdev/GLSLMacros.hpp"
-#include "logvisor/logvisor.hpp"
+#include <boo/graphicsdev/GLSLMacros.hpp>
+#include <logvisor/logvisor.hpp>
+
 #include <glslang/Public/ShaderLang.h>
 #include <StandAlone/ResourceLimits.h>
 #include <SPIRV/GlslangToSpv.h>
 #include <SPIRV/disassemble.h>
+
 #if _WIN32
 #include <d3dcompiler.h>
 extern pD3DCompile D3DCompilePROC;
 #endif
+
 #if __APPLE__
 #include <unistd.h>
 #include <memory>
@@ -82,7 +85,7 @@ struct ShaderCompiler<PlatformType::D3D11> {
     ComPtr<ID3DBlob> blobOut;
     if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
                               D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob))) {
-      printf("%s\n", text.data());
+      fmt::print(fmt("{}\n"), text);
       Log.report(logvisor::Fatal, fmt("error compiling shader: {}"), (char*)errBlob->GetBufferPointer());
       return {};
     }
