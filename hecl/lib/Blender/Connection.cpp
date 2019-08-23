@@ -290,7 +290,7 @@ Connection::Connection(int verbosityLevel) {
     HANDLE readhandle = HANDLE(_get_osfhandle(m_readpipe[1]));
     SetHandleInformation(readhandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
 
-    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
     HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
     if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 1024))
       BlenderLog.report(logvisor::Fatal, fmt("Error with CreatePipe"));
@@ -350,7 +350,7 @@ Connection::Connection(int verbosityLevel) {
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL, NULL);
+                                   FILE_ATTRIBUTE_NORMAL, nullptr);
     sinfo.dwFlags = STARTF_USESTDHANDLES;
     sinfo.hStdInput = nulHandle;
     if (verbosityLevel == 0) {
@@ -361,11 +361,12 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS,
-                        NULL, NULL, &sinfo, &m_pinfo)) {
+    if (!CreateProcessW(blenderBin, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr,
+                        &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
-      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                     GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                     nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0,
+                     nullptr);
       BlenderLog.report(logvisor::Fatal, fmt(L"unable to launch blender from {}: {}"), blenderBin, messageBuffer);
     }
 
@@ -383,7 +384,7 @@ Connection::Connection(int verbosityLevel) {
       DWORD nCharsWritten;
 
       while (m_consoleThreadRunning) {
-        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, NULL) || !nBytesRead) {
+        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, nullptr) || !nBytesRead) {
           DWORD err = GetLastError();
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
@@ -393,7 +394,7 @@ Connection::Connection(int verbosityLevel) {
 
         // Display the character read on the screen.
         auto lk = logvisor::LockLog();
-        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
+        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
           // BlenderLog.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
         }
       }
@@ -427,7 +428,7 @@ Connection::Connection(int verbosityLevel) {
       /* Try user-specified blender first */
       if (blenderBin) {
         execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -445,7 +446,7 @@ Connection::Connection(int verbosityLevel) {
 #endif
         blenderBin = steamBlender.c_str();
         execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
-               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -455,7 +456,7 @@ Connection::Connection(int verbosityLevel) {
 
       /* Otherwise default blender */
       execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--",
-             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
       if (errno != ENOENT) {
         errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
         _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
