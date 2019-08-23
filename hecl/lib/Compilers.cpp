@@ -110,7 +110,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
     pid_t pid = fork();
     if (!pid) {
-      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "--version", NULL);
+      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "--version", nullptr);
       /* xcrun returns 72 if metal command not found;
        * emulate that if xcrun not found */
       exit(72);
@@ -166,7 +166,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 #ifndef NDEBUG
                "-gline-tables-only", "-MO",
 #endif
-               "-", NULL);
+               "-", nullptr);
         fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
@@ -182,7 +182,7 @@ struct ShaderCompiler<PlatformType::Metal> {
         close(compilerIn[1]);
 
         /* metallib doesn't like outputting to a pipe, so temp file will have to do */
-        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), NULL);
+        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), nullptr);
         fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
