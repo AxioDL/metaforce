@@ -838,8 +838,7 @@ Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool us
   Index matSetCount(conn);
   materialSets.reserve(matSetCount.val);
   for (uint32_t i = 0; i < matSetCount.val; ++i) {
-    materialSets.emplace_back();
-    std::vector<Material>& materials = materialSets.back();
+    std::vector<Material>& materials = materialSets.emplace_back();
     Index matCount(conn);
     materials.reserve(matCount.val);
     for (uint32_t j = 0; j < matCount.val; ++j)
@@ -1172,8 +1171,7 @@ MapArea::Surface::Surface(Connection& conn) {
   conn._readBuf(&borderCount, 4);
   borders.reserve(borderCount);
   for (uint32_t i = 0; i < borderCount; ++i) {
-    borders.emplace_back();
-    std::pair<Index, Index>& idx = borders.back();
+    std::pair<Index, Index>& idx = borders.emplace_back();
     conn._readBuf(&idx, 8);
   }
 }
@@ -1448,9 +1446,7 @@ Action::Action(Connection& conn) {
   conn._readBuf(&aabbCount, 4);
   subtypeAABBs.reserve(aabbCount);
   for (uint32_t i = 0; i < aabbCount; ++i) {
-    subtypeAABBs.emplace_back();
-    subtypeAABBs.back().first.read(conn);
-    subtypeAABBs.back().second.read(conn);
+    subtypeAABBs.emplace_back(conn, conn);
     // printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
     //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]),
     //    float(subtypeAABBs.back().first.val.simd[2]), float(subtypeAABBs.back().second.val.simd[0]),
@@ -1805,12 +1801,11 @@ std::vector<std::string> DataStream::getArmatureNames() {
   m_parent->_readBuf(&armCount, 4);
   ret.reserve(armCount);
   for (uint32_t i = 0; i < armCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1834,12 +1829,11 @@ std::vector<std::string> DataStream::getSubtypeNames() {
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1863,12 +1857,11 @@ std::vector<std::string> DataStream::getActionNames() {
   m_parent->_readBuf(&actCount, 4);
   ret.reserve(actCount);
   for (uint32_t i = 0; i < actCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1920,12 +1913,11 @@ std::vector<std::string> DataStream::getAttachmentNames() {
   m_parent->_readBuf(&attCount, 4);
   ret.reserve(attCount);
   for (uint32_t i = 0; i < attCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
