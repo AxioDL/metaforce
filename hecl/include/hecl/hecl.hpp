@@ -189,7 +189,7 @@ inline void MakeDir(const char* dir) {
   HRESULT err;
   if (!CreateDirectoryA(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, fmt("MakeDir(%s)"), dir);
+      LogModule.report(logvisor::Fatal, fmt("MakeDir({})"), dir);
 #else
   if (mkdir(dir, 0755))
     if (errno != EEXIST)
@@ -202,7 +202,7 @@ inline void MakeDir(const wchar_t* dir) {
   HRESULT err;
   if (!CreateDirectoryW(dir, NULL))
     if ((err = GetLastError()) != ERROR_ALREADY_EXISTS)
-      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("MakeDir(%s)")), dir);
+      LogModule.report(logvisor::Fatal, fmt(_SYS_STR("MakeDir({})")), dir);
 }
 #endif
 
@@ -370,11 +370,11 @@ inline bool CheckFreeSpace(const SystemChar* path, size_t reqSz) {
   wchar_t* end;
   DWORD ret = GetFullPathNameW(path, 1024, buf, &end);
   if (!ret || ret > 1024)
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetFullPathNameW %s")), path);
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetFullPathNameW {}")), path);
   if (end)
     end[0] = L'\0';
   if (!GetDiskFreeSpaceExW(buf, &freeBytes, nullptr, nullptr))
-    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetDiskFreeSpaceExW %s: %d")), path, GetLastError());
+    LogModule.report(logvisor::Fatal, fmt(_SYS_STR("GetDiskFreeSpaceExW {}: {}")), path, GetLastError());
   return reqSz < freeBytes.QuadPart;
 #else
   struct statvfs svfs;
