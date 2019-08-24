@@ -1,6 +1,14 @@
 #include "hecl/hecl.hpp"
-#include <thread>
+
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <string_view>
+#include <thread>
 #include <unordered_map>
 
 #ifdef WIN32
@@ -19,6 +27,8 @@
 #include <mntent.h>
 #include <sys/wait.h>
 #endif
+
+#include <logvisor/logvisor.hpp>
 
 namespace hecl {
 unsigned VerbosityLevel = 0;
