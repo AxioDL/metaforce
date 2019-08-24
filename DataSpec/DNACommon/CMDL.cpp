@@ -1634,14 +1634,14 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
   /* Iterate meshes */
   auto matIt = surfToGlobalMats.cbegin();
   for (const Mesh& mesh : meshes) {
-    zeus::CTransform meshXf(mesh.sceneXf.val);
+    zeus::CTransform meshXf(mesh.sceneXf.val.data());
     meshXf.basis.transpose();
 
     /* Header */
     {
       MeshHeader meshHeader = {};
       meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
-      memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+      memmove(meshHeader.xfMtx, mesh.sceneXf.val.data(), 48);
 
       zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
       aabb = aabb.getTransformedAABox(meshXf);
@@ -1912,14 +1912,14 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
   /* Iterate meshes */
   auto matIt = surfToGlobalMats.cbegin();
   for (const Mesh& mesh : meshes) {
-    zeus::CTransform meshXf(mesh.sceneXf.val);
+    zeus::CTransform meshXf(mesh.sceneXf.val.data());
     meshXf.basis.transpose();
 
     /* Header */
     {
       MeshHeader meshHeader = {};
       meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
-      memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+      memmove(meshHeader.xfMtx, mesh.sceneXf.val.data(), 48);
 
       zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
       aabb = aabb.getTransformedAABox(meshXf);
