@@ -1,7 +1,12 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "PAK.hpp"
+namespace DataSpec {
+class PAKEntryReadStream;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAAudio {
 

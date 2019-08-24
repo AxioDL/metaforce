@@ -1,6 +1,8 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include <memory>
+
+#include <hecl/Blender/Connection.hpp>
 
 namespace DataSpec {
 

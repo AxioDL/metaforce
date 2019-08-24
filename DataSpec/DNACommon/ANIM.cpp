@@ -1,7 +1,19 @@
-#include "zeus/Math.hpp"
-#include "ANIM.hpp"
+#include "DataSpec/DNACommon/ANIM.hpp"
+
+#include <cfloat>
+#include <cmath>
+#include <cstring>
+
+#include <hecl/hecl.hpp>
+#include <zeus/Global.hpp>
+#include <zeus/Math.hpp>
 
 #define DUMP_KEYS 0
+
+#if DUMP_KEYS
+#include <cstdio>
+#include <fmt/format.h>
+#endif
 
 namespace DataSpec::DNAANIM {
 

@@ -1,7 +1,10 @@
-#include "STRG.hpp"
-#include "../DNAMP1/STRG.hpp"
-#include "../DNAMP2/STRG.hpp"
-#include "../DNAMP3/STRG.hpp"
+#include "DataSpec/DNACommon/STRG.hpp"
+
+#include "DataSpec/DNAMP1/STRG.hpp"
+#include "DataSpec/DNAMP2/STRG.hpp"
+#include "DataSpec/DNAMP3/STRG.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec {
 

@@ -1,9 +1,17 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "boo/ThreadLocalPtr.hpp"
 #include <array>
-#include "zeus/CMatrix4f.hpp"
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <boo/ThreadLocalPtr.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/Global.hpp>
 
 namespace DataSpec {
 

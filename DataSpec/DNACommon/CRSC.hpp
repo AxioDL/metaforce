@@ -1,9 +1,21 @@
 #pragma once
 
-#include "ParticleCommon.hpp"
-#include "PAK.hpp"
-#include "athena/FileWriter.hpp"
-#include <optional>
+#include <cstdint>
+#include <unordered_map>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/ParticleCommon.hpp"
+
+#include <athena/DNA.hpp>
+
+namespace DataSpec {
+class PAKEntryReadStream;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAParticle {
 template <class IDType>

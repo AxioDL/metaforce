@@ -1,7 +1,18 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "GX.hpp"
+#include <memory>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+namespace hecl {
+class ProjectPath;
+}
+
+namespace hecl::blender {
+class Connection;
+struct MapArea;
+} // namespace hecl::blender
 
 namespace DataSpec::DNAMAPA {
 struct MAPA : BigDNA {

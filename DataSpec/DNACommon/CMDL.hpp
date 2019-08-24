@@ -1,10 +1,23 @@
 #pragma once
 
-#include "athena/FileWriter.hpp"
-#include "PAK.hpp"
-#include "GX.hpp"
-#include "TXTR.hpp"
-#include "zeus/CAABox.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
+#include "DataSpec/DNACommon/GX.hpp"
+#include "DataSpec/DNACommon/TXTR.hpp"
+
+#include <athena/DNA.hpp>
+#include <athena/Types.hpp>
+#include <hecl/Blender/Connection.hpp>
+
+namespace hecl {
+class ProjectPath;
+}
+
+namespace zeus {
+class CAABox;
+}
 
 namespace DataSpec::DNACMDL {
 
