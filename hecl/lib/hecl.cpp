@@ -100,8 +100,9 @@ SystemString GetcwdStr() {
   // const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
 
   SystemChar stackBuffer[255]; // Stack buffer for the "normal" case
-  if (Getcwd(stackBuffer, 255) != nullptr)
+  if (Getcwd(stackBuffer, int(std::size(stackBuffer))) != nullptr) {
     return SystemString(stackBuffer);
+  }
   if (errno != ERANGE) {
     // It's not ERANGE, so we don't know how to handle it
     LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
@@ -111,9 +112,11 @@ SystemString GetcwdStr() {
   for (int chunks = 2; chunks < 10240; chunks++) {
     // With boost use scoped_ptr; in C++0x, use unique_ptr
     // If you want to be less C++ but more efficient you may want to use realloc
-    std::unique_ptr<SystemChar[]> cwd(new SystemChar[255 * chunks]);
-    if (Getcwd(cwd.get(), 255 * chunks) != nullptr)
+    const int bufSize = 255 * chunks;
+    std::unique_ptr<SystemChar[]> cwd(new SystemChar[bufSize]);
+    if (Getcwd(cwd.get(), bufSize) != nullptr) {
       return SystemString(cwd.get());
+    }
     if (errno != ERANGE) {
       // It's not ERANGE, so we don't know how to handle it
       LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
@@ -593,9 +596,9 @@ int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
 
   /* copy path */
-  std::wcsncpy(tmp, dir, 1024);
+  std::wcsncpy(tmp, dir, std::size(tmp));
   const size_t len = std::wcslen(tmp);
-  if (len >= 1024) {
+  if (len >= std::size(tmp)) {
     return -1;
   }
 
@@ -640,9 +643,9 @@ int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
 
   /* copy path */
-  std::strncpy(tmp, dir, 1024);
+  std::strncpy(tmp, dir, std::size(tmp));
   const size_t len = std::strlen(tmp);
-  if (len >= 1024) {
+  if (len >= std::size(tmp)) {
     return -1;
   }
 
