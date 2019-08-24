@@ -779,7 +779,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
       // Display the character read on the screen.
       auto lk = logvisor::LockLog();
       if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
-        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
+        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: {:08X}"), GetLastError());
       }
     }
 

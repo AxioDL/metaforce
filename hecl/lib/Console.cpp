@@ -368,8 +368,8 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[%s] %s"), modName, line.c_str());
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    auto v = fmt::format(fmt("[{}] {}"), modName, line);
+    m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
 
@@ -378,16 +378,16 @@ void Console::LogVisorAdapter::report(const char* modName, logvisor::Level sever
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[%s] %s"), modName, line.c_str());
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    auto v = fmt::format(fmt("[{}] {}"), modName, line);
+    m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
                                             unsigned linenum, fmt::string_view format, fmt::format_args args) {
   auto tmp = fmt::internal::vformat(format, args);
-  auto v = fmt::format(fmt("[%s] %s %s:%i"), modName, tmp, file, linenum);
-  m_con->m_log.emplace_back(v, Console::Level(severity));
+  auto v = fmt::format(fmt("[{}] {} {}:{}"), modName, tmp, file, linenum);
+  m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
 }
 
 void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level severity, const char* file,
@@ -395,8 +395,8 @@ void Console::LogVisorAdapter::reportSource(const char* modName, logvisor::Level
   auto tmp = fmt::internal::vformat(format, args);
   std::vector<std::string> lines = athena::utility::split(athena::utility::wideToUtf8(tmp), '\n');
   for (const std::string& line : lines) {
-    auto v = fmt::format(fmt("[%s] %s %s:%i"), modName, line.c_str(), file, linenum);
-    m_con->m_log.emplace_back(v, Console::Level(severity));
+    auto v = fmt::format(fmt("[{}] {} {}:{}"), modName, line, file, linenum);
+    m_con->m_log.emplace_back(std::move(v), Console::Level(severity));
   }
 }
 
