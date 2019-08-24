@@ -707,13 +707,15 @@ const SystemChar* GetTmpDir() {
 #if !WINDOWS_STORE
 int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 #ifdef _WIN32
-  SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
-  HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
+  SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
+  HANDLE consoleOutReadTmp = INVALID_HANDLE_VALUE;
+  HANDLE consoleOutWrite = INVALID_HANDLE_VALUE;
   if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0)) {
     LogModule.report(logvisor::Fatal, fmt("Error with CreatePipe"));
     return -1;
   }
 
+  HANDLE consoleErrWrite = INVALID_HANDLE_VALUE;
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
                        DUPLICATE_SAME_ACCESS)) {
     LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
@@ -722,11 +724,12 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     return -1;
   }
 
+  HANDLE consoleOutRead = INVALID_HANDLE_VALUE;
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutReadTmp, GetCurrentProcess(),
                        &consoleOutRead, // Address of new handle.
                        0, FALSE,        // Make it uninheritable.
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, fmt("Error with DupliateHandle"));
+    LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     CloseHandle(consoleErrWrite);
@@ -745,18 +748,18 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 
   STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
   HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
-                                 FILE_ATTRIBUTE_NORMAL, NULL);
+                                 FILE_ATTRIBUTE_NORMAL, nullptr);
   sinfo.dwFlags = STARTF_USESTDHANDLES;
   sinfo.hStdInput = nulHandle;
   sinfo.hStdError = consoleErrWrite;
   sinfo.hStdOutput = consoleOutWrite;
 
   PROCESS_INFORMATION pinfo = {};
-  if (!CreateProcessW(path, (LPWSTR)cmdLine.c_str(), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo,
+  if (!CreateProcessW(path, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr, &sinfo,
                       &pinfo)) {
     LPWSTR messageBuffer = nullptr;
-    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                   GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                   GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
     LogModule.report(logvisor::Error, fmt(L"unable to launch process from {}: {}"), path, messageBuffer);
     LocalFree(messageBuffer);
 
@@ -778,7 +781,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     DWORD nCharsWritten;
 
     while (consoleThreadRunning) {
-      if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, NULL) || !nBytesRead) {
+      if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, nullptr) || !nBytesRead) {
         DWORD err = GetLastError();
         if (err == ERROR_BROKEN_PIPE)
           break; // pipe done - normal exit path.
@@ -788,7 +791,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 
       // Display the character read on the screen.
       auto lk = logvisor::LockLog();
-      if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
+      if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
         // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: {:08X}"), GetLastError());
       }
     }
