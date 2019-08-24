@@ -437,36 +437,36 @@ protected:
   uint64_t hash = 0;
 
 public:
-  constexpr Hash() = default;
-  constexpr Hash(const Hash&) = default;
+  constexpr Hash() noexcept = default;
+  constexpr Hash(const Hash&) noexcept = default;
   constexpr Hash(Hash&&) noexcept = default;
-  constexpr Hash(uint64_t hashin) : hash(hashin) {}
-  explicit Hash(const void* buf, size_t len) : hash(XXH64((uint8_t*)buf, len, 0)) {}
-  explicit Hash(std::string_view str) : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
-  explicit Hash(std::wstring_view str) : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
+  constexpr Hash(uint64_t hashin) noexcept : hash(hashin) {}
+  explicit Hash(const void* buf, size_t len) noexcept : hash(XXH64((uint8_t*)buf, len, 0)) {}
+  explicit Hash(std::string_view str) noexcept : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
+  explicit Hash(std::wstring_view str) noexcept : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
 
-  constexpr uint32_t val32() const { return uint32_t(hash) ^ uint32_t(hash >> 32); }
-  constexpr uint64_t val64() const { return uint64_t(hash); }
-  constexpr size_t valSizeT() const { return size_t(hash); }
+  constexpr uint32_t val32() const noexcept { return uint32_t(hash) ^ uint32_t(hash >> 32); }
+  constexpr uint64_t val64() const noexcept { return uint64_t(hash); }
+  constexpr size_t valSizeT() const noexcept { return size_t(hash); }
   template <typename T>
-  constexpr T valT() const;
+  constexpr T valT() const noexcept;
 
-  constexpr Hash& operator=(const Hash& other) = default;
+  constexpr Hash& operator=(const Hash& other) noexcept = default;
   constexpr Hash& operator=(Hash&& other) noexcept = default;
-  constexpr bool operator==(const Hash& other) const { return hash == other.hash; }
-  constexpr bool operator!=(const Hash& other) const { return hash != other.hash; }
-  constexpr bool operator<(const Hash& other) const { return hash < other.hash; }
-  constexpr bool operator>(const Hash& other) const { return hash > other.hash; }
-  constexpr bool operator<=(const Hash& other) const { return hash <= other.hash; }
-  constexpr bool operator>=(const Hash& other) const { return hash >= other.hash; }
-  constexpr explicit operator bool() const { return hash != 0; }
+  constexpr bool operator==(const Hash& other) const noexcept { return hash == other.hash; }
+  constexpr bool operator!=(const Hash& other) const noexcept { return !operator==(other); }
+  constexpr bool operator<(const Hash& other) const noexcept { return hash < other.hash; }
+  constexpr bool operator>(const Hash& other) const noexcept { return hash > other.hash; }
+  constexpr bool operator<=(const Hash& other) const noexcept { return hash <= other.hash; }
+  constexpr bool operator>=(const Hash& other) const noexcept { return hash >= other.hash; }
+  constexpr explicit operator bool() const noexcept { return hash != 0; }
 };
 template <>
-constexpr uint32_t Hash::valT<uint32_t>() const {
+constexpr uint32_t Hash::valT<uint32_t>() const noexcept {
   return val32();
 }
 template <>
-constexpr uint64_t Hash::valT<uint64_t>() const {
+constexpr uint64_t Hash::valT<uint64_t>() const noexcept {
   return val64();
 }
 
@@ -619,9 +619,9 @@ public:
    * @brief HECL-specific xxhash
    * @return unique hash value
    */
-  Hash hash() const { return m_hash; }
-  bool operator==(const ProjectRootPath& other) const { return m_hash == other.m_hash; }
-  bool operator!=(const ProjectRootPath& other) const { return m_hash != other.m_hash; }
+  Hash hash() const noexcept { return m_hash; }
+  bool operator==(const ProjectRootPath& other) const noexcept { return m_hash == other.m_hash; }
+  bool operator!=(const ProjectRootPath& other) const noexcept { return !operator==(other); }
 
   /**
    * @brief Obtain c-string of final path component
@@ -1052,9 +1052,9 @@ public:
    * @brief HECL-specific xxhash
    * @return unique hash value
    */
-  Hash hash() const { return m_hash; }
-  bool operator==(const ProjectPath& other) const { return m_hash == other.m_hash; }
-  bool operator!=(const ProjectPath& other) const { return m_hash != other.m_hash; }
+  Hash hash() const noexcept { return m_hash; }
+  bool operator==(const ProjectPath& other) const noexcept { return m_hash == other.m_hash; }
+  bool operator!=(const ProjectPath& other) const noexcept { return !operator==(other); }
 };
 
 /**
