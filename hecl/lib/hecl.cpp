@@ -24,7 +24,7 @@ namespace hecl {
 unsigned VerbosityLevel = 0;
 bool GuiMode = false;
 logvisor::Module LogModule("hecl");
-static const std::string Illegals{"<>?\""};
+constexpr std::string_view Illegals{"<>?\""};
 
 void SanitizePath(std::string& path) {
   if (path.empty())
@@ -54,7 +54,7 @@ void SanitizePath(std::string& path) {
     path.pop_back();
 }
 
-static const std::wstring WIllegals{L"<>?\""};
+constexpr std::wstring_view WIllegals{L"<>?\""};
 
 void SanitizePath(std::wstring& path) {
   if (path.empty())
