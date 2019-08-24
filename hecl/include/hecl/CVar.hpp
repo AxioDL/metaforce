@@ -117,7 +117,7 @@ public:
    */
   void lock();
 
-  void addListener(ListenerFunc func) { m_listeners.push_back(func); }
+  void addListener(ListenerFunc func) { m_listeners.push_back(std::move(func)); }
 
 private:
   void dispatch();
