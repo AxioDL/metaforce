@@ -1,7 +1,7 @@
 ## URDE
 **Status:** In-Game with 0-00 (v1.088) only
 
-**Official Discord Channel:** [https://discord.gg/rYKrYK]
+**Official Discord Channel:** https://discord.gg/AMBVFuf
 
 ### Download
 Precompiled builds of the command-line extraction utility (`hecl`) with embedded dataspec libraries are available at https://github.com/AxioDL/urde/releases. This will give you intermediate dumps of original formats as *blender* and *yaml* representations.
