@@ -1,4 +1,8 @@
-#include "WPSC.hpp"
+#include "DataSpec/DNACommon/WPSC.hpp"
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 

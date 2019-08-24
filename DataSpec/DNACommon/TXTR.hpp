@@ -1,6 +1,12 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include <climits>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec {
 class PAKEntryReadStream;

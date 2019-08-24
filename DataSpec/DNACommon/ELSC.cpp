@@ -1,4 +1,6 @@
-﻿#include "ELSC.hpp"
+﻿#include "DataSpec/DNACommon/ELSC.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 

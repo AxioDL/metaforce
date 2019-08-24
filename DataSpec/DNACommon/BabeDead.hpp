@@ -1,8 +1,9 @@
 #pragma once
 
-#include "zeus/Math.hpp"
-#include "hecl/hecl.hpp"
-#include <cfloat>
+namespace hecl::blender {
+struct Light;
+class PyOutStream;
+}
 
 namespace DataSpec {
 

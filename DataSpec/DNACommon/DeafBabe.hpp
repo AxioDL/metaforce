@@ -1,6 +1,11 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include <athena/Types.hpp>
+
+namespace hecl::blender {
+class PyOutStream;
+struct ColMesh;
+} // namespace hecl::blender
 
 namespace DataSpec {
 

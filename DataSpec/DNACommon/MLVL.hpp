@@ -1,7 +1,18 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "zeus/CVector3f.hpp"
+#include <functional>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <hecl/SystemChar.hpp>
+
+namespace hecl {
+class ProjectPath;
+}
+
+namespace hecl::blender {
+class Connection;
+}
 
 namespace DataSpec::DNAMLVL {
 

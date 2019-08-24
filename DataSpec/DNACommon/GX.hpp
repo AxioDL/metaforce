@@ -1,5 +1,8 @@
 #pragma once
-#include "athena/DNA.hpp"
+
+#include <cstdint>
+
+#include <athena/DNA.hpp>
 
 namespace GX {
 enum AttrType { NONE, DIRECT, INDEX8, INDEX16 };

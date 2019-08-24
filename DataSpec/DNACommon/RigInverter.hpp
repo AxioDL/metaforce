@@ -1,10 +1,12 @@
 #pragma once
 
-#include "zeus/CVector3f.hpp"
-#include "zeus/CMatrix3f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "hecl/hecl.hpp"
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include <hecl/hecl.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace DataSpec::DNAANIM {
 

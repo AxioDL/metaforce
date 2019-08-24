@@ -1,13 +1,18 @@
-#include "CMDL.hpp"
-#include "../DNAMP1/CMDLMaterials.hpp"
-#include "../DNAMP1/CSKR.hpp"
-#include "../DNAMP1/MREA.hpp"
-#include "../DNAMP2/CMDLMaterials.hpp"
-#include "../DNAMP2/CSKR.hpp"
-#include "../DNAMP3/CMDLMaterials.hpp"
-#include "../DNAMP3/CSKR.hpp"
-#include "zeus/CAABox.hpp"
-#include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
+
+#include <utility>
+
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP1/CSKR.hpp"
+#include "DataSpec/DNAMP1/MREA.hpp"
+#include "DataSpec/DNAMP2/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP2/CSKR.hpp"
+#include "DataSpec/DNAMP3/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP3/CSKR.hpp"
+
+#include <fmt/format.h>
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/CAABox.hpp>
 
 namespace DataSpec::DNACMDL {
 

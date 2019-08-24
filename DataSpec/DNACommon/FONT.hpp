@@ -1,7 +1,19 @@
 #pragma once
 
-#include "PAK.hpp"
-#include "athena/FileWriter.hpp"
+#include <memory>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <athena/FileWriter.hpp>
+
+namespace DataSpec {
+class PAKEntryReadStream;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAFont {
 struct GlyphRect : BigDNA {

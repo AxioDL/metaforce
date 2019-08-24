@@ -1,8 +1,18 @@
 #pragma once
 
-#include "PAK.hpp"
-#include "DNACommon.hpp"
-#include "athena/FileWriter.hpp"
+#include <memory>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <athena/DNA.hpp>
+
+namespace DataSpec {
+class PAKEntryReadStream;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAFSM2 {
 struct IFSM : BigDNAVYaml {
