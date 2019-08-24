@@ -178,7 +178,7 @@ protected:
       bool x400_29_pendingMassiveFrozenDeath : 1;
       bool x400_30_patternShagged : 1;
       bool x400_31_isFlyer : 1;
-      bool x401_24_pathOverCount : 2;
+      uint32_t x401_24_pathOverCount : 2;
       bool x401_26_disableMove : 1;
       bool x401_27_phazingOut : 1;
       bool x401_28_burning : 1;
