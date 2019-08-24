@@ -129,10 +129,8 @@ static std::unordered_map<std::thread::id, ProjectPath> PathsInProgress;
 
 bool ResourceLock::InProgress(const ProjectPath& path) {
   std::unique_lock lk{PathsMutex};
-  for (const auto& p : PathsInProgress)
-    if (p.second == path)
-      return true;
-  return false;
+  return std::any_of(PathsInProgress.cbegin(), PathsInProgress.cend(),
+                     [&path](const auto& entry) { return entry.second == path; });
 }
 
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
