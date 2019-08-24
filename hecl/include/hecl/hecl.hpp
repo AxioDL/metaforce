@@ -441,9 +441,9 @@ public:
   constexpr Hash(const Hash&) noexcept = default;
   constexpr Hash(Hash&&) noexcept = default;
   constexpr Hash(uint64_t hashin) noexcept : hash(hashin) {}
-  explicit Hash(const void* buf, size_t len) noexcept : hash(XXH64((uint8_t*)buf, len, 0)) {}
-  explicit Hash(std::string_view str) noexcept : hash(XXH64((uint8_t*)str.data(), str.size(), 0)) {}
-  explicit Hash(std::wstring_view str) noexcept : hash(XXH64((uint8_t*)str.data(), str.size() * 2, 0)) {}
+  explicit Hash(const void* buf, size_t len) noexcept : hash(XXH64(buf, len, 0)) {}
+  explicit Hash(std::string_view str) noexcept : hash(XXH64(str.data(), str.size(), 0)) {}
+  explicit Hash(std::wstring_view str) noexcept : hash(XXH64(str.data(), str.size() * 2, 0)) {}
 
   constexpr uint32_t val32() const noexcept { return uint32_t(hash) ^ uint32_t(hash >> 32); }
   constexpr uint64_t val64() const noexcept { return uint64_t(hash); }
