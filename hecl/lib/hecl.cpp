@@ -690,16 +690,16 @@ int RecursiveMakeDir(const SystemChar* dir) {
 const SystemChar* GetTmpDir() {
 #ifdef _WIN32
 #if WINDOWS_STORE
-  wchar_t* TMPDIR = nullptr;
+  const wchar_t* TMPDIR = nullptr;
 #else
-  wchar_t* TMPDIR = _wgetenv(L"TEMP");
+  const wchar_t* TMPDIR = _wgetenv(L"TEMP");
   if (!TMPDIR)
-    TMPDIR = (wchar_t*)L"\\Temp";
+    TMPDIR = L"\\Temp";
 #endif
 #else
-  char* TMPDIR = getenv("TMPDIR");
+  const char* TMPDIR = getenv("TMPDIR");
   if (!TMPDIR)
-    TMPDIR = (char*)"/tmp";
+    TMPDIR = "/tmp";
 #endif
   return TMPDIR;
 }
