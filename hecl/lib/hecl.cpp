@@ -442,8 +442,6 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
 #endif
 }
 
-#define FILE_MAXDIR 768
-
 static std::pair<hecl::SystemString, std::string> NameFromPath(hecl::SystemStringView path) {
   hecl::SystemUTF8Conv utf8(path);
   if (utf8.str().size() == 1 && utf8.str()[0] == '/')
@@ -461,46 +459,44 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations() {
 #if !WINDOWS_STORE
   /* Add the drive names to the listing (as queried by blender) */
   {
+    constexpr uint32_t FILE_MAXDIR = 768;
     wchar_t wline[FILE_MAXDIR];
-    wchar_t* name;
-    __int64 tmp;
-    int i;
+    const uint32_t tmp = GetLogicalDrives();
 
-    tmp = GetLogicalDrives();
-
-    for (i = 0; i < 26; i++) {
+    for (uint32_t i = 0; i < 26; i++) {
       if ((tmp >> i) & 1) {
         wline[0] = L'A' + i;
         wline[1] = L':';
         wline[2] = L'/';
         wline[3] = L'\0';
-        name = nullptr;
+        wchar_t* name = nullptr;
 
         /* Flee from horrible win querying hover floppy drives! */
         if (i > 1) {
           /* Try to get volume label as well... */
           if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, nullptr, nullptr, nullptr, nullptr, 0)) {
-            size_t labelLen = wcslen(wline + 4);
+            const size_t labelLen = std::wcslen(wline + 4);
             _snwprintf(wline + 4 + labelLen, FILE_MAXDIR - 4 - labelLen, L" (%.2s)", wline);
             name = wline + 4;
           }
         }
 
         wline[2] = L'\0';
-        if (name)
-          ret.emplace_back(wline, hecl::WideToUTF8(name));
-        else
+        if (name == nullptr) {
           ret.push_back(NameFromPath(wline));
+        } else {
+          ret.emplace_back(wline, hecl::WideToUTF8(name));
+        }
       }
     }
 
     /* Adding Desktop and My Documents */
     SystemString wpath;
-    SHGetSpecialFolderPathW(0, wline, CSIDL_PERSONAL, 0);
+    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_PERSONAL, 0);
     wpath.assign(wline);
     SanitizePath(wpath);
     ret.push_back(NameFromPath(wpath));
-    SHGetSpecialFolderPathW(0, wline, CSIDL_DESKTOPDIRECTORY, 0);
+    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_DESKTOPDIRECTORY, 0);
     wpath.assign(wline);
     SanitizePath(wpath);
     ret.push_back(NameFromPath(wpath));
@@ -524,18 +520,20 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations() {
     /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
     /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
 
-    CFURLRef cfURL = NULL;
+    CFURLRef cfURL = nullptr;
     CFURLEnumeratorResult result = kCFURLEnumeratorSuccess;
-    CFURLEnumeratorRef volEnum = CFURLEnumeratorCreateForMountedVolumes(NULL, kCFURLEnumeratorSkipInvisibles, NULL);
+    CFURLEnumeratorRef volEnum =
+        CFURLEnumeratorCreateForMountedVolumes(nullptr, kCFURLEnumeratorSkipInvisibles, nullptr);
 
     while (result != kCFURLEnumeratorEnd) {
       char defPath[1024];
 
-      result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, NULL);
-      if (result != kCFURLEnumeratorSuccess)
+      result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, nullptr);
+      if (result != kCFURLEnumeratorSuccess) {
         continue;
+      }
 
-      CFURLGetFileSystemRepresentation(cfURL, false, (UInt8*)defPath, 1024);
+      CFURLGetFileSystemRepresentation(cfURL, false, reinterpret_cast<UInt8*>(defPath), std::size(defPath));
       ret.push_back(NameFromPath(defPath));
     }
 
@@ -593,13 +591,10 @@ std::wstring Char16ToWide(std::u16string_view src) { return std::wstring(src.beg
 #if _WIN32
 int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
-  SystemChar* p = nullptr;
-  Sstat sb;
-  size_t len;
 
   /* copy path */
-  wcsncpy(tmp, dir, 1024);
-  len = wcslen(tmp);
+  std::wcsncpy(tmp, dir, 1024);
+  const size_t len = std::wcslen(tmp);
   if (len >= 1024) {
     return -1;
   }
@@ -610,6 +605,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
+  SystemChar* p = nullptr;
+  Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/' || *p == '\\') {
       *p = 0;
@@ -641,13 +638,10 @@ int RecursiveMakeDir(const SystemChar* dir) {
 #else
 int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
-  SystemChar* p = nullptr;
-  Sstat sb;
-  size_t len;
 
   /* copy path */
-  strncpy(tmp, dir, 1024);
-  len = strlen(tmp);
+  std::strncpy(tmp, dir, 1024);
+  const size_t len = std::strlen(tmp);
   if (len >= 1024) {
     return -1;
   }
@@ -658,6 +652,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
+  SystemChar* p = nullptr;
+  Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/') {
       *p = 0;
