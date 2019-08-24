@@ -1176,7 +1176,7 @@ bool IsPathYAML(const hecl::ProjectPath& path);
 
 /* Type-sensitive byte swappers */
 template <typename T>
-constexpr T bswap16(T val) {
+constexpr T bswap16(T val) noexcept {
 #if __GNUC__
   return __builtin_bswap16(val);
 #elif _WIN32
@@ -1187,7 +1187,7 @@ constexpr T bswap16(T val) {
 }
 
 template <typename T>
-constexpr T bswap32(T val) {
+constexpr T bswap32(T val) noexcept {
 #if __GNUC__
   return __builtin_bswap32(val);
 #elif _WIN32
@@ -1200,7 +1200,7 @@ constexpr T bswap32(T val) {
 }
 
 template <typename T>
-constexpr T bswap64(T val) {
+constexpr T bswap64(T val) noexcept {
 #if __GNUC__
   return __builtin_bswap64(val);
 #elif _WIN32
@@ -1214,13 +1214,13 @@ constexpr T bswap64(T val) {
 }
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-constexpr int16_t SBig(int16_t val) { return bswap16(val); }
-constexpr uint16_t SBig(uint16_t val) { return bswap16(val); }
-constexpr int32_t SBig(int32_t val) { return bswap32(val); }
-constexpr uint32_t SBig(uint32_t val) { return bswap32(val); }
-constexpr int64_t SBig(int64_t val) { return bswap64(val); }
-constexpr uint64_t SBig(uint64_t val) { return bswap64(val); }
-constexpr float SBig(float val) {
+constexpr int16_t SBig(int16_t val) noexcept { return bswap16(val); }
+constexpr uint16_t SBig(uint16_t val) noexcept { return bswap16(val); }
+constexpr int32_t SBig(int32_t val) noexcept { return bswap32(val); }
+constexpr uint32_t SBig(uint32_t val) noexcept { return bswap32(val); }
+constexpr int64_t SBig(int64_t val) noexcept { return bswap64(val); }
+constexpr uint64_t SBig(uint64_t val) noexcept { return bswap64(val); }
+constexpr float SBig(float val) noexcept {
   union {
     float f;
     atInt32 i;
@@ -1231,7 +1231,7 @@ constexpr float SBig(float val) {
   } uval2 = {bswap32(uval1.i)};
   return uval2.f;
 }
-constexpr double SBig(double val) {
+constexpr double SBig(double val) noexcept {
   union {
     double f;
     atInt64 i;
@@ -1246,29 +1246,29 @@ constexpr double SBig(double val) {
 #define SBIG(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
 
-constexpr int16_t SLittle(int16_t val) { return val; }
-constexpr uint16_t SLittle(uint16_t val) { return val; }
-constexpr int32_t SLittle(int32_t val) { return val; }
-constexpr uint32_t SLittle(uint32_t val) { return val; }
-constexpr int64_t SLittle(int64_t val) { return val; }
-constexpr uint64_t SLittle(uint64_t val) { return val; }
-constexpr float SLittle(float val) { return val; }
-constexpr double SLittle(double val) { return val; }
+constexpr int16_t SLittle(int16_t val) noexcept { return val; }
+constexpr uint16_t SLittle(uint16_t val) noexcept { return val; }
+constexpr int32_t SLittle(int32_t val) noexcept { return val; }
+constexpr uint32_t SLittle(uint32_t val) noexcept { return val; }
+constexpr int64_t SLittle(int64_t val) noexcept { return val; }
+constexpr uint64_t SLittle(uint64_t val) noexcept { return val; }
+constexpr float SLittle(float val) noexcept { return val; }
+constexpr double SLittle(double val) noexcept { return val; }
 #ifndef SLITTLE
 #define SLITTLE(q) (q)
 #endif
 #else
-constexpr int16_t SLittle(int16_t val) { return bswap16(val); }
-constexpr uint16_t SLittle(uint16_t val) { return bswap16(val); }
-constexpr int32_t SLittle(int32_t val) { return bswap32(val); }
-constexpr uint32_t SLittle(uint32_t val) { return bswap32(val); }
-constexpr int64_t SLittle(int64_t val) { return bswap64(val); }
-constexpr uint64_t SLittle(uint64_t val) { return bswap64(val); }
-constexpr float SLittle(float val) {
+constexpr int16_t SLittle(int16_t val) noexcept { return bswap16(val); }
+constexpr uint16_t SLittle(uint16_t val) noexcept { return bswap16(val); }
+constexpr int32_t SLittle(int32_t val) noexcept { return bswap32(val); }
+constexpr uint32_t SLittle(uint32_t val) noexcept { return bswap32(val); }
+constexpr int64_t SLittle(int64_t val) noexcept { return bswap64(val); }
+constexpr uint64_t SLittle(uint64_t val) noexcept { return bswap64(val); }
+constexpr float SLittle(float val) noexcept {
   int32_t ival = bswap32(*((int32_t*)(&val)));
   return *((float*)(&ival));
 }
-constexpr double SLittle(double val) {
+constexpr double SLittle(double val) noexcept {
   int64_t ival = bswap64(*((int64_t*)(&val)));
   return *((double*)(&ival));
 }
@@ -1276,14 +1276,14 @@ constexpr double SLittle(double val) {
 #define SLITTLE(q) (((q)&0x000000FF) << 24 | ((q)&0x0000FF00) << 8 | ((q)&0x00FF0000) >> 8 | ((q)&0xFF000000) >> 24)
 #endif
 
-constexpr int16_t SBig(int16_t val) { return val; }
-constexpr uint16_t SBig(uint16_t val) { return val; }
-constexpr int32_t SBig(int32_t val) { return val; }
-constexpr uint32_t SBig(uint32_t val) { return val; }
-constexpr int64_t SBig(int64_t val) { return val; }
-constexpr uint64_t SBig(uint64_t val) { return val; }
-constexpr float SBig(float val) { return val; }
-constexpr double SBig(double val) { return val; }
+constexpr int16_t SBig(int16_t val) noexcept { return val; }
+constexpr uint16_t SBig(uint16_t val) noexcept { return val; }
+constexpr int32_t SBig(int32_t val) noexcept { return val; }
+constexpr uint32_t SBig(uint32_t val) noexcept { return val; }
+constexpr int64_t SBig(int64_t val) noexcept { return val; }
+constexpr uint64_t SBig(uint64_t val) noexcept { return val; }
+constexpr float SBig(float val) noexcept { return val; }
+constexpr double SBig(double val) noexcept { return val; }
 #ifndef SBIG
 #define SBIG(q) (q)
 #endif
