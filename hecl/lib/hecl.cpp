@@ -135,14 +135,17 @@ bool ResourceLock::InProgress(const ProjectPath& path) {
 
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
   std::unique_lock lk{PathsMutex};
-  if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend())
+  if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend()) {
     LogModule.report(logvisor::Fatal, fmt("multiple resource locks on thread"));
+  }
 
-  for (const auto& p : PathsInProgress)
-    if (p.second == path)
-      return false;
+  const bool isInProgress = std::any_of(PathsInProgress.cbegin(), PathsInProgress.cend(),
+                                        [&path](const auto& entry) { return entry.second == path; });
+  if (isInProgress) {
+    return false;
+  }
 
-  PathsInProgress[std::this_thread::get_id()] = path;
+  PathsInProgress.insert_or_assign(std::this_thread::get_id(), path);
   return true;
 }
 
