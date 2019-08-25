@@ -4,9 +4,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5Widgets)
-find_package(Qt5Network)
-find_package(Qt5Xml)
+find_package(Qt5 COMPONENTS Network Widgets Xml REQUIRED)
 
 if(APPLE)
   set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
@@ -93,9 +91,9 @@ target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
 target_link_libraries(hecl-gui
   ${PLAT_LIBS}
 
-  ${Qt5Network_LIBRARIES}
-  ${Qt5Widgets_LIBRARIES}
-  ${Qt5Xml_LIBRARIES}
+  Qt5::Network
+  Qt5::Widgets
+  Qt5::Xml
 
   athena-core
   hecl-light
