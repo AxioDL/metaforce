@@ -11,7 +11,8 @@ find_package(Qt5Xml)
 if(APPLE)
   set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
   set_source_files_properties(MacOSSystemVersion.mm
-                              PROPERTIES COMPILE_FLAGS -fobjc-arc)
+    PROPERTIES COMPILE_FLAGS -fobjc-arc
+  )
   find_library(FOUNDATION_LIBRARY Foundation)
   set(PLAT_LIBS ${FOUNDATION_LIBRARY})
 elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
@@ -23,7 +24,8 @@ if(WIN32)
 elseif(APPLE)
   list(APPEND PLAT_SRCS platforms/mac/mainicon.icns)
   set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
-          MACOSX_PACKAGE_LOCATION Resources)
+    MACOSX_PACKAGE_LOCATION Resources
+  )
 endif()
 
 add_subdirectory(platforms/freedesktop)
@@ -32,25 +34,47 @@ list(APPEND PLAT_SRCS mainicon_qt.cpp)
 
 file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h)
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.h
+)
 if (NOT MSVC)
   set_source_files_properties(${QUAZIP_SRCS} PROPERTIES COMPILE_OPTIONS -Wno-deprecated-declarations)
 endif()
 
 add_executable(hecl-gui WIN32 MACOSX_BUNDLE
-    ArgumentEditor.ui ArgumentEditor.cpp ArgumentEditor.hpp
-    MainWindow.ui MainWindow.hpp MainWindow.cpp
-    LaunchMenu.hpp LaunchMenu.cpp
-    EscapeSequenceParser.hpp EscapeSequenceParser.cpp
-    FileDirDialog.hpp ErrorLabel.hpp
-    SysReqTableView.hpp SysReqTableView.cpp
-    VectorISATableView.hpp VectorISATableView.cpp
-    VectorISATableModel.hpp VectorISATableModelIntel.hpp
-    FindBlender.hpp FindBlender.cpp
-    DownloadManager.hpp DownloadManager.cpp
-    ExtractZip.hpp ExtractZip.cpp ${QUAZIP_SRCS}
-    Common.hpp Common.cpp ${PLAT_SRCS} main.cpp)
+  ArgumentEditor.cpp
+  ArgumentEditor.hpp
+  ArgumentEditor.ui
+  Common.cpp
+  Common.hpp
+  DownloadManager.cpp
+  DownloadManager.hpp
+  ErrorLabel.hpp
+  EscapeSequenceParser.cpp
+  EscapeSequenceParser.hpp
+  ExtractZip.cpp
+  ExtractZip.hpp
+  FileDirDialog.hpp
+  FindBlender.cpp
+  FindBlender.hpp
+  LaunchMenu.cpp
+  LaunchMenu.hpp
+  MainWindow.cpp
+  MainWindow.hpp
+  MainWindow.ui
+  SysReqTableView.cpp
+  SysReqTableView.hpp
+  VectorISATableModel.hpp
+  VectorISATableModelIntel.hpp
+  VectorISATableView.cpp
+  VectorISATableView.hpp
+
+  main.cpp
+
+  ${PLAT_SRCS}
+  ${QUAZIP_SRCS}
+)
+
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-gui)
 endif()
@@ -60,13 +84,23 @@ if (NOT MSVC)
 endif()
 
 set_target_properties(hecl-gui PROPERTIES
-  MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist")
+  MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
+)
 
 target_include_directories(hecl-gui PRIVATE quazip/quazip)
 target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
 
-target_link_libraries(hecl-gui ${PLAT_LIBS}
-                      ${Qt5Widgets_LIBRARIES}
-                      ${Qt5Network_LIBRARIES}
-                      ${Qt5Xml_LIBRARIES}
-                      hecl-light logvisor zeus athena-core xxhash z)
+target_link_libraries(hecl-gui
+  ${PLAT_LIBS}
+
+  ${Qt5Network_LIBRARIES}
+  ${Qt5Widgets_LIBRARIES}
+  ${Qt5Xml_LIBRARIES}
+
+  athena-core
+  hecl-light
+  logvisor
+  xxhash
+  z
+  zeus
+)
