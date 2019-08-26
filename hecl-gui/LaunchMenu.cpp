@@ -46,7 +46,7 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
   addMenu(&m_msaaMenu)->setToolTip(m_commons.m_drawSamples->rawHelp().data());
   addMenu(&m_anisoMenu)->setToolTip(m_commons.m_texAnisotropy->rawHelp().data());
   QAction* argumentEditor = addAction("Edit Runtime Arguments");
-  connect(argumentEditor, SIGNAL(triggered()), this, SLOT(editRuntimeArgs()));
+  connect(argumentEditor, &QAction::triggered, this, &LaunchMenu::editRuntimeArgs);
   initDeepColor();
   initDeveloperMode();
   initCheats();
@@ -54,7 +54,7 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
 
 void LaunchMenu::initApiAction(const QString& action) {
   QAction* act = m_apiGroup.addAction(action);
-  connect(act, SIGNAL(triggered()), this, SLOT(apiTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::apiTriggered);
   act->setCheckable(true);
   if (!action.compare(QString::fromStdString(m_commons.getGraphicsApi()), Qt::CaseInsensitive))
     act->setChecked(true);
@@ -62,7 +62,7 @@ void LaunchMenu::initApiAction(const QString& action) {
 
 void LaunchMenu::initMsaaAction(const QString& action) {
   QAction* act = m_msaaGroup.addAction(action);
-  connect(act, SIGNAL(triggered()), this, SLOT(msaaTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::msaaTriggered);
   act->setCheckable(true);
   if (!action.compare(QString::number(m_commons.getSamples()), Qt::CaseInsensitive))
     act->setChecked(true);
@@ -70,7 +70,7 @@ void LaunchMenu::initMsaaAction(const QString& action) {
 
 void LaunchMenu::initAnisoAction(const QString& action) {
   QAction* act = m_anisoGroup.addAction(action);
-  connect(act, SIGNAL(triggered()), this, SLOT(anisoTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::anisoTriggered);
   act->setCheckable(true);
   if (!action.compare(QString::number(m_commons.getAnisotropy()), Qt::CaseInsensitive))
     act->setChecked(true);
@@ -81,7 +81,7 @@ void LaunchMenu::initDeepColor() {
   act->setToolTip(m_commons.m_deepColor->rawHelp().data());
   act->setCheckable(true);
   act->setChecked(m_commons.getDeepColor());
-  connect(act, SIGNAL(triggered()), this, SLOT(deepColorTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::deepColorTriggered);
 }
 
 void LaunchMenu::initDeveloperMode() {
@@ -89,7 +89,7 @@ void LaunchMenu::initDeveloperMode() {
   act->setToolTip(hecl::com_developer->rawHelp().data());
   act->setCheckable(true);
   act->setChecked(hecl::com_developer->toBoolean());
-  connect(act, SIGNAL(triggered()), this, SLOT(developerModeTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::developerModeTriggered);
 }
 
 void LaunchMenu::initCheats() {
@@ -97,7 +97,7 @@ void LaunchMenu::initCheats() {
   act->setToolTip(hecl::com_enableCheats->rawHelp().data());
   act->setCheckable(true);
   act->setChecked(hecl::com_enableCheats->toBoolean());
-  connect(act, SIGNAL(triggered()), this, SLOT(cheatsTriggered()));
+  connect(act, &QAction::triggered, this, &LaunchMenu::cheatsTriggered);
 }
 
 void LaunchMenu::apiTriggered() {

@@ -54,10 +54,10 @@ void DownloadManager::fetchIndex() {
   QString track = QSettings().value("update_track").toString();
   QString url = Domain + track + '/' + CurPlatformString + '/' + Index;
   m_indexInProgress = m_netManager.get(QNetworkRequest(url));
-  connect(m_indexInProgress, SIGNAL(finished()), this, SLOT(indexFinished()));
-  connect(m_indexInProgress, SIGNAL(error(QNetworkReply::NetworkError)), this,
-          SLOT(indexError(QNetworkReply::NetworkError)));
-  connect(m_indexInProgress, SIGNAL(encrypted()), this, SLOT(indexValidateCert()));
+  connect(m_indexInProgress, &QNetworkReply::finished, this, &DownloadManager::indexFinished);
+  connect(m_indexInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
+          &DownloadManager::indexError);
+  connect(m_indexInProgress, &QNetworkReply::encrypted, this, &DownloadManager::indexValidateCert);
 }
 
 void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
@@ -67,15 +67,14 @@ void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
   resetError();
   m_outPath = outPath;
 
-  QString track = QSettings().value("update_track").toString();
-  QString url = Domain + track + '/' + CurPlatformString + '/' + str;
+  const QString track = QSettings().value("update_track").toString();
+  const QString url = Domain + track + '/' + CurPlatformString + '/' + str;
   m_binaryInProgress = m_netManager.get(QNetworkRequest(url));
-  connect(m_binaryInProgress, SIGNAL(finished()), this, SLOT(binaryFinished()));
-  connect(m_binaryInProgress, SIGNAL(error(QNetworkReply::NetworkError)), this,
-          SLOT(binaryError(QNetworkReply::NetworkError)));
-  connect(m_binaryInProgress, SIGNAL(encrypted()), this, SLOT(binaryValidateCert()));
-  connect(m_binaryInProgress, SIGNAL(downloadProgress(qint64, qint64)), this,
-          SLOT(binaryDownloadProgress(qint64, qint64)));
+  connect(m_binaryInProgress, &QNetworkReply::finished, this, &DownloadManager::binaryFinished);
+  connect(m_binaryInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
+          &DownloadManager::binaryError);
+  connect(m_binaryInProgress, &QNetworkReply::encrypted, this, &DownloadManager::binaryValidateCert);
+  connect(m_binaryInProgress, &QNetworkReply::downloadProgress, this, &DownloadManager::binaryDownloadProgress);
 
   if (m_progBar) {
     m_progBar->setEnabled(true);

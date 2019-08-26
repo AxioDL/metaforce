@@ -88,12 +88,13 @@ MainWindow::MainWindow(QWidget* parent)
   QPalette pal = m_updateURDEButton->palette();
   pal.setColor(QPalette::Button, QColor(53, 53, 72));
   m_updateURDEButton->setPalette(pal);
-  connect(m_updateURDEButton, SIGNAL(clicked()), this, SLOT(onUpdateURDEPressed()));
+  connect(m_updateURDEButton, &QPushButton::clicked, this, &MainWindow::onUpdateURDEPressed);
   qDebug() << "Stored track " << m_settings.value("update_track");
-  int index = skUpdateTracks.indexOf(m_settings.value("update_track").toString());
+  const int index = skUpdateTracks.indexOf(m_settings.value("update_track").toString());
   m_ui->devTrackWarning->setVisible(index == 1);
   m_ui->updateTrackComboBox->setCurrentIndex(index);
-  connect(m_ui->updateTrackComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onUpdateTrackChanged(int)));
+  connect(m_ui->updateTrackComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
+          &MainWindow::onUpdateTrackChanged);
 
   m_dlManager.connectWidgets(m_ui->downloadProgressBar, m_ui->downloadErrorLabel,
                              std::bind(&MainWindow::onIndexDownloaded, this, std::placeholders::_1),
@@ -127,8 +128,8 @@ void MainWindow::onExtract() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-  connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onExtractFinished(int)));
+  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onExtractFinished);
   m_heclProc.start(m_heclPath, {"extract", "-y", "-g", "-o", m_path, imgPath},
                    QIODevice::ReadOnly | QIODevice::Unbuffered);
 
@@ -137,15 +138,15 @@ void MainWindow::onExtract() {
   disableOperations();
   m_ui->extractBtn->setText(QStringLiteral("Cancel"));
   m_ui->extractBtn->setEnabled(true);
-  disconnect(m_ui->extractBtn, SIGNAL(clicked()), nullptr, nullptr);
-  connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(doHECLTerminate()));
+  disconnect(m_ui->extractBtn, &QPushButton::clicked, nullptr, nullptr);
+  connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
 }
 
 void MainWindow::onExtractFinished(int returnCode) {
   m_cursor.movePosition(QTextCursor::End);
   m_cursor.insertBlock();
-  disconnect(m_ui->extractBtn, SIGNAL(clicked()), nullptr, nullptr);
-  connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(onExtract()));
+  disconnect(m_ui->extractBtn, &QPushButton::clicked, nullptr, nullptr);
+  connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::onExtract);
   checkDownloadedBinary();
 }
 
@@ -160,8 +161,8 @@ void MainWindow::onPackage() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-  connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onPackageFinished(int)));
+  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onPackageFinished);
   m_heclProc.start(m_heclPath, {"package", "-y", "-g"}, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
@@ -169,8 +170,8 @@ void MainWindow::onPackage() {
   disableOperations();
   m_ui->packageBtn->setText(QStringLiteral("Cancel"));
   m_ui->packageBtn->setEnabled(true);
-  disconnect(m_ui->packageBtn, SIGNAL(clicked()), nullptr, nullptr);
-  connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(doHECLTerminate()));
+  disconnect(m_ui->packageBtn, &QPushButton::clicked, nullptr, nullptr);
+  connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
 
   QSize size = QWidget::size();
   if (size.width() < 1100)
@@ -181,8 +182,8 @@ void MainWindow::onPackage() {
 void MainWindow::onPackageFinished(int returnCode) {
   m_cursor.movePosition(QTextCursor::End);
   m_cursor.insertBlock();
-  disconnect(m_ui->packageBtn, SIGNAL(clicked()), nullptr, nullptr);
-  connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(onPackage()));
+  disconnect(m_ui->packageBtn, &QPushButton::clicked, nullptr, nullptr);
+  connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::onPackage);
   checkDownloadedBinary();
 }
 
@@ -197,8 +198,8 @@ void MainWindow::onLaunch() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, SIGNAL(finished(int)), nullptr, nullptr);
-  connect(&m_heclProc, SIGNAL(finished(int)), this, SLOT(onLaunchFinished(int)));
+  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
   m_heclProc.start(m_urdePath, QStringList() << (m_path + "/out")
                                              << m_settings.value("urde_arguments").toStringList().join(' ').split(' '),
                    QIODevice::ReadOnly | QIODevice::Unbuffered);
@@ -448,9 +449,9 @@ void MainWindow::initSlots() {
     setTextTermFormatting(bytes);
   });
 
-  connect(m_ui->extractBtn, SIGNAL(clicked()), this, SLOT(onExtract()));
-  connect(m_ui->packageBtn, SIGNAL(clicked()), this, SLOT(onPackage()));
-  connect(m_ui->launchBtn, SIGNAL(clicked()), this, SLOT(onLaunch()));
+  connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::onExtract);
+  connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::onPackage);
+  connect(m_ui->launchBtn, &QPushButton::clicked, this, &MainWindow::onLaunch);
   m_ui->launchMenuBtn->setMenu(&m_launchMenu);
 
   connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
@@ -467,7 +468,7 @@ void MainWindow::initSlots() {
     setPath(dialog.selectedFiles().at(0));
   });
 
-  connect(m_ui->downloadButton, SIGNAL(clicked()), this, SLOT(onDownloadPressed()));
+  connect(m_ui->downloadButton, &QPushButton::clicked, this, &MainWindow::onDownloadPressed);
 }
 
 void MainWindow::setTextTermFormatting(const QString& text) {
