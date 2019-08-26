@@ -100,10 +100,10 @@ kabufuda::SystemString CMemoryCardSys::_CreateDolphinCard(kabufuda::ECardSlot sl
 
   path += fmt::format(fmt(_SYS_STR("/MemoryCard{}.USA.raw")),
                       slot == kabufuda::ECardSlot::SlotA ? _SYS_STR('A') : _SYS_STR('B'));
-  FILE* fp = hecl::Fopen(path.c_str(), _SYS_STR("wb"));
-  if (!fp)
+  const auto fp = hecl::FopenUnique(path.c_str(), _SYS_STR("wb"));
+  if (fp == nullptr) {
     return {};
-  fclose(fp);
+  }
 
   return path;
 }

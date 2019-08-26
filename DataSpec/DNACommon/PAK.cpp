@@ -466,9 +466,8 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
       if (force || cooked.isNone()) {
         cooked.makeDirChain(false);
         PAKEntryReadStream s = entryPtr->beginReadStream(*node);
-        FILE* fout = hecl::Fopen(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
-        fwrite(s.data(), 1, s.length(), fout);
-        fclose(fout);
+        const auto fout = hecl::FopenUnique(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
+        std::fwrite(s.data(), 1, s.length(), fout.get());
       }
 
       if (extractor.func_a) /* Doesn't need PAKRouter access */
