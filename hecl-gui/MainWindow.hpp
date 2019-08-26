@@ -48,11 +48,11 @@ public:
   void insertContinueNote(const QString& text);
 private slots:
   void onExtract();
-  void onExtractFinished(int exitCode);
+  void onExtractFinished(int exitCode, QProcess::ExitStatus);
   void onPackage();
-  void onPackageFinished(int exitCode);
+  void onPackageFinished(int exitCode, QProcess::ExitStatus);
   void onLaunch();
-  void onLaunchFinished(int exitCode);
+  void onLaunchFinished(int exitCode, QProcess::ExitStatus);
   void doHECLTerminate();
   void onReturnPressed();
   void onDownloadPressed();

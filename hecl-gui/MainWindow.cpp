@@ -128,8 +128,8 @@ void MainWindow::onExtract() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
-  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onExtractFinished);
+  disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onExtractFinished);
   m_heclProc.start(m_heclPath, {"extract", "-y", "-g", "-o", m_path, imgPath},
                    QIODevice::ReadOnly | QIODevice::Unbuffered);
 
@@ -142,7 +142,7 @@ void MainWindow::onExtract() {
   connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
 }
 
-void MainWindow::onExtractFinished(int returnCode) {
+void MainWindow::onExtractFinished(int returnCode, QProcess::ExitStatus) {
   m_cursor.movePosition(QTextCursor::End);
   m_cursor.insertBlock();
   disconnect(m_ui->extractBtn, &QPushButton::clicked, nullptr, nullptr);
@@ -161,8 +161,8 @@ void MainWindow::onPackage() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
-  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onPackageFinished);
+  disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onPackageFinished);
   m_heclProc.start(m_heclPath, {"package", "-y", "-g"}, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
@@ -179,7 +179,7 @@ void MainWindow::onPackage() {
   resize(size);
 }
 
-void MainWindow::onPackageFinished(int returnCode) {
+void MainWindow::onPackageFinished(int returnCode, QProcess::ExitStatus) {
   m_cursor.movePosition(QTextCursor::End);
   m_cursor.insertBlock();
   disconnect(m_ui->packageBtn, &QPushButton::clicked, nullptr, nullptr);
@@ -198,8 +198,8 @@ void MainWindow::onLaunch() {
   env.insert("TERM", "xterm-color");
   env.insert("ConEmuANSI", "ON");
   m_heclProc.setProcessEnvironment(env);
-  disconnect(&m_heclProc, qOverload<int>(&QProcess::finished), nullptr, nullptr);
-  connect(&m_heclProc, qOverload<int>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
+  disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
+  connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
   m_heclProc.start(m_urdePath, QStringList() << (m_path + "/out")
                                              << m_settings.value("urde_arguments").toStringList().join(' ').split(' '),
                    QIODevice::ReadOnly | QIODevice::Unbuffered);
@@ -209,7 +209,7 @@ void MainWindow::onLaunch() {
   disableOperations();
 }
 
-void MainWindow::onLaunchFinished(int returnCode) {
+void MainWindow::onLaunchFinished(int returnCode, QProcess::ExitStatus) {
   m_cursor.movePosition(QTextCursor::End);
   m_cursor.insertBlock();
   checkDownloadedBinary();
