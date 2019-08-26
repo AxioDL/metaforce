@@ -613,12 +613,13 @@ struct SpecMP1 : SpecBase {
     } else if (hecl::IsPathPNG(path)) {
       return {SBIG('TXTR'), path.hash().val32()};
     } else if (hecl::IsPathYAML(path)) {
-      FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("r"));
-      if (!fp)
+      auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("r"));
+      if (fp == nullptr) {
         return {};
+      }
 
       athena::io::YAMLDocReader reader;
-      yaml_parser_set_input_file(reader.getParser(), fp);
+      yaml_parser_set_input_file(reader.getParser(), fp.get());
 
       urde::SObjectTag resTag;
       if (reader.ClassTypeOperation([&](const char* className) -> bool {
@@ -700,10 +701,9 @@ struct SpecMP1 : SpecBase {
             return false;
           })) {
         resTag.id = path.hash().val32();
-        fclose(fp);
+        fp.reset();
         return resTag;
       }
-      fclose(fp);
     }
     return {};
   }

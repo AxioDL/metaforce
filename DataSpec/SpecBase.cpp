@@ -721,18 +721,17 @@ void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::Projec
   hecl::ProjectPath entropyPath(noAramPath, _SYS_STR("RandomStaticEntropy.png"));
   hecl::ProjectPath catalogPath(noAramPath, _SYS_STR("!catalog.yaml"));
 
-  if (FILE* fp = hecl::Fopen(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
-    fmt::print(fp, fmt("RandomStaticEntropy: {}\n"), entropyPath.getRelativePathUTF8());
-    fclose(fp);
+  if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
+    fmt::print(fp.get(), fmt("RandomStaticEntropy: {}\n"), entropyPath.getRelativePathUTF8());
   }
 
-  FILE* fp = hecl::Fopen(entropyPath.getAbsolutePath().data(), _SYS_STR("wb"));
-  if (!fp) {
+  auto fp = hecl::FopenUnique(entropyPath.getAbsolutePath().data(), _SYS_STR("wb"));
+  if (fp == nullptr) {
     Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), entropyPath.getAbsolutePath());
     return;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
-  png_init_io(png, fp);
+  png_init_io(png, fp.get());
   png_infop info = png_create_info_struct(png);
 
   png_text textStruct = {};
@@ -756,7 +755,6 @@ void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::Projec
   png_write_end(png, info);
   png_write_flush(png);
   png_destroy_write_struct(&png, &info);
-  fclose(fp);
 }
 
 void SpecBase::clearTagCache() {
