@@ -1188,7 +1188,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
 }
 
 void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state) {
-  CEntity* ent = ObjectById(src);
+  //CEntity* ent = GetObjectById(src);
   auto search = GetIdListForScript(dest);
   if (search.first != x890_scriptIdMap.cend()) {
     for (auto it = search.first; it != search.second; ++it) {
@@ -1462,8 +1462,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
     if (bomb && player) {
       if (player->GetFrozenState()) {
         g_GameState->SystemOptions().IncrementFrozenBallCount();
-        CHUDMemoParms info = {0.f, true, true, true};
-        MP1::CSamusHud::DisplayHudMemo(u"", info);
+        MP1::CSamusHud::DisplayHudMemo(u"", CHUDMemoParms{0.f, true, true, true});
         player->UnFreeze(*this);
       } else {
         if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
