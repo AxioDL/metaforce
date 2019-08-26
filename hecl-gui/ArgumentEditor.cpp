@@ -6,16 +6,13 @@
 
 ArgumentEditor::ArgumentEditor(QWidget* parent)
 : QDialog(parent)
-, m_ui(new Ui::ArgumentEditor) {
+, m_ui(std::make_unique<Ui::ArgumentEditor>()) {
   m_ui->setupUi(this);
   m_model.setStringList(QSettings().value("urde_arguments").toStringList());
   m_ui->argumentEditor->setModel(&m_model);
 }
 
-ArgumentEditor::~ArgumentEditor() {
-  delete m_ui;
-  m_ui = nullptr;
-}
+ArgumentEditor::~ArgumentEditor() = default;
 
 void ArgumentEditor::on_addButton_clicked() {
   QInputDialog input(this);

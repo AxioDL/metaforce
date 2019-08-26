@@ -57,10 +57,10 @@ const QStringList MainWindow::skUpdateTracks = QStringList() << "stable" << "dev
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
+, m_ui(std::make_unique<Ui::MainWindow>())
 , m_fileMgr(_SYS_STR("urde"))
 , m_cvarManager(m_fileMgr)
 , m_cvarCommons(m_cvarManager)
-, m_ui(new Ui::MainWindow)
 , m_heclProc(this)
 , m_dlManager(this)
 , m_launchMenu(m_cvarCommons, this) {
@@ -109,7 +109,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow() {
   KillProcessTree(m_heclProc);
-  delete m_ui;
 }
 
 void MainWindow::onExtract() {
