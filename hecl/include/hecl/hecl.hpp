@@ -503,13 +503,11 @@ struct CaseInsensitiveCompare {
     });
   }
 
-#if _WIN32
   bool operator()(std::wstring_view lhs, std::wstring_view rhs) const {
     return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), [](wchar_t lhs, wchar_t rhs) {
       return std::towlower(lhs) < std::towlower(rhs);
     });
   }
-#endif
 };
 
 /**
