@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <QDialog>
 #include <QStringListModel>
 
@@ -11,10 +13,11 @@ class ArgumentEditor;
 
 class ArgumentEditor : public QDialog {
   Q_OBJECT
-  Ui::ArgumentEditor* m_ui;
+
+  std::unique_ptr<Ui::ArgumentEditor> m_ui;
   QStringListModel m_model;
 public:
-  explicit ArgumentEditor(QWidget* parent = 0);
+  explicit ArgumentEditor(QWidget* parent = nullptr);
   virtual ~ArgumentEditor();
 
 private slots:
