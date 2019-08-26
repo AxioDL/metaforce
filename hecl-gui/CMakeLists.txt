@@ -48,7 +48,7 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
   ${QUAZIP_SRCS}
 )
 
-target_link_libraries(hecl-gui
+target_link_libraries(hecl-gui PRIVATE
   Qt5::Network
   Qt5::Widgets
   Qt5::Xml
