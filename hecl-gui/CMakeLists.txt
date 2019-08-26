@@ -6,30 +6,6 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5 COMPONENTS Network Widgets Xml REQUIRED)
 
-if(APPLE)
-  set(PLAT_SRCS MacOSSystemVersion.hpp MacOSSystemVersion.mm)
-  set_source_files_properties(MacOSSystemVersion.mm
-    PROPERTIES COMPILE_FLAGS -fobjc-arc
-  )
-  find_library(FOUNDATION_LIBRARY Foundation)
-  set(PLAT_LIBS ${FOUNDATION_LIBRARY})
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-  set(PLAT_LIBS pthread dl)
-endif()
-
-if(WIN32)
-  list(APPEND PLAT_SRCS platforms/win/hecl-gui.rc platforms/win/hecl-gui.manifest)
-elseif(APPLE)
-  list(APPEND PLAT_SRCS platforms/mac/mainicon.icns)
-  set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
-    MACOSX_PACKAGE_LOCATION Resources
-  )
-endif()
-
-add_subdirectory(platforms/freedesktop)
-declare_qticon_target()
-list(APPEND PLAT_SRCS mainicon_qt.cpp)
-
 file(GLOB QUAZIP_SRCS quazip/quazip/*.c quazip/quazip/*.cpp quazip/quazip/*.h)
 list(REMOVE_ITEM QUAZIP_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/quazip/quazip/quagzipfile.cpp
@@ -69,9 +45,57 @@ add_executable(hecl-gui WIN32 MACOSX_BUNDLE
 
   main.cpp
 
-  ${PLAT_SRCS}
   ${QUAZIP_SRCS}
 )
+
+target_link_libraries(hecl-gui
+  Qt5::Network
+  Qt5::Widgets
+  Qt5::Xml
+
+  athena-core
+  hecl-light
+  logvisor
+  xxhash
+  z
+  zeus
+)
+
+target_include_directories(hecl-gui PRIVATE quazip/quazip)
+target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
+
+if(APPLE)
+  target_sources(hecl-gui PRIVATE
+    MacOSSystemVersion.hpp
+    MacOSSystemVersion.mm
+  )
+  set_source_files_properties(MacOSSystemVersion.mm
+    PROPERTIES COMPILE_FLAGS -fobjc-arc
+  )
+  find_library(FOUNDATION_LIBRARY Foundation)
+  target_link_libraries(hecl-gui PRIVATE ${FOUNDATION_LIBRARY})
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+  target_link_libraries(hecl-gui PRIVATE
+    dl
+    pthread
+  )
+endif()
+
+if(WIN32)
+  target_sources(hecl-gui PRIVATE
+    platforms/win/hecl-gui.manifest
+    platforms/win/hecl-gui.rc
+  )
+elseif(APPLE)
+  target_sources(hecl-gui PRIVATE platforms/mac/mainicon.icns)
+  set_source_files_properties(platforms/mac/mainicon.icns PROPERTIES
+    MACOSX_PACKAGE_LOCATION Resources
+  )
+endif()
+
+add_subdirectory(platforms/freedesktop)
+declare_qticon_target()
+target_sources(hecl-gui PRIVATE mainicon_qt.cpp)
 
 if(COMMAND add_sanitizers)
   add_sanitizers(hecl-gui)
@@ -83,22 +107,4 @@ endif()
 
 set_target_properties(hecl-gui PROPERTIES
   MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/platforms/mac/Info.plist"
-)
-
-target_include_directories(hecl-gui PRIVATE quazip/quazip)
-target_compile_definitions(hecl-gui PRIVATE QUAZIP_STATIC=1)
-
-target_link_libraries(hecl-gui
-  ${PLAT_LIBS}
-
-  Qt5::Network
-  Qt5::Widgets
-  Qt5::Xml
-
-  athena-core
-  hecl-light
-  logvisor
-  xxhash
-  z
-  zeus
 )
