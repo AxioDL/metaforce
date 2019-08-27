@@ -525,17 +525,17 @@ const char* ANCS::AnimationSet::DNAType() { return "urde::DNAMP2::ANCS::Animatio
 
 template <class Op>
 void ANCS::AnimationSet::EVNT::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"version"}, version, s);
-  DoSize<Op>({"loopEventCount"}, loopEventCount, s);
-  Do<Op>({"loopEvents"}, loopEvents, loopEventCount, s);
+  Do<Op>(athena::io::PropId{"version"}, version, s);
+  DoSize<Op>(athena::io::PropId{"loopEventCount"}, loopEventCount, s);
+  Do<Op>(athena::io::PropId{"loopEvents"}, loopEvents, loopEventCount, s);
   if (version == 2) {
-    DoSize<Op>({"uevtEventCount"}, uevtEventCount, s);
-    Do<Op>({"uevtEvents"}, uevtEvents, uevtEventCount, s);
+    DoSize<Op>(athena::io::PropId{"uevtEventCount"}, uevtEventCount, s);
+    Do<Op>(athena::io::PropId{"uevtEvents"}, uevtEvents, uevtEventCount, s);
   }
-  DoSize<Op>({"effectEventCount"}, effectEventCount, s);
-  Do<Op>({"effectEvents"}, effectEvents, effectEventCount, s);
-  DoSize<Op>({"sfxEventCount"}, sfxEventCount, s);
-  Do<Op>({"sfxEvents"}, sfxEvents, sfxEventCount, s);
+  DoSize<Op>(athena::io::PropId{"effectEventCount"}, effectEventCount, s);
+  Do<Op>(athena::io::PropId{"effectEvents"}, effectEvents, effectEventCount, s);
+  DoSize<Op>(athena::io::PropId{"sfxEventCount"}, sfxEventCount, s);
+  Do<Op>(athena::io::PropId{"sfxEvents"}, sfxEvents, sfxEventCount, s);
 }
 
 AT_SPECIALIZE_DNA(ANCS::AnimationSet::EVNT)

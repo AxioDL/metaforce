@@ -1587,9 +1587,9 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
 
 template <class Op>
 void DataSpec::TXTR::PaletteMeta::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"format"}, format, s);
-  Do<Op>({"elementCount"}, elementCount, s);
-  Do<Op>({"dolphinHash"}, dolphinHash, s);
+  Do<Op>(athena::io::PropId{"format"}, format, s);
+  Do<Op>(athena::io::PropId{"elementCount"}, elementCount, s);
+  Do<Op>(athena::io::PropId{"dolphinHash"}, dolphinHash, s);
 }
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::PaletteMeta)
@@ -1600,14 +1600,14 @@ const char* DataSpec::TXTR::PaletteMeta::DNAType() {
 
 template <class Op>
 void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"format"}, format, s);
-  Do<Op>({"mips"}, mips, s);
-  Do<Op>({"width"}, width, s);
-  Do<Op>({"height"}, height, s);
-  Do<Op>({"dolphinHash"}, dolphinHash, s);
-  Do<Op>({"hasPalette"}, hasPalette, s);
+  Do<Op>(athena::io::PropId{"format"}, format, s);
+  Do<Op>(athena::io::PropId{"mips"}, mips, s);
+  Do<Op>(athena::io::PropId{"width"}, width, s);
+  Do<Op>(athena::io::PropId{"height"}, height, s);
+  Do<Op>(athena::io::PropId{"dolphinHash"}, dolphinHash, s);
+  Do<Op>(athena::io::PropId{"hasPalette"}, hasPalette, s);
   if (hasPalette)
-    Do<Op>({"palette"}, palette, s);
+    Do<Op>(athena::io::PropId{"palette"}, palette, s);
 }
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::Meta)

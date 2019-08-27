@@ -1070,14 +1070,14 @@ AT_SPECIALIZE_DNA(MaterialSet::Material::UVAnimation)
 
 template <class Op>
 void HMDLMaterialSet::Material::PASS::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"type"}, type, s);
-  Do<Op>({"texId"}, texId, s);
-  Do<Op>({"source"}, source, s);
-  Do<Op>({"uvAnimType"}, uvAnimType, s);
+  Do<Op>(athena::io::PropId{"type"}, type, s);
+  Do<Op>(athena::io::PropId{"texId"}, texId, s);
+  Do<Op>(athena::io::PropId{"source"}, source, s);
+  Do<Op>(athena::io::PropId{"uvAnimType"}, uvAnimType, s);
   size_t uvParmCount = uvAnimParamsCount();
   for (size_t i = 0; i < uvParmCount; ++i)
     Do<Op>({}, uvAnimParms[i], s);
-  Do<Op>({"alpha"}, alpha, s);
+  Do<Op>(athena::io::PropId{"alpha"}, alpha, s);
 }
 
 AT_SPECIALIZE_DNA(HMDLMaterialSet::Material::PASS)

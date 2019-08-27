@@ -77,7 +77,7 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
 
 template <>
 void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
-  Do<BigDNA::ReadYaml>({"fourCC"}, fourCC, docin);
+  Do<BigDNA::ReadYaml>(athena::io::PropId{"fourCC"}, fourCC, docin);
   version = docin.readUint32("version");
   layerCount = docin.enumerate("layerSizes", layerSizes);
   docin.enumerate("layers", layers);
@@ -85,7 +85,7 @@ void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
 
 template <>
 void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout) {
-  Do<BigDNA::WriteYaml>({"fourCC"}, fourCC, docout);
+  Do<BigDNA::WriteYaml>(athena::io::PropId{"fourCC"}, fourCC, docout);
   docout.writeUint32("version", version);
   docout.enumerate("layerSizes", layerSizes);
   docout.enumerate("layers", layers);

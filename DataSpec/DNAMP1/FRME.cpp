@@ -251,21 +251,21 @@ void FRME::Widget::LITEInfo::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
 
 template <class Op>
 void FRME::Widget::TXPNInfo::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"xDim"}, xDim, s);
-  Do<Op>({"zDim"}, zDim, s);
-  Do<Op>({"scaleCenter"}, scaleCenter, s);
-  Do<Op>({"font"}, font, s);
-  Do<Op>({"wordWrap"}, wordWrap, s);
-  Do<Op>({"horizontal"}, horizontal, s);
-  Do<Op>({"justification"}, justification, s);
-  Do<Op>({"verticalJustification"}, verticalJustification, s);
-  Do<Op>({"fillColor"}, fillColor, s);
-  Do<Op>({"outlineColor"}, outlineColor, s);
-  Do<Op>({"blockExtent"}, blockExtent, s);
+  Do<Op>(athena::io::PropId{"xDim"}, xDim, s);
+  Do<Op>(athena::io::PropId{"zDim"}, zDim, s);
+  Do<Op>(athena::io::PropId{"scaleCenter"}, scaleCenter, s);
+  Do<Op>(athena::io::PropId{"font"}, font, s);
+  Do<Op>(athena::io::PropId{"wordWrap"}, wordWrap, s);
+  Do<Op>(athena::io::PropId{"horizontal"}, horizontal, s);
+  Do<Op>(athena::io::PropId{"justification"}, justification, s);
+  Do<Op>(athena::io::PropId{"verticalJustification"}, verticalJustification, s);
+  Do<Op>(athena::io::PropId{"fillColor"}, fillColor, s);
+  Do<Op>(athena::io::PropId{"outlineColor"}, outlineColor, s);
+  Do<Op>(athena::io::PropId{"blockExtent"}, blockExtent, s);
   if (version == 1) {
-    Do<Op>({"jpnFont"}, jpnFont, s);
-    Do<Op>({"jpnPointScale[0]"}, jpnPointScale[0], s);
-    Do<Op>({"jpnPointScale[1]"}, jpnPointScale[1], s);
+    Do<Op>(athena::io::PropId{"jpnFont"}, jpnFont, s);
+    Do<Op>(athena::io::PropId{"jpnPointScale[0]"}, jpnPointScale[0], s);
+    Do<Op>(athena::io::PropId{"jpnPointScale[1]"}, jpnPointScale[1], s);
   }
 }
 
