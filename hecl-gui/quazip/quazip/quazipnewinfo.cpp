@@ -5,7 +5,7 @@ This file is part of QuaZIP.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -29,9 +29,18 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 #include <string.h>
 
 static void QuaZipNewInfo_setPermissions(QuaZipNewInfo *info,
-        QFile::Permissions perm, bool isDir)
+        QFile::Permissions perm, bool isDir, bool isSymLink = false)
 {
     quint32 uPerm = isDir ? 0040000 : 0100000;
+
+    if ( isSymLink ) {
+#ifdef Q_OS_WIN
+        uPerm = 0200000;
+#else
+        uPerm = 0120000;
+#endif
+    }
+
     if ((perm & QFile::ReadOwner) != 0)
         uPerm |= 0400;
     if ((perm & QFile::WriteOwner) != 0)
@@ -91,7 +100,7 @@ QuaZipNewInfo::QuaZipNewInfo(const QString& name, const QString& file):
     dateTime = QDateTime::currentDateTime();
   } else {
     dateTime = lm;
-    QuaZipNewInfo_setPermissions(this, info.permissions(), info.isDir());
+    QuaZipNewInfo_setPermissions(this, info.permissions(), info.isDir(), info.isSymLink());
   }
 }
 
@@ -107,12 +116,12 @@ void QuaZipNewInfo::setFilePermissions(const QString &file)
 {
     QFileInfo info = QFileInfo(file);
     QFile::Permissions perm = info.permissions();
-    QuaZipNewInfo_setPermissions(this, perm, info.isDir());
+    QuaZipNewInfo_setPermissions(this, perm, info.isDir(), info.isSymLink());
 }
 
 void QuaZipNewInfo::setPermissions(QFile::Permissions permissions)
 {
-    QuaZipNewInfo_setPermissions(this, permissions, name.endsWith('/'));
+    QuaZipNewInfo_setPermissions(this, permissions, name.endsWith(QLatin1String("/")));
 }
 
 void QuaZipNewInfo::setFileNTFSTimes(const QString &fileName)
@@ -125,7 +134,11 @@ void QuaZipNewInfo::setFileNTFSTimes(const QString &fileName)
     }
     setFileNTFSmTime(fi.lastModified());
     setFileNTFSaTime(fi.lastRead());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    setFileNTFScTime(fi.birthTime());
+#else
     setFileNTFScTime(fi.created());
+#endif
 }
 
 static void setNTFSTime(QByteArray &extra, const QDateTime &time, int position,
@@ -239,7 +252,15 @@ static void setNTFSTime(QByteArray &extra, const QDateTime &time, int position,
         extra[timesPos + 3] = static_cast<char>(ntfsTimesLength >> 8);
     }
     QDateTime base(QDate(1601, 1, 1), QTime(0, 0), Qt::UTC);
+#if (QT_VERSION >= 0x040700)
     quint64 ticks = base.msecsTo(time) * 10000 + fineTicks;
+#else
+    QDateTime utc = time.toUTC();
+    quint64 ticks = (static_cast<qint64>(base.date().daysTo(utc.date()))
+            * Q_INT64_C(86400000)
+            + static_cast<qint64>(base.time().msecsTo(utc.time())))
+        * Q_INT64_C(10000) + fineTicks;
+#endif
     extra[timesPos + 4 + position] = static_cast<char>(ticks);
     extra[timesPos + 5 + position] = static_cast<char>(ticks >> 8);
     extra[timesPos + 6 + position] = static_cast<char>(ticks >> 16);

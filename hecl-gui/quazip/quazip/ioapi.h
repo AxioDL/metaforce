@@ -44,7 +44,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "zlib.h"
+#include <zlib.h>
 
 #if defined(USE_FILE32API)
 #define fopen64 fopen
@@ -166,6 +166,7 @@ typedef struct zlib_filefunc64_def_s
     close_file_func     zclose_file;
     testerror_file_func zerror_file;
     voidpf              opaque;
+    close_file_func     zfakeclose_file; // for no-auto-close flag
 } zlib_filefunc64_def;
 
 void fill_qiodevice64_filefunc OF((zlib_filefunc64_def* pzlib_filefunc_def));
@@ -186,6 +187,7 @@ typedef struct zlib_filefunc64_32_def_s
 //#define ZTELL64(filefunc,filestream)            ((*((filefunc).ztell64_file)) ((filefunc).opaque,filestream))
 //#define ZSEEK64(filefunc,filestream,pos,mode)   ((*((filefunc).zseek64_file)) ((filefunc).opaque,filestream,pos,mode))
 #define ZCLOSE64(filefunc,filestream)             ((*((filefunc).zfile_func64.zclose_file))  ((filefunc).zfile_func64.opaque,filestream))
+#define ZFAKECLOSE64(filefunc,filestream)             ((*((filefunc).zfile_func64.zfakeclose_file))  ((filefunc).zfile_func64.opaque,filestream))
 #define ZERROR64(filefunc,filestream)             ((*((filefunc).zfile_func64.zerror_file))  ((filefunc).zfile_func64.opaque,filestream))
 
 voidpf call_zopen64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf file,int mode));

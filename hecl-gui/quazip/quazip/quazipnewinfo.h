@@ -8,7 +8,7 @@ This file is part of QuaZIP.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -70,7 +70,7 @@ struct QUAZIP_EXPORT QuaZipNewInfo {
     */
   quint32 externalAttr;
   /// File comment.
-  /** Will be encoded using QuaZip::getCommentCodec().
+  /** Will be encoded in UTF-8 encoding.
    **/
   QString comment;
   /// File local extra field.
@@ -148,8 +148,9 @@ struct QUAZIP_EXPORT QuaZipNewInfo {
   /**
    * If the file doesn't exist, a warning is printed to the stderr and nothing
    * is done. Otherwise, all three times, as reported by
-   * QFileInfo::lastModified(), QFileInfo::lastRead() and QFileInfo::created(),
-   * are written to the NTFS extra field record.
+   * QFileInfo::lastModified(), QFileInfo::lastRead() and
+   * QFileInfo::birthTime() (>=Qt5.10) or QFileInfo::created(), are written to
+   * the NTFS extra field record.
    *
    * The NTFS record is written to
    * both the local and the global extra fields, updating the existing record

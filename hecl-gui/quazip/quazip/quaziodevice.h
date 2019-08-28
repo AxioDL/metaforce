@@ -8,7 +8,7 @@ This file is part of QuaZIP.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -39,6 +39,7 @@ class QuaZIODevicePrivate;
   example.
   */
 class QUAZIP_EXPORT QuaZIODevice: public QIODevice {
+  friend class QuaZIODevicePrivate;
   Q_OBJECT
 public:
   /// Constructor.
@@ -87,6 +88,10 @@ public:
   QIODevice *getIoDevice() const;
   /// Returns true.
   virtual bool isSequential() const;
+  /// Returns true iff the end of the compressed stream is reached.
+  virtual bool atEnd() const;
+  /// Returns the number of the bytes buffered.
+  virtual qint64 bytesAvailable() const;
 protected:
   /// Implementation of QIODevice::readData().
   virtual qint64 readData(char *data, qint64 maxSize);

@@ -8,7 +8,7 @@ This file is part of QuaZIP.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -32,7 +32,11 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 #include "quazip_global.h"
 
 /// Information about a file inside archive.
-/** Call QuaZip::getCurrentFileInfo() or QuaZipFile::getFileInfo() to
+/**
+ * \deprecated Use QuaZipFileInfo64 instead. Not only it supports large files,
+ * but also more convenience methods as well.
+ *
+ * Call QuaZip::getCurrentFileInfo() or QuaZipFile::getFileInfo() to
  * fill this structure. */
 struct QUAZIP_EXPORT QuaZipFileInfo {
   /// File name.
@@ -167,6 +171,8 @@ struct QUAZIP_EXPORT QuaZipFileInfo64 {
    * @return The NTFS creation time, UTC
    */
   QDateTime getNTFScTime(int *fineTicks = NULL) const;
+  /// Checks whether the file is encrypted.
+  bool isEncrypted() const {return (flags & 1) != 0;}
 };
 
 #endif
