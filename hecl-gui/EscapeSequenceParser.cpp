@@ -485,14 +485,14 @@ void ParseEscapeSequence(int attribute, QListIterator<QString>& i, QTextCharForm
 }
 
 void ReturnInsert(QTextCursor& cur, const QString& text) {
-  auto DoLine = [&](const QString& line) {
-    auto DoReturn = [&](const QString& ret) {
+  const auto DoLine = [&](const QString& line) {
+    const auto DoReturn = [&](const QString& ret) {
       if (!ret.isEmpty()) {
         cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
         cur.insertText(ret);
       }
     };
-    QStringList list = line.split('\r');
+    const QStringList list = line.split(QLatin1Char{'\r'});
     DoReturn(list.front());
     if (list.size() > 1) {
       for (auto it = list.begin() + 1; it != list.end(); ++it) {
@@ -503,9 +503,9 @@ void ReturnInsert(QTextCursor& cur, const QString& text) {
   };
 
 #if _WIN32
-  QStringList lineSplit = text.split("\r\n");
+  const QStringList lineSplit = text.split(QStringLiteral("\r\n"));
 #else
-  QStringList lineSplit = text.split('\n');
+  const QStringList lineSplit = text.split(QLatin1Char{'\n'});
 #endif
   DoLine(lineSplit.front());
   if (lineSplit.size() > 1) {
@@ -518,14 +518,14 @@ void ReturnInsert(QTextCursor& cur, const QString& text) {
 }
 
 void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& format) {
-  auto DoLine = [&](const QString& line) {
-    auto DoReturn = [&](const QString& ret) {
+  const auto DoLine = [&](const QString& line) {
+    const auto DoReturn = [&](const QString& ret) {
       if (!ret.isEmpty()) {
         cur.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, ret.size());
         cur.insertText(ret, format);
       }
     };
-    QStringList list = line.split('\r');
+    const QStringList list = line.split(QLatin1Char{'\r'});
     DoReturn(list.front());
     if (list.size() > 1) {
       for (auto it = list.begin() + 1; it != list.end(); ++it) {
@@ -536,9 +536,9 @@ void ReturnInsert(QTextCursor& cur, const QString& text, const QTextCharFormat& 
   };
 
 #if _WIN32
-  QStringList lineSplit = text.split("\r\n");
+  const QStringList lineSplit = text.split(QStringLiteral("\r\n"));
 #else
-  QStringList lineSplit = text.split('\n');
+  const QStringList lineSplit = text.split(QLatin1Char{'\n'});
 #endif
   DoLine(lineSplit.front());
   if (lineSplit.size() > 1) {

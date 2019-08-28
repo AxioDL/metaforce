@@ -92,32 +92,40 @@ VectorISA StringToVectorISA(const QString& str) {
 URDEVersion::URDEVersion(const QString& filename) {
   int idx;
   QString useFilename = filename;
-  if ((idx = filename.indexOf('.')) >= 0) {
+  if ((idx = filename.indexOf(QLatin1Char{'.'})) >= 0) {
     m_extension = QString(filename).remove(0, idx);
     useFilename.truncate(idx);
   }
-  QStringList list = useFilename.split('-');
-  if (list.size() >= 2)
+
+  const QStringList list = useFilename.split(QLatin1Char{'-'});
+  if (list.size() >= 2) {
     m_version = list[1].toInt();
-  if (list.size() >= 3)
+  }
+  if (list.size() >= 3) {
     m_platform = StringToPlatform(list[2]);
-  if (list.size() >= 4)
+  }
+  if (list.size() >= 4) {
     m_architecture = StringToArchitecture(list[3]);
-  if (list.size() >= 5)
+  }
+  if (list.size() >= 5) {
     m_vectorISA = StringToVectorISA(list[4]);
+  }
 }
 
 QString URDEVersion::fileString(bool withExtension) const {
-  if (m_version < 0)
+  if (m_version < 0) {
     return {};
-  if (withExtension && !m_extension.isEmpty())
-    return QString("urde-%1-%2-%3-%4%5")
+  }
+
+  if (withExtension && !m_extension.isEmpty()) {
+    return QStringLiteral("urde-%1-%2-%3-%4%5")
         .arg(QString::number(m_version), PlatformToString(m_platform), ArchitectureToString(m_architecture),
              VectorISAToString(m_vectorISA), m_extension);
-  else
-    return QString("urde-%1-%2-%3-%4")
+  } else {
+    return QStringLiteral("urde-%1-%2-%3-%4")
         .arg(QString::number(m_version), PlatformToString(m_platform), ArchitectureToString(m_architecture),
              VectorISAToString(m_vectorISA));
+  }
 }
 
 #ifndef _WIN32
