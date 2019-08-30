@@ -1,7 +1,13 @@
 #include "specter/MessageWindow.hpp"
-#include "specter/ViewResources.hpp"
-#include "specter/RootView.hpp"
+
+#include "specter/IViewManager.hpp"
 #include "specter/Menu.hpp"
+#include "specter/MultiLineTextView.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <locale.hpp>
+#include <zeus/CColor.hpp>
 
 namespace specter {
 
@@ -24,6 +30,16 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView, Type type, st
                                      zeus::skWhite, RectangleConstraint(150 * res.pixelFactor())));
 
   updateContentOpacity(0.0);
+}
+
+MessageWindow::~MessageWindow() = default;
+
+void MessageWindow::updateContentOpacity(float opacity) {
+  zeus::CColor color = zeus::CColor::lerp({1, 1, 1, 0}, {1, 1, 1, 1}, opacity);
+  ModalWindow::setMultiplyColor(color);
+  m_text->setMultiplyColor(color);
+  m_ok.m_view->setMultiplyColor(color);
+  m_cancel.m_view->setMultiplyColor(color);
 }
 
 void MessageWindow::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mods) {

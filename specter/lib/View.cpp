@@ -1,7 +1,11 @@
 #include "specter/View.hpp"
-#include "specter/ViewResources.hpp"
+
 #include "specter/RootView.hpp"
-#include "hecl/Pipeline.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <boo/System.hpp>
+#include <hecl/Pipeline.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::View");

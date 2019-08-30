@@ -1,8 +1,17 @@
 #pragma once
 
-#include "View.hpp"
+#include <cstddef>
+
+#include "specter/View.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <zeus/CVector2f.hpp>
 
 namespace specter {
+class ViewResources;
 
 struct Icon {
   boo::ObjToken<boo::ITexture> m_tex;

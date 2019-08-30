@@ -1,11 +1,18 @@
 #pragma once
 
-#include "Button.hpp"
-#include "IViewManager.hpp"
+#include <cstddef>
+#include <memory>
+#include <string>
+
+#include "specter/Button.hpp"
+#include "specter/View.hpp"
 
 namespace specter {
-class ViewResources;
 class Button;
+class Control;
+class ViewResources;
+
+struct IViewManager;
 
 class ScrollView : public View {
 public:
@@ -30,23 +37,11 @@ private:
   struct SideButtonBinding : IButtonBinding {
     ScrollView& m_sv;
     std::string m_leftName, m_rightName;
-    SideButtonBinding(ScrollView& sv, IViewManager& vm)
-    : m_sv(sv)
-    , m_leftName(vm.translate<locale::scroll_left>())
-    , m_rightName(vm.translate<locale::scroll_right>()) {}
-    std::string_view name(const Control* control) const override {
-      return (control == reinterpret_cast<Control*>(m_sv.m_sideButtons[0].m_view.get())) ? m_leftName.c_str()
-                                                                                         : m_rightName.c_str();
-    }
-    void down(const Button* button, const boo::SWindowCoord& coord) override {
-      if (button == m_sv.m_sideButtons[0].m_view.get())
-        m_sv.m_sideButtonState = SideButtonState::ScrollRight;
-      else
-        m_sv.m_sideButtonState = SideButtonState::ScrollLeft;
-    }
-    void up(const Button* button, const boo::SWindowCoord& coord) override {
-      m_sv.m_sideButtonState = SideButtonState::None;
-    }
+
+    SideButtonBinding(ScrollView& sv, IViewManager& vm);
+    std::string_view name(const Control* control) const override;
+    void down(const Button* button, const boo::SWindowCoord& coord) override;
+    void up(const Button* button, const boo::SWindowCoord& coord) override;
   } m_sideButtonBind;
   ViewChild<std::unique_ptr<Button>> m_sideButtons[2];
 

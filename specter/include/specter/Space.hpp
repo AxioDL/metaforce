@@ -1,11 +1,14 @@
 #pragma once
 
-#include "View.hpp"
-#include "Toolbar.hpp"
-#include "SplitView.hpp"
+#include <memory>
+
+#include "specter/SplitView.hpp"
+#include "specter/Toolbar.hpp"
+#include "specter/View.hpp"
 
 namespace specter {
-class Space;
+class ViewResources;
+
 struct ISplitSpaceController;
 
 struct ISpaceController {
@@ -20,7 +23,10 @@ struct ISplitSpaceController {
 };
 
 class Space : public View {
+  struct CornerView;
   friend class RootView;
+  friend struct CornerView;
+
   ISpaceController& m_controller;
   Toolbar::Position m_tbPos;
   ViewChild<std::unique_ptr<Toolbar>> m_toolbar;
@@ -29,25 +35,13 @@ class Space : public View {
   bool m_cornerDrag = false;
   int m_cornerDragPoint[2];
 
-  struct CornerView : View {
-    Space& m_space;
-    VertexBufferBindingSolid m_vertexBinding;
-    bool m_flip;
-    CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor);
-    void mouseEnter(const boo::SWindowCoord&) override;
-    void mouseLeave(const boo::SWindowCoord&) override;
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    using View::resized;
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, bool flip);
-    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
-  };
-  friend struct CornerView;
   ViewChild<std::unique_ptr<CornerView>> m_cornerView;
 
 public:
   Space(ViewResources& res, View& parentView, ISpaceController& controller, Toolbar::Position toolbarPos,
         unsigned tbUnits);
+  ~Space() override;
+
   View* setContentView(View* view);
   Toolbar* toolbar() { return m_toolbar.m_view.get(); }
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;

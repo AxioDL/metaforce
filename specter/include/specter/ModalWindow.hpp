@@ -1,9 +1,17 @@
 #pragma once
 
-#include <specter/View.hpp>
-#include <specter/MultiLineTextView.hpp>
+#include <memory>
+
+#include "specter/View.hpp"
+
+#include <boo/IWindow.hpp>
+#include <hecl/UniformBufferPool.hpp>
+#include <zeus/CColor.hpp>
 
 namespace specter {
+class TextView;
+class ViewResources;
+
 class ModalWindow : public View {
 public:
   enum class Phase { BuildIn, ResWait, Showing, BuildOut, Done };
@@ -55,6 +63,8 @@ protected:
 public:
   ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint, const zeus::CColor& bgColor);
   ModalWindow(ViewResources& res, View& parentView, const RectangleConstraint& constraint);
+  ~ModalWindow() override;
+
   void think() override;
   bool skipBuildInAnimation();
   void close(bool skipAnimation = false);

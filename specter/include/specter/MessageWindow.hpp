@@ -1,10 +1,14 @@
 #pragma once
 
-#include "ModalWindow.hpp"
-#include "MultiLineTextView.hpp"
-#include "Button.hpp"
+#include <functional>
+#include <memory>
+#include <string>
+
+#include "specter/Button.hpp"
+#include "specter/ModalWindow.hpp"
 
 namespace specter {
+class MultiLineTextView;
 
 class MessageWindow : public ModalWindow {
 public:
@@ -37,14 +41,9 @@ private:
 public:
   MessageWindow(ViewResources& res, View& parentView, Type type, std::string_view message,
                 std::function<void(bool ok)> func);
+  ~MessageWindow() override;
 
-  void updateContentOpacity(float opacity) override {
-    zeus::CColor color = zeus::CColor::lerp({1, 1, 1, 0}, {1, 1, 1, 1}, opacity);
-    ModalWindow::setMultiplyColor(color);
-    m_text->setMultiplyColor(color);
-    m_ok.m_view->setMultiplyColor(color);
-    m_cancel.m_view->setMultiplyColor(color);
-  }
+  void updateContentOpacity(float opacity) override;
 
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
   void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;

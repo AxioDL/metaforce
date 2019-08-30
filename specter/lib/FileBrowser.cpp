@@ -1,6 +1,13 @@
 #include "specter/FileBrowser.hpp"
-#include "specter/RootView.hpp"
+
+#include "specter/Button.hpp"
+#include "specter/IViewManager.hpp"
 #include "specter/MessageWindow.hpp"
+#include "specter/RootView.hpp"
+#include "specter/TextField.hpp"
+
+#include <hecl/hecl.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::FileBrowser");
@@ -98,6 +105,8 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view 
 
   updateContentOpacity(0.0);
 }
+
+FileBrowser::~FileBrowser() = default;
 
 void FileBrowser::SyncBookmarkSelections(Table& table, BookmarkDataBind& binding, const hecl::SystemString& sel) {
   size_t idx = 0;
@@ -298,6 +307,9 @@ void FileBrowser::cancelActivated() {
   close();
 }
 
+FileBrowser::FileFieldBind::FileFieldBind(FileBrowser& browser, const IViewManager& vm)
+: m_browser(browser), m_name(vm.translate<locale::file_name>()) {}
+
 void FileBrowser::pathButtonActivated(size_t idx) {
   if (idx >= m_comps.size())
     return;
@@ -315,6 +327,50 @@ void FileBrowser::pathButtonActivated(size_t idx) {
       break;
   }
   navigateToPath(dir);
+}
+
+void FileBrowser::FileListingDataBind::updateListing(const hecl::DirectoryEnumerator& dEnum) {
+  m_entries.clear();
+  m_entries.reserve(dEnum.size());
+
+  for (const hecl::DirectoryEnumerator::Entry& d : dEnum) {
+    m_entries.emplace_back();
+    Entry& ent = m_entries.back();
+    ent.m_path = d.m_path;
+    hecl::SystemUTF8Conv nameUtf8(d.m_name);
+    ent.m_name = nameUtf8.str();
+    if (d.m_isDir) {
+      if (hecl::SearchForProject(d.m_path))
+        ent.m_type = m_projStr;
+      else
+        ent.m_type = m_dirStr;
+    } else {
+      ent.m_type = m_fileStr;
+      ent.m_size = hecl::HumanizeNumber(d.m_fileSz, 7, nullptr, int(hecl::HNScale::AutoScale),
+                                        hecl::HNFlags::B | hecl::HNFlags::Decimal);
+    }
+  }
+
+  m_needsUpdate = false;
+}
+
+void FileBrowser::FileListingDataBind::setSelectedRow(size_t rIdx) {
+  if (rIdx != SIZE_MAX) {
+    m_fb.m_fileField.m_view->setText(m_entries.at(rIdx).m_name);
+  } else {
+    m_fb.m_fileField.m_view->setText("");
+  }
+
+  m_fb.m_fileField.m_view->clearErrorState();
+}
+
+FileBrowser::FileListingDataBind::FileListingDataBind(FileBrowser& fb, const IViewManager& vm) : m_fb(fb) {
+  m_nameCol = vm.translate<locale::name>();
+  m_typeCol = vm.translate<locale::type>();
+  m_sizeCol = vm.translate<locale::size>();
+  m_dirStr = vm.translate<locale::directory>();
+  m_projStr = vm.translate<locale::hecl_project>();
+  m_fileStr = vm.translate<locale::file>();
 }
 
 void FileBrowser::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod) {
@@ -528,6 +584,19 @@ void FileBrowser::RightSide::draw(boo::IGraphicsCommandQueue* gfxQ) {
   m_fb.m_ok.m_button.m_view->draw(gfxQ);
   m_fb.m_cancel.m_button.m_view->draw(gfxQ);
   m_fb.m_fileField.m_view->draw(gfxQ);
+}
+
+FileBrowser::OKButton::OKButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
+  m_button.m_view.reset(
+      new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
+                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
+}
+
+FileBrowser::CancelButton::CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text)
+: m_fb(fb), m_text(text) {
+  m_button.m_view.reset(new Button(
+      res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
+      RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
 }
 
 } // namespace specter

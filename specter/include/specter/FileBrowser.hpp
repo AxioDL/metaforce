@@ -1,18 +1,28 @@
 #pragma once
 
-#include "View.hpp"
-#include "ModalWindow.hpp"
-#include "Button.hpp"
-#include "TextField.hpp"
-#include "ScrollView.hpp"
-#include "Table.hpp"
-#include "ViewResources.hpp"
-#include "IViewManager.hpp"
-#include "MessageWindow.hpp"
-#include "PathButtons.hpp"
-#include <hecl/hecl.hpp>
+#include <cstddef>
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "specter/ModalWindow.hpp"
+#include "specter/PathButtons.hpp"
+#include "specter/Table.hpp"
+#include "specter/View.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <hecl/SystemChar.hpp>
+
+namespace hecl {
+class DirectoryEnumerator;
+}
 
 namespace specter {
+class MessageWindow;
+class TextField;
+
+struct IViewManager;
 
 class FileBrowser : public ModalWindow, public IPathButtonsBinding {
 public:
@@ -47,11 +57,7 @@ private:
     FileBrowser& m_fb;
     ViewChild<std::unique_ptr<Button>> m_button;
     std::string m_text;
-    OKButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
-      m_button.m_view.reset(
-          new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
-                     RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
-    }
+    OKButton(FileBrowser& fb, ViewResources& res, std::string_view text);
     std::string_view name(const Control* control) const override { return m_text; }
     void activated(const Button* button, const boo::SWindowCoord&) override { m_fb.okActivated(true); }
   } m_ok;
@@ -61,11 +67,7 @@ private:
     FileBrowser& m_fb;
     ViewChild<std::unique_ptr<Button>> m_button;
     std::string m_text;
-    CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
-      m_button.m_view.reset(new Button(
-          res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
-          RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
-    }
+    CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text);
     std::string_view name(const Control* control) const override { return m_text; }
     void activated(const Button* button, const boo::SWindowCoord&) override { m_fb.cancelActivated(); }
   } m_cancel;
@@ -77,8 +79,7 @@ private:
   struct FileFieldBind : IStringBinding {
     FileBrowser& m_browser;
     std::string m_name;
-    FileFieldBind(FileBrowser& browser, const IViewManager& vm)
-    : m_browser(browser), m_name(vm.translate<locale::file_name>()) {}
+    FileFieldBind(FileBrowser& browser, const IViewManager& vm);
     std::string_view name(const Control* control) const override { return m_name; }
     void changed(const Control* control, std::string_view val) override {}
   } m_fileFieldBind;
@@ -143,30 +144,7 @@ private:
 
     void setColumnSplit(size_t cIdx, float split) override { m_columnSplits[cIdx] = split; }
 
-    void updateListing(const hecl::DirectoryEnumerator& dEnum) {
-      m_entries.clear();
-      m_entries.reserve(dEnum.size());
-
-      for (const hecl::DirectoryEnumerator::Entry& d : dEnum) {
-        m_entries.emplace_back();
-        Entry& ent = m_entries.back();
-        ent.m_path = d.m_path;
-        hecl::SystemUTF8Conv nameUtf8(d.m_name);
-        ent.m_name = nameUtf8.str();
-        if (d.m_isDir) {
-          if (hecl::SearchForProject(d.m_path))
-            ent.m_type = m_projStr;
-          else
-            ent.m_type = m_dirStr;
-        } else {
-          ent.m_type = m_fileStr;
-          ent.m_size = hecl::HumanizeNumber(d.m_fileSz, 7, nullptr, int(hecl::HNScale::AutoScale),
-                                            hecl::HNFlags::B | hecl::HNFlags::Decimal);
-        }
-      }
-
-      m_needsUpdate = false;
-    }
+    void updateListing(const hecl::DirectoryEnumerator& dEnum);
 
     bool m_sizeSort = false;
     SortDirection m_sortDir = SortDirection::Ascending;
@@ -185,25 +163,11 @@ private:
       m_needsUpdate = true;
     }
 
-    void setSelectedRow(size_t rIdx) override {
-      if (rIdx != SIZE_MAX)
-        m_fb.m_fileField.m_view->setText(m_entries.at(rIdx).m_name);
-      else
-        m_fb.m_fileField.m_view->setText("");
-      m_fb.m_fileField.m_view->clearErrorState();
-    }
+    void setSelectedRow(size_t rIdx) override;
 
     void rowActivated(size_t rIdx) override { m_fb.okActivated(false); }
 
-    FileListingDataBind(FileBrowser& fb, const IViewManager& vm) : m_fb(fb) {
-      m_nameCol = vm.translate<locale::name>();
-      m_typeCol = vm.translate<locale::type>();
-      m_sizeCol = vm.translate<locale::size>();
-      m_dirStr = vm.translate<locale::directory>();
-      m_projStr = vm.translate<locale::hecl_project>();
-      m_fileStr = vm.translate<locale::file>();
-    }
-
+    FileListingDataBind(FileBrowser& fb, const IViewManager& vm);
   } m_fileListingBind;
   ViewChild<std::unique_ptr<Table>> m_fileListing;
 
@@ -266,6 +230,7 @@ public:
   : FileBrowser(res, parentView, title, type, hecl::GetcwdStr(), returnFunc) {}
   FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
               hecl::SystemStringView initialPath, std::function<void(bool, hecl::SystemStringView)> returnFunc);
+  ~FileBrowser() override;
 
   static std::vector<hecl::SystemString> PathComponents(hecl::SystemStringView path);
   static void SyncBookmarkSelections(Table& table, BookmarkDataBind& binding, const hecl::SystemString& sel);

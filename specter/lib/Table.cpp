@@ -1,12 +1,38 @@
 #include "specter/Table.hpp"
-#include "specter/ViewResources.hpp"
+
 #include "specter/RootView.hpp"
 #include "specter/ScrollView.hpp"
+#include "specter/TextView.hpp"
+#include "specter/ViewResources.hpp"
 
 namespace specter {
 static logvisor::Module Log("specter::Table");
 #define ROW_HEIGHT 18
 #define CELL_MARGIN 1
+
+struct Table::CellView : public View {
+  Table& m_t;
+  std::unique_ptr<TextView> m_text;
+  size_t m_c = SIZE_MAX, m_r = SIZE_MAX;
+  boo::SWindowRect m_scissorRect;
+  uint64_t m_textHash = 0;
+  bool m_selected = false;
+
+  CellView(Table& t, ViewResources& res);
+
+  void select();
+  void deselect();
+  void reset();
+  bool reset(size_t c);
+  bool reset(size_t c, size_t r);
+
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
+};
 
 Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state,
              size_t maxColumns)
@@ -30,6 +56,8 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
 
   updateData();
 }
+
+Table::~Table() = default;
 
 Table::RowsView::RowsView(Table& t, ViewResources& res)
 : View(res, t), m_t(t), m_verts(new SolidShaderVert[SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6]) {
@@ -658,6 +686,8 @@ int Table::RowsView::nominalHeight() const {
   int rows = m_t.m_rows + 1;
   return rows * (ROW_HEIGHT + CELL_MARGIN * 2) * pf;
 }
+
+int Table::RowsView::nominalWidth() const { return m_t.m_scroll.m_view->nominalWidth(); }
 
 void Table::RowsView::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub,
                               const boo::SWindowRect& scissor) {

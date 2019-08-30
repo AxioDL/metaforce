@@ -1,7 +1,14 @@
 #include "specter/RootView.hpp"
-#include "specter/ViewResources.hpp"
-#include "specter/Space.hpp"
+
+#include "specter/Button.hpp"
+#include "specter/Control.hpp"
+#include "specter/IViewManager.hpp"
 #include "specter/Menu.hpp"
+#include "specter/Space.hpp"
+#include "specter/Tooltip.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::RootView");
@@ -497,6 +504,8 @@ void RootView::modKeyUp(boo::EModifierKey mod) {
     m_activeTextView->modKeyUp(mod);
 }
 
+boo::ITextInputCallback* RootView::getTextInputCallback() { return m_activeTextView; }
+
 void RootView::resetTooltip(ViewResources& res) {
   m_tooltip.reset(
       new Tooltip(res, *this, "Test",
@@ -528,6 +537,18 @@ void RootView::internalThink() {
     m_rightClickMenu.m_view->think();
 }
 
+void RootView::setActiveTextView(ITextInputView* textView) {
+  if (m_activeTextView) {
+    m_activeTextView->setActive(false);
+  }
+
+  m_activeTextView = textView;
+
+  if (textView) {
+    textView->setActive(true);
+  }
+}
+
 void RootView::draw(boo::IGraphicsCommandQueue* gfxQ) {
   if (m_resizeRTDirty) {
     gfxQ->resizeRenderTexture(m_renderTex, m_rootRect.size[0], m_rootRect.size[1]);
@@ -548,6 +569,8 @@ void RootView::draw(boo::IGraphicsCommandQueue* gfxQ) {
     m_rightClickMenu.m_view->draw(gfxQ);
   gfxQ->resolveDisplay(m_renderTex);
 }
+
+const IThemeData& RootView::themeData() const { return *m_viewRes->m_theme; }
 
 void RootView::SplitMenuSystem::draw(boo::IGraphicsCommandQueue* gfxQ) {
   if (m_phase == Phase::Inactive)

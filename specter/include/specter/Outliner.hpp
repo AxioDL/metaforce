@@ -1,5 +1,12 @@
 #pragma once
 
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "specter/View.hpp"
+
 namespace specter {
 class Outliner {
   class Node : public View {

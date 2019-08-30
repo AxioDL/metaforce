@@ -1,6 +1,10 @@
 #include "specter/ModalWindow.hpp"
-#include "specter/ViewResources.hpp"
+
+#include "specter/MultiLineTextView.hpp"
 #include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <boo/System.hpp>
 
 namespace specter {
 
@@ -299,6 +303,8 @@ ModalWindow::ModalWindow(ViewResources& res, View& parentView, const RectangleCo
 
   _loadVerts();
 }
+
+ModalWindow::~ModalWindow() = default;
 
 static float CubicEase(float t) {
   t *= 2.f;

@@ -1,8 +1,18 @@
 #pragma once
 
-#include "specter/TextView.hpp"
+#include <memory>
+#include <string>
+
+#include "specter/View.hpp"
+
+namespace boo {
+struct IGraphicsBufferD;
+struct IGraphicsDataFactory;
+struct IShaderDataBinding;
+} // namespace boo
 
 namespace specter {
+class TextView;
 class ViewResources;
 
 class NumericField : public View {
@@ -27,8 +37,8 @@ class NumericField : public View {
 
 public:
   class Resources {
-    friend class ViewResources;
     friend class Button;
+    friend class ViewResources;
 
     void init(boo::IGraphicsDataFactory* factory, const IThemeData& theme);
   };

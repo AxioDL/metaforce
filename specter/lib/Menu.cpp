@@ -1,5 +1,9 @@
 #include "specter/Menu.hpp"
+
+#include "specter/IMenuNode.hpp"
 #include "specter/RootView.hpp"
+#include "specter/ScrollView.hpp"
+#include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
 #define ROW_HEIGHT 18
@@ -19,6 +23,8 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode) : View(res
   m_scroll.m_view->setContentView(m_content.get());
   reset(rootNode);
 }
+
+Menu::~Menu() = default;
 
 void Menu::reset(IMenuNode* rootNode) {
   m_rootNode = rootNode;

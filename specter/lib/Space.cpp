@@ -1,7 +1,10 @@
-#include "logvisor/logvisor.hpp"
 #include "specter/Space.hpp"
-#include "specter/ViewResources.hpp"
+
+#include "specter/IViewManager.hpp"
 #include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::Space");
@@ -17,6 +20,21 @@ static logvisor::Module Log("specter::Space");
 
 static const zeus::CColor TriColor = {0.75, 0.75, 0.75, 1.0};
 
+struct Space::CornerView : View {
+  Space& m_space;
+  VertexBufferBindingSolid m_vertexBinding;
+  bool m_flip;
+
+  CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor);
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  using View::resized;
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, bool flip);
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
+};
+
 Space::Space(ViewResources& res, View& parentView, ISpaceController& controller, Toolbar::Position tbPos,
              unsigned tbUnits)
 : View(res, parentView), m_controller(controller), m_tbPos(tbPos) {
@@ -30,6 +48,8 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
   if (tbPos != Toolbar::Position::None)
     m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
 }
+
+Space::~Space() = default;
 
 Space::CornerView::CornerView(ViewResources& res, Space& space, const zeus::CColor& triColor)
 : View(res, space), m_space(space) {

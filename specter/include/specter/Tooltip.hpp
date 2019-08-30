@@ -1,9 +1,15 @@
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "specter/View.hpp"
-#include "specter/MultiLineTextView.hpp"
+
+#include <hecl/UniformBufferPool.hpp>
 
 namespace specter {
+class MultiLineTextView;
+class TextView;
 
 class Tooltip : public View {
   ViewBlock m_ttBlock;
@@ -26,6 +32,8 @@ class Tooltip : public View {
 
 public:
   Tooltip(ViewResources& res, View& parentView, std::string_view title, std::string_view message);
+  ~Tooltip() override;
+
   void resized(const boo::SWindowRect& rootView, const boo::SWindowRect& sub) override;
   void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 

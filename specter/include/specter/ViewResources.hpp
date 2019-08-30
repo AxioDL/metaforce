@@ -1,11 +1,14 @@
 #pragma once
 
-#include "TextView.hpp"
-#include "SplitView.hpp"
-#include "Toolbar.hpp"
-#include "Button.hpp"
-
+#include <atomic>
 #include <thread>
+
+#include "specter/Button.hpp"
+#include "specter/SplitView.hpp"
+#include "specter/TextView.hpp"
+#include "specter/Toolbar.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace specter {
 class IThemeData {

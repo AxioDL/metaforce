@@ -1,6 +1,18 @@
 #pragma once
 
+#include <vector>
+
 #include "specter/View.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/UniformBufferPool.hpp>
+
+namespace boo {
+struct IGraphicsCommandQueue;
+}
 
 namespace specter {
 #define SPECTER_TOOLBAR_GAUGE 28
@@ -35,6 +47,8 @@ private:
 
 public:
   Toolbar(ViewResources& res, View& parentView, Position toolbarPos, unsigned units);
+  ~Toolbar() override;
+
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
   void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
   void mouseMove(const boo::SWindowCoord&) override;

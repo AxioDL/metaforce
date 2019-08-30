@@ -1,10 +1,50 @@
-#include "logvisor/logvisor.hpp"
 #include "specter/Button.hpp"
-#include "specter/ViewResources.hpp"
+
+#include "specter/Icon.hpp"
 #include "specter/RootView.hpp"
+#include "specter/TextView.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::Button");
+
+struct Button::ButtonTarget : View {
+  Button& m_button;
+
+  bool m_pressed = false;
+  bool m_hovered = false;
+
+  void setInactive();
+  void setHover();
+  void setPressed();
+  void setDisabled();
+
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  ButtonTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
+};
+
+struct Button::MenuTarget : View {
+  Button& m_button;
+
+  bool m_pressed = false;
+  bool m_hovered = false;
+
+  void setInactive();
+  void setHover();
+  void setPressed();
+  void setDisabled();
+
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  MenuTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
+};
 
 void Button::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme) {}
 
@@ -65,6 +105,8 @@ Button::Button(ViewResources& res, View& parentView, IButtonBinding* controlBind
   m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
   setText(m_textStr);
 }
+
+Button::~Button() { closeMenu({}); }
 
 void Button::setText(std::string_view text) { setText(text, m_textColor); }
 
@@ -447,6 +489,16 @@ void Button::closeMenu(const boo::SWindowCoord& coord) {
   rootView().unsetActiveMenuButton(this);
   m_modalMenu.m_view.reset();
   m_menuTarget.mouseMove(coord);
+}
+
+void Button::setMultiplyColor(const zeus::CColor& color) {
+  View::setMultiplyColor(color);
+  m_viewVertBlock.m_color = color;
+  if (m_viewVertBlockBuf)
+    m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
+  m_text->setMultiplyColor(color);
+  if (m_icon)
+    m_icon->setMultiplyColor(color);
 }
 
 void Button::think() {

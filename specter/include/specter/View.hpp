@@ -1,19 +1,31 @@
 #pragma once
 
-#include "boo/boo.hpp"
+#include <algorithm>
 #include <optional>
-#include "zeus/CVector3f.hpp"
-#include "zeus/CMatrix4f.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CColor.hpp"
-#include "hecl/CVar.hpp"
-#include "hecl/UniformBufferPool.hpp"
-#include "hecl/VertexBufferPool.hpp"
+#include <utility>
+
+#include <boo/BooObject.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/UniformBufferPool.hpp>
+#include <hecl/VertexBufferPool.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
+
+namespace boo {
+struct IGraphicsCommandQueue;
+}
 
 namespace specter {
 class IThemeData;
-class ViewResources;
 class RootView;
+class Space;
+class SplitView;
+class ViewResources;
 
 extern zeus::CMatrix4f g_PlatformMatrix;
 
@@ -67,8 +79,6 @@ public:
   }
 };
 
-class Space;
-class SplitView;
 class View {
 public:
   struct SolidShaderVert {

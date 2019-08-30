@@ -1,5 +1,8 @@
 #include "specter/ViewResources.hpp"
 
+#include <boo/System.hpp>
+#include <logvisor/logvisor.hpp>
+
 namespace specter {
 static logvisor::Module Log("specter::ViewResources");
 

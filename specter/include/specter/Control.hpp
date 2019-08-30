@@ -1,6 +1,19 @@
 #pragma once
 
-#include "View.hpp"
+#include <cfloat>
+#include <climits>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <utility>
+
+#include "specter/View.hpp"
+
+#include <boo/IWindow.hpp>
+
+namespace hecl {
+class CVar;
+}
 
 namespace specter {
 class Control;
@@ -41,7 +54,7 @@ struct IButtonBinding : IControlBinding {
   virtual MenuStyle menuStyle(const specter::Button* button) const { return MenuStyle::None; }
 
   /** Called when user requests menu, Button assumes modal ownership */
-  virtual std::unique_ptr<View> buildMenu(const specter::Button* button) { return std::unique_ptr<View>(); }
+  virtual std::unique_ptr<View> buildMenu(const specter::Button* button) { return nullptr; }
 };
 
 struct IFloatBinding : IControlBinding {
@@ -80,8 +93,8 @@ struct CVarControlBinding : IControlBinding {
   static CVarControlBinding* castTo(IControlBinding* bind) {
     return bind->type() == ControlType::CVar ? static_cast<CVarControlBinding*>(bind) : nullptr;
   }
-  std::string_view name(const Control* control) const override { return m_cvar->name(); }
-  std::string_view help(const Control* control) const override { return m_cvar->rawHelp(); }
+  std::string_view name(const Control* control) const override;
+  std::string_view help(const Control* control) const override;
 };
 
 class Control : public View {
