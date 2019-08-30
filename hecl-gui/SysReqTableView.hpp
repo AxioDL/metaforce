@@ -12,7 +12,7 @@ class SysReqTableModel : public QAbstractTableModel {
   uint64_t m_memorySize = 0;
   QString m_memorySizeStr;
   qint64 m_freeDiskSpace = 0;
-  QString m_freeDiskSpaceStr = QStringLiteral("<Set Working Directory>");
+  QString m_freeDiskSpaceStr = tr("<Set Working Directory>");
 #if __APPLE__
   int m_macosMajor = 0;
   int m_macosMinor = 0;
