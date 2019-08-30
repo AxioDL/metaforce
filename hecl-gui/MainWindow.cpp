@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget* parent)
   m_ui->processOutput->setFont(mFont);
   m_cursor = QTextCursor(m_ui->processOutput->document());
 
-  m_updateURDEButton = new QPushButton(QStringLiteral("Update URDE"), m_ui->centralwidget);
+  m_updateURDEButton = new QPushButton(tr("Update URDE"), m_ui->centralwidget);
   m_ui->gridLayout->addWidget(m_updateURDEButton, 2, 3, 1, 1);
   m_updateURDEButton->hide();
   QPalette pal = m_updateURDEButton->palette();
@@ -115,12 +115,15 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::onExtract() {
-  if (m_path.isEmpty())
+  if (m_path.isEmpty()) {
     return;
-  QString imgPath = QFileDialog::getOpenFileName(this, QStringLiteral("Extract Image"), m_path,
-                                                 QStringLiteral("Images (*.iso *.wbfs *.gcm)"));
-  if (imgPath.isEmpty())
+  }
+
+  const QString imgPath =
+      QFileDialog::getOpenFileName(this, tr("Extract Image"), m_path, tr("Images (*.iso *.wbfs *.gcm)"));
+  if (imgPath.isEmpty()) {
     return;
+  }
 
   m_ui->processOutput->clear();
   KillProcessTree(m_heclProc);
@@ -140,7 +143,7 @@ void MainWindow::onExtract() {
   m_ui->heclTabs->setCurrentIndex(0);
 
   disableOperations();
-  m_ui->extractBtn->setText(QStringLiteral("Cancel"));
+  m_ui->extractBtn->setText(tr("Cancel"));
   m_ui->extractBtn->setEnabled(true);
   disconnect(m_ui->extractBtn, &QPushButton::clicked, nullptr, nullptr);
   connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
@@ -174,7 +177,7 @@ void MainWindow::onPackage() {
   m_ui->heclTabs->setCurrentIndex(0);
 
   disableOperations();
-  m_ui->packageBtn->setText(QStringLiteral("Cancel"));
+  m_ui->packageBtn->setText(tr("Cancel"));
   m_ui->packageBtn->setEnabled(true);
   disconnect(m_ui->packageBtn, &QPushButton::clicked, nullptr, nullptr);
   connect(m_ui->packageBtn, &QPushButton::clicked, this, &MainWindow::doHECLTerminate);
@@ -266,21 +269,23 @@ void MainWindow::onUpdateURDEPressed() {
 }
 
 void MainWindow::onBinaryDownloaded(QuaZip& file) {
-  bool err = !ExtractZip::extractDir(file, m_path);
+  const bool err = !ExtractZip::extractDir(file, m_path);
 
-  if (err)
-    m_ui->downloadErrorLabel->setText(QStringLiteral("Error extracting zip"));
-  else
-    m_ui->downloadErrorLabel->setText(QStringLiteral("Download successful"), true);
+  if (err) {
+    m_ui->downloadErrorLabel->setText(tr("Error extracting zip"));
+  } else {
+    m_ui->downloadErrorLabel->setText(tr("Download successful"), true);
+  }
 
   m_ui->downloadButton->setEnabled(true);
   checkDownloadedBinary();
 
-  if (!err && m_ui->extractBtn->isEnabled())
-    m_ui->downloadErrorLabel->setText(QStringLiteral("Download successful - Press 'Extract' to continue."), true);
-  if (!err && !m_ui->sysReqTable->isBlenderVersionOk())
-    m_ui->downloadErrorLabel->setText(
-        QStringLiteral("Blender 2.78+ must be installed. Please download via Steam or blender.org."));
+  if (!err && m_ui->extractBtn->isEnabled()) {
+    m_ui->downloadErrorLabel->setText(tr("Download successful - Press 'Extract' to continue."), true);
+  }
+  if (!err && !m_ui->sysReqTable->isBlenderVersionOk()) {
+    m_ui->downloadErrorLabel->setText(tr("Blender 2.80+ must be installed. Please download via Steam or blender.org."));
+  }
 }
 
 void MainWindow::onBinaryFailed() {
@@ -310,9 +315,9 @@ void MainWindow::enableOperations() {
   if (m_heclPath.isEmpty())
     return;
 
-  m_ui->extractBtn->setText(QStringLiteral("Extract"));
-  m_ui->packageBtn->setText(QStringLiteral("Package"));
-  m_ui->launchBtn->setText(QStringLiteral("Launch"));
+  m_ui->extractBtn->setText(tr("Extract"));
+  m_ui->packageBtn->setText(tr("Package"));
+  m_ui->launchBtn->setText(tr("Launch"));
 
   m_ui->extractBtn->setEnabled(true);
   if (QFile::exists(m_path + QStringLiteral("/MP1/!original_ids.yaml"))) {
@@ -321,14 +326,15 @@ void MainWindow::enableOperations() {
       m_ui->launchBtn->setEnabled(true);
   }
 
-  if (!m_ui->sysReqTable->isBlenderVersionOk())
-    insertContinueNote(tr("Blender 2.78+ must be installed. Please download via Steam or blender.org."));
-  else if (m_ui->launchBtn->isEnabled())
+  if (!m_ui->sysReqTable->isBlenderVersionOk()) {
+    insertContinueNote(tr("Blender 2.80+ must be installed. Please download via Steam or blender.org."));
+  } else if (m_ui->launchBtn->isEnabled()) {
     insertContinueNote(tr("Package complete - Press 'Launch' to start URDE."));
-  else if (m_ui->packageBtn->isEnabled())
+  } else if (m_ui->packageBtn->isEnabled()) {
     insertContinueNote(tr("Extract complete - Press 'Package' to continue."));
-  else if (m_ui->extractBtn->isEnabled())
+  } else if (m_ui->extractBtn->isEnabled()) {
     insertContinueNote(tr("Press 'Extract' to begin."));
+  }
 }
 
 bool MainWindow::isPackageComplete() const {
@@ -376,7 +382,7 @@ bool MainWindow::checkDownloadedBinary() {
 
   if (m_path.isEmpty()) {
     m_ui->heclTabs->setCurrentIndex(1);
-    m_ui->downloadErrorLabel->setText(QStringLiteral("Set working directory to continue."), true);
+    m_ui->downloadErrorLabel->setText(tr("Set working directory to continue."), true);
     enableOperations();
     return false;
   }
@@ -408,7 +414,7 @@ bool MainWindow::checkDownloadedBinary() {
         m_updateURDEButton->show();
       }
     } else {
-      m_ui->currentBinaryLabel->setText(QStringLiteral("unknown -- re-download recommended"));
+      m_ui->currentBinaryLabel->setText(tr("unknown -- re-download recommended"));
     }
 
     m_urdePath = urdePath;
@@ -417,9 +423,9 @@ bool MainWindow::checkDownloadedBinary() {
     enableOperations();
     return true;
   } else {
-    m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
+    m_ui->currentBinaryLabel->setText(tr("none"));
     m_ui->heclTabs->setCurrentIndex(1);
-    m_ui->downloadErrorLabel->setText(QStringLiteral("Press 'Download' to fetch latest URDE binary."), true);
+    m_ui->downloadErrorLabel->setText(tr("Press 'Download' to fetch latest URDE binary."), true);
     enableOperations();
   }
 
@@ -427,21 +433,25 @@ bool MainWindow::checkDownloadedBinary() {
 }
 
 void MainWindow::setPath(const QString& path) {
-  QFileInfo finfo(path);
+  const QFileInfo finfo(path);
+
   QString usePath;
-  if (!path.isEmpty())
+  if (!path.isEmpty()) {
     usePath = finfo.absoluteFilePath();
+  }
+
   if (!usePath.isEmpty() && !finfo.exists()) {
-    if (QMessageBox::question(this, QStringLiteral("Make Directory"),
-                              QStringLiteral("%1 does not exist. Create it now?").arg(usePath)) == QMessageBox::Yes)
+    if (QMessageBox::question(this, tr("Make Directory"), tr("%1 does not exist. Create it now?").arg(usePath)) ==
+        QMessageBox::Yes) {
       QDir().mkpath(usePath);
-    else
+    } else {
       usePath = QString();
+    }
   }
 
   if (!usePath.isEmpty() && !finfo.isDir()) {
-    QMessageBox::warning(this, QStringLiteral("Directory Error"), QStringLiteral("%1 is not a directory").arg(usePath),
-                         QMessageBox::Ok, QMessageBox::NoButton);
+    QMessageBox::warning(this, tr("Directory Error"), tr("%1 is not a directory").arg(usePath), QMessageBox::Ok,
+                         QMessageBox::NoButton);
     usePath = QString();
   }
 
@@ -453,9 +463,9 @@ void MainWindow::setPath(const QString& path) {
     m_ui->downloadButton->setToolTip(QString());
     m_ui->downloadButton->setEnabled(m_ui->binaryComboBox->isEnabled());
   } else {
-    m_ui->downloadButton->setToolTip(QStringLiteral("Working directory must be set"));
+    m_ui->downloadButton->setToolTip(tr("Working directory must be set"));
     m_ui->downloadButton->setEnabled(false);
-    m_ui->currentBinaryLabel->setText(QStringLiteral("none"));
+    m_ui->currentBinaryLabel->setText(tr("none"));
   }
 
   m_ui->sysReqTable->updateFreeDiskSpace(m_path);

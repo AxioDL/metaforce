@@ -23,21 +23,21 @@
 #elif _WIN32
 static QString GetWindowsVersionString() {
   if (IsWindows10OrGreater())
-    return QStringLiteral("Windows 10");
+    return QObject::tr("Windows 10");
   else if (IsWindows8Point1OrGreater())
-    return QStringLiteral("Windows 8.1");
+    return QObject::tr("Windows 8.1");
   else if (IsWindows8OrGreater())
-    return QStringLiteral("Windows 8");
+    return QObject::tr("Windows 8");
   else if (IsWindows7SP1OrGreater())
-    return QStringLiteral("Windows 7 SP1");
+    return QObject::tr("Windows 7 SP1");
   else if (IsWindows7OrGreater())
-    return QStringLiteral("Windows 7");
+    return QObject::tr("Windows 7");
   else if (IsWindowsVistaOrGreater())
-    return QStringLiteral("Windows Vista");
+    return QObject::tr("Windows Vista");
   else if (IsWindowsXPOrGreater())
-    return QStringLiteral("Windows XP");
+    return QObject::tr("Windows XP");
   else
-    return QStringLiteral("Windows Old And Won't Work");
+    return QObject::tr("Windows Old And Won't Work");
 }
 #endif
 
@@ -47,7 +47,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
   if (file.open(QFile::ReadOnly)) {
     const QString str(QString::fromUtf8(file.readAll()));
     m_cpuSpeed = str.toInt() / 1000;
-    m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.0);
+    m_cpuSpeedStr = tr("%1 GHz").arg(m_cpuSpeed / 1000.0);
   }
 #elif defined(__APPLE__)
   QProcess spProc;
@@ -77,7 +77,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
       n = n.nextSiblingElement(QStringLiteral("string"));
       const double speed = n.text().split(QLatin1Char{' '}).front().toDouble();
       m_cpuSpeed = uint64_t(speed * 1000.0);
-      m_cpuSpeedStr.sprintf("%g GHz", speed);
+      m_cpuSpeedStr = tr("%1 GHz").arg(speed);
     }
   }
 #elif _WIN32
@@ -88,7 +88,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
     DWORD size = sizeof(MHz);
     if (RegQueryValueEx(hkey, _SYS_STR("~MHz"), nullptr, nullptr, (LPBYTE)&MHz, &size) == ERROR_SUCCESS) {
       m_cpuSpeed = uint64_t(MHz);
-      m_cpuSpeedStr.sprintf("%1.1f GHz", MHz / 1000.f);
+      m_cpuSpeedStr = tr("%1 GHz").arg(MHz / 1000.f, 1, 'f', 1);
     }
   }
   RegCloseKey(hkey);
@@ -100,7 +100,7 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
     zeus::getCpuInfo(0x16, regs);
     m_cpuSpeed = uint64_t(regs[0]);
   }
-  m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.f);
+  m_cpuSpeedStr = tr("%1 GHz").arg(m_cpuSpeed / 1000.f);
 #endif
 #if _WIN32
   ULONGLONG memSize;
@@ -109,35 +109,35 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
 #else
   m_memorySize = uint64_t(sysconf(_SC_PHYS_PAGES)) * sysconf(_SC_PAGESIZE);
 #endif
-  m_memorySizeStr.sprintf("%g GiB", m_memorySize / 1024.f / 1024.f / 1024.f);
+  m_memorySizeStr = tr("%1 GiB").arg(m_memorySize / 1024.f / 1024.f / 1024.f);
 #ifdef __APPLE__
   GetMacOSSystemVersion(m_macosMajor, m_macosMinor, m_macosPatch);
-  if (m_macosPatch == 0)
-    m_osVersion.sprintf("macOS %d.%d", m_macosMajor, m_macosMinor);
-  else
-    m_osVersion.sprintf("macOS %d.%d.%d", m_macosMajor, m_macosMinor, m_macosPatch);
+  if (m_macosPatch == 0) {
+    m_osVersion = tr("macOS %1.%2").arg(m_macosMajor, m_macosMinor);
+  } else {
+    m_osVersion = tr("macOS %1.%2.%3").arg(m_macosMajor, m_macosMinor, m_macosPatch);
+  }
 #elif _WIN32
   m_win7SP1OrGreater = IsWindows7SP1OrGreater();
   m_osVersion = GetWindowsVersionString();
 #elif __linux__
-  m_osVersion = QStringLiteral("Linux");
+  m_osVersion = tr("Linux");
 #endif
   hecl::blender::FindBlender(m_blendMajor, m_blendMinor);
   if (m_blendMajor) {
-    m_blendVersionStr =
-        QStringLiteral("Blender ") + QString::number(m_blendMajor) + QLatin1Char{'.'} + QString::number(m_blendMinor);
+    m_blendVersionStr = tr("Blender %1.%2").arg(QString::number(m_blendMajor), QString::number(m_blendMinor));
   } else {
-    m_blendVersionStr = QStringLiteral("Not Found");
+    m_blendVersionStr = tr("Not Found");
   }
 }
 
 void SysReqTableModel::updateFreeDiskSpace(const QString& path) {
   if (path.isEmpty()) {
     m_freeDiskSpace = 0;
-    m_freeDiskSpaceStr = QStringLiteral("<Set Working Directory>");
+    m_freeDiskSpaceStr = tr("<Set Working Directory>");
   } else {
     m_freeDiskSpace = QStorageInfo(path).bytesFree();
-    m_freeDiskSpaceStr.sprintf("%1.1f GB", m_freeDiskSpace / 1000.f / 1000.f / 1000.f);
+    m_freeDiskSpaceStr = tr("%1 GB").arg(m_freeDiskSpace / 1000.f / 1000.f / 1000.f, 1, 'f', 1);
   }
   emit dataChanged(index(3, 0), index(3, 0));
 }
@@ -178,28 +178,28 @@ QVariant SysReqTableModel::data(const QModelIndex& index, int role) const {
       switch (index.row()) {
       case 0:
 #if ZEUS_ARCH_X86 || ZEUS_ARCH_X86_64
-        return QStringLiteral("x86_64");
+        return tr("x86_64");
 #else
         return {};
 #endif
       case 1:
-        return QStringLiteral("1.5 GHz");
+        return tr("1.5 GHz");
       case 2:
-        return QStringLiteral("3 GiB");
+        return tr("3 GiB");
       case 3:
-        return QStringLiteral("5 GB (MP1)");
+        return tr("5 GB (MP1)");
       case 4:
 #ifdef __APPLE__
-        return QStringLiteral("macOS 10.9");
+        return tr("macOS 10.9");
 #elif defined(_WIN32)
-        return QStringLiteral("Windows 7 SP1");
+        return tr("Windows 7 SP1");
 #elif defined(__linux__)
-        return QStringLiteral("Linux");
+        return tr("Linux");
 #else
         return {};
 #endif
       case 5:
-        return QStringLiteral("Blender 2.78");
+        return tr("Blender 2.80");
       }
     } else if (index.column() == 1) {
       /* Your System */
@@ -235,27 +235,27 @@ QVariant SysReqTableModel::headerData(int section, Qt::Orientation orientation, 
     switch (section) {
     case 0:
     default:
-      return QStringLiteral("Recommended");
+      return tr("Recommended");
     case 1:
-      return QStringLiteral("Your System");
+      return tr("Your System");
     }
   } else {
     switch (section) {
     case 0:
     default:
-      return QStringLiteral("Architecture");
+      return tr("Architecture");
     case 1:
-      return QStringLiteral("CPU Speed");
+      return tr("CPU Speed");
     case 2:
-      return QStringLiteral("Memory");
+      return tr("Memory");
     case 3:
-      return QStringLiteral("Disk Space");
+      return tr("Disk Space");
     case 4:
-      return QStringLiteral("OS");
+      return tr("OS");
     case 5:
-      return QStringLiteral("Blender");
+      return tr("Blender");
     case 6:
-      return QStringLiteral("Vector ISA");
+      return tr("Vector ISA");
     }
   }
 }

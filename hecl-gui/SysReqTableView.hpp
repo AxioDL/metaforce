@@ -12,7 +12,7 @@ class SysReqTableModel : public QAbstractTableModel {
   uint64_t m_memorySize = 0;
   QString m_memorySizeStr;
   qint64 m_freeDiskSpace = 0;
-  QString m_freeDiskSpaceStr = QStringLiteral("<Set Working Directory>");
+  QString m_freeDiskSpaceStr = tr("<Set Working Directory>");
 #if __APPLE__
   int m_macosMajor = 0;
   int m_macosMinor = 0;
@@ -31,7 +31,7 @@ public:
   int columnCount(const QModelIndex& parent = QModelIndex()) const;
   QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-  bool isBlenderVersionOk() const { return m_blendMajor > 2 || (m_blendMajor == 2 && m_blendMinor >= 78); }
+  bool isBlenderVersionOk() const { return m_blendMajor > 2 || (m_blendMajor == 2 && m_blendMinor >= 80); }
   void updateFreeDiskSpace(const QString& path);
 };
 
