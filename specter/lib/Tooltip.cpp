@@ -1,6 +1,8 @@
 #include "specter/Tooltip.hpp"
-#include "specter/ViewResources.hpp"
+
+#include "specter/MultiLineTextView.hpp"
 #include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
 
 namespace specter {
 
@@ -43,6 +45,8 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, std::string_view title, s
                         int(std::max(m_title->nominalWidth(), m_message->nominalWidth()) + margin.first * 2));
   m_nomHeight = m_title->nominalHeight() + m_message->nominalHeight() + margin.second * 3;
 }
+
+Tooltip::~Tooltip() = default;
 
 void Tooltip::setVerts(int width, int height, float pf) {
   std::pair<int, int> margin = m_cornersFilled[0]->queryGlyphDimensions(0);

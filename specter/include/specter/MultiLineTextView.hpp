@@ -1,10 +1,19 @@
 #pragma once
 
-#include "View.hpp"
-#include "TextView.hpp"
-#include "FontCache.hpp"
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "specter/FontCache.hpp"
+#include "specter/TextView.hpp"
+#include "specter/View.hpp"
+
+#include <boo/IWindow.hpp>
+#include <zeus/CColor.hpp>
 
 namespace specter {
+class ViewResources;
 
 class MultiLineTextView : public View {
   ViewResources& m_viewSystem;

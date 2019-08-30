@@ -1,12 +1,18 @@
 #pragma once
 
-#include "View.hpp"
-#include "ScrollView.hpp"
-#include "TextView.hpp"
 #include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "specter/View.hpp"
 
 namespace specter {
 #define SPECTER_TABLE_MAX_ROWS 128ul
+
+class ScrollView;
 
 enum class SortDirection { None, Ascending, Descending };
 
@@ -31,6 +37,8 @@ struct ITableStateBinding {
 };
 
 class Table : public View {
+  struct CellView;
+
   ITableDataBinding* m_data;
   ITableStateBinding* m_state;
 
@@ -41,28 +49,6 @@ class Table : public View {
   size_t m_deferredActivation = SIZE_MAX;
   size_t m_clickFrames = 15;
 
-  struct CellView : public View {
-    Table& m_t;
-    std::unique_ptr<TextView> m_text;
-    size_t m_c = SIZE_MAX, m_r = SIZE_MAX;
-    boo::SWindowRect m_scissorRect;
-    uint64_t m_textHash = 0;
-    CellView(Table& t, ViewResources& res);
-
-    bool m_selected = false;
-    void select();
-    void deselect();
-    void reset();
-    bool reset(size_t c);
-    bool reset(size_t c, size_t r);
-
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseEnter(const boo::SWindowCoord&) override;
-    void mouseLeave(const boo::SWindowCoord&) override;
-    void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub, const boo::SWindowRect& scissor) override;
-    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
-  };
   std::vector<ViewChild<std::unique_ptr<CellView>>> m_headerViews;
   using ColumnPool = std::array<std::array<ViewChild<std::unique_ptr<CellView>>, SPECTER_TABLE_MAX_ROWS>, 2>;
   std::vector<ColumnPool> m_cellPools;
@@ -94,7 +80,7 @@ class Table : public View {
 
     RowsView(Table& t, ViewResources& res);
     int nominalHeight() const override;
-    int nominalWidth() const override { return m_t.m_scroll.m_view->nominalWidth(); }
+    int nominalWidth() const override;
     void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
     void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
     void mouseMove(const boo::SWindowCoord&) override;
@@ -111,6 +97,7 @@ class Table : public View {
 public:
   Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITableStateBinding* state = nullptr,
         size_t maxColumns = 8);
+  ~Table() override;
 
   void cycleSortColumn(size_t c);
   void selectRow(size_t r);

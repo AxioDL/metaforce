@@ -1,10 +1,17 @@
 #pragma once
 
-#include "Control.hpp"
-#include "TextView.hpp"
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "specter/Control.hpp"
+
 #include <boo/IWindow.hpp>
 
 namespace specter {
+class TextView;
+class ViewResources;
 
 class TextField : public ITextInputView {
   bool m_hasTextSet = false;
@@ -60,6 +67,7 @@ class TextField : public ITextInputView {
 
 public:
   TextField(ViewResources& res, View& parentView, IStringBinding* strBind);
+  ~TextField() override;
 
   std::string_view getText() const { return m_textStr; }
   void setText(std::string_view str);
@@ -103,15 +111,7 @@ public:
   void setSelectionRange(size_t start, size_t count);
   void clearSelectionRange();
 
-  void setMultiplyColor(const zeus::CColor& color) override {
-    View::setMultiplyColor(color);
-    m_viewVertBlock.m_color = color;
-    if (m_viewVertBlockBuf)
-      m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
-    m_text->setMultiplyColor(color);
-    if (m_errText)
-      m_errText->setMultiplyColor(color);
-  }
+  void setMultiplyColor(const zeus::CColor& color) override;
 
 private:
   void _setCursorPos();

@@ -1,18 +1,27 @@
 #pragma once
 
-#include "View.hpp"
-#include "ViewResources.hpp"
-#include "MultiLineTextView.hpp"
-#include "TextField.hpp"
-#include "SplitView.hpp"
-#include "Tooltip.hpp"
-#include "FontCache.hpp"
-#include "IMenuNode.hpp"
-#include "IViewManager.hpp"
+#include <cstddef>
+#include <memory>
 #include <optional>
-#include "boo/boo.hpp"
+#include <string>
+#include <vector>
+
+#include "specter/IMenuNode.hpp"
+#include "specter/SplitView.hpp"
+#include "specter/View.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <hecl/UniformBufferPool.hpp>
 
 namespace specter {
+class Button;
+class ITextInputView;
+class Tooltip;
+class ViewResources;
+
+struct IViewManager;
 
 class RootView : public View {
   boo::IWindow* m_window = nullptr;
@@ -130,7 +139,7 @@ public:
   void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey mods) override;
   void modKeyDown(boo::EModifierKey mod, bool isRepeat) override;
   void modKeyUp(boo::EModifierKey mod) override;
-  boo::ITextInputCallback* getTextInputCallback() { return m_activeTextView; }
+  boo::ITextInputCallback* getTextInputCallback();
 
   void internalThink();
   void dispatchEvents() { m_events.dispatchEvents(); }
@@ -140,7 +149,7 @@ public:
   boo::IWindow* window() const { return m_window; }
   IViewManager& viewManager() const { return m_viewMan; }
   ViewResources& viewRes() const { return *m_viewRes; }
-  const IThemeData& themeData() const { return *m_viewRes->m_theme; }
+  const IThemeData& themeData() const;
   const boo::ObjToken<boo::ITextureR>& renderTex() const { return m_renderTex; }
 
   std::vector<View*>& accessContentViews() { return m_views; }
@@ -154,13 +163,7 @@ public:
   }
   View* getRightClickMenu() { return m_rightClickMenu.m_view.get(); }
 
-  void setActiveTextView(ITextInputView* textView) {
-    if (m_activeTextView)
-      m_activeTextView->setActive(false);
-    m_activeTextView = textView;
-    if (textView)
-      textView->setActive(true);
-  }
+  void setActiveTextView(ITextInputView* textView);
   void setActiveDragView(View* dragView) { m_activeDragView = dragView; }
   void unsetActiveDragView(View* dragView) {
     if (dragView == m_activeDragView)

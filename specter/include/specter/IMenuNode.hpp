@@ -1,6 +1,12 @@
 #pragma once
 
-#include "View.hpp"
+#include <cstddef>
+#include <string>
+
+namespace boo {
+struct ITexture;
+struct SWindowCoord;
+} // namespace boo
 
 namespace specter {
 

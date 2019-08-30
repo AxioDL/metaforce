@@ -1,8 +1,16 @@
 #pragma once
 
+#include <utility>
+#include <vector>
+
+#include "specter/SplitView.hpp"
+
 #include <locale.hpp>
-#include "SplitView.hpp"
-#include <hecl/hecl.hpp>
+#include <hecl/SystemChar.hpp>
+
+namespace boo {
+struct SWindowCoord;
+}
 
 namespace specter {
 struct ISpaceController;

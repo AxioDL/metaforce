@@ -1,11 +1,19 @@
 #pragma once
 
-#include "View.hpp"
-#include "TextView.hpp"
-#include "ScrollView.hpp"
-#include "IMenuNode.hpp"
+#include <cstddef>
+#include <memory>
+#include <string_view>
+#include <vector>
+
+#include "specter/View.hpp"
+
+#include <boo/IWindow.hpp>
 
 namespace specter {
+class ScrollView;
+class TextView;
+
+struct IMenuNode;
 
 class Menu : public View {
   IMenuNode* m_rootNode;
@@ -70,6 +78,8 @@ class Menu : public View {
 
 public:
   Menu(ViewResources& res, View& parentView, IMenuNode* rootNode);
+  ~Menu() override;
+
   void reset(IMenuNode* rootNode);
 
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;

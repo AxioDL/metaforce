@@ -31,7 +31,9 @@ Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned 
   setBackground(res.themeData().toolbarBackground());
 }
 
-void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod) {
+Toolbar::~Toolbar() = default;
+
+    void Toolbar::mouseDown(const boo::SWindowCoord& coord, boo::EMouseButton button, boo::EModifierKey mod) {
   for (std::vector<ViewChild<View*>>& u : m_children)
     for (ViewChild<View*>& c : u)
       c.mouseDown(coord, button, mod);

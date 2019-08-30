@@ -2,6 +2,9 @@
 
 #include "specter/View.hpp"
 
+#include <boo/BooObject.hpp>
+#include <hecl/UniformBufferPool.hpp>
+
 namespace specter {
 struct ISplitSpaceController;
 
@@ -11,8 +14,8 @@ class SplitView : public View {
 
 public:
   class Resources {
-    friend class ViewResources;
     friend class SplitView;
+    friend class ViewResources;
     boo::ObjToken<boo::ITextureS> m_shadingTex;
 
     void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);

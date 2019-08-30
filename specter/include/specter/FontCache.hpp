@@ -3,11 +3,26 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <boo/boo.hpp>
-#include <hecl/Runtime.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 #include <athena/FileReader.hpp>
 #include <athena/FileWriter.hpp>
 #include <athena/DNA.hpp>
+
+#include <boo/BooObject.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/SystemChar.hpp>
+
+namespace hecl::Runtime {
+class FileStoreManager;
+}
 
 namespace specter {
 class FontTag {

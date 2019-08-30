@@ -3,10 +3,17 @@
 #endif
 
 #include "specter/FontCache.hpp"
-#include "logvisor/logvisor.hpp"
-#include <athena/MemoryReader.hpp>
+
+#include <cstddef>
 #include <cstdint>
-#include <zlib.h>
+#include <memory>
+#include <vector>
+
+#include <athena/FileReader.hpp>
+#include <athena/FileWriter.hpp>
+#include <athena/MemoryReader.hpp>
+
+#include <boo/System.hpp>
 
 #include FT_GZIP_H
 #include FT_SYSTEM_H
@@ -14,6 +21,13 @@
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftstream.h>
 #include <freetype/internal/tttypes.h>
+
+#include <hecl/hecl.hpp>
+#include <hecl/Runtime.hpp>
+
+#include <logvisor/logvisor.hpp>
+#include <xxhash/xxhash.h>
+#include <zlib.h>
 
 extern "C" const uint8_t DROIDSANS_PERMISSIVE[];
 extern "C" size_t DROIDSANS_PERMISSIVE_SZ;

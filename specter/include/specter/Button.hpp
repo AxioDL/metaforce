@@ -1,12 +1,24 @@
 #pragma once
 
-#include "specter/TextView.hpp"
+#include <memory>
+#include <string>
+
 #include "specter/Control.hpp"
-#include "specter/Icon.hpp"
+#include "specter/View.hpp"
+
+#include <boo/IWindow.hpp>
+#include <zeus/CColor.hpp>
 
 namespace specter {
+class IconView;
+class TextView;
+
+struct Icon;
 
 class Button : public Control {
+  struct ButtonTarget;
+  struct MenuTarget;
+
 public:
   enum class Style {
     Block,
@@ -28,65 +40,34 @@ private:
   void _loadVerts() { m_vertsBinding.load<decltype(m_verts)>(m_verts); }
 
   RectangleConstraint m_constraint;
-  int m_nomWidth, m_nomHeight;
-  int m_textWidth, m_textIconWidth;
 
-  struct ButtonTarget : View {
-    Button& m_button;
+  int m_nomWidth;
+  int m_nomHeight;
 
-    bool m_pressed = false;
-    bool m_hovered = false;
+  int m_textWidth;
+  int m_textIconWidth;
 
-    void setInactive();
-    void setHover();
-    void setPressed();
-    void setDisabled();
-
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseEnter(const boo::SWindowCoord&) override;
-    void mouseLeave(const boo::SWindowCoord&) override;
-    ButtonTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
-  };
   ViewChild<std::unique_ptr<ButtonTarget>> m_buttonTarget;
-
-  struct MenuTarget : View {
-    Button& m_button;
-
-    bool m_pressed = false;
-    bool m_hovered = false;
-
-    void setInactive();
-    void setHover();
-    void setPressed();
-    void setDisabled();
-
-    void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
-    void mouseEnter(const boo::SWindowCoord&) override;
-    void mouseLeave(const boo::SWindowCoord&) override;
-    MenuTarget(ViewResources& res, Button& button) : View(res, button), m_button(button) {}
-  };
   ViewChild<std::unique_ptr<MenuTarget>> m_menuTarget;
-
   ViewChild<std::unique_ptr<View>> m_modalMenu;
 
 public:
   class Resources {
-    friend class ViewResources;
     friend class Button;
+    friend class ViewResources;
 
     void init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme);
     void destroy() {}
   };
 
-  ~Button() override { closeMenu({}); }
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
          Icon* icon = nullptr, Style style = Style::Block, const zeus::CColor& bgColor = zeus::skWhite,
          RectangleConstraint constraint = RectangleConstraint());
   Button(ViewResources& res, View& parentView, IButtonBinding* controlBinding, std::string_view text,
          const zeus::CColor& textColor, Icon* icon = nullptr, Style style = Style::Block,
          const zeus::CColor& bgColor = zeus::skWhite, RectangleConstraint constraint = RectangleConstraint());
+  ~Button() override;
+
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
   void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
   void mouseMove(const boo::SWindowCoord&) override;
@@ -106,15 +87,7 @@ public:
   void closeMenu(const boo::SWindowCoord& coord);
   ViewChild<std::unique_ptr<View>>& getMenu() { return m_modalMenu; }
 
-  void setMultiplyColor(const zeus::CColor& color) override {
-    View::setMultiplyColor(color);
-    m_viewVertBlock.m_color = color;
-    if (m_viewVertBlockBuf)
-      m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
-    m_text->setMultiplyColor(color);
-    if (m_icon)
-      m_icon->setMultiplyColor(color);
-  }
+  void setMultiplyColor(const zeus::CColor& color) override;
 };
 
 } // namespace specter

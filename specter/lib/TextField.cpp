@@ -1,5 +1,7 @@
 #include "specter/TextField.hpp"
+
 #include "specter/RootView.hpp"
+#include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
 namespace specter {
@@ -21,6 +23,8 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
   if (strBind)
     setText(strBind->getDefault(this));
 }
+
+TextField::~TextField() = default;
 
 void TextField::_setText() {
   if (m_hasTextSet) {
@@ -719,6 +723,21 @@ void TextField::clearSelectionRange() {
   m_deferredSelectionCount = 0;
   m_hasSelectionClear = true;
   m_hasSelectionSet = false;
+}
+
+void TextField::setMultiplyColor(const zeus::CColor& color) {
+  View::setMultiplyColor(color);
+  m_viewVertBlock.m_color = color;
+
+  if (m_viewVertBlockBuf) {
+    m_viewVertBlockBuf.access().finalAssign(m_viewVertBlock);
+  }
+
+  m_text->setMultiplyColor(color);
+
+  if (m_errText) {
+    m_errText->setMultiplyColor(color);
+  }
 }
 
 void TextField::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {

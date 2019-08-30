@@ -1,7 +1,11 @@
 #include "specter/ScrollView.hpp"
-#include "specter/ViewResources.hpp"
-#include "specter/RootView.hpp"
+
+#include <algorithm>
+
 #include "specter/Button.hpp"
+#include "specter/IViewManager.hpp"
+#include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
 
 namespace specter {
 #define MAX_SCROLL_SPEED 100
@@ -18,6 +22,27 @@ ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
     m_sideButtons[0].m_view.reset(new Button(res, *this, &m_sideButtonBind, "<"));
     m_sideButtons[1].m_view.reset(new Button(res, *this, &m_sideButtonBind, ">"));
   }
+}
+
+ScrollView::SideButtonBinding::SideButtonBinding(ScrollView& sv, IViewManager& vm)
+: m_sv(sv), m_leftName(vm.translate<locale::scroll_left>()), m_rightName(vm.translate<locale::scroll_right>()) {}
+
+std::string_view ScrollView::SideButtonBinding::name(const Control* control) const {
+  return (control == reinterpret_cast<Control*>(m_sv.m_sideButtons[0].m_view.get())) ? m_leftName.c_str()
+                                                                                     : m_rightName.c_str();
+}
+
+void ScrollView::SideButtonBinding::down(const Button* button, [[maybe_unused]] const boo::SWindowCoord& coord) {
+  if (button == m_sv.m_sideButtons[0].m_view.get()) {
+    m_sv.m_sideButtonState = SideButtonState::ScrollRight;
+  } else {
+    m_sv.m_sideButtonState = SideButtonState::ScrollLeft;
+  }
+}
+
+void ScrollView::SideButtonBinding::up([[maybe_unused]] const Button* button,
+                                       [[maybe_unused]] const boo::SWindowCoord& coord) {
+  m_sv.m_sideButtonState = SideButtonState::None;
 }
 
 bool ScrollView::_scroll(const boo::SScrollDelta& scroll) {
