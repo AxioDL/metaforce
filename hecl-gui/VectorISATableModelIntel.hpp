@@ -7,9 +7,9 @@ class VectorISATableModelIntel : public VectorISATableModel {
 public:
   VectorISATableModelIntel(QObject* parent = Q_NULLPTR) : VectorISATableModel(parent) {}
 
-  int columnCount(const QModelIndex& parent = QModelIndex()) const { return 7; }
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override { return 7; }
 
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const {
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override {
     if (role != Qt::DisplayRole && role != Qt::UserRole)
       return {};
 

@@ -18,7 +18,7 @@ class ArgumentEditor : public QDialog {
   QStringListModel m_model;
 public:
   explicit ArgumentEditor(QWidget* parent = nullptr);
-  virtual ~ArgumentEditor();
+  ~ArgumentEditor() override;
 
 private slots:
   void on_addButton_clicked();
