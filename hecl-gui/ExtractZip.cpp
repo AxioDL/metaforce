@@ -66,7 +66,7 @@ bool ExtractZip::extractFile(QuaZip& zip, QString fileName, QString fileDest) {
 
   // Controllo esistenza cartella file risultato
   QDir curDir;
-  if (fileDest.endsWith('/')) {
+  if (fileDest.endsWith(QLatin1Char{'/'})) {
     if (!curDir.mkpath(fileDest)) {
       return false;
     }
@@ -81,7 +81,7 @@ bool ExtractZip::extractFile(QuaZip& zip, QString fileName, QString fileDest) {
     return false;
 
   QFile::Permissions srcPerm = info.getPermissions();
-  if (fileDest.endsWith('/') && QFileInfo(fileDest).isDir()) {
+  if (fileDest.endsWith(QLatin1Char{'/'}) && QFileInfo(fileDest).isDir()) {
     if (srcPerm != 0) {
       QFile(fileDest).setPermissions(srcPerm);
     }
@@ -125,15 +125,16 @@ bool ExtractZip::extractFile(QuaZip& zip, QString fileName, QString fileDest) {
  * * non si riesce a chiudere l'oggetto zip;
  */
 bool ExtractZip::extractDir(QuaZip& zip, QString dir) {
-  QDir directory(dir);
+  const QDir directory(dir);
   if (!zip.goToFirstFile()) {
     return false;
   }
   do {
-    QString name = zip.getCurrentFileName();
-    QString absFilePath = directory.absoluteFilePath(name);
-    if (!extractFile(zip, "", absFilePath))
+    const QString name = zip.getCurrentFileName();
+    const QString absFilePath = directory.absoluteFilePath(name);
+    if (!extractFile(zip, {}, absFilePath)) {
       return false;
+    }
   } while (zip.goToNextFile());
 
   return true;

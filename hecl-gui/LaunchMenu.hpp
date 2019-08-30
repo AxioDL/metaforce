@@ -1,9 +1,12 @@
 #pragma once
 
 #include <QMenu>
+
 namespace hecl {
 struct CVarCommons;
 }
+
+class QAction;
 
 class LaunchMenu : public QMenu {
   Q_OBJECT
@@ -17,6 +20,9 @@ class LaunchMenu : public QMenu {
   QActionGroup m_msaaGroup;
   QActionGroup m_anisoGroup;
 
+  QAction* m_developerMode = nullptr;
+  QAction* m_enableCheats = nullptr;
+
   void initApiAction(const QString& action);
   void initMsaaAction(const QString& action);
   void initAnisoAction(const QString& action);
@@ -25,7 +31,8 @@ class LaunchMenu : public QMenu {
   void initCheats();
 
 public:
-  LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
+  explicit LaunchMenu(hecl::CVarCommons& commons, QWidget* parent = Q_NULLPTR);
+  ~LaunchMenu() override;
 
 public slots:
   void apiTriggered();

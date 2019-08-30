@@ -5,7 +5,7 @@ This file is part of QuaZIP test suite.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -52,6 +52,35 @@ void TestQuaZIODevice::read()
     QVERIFY(!testDevice.isOpen());
 }
 
+void TestQuaZIODevice::readMany()
+{
+    QByteArray buf(256, 0);
+    z_stream zouts;
+    zouts.zalloc = (alloc_func) NULL;
+    zouts.zfree = (free_func) NULL;
+    zouts.opaque = NULL;
+    deflateInit(&zouts, Z_DEFAULT_COMPRESSION);
+    zouts.next_in = reinterpret_cast<Bytef*>(const_cast<char*>("testtest"));
+    zouts.avail_in = 8;
+    zouts.next_out = reinterpret_cast<Bytef*>(buf.data());
+    zouts.avail_out = buf.size();
+    deflate(&zouts, Z_FINISH);
+    deflateEnd(&zouts);
+    QBuffer testBuffer(&buf);
+    testBuffer.open(QIODevice::ReadOnly);
+    QuaZIODevice testDevice(&testBuffer);
+    QVERIFY(testDevice.open(QIODevice::ReadOnly));
+    char outBuf[4];
+    QCOMPARE(testDevice.read(outBuf, 4), static_cast<qint64>(4));
+    QVERIFY(!testDevice.atEnd());
+    QVERIFY(testDevice.bytesAvailable() > 0);
+    QCOMPARE(testDevice.read(4).size(), 4);
+    QCOMPARE(testDevice.bytesAvailable(), static_cast<qint64>(0));
+    QVERIFY(testDevice.atEnd());
+    testDevice.close();
+    QVERIFY(!testDevice.isOpen());
+}
+
 void TestQuaZIODevice::write()
 {
     QByteArray buf(256, 0);
@@ -73,7 +102,8 @@ void TestQuaZIODevice::write()
     char outBuf[5];
     zins.next_out = reinterpret_cast<Bytef*>(outBuf);
     zins.avail_out = 5;
-    inflate(&zins, Z_FINISH);
+    int result = inflate(&zins, Z_FINISH);
+    QCOMPARE(result, Z_STREAM_END);
     inflateEnd(&zins);
     int size = 5 - zins.avail_out;
     QCOMPARE(size, 4);

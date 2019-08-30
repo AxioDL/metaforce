@@ -5,7 +5,7 @@ This file is part of QuaZIP test suite.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -43,7 +43,7 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 
 #include <QtTest/QtTest>
 
-bool createTestFiles(const QStringList &fileNames, const QString &dir)
+bool createTestFiles(const QStringList &fileNames, int size, const QString &dir)
 {
     QDir curDir;
     foreach (QString fileName, fileNames) {
@@ -69,8 +69,14 @@ bool createTestFiles(const QStringList &fileNames, const QString &dir)
                         fileName.toUtf8().constData());
                 return false;
             }
-            QTextStream testStream(&testFile);
-            testStream << "This is a test file named " << fileName << endl;
+            if (size == -1) {
+                QTextStream testStream(&testFile);
+                testStream << "This is a test file named " << fileName << endl;
+            } else {
+                for (int i = 0; i < size; ++i) {
+                    testFile.putChar(static_cast<char>('0' + i % 10));
+                }
+            }
         }
     }
     return true;

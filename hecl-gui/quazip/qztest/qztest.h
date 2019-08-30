@@ -8,7 +8,7 @@ This file is part of QuaZIP test suite.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -30,8 +30,9 @@ see quazip/(un)zip.h files for details. Basically it's the zlib license.
 #include <QStringList>
 #include <QTextCodec>
 
-extern bool createTestFiles(const QStringList &fileNames, const QString
-        &dir = "tmp");
+extern bool createTestFiles(const QStringList &fileNames,
+                            int size = -1,
+                            const QString &dir = "tmp");
 extern void removeTestFiles(const QStringList &fileNames, const QString
         &dir = "tmp");
 extern bool createTestArchive(const QString &zipName, 

@@ -53,7 +53,7 @@ static void KillProcessTree(QProcess& proc) {
 }
 #endif
 
-const QStringList MainWindow::skUpdateTracks = QStringList() << "stable" << "dev";
+const QStringList MainWindow::skUpdateTracks = {QStringLiteral("stable"), QStringLiteral("dev")};
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow(parent)
@@ -64,10 +64,12 @@ MainWindow::MainWindow(QWidget* parent)
 , m_heclProc(this)
 , m_dlManager(this)
 , m_launchMenu(m_cvarCommons, this) {
-  if (m_settings.value("urde_arguments").isNull())
-    m_settings.setValue("urde_arguments", QStringList() << "--no-shader-warmup");
-  if (m_settings.value("update_track").isNull())
-    m_settings.setValue("update_track", "stable");
+  if (m_settings.value(QStringLiteral("urde_arguments")).isNull()) {
+    m_settings.setValue(QStringLiteral("urde_arguments"), QStringList{QStringLiteral("--no-shader-warmup")});
+  }
+  if (m_settings.value(QStringLiteral("update_track")).isNull()) {
+    m_settings.setValue(QStringLiteral("update_track"), QStringLiteral("stable"));
+  }
 
   m_ui->setupUi(this);
   m_ui->heclTabs->setCurrentIndex(0);
@@ -89,8 +91,8 @@ MainWindow::MainWindow(QWidget* parent)
   pal.setColor(QPalette::Button, QColor(53, 53, 72));
   m_updateURDEButton->setPalette(pal);
   connect(m_updateURDEButton, &QPushButton::clicked, this, &MainWindow::onUpdateURDEPressed);
-  qDebug() << "Stored track " << m_settings.value("update_track");
-  const int index = skUpdateTracks.indexOf(m_settings.value("update_track").toString());
+  qDebug() << "Stored track " << m_settings.value(QStringLiteral("update_track"));
+  const int index = skUpdateTracks.indexOf(m_settings.value(QStringLiteral("update_track")).toString());
   m_ui->devTrackWarning->setVisible(index == 1);
   m_ui->updateTrackComboBox->setCurrentIndex(index);
   connect(m_ui->updateTrackComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
@@ -125,13 +127,15 @@ void MainWindow::onExtract() {
   m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
   m_heclProc.setWorkingDirectory(m_path);
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("TERM", "xterm-color");
-  env.insert("ConEmuANSI", "ON");
+  env.insert(QStringLiteral("TERM"), QStringLiteral("xterm-color"));
+  env.insert(QStringLiteral("ConEmuANSI"), QStringLiteral("ON"));
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onExtractFinished);
-  m_heclProc.start(m_heclPath, {"extract", "-y", "-g", "-o", m_path, imgPath},
-                   QIODevice::ReadOnly | QIODevice::Unbuffered);
+
+  const QStringList heclProcArguments{
+      QStringLiteral("extract"), QStringLiteral("-y"), QStringLiteral("-g"), QStringLiteral("-o"), m_path, imgPath};
+  m_heclProc.start(m_heclPath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
 
@@ -158,12 +162,14 @@ void MainWindow::onPackage() {
   m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
   m_heclProc.setWorkingDirectory(m_path);
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("TERM", "xterm-color");
-  env.insert("ConEmuANSI", "ON");
+  env.insert(QStringLiteral("TERM"), QStringLiteral("xterm-color"));
+  env.insert(QStringLiteral("ConEmuANSI"), QStringLiteral("ON"));
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onPackageFinished);
-  m_heclProc.start(m_heclPath, {"package", "-y", "-g"}, QIODevice::ReadOnly | QIODevice::Unbuffered);
+
+  const QStringList heclProcArguments{QStringLiteral("package"), QStringLiteral("-y"), QStringLiteral("-g")};
+  m_heclProc.start(m_heclPath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
 
@@ -195,14 +201,18 @@ void MainWindow::onLaunch() {
   m_heclProc.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
   m_heclProc.setWorkingDirectory(m_path);
   QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  env.insert("TERM", "xterm-color");
-  env.insert("ConEmuANSI", "ON");
+  env.insert(QStringLiteral("TERM"), QStringLiteral("xterm-color"));
+  env.insert(QStringLiteral("ConEmuANSI"), QStringLiteral("ON"));
   m_heclProc.setProcessEnvironment(env);
   disconnect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), nullptr, nullptr);
   connect(&m_heclProc, qOverload<int, QProcess::ExitStatus>(&QProcess::finished), this, &MainWindow::onLaunchFinished);
-  m_heclProc.start(m_urdePath, QStringList() << (m_path + "/out")
-                                             << m_settings.value("urde_arguments").toStringList().join(' ').split(' '),
-                   QIODevice::ReadOnly | QIODevice::Unbuffered);
+
+  const auto heclProcArguments = QStringList{m_path + QStringLiteral("/out")}
+                                 << m_settings.value(QStringLiteral("urde_arguments"))
+                                        .toStringList()
+                                        .join(QLatin1Char{' '})
+                                        .split(QLatin1Char{' '});
+  m_heclProc.start(m_urdePath, heclProcArguments, QIODevice::ReadOnly | QIODevice::Unbuffered);
 
   m_ui->heclTabs->setCurrentIndex(0);
 
@@ -247,7 +257,7 @@ void MainWindow::onDownloadPressed() {
   QString filename = m_ui->binaryComboBox->currentData().value<URDEVersion>().fileString(true);
   disableOperations();
   m_ui->downloadButton->setEnabled(false);
-  m_dlManager.fetchBinary(filename, m_path + '/' + filename);
+  m_dlManager.fetchBinary(filename, m_path + QLatin1Char{'/'} + filename);
 }
 
 void MainWindow::onUpdateURDEPressed() {
@@ -305,41 +315,50 @@ void MainWindow::enableOperations() {
   m_ui->launchBtn->setText(QStringLiteral("Launch"));
 
   m_ui->extractBtn->setEnabled(true);
-  if (QFile::exists(m_path + "/MP1/!original_ids.yaml")) {
+  if (QFile::exists(m_path + QStringLiteral("/MP1/!original_ids.yaml"))) {
     m_ui->packageBtn->setEnabled(true);
     if (isPackageComplete())
       m_ui->launchBtn->setEnabled(true);
   }
 
   if (!m_ui->sysReqTable->isBlenderVersionOk())
-    insertContinueNote("Blender 2.78+ must be installed. Please download via Steam or blender.org.");
+    insertContinueNote(tr("Blender 2.78+ must be installed. Please download via Steam or blender.org."));
   else if (m_ui->launchBtn->isEnabled())
-    insertContinueNote("Package complete - Press 'Launch' to start URDE.");
+    insertContinueNote(tr("Package complete - Press 'Launch' to start URDE."));
   else if (m_ui->packageBtn->isEnabled())
-    insertContinueNote("Extract complete - Press 'Package' to continue.");
+    insertContinueNote(tr("Extract complete - Press 'Package' to continue."));
   else if (m_ui->extractBtn->isEnabled())
-    insertContinueNote("Press 'Extract' to begin.");
+    insertContinueNote(tr("Press 'Extract' to begin."));
 }
 
 bool MainWindow::isPackageComplete() const {
   return
 #if RUNTIME_ORIGINAL_IDS
-      QFile::exists(m_path + "/out/files/!original_ids.upak") &&
+      QFile::exists(m_path + QStringLiteral("/out/files/!original_ids.upak")) &&
 #endif
-      QFile::exists(m_path + "/out/files/AudioGrp.upak") && QFile::exists(m_path + "/out/files/GGuiSys.upak") &&
-      QFile::exists(m_path + "/out/files/Metroid1.upak") && QFile::exists(m_path + "/out/files/Metroid2.upak") &&
-      QFile::exists(m_path + "/out/files/Metroid3.upak") && QFile::exists(m_path + "/out/files/Metroid4.upak") &&
-      QFile::exists(m_path + "/out/files/metroid5.upak") && QFile::exists(m_path + "/out/files/Metroid6.upak") &&
-      QFile::exists(m_path + "/out/files/Metroid7.upak") && QFile::exists(m_path + "/out/files/Metroid8.upak") &&
-      QFile::exists(m_path + "/out/files/MidiData.upak") && QFile::exists(m_path + "/out/files/MiscData.upak") &&
-      QFile::exists(m_path + "/out/files/NoARAM.upak") && QFile::exists(m_path + "/out/files/SamGunFx.upak") &&
-      QFile::exists(m_path + "/out/files/SamusGun.upak") && QFile::exists(m_path + "/out/files/SlideShow.upak") &&
-      QFile::exists(m_path + "/out/files/TestAnim.upak") && QFile::exists(m_path + "/out/files/Tweaks.upak");
+      QFile::exists(m_path + QStringLiteral("/out/files/AudioGrp.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/GGuiSys.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid1.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid2.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid3.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid4.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/metroid5.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid6.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid7.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Metroid8.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/MidiData.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/MiscData.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/NoARAM.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/SamGunFx.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/SamusGun.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/SlideShow.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/TestAnim.upak")) &&
+      QFile::exists(m_path + QStringLiteral("/out/files/Tweaks.upak"));
 }
 
 static bool GetDLPackage(const QString& path, QString& dlPackage) {
   QProcess proc;
-  proc.start(path, {"--dlpackage"}, QIODevice::ReadOnly);
+  proc.start(path, {QStringLiteral("--dlpackage")}, QIODevice::ReadOnly);
   if (proc.waitForStarted()) {
     proc.waitForFinished();
     if (proc.exitCode() == 100)
@@ -363,17 +382,17 @@ bool MainWindow::checkDownloadedBinary() {
   }
 
 #if __APPLE__
-  QString urdePath = m_path + "/URDE.app/Contents/MacOS/urde";
-  QString heclPath = m_path + "/URDE.app/Contents/MacOS/hecl";
-  QString visigenPath = m_path + "/URDE.app/Contents/MacOS/visigen";
+  QString urdePath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/urde");
+  QString heclPath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/hecl");
+  QString visigenPath = m_path + QStringLiteral("/URDE.app/Contents/MacOS/visigen");
 #elif _WIN32
-  QString urdePath = m_path + "/urde.exe";
-  QString heclPath = m_path + "/hecl.exe";
-  QString visigenPath = m_path + "/visigen.exe";
+  QString urdePath = m_path + QStringLiteral("/urde.exe");
+  QString heclPath = m_path + QStringLiteral("/hecl.exe");
+  QString visigenPath = m_path + QStringLiteral("/visigen.exe");
 #else
-  QString urdePath = m_path + "/urde";
-  QString heclPath = m_path + "/hecl";
-  QString visigenPath = m_path + "/visigen";
+  QString urdePath = m_path + QStringLiteral("/urde");
+  QString heclPath = m_path + QStringLiteral("/hecl");
+  QString visigenPath = m_path + QStringLiteral("/visigen");
 #endif
   urdePath = QFileInfo(urdePath).absoluteFilePath();
   heclPath = QFileInfo(heclPath).absoluteFilePath();
@@ -445,8 +464,8 @@ void MainWindow::setPath(const QString& path) {
 
 void MainWindow::initSlots() {
   connect(&m_heclProc, &QProcess::readyRead, [=]() {
-    QByteArray bytes = m_heclProc.readAll();
-    setTextTermFormatting(bytes);
+    const QByteArray bytes = m_heclProc.readAll();
+    setTextTermFormatting(QString::fromUtf8(bytes));
   });
 
   connect(m_ui->extractBtn, &QPushButton::clicked, this, &MainWindow::onExtract);
@@ -457,7 +476,7 @@ void MainWindow::initSlots() {
   connect(m_ui->browseBtn, &QPushButton::clicked, [=]() {
     FileDirDialog dialog(this);
     dialog.setDirectory(m_path);
-    dialog.setWindowTitle("Select Working Directory");
+    dialog.setWindowTitle(tr("Select Working Directory"));
     int res = dialog.exec();
     if (res == QFileDialog::Rejected)
       return;
@@ -474,7 +493,7 @@ void MainWindow::initSlots() {
 void MainWindow::setTextTermFormatting(const QString& text) {
   m_inContinueNote = false;
 
-  QRegExp const escapeSequenceExpression(R"(\x1B\[([\d;\?FA]+)([mlh]?))");
+  QRegExp const escapeSequenceExpression(QStringLiteral(R"(\x1B\[([\d;\?FA]+)([mlh]?))"));
   QTextCharFormat defaultTextCharFormat = m_cursor.charFormat();
   int offset = escapeSequenceExpression.indexIn(text);
   ReturnInsert(m_cursor, text.mid(0, offset));
@@ -482,8 +501,8 @@ void MainWindow::setTextTermFormatting(const QString& text) {
   while (offset >= 0) {
     int previousOffset = offset + escapeSequenceExpression.matchedLength();
     QStringList captures = escapeSequenceExpression.capturedTexts();
-    if (captures.size() >= 3 && captures[2] == "m") {
-      QStringList capturedTexts = captures[1].split(';');
+    if (captures.size() >= 3 && captures[2] == QStringLiteral("m")) {
+      QStringList capturedTexts = captures[1].split(QLatin1Char{';'});
       QListIterator<QString> i(capturedTexts);
       while (i.hasNext()) {
         bool ok = false;
@@ -491,7 +510,8 @@ void MainWindow::setTextTermFormatting(const QString& text) {
         Q_ASSERT(ok);
         ParseEscapeSequence(attribute, i, textCharFormat, defaultTextCharFormat);
       }
-    } else if (captures.size() >= 2 && (captures[1].endsWith('F') || captures[1].endsWith('A'))) {
+    } else if (captures.size() >= 2 &&
+               (captures[1].endsWith(QLatin1Char{'F'}) || captures[1].endsWith(QLatin1Char{'A'}))) {
       int lineCount = captures[1].chopped(1).toInt();
       if (!lineCount)
         lineCount = 1;
@@ -526,8 +546,9 @@ void MainWindow::insertContinueNote(const QString& text) {
   m_ui->processOutput->ensureCursorVisible();
 }
 void MainWindow::onUpdateTrackChanged(int index)  {
-  qDebug() << "Track changed from " << m_settings.value("update_track") << " to " << skUpdateTracks[index];
-  m_settings.setValue("update_track", skUpdateTracks[index]);
+  qDebug() << "Track changed from " << m_settings.value(QStringLiteral("update_track")) << " to "
+           << skUpdateTracks[index];
+  m_settings.setValue(QStringLiteral("update_track"), skUpdateTracks[index]);
   m_dlManager.fetchIndex();
   m_ui->devTrackWarning->setVisible(index == 1);
 }

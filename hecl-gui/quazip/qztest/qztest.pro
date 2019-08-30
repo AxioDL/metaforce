@@ -1,5 +1,6 @@
 TEMPLATE = app
 QT -= gui
+QT += network
 CONFIG += qtestlib
 CONFIG += console
 CONFIG -= app_bundle
@@ -10,6 +11,13 @@ win32 {
     # workaround for qdatetime.h macro bug
     DEFINES += NOMINMAX
 }
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    # disable all the Qt APIs deprecated before Qt 6.0.0
+    DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+}
+
+CONFIG(staticlib): DEFINES += QUAZIP_STATIC
 
 # Input
 HEADERS += qztest.h \
@@ -38,7 +46,8 @@ OBJECTS_DIR = .obj
 MOC_DIR = .moc
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../quazip/release/ -lquazip
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../quazip/debug/ -lquazip
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../quazip/debug/ -lquazipd
+else:mac:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../quazip/ -lquazip_debug
 else:unix: LIBS += -L$$OUT_PWD/../quazip/ -lquazip
 
 INCLUDEPATH += $$PWD/..

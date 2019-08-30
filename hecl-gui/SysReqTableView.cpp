@@ -43,29 +43,39 @@ static QString GetWindowsVersionString() {
 
 SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent) {
 #ifdef __linux__
-  QFile file("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
+  QFile file(QStringLiteral("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"));
   if (file.open(QFile::ReadOnly)) {
-    QString str(file.readAll());
+    const QString str(QString::fromUtf8(file.readAll()));
     m_cpuSpeed = str.toInt() / 1000;
     m_cpuSpeedStr.sprintf("%g GHz", m_cpuSpeed / 1000.0);
   }
 #elif defined(__APPLE__)
   QProcess spProc;
-  spProc.start("system_profiler", {"-xml", "SPHardwareDataType"}, QProcess::ReadOnly);
+  spProc.start(QStringLiteral("system_profiler"), {QStringLiteral("-xml"), QStringLiteral("SPHardwareDataType")},
+               QProcess::ReadOnly);
   spProc.waitForFinished();
   QDomDocument spDoc;
   spDoc.setContent(spProc.readAll());
   QDomElement spDocElem = spDoc.documentElement();
-  QDomElement n = spDocElem.firstChildElement("array").firstChildElement("dict").firstChildElement("key");
-  while (!n.isNull() && n.text() != "_items")
-    n = n.nextSiblingElement("key");
+  QDomElement n = spDocElem.firstChildElement(QStringLiteral("array"))
+                      .firstChildElement(QStringLiteral("dict"))
+                      .firstChildElement(QStringLiteral("key"));
+  while (!n.isNull() && n.text() != QStringLiteral("_items")) {
+    n = n.nextSiblingElement(QStringLiteral("key"));
+  }
+
   if (!n.isNull()) {
-    n = n.nextSiblingElement("array").firstChildElement("dict").firstChildElement("key");
-    while (!n.isNull() && n.text() != "current_processor_speed")
-      n = n.nextSiblingElement("key");
+    n = n.nextSiblingElement(QStringLiteral("array"))
+            .firstChildElement(QStringLiteral("dict"))
+            .firstChildElement(QStringLiteral("key"));
+
+    while (!n.isNull() && n.text() != QStringLiteral("current_processor_speed")) {
+      n = n.nextSiblingElement(QStringLiteral("key"));
+    }
+
     if (!n.isNull()) {
-      n = n.nextSiblingElement("string");
-      double speed = n.text().split(' ').front().toDouble();
+      n = n.nextSiblingElement(QStringLiteral("string"));
+      const double speed = n.text().split(QLatin1Char{' '}).front().toDouble();
       m_cpuSpeed = uint64_t(speed * 1000.0);
       m_cpuSpeedStr.sprintf("%g GHz", speed);
     }
@@ -113,11 +123,12 @@ SysReqTableModel::SysReqTableModel(QObject* parent) : QAbstractTableModel(parent
   m_osVersion = QStringLiteral("Linux");
 #endif
   hecl::blender::FindBlender(m_blendMajor, m_blendMinor);
-  if (m_blendMajor)
+  if (m_blendMajor) {
     m_blendVersionStr =
-        QStringLiteral("Blender ") + QString::number(m_blendMajor) + '.' + QString::number(m_blendMinor);
-  else
+        QStringLiteral("Blender ") + QString::number(m_blendMajor) + QLatin1Char{'.'} + QString::number(m_blendMinor);
+  } else {
     m_blendVersionStr = QStringLiteral("Not Found");
+  }
 }
 
 void SysReqTableModel::updateFreeDiskSpace(const QString& path) {

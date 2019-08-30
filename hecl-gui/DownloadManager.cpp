@@ -32,12 +32,12 @@ void DownloadManager::_validateCert(QNetworkReply* reply) {
   QSslCertificate peerCert = reply->sslConfiguration().peerCertificate();
   QSslKey peerKey = peerCert.publicKey();
   if (peerKey != AxioDLPublicKey && peerKey != AxioDLEdgePublicKey) {
-    auto cn = peerCert.subjectInfo(QSslCertificate::CommonName);
-    if (!cn.empty())
-      setError(QNetworkReply::SslHandshakeFailedError,
-               QStringLiteral("Certificate pinning mismatch \"") + cn.first() + "\"");
-    else
-      setError(QNetworkReply::SslHandshakeFailedError, QStringLiteral("Certificate pinning mismatch"));
+    const auto cn = peerCert.subjectInfo(QSslCertificate::CommonName);
+    if (cn.empty()) {
+      setError(QNetworkReply::SslHandshakeFailedError, tr("Certificate pinning mismatch"));
+    } else {
+      setError(QNetworkReply::SslHandshakeFailedError, tr("Certificate pinning mismatch \"%1\"").arg(cn.first()));
+    }
     reply->abort();
   }
 #endif
@@ -47,12 +47,15 @@ static const QString Domain = QStringLiteral("https://releases.axiodl.com/");
 static const QString Index = QStringLiteral("index.txt");
 
 void DownloadManager::fetchIndex() {
-  if (m_indexInProgress)
+  if (m_indexInProgress) {
     return;
+  }
 
   resetError();
-  QString track = QSettings().value("update_track").toString();
-  QString url = Domain + track + '/' + CurPlatformString + '/' + Index;
+
+  const QString track = QSettings().value(QStringLiteral("update_track")).toString();
+  const auto url = QUrl(QStringLiteral("%1%2/%3/%4").arg(Domain, track, CurPlatformString, Index));
+
   m_indexInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_indexInProgress, &QNetworkReply::finished, this, &DownloadManager::indexFinished);
   connect(m_indexInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
@@ -61,14 +64,15 @@ void DownloadManager::fetchIndex() {
 }
 
 void DownloadManager::fetchBinary(const QString& str, const QString& outPath) {
-  if (m_binaryInProgress)
+  if (m_binaryInProgress) {
     return;
+  }
 
   resetError();
   m_outPath = outPath;
 
-  const QString track = QSettings().value("update_track").toString();
-  const QString url = Domain + track + '/' + CurPlatformString + '/' + str;
+  const QString track = QSettings().value(QStringLiteral("update_track")).toString();
+  const auto url = QUrl(QStringLiteral("%1%2/%3/%4").arg(Domain, track, CurPlatformString, str));
   m_binaryInProgress = m_netManager.get(QNetworkRequest(url));
   connect(m_binaryInProgress, &QNetworkReply::finished, this, &DownloadManager::binaryFinished);
   connect(m_binaryInProgress, qOverload<QNetworkReply::NetworkError>(&QNetworkReply::error), this,
@@ -121,7 +125,7 @@ void DownloadManager::binaryFinished() {
   QBuffer buff(&all);
   QuaZip zip(&buff);
   if (!zip.open(QuaZip::mdUnzip)) {
-    setError(QNetworkReply::UnknownContentError, "Unable to open zip archive.");
+    setError(QNetworkReply::UnknownContentError, tr("Unable to open zip archive."));
     m_binaryInProgress->deleteLater();
     m_binaryInProgress = nullptr;
     return;

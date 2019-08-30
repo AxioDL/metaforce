@@ -6,11 +6,11 @@
 extern hecl::CVar* hecl::com_developer;
 
 LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
-: QMenu("Launch Menu", parent)
+: QMenu(tr("Launch Menu"), parent)
 , m_commons(commons)
-, m_apiMenu("Graphics API", this)
-, m_msaaMenu("Anti-Aliasing", this)
-, m_anisoMenu("Anisotropic Filtering", this)
+, m_apiMenu(tr("Graphics API"), this)
+, m_msaaMenu(tr("Anti-Aliasing"), this)
+, m_anisoMenu(tr("Anisotropic Filtering"), this)
 , m_apiGroup(this)
 , m_msaaGroup(this)
 , m_anisoGroup(this) {
@@ -42,15 +42,17 @@ LaunchMenu::LaunchMenu(hecl::CVarCommons& commons, QWidget* parent)
   m_apiMenu.addActions(m_apiGroup.actions());
   m_msaaMenu.addActions(m_msaaGroup.actions());
   m_anisoMenu.addActions(m_anisoGroup.actions());
-  addMenu(&m_apiMenu)->setToolTip(m_commons.m_graphicsApi->rawHelp().data());
-  addMenu(&m_msaaMenu)->setToolTip(m_commons.m_drawSamples->rawHelp().data());
-  addMenu(&m_anisoMenu)->setToolTip(m_commons.m_texAnisotropy->rawHelp().data());
-  QAction* argumentEditor = addAction("Edit Runtime Arguments");
+  addMenu(&m_apiMenu)->setToolTip(QString::fromUtf8(m_commons.m_graphicsApi->rawHelp().data()));
+  addMenu(&m_msaaMenu)->setToolTip(QString::fromUtf8(m_commons.m_drawSamples->rawHelp().data()));
+  addMenu(&m_anisoMenu)->setToolTip(QString::fromUtf8(m_commons.m_texAnisotropy->rawHelp().data()));
+  const QAction* argumentEditor = addAction(tr("Edit Runtime Arguments"));
   connect(argumentEditor, &QAction::triggered, this, &LaunchMenu::editRuntimeArgs);
   initDeepColor();
   initDeveloperMode();
   initCheats();
 }
+
+LaunchMenu::~LaunchMenu() = default;
 
 void LaunchMenu::initApiAction(const QString& action) {
   QAction* act = m_apiGroup.addAction(action);
@@ -77,32 +79,32 @@ void LaunchMenu::initAnisoAction(const QString& action) {
 }
 
 void LaunchMenu::initDeepColor() {
-  QAction* act = addAction("Deep Color");
-  act->setToolTip(m_commons.m_deepColor->rawHelp().data());
+  QAction* act = addAction(tr("Deep Color"));
+  act->setToolTip(QString::fromUtf8(m_commons.m_deepColor->rawHelp().data()));
   act->setCheckable(true);
   act->setChecked(m_commons.getDeepColor());
   connect(act, &QAction::triggered, this, &LaunchMenu::deepColorTriggered);
 }
 
 void LaunchMenu::initDeveloperMode() {
-  QAction* act = addAction("Developer Mode");
-  act->setToolTip(hecl::com_developer->rawHelp().data());
-  act->setCheckable(true);
-  act->setChecked(hecl::com_developer->toBoolean());
-  connect(act, &QAction::triggered, this, &LaunchMenu::developerModeTriggered);
+  m_developerMode = addAction(tr("Developer Mode"));
+  m_developerMode->setToolTip(QString::fromUtf8(hecl::com_developer->rawHelp().data()));
+  m_developerMode->setCheckable(true);
+  m_developerMode->setChecked(hecl::com_developer->toBoolean());
+  connect(m_developerMode, &QAction::triggered, this, &LaunchMenu::developerModeTriggered);
 }
 
 void LaunchMenu::initCheats() {
-  QAction* act = addAction("Enable Cheats");
-  act->setToolTip(hecl::com_enableCheats->rawHelp().data());
-  act->setCheckable(true);
-  act->setChecked(hecl::com_enableCheats->toBoolean());
-  connect(act, &QAction::triggered, this, &LaunchMenu::cheatsTriggered);
+  m_enableCheats = addAction(tr("Enable Cheats"));
+  m_enableCheats->setToolTip(QString::fromUtf8(hecl::com_enableCheats->rawHelp().data()));
+  m_enableCheats->setCheckable(true);
+  m_enableCheats->setChecked(hecl::com_enableCheats->toBoolean());
+  connect(m_enableCheats, &QAction::triggered, this, &LaunchMenu::cheatsTriggered);
 }
 
 void LaunchMenu::apiTriggered() {
   QString apiStr = qobject_cast<QAction*>(sender())->text();
-  apiStr = apiStr.remove('&');
+  apiStr = apiStr.remove(QLatin1Char{'&'});
   m_commons.setGraphicsApi(apiStr.toStdString());
   m_commons.serialize();
 }
@@ -123,13 +125,10 @@ void LaunchMenu::deepColorTriggered() {
 }
 
 void LaunchMenu::developerModeTriggered() {
-  bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+  const bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+
   if (hecl::com_enableCheats->toBoolean() && !isChecked) {
-    for (QAction* action : actions()) {
-      QString text = action->text().remove('&');
-      if (text == "Enable Cheats" && action->isChecked())
-        action->setChecked(false);
-    }
+    m_enableCheats->setChecked(false);
   }
 
   hecl::CVarManager::instance()->setDeveloperMode(isChecked, true);
@@ -137,13 +136,10 @@ void LaunchMenu::developerModeTriggered() {
 }
 
 void LaunchMenu::cheatsTriggered() {
-  bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+  const bool isChecked = qobject_cast<QAction*>(sender())->isChecked();
+
   if (!hecl::com_developer->toBoolean() && isChecked) {
-      for (QAction* action : actions()) {
-        QString text = action->text().remove('&');
-        if (text == "Developer Mode" && !action->isChecked())
-          action->setChecked(true);
-      }
+    m_developerMode->setChecked(false);
   }
 
   hecl::CVarManager::instance()->setCheatsEnabled(isChecked, true);

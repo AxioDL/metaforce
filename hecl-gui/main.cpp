@@ -25,14 +25,14 @@ static QIcon MakeAppIcon() {
 int main(int argc, char* argv[]) {
   InitializePlatform();
 
-  QApplication::setOrganizationName("AxioDL");
-  QApplication::setApplicationName("HECL");
+  QApplication::setOrganizationName(QStringLiteral("AxioDL"));
+  QApplication::setApplicationName(QStringLiteral("HECL"));
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
   QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 #endif
-  QApplication::setStyle(QStyleFactory::create("Fusion"));
+  QApplication::setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
   QApplication a(argc, argv);
   QApplication::setWindowIcon(MakeAppIcon());
 

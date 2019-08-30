@@ -1,5 +1,48 @@
 QuaZIP changes
 
+* 2019-05-27 0.8.1
+        * CMake regression fix
+
+* 2019-05-23 0.8
+        * Support for UTF-8 in file names and comments (Denis Zavorotnyy)
+        * get/setOsCode(), get/setDefaultOsCode()
+        * Fixed Z_STREAM_END handling in QuaZioDevice
+
+* 2018-06-13 0.7.6
+        * Fixed the Zip Slip vulnerability in JlCompress
+        * Renamed crypt.h to minizip_crypt.h to avoid conflicts
+
+* 2018-05-20 0.7.5
+        * Fixed target_link_libraries call in CMakeLists
+        * Worked around a Qt 4.6 bug (QTBUG-15421) screwing up hidden
+          files handling in JlCompress::compressDir()
+        * Removed Q_FOREACH uses to avoid conflicts (SF patch #32)
+
+* 2017-02-05 0.7.4
+        * Static analysis patch from Intel Deutschland GmbH
+        * Replaced UNUSED with QUAZIP_UNUSED to avoid name clashes
+        * Minor bug fixes
+
+* 2017-02-05 0.7.3
+        * Symlink handling
+        * Static linking exception for LGPL
+        * Minor bug fixes
+
+* 2016-03-29 0.7.2
+        * New JlCompress methods (QIODevice*-based API by Lukasz Kwiecinski)
+        * Implemented QuaZioDevice::atEnd() and bytesAvailable()--these might
+          break ABI, but pretty unlikely.
+
+* 2015-01-07 0.7.1
+        * Fixed licensing issues (bug #45).
+        * Added the convenience method QuaZipFileInfo::isEncrypted().
+
+* 2014-07-24 0.7
+        * It is now possible to write ZIP files to sequential devices
+          like sockets (only in mdCreate mode, so no self-extract, sorry).
+        * A few zip64 fixes.
+        * Several bug fixes and portability improvements.
+
 * 2014-02-09 0.6.2
         * QuaZipNewInfo / QuaZipFileInfo64 now provide API to access/set
           NTFS time stamps - useful even on non-NTFS systems if you 

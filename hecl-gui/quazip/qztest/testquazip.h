@@ -8,7 +8,7 @@ This file is part of QuaZIP test suite.
 
 QuaZIP is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
+the Free Software Foundation, either version 2.1 of the License, or
 (at your option) any later version.
 
 QuaZIP is distributed in the hope that it will be useful,
@@ -40,6 +40,8 @@ private slots:
     void add();
     void setFileNameCodec_data();
     void setFileNameCodec();
+    void setOsCode_data();
+    void setOsCode();
     void setDataDescriptorWritingEnabled();
     void testQIODeviceAPI();
     void setZipName();
@@ -49,6 +51,7 @@ private slots:
 #ifdef QUAZIP_TEST_QSAVEFILE
     void saveFileBug();
 #endif
+    void testSequential();
 };
 
 #endif // QUAZIP_TEST_QUAZIP_H
