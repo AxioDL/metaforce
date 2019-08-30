@@ -414,9 +414,11 @@ bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter
     }
   } else if (m_cookSpecs.empty()) {
     m_cookSpecs.reserve(m_compiledSpecs.size());
-    for (const ProjectDataSpec& spec : m_compiledSpecs)
-      if (spec.active && spec.spec.m_factory)
-        m_cookSpecs.push_back(spec.spec.m_factory(*this, DataSpecTool::Cook));
+    for (const ProjectDataSpec& projectSpec : m_compiledSpecs) {
+      if (projectSpec.active && projectSpec.spec.m_factory) {
+        m_cookSpecs.push_back(projectSpec.spec.m_factory(*this, DataSpecTool::Cook));
+      }
+    }
   }
 
   /* Iterate complete directory/file/glob list */
@@ -444,17 +446,18 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
   /* Construct DataSpec instance for packaging */
   const DataSpecEntry* specEntry = nullptr;
   if (spec) {
-    if (spec->m_factory)
+    if (spec->m_factory) {
       specEntry = spec;
+    }
   } else {
     bool foundPC = false;
-    for (const ProjectDataSpec& spec : m_compiledSpecs) {
-      if (spec.active && spec.spec.m_factory) {
-        if (hecl::StringUtils::EndsWith(spec.spec.m_name, _SYS_STR("-PC"))) {
+    for (const ProjectDataSpec& projectSpec : m_compiledSpecs) {
+      if (projectSpec.active && projectSpec.spec.m_factory) {
+        if (hecl::StringUtils::EndsWith(projectSpec.spec.m_name, _SYS_STR("-PC"))) {
           foundPC = true;
-          specEntry = &spec.spec;
+          specEntry = &projectSpec.spec;
         } else if (!foundPC) {
-          specEntry = &spec.spec;
+          specEntry = &projectSpec.spec;
         }
       }
     }
