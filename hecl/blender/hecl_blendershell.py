@@ -127,7 +127,7 @@ def read_cmdargs():
 # Complete sequences of statements compiled/executed here
 def exec_compbuf(compbuf, globals):
     if verbosity_level >= 3:
-        print('EXEC', compbuf)
+        print(compbuf)
     try:
         co = compile(compbuf, '<HECL>', 'exec')
         exec(co, globals)

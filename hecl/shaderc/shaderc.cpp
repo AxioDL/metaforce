@@ -222,7 +222,7 @@ bool Compiler::includeFile(SystemStringView file, std::string& out, int depth) {
   SystemString directory;
   auto slashPos = file.find_last_of(_SYS_STR("/\\"));
   if (slashPos != SystemString::npos)
-    directory = SystemString(file.begin(), file.begin() + slashPos);
+    directory = SystemString(file.data(), slashPos);
   else
     directory = _SYS_STR(".");
 

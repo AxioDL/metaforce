@@ -252,7 +252,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       ret.second = libLen + 1;
       fread(&ret.first.get()[1], 1, libLen, fin);
       fclose(fin);
-      unlink(libFile);
+      unlink(libFile.c_str());
     }
 
     return ret;
