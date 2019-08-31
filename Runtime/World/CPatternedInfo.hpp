@@ -57,6 +57,7 @@ public:
   CPatternedInfo(CInputStream& in, u32 pcount);
   static std::pair<bool, u32> HasCorrectParameterCount(CInputStream& in);
 
+  float GetTurnSpeed() const { return x8_turnSpeed; }
   float GetDetectionHeightRange() const { return x10_detectionHeightRange; }
   const CHealthInfo& GetHealthInfo() const { return x54_healthInfo; }
   const CDamageVulnerability& GetDamageVulnerability() const { return x5c_damageVulnerability; }

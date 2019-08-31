@@ -19,7 +19,6 @@ set(DNAMP3_SOURCES
     CMDL.hpp CMDL.cpp
     CMDLMaterials.cpp
     CSKR.cpp
-    CAUD.cpp
     STRG.hpp STRG.cpp
     MAPA.hpp
     MREA.cpp)

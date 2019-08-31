@@ -936,6 +936,10 @@ void CPatterned::TryKnockBack(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTranslation(), pas::ESeverity(arg)));
 }
 
+void CPatterned::TryGenerateDeactivate(urde::CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), zeus::skZero3f));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController)
     return;

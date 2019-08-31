@@ -4,6 +4,7 @@ make_dnalist(CMDL
              FSM2
              MAPA
              MAPU
+             MayaSpline
              EGMC
              SAVWCommon
              ParticleCommon

@@ -9,6 +9,7 @@
 #include "DNACommon/TXTR.hpp"
 #include "AssetNameMap.hpp"
 #include "hecl/ClientProcess.hpp"
+#include "nod/DiscBase.hpp"
 #include "nod/nod.hpp"
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/Blender/SDNARead.hpp"

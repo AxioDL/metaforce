@@ -1,8 +1,8 @@
 #pragma once
 
 #include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/MayaSpline.hpp"
 #include "DataSpec/DNACommon/PAK.hpp"
-
 namespace DataSpec::DNAMP3 {
 
 struct CAUD : BigDNA {
@@ -10,8 +10,8 @@ struct CAUD : BigDNA {
   DNAFourCC magic;
   Value<atUint32> version;
   String<-1> name;
-  Value<atUint32> nameCount;
-  Vector<String<-1>, AT_DNA_COUNT(nameCount)> names;
+  Value<atUint32> volumeGroupCount;
+  Vector<String<-1>, AT_DNA_COUNT(volumeGroupCount)> volumeGroups;
   Value<float> unknown1;
   Value<atUint32> unknown2;
   Value<float> unknown3;
@@ -24,75 +24,39 @@ struct CAUD : BigDNA {
     UniqueID64 csmpId;
     Value<float> unknown1;
     Value<atUint32> unknown2;
-    Value<atUint32> unknown3;
+    Value<float> unknown3;
     Value<float> unknown4;
     Value<float> unknown5;
     Value<float> unknown6;
     Value<atUint32> unknown7;
-    Value<atUint32> unknown8;
-    Value<atUint32> unknown9;
+    Value<atInt32> unknown8;
+    Value<atInt32> unknown9;
     Value<atUint32> unknown10;
     Value<float> unknown11;
     Value<float> unknown12;
     Value<float> unknown13;
-    Value<atUint8> unknown14[8];
-    struct UnknownStruct1 : BigDNA {
+    Value<bool> unknown14;
+    Value<bool> unknown15;
+    Value<bool> unknown16;
+    Value<bool> unknown17;
+    Value<bool> unknown18;
+    Value<bool> unknown19;
+    MayaSpline spline1;
+    MayaSpline spline2;
+    MayaSpline spline3;
+    MayaSpline spline4;
+    Value<atUint32> unkStructCount;
+    struct UnknownStruct : BigDNA {
       AT_DECL_DNA_YAML
       Value<float> unknown1;
       Value<float> unknown2;
-      Value<atUint8> unknown3;
-      Value<atUint8> unknown4;
     };
-    Value<atUint32> unknown15;
-    Vector<UnknownStruct1, AT_DNA_COUNT(unknown15)> unknown16;
-    struct UnknownStruct2 : BigDNA {
-      AT_DECL_DNA_YAML
-      Value<atUint8> unknown1;
-      Vector<atUint8, AT_DNA_COUNT(unknown1)> unknown2;
-      Value<float> unknown3;
-      Value<float> unknown4;
-      Value<atUint16> unknown5;
-      struct UnknownPair : BigDNA {
-        AT_DECL_DNA_YAML
-        Value<float> unknown1;
-        Value<atInt32> unknown2;
-      };
-      Value<atUint16> unknown6;
-      Vector<UnknownPair, AT_DNA_COUNT(unknown6)> unknown7;
-      struct UnknownQuad : BigDNA {
-        AT_DECL_EXPLICIT_DNA_YAML
-        Value<float> unknown1;
-        Value<float> unknown2;
-        Value<atUint8> unknown3;
-        Value<atUint8> unknown4;
-        Value<float> unknown5[5];
-      };
-
-      Value<atUint16> unknown8;
-      Vector<UnknownQuad, AT_DNA_COUNT(unknown8)> unknown9;
-    };
-    UnknownStruct2 unknown17[4];
-    Value<atUint16> unknown18;
-    Value<float> unknown19;
-    Value<atUint8> unknown20;
-    Value<atUint8> unknown21;
-    Value<atUint8> unknown22;
-    Value<atUint8> unknown23;
-    Value<atUint8> unknown24;
-    Value<atUint8> unknown25;
-    Value<atUint8> unknown26;
-    Value<atUint8> unknown27;
-    Value<atUint8> unknown28;
-    struct UnknownStruct3 : BigDNA {
-      AT_DECL_DNA_YAML
-      Value<atUint32> unknown1;
-      Value<float> unknown2;
-      Value<atUint8> unknown3;
-      Value<atUint8> unknown4;
-    };
-    Vector<UnknownStruct3, AT_DNA_COUNT(unknown27)> unknown29;
-    Value<float> unknown30;
-    Value<float> unknown31;
+    Vector<UnknownStruct, AT_DNA_COUNT(unkStructCount)> unkStructs;
+    Value<atUint32> unknown20;
+    Value<float> unknown21;
+    Value<bool> unknown22;
+    Value<bool> unknown23;
+    MayaSpline spline5;
   };
 
   Value<atUint32> infoCount;
