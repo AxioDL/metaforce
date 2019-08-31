@@ -12,7 +12,7 @@ if(APPLE)
   function(add_library TARGET)
     _add_library(${TARGET} ${ARGN})
     list(GET ARGV 1 ARG1)
-    if(NOT ${ARG1} STREQUAL INTERFACE)
+    if(NOT ${ARG1} STREQUAL INTERFACE AND NOT ${ARG1} STREQUAL ALIAS)
       set_target_properties(${TARGET} PROPERTIES XCODE_ATTRIBUTE_WARNING_CFLAGS "")
     endif()
   endfunction()
@@ -135,10 +135,11 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     add_compile_options(-fsanitize=memory -fsanitize-memory-track-origins -fsanitize-recover=all)
   endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
-    add_compile_options(-Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
-                        -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
-                        -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -fno-exceptions -Werror)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti -fno-exceptions")
+  add_compile_options(-Wall -Wno-multichar -Werror=implicit-fallthrough -Wno-unknown-warning-option
+                      -Wno-lto-type-mismatch -Wno-unused-variable -Wno-unused-private-field
+                      -Wno-unused-function -Wno-sign-compare -Wno-unknown-pragmas -Werror)
+  add_compile_definitions(FMT_EXCEPTIONS=0)
 
   if(APPLE)
     add_compile_options(-Wno-error=deprecated-declarations)

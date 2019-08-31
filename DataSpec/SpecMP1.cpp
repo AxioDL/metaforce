@@ -357,16 +357,19 @@ struct SpecMP1 : SpecBase {
     progress.startNewLine();
     for (std::pair<const std::string, DNAMP1::PAKBridge*>& pair : m_orderedPaks) {
 #if 0
-            const DNAMP1::PAK::Entry* ent = pair.second->getPAK().lookupEntry(UniqueID32("A4DFCAD6"));
-            if (ent)
-            {
-                DNAMP1::ANIM anim;
-                PAKEntryReadStream rs = ent->beginReadStream(pair.second->getNode());
-                anim.read(rs);
-                exit(0);
-            }
-            else
-                continue;
+      const DNAMP1::PAK::Entry* ent = pair.second->getPAK().lookupEntry(UniqueID32(0xE39FC9A1));
+      if (ent) {
+        PAKEntryReadStream rs = ent->beginReadStream(pair.second->getNode());
+        DNAMP1::CMDL::Extract(*this, rs, hecl::ProjectPath(m_project.getProjectWorkingPath(), "MP1/Metroid1/!1IntroLevel1027/CMDL_E39FC9A1.blend"), m_pakRouter, *ent, true, hecl::blender::SharedBlenderToken, {});
+
+        ent = pair.second->getPAK().lookupEntry(UniqueID32(0xC1AE2B4A));
+        rs = ent->beginReadStream(pair.second->getNode());
+        DNAMP1::CMDL::Extract(*this, rs, hecl::ProjectPath(m_project.getProjectWorkingPath(), "MP1/Metroid1/!1IntroLevel1027/CMDL_C1AE2B4A.blend"), m_pakRouter, *ent, true, hecl::blender::SharedBlenderToken, {});
+
+        exit(0);
+      }
+      else
+        continue;
 #endif
 
       DNAMP1::PAKBridge& pak = *pair.second;

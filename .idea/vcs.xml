@@ -6,7 +6,6 @@
     <mapping directory="$PROJECT_DIR$/NESEmulator/fixNES" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/amuse" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/assetnameparser/tinyxml2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cotire" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/discord-rpc" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/hecl-gui" vcs="Git" />

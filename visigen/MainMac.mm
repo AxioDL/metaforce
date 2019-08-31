@@ -104,13 +104,9 @@ static void UpdatePercent(float percent)
 @end
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file,
-                      const char*, int line, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-    AthenaLog.report(logvisor::Level(level), fmt, ap);
-    va_end(ap);
+static void AthenaExc(athena::error::Level level, const char* /*file*/, const char*, int /*line*/,
+                      fmt::string_view fmt, fmt::format_args args) {
+  AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
 int main(int argc, const char** argv)
