@@ -38,11 +38,11 @@ public:
   CCinematicCamera(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    bool active, float shotDuration, float fovy, float znear, float zfar, float aspect, u32 flags);
 
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  void ProcessInput(const CFinalInput&, CStateManager& mgr);
-  void Reset(const zeus::CTransform&, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
+  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
   u32 GetFlags() const { return x21c_flags; }
   void WasDeactivated(CStateManager& mgr);
   void SendArrivedMsg(TUniqueId reciever, CStateManager& mgr);

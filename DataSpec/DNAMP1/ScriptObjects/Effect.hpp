@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct Effect : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
@@ -33,7 +32,7 @@ struct Effect : IScriptObject {
   Value<bool> dieWhenSystemsDone;
   LightParameters lightParameters;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (part.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part);
       ent->name = name + "_part";
@@ -44,7 +43,8 @@ struct Effect : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(part, pathsOut);
     g_curSpec->flattenDependencies(elsc, pathsOut);
   }

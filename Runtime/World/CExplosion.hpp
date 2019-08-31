@@ -26,13 +26,13 @@ public:
              std::string_view name, const zeus::CTransform& xf, u32, const zeus::CVector3f& scale,
              const zeus::CColor& color);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  bool CanRenderUnsorted(const CStateManager&) const;
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  bool CanRenderUnsorted(const CStateManager&) const override;
 };
 
 } // namespace urde

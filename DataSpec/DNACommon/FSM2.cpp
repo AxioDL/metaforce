@@ -1,8 +1,12 @@
+#include "DataSpec/DNACommon/FSM2.hpp"
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <athena/FileWriter.hpp>
 #include <athena/Global.hpp>
-#include <athena/IStreamReader.hpp>
 #include <athena/IStreamWriter.hpp>
 
-#include "FSM2.hpp"
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAFSM2 {
 logvisor::Module LogDNAFSM2("urde::DNAFSM2");
@@ -10,7 +14,7 @@ logvisor::Module LogDNAFSM2("urde::DNAFSM2");
 template <class IDType>
 template <class Op>
 void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"header"}, header, s);
+  Do<Op>(athena::io::PropId{"header"}, header, s);
   if (header.magic != SBIG('FSM2')) {
     LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 magic '{}' expected 'FSM2'"), header.magic);
     return;
@@ -19,11 +23,11 @@ void FSM2<IDType>::Enumerate(typename Op::StreamT& s) {
   if (header.version == 1) {
     if (!detail)
       detail.reset(new FSMV1);
-    Do<Op>({"detail"}, static_cast<FSMV1&>(*detail), s);
+    Do<Op>(athena::io::PropId{"detail"}, static_cast<FSMV1&>(*detail), s);
   } else if (header.version == 2) {
     if (!detail)
       detail.reset(new FSMV2);
-    Do<Op>({"detail"}, static_cast<FSMV2&>(*detail), s);
+    Do<Op>(athena::io::PropId{"detail"}, static_cast<FSMV2&>(*detail), s);
   } else {
     LogDNAFSM2.report(logvisor::Fatal, fmt("Invalid FSM2 version '{}'"), header.version);
     return;

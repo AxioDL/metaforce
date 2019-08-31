@@ -1,4 +1,10 @@
-#include "CRSC.hpp"
+#include "DataSpec/DNACommon/CRSC.hpp"
+
+#include <algorithm>
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 static const std::vector<FourCC> GeneratorTypes = {

@@ -21,18 +21,21 @@ public:
   CAnimTreeLoopIn(const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b, bool didLoopIn,
                   const CAnimSysContext& animCtx, std::string_view name, const CSequenceFundamentals& fundamentals,
                   const CCharAnimTime& time);
-  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
+  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
   bool VSupportsReverseView() const { return false; }
-  std::optional<std::unique_ptr<IAnimReader>> VSimplified();
-  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-  std::unique_ptr<IAnimReader> VClone() const;
-  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  CCharAnimTime VGetTimeRemaining() const;
-  SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
+  std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
+  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
+  std::unique_ptr<IAnimReader> VClone() const override;
+  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const override;
+  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator,
+                          u32) const override;
+  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
 };
 
 } // namespace urde

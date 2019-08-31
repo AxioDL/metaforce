@@ -18,9 +18,9 @@ class CFireFlea : public CPatterned {
     static zeus::CColor sCurrentFadeColor;
     CDeathCameraEffect(TUniqueId, TAreaId, std::string_view);
 
-    void Accept(IVisitor&);
-    void PreThink(float, CStateManager&);
-    void Think(float, CStateManager&);
+    void Accept(IVisitor&) override;
+    void PreThink(float, CStateManager&) override;
+    void Think(float, CStateManager&) override;
   };
   float x568_ = 1.f;
   float x56c_;
@@ -40,15 +40,15 @@ public:
   CFireFlea(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CActorParameters&, const CPatternedInfo&, float);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  void Dead(CStateManager&, EStateMsg msg, float dt);
-  bool Delay(CStateManager&, float arg);
-  bool InPosition(CStateManager& mgr, float dt);
-  bool HearShot(CStateManager&, float);
-  void TargetPatrol(CStateManager&, EStateMsg, float);
-  void Patrol(CStateManager&, EStateMsg, float);
-  void Flee(CStateManager&, EStateMsg, float);
-  CPathFindSearch* GetSearchPath() { return &xd8c_pathFind; }
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void Dead(CStateManager&, EStateMsg msg, float dt) override;
+  bool Delay(CStateManager&, float arg) override;
+  bool InPosition(CStateManager& mgr, float dt) override;
+  bool HearShot(CStateManager&, float) override;
+  void TargetPatrol(CStateManager&, EStateMsg, float) override;
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  void Flee(CStateManager&, EStateMsg, float) override;
+  CPathFindSearch* GetSearchPath() override { return &xd8c_pathFind; }
 };
 } // namespace urde::MP1

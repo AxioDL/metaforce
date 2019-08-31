@@ -24,12 +24,12 @@ class CAnimSourceInfo : public IAnimSourceInfo {
 
 public:
   CAnimSourceInfo(const TSubAnimTypeToken<CAnimSource>& token);
-  bool HasPOIData() const;
-  const std::vector<CBoolPOINode>& GetBoolPOIStream() const;
-  const std::vector<CInt32POINode>& GetInt32POIStream() const;
-  const std::vector<CParticlePOINode>& GetParticlePOIStream() const;
-  const std::vector<CSoundPOINode>& GetSoundPOIStream() const;
-  CCharAnimTime GetAnimationDuration() const;
+  bool HasPOIData() const override;
+  const std::vector<CBoolPOINode>& GetBoolPOIStream() const override;
+  const std::vector<CInt32POINode>& GetInt32POIStream() const override;
+  const std::vector<CParticlePOINode>& GetParticlePOIStream() const override;
+  const std::vector<CSoundPOINode>& GetSoundPOIStream() const override;
+  CCharAnimTime GetAnimationDuration() const override;
 };
 
 class CAnimSourceReaderBase : public IAnimReader {
@@ -56,13 +56,16 @@ protected:
 public:
   CAnimSourceReaderBase(std::unique_ptr<IAnimSourceInfo>&& sourceInfo, const CCharAnimTime& time);
 
-  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  bool VGetBoolPOIState(const char* name) const;
-  s32 VGetInt32POIState(const char* name) const;
-  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const;
+  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const override;
+  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator,
+                          u32) const override;
+  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  bool VGetBoolPOIState(const char* name) const override;
+  s32 VGetInt32POIState(const char* name) const override;
+  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const override;
 
   using IAnimReader::VGetOffset;
   virtual zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& b) const = 0;
@@ -80,20 +83,20 @@ public:
   CAnimSourceReader(const TSubAnimTypeToken<CAnimSource>& source, const CCharAnimTime& time);
   CAnimSourceReader(const CAnimSourceReader& other);
 
-  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
-  bool VSupportsReverseView() const { return true; }
-  void VSetPhase(float);
-  SAdvancementResults VReverseView(const CCharAnimTime& time);
-  std::unique_ptr<IAnimReader> VClone() const;
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
-  SAdvancementResults VAdvanceView(const CCharAnimTime& a);
-  CCharAnimTime VGetTimeRemaining() const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  bool VHasOffset(const CSegId& seg) const;
-  zeus::CVector3f VGetOffset(const CSegId& seg) const;
-  zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& time) const;
-  zeus::CQuaternion VGetRotation(const CSegId& seg) const;
+  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const override;
+  bool VSupportsReverseView() const override { return true; }
+  void VSetPhase(float) override;
+  SAdvancementResults VReverseView(const CCharAnimTime& time) override;
+  std::unique_ptr<IAnimReader> VClone() const override;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const override;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const override;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& a) override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  bool VHasOffset(const CSegId& seg) const override;
+  zeus::CVector3f VGetOffset(const CSegId& seg) const override;
+  zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& time) const override;
+  zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 };
 
 } // namespace urde

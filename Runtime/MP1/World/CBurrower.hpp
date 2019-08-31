@@ -13,6 +13,6 @@ public:
             const CPatternedInfo&, const CActorParameters&, CAssetId, CAssetId, CAssetId, const CDamageInfo&, CAssetId,
             u32, CAssetId);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
 } // namespace urde::MP1

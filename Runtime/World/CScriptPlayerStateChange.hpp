@@ -18,7 +18,7 @@ private:
 public:
   CScriptPlayerStateChange(TUniqueId, std::string_view, const CEntityInfo&, bool, u32, u32, u32, EControl,
                            EControlCommandOption);
-  void Accept(IVisitor& visit);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visit) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
 } // namespace urde

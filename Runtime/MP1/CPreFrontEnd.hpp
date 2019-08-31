@@ -9,7 +9,7 @@ class CPreFrontEnd : public CIOWin {
 
 public:
   CPreFrontEnd();
-  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
+  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
 };
 
 } // namespace urde::MP1

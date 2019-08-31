@@ -54,7 +54,7 @@ const u8* CFBStreamedCompression::GetBitstreamPointer() const {
   return chans;
 }
 
-std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words, CInputStream& in) {
+std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words, CInputStream& in) const {
   std::unique_ptr<u32[]> ret(new u32[words]);
 
   Header head;
@@ -80,7 +80,7 @@ std::unique_ptr<u32[]> CFBStreamedCompression::GetRotationsAndOffsets(u32 words,
   return ret;
 }
 
-u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in) {
+u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in) const {
   u32 boneChanCount = in.readUint32Big();
   *reinterpret_cast<u32*>(out) = boneChanCount;
   out += 4;
@@ -142,7 +142,7 @@ u8* CFBStreamedCompression::ReadBoneChannelDescriptors(u8* out, CInputStream& in
   return out;
 }
 
-u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans) {
+u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans) const {
   u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
   chans += 4;
 
@@ -188,7 +188,7 @@ u32 CFBStreamedCompression::ComputeBitstreamWords(const u8* chans) {
   return (totalBits * keyCount + 31) / 32;
 }
 
-float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans) {
+float CFBStreamedCompression::CalculateAverageVelocity(const u8* chans) const {
   u32 boneChanCount = *reinterpret_cast<const u32*>(chans);
   chans += 4;
 

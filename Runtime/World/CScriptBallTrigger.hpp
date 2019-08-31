@@ -15,10 +15,10 @@ public:
   CScriptBallTrigger(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,
                      bool, float, float, float, const zeus::CVector3f&, bool);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager& mgr);
-  void InhabitantAdded(CActor&, CStateManager&);
-  void InhabitantExited(CActor&, CStateManager&);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager& mgr) override;
+  void InhabitantAdded(CActor&, CStateManager&) override;
+  void InhabitantExited(CActor&, CStateManager&) override;
 };
 } // namespace urde

@@ -157,20 +157,20 @@ static CMaterialFilter kSolidFilter =
     CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {EMaterialTypes::Character, EMaterialTypes::Player,
                                                                   EMaterialTypes::ProjectilePassthrough});
 
-bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) {
-  CPlayer& player = mgr.GetPlayer();
-  zeus::CTransform xf = GetLctrTransform(mMouthLocatorName);
+bool CPuddleToadGamma::PlayerInVortexArea(const CStateManager& mgr) const {
+  const CPlayer& player = mgr.GetPlayer();
+  const zeus::CTransform xf = GetLctrTransform(mMouthLocatorName);
 
-  zeus::CVector3f playerOffset =
+  const zeus::CVector3f playerOffset =
       player.GetTranslation() + zeus::CVector3f{0.f, 0.f, player.GetMorphBall()->GetBallRadius()};
-  zeus::CVector3f rotatedDir = GetTransform().rotate(zeus::skForward);
+  const zeus::CVector3f rotatedDir = GetTransform().rotate(zeus::skForward);
 
-  zeus::CVector3f suckPointToPlayer = (playerOffset - (xf.origin - (1.f * rotatedDir)));
-  float suckProj = suckPointToPlayer.normalized().dot(rotatedDir);
-  float playerDist = suckPointToPlayer.magnitude();
-  float suckAngleProj = (player.GetTranslation() - (xf.origin - (4.f * rotatedDir))).normalized().dot(rotatedDir);
+  const zeus::CVector3f suckPointToPlayer = (playerOffset - (xf.origin - (1.f * rotatedDir)));
+  const float suckProj = suckPointToPlayer.normalized().dot(rotatedDir);
+  const float playerDist = suckPointToPlayer.magnitude();
+  const float suckAngleProj = (player.GetTranslation() - (xf.origin - (4.f * rotatedDir))).normalized().dot(rotatedDir);
   if (playerDist > 2.f) {
-    CRayCastResult result =
+    const CRayCastResult result =
         mgr.RayStaticIntersection(suckPointToPlayer, 1.f / playerDist * suckPointToPlayer,
             playerDist - player.GetMorphBall()->GetBallRadius(), kSolidFilter);
     if (result.IsValid())

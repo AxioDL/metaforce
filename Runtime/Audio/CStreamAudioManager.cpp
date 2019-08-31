@@ -148,7 +148,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
   s16 m_prev1 = 0;
   s16 m_prev2 = 0;
 
-  void preSupplyAudio(boo::IAudioVoice&, double) {}
+  void preSupplyAudio(boo::IAudioVoice&, double) override {}
 
   unsigned decompressChunk(unsigned readToSample, int16_t*& data) {
     unsigned startSamp = m_curSample;
@@ -173,7 +173,7 @@ struct SDSPStream : boo::IAudioVoiceCallback {
     return m_curSample - startSamp;
   }
 
-  size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data) {
+  size_t supplyAudio(boo::IAudioVoice&, size_t frames, int16_t* data) override {
     if (!x0_active) {
       memset(data, 0, frames * 2);
       return frames;

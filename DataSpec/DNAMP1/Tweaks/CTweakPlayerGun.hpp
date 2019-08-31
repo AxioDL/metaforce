@@ -40,27 +40,27 @@ struct CTweakPlayerGun final : ITweakPlayerGun {
     x44_fixedVerticalAim = zeus::degToRad(x44_fixedVerticalAim);
   }
 
-  float GetUpLookAngle() const { return x4_upLookAngle; }
-  float GetDownLookAngle() const { return x8_downLookAngle; }
-  float GetVerticalSpread() const { return xc_verticalSpread; }
-  float GetHorizontalSpread() const { return x10_horizontalSpread; }
-  float GetHighVerticalSpread() const { return x14_highVerticalSpread; }
-  float GetHighHorizontalSpread() const { return x18_highHorizontalSpread; }
-  float GetLowVerticalSpread() const { return x1c_lowVerticalSpread; }
-  float GetLowHorizontalSpread() const { return x20_lowHorizontalSpread; }
-  float GetAimVerticalSpeed() const { return x24_aimVerticalSpeed; }
-  float GetAimHorizontalSpeed() const { return x28_aimHorizontalSpeed; }
-  float GetBombFuseTime() const { return x2c_bombFuseTime; }
-  float GetBombDropDelayTime() const { return x30_bombDropDelayTime; }
-  float GetHoloHoldTime() const { return x34_holoHoldTime; }
-  float GetGunTransformTime() const { return x38_gunTransformTime; }
-  float GetGunHolsterTime() const { return x3c_gunHolsterTime; }
-  float GetGunNotFiringTime() const { return x40_gunNotFiringTime; }
-  float GetFixedVerticalAim() const { return x44_fixedVerticalAim; }
-  float GetGunExtendDistance() const { return x48_gunExtendDistance; }
-  const zeus::CVector3f& GetGunPosition() const { return x4c_gunPosition; }
-  const zeus::CVector3f& GetGrapplingArmPosition() const { return x64_grapplingArmPosition; }
-  float GetRichochetDamage(atUint32 type) const {
+  float GetUpLookAngle() const override { return x4_upLookAngle; }
+  float GetDownLookAngle() const override { return x8_downLookAngle; }
+  float GetVerticalSpread() const override { return xc_verticalSpread; }
+  float GetHorizontalSpread() const override { return x10_horizontalSpread; }
+  float GetHighVerticalSpread() const override { return x14_highVerticalSpread; }
+  float GetHighHorizontalSpread() const override { return x18_highHorizontalSpread; }
+  float GetLowVerticalSpread() const override { return x1c_lowVerticalSpread; }
+  float GetLowHorizontalSpread() const override { return x20_lowHorizontalSpread; }
+  float GetAimVerticalSpeed() const override { return x24_aimVerticalSpeed; }
+  float GetAimHorizontalSpeed() const override { return x28_aimHorizontalSpeed; }
+  float GetBombFuseTime() const override { return x2c_bombFuseTime; }
+  float GetBombDropDelayTime() const override { return x30_bombDropDelayTime; }
+  float GetHoloHoldTime() const override { return x34_holoHoldTime; }
+  float GetGunTransformTime() const override { return x38_gunTransformTime; }
+  float GetGunHolsterTime() const override { return x3c_gunHolsterTime; }
+  float GetGunNotFiringTime() const override { return x40_gunNotFiringTime; }
+  float GetFixedVerticalAim() const override { return x44_fixedVerticalAim; }
+  float GetGunExtendDistance() const override { return x48_gunExtendDistance; }
+  const zeus::CVector3f& GetGunPosition() const override { return x4c_gunPosition; }
+  const zeus::CVector3f& GetGrapplingArmPosition() const override { return x64_grapplingArmPosition; }
+  float GetRichochetDamage(atUint32 type) const override {
     switch (type) {
     case 0: // Power
       return x280_ricochetData[0];
@@ -88,20 +88,20 @@ struct CTweakPlayerGun final : ITweakPlayerGun {
     }
   }
 
-  const SWeaponInfo& GetBeamInfo(atInt32 beam) const {
+  const SWeaponInfo& GetBeamInfo(atInt32 beam) const override {
     if (beam < 0 || beam > 5)
       return xa8_beams[0];
     return xa8_beams[beam];
   }
 
-  const SComboShotParam& GetComboShotInfo(atInt32 beam) const {
+  const SComboShotParam& GetComboShotInfo(atInt32 beam) const override {
     if (beam < 0 || beam > 5)
       return x1f0_combos[0];
     return x1f0_combos[beam];
   }
 
-  const SShotParam& GetBombInfo() const { return x70_bomb; }
-  const SShotParam& GetPowerBombInfo() const { return x8c_powerBomb; }
+  const SShotParam& GetBombInfo() const override { return x70_bomb; }
+  const SShotParam& GetPowerBombInfo() const override { return x8c_powerBomb; }
   const SShotParam& GetMissileInfo() const { return x1d4_missile; }
 };
 } // namespace DataSpec::DNAMP1

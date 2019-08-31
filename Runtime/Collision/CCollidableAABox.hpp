@@ -19,13 +19,14 @@ public:
   CCollidableAABox(const zeus::CAABox&, const CMaterialList&);
 
   zeus::CAABox Transform(const zeus::CTransform&) const;
-  virtual u32 GetTableIndex() const;
-  virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const;
-  virtual zeus::CAABox CalculateLocalAABox() const;
-  virtual FourCC GetPrimType() const;
-  virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const;
+  u32 GetTableIndex() const override;
+  zeus::CAABox CalculateAABox(const zeus::CTransform&) const override;
+  zeus::CAABox CalculateLocalAABox() const override;
+  FourCC GetPrimType() const override;
+  CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
   const zeus::CAABox& GetBox() const { return x10_aabox; }
   zeus::CAABox& Box() { return x10_aabox; }
+  void SetBox(const zeus::CAABox& box) { x10_aabox = box; }
 
   static const CCollisionPrimitive::Type& GetType();
   static void SetStaticTableIndex(u32 index);

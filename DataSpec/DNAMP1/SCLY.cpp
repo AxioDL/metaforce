@@ -42,8 +42,8 @@ void SCLY::exportToLayerDirectories(const PAK::Entry& entry, PAKRouter<PAKBridge
       layerPath.makeDirChain(true);
 
     if (active) {
-      hecl::ProjectPath activePath(layerPath, "!defaultactive");
-      fclose(hecl::Fopen(activePath.getAbsolutePath().data(), _SYS_STR("wb")));
+      const hecl::ProjectPath activePath(layerPath, "!defaultactive");
+      [[maybe_unused]] const auto fp = hecl::FopenUnique(activePath.getAbsolutePath().data(), _SYS_STR("wb"));
     }
 
     hecl::ProjectPath yamlFile(layerPath, _SYS_STR("!objects.yaml"));
@@ -77,7 +77,7 @@ void SCLY::ScriptLayer::nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
 
 template <>
 void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
-  Do<BigDNA::ReadYaml>({"fourCC"}, fourCC, docin);
+  Do<BigDNA::ReadYaml>(athena::io::PropId{"fourCC"}, fourCC, docin);
   version = docin.readUint32("version");
   layerCount = docin.enumerate("layerSizes", layerSizes);
   docin.enumerate("layers", layers);
@@ -85,7 +85,7 @@ void SCLY::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& docin) {
 
 template <>
 void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout) {
-  Do<BigDNA::WriteYaml>({"fourCC"}, fourCC, docout);
+  Do<BigDNA::WriteYaml>(athena::io::PropId{"fourCC"}, fourCC, docout);
   docout.writeUint32("version", version);
   docout.enumerate("layerSizes", layerSizes);
   docout.enumerate("layers", layers);

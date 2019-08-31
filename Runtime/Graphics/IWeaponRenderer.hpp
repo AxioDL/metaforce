@@ -11,7 +11,7 @@ public:
 
 class CDefaultWeaponRenderer : public IWeaponRenderer {
 public:
-  void AddParticleGen(const CParticleGen&);
+  void AddParticleGen(const CParticleGen&) override;
 };
 
 } // namespace urde

@@ -1,15 +1,22 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <string>
-#include <fstream>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
 #include <hecl/hecl.hpp>
-#include <hecl/Database.hpp>
-#include <athena/FileWriter.hpp>
-#include "DNACommon.hpp"
+
+namespace athena::io {
+class IStreamReader;
+}
 
 namespace DataSpec {
 struct ISTRG : BigDNAVYaml {
-  virtual ~ISTRG() = default;
+  ~ISTRG() override = default;
 
   virtual size_t count() const = 0;
   virtual std::string getUTF8(const FourCC& lang, size_t idx) const = 0;

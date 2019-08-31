@@ -66,7 +66,7 @@ float CPFRegion::PointHeight(const zeus::CVector3f& point) const {
 }
 
 bool CPFRegion::FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& normal,
-                                          const zeus::CVector3f& point, bool excludePolyPoints) {
+                                          const zeus::CVector3f& point, bool excludePolyPoints) const {
   bool found = false;
   size_t i;
   for (i = 0; i < polyPoints.size(); ++i) {
@@ -122,7 +122,7 @@ bool CPFRegion::FindClosestPointOnPolygon(const std::vector<zeus::CVector3f>& po
 }
 
 bool CPFRegion::FindBestPoint(std::vector<zeus::CVector3f>& polyPoints, const zeus::CVector3f& point, u32 flags,
-                              float paddingSq) {
+                              float paddingSq) const {
   bool found = false;
   bool isFlyer = (flags & 0x2) != 0;
   x4c_regionData->SetBestPointDistanceSquared(paddingSq);

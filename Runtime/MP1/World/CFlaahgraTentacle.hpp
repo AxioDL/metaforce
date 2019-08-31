@@ -27,18 +27,22 @@ public:
   CFlaahgraTentacle(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                     const CPatternedInfo&, const CActorParameters&);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
 
-  zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
 
-  bool Inside(CStateManager&, float) { return x450_bodyController->GetLocomotionType() == pas::ELocomotionType::Crouch; }
-  bool AnimOver(CStateManager&, float) { return x568_ == 3; }
-  bool ShouldAttack(CStateManager&, float);
+  bool Inside(CStateManager&, float) override {
+    return x450_bodyController->GetLocomotionType() == pas::ELocomotionType::Crouch;
+  }
+  bool AnimOver(CStateManager&, float) override { return x568_ == 3; }
+  bool ShouldAttack(CStateManager&, float) override;
 
-  void Dead(CStateManager&, EStateMsg, float) { x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch); }
-  void Attack(CStateManager&, EStateMsg, float);
-  void Retreat(CStateManager&, EStateMsg, float);
-  void InActive(CStateManager&, EStateMsg, float);
+  void Dead(CStateManager&, EStateMsg, float) override {
+    x450_bodyController->SetLocomotionType(pas::ELocomotionType::Crouch);
+  }
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Retreat(CStateManager&, EStateMsg, float) override;
+  void InActive(CStateManager&, EStateMsg, float) override;
 };
 }

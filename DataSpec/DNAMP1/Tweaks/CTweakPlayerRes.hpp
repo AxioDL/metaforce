@@ -67,32 +67,32 @@ struct CTweakPlayerRes final : ITweakPlayerRes {
 
   Value<float> m_cinematicMoveOutofIntoPlayerDistance;
 
-  std::string_view _GetSaveStationIcon() const { return m_saveStationIcon; }
-  std::string_view _GetMissileStationIcon() const { return m_missileStationIcon; }
-  std::string_view _GetElevatorIcon() const { return m_elevatorIcon; }
+  std::string_view _GetSaveStationIcon() const override { return m_saveStationIcon; }
+  std::string_view _GetMissileStationIcon() const override { return m_missileStationIcon; }
+  std::string_view _GetElevatorIcon() const override { return m_elevatorIcon; }
 
-  std::string_view _GetMinesBreakFirstTopIcon() const { return m_minesBreakFirstTopIcon; }
-  std::string_view _GetMinesBreakFirstBottomIcon() const { return m_minesBreakFirstBottomIcon; }
-  std::string_view _GetMinesBreakSecondTopIcon() const { return m_minesBreakSecondTopIcon; }
-  std::string_view _GetMinesBreakSecondBottomIcon() const { return m_minesBreakSecondBottomIcon; }
+  std::string_view _GetMinesBreakFirstTopIcon() const override { return m_minesBreakFirstTopIcon; }
+  std::string_view _GetMinesBreakFirstBottomIcon() const override { return m_minesBreakFirstBottomIcon; }
+  std::string_view _GetMinesBreakSecondTopIcon() const override { return m_minesBreakSecondTopIcon; }
+  std::string_view _GetMinesBreakSecondBottomIcon() const override { return m_minesBreakSecondBottomIcon; }
 
-  std::string_view _GetLStick(size_t idx) const { return (&m_lStickN)[idx]; }
-  std::string_view _GetCStick(size_t idx) const { return (&m_cStickN)[idx]; }
+  std::string_view _GetLStick(size_t idx) const override { return (&m_lStickN)[idx]; }
+  std::string_view _GetCStick(size_t idx) const override { return (&m_cStickN)[idx]; }
 
-  std::string_view _GetLTrigger(size_t idx) const { return (&m_lTriggerOut)[idx]; }
-  std::string_view _GetRTrigger(size_t idx) const { return (&m_rTriggerOut)[idx]; }
-  std::string_view _GetStartButton(size_t idx) const { return (&m_startButtonOut)[idx]; }
-  std::string_view _GetAButton(size_t idx) const { return (&m_aButtonOut)[idx]; }
-  std::string_view _GetBButton(size_t idx) const { return (&m_bButtonOut)[idx]; }
-  std::string_view _GetXButton(size_t idx) const { return (&m_xButtonOut)[idx]; }
-  std::string_view _GetYButton(size_t idx) const { return (&m_yButtonOut)[idx]; }
+  std::string_view _GetLTrigger(size_t idx) const override { return (&m_lTriggerOut)[idx]; }
+  std::string_view _GetRTrigger(size_t idx) const override { return (&m_rTriggerOut)[idx]; }
+  std::string_view _GetStartButton(size_t idx) const override { return (&m_startButtonOut)[idx]; }
+  std::string_view _GetAButton(size_t idx) const override { return (&m_aButtonOut)[idx]; }
+  std::string_view _GetBButton(size_t idx) const override { return (&m_bButtonOut)[idx]; }
+  std::string_view _GetXButton(size_t idx) const override { return (&m_xButtonOut)[idx]; }
+  std::string_view _GetYButton(size_t idx) const override { return (&m_yButtonOut)[idx]; }
 
-  std::string_view _GetBallTransitionsANCS() const { return m_ballTransitionsANCS; }
+  std::string_view _GetBallTransitionsANCS() const override { return m_ballTransitionsANCS; }
 
-  std::string_view _GetBallTransitionBeamRes(size_t idx) const { return (&m_ballTransitionsPower)[idx]; }
-  std::string_view _GetBeamCineModel(size_t idx) const { return (&m_cinePower)[idx]; }
+  std::string_view _GetBallTransitionBeamRes(size_t idx) const override { return (&m_ballTransitionsPower)[idx]; }
+  std::string_view _GetBeamCineModel(size_t idx) const override { return (&m_cinePower)[idx]; }
 
-  float _GetCinematicMoveOutofIntoPlayerDistance() const { return m_cinematicMoveOutofIntoPlayerDistance; }
+  float _GetCinematicMoveOutofIntoPlayerDistance() const override { return m_cinematicMoveOutofIntoPlayerDistance; }
 
   CTweakPlayerRes() = default;
   CTweakPlayerRes(athena::io::IStreamReader& in) { read(in); }

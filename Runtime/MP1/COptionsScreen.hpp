@@ -22,21 +22,21 @@ class COptionsScreen : public CPauseScreenBase {
 
 public:
   COptionsScreen(const CStateManager& mgr, CGuiFrame& frame, const CStringTable& pauseStrg);
-  ~COptionsScreen();
+  ~COptionsScreen() override;
 
-  bool InputDisabled() const;
-  void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue);
-  void Touch();
-  void ProcessControllerInput(const CFinalInput& input);
-  void Draw(float transInterp, float totalAlpha, float yOff);
-  bool VReady() const;
-  void VActivate();
-  void RightTableSelectionChanged(int oldSel, int newSel);
-  void ChangedMode(EMode oldMode);
-  void UpdateRightTable();
-  bool ShouldLeftTableAdvance() const;
-  bool ShouldRightTableAdvance() const;
-  u32 GetRightTableCount() const;
+  bool InputDisabled() const override;
+  void Update(float dt, CRandom16& rand, CArchitectureQueue& archQueue) override;
+  void Touch() override;
+  void ProcessControllerInput(const CFinalInput& input) override;
+  void Draw(float transInterp, float totalAlpha, float yOff) override;
+  bool VReady() const override;
+  void VActivate() override;
+  void RightTableSelectionChanged(int oldSel, int newSel) override;
+  void ChangedMode(EMode oldMode) override;
+  void UpdateRightTable() override;
+  bool ShouldLeftTableAdvance() const override;
+  bool ShouldRightTableAdvance() const override;
+  u32 GetRightTableCount() const override;
 };
 
 } // namespace urde::MP1

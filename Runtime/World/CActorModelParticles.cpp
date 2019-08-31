@@ -309,8 +309,8 @@ bool CActorModelParticles::CItem::UpdateIcePop(float dt, CActor* actor, CStateMa
 
 bool CActorModelParticles::CItem::Update(float dt, CStateManager& mgr) {
   CActor* act = static_cast<CActor*>(mgr.ObjectById(x0_id));
-  if (act && act->HasModelData() && !act->ModelData()->IsNull()) {
-    xec_particleOffsetScale = act->ModelData()->GetScale();
+  if (act && act->HasModelData() && !act->GetModelData()->IsNull()) {
+    xec_particleOffsetScale = act->GetModelData()->GetScale();
     xf8_iceXf = act->GetTransform();
     x4_areaId = act->GetAreaIdAlways();
   } else {

@@ -200,35 +200,35 @@ class CBooRenderer final : public IRenderer {
 
 public:
   CBooRenderer(IObjectStore& store, IFactory& resFac);
-  ~CBooRenderer();
+  ~CBooRenderer() override;
 
   void AddWorldSurfaces(CBooModel& model);
 
   std::list<CAreaListItem>::iterator FindStaticGeometry(const std::vector<CMetroidModelInstance>*);
   void AddStaticGeometry(const std::vector<CMetroidModelInstance>*, const CAreaRenderOctTree*, int areaIdx,
-                         const SShader* shaderSet);
-  void EnablePVS(const CPVSVisSet&, u32);
-  void DisablePVS();
+                         const SShader* shaderSet) override;
+  void EnablePVS(const CPVSVisSet&, u32) override;
+  void DisablePVS() override;
   void UpdateAreaUniforms(int areaIdx, EWorldShadowMode shadowMode = EWorldShadowMode::None,
                           bool activateLights = true, int cubeFace = -1, const CModelFlags* ballShadowFlags = nullptr);
-  void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*);
-  void DrawAreaGeometry(int areaIdx, int mask, int targetMask);
-  void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false);
-  void DrawSortedGeometry(int areaIdx, int mask, int targetMask);
-  void DrawStaticGeometry(int areaIdx, int mask, int targetMask);
-  void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly);
-  void PostRenderFogs();
-  void AddParticleGen(const CParticleGen&);
-  void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&);
-  void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int);
-  void AddDrawable(void const*, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting);
-  void SetDrawableCallback(TDrawableCallback, const void*);
-  void SetWorldViewpoint(const zeus::CTransform&);
-  void SetPerspective(float, float, float, float, float);
-  void SetPerspective(float, float, float, float);
-  std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool, float, float);
-  void SetClippingPlanes(const zeus::CFrustum& frustum);
-  void SetViewport(int, int, int, int);
+  void RemoveStaticGeometry(const std::vector<CMetroidModelInstance>*) override;
+  void DrawAreaGeometry(int areaIdx, int mask, int targetMask) override;
+  void DrawUnsortedGeometry(int areaIdx, int mask, int targetMask, bool shadowRender = false) override;
+  void DrawSortedGeometry(int areaIdx, int mask, int targetMask) override;
+  void DrawStaticGeometry(int areaIdx, int mask, int targetMask) override;
+  void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
+  void PostRenderFogs() override;
+  void AddParticleGen(const CParticleGen&) override;
+  void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&) override;
+  void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int) override;
+  void AddDrawable(void const*, const zeus::CVector3f&, const zeus::CAABox&, int, EDrawableSorting) override;
+  void SetDrawableCallback(TDrawableCallback, const void*) override;
+  void SetWorldViewpoint(const zeus::CTransform&) override;
+  void SetPerspective(float, float, float, float, float) override;
+  void SetPerspective(float, float, float, float) override;
+  std::pair<zeus::CVector2f, zeus::CVector2f> SetViewportOrtho(bool, float, float) override;
+  void SetClippingPlanes(const zeus::CFrustum& frustum) override;
+  void SetViewport(int, int, int, int) override;
   // void SetDepthReadWrite(bool, bool);
   // void SetBlendMode_AdditiveAlpha();
   // void SetBlendMode_AlphaBlended();
@@ -238,9 +238,9 @@ public:
   // void SetBlendMode_InvertSrc();
   // void SetBlendMode_Replace();
   // void SetBlendMode_AdditiveDestColor();
-  void SetDebugOption(EDebugOption, int);
-  void BeginScene();
-  void EndScene();
+  void SetDebugOption(EDebugOption, int) override;
+  void BeginScene() override;
+  void EndScene() override;
   // void BeginPrimitive(EPrimitiveType, int);
   // void BeginLines(int);
   // void BeginLineStrip(int);
@@ -252,24 +252,25 @@ public:
   // void PrimColor(float, float, float, float);
   // void PrimColor(const zeus::CColor&);
   // void EndPrimitive();
-  void SetAmbientColor(const zeus::CColor&);
-  void DrawString(const char*, int, int);
-  u32 GetFPS();
-  void CacheReflection(TReflectionCallback, void*, bool);
-  void DrawSpaceWarp(const zeus::CVector3f&, float);
-  void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol);
-  void DrawXRayOutline(const zeus::CAABox&);
-  void SetWireframeFlags(int);
-  void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&);
-  void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*, const CSkinnedModel*);
-  void SetThermal(bool, float, const zeus::CColor&);
-  void SetThermalColdScale(float scale);
-  void DoThermalBlendCold();
-  void DoThermalBlendHot();
-  u32 GetStaticWorldDataSize();
-  void PrepareDynamicLights(const std::vector<CLight>& lights);
-  void SetGXRegister1Color(const zeus::CColor& color);
-  void SetWorldLightFadeLevel(float level);
+  void SetAmbientColor(const zeus::CColor&) override;
+  void DrawString(const char*, int, int) override;
+  u32 GetFPS() override;
+  void CacheReflection(TReflectionCallback, void*, bool) override;
+  void DrawSpaceWarp(const zeus::CVector3f&, float) override;
+  void DrawThermalModel(const CModel& model, const zeus::CColor& multCol, const zeus::CColor& addCol) override;
+  void DrawXRayOutline(const zeus::CAABox&) override;
+  void SetWireframeFlags(int) override;
+  void SetWorldFog(ERglFogMode, float, float, const zeus::CColor&) override;
+  void RenderFogVolume(const zeus::CColor&, const zeus::CAABox&, const TLockedToken<CModel>*,
+                       const CSkinnedModel*) override;
+  void SetThermal(bool, float, const zeus::CColor&) override;
+  void SetThermalColdScale(float scale) override;
+  void DoThermalBlendCold() override;
+  void DoThermalBlendHot() override;
+  u32 GetStaticWorldDataSize() override;
+  void PrepareDynamicLights(const std::vector<CLight>& lights) override;
+  void SetGXRegister1Color(const zeus::CColor& color) override;
+  void SetWorldLightFadeLevel(float level) override;
   void DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
                                     const zeus::CColor& indirectMod, float blurRadius, float indScale, float indOffX,
                                     float indOffY);
@@ -278,15 +279,15 @@ public:
   void ReallyRenderFogVolume(const zeus::CColor& color, const zeus::CAABox& aabb, const CModel* model,
                              const CSkinnedModel* sModel);
 
-  const boo::ObjToken<boo::ITexture>& GetThermoPalette() { return x288_thermoPalette; }
-  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() { return x1b8_fogVolumeRamp; }
+  const boo::ObjToken<boo::ITexture>& GetThermoPalette() const { return x288_thermoPalette; }
+  const boo::ObjToken<boo::ITextureS>& GetFogRampTex() const { return x1b8_fogVolumeRamp; }
   const boo::ObjToken<boo::ITexture>& GetRandomStaticEntropyTex() const { return m_staticEntropy->GetBooTexture(); }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesEvenVBO() const { return m_scanLinesEvenVBO; }
   const boo::ObjToken<boo::IGraphicsBufferS>& GetScanLinesOddVBO() const { return m_scanLinesOddVBO; }
 
-  const boo::ObjToken<boo::ITexture>& GetClearTexture() { return m_clearTexture; }
-  const boo::ObjToken<boo::ITexture>& GetBlackTexture() { return m_blackTexture; }
-  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() { return m_whiteTexture; }
+  const boo::ObjToken<boo::ITexture>& GetClearTexture() const { return m_clearTexture; }
+  const boo::ObjToken<boo::ITexture>& GetBlackTexture() const { return m_blackTexture; }
+  const boo::ObjToken<boo::ITexture>& GetWhiteTexture() const { return m_whiteTexture; }
 
   boo::ObjToken<boo::ITexture> GetColorTexture(const zeus::CColor& color);
 

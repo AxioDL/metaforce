@@ -34,7 +34,7 @@ public:
   CInputGenerator(float leftDiv, float rightDiv)
   : boo::DeviceFinder({dev_typeid(DolphinSmashAdapter)}), m_leftDiv(leftDiv), m_rightDiv(rightDiv) {}
 
-  ~CInputGenerator() {
+  ~CInputGenerator() override {
     if (smashAdapter)
       smashAdapter->setCallback(nullptr);
   }
@@ -81,17 +81,18 @@ public:
     bool m_connected[4] = {};
     boo::DolphinControllerState m_states[4];
     std::mutex m_stateLock;
-    void controllerConnected(unsigned idx, boo::EDolphinControllerType) {
+    void controllerConnected(unsigned idx, boo::EDolphinControllerType) override {
       /* Controller thread */
       m_statusChanges[idx].store(EStatusChange::Connected);
     }
-    void controllerDisconnected(unsigned idx) {
+    void controllerDisconnected(unsigned idx) override {
       /* Controller thread */
       std::unique_lock<std::mutex> lk(m_stateLock);
       m_statusChanges[idx].store(EStatusChange::Disconnected);
       m_states[idx].reset();
     }
-    void controllerUpdate(unsigned idx, boo::EDolphinControllerType, const boo::DolphinControllerState& state) {
+    void controllerUpdate(unsigned idx, boo::EDolphinControllerType,
+                          const boo::DolphinControllerState& state) override {
       /* Controller thread */
       std::unique_lock<std::mutex> lk(m_stateLock);
       m_states[idx] = state;
@@ -124,7 +125,7 @@ public:
    * received. Device pointers should only be manipulated by this thread using
    * the deviceConnected() and deviceDisconnected() callbacks. */
   std::shared_ptr<boo::DolphinSmashAdapter> smashAdapter;
-  void deviceConnected(boo::DeviceToken& tok) {
+  void deviceConnected(boo::DeviceToken& tok) override {
     /* Device listener thread */
     if (!smashAdapter) {
       auto dev = tok.openAndGetDevice();
@@ -134,7 +135,7 @@ public:
       }
     }
   }
-  void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device) {
+  void deviceDisconnected(boo::DeviceToken&, boo::DeviceBase* device) override {
     if (smashAdapter.get() == device)
       smashAdapter.reset();
   }

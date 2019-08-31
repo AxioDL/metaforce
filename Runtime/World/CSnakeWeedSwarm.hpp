@@ -12,7 +12,7 @@ public:
                   float, float, float, float, float, float, float, const CDamageInfo&, float, u32, u32, u32, u32, u32,
                   u32, float);
 
-  void Accept(IVisitor&);
+  void Accept(IVisitor&) override;
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
 };
 } // namespace urde

@@ -58,61 +58,63 @@ public:
           const CDamageVulnerability& tailVuln, const CActorParameters& aParams,
           const std::optional<CStaticRes>& tailModel);
 
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
-  void Render(const CStateManager& mgr) const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void Render(const CStateManager& mgr) const override;
 
-  const CDamageVulnerability* GetDamageVulnerability() const;
+  const CDamageVulnerability* GetDamageVulnerability() const override;
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                                                     const CDamageInfo& dInfo) const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
+                                                     const CDamageInfo& dInfo) const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& pos, const zeus::CVector3f& dir,
-                                                         const CWeaponMode& wMode, EProjectileAttrib attribs) const;
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
-  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
-  void TakeDamage(const zeus::CVector3f& direction, float magnitude);
-  bool IsListening() const;
-  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role, const zeus::CVector3f& aimPos) const;
+                                                         const CWeaponMode& wMode,
+                                                         EProjectileAttrib attribs) const override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
+  void TakeDamage(const zeus::CVector3f& direction, float magnitude) override;
+  bool IsListening() const override;
+  zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
+                            const zeus::CVector3f& aimPos) const override;
 
-  void FollowPattern(CStateManager&, EStateMsg msg, float dt);
-  void PathFind(CStateManager& mgr, EStateMsg msg, float dt);
-  void TargetPlayer(CStateManager&, EStateMsg msg, float dt);
-  void Generate(CStateManager&, EStateMsg msg, float dt);
-  void Deactivate(CStateManager&, EStateMsg msg, float dt);
-  void Attack(CStateManager&, EStateMsg msg, float dt);
-  void JumpBack(CStateManager&, EStateMsg msg, float dt);
-  void DoubleSnap(CStateManager&, EStateMsg msg, float dt);
-  void Shuffle(CStateManager&, EStateMsg msg, float dt);
-  void TurnAround(CStateManager&, EStateMsg msg, float dt);
-  void Skid(CStateManager&, EStateMsg msg, float dt);
-  void Taunt(CStateManager&, EStateMsg msg, float dt);
-  void Retreat(CStateManager&, EStateMsg msg, float dt);
+  void FollowPattern(CStateManager&, EStateMsg msg, float dt) override;
+  void PathFind(CStateManager& mgr, EStateMsg msg, float dt) override;
+  void TargetPlayer(CStateManager&, EStateMsg msg, float dt) override;
+  void Generate(CStateManager&, EStateMsg msg, float dt) override;
+  void Deactivate(CStateManager&, EStateMsg msg, float dt) override;
+  void Attack(CStateManager&, EStateMsg msg, float dt) override;
+  void JumpBack(CStateManager&, EStateMsg msg, float dt) override;
+  void DoubleSnap(CStateManager&, EStateMsg msg, float dt) override;
+  void Shuffle(CStateManager&, EStateMsg msg, float dt) override;
+  void TurnAround(CStateManager&, EStateMsg msg, float dt) override;
+  void Skid(CStateManager&, EStateMsg msg, float dt) override;
+  void Taunt(CStateManager&, EStateMsg msg, float dt) override;
+  void Retreat(CStateManager&, EStateMsg msg, float dt) override;
 
-  bool InAttackPosition(CStateManager&, float arg);
-  bool PathShagged(CStateManager&, float arg);
-  bool InRange(CStateManager&, float arg);
-  bool PatternOver(CStateManager&, float arg);
-  bool HasAttackPattern(CStateManager&, float arg);
-  bool AnimOver(CStateManager&, float arg);
-  bool ShouldAttack(CStateManager&, float arg);
-  bool ShouldDoubleSnap(CStateManager&, float arg);
-  bool ShouldTurn(CStateManager&, float arg);
-  bool HitSomething(CStateManager&, float arg);
-  bool ShouldJumpBack(CStateManager&, float arg);
-  bool Stuck(CStateManager&, float arg);
-  bool NoPathNodes(CStateManager&, float arg);
-  bool ShouldTaunt(CStateManager&, float arg);
-  bool ShotAt(CStateManager&, float arg);
+  bool InAttackPosition(CStateManager&, float arg) override;
+  bool PathShagged(CStateManager&, float arg) override;
+  bool InRange(CStateManager&, float arg) override;
+  bool PatternOver(CStateManager&, float arg) override;
+  bool HasAttackPattern(CStateManager&, float arg) override;
+  bool AnimOver(CStateManager&, float arg) override;
+  bool ShouldAttack(CStateManager&, float arg) override;
+  bool ShouldDoubleSnap(CStateManager&, float arg) override;
+  bool ShouldTurn(CStateManager&, float arg) override;
+  bool HitSomething(CStateManager&, float arg) override;
+  bool ShouldJumpBack(CStateManager&, float arg) override;
+  bool Stuck(CStateManager&, float arg) override;
+  bool NoPathNodes(CStateManager&, float arg) override;
+  bool ShouldTaunt(CStateManager&, float arg) override;
+  bool ShotAt(CStateManager&, float arg) override;
 
-  void Burn(float duration, float damage);
-  void Shock(CStateManager& mgr, float duration, float damage);
+  void Burn(float duration, float damage) override;
+  void Shock(CStateManager& mgr, float duration, float damage) override;
 
-  CPathFindSearch* GetSearchPath();
-  float GetGravityConstant() const;
+  CPathFindSearch* GetSearchPath() override;
+  float GetGravityConstant() const override;
 };
 } // namespace MP1
 } // namespace urde

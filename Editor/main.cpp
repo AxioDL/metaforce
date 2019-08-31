@@ -60,7 +60,7 @@ struct Application : boo::IApplicationCallback {
 
   virtual ~Application() = default;
 
-  int appMain(boo::IApplication* app) {
+  int appMain(boo::IApplication* app) override {
     initialize(app);
     m_viewManager->init(app);
     while (m_running.load()) {
@@ -73,8 +73,8 @@ struct Application : boo::IApplicationCallback {
     m_viewManager.reset();
     return 0;
   }
-  void appQuitting(boo::IApplication*) { m_running.store(false); }
-  void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>& paths) {
+  void appQuitting(boo::IApplication*) override { m_running.store(false); }
+  void appFilesOpen(boo::IApplication*, const std::vector<boo::SystemString>& paths) override {
     for (const auto& path : paths) {
       hecl::ProjectRootPath projPath = hecl::SearchForProject(path);
       if (projPath) {

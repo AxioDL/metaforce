@@ -181,7 +181,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
     case ESpecialFunction::MapStation: {
       if (msg == EScriptObjectMessage::Action) {
         mgr.MapWorldInfo()->SetMapStationUsed(true);
-        const_cast<CMapWorld&>(*mgr.WorldNC()->GetMapWorld())
+        const_cast<CMapWorld&>(*mgr.GetWorld()->GetMapWorld())
             .RecalculateWorldSphere(*mgr.MapWorldInfo(), *mgr.GetWorld());
       }
       break;
@@ -327,7 +327,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
           TAreaId aId = mgr.GetWorld()->GetAreaIdForSaveId(x1bc_areaSaveId);
           std::shared_ptr<CWorldLayerState> worldLayerState;
           if (aId != kInvalidAreaId)
-            worldLayerState = mgr.WorldLayerStateNC();
+            worldLayerState = mgr.WorldLayerState();
           else {
             std::pair<CAssetId, TAreaId> worldAreaPair = g_MemoryCardSys->GetAreaAndWorldIdForSaveId(x1bc_areaSaveId);
             if (worldAreaPair.first.IsValid()) {
@@ -763,7 +763,7 @@ void CScriptSpecialFunction::ThinkActorScale(float dt, CStateManager& mgr) {
     if (conn.x0_state != EScriptObjectState::Play || conn.x4_msg != EScriptObjectMessage::Activate)
       continue;
     if (TCastToPtr<CActor> act = mgr.ObjectById(mgr.GetIdForScript(conn.x8_objId))) {
-      CModelData* mData = act->ModelData();
+      CModelData* mData = act->GetModelData();
       if (mData && (mData->HasAnimData() || mData->HasNormalModel())) {
         zeus::CVector3f scale = mData->GetScale();
 

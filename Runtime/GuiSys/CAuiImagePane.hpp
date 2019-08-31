@@ -38,13 +38,13 @@ public:
   CAuiImagePane(const CGuiWidgetParms& parms, CSimplePool* sp, CAssetId, CAssetId,
                 rstl::reserved_vector<zeus::CVector3f, 4>&& coords, rstl::reserved_vector<zeus::CVector2f, 4>&& uvs,
                 bool initTex);
-  FourCC GetWidgetTypeID() const { return FOURCC('IMGP'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('IMGP'); }
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
-  void Reset(ETraversalMode mode);
-  void Update(float dt);
-  void Draw(const CGuiWidgetDrawParms& params) const;
-  bool GetIsFinishedLoadingWidgetSpecific() const;
+  void Reset(ETraversalMode mode) override;
+  void Update(float dt) override;
+  void Draw(const CGuiWidgetDrawParms& params) const override;
+  bool GetIsFinishedLoadingWidgetSpecific() const override;
   void SetTextureID0(CAssetId tex, CSimplePool* sp);
   void SetAnimationParms(const zeus::CVector2f& vec, float interval, float duration);
   void SetDeResFactor(float d) { x14c_deResFactor = d; }

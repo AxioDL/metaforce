@@ -28,20 +28,20 @@ public:
   CFlickerBat(TUniqueId, std::string_view name, EFlavorType, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
               const CPatternedInfo&, EColliderType, bool, const CActorParameters&, bool);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  void Touch(CActor&, CStateManager&);
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
-  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
-  bool CanBeShot(const CStateManager&, int);
-  void Patrol(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Shuffle(CStateManager&, EStateMsg, float);
-  void Taunt(CStateManager&, EStateMsg, float);
-  bool InPosition(CStateManager&, float);
-  bool HearShot(CStateManager&, float);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  void Touch(CActor&, CStateManager&) override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
+  bool CanBeShot(const CStateManager&, int) override;
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Shuffle(CStateManager&, EStateMsg, float) override;
+  void Taunt(CStateManager&, EStateMsg, float) override;
+  bool InPosition(CStateManager&, float) override;
+  bool HearShot(CStateManager&, float) override;
 
   EFlickerBatState GetFlickerBatState() const { return x574_state; }
   void SetFlickerBatState(EFlickerBatState state, CStateManager&);

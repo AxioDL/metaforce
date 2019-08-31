@@ -29,13 +29,13 @@ public:
              const zeus::CAABox&, const CMaterialList&, float, const CHealthInfo&, const CDamageVulnerability&,
              const CActorParameters&, float, float, s32, s32, bool);
 
-  void Accept(IVisitor&);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  CHealthInfo* HealthInfo(CStateManager&) { return &x260_healthInfo; }
-  const CDamageVulnerability* GetDamageVulnerability() const { return &x268_dVuln; }
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&) {}
+  void Accept(IVisitor&) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  CHealthInfo* HealthInfo(CStateManager&) override{ return &x260_healthInfo; }
+  const CDamageVulnerability* GetDamageVulnerability() const override{ return &x268_dVuln; }
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override{}
   void RandomizePlaybackRate(CStateManager&);
 };
 

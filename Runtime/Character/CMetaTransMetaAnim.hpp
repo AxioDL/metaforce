@@ -11,11 +11,11 @@ class CMetaTransMetaAnim : public IMetaTrans {
 
 public:
   CMetaTransMetaAnim(CInputStream& in);
-  EMetaTransType GetType() const { return EMetaTransType::MetaAnim; }
+  EMetaTransType GetType() const override { return EMetaTransType::MetaAnim; }
 
   std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                                     const std::weak_ptr<CAnimTreeNode>& b,
-                                                    const CAnimSysContext& animSys) const;
+                                                    const CAnimSysContext& animSys) const override;
 };
 
 } // namespace urde

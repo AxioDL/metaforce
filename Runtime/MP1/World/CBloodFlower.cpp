@@ -79,11 +79,11 @@ static std::string_view sFireEffects[3] = {
 };
 
 void CBloodFlower::TurnEffectsOn(u32 effect, CStateManager& mgr) {
-  ModelData()->AnimationData()->SetParticleEffectState(sFireEffects[effect], true, mgr);
+  GetModelData()->GetAnimationData()->SetParticleEffectState(sFireEffects[effect], true, mgr);
 }
 
 void CBloodFlower::TurnEffectsOff(u32 effect, CStateManager& mgr) {
-  ModelData()->AnimationData()->SetParticleEffectState(sFireEffects[effect], false, mgr);
+  GetModelData()->GetAnimationData()->SetParticleEffectState(sFireEffects[effect], false, mgr);
 }
 
 void CBloodFlower::Think(float dt, CStateManager& mgr) {

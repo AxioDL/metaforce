@@ -12,7 +12,7 @@ CGunMotion::CGunMotion(CAssetId ancsId, const zeus::CVector3f& scale)
 }
 
 void CGunMotion::LoadAnimations() {
-  NWeaponTypes::get_token_vector(*x0_modelData.AnimationData(), 0, 14, xa8_anims, true);
+  NWeaponTypes::get_token_vector(*x0_modelData.GetAnimationData(), 0, 14, xa8_anims, true);
 }
 
 bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr, float angle, bool bigStrike) {
@@ -52,9 +52,9 @@ bool CGunMotion::PlayPasAnim(SamusGun::EAnimationState state, CStateManager& mgr
   }
 
   if (animId != -1) {
-    x0_modelData.AnimationData()->EnableLooping(loop);
+    x0_modelData.GetAnimationData()->EnableLooping(loop);
     CAnimPlaybackParms aparms(animId, -1, 1.f, true);
-    x0_modelData.AnimationData()->SetAnimation(aparms, false);
+    x0_modelData.GetAnimationData()->SetAnimation(aparms, false);
   }
 
   return loop;
@@ -65,9 +65,9 @@ void CGunMotion::ReturnToDefault(CStateManager& mgr, bool setState) {
 }
 
 void CGunMotion::BasePosition(bool bigStrikeReset) {
-  x0_modelData.AnimationData()->EnableLooping(false);
+  x0_modelData.GetAnimationData()->EnableLooping(false);
   CAnimPlaybackParms aparms(bigStrikeReset ? 6 : 0, -1, 1.f, true);
-  x0_modelData.AnimationData()->SetAnimation(aparms, false);
+  x0_modelData.GetAnimationData()->SetAnimation(aparms, false);
 }
 
 void CGunMotion::EnterFidget(CStateManager& mgr, SamusGun::EFidgetType type, s32 parm2) {

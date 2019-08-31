@@ -147,93 +147,93 @@ struct CTweakTargeting final : public ITweakTargeting {
       x108_chargeGaugeAngles[i] = zeus::degToRad(x108_chargeGaugeAngles[i]);
   }
 
-  atUint32 GetTargetRadiusMode() const { return x4_targetRadiusMode; }
-  float GetCurrLockOnExitDuration() const { return x8_currLockOnExitDuration; }
-  float GetCurrLockOnEnterDuration() const { return xc_currLockOnEnterDuration; }
-  float GetCurrLockOnSwitchDuration() const { return x10_currLockOnSwitchDuration; }
-  float GetLockConfirmScale() const { return x14_lockConfirmScale; }
-  float GetNextLockOnEnterDuration() const { return x18_nextLockOnEnterDuration; }
-  float GetNextLockOnExitDuration() const { return x1c_nextLockOnExitDuration; }
-  float GetNextLockOnSwitchDuration() const { return x20_nextLockOnSwitchDuration; }
-  float GetSeekerScale() const { return x24_seekerScale; }
-  float GetSeekerAngleSpeed() const { return x28_seekerAngleSpeed; }
-  float GetXRayRetAngleSpeed() const { return x2c_xrayRetAngleSpeed; }
-  float GetOrbitPointZOffset() const { return x50_orbitPointZOffset; }
-  float GetOrbitPointInTime() const { return x54_orbitPointInTime; }
-  float GetOrbitPointOutTime() const { return x58_orbitPointOutTime; }
-  const zeus::CColor& GetThermalReticuleColor() const { return xb0_thermalReticuleColor; }
-  float GetTargetFlowerScale() const { return xb4_targetFlowerScale; }
-  const zeus::CColor& GetTargetFlowerColor() const { return xb8_targetFlowerColor; }
-  float GetMissileBracketDuration() const { return xbc_missileBracketDuration; }
-  float GetMissileBracketScaleStart() const { return xc0_missileBracketScaleStart; }
-  float GetMissileBracketScaleEnd() const { return xc4_missileBracketScaleEnd; }
-  float GetMissileBracketScaleDuration() const { return xc8_missileBracketScaleDuration; }
-  const zeus::CColor& GetMissileBracketColor() const { return xcc_missileBracketColor; }
-  float GetChargeGaugeOvershootOffset() const { return xe8_chargeGaugeOvershootOffset; }
-  float GetChargeGaugeOvershootDuration() const { return xec_chargeGaugeOvershootDuration; }
-  float GetOuterBeamSquaresScale() const { return xf0_outerBeamSquaresScale; }
-  const zeus::CColor& GetOuterBeamSquareColor() const { return xf4_outerBeamSquareColor; }
-  float GetLockonDuration() const { return xd0_LockonDuration; }
-  float GetInnerBeamScale() const { return xd4_innerBeamScale; }
-  const zeus::CColor& GetInnerBeamColorPower() const { return xd8_innerBeamColorPower; }
-  const zeus::CColor& GetInnerBeamColorIce() const { return xdc_innerBeamColorIce; }
-  const zeus::CColor& GetInnerBeamColorWave() const { return xe0_innerBeamColorWave; }
-  const zeus::CColor& GetInnerBeamColorPlasma() const { return xe4_innerBeamColorPlasma; }
-  const float* GetOuterBeamSquareAngles(int i) const { return xf8_outerBeamSquareAngles[i].floats.data(); }
-  float GetChargeGaugeAngle(int i) const { return x108_chargeGaugeAngles[i]; }
-  float GetChargeGaugeScale() const { return x118_chargeGaugeScale; }
-  const zeus::CColor& GetChargeGaugeNonFullColor() const { return x11c_chargeGaugeNonFullColor; }
-  atUint32 GetChargeTickCount() const { return x120_chargeTickCount; }
-  float GetChargeTickAnglePitch() const { return x124_chargeTickAnglePitch; }
-  float GetLockFireScale() const { return x128_lockFireScale; }
-  float GetLockFireDuration() const { return x12c_lockFireDuration; }
-  const zeus::CColor& GetLockFireColor() const { return x130_lockFireColor; }
-  float GetLockDaggerScaleStart() const { return x134_lockDaggerScaleStart; }
-  float GetLockDaggerScaleEnd() const { return x138_lockDaggerScaleEnd; }
-  const zeus::CColor& GetLockDaggerColor() const { return x13c_lockDaggerColor; }
-  float GetLockDaggerAngle0() const { return x140_lockDaggerAngle0; }
-  float GetLockDaggerAngle1() const { return x144_lockDaggerAngle1; }
-  float GetLockDaggerAngle2() const { return x148_lockDaggerAngle2; }
-  const zeus::CColor& GetLockConfirmColor() const { return x14c_lockConfirmColor; }
-  const zeus::CColor& GetSeekerColor() const { return x150_seekerColor; }
-  float GetLockConfirmClampMin() const { return x154_lockConfirmClampMin; }
-  float GetLockConfirmClampMax() const { return x158_lockConfirmClampMax; }
-  float GetTargetFlowerClampMin() const { return x15c_targetFlowerClampMin; }
-  float GetTargetFlowerClampMax() const { return x160_targetFlowerClampMax; }
-  float GetSeekerClampMin() const { return x164_seekerClampMin; }
-  float GetSeekerClampMax() const { return x168_seekerClampMax; }
-  float GetMissileBracketClampMin() const { return x16c_missileBracketClampMin; }
-  float GetMissileBracketClampMax() const { return x170_missileBracketClampMax; }
-  float GetInnerBeamClampMin() const { return x174_innerBeamClampMin; }
-  float GetInnerBeamClampMax() const { return x178_innerBeamClampMax; }
-  float GetChargeGaugeClampMin() const { return x17c_chargeGaugeClampMin; }
-  float GetChargeGaugeClampMax() const { return x180_chargeGaugeClampMax; }
-  float GetLockFireClampMin() const { return x184_lockFireClampMin; }
-  float GetLockFireClampMax() const { return x188_lockFireClampMax; }
-  float GetLockDaggerClampMin() const { return x18c_lockDaggerClampMin; }
-  float GetLockDaggerClampMax() const { return x190_lockDaggerClampMax; }
-  float GetGrappleSelectScale() const { return x194_grappleSelectScale; }
-  float GetGrappleScale() const { return x198_grappleScale; }
-  float GetGrappleClampMin() const { return x19c_grappleClampMin; }
-  float GetGrappleClampMax() const { return x1a0_grappleClampMax; }
-  const zeus::CColor& GetGrapplePointSelectColor() const { return x1a4_grapplePointSelectColor; }
-  const zeus::CColor& GetGrapplePointColor() const { return x1a8_grapplePointColor; }
-  const zeus::CColor& GetLockedGrapplePointSelectColor() const { return x1ac_lockedGrapplePointSelectColor; }
-  float GetGrappleMinClampScale() const { return x1b0_grappleMinClampScale; }
-  const zeus::CColor& GetChargeGaugePulseColorHigh() const { return x1b4_chargeGaugePulseColorHigh; }
-  float GetFullChargeFadeDuration() const { return x1b8_fullChargeFadeDuration; }
-  const zeus::CColor& GetOrbitPointColor() const { return x1bc_orbitPointColor; }
-  const zeus::CColor& GetCrosshairsColor() const { return x1c0_crosshairsColor; }
-  float GetCrosshairsScaleDuration() const { return x1c4_crosshairsScaleDur; }
-  bool DrawOrbitPoint() const { return x1c8_drawOrbitPoint; }
-  const zeus::CColor& GetChargeGaugePulseColorLow() const { return x1cc_chargeGaugePulseColorLow; }
-  float GetChargeGaugePulsePeriod() const { return x1d0_chargeGaugePulsePeriod; }
-  float GetReticuleClampMin() const { return x20c_reticuleClampMin; }
-  float GetReticuleClampMax() const { return x210_reticuleClampMax; }
-  const zeus::CColor& GetXRayRetRingColor() const { return x214_xrayRetRingColor; }
-  float GetReticuleScale() const { return x218_reticuleScale; }
-  float GetScanTargetClampMin() const { return x21c_scanTargetClampMin; }
-  float GetScanTargetClampMax() const { return x220_scanTargetClampMax; }
-  float GetAngularLagSpeed() const { return x224_angularLagSpeed; }
+  atUint32 GetTargetRadiusMode() const override { return x4_targetRadiusMode; }
+  float GetCurrLockOnExitDuration() const override { return x8_currLockOnExitDuration; }
+  float GetCurrLockOnEnterDuration() const override { return xc_currLockOnEnterDuration; }
+  float GetCurrLockOnSwitchDuration() const override { return x10_currLockOnSwitchDuration; }
+  float GetLockConfirmScale() const override { return x14_lockConfirmScale; }
+  float GetNextLockOnEnterDuration() const override { return x18_nextLockOnEnterDuration; }
+  float GetNextLockOnExitDuration() const override { return x1c_nextLockOnExitDuration; }
+  float GetNextLockOnSwitchDuration() const override { return x20_nextLockOnSwitchDuration; }
+  float GetSeekerScale() const override { return x24_seekerScale; }
+  float GetSeekerAngleSpeed() const override { return x28_seekerAngleSpeed; }
+  float GetXRayRetAngleSpeed() const override { return x2c_xrayRetAngleSpeed; }
+  float GetOrbitPointZOffset() const override { return x50_orbitPointZOffset; }
+  float GetOrbitPointInTime() const override { return x54_orbitPointInTime; }
+  float GetOrbitPointOutTime() const override { return x58_orbitPointOutTime; }
+  const zeus::CColor& GetThermalReticuleColor() const override { return xb0_thermalReticuleColor; }
+  float GetTargetFlowerScale() const override { return xb4_targetFlowerScale; }
+  const zeus::CColor& GetTargetFlowerColor() const override { return xb8_targetFlowerColor; }
+  float GetMissileBracketDuration() const override { return xbc_missileBracketDuration; }
+  float GetMissileBracketScaleStart() const override { return xc0_missileBracketScaleStart; }
+  float GetMissileBracketScaleEnd() const override { return xc4_missileBracketScaleEnd; }
+  float GetMissileBracketScaleDuration() const override { return xc8_missileBracketScaleDuration; }
+  const zeus::CColor& GetMissileBracketColor() const override { return xcc_missileBracketColor; }
+  float GetChargeGaugeOvershootOffset() const override { return xe8_chargeGaugeOvershootOffset; }
+  float GetChargeGaugeOvershootDuration() const override { return xec_chargeGaugeOvershootDuration; }
+  float GetOuterBeamSquaresScale() const override { return xf0_outerBeamSquaresScale; }
+  const zeus::CColor& GetOuterBeamSquareColor() const override { return xf4_outerBeamSquareColor; }
+  float GetLockonDuration() const override { return xd0_LockonDuration; }
+  float GetInnerBeamScale() const override { return xd4_innerBeamScale; }
+  const zeus::CColor& GetInnerBeamColorPower() const override { return xd8_innerBeamColorPower; }
+  const zeus::CColor& GetInnerBeamColorIce() const override { return xdc_innerBeamColorIce; }
+  const zeus::CColor& GetInnerBeamColorWave() const override { return xe0_innerBeamColorWave; }
+  const zeus::CColor& GetInnerBeamColorPlasma() const override { return xe4_innerBeamColorPlasma; }
+  const float* GetOuterBeamSquareAngles(int i) const override { return xf8_outerBeamSquareAngles[i].floats.data(); }
+  float GetChargeGaugeAngle(int i) const override { return x108_chargeGaugeAngles[i]; }
+  float GetChargeGaugeScale() const override { return x118_chargeGaugeScale; }
+  const zeus::CColor& GetChargeGaugeNonFullColor() const override { return x11c_chargeGaugeNonFullColor; }
+  atUint32 GetChargeTickCount() const override { return x120_chargeTickCount; }
+  float GetChargeTickAnglePitch() const override { return x124_chargeTickAnglePitch; }
+  float GetLockFireScale() const override { return x128_lockFireScale; }
+  float GetLockFireDuration() const override { return x12c_lockFireDuration; }
+  const zeus::CColor& GetLockFireColor() const override { return x130_lockFireColor; }
+  float GetLockDaggerScaleStart() const override { return x134_lockDaggerScaleStart; }
+  float GetLockDaggerScaleEnd() const override { return x138_lockDaggerScaleEnd; }
+  const zeus::CColor& GetLockDaggerColor() const override { return x13c_lockDaggerColor; }
+  float GetLockDaggerAngle0() const override { return x140_lockDaggerAngle0; }
+  float GetLockDaggerAngle1() const override { return x144_lockDaggerAngle1; }
+  float GetLockDaggerAngle2() const override { return x148_lockDaggerAngle2; }
+  const zeus::CColor& GetLockConfirmColor() const override { return x14c_lockConfirmColor; }
+  const zeus::CColor& GetSeekerColor() const override { return x150_seekerColor; }
+  float GetLockConfirmClampMin() const override { return x154_lockConfirmClampMin; }
+  float GetLockConfirmClampMax() const override { return x158_lockConfirmClampMax; }
+  float GetTargetFlowerClampMin() const override { return x15c_targetFlowerClampMin; }
+  float GetTargetFlowerClampMax() const override { return x160_targetFlowerClampMax; }
+  float GetSeekerClampMin() const override { return x164_seekerClampMin; }
+  float GetSeekerClampMax() const override { return x168_seekerClampMax; }
+  float GetMissileBracketClampMin() const override { return x16c_missileBracketClampMin; }
+  float GetMissileBracketClampMax() const override { return x170_missileBracketClampMax; }
+  float GetInnerBeamClampMin() const override { return x174_innerBeamClampMin; }
+  float GetInnerBeamClampMax() const override { return x178_innerBeamClampMax; }
+  float GetChargeGaugeClampMin() const override { return x17c_chargeGaugeClampMin; }
+  float GetChargeGaugeClampMax() const override { return x180_chargeGaugeClampMax; }
+  float GetLockFireClampMin() const override { return x184_lockFireClampMin; }
+  float GetLockFireClampMax() const override { return x188_lockFireClampMax; }
+  float GetLockDaggerClampMin() const override { return x18c_lockDaggerClampMin; }
+  float GetLockDaggerClampMax() const override { return x190_lockDaggerClampMax; }
+  float GetGrappleSelectScale() const override { return x194_grappleSelectScale; }
+  float GetGrappleScale() const override { return x198_grappleScale; }
+  float GetGrappleClampMin() const override { return x19c_grappleClampMin; }
+  float GetGrappleClampMax() const override { return x1a0_grappleClampMax; }
+  const zeus::CColor& GetGrapplePointSelectColor() const override { return x1a4_grapplePointSelectColor; }
+  const zeus::CColor& GetGrapplePointColor() const override { return x1a8_grapplePointColor; }
+  const zeus::CColor& GetLockedGrapplePointSelectColor() const override { return x1ac_lockedGrapplePointSelectColor; }
+  float GetGrappleMinClampScale() const override { return x1b0_grappleMinClampScale; }
+  const zeus::CColor& GetChargeGaugePulseColorHigh() const override { return x1b4_chargeGaugePulseColorHigh; }
+  float GetFullChargeFadeDuration() const override { return x1b8_fullChargeFadeDuration; }
+  const zeus::CColor& GetOrbitPointColor() const override { return x1bc_orbitPointColor; }
+  const zeus::CColor& GetCrosshairsColor() const override { return x1c0_crosshairsColor; }
+  float GetCrosshairsScaleDuration() const override { return x1c4_crosshairsScaleDur; }
+  bool DrawOrbitPoint() const override { return x1c8_drawOrbitPoint; }
+  const zeus::CColor& GetChargeGaugePulseColorLow() const override { return x1cc_chargeGaugePulseColorLow; }
+  float GetChargeGaugePulsePeriod() const override { return x1d0_chargeGaugePulsePeriod; }
+  float GetReticuleClampMin() const override { return x20c_reticuleClampMin; }
+  float GetReticuleClampMax() const override { return x210_reticuleClampMax; }
+  const zeus::CColor& GetXRayRetRingColor() const override { return x214_xrayRetRingColor; }
+  float GetReticuleScale() const override { return x218_reticuleScale; }
+  float GetScanTargetClampMin() const override { return x21c_scanTargetClampMin; }
+  float GetScanTargetClampMax() const override { return x220_scanTargetClampMax; }
+  float GetAngularLagSpeed() const override { return x224_angularLagSpeed; }
 };
 } // namespace DataSpec::DNAMP1

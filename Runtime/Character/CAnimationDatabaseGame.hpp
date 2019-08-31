@@ -10,11 +10,11 @@ class CAnimationDatabaseGame final : public CAnimationDatabase {
 
 public:
   CAnimationDatabaseGame(const std::vector<CAnimation>& anims);
-  const std::shared_ptr<IMetaAnim>& GetMetaAnim(s32 idx) const;
-  u32 GetNumMetaAnims() const;
-  const char* GetMetaAnimName(s32 idx) const;
-  void GetAllUniquePrimitives(std::vector<CPrimitive>& primsOut) const;
-  void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut, std::string_view name) const;
+  const std::shared_ptr<IMetaAnim>& GetMetaAnim(s32 idx) const override;
+  u32 GetNumMetaAnims() const override;
+  const char* GetMetaAnimName(s32 idx) const override;
+  void GetAllUniquePrimitives(std::vector<CPrimitive>& primsOut) const override;
+  void GetUniquePrimitivesFromMetaAnim(std::set<CPrimitive>& primsOut, std::string_view name) const override;
 };
 
 } // namespace urde

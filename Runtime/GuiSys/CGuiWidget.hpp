@@ -86,10 +86,11 @@ public:
   static CGuiWidgetParms ReadWidgetHeader(CGuiFrame* frame, CInputStream& in);
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
+  void Update(float dt) override;
+  void Draw(const CGuiWidgetDrawParms& drawParms) const override;
+  void Initialize() override;
+
   virtual void Reset(ETraversalMode mode);
-  virtual void Update(float dt);
-  virtual void Draw(const CGuiWidgetDrawParms& drawParms) const;
-  virtual void Initialize();
   virtual void ProcessUserInput(const CFinalInput& input);
   virtual void Touch() const;
   virtual bool GetIsVisible() const;

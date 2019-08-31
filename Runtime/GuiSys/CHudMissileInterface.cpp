@@ -228,7 +228,7 @@ void CHudMissileInterface::SetNumMissiles(int numMissiles, const CStateManager& 
 
 void CHudMissileInterface::SetMissileCapacity(int missileCapacity) { x4_missileCapacity = missileCapacity; }
 
-CHudMissileInterface::EInventoryStatus CHudMissileInterface::GetMissileInventoryStatus() {
+CHudMissileInterface::EInventoryStatus CHudMissileInterface::GetMissileInventoryStatus() const {
   if (x64_energybart01_missilebar->GetSetEnergy() == 0.f)
     return EInventoryStatus::Depleted;
   return EInventoryStatus(x64_energybart01_missilebar->GetActualFraction() < g_tweakGui->GetMissileWarningFraction());

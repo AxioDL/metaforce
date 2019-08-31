@@ -85,23 +85,23 @@ public:
                           CParticleData::EParentedMode parentMode, int flags, CStateManager& stateMgr, TAreaId,
                           int lightId, EParticleGenType state);
 
-  void AddToRenderer();
-  void Render();
-  void Update(float dt, CStateManager& stateMgr);
-  void SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr);
-  void SetTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr);
-  void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr);
-  void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr);
-  void SetGlobalScale(const zeus::CVector3f& scale);
-  void SetParticleEmission(bool, CStateManager& stateMgr);
-  bool IsSystemDeletable() const;
-  std::optional<zeus::CAABox> GetBounds() const;
-  bool HasActiveParticles() const;
-  void DestroyParticles();
-  bool HasLight() const;
-  TUniqueId GetLightId() const;
-  void DeleteLight(CStateManager& mgr);
-  void SetModulationColor(const zeus::CColor& color);
+  void AddToRenderer() override;
+  void Render() override;
+  void Update(float dt, CStateManager& stateMgr) override;
+  void SetOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) override;
+  void SetTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) override;
+  void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) override;
+  void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) override;
+  void SetGlobalScale(const zeus::CVector3f& scale) override;
+  void SetParticleEmission(bool, CStateManager& stateMgr) override;
+  bool IsSystemDeletable() const override;
+  std::optional<zeus::CAABox> GetBounds() const override;
+  bool HasActiveParticles() const override;
+  void DestroyParticles() override;
+  bool HasLight() const override;
+  TUniqueId GetLightId() const override;
+  void DeleteLight(CStateManager& mgr) override;
+  void SetModulationColor(const zeus::CColor& color) override;
   const std::shared_ptr<CParticleGen> GetParticleSystem() const { return x84_system; }
 };
 } // namespace urde

@@ -37,18 +37,18 @@ public:
   void UpdateBeam(float dt, const zeus::CTransform& targetXf, const zeus::CVector3f& localBeamPos, CStateManager& mgr);
   void CreateBeam(CStateManager& mgr);
 
-  void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
-  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf);
-  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf);
+  void PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
+  void PostRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) override;
+  void UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, const zeus::CTransform& xf) override;
   void Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf, CStateManager& mgr,
-            TUniqueId homingTarget, float chargeFactor1, float chargeFactor2);
-  void Update(float dt, CStateManager& mgr);
-  void Load(CStateManager& mgr, bool subtypeBasePose);
-  void Unload(CStateManager& mgr);
-  bool IsLoaded() const;
+            TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) override;
+  void Update(float dt, CStateManager& mgr) override;
+  void Load(CStateManager& mgr, bool subtypeBasePose) override;
+  void Unload(CStateManager& mgr) override;
+  bool IsLoaded() const override;
   void Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CTransform& xf, const CModelFlags& flags,
-            const CActorLights* lights) const;
-  void DrawMuzzleFx(const CStateManager& mgr) const;
+            const CActorLights* lights) const override;
+  void DrawMuzzleFx(const CStateManager& mgr) const override;
 };
 
 } // namespace urde

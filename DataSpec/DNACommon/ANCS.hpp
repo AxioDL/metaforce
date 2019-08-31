@@ -1,9 +1,21 @@
 #pragma once
 
-#include <unordered_set>
-#include "DNACommon.hpp"
-#include "CMDL.hpp"
-#include "RigInverter.hpp"
+#include <functional>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include <athena/Types.hpp>
+#include <hecl/Blender/Connection.hpp>
+#include <hecl/SystemChar.hpp>
+
+namespace DataSpec {
+struct SpecBase;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAANCS {
 

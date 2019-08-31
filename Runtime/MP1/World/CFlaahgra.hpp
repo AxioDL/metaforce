@@ -45,9 +45,9 @@ class CFlaahgraRenderer : public CActor {
 public:
   CFlaahgraRenderer(TUniqueId, TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&);
 
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Accept(IVisitor&);
-  std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Accept(IVisitor&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
 };
 
 class CFlaahgraPlants : public CActor {
@@ -62,12 +62,12 @@ public:
   CFlaahgraPlants(const TToken<CGenDescription>&, const CActorParameters&, TUniqueId, TAreaId, TUniqueId,
                   const zeus::CTransform&, const CDamageInfo&, const zeus::CVector3f&);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  std::optional<zeus::CAABox> GetTouchBounds() const { return x110_aabox; }
-  void Touch(CActor&, CStateManager&);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return x110_aabox; }
+  void Touch(CActor&, CStateManager&) override;
 };
 
 class CFlaahgra : public CPatterned {
@@ -164,66 +164,66 @@ class CFlaahgra : public CPatterned {
   void SetMaterialProperties(const std::unique_ptr<CCollisionActorManager>&, CStateManager&);
   bool sub801ae650() const { return (x7a8_ == 0 || x7a8_ == 1); }
   bool sub801ae670() const { return (x7a8_ == 2 || x7a8_ == 3 || x7a8_ == 4); }
-  bool IsSphereCollider(TUniqueId);
+  bool IsSphereCollider(TUniqueId) const;
   void SetCollisionActorBounds(CStateManager& mgr, const std::unique_ptr<CCollisionActorManager>& colMgr,
                                const zeus::CVector3f& extendedBounds);
 
   void UpdateScale(float, float, float);
-  float GetEndActionTime();
+  float GetEndActionTime() const;
   void SetupHealthInfo(CStateManager&);
-  zeus::CVector3f GetAttacktargetPos(CStateManager&) const;
+  zeus::CVector3f GetAttacktargetPos(const CStateManager&) const;
   void RattlePlayer(CStateManager& mgr, const zeus::CVector3f& vec);
-  bool sub801e4f8() { return x7a8_ == 0 || x7a8_ == 1; }
+  bool sub801e4f8() const { return x7a8_ == 0 || x7a8_ == 1; }
   void sub801ade80();
   void UpdateHeadDamageVulnerability(CStateManager&, bool);
 
-  u32 sub801ae828(CStateManager&);
-  zeus::CVector3f sub801ae754(CStateManager&);
+  u32 sub801ae828(const CStateManager&) const;
+  zeus::CVector3f sub801ae754(const CStateManager&) const;
 
-  TUniqueId GetMirrorNearestPlayer(CStateManager&);
+  TUniqueId GetMirrorNearestPlayer(const CStateManager&) const;
 public:
   DEFINE_PATTERNED(Flaahgra);
   CFlaahgra(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, const CAnimRes&,
             const CPatternedInfo&, const CActorParameters&, const CFlaahgraData&);
 
-  void Think(float, CStateManager&);
-  void PreThink(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  bool CanRenderUnsorted(const CStateManager&) const { return true; }
-  zeus::CVector3f GetAimPosition(const CStateManager&, float) const { return x820_; }
-  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState);
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
+  void Think(float, CStateManager&) override;
+  void PreThink(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  bool CanRenderUnsorted(const CStateManager&) const override { return true; }
+  zeus::CVector3f GetAimPosition(const CStateManager&, float) const override { return x820_; }
+  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
 
-  CProjectileInfo* GetProjectileInfo() { return x8e4_30_ ? &x704_ : &x6dc_; }
+  CProjectileInfo* GetProjectileInfo() override { return x8e4_30_ ? &x704_ : &x6dc_; }
 
-  bool AnimOver(CStateManager&, float) { return x568_ == 4; }
-  bool AIStage(CStateManager&, float arg) { return x780_ == u32(arg); }
-  bool HitSomething(CStateManager&, float arg) { return x7d0_ > 0.f; }
-  bool OffLine(CStateManager&, float) { return (x8e5_29_ && x8e5_28_); }
-  bool ShouldTurn(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float);
-  bool BreakAttack(CStateManager&, float) { return x7d4_ >= x56c_.xc_ && !x8e4_29_getup; }
-  bool IsDizzy(CStateManager&, float) {
+  bool AnimOver(CStateManager&, float) override { return x568_ == 4; }
+  bool AIStage(CStateManager&, float arg) override { return x780_ == u32(arg); }
+  bool HitSomething(CStateManager&, float arg) override { return x7d0_ > 0.f; }
+  bool OffLine(CStateManager&, float) override { return (x8e5_29_ && x8e5_28_); }
+  bool ShouldTurn(CStateManager&, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
+  bool BreakAttack(CStateManager&, float) override { return x7d4_ >= x56c_.xc_ && !x8e4_29_getup; }
+  bool IsDizzy(CStateManager&, float) override {
     return x450_bodyController->GetBodyStateInfo().GetCurrentStateId() == pas::EAnimationState::LoopReaction;
   }
-  bool CoverCheck(CStateManager&, float);
+  bool CoverCheck(CStateManager&, float) override;
 
-  void FadeIn(CStateManager&, EStateMsg, float);
-  void FadeOut(CStateManager&, EStateMsg, float);
-  void TurnAround(CStateManager&, EStateMsg, float);
-  void GetUp(CStateManager&, EStateMsg, float);
-  void Growth(CStateManager&, EStateMsg, float);
-  void Generate(CStateManager&, EStateMsg, float);
-  void Faint(CStateManager&, EStateMsg, float);
-  void Dead(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Dizzy(CStateManager&, EStateMsg, float);
-  void Suck(CStateManager&, EStateMsg, float);
-  void ProjectileAttack(CStateManager&, EStateMsg, float);
-  void Cover(CStateManager&, EStateMsg, float);
-  void SpecialAttack(CStateManager&, EStateMsg, float);
-  void Enraged(CStateManager&, EStateMsg, float);
+  void FadeIn(CStateManager&, EStateMsg, float) override;
+  void FadeOut(CStateManager&, EStateMsg, float) override;
+  void TurnAround(CStateManager&, EStateMsg, float) override;
+  void GetUp(CStateManager&, EStateMsg, float) override;
+  void Growth(CStateManager&, EStateMsg, float) override;
+  void Generate(CStateManager&, EStateMsg, float) override;
+  void Faint(CStateManager&, EStateMsg, float) override;
+  void Dead(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Dizzy(CStateManager&, EStateMsg, float) override;
+  void Suck(CStateManager&, EStateMsg, float) override;
+  void ProjectileAttack(CStateManager&, EStateMsg, float) override;
+  void Cover(CStateManager&, EStateMsg, float) override;
+  void SpecialAttack(CStateManager&, EStateMsg, float) override;
+  void Enraged(CStateManager&, EStateMsg, float) override;
 
 };
 }

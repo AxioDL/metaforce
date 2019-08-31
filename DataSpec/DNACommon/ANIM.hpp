@@ -1,7 +1,12 @@
 #pragma once
 
-#include "DNACommon.hpp"
+#include <cassert>
 #include <cmath>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+#include <athena/Types.hpp>
 
 namespace DataSpec::DNAANIM {
 

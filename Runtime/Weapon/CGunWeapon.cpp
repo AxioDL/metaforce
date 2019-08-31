@@ -104,7 +104,7 @@ void CGunWeapon::Reset(CStateManager& mgr) {
   if (!x218_26_loaded)
     return;
 
-  x10_solidModelData->AnimationData()->EnableLooping(false);
+  x10_solidModelData->GetAnimationData()->EnableLooping(false);
   if (x218_25_enableCharge)
     x218_25_enableCharge = false;
   else
@@ -116,9 +116,9 @@ static const s32 skAnimTypeList[] = {0, 4, 1, 2, 3, 5, 6, 7, 8, 9, 10};
 void CGunWeapon::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
   if (x218_26_loaded && type >= NWeaponTypes::EGunAnimType::BasePosition &&
       type <= NWeaponTypes::EGunAnimType::ToBeam) {
-    x10_solidModelData->AnimationData()->EnableLooping(loop);
+    x10_solidModelData->GetAnimationData()->EnableLooping(loop);
     CAnimPlaybackParms parms(skAnimTypeList[int(type)], -1, 1.f, true);
-    x10_solidModelData->AnimationData()->SetAnimation(parms, false);
+    x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
   }
 }
 
@@ -173,9 +173,9 @@ void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const
     mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::skChargedShotCameraShakeData, false);
   }
 
-  x10_solidModelData->AnimationData()->EnableLooping(false);
+  x10_solidModelData->GetAnimationData()->EnableLooping(false);
   CAnimPlaybackParms parms(skShootAnim[int(chargeState)], -1, 1.f, true);
-  x10_solidModelData->AnimationData()->SetAnimation(parms, false);
+  x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
 }
 
 void CGunWeapon::EnableFx(bool enable) {
@@ -304,7 +304,7 @@ void CGunWeapon::LoadGunModels(CStateManager& mgr) {
   x10_solidModelData.emplace(CAnimRes(x214_ancsId, 0, x4_scale, defaultAnim, false));
   x60_holoModelData.emplace(CAnimRes(x214_ancsId, 1, x4_scale, defaultAnim, false));
   CAnimPlaybackParms parms(defaultAnim, -1, 1.f, true);
-  x10_solidModelData->AnimationData()->SetAnimation(parms, true);
+  x10_solidModelData->GetAnimationData()->SetAnimation(parms, true);
   LoadSuitArm(mgr);
   x10_solidModelData->SetSortThermal(true);
   x60_holoModelData->SetSortThermal(true);
@@ -478,7 +478,7 @@ void CGunWeapon::DrawHologram(const CStateManager& mgr, const zeus::CTransform& 
     // g_Renderer->SetAmbientColor(zeus::skWhite);
     CSkinnedModel& model = const_cast<CSkinnedModel&>(*x60_holoModelData->GetAnimationData()->GetModelData());
     model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-    const_cast<CGunWeapon*>(this)->x10_solidModelData->AnimationData()->Render(model, flags, {}, nullptr);
+    const_cast<CGunWeapon*>(this)->x10_solidModelData->GetAnimationData()->Render(model, flags, {}, nullptr);
     // g_Renderer->SetAmbientColor(zeus::skWhite);
     // CGraphics::DisableAllLights();
   }

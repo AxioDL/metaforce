@@ -32,14 +32,14 @@ public:
               float fov, float nearz, float farz, float aspect, TUniqueId watchedId, bool disableInput,
               u32 controllerIdx);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void SetActive(bool active);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void SetActive(bool active) override;
   virtual void ProcessInput(const CFinalInput&, CStateManager& mgr) = 0;
   virtual void Reset(const zeus::CTransform&, CStateManager& mgr) = 0;
 
   zeus::CMatrix4f GetPerspectiveMatrix() const;
   zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f&) const;
-  zeus::CTransform ValidateCameraTransform(const zeus::CTransform&, const zeus::CTransform&);
+  zeus::CTransform ValidateCameraTransform(const zeus::CTransform&, const zeus::CTransform&) const;
   float GetNearClipDistance() const { return x160_znear; }
   float GetFarClipDistance() const { return x164_zfar; }
   float GetAspectRatio() const { return x168_aspect; }

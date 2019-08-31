@@ -46,7 +46,7 @@ public:
 
   void Flush();
 
-  ~CBitStreamWriter() { Flush(); }
+  ~CBitStreamWriter() override { Flush(); }
 };
 
 using CMemoryInStream = athena::io::MemoryReader;
@@ -60,11 +60,11 @@ class CZipInputStream : public CInputStream {
 
 public:
   CZipInputStream(std::unique_ptr<CInputStream>&& strm);
-  ~CZipInputStream();
-  atUint64 readUBytesToBuf(void* buf, atUint64 len);
-  void seek(atInt64, athena::SeekOrigin) {}
-  atUint64 position() const { return 0; }
-  atUint64 length() const { return 0; }
+  ~CZipInputStream() override;
+  atUint64 readUBytesToBuf(void* buf, atUint64 len) override;
+  void seek(atInt64, athena::SeekOrigin) override {}
+  atUint64 position() const override { return 0; }
+  atUint64 length() const override { return 0; }
 };
 #endif
 

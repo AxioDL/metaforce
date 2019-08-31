@@ -21,8 +21,8 @@ public:
   CScriptSpawnPoint(TUniqueId, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     const rstl::reserved_vector<u32, int(CPlayerState::EItemType::Max)>& itemCounts, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
   bool FirstSpawn() const { return x10c_24_firstSpawn; }
   const zeus::CTransform& GetTransform() const { return x34_xf; }
   u32 GetPowerup(CPlayerState::EItemType item) const;

@@ -50,14 +50,14 @@ class CDummyGameArea final : public IGameArea {
 public:
   CDummyGameArea(CInputStream& in, int idx, int mlvlVersion);
 
-  std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const;
-  TAreaId IGetAreaId() const;
-  CAssetId IGetAreaAssetId() const;
-  bool IIsActive() const;
-  TAreaId IGetAttachedAreaId(int) const;
-  u32 IGetNumAttachedAreas() const;
-  CAssetId IGetStringTableAssetId() const;
-  const zeus::CTransform& IGetTM() const;
+  std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
+  TAreaId IGetAreaId() const override;
+  CAssetId IGetAreaAssetId() const override;
+  bool IIsActive() const override;
+  TAreaId IGetAttachedAreaId(int) const override;
+  u32 IGetNumAttachedAreas() const override;
+  CAssetId IGetStringTableAssetId() const override;
+  const zeus::CTransform& IGetTM() const override;
 };
 
 struct CAreaRenderOctTree {
@@ -164,7 +164,7 @@ public:
   public:
     CAreaObjectList(TAreaId areaIdx) : CObjectList(EGameObjectList::Invalid), x200c_areaIdx(areaIdx) {}
 
-    bool IsQualified(const CEntity& ent);
+    bool IsQualified(const CEntity& ent) override;
   };
 
   enum class EOcclusionState { Occluded, Visible };
@@ -272,15 +272,15 @@ public:
   void ReadDependencyList();
   void SetLoadPauseState(bool paused);
 
-  std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const;
+  std::pair<std::unique_ptr<u8[]>, s32> IGetScriptingMemoryAlways() const override;
   TAreaId GetAreaId() const { return x4_selfIdx; }
-  TAreaId IGetAreaId() const { return x4_selfIdx; }
-  CAssetId IGetAreaAssetId() const { return x84_mrea; }
-  bool IIsActive() const;
-  TAreaId IGetAttachedAreaId(int) const;
-  u32 IGetNumAttachedAreas() const;
-  CAssetId IGetStringTableAssetId() const;
-  const zeus::CTransform& IGetTM() const;
+  TAreaId IGetAreaId() const override { return x4_selfIdx; }
+  CAssetId IGetAreaAssetId() const override { return x84_mrea; }
+  bool IIsActive() const override;
+  TAreaId IGetAttachedAreaId(int) const override;
+  u32 IGetNumAttachedAreas() const override;
+  CAssetId IGetStringTableAssetId() const override;
+  const zeus::CTransform& IGetTM() const override;
 
   void SetXRaySpeedAndTarget(float speed, float target);
   void SetThermalSpeedAndTarget(float speed, float target);
@@ -288,7 +288,7 @@ public:
 
   CAssetId GetAreaAssetId() const { return x84_mrea; }
   const CAreaFog* GetAreaFog() const { return GetPostConstructed()->x10c4_areaFog.get(); }
-  CAreaFog* AreaFog() { return const_cast<CAreaFog*>(GetAreaFog()); }
+  CAreaFog* GetAreaFog() { return GetPostConstructed()->x10c4_areaFog.get(); }
   float GetXRayFogDistance() const;
   EEnvFxType DoesAreaNeedEnvFx() const;
   bool DoesAreaNeedSkyNow() const;
@@ -315,7 +315,7 @@ public:
   void StartStreamIn(CStateManager& mgr);
   void Validate(CStateManager& mgr);
   void LoadScriptObjects(CStateManager& mgr);
-  std::pair<const u8*, u32> GetLayerScriptBuffer(int layer);
+  std::pair<const u8*, u32> GetLayerScriptBuffer(int layer) const;
   void PostConstructArea();
   void FillInStaticGeometry(bool textures = true);
   void VerifyTokenList(CStateManager& stateMgr);
@@ -338,8 +338,8 @@ public:
 
   const std::vector<Dock>& GetDocks() const { return xcc_docks; }
   const Dock* GetDock(s32 dock) const { return &xcc_docks[dock]; }
+  Dock* GetDock(s32 dock) { return &xcc_docks[dock]; }
   s32 GetDockCount() const { return xcc_docks.size(); }
-  Dock* DockNC(s32 dock) { return &xcc_docks[dock]; }
 
   bool IsPostConstructed() const { return xf0_24_postConstructed; }
   const CPostConstructed* GetPostConstructed() const {

@@ -15,14 +15,14 @@ class CAuiMeter : public CGuiGroup {
 
 public:
   CAuiMeter(const CGuiWidgetParms& parms, bool noRoundUp, u32 maxCapacity, u32 workerCount);
-  FourCC GetWidgetTypeID() const { return FOURCC('METR'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('METR'); }
 
-  void OnVisibleChange();
+  void OnVisibleChange() override;
   void SetCurrValue(s32 val);
   void SetCapacity(s32 cap);
   void SetMaxCapacity(s32 cap);
-  CGuiWidget* GetWorkerWidget(int id) const;
-  bool AddWorkerWidget(CGuiWidget* worker);
+  CGuiWidget* GetWorkerWidget(int id) const override;
+  bool AddWorkerWidget(CGuiWidget* worker) override;
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 };

@@ -18,8 +18,8 @@ class ProjectResourcePool : public CSimplePool {
 
 public:
   ProjectResourcePool(IFactory& factory, ProjectManager& parent) : CSimplePool(factory), m_parent(parent) {}
-  CToken GetObj(std::string_view);
-  CToken GetObj(std::string_view, const CVParamTransfer&);
+  CToken GetObj(std::string_view) override;
+  CToken GetObj(std::string_view, const CVParamTransfer&) override;
 };
 
 class ProjectManager {

@@ -102,8 +102,8 @@ void ViewManager::TestGameView::think() {
     }
 
     const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-    if (areaInfo && areaInfo->toBoolean() && g_StateManager->WorldNC() &&
-        g_StateManager->WorldNC()->DoesAreaExist(aId)) {
+    if (areaInfo && areaInfo->toBoolean() && g_StateManager->GetWorld() &&
+        g_StateManager->GetWorld()->DoesAreaExist(aId)) {
       const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
       std::string layerBits;
       u32 totalActive = 0;
@@ -117,7 +117,7 @@ void ViewManager::TestGameView::think() {
       overlayText += fmt::format(fmt(
           "Area AssetId: 0x{}, Total Objects: {}\n"
           "Active Layer bits: {}\n"),
-          g_StateManager->WorldNC()->GetArea(aId)->GetAreaAssetId(),
+          g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
           g_StateManager->GetAllObjectList().size(), layerBits);
     }
 
@@ -198,28 +198,28 @@ ViewManager::ViewManager(hecl::Runtime::FileStoreManager& fileMgr, hecl::CVarMan
   char path[2048];
   hecl::Sstat theStat;
 
-  FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
+  auto fp = hecl::FopenUnique(m_recentProjectsPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
   if (fp) {
-    while (fgets(path, 2048, fp)) {
+    while (std::fgets(path, std::size(path), fp.get())) {
       std::string pathStr(path);
       pathStr.pop_back();
       hecl::SystemStringConv pathStrView(pathStr);
-      if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+      if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
         m_recentProjects.emplace_back(pathStrView.sys_str());
+      }
     }
-    fclose(fp);
   }
 
-  fp = hecl::Fopen(m_recentFilesPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
+  fp = hecl::FopenUnique(m_recentFilesPath.c_str(), _SYS_STR("r"), hecl::FileLockType::Read);
   if (fp) {
-    while (fgets(path, 2048, fp)) {
+    while (std::fgets(path, std::size(path), fp.get())) {
       std::string pathStr(path);
       pathStr.pop_back();
       hecl::SystemStringConv pathStrView(pathStr);
-      if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+      if (!hecl::Stat(pathStrView.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
         m_recentFiles.emplace_back(pathStrView.sys_str());
+      }
     }
-    fclose(fp);
   }
 }
 
@@ -231,11 +231,14 @@ void ViewManager::pushRecentProject(hecl::SystemStringView path) {
       return;
   }
   m_recentProjects.emplace_back(path);
-  FILE* fp = hecl::Fopen(m_recentProjectsPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
-  if (fp) {
-    for (hecl::SystemString& pPath : m_recentProjects)
-      fmt::print(fp, fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
-    fclose(fp);
+
+  const auto fp = hecl::FopenUnique(m_recentProjectsPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
+  if (fp == nullptr) {
+    return;
+  }
+
+  for (const hecl::SystemString& pPath : m_recentProjects) {
+    fmt::print(fp.get(), fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
   }
 }
 
@@ -245,11 +248,14 @@ void ViewManager::pushRecentFile(hecl::SystemStringView path) {
       return;
   }
   m_recentFiles.emplace_back(path);
-  FILE* fp = hecl::Fopen(m_recentFilesPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
-  if (fp) {
-    for (hecl::SystemString& pPath : m_recentFiles)
-      fmt::print(fp, fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
-    fclose(fp);
+
+  const auto fp = hecl::FopenUnique(m_recentFilesPath.c_str(), _SYS_STR("w"), hecl::FileLockType::Write);
+  if (fp == nullptr) {
+    return;
+  }
+
+  for (const hecl::SystemString& pPath : m_recentFiles) {
+    fmt::print(fp.get(), fmt("{}\n"), hecl::SystemUTF8Conv(pPath));
   }
 }
 

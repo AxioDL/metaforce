@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct WallCrawlerSwarm : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
@@ -48,11 +47,11 @@ struct WallCrawlerSwarm : IScriptObject {
   Value<atUint32> launchSfx;
   Value<atUint32> scatterSfx;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (part1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(part1);
       ent->name = name + "_part1";
@@ -73,7 +72,8 @@ struct WallCrawlerSwarm : IScriptObject {
     actorParameters.nameIDs(pakRouter, name + "_actp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(part1, pathsOut);
     g_curSpec->flattenDependencies(part2, pathsOut);
     g_curSpec->flattenDependencies(part3, pathsOut);
@@ -82,6 +82,6 @@ struct WallCrawlerSwarm : IScriptObject {
     actorParameters.depIDs(pathsOut, lazyOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

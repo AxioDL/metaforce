@@ -1,5 +1,6 @@
-#include <Runtime/MP1/World/CMetroidBeta.hpp>
-#include <Runtime/MP1/CSamusHud.hpp>
+#include "MP1/World/CMetroidBeta.hpp"
+#include "MP1/World/CMetroid.hpp"
+#include "MP1/CSamusHud.hpp"
 #include "CSimplePool.hpp"
 #include "Character/CPrimitive.hpp"
 #include "CEnergyProjectile.hpp"
@@ -215,7 +216,7 @@ void CPlayerGun::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CSt
     x72c_currentBeam->SetRainSplashGenerator(x748_rainSplashGenerator.get());
     x744_auxWeapon->Load(x310_currentBeam, mgr);
     CAnimPlaybackParms parms(skBeamAnimIds[int(mgr.GetPlayerState()->GetCurrentBeam())], -1, 1.f, true);
-    x6e0_rightHandModel.AnimationData()->SetAnimation(parms, false);
+    x6e0_rightHandModel.GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EScriptObjectMessage::Deleted:
@@ -488,7 +489,7 @@ void CPlayerGun::ResetBeamParams(CStateManager& mgr, const CPlayerState& playerS
   if (playerState.ItemEnabled(CPlayerState::EItemType::ChargeBeam))
     ResetCharge(mgr, false);
   CAnimPlaybackParms parms(skBeamAnimIds[int(x314_nextBeam)], -1, 1.f, true);
-  x6e0_rightHandModel.AnimationData()->SetAnimation(parms, false);
+  x6e0_rightHandModel.GetAnimationData()->SetAnimation(parms, false);
   Reset(mgr, false);
   if (playSelectionSfx)
     CSfxManager::SfxStart(SFXwpn_morph_out_wipe, 1.f, 0.f, true, 0x7f, false, kInvalidAreaId);
@@ -810,7 +811,7 @@ void CPlayerGun::ChangeWeapon(const CPlayerState& playerState, CStateManager& mg
 }
 
 void CPlayerGun::GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName,
-                                  bool shake, bool dyn) {
+                                  bool shake, bool dyn) const {
   if (dyn)
     xfOut = mData.GetScaledLocatorTransformDynamic(lctrName, nullptr);
   else
@@ -2017,7 +2018,7 @@ void CPlayerGun::PreRender(const CStateManager& mgr, const zeus::CFrustum& frust
     x740_grappleArm->PreRender(mgr, frustum, camPos);
 
   if (x678_morph.GetGunState() != CGunMorph::EGunState::OutWipeDone || activeVisor == CPlayerState::EPlayerVisor::XRay)
-    x6e0_rightHandModel.AnimationData()->PreRender();
+    x6e0_rightHandModel.GetAnimationData()->PreRender();
 
   if (x833_28_phazonBeamActive)
     g_Renderer->AllocatePhazonSuitMaskTexture();

@@ -45,10 +45,10 @@ class CHudFreeLookInterface : public IFreeLookInterface {
 
 public:
   CHudFreeLookInterface(CGuiFrame& selHud, EHudType hudType, bool inFreeLook, bool lookControlHeld, bool lockedOnObj);
-  void Update(float dt);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj, float vertLookAngle);
+  void Update(float dt) override;
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj, float vertLookAngle) override;
 };
 
 class CHudFreeLookInterfaceXRay : public IFreeLookInterface {
@@ -67,10 +67,10 @@ class CHudFreeLookInterfaceXRay : public IFreeLookInterface {
 
 public:
   CHudFreeLookInterfaceXRay(CGuiFrame& selHud, bool inFreeLook, bool lookControlHeld, bool lockedOnObj);
-  void Update(float dt);
-  void SetIsVisibleDebug(bool v);
-  void SetIsVisibleGame(bool v);
-  void SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj, float vertLookAngle);
+  void Update(float dt) override;
+  void SetIsVisibleDebug(bool v) override;
+  void SetIsVisibleGame(bool v) override;
+  void SetFreeLookState(bool inFreeLook, bool lookControlHeld, bool lockedOnObj, float vertLookAngle) override;
 };
 
 } // namespace urde

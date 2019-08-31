@@ -1,6 +1,7 @@
 #pragma once
-#include "DNACommon.hpp"
-#include "PAK.hpp"
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
 
 namespace DataSpec::SAVWCommon {
 enum class EScanCategory { None, Data, Lore, Creature, Research, Artifact };

@@ -1,11 +1,16 @@
-#include "ANCS.hpp"
+#include "DataSpec/DNACommon/ANCS.hpp"
+
+#include "DataSpec/DNACommon/CMDL.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
+#include "DataSpec/DNACommon/RigInverter.hpp"
 #include "DataSpec/DNAMP1/DNAMP1.hpp"
 #include "DataSpec/DNAMP1/ANCS.hpp"
 #include "DataSpec/DNAMP2/DNAMP2.hpp"
 #include "DataSpec/DNAMP2/ANCS.hpp"
 #include "DataSpec/DNAMP3/DNAMP3.hpp"
 #include "DataSpec/DNAMP3/CHAR.hpp"
-#include "hecl/Blender/Connection.hpp"
+
+#include <hecl/Blender/Connection.hpp>
 
 namespace DataSpec::DNAANCS {
 

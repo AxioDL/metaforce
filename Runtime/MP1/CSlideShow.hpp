@@ -100,9 +100,9 @@ private:
 
 public:
   CSlideShow();
-  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&);
-  bool GetIsContinueDraw() const { return false; }
-  void Draw() const;
+  EMessageReturn OnMessage(const CArchitectureMessage&, CArchitectureQueue&) override;
+  bool GetIsContinueDraw() const override { return false; }
+  void Draw() const override;
 
   static u32 SlideShowGalleryFlags();
 };

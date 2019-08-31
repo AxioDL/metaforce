@@ -180,18 +180,18 @@ public:
                     const CDamageVulnerability& dVuln, s32 launchSfx,
                     s32 scatterSfx, const CActorParameters& aParams);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  bool CanRenderUnsorted(const CStateManager&) const;
-  void CalculateRenderBounds();
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor& other, CStateManager&);
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
-  zeus::CVector3f GetAimPosition(const CStateManager&, float) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  bool CanRenderUnsorted(const CStateManager&) const override;
+  void CalculateRenderBounds() override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor& other, CStateManager&) override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float) const override;
   const zeus::CVector3f& GetLastKilledOffset() const { return x130_lastKilledOffset; }
   void ApplyRadiusDamage(const zeus::CVector3f& pos, const CDamageInfo& info, CStateManager& stateMgr) {}
   const std::vector<CBoid>& GetBoids() const { return x108_boids; }

@@ -82,7 +82,7 @@ void CMapArea::PostConstruct() {
     for (u32 i = 0; i < x28_mappableObjCount; ++i) {
       CMappableObject& mapObj = m_mappableObjects[i];
       if (CMappableObject::IsDoorType(mapObj.GetType()))
-        mapObj.m_doorSurface.emplace(ctx);
+        mapObj.CreateDoorSurface(ctx);
     }
     return true;
   } BooTrace);

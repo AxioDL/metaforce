@@ -9,19 +9,18 @@ class GameMode : public ViewerSpace {
   std::shared_ptr<IMain> m_main;
 
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<bool> showToolbar = true;
   } m_state;
 
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
 
   struct View : specter::View {
     GameMode& m_gMode;
 
     View(GameMode& gMode, specter::ViewResources& res) : specter::View(res, gMode.m_vm.rootView()), m_gMode(gMode) {}
 
-    void draw(boo::IGraphicsCommandQueue* gfxQ);
+    void draw(boo::IGraphicsCommandQueue* gfxQ) override;
   };
 
   std::unique_ptr<View> m_view;
@@ -39,17 +38,17 @@ public:
     reloadState();
   }
 
-  void reloadState() {}
+  void reloadState() override {}
 
-  virtual specter::View* buildContentView(specter::ViewResources& res) {
+  specter::View* buildContentView(specter::ViewResources& res) override {
     m_view.reset(new View(*this, res));
     return m_view.get();
   }
 
-  void think();
+  void think() override;
 
-  Space* copy(Space* parent) const { return new GameMode(m_vm, parent, *this); }
+  Space* copy(Space* parent) const override { return new GameMode(m_vm, parent, *this); }
 
-  bool usesToolbar() const { return m_state.showToolbar; }
+  bool usesToolbar() const override { return m_state.showToolbar; }
 };
 } // namespace urde

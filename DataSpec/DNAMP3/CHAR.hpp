@@ -127,50 +127,46 @@ struct CHAR : BigDNA {
     };
     struct MetaAnimPrimitive : IMetaAnim {
       MetaAnimPrimitive() : IMetaAnim(Type::Primitive, "Primitive") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       UniqueID64 animId;
       Value<atUint32> animIdx;
       String<-1> animName;
       Value<float> unk1;
       Value<atUint32> unk2;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         out[animIdx] = {animName, animId, UniqueID64(), false};
       }
     };
     struct MetaAnimBlend : IMetaAnim {
       MetaAnimBlend() : IMetaAnim(Type::Blend, "Blend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
       Value<atUint8> unk;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         animA.m_anim->gatherPrimitives(out);
         animB.m_anim->gatherPrimitives(out);
       }
     };
     struct MetaAnimPhaseBlend : IMetaAnim {
       MetaAnimPhaseBlend() : IMetaAnim(Type::PhaseBlend, "PhaseBlend") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       MetaAnimFactory animA;
       MetaAnimFactory animB;
       Value<float> unkFloat;
       Value<atUint8> unk;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         animA.m_anim->gatherPrimitives(out);
         animB.m_anim->gatherPrimitives(out);
       }
     };
     struct MetaAnimRandom : IMetaAnim {
       MetaAnimRandom() : IMetaAnim(Type::Random, "Random") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       struct Child : BigDNA {
         AT_DECL_DNA_YAML
@@ -179,19 +175,18 @@ struct CHAR : BigDNA {
       };
       Vector<Child, AT_DNA_COUNT(animCount)> children;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         for (const auto& child : children)
           child.anim.m_anim->gatherPrimitives(out);
       }
     };
     struct MetaAnimSequence : IMetaAnim {
       MetaAnimSequence() : IMetaAnim(Type::Sequence, "Sequence") {}
-      AT_DECL_DNA_YAML
-      AT_DECL_DNAV
+      AT_DECL_DNA_YAMLV
       Value<atUint32> animCount;
       Vector<MetaAnimFactory, AT_DNA_COUNT(animCount)> children;
 
-      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) {
+      void gatherPrimitives(std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID64>>& out) override {
         for (const auto& child : children)
           child.m_anim->gatherPrimitives(out);
       }

@@ -19,16 +19,16 @@ protected:
 
 public:
   CSimplePool(IFactory& factory);
-  ~CSimplePool();
-  CToken GetObj(const SObjectTag&, const CVParamTransfer&);
-  CToken GetObj(const SObjectTag&);
-  CToken GetObj(std::string_view);
-  CToken GetObj(std::string_view, const CVParamTransfer&);
-  bool HasObject(const SObjectTag&) const;
-  bool ObjectIsLive(const SObjectTag&) const;
-  IFactory& GetFactory() const { return x18_factory; }
-  void Flush();
-  void ObjectUnreferenced(const SObjectTag&);
+  ~CSimplePool() override;
+  CToken GetObj(const SObjectTag&, const CVParamTransfer&) override;
+  CToken GetObj(const SObjectTag&) override;
+  CToken GetObj(std::string_view) override;
+  CToken GetObj(std::string_view, const CVParamTransfer&) override;
+  bool HasObject(const SObjectTag&) const override;
+  bool ObjectIsLive(const SObjectTag&) const override;
+  IFactory& GetFactory() const override { return x18_factory; }
+  void Flush() override;
+  void ObjectUnreferenced(const SObjectTag&) override;
   std::vector<SObjectTag> GetReferencedTags() const;
 };
 

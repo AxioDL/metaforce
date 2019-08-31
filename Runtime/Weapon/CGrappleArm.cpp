@@ -116,42 +116,42 @@ void CGrappleArm::SetAnimState(EArmState state) {
   if (x334_animState == state)
     return;
 
-  x0_grappleArmModel->AnimationData()->EnableLooping(false);
+  x0_grappleArmModel->GetAnimationData()->EnableLooping(false);
   x3b2_28_isGrappling = true;
 
   switch (state) {
   case EArmState::IntoGrapple: {
     ResetAuxParams(true);
     CAnimPlaybackParms parms(0, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     x3b2_25_beamActive = false;
     x3b2_24_active = true;
     break;
   }
   case EArmState::IntoGrappleIdle: {
     CAnimPlaybackParms parms(1, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->EnableLooping(true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->EnableLooping(true);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::FireGrapple: {
     CAnimPlaybackParms parms(2, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::ConnectGrapple: {
     CAnimPlaybackParms parms(3, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::Connected: {
     CAnimPlaybackParms parms(3, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     break;
   }
   case EArmState::OutOfGrapple: {
     CAnimPlaybackParms parms(4, -1, 1.f, true);
-    x0_grappleArmModel->AnimationData()->SetAnimation(parms, false);
+    x0_grappleArmModel->GetAnimationData()->SetAnimation(parms, false);
     DisconnectGrappleBeam();
     break;
   }
@@ -465,9 +465,9 @@ void CGrappleArm::Update(float grappleSwingT, float dt, CStateManager& mgr) {
 
 void CGrappleArm::PreRender(const CStateManager& mgr, const zeus::CFrustum& frustum, const zeus::CVector3f& camPos) {
   if (x3b2_24_active && !x3b2_29_suitLoading) {
-    x0_grappleArmModel->AnimationData()->PreRender();
+    x0_grappleArmModel->GetAnimationData()->PreRender();
     if (x50_grappleArmSkeletonModel)
-      x50_grappleArmSkeletonModel->AnimationData()->PreRender();
+      x50_grappleArmSkeletonModel->GetAnimationData()->PreRender();
   }
 }
 
@@ -478,7 +478,7 @@ void CGrappleArm::RenderXRayModel(const CStateManager& mgr, const zeus::CTransfo
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   CSkinnedModel& model = const_cast<CSkinnedModel&>(*x50_grappleArmSkeletonModel->GetAnimationData()->GetModelData());
   model.GetModelInst()->ActivateLights({CLight::BuildLocalAmbient({}, zeus::skWhite)});
-  const_cast<CGrappleArm*>(this)->x0_grappleArmModel->AnimationData()->Render(model, flags, {}, nullptr);
+  const_cast<CGrappleArm*>(this)->x0_grappleArmModel->GetAnimationData()->Render(model, flags, {}, nullptr);
   // g_Renderer->SetAmbientColor(zeus::skWhite);
   // CGraphics::DisableAllLights();
 }

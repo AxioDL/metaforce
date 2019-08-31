@@ -6,7 +6,6 @@
 
 namespace urde {
 class CStateManager;
-class CInGameGuiManager;
 class CToken;
 
 namespace MP1 {
@@ -37,10 +36,10 @@ class CMFGame : public CMFGameBase {
 public:
   CMFGame(const std::weak_ptr<CStateManager>& stateMgr, const std::weak_ptr<CInGameGuiManager>& guiMgr,
           const CArchitectureQueue&);
-  ~CMFGame();
-  CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
+  ~CMFGame() override;
+  CIOWin::EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
   void Touch();
-  void Draw() const;
+  void Draw() const override;
   void PlayerDied();
   void UnpauseGame();
   void EnterMessageScreen(float time);
@@ -67,9 +66,9 @@ class CMFGameLoader : public CMFGameLoaderBase {
 
 public:
   CMFGameLoader();
-  ~CMFGameLoader();
-  EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue);
-  void Draw() const;
+  ~CMFGameLoader() override;
+  EMessageReturn OnMessage(const CArchitectureMessage& msg, CArchitectureQueue& queue) override;
+  void Draw() const override;
 };
 
 } // namespace MP1

@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct Trigger : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> volume;
@@ -18,7 +17,7 @@ struct Trigger : IScriptObject {
   Value<bool> deactivateOnEntered;
   Value<bool> deactivateOnExited;
 
-  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const {
+  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const override {
     zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
     zeus::CVector3f loc(location);
     return zeus::CAABox(loc - halfExtent, loc + halfExtent);

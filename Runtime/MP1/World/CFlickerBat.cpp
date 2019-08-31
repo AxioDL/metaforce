@@ -88,11 +88,9 @@ void CFlickerBat::Think(float dt, CStateManager& mgr) {
   x42c_color.a() = alpha;
   x94_simpleShadow->SetUserAlpha(alpha);
 
-  bool targetable = true;
-  if (mgr.GetPlayerState()->GetCurrentVisor() != CPlayerState::EPlayerVisor::XRay &&
-      (x574_state == EFlickerBatState::Visible || x574_state == EFlickerBatState::FadeIn))
-    targetable = false;
-  xe7_31_targetable = targetable;
+  xe7_31_targetable = (mgr.GetPlayerState()->GetCurrentVisor() == CPlayerState::EPlayerVisor::XRay
+                           ? true
+                           : x574_state == EFlickerBatState::Visible || x574_state == EFlickerBatState::FadeIn);
   CPatterned::Think(dt, mgr);
 }
 

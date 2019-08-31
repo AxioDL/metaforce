@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct Ridley : IScriptObject {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_EXPLICIT_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
@@ -120,11 +119,11 @@ struct Ridley : IScriptObject {
   /* Trilogy addition */
   DamageInfo damageInfo9;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (particle.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle);
       ent->name = name + "_part";
@@ -202,7 +201,8 @@ struct Ridley : IScriptObject {
     ridleyStruct1.nameIDs(pakRouter, name + "_ridley1");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(particle, pathsOut);
     g_curSpec->flattenDependencies(model1, pathsOut);
     g_curSpec->flattenDependencies(model2, pathsOut);
@@ -226,6 +226,6 @@ struct Ridley : IScriptObject {
     ridleyStruct1.depIDs(pathsOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const { actorParameters.scanIDs(scansOut); }
+  void gatherScans(std::vector<Scan>& scansOut) const override { actorParameters.scanIDs(scansOut); }
 };
 } // namespace DataSpec::DNAMP1

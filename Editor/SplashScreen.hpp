@@ -37,9 +37,11 @@ class SplashScreen : public specter::ModalWindow {
     SplashScreen& m_splash;
     hecl::SystemString m_deferPath;
     NewProjBinding(SplashScreen& splash) : m_splash(splash) {}
-    std::string_view name(const specter::Control* control) const { return m_splash.m_newString.c_str(); }
-    std::string_view help(const specter::Control* control) const { return "Creates an empty project at selected path"; }
-    void activated(const specter::Button* button, const boo::SWindowCoord& coord) {
+    std::string_view name(const specter::Control* control) const override { return m_splash.m_newString.c_str(); }
+    std::string_view help(const specter::Control* control) const override {
+      return "Creates an empty project at selected path";
+    }
+    void activated(const specter::Button* button, const boo::SWindowCoord& coord) override {
       m_splash.m_fileBrowser.m_view.reset(new specter::FileBrowser(
           m_splash.rootView().viewRes(), m_splash, m_splash.m_newString, specter::FileBrowser::Type::NewHECLProject,
           [&](bool ok, hecl::SystemStringView path) {
@@ -55,11 +57,11 @@ class SplashScreen : public specter::ModalWindow {
     SplashScreen& m_splash;
     hecl::SystemString m_deferPath;
     OpenProjBinding(SplashScreen& splash) : m_splash(splash), m_openRecentMenuRoot(*this) {}
-    std::string_view name(const specter::Control* control) const { return m_splash.m_openString.c_str(); }
-    std::string_view help(const specter::Control* control) const {
+    std::string_view name(const specter::Control* control) const override { return m_splash.m_openString.c_str(); }
+    std::string_view help(const specter::Control* control) const override {
       return "Opens an existing project at selected path";
     }
-    void activated(const specter::Button* button, const boo::SWindowCoord& coord) {
+    void activated(const specter::Button* button, const boo::SWindowCoord& coord) override {
       m_splash.m_fileBrowser.m_view.reset(new specter::FileBrowser(
           m_splash.rootView().viewRes(), m_splash, m_splash.m_openString, specter::FileBrowser::Type::OpenHECLProject,
           [&](bool ok, hecl::SystemStringView path) {
@@ -75,7 +77,7 @@ class SplashScreen : public specter::ModalWindow {
       OpenRecentMenuRoot(OpenProjBinding& openProjBind) : m_openProjBind(openProjBind) {}
 
       std::string m_text;
-      const std::string* text() const { return &m_text; }
+      const std::string* text() const override { return &m_text; }
 
       struct OpenRecentMenuItem final : specter::IMenuNode {
         OpenRecentMenuRoot& m_parent;
@@ -83,8 +85,8 @@ class SplashScreen : public specter::ModalWindow {
         hecl::SystemString m_path;
         std::string m_text;
 
-        const std::string* text() const { return &m_text; }
-        void activated(const boo::SWindowCoord& coord) {
+        const std::string* text() const override { return &m_text; }
+        void activated(const boo::SWindowCoord& coord) override {
           m_parent.m_openProjBind.m_deferPath = m_path;
           m_parent.m_openProjBind.m_splash.m_openButt.m_view->closeMenu(coord);
         }
@@ -98,8 +100,8 @@ class SplashScreen : public specter::ModalWindow {
       };
       std::vector<OpenRecentMenuItem> m_items;
 
-      size_t subNodeCount() const { return m_items.size(); }
-      specter::IMenuNode* subNode(size_t idx) { return &m_items[idx]; }
+      size_t subNodeCount() const override { return m_items.size(); }
+      specter::IMenuNode* subNode(size_t idx) override { return &m_items[idx]; }
 
       void buildNodes(const std::vector<hecl::SystemString>* recentProjects) {
         m_items.clear();
@@ -111,8 +113,8 @@ class SplashScreen : public specter::ModalWindow {
       }
     } m_openRecentMenuRoot;
 
-    MenuStyle menuStyle(const specter::Button* button) const { return MenuStyle::Auxiliary; }
-    std::unique_ptr<View> buildMenu(const specter::Button* button) {
+    MenuStyle menuStyle(const specter::Button* button) const override { return MenuStyle::Auxiliary; }
+    std::unique_ptr<View> buildMenu(const specter::Button* button) override {
       m_openRecentMenuRoot.buildNodes(m_splash.m_vm.recentProjects());
       return std::unique_ptr<View>(new specter::Menu(m_splash.rootView().viewRes(), m_splash, &m_openRecentMenuRoot));
     }
@@ -122,11 +124,11 @@ class SplashScreen : public specter::ModalWindow {
     SplashScreen& m_splash;
     hecl::SystemString m_deferPath;
     ExtractProjBinding(SplashScreen& splash) : m_splash(splash) {}
-    std::string_view name(const specter::Control* control) const { return m_splash.m_extractString.c_str(); }
-    std::string_view help(const specter::Control* control) const {
+    std::string_view name(const specter::Control* control) const override { return m_splash.m_extractString.c_str(); }
+    std::string_view help(const specter::Control* control) const override {
       return "Extracts game image as project at selected path";
     }
-    void activated(const specter::Button* button, const boo::SWindowCoord& coord) {
+    void activated(const specter::Button* button, const boo::SWindowCoord& coord) override {
       m_splash.m_fileBrowser.m_view.reset(
           new specter::FileBrowser(m_splash.rootView().viewRes(), m_splash, m_splash.m_extractString,
                                    specter::FileBrowser::Type::OpenFile, [&](bool ok, hecl::SystemStringView path) {
@@ -140,23 +142,23 @@ class SplashScreen : public specter::ModalWindow {
 
 public:
   SplashScreen(ViewManager& vm, specter::ViewResources& res);
-  void think();
-  void updateContentOpacity(float opacity);
+  void think() override;
+  void updateContentOpacity(float opacity) override;
 
-  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey);
-  void mouseMove(const boo::SWindowCoord&);
-  void mouseEnter(const boo::SWindowCoord&);
-  void mouseLeave(const boo::SWindowCoord&);
-  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&);
-  void touchDown(const boo::STouchCoord&, uintptr_t);
-  void touchUp(const boo::STouchCoord&, uintptr_t);
-  void touchMove(const boo::STouchCoord&, uintptr_t);
-  void charKeyDown(unsigned long, boo::EModifierKey, bool);
-  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool);
+  void mouseDown(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseUp(const boo::SWindowCoord&, boo::EMouseButton, boo::EModifierKey) override;
+  void mouseMove(const boo::SWindowCoord&) override;
+  void mouseEnter(const boo::SWindowCoord&) override;
+  void mouseLeave(const boo::SWindowCoord&) override;
+  void scroll(const boo::SWindowCoord&, const boo::SScrollDelta&) override;
+  void touchDown(const boo::STouchCoord&, uintptr_t) override;
+  void touchUp(const boo::STouchCoord&, uintptr_t) override;
+  void touchMove(const boo::STouchCoord&, uintptr_t) override;
+  void charKeyDown(unsigned long, boo::EModifierKey, bool) override;
+  void specialKeyDown(boo::ESpecialKey, boo::EModifierKey, bool) override;
 
-  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub);
-  void draw(boo::IGraphicsCommandQueue* gfxQ);
+  void resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) override;
+  void draw(boo::IGraphicsCommandQueue* gfxQ) override;
 };
 
 } // namespace urde

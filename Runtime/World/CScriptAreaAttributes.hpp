@@ -19,8 +19,8 @@ public:
                         float thermalHeat, float xrayFogDistance, float worldLightingLevel, CAssetId skybox,
                         EPhazonType phazonType);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 
   bool GetNeedsSky() const { return x34_24_showSkybox; }
   bool GetNeedsEnvFx() const { return x38_envFx != EEnvFxType::None; }

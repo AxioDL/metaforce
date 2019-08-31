@@ -112,9 +112,9 @@ public:
   CPhysicsActor(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
                 const CMaterialList&, const zeus::CAABox&, const SMoverData&, const CActorParameters&, float, float);
 
-  void Render(const CStateManager& mgr) const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager&) const;
-  zeus::CVector3f GetAimPosition(const CStateManager&, float val) const;
+  void Render(const CStateManager& mgr) const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager&) const override;
+  zeus::CVector3f GetAimPosition(const CStateManager&, float val) const override;
   virtual const CCollisionPrimitive* GetCollisionPrimitive() const;
   virtual zeus::CTransform GetPrimitiveTransform() const;
   virtual void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
@@ -150,7 +150,7 @@ public:
   void SetVelocityWR(const zeus::CVector3f& vel);
   void SetVelocityOR(const zeus::CVector3f& vel);
   void SetMomentumWR(const zeus::CVector3f& m) { x150_momentum = m; }
-  const zeus::CVector3f& GetConstantForce() { return xfc_constantForce; }
+  const zeus::CVector3f& GetConstantForce() const { return xfc_constantForce; }
   void SetConstantForce(const zeus::CVector3f& f) { xfc_constantForce = f; }
   void SetAngularMomentum(const zeus::CAxisAngle& m) { x108_angularMomentum = m; }
   const zeus::CVector3f& GetMomentum() const { return x150_momentum; }
@@ -170,7 +170,7 @@ public:
   void ClearForcesAndTorques();
   void Stop();
   void ComputeDerivedQuantities();
-  bool WillMove(const CStateManager&);
+  bool WillMove(const CStateManager&) const;
   void SetPhysicsState(const CPhysicsState& state);
   CPhysicsState GetPhysicsState() const;
   bool IsMovable() const { return xf8_24_movable; }

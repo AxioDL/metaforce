@@ -170,139 +170,139 @@ struct CTweakPlayer final : ITweakPlayer {
   Value<float> x300_variaDamageReduction;
   Value<float> x304_gravityDamageReduction;
   Value<float> x308_phazonDamageReduction;
-  float GetMaxTranslationalAcceleration(int s) const { return x4_maxTranslationalAcceleration[s]; }
-  float GetMaxRotationalAcceleration(int s) const { return x24_maxRotationalAcceleration[s]; }
-  float GetPlayerTranslationFriction(int s) const { return x44_translationFriction[s]; }
-  float GetPlayerRotationFriction(int s) const { return x64_rotationFriction[s]; }
-  float GetPlayerRotationMaxSpeed(int s) const { return x84_rotationMaxSpeed[s]; }
-  float GetPlayerTranslationMaxSpeed(int s) const { return xa4_translationMaxSpeed[s]; }
-  float GetNormalGravAccel() const { return xc4_normalGravAccel; }
-  float GetFluidGravAccel() const { return xc8_fluidGravAccel; }
-  float GetVerticalJumpAccel() const { return xcc_verticalJumpAccel; }
-  float GetHorizontalJumpAccel() const { return xd0_horizontalJumpAccel; }
-  float GetVerticalDoubleJumpAccel() const { return xd4_verticalDoubleJumpAccel; }
-  float GetHorizontalDoubleJumpAccel() const { return xd8_horizontalDoubleJumpAccel; }
-  float GetWaterJumpFactor() const { return xdc_waterJumpFactor; }
-  float GetWaterBallJumpFactor() const { return xe0_waterBallJumpFactor; }
-  float GetLavaJumpFactor() const { return xe4_lavaJumpFactor; }
-  float GetLavaBallJumpFactor() const { return xe8_lavaBallJumpFactor; }
-  float GetPhazonJumpFactor() const { return xec_phazonJumpFactor; }
-  float GetPhazonBallJumpFactor() const { return xf0_phazonBallJumpFactor; }
-  float GetAllowedJumpTime() const { return xf4_allowedJumpTime; }
-  float GetAllowedDoubleJumpTime() const { return xf8_allowedDoubleJumpTime; }
-  float GetMinDoubleJumpWindow() const { return xfc_minDoubleJumpWindow; }
-  float GetMaxDoubleJumpWindow() const { return x100_maxDoubleJumpWindow; }
-  float GetMinJumpTime() const { return x108_minJumpTime; }
-  float GetMinDoubleJumpTime() const { return x10c_minDoubleJumpTime; }
-  float GetAllowedLedgeTime() const { return x110_allowedLedgeTime; }
-  float GetDoubleJumpImpulse() const { return x114_doubleJumpImpulse; }
-  float GetBackwardsForceMultiplier() const { return x118_backwardsForceMultiplier; }
-  float GetBombJumpRadius() const { return x11c_bombJumpRadius; }
-  float GetBombJumpHeight() const { return x120_bombJumpHeight; }
-  float GetEyeOffset() const { return x124_eyeOffset; }
-  float GetTurnSpeedMultiplier() const { return x128_turnSpeedMultiplier; }
-  float GetFreeLookTurnSpeedMultiplier() const { return x12c_freeLookTurnSpeedMultiplier; }
-  float GetFreeLookSpeed() const { return x138_freeLookSpeed; }
-  float GetFreeLookSnapSpeed() const { return x13c_freeLookSnapSpeed; }
-  float GetFreeLookCenteredThresholdAngle() const { return x144_freeLookCenteredThresholdAngle; }
-  float GetFreeLookCenteredTime() const { return x148_freeLookCenteredTime; }
-  float GetOrbitModeTimer() const { return x180_orbitModeTimer; }
-  float GetOrbitUpperAngle() const { return x188_orbitUpperAngle; }
-  float GetOrbitLowerAngle() const { return x18c_orbitLowerAngle; }
-  float GetOrbitHorizAngle() const { return x190_orbitHorizAngle; }
-  float GetOrbitMaxTargetDistance() const { return x19c_orbitMaxTargetDistance; }
-  float GetOrbitMaxLockDistance() const { return x1a0_orbitMaxLockDistance; }
-  float GetOrbitDistanceThreshold() const { return x1a4_orbitDistanceThreshold; }
-  uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
-  uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
-  uint32_t GetOrbitScreenBoxCenterX(int zone) const { return x1b8_orbitScreenBoxCenterX[zone]; }
-  uint32_t GetOrbitScreenBoxCenterY(int zone) const { return x1c0_orbitScreenBoxCenterY[zone]; }
-  uint32_t GetOrbitZoneIdealX(int zone) const { return x1c8_orbitZoneIdealX[zone]; }
-  uint32_t GetOrbitZoneIdealY(int zone) const { return x1d0_orbitZoneIdealY[zone]; }
-  float GetOrbitNearX() const { return x1d8_orbitNearX; }
-  float GetOrbitNearZ() const { return x1dc_orbitNearZ; }
-  float GetOrbitFixedOffsetZDiff() const { return x1e8_orbitFixedOffsetZDiff; }
-  float GetOrbitZRange() const { return x1ec_orbitZRange; }
-  bool GetDashEnabled() const { return x200_24_dashEnabled; }
-  bool GetDashOnButtonRelease() const { return x200_25_dashOnButtonRelease; }
-  float GetDashButtonHoldCancelTime() const { return x204_dashButtonHoldCancelTime; }
-  float GetDashStrafeInputThreshold() const { return x208_dashStrafeInputThreshold; }
-  float GetSidewaysDoubleJumpImpulse() const { return x20c_sidewaysDoubleJumpImpulse; }
-  float GetSidewaysVerticalDoubleJumpAccel() const { return x210_sidewaysVerticalDoubleJumpAccel; }
-  float GetSidewaysHorizontalDoubleJumpAccel() const { return x214_sidewaysHorizontalDoubleJumpAccel; }
-  float GetScanningRange() const { return x218_scanningRange; }
-  bool GetScanRetention() const { return x21c_24_scanRetention; }
-  bool GetScanFreezesGame() const { return x21c_25_scanFreezesGame; }
-  bool GetOrbitWhileScanning() const { return x21c_26_orbitWhileScanning; }
-  float GetScanMaxTargetDistance() const { return x220_scanMaxTargetDistance; }
-  float GetScanMaxLockDistance() const { return x224_scanMaxLockDistance; }
-  bool GetMoveDuringFreeLook() const { return x228_27_moveDuringFreeLook; }
-  bool GetHoldButtonsForFreeLook() const { return x228_28_holdButtonsForFreeLook; }
-  bool GetTwoButtonsForFreeLook() const { return x228_29_twoButtonsForFreeLook; }
-  bool GetAimWhenOrbitingPoint() const { return x229_25_aimWhenOrbitingPoint; }
-  bool GetStayInFreeLookWhileFiring() const { return x229_26_stayInFreeLookWhileFiring; }
-  bool GetOrbitFixedOffset() const { return x229_29_orbitFixedOffset; }
-  bool GetGunButtonTogglesHolster() const { return x229_30_gunButtonTogglesHolster; }
-  bool GetGunNotFiringHolstersGun() const { return x229_31_gunNotFiringHolstersGun; }
-  bool GetFallingDoubleJump() const { return x22a_24_fallingDoubleJump; }
-  bool GetImpulseDoubleJump() const { return x22a_25_impulseDoubleJump; }
-  bool GetFiringCancelsCameraPitch() const { return x22a_26_firingCancelsCameraPitch; }
-  bool GetAssistedAimingIgnoreHorizontal() const { return x22a_27_assistedAimingIgnoreHorizontal; }
-  bool GetAssistedAimingIgnoreVertical() const { return x22a_28_assistedAimingIgnoreVertical; }
-  float GetAimMaxDistance() const { return x234_aimMaxDistance; }
-  float GetAimThresholdDistance() const { return x24c_aimThresholdDistance; }
-  float GetAimBoxWidth() const { return x258_aimBoxWidth; }
-  float GetAimBoxHeight() const { return x25c_aimBoxHeight; }
-  float GetAimTargetTimer() const { return x260_aimTargetTimer; }
-  float GetAimAssistHorizontalAngle() const { return x264_aimAssistHorizontalAngle; }
-  float GetAimAssistVerticalAngle() const { return x268_aimAssistVerticalAngle; }
-  float GetPlayerHeight() const { return x26c_playerHeight; }
-  float GetPlayerXYHalfExtent() const { return x270_playerXYHalfExtent; }
-  float GetStepUpHeight() const { return x274_stepUpHeight; }
-  float GetStepDownHeight() const { return x278_stepDownHeight; }
-  float GetPlayerBallHalfExtent() const { return x27c_playerBallHalfExtent; }
-  float GetOrbitDistanceMax() const { return x2a0_orbitDistanceMax; }
-  float GetGrappleSwingLength() const { return x2a4_grappleSwingLength; }
-  float GetGrappleSwingPeriod() const { return x2a8_grappleSwingPeriod; }
-  float GetGrapplePullSpeedMin() const { return x2ac_grapplePullSpeedMin; }
-  float GetMaxGrappleLockedTurnAlignDistance() const { return x2b4_maxGrappleLockedTurnAlignDistance; }
-  float GetGrapplePullSpeedProportion() const { return x2b8_grapplePullSpeedProportion; }
-  float GetGrapplePullSpeedMax() const { return x2bc_grapplePullSpeedMax; }
-  float GetGrappleLookCenterSpeed() const { return x2c0_grappleLookCenterSpeed; }
-  float GetMaxGrappleTurnSpeed() const { return x2c4_maxGrappleTurnSpeed; }
-  float GetGrappleJumpForce() const { return x2c8_grappleJumpForce; }
-  float GetGrappleReleaseTime() const { return x2cc_grappleReleaseTime; }
-  uint32_t GetGrappleJumpMode() const { return x2d0_grappleJumpMode; }
-  bool GetOrbitReleaseBreaksGrapple() const { return x2d4_orbitReleaseBreaksGrapple; }
-  bool GetInvertGrappleTurn() const { return x2d5_invertGrappleTurn; }
-  float GetGrappleBeamSpeed() const { return x2d8_grappleBeamSpeed; }
-  float GetGrappleBeamXWaveAmplitude() const { return x2dc_grappleBeamXWaveAmplitude; }
-  float GetGrappleBeamZWaveAmplitude() const { return x2e0_grappleBeamZWaveAmplitude; }
-  float GetGrappleBeamAnglePhaseDelta() const { return x2e4_grappleBeamAnglePhaseDelta; }
-  float GetHorizontalFreeLookAngleVel() const { return x130_horizontalFreeLookAngleVel; }
-  float GetVerticalFreeLookAngleVel() const { return x134_verticalFreeLookAngleVel; }
-  float GetOrbitCameraSpeed() const { return x184_orbitCameraSpeed; }
-  float GetOrbitPreventionTime() const { return x1fc_orbitPreventionTime; }
-  bool GetFreeLookTurnsPlayer() const { return x228_24_freelookTurnsPlayer; }
-  float GetJumpCameraPitchDownStart() const { return x288_jumpCameraPitchDownStart; }
-  float GetJumpCameraPitchDownFull() const { return x28c_jumpCameraPitchDownFull; }
-  float GetJumpCameraPitchDownAngle() const { return x290_jumpCameraPitchDownAngle; }
-  float GetFallCameraPitchDownStart() const { return x294_fallCameraPitchDownStart; }
-  float GetFallCameraPitchDownFull() const { return x298_fallCameraPitchDownFull; }
-  float GetFallCameraPitchDownAngle() const { return x29c_fallCameraPitchDownAngle; }
-  float GetFirstPersonCameraSpeed() const { return x280_firstPersonCameraSpeed; }
-  float GetGrappleCameraSpeed() const { return x2b0_grappleCameraSpeed; }
-  float GetFreeLookDampenFactor() const { return x14c_freeLookDampenFactor; }
-  float GetLeftLogicalThreshold() const { return x150_leftDiv; }
-  float GetRightLogicalThreshold() const { return x154_rightDiv; }
-  float GetOrbitMinDistance(int type) const { return x158_orbitMinDistance[type]; }
-  float GetOrbitNormalDistance(int type) const { return x164_orbitNormalDistance[type]; }
-  float GetOrbitMaxDistance(int type) const { return x170_orbitMaxDistance[type]; }
-  float GetFrozenTimeout() const { return x2f8_frozenTimeout; }
-  uint32_t GetIceBreakJumpCount() const { return x2fc_iceBreakJumpCount; }
-  float GetVariaDamageReduction() const { return x300_variaDamageReduction; }
-  float GetGravityDamageReduction() const { return x304_gravityDamageReduction; }
-  float GetPhazonDamageReduction() const { return x308_phazonDamageReduction; }
+  float GetMaxTranslationalAcceleration(int s) const override { return x4_maxTranslationalAcceleration[s]; }
+  float GetMaxRotationalAcceleration(int s) const override { return x24_maxRotationalAcceleration[s]; }
+  float GetPlayerTranslationFriction(int s) const override { return x44_translationFriction[s]; }
+  float GetPlayerRotationFriction(int s) const override { return x64_rotationFriction[s]; }
+  float GetPlayerRotationMaxSpeed(int s) const override { return x84_rotationMaxSpeed[s]; }
+  float GetPlayerTranslationMaxSpeed(int s) const override { return xa4_translationMaxSpeed[s]; }
+  float GetNormalGravAccel() const override { return xc4_normalGravAccel; }
+  float GetFluidGravAccel() const override { return xc8_fluidGravAccel; }
+  float GetVerticalJumpAccel() const override { return xcc_verticalJumpAccel; }
+  float GetHorizontalJumpAccel() const override { return xd0_horizontalJumpAccel; }
+  float GetVerticalDoubleJumpAccel() const override { return xd4_verticalDoubleJumpAccel; }
+  float GetHorizontalDoubleJumpAccel() const override { return xd8_horizontalDoubleJumpAccel; }
+  float GetWaterJumpFactor() const override { return xdc_waterJumpFactor; }
+  float GetWaterBallJumpFactor() const override { return xe0_waterBallJumpFactor; }
+  float GetLavaJumpFactor() const override { return xe4_lavaJumpFactor; }
+  float GetLavaBallJumpFactor() const override { return xe8_lavaBallJumpFactor; }
+  float GetPhazonJumpFactor() const override { return xec_phazonJumpFactor; }
+  float GetPhazonBallJumpFactor() const override { return xf0_phazonBallJumpFactor; }
+  float GetAllowedJumpTime() const override { return xf4_allowedJumpTime; }
+  float GetAllowedDoubleJumpTime() const override { return xf8_allowedDoubleJumpTime; }
+  float GetMinDoubleJumpWindow() const override { return xfc_minDoubleJumpWindow; }
+  float GetMaxDoubleJumpWindow() const override { return x100_maxDoubleJumpWindow; }
+  float GetMinJumpTime() const override { return x108_minJumpTime; }
+  float GetMinDoubleJumpTime() const override { return x10c_minDoubleJumpTime; }
+  float GetAllowedLedgeTime() const override { return x110_allowedLedgeTime; }
+  float GetDoubleJumpImpulse() const override { return x114_doubleJumpImpulse; }
+  float GetBackwardsForceMultiplier() const override { return x118_backwardsForceMultiplier; }
+  float GetBombJumpRadius() const override { return x11c_bombJumpRadius; }
+  float GetBombJumpHeight() const override { return x120_bombJumpHeight; }
+  float GetEyeOffset() const override { return x124_eyeOffset; }
+  float GetTurnSpeedMultiplier() const override { return x128_turnSpeedMultiplier; }
+  float GetFreeLookTurnSpeedMultiplier() const override { return x12c_freeLookTurnSpeedMultiplier; }
+  float GetFreeLookSpeed() const override { return x138_freeLookSpeed; }
+  float GetFreeLookSnapSpeed() const override { return x13c_freeLookSnapSpeed; }
+  float GetFreeLookCenteredThresholdAngle() const override { return x144_freeLookCenteredThresholdAngle; }
+  float GetFreeLookCenteredTime() const override { return x148_freeLookCenteredTime; }
+  float GetOrbitModeTimer() const override { return x180_orbitModeTimer; }
+  float GetOrbitUpperAngle() const override { return x188_orbitUpperAngle; }
+  float GetOrbitLowerAngle() const override { return x18c_orbitLowerAngle; }
+  float GetOrbitHorizAngle() const override { return x190_orbitHorizAngle; }
+  float GetOrbitMaxTargetDistance() const override { return x19c_orbitMaxTargetDistance; }
+  float GetOrbitMaxLockDistance() const override { return x1a0_orbitMaxLockDistance; }
+  float GetOrbitDistanceThreshold() const override { return x1a4_orbitDistanceThreshold; }
+  uint32_t GetOrbitScreenBoxHalfExtentX(int zone) const override { return x1a8_orbitScreenBoxHalfExtentX[zone]; }
+  uint32_t GetOrbitScreenBoxHalfExtentY(int zone) const override { return x1b0_orbitScreenBoxHalfExtentY[zone]; }
+  uint32_t GetOrbitScreenBoxCenterX(int zone) const override { return x1b8_orbitScreenBoxCenterX[zone]; }
+  uint32_t GetOrbitScreenBoxCenterY(int zone) const override { return x1c0_orbitScreenBoxCenterY[zone]; }
+  uint32_t GetOrbitZoneIdealX(int zone) const override { return x1c8_orbitZoneIdealX[zone]; }
+  uint32_t GetOrbitZoneIdealY(int zone) const override { return x1d0_orbitZoneIdealY[zone]; }
+  float GetOrbitNearX() const override { return x1d8_orbitNearX; }
+  float GetOrbitNearZ() const override { return x1dc_orbitNearZ; }
+  float GetOrbitFixedOffsetZDiff() const override { return x1e8_orbitFixedOffsetZDiff; }
+  float GetOrbitZRange() const override { return x1ec_orbitZRange; }
+  bool GetDashEnabled() const override { return x200_24_dashEnabled; }
+  bool GetDashOnButtonRelease() const override { return x200_25_dashOnButtonRelease; }
+  float GetDashButtonHoldCancelTime() const override { return x204_dashButtonHoldCancelTime; }
+  float GetDashStrafeInputThreshold() const override { return x208_dashStrafeInputThreshold; }
+  float GetSidewaysDoubleJumpImpulse() const override { return x20c_sidewaysDoubleJumpImpulse; }
+  float GetSidewaysVerticalDoubleJumpAccel() const override { return x210_sidewaysVerticalDoubleJumpAccel; }
+  float GetSidewaysHorizontalDoubleJumpAccel() const override { return x214_sidewaysHorizontalDoubleJumpAccel; }
+  float GetScanningRange() const override { return x218_scanningRange; }
+  bool GetScanRetention() const override { return x21c_24_scanRetention; }
+  bool GetScanFreezesGame() const override { return x21c_25_scanFreezesGame; }
+  bool GetOrbitWhileScanning() const override { return x21c_26_orbitWhileScanning; }
+  float GetScanMaxTargetDistance() const override { return x220_scanMaxTargetDistance; }
+  float GetScanMaxLockDistance() const override { return x224_scanMaxLockDistance; }
+  bool GetMoveDuringFreeLook() const override { return x228_27_moveDuringFreeLook; }
+  bool GetHoldButtonsForFreeLook() const override { return x228_28_holdButtonsForFreeLook; }
+  bool GetTwoButtonsForFreeLook() const override { return x228_29_twoButtonsForFreeLook; }
+  bool GetAimWhenOrbitingPoint() const override { return x229_25_aimWhenOrbitingPoint; }
+  bool GetStayInFreeLookWhileFiring() const override { return x229_26_stayInFreeLookWhileFiring; }
+  bool GetOrbitFixedOffset() const override { return x229_29_orbitFixedOffset; }
+  bool GetGunButtonTogglesHolster() const override { return x229_30_gunButtonTogglesHolster; }
+  bool GetGunNotFiringHolstersGun() const override { return x229_31_gunNotFiringHolstersGun; }
+  bool GetFallingDoubleJump() const override { return x22a_24_fallingDoubleJump; }
+  bool GetImpulseDoubleJump() const override { return x22a_25_impulseDoubleJump; }
+  bool GetFiringCancelsCameraPitch() const override { return x22a_26_firingCancelsCameraPitch; }
+  bool GetAssistedAimingIgnoreHorizontal() const override { return x22a_27_assistedAimingIgnoreHorizontal; }
+  bool GetAssistedAimingIgnoreVertical() const override { return x22a_28_assistedAimingIgnoreVertical; }
+  float GetAimMaxDistance() const override { return x234_aimMaxDistance; }
+  float GetAimThresholdDistance() const override { return x24c_aimThresholdDistance; }
+  float GetAimBoxWidth() const override { return x258_aimBoxWidth; }
+  float GetAimBoxHeight() const override { return x25c_aimBoxHeight; }
+  float GetAimTargetTimer() const override { return x260_aimTargetTimer; }
+  float GetAimAssistHorizontalAngle() const override { return x264_aimAssistHorizontalAngle; }
+  float GetAimAssistVerticalAngle() const override { return x268_aimAssistVerticalAngle; }
+  float GetPlayerHeight() const override { return x26c_playerHeight; }
+  float GetPlayerXYHalfExtent() const override { return x270_playerXYHalfExtent; }
+  float GetStepUpHeight() const override { return x274_stepUpHeight; }
+  float GetStepDownHeight() const override { return x278_stepDownHeight; }
+  float GetPlayerBallHalfExtent() const override { return x27c_playerBallHalfExtent; }
+  float GetOrbitDistanceMax() const override { return x2a0_orbitDistanceMax; }
+  float GetGrappleSwingLength() const override { return x2a4_grappleSwingLength; }
+  float GetGrappleSwingPeriod() const override { return x2a8_grappleSwingPeriod; }
+  float GetGrapplePullSpeedMin() const override { return x2ac_grapplePullSpeedMin; }
+  float GetMaxGrappleLockedTurnAlignDistance() const override { return x2b4_maxGrappleLockedTurnAlignDistance; }
+  float GetGrapplePullSpeedProportion() const override { return x2b8_grapplePullSpeedProportion; }
+  float GetGrapplePullSpeedMax() const override { return x2bc_grapplePullSpeedMax; }
+  float GetGrappleLookCenterSpeed() const override { return x2c0_grappleLookCenterSpeed; }
+  float GetMaxGrappleTurnSpeed() const override { return x2c4_maxGrappleTurnSpeed; }
+  float GetGrappleJumpForce() const override { return x2c8_grappleJumpForce; }
+  float GetGrappleReleaseTime() const override { return x2cc_grappleReleaseTime; }
+  uint32_t GetGrappleJumpMode() const override { return x2d0_grappleJumpMode; }
+  bool GetOrbitReleaseBreaksGrapple() const override { return x2d4_orbitReleaseBreaksGrapple; }
+  bool GetInvertGrappleTurn() const override { return x2d5_invertGrappleTurn; }
+  float GetGrappleBeamSpeed() const override { return x2d8_grappleBeamSpeed; }
+  float GetGrappleBeamXWaveAmplitude() const override { return x2dc_grappleBeamXWaveAmplitude; }
+  float GetGrappleBeamZWaveAmplitude() const override { return x2e0_grappleBeamZWaveAmplitude; }
+  float GetGrappleBeamAnglePhaseDelta() const override { return x2e4_grappleBeamAnglePhaseDelta; }
+  float GetHorizontalFreeLookAngleVel() const override { return x130_horizontalFreeLookAngleVel; }
+  float GetVerticalFreeLookAngleVel() const override { return x134_verticalFreeLookAngleVel; }
+  float GetOrbitCameraSpeed() const override { return x184_orbitCameraSpeed; }
+  float GetOrbitPreventionTime() const override { return x1fc_orbitPreventionTime; }
+  bool GetFreeLookTurnsPlayer() const override { return x228_24_freelookTurnsPlayer; }
+  float GetJumpCameraPitchDownStart() const override { return x288_jumpCameraPitchDownStart; }
+  float GetJumpCameraPitchDownFull() const override { return x28c_jumpCameraPitchDownFull; }
+  float GetJumpCameraPitchDownAngle() const override { return x290_jumpCameraPitchDownAngle; }
+  float GetFallCameraPitchDownStart() const override { return x294_fallCameraPitchDownStart; }
+  float GetFallCameraPitchDownFull() const override { return x298_fallCameraPitchDownFull; }
+  float GetFallCameraPitchDownAngle() const override { return x29c_fallCameraPitchDownAngle; }
+  float GetFirstPersonCameraSpeed() const override { return x280_firstPersonCameraSpeed; }
+  float GetGrappleCameraSpeed() const override { return x2b0_grappleCameraSpeed; }
+  float GetFreeLookDampenFactor() const override { return x14c_freeLookDampenFactor; }
+  float GetLeftLogicalThreshold() const override { return x150_leftDiv; }
+  float GetRightLogicalThreshold() const override { return x154_rightDiv; }
+  float GetOrbitMinDistance(int type) const override { return x158_orbitMinDistance[type]; }
+  float GetOrbitNormalDistance(int type) const override { return x164_orbitNormalDistance[type]; }
+  float GetOrbitMaxDistance(int type) const override { return x170_orbitMaxDistance[type]; }
+  float GetFrozenTimeout() const override { return x2f8_frozenTimeout; }
+  uint32_t GetIceBreakJumpCount() const override { return x2fc_iceBreakJumpCount; }
+  float GetVariaDamageReduction() const override { return x300_variaDamageReduction; }
+  float GetGravityDamageReduction() const override { return x304_gravityDamageReduction; }
+  float GetPhazonDamageReduction() const override { return x308_phazonDamageReduction; }
   CTweakPlayer() = default;
   CTweakPlayer(athena::io::IStreamReader& reader) {
     read(reader);

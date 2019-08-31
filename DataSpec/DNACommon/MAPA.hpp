@@ -1,7 +1,18 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "GX.hpp"
+#include <memory>
+#include <vector>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+namespace hecl {
+class ProjectPath;
+}
+
+namespace hecl::blender {
+class Connection;
+struct MapArea;
+} // namespace hecl::blender
 
 namespace DataSpec::DNAMAPA {
 struct MAPA : BigDNA {
@@ -17,7 +28,6 @@ struct MAPA : BigDNA {
   };
 
   struct HeaderMP1 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -25,14 +35,13 @@ struct MAPA : BigDNA {
     Value<atUint32> moCount = 0;
     Value<atUint32> vtxCount = 0;
     Value<atUint32> surfCount = 0;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   struct HeaderMP2 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -43,14 +52,13 @@ struct MAPA : BigDNA {
     Value<atUint32> moCount = 0;
     Value<atUint32> vtxCount = 0;
     Value<atUint32> surfCount = 0;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   struct HeaderMP3 : IMAPAHeader {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<atUint32> unknown1 = 0;
     Value<atUint32> mapVisMode = 0;
@@ -65,10 +73,10 @@ struct MAPA : BigDNA {
     Value<atUint32> internalNameLength = 0;
     Value<atUint32> unknown7 = 0;
     String<AT_DNA_COUNT(internalNameLength)> internalName;
-    atUint32 visMode() const { return mapVisMode; }
-    atUint32 mappableObjectCount() const { return moCount; }
-    atUint32 vertexCount() const { return vtxCount; }
-    atUint32 surfaceCount() const { return surfCount; }
+    atUint32 visMode() const override { return mapVisMode; }
+    atUint32 mappableObjectCount() const override { return moCount; }
+    atUint32 vertexCount() const override { return vtxCount; }
+    atUint32 surfaceCount() const override { return surfCount; }
   };
 
   std::unique_ptr<IMAPAHeader> header;
@@ -102,7 +110,6 @@ struct MAPA : BigDNA {
   };
 
   struct MappableObjectMP1_2 : IMappableObject {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<Type> type;
     Value<atUint32> visMode;
@@ -113,7 +120,6 @@ struct MAPA : BigDNA {
   };
 
   struct MappableObjectMP3 : IMappableObject {
-    AT_DECL_DNA
     AT_DECL_DNAV
     Value<Type> type;
     Value<atUint32> visMode;

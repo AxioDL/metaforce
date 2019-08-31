@@ -1,7 +1,8 @@
-#include "PAK.hpp"
-#include "../DNAMP1/DNAMP1.hpp"
-#include "../DNAMP2/DNAMP2.hpp"
-#include "../DNAMP3/DNAMP3.hpp"
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include "DataSpec/DNAMP1/DNAMP1.hpp"
+#include "DataSpec/DNAMP2/DNAMP2.hpp"
+#include "DataSpec/DNAMP3/DNAMP3.hpp"
 
 namespace DataSpec {
 
@@ -465,9 +466,8 @@ bool PAKRouter<BRIDGETYPE>::extractResources(const BRIDGETYPE& pakBridge, bool f
       if (force || cooked.isNone()) {
         cooked.makeDirChain(false);
         PAKEntryReadStream s = entryPtr->beginReadStream(*node);
-        FILE* fout = hecl::Fopen(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
-        fwrite(s.data(), 1, s.length(), fout);
-        fclose(fout);
+        const auto fout = hecl::FopenUnique(cooked.getAbsolutePath().data(), _SYS_STR("wb"));
+        std::fwrite(s.data(), 1, s.length(), fout.get());
       }
 
       if (extractor.func_a) /* Doesn't need PAKRouter access */

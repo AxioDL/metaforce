@@ -7,10 +7,10 @@ namespace urde {
 class CGuiCompoundWidget : public CGuiWidget {
 public:
   CGuiCompoundWidget(const CGuiWidgetParms& parms);
-  FourCC GetWidgetTypeID() const { return FourCC(-1); }
+  FourCC GetWidgetTypeID() const override { return FourCC(-1); }
 
-  void OnVisibleChange();
-  void OnActiveChange();
+  void OnVisibleChange() override;
+  void OnActiveChange() override;
   virtual CGuiWidget* GetWorkerWidget(int id) const;
 };
 

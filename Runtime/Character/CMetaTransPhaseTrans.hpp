@@ -14,11 +14,11 @@ class CMetaTransPhaseTrans : public IMetaTrans {
 
 public:
   CMetaTransPhaseTrans(CInputStream& in);
-  EMetaTransType GetType() const { return EMetaTransType::PhaseTrans; }
+  EMetaTransType GetType() const override { return EMetaTransType::PhaseTrans; }
 
   std::shared_ptr<CAnimTreeNode> VGetTransitionTree(const std::weak_ptr<CAnimTreeNode>& a,
                                                     const std::weak_ptr<CAnimTreeNode>& b,
-                                                    const CAnimSysContext& animSys) const;
+                                                    const CAnimSysContext& animSys) const override;
 };
 
 } // namespace urde

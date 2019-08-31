@@ -100,7 +100,7 @@ class CFishCloud : public CActor {
   void BuildBoidNearList(const zeus::CVector3f& pos, float radius, rstl::reserved_vector<CBoid*, 25>& nearList);
   void BuildBoidNearPartitionList(const zeus::CVector3f& pos, float radius,
                                   rstl::reserved_vector<CBoid*, 25>& nearList);
-  void PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb);
+  void PlaceBoid(CStateManager& mgr, CBoid& boid, const zeus::CAABox& aabb) const;
   void ApplySeparation(CBoid& boid, const rstl::reserved_vector<CBoid*, 25>& nearList) const;
   void ApplySeparation(CBoid& boid, const zeus::CVector3f& separateFrom,
                        float separationRadius, float separationMagnitude) const;
@@ -135,14 +135,14 @@ public:
              CAssetId part1, u32 partCount1, CAssetId part2, u32 partCount2, CAssetId part3, u32 partCount3,
              CAssetId part4, u32 partCount4, u32 deathSfx, bool repelFromThreats, bool hotInThermal);
 
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr);
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
-  void Render(const CStateManager& mgr) const;
-  void CalculateRenderBounds();
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor& other, CStateManager& mgr);
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void Render(const CStateManager& mgr) const override;
+  void CalculateRenderBounds() override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor& other, CStateManager& mgr) override;
   void RemoveRepulsor(TUniqueId source);
   void RemoveAttractor(TUniqueId source);
   bool AddRepulsor(TUniqueId source, bool swirl, float radius, float priority);

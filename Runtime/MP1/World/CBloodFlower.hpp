@@ -48,19 +48,19 @@ public:
                const CPatternedInfo&, CAssetId, CAssetId, const CActorParameters&, CAssetId, const CDamageInfo&,
                const CDamageInfo&, const CDamageInfo&, CAssetId, CAssetId, CAssetId, float, CAssetId, u32);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float dt, CStateManager& mgr);
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
-  void Render(const CStateManager& mgr) const;
-  void Touch(CActor&, CStateManager&) {}
-  CProjectileInfo* GetProjectileInfo() { return &x590_projectileInfo; }
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
+  void Render(const CStateManager& mgr) const override;
+  void Touch(CActor&, CStateManager&) override {}
+  CProjectileInfo* GetProjectileInfo() override { return &x590_projectileInfo; }
 
-  bool ShouldAttack(CStateManager&, float);
-  bool ShouldTurn(CStateManager&, float);
-  bool Leash(CStateManager&, float) { return x5c0_ < x3d0_playerLeashTime; }
-  void Active(CStateManager&, EStateMsg, float);
-  void InActive(CStateManager&, EStateMsg, float);
-  void BulbAttack(CStateManager&, EStateMsg, float);
-  void PodAttack(CStateManager&, EStateMsg, float);
+  bool ShouldAttack(CStateManager&, float) override;
+  bool ShouldTurn(CStateManager&, float) override;
+  bool Leash(CStateManager&, float) override { return x5c0_ < x3d0_playerLeashTime; }
+  void Active(CStateManager&, EStateMsg, float) override;
+  void InActive(CStateManager&, EStateMsg, float) override;
+  void BulbAttack(CStateManager&, EStateMsg, float) override;
+  void PodAttack(CStateManager&, EStateMsg, float) override;
 };
 } // namespace urde::MP1

@@ -202,7 +202,7 @@ private:
   static float GetMapAreaMiniMapDrawAlphaOutlineUnvisited(const CStateManager&);
   float GetDesiredMiniMapCameraDistance(const CStateManager&) const;
   static float GetBaseMapScreenCameraMoveSpeed();
-  float GetClampedMapScreenCameraDistance(float);
+  float GetClampedMapScreenCameraDistance(float) const;
   float GetFinalMapScreenCameraMoveSpeed() const;
   void ProcessMapRotateInput(const CFinalInput& input, const CStateManager& mgr);
   void ProcessMapZoomInput(const CFinalInput& input, const CStateManager& mgr);

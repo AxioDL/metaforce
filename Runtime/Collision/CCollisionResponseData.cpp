@@ -223,7 +223,8 @@ bool CCollisionResponseData::ResponseTypeIsEnemySpecial(EWeaponCollisionResponse
 }
 
 bool CCollisionResponseData::ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes type) {
-  return (type >= EWeaponCollisionResponseTypes::Unknown69 && type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect);
+  return (type >= EWeaponCollisionResponseTypes::Unknown69 &&
+          type <= EWeaponCollisionResponseTypes::AtomicAlphaReflect);
 }
 
 FourCC CCollisionResponseData::UncookedResType() { return SBIG('CRSM'); }

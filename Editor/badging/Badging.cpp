@@ -1,5 +1,7 @@
 #include "Badging.hpp"
 #include "athena/MemoryReader.hpp"
+
+#include <specter/Icon.hpp>
 #include <zlib.h>
 
 extern "C" uint8_t URDE_BADGE[];

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataSpec/DNACommon/DeafBabe.hpp"
+#include "DataSpec/DNACommon/DNACommon.hpp"
 
 namespace DataSpec::DNAMP1 {
 

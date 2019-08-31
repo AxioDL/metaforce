@@ -1,4 +1,8 @@
-#include "FONT.hpp"
+#include "DataSpec/DNACommon/FONT.hpp"
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAFont {
 logvisor::Module LogModule("urde::DNAFont");

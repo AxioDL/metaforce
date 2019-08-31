@@ -374,7 +374,7 @@ TAreaId CStateManager::GetVisAreaId() const {
   return curArea;
 }
 
-s32 CStateManager::GetWeaponIdCount(TUniqueId uid, EWeaponType type) {
+s32 CStateManager::GetWeaponIdCount(TUniqueId uid, EWeaponType type) const {
   return x878_weaponManager->GetNumActive(uid, type);
 }
 
@@ -876,7 +876,7 @@ void CStateManager::DrawWorld() const {
 
 void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
   if (!actor.m_reflectionCube ||
-  (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
+      (!TCastToPtr<CPlayer>(actor) && (!actor.GetActive() || !actor.IsDrawEnabled() || actor.xe4_30_outOfFrustum)))
     return;
 
   TAreaId visAreaId = actor.GetAreaIdAlways();
@@ -895,23 +895,24 @@ void CStateManager::DrawActorCubeFaces(CActor& actor, int& cubeInst) const {
   }
 
   for (int f = 0; f < 6; ++f) {
-    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CStateManager::DrawActorCubeFaces [{}] {} {} {}"),
-      f, actor.GetUniqueId(), actor.GetEditorId(), actor.GetName()).c_str(), zeus::skOrange);
+    SCOPED_GRAPHICS_DEBUG_GROUP(fmt::format(fmt("CStateManager::DrawActorCubeFaces [{}] {} {} {}"), f,
+                                            actor.GetUniqueId(), actor.GetEditorId(), actor.GetName())
+                                    .c_str(),
+                                zeus::skOrange);
     CGraphics::g_BooMainCommandQueue->setRenderTarget(actor.m_reflectionCube, f);
     SetupViewForCubeFaceDraw(actor.GetRenderBounds().center(), f);
     CGraphics::g_BooMainCommandQueue->clearTarget();
 
-    std::sort(std::begin(areaArr), std::begin(areaArr) + areaCount,
-              [visAreaId](const CGameArea* a, const CGameArea* b) {
-                if (a->x4_selfIdx == b->x4_selfIdx)
-                  return false;
-                if (visAreaId == a->x4_selfIdx)
-                  return false;
-                if (visAreaId == b->x4_selfIdx)
-                  return true;
-                return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) >
-                       CGraphics::g_ViewPoint.dot(b->GetAABB().center());
-              });
+    std::sort(
+        std::begin(areaArr), std::begin(areaArr) + areaCount, [visAreaId](const CGameArea* a, const CGameArea* b) {
+          if (a->x4_selfIdx == b->x4_selfIdx)
+            return false;
+          if (visAreaId == a->x4_selfIdx)
+            return false;
+          if (visAreaId == b->x4_selfIdx)
+            return true;
+          return CGraphics::g_ViewPoint.dot(a->GetAABB().center()) > CGraphics::g_ViewPoint.dot(b->GetAABB().center());
+        });
 
     int pvsCount = 0;
     CPVSVisSet pvsArr[10];
@@ -1187,7 +1188,7 @@ void CStateManager::SendScriptMsgAlways(TUniqueId dest, TUniqueId src, EScriptOb
 }
 
 void CStateManager::SendScriptMsg(TUniqueId src, TEditorId dest, EScriptObjectMessage msg, EScriptObjectState state) {
-  CEntity* ent = ObjectById(src);
+  //CEntity* ent = GetObjectById(src);
   auto search = GetIdListForScript(dest);
   if (search.first != x890_scriptIdMap.cend()) {
     for (auto it = search.first; it != search.second; ++it) {
@@ -1461,8 +1462,7 @@ void CStateManager::ApplyDamageToWorld(TUniqueId damager, const CActor& actor, c
     if (bomb && player) {
       if (player->GetFrozenState()) {
         g_GameState->SystemOptions().IncrementFrozenBallCount();
-        CHUDMemoParms info = {0.f, true, true, true};
-        MP1::CSamusHud::DisplayHudMemo(u"", info);
+        MP1::CSamusHud::DisplayHudMemo(u"", CHUDMemoParms{0.f, true, true, true});
         player->UnFreeze(*this);
       } else {
         if ((weapon->GetAttribField() & EProjectileAttrib::Bombs) == EProjectileAttrib::Bombs)
@@ -1656,8 +1656,7 @@ void CStateManager::TestBombHittingWater(const CActor& damager, const zeus::CVec
           float bombMag = powerBomb ? 2.f : 1.f;
           if (delta <= -bombMag || delta >= 0.f)
             return;
-          CRayCastResult res =
-              RayStaticIntersection(pos, zeus::skDown, -delta, CMaterialFilter::skPassEverything);
+          CRayCastResult res = RayStaticIntersection(pos, zeus::skDown, -delta, CMaterialFilter::skPassEverything);
           if (res.IsInvalid() && x87c_fluidPlaneManager->GetLastRippleDeltaTime(damager.GetUniqueId()) >= 0.15f) {
             // Not blocked by static geometry
             float mag = 0.6f * bombMag + 0.4f * bombMag * std::sin(2.f * M_PIF * -delta / bombMag * 0.25f);

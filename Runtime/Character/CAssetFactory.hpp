@@ -13,21 +13,23 @@ class CCharacterFactoryBuilder {
 public:
   class CDummyFactory : public IFactory {
   public:
-    CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef);
-    void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*, CObjectReference* selfRef);
-    void CancelBuild(const SObjectTag&);
-    bool CanBuild(const SObjectTag&);
-    const SObjectTag* GetResourceIdByName(std::string_view) const;
-    FourCC GetResourceTypeById(CAssetId id) const;
+    CFactoryFnReturn Build(const SObjectTag&, const CVParamTransfer&, CObjectReference* selfRef) override;
+    void BuildAsync(const SObjectTag&, const CVParamTransfer&, std::unique_ptr<IObj>*,
+                    CObjectReference* selfRef) override;
+    void CancelBuild(const SObjectTag&) override;
+    bool CanBuild(const SObjectTag&) override;
+    const SObjectTag* GetResourceIdByName(std::string_view) const override;
+    FourCC GetResourceTypeById(CAssetId id) const override;
 
-    void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
-    void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
+    void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const override;
+    void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const override;
 
-    u32 ResourceSize(const urde::SObjectTag& tag);
-    std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);
-    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size, void* target);
-    std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
-    std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
+    u32 ResourceSize(const urde::SObjectTag& tag) override;
+    std::shared_ptr<IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) override;
+    std::shared_ptr<IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
+                                                       void* target) override;
+    std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) override;
+    std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) override;
   };
 
 private:

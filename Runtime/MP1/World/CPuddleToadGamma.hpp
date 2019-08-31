@@ -32,7 +32,7 @@ class CPuddleToadGamma final : public CPatterned {
   static void CenterPlayer(CStateManager&, const zeus::CVector3f&, float);
   void ShootPlayer(CStateManager&, float);
   void SuckPlayer(CStateManager&, float);
-  bool PlayerInVortexArea(const CStateManager&);
+  bool PlayerInVortexArea(const CStateManager&) const;
   void SetPlayerPosition(CStateManager&, const zeus::CVector3f&);
 
 public:
@@ -45,30 +45,32 @@ public:
                    float spotPlayerWaitTime, const CDamageInfo& playerShootDamage, const CDamageInfo& dInfo2,
                    CAssetId dcln);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float dt, CStateManager& mgr);
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
 
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                     const CDamageInfo&) const;
+                                                     const CDamageInfo&) const override;
 
-  const CDamageVulnerability* GetDamageVulnerability() const { return &CDamageVulnerability::ImmuneVulnerabilty(); }
+  const CDamageVulnerability* GetDamageVulnerability() const override {
+    return &CDamageVulnerability::ImmuneVulnerabilty();
+  }
 
-  const CCollisionPrimitive* GetCollisionPrimitive() const;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override;
 
-  zeus::CTransform GetPrimitiveTransform() const;
+  zeus::CTransform GetPrimitiveTransform() const override;
 
-  void InActive(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void Suck(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Crouch(CStateManager&, EStateMsg, float);
-  bool InAttackPosition(CStateManager&, float);
-  bool SpotPlayer(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float);
-  bool LostInterest(CStateManager&, float);
-  bool Inside(CStateManager&, float);
+  void InActive(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void Suck(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Crouch(CStateManager&, EStateMsg, float) override;
+  bool InAttackPosition(CStateManager&, float) override;
+  bool SpotPlayer(CStateManager&, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
+  bool LostInterest(CStateManager&, float) override;
+  bool Inside(CStateManager&, float) override;
 };
 
 } // namespace urde::MP1

@@ -89,17 +89,17 @@ public:
                float unitsPerLightmapTexel, float alphaInTime, float alphaOutTime, u32, u32, bool, s32, s32,
                std::unique_ptr<u32[]>&& u32Arr);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
-  void Touch(CActor&, CStateManager&);
-  void CalculateRenderBounds();
-  zeus::CAABox GetSortingBounds(const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
+  void Touch(CActor&, CStateManager&) override;
+  void CalculateRenderBounds() override;
+  zeus::CAABox GetSortingBounds(const CStateManager&) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const;
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
 
   u16 GetSplashSound(float) const;
   const std::optional<TLockedToken<CGenDescription>>& GetSplashEffect(float) const;

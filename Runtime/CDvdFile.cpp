@@ -18,20 +18,20 @@ class CFileDvdRequest : public IDvdRequest {
   std::function<void(u32)> m_callback;
 
 public:
-  ~CFileDvdRequest() { PostCancelRequest(); }
+  ~CFileDvdRequest() override { PostCancelRequest(); }
 
-  void WaitUntilComplete() {
+  void WaitUntilComplete() override {
     while (!m_complete.load() && !m_cancel.load()) {
       std::unique_lock<std::mutex> lk(CDvdFile::m_WaitMutex);
     }
   }
-  bool IsComplete() { return m_complete.load(); }
-  void PostCancelRequest() {
+  bool IsComplete() override { return m_complete.load(); }
+  void PostCancelRequest() override {
     std::unique_lock<std::mutex> waitlk(CDvdFile::m_WaitMutex);
     m_cancel.store(true);
   }
 
-  EMediaType GetMediaType() const { return EMediaType::File; }
+  EMediaType GetMediaType() const override { return EMediaType::File; }
 
   CFileDvdRequest(CDvdFile& file, void* buf, u32 len, ESeekOrigin whence, int off, std::function<void(u32)>&& cb)
   : m_reader(file.m_reader), m_buf(buf), m_len(len), m_whence(whence), m_offset(off), m_callback(std::move(cb)) {}

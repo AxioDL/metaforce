@@ -27,11 +27,11 @@ void CScriptAreaAttributes::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId 
     return;
 
   if (msg == EScriptObjectMessage::InitializedInArea) {
-    CGameArea* area = stateMgr.WorldNC()->GetArea(x4_areaId);
+    CGameArea* area = stateMgr.GetWorld()->GetArea(x4_areaId);
     area->SetAreaAttributes(this);
     stateMgr.GetEnvFxManager()->SetFxDensity(500, x3c_envFxDensity);
   } else if (msg == EScriptObjectMessage::Deleted) {
-    CGameArea* area = stateMgr.WorldNC()->GetArea(x4_areaId);
+    CGameArea* area = stateMgr.GetWorld()->GetArea(x4_areaId);
 
     if (!area->IsPostConstructed())
       return;

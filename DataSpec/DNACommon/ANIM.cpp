@@ -1,7 +1,19 @@
-#include "zeus/Math.hpp"
-#include "ANIM.hpp"
+#include "DataSpec/DNACommon/ANIM.hpp"
+
+#include <cfloat>
+#include <cmath>
+#include <cstring>
+
+#include <hecl/hecl.hpp>
+#include <zeus/Global.hpp>
+#include <zeus/Math.hpp>
 
 #define DUMP_KEYS 0
+
+#if DUMP_KEYS
+#include <cstdio>
+#include <fmt/format.h>
+#endif
 
 namespace DataSpec::DNAANIM {
 
@@ -163,7 +175,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
 
   for (size_t f = 0; f < keyFrameCount; ++f) {
 #if DUMP_KEYS
-    fprintf(stderr, "\nFRAME %" PRISize " %u %u\n", f, (m_bitCur / 32) * 4, m_bitCur % 32);
+    fmt::print(stderr, fmt("\nFRAME {} {} {}\n"), f, (m_bitCur / 32) * 4, m_bitCur % 32);
     int lastId = -1;
 #endif
     auto kit = chanKeys.begin();
@@ -172,7 +184,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
 #if DUMP_KEYS
       if (chan.id != lastId) {
         lastId = chan.id;
-        fprintf(stderr, "\n");
+        std::fputc('\n', stderr);
       }
 #endif
       QuantizedValue& p = *ait;
@@ -185,7 +197,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         QuantizedRot qr = {{p[0], p[1], p[2]}, wBit};
         kit->emplace_back(DequantizeRotation(qr, rotDiv));
 #if DUMP_KEYS
-        fprintf(stderr, "%d R: %d %d %d %d\t", chan.id, wBit, p[0], p[1], p[2]);
+        fmt::print(stderr, fmt("{} R: {} {} {} {}\t"), chan.id, wBit, p[0], p[1], p[2]);
 #endif
         break;
       }
@@ -198,7 +210,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         p[2] += val3;
         kit->push_back({p[0] * transMult, p[1] * transMult, p[2] * transMult});
 #if DUMP_KEYS
-        fprintf(stderr, "%d T: %d %d %d\t", chan.id, p[0], p[1], p[2]);
+        fmt::print(stderr, fmt("{} T: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
 #endif
         break;
       }
@@ -208,7 +220,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
         p[2] += dequantize(data, chan.q[2]);
         kit->push_back({p[0] * scaleMult, p[1] * scaleMult, p[2] * scaleMult});
 #if DUMP_KEYS
-        fprintf(stderr, "%d S: %d %d %d\t", chan.id, p[0], p[1], p[2]);
+        fmt::print(stderr, fmt("{} S: {} {} {}\t"), chan.id, p[0], p[1], p[2]);
 #endif
         break;
       }
@@ -236,7 +248,7 @@ std::vector<std::vector<Value>> BitstreamReader::read(const atUint8* data, size_
       ++ait;
     }
 #if DUMP_KEYS
-    fprintf(stderr, "\n");
+    std::fputc('\n', stderr);
 #endif
   }
 

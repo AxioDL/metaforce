@@ -305,7 +305,7 @@ void CRagDoll::Update(CStateManager& mgr, float dt, float waterTop) {
 
 void CRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData& mData) {
   zeus::CVector3f scale = mData.GetScale();
-  CAnimData* aData = mData.AnimationData();
+  CAnimData* aData = mData.GetAnimationData();
   aData->BuildPose();
   for (auto& particle : x4_particles)
     if (particle.x0_id != 0xff)

@@ -58,32 +58,32 @@ struct CTweakGunRes final : ITweakGunRes {
   String<-1> m_grappleMuzzle;
   String<-1> m_grappleSwoosh;
 
-  const std::string& GetGunMotion() const { return m_gunMotion; }
-  const std::string& GetGrappleArm() const { return m_grappleArm; }
-  const std::string& GetRightHand() const { return m_rightHand; }
+  const std::string& GetGunMotion() const override { return m_gunMotion; }
+  const std::string& GetGrappleArm() const override { return m_grappleArm; }
+  const std::string& GetRightHand() const override { return m_rightHand; }
 
-  const std::string& GetPowerBeam() const { return m_powerBeam; }
-  const std::string& GetIceBeam() const { return m_iceBeam; }
-  const std::string& GetWaveBeam() const { return m_waveBeam; }
-  const std::string& GetPlasmaBeam() const { return m_plasmaBeam; }
-  const std::string& GetPhazonBeam() const { return m_phazonBeam; }
+  const std::string& GetPowerBeam() const override { return m_powerBeam; }
+  const std::string& GetIceBeam() const override { return m_iceBeam; }
+  const std::string& GetWaveBeam() const override { return m_waveBeam; }
+  const std::string& GetPlasmaBeam() const override { return m_plasmaBeam; }
+  const std::string& GetPhazonBeam() const override { return m_phazonBeam; }
 
-  const std::string& GetHoloTransition() const { return m_holoTransition; }
+  const std::string& GetHoloTransition() const override { return m_holoTransition; }
 
-  const std::string& GetBombSet() const { return m_bombSet; }
-  const std::string& GetBombExplode() const { return m_bombExplode; }
-  const std::string& GetPowerBombExplode() const { return m_powerBombExplode; }
+  const std::string& GetBombSet() const override { return m_bombSet; }
+  const std::string& GetBombExplode() const override { return m_bombExplode; }
+  const std::string& GetPowerBombExplode() const override { return m_powerBombExplode; }
 
-  const std::string& GetWeapon(size_t idx, bool ball) const { return (&m_powerBeamWp)[idx * 2 + ball]; }
-  const std::string& GetMuzzleParticle(size_t idx) const { return (&m_powerMuzzle)[idx]; }
-  const std::string& GetChargeParticle(size_t idx) const { return (&m_powerCharge)[idx]; }
-  const std::string& GetAuxMuzzleParticle(size_t idx) const { return (&m_powerAuxMuzzle)[idx]; }
+  const std::string& GetWeapon(size_t idx, bool ball) const override { return (&m_powerBeamWp)[idx * 2 + ball]; }
+  const std::string& GetMuzzleParticle(size_t idx) const override { return (&m_powerMuzzle)[idx]; }
+  const std::string& GetChargeParticle(size_t idx) const override { return (&m_powerCharge)[idx]; }
+  const std::string& GetAuxMuzzleParticle(size_t idx) const override { return (&m_powerAuxMuzzle)[idx]; }
 
-  const std::string& GetGrappleSegmentParticle() const { return m_grappleSegment; }
-  const std::string& GetGrappleClawParticle() const { return m_grappleClaw; }
-  const std::string& GetGrappleHitParticle() const { return m_grappleHit; }
-  const std::string& GetGrappleMuzzleParticle() const { return m_grappleMuzzle; }
-  const std::string& GetGrappleSwooshParticle() const { return m_grappleSwoosh; }
+  const std::string& GetGrappleSegmentParticle() const override { return m_grappleSegment; }
+  const std::string& GetGrappleClawParticle() const override { return m_grappleClaw; }
+  const std::string& GetGrappleHitParticle() const override { return m_grappleHit; }
+  const std::string& GetGrappleMuzzleParticle() const override { return m_grappleMuzzle; }
+  const std::string& GetGrappleSwooshParticle() const override { return m_grappleSwoosh; }
 
   CTweakGunRes() = default;
   CTweakGunRes(athena::io::IStreamReader& in) { read(in); }

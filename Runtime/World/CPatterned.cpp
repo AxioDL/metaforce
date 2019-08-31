@@ -936,6 +936,10 @@ void CPatterned::TryKnockBack(CStateManager& mgr, int arg) {
   x450_bodyController->GetCommandMgr().DeliverCmd(CBCKnockBackCmd(GetTranslation(), pas::ESeverity(arg)));
 }
 
+void CPatterned::TryGenerateDeactivate(urde::CStateManager& mgr, int arg) {
+  x450_bodyController->GetCommandMgr().DeliverCmd(CBCGenerateCmd(pas::EGenerateType(arg), zeus::skZero3f));
+}
+
 void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController)
     return;
@@ -1162,10 +1166,10 @@ void CPatterned::UpdateAlphaDelta(float dt, CStateManager& mgr) {
   }
   x94_simpleShadow->SetUserAlpha(alpha);
   SetModelAlpha(alpha);
-  x64_modelData->AnimationData()->GetParticleDB().SetModulationColorAllActiveEffects(zeus::CColor(1.f, alpha));
+  x64_modelData->GetAnimationData()->GetParticleDB().SetModulationColorAllActiveEffects(zeus::CColor(1.f, alpha));
 }
 
-float CPatterned::CalcDyingThinkRate() {
+float CPatterned::CalcDyingThinkRate() const {
   float f0 = (x401_28_burning ? (x3f4_burnThinkRateTimer / 1.5f) : 1.f);
   return zeus::max(0.1f, f0);
 }
@@ -1566,7 +1570,7 @@ void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, const CStateManage
     if (x64_modelData && !x64_modelData->IsNull()) {
       int mask, target;
       mgr.GetCharacterRenderMaskAndTarget(x402_31_thawed, mask, target);
-      if (CAnimData* aData = x64_modelData->AnimationData())
+      if (CAnimData* aData = x64_modelData->GetAnimationData())
         aData->GetParticleDB().AddToRendererClippedMasked(frustum, mask, target);
     }
   }
@@ -1576,7 +1580,7 @@ void CPatterned::AddToRenderer(const zeus::CFrustum& frustum, const CStateManage
 void CPatterned::RenderIceModelWithFlags(const CModelFlags& flags) const {
   CModelFlags useFlags = flags;
   useFlags.x1_matSetIdx = 0;
-  CAnimData* animData = x64_modelData->AnimationData();
+  CAnimData* animData = x64_modelData->GetAnimationData();
   if (CMorphableSkinnedModel* iceModel = animData->IceModel().GetObj())
     animData->Render(*iceModel, useFlags, {*x510_vertexMorph}, iceModel->GetMorphMagnitudes());
 }
@@ -1690,7 +1694,7 @@ void CPatterned::PhazeOut(CStateManager& mgr) {
     SendScriptMsgs(EScriptObjectState::DeathRattle, mgr, EScriptObjectMessage::None);
   x401_27_phazingOut = true;
   x450_bodyController->SetPlaybackRate(0.f);
-  x64_modelData->AnimationData()->GetParticleDB().SetUpdatesEnabled(false);
+  x64_modelData->GetAnimationData()->GetParticleDB().SetUpdatesEnabled(false);
 }
 
 bool CPatterned::ApplyBoneTracking() const {

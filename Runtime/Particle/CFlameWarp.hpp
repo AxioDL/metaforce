@@ -37,12 +37,12 @@ public:
   const zeus::CVector3f& GetFloatingPoint() const { return x80_floatingPoint; }
   void SetMaxDistSq(float d) { x8c_maxDistSq = d; }
   void SetStateManager(CStateManager& mgr) { x9c_stateMgr = &mgr; }
-  bool UpdateWarp() { return xa0_24_activated; }
-  void ModifyParticles(std::vector<CParticle>& particles);
-  void Activate(bool val) { xa0_24_activated = val; }
-  bool IsActivated() { return xa0_24_activated; }
+  bool UpdateWarp() override { return xa0_24_activated; }
+  void ModifyParticles(std::vector<CParticle>& particles) override;
+  void Activate(bool val) override { xa0_24_activated = val; }
+  bool IsActivated() override { return xa0_24_activated; }
   bool IsProcessed() const { return xa0_26_processed; }
-  FourCC Get4CharID() { return FOURCC('FWRP'); }
+  FourCC Get4CharID() override { return FOURCC('FWRP'); }
   void ResetPosition(const zeus::CVector3f& pos) {
     for (auto& vec : x4_collisionPoints) {
       vec = pos;

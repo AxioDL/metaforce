@@ -284,7 +284,7 @@ private:
   void ReturnToRestPose();
   void ChangeWeapon(const CPlayerState& playerState, CStateManager& mgr);
   void GetLctrWithShake(zeus::CTransform& xfOut, const CModelData& mData, std::string_view lctrName, bool shake,
-                        bool dyn);
+                        bool dyn) const;
   void UpdateLeftArmTransform(const CModelData& mData, const CStateManager& mgr);
   void ProcessGunMorph(float dt, CStateManager& mgr);
   void SetPhazonBeamFeedback(bool active);
@@ -338,6 +338,7 @@ public:
   void SetTransform(const zeus::CTransform& xf) { x3e8_xf = xf; }
   void SetAssistAimTransform(const zeus::CTransform& xf) { x478_assistAimXf = xf; }
   CGrappleArm& GetGrappleArm() { return *x740_grappleArm; }
+  const CGrappleArm& GetGrappleArm() const { return *x740_grappleArm; }
   void DamageRumble(const zeus::CVector3f& location, float damage, const CStateManager& mgr);
   void ResetCharge(CStateManager& mgr, bool resetBeam);
   void HandleBeamChange(const CFinalInput& input, CStateManager& mgr);

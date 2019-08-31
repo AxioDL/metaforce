@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct Water : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> volume;
@@ -88,7 +87,7 @@ struct Water : IScriptObject {
 
   struct UnusedBitset : BigDNA{AT_DECL_EXPLICIT_DNA} unusedBitset;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (patternMap1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(patternMap1);
       ent->name = name + "_patternMap1";
@@ -139,7 +138,8 @@ struct Water : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(patternMap1, pathsOut);
     g_curSpec->flattenDependencies(patternMap2, pathsOut);
     g_curSpec->flattenDependencies(colorMap, pathsOut);
@@ -154,7 +154,7 @@ struct Water : IScriptObject {
     g_curSpec->flattenDependencies(unmorphVisorRunoffParticle, pathsOut);
   }
 
-  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const {
+  zeus::CAABox getVISIAABB(hecl::blender::Token& btok) const override {
     zeus::CVector3f halfExtent = zeus::CVector3f(volume) / 2.f;
     zeus::CVector3f loc(location);
     return zeus::CAABox(loc - halfExtent, loc + halfExtent);

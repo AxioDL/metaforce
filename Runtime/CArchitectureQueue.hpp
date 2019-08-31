@@ -16,7 +16,7 @@ public:
     return msg;
   }
   void Clear() { m_list.clear(); }
-  operator bool() { return m_list.size() != 0; }
+  operator bool() const { return m_list.size() != 0; }
 };
 
 } // namespace urde

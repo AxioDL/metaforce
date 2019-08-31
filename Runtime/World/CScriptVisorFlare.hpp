@@ -14,12 +14,12 @@ public:
                     CVisorFlare::EBlendMode blendMode, bool, float, float, float, u32, u32,
                     const std::vector<CVisorFlare::CFlareDef>& flares);
 
-  void Accept(IVisitor& visitor);
-  void Think(float, CStateManager& stateMgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void Think(float, CStateManager& stateMgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager&) const override;
 };
 
 } // namespace urde

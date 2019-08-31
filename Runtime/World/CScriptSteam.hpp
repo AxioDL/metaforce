@@ -18,9 +18,9 @@ public:
                const zeus::CAABox&, const CDamageInfo& dInfo, const zeus::CVector3f& orientedForce, ETriggerFlags flags,
                bool active, CAssetId, float, float, float, float, bool);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
 };
 
 } // namespace urde

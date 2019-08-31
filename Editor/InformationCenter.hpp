@@ -6,12 +6,11 @@
 namespace urde {
 class InformationCenter : public ViewerSpace {
   struct State : Space::State {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<bool> showLog;
   } m_state;
 
-  const Space::State& spaceState() const { return m_state; }
+  const Space::State& spaceState() const override { return m_state; }
 
   struct View : specter::View {
     InformationCenter& m_ic;
@@ -37,15 +36,15 @@ public:
     reloadState();
   }
 
-  void reloadState() {}
+  void reloadState() override {}
 
-  virtual specter::View* buildContentView(specter::ViewResources& res) {
+  specter::View* buildContentView(specter::ViewResources& res) override {
     m_view.reset(new View(*this, res));
     return m_view.get();
   }
 
-  Space* copy(Space* parent) const { return new InformationCenter(m_vm, parent, *this); }
+  Space* copy(Space* parent) const override { return new InformationCenter(m_vm, parent, *this); }
 
-  bool usesToolbar() const { return true; }
+  bool usesToolbar() const override { return true; }
 };
 } // namespace urde

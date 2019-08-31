@@ -47,7 +47,7 @@ CBodyStateInfo::CBodyStateInfo(CActor& actor, EBodyType type) {
   x1c_additiveStates.push_back({pas::EAnimationState::AdditiveReaction, std::make_unique<CABSReaction>()});
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -92,7 +92,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedFlyerBodyStates(int s
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -137,7 +137,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupNewFlyerBodyStates(int stateId,
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -182,7 +182,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupWallWalkerBodyStates(int stateI
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -227,7 +227,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupPitchableBodyStates(int stateId
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -272,7 +272,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupFlyerBodyStates(int stateId, CA
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();
@@ -319,7 +319,7 @@ std::unique_ptr<CBodyState> CBodyStateInfo::SetupRestrictedBodyStates(int stateI
   }
 }
 
-std::unique_ptr<CBodyState> CBodyStateInfo::SetupBiPedalBodyStates(int stateId, CActor& actor) {
+std::unique_ptr<CBodyState> CBodyStateInfo::SetupBiPedalBodyStates(int stateId, CActor& actor) const {
   switch (stateId) {
   case 0:
     return std::make_unique<CBSFall>();

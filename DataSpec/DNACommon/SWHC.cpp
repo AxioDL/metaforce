@@ -1,4 +1,8 @@
-#include "SWHC.hpp"
+#include "DataSpec/DNACommon/SWHC.hpp"
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace DataSpec::DNAParticle {
 

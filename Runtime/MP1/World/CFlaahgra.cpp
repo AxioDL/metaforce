@@ -119,7 +119,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
   switch (msg) {
   case EScriptObjectMessage::InitializedInArea: {
     if (!x8e4_25_loading && !x8e4_24_loaded) {
-      const_cast<CGameArea::CPostConstructed*>(mgr.WorldNC()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
+      const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
           ->x113c_playerActorsLoading++;
       x8e4_25_loading = true;
     }
@@ -163,8 +163,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
         CDamageInfo contactDamage = GetContactDamage();
         if (x7a8_ == 4)
           contactDamage = x7dc_;
-
-        if (!sub801ae670())
+        else if (!sub801ae670())
           contactDamage.SetDamage(0.5f * contactDamage.GetDamage());
 
         if (x788_ >= 2)
@@ -188,7 +187,7 @@ void CFlaahgra::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateM
       if (TCastToConstPtr<CGameProjectile> proj = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
         if (x780_ != 3)
           break;
-        if (IsDizzy(mgr, 0.f) && !x450_bodyController->HasBodyState(pas::EAnimationState::LoopReaction)) {
+        if (!IsDizzy(mgr, 0.f) && x450_bodyController->HasBodyState(pas::EAnimationState::LoopReaction)) {
           TakeDamage({}, 0.f);
 
           if ((x56c_.x140_ - proj->GetDamageInfo().GetDamage()) >= x810_) {
@@ -397,7 +396,7 @@ void CFlaahgra::LoadTokens(CStateManager& mgr) {
 void CFlaahgra::FinalizeLoad(CStateManager& mgr) {
   x8e4_24_loaded = true;
   if (x8e4_25_loading) {
-    const_cast<CGameArea::CPostConstructed*>(mgr.WorldNC()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
+    const_cast<CGameArea::CPostConstructed*>(mgr.GetWorld()->GetAreaAlways(GetAreaIdAlways())->GetPostConstructed())
         ->x113c_playerActorsLoading--;
     x8e4_25_loading = false;
   }
@@ -412,7 +411,7 @@ void CFlaahgra::Think(float dt, CStateManager& mgr) {
   CPatterned::Think(dt, mgr);
   x6cc_boneTracking->Update(dt);
   UpdateCollisionManagers(dt, mgr);
-  x6cc_boneTracking->PreRender(mgr, *ModelData()->AnimationData(), GetTransform(), GetModelData()->GetScale(),
+  x6cc_boneTracking->PreRender(mgr, *GetModelData()->GetAnimationData(), GetTransform(), GetModelData()->GetScale(),
                                *x450_bodyController);
   UpdateSmallScaleReGrowth(dt);
   UpdateHealthInfo(mgr);
@@ -509,7 +508,7 @@ void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
       {EMaterialTypes::CollisionActor, EMaterialTypes::AIPassthrough, EMaterialTypes::Player}));
   AddMaterial(EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Target, EMaterialTypes::Orbit, mgr);
   RemoveMaterial(EMaterialTypes::Solid, mgr);
-  ModelData()->SetScale(oldScale);
+  GetModelData()->SetScale(oldScale);
   x7a4_sphereCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
   x79c_leftArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
   x7a0_rightArmCollision->AddMaterial(mgr, {EMaterialTypes::AIJoint, EMaterialTypes::CameraPassthrough});
@@ -719,9 +718,9 @@ void CFlaahgra::TurnAround(CStateManager& mgr, EStateMsg msg, float) {
     x6cc_boneTracking->SetActive(false);
   }
 }
-bool CFlaahgra::IsSphereCollider(TUniqueId uid) {
 
-  auto it = std::find(x7fc_sphereColliders.begin(), x7fc_sphereColliders.end(), uid);
+bool CFlaahgra::IsSphereCollider(TUniqueId uid) const {
+  const auto it = std::find(x7fc_sphereColliders.cbegin(), x7fc_sphereColliders.cend(), uid);
   return it != x7fc_sphereColliders.end();
 }
 
@@ -798,10 +797,10 @@ void CFlaahgra::SetCollisionActorBounds(CStateManager& mgr, const std::unique_pt
 }
 void CFlaahgra::UpdateScale(float t, float min, float max) {
   float scale = (t * (max - min) + min);
-  ModelData()->SetScale(zeus::skOne3f * scale);
+  GetModelData()->SetScale(zeus::skOne3f * scale);
 }
 
-float CFlaahgra::GetEndActionTime() {
+float CFlaahgra::GetEndActionTime() const {
   CCharAnimTime eventTime =
       GetModelData()->GetAnimationData()->GetTimeOfUserEvent(EUserEventType::EndAction, CCharAnimTime::Infinity());
   if (eventTime == CCharAnimTime::Infinity())
@@ -830,7 +829,7 @@ void CFlaahgra::Generate(CStateManager& mgr, EStateMsg msg, float) {
     x7c0_ = 11.f;
   }
 }
-zeus::CVector3f CFlaahgra::GetAttacktargetPos(CStateManager& mgr) const {
+zeus::CVector3f CFlaahgra::GetAttacktargetPos(const CStateManager& mgr) const {
   if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
     return mgr.GetPlayer().GetMorphBall()->GetBallToWorld().origin;
 
@@ -989,7 +988,7 @@ void CFlaahgra::Attack(CStateManager& mgr, EStateMsg msg, float arg) {
   }
 }
 
-u32 CFlaahgra::sub801ae828(CStateManager& mgr) {
+u32 CFlaahgra::sub801ae828(const CStateManager& mgr) const {
   const CPlayer& player = mgr.GetPlayer();
   if (player.GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed) {
     if (x7cc_ > 0.f || player.GetVelocity().magSquared() < 25.f)
@@ -1001,7 +1000,7 @@ u32 CFlaahgra::sub801ae828(CStateManager& mgr) {
 
   return 0;
 }
-zeus::CVector3f CFlaahgra::sub801ae754(CStateManager& mgr) {
+zeus::CVector3f CFlaahgra::sub801ae754(const CStateManager& mgr) const {
   float dt = (sub801ae650() && mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed
                   ? 0.75f
                   : 0.5f);
@@ -1171,7 +1170,7 @@ bool CFlaahgra::CoverCheck(CStateManager& mgr, float) {
   return false;
 }
 
-TUniqueId CFlaahgra::GetMirrorNearestPlayer(CStateManager& mgr) {
+TUniqueId CFlaahgra::GetMirrorNearestPlayer(const CStateManager& mgr) const {
   zeus::CVector3f playerPos = mgr.GetPlayer().GetTranslation();
 
   TUniqueId nearId = kInvalidUniqueId;

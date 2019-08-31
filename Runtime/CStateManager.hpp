@@ -220,7 +220,7 @@ public:
   void AddDrawableActor(const CActor& actor, const zeus::CVector3f& vec, const zeus::CAABox& aabb) const;
   bool SpecialSkipCinematic();
   TAreaId GetVisAreaId() const;
-  s32 GetWeaponIdCount(TUniqueId, EWeaponType);
+  s32 GetWeaponIdCount(TUniqueId, EWeaponType) const;
   void RemoveWeaponId(TUniqueId, EWeaponType);
   void AddWeaponId(TUniqueId, EWeaponType);
   void UpdateEscapeSequenceTimer(float);
@@ -368,24 +368,31 @@ public:
 
   const std::shared_ptr<CPlayerState>& GetPlayerState() const { return x8b8_playerState; }
   CRandom16* GetActiveRandom() { return x900_activeRandom; }
+  const CRandom16* GetActiveRandom() const { return x900_activeRandom; }
   zeus::CVector3f Random2f(float scaleMin, float scaleMax);
   void SetActiveRandomToDefault() { x900_activeRandom = &x8fc_random; }
   void ClearActiveRandom() { x900_activeRandom = nullptr; }
   CRumbleManager& GetRumbleManager() { return *x88c_rumbleManager; }
+  const CRumbleManager& GetRumbleManager() const { return *x88c_rumbleManager; }
   CCameraFilterPassPoly& GetCameraFilterPass(int idx) { return xb84_camFilterPasses[idx]; }
+  const CCameraFilterPassPoly& GetCameraFilterPass(int idx) const { return xb84_camFilterPasses[idx]; }
   CCameraBlurPass& GetCameraBlurPass(int idx) { return xd14_camBlurPasses[idx]; }
+  const CCameraBlurPass& GetCameraBlurPass(int idx) const { return xd14_camBlurPasses[idx]; }
 
   CEnvFxManager* GetEnvFxManager() { return x880_envFxManager; }
-  CWorld* WorldNC() { return x850_world.get(); }
+  const CEnvFxManager* GetEnvFxManager() const { return x880_envFxManager; }
+  CWorld* GetWorld() { return x850_world.get(); }
   const CWorld* GetWorld() const { return x850_world.get(); }
   CRelayTracker* GetRelayTracker() { return x8bc_relayTracker.get(); }
+  const CRelayTracker* GetRelayTracker() const { return x8bc_relayTracker.get(); }
   CCameraManager* GetCameraManager() const { return x870_cameraManager; }
   CFluidPlaneManager* GetFluidPlaneManager() const { return x87c_fluidPlaneManager; }
   CActorModelParticles* GetActorModelParticles() const { return x884_actorModelParticles; }
 
   const std::shared_ptr<CMapWorldInfo>& MapWorldInfo() const { return x8c0_mapWorldInfo; }
   const std::shared_ptr<CWorldTransManager>& WorldTransManager() const { return x8c4_worldTransManager; }
-  const std::shared_ptr<CWorldLayerState>& LayerState() const { return x8c8_worldLayerState; }
+  const std::shared_ptr<CWorldLayerState>& WorldLayerState() const { return x8c8_worldLayerState; }
+  std::shared_ptr<CWorldLayerState>& WorldLayerState() { return x8c8_worldLayerState; }
 
   CPlayer& GetPlayer() const { return *x84c_player; }
   CPlayer* Player() const { return x84c_player.get(); }
@@ -436,7 +443,6 @@ public:
   void SetPlayerActorHead(TUniqueId id) { xf6c_playerActorHead = id; }
   std::list<TUniqueId>& GetActiveFlickerBats() { return xf3c_activeFlickerBats; }
   std::list<TUniqueId>& GetActiveParasites() { return xf54_activeParasites; }
-  std::shared_ptr<CWorldLayerState>& WorldLayerStateNC() { return x8c8_worldLayerState; }
   static float g_EscapeShakeCountdown;
   static bool g_EscapeShakeCountdownInit;
 

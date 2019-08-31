@@ -15,7 +15,7 @@ public:
   CScriptCameraBlurKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, EBlurType type, float amount,
                             u32 unk, float timeIn, float timeOut, bool active);
 
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
-  void Accept(IVisitor& visitor);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
+  void Accept(IVisitor& visitor) override;
 };
 } // namespace urde

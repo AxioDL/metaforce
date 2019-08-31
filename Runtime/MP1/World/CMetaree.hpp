@@ -35,22 +35,22 @@ public:
            const CPatternedInfo&, const CDamageInfo&, float, const zeus::CVector3f&, float, EBodyType, float, float,
            const CActorParameters&);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
 
-  void Touch(CActor&, CStateManager&);
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
-  void ThinkAboutMove(float){};
-  bool Delay(CStateManager&, float) { return x330_stateMachineState.GetTime() > x568_delay; }
-  void Explode(CStateManager&, EStateMsg, float);
-  void Flee(CStateManager&, EStateMsg, float);
-  void Dead(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Halt(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void InActive(CStateManager&, EStateMsg, float);
-  bool InRange(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float);
+  void Touch(CActor&, CStateManager&) override;
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&) override;
+  void ThinkAboutMove(float) override {}
+  bool Delay(CStateManager&, float) override { return x330_stateMachineState.GetTime() > x568_delay; }
+  void Explode(CStateManager&, EStateMsg, float) override;
+  void Flee(CStateManager&, EStateMsg, float) override;
+  void Dead(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Halt(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void InActive(CStateManager&, EStateMsg, float) override;
+  bool InRange(CStateManager&, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
 };
 } // namespace urde::MP1

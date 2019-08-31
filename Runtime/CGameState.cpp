@@ -74,7 +74,7 @@ CWorldState::CWorldState(CAssetId id) : x0_mlvlId(id), x4_areaId(0) {
 }
 
 CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveWorld& saveWorld) : x0_mlvlId(mlvlId) {
-  x4_areaId = reader.ReadEncoded(32);
+  x4_areaId = TAreaId(reader.ReadEncoded(32));
   x10_desiredAreaAssetId = u32(reader.ReadEncoded(32));
   x8_relayTracker = std::make_shared<CRelayTracker>(reader, saveWorld);
   xc_mapWorldInfo = std::make_shared<CMapWorldInfo>(reader, saveWorld, mlvlId);
@@ -179,7 +179,7 @@ void CGameState::ImportPersistentOptions(const CPersistentOptions& opts) {
   if (opts.xd0_27_fusionBeat)
     xa8_systemOptions.xd0_27_fusionBeat = true;
   if (&opts != &xa8_systemOptions)
-    memcpy(xa8_systemOptions.x0_nesState, opts.x0_nesState, 98);
+    xa8_systemOptions.x0_nesState = opts.x0_nesState;
   xa8_systemOptions.SetLogScanPercent(opts.GetLogScanPercent());
   xa8_systemOptions.SetAllItemsCollected(opts.GetAllItemsCollected());
   xa8_systemOptions.SetPlayerBeatNormalMode(opts.GetPlayerBeatNormalMode());
@@ -192,7 +192,7 @@ void CGameState::ExportPersistentOptions(CPersistentOptions& opts) const {
   if (xa8_systemOptions.xd0_27_fusionBeat)
     opts.xd0_27_fusionBeat = true;
   if (&opts != &xa8_systemOptions)
-    memcpy(opts.x0_nesState, xa8_systemOptions.x0_nesState, 98);
+    opts.x0_nesState = xa8_systemOptions.x0_nesState;
   opts.SetPlayerFusionSuitActive(xa8_systemOptions.GetPlayerFusionSuitActive());
 }
 

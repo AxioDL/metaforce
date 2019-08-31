@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct ElitePirate : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
@@ -51,12 +50,12 @@ struct ElitePirate : IScriptObject {
   Value<bool> unknown17;
   Value<bool> unknown18;
 
-  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
+  void addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const override {
     actorParameters1.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     actorParameters2.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
   }
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (particle1.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(particle1);
       ent->name = name + "_part1";
@@ -99,7 +98,8 @@ struct ElitePirate : IScriptObject {
     animationParameters.nameANCS(pakRouter, name + "_animp");
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(particle1, pathsOut);
     g_curSpec->flattenDependencies(particle2, pathsOut);
     g_curSpec->flattenDependencies(model, pathsOut);
@@ -115,7 +115,7 @@ struct ElitePirate : IScriptObject {
     animationParameters.depANCS(pathsOut);
   }
 
-  void gatherScans(std::vector<Scan>& scansOut) const {
+  void gatherScans(std::vector<Scan>& scansOut) const override {
     actorParameters1.scanIDs(scansOut);
     actorParameters2.scanIDs(scansOut);
   }

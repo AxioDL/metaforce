@@ -178,7 +178,7 @@ protected:
       bool x400_29_pendingMassiveFrozenDeath : 1;
       bool x400_30_patternShagged : 1;
       bool x400_31_isFlyer : 1;
-      bool x401_24_pathOverCount : 2;
+      uint32_t x401_24_pathOverCount : 2;
       bool x401_26_disableMove : 1;
       bool x401_27_phazingOut : 1;
       bool x401_28_burning : 1;
@@ -256,67 +256,70 @@ public:
              CPatterned::EMovementType movement, EColliderType collider, EBodyType body, const CActorParameters& params,
              EKnockBackVariant kbVariant);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void PreThink(float dt, CStateManager& mgr) { x500_preThinkDt = dt; CEntity::Think(x500_preThinkDt, mgr); }
-  void Think(float, CStateManager&);
-  void PreRender(CStateManager&, const zeus::CFrustum&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void Render(const CStateManager& mgr) const;
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void PreThink(float dt, CStateManager& mgr) override {
+    x500_preThinkDt = dt;
+    CEntity::Think(x500_preThinkDt, mgr);
+  }
+  void Think(float, CStateManager&) override;
+  void PreRender(CStateManager&, const zeus::CFrustum&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void Render(const CStateManager& mgr) const override;
 
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr);
-  void Touch(CActor& act, CStateManager& mgr);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  bool CanRenderUnsorted(const CStateManager& mgr) const;
-  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const { return GetAimPosition(mgr, 0.f); }
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const;
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager& mgr) override;
+  void Touch(CActor& act, CStateManager& mgr) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  bool CanRenderUnsorted(const CStateManager& mgr) const override;
+  zeus::CVector3f GetOrbitPosition(const CStateManager& mgr) const override { return GetAimPosition(mgr, 0.f); }
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float) const override;
   zeus::CTransform GetLctrTransform(std::string_view name) const;
   zeus::CTransform GetLctrTransform(CSegId id) const;
 
   bool ApplyBoneTracking() const;
 
   void DeathDelete(CStateManager& mgr);
-  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state);
+  void Death(CStateManager& mgr, const zeus::CVector3f& direction, EScriptObjectState state) override;
   void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
-                 float magnitude);
-  void TakeDamage(const zeus::CVector3f&, float arg);
-  bool FixedRandom(CStateManager&, float arg);
-  bool Random(CStateManager&, float arg);
-  bool CodeTrigger(CStateManager&, float arg);
-  bool FixedDelay(CStateManager&, float arg);
-  bool RandomDelay(CStateManager&, float arg);
-  bool Delay(CStateManager&, float arg);
-  bool PatrolPathOver(CStateManager&, float arg);
-  bool Stuck(CStateManager&, float arg);
-  bool AnimOver(CStateManager&, float arg);
-  bool InPosition(CStateManager&, float arg);
-  bool HasPatrolPath(CStateManager& mgr, float arg);
-  bool Attacked(CStateManager&, float arg);
-  bool PatternShagged(CStateManager&, float arg);
-  bool PatternOver(CStateManager&, float arg);
-  bool HasRetreatPattern(CStateManager& mgr, float arg);
-  bool HasAttackPattern(CStateManager& mgr, float arg);
-  bool NoPathNodes(CStateManager&, float arg);
-  bool PathShagged(CStateManager&, float arg);
-  bool PathFound(CStateManager&, float arg);
-  bool PathOver(CStateManager&, float arg);
-  bool Landed(CStateManager&, float arg);
-  bool PlayerSpot(CStateManager&, float arg);
-  bool SpotPlayer(CStateManager&, float arg);
-  bool Leash(CStateManager&, float arg);
-  bool InDetectionRange(CStateManager&, float arg);
-  bool InMaxRange(CStateManager&, float arg);
-  bool TooClose(CStateManager&, float arg);
-  bool InRange(CStateManager&, float arg);
-  bool OffLine(CStateManager&, float arg);
-  bool Default(CStateManager&, float arg) { return true; }
-  void PathFind(CStateManager&, EStateMsg msg, float dt);
-  void Dead(CStateManager&, EStateMsg msg, float dt);
-  void TargetPlayer(CStateManager&, EStateMsg msg, float dt);
-  void TargetPatrol(CStateManager&, EStateMsg msg, float dt);
-  void FollowPattern(CStateManager&, EStateMsg msg, float dt);
-  void Patrol(CStateManager&, EStateMsg msg, float dt);
-  void Start(CStateManager&, EStateMsg msg, float dt) {}
+                 float magnitude) override;
+  void TakeDamage(const zeus::CVector3f&, float arg) override;
+  bool FixedRandom(CStateManager&, float arg) override;
+  bool Random(CStateManager&, float arg) override;
+  bool CodeTrigger(CStateManager&, float arg) override;
+  bool FixedDelay(CStateManager&, float arg) override;
+  bool RandomDelay(CStateManager&, float arg) override;
+  bool Delay(CStateManager&, float arg) override;
+  bool PatrolPathOver(CStateManager&, float arg) override;
+  bool Stuck(CStateManager&, float arg) override;
+  bool AnimOver(CStateManager&, float arg) override;
+  bool InPosition(CStateManager&, float arg) override;
+  bool HasPatrolPath(CStateManager& mgr, float arg) override;
+  bool Attacked(CStateManager&, float arg) override;
+  bool PatternShagged(CStateManager&, float arg) override;
+  bool PatternOver(CStateManager&, float arg) override;
+  bool HasRetreatPattern(CStateManager& mgr, float arg) override;
+  bool HasAttackPattern(CStateManager& mgr, float arg) override;
+  bool NoPathNodes(CStateManager&, float arg) override;
+  bool PathShagged(CStateManager&, float arg) override;
+  bool PathFound(CStateManager&, float arg) override;
+  bool PathOver(CStateManager&, float arg) override;
+  bool Landed(CStateManager&, float arg) override;
+  bool PlayerSpot(CStateManager&, float arg) override;
+  bool SpotPlayer(CStateManager&, float arg) override;
+  bool Leash(CStateManager&, float arg) override;
+  bool InDetectionRange(CStateManager&, float arg) override;
+  bool InMaxRange(CStateManager&, float arg) override;
+  bool TooClose(CStateManager&, float arg) override;
+  bool InRange(CStateManager&, float arg) override;
+  bool OffLine(CStateManager&, float arg) override;
+  bool Default(CStateManager&, float arg) override { return true; }
+  void PathFind(CStateManager&, EStateMsg msg, float dt) override;
+  void Dead(CStateManager&, EStateMsg msg, float dt) override;
+  void TargetPlayer(CStateManager&, EStateMsg msg, float dt) override;
+  void TargetPatrol(CStateManager&, EStateMsg msg, float dt) override;
+  void FollowPattern(CStateManager&, EStateMsg msg, float dt) override;
+  void Patrol(CStateManager&, EStateMsg msg, float dt) override;
+  void Start(CStateManager&, EStateMsg msg, float dt) override {}
 
   void TryCommand(CStateManager& mgr, pas::EAnimationState state, CPatternedTryFunc func, int arg);
   void TryLoopReaction(CStateManager& mgr, int arg);
@@ -334,6 +337,7 @@ public:
   void TryCover(CStateManager& mgr, int arg);
   void TryWallHang(CStateManager& mgr, int arg);
   void TryKnockBack(CStateManager& mgr, int arg);
+  void TryGenerateDeactivate(CStateManager& mgr, int arg);
 
   virtual bool KnockbackWhenFrozen() const { return true; }
   virtual void MassiveDeath(CStateManager& mgr);
@@ -358,18 +362,18 @@ public:
 
   void BuildBodyController(EBodyType);
   const CBodyController* GetBodyController() const { return x450_bodyController.get(); }
-  CBodyController* BodyController() { return x450_bodyController.get(); }
+  CBodyController* GetBodyController() { return x450_bodyController.get(); }
   const CKnockBackController& GetKnockBackController() const { return x460_knockBackController; }
   void SetupPlayerCollision(bool);
   void LaunchProjectile(const zeus::CTransform& gunXf, CStateManager& mgr, int maxAllowed, EProjectileAttrib attrib,
                         bool playerHoming, const std::optional<TLockedToken<CGenDescription>>& visorParticle,
                         u16 visorSfx, bool sendCollideMsg, const zeus::CVector3f& scale);
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 
   void SetDestPos(const zeus::CVector3f& pos) { x2e0_destPos = pos; }
   void UpdateAlphaDelta(float dt, CStateManager& mgr);
   void SetModelAlpha(float a) { x42c_color.a() = a; }
-  float CalcDyingThinkRate();
+  float CalcDyingThinkRate() const;
   void UpdateDamageColor(float dt);
   CScriptCoverPoint* GetCoverPoint(CStateManager& mgr, TUniqueId id) const;
   void SetCoverPoint(CScriptCoverPoint* cp, TUniqueId& id);

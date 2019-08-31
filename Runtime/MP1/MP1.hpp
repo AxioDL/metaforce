@@ -172,7 +172,7 @@ public:
   void Update();
   void Draw();
 
-  bool isRectDirty() { return m_rectIsDirty; }
+  bool isRectDirty() const { return m_rectIsDirty; }
   const boo::SWindowRect& getWindowRect() {
     m_rectIsDirty = false;
     return m_windowRect;
@@ -269,17 +269,17 @@ public:
 
   // int RsMain(int argc, const boo::SystemChar* argv[]);
   void Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarManager* cvarManager, boo::IWindow* window,
-            boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend);
-  void WarmupShaders();
-  bool Proc();
-  void Draw();
-  void Shutdown();
-  boo::IWindow* GetMainWindow() const;
+            boo::IAudioVoiceEngine* voiceEngine, amuse::IBackendVoiceAllocator& backend) override;
+  void WarmupShaders() override;
+  bool Proc() override;
+  void Draw() override;
+  void Shutdown() override;
+  boo::IWindow* GetMainWindow() const override;
 
   void MemoryCardInitializePump();
 
-  bool CheckReset() { return m_doQuit; }
-  bool CheckTerminate() { return m_doQuit; }
+  bool CheckReset() const { return m_doQuit; }
+  bool CheckTerminate() const { return m_doQuit; }
   void DrawDebugMetrics(double, CStopwatch&) {}
   void DoPredrawMetrics() {}
   void FillInAssetIDs();
@@ -294,14 +294,14 @@ public:
   static void EnsureWorldPaksReady();
   static void EnsureWorldPakReady(CAssetId mlvl);
 
-  EFlowState GetFlowState() const { return x12c_flowState; }
-  void SetFlowState(EFlowState s) { x12c_flowState = s; }
+  EFlowState GetFlowState() const override { return x12c_flowState; }
+  void SetFlowState(EFlowState s) override { x12c_flowState = s; }
 
   void SetX30(bool v) { x160_30_ = v; }
 
   CGameArchitectureSupport* GetArchSupport() const { return x164_archSupport.get(); }
 
-  size_t GetExpectedIdSize() const { return sizeof(u32); }
+  size_t GetExpectedIdSize() const override { return sizeof(u32); }
   void quit(hecl::Console*, const std::vector<std::string>&) { m_doQuit = true; }
   void Give(hecl::Console*, const std::vector<std::string>&);
   void Remove(hecl::Console*, const std::vector<std::string>&);
@@ -309,7 +309,7 @@ public:
   void Teleport(hecl::Console*, const std::vector<std::string>&);
   void ListWorlds(hecl::Console*, const std::vector<std::string>&);
   void Warp(hecl::Console*, const std::vector<std::string>&);
-  hecl::Console* Console() const { return m_console.get(); }
+  hecl::Console* Console() const override { return m_console.get(); }
 
   int m_warpWorldIdx = -1;
   TAreaId m_warpAreaId = 0;

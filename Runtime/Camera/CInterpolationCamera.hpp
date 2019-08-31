@@ -24,12 +24,12 @@ class CInterpolationCamera : public CGameCamera {
 
 public:
   CInterpolationCamera(TUniqueId uid, const zeus::CTransform& xf);
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void ProcessInput(const CFinalInput&, CStateManager& mgr);
-  void Render(const CStateManager&) const;
-  void Reset(const zeus::CTransform&, CStateManager& mgr);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void ProcessInput(const CFinalInput&, CStateManager& mgr) override;
+  void Render(const CStateManager&) const override;
+  void Reset(const zeus::CTransform&, CStateManager& mgr) override;
+  void Think(float, CStateManager&) override;
   void SetInterpolation(const zeus::CTransform& xf, const zeus::CVector3f& lookPos, float maxTime, float positionSpeed,
                         float rotationSpeed, TUniqueId camId, bool sinusoidal, CStateManager& mgr);
   void DeactivateInterpCamera(CStateManager&);

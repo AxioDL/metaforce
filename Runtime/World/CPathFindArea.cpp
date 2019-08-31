@@ -116,7 +116,7 @@ void CPFOpenList::Pop(CPFRegion* reg) {
   reg->Data()->SetOpenLess(nullptr);
 }
 
-bool CPFOpenList::Test(CPFRegion* reg) { return x0_bitSet.Test(reg->GetIndex()); }
+bool CPFOpenList::Test(const CPFRegion* reg) const { return x0_bitSet.Test(reg->GetIndex()); }
 
 CPFArea::CPFArea(std::unique_ptr<u8[]>&& buf, u32 len) {
   CMemoryInStream r(buf.get(), len);

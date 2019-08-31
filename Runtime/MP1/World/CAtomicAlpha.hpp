@@ -36,26 +36,26 @@ public:
                const CActorParameters&, const CPatternedInfo&, CAssetId, const CDamageInfo&, float, float, float,
                CAssetId, bool, bool);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Render(const CStateManager&) const;
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-  void Think(float, CStateManager&);
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void Think(float, CStateManager&) override;
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 
-  CPathFindSearch* GetSearchPath() { return &x580_pathFind; }
+  CPathFindSearch* GetSearchPath() override { return &x580_pathFind; }
 
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode& wMode, EProjectileAttrib) const {
+                                                         const CWeaponMode& wMode, EProjectileAttrib) const override {
     return GetDamageVulnerability()->WeaponHits(wMode, false) ? EWeaponCollisionResponseTypes::AtomicAlpha
                                                               : EWeaponCollisionResponseTypes::AtomicAlphaReflect;
   }
 
-  bool Leash(CStateManager& mgr, float);
-  bool AggressionCheck(CStateManager&, float);
-  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&);
-  void Patrol(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
+  bool Leash(CStateManager& mgr, float) override;
+  bool AggressionCheck(CStateManager&, float) override;
+  void CollidedWith(TUniqueId, const CCollisionInfoList&, CStateManager&) override;
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
 
-  CProjectileInfo* GetProjectileInfo() { return &x668_bombProjectile; }
+  CProjectileInfo* GetProjectileInfo() override { return &x668_bombProjectile; }
 };
 } // namespace urde::MP1

@@ -61,10 +61,10 @@ public:
     void EnsurePath(const urde::SObjectTag& tag, const hecl::ProjectPath& path);
     void CookComplete();
     bool AsyncPump();
-    void WaitUntilComplete();
-    bool IsComplete() { return m_complete; }
-    void PostCancelRequest() {}
-    EMediaType GetMediaType() const { return EMediaType::Real; }
+    void WaitUntilComplete() override;
+    bool IsComplete() override { return m_complete; }
+    void PostCancelRequest() override {}
+    EMediaType GetMediaType() const override { return EMediaType::Real; }
   };
 
 protected:
@@ -102,7 +102,7 @@ protected:
   SObjectTag BuildTagFromPath(const hecl::ProjectPath& path) const {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).buildTagFromPath(path);
   }
-  void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
+  void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const override {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getTagListForFile(pakName, out);
   }
   void CancelBackgroundIndex() {
@@ -120,32 +120,33 @@ protected:
 
 public:
   ProjectResourceFactoryBase(hecl::ClientProcess& clientProc) : m_clientProc(clientProc) {}
-  std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&, CObjectReference* selfRef);
+  std::unique_ptr<urde::IObj> Build(const urde::SObjectTag&, const urde::CVParamTransfer&,
+                                    CObjectReference* selfRef) override;
   void BuildAsync(const urde::SObjectTag&, const urde::CVParamTransfer&, std::unique_ptr<urde::IObj>*,
-                  CObjectReference* selfRef);
-  void CancelBuild(const urde::SObjectTag&);
-  bool CanBuild(const urde::SObjectTag&);
-  const urde::SObjectTag* GetResourceIdByName(std::string_view) const;
-  FourCC GetResourceTypeById(CAssetId id) const;
+                  CObjectReference* selfRef) override;
+  void CancelBuild(const urde::SObjectTag&) override;
+  bool CanBuild(const urde::SObjectTag&) override;
+  const urde::SObjectTag* GetResourceIdByName(std::string_view) const override;
+  FourCC GetResourceTypeById(CAssetId id) const override;
   hecl::ProjectPath GetCookedPath(const hecl::ProjectPath& working, bool pcTarget) const {
     return static_cast<DataSpec::SpecBase&>(*m_cookSpec).getCookedPath(working, pcTarget);
   }
 
-  void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const;
-  void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const;
+  void EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const override;
+  void EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const override;
 
-  u32 ResourceSize(const SObjectTag& tag);
-  std::shared_ptr<urde::IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target);
+  u32 ResourceSize(const SObjectTag& tag) override;
+  std::shared_ptr<urde::IDvdRequest> LoadResourceAsync(const urde::SObjectTag& tag, void* target) override;
   std::shared_ptr<urde::IDvdRequest> LoadResourcePartAsync(const urde::SObjectTag& tag, u32 off, u32 size,
-                                                           void* target);
-  std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag);
-  std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size);
+                                                           void* target) override;
+  std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) override;
+  std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) override;
 
   std::shared_ptr<AsyncTask> CookResourceAsync(const urde::SObjectTag& tag);
 
   template <typename ItType>
   bool AsyncPumpTask(ItType& it);
-  void AsyncIdle();
+  void AsyncIdle() override;
   void Shutdown() { CancelBackgroundIndex(); }
   bool IsBusy() const { return m_asyncLoadMap.size() != 0; }
 
@@ -153,7 +154,7 @@ public:
     return TagFromPath(hecl::ProjectPath(*(hecl::Database::Project*)m_proj, path));
   }
 
-  ~ProjectResourceFactoryBase() { Shutdown(); }
+  ~ProjectResourceFactoryBase() override { Shutdown(); }
 };
 
 } // namespace urde

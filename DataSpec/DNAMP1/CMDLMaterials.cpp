@@ -454,6 +454,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   out.format(fmt("new_material = bpy.data.materials.new('MAT_{}_{}')\n"), groupIdx, matIdx);
   out << "new_material.use_fake_user = True\n"
          "new_material.use_nodes = True\n"
+         "new_material.use_backface_culling = True\n"
          "new_nodetree = new_material.node_tree\n"
          "for n in new_nodetree.nodes:\n"
          "    new_nodetree.nodes.remove(n)\n"
@@ -578,6 +579,8 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, TexLink("Alpha", 1, true)); break;
   case 0x54A92F25: /* RetroShader: ObjLightmap, KColorDiffuse, Alpha=KAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_kcol, "Alpha"_kcola); break;
+  case 0x54C6204C:
+    _GenerateRootShader(out, "RetroShader"); break;
   case 0x5A62D5F0: /* RetroShader: Lightmap, Diffuse, UnusedExtendedSpecular?, Alpha=DiffuseAlpha */
     _GenerateRootShader(out, "RetroShader", "Lightmap"_tex, "Diffuse"_tex, TexLink("Alpha", 1, true)); break;
   case 0x5CB59821: /* RetroShader: Diffuse, UnusedSpecular?, Alpha=KAlpha */
@@ -606,6 +609,8 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
     _GenerateRootShader(out, "RetroShader", WhiteColorLink("Specular"), "Reflection"_tex); break;
   case 0x846215DA: /* RetroShader: Diffuse, Specular, Reflection, Alpha=DiffuseAlpha, IndirectTex */
     _GenerateRootShader(out, "RetroShader", "Diffuse"_tex, "Specular"_tex, "Reflection"_tex, "IndirectTex"_tex, TexLink("Alpha", 0, true)); break;
+  case 0x8E916C01: /* RetroShader: NULL, all inputs 0 */
+    _GenerateRootShader(out, "RetroShader"); break;
   case 0x957709F8: /* RetroShader: Emissive, Alpha=1.0 */
     _GenerateRootShader(out, "RetroShader", "Emissive"_tex); break;
   case 0x96ABB2D3: /* RetroShader: Lightmap, Diffuse, Alpha=DiffuseAlpha */
@@ -1065,14 +1070,14 @@ AT_SPECIALIZE_DNA(MaterialSet::Material::UVAnimation)
 
 template <class Op>
 void HMDLMaterialSet::Material::PASS::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"type"}, type, s);
-  Do<Op>({"texId"}, texId, s);
-  Do<Op>({"source"}, source, s);
-  Do<Op>({"uvAnimType"}, uvAnimType, s);
+  Do<Op>(athena::io::PropId{"type"}, type, s);
+  Do<Op>(athena::io::PropId{"texId"}, texId, s);
+  Do<Op>(athena::io::PropId{"source"}, source, s);
+  Do<Op>(athena::io::PropId{"uvAnimType"}, uvAnimType, s);
   size_t uvParmCount = uvAnimParamsCount();
   for (size_t i = 0; i < uvParmCount; ++i)
     Do<Op>({}, uvAnimParms[i], s);
-  Do<Op>({"alpha"}, alpha, s);
+  Do<Op>(athena::io::PropId{"alpha"}, alpha, s);
 }
 
 AT_SPECIALIZE_DNA(HMDLMaterialSet::Material::PASS)

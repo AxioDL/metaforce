@@ -124,7 +124,7 @@ std::optional<zeus::CAABox> CWarWasp::GetTouchBounds() const {
   return {x570_cSphere.CalculateAABox(GetTransform())};
 }
 
-zeus::CVector3f CWarWasp::GetProjectileAimPos(CStateManager& mgr, float zBias) {
+zeus::CVector3f CWarWasp::GetProjectileAimPos(const CStateManager& mgr, float zBias) const {
   zeus::CVector3f ret = mgr.GetPlayer().GetAimPosition(mgr, 0.f);
   if (mgr.GetPlayer().GetMorphballTransitionState() != CPlayer::EPlayerMorphBallState::Morphed)
     ret += zeus::CVector3f(0.f, 0.f, zBias);
@@ -353,7 +353,7 @@ void CWarWasp::ApplySeparationBehavior(CStateManager& mgr, float sep) {
   }
 }
 
-bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) {
+bool CWarWasp::PathToHiveIsClear(CStateManager& mgr) const {
   zeus::CVector3f delta = x3a0_latestLeashPosition - GetTranslation();
   if (GetTransform().basis[1].dot(delta) > 0.f) {
     zeus::CAABox aabb(GetTranslation() - 10.f, GetTranslation() + 10.f);
@@ -652,7 +652,7 @@ void CWarWasp::JumpBack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-zeus::CVector3f CWarWasp::CalcShuffleDest(CStateManager& mgr) {
+zeus::CVector3f CWarWasp::CalcShuffleDest(const CStateManager& mgr) const {
   zeus::CVector2f aimPos2d = GetProjectileAimPos(mgr, -1.25f).toVec2f();
   zeus::CVector3f playerDir2d = mgr.GetPlayer().GetTransform().basis[1];
   playerDir2d.z() = 0.f;
@@ -754,7 +754,7 @@ void CWarWasp::ProjectileAttack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-s32 CWarWasp::GetAttackTeamSize(CStateManager& mgr, s32 team) {
+s32 CWarWasp::GetAttackTeamSize(const CStateManager& mgr, s32 team) const {
   s32 count = 0;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {
@@ -769,21 +769,20 @@ s32 CWarWasp::GetAttackTeamSize(CStateManager& mgr, s32 team) {
   return count;
 }
 
-float CWarWasp::CalcTimeToNextAttack(CStateManager& mgr) {
+float CWarWasp::CalcTimeToNextAttack(CStateManager& mgr) const {
   float mul = 1.f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
-    s32 maxCount = (x3fc_flavor == EFlavorType::Two) ?
-                   aimgr->GetMaxRangedAttackerCount() : aimgr->GetMaxMeleeAttackerCount();
-    s32 count = (x3fc_flavor == EFlavorType::Two) ?
-                   aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Ranged) :
-                   aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Melee);
+    const s32 maxCount =
+        (x3fc_flavor == EFlavorType::Two) ? aimgr->GetMaxRangedAttackerCount() : aimgr->GetMaxMeleeAttackerCount();
+    const s32 count = (x3fc_flavor == EFlavorType::Two) ? aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Ranged)
+                                                        : aimgr->GetNumAssignedOfRole(CTeamAiRole::ETeamAiRole::Melee);
     if (count <= maxCount)
       mul *= 0.5f;
   }
   return (mgr.GetActiveRandom()->Float() * x308_attackTimeVariation + x304_averageAttackTime) * mul;
 }
 
-float CWarWasp::CalcOffTotemAngle(CStateManager& mgr) {
+float CWarWasp::CalcOffTotemAngle(CStateManager& mgr) const {
   return mgr.GetActiveRandom()->Float() * zeus::degToRad(80.f) + zeus::degToRad(10.f);
 }
 
@@ -833,7 +832,7 @@ void CWarWasp::SetUpCircleTelegraphTeam(CStateManager& mgr) {
   }
 }
 
-TUniqueId CWarWasp::GetAttackTeamLeader(CStateManager& mgr, s32 team) {
+TUniqueId CWarWasp::GetAttackTeamLeader(const CStateManager& mgr, s32 team) const {
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {
       for (const CTeamAiRole& role : aimgr->GetRoles()) {
@@ -866,7 +865,7 @@ void CWarWasp::TryCircleTeamMerge(CStateManager& mgr) {
   }
 }
 
-float CWarWasp::GetTeamZStratum(s32 team) {
+float CWarWasp::GetTeamZStratum(s32 team) const {
   if (team > 0) {
     if ((team & 1) == 1)
       return -3.f - float(team / 2) * 3.f;
@@ -878,19 +877,19 @@ float CWarWasp::GetTeamZStratum(s32 team) {
 
 static const float Table[] = {0.4f, 0.6f, 1.f};
 
-float CWarWasp::CalcSeekMagnitude(CStateManager& mgr) {
-  float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
+float CWarWasp::CalcSeekMagnitude(const CStateManager& mgr) const {
+  const float ret = ((x708_circleAttackTeam >= 0 && x708_circleAttackTeam < 3) ? Table[x708_circleAttackTeam] : 1.f) * 0.9f;
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
     if (aimgr->IsPartOfTeam(GetUniqueId())) {
       if (aimgr->GetMaxMeleeAttackerCount() > 1) {
         if (GetAttackTeamLeader(mgr, x708_circleAttackTeam) != GetUniqueId()) {
-          zeus::CVector3f fromPlatformCenter = GetTranslation() - x6b0_circleBurstPos;
+          const zeus::CVector3f fromPlatformCenter = GetTranslation() - x6b0_circleBurstPos;
           float minAngle = zeus::degToRad(360.f);
           for (const CTeamAiRole& role : aimgr->GetRoles()) {
             if (const CWarWasp* other = CPatterned::CastTo<CWarWasp>(mgr.GetObjectById(role.GetOwnerId()))) {
               if (x708_circleAttackTeam == other->x708_circleAttackTeam &&
                   GetTransform().basis[1].dot(other->GetTranslation() - GetTranslation()) > 0.f) {
-                float angle =
+                const float angle =
                     zeus::CVector3f::getAngleDiff(fromPlatformCenter, other->GetTranslation() - x6b0_circleBurstPos);
                 if (angle < minAngle)
                   minAngle = angle;
@@ -1155,14 +1154,14 @@ bool CWarWasp::ShouldDodge(CStateManager& mgr, float arg) {
   return false;
 }
 
-bool CWarWasp::CheckCircleAttackSpread(CStateManager& mgr, s32 team) {
+bool CWarWasp::CheckCircleAttackSpread(const CStateManager& mgr, s32 team) const {
   if (TCastToConstPtr<CTeamAiMgr> aimgr = mgr.GetObjectById(x674_aiMgr)) {
-    s32 teamSize = GetAttackTeamSize(mgr, team);
+    const s32 teamSize = GetAttackTeamSize(mgr, team);
     if (teamSize == 1)
       return true;
-    TUniqueId leaderId = GetAttackTeamLeader(mgr, team);
+    const TUniqueId leaderId = GetAttackTeamLeader(mgr, team);
     if (const CWarWasp* leaderWasp = CPatterned::CastTo<CWarWasp>(mgr.GetObjectById(leaderId))) {
-      zeus::CVector3f platformToLeaderWasp = leaderWasp->GetTranslation() - x6b0_circleBurstPos;
+      const zeus::CVector3f platformToLeaderWasp = leaderWasp->GetTranslation() - x6b0_circleBurstPos;
       float maxAng = 0.f;
       for (const CTeamAiRole& role : aimgr->GetRoles()) {
         if (role.GetOwnerId() == leaderId)
@@ -1171,7 +1170,7 @@ bool CWarWasp::CheckCircleAttackSpread(CStateManager& mgr, s32 team) {
           if (wasp2->x708_circleAttackTeam == team) {
             if (leaderWasp->GetTransform().basis[1].dot(wasp2->GetTranslation() - leaderWasp->GetTranslation()) > 0.f)
               return false;
-            float angle =
+            const float angle =
                 zeus::CVector3f::getAngleDiff(wasp2->GetTranslation() - x6b0_circleBurstPos, platformToLeaderWasp);
             if (angle > maxAng)
               maxAng = angle;

@@ -25,7 +25,7 @@ public:
   static std::unique_ptr<TObjOwnerDerivedFromIObj<T>> GetNewDerivedObject(std::unique_ptr<T>&& obj) {
     return std::unique_ptr<TObjOwnerDerivedFromIObj<T>>(new TObjOwnerDerivedFromIObj<T>(obj.release()));
   }
-  ~TObjOwnerDerivedFromIObj() { std::default_delete<T>()(static_cast<T*>(m_objPtr)); }
+  ~TObjOwnerDerivedFromIObj() override { std::default_delete<T>()(static_cast<T*>(m_objPtr)); }
   T* GetObj() { return static_cast<T*>(m_objPtr); }
 };
 

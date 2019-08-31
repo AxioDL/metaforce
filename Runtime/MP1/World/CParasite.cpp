@@ -72,7 +72,7 @@ CParasite::CParasite(TUniqueId uid, std::string_view name, EFlavorType flavor, c
     TLockedToken<CModel> skin = g_SimplePool->GetObj({FOURCC('CSKR'), skinRes});
     x624_extraModel =
         CToken(TObjOwnerDerivedFromIObj<CSkinnedModel>::GetNewDerivedObject(std::make_unique<CSkinnedModel>(
-            model, skin, x64_modelData->AnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
+            model, skin, x64_modelData->GetAnimationData()->GetModelData()->GetLayoutInfo(), 1, 1)));
     break;
   }
   default:
@@ -205,7 +205,7 @@ void CParasite::UpdateCollisionActors(float dt, CStateManager& mgr) {
       AddMaterial(EMaterialTypes::Solid, mgr);
       RemoveMaterial(EMaterialTypes::ProjectilePassthrough, mgr);
       DestroyActorManager(mgr);
-      x64_modelData->AnimationData()->SubstituteModelData(x624_extraModel);
+      x64_modelData->GetAnimationData()->SubstituteModelData(x624_extraModel);
     }
   }
 }
@@ -219,7 +219,7 @@ void CParasite::Think(float dt, CStateManager& mgr) {
     UpdateCollisionActors(dt, mgr);
 
   x5d6_26_playerObstructed = false;
-  CGameArea* area = mgr.WorldNC()->GetArea(GetAreaIdAlways());
+  CGameArea* area = mgr.GetWorld()->GetArea(GetAreaIdAlways());
 
   CGameArea::EOcclusionState r6 = CGameArea::EOcclusionState::Occluded;
   if (area->IsPostConstructed())
@@ -785,13 +785,13 @@ bool CParasite::ShouldAttack(CStateManager& mgr, float arg) {
   return false;
 }
 
-bool CParasite::CloseToWall(CStateManager& mgr) {
+bool CParasite::CloseToWall(const CStateManager& mgr) const {
   static CMaterialFilter filter = CMaterialFilter::MakeInclude(EMaterialTypes::Solid);
   zeus::CAABox aabb = CPhysicsActor::GetBoundingBox();
-  float margin = x590_colSphere.GetSphere().radius + x5b0_collisionCloseMargin;
+  const float margin = x590_colSphere.GetSphere().radius + x5b0_collisionCloseMargin;
   aabb.min -= zeus::CVector3f(margin);
   aabb.max += zeus::CVector3f(margin);
-  CCollidableAABox cAABB(aabb, x68_material);
+  const CCollidableAABox cAABB(aabb, x68_material);
   return CGameCollision::DetectStaticCollisionBoolean(mgr, cAABB, {}, filter);
 }
 

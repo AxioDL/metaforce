@@ -22,7 +22,7 @@ public:
   CScriptGenerator(TUniqueId uid, std::string_view name, const CEntityInfo& info, u32 spawnCount, bool noReuseFollowers,
                    const zeus::CVector3f& vec1, bool noInheritXf, bool active, float minScale, float maxScale);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& stateMgr) override;
 };
 } // namespace urde

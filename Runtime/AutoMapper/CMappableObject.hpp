@@ -13,7 +13,6 @@ class CStateManager;
 class CMapWorldInfo;
 
 class CMappableObject {
-  friend class CMapArea;
   static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;
   static boo::ObjToken<boo::IGraphicsBufferS> g_doorIbo;
 
@@ -67,7 +66,7 @@ private:
   std::optional<DoorSurface> m_doorSurface;
   std::optional<CTexturedQuadFilter> m_texQuadFilter;
 
-  zeus::CTransform AdjustTransformForType();
+  zeus::CTransform AdjustTransformForType() const;
   std::pair<zeus::CColor, zeus::CColor> GetDoorColors(int idx, const CMapWorldInfo& mwInfo, float alpha) const;
 
 public:
@@ -83,6 +82,7 @@ public:
   bool IsDoorConnectedToVisitedArea(const CStateManager&) const;
   bool IsVisibleToAutoMapper(bool worldVis, const CMapWorldInfo& mwInfo) const;
   bool GetIsSeen() const;
+  void CreateDoorSurface(boo::IGraphicsDataFactory::Context& ctx) { m_doorSurface.emplace(ctx); }
 
   static void ReadAutoMapperTweaks(const ITweakAutoMapper&);
   static bool GetTweakIsMapVisibilityCheat();

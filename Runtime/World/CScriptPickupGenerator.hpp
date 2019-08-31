@@ -16,7 +16,7 @@ class CScriptPickupGenerator : public CEntity {
 public:
   CScriptPickupGenerator(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& stateMgr);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& stateMgr) override;
 };
 } // namespace urde

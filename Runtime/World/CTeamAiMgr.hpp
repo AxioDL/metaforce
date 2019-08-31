@@ -78,9 +78,9 @@ private:
 public:
   CTeamAiMgr(TUniqueId uid, std::string_view name, const CEntityInfo& info, const CTeamAiData& data);
 
-  void Accept(IVisitor&);
-  void Think(float dt, CStateManager& mgr);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr);
+  void Accept(IVisitor&) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) override;
   CTeamAiRole* GetTeamAiRole(TUniqueId aiId);
   bool IsPartOfTeam(TUniqueId aiId) const;
   bool HasTeamAiRole(TUniqueId aiId) const;

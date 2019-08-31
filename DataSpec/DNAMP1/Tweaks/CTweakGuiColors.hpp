@@ -134,92 +134,92 @@ struct CTweakGuiColors final : public ITweakGuiColors {
   CTweakGuiColors() = default;
   CTweakGuiColors(athena::io::IStreamReader& r) { this->read(r); }
 
-  const zeus::CColor& GetPauseBlurFilterColor() const { return x4_pauseBlurFilterColor; }
-  const zeus::CColor& GetRadarStuffColor() const { return x8_radarStuffColor; }
-  const zeus::CColor& GetRadarPlayerPaintColor() const { return xc_radarPlayerPaintColor; }
-  const zeus::CColor& GetRadarEnemyPaintColor() const { return x10_radarEnemyPaintColor; }
-  const zeus::CColor& GetHudMessageFill() const { return x14_hudMessageFill; }
-  const zeus::CColor& GetHudMessageOutline() const { return x18_hudMessageOutline; }
-  const zeus::CColor& GetHudFrameColor() const { return x1c_hudFrameColor; }
-  const zeus::CColor& GetMissileIconColorActive() const { return x28_missileIconColorActive; }
-  const zeus::CColor& GetVisorBeamMenuItemActive() const { return x2c_visorBeamMenuItemActive; }
-  const zeus::CColor& GetVisorBeamMenuItemInactive() const { return x30_visorBeamMenuColorInactive; }
-  const zeus::CColor& GetEnergyBarFilledLowEnergy() const { return x34_energyBarFilledLowEnergy; }
-  const zeus::CColor& GetEnergyBarShadowLowEnergy() const { return x38_energyBarShadowLowEnergy; }
-  const zeus::CColor& GetEnergyBarEmptyLowEnergy() const { return x3c_energyBarEmptyLowEnergy; }
-  const zeus::CColor& GetHudDamageLightColor() const { return x40_hudDamageLightColor; }
-  const zeus::CColor& GetVisorMenuTextFont() const { return x4c_visorMenuTextFont; }
-  const zeus::CColor& GetVisorMenuTextOutline() const { return x50_visorMenuTextOutline; }
-  const zeus::CColor& GetBeamMenuTextFont() const { return x54_beamMenuTextFont; }
-  const zeus::CColor& GetBeamMenuTextOutline() const { return x58_beamMenuTextOutline; }
-  const zeus::CColor& GetEnergyWarningFont() const { return x5c_energyWarningFont; }
-  const zeus::CColor& GetThreatWarningFont() const { return x60_threatWarningFont; }
-  const zeus::CColor& GetMissileWarningFont() const { return x64_missileWarningFont; }
-  const zeus::CColor& GetThreatBarFilled() const { return x68_threatBarFilled; }
-  const zeus::CColor& GetThreatBarShadow() const { return x6c_threatBarShadow; }
-  const zeus::CColor& GetThreatBarEmpty() const { return x70_threatBarEmpty; }
-  const zeus::CColor& GetMissileBarFilled() const { return x74_missileBarFilled; }
-  const zeus::CColor& GetMissileBarShadow() const { return x78_missileBarShadow; }
-  const zeus::CColor& GetMissileBarEmpty() const { return x7c_missileBarEmpty; }
-  const zeus::CColor& GetThreatIconColor() const { return x80_threatIconColor; }
-  const zeus::CColor& GetTickDecoColor() const { return x88_tickDecoColor; }
-  const zeus::CColor& GetHelmetLightColor() const { return x8c_helmetLightColor; }
-  const zeus::CColor& GetThreatIconSafeColor() const { return x90_threatIconSafeColor; }
-  const zeus::CColor& GetMissileIconColorInactive() const { return x94_missileIconColorInactive; }
-  const zeus::CColor& GetMissileIconColorChargedCanAlt() const { return x98_missileIconColorChargedCanAlt; }
-  const zeus::CColor& GetMissileIconColorChargedNoAlt() const { return x9c_missileIconColorChargedNoAlt; }
-  const zeus::CColor& GetMissileIconColorDepleteAlt() const { return xa0_missileIconColorDepleteAlt; }
-  const zeus::CColor& GetVisorBeamMenuLozColor() const { return xb0_visorBeamMenuLozColor; }
-  const zeus::CColor& GetEnergyWarningOutline() const { return xb4_energyWarningOutline; }
-  const zeus::CColor& GetThreatWarningOutline() const { return xb8_threatWarningOutline; }
-  const zeus::CColor& GetMissileWarningOutline() const { return xbc_missileWarningOutline; }
-  const zeus::CColor& GetDamageAmbientColor() const { return xc4_damageAmbientColor; }
-  const zeus::CColor& GetScanFrameInactiveColor() const { return xc8_scanFrameInactiveColor; }
-  const zeus::CColor& GetScanFrameActiveColor() const { return xcc_scanFrameActiveColor; }
-  const zeus::CColor& GetScanFrameImpulseColor() const { return xd0_scanFrameImpulseColor; }
-  const zeus::CColor& GetScanVisorHudLightMultiply() const { return xd4_scanVisorHudLightMultiply; }
-  const zeus::CColor& GetScanVisorScreenDimColor() const { return xd8_scanVisorScreenDimColor; }
-  const zeus::CColor& GetThermalVisorHudLightMultiply() const { return xdc_thermalVisorHudLightMultiply; }
-  const zeus::CColor& GetEnergyDrainFilterColor() const { return xe0_energyDrainFilterColor; }
-  const zeus::CColor& GetDamageAmbientPulseColor() const { return xe4_damageAmbientPulseColor; }
-  const zeus::CColor& GetEnergyBarFlashColor() const { return xe8_energyBarFlashColor; }
-  const zeus::CColor& GetXRayEnergyDecoColor() const { return x100_xrayEnergyDecoColor; }
-  const zeus::CColor& GetScanDataDotColor() const { return x138_scanDataDotColor; }
-  const zeus::CColor& GetPowerBombDigitAvailableFont() const { return x13c_powerBombDigitAvailableFont; }
-  const zeus::CColor& GetPowerBombDigitAvailableOutline() const { return x140_powerBombDigitAvailableOutline; }
-  const zeus::CColor& GetBallBombFilledColor() const { return x148_ballBombFilled; }
-  const zeus::CColor& GetBallBombEmptyColor() const { return x14c_ballBombEmpty; }
-  const zeus::CColor& GetPowerBombIconAvailableColor() const { return x150_powerBombIconAvailable; }
-  const zeus::CColor& GetBallBombEnergyColor() const { return x158_ballEnergyDeco; }
-  const zeus::CColor& GetBallBombDecoColor() const { return x15c_ballBombDeco; }
-  const zeus::CColor& GetPowerBombDigitDelpetedFont() const { return x160_powerBombDigitDepletedFont; }
-  const zeus::CColor& GetPowerBombDigitDelpetedOutline() const { return x164_powerBombDigitDepletedOutline; }
-  const zeus::CColor& GetPowerBombIconDepletedColor() const { return x168_powerBombIconUnavailable; }
-  const zeus::CColor& GetScanDisplayImagePaneColor() const { return x174_scanDisplayImagePaneColor; }
-  const zeus::CColor& GetThreatIconWarningColor() const { return x17c_threatIconWarningColor; }
-  const zeus::CColor& GetHudCounterFill() const { return x180_hudCounterFill; }
-  const zeus::CColor& GetHudCounterOutline() const { return x184_hudCounterOutline; }
-  const zeus::CColor& GetScanIconCriticalColor() const { return x188_scanIconCriticalColor; }
-  const zeus::CColor& GetScanIconCriticalDimColor() const { return x18c_scanIconCriticalDimColor; }
-  const zeus::CColor& GetScanIconNoncriticalColor() const { return x190_scanIconNoncriticalColor; }
-  const zeus::CColor& GetScanIconNoncriticalDimColor() const { return x194_scanIconNoncriticalDimColor; }
-  const zeus::CColor& GetScanReticuleColor() const { return x198_scanReticuleColor; }
-  const zeus::CColor& GetThreatDigitsFont() const { return x19c_threatDigitsFont; }
-  const zeus::CColor& GetThreatDigitsOutline() const { return x1a0_threatDigitsOutline; }
-  const zeus::CColor& GetMissileDigitsFont() const { return x1a4_missileDigitsFont; }
-  const zeus::CColor& GetMissileDigitsOutline() const { return x1a8_missileDigitsOutline; }
-  const zeus::CColor& GetThermalDecoColor() const { return x1ac_thermalDecoColor; }
-  const zeus::CColor& GetThermalOutlinesColor() const { return x1b0_thermalOutlinesColor; }
-  const zeus::CColor& GetThermalLockColor() const { return x1b8_thermalLockColor; }
-  const zeus::CColor& GetPauseItemAmberColor() const { return x1bc_pauseItemAmber; }
-  const zeus::CColor& GetPauseItemBlueColor() const { return x1c0_pauseItemBlue; }
+  const zeus::CColor& GetPauseBlurFilterColor() const override { return x4_pauseBlurFilterColor; }
+  const zeus::CColor& GetRadarStuffColor() const override { return x8_radarStuffColor; }
+  const zeus::CColor& GetRadarPlayerPaintColor() const override { return xc_radarPlayerPaintColor; }
+  const zeus::CColor& GetRadarEnemyPaintColor() const override { return x10_radarEnemyPaintColor; }
+  const zeus::CColor& GetHudMessageFill() const override { return x14_hudMessageFill; }
+  const zeus::CColor& GetHudMessageOutline() const override { return x18_hudMessageOutline; }
+  const zeus::CColor& GetHudFrameColor() const override { return x1c_hudFrameColor; }
+  const zeus::CColor& GetMissileIconColorActive() const override { return x28_missileIconColorActive; }
+  const zeus::CColor& GetVisorBeamMenuItemActive() const override { return x2c_visorBeamMenuItemActive; }
+  const zeus::CColor& GetVisorBeamMenuItemInactive() const override { return x30_visorBeamMenuColorInactive; }
+  const zeus::CColor& GetEnergyBarFilledLowEnergy() const override { return x34_energyBarFilledLowEnergy; }
+  const zeus::CColor& GetEnergyBarShadowLowEnergy() const override { return x38_energyBarShadowLowEnergy; }
+  const zeus::CColor& GetEnergyBarEmptyLowEnergy() const override { return x3c_energyBarEmptyLowEnergy; }
+  const zeus::CColor& GetHudDamageLightColor() const override { return x40_hudDamageLightColor; }
+  const zeus::CColor& GetVisorMenuTextFont() const override { return x4c_visorMenuTextFont; }
+  const zeus::CColor& GetVisorMenuTextOutline() const override { return x50_visorMenuTextOutline; }
+  const zeus::CColor& GetBeamMenuTextFont() const override { return x54_beamMenuTextFont; }
+  const zeus::CColor& GetBeamMenuTextOutline() const override { return x58_beamMenuTextOutline; }
+  const zeus::CColor& GetEnergyWarningFont() const override { return x5c_energyWarningFont; }
+  const zeus::CColor& GetThreatWarningFont() const override { return x60_threatWarningFont; }
+  const zeus::CColor& GetMissileWarningFont() const override { return x64_missileWarningFont; }
+  const zeus::CColor& GetThreatBarFilled() const override { return x68_threatBarFilled; }
+  const zeus::CColor& GetThreatBarShadow() const override { return x6c_threatBarShadow; }
+  const zeus::CColor& GetThreatBarEmpty() const override { return x70_threatBarEmpty; }
+  const zeus::CColor& GetMissileBarFilled() const override { return x74_missileBarFilled; }
+  const zeus::CColor& GetMissileBarShadow() const override { return x78_missileBarShadow; }
+  const zeus::CColor& GetMissileBarEmpty() const override { return x7c_missileBarEmpty; }
+  const zeus::CColor& GetThreatIconColor() const override { return x80_threatIconColor; }
+  const zeus::CColor& GetTickDecoColor() const override { return x88_tickDecoColor; }
+  const zeus::CColor& GetHelmetLightColor() const override { return x8c_helmetLightColor; }
+  const zeus::CColor& GetThreatIconSafeColor() const override { return x90_threatIconSafeColor; }
+  const zeus::CColor& GetMissileIconColorInactive() const override { return x94_missileIconColorInactive; }
+  const zeus::CColor& GetMissileIconColorChargedCanAlt() const override { return x98_missileIconColorChargedCanAlt; }
+  const zeus::CColor& GetMissileIconColorChargedNoAlt() const override { return x9c_missileIconColorChargedNoAlt; }
+  const zeus::CColor& GetMissileIconColorDepleteAlt() const override { return xa0_missileIconColorDepleteAlt; }
+  const zeus::CColor& GetVisorBeamMenuLozColor() const override { return xb0_visorBeamMenuLozColor; }
+  const zeus::CColor& GetEnergyWarningOutline() const override { return xb4_energyWarningOutline; }
+  const zeus::CColor& GetThreatWarningOutline() const override { return xb8_threatWarningOutline; }
+  const zeus::CColor& GetMissileWarningOutline() const override { return xbc_missileWarningOutline; }
+  const zeus::CColor& GetDamageAmbientColor() const override { return xc4_damageAmbientColor; }
+  const zeus::CColor& GetScanFrameInactiveColor() const override { return xc8_scanFrameInactiveColor; }
+  const zeus::CColor& GetScanFrameActiveColor() const override { return xcc_scanFrameActiveColor; }
+  const zeus::CColor& GetScanFrameImpulseColor() const override { return xd0_scanFrameImpulseColor; }
+  const zeus::CColor& GetScanVisorHudLightMultiply() const override { return xd4_scanVisorHudLightMultiply; }
+  const zeus::CColor& GetScanVisorScreenDimColor() const override { return xd8_scanVisorScreenDimColor; }
+  const zeus::CColor& GetThermalVisorHudLightMultiply() const override { return xdc_thermalVisorHudLightMultiply; }
+  const zeus::CColor& GetEnergyDrainFilterColor() const override { return xe0_energyDrainFilterColor; }
+  const zeus::CColor& GetDamageAmbientPulseColor() const override { return xe4_damageAmbientPulseColor; }
+  const zeus::CColor& GetEnergyBarFlashColor() const override { return xe8_energyBarFlashColor; }
+  const zeus::CColor& GetXRayEnergyDecoColor() const override { return x100_xrayEnergyDecoColor; }
+  const zeus::CColor& GetScanDataDotColor() const override { return x138_scanDataDotColor; }
+  const zeus::CColor& GetPowerBombDigitAvailableFont() const override { return x13c_powerBombDigitAvailableFont; }
+  const zeus::CColor& GetPowerBombDigitAvailableOutline() const override { return x140_powerBombDigitAvailableOutline; }
+  const zeus::CColor& GetBallBombFilledColor() const override { return x148_ballBombFilled; }
+  const zeus::CColor& GetBallBombEmptyColor() const override { return x14c_ballBombEmpty; }
+  const zeus::CColor& GetPowerBombIconAvailableColor() const override { return x150_powerBombIconAvailable; }
+  const zeus::CColor& GetBallBombEnergyColor() const override { return x158_ballEnergyDeco; }
+  const zeus::CColor& GetBallBombDecoColor() const override { return x15c_ballBombDeco; }
+  const zeus::CColor& GetPowerBombDigitDelpetedFont() const override { return x160_powerBombDigitDepletedFont; }
+  const zeus::CColor& GetPowerBombDigitDelpetedOutline() const override { return x164_powerBombDigitDepletedOutline; }
+  const zeus::CColor& GetPowerBombIconDepletedColor() const override { return x168_powerBombIconUnavailable; }
+  const zeus::CColor& GetScanDisplayImagePaneColor() const override { return x174_scanDisplayImagePaneColor; }
+  const zeus::CColor& GetThreatIconWarningColor() const override { return x17c_threatIconWarningColor; }
+  const zeus::CColor& GetHudCounterFill() const override { return x180_hudCounterFill; }
+  const zeus::CColor& GetHudCounterOutline() const override { return x184_hudCounterOutline; }
+  const zeus::CColor& GetScanIconCriticalColor() const override { return x188_scanIconCriticalColor; }
+  const zeus::CColor& GetScanIconCriticalDimColor() const override { return x18c_scanIconCriticalDimColor; }
+  const zeus::CColor& GetScanIconNoncriticalColor() const override { return x190_scanIconNoncriticalColor; }
+  const zeus::CColor& GetScanIconNoncriticalDimColor() const override { return x194_scanIconNoncriticalDimColor; }
+  const zeus::CColor& GetScanReticuleColor() const override { return x198_scanReticuleColor; }
+  const zeus::CColor& GetThreatDigitsFont() const override { return x19c_threatDigitsFont; }
+  const zeus::CColor& GetThreatDigitsOutline() const override { return x1a0_threatDigitsOutline; }
+  const zeus::CColor& GetMissileDigitsFont() const override { return x1a4_missileDigitsFont; }
+  const zeus::CColor& GetMissileDigitsOutline() const override { return x1a8_missileDigitsOutline; }
+  const zeus::CColor& GetThermalDecoColor() const override { return x1ac_thermalDecoColor; }
+  const zeus::CColor& GetThermalOutlinesColor() const override { return x1b0_thermalOutlinesColor; }
+  const zeus::CColor& GetThermalLockColor() const override { return x1b8_thermalLockColor; }
+  const zeus::CColor& GetPauseItemAmberColor() const override { return x1bc_pauseItemAmber; }
+  const zeus::CColor& GetPauseItemBlueColor() const override { return x1c0_pauseItemBlue; }
 
-  VisorEnergyInitColors GetVisorEnergyInitColors(int idx) const {
+  VisorEnergyInitColors GetVisorEnergyInitColors(int idx) const override {
     const PerVisorColors& colors = x1c4_perVisorColors[idx];
     return {colors.xc_energyTankFilled, colors.x10_energyTankEmpty, colors.x14_energyDigitsFont,
             colors.x18_energyDigitsOutline};
   }
-  VisorEnergyBarColors GetVisorEnergyBarColors(int idx) const {
+  VisorEnergyBarColors GetVisorEnergyBarColors(int idx) const override {
     const PerVisorColors& colors = x1c4_perVisorColors[idx];
     return {colors.x0_energyBarFilled, colors.x4_energyBarEmpty, colors.x8_energyBarShadow};
   }

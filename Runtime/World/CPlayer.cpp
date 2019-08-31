@@ -124,7 +124,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
 
 void CPlayer::InitializeBallTransition() {
   if (x64_modelData && x64_modelData->HasAnimData())
-    x64_modelData->AnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
+    x64_modelData->GetAnimationData()->SetAnimation(CAnimPlaybackParms(2, -1, 1.f, true), false);
 }
 
 bool CPlayer::IsTransparent() const { return x588_alpha < 1.f; }
@@ -173,8 +173,8 @@ void CPlayer::TransitionToMorphBallState(float dt, CStateManager& mgr) {
   x58c_transitionVel = x138_velocity.magnitude();
   if (x64_modelData && x64_modelData->HasAnimData()) {
     CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
-    x64_modelData->AnimationData()->SetAnimation(parms, false);
-    x64_modelData->AnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
+    x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+    x64_modelData->GetAnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
   }
   x64_modelData->EnableLooping(false);
   x64_modelData->Touch(mgr, 0);
@@ -224,8 +224,8 @@ void CPlayer::TransitionFromMorphBallState(CStateManager& mgr) {
 
   if (x64_modelData && x64_modelData->HasAnimData()) {
     CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
-    x64_modelData->AnimationData()->SetAnimation(parms, false);
-    x64_modelData->AnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
+    x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+    x64_modelData->GetAnimationData()->SetAnimDir(CAnimData::EAnimDir::Forward);
   }
 
   x64_modelData->EnableLooping(false);
@@ -346,8 +346,8 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
         x584_ballTransitionAnim = GetNextBallTransitionAnim(dt, loop, mgr);
         if (x64_modelData && x64_modelData->HasAnimData()) {
           CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
-          x64_modelData->AnimationData()->SetAnimation(parms, false);
-          x64_modelData->AnimationData()->EnableLooping(loop);
+          x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+          x64_modelData->GetAnimationData()->EnableLooping(loop);
         }
       }
     } else if (x584_ballTransitionAnim != 5 && x584_ballTransitionAnim != 7)
@@ -361,8 +361,8 @@ void CPlayer::UpdateMorphBallTransition(float dt, CStateManager& mgr) {
             x584_ballTransitionAnim != 7) {
           x584_ballTransitionAnim = nextAnim;
           CAnimPlaybackParms parms(x584_ballTransitionAnim, -1, 1.f, true);
-          x64_modelData->AnimationData()->SetAnimation(parms, false);
-          x64_modelData->AnimationData()->EnableLooping(loop);
+          x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+          x64_modelData->GetAnimationData()->EnableLooping(loop);
           x58c_transitionVel = velMag;
         }
       }
@@ -915,7 +915,7 @@ void CPlayer::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 CHealthInfo* CPlayer::HealthInfo(CStateManager& mgr) { return &mgr.GetPlayerState()->HealthInfo(); }
 
-bool CPlayer::IsUnderBetaMetroidAttack(CStateManager& mgr) const {
+bool CPlayer::IsUnderBetaMetroidAttack(const CStateManager& mgr) const {
   if (x274_energyDrain.GetEnergyDrainIntensity() > 0.f) {
     for (const CEnergyDrainSource& source : x274_energyDrain.GetEnergyDrainSources())
       if (CPatterned::CastTo<MP1::CMetroidBeta>(mgr.GetObjectById(source.GetEnergyDrainSourceId())))
@@ -1000,7 +1000,7 @@ void CPlayer::UpdateScanningState(const CFinalInput& input, CStateManager& mgr, 
   }
 }
 
-bool CPlayer::ValidateScanning(const CFinalInput& input, CStateManager& mgr) {
+bool CPlayer::ValidateScanning(const CFinalInput& input, const CStateManager& mgr) const {
   if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::ScanItem, input)) {
     if (x304_orbitState == EPlayerOrbitState::OrbitObject) {
       if (TCastToPtr<CActor> act = mgr.ObjectById(x310_orbitTargetId)) {
@@ -1317,7 +1317,7 @@ void CPlayer::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
   }
 
   for (auto& model : x730_transitionModels)
-    model->AnimationData()->PreRender();
+    model->GetAnimationData()->PreRender();
 
   if (x2f4_cameraState != EPlayerCameraState::FirstPerson)
     CActor::PreRender(mgr, frustum);
@@ -2660,7 +2660,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
   }
 }
 
-u16 CPlayer::GetMaterialSoundUnderPlayer(CStateManager& mgr, const u16* table, u32 length, u16 defId) {
+u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* table, u32 length, u16 defId) const {
   u16 ret = defId;
   zeus::CAABox aabb = GetBoundingBox();
   aabb.accumulateBounds(x34_transform.origin + zeus::skDown);
@@ -3274,7 +3274,7 @@ void CPlayer::ApplyGrappleForces(const CFinalInput& input, CStateManager& mgr, f
   SetAngularVelocityOR(newAngVel);
 }
 
-bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, CStateManager& mgr) {
+bool CPlayer::ValidateFPPosition(const zeus::CVector3f& pos, const CStateManager& mgr) const {
   CMaterialFilter solidFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Solid});
   zeus::CAABox aabb(x2d8_fpBounds.min - 1.f + pos, x2d8_fpBounds.max + 1.f + pos);
   rstl::reserved_vector<TUniqueId, 1024> nearList;
@@ -3837,7 +3837,7 @@ static zeus::CAABox BuildNearListBox(bool cropBottom, const zeus::CTransform& xf
   return aabb.getTransformedAABox(xf);
 }
 
-TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) {
+TUniqueId CPlayer::FindAimTargetId(CStateManager& mgr) const {
   float dist = g_tweakPlayer->GetAimMaxDistance();
   if (x9c6_24_extendTargetDistance)
     dist *= 5.f;
@@ -3917,7 +3917,7 @@ TUniqueId CPlayer::CheckEnemiesAgainstOrbitZone(const rstl::reserved_vector<TUni
   return bestId;
 }
 
-TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) {
+TUniqueId CPlayer::FindOrbitTargetId(CStateManager& mgr) const {
   return FindBestOrbitableObject(x354_onScreenOrbitObjects, x330_orbitZoneMode, mgr);
 }
 
@@ -5323,10 +5323,10 @@ void CPlayer::SetHudDisable(float staticTimer, float outSpeed, float inSpeed) {
 
 void CPlayer::SetIntoBallReadyAnimation(CStateManager& mgr) {
   CAnimPlaybackParms parms(2, -1, 1.f, true);
-  x64_modelData->AnimationData()->SetAnimation(parms, false);
-  x64_modelData->AnimationData()->EnableLooping(false);
+  x64_modelData->GetAnimationData()->SetAnimation(parms, false);
+  x64_modelData->GetAnimationData()->EnableLooping(false);
   x64_modelData->AdvanceAnimation(0.f, mgr, kInvalidAreaId, true);
-  x64_modelData->AnimationData()->EnableAnimation(false);
+  x64_modelData->GetAnimationData()->EnableAnimation(false);
 }
 
 void CPlayer::LeaveMorphBallState(CStateManager& mgr) {

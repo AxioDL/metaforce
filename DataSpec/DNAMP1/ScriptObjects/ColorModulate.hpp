@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct ColorModulate : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec4f> colorA;
   Value<atVec4f> colorB;

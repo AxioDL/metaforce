@@ -29,12 +29,12 @@ public:
                       const std::optional<TToken<CElectricDescription>>& electric, TUniqueId uid,
                       bool active, std::string_view name, float dist, const zeus::CVector3f& scale0,
                       const zeus::CColor& color, const zeus::CVector3f& scale1, const zeus::CVector3f& translation);
-  ~CHUDBillboardEffect();
-  void Accept(IVisitor& visitor);
-  void Think(float dt, CStateManager& mgr);
-  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const;
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum);
-  void Render(const CStateManager& mgr) const;
+  ~CHUDBillboardEffect() override;
+  void Accept(IVisitor& visitor) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum& frustum, const CStateManager& mgr) const override;
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override;
+  void Render(const CStateManager& mgr) const override;
   bool IsElementGen() const { return x104_26_isElementGen; }
   void SetRunIndefinitely(bool b) { x104_27_runIndefinitely = b; }
   CParticleGen* GetParticleGen() const { return xe8_generator.get(); }

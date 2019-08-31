@@ -1,8 +1,11 @@
-#include "MLVL.hpp"
-#include "../DNAMP1/MLVL.hpp"
-#include "../DNAMP2/MLVL.hpp"
-#include "../DNAMP3/MLVL.hpp"
-#include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNACommon/MLVL.hpp"
+
+#include "DataSpec/DNAMP1/MLVL.hpp"
+#include "DataSpec/DNAMP2/MLVL.hpp"
+#include "DataSpec/DNAMP3/MLVL.hpp"
+
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/Global.hpp>
 
 namespace DataSpec::DNAMLVL {
 

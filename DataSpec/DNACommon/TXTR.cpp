@@ -1,9 +1,15 @@
+#include "DataSpec/DNACommon/TXTR.hpp"
+
+#include <cstdint>
+#include <memory>
+
+#include "DataSpec/DNACommon/PAK.hpp"
+
+#include <athena/FileWriter.hpp>
+#include <hecl/hecl.hpp>
+#include <logvisor/logvisor.hpp>
 #include <png.h>
 #include <squish.h>
-#include "TXTR.hpp"
-#include "PAK.hpp"
-#include "athena/FileWriter.hpp"
-#include "hecl/hecl.hpp"
 
 namespace DataSpec {
 
@@ -806,13 +812,13 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   uint16_t height = rs.readUint16Big();
   uint32_t numMips = rs.readUint32Big();
 
-  FILE* fp = hecl::Fopen(outPath.getAbsolutePath().data(), _SYS_STR("wb"));
-  if (!fp) {
+  auto fp = hecl::FopenUnique(outPath.getAbsolutePath().data(), _SYS_STR("wb"));
+  if (fp == nullptr) {
     Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for writing")), outPath.getAbsolutePath());
     return false;
   }
   png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, PNGErr, PNGWarn);
-  png_init_io(png, fp);
+  png_init_io(png, fp.get());
   png_infop info = png_create_info_struct(png);
 
   png_text textStruct = {};
@@ -856,7 +862,6 @@ bool TXTR::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
   png_write_end(png, info);
   png_write_flush(png);
   png_destroy_write_struct(&png, &info);
-  fclose(fp);
 
   return true;
 }
@@ -1011,18 +1016,17 @@ static int GetNumPaletteEntriesForGCN(png_structp png, png_infop info) {
 }
 
 bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-  FILE* inf = hecl::Fopen(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!inf) {
+  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (inf == nullptr) {
     Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
     return false;
   }
 
   /* Validate PNG */
   char header[8];
-  fread(header, 1, 8, inf);
+  std::fread(header, 1, sizeof(header), inf.get());
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
     Log.report(logvisor::Error, fmt(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     return false;
   }
 
@@ -1030,25 +1034,22 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   png_structp pngRead = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!pngRead) {
     Log.report(logvisor::Error, fmt("unable to initialize libpng"));
-    fclose(inf);
     return false;
   }
   png_infop info = png_create_info_struct(pngRead);
   if (!info) {
     Log.report(logvisor::Error, fmt("unable to initialize libpng info"));
-    fclose(inf);
     png_destroy_read_struct(&pngRead, nullptr, nullptr);
     return false;
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
     Log.report(logvisor::Error, fmt(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
 
-  png_init_io(pngRead, inf);
+  png_init_io(pngRead, inf.get());
   png_set_sig_bytes(pngRead, 8);
 
   png_read_info(pngRead, info);
@@ -1060,7 +1061,6 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 
   if (width < 4 || height < 4) {
     Log.report(logvisor::Error, fmt("image must be 4x4 or larger"));
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1086,7 +1086,6 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 
   if (bitDepth != 8) {
     Log.report(logvisor::Error, fmt(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1118,7 +1117,6 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
     break;
   default:
     Log.report(logvisor::Error, fmt(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1139,7 +1137,6 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 
   if (setjmp(png_jmpbuf(pngRead))) {
     Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1172,7 +1169,7 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
   }
 
   png_destroy_read_struct(&pngRead, &info, nullptr);
-  fclose(inf);
+  inf.reset();
 
   /* Reduce mipmaps to minimum allowed dimensions */
   unsigned minDimX, minDimY;
@@ -1332,18 +1329,17 @@ bool TXTR::Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPat
 }
 
 bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-  FILE* inf = hecl::Fopen(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!inf) {
+  auto inf = hecl::FopenUnique(inPath.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (inf == nullptr) {
     Log.report(logvisor::Error, fmt(_SYS_STR("Unable to open '{}' for reading")), inPath.getAbsolutePath());
     return false;
   }
 
   /* Validate PNG */
   char header[8];
-  fread(header, 1, 8, inf);
+  std::fread(header, 1, sizeof(header), inf.get());
   if (png_sig_cmp((png_const_bytep)header, 0, 8)) {
     Log.report(logvisor::Error, fmt(_SYS_STR("invalid PNG signature in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     return false;
   }
 
@@ -1351,25 +1347,22 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   png_structp pngRead = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   if (!pngRead) {
     Log.report(logvisor::Error, fmt("unable to initialize libpng"));
-    fclose(inf);
     return false;
   }
   png_infop info = png_create_info_struct(pngRead);
   if (!info) {
     Log.report(logvisor::Error, fmt("unable to initialize libpng info"));
-    fclose(inf);
     png_destroy_read_struct(&pngRead, nullptr, nullptr);
     return false;
   }
 
   if (setjmp(png_jmpbuf(pngRead))) {
     Log.report(logvisor::Error, fmt(_SYS_STR("unable to initialize libpng I/O for '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
 
-  png_init_io(pngRead, inf);
+  png_init_io(pngRead, inf.get());
   png_set_sig_bytes(pngRead, 8);
 
   png_read_info(pngRead, info);
@@ -1400,7 +1393,6 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
 
   if (bitDepth != 8) {
     Log.report(logvisor::Error, fmt(_SYS_STR("'{}' is not 8 bits-per-channel")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1430,7 +1422,6 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
     break;
   default:
     Log.report(logvisor::Error, fmt(_SYS_STR("unsupported color type in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1449,7 +1440,6 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
 
   if (setjmp(png_jmpbuf(pngRead))) {
     Log.report(logvisor::Fatal, fmt(_SYS_STR("unable to read image in '{}'")), inPath.getAbsolutePath());
-    fclose(inf);
     png_destroy_read_struct(&pngRead, &info, nullptr);
     return false;
   }
@@ -1515,7 +1505,7 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   }
 
   png_destroy_read_struct(&pngRead, &info, nullptr);
-  fclose(inf);
+  inf.reset();
 
   /* Perform box-filter mipmap */
   if (numMips > 1) {
@@ -1595,33 +1585,66 @@ bool TXTR::CookPC(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outP
   return true;
 }
 
+template <class Op>
+void DataSpec::TXTR::PaletteMeta::Enumerate(typename Op::StreamT& s) {
+  Do<Op>(athena::io::PropId{"format"}, format, s);
+  Do<Op>(athena::io::PropId{"elementCount"}, elementCount, s);
+  Do<Op>(athena::io::PropId{"dolphinHash"}, dolphinHash, s);
+}
+
+AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::PaletteMeta)
+
+const char* DataSpec::TXTR::PaletteMeta::DNAType() {
+  return "DataSpec::TXTR::PaletteMeta";
+}
+
+template <class Op>
+void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
+  Do<Op>(athena::io::PropId{"format"}, format, s);
+  Do<Op>(athena::io::PropId{"mips"}, mips, s);
+  Do<Op>(athena::io::PropId{"width"}, width, s);
+  Do<Op>(athena::io::PropId{"height"}, height, s);
+  Do<Op>(athena::io::PropId{"dolphinHash"}, dolphinHash, s);
+  Do<Op>(athena::io::PropId{"hasPalette"}, hasPalette, s);
+  if (hasPalette)
+    Do<Op>(athena::io::PropId{"palette"}, palette, s);
+}
+
+AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::Meta)
+
+const char* DataSpec::TXTR::Meta::DNAType() {
+  return "DataSpec::TXTR::Meta";
+}
+
 static const atInt32 RetroToDol[11] {
   0, 1, 2, 3, 8, 9, -1, 4, 5, 6, 14
 };
 
-std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
-  atUint32 format = RetroToDol[rs.readUint32Big()];
+TXTR::Meta TXTR::GetMetaData(DataSpec::PAKEntryReadStream& rs) {
+  atUint32 retroFormat = rs.readUint32Big();
+  atUint32 format = RetroToDol[retroFormat];
   if (format == UINT32_MAX)
     return {};
 
-  atUint16 width = rs.readUint16Big();
-  atUint16 height = rs.readUint16Big();
-  atUint32 mips = rs.readUint32Big();
-  std::string res = fmt::format(fmt("tex1_{}x{}{}"), width, height, mips > 1 ? "_m" : "");
-  atUint64 palHash = 0;
-  bool hasPalette = false;
-  atUint32 textureSize = width * height;
+  Meta meta;
+  meta.format = retroFormat;
+  meta.width = rs.readUint16Big();
+  meta.height = rs.readUint16Big();
+  meta.mips = rs.readUint32Big();
+  atUint32 textureSize = meta.width * meta.height;
   if (format == 8 || format == 9) {
-    hasPalette = true;
-    atUint32 paletteFormat = rs.readUint32Big();
+    meta.hasPalette = true;
+    PaletteMeta& palMeta = meta.palette;
+    palMeta.format = rs.readUint32Big();
     atUint16 palWidth = rs.readUint16Big();
     atUint16 palHeight = rs.readUint16Big();
+    palMeta.elementCount = palWidth * palHeight;
     atUint32 palSize = atUint32(palWidth * palHeight * 2);
-    if (format == 4)
+    if (format == 8)
       textureSize /= 2;
     std::unique_ptr<u8[]> palData(new u8[palSize]);
     rs.readUBytesToBuf(palData.get(), palSize);
-    palHash = XXH64(palData.get(), palSize, 0);
+    palMeta.dolphinHash = XXH64(palData.get(), palSize, 0);
   } else {
     switch(format) {
     case 0: // I4
@@ -1642,13 +1665,9 @@ std::string TXTR::CalculateDolphinName(DataSpec::PAKEntryReadStream& rs) {
   }
   std::unique_ptr<u8[]> textureData(new u8[textureSize]);
   rs.readUBytesToBuf(textureData.get(), textureSize);
-  atUint64 texHash = XXH64(textureData.get(), textureSize, 0);
-  res += fmt::format(fmt("_{:016X}"), texHash);
-  if (hasPalette)
-    res += fmt::format(fmt("_{:016X}"), palHash);
-  res += fmt::format(fmt("_{}"), format);
+  meta.dolphinHash = XXH64(textureData.get(), textureSize, 0);
 
-  return res;
+  return meta;
 }
 
 } // namespace DataSpec

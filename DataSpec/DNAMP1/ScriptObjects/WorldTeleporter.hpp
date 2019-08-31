@@ -7,8 +7,7 @@
 namespace DataSpec::DNAMP1 {
 
 struct WorldTeleporter : IScriptObject {
-  AT_DECL_EXPLICIT_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_EXPLICIT_DNA_YAMLV
   String<-1> name;
   Value<bool> active;
   UniqueID32 mlvl;
@@ -38,7 +37,7 @@ struct WorldTeleporter : IScriptObject {
   Value<float> unknown15;
   Value<float> unknown16;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (platformModel.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(platformModel);
       ent->name = name + "_model1";
@@ -53,7 +52,8 @@ struct WorldTeleporter : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(platformModel, pathsOut);
     g_curSpec->flattenDependencies(backgroundModel, pathsOut);
     g_curSpec->flattenDependencies(strg, pathsOut);

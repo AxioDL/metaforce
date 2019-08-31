@@ -28,11 +28,11 @@ public:
           const CActorParameters&, const CPatternedInfo&, float, CAssetId, const CDamageInfo&, CAssetId, float, bool,
           bool, bool, const CDamageInfo&, s16);
 
-  void Accept(IVisitor&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  std::optional<zeus::CAABox> GetTouchBounds() const;
-  void Touch(CActor&, CStateManager&);
-  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState);
+  void Accept(IVisitor&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override;
+  void Touch(CActor&, CStateManager&) override;
+  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
 };
 } // namespace urde::MP1

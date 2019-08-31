@@ -19,23 +19,26 @@ public:
   static std::string CreatePrimitiveName(const std::weak_ptr<CAnimTreeNode>&, float, const CCharAnimTime&, float);
 
   CCharAnimTime GetRealLifeTime(const CCharAnimTime&) const;
-  void VSetPhase(float);
-  std::optional<std::unique_ptr<IAnimReader>> VSimplified();
+  void VSetPhase(float) override;
+  std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
 
-  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator, u32) const;
-  bool VGetBoolPOIState(const char* name) const;
-  s32 VGetInt32POIState(const char* name) const;
-  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const;
+  u32 VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator, u32) const override;
+  u32 VGetInt32POIList(const CCharAnimTime& time, CInt32POINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  u32 VGetParticlePOIList(const CCharAnimTime& time, CParticlePOINode* listOut, u32 capacity, u32 iterator,
+                          u32) const override;
+  u32 VGetSoundPOIList(const CCharAnimTime& time, CSoundPOINode* listOut, u32 capacity, u32 iterator,
+                       u32) const override;
+  bool VGetBoolPOIState(const char* name) const override;
+  s32 VGetInt32POIState(const char* name) const override;
+  CParticleData::EParentedMode VGetParticlePOIState(const char* name) const override;
 
-  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const;
-  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-  std::unique_ptr<IAnimReader> VClone() const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  CCharAnimTime VGetTimeRemaining() const;
-  SAdvancementResults VAdvanceView(const CCharAnimTime& dt);
+  CAnimTreeEffectiveContribution VGetContributionOfHighestInfluence() const override;
+  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
+  std::unique_ptr<IAnimReader> VClone() const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& dt) override;
 };
 
 } // namespace urde

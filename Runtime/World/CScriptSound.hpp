@@ -48,11 +48,11 @@ public:
                u32 pan, u32 w6, bool looped, bool nonEmitter, bool autoStart, bool occlusionTest, bool acoustics,
                bool worldSfx, bool allowDuplicates, s32 pitch);
 
-  void Accept(IVisitor& visitor);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
-  void PreThink(float, CStateManager&);
-  void Think(float, CStateManager&);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override {}
+  void PreThink(float, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void PlaySound(CStateManager&);
   void StopSound(CStateManager&);
 };

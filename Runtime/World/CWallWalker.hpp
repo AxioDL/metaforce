@@ -48,10 +48,10 @@ public:
               float alignAngVel, EKnockBackVariant kbVariant, float advanceWpRadius, EWalkerType wType,
               float playerObstructionMinDist, bool disableMove);
 
-  void PreThink(float, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  const CCollisionPrimitive* GetCollisionPrimitive() const { return &x590_colSphere; }
+  void PreThink(float, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x590_colSphere; }
   void UpdateWPDestination(CStateManager&);
 };
 } // namespace urde

@@ -7,7 +7,7 @@ namespace urde {
 
 class IVParamObj : public IObj {
 public:
-  virtual ~IVParamObj() {}
+  ~IVParamObj() override = default;
 };
 
 template <class T>
@@ -17,6 +17,7 @@ class TObjOwnerParam : public IVParamObj {
 public:
   TObjOwnerParam(T&& obj) : m_param(std::move(obj)) {}
   T& GetParam() { return m_param; }
+  const T& GetParam() const { return m_param; }
 };
 
 class CVParamTransfer {
@@ -27,7 +28,7 @@ public:
   CVParamTransfer(IVParamObj* obj) : m_ref(obj) {}
   CVParamTransfer(const CVParamTransfer& other) : m_ref(other.m_ref) {}
   IVParamObj* GetObj() const { return m_ref.get(); }
-  CVParamTransfer ShareTransferRef() { return CVParamTransfer(*this); }
+  CVParamTransfer ShareTransferRef() const { return CVParamTransfer(*this); }
 
   template <class T>
   T& GetOwnedObj() const {

@@ -30,9 +30,9 @@ class CScriptActorRotate : public CEntity {
 public:
   CScriptActorRotate(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CVector3f&, float, bool, bool, bool);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
 };
 
 } // namespace urde

@@ -27,8 +27,7 @@ struct ANIM : BigDNA {
   };
 
   struct ANIM0 : IANIM {
-    AT_DECL_EXPLICIT_DNA
-    AT_DECL_DNAV
+    AT_DECL_EXPLICIT_DNAV
     ANIM0() : IANIM(0) {}
 
     struct Header : BigDNA {
@@ -45,8 +44,7 @@ struct ANIM : BigDNA {
   };
 
   struct ANIM1 : IANIM {
-    AT_DECL_EXPLICIT_DNA
-    AT_DECL_DNAV
+    AT_DECL_EXPLICIT_DNAV
     ANIM1() : IANIM(1) {}
 
     struct Header : BigDNA {

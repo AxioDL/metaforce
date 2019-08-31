@@ -12,12 +12,14 @@ class TAnimSourceInfo : public IAnimSourceInfo {
 
 public:
   TAnimSourceInfo(const TSubAnimTypeToken<T>& token) : x4_token(token) {}
-  bool HasPOIData() const { return x4_token->HasPOIData(); }
-  const std::vector<CBoolPOINode>& GetBoolPOIStream() const { return x4_token->GetBoolPOIStream(); }
-  const std::vector<CInt32POINode>& GetInt32POIStream() const { return x4_token->GetInt32POIStream(); }
-  const std::vector<CParticlePOINode>& GetParticlePOIStream() const { return x4_token->GetParticlePOIStream(); }
-  const std::vector<CSoundPOINode>& GetSoundPOIStream() const { return x4_token->GetSoundPOIStream(); }
-  CCharAnimTime GetAnimationDuration() const { return x4_token->GetAnimationDuration(); }
+  bool HasPOIData() const override { return x4_token->HasPOIData(); }
+  const std::vector<CBoolPOINode>& GetBoolPOIStream() const override { return x4_token->GetBoolPOIStream(); }
+  const std::vector<CInt32POINode>& GetInt32POIStream() const override { return x4_token->GetInt32POIStream(); }
+  const std::vector<CParticlePOINode>& GetParticlePOIStream() const override {
+    return x4_token->GetParticlePOIStream();
+  }
+  const std::vector<CSoundPOINode>& GetSoundPOIStream() const override { return x4_token->GetSoundPOIStream(); }
+  CCharAnimTime GetAnimationDuration() const override { return x4_token->GetAnimationDuration(); }
 };
 
 class CFBStreamedAnimReaderTotals {
@@ -101,20 +103,20 @@ class CFBStreamedAnimReader : public CAnimSourceReaderBase {
 public:
   CFBStreamedAnimReader(const TSubAnimTypeToken<CFBStreamedCompression>& source, const CCharAnimTime& time);
 
-  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const;
-  bool VSupportsReverseView() const { return false; }
-  void VSetPhase(float);
-  SAdvancementResults VReverseView(const CCharAnimTime& time);
-  std::unique_ptr<IAnimReader> VClone() const;
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const;
-  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const;
-  SAdvancementResults VAdvanceView(const CCharAnimTime& a);
-  CCharAnimTime VGetTimeRemaining() const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  bool VHasOffset(const CSegId& seg) const;
-  zeus::CVector3f VGetOffset(const CSegId& seg) const;
-  zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& time) const;
-  zeus::CQuaternion VGetRotation(const CSegId& seg) const;
+  SAdvancementResults VGetAdvancementResults(const CCharAnimTime& a, const CCharAnimTime& b) const override;
+  bool VSupportsReverseView() const override { return false; }
+  void VSetPhase(float) override;
+  SAdvancementResults VReverseView(const CCharAnimTime& time) override;
+  std::unique_ptr<IAnimReader> VClone() const override;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut) const override;
+  void VGetSegStatementSet(const CSegIdList& list, CSegStatementSet& setOut, const CCharAnimTime& time) const override;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& a) override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  bool VHasOffset(const CSegId& seg) const override;
+  zeus::CVector3f VGetOffset(const CSegId& seg) const override;
+  zeus::CVector3f VGetOffset(const CSegId& seg, const CCharAnimTime& time) const override;
+  zeus::CQuaternion VGetRotation(const CSegId& seg) const override;
 };
 
 } // namespace urde

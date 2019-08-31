@@ -71,7 +71,6 @@ struct MaterialSet : BigDNA {
       static SectionPASS* castTo(ISection* sec) {
         return sec->m_type == Type::PASS ? static_cast<SectionPASS*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       Value<atUint32> size;
       enum class Subtype : atUint32 {
@@ -113,14 +112,13 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionCLR : ISection {
       SectionCLR() : ISection(ISection::Type::CLR) {}
       static SectionCLR* castTo(ISection* sec) {
         return sec->m_type == Type::CLR ? static_cast<SectionCLR*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       enum class Subtype : atUint32 { CLR = SBIG('CLR '), DIFB = SBIG('DIFB') };
       DNAFourCC subtype;
@@ -128,14 +126,13 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionINT : ISection {
       SectionINT() : ISection(ISection::Type::INT) {}
       static SectionINT* castTo(ISection* sec) {
         return sec->m_type == Type::INT ? static_cast<SectionINT*>(sec) : nullptr;
       }
-      AT_DECL_DNA
       AT_DECL_DNAV
       enum class Subtype : atUint32 {
         OPAC = SBIG('OPAC'),
@@ -149,7 +146,7 @@ struct MaterialSet : BigDNA {
 
       void constructNode(hecl::blender::PyOutStream& out, const PAKRouter<PAKBridge>& pakRouter,
                          const PAK::Entry& entry, const Material::ISection* prevSection, unsigned idx,
-                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const;
+                         unsigned& texMapIdx, unsigned& texMtxIdx, unsigned& kColorIdx) const override;
     };
     struct SectionFactory : BigDNA {
       AT_DECL_EXPLICIT_DNA

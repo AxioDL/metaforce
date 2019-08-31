@@ -24,7 +24,7 @@ public:
           const zeus::CTransform& xf, const CMaterialFilter& filter, const CMaterialList& mList, const CDamageInfo&,
           EProjectileAttrib attribs, CModelData&& mData);
 
-  virtual void Accept(IVisitor& visitor);
+  void Accept(IVisitor& visitor) override;
   bool HasAttrib(EProjectileAttrib attrib) const { return (int(xe8_projectileAttribs) & int(attrib)) == int(attrib); }
   EProjectileAttrib GetAttribField() const { return xe8_projectileAttribs; }
   const CMaterialFilter& GetFilter() const { return xf8_filter; }
@@ -38,10 +38,10 @@ public:
   float GetDamageDuration() const { return x150_damageDuration; }
   float GetInterferenceDuration() const { return x154_interferenceDuration; }
 
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const;
-  void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr);
+                                                         const CWeaponMode&, EProjectileAttrib) const override;
+  void FluidFXThink(EFluidState state, CScriptWater& water, CStateManager& mgr) override;
 };
 } // namespace urde

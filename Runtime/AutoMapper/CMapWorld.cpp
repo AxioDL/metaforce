@@ -42,7 +42,7 @@ void CMapWorld::SetWhichMapAreasLoaded(const IWorld& wld, int start, int count) 
 
   for (int i = 0; i < 2; ++i) {
     for (CMapAreaData* data = x10_listHeads[i]; data;) {
-      CMapAreaData* nextData = data->NextMapAreaData();
+      CMapAreaData* nextData = data->GetNextMapAreaData();
       if (!IsMapAreaInBFSInfoVector(data, bfsInfos)) {
         data->Unlock();
         MoveMapAreaToList(data, EMapAreaList::Unloaded);
@@ -64,11 +64,11 @@ bool CMapWorld::IsMapAreasStreaming() const {
   CMapAreaData* data = x10_listHeads[1];
   while (data != nullptr) {
     if (data->IsLoaded()) {
-      CMapAreaData* next = data->NextMapAreaData();
+      CMapAreaData* next = data->GetNextMapAreaData();
       const_cast<CMapWorld*>(this)->MoveMapAreaToList(data, EMapAreaList::Loaded);
       data = next;
     } else {
-      data = data->NextMapAreaData();
+      data = data->GetNextMapAreaData();
       ret = true;
     }
   }
@@ -78,13 +78,13 @@ bool CMapWorld::IsMapAreasStreaming() const {
 void CMapWorld::MoveMapAreaToList(CMapWorld::CMapAreaData* data, CMapWorld::EMapAreaList list) {
   CMapAreaData* last = nullptr;
   for (CMapAreaData* head = x10_listHeads[int(data->GetContainingList())];;
-       last = head, head = head->NextMapAreaData()) {
+       last = head, head = head->GetNextMapAreaData()) {
     if (head != data)
       continue;
     if (!last)
-      x10_listHeads[int(data->GetContainingList())] = head->NextMapAreaData();
+      x10_listHeads[int(data->GetContainingList())] = head->GetNextMapAreaData();
     else
-      last->SetNextMapArea(head->NextMapAreaData());
+      last->SetNextMapArea(head->GetNextMapAreaData());
     break;
   }
   data->SetNextMapArea(x10_listHeads[int(list)]);

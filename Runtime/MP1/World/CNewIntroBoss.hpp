@@ -52,27 +52,27 @@ public:
                 CAssetId projectile, const CDamageInfo& dInfo, CAssetId beamContactFxId, CAssetId beamPulseFxId,
                 CAssetId beamTextureId, CAssetId beamGlowTextureId);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager&);
-  void Think(float dt, CStateManager& mgr);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
-  void OnScanStateChanged(EScanState, CStateManager&);
-  CProjectileInfo* GetProjectileInfo() { return &x5ac_projectileInfo; }
-  zeus::CAABox GetSortingBounds(const CStateManager&) const {
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager&) override;
+  void Think(float dt, CStateManager& mgr) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
+  void OnScanStateChanged(EScanState, CStateManager&) override;
+  CProjectileInfo* GetProjectileInfo() override { return &x5ac_projectileInfo; }
+  zeus::CAABox GetSortingBounds(const CStateManager&) const override {
     zeus::CAABox box = GetModelData()->GetBounds();
     return zeus::CAABox({-0.5f, -0.5f, box.min.z()}, {0.5f, 0.5f, box.max.z()}).getTransformedAABox(x34_transform);
   }
 
-  std::optional<zeus::CAABox> GetTouchBounds() const { return {}; }
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt);
-  void Generate(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
-  void Patrol(CStateManager&, EStateMsg, float);
-  bool ShouldTurn(CStateManager&, float);
-  bool ShouldAttack(CStateManager&, float);
-  bool AIStage(CStateManager&, float);
-  bool AnimOver(CStateManager&, float);
-  bool InAttackPosition(CStateManager&, float);
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return {}; }
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float dt) override;
+  void Generate(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
+  void Patrol(CStateManager&, EStateMsg, float) override;
+  bool ShouldTurn(CStateManager&, float) override;
+  bool ShouldAttack(CStateManager&, float) override;
+  bool AIStage(CStateManager&, float) override;
+  bool AnimOver(CStateManager&, float) override;
+  bool InAttackPosition(CStateManager&, float) override;
 };
 
 } // namespace MP1

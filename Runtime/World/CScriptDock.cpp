@@ -38,10 +38,10 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
     x268_24_dockReferenced = false;
   }
 
-  const IGameArea::Dock* gameDock = mgr.WorldNC()->GetArea(x260_area)->GetDock(x25c_dock);
+  const IGameArea::Dock* gameDock = mgr.GetWorld()->GetArea(x260_area)->GetDock(x25c_dock);
   TAreaId connArea = gameDock->GetConnectedAreaId(gameDock->GetReferenceCount());
   if (connArea != kInvalidAreaId) {
-    bool connPostConstructed = mgr.WorldNC()->GetArea(connArea)->IsPostConstructed();
+    bool connPostConstructed = mgr.GetWorld()->GetArea(connArea)->IsPostConstructed();
     if (x268_26_areaPostConstructed != connPostConstructed) {
       x268_26_areaPostConstructed = connPostConstructed;
       if (connPostConstructed)
@@ -60,13 +60,13 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
   else if (x264_dockState == EDockState::EnterNextArea) {
     CPlayer& player = mgr.GetPlayer();
     if (HasPointCrossedDock(mgr, player.GetTranslation())) {
-      IGameArea::Dock* dock = mgr.WorldNC()->GetArea(mgr.GetNextAreaId())->DockNC(x25c_dock);
+      IGameArea::Dock* dock = mgr.GetWorld()->GetArea(mgr.GetNextAreaId())->GetDock(x25c_dock);
       TAreaId aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
-      if (aid != kInvalidAreaId && mgr.WorldNC()->GetArea(aid)->GetActive()) {
+      if (aid != kInvalidAreaId && mgr.GetWorld()->GetArea(aid)->GetActive()) {
         mgr.SetCurrentAreaId(aid);
         s32 otherDock = dock->GetOtherDockNumber(dock->GetReferenceCount());
 
-        if (CObjectList* objs = mgr.WorldNC()->GetArea(aid)->GetAreaObjects()) {
+        if (CObjectList* objs = mgr.GetWorld()->GetArea(aid)->GetAreaObjects()) {
           for (CEntity* ent : *objs) {
             TCastToPtr<CScriptDock> dock(ent);
             if (dock && dock->GetDockId() == otherDock)
@@ -83,10 +83,10 @@ void CScriptDock::Think(float dt, CStateManager& mgr) {
 void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::Registered: {
-    CGameArea* area = mgr.WorldNC()->GetArea(x260_area);
+    CGameArea* area = mgr.GetWorld()->GetArea(x260_area);
     if (area->GetDockCount() < x25c_dock)
       return;
-    IGameArea::Dock* dock = area->DockNC(x25c_dock);
+    IGameArea::Dock* dock = area->GetDock(x25c_dock);
     if (!dock->IsReferenced())
       dock->SetReferenceCount(x258_dockReferenceCount);
   } break;
@@ -109,8 +109,8 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
 
     SetLoadConnected(mgr, false);
 
-    CGameArea* area = mgr.WorldNC()->GetArea(x260_area);
-    IGameArea::Dock* dock = area->DockNC(x25c_dock);
+    CGameArea* area = mgr.GetWorld()->GetArea(x260_area);
+    IGameArea::Dock* dock = area->GetDock(x25c_dock);
 
     TAreaId aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
 
@@ -133,13 +133,13 @@ void CScriptDock::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStat
   case EScriptObjectMessage::Decrement: {
     TAreaId aid = x260_area;
     if (mgr.GetNextAreaId() == x260_area) {
-      IGameArea::Dock* dock = mgr.WorldNC()->GetArea(x260_area)->DockNC(x25c_dock);
+      IGameArea::Dock* dock = mgr.GetWorld()->GetArea(x260_area)->GetDock(x25c_dock);
       aid = dock->GetConnectedAreaId(dock->GetReferenceCount());
     }
 
-    if (aid >= 0 && aid < mgr.GetWorld()->GetNumAreas() && mgr.WorldNC()->GetArea(aid)->GetActive())
+    if (aid >= 0 && aid < mgr.GetWorld()->GetNumAreas() && mgr.GetWorld()->GetArea(aid)->GetActive())
       CWorld::PropogateAreaChain(CGameArea::EOcclusionState(msg == EScriptObjectMessage::Increment),
-                                 mgr.WorldNC()->GetArea(aid), mgr.WorldNC());
+                                 mgr.GetWorld()->GetArea(aid), mgr.GetWorld());
   } break;
   default:
     CPhysicsActor::AcceptScriptMsg(msg, uid, mgr);
@@ -168,7 +168,7 @@ zeus::CPlane CScriptDock::GetPlane(const CStateManager& mgr) const {
 }
 
 void CScriptDock::SetDockReference(CStateManager& mgr, s32 ref) {
-  mgr.WorldNC()->GetArea(x260_area)->DockNC(x25c_dock)->SetReferenceCount(ref);
+  mgr.GetWorld()->GetArea(x260_area)->GetDock(x25c_dock)->SetReferenceCount(ref);
   x268_24_dockReferenced = true;
 }
 
@@ -188,7 +188,7 @@ TAreaId CScriptDock::GetCurrentConnectedAreaId(const CStateManager& mgr) const {
 }
 
 void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr) {
-  CWorld* world = mgr.WorldNC();
+  CWorld* world = mgr.GetWorld();
   if (x260_area >= world->GetNumAreas())
     return;
 
@@ -197,7 +197,7 @@ void CScriptDock::UpdateAreaActivateFlags(CStateManager& mgr) {
   if (x25c_dock >= area->GetDockCount())
     return;
 
-  IGameArea::Dock* dock = area->DockNC(x25c_dock);
+  IGameArea::Dock* dock = area->GetDock(x25c_dock);
 
   for (s32 i = 0; i < dock->GetDockRefs().size(); ++i) {
     s32 dockRefCount = dock->GetReferenceCount();
@@ -216,7 +216,7 @@ bool CScriptDock::HasPointCrossedDock(const CStateManager& mgr, const zeus::CVec
 void CScriptDock::AreaLoaded(CStateManager& mgr) { SetLoadConnected(mgr, x268_25_loadConnected); }
 
 void CScriptDock::SetLoadConnected(CStateManager& mgr, bool loadOther) {
-  IGameArea::Dock* dock = mgr.WorldNC()->GetArea(x260_area)->DockNC(x25c_dock);
+  IGameArea::Dock* dock = mgr.GetWorld()->GetArea(x260_area)->GetDock(x25c_dock);
   bool cur = dock->GetShouldLoadOther(dock->GetReferenceCount());
   if (cur == loadOther)
     return;

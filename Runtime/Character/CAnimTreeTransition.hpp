@@ -23,14 +23,14 @@ public:
                       std::string_view name, bool initialized);
   CAnimTreeTransition(bool b1, const std::weak_ptr<CAnimTreeNode>& a, const std::weak_ptr<CAnimTreeNode>& b,
                       const CCharAnimTime& transDur, bool runA, int flags, std::string_view name);
-  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const;
-  CCharAnimTime VGetTimeRemaining() const;
-  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const;
-  std::unique_ptr<IAnimReader> VClone() const;
-  std::optional<std::unique_ptr<IAnimReader>> VSimplified();
-  std::optional<std::unique_ptr<IAnimReader>> VReverseSimplified();
-  SAdvancementResults VAdvanceView(const CCharAnimTime& a);
-  void SetBlendingWeight(float w);
-  float VGetBlendingWeight() const;
+  std::shared_ptr<IAnimReader> VGetBestUnblendedChild() const override;
+  CCharAnimTime VGetTimeRemaining() const override;
+  CSteadyStateAnimInfo VGetSteadyStateAnimInfo() const override;
+  std::unique_ptr<IAnimReader> VClone() const override;
+  std::optional<std::unique_ptr<IAnimReader>> VSimplified() override;
+  std::optional<std::unique_ptr<IAnimReader>> VReverseSimplified() override;
+  SAdvancementResults VAdvanceView(const CCharAnimTime& a) override;
+  void SetBlendingWeight(float w) override;
+  float VGetBlendingWeight() const override;
 };
 } // namespace urde

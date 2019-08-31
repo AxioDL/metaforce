@@ -125,16 +125,16 @@ public:
     float x55_cachedMaxVol;
 
   public:
-    bool IsPlaying() const;
-    void Play();
-    void Stop();
-    bool Ready();
-    ESfxAudibility GetAudible(const zeus::CVector3f&);
-    amuse::ObjToken<amuse::Voice> GetVoice() const { return x50_emitterHandle->getVoice(); }
-    u16 GetSfxId() const;
-    void UpdateEmitterSilent();
-    void UpdateEmitter();
-    void SetReverb(float rev);
+    bool IsPlaying() const override;
+    void Play() override;
+    void Stop() override;
+    bool Ready() override;
+    ESfxAudibility GetAudible(const zeus::CVector3f&) override;
+    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x50_emitterHandle->getVoice(); }
+    u16 GetSfxId() const override;
+    void UpdateEmitterSilent() override;
+    void UpdateEmitter() override;
+    void SetReverb(float rev) override;
     CAudioSys::C3DEmitterParmData& GetEmitterData() { return x24_parmData; }
 
     amuse::ObjToken<amuse::Emitter> GetHandle() const { return x50_emitterHandle; }
@@ -154,16 +154,16 @@ public:
     bool x24_ready = true;
 
   public:
-    bool IsPlaying() const;
-    void Play();
-    void Stop();
-    bool Ready();
-    ESfxAudibility GetAudible(const zeus::CVector3f&) { return ESfxAudibility::Aud3; }
-    amuse::ObjToken<amuse::Voice> GetVoice() const { return x1c_voiceHandle; }
-    u16 GetSfxId() const;
-    void UpdateEmitterSilent();
-    void UpdateEmitter();
-    void SetReverb(float rev);
+    bool IsPlaying() const override;
+    void Play() override;
+    void Stop() override;
+    bool Ready() override;
+    ESfxAudibility GetAudible(const zeus::CVector3f&) override { return ESfxAudibility::Aud3; }
+    amuse::ObjToken<amuse::Voice> GetVoice() const override { return x1c_voiceHandle; }
+    u16 GetSfxId() const override;
+    void UpdateEmitterSilent() override;
+    void UpdateEmitter() override;
+    void SetReverb(float rev) override;
     void SetVolume(float vol) { x20_vol = vol; }
 
     CSfxWrapper(bool looped, s16 prio, u16 sfxId, float vol, float pan,

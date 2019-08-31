@@ -16,8 +16,8 @@ class CScriptPlayerHint : public CActor {
 public:
   CScriptPlayerHint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                     bool active, u32 priority, u32 overrideFlags);
-  void Accept(IVisitor& visit);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void Accept(IVisitor& visit) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   u32 GetPriority() const { return x100_priority; }
   u32 GetOverrideFlags() const { return x104_overrideFlags; }
   TUniqueId GetActorId() const { return x108_mpId; }

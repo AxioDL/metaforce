@@ -100,7 +100,7 @@ public:
   const std::unique_ptr<CBooModel>& PickStaticModel(EWhichModel which) const;
   void SetXRayModel(const std::pair<CAssetId, CAssetId>& modelSkin);
   void SetInfraModel(const std::pair<CAssetId, CAssetId>& modelSkin);
-  bool IsDefinitelyOpaque(EWhichModel);
+  bool IsDefinitelyOpaque(EWhichModel) const;
   bool GetIsLoop() const;
   float GetAnimationDuration(int) const;
   void EnableLooping(bool);
@@ -133,7 +133,7 @@ public:
   void DisintegrateDraw(EWhichModel which, const zeus::CTransform& xf, const CTexture& tex,
                         const zeus::CColor& addColor, float t);
 
-  CAnimData* AnimationData() { return x10_animData.get(); }
+  CAnimData* GetAnimationData() { return x10_animData.get(); }
   const CAnimData* GetAnimationData() const { return x10_animData.get(); }
   const TLockedToken<CModel>& GetNormalModel() const { return x1c_normalModel; }
   const TLockedToken<CModel>& GetXRayModel() const { return x2c_xrayModel; }
@@ -144,7 +144,7 @@ public:
   void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }
   bool HasAnimData() const { return x10_animData != nullptr; }
   bool HasNormalModel() const { return x1c_normalModel; }
-  bool HasModel(EWhichModel which) {
+  bool HasModel(EWhichModel which) const {
     if (x10_animData) {
       switch (which) {
       case EWhichModel::Normal:

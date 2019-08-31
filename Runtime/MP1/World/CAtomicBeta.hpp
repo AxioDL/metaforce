@@ -46,16 +46,16 @@ public:
               const CActorParameters&, const CPatternedInfo&, CAssetId, CAssetId, const CDamageInfo&, CAssetId, float,
               float, float, const CDamageVulnerability&, float, float, float, s16, s16, s16, float);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 
-  void Think(float, CStateManager&);
-  const CDamageVulnerability* GetDamageVulnerability() const;
+  void Think(float, CStateManager&) override;
+  const CDamageVulnerability* GetDamageVulnerability() const override;
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                         const CWeaponMode& mode, EProjectileAttrib) const {
+                                                         const CWeaponMode& mode, EProjectileAttrib) const override {
     return GetDamageVulnerability()->WeaponHits(mode, false) ? EWeaponCollisionResponseTypes::AtomicBeta
                                                              : EWeaponCollisionResponseTypes::AtomicBetaReflect;
   }
-  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState);
+  void Death(CStateManager&, const zeus::CVector3f&, EScriptObjectState) override;
   static bool IsPlayerBeamChargedEnough(const CStateManager& mgr);
 };
 } // namespace urde::MP1

@@ -50,7 +50,7 @@ public:
   const CDamageInfo& GetFireBreathDamage() const { return x4c_fireBreathDamage; }
   const CDamageVulnerability& GetShellDamageVulnerability() const { return xd0_shellVulnerabilities; }
   float GetShellHitPoints() const { return x140_shellHitPoints; }
-  s16 GetShellCrackSfx() { return x144_shellCrackSfx; }
+  s16 GetShellCrackSfx() const { return x144_shellCrackSfx; }
 };
 
 class CBabygoth final : public CPatterned {
@@ -130,9 +130,9 @@ private:
 
   void ApplySeparationBehavior(CStateManager&);
 
-  bool IsMouthCollisionActor(TUniqueId uid) { return x9f6_mouthCollisionActor == uid; }
+  bool IsMouthCollisionActor(TUniqueId uid) const { return x9f6_mouthCollisionActor == uid; }
 
-  bool IsShell(TUniqueId uid) {
+  bool IsShell(TUniqueId uid) const {
     for (TUniqueId shellId : x9f8_shellIds) {
       if (shellId == uid)
         return true;
@@ -172,7 +172,7 @@ private:
 
   void UpdateHealth(CStateManager&);
 
-  float CalculateShellCrackHP(EShellState state);
+  float CalculateShellCrackHP(EShellState state) const;
 
   void UpdateAttackTimeLeft(CStateManager& mgr);
 
@@ -186,25 +186,26 @@ public:
   CBabygoth(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&,
             const CPatternedInfo&, const CActorParameters&, const CBabygothData&);
 
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
-  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
+  void PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) override {
     CPatterned::PreRender(mgr, frustum);
     xb4_drawFlags.x1_matSetIdx = u8(xa04_drawMaterialIdx);
   }
 
-  void Think(float, CStateManager&);
+  void Think(float, CStateManager&) override;
 
-  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt);
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
 
-  float GetGravityConstant() const { return 10.f * CPhysicsActor::GravityConstant(); }
+  float GetGravityConstant() const override { return 10.f * CPhysicsActor::GravityConstant(); }
 
   void SetPathFindMode(EPathFindMode mode) { x8b4_pathFindMode = mode; }
 
-  const CCollisionPrimitive* GetCollisionPrimitive() const { return &x930_aabox; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x930_aabox; }
 
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& v1, const zeus::CVector3f& v2,
-                                                         const CWeaponMode& wMode, EProjectileAttrib attrib) const {
+                                                         const CWeaponMode& wMode,
+                                                         EProjectileAttrib attrib) const override {
     if (wMode.GetType() == EWeaponType::Ice)
       return EWeaponCollisionResponseTypes::None;
     if (x56c_shellState != EShellState::Destroyed)
@@ -212,110 +213,110 @@ public:
     return CPatterned::GetCollisionResponseType(v1, v2, wMode, attrib);
   }
 
-  const CDamageVulnerability* GetDamageVulnerability() const {
+  const CDamageVulnerability* GetDamageVulnerability() const override {
     return &CDamageVulnerability::ReflectVulnerabilty();
   }
 
   const CDamageVulnerability* GetDamageVulnerability(const zeus::CVector3f&, const zeus::CVector3f&,
-                                                     const CDamageInfo&) const {
+                                                     const CDamageInfo&) const override {
     return &CDamageVulnerability::ReflectVulnerabilty();
   }
 
-  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const;
+  zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override;
 
   zeus::CVector3f GetOrigin(const CStateManager& mgr, const CTeamAiRole& role,
-                            const zeus::CVector3f& aimPos) const;
+                            const zeus::CVector3f& aimPos) const override;
 
-  void TakeDamage(const zeus::CVector3f&, float) {
+  void TakeDamage(const zeus::CVector3f&, float) override {
     if (x400_25_alive)
       x428_damageCooldownTimer = 0.33f;
   }
 
-  bool IsListening() const { return true; }
+  bool IsListening() const override { return true; }
 
   void KnockBack(const zeus::CVector3f&, CStateManager&, const CDamageInfo& info, EKnockBackType type, bool inDeferred,
-                 float magnitude);
+                 float magnitude) override;
 
-  void Shock(CStateManager&, float, float);
+  void Shock(CStateManager&, float, float) override;
 
-  void TurnAround(CStateManager&, EStateMsg, float);
+  void TurnAround(CStateManager&, EStateMsg, float) override;
 
-  void GetUp(CStateManager&, EStateMsg, float);
+  void GetUp(CStateManager&, EStateMsg, float) override;
 
-  void Enraged(CStateManager&, EStateMsg, float);
+  void Enraged(CStateManager&, EStateMsg, float) override;
 
-  void FollowPattern(CStateManager&, EStateMsg, float);
+  void FollowPattern(CStateManager&, EStateMsg, float) override;
 
-  void Taunt(CStateManager&, EStateMsg, float);
+  void Taunt(CStateManager&, EStateMsg, float) override;
 
-  void Crouch(CStateManager&, EStateMsg, float);
+  void Crouch(CStateManager&, EStateMsg, float) override;
 
-  void Deactivate(CStateManager&, EStateMsg, float);
+  void Deactivate(CStateManager&, EStateMsg, float) override;
 
-  void Generate(CStateManager&, EStateMsg, float);
+  void Generate(CStateManager&, EStateMsg, float) override;
 
-  void TargetPatrol(CStateManager&, EStateMsg, float);
+  void TargetPatrol(CStateManager&, EStateMsg, float) override;
 
-  void Patrol(CStateManager&, EStateMsg, float);
+  void Patrol(CStateManager&, EStateMsg, float) override;
 
-  void Approach(CStateManager&, EStateMsg, float);
+  void Approach(CStateManager&, EStateMsg, float) override;
 
-  void PathFind(CStateManager&, EStateMsg, float);
+  void PathFind(CStateManager&, EStateMsg, float) override;
 
-  void SpecialAttack(CStateManager&, EStateMsg, float);
+  void SpecialAttack(CStateManager&, EStateMsg, float) override;
 
-  void Attack(CStateManager&, EStateMsg, float);
+  void Attack(CStateManager&, EStateMsg, float) override;
 
-  void ProjectileAttack(CStateManager&, EStateMsg, float);
+  void ProjectileAttack(CStateManager&, EStateMsg, float) override;
 
-  bool Leash(CStateManager&, float);
+  bool Leash(CStateManager&, float) override;
 
-  bool AnimOver(CStateManager&, float) { return x568_stateProg == 4; }
+  bool AnimOver(CStateManager&, float) override { return x568_stateProg == 4; }
 
-  bool SpotPlayer(CStateManager& mgr, float arg) {
+  bool SpotPlayer(CStateManager& mgr, float arg) override {
     if (xa48_24_isAlert)
       return true;
     return CPatterned::SpotPlayer(mgr, arg);
   }
 
-  bool InPosition(CStateManager&, float) { return (x8b8_backupDestPos - GetTranslation()).magSquared() < 9.f; }
+  bool InPosition(CStateManager&, float) override { return (x8b8_backupDestPos - GetTranslation()).magSquared() < 9.f; }
 
-  bool InMaxRange(CStateManager&, float);
+  bool InMaxRange(CStateManager&, float) override;
 
-  bool InDetectionRange(CStateManager&, float);
+  bool InDetectionRange(CStateManager&, float) override;
 
-  bool ShotAt(CStateManager&, float) { return x400_24_hitByPlayerProjectile; }
+  bool ShotAt(CStateManager&, float) override { return x400_24_hitByPlayerProjectile; }
 
-  bool OffLine(CStateManager& mgr, float arg) {
+  bool OffLine(CStateManager& mgr, float arg) override {
     SetPathFindMode(EPathFindMode::Normal);
     return PathShagged(mgr, arg);
   }
 
-  bool ShouldTurn(CStateManager& mgr, float arg);
+  bool ShouldTurn(CStateManager& mgr, float arg) override;
 
-  bool ShouldAttack(CStateManager& mgr, float arg);
+  bool ShouldAttack(CStateManager& mgr, float arg) override;
 
-  bool ShouldSpecialAttack(CStateManager& mgr, float arg);
+  bool ShouldSpecialAttack(CStateManager& mgr, float arg) override;
 
-  bool ShouldFire(CStateManager& mgr, float arg);
+  bool ShouldFire(CStateManager& mgr, float arg) override;
 
-  bool TooClose(CStateManager& mgr, float arg);
+  bool TooClose(CStateManager& mgr, float arg) override;
 
-  bool LineOfSight(CStateManager& mgr, float arg);
+  bool LineOfSight(CStateManager& mgr, float arg) override;
 
-  bool AggressionCheck(CStateManager& mgr, float arg) {
+  bool AggressionCheck(CStateManager& mgr, float arg) override {
     return x400_25_alive && !xa48_29_hasBeenEnraged && x56c_shellState == EShellState::Destroyed;
   }
 
-  bool LostInterest(CStateManager& mgr, float arg);
+  bool LostInterest(CStateManager& mgr, float arg) override;
 
-  bool Listen(const zeus::CVector3f&, EListenNoiseType);
+  bool Listen(const zeus::CVector3f&, EListenNoiseType) override;
 
-  CPathFindSearch* GetSearchPath() {
+  CPathFindSearch* GetSearchPath() override {
     return x8b4_pathFindMode == EPathFindMode::Normal ? &x6ec_pathSearch : &x7d0_approachPathSearch;
   }
 
-  CProjectileInfo* GetProjectileInfo() { return &x958_iceProjectile; }
+  CProjectileInfo* GetProjectileInfo() override { return &x958_iceProjectile; }
 };
 
 } // namespace urde::MP1

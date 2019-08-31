@@ -40,42 +40,42 @@ public:
                const CPatternedInfo&, EColliderType, CAssetId, float, float, float, float, float,
                const CActorParameters&, CAssetId, const CDamageInfo&);
 
-  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr);
-  void PreThink(float, CStateManager&);
-  void Think(float, CStateManager&);
-  void Render(const CStateManager&) const;
-  void Touch(CActor&, CStateManager&);
-  void FluidFXThink(EFluidState, CScriptWater&, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
+  void PreThink(float, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void Render(const CStateManager&) const override;
+  void Touch(CActor&, CStateManager&) override;
+  void FluidFXThink(EFluidState, CScriptWater&, CStateManager&) override;
   void KnockBack(const zeus::CVector3f& dir, CStateManager& mgr, const CDamageInfo& dInfo, EKnockBackType type,
-                 bool inDeferred, float dt) {
+                 bool inDeferred, float dt) override {
     if (x5c8_ == 1)
       return;
     CPatterned::KnockBack(dir, mgr, dInfo, type, inDeferred, dt);
   }
   EWeaponCollisionResponseTypes GetCollisionResponseType(const zeus::CVector3f& point, const zeus::CVector3f&,
-                                                         const CWeaponMode&, EProjectileAttrib) const {
+                                                         const CWeaponMode&, EProjectileAttrib) const override {
     return HitShell(point) ? EWeaponCollisionResponseTypes::Unknown84 : EWeaponCollisionResponseTypes::Unknown34;
   }
-  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float);
-  void CollidedWith(TUniqueId uid, const CCollisionInfoList& colList, CStateManager& mgr) {
+  void DoUserAnimEvent(CStateManager&, const CInt32POINode&, EUserEventType, float) override;
+  void CollidedWith(TUniqueId uid, const CCollisionInfoList& colList, CStateManager& mgr) override {
     if (x5c8_ == 2)
       return;
     CPatterned::CollidedWith(uid, colList, mgr);
   }
-  const CCollisionPrimitive* GetCollisionPrimitive() const { return &x5a0_; }
+  const CCollisionPrimitive* GetCollisionPrimitive() const override { return &x5a0_; }
   zeus::CAABox CalculateBoundingBox() const;
-  CProjectileInfo* GetProjectileInfo() { return &x5ec_projectileInfo; }
+  CProjectileInfo* GetProjectileInfo() override { return &x5ec_projectileInfo; }
 
-  bool InAttackPosition(CStateManager&, float) { return x568_ >= x570_; }
-  bool ShouldAttack(CStateManager&, float) { return x568_ >= x574_; }
-  bool ShouldTurn(CStateManager&, float);
-  bool AnimOver(CStateManager&, float) { return x5cc_ == 2; }
+  bool InAttackPosition(CStateManager&, float) override { return x568_ >= x570_; }
+  bool ShouldAttack(CStateManager&, float) override { return x568_ >= x574_; }
+  bool ShouldTurn(CStateManager&, float) override;
+  bool AnimOver(CStateManager&, float) override { return x5cc_ == 2; }
 
-  void InActive(CStateManager&, EStateMsg, float);
-  void Active(CStateManager&, EStateMsg, float);
-  void Run(CStateManager&, EStateMsg, float);
-  void TurnAround(CStateManager&, EStateMsg, float);
-  void GetUp(CStateManager&, EStateMsg, float);
-  void Attack(CStateManager&, EStateMsg, float);
+  void InActive(CStateManager&, EStateMsg, float) override;
+  void Active(CStateManager&, EStateMsg, float) override;
+  void Run(CStateManager&, EStateMsg, float) override;
+  void TurnAround(CStateManager&, EStateMsg, float) override;
+  void GetUp(CStateManager&, EStateMsg, float) override;
+  void Attack(CStateManager&, EStateMsg, float) override;
 };
 } // namespace urde::MP1

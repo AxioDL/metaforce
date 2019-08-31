@@ -38,14 +38,14 @@ private:
 public:
   CGuiCamera(const CGuiWidgetParms& parms, float left, float right, float top, float bottom, float znear, float zfar);
   CGuiCamera(const CGuiWidgetParms& parms, float fov, float aspect, float znear, float zfar);
-  FourCC GetWidgetTypeID() const { return FOURCC('CAMR'); }
+  FourCC GetWidgetTypeID() const override { return FOURCC('CAMR'); }
 
   static std::shared_ptr<CGuiWidget> Create(CGuiFrame* frame, CInputStream& in, CSimplePool* sp);
 
   zeus::CVector3f ConvertToScreenSpace(const zeus::CVector3f& vec) const;
   const SProjection& GetProjection() const { return m_proj; }
   void SetFov(float fov) { m_proj.xbc_fov = fov; }
-  void Draw(const CGuiWidgetDrawParms& parms) const;
+  void Draw(const CGuiWidgetDrawParms& parms) const override;
 
   std::shared_ptr<CGuiCamera> shared_from_this() {
     return std::static_pointer_cast<CGuiCamera>(CGuiObject::shared_from_this());

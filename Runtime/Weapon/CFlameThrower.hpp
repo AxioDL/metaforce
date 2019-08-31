@@ -51,10 +51,10 @@ public:
                 const CDamageInfo& dInfo, TUniqueId uid, TAreaId aId, TUniqueId owner, EProjectileAttrib attribs,
                 CAssetId playerSteamTxtr, s16 playerHitSfx, CAssetId playerIceTxtr);
 
-  void Accept(IVisitor& visitor);
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
-  void Think(float, CStateManager&);
-  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const;
+  void Accept(IVisitor& visitor) override;
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
+  void Think(float, CStateManager&) override;
+  void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
   void SetTransform(const zeus::CTransform& xf, float);
   void Reset(CStateManager&, bool);
   void Fire(const zeus::CTransform&, CStateManager&, bool);

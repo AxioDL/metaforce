@@ -1,13 +1,18 @@
-#include "CMDL.hpp"
-#include "../DNAMP1/CMDLMaterials.hpp"
-#include "../DNAMP1/CSKR.hpp"
-#include "../DNAMP1/MREA.hpp"
-#include "../DNAMP2/CMDLMaterials.hpp"
-#include "../DNAMP2/CSKR.hpp"
-#include "../DNAMP3/CMDLMaterials.hpp"
-#include "../DNAMP3/CSKR.hpp"
-#include "zeus/CAABox.hpp"
-#include "hecl/Blender/Connection.hpp"
+#include "DataSpec/DNACommon/CMDL.hpp"
+
+#include <utility>
+
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP1/CSKR.hpp"
+#include "DataSpec/DNAMP1/MREA.hpp"
+#include "DataSpec/DNAMP2/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP2/CSKR.hpp"
+#include "DataSpec/DNAMP3/CMDLMaterials.hpp"
+#include "DataSpec/DNAMP3/CSKR.hpp"
+
+#include <fmt/format.h>
+#include <hecl/Blender/Connection.hpp>
+#include <zeus/CAABox.hpp>
 
 namespace DataSpec::DNACMDL {
 
@@ -208,7 +213,7 @@ public:
     m_cur = m_dl.get();
   }
 
-  operator bool() { return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur; }
+  explicit operator bool() const { return ((m_cur - m_dl.get()) < intptr_t(m_dlSize)) && *m_cur; }
 
   GX::Primitive readPrimitive() { return GX::Primitive(*m_cur++ & 0xf8); }
 
@@ -1634,14 +1639,14 @@ bool WriteMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::Proje
   /* Iterate meshes */
   auto matIt = surfToGlobalMats.cbegin();
   for (const Mesh& mesh : meshes) {
-    zeus::CTransform meshXf(mesh.sceneXf.val);
+    zeus::CTransform meshXf(mesh.sceneXf.val.data());
     meshXf.basis.transpose();
 
     /* Header */
     {
       MeshHeader meshHeader = {};
       meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
-      memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+      memmove(meshHeader.xfMtx, mesh.sceneXf.val.data(), 48);
 
       zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
       aabb = aabb.getTransformedAABox(meshXf);
@@ -1912,14 +1917,14 @@ bool WriteHMDLMREASecs(std::vector<std::vector<uint8_t>>& secsOut, const hecl::P
   /* Iterate meshes */
   auto matIt = surfToGlobalMats.cbegin();
   for (const Mesh& mesh : meshes) {
-    zeus::CTransform meshXf(mesh.sceneXf.val);
+    zeus::CTransform meshXf(mesh.sceneXf.val.data());
     meshXf.basis.transpose();
 
     /* Header */
     {
       MeshHeader meshHeader = {};
       meshHeader.visorFlags.setFromBlenderProps(mesh.customProps);
-      memmove(meshHeader.xfMtx, &mesh.sceneXf, 48);
+      memmove(meshHeader.xfMtx, mesh.sceneXf.val.data(), 48);
 
       zeus::CAABox aabb(zeus::CVector3f(mesh.aabbMin), zeus::CVector3f(mesh.aabbMax));
       aabb = aabb.getTransformedAABox(meshXf);

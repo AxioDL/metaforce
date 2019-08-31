@@ -15,6 +15,7 @@ public:
   void Add(const CSegIdList& list, const CCharLayoutInfo& layout, const CSegStatementSet& other, float weight);
 
   CAnimPerSegmentData& operator[](const CSegId& idx) { return x4_segData[idx]; }
+  const CAnimPerSegmentData& operator[](const CSegId& idx) const { return x4_segData[idx]; }
 };
 
 } // namespace urde

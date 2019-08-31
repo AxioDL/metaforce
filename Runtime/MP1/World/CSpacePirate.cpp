@@ -64,7 +64,7 @@ CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx
   SetNumLengthConstraints(47);
   SetNumJointConstraints(4);
   zeus::CVector3f scale = x6c_spacePirate->GetModelData()->GetScale();
-  CAnimData* aData = x6c_spacePirate->ModelData()->AnimationData();
+  CAnimData* aData = x6c_spacePirate->GetModelData()->GetAnimationData();
   aData->BuildPose();
   zeus::CVector3f center = x6c_spacePirate->GetBoundingBox().center();
   for (int i = 0; i < 14; ++i) {
@@ -139,7 +139,7 @@ CPirateRagDoll::CPirateRagDoll(CStateManager& mgr, CSpacePirate* sp, u16 thudSfx
 
 void CPirateRagDoll::PreRender(const zeus::CVector3f& v, CModelData& mData) {
   if (!x68_25_over || x68_27_continueSmallMovements) {
-    CAnimData* aData = mData.AnimationData();
+    CAnimData* aData = mData.GetAnimationData();
     for (CSegId id : aData->GetCharLayoutInfo().GetSegIdList().GetList())
       if (aData->GetCharLayoutInfo().GetRootNode()->GetBoneMap()[id].x10_children.size() > 1)
         aData->PoseBuilder().GetTreeMap()[id].x4_rotation = zeus::CQuaternion();
@@ -341,7 +341,7 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x568_pirateData(in, propCount)
 , x660_pathFindSearch(nullptr, 0x1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x750_initialHP(pInfo.GetHealthInfo().GetHP())
-, x764_boneTracking(*x64_modelData->AnimationData(), "Head_1"sv, 1.22173f, 3.14159f, EBoneTrackingFlags::None)
+, x764_boneTracking(*x64_modelData->GetAnimationData(), "Head_1"sv, 1.22173f, 3.14159f, EBoneTrackingFlags::None)
 , x7c4_burstFire(skBursts, x568_pirateData.xac_firstBurstCount)
 , x8b8_minCloakAlpha(x568_pirateData.xb0_CloakOpacity)
 , x8bc_maxCloakAlpha(x568_pirateData.xb4_MaxCloakOpacity)
@@ -516,7 +516,7 @@ void CSpacePirate::SquadRemove(CStateManager& mgr) {
   }
 }
 
-bool CSpacePirate::CheckTargetable(CStateManager& mgr) { return GetModelAlphau8(mgr) > 127; }
+bool CSpacePirate::CheckTargetable(const CStateManager& mgr) const { return GetModelAlphau8(mgr) > 127; }
 
 bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
   bool ret = false;
@@ -548,7 +548,7 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
     auto bestAnim = x450_bodyController->GetPASDatabase().FindBestAnimation({24, CPASAnimParm::FromEnum(2)},
                                                                             *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f)
-      x64_modelData->AnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
+      x64_modelData->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
     CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::skZero3f, true,
                             false, 0x7f, kInvalidAreaId);
   }
@@ -619,7 +619,7 @@ void CSpacePirate::UpdateAttacks(float dt, CStateManager& mgr) {
   xe7_31_targetable = CheckTargetable(mgr);
 }
 
-zeus::CVector3f CSpacePirate::GetTargetPos(CStateManager& mgr) {
+zeus::CVector3f CSpacePirate::GetTargetPos(const CStateManager& mgr) {
   if (x7c0_targetId != mgr.GetPlayer().GetUniqueId()) {
     if (TCastToConstPtr<CActor> act = mgr.GetObjectById(x7c0_targetId))
       if (act->GetActive())
@@ -630,7 +630,7 @@ zeus::CVector3f CSpacePirate::GetTargetPos(CStateManager& mgr) {
   return mgr.GetPlayer().GetTranslation();
 }
 
-void CSpacePirate::UpdateAimBodyState(float dt, CStateManager& mgr) {
+void CSpacePirate::UpdateAimBodyState(float dt, const CStateManager& mgr) {
   if (x400_25_alive && x637_25_enableAim && !x637_29_inWallHang && !x450_bodyController->IsFrozen() && !x634_27_melee &&
       !x85c_ragDoll && (!x635_26_seated || x639_28_satUp) && x31c_faceVec.z() <= 0.f) {
     x8c4_aimDelayTimer = std::max(0.f, x8c4_aimDelayTimer - dt);
@@ -801,9 +801,9 @@ void CSpacePirate::SetEyeParticleActive(CStateManager& mgr, bool active) {
   if (!x636_24_trooper) {
     if (!x634_29_onlyAttackInRange || x635_26_seated) {
       if (!x635_27_shadowPirate)
-        x64_modelData->AnimationData()->SetParticleEffectState("TwoEyes"sv, active, mgr);
+        x64_modelData->GetAnimationData()->SetParticleEffectState("TwoEyes"sv, active, mgr);
     } else {
-      x64_modelData->AnimationData()->SetParticleEffectState("OneEye"sv, active, mgr);
+      x64_modelData->GetAnimationData()->SetParticleEffectState("OneEye"sv, active, mgr);
     }
   }
 }
@@ -978,9 +978,9 @@ void CSpacePirate::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) 
     x85c_ragDoll->PreRender(GetTranslation(), *x64_modelData);
   CPatterned::PreRender(mgr, frustum);
   if (!x85c_ragDoll || !x85c_ragDoll->IsPrimed()) {
-    x764_boneTracking.PreRender(mgr, *x64_modelData->AnimationData(), x34_transform, x64_modelData->GetScale(),
+    x764_boneTracking.PreRender(mgr, *x64_modelData->GetAnimationData(), x34_transform, x64_modelData->GetScale(),
                                 *x450_bodyController);
-    x860_ikChain.PreRender(*x64_modelData->AnimationData(), x34_transform, x64_modelData->GetScale());
+    x860_ikChain.PreRender(*x64_modelData->GetAnimationData(), x34_transform, x64_modelData->GetScale());
   }
 }
 
@@ -1043,7 +1043,7 @@ void CSpacePirate::DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node
       CSegId lctrId = x64_modelData->GetAnimationData()->GetLocatorSegId(node.GetLocatorName());
       if (lctrId != 3) {
         zeus::CTransform xf = GetLctrTransform(lctrId);
-        x860_ikChain.Activate(*x64_modelData->AnimationData(), lctrId, xf);
+        x860_ikChain.Activate(*x64_modelData->GetAnimationData(), lctrId, xf);
         x639_28_satUp = true;
       }
     }
@@ -1239,8 +1239,8 @@ void CSpacePirate::Dead(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CSpacePirate::LineOfSightTest(CStateManager& mgr, const zeus::CVector3f& eyePos, const zeus::CVector3f& targetPos,
-                                   const CMaterialList& excludeList) const {
+bool CSpacePirate::LineOfSightTest(const CStateManager& mgr, const zeus::CVector3f& eyePos,
+                                   const zeus::CVector3f& targetPos, const CMaterialList& excludeList) const {
   return mgr.RayCollideWorld(eyePos, targetPos,
                              CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, excludeList), this);
 }
@@ -1555,14 +1555,14 @@ void CSpacePirate::Attack(CStateManager& mgr, EStateMsg msg, float dt) {
   }
 }
 
-bool CSpacePirate::CantJumpBack(CStateManager& mgr, const zeus::CVector3f& dir, float dist) const {
-  zeus::CVector3f center = GetBoundingBox().center();
+bool CSpacePirate::CantJumpBack(const CStateManager& mgr, const zeus::CVector3f& dir, float dist) const {
+  const zeus::CVector3f center = GetBoundingBox().center();
   if (!LineOfSightTest(mgr, center, center + dist * dir, {}))
     return false;
-  zeus::CVector3f center2 = (dist * 0.5f) * dir + center;
+  const zeus::CVector3f center2 = (dist * 0.5f) * dir + center;
   if (LineOfSightTest(mgr, center2, center2 + 5.f * zeus::skDown, {}))
     return false;
-  zeus::CVector3f center3 = dist * dir + center;
+  const zeus::CVector3f center3 = dist * dir + center;
   if (LineOfSightTest(mgr, center3, center3 + 5.f * zeus::skDown, {}))
     return false;
   return true;

@@ -35,6 +35,6 @@ public:
              const CDamageVulnerability&, const CDamageVulnerability&, CAssetId, CAssetId, float, float, float, float,
              const CMagdoliteData&, float, float, float);
 
-  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&);
+  void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
 };
 } // namespace urde::MP1

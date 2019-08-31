@@ -6,8 +6,7 @@
 
 namespace DataSpec::DNAMP1 {
 struct FishCloud : IScriptObject {
-  AT_DECL_DNA_YAML
-  AT_DECL_DNAV
+  AT_DECL_DNA_YAMLV
   String<-1> name;
   Value<atVec3f> location;
   Value<atVec3f> orientation;
@@ -45,7 +44,7 @@ struct FishCloud : IScriptObject {
   Value<bool> repelFromThreats;
   Value<bool> hotInThermal;
 
-  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const {
+  void nameIDs(PAKRouter<PAKBridge>& pakRouter) const override {
     if (model.isValid()) {
       PAK::Entry* ent = (PAK::Entry*)pakRouter.lookupEntry(model);
       ent->name = name + "_model";
@@ -69,7 +68,8 @@ struct FishCloud : IScriptObject {
     }
   }
 
-  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut, std::vector<hecl::ProjectPath>& lazyOut) const {
+  void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut,
+                          std::vector<hecl::ProjectPath>& lazyOut) const override {
     g_curSpec->flattenDependencies(model, pathsOut);
     animationParameters.depANCS(pathsOut);
     g_curSpec->flattenDependencies(deathParticle1, pathsOut);

@@ -11,7 +11,7 @@ public:
   CScriptDebugCameraWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                              u32 w1);
 
-  void Accept(IVisitor&);
+  void Accept(IVisitor&) override;
 };
 
 } // namespace urde

@@ -1329,10 +1329,10 @@ const char* SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo::DNATyp
 template <class IDType>
 template <class Op>
 void SpawnSystemKeyframeData<IDType>::SpawnSystemKeyframeInfo::Enumerate(typename Op::StreamT& s) {
-  Do<Op>({"id"}, id, s);
-  Do<Op>({"a"}, a, s);
-  Do<Op>({"b"}, b, s);
-  Do<Op>({"c"}, c, s);
+  Do<Op>(athena::io::PropId{"id"}, id, s);
+  Do<Op>(athena::io::PropId{"a"}, a, s);
+  Do<Op>(athena::io::PropId{"b"}, b, s);
+  Do<Op>(athena::io::PropId{"c"}, c, s);
 }
 
 template <>

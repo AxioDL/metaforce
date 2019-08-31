@@ -1,8 +1,18 @@
 #pragma once
 
-#include "PAK.hpp"
-#include "DNACommon.hpp"
-#include "athena/FileWriter.hpp"
+#include <memory>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <athena/DNA.hpp>
+
+namespace DataSpec {
+class PAKEntryReadStream;
+}
+
+namespace hecl {
+class ProjectPath;
+}
 
 namespace DataSpec::DNAFSM2 {
 struct IFSM : BigDNAVYaml {
@@ -24,8 +34,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
   };
 
   struct FSMV1 : IFSM {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<atUint32> stateCount;
     Value<atUint32> unknown1Count;
     Value<atUint32> unknown2Count;
@@ -68,8 +77,7 @@ struct AT_SPECIALIZE_PARMS(DataSpec::UniqueID32, DataSpec::UniqueID64) FSM2 : Bi
   };
 
   struct FSMV2 : IFSM {
-    AT_DECL_DNA_YAML
-    AT_DECL_DNAV
+    AT_DECL_DNA_YAMLV
     Value<atUint32> stateCount;
     Value<atUint32> unknown1Count;
     Value<atUint32> unknown2Count;

@@ -226,8 +226,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
 ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry) {
   switch (entry.type.toUint32()) {
-    //    case SBIG('CAUD'):
-    //        return {CAUD::Extract, {_SYS_STR(".yaml")}};
+  case SBIG('CAUD'):
+    return {CAUD::Extract, {_SYS_STR(".yaml")}};
   case SBIG('STRG'):
     return {STRG::Extract, {_SYS_STR(".yaml")}};
   case SBIG('TXTR'):
@@ -236,16 +236,16 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {SAVWCommon::ExtractSAVW<SAVW>, {_SYS_STR(".yaml")}};
   case SBIG('HINT'):
     return {HINT::Extract, {_SYS_STR(".yaml")}};
-  case SBIG('CMDL'):
-    return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
-  case SBIG('CHAR'):
-    return {CHAR::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
-  case SBIG('MLVL'):
-    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
-  case SBIG('MREA'):
-    return {MREA::Extract, {_SYS_STR(".blend")}, 4};
-  case SBIG('MAPA'):
-    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+//  case SBIG('CMDL'):
+//    return {CMDL::Extract, {_SYS_STR(".blend")}, 1};
+//  case SBIG('CHAR'):
+//    return {CHAR::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
+//  case SBIG('MLVL'):
+//    return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
+//  case SBIG('MREA'):
+//    return {MREA::Extract, {_SYS_STR(".blend")}, 4};
+//  case SBIG('MAPA'):
+//    return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
   case SBIG('FSM2'):
     return {DNAFSM2::ExtractFSM2<UniqueID64>, {_SYS_STR(".yaml")}};
   case SBIG('FONT'):

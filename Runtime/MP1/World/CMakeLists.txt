@@ -10,6 +10,7 @@ set(MP1_WORLD_SOURCES
     CBabygoth.hpp CBabygoth.cpp
     CTryclops.hpp CTryclops.cpp
     CFireFlea.hpp CFireFlea.cpp
+    CEnergyBall.hpp CEnergyBall.cpp
     CEyeball.hpp CEyeball.cpp
     CAtomicAlpha.hpp CAtomicAlpha.cpp
     CAtomicBeta.hpp CAtomicBeta.cpp
@@ -34,6 +35,7 @@ set(MP1_WORLD_SOURCES
     CFlaahgraTentacle.hpp CFlaahgraTentacle.cpp
     CFlaahgraProjectile.hpp CFlaahgraProjectile.cpp
     CSpankWeed.hpp CSpankWeed.cpp
-    CPuddleSpore.hpp CPuddleSpore.cpp)
+    CPuddleSpore.hpp CPuddleSpore.cpp
+    CRipper.hpp CRipper.cpp)
 
 runtime_add_list(World MP1_WORLD_SOURCES)

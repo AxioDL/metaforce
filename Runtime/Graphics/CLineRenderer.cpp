@@ -24,7 +24,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
     LineRendererLog.report(logvisor::Fatal, fmt(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
   }
-  m_textured = texture;
+  m_textured = bool(texture);
 
   u32 maxTriVerts;
   switch (mode) {
@@ -37,7 +37,7 @@ CLineRenderer::CLineRenderer(boo::IGraphicsDataFactory::Context& ctx, EPrimitive
     break;
   }
 
-  if (texture)
+  if (bool(texture))
     m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
   else
     m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
@@ -54,7 +54,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
     LineRendererLog.report(logvisor::Fatal, fmt(_SYS_STR("maxVerts < 2, maxVerts = {}")), maxVerts);
     return;
   }
-  m_textured = texture;
+  m_textured = bool(texture);
 
   u32 maxTriVerts;
   switch (mode) {
@@ -67,7 +67,7 @@ CLineRenderer::CLineRenderer(EPrimitiveMode mode, u32 maxVerts, const boo::ObjTo
     break;
   }
 
-  if (texture)
+  if (bool(texture))
     m_vertBufTex = s_vertPoolTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);
   else
     m_vertBufNoTex = s_vertPoolNoTex.allocateBlock(CGraphics::g_BooFactory, maxTriVerts);

@@ -1,9 +1,17 @@
 #pragma once
 
-#include "DNACommon.hpp"
-#include "boo/ThreadLocalPtr.hpp"
 #include <array>
-#include "zeus/CMatrix4f.hpp"
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+
+#include "DataSpec/DNACommon/DNACommon.hpp"
+
+#include <boo/ThreadLocalPtr.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/Global.hpp>
 
 namespace DataSpec {
 
@@ -25,7 +33,7 @@ public:
     if (m_pos >= m_sz)
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
-  void seek(atInt64 pos, athena::SeekOrigin origin) {
+  void seek(atInt64 pos, athena::SeekOrigin origin) override {
     if (origin == athena::Begin)
       m_pos = pos;
     else if (origin == athena::Current)
@@ -35,10 +43,10 @@ public:
     if (m_pos > m_sz)
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
-  atUint64 position() const { return m_pos; }
-  atUint64 length() const { return m_sz; }
+  atUint64 position() const override { return m_pos; }
+  atUint64 length() const override { return m_sz; }
   const atUint8* data() const { return m_buf.get(); }
-  atUint64 readUBytesToBuf(void* buf, atUint64 len) {
+  atUint64 readUBytesToBuf(void* buf, atUint64 len) override {
     atUint64 bufEnd = m_pos + len;
     if (bufEnd > m_sz)
       len -= bufEnd - m_sz;
@@ -172,7 +180,7 @@ public:
   using PAKRouterBase::getWorking;
   hecl::ProjectPath getWorking(const EntryType* entry, const ResExtractor<BRIDGETYPE>& extractor) const;
   hecl::ProjectPath getWorking(const EntryType* entry) const;
-  hecl::ProjectPath getWorking(const IDType& id, bool silenceWarnings = false) const;
+  hecl::ProjectPath getWorking(const IDType& id, bool silenceWarnings = false) const override;
   hecl::ProjectPath getCooked(const EntryType* entry) const;
   hecl::ProjectPath getCooked(const IDType& id, bool silenceWarnings = false) const;
 
@@ -196,6 +204,12 @@ public:
     PAKEntryReadStream rs = entry->beginReadStream(*node);
     out.read(rs);
     return true;
+  }
+
+  PAKEntryReadStream beginReadStreamForId(const IDType& id, bool silenceWarnings = false) {
+    const nod::Node* node;
+    const EntryType* entry = lookupEntry(id, &node, silenceWarnings);
+    return entry->beginReadStream(*node);
   }
 
   const typename CharacterAssociations<IDType>::RigPair* lookupCMDLRigPair(const IDType& id) const;

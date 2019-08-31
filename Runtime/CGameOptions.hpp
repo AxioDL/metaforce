@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include "RetroTypes.hpp"
 #include "Audio/CAudioSys.hpp"
 #include "CSaveWorld.hpp"
@@ -39,13 +40,13 @@ struct SGameOption {
 };
 
 /** Static registry of Option UI presentation information */
-extern const std::pair<int, const SGameOption*> GameOptionsRegistry[];
+extern const std::array<std::pair<size_t, const SGameOption*>, 5> GameOptionsRegistry;
 
 /** Options tracked persistently between game sessions */
 class CPersistentOptions {
   friend class CGameState;
-  u8 x0_nesState[98] = {};
-  bool x68_[64] = {};
+  std::array<u8, 98> x0_nesState{};
+  std::array<bool, 64> x68_{};
   std::vector<std::pair<CAssetId, TEditorId>> xac_cinematicStates; /* (MLVL, Cinematic) */
   u32 xbc_autoMapperKeyState = 0;
   u32 xc0_frozenFpsCount = 0;
@@ -96,12 +97,13 @@ public:
 
   void PutTo(CBitStreamWriter& w) const;
 
-  u8* GetNESState() { return x0_nesState; }
+  u8* GetNESState() { return x0_nesState.data(); }
+  const u8* GetNESState() const { return x0_nesState.data(); }
 };
 
 /** Options tracked per game session */
 class CGameOptions {
-  u8 x0_[64] = {};
+  std::array<u8, 64> x0_{};
   CAudioSys::ESurroundModes x44_soundMode = CAudioSys::ESurroundModes::Stereo;
   u32 x48_screenBrightness = 4;
   s32 x4c_screenXOffset = 0;
