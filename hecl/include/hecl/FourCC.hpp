@@ -18,28 +18,36 @@ class FourCC {
 protected:
   union {
     char fcc[4];
-    uint32_t num;
+    uint32_t num = 0;
   };
 
 public:
-  constexpr FourCC() /* Sentinel FourCC */
-  : num(0) {}
-  constexpr FourCC(const FourCC& other) : num(other.num) {}
-  constexpr FourCC(const char* name) : num(*(uint32_t*)name) {}
-  constexpr FourCC(uint32_t n) : num(n) {}
-  bool operator==(const FourCC& other) const { return num == other.num; }
-  bool operator!=(const FourCC& other) const { return num != other.num; }
-  bool operator==(const char* other) const { return num == *(uint32_t*)other; }
-  bool operator!=(const char* other) const { return num != *(uint32_t*)other; }
-  bool operator==(int32_t other) const { return num == uint32_t(other); }
-  bool operator!=(int32_t other) const { return num != uint32_t(other); }
-  bool operator==(uint32_t other) const { return num == other; }
-  bool operator!=(uint32_t other) const { return num != other; }
-  std::string toString() const { return std::string(fcc, 4); }
-  uint32_t toUint32() const { return num; }
-  const char* getChars() const { return fcc; }
-  char* getChars() { return fcc; }
-  bool IsValid() const { return num != 0; }
+  // Sentinel FourCC
+  constexpr FourCC() noexcept = default;
+  constexpr FourCC(const FourCC& other) noexcept = default;
+  constexpr FourCC(FourCC&& other) noexcept = default;
+  constexpr FourCC(const char* name) noexcept : fcc{name[0], name[1], name[2], name[3]} {}
+  constexpr FourCC(uint32_t n) noexcept : num(n) {}
+
+  constexpr FourCC& operator=(const FourCC&) noexcept = default;
+  constexpr FourCC& operator=(FourCC&&) noexcept = default;
+
+  constexpr bool operator==(const FourCC& other) const { return num == other.num; }
+  constexpr bool operator!=(const FourCC& other) const { return !operator==(other); }
+  constexpr bool operator==(const char* other) const {
+    return other[0] == fcc[0] && other[1] == fcc[1] && other[2] == fcc[2] && other[3] == fcc[3];
+  }
+  constexpr bool operator!=(const char* other) const { return !operator==(other); }
+  constexpr bool operator==(int32_t other) const { return num == uint32_t(other); }
+  constexpr bool operator!=(int32_t other) const { return !operator==(other); }
+  constexpr bool operator==(uint32_t other) const { return num == other; }
+  constexpr bool operator!=(uint32_t other) const { return !operator==(other); }
+
+  std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
+  constexpr uint32_t toUint32() const { return num; }
+  constexpr const char* getChars() const { return fcc; }
+  constexpr char* getChars() { return fcc; }
+  constexpr bool IsValid() const { return num != 0; }
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
@@ -55,25 +63,25 @@ public:
   AT_DECL_EXPLICIT_DNA_YAML
 };
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
-  r.readUBytesToBuf(fcc, 4);
+inline void DNAFourCC::Enumerate<BigDNA::Read>(Read::StreamT& r) {
+  r.readUBytesToBuf(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
-  w.writeUBytes((atUint8*)fcc, 4);
+inline void DNAFourCC::Enumerate<BigDNA::Write>(Write::StreamT& w) {
+  w.writeBytes(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
-  std::string rs = r.readString(nullptr);
-  strncpy(fcc, rs.c_str(), 4);
+inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(ReadYaml::StreamT& r) {
+  const std::string rs = r.readString(nullptr);
+  rs.copy(fcc, std::size(fcc));
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  w.writeString(nullptr, std::string(fcc, 4));
+inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(WriteYaml::StreamT& w) {
+  w.writeString(nullptr, std::string_view{fcc, std::size(fcc)});
 }
 template <>
-inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
-  s += 4;
+inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(BinarySize::StreamT& s) {
+  s += std::size(fcc);
 }
 
 } // namespace hecl
@@ -85,7 +93,7 @@ struct hash<hecl::FourCC> {
 };
 } // namespace std
 
-FMT_CUSTOM_FORMATTER(hecl::FourCC, "{:c}{:c}{:c}{:c}",
-                     obj.getChars()[0], obj.getChars()[1], obj.getChars()[2], obj.getChars()[3])
-FMT_CUSTOM_FORMATTER(hecl::DNAFourCC, "{:c}{:c}{:c}{:c}",
-                     obj.getChars()[0], obj.getChars()[1], obj.getChars()[2], obj.getChars()[3])
+FMT_CUSTOM_FORMATTER(hecl::FourCC, "{:c}{:c}{:c}{:c}", obj.getChars()[0], obj.getChars()[1], obj.getChars()[2],
+                     obj.getChars()[3])
+FMT_CUSTOM_FORMATTER(hecl::DNAFourCC, "{:c}{:c}{:c}{:c}", obj.getChars()[0], obj.getChars()[1], obj.getChars()[2],
+                     obj.getChars()[3])

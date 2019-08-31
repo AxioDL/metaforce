@@ -57,44 +57,45 @@ hecl::SystemString FindCommonSteamApp(const hecl::SystemChar* name) {
 
 #endif
 
-  hecl::SystemString appPath = hecl::SystemString(_SYS_STR("common")) + PATH_SEP + name;
+  const hecl::SystemString appPath = hecl::SystemString(_SYS_STR("common")) + PATH_SEP + name;
 
   /* Try main steam install directory first */
-  hecl::SystemString steamAppsMain = steamInstallDir + PATH_SEP + _SYS_STR("steamapps");
-  hecl::SystemString mainAppPath = steamAppsMain + PATH_SEP + appPath;
-  if (!hecl::Stat(mainAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+  const hecl::SystemString steamAppsMain = steamInstallDir + PATH_SEP + _SYS_STR("steamapps");
+  const hecl::SystemString mainAppPath = steamAppsMain + PATH_SEP + appPath;
+  if (!hecl::Stat(mainAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
     return mainAppPath;
+  }
 
   /* Iterate alternate steam install dirs */
-  hecl::SystemString libraryFoldersVdfPath = steamAppsMain + PATH_SEP + _SYS_STR("libraryfolders.vdf");
-  FILE* fp = hecl::Fopen(libraryFoldersVdfPath.c_str(), _SYS_STR("r"));
-  if (!fp)
+  const hecl::SystemString libraryFoldersVdfPath = steamAppsMain + PATH_SEP + _SYS_STR("libraryfolders.vdf");
+  auto fp = hecl::FopenUnique(libraryFoldersVdfPath.c_str(), _SYS_STR("r"));
+  if (fp == nullptr) {
     return {};
-  hecl::FSeek(fp, 0, SEEK_END);
-  int64_t fileLen = hecl::FTell(fp);
+  }
+  hecl::FSeek(fp.get(), 0, SEEK_END);
+  const int64_t fileLen = hecl::FTell(fp.get());
   if (fileLen <= 0) {
-    fclose(fp);
     return {};
   }
-  hecl::FSeek(fp, 0, SEEK_SET);
-  std::string fileBuf;
-  fileBuf.resize(fileLen);
-  if (fread(&fileBuf[0], 1, fileLen, fp) != fileLen) {
-    fclose(fp);
+  hecl::FSeek(fp.get(), 0, SEEK_SET);
+  std::string fileBuf(fileLen, '\0');
+  if (std::fread(fileBuf.data(), 1, fileLen, fp.get()) != fileLen) {
     return {};
   }
-  fclose(fp);
 
   std::smatch dirMatch;
   auto begin = fileBuf.cbegin();
-  auto end = fileBuf.cend();
+  const auto end = fileBuf.cend();
   while (std::regex_search(begin, end, dirMatch, regSteamPath)) {
-    std::string match = dirMatch[1].str();
-    hecl::SystemStringConv otherInstallDir(match);
-    hecl::SystemString otherAppPath =
+    const std::string match = dirMatch[1].str();
+    const hecl::SystemStringConv otherInstallDir(match);
+    const auto otherAppPath =
         hecl::SystemString(otherInstallDir.sys_str()) + PATH_SEP + _SYS_STR("steamapps") + PATH_SEP + appPath;
-    if (!hecl::Stat(otherAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode))
+
+    if (!hecl::Stat(otherAppPath.c_str(), &theStat) && S_ISDIR(theStat.st_mode)) {
       return otherAppPath;
+    }
+
     begin = dirMatch.suffix().first;
   }
 

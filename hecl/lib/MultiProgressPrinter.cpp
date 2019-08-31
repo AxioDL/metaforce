@@ -242,9 +242,12 @@ void MultiProgressPrinter::DoPrint() {
 void MultiProgressPrinter::LogProc() {
   while (m_running) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    if (!m_dirty && !m_mainIndeterminate)
+
+    if (!m_dirty && !m_mainIndeterminate) {
       continue;
-    std::lock_guard<std::mutex> lk(m_logLock);
+    }
+
+    std::lock_guard lk{m_logLock};
     DoPrint();
   }
 }
@@ -280,22 +283,30 @@ MultiProgressPrinter::~MultiProgressPrinter() {
 
 void MultiProgressPrinter::print(const hecl::SystemChar* message, const hecl::SystemChar* submessage, float factor,
                                  int threadIdx) const {
-  if (!m_running)
+  if (!m_running) {
     return;
-  std::lock_guard<std::mutex> lk(m_logLock);
-  if (threadIdx < 0)
+  }
+
+  std::lock_guard lk{m_logLock};
+  if (threadIdx < 0) {
     threadIdx = 0;
-  if (threadIdx >= m_threadStats.size())
+  }
+  if (threadIdx >= m_threadStats.size()) {
     m_threadStats.resize(threadIdx + 1);
+  }
+
   ThreadStat& stat = m_threadStats[threadIdx];
-  if (message)
+  if (message) {
     stat.m_message = message;
-  else
+  } else {
     stat.m_message.clear();
-  if (submessage)
+  }
+  if (submessage) {
     stat.m_submessage = submessage;
-  else
+  } else {
     stat.m_submessage.clear();
+  }
+
   stat.m_factor = factor;
   stat.m_active = true;
   m_latestThread = threadIdx;
@@ -303,18 +314,23 @@ void MultiProgressPrinter::print(const hecl::SystemChar* message, const hecl::Sy
 }
 
 void MultiProgressPrinter::setMainFactor(float factor) const {
-  if (!m_running)
+  if (!m_running) {
     return;
-  std::lock_guard<std::mutex> lk(m_logLock);
-  if (!m_mainIndeterminate)
+  }
+
+  std::lock_guard lk{m_logLock};
+  if (!m_mainIndeterminate) {
     m_dirty = true;
+  }
   m_mainFactor = factor;
 }
 
 void MultiProgressPrinter::setMainIndeterminate(bool indeterminate) const {
-  if (!m_running)
+  if (!m_running) {
     return;
-  std::lock_guard<std::mutex> lk(m_logLock);
+  }
+
+  std::lock_guard lk{m_logLock};
   if (m_mainIndeterminate != indeterminate) {
     m_mainIndeterminate = indeterminate;
     m_dirty = true;
@@ -322,9 +338,11 @@ void MultiProgressPrinter::setMainIndeterminate(bool indeterminate) const {
 }
 
 void MultiProgressPrinter::startNewLine() const {
-  if (!m_running)
+  if (!m_running) {
     return;
-  std::lock_guard<std::mutex> lk(m_logLock);
+  }
+
+  std::lock_guard lk{m_logLock};
   const_cast<MultiProgressPrinter&>(*this).DoPrint();
   m_threadStats.clear();
   m_latestThread = -1;
@@ -335,7 +353,7 @@ void MultiProgressPrinter::startNewLine() const {
 }
 
 void MultiProgressPrinter::flush() const {
-  std::lock_guard<std::mutex> lk(m_logLock);
+  std::lock_guard lk{m_logLock};
   const_cast<MultiProgressPrinter&>(*this).DoPrint();
 }
 

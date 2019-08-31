@@ -4,6 +4,7 @@
 #include <athena/Utility.hpp>
 #include <hecl/Runtime.hpp>
 #include <hecl/hecl.hpp>
+#include <algorithm>
 #include <memory>
 #include <regex>
 
@@ -24,12 +25,11 @@ CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
   com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
   com_developer = newCVar("developer", "Enables developer mode", false,
                           (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
-  com_enableCheats =
-    newCVar("cheats", "Enable cheats", false,
-            (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
-  com_cubemaps =
-    newCVar("cubemaps", "Enable cubemaps", false,
-            (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
+  com_enableCheats = newCVar(
+      "cheats", "Enable cheats", false,
+      (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::Hidden | CVar::EFlags::InternalArchivable));
+  com_cubemaps = newCVar("cubemaps", "Enable cubemaps", false,
+                         (CVar::EFlags::Game | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
 }
 
 CVarManager::~CVarManager() {}
@@ -37,11 +37,13 @@ CVarManager::~CVarManager() {}
 CVar* CVarManager::registerCVar(std::unique_ptr<CVar>&& cvar) {
   std::string tmp(cvar->name());
   athena::utility::tolower(tmp);
-  if (m_cvars.find(tmp) != m_cvars.end())
+
+  if (m_cvars.find(tmp) != m_cvars.end()) {
     return nullptr;
+  }
 
   CVar* ret = cvar.get();
-  m_cvars[tmp] = std::move(cvar);
+  m_cvars.insert_or_assign(std::move(tmp), std::move(cvar));
   return ret;
 }
 
@@ -80,8 +82,8 @@ void CVarManager::deserialize(CVar* cvar) {
   /* First let's check for a deferred value */
   std::string lowName = cvar->name().data();
   athena::utility::tolower(lowName);
-  if (m_deferedCVars.find(lowName) != m_deferedCVars.end()) {
-    std::string val = m_deferedCVars[lowName];
+  if (const auto iter = m_deferedCVars.find(lowName); iter != m_deferedCVars.end()) {
+    std::string val = std::move(iter->second);
     m_deferedCVars.erase(lowName);
     if (cvar->fromLiteralToType(val))
       return;
@@ -162,10 +164,13 @@ void CVarManager::serialize() {
 
   if (m_useBinary) {
     CVarContainer container;
-    for (const auto& pair : m_cvars)
-      if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
-        container.cvars.push_back(*pair.second);
+    for (const auto& pair : m_cvars) {
+      const auto& cvar = pair.second;
+
+      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+        container.cvars.push_back(*cvar);
+      }
+    }
     container.cvarCount = atUint32(container.cvars.size());
 
     filename += _SYS_STR(".bin");
@@ -180,10 +185,13 @@ void CVarManager::serialize() {
     r.close();
 
     docWriter.setStyle(athena::io::YAMLNodeStyle::Block);
-    for (const auto& pair : m_cvars)
-      if (pair.second->isArchive() ||
-          (pair.second->isInternalArchivable() && pair.second->wasDeserialized() && !pair.second->hasDefaultValue()))
-        docWriter.writeString(pair.second->name().data(), pair.second->toLiteral());
+    for (const auto& pair : m_cvars) {
+      const auto& cvar = pair.second;
+
+      if (cvar->isArchive() || (cvar->isInternalArchivable() && cvar->wasDeserialized() && !cvar->hasDefaultValue())) {
+        docWriter.writeString(cvar->name().data(), cvar->toLiteral());
+      }
+    }
 
     athena::io::FileWriter w(filename);
     if (w.isOpen())
@@ -208,12 +216,13 @@ void CVarManager::setCVar(Console* con, const std::vector<std::string>& args) {
 
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
-  if (m_cvars.find(cvName) == m_cvars.end()) {
+  const auto iter = m_cvars.find(cvName);
+  if (iter == m_cvars.end()) {
     con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
-  const auto& cv = m_cvars[cvName];
+  const auto& cv = iter->second;
   std::string oldVal = cv->value();
   std::string value = args[1];
   auto it = args.begin() + 2;
@@ -238,12 +247,13 @@ void CVarManager::getCVar(Console* con, const std::vector<std::string>& args) {
 
   std::string cvName = args[0];
   athena::utility::tolower(cvName);
-  if (m_cvars.find(cvName) == m_cvars.end()) {
+  const auto iter = m_cvars.find(cvName);
+  if (iter == m_cvars.end()) {
     con->report(Console::Level::Error, fmt("CVar '{}' does not exist"), args[0]);
     return;
   }
 
-  const auto& cv = m_cvars[cvName];
+  const auto& cv = iter->second;
   con->report(Console::Level::Info, fmt("'{}' = '{}'"), cv->name(), cv->value());
 }
 
@@ -266,38 +276,38 @@ void CVarManager::setCheatsEnabled(bool v, bool setDeserialized) {
 }
 
 bool CVarManager::restartRequired() const {
-  for (const auto& cv : m_cvars) {
-    if (cv.second->isModified() && cv.second->modificationRequiresRestart())
-      return true;
-  }
-
-  return false;
+  return std::any_of(m_cvars.cbegin(), m_cvars.cend(), [](const auto& entry) {
+    return entry.second->isModified() && entry.second->modificationRequiresRestart();
+  });
 }
 
 void CVarManager::parseCommandLine(const std::vector<SystemString>& args) {
   bool oldDeveloper = suppressDeveloper();
-  std::string developerName = com_developer->name().data();
+  std::string developerName(com_developer->name());
   athena::utility::tolower(developerName);
   for (const SystemString& arg : args) {
-    if (arg[0] == _SYS_STR('+')) {
-      std::string tmp = SystemUTF8Conv(arg).c_str();
+    if (arg[0] != _SYS_STR('+')) {
+      continue;
+    }
 
-      std::smatch matches;
-      if (std::regex_match(tmp, matches, cmdLineRegex)) {
-        std::string cvarName = matches[1].str();
-        std::string cvarValue = matches[2].str();
-        if (CVar* cv = findCVar(cvarName)) {
-          cv->fromLiteralToType(cvarValue);
-          athena::utility::tolower(cvarName);
-          if (developerName == cvarName)
-            /* Make sure we're not overriding developer mode when we restore */
-            oldDeveloper = com_developer->toBoolean();
-        } else {
-          /* Unable to find an existing CVar, let's defer for the time being 8 */
-          athena::utility::tolower(cvarName);
-          m_deferedCVars[cvarName] = cvarValue;
-        }
-      }
+    const std::string tmp(SystemUTF8Conv(arg).str());
+    std::smatch matches;
+    if (!std::regex_match(tmp, matches, cmdLineRegex)) {
+      continue;
+    }
+
+    std::string cvarName = matches[1].str();
+    std::string cvarValue = matches[2].str();
+    if (CVar* cv = findCVar(cvarName)) {
+      cv->fromLiteralToType(cvarValue);
+      athena::utility::tolower(cvarName);
+      if (developerName == cvarName)
+        /* Make sure we're not overriding developer mode when we restore */
+        oldDeveloper = com_developer->toBoolean();
+    } else {
+      /* Unable to find an existing CVar, let's defer for the time being 8 */
+      athena::utility::tolower(cvarName);
+      m_deferedCVars.insert_or_assign(std::move(cvarName), std::move(cvarValue));
     }
   }
 

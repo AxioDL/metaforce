@@ -191,23 +191,25 @@ int CVar::toInteger(bool* isValid) const {
   return strtol(m_value.c_str(), nullptr, 0);
 }
 
-const std::string CVar::toLiteral(bool* isValid) const {
+std::string CVar::toLiteral(bool* isValid) const {
   if (m_type != EType::Literal && (com_developer && com_developer->toBoolean())) {
     if (isValid != nullptr)
       *isValid = false;
-  } else if (isValid != nullptr)
+  } else if (isValid != nullptr) {
     *isValid = true;
+  }
 
   // Even if it's not a literal, it's still safe to return
   return m_value;
 }
 
-const std::wstring CVar::toWideLiteral(bool* isValid) const {
+std::wstring CVar::toWideLiteral(bool* isValid) const {
   if (m_type != EType::Literal && (com_developer && com_developer->toBoolean())) {
     if (isValid != nullptr)
       *isValid = false;
-  } else if (isValid != nullptr)
+  } else if (isValid != nullptr) {
     *isValid = true;
+  }
 
   // Even if it's not a literal, it's still safe to return
   return hecl::UTF8ToWide(m_value);

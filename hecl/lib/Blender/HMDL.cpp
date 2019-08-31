@@ -1,6 +1,9 @@
 #include "hecl/Blender/Connection.hpp"
-#include <cmath>
+
 #include <cfloat>
+#include <cmath>
+
+#include <athena/MemoryWriter.hpp>
 
 #undef min
 #undef max

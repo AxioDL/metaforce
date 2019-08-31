@@ -1,21 +1,17 @@
 #pragma once
 
-#include <iterator>
-#include <string>
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
 #include <functional>
-#include <vector>
-#include <map>
-#include <list>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <memory>
-#include <atomic>
-#include <fstream>
-#include <stdint.h>
-#include <cassert>
+#include <vector>
 
-#include "athena/IStreamReader.hpp"
-#include "logvisor/logvisor.hpp"
+#include <logvisor/logvisor.hpp>
 
 #include "hecl.hpp"
 
@@ -62,7 +58,7 @@ class IDataSpec {
 
 public:
   IDataSpec(const DataSpecEntry* specEntry) : m_specEntry(specEntry) {}
-  virtual ~IDataSpec() {}
+  virtual ~IDataSpec() = default;
   using FCookProgress = std::function<void(const SystemChar*)>;
 
   /**
@@ -91,43 +87,33 @@ public:
 
   virtual void setThreadProject() {}
 
-  virtual bool canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps) {
-    (void)info;
-    (void)reps;
+  virtual bool canExtract([[maybe_unused]] const ExtractPassInfo& info,
+                          [[maybe_unused]] std::vector<ExtractReport>& reps) {
     LogModule.report(logvisor::Error, fmt("not implemented"));
     return false;
   }
-  virtual void doExtract(const ExtractPassInfo& info, const MultiProgressPrinter& progress) {
-    (void)info;
-    (void)progress;
-  }
+  virtual void doExtract([[maybe_unused]] const ExtractPassInfo& info,
+                         [[maybe_unused]] const MultiProgressPrinter& progress) {}
 
-  virtual bool canCook(const ProjectPath& path, blender::Token& btok) {
-    (void)path;
+  virtual bool canCook([[maybe_unused]] const ProjectPath& path, [[maybe_unused]] blender::Token& btok) {
     LogModule.report(logvisor::Error, fmt("not implemented"));
     return false;
   }
-  virtual const DataSpecEntry* overrideDataSpec(const ProjectPath& path,
-                                                const Database::DataSpecEntry* oldEntry) const {
-    (void)path;
+  virtual const DataSpecEntry* overrideDataSpec([[maybe_unused]] const ProjectPath& path,
+                                                const DataSpecEntry* oldEntry) const {
     return oldEntry;
   }
-  virtual void doCook(const ProjectPath& path, const ProjectPath& cookedPath, bool fast, blender::Token& btok,
-                      FCookProgress progress) {
-    (void)path;
-    (void)cookedPath;
-    (void)fast;
-    (void)progress;
-  }
+  virtual void doCook([[maybe_unused]] const ProjectPath& path, [[maybe_unused]] const ProjectPath& cookedPath,
+                      [[maybe_unused]] bool fast, [[maybe_unused]] blender::Token& btok,
+                      [[maybe_unused]] FCookProgress progress) {}
 
-  virtual bool canPackage(const ProjectPath& path) {
-    (void)path;
+  virtual bool canPackage([[maybe_unused]] const ProjectPath& path) {
     return false;
   }
-  virtual void doPackage(const ProjectPath& path, const Database::DataSpecEntry* entry, bool fast, blender::Token& btok,
-                         const MultiProgressPrinter& progress, ClientProcess* cp = nullptr) {
-    (void)path;
-  }
+  virtual void doPackage([[maybe_unused]] const ProjectPath& path, [[maybe_unused]] const DataSpecEntry* entry,
+                         [[maybe_unused]] bool fast, [[maybe_unused]] blender::Token& btok,
+                         [[maybe_unused]] const MultiProgressPrinter& progress,
+                         [[maybe_unused]] ClientProcess* cp = nullptr) {}
 
   virtual void interruptCook() {}
 
@@ -190,7 +176,7 @@ protected:
     Cafe        /**< Swizzled textures and R700 shader objects */
   };
 
-  typedef std::function<void(const void* data, size_t len)> FDataAppender;
+  using FDataAppender = std::function<void(const void* data, size_t len)>;
 
   /**
    * @brief Optional private method implemented by subclasses to cook objects
@@ -203,14 +189,12 @@ protected:
    * Part of the cooking process may include embedding database-refs to dependencies.
    * This method should store the 64-bit value provided by IDataObject::id() when doing this.
    */
-  virtual bool cookObject(FDataAppender dataAppender, DataEndianness endianness, DataPlatform platform) {
-    (void)dataAppender;
-    (void)endianness;
-    (void)platform;
+  virtual bool cookObject([[maybe_unused]] FDataAppender dataAppender, [[maybe_unused]] DataEndianness endianness,
+                          [[maybe_unused]] DataPlatform platform) {
     return true;
   }
 
-  typedef std::function<void(ObjectBase*)> FDepAdder;
+  using FDepAdder = std::function<void(ObjectBase*)>;
 
   /**
    * @brief Optional private method implemented by CProjectObject subclasses to resolve dependencies
@@ -220,7 +204,7 @@ protected:
    * Dependencies registered via this method will eventually have this method called on themselves
    * as well. This is a non-recursive operation, no need for subclasses to implement recursion-control.
    */
-  virtual void gatherDeps(FDepAdder depAdder) { (void)depAdder; }
+  virtual void gatherDeps([[maybe_unused]] FDepAdder depAdder) {}
 
   /**
    * @brief Get a packagable FourCC representation of the object's type
@@ -262,7 +246,7 @@ private:
 
 public:
   Project(const ProjectRootPath& rootPath);
-  operator bool() const { return m_valid; }
+  explicit operator bool() const { return m_valid; }
 
   /**
    * @brief Configuration file handle
@@ -273,7 +257,7 @@ public:
   class ConfigFile {
     SystemString m_filepath;
     std::vector<std::string> m_lines;
-    FILE* m_lockedFile = NULL;
+    UniqueFilePtr m_lockedFile;
 
   public:
     ConfigFile(const Project& project, SystemStringView name, SystemStringView subdir = _SYS_STR("/.hecl/"));
@@ -311,7 +295,7 @@ public:
 
   /**
    * @brief Get the path of project's cooked directory for a specific DataSpec
-   * @param DataSpec to retrieve path for
+   * @param spec DataSpec to retrieve path for
    * @return project cooked path
    *
    * The cooked path matches the directory layout of the working directory
@@ -320,7 +304,7 @@ public:
 
   /**
    * @brief Add given file(s) to the database
-   * @param path file or pattern within project
+   * @param paths files or patterns within project
    * @return true on success
    *
    * This method blocks while object hashing takes place

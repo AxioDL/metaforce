@@ -1,6 +1,14 @@
 #include "hecl/hecl.hpp"
-#include <thread>
+
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <string_view>
+#include <thread>
 #include <unordered_map>
 
 #ifdef WIN32
@@ -20,11 +28,13 @@
 #include <sys/wait.h>
 #endif
 
+#include <logvisor/logvisor.hpp>
+
 namespace hecl {
 unsigned VerbosityLevel = 0;
 bool GuiMode = false;
 logvisor::Module LogModule("hecl");
-static const std::string Illegals{"<>?\""};
+constexpr std::string_view Illegals{"<>?\""};
 
 void SanitizePath(std::string& path) {
   if (path.empty())
@@ -54,7 +64,7 @@ void SanitizePath(std::string& path) {
     path.pop_back();
 }
 
-static const std::wstring WIllegals{L"<>?\""};
+constexpr std::wstring_view WIllegals{L"<>?\""};
 
 void SanitizePath(std::wstring& path) {
   if (path.empty())
@@ -90,8 +100,9 @@ SystemString GetcwdStr() {
   // const int MaxChunks=10240; // 2550 KiBs of current path are more than enough
 
   SystemChar stackBuffer[255]; // Stack buffer for the "normal" case
-  if (Getcwd(stackBuffer, 255) != nullptr)
+  if (Getcwd(stackBuffer, int(std::size(stackBuffer))) != nullptr) {
     return SystemString(stackBuffer);
+  }
   if (errno != ERANGE) {
     // It's not ERANGE, so we don't know how to handle it
     LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
@@ -101,9 +112,11 @@ SystemString GetcwdStr() {
   for (int chunks = 2; chunks < 10240; chunks++) {
     // With boost use scoped_ptr; in C++0x, use unique_ptr
     // If you want to be less C++ but more efficient you may want to use realloc
-    std::unique_ptr<SystemChar[]> cwd(new SystemChar[255 * chunks]);
-    if (Getcwd(cwd.get(), 255 * chunks) != nullptr)
+    const int bufSize = 255 * chunks;
+    std::unique_ptr<SystemChar[]> cwd(new SystemChar[bufSize]);
+    if (Getcwd(cwd.get(), bufSize) != nullptr) {
       return SystemString(cwd.get());
+    }
     if (errno != ERANGE) {
       // It's not ERANGE, so we don't know how to handle it
       LogModule.report(logvisor::Fatal, fmt("Cannot determine the current path."));
@@ -118,64 +131,65 @@ static std::mutex PathsMutex;
 static std::unordered_map<std::thread::id, ProjectPath> PathsInProgress;
 
 bool ResourceLock::InProgress(const ProjectPath& path) {
-  std::unique_lock<std::mutex> lk(PathsMutex);
-  for (const auto& p : PathsInProgress)
-    if (p.second == path)
-      return true;
-  return false;
+  std::unique_lock lk{PathsMutex};
+  return std::any_of(PathsInProgress.cbegin(), PathsInProgress.cend(),
+                     [&path](const auto& entry) { return entry.second == path; });
 }
 
 bool ResourceLock::SetThreadRes(const ProjectPath& path) {
-  std::unique_lock<std::mutex> lk(PathsMutex);
-  if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend())
+  std::unique_lock lk{PathsMutex};
+  if (PathsInProgress.find(std::this_thread::get_id()) != PathsInProgress.cend()) {
     LogModule.report(logvisor::Fatal, fmt("multiple resource locks on thread"));
+  }
 
-  for (const auto& p : PathsInProgress)
-    if (p.second == path)
-      return false;
+  const bool isInProgress = std::any_of(PathsInProgress.cbegin(), PathsInProgress.cend(),
+                                        [&path](const auto& entry) { return entry.second == path; });
+  if (isInProgress) {
+    return false;
+  }
 
-  PathsInProgress[std::this_thread::get_id()] = path;
+  PathsInProgress.insert_or_assign(std::this_thread::get_id(), path);
   return true;
 }
 
 void ResourceLock::ClearThreadRes() {
-  std::unique_lock<std::mutex> lk(PathsMutex);
+  std::unique_lock lk{PathsMutex};
   PathsInProgress.erase(std::this_thread::get_id());
 }
 
 bool IsPathPNG(const hecl::ProjectPath& path) {
-  FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!fp)
-    return false;
-  uint32_t buf = 0;
-  if (fread(&buf, 1, 4, fp) != 4) {
-    fclose(fp);
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (fp == nullptr) {
     return false;
   }
-  fclose(fp);
+
+  uint32_t buf = 0;
+  if (std::fread(&buf, 1, sizeof(buf), fp.get()) != sizeof(buf)) {
+    return false;
+  }
+
   buf = hecl::SBig(buf);
-  if (buf == 0x89504e47)
-    return true;
-  return false;
+  return buf == 0x89504e47;
 }
 
 bool IsPathBlend(const hecl::ProjectPath& path) {
-  auto lastCompExt = path.getLastComponentExt();
-  if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend")))
-    return false;
-  FILE* fp = hecl::Fopen(path.getAbsolutePath().data(), _SYS_STR("rb"));
-  if (!fp)
-    return false;
-  uint32_t buf = 0;
-  if (fread(&buf, 1, 4, fp) != 4) {
-    fclose(fp);
+  const auto lastCompExt = path.getLastComponentExt();
+  if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend"))) {
     return false;
   }
-  fclose(fp);
+
+  const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
+  if (fp == nullptr) {
+    return false;
+  }
+
+  uint32_t buf = 0;
+  if (std::fread(&buf, 1, sizeof(buf), fp.get()) != sizeof(buf)) {
+    return false;
+  }
+
   buf = hecl::SLittle(buf);
-  if (buf == 0x4e454c42 || buf == 0x88b1f)
-    return true;
-  return false;
+  return buf == 0x4e454c42 || buf == 0x88b1f;
 }
 
 bool IsPathYAML(const hecl::ProjectPath& path) {
@@ -431,8 +445,6 @@ hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode,
 #endif
 }
 
-#define FILE_MAXDIR 768
-
 static std::pair<hecl::SystemString, std::string> NameFromPath(hecl::SystemStringView path) {
   hecl::SystemUTF8Conv utf8(path);
   if (utf8.str().size() == 1 && utf8.str()[0] == '/')
@@ -450,46 +462,44 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations() {
 #if !WINDOWS_STORE
   /* Add the drive names to the listing (as queried by blender) */
   {
+    constexpr uint32_t FILE_MAXDIR = 768;
     wchar_t wline[FILE_MAXDIR];
-    wchar_t* name;
-    __int64 tmp;
-    int i;
+    const uint32_t tmp = GetLogicalDrives();
 
-    tmp = GetLogicalDrives();
-
-    for (i = 0; i < 26; i++) {
+    for (uint32_t i = 0; i < 26; i++) {
       if ((tmp >> i) & 1) {
         wline[0] = L'A' + i;
         wline[1] = L':';
         wline[2] = L'/';
         wline[3] = L'\0';
-        name = nullptr;
+        wchar_t* name = nullptr;
 
         /* Flee from horrible win querying hover floppy drives! */
         if (i > 1) {
           /* Try to get volume label as well... */
           if (GetVolumeInformationW(wline, wline + 4, FILE_MAXDIR - 4, nullptr, nullptr, nullptr, nullptr, 0)) {
-            size_t labelLen = wcslen(wline + 4);
+            const size_t labelLen = std::wcslen(wline + 4);
             _snwprintf(wline + 4 + labelLen, FILE_MAXDIR - 4 - labelLen, L" (%.2s)", wline);
             name = wline + 4;
           }
         }
 
         wline[2] = L'\0';
-        if (name)
-          ret.emplace_back(wline, hecl::WideToUTF8(name));
-        else
+        if (name == nullptr) {
           ret.push_back(NameFromPath(wline));
+        } else {
+          ret.emplace_back(wline, hecl::WideToUTF8(name));
+        }
       }
     }
 
     /* Adding Desktop and My Documents */
     SystemString wpath;
-    SHGetSpecialFolderPathW(0, wline, CSIDL_PERSONAL, 0);
+    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_PERSONAL, 0);
     wpath.assign(wline);
     SanitizePath(wpath);
     ret.push_back(NameFromPath(wpath));
-    SHGetSpecialFolderPathW(0, wline, CSIDL_DESKTOPDIRECTORY, 0);
+    SHGetSpecialFolderPathW(nullptr, wline, CSIDL_DESKTOPDIRECTORY, 0);
     wpath.assign(wline);
     SanitizePath(wpath);
     ret.push_back(NameFromPath(wpath));
@@ -513,18 +523,20 @@ std::vector<std::pair<hecl::SystemString, std::string>> GetSystemLocations() {
     /*https://developer.apple.com/library/mac/#documentation/CoreFOundation/Reference/CFURLRef/Reference/reference.html*/
     /* we get all volumes sorted including network and do not relay on user-defined finder visibility, less confusing */
 
-    CFURLRef cfURL = NULL;
+    CFURLRef cfURL = nullptr;
     CFURLEnumeratorResult result = kCFURLEnumeratorSuccess;
-    CFURLEnumeratorRef volEnum = CFURLEnumeratorCreateForMountedVolumes(NULL, kCFURLEnumeratorSkipInvisibles, NULL);
+    CFURLEnumeratorRef volEnum =
+        CFURLEnumeratorCreateForMountedVolumes(nullptr, kCFURLEnumeratorSkipInvisibles, nullptr);
 
     while (result != kCFURLEnumeratorEnd) {
       char defPath[1024];
 
-      result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, NULL);
-      if (result != kCFURLEnumeratorSuccess)
+      result = CFURLEnumeratorGetNextURL(volEnum, &cfURL, nullptr);
+      if (result != kCFURLEnumeratorSuccess) {
         continue;
+      }
 
-      CFURLGetFileSystemRepresentation(cfURL, false, (UInt8*)defPath, 1024);
+      CFURLGetFileSystemRepresentation(cfURL, false, reinterpret_cast<UInt8*>(defPath), std::size(defPath));
       ret.push_back(NameFromPath(defPath));
     }
 
@@ -582,14 +594,11 @@ std::wstring Char16ToWide(std::u16string_view src) { return std::wstring(src.beg
 #if _WIN32
 int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
-  SystemChar* p = nullptr;
-  Sstat sb;
-  size_t len;
 
   /* copy path */
-  wcsncpy(tmp, dir, 1024);
-  len = wcslen(tmp);
-  if (len >= 1024) {
+  std::wcsncpy(tmp, dir, std::size(tmp));
+  const size_t len = std::wcslen(tmp);
+  if (len >= std::size(tmp)) {
     return -1;
   }
 
@@ -599,6 +608,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
+  SystemChar* p = nullptr;
+  Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/' || *p == '\\') {
       *p = 0;
@@ -630,14 +641,11 @@ int RecursiveMakeDir(const SystemChar* dir) {
 #else
 int RecursiveMakeDir(const SystemChar* dir) {
   SystemChar tmp[1024];
-  SystemChar* p = nullptr;
-  Sstat sb;
-  size_t len;
 
   /* copy path */
-  strncpy(tmp, dir, 1024);
-  len = strlen(tmp);
-  if (len >= 1024) {
+  std::strncpy(tmp, dir, std::size(tmp));
+  const size_t len = std::strlen(tmp);
+  if (len >= std::size(tmp)) {
     return -1;
   }
 
@@ -647,6 +655,8 @@ int RecursiveMakeDir(const SystemChar* dir) {
   }
 
   /* recursive mkdir */
+  SystemChar* p = nullptr;
+  Sstat sb;
   for (p = tmp + 1; *p; p++) {
     if (*p == '/') {
       *p = 0;
@@ -680,16 +690,16 @@ int RecursiveMakeDir(const SystemChar* dir) {
 const SystemChar* GetTmpDir() {
 #ifdef _WIN32
 #if WINDOWS_STORE
-  wchar_t* TMPDIR = nullptr;
+  const wchar_t* TMPDIR = nullptr;
 #else
-  wchar_t* TMPDIR = _wgetenv(L"TEMP");
+  const wchar_t* TMPDIR = _wgetenv(L"TEMP");
   if (!TMPDIR)
-    TMPDIR = (wchar_t*)L"\\Temp";
+    TMPDIR = L"\\Temp";
 #endif
 #else
-  char* TMPDIR = getenv("TMPDIR");
+  const char* TMPDIR = getenv("TMPDIR");
   if (!TMPDIR)
-    TMPDIR = (char*)"/tmp";
+    TMPDIR = "/tmp";
 #endif
   return TMPDIR;
 }
@@ -697,13 +707,15 @@ const SystemChar* GetTmpDir() {
 #if !WINDOWS_STORE
 int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 #ifdef _WIN32
-  SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
-  HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
+  SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
+  HANDLE consoleOutReadTmp = INVALID_HANDLE_VALUE;
+  HANDLE consoleOutWrite = INVALID_HANDLE_VALUE;
   if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 0)) {
     LogModule.report(logvisor::Fatal, fmt("Error with CreatePipe"));
     return -1;
   }
 
+  HANDLE consoleErrWrite = INVALID_HANDLE_VALUE;
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutWrite, GetCurrentProcess(), &consoleErrWrite, 0, TRUE,
                        DUPLICATE_SAME_ACCESS)) {
     LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
@@ -712,11 +724,12 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     return -1;
   }
 
+  HANDLE consoleOutRead = INVALID_HANDLE_VALUE;
   if (!DuplicateHandle(GetCurrentProcess(), consoleOutReadTmp, GetCurrentProcess(),
                        &consoleOutRead, // Address of new handle.
                        0, FALSE,        // Make it uninheritable.
                        DUPLICATE_SAME_ACCESS)) {
-    LogModule.report(logvisor::Fatal, fmt("Error with DupliateHandle"));
+    LogModule.report(logvisor::Fatal, fmt("Error with DuplicateHandle"));
     CloseHandle(consoleOutReadTmp);
     CloseHandle(consoleOutWrite);
     CloseHandle(consoleErrWrite);
@@ -735,18 +748,18 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 
   STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
   HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
-                                 FILE_ATTRIBUTE_NORMAL, NULL);
+                                 FILE_ATTRIBUTE_NORMAL, nullptr);
   sinfo.dwFlags = STARTF_USESTDHANDLES;
   sinfo.hStdInput = nulHandle;
   sinfo.hStdError = consoleErrWrite;
   sinfo.hStdOutput = consoleOutWrite;
 
   PROCESS_INFORMATION pinfo = {};
-  if (!CreateProcessW(path, (LPWSTR)cmdLine.c_str(), NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo,
+  if (!CreateProcessW(path, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr, &sinfo,
                       &pinfo)) {
     LPWSTR messageBuffer = nullptr;
-    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                   GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+    FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+                   GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, nullptr);
     LogModule.report(logvisor::Error, fmt(L"unable to launch process from {}: {}"), path, messageBuffer);
     LocalFree(messageBuffer);
 
@@ -768,7 +781,7 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
     DWORD nCharsWritten;
 
     while (consoleThreadRunning) {
-      if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, NULL) || !nBytesRead) {
+      if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, nullptr) || !nBytesRead) {
         DWORD err = GetLastError();
         if (err == ERROR_BROKEN_PIPE)
           break; // pipe done - normal exit path.
@@ -778,8 +791,8 @@ int RunProcess(const SystemChar* path, const SystemChar* const args[]) {
 
       // Display the character read on the screen.
       auto lk = logvisor::LockLog();
-      if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
-        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
+      if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
+        // LogModule.report(logvisor::Error, fmt("Error with WriteConsole: {:08X}"), GetLastError());
       }
     }
 

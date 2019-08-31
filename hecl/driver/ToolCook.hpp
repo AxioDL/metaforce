@@ -13,7 +13,7 @@ class ToolCook final : public ToolBase {
   bool m_fast = false;
 
 public:
-  ToolCook(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
+  explicit ToolCook(const ToolPassInfo& info) : ToolBase(info), m_useProj(info.project) {
     /* Check for recursive flag */
     for (hecl::SystemChar arg : info.flags)
       if (arg == _SYS_STR('r'))
@@ -145,9 +145,9 @@ public:
     }
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("cook"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("cook"); }
 
-  int run() {
+  int run() override {
     hecl::MultiProgressPrinter printer(true);
     hecl::ClientProcess cp(&printer);
     for (const hecl::ProjectPath& path : m_selectedItems)
@@ -156,5 +156,5 @@ public:
     return 0;
   }
 
-  void cancel() { m_useProj->interruptCook(); }
+  void cancel() override { m_useProj->interruptCook(); }
 };

@@ -70,8 +70,8 @@ public:
   float toFloat(bool* isValid = nullptr) const;
   bool toBoolean(bool* isValid = nullptr) const;
   int toInteger(bool* isValid = nullptr) const;
-  const std::wstring toWideLiteral(bool* isValid = nullptr) const;
-  const std::string toLiteral(bool* isValid = nullptr) const;
+  std::wstring toWideLiteral(bool* isValid = nullptr) const;
+  std::string toLiteral(bool* isValid = nullptr) const;
 
   bool fromVec4f(const atVec4f& val);
   bool fromFloat(float val);
@@ -117,7 +117,7 @@ public:
    */
   void lock();
 
-  void addListener(ListenerFunc func) { m_listeners.push_back(func); }
+  void addListener(ListenerFunc func) { m_listeners.push_back(std::move(func)); }
 
 private:
   void dispatch();

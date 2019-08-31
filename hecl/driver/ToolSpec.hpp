@@ -8,7 +8,7 @@ class ToolSpec final : public ToolBase {
   enum Mode { MLIST = 0, MENABLE, MDISABLE } mode = MLIST;
 
 public:
-  ToolSpec(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolSpec(const ToolPassInfo& info) : ToolBase(info) {
     if (info.args.empty())
       return;
 
@@ -71,9 +71,9 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("spec"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("spec"); }
 
-  int run() {
+  int run() override {
     if (!m_info.project) {
       for (const hecl::Database::DataSpecEntry* spec : hecl::Database::DATA_SPEC_REGISTRY) {
         if (XTERM_COLOR)

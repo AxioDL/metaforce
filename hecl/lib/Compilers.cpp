@@ -1,14 +1,17 @@
 #include "hecl/Compilers.hpp"
-#include "boo/graphicsdev/GLSLMacros.hpp"
-#include "logvisor/logvisor.hpp"
+#include <boo/graphicsdev/GLSLMacros.hpp>
+#include <logvisor/logvisor.hpp>
+
 #include <glslang/Public/ShaderLang.h>
 #include <StandAlone/ResourceLimits.h>
 #include <SPIRV/GlslangToSpv.h>
 #include <SPIRV/disassemble.h>
+
 #if _WIN32
 #include <d3dcompiler.h>
 extern pD3DCompile D3DCompilePROC;
 #endif
+
 #if __APPLE__
 #include <unistd.h>
 #include <memory>
@@ -16,23 +19,6 @@ extern pD3DCompile D3DCompilePROC;
 
 namespace hecl {
 logvisor::Module Log("hecl::Compilers");
-
-namespace PlatformType {
-const char* OpenGL::Name = "OpenGL";
-const char* Vulkan::Name = "Vulkan";
-const char* D3D11::Name = "D3D11";
-const char* Metal::Name = "Metal";
-const char* NX::Name = "NX";
-} // namespace PlatformType
-
-namespace PipelineStage {
-const char* Null::Name = "Null";
-const char* Vertex::Name = "Vertex";
-const char* Fragment::Name = "Fragment";
-const char* Geometry::Name = "Geometry";
-const char* Control::Name = "Control";
-const char* Evaluation::Name = "Evaluation";
-} // namespace PipelineStage
 
 template <typename P>
 struct ShaderCompiler {};
@@ -99,7 +85,7 @@ struct ShaderCompiler<PlatformType::D3D11> {
     ComPtr<ID3DBlob> blobOut;
     if (FAILED(D3DCompilePROC(text.data(), text.size(), "Boo HLSL Source", nullptr, nullptr, "main",
                               D3DShaderTypes[int(S::Enum)], BOO_D3DCOMPILE_FLAG, 0, &blobOut, &errBlob))) {
-      printf("%s\n", text.data());
+      fmt::print(fmt("{}\n"), text);
       Log.report(logvisor::Fatal, fmt("error compiling shader: {}"), (char*)errBlob->GetBufferPointer());
       return {};
     }
@@ -124,7 +110,7 @@ struct ShaderCompiler<PlatformType::Metal> {
 
     pid_t pid = fork();
     if (!pid) {
-      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "--version", NULL);
+      execlp("xcrun", "xcrun", "-sdk", "macosx", "metal", "--version", nullptr);
       /* xcrun returns 72 if metal command not found;
        * emulate that if xcrun not found */
       exit(72);
@@ -180,8 +166,8 @@ struct ShaderCompiler<PlatformType::Metal> {
 #ifndef NDEBUG
                "-gline-tables-only", "-MO",
 #endif
-               "-", NULL);
-        fprintf(stderr, "execlp fail %s\n", strerror(errno));
+               "-", nullptr);
+        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerIn[0]);
@@ -196,8 +182,8 @@ struct ShaderCompiler<PlatformType::Metal> {
         close(compilerIn[1]);
 
         /* metallib doesn't like outputting to a pipe, so temp file will have to do */
-        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), NULL);
-        fprintf(stderr, "execlp fail %s\n", strerror(errno));
+        execlp("xcrun", "xcrun", "-sdk", "macosx", "metallib", "-", "-o", libFile.c_str(), nullptr);
+        fmt::print(stderr, fmt("execlp fail {}\n"), strerror(errno));
         exit(1);
       }
       close(compilerOut[0]);
@@ -208,7 +194,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (inRem) {
         ssize_t writeRes = write(compilerIn[1], inPtr, inRem);
         if (writeRes < 0) {
-          fprintf(stderr, "write fail %s\n", strerror(errno));
+          fmt::print(stderr, fmt("write fail {}\n"), strerror(errno));
           break;
         }
         inPtr += writeRes;
@@ -221,7 +207,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(compilerPid, &compilerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
         return {};
       }
 
@@ -233,7 +219,7 @@ struct ShaderCompiler<PlatformType::Metal> {
       while (waitpid(linkerPid, &linkerStat, 0) < 0) {
         if (errno == EINTR)
           continue;
-        Log.report(logvisor::Fatal, fmt("waitpid fail %s"), strerror(errno));
+        Log.report(logvisor::Fatal, fmt("waitpid fail {}"), strerror(errno));
         return {};
       }
 

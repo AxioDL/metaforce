@@ -1,22 +1,27 @@
+#include <algorithm>
 #include <cerrno>
+#include <cfloat>
+#include <chrono>
+#include <cinttypes>
+#include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cinttypes>
-#include <signal.h>
-#include <system_error>
-#include <string>
-#include <algorithm>
-#include <chrono>
-#include <thread>
 #include <mutex>
+#include <string>
+#include <system_error>
+#include <thread>
+#include <tuple>
 
 #include <hecl/hecl.hpp>
 #include <hecl/Database.hpp>
-#include "logvisor/logvisor.hpp"
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Blender/Token.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "MeshOptimizer.hpp"
+
+#include <athena/MemoryWriter.hpp>
+#include <logvisor/logvisor.hpp>
 
 #if _WIN32
 #include <io.h>
@@ -60,19 +65,23 @@ extern "C" uint8_t HECL_STARTUP[];
 extern "C" size_t HECL_STARTUP_SZ;
 
 static void InstallBlendershell(const SystemChar* path) {
-  FILE* fp = hecl::Fopen(path, _SYS_STR("w"));
-  if (!fp)
+  auto fp = hecl::FopenUnique(path, _SYS_STR("w"));
+
+  if (fp == nullptr) {
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("unable to open {} for writing")), path);
-  fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp);
-  fclose(fp);
+  }
+
+  std::fwrite(HECL_BLENDERSHELL, 1, HECL_BLENDERSHELL_SZ, fp.get());
 }
 
 static void InstallAddon(const SystemChar* path) {
-  FILE* fp = hecl::Fopen(path, _SYS_STR("wb"));
-  if (!fp)
+  auto fp = hecl::FopenUnique(path, _SYS_STR("wb"));
+
+  if (fp == nullptr) {
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to install blender addon at '{}'")), path);
-  fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp);
-  fclose(fp);
+  }
+
+  std::fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp.get());
 }
 
 static int Read(int fd, void* buf, size_t size) {
@@ -107,7 +116,7 @@ static int Write(int fd, const void* buf, size_t size) {
 
 uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   uint32_t readLen;
-  int ret = Read(m_readpipe[0], &readLen, 4);
+  int ret = Read(m_readpipe[0], &readLen, sizeof(readLen));
   if (ret < 4) {
     BlenderLog.report(logvisor::Error, fmt("Pipe error {} {}"), ret, strerror(errno));
     _blenderDied();
@@ -124,8 +133,11 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   if (ret < 0) {
     BlenderLog.report(logvisor::Fatal, fmt("{}"), strerror(errno));
     return 0;
-  } else if (readLen >= 9) {
-    if (!memcmp(buf, "EXCEPTION", std::min(readLen, uint32_t(9)))) {
+  }
+
+  constexpr std::string_view exception_str{"EXCEPTION"};
+  if (readLen >= exception_str.size()) {
+    if (exception_str.compare(0, exception_str.size(), buf) == 0) {
       _blenderDied();
       return 0;
     }
@@ -136,54 +148,75 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
 }
 
 uint32_t Connection::_writeStr(const char* buf, uint32_t len, int wpipe) {
-  int ret, nlerr;
-  nlerr = Write(wpipe, &len, 4);
-  if (nlerr < 4)
-    goto err;
-  ret = Write(wpipe, buf, len);
-  if (ret < 0)
-    goto err;
-  return (uint32_t)ret;
-err:
-  _blenderDied();
-  return 0;
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  const int nlerr = Write(wpipe, &len, 4);
+  if (nlerr < 4) {
+    return error();
+  }
+
+  const int ret = Write(wpipe, buf, len);
+  if (ret < 0) {
+    return error();
+  }
+
+  return static_cast<uint32_t>(ret);
 }
 
 size_t Connection::_readBuf(void* buf, size_t len) {
-  uint8_t* cBuf = reinterpret_cast<uint8_t*>(buf);
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  auto* cBuf = static_cast<uint8_t*>(buf);
   size_t readLen = 0;
+
   do {
-    int ret = Read(m_readpipe[0], cBuf, len);
-    if (ret < 0)
-      goto err;
-    if (len >= 9)
-      if (!memcmp((char*)cBuf, "EXCEPTION", std::min(len, size_t(9))))
+    const int ret = Read(m_readpipe[0], cBuf, len);
+    if (ret < 0) {
+      return error();
+    }
+
+    constexpr std::string_view exception_str{"EXCEPTION"};
+    if (len >= exception_str.size()) {
+      if (exception_str.compare(0, exception_str.size(), static_cast<char*>(buf)) == 0) {
         _blenderDied();
+      }
+    }
+
     readLen += ret;
     cBuf += ret;
     len -= ret;
-  } while (len);
+  } while (len != 0);
+
   return readLen;
-err:
-  _blenderDied();
-  return 0;
 }
 
 size_t Connection::_writeBuf(const void* buf, size_t len) {
-  const uint8_t* cBuf = reinterpret_cast<const uint8_t*>(buf);
+  const auto error = [this] {
+    _blenderDied();
+    return 0U;
+  };
+
+  const auto* cBuf = static_cast<const uint8_t*>(buf);
   size_t writeLen = 0;
+
   do {
-    int ret = Write(m_writepipe[1], cBuf, len);
-    if (ret < 0)
-      goto err;
+    const int ret = Write(m_writepipe[1], cBuf, len);
+    if (ret < 0) {
+      return error();
+    }
+
     writeLen += ret;
     cBuf += ret;
     len -= ret;
-  } while (len);
+  } while (len != 0);
+
   return writeLen;
-err:
-  _blenderDied();
-  return 0;
 }
 
 void Connection::_closePipe() {
@@ -200,18 +233,20 @@ void Connection::_closePipe() {
 
 void Connection::_blenderDied() {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  FILE* errFp = hecl::Fopen(m_errPath.c_str(), _SYS_STR("r"));
-  if (errFp) {
-    fseek(errFp, 0, SEEK_END);
-    int64_t len = hecl::FTell(errFp);
-    if (len) {
-      fseek(errFp, 0, SEEK_SET);
-      std::unique_ptr<char[]> buf(new char[len + 1]);
-      memset(buf.get(), 0, len + 1);
-      fread(buf.get(), 1, len, errFp);
+  auto errFp = hecl::FopenUnique(m_errPath.c_str(), _SYS_STR("r"));
+
+  if (errFp != nullptr) {
+    std::fseek(errFp.get(), 0, SEEK_END);
+    const int64_t len = hecl::FTell(errFp.get());
+
+    if (len != 0) {
+      std::fseek(errFp.get(), 0, SEEK_SET);
+      const auto buf = std::make_unique<char[]>(len + 1);
+      std::fread(buf.get(), 1, len, errFp.get());
       BlenderLog.report(logvisor::Fatal, fmt("\n{:.{}s}"), buf.get(), len);
     }
   }
+
   BlenderLog.report(logvisor::Fatal, fmt("Blender Exception"));
 }
 
@@ -253,14 +288,14 @@ Connection::Connection(int verbosityLevel) {
   while (true) {
     /* Construct communication pipes */
 #if _WIN32
-    _pipe(m_readpipe, 2048, _O_BINARY);
-    _pipe(m_writepipe, 2048, _O_BINARY);
+    _pipe(m_readpipe.data(), 2048, _O_BINARY);
+    _pipe(m_writepipe.data(), 2048, _O_BINARY);
     HANDLE writehandle = HANDLE(_get_osfhandle(m_writepipe[0]));
     SetHandleInformation(writehandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
     HANDLE readhandle = HANDLE(_get_osfhandle(m_readpipe[1]));
     SetHandleInformation(readhandle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
 
-    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+    SECURITY_ATTRIBUTES sattrs = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
     HANDLE consoleOutReadTmp, consoleOutWrite, consoleErrWrite, consoleOutRead;
     if (!CreatePipe(&consoleOutReadTmp, &consoleOutWrite, &sattrs, 1024))
       BlenderLog.report(logvisor::Fatal, fmt("Error with CreatePipe"));
@@ -278,8 +313,8 @@ Connection::Connection(int verbosityLevel) {
     if (!CloseHandle(consoleOutReadTmp))
       BlenderLog.report(logvisor::Fatal, fmt("Error with CloseHandle"));
 #else
-    pipe(m_readpipe);
-    pipe(m_writepipe);
+    pipe(m_readpipe.data());
+    pipe(m_writepipe.data());
 #endif
 
       /* User-specified blender path */
@@ -315,12 +350,12 @@ Connection::Connection(int verbosityLevel) {
       }
     }
 
-    std::wstring cmdLine = fmt::format(fmt(L" --background -P \"{}\" -- {} {} {} \"{}\""),
-      blenderShellPath, uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
+    std::wstring cmdLine = fmt::format(fmt(L" --background -P \"{}\" -- {} {} {} \"{}\""), blenderShellPath,
+                                       uintptr_t(writehandle), uintptr_t(readhandle), verbosityLevel, blenderAddonPath);
 
     STARTUPINFO sinfo = {sizeof(STARTUPINFO)};
     HANDLE nulHandle = CreateFileW(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, &sattrs, OPEN_EXISTING,
-                                   FILE_ATTRIBUTE_NORMAL, NULL);
+                                   FILE_ATTRIBUTE_NORMAL, nullptr);
     sinfo.dwFlags = STARTF_USESTDHANDLES;
     sinfo.hStdInput = nulHandle;
     if (verbosityLevel == 0) {
@@ -331,11 +366,12 @@ Connection::Connection(int verbosityLevel) {
       sinfo.hStdOutput = consoleOutWrite;
     }
 
-    if (!CreateProcessW(blenderBin, const_cast<wchar_t*>(cmdLine.c_str()), NULL, NULL, TRUE,
-                        NORMAL_PRIORITY_CLASS, NULL, NULL, &sinfo, &m_pinfo)) {
+    if (!CreateProcessW(blenderBin, cmdLine.data(), nullptr, nullptr, TRUE, NORMAL_PRIORITY_CLASS, nullptr, nullptr,
+                        &sinfo, &m_pinfo)) {
       LPWSTR messageBuffer = nullptr;
-      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-                     GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
+      FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                     nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0,
+                     nullptr);
       BlenderLog.report(logvisor::Fatal, fmt(L"unable to launch blender from {}: {}"), blenderBin, messageBuffer);
     }
 
@@ -353,7 +389,7 @@ Connection::Connection(int verbosityLevel) {
       DWORD nCharsWritten;
 
       while (m_consoleThreadRunning) {
-        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, NULL) || !nBytesRead) {
+        if (!ReadFile(consoleOutRead, lpBuffer, sizeof(lpBuffer), &nBytesRead, nullptr) || !nBytesRead) {
           DWORD err = GetLastError();
           if (err == ERROR_BROKEN_PIPE)
             break; // pipe done - normal exit path.
@@ -363,7 +399,7 @@ Connection::Connection(int verbosityLevel) {
 
         // Display the character read on the screen.
         auto lk = logvisor::LockLog();
-        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, NULL)) {
+        if (!WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), lpBuffer, nBytesRead, &nCharsWritten, nullptr)) {
           // BlenderLog.report(logvisor::Error, fmt("Error with WriteConsole: %08X"), GetLastError());
         }
       }
@@ -396,8 +432,8 @@ Connection::Connection(int verbosityLevel) {
 
       /* Try user-specified blender first */
       if (blenderBin) {
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
-               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -414,8 +450,8 @@ Connection::Connection(int verbosityLevel) {
         steamBlender += "/blender";
 #endif
         blenderBin = steamBlender.c_str();
-        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--",
-               readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+        execlp(blenderBin, blenderBin, "--background", "-P", blenderShellPath.c_str(), "--", readfds.c_str(),
+               writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
         if (errno != ENOENT) {
           errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
           _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -425,7 +461,7 @@ Connection::Connection(int verbosityLevel) {
 
       /* Otherwise default blender */
       execlp(DEFAULT_BLENDER_BIN, DEFAULT_BLENDER_BIN, "--background", "-P", blenderShellPath.c_str(), "--",
-             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), NULL);
+             readfds.c_str(), writefds.c_str(), vLevel.c_str(), blenderAddonPath.c_str(), nullptr);
       if (errno != ENOENT) {
         errbuf = fmt::format(fmt("NOLAUNCH {}"), strerror(errno));
         _writeStr(errbuf.c_str(), errbuf.size(), m_readpipe[1]);
@@ -446,8 +482,8 @@ Connection::Connection(int verbosityLevel) {
     m_errPath = hecl::SystemString(TMPDIR) +
                 fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_pinfo.dwProcessId);
 #else
-    m_errPath =
-        hecl::SystemString(TMPDIR) + fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
+    m_errPath = hecl::SystemString(TMPDIR) +
+                fmt::format(fmt(_SYS_STR("/hecl_{:016X}.derp")), (unsigned long long)m_blenderProc);
 #endif
     hecl::Unlink(m_errPath.c_str());
 
@@ -528,8 +564,9 @@ std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
   return ch;
 }
 
-static const char* BlendTypeStrs[] = {"NONE",    "MESH",        "CMESH", "ACTOR", "AREA", "WORLD",
-                                      "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH",  nullptr};
+constexpr std::array<const char*, 11> BlendTypeStrs{
+    "NONE", "MESH", "CMESH", "ACTOR", "AREA", "WORLD", "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH", nullptr,
+};
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
   if (m_lock) {
@@ -628,87 +665,83 @@ void PyOutStream::close() {
 }
 
 void PyOutStream::linkBlend(const char* target, const char* objName, bool link) {
-  format(fmt(
-      "if '{}' not in bpy.data.scenes:\n"
-      "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
-      "        data_to.scenes = data_from.scenes\n"
-      "    obj_scene = None\n"
-      "    for scene in data_to.scenes:\n"
-      "        if scene.name == '{}':\n"
-      "            obj_scene = scene\n"
-      "            break\n"
-      "    if not obj_scene:\n"
-      "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
-      "    obj = None\n"
-      "    for object in obj_scene.objects:\n"
-      "        if object.name == obj_scene.name:\n"
-      "            obj = object\n"
-      "else:\n"
-      "    obj = bpy.data.objects['{}']\n"
-      "\n"),
-      objName, target, link ? "True" : "False", objName, objName, target, objName);
+  format(fmt("if '{}' not in bpy.data.scenes:\n"
+             "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
+             "        data_to.scenes = data_from.scenes\n"
+             "    obj_scene = None\n"
+             "    for scene in data_to.scenes:\n"
+             "        if scene.name == '{}':\n"
+             "            obj_scene = scene\n"
+             "            break\n"
+             "    if not obj_scene:\n"
+             "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+             "    obj = None\n"
+             "    for object in obj_scene.objects:\n"
+             "        if object.name == obj_scene.name:\n"
+             "            obj = object\n"
+             "else:\n"
+             "    obj = bpy.data.objects['{}']\n"
+             "\n"),
+         objName, target, link ? "True" : "False", objName, objName, target, objName);
 }
 
 void PyOutStream::linkBackground(const char* target, const char* sceneName) {
   if (!sceneName) {
-    format(fmt(
-        "with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
-        "    data_to.scenes = data_from.scenes\n"
-        "obj_scene = None\n"
-        "for scene in data_to.scenes:\n"
-        "    obj_scene = scene\n"
-        "    break\n"
-        "if not obj_scene:\n"
-        "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
-        "\n"
-        "bpy.context.scene.background_set = obj_scene\n"),
-        target, target);
+    format(fmt("with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+               "    data_to.scenes = data_from.scenes\n"
+               "obj_scene = None\n"
+               "for scene in data_to.scenes:\n"
+               "    obj_scene = scene\n"
+               "    break\n"
+               "if not obj_scene:\n"
+               "    raise RuntimeError('''unable to find {}. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = obj_scene\n"),
+           target, target);
   } else {
-    format(fmt(
-        "if '{}' not in bpy.data.scenes:\n"
-        "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
-        "        data_to.scenes = data_from.scenes\n"
-        "    obj_scene = None\n"
-        "    for scene in data_to.scenes:\n"
-        "        if scene.name == '{}':\n"
-        "            obj_scene = scene\n"
-        "            break\n"
-        "    if not obj_scene:\n"
-        "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
-        "\n"
-        "bpy.context.scene.background_set = bpy.data.scenes['{}']\n"),
-        sceneName, target, sceneName, sceneName, target, sceneName);
+    format(fmt("if '{}' not in bpy.data.scenes:\n"
+               "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+               "        data_to.scenes = data_from.scenes\n"
+               "    obj_scene = None\n"
+               "    for scene in data_to.scenes:\n"
+               "        if scene.name == '{}':\n"
+               "            obj_scene = scene\n"
+               "            break\n"
+               "    if not obj_scene:\n"
+               "        raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+               "\n"
+               "bpy.context.scene.background_set = bpy.data.scenes['{}']\n"),
+           sceneName, target, sceneName, sceneName, target, sceneName);
   }
 }
 
 void PyOutStream::AABBToBMesh(const atVec3f& min, const atVec3f& max) {
   athena::simd_floats minf(min.simd);
   athena::simd_floats maxf(max.simd);
-  format(fmt(
-      "bm = bmesh.new()\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.new(({},{},{}))\n"
-      "bm.verts.ensure_lookup_table()\n"
-      "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
-      "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
-      minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
-      minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
+  format(fmt("bm = bmesh.new()\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.new(({},{},{}))\n"
+             "bm.verts.ensure_lookup_table()\n"
+             "bm.edges.new((bm.verts[0], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[0], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[0], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[3], bm.verts[7]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[1]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[5], bm.verts[7]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[2]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[4]))\n"
+             "bm.edges.new((bm.verts[6], bm.verts[7]))\n"),
+         minf[0], minf[1], minf[2], maxf[0], minf[1], minf[2], minf[0], maxf[1], minf[2], maxf[0], maxf[1], minf[2],
+         minf[0], minf[1], maxf[2], maxf[0], minf[1], maxf[2], minf[0], maxf[1], maxf[2], maxf[0], maxf[1], maxf[2]);
 }
 
 void PyOutStream::centerView() {
@@ -805,8 +838,7 @@ Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool us
   Index matSetCount(conn);
   materialSets.reserve(matSetCount.val);
   for (uint32_t i = 0; i < matSetCount.val; ++i) {
-    materialSets.emplace_back();
-    std::vector<Material>& materials = materialSets.back();
+    std::vector<Material>& materials = materialSets.emplace_back();
     Index matCount(conn);
     materials.reserve(matCount.val);
     for (uint32_t j = 0; j < matCount.val; ++j)
@@ -914,7 +946,7 @@ Material::PASS::PASS(Connection& conn) {
   SystemStringConv absolute(readStr);
 
   SystemString relative =
-    conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
+      conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
   tex.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), relative);
 
   conn._readBuf(&source, 1);
@@ -969,26 +1001,12 @@ Material::Material(Connection& conn) {
 }
 
 bool Mesh::Surface::Vert::operator==(const Vert& other) const {
-  if (iPos != other.iPos)
-    return false;
-  if (iNorm != other.iNorm)
-    return false;
-  for (int i = 0; i < 4; ++i)
-    if (iColor[i] != other.iColor[i])
-      return false;
-  for (int i = 0; i < 8; ++i)
-    if (iUv[i] != other.iUv[i])
-      return false;
-  if (iSkin != other.iSkin)
-    return false;
-  return true;
+  return std::tie(iPos, iNorm, iColor, iUv, iSkin) ==
+         std::tie(other.iPos, other.iNorm, other.iColor, other.iUv, other.iSkin);
 }
 
 static bool VertInBank(const std::vector<uint32_t>& bank, uint32_t sIdx) {
-  for (uint32_t idx : bank)
-    if (sIdx == idx)
-      return true;
-  return false;
+  return std::any_of(bank.cbegin(), bank.cend(), [sIdx](auto index) { return index == sIdx; });
 }
 
 void Mesh::SkinBanks::Bank::addSkins(const Mesh& parent, const std::vector<uint32_t>& skinIdxs) {
@@ -1153,8 +1171,7 @@ MapArea::Surface::Surface(Connection& conn) {
   conn._readBuf(&borderCount, 4);
   borders.reserve(borderCount);
   for (uint32_t i = 0; i < borderCount; ++i) {
-    borders.emplace_back();
-    std::pair<Index, Index>& idx = borders.back();
+    std::pair<Index, Index>& idx = borders.emplace_back();
     conn._readBuf(&idx, 8);
   }
 }
@@ -1344,14 +1361,13 @@ Actor::Subtype::Subtype(Connection& conn) {
   name.assign(bufSz, ' ');
   conn._readBuf(&name[0], bufSz);
 
-  std::string meshPath;
   conn._readBuf(&bufSz, 4);
-  if (bufSz) {
-    meshPath.assign(bufSz, ' ');
-    conn._readBuf(&meshPath[0], bufSz);
-    SystemStringConv meshPathAbs(meshPath);
+  if (bufSz != 0) {
+    std::string meshPath(bufSz, ' ');
+    conn._readBuf(meshPath.data(), meshPath.size());
+    const SystemStringConv meshPathAbs(meshPath);
 
-    SystemString meshPathRel =
+    const SystemString meshPathRel =
         conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
     mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
   }
@@ -1367,14 +1383,13 @@ Actor::Subtype::Subtype(Connection& conn) {
     overlayName.assign(bufSz, ' ');
     conn._readBuf(&overlayName[0], bufSz);
 
-    std::string meshPath;
     conn._readBuf(&bufSz, 4);
-    if (bufSz) {
-      meshPath.assign(bufSz, ' ');
-      conn._readBuf(&meshPath[0], bufSz);
-      SystemStringConv meshPathAbs(meshPath);
+    if (bufSz != 0) {
+      std::string meshPath(bufSz, ' ');
+      conn._readBuf(meshPath.data(), meshPath.size());
+      const SystemStringConv meshPathAbs(meshPath);
 
-      SystemString meshPathRel =
+      const SystemString meshPathRel =
           conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
       overlayMeshes.emplace_back(std::move(overlayName),
                                  ProjectPath(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel));
@@ -1431,12 +1446,11 @@ Action::Action(Connection& conn) {
   conn._readBuf(&aabbCount, 4);
   subtypeAABBs.reserve(aabbCount);
   for (uint32_t i = 0; i < aabbCount; ++i) {
-    subtypeAABBs.emplace_back();
-    subtypeAABBs.back().first.read(conn);
-    subtypeAABBs.back().second.read(conn);
-    //printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
-    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]), float(subtypeAABBs.back().first.val.simd[2]),
-    //    float(subtypeAABBs.back().second.val.simd[0]), float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
+    subtypeAABBs.emplace_back(conn, conn);
+    // printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
+    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]),
+    //    float(subtypeAABBs.back().first.val.simd[2]), float(subtypeAABBs.back().second.val.simd[0]),
+    //    float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
   }
 }
 
@@ -1532,7 +1546,7 @@ std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
 }
 
 const char* DataStream::MeshOutputModeString(HMDLTopology topology) {
-  static const char* STRS[] = {"TRIANGLES", "TRISTRIPS"};
+  static constexpr std::array<const char*, 2> STRS{"TRIANGLES", "TRISTRIPS"};
   return STRS[int(topology)];
 }
 
@@ -1787,12 +1801,11 @@ std::vector<std::string> DataStream::getArmatureNames() {
   m_parent->_readBuf(&armCount, 4);
   ret.reserve(armCount);
   for (uint32_t i = 0; i < armCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1816,12 +1829,11 @@ std::vector<std::string> DataStream::getSubtypeNames() {
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1845,12 +1857,11 @@ std::vector<std::string> DataStream::getActionNames() {
   m_parent->_readBuf(&actCount, 4);
   ret.reserve(actCount);
   for (uint32_t i = 0; i < actCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1874,12 +1885,11 @@ std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view nam
   m_parent->_readBuf(&subCount, 4);
   ret.reserve(subCount);
   for (uint32_t i = 0; i < subCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& subtypeName = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    subtypeName.assign(bufSz, ' ');
+    m_parent->_readBuf(subtypeName.data(), subtypeName.size());
   }
 
   return ret;
@@ -1903,12 +1913,11 @@ std::vector<std::string> DataStream::getAttachmentNames() {
   m_parent->_readBuf(&attCount, 4);
   ret.reserve(attCount);
   for (uint32_t i = 0; i < attCount; ++i) {
-    ret.emplace_back();
-    std::string& name = ret.back();
+    std::string& name = ret.emplace_back();
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
     name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    m_parent->_readBuf(name.data(), name.size());
   }
 
   return ret;
@@ -1935,23 +1944,22 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
   m_parent->_readBuf(&boneCount, 4);
   ret.reserve(boneCount);
   for (uint32_t i = 0; i < boneCount; ++i) {
-    std::string name;
     uint32_t bufSz;
     m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(&name[0], bufSz);
+    std::string mat_name(bufSz, ' ');
+    m_parent->_readBuf(mat_name.data(), bufSz);
 
     Matrix3f matOut;
-    for (int i = 0; i < 3; ++i) {
-      for (int j = 0; j < 3; ++j) {
+    for (int mat_i = 0; mat_i < 3; ++mat_i) {
+      for (int mat_j = 0; mat_j < 3; ++mat_j) {
         float val;
         m_parent->_readBuf(&val, 4);
-        matOut[i].simd[j] = val;
+        matOut[mat_i].simd[mat_j] = val;
       }
-      reinterpret_cast<atVec4f&>(matOut[i]).simd[3] = 0.f;
+      reinterpret_cast<atVec4f&>(matOut[mat_i]).simd[3] = 0.f;
     }
 
-    ret.emplace(std::make_pair(std::move(name), std::move(matOut)));
+    ret.emplace(std::move(mat_name), std::move(matOut));
   }
 
   return ret;

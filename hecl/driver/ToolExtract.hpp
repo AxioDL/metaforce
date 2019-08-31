@@ -27,7 +27,7 @@ class ToolExtract final : public ToolBase {
   hecl::Database::Project* m_useProj = nullptr;
 
 public:
-  ToolExtract(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolExtract(const ToolPassInfo& info) : ToolBase(info) {
     if (!m_info.args.size())
       LogModule.report(logvisor::Fatal, fmt("hecl extract needs a source path as its first argument"));
 
@@ -112,7 +112,7 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("extract"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("extract"); }
 
   static void _recursivePrint(int level, hecl::Database::IDataSpec::ExtractReport& rep) {
     for (int l = 0; l < level; ++l)
@@ -129,7 +129,7 @@ public:
       _recursivePrint(level + 1, child);
   }
 
-  int run() {
+  int run() override {
     if (m_specPasses.empty()) {
       if (XTERM_COLOR)
         fmt::print(fmt(_SYS_STR("" RED BOLD "NOTHING TO EXTRACT" NORMAL "\n")));

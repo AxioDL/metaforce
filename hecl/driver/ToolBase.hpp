@@ -88,7 +88,7 @@ protected:
   }
 
 public:
-  ToolBase(const ToolPassInfo& info) : m_info(info) {
+  explicit ToolBase(const ToolPassInfo& info) : m_info(info) {
     hecl::VerbosityLevel = info.verbosityLevel;
     hecl::GuiMode = info.gui;
   }
@@ -96,15 +96,15 @@ public:
   virtual hecl::SystemString toolName() const = 0;
   virtual int run() = 0;
   virtual void cancel() {}
-  inline operator bool() const { return m_good; }
+  explicit operator bool() const { return m_good; }
 };
 
 class HelpOutput {
 public:
-  typedef void (*HelpFunc)(HelpOutput&);
+  using HelpFunc = void (*)(HelpOutput&);
 
 private:
-  FILE* m_sout;
+  FILE* m_sout = nullptr;
   HelpFunc m_helpFunc;
   int m_lineWidth;
   hecl::SystemString m_wrapBuffer;
@@ -156,8 +156,8 @@ private:
   }
 
 public:
-  HelpOutput(HelpFunc helpFunc)
-  : m_sout(NULL), m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth()) {}
+  explicit HelpOutput(HelpFunc helpFunc)
+  : m_helpFunc(helpFunc), m_lineWidth(hecl::GuiMode ? 120 : hecl::ConsoleWidth()) {}
 
   void go() {
 #if _WIN32

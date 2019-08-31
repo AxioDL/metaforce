@@ -17,7 +17,7 @@
 namespace hecl::Database {
 
 logvisor::Module LogModule("hecl::Database");
-static const hecl::FourCC HECLfcc("HECL");
+constexpr hecl::FourCC HECLfcc("HECL");
 
 /**********************************************
  * Project::ConfigFile
@@ -43,17 +43,19 @@ Project::ConfigFile::ConfigFile(const Project& project, SystemStringView name, S
 }
 
 std::vector<std::string>& Project::ConfigFile::lockAndRead() {
-  if (m_lockedFile)
+  if (m_lockedFile != nullptr) {
     return m_lines;
+  }
 
-  m_lockedFile = hecl::Fopen(m_filepath.c_str(), _SYS_STR("a+"), FileLockType::Write);
-  hecl::FSeek(m_lockedFile, 0, SEEK_SET);
+  m_lockedFile = hecl::FopenUnique(m_filepath.c_str(), _SYS_STR("a+"), FileLockType::Write);
+  hecl::FSeek(m_lockedFile.get(), 0, SEEK_SET);
 
   std::string mainString;
   char readBuf[1024];
   size_t readSz;
-  while ((readSz = fread(readBuf, 1, 1024, m_lockedFile)))
+  while ((readSz = std::fread(readBuf, 1, sizeof(readBuf), m_lockedFile.get()))) {
     mainString += std::string(readBuf, readSz);
+  }
 
   std::string::const_iterator begin = mainString.begin();
   std::string::const_iterator end = mainString.begin();
@@ -110,14 +112,13 @@ bool Project::ConfigFile::checkForLine(std::string_view refLine) {
 }
 
 void Project::ConfigFile::unlockAndDiscard() {
-  if (!m_lockedFile) {
+  if (m_lockedFile == nullptr) {
     LogModule.reportSource(logvisor::Fatal, __FILE__, __LINE__, fmt("Project::ConfigFile::lockAndRead not yet called"));
     return;
   }
 
   m_lines.clear();
-  fclose(m_lockedFile);
-  m_lockedFile = NULL;
+  m_lockedFile.reset();
 }
 
 bool Project::ConfigFile::unlockAndCommit() {
@@ -126,23 +127,22 @@ bool Project::ConfigFile::unlockAndCommit() {
     return false;
   }
 
-  SystemString newPath = m_filepath + _SYS_STR(".part");
-  FILE* newFile = hecl::Fopen(newPath.c_str(), _SYS_STR("w"), FileLockType::Write);
+  const SystemString newPath = m_filepath + _SYS_STR(".part");
+  auto newFile = hecl::FopenUnique(newPath.c_str(), _SYS_STR("w"), FileLockType::Write);
   bool fail = false;
   for (const std::string& line : m_lines) {
-    if (fwrite(line.c_str(), 1, line.size(), newFile) != line.size()) {
+    if (std::fwrite(line.c_str(), 1, line.size(), newFile.get()) != line.size()) {
       fail = true;
       break;
     }
-    if (fwrite("\n", 1, 1, newFile) != 1) {
+    if (std::fputc('\n', newFile.get()) == EOF) {
       fail = true;
       break;
     }
   }
   m_lines.clear();
-  fclose(newFile);
-  fclose(m_lockedFile);
-  m_lockedFile = NULL;
+  newFile.reset();
+  m_lockedFile.reset();
   if (fail) {
 #if HECL_UCS2
     _wunlink(newPath.c_str());
@@ -191,20 +191,21 @@ Project::Project(const ProjectRootPath& rootPath)
   m_cookedRoot.makeDir();
 
   /* Ensure beacon is valid or created */
-  ProjectPath beaconPath(m_dotPath, _SYS_STR("beacon"));
-  FILE* bf = hecl::Fopen(beaconPath.getAbsolutePath().data(), _SYS_STR("a+b"));
+  const ProjectPath beaconPath(m_dotPath, _SYS_STR("beacon"));
+  auto bf = hecl::FopenUnique(beaconPath.getAbsolutePath().data(), _SYS_STR("a+b"));
   struct BeaconStruct {
     hecl::FourCC magic;
     uint32_t version;
   } beacon;
-#define DATA_VERSION 1
-  if (fread(&beacon, 1, sizeof(beacon), bf) != sizeof(beacon)) {
-    fseek(bf, 0, SEEK_SET);
+  constexpr uint32_t DATA_VERSION = 1;
+  if (std::fread(&beacon, 1, sizeof(beacon), bf.get()) != sizeof(beacon)) {
+    std::fseek(bf.get(), 0, SEEK_SET);
     beacon.magic = HECLfcc;
     beacon.version = SBig(DATA_VERSION);
-    fwrite(&beacon, 1, sizeof(beacon), bf);
+    std::fwrite(&beacon, 1, sizeof(beacon), bf.get());
   }
-  fclose(bf);
+  bf.reset();
+
   if (beacon.magic != HECLfcc || SBig(beacon.version) != DATA_VERSION) {
     LogModule.report(logvisor::Fatal, fmt("incompatible project version"));
     return;
@@ -413,9 +414,11 @@ bool Project::cookPath(const ProjectPath& path, const hecl::MultiProgressPrinter
     }
   } else if (m_cookSpecs.empty()) {
     m_cookSpecs.reserve(m_compiledSpecs.size());
-    for (const ProjectDataSpec& spec : m_compiledSpecs)
-      if (spec.active && spec.spec.m_factory)
-        m_cookSpecs.push_back(spec.spec.m_factory(*this, DataSpecTool::Cook));
+    for (const ProjectDataSpec& projectSpec : m_compiledSpecs) {
+      if (projectSpec.active && projectSpec.spec.m_factory) {
+        m_cookSpecs.push_back(projectSpec.spec.m_factory(*this, DataSpecTool::Cook));
+      }
+    }
   }
 
   /* Iterate complete directory/file/glob list */
@@ -443,17 +446,18 @@ bool Project::packagePath(const ProjectPath& path, const hecl::MultiProgressPrin
   /* Construct DataSpec instance for packaging */
   const DataSpecEntry* specEntry = nullptr;
   if (spec) {
-    if (spec->m_factory)
+    if (spec->m_factory) {
       specEntry = spec;
+    }
   } else {
     bool foundPC = false;
-    for (const ProjectDataSpec& spec : m_compiledSpecs) {
-      if (spec.active && spec.spec.m_factory) {
-        if (hecl::StringUtils::EndsWith(spec.spec.m_name, _SYS_STR("-PC"))) {
+    for (const ProjectDataSpec& projectSpec : m_compiledSpecs) {
+      if (projectSpec.active && projectSpec.spec.m_factory) {
+        if (hecl::StringUtils::EndsWith(projectSpec.spec.m_name, _SYS_STR("-PC"))) {
           foundPC = true;
-          specEntry = &spec.spec;
+          specEntry = &projectSpec.spec;
         } else if (!foundPC) {
-          specEntry = &spec.spec;
+          specEntry = &projectSpec.spec;
         }
       }
     }

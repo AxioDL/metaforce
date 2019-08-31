@@ -4,10 +4,10 @@
 #include <cstdio>
 
 class ToolInit final : public ToolBase {
-  const hecl::SystemString* m_dir = NULL;
+  const hecl::SystemString* m_dir = nullptr;
 
 public:
-  ToolInit(const ToolPassInfo& info) : ToolBase(info) {
+  explicit ToolInit(const ToolPassInfo& info) : ToolBase(info) {
     hecl::Sstat theStat;
     const hecl::SystemString* dir;
     if (info.args.size())
@@ -36,7 +36,7 @@ public:
     m_dir = dir;
   }
 
-  int run() {
+  int run() override {
     if (!m_dir)
       return 1;
     size_t ErrorRef = logvisor::ErrorCount;
@@ -73,5 +73,5 @@ public:
     help.endWrap();
   }
 
-  hecl::SystemString toolName() const { return _SYS_STR("init"); }
+  hecl::SystemString toolName() const override { return _SYS_STR("init"); }
 };
