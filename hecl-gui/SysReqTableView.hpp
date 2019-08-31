@@ -27,10 +27,10 @@ class SysReqTableModel : public QAbstractTableModel {
 
 public:
   SysReqTableModel(QObject* parent = Q_NULLPTR);
-  int rowCount(const QModelIndex& parent = QModelIndex()) const;
-  int columnCount(const QModelIndex& parent = QModelIndex()) const;
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
   bool isBlenderVersionOk() const { return m_blendMajor > 2 || (m_blendMajor == 2 && m_blendMinor >= 80); }
   void updateFreeDiskSpace(const QString& path);
 };
@@ -43,7 +43,7 @@ class SysReqTableView : public QTableView {
 
 public:
   SysReqTableView(QWidget* parent = Q_NULLPTR);
-  void paintEvent(QPaintEvent* e) Q_DECL_OVERRIDE;
+  void paintEvent(QPaintEvent* e) override;
   const SysReqTableModel& getModel() const { return m_model; }
   const VectorISATableView& getVectorISATable() const { return m_vectorISATable; }
   bool willRun(const URDEVersion& v) const {
