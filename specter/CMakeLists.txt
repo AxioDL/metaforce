@@ -63,6 +63,25 @@ add_library(specter
   include/specter/specter.hpp
 )
 
+if (MSVC)
+  target_compile_options(specter PRIVATE
+    # Enforce various standards compliant behavior.
+    /permissive-
+
+    # Enable standard volatile semantics.
+    /volatile:iso
+
+    # Reports the proper value for the __cplusplus preprocessor macro.
+    /Zc:__cplusplus
+
+    # Allow constexpr variables to have explicit external linkage.
+    /Zc:externConstexpr
+
+    # Assume that new throws exceptions, allowing better code generation.
+    /Zc:throwingNew
+  )
+endif()
+
 target_link_libraries(specter PUBLIC
   freetype
   hecl-full
