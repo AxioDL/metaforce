@@ -17,7 +17,7 @@ struct Icon {
   boo::ObjToken<boo::ITexture> m_tex;
   zeus::CVector2f m_uvCoords[4];
   Icon() = default;
-  Icon(const boo::ObjToken<boo::ITexture>& tex, float rect[4]) : m_tex(tex) {
+  Icon(boo::ObjToken<boo::ITexture> tex, float rect[4]) : m_tex(std::move(tex)) {
     m_uvCoords[0][0] = rect[0];
     m_uvCoords[0][1] = -rect[3];
 
@@ -46,8 +46,8 @@ class IconAtlas {
 public:
   IconAtlas() = default;
   operator bool() const { return m_tex.operator bool(); }
-  void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex) {
-    m_tex = tex;
+  void initializeAtlas(boo::ObjToken<boo::ITextureS> tex) {
+    m_tex = std::move(tex);
     for (size_t c = 0; c < COLS; ++c)
       for (size_t r = 0; r < ROWS; ++r)
         m_icons[c][r] = MakeIcon(c, r);
