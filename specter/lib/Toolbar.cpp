@@ -6,7 +6,7 @@
 #define TOOLBAR_PADDING 10
 
 namespace specter {
-static logvisor::Module Log("specter::Space");
+static logvisor::Module Log("specter::Toolbar");
 
 static const zeus::RGBA32 Tex[] = {{{255, 255, 255, 64}}, {{255, 255, 255, 64}}, {{0, 0, 0, 64}}, {{0, 0, 0, 64}}};
 
