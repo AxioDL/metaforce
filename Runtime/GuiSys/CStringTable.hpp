@@ -5,10 +5,9 @@
 
 namespace urde {
 class CStringTable {
-  static const std::vector<FourCC> skLanguages;
   static FourCC mCurrentLanguage;
   u32 x0_stringCount = 0;
-  std::unique_ptr<u8[]> x4_data = 0;
+  std::unique_ptr<u8[]> x4_data;
   u32 m_bufLen;
 
 public:
