@@ -111,20 +111,15 @@ public:
 
     void load(const VertStruct* data, size_t count) {
       if (m_vertsBuf) {
-        VertStruct* out = m_vertsBuf.access();
-        for (size_t i = 0; i < count; ++i)
-          out[i] = data[i];
+        VertStruct* const out = m_vertsBuf.access();
+        std::copy(data, data + count, out);
       }
     }
     template <typename VertArray>
     void load(const VertArray data) {
-      static_assert(std::is_same<std::remove_all_extents_t<VertArray>, VertStruct>::value, "mismatched type");
-      if (m_vertsBuf) {
-        constexpr size_t count = sizeof(VertArray) / sizeof(VertStruct);
-        VertStruct* out = m_vertsBuf.access();
-        for (size_t i = 0; i < count; ++i)
-          out[i] = data[i];
-      }
+      static_assert(std::is_same_v<std::remove_all_extents_t<VertArray>, VertStruct>, "mismatched type");
+      constexpr size_t count = sizeof(VertArray) / sizeof(VertStruct);
+      load(data, count);
     }
 
     operator const boo::ObjToken<boo::IShaderDataBinding>&() { return m_shaderBinding; }
