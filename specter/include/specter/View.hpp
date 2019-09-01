@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <iterator>
 #include <optional>
+#include <type_traits>
 #include <utility>
 
 #include <boo/BooObject.hpp>
@@ -115,11 +117,15 @@ public:
         std::copy(data, data + count, out);
       }
     }
-    template <typename VertArray>
-    void load(const VertArray data) {
-      static_assert(std::is_same_v<std::remove_all_extents_t<VertArray>, VertStruct>, "mismatched type");
-      constexpr size_t count = sizeof(VertArray) / sizeof(VertStruct);
-      load(data, count);
+    template <typename ContiguousContainer>
+    void load(const ContiguousContainer& container) {
+      // All contiguous containers (even those that aren't containers like C arrays) are usable
+      // with std::begin(). Because of that, we can use it to deduce the contained type.
+      static_assert(std::is_same_v<std::remove_reference_t<decltype(*std::begin(std::declval<ContiguousContainer&>()))>,
+                                   VertStruct>,
+                    "Supplied container doesn't contain same type of vertex struct");
+
+      load(std::data(container), std::size(container));
     }
 
     operator const boo::ObjToken<boo::IShaderDataBinding>&() { return m_shaderBinding; }
