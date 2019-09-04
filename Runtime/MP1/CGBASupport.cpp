@@ -1,8 +1,12 @@
 #include "CGBASupport.hpp"
-#include "CDvdRequest.hpp"
+
+#include <cstring>
+
 #include "CBasics.hpp"
-#include "jbus/Listener.hpp"
-#include "jbus/Endpoint.hpp"
+#include "CDvdRequest.hpp"
+
+#include <jbus/Endpoint.hpp>
+#include <jbus/Listener.hpp>
 
 namespace urde::MP1 {
 
@@ -65,19 +69,27 @@ bool CGBASupport::PollResponse() {
   if (status != (jbus::GBA_JSTAT_PSF1 | jbus::GBA_JSTAT_SEND))
     return false;
 
-  u8 bytes[4];
-  if (g_JbusEndpoint->GBARead(bytes, &status) == jbus::GBA_NOT_READY)
+  jbus::ReadWriteBuffer bytes;
+  if (g_JbusEndpoint->GBARead(bytes, &status) == jbus::GBA_NOT_READY) {
     return false;
-  if (reinterpret_cast<u32&>(bytes) != SBIG('AMTE'))
-    return false;
+  }
 
-  if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
+  u32 bytesU32;
+  std::memcpy(&bytesU32, bytes.data(), sizeof(bytes));
+  if (bytesU32 != SBIG('AMTE')) {
     return false;
-  if (status != jbus::GBA_JSTAT_PSF1)
-    return false;
+  }
 
-  if (g_JbusEndpoint->GBAWrite((unsigned char*)"AMTE", &status) == jbus::GBA_NOT_READY)
+  if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY) {
     return false;
+  }
+  if (status != jbus::GBA_JSTAT_PSF1) {
+    return false;
+  }
+
+  if (g_JbusEndpoint->GBAWrite({'A', 'M', 'T', 'E'}, &status) == jbus::GBA_NOT_READY) {
+    return false;
+  }
 
   if (g_JbusEndpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
     return false;
@@ -103,11 +115,13 @@ bool CGBASupport::PollResponse() {
     break;
   }
 
-  if (g_JbusEndpoint->GBARead(bytes, &status) != jbus::GBA_READY)
+  if (g_JbusEndpoint->GBARead(bytes, &status) != jbus::GBA_READY) {
     return false;
+  }
 
-  if (bytes[3] != CalculateFusionJBusChecksum(bytes, 3))
+  if (bytes[3] != CalculateFusionJBusChecksum(bytes.data(), 3)) {
     return false;
+  }
 
   x44_fusionLinked = (bytes[2] & 0x2) == 0;
   if (x44_fusionLinked && (bytes[2] & 0x1) != 0)
