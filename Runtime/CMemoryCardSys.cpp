@@ -11,7 +11,7 @@ namespace urde {
 using ECardResult = kabufuda::ECardResult;
 
 static kabufuda::SystemString g_CardImagePaths[2] = {};
-static kabufuda::Card g_CardStates[2] = {{"GM8E", "01"}, {"GM8E", "01"}};
+static kabufuda::Card g_CardStates[2] = {kabufuda::Card{"GM8E", "01"}, kabufuda::Card{"GM8E", "01"}};
 // static kabufuda::ECardResult g_OpResults[2] = {};
 
 CSaveWorldIntermediate::CSaveWorldIntermediate(CAssetId mlvl, CAssetId savw) : x0_mlvlId(mlvl), x8_savwId(savw) {
