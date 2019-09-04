@@ -1,9 +1,14 @@
 #pragma once
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "boo/graphicsdev/GL.hpp"
-#include "boo/graphicsdev/Vulkan.hpp"
-#include "boo/graphicsdev/D3D.hpp"
-#include "boo/graphicsdev/Metal.hpp"
+
+#include <cstddef>
+#include <memory>
+#include <utility>
+
+#include <boo/graphicsdev/D3D.hpp>
+#include <boo/graphicsdev/GL.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <boo/graphicsdev/Metal.hpp>
+#include <boo/graphicsdev/Vulkan.hpp>
 
 namespace hecl {
 

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include "CVar.hpp"
+
+#include "hecl/CVar.hpp"
 #include "hecl/SystemChar.hpp"
 
 namespace hecl {

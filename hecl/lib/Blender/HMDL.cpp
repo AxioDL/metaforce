@@ -2,6 +2,8 @@
 
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
+#include <vector>
 
 #include <athena/MemoryWriter.hpp>
 

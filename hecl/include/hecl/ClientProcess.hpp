@@ -1,15 +1,25 @@
 #pragma once
 
-#include "hecl.hpp"
-#include "Database.hpp"
-#include "boo/ThreadLocalPtr.hpp"
-#include "hecl/Blender/Token.hpp"
-#include <list>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
+#include <cstddef>
+#include <functional>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <thread>
+
+#include "hecl/Blender/Token.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/SystemChar.hpp"
+
+#include <boo/ThreadLocalPtr.hpp>
+
+namespace hecl::Database {
+class IDataSpec;
+}
 
 namespace hecl {
+class MultiProgressPrinter;
 
 extern int CpuCountOverride;
 void SetCpuCountOverride(int argc, const SystemChar** argv);

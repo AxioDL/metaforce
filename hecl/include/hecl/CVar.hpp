@@ -1,10 +1,12 @@
 ﻿#pragma once
 
-#include <string>
 #include <functional>
-#include <athena/Types.hpp>
-#include <athena/Global.hpp>
+#include <string>
+#include <vector>
+
 #include <athena/DNAYaml.hpp>
+#include <athena/Global.hpp>
+#include <athena/Types.hpp>
 
 namespace hecl {
 namespace DNACVAR {

@@ -1,10 +1,11 @@
-﻿#include "hecl/hecl.hpp"
-#include "hecl/CVar.hpp"
+﻿#include "hecl/CVar.hpp"
+
+#include <sstream>
+
 #include "hecl/CVarManager.hpp"
+#include "hecl/hecl.hpp"
 
 #include <athena/Utility.hpp>
-#include <algorithm>
-#include <sstream>
 
 namespace hecl {
 extern CVar* com_developer;

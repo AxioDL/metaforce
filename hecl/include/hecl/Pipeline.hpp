@@ -1,9 +1,16 @@
 #pragma once
 
-#include <type_traits>
 #include <cassert>
+#include <cstdint>
+#include <memory>
+#include <type_traits>
+#include <unordered_map>
+
 #include "hecl/hecl.hpp"
-#include "PipelineBase.hpp"
+#include "hecl/PipelineBase.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 /* CMake-curated rep classes for the application */
 #include "ApplicationReps.hpp"

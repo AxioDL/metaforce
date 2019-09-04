@@ -1,5 +1,5 @@
+#include <logvisor/logvisor.hpp>
 #include <utf8proc.h>
-#include "hecl/hecl.hpp"
 
 namespace hecl {
 static logvisor::Module Log("hecl-wsconv");

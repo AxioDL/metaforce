@@ -1,11 +1,21 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <functional>
-#include "boo/IWindow.hpp"
-#include "logvisor/logvisor.hpp"
+
+#include <boo/System.hpp>
+#include <logvisor/logvisor.hpp>
+
+namespace boo {
+class IWindow;
+
+enum class EModifierKey;
+enum class ESpecialKey;
+
+struct IGraphicsCommandQueue;
+} // namespace boo
 
 namespace hecl {
 class CVarManager;

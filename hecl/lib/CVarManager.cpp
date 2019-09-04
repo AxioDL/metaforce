@@ -1,12 +1,15 @@
 #include "hecl/CVarManager.hpp"
-#include "hecl/Console.hpp"
-#include <athena/FileWriter.hpp>
-#include <athena/Utility.hpp>
-#include <hecl/Runtime.hpp>
-#include <hecl/hecl.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <regex>
+
+#include "hecl/Console.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Runtime.hpp"
+
+#include <athena/FileWriter.hpp>
+#include <athena/Utility.hpp>
 
 namespace hecl {
 

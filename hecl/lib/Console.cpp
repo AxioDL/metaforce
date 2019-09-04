@@ -1,12 +1,18 @@
-
 #include <hecl/Console.hpp>
 
-#include "hecl/Console.hpp"
-#include "hecl/CVarManager.hpp"
+#include <cstdio>
+#include <functional>
+#include <string>
+#include <vector>
+
 #include "hecl/CVar.hpp"
+#include "hecl/CVarManager.hpp"
 #include "hecl/hecl.hpp"
-#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
-#include "athena/Utility.hpp"
+
+#include <athena/Utility.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace hecl {
 Console* Console::m_instance = nullptr;

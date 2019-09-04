@@ -13,10 +13,10 @@
 #include <thread>
 #include <tuple>
 
-#include <hecl/hecl.hpp>
-#include <hecl/Database.hpp>
 #include "hecl/Blender/Connection.hpp"
 #include "hecl/Blender/Token.hpp"
+#include "hecl/Database.hpp"
+#include "hecl/hecl.hpp"
 #include "hecl/SteamFinder.hpp"
 #include "MeshOptimizer.hpp"
 

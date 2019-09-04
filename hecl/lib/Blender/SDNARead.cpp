@@ -1,5 +1,13 @@
 #include "hecl/Blender/SDNARead.hpp"
-#include "athena/FileReader.hpp"
+
+#include <cstring>
+#include <string>
+
+#include "hecl/hecl.hpp"
+
+#include <athena/FileReader.hpp>
+#include <athena/MemoryReader.hpp>
+
 #include <zlib.h>
 
 namespace hecl::blender {

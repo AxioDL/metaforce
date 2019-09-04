@@ -1,7 +1,11 @@
 #include "MeshOptimizer.hpp"
-#include <numeric>
+
+#include <algorithm>
 #include <cfloat>
+#include <climits>
 #include <cmath>
+#include <numeric>
+#include <unordered_set>
 
 namespace hecl::blender {
 
