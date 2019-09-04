@@ -1,11 +1,12 @@
 #include <cstdio>
-#include "GCNTypes.hpp"
+#include <cstring>
 #include <memory>
-#include <thread>
-#include <queue>
 #include <optional>
-#include "jbus/Endpoint.hpp"
-#include "jbus/Listener.hpp"
+
+#include "GCNTypes.hpp"
+
+#include <jbus/Endpoint.hpp>
+#include <jbus/Listener.hpp>
 
 #undef min
 #undef max
@@ -97,24 +98,34 @@ bool CGBASupport::PollResponse() {
   if (status != (jbus::GBA_JSTAT_PSF1 | jbus::GBA_JSTAT_SEND))
     return false;
 
-  u8 bytes[4];
-  if (m_endpoint->GBARead(bytes, &status) == jbus::GBA_NOT_READY)
+  jbus::ReadWriteBuffer bytes;
+  if (m_endpoint->GBARead(bytes, &status) == jbus::GBA_NOT_READY) {
     return false;
-  if (reinterpret_cast<u32&>(bytes) != SBIG('AMTE'))
-    return false;
+  }
 
-  if (m_endpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
+  u32 bytesU32;
+  std::memcpy(&bytesU32, bytes.data(), sizeof(bytes));
+  if (bytesU32 != SBIG('AMTE')) {
     return false;
-  if (status != jbus::GBA_JSTAT_PSF1)
-    return false;
+  }
 
-  if (m_endpoint->GBAWrite((unsigned char*)"AMTE", &status) == jbus::GBA_NOT_READY)
+  if (m_endpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY) {
     return false;
+  }
+  if (status != jbus::GBA_JSTAT_PSF1) {
+    return false;
+  }
 
-  if (m_endpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY)
+  if (m_endpoint->GBAWrite({'A', 'M', 'T', 'E'}, &status) == jbus::GBA_NOT_READY) {
     return false;
-  if ((status & jbus::GBA_JSTAT_FLAGS_MASK) != jbus::GBA_JSTAT_FLAGS_MASK)
+  }
+
+  if (m_endpoint->GBAGetStatus(&status) == jbus::GBA_NOT_READY) {
     return false;
+  }
+  if ((status & jbus::GBA_JSTAT_FLAGS_MASK) != jbus::GBA_JSTAT_FLAGS_MASK) {
+    return false;
+  }
 
   u64 profStart = jbus::GetGCTicks();
   const u64 timeToSpin = jbus::GetGCTicksPerSec() / 8000;
@@ -138,7 +149,7 @@ bool CGBASupport::PollResponse() {
   if (m_endpoint->GBARead(bytes, &status) != jbus::GBA_READY)
     return false;
 
-  if (bytes[3] != CalculateFusionJBusChecksum(bytes, 3))
+  if (bytes[3] != CalculateFusionJBusChecksum(bytes.data(), 3))
     return false;
 
   x44_fusionLinked = (bytes[2] & 0x2) == 0;
