@@ -21,8 +21,8 @@ ScrollView::ScrollView(ViewResources& res, View& parentView, Style style)
   });
 
   if (style == Style::SideButtons) {
-    m_sideButtons[0].m_view.reset(new Button(res, *this, &m_sideButtonBind, "<"));
-    m_sideButtons[1].m_view.reset(new Button(res, *this, &m_sideButtonBind, ">"));
+    m_sideButtons[0].m_view = std::make_unique<Button>(res, *this, &m_sideButtonBind, "<");
+    m_sideButtons[1].m_view = std::make_unique<Button>(res, *this, &m_sideButtonBind, ">");
   }
 }
 

@@ -24,8 +24,8 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, std::string_view title, s
   });
 
   for (int i = 0; i < 4; ++i) {
-    m_cornersOutline[i].reset(new TextView(res, *this, res.m_curveFont, TextView::Alignment::Left, 1));
-    m_cornersFilled[i].reset(new TextView(res, *this, res.m_curveFont, TextView::Alignment::Left, 1));
+    m_cornersOutline[i] = std::make_unique<TextView>(res, *this, res.m_curveFont, TextView::Alignment::Left, 1);
+    m_cornersFilled[i] = std::make_unique<TextView>(res, *this, res.m_curveFont, TextView::Alignment::Left, 1);
   }
   m_cornersOutline[0]->typesetGlyphs(L"\xF4F0");
   m_cornersFilled[0]->typesetGlyphs(L"\xF4F1", res.themeData().tooltipBackground());
@@ -36,9 +36,9 @@ Tooltip::Tooltip(ViewResources& res, View& parentView, std::string_view title, s
   m_cornersOutline[3]->typesetGlyphs(L"\xF4F6");
   m_cornersFilled[3]->typesetGlyphs(L"\xF4F7", res.themeData().tooltipBackground());
 
-  m_title.reset(new TextView(res, *this, res.m_heading14));
+  m_title = std::make_unique<TextView>(res, *this, res.m_heading14);
   m_title->typesetGlyphs(m_titleStr);
-  m_message.reset(new MultiLineTextView(res, *this, res.m_mainFont));
+  m_message = std::make_unique<MultiLineTextView>(res, *this, res.m_mainFont);
   m_message->typesetGlyphs(m_messageStr, zeus::skWhite, int(TOOLTIP_MAX_TEXT_WIDTH * res.pixelFactor()));
 
   float pf = res.pixelFactor();

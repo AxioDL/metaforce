@@ -41,10 +41,12 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
     return true;
   });
   setBackground(res.themeData().spaceBackground());
-  if (controller.spaceSplitAllowed())
-    m_cornerView.m_view.reset(new CornerView(res, *this, TriColor));
-  if (tbPos != Toolbar::Position::None)
-    m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
+  if (controller.spaceSplitAllowed()) {
+    m_cornerView.m_view = std::make_unique<CornerView>(res, *this, TriColor);
+  }
+  if (tbPos != Toolbar::Position::None) {
+    m_toolbar.m_view = std::make_unique<Toolbar>(res, *this, tbPos, tbUnits);
+  }
 }
 
 Space::~Space() = default;

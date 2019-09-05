@@ -16,18 +16,20 @@ MessageWindow::MessageWindow(ViewResources& res, View& parentView, Type type, st
 : ModalWindow(res, parentView, RectangleConstraint(),
               type == Type::ErrorOk ? res.themeData().splashErrorBackground() : res.themeData().splashBackground())
 , m_type(type)
-, m_func(func)
+, m_func(std::move(func))
 , m_okBind(*this, rootView().viewManager().translate<locale::ok>())
 , m_cancelBind(*this, rootView().viewManager().translate<locale::cancel>()) {
-  m_text.reset(new MultiLineTextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
+  m_text = std::make_unique<MultiLineTextView>(res, *this, res.m_mainFont, TextView::Alignment::Center);
   m_text->typesetGlyphs(message, res.themeData().uiText(), 380 * res.pixelFactor());
   constraint() = RectangleConstraint(400 * res.pixelFactor(), 80 * res.pixelFactor() + m_text->nominalHeight());
 
-  m_ok.m_view.reset(new Button(res, *this, &m_okBind, m_okBind.m_name, nullptr, Button::Style::Block,
-                               zeus::skWhite, RectangleConstraint(150 * res.pixelFactor())));
-  if (type == Type::ConfirmOkCancel)
-    m_cancel.m_view.reset(new Button(res, *this, &m_cancelBind, m_cancelBind.m_name, nullptr, Button::Style::Block,
-                                     zeus::skWhite, RectangleConstraint(150 * res.pixelFactor())));
+  m_ok.m_view = std::make_unique<Button>(res, *this, &m_okBind, m_okBind.m_name, nullptr, Button::Style::Block,
+                                         zeus::skWhite, RectangleConstraint(150 * res.pixelFactor()));
+  if (type == Type::ConfirmOkCancel) {
+    m_cancel.m_view =
+        std::make_unique<Button>(res, *this, &m_cancelBind, m_cancelBind.m_name, nullptr, Button::Style::Block,
+                                 zeus::skWhite, RectangleConstraint(150 * res.pixelFactor()));
+  }
 
   updateContentOpacity(0.0);
 }
