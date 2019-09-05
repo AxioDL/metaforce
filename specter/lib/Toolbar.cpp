@@ -1,7 +1,10 @@
-#include "logvisor/logvisor.hpp"
 #include "specter/Toolbar.hpp"
-#include "specter/ViewResources.hpp"
+
 #include "specter/RootView.hpp"
+#include "specter/ViewResources.hpp"
+
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+#include <logvisor/logvisor.hpp>
 
 #define TOOLBAR_PADDING 10
 

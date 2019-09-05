@@ -6,6 +6,8 @@
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 #define ROW_HEIGHT 18
 #define ITEM_MARGIN 1
 

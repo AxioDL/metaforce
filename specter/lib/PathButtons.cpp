@@ -4,6 +4,8 @@
 #include "specter/RootView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 struct PathButtons::PathButton final : IButtonBinding {
   PathButtons& m_pb;

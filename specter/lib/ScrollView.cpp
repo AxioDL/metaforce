@@ -7,6 +7,8 @@
 #include "specter/RootView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 #define MAX_SCROLL_SPEED 100
 
