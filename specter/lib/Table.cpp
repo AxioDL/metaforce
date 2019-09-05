@@ -525,9 +525,7 @@ bool Table::CellView::reset(size_t c, size_t r) {
 
 std::vector<Table::ColumnPool>& Table::ensureCellPools(size_t rows, size_t cols, ViewResources& res) {
   if (m_cellPools.size() < cols) {
-    m_cellPools.reserve(cols);
-    for (size_t i = m_cellPools.size(); i < cols; ++i)
-      m_cellPools.emplace_back();
+    m_cellPools.resize(cols);
     m_ensuredRows = 0;
   }
   if (m_ensuredRows < rows) {
@@ -569,9 +567,7 @@ void Table::_updateData() {
   if (newViewChildren) {
     m_headerViews.clear();
     m_cellPools.clear();
-    m_headerViews.reserve(m_columns);
-    for (size_t c = 0; c < m_columns; ++c)
-      m_headerViews.emplace_back();
+    m_headerViews.resize(m_columns);
     m_ensuredRows = 0;
   }
   ensureCellPools(m_rows, m_columns, res);
