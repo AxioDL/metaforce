@@ -176,6 +176,8 @@ class FontCache {
 
 public:
   FontCache(const hecl::Runtime::FileStoreManager& fileMgr);
+  ~FontCache();
+
   FontCache(const FontCache& other) = delete;
   FontCache& operator=(const FontCache& other) = delete;
 

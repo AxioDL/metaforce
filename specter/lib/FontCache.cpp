@@ -613,6 +613,8 @@ FontCache::FontCache(const hecl::Runtime::FileStoreManager& fileMgr)
   hecl::MakeDir(m_cacheRoot.c_str());
 }
 
+FontCache::~FontCache() = default;
+
 FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilter filter, bool subpixel, float points,
                                   uint32_t dpi) {
   /* Quick validation */
