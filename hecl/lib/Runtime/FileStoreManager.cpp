@@ -1,5 +1,9 @@
 #include "hecl/Runtime.hpp"
-#include "logvisor/logvisor.hpp"
+
+#include "hecl/hecl.hpp"
+
+#include <logvisor/logvisor.hpp>
+
 #if _WIN32
 #include <ShlObj.h>
 #endif

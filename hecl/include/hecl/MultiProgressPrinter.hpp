@@ -1,7 +1,18 @@
 #pragma once
 
-#include "hecl.hpp"
+#include <cstdint>
+#include <mutex>
 #include <thread>
+#include <vector>
+
+#include "hecl/SystemChar.hpp"
+
+#if _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#endif
 
 namespace hecl {
 

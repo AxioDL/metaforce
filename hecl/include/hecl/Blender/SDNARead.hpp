@@ -1,10 +1,19 @@
 #pragma once
-#include "hecl/hecl.hpp"
+
+#include <functional>
+#include <vector>
+
 #include "hecl/FourCC.hpp"
-#include "athena/DNA.hpp"
-#include "athena/MemoryReader.hpp"
+#include "hecl/SystemChar.hpp"
+
+#include <athena/DNA.hpp>
+
+namespace athena::io {
+class MemoryReader;
+}
 
 namespace hecl::blender {
+enum class BlendType;
 
 struct SDNABlock : public athena::io::DNA<athena::Little> {
   AT_DECL_DNA

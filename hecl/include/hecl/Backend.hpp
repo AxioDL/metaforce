@@ -1,6 +1,13 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <vector>
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <xxhash/xxhash.h>
 
 namespace hecl::Backend {
 struct ExtensionSlot;

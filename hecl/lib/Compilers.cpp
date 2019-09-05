@@ -1,4 +1,8 @@
 #include "hecl/Compilers.hpp"
+
+#include <cstring>
+#include <utility>
+
 #include <boo/graphicsdev/GLSLMacros.hpp>
 #include <logvisor/logvisor.hpp>
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "hecl/hecl.hpp"
-#include "athena/DNA.hpp"
+#include <athena/DNA.hpp>
 
 namespace hecl {
 

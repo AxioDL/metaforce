@@ -1,10 +1,16 @@
 #pragma once
 
-#include <boo/boo.hpp>
-#include <vector>
-#include <cstdlib>
 #include <atomic>
-#include "BitVector.hpp"
+#include <cstdint>
+#include <cstdlib>
+#include <memory>
+#include <type_traits>
+#include <vector>
+
+#include "hecl/BitVector.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace hecl {
 

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CVarManager.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <string>
+
+#include "hecl/CVarManager.hpp"
 
 #undef min
 #undef max

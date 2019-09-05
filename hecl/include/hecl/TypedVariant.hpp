@@ -1,7 +1,10 @@
 #pragma once
-#include <variant>
+
 #include <cassert>
-#include "athena/DNA.hpp"
+#include <type_traits>
+#include <variant>
+
+#include <athena/DNA.hpp>
 
 /*
  * The TypedVariant system is a type-safe union implementation capable of selecting

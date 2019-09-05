@@ -1,5 +1,6 @@
 #include "hecl/Pipeline.hpp"
-#include "athena/FileReader.hpp"
+
+#include <athena/FileReader.hpp>
 #include <zlib.h>
 
 namespace hecl {

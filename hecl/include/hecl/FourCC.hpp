@@ -3,7 +3,9 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
-#include "athena/DNA.hpp"
+
+#include <athena/DNA.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace hecl {
 

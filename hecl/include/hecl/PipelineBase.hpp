@@ -1,6 +1,15 @@
 #pragma once
-#include "Compilers.hpp"
-#include "../extern/boo/xxhash/xxhash.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <type_traits>
+#include <vector>
+
+#include "hecl/Compilers.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <xxhash/xxhash.h>
 
 #define HECL_RUNTIME 1
 
