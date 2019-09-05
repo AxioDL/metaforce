@@ -55,9 +55,7 @@ void Menu::reset(IMenuNode* rootNode) {
     for (size_t i = 0; i < subCount; ++i) {
       IMenuNode* node = rootNode->subNode(i);
       const std::string* nodeText = node->text();
-
-      m_items.emplace_back();
-      ViewChild<std::unique_ptr<ItemView>>& item = m_items.back();
+      ViewChild<std::unique_ptr<ItemView>>& item = m_items.emplace_back();
 
       if (nodeText) {
         item.m_view.reset(new ItemView(res, *this, *nodeText, i, node));
