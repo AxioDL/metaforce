@@ -18,11 +18,11 @@ namespace DataSpec {
 /** PAK entry stream reader */
 class PAKEntryReadStream : public athena::io::IStreamReader {
   std::unique_ptr<atUint8[]> m_buf;
-  atUint64 m_sz;
-  atUint64 m_pos;
+  atUint64 m_sz = 0;
+  atUint64 m_pos = 0;
 
 public:
-  PAKEntryReadStream() {}
+  PAKEntryReadStream() = default;
   operator bool() const { return m_buf.operator bool(); }
   PAKEntryReadStream(const PAKEntryReadStream& other) = delete;
   PAKEntryReadStream(PAKEntryReadStream&& other) = default;
