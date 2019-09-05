@@ -23,7 +23,7 @@ class PAKEntryReadStream : public athena::io::IStreamReader {
 
 public:
   PAKEntryReadStream() = default;
-  operator bool() const { return m_buf.operator bool(); }
+  explicit operator bool() const { return m_buf.operator bool(); }
   PAKEntryReadStream(const PAKEntryReadStream& other) = delete;
   PAKEntryReadStream(PAKEntryReadStream&& other) = default;
   PAKEntryReadStream& operator=(const PAKEntryReadStream& other) = delete;
