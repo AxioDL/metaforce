@@ -64,7 +64,7 @@ void SanitizePath(std::string& path) {
     path.pop_back();
 }
 
-constexpr std::wstring_view WIllegals{L"<>?\""};
+constexpr std::wstring_view WIllegals{L"<>?\"", 4};
 
 void SanitizePath(std::wstring& path) {
   if (path.empty())
