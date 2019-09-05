@@ -4,6 +4,8 @@
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)

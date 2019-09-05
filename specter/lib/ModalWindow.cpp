@@ -7,6 +7,7 @@
 #include "specter/ViewResources.hpp"
 
 #include <boo/System.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 
 namespace specter {
 

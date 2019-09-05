@@ -2,8 +2,11 @@
 
 #include "specter/RootView.hpp"
 #include "specter/ScrollView.hpp"
+
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
+
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::Table");

@@ -8,6 +8,7 @@
 #include "specter/Tooltip.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 #include <logvisor/logvisor.hpp>
 
 namespace specter {
