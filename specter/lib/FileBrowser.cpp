@@ -335,8 +335,7 @@ void FileBrowser::FileListingDataBind::updateListing(const hecl::DirectoryEnumer
   m_entries.reserve(dEnum.size());
 
   for (const hecl::DirectoryEnumerator::Entry& d : dEnum) {
-    m_entries.emplace_back();
-    Entry& ent = m_entries.back();
+    Entry& ent = m_entries.emplace_back();
     ent.m_path = d.m_path;
     hecl::SystemUTF8Conv nameUtf8(d.m_name);
     ent.m_name = nameUtf8.str();

@@ -20,11 +20,9 @@ void Toolbar::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const ITh
 Toolbar::Toolbar(ViewResources& res, View& parentView, Position tbPos, unsigned units)
 : View(res, parentView)
 , m_units(units)
+, m_children(units)
 , m_nomGauge(res.pixelFactor() * SPECTER_TOOLBAR_GAUGE * units)
 , m_padding(res.pixelFactor() * TOOLBAR_PADDING) {
-  m_children.reserve(units);
-  for (unsigned u = 0; u < units; ++u)
-    m_children.emplace_back();
   commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
     buildResources(ctx, res);
     m_tbBlockBuf = res.m_viewRes.m_bufPool.allocateBlock(res.m_factory);
@@ -115,11 +113,13 @@ void Toolbar::setVerticalVerts(int height) {
 }
 
 void Toolbar::push_back(View* v, unsigned unit) {
-  if (unit >= m_units)
+  if (unit >= m_units) {
     Log.report(logvisor::Fatal, fmt("unit {} out of range {}"), unit, m_units);
-  std::vector<ViewChild<View*>>& u = m_children[unit];
-  u.emplace_back();
-  u.back().m_view = v;
+  }
+
+  std::vector<ViewChild<View*>>& children = m_children[unit];
+  auto& child = children.emplace_back();
+  child.m_view = v;
 }
 
 void Toolbar::resized(const boo::SWindowRect& root, const boo::SWindowRect& sub) {

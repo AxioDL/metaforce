@@ -307,13 +307,10 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
         continue;
       }
+
       FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
       FT_UInt width, height;
       GridFitGlyph(face->glyph, width, height);
-      m_glyphLookup[charcode] = m_glyphs.size();
-      m_glyphs.emplace_back();
-      Glyph& g = m_glyphs.back();
-
       if (curLineWidth + width + 1 > TEXMAP_DIM) {
         totalHeight += curLineHeight + 1;
         curLineHeight = 0;
@@ -328,6 +325,8 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         curLineWidth = 1;
       }
 
+      m_glyphLookup.insert_or_assign(charcode, m_glyphs.size());
+      Glyph& g = m_glyphs.emplace_back();
       g.m_unicodePoint = charcode;
       g.m_glyphIdx = gindex;
       g.m_layerIdx = m_fullTexmapLayers;
@@ -369,13 +368,10 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
         continue;
       }
+
       FT_Load_Glyph(face, gindex, FT_LOAD_RENDER | baseFlags);
       FT_UInt width, height;
       GridFitGlyph(face->glyph, width, height);
-      m_glyphLookup[charcode] = m_glyphs.size();
-      m_glyphs.emplace_back();
-      Glyph& g = m_glyphs.back();
-
       if (curLineWidth + width + 1 > TEXMAP_DIM) {
         totalHeight += curLineHeight + 1;
         curLineHeight = 0;
@@ -390,6 +386,8 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         curLineWidth = 1;
       }
 
+      m_glyphLookup.insert_or_assign(charcode, m_glyphs.size());
+      Glyph& g = m_glyphs.emplace_back();
       g.m_unicodePoint = charcode;
       g.m_glyphIdx = gindex;
       g.m_layerIdx = m_fullTexmapLayers;
@@ -468,13 +466,10 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
         continue;
       }
+
       FT_Load_Glyph(face, gindex, baseFlags);
       FT_UInt width, height;
       GridFitGlyph(face->glyph, width, height);
-      m_glyphLookup[charcode] = m_glyphs.size();
-      m_glyphs.emplace_back();
-      Glyph& g = m_glyphs.back();
-
       if (curLineWidth + width + 1 > TEXMAP_DIM) {
         totalHeight += curLineHeight + 1;
         curLineHeight = 0;
@@ -489,6 +484,8 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         curLineWidth = 1;
       }
 
+      m_glyphLookup.insert_or_assign(charcode, m_glyphs.size());
+      Glyph& g = m_glyphs.emplace_back();
       g.m_unicodePoint = charcode;
       g.m_glyphIdx = gindex;
       g.m_layerIdx = m_fullTexmapLayers;
@@ -530,13 +527,10 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         charcode = FT_Get_Next_Char(face, charcode, &gindex);
         continue;
       }
+
       FT_Load_Glyph(face, gindex, baseFlags);
       FT_UInt width, height;
       GridFitGlyph(face->glyph, width, height);
-      m_glyphLookup[charcode] = m_glyphs.size();
-      m_glyphs.emplace_back();
-      Glyph& g = m_glyphs.back();
-
       if (curLineWidth + width + 1 > TEXMAP_DIM) {
         totalHeight += curLineHeight + 1;
         curLineHeight = 0;
@@ -551,6 +545,8 @@ FontAtlas::FontAtlas(FT_Face face, uint32_t dpi, bool subpixel, FCharFilter& fil
         curLineWidth = 1;
       }
 
+      m_glyphLookup.insert_or_assign(charcode, m_glyphs.size());
+      Glyph& g = m_glyphs.emplace_back();
       g.m_unicodePoint = charcode;
       g.m_glyphIdx = gindex;
       g.m_layerIdx = m_fullTexmapLayers;
