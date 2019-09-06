@@ -164,10 +164,9 @@ void MultiLineTextView::typesetGlyphs(std::string_view str, const zeus::CColor& 
     utf8proc_int32_t ch;
     utf8proc_ssize_t sz = utf8proc_iterate(it, -1, &ch);
     if (ch == '\n' || ch == '\0') {
-      TextView& tv =
-          (lineIt < m_lines.size())
-              ? *m_lines[lineIt]
-              : *m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
+      TextView& tv = (lineIt < m_lines.size()) ? *m_lines[lineIt]
+                                               : *m_lines.emplace_back(std::make_unique<TextView>(
+                                                     m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
       tv.typesetGlyphs(std::string((char*)beginIt, it - beginIt), defaultColor);
       m_width = std::max(m_width, tv.nominalWidth());
       beginIt = it + 1;
@@ -206,10 +205,9 @@ void MultiLineTextView::typesetGlyphs(std::wstring_view str, const zeus::CColor&
 
   while (rem) {
     if (*it == L'\n' || *it == L'\0') {
-      TextView& tv =
-          (lineIt < m_lines.size())
-              ? *m_lines[lineIt]
-              : *m_lines.emplace_back(new TextView(m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
+      TextView& tv = (lineIt < m_lines.size()) ? *m_lines[lineIt]
+                                               : *m_lines.emplace_back(std::make_unique<TextView>(
+                                                     m_viewSystem, *this, m_fontAtlas, m_align, m_lineCapacity));
       tv.typesetGlyphs(std::wstring(beginIt, it), defaultColor);
       m_width = std::max(m_width, tv.nominalWidth());
       beginIt = it + 1;
