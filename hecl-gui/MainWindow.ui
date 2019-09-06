@@ -205,7 +205,7 @@
     <item row="1" column="0" colspan="6">
      <widget class="QTabWidget" name="heclTabs">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="dataTab">
        <attribute name="title">
@@ -304,6 +304,12 @@
              </colorrole>
             </disabled>
            </palette>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
           </property>
          </widget>
         </item>
