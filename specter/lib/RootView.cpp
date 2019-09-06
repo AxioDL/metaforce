@@ -9,10 +9,8 @@
 #include "specter/ViewResources.hpp"
 
 #include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
-#include <logvisor/logvisor.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
 : View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this) {

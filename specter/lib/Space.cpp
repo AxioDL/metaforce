@@ -5,11 +5,8 @@
 #include "specter/ViewResources.hpp"
 
 #include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
-#include <logvisor/logvisor.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::Space");
-
 #define TRIANGLE_DIM 12
 #define TRIANGLE_DIM1 10
 #define TRIANGLE_DIM2 8

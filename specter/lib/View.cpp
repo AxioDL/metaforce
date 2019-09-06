@@ -5,11 +5,8 @@
 
 #include <boo/System.hpp>
 #include <hecl/Pipeline.hpp>
-#include <logvisor/logvisor.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::View");
-
 zeus::CMatrix4f g_PlatformMatrix;
 
 void View::Resources::init(boo::IGraphicsDataFactory::Context& ctx, const IThemeData& theme) {

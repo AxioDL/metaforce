@@ -7,11 +7,8 @@
 #include "specter/TextField.hpp"
 
 #include <hecl/hecl.hpp>
-#include <logvisor/logvisor.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::FileBrowser");
-
 #define BROWSER_MARGIN 8
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
