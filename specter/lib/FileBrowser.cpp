@@ -44,6 +44,10 @@ std::vector<hecl::SystemString> FileBrowser::PathComponents(hecl::SystemStringVi
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
+                         std::function<void(bool, hecl::SystemStringView)> returnFunc)
+: FileBrowser(res, parentView, title, type, hecl::GetcwdStr(), std::move(returnFunc)) {}
+
+FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
                          hecl::SystemStringView initialPath,
                          std::function<void(bool, hecl::SystemStringView)> returnFunc)
 : ModalWindow(res, parentView,
