@@ -43,15 +43,16 @@ extern "C" const FT_Driver_ClassRec tt_driver_class;
 namespace specter {
 static logvisor::Module Log("specter::FontCache");
 
-const FCharFilter AllCharFilter = std::make_pair("all-glyphs", [](uint32_t) -> bool { return true; });
+const FCharFilter AllCharFilter{"all-glyphs", [](uint32_t) { return true; }};
 
-const FCharFilter LatinCharFilter =
-    std::make_pair("latin-glyphs", [](uint32_t c) -> bool { return c <= 0xff || ((c - 0x2200) <= (0x23FF - 0x2200)); });
+const FCharFilter LatinCharFilter{"latin-glyphs",
+                                  [](uint32_t c) { return c <= 0xff || (c - 0x2200) <= (0x23FF - 0x2200); }};
 
-const FCharFilter LatinAndJapaneseCharFilter = std::make_pair("latin-and-jp-glyphs", [](uint32_t c) -> bool {
-  return LatinCharFilter.second(c) || ((c - 0x2E00) <= (0x30FF - 0x2E00)) || ((c - 0x4E00) <= (0x9FFF - 0x4E00)) ||
-         ((c - 0xFF00) <= (0xFFEF - 0xFF00));
-});
+const FCharFilter LatinAndJapaneseCharFilter{"latin-and-jp-glyphs", [](uint32_t c) {
+                                               return LatinCharFilter.second(c) || (c - 0x2E00) <= (0x30FF - 0x2E00) ||
+                                                      (c - 0x4E00) <= (0x9FFF - 0x4E00) ||
+                                                      (c - 0xFF00) <= (0xFFEF - 0xFF00);
+                                             }};
 
 FontTag::FontTag(std::string_view name, bool subpixel, float points, uint32_t dpi) {
   XXH64_state_t st;
@@ -609,6 +610,8 @@ FontCache::FontCache(const hecl::Runtime::FileStoreManager& fileMgr)
   hecl::MakeDir(m_cacheRoot.c_str());
 }
 
+FontCache::~FontCache() = default;
+
 FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilter filter, bool subpixel, float points,
                                   uint32_t dpi) {
   /* Quick validation */
@@ -622,10 +625,11 @@ FontTag FontCache::prepCustomFont(std::string_view name, FT_Face face, FCharFilt
   FT_Set_Char_Size(face, 0, points * 64.0, 0, dpi);
 
   /* Make tag and search for cached version */
-  FontTag tag(std::string(name) + '_' + filter.first, subpixel, points, dpi);
-  auto search = m_cachedAtlases.find(tag);
-  if (search != m_cachedAtlases.end())
+  const FontTag tag(std::string(name).append(1, '_').append(filter.first), subpixel, points, dpi);
+  const auto search = m_cachedAtlases.find(tag);
+  if (search != m_cachedAtlases.end()) {
     return tag;
+  }
 
   /* Now check filesystem cache */
   hecl::SystemString cachePath = m_cacheRoot + _SYS_STR('/') + fmt::format(fmt(_SYS_STR("{}")), tag.hash());

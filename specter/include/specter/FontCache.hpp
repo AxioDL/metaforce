@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -66,7 +65,7 @@ public:
   }
 };
 
-using FCharFilter = std::pair<std::string, std::function<bool(uint32_t)>>;
+using FCharFilter = std::pair<std::string_view, bool (*)(uint32_t)>;
 
 class FontAtlas {
   FT_Face m_face;
@@ -176,6 +175,8 @@ class FontCache {
 
 public:
   FontCache(const hecl::Runtime::FileStoreManager& fileMgr);
+  ~FontCache();
+
   FontCache(const FontCache& other) = delete;
   FontCache& operator=(const FontCache& other) = delete;
 
