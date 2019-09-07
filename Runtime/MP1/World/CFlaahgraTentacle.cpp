@@ -84,15 +84,17 @@ void CFlaahgraTentacle::Think(float dt, CStateManager& mgr) {
 
 void CFlaahgraTentacle::AddSphereCollisionList(const SSphereJointInfo* sphereJoints, s32 jointCount,
                                                std::vector<CJointCollisionDescription>& outJoints) {
-
   const CAnimData* animData = GetModelData()->GetAnimationData();
 
-  for (u32 i = 0; i < jointCount; ++i) {
-    CSegId segId = animData->GetLocatorSegId(sphereJoints[i].name);
-    if (segId == 0xFF)
+  for (s32 i = 0; i < jointCount; ++i) {
+    const SSphereJointInfo& sphereJoint = sphereJoints[i];
+    const CSegId segId = animData->GetLocatorSegId(sphereJoint.name);
+
+    if (segId == 0xFF) {
       continue;
-    outJoints.push_back(
-        CJointCollisionDescription::SphereCollision(segId, sphereJoints->radius, sphereJoints->name, 10.f));
+    }
+
+    outJoints.push_back(CJointCollisionDescription::SphereCollision(segId, sphereJoint.radius, sphereJoint.name, 10.f));
   }
 }
 
