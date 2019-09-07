@@ -89,14 +89,16 @@ struct CTweakPlayerGun final : ITweakPlayerGun {
   }
 
   const SWeaponInfo& GetBeamInfo(atInt32 beam) const override {
-    if (beam < 0 || beam > 5)
+    if (beam < 0 || beam >= 5) {
       return xa8_beams[0];
+    }
     return xa8_beams[beam];
   }
 
   const SComboShotParam& GetComboShotInfo(atInt32 beam) const override {
-    if (beam < 0 || beam > 5)
+    if (beam < 0 || beam >= 5) {
       return x1f0_combos[0];
+    }
     return x1f0_combos[beam];
   }
 
