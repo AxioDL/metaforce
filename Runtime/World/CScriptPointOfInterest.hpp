@@ -9,7 +9,7 @@ private:
   float xe8_pointSize;
 
 public:
-  CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo, const zeus::CTransform&, bool,
+  CScriptPointOfInterest(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, bool,
                          const CScannableParameters&, float);
 
   void Accept(IVisitor& visitor) override;
