@@ -52,7 +52,7 @@ Token SharedBlenderToken;
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
 #else
-#define DEFAULT_BLENDER_BIN "blender-2.8"
+#define DEFAULT_BLENDER_BIN "blender"
 #endif
 
 extern "C" uint8_t HECL_BLENDERSHELL[];
