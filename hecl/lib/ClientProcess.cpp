@@ -68,7 +68,7 @@ void ClientProcess::BufferTransaction::run(blender::Token& btok) {
     return;
   }
   if (m_offset)
-    r.seek(m_offset, athena::Begin);
+    r.seek(m_offset, athena::SeekOrigin::Begin);
   r.readBytesToBuf(m_targetBuf, m_maxLen);
   m_complete = true;
 }

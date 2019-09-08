@@ -77,7 +77,7 @@ SDNARead::SDNARead(SystemStringView path) {
   atUint64 length = r.length();
   char magicBuf[7];
   r.readUBytesToBuf(magicBuf, 7);
-  r.seek(0, athena::Begin);
+  r.seek(0, athena::SeekOrigin::Begin);
   if (strncmp(magicBuf, "BLENDER", 7)) {
     /* Try gzip decompression */
     std::unique_ptr<uint8_t[]> compBuf(new uint8_t[4096]);
@@ -169,15 +169,15 @@ BlendType GetBlendType(SystemStringView path) {
   r.enumerate(
       [idPropIdx, typeOffset, nameOffset, valOffset, &ret](const FileBlock& block, athena::io::MemoryReader& r) {
         if (block.type == FOURCC('DATA') && block.sdnaIdx == idPropIdx) {
-          r.seek(typeOffset, athena::Begin);
+          r.seek(typeOffset, athena::SeekOrigin::Begin);
           if (r.readUByte() != 1)
             return true;
 
-          r.seek(nameOffset, athena::Begin);
+          r.seek(nameOffset, athena::SeekOrigin::Begin);
           if (r.readString() != "hecl_type")
             return true;
 
-          r.seek(valOffset, athena::Begin);
+          r.seek(valOffset, athena::SeekOrigin::Begin);
           ret = BlendType(r.readUint32Little());
           return false;
         }
