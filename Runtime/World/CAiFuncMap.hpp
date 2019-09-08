@@ -1,15 +1,17 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace urde {
+class CAi;
+class CStateManager;
+
 enum class EStateMsg { Activate = 0, Update = 1, Deactivate = 2 };
 
-class CStateManager;
-class CAi;
-typedef void (CAi::*CAiStateFunc)(CStateManager&, EStateMsg, float);
-typedef bool (CAi::*CAiTriggerFunc)(CStateManager&, float);
+using CAiStateFunc = void (CAi::*)(CStateManager&, EStateMsg, float);
+using CAiTriggerFunc = bool (CAi::*)(CStateManager&, float);
 
 class CAiFuncMap {
   static const std::vector<std::string> gkStateNames;
