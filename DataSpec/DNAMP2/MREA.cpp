@@ -80,10 +80,11 @@ MREA::StreamReader::StreamReader(athena::io::IStreamReader& source, atUint32 blk
 
 void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
   atUint64 target = diff;
-  if (whence == athena::Current)
+  if (whence == athena::SeekOrigin::Current) {
     target = m_pos + diff;
-  else if (whence == athena::End)
+  } else if (whence == athena::SeekOrigin::End) {
     target = m_totalDecompLen - diff;
+  }
 
   if (target >= m_totalDecompLen)
     Log.report(logvisor::Fatal, fmt("MREA stream seek overrun"));
@@ -106,7 +107,7 @@ void MREA::StreamReader::seek(atInt64 diff, athena::SeekOrigin whence) {
 
   /* Seek source if needed */
   if (bIdx != m_nextBlk - 1) {
-    m_source.seek(m_blkBase + cAccum, athena::Begin);
+    m_source.seek(m_blkBase + cAccum, athena::SeekOrigin::Begin);
     m_nextBlk = bIdx;
     nextBlock();
   }
@@ -168,7 +169,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   atUint64 decompLen = drs.length();
   mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
   mreaDecompOut.close();
-  drs.seek(0, athena::Begin);
+  drs.seek(0, athena::SeekOrigin::Begin);
 
   /* Start up blender connection */
   hecl::blender::Connection& conn = btok.getBlenderConnection();
@@ -181,12 +182,12 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     egmcOffset += head.secSizes[i];
 
   /* Load EGMC if possible so we can assign meshes to scanIds */
-  drs.seek(egmcOffset, athena::Begin);
+  drs.seek(egmcOffset, athena::SeekOrigin::Begin);
   UniqueID32 egmcId(drs);
   DNACommon::EGMC egmc;
   pakRouter.lookupAndReadDNA(egmcId, egmc);
 
-  drs.seek(0, athena::Begin);
+  drs.seek(0, athena::SeekOrigin::Begin);
 
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
@@ -224,7 +225,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   atUint64 secStart = drs.position();
   matSet.read(drs);
   matSet.readToBlender(os, pakRouter, entry, 0);
-  drs.seek(secStart + head.secSizes[0], athena::Begin);
+  drs.seek(secStart + head.secSizes[0], athena::SeekOrigin::Begin);
   std::vector<DNACMDL::VertexAttributes> vertAttribs;
   DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -234,7 +235,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     MeshHeader mHeader;
     secStart = drs.position();
     mHeader.read(drs);
-    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_2>(
         os, drs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
     os.format(fmt(
@@ -246,25 +247,26 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         mHeader.visorFlags.disableXray() ? "True" : "False", mHeader.visorFlags.thermalLevelStr());
 
     /* Seek through AROT-relation sections */
-    drs.seek(head.secSizes[curSec++], athena::Current);
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
   }
 
   /* Skip AROT */
-  drs.seek(head.secSizes[curSec++], athena::Current);
+  drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Skip BVH */
-  drs.seek(head.secSizes[curSec++], athena::Current);
+  drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Skip Bitmap */
-  drs.seek(head.secSizes[curSec++], athena::Current);
+  drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Skip SCLY (for now) */
-  for (atUint32 l = 0; l < head.sclyLayerCount; ++l)
-    drs.seek(head.secSizes[curSec++], athena::Current);
+  for (atUint32 l = 0; l < head.sclyLayerCount; ++l) {
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
+  }
 
   /* Skip SCGN (for now) */
-  drs.seek(head.secSizes[curSec++], athena::Current);
+  drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Read collision meshes */
   DeafBabe collision;
@@ -272,15 +274,15 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   collision.read(drs);
   DeafBabe::BlenderInit(os);
   collision.sendToBlender(os);
-  drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Skip unknown section */
-  drs.seek(head.secSizes[curSec++], athena::Current);
+  drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Read BABEDEAD Lights as Cycles emissives */
   secStart = drs.position();
   DNAMP1::MREA::ReadBabeDeadToBlender_1_2(os, drs);
-  drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Origins to center of mass */
   os << "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = False\n"

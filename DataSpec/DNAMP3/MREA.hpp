@@ -25,7 +25,7 @@ struct MREA {
     Value<atUint32> secCount;
     Value<atUint32> compressedBlockCount;
     Value<atUint32> secIndexCount;
-    Seek<20, athena::Current> align1;
+    Seek<20, athena::SeekOrigin::Current> align1;
     Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
 
     atUint32 getSecOffset(atUint32 idx) const {
