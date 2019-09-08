@@ -11,11 +11,11 @@ void PAK::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
   if (m_header.version != 2)
     Log.report(logvisor::Fatal, fmt("unexpected PAK magic"));
 
-  reader.seek(8, athena::Current);
+  reader.seek(8, athena::SeekOrigin::Current);
   atUint32 strgSz = reader.readUint32Big();
-  reader.seek(4, athena::Current);
+  reader.seek(4, athena::SeekOrigin::Current);
   atUint32 rshdSz = reader.readUint32Big();
-  reader.seek(44, athena::Current);
+  reader.seek(44, athena::SeekOrigin::Current);
   atUint32 dataOffset = 128 + strgSz + rshdSz;
 
   atUint64 strgBase = reader.position();
@@ -26,7 +26,7 @@ void PAK::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
     m_nameEntries.emplace_back();
     m_nameEntries.back().read(reader);
   }
-  reader.seek(strgBase + strgSz, athena::Begin);
+  reader.seek(strgBase + strgSz, athena::SeekOrigin::Begin);
 
   atUint32 count = reader.readUint32Big();
   m_entries.clear();
@@ -91,12 +91,12 @@ void PAK::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer) {
   atUint32 dataPad = ((dataSz + 63) & ~63) - dataSz;
   dataSz += dataPad;
   writer.writeUint32Big(dataSz);
-  writer.seek(36, athena::Current);
+  writer.seek(36, athena::SeekOrigin::Current);
 
   writer.writeUint32Big((atUint32)m_nameEntries.size());
   for (const NameEntry& entry : m_nameEntries)
     entry.write(writer);
-  writer.seek(strgPad, athena::Current);
+  writer.seek(strgPad, athena::SeekOrigin::Current);
 
   writer.writeUint32Big((atUint32)m_entries.size());
   for (const auto& entry : m_entries) {
@@ -104,7 +104,7 @@ void PAK::Enumerate<BigDNA::Write>(athena::io::IStreamWriter& writer) {
     copy.offset -= dataOffset;
     copy.write(writer);
   }
-  writer.seek(rshdPad, athena::Current);
+  writer.seek(rshdPad, athena::SeekOrigin::Current);
 }
 
 template <>

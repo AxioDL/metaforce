@@ -34,14 +34,16 @@ public:
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
   void seek(atInt64 pos, athena::SeekOrigin origin) override {
-    if (origin == athena::Begin)
+    if (origin == athena::SeekOrigin::Begin) {
       m_pos = pos;
-    else if (origin == athena::Current)
+    } else if (origin == athena::SeekOrigin::Current) {
       m_pos += pos;
-    else if (origin == athena::End)
+    } else if (origin == athena::SeekOrigin::End) {
       m_pos = m_sz + pos;
-    if (m_pos > m_sz)
+    }
+    if (m_pos > m_sz) {
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
+    }
   }
   atUint64 position() const override { return m_pos; }
   atUint64 length() const override { return m_sz; }

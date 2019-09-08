@@ -669,11 +669,12 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
       }
     }
 
-    if (s < secCount - 1)
-      reader.seek(secStart + secSizes[s], athena::Begin);
+    if (s < secCount - 1) {
+      reader.seek(secStart + secSizes[s], athena::SeekOrigin::Begin);
+    }
   }
 
-  reader.seek(afterHeaderPos, athena::Begin);
+  reader.seek(afterHeaderPos, athena::SeekOrigin::Begin);
 
   visitedDLOffsets = false;
   unsigned createdUVLayers = 0;
@@ -989,8 +990,9 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
       }
     }
 
-    if (s < secCount - 1)
-      reader.seek(secStart + secSizes[s], athena::Begin);
+    if (s < secCount - 1) {
+      reader.seek(secStart + secSizes[s], athena::SeekOrigin::Begin);
+    }
   }
 
   /* Finish Mesh */
@@ -1086,8 +1088,9 @@ void NameCMDL(athena::io::IStreamReader& reader, PAKRouter& pakRouter, typename 
       matSet.nameTextures(pakRouter, bestName.c_str(), s);
     }
 
-    if (s < head.secCount - 1)
-      reader.seek(secStart + head.secSizes[s], athena::Begin);
+    if (s < head.secCount - 1) {
+      reader.seek(secStart + head.secSizes[s], athena::SeekOrigin::Begin);
+    }
   }
 }
 
@@ -1545,7 +1548,7 @@ bool WriteHMDLCMDL(const hecl::ProjectPath& outPath, const hecl::ProjectPath& in
   }
 
   /* Ensure final surface's alignment writes zeros */
-  writer.seek(-1, athena::Current);
+  writer.seek(-1, athena::SeekOrigin::Current);
   writer.writeUByte(0);
   writer.close();
   return true;
@@ -2040,7 +2043,7 @@ void SurfaceHeader_1::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
     aabb[1] = reader.readVec3fBig();
     remAABB -= 24;
   }
-  reader.seek(remAABB, athena::Current);
+  reader.seek(remAABB, athena::SeekOrigin::Current);
   /* align */
   reader.seekAlign32();
 }
@@ -2104,7 +2107,7 @@ void SurfaceHeader_2::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
     aabb[1] = reader.readVec3fBig();
     remAABB -= 24;
   }
-  reader.seek(remAABB, athena::Current);
+  reader.seek(remAABB, athena::SeekOrigin::Current);
   /* align */
   reader.seekAlign32();
 }
@@ -2172,7 +2175,7 @@ void SurfaceHeader_3::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
     aabb[1] = reader.readVec3fBig();
     remAABB -= 24;
   }
-  reader.seek(remAABB, athena::Current);
+  reader.seek(remAABB, athena::SeekOrigin::Current);
   /* unk3 */
   unk3 = reader.readUByte();
   /* align */
