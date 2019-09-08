@@ -2,7 +2,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace urde {
 class CAi;
@@ -14,7 +13,6 @@ using CAiStateFunc = void (CAi::*)(CStateManager&, EStateMsg, float);
 using CAiTriggerFunc = bool (CAi::*)(CStateManager&, float);
 
 class CAiFuncMap {
-  static const std::vector<std::string> gkStateNames;
   std::unordered_map<std::string, CAiStateFunc> x0_stateFuncs;
   std::unordered_map<std::string, CAiTriggerFunc> x10_triggerFuncs;
 
