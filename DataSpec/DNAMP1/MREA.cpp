@@ -81,7 +81,7 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryR
       offsets[i] = r.readUint32Big();
     u32 dataStart = r.position();
     for (int i = 0; i < 8; ++i) {
-      r.seek(dataStart + offsets[i], athena::Begin);
+      r.seek(dataStart + offsets[i], athena::SeekOrigin::Begin);
       int chFlags = (flags >> (i * 2)) & 0x3;
 
       zeus::CAABox pos, neg, res;
