@@ -18,7 +18,7 @@ class CAiFuncMap {
 
 public:
   CAiFuncMap();
-  CAiStateFunc GetStateFunc(const char*);
-  CAiTriggerFunc GetTriggerFunc(const char*);
+  CAiStateFunc GetStateFunc(const char*) const;
+  CAiTriggerFunc GetTriggerFunc(const char*) const;
 };
 } // namespace urde

@@ -134,15 +134,23 @@ CAiFuncMap::CAiFuncMap() {
   CAi::CreateFuncLookup(this);
 }
 
-CAiStateFunc CAiFuncMap::GetStateFunc(const char* func) {
-  if (x0_stateFuncs.find(func) == x0_stateFuncs.end())
+CAiStateFunc CAiFuncMap::GetStateFunc(const char* func) const {
+  const auto iter = x0_stateFuncs.find(func);
+
+  if (iter == x0_stateFuncs.cend()) {
     return nullptr;
-  return x0_stateFuncs[func];
+  }
+
+  return iter->second;
 }
 
-CAiTriggerFunc CAiFuncMap::GetTriggerFunc(const char* func) {
-  if (x10_triggerFuncs.find(func) == x10_triggerFuncs.end())
+CAiTriggerFunc CAiFuncMap::GetTriggerFunc(const char* func) const {
+  const auto iter = x10_triggerFuncs.find(func);
+
+  if (iter == x10_triggerFuncs.cend()) {
     return nullptr;
-  return x10_triggerFuncs[func];
+  }
+
+  return iter->second;
 }
 } // namespace urde
