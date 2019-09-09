@@ -148,7 +148,7 @@ void FontAtlas::buildKernTable(FT_Face face) {
       TT_KernHead kernHead;
       kernHead.read(r);
       if (kernHead.coverage >> 8 != 0) {
-        r.seek(kernHead.length - 6, athena::Current);
+        r.seek(kernHead.length - 6, athena::SeekOrigin::Current);
         continue;
       }
 
@@ -199,7 +199,7 @@ static void WriteCompressed(athena::io::FileWriter& writer, const atUint8* data,
     writer.writeUBytes(compBuf, ZLIB_BUF_SZ - z.avail_out);
   }
 
-  writer.seek(adlerPos, athena::Begin);
+  writer.seek(adlerPos, athena::SeekOrigin::Begin);
   writer.writeUint32Big(z.adler);
 
   deflateEnd(&z);
