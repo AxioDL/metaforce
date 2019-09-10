@@ -59,17 +59,17 @@ struct SAdsrDelta {
   float x8_decayTime = 0.f;
   float xc_releaseTime = 0.f;
   float x10_autoReleaseTime = 0.f;
-  float x14_attackIntensity;
-  float x18_sustainIntensity;
+  float x14_attackIntensity = 0.f;
+  float x18_sustainIntensity = 0.f;
   ERumblePriority x1c_priority;
   EPhase x20_phase;
 
-  SAdsrDelta(EPhase phase, ERumblePriority priority)
+  constexpr SAdsrDelta(EPhase phase, ERumblePriority priority) noexcept
   : x0_curIntensity(phase == EPhase::PrePulse ? 2.f : 0.f), x1c_priority(priority), x20_phase(phase) {}
-  SAdsrDelta(EPhase phase) : x1c_priority(ERumblePriority::None), x20_phase(phase) {}
+  constexpr SAdsrDelta(EPhase phase) noexcept : x1c_priority(ERumblePriority::None), x20_phase(phase) {}
 
-  static SAdsrDelta Stopped() { return SAdsrDelta(EPhase::Stop); }
-  static SAdsrDelta Start(ERumblePriority priority, bool prePulse) {
+  static constexpr SAdsrDelta Stopped() noexcept { return SAdsrDelta(EPhase::Stop); }
+  static constexpr SAdsrDelta Start(ERumblePriority priority, bool prePulse) noexcept {
     return SAdsrDelta(prePulse ? EPhase::PrePulse : EPhase::Attack, priority);
   }
 };
