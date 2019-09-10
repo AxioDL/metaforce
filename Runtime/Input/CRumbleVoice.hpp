@@ -37,9 +37,9 @@ struct SAdsrData {
     u8 dummy = 0;
   };
 
-  SAdsrData() = default;
-  SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
-            float releaseDur, bool hasSustain, bool autoRelease)
+  constexpr SAdsrData() noexcept = default;
+  constexpr SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
+                      float releaseDur, bool hasSustain, bool autoRelease) noexcept
   : x0_attackGain(attackGain)
   , x4_autoReleaseDur(autoReleaseDur)
   , x8_attackDur(attackDur)
