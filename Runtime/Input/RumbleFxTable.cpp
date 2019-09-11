@@ -1,8 +1,8 @@
-#include "RumbleFxTable.hpp"
+#include "Runtime/Input/RumbleFxTable.hpp"
 
 namespace urde {
 
-const SAdsrData RumbleFxTable[] = {
+const RumbleFXTable RumbleFxTable{{
     /* attackGain, autoReleaseDur, attackDur, decayDur, sustainGain, releaseDur, hasSustain, autoRelease */
     {0.48f, 0.f, 0.3f, 0.125f, 0.1f, 0.5f, false, false},
     {0.66f, 0.f, 0.11f, 0.175f, 0.42f, 0.375f, false, false},
@@ -27,6 +27,7 @@ const SAdsrData RumbleFxTable[] = {
     {1.2f, 0.f, 0.01f, 0.621f, 0.f, 0.f, false, false},
     {0.5268f, 0.f, 0.114f, 1.008f, 0.f, 0.325f, false, false},
     {0.6828f, 0.f, 0.f, 0.821f, 0.f, 0.f, false, false},
-    {1.8f, 0.f, 0.5f, 0.425f, 0.35f, 0.5f, false, false}};
+    {1.8f, 0.f, 0.5f, 0.425f, 0.35f, 0.5f, false, false},
+}};
 
 }

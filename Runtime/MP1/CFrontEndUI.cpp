@@ -1429,7 +1429,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
 
       if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0) {
         x40_rumbleGen.HardStopAll();
-        x40_rumbleGen.Rumble(RumbleFxTable[int(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
+        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
       }
     }
   }
