@@ -384,7 +384,7 @@ void CWorldTransManager::EnableTransition(const CAnimRes& samusRes, CAssetId pla
   x44_25_stopSoon = false;
   x44_26_goingUp = goingUp;
   x30_type = ETransType::Enabled;
-  x4_modelData.reset(new SModelDatas(samusRes));
+  x4_modelData = std::make_unique<SModelDatas>(samusRes);
 
   if (!m_reflectionCube[0] && hecl::com_cubemaps->toBoolean())
     CGraphics::CommitResources([this](boo::IGraphicsDataFactory::Context& ctx) {
@@ -437,11 +437,9 @@ void CWorldTransManager::EnableTransition(CAssetId fontId, CAssetId stringId, u3
   x4_modelData.reset();
   x44_27_fadeWhite = fadeWhite;
 
-  CGuiTextProperties props(false, true, EJustification::Center, EVerticalJustification::Center);
-  x8_textData.reset(new CGuiTextSupport(fontId, props, zeus::skWhite, zeus::skBlack,
-                                        zeus::skWhite, 640, 448, g_SimplePool,
-                                        CGuiWidget::EGuiModelDrawFlags::Additive));
-
+  const CGuiTextProperties props(false, true, EJustification::Center, EVerticalJustification::Center);
+  x8_textData = std::make_unique<CGuiTextSupport>(fontId, props, zeus::skWhite, zeus::skBlack, zeus::skWhite, 640, 448,
+                                                  g_SimplePool, CGuiWidget::EGuiModelDrawFlags::Additive);
   x8_textData->SetTypeWriteEffectOptions(true, chFadeTime, chFadeRate);
   xc_strTable = g_SimplePool->GetObj(SObjectTag{FOURCC('STRG'), stringId});
   x8_textData->SetText(u"");

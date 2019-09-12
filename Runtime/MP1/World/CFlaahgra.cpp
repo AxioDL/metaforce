@@ -345,8 +345,9 @@ void CFlaahgra::ResetModelDataAndBodyController() {
   CreateShadow(true);
   x94_simpleShadow->SetAlwaysCalculateRadius(false);
   BuildBodyController(EBodyType::Restricted);
-  x6cc_boneTracking.reset(new CBoneTracking(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f),
-                                            zeus::degToRad(180.f), EBoneTrackingFlags::None));
+  x6cc_boneTracking =
+      std::make_unique<CBoneTracking>(*GetModelData()->GetAnimationData(), "Head_1"sv, zeus::degToRad(80.f),
+                                      zeus::degToRad(180.f), EBoneTrackingFlags::None);
 }
 void CFlaahgra::GatherAssets(CStateManager& mgr) {
   if (x8e4_24_loaded)
@@ -488,19 +489,20 @@ void CFlaahgra::SetupCollisionManagers(CStateManager& mgr) {
   zeus::CVector3f oldScale = GetModelData()->GetScale();
   leftArmjointList.reserve(3);
   AddCollisionList(skLeftArmJointList, 3, leftArmjointList);
-  x79c_leftArmCollision.reset(
-      new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), leftArmjointList, true));
+  x79c_leftArmCollision =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), leftArmjointList, true);
   SetMaterialProperties(x79c_leftArmCollision, mgr);
   std::vector<CJointCollisionDescription> rightArmJointList;
   rightArmJointList.reserve(3);
   AddCollisionList(skRightArmJointList, 3, rightArmJointList);
-  x7a0_rightArmCollision.reset(
-      new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), rightArmJointList, true));
+  x7a0_rightArmCollision =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), rightArmJointList, true);
   SetMaterialProperties(x7a0_rightArmCollision, mgr);
   std::vector<CJointCollisionDescription> sphereJointList;
   sphereJointList.reserve(5);
   AddSphereCollisionList(skSphereJointList, 5, sphereJointList);
-  x7a4_sphereCollision.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJointList, true));
+  x7a4_sphereCollision =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), sphereJointList, true);
   SetMaterialProperties(x7a4_sphereCollision, mgr);
   SetupHealthInfo(mgr);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(
@@ -1208,7 +1210,7 @@ CFlaahgraPlants::CFlaahgraPlants(const TToken<CGenDescription>& genDesc, const C
                                  const CDamageInfo& dInfo, const zeus::CVector3f& extents)
 : CActor(uid, true, "Flaahgra Plants"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Projectile), actParms, kInvalidUniqueId)
-, xe8_elementGen(new CElementGen(genDesc))
+, xe8_elementGen(std::make_unique<CElementGen>(genDesc))
 , xf0_ownerId(owner)
 , x130_obbox(xf, extents) {
   xe8_elementGen->SetOrientation(xf.getRotation());

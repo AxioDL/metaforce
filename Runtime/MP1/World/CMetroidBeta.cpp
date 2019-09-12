@@ -51,11 +51,11 @@ CMetroidBeta::CMetroidBeta(TUniqueId uid, std::string_view name, const CEntityIn
 , x7fc_(g_SimplePool->GetObj({FOURCC('PART'), metroidData.xfc_}))
 , x808_(g_SimplePool->GetObj({FOURCC('PART'), metroidData.x100_}))
 , x814_(g_SimplePool->GetObj({FOURCC('PART'), metroidData.x104_}))
-, x820_(new CElementGen(x7e4_))
-, x824_(new CParticleSwoosh(x7f0_, 0))
-, x828_(new CElementGen(x7fc_))
-, x82c_(new CElementGen(x808_))
-, x830_(new CElementGen(x814_)) {
+, x820_(std::make_unique<CElementGen>(x7e4_))
+, x824_(std::make_unique<CParticleSwoosh>(x7f0_, 0))
+, x828_(std::make_unique<CElementGen>(x7fc_))
+, x82c_(std::make_unique<CElementGen>(x808_))
+, x830_(std::make_unique<CElementGen>(x814_)) {
   x820_->SetParticleEmission(false);
   x828_->SetParticleEmission(false);
   x82c_->SetParticleEmission(false);
@@ -237,7 +237,8 @@ void CMetroidBeta::CreateCollisionActorManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> joints;
   AddSphereJoints(skPelvisInfo, 1, joints);
 
-  x764_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false));
+  x764_collisionManager =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false);
   x764_collisionManager->SetActive(mgr, GetActive());
 
   for (u32 i = 0; i < x764_collisionManager->GetNumCollisionActors(); ++i) {
