@@ -76,9 +76,9 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
 , x2d8_fpBounds(aabb)
 , x7d0_animRes(resId, 0, playerScale, 0, true)
 , x7d8_beamScale(playerScale) {
-  x490_gun.reset(new CPlayerGun(uid));
+  x490_gun = std::make_unique<CPlayerGun>(uid);
   x49c_gunHolsterRemTime = g_tweakPlayerGun->GetGunNotFiringTime();
-  x4a0_failsafeTest.reset(new CFailsafeTest());
+  x4a0_failsafeTest = std::make_unique<CFailsafeTest>();
   x76c_cameraBob.reset(
       new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One,
                            zeus::CVector2f{CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY},
@@ -90,7 +90,7 @@ CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& 
   CAssetId beamId = g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam);
   x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(CStaticRes(beamId, playerScale));
   x730_transitionModels.reserve(3);
-  x768_morphball.reset(new CMorphBall(*this, ballRadius));
+  x768_morphball = std::make_unique<CMorphBall>(*this, ballRadius);
 
   SetInertiaTensorScalar(xe8_mass);
   x1f4_lastNonCollidingState = GetMotionState();
@@ -476,11 +476,12 @@ void CPlayer::UpdatePlayerSounds(float dt) {
 void CPlayer::Update(float dt, CStateManager& mgr) {
   SetCoefficientOfRestitutionModifier(0.f);
   UpdateMorphBallTransition(dt, mgr);
-  CPlayerState::EBeamId newBeam = mgr.GetPlayerState()->GetCurrentBeam();
+
+  const CPlayerState::EBeamId newBeam = mgr.GetPlayerState()->GetCurrentBeam();
   if (newBeam != x7ec_beam) {
     x7ec_beam = newBeam;
-    x7f0_ballTransitionBeamModel.reset(
-        new CModelData(CStaticRes(g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam), x7d8_beamScale)));
+    x7f0_ballTransitionBeamModel = std::make_unique<CModelData>(
+        CStaticRes(g_tweakPlayerRes->GetBeamBallTransitionModel(x7ec_beam), x7d8_beamScale));
   }
 
   if (!mgr.GetPlayerState()->IsPlayerAlive()) {
@@ -662,9 +663,9 @@ void CPlayer::PostUpdate(float dt, CStateManager& mgr) {
 
   float cameraBobT = 0.f;
   if (mgr.GetCameraManager()->IsInCinematicCamera()) {
-    zeus::CVector2f bobExtent(CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY);
-    x76c_cameraBob.reset(
-        new CPlayerCameraBob(CPlayerCameraBob::ECameraBobType::One, bobExtent, CPlayerCameraBob::kCameraBobPeriod));
+    const zeus::CVector2f bobExtent(CPlayerCameraBob::kCameraBobExtentX, CPlayerCameraBob::kCameraBobExtentY);
+    x76c_cameraBob = std::make_unique<CPlayerCameraBob>(CPlayerCameraBob::ECameraBobType::One, bobExtent,
+                                                        CPlayerCameraBob::kCameraBobPeriod);
   } else {
     cameraBobT = UpdateCameraBob(dt, mgr);
   }

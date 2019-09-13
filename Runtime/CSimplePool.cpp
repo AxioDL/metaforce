@@ -11,15 +11,17 @@ CSimplePool::CSimplePool(IFactory& factory)
 CSimplePool::~CSimplePool() { assert(x8_resources.empty() && "Dangling CSimplePool resources detected"); }
 
 CToken CSimplePool::GetObj(const SObjectTag& tag, const CVParamTransfer& paramXfer) {
-  if (!tag)
+  if (!tag) {
     return {};
+  }
 
-  auto iter = x8_resources.find(tag);
-  if (iter != x8_resources.end())
+  const auto iter = x8_resources.find(tag);
+  if (iter != x8_resources.end()) {
     return CToken(iter->second);
+  }
 
-  CObjectReference* ret = new CObjectReference(*this, std::unique_ptr<IObj>(), tag, paramXfer);
-  x8_resources.emplace(std::make_pair<SObjectTag, CObjectReference*>((SObjectTag)tag, std::move(ret)));
+  auto* const ret = new CObjectReference(*this, nullptr, tag, paramXfer);
+  x8_resources.emplace(tag, ret);
   return CToken(ret);
 }
 

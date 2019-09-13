@@ -61,8 +61,8 @@ CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 : x0_resFactory(resFactory)
 , x4_resStore(resStore)
 , x8_mode(mode)
-, xc_textExecuteBuf(new CTextExecuteBuffer())
-, x10_textParser(new CTextParser(resStore)) {
+, xc_textExecuteBuf(std::make_unique<CTextExecuteBuffer>())
+, x10_textParser(std::make_unique<CTextParser>(resStore)) {
   g_TextExecuteBuf = xc_textExecuteBuf.get();
   g_TextParser = x10_textParser.get();
 }

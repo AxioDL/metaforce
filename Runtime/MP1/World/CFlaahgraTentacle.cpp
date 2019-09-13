@@ -103,7 +103,8 @@ const SSphereJointInfo CFlaahgraTentacle::skJointList[3] = {{"Arm_8", 2.f}, {"Ar
 void CFlaahgraTentacle::SetupCollisionManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> jointList;
   AddSphereCollisionList(skJointList, 3, jointList);
-  x56c_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), jointList, true));
+  x56c_collisionManager =
+      std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), jointList, true);
 
   for (u32 i = 0; i < x56c_collisionManager->GetNumCollisionActors(); ++i) {
     const CJointCollisionDescription& desc = x56c_collisionManager->GetCollisionDescFromIndex(i);

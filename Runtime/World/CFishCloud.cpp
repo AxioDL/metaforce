@@ -50,10 +50,10 @@ CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const 
   x108_modifierSources.reserve(10);
   x250_25_worldSpace = true; // The result of a close_enough paradox (weird inlined test?)
   if (aRes.GetId().IsValid()) {
-    x1b0_models.emplace_back(new CModelData(aRes));
-    x1b0_models.emplace_back(new CModelData(aRes));
-    x1b0_models.emplace_back(new CModelData(aRes));
-    x1b0_models.emplace_back(new CModelData(aRes));
+    x1b0_models.emplace_back(std::make_unique<CModelData>(aRes));
+    x1b0_models.emplace_back(std::make_unique<CModelData>(aRes));
+    x1b0_models.emplace_back(std::make_unique<CModelData>(aRes));
+    x1b0_models.emplace_back(std::make_unique<CModelData>(aRes));
     x250_27_validModel = true;
   }
   if (part1.IsValid())
@@ -65,7 +65,7 @@ CFishCloud::CFishCloud(TUniqueId uid, bool active, std::string_view name, const 
   if (part4.IsValid())
     x1c4_particleDescs.push_back(g_SimplePool->GetObj({FOURCC('PART'), part4}));
   for (const auto& p : x1c4_particleDescs) {
-    x1f8_particleGens.emplace_back(new CElementGen(p));
+    x1f8_particleGens.emplace_back(std::make_unique<CElementGen>(p));
     x1f8_particleGens.back()->SetParticleEmission(false);
   }
   x21c_deathParticleCounts.push_back(partCount1);

@@ -107,7 +107,7 @@ void CPlayerGun::InitBombData() {
 void CPlayerGun::InitMuzzleData() {
   for (int i = 0; i < 5; ++i) {
     x7c0_auxMuzzleEffects.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('PART'), g_tweakGunRes->xa4_auxMuzzle[i]}));
-    x800_auxMuzzleGenerators.emplace_back(new CElementGen(x7c0_auxMuzzleEffects.back()));
+    x800_auxMuzzleGenerators.emplace_back(std::make_unique<CElementGen>(x7c0_auxMuzzleEffects.back()));
     x800_auxMuzzleGenerators.back()->SetParticleEmission(false);
   }
 }

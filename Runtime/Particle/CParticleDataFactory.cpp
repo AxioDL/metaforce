@@ -761,7 +761,7 @@ bool CParticleDataFactory::CreateGPSM(CGenDescription* fillDesc, CInputStream& i
       FourCC cid = GetClassID(in);
       if (cid != SBIG('CNST'))
         break;
-      fillDesc->xd0_xbc_KSSM.reset(new CSpawnSystemKeyframeData(in));
+      fillDesc->xd0_xbc_KSSM = std::make_unique<CSpawnSystemKeyframeData>(in);
       fillDesc->xd0_xbc_KSSM->LoadAllSpawnedSystemTokens(resPool);
       break;
     }

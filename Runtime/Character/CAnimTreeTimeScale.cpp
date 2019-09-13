@@ -45,15 +45,18 @@ void CAnimTreeTimeScale::VSetPhase(float phase) { x14_child->VSetPhase(phase); }
 
 std::optional<std::unique_ptr<IAnimReader>> CAnimTreeTimeScale::VSimplified() {
   if (auto simp = x14_child->Simplified()) {
-    CAnimTreeTimeScale* newNode = new CAnimTreeTimeScale(CAnimTreeNode::Cast(std::move(*simp)), x18_timeScale->Clone(),
-                                                         x28_targetAccelTime, x4_name);
+    auto newNode = std::make_unique<CAnimTreeTimeScale>(CAnimTreeNode::Cast(std::move(*simp)), x18_timeScale->Clone(),
+                                                        x28_targetAccelTime, x4_name);
     newNode->x20_curAccelTime = x20_curAccelTime;
     newNode->x30_initialTime = x30_initialTime;
-    return {std::unique_ptr<IAnimReader>(newNode)};
-  } else if (x20_curAccelTime == x28_targetAccelTime) {
+    return {std::move(newNode)};
+  }
+
+  if (x20_curAccelTime == x28_targetAccelTime) {
     return {x14_child->Clone()};
   }
-  return {};
+
+  return std::nullopt;
 }
 
 u32 CAnimTreeTimeScale::VGetBoolPOIList(const CCharAnimTime& time, CBoolPOINode* listOut, u32 capacity, u32 iterator,
@@ -112,21 +115,21 @@ CAnimTreeEffectiveContribution CAnimTreeTimeScale::VGetContributionOfHighestInfl
 
 std::shared_ptr<IAnimReader> CAnimTreeTimeScale::VGetBestUnblendedChild() const {
   if (std::shared_ptr<IAnimReader> bestChild = x14_child->VGetBestUnblendedChild()) {
-    CAnimTreeTimeScale* newNode = new CAnimTreeTimeScale(CAnimTreeNode::Cast(bestChild->Clone()),
+    auto newNode = std::make_shared<CAnimTreeTimeScale>(CAnimTreeNode::Cast(bestChild->Clone()),
                                                          x18_timeScale->Clone(), x28_targetAccelTime, x4_name);
     newNode->x20_curAccelTime = x20_curAccelTime;
     newNode->x30_initialTime = x30_initialTime;
-    return {std::shared_ptr<IAnimReader>(newNode)};
+    return {std::move(newNode)};
   }
-  return {};
+  return nullptr;
 }
 
 std::unique_ptr<IAnimReader> CAnimTreeTimeScale::VClone() const {
-  CAnimTreeTimeScale* newNode = new CAnimTreeTimeScale(CAnimTreeNode::Cast(x14_child->Clone()), x18_timeScale->Clone(),
-                                                       x28_targetAccelTime, x4_name);
+  auto newNode = std::make_unique<CAnimTreeTimeScale>(CAnimTreeNode::Cast(x14_child->Clone()), x18_timeScale->Clone(),
+                                                      x28_targetAccelTime, x4_name);
   newNode->x20_curAccelTime = x20_curAccelTime;
   newNode->x30_initialTime = x30_initialTime;
-  return {std::unique_ptr<IAnimReader>(newNode)};
+  return {std::move(newNode)};
 }
 
 CSteadyStateAnimInfo CAnimTreeTimeScale::VGetSteadyStateAnimInfo() const {

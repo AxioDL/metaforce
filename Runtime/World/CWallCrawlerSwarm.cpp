@@ -78,16 +78,16 @@ CWallCrawlerSwarm::CWallCrawlerSwarm(TUniqueId uid, bool active, std::string_vie
   CAnimRes launchAnimRes(animRes);
   launchAnimRes.SetCanLoop(true);
   launchAnimRes.SetDefaultAnim(launchAnim != -1 ? launchAnim : 0);
-  x4b0_modelDatas.emplace_back(new CModelData(animRes));
-  x4b0_modelDatas.emplace_back(new CModelData(animRes));
-  x4b0_modelDatas.emplace_back(new CModelData(animRes));
-  x4b0_modelDatas.emplace_back(new CModelData(animRes));
-  x4b0_modelDatas.emplace_back(new CModelData(attractAnimRes));
-  x4b0_modelDatas.emplace_back(new CModelData(attractAnimRes));
-  x4b0_modelDatas.emplace_back(new CModelData(attractAnimRes));
-  x4b0_modelDatas.emplace_back(new CModelData(attractAnimRes));
-  x4b0_modelDatas.emplace_back(new CModelData(launchAnimRes));
-  x4b0_modelDatas.emplace_back(new CModelData(animRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(attractAnimRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(attractAnimRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(attractAnimRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(attractAnimRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(launchAnimRes));
+  x4b0_modelDatas.emplace_back(std::make_unique<CModelData>(animRes));
   if (aParams.GetXRayAssets().first.IsValid()) {
     for (int i = 0; i < 9; ++i)
       x4b0_modelDatas[i]->SetXRayModel(aParams.GetXRayAssets());

@@ -18,9 +18,9 @@ CGuiFrame::CGuiFrame(CAssetId id, CGuiSys& sys, int a, int b, int c, CSimplePool
 : x0_id(id), x8_guiSys(sys), x4c_a(a), x50_b(b), x54_c(c), x58_24_loaded(false) {
   x3c_lights.reserve(8);
   m_indexedLights.reserve(8);
-  x10_rootWidget.reset(new CGuiWidget(CGuiWidget::CGuiWidgetParms(
+  x10_rootWidget = std::make_unique<CGuiWidget>(CGuiWidget::CGuiWidgetParms(
       this, false, 0, 0, false, false, false, zeus::skWhite, CGuiWidget::EGuiModelDrawFlags::Alpha, false,
-      x8_guiSys.x8_mode != CGuiSys::EUsageMode::Zero, "<root>"s)));
+      x8_guiSys.x8_mode != CGuiSys::EUsageMode::Zero, "<root>"s));
   x8_guiSys.m_registeredFrames.insert(this);
 }
 

@@ -232,7 +232,6 @@ FourCC CCollisionResponseData::UncookedResType() { return SBIG('CRSM'); }
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference*) {
   CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CCollisionResponseData>::GetIObjObjectFor(
-      std::unique_ptr<CCollisionResponseData>(new CCollisionResponseData(in, sp)));
+  return TToken<CCollisionResponseData>::GetIObjObjectFor(std::make_unique<CCollisionResponseData>(in, sp));
 }
 } // namespace urde
