@@ -10,12 +10,31 @@
 #include "World/CWorld.hpp"
 
 namespace urde {
+namespace {
+constexpr char skCrosshairsReticleAssetName[] = "CMDL_Crosshairs";
+[[maybe_unused]] constexpr char skOrbitZoneReticleAssetName[] = "CMDL_OrbitZone";
+constexpr char skSeekerAssetName[] = "CMDL_Seeker";
+constexpr char skLockConfirmAssetName[] = "CMDL_LockConfirm";
+constexpr char skTargetFlowerAssetName[] = "CMDL_TargetFlower";
+constexpr char skMissileBracketAssetName[] = "CMDL_MissileBracket";
+constexpr char skChargeGaugeAssetName[] = "CMDL_ChargeGauge";
+constexpr char skChargeBeamTickAssetName[] = "CMDL_ChargeTickFirst";
+constexpr char skOuterBeamIconSquareNameBase[] = "CMDL_BeamSquare";
+constexpr char skInnerBeamIconName[] = "CMDL_InnerBeamIcon";
+constexpr char skLockFireAssetName[] = "CMDL_LockFire";
+constexpr char skLockDaggerAssetName[] = "CMDL_LockDagger0";
+constexpr char skGrappleReticleAssetName[] = "CMDL_Grapple";
+constexpr char skXRayRingModelName[] = "CMDL_XRayRetRing";
+constexpr char skThermalReticleAssetName[] = "CMDL_ThermalRet";
+[[maybe_unused]] constexpr char skOrbitPointAssetName[] = "CMDL_OrbitPoint";
+
+float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::sin((f3 - 0.5f) * f2); }
+
+float calculate_premultiplied_overshoot_offset(float f1) { return 2.f * (M_PIF - std::asin(1.f / f1)); }
+} // Anonymous namespace
+
 const CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f,
                                                                              zeus::skZero3f, 0.f, 1.f, true);
-
-static float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::sin((f3 - 0.5f) * f2); }
-
-static float calculate_premultiplied_overshoot_offset(float f1) { return 2.f * (M_PIF - std::asin(1.f / f1)); }
 
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(std::string_view res) : x0_model(g_SimplePool->GetObj(res)) {}
 
