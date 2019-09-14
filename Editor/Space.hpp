@@ -42,7 +42,7 @@ public:
     GameMode
   };
 
-  struct State : athena::io::DNAVYaml<athena::Big> {
+  struct State : athena::io::DNAVYaml<athena::Endian::Big> {
     Delete _d;
   };
   static Space* NewSpaceFromConfigStream(ViewManager& vm, Space* parent, ConfigReader& r);
