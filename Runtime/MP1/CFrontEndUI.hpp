@@ -1,19 +1,20 @@
 #pragma once
 
-#include "CIOWin.hpp"
-#include "CGameDebug.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Audio/CStaticAudioPlayer.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CGBASupport.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Input/CRumbleGenerator.hpp"
-#include "GuiSys/CGuiTextSupport.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "CFrontEndUITouchBar.hpp"
-#include "CGameOptionsTouchBar.hpp"
+#include "Runtime/CGameDebug.hpp"
+#include "Runtime/CGameOptionsTouchBar.hpp"
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Audio/CStaticAudioPlayer.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/Input/CRumbleGenerator.hpp"
+#include "Runtime/MP1/CFrontEndUITouchBar.hpp"
+#include "Runtime/MP1/CGBASupport.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGuiSliderGroup;
