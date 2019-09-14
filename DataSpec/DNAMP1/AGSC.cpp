@@ -238,7 +238,7 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& refOutPat
       amuse::AudioGroupDatabase group(path.getAbsolutePath());
 
       auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
-      auto pool = group.getPool().toData<athena::Big>();
+      auto pool = group.getPool().toData<athena::Endian::Big>();
       auto sdirSamp = group.getSdir().toGCNData(group);
 
       w.writeUint32Big(pool.size());

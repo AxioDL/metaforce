@@ -57,7 +57,7 @@ bool AGSC::Cook(const hecl::ProjectPath& dir, const hecl::ProjectPath& outPath) 
   amuse::AudioGroupDatabase group(dir.getAbsolutePath());
 
   auto proj = group.getProj().toGCNData(group.getPool(), group.getSdir());
-  auto pool = group.getPool().toData<athena::Big>();
+  auto pool = group.getPool().toData<athena::Endian::Big>();
   auto sdirSamp = group.getSdir().toGCNData(group);
 
   Header head;
