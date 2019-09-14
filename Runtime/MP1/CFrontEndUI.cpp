@@ -28,28 +28,32 @@
 #include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
-
+namespace {
 #define FE_USE_SECONDS_IN_ELAPSED 1
 
 /* Music volume constants */
-static const float FE1_VOL = 0.7421875f;
-static const float FE2_VOL = 0.7421875f;
+constexpr float FE1_VOL = 0.7421875f;
+constexpr float FE2_VOL = 0.7421875f;
 
 /* L/R Stereo transition cues */
-static const u16 FETransitionBackSFX[3][2] = {{SFXfnt_transfore_00L, SFXfnt_transfore_00R},
-                                              {SFXfnt_transfore_01L, SFXfnt_transfore_01R},
-                                              {SFXfnt_transfore_02L, SFXfnt_transfore_02R}};
+constexpr u16 FETransitionBackSFX[3][2] = {
+    {SFXfnt_transfore_00L, SFXfnt_transfore_00R},
+    {SFXfnt_transfore_01L, SFXfnt_transfore_01R},
+    {SFXfnt_transfore_02L, SFXfnt_transfore_02R},
+};
 
-static const u16 FETransitionForwardSFX[3][2] = {{SFXfnt_transback_00L, SFXfnt_transback_00R},
-                                                 {SFXfnt_transback_01L, SFXfnt_transback_01R},
-                                                 {SFXfnt_transback_02L, SFXfnt_transback_02R}};
+constexpr u16 FETransitionForwardSFX[3][2] = {
+    {SFXfnt_transback_00L, SFXfnt_transback_00R},
+    {SFXfnt_transback_01L, SFXfnt_transback_01R},
+    {SFXfnt_transback_02L, SFXfnt_transback_02R},
+};
 
 struct FEMovie {
   const char* path;
   bool loop;
 };
 
-static const FEMovie FEMovies[] = {
+constexpr FEMovie FEMovies[] = {
     {"Video/00_first_start.thp", false},
     {"Video/01_startloop.thp", true},
     {"Video/02_start_fileselect_A.thp", false},
@@ -61,7 +65,8 @@ static const FEMovie FEMovies[] = {
     {"Video/08_GBA_fileselect.thp", false},
 };
 
-SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+} // Anonymous namespace
 
 void CFrontEndUI::PlayAdvanceSfx() {
   CSfxManager::SfxStart(SFXfnt_advance_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
