@@ -28,14 +28,14 @@ enum EFlags {
 };
 ENABLE_BITWISE_ENUM(EFlags)
 
-class CVar : public athena::io::DNA<athena::Big> {
+class CVar : public athena::io::DNA<athena::Endian::Big> {
 public:
   AT_DECL_DNA
   String<-1> m_name;
   String<-1> m_value;
 };
 
-struct CVarContainer : public athena::io::DNA<athena::Big> {
+struct CVarContainer : public athena::io::DNA<athena::Endian::Big> {
   AT_DECL_DNA
   Value<atUint32> magic = 'CVAR';
   Value<atUint32> cvarCount;

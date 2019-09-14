@@ -53,7 +53,7 @@ public:
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
-using BigDNA = athena::io::DNA<athena::Big>;
+using BigDNA = athena::io::DNA<athena::Endian::Big>;
 
 /** FourCC with DNA read/write */
 class DNAFourCC final : public BigDNA, public FourCC {
