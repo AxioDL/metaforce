@@ -29,10 +29,12 @@ public:
 
   static int IndexOfSubstring(std::string_view haystack, std::string_view needle) {
     std::string str(haystack);
-    std::transform(str.begin(), str.end(), str.begin(), tolower);
-    std::string::size_type s = str.find(needle);
-    if (s == std::string::npos)
+    std::transform(str.begin(), str.end(), str.begin(),
+                   [](char c) { return std::tolower(static_cast<unsigned char>(c)); });
+    const std::string::size_type s = str.find(needle);
+    if (s == std::string::npos) {
       return -1;
+    }
     return s;
   }
 };
