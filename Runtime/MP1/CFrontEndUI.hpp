@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/CGameDebug.hpp"
 #include "Runtime/CGameOptionsTouchBar.hpp"
 #include "Runtime/CIOWin.hpp"
@@ -57,7 +59,7 @@ public:
   static void PlayAdvanceSfx();
 
   struct SGuiTextPair {
-    CGuiTextPane* x0_panes[2] = {};
+    std::array<CGuiTextPane*, 2> x0_panes{};
     void SetPairText(std::u16string_view str);
   };
   static SGuiTextPair FindTextPanePair(CGuiFrame* frame, const char* name);
@@ -67,7 +69,7 @@ public:
     CGuiWidget* x0_base;
 
     /* filename, world, playtime, date */
-    SGuiTextPair x4_textpanes[4];
+    std::array<SGuiTextPair, 4> x4_textpanes;
 
     u32 x28_curField = 0;
     float x2c_chRate = ComputeRandom();
@@ -97,7 +99,7 @@ public:
     SGuiTextPair x50_textpane_popupcancel;
     SGuiTextPair x58_textpane_popupextra;
     CGuiTextPane* x60_textpane_cancel = nullptr;
-    SFileMenuOption x64_fileSelections[3];
+    std::array<SFileMenuOption, 3> x64_fileSelections;
     zeus::CVector3f xf8_model_erase_position;
     float x104_rowPitch = 0.f;
     float x108_curTime = 0.f;
@@ -330,7 +332,7 @@ private:
   float x64_pressStartAlpha = 0.f;
   float x68_musicVol = 1.f;
   u32 x6c_;
-  std::unique_ptr<CMoviePlayer> x70_menuMovies[9];
+  std::array<std::unique_ptr<CMoviePlayer>, 9> x70_menuMovies;
   EMenuMovie xb8_curMovie = EMenuMovie::Stopped;
   int xbc_nextAttract = 0;
   int xc0_attractCount = 0;
