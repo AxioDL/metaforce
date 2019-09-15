@@ -9,7 +9,7 @@ CResLoader::CResLoader() { x48_curPak = x18_pakLoadedList.end(); }
 const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name) const {
   const std::string namePak = std::string(name).append(".upak");
   for (const std::unique_ptr<CPakFile>& pak : x18_pakLoadedList) {
-    if (!CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path)) {
+    if (CStringExtras::CompareCaseInsensitive(namePak, pak->x18_path)) {
       return &pak->GetDepList();
     }
   }
@@ -117,7 +117,7 @@ std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const urde::SObjectTag
 void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
   std::string path = std::string(pakName) + ".upak";
   for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList) {
-    if (!CStringExtras::CompareCaseInsensitive(file->GetPath(), path)) {
+    if (CStringExtras::CompareCaseInsensitive(file->GetPath(), path)) {
       auto& depList = file->GetDepList();
       out.reserve(depList.size());
       for (const auto& dep : depList) {

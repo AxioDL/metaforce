@@ -10,8 +10,9 @@
 namespace urde {
 
 bool CScriptStreamedMusic::IsDSPFile(std::string_view fileName) {
-  if (!CStringExtras::CompareCaseInsensitive(fileName, "sw"))
+  if (CStringExtras::CompareCaseInsensitive(fileName, "sw")) {
     return true;
+  }
   return CStringExtras::IndexOfSubstring(fileName, ".dsp") != -1;
 }
 
