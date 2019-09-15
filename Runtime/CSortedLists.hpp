@@ -1,16 +1,19 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "Collision/CMaterialFilter.hpp"
+#include <array>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 enum class ESortedList { MinX, MinY, MinZ, MaxX, MaxY, MaxZ };
 
 struct SSortedList {
-  s16 x0_ids[1024];
+  std::array<s16, 1024> x0_ids;
   u32 x800_size = 0;
-  void Reset() { std::fill(std::begin(x0_ids), std::end(x0_ids), -1); }
+  void Reset() { x0_ids.fill(-1); }
   SSortedList() { Reset(); }
 };
 
@@ -19,14 +22,14 @@ class CSortedListManager {
   struct SNode {
     const CActor* x0_actor = nullptr;
     zeus::CAABox x4_box = zeus::skNullBox;
-    s16 x1c_selfIdxs[6] = {-1, -1, -1, -1, -1, -1};
+    std::array<s16, 6> x1c_selfIdxs{-1, -1, -1, -1, -1, -1};
     s16 x28_next = -1;
     bool x2a_populated = false;
     SNode() = default;
     SNode(const CActor* act, const zeus::CAABox& aabb) : x0_actor(act), x4_box(aabb), x2a_populated(true) {}
   };
-  SNode x0_nodes[1024];
-  SSortedList xb000_sortedLists[6];
+  std::array<SNode, 1024> x0_nodes;
+  std::array<SSortedList, 6> xb000_sortedLists;
   void Reset();
   void AddToLinkedList(s16 a, s16& b, s16& c) const;
   void RemoveFromList(ESortedList, s16);
