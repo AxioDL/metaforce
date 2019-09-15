@@ -1292,21 +1292,21 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
-  TEditorId id = in.readUint32Big();
-  u32 connCount = in.readUint32Big();
+  const TEditorId id = in.readUint32Big();
+  const u32 connCount = in.readUint32Big();
   length -= 8;
   std::vector<SConnection> conns;
   conns.reserve(connCount);
-  for (int i = 0; i < connCount; ++i) {
-    EScriptObjectState state = EScriptObjectState(in.readUint32Big());
-    EScriptObjectMessage msg = EScriptObjectMessage(in.readUint32Big());
-    TEditorId target = in.readUint32Big();
+  for (u32 i = 0; i < connCount; ++i) {
+    const auto state = EScriptObjectState(in.readUint32Big());
+    const auto msg = EScriptObjectMessage(in.readUint32Big());
+    const TEditorId target = in.readUint32Big();
     length -= 12;
     conns.push_back(SConnection{state, msg, target});
   }
-  u32 propCount = in.readUint32Big();
+  const u32 propCount = in.readUint32Big();
   length -= 4;
-  auto startPos = in.position();
+  const auto startPos = in.position();
 
   bool error = false;
   FScriptLoader loader = {};
@@ -1315,7 +1315,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   CEntity* ent = nullptr;
   if (loader) {
-    CEntityInfo info(aid, conns, id);
+    const CEntityInfo info(aid, std::move(conns), id);
     ent = loader(*this, in, propCount, info);
   } else {
     error = true;
