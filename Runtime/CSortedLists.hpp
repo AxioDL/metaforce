@@ -5,7 +5,7 @@
 #include "Collision/CMaterialFilter.hpp"
 
 namespace urde {
-enum ESortedList { MinX, MinY, MinZ, MaxX, MaxY, MaxZ };
+enum class ESortedList { MinX, MinY, MinZ, MaxX, MaxY, MaxZ };
 
 struct SSortedList {
   s16 x0_ids[1024];
