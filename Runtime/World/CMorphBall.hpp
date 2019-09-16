@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Collision/CCollidableSphere.hpp"
 #include "Runtime/Collision/CCollisionInfoList.hpp"
@@ -282,9 +284,11 @@ public:
   bool IsInBoost() const { return x1de4_24_inBoost; }
   float GetBoostChargeTime() const { return x1de8_boostChargeTime; }
 
-  static const u8 BallGlowColors[9][3];
-  static const u8 BallTransFlashColors[9][3];
-  static const u8 BallAuxGlowColors[9][3];
+  // Contains red, green, and blue channel values
+  using ColorArray = std::array<u8, 3>;
+  static const std::array<ColorArray, 9> BallGlowColors;
+  static const std::array<ColorArray, 9> BallTransFlashColors;
+  static const std::array<ColorArray, 9> BallAuxGlowColors;
 };
 
 } // namespace urde
