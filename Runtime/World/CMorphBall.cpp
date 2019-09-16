@@ -18,8 +18,133 @@
 #include "Runtime/World/CWorld.hpp"
 
 namespace urde {
+namespace {
+float kSpiderBallCollisionRadius;
 
-static float kSpiderBallCollisionRadius;
+constexpr std::pair<const char*, u32> kBallCharacterTable[] = {
+    {"SamusBallANCS", 0},       {"SamusBallANCS", 0},       {"SamusBallANCS", 1},       {"SamusBallANCS", 0},
+    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
+};
+
+constexpr std::pair<const char*, u32> kBallLowPolyTable[] = {
+    {"SamusBallLowPolyCMDL", 0},       {"SamusBallLowPolyCMDL", 0},       {"SamusBallLowPolyCMDL", 1},
+    {"SamusBallLowPolyCMDL", 0},       {"SamusBallFusionLowPolyCMDL", 0}, {"SamusBallFusionLowPolyCMDL", 2},
+    {"SamusBallFusionLowPolyCMDL", 1}, {"SamusBallFusionLowPolyCMDL", 3},
+};
+
+constexpr std::pair<const char*, u32> kSpiderBallLowPolyTable[] = {
+    {"SamusSpiderBallLowPolyCMDL", 0}, {"SamusSpiderBallLowPolyCMDL", 0}, {"SamusSpiderBallLowPolyCMDL", 1},
+    {"SamusSpiderBallLowPolyCMDL", 2}, {"SamusBallFusionLowPolyCMDL", 0}, {"SamusBallFusionLowPolyCMDL", 2},
+    {"SamusBallFusionLowPolyCMDL", 1}, {"SamusBallFusionLowPolyCMDL", 3},
+};
+
+constexpr std::pair<const char*, u32> kSpiderBallCharacterTable[] = {
+    {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 1}, {"SamusPhazonBallANCS", 0},
+    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3},
+};
+
+constexpr std::pair<const char*, u32> kSpiderBallGlassTable[] = {
+    {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 1},
+    {"SamusPhazonBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0},
+    {"SamusSpiderBallGlassCMDL", 1}, {"SamusPhazonBallGlassCMDL", 0},
+};
+
+constexpr u32 kSpiderBallGlowColorIdxTable[] = {
+    3, 3, 2, 4, 5, 7, 6, 8,
+};
+
+constexpr u32 kBallGlowColorIdxTable[] = {
+    0, 0, 1, 0, 5, 7, 6, 8,
+};
+
+/* Maps material index to effect in generator array */
+constexpr s32 skWakeEffectMap[32] = {
+    -1, -1, -1, -1, -1, -1, -1,
+    0, // Phazon
+    2, // Dirt
+    3, // Lava
+    -1,
+    4, // Snow
+    5, // MudSlow
+    -1, -1, -1, -1,
+    6, // Sand
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
+
+constexpr u16 skBallRollSfx[] = {
+    0xFFFF,
+    SFXsam_ballroll_stone,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_grass,
+    SFXice_ballroll_ice,
+    0xFFFF,
+    SFXsam_ballroll_grate,
+    SFXsam_ballroll_phazon,
+    SFXsam_ballroll_dirt,
+    SFXlav_ballroll_lava,
+    SFXsam_ballroll_lavastone,
+    SFXice_ballroll_snow,
+    SFXsam_ballroll_mud,
+    0xFFFF,
+    SFXsam_ballroll_org,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_metal,
+    SFXsam_ballroll_dirt,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_ballroll_wood,
+    SFXsam_ballroll_org,
+};
+
+constexpr u16 skBallLandSfx[] = {
+    0xFFFF,
+    SFXsam_ballland_stone,
+    SFXsam_ballland_metal,
+    SFXsam_ballland_grass,
+    SFXsam_ballland_ice,
+    0xFFFF,
+    SFXsam_ballland_grate,
+    SFXsam_ballland_phazon,
+    SFXsam_landdirt_00,
+    SFXsam_ballland_lava,
+    SFXsam_ballland_lava,
+    SFXsam_ballland_snow,
+    SFXsam_ballland_mud,
+    0xFFFF,
+    SFXsam_ballland_org,
+    SFXsam_ballland_metal,
+    SFXsam_ballland_metal,
+    SFXsam_landdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_ballland_wood,
+    SFXsam_ballland_org,
+};
+
+constexpr u8 skBallInnerGlowColors[9][3] = {
+    {0xc2, 0x7e, 0x10}, {0x66, 0xc4, 0xff}, {0x60, 0xff, 0x90}, {0x33, 0x33, 0xff}, {0xff, 0x80, 0x80},
+    {0x0, 0x9d, 0xb6},  {0xd3, 0xf1, 0x0},  {0x60, 0x33, 0xff}, {0xfb, 0x98, 0x21},
+};
+
+constexpr u8 BallSwooshColors[9][3] = {
+    {0xC2, 0x8F, 0x17}, {0x70, 0xD4, 0xFF}, {0x6A, 0xFF, 0x8A}, {0x3D, 0x4D, 0xFF}, {0xC0, 0x00, 0x00},
+    {0x00, 0xBE, 0xDC}, {0xDF, 0xFF, 0x00}, {0xC4, 0x9E, 0xFF}, {0xFF, 0x9A, 0x22},
+};
+
+constexpr u8 BallSwooshColorsCharged[9][3] = {
+    {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0x80, 0x20},
+    {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00},
+};
+
+constexpr u8 BallSwooshColorsJaggy[9][3] = {
+    {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xD5, 0x19},
+    {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00},
+};
+} // Anonymous namespace
 
 const u8 CMorphBall::BallGlowColors[9][3] = {
     {0xff, 0xff, 0xff}, {0xff, 0xff, 0xff}, {0xff, 0xff, 0xff}, {0xff, 0xff, 0xff}, {0xff, 0xd5, 0x19},
@@ -95,18 +220,6 @@ void CMorphBall::LoadAnimationTokens(std::string_view ancsName) {
     x1958_animationTokens.back().Lock();
   }
 }
-
-/* Maps material index to effect in generator array */
-static const s32 skWakeEffectMap[32] = {-1, -1, -1, -1, -1, -1, -1,
-                                        0, // Phazon
-                                        2, // Dirt
-                                        3, // Lava
-                                        -1,
-                                        4, // Snow
-                                        5, // MudSlow
-                                        -1, -1, -1, -1,
-                                        6, // Sand
-                                        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 void CMorphBall::InitializeWakeEffects() {
   TToken<CGenDescription> nullParticle =
@@ -199,56 +312,6 @@ void CMorphBall::RenderToShadowTex(CStateManager& mgr) {
     x1e50_shadow->RenderIdBuffer(aabb, mgr, x0_player);
   }
 }
-
-static const u16 skBallRollSfx[] = {0xFFFF,
-                                    SFXsam_ballroll_stone,
-                                    SFXsam_ballroll_metal,
-                                    SFXsam_ballroll_grass,
-                                    SFXice_ballroll_ice,
-                                    0xFFFF,
-                                    SFXsam_ballroll_grate,
-                                    SFXsam_ballroll_phazon,
-                                    SFXsam_ballroll_dirt,
-                                    SFXlav_ballroll_lava,
-                                    SFXsam_ballroll_lavastone,
-                                    SFXice_ballroll_snow,
-                                    SFXsam_ballroll_mud,
-                                    0xFFFF,
-                                    SFXsam_ballroll_org,
-                                    SFXsam_ballroll_metal,
-                                    SFXsam_ballroll_metal,
-                                    SFXsam_ballroll_dirt,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    SFXsam_ballroll_wood,
-                                    SFXsam_ballroll_org};
-
-static const u16 skBallLandSfx[] = {0xFFFF,
-                                    SFXsam_ballland_stone,
-                                    SFXsam_ballland_metal,
-                                    SFXsam_ballland_grass,
-                                    SFXsam_ballland_ice,
-                                    0xFFFF,
-                                    SFXsam_ballland_grate,
-                                    SFXsam_ballland_phazon,
-                                    SFXsam_landdirt_00,
-                                    SFXsam_ballland_lava,
-                                    SFXsam_ballland_lava,
-                                    SFXsam_ballland_snow,
-                                    SFXsam_ballland_mud,
-                                    0xFFFF,
-                                    SFXsam_ballland_org,
-                                    SFXsam_ballland_metal,
-                                    SFXsam_ballland_metal,
-                                    SFXsam_landdirt_00,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    0xFFFF,
-                                    SFXsam_ballland_wood,
-                                    SFXsam_ballland_org};
 
 void CMorphBall::SelectMorphBallSounds(const CMaterialList& mat) {
   u16 rollSfx;
@@ -1004,10 +1067,6 @@ void CMorphBall::LeaveMorphBallState(CStateManager& mgr) {
   StopEffects();
 }
 
-static const u8 skBallInnerGlowColors[9][3] = {{0xc2, 0x7e, 0x10}, {0x66, 0xc4, 0xff}, {0x60, 0xff, 0x90},
-                                               {0x33, 0x33, 0xff}, {0xff, 0x80, 0x80}, {0x0, 0x9d, 0xb6},
-                                               {0xd3, 0xf1, 0x0},  {0x60, 0x33, 0xff}, {0xfb, 0x98, 0x21}};
-
 void CMorphBall::UpdateEffects(float dt, CStateManager& mgr) {
   zeus::CTransform swooshToWorld = GetSwooshToWorld();
   x19b8_slowBlueTailSwooshGen->SetTranslation(swooshToWorld.rotate({0.1f, 0.f, 0.f}) + swooshToWorld.origin);
@@ -1393,19 +1452,6 @@ void CMorphBall::PreRender(CStateManager& mgr, const zeus::CFrustum& frustum) {
 void CMorphBall::PointGenerator(void* ctx, const std::vector<std::pair<zeus::CVector3f, zeus::CVector3f>>& vn) {
   reinterpret_cast<CRainSplashGenerator*>(ctx)->GeneratePoints(vn);
 }
-
-static const u8 BallSwooshColors[9][3] = {
-    {0xC2, 0x8F, 0x17}, {0x70, 0xD4, 0xFF}, {0x6A, 0xFF, 0x8A}, {0x3D, 0x4D, 0xFF}, {0xC0, 0x00, 0x00},
-    {0x00, 0xBE, 0xDC}, {0xDF, 0xFF, 0x00}, {0xC4, 0x9E, 0xFF}, {0xFF, 0x9A, 0x22},
-};
-
-static const u8 BallSwooshColorsCharged[9][3] = {{0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00},
-                                                 {0xFF, 0xE6, 0x00}, {0xFF, 0x80, 0x20}, {0xFF, 0xE6, 0x00},
-                                                 {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}, {0xFF, 0xE6, 0x00}};
-
-static const u8 BallSwooshColorsJaggy[9][3] = {{0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00},
-                                               {0xFF, 0xCC, 0x00}, {0xFF, 0xD5, 0x19}, {0xFF, 0xCC, 0x00},
-                                               {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}, {0xFF, 0xCC, 0x00}};
 
 void CMorphBall::Render(const CStateManager& mgr, const CActorLights* lights) const {
   SCOPED_GRAPHICS_DEBUG_GROUP("CPlayer::Render", zeus::skPurple);
@@ -1950,33 +1996,6 @@ void CMorphBall::FluidFXThink(CActor::EFluidState state, CScriptWater& water, CS
     }
   }
 }
-
-static const std::pair<const char*, u32> kBallCharacterTable[] = {
-    {"SamusBallANCS", 0},       {"SamusBallANCS", 0},       {"SamusBallANCS", 1},       {"SamusBallANCS", 0},
-    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3}};
-
-static const std::pair<const char*, u32> kBallLowPolyTable[] = {
-    {"SamusBallLowPolyCMDL", 0},       {"SamusBallLowPolyCMDL", 0},       {"SamusBallLowPolyCMDL", 1},
-    {"SamusBallLowPolyCMDL", 0},       {"SamusBallFusionLowPolyCMDL", 0}, {"SamusBallFusionLowPolyCMDL", 2},
-    {"SamusBallFusionLowPolyCMDL", 1}, {"SamusBallFusionLowPolyCMDL", 3}};
-
-static const std::pair<const char*, u32> kSpiderBallLowPolyTable[] = {
-    {"SamusSpiderBallLowPolyCMDL", 0}, {"SamusSpiderBallLowPolyCMDL", 0}, {"SamusSpiderBallLowPolyCMDL", 1},
-    {"SamusSpiderBallLowPolyCMDL", 2}, {"SamusBallFusionLowPolyCMDL", 0}, {"SamusBallFusionLowPolyCMDL", 2},
-    {"SamusBallFusionLowPolyCMDL", 1}, {"SamusBallFusionLowPolyCMDL", 3}};
-
-static const std::pair<const char*, u32> kSpiderBallCharacterTable[] = {
-    {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 0}, {"SamusSpiderBallANCS", 1}, {"SamusPhazonBallANCS", 0},
-    {"SamusFusionBallANCS", 0}, {"SamusFusionBallANCS", 2}, {"SamusFusionBallANCS", 1}, {"SamusFusionBallANCS", 3}};
-
-static const std::pair<const char*, u32> kSpiderBallGlassTable[] = {
-    {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 1},
-    {"SamusPhazonBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0}, {"SamusSpiderBallGlassCMDL", 0},
-    {"SamusSpiderBallGlassCMDL", 1}, {"SamusPhazonBallGlassCMDL", 0}};
-
-static const u32 kSpiderBallGlowColorIdxTable[] = {3, 3, 2, 4, 5, 7, 6, 8};
-
-static const u32 kBallGlowColorIdxTable[] = {0, 0, 1, 0, 5, 7, 6, 8};
 
 void CMorphBall::LoadMorphBallModel(CStateManager& mgr) {
   bool spiderBall = mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::SpiderBall);
