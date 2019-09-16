@@ -1,25 +1,28 @@
 #pragma once
 
-#include "World/CActor.hpp"
-#include "World/ScriptObjectSupport.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Collision/CCollidableSphere.hpp"
-#include "RetroTypes.hpp"
-#include "Character/CAnimCharacterSet.hpp"
-#include "Particle/CParticleSwoosh.hpp"
-#include "Particle/CElementGen.hpp"
-#include "CWorldShadow.hpp"
-#include "Graphics/CRainSplashGenerator.hpp"
-#include "CMorphBallShadow.hpp"
-#include "Collision/CCollisionInfoList.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Graphics/CRainSplashGenerator.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CMorphBallShadow.hpp"
+#include "Runtime/World/CWorldShadow.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CActorLights;
-class CPlayer;
 class CDamageInfo;
-struct CFinalInput;
+class CPlayer;
 class CScriptWater;
 class CStateManager;
+
+struct CFinalInput;
 
 class CMorphBall {
 public:
