@@ -1,20 +1,32 @@
-#include "CSortedLists.hpp"
-#include "World/CActor.hpp"
+#include "Runtime/CSortedLists.hpp"
+
+#include <algorithm>
+#include <cassert>
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
-
+namespace {
 template <typename T, typename S>
-static std::remove_reference_t<decltype(std::declval<T>()[0])>& AccessElement(T& arr, S idx) {
-  assert(std::extent<T>::value > idx && idx >= 0);
+auto AccessElement(T& arr, S idx) -> typename T::reference {
+  assert(std::size(arr) > static_cast<size_t>(idx) && idx >= 0);
   return arr[idx];
 }
+
+template <typename T, typename S>
+auto AccessElement(const T& arr, S idx) -> typename T::const_reference {
+  assert(std::size(arr) > static_cast<size_t>(idx) && idx >= 0);
+  return arr[idx];
+}
+} // Anonymous namespace
 
 CSortedListManager::CSortedListManager() { Reset(); }
 
 void CSortedListManager::Reset() {
-  std::fill(std::begin(x0_nodes), std::end(x0_nodes), SNode());
-  for (int i = 0; i < 6; ++i)
-    xb000_sortedLists[i].Reset();
+  x0_nodes.fill(SNode{});
+
+  for (auto& list : xb000_sortedLists) {
+    list.Reset();
+  }
 }
 
 void CSortedListManager::AddToLinkedList(s16 nodeId, s16& headId, s16& tailId) const {
@@ -33,32 +45,39 @@ void CSortedListManager::AddToLinkedList(s16 nodeId, s16& headId, s16& tailId) c
 }
 
 void CSortedListManager::RemoveFromList(ESortedList list, s16 idx) {
-  SSortedList& sl = xb000_sortedLists[u32(list)];
+  const auto listIndex = static_cast<size_t>(list);
+  SSortedList& sl = xb000_sortedLists[listIndex];
+
   while (idx < sl.x800_size - 1) {
-    AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[int(list)] = idx;
+    AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[listIndex] = idx;
     AccessElement(sl.x0_ids, idx) = AccessElement(sl.x0_ids, idx + 1);
     ++idx;
   }
+
   --sl.x800_size;
 }
 
 void CSortedListManager::MoveInList(ESortedList list, s16 idx) {
-  SSortedList& sl = xb000_sortedLists[int(list)];
+  const auto listIndex = static_cast<size_t>(list);
+  SSortedList& sl = xb000_sortedLists[listIndex];
+
   while (true) {
-    if (idx > 0 && AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx - 1)).x4_box[int(list)] >
-                       AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x4_box[int(list)]) {
-      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx - 1)).x1c_selfIdxs[int(list)] = idx;
-      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x1c_selfIdxs[int(list)] = idx - 1;
+    if (idx > 0 && AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx - 1)).x4_box[listIndex] >
+                       AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x4_box[listIndex]) {
+      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx - 1)).x1c_selfIdxs[listIndex] = idx;
+      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x1c_selfIdxs[listIndex] = idx - 1;
       std::swap(AccessElement(sl.x0_ids, idx), AccessElement(sl.x0_ids, idx - 1));
       --idx;
     } else {
-      if (idx >= sl.x800_size - 1)
+      if (idx >= sl.x800_size - 1) {
         return;
-      if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x4_box[int(list)] >=
-          AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x4_box[int(list)])
+      }
+      if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x4_box[listIndex] >=
+          AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x4_box[listIndex]) {
         return;
-      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[int(list)] = idx;
-      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x1c_selfIdxs[int(list)] = idx + 1;
+      }
+      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + 1)).x1c_selfIdxs[listIndex] = idx;
+      AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx)).x1c_selfIdxs[listIndex] = idx + 1;
       std::swap(AccessElement(sl.x0_ids, idx), AccessElement(sl.x0_ids, idx + 1));
       ++idx;
     }
@@ -66,11 +85,13 @@ void CSortedListManager::MoveInList(ESortedList list, s16 idx) {
 }
 
 void CSortedListManager::InsertInList(ESortedList list, SNode& node) {
-  SSortedList& sl = xb000_sortedLists[int(list)];
+  const auto listIndex = static_cast<size_t>(list);
+  SSortedList& sl = xb000_sortedLists[listIndex];
   int insIdx = 0;
+
   for (int i = sl.x800_size; i > 0;) {
     /* Binary search cycle to find insert index */
-    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, insIdx + i / 2)).x4_box[int(list)] < node.x4_box[int(list)]) {
+    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, insIdx + i / 2)).x4_box[listIndex] < node.x4_box[listIndex]) {
       /* Upper */
       insIdx = insIdx + i / 2 + 1;
       i = i - i / 2 - 1;
@@ -82,22 +103,24 @@ void CSortedListManager::InsertInList(ESortedList list, SNode& node) {
 
   /* Shift ids for insert */
   for (int i = sl.x800_size; i > insIdx; --i) {
-    AccessElement(x0_nodes, AccessElement(sl.x0_ids, i - 1)).x1c_selfIdxs[int(list)] = i;
+    AccessElement(x0_nodes, AccessElement(sl.x0_ids, i - 1)).x1c_selfIdxs[listIndex] = i;
     AccessElement(sl.x0_ids, i) = AccessElement(sl.x0_ids, i - 1);
   }
 
   /* Do insert */
   AccessElement(sl.x0_ids, insIdx) = node.x0_actor->GetUniqueId().Value();
-  node.x1c_selfIdxs[int(list)] = s16(insIdx);
+  node.x1c_selfIdxs[listIndex] = s16(insIdx);
   ++sl.x800_size;
 }
 
 s16 CSortedListManager::FindInListUpper(ESortedList list, float val) const {
-  const SSortedList& sl = xb000_sortedLists[int(list)];
+  const auto listIndex = static_cast<size_t>(list);
+  const SSortedList& sl = xb000_sortedLists[listIndex];
   int idx = 0;
+
   for (int i = sl.x800_size; i > 0;) {
     /* Binary search cycle to find index */
-    if (!(val < AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[int(list)])) {
+    if (!(val < AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex])) {
       /* Upper */
       idx = idx + i / 2 + 1;
       i = i - i / 2 - 1;
@@ -106,15 +129,18 @@ s16 CSortedListManager::FindInListUpper(ESortedList list, float val) const {
       i /= 2;
     }
   }
+
   return idx;
 }
 
 s16 CSortedListManager::FindInListLower(ESortedList list, float val) const {
-  const SSortedList& sl = xb000_sortedLists[int(list)];
+  const auto listIndex = static_cast<size_t>(list);
+  const SSortedList& sl = xb000_sortedLists[listIndex];
   int idx = 0;
+
   for (int i = sl.x800_size; i > 0;) {
     /* Binary search cycle to find index */
-    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[int(list)] < val) {
+    if (AccessElement(x0_nodes, AccessElement(sl.x0_ids, idx + i / 2)).x4_box[listIndex] < val) {
       /* Upper */
       idx = idx + i / 2 + 1;
       i = i - i / 2 - 1;
@@ -123,27 +149,28 @@ s16 CSortedListManager::FindInListLower(ESortedList list, float val) const {
       i /= 2;
     }
   }
+
   return idx;
 }
 
 s16 CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aabb) {
-  int minXa = FindInListLower(ESortedList::MinX, aabb.min.x());
-  int maxXa = FindInListUpper(ESortedList::MinX, aabb.max.x());
-  int minXb = FindInListLower(ESortedList::MaxX, aabb.min.x());
-  int maxXb = FindInListUpper(ESortedList::MaxX, aabb.max.x());
-  int xEnd = std::min(int(xb000_sortedLists[3].x800_size) - maxXb, minXa) + (maxXb + (maxXa - minXa) - minXb) / 2;
+  const int minXa = FindInListLower(ESortedList::MinX, aabb.min.x());
+  const int maxXa = FindInListUpper(ESortedList::MinX, aabb.max.x());
+  const int minXb = FindInListLower(ESortedList::MaxX, aabb.min.x());
+  const int maxXb = FindInListUpper(ESortedList::MaxX, aabb.max.x());
+  const int xEnd = std::min(int(xb000_sortedLists[3].x800_size) - maxXb, minXa) + (maxXb + (maxXa - minXa) - minXb) / 2;
 
-  int minYa = FindInListLower(ESortedList::MinY, aabb.min.y());
-  int maxYa = FindInListUpper(ESortedList::MinY, aabb.max.y());
-  int minYb = FindInListLower(ESortedList::MaxY, aabb.min.y());
-  int maxYb = FindInListUpper(ESortedList::MaxY, aabb.max.y());
-  int yEnd = std::min(int(xb000_sortedLists[4].x800_size) - maxYb, minYa) + (maxYb + (maxYa - minYa) - minYb) / 2;
+  const int minYa = FindInListLower(ESortedList::MinY, aabb.min.y());
+  const int maxYa = FindInListUpper(ESortedList::MinY, aabb.max.y());
+  const int minYb = FindInListLower(ESortedList::MaxY, aabb.min.y());
+  const int maxYb = FindInListUpper(ESortedList::MaxY, aabb.max.y());
+  const int yEnd = std::min(int(xb000_sortedLists[4].x800_size) - maxYb, minYa) + (maxYb + (maxYa - minYa) - minYb) / 2;
 
-  int minZa = FindInListLower(ESortedList::MinZ, aabb.min.z());
-  int maxZa = FindInListUpper(ESortedList::MinZ, aabb.max.z());
-  int minZb = FindInListLower(ESortedList::MaxZ, aabb.min.z());
-  int maxZb = FindInListUpper(ESortedList::MaxZ, aabb.max.z());
-  int zEnd = std::min(int(xb000_sortedLists[5].x800_size) - maxZb, minZa) + (maxZb + (maxZa - minZa) - minZb) / 2;
+  const int minZa = FindInListLower(ESortedList::MinZ, aabb.min.z());
+  const int maxZa = FindInListUpper(ESortedList::MinZ, aabb.max.z());
+  const int minZb = FindInListLower(ESortedList::MaxZ, aabb.min.z());
+  const int maxZb = FindInListUpper(ESortedList::MaxZ, aabb.max.z());
+  const int zEnd = std::min(int(xb000_sortedLists[5].x800_size) - maxZb, minZa) + (maxZb + (maxZa - minZa) - minZb) / 2;
 
   if (xEnd < yEnd && xEnd < zEnd) {
     return CalculateIntersections(ESortedList::MinX, ESortedList::MaxX, minXa, maxXa, minXb, maxXb, ESortedList::MinY,
@@ -160,31 +187,38 @@ s16 CSortedListManager::ConstructIntersectionArray(const zeus::CAABox& aabb) {
 s16 CSortedListManager::CalculateIntersections(ESortedList la, ESortedList lb, s16 a, s16 b, s16 c, s16 d,
                                                ESortedList slA, ESortedList slB, ESortedList slC, ESortedList slD,
                                                const zeus::CAABox& aabb) {
+  const auto listAIndex = static_cast<size_t>(la);
+  const auto listBIndex = static_cast<size_t>(lb);
+
   s16 headId = -1;
   s16 tailId = -1;
-  for (int i = a; i < b; ++i)
-    AddToLinkedList(AccessElement(xb000_sortedLists[int(la)].x0_ids, i), headId, tailId);
-  for (int i = c; i < d; ++i)
-    AddToLinkedList(AccessElement(xb000_sortedLists[int(lb)].x0_ids, i), headId, tailId);
+  for (int i = a; i < b; ++i) {
+    AddToLinkedList(AccessElement(xb000_sortedLists[listAIndex].x0_ids, i), headId, tailId);
+  }
+  for (int i = c; i < d; ++i) {
+    AddToLinkedList(AccessElement(xb000_sortedLists[listBIndex].x0_ids, i), headId, tailId);
+  }
 
-  if (a < xb000_sortedLists[int(lb)].x800_size - d) {
+  if (a < xb000_sortedLists[listBIndex].x800_size - d) {
     for (int i = 0; i < a; ++i) {
-      s16 id = AccessElement(xb000_sortedLists[int(la)].x0_ids, i);
-      if (AccessElement(x0_nodes, id).x4_box[int(lb)] > aabb[int(lb)])
+      const s16 id = AccessElement(xb000_sortedLists[listAIndex].x0_ids, i);
+      if (AccessElement(x0_nodes, id).x4_box[listBIndex] > aabb[listBIndex]) {
         AddToLinkedList(id, headId, tailId);
+      }
     }
   } else {
-    for (int i = d; i < xb000_sortedLists[int(lb)].x800_size; ++i) {
-      s16 id = AccessElement(xb000_sortedLists[int(lb)].x0_ids, i);
-      if (AccessElement(x0_nodes, id).x4_box[int(la)] < aabb[int(la)])
+    for (int i = d; i < xb000_sortedLists[listBIndex].x800_size; ++i) {
+      const s16 id = AccessElement(xb000_sortedLists[listBIndex].x0_ids, i);
+      if (AccessElement(x0_nodes, id).x4_box[listAIndex] < aabb[listAIndex]) {
         AddToLinkedList(id, headId, tailId);
+      }
     }
   }
 
   for (s16* id = &headId; *id != -1;) {
     SNode& node = AccessElement(x0_nodes, *id);
-    if (node.x4_box[int(slA)] > aabb[int(slB)] || node.x4_box[int(slB)] < aabb[int(slA)] ||
-        node.x4_box[int(slC)] > aabb[int(slD)] || node.x4_box[int(slD)] < aabb[int(slC)]) {
+    if (node.x4_box[size_t(slA)] > aabb[size_t(slB)] || node.x4_box[size_t(slB)] < aabb[size_t(slA)] ||
+        node.x4_box[size_t(slC)] > aabb[size_t(slD)] || node.x4_box[size_t(slD)] < aabb[size_t(slC)]) {
       /* Not intersecting; remove from chain */
       *id = node.x28_next;
       node.x28_next = -1;
