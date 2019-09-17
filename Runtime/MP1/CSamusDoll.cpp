@@ -468,20 +468,35 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
     flags.x4_color.a() = x6c_ballPulseFactor * alpha * itemPulse;
     x184_ballModelData->Render(mgr, x10_ballXf, x24c_actorLights.get(), flags);
 
-    const u8* c = CMorphBall::BallGlowColors[x1e8_ballGlowColorIdx];
-    zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
-    x22c_ballInnerGlowGen->SetModulationColor(color);
+    const CMorphBall::ColorArray ballGlowColorData = CMorphBall::BallGlowColors[x1e8_ballGlowColorIdx];
+    const zeus::CColor ballGlowColor{
+        float(ballGlowColorData[0]) / 255.f,
+        float(ballGlowColorData[1]) / 255.f,
+        float(ballGlowColorData[2]) / 255.f,
+        alpha,
+    };
+    x22c_ballInnerGlowGen->SetModulationColor(ballGlowColor);
 
     if (alpha > 0.f) {
       if (x22c_ballInnerGlowGen->GetNumActiveChildParticles() > 0) {
-        const u8* c = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
-        zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
-        x22c_ballInnerGlowGen->GetActiveChildParticle(0).SetModulationColor(color);
+        const CMorphBall::ColorArray transFlashColorData = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
+        const zeus::CColor transFlashColor{
+            float(transFlashColorData[0]) / 255.f,
+            float(transFlashColorData[1]) / 255.f,
+            float(transFlashColorData[2]) / 255.f,
+            alpha,
+        };
+        x22c_ballInnerGlowGen->GetActiveChildParticle(0).SetModulationColor(transFlashColor);
 
         if (x22c_ballInnerGlowGen->GetNumActiveChildParticles() > 1) {
-          const u8* c = CMorphBall::BallAuxGlowColors[x1e8_ballGlowColorIdx];
-          zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, alpha};
-          x22c_ballInnerGlowGen->GetActiveChildParticle(1).SetModulationColor(color);
+          const CMorphBall::ColorArray auxColorData = CMorphBall::BallAuxGlowColors[x1e8_ballGlowColorIdx];
+          const zeus::CColor auxColor{
+              float(auxColorData[0]) / 255.f,
+              float(auxColorData[1]) / 255.f,
+              float(auxColorData[2]) / 255.f,
+              alpha,
+          };
+          x22c_ballInnerGlowGen->GetActiveChildParticle(1).SetModulationColor(auxColor);
         }
       }
       x22c_ballInnerGlowGen->Render();
@@ -510,8 +525,13 @@ void CSamusDoll::Draw(const CStateManager& mgr, float alpha) {
   }
 
   if (x238_ballTransitionFlashGen) {
-    const u8* c = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
-    zeus::CColor color = {c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, 1.f};
+    const CMorphBall::ColorArray c = CMorphBall::BallTransFlashColors[x1e8_ballGlowColorIdx];
+    const zeus::CColor color{
+        float(c[0]) / 255.f,
+        float(c[1]) / 255.f,
+        float(c[2]) / 255.f,
+        1.f,
+    };
     x238_ballTransitionFlashGen->SetModulationColor(color);
     x238_ballTransitionFlashGen->Render();
   }
