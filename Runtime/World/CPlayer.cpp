@@ -2389,9 +2389,9 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
         float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
         u16 landSfx;
         if (-x794_lastVelocity.z() < hardThres) {
-          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxSoft, 24, 0xffff);
+          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxSoft, std::size(skPlayerLandSfxSoft), 0xffff);
         } else {
-          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard, 24, 0xffff);
+          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard, std::size(skPlayerLandSfxHard), 0xffff);
           StartSamusVoiceSfx(SFXsam_voxland_02, 1.f, 5);
           x55c_damageAmt = 0.f;
           x560_prevDamageAmt = 10.f;
@@ -2645,10 +2645,11 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
       }
     } else {
       u16 sfx;
-      if (x790_footstepSfxSel == EFootstepSfx::Left)
-        sfx = GetMaterialSoundUnderPlayer(mgr, skLeftStepSounds, 24, -1);
-      else
-        sfx = GetMaterialSoundUnderPlayer(mgr, skRightStepSounds, 24, -1);
+      if (x790_footstepSfxSel == EFootstepSfx::Left) {
+        sfx = GetMaterialSoundUnderPlayer(mgr, skLeftStepSounds, std::size(skLeftStepSounds), -1);
+      } else {
+        sfx = GetMaterialSoundUnderPlayer(mgr, skRightStepSounds, std::size(skRightStepSounds), -1);
+      }
       CSfxHandle hnd = CSfxManager::SfxStart(sfx, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
     }
@@ -2661,7 +2662,7 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
   }
 }
 
-u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* table, u32 length, u16 defId) const {
+u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* table, size_t length, u16 defId) const {
   u16 ret = defId;
   zeus::CAABox aabb = GetBoundingBox();
   aabb.accumulateBounds(x34_transform.origin + zeus::skDown);
@@ -2675,9 +2676,9 @@ u16 CPlayer::GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* ta
   return ret;
 }
 
-u16 CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, u32 tableLen, u16 defId) {
+u16 CPlayer::SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, size_t tableLen, u16 defId) {
   u16 id = defId;
-  for (u32 i = 0; i < tableLen; ++i) {
+  for (size_t i = 0; i < tableLen; ++i) {
     if (mat.HasMaterial(EMaterialTypes(i)) && idList[i] != 0xFFFF)
       id = idList[i];
   }
