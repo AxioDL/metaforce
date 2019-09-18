@@ -432,8 +432,8 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetVisorSteam(float, float, float, CAssetId, bool);
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
-  u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16*, u32, u16) const;
-  static u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
+  u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* idList, size_t length, u16 defId) const;
+  static u16 SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, size_t tableLen, u16 defId);
   void UpdateCrosshairsState(const CFinalInput&);
   void UpdateVisorTransition(float, CStateManager& mgr);
   void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);

@@ -401,7 +401,7 @@ void CMorphBall::SelectMorphBallSounds(const CMaterialList& mat) {
     else
       rollSfx = 1481;
   } else {
-    rollSfx = CPlayer::SfxIdFromMaterial(mat, skBallRollSfx.data(), 24, 0xffff);
+    rollSfx = CPlayer::SfxIdFromMaterial(mat, skBallRollSfx.data(), skBallRollSfx.size(), 0xffff);
   }
   x0_player.x9c5_30_selectFluidBallSound = false;
 
@@ -413,7 +413,7 @@ void CMorphBall::SelectMorphBallSounds(const CMaterialList& mat) {
     x1e34_rollSfx = rollSfx;
   }
 
-  x1e36_landSfx = CPlayer::SfxIdFromMaterial(mat, skBallLandSfx.data(), 24, 0xffff);
+  x1e36_landSfx = CPlayer::SfxIdFromMaterial(mat, skBallLandSfx.data(), skBallLandSfx.size(), 0xffff);
 }
 
 void CMorphBall::UpdateMorphBallSounds(float dt) {
