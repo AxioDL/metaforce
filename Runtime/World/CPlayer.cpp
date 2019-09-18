@@ -1,6 +1,7 @@
 #include "Runtime/World/CPlayer.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <string>
 
@@ -50,24 +51,24 @@ const CMaterialFilter BallTransitionCollide = CMaterialFilter::MakeIncludeExclud
     {EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player, EMaterialTypes::Character,
                               EMaterialTypes::CameraPassthrough});
 
-constexpr float skStrafeDistances[] = {
+constexpr std::array<float, 8> skStrafeDistances{
     11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f,
 };
 
-constexpr float skDashStrafeDistances[] = {
+constexpr std::array<float, 8> skDashStrafeDistances{
     30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f,
 };
 
-constexpr float skOrbitForwardDistances[] = {
+constexpr std::array<float, 8> skOrbitForwardDistances{
     11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f,
 };
 
-constexpr const char* UnlockMessageResBases[] = {
+constexpr std::array<const char*, 2> UnlockMessageResBases{
     "STRG_SlideShow_Unlock1_",
     "STRG_SlideShow_Unlock2_",
 };
 
-constexpr u16 skPlayerLandSfxSoft[] = {
+constexpr std::array<u16, 24> skPlayerLandSfxSoft{
     0xFFFF,
     SFXsam_landstone_00,
     SFXsam_landmetl_00,
@@ -94,7 +95,7 @@ constexpr u16 skPlayerLandSfxSoft[] = {
     SFXsam_b_landorg_00,
 };
 
-constexpr u16 skPlayerLandSfxHard[] = {
+constexpr std::array<u16, 24> skPlayerLandSfxHard{
     0xFFFF,
     SFXsam_landstone_02,
     SFXsam_b_landmetl_02,
@@ -121,7 +122,7 @@ constexpr u16 skPlayerLandSfxHard[] = {
     SFXsam_landorg_02,
 };
 
-constexpr u16 skLeftStepSounds[] = {
+constexpr std::array<u16, 24> skLeftStepSounds{
     0xFFFF,
     SFXsam_wlkstone_00,
     SFXsam_wlkmetal_00,
@@ -148,7 +149,7 @@ constexpr u16 skLeftStepSounds[] = {
     SFXsam_b_wlkorg_00,
 };
 
-constexpr u16 skRightStepSounds[] = {
+constexpr std::array<u16, 24> skRightStepSounds{
     0xFFFF,
     SFXsam_wlkstone_01,
     SFXsam_wlkmetal_01,
@@ -175,12 +176,12 @@ constexpr u16 skRightStepSounds[] = {
     SFXsam_b_wlkorg_01,
 };
 
-constexpr std::pair<CPlayerState::EItemType, ControlMapper::ECommands> skVisorToItemMapping[] = {
+constexpr std::array<std::pair<CPlayerState::EItemType, ControlMapper::ECommands>, 4> skVisorToItemMapping{{
     {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
     {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
     {CPlayerState::EItemType::ScanVisor, ControlMapper::ECommands::InviroVisor},
     {CPlayerState::EItemType::ThermalVisor, ControlMapper::ECommands::ThermoVisor},
-};
+}};
 
 CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
   return {CAnimRes(resId, 0, scale, 0, true), 1};
@@ -714,11 +715,11 @@ float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
     }
   } else {
     state = CPlayerCameraBob::ECameraBobState::Orbit;
-    float f29 = backupVel.dot(x34_transform.basis[0]);
-    float f30 = backupVel.dot(x34_transform.basis[1]);
-    float maxVel = GetActualFirstPersonMaxVelocity(dt);
-    float strafeDist =
-        skStrafeDistances[int(x2b0_outOfWaterTicks == 2 ? x2ac_surfaceRestraint : ESurfaceRestraints::Water)];
+    const float f29 = backupVel.dot(x34_transform.basis[0]);
+    const float f30 = backupVel.dot(x34_transform.basis[1]);
+    const float maxVel = GetActualFirstPersonMaxVelocity(dt);
+    const float strafeDist =
+        skStrafeDistances[size_t(x2b0_outOfWaterTicks == 2 ? x2ac_surfaceRestraint : ESurfaceRestraints::Water)];
     bobMag = std::min(std::sqrt(f30 * f30 + f29 * f29) / std::sqrt(strafeDist * strafeDist + maxVel * maxVel) *
                           CPlayerCameraBob::kOrbitBobScale,
                       CPlayerCameraBob::kMaxOrbitBobScale);
@@ -1166,25 +1167,28 @@ static bool IsDataLoreResearchScan(CAssetId id) {
 }
 
 static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 totalLogScans) {
-  if (prevLogScans == logScans)
+  if (prevLogScans == logScans) {
     return {};
+  }
 
-  float scanPercent = logScans / float(totalLogScans) * 100.f;
-  float prevScanPercent = prevLogScans / float(totalLogScans) * 100.f;
-  float scanMessageInterval = g_tweakSlideShow->GetScanPercentInterval();
-  auto scanPercentProgStep = int(scanPercent / scanMessageInterval);
-  auto prevScanPercentProgStep = int(prevScanPercent / scanMessageInterval);
-  bool firstTime = scanPercent > g_GameState->SystemOptions().GetLogScanPercent();
+  const float scanPercent = logScans / float(totalLogScans) * 100.f;
+  const float prevScanPercent = prevLogScans / float(totalLogScans) * 100.f;
+  const float scanMessageInterval = g_tweakSlideShow->GetScanPercentInterval();
+  const auto scanPercentProgStep = int(scanPercent / scanMessageInterval);
+  const auto prevScanPercentProgStep = int(prevScanPercent / scanMessageInterval);
+  const bool firstTime = scanPercent > g_GameState->SystemOptions().GetLogScanPercent();
 
-  if (firstTime)
+  if (firstTime) {
     g_GameState->SystemOptions().SetLogScanPercent(u32(scanPercent));
+  }
 
   if (scanPercentProgStep > prevScanPercentProgStep) {
-    auto message =
-        std::string(UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)]) + (firstTime ? '1' : '2');
-    auto id = g_ResFactory->GetResourceIdByName(message.c_str());
-    if (id != nullptr)
+    const char* const messageResBase = UnlockMessageResBases[zeus::clamp(0, scanPercentProgStep - 1, 1)];
+    const auto message = std::string(messageResBase).append(1,  firstTime ? '1' : '2');
+    const auto id = g_ResFactory->GetResourceIdByName(message);
+    if (id != nullptr) {
       return id->id;
+    }
   }
 
   return {};
@@ -2468,12 +2472,12 @@ void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CState
       if (x258_movementState != EPlayerMovementState::Falling) {
         float hardThres = 30.f * 2.f * -g_tweakPlayer->GetNormalGravAccel();
         hardThres = (hardThres != 0.f) ? hardThres * std::sqrt(hardThres) : 0.f;
-        float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
+        const float landVol = zeus::clamp(95.f, 1.6f * -x794_lastVelocity.z() + 95.f, 127.f) / 127.f;
         u16 landSfx;
         if (-x794_lastVelocity.z() < hardThres) {
-          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxSoft, std::size(skPlayerLandSfxSoft), 0xffff);
+          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxSoft.data(), skPlayerLandSfxSoft.size(), 0xffff);
         } else {
-          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard, std::size(skPlayerLandSfxHard), 0xffff);
+          landSfx = GetMaterialSoundUnderPlayer(mgr, skPlayerLandSfxHard.data(), skPlayerLandSfxHard.size(), 0xffff);
           StartSamusVoiceSfx(SFXsam_voxland_02, 1.f, 5);
           x55c_damageAmt = 0.f;
           x560_prevDamageAmt = 10.f;
@@ -2678,9 +2682,9 @@ void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr,
     } else {
       u16 sfx;
       if (x790_footstepSfxSel == EFootstepSfx::Left) {
-        sfx = GetMaterialSoundUnderPlayer(mgr, skLeftStepSounds, std::size(skLeftStepSounds), -1);
+        sfx = GetMaterialSoundUnderPlayer(mgr, skLeftStepSounds.data(), skLeftStepSounds.size(), 0xffff);
       } else {
-        sfx = GetMaterialSoundUnderPlayer(mgr, skRightStepSounds, std::size(skRightStepSounds), -1);
+        sfx = GetMaterialSoundUnderPlayer(mgr, skRightStepSounds.data(), skRightStepSounds.size(), 0xffff);
       }
       CSfxHandle hnd = CSfxManager::SfxStart(sfx, sfxVol, 0.f, true, 0x7f, false, kInvalidAreaId);
       ApplySubmergedPitchBend(hnd);
@@ -2745,17 +2749,20 @@ void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager
     DrawGun(mgr);
   }
 
-  for (int i = 0; i < 4; ++i) {
-    if (mgr.GetPlayerState()->HasPowerUp(skVisorToItemMapping[i].first) &&
-        ControlMapper::GetPressInput(skVisorToItemMapping[i].second, input)) {
+  for (size_t i = 0; i < skVisorToItemMapping.size(); ++i) {
+    const auto mapping = skVisorToItemMapping[i];
+
+    if (mgr.GetPlayerState()->HasPowerUp(mapping.first) && ControlMapper::GetPressInput(mapping.second, input)) {
       x9c4_24_visorChangeRequested = true;
-      CPlayerState::EPlayerVisor visor = CPlayerState::EPlayerVisor(i);
+      const auto visor = CPlayerState::EPlayerVisor(i);
+
       if (mgr.GetPlayerState()->GetTransitioningVisor() != visor) {
         mgr.GetPlayerState()->StartTransitionToVisor(visor);
-        if (visor == CPlayerState::EPlayerVisor::Scan)
+        if (visor == CPlayerState::EPlayerVisor::Scan) {
           HolsterGun(mgr);
-        else
+        } else {
           DrawGun(mgr);
+        }
       }
     }
   }
@@ -5082,17 +5089,21 @@ void CPlayer::FinishSidewaysDash() {
 }
 
 void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr) {
-  float strafeInput = StrafeInput(input);
-  float forwardInput = ForwardInput(input, TurnInput(input));
+  const float strafeInput = StrafeInput(input);
+  const float forwardInput = ForwardInput(input, TurnInput(input));
   zeus::CVector3f orbitPointFlattened(x314_orbitPoint.x(), x314_orbitPoint.y(), GetTranslation().z());
-  zeus::CVector3f orbitToPlayer = GetTranslation() - orbitPointFlattened;
-  if (!orbitToPlayer.canBeNormalized())
+  const zeus::CVector3f orbitToPlayer = GetTranslation() - orbitPointFlattened;
+  if (!orbitToPlayer.canBeNormalized()) {
     return;
+  }
+
   zeus::CVector3f useOrbitToPlayer = orbitToPlayer;
-  ESurfaceRestraints restraints = GetSurfaceRestraint();
-  float strafeVel = dt * skStrafeDistances[int(restraints)];
-  if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input))
+  const ESurfaceRestraints restraints = GetSurfaceRestraint();
+  float strafeVel = dt * skStrafeDistances[size_t(restraints)];
+  if (ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input)) {
     x388_dashButtonHoldTime += dt;
+  }
+
   if (!x37c_sidewaysDashing) {
     if (SidewaysDashAllowed(strafeInput, forwardInput, input, mgr)) {
       x37c_sidewaysDashing = true;
@@ -5120,36 +5131,41 @@ void CPlayer::ComputeDash(const CFinalInput& input, float dt, CStateManager& mgr
       CSfxManager::RemoveEmitter(x778_dashSfx);
     } else {
       if (x39c_noStrafeDashBlend) {
-        strafeVel = dt * skDashStrafeDistances[int(restraints)] * x398_dashSpeedMultiplier;
+        strafeVel = dt * skDashStrafeDistances[size_t(restraints)] * x398_dashSpeedMultiplier;
       } else {
-        strafeVel = ((skDashStrafeDistances[int(restraints)] - skStrafeDistances[int(restraints)]) *
+        strafeVel = ((skDashStrafeDistances[size_t(restraints)] - skStrafeDistances[size_t(restraints)]) *
                          (1.f - zeus::clamp(-1.f, x384_dashTimer / x3a4_strafeDashBlendDuration, 1.f)) +
-                     skStrafeDistances[int(restraints)]) *
+                     skStrafeDistances[size_t(restraints)]) *
                     x398_dashSpeedMultiplier * dt;
       }
-      if (x380_strafeInputAtDash < 0.f)
+      if (x380_strafeInputAtDash < 0.f) {
         strafeVel = -strafeVel;
+      }
     }
   }
 
-  float f3 = strafeVel / orbitToPlayer.magnitude();
-  float f2 = dt * (x37c_sidewaysDashing ? M_PIF : (M_PIF * 2.f / 3.f));
+  const float f3 = strafeVel / orbitToPlayer.magnitude();
+  const float f2 = dt * (x37c_sidewaysDashing ? M_PIF : (M_PIF * 2.f / 3.f));
   useOrbitToPlayer =
       zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::clamp(-f2, f3, f2)).transform(orbitToPlayer);
   orbitPointFlattened += useOrbitToPlayer;
-  if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input))
+  if (!ControlMapper::GetDigitalInput(ControlMapper::ECommands::JumpOrBoost, input)) {
     x388_dashButtonHoldTime = 0.f;
-  strafeVel = skOrbitForwardDistances[int(restraints)] * forwardInput * dt;
+  }
+
+  strafeVel = skOrbitForwardDistances[size_t(restraints)] * forwardInput * dt;
   orbitPointFlattened += -useOrbitToPlayer.normalized() * strafeVel;
-  zeus::CVector2f velFlat(x138_velocity.x(), x138_velocity.y());
+  const zeus::CVector2f velFlat(x138_velocity.x(), x138_velocity.y());
   zeus::CVector3f newVelocity = (orbitPointFlattened - GetTranslation()) / dt;
-  zeus::CVector3f velDelta(newVelocity.x() - x138_velocity.x(), newVelocity.y() - x138_velocity.y(), 0.f);
+  const zeus::CVector3f velDelta(newVelocity.x() - x138_velocity.x(), newVelocity.y() - x138_velocity.y(), 0.f);
   strafeVel = velDelta.magnitude();
+
   if (strafeVel > FLT_EPSILON) {
-    float accel = dt * GetAcceleration();
+    const float accel = dt * GetAcceleration();
     newVelocity = velDelta / strafeVel * accel * zeus::clamp(-1.f, strafeVel / accel, 1.f) + x138_velocity;
-    if (!x9c5_28_slidingOnWall)
+    if (!x9c5_28_slidingOnWall) {
       SetVelocityWR(newVelocity);
+    }
   }
 }
 
