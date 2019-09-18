@@ -1,5 +1,9 @@
 #include "Runtime/World/CPlayer.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <string>
+
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -29,46 +33,183 @@
 #include <logvisor/logvisor.hpp>
 
 namespace urde {
+namespace {
+logvisor::Module Log("urde::CPlayer");
 
-static logvisor::Module Log("urde::CPlayer");
+const CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
-static const CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
-
-static const CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
+const CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid},
     {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
-static const CMaterialFilter OccluderFilter = CMaterialFilter::MakeIncludeExclude(
+const CMaterialFilter OccluderFilter = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid, EMaterialTypes::Occluder},
     {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
-static CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
+const CMaterialFilter BallTransitionCollide = CMaterialFilter::MakeIncludeExclude(
+    {EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player, EMaterialTypes::Character,
+                              EMaterialTypes::CameraPassthrough});
+
+constexpr float skStrafeDistances[] = {
+    11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f,
+};
+
+constexpr float skDashStrafeDistances[] = {
+    30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f,
+};
+
+constexpr float skOrbitForwardDistances[] = {
+    11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f,
+};
+
+constexpr const char* UnlockMessageResBases[] = {
+    "STRG_SlideShow_Unlock1_",
+    "STRG_SlideShow_Unlock2_",
+};
+
+constexpr u16 skPlayerLandSfxSoft[] = {
+    0xFFFF,
+    SFXsam_landstone_00,
+    SFXsam_landmetl_00,
+    SFXsam_landgrass_00,
+    SFXsam_landice_00,
+    0xFFFF,
+    SFXsam_landgrate_00,
+    SFXsam_landphazon_00,
+    SFXsam_landdirt_00,
+    SFXlav_landlava_00,
+    SFXsam_landlavastone_00,
+    SFXsam_landsnow_00,
+    SFXsam_landmud_00,
+    0xFFFF,
+    SFXsam_landgrass_00,
+    SFXsam_landmetl_00,
+    SFXsam_landmetl_00,
+    SFXsam_landdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_landwood_00,
+    SFXsam_b_landorg_00,
+};
+
+constexpr u16 skPlayerLandSfxHard[] = {
+    0xFFFF,
+    SFXsam_landstone_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_landgrass_02,
+    SFXsam_landice_02,
+    0xFFFF,
+    SFXsam_landgrate_02,
+    SFXsam_landphazon_02,
+    SFXsam_landdirt_02,
+    SFXlav_landlava_02,
+    SFXsam_landlavastone_02,
+    SFXsam_landsnow_02,
+    SFXsam_landmud_02,
+    0xFFFF,
+    SFXsam_landgrass_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_b_landmetl_02,
+    SFXsam_landdirt_02,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_landwood_02,
+    SFXsam_landorg_02,
+};
+
+constexpr u16 skLeftStepSounds[] = {
+    0xFFFF,
+    SFXsam_wlkstone_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_b_wlkgrass_00,
+    SFXsam_wlkice_00,
+    0xFFFF,
+    SFXsam_wlkgrate_00,
+    SFXsam_wlkphazon_00,
+    SFXsam_wlkdirt_00,
+    SFXlav_wlklava_00,
+    SFXsam_wlklavastone_00,
+    SFXsam_wlksnow_00,
+    SFXsam_wlkmud_00,
+    0xFFFF,
+    SFXsam_b_wlkorg_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_wlkmetal_00,
+    SFXsam_wlkdirt_00,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_wlkwood_00,
+    SFXsam_b_wlkorg_00,
+};
+
+constexpr u16 skRightStepSounds[] = {
+    0xFFFF,
+    SFXsam_wlkstone_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_b_wlkgrass_01,
+    SFXsam_wlkice_01,
+    0xFFFF,
+    SFXsam_wlkgrate_01,
+    SFXsam_wlkphazon_01,
+    SFXsam_wlkdirt_01,
+    SFXlav_wlklava_01,
+    SFXsam_wlklavastone_01,
+    SFXsam_wlksnow_01,
+    SFXsam_wlkmud_01,
+    0xFFFF,
+    SFXsam_b_wlkorg_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_wlkmetal_01,
+    SFXsam_wlkdirt_01,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    0xFFFF,
+    SFXsam_wlkwood_01,
+    SFXsam_b_wlkorg_01,
+};
+
+constexpr std::pair<CPlayerState::EItemType, ControlMapper::ECommands> skVisorToItemMapping[] = {
+    {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
+    {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
+    {CPlayerState::EItemType::ScanVisor, ControlMapper::ECommands::InviroVisor},
+    {CPlayerState::EItemType::ThermalVisor, ControlMapper::ECommands::ThermoVisor},
+};
+
+CModelData MakePlayerAnimRes(CAssetId resId, const zeus::CVector3f& scale) {
   return {CAnimRes(resId, 0, scale, 0, true), 1};
 }
 
-static uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone) {
+uint32_t GetOrbitScreenBoxHalfExtentXScaled(int zone) {
   return g_tweakPlayer->GetOrbitScreenBoxHalfExtentX(zone) * g_Viewport.x8_width / 640;
 }
 
-static uint32_t GetOrbitScreenBoxHalfExtentYScaled(int zone) {
+uint32_t GetOrbitScreenBoxHalfExtentYScaled(int zone) {
   return g_tweakPlayer->GetOrbitScreenBoxHalfExtentY(zone) * g_Viewport.xc_height / 448;
 }
 
-static uint32_t GetOrbitScreenBoxCenterXScaled(int zone) {
+uint32_t GetOrbitScreenBoxCenterXScaled(int zone) {
   return g_tweakPlayer->GetOrbitScreenBoxCenterX(zone) * g_Viewport.x8_width / 640;
 }
 
-static uint32_t GetOrbitScreenBoxCenterYScaled(int zone) {
+uint32_t GetOrbitScreenBoxCenterYScaled(int zone) {
   return g_tweakPlayer->GetOrbitScreenBoxCenterY(zone) * g_Viewport.xc_height / 448;
 }
 
-static uint32_t GetOrbitZoneIdealXScaled(int zone) {
+uint32_t GetOrbitZoneIdealXScaled(int zone) {
   return g_tweakPlayer->GetOrbitZoneIdealX(zone) * g_Viewport.x8_width / 640;
 }
 
-static uint32_t GetOrbitZoneIdealYScaled(int zone) {
+uint32_t GetOrbitZoneIdealYScaled(int zone) {
   return g_tweakPlayer->GetOrbitZoneIdealY(zone) * g_Viewport.xc_height / 448;
 }
+} // Anonymous namespace
 
 CPlayer::CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
                  const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
@@ -143,10 +284,6 @@ float CPlayer::GetTransitionAlpha(const zeus::CVector3f& camPos, float zNear) co
   else
     return 0.f;
 }
-
-static const CMaterialFilter BallTransitionCollide = CMaterialFilter::MakeIncludeExclude(
-    {EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player, EMaterialTypes::Character,
-                              EMaterialTypes::CameraPassthrough});
 
 s32 CPlayer::ChooseTransitionToAnimation(float dt, CStateManager& mgr) const {
   if (x258_movementState == EPlayerMovementState::ApplyJump)
@@ -563,12 +700,6 @@ void CPlayer::Update(float dt, CStateManager& mgr) {
     xa30_samusExhaustedVoiceTimer = 4.f;
   }
 }
-
-static const float skStrafeDistances[] = {11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f};
-
-static const float skDashStrafeDistances[] = {30.0f, 22.6f, 10.0f, 10.0f, 10.0f, 10.0f, 10.0f};
-
-static const float skOrbitForwardDistances[] = {11.8f, 11.8f, 11.8f, 5.0f, 6.0f, 5.0f, 5.0f, 6.0f};
 
 float CPlayer::UpdateCameraBob(float dt, CStateManager& mgr) {
   float bobMag = 0.f;
@@ -1033,8 +1164,6 @@ static bool IsDataLoreResearchScan(CAssetId id) {
     return false;
   }
 }
-
-static const char* UnlockMessageResBases[] = {"STRG_SlideShow_Unlock1_", "STRG_SlideShow_Unlock2_"};
 
 static CAssetId UpdatePersistentScanPercent(u32 prevLogScans, u32 logScans, u32 totalLogScans) {
   if (prevLogScans == logScans)
@@ -2331,56 +2460,6 @@ void CPlayer::PreThink(float dt, CStateManager& mgr) {
   xa04_preThinkDt = dt;
 }
 
-static const u16 skPlayerLandSfxSoft[] = {0xFFFF,
-                                          SFXsam_landstone_00,
-                                          SFXsam_landmetl_00,
-                                          SFXsam_landgrass_00,
-                                          SFXsam_landice_00,
-                                          0xFFFF,
-                                          SFXsam_landgrate_00,
-                                          SFXsam_landphazon_00,
-                                          SFXsam_landdirt_00,
-                                          SFXlav_landlava_00,
-                                          SFXsam_landlavastone_00,
-                                          SFXsam_landsnow_00,
-                                          SFXsam_landmud_00,
-                                          0xFFFF,
-                                          SFXsam_landgrass_00,
-                                          SFXsam_landmetl_00,
-                                          SFXsam_landmetl_00,
-                                          SFXsam_landdirt_00,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          SFXsam_landwood_00,
-                                          SFXsam_b_landorg_00};
-
-static const u16 skPlayerLandSfxHard[] = {0xFFFF,
-                                          SFXsam_landstone_02,
-                                          SFXsam_b_landmetl_02,
-                                          SFXsam_landgrass_02,
-                                          SFXsam_landice_02,
-                                          0xFFFF,
-                                          SFXsam_landgrate_02,
-                                          SFXsam_landphazon_02,
-                                          SFXsam_landdirt_02,
-                                          SFXlav_landlava_02,
-                                          SFXsam_landlavastone_02,
-                                          SFXsam_landsnow_02,
-                                          SFXsam_landmud_02,
-                                          0xFFFF,
-                                          SFXsam_landgrass_02,
-                                          SFXsam_b_landmetl_02,
-                                          SFXsam_b_landmetl_02,
-                                          SFXsam_landdirt_02,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          0xFFFF,
-                                          SFXsam_landwood_02,
-                                          SFXsam_landorg_02};
-
 void CPlayer::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, CStateManager& mgr) {
   switch (msg) {
   case EScriptObjectMessage::OnFloor:
@@ -2538,56 +2617,6 @@ void CPlayer::SetVisorSteam(float targetAlpha, float alphaInDur, float alphaOutD
   x7a0_visorSteam.SetSteam(targetAlpha, alphaInDur, alphaOutDur, txtr, affectsThermal);
 }
 
-static const u16 skLeftStepSounds[] = {0xFFFF,
-                                       SFXsam_wlkstone_00,
-                                       SFXsam_wlkmetal_00,
-                                       SFXsam_b_wlkgrass_00,
-                                       SFXsam_wlkice_00,
-                                       0xFFFF,
-                                       SFXsam_wlkgrate_00,
-                                       SFXsam_wlkphazon_00,
-                                       SFXsam_wlkdirt_00,
-                                       SFXlav_wlklava_00,
-                                       SFXsam_wlklavastone_00,
-                                       SFXsam_wlksnow_00,
-                                       SFXsam_wlkmud_00,
-                                       0xFFFF,
-                                       SFXsam_b_wlkorg_00,
-                                       SFXsam_wlkmetal_00,
-                                       SFXsam_wlkmetal_00,
-                                       SFXsam_wlkdirt_00,
-                                       0xFFFF,
-                                       0xFFFF,
-                                       0xFFFF,
-                                       0xFFFF,
-                                       SFXsam_wlkwood_00,
-                                       SFXsam_b_wlkorg_00};
-
-static const u16 skRightStepSounds[] = {0xFFFF,
-                                        SFXsam_wlkstone_01,
-                                        SFXsam_wlkmetal_01,
-                                        SFXsam_b_wlkgrass_01,
-                                        SFXsam_wlkice_01,
-                                        0xFFFF,
-                                        SFXsam_wlkgrate_01,
-                                        SFXsam_wlkphazon_01,
-                                        SFXsam_wlkdirt_01,
-                                        SFXlav_wlklava_01,
-                                        SFXsam_wlklavastone_01,
-                                        SFXsam_wlksnow_01,
-                                        SFXsam_wlkmud_01,
-                                        0xFFFF,
-                                        SFXsam_b_wlkorg_01,
-                                        SFXsam_wlkmetal_01,
-                                        SFXsam_wlkmetal_01,
-                                        SFXsam_wlkdirt_01,
-                                        0xFFFF,
-                                        0xFFFF,
-                                        0xFFFF,
-                                        0xFFFF,
-                                        SFXsam_wlkwood_01,
-                                        SFXsam_b_wlkorg_01};
-
 void CPlayer::UpdateFootstepSounds(const CFinalInput& input, CStateManager& mgr, float dt) {
   if (x2f8_morphBallState != EPlayerMorphBallState::Unmorphed || x258_movementState != EPlayerMovementState::OnGround ||
       x3dc_inFreeLook || x3dd_lookButtonHeld)
@@ -2696,12 +2725,6 @@ void CPlayer::UpdateVisorTransition(float dt, CStateManager& mgr) {
   if (mgr.GetPlayerState()->GetIsVisorTransitioning())
     mgr.GetPlayerState()->UpdateVisorTransition(dt);
 }
-
-static const std::pair<CPlayerState::EItemType, ControlMapper::ECommands> skVisorToItemMapping[] = {
-    {CPlayerState::EItemType::CombatVisor, ControlMapper::ECommands::NoVisor},
-    {CPlayerState::EItemType::XRayVisor, ControlMapper::ECommands::XrayVisor},
-    {CPlayerState::EItemType::ScanVisor, ControlMapper::ECommands::InviroVisor},
-    {CPlayerState::EItemType::ThermalVisor, ControlMapper::ECommands::ThermoVisor}};
 
 void CPlayer::UpdateVisorState(const CFinalInput& input, float dt, CStateManager& mgr) {
   x7a0_visorSteam.Update(dt);
