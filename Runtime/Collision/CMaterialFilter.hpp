@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CMaterialList.hpp"
-#include "zeus/Math.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+
 namespace urde {
 class CMaterialFilter {
 public:
