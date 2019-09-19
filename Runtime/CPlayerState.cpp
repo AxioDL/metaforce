@@ -11,10 +11,13 @@
 #include <zeus/Math.hpp>
 
 namespace urde {
-const u32 CPlayerState::PowerUpMaxValues[41] = {1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                                                1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+namespace {
+constexpr u32 PowerUpMaxValues[41] = {
+    1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
 
-const char* CPlayerState::PowerUpNames[41] = {
+[[maybe_unused]] constexpr const char* PowerUpNames[41] = {
     "Power Beam",
     "Ice Beam",
     "Wave Beam",
@@ -57,6 +60,15 @@ const char* CPlayerState::PowerUpNames[41] = {
     "Artifact of Spirit",
     "Artifact of Newborn",
 };
+
+constexpr u32 costs[] = {
+    5, 10, 10, 10, 1,
+};
+
+constexpr float ComboAmmoPeriods[] = {
+    0.2f, 0.1f, 0.2f, 0.2f, 1.f,
+};
+} // Anonymous namespace
 
 CPlayerState::CPlayerState() : x188_staticIntf(5) {
   x0_24_alive = true;
@@ -122,11 +134,7 @@ void CPlayerState::PutTo(CBitStreamWriter& stream) {
   stream.WriteEncoded(x180_scanCompletionRate.second, CBitStreamWriter::GetBitCount(0x100));
 }
 
-static const u32 costs[] = {5, 10, 10, 10, 1};
-
 u32 CPlayerState::GetMissileCostForAltAttack() const { return costs[u32(x8_currentBeam)]; }
-
-static const float ComboAmmoPeriods[] = {0.2f, 0.1f, 0.2f, 0.2f, 1.f};
 
 float CPlayerState::GetComboFireAmmoPeriod() const { return ComboAmmoPeriods[u32(x8_currentBeam)]; }
 
@@ -374,6 +382,8 @@ void CPlayerState::InitializeScanTimes() {
   for (const auto& state : scanStates)
     x170_scanTimes.emplace_back(state.first, 0.f);
 }
+
+u32 CPlayerState::GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[u32(type)]; }
 
 const std::unordered_map<std::string_view, CPlayerState::EItemType> CPlayerState::g_TypeNameMap = {
     {"powerbeam"sv, EItemType::PowerBeam},
