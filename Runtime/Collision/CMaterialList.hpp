@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 enum class EMaterialTypes {
@@ -71,63 +71,69 @@ class CMaterialList {
   u64 x0_list = 0;
 
 public:
-  CMaterialList() = default;
-  CMaterialList(u64 flags) : x0_list(flags) {}
-  CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5,
-                EMaterialTypes t6)
+  constexpr CMaterialList() noexcept = default;
+  constexpr CMaterialList(u64 flags) noexcept : x0_list(flags) {}
+  constexpr CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5,
+                          EMaterialTypes t6) noexcept
   : CMaterialList(t1, t2, t3, t4, t5) {
-    x0_list |= 1ull << u64(t6);
+    x0_list |= u64{1} << u64(t6);
   }
 
-  CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4, EMaterialTypes t5)
+  constexpr CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4,
+                          EMaterialTypes t5) noexcept
   : CMaterialList(t1, t2, t3, t4) {
-    x0_list |= 1ull << u64(t5);
+    x0_list |= u64{1} << u64(t5);
   }
 
-  CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4)
+  constexpr CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3, EMaterialTypes t4) noexcept
   : CMaterialList(t1, t2, t3) {
-    x0_list |= 1ull << u64(t4);
+    x0_list |= u64{1} << u64(t4);
   }
 
-  CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3) : CMaterialList(t1, t2) {
-    x0_list |= 1ull << u64(t3);
+  constexpr CMaterialList(EMaterialTypes t1, EMaterialTypes t2, EMaterialTypes t3) noexcept : CMaterialList(t1, t2) {
+    x0_list |= u64{1} << u64(t3);
   }
 
-  CMaterialList(EMaterialTypes t1, EMaterialTypes t2) : CMaterialList(t1) { x0_list |= 1ull << u64(t2); }
+  constexpr CMaterialList(EMaterialTypes t1, EMaterialTypes t2) noexcept : CMaterialList(t1) {
+    x0_list |= u64{1} << u64(t2);
+  }
 
-  CMaterialList(EMaterialTypes t1) : x0_list(1ull << u64(t1)) {}
+  constexpr CMaterialList(EMaterialTypes t1) noexcept : x0_list(u64{1} << u64(t1)) {}
 
-  u64 GetValue() const { return x0_list; }
+  constexpr u64 GetValue() const noexcept { return x0_list; }
 
-  static s32 BitPosition(u64 flag) {
-    for (u32 i = 0; i < 64; ++i)
-      if ((flag & (1ull << i)) != 0)
-        return i;
+  static constexpr s32 BitPosition(u64 flag) noexcept {
+    for (u32 i = 0; i < 64; ++i) {
+      if ((flag & (u64{1} << i)) != 0) {
+        return static_cast<s32>(i);
+      }
+    }
     return -1;
   }
 
-  void Add(EMaterialTypes type) { x0_list |= (1ull << u64(type)); }
+  constexpr void Add(EMaterialTypes type) noexcept { x0_list |= (u64{1} << u64(type)); }
 
-  void Add(const CMaterialList& l) { x0_list |= l.x0_list; }
+  constexpr void Add(const CMaterialList& l) noexcept { x0_list |= l.x0_list; }
 
-  void Remove(EMaterialTypes type) { x0_list &= ~(1ull << u64(type)); }
+  constexpr void Remove(EMaterialTypes type) noexcept { x0_list &= ~(u64{1} << u64(type)); }
 
-  void Remove(const CMaterialList& other) { x0_list &= ~(other.x0_list); }
+  constexpr void Remove(const CMaterialList& other) noexcept { x0_list &= ~(other.x0_list); }
 
-  bool HasMaterial(EMaterialTypes type) const { return (x0_list & (1ull << u64(type))) != 0; }
+  constexpr bool HasMaterial(EMaterialTypes type) const noexcept { return (x0_list & (u64{1} << u64(type))) != 0; }
 
-  bool SharesMaterials(const CMaterialList& other) const {
+  constexpr bool SharesMaterials(const CMaterialList& other) const noexcept {
     for (u32 i = 0; i < 64; i++) {
-      if ((x0_list & (1ull << i)) != 0 && (other.x0_list & (1ull << i)) != 0)
+      if ((x0_list & (u64{1} << i)) != 0 && (other.x0_list & (u64{1} << i)) != 0) {
         return true;
+      }
     }
 
     return false;
   }
 
-  u64 Intersection(const CMaterialList& other) const { return other.x0_list & x0_list; }
+  constexpr u64 Intersection(const CMaterialList& other) const noexcept { return other.x0_list & x0_list; }
 
-  u64 XOR(const CMaterialList& other) const { return x0_list ^ other.x0_list; }
+  constexpr u64 XOR(const CMaterialList& other) const noexcept { return x0_list ^ other.x0_list; }
 };
 
 } // namespace urde
