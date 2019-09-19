@@ -1,12 +1,14 @@
-#include "CPlayerState.hpp"
-#include "IOStreams.hpp"
-#include "zeus/Math.hpp"
-#include "CStateManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
-#include "CMemoryCardSys.hpp"
-#include "GameGlobalObjects.hpp"
-#include "TCastTo.hpp"
+#include "Runtime/CPlayerState.hpp"
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/TCastTo.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 const u32 CPlayerState::PowerUpMaxValues[41] = {1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
