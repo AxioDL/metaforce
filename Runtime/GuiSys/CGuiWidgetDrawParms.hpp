@@ -11,7 +11,7 @@ struct CGuiWidgetDrawParms {
   CGuiWidgetDrawParms() = default;
   CGuiWidgetDrawParms(float alphaMod, const zeus::CVector3f& cameraOff)
   : x0_alphaMod(alphaMod), x4_cameraOffset(cameraOff) {}
-  static CGuiWidgetDrawParms Default;
+  static const CGuiWidgetDrawParms Default;
 };
 
 } // namespace urde
