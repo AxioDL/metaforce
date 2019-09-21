@@ -7,9 +7,9 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/IOStreams.hpp"
-#include "Runtime/TCastTo.hpp"
 #include "Runtime/Camera/CCameraManager.hpp"
 #include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 #include <zeus/Math.hpp>
 
