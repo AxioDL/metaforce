@@ -37,17 +37,17 @@ namespace urde {
 namespace {
 logvisor::Module Log("urde::CPlayer");
 
-const CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
+constexpr CMaterialFilter SolidMaterialFilter = CMaterialFilter::MakeInclude(CMaterialList(EMaterialTypes::Solid));
 
-const CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
+constexpr CMaterialFilter LineOfSightFilter = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid},
     {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
-const CMaterialFilter OccluderFilter = CMaterialFilter::MakeIncludeExclude(
+constexpr CMaterialFilter OccluderFilter = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid, EMaterialTypes::Occluder},
     {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::ScanPassthrough, EMaterialTypes::Player});
 
-const CMaterialFilter BallTransitionCollide = CMaterialFilter::MakeIncludeExclude(
+constexpr CMaterialFilter BallTransitionCollide = CMaterialFilter::MakeIncludeExclude(
     {EMaterialTypes::Solid}, {EMaterialTypes::ProjectilePassthrough, EMaterialTypes::Player, EMaterialTypes::Character,
                               EMaterialTypes::CameraPassthrough});
 
