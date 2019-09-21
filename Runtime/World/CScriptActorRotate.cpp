@@ -2,7 +2,7 @@
 #include "CStateManager.hpp"
 #include "CScriptPlatform.hpp"
 #include "CScriptSpiderBallWaypoint.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptActorRotate::CScriptActorRotate(TUniqueId uid, std::string_view name, const CEntityInfo& info,

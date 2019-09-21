@@ -1,6 +1,6 @@
 #include "CScriptSwitch.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptSwitch::CScriptSwitch(TUniqueId uid, std::string_view name, const CEntityInfo& info, bool active, bool opened,

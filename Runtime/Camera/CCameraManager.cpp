@@ -5,7 +5,7 @@
 #include "World/CScriptWater.hpp"
 #include "World/CPlayer.hpp"
 #include "GameGlobalObjects.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CCinematicCamera.hpp"
 #include "CBallCamera.hpp"
 #include "CInterpolationCamera.hpp"

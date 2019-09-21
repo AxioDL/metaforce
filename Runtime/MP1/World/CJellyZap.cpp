@@ -1,7 +1,7 @@
 #include "CJellyZap.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 const CMaterialFilter CJellyZap::kPlayerFilter = CMaterialFilter::MakeInclude({EMaterialTypes::Player});

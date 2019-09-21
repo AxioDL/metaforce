@@ -2,7 +2,7 @@
 #include "CStateManager.hpp"
 #include "World/CDamageInfo.hpp"
 #include "Character/CCharLayoutInfo.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CPatternedInfo.hpp"
 #include "Character/CPASAnimParmData.hpp"
 #include "World/CTeamAiMgr.hpp"

@@ -10,7 +10,7 @@
 #include "GuiSys/CGuiCamera.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CGameLight.hpp"
 
 namespace urde::MP1 {

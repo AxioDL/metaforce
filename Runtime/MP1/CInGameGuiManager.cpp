@@ -12,7 +12,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "CSamusHud.hpp"
 #include "Input/CInputGenerator.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CFirstPersonCamera.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "GuiSys/CGuiWidgetDrawParms.hpp"

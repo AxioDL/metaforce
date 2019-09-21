@@ -15,7 +15,7 @@
 #include "World/CScriptAiJumpPoint.hpp"
 #include "World/CWorld.hpp"
 #include "CMetroid.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 CSpacePirate::CSpacePirateData::CSpacePirateData(urde::CInputStream& in, u32 propCount)

@@ -5,7 +5,7 @@
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
 #include "World/CScriptWater.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CGameCamera.hpp"
 
 #define kTableSize 2048

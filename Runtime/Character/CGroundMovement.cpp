@@ -5,7 +5,7 @@
 #include "Collision/CollisionUtil.hpp"
 #include "Collision/CAABoxFilter.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CScriptPlatform.hpp"
 #include "World/CWorld.hpp"
 #include "World/CPlayer.hpp"

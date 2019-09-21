@@ -4,7 +4,7 @@
 #include "Graphics/CModel.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CGameCamera.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "GuiSys/CCompoundTargetReticle.hpp"

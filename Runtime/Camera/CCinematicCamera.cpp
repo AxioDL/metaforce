@@ -2,7 +2,7 @@
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
 #include "World/CScriptActor.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CScriptCameraWaypoint.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Character/CAnimTreeNode.hpp"

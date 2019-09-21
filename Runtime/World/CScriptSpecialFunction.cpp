@@ -13,7 +13,7 @@
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
 #include "IMain.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 #include "hecl/CVarManager.hpp"
 

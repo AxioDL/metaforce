@@ -9,7 +9,6 @@
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
-#include "Runtime/TCastTo.hpp"
 #include "Runtime/Audio/CStreamAudioManager.hpp"
 #include "Runtime/Camera/CBallCamera.hpp"
 #include "Runtime/Camera/CCinematicCamera.hpp"
@@ -32,6 +31,8 @@
 #include "Runtime/World/CScriptWater.hpp"
 
 #include <logvisor/logvisor.hpp>
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 namespace {

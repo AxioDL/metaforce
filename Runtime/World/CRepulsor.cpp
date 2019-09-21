@@ -1,6 +1,6 @@
 #include "CRepulsor.hpp"
 #include "CActorParameters.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CRepulsor::CRepulsor(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& info,

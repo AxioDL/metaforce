@@ -3,7 +3,7 @@
 #include "World/CScriptActor.hpp"
 #include "World/CScriptPlatform.hpp"
 #include "World/CPatterned.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptActorKeyframe::CScriptActorKeyframe(TUniqueId uid, std::string_view name, const CEntityInfo& info, s32 animId,

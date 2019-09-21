@@ -2,7 +2,7 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

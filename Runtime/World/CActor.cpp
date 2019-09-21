@@ -3,7 +3,7 @@
 #include "CStateManager.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Audio/CSfxManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Character/IAnimReader.hpp"
 #include "Character/CActorLights.hpp"
 #include "Camera/CGameCamera.hpp"

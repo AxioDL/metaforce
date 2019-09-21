@@ -6,7 +6,7 @@
 #include "CPlayerState.hpp"
 #include "CScriptColorModulate.hpp"
 #include "Character/IAnimReader.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CActorParameters.hpp"
 #include "MP1/World/CActorContraption.hpp"
 #include "zeus/CEulerAngles.hpp"

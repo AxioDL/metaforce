@@ -1,7 +1,7 @@
 #include "CWallWalker.hpp"
 #include "CPatternedInfo.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CScriptWaypoint.hpp"
 #include "Collision/CMetroidAreaCollider.hpp"
 #include "Collision/CGameCollision.hpp"

@@ -7,7 +7,7 @@
 #include "CPlayerState.hpp"
 #include "World/CPlayer.hpp"
 #include "DataSpec/DNAMP1/SFX/Weapons.h"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

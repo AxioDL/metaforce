@@ -1,6 +1,6 @@
 #include "CBodyController.hpp"
 #include "World/CActor.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CPhysicsActor.hpp"
 #include "World/CActorModelParticles.hpp"
 #include "Character/CPASAnimParm.hpp"

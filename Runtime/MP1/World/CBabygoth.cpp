@@ -16,7 +16,7 @@
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CSkinnedModel.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 const std::string_view CBabygoth::skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;

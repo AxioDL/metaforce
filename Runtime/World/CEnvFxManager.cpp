@@ -5,7 +5,7 @@
 #include "CSimplePool.hpp"
 #include "CRandom16.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CHUDBillboardEffect.hpp"
 #include "World/CWorld.hpp"
 #include "World/CPlayer.hpp"

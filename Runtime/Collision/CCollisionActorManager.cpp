@@ -1,5 +1,5 @@
 #include "CCollisionActorManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CActor.hpp"
 #include "CStateManager.hpp"
 #include "CMaterialList.hpp"

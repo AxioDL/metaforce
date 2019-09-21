@@ -10,7 +10,7 @@
 #include "CPlayer.hpp"
 #include "Character/CPASAnimParmData.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Weapon/CEnergyProjectile.hpp"
 
 namespace urde {

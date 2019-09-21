@@ -4,7 +4,7 @@
 #include "MP1.hpp"
 #include "AutoMapper/CAutoMapper.hpp"
 #include "CSamusHud.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Audio/CMidiManager.hpp"
 #include "Camera/CCinematicCamera.hpp"
 

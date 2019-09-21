@@ -5,7 +5,7 @@
 #include "World/CPlayer.hpp"
 #include "Collision/CGameCollision.hpp"
 #include "Weapon/CBomb.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 

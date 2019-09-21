@@ -1,5 +1,5 @@
 #include "CPlasmaProjectile.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "World/CGameLight.hpp"

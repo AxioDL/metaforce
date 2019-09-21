@@ -1,6 +1,6 @@
 #include "CWarWasp.hpp"
 #include "Character/CCharLayoutInfo.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CPatternedInfo.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"

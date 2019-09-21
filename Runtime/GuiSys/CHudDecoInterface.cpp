@@ -7,7 +7,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "MP1/CSamusHud.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CGuiWidgetDrawParms.hpp"
 
 namespace urde {

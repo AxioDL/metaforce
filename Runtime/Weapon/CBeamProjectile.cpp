@@ -1,5 +1,5 @@
 #include "Weapon/CBeamProjectile.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 
 namespace urde {

@@ -12,7 +12,7 @@
 #include "Camera/CGameCamera.hpp"
 #include "CPlayerState.hpp"
 #include "CScriptTrigger.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

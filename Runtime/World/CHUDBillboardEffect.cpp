@@ -1,5 +1,5 @@
 #include "CHUDBillboardEffect.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "Camera/CGameCamera.hpp"
 #include "GameGlobalObjects.hpp"

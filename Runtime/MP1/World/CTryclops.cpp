@@ -5,7 +5,7 @@
 #include "World/CPatternedInfo.hpp"
 #include "World/CPlayer.hpp"
 #include "Weapon/CBomb.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 const CDamageVulnerability CTryclops::skVulnerabilities = CDamageVulnerability(

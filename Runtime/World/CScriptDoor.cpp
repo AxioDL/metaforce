@@ -8,7 +8,7 @@
 #include "CWorld.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CBallCamera.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

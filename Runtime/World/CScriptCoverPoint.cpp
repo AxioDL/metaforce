@@ -1,7 +1,7 @@
 #include "CScriptCoverPoint.hpp"
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptCoverPoint::CScriptCoverPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info, zeus::CTransform xf,

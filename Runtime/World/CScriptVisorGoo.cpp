@@ -2,7 +2,7 @@
 #include "CActorParameters.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "CPlayer.hpp"
 #include "CHUDBillboardEffect.hpp"

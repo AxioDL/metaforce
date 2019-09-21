@@ -5,7 +5,7 @@
 #include "CPlayer.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool active, TUniqueId owner,

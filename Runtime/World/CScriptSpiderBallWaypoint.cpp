@@ -1,7 +1,7 @@
 #include "CScriptSpiderBallWaypoint.hpp"
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptSpiderBallWaypoint::CScriptSpiderBallWaypoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,

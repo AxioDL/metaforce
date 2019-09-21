@@ -8,7 +8,7 @@
 #include "World/CScriptWaypoint.hpp"
 #include "World/CScriptDoor.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "Graphics/CSkinnedModel.hpp"

@@ -24,7 +24,7 @@
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "CMemoryCardSys.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CScriptSpecialFunction.hpp"
 #include "CTimeProvider.hpp"
 #include "Camera/CBallCamera.hpp"

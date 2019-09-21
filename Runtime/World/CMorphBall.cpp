@@ -4,7 +4,6 @@
 
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CSimplePool.hpp"
-#include "Runtime/TCastTo.hpp"
 #include "Runtime/Camera/CGameCamera.hpp"
 #include "Runtime/Collision/CGameCollision.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
@@ -18,6 +17,8 @@
 #include "Runtime/World/CScriptSpiderBallWaypoint.hpp"
 #include "Runtime/World/CScriptWater.hpp"
 #include "Runtime/World/CWorld.hpp"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 namespace {

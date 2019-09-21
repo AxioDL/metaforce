@@ -8,7 +8,7 @@
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CFlameThrower.hpp"
 
 namespace urde {

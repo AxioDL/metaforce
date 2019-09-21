@@ -7,7 +7,7 @@
 #include "CScriptDoor.hpp"
 #include "CPlayer.hpp"
 #include "Particle/CGenDescription.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CMaterialList MakeDockMaterialList() {

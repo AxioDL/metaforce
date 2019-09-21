@@ -2,7 +2,7 @@
 #include "Character/CModelData.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "CActorParameters.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptGrapplePoint::CScriptGrapplePoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,

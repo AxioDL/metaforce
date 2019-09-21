@@ -1,5 +1,5 @@
 #include "CScriptControllerAction.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "Input/ControlMapper.hpp"
 

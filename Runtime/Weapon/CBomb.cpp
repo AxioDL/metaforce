@@ -5,7 +5,7 @@
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
 #include "World/CGameLight.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "DataSpec/DNAMP1/SFX/Weapons.h"
 
 namespace urde {

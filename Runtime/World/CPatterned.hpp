@@ -6,7 +6,7 @@
 #include "Graphics/CVertexMorphEffect.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "Particle/CElectricDescription.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CDamageInfo.hpp"
 #include "CKnockBackController.hpp"
 

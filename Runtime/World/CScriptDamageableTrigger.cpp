@@ -1,6 +1,6 @@
 #include "CScriptDamageableTrigger.hpp"
 #include "CActorParameters.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
 #include "CScriptActor.hpp"
