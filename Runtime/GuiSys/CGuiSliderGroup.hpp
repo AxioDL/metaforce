@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CGuiCompoundWidget.hpp"
 #include <functional>
+#include <memory>
+
+#include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
 namespace urde {
 class CSimplePool;

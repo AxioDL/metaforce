@@ -1,6 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CGameAllocator {

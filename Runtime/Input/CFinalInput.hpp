@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../RetroTypes.hpp"
-#include "CKeyboardMouseController.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Input/CKeyboardMouseController.hpp"
+
 #include <boo/inputdev/DolphinSmashAdapter.hpp>
 
 namespace urde {

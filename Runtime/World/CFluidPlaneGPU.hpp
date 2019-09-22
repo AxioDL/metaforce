@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CFluidPlaneCPU.hpp"
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CFluidPlaneCPU.hpp"
 
 namespace urde {
 

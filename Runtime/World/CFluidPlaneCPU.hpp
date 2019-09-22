@@ -1,7 +1,12 @@
 #pragma once
 
-#include "CFluidPlane.hpp"
-#include "CRipple.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CFluidPlane.hpp"
+#include "Runtime/World/CRipple.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CFluidUVMotion;

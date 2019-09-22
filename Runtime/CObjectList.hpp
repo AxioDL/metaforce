@@ -1,7 +1,7 @@
 #pragma once
 
-#include "World/CEntity.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 

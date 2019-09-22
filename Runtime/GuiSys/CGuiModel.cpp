@@ -1,9 +1,10 @@
-#include "CGuiModel.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiSys.hpp"
-#include "CSimplePool.hpp"
-#include "CGuiWidgetDrawParms.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

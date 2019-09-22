@@ -1,7 +1,13 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "Particle/CElementGen.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

@@ -1,9 +1,15 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/Shaders/CEnergyBarShader.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CEnergyBarShader.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CSimplePool;

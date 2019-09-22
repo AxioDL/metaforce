@@ -1,22 +1,27 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "CGuiHeadWidget.hpp"
-#include "CGuiWidgetIdDB.hpp"
-#include "IObj.hpp"
-#include "boo/IWindow.hpp"
 #include <array>
+#include <functional>
+#include <memory>
+#include <vector>
+
+#include "Runtime/IObj.hpp"
+#include "Runtime/GuiSys/CGuiHeadWidget.hpp"
+#include "Runtime/GuiSys/CGuiWidgetIdDB.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <boo/IWindow.hpp>
 
 namespace urde {
+class CBooModel;
+class CGuiCamera;
+class CGuiLight;
 class CGuiSys;
 class CLight;
-class CGuiCamera;
-struct CFinalInput;
-class CGuiLight;
-class CVParamTransfer;
 class CObjectReference;
 class CSimplePool;
-class CBooModel;
+class CVParamTransfer;
+struct CFinalInput;
 
 class CGuiFrame {
   friend class CGuiSys;

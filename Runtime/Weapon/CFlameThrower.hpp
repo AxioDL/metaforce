@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Weapon/CGameProjectile.hpp"
-#include "Particle/CFlameWarp.hpp"
+#include <memory>
+
+#include "Runtime/Particle/CFlameWarp.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 
 namespace urde {
 class CFlameInfo;

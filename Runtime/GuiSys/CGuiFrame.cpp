@@ -1,16 +1,18 @@
-#include "CGuiFrame.hpp"
-#include "CGuiWidget.hpp"
-#include "CGuiSys.hpp"
-#include "CGuiHeadWidget.hpp"
-#include "CGuiLight.hpp"
-#include "CGuiCamera.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Input/CFinalInput.hpp"
-#include "zeus/CColor.hpp"
-#include "CSimplePool.hpp"
-#include "Graphics/CModel.hpp"
-#include "CGuiWidgetDrawParms.hpp"
-#include "CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiHeadWidget.hpp"
+#include "Runtime/GuiSys/CGuiLight.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 

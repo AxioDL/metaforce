@@ -1,10 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "zeus/CTransform.hpp"
-#include "CDecalDescription.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Particle/CDecalDescription.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 struct SQuadDescr;

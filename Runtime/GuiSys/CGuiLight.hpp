@@ -1,7 +1,11 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "Graphics/CLight.hpp"
+#include <memory>
+
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CSimplePool;

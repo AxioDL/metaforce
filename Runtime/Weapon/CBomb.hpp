@@ -1,7 +1,13 @@
 #pragma once
 
-#include "CWeapon.hpp"
-#include "CToken.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

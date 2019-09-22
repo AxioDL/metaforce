@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CGuiCompoundWidget.hpp"
+#include <memory>
+#include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
 namespace urde {
 

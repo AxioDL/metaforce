@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CGuiPane.hpp"
-#include "CGuiTextSupport.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/GuiSys/CGuiPane.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
 namespace urde {
 

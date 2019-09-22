@@ -1,11 +1,13 @@
 #pragma once
 
-#include "CRealElement.hpp"
-#include "CIntElement.hpp"
-#include "CVectorElement.hpp"
-#include "CColorElement.hpp"
-#include "CUVElement.hpp"
-#include "CParticleDataFactory.hpp"
+#include <memory>
+
+#include "Runtime/Particle/CColorElement.hpp"
+#include "Runtime/Particle/CIntElement.hpp"
+#include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CRealElement.hpp"
+#include "Runtime/Particle/CUVElement.hpp"
+#include "Runtime/Particle/CVectorElement.hpp"
 
 namespace urde {
 

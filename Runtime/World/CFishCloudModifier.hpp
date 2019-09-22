@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CActor.hpp"
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 class CFishCloudModifier : public CActor {

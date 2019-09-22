@@ -1,13 +1,21 @@
 #pragma once
 
-#include "CParticleGen.hpp"
-#include "CToken.hpp"
-#include "CRandom16.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "CUVElement.hpp"
+#include <memory>
+#include <vector>
+
 #include "DataSpec/DNACommon/GX.hpp"
-#include "Graphics/Shaders/CParticleSwooshShaders.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
+#include "Runtime/Particle/CUVElement.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CSwooshDescription;

@@ -1,16 +1,17 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CSimpleShadow.hpp"
-#include "zeus/zeus.hpp"
-#include "Collision/CMaterialFilter.hpp"
-#include "Character/CModelData.hpp"
-#include "Character/CActorLights.hpp"
-#include "Collision/CCollisionResponseData.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CScannableObjectInfo.hpp"
-#include "Weapon/WeaponCommon.hpp"
+#include "Runtime/CScannableObjectInfo.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Collision/CCollisionResponseData.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CSimpleShadow.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/zeus.hpp>
 
 namespace urde {
 

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "IElement.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Particle/IElement.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
 

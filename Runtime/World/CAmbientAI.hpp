@@ -1,6 +1,17 @@
 #pragma once
-#include "CPhysicsActor.hpp"
-#include "CDamageVulnerability.hpp"
+
+#include <optional>
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CAABox.hpp>
+
+namespace zeus {
+class CTransform;
+}
 
 namespace urde {
 class CAmbientAI : public CPhysicsActor {

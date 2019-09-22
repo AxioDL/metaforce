@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/Graphics/CLight.hpp"
 
 namespace urde {
 class CGameLight : public CActor {

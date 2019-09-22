@@ -1,12 +1,20 @@
 #pragma once
 
 #include <list>
-#include "Audio/CSfxManager.hpp"
-#include "CToken.hpp"
-#include "zeus/CTransform.hpp"
-#include "Particle/CParticleElectric.hpp"
-#include "Particle/CParticleSwoosh.hpp"
-#include "Graphics/CRainSplashGenerator.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Graphics/CRainSplashGenerator.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

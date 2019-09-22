@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include "CArchitectureMessage.hpp"
+#include "Runtime/CArchitectureMessage.hpp"
 
 namespace urde {
 

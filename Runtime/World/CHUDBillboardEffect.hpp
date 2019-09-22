@@ -1,11 +1,16 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "World/CEffect.hpp"
-#include "CToken.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CParticleElectric.hpp"
-#include "Particle/CParticleSwoosh.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+#include "Runtime/World/CEffect.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGenDescription;

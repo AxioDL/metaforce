@@ -1,6 +1,8 @@
 #pragma once
 
-#include "CBeamProjectile.hpp"
+#include <memory>
+
+#include "Runtime/Weapon/CBeamProjectile.hpp"
 
 namespace urde {
 struct SElectricBeamInfo {

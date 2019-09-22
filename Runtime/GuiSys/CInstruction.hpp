@@ -1,14 +1,15 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CGuiTextSupport.hpp"
-#include "CFontImageDef.hpp"
 #include <vector>
 
+#include "Runtime/CToken.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
 namespace urde {
+class CFontImageDef;
 class CFontRenderState;
 class CTextRenderBuffer;
-class CFontImageDef;
 
 class CInstruction {
 public:

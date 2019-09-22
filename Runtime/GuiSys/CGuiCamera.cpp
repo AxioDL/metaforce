@@ -1,7 +1,8 @@
-#include "CGuiCamera.hpp"
-#include "CGuiFrame.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

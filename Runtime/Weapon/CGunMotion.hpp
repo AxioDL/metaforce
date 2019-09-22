@@ -1,9 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Character/CModelData.hpp"
-#include "CGunController.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Weapon/CGunController.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

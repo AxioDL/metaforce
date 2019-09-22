@@ -1,22 +1,25 @@
 #pragma once
 
-#include "zeus/CVector2f.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CAABox.hpp"
-#include "CToken.hpp"
-#include "RetroTypes.hpp"
-#include "IGameArea.hpp"
-#include "Collision/CAreaOctTree.hpp"
-#include "hecl/ClientProcess.hpp"
-#include "Graphics/CMetroidModelInstance.hpp"
-#include "CObjectList.hpp"
-#include "CWorldLight.hpp"
-#include "Graphics/CPVSAreaSet.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CModel.hpp"
-#include "CPathFindArea.hpp"
 #include "Editor/ProjectResourceFactoryBase.hpp"
-#include "World/CEnvFxManager.hpp"
+#include "Runtime/CObjectList.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CAreaOctTree.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CMetroidModelInstance.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/CPVSAreaSet.hpp"
+#include "Runtime/World/CEnvFxManager.hpp"
+#include "Runtime/World/CPathFindArea.hpp"
+#include "Runtime/World/CWorldLight.hpp"
+#include "Runtime/World/IGameArea.hpp"
+
+#include <hecl/ClientProcess.hpp>
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CStateManager;

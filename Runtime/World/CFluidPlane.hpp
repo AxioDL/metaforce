@@ -1,19 +1,27 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
-#include "CFluidUVMotion.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CFrustum.hpp"
-#include "Graphics/Shaders/CFluidPlaneShader.hpp"
+#include <algorithm>
+#include <cmath>
+#include <optional>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
+#include "Runtime/World/CFluidUVMotion.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CFrustum.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CFluidUVMotion;
+class CRipple;
 class CRippleManager;
 class CScriptWater;
 class CStateManager;
-class CRipple;
 
 class CFluidPlaneRender {
 public:

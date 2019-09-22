@@ -1,6 +1,6 @@
 #pragma once
 
-#include "zeus/CVector3f.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

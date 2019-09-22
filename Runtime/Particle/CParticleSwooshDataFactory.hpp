@@ -1,10 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CFactoryMgr.hpp"
-#include "IObj.hpp"
-#include "CToken.hpp"
-#include "IOStreams.hpp"
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CSwooshDescription;

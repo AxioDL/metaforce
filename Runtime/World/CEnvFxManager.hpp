@@ -1,19 +1,26 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "zeus/CAABox.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Graphics/Shaders/CEnvFxShaders.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "hecl/VertexBufferPool.hpp"
-#include "hecl/UniformBufferPool.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
+
+#include <hecl/UniformBufferPool.hpp>
+#include <hecl/VertexBufferPool.hpp>
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
+class CActor;
 class CStateManager;
 class CTexture;
-class CActor;
 
 enum class EEnvFxType { None, Snow, Rain, UnderwaterFlake };
 

@@ -1,12 +1,17 @@
 #pragma once
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Character/CharacterCommon.hpp"
-#include "Weapon/WeaponCommon.hpp"
+
+#include <bitset>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CPatterned;
 class CDamageInfo;
+class CPatterned;
 
 enum class EKnockBackType { Direct, Radius };
 

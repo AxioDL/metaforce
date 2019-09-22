@@ -1,8 +1,13 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CPathFindArea.hpp"
-#include "Graphics/CLineRenderer.hpp"
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/World/CPathFindArea.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPathFindSearch;

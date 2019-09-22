@@ -1,9 +1,11 @@
 #pragma once
 
 #include <array>
-#include "RetroTypes.hpp"
-#include "Audio/CAudioSys.hpp"
-#include "CSaveWorld.hpp"
+#include <vector>
+
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CAudioSys.hpp"
 
 namespace urde {
 struct CFinalInput;

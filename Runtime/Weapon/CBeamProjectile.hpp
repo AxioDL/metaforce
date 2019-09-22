@@ -1,6 +1,12 @@
 #pragma once
 
-#include "Weapon/CGameProjectile.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
 class CBeamProjectile : public CGameProjectile {
 public:

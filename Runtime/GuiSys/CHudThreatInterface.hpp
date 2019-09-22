@@ -1,15 +1,15 @@
 #pragma once
 
-#include "CHudInterface.hpp"
-#include "RetroTypes.hpp"
-#include "zeus/CTransform.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CHudInterface.hpp"
+#include <zeus/CTransform.hpp>
 
 namespace urde {
+class CAuiEnergyBarT01;
 class CGuiFrame;
-class CGuiWidget;
 class CGuiModel;
 class CGuiTextPane;
-class CAuiEnergyBarT01;
+class CGuiWidget;
 
 class CHudThreatInterface {
   enum class EThreatStatus { Normal, Warning, Damage };

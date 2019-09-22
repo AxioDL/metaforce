@@ -1,6 +1,8 @@
 #pragma once
 
-#include "CAi.hpp"
+#include <string_view>
+
+#include "Runtime/World/CAi.hpp"
 
 namespace urde {
 

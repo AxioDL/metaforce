@@ -1,12 +1,13 @@
-#include "CGuiTextSupport.hpp"
-#include "CSimplePool.hpp"
-#include "CFontImageDef.hpp"
-#include "CGuiSys.hpp"
-#include "CTextExecuteBuffer.hpp"
-#include "CTextParser.hpp"
-#include "Graphics/CGraphicsPalette.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CGraphicsPalette.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
+#include "Runtime/GuiSys/CTextParser.hpp"
 
 namespace urde {
 

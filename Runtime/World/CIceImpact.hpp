@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CEffect.hpp"
+#include "Runtime/World/CEffect.hpp"
 
 namespace urde {
 

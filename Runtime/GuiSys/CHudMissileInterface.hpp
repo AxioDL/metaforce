@@ -1,16 +1,16 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CHudInterface.hpp"
-#include "zeus/CTransform.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CHudInterface.hpp"
+#include <zeus/CTransform.hpp>
 
 namespace urde {
-class CStateManager;
-class CGuiFrame;
-class CGuiWidget;
-class CGuiTextPane;
 class CAuiEnergyBarT01;
+class CGuiFrame;
 class CGuiModel;
+class CGuiTextPane;
+class CGuiWidget;
+class CStateManager;
 
 class CHudMissileInterface {
   enum class EInventoryStatus { Normal, Warning, Depleted };
