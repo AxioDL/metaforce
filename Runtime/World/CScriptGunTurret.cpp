@@ -1,17 +1,20 @@
-#include "CScriptGunTurret.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "World/CGameLight.hpp"
-#include "Collision/CCollisionActorManager.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "CPlayer.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CScriptGunTurret.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CAiFuncMap.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Weapon/CEnergyProjectile.hpp"
 
 namespace urde {
 
@@ -149,6 +152,8 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 
   x37c_projectileInfo.Token().Lock();
 }
+
+CScriptGunTurret::~CScriptGunTurret() = default;
 
 void CScriptGunTurret::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
