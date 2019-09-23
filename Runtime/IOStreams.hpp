@@ -1,10 +1,13 @@
 #pragma once
 
-#include "GCNTypes.hpp"
-#include "athena/IStreamReader.hpp"
-#include "athena/IStreamWriter.hpp"
-#include "athena/MemoryReader.hpp"
-#include "athena/MemoryWriter.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+
+#include <athena/IStreamReader.hpp>
+#include <athena/IStreamWriter.hpp>
+#include <athena/MemoryReader.hpp>
+#include <athena/MemoryWriter.hpp>
 #ifdef URDE_ZIP_INPUT_STREAM
 #include <zlib.h>
 #endif

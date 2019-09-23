@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CRumbleGenerator.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Input/CRumbleGenerator.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

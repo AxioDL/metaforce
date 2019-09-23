@@ -1,10 +1,15 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 class CElementGen;
 class CParticleElectric;
+
 class CScriptEffect : public CActor {
   static u32 g_NumParticlesUpdating;
   static u32 g_NumParticlesRendered;

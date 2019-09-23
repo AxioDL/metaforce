@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
-#include "CPlayerState.hpp"
+#include <string_view>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
 
 namespace urde {
 class CScriptPickup : public CPhysicsActor {

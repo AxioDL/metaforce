@@ -3,10 +3,10 @@
 #include <string_view>
 
 namespace urde {
-struct SObjectTag;
+class CToken;
 class CVParamTransfer;
 class IFactory;
-class CToken;
+struct SObjectTag;
 
 class IObjectStore {
 public:

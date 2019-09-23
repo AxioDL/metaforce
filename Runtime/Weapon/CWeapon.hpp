@@ -1,9 +1,12 @@
 #pragma once
 
-#include "World/CActor.hpp"
-#include "Weapon/WeaponCommon.hpp"
-#include "World/CDamageInfo.hpp"
-#include "Collision/CMaterialFilter.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
 
 namespace urde {
 class CWeapon : public CActor {

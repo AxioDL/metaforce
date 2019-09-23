@@ -1,9 +1,12 @@
 #pragma once
 
 #include <cfloat>
-#include "RetroTypes.hpp"
-#include "zeus/CVector2f.hpp"
-#include "zeus/CTransform.hpp"
+
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 

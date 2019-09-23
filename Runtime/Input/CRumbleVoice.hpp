@@ -1,6 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
 
 namespace urde {
 enum class ERumbleFxId {

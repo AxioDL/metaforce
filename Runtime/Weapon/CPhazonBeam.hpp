@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CGunWeapon.hpp"
-#include "Graphics/Shaders/CAABoxShader.hpp"
+#include <memory>
+
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
+#include "Runtime/Weapon/CGunWeapon.hpp"
 
 namespace urde {
 

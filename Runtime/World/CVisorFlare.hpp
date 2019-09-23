@@ -1,13 +1,17 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "zeus/CColor.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
-class CTexture;
 class CActor;
 class CStateManager;
+class CTexture;
 
 class CVisorFlare {
 public:

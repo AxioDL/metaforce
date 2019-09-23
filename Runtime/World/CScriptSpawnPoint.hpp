@@ -1,8 +1,13 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CTransform.hpp"
-#include "CPlayerState.hpp"
+#include <string_view>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 

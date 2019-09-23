@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CVisorFlare.hpp"
+#include <string_view>
+
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CVisorFlare.hpp"
 
 namespace urde {
 

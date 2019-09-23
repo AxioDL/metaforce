@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CRipple.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CRipple.hpp"
 
 namespace urde {
 

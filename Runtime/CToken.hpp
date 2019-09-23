@@ -1,19 +1,21 @@
 #pragma once
 
 #include <memory>
-#include "IObj.hpp"
-#include "RetroTypes.hpp"
-#include "IVParamObj.hpp"
-#include "IObjectStore.hpp"
-#include "IFactory.hpp"
+
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/IObjectStore.hpp"
+#include "Runtime/IVParamObj.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class IObjectStore;
 
 /** Shared data-structure for CToken references, analogous to std::shared_ptr */
 class CObjectReference {
-  friend class CToken;
   friend class CSimplePool;
+  friend class CToken;
+
   u16 x0_refCount = 0;
   u16 x2_lockCount = 0;
   bool x3_loading = false; /* Rightmost bit of lockCount */
@@ -60,8 +62,9 @@ public:
  *  This class is analogous to std::shared_ptr and C++11 rvalues have been implemented accordingly
  *  (default/empty constructor, move constructor/assign) */
 class CToken {
-  friend class CSimplePool;
   friend class CModel;
+  friend class CSimplePool;
+
   CObjectReference* x0_objRef = nullptr;
   bool x4_lockHeld = false;
 

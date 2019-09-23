@@ -1,9 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "World/CDamageInfo.hpp"
-#include "Particle/CWeaponDescription.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPlayer;

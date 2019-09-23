@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
 
 namespace urde {
 

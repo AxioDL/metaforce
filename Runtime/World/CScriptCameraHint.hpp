@@ -1,7 +1,14 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "Camera/CBallCamera.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

@@ -1,7 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CTransform.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CEntity;

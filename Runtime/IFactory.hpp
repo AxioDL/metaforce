@@ -1,17 +1,19 @@
 #pragma once
 
-#include <memory>
 #include <functional>
-#include "RetroTypes.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class CVParamTransfer;
-class IObj;
+class CFactoryMgr;
 class CObjectReference;
 class CResLoader;
-class CFactoryMgr;
 class CSimplePool;
+class CVParamTransfer;
 class IDvdRequest;
+class IObj;
 
 using CFactoryFnReturn = std::unique_ptr<IObj>;
 using FFactoryFunc = std::function<CFactoryFnReturn(const urde::SObjectTag& tag, urde::CInputStream& in,

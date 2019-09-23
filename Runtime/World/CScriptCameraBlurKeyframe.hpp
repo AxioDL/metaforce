@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "Camera/CCameraFilter.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 class CScriptCameraBlurKeyframe : public CEntity {

@@ -1,20 +1,28 @@
 #pragma once
 
-#include "zeus/CColor.hpp"
-#include "zeus/CVector2i.hpp"
-#include "zeus/CVector2f.hpp"
-#include "zeus/CMatrix4f.hpp"
-#include "CToken.hpp"
-#include "CFontImageDef.hpp"
-#include "RetroTypes.hpp"
-#include "CGuiWidget.hpp"
-#include "Graphics/Shaders/CTextSupportShader.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/UniformBufferPool.hpp>
+#include <hecl/VertexBufferPool.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
+class CGlyph;
 class CGraphicsPalette;
 class CRasterFont;
-class CGlyph;
 class CTextExecuteBuffer;
 
 using CTextColor = zeus::CColor;

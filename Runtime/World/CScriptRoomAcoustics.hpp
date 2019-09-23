@@ -1,9 +1,13 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "amuse/EffectChorus.hpp"
-#include "amuse/EffectDelay.hpp"
-#include "amuse/EffectReverb.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <amuse/EffectChorus.hpp>
+#include <amuse/EffectDelay.hpp>
+#include <amuse/EffectReverb.hpp>
 
 namespace urde {
 

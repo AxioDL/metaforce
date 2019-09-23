@@ -1,22 +1,27 @@
 #pragma once
 
-#include "IFactory.hpp"
-#include "IObjFactory.hpp"
-#include "CToken.hpp"
-#include "CSimplePool.hpp"
-#include "CAnimationSet.hpp"
+#include <memory>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IObjFactory.hpp"
+#include "Runtime/Character/CAnimationSet.hpp"
 
 namespace urde {
-class CSimplePool;
-class CAnimCharacterSet;
-class CCharacterInfo;
-class CCharLayoutInfo;
 class CAdditiveAnimationInfo;
-class CTransitionDatabaseGame;
-class CAnimationManager;
-class CTransitionManager;
 class CAllFormatsAnimSource;
+class CAnimCharacterSet;
 class CAnimData;
+class CAnimationManager;
+class CCharLayoutInfo;
+class CCharacterInfo;
+class CSimplePool;
+class CTransitionDatabaseGame;
+class CTransitionManager;
 
 class CCharacterFactory : public IObjFactory {
 public:

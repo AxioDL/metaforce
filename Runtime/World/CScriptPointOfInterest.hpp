@@ -1,9 +1,11 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 class CScannableParameters;
+
 class CScriptPointOfInterest : public CActor {
 private:
   float xe8_pointSize;

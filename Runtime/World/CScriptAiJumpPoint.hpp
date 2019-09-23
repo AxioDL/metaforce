@@ -1,6 +1,11 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 class CScriptAiJumpPoint : public CActor {

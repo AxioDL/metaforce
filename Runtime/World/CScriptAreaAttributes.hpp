@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "CEnvFxManager.hpp"
+#include "Runtime/World/CEntity.hpp"
+#include "Runtime/World/CEnvFxManager.hpp"
 
 namespace urde {
 class CScriptAreaAttributes : public CEntity {

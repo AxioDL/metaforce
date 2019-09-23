@@ -1,6 +1,12 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 class CScriptSpiderBallWaypoint : public CActor {

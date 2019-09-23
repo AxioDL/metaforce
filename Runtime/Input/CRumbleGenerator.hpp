@@ -1,7 +1,8 @@
 #pragma once
 
-#include "CRumbleVoice.hpp"
-#include "CInputGenerator.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Input/CInputGenerator.hpp"
+#include "Runtime/Input/CRumbleVoice.hpp"
 
 namespace urde {
 class CRumbleGenerator {

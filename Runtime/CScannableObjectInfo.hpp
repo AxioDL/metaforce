@@ -1,9 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "IFactory.hpp"
-#include "CToken.hpp"
-#include "zeus/CVector2i.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
 class CScannableObjectInfo {

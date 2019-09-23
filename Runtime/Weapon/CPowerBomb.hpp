@@ -1,11 +1,17 @@
 #pragma once
 
-#include "CWeapon.hpp"
-#include "CToken.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
 
 namespace urde {
-
 class CElementGen;
+
 class CPowerBomb : public CWeapon {
   static const zeus::CColor kFadeColor;
   bool x158_24_canStartFilter : 1;

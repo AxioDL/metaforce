@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CEntity.hpp"
+#include <string>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
+class CStateManager;
 
 class CScriptStreamedMusic : public CEntity {
   std::string x34_fileName;

@@ -1,11 +1,15 @@
 #pragma once
 
+#include <list>
+#include <memory>
 #include <unordered_map>
-#include "IFactory.hpp"
-#include "CResLoader.hpp"
-#include "IVParamObj.hpp"
-#include "MP1/MP1OriginalIDs.hpp"
-#include "CToken.hpp"
+#include <vector>
+
+#include "Runtime/CResLoader.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IVParamObj.hpp"
+#include "Runtime/MP1/MP1OriginalIDs.hpp"
 
 namespace urde {
 class IDvdRequest;

@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 

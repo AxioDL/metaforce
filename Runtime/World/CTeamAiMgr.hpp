@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;
