@@ -1,9 +1,12 @@
 #pragma once
 
 #include <atomic>
+#include <mutex>
+
+#include "Runtime/Input/CFinalInput.hpp"
+#include "Runtime/Input/CKeyboardMouseController.hpp"
+
 #include <boo/boo.hpp>
-#include "CFinalInput.hpp"
-#include "CKeyboardMouseController.hpp"
 
 namespace urde {
 class CArchitectureQueue;

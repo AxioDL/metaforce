@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CIOWin.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Graphics/CModel.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

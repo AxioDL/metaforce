@@ -1,8 +1,11 @@
 #pragma once
 
-#include "CLightParameters.hpp"
-#include "CScannableParameters.hpp"
-#include "CVisorParameters.hpp"
+#include <utility>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CLightParameters.hpp"
+#include "Runtime/World/CScannableParameters.hpp"
+#include "Runtime/World/CVisorParameters.hpp"
 
 namespace urde {
 

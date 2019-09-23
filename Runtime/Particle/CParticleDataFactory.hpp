@@ -1,25 +1,28 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CFactoryMgr.hpp"
-#include "IObj.hpp"
-#include "CToken.hpp"
-#include "IOStreams.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class CGenDescription;
-class CSwooshDescription;
-class CElectricDescription;
-class CSimplePool;
-class CVParamTransfer;
-class CModel;
-class CUVElement;
 class CColorElement;
-class CModVectorElement;
+class CElectricDescription;
 class CEmitterElement;
-class CVectorElement;
-class CRealElement;
+class CGenDescription;
 class CIntElement;
+class CModVectorElement;
+class CModel;
+class CRealElement;
+class CSimplePool;
+class CSwooshDescription;
+class CUVElement;
+class CVParamTransfer;
+class CVectorElement;
 
 struct SParticleModel {
   TLockedToken<CModel> m_token;

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "boo/IWindow.hpp"
+#include <type_traits>
+
+#include <boo/IWindow.hpp>
 
 namespace urde {
 struct CFinalInput;

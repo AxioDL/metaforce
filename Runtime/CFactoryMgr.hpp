@@ -1,9 +1,10 @@
 #pragma once
 
 #include <unordered_map>
-#include "RetroTypes.hpp"
-#include "IOStreams.hpp"
-#include "IFactory.hpp"
+
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 struct SObjectTag;

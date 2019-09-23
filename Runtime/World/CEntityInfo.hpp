@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <string>
-#include "RetroTypes.hpp"
-#include "World/ScriptObjectSupport.hpp"
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
 struct SConnection {

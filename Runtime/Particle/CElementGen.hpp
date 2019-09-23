@@ -1,18 +1,22 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CAABox.hpp"
-#include "CToken.hpp"
-#include "Graphics/CLight.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "CRandom16.hpp"
-#include "CParticleGen.hpp"
-#include "Graphics/Shaders/CElementGenShaders.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "Particle/CGenDescription.hpp"
+#include <array>
+#include <vector>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CWarp;

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "CEffect.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CGenDescription.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CEffect.hpp"
 
 namespace urde {
 

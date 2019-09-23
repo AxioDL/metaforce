@@ -1,13 +1,13 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CHudInterface.hpp"
-#include "zeus/CTransform.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CHudInterface.hpp"
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 class CGuiFrame;
-class CGuiWidget;
 class CGuiModel;
+class CGuiWidget;
 
 class IFreeLookInterface {
 public:

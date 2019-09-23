@@ -1,9 +1,18 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CGuiObject.hpp"
-#include "zeus/CColor.hpp"
-#include "boo/IWindow.hpp"
+#include <memory>
+#include <optional>
+#include <string>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/GuiSys/CGuiObject.hpp"
+
+#include <boo/IWindow.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGuiFrame;

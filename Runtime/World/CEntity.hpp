@@ -1,8 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "ScriptObjectSupport.hpp"
-#include "CEntityInfo.hpp"
+#include <string>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CEntityInfo.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
 class CStateManager;

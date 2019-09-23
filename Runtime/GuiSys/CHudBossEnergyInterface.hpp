@@ -1,13 +1,13 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CGuiFrame;
-class CGuiWidget;
 class CAuiEnergyBarT01;
+class CGuiFrame;
 class CGuiTextPane;
+class CGuiWidget;
 
 class CHudBossEnergyInterface {
   float x0_alpha;

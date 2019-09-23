@@ -1,5 +1,5 @@
-#include "CGuiTableGroup.hpp"
-#include "Input/CFinalInput.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
 
 namespace urde {
 

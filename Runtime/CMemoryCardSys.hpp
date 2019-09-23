@@ -1,17 +1,23 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "World/CWorld.hpp"
-#include "CGameHintInfo.hpp"
-#include "CSaveWorld.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "kabufuda/Card.hpp"
+#include <memory>
+#include <optional>
+#include <string>
 #include <vector>
+
+#include "Runtime/CGameHintInfo.hpp"
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/World/CWorld.hpp"
+
+#include <kabufuda/Card.hpp>
 
 namespace urde {
 class CDummyWorld;
-class CStringTable;
 class CSimplePool;
+class CStringTable;
 
 class CSaveWorldMemory {
   friend class CMemoryCardSys;

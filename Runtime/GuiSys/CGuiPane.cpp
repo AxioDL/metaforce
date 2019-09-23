@@ -1,4 +1,4 @@
-#include "CGuiPane.hpp"
+#include "Runtime/GuiSys/CGuiPane.hpp"
 
 namespace urde {
 

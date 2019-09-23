@@ -1,4 +1,4 @@
-#include "CGuiCompoundWidget.hpp"
+#include "Runtime/GuiSys/CGuiCompoundWidget.hpp"
 
 namespace urde {
 

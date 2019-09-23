@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CFluidPlane.hpp"
-#include "Graphics/Shaders/CFluidPlaneShader.hpp"
+#include <optional>
+
+#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
+#include "Runtime/World/CFluidPlane.hpp"
 
 namespace urde {
 class CFluidPlaneDoor final : public CFluidPlane {

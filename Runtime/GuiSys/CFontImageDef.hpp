@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "CToken.hpp"
-#include "zeus/CVector2f.hpp"
+
+#include "Runtime/CToken.hpp"
+
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CTexture;

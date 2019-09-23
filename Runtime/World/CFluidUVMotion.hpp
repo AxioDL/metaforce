@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rstl.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
 
 namespace urde {
 class CFluidUVMotion {

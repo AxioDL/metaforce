@@ -1,7 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPFArea;

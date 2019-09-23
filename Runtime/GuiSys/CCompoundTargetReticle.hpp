@@ -1,16 +1,20 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CToken.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "CPlayerState.hpp"
+#include <vector>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CActor;
 class CModel;
-class CStateManager;
 class CScriptGrapplePoint;
+class CStateManager;
 
 class CTargetReticleRenderState {
   TUniqueId x0_target;

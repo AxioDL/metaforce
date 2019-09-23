@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "RetroTypes.hpp"
-#include "CGuiTextSupport.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
 namespace urde {
 

@@ -1,10 +1,16 @@
 #pragma once
 
-#include "IObj.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CAABox.hpp"
-#include "IFactory.hpp"
-#include "CPathFindRegion.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CPathFindRegion.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CVParamTransfer;

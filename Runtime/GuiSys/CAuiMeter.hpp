@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CGuiGroup.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/GuiSys/CGuiGroup.hpp"
 
 namespace urde {
 class CSimplePool;

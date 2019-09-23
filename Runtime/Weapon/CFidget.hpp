@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CGunMotion.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Weapon/CGunMotion.hpp"
 
 namespace urde {
 class CStateManager;

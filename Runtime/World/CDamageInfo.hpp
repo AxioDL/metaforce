@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Weapon/CWeaponMgr.hpp"
-#include "Weapon/CWeaponMode.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Weapon/CWeaponMgr.hpp"
+#include "Runtime/Weapon/CWeaponMode.hpp"
 
 namespace DataSpec {
 struct SShotParam;

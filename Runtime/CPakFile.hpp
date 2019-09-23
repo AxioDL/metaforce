@@ -1,11 +1,14 @@
 #pragma once
 
+#include <memory>
+#include <string>
 #include <vector>
-#include "RetroTypes.hpp"
-#include "CStringExtras.hpp"
-#include "CDvdFile.hpp"
-#include "CDvdRequest.hpp"
-#include "CFactoryMgr.hpp"
+
+#include "Runtime/CDvdFile.hpp"
+#include "Runtime/CDvdRequest.hpp"
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/CStringExtras.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 

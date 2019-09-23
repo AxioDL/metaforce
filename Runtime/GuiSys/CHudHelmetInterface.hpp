@@ -1,12 +1,12 @@
 #pragma once
 
-#include "zeus/CMatrix3f.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include <zeus/CMatrix3f.hpp>
 
 namespace urde {
+class CGuiCamera;
 class CGuiFrame;
 class CGuiWidget;
-class CGuiCamera;
 
 class CHudHelmetInterface {
   zeus::CMatrix3f x0_hudLagRotation;

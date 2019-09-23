@@ -1,15 +1,15 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CHudInterface.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CHudInterface.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CGuiFrame;
-class CGuiWidget;
-class CGuiTextPane;
-class CAuiMeter;
 class CAuiEnergyBarT01;
+class CAuiMeter;
+class CGuiFrame;
+class CGuiTextPane;
+class CGuiWidget;
 
 class CHudEnergyInterface {
   EHudType x0_hudType;

@@ -1,15 +1,16 @@
 #pragma once
 
 #include <memory>
-#include "CRealElement.hpp"
-#include "CIntElement.hpp"
-#include "CVectorElement.hpp"
-#include "CModVectorElement.hpp"
-#include "CColorElement.hpp"
-#include "CUVElement.hpp"
-#include "CEmitterElement.hpp"
-#include "CSpawnSystemKeyframeData.hpp"
-#include "CParticleDataFactory.hpp"
+
+#include "Runtime/Particle/CColorElement.hpp"
+#include "Runtime/Particle/CEmitterElement.hpp"
+#include "Runtime/Particle/CIntElement.hpp"
+#include "Runtime/Particle/CModVectorElement.hpp"
+#include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CRealElement.hpp"
+#include "Runtime/Particle/CSpawnSystemKeyframeData.hpp"
+#include "Runtime/Particle/CUVElement.hpp"
+#include "Runtime/Particle/CVectorElement.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/PART_(File_Format) */
 

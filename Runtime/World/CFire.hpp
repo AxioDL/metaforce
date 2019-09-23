@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CDamageInfo.hpp"
+#include <optional>
+#include <memory>
+
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
 
 namespace urde {
 class CElementGen;

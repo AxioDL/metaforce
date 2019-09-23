@@ -1,17 +1,23 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Character/CModelData.hpp"
-#include "Character/CAnimCharacterSet.hpp"
-#include "CStateManager.hpp"
-#include "CGunController.hpp"
-#include "CGunMotion.hpp"
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+#include "Runtime/Weapon/CGunController.hpp"
+#include "Runtime/Weapon/CGunMotion.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CActorLights;
 class CStateManager;
 struct CModelFlags;
-class CActorLights;
 
 class CGrappleArm {
 public:

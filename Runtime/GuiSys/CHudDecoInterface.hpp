@@ -1,11 +1,12 @@
 #pragma once
 
-#include "zeus/CMatrix3f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "zeus/CVector3f.hpp"
-#include "CToken.hpp"
-#include "CScanDisplay.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GuiSys/CScanDisplay.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
+#include <zeus/CMatrix3f.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGuiFrame;
