@@ -130,22 +130,26 @@ void Buckets::Sort() {
 
 void Buckets::InsertPlaneObject(float closeDist, float farDist, const zeus::CAABox& aabb, bool invertTest,
                                 const zeus::CPlane& plane, bool zOnly, EDrawableType dtype, const void* data) {
-  if (sPlaneObjectData->size() == sPlaneObjectData->capacity())
+  if (sPlaneObjectData->size() == sPlaneObjectData->capacity()) {
     return;
-  sPlaneObjectData->push_back(CDrawablePlaneObject(dtype, closeDist, farDist, aabb, invertTest, plane, zOnly, data));
+  }
+  sPlaneObjectData->emplace_back(dtype, closeDist, farDist, aabb, invertTest, plane, zOnly, data);
 }
 
 void Buckets::Insert(const zeus::CVector3f& pos, const zeus::CAABox& aabb, EDrawableType dtype, const void* data,
                      const zeus::CPlane& plane, u16 extraSort) {
-  if (sData->size() != sData->capacity()) {
-    float dist = plane.pointToPlaneDist(pos);
-    sData->push_back(CDrawable(dtype, extraSort, dist, aabb, data));
-    if (sMinMaxDistance[0] > dist)
-      sMinMaxDistance[0] = dist;
-    if (sMinMaxDistance[1] < dist)
-      sMinMaxDistance[1] = dist;
-  } else {
+  if (sData->size() == sData->capacity()) {
     Log.report(logvisor::Fatal, fmt("Rendering buckets filled to capacity"));
+    return;
+  }
+
+  const float dist = plane.pointToPlaneDist(pos);
+  sData->emplace_back(dtype, extraSort, dist, aabb, data);
+  if (sMinMaxDistance[0] > dist) {
+    sMinMaxDistance[0] = dist;
+  }
+  if (sMinMaxDistance[1] < dist) {
+    sMinMaxDistance[1] = dist;
   }
 }
 
@@ -565,14 +569,16 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
   verts.reserve(670);
 
   for (int i = 0; i < 112; ++i) {
-    verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    if (i != 0)
-      verts.push_back(verts.back());
-    verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    verts.push_back(zeus::CVector3f(1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    verts.push_back(zeus::CVector3f(1.f, (i * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    if (i != 111)
-      verts.push_back(verts.back());
+    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    if (i != 0) {
+      verts.emplace_back(verts.back());
+    }
+    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) - (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    if (i != 111) {
+      verts.emplace_back(verts.back());
+    }
   }
 
   m_scanLinesEvenVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
@@ -580,14 +586,16 @@ void CBooRenderer::GenerateScanLinesVBO(boo::IGraphicsDataFactory::Context& ctx)
   verts.clear();
 
   for (int i = 0; i < 112; ++i) {
-    verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f));
-    if (i != 0)
-      verts.push_back(verts.back());
-    verts.push_back(zeus::CVector3f(-1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    verts.push_back(zeus::CVector3f(1.f, (i * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f));
-    verts.push_back(zeus::CVector3f(1.f, (i * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f));
-    if (i != 111)
-      verts.push_back(verts.back());
+    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
+    if (i != 0) {
+      verts.emplace_back(verts.back());
+    }
+    verts.emplace_back(-1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (3.f / 448.f)) * 2.f - 1.f, 0.f);
+    verts.emplace_back(1.f, (float(i) * (4.f / 448.f) + (1.f / 448.f)) * 2.f - 1.f, 0.f);
+    if (i != 111) {
+      verts.emplace_back(verts.back());
+    }
   }
 
   m_scanLinesOddVBO = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(zeus::CVector3f), verts.size());
