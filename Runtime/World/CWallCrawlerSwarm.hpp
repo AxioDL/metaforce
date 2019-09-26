@@ -1,10 +1,21 @@
 #pragma once
 
-#include "World/CActor.hpp"
-#include "Collision/CCollisionSurface.hpp"
-#include "World/CDamageInfo.hpp"
-#include "World/CDamageVulnerability.hpp"
-#include "Particle/CElementGen.hpp"
+#include <memory>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CAreaCollisionCache;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "WeaponCommon.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
 
 namespace urde {
 class CWeaponMode {

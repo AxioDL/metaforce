@@ -1,10 +1,14 @@
 #pragma once
 
-#include "CGuiTextSupport.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
 
 namespace urde {
-class CTextExecuteBuffer;
 class CFontImageDef;
+class CTextExecuteBuffer;
 
 class CTextParser {
   IObjectStore& x0_store;

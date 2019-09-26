@@ -1,8 +1,11 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "CToken.hpp"
-#include "Audio/CMidiManager.hpp"
+#include <string_view>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CMidiManager.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 

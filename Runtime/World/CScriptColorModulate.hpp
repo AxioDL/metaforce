@@ -1,10 +1,15 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CColor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 struct CModelFlags;
+
 class CScriptColorModulate : public CEntity {
 public:
   enum class EBlendMode {

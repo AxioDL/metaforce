@@ -1,20 +1,22 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "zeus/CTransform.hpp"
+#include "Runtime/IOStreams.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CStateManager;
-class CEntityInfo;
-class CEntity;
-class CGrappleParameters;
 class CActorParameters;
-class CVisorParameters;
-class CScannableParameters;
-class CLightParameters;
 class CAnimationParameters;
-class CFluidUVMotion;
 class CCameraShakeData;
+class CEntity;
+class CEntityInfo;
+class CFluidUVMotion;
+class CGrappleParameters;
+class CLightParameters;
+class CScannableParameters;
+class CStateManager;
+class CVisorParameters;
 
 typedef CEntity* (*FScriptLoader)(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info);
 

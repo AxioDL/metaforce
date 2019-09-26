@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "Input/ControlMapper.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 

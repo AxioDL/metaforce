@@ -1,15 +1,21 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CToken.hpp"
-#include "zeus/CVector2i.hpp"
-#include "CGuiTextSupport.hpp"
-#include "Graphics/CTexture.hpp"
+#include <cstring>
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
-class IObjectStore;
 class CDrawStringOptions;
 class CTextRenderBuffer;
+class IObjectStore;
 
 /* NOTE: Is this a good place for CGlyph and CKernPair? */
 class CGlyph {

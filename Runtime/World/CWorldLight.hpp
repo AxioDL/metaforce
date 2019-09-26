@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Graphics/CLight.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CWorldLight {

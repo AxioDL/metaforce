@@ -1,7 +1,12 @@
 #pragma once
 
-#include "Graphics/CGraphics.hpp"
-#include "CEntity.hpp"
+#include <string_view>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CScriptDistanceFog : public CEntity {

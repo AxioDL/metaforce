@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "IFactory.hpp"
+#include <memory>
+
+#include "Runtime/IFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CStringTable {

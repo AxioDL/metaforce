@@ -1,11 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CDamageInfo.hpp"
-#include "CHealthInfo.hpp"
-#include "CDamageVulnerability.hpp"
-#include "CAnimationParameters.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CAnimationParameters.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

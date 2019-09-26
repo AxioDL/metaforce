@@ -1,7 +1,11 @@
 #pragma once
 
-#include "CScriptActor.hpp"
-#include "CPlayerState.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CScriptActor.hpp"
 
 namespace urde {
 class CScriptPlayerActor : public CScriptActor {

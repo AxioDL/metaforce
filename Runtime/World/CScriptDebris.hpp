@@ -1,6 +1,13 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CElementGen;

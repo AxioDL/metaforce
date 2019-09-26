@@ -1,7 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "WeaponCommon.hpp"
+#include <map>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
 
 namespace urde {
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-
 namespace urde {
 
 class CWordBreakTables {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <fmt/format.h>
 
 namespace urde {
 class CStopwatch {

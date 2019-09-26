@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Graphics/CTexture.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CAABox.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

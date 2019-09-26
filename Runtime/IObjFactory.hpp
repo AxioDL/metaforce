@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include "RetroTypes.hpp"
-
 namespace urde {
 
 class IObjFactory {

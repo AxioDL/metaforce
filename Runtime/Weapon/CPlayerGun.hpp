@@ -1,26 +1,31 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Character/CActorLights.hpp"
-#include "CFidget.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CAABox.hpp"
-#include "World/CPlayerCameraBob.hpp"
-#include "CGunMotion.hpp"
-#include "CGrappleArm.hpp"
-#include "CAuxWeapon.hpp"
-#include "CPowerBeam.hpp"
-#include "CIceBeam.hpp"
-#include "CWaveBeam.hpp"
-#include "CPlasmaBeam.hpp"
-#include "CPhazonBeam.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Character/CModelData.hpp"
-#include "World/CWorldShadow.hpp"
-#include "World/ScriptObjectSupport.hpp"
-#include "Graphics/CRainSplashGenerator.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CAABoxShader.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Graphics/CRainSplashGenerator.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Weapon/CAuxWeapon.hpp"
+#include "Runtime/Weapon/CFidget.hpp"
+#include "Runtime/Weapon/CGrappleArm.hpp"
+#include "Runtime/Weapon/CGunMotion.hpp"
+#include "Runtime/Weapon/CIceBeam.hpp"
+#include "Runtime/Weapon/CPhazonBeam.hpp"
+#include "Runtime/Weapon/CPlasmaBeam.hpp"
+#include "Runtime/Weapon/CPowerBeam.hpp"
+#include "Runtime/Weapon/CWaveBeam.hpp"
+#include "Runtime/World/CPlayerCameraBob.hpp"
+#include "Runtime/World/CWorldShadow.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 struct CFinalInput;

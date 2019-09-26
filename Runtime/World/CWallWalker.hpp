@@ -1,8 +1,13 @@
 #pragma once
 
-#include "CPatterned.hpp"
-#include "Collision/CCollisionSurface.hpp"
-#include "Collision/CCollidableSphere.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CWallWalker : public CPatterned {

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CScriptTrigger.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
 
 namespace urde {
 

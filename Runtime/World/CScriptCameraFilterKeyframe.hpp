@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CColor.hpp"
-#include "Camera/CCameraFilter.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CScriptCameraFilterKeyframe : public CEntity {

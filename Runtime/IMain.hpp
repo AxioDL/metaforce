@@ -1,13 +1,15 @@
 #pragma once
-#include "boo/boo.hpp"
-#include "boo/audiodev/IAudioVoiceEngine.hpp"
-#include "hecl/Runtime.hpp"
-#include "amuse/amuse.hpp"
-#include "RetroTypes.hpp"
+
+#include "Runtime/RetroTypes.hpp"
+
+#include <amuse/amuse.hpp>
+#include <boo/boo.hpp>
+#include <boo/audiodev/IAudioVoiceEngine.hpp>
+#include <hecl/Runtime.hpp>
 
 namespace hecl {
-class CVarManager;
 class Console;
+class CVarManager;
 } // namespace hecl
 
 namespace urde {

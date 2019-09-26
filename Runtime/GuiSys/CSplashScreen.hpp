@@ -1,9 +1,9 @@
 #pragma once
 
-#include "CIOWin.hpp"
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde {
 

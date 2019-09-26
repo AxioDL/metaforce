@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CEntity.hpp"
+#include <string_view>
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 

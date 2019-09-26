@@ -1,12 +1,21 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CFluidPlaneDoor.hpp"
-#include "CHealthInfo.hpp"
-#include "CDamageVulnerability.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CFluidPlaneDoor.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CFrustum.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CVisorParameters;
+
 class CScriptDamageableTrigger : public CActor {
 public:
   enum class ECanOrbit {

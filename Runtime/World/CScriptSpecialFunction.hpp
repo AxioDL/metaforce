@@ -1,9 +1,16 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CDamageInfo.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CColor.hpp"
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CScriptSpecialFunction : public CActor {

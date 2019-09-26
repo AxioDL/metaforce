@@ -1,8 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <vector>
+
 #include "DNACommon/SAVWCommon.hpp"
-#include "CFactoryMgr.hpp"
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 

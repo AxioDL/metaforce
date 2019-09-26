@@ -1,7 +1,19 @@
 #pragma once
 
-#include "CScriptTrigger.hpp"
-#include "CFluidPlaneCPU.hpp"
+#include <list>
+#include <memory>
+#include <optional>
+#include <utility>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CFluidPlaneCPU.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CFrustum.hpp>
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
 
 class CDamageInfo;

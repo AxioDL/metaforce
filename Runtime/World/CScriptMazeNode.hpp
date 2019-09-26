@@ -1,6 +1,11 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CScriptMazeNode : public CActor {

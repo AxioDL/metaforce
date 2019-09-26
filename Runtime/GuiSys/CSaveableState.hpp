@@ -1,23 +1,27 @@
 #pragma once
 
-#include "CGuiTextSupport.hpp"
-#include "CDrawStringOptions.hpp"
-#include "CToken.hpp"
-#include "zeus/CColor.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/GuiSys/CDrawStringOptions.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CRasterFont;
 
 class CSaveableState {
-  friend class CTextExecuteBuffer;
   friend class CColorOverrideInstruction;
   friend class CFontInstruction;
+  friend class CGuiTextSupport;
   friend class CLineExtraSpaceInstruction;
-  friend class CTextInstruction;
   friend class CLineSpacingInstruction;
   friend class CRemoveColorOverrideInstruction;
+  friend class CTextExecuteBuffer;
+  friend class CTextInstruction;
   friend class CWordInstruction;
-  friend class CGuiTextSupport;
 
 protected:
   CDrawStringOptions x0_drawStrOpts;

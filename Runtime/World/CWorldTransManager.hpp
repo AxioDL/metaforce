@@ -1,14 +1,21 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CRandom16.hpp"
-#include "Character/CModelData.hpp"
-#include "GuiSys/CGuiTextSupport.hpp"
-#include "Graphics/CLight.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Audio/CSfxManager.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CSimplePool;

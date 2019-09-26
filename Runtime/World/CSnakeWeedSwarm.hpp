@@ -1,10 +1,11 @@
 #pragma once
 
-#include "World/CActor.hpp"
-#include "Collision/CCollisionSurface.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 class CAnimationParameters;
+
 class CSnakeWeedSwarm : public CActor {
 public:
   CSnakeWeedSwarm(TUniqueId, bool, std::string_view, const CEntityInfo&, const zeus::CVector3f&, const zeus::CVector3f&,

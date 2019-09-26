@@ -1,6 +1,8 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+#include "Runtime/World/CActor.hpp"
+
 namespace urde {
 class CRepulsor : public CActor {
   float xe8_affectRadius;

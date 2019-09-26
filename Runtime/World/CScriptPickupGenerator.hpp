@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CVector3f.hpp"
+#include <string_view>
+
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CScriptPickupGenerator : public CEntity {

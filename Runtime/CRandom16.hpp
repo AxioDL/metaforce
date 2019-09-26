@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GCNTypes.hpp"
+#include "Runtime/GCNTypes.hpp"
 
 namespace urde {
 

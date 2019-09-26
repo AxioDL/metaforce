@@ -1,8 +1,9 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
-#include "CHealthInfo.hpp"
-#include "CDamageVulnerability.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
 
 namespace urde {
 

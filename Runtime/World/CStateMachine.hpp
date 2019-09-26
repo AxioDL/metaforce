@@ -1,14 +1,18 @@
 #pragma once
 
-#include "CAiFuncMap.hpp"
-#include "IObj.hpp"
-#include "CToken.hpp"
-#include "IOStreams.hpp"
-#include "IObjFactory.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/IObjFactory.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/World/CAiFuncMap.hpp"
 
 namespace urde {
 class CAiState;
 class CStateManager;
+
 class CAiTrigger {
   CAiTriggerFunc x0_func;
   float xc_arg = 0.f;

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "Graphics/Shaders/CWorldShadowShader.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 #define CWORLDSHADOW_FEEDBACK 0
 

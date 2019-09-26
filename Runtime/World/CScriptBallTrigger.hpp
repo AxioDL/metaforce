@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CScriptTrigger.hpp"
+#include <string_view>
+
+#include "Runtime/World/CScriptTrigger.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CScriptBallTrigger : public CScriptTrigger {

@@ -1,15 +1,20 @@
 #pragma once
 
-#include "CSaveableState.hpp"
-#include "CGuiTextSupport.hpp"
 #include <list>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CSaveableState.hpp"
+
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
-class CInstruction;
-class CFontImageDef;
-class CTextRenderBuffer;
 class CBlockInstruction;
+class CFontImageDef;
+class CInstruction;
 class CLineInstruction;
+class CTextRenderBuffer;
 
 class CTextExecuteBuffer {
   friend class CGuiTextSupport;

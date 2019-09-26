@@ -1,11 +1,14 @@
 #pragma once
 
-#include "CParticleDataFactory.hpp"
-#include "CRealElement.hpp"
-#include "CIntElement.hpp"
-#include "CVectorElement.hpp"
-#include "CModVectorElement.hpp"
-#include "CColorElement.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Particle/CColorElement.hpp"
+#include "Runtime/Particle/CIntElement.hpp"
+#include "Runtime/Particle/CModVectorElement.hpp"
+#include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CRealElement.hpp"
+#include "Runtime/Particle/CVectorElement.hpp"
 
 namespace urde {
 class CCollisionResponseData;

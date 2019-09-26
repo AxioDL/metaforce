@@ -1,8 +1,10 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "Weapon/CBeamInfo.hpp"
-#include "CDamageInfo.hpp"
+#include <string_view>
+
+#include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
 
 namespace urde {
 class CWeaponDescription;
