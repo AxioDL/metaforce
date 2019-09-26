@@ -709,7 +709,7 @@ void CMemoryCardDriver::HandleCardError(ECardResult result, EState state) {
   case ECardResult::IOERROR:
     x10_state = state;
     x14_error = EError::CardIOError;
-    [[fallthrough]];
+    break;
   case ECardResult::ENCODING:
     x10_state = state;
     x14_error = EError::CardWrongCharacterSet;
