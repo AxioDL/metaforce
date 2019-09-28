@@ -1,8 +1,10 @@
 #pragma once
 
 #include <optional>
-#include "CToken.hpp"
-#include "zeus/CVector3f.hpp"
+
+#include "Runtime/CToken.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCharLayoutInfo;

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CTransform.hpp>
 
 namespace urde::MP1 {
 class CTryclops : public CPatterned {

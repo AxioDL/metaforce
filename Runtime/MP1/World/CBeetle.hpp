@@ -1,8 +1,13 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "World/CDamageInfo.hpp"
+#include <optional>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

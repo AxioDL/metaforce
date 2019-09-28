@@ -1,7 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CAnimTreeTweenBase.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAnimTreeTweenBase.hpp"
 
 namespace urde {
 

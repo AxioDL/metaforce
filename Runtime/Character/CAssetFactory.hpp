@@ -1,9 +1,12 @@
 #pragma once
 
-#include "IFactory.hpp"
-#include "IObj.hpp"
-#include "CToken.hpp"
-#include "CSimplePool.hpp"
+#include <functional>
+#include <memory>
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IFactory.hpp"
+#include "Runtime/IObj.hpp"
 
 namespace urde {
 class CCharacterFactory;

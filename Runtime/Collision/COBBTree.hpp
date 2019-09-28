@@ -1,9 +1,14 @@
 #pragma once
-#include "RetroTypes.hpp"
-#include "CCollisionEdge.hpp"
-#include "CCollisionSurface.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/COBBox.hpp"
+
+#include <memory>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollisionEdge.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+
+#include <zeus/COBBox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollidableOBBTreeGroupContainer;

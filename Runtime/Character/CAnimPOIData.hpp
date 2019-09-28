@@ -1,10 +1,13 @@
 #pragma once
 
-#include "CFactoryMgr.hpp"
-#include "CBoolPOINode.hpp"
-#include "CInt32POINode.hpp"
-#include "CParticlePOINode.hpp"
-#include "CSoundPOINode.hpp"
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CBoolPOINode.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+#include "Runtime/Character/CParticlePOINode.hpp"
+#include "Runtime/Character/CSoundPOINode.hpp"
 
 namespace urde {
 

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CharacterCommon.hpp"
-#include "CBodyStateCmdMgr.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CBodyStateCmdMgr.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
 
 namespace urde {
+class CActor;
 class CBodyController;
 class CStateManager;
-class CActor;
+
 class CAdditiveBodyState {
 public:
   virtual ~CAdditiveBodyState() = default;

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "IOStreams.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

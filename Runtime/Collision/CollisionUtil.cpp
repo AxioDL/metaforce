@@ -1,6 +1,9 @@
-#include "CollisionUtil.hpp"
-#include "CCollisionInfo.hpp"
-#include "CCollisionInfoList.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
+
+#include "Runtime/Collision/CCollisionInfo.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+
+#include <zeus/CVector3d.hpp>
 
 namespace urde::CollisionUtil {
 bool LineIntersectsOBBox(const zeus::COBBox& obb, const zeus::CMRay& ray, float& d) {

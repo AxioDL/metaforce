@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CPVSVisOctree.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CPVSVisOctree.hpp"
 
 namespace urde {
 

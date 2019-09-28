@@ -1,8 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CSegId.hpp"
-#include "zeus/CTransform.hpp"
+#include <memory>
+#include <utility>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CSegId.hpp"
+
+#include <zeus/CMatrix3f.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCharLayoutInfo;

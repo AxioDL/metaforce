@@ -1,7 +1,10 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CMetaAnimFactory.hpp"
+#include <memory>
+#include <string>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CMetaAnimFactory.hpp"
 
 namespace urde {
 class IMetaAnim;

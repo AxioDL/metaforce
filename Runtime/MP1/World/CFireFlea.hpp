@@ -1,7 +1,12 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CFireFlea : public CPatterned {

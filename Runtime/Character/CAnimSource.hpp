@@ -1,22 +1,26 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CCharAnimTime.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "zeus/CVector3f.hpp"
-#include "CSegId.hpp"
-#include "CToken.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
+#include "Runtime/Character/CSegId.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class IObjectStore;
-class CSegIdList;
-class CSegStatementSet;
-class CSegId;
 class CAnimPOIData;
 class CBoolPOINode;
 class CInt32POINode;
 class CParticlePOINode;
+class CSegId;
+class CSegIdList;
+class CSegStatementSet;
 class CSoundPOINode;
+class IObjectStore;
 
 class RotationAndOffsetStorage {
   friend class CAnimSource;

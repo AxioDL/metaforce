@@ -1,15 +1,18 @@
 #pragma once
 
-#include "CAnimTreeNode.hpp"
-#include "CBoolPOINode.hpp"
-#include "CInt32POINode.hpp"
-#include "CParticlePOINode.hpp"
-#include "CSoundPOINode.hpp"
-#include "CAnimSysContext.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/Character/CAnimSysContext.hpp"
+#include "Runtime/Character/CAnimTreeNode.hpp"
+#include "Runtime/Character/CBoolPOINode.hpp"
+#include "Runtime/Character/CInt32POINode.hpp"
+#include "Runtime/Character/CParticlePOINode.hpp"
+#include "Runtime/Character/CSoundPOINode.hpp"
 
 namespace urde {
-class IMetaAnim;
 class CTransitionDatabaseGame;
+class IMetaAnim;
 
 class CSequenceFundamentals {
   CSteadyStateAnimInfo x0_ssInfo;

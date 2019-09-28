@@ -1,7 +1,11 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Collision/CCollisionActorManager.hpp"
+#include <memory>
+
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CSpankWeed : public CPatterned {

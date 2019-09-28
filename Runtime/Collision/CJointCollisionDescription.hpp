@@ -1,7 +1,11 @@
 #pragma once
 
-#include "Character/CSegId.hpp"
-#include "zeus/CAABox.hpp"
+#include <string>
+
+#include "Runtime/Character/CSegId.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 struct SJointInfo {

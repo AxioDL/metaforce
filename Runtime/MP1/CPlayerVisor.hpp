@@ -1,13 +1,15 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Camera/CCameraFilter.hpp"
-#include "zeus/CVector2f.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "CPlayerState.hpp"
-#include "Graphics/CModel.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CStateManager;

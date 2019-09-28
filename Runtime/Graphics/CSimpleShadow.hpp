@@ -1,7 +1,11 @@
 #pragma once
 
-#include "zeus/CAABox.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include <optional>
+
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 class CTexture;

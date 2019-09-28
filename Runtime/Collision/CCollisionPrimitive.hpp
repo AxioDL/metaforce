@@ -1,10 +1,15 @@
 #pragma once
 
-#include "Collision/CMaterialList.hpp"
-#include "CRayCastResult.hpp"
-#include "zeus/CAABox.hpp"
-
 #include <functional>
+#include <memory>
+#include <vector>
+
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Collision/CRayCastResult.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionPrimitive;

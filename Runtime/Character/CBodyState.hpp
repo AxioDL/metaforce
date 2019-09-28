@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CharacterCommon.hpp"
-#include "CBodyStateCmdMgr.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CBodyStateCmdMgr.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CBodyController;

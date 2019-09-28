@@ -1,9 +1,10 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "RetroTypes.hpp"
-#include "zeus/CMatrix4f.hpp"
-#include "zeus/CColor.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
 
 namespace urde {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "zeus/CQuaternion.hpp"
-#include "zeus/CVector3f.hpp"
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CPASAnimParm.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CPASAnimParm.hpp"
 
 namespace urde {
 

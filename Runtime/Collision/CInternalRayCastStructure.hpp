@@ -1,8 +1,11 @@
 #pragma once
 
-#include "zeus/CTransform.hpp"
-#include "zeus/CMRay.hpp"
-#include "CMaterialFilter.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+
+#include <zeus/CMRay.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
 class CInternalRayCastStructure {
   zeus::CMRay x0_ray;

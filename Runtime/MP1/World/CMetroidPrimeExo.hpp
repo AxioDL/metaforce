@@ -1,11 +1,14 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CActorParameters.hpp"
-#include "Camera/CCameraShakeData.hpp"
-#include "Weapon/CBeamInfo.hpp"
-#include "CMetroidPrimeProjectile.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeProjectile.hpp"
+#include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CCameraShakeData;

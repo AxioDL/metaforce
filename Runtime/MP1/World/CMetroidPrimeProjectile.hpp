@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Weapon/CEnergyProjectile.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
 
 namespace urde::MP1 {
 

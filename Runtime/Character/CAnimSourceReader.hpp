@@ -1,10 +1,15 @@
 #pragma once
 
-#include "IAnimReader.hpp"
-#include "CToken.hpp"
-#include "CAnimSource.hpp"
-#include "CParticleData.hpp"
+#include <memory>
 #include <set>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CAnimSource.hpp"
+#include "Runtime/Character/CParticleData.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
 
 namespace urde {
 

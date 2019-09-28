@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ICollisionFilter.hpp"
+#include "Runtime/Collision/ICollisionFilter.hpp"
 
 namespace urde {
 class CPhysicsActor;

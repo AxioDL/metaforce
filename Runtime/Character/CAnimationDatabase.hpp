@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../RetroTypes.hpp"
-#include <vector>
 #include <set>
-#include <string>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class IMetaAnim;
 class CPrimitive;
+class IMetaAnim;
 
 class CAnimationDatabase {
 public:

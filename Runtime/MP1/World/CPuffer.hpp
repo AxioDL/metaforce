@@ -1,6 +1,11 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CPuffer : public CPatterned {

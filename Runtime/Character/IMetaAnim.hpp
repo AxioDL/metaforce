@@ -1,15 +1,18 @@
 #pragma once
 
-#include "../RetroTypes.hpp"
-#include "CCharAnimTime.hpp"
+#include <memory>
+#include <optional>
 #include <set>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace urde {
 class CAnimTreeNode;
-struct CAnimSysContext;
-struct CMetaAnimTreeBuildOrders;
 class CPrimitive;
 class IAnimReader;
+struct CAnimSysContext;
+struct CMetaAnimTreeBuildOrders;
 
 enum class EMetaAnimType { Play, Blend, PhaseBlend, Random, Sequence };
 

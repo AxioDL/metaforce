@@ -1,12 +1,18 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Character/CBoneTracking.hpp"
-#include "Character/CIkChain.hpp"
-#include "Character/CRagDoll.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "Weapon/CBurstFire.hpp"
+#include <list>
+#include <memory>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Character/CIkChain.hpp"
+#include "Runtime/Character/CRagDoll.hpp"
+#include "Runtime/Weapon/CBurstFire.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CSpacePirate;

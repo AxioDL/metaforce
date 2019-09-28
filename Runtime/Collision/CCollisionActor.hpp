@@ -1,12 +1,19 @@
 #pragma once
 
-#include "World/CPhysicsActor.hpp"
-#include "World/CHealthInfo.hpp"
-#include "World/CDamageVulnerability.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
 class CCollidableSphere;
 class CCollidableOBBTreeGroup;
 class CCollidableOBBTreeGroupContainer;
+
 class CCollisionActor : public CPhysicsActor {
   enum class EPrimitiveType { OBBTreeGroup, AABox, Sphere };
 

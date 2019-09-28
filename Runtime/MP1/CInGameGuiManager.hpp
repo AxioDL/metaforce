@@ -1,35 +1,45 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CRandom16.hpp"
-#include "CPlayerVisor.hpp"
-#include "CFaceplateDecoration.hpp"
-#include "CSamusFaceReflection.hpp"
-#include "CMessageScreen.hpp"
-#include "CSaveGameScreen.hpp"
-#include "Camera/CCameraFilter.hpp"
-#include "CStateManager.hpp"
+#include <list>
+#include <memory>
+#include <optional>
+#include <vector>
+
 #include "DataSpec/DNACommon/Tweaks/ITweakGui.hpp"
-#include "CInventoryScreen.hpp"
-#include "CPauseScreen.hpp"
-#include "CPauseScreenBlur.hpp"
-#include "CInGameGuiManagerCommon.hpp"
-#include "Graphics/Shaders/CRandomStaticFilter.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/MP1/CFaceplateDecoration.hpp"
+#include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
+#include "Runtime/MP1/CInventoryScreen.hpp"
+#include "Runtime/MP1/CMessageScreen.hpp"
+#include "Runtime/MP1/CPauseScreen.hpp"
+#include "Runtime/MP1/CPauseScreenBlur.hpp"
+#include "Runtime/MP1/CPlayerVisor.hpp"
+#include "Runtime/MP1/CSamusFaceReflection.hpp"
+#include "Runtime/MP1/CSaveGameScreen.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CStateManager;
-class CArchitectureQueue;
-class CDependencyGroup;
-class CModelData;
 class CActorLights;
-class CGuiModel;
-class CGuiCamera;
+class CArchitectureQueue;
 class CAutoMapper;
+class CDependencyGroup;
+class CGuiCamera;
+class CGuiModel;
+class CModelData;
+class CStateManager;
 
 namespace MP1 {
+class CPauseScreen;
 class CPauseScreenBlur;
 class CSamusHud;
-class CPauseScreen;
 
 class CInGameGuiManager {
 public:

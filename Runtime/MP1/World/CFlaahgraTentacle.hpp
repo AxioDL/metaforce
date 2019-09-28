@@ -1,7 +1,13 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Collision/CCollisionActorManager.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CFlaahgraTentacle : public CPatterned {

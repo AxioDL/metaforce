@@ -1,26 +1,29 @@
 #pragma once
 
+#include <functional>
 #include <vector>
-#include "../RetroTypes.hpp"
-#include "../CToken.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CPlane.hpp"
-#include "zeus/CFrustum.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CRectangle.hpp"
-#include "CGraphics.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CFrustum.hpp>
+#include <zeus/CPlane.hpp>
+#include <zeus/CRectangle.hpp>
 
 namespace urde {
-class CMetroidModelInstance;
-class CLight;
 class CAreaOctTree;
-class CParticleGen;
+class CLight;
+class CMetroidModelInstance;
 class CModel;
-struct SShader;
-class CSkinnedModel;
 class CPVSVisSet;
+class CParticleGen;
+class CSkinnedModel;
 struct CAreaRenderOctTree;
 struct CModelFlags;
+struct SShader;
 
 class IRenderer {
 public:

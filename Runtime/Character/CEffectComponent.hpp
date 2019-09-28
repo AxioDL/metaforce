@@ -1,8 +1,10 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "RetroTypes.hpp"
-#include "CParticleData.hpp"
+#include <string>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CParticleData.hpp"
 
 namespace urde {
 

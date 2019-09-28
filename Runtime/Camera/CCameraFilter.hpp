@@ -1,10 +1,14 @@
 #pragma once
 
-#include "zeus/CColor.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Graphics/Shaders/CXRayBlurFilter.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CTexture;

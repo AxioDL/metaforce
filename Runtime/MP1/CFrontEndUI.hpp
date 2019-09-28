@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <memory>
+#include <optional>
 
 #include "Runtime/CGameDebug.hpp"
 #include "Runtime/CGameOptionsTouchBar.hpp"
@@ -19,20 +21,20 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CAudioGroupSet;
+class CDependencyGroup;
+class CGuiFrame;
+class CGuiModel;
 class CGuiSliderGroup;
 class CGuiTableGroup;
-class CMoviePlayer;
-struct SObjectTag;
-class CDependencyGroup;
-class CTexture;
-class CAudioGroupSet;
-class CSaveWorld;
-class CStringTable;
-class CGuiFrame;
+class CGuiTableGroup;
 class CGuiTextPane;
 class CGuiWidget;
-class CGuiTableGroup;
-class CGuiModel;
+class CMoviePlayer;
+class CSaveWorld;
+class CStringTable;
+class CTexture;
+struct SObjectTag;
 
 namespace MP1 {
 class CNESEmulator;

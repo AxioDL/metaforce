@@ -1,14 +1,18 @@
 #pragma once
 
-#include <Collision/CJointCollisionDescription.hpp>
-#include "World/CPathFindSearch.hpp"
-#include "World/CPatterned.hpp"
-#include "CRandom16.hpp"
+#include <memory>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CCollisionActorManager;
 class CElementGen;
 class CParticleSwoosh;
-class CCollisionActorManager;
 }
 
 namespace urde::MP1 {

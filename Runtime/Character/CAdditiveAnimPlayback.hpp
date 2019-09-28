@@ -1,12 +1,13 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <memory>
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-class CAnimTreeNode;
 class CAdditiveAnimationInfo;
-class CSegIdList;
+class CAnimTreeNode;
 class CCharLayoutInfo;
+class CSegIdList;
 class CSegStatementSet;
 
 class CAdditiveAnimationInfo {

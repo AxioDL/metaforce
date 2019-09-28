@@ -1,10 +1,17 @@
 #pragma once
 
-#include "CFactoryMgr.hpp"
-#include "IOStreams.hpp"
-#include "CSegIdList.hpp"
-#include "CSegId.hpp"
-#include "TSegIdMap.hpp"
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CSegId.hpp"
+#include "Runtime/Character/CSegIdList.hpp"
+#include "Runtime/Character/TSegIdMap.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

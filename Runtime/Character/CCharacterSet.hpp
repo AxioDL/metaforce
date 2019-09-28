@@ -1,7 +1,10 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CCharacterInfo.hpp"
+#include <map>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CCharacterInfo.hpp"
 
 namespace urde {
 

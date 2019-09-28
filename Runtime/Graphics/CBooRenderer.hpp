@@ -1,29 +1,42 @@
 #pragma once
 
 #include <functional>
-#include "IRenderer.hpp"
-#include "CDrawable.hpp"
-#include "CDrawablePlaneObject.hpp"
-#include "Shaders/CThermalColdFilter.hpp"
-#include "Shaders/CThermalHotFilter.hpp"
-#include "Shaders/CSpaceWarpFilter.hpp"
-#include "Shaders/CFogVolumePlaneShader.hpp"
-#include "Shaders/CFogVolumeFilter.hpp"
-#include "Shaders/CPhazonSuitFilter.hpp"
-#include "CTexture.hpp"
-#include "CRandom16.hpp"
-#include "CPVSVisSet.hpp"
-#include "zeus/CRectangle.hpp"
-#include "World/CGameArea.hpp"
-#include "zeus/CPlane.hpp"
+#include <list>
+#include <optional>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CDrawable.hpp"
+#include "Runtime/Graphics/CDrawablePlaneObject.hpp"
+#include "Runtime/Graphics/CPVSVisSet.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/IRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CFogVolumeFilter.hpp"
+#include "Runtime/Graphics/Shaders/CFogVolumePlaneShader.hpp"
+#include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
+#include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
+#include "Runtime/Graphics/Shaders/CThermalColdFilter.hpp"
+#include "Runtime/Graphics/Shaders/CThermalHotFilter.hpp"
+#include "Runtime/World/CGameArea.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CFrustum.hpp>
+#include <zeus/CPlane.hpp>
+#include <zeus/CRectangle.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class IObjectStore;
-class CMemorySys;
-class IFactory;
-class CTexture;
-class CParticleGen;
 class CBooModel;
+class CMemorySys;
+class CParticleGen;
+class CTexture;
+class IFactory;
+class IObjectStore;
 
 class Buckets {
   friend class CBooRenderer;
@@ -57,10 +70,10 @@ enum class EWorldShadowMode {
 
 class CBooRenderer final : public IRenderer {
   friend class CBooModel;
-  friend class CModel;
   friend class CGameArea;
-  friend class CWorldTransManager;
+  friend class CModel;
   friend class CMorphBallShadow;
+  friend class CWorldTransManager;
 
   struct CAreaListItem {
     const std::vector<CMetroidModelInstance>* x0_geometry;

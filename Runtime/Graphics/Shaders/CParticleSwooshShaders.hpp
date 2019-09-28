@@ -1,7 +1,14 @@
 #pragma once
 
-#include "Graphics/CGraphics.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include <array>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CParticleSwoosh;

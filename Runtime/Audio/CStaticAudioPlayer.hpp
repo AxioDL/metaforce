@@ -1,10 +1,17 @@
 #pragma once
 
-#include "CAudioSys.hpp"
-#include "RetroTypes.hpp"
+#include <cstring>
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CAudioSys.hpp"
+
 #include "g721.h"
-#include "boo/audiodev/IAudioVoice.hpp"
-#include "boo/audiodev/IAudioVoiceEngine.hpp"
+
+#include <boo/audiodev/IAudioVoice.hpp>
+#include <boo/audiodev/IAudioVoiceEngine.hpp>
 
 namespace urde {
 class IDvdRequest;

@@ -1,8 +1,11 @@
 #pragma once
 
-#include "CMFGameBase.hpp"
-#include "CInGameGuiManager.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CMFGameBase.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
 
 namespace urde {
 class CStateManager;

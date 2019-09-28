@@ -1,7 +1,9 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CSegId.hpp"
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CSegId.hpp"
 
 namespace urde {
 class CPoseAsTransforms;

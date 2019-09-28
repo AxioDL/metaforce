@@ -1,9 +1,13 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "CAnimPOIData.hpp"
-#include "zeus/CVector3f.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAnimPOIData.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class IObjectStore;

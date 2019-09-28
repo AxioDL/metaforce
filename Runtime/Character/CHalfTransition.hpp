@@ -1,7 +1,10 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "IMetaTrans.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/IMetaTrans.hpp"
 
 namespace urde {
 

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CAnimTreeNode;

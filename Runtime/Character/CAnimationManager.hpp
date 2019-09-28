@@ -1,15 +1,18 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CAnimSysContext.hpp"
+#include <memory>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Character/CAnimSysContext.hpp"
 
 namespace urde {
-class CAnimationDatabaseGame;
-class CTransitionDatabaseGame;
-class CSimplePool;
 class CAnimTreeNode;
-struct CMetaAnimTreeBuildOrders;
+class CAnimationDatabaseGame;
+class CSimplePool;
+class CTransitionDatabaseGame;
 class IMetaAnim;
+
+struct CMetaAnimTreeBuildOrders;
 
 class CAnimationManager {
   TToken<CAnimationDatabaseGame> x0_animDB;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CDrawable.hpp"
-#include "zeus/CPlane.hpp"
+#include "Runtime/Graphics/CDrawable.hpp"
+#include <zeus/CPlane.hpp>
 
 namespace urde {
 class CDrawablePlaneObject : public CDrawable {

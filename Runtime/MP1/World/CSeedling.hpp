@@ -1,8 +1,13 @@
 #pragma once
 
-#include "World/CWallWalker.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "Weapon/CProjectileInfo.hpp"
+#include <memory>
+#include <string>
+
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CWallWalker.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde::MP1 {
 class CSeedling : public CWallWalker {

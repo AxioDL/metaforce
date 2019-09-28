@@ -1,4 +1,6 @@
-#include "CCollisionSurface.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+
+#include <zeus/CUnitVector.hpp>
 
 namespace urde {
 CCollisionSurface::CCollisionSurface(const zeus::CVector3f& a, const zeus::CVector3f& b, const zeus::CVector3f& c,

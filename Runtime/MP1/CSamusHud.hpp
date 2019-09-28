@@ -1,24 +1,35 @@
 #pragma once
 
-#include "CInGameGuiManager.hpp"
-#include "GuiSys/CTargetingManager.hpp"
-#include "GuiSys/CHudBallInterface.hpp"
-#include "GuiSys/CHudBossEnergyInterface.hpp"
-#include "GuiSys/CHudDecoInterface.hpp"
-#include "GuiSys/CHudEnergyInterface.hpp"
-#include "GuiSys/CHudFreeLookInterface.hpp"
-#include "GuiSys/CHudHelmetInterface.hpp"
-#include "GuiSys/CHudMissileInterface.hpp"
-#include "GuiSys/CHudRadarInterface.hpp"
-#include "GuiSys/CHudThreatInterface.hpp"
-#include "GuiSys/CHudVisorBeamMenu.hpp"
-#include "Graphics/Shaders/CRandomStaticFilter.hpp"
-#include "World/CHUDMemoParms.hpp"
+#include <memory>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/GuiSys/CHudBallInterface.hpp"
+#include "Runtime/GuiSys/CHudBossEnergyInterface.hpp"
+#include "Runtime/GuiSys/CHudDecoInterface.hpp"
+#include "Runtime/GuiSys/CHudEnergyInterface.hpp"
+#include "Runtime/GuiSys/CHudFreeLookInterface.hpp"
+#include "Runtime/GuiSys/CHudHelmetInterface.hpp"
+#include "Runtime/GuiSys/CHudMissileInterface.hpp"
+#include "Runtime/GuiSys/CHudRadarInterface.hpp"
+#include "Runtime/GuiSys/CHudThreatInterface.hpp"
+#include "Runtime/GuiSys/CHudVisorBeamMenu.hpp"
+#include "Runtime/GuiSys/CTargetingManager.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+#include "Runtime/World/CHUDMemoParms.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix3f.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGuiFrame;
-class CStateManager;
 class CGuiLight;
+class CStateManager;
 
 enum class EHudState { Combat, XRay, Thermal, Scan, Ball, None };
 

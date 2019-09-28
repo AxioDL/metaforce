@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CAnimPerSegmentData.hpp"
-#include "CSegId.hpp"
+#include "Runtime/Character/CAnimPerSegmentData.hpp"
+#include "Runtime/Character/CSegId.hpp"
 
 namespace urde {
-class CSegIdList;
 class CCharLayoutInfo;
+class CSegIdList;
 
 class CSegStatementSet {
 public:

@@ -1,14 +1,17 @@
 #pragma once
 
-#include "World/CActor.hpp"
-#include "zeus/CTransform.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde {
 struct CFinalInput;
 
 class CGameCamera : public CActor {
-  friend class CStateManager;
   friend class CCameraManager;
+  friend class CStateManager;
 
 protected:
   TUniqueId xe8_watchedObject;

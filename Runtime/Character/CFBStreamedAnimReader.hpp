@@ -1,7 +1,10 @@
 #pragma once
 
-#include "CAnimSourceReader.hpp"
-#include "CFBStreamedCompression.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/Character/CAnimSourceReader.hpp"
+#include "Runtime/Character/CFBStreamedCompression.hpp"
 
 namespace urde {
 class CBitLevelLoader;

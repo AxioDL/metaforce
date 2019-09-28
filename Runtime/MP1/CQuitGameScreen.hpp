@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
 
 namespace urde {
 struct CFinalInput;

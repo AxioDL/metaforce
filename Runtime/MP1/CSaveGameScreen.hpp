@@ -1,19 +1,22 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "CIOWin.hpp"
-#include "CMemoryCardDriver.hpp"
-#include "CSaveGameScreenTouchBar.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/MP1/CMemoryCardDriver.hpp"
+#include "Runtime/MP1/CSaveGameScreenTouchBar.hpp"
 
 namespace urde {
-class CTexture;
-class CStringTable;
 class CGuiFrame;
-class CSaveWorld;
-struct CFinalInput;
-class CGuiTextPane;
 class CGuiTableGroup;
+class CGuiTextPane;
+class CSaveWorld;
+class CStringTable;
+class CTexture;
+struct CFinalInput;
 
 namespace MP1 {
 

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CMaterialList.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CMatrix3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CMatrix3f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionInfo {

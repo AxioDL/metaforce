@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CCollisionPrimitive.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 namespace Collide {

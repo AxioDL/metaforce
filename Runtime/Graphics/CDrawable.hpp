@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GCNTypes.hpp"
-#include "zeus/CAABox.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 enum class EDrawableType : u16 { WorldSurface, Particle, Actor, SimpleShadow, Decal };

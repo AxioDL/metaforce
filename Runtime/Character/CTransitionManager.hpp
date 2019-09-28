@@ -1,13 +1,15 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CAnimSysContext.hpp"
+#include <memory>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Character/CAnimSysContext.hpp"
 
 namespace urde {
-class CTransitionDatabaseGame;
+class CAnimTreeNode;
 class CRandom16;
 class CSimplePool;
-class CAnimTreeNode;
+class CTransitionDatabaseGame;
 
 class CTransitionManager {
   CAnimSysContext x0_animCtx;

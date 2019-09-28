@@ -1,7 +1,15 @@
 #pragma once
 
-#include "CGameCamera.hpp"
-#include "CCameraSpline.hpp"
+#include <cmath>
+#include <memory>
+#include <vector>
+
+#include "Runtime/Camera/CCameraSpline.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPlayer;

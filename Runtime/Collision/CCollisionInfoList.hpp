@@ -1,7 +1,8 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CCollisionInfo.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollisionInfo.hpp"
 
 namespace urde {
 class CCollisionInfoList {

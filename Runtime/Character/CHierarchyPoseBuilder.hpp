@@ -1,13 +1,15 @@
 #pragma once
 
-#include "CSegId.hpp"
-#include "TSegIdMap.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CLayoutDescription.hpp"
+#include "Runtime/Character/CLayoutDescription.hpp"
+#include "Runtime/Character/CSegId.hpp"
+#include "Runtime/Character/TSegIdMap.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CLayoutDescription;
 class CCharLayoutInfo;
+class CLayoutDescription;
 class CPoseAsTransforms;
 
 class CHierarchyPoseBuilder {

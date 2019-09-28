@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CInGameGuiManager.hpp"
-#include "CPauseScreenBase.hpp"
-#include "CSamusDoll.hpp"
+#include <memory>
+
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+#include "Runtime/MP1/CPauseScreenBase.hpp"
+#include "Runtime/MP1/CSamusDoll.hpp"
+
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 class CDependencyGroup;

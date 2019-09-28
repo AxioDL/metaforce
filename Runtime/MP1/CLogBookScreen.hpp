@@ -1,8 +1,13 @@
 #pragma once
 
-#include "CInGameGuiManager.hpp"
-#include "CPauseScreenBase.hpp"
-#include "CArtifactDoll.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/MP1/CArtifactDoll.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+#include "Runtime/MP1/CPauseScreenBase.hpp"
 
 namespace urde::MP1 {
 

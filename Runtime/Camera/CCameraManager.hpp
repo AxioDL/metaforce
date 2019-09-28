@@ -1,20 +1,26 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "World/CGameArea.hpp"
+#include <list>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CGameArea.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CFirstPersonCamera;
 class CBallCamera;
-class CStateManager;
-class CGameCamera;
 class CCameraShakeData;
-class CScriptWater;
-class CInterpolationCamera;
-struct CFinalInput;
-class CScriptCameraHint;
 class CCinematicCamera;
+class CFirstPersonCamera;
+class CGameCamera;
+class CInterpolationCamera;
+class CScriptCameraHint;
+class CScriptWater;
+class CStateManager;
+
+struct CFinalInput;
 
 class CCameraManager {
   static float sFirstPersonFOV;
