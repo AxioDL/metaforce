@@ -15,11 +15,7 @@
 #include "World/CExplosion.hpp"
 
 namespace urde {
-float CCameraManager::sAspect = 1.42f;
-float CCameraManager::sFarPlane = 750.f;
-float CCameraManager::sNearPlane = 0.2f;
 float CCameraManager::sFirstPersonFOV = 55.f;
-float CCameraManager::sThirdPersonFOV = 60.f;
 
 CCameraManager::CCameraManager(TUniqueId curCameraId) : x0_curCameraId(curCameraId) {
   CSfxManager::AddListener(CSfxManager::ESfxChannels::Game, zeus::skZero3f, zeus::skZero3f,
@@ -135,13 +131,13 @@ void CCameraManager::CreateStandardCameras(CStateManager& stateMgr) {
   TUniqueId fpId = stateMgr.AllocateUniqueId();
   x7c_fpCamera =
       new CFirstPersonCamera(fpId, zeus::CTransform(), stateMgr.Player()->GetUniqueId(),
-                             g_tweakPlayer->GetOrbitCameraSpeed(), sFirstPersonFOV, sNearPlane, sFarPlane, sAspect);
+                             g_tweakPlayer->GetOrbitCameraSpeed(), sFirstPersonFOV, NearPlane(), FarPlane(), Aspect());
   stateMgr.AddObject(x7c_fpCamera);
   stateMgr.Player()->SetCameraState(CPlayer::EPlayerCameraState::FirstPerson, stateMgr);
   SetCurrentCameraId(fpId, stateMgr);
 
-  x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(),
-                                   zeus::CTransform(), sThirdPersonFOV, sNearPlane, sFarPlane, sAspect);
+  x80_ballCamera = new CBallCamera(stateMgr.AllocateUniqueId(), stateMgr.Player()->GetUniqueId(), zeus::CTransform(),
+                                   ThirdPersonFOV(), NearPlane(), FarPlane(), Aspect());
   stateMgr.AddObject(x80_ballCamera);
 
   x88_interpCamera = new CInterpolationCamera(stateMgr.AllocateUniqueId(), zeus::CTransform());
