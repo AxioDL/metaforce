@@ -1,8 +1,11 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CDamageInfo.hpp"
 #include "DataSpec/DNAMP1/SFX/Metaree.h"
+
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CMetaree : public CPatterned {

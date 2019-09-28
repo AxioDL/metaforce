@@ -1,6 +1,8 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
 
 namespace urde {
 

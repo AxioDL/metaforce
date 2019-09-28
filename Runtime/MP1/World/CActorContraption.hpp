@@ -1,7 +1,11 @@
 #pragma once
 
-#include "World/CScriptActor.hpp"
-#include "World/CDamageInfo.hpp"
+#include <string_view>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CScriptActor.hpp"
 
 namespace urde {
 class CFlameThrower;

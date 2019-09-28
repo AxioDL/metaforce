@@ -1,8 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Character/CActorLights.hpp"
-#include "CToken.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CActorLights.hpp"
 
 namespace urde {
 class CModel;

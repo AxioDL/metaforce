@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CAnimTreeTweenBase.hpp"
+#include <memory>
+#include <string>
+
+#include "Runtime/Character/CAnimTreeTweenBase.hpp"
 
 namespace urde {
 

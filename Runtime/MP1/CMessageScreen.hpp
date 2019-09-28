@@ -1,15 +1,17 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "GuiSys/CGuiFrame.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 struct CFinalInput;
-class CGuiWidget;
-class CGuiTextPane;
 class CGuiModel;
+class CGuiTextPane;
+class CGuiWidget;
 
 namespace MP1 {
 

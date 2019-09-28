@@ -1,9 +1,15 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CPASDatabase.hpp"
-#include "zeus/CAABox.hpp"
-#include "CEffectComponent.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CEffectComponent.hpp"
+#include "Runtime/Character/CPASDatabase.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 

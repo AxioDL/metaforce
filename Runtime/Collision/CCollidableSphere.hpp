@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CCollisionPrimitive.hpp"
-#include "zeus/CSphere.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+
+#include <zeus/CSphere.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 namespace Collide {

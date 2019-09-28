@@ -1,10 +1,14 @@
 #pragma once
 
-#include <Runtime/Collision/CJointCollisionDescription.hpp>
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Character/CBoneTracking.hpp"
+#include <memory>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
 namespace urde {
 class CCollisionActorManager;
 class CWeaponDescription;

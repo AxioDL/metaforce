@@ -1,7 +1,12 @@
 #pragma once
 
-#include "World/CWallWalker.hpp"
-#include "Collision/CCollisionActorManager.hpp"
+#include <vector>
+
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/World/CWallWalker.hpp"
+
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
 class CModelData;
 }

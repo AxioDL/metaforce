@@ -1,7 +1,12 @@
 #pragma once
 
-#include "CColoredQuadFilter.hpp"
-#include "CTexturedQuadFilter.hpp"
+#include <optional>
+
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
 
 namespace urde {
 

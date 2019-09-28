@@ -1,14 +1,18 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "CAnimSource.hpp"
-#include "CFBStreamedCompression.hpp"
-#include "CFactoryMgr.hpp"
+#include <algorithm>
+#include <memory>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAnimSource.hpp"
+#include "Runtime/Character/CFBStreamedCompression.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class IObjectStore;
 class IAnimReader;
+class IObjectStore;
 
 enum class EAnimFormat { Uncompressed, Unknown, BitstreamCompressed, BitstreamCompressed24 };
 

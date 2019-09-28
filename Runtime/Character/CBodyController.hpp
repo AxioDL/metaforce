@@ -1,20 +1,22 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CharacterCommon.hpp"
-#include "CBodyStateCmdMgr.hpp"
-#include "CBodyStateInfo.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CBodyStateCmdMgr.hpp"
+#include "Runtime/Character/CBodyStateInfo.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-
 class CActor;
 class CAnimPlaybackParms;
-struct CFinalInput;
 class CPASAnimParmData;
+class CPASDatabase;
 class CRandom16;
 class CStateManager;
-class CPASDatabase;
+
+struct CFinalInput;
 
 class CBodyController {
   CActor& x0_actor;

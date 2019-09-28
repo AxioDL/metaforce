@@ -1,13 +1,17 @@
 #pragma once
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "zeus/CAABox.hpp"
-#include "CSegId.hpp"
+
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CSegId.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CHierarchyPoseBuilder;
 class CCharLayoutInfo;
+class CHierarchyPoseBuilder;
 class CModelData;
 class CStateManager;
 

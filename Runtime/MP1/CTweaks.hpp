@@ -1,6 +1,7 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+
 namespace hecl {
 class CVarManager;
 }

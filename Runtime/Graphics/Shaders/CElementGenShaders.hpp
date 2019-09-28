@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Graphics/CGraphics.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include <array>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace urde {
 class CElementGen;

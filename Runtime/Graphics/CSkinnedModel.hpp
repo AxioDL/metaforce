@@ -1,14 +1,20 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CModel.hpp"
+#include <memory>
 #include <optional>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CModel;
-class CSkinRules;
 class CCharLayoutInfo;
+class CModel;
 class CPoseAsTransforms;
+class CSkinRules;
 class CVertexMorphEffect;
 class IObjectStore;
 

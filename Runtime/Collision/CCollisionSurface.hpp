@@ -1,7 +1,9 @@
 #pragma once
 
-#include "zeus/zeus.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/GCNTypes.hpp"
+
+#include <zeus/CPlane.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionSurface {

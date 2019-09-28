@@ -1,8 +1,8 @@
 #pragma once
 
-#include "CFactoryMgr.hpp"
-#include "CCharacterSet.hpp"
-#include "CAnimationSet.hpp"
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/Character/CAnimationSet.hpp"
+#include "Runtime/Character/CCharacterSet.hpp"
 
 namespace urde {
 

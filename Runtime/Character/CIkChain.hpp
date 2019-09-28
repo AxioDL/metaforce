@@ -1,10 +1,11 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "Character/CSegId.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CSegId.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CAnimData;

@@ -1,23 +1,29 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CColor.hpp"
-#include "CFactoryMgr.hpp"
-#include "CToken.hpp"
-#include "zeus/CAABox.hpp"
+#include <memory>
+#include <optional>
+#include <unordered_map>
+#include <vector>
+
 #include "DNACommon/CMDL.hpp"
 #include "DNAMP1/CMDLMaterials.hpp"
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
 #include "Shaders/CModelShaders.hpp"
-#include "hecl/HMDLMeta.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <hecl/HMDLMeta.hpp>
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
 
 namespace urde {
-class IObjectStore;
-class CTexture;
 class CLight;
-class CSkinRules;
-class CPoseAsTransforms;
 class CModel;
+class CPoseAsTransforms;
+class CSkinRules;
+class CTexture;
+class IObjectStore;
 
 struct CModelFlags {
   u8 x0_blendMode = 0; /* 2: add color, >6: additive, >4: blend, else opaque */
@@ -115,10 +121,10 @@ struct SShader {
 };
 
 class CBooModel {
-  friend class CModel;
-  friend class CGameArea;
   friend class CBooRenderer;
+  friend class CGameArea;
   friend class CMetroidModelInstance;
+  friend class CModel;
   friend class CSkinnedModel;
   friend struct GeometryUniformLayout;
 

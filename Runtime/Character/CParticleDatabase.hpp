@@ -1,17 +1,22 @@
 #pragma once
 
-#include "CCharacterInfo.hpp"
-#include "CParticleGenInfo.hpp"
-#include "zeus/CFrustum.hpp"
-#include "CToken.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CSwooshDescription.hpp"
-#include "Particle/CElectricDescription.hpp"
 #include <map>
+#include <memory>
+#include <string>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Character/CCharacterInfo.hpp"
+#include "Runtime/Character/CParticleGenInfo.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CFrustum.hpp>
 
 namespace urde {
-class CPoseAsTransforms;
 class CCharLayoutInfo;
+class CPoseAsTransforms;
 
 class CParticleDatabase {
   std::map<CAssetId, std::shared_ptr<TLockedToken<CGenDescription>>> x0_particleDescs;

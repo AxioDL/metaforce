@@ -1,7 +1,10 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CAnimationParameters.hpp"
+#include <optional>
+#include <string_view>
+
+#include "Runtime/World/CAnimationParameters.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde::MP1 {
 

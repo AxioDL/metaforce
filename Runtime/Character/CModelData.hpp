@@ -1,22 +1,25 @@
 #pragma once
 
-#include "zeus/CVector3f.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CColor.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "CAnimData.hpp"
-#include "Graphics/CModel.hpp"
+#include <memory>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CCharAnimTime;
-class CStateManager;
 class CActorLights;
-struct CModelFlags;
-class CRandom16;
 class CAnimData;
+class CCharAnimTime;
 class CModel;
+class CRandom16;
 class CSkinnedModel;
+class CStateManager;
+struct CModelFlags;
 struct SAdvancementDeltas;
 
 class CStaticRes {

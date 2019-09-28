@@ -1,16 +1,24 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "CCharacterInfo.hpp"
-#include "CParticleDatabase.hpp"
-#include "CPoseAsTransforms.hpp"
-#include "CHierarchyPoseBuilder.hpp"
-#include "CAdditiveAnimPlayback.hpp"
-#include "CCharLayoutInfo.hpp"
-#include "CAnimPlaybackParms.hpp"
-#include "IAnimReader.hpp"
+#include <memory>
 #include <set>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CAdditiveAnimPlayback.hpp"
+#include "Runtime/Character/CAnimPlaybackParms.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CCharacterInfo.hpp"
+#include "Runtime/Character/CHierarchyPoseBuilder.hpp"
+#include "Runtime/Character/CParticleDatabase.hpp"
+#include "Runtime/Character/CPoseAsTransforms.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 enum class EUserEventType {
   Projectile = 0,
@@ -51,30 +59,31 @@ enum class EUserEventType {
 };
 
 namespace urde {
-class CCharLayoutInfo;
-class CSkinnedModel;
-class CMorphableSkinnedModel;
-struct CAnimSysContext;
+class CAnimTreeNode;
 class CAnimationManager;
-class CTransitionManager;
+class CBoolPOINode;
+class CCharAnimTime;
+class CCharLayoutInfo;
 class CCharacterFactory;
-class IMetaAnim;
-struct CModelFlags;
-class CVertexMorphEffect;
+class CInt32POINode;
+class CModel;
+class CMorphableSkinnedModel;
+class CParticlePOINode;
 class CPrimitive;
 class CRandom16;
-class CStateManager;
-class CCharAnimTime;
-class CModel;
-class CSkinRules;
-class CAnimTreeNode;
 class CSegIdList;
 class CSegStatementSet;
-class CBoolPOINode;
-class CInt32POINode;
-class CParticlePOINode;
+class CSkinRules;
+class CSkinnedModel;
 class CSoundPOINode;
+class CStateManager;
+class CTransitionManager;
+class CVertexMorphEffect;
 class IAnimReader;
+class IMetaAnim;
+
+struct CAnimSysContext;
+struct CModelFlags;
 struct SAdvancementDeltas;
 struct SAdvancementResults;
 

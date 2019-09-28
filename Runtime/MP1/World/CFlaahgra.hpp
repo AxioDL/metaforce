@@ -1,16 +1,27 @@
 #pragma once
 
-#include "World/CActorParameters.hpp"
-#include "World/CAnimationParameters.hpp"
-#include "World/CPatterned.hpp"
-#include "Collision/CJointCollisionDescription.hpp"
-#include "Weapon/CProjectileInfo.hpp"
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CAnimationParameters.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/COBBox.hpp>
+#include <zeus/CVector3f.hpp>
+
 namespace urde {
-class CCollisionActorManager;
-class CGenDescription;
 class CBoneTracking;
+class CCollisionActorManager;
 class CDependencyGroup;
 class CElementGen;
+class CGenDescription;
 }
 
 namespace urde::MP1 {

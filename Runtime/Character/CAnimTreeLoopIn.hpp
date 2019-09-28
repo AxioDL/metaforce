@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CAnimTreeSingleChild.hpp"
-#include "CAnimSysContext.hpp"
-#include "CSequenceHelper.hpp"
+#include <memory>
+#include <string>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CAnimSysContext.hpp"
+#include "Runtime/Character/CAnimTreeSingleChild.hpp"
+#include "Runtime/Character/CSequenceHelper.hpp"
 
 namespace urde {
 

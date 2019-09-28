@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Weapon/CProjectileInfo.hpp"
-#include "World/CPatterned.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde {
 class CGenDescription;

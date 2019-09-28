@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CGameCamera.hpp"
-#include "CCameraSpline.hpp"
+#include "Runtime/Camera/CCameraSpline.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
 
 namespace urde {
 

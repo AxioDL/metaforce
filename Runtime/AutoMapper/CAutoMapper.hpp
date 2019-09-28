@@ -1,18 +1,28 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CInGameTweakManagerBase.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CVector3f.hpp"
-#include "MP1/CInGameGuiManager.hpp"
+#include <list>
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-struct CFinalInput;
-class IWorld;
+class CMapUniverse;
 class CMapWorldInfo;
 class CStateManager;
-class CMapUniverse;
+class IWorld;
+
+struct CFinalInput;
 
 class CAutoMapper {
 public:

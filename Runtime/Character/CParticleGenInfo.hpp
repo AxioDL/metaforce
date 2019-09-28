@@ -1,14 +1,18 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CParticleData.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CAABox.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CParticleData.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-struct SObjectTag;
 class CParticleGen;
 class CStateManager;
+struct SObjectTag;
 
 enum class EParticleGenType { Normal, Auxiliary };
 

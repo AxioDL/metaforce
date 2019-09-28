@@ -1,10 +1,15 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CAnimation.hpp"
-#include "CTransition.hpp"
-#include "CHalfTransition.hpp"
-#include "CAdditiveAnimPlayback.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAdditiveAnimPlayback.hpp"
+#include "Runtime/Character/CAnimation.hpp"
+#include "Runtime/Character/CHalfTransition.hpp"
+#include "Runtime/Character/CTransition.hpp"
 
 namespace urde {
 

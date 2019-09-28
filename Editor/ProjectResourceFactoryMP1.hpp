@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ProjectResourceFactoryBase.hpp"
-#include "CToken.hpp"
+#include "Editor/ProjectResourceFactoryBase.hpp"
+#include "Runtime/CToken.hpp"
 
 namespace urde {
 class MP1OriginalIDs;

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "CPVSVisSet.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CPVSVisSet.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

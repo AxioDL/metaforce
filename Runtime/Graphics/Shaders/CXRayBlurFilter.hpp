@@ -1,9 +1,10 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "zeus/CMatrix4f.hpp"
-#include "zeus/CColor.hpp"
-#include "CToken.hpp"
+#include "Runtime/CToken.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
 
 namespace urde {
 class CTexture;

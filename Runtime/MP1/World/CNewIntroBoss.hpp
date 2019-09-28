@@ -1,12 +1,18 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Character/CBoneTracking.hpp"
-#include "Weapon/CProjectileInfo.hpp"
+#include <memory>
+#include <string>
+
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CDamageInfo;
 class CCollisionActorManager;
+class CDamageInfo;
 
 namespace MP1 {
 class CNewIntroBoss : public CPatterned {

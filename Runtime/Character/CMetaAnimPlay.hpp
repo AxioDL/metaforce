@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IMetaAnim.hpp"
-#include "CPrimitive.hpp"
-#include "IOStreams.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CPrimitive.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
 
 namespace urde {
 

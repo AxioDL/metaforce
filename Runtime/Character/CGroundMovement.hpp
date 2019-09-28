@@ -1,14 +1,19 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Collision/CCollisionInfo.hpp"
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollisionInfo.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CAreaCollisionCache;
+class CCollisionInfoList;
+class CMaterialFilter;
 class CPhysicsActor;
 class CStateManager;
-class CAreaCollisionCache;
-class CMaterialFilter;
-class CCollisionInfoList;
 
 class CGroundMovement {
 public:

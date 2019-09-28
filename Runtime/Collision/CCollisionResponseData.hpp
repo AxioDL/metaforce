@@ -1,16 +1,19 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "CFactoryMgr.hpp"
-#include "IObj.hpp"
-#include "CToken.hpp"
-#include "IOStreams.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/IObj.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
 
 namespace urde {
-class CSimplePool;
-class CGenDescription;
 class CDecalDescription;
+class CGenDescription;
+class CSimplePool;
 
 enum class EWeaponCollisionResponseTypes {
   None,

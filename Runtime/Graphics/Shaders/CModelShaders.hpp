@@ -1,13 +1,18 @@
 #pragma once
 
-#include "hecl/Runtime.hpp"
-#include "hecl/Backend.hpp"
-#include <optional>
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 #include <array>
+#include <optional>
+
+#include "DataSpec/DNAMP1/CMDLMaterials.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Backend.hpp>
+#include <hecl/Runtime.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
+#include <zeus/CVector4f.hpp>
 
 #define URDE_MAX_LIGHTS 8
 

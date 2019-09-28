@@ -1,13 +1,22 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "CModelShaders.hpp"
-#include "World/CFluidPlaneManager.hpp"
-#include "Graphics/CTexture.hpp"
-#include "CToken.hpp"
-#include "zeus/CAABox.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
+#include "Runtime/World/CFluidPlaneManager.hpp"
+
 #include "Shaders/shader_CFluidPlaneShader.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CVector3f.hpp>
+#include <zeus/CVector4f.hpp>
 
 namespace urde {
 

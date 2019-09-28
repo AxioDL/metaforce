@@ -1,7 +1,11 @@
 #pragma once
 
-#include "CMaterialList.hpp"
-#include "zeus/zeus.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+
+#include <zeus/CPlane.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CRayCastResult {

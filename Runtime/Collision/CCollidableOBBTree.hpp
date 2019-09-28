@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Collision/CCollisionPrimitive.hpp"
-#include "COBBTree.hpp"
-#include "zeus/COBBox.hpp"
-#include "CMetroidAreaCollider.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+#include "Runtime/Collision/CMetroidAreaCollider.hpp"
+#include "Runtime/Collision/COBBTree.hpp"
+
+#include <zeus/CMRay.hpp>
+#include <zeus/COBBox.hpp>
+#include <zeus/CPlane.hpp>
 
 namespace urde {
 class CRayCastInfo {

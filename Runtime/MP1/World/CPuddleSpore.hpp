@@ -1,8 +1,13 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Particle/CElementGen.hpp"
+#include <memory>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde::MP1 {
 class CPuddleSpore : public CPatterned {

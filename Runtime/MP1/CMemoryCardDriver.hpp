@@ -1,7 +1,11 @@
 #pragma once
 
-#include "CMemoryCardSys.hpp"
-#include "CGameState.hpp"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
 
 namespace urde::MP1 {
 

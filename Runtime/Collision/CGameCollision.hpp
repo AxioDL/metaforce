@@ -1,11 +1,15 @@
 #pragma once
-#include "zeus/CVector3f.hpp"
-#include "zeus/CPlane.hpp"
-#include "rstl.hpp"
-#include "RetroTypes.hpp"
-#include "CRayCastResult.hpp"
-#include "CMetroidAreaCollider.hpp"
-#include "CCollisionPrimitive.hpp"
+
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+#include "Runtime/Collision/CMetroidAreaCollider.hpp"
+#include "Runtime/Collision/CRayCastResult.hpp"
+
+#include <zeus/CPlane.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

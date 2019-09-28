@@ -1,8 +1,7 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include <memory>
+#include "Runtime/RetroTypes.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPVSVisOctree;

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "RetroTypes.hpp"
-#include "CSkinBank.hpp"
-#include "CFactoryMgr.hpp"
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CSkinBank.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CPoseAsTransforms;

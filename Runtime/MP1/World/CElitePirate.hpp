@@ -1,8 +1,11 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CAnimationParameters.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CAnimationParameters.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde::MP1 {
 class CElitePirateData {

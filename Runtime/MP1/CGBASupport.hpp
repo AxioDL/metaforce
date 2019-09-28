@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CDvdFile.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/CDvdFile.hpp"
 
 namespace urde::MP1 {
 

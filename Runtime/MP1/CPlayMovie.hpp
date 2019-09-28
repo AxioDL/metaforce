@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CPlayMovieBase.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/CPlayMovieBase.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde::MP1 {
 

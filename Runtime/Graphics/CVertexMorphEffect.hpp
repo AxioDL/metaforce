@@ -1,11 +1,17 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "Character/CPoseAsTransforms.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Character/CPoseAsTransforms.hpp"
+
+#include <zeus/CUnitVector.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CSkinRules;
 class CRandom16;
+class CSkinRules;
 
 class CVertexMorphEffect {
   zeus::CUnitVector3f x0_;

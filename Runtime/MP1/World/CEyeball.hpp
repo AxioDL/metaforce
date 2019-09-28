@@ -1,8 +1,13 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Character/CBoneTracking.hpp"
-#include "Weapon/CProjectileInfo.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CEyeball : public CPatterned {

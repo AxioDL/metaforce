@@ -1,7 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 
 namespace urde {
 class CStateManager;

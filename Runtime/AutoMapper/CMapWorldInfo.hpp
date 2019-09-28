@@ -1,6 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <map>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CSaveWorld;
