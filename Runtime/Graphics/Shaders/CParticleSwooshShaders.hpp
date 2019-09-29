@@ -2,8 +2,6 @@
 
 #include <array>
 
-#include "Runtime/Graphics/CGraphics.hpp"
-
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>

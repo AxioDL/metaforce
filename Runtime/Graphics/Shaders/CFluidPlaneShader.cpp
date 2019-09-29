@@ -1,7 +1,9 @@
-#include "CFluidPlaneShader.hpp"
-#include "World/CRipple.hpp"
-#include "World/CRippleManager.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
+
+#include "Runtime/World/CRipple.hpp"
+#include "Runtime/World/CRippleManager.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

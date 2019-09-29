@@ -1,8 +1,10 @@
-#include "CColoredStripShader.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "hecl/Pipeline.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

@@ -13,8 +13,8 @@
 
 namespace urde {
 class CGlyph;
-class CTextRenderBuffer;
 class CFontImageDef;
+class CTextRenderBuffer;
 
 class CTextSupportShader {
   friend class CTextRenderBuffer;

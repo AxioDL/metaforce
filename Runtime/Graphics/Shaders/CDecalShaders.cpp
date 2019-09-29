@@ -1,6 +1,8 @@
-#include "CDecalShaders.hpp"
-#include "Particle/CDecal.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
+
+#include "Runtime/Particle/CDecal.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

@@ -1,6 +1,11 @@
-#include "CCameraBlurFilter.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

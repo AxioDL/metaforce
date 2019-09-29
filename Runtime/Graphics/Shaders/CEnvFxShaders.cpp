@@ -1,6 +1,8 @@
-#include "CEnvFxShaders.hpp"
-#include "hecl/Pipeline.hpp"
-#include "World/CEnvFxManager.hpp"
+#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
+
+#include "Runtime/World/CEnvFxManager.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 boo::ObjToken<boo::IShaderPipeline> CEnvFxShaders::m_snowPipeline;

@@ -5,6 +5,7 @@
 
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Character/CActorLights.hpp"
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Graphics/CRainSplashGenerator.hpp"

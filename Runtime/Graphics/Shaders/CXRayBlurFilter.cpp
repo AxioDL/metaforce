@@ -1,8 +1,11 @@
-#include "CXRayBlurFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CTexture.hpp"
-#include "GameGlobalObjects.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 

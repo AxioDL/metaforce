@@ -1,6 +1,9 @@
-#include "CAABoxShader.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 

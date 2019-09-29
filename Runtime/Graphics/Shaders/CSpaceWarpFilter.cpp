@@ -1,7 +1,9 @@
-#include "CSpaceWarpFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
+
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 #define WARP_RAMP_RES 32
 

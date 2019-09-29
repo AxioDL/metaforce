@@ -8,6 +8,7 @@
 #include "Runtime/CToken.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Runtime/GuiSys/CGuiTextSupport.hpp"
 

@@ -1,6 +1,8 @@
-#include "CTextSupportShader.hpp"
-#include "GuiSys/CRasterFont.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
+
+#include "Runtime/GuiSys/CRasterFont.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

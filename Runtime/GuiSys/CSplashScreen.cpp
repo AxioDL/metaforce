@@ -1,8 +1,10 @@
-#include "CSplashScreen.hpp"
-#include "CArchitectureMessage.hpp"
-#include "CArchitectureQueue.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CSplashScreen.hpp"
+
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 
 namespace urde {
 

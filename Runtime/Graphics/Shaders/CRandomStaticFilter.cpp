@@ -1,8 +1,10 @@
-#include "CRandomStaticFilter.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

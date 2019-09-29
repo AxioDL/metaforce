@@ -2,8 +2,10 @@
 
 #include <optional>
 
-#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/GCNTypes.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
