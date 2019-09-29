@@ -1,11 +1,12 @@
-#include "MP1/World/CSeedling.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPlayer.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/MP1/World/CSeedling.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CSeedling.hpp"
 
 namespace urde::MP1 {
 
