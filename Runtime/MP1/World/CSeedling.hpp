@@ -11,7 +11,6 @@
 
 namespace urde::MP1 {
 class CSeedling : public CWallWalker {
-  static const std::string skNeedleLocators[2][6];
   CPathFindSearch x5d8_searchPath;
   std::unique_ptr<CModelData> x6bc_spikeData;
   CProjectileInfo x6c0_projectileInfo;

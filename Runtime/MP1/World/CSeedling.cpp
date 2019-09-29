@@ -9,6 +9,26 @@
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+const std::string skNeedleLocators[2][6] = {
+    {
+        "A_spike1_LCTR_SDK",
+        "A_spike2_LCTR_SDK",
+        "A_spike3_LCTR_SDK",
+        "A_spike4_LCTR_SDK",
+        "A_spike5_LCTR_SDK",
+        "A_spike6_LCTR_SDK",
+    },
+    {
+        "B_spike1_LCTR_SDK",
+        "B_spike2_LCTR_SDK",
+        "B_spike3_LCTR_SDK",
+        "B_spike4_LCTR_SDK",
+        "B_spike5_LCTR_SDK",
+        "B_spike6_LCTR_SDK",
+    },
+};
+} // Anonymous namespace
 
 CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -29,23 +49,6 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
 }
 
 void CSeedling::Accept(IVisitor& visitor) { visitor.Visit(this); }
-
-const std::string CSeedling::skNeedleLocators[2][6] = {{
-                                                           "A_spike1_LCTR_SDK",
-                                                           "A_spike2_LCTR_SDK",
-                                                           "A_spike3_LCTR_SDK",
-                                                           "A_spike4_LCTR_SDK",
-                                                           "A_spike5_LCTR_SDK",
-                                                           "A_spike6_LCTR_SDK",
-                                                       },
-                                                       {
-                                                           "B_spike1_LCTR_SDK",
-                                                           "B_spike2_LCTR_SDK",
-                                                           "B_spike3_LCTR_SDK",
-                                                           "B_spike4_LCTR_SDK",
-                                                           "B_spike5_LCTR_SDK",
-                                                           "B_spike6_LCTR_SDK",
-                                                       }};
 
 void CSeedling::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
