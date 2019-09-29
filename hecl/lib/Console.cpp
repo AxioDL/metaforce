@@ -175,12 +175,10 @@ void Console::init(boo::IWindow* window) {
 void Console::proc() {
   if (m_conHeight->isModified()) {
     m_cachedConHeight = m_conHeight->toReal();
-    m_conHeight->clearModified();
   }
 
   if (m_conSpeed->isModified()) {
     m_cachedConSpeed = m_conSpeed->toReal();
-    m_conSpeed->clearModified();
   }
 
   if (m_state == State::Opened) {

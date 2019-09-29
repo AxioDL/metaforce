@@ -331,6 +331,8 @@ void CVarManager::proc() {
   for (const auto& [name, cvar] : m_cvars) {
     if (cvar->isModified() && !cvar->modificationRequiresRestart()) {
       cvar->dispatch();
+      // Clear the modified flag now that we've informed everyone we've changed
+      cvar->clearModified();
     }
   }
 }

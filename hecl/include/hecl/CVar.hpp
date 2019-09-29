@@ -124,8 +124,6 @@ public:
   bool isColor() const;
   bool wasDeserialized() const;
   bool hasDefaultValue() const;
-  void clearModified();
-  void setModified();
 
   EType type() const { return m_type; }
   EFlags flags() const { return (m_unlocked ? m_oldFlags : m_flags); }
@@ -153,6 +151,8 @@ public:
 private:
   CVar(std::string_view name, std::string_view help, EType type) : m_help(help), m_type(type) { m_name = name; }
   void dispatch();
+  void clearModified();
+  void setModified();
   std::string m_help;
   EType m_type;
   std::string m_defaultValue;

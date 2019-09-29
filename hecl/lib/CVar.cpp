@@ -415,6 +415,7 @@ bool CVar::fromLiteralToType(std::string_view val) {
   if (!safeToModify(m_type) || !isValidInput(val))
     return false;
   m_value = val;
+  setModified();
   return true;
 }
 
