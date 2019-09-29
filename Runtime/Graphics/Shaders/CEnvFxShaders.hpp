@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
@@ -14,9 +16,9 @@ class CEnvFxManagerGrid;
 class CEnvFxShaders {
 public:
   struct Instance {
-    zeus::CVector3f positions[4];
+    std::array<zeus::CVector3f, 4> positions;
     zeus::CColor color;
-    zeus::CVector2f uvs[4];
+    std::array<zeus::CVector2f, 4> uvs;
   };
   struct Uniform {
     zeus::CMatrix4f mv;

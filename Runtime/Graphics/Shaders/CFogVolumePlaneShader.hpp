@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <vector>
 
@@ -16,7 +17,7 @@ namespace urde {
 
 class CFogVolumePlaneShader {
   boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBinds[4];
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 4> m_dataBinds;
   std::vector<zeus::CVector4f> m_verts;
   size_t m_vertCapacity = 0;
 

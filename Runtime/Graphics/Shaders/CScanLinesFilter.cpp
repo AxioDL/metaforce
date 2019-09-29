@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
@@ -43,10 +45,11 @@ CScanLinesFilter::CScanLinesFilter(EFilterType type, bool even) : m_even(even) {
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
     boo::ObjToken<boo::IGraphicsBuffer> vbo =
         m_even ? g_Renderer->GetScanLinesEvenVBO().get() : g_Renderer->GetScanLinesOddVBO().get();
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), vbo, nullptr, nullptr, 1, bufs, stages, nullptr,
-                                          nullptr, 0, nullptr, nullptr, nullptr);
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+
+    m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), vbo, nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     return true;
   } BooTrace);
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/GCNTypes.hpp"
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
@@ -15,7 +17,7 @@ class CSpaceWarpFilter {
     zeus::CMatrix4f m_indXf;
     zeus::CVector3f m_strength;
   };
-  u8 m_shiftTexture[4][8][4] = {};
+  std::array<std::array<std::array<u8, 4>, 8>, 4> m_shiftTexture{};
   boo::ObjToken<boo::ITexture> m_warpTex;
   boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;

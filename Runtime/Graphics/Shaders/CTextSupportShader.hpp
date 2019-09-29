@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/GuiSys/CGuiWidget.hpp"
 
 #include <hecl/UniformBufferPool.hpp>
@@ -33,8 +35,8 @@ class CTextSupportShader {
   };
 
   struct CharacterInstance {
-    zeus::CVector3f m_pos[4];
-    zeus::CVector3f m_uv[4];
+    std::array<zeus::CVector3f, 4> m_pos;
+    std::array<zeus::CVector3f, 4> m_uv;
     zeus::CColor m_fontColor;
     zeus::CColor m_outlineColor;
     zeus::CColor m_mulColor;
@@ -42,8 +44,8 @@ class CTextSupportShader {
   };
 
   struct ImageInstance {
-    zeus::CVector3f m_pos[4];
-    zeus::CVector2f m_uv[4];
+    std::array<zeus::CVector3f, 4> m_pos;
+    std::array<zeus::CVector2f, 4> m_uv;
     zeus::CColor m_color;
     void SetMetrics(const CFontImageDef& imgDef, const zeus::CVector2i& offset);
   };

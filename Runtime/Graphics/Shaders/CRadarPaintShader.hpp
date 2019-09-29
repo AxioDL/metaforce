@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
@@ -14,8 +15,8 @@ class CTexture;
 class CRadarPaintShader {
 public:
   struct Instance {
-    zeus::CVector3f pos[4];
-    zeus::CVector2f uv[4];
+    std::array<zeus::CVector3f, 4> pos;
+    std::array<zeus::CVector2f, 4> uv;
     zeus::CColor color;
   };
 

@@ -414,7 +414,7 @@ void CBooModel::ActivateLights(const std::vector<CLight>& lights) { m_lightingDa
 void CBooModel::DisableAllLights() {
   m_lightingData.ambient = zeus::skBlack;
 
-  for (size_t curLight = 0; curLight < URDE_MAX_LIGHTS; ++curLight) {
+  for (size_t curLight = 0; curLight < m_lightingData.lights.size(); ++curLight) {
     CModelShaders::Light& lightOut = m_lightingData.lights[curLight];
     lightOut.color = zeus::skClear;
     lightOut.linAtt[0] = 1.f;

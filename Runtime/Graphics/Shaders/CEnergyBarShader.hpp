@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
@@ -25,8 +26,8 @@ private:
     zeus::CColor m_color;
   };
   boo::ObjToken<boo::IGraphicsBufferD> m_vbo;
-  boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf[3];
-  boo::ObjToken<boo::IShaderDataBinding> m_dataBind[3];
+  std::array<boo::ObjToken<boo::IGraphicsBufferD>, 3> m_uniBuf;
+  std::array<boo::ObjToken<boo::IShaderDataBinding>, 3> m_dataBind;
   Uniform m_uniform;
   const CTexture* m_tex = nullptr;
   size_t m_maxVerts = 0;
