@@ -6,10 +6,17 @@
 #include "Runtime/Graphics/CGraphics.hpp"
 
 #include <hecl/Pipeline.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
+namespace {
+struct Vert {
+  zeus::CVector2f m_pos;
+  zeus::CVector2f m_uv;
+};
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+boo::ObjToken<boo::IShaderPipeline> s_Pipeline;
+} // Anonymous namespace
 
 void CCameraBlurFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CCameraBlurFilter{}); }
 
