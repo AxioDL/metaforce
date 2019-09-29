@@ -12,7 +12,7 @@
 
 namespace urde::MP1 {
 namespace {
-const std::array<std::array<std::string, 6>, 2> skNeedleLocators{{
+constexpr std::array<std::array<std::string_view, 6>, 2> skNeedleLocators{{
     {
         "A_spike1_LCTR_SDK",
         "A_spike2_LCTR_SDK",
@@ -114,7 +114,7 @@ void CSeedling::Render(const CStateManager& mgr) const {
     flags.x2_flags = 3;
     flags.x4_color = zeus::skWhite;
 
-    for (const std::string& sv : skNeedleLocators[index]) {
+    for (const std::string_view sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
     }
   }
@@ -210,7 +210,7 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
 
 void CSeedling::LaunchNeedles(CStateManager& mgr) {
   const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
-  for (const std::string& needle : needleLocators) {
+  for (const std::string_view needle : needleLocators) {
     LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
                      0xFFFF, false, GetModelData()->GetScale());
   }
