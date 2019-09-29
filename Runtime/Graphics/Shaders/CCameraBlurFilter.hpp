@@ -2,8 +2,6 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
 #include <zeus/CVector3f.hpp>
 #include <zeus/CVector4f.hpp>
 

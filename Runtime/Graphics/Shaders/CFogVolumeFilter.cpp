@@ -1,8 +1,12 @@
-#include "CFogVolumeFilter.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CFogVolumeFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <hecl/Pipeline.hpp>
+#include <zeus/CColor.hpp>
 
 namespace urde {
 

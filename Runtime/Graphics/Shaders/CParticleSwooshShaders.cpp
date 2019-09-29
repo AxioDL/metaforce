@@ -1,7 +1,9 @@
-#include "CParticleSwooshShaders.hpp"
-#include "Particle/CParticleSwoosh.hpp"
-#include "Particle/CSwooshDescription.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
+
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

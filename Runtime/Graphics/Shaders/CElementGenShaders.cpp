@@ -1,6 +1,8 @@
-#include "CElementGenShaders.hpp"
-#include "Particle/CElementGen.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
+
+#include "Runtime/Particle/CElementGen.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

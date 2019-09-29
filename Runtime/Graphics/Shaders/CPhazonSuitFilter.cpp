@@ -1,7 +1,14 @@
-#include "CPhazonSuitFilter.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+
+#include <hecl/Pipeline.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
+#include <zeus/CVector4f.hpp>
 
 namespace urde {
 

@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 #include "Runtime/World/CFluidPlaneManager.hpp"
@@ -12,7 +11,6 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-#include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CVector3f.hpp>

@@ -1,14 +1,12 @@
 #pragma once
 
 #include <array>
-#include <optional>
+#include <cstdint>
+#include <memory>
 
 #include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 
 #include "Runtime/Graphics/CGraphics.hpp"
-
-#include <hecl/Backend.hpp>
-#include <hecl/Runtime.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
@@ -16,7 +14,12 @@
 
 #define URDE_MAX_LIGHTS 8
 
+namespace hecl::Backend {
+class ShaderTag;
+}
+
 namespace urde {
+class CLight;
 
 enum EExtendedShader : uint8_t {
   Flat,

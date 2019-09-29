@@ -2,15 +2,15 @@
 
 #include <vector>
 
-#include "Runtime/Camera/CCameraFilter.hpp"
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
-#include <zeus/CRectangle.hpp>
 #include <zeus/CVector2f.hpp>
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CTexture;
 
 class CEnergyBarShader {
 public:

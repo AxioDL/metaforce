@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GCNTypes.hpp"
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Runtime/RetroTypes.hpp"
-
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>

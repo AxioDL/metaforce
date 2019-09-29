@@ -1,8 +1,11 @@
-#include "CThermalHotFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "hecl/Pipeline.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CThermalHotFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 

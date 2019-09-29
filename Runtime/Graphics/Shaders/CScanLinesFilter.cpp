@@ -1,8 +1,11 @@
-#include "CScanLinesFilter.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 

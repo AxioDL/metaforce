@@ -1,6 +1,9 @@
-#include "CColoredQuadFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
