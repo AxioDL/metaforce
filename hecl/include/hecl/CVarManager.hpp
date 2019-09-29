@@ -20,7 +20,7 @@ class CVarManager final {
   using CVarContainer = DNACVAR::CVarContainer;
   template <typename T>
   CVar* _newCVar(std::string_view name, std::string_view help, const T& value, CVar::EFlags flags) {
-    if (CVar* ret = registerCVar(std::make_unique<CVar>(name, value, help, flags, *this))) {
+    if (CVar* ret = registerCVar(std::make_unique<CVar>(name, value, help, flags))) {
       deserialize(ret);
       return ret;
     }
@@ -39,8 +39,23 @@ public:
   CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary = false);
   ~CVarManager();
 
+  CVar* newCVar(std::string_view name, std::string_view help, const atVec2f& value, CVar::EFlags flags) {
+    return _newCVar<atVec2f>(name, help, value, flags);
+  }
+  CVar* newCVar(std::string_view name, std::string_view help, const atVec2d& value, CVar::EFlags flags) {
+    return _newCVar<atVec2d>(name, help, value, flags);
+  }
+  CVar* newCVar(std::string_view name, std::string_view help, const atVec3f& value, CVar::EFlags flags) {
+    return _newCVar<atVec3f>(name, help, value, flags);
+  }
+  CVar* newCVar(std::string_view name, std::string_view help, const atVec3d& value, CVar::EFlags flags) {
+    return _newCVar<atVec3d>(name, help, value, flags);
+  }
   CVar* newCVar(std::string_view name, std::string_view help, const atVec4f& value, CVar::EFlags flags) {
     return _newCVar<atVec4f>(name, help, value, flags);
+  }
+  CVar* newCVar(std::string_view name, std::string_view help, const atVec4d& value, CVar::EFlags flags) {
+    return _newCVar<atVec4d>(name, help, value, flags);
   }
   CVar* newCVar(std::string_view name, std::string_view help, std::string_view value, CVar::EFlags flags) {
     return _newCVar<std::string_view>(name, help, value, flags);
@@ -48,11 +63,20 @@ public:
   CVar* newCVar(std::string_view name, std::string_view help, bool value, CVar::EFlags flags) {
     return _newCVar<bool>(name, help, value, flags);
   }
+  // Float and double are internally identical, all floating point values are stored as `double`
   CVar* newCVar(std::string_view name, std::string_view help, float value, CVar::EFlags flags) {
-    return _newCVar<float>(name, help, value, flags);
+    return _newCVar<double>(name, help, static_cast<double>(value), flags);
   }
-  CVar* newCVar(std::string_view name, std::string_view help, int value, CVar::EFlags flags) {
-    return _newCVar<int>(name, help, value, flags);
+  CVar* newCVar(std::string_view name, std::string_view help, double value, CVar::EFlags flags) {
+    return _newCVar<double>(name, help, value, flags);
+  }
+  // Integer CVars can be seamlessly converted between either type, the distinction is to make usage absolutely clear
+  CVar* newCVar(std::string_view name, std::string_view help, int32_t value, CVar::EFlags flags) {
+    return _newCVar<int32_t>(name, help, value, flags);
+  }
+
+  CVar* newCVar(std::string_view name, std::string_view help, uint32_t value, CVar::EFlags flags) {
+    return _newCVar<uint32_t>(name, help, value, flags);
   }
 
   CVar* registerCVar(std::unique_ptr<CVar>&& cvar);
@@ -66,12 +90,14 @@ public:
   }
 
   std::vector<CVar*> archivedCVars() const;
-  std::vector<CVar*> cvars(CVar::EFlags filter = CVar::EFlags::None) const;
+  std::vector<CVar*> cvars(CVar::EFlags filter = CVar::EFlags::Any) const;
 
   void deserialize(CVar* cvar);
   void serialize();
 
   static CVarManager* instance();
+
+  void proc();
 
   void list(class Console* con, const std::vector<std::string>& args);
   void setCVar(class Console* con, const std::vector<std::string>& args);
