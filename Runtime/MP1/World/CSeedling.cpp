@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CSeedling.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CGameArea.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
@@ -10,7 +12,7 @@
 
 namespace urde::MP1 {
 namespace {
-const std::string skNeedleLocators[2][6] = {
+const std::array<std::array<std::string, 6>, 2> skNeedleLocators{{
     {
         "A_spike1_LCTR_SDK",
         "A_spike2_LCTR_SDK",
@@ -27,7 +29,7 @@ const std::string skNeedleLocators[2][6] = {
         "B_spike5_LCTR_SDK",
         "B_spike6_LCTR_SDK",
     },
-};
+}};
 } // Anonymous namespace
 
 CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
@@ -107,13 +109,14 @@ void CSeedling::Think(float dt, CStateManager& mgr) {
 
 void CSeedling::Render(const CStateManager& mgr) const {
   if (x400_25_alive && x6bc_spikeData) {
-    u32 index = x722_24_renderOnlyClusterA ? 0 : u32(x722_25_curNeedleCluster);
+    const size_t index = x722_24_renderOnlyClusterA ? 0 : size_t(x722_25_curNeedleCluster);
     CModelFlags flags;
     flags.x2_flags = 3;
     flags.x4_color = zeus::skWhite;
 
-    for (const std::string& sv : skNeedleLocators[index])
+    for (const std::string& sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
+    }
   }
 
   CWallWalker::Render(mgr);
@@ -206,9 +209,11 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
 }
 
 void CSeedling::LaunchNeedles(CStateManager& mgr) {
-  for (const std::string& needle : skNeedleLocators[u32(x722_25_curNeedleCluster)])
-    LaunchProjectile(GetLctrTransform(needle), mgr, 6, EProjectileAttrib::None, true, {}, 0xFFFF, false,
-                     GetModelData()->GetScale());
+  const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
+  for (const std::string& needle : needleLocators) {
+    LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
+                     0xFFFF, false, GetModelData()->GetScale());
+  }
 
   x722_25_curNeedleCluster = !x722_25_curNeedleCluster;
   x722_24_renderOnlyClusterA = false;
