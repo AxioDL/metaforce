@@ -16,12 +16,12 @@ void CSpaceWarpFilter::Initialize() { s_Pipeline = hecl::conv->convert(Shader_CS
 void CSpaceWarpFilter::Shutdown() { s_Pipeline.reset(); }
 
 void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& ctx) {
-  u8 data[WARP_RAMP_RES + 1][WARP_RAMP_RES + 1][4] = {};
-  float halfRes = WARP_RAMP_RES / 2.f;
+  std::array<std::array<std::array<u8, 4>, WARP_RAMP_RES + 1>, WARP_RAMP_RES + 1> data{};
+  const float halfRes = WARP_RAMP_RES / 2.f;
   for (int y = 0; y < WARP_RAMP_RES + 1; ++y) {
     for (int x = 0; x < WARP_RAMP_RES + 1; ++x) {
       zeus::CVector2f vec((x - halfRes) / halfRes, (y - halfRes) / halfRes);
-      float mag = vec.magnitude();
+      const float mag = vec.magnitude();
       if (mag < 1.f && vec.canBeNormalized()) {
         vec.normalize();
         vec *= zeus::CVector2f(std::sqrt(mag));
@@ -33,29 +33,36 @@ void CSpaceWarpFilter::GenerateWarpRampTex(boo::IGraphicsDataFactory::Context& c
   }
   m_warpTex =
       ctx.newStaticTexture(WARP_RAMP_RES + 1, WARP_RAMP_RES + 1, 1, boo::TextureFormat::RGBA8,
-                           boo::TextureClampMode::Repeat, data[0], (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4)
+                           boo::TextureClampMode::Repeat, data.data(), (WARP_RAMP_RES + 1) * (WARP_RAMP_RES + 1) * 4)
           .get();
 }
 
 CSpaceWarpFilter::CSpaceWarpFilter() {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     GenerateWarpRampTex(ctx);
+
     struct Vert {
       zeus::CVector2f m_pos;
       zeus::CVector2f m_uv;
-    } verts[4] = {
-      {{-1.f, -1.f}, {0.f, 0.f}},
-      {{-1.f, 1.f}, {0.f, 1.f}},
-      {{1.f, -1.f}, {1.f, 0.f}},
-      {{1.f, 1.f}, {1.f, 1.f}},
     };
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
+    const std::array<Vert, 4> verts{{
+        {{-1.f, -1.f}, {0.f, 0.f}},
+        {{-1.f, 1.f}, {0.f, 1.f}},
+        {{1.f, -1.f}, {1.f, 0.f}},
+        {{1.f, 1.f}, {1.f, 1.f}},
+    }};
+
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 32, verts.size());
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), m_warpTex.get()};
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
-                                          2, texs, nullptr, nullptr);
+
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    const std::array<boo::ObjToken<boo::ITexture>, 2> texs{
+        CGraphics::g_SpareTexture.get(),
+        m_warpTex.get(),
+    };
+    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
     return true;
   } BooTrace);
 }

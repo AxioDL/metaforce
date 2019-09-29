@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
 
+#include <array>
+
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 
@@ -42,38 +44,46 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
       struct BlurVert {
         zeus::CVector3f pos;
         zeus::CVector2f uv;
-      } blurVerts[4] = {{{-1.f, 1.f, 0.f}, {0.f, 1.f}},
-                        {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
-                        {{1.f, 1.f, 0.f}, {1.f, 1.f}},
-                        {{1.f, -1.f, 0.f}, {1.f, 0.f}}};
-      m_blurVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, blurVerts, sizeof(BlurVert), 4);
+      };
+      const std::array<BlurVert, 4> blurVerts{{
+          {{-1.f, 1.f, 0.f}, {0.f, 1.f}},
+          {{-1.f, -1.f, 0.f}, {0.f, 0.f}},
+          {{1.f, 1.f, 0.f}, {1.f, 1.f}},
+          {{1.f, -1.f, 0.f}, {1.f, 0.f}},
+      }};
+      m_blurVbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, blurVerts.data(), sizeof(BlurVert), blurVerts.size());
 
       struct Vert {
         zeus::CVector3f pos;
         zeus::CVector2f screenUv;
         zeus::CVector2f indUv;
         zeus::CVector2f maskUv;
-      } verts[4] = {{{-1.f, 1.f, 0.f}, {0.01f, 0.99f}, {0.f, 4.f}, {0.f, 1.f}},
-                    {{-1.f, -1.f, 0.f}, {0.01f, 0.01f}, {0.f, 0.f}, {0.f, 0.f}},
-                    {{1.f, 1.f, 0.f}, {0.99f, 0.99f}, {g_Viewport.aspect * 4.f, 4.f}, {1.f, 1.f}},
-                    {{1.f, -1.f, 0.f}, {0.99f, 0.01f}, {g_Viewport.aspect * 4.f, 0.f}, {1.f, 0.f}}};
-      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+      };
+      const std::array<Vert, 4> verts{{
+          {{-1.f, 1.f, 0.f}, {0.01f, 0.99f}, {0.f, 4.f}, {0.f, 1.f}},
+          {{-1.f, -1.f, 0.f}, {0.01f, 0.01f}, {0.f, 0.f}, {0.f, 0.f}},
+          {{1.f, 1.f, 0.f}, {0.99f, 0.99f}, {g_Viewport.aspect * 4.f, 4.f}, {1.f, 1.f}},
+          {{1.f, -1.f, 0.f}, {0.99f, 0.01f}, {g_Viewport.aspect * 4.f, 0.f}, {1.f, 0.f}},
+      }};
+      m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(Vert), verts.size());
 
-      boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBufBlurX.get()};
-      boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-      boo::ObjToken<boo::ITexture> texs[4];
-      int texBindIdxs[4];
+      std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBufBlurX.get()};
+      constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+      std::array<boo::ObjToken<boo::ITexture>, 4> texs;
+      std::array<int, 4> texBindIdxs;
 
       texs[0] = CGraphics::g_SpareTexture.get();
       texBindIdxs[0] = 1;
-      m_dataBindBlurX = ctx.newShaderDataBinding(s_BlurPipeline, m_blurVbo.get(), nullptr, nullptr, 1, bufs, stages,
-                                                 nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
+      m_dataBindBlurX =
+          ctx.newShaderDataBinding(s_BlurPipeline, m_blurVbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                   stages.data(), nullptr, nullptr, 1, texs.data(), texBindIdxs.data(), nullptr);
 
       bufs[0] = m_uniBufBlurY.get();
       texs[0] = CGraphics::g_SpareTexture.get();
       texBindIdxs[0] = 2;
-      m_dataBindBlurY = ctx.newShaderDataBinding(s_BlurPipeline, m_blurVbo.get(), nullptr, nullptr, 1, bufs, stages,
-                                                 nullptr, nullptr, 1, texs, texBindIdxs, nullptr);
+      m_dataBindBlurY =
+          ctx.newShaderDataBinding(s_BlurPipeline, m_blurVbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                   stages.data(), nullptr, nullptr, 1, texs.data(), texBindIdxs.data(), nullptr);
 
       bufs[0] = m_uniBuf.get();
       size_t texCount;
@@ -97,8 +107,9 @@ void CPhazonSuitFilter::drawBlurPasses(float radius, const CTexture* indTex) {
         texCount = 3;
       }
 
-      m_dataBind = ctx.newShaderDataBinding(m_indTex ? s_IndPipeline : s_Pipeline, m_vbo.get(), nullptr, nullptr, 1,
-                                            bufs, stages, nullptr, nullptr, texCount, texs, texBindIdxs, nullptr);
+      m_dataBind = ctx.newShaderDataBinding(m_indTex ? s_IndPipeline : s_Pipeline, m_vbo.get(), nullptr, nullptr,
+                                            bufs.size(), bufs.data(), stages.data(), nullptr, nullptr, texCount,
+                                            texs.data(), texBindIdxs.data(), nullptr);
       return true;
     } BooTrace);
   }

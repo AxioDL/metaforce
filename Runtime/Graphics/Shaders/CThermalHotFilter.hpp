@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
@@ -8,7 +10,7 @@ namespace urde {
 
 class CThermalHotFilter {
   struct Uniform {
-    zeus::CColor m_colorRegs[3];
+    std::array<zeus::CColor, 3> m_colorRegs;
   };
   boo::ObjToken<boo::IGraphicsBufferS> m_vbo;
   boo::ObjToken<boo::IGraphicsBufferD> m_uniBuf;

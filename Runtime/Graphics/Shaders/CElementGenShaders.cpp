@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CElementGenShaders.hpp"
 
+#include <iterator>
+
 #include "Runtime/Particle/CElementGen.hpp"
 
 #include <hecl/Pipeline.hpp>
@@ -226,10 +228,10 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
     }
   }
 
-  CUVElement* texr = desc->x54_x40_TEXR.get();
-  CUVElement* tind = desc->x58_x44_TIND.get();
+  const CUVElement* const texr = desc->x54_x40_TEXR.get();
+  const CUVElement* const tind = desc->x58_x44_TIND.get();
   int texCount = 0;
-  boo::ObjToken<boo::ITexture> textures[3];
+  std::array<boo::ObjToken<boo::ITexture>, 3> textures;
 
   if (texr) {
     textures[0] = texr->GetValueTexture(0).GetObj()->GetBooTexture();
@@ -244,43 +246,56 @@ void CElementGenShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Conte
   }
 
   if (gen.m_instBuf) {
-    boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{gen.m_uniformBuf.get()};
 
-    if (regPipeline)
-      for (int i = 0; i < 2; ++i)
-        gen.m_normalDataBind[i] = ctx.newShaderDataBinding((*regPipeline)[i], nullptr, gen.m_instBuf.get(), nullptr, 1,
-                                                           uniforms, nullptr, texCount, textures, nullptr, nullptr);
-    if (regPipelineSub)
-      for (int i = 0; i < 2; ++i)
-        gen.m_normalSubDataBind[i] = ctx.newShaderDataBinding((*regPipelineSub)[i], nullptr, gen.m_instBuf.get(),
-                                                              nullptr, 1, uniforms, nullptr, texCount, textures,
-                                                              nullptr, nullptr);
-    if (redToAlphaPipeline)
-      for (int i = 0; i < 2; ++i)
-        gen.m_redToAlphaDataBind[i] = ctx.newShaderDataBinding((*redToAlphaPipeline)[i], nullptr, gen.m_instBuf.get(),
-                                                               nullptr, 1, uniforms, nullptr, texCount, textures,
-                                                               nullptr, nullptr);
-    if (redToAlphaPipelineSub)
-      for (int i = 0; i < 2; ++i)
-        gen.m_redToAlphaSubDataBind[i] =
-          ctx.newShaderDataBinding((*redToAlphaPipelineSub)[i], nullptr, gen.m_instBuf.get(), nullptr, 1, uniforms,
-                                   nullptr, texCount, textures, nullptr, nullptr);
+    if (regPipeline != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_normalDataBind); ++i) {
+        gen.m_normalDataBind[i] =
+            ctx.newShaderDataBinding((*regPipeline)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
+                                     uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
+    if (regPipelineSub != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_normalSubDataBind); ++i) {
+        gen.m_normalSubDataBind[i] =
+            ctx.newShaderDataBinding((*regPipelineSub)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
+                                     uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
+    if (redToAlphaPipeline != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_redToAlphaDataBind); ++i) {
+        gen.m_redToAlphaDataBind[i] =
+            ctx.newShaderDataBinding((*redToAlphaPipeline)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(),
+                                     uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
+    if (redToAlphaPipelineSub != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_redToAlphaSubDataBind); ++i) {
+        gen.m_redToAlphaSubDataBind[i] = ctx.newShaderDataBinding(
+            (*redToAlphaPipelineSub)[i], nullptr, gen.m_instBuf.get(), nullptr, uniforms.size(), uniforms.data(),
+            nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
   }
 
   if (gen.m_instBufPmus) {
-    boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBufPmus.get()};
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{gen.m_uniformBufPmus.get()};
     texCount = std::min(texCount, 1);
 
-    if (regPipelinePmus)
-      for (int i = 0; i < 2; ++i)
-        gen.m_normalDataBindPmus[i] = ctx.newShaderDataBinding((*regPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(),
-                                                               nullptr, 1, uniforms, nullptr, texCount, textures,
-                                                               nullptr, nullptr);
-    if (redToAlphaPipelinePmus)
-      for (int i = 0; i < 2; ++i)
-        gen.m_redToAlphaDataBindPmus[i] =
-          ctx.newShaderDataBinding((*redToAlphaPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(), nullptr, 1, uniforms,
-                                   nullptr, texCount, textures, nullptr, nullptr);
+    if (regPipelinePmus != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_normalDataBindPmus); ++i) {
+        gen.m_normalDataBindPmus[i] =
+            ctx.newShaderDataBinding((*regPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(), nullptr, uniforms.size(),
+                                     uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
+    if (redToAlphaPipelinePmus != nullptr) {
+      for (size_t i = 0; i < std::size(gen.m_redToAlphaDataBindPmus); ++i) {
+        gen.m_redToAlphaDataBindPmus[i] = ctx.newShaderDataBinding(
+            (*redToAlphaPipelinePmus)[i], nullptr, gen.m_instBufPmus.get(), nullptr, uniforms.size(), uniforms.data(),
+            nullptr, texCount, textures.data(), nullptr, nullptr);
+      }
+    }
   }
 }
 

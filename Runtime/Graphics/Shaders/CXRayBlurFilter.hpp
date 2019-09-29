@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/CToken.hpp"
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
@@ -10,7 +12,7 @@ class CTexture;
 
 class CXRayBlurFilter {
   struct Uniform {
-    zeus::CMatrix4f m_uv[8];
+    std::array<zeus::CMatrix4f, 8> m_uv;
   };
   TLockedToken<CTexture> m_paletteTex;
   boo::ObjToken<boo::ITexture> m_booTex;

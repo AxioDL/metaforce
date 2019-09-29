@@ -59,14 +59,14 @@ public:
     zeus::CVector3f pos;
     zeus::CVector3f dir;
     zeus::CColor color = zeus::skClear;
-    float linAtt[4] = {1.f, 0.f, 0.f};
-    float angAtt[4] = {1.f, 0.f, 0.f};
+    std::array<float, 4> linAtt{1.f, 0.f, 0.f};
+    std::array<float, 4> angAtt{1.f, 0.f, 0.f};
   };
 
   struct LightingUniform {
-    Light lights[URDE_MAX_LIGHTS];
+    std::array<Light, URDE_MAX_LIGHTS> lights;
     zeus::CColor ambient;
-    zeus::CColor colorRegs[3];
+    std::array<zeus::CColor, 3> colorRegs;
     zeus::CColor mulColor;
     zeus::CColor addColor;
     CGraphics::CFogState fog;

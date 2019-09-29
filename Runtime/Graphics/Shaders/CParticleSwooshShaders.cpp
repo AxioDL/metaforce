@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
 
+#include <iterator>
+
 #include "Runtime/Particle/CParticleSwoosh.hpp"
 #include "Runtime/Particle/CSwooshDescription.hpp"
 
@@ -88,13 +90,17 @@ void CParticleSwooshShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::C
     }
   }
 
-  CUVElement* texr = desc->x3c_TEXR.get();
-  boo::ObjToken<boo::ITexture> textures[] = {texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr};
+  const CUVElement* const texr = desc->x3c_TEXR.get();
+  const std::array<boo::ObjToken<boo::ITexture>, 1> textures{
+      texr ? texr->GetValueTexture(0).GetObj()->GetBooTexture() : nullptr,
+  };
 
-  boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {gen.m_uniformBuf.get()};
-  for (int i = 0; i < 2; ++i)
-    gen.m_dataBind[i] = ctx.newShaderDataBinding((*pipeline)[i], gen.m_vertBuf.get(), nullptr, nullptr, 1, uniforms,
-                                                 nullptr, texr ? 1 : 0, textures, nullptr, nullptr);
+  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{gen.m_uniformBuf.get()};
+  for (size_t i = 0; i < std::size(gen.m_dataBind); ++i) {
+    gen.m_dataBind[i] =
+        ctx.newShaderDataBinding((*pipeline)[i], gen.m_vertBuf.get(), nullptr, nullptr, uniforms.size(),
+                                 uniforms.data(), nullptr, texr ? 1 : 0, textures.data(), nullptr, nullptr);
+  }
 }
 
 } // namespace urde

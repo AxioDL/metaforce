@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
 
+#include <array>
+
 #include "Runtime/Particle/CDecal.hpp"
 
 #include <hecl/Pipeline.hpp>
@@ -46,26 +48,31 @@ void CDecalShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Context& c
       regPipeline = m_noTexZTestNoZWrite;
   }
 
-  const SQuadDescr* desc = decal.m_desc;
+  const SQuadDescr* const desc = decal.m_desc;
+  const CUVElement* const texr = desc->x14_TEX.get();
+  size_t texCount = 0;
+  std::array<boo::ObjToken<boo::ITexture>, 1> textures;
 
-  CUVElement* texr = desc->x14_TEX.get();
-  int texCount = 0;
-  boo::ObjToken<boo::ITexture> textures[1];
-
-  if (texr) {
+  if (texr != nullptr) {
     textures[0] = texr->GetValueTexture(0).GetObj()->GetBooTexture();
     texCount = 1;
   }
 
-  if (decal.m_instBuf) {
-    boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {decal.m_uniformBuf.get()};
+  if (!decal.m_instBuf) {
+    return;
+  }
 
-    if (regPipeline)
-      decal.m_normalDataBind = ctx.newShaderDataBinding(regPipeline, nullptr, decal.m_instBuf.get(), nullptr, 1,
-                                                        uniforms, nullptr, texCount, textures, nullptr, nullptr);
-    if (redToAlphaPipeline)
-      decal.m_redToAlphaDataBind = ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, decal.m_instBuf.get(), nullptr,
-                                                            1, uniforms, nullptr, texCount, textures, nullptr, nullptr);
+  std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{decal.m_uniformBuf.get()};
+
+  if (regPipeline) {
+    decal.m_normalDataBind =
+        ctx.newShaderDataBinding(regPipeline, nullptr, decal.m_instBuf.get(), nullptr, uniforms.size(), uniforms.data(),
+                                 nullptr, texCount, textures.data(), nullptr, nullptr);
+  }
+  if (redToAlphaPipeline) {
+    decal.m_redToAlphaDataBind =
+        ctx.newShaderDataBinding(redToAlphaPipeline, nullptr, decal.m_instBuf.get(), nullptr, uniforms.size(),
+                                 uniforms.data(), nullptr, texCount, textures.data(), nullptr, nullptr);
   }
 }
 

@@ -1,5 +1,7 @@
 #include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
 
+#include <array>
+
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/Graphics/CBooRenderer.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
@@ -45,15 +47,18 @@ void CColoredStripShader::BuildResources(boo::IGraphicsDataFactory::Context& ctx
                                          boo::ObjToken<boo::ITexture> tex) {
   m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vert), maxVerts);
   m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-  boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-  boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-  boo::ObjToken<boo::ITexture> texs[1];
-  if (tex)
+
+  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+  constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+  std::array<boo::ObjToken<boo::ITexture>, 1> texs;
+  if (tex) {
     texs[0] = tex;
-  else
+  } else {
     texs[0] = g_Renderer->GetWhiteTexture();
-  m_dataBind = ctx.newShaderDataBinding(SelectPipeline(mode), m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr,
-                                        nullptr, 1, texs, nullptr, nullptr);
+  }
+
+  m_dataBind = ctx.newShaderDataBinding(SelectPipeline(mode), m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                        stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
 }
 
 CColoredStripShader::CColoredStripShader(size_t maxVerts, Mode mode, boo::ObjToken<boo::ITexture> tex) {
