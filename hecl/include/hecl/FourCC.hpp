@@ -34,22 +34,22 @@ public:
   constexpr FourCC& operator=(const FourCC&) noexcept = default;
   constexpr FourCC& operator=(FourCC&&) noexcept = default;
 
-  constexpr bool operator==(const FourCC& other) const { return num == other.num; }
-  constexpr bool operator!=(const FourCC& other) const { return !operator==(other); }
-  constexpr bool operator==(const char* other) const {
+  constexpr bool operator==(const FourCC& other) const noexcept { return num == other.num; }
+  constexpr bool operator!=(const FourCC& other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(const char* other) const noexcept {
     return other[0] == fcc[0] && other[1] == fcc[1] && other[2] == fcc[2] && other[3] == fcc[3];
   }
-  constexpr bool operator!=(const char* other) const { return !operator==(other); }
-  constexpr bool operator==(int32_t other) const { return num == uint32_t(other); }
-  constexpr bool operator!=(int32_t other) const { return !operator==(other); }
-  constexpr bool operator==(uint32_t other) const { return num == other; }
-  constexpr bool operator!=(uint32_t other) const { return !operator==(other); }
+  constexpr bool operator!=(const char* other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(int32_t other) const noexcept { return num == uint32_t(other); }
+  constexpr bool operator!=(int32_t other) const noexcept { return !operator==(other); }
+  constexpr bool operator==(uint32_t other) const noexcept { return num == other; }
+  constexpr bool operator!=(uint32_t other) const noexcept { return !operator==(other); }
 
   std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
-  constexpr uint32_t toUint32() const { return num; }
-  constexpr const char* getChars() const { return fcc; }
-  constexpr char* getChars() { return fcc; }
-  constexpr bool IsValid() const { return num != 0; }
+  constexpr uint32_t toUint32() const noexcept { return num; }
+  constexpr const char* getChars() const noexcept { return fcc; }
+  constexpr char* getChars() noexcept { return fcc; }
+  constexpr bool IsValid() const noexcept { return num != 0; }
 };
 #define FOURCC(chars) FourCC(SBIG(chars))
 
