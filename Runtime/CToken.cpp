@@ -16,7 +16,7 @@ u16 CObjectReference::RemoveReference() {
 
 CObjectReference::CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj, const SObjectTag& objTag,
                                    CVParamTransfer buildParams)
-: x4_objTag(objTag), xC_objectStore(&objStore), x10_object(std::move(obj)), x14_params(buildParams) {}
+: x4_objTag(objTag), xC_objectStore(&objStore), x10_object(std::move(obj)), x14_params(std::move(buildParams)) {}
 CObjectReference::CObjectReference(std::unique_ptr<IObj>&& obj) : x10_object(std::move(obj)) {}
 
 void CObjectReference::Unlock() {
