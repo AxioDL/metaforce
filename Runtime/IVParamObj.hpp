@@ -24,7 +24,7 @@ class CVParamTransfer {
   std::shared_ptr<IVParamObj> m_ref;
 
 public:
-  CVParamTransfer() noexcept = default;
+  constexpr CVParamTransfer() noexcept = default;
   CVParamTransfer(IVParamObj* obj) : m_ref(obj) {}
 
   CVParamTransfer(const CVParamTransfer& other) noexcept = default;
