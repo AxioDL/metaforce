@@ -3,11 +3,19 @@
 #include "CAudioGroupSet.hpp"
 
 namespace urde {
+namespace {
+std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetDB;
+std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
+const std::string mpDefaultInvalidString = "NULL";
+
+float s_MasterVol = 1.f;
+float s_SfxVol = 1.f;
+
+s16 s_VolumeScale = 0x7f;
+s16 s_DefaultVolumeScale = 0x7f;
+} // Anonymous namespace
 
 CAudioSys* CAudioSys::g_SharedSys = nullptr;
-static std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetDB;
-static std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
-static const std::string mpDefaultInvalidString = "NULL";
 
 TLockedToken<CAudioGroupSet> CAudioSys::FindGroupSet(std::string_view name) {
   auto search = mpGroupSetDB.find(name.data());
@@ -65,8 +73,6 @@ void CAudioSys::SysRemoveGroupFromAmuse(std::string_view name) {
     RemoveAudioGroup(set->GetAudioGroupData());
 }
 
-static float s_MasterVol = 1.f;
-static float s_SfxVol = 1.f;
 void CAudioSys::_UpdateVolume() { GetAmuseEngine().setVolume(s_MasterVol * s_SfxVol); }
 
 void CAudioSys::SysSetVolume(u8 volume) {
@@ -78,9 +84,6 @@ void CAudioSys::SysSetSfxVolume(u8 volume, u16 time, bool music, bool fx) {
   s_SfxVol = volume / 127.f;
   _UpdateVolume();
 }
-
-static s16 s_VolumeScale = 0x7f;
-static s16 s_DefaultVolumeScale = 0x7f;
 
 s16 CAudioSys::GetDefaultVolumeScale() { return s_DefaultVolumeScale; }
 
