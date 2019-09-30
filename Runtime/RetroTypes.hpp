@@ -49,7 +49,7 @@ struct SObjectTag {
   FourCC type;
   CAssetId id;
 
-  constexpr operator bool() const noexcept { return id.IsValid(); }
+  constexpr explicit operator bool() const noexcept { return id.IsValid(); }
   constexpr bool operator==(const SObjectTag& other) const noexcept { return id == other.id; }
   constexpr bool operator!=(const SObjectTag& other) const noexcept { return !operator==(other); }
   constexpr bool operator<(const SObjectTag& other) const noexcept { return id < other.id; }
