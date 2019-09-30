@@ -128,7 +128,7 @@ CToken::CToken(const CToken& other) : x0_objRef(other.x0_objRef) {
       Lock();
   }
 }
-CToken::CToken(CToken&& other) : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld) {
+CToken::CToken(CToken&& other) noexcept : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld) {
   other.x0_objRef = nullptr;
   other.x4_lockHeld = false;
 }

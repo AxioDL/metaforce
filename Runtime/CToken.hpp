@@ -85,7 +85,7 @@ public:
   CToken& operator=(CToken&& other);
   CToken() = default;
   CToken(const CToken& other);
-  CToken(CToken&& other);
+  CToken(CToken&& other) noexcept;
   CToken(IObj* obj);
   CToken(std::unique_ptr<IObj>&& obj);
   const SObjectTag* GetObjectTag() const;
