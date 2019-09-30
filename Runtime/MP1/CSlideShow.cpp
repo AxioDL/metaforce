@@ -28,34 +28,34 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x5c_slideA(*this), x90_slideB(*t
   SObjectTag txtrTag(FOURCC('TXTR'), 0);
   for (const ITweakPlayerRes::ResId lStickId : g_tweakPlayerRes->x24_lStick) {
     txtrTag.id = lStickId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
   for (const ITweakPlayerRes::ResId cStickId : g_tweakPlayerRes->x4c_cStick) {
     txtrTag.id = cStickId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
   for (const ITweakPlayerRes::ResId lTriggerId : g_tweakPlayerRes->x74_lTrigger) {
     txtrTag.id = lTriggerId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
   for (const ITweakPlayerRes::ResId rTriggerId : g_tweakPlayerRes->x80_rTrigger) {
     txtrTag.id = rTriggerId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
   for (const ITweakPlayerRes::ResId bButtonId : g_tweakPlayerRes->xa4_bButton) {
     txtrTag.id = bButtonId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
   for (const ITweakPlayerRes::ResId yButtonId : g_tweakPlayerRes->xbc_yButton) {
     txtrTag.id = yButtonId;
-    xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
+    xf8_stickTextures.emplace_back(g_SimplePool->GetObj(txtrTag));
   }
 }
 
 bool CSlideShow::LoadTXTRDep(std::string_view name) {
   const SObjectTag* dgrpTag = g_ResFactory->GetResourceIdByName(name);
   if (dgrpTag && dgrpTag->type == FOURCC('DGRP')) {
-    x18_galleryTXTRDeps.push_back(g_SimplePool->GetObj(*dgrpTag));
+    x18_galleryTXTRDeps.emplace_back(g_SimplePool->GetObj(*dgrpTag));
     return true;
   }
   return false;
