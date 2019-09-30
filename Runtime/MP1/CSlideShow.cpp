@@ -26,28 +26,28 @@ CSlideShow::CSlideShow() : CIOWin("SlideShow"), x5c_slideA(*this), x90_slideB(*t
   xf8_stickTextures.reserve(18);
   x108_buttonTextures.reserve(8);
   SObjectTag txtrTag(FOURCC('TXTR'), 0);
-  for (int i = 0; i < 9; ++i) {
-    txtrTag.id = g_tweakPlayerRes->x24_lStick[i];
+  for (const ITweakPlayerRes::ResId lStickId : g_tweakPlayerRes->x24_lStick) {
+    txtrTag.id = lStickId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (int i = 0; i < 9; ++i) {
-    txtrTag.id = g_tweakPlayerRes->x4c_cStick[i];
+  for (const ITweakPlayerRes::ResId cStickId : g_tweakPlayerRes->x4c_cStick) {
+    txtrTag.id = cStickId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (int i = 0; i < 2; ++i) {
-    txtrTag.id = g_tweakPlayerRes->x74_lTrigger[i];
+  for (const ITweakPlayerRes::ResId lTriggerId : g_tweakPlayerRes->x74_lTrigger) {
+    txtrTag.id = lTriggerId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (int i = 0; i < 2; ++i) {
-    txtrTag.id = g_tweakPlayerRes->x80_rTrigger[i];
+  for (const ITweakPlayerRes::ResId rTriggerId : g_tweakPlayerRes->x80_rTrigger) {
+    txtrTag.id = rTriggerId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (int i = 0; i < 2; ++i) {
-    txtrTag.id = g_tweakPlayerRes->xa4_bButton[i];
+  for (const ITweakPlayerRes::ResId bButtonId : g_tweakPlayerRes->xa4_bButton) {
+    txtrTag.id = bButtonId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
-  for (int i = 0; i < 2; ++i) {
-    txtrTag.id = g_tweakPlayerRes->xbc_yButton[i];
+  for (const ITweakPlayerRes::ResId yButtonId : g_tweakPlayerRes->xbc_yButton) {
+    txtrTag.id = yButtonId;
     xf8_stickTextures.push_back(g_SimplePool->GetObj(txtrTag));
   }
 }
