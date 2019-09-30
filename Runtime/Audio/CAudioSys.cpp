@@ -6,7 +6,7 @@ namespace urde {
 namespace {
 std::unordered_map<std::string, TLockedToken<CAudioGroupSet>> mpGroupSetDB;
 std::unordered_map<CAssetId, std::string> mpGroupSetResNameDB;
-const std::string mpDefaultInvalidString = "NULL";
+constexpr std::string_view mpDefaultInvalidString = "NULL";
 
 float s_MasterVol = 1.f;
 float s_SfxVol = 1.f;
