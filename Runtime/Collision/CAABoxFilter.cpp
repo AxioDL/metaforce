@@ -1,5 +1,7 @@
-#include "CAABoxFilter.hpp"
-#include "CollisionUtil.hpp"
+#include "Runtime/Collision/CAABoxFilter.hpp"
+
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
 
 namespace urde {
 

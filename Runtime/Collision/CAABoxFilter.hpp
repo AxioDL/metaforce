@@ -3,6 +3,7 @@
 #include "Runtime/Collision/ICollisionFilter.hpp"
 
 namespace urde {
+class CCollisionInfoList;
 
 class CAABoxFilter : public ICollisionFilter {
 public:

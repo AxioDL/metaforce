@@ -3,6 +3,7 @@
 #include "Runtime/Collision/ICollisionFilter.hpp"
 
 namespace urde {
+class CCollisionInfoList;
 class CPhysicsActor;
 
 class CBallFilter : public ICollisionFilter {
