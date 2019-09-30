@@ -16,7 +16,7 @@ u16 CObjectReference::RemoveReference() {
 
 CObjectReference::CObjectReference(IObjectStore& objStore, std::unique_ptr<IObj>&& obj, const SObjectTag& objTag,
                                    CVParamTransfer buildParams)
-: x4_objTag(objTag), xC_objectStore(&objStore), x10_object(std::move(obj)), x14_params(buildParams) {}
+: x4_objTag(objTag), xC_objectStore(&objStore), x10_object(std::move(obj)), x14_params(std::move(buildParams)) {}
 CObjectReference::CObjectReference(std::unique_ptr<IObj>&& obj) : x10_object(std::move(obj)) {}
 
 void CObjectReference::Unlock() {
@@ -128,7 +128,7 @@ CToken::CToken(const CToken& other) : x0_objRef(other.x0_objRef) {
       Lock();
   }
 }
-CToken::CToken(CToken&& other) : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld) {
+CToken::CToken(CToken&& other) noexcept : x0_objRef(other.x0_objRef), x4_lockHeld(other.x4_lockHeld) {
   other.x0_objRef = nullptr;
   other.x4_lockHeld = false;
 }
