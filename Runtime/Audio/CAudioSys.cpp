@@ -34,8 +34,8 @@ std::string_view CAudioSys::SysGetGroupSetName(CAssetId id) {
 bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, CAssetId id) {
   if (!FindGroupSet(SysGetGroupSetName(id))) {
     TLockedToken<CAudioGroupSet> set = pool->GetObj(SObjectTag{FOURCC('AGSC'), id});
-    mpGroupSetDB.emplace(std::make_pair(set->GetName(), set));
-    mpGroupSetResNameDB.emplace(std::make_pair(id, set->GetName()));
+    mpGroupSetDB.emplace(set->GetName(), set);
+    mpGroupSetResNameDB.emplace(id, set->GetName());
     return false;
   } else {
     return true;
@@ -44,8 +44,8 @@ bool CAudioSys::SysLoadGroupSet(CSimplePool* pool, CAssetId id) {
 
 bool CAudioSys::SysLoadGroupSet(const TLockedToken<CAudioGroupSet>& set, std::string_view name, CAssetId id) {
   if (!FindGroupSet(name)) {
-    mpGroupSetDB.emplace(std::make_pair(set->GetName(), set));
-    mpGroupSetResNameDB.emplace(std::make_pair(id, set->GetName()));
+    mpGroupSetDB.emplace(set->GetName(), set);
+    mpGroupSetResNameDB.emplace(id, set->GetName());
     return false;
   } else {
     return true;
