@@ -1,9 +1,11 @@
 #pragma once
 
-#include "zeus/CMatrix4f.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CRectangle.hpp"
-#include "Camera/CCameraFilter.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CRectangle.hpp>
 
 namespace urde {
 

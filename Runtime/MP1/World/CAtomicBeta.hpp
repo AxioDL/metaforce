@@ -1,5 +1,11 @@
 #pragma once
-#include "World/CPatterned.hpp"
+
+#include <string_view>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CWeaponDescription;

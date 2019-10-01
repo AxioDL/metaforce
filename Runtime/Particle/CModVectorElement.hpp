@@ -1,6 +1,7 @@
 #pragma once
 
-#include "IElement.hpp"
+#include <memory>
+#include "Runtime/Particle/IElement.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Mod_Vector_Elements */
 

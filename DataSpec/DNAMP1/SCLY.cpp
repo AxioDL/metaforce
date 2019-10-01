@@ -13,7 +13,7 @@ void SCLY::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
   rs.enumerate<ScriptLayer>(layers, layerCount, [&i, this](athena::io::IStreamReader& rs, ScriptLayer& layer) {
     atUint64 start = rs.position();
     layer.read(rs);
-    rs.seek(start + layerSizes[i++], athena::Begin);
+    rs.seek(start + layerSizes[i++], athena::SeekOrigin::Begin);
   });
 }
 
@@ -118,9 +118,10 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
                    fmt(_SYS_STR("Error while reading object of type 0x{:02X}, did not read the expected amount of "
                                 "data, read 0x{:x}, expected 0x{:x}")),
                    (atUint32)type, actualLen, len);
-      rs.seek(start + len, athena::Begin);
-    } else
+      rs.seek(start + len, athena::SeekOrigin::Begin);
+    } else {
       Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find type 0x{:X} in object database")), (atUint32)type);
+    }
   }
 }
 

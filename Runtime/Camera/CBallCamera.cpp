@@ -1,6 +1,6 @@
 #include "GameGlobalObjects.hpp"
 #include "CBallCamera.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "Collision/CCollisionActor.hpp"
 #include "World/CPlayer.hpp"

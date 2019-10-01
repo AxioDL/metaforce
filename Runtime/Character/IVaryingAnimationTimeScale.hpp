@@ -1,6 +1,8 @@
 #pragma once
 
-#include "CCharAnimTime.hpp"
+#include <memory>
+
+#include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace urde {
 class IVaryingAnimationTimeScale {

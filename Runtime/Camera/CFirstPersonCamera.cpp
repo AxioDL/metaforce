@@ -4,7 +4,11 @@
 #include "World/CPlayer.hpp"
 #include "World/CScriptGrapplePoint.hpp"
 #include "World/CScriptCameraPitchVolume.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
+
+namespace DataSpec::DNAMP1 {
+extern hecl::CVar* tw_fov;
+}
 
 namespace urde {
 
@@ -15,6 +19,7 @@ CFirstPersonCamera::CFirstPersonCamera(TUniqueId uid, const zeus::CTransform& xf
 , x188_orbitCameraSpeed(orbitCameraSpeed)
 , x190_gunFollowXf(xf) {
   x1c6_24_deferBallTransitionProcessing = false;
+  DataSpec::DNAMP1::tw_fov->addListener([this](hecl::CVar* cv) { _fovListener(cv); });
 }
 
 void CFirstPersonCamera::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -325,4 +330,10 @@ void CFirstPersonCamera::UpdateElevation(CStateManager& mgr) {
     }
   }
 }
+
+void CFirstPersonCamera::_fovListener(hecl::CVar* cv) {
+  x15c_currentFov = x180_perspInterpStartFov = x184_perspInterpEndFov = cv->toReal();
+  x170_24_perspDirty = true;
+}
+
 } // namespace urde

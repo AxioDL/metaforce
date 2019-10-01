@@ -1,10 +1,13 @@
 #pragma once
 
-#include "CPlayerState.hpp"
-#include "RetroTypes.hpp"
-#include "CStateManager.hpp"
-#include "CGunWeapon.hpp"
-#include "CWeapon.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CGunWeapon.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
 
 namespace urde {
 

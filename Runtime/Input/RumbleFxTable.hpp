@@ -1,9 +1,12 @@
 #pragma once
 
-#include "CRumbleVoice.hpp"
+#include <array>
+#include "Runtime/Input/CRumbleVoice.hpp"
 
 namespace urde {
 
-extern const SAdsrData RumbleFxTable[];
+using RumbleFXTable = std::array<SAdsrData, 24>;
+
+extern const RumbleFXTable RumbleFxTable;
 
 }

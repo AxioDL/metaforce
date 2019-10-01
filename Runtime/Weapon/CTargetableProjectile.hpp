@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CEnergyProjectile.hpp"
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
 
 namespace urde {
 

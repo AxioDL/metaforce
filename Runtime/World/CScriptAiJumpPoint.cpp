@@ -2,7 +2,7 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "CScriptWaypoint.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptAiJumpPoint::CScriptAiJumpPoint(TUniqueId uid, std::string_view name, const CEntityInfo& info,

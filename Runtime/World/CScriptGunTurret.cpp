@@ -1,17 +1,20 @@
-#include "CScriptGunTurret.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "World/CGameLight.hpp"
-#include "Collision/CCollisionActorManager.hpp"
-#include "Collision/CCollisionActor.hpp"
-#include "CPlayer.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "TCastTo.hpp"
-#include "Weapon/CEnergyProjectile.hpp"
+#include "Runtime/World/CScriptGunTurret.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/Collision/CCollisionActor.hpp"
+#include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CAiFuncMap.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 
@@ -125,12 +128,12 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 , x44c_panningEffectDesc(g_SimplePool->GetObj({SBIG('PART'), turretData.GetPanningEffectRes()})) {
   if (turretData.GetVisorEffectRes().IsValid())
     x458_visorEffectDesc = g_SimplePool->GetObj({SBIG('PART'), turretData.GetVisorEffectRes()});
-  x468_idleLight.reset(new CElementGen(x410_idleLightDesc));
-  x470_deactivateLight.reset(new CElementGen(x41c_deactivateLightDesc));
-  x478_targettingLight.reset(new CElementGen(x428_targettingLightDesc));
-  x480_frozenEffect.reset(new CElementGen(x434_frozenEffectDesc));
-  x488_chargingEffect.reset(new CElementGen(x440_chargingEffectDesc));
-  x490_panningEffect.reset(new CElementGen(x44c_panningEffectDesc));
+  x468_idleLight = std::make_unique<CElementGen>(x410_idleLightDesc);
+  x470_deactivateLight = std::make_unique<CElementGen>(x41c_deactivateLightDesc);
+  x478_targettingLight = std::make_unique<CElementGen>(x428_targettingLightDesc);
+  x480_frozenEffect = std::make_unique<CElementGen>(x434_frozenEffectDesc);
+  x488_chargingEffect = std::make_unique<CElementGen>(x440_chargingEffectDesc);
+  x490_panningEffect = std::make_unique<CElementGen>(x44c_panningEffectDesc);
   x4fc_extensionOffset = xf.origin;
   x514_lastFrontVector = xf.frontVector();
   x544_originalFrontVec = xf.frontVector();
@@ -149,6 +152,8 @@ CScriptGunTurret::CScriptGunTurret(TUniqueId uid, std::string_view name, ETurret
 
   x37c_projectileInfo.Token().Lock();
 }
+
+CScriptGunTurret::~CScriptGunTurret() = default;
 
 void CScriptGunTurret::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
@@ -330,8 +335,7 @@ void CScriptGunTurret::SetupCollisionManager(CStateManager& mgr) {
       x508_gunSDKSeg, blastLCTR, 0.6f, 1.f, CJointCollisionDescription::EOrientationType::One, "Gun_SDK"sv, 1000.f));
   jointDescs.push_back(CJointCollisionDescription::SphereCollision(blastLCTR, 0.3f, "Blast_LCTR"sv, 1000.f));
 
-  x49c_collisionManager.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true));
-
+  x49c_collisionManager = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), jointDescs, true);
   x49c_collisionManager->SetActive(mgr, GetActive());
 
   for (int i = 0; i < x49c_collisionManager->GetNumCollisionActors(); ++i) {

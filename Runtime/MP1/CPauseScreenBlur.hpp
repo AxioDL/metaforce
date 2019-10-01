@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CInGameGuiManagerCommon.hpp"
-#include "CToken.hpp"
-#include "Camera/CCameraFilter.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Runtime/MP1/CInGameGuiManagerCommon.hpp"
 
 namespace urde {
 class CStateManager;

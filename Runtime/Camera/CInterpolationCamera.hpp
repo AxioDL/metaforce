@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CGameCamera.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

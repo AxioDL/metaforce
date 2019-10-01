@@ -6,7 +6,7 @@
 #include "World/CScriptAreaAttributes.hpp"
 #include "CGameState.hpp"
 #include "DataSpec/DNAMP1/MREA.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

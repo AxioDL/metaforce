@@ -113,7 +113,7 @@ void WPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
         xunk_FC60.read(r);
         break;
       case SBIG('SPS1'):
-        xunk_SPS2.read(r);
+        xunk_SPS1.read(r);
         break;
       case SBIG('SPS2'):
         xunk_SPS2.read(r);

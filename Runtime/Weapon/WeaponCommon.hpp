@@ -1,16 +1,19 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
-#include "Audio/CSfxManager.hpp"
 #include <set>
-#include <Runtime/CPlayerState.hpp>
+#include <vector>
+
+#include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
 
 namespace urde {
 class CAnimData;
-class CToken;
 class CPrimitive;
 class CStateManager;
+class CToken;
 
 enum class EWeaponType {
   None = -1,

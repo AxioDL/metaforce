@@ -1,13 +1,18 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/Shaders/CRadarPaintShader.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CGuiCamera;
 class CGuiFrame;
 class CGuiWidget;
-class CGuiCamera;
 class CStateManager;
 
 class CHudRadarInterface {

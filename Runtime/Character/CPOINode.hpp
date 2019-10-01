@@ -1,7 +1,10 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CCharAnimTime.hpp"
+#include <string>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace urde {
 class IAnimSourceInfo;

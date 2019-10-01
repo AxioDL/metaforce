@@ -4,7 +4,7 @@
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
 
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 CMetaree::CMetaree(TUniqueId uid, std::string_view name, EFlavorType flavor, const CEntityInfo& info,

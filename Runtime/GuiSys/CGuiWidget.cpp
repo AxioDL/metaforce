@@ -1,5 +1,7 @@
-#include "CGuiWidget.hpp"
-#include "CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace urde {
 static logvisor::Module Log("urde::CGuiWidget");

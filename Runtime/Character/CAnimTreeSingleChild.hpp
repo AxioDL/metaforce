@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CAnimTreeNode.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CAnimTreeNode.hpp"
 
 namespace urde {
 

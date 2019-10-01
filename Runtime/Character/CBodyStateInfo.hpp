@@ -1,9 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CharacterCommon.hpp"
-#include "CBodyState.hpp"
-#include "CAdditiveBodyState.hpp"
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAdditiveBodyState.hpp"
+#include "Runtime/Character/CBodyState.hpp"
+#include "Runtime/Character/CharacterCommon.hpp"
 
 namespace urde {
 class CActor;

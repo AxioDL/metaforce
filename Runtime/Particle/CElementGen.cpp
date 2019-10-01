@@ -567,8 +567,8 @@ void CElementGen::UpdatePSTranslationAndOrientation() {
 }
 
 std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TToken<CGenDescription>& desc) const {
-  CElementGen* ret = new CElementGen(desc, EModelOrientationType::Normal,
-                                     x26d_27_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
+  auto ret = std::make_unique<CElementGen>(desc, EModelOrientationType::Normal,
+                                           x26d_27_enableOPTS ? EOptionalSystemFlags::Two : EOptionalSystemFlags::One);
   ret->x26d_26_modelsUseLights = x26d_26_modelsUseLights;
   ret->SetGlobalTranslation(xe8_globalTranslation);
   ret->SetGlobalOrientation(x22c_globalOrientation);
@@ -578,7 +578,7 @@ std::unique_ptr<CParticleGen> CElementGen::ConstructChildParticleSystem(const TT
   ret->SetOrientation(x1d8_orientation);
   ret->SetParticleEmission(x88_particleEmission);
   ret->SetModulationColor(x338_moduColor);
-  return std::unique_ptr<CParticleGen>(ret);
+  return ret;
 }
 
 void CElementGen::UpdateChildParticleSystems(double dt) {

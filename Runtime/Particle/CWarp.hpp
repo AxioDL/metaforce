@@ -1,9 +1,9 @@
 #pragma once
 
-#include "zeus/CColor.hpp"
-#include "zeus/CVector3f.hpp"
-#include "RetroTypes.hpp"
-#include "CParticleGen.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
 
 namespace urde {
 

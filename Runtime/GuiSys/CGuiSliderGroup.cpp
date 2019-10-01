@@ -1,6 +1,7 @@
-#include "CGuiSliderGroup.hpp"
-#include "Input/CFinalInput.hpp"
-#include "CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiSliderGroup.hpp"
+
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
 
 namespace urde {
 

@@ -1,52 +1,61 @@
-#include "CFrontEndUI.hpp"
-#include "CArchitectureMessage.hpp"
-#include "CArchitectureQueue.hpp"
-#include "CDvdFile.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "MP1.hpp"
-#include "CSlideShow.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Graphics/CMoviePlayer.hpp"
-#include "CSaveGameScreen.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiSliderGroup.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "CGameState.hpp"
-#include "CDependencyGroup.hpp"
-#include "Audio/CAudioGroupSet.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "CNESEmulator.hpp"
-#include "CQuitGameScreen.hpp"
-#include "Input/RumbleFxTable.hpp"
+#include "Runtime/MP1/CFrontEndUI.hpp"
+
+#include <algorithm>
+#include <array>
 #include <ctime>
 
-namespace urde::MP1 {
+#include "NESEmulator/CNESEmulator.hpp"
 
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CDvdFile.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CAudioGroupSet.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Graphics/CMoviePlayer.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiSliderGroup.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Input/RumbleFxTable.hpp"
+#include "Runtime/MP1/CQuitGameScreen.hpp"
+#include "Runtime/MP1/CSaveGameScreen.hpp"
+#include "Runtime/MP1/CSlideShow.hpp"
+#include "Runtime/MP1/MP1.hpp"
+
+namespace urde::MP1 {
+namespace {
 #define FE_USE_SECONDS_IN_ELAPSED 1
 
 /* Music volume constants */
-static const float FE1_VOL = 0.7421875f;
-static const float FE2_VOL = 0.7421875f;
+constexpr float FE1_VOL = 0.7421875f;
+constexpr float FE2_VOL = 0.7421875f;
 
 /* L/R Stereo transition cues */
-static const u16 FETransitionBackSFX[3][2] = {{SFXfnt_transfore_00L, SFXfnt_transfore_00R},
-                                              {SFXfnt_transfore_01L, SFXfnt_transfore_01R},
-                                              {SFXfnt_transfore_02L, SFXfnt_transfore_02R}};
+constexpr std::array<std::array<u16, 2>, 3> FETransitionBackSFX{{
+    {SFXfnt_transfore_00L, SFXfnt_transfore_00R},
+    {SFXfnt_transfore_01L, SFXfnt_transfore_01R},
+    {SFXfnt_transfore_02L, SFXfnt_transfore_02R},
+}};
 
-static const u16 FETransitionForwardSFX[3][2] = {{SFXfnt_transback_00L, SFXfnt_transback_00R},
-                                                 {SFXfnt_transback_01L, SFXfnt_transback_01R},
-                                                 {SFXfnt_transback_02L, SFXfnt_transback_02R}};
+constexpr std::array<std::array<u16, 2>, 3> FETransitionForwardSFX{{
+    {SFXfnt_transback_00L, SFXfnt_transback_00R},
+    {SFXfnt_transback_01L, SFXfnt_transback_01R},
+    {SFXfnt_transback_02L, SFXfnt_transback_02R},
+}};
 
 struct FEMovie {
   const char* path;
   bool loop;
 };
 
-static const FEMovie FEMovies[] = {
+constexpr std::array<FEMovie, 9> FEMovies{{
     {"Video/00_first_start.thp", false},
     {"Video/01_startloop.thp", true},
     {"Video/02_start_fileselect_A.thp", false},
@@ -56,9 +65,48 @@ static const FEMovie FEMovies[] = {
     {"Video/07_GBAloop.thp", true},
     {"Video/08_GBA_fileselect.thp", false},
     {"Video/08_GBA_fileselect.thp", false},
+}};
+
+constexpr SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+
+constexpr std::array<float, 3> AudioFadeTimeA{
+    0.44f,
+    5.41f,
+    3.41f,
 };
 
-SObjectTag g_DefaultWorldTag = {FOURCC('MLVL'), 0x158efe17};
+constexpr std::array<float, 3> AudioFadeTimeB{
+    4.2f,
+    6.1f,
+    6.1f,
+};
+
+constexpr std::array<CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType, 10> NextLinkUI{
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::ConnectSocket,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::PressStartAndSelect,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::BeginLink,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Linking,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::TurnOffGBA,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Complete,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::InsertPak,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+};
+
+constexpr std::array<CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType, 10> PrevLinkUI{
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
+};
+} // Anonymous namespace
 
 void CFrontEndUI::PlayAdvanceSfx() {
   CSfxManager::SfxStart(SFXfnt_advance_L, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
@@ -107,8 +155,9 @@ void CFrontEndUI::SNewFileSelectFrame::FinishedLoading() {
       [this](CGuiTableGroup* caller, int oldSel) { DoSelectionChange(caller, oldSel); });
   x40_tablegroup_popup->SetMenuCancelCallback([this](CGuiTableGroup* caller) { DoPopupCancel(caller); });
 
-  for (int i = 0; i < 3; ++i)
-    x64_fileSelections[i] = FindFileSelectOption(x1c_loadedFrame, i);
+  for (size_t i = 0; i < x64_fileSelections.size(); ++i) {
+    x64_fileSelections[i] = FindFileSelectOption(x1c_loadedFrame, int(i));
+  }
 
   x104_rowPitch =
       (x64_fileSelections[1].x0_base->GetLocalPosition() - x64_fileSelections[0].x0_base->GetLocalPosition()).z();
@@ -250,15 +299,15 @@ void CFrontEndUI::SNewFileSelectFrame::HandleActiveChange(CGuiTableGroup* active
         zeus::CVector3f{0.f, 0.f, active->GetUserSelection() * x104_rowPitch} + xf8_model_erase_position));
 
     /* Set Touch Bar contents here */
-    CFrontEndUITouchBar::SFileSelectDetail tbDetails[3] = {};
-    for (int i = 0; i < 3; ++i) {
-      if (const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i)) {
+    std::array<CFrontEndUITouchBar::SFileSelectDetail, 3> tbDetails{};
+    for (size_t i = 0; i < tbDetails.size(); ++i) {
+      if (const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(int(i))) {
         tbDetails[i].state =
             data->x20_hardMode ? CFrontEndUITouchBar::EFileState::Hard : CFrontEndUITouchBar::EFileState::Normal;
         tbDetails[i].percent = data->x18_itemPercent;
       }
     }
-    m_touchBar.SetFileSelectPhase(tbDetails, x8_subMenu == ESubMenu::EraseGame, CSlideShow::SlideShowGalleryFlags());
+    m_touchBar.SetFileSelectPhase(tbDetails.data(), x8_subMenu == ESubMenu::EraseGame, CSlideShow::SlideShowGalleryFlags());
   } else if (active == x40_tablegroup_popup) {
     if (x8_subMenu == ESubMenu::EraseGamePopup)
       m_touchBar.SetPhase(CFrontEndUITouchBar::EPhase::EraseBack);
@@ -394,14 +443,17 @@ void CFrontEndUI::SNewFileSelectFrame::ActivateErase() {
 void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
   x108_curTime = 0.f;
   bool hasSave = false;
-  for (int i = 0; i < 3; ++i) {
-    if (x4_saveUI->GetGameData(i))
+  for (size_t i = 0; i < x64_fileSelections.size(); ++i) {
+    if (x4_saveUI->GetGameData(int(i))) {
       hasSave = true;
+    }
+
     SFileMenuOption& option = x64_fileSelections[i];
     option.x2c_chRate = SFileMenuOption::ComputeRandom();
     option.x28_curField = -1;
-    for (int j = 0; j < 4; ++j)
-      option.x4_textpanes[j].SetPairText(u"");
+    for (auto& panePair : option.x4_textpanes) {
+      panePair.SetPairText(u"");
+    }
   }
 
   StartTextAnimating(x28_textpane_erase.x0_panes[0], g_MainStringTable->GetString(38), 60.f);
@@ -438,23 +490,25 @@ void CFrontEndUI::SNewFileSelectFrame::ClearFrameContents() {
 }
 
 void CFrontEndUI::SNewFileSelectFrame::SetupFrameContents() {
-  for (int i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < x64_fileSelections.size(); ++i) {
     SFileMenuOption& option = x64_fileSelections[i];
-    if (option.x28_curField == 4)
+    if (option.x28_curField == 4) {
       continue;
+    }
+
     SGuiTextPair* pair = (option.x28_curField == UINT32_MAX) ? nullptr : &option.x4_textpanes[option.x28_curField];
     if (!pair || pair->x0_panes[0]->GetTextSupport().GetNumCharsPrinted() >=
                      pair->x0_panes[0]->GetTextSupport().GetNumCharsTotal()) {
       if (++option.x28_curField < 4) {
         std::u16string str;
         SGuiTextPair& populatePair = option.x4_textpanes[option.x28_curField];
-        const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(i);
+        const CGameState::GameFileStateInfo* data = x4_saveUI->GetGameData(int(i));
 
         switch (option.x28_curField) {
         case 0:
           // Completion percent
           if (data) {
-            std::u16string fileStr = g_MainStringTable->GetString((data->x20_hardMode ? 106 : 39) + i);
+            std::u16string fileStr = g_MainStringTable->GetString((data->x20_hardMode ? 106 : 39) + int(i));
             str = fileStr + fmt::format(fmt(u"  {:02d}%"), data->x18_itemPercent);
             break;
           }
@@ -721,30 +775,6 @@ void CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::SetUIText(EUIType tp) {
   x0_uiType = tp;
 }
 
-static const CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType NextLinkUI[] = {
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::ConnectSocket,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::PressStartAndSelect,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::BeginLink,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Linking,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::TurnOffGBA,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Complete,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::InsertPak,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty};
-
-static const CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType PrevLinkUI[] = {
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Cancelled,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty,
-    CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EUIType::Empty};
-
 CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::ProcessUserInput(
     const CFinalInput& input, bool linkInProgress, CFrontEndUITouchBar::EAction tbAction) {
   if (linkInProgress != x40_linkInProgress) {
@@ -765,12 +795,13 @@ CFrontEndUI::SFusionBonusFrame::SGBALinkFrame::EAction CFrontEndUI::SFusionBonus
         input.PMouseButton(boo::EMouseButton::Primary) ||
         tbAction == CFrontEndUITouchBar::EAction::Confirm) {
       PlayAdvanceSfx();
-      SetUIText(NextLinkUI[int(x0_uiType)]);
+      SetUIText(NextLinkUI[size_t(x0_uiType)]);
     } else if (input.PB() || input.PSpecialKey(boo::ESpecialKey::Esc) ||
                tbAction == CFrontEndUITouchBar::EAction::Back) {
-      EUIType prevUi = PrevLinkUI[int(x0_uiType)];
-      if (prevUi == EUIType::Empty)
+      const EUIType prevUi = PrevLinkUI[size_t(x0_uiType)];
+      if (prevUi == EUIType::Empty) {
         break;
+      }
       CSfxManager::SfxStart(SFXfnt_back, 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
       SetUIText(prevUi);
     }
@@ -1429,7 +1460,7 @@ void CFrontEndUI::SOptionsFrontEndFrame::DoMenuSelectionChange(CGuiTableGroup* c
 
       if (option.option == EGameOption::Rumble && caller->GetUserSelection() > 0) {
         x40_rumbleGen.HardStopAll();
-        x40_rumbleGen.Rumble(RumbleFxTable[int(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
+        x40_rumbleGen.Rumble(RumbleFxTable[size_t(ERumbleFxId::PlayerBump)], 1.f, ERumblePriority::One, EIOPort::Zero);
       }
     }
   }
@@ -1746,8 +1777,10 @@ std::string CFrontEndUI::GetNextAttractMovieFileName() {
 }
 
 void CFrontEndUI::SetCurrentMovie(EMenuMovie movie) {
-  if (xb8_curMovie == movie)
+  if (xb8_curMovie == movie) {
     return;
+  }
+
   StopAttractMovie();
 
   if (xb8_curMovie != EMenuMovie::Stopped) {
@@ -1758,10 +1791,11 @@ void CFrontEndUI::SetCurrentMovie(EMenuMovie movie) {
   xb8_curMovie = movie;
 
   if (xb8_curMovie != EMenuMovie::Stopped) {
-    xcc_curMoviePtr = x70_menuMovies[int(xb8_curMovie)].get();
+    xcc_curMoviePtr = x70_menuMovies[size_t(xb8_curMovie)].get();
     xcc_curMoviePtr->SetPlayMode(CMoviePlayer::EPlayMode::Playing);
-  } else
+  } else {
     xcc_curMoviePtr = nullptr;
+  }
 }
 
 void CFrontEndUI::StopAttractMovie() {
@@ -2004,26 +2038,34 @@ bool CFrontEndUI::PumpLoad() {
 
 bool CFrontEndUI::PumpMovieLoad() {
   /* Prepare all FrontEnd movies and pause each */
-  if (xd1_moviesLoaded)
+  if (xd1_moviesLoaded) {
     return true;
-  for (int i = 0; i < 9; ++i) {
-    if (!x70_menuMovies[i]) {
-      const FEMovie& movie = FEMovies[i];
-      std::string path = movie.path;
-      if (i == int(EMenuMovie::StartFileSelectA)) {
-        auto pos = path.find("A.thp");
-        if (pos != std::string::npos)
-          path[pos] = 'A' + x18_rndA;
-      } else if (i == int(EMenuMovie::FileSelectPlayGameA)) {
-        auto pos = path.find("A.thp");
-        if (pos != std::string::npos)
-          path[pos] = 'A' + x1c_rndB;
-      }
-      x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
-      x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
-      return false;
-    }
   }
+
+  for (size_t i = 0; i < x70_menuMovies.size(); ++i) {
+    if (x70_menuMovies[i] != nullptr) {
+      continue;
+    }
+
+    const FEMovie& movie = FEMovies[i];
+    std::string path = movie.path;
+    if (i == size_t(EMenuMovie::StartFileSelectA)) {
+      const auto pos = path.find("A.thp");
+      if (pos != std::string::npos) {
+        path[pos] = 'A' + x18_rndA;
+      }
+    } else if (i == size_t(EMenuMovie::FileSelectPlayGameA)) {
+      const auto pos = path.find("A.thp");
+      if (pos != std::string::npos) {
+        path[pos] = 'A' + x1c_rndB;
+      }
+    }
+
+    x70_menuMovies[i] = std::make_unique<CMoviePlayer>(path.c_str(), 0.05f, movie.loop, false);
+    x70_menuMovies[i]->SetPlayMode(CMoviePlayer::EPlayMode::Stopped);
+    return false;
+  }
+
   xd1_moviesLoaded = true;
   return true;
 }
@@ -2161,10 +2203,11 @@ void CFrontEndUI::ProcessUserInput(const CFinalInput& input, CArchitectureQueue&
 }
 
 void CFrontEndUI::TransitionToGame() {
-  if (x14_phase >= EPhase::ToPlayGame)
+  if (x14_phase >= EPhase::ToPlayGame) {
     return;
+  }
 
-  const u16* sfx = FETransitionForwardSFX[x1c_rndB];
+  const auto sfx = FETransitionForwardSFX[x1c_rndB];
   CSfxManager::SfxStart(sfx[0], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
   CSfxManager::SfxStart(sfx[1], 1.f, 0.f, false, 0x7f, false, kInvalidAreaId);
 
@@ -2180,10 +2223,6 @@ void CFrontEndUI::UpdateMusicVolume() {
     xf4_curAudio->SetVolume(vol);
   }
 }
-
-static const float AudioFadeTimeA[] = {0.44f, 5.41f, 3.41f};
-
-static const float AudioFadeTimeB[] = {4.2f, 6.1f, 6.1f};
 
 CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) {
   if (xdc_saveUI && x50_curScreen >= EScreen::FileSelect) {
@@ -2248,14 +2287,12 @@ CIOWin::EMessageReturn CFrontEndUI::Update(float dt, CArchitectureQueue& queue) 
     if (PumpMovieLoad()) {
       /* Prime first frame of movies */
       UpdateMovies(dt);
-      for (int i = 0; i < 9; ++i) {
-        if (!x70_menuMovies[i]->GetIsFullyCached()) {
-          moviesReady = false;
-          break;
-        }
-      }
-    } else
+
+      moviesReady = std::all_of(x70_menuMovies.cbegin(), x70_menuMovies.cend(),
+                                [](const auto& movie) { return movie->GetIsFullyCached(); });
+    } else {
       moviesReady = false;
+    }
 
     if (moviesReady) {
       /* Ready to display FrontEnd */

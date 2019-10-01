@@ -1,21 +1,26 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CVector2f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CScannableObjectInfo.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include <optional>
+#include <utility>
+
+#include "Runtime/CScannableObjectInfo.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
+class CAuiImagePane;
+class CGuiFrame;
+class CGuiModel;
 class CGuiTextPane;
 class CGuiWidget;
-class CGuiModel;
-struct CFinalInput;
-class CGuiFrame;
-class CAuiImagePane;
 class CStringTable;
+struct CFinalInput;
 
 class CScanDisplay {
   friend class CHudDecoInterfaceScan;

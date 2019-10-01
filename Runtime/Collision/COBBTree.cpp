@@ -13,7 +13,7 @@ COBBTree::COBBTree(CInputStream& in)
 , x4_version(verify_version(in))
 , x8_memsize(in.readUint32())
 , x18_indexData(in)
-, x88_root(new CNode(in)) {}
+, x88_root(std::make_unique<CNode>(in)) {}
 
 static const u8 DefaultEdgeMaterials[] = {
   2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 2
@@ -168,10 +168,10 @@ COBBTree::CNode::CNode(CInputStream& in) {
   x0_obb = zeus::COBBox::ReadBig(in);
   x3c_isLeaf = in.readBool();
   if (x3c_isLeaf)
-    x48_leaf.reset(new CLeafData(in));
+    x48_leaf = std::make_unique<CLeafData>(in);
   else {
-    x40_left.reset(new CNode(in));
-    x44_right.reset(new CNode(in));
+    x40_left = std::make_unique<CNode>(in);
+    x44_right = std::make_unique<CNode>(in);
   }
 }
 

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CGunWeapon.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Weapon/CGunWeapon.hpp"
 
 namespace urde {
 

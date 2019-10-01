@@ -1,7 +1,9 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "Camera/CCameraShakeData.hpp"
+#include <string_view>
+
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 

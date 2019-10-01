@@ -1,7 +1,14 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "zeus/CTransform.hpp"
+#include <map>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 struct SRiders;

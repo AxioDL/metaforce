@@ -1,5 +1,5 @@
-#include "CGuiLight.hpp"
-#include "CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiLight.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
 
 namespace urde {
 

@@ -86,7 +86,7 @@ void PAKBridge::build() {
       std::vector<UniqueID32> mapw;
       if (worldMapEnt) {
         PAKEntryReadStream rs = worldMapEnt->beginReadStream(m_node);
-        rs.seek(8, athena::Current);
+        rs.seek(8, athena::SeekOrigin::Current);
         atUint32 areaCount = rs.readUint32Big();
         mapw.reserve(areaCount);
         for (atUint32 i = 0; i < areaCount; ++i)

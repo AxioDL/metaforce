@@ -1,9 +1,16 @@
 #pragma once
 
-#include "World/CActor.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CProjectedShadow;
+
 class CScriptShadowProjector : public CActor {
   float xe8_scale;
   zeus::CVector3f xec_offset;

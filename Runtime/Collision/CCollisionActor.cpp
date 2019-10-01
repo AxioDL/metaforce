@@ -4,7 +4,7 @@
 #include "World/CActorParameters.hpp"
 #include "Collision/CCollidableOBBTreeGroup.hpp"
 #include "Collision/CCollidableSphere.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 static const CMaterialList gkDefaultCollisionActorMaterials =
@@ -20,8 +20,8 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 , x25c_owner(uid2)
 , x260_boxSize(extent)
 , x26c_center(center)
-, x278_obbContainer(new CCollidableOBBTreeGroupContainer(extent, center))
-, x27c_obbTreeGroupPrimitive(new CCollidableOBBTreeGroup(x278_obbContainer.get(), GetMaterialList())) {
+, x278_obbContainer(std::make_unique<CCollidableOBBTreeGroupContainer>(extent, center))
+, x27c_obbTreeGroupPrimitive(std::make_unique<CCollidableOBBTreeGroup>(x278_obbContainer.get(), GetMaterialList())) {
   x10_name += ' ';
   x10_name += name;
   SetCoefficientOfRestitutionModifier(0.5f);
@@ -38,8 +38,9 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, co
 , x258_primitiveType(EPrimitiveType::AABox)
 , x25c_owner(uid2)
 , x260_boxSize(boxSize)
-, x280_aaboxPrimitive(new CCollidableAABox(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
-                                           CMaterialList(EMaterialTypes::Solid, EMaterialTypes::NoStaticCollision))) {
+, x280_aaboxPrimitive(
+      std::make_unique<CCollidableAABox>(zeus::CAABox(-0.5f * boxSize, 0.5f * boxSize),
+                                         CMaterialList(EMaterialTypes::Solid, EMaterialTypes::NoStaticCollision))) {
   x10_name += ' ';
   x10_name += name;
   SetCoefficientOfRestitutionModifier(0.5f);
@@ -55,8 +56,8 @@ CCollisionActor::CCollisionActor(TUniqueId uid1, TAreaId aId, TUniqueId uid2, bo
                 zeus::skNullBox, SMoverData(mass), CActorParameters::None(), 0.3f, 0.1f)
 , x258_primitiveType(EPrimitiveType::Sphere)
 , x25c_owner(uid2)
-, x284_spherePrimitive(new CCollidableSphere(zeus::CSphere(zeus::skZero3f, radius),
-                                             CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
+, x284_spherePrimitive(std::make_unique<CCollidableSphere>(
+      zeus::CSphere(zeus::skZero3f, radius), CMaterialList(EMaterialTypes::NoStaticCollision, EMaterialTypes::Solid)))
 , x288_sphereRadius(radius) {
   x10_name += ' ';
   x10_name += name;

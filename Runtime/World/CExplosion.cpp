@@ -1,7 +1,7 @@
 #include "CExplosion.hpp"
 #include "CStateManager.hpp"
 #include "CGameLight.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Graphics/CBooRenderer.hpp"
 #include "GameGlobalObjects.hpp"
 

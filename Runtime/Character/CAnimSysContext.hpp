@@ -1,11 +1,14 @@
 #pragma once
 
-#include "CToken.hpp"
-#include "CRandom16.hpp"
+#include <memory>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
 
 namespace urde {
-class CTransitionDatabaseGame;
 class CSimplePool;
+class CTransitionDatabaseGame;
 
 struct CAnimSysContext {
   TToken<CTransitionDatabaseGame> x0_transDB;

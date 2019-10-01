@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CCompoundTargetReticle.hpp"
-#include "COrbitPointMarker.hpp"
+#include "Runtime/GuiSys/CCompoundTargetReticle.hpp"
+#include "Runtime/GuiSys/COrbitPointMarker.hpp"
 
 namespace urde {
 class CStateManager;

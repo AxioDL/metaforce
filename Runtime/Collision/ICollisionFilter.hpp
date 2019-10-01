@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CCollisionInfoList.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
 
 namespace urde {
 class CActor;

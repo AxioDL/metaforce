@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <string>
-#include "RetroTypes.hpp"
-#include "World/ScriptObjectSupport.hpp"
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
 struct SConnection {
@@ -18,8 +18,8 @@ class CEntityInfo {
   TEditorId x14_editorId;
 
 public:
-  CEntityInfo(TAreaId aid, const std::vector<SConnection>& conns, TEditorId eid = kInvalidEditorId)
-  : x0_areaId(aid), x4_conns(conns), x14_editorId(eid) {}
+  CEntityInfo(TAreaId aid, std::vector<SConnection> conns, TEditorId eid = kInvalidEditorId)
+  : x0_areaId(aid), x4_conns(std::move(conns)), x14_editorId(eid) {}
   TAreaId GetAreaId() const { return x0_areaId; }
   std::vector<SConnection> GetConnectionList() const { return x4_conns; }
   TEditorId GetEditorId() const { return x14_editorId; }

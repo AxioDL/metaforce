@@ -1,13 +1,36 @@
-#include "MP1/World/CSeedling.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPlayer.hpp"
-#include "CStateManager.hpp"
-#include "TCastTo.hpp"
-#include "CSeedling.hpp"
+#include "Runtime/MP1/World/CSeedling.hpp"
+
+#include <array>
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
+namespace {
+constexpr std::array<std::array<std::string_view, 6>, 2> skNeedleLocators{{
+    {
+        "A_spike1_LCTR_SDK",
+        "A_spike2_LCTR_SDK",
+        "A_spike3_LCTR_SDK",
+        "A_spike4_LCTR_SDK",
+        "A_spike5_LCTR_SDK",
+        "A_spike6_LCTR_SDK",
+    },
+    {
+        "B_spike1_LCTR_SDK",
+        "B_spike2_LCTR_SDK",
+        "B_spike3_LCTR_SDK",
+        "B_spike4_LCTR_SDK",
+        "B_spike5_LCTR_SDK",
+        "B_spike6_LCTR_SDK",
+    },
+}};
+} // Anonymous namespace
 
 CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                      CModelData&& mData, const CPatternedInfo& pInfo, const CActorParameters& actParms,
@@ -17,7 +40,7 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
               EMovementType::Ground, EColliderType::Zero, EBodyType::WallWalker, actParms, f1, f2,
               EKnockBackVariant::Small, f3, EWalkerType::Seedling, f4, false)
 , x5d8_searchPath(nullptr, 1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
-, x6bc_spikeData(new CModelData(CStaticRes(needleId, GetModelData()->GetScale())))
+, x6bc_spikeData(std::make_unique<CModelData>(CStaticRes(needleId, GetModelData()->GetScale())))
 , x6c0_projectileInfo(weaponId, dInfo1)
 , x6e8_deathDamage(dInfo2)
 , x722_24_renderOnlyClusterA(true)
@@ -28,23 +51,6 @@ CSeedling::CSeedling(TUniqueId uid, std::string_view name, const CEntityInfo& in
 }
 
 void CSeedling::Accept(IVisitor& visitor) { visitor.Visit(this); }
-
-const std::string CSeedling::skNeedleLocators[2][6] = {{
-                                                           "A_spike1_LCTR_SDK",
-                                                           "A_spike2_LCTR_SDK",
-                                                           "A_spike3_LCTR_SDK",
-                                                           "A_spike4_LCTR_SDK",
-                                                           "A_spike5_LCTR_SDK",
-                                                           "A_spike6_LCTR_SDK",
-                                                       },
-                                                       {
-                                                           "B_spike1_LCTR_SDK",
-                                                           "B_spike2_LCTR_SDK",
-                                                           "B_spike3_LCTR_SDK",
-                                                           "B_spike4_LCTR_SDK",
-                                                           "B_spike5_LCTR_SDK",
-                                                           "B_spike6_LCTR_SDK",
-                                                       }};
 
 void CSeedling::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CPatterned::AcceptScriptMsg(msg, uid, mgr);
@@ -103,13 +109,14 @@ void CSeedling::Think(float dt, CStateManager& mgr) {
 
 void CSeedling::Render(const CStateManager& mgr) const {
   if (x400_25_alive && x6bc_spikeData) {
-    u32 index = x722_24_renderOnlyClusterA ? 0 : u32(x722_25_curNeedleCluster);
+    const size_t index = x722_24_renderOnlyClusterA ? 0 : size_t(x722_25_curNeedleCluster);
     CModelFlags flags;
     flags.x2_flags = 3;
     flags.x4_color = zeus::skWhite;
 
-    for (const std::string& sv : skNeedleLocators[index])
+    for (const std::string_view sv : skNeedleLocators[index]) {
       x6bc_spikeData->Render(mgr, GetLctrTransform(sv), x90_actorLights.get(), flags);
+    }
   }
 
   CWallWalker::Render(mgr);
@@ -202,9 +209,11 @@ bool CSeedling::ShouldAttack(CStateManager& mgr, float) {
 }
 
 void CSeedling::LaunchNeedles(CStateManager& mgr) {
-  for (const std::string& needle : skNeedleLocators[u32(x722_25_curNeedleCluster)])
-    LaunchProjectile(GetLctrTransform(needle), mgr, 6, EProjectileAttrib::None, true, {}, 0xFFFF, false,
-                     GetModelData()->GetScale());
+  const auto& needleLocators = skNeedleLocators[size_t(x722_25_curNeedleCluster)];
+  for (const std::string_view needle : needleLocators) {
+    LaunchProjectile(GetLctrTransform(needle), mgr, int(needleLocators.size()), EProjectileAttrib::None, true, {},
+                     0xFFFF, false, GetModelData()->GetScale());
+  }
 
   x722_25_curNeedleCluster = !x722_25_curNeedleCluster;
   x722_24_renderOnlyClusterA = false;

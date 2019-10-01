@@ -7,7 +7,7 @@
 #include "Weapon/CPlasmaProjectile.hpp"
 #include "World/CPlayer.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CNewIntroBoss.hpp"
 
 namespace urde::MP1 {

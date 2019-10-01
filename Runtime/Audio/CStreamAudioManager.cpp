@@ -862,7 +862,7 @@ void CStreamAudioManager::Start(bool oneshot, std::string_view fileName, float v
   SDSPPlayer& p = s_Players[oneshot];
   SDSPPlayer& qp = s_QueuedPlayers[oneshot];
 
-  if (p.x10_playState != EPlayerState::Stopped && CStringExtras::CompareCaseInsensitive(fileName, p.x0_fileName)) {
+  if (p.x10_playState != EPlayerState::Stopped && !CStringExtras::CompareCaseInsensitive(fileName, p.x0_fileName)) {
     /* Enque new stream */
     qp = SDSPPlayer(EPlayerState::FadeIn, fileName, volume, fadeIn, fadeOut, -1, music);
     Stop(oneshot, p.x0_fileName);
@@ -900,10 +900,10 @@ void CStreamAudioManager::Stop(bool oneshot, std::string_view fileName) {
   SDSPPlayer& p = s_Players[oneshot];
   SDSPPlayer& qp = s_QueuedPlayers[oneshot];
 
-  if (!CStringExtras::CompareCaseInsensitive(fileName, qp.x0_fileName)) {
+  if (CStringExtras::CompareCaseInsensitive(fileName, qp.x0_fileName)) {
     /* Cancel enqueued file */
     qp = SDSPPlayer();
-  } else if (!CStringExtras::CompareCaseInsensitive(fileName, p.x0_fileName) && p.x20_internalHandle != -1 &&
+  } else if (CStringExtras::CompareCaseInsensitive(fileName, p.x0_fileName) && p.x20_internalHandle != -1 &&
              p.x10_playState != EPlayerState::Stopped) {
     /* Fade out or stop */
     if (p.x1c_fadeOut <= FLT_EPSILON)

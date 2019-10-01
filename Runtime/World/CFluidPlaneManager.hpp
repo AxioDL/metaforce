@@ -1,8 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CRippleManager.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CRippleManager.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace urde {
 

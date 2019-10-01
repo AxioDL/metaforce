@@ -246,7 +246,7 @@ enum BlendFactor : uint16_t {
   BL_INVDSTALPHA
 };
 
-struct Color : athena::io::DNA<athena::Big> {
+struct Color : athena::io::DNA<athena::Endian::Big> {
   union {
     uint8_t color[4];
     uint32_t num = 0;

@@ -16,7 +16,7 @@
 #include "CSimplePool.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CSkinnedModel.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 const std::string_view CBabygoth::skpMouthDamageJoint = "LCTR_SHEMOUTH"sv;
@@ -298,7 +298,7 @@ void CBabygoth::AddSphereCollisionList(const SSphereJointInfo* sphereJointInfo, 
 void CBabygoth::SetupCollisionManager(CStateManager& mgr) {
   std::vector<CJointCollisionDescription> joints;
   AddSphereCollisionList(skSphereJointList, skSphereJointCount, joints);
-  x928_colActMgr.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false));
+  x928_colActMgr = std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, false);
   x928_colActMgr->SetActive(mgr, GetActive());
 
   for (u32 i = 0; i < x928_colActMgr->GetNumCollisionActors(); ++i) {

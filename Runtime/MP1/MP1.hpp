@@ -76,18 +76,18 @@ public:
   CGameGlobalObjects(IFactory* resFactory, CSimplePool* objStore)
   : x4_resFactory(resFactory), xcc_simplePool(objStore) {
     if (!x4_resFactory) {
-      m_gameResFactory.reset(new CResFactory());
+      m_gameResFactory = std::make_unique<CResFactory>();
       x4_resFactory = m_gameResFactory.get();
     }
     if (!xcc_simplePool) {
-      m_gameSimplePool.reset(new CSimplePool(*x4_resFactory));
+      m_gameSimplePool = std::make_unique<CSimplePool>(*x4_resFactory);
       xcc_simplePool = m_gameSimplePool.get();
     }
     g_ResFactory = x4_resFactory;
     g_SimplePool = xcc_simplePool;
     g_CharFactoryBuilder = &xec_charFactoryBuilder;
     g_AiFuncMap = &x110_aiFuncMap;
-    x134_gameState.reset(new CGameState());
+    x134_gameState = std::make_unique<CGameState>();
     g_GameState = x134_gameState.get();
     g_TweakManager = &x150_tweakManager;
   }
@@ -103,12 +103,12 @@ public:
   }
 
   void ResetGameState() {
-    x134_gameState.reset(new CGameState());
+    x134_gameState = std::make_unique<CGameState>();
     g_GameState = x134_gameState.get();
   }
 
   void StreamInGameState(CBitStreamReader& stream, u32 saveIdx) {
-    x134_gameState.reset(new CGameState(stream, saveIdx));
+    x134_gameState = std::make_unique<CGameState>(stream, saveIdx);
     g_GameState = x134_gameState.get();
   }
 };

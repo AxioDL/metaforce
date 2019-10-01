@@ -1,6 +1,11 @@
 #pragma once
 
-#include "IAnimReader.hpp"
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
 
 namespace urde {
 

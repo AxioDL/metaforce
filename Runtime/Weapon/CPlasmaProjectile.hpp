@@ -1,9 +1,19 @@
 #pragma once
 
-#include "Weapon/CBeamProjectile.hpp"
-#include "Weapon/CBeamInfo.hpp"
-#include "World/CDamageInfo.hpp"
-#include "Graphics/Shaders/CColoredStripShader.hpp"
+#include <cstdint>
+#include <memory>
+#include <optional>
+#include <string_view>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
+#include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/Weapon/CBeamProjectile.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
 class CPlasmaProjectile : public CBeamProjectile {

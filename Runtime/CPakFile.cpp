@@ -18,9 +18,11 @@ CPakFile::~CPakFile() {
 }
 
 const SObjectTag* CPakFile::GetResIdByName(std::string_view name) const {
-  for (const std::pair<std::string, SObjectTag>& p : x54_nameList)
-    if (!CStringExtras::CompareCaseInsensitive(p.first.c_str(), name))
+  for (const std::pair<std::string, SObjectTag>& p : x54_nameList) {
+    if (CStringExtras::CompareCaseInsensitive(p.first, name)) {
       return &p.second;
+    }
+  }
   return nullptr;
 }
 

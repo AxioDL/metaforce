@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <chrono>
 
-#include "RetroTypes.hpp"
+#include "Runtime/GCNTypes.hpp"
 
 namespace urde {
 

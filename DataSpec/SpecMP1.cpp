@@ -1155,7 +1155,7 @@ struct SpecMP1 : SpecBase {
 
   void writePakFileIndex(athena::io::FileWriter& w, const std::vector<urde::SObjectTag>& tags,
                          const std::vector<std::tuple<size_t, size_t, bool>>& index, atUint64 resTableOffset) override {
-    w.seek(resTableOffset, athena::Begin);
+    w.seek(resTableOffset, athena::SeekOrigin::Begin);
 
     auto it = tags.begin();
     for (const auto& item : index) {

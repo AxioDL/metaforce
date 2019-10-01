@@ -1,32 +1,39 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CTransform.hpp"
-#include "Weapon/CWeaponMgr.hpp"
-#include "CPlayerEnergyDrain.hpp"
-#include "Weapon/CPlayerGun.hpp"
-#include "CMorphBall.hpp"
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/Weapon/CWeaponMgr.hpp"
+#include "Runtime/World/CMorphBall.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+#include "Runtime/World/CPlayerEnergyDrain.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CCollidableSphere;
+class CDamageInfo;
+class CFirstPersonCamera;
 class CMaterialList;
 class CMorphBall;
+class CPlayerCameraBob;
 class CPlayerGun;
-class CDamageInfo;
+class CScriptPlayerHint;
 class CScriptWater;
 class IVisitor;
+
 struct CFinalInput;
-class CPlayerCameraBob;
-class CFirstPersonCamera;
-class CCollidableSphere;
-class CScriptPlayerHint;
 
 class CPlayer : public CPhysicsActor {
-  friend class CStateManager;
   friend class CFirstPersonCamera;
-  friend class CPlayerCameraBob;
-  friend class CMorphBall;
   friend class CGroundMovement;
+  friend class CMorphBall;
+  friend class CPlayerCameraBob;
+  friend class CStateManager;
 
 public:
   enum class EPlayerScanState { NotScanning, Scanning, ScanComplete };
@@ -432,8 +439,8 @@ public:
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;
   void SetVisorSteam(float, float, float, CAssetId, bool);
   void UpdateFootstepSounds(const CFinalInput& input, CStateManager&, float);
-  u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16*, u32, u16) const;
-  static u16 SfxIdFromMaterial(const CMaterialList&, const u16*, u32, u16);
+  u16 GetMaterialSoundUnderPlayer(const CStateManager& mgr, const u16* idList, size_t length, u16 defId) const;
+  static u16 SfxIdFromMaterial(const CMaterialList& mat, const u16* idList, size_t tableLen, u16 defId);
   void UpdateCrosshairsState(const CFinalInput&);
   void UpdateVisorTransition(float, CStateManager& mgr);
   void UpdateVisorState(const CFinalInput&, float, CStateManager& mgr);

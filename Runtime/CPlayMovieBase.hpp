@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CIOWin.hpp"
-#include "Graphics/CMoviePlayer.hpp"
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/Graphics/CMoviePlayer.hpp"
 
 namespace urde {
 

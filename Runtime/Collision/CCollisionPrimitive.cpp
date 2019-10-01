@@ -149,13 +149,13 @@ bool CCollisionPrimitive::CollideMoving(const CInternalCollisionStructure::CPrim
 }
 
 void CCollisionPrimitive::InitBeginTypes() {
-  sCollisionTypeList.reset(new std::vector<CCollisionPrimitive::Type>());
+  sCollisionTypeList = std::make_unique<std::vector<Type>>();
   sCollisionTypeList->reserve(3);
   sTypesAdding = true;
   InternalColliders::AddTypes();
 }
 
-void CCollisionPrimitive::InitAddType(const CCollisionPrimitive::Type& tp) {
+void CCollisionPrimitive::InitAddType(const Type& tp) {
   tp.GetSetter()(sCollisionTypeList->size());
   sCollisionTypeList->push_back(tp);
 }
@@ -168,13 +168,10 @@ void CCollisionPrimitive::InitEndTypes() {
 }
 
 void CCollisionPrimitive::InitBeginColliders() {
-  sTableOfCollidables.reset(new std::vector<ComparisonFunc>());
-  sTableOfBooleanCollidables.reset(new std::vector<BooleanComparisonFunc>());
-  sTableOfMovingCollidables.reset(new std::vector<MovingComparisonFunc>());
-  size_t tableSz = sCollisionTypeList->size() * sCollisionTypeList->size();
-  sTableOfCollidables->resize(tableSz);
-  sTableOfBooleanCollidables->resize(tableSz);
-  sTableOfMovingCollidables->resize(tableSz);
+  const size_t tableSz = sCollisionTypeList->size() * sCollisionTypeList->size();
+  sTableOfCollidables = std::make_unique<std::vector<ComparisonFunc>>(tableSz);
+  sTableOfBooleanCollidables = std::make_unique<std::vector<BooleanComparisonFunc>>(tableSz);
+  sTableOfMovingCollidables = std::make_unique<std::vector<MovingComparisonFunc>>(tableSz);
   sCollidersAdding = true;
   InternalColliders::AddColliders();
 }

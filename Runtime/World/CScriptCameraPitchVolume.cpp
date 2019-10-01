@@ -5,7 +5,7 @@
 #include "Camera/CCameraManager.hpp"
 #include "Camera/CFirstPersonCamera.hpp"
 #include "Particle/CGenDescription.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 const zeus::CVector3f CScriptCameraPitchVolume::skScaleFactor = zeus::CVector3f(0.5f);

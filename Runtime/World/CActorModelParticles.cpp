@@ -1,4 +1,7 @@
 #include "CActorModelParticles.hpp"
+
+#include <array>
+
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
@@ -377,7 +380,7 @@ void CActorModelParticles::IncrementDependency(EDependency d) {
     xe4_loadingDeps |= (1 << int(d));
 }
 
-static const char* ParticleDGRPs[] = {
+constexpr std::array<const char*, 6> ParticleDGRPs{
     "Effect_OnFire_DGRP",  "Effect_IceBreak_DGRP", "Effect_Ash_DGRP",
     "Effect_FirePop_DGRP", "Effect_Electric_DGRP", "Effect_IcePop_DGRP",
 };
@@ -393,8 +396,9 @@ CActorModelParticles::Dependency CActorModelParticles::GetParticleDGRPTokens(con
 }
 
 void CActorModelParticles::LoadParticleDGRPs() {
-  for (int i = 0; i < 6; ++i)
-    x50_dgrps.push_back(GetParticleDGRPTokens(ParticleDGRPs[i]));
+  for (const char* dgrp : ParticleDGRPs) {
+    x50_dgrps.push_back(GetParticleDGRPTokens(dgrp));
+  }
 }
 
 std::unique_ptr<CElementGen> CActorModelParticles::MakeOnFireGen() const {

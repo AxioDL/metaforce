@@ -129,7 +129,7 @@ bool ProjectManager::openProject(hecl::SystemStringView path) {
   }
 
   r.reset();
-  reader.seek(0, athena::Begin);
+  reader.seek(0, athena::SeekOrigin::Begin);
   if (!r.parse(&reader)) {
     return makeProj(true);
   }

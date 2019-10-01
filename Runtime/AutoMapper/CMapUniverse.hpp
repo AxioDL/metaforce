@@ -1,12 +1,16 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CTransform.hpp"
-#include "IFactory.hpp"
-#include "CToken.hpp"
-#include "CMapArea.hpp"
+#include <string>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/IFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

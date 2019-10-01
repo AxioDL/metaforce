@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CCharAnimTime.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
 
 namespace urde {
 

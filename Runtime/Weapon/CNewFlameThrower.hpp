@@ -1,6 +1,11 @@
 #pragma once
 
-#include "CGameProjectile.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
 
 namespace urde {
 

@@ -8,7 +8,7 @@
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CFlameThrower.hpp"
 
 namespace urde {
@@ -24,7 +24,7 @@ CFlameThrower::CFlameThrower(const TToken<CWeaponDescription>& wDesc, std::strin
 , x2e8_flameXf(xf)
 , x338_(flameInfo.x10_)
 , x33c_flameDesc(g_SimplePool->GetObj({FOURCC('PART'), flameInfo.GetFlameFxId()}))
-, x348_flameGen(new CElementGen(x33c_flameDesc))
+, x348_flameGen(std::make_unique<CElementGen>(x33c_flameDesc))
 , x34c_flameWarp(176.f - float(flameInfo.GetLength()), xf.origin, bool(flameInfo.GetAttributes() & 0x4))
 , x3f4_playerSteamTxtr(playerSteamTxtr)
 , x3f8_playerHitSfx(playerHitSfx)
@@ -80,7 +80,7 @@ void CFlameThrower::Fire(const zeus::CTransform&, CStateManager& mgr, bool) {
 
 void CFlameThrower::CreateFlameParticles(CStateManager& mgr) {
   DeleteProjectileLight(mgr);
-  x348_flameGen.reset(new CElementGen(x33c_flameDesc));
+  x348_flameGen = std::make_unique<CElementGen>(x33c_flameDesc);
   x348_flameGen->SetParticleEmission(true);
   x348_flameGen->SetZTest(x400_27_coneCollision);
   x348_flameGen->AddModifier(&x34c_flameWarp);

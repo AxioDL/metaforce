@@ -9,7 +9,7 @@
 #include "World/CWorld.hpp"
 #include "MP1/MP1.hpp"
 #include "World/CPlayer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CGameCamera.hpp"
 
 namespace urde {

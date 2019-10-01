@@ -5,7 +5,7 @@
 #include "World/CPlayer.hpp"
 #include "Collision/CGameCollision.hpp"
 #include "Weapon/CBomb.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 
@@ -39,7 +39,7 @@ CPuddleToadGamma::CPuddleToadGamma(TUniqueId uid, std::string_view name, EFlavor
   SetMovable(false);
   if (dcln.IsValid() && g_ResFactory->GetResourceTypeById(dcln) != 0) {
     TLockedToken<CCollidableOBBTreeGroupContainer> container = g_SimplePool->GetObj({FOURCC('DCLN'), dcln});
-    x5e4_collisionTreePrim.reset(new CCollidableOBBTreeGroup(container.GetObj(), GetMaterialList()));
+    x5e4_collisionTreePrim = std::make_unique<CCollidableOBBTreeGroup>(container.GetObj(), GetMaterialList());
   }
 }
 

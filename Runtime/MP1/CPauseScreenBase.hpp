@@ -1,20 +1,24 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "GuiSys/CGuiFrame.hpp"
+#include <string>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CStateManager;
-class CGuiWidget;
-class CGuiTableGroup;
-class CGuiModel;
-class CGuiTextPane;
-class CGuiSliderGroup;
-class CAuiImagePane;
-class CStringTable;
-class CRandom16;
 class CArchitectureQueue;
+class CAuiImagePane;
+class CGuiModel;
+class CGuiSliderGroup;
+class CGuiTableGroup;
+class CGuiTextPane;
+class CGuiWidget;
+class CRandom16;
+class CStateManager;
+class CStringTable;
 
 namespace MP1 {
 

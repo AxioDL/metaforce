@@ -1,15 +1,24 @@
 #pragma once
 
-#include <Runtime/Weapon/CBurstFire.hpp>
+#include <memory>
+#include <optional>
+#include <string_view>
 
-#include "CPhysicsActor.hpp"
-#include "CDamageInfo.hpp"
-#include "CDamageVulnerability.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Weapon/CBurstFire.hpp"
+#include "Runtime/Weapon/CBurstFire.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionActorManager;
+class CElementGen;
+
+enum class EStateMsg;
+
 class CScriptGunTurretData {
   float x0_intoDeactivateDelay;
   float x4_intoActivateDelay;
@@ -220,6 +229,7 @@ public:
                    const zeus::CTransform& xf, CModelData&& mData, const zeus::CAABox& aabb, const CHealthInfo& hInfo,
                    const CDamageVulnerability& dVuln, const CActorParameters& aParms,
                    const CScriptGunTurretData& turretData);
+  ~CScriptGunTurret() override;
 
   void Accept(IVisitor&) override;
   void AcceptScriptMsg(EScriptObjectMessage, TUniqueId, CStateManager&) override;

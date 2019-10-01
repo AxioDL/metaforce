@@ -1,12 +1,15 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "World/ScriptObjectSupport.hpp"
-#include "RetroTypes.hpp"
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
-class CStateManager;
 class CSaveWorld;
+class CStateManager;
+
 #if 0
 struct CMailMessage
 {

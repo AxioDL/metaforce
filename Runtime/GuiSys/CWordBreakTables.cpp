@@ -1,4 +1,9 @@
-#include "CWordBreakTables.hpp"
+#include "Runtime/GuiSys/CWordBreakTables.hpp"
+
+#include <iterator>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
 
 namespace urde {
 

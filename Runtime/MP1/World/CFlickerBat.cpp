@@ -4,7 +4,7 @@
 #include "Camera/CGameCamera.hpp"
 #include "Collision/CGameCollision.hpp"
 #include "World/CPlayer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 

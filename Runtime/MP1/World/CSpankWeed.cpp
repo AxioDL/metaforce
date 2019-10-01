@@ -76,7 +76,8 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
         joints.push_back(CJointCollisionDescription::SphereCollision(id, joint.radius, joint.name, 0.001f));
     }
 
-    x594_collisionMgr.reset(new CCollisionActorManager(mgr, GetUniqueId(), GetAreaIdAlways(), joints, GetActive()));
+    x594_collisionMgr =
+        std::make_unique<CCollisionActorManager>(mgr, GetUniqueId(), GetAreaIdAlways(), joints, GetActive());
     CMaterialList list;
     list.Add(EMaterialTypes::CameraPassthrough);
     list.Add(EMaterialTypes::Immovable);

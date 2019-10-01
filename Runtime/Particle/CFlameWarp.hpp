@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CWarp.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Particle/CWarp.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

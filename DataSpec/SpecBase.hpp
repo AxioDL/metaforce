@@ -1,7 +1,12 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <thread>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include "hecl/Database.hpp"
 #include "hecl/Blender/Token.hpp"

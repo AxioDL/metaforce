@@ -1,18 +1,21 @@
 #pragma once
 
-#include <vector>
-#include <utility>
-#include <string>
 #include <functional>
-#include "GCNTypes.hpp"
-#include "rstl.hpp"
-#include "IOStreams.hpp"
-#include "hecl/hecl.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CVector2f.hpp"
-#include "zeus/CMatrix3f.hpp"
-#include "zeus/CMatrix4f.hpp"
-#include "zeus/CTransform.hpp"
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/rstl.hpp"
+
+#include <hecl/hecl.hpp>
+#include <zeus/CMatrix3f.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 #undef min
 #undef max

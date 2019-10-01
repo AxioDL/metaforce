@@ -8,7 +8,7 @@
 #include "CStateManager.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 const std::string_view CPuddleSpore::kEyeLocators[16] = {
@@ -37,7 +37,7 @@ CPuddleSpore::CPuddleSpore(TUniqueId uid, std::string_view name, EFlavorType fla
 , x614_25(false) {
   x5dc_elemGens.reserve(kEyeCount);
   for (u32 i = 0; i < kEyeCount; ++i)
-    x5dc_elemGens.emplace_back(new CElementGen(x5d0_));
+    x5dc_elemGens.emplace_back(std::make_unique<CElementGen>(x5d0_));
   x5ec_projectileInfo.Token().Lock();
   x460_knockBackController.SetAutoResetImpulse(false);
 }

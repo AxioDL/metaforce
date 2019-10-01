@@ -5,33 +5,51 @@ project(visigen)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+add_executable(visigen
+  VISIBuilder.cpp
+  VISIBuilder.hpp
+  VISIRenderer.cpp
+  VISIRenderer.hpp
+)
+
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+  target_compile_options(visigen PRIVATE /EHsc)
 else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-  -Wno-multichar -fno-exceptions -Wno-narrowing -Wno-nullability-completeness -Werror=return-type")
+  target_compile_options(visigen PRIVATE
+    -fno-exceptions
+
+    -Werror=return-type
+    -Wno-multichar
+    -Wno-narrowing
+    -Wno-nullability-completeness
+  )
 endif()
 
 if(APPLE)
-  set(PLAT_SRCS MainMac.mm)
+  target_sources(visigen PRIVATE MainMac.mm)
   set_source_files_properties(MainMac.mm PROPERTIES COMPILE_FLAGS -fobjc-arc)
 elseif(WIN32)
-  set(PLAT_SRCS MainWin.cpp)
+  target_sources(visigen PRIVATE MainWin.cpp)
 else()
-  set(PLAT_SRCS MainXlib.cpp)
+  target_sources(visigen PRIVATE MainXlib.cpp)
 endif()
-
-add_executable(visigen ${PLAT_SRCS}
-               VISIRenderer.cpp VISIRenderer.hpp
-               VISIBuilder.cpp VISIBuilder.hpp)
 
 set_target_properties(visigen PROPERTIES COMPILE_DEFINITIONS URDE_DLPACKAGE="${URDE_DLPACKAGE}")
 
 if(APPLE)
   find_library(OPENGL_LIBRARY OpenGL)
-  set(PLAT_LIBS ${OPENGL_LIBRARY})
+  target_link_libraries(visigen PRIVATE ${OPENGL_LIBRARY})
 endif()
 
-target_link_libraries(visigen logvisor athena-core zeus glew
-                      xxhash ${ZLIB_LIBRARIES} lzokay hecl-light ${PLAT_LIBS})
+target_link_libraries(visigen PRIVATE
+  athena-core
+  glew
+  hecl-light
+  logvisor
+  lzokay
+  xxhash
+  zeus
+  ${ZLIB_LIBRARIES}
+)
 endif()

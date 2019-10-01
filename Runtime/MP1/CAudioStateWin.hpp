@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CIOWin.hpp"
+#include "Runtime/CIOWin.hpp"
 
 namespace urde::MP1 {
 class CAudioStateWin : public CIOWin {

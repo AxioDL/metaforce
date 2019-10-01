@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CTransitionDatabase.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "Runtime/Character/CTransitionDatabase.hpp"
 
 namespace urde {
 class CTransition;

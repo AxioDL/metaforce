@@ -1,7 +1,7 @@
 #include "CScriptDebris.hpp"
 #include "Collision/CCollisionInfoList.hpp"
 #include "Particle/CElementGen.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"

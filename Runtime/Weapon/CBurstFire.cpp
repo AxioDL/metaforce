@@ -1,5 +1,12 @@
-#include "CBurstFire.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/Weapon/CBurstFire.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CStateManager.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 CBurstFire::CBurstFire(const SBurst** burstDefs, s32 firstBurstCount) : x10_firstBurstCounter(firstBurstCount) {

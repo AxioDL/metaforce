@@ -59,16 +59,14 @@ u64 CBasics::GetGCTicks() {
 const u64 CBasics::SECONDS_TO_2000 = 946684800LL;
 const u64 CBasics::TICKS_PER_SECOND = 60750000LL;
 
-#ifndef _WIN32
 static struct tm* localtime_r(const time_t& time, struct tm& timeSt, long& gmtOff) {
+#ifndef _WIN32
   auto ret = ::localtime_r(&time, &timeSt);
   if (!ret)
     return nullptr;
   gmtOff = ret->tm_gmtoff;
   return ret;
-}
 #else
-static struct tm* localtime_r(const time_t& time, struct tm& timeSt, long& gmtOff) {
   struct tm _gmSt;
   auto reta = localtime_s(&timeSt, &time);
   auto retb = gmtime_s(&_gmSt, &time);
@@ -76,8 +74,8 @@ static struct tm* localtime_r(const time_t& time, struct tm& timeSt, long& gmtOf
     return nullptr;
   gmtOff = mktime(&timeSt) - mktime(&_gmSt);
   return &timeSt;
-}
 #endif
+}
 
 OSTime CBasics::ToWiiTime(std::chrono::system_clock::time_point time) {
   auto sec = std::chrono::time_point_cast<std::chrono::seconds>(time);

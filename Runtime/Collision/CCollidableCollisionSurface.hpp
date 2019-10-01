@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CCollisionPrimitive.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
 
 namespace urde {
 class CCollidableCollisionSurface {

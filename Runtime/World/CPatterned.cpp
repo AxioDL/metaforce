@@ -1,7 +1,7 @@
 #include "CPatterned.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "CPatternedInfo.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CActorParameters.hpp"
 #include "Character/CPASAnimParmData.hpp"
 #include "GameGlobalObjects.hpp"
@@ -9,7 +9,7 @@
 #include "CPlayer.hpp"
 #include "Weapon/CGameProjectile.hpp"
 #include "Character/CAnimData.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "MP1/World/CSpacePirate.hpp"
 #include "MP1/World/CMetroid.hpp"
 #include "World/CStateMachine.hpp"
@@ -944,7 +944,7 @@ void CPatterned::BuildBodyController(EBodyType bodyType) {
   if (x450_bodyController)
     return;
 
-  x450_bodyController.reset(new CBodyController(*this, x3b8_turnSpeed, bodyType));
+  x450_bodyController = std::make_unique<CBodyController>(*this, x3b8_turnSpeed, bodyType);
   auto anim =
       x450_bodyController->GetPASDatabase().FindBestAnimation(CPASAnimParmData(24, CPASAnimParm::FromEnum(0)), -1);
   x460_knockBackController.x81_26_enableShock = anim.first > 0.f;

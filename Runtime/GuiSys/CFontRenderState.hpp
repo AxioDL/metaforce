@@ -1,18 +1,21 @@
 #pragma once
 
-#include "CGuiTextSupport.hpp"
-#include "CSaveableState.hpp"
-#include "CDrawStringOptions.hpp"
+#include <list>
+#include <vector>
+
+#include "Runtime/GuiSys/CDrawStringOptions.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+#include "Runtime/GuiSys/CSaveableState.hpp"
 
 namespace urde {
-class CLineInstruction;
 class CBlockInstruction;
+class CLineInstruction;
 
 class CFontRenderState : public CSaveableState {
-  friend class CLineInstruction;
   friend class CBlockInstruction;
-  friend class CTextInstruction;
   friend class CImageInstruction;
+  friend class CLineInstruction;
+  friend class CTextInstruction;
   friend class CWordInstruction;
 
   CBlockInstruction* x88_curBlock = nullptr;

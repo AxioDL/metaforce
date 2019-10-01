@@ -1,16 +1,21 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CTransform.hpp"
-#include "CMapArea.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class IWorld;
 class CMapWorldInfo;
 class CStateManager;
+class IWorld;
+
 class CMapWorld {
 public:
   /* skDrawProfileItemNames; */

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CBasics.hpp"
-#include "CStaticInterference.hpp"
-#include "IOStreams.hpp"
-#include "rstl.hpp"
-#include "World/CHealthInfo.hpp"
+#include <string_view>
 #include <unordered_map>
+#include <vector>
+
+#include "Runtime/CStaticInterference.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
 
 namespace urde {
 
@@ -88,8 +90,6 @@ public:
 
 private:
   static const std::unordered_map<std::string_view, EItemType> g_TypeNameMap;
-  static const u32 PowerUpMaxValues[41];
-  static const char* PowerUpNames[41];
   struct CPowerUp {
     u32 x0_amount = 0;
     u32 x4_capacity = 0;
@@ -174,7 +174,7 @@ public:
   CPlayerState();
   CPlayerState(CBitStreamReader& stream);
   void PutTo(CBitStreamWriter& stream);
-  static u32 GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[u32(type)]; }
+  static u32 GetPowerUpMaxValue(EItemType type);
   static EItemType ItemNameToType(std::string_view name);
   bool CanTakeDamage() const { return m_canTakeDamage; }
   void SetCanTakeDamage(bool c) { m_canTakeDamage = c; }

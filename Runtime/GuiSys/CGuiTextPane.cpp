@@ -1,10 +1,11 @@
-#include "CGuiTextPane.hpp"
-#include "CFontImageDef.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiSys.hpp"
-#include "CGuiWidgetDrawParms.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CGraphicsPalette.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CGraphicsPalette.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

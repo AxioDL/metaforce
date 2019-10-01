@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CInGameTweakManagerBase.hpp"
+#include "Runtime/CInGameTweakManagerBase.hpp"
 
 namespace urde::MP1 {
 

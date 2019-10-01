@@ -1,7 +1,13 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CDamageInfo.hpp"
+#include <list>
+#include <string_view>
+
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

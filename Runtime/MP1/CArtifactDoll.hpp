@@ -1,9 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Character/CActorLights.hpp"
-#include "CToken.hpp"
-#include "CPlayerState.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CActorLights.hpp"
 
 namespace urde {
 class CModel;

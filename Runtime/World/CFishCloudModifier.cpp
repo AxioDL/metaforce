@@ -2,7 +2,7 @@
 #include "CFishCloud.hpp"
 #include "CStateManager.hpp"
 #include "CActorParameters.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CFishCloudModifier::CFishCloudModifier(TUniqueId uid, bool active, std::string_view name, const CEntityInfo& eInfo,

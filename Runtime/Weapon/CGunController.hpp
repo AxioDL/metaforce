@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Character/CModelData.hpp"
-#include "CGSFreeLook.hpp"
-#include "CGSComboFire.hpp"
-#include "CGSFidget.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Weapon/CGSComboFire.hpp"
+#include "Runtime/Weapon/CGSFidget.hpp"
+#include "Runtime/Weapon/CGSFreeLook.hpp"
 
 namespace urde {
 enum class EGunState { Inactive, Default, FreeLook, ComboFire, Idle, Fidget, Strike, BigStrike };

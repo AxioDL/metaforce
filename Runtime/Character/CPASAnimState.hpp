@@ -1,8 +1,11 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CPASParmInfo.hpp"
-#include "CPASAnimInfo.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CPASAnimInfo.hpp"
+#include "Runtime/Character/CPASParmInfo.hpp"
 
 namespace urde {
 class CRandom16;

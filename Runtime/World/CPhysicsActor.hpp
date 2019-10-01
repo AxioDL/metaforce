@@ -1,7 +1,14 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "Collision/CCollidableAABox.hpp"
+#include <optional>
+
+#include "Runtime/Collision/CCollidableAABox.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/CAxisAngle.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionInfoList;

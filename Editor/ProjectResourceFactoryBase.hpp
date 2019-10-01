@@ -1,15 +1,20 @@
 #pragma once
 
-#include "hecl/ClientProcess.hpp"
-#include "hecl/Database.hpp"
-#include "Runtime/IFactory.hpp"
+#include <list>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <thread>
+#include <unordered_map>
+
+#include "DataSpec/SpecBase.hpp"
+
 #include "Runtime/CFactoryMgr.hpp"
 #include "Runtime/CResFactory.hpp"
-#include "DataSpec/SpecBase.hpp"
-#include <optional>
+#include "Runtime/IFactory.hpp"
 
-#include <thread>
-#include <mutex>
+#include <hecl/ClientProcess.hpp>
+#include <hecl/Database.hpp>
 
 namespace urde {
 

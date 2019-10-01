@@ -1,15 +1,18 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CAABox.hpp"
-#include "Graphics/CLight.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CBooModel;
-class CStateManager;
 class CGameArea;
+class CStateManager;
 
 class CActorLights {
   static s32 sFrameSchedulerCount;

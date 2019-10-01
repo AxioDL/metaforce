@@ -5,7 +5,7 @@
 #include "World/CPlayer.hpp"
 #include "World/CScriptGrapplePoint.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde::MP1 {
 CRipper::CRipper(TUniqueId uid, std::string_view name, EFlavorType type, const CEntityInfo& info,

@@ -359,14 +359,17 @@ void CMain::InitializeSubsystems() {
 }
 
 void CMain::MemoryCardInitializePump() {
-  if (!g_MemoryCardSys) {
-    std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
-    if (!memSys)
-      memSys.reset(new CMemoryCardSys());
-    if (memSys->InitializePump()) {
-      g_MemoryCardSys = memSys.get();
-      g_GameState->InitializeMemoryStates();
-    }
+  if (g_MemoryCardSys) {
+    return;
+  }
+
+  std::unique_ptr<CMemoryCardSys>& memSys = x128_globalObjects.x0_memoryCardSys;
+  if (!memSys) {
+    memSys = std::make_unique<CMemoryCardSys>();
+  }
+  if (memSys->InitializePump()) {
+    g_MemoryCardSys = memSys.get();
+    g_GameState->InitializeMemoryStates();
   }
 }
 
@@ -726,7 +729,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
   }
 
   FillInAssetIDs();
-  x164_archSupport.reset(new CGameArchitectureSupport(*this, voiceEngine, backend));
+  x164_archSupport = std::make_unique<CGameArchitectureSupport>(*this, voiceEngine, backend);
   g_archSupport = x164_archSupport.get();
   x164_archSupport->PreloadAudio();
   std::srand(static_cast<unsigned int>(std::time(nullptr)));

@@ -1,7 +1,7 @@
 #include "Weapon/CGameProjectile.hpp"
 #include "World/CGameLight.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CPlayer.hpp"
 #include "World/CHUDBillboardEffect.hpp"
 #include "World/CWallCrawlerSwarm.hpp"

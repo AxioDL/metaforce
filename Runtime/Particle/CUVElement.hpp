@@ -1,8 +1,12 @@
 #pragma once
 
-#include "IElement.hpp"
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Particle/IElement.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#UV_Elements */
 

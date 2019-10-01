@@ -346,6 +346,7 @@ bool ViewManager::proc() {
   if (m_rootSpaceView && m_editorFrames <= 30)
     m_rootSpaceView->setMultiplyColor(zeus::CColor::lerp({1, 1, 1, 0}, {1, 1, 1, 1}, m_editorFrames / 30.0));
 
+  m_cvarManager.proc();
   m_projManager.mainUpdate();
 
   if (m_testGameView)

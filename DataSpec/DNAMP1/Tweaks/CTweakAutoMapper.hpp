@@ -1,7 +1,12 @@
 #pragma once
 
-#include "../../DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
-#include "zeus/CVector3f.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakAutoMapper.hpp"
+
+#include <zeus/CVector3f.hpp>
+
+namespace hecl {
+class CVar;
+}
 
 namespace DataSpec::DNAMP1 {
 struct CTweakAutoMapper final : public ITweakAutoMapper {
@@ -132,5 +137,9 @@ struct CTweakAutoMapper final : public ITweakAutoMapper {
   const zeus::CColor& GetAreaFlashPulseColor() const override { return xf4_areaFlashPulseColor; }
   const zeus::CColor& GetDoorColor(int idx) const override { return x104_doorColors[idx]; }
   const zeus::CColor& GetOpenDoorColor() const override { return x11c_openDoorColor; }
+  void initCVars(hecl::CVarManager*) override;
+
+private:
+  void _tweakListener(hecl::CVar* cv);
 };
 } // namespace DataSpec::DNAMP1

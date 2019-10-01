@@ -1,7 +1,12 @@
 #pragma once
 
-#include "CAnimTreeSingleChild.hpp"
-#include "CTimeScaleFunctions.hpp"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CAnimTreeSingleChild.hpp"
+#include "Runtime/Character/CTimeScaleFunctions.hpp"
 
 namespace urde {
 

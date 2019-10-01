@@ -7,18 +7,29 @@
 namespace urde {
 
 static const char* skCommandDescs[] = {
-    "Forward",           "Backward",      "Turn Left",     "Turn Right",      "Strafe Left",     "Strafe Right",
-    "Look Left",         "Look Right",    "Look Up",       "Look Down",       "Jump/Boost",      "Fire/Bomb",
-    "Missile/PowerBomb", "Morph",         "Aim Up",        "Aim Down",        "Cycle Beam Up",   "Cycle Beam Down",
-    "Cycle Item",        "Power Beam",    "Ice Beam",      "Wave Beam",       "Plasma Beam",     "Toggle Holster",
-    "Orbit Close",       "Orbit Far",     "Orbit Object",  "Orbit Select",    "Orbit Confirm",   "Orbit Left",
-    "Orbit Right",       "Orbit Up",      "Orbit Down",    "Look Hold1",      "Look Hold2",      "Look Zoom In",
-    "Look Zoom Out",     "Aim Hold",      "Map Circle Up", "Map Circle Down", "Map Circle Left", "Map Circle Right",
-    "Map Move Forward",  "Map Move Back", "Map Move Left", "Map Move Right",  "Map Zoom In",     "Map Zoom Out",
-    "SpiderBall",        "Chase Camera",  "XRay Visor",    "Thermo Visor",    "Enviro Visor",    "No Visor",
-    "Visor Menu",        "Visor Up",      "Visor Down",    "UNKNOWN",         "UNKNOWN",         "Use Shield",
-    "Scan Item",         "UNKNOWN"
-
+    "Forward",           "Backward",        "Turn Left",
+    "Turn Right",        "Strafe Left",     "Strafe Right",
+    "Look Left",         "Look Right",      "Look Up",
+    "Look Down",         "Jump/Boost",      "Fire/Bomb",
+    "Missile/PowerBomb", "Morph",           "Aim Up",
+    "Aim Down",          "Cycle Beam Up",   "Cycle Beam Down",
+    "Cycle Item",        "Power Beam",      "Ice Beam",
+    "Wave Beam",         "Plasma Beam",     "Toggle Holster",
+    "Orbit Close",       "Orbit Far",       "Orbit Object",
+    "Orbit Select",      "Orbit Confirm",   "Orbit Left",
+    "Orbit Right",       "Orbit Up",        "Orbit Down",
+    "Look Hold1",        "Look Hold2",      "Look Zoom In",
+    "Look Zoom Out",     "Aim Hold",        "Map Circle Up",
+    "Map Circle Down",   "Map Circle Left", "Map Circle Right",
+    "Map Move Forward",  "Map Move Back",   "Map Move Left",
+    "Map Move Right",    "Map Zoom In",     "Map Zoom Out",
+    "SpiderBall",        "Chase Camera",    "XRay Visor",
+    "Thermo Visor",      "Enviro Visor",    "No Visor",
+    "Visor Menu",        "Visor Up",        "Visor Down",
+    "UNKNOWN",           "UNKNOWN",         "Use Shield",
+    "Scan Item",         "UNKNOWN",         "UNKNOWN",
+    "UNKNOWN",           "UNKNOWN",         "Previous Pause Screen",
+    "Next Pause Screen", "UNKNOWN",         "None",
 };
 
 static const char* skFunctionDescs[] = {"None",
@@ -359,14 +370,16 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
 }
 
 const char* ControlMapper::GetDescriptionForCommand(ECommands cmd) {
-  if (cmd > ECommands::MAX)
+  if (cmd >= ECommands::MAX) {
     return nullptr;
+  }
   return skCommandDescs[int(cmd)];
 }
 
 const char* ControlMapper::GetDescriptionForFunction(EFunctionList func) {
-  if (func > EFunctionList::MAX)
+  if (func >= EFunctionList::MAX) {
     return nullptr;
+  }
   return skFunctionDescs[int(func)];
 }
 

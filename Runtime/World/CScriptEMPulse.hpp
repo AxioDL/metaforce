@@ -1,11 +1,12 @@
-#ifndef __URDE_CSCRIPTEMPULSE_HPP__
-#define __URDE_CSCRIPTEMPULSE_HPP__
+#pragma once
 
-#include "CActor.hpp"
+#include <memory>
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
-class CGenDescription;
 class CElementGen;
+class CGenDescription;
+
 class CScriptEMPulse : public CActor {
   float xe8_duration;
   float xec_finalRadius;
@@ -32,4 +33,3 @@ public:
   void Touch(CActor&, CStateManager&) override;
 };
 } // namespace urde
-#endif // __URDE_CSCRIPTEMPULSE_HPP__

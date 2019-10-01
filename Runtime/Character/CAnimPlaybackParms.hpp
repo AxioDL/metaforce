@@ -1,7 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CQuaternion.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CAnimPlaybackParms {

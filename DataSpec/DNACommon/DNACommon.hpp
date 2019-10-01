@@ -17,9 +17,9 @@ extern ThreadLocalPtr<class PAKRouterBase> g_PakRouter;
 extern ThreadLocalPtr<hecl::blender::Token> g_ThreadBlenderToken;
 
 /* This comes up a great deal */
-typedef athena::io::DNA<athena::Big> BigDNA;
-typedef athena::io::DNAV<athena::Big> BigDNAV;
-typedef athena::io::DNAVYaml<athena::Big> BigDNAVYaml;
+using BigDNA = athena::io::DNA<athena::Endian::Big>;
+using BigDNAV = athena::io::DNAV<athena::Endian::Big>;
+using BigDNAVYaml = athena::io::DNAVYaml<athena::Endian::Big>;
 
 /** FourCC with DNA read/write */
 using DNAFourCC = hecl::DNAFourCC;

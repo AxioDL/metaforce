@@ -1,8 +1,12 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "CAnimationParameters.hpp"
-#include "zeus/CVector3f.hpp"
+#include <string_view>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CAnimationParameters.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

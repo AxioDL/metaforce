@@ -7,7 +7,7 @@
 #include "CPlayerState.hpp"
 #include "World/CPlayer.hpp"
 #include "DataSpec/DNAMP1/SFX/Weapons.h"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 
@@ -24,7 +24,7 @@ CPowerBomb::CPowerBomb(const TToken<CGenDescription>& particle, TUniqueId uid, T
 , x158_24_canStartFilter(true)
 , x158_25_filterEnabled(false)
 , x164_radiusIncrement(dInfo.GetRadius() / 2.5f)
-, x168_particle(new CElementGen(particle))
+, x168_particle(std::make_unique<CElementGen>(particle))
 , x16c_radius(dInfo.GetRadius()) {
   x168_particle->SetGlobalTranslation(GetTranslation());
 }

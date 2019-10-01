@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
 
 namespace urde {
 
@@ -22,7 +25,7 @@ class CScriptDock : public CPhysicsActor {
   };
 
 public:
-  CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f position,
+  CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& position,
               const zeus::CVector3f& extent, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
               bool loadConnected);
 

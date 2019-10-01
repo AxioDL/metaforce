@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CRipple {

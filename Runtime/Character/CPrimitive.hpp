@@ -1,7 +1,9 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "RetroTypes.hpp"
+#include <string>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 

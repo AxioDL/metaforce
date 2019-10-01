@@ -1,6 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
 
 namespace urde {
 enum class ERumbleFxId {
@@ -34,12 +37,12 @@ struct SAdsrData {
       bool x18_24_hasSustain : 1;
       bool x18_25_autoRelease : 1;
     };
-    u8 dummy = 0;
+    u32 dummy = 0;
   };
 
-  SAdsrData() = default;
-  SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
-            float releaseDur, bool hasSustain, bool autoRelease)
+  constexpr SAdsrData() noexcept { x18_24_hasSustain = false; x18_25_autoRelease = false; };
+  constexpr SAdsrData(float attackGain, float autoReleaseDur, float attackDur, float decayDur, float sustainGain,
+                      float releaseDur, bool hasSustain, bool autoRelease) noexcept
   : x0_attackGain(attackGain)
   , x4_autoReleaseDur(autoReleaseDur)
   , x8_attackDur(attackDur)
@@ -59,17 +62,17 @@ struct SAdsrDelta {
   float x8_decayTime = 0.f;
   float xc_releaseTime = 0.f;
   float x10_autoReleaseTime = 0.f;
-  float x14_attackIntensity;
-  float x18_sustainIntensity;
+  float x14_attackIntensity = 0.f;
+  float x18_sustainIntensity = 0.f;
   ERumblePriority x1c_priority;
   EPhase x20_phase;
 
-  SAdsrDelta(EPhase phase, ERumblePriority priority)
+  constexpr SAdsrDelta(EPhase phase, ERumblePriority priority) noexcept
   : x0_curIntensity(phase == EPhase::PrePulse ? 2.f : 0.f), x1c_priority(priority), x20_phase(phase) {}
-  SAdsrDelta(EPhase phase) : x1c_priority(ERumblePriority::None), x20_phase(phase) {}
+  constexpr SAdsrDelta(EPhase phase) noexcept : x1c_priority(ERumblePriority::None), x20_phase(phase) {}
 
-  static SAdsrDelta Stopped() { return SAdsrDelta(EPhase::Stop); }
-  static SAdsrDelta Start(ERumblePriority priority, bool prePulse) {
+  static constexpr SAdsrDelta Stopped() noexcept { return SAdsrDelta(EPhase::Stop); }
+  static constexpr SAdsrDelta Start(ERumblePriority priority, bool prePulse) noexcept {
     return SAdsrDelta(prePulse ? EPhase::PrePulse : EPhase::Attack, priority);
   }
 };

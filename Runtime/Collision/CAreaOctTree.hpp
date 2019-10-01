@@ -1,10 +1,15 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "Collision/CCollisionEdge.hpp"
-#include "Collision/CCollisionSurface.hpp"
-#include "zeus/CLine.hpp"
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollisionEdge.hpp"
+#include "Runtime/Collision/CCollisionSurface.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CLine.hpp>
+#include <zeus/CPlane.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CMaterialFilter;

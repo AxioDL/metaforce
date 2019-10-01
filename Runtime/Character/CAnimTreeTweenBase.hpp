@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CAnimTreeDoubleChild.hpp"
+#include <memory>
+#include <utility>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CAnimTreeDoubleChild.hpp"
 
 namespace urde {
 

@@ -1,6 +1,13 @@
 #pragma once
 
-#include "CGameProjectile.hpp"
+#include <memory>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

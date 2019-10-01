@@ -1,15 +1,22 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CIOWin.hpp"
-#include "CToken.hpp"
-#include "GuiSys/CGuiTextSupport.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Audio/CSfxManager.hpp"
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "Runtime/CIOWin.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/GuiSys/CGuiTextSupport.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
-class CTexture;
 class CDependencyGroup;
+class CTexture;
 
 class CSlideShow : public CIOWin {
 public:

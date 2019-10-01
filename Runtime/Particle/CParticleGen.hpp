@@ -1,12 +1,15 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "Graphics/CLight.hpp"
-#include "zeus/CColor.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CAABox.hpp"
 #include <list>
+#include <optional>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CLight.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CWarp;

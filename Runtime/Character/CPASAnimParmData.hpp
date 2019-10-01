@@ -1,6 +1,8 @@
 #pragma once
-#include "RetroTypes.hpp"
-#include "CPASAnimParm.hpp"
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CPASAnimParm.hpp"
 
 namespace urde {
 class CPASAnimParmData {

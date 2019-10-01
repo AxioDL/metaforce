@@ -1,12 +1,22 @@
 #pragma once
 
-#include "CPlayerState.hpp"
-#include "CToken.hpp"
-#include "Character/CModelData.hpp"
-#include "Character/CAnimCharacterSet.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Character/CActorLights.hpp"
-#include "Audio/CSfxManager.hpp"
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+
+#include <zeus/CRelAngle.hpp>
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CDependencyGroup;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CPOINode.hpp"
-#include "CCharAnimTime.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
+#include "Runtime/Character/CPOINode.hpp"
 
 namespace urde {
 class IAnimSourceInfo;

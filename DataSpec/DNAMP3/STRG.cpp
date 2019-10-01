@@ -42,7 +42,7 @@ void STRG::_read(athena::io::IStreamReader& reader) {
   for (atUint32 l = 0; l < langCount; ++l) {
     std::vector<std::string> strs;
     for (atUint32 s = 0; s < strCount; ++s) {
-      reader.seek(strBase + strOffs[l * strCount + s], athena::Begin);
+      reader.seek(strBase + strOffs[l * strCount + s], athena::SeekOrigin::Begin);
       atUint32 len = reader.readUint32Big();
       strs.emplace_back(reader.readString(len));
     }

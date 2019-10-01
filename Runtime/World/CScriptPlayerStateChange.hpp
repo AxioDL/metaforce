@@ -1,6 +1,9 @@
 #pragma once
 
-#include "World/CEntity.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CEntity.hpp"
 
 namespace urde {
 class CScriptPlayerStateChange : public CEntity {

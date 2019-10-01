@@ -1,8 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CColor.hpp"
-#include "Character/CActorLights.hpp"
+#include <memory>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 
@@ -72,18 +76,21 @@ public:
   }
 
   std::unique_ptr<CActorLights> MakeActorLights() const {
-    if (!x1c_makeLights)
-      return {};
+    if (!x1c_makeLights) {
+      return nullptr;
+    }
 
-    u32 updateFrames = GetFramesBetweenRecalculation(x24_lightRecalcOpts);
-    CActorLights* lights = new CActorLights(updateFrames, x2c_actorPosBias, x38_maxDynamicLights, x3c_maxAreaLights,
-                                            x1d_ambientChannelOverflow, x28_layerIdx == 1,
-                                            x20_worldLightingOptions == EWorldLightingOptions::DisableWorld, 0.1f);
-    if (x20_worldLightingOptions == EWorldLightingOptions::NoShadowCast)
+    const u32 updateFrames = GetFramesBetweenRecalculation(x24_lightRecalcOpts);
+    auto lights = std::make_unique<CActorLights>(updateFrames, x2c_actorPosBias, x38_maxDynamicLights,
+                                                 x3c_maxAreaLights, x1d_ambientChannelOverflow, x28_layerIdx == 1,
+                                                 x20_worldLightingOptions == EWorldLightingOptions::DisableWorld, 0.1f);
+    if (x20_worldLightingOptions == EWorldLightingOptions::NoShadowCast) {
       lights->SetCastShadows(false);
-    if (x3c_maxAreaLights == 0)
+    }
+    if (x3c_maxAreaLights == 0) {
       lights->SetAmbientColor(x18_noLightsAmbient);
-    return std::unique_ptr<CActorLights>(lights);
+    }
+    return lights;
   }
   const zeus::CColor& GetNoLightsAmbient() const { return x18_noLightsAmbient; }
 };

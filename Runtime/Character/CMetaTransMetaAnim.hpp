@@ -1,8 +1,10 @@
 #pragma once
 
-#include "IMetaTrans.hpp"
-#include "IMetaAnim.hpp"
-#include "IOStreams.hpp"
+#include <memory>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/IMetaAnim.hpp"
+#include "Runtime/Character/IMetaTrans.hpp"
 
 namespace urde {
 

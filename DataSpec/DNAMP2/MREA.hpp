@@ -69,7 +69,7 @@ struct MREA {
     Value<atUint32> unk3SecIdx;
     Value<atUint32> egmcSecIdx;
     Value<atUint32> compressedBlockCount;
-    Seek<12, athena::Current> align1;
+    Seek<12, athena::SeekOrigin::Current> align1;
     Vector<atUint32, AT_DNA_COUNT(secCount)> secSizes;
   };
 

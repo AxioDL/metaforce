@@ -1,6 +1,11 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
+#include <string_view>
+
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

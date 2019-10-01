@@ -1,7 +1,11 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CPASAnimState.hpp"
+#include <algorithm>
+#include <utility>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Character/CPASAnimState.hpp"
 
 namespace urde {
 

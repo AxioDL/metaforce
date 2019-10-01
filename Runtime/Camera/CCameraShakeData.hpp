@@ -1,7 +1,8 @@
 #pragma once
 
-#include "zeus/CVector3f.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CRandom16;

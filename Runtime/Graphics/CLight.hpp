@@ -1,8 +1,9 @@
 #pragma once
 
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "RetroTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

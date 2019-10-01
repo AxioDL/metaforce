@@ -1,16 +1,20 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CToken.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "CPlayerState.hpp"
+#include <vector>
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CActor;
 class CModel;
-class CStateManager;
 class CScriptGrapplePoint;
+class CStateManager;
 
 class CTargetReticleRenderState {
   TUniqueId x0_target;
@@ -61,22 +65,6 @@ public:
 private:
   enum class EReticleState { Combat, Scan, XRay, Thermal, Four, Unspecified };
 
-  static constexpr const char* skCrosshairsReticleAssetName = "CMDL_Crosshairs";
-  static constexpr const char* skOrbitZoneReticleAssetName = "CMDL_OrbitZone";
-  static constexpr const char* skSeekerAssetName = "CMDL_Seeker";
-  static constexpr const char* skLockConfirmAssetName = "CMDL_LockConfirm";
-  static constexpr const char* skTargetFlowerAssetName = "CMDL_TargetFlower";
-  static constexpr const char* skMissileBracketAssetName = "CMDL_MissileBracket";
-  static constexpr const char* skChargeGaugeAssetName = "CMDL_ChargeGauge";
-  static constexpr const char* skChargeBeamTickAssetName = "CMDL_ChargeTickFirst";
-  static constexpr const char* skOuterBeamIconSquareNameBase = "CMDL_BeamSquare";
-  static constexpr const char* skInnerBeamIconName = "CMDL_InnerBeamIcon";
-  static constexpr const char* skLockFireAssetName = "CMDL_LockFIre";
-  static constexpr const char* skLockDaggerAssetName = "CMDL_LockDagger0";
-  static constexpr const char* skGrappleReticleAssetName = "CMDL_Grapple";
-  static constexpr const char* skXRayRingModelName = "CMDL_XRayRetRing";
-  static constexpr const char* skThermalReticleAssetName = "CMDL_ThermalRet";
-  static constexpr const char* skOrbitPointAssetName = "CMDL_OrbitPoint";
   zeus::CQuaternion x0_leadingOrientation;
   zeus::CQuaternion x10_laggingOrientation;
   EReticleState x20_prevState = EReticleState::Unspecified;

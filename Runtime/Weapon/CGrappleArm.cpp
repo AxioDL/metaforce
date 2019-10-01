@@ -4,7 +4,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "World/CPlayer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CGameCamera.hpp"
 #include "Graphics/CSkinnedModel.hpp"
 #include "Graphics/CVertexMorphEffect.hpp"

@@ -1,12 +1,17 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "CAreaOctTree.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Collision/CAreaOctTree.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CLineSeg.hpp>
+#include <zeus/CVector3d.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CCollisionInfoList;
 class CCollisionInfo;
+class CCollisionInfoList;
 class CMaterialList;
 
 class CAABoxAreaCache {

@@ -1,16 +1,18 @@
 #pragma once
 
-#include "GCNTypes.hpp"
-#include "ScriptObjectSupport.hpp"
-#include "RetroTypes.hpp"
-#include "CEntity.hpp"
-#include "CPhysicsActor.hpp"
-#include "CDamageVulnerability.hpp"
-#include "CHealthInfo.hpp"
-#include "CStateMachine.hpp"
-#include "CKnockBackController.hpp"
+#include <string_view>
 
-#include "zeus/zeus.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CEntity.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+#include "Runtime/World/CKnockBackController.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+#include "Runtime/World/CStateMachine.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
+
+#include <zeus/zeus.hpp>
 
 namespace urde {
 

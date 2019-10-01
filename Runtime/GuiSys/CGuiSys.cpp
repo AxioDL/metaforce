@@ -1,21 +1,22 @@
-#include "CGuiSys.hpp"
-#include "CGuiWidget.hpp"
-#include "CGuiHeadWidget.hpp"
-#include "CGuiLight.hpp"
-#include "CGuiCamera.hpp"
-#include "CGuiGroup.hpp"
-#include "CGuiPane.hpp"
-#include "CAuiImagePane.hpp"
-#include "CAuiMeter.hpp"
-#include "CGuiModel.hpp"
-#include "CGuiTableGroup.hpp"
-#include "CGuiSliderGroup.hpp"
-#include "CGuiTextPane.hpp"
-#include "CAuiEnergyBarT01.hpp"
-#include "CTextParser.hpp"
-#include "CSimplePool.hpp"
-#include "CTextExecuteBuffer.hpp"
-#include "CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiSys.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
+#include "Runtime/GuiSys/CAuiImagePane.hpp"
+#include "Runtime/GuiSys/CAuiMeter.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiGroup.hpp"
+#include "Runtime/GuiSys/CGuiHeadWidget.hpp"
+#include "Runtime/GuiSys/CGuiLight.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiPane.hpp"
+#include "Runtime/GuiSys/CGuiSliderGroup.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
+#include "Runtime/GuiSys/CTextParser.hpp"
 
 namespace urde {
 
@@ -61,8 +62,8 @@ CGuiSys::CGuiSys(IFactory& resFactory, CSimplePool& resStore, EUsageMode mode)
 : x0_resFactory(resFactory)
 , x4_resStore(resStore)
 , x8_mode(mode)
-, xc_textExecuteBuf(new CTextExecuteBuffer())
-, x10_textParser(new CTextParser(resStore)) {
+, xc_textExecuteBuf(std::make_unique<CTextExecuteBuffer>())
+, x10_textParser(std::make_unique<CTextParser>(resStore)) {
   g_TextExecuteBuf = xc_textExecuteBuf.get();
   g_TextParser = x10_textParser.get();
 }

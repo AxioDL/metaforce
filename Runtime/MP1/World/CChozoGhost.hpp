@@ -1,8 +1,13 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Character/CBoneTracking.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 class CChozoGhost : public CPatterned {

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CEnergyDrainSource.hpp"
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/World/CEnergyDrainSource.hpp"
 
 namespace urde {
 class CStateManager;

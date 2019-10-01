@@ -1,8 +1,10 @@
 #pragma once
 
-#include "GCNTypes.hpp"
-#include "Input/CFinalInput.hpp"
-#include "rstl.hpp"
+#include <memory>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
 
 namespace urde {
 class CIOWin;

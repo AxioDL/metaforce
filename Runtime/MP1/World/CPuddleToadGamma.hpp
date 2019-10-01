@@ -1,7 +1,12 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Collision/CCollidableOBBTreeGroup.hpp"
+#include <memory>
+#include <string_view>
+
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/World/CPatterned.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 

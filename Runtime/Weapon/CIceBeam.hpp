@@ -1,6 +1,8 @@
 #pragma once
 
-#include "CGunWeapon.hpp"
+#include <memory>
+
+#include "Runtime/Weapon/CGunWeapon.hpp"
 
 namespace urde {
 

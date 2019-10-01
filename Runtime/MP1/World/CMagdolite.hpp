@@ -1,7 +1,7 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "Character/CBoneTracking.hpp"
+#include "Runtime/Character/CBoneTracking.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde::MP1 {
 class CMagdolite : public CPatterned {

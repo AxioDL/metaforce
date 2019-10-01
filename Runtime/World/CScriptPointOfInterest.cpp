@@ -2,11 +2,11 @@
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 
-CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, std::string_view name, const CEntityInfo info,
+CScriptPointOfInterest::CScriptPointOfInterest(TUniqueId uid, std::string_view name, const CEntityInfo& info,
                                                const zeus::CTransform& xf, bool active,
                                                const CScannableParameters& parms, float f1)
 : CActor(uid, active, name, info, xf, CModelData::CModelDataNull(), CMaterialList(u64(EMaterialTypes::Orbit)),

@@ -1,18 +1,26 @@
-#include "CPlayerState.hpp"
-#include "IOStreams.hpp"
-#include "zeus/Math.hpp"
-#include "CStateManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CFirstPersonCamera.hpp"
-#include "CMemoryCardSys.hpp"
-#include "GameGlobalObjects.hpp"
-#include "TCastTo.hpp"
+#include "Runtime/CPlayerState.hpp"
+
+#include <algorithm>
+#include <array>
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CFirstPersonCamera.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
+
+#include <zeus/Math.hpp>
 
 namespace urde {
-const u32 CPlayerState::PowerUpMaxValues[41] = {1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                                                1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+namespace {
+constexpr std::array<u32, 41> PowerUpMaxValues{
+    1, 1, 1, 1,  250, 1, 1, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 14, 1,   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
 
-const char* CPlayerState::PowerUpNames[41] = {
+[[maybe_unused]] constexpr std::array<const char*, 41> PowerUpNames{
     "Power Beam",
     "Ice Beam",
     "Wave Beam",
@@ -56,6 +64,15 @@ const char* CPlayerState::PowerUpNames[41] = {
     "Artifact of Newborn",
 };
 
+constexpr std::array<u32, 5> costs{
+    5, 10, 10, 10, 1,
+};
+
+constexpr std::array<float, 5> ComboAmmoPeriods{
+    0.2f, 0.1f, 0.2f, 0.2f, 1.f,
+};
+} // Anonymous namespace
+
 CPlayerState::CPlayerState() : x188_staticIntf(5) {
   x0_24_alive = true;
   x24_powerups.resize(41);
@@ -73,12 +90,13 @@ CPlayerState::CPlayerState(CBitStreamReader& stream) : x188_staticIntf(5) {
   x8_currentBeam = EBeamId(stream.ReadEncoded(CBitStreamReader::GetBitCount(5)));
   x20_currentSuit = EPlayerSuit(stream.ReadEncoded(CBitStreamReader::GetBitCount(4)));
   x24_powerups.resize(41);
-  for (u32 i = 0; i < x24_powerups.size(); ++i) {
-    if (PowerUpMaxValues[i] == 0)
+  for (size_t i = 0; i < x24_powerups.size(); ++i) {
+    if (PowerUpMaxValues[i] == 0) {
       continue;
+    }
 
-    u32 a = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
-    u32 b = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
+    const u32 a = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
+    const u32 b = u32(stream.ReadEncoded(CBitStreamReader::GetBitCount(PowerUpMaxValues[i])));
     x24_powerups[i] = CPowerUp(a, b);
   }
 
@@ -103,7 +121,7 @@ void CPlayerState::PutTo(CBitStreamWriter& stream) {
   stream.WriteEncoded(hp.iHP, 32);
   stream.WriteEncoded(u32(x8_currentBeam), CBitStreamWriter::GetBitCount(5));
   stream.WriteEncoded(u32(x20_currentSuit), CBitStreamWriter::GetBitCount(4));
-  for (u32 i = 0; i < x24_powerups.size(); ++i) {
+  for (size_t i = 0; i < x24_powerups.size(); ++i) {
     const CPowerUp& pup = x24_powerups[i];
     stream.WriteEncoded(pup.x0_amount, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
     stream.WriteEncoded(pup.x4_capacity, CBitStreamWriter::GetBitCount(PowerUpMaxValues[i]));
@@ -120,13 +138,9 @@ void CPlayerState::PutTo(CBitStreamWriter& stream) {
   stream.WriteEncoded(x180_scanCompletionRate.second, CBitStreamWriter::GetBitCount(0x100));
 }
 
-static const u32 costs[] = {5, 10, 10, 10, 1};
+u32 CPlayerState::GetMissileCostForAltAttack() const { return costs[size_t(x8_currentBeam)]; }
 
-u32 CPlayerState::GetMissileCostForAltAttack() const { return costs[u32(x8_currentBeam)]; }
-
-static const float ComboAmmoPeriods[] = {0.2f, 0.1f, 0.2f, 0.2f, 1.f};
-
-float CPlayerState::GetComboFireAmmoPeriod() const { return ComboAmmoPeriods[u32(x8_currentBeam)]; }
+float CPlayerState::GetComboFireAmmoPeriod() const { return ComboAmmoPeriods[size_t(x8_currentBeam)]; }
 
 u32 CPlayerState::CalculateItemCollectionRate() const {
   u32 total = GetItemCapacity(EItemType::PowerBombs);
@@ -372,6 +386,8 @@ void CPlayerState::InitializeScanTimes() {
   for (const auto& state : scanStates)
     x170_scanTimes.emplace_back(state.first, 0.f);
 }
+
+u32 CPlayerState::GetPowerUpMaxValue(EItemType type) { return PowerUpMaxValues[size_t(type)]; }
 
 const std::unordered_map<std::string_view, CPlayerState::EItemType> CPlayerState::g_TypeNameMap = {
     {"powerbeam"sv, EItemType::PowerBeam},

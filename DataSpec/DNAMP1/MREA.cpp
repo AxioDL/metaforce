@@ -46,7 +46,7 @@ void MREA::AddCMDLRigPairs(PAKEntryReadStream& rs, PAKRouter<PAKBridge>& pakRout
   atUint64 secStart = rs.position();
   while (curSec != head.sclySecIdx)
     secStart += head.secSizes[curSec++];
-  rs.seek(secStart, athena::Begin);
+  rs.seek(secStart, athena::SeekOrigin::Begin);
   SCLY scly;
   scly.read(rs);
   scly.addCMDLRigPairs(pakRouter, charAssoc);
@@ -65,7 +65,7 @@ UniqueID32 MREA::GetPATHId(PAKEntryReadStream& rs) {
     secStart += head.secSizes[curSec++];
   if (!head.secSizes[curSec])
     return {};
-  rs.seek(secStart, athena::Begin);
+  rs.seek(secStart, athena::SeekOrigin::Begin);
   return {rs};
 }
 
@@ -81,7 +81,7 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::MemoryR
       offsets[i] = r.readUint32Big();
     u32 dataStart = r.position();
     for (int i = 0; i < 8; ++i) {
-      r.seek(dataStart + offsets[i], athena::Begin);
+      r.seek(dataStart + offsets[i], athena::SeekOrigin::Begin);
       int chFlags = (flags >> (i * 2)) & 0x3;
 
       zeus::CAABox pos, neg, res;
@@ -231,7 +231,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   atUint64 secStart = rs.position();
   matSet.read(rs);
   matSet.readToBlender(os, pakRouter, entry, 0);
-  rs.seek(secStart + head.secSizes[0], athena::Begin);
+  rs.seek(secStart + head.secSizes[0], athena::SeekOrigin::Begin);
   std::vector<DNACMDL::VertexAttributes> vertAttribs;
   DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -241,7 +241,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     MeshHeader mHeader;
     secStart = rs.position();
     mHeader.read(rs);
-    rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     curSec += DNACMDL::ReadGeomSectionsToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1>(
         os, rs, pakRouter, entry, dummy, true, true, vertAttribs, m, head.secCount, 0, &head.secSizes[curSec]);
     os.format(fmt(
@@ -255,14 +255,14 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Skip AROT */
   secStart = rs.position();
-  rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Read SCLY layers */
   secStart = rs.position();
   SCLY scly;
   scly.read(rs);
   scly.exportToLayerDirectories(entry, pakRouter, force);
-  rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Read collision meshes */
   DeafBabe collision;
@@ -270,32 +270,32 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   collision.read(rs);
   DeafBabe::BlenderInit(os);
   collision.sendToBlender(os);
-  rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Skip unknown section */
-  rs.seek(head.secSizes[curSec++], athena::Current);
+  rs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
 
   /* Read BABEDEAD Lights as Cycles emissives */
   secStart = rs.position();
   ReadBabeDeadToBlender_1_2(os, rs);
-  rs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+  rs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
   /* Dump VISI entities */
   secStart = rs.position();
   if (head.secSizes[curSec] && rs.readUint32Big() == 'VISI') {
     {
-      rs.seek(secStart, athena::Begin);
+      rs.seek(secStart, athena::SeekOrigin::Begin);
       auto visiData = rs.readUBytes(head.secSizes[curSec]);
       athena::io::FileWriter visiOut(outPath.getWithExtension(_SYS_STR(".visi"), true).getAbsolutePath());
       visiOut.writeUBytes(visiData.get(), head.secSizes[curSec]);
-      rs.seek(secStart + 4, athena::Begin);
+      rs.seek(secStart + 4, athena::SeekOrigin::Begin);
     }
 
     athena::io::YAMLDocWriter visiWriter("VISI");
     if (auto __vec = visiWriter.enterSubVector("entities")) {
-      rs.seek(18, athena::Current);
+      rs.seek(18, athena::SeekOrigin::Current);
       uint32_t entityCount = rs.readUint32Big();
-      rs.seek(8, athena::Current);
+      rs.seek(8, athena::SeekOrigin::Current);
       for (uint32_t i = 0; i < entityCount; ++i) {
         uint32_t entityId = rs.readUint32Big();
         visiWriter.writeUint32(entityId);
@@ -333,14 +333,14 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
   MaterialSet matSet;
   matSet.read(rs);
   matSet.nameTextures(pakRouter, fmt::format(fmt("MREA_{}"), entry.id).c_str(), -1);
-  rs.seek(secStart + head.secSizes[0], athena::Begin);
+  rs.seek(secStart + head.secSizes[0], athena::SeekOrigin::Begin);
 
   /* Skip to SCLY */
   atUint32 curSec = 1;
   secStart = rs.position();
   while (curSec != head.sclySecIdx)
     secStart += head.secSizes[curSec++];
-  rs.seek(secStart, athena::Begin);
+  rs.seek(secStart, athena::SeekOrigin::Begin);
   SCLY scly;
   scly.read(rs);
   scly.nameIDs(pakRouter);
@@ -348,7 +348,7 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
   /* Skip to PATH */
   while (curSec != head.pathSecIdx)
     secStart += head.secSizes[curSec++];
-  rs.seek(secStart, athena::Begin);
+  rs.seek(secStart, athena::SeekOrigin::Begin);
 
   UniqueID32 pathID(rs);
   const nod::Node* node;

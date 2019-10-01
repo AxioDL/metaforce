@@ -1,11 +1,18 @@
 #pragma once
 
-#include "CStateManager.hpp"
+#include <array>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/rstl.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CStateManager;
+
 struct SBurst {
   s32 x0_randomSelectionWeight;
-  s32 x4_shotAngles[8];
+  std::array<s32, 8> x4_shotAngles;
   float x24_timeToNextShot;
   float x28_timeToNextShotVariance;
 };

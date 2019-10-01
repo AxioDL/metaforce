@@ -1,7 +1,12 @@
 #pragma once
 
-#include "Character/CModelData.hpp"
-#include "Character/CActorLights.hpp"
+#include <memory>
+
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/CModelData.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 

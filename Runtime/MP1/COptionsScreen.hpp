@@ -1,9 +1,11 @@
 #pragma once
 
-#include "CInGameGuiManager.hpp"
-#include "CPauseScreenBase.hpp"
-#include "CGameCubeDoll.hpp"
-#include "CQuitGameScreen.hpp"
+#include <memory>
+
+#include "Runtime/MP1/CGameCubeDoll.hpp"
+#include "Runtime/MP1/CInGameGuiManager.hpp"
+#include "Runtime/MP1/CPauseScreenBase.hpp"
+#include "Runtime/MP1/CQuitGameScreen.hpp"
 
 namespace urde::MP1 {
 

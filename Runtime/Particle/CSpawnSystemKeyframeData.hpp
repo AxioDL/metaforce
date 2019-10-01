@@ -1,7 +1,11 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CToken.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CSimplePool;

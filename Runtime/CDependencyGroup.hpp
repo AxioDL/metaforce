@@ -1,6 +1,7 @@
 #pragma once
 
-#include "CFactoryMgr.hpp"
+#include <vector>
+#include "Runtime/CFactoryMgr.hpp"
 
 namespace urde {
 class CDependencyGroup {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CPOINode.hpp"
+#include "Runtime/Character/CPOINode.hpp"
 
 namespace urde {
 class IAnimSourceInfo;

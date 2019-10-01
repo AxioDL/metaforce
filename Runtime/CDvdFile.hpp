@@ -1,12 +1,17 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "athena/FileReader.hpp"
-
-#include <thread>
-#include <mutex>
+#include <atomic>
 #include <condition_variable>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
 #include <unordered_map>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <athena/FileReader.hpp>
 
 namespace urde {
 

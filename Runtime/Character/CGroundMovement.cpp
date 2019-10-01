@@ -5,7 +5,7 @@
 #include "Collision/CollisionUtil.hpp"
 #include "Collision/CAABoxFilter.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CScriptPlatform.hpp"
 #include "World/CWorld.hpp"
 #include "World/CPlayer.hpp"
@@ -556,15 +556,14 @@ void CGroundMovement::MoveGroundCollider_New(CStateManager& mgr, CPhysicsActor& 
   std::unique_ptr<CCollisionPrimitive> prim;
   if (usePrim->GetPrimType() == FOURCC('AABX')) {
     const CCollidableAABox& existingAABB = static_cast<const CCollidableAABox&>(*usePrim);
-    prim.reset(
-        new CCollidableAABox(zeus::CAABox(existingAABB.GetBox().min + 0.0001f, existingAABB.GetBox().max - 0.0001f),
-                             usePrim->GetMaterial()));
+    prim = std::make_unique<CCollidableAABox>(
+        zeus::CAABox(existingAABB.GetBox().min + 0.0001f, existingAABB.GetBox().max - 0.0001f), usePrim->GetMaterial());
     usePrim = prim.get();
   } else if (usePrim->GetPrimType() == FOURCC('SPHR')) {
     const CCollidableSphere& existingSphere = static_cast<const CCollidableSphere&>(*usePrim);
-    prim.reset(new CCollidableSphere(
+    prim = std::make_unique<CCollidableSphere>(
         zeus::CSphere(existingSphere.GetSphere().position, existingSphere.GetSphere().radius - 0.0001f),
-        usePrim->GetMaterial()));
+        usePrim->GetMaterial());
     usePrim = prim.get();
   }
 

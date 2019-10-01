@@ -1,9 +1,15 @@
 #pragma once
 
-#include "GuiSys/CGuiWidget.hpp"
-#include "hecl/VertexBufferPool.hpp"
-#include "hecl/UniformBufferPool.hpp"
-#include "zeus/CVector2i.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <hecl/UniformBufferPool.hpp>
+#include <hecl/VertexBufferPool.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CMatrix4f.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGlyph;

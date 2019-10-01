@@ -12,7 +12,7 @@ CAuiEnergyBarT01::CAuiEnergyBarT01(const CGuiWidgetParms& parms, CSimplePool* sp
 }
 
 std::pair<zeus::CVector3f, zeus::CVector3f> CAuiEnergyBarT01::DownloadBarCoordFunc(float t) {
-  float x = 12.5 * t - 6.25;
+  const float x = 12.5f * t - 6.25f;
   return {zeus::CVector3f{x, 0.f, -0.2f}, zeus::CVector3f{x, 0.f, 0.2f}};
 }
 

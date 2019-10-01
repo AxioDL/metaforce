@@ -1,11 +1,12 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "rstl.hpp"
 #include <optional>
-#include "CToken.hpp"
-#include "CDecal.hpp"
-#include "zeus/CFrustum.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Particle/CDecal.hpp"
+#include <zeus/CFrustum.hpp>
 
 namespace urde {
 class CStateManager;

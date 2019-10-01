@@ -2,7 +2,7 @@
 #include "CBodyController.hpp"
 #include "World/CActor.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CPASAnimParmData.hpp"
 #include "World/CPatterned.hpp"
 

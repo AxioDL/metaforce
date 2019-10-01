@@ -1,9 +1,14 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CRandom16.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Graphics/CLineRenderer.hpp"
+#include <utility>
+#include <vector>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CStateManager;

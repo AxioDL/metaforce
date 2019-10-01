@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Camera/CCameraShakeData.hpp"
-#include "Weapon/CBeamInfo.hpp"
-#include "World/CDamageInfo.hpp"
-#include "World/CPatterned.hpp"
+#include <string_view>
+
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/Weapon/CBeamInfo.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
 
 namespace urde {
 namespace MP1 {

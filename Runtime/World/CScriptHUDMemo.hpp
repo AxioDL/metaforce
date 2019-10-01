@@ -1,10 +1,15 @@
 #pragma once
 
-#include "CEntity.hpp"
-#include "CHUDMemoParms.hpp"
-#include "CToken.hpp"
+#include <optional>
+#include <string_view>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/World/CEntity.hpp"
+#include "Runtime/World/CHUDMemoParms.hpp"
+
 namespace urde {
 class CStringTable;
+
 class CScriptHUDMemo : public CEntity {
 public:
   enum class EDisplayType {

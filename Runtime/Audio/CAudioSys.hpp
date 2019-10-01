@@ -1,15 +1,16 @@
 #pragma once
 
-#include "../GCNTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "amuse/amuse.hpp"
-#include "boo/audiodev/IAudioVoiceEngine.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/RetroTypes.hpp"
+
+#include <amuse/amuse.hpp>
+#include <boo/audiodev/IAudioVoiceEngine.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CSimplePool;
 class CAudioGroupSet;
+class CSimplePool;
 
 CFactoryFnReturn FAudioTranslationTableFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                                CObjectReference* selfRef);

@@ -6,7 +6,7 @@
 #include "GameGlobalObjects.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CElectricBeamProjectile::CElectricBeamProjectile(const TToken<CWeaponDescription>& wDesc, EWeaponType wType,
@@ -15,9 +15,9 @@ CElectricBeamProjectile::CElectricBeamProjectile(const TToken<CWeaponDescription
                                                  TAreaId areaId, TUniqueId owner, EProjectileAttrib attribs)
 : CBeamProjectile(wDesc, "ElectricBeamProjectile"sv, wType, xf, u32(elec.x8_maxLength), elec.xc_radius,
                   elec.x10_travelSpeed, matTypes, dInfo, uid, areaId, owner, attribs, false)
-, x468_electric(new CParticleElectric(elec.x0_electricDescription))
+, x468_electric(std::make_unique<CParticleElectric>(elec.x0_electricDescription))
 , x46c_genDescription(g_SimplePool->GetObj({SBIG('PART'), elec.x14_particleId}))
-, x478_elementGen(new CElementGen(x46c_genDescription))
+, x478_elementGen(std::make_unique<CElementGen>(x46c_genDescription))
 , x47c_(elec.x18_)
 , x488_(elec.x1c_) {
   x478_elementGen->SetParticleEmission(false);

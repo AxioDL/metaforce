@@ -1,8 +1,13 @@
 #pragma once
 
-#include "GCNTypes.hpp"
-#include "zeus/zeus.hpp"
-#include "CMaterialList.hpp"
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CMRay.hpp>
+#include <zeus/COBBox.hpp>
+#include <zeus/CSphere.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollisionInfoList;

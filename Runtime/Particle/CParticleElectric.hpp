@@ -1,14 +1,25 @@
 #pragma once
 
-#include "CParticleGen.hpp"
-#include "CToken.hpp"
-#include "CRandom16.hpp"
-#include "Graphics/CLineRenderer.hpp"
+#include <list>
+#include <memory>
+#include <optional>
+#include <vector>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Particle/CParticleGen.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CElectricDescription;
-class CParticleSwoosh;
 class CElementGen;
+class CParticleSwoosh;
 
 class CParticleElectric : public CParticleGen {
   static u16 g_GlobalSeed;

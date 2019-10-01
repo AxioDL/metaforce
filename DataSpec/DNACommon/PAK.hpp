@@ -18,12 +18,12 @@ namespace DataSpec {
 /** PAK entry stream reader */
 class PAKEntryReadStream : public athena::io::IStreamReader {
   std::unique_ptr<atUint8[]> m_buf;
-  atUint64 m_sz;
-  atUint64 m_pos;
+  atUint64 m_sz = 0;
+  atUint64 m_pos = 0;
 
 public:
-  PAKEntryReadStream() {}
-  operator bool() const { return m_buf.operator bool(); }
+  PAKEntryReadStream() = default;
+  explicit operator bool() const { return m_buf.operator bool(); }
   PAKEntryReadStream(const PAKEntryReadStream& other) = delete;
   PAKEntryReadStream(PAKEntryReadStream&& other) = default;
   PAKEntryReadStream& operator=(const PAKEntryReadStream& other) = delete;
@@ -34,14 +34,16 @@ public:
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
   }
   void seek(atInt64 pos, athena::SeekOrigin origin) override {
-    if (origin == athena::Begin)
+    if (origin == athena::SeekOrigin::Begin) {
       m_pos = pos;
-    else if (origin == athena::Current)
+    } else if (origin == athena::SeekOrigin::Current) {
       m_pos += pos;
-    else if (origin == athena::End)
+    } else if (origin == athena::SeekOrigin::End) {
       m_pos = m_sz + pos;
-    if (m_pos > m_sz)
+    }
+    if (m_pos > m_sz) {
       LogDNACommon.report(logvisor::Fatal, fmt("PAK stream cursor overrun"));
+    }
   }
   atUint64 position() const override { return m_pos; }
   atUint64 length() const override { return m_sz; }

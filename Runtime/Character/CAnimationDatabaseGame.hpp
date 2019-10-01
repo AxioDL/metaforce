@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CAnimationDatabase.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/Character/CAnimationDatabase.hpp"
 
 namespace urde {
 class CAnimation;

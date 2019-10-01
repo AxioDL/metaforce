@@ -1,49 +1,61 @@
 #pragma once
 
+#include <list>
+#include <map>
 #include <memory>
+#include <optional>
 #include <set>
-#include "CBasics.hpp"
-#include "World/ScriptObjectSupport.hpp"
-#include "GameObjectLists.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "Camera/CCameraFilter.hpp"
-#include "CRandom16.hpp"
-#include "zeus/CAABox.hpp"
-#include "Weapon/CWeaponMgr.hpp"
-#include "World/CAi.hpp"
-#include "CToken.hpp"
-#include "World/ScriptLoader.hpp"
-#include "Input/CFinalInput.hpp"
-#include "CSortedLists.hpp"
-#include "World/CFluidPlaneManager.hpp"
-#include "World/CEnvFxManager.hpp"
-#include "World/CActorModelParticles.hpp"
-#include "Input/CRumbleManager.hpp"
-#include "Camera/CCameraShakeData.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "Runtime/CBasics.hpp"
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CSortedLists.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Camera/CCameraShakeData.hpp"
+#include "Runtime/GameObjectLists.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+#include "Runtime/Input/CRumbleManager.hpp"
+#include "Runtime/Weapon/CWeaponMgr.hpp"
+#include "Runtime/World/CActorModelParticles.hpp"
+#include "Runtime/World/CAi.hpp"
+#include "Runtime/World/CEnvFxManager.hpp"
+#include "Runtime/World/CFluidPlaneManager.hpp"
+#include "Runtime/World/ScriptLoader.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector2i.hpp>
 
 namespace urde {
-class CRelayTracker;
-class CMapWorldInfo;
-class CPlayerState;
-class CWorldTransManager;
-class CObjectList;
-class CSortedListManager;
-class CFluidPlaneManager;
-class CEnvFxManager;
-class CActorModelParticles;
-class CTeamAiTypes;
-class CRumbleManager;
 class CActor;
-class CLight;
+class CActorModelParticles;
 class CDamageInfo;
+class CEnvFxManager;
+class CFluidPlaneManager;
+class CLight;
+class CMapWorldInfo;
 class CMaterialFilter;
-struct CFinalInput;
+class CObjectList;
 class CPlayer;
-class CWorld;
-class CTexture;
-class CWorldLayerState;
+class CPlayerState;
 class CProjectedShadow;
+class CRelayTracker;
+class CRumbleManager;
+class CSortedListManager;
+class CTeamAiTypes;
+class CTexture;
+class CWorld;
+class CWorldLayerState;
+class CWorldTransManager;
+
+struct CFinalInput;
 
 namespace MP1 {
 class CMFGameLoader;

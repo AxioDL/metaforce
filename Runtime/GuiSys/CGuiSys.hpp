@@ -1,22 +1,25 @@
 #pragma once
 
-#include "hecl/hecl.hpp"
-#include <unordered_map>
-#include <vector>
+#include <memory>
 #include <stack>
-#include "CSaveableState.hpp"
-#include "IOStreams.hpp"
+#include <unordered_set>
+#include <vector>
+
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/GuiSys/CSaveableState.hpp"
+
+#include <hecl/hecl.hpp>
 
 namespace urde {
-class CGuiObject;
-class CVParamTransfer;
-struct SObjectTag;
-class IFactory;
-class CSimplePool;
-class CGuiWidget;
 class CGuiFrame;
-class CTextParser;
+class CGuiObject;
+class CGuiWidget;
+class CSimplePool;
 class CTextExecuteBuffer;
+class CTextParser;
+class CVParamTransfer;
+class IFactory;
+struct SObjectTag;
 
 class CGuiSys {
   friend class CGuiFrame;

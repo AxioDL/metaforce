@@ -1,10 +1,15 @@
 #pragma once
 
-#include "IOStreams.hpp"
-#include "CFactoryMgr.hpp"
-#include "COBBTree.hpp"
-#include "zeus/CAABox.hpp"
-#include "CCollisionPrimitive.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CFactoryMgr.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/Collision/COBBTree.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollidableOBBTreeGroupContainer {

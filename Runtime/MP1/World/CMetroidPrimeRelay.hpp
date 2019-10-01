@@ -1,7 +1,12 @@
 #pragma once
 
-#include "World/CEntity.hpp"
-#include "CMetroidPrimeExo.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeExo.hpp"
+#include "Runtime/World/CEntity.hpp"
+
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde::MP1 {
 

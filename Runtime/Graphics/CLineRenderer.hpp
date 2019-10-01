@@ -1,13 +1,18 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CVector4f.hpp"
-#include "zeus/CColor.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "hecl/VertexBufferPool.hpp"
-#include "hecl/UniformBufferPool.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/UniformBufferPool.hpp>
+#include <hecl/VertexBufferPool.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
+#include <zeus/CVector4f.hpp>
 
 namespace urde {
 

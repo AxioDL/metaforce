@@ -1,19 +1,24 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "ScriptObjectSupport.hpp"
-#include "CGameArea.hpp"
-#include "Graphics/CModel.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "AutoMapper/CMapWorld.hpp"
-#include "CEnvFxManager.hpp"
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/AutoMapper/CMapWorld.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/World/CEnvFxManager.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/ScriptObjectSupport.hpp"
 
 namespace urde {
+class CAudioGroupSet;
 class CGameArea;
-class IObjectStore;
 class CResFactory;
 class IGameArea;
-class CAudioGroupSet;
+class IObjectStore;
 
 class IWorld {
 public:

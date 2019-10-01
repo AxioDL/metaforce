@@ -12,11 +12,11 @@ const CCollisionPrimitive::Type CCollidableOBBTreeGroup::sType(CCollidableOBBTre
 u32 CCollidableOBBTreeGroup::sTableIndex = -1;
 
 CCollidableOBBTreeGroupContainer::CCollidableOBBTreeGroupContainer(CInputStream& in) {
-  u32 treeCount = in.readUint32Big();
+  const u32 treeCount = in.readUint32Big();
   x0_trees.reserve(treeCount);
 
   for (u32 i = 0; i < treeCount; i++) {
-    std::unique_ptr<COBBTree> tree(new COBBTree(in));
+    auto tree = std::make_unique<COBBTree>(in);
     x0_trees.push_back(std::move(tree));
   }
 

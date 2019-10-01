@@ -1,18 +1,24 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CWeaponMgr.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "zeus/CVector3f.hpp"
-#include "CPlayerState.hpp"
-#include "Character/CAnimCharacterSet.hpp"
-#include "Particle/CElementGen.hpp"
-#include "CToken.hpp"
-#include "CStateManager.hpp"
-#include "CGunController.hpp"
-#include "WeaponCommon.hpp"
-#include "CGunMotion.hpp"
-#include "World/CDamageInfo.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Weapon/CGunController.hpp"
+#include "Runtime/Weapon/CGunMotion.hpp"
+#include "Runtime/Weapon/CWeaponMgr.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

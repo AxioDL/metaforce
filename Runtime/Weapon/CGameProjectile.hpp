@@ -1,13 +1,19 @@
 #pragma once
 
-#include "Collision/CMaterialList.hpp"
-#include "Weapon/CWeaponMode.hpp"
-#include "Weapon/CWeapon.hpp"
-#include "World/CDamageInfo.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "Weapon/CProjectileWeapon.hpp"
-#include "Collision/CRayCastResult.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Collision/CRayCastResult.hpp"
+#include "Runtime/Weapon/CProjectileWeapon.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
+#include "Runtime/Weapon/CWeaponMode.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CGenDescription;

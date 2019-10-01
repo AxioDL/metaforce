@@ -4,7 +4,7 @@
 #include "MP1/CArtifactDoll.hpp"
 #include "CExplosion.hpp"
 #include "CSimplePool.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CPlayer.hpp"
 #include "CGameState.hpp"
 #include "CGameOptions.hpp"

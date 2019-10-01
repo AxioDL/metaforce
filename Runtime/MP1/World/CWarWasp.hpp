@@ -1,9 +1,12 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "Weapon/CProjectileInfo.hpp"
-#include "Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CDamageInfo;

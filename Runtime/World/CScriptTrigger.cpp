@@ -1,7 +1,7 @@
 #include "CScriptTrigger.hpp"
 #include "CActorParameters.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CPlayer.hpp"
 #include "Weapon/CGameProjectile.hpp"
 #include "Camera/CGameCamera.hpp"

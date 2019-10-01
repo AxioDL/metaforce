@@ -1,8 +1,16 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "CToken.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
+
+namespace zeus {
+class CColor;
+}
 
 namespace urde {
 class CSimplePool;

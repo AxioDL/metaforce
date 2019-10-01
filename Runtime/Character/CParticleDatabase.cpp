@@ -336,16 +336,15 @@ void CParticleDatabase::AddAuxiliaryParticleEffect(std::string_view name, int fl
   else
     scaleVec = scale * data.GetScale();
 
-  std::unique_ptr<CParticleGenInfo> newGen;
   switch (data.GetTag().type.toUint32()) {
   case SBIG('PART'): {
-    auto search = x0_particleDescs.find(data.GetTag().id);
-    if (search != x0_particleDescs.end()) {
+    const auto search = x0_particleDescs.find(data.GetTag().id);
+    if (search != x0_particleDescs.cend()) {
       auto sys = std::make_shared<CElementGen>(*search->second);
-      newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), "NOT_A_VALID_LOCATOR",
-                                                         scaleVec, CParticleData::EParentedMode::Initial, flags, mgr,
-                                                         aid, lightId + _getGraphicLightId(sys, *search->second),
-                                                         EParticleGenType::Auxiliary);
+      auto newGen = std::make_unique<CParticleGenInfoGeneric>(
+          data.GetTag(), sys, data.GetDuration(), "NOT_A_VALID_LOCATOR", scaleVec,
+          CParticleData::EParentedMode::Initial, flags, mgr, aid, lightId + _getGraphicLightId(sys, *search->second),
+          EParticleGenType::Auxiliary);
 
       newGen->SetGlobalTranslation(data.GetTranslation(), mgr);
       newGen->SetIsGrabInitialData(false);
@@ -380,8 +379,8 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
   std::unique_ptr<CParticleGenInfo> newGen;
   switch (data.GetTag().type.toUint32()) {
   case SBIG('PART'): {
-    auto search = x0_particleDescs.find(data.GetTag().id);
-    if (search != x0_particleDescs.end()) {
+    const auto search = x0_particleDescs.find(data.GetTag().id);
+    if (search != x0_particleDescs.cend()) {
       auto sys = std::make_shared<CElementGen>(*search->second);
       newGen = std::make_unique<CParticleGenInfoGeneric>(
           data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(), scaleVec, data.GetParentedMode(), flags, mgr,
@@ -390,8 +389,8 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
     break;
   }
   case SBIG('SWHC'): {
-    auto search = x14_swooshDescs.find(data.GetTag().id);
-    if (search != x14_swooshDescs.end()) {
+    const auto search = x14_swooshDescs.find(data.GetTag().id);
+    if (search != x14_swooshDescs.cend()) {
       auto sys = std::make_shared<CParticleSwoosh>(*search->second, 0);
       newGen = std::make_unique<CParticleGenInfoGeneric>(data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(),
                                                          scaleVec, data.GetParentedMode(), flags, mgr, aid, -1,
@@ -400,8 +399,8 @@ void CParticleDatabase::AddParticleEffect(std::string_view name, int flags, cons
     break;
   }
   case SBIG('ELSC'): {
-    auto search = x28_electricDescs.find(data.GetTag().id);
-    if (search != x28_electricDescs.end()) {
+    const auto search = x28_electricDescs.find(data.GetTag().id);
+    if (search != x28_electricDescs.cend()) {
       auto sys = std::make_shared<CParticleElectric>(*search->second);
       newGen = std::make_unique<CParticleGenInfoGeneric>(
           data.GetTag(), sys, data.GetDuration(), data.GetSegmentName(), scaleVec, data.GetParentedMode(), flags, mgr,

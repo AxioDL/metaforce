@@ -1,21 +1,25 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CCharAnimTime.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CQuaternion.hpp"
-#include "CParticleData.hpp"
-#include "CToken.hpp"
-#include "CAllFormatsAnimSource.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Character/CAllFormatsAnimSource.hpp"
+#include "Runtime/Character/CCharAnimTime.hpp"
+#include "Runtime/Character/CParticleData.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CSegId;
 class CBoolPOINode;
 class CInt32POINode;
 class CParticlePOINode;
-class CSoundPOINode;
+class CSegId;
 class CSegIdList;
 class CSegStatementSet;
+class CSoundPOINode;
 
 struct SAdvancementDeltas {
   zeus::CVector3f x0_posDelta;

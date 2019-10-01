@@ -1,6 +1,6 @@
 #include "CScriptStreamedMusic.hpp"
 #include "CStringExtras.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "CStateManager.hpp"
 #include "CWorld.hpp"
 #include "CInGameTweakManagerBase.hpp"
@@ -10,8 +10,9 @@
 namespace urde {
 
 bool CScriptStreamedMusic::IsDSPFile(std::string_view fileName) {
-  if (!CStringExtras::CompareCaseInsensitive(fileName, "sw"))
+  if (CStringExtras::CompareCaseInsensitive(fileName, "sw")) {
     return true;
+  }
   return CStringExtras::IndexOfSubstring(fileName, ".dsp") != -1;
 }
 

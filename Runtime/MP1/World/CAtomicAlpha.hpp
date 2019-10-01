@@ -1,8 +1,11 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CPathFindSearch.hpp"
-#include "Weapon/CProjectileInfo.hpp"
+#include <string>
+
+#include "Runtime/rstl.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
 
 namespace urde::MP1 {
 class CAtomicAlpha : public CPatterned {

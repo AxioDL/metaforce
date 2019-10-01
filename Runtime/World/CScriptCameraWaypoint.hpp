@@ -1,6 +1,9 @@
 #pragma once
 
-#include "CActor.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
 
 namespace urde {
 

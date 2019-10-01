@@ -5,7 +5,7 @@
 #include "CPlayer.hpp"
 #include "GameGlobalObjects.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool active, TUniqueId owner,
@@ -14,7 +14,7 @@ CFire::CFire(TToken<CGenDescription> effect, TUniqueId uid, TAreaId aId, bool ac
              float f3, float f4)
 : CActor(uid, active, "Fire"sv, CEntityInfo(aId, NullConnectionList), xf, CModelData::CModelDataNull(),
          CMaterialList(EMaterialTypes::Projectile), CActorParameters::None(), owner)
-, xe8_(new CElementGen(effect))
+, xe8_(std::make_unique<CElementGen>(effect))
 , xec_ownerId(owner)
 , xf0_damageInfo(dInfo)
 , x10c_damageInfo(dInfo)

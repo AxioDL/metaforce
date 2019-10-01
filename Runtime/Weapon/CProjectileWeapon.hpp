@@ -1,20 +1,27 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CRandom16.hpp"
-#include "CToken.hpp"
-#include "zeus/CVector3f.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CParticleSwoosh.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CSwooshDescription.hpp"
-#include "Particle/CWeaponDescription.hpp"
-#include "Collision/CCollisionResponseData.hpp"
+#include <memory>
+#include <optional>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CCollisionResponseData.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CModel;
 class CDecalDescription;
 class CGenDescription;
+class CModel;
 
 class CProjectileWeapon {
   static u16 g_GlobalSeed;

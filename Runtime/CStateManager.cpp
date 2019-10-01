@@ -24,7 +24,7 @@
 #include "AutoMapper/CMapWorldInfo.hpp"
 #include "Particle/CGenDescription.hpp"
 #include "CMemoryCardSys.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "World/CScriptSpecialFunction.hpp"
 #include "CTimeProvider.hpp"
 #include "Camera/CBallCamera.hpp"
@@ -71,7 +71,7 @@ CStateManager::CStateManager(const std::weak_ptr<CRelayTracker>& relayTracker,
 , x8c0_mapWorldInfo(mwInfo)
 , x8c4_worldTransManager(wtMgr)
 , x8c8_worldLayerState(layerState) {
-  x86c_stateManagerContainer.reset(new CStateManagerContainer);
+  x86c_stateManagerContainer = std::make_unique<CStateManagerContainer>();
   x870_cameraManager = &x86c_stateManagerContainer->x0_cameraManager;
   x874_sortedListManager = &x86c_stateManagerContainer->x3c0_sortedListManager;
   x878_weaponManager = &x86c_stateManagerContainer->xe3d8_weaponManager;
@@ -1292,21 +1292,21 @@ void CStateManager::LoadScriptObjects(TAreaId aid, CInputStream& in, std::vector
 
 std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, EScriptObjectType type, u32 length,
                                                                 CInputStream& in) {
-  TEditorId id = in.readUint32Big();
-  u32 connCount = in.readUint32Big();
+  const TEditorId id = in.readUint32Big();
+  const u32 connCount = in.readUint32Big();
   length -= 8;
   std::vector<SConnection> conns;
   conns.reserve(connCount);
-  for (int i = 0; i < connCount; ++i) {
-    EScriptObjectState state = EScriptObjectState(in.readUint32Big());
-    EScriptObjectMessage msg = EScriptObjectMessage(in.readUint32Big());
-    TEditorId target = in.readUint32Big();
+  for (u32 i = 0; i < connCount; ++i) {
+    const auto state = EScriptObjectState(in.readUint32Big());
+    const auto msg = EScriptObjectMessage(in.readUint32Big());
+    const TEditorId target = in.readUint32Big();
     length -= 12;
     conns.push_back(SConnection{state, msg, target});
   }
-  u32 propCount = in.readUint32Big();
+  const u32 propCount = in.readUint32Big();
   length -= 4;
-  auto startPos = in.position();
+  const auto startPos = in.position();
 
   bool error = false;
   FScriptLoader loader = {};
@@ -1315,7 +1315,7 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
 
   CEntity* ent = nullptr;
   if (loader) {
-    CEntityInfo info(aid, conns, id);
+    const CEntityInfo info(aid, std::move(conns), id);
     ent = loader(*this, in, propCount, info);
   } else {
     error = true;
@@ -2146,7 +2146,7 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
 
   if (xb3c_initPhase == EInitPhase::LoadWorld) {
     CreateStandardGameObjects();
-    x850_world.reset(new CWorld(*g_SimplePool, *g_ResFactory, mlvlId));
+    x850_world = std::make_unique<CWorld>(*g_SimplePool, *g_ResFactory, mlvlId);
     xb3c_initPhase = EInitPhase::LoadFirstArea;
   }
 
@@ -2216,17 +2216,18 @@ void CStateManager::InitializeState(CAssetId mlvlId, TAreaId aid, CAssetId mreaI
 }
 
 void CStateManager::CreateStandardGameObjects() {
-  float height = g_tweakPlayer->GetPlayerHeight();
-  float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
-  float stepUp = g_tweakPlayer->GetStepUpHeight();
-  float stepDown = g_tweakPlayer->GetStepDownHeight();
-  float ballRadius = g_tweakPlayer->GetPlayerBallHalfExtent();
-  zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
-  auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
-  x84c_player.reset(
-      new CPlayer(AllocateUniqueId(), zeus::CTransform(q), pBounds, g_tweakPlayerRes->xc4_ballTransitionsANCS,
-                  zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, stepUp, stepDown, ballRadius,
-                  CMaterialList(EMaterialTypes::Player, EMaterialTypes::Solid, EMaterialTypes::GroundCollider)));
+  const float height = g_tweakPlayer->GetPlayerHeight();
+  const float xyHe = g_tweakPlayer->GetPlayerXYHalfExtent();
+  const float stepUp = g_tweakPlayer->GetStepUpHeight();
+  const float stepDown = g_tweakPlayer->GetStepDownHeight();
+  const float ballRadius = g_tweakPlayer->GetPlayerBallHalfExtent();
+  const zeus::CAABox pBounds = {{-xyHe, -xyHe, 0.f}, {xyHe, xyHe, height}};
+  const auto q = zeus::CQuaternion::fromAxisAngle(zeus::CVector3f{0.f, 0.f, 1.f}, zeus::degToRad(129.6f));
+
+  x84c_player = std::make_unique<CPlayer>(
+      AllocateUniqueId(), zeus::CTransform(q), pBounds, g_tweakPlayerRes->xc4_ballTransitionsANCS,
+      zeus::CVector3f{1.65f, 1.65f, 1.65f}, 200.f, stepUp, stepDown, ballRadius,
+      CMaterialList(EMaterialTypes::Player, EMaterialTypes::Solid, EMaterialTypes::GroundCollider));
   AddObject(*x84c_player);
   x870_cameraManager->CreateStandardCameras(*this);
 }

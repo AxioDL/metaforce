@@ -1,7 +1,9 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CAnimData;

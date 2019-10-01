@@ -14,7 +14,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::Read>(athena::io::IS
   if (extraType == 1)
     extraFloat = reader.readFloatBig();
   else if (extraType == 2)
-    reader.seek(35, athena::Current);
+    reader.seek(35, athena::SeekOrigin::Current);
 }
 
 template <>
@@ -29,7 +29,7 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::Write>(athena::io::I
   if (extraType == 1)
     writer.writeFloatBig(extraFloat);
   else if (extraType == 2)
-    writer.seek(35, athena::Current);
+    writer.seek(35, athena::SeekOrigin::Current);
 }
 
 template <>

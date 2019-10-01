@@ -1,8 +1,13 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "zeus/CRelAngle.hpp"
-#include "zeus/COBBox.hpp"
+#include <string_view>
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include <zeus/COBBox.hpp>
+#include <zeus/CRelAngle.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CScriptCameraPitchVolume : public CActor {

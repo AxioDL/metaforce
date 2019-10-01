@@ -1,14 +1,22 @@
 #pragma once
 
-#include "CAi.hpp"
-#include "Character/CBodyController.hpp"
-#include "Character/CSteeringBehaviors.hpp"
-#include "Graphics/CVertexMorphEffect.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CElectricDescription.hpp"
-#include "TCastTo.hpp"
-#include "CDamageInfo.hpp"
-#include "CKnockBackController.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/Character/CBodyController.hpp"
+#include "Runtime/Character/CSteeringBehaviors.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CAi.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CKnockBackController.hpp"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 #ifndef DEFINE_PATTERNED
 #define DEFINE_PATTERNED(type) static constexpr ECharacter CharacterType = ECharacter::type;

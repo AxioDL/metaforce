@@ -1,7 +1,10 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "IFactory.hpp"
+#include <string_view>
+#include <vector>
+
+#include "Runtime/IFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
 class CGameHintInfo {

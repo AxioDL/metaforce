@@ -1,16 +1,20 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CTransform.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/CLineRenderer.hpp"
+#include <optional>
+#include <utility>
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde {
-class CStateManager;
 class CMapWorldInfo;
+class CStateManager;
 
 class CMappableObject {
   static boo::ObjToken<boo::IGraphicsBufferS> g_doorVbo;

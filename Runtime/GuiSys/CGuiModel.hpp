@@ -1,8 +1,10 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "CToken.hpp"
-#include "Graphics/CModel.hpp"
+#include <memory>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
 
 namespace urde {
 class CSimplePool;

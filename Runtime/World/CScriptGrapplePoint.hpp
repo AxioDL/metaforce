@@ -1,7 +1,11 @@
 #pragma once
 
-#include "CActor.hpp"
-#include "CGrappleParameters.hpp"
+#include <string_view>
+
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CGrappleParameters.hpp"
+
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 class CScriptGrapplePoint : public CActor {

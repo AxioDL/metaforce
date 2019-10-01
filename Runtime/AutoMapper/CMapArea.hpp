@@ -1,13 +1,18 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "CResFactory.hpp"
-#include "zeus/CAABox.hpp"
-#include "zeus/CVector3f.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "CMappableObject.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/CResFactory.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/AutoMapper/CMappableObject.hpp"
+#include "Runtime/Graphics/CLineRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class IWorld;

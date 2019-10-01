@@ -6,7 +6,7 @@
 #include "World/CScriptAiJumpPoint.hpp"
 #include "World/CPatterned.hpp"
 #include "Camera/CGameCamera.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

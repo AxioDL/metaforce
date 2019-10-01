@@ -1,14 +1,18 @@
 #pragma once
 
+#include <functional>
+#include <list>
 #include <memory>
 #include <string>
-#include "RetroTypes.hpp"
-#include "CPakFile.hpp"
-#include "IOStreams.hpp"
+#include <vector>
+
+#include "Runtime/CPakFile.hpp"
+#include "Runtime/IOStreams.hpp"
+#include "Runtime/RetroTypes.hpp"
 
 namespace urde {
-struct SObjectTag;
 class IDvdRequest;
+struct SObjectTag;
 
 class CResLoader {
   std::string m_loaderPath;

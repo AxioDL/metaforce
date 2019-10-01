@@ -1,10 +1,12 @@
 #pragma once
 
 #include <memory>
-#include "GCNTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "zeus/CColor.hpp"
-#include "IOStreams.hpp"
+
+#include "Runtime/GCNTypes.hpp"
+#include "Runtime/IOStreams.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

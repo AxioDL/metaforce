@@ -7,7 +7,7 @@
 #include "CStateManager.hpp"
 #include "CPlayer.hpp"
 #include "Graphics/CBooRenderer.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 
@@ -43,8 +43,8 @@ void CScriptEMPulse::Think(float dt, CStateManager& mgr) {
 void CScriptEMPulse::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) {
   CActor::AcceptScriptMsg(msg, uid, mgr);
   if (msg == EScriptObjectMessage::Activate) {
-    x114_particleGen.reset(new CElementGen(x108_particleDesc, CElementGen::EModelOrientationType::Normal,
-                                           CElementGen::EOptionalSystemFlags::One));
+    x114_particleGen = std::make_unique<CElementGen>(x108_particleDesc, CElementGen::EModelOrientationType::Normal,
+                                                     CElementGen::EOptionalSystemFlags::One);
 
     x114_particleGen->SetOrientation(GetTransform().getRotation());
     x114_particleGen->SetGlobalTranslation(GetTranslation());

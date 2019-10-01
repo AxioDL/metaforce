@@ -1,19 +1,23 @@
 #pragma once
 
-#include "zeus/CColor.hpp"
-#include "RetroTypes.hpp"
-#include "CToken.hpp"
-#include "CTextRenderBuffer.hpp"
-#include "CGuiWidget.hpp"
-#include "CSaveWorld.hpp"
+#include <list>
 #include <optional>
 #include <string>
+#include <vector>
+
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+#include "Runtime/GuiSys/CTextRenderBuffer.hpp"
+
+#include <zeus/CColor.hpp>
 
 namespace urde {
-class CSimplePool;
 class CRasterFont;
-class CTextRenderBuffer;
+class CSimplePool;
 class CTextExecuteBuffer;
+class CTextRenderBuffer;
 
 enum class EJustification { Left = 0, Center, Right, Full, NLeft, NCenter, NRight, LeftMono, CenterMono, RightMono };
 

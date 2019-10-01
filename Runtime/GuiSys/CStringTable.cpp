@@ -1,11 +1,17 @@
-#include "CStringTable.hpp"
-#include "CToken.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+
+#include <array>
+
+#include "Runtime/CToken.hpp"
 
 namespace urde {
-const std::vector<FourCC> CStringTable::skLanguages = {FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'),
-                                                       FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN')};
+namespace {
+constexpr std::array languages{
+    FOURCC('ENGL'), FOURCC('FREN'), FOURCC('GERM'), FOURCC('SPAN'), FOURCC('ITAL'), FOURCC('DUTC'), FOURCC('JAPN'),
+};
+} // Anonymous namespace
 
-FourCC CStringTable::mCurrentLanguage = CStringTable::skLanguages[0];
+FourCC CStringTable::mCurrentLanguage = languages[0];
 
 CStringTable::CStringTable(CInputStream& in) { LoadStringTable(in); }
 
@@ -64,7 +70,7 @@ const char16_t* CStringTable::GetString(s32 str) const {
   return reinterpret_cast<char16_t*>(x4_data.get() + off);
 }
 
-void CStringTable::SetLanguage(s32 lang) { mCurrentLanguage = skLanguages[lang]; }
+void CStringTable::SetLanguage(s32 lang) { mCurrentLanguage = languages[lang]; }
 
 CFactoryFnReturn FStringTableFactory(const SObjectTag&, CInputStream& in, const CVParamTransfer&,
                                      CObjectReference* selfRef) {

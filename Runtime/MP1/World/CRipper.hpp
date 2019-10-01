@@ -1,8 +1,8 @@
 #pragma once
 
-#include "World/CPatterned.hpp"
-#include "World/CGrappleParameters.hpp"
-#include "World/CScriptPlatform.hpp"
+#include "Runtime/World/CGrappleParameters.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
 
 namespace urde::MP1 {
 

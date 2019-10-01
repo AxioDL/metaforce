@@ -12,7 +12,7 @@
 #include "Camera/CGameCamera.hpp"
 #include "CPlayerState.hpp"
 #include "CScriptTrigger.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 
@@ -54,7 +54,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
 
   if (partId.IsValid()) {
     xf8_particleSystemToken = g_SimplePool->GetObj({FOURCC('PART'), partId});
-    x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken));
+    x104_particleSystem = std::make_unique<CElementGen>(xf8_particleSystemToken);
     zeus::CTransform newXf = xf;
     newXf.origin = zeus::skZero3f;
     x104_particleSystem->SetOrientation(newXf);
@@ -67,7 +67,7 @@ CScriptEffect::CScriptEffect(TUniqueId uid, std::string_view name, const CEntity
 
   if (elscId.IsValid()) {
     xe8_electricToken = g_SimplePool->GetObj({FOURCC('ELSC'), elscId});
-    xf4_electric.reset(new CParticleElectric(xe8_electricToken));
+    xf4_electric = std::make_unique<CParticleElectric>(xe8_electricToken);
     zeus::CTransform newXf = xf;
     newXf.origin = zeus::skZero3f;
     xf4_electric->SetOrientation(newXf);
@@ -87,9 +87,9 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
   case EScriptObjectMessage::Activate:
     if (x110_26_rebuildSystemsOnActivate) {
       if (x104_particleSystem) {
-        zeus::CVector3f scale = x104_particleSystem->GetGlobalScale();
-        zeus::CColor color = x104_particleSystem->GetModulationColor();
-        x104_particleSystem.reset(new CElementGen(xf8_particleSystemToken));
+        const zeus::CVector3f scale = x104_particleSystem->GetGlobalScale();
+        const zeus::CColor color = x104_particleSystem->GetModulationColor();
+        x104_particleSystem = std::make_unique<CElementGen>(xf8_particleSystemToken);
         zeus::CTransform newXf = GetTransform();
         newXf.origin = zeus::skZero3f;
         x104_particleSystem->SetOrientation(newXf);
@@ -101,9 +101,9 @@ void CScriptEffect::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CSt
       }
 
       if (xf4_electric) {
-        zeus::CVector3f scale = xf4_electric->GetGlobalScale();
-        zeus::CColor color = xf4_electric->GetModulationColor();
-        xf4_electric.reset(new CParticleElectric(xe8_electricToken));
+        const zeus::CVector3f scale = xf4_electric->GetGlobalScale();
+        const zeus::CColor color = xf4_electric->GetModulationColor();
+        xf4_electric = std::make_unique<CParticleElectric>(xe8_electricToken);
         zeus::CTransform newXf = GetTransform();
         newXf.origin = zeus::skZero3f;
         xf4_electric->SetOrientation(newXf);

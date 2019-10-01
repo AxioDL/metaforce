@@ -84,7 +84,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   atUint64 decompLen = drs.length();
   mreaDecompOut.writeBytes(drs.readBytes(decompLen).get(), decompLen);
   mreaDecompOut.close();
-  drs.seek(0, athena::Begin);
+  drs.seek(0, athena::SeekOrigin::Begin);
 
   /* Start up blender connection */
   hecl::blender::Connection& conn = btok.getBlenderConnection();
@@ -118,7 +118,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   atUint64 secStart = drs.position();
   matSet.read(drs);
   matSet.readToBlender(os, pakRouter, entry, 0);
-  drs.seek(secStart + head.secSizes[0], athena::Begin);
+  drs.seek(secStart + head.secSizes[0], athena::SeekOrigin::Begin);
   std::vector<DNACMDL::VertexAttributes> vertAttribs;
   DNACMDL::GetVertexAttributes(matSet, vertAttribs);
 
@@ -131,16 +131,16 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     MeshHeader mHeader;
     secStart = drs.position();
     mHeader.read(drs);
-    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
     /* Surface count from here */
     secStart = drs.position();
     surfaceCounts.push_back(drs.readUint32Big());
-    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
 
     /* Seek through AROT-relation sections */
-    drs.seek(head.secSizes[curSec++], athena::Current);
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
   }
 
   /* Skip though WOBJs */
@@ -150,13 +150,13 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Skip AROT */
   if (secIdxIt->first == FOURCC('ROCT')) {
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
     ++secIdxIt;
   }
 
   /* Skip AABB */
   if (secIdxIt->first == FOURCC('AABB')) {
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
     ++secIdxIt;
   }
 
@@ -173,20 +173,20 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
 
   /* Skip DEPS */
   if (secIdxIt->first == FOURCC('DEPS')) {
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
     ++secIdxIt;
   }
 
   /* Skip SOBJ (SCLY) */
   if (secIdxIt->first == FOURCC('SOBJ')) {
     for (atUint32 l = 0; l < head.sclyLayerCount; ++l)
-      drs.seek(head.secSizes[curSec++], athena::Current);
+      drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
     ++secIdxIt;
   }
 
   /* Skip SGEN */
   if (secIdxIt->first == FOURCC('SGEN')) {
-    drs.seek(head.secSizes[curSec++], athena::Current);
+    drs.seek(head.secSizes[curSec++], athena::SeekOrigin::Current);
     ++secIdxIt;
   }
 
@@ -197,7 +197,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     collision.read(drs);
     DNAMP2::DeafBabe::BlenderInit(os);
     collision.sendToBlender(os);
-    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     ++secIdxIt;
   }
 
@@ -205,7 +205,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   if (secIdxIt->first == FOURCC('LITE')) {
     secStart = drs.position();
     ReadBabeDeadToBlender_3(os, drs);
-    drs.seek(secStart + head.secSizes[curSec++], athena::Begin);
+    drs.seek(secStart + head.secSizes[curSec++], athena::SeekOrigin::Begin);
     ++secIdxIt;
   }
 
@@ -231,7 +231,7 @@ bool MREA::ExtractLayerDeps(PAKEntryReadStream& rs, PAKBridge::Level::Area& area
   StreamReader drs(rs, head.compressedBlockCount, head.secIndexCount);
   for (const std::pair<DNAFourCC, atUint32>& idx : drs.m_secIdxs) {
     if (idx.first == FOURCC('DEPS')) {
-      drs.seek(head.getSecOffset(idx.second), athena::Begin);
+      drs.seek(head.getSecOffset(idx.second), athena::SeekOrigin::Begin);
       DEPS deps;
       deps.read(drs);
 

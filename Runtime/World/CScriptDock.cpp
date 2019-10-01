@@ -7,7 +7,7 @@
 #include "CScriptDoor.hpp"
 #include "CPlayer.hpp"
 #include "Particle/CGenDescription.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CMaterialList MakeDockMaterialList() {
@@ -18,7 +18,7 @@ CMaterialList MakeDockMaterialList() {
   return list;
 }
 
-CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f position,
+CScriptDock::CScriptDock(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CVector3f& position,
                          const zeus::CVector3f& extents, s32 dock, TAreaId area, bool active, s32 dockReferenceCount,
                          bool loadConnected)
 : CPhysicsActor(uid, active, name, info, zeus::CTransform(zeus::CMatrix3f(), position),

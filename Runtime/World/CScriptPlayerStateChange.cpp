@@ -2,7 +2,7 @@
 #include "CStateManager.hpp"
 #include "CPlayerState.hpp"
 #include "Input/ControlMapper.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 CScriptPlayerStateChange::CScriptPlayerStateChange(TUniqueId uid, std::string_view name, const CEntityInfo& info,

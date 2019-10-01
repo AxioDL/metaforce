@@ -3,7 +3,7 @@
 #include "CStateManager.hpp"
 #include "Collision/CMaterialList.hpp"
 #include "Audio/CSfxManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Character/IAnimReader.hpp"
 #include "Character/CActorLights.hpp"
 #include "Camera/CGameCamera.hpp"
@@ -32,7 +32,7 @@ CActor::CActor(TUniqueId uid, bool active, std::string_view name, const CEntityI
 , x68_material(MakeActorMaterialList(list, params))
 , x70_materialFilter(CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {0ull}))
 , xc6_nextDrawNode(otherUid) {
-  x90_actorLights = mData.IsNull() ? std::unique_ptr<CActorLights>() : params.x0_lightParms.MakeActorLights();
+  x90_actorLights = mData.IsNull() ? nullptr : params.x0_lightParms.MakeActorLights();
   if (mData.x10_animData || mData.x1c_normalModel)
     x64_modelData = std::make_unique<CModelData>(std::move(mData));
   xd0_damageMag = params.x64_thermalMag;
@@ -431,8 +431,9 @@ void CActor::CreateShadow(bool b) {
 }
 
 void CActor::_CreateShadow() {
-  if (!x94_simpleShadow && x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel()))
-    x94_simpleShadow.reset(new CSimpleShadow(1.f, 1.f, 20.f, 0.05f));
+  if (!x94_simpleShadow && x64_modelData && (x64_modelData->HasAnimData() || x64_modelData->HasNormalModel())) {
+    x94_simpleShadow = std::make_unique<CSimpleShadow>(1.f, 1.f, 20.f, 0.05f);
+  }
 }
 
 void CActor::_CreateReflectionCube() {

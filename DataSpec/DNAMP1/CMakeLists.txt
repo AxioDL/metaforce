@@ -61,6 +61,7 @@ set(DNAMP1_SOURCES
     FRME.cpp
     SCAN.cpp
     DeafBabe.cpp
+    Tweaks/CTweakAutoMapper.cpp
     Tweaks/CTweakPlayer.cpp
     Tweaks/CTweakTargeting.cpp
     Tweaks/CTweakBall.cpp

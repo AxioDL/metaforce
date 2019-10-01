@@ -1,7 +1,10 @@
 #pragma once
 
 #include <map>
-#include "CSegId.hpp"
+#include <memory>
+#include <utility>
+
+#include "Runtime/Character/CSegId.hpp"
 
 namespace urde {
 

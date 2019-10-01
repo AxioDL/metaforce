@@ -19,7 +19,7 @@ struct PAK : BigDNA {
     Value<atUint32> version;
     Value<atUint32> headSz;
     Value<atUint8> md5sum[16];
-    Seek<40, athena::Current> seek;
+    Seek<40, athena::SeekOrigin::Current> seek;
   } m_header;
 
   struct NameEntry : BigDNA {

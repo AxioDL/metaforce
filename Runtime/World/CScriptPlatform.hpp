@@ -1,10 +1,20 @@
 #pragma once
 
-#include "CPhysicsActor.hpp"
+#include <memory>
 #include <optional>
-#include "CToken.hpp"
-#include "CHealthInfo.hpp"
-#include "CDamageVulnerability.hpp"
+#include <string_view>
+#include <vector>
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CHealthInfo.hpp"
+#include "Runtime/World/CPhysicsActor.hpp"
+
+#include <zeus/CQuaternion.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 class CCollidableOBBTreeGroup;

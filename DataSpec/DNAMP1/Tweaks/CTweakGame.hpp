@@ -1,6 +1,10 @@
 #pragma once
 
-#include "../../DNACommon/Tweaks/ITweakGame.hpp"
+#include "DataSpec/DNACommon/Tweaks/ITweakGame.hpp"
+
+namespace hecl {
+class CVar;
+}
 
 namespace DataSpec::DNAMP1 {
 
@@ -56,5 +60,7 @@ struct CTweakGame final : ITweakGame {
   }
 
   void initCVars(hecl::CVarManager* mgr) override;
+private:
+  void _tweakGameListener(hecl::CVar* cv);
 };
 } // namespace DataSpec::DNAMP1

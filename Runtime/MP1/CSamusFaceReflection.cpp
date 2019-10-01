@@ -1,7 +1,7 @@
 #include "CSamusFaceReflection.hpp"
 #include "GameGlobalObjects.hpp"
 #include "CStateManager.hpp"
-#include "TCastTo.hpp"
+#include "TCastTo.hpp" // Generated file, do not modify include path
 #include "Camera/CFirstPersonCamera.hpp"
 #include "World/CPlayer.hpp"
 #include "World/CWorld.hpp"

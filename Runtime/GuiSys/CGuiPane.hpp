@@ -1,7 +1,14 @@
 #pragma once
 
-#include "CGuiWidget.hpp"
-#include "specter/View.hpp"
+#include <memory>
+#include <vector>
+
+#include "Runtime/GuiSys/CGuiWidget.hpp"
+
+#include <specter/View.hpp>
+
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 

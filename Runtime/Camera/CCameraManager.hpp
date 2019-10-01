@@ -1,27 +1,29 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CVector3f.hpp"
-#include "World/CGameArea.hpp"
+#include <list>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/rstl.hpp"
+#include "Runtime/World/CGameArea.hpp"
+
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CFirstPersonCamera;
 class CBallCamera;
-class CStateManager;
-class CGameCamera;
 class CCameraShakeData;
-class CScriptWater;
-class CInterpolationCamera;
-struct CFinalInput;
-class CScriptCameraHint;
 class CCinematicCamera;
+class CFirstPersonCamera;
+class CGameCamera;
+class CInterpolationCamera;
+class CScriptCameraHint;
+class CScriptWater;
+class CStateManager;
+
+struct CFinalInput;
 
 class CCameraManager {
-  static float sAspect;
-  static float sFarPlane;
-  static float sNearPlane;
   static float sFirstPersonFOV;
-  static float sThirdPersonFOV;
   TUniqueId x0_curCameraId;
   std::vector<TUniqueId> x4_cineCameras;
   std::list<CCameraShakeData> x14_shakers;
@@ -80,11 +82,11 @@ class CCameraManager {
 public:
   CCameraManager(TUniqueId curCameraId = kInvalidUniqueId);
 
-  static float Aspect() { return sAspect; }
-  static float FarPlane() { return sFarPlane; }
-  static float NearPlane() { return sNearPlane; }
+  static float Aspect() { return 1.42f; }
+  static float FarPlane() { return 750.0f; }
+  static float NearPlane() { return 0.2f; }
   static float FirstPersonFOV() { return sFirstPersonFOV; }
-  static float ThirdPersonFOV() { return sThirdPersonFOV; }
+  static float ThirdPersonFOV() { return 60.0f; }
 
   void ResetCameras(CStateManager& mgr);
   void SetSpecialCameras(CFirstPersonCamera& fp, CBallCamera& ball);

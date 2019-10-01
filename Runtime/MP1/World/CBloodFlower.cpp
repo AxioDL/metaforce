@@ -18,7 +18,7 @@ CBloodFlower::CBloodFlower(TUniqueId uid, std::string_view name, const CEntityIn
 : CPatterned(ECharacter::BloodFlower, uid, name, EFlavorType::Zero, info, xf, std::move(mData), pInfo,
              EMovementType::Ground, EColliderType::One, EBodyType::Restricted, actParms, EKnockBackVariant::Medium)
 , x568_podEffectDesc(g_SimplePool->GetObj({FOURCC('PART'), partId1}))
-, x574_podEffect(new CElementGen(x568_podEffectDesc))
+, x574_podEffect(std::make_unique<CElementGen>(x568_podEffectDesc))
 , x578_projectileDesc(g_SimplePool->GetObj({FOURCC('WPSC'), wpscId1}))
 , x590_projectileInfo(wpscId2, dInfo1)
 , x5d4_visorSfx(CSfxManager::TranslateSFXID(soundId))

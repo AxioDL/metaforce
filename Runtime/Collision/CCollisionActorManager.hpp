@@ -1,14 +1,20 @@
 #pragma once
 
-#include "RetroTypes.hpp"
-#include "zeus/CAABox.hpp"
-#include "Collision/CJointCollisionDescription.hpp"
+#include <optional>
+#include <vector>
+
+#include "Runtime/RetroTypes.hpp"
+#include "Runtime/Collision/CJointCollisionDescription.hpp"
+
+#include <zeus/CAABox.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
-class CMaterialList;
 class CAnimData;
 class CCollisionActor;
+class CMaterialList;
 class CStateManager;
+
 class CCollisionActorManager {
 public:
   enum class EUpdateOptions { ObjectSpace, WorldSpace };

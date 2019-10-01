@@ -1,15 +1,19 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
+#include <vector>
 
-#include "RetroTypes.hpp"
-#include "zeus/CTransform.hpp"
-#include "zeus/CVector2i.hpp"
-#include "zeus/CColor.hpp"
+#include "Runtime/RetroTypes.hpp"
 
-#include "hecl/Runtime.hpp"
-#include "hecl/CVar.hpp"
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include <hecl/CVar.hpp>
+#include <hecl/Runtime.hpp>
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
+#include <zeus/CVector2i.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 extern hecl::CVar* g_disableLighting;
