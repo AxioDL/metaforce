@@ -1,7 +1,10 @@
 #pragma once
-#include <variant>
+
 #include <cassert>
-#include "athena/DNA.hpp"
+#include <type_traits>
+#include <variant>
+
+#include <athena/DNA.hpp>
 
 /*
  * The TypedVariant system is a type-safe union implementation capable of selecting
@@ -199,62 +202,67 @@ private:
   TypedVariantBigDNA(TypedVariant<_Types...> var) : TypedVariant<_Types...>(std::move(var)) {}
 };
 
-#define AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(...) \
-template <> \
-template <> \
-inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Big>::Read>(typename Read::StreamT & r) { \
-  EnumType variant_type = {}; \
-  Do<athena::io::DNA<athena::Big>::Read>(athena::io::PropId("variant_type"sv), variant_type, r); \
-  static_cast<TypedVariant<__VA_ARGS__>&>(*this) = Build(variant_type); \
-  visit([&](auto& var) { var.read(r); }); \
-} \
- \
-template <> \
-template <> \
-inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Big>::Write>(typename Write::StreamT & w) { \
-  visit([&](auto& var) { \
-    using T = std::decay_t<decltype(var)>; \
-    EnumType variant_type = T::variant_type(); \
-    Do<athena::io::DNA<athena::Big>::Write>(athena::io::PropId("variant_type"sv), variant_type, w); \
-    var.write(w); \
-  }); \
-} \
- \
-template <> \
-template <> \
-inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Big>::BinarySize>(typename BinarySize::StreamT & sz) { \
-  visit([&](auto& var) { \
-    using T = std::decay_t<decltype(var)>; \
-    EnumType variant_type = T::variant_type(); \
-    Do<athena::io::DNA<athena::Big>::BinarySize>(athena::io::PropId("variant_type"sv), variant_type, sz); \
-    var.binarySize(sz); \
-  }); \
-} \
-template <> \
-inline std::string_view hecl::TypedVariantBigDNA<__VA_ARGS__>::DNAType() { \
-  return "hecl::TypedVariantBigDNA<" #__VA_ARGS__ ">"sv; \
-}
+#define AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(...)                                                                        \
+  template <>                                                                                                          \
+  template <>                                                                                                          \
+  inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Endian::Big>::Read>(            \
+      typename Read::StreamT & r) {                                                                                    \
+    EnumType variant_type = {};                                                                                        \
+    Do<athena::io::DNA<athena::Endian::Big>::Read>(athena::io::PropId("variant_type"sv), variant_type, r);             \
+    static_cast<TypedVariant<__VA_ARGS__>&>(*this) = Build(variant_type);                                              \
+    visit([&](auto& var) { var.read(r); });                                                                            \
+  }                                                                                                                    \
+                                                                                                                       \
+  template <>                                                                                                          \
+  template <>                                                                                                          \
+  inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Endian::Big>::Write>(           \
+      typename Write::StreamT & w) {                                                                                   \
+    visit([&](auto& var) {                                                                                             \
+      using T = std::decay_t<decltype(var)>;                                                                           \
+      EnumType variant_type = T::variant_type();                                                                       \
+      Do<athena::io::DNA<athena::Endian::Big>::Write>(athena::io::PropId("variant_type"sv), variant_type, w);          \
+      var.write(w);                                                                                                    \
+    });                                                                                                                \
+  }                                                                                                                    \
+                                                                                                                       \
+  template <>                                                                                                          \
+  template <>                                                                                                          \
+  inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Endian::Big>::BinarySize>(      \
+      typename BinarySize::StreamT & sz) {                                                                             \
+    visit([&](auto& var) {                                                                                             \
+      using T = std::decay_t<decltype(var)>;                                                                           \
+      EnumType variant_type = T::variant_type();                                                                       \
+      Do<athena::io::DNA<athena::Endian::Big>::BinarySize>(athena::io::PropId("variant_type"sv), variant_type, sz);    \
+      var.binarySize(sz);                                                                                              \
+    });                                                                                                                \
+  }                                                                                                                    \
+  template <>                                                                                                          \
+  inline std::string_view hecl::TypedVariantBigDNA<__VA_ARGS__>::DNAType() {                                           \
+    return "hecl::TypedVariantBigDNA<" #__VA_ARGS__ ">"sv;                                                             \
+  }
 
-#define AT_SPECIALIZE_TYPED_VARIANT_BIGDNA_YAML(...) \
-AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(__VA_ARGS__) \
-template <> \
-template <> \
-inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Big>::ReadYaml>(typename ReadYaml::StreamT & r) { \
-  EnumType variant_type = {}; \
-  Do<athena::io::DNA<athena::Big>::ReadYaml>(athena::io::PropId("variant_type"sv), variant_type, r); \
-  static_cast<TypedVariant<__VA_ARGS__>&>(*this) = Build(variant_type); \
-  visit([&](auto& var) { var.read(r); }); \
-} \
- \
-template <> \
-template <> \
-inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Big>::WriteYaml>(typename WriteYaml::StreamT & w) { \
-  visit([&](auto& var) { \
-    using T = std::decay_t<decltype(var)>; \
-    EnumType variant_type = T::variant_type(); \
-    Do<athena::io::DNA<athena::Big>::WriteYaml>(athena::io::PropId("variant_type"sv), variant_type, w); \
-    var.write(w); \
-  }); \
-}
+#define AT_SPECIALIZE_TYPED_VARIANT_BIGDNA_YAML(...)                                                                   \
+  AT_SPECIALIZE_TYPED_VARIANT_BIGDNA(__VA_ARGS__)                                                                      \
+  template <>                                                                                                          \
+  template <>                                                                                                          \
+  inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Endian::Big>::ReadYaml>(        \
+      typename ReadYaml::StreamT & r) {                                                                                \
+    EnumType variant_type = {};                                                                                        \
+    Do<athena::io::DNA<athena::Endian::Big>::ReadYaml>(athena::io::PropId("variant_type"sv), variant_type, r);         \
+    static_cast<TypedVariant<__VA_ARGS__>&>(*this) = Build(variant_type);                                              \
+    visit([&](auto& var) { var.read(r); });                                                                            \
+  }                                                                                                                    \
+                                                                                                                       \
+  template <>                                                                                                          \
+  template <>                                                                                                          \
+  inline void hecl::TypedVariantBigDNA<__VA_ARGS__>::Enumerate<athena::io::DNA<athena::Endian::Big>::WriteYaml>(       \
+      typename WriteYaml::StreamT & w) {                                                                               \
+    visit([&](auto& var) {                                                                                             \
+      using T = std::decay_t<decltype(var)>;                                                                           \
+      EnumType variant_type = T::variant_type();                                                                       \
+      Do<athena::io::DNA<athena::Endian::Big>::WriteYaml>(athena::io::PropId("variant_type"sv), variant_type, w);      \
+      var.write(w);                                                                                                    \
+    });                                                                                                                \
+  }
 
 }

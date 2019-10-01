@@ -1,8 +1,12 @@
 #pragma once
 
-#include "hecl.hpp"
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
-#include <unordered_map>
+#include <cstddef>
+#include <memory>
+
+#include "hecl/SystemChar.hpp"
+
+#include <boo/BooObject.hpp>
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace hecl {
 struct HMDLMeta;

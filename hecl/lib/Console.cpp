@@ -1,12 +1,18 @@
-
 #include <hecl/Console.hpp>
 
-#include "hecl/Console.hpp"
-#include "hecl/CVarManager.hpp"
+#include <cstdio>
+#include <functional>
+#include <string>
+#include <vector>
+
 #include "hecl/CVar.hpp"
+#include "hecl/CVarManager.hpp"
 #include "hecl/hecl.hpp"
-#include "boo/graphicsdev/IGraphicsCommandQueue.hpp"
-#include "athena/Utility.hpp"
+
+#include <athena/Utility.hpp>
+#include <boo/IWindow.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace hecl {
 Console* Console::m_instance = nullptr;
@@ -168,13 +174,11 @@ void Console::init(boo::IWindow* window) {
 
 void Console::proc() {
   if (m_conHeight->isModified()) {
-    m_cachedConHeight = m_conHeight->toFloat();
-    m_conHeight->clearModified();
+    m_cachedConHeight = m_conHeight->toReal();
   }
 
   if (m_conSpeed->isModified()) {
-    m_cachedConSpeed = m_conSpeed->toFloat();
-    m_conSpeed->clearModified();
+    m_cachedConSpeed = m_conSpeed->toReal();
   }
 
   if (m_state == State::Opened) {

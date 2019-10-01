@@ -1,12 +1,21 @@
 #pragma once
-#include "hecl/hecl.hpp"
+
+#include <functional>
+#include <vector>
+
 #include "hecl/FourCC.hpp"
-#include "athena/DNA.hpp"
-#include "athena/MemoryReader.hpp"
+#include "hecl/SystemChar.hpp"
+
+#include <athena/DNA.hpp>
+
+namespace athena::io {
+class MemoryReader;
+}
 
 namespace hecl::blender {
+enum class BlendType;
 
-struct SDNABlock : public athena::io::DNA<athena::Little> {
+struct SDNABlock : public athena::io::DNA<athena::Endian::Little> {
   AT_DECL_DNA
   DNAFourCC magic;
   DNAFourCC nameMagic;
@@ -22,11 +31,11 @@ struct SDNABlock : public athena::io::DNA<athena::Little> {
   Align<4> align3;
   DNAFourCC strcMagic;
   Value<atUint32> numStrcs;
-  struct SDNAStruct : public athena::io::DNA<athena::Little> {
+  struct SDNAStruct : public athena::io::DNA<athena::Endian::Little> {
     AT_DECL_DNA
     Value<atUint16> type;
     Value<atUint16> numFields;
-    struct SDNAField : public athena::io::DNA<athena::Little> {
+    struct SDNAField : public athena::io::DNA<athena::Endian::Little> {
       AT_DECL_DNA
       Value<atUint16> type;
       Value<atUint16> name;
@@ -42,7 +51,7 @@ struct SDNABlock : public athena::io::DNA<athena::Little> {
   const SDNAStruct* lookupStruct(const char* n, atUint32& idx) const;
 };
 
-struct FileBlock : public athena::io::DNA<athena::Little> {
+struct FileBlock : public athena::io::DNA<athena::Endian::Little> {
   AT_DECL_DNA
   DNAFourCC type;
   Value<atUint32> size;

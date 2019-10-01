@@ -2,6 +2,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include <system_error>
 
 #if _WIN32
@@ -9,10 +10,12 @@
 #include <unistd.h>
 #endif
 
+#include "hecl/ClientProcess.hpp"
 #include "hecl/Database.hpp"
 #include "hecl/Blender/Connection.hpp"
-#include "hecl/ClientProcess.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
+
+#include <logvisor/logvisor.hpp>
 
 namespace hecl::Database {
 

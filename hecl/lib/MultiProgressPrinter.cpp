@@ -1,5 +1,10 @@
 #include "hecl/MultiProgressPrinter.hpp"
 
+#include <algorithm>
+#include <cstdio>
+
+#include "hecl/hecl.hpp"
+
 #define BOLD "\033[1m"
 #define NORMAL "\033[0m"
 #define PREV_LINE "\r\033[{:d}A"

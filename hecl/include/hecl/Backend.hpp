@@ -1,6 +1,14 @@
 #pragma once
 
-#include "boo/graphicsdev/IGraphicsDataFactory.hpp"
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <vector>
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+
+#include "hecl.hpp"
+#include "../extern/boo/xxhash/xxhash.h"
 
 namespace hecl::Backend {
 struct ExtensionSlot;
@@ -186,7 +194,7 @@ struct Function {
 };
 
 struct ExtensionSlot {
-  const char* shaderMacro;
+  const char* shaderMacro = nullptr;
   size_t texCount = 0;
   const Backend::TextureInfo* texs = nullptr;
   Backend::BlendFactor srcFactor = Backend::BlendFactor::Original;
@@ -201,14 +209,13 @@ struct ExtensionSlot {
   bool forceAlphaTest = false;
   bool diffuseOnly = false;
 
-  ExtensionSlot(size_t texCount = 0,
-                const Backend::TextureInfo* texs = nullptr,
-                Backend::BlendFactor srcFactor = Backend::BlendFactor::Original,
-                Backend::BlendFactor dstFactor = Backend::BlendFactor::Original,
-                Backend::ZTest depthTest = Backend::ZTest::Original,
-                Backend::CullMode cullMode = Backend::CullMode::Backface, bool noDepthWrite = false,
-                bool noColorWrite = false, bool noAlphaWrite = false, bool noAlphaOverwrite = false,
-                bool noReflection = false, bool forceAlphaTest = false, bool diffuseOnly = false)
+  constexpr ExtensionSlot(size_t texCount = 0, const Backend::TextureInfo* texs = nullptr,
+                          Backend::BlendFactor srcFactor = Backend::BlendFactor::Original,
+                          Backend::BlendFactor dstFactor = Backend::BlendFactor::Original,
+                          Backend::ZTest depthTest = Backend::ZTest::Original,
+                          Backend::CullMode cullMode = Backend::CullMode::Backface, bool noDepthWrite = false,
+                          bool noColorWrite = false, bool noAlphaWrite = false, bool noAlphaOverwrite = false,
+                          bool noReflection = false, bool forceAlphaTest = false, bool diffuseOnly = false) noexcept
   : texCount(texCount)
   , texs(texs)
   , srcFactor(srcFactor)

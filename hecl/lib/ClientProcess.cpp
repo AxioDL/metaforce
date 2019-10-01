@@ -1,9 +1,14 @@
 #include "hecl/ClientProcess.hpp"
-#include "hecl/Database.hpp"
-#include "athena/FileReader.hpp"
+
+#include <algorithm>
+
 #include "hecl/Blender/Connection.hpp"
+#include "hecl/Database.hpp"
 #include "hecl/MultiProgressPrinter.hpp"
-#include "boo/IApplication.hpp"
+
+#include <athena/FileReader.hpp>
+#include <boo/IApplication.hpp>
+#include <logvisor/logvisor.hpp>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -63,7 +68,7 @@ void ClientProcess::BufferTransaction::run(blender::Token& btok) {
     return;
   }
   if (m_offset)
-    r.seek(m_offset, athena::Begin);
+    r.seek(m_offset, athena::SeekOrigin::Begin);
   r.readBytesToBuf(m_targetBuf, m_maxLen);
   m_complete = true;
 }

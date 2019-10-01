@@ -63,26 +63,27 @@ namespace blender {
 enum class BlendType { None, Mesh, ColMesh, Armature, Actor, Area,
                        World, MapArea, MapUniverse, Frame, PathMesh };
 
+class ANIMOutStream;
 class Connection;
-class Token;
 class DataStream;
 class PyOutStream;
-class ANIMOutStream;
-struct Mesh;
-struct Material;
+class Token;
+
+struct Action;
+struct Actor;
+struct Armature;
+struct Bone;
 struct ColMesh;
-struct World;
 struct Light;
 struct MapArea;
 struct MapUniverse;
-struct Actor;
-struct Armature;
-struct Action;
-struct Bone;
-struct PathMesh;
+struct Material;
 struct Matrix3f;
 struct Matrix4f;
+struct Mesh;
+struct PathMesh;
 struct PoolSkinIndex;
+struct World;
 
 extern class Token SharedBlenderToken;
 } // namespace blender

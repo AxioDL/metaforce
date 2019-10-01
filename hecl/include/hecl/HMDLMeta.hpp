@@ -1,7 +1,6 @@
 #pragma once
 
-#include "hecl/hecl.hpp"
-#include "athena/DNA.hpp"
+#include <athena/DNA.hpp>
 
 namespace hecl {
 
@@ -12,7 +11,7 @@ enum class HMDLTopology : atUint32 {
 
 #define HECL_HMDL_META_SZ 32
 
-struct HMDLMeta : athena::io::DNA<athena::Big> {
+struct HMDLMeta : athena::io::DNA<athena::Endian::Big> {
   AT_DECL_DNA
   Value<atUint32> magic = 'TACO';
   Value<HMDLTopology> topology;

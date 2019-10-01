@@ -1,6 +1,9 @@
 #include "hecl/hecl.hpp"
-#include "hecl/Database.hpp"
+
 #include <regex>
+
+#include "hecl/Database.hpp"
+#include "hecl/FourCC.hpp"
 
 namespace hecl {
 static const SystemRegex regPATHCOMP(_SYS_STR("[/\\\\]*([^/\\\\]+)"), SystemRegex::ECMAScript | SystemRegex::optimize);

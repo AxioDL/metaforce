@@ -1,12 +1,15 @@
 #include "hecl/CVarManager.hpp"
-#include "hecl/Console.hpp"
-#include <athena/FileWriter.hpp>
-#include <athena/Utility.hpp>
-#include <hecl/Runtime.hpp>
-#include <hecl/hecl.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <regex>
+
+#include "hecl/Console.hpp"
+#include "hecl/hecl.hpp"
+#include "hecl/Runtime.hpp"
+
+#include <athena/FileWriter.hpp>
+#include <athena/Utility.hpp>
 
 namespace hecl {
 
@@ -22,7 +25,9 @@ static logvisor::Module CVarLog("CVarManager");
 CVarManager::CVarManager(hecl::Runtime::FileStoreManager& store, bool useBinary)
 : m_store(store), m_useBinary(useBinary) {
   m_instance = this;
-  com_configfile = newCVar("config", "File to store configuration", std::string("config"), CVar::EFlags::System);
+  com_configfile =
+      newCVar("config", "File to store configuration", std::string("config"),
+              CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::NoDeveloper | CVar::EFlags::Hidden);
   com_developer = newCVar("developer", "Enables developer mode", false,
                           (CVar::EFlags::System | CVar::EFlags::ReadOnly | CVar::EFlags::InternalArchivable));
   com_enableCheats = newCVar(
@@ -69,14 +74,15 @@ std::vector<CVar*> CVarManager::archivedCVars() const {
 std::vector<CVar*> CVarManager::cvars(CVar::EFlags filter) const {
   std::vector<CVar*> ret;
   for (const auto& pair : m_cvars)
-    if (filter == CVar::EFlags::None || (pair.second->flags() & filter) != 0)
+    if (filter == CVar::EFlags::Any || True(pair.second->flags() & filter))
       ret.push_back(pair.second.get());
 
   return ret;
 }
 
 void CVarManager::deserialize(CVar* cvar) {
-  if (!cvar)
+  /* Make sure we're not trying to deserialize a CVar that is invalid or not exposed */
+  if (!cvar || (!cvar->isArchive() && !cvar->isInternalArchivable()))
     return;
 
   /* First let's check for a deferred value */
@@ -90,9 +96,6 @@ void CVarManager::deserialize(CVar* cvar) {
   }
 
   /* We were either unable to find a deferred value or got an invalid value */
-  if (!cvar->isArchive() && !cvar->isInternalArchivable())
-    return;
-
 #if _WIN32
   hecl::SystemString filename =
       hecl::SystemString(m_store.getStoreRoot()) + _SYS_STR('/') + com_configfile->toWideLiteral();
@@ -119,10 +122,9 @@ void CVarManager::deserialize(CVar* cvar) {
         DNACVAR::CVar& tmp = *serialized;
 
         if (cvar->m_value != tmp.m_value) {
-          cvar->unlock();
-          cvar->fromLiteralToType(tmp.m_value, true);
+          CVarUnlocker lc(cvar);
+          cvar->fromLiteralToType(tmp.m_value);
           cvar->m_wasDeserialized = true;
-          cvar->lock();
         }
       }
     }
@@ -142,10 +144,9 @@ void CVarManager::deserialize(CVar* cvar) {
           const std::unique_ptr<athena::io::YAMLNode>& tmp = serialized->second;
 
           if (cvar->m_value != tmp->m_scalarString) {
-            cvar->unlock();
-            cvar->fromLiteralToType(tmp->m_scalarString, true);
+            CVarUnlocker lc(cvar);
+            cvar->fromLiteralToType(tmp->m_scalarString);
             cvar->m_wasDeserialized = true;
-            cvar->lock();
           }
         }
       }
@@ -325,6 +326,15 @@ bool CVarManager::suppressDeveloper() {
 void CVarManager::restoreDeveloper(bool oldDeveloper) {
   CVarUnlocker unlock(com_developer);
   com_developer->fromBoolean(oldDeveloper);
+}
+void CVarManager::proc() {
+  for (const auto& [name, cvar] : m_cvars) {
+    if (cvar->isModified() && !cvar->modificationRequiresRestart()) {
+      cvar->dispatch();
+      // Clear the modified flag now that we've informed everyone we've changed
+      cvar->clearModified();
+    }
+  }
 }
 
 } // namespace hecl

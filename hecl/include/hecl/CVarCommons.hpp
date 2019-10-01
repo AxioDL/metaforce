@@ -1,6 +1,10 @@
 #pragma once
 
-#include "CVarManager.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <string>
+
+#include "hecl/CVarManager.hpp"
 
 #undef min
 #undef max
@@ -14,7 +18,7 @@ using namespace std::literals;
 #elif defined(__APPLE__)
 #define DEFAULT_GRAPHICS_API "Metal"sv
 #else
-#define DEFAULT_GRAPHICS_API "OpenGL"sv
+#define DEFAULT_GRAPHICS_API "Vulkan"sv
 #endif
 
 struct CVarCommons {
@@ -43,13 +47,13 @@ struct CVarCommons {
 
   void setGraphicsApi(std::string_view api) { m_graphicsApi->fromLiteral(api); }
 
-  uint32_t getSamples() const { return std::max(uint32_t(1), uint32_t(m_drawSamples->toInteger())); }
+  uint32_t getSamples() const { return std::max(1u, m_drawSamples->toUnsigned()); }
 
   void setSamples(uint32_t v) { m_drawSamples->fromInteger(std::max(uint32_t(1), v)); }
 
-  uint32_t getAnisotropy() const { return std::max(uint32_t(1), uint32_t(m_texAnisotropy->toInteger())); }
+  uint32_t getAnisotropy() const { return std::max(1u, uint32_t(m_texAnisotropy->toUnsigned())); }
 
-  void setAnisotropy(uint32_t v) { m_texAnisotropy->fromInteger(std::max(uint32_t(1), v)); }
+  void setAnisotropy(uint32_t v) { m_texAnisotropy->fromInteger(std::max(1u, v)); }
 
   bool getDeepColor() const { return m_deepColor->toBoolean(); }
 

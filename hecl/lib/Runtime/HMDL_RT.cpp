@@ -1,6 +1,9 @@
 #include "hecl/HMDLMeta.hpp"
+
 #include "hecl/Runtime.hpp"
+
 #include <athena/MemoryReader.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace hecl::Runtime {
 static logvisor::Module HMDL_Log("HMDL");
