@@ -43,9 +43,11 @@ class MainWindow : public QMainWindow {
 
 public:
   explicit MainWindow(QWidget* parent = nullptr);
-  ~MainWindow();
+  ~MainWindow() override;
+
   void setTextTermFormatting(const QString& text);
   void insertContinueNote(const QString& text);
+
 private slots:
   void onExtract();
   void onExtractFinished(int exitCode, QProcess::ExitStatus);

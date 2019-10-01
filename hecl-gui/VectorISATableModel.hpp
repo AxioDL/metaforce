@@ -10,5 +10,5 @@ protected:
 
 public:
   VectorISATableModel(QObject* parent = Q_NULLPTR) : QAbstractTableModel(parent) {}
-  int rowCount(const QModelIndex& parent = QModelIndex()) const { return 1; }
+  int rowCount(const QModelIndex& parent = QModelIndex()) const override { return 1; }
 };
