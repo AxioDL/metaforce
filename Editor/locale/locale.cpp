@@ -18,7 +18,7 @@ std::vector<std::pair<std::string_view, std::string_view>> ListLocales() {
 
 ELocale LookupLocale(std::string_view name) {
   for (ELocale l = ELocale(0); l < ELocale::MAXLocale; l = ELocale(int(l) + 1))
-    if (!name.compare(GetName(l)))
+    if (name == GetName(l))
       return l;
   return ELocale::Invalid;
 }
