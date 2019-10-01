@@ -184,7 +184,7 @@ for tp in CENTITY_TYPES:
         sourcef.write('''template <class T>
 void TCastToPtr<T>::Visit(%s* p) {
   static_assert(sizeof(T) > 0 && !std::is_void_v<T>, "TCastToPtr can not cast to incomplete type");
-  ptr = reinterpret_cast<T*>(std::is_convertible_v<%s*, T*> ? p : nullptr);
+  ptr = static_cast<T*>(std::is_convertible_v<%s*, T*> ? p : nullptr);
 }
 
 ''' % (qual, qual))
