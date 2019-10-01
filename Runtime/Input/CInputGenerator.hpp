@@ -49,10 +49,10 @@ public:
    * is necessary, only absolute state tracking. */
 
   void mouseDown(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey) {
-    m_data.m_mouseButtons[int(button)] = true;
+    m_data.m_mouseButtons[size_t(button)] = true;
   }
   void mouseUp(const boo::SWindowCoord&, boo::EMouseButton button, boo::EModifierKey) {
-    m_data.m_mouseButtons[int(button)] = false;
+    m_data.m_mouseButtons[size_t(button)] = false;
   }
   void mouseMove(const boo::SWindowCoord& coord) { m_data.m_mouseCoord = coord; }
   void scroll(const boo::SWindowCoord&, const boo::SScrollDelta& scroll) { m_data.m_accumScroll += scroll; }
@@ -69,8 +69,8 @@ public:
       return;
     m_data.m_charKeys[charCode] = false;
   }
-  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool) { m_data.m_specialKeys[int(key)] = true; }
-  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey) { m_data.m_specialKeys[int(key)] = false; }
+  void specialKeyDown(boo::ESpecialKey key, boo::EModifierKey, bool) { m_data.m_specialKeys[size_t(key)] = true; }
+  void specialKeyUp(boo::ESpecialKey key, boo::EModifierKey) { m_data.m_specialKeys[size_t(key)] = false; }
   void modKeyDown(boo::EModifierKey mod, bool) { m_data.m_modMask = m_data.m_modMask | mod; }
   void modKeyUp(boo::EModifierKey mod) { m_data.m_modMask = m_data.m_modMask & ~mod; }
 

@@ -210,7 +210,7 @@ static const ControlMapper::EKBMFunctionList skKBMMapping[] = {
 #define kCommandFilterCount 67
 static bool skCommandFilterFlag[kCommandFilterCount] = {true};
 
-void ControlMapper::SetCommandFiltered(ECommands cmd, bool filtered) { skCommandFilterFlag[int(cmd)] = filtered; }
+void ControlMapper::SetCommandFiltered(ECommands cmd, bool filtered) { skCommandFilterFlag[size_t(cmd)] = filtered; }
 
 void ControlMapper::ResetCommandFilters() {
   for (int i = 0; i < kCommandFilterCount; ++i)
@@ -218,46 +218,53 @@ void ControlMapper::ResetCommandFilters() {
 }
 
 bool ControlMapper::GetPressInput(ECommands cmd, const CFinalInput& input) {
-  if (!skCommandFilterFlag[int(cmd)])
+  if (!skCommandFilterFlag[size_t(cmd)]) {
     return false;
+  }
+
   bool ret = false;
-  EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
   if (func < EFunctionList::MAX) {
-    if (BoolReturnFn fn = skPressFuncs[int(func)])
+    if (BoolReturnFn fn = skPressFuncs[size_t(func)]) {
       ret = (input.*fn)();
+    }
   }
   if (const auto& kbm = input.GetKBM()) {
-    EKBMFunctionList kbmfunc = skKBMMapping[int(cmd)];
+    const EKBMFunctionList kbmfunc = skKBMMapping[size_t(cmd)];
     if (kbmfunc < EKBMFunctionList::MAX) {
-      if (kbmfunc >= EKBMFunctionList::MousePress)
-        ret |= input.m_PMouseButtons[int(kbmfunc) - int(EKBMFunctionList::MousePress)];
-      else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress)
-        ret |= input.m_PSpecialKeys[int(kbmfunc) - int(EKBMFunctionList::SpecialKeyPress)];
-      else if (kbmfunc >= EKBMFunctionList::KeyPress)
-        ret |= input.m_PCharKeys[int(kbmfunc) - int(EKBMFunctionList::KeyPress)];
+      if (kbmfunc >= EKBMFunctionList::MousePress) {
+        ret |= input.m_PMouseButtons[size_t(kbmfunc) - size_t(EKBMFunctionList::MousePress)];
+      } else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress) {
+        ret |= input.m_PSpecialKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::SpecialKeyPress)];
+      } else if (kbmfunc >= EKBMFunctionList::KeyPress) {
+        ret |= input.m_PCharKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::KeyPress)];
+      }
     }
   }
   return ret;
 }
 
 bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input) {
-  if (!skCommandFilterFlag[int(cmd)])
+  if (!skCommandFilterFlag[size_t(cmd)]) {
     return false;
+  }
+
   bool ret = false;
-  EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
   if (func < EFunctionList::MAX) {
-    if (BoolReturnFn fn = skDigitalFuncs[int(func)])
+    if (BoolReturnFn fn = skDigitalFuncs[size_t(func)])
       ret = (input.*fn)();
   }
   if (const auto& kbm = input.GetKBM()) {
-    EKBMFunctionList kbmfunc = skKBMMapping[int(cmd)];
+    EKBMFunctionList kbmfunc = skKBMMapping[size_t(cmd)];
     if (kbmfunc < EKBMFunctionList::MAX) {
-      if (kbmfunc >= EKBMFunctionList::MousePress)
-        ret |= kbm->m_mouseButtons[int(kbmfunc) - int(EKBMFunctionList::MousePress)];
-      else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress)
-        ret |= kbm->m_specialKeys[int(kbmfunc) - int(EKBMFunctionList::SpecialKeyPress)];
-      else if (kbmfunc >= EKBMFunctionList::KeyPress)
-        ret |= kbm->m_charKeys[int(kbmfunc) - int(EKBMFunctionList::KeyPress)];
+      if (kbmfunc >= EKBMFunctionList::MousePress) {
+        ret |= kbm->m_mouseButtons[size_t(kbmfunc) - size_t(EKBMFunctionList::MousePress)];
+      } else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress) {
+        ret |= kbm->m_specialKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::SpecialKeyPress)];
+      } else if (kbmfunc >= EKBMFunctionList::KeyPress) {
+        ret |= kbm->m_charKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::KeyPress)];
+      }
     }
   }
   return ret;
@@ -265,52 +272,65 @@ bool ControlMapper::GetDigitalInput(ECommands cmd, const CFinalInput& input) {
 
 static float KBToWASDX(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_charKeys[int('a')])
+  if (data.m_charKeys[size_t('a')]) {
     retval -= 1.0;
-  if (data.m_charKeys[int('d')])
+  }
+  if (data.m_charKeys[size_t('d')]) {
     retval += 1.0;
-  if (data.m_charKeys[int('w')] ^ data.m_charKeys[int('s')])
+  }
+  if (data.m_charKeys[size_t('w')] ^ data.m_charKeys[size_t('s')]) {
     retval *= 0.555f;
+  }
   return retval;
 }
 
 static float KBToWASDY(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_charKeys[int('s')])
+  if (data.m_charKeys[size_t('s')]) {
     retval -= 1.0;
-  if (data.m_charKeys[int('w')])
+  }
+  if (data.m_charKeys[size_t('w')]) {
     retval += 1.0;
-  if (data.m_charKeys[int('a')] ^ data.m_charKeys[int('d')])
+  }
+  if (data.m_charKeys[size_t('a')] ^ data.m_charKeys[size_t('d')]) {
     retval *= 0.555f;
+  }
   return retval;
 }
 
 static float KBToArrowsX(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[int(boo::ESpecialKey::Left)])
+  if (data.m_specialKeys[size_t(boo::ESpecialKey::Left)]) {
     retval -= 1.0;
-  if (data.m_specialKeys[int(boo::ESpecialKey::Right)])
+  }
+  if (data.m_specialKeys[size_t(boo::ESpecialKey::Right)]) {
     retval += 1.0;
+  }
   return retval;
 }
 
 static float KBToArrowsY(const CKeyboardMouseControllerData& data) {
   float retval = 0.0;
-  if (data.m_specialKeys[int(boo::ESpecialKey::Down)])
+  if (data.m_specialKeys[size_t(boo::ESpecialKey::Down)]) {
     retval -= 1.0;
-  if (data.m_specialKeys[int(boo::ESpecialKey::Up)])
+  }
+  if (data.m_specialKeys[size_t(boo::ESpecialKey::Up)]) {
     retval += 1.0;
+  }
   return retval;
 }
 
 float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
-  if (!skCommandFilterFlag[int(cmd)])
+  if (!skCommandFilterFlag[size_t(cmd)]) {
     return 0.f;
+  }
+
   float ret = 0.f;
-  EFunctionList func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
+  const auto func = EFunctionList(g_currentPlayerControl->GetMapping(atUint32(cmd)));
   if (func < EFunctionList::MAX) {
-    if (FloatReturnFn fn = skAnalogFuncs[int(func)])
+    if (FloatReturnFn fn = skAnalogFuncs[size_t(func)]) {
       ret = (input.*fn)();
+    }
   }
   if (const auto& kbm = input.GetKBM()) {
     switch (cmd) {
@@ -353,14 +373,16 @@ float ControlMapper::GetAnalogInput(ECommands cmd, const CFinalInput& input) {
       ret = std::max(ret, KBToArrowsX(*kbm));
       break;
     default: {
-      EKBMFunctionList kbmfunc = skKBMMapping[int(cmd)];
+      const EKBMFunctionList kbmfunc = skKBMMapping[size_t(cmd)];
       if (kbmfunc < EKBMFunctionList::MAX) {
-        if (kbmfunc >= EKBMFunctionList::MousePress)
-          ret = std::max(ret, kbm->m_mouseButtons[int(kbmfunc) - int(EKBMFunctionList::MousePress)] ? 1.f : 0.f);
-        else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress)
-          ret = std::max(ret, kbm->m_specialKeys[int(kbmfunc) - int(EKBMFunctionList::SpecialKeyPress)] ? 1.f : 0.f);
-        else if (kbmfunc >= EKBMFunctionList::KeyPress)
-          ret = std::max(ret, kbm->m_charKeys[int(kbmfunc) - int(EKBMFunctionList::KeyPress)] ? 1.f : 0.f);
+        if (kbmfunc >= EKBMFunctionList::MousePress) {
+          ret = std::max(ret, kbm->m_mouseButtons[size_t(kbmfunc) - size_t(EKBMFunctionList::MousePress)] ? 1.f : 0.f);
+        } else if (kbmfunc >= EKBMFunctionList::SpecialKeyPress) {
+          ret = std::max(ret,
+                         kbm->m_specialKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::SpecialKeyPress)] ? 1.f : 0.f);
+        } else if (kbmfunc >= EKBMFunctionList::KeyPress) {
+          ret = std::max(ret, kbm->m_charKeys[size_t(kbmfunc) - size_t(EKBMFunctionList::KeyPress)] ? 1.f : 0.f);
+        }
       }
       break;
     }
@@ -373,14 +395,14 @@ const char* ControlMapper::GetDescriptionForCommand(ECommands cmd) {
   if (cmd >= ECommands::MAX) {
     return nullptr;
   }
-  return skCommandDescs[int(cmd)];
+  return skCommandDescs[size_t(cmd)];
 }
 
 const char* ControlMapper::GetDescriptionForFunction(EFunctionList func) {
   if (func >= EFunctionList::MAX) {
     return nullptr;
   }
-  return skFunctionDescs[int(func)];
+  return skFunctionDescs[size_t(func)];
 }
 
 } // namespace urde

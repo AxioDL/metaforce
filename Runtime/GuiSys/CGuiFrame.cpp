@@ -227,7 +227,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         hit->m_integerScroll.delta[1] -= std::trunc(hit->m_integerScroll.delta[1]);
       }
     }
-    if (!m_inMouseDown && kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+    if (!m_inMouseDown && kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
       m_inMouseDown = true;
       m_inCancel = false;
       m_mouseDownWidget = hit;
@@ -235,7 +235,7 @@ bool CGuiFrame::ProcessMouseInput(const CFinalInput& input, const CGuiWidgetDraw
         m_mouseDownCb(hit, false);
       if (hit)
         return true;
-    } else if (m_inMouseDown && !kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+    } else if (m_inMouseDown && !kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
       m_inMouseDown = false;
       m_inCancel = false;
       if (m_mouseDownWidget == m_lastMouseOverWidget) {

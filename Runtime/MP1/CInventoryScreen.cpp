@@ -158,8 +158,8 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
       m_lastMouseCoord = mouseCoord;
       mouseDelta.x() *= g_Viewport.aspect;
       mouseDelta *= 100.f;
-      if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)] ||
-          kbm->m_mouseButtons[int(boo::EMouseButton::Secondary)]) {
+      if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Middle)] ||
+          kbm->m_mouseButtons[size_t(boo::EMouseButton::Secondary)]) {
         if (float(mouseDelta.x()) < 0.f)
           moveRight += -mouseDelta.x();
         else if (float(mouseDelta.x()) > 0.f)
@@ -169,7 +169,7 @@ void CInventoryScreen::ProcessControllerInput(const CFinalInput& input) {
         else if (float(mouseDelta.y()) > 0.f)
           moveBack += mouseDelta.y();
       }
-      if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+      if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
         if (float(mouseDelta.x()) < 0.f)
           circleRight += -mouseDelta.x();
         else if (float(mouseDelta.x()) > 0.f)
