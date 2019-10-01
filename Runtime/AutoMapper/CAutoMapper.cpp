@@ -486,7 +486,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   float dirs[4] = {};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[int(boo::EMouseButton::Primary)]) {
+    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         dirs[3] = -m_mouseDelta.x();
@@ -664,8 +664,8 @@ void CAutoMapper::ProcessMapPanInput(const CFinalInput& input, const CStateManag
 
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
-    if (kbm->m_mouseButtons[int(boo::EMouseButton::Middle)] ||
-        kbm->m_mouseButtons[int(boo::EMouseButton::Secondary)]) {
+    if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Middle)] ||
+        kbm->m_mouseButtons[size_t(boo::EMouseButton::Secondary)]) {
       mouseHeld = true;
       if (float(m_mouseDelta.x()) < 0.f)
         right += -m_mouseDelta.x();

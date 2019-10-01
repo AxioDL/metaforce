@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Input/CKeyboardMouseController.hpp"
 
@@ -62,9 +64,9 @@ struct CFinalInput {
 
   std::optional<CKeyboardMouseControllerData> m_kbm;
 
-  bool m_PCharKeys[256] = {};
-  bool m_PSpecialKeys[26] = {};
-  bool m_PMouseButtons[6] = {};
+  std::array<bool, 256> m_PCharKeys{};
+  std::array<bool, 26> m_PSpecialKeys{};
+  std::array<bool, 6> m_PMouseButtons{};
 
   float m_leftMul = 1.f;
   float m_rightMul = 1.f;
@@ -158,12 +160,12 @@ struct CFinalInput {
 
   CFinalInput ScaleAnalogueSticks(float leftDiv, float rightDiv) const;
 
-  bool PKey(char k) const { return m_kbm && m_PCharKeys[int(k)]; }
-  bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[int(k)]; }
-  bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[int(k)]; }
-  bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[int(k)]; }
-  bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[int(k)]; }
-  bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[int(k)]; }
+  bool PKey(char k) const { return m_kbm && m_PCharKeys[size_t(k)]; }
+  bool PSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_PSpecialKeys[size_t(k)]; }
+  bool PMouseButton(boo::EMouseButton k) const { return m_kbm && m_PMouseButtons[size_t(k)]; }
+  bool DKey(char k) const { return m_kbm && m_kbm->m_charKeys[size_t(k)]; }
+  bool DSpecialKey(boo::ESpecialKey k) const { return m_kbm && m_kbm->m_specialKeys[size_t(k)]; }
+  bool DMouseButton(boo::EMouseButton k) const { return m_kbm && m_kbm->m_mouseButtons[size_t(k)]; }
   float AKey(char k) const { return DKey(k) ? 1.f : 0.f; }
   float ASpecialKey(boo::ESpecialKey k) const { return DSpecialKey(k) ? 1.f : 0.f; }
   float AMouseButton(boo::EMouseButton k) const { return DMouseButton(k) ? 1.f : 0.f; }

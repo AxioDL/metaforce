@@ -118,10 +118,10 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2c_b28_Z(false)
 , x2c_b29_L(false)
 , x2c_b30_R(false)
-, x2c_b31_DPUp(data.m_specialKeys[int(boo::ESpecialKey::Up)])
-, x2d_b24_DPRight(data.m_specialKeys[int(boo::ESpecialKey::Right)])
-, x2d_b25_DPDown(data.m_specialKeys[int(boo::ESpecialKey::Down)])
-, x2d_b26_DPLeft(data.m_specialKeys[int(boo::ESpecialKey::Left)])
+, x2c_b31_DPUp(data.m_specialKeys[size_t(boo::ESpecialKey::Up)])
+, x2d_b24_DPRight(data.m_specialKeys[size_t(boo::ESpecialKey::Right)])
+, x2d_b25_DPDown(data.m_specialKeys[size_t(boo::ESpecialKey::Down)])
+, x2d_b26_DPLeft(data.m_specialKeys[size_t(boo::ESpecialKey::Left)])
 , x2d_b27_Start(false)
 , x2d_b28_PA(DA() && !prevInput.DA())
 , x2d_b29_PB(DB() && !prevInput.DB())
@@ -137,12 +137,15 @@ CFinalInput::CFinalInput(int cIdx, float dt, const CKeyboardMouseControllerData&
 , x2e_b31_PStart(DStart() && !prevInput.DStart())
 , m_kbm(data) {
   if (prevInput.m_kbm) {
-    for (int i = 0; i < 256; ++i)
+    for (size_t i = 0; i < m_PCharKeys.size(); ++i) {
       m_PCharKeys[i] = data.m_charKeys[i] && !prevInput.m_kbm->m_charKeys[i];
-    for (int i = 0; i < 26; ++i)
+    }
+    for (size_t i = 0; i < m_PSpecialKeys.size(); ++i) {
       m_PSpecialKeys[i] = data.m_specialKeys[i] && !prevInput.m_kbm->m_specialKeys[i];
-    for (int i = 0; i < 6; ++i)
+    }
+    for (size_t i = 0; i < m_PMouseButtons.size(); ++i) {
       m_PMouseButtons[i] = data.m_mouseButtons[i] && !prevInput.m_kbm->m_mouseButtons[i];
+    }
   }
 }
 
@@ -195,12 +198,9 @@ CFinalInput& CFinalInput::operator|=(const CFinalInput& other) {
   x2e_b31_PStart |= other.x2e_b31_PStart;
   if (other.m_kbm) {
     m_kbm = other.m_kbm;
-    for (int i = 0; i < 256; ++i)
-      m_PCharKeys[i] = other.m_PCharKeys[i];
-    for (int i = 0; i < 26; ++i)
-      m_PSpecialKeys[i] = other.m_PSpecialKeys[i];
-    for (int i = 0; i < 6; ++i)
-      m_PMouseButtons[i] = other.m_PMouseButtons[i];
+    m_PCharKeys = other.m_PCharKeys;
+    m_PSpecialKeys = other.m_PSpecialKeys;
+    m_PMouseButtons = other.m_PMouseButtons;
   }
   return *this;
 }
