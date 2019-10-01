@@ -140,7 +140,7 @@ void FileBrowser::navigateToPath(hecl::SystemStringView path) {
   for (const hecl::SystemString& d : m_comps) {
     if (needSlash)
       dir += _SYS_STR('/');
-    if (d.compare(_SYS_STR("/")))
+    if (d != _SYS_STR("/"))
       needSlash = true;
     dir += d;
   }
@@ -185,7 +185,7 @@ void FileBrowser::okActivated(bool viaButton) {
   for (const hecl::SystemString& d : m_comps) {
     if (needSlash)
       path += _SYS_STR('/');
-    if (d.compare(_SYS_STR("/")))
+    if (d != _SYS_STR("/"))
       needSlash = true;
     path += d;
   }
@@ -295,7 +295,7 @@ void FileBrowser::cancelActivated() {
   for (const hecl::SystemString& d : m_comps) {
     if (needSlash)
       path += _SYS_STR('/');
-    if (d.compare(_SYS_STR("/")))
+    if (d != _SYS_STR("/"))
       needSlash = true;
     path += d;
   }
@@ -320,7 +320,7 @@ void FileBrowser::pathButtonActivated(size_t idx) {
   for (const hecl::SystemString& d : m_comps) {
     if (needSlash)
       dir += _SYS_STR('/');
-    if (d.compare(_SYS_STR("/")))
+    if (d != _SYS_STR("/"))
       needSlash = true;
     dir += d;
     if (++i > idx)
