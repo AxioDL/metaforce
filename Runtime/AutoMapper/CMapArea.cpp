@@ -150,7 +150,7 @@ static const u8 MinesPostTransformIndices[] = {
 };
 
 zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid) const {
-  if (world.IGetWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0xB1AC4D65)) // Phazon Mines
+  if (world.IGetWorldAssetId() == 0xB1AC4D65) // Phazon Mines
   {
     const zeus::CTransform& areaXf = world.IGetAreaAlways(aid)->IGetTM();
     const zeus::CVector3f& postVec = MinesPostTransforms[MinesPostTransformIndices[aid]];
@@ -161,7 +161,7 @@ zeus::CTransform CMapArea::GetAreaPostTransform(const IWorld& world, TAreaId aid
 }
 
 const zeus::CVector3f& CMapArea::GetAreaPostTranslate(const IWorld& world, TAreaId aid) {
-  if (world.IGetWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0xB1AC4D65)) // Phazon Mines
+  if (world.IGetWorldAssetId() == 0xB1AC4D65) // Phazon Mines
     return MinesPostTransforms[MinesPostTransformIndices[aid]];
   else
     return zeus::skZero3f;

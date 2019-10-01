@@ -4,7 +4,6 @@
 #include "IFactory.hpp"
 #include "CResLoader.hpp"
 #include "IVParamObj.hpp"
-#include "MP1/MP1OriginalIDs.hpp"
 #include "CToken.hpp"
 
 namespace urde {
@@ -14,9 +13,6 @@ class CSimplePool;
 class CResFactory : public IFactory {
   CResLoader x4_loader;
   CFactoryMgr x5c_factoryMgr;
-#if RUNTIME_ORIGINAL_IDS
-  TLockedToken<MP1OriginalIDs> m_origIds;
-#endif
 
 public:
   struct SLoadingData {
@@ -96,10 +92,6 @@ public:
 
   void LoadPersistentResources(CSimplePool& sp);
   void UnloadPersistentResources() { m_nonWorldTokens.clear(); }
-
-  void LoadOriginalIDs(CSimplePool& sp) override;
-  CAssetId TranslateOriginalToNew(CAssetId id) const override;
-  CAssetId TranslateNewToOriginal(CAssetId id) const override;
 
   CResLoader* GetResLoader() override { return &x4_loader; }
   CFactoryMgr* GetFactoryMgr() override { return &x5c_factoryMgr; }

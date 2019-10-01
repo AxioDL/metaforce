@@ -24,77 +24,6 @@ static logvisor::Module Log("urde::SpecMP3");
 extern hecl::Database::DataSpecEntry SpecEntMP3;
 extern hecl::Database::DataSpecEntry SpecEntMP3ORIG;
 
-static const std::unordered_set<uint64_t> IndividualOrigIDs = {};
-
-struct OriginalIDs {
-  static void Generate(PAKRouter<DNAMP3::PAKBridge>& pakRouter, hecl::Database::Project& project) {
-    std::unordered_set<UniqueID64> addedIDs;
-    std::vector<UniqueID64> originalIDs;
-
-    pakRouter.enumerateResources([&](const DNAMP3::PAK::Entry* ent) {
-      if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN') || ent->type == FOURCC('MREA') ||
-          IndividualOrigIDs.find(ent->id.toUint64()) != IndividualOrigIDs.end()) {
-        if (addedIDs.find(ent->id) == addedIDs.cend()) {
-          addedIDs.insert(ent->id);
-          originalIDs.push_back(ent->id);
-        }
-      }
-      return true;
-    });
-    std::sort(originalIDs.begin(), originalIDs.end());
-
-    athena::io::YAMLDocWriter yamlW("MP3OriginalIDs");
-    for (const UniqueID64& id : originalIDs) {
-      hecl::ProjectPath path = pakRouter.getWorking(id);
-      yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
-    }
-    hecl::ProjectPath path(project.getProjectWorkingPath(), "MP3/!original_ids.yaml");
-    path.makeDirChain(false);
-    athena::io::FileWriter fileW(path.getAbsolutePath());
-    yamlW.finish(&fileW);
-  }
-
-  static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-    hecl::Database::Project& project = inPath.getProject();
-    athena::io::YAMLDocReader r;
-    athena::io::FileReader fr(inPath.getAbsolutePath());
-    if (!fr.isOpen() || !r.parse(&fr))
-      return;
-
-    std::vector<std::pair<UniqueID64, UniqueID64>> originalIDs;
-    originalIDs.reserve(r.getRootNode()->m_mapChildren.size());
-    for (const auto& node : r.getRootNode()->m_mapChildren) {
-      char* end = const_cast<char*>(node.first.c_str());
-      u32 id = strtoul(end, &end, 16);
-      if (end != node.first.c_str() + 8)
-        continue;
-
-      hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
-      originalIDs.push_back(std::make_pair(id, path.hash().val32()));
-    }
-    std::sort(originalIDs.begin(), originalIDs.end(),
-              [](const std::pair<UniqueID64, UniqueID64>& a, const std::pair<UniqueID64, UniqueID64>& b) {
-                return a.first < b.first;
-              });
-
-    athena::io::FileWriter w(outPath.getAbsolutePath());
-    w.writeUint32Big(originalIDs.size());
-    for (const auto& idPair : originalIDs) {
-      idPair.first.write(w);
-      idPair.second.write(w);
-    }
-
-    std::sort(originalIDs.begin(), originalIDs.end(),
-              [](const std::pair<UniqueID64, UniqueID64>& a, const std::pair<UniqueID64, UniqueID64>& b) {
-                return a.second < b.second;
-              });
-    for (const auto& idPair : originalIDs) {
-      idPair.second.write(w);
-      idPair.first.write(w);
-    }
-  }
-};
-
 struct SpecMP3 : SpecBase {
   bool checkStandaloneID(const char* id) const override {
     if (!memcmp(id, "RM3", 3))
@@ -120,12 +49,6 @@ struct SpecMP3 : SpecBase {
   hecl::ProjectPath m_feWorkPath;
   hecl::ProjectPath m_feCookPath;
   PAKRouter<DNAMP3::PAKBridge> m_fePakRouter;
-  IDRestorer<UniqueID64> m_idRestorer;
-
-  void setThreadProject() override {
-    SpecBase::setThreadProject();
-    UniqueIDBridge::SetIDRestorer(&m_idRestorer);
-  }
 
   SpecMP3(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
   : SpecBase(specEntry, project, pc)
@@ -134,8 +57,7 @@ struct SpecMP3 : SpecBase {
   , m_pakRouter(*this, m_workPath, m_cookPath)
   , m_feWorkPath(project.getProjectWorkingPath(), _SYS_STR("fe"))
   , m_feCookPath(project.getProjectCookedPath(SpecEntMP3), _SYS_STR("fe"))
-  , m_fePakRouter(*this, m_feWorkPath, m_feCookPath)
-  , m_idRestorer({project.getProjectWorkingPath(), "MP3/!original_ids.yaml"}, project) {
+  , m_fePakRouter(*this, m_feWorkPath, m_feCookPath) {
     setThreadProject();
   }
 
@@ -154,7 +76,7 @@ struct SpecMP3 : SpecBase {
       std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
       if (name.size() > 4) {
         std::string::iterator extit = lowerName.end() - 4;
-        if (!std::string(extit, lowerName.end()).compare(".pak")) {
+        if (std::string(extit, lowerName.end()) == ".pak") {
           /* This is a pak */
           isPak = true;
           std::string lowerBase(lowerName.begin(), extit);
@@ -217,13 +139,13 @@ struct SpecMP3 : SpecBase {
       ExtractReport& childRep = rep.childOpts.back();
       hecl::SystemStringConv nameView(item.first);
       childRep.name = hecl::SystemString(nameView.sys_str());
-      if (!item.first.compare("Worlds.pak"))
+      if (item.first == "Worlds.pak")
         continue;
-      else if (!item.first.compare("Metroid6.pak")) {
+      else if (item.first == "Metroid6.pak") {
         /* Phaaze doesn't have a world name D: */
         childRep.desc = _SYS_STR("Phaaze");
         continue;
-      } else if (!item.first.compare("Metroid8.pak")) {
+      } else if (item.first == "Metroid8.pak") {
         /* Space world is misnamed */
         childRep.desc = _SYS_STR("Space");
         continue;
@@ -440,9 +362,6 @@ struct SpecMP3 : SpecBase {
       }
 
       process.waitUntilComplete();
-
-      /* Generate original ID mapping for MLVL and SCAN entries - marks complete project */
-      OriginalIDs::Generate(m_pakRouter, m_project);
     }
 
     if (doMPTFE) {
@@ -525,6 +444,9 @@ struct SpecMP3 : SpecBase {
   void cookColMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                    hecl::blender::Token& btok, FCookProgress progress) override {}
 
+  void cookArmature(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                    hecl::blender::Token& btok, FCookProgress progress) override {}
+
   void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                     hecl::blender::Token& btok, FCookProgress progress) override {}
 
@@ -541,7 +463,7 @@ struct SpecMP3 : SpecBase {
                     hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
-                FCookProgress progress) override {}
+                hecl::blender::Token& btok, FCookProgress progress) override {}
 
   void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut) override {}
 
@@ -562,20 +484,6 @@ struct SpecMP3 : SpecBase {
 
   void cookMapUniverse(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
                        hecl::blender::Token& btok, FCookProgress progress) override {}
-
-  UniqueID64 newToOriginal(urde::CAssetId id) const {
-    UniqueID64 origId = m_idRestorer.newToOriginal({id.Value(), true});
-    if (origId.isValid())
-      return {origId.toUint64(), true};
-    return {uint32_t(id.Value()), true};
-  }
-
-  urde::CAssetId originalToNew(UniqueID64 id) const {
-    UniqueID64 newId = m_idRestorer.originalToNew(id);
-    if (newId.isValid())
-      return newId.toUint64();
-    return id.toUint64();
-  }
 };
 
 hecl::Database::DataSpecEntry SpecEntMP3(

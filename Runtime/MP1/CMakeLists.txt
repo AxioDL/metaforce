@@ -40,7 +40,6 @@ set(MP1_SOURCES
     CSamusDoll.hpp CSamusDoll.cpp
     CGameCubeDoll.hpp CGameCubeDoll.cpp
     CArtifactDoll.hpp CArtifactDoll.cpp
-    MP1OriginalIDs.hpp MP1OriginalIDs.cpp
     MP1.hpp MP1.cpp
     ${MP1_PLAT_SOURCES}
     ${MP1_WORLD_SOURCES})

@@ -5,11 +5,11 @@ logvisor::Module LogModule("urde::DNAParticle");
 
 template <>
 void REConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
-  val = r.readFloat(nullptr);
+  val = r.readFloat();
 }
 template <>
 void REConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  w.writeFloat(nullptr, val);
+  w.writeFloat(val);
 }
 template <>
 void REConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -26,11 +26,11 @@ void REConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
 
 template <>
 void IEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
-  val = r.readUint32(nullptr);
+  val = r.readUint32();
 }
 template <>
 void IEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  w.writeUint32(nullptr, val);
+  w.writeUint32(val);
 }
 template <>
 void IEConstant::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -48,18 +48,18 @@ void IEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
 template <>
 void VEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
   size_t elemCount;
-  if (auto v = r.enterSubVector(nullptr, elemCount)) {
+  if (auto v = r.enterSubVector(elemCount)) {
     for (size_t i = 0; i < 3 && i < elemCount; ++i) {
-      if (auto rec = r.enterSubRecord(nullptr))
+      if (auto rec = r.enterSubRecord())
         comps[i].read(r);
     }
   }
 }
 template <>
 void VEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  if (auto v = w.enterSubVector(nullptr))
+  if (auto v = w.enterSubVector())
     for (int i = 0; i < 3; ++i)
-      if (auto rec = w.enterSubRecord(nullptr))
+      if (auto rec = w.enterSubRecord())
         comps[i].write(w);
 }
 template <>
@@ -84,14 +84,14 @@ void VEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
 template <>
 void CEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
   for (int i = 0; i < 4; ++i)
-    if (auto rec = r.enterSubRecord(nullptr))
+    if (auto rec = r.enterSubRecord())
       comps[i].read(r);
 }
 template <>
 void CEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  if (auto v = w.enterSubVector(nullptr))
+  if (auto v = w.enterSubVector())
     for (int i = 0; i < 4; ++i)
-      if (auto rec = w.enterSubRecord(nullptr))
+      if (auto rec = w.enterSubRecord())
         comps[i].write(w);
 }
 template <>
@@ -119,14 +119,14 @@ void CEConstant::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
 template <>
 void MVEConstant::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
   for (int i = 0; i < 3; ++i)
-    if (auto rec = r.enterSubRecord(nullptr))
+    if (auto rec = r.enterSubRecord())
       comps[i].read(r);
 }
 template <>
 void MVEConstant::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  if (auto v = w.enterSubVector(nullptr))
+  if (auto v = w.enterSubVector())
     for (int i = 0; i < 3; ++i)
-      if (auto rec = w.enterSubRecord(nullptr))
+      if (auto rec = w.enterSubRecord())
         comps[i].write(w);
 }
 template <>
@@ -402,7 +402,7 @@ void RealElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
 template <>
 void RealElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -566,7 +566,7 @@ void IntElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
 template <>
 void IntElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -730,7 +730,7 @@ void VectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
 template <>
 void VectorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -828,7 +828,7 @@ void ColorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
 template <>
 void ColorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -960,7 +960,7 @@ void ModVectorElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r)
 template <>
 void ModVectorElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -1044,7 +1044,7 @@ void EmitterElementFactory::Enumerate<BigDNA::Read>(typename Read::StreamT& r) {
 template <>
 void EmitterElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -1052,11 +1052,11 @@ void EmitterElementFactory::Enumerate<BigDNA::Write>(typename Write::StreamT& w)
 
 template <>
 void BoolHelper::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& r) {
-  value = r.readBool(nullptr);
+  value = r.readBool();
 }
 template <>
 void BoolHelper::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w) {
-  w.writeBool(nullptr, value);
+  w.writeBool(value);
 }
 template <>
 void BoolHelper::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
@@ -1121,12 +1121,12 @@ void EESimpleEmitterTR::Enumerate<BigDNA::Write>(typename Write::StreamT& w) {
 }
 
 template <>
-const char* UVEConstant<UniqueID32>::DNAType() {
-  return "UVEConstant<UniqueID32>";
+std::string_view UVEConstant<UniqueID32>::DNAType() {
+  return "UVEConstant<UniqueID32>"sv;
 }
 template <>
-const char* UVEConstant<UniqueID64>::DNAType() {
-  return "UVEConstant<UniqueID64>";
+std::string_view UVEConstant<UniqueID64>::DNAType() {
+  return "UVEConstant<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -1166,12 +1166,12 @@ template struct UVEConstant<UniqueID32>;
 template struct UVEConstant<UniqueID64>;
 
 template <>
-const char* UVEAnimTexture<UniqueID32>::DNAType() {
-  return "UVEAnimTexture<UniqueID32>";
+std::string_view UVEAnimTexture<UniqueID32>::DNAType() {
+  return "UVEAnimTexture<UniqueID32>"sv;
 }
 template <>
-const char* UVEAnimTexture<UniqueID64>::DNAType() {
-  return "UVEAnimTexture<UniqueID64>";
+std::string_view UVEAnimTexture<UniqueID64>::DNAType() {
+  return "UVEAnimTexture<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -1190,7 +1190,7 @@ void UVEAnimTexture<IDType>::_read(typename ReadYaml::StreamT& r) {
   if (auto rec = r.enterSubRecord("cycleFrames"))
     cycleFrames.read(r);
   if (auto rec = r.enterSubRecord("loop"))
-    loop = r.readBool(nullptr);
+    loop = r.readBool();
 }
 template <class IDType>
 void UVEAnimTexture<IDType>::_write(typename WriteYaml::StreamT& w) const {
@@ -1254,12 +1254,12 @@ template struct UVEAnimTexture<UniqueID32>;
 template struct UVEAnimTexture<UniqueID64>;
 
 template <>
-const char* UVElementFactory<UniqueID32>::DNAType() {
-  return "UVElementFactory<UniqueID32>";
+std::string_view UVElementFactory<UniqueID32>::DNAType() {
+  return "UVElementFactory<UniqueID32>"sv;
 }
 template <>
-const char* UVElementFactory<UniqueID64>::DNAType() {
-  return "UVElementFactory<UniqueID64>";
+std::string_view UVElementFactory<UniqueID64>::DNAType() {
+  return "UVElementFactory<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -1282,7 +1282,7 @@ void UVElementFactory<IDType>::_read(typename Read::StreamT& r) {
 template <class IDType>
 void UVElementFactory<IDType>::_write(typename Write::StreamT& w) const {
   if (m_elem) {
-    w.writeBytes((atInt8*)m_elem->ClassID(), 4);
+    w.writeBytes((atInt8*)m_elem->ClassID().data(), 4);
     m_elem->write(w);
   } else
     w.writeBytes((atInt8*)"NONE", 4);
@@ -1318,12 +1318,12 @@ template struct UVElementFactory<UniqueID32>;
 template struct UVElementFactory<UniqueID64>;
 
 template <>
-const char* SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo::DNAType() {
-  return "SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo";
+std::string_view SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo::DNAType() {
+  return "SpawnSystemKeyframeData<UniqueID32>::SpawnSystemKeyframeInfo"sv;
 }
 template <>
-const char* SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo::DNAType() {
-  return "SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo";
+std::string_view SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo::DNAType() {
+  return "SpawnSystemKeyframeData<UniqueID64>::SpawnSystemKeyframeInfo"sv;
 }
 
 template <class IDType>
@@ -1336,31 +1336,31 @@ void SpawnSystemKeyframeData<IDType>::SpawnSystemKeyframeInfo::Enumerate(typenam
 }
 
 template <>
-const char* SpawnSystemKeyframeData<UniqueID32>::DNAType() {
-  return "SpawnSystemKeyframeData<UniqueID32>";
+std::string_view SpawnSystemKeyframeData<UniqueID32>::DNAType() {
+  return "SpawnSystemKeyframeData<UniqueID32>"sv;
 }
 template <>
-const char* SpawnSystemKeyframeData<UniqueID64>::DNAType() {
-  return "SpawnSystemKeyframeData<UniqueID64>";
+std::string_view SpawnSystemKeyframeData<UniqueID64>::DNAType() {
+  return "SpawnSystemKeyframeData<UniqueID64>"sv;
 }
 
 template <class IDType>
 void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r) {
   if (auto rec = r.enterSubRecord("a"))
-    a = r.readUint32(nullptr);
+    a = r.readUint32();
   if (auto rec = r.enterSubRecord("b"))
-    b = r.readUint32(nullptr);
+    b = r.readUint32();
   if (auto rec = r.enterSubRecord("endFrame"))
-    endFrame = r.readUint32(nullptr);
+    endFrame = r.readUint32();
   if (auto rec = r.enterSubRecord("d"))
-    d = r.readUint32(nullptr);
+    d = r.readUint32();
   spawns.clear();
   size_t spawnCount;
   if (auto v = r.enterSubVector("spawns", spawnCount)) {
     spawns.reserve(spawnCount);
     for (const auto& child : r.getCurNode()->m_seqChildren) {
       (void)child;
-      if (auto rec = r.enterSubRecord(nullptr)) {
+      if (auto rec = r.enterSubRecord()) {
         spawns.emplace_back();
         spawns.back().first = r.readUint32("startFrame");
         size_t systemCount;
@@ -1370,7 +1370,7 @@ void SpawnSystemKeyframeData<IDType>::_read(typename ReadYaml::StreamT& r) {
             (void)in;
             spawns.back().second.emplace_back();
             SpawnSystemKeyframeInfo& info = spawns.back().second.back();
-            if (auto rec = r.enterSubRecord(nullptr))
+            if (auto rec = r.enterSubRecord())
               info.read(r);
           }
         }
@@ -1389,11 +1389,11 @@ void SpawnSystemKeyframeData<IDType>::_write(typename WriteYaml::StreamT& w) con
   w.writeUint32("d", d);
   if (auto v = w.enterSubVector("spawns")) {
     for (const auto& spawn : spawns) {
-      if (auto rec = w.enterSubRecord(nullptr)) {
+      if (auto rec = w.enterSubRecord()) {
         w.writeUint32("startFrame", spawn.first);
         if (auto v = w.enterSubVector("systems"))
           for (const auto& info : spawn.second)
-            if (auto rec = w.enterSubRecord(nullptr))
+            if (auto rec = w.enterSubRecord())
               info.write(w);
       }
     }
@@ -1463,12 +1463,12 @@ template struct SpawnSystemKeyframeData<UniqueID32>;
 template struct SpawnSystemKeyframeData<UniqueID64>;
 
 template <>
-const char* ChildResourceFactory<UniqueID32>::DNAType() {
-  return "ChildResourceFactory<UniqueID32>";
+std::string_view ChildResourceFactory<UniqueID32>::DNAType() {
+  return "ChildResourceFactory<UniqueID32>"sv;
 }
 template <>
-const char* ChildResourceFactory<UniqueID64>::DNAType() {
-  return "ChildResourceFactory<UniqueID64>";
+std::string_view ChildResourceFactory<UniqueID64>::DNAType() {
+  return "ChildResourceFactory<UniqueID64>"sv;
 }
 
 template <class IDType>

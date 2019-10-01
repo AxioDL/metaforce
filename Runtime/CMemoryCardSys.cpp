@@ -71,22 +71,19 @@ CMemoryCardSys::CMemoryCardSys() {
   x1c_worldInter.emplace();
   x1c_worldInter->reserve(16);
 
-  std::vector<std::pair<CAssetId, CAssetId>> orderedMLVLs;
+  std::vector<CAssetId> orderedMLVLs;
   orderedMLVLs.reserve(16);
   g_ResFactory->EnumerateNamedResources([&](std::string_view name, const SObjectTag& tag) -> bool {
-    if (tag.type == FOURCC('MLVL')) {
-      CAssetId origId = g_ResFactory->TranslateNewToOriginal(tag.id);
-      orderedMLVLs.emplace_back(origId, tag.id);
-    }
+    if (tag.type == FOURCC('MLVL'))
+      orderedMLVLs.emplace_back(tag.id);
     return true;
   });
-  std::sort(orderedMLVLs.begin(), orderedMLVLs.end(),
-            [](const auto& a, const auto& b) -> bool { return a.first < b.first; });
+  std::sort(orderedMLVLs.begin(), orderedMLVLs.end());
 
   for (const auto& mlvl : orderedMLVLs) {
-    if (!HasSaveWorldMemory(mlvl.second)) {
-      xc_memoryWorlds.emplace_back(mlvl.second, CSaveWorldMemory{});
-      x1c_worldInter->emplace_back(mlvl.second, -1);
+    if (!HasSaveWorldMemory(mlvl)) {
+      xc_memoryWorlds.emplace_back(mlvl, CSaveWorldMemory{});
+      x1c_worldInter->emplace_back(mlvl, CAssetId{});
     }
   }
 
@@ -143,8 +140,8 @@ bool CMemoryCardSys::InitializePump() {
   }
 
   if (done) {
-    std::sort(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& a, const auto& b) -> bool {
-      return g_ResFactory->TranslateNewToOriginal(a.first) < g_ResFactory->TranslateNewToOriginal(b.first);
+    std::sort(x20_scanStates.begin(), x20_scanStates.end(), [&](const auto& a, const auto& b) {
+      return a.first < b.first;
     });
     x1c_worldInter = std::nullopt;
   }

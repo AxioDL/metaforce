@@ -88,7 +88,7 @@ CCharacterInfo::CCharacterInfo(CInputStream& in)
 
 const s32 CCharacterInfo::GetAnimationIndex(std::string_view name) const {
   for (const auto& pair : x20_animInfo) {
-    if (pair.second.second.compare(name.data()) == 0)
+    if (pair.second.second == name)
       return pair.first;
   }
 

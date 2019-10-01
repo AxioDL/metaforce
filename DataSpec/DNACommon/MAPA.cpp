@@ -288,9 +288,15 @@ bool ReadMAPAToBlender(hecl::blender::Connection& conn, const MAPA& mapa, const 
       mtx[2][2], mtx[3][2]);
 
   /* World background */
-  hecl::ProjectPath worldBlend(outPath.getParentPath().getParentPath(), "!world.blend");
-  if (worldBlend.isFile())
-    os.linkBackground("//../!world.blend", "World");
+  hecl::ProjectPath worldDir = outPath.getParentPath().getParentPath();
+  for (const auto& ent : hecl::DirectoryEnumerator(worldDir.getAbsolutePath())) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_")) &&
+        hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
+      hecl::SystemUTF8Conv conv(ent.m_name);
+      os.linkBackground(fmt::format(fmt("//../{}"), conv), "World"sv);
+      break;
+    }
+  }
 
   os.centerView();
   os.close();
@@ -335,7 +341,7 @@ bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out) {
   mapa.header = std::make_unique<typename MAPAType::Header>();
   typename MAPAType::Header& header = static_cast<typename MAPAType::Header&>(*mapa.header);
   header.unknown1 = 0;
-  header.mapVisMode = mapaIn.visType.val;
+  header.mapVisMode = mapaIn.visType;
   header.boundingBox[0] = aabb.min;
   header.boundingBox[1] = aabb.max;
   header.moCount = mapaIn.pois.size();
@@ -379,22 +385,22 @@ bool Cook(const hecl::blender::MapArea& mapaIn, const hecl::ProjectPath& out) {
     prim.type = GX::TRIANGLESTRIP;
     prim.indexCount = surfIn.count;
     prim.indices.reserve(surfIn.count);
-    auto itBegin = mapaIn.indices.begin() + surfIn.start.val;
+    auto itBegin = mapaIn.indices.begin() + surfIn.start;
     auto itEnd = itBegin + surfIn.count;
     for (auto it = itBegin; it != itEnd; ++it)
-      prim.indices.push_back(it->val);
+      prim.indices.push_back(*it);
 
     surf.borderCount = surfIn.borders.size();
     surf.borders.reserve(surfIn.borders.size());
     for (const auto& borderIn : surfIn.borders) {
       surf.borders.emplace_back();
       DNAMAPA::MAPA::Surface::Border& border = surf.borders.back();
-      border.indexCount = borderIn.second.val;
-      border.indices.reserve(borderIn.second.val);
-      auto it2Begin = mapaIn.indices.begin() + borderIn.first.val;
-      auto it2End = it2Begin + borderIn.second.val;
+      border.indexCount = borderIn.second;
+      border.indices.reserve(borderIn.second);
+      auto it2Begin = mapaIn.indices.begin() + borderIn.first;
+      auto it2End = it2Begin + borderIn.second;
       for (auto it = it2Begin; it != it2End; ++it)
-        border.indices.push_back(it->val);
+        border.indices.push_back(*it);
     }
 
     surfHead.normal = surfIn.normal.val;

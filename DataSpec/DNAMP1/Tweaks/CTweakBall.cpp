@@ -910,7 +910,7 @@ void CTweakBall::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& __dna
   __dna_docout.writeFloat("x234_boostBallIncrementalSpeed2", x234_boostBallIncrementalSpeed2);
 }
 
-const char* CTweakBall::DNAType() { return "DataSpec::DNAMP1::CTweakBall"; }
+std::string_view CTweakBall::DNAType() { return "DataSpec::DNAMP1::CTweakBall"sv; }
 
 template <>
 void CTweakBall::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {

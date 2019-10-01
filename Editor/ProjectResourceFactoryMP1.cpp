@@ -35,7 +35,6 @@
 #include "Runtime/CDependencyGroup.hpp"
 #include "DataSpec/DNACommon/TXTR.hpp"
 #include "CSimplePool.hpp"
-#include "MP1/MP1OriginalIDs.hpp"
 #include "GameGlobalObjects.hpp"
 
 namespace DataSpec {
@@ -66,7 +65,6 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
   m_factoryMgr.AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
   m_factoryMgr.AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
   m_factoryMgr.AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
-  m_factoryMgr.AddFactory(FOURCC('OIDS'), FFactoryFunc(FMP1OriginalIDsFactory));
   m_factoryMgr.AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
   m_factoryMgr.AddFactory(FOURCC('CRSC'), FFactoryFunc(FCollisionResponseDataFactory));
   m_factoryMgr.AddFactory(FOURCC('SWHC'), FFactoryFunc(FParticleSwooshDataFactory));
@@ -80,20 +78,6 @@ ProjectResourceFactoryMP1::ProjectResourceFactoryMP1(hecl::ClientProcess& client
 
 void ProjectResourceFactoryMP1::IndexMP1Resources(hecl::Database::Project& proj, CSimplePool& sp) {
   BeginBackgroundIndex(proj, DataSpec::SpecEntMP1, DataSpec::SpecEntMP1PC);
-  m_origIds = sp.GetObj("MP1OriginalIDs");
-}
-
-void ProjectResourceFactoryMP1::Shutdown() {
-  m_origIds = TLockedToken<MP1OriginalIDs>();
-  ProjectResourceFactoryBase::Shutdown();
-}
-
-CAssetId ProjectResourceFactoryMP1::TranslateOriginalToNew(CAssetId id) const {
-  return m_origIds->TranslateOriginalToNew(id);
-}
-
-CAssetId ProjectResourceFactoryMP1::TranslateNewToOriginal(CAssetId id) const {
-  return m_origIds->TranslateNewToOriginal(id);
 }
 
 } // namespace urde

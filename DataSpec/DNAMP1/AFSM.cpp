@@ -43,7 +43,7 @@ void AFSM::State::Transition::Enumerate<BigDNA::BinarySize>(typename BinarySize:
     trig.binarySize(s);
 }
 
-const char* AFSM::State::Transition::DNAType() { return "urde::DNAMP1::AFSM::Transition"; }
+std::string_view AFSM::State::Transition::DNAType() { return "urde::DNAMP1::AFSM::Transition"sv; }
 
 template <>
 void AFSM::State::Transition::Trigger::Enumerate<BigDNA::Read>(athena::io::IStreamReader& __dna_reader) {
@@ -99,6 +99,8 @@ void AFSM::State::Transition::Trigger::Enumerate<BigDNA::BinarySize>(size_t& __i
   __isz += (first ? 8 : 4);
 }
 
-const char* AFSM::State::Transition::Trigger::DNAType() { return "urde::DNAMP1::AFSM::State::Transition::Trigger"; }
+std::string_view AFSM::State::Transition::Trigger::DNAType() {
+  return "urde::DNAMP1::AFSM::State::Transition::Trigger"sv;
+}
 
 } // namespace DataSpec::DNAMP1

@@ -4,9 +4,56 @@ import bpy
 
 # Root Eevee Nodes
 
+# Additive output node
+def make_additive_output():
+    new_grp = bpy.data.node_groups.new('HECLAdditiveOutput', 'ShaderNodeTree')
+    shader_input = new_grp.inputs.new('NodeSocketShader', 'Surface')
+    new_grp.use_fake_user = True
+
+    # Group inputs
+    grp_in = new_grp.nodes.new('NodeGroupInput')
+    grp_in.location = (0, 0)
+
+    # Add Shader
+    emissive_add_shader = new_grp.nodes.new('ShaderNodeAddShader')
+    emissive_add_shader.location = (200, 0)
+
+    # Transparent BDSF (Provides alpha)
+    transparent_bdsf = new_grp.nodes.new('ShaderNodeBsdfTransparent')
+    transparent_bdsf.location = (0, 100)
+    transparent_bdsf.inputs['Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+
+    # Material Output (Final output)
+    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out.location = (400, 0)
+
+    # Links
+    new_grp.links.new(grp_in.outputs['Surface'], emissive_add_shader.inputs[1])
+    new_grp.links.new(transparent_bdsf.outputs[0], emissive_add_shader.inputs[0])
+    new_grp.links.new(emissive_add_shader.outputs[0], mat_out.inputs['Surface'])
+
+# Blend output node
+def make_blend_opaque_output():
+    for tp in ('HECLBlendOutput', 'HECLOpaqueOutput'):
+        new_grp = bpy.data.node_groups.new(tp, 'ShaderNodeTree')
+        shader_input = new_grp.inputs.new('NodeSocketShader', 'Surface')
+        new_grp.use_fake_user = True
+
+        # Group inputs
+        grp_in = new_grp.nodes.new('NodeGroupInput')
+        grp_in.location = (0, 0)
+
+        # Material Output (Final output)
+        mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+        mat_out.location = (200, 0)
+
+        # Links
+        new_grp.links.new(grp_in.outputs['Surface'], mat_out.inputs['Surface'])
+
 #0 - RetroShader
 def make_retro_shader():
     new_grp = bpy.data.node_groups.new('RetroShader', 'ShaderNodeTree')
+    surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
     lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
@@ -112,8 +159,8 @@ def make_retro_shader():
     alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
     alpha_mix.location = (-40, -112)
 
-    # Material Output (Final output)
-    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    # Group outputs (Final output)
+    mat_out = new_grp.nodes.new('NodeGroupOutput')
     mat_out.location = (150, -88)
 
     # Links
@@ -150,6 +197,7 @@ def make_retro_shader():
 
 def make_retro_dynamic_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicShader', 'ShaderNodeTree')
+    surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
     lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
@@ -275,8 +323,8 @@ def make_retro_dynamic_shader():
     alpha_mix = new_grp.nodes.new('ShaderNodeMixShader')
     alpha_mix.location = (-40, -112)
 
-    # Material Output (Final output)
-    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    # Group outputs (Final output)
+    mat_out = new_grp.nodes.new('NodeGroupOutput')
     mat_out.location = (150, -88)
 
     # Links
@@ -319,6 +367,7 @@ def make_retro_dynamic_shader():
 
 def make_retro_dynamic_alpha_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicAlphaShader', 'ShaderNodeTree')
+    surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
     lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
@@ -454,7 +503,7 @@ def make_retro_dynamic_alpha_shader():
     alpha_mix.location = (-40, -112)
 
     # Material Output (Final output)
-    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out = new_grp.nodes.new('NodeGroupOutput')
     mat_out.location = (150, -88)
 
     # Links
@@ -499,6 +548,7 @@ def make_retro_dynamic_alpha_shader():
 
 def make_retro_dynamic_character_shader():
     new_grp = bpy.data.node_groups.new('RetroDynamicCharacterShader', 'ShaderNodeTree')
+    surface_output = new_grp.outputs.new('NodeSocketShader', 'Surface')
     lightmap_input = new_grp.inputs.new('NodeSocketColor', 'Lightmap')
     lightmap_input.default_value = (0.0, 0.0, 0.0, 0.0)
     diffuse_input = new_grp.inputs.new('NodeSocketColor', 'Diffuse')
@@ -613,7 +663,7 @@ def make_retro_dynamic_character_shader():
     alpha_mix.location = (-40, -112)
 
     # Material Output (Final output)
-    mat_out = new_grp.nodes.new('ShaderNodeOutputMaterial')
+    mat_out = new_grp.nodes.new('NodeGroupOutput')
     mat_out.location = (150, -88)
 
     # Links
@@ -1537,6 +1587,8 @@ MP3_PASS_GROUPS = (
 )
 
 def make_master_shader_library():
+    make_additive_output()
+    make_blend_opaque_output()
     for shad in ROOT_SHADER_GROUPS:
         shad()
     for uva in UV_ANIMATION_GROUPS:

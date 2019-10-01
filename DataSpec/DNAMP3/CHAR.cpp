@@ -68,8 +68,8 @@ void CHAR::AnimationInfo::EVNT::SFXEvent::Enumerate<BigDNA::WriteYaml>(athena::i
     writer.writeFloat("extraFloat", extraFloat);
 }
 
-const char* CHAR::AnimationInfo::EVNT::SFXEvent::DNAType() {
-  return "urde::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent";
+std::string_view CHAR::AnimationInfo::EVNT::SFXEvent::DNAType() {
+  return "urde::DNAMP3::CHAR::AnimationInfo::EVNT::SFXEvent"sv;
 }
 
 template <>
@@ -122,19 +122,19 @@ template <>
 void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
-  if (!type.compare("primitive")) {
+  if (type == "primitive") {
     m_anim.reset(new struct MetaAnimPrimitive);
     m_anim->read(reader);
-  } else if (!type.compare("blend")) {
+  } else if (type == "blend") {
     m_anim.reset(new struct MetaAnimBlend);
     m_anim->read(reader);
-  } else if (!type.compare("phaseblend")) {
+  } else if (type == "phaseblend") {
     m_anim.reset(new struct MetaAnimPhaseBlend);
     m_anim->read(reader);
-  } else if (!type.compare("random")) {
+  } else if (type == "random") {
     m_anim.reset(new struct MetaAnimRandom);
     m_anim->read(reader);
-  } else if (!type.compare("sequence")) {
+  } else if (type == "sequence") {
     m_anim.reset(new struct MetaAnimSequence);
     m_anim->read(reader);
   } else {
@@ -150,8 +150,8 @@ void CHAR::AnimationInfo::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::
   m_anim->write(writer);
 }
 
-const char* CHAR::AnimationInfo::MetaAnimFactory::DNAType() {
-  return "urde::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory";
+std::string_view CHAR::AnimationInfo::MetaAnimFactory::DNAType() {
+  return "urde::DNAMP3::CHAR::AnimationInfo::MetaAnimFactory"sv;
 }
 
 } // namespace DataSpec::DNAMP3

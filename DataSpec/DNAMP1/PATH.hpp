@@ -66,7 +66,8 @@ struct PATH : BigDNA {
   Value<atUint32> octreeNodeCount;
   Vector<OctreeNode, AT_DNA_COUNT(octreeNodeCount)> octree;
 
-  void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf);
+  void sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf,
+                     const std::string& areaPath);
 
   static bool Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,

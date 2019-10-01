@@ -41,23 +41,23 @@ inline void DNAColor::Enumerate<BigDNA::Write>(typename Write::StreamT& _w) {
 template <>
 inline void DNAColor::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& _r) {
   size_t count;
-  if (auto v = _r.enterSubVector(nullptr, count)) {
+  if (auto v = _r.enterSubVector(count)) {
     zeus::simd_floats f;
-    f[0] = (count >= 1) ? _r.readFloat(nullptr) : 0.f;
-    f[1] = (count >= 2) ? _r.readFloat(nullptr) : 0.f;
-    f[2] = (count >= 3) ? _r.readFloat(nullptr) : 0.f;
-    f[3] = (count >= 4) ? _r.readFloat(nullptr) : 0.f;
+    f[0] = (count >= 1) ? _r.readFloat() : 0.f;
+    f[1] = (count >= 2) ? _r.readFloat() : 0.f;
+    f[2] = (count >= 3) ? _r.readFloat() : 0.f;
+    f[3] = (count >= 4) ? _r.readFloat() : 0.f;
     mSimd.copy_from(f);
   }
 }
 template <>
 inline void DNAColor::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& _w) {
-  if (auto v = _w.enterSubVector(nullptr)) {
+  if (auto v = _w.enterSubVector()) {
     zeus::simd_floats f(mSimd);
-    _w.writeFloat(nullptr, f[0]);
-    _w.writeFloat(nullptr, f[1]);
-    _w.writeFloat(nullptr, f[2]);
-    _w.writeFloat(nullptr, f[3]);
+    _w.writeFloat(f[0]);
+    _w.writeFloat(f[1]);
+    _w.writeFloat(f[2]);
+    _w.writeFloat(f[3]);
   }
 }
 template <>
@@ -99,55 +99,15 @@ class UniqueIDBridge {
   friend class UniqueID64;
 
   static ThreadLocalPtr<hecl::Database::Project> s_Project;
-  static ThreadLocalPtr<IDRestorer<UniqueID32>> s_restorer32;
-  static ThreadLocalPtr<IDRestorer<UniqueID64>> s_restorer64;
-  static ThreadLocalPtr<IDRestorer<UniqueID128>> s_restorer128;
 
 public:
   template <class IDType>
   static hecl::ProjectPath TranslatePakIdToPath(const IDType& id, bool silenceWarnings = false);
   template <class IDType>
   static hecl::ProjectPath MakePathFromString(std::string_view str);
-  template <class IDType>
-  static void TransformOldHashToNewHash(IDType& id);
 
   static void SetThreadProject(hecl::Database::Project& project);
-
-  template <class IDType>
-  static IDRestorer<IDType>* GetIDRestorer();
-  template <class IDType>
-  static void SetIDRestorer(IDRestorer<IDType>* restorer);
 };
-
-template <>
-inline IDRestorer<UniqueID32>* UniqueIDBridge::GetIDRestorer<UniqueID32>() {
-  return s_restorer32.get();
-}
-
-template <>
-inline void UniqueIDBridge::SetIDRestorer<UniqueID32>(IDRestorer<UniqueID32>* restorer) {
-  s_restorer32.reset(restorer);
-}
-
-template <>
-inline IDRestorer<UniqueID64>* UniqueIDBridge::GetIDRestorer<UniqueID64>() {
-  return s_restorer64.get();
-}
-
-template <>
-inline void UniqueIDBridge::SetIDRestorer<UniqueID64>(IDRestorer<UniqueID64>* restorer) {
-  s_restorer64.reset(restorer);
-}
-
-template <>
-inline IDRestorer<UniqueID128>* UniqueIDBridge::GetIDRestorer<UniqueID128>() {
-  return s_restorer128.get();
-}
-
-template <>
-inline void UniqueIDBridge::SetIDRestorer<UniqueID128>(IDRestorer<UniqueID128>* restorer) {
-  s_restorer128.reset(restorer);
-}
 
 /** PAK 32-bit Unique ID */
 class UniqueID32 : public BigDNA {
@@ -159,10 +119,10 @@ public:
   static UniqueID32 kInvalidId;
   AT_DECL_EXPLICIT_DNA_YAML
   bool isValid() const { return m_id != 0xffffffff && m_id != 0; }
-  void assign(uint32_t id, bool noOriginal = false);
+  void assign(uint32_t id) { m_id = id ? id : 0xffffffff; }
 
   UniqueID32& operator=(const hecl::ProjectPath& path) {
-    assign(path.hash().val32());
+    assign(path.parsedHash32());
     return *this;
   }
 
@@ -175,7 +135,7 @@ public:
   void clear() { m_id = 0xffffffff; }
 
   UniqueID32() = default;
-  UniqueID32(uint32_t idin, bool noOriginal = false) { assign(idin, noOriginal); }
+  UniqueID32(uint32_t idin) { assign(idin); }
   UniqueID32(athena::io::IStreamReader& reader) { read(reader); }
   UniqueID32(const hecl::ProjectPath& path) { *this = path; }
   UniqueID32(const char* hexStr) {
@@ -202,22 +162,6 @@ public:
   using UniqueID32::UniqueID32;
 };
 
-class AuxiliaryID32 : public UniqueID32 {
-  const hecl::SystemChar* m_auxStr;
-  const hecl::SystemChar* m_addExtension;
-  UniqueID32 m_baseId;
-
-public:
-  AT_DECL_DNA
-  Delete __d2;
-  AuxiliaryID32(const hecl::SystemChar* auxStr, const hecl::SystemChar* addExtension = nullptr)
-  : m_auxStr(auxStr), m_addExtension(addExtension) {}
-
-  AuxiliaryID32& operator=(const hecl::ProjectPath& path);
-  AuxiliaryID32& operator=(const UniqueID32& id);
-  const UniqueID32& getBaseId() const { return m_baseId; }
-};
-
 /** PAK 64-bit Unique ID */
 class UniqueID64 : public BigDNA {
   uint64_t m_id = 0xffffffffffffffff;
@@ -226,7 +170,7 @@ public:
   using value_type = uint64_t;
   AT_DECL_EXPLICIT_DNA_YAML
   bool isValid() const { return m_id != 0xffffffffffffffff && m_id != 0; }
-  void assign(uint64_t id, bool noOriginal = false);
+  void assign(uint64_t id) { m_id = id ? id : 0xffffffffffffffff; }
 
   UniqueID64& operator=(const hecl::ProjectPath& path) {
     assign(path.hash().val64());
@@ -241,7 +185,7 @@ public:
   void clear() { m_id = 0xffffffffffffffff; }
 
   UniqueID64() = default;
-  UniqueID64(uint64_t idin, bool noOriginal = false) { assign(idin, noOriginal); }
+  UniqueID64(uint64_t idin) { assign(idin); }
   UniqueID64(athena::io::IStreamReader& reader) { read(reader); }
   UniqueID64(const hecl::ProjectPath& path) { *this = path; }
   UniqueID64(const char* hexStr) {
@@ -280,7 +224,7 @@ public:
     m_id.id[0] = 0xffffffffffffffff;
     m_id.id[1] = 0xffffffffffffffff;
   }
-  UniqueID128(uint64_t idin, bool noOriginal = false) {
+  UniqueID128(uint64_t idin) {
     m_id.id[0] = idin;
     m_id.id[1] = 0;
   }
@@ -401,24 +345,31 @@ typedef std::function<bool(const hecl::ProjectPath&, const hecl::ProjectPath&)> 
 /** Mappings of resources involved in extracting characters */
 template <class IDType>
 struct CharacterAssociations {
-  using RigPair = std::pair<IDType, IDType>;
+  struct RigPair { IDType cskr, cinf; };
+  struct ModelRigPair { IDType cinf, cmdl; };
   /* CMDL -> (CSKR, CINF) */
   std::unordered_map<IDType, RigPair> m_cmdlRigs;
-  /* (CSKR, CINF) -> ANCS */
-  std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrCinfToCharacter;
+  /* CSKR -> ANCS */
+  std::unordered_map<IDType, std::pair<IDType, std::string>> m_cskrToCharacter;
   /* ANCS -> (CINF, CMDL) */
-  std::unordered_multimap<IDType, std::pair<RigPair, std::string>> m_characterToAttachmentRigs;
+  std::unordered_multimap<IDType, std::pair<ModelRigPair, std::string>> m_characterToAttachmentRigs;
   using MultimapIteratorPair =
-      std::pair<typename std::unordered_multimap<IDType, std::pair<RigPair, std::string>>::const_iterator,
-                typename std::unordered_multimap<IDType, std::pair<RigPair, std::string>>::const_iterator>;
+      std::pair<typename std::unordered_multimap<IDType, std::pair<ModelRigPair, std::string>>::const_iterator,
+                typename std::unordered_multimap<IDType, std::pair<ModelRigPair, std::string>>::const_iterator>;
   void addAttachmentRig(IDType character, IDType cinf, IDType cmdl, const char* name) {
     auto range = m_characterToAttachmentRigs.equal_range(character);
     for (auto it = range.first; it != range.second; ++it)
       if (it->second.second == name)
         return;
-    m_characterToAttachmentRigs.insert(std::make_pair(character, std::make_pair(std::make_pair(cinf, cmdl), name)));
+    m_characterToAttachmentRigs.insert(std::make_pair(character, std::make_pair(ModelRigPair{cinf, cmdl}, name)));
   }
 };
+
+hecl::ProjectPath GetPathBeginsWith(const hecl::DirectoryEnumerator& dEnum, const hecl::ProjectPath& parentPath,
+                                    hecl::SystemStringView test);
+inline hecl::ProjectPath GetPathBeginsWith(const hecl::ProjectPath& parentPath, hecl::SystemStringView test) {
+  return GetPathBeginsWith(hecl::DirectoryEnumerator(parentPath.getAbsolutePath()), parentPath, test);
+}
 
 } // namespace DataSpec
 
@@ -446,5 +397,6 @@ struct hash<DataSpec::UniqueID128> {
 } // namespace std
 
 FMT_CUSTOM_FORMATTER(DataSpec::UniqueID32, "{:08X}", obj.toUint32())
+FMT_CUSTOM_FORMATTER(DataSpec::UniqueID32Zero, "{:08X}", obj.toUint32())
 FMT_CUSTOM_FORMATTER(DataSpec::UniqueID64, "{:016X}", obj.toUint64())
 FMT_CUSTOM_FORMATTER(DataSpec::UniqueID128, "{:016X}{:016X}", obj.toHighUint64(), obj.toLowUint64())

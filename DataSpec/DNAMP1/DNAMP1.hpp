@@ -17,12 +17,14 @@ public:
   bool m_doExtract;
   using Level = DataSpec::Level<UniqueID32>;
   std::unordered_map<UniqueID32, Level> m_levelDeps;
+  UniqueID32 m_levelId;
   hecl::SystemString m_levelString;
 
   PAKBridge(const nod::Node& node, bool doExtract = true);
   void build();
   static ResExtractor<PAKBridge> LookupExtractor(const nod::Node& pakNode, const PAK& pak, const PAK::Entry& entry);
   std::string_view getName() const { return m_node.getName(); }
+  UniqueID32 getLevelId() const { return m_levelId; }
   hecl::SystemStringView getLevelString() const { return m_levelString; }
   using PAKType = PAK;
   const PAKType& getPAK() const { return m_pak; }

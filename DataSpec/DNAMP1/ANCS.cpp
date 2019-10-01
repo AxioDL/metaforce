@@ -87,21 +87,21 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumer
   if (auto v = reader.enterSubVector("range", parmValCount)) {
     switch (DataType(parmType)) {
     case DataType::Int32:
-      range[0].int32 = reader.readInt32(nullptr);
-      range[1].int32 = reader.readInt32(nullptr);
+      range[0].int32 = reader.readInt32();
+      range[1].int32 = reader.readInt32();
       break;
     case DataType::UInt32:
     case DataType::Enum:
-      range[0].uint32 = reader.readUint32(nullptr);
-      range[1].uint32 = reader.readUint32(nullptr);
+      range[0].uint32 = reader.readUint32();
+      range[1].uint32 = reader.readUint32();
       break;
     case DataType::Float:
-      range[0].float32 = reader.readFloat(nullptr);
-      range[1].float32 = reader.readFloat(nullptr);
+      range[0].float32 = reader.readFloat();
+      range[1].float32 = reader.readFloat();
       break;
     case DataType::Bool:
-      range[0].bool1 = reader.readBool(nullptr);
-      range[1].bool1 = reader.readBool(nullptr);
+      range[0].bool1 = reader.readBool();
+      range[1].bool1 = reader.readBool();
       break;
     default:
       break;
@@ -118,28 +118,28 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::Enumer
   if (auto v = writer.enterSubVector("range")) {
     switch (DataType(parmType)) {
     case DataType::Int32:
-      writer.writeInt32(nullptr, range[0].int32);
-      writer.writeInt32(nullptr, range[1].int32);
+      writer.writeInt32(range[0].int32);
+      writer.writeInt32(range[1].int32);
       break;
     case DataType::UInt32:
     case DataType::Enum:
-      writer.writeUint32(nullptr, range[0].uint32);
-      writer.writeUint32(nullptr, range[1].uint32);
+      writer.writeUint32(range[0].uint32);
+      writer.writeUint32(range[1].uint32);
       break;
     case DataType::Float:
-      writer.writeFloat(nullptr, range[0].float32);
-      writer.writeFloat(nullptr, range[1].float32);
+      writer.writeFloat(range[0].float32);
+      writer.writeFloat(range[1].float32);
       break;
     case DataType::Bool:
-      writer.writeBool(nullptr, range[0].bool1);
-      writer.writeBool(nullptr, range[1].bool1);
+      writer.writeBool(range[0].bool1);
+      writer.writeBool(range[1].bool1);
       break;
     }
   }
 }
 
-const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::DNAType() {
-  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo";
+std::string_view ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo::DNAType() {
+  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::ParmInfo"sv;
 }
 
 template <>
@@ -257,17 +257,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA
                                  for (const ParmInfo& pi : parmInfos) {
                                    switch (ParmInfo::DataType(pi.parmType)) {
                                    case ParmInfo::DataType::Int32:
-                                     ai.parmVals.emplace_back(reader.readInt32(nullptr));
+                                     ai.parmVals.emplace_back(reader.readInt32());
                                      break;
                                    case ParmInfo::DataType::UInt32:
                                    case ParmInfo::DataType::Enum:
-                                     ai.parmVals.emplace_back(reader.readUint32(nullptr));
+                                     ai.parmVals.emplace_back(reader.readUint32());
                                      break;
                                    case ParmInfo::DataType::Float:
-                                     ai.parmVals.emplace_back(reader.readFloat(nullptr));
+                                     ai.parmVals.emplace_back(reader.readFloat());
                                      break;
                                    case ParmInfo::DataType::Bool:
-                                     ai.parmVals.emplace_back(reader.readBool(nullptr));
+                                     ai.parmVals.emplace_back(reader.readBool());
                                      break;
                                    default:
                                      break;
@@ -294,17 +294,17 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA
           pVal = *it++;
         switch (ParmInfo::DataType(pi.parmType)) {
         case ParmInfo::DataType::Int32:
-          writer.writeInt32(nullptr, pVal.int32);
+          writer.writeInt32(pVal.int32);
           break;
         case ParmInfo::DataType::UInt32:
         case ParmInfo::DataType::Enum:
-          writer.writeUint32(nullptr, pVal.uint32);
+          writer.writeUint32(pVal.uint32);
           break;
         case ParmInfo::DataType::Float:
-          writer.writeFloat(nullptr, pVal.float32);
+          writer.writeFloat(pVal.float32);
           break;
         case ParmInfo::DataType::Bool:
-          writer.writeBool(nullptr, pVal.bool1);
+          writer.writeBool(pVal.bool1);
           break;
         default:
           break;
@@ -314,8 +314,8 @@ void ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::Enumerate<BigDNA
   });
 }
 
-const char* ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::DNAType() {
-  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState";
+std::string_view ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState::DNAType() {
+  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo::PASDatabase::AnimState"sv;
 }
 
 template <>
@@ -605,7 +605,9 @@ void ANCS::CharacterSet::CharacterInfo::Enumerate<BigDNA::WriteYaml>(athena::io:
   }
 }
 
-const char* ANCS::CharacterSet::CharacterInfo::DNAType() { return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo"; }
+std::string_view ANCS::CharacterSet::CharacterInfo::DNAType() {
+  return "urde::DNAMP1::ANCS::CharacterSet::CharacterInfo"sv;
+}
 
 template <>
 void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
@@ -657,19 +659,19 @@ template <>
 void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
-  if (!type.compare("primitive")) {
+  if (type == "primitive") {
     m_anim.reset(new struct MetaAnimPrimitive);
     m_anim->read(reader);
-  } else if (!type.compare("blend")) {
+  } else if (type == "blend") {
     m_anim.reset(new struct MetaAnimBlend);
     m_anim->read(reader);
-  } else if (!type.compare("phaseblend")) {
+  } else if (type == "phaseblend") {
     m_anim.reset(new struct MetaAnimPhaseBlend);
     m_anim->read(reader);
-  } else if (!type.compare("random")) {
+  } else if (type == "random") {
     m_anim.reset(new struct MetaAnimRandom);
     m_anim->read(reader);
-  } else if (!type.compare("sequence")) {
+  } else if (type == "sequence") {
     m_anim.reset(new struct MetaAnimSequence);
     m_anim->read(reader);
   } else {
@@ -685,8 +687,8 @@ void ANCS::AnimationSet::MetaAnimFactory::Enumerate<BigDNA::WriteYaml>(athena::i
   m_anim->write(writer);
 }
 
-const char* ANCS::AnimationSet::MetaAnimFactory::DNAType() {
-  return "urde::DNAMP1::ANCS::AnimationSet::MetaAnimFactory";
+std::string_view ANCS::AnimationSet::MetaAnimFactory::DNAType() {
+  return "urde::DNAMP1::ANCS::AnimationSet::MetaAnimFactory"sv;
 }
 
 template <>
@@ -734,13 +736,13 @@ template <>
 void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   std::string type = reader.readString("type");
   std::transform(type.begin(), type.end(), type.begin(), tolower);
-  if (!type.compare("metaanim")) {
+  if (type == "metaanim") {
     m_trans.reset(new struct MetaTransMetaAnim);
     m_trans->read(reader);
-  } else if (!type.compare("trans")) {
+  } else if (type == "trans") {
     m_trans.reset(new struct MetaTransTrans);
     m_trans->read(reader);
-  } else if (!type.compare("phasetrans")) {
+  } else if (type == "phasetrans") {
     m_trans.reset(new struct MetaTransPhaseTrans);
     m_trans->read(reader);
   } else {
@@ -758,8 +760,8 @@ void ANCS::AnimationSet::MetaTransFactory::Enumerate<BigDNA::WriteYaml>(athena::
   m_trans->write(writer);
 }
 
-const char* ANCS::AnimationSet::MetaTransFactory::DNAType() {
-  return "urde::DNAMP1::ANCS::AnimationSet::MetaTransFactory";
+std::string_view ANCS::AnimationSet::MetaTransFactory::DNAType() {
+  return "urde::DNAMP1::ANCS::AnimationSet::MetaTransFactory"sv;
 }
 
 template <>
@@ -953,7 +955,7 @@ void ANCS::AnimationSet::MetaAnimPrimitive::gatherPrimitives(
   out[animIdx] = {animName, animId, ANIM::GetEVNTId(rs), false};
 }
 
-const char* ANCS::AnimationSet::DNAType() { return "urde::DNAMP1::ANCS::AnimationSet"; }
+std::string_view ANCS::AnimationSet::DNAType() { return "urde::DNAMP1::ANCS::AnimationSet"sv; }
 
 bool ANCS::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
@@ -1011,13 +1013,13 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     ch.cmdlIce = UniqueID32Zero{};
     ch.cskrIce = UniqueID32Zero{};
 
-    hecl::SystemStringConv chSysName(ch.name);
-    ch.cskr = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR(".CSKR"));
-
     int subtypeIdx = 0;
     ch.animAABBs.clear();
     for (const DNAANCS::Actor::Subtype& sub : actor.subtypes) {
-      if (!sub.name.compare(ch.name)) {
+      if (sub.name == ch.name) {
+        hecl::SystemStringConv chSysName(ch.name);
+        ch.cskr = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, sub.cskrId));
+
         /* Add subtype AABBs */
         ch.animAABBs.reserve(actor.actions.size());
         for (const DNAANCS::Action& act : actor.actions) {
@@ -1031,16 +1033,15 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
         if (sub.armature >= 0) {
           const DNAANCS::Armature& arm = actor.armatures[sub.armature];
-          hecl::SystemStringConv armSysName(arm.name);
-          ch.cinf = inPath.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _SYS_STR(".CINF"));
+          ch.cinf = arm.path;
           ch.cmdl = sub.mesh;
           auto search = std::find_if(sub.overlayMeshes.cbegin(), sub.overlayMeshes.cend(),
-                                     [](const auto& p) { return p.first == "ICE"; });
+                                     [](const auto& p) { return p.name == "ICE"; });
           if (search != sub.overlayMeshes.cend()) {
-            hecl::SystemStringConv overlaySys(search->first);
-            ch.cmdlIce = search->second;
-            ch.cskrIce = inPath.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR('.') +
-                                              overlaySys.c_str() + _SYS_STR(".CSKR"));
+            hecl::SystemStringConv overlaySys(search->name);
+            ch.cmdlIce = search->mesh;
+            ch.cskrIce = inPath.ensureAuxInfo(
+                fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, search->cskrId));
           }
         }
 
@@ -1055,28 +1056,43 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   }
 
   /* Set Animation Resource IDs */
-  ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) -> bool {
+  ancs.enumeratePrimitives([&](AnimationSet::MetaAnimPrimitive& prim) {
     hecl::SystemStringConv sysStr(prim.animName);
-    hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
-    prim.animId = pathOut;
+    for (const DNAANCS::Action& act : actor.actions) {
+      if (act.name == prim.animName) {
+        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, act.animId));
+        prim.animId = pathOut;
+        break;
+      }
+    }
     return true;
   });
 
   /* Gather ANIM resources */
+  hecl::DirectoryEnumerator dEnum(inPath.getParentPath().getAbsolutePath());
   ancs.animationSet.animResources.reserve(actor.actions.size());
   for (const DNAANCS::Action& act : actor.actions) {
     hecl::SystemStringConv sysStr(act.name);
-    hecl::ProjectPath pathOut = inPath.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
+    hecl::ProjectPath pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, act.animId));
 
     ancs.animationSet.animResources.emplace_back();
     ancs.animationSet.animResources.back().animId = pathOut;
 
     /* Check for associated EVNT YAML */
-    hecl::ProjectPath evntYamlPath = inPath.getWithExtension(
-        (hecl::SystemString(_SYS_STR(".")) + sysStr.c_str() + _SYS_STR(".evnt.yaml")).c_str(), true);
-    evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
-    if (evntYamlPath.isFile())
+    hecl::SystemString testPrefix(inPath.getWithExtension(
+        fmt::format(fmt(_SYS_STR(".{}_")), sysStr).c_str(), true).getLastComponent());
+    hecl::ProjectPath evntYamlPath;
+    for (const auto& ent : dEnum) {
+      if (hecl::StringUtils::BeginsWith(ent.m_name, testPrefix.c_str()) &&
+          hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".evnt.yaml"))) {
+        evntYamlPath = hecl::ProjectPath(inPath.getParentPath(), ent.m_name);
+        break;
+      }
+    }
+    if (evntYamlPath.isFile()) {
+      evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
       ancs.animationSet.animResources.back().evntId = evntYamlPath;
+    }
   }
 
   /* Write out ANCS */
@@ -1086,28 +1102,20 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   return true;
 }
 
-bool ANCS::CookCINF(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const DNAANCS::Actor& actor) {
-  hecl::SystemString armName(inPath.getAuxInfo().begin(), inPath.getAuxInfo().end() - 5);
-
-  for (const DNAANCS::Armature& arm : actor.armatures) {
-    hecl::SystemStringConv sysStr(arm.name);
-    if (sysStr.sys_str() == armName) {
-      std::unordered_map<std::string, atInt32> boneIdMap;
-      CINF cinf(arm, boneIdMap);
-
-      /* Write out CINF resource */
-      athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());
-      cinf.write(w);
-      return true;
-    }
-  }
-
-  return false;
-}
+static const hecl::SystemRegex regCskrNameId(_SYS_STR(R"((.*)_[0-9a-fA-F]{8}\.CSKR)"),
+                                             std::regex::ECMAScript | std::regex::optimize);
+static const hecl::SystemRegex regCskrName(_SYS_STR(R"((.*)\.CSKR)"),
+                                           std::regex::ECMAScript | std::regex::optimize);
 
 bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const DNAANCS::Actor& actor,
                     const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc) {
-  hecl::SystemString subName(inPath.getAuxInfo().begin(), inPath.getAuxInfo().end() - 5);
+  auto auxInfo = inPath.getAuxInfo();
+  hecl::SystemViewRegexMatch match;
+  if (!std::regex_search(auxInfo.begin(), auxInfo.end(), match, regCskrNameId) &&
+      !std::regex_search(auxInfo.begin(), auxInfo.end(), match, regCskrName))
+    return false;
+
+  hecl::SystemString subName = match[1].str();
   hecl::SystemString overName;
   auto dotPos = subName.rfind(_SYS_STR('.'));
   if (dotPos != hecl::SystemString::npos) {
@@ -1120,13 +1128,13 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
   /* Build bone ID map */
   std::unordered_map<std::string, atInt32> boneIdMap;
   for (const DNAANCS::Armature& arm : actor.armatures) {
-    CINF cinf(arm, boneIdMap);
+    CINF cinf(*arm.armature, boneIdMap);
   }
 
   const DNAANCS::Actor::Subtype* subtype = nullptr;
   if (subName != _SYS_STR("ATTACH")) {
     for (const DNAANCS::Actor::Subtype& sub : actor.subtypes) {
-      if (!sub.name.compare(subNameView.str())) {
+      if (sub.name == subNameView.str()) {
         subtype = &sub;
         break;
       }
@@ -1139,7 +1147,7 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
   if (subName == _SYS_STR("ATTACH")) {
     const DNAANCS::Actor::Attachment* attachment = nullptr;
     for (const DNAANCS::Actor::Attachment& att : actor.attachments) {
-      if (!att.name.compare(overNameView.str())) {
+      if (att.name == overNameView.str()) {
         attachment = &att;
         break;
       }
@@ -1151,8 +1159,8 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
     modelPath = &subtype->mesh;
   } else {
     for (const auto& overlay : subtype->overlayMeshes)
-      if (!overlay.first.compare(overNameView.str())) {
-        modelPath = &overlay.second;
+      if (overlay.name == overNameView.str()) {
+        modelPath = &overlay.mesh;
         break;
       }
   }
@@ -1225,7 +1233,13 @@ bool ANCS::CookCSKR(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
 
 bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const DNAANCS::Actor& actor,
                       const std::function<bool(const hecl::ProjectPath& modelPath)>& modelCookFunc) {
-  hecl::SystemString subName(inPath.getAuxInfo().begin(), inPath.getAuxInfo().end() - 5);
+  auto auxInfo = inPath.getAuxInfo();
+  hecl::SystemViewRegexMatch match;
+  if (!std::regex_search(auxInfo.begin(), auxInfo.end(), match, regCskrNameId) &&
+      !std::regex_search(auxInfo.begin(), auxInfo.end(), match, regCskrName))
+    return false;
+
+  hecl::SystemString subName = match[1].str();
   hecl::SystemString overName;
   auto dotPos = subName.rfind(_SYS_STR('.'));
   if (dotPos != hecl::SystemString::npos) {
@@ -1238,13 +1252,13 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
   /* Build bone ID map */
   std::unordered_map<std::string, atInt32> boneIdMap;
   for (const DNAANCS::Armature& arm : actor.armatures) {
-    CINF cinf(arm, boneIdMap);
+    CINF cinf(*arm.armature, boneIdMap);
   }
 
   const DNAANCS::Actor::Subtype* subtype = nullptr;
   if (subName != _SYS_STR("ATTACH")) {
     for (const DNAANCS::Actor::Subtype& sub : actor.subtypes) {
-      if (!sub.name.compare(subNameView.str())) {
+      if (sub.name == subNameView.str()) {
         subtype = &sub;
         break;
       }
@@ -1257,7 +1271,7 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
   if (subName == _SYS_STR("ATTACH")) {
     const DNAANCS::Actor::Attachment* attachment = nullptr;
     for (const DNAANCS::Actor::Attachment& att : actor.attachments) {
-      if (!att.name.compare(overNameView.str())) {
+      if (att.name == overNameView.str()) {
         attachment = &att;
         break;
       }
@@ -1269,8 +1283,8 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
     modelPath = &subtype->mesh;
   } else {
     for (const auto& overlay : subtype->overlayMeshes)
-      if (!overlay.first.compare(overNameView.str())) {
-        modelPath = &overlay.second;
+      if (overlay.name == overNameView.str()) {
+        modelPath = &overlay.mesh;
         break;
       }
   }
@@ -1365,9 +1379,20 @@ bool ANCS::CookCSKRPC(const hecl::ProjectPath& outPath, const hecl::ProjectPath&
   return true;
 }
 
+static const hecl::SystemRegex regAnimNameId(_SYS_STR(R"((.*)_[0-9a-fA-F]{8}\.ANIM)"),
+                                             std::regex::ECMAScript | std::regex::optimize);
+static const hecl::SystemRegex regAnimName(_SYS_STR(R"((.*)\.ANIM)"),
+                                           std::regex::ECMAScript | std::regex::optimize);
+
 bool ANCS::CookANIM(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const DNAANCS::Actor& actor,
                     hecl::blender::DataStream& ds, bool pc) {
-  hecl::SystemString actName(inPath.getAuxInfo().begin(), inPath.getAuxInfo().end() - 5);
+  auto auxInfo = inPath.getAuxInfo();
+  hecl::SystemViewRegexMatch match;
+  if (!std::regex_search(auxInfo.begin(), auxInfo.end(), match, regAnimNameId) &&
+      !std::regex_search(auxInfo.begin(), auxInfo.end(), match, regAnimName))
+    return false;
+
+  hecl::SystemString actName = match[1].str();
   hecl::SystemUTF8Conv actNameView(actName);
   DNAANCS::Action action = ds.compileActionChannelsOnly(actNameView.str());
 
@@ -1380,22 +1405,31 @@ bool ANCS::CookANIM(const hecl::ProjectPath& outPath, const hecl::ProjectPath& i
   std::optional<DNAANIM::RigInverter<CINF>> rigInv;
   for (const DNAANCS::Armature& arm : actor.armatures) {
     if (!rigInv) {
-      rigCinf.emplace(arm, boneIdMap);
+      rigCinf.emplace(*arm.armature, boneIdMap);
       auto matrices = ds.getBoneMatrices(arm.name);
       rigInv.emplace(*rigCinf, matrices);
     } else {
-      CINF cinf(arm, boneIdMap);
+      CINF cinf(*arm.armature, boneIdMap);
     }
   }
 
   ANIM anim(action, boneIdMap, *rigInv, pc);
 
   /* Check for associated EVNT YAML */
-  hecl::ProjectPath evntYamlPath =
-      inPath.getWithExtension((hecl::SystemString(_SYS_STR(".")) + actName + _SYS_STR(".evnt.yaml")).c_str(), true);
-  evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
-  if (evntYamlPath.isFile())
+  hecl::SystemString testPrefix(inPath.getWithExtension(
+      fmt::format(fmt(_SYS_STR(".{}_")), actName).c_str(), true).getLastComponent());
+  hecl::ProjectPath evntYamlPath;
+  for (const auto& ent : hecl::DirectoryEnumerator(inPath.getParentPath().getAbsolutePath())) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, testPrefix.c_str()) &&
+        hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".evnt.yaml"))) {
+      evntYamlPath = hecl::ProjectPath(inPath.getParentPath(), ent.m_name);
+      break;
+    }
+  }
+  if (evntYamlPath.isFile()) {
+    evntYamlPath = evntYamlPath.ensureAuxInfo(_SYS_STR(""));
     anim.m_anim->evnt = evntYamlPath;
+  }
 
   /* Write out ANIM resource */
   athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());

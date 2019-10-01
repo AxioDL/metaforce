@@ -26,7 +26,7 @@ void Oculus::Enumerate(typename Op::StreamT& s) {
     unknown8 = 0.f;
 }
 
-const char* Oculus::DNAType() { return "urde::DNAMP1::Oculus"; }
+std::string_view Oculus::DNAType() { return "urde::DNAMP1::Oculus"sv; }
 
 AT_SPECIALIZE_DNA_YAML(Oculus)
 

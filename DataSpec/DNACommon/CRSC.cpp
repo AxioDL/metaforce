@@ -42,13 +42,13 @@ static const std::vector<FourCC> DecalTypes = {SBIG('NCDL'), SBIG('DDCL'), SBIG(
                                                SBIG('3LAV'), SBIG('3SAN'), SBIG('CHDL'), SBIG('ENDL')};
 
 template <>
-const char* CRSM<UniqueID32>::DNAType() {
-  return "CRSM<UniqueID32>";
+std::string_view CRSM<UniqueID32>::DNAType() {
+  return "CRSM<UniqueID32>"sv;
 }
 
 template <>
-const char* CRSM<UniqueID64>::DNAType() {
-  return "CRSM<UniqueID64>";
+std::string_view CRSM<UniqueID64>::DNAType() {
+  return "CRSM<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -62,29 +62,29 @@ void CRSM<IDType>::_read(athena::io::YAMLDocReader& r) {
     if (auto rec = r.enterSubRecord(elem.first.c_str())) {
       FourCC clsId(elem.first.c_str());
       auto gen = std::find_if(GeneratorTypes.begin(), GeneratorTypes.end(),
-                              [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                              [&clsId](const FourCC& other) { return clsId == other; });
       if (gen != GeneratorTypes.end()) {
         x0_generators[clsId].read(r);
         continue;
       }
 
       auto sfx = std::find_if(SFXTypes.begin(), SFXTypes.end(),
-                              [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                              [&clsId](const FourCC& other) { return clsId == other; });
       if (sfx != SFXTypes.end()) {
-        x10_sfx[clsId] = r.readInt32(clsId.toString().c_str());
+        x10_sfx[clsId] = r.readInt32(clsId.toString());
         continue;
       }
 
       auto decal = std::find_if(DecalTypes.begin(), DecalTypes.end(),
-                                [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                                [&clsId](const FourCC& other) { return clsId == other; });
       if (decal != DecalTypes.end()) {
         x20_decals[clsId].read(r);
         continue;
       }
       if (clsId == SBIG('RNGE'))
-        x30_RNGE = r.readFloat(nullptr);
+        x30_RNGE = r.readFloat();
       else if (clsId == SBIG('FOFF'))
-        x34_FOFF = r.readFloat(nullptr);
+        x34_FOFF = r.readFloat();
     }
   }
 }
@@ -93,16 +93,16 @@ template <class IDType>
 void CRSM<IDType>::_write(athena::io::YAMLDocWriter& w) const {
   for (const auto& pair : x0_generators)
     if (pair.second)
-      if (auto rec = w.enterSubRecord(pair.first.toString().c_str()))
+      if (auto rec = w.enterSubRecord(pair.first.toString()))
         pair.second.write(w);
 
   for (const auto& pair : x10_sfx)
     if (pair.second != UINT32_MAX)
-      w.writeUint32(pair.first.toString().c_str(), pair.second);
+      w.writeUint32(pair.first.toString(), pair.second);
 
   for (const auto& pair : x20_decals)
     if (pair.second)
-      if (auto rec = w.enterSubRecord(pair.first.toString().c_str()))
+      if (auto rec = w.enterSubRecord(pair.first.toString()))
         pair.second.write(w);
 
   if (x30_RNGE != 50.f)
@@ -150,14 +150,14 @@ void CRSM<IDType>::_read(athena::io::IStreamReader& r) {
   while (clsId != SBIG('_END')) {
     clsId.read(r);
     auto gen = std::find_if(GeneratorTypes.begin(), GeneratorTypes.end(),
-                            [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                            [&clsId](const FourCC& other) { return clsId == other; });
     if (gen != GeneratorTypes.end()) {
       x0_generators[clsId].read(r);
       continue;
     }
 
     auto sfx = std::find_if(SFXTypes.begin(), SFXTypes.end(),
-                            [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                            [&clsId](const FourCC& other) { return clsId == other; });
     if (sfx != SFXTypes.end()) {
       DNAFourCC fcc;
       fcc.read(r);
@@ -169,7 +169,7 @@ void CRSM<IDType>::_read(athena::io::IStreamReader& r) {
     }
 
     auto decal = std::find_if(DecalTypes.begin(), DecalTypes.end(),
-                              [&clsId](const FourCC& other) -> bool { return clsId == other; });
+                              [&clsId](const FourCC& other) { return clsId == other; });
     if (decal != DecalTypes.end()) {
       x20_decals[clsId].read(r);
       continue;

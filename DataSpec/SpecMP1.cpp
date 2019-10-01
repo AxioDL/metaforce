@@ -62,82 +62,6 @@ extern hecl::Database::DataSpecEntry SpecEntMP1;
 extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
-static const std::unordered_set<uint32_t> IndividualOrigIDs = {
-    0xB7BBD0B4, 0x1F9DA858, 0x2A13C23E, 0xF13452F8, 0xA91A7703, 0xC042EC91, 0x12A12131, 0x5F556002, 0xA9798329,
-    0xB306E26F, 0xCD7B1ACA, 0x8ADA8184, 0x1A29C0E6, 0x5D9F9796, 0x951546A8, 0x7946C4C5, 0x409AA72E,
-};
-
-struct OriginalIDs {
-  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
-    Log.report(logvisor::Level::Info, fmt("Generating Original ID mappings..."));
-    std::unordered_set<UniqueID32> addedIDs;
-    std::vector<UniqueID32> originalIDs;
-
-    pakRouter.enumerateResources([&](const DNAMP1::PAK::Entry* ent) {
-      if (ent->type == FOURCC('MLVL') || ent->type == FOURCC('SCAN') || ent->type == FOURCC('MREA') ||
-          IndividualOrigIDs.find(ent->id.toUint32()) != IndividualOrigIDs.end()) {
-        if (addedIDs.find(ent->id) == addedIDs.cend()) {
-          addedIDs.insert(ent->id);
-          originalIDs.push_back(ent->id);
-        }
-      }
-      return true;
-    });
-    std::sort(originalIDs.begin(), originalIDs.end());
-
-    athena::io::YAMLDocWriter yamlW("MP1OriginalIDs");
-    for (const UniqueID32& id : originalIDs) {
-      hecl::ProjectPath path = pakRouter.getWorking(id);
-      yamlW.writeString(id.toString().c_str(), path.getRelativePathUTF8());
-    }
-    hecl::ProjectPath path(project.getProjectWorkingPath(), "MP1/!original_ids.yaml");
-    path.makeDirChain(false);
-    athena::io::FileWriter fileW(path.getAbsolutePath());
-    yamlW.finish(&fileW);
-    Log.report(logvisor::Level::Info, fmt("Done"));
-  }
-
-  static void Cook(const hecl::ProjectPath& inPath, const hecl::ProjectPath& outPath) {
-    hecl::Database::Project& project = inPath.getProject();
-    athena::io::YAMLDocReader r;
-    athena::io::FileReader fr(inPath.getAbsolutePath());
-    if (!fr.isOpen() || !r.parse(&fr))
-      return;
-
-    std::vector<std::pair<UniqueID32, UniqueID32>> originalIDs;
-    originalIDs.reserve(r.getRootNode()->m_mapChildren.size());
-    for (const auto& node : r.getRootNode()->m_mapChildren) {
-      char* end = const_cast<char*>(node.first.c_str());
-      u32 id = strtoul(end, &end, 16);
-      if (end != node.first.c_str() + 8)
-        continue;
-
-      hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
-      originalIDs.push_back(std::make_pair(id, path.hash().val32()));
-    }
-    std::sort(originalIDs.begin(), originalIDs.end(),
-              [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
-                return a.first < b.first;
-              });
-
-    athena::io::FileWriter w(outPath.getAbsolutePath());
-    w.writeUint32Big(originalIDs.size());
-    for (const auto& idPair : originalIDs) {
-      idPair.first.write(w);
-      idPair.second.write(w);
-    }
-
-    std::sort(originalIDs.begin(), originalIDs.end(),
-              [](const std::pair<UniqueID32, UniqueID32>& a, const std::pair<UniqueID32, UniqueID32>& b) {
-                return a.second < b.second;
-              });
-    for (const auto& idPair : originalIDs) {
-      idPair.second.write(w);
-      idPair.first.write(w);
-    }
-  }
-};
-
 struct TextureCache {
   static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
     Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
@@ -154,7 +78,7 @@ struct TextureCache {
     athena::io::YAMLDocWriter yamlW("MP1TextureCache");
     for (const auto& pair : metaMap) {
       hecl::ProjectPath path = pakRouter.getWorking(pair.first);
-      auto rec = yamlW.enterSubRecord(path.getRelativePathUTF8().data());
+      auto rec = yamlW.enterSubRecord(path.getRelativePathUTF8());
       pair.second.write(yamlW);
     }
 
@@ -179,7 +103,7 @@ struct TextureCache {
       auto rec = r.enterSubRecord(node.first.c_str());
       TXTR::Meta meta;
       meta.read(r);
-      metaPairs.push_back(std::make_pair(projectPath.hash().val32(), meta));
+      metaPairs.push_back(std::make_pair(projectPath.parsedHash32(), meta));
     }
 
     std::sort(metaPairs.begin(), metaPairs.end(), [](const auto& a, const auto& b) -> bool {
@@ -208,21 +132,13 @@ struct SpecMP1 : SpecBase {
 
   std::unique_ptr<uint8_t[]> m_dolBuf;
 
-  IDRestorer<UniqueID32> m_idRestorer;
-
   std::unordered_map<hecl::Hash, hecl::blender::Matrix4f> m_mreaPathToXF;
-
-  void setThreadProject() override {
-    SpecBase::setThreadProject();
-    UniqueIDBridge::SetIDRestorer(&m_idRestorer);
-  }
 
   SpecMP1(const hecl::Database::DataSpecEntry* specEntry, hecl::Database::Project& project, bool pc)
   : SpecBase(specEntry, project, pc)
   , m_workPath(project.getProjectWorkingPath(), _SYS_STR("MP1"))
   , m_cookPath(project.getProjectCookedPath(SpecEntMP1), _SYS_STR("MP1"))
-  , m_pakRouter(*this, m_workPath, m_cookPath)
-  , m_idRestorer({project.getProjectWorkingPath(), "MP1/!original_ids.yaml"}, project) {
+  , m_pakRouter(*this, m_workPath, m_cookPath) {
     setThreadProject();
   }
 
@@ -236,7 +152,7 @@ struct SpecMP1 : SpecBase {
       std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), tolower);
       if (name.size() > 4) {
         std::string::iterator extit = lowerName.end() - 4;
-        if (!std::string(extit, lowerName.end()).compare(".pak")) {
+        if (std::string(extit, lowerName.end()) == ".pak") {
           /* This is a pak */
           isPak = true;
           std::string lowerBase(lowerName.begin(), extit);
@@ -454,8 +370,6 @@ struct SpecMP1 : SpecBase {
     hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP1/NoARAM"));
     extractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
 
-    /* Generate original ID mapping for MLVL and SCAN entries - marks complete project */
-    OriginalIDs::Generate(m_pakRouter, m_project);
     /* Generate Texture Cache containing meta data for every texture file */
     TextureCache::Generate(m_pakRouter, m_project);
 
@@ -475,90 +389,86 @@ struct SpecMP1 : SpecBase {
   bool validateYAMLDNAType(athena::io::IStreamReader& fp) const override {
     athena::io::YAMLDocReader reader;
     yaml_parser_set_input(reader.getParser(), (yaml_read_handler_t*)athena::io::YAMLAthenaReader, &fp);
-    return reader.ClassTypeOperation([](const char* classType) {
-      if (!strcmp(classType, DNAMP1::MLVL::DNAType()))
+    return reader.ClassTypeOperation([](std::string_view classType) {
+      if (classType == DNAMP1::MLVL::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::STRG::DNAType()))
+      else if (classType == DNAMP1::STRG::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::SCAN::DNAType()))
+      else if (classType == DNAMP1::SCAN::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::GPSM<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::GPSM<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::SWSH<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::SWSH<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::ELSM<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::ELSM<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::WPSM<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::WPSM<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::CRSM<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::CRSM<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAParticle::DPSM<UniqueID32>::DNAType()))
+      else if (classType == DNAParticle::DPSM<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNADGRP::DGRP<UniqueID32>::DNAType()))
+      else if (classType == DNADGRP::DGRP<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAFont::FONT<UniqueID32>::DNAType()))
+      else if (classType == DNAFont::FONT<UniqueID32>::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakPlayerRes::DNAType()))
+      else if (classType == DNAMP1::CTweakPlayerRes::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakGunRes::DNAType()))
+      else if (classType == DNAMP1::CTweakGunRes::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakSlideShow::DNAType()))
+      else if (classType == DNAMP1::CTweakSlideShow::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakPlayer::DNAType()))
+      else if (classType == DNAMP1::CTweakPlayer::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakCameraBob::DNAType()))
+      else if (classType == DNAMP1::CTweakCameraBob::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakGame::DNAType()))
+      else if (classType == DNAMP1::CTweakGame::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakAutoMapper::DNAType()))
+      else if (classType == DNAMP1::CTweakAutoMapper::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakTargeting::DNAType()))
+      else if (classType == DNAMP1::CTweakTargeting::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakGui::DNAType()))
+      else if (classType == DNAMP1::CTweakGui::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakPlayerControl::DNAType()))
+      else if (classType == DNAMP1::CTweakPlayerControl::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakBall::DNAType()))
+      else if (classType == DNAMP1::CTweakBall::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakParticle::DNAType()))
+      else if (classType == DNAMP1::CTweakParticle::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakGuiColors::DNAType()))
+      else if (classType == DNAMP1::CTweakGuiColors::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::CTweakPlayerGun::DNAType()))
+      else if (classType == DNAMP1::CTweakPlayerGun::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::HINT::DNAType()))
+      else if (classType == DNAMP1::HINT::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::EVNT::DNAType()))
+      else if (classType == DNAMP1::EVNT::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::MazeSeeds::DNAType()))
+      else if (classType == DNAMP1::MazeSeeds::DNAType())
         return true;
-      else if (!strcmp(classType, DNAMP1::SnowForces::DNAType()))
+      else if (classType == DNAMP1::SnowForces::DNAType())
         return true;
-      else if (!strcmp(classType, "ATBL"))
+      else if (classType == "ATBL")
         return true;
-      else if (!strcmp(classType, DNAMP1::AFSM::DNAType()))
+      else if (classType == DNAMP1::AFSM::DNAType())
         return true;
-      else if (!strcmp(classType, "MP1OriginalIDs"))
-        return true;
-      else if (!strcmp(classType, "MP1TextureCache"))
+      else if (classType == "MP1TextureCache")
         return true;
       return false;
     });
   }
 
   urde::SObjectTag buildTagFromPath(const hecl::ProjectPath& path) const override {
-    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CINF")))
-      return {SBIG('CINF'), path.hash().val32()};
-    else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
-      return {SBIG('CSKR'), path.hash().val32()};
+    if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
+      return {SBIG('CSKR'), path.parsedHash32()};
     else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".ANIM")))
-      return {SBIG('ANIM'), path.hash().val32()};
+      return {SBIG('ANIM'), path.parsedHash32()};
     else if (const hecl::SystemChar* ext = path.getLastComponentExt().data()) {
       if (ext[0] == _SYS_STR('*') || !hecl::StrCmp(ext, _SYS_STR("mid"))) {
         if (path.getWithExtension(_SYS_STR(".mid"), true).isFile() &&
             path.getWithExtension(_SYS_STR(".yaml"), true).isFile()) {
           hecl::ProjectPath glob = path.getWithExtension(_SYS_STR(".*"), true);
-          return {SBIG('CSNG'), glob.hash().val32()};
+          return {SBIG('CSNG'), glob.parsedHash32()};
         }
       }
     }
@@ -566,7 +476,7 @@ struct SpecMP1 : SpecBase {
     if (path.getPathType() == hecl::ProjectPath::Type::Directory) {
       if (hecl::ProjectPath(path, _SYS_STR("!project.yaml")).isFile() &&
           hecl::ProjectPath(path, _SYS_STR("!pool.yaml")).isFile())
-        return {SBIG('AGSC'), path.hash().val32()};
+        return {SBIG('AGSC'), path.parsedHash32()};
     }
 
     hecl::ProjectPath asBlend;
@@ -578,43 +488,36 @@ struct SpecMP1 : SpecBase {
     if (hecl::IsPathBlend(asBlend)) {
       switch (hecl::blender::GetBlendType(asBlend.getAbsolutePath())) {
       case hecl::blender::BlendType::Mesh:
-        return {SBIG('CMDL'), path.hash().val32()};
+        return {SBIG('CMDL'), path.parsedHash32()};
       case hecl::blender::BlendType::ColMesh:
-        return {SBIG('DCLN'), path.hash().val32()};
+        return {SBIG('DCLN'), path.parsedHash32()};
+      case hecl::blender::BlendType::Armature:
+        return {SBIG('CINF'), path.parsedHash32()};
       case hecl::blender::BlendType::PathMesh:
-        return {SBIG('PATH'), path.hash().val32()};
+        return {SBIG('PATH'), path.parsedHash32()};
       case hecl::blender::BlendType::Actor:
         if (path.getAuxInfo().size()) {
-          if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CINF")))
-            return {SBIG('CINF'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
-          else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
-            return {SBIG('CSKR'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
+          if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".CSKR")))
+            return {SBIG('CSKR'), path.getWithExtension(_SYS_STR(".*"), true).parsedHash32()};
           else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR(".ANIM")))
-            return {SBIG('ANIM'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
+            return {SBIG('ANIM'), path.getWithExtension(_SYS_STR(".*"), true).parsedHash32()};
         }
-        return {SBIG('ANCS'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
+        return {SBIG('ANCS'), path.getWithExtension(_SYS_STR(".*"), true).parsedHash32()};
       case hecl::blender::BlendType::Area:
-        return {SBIG('MREA'), path.hash().val32()};
-      case hecl::blender::BlendType::World: {
-        if (path.getAuxInfo().size()) {
-          if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR("MAPW")))
-            return {SBIG('MAPW'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
-          else if (hecl::StringUtils::EndsWith(path.getAuxInfo(), _SYS_STR("SAVW")))
-            return {SBIG('SAVW'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
-        }
-        return {SBIG('MLVL'), path.getWithExtension(_SYS_STR(".*"), true).hash().val32()};
-      }
+        return {SBIG('MREA'), path.parsedHash32()};
+      case hecl::blender::BlendType::World:
+        return {SBIG('MLVL'), path.getWithExtension(_SYS_STR(".*"), true).parsedHash32()};
       case hecl::blender::BlendType::MapArea:
-        return {SBIG('MAPA'), path.hash().val32()};
+        return {SBIG('MAPA'), path.parsedHash32()};
       case hecl::blender::BlendType::MapUniverse:
-        return {SBIG('MAPU'), path.hash().val32()};
+        return {SBIG('MAPU'), path.parsedHash32()};
       case hecl::blender::BlendType::Frame:
-        return {SBIG('FRME'), path.hash().val32()};
+        return {SBIG('FRME'), path.parsedHash32()};
       default:
         return {};
       }
     } else if (hecl::IsPathPNG(path)) {
-      return {SBIG('TXTR'), path.hash().val32()};
+      return {SBIG('TXTR'), path.parsedHash32()};
     } else if (hecl::IsPathYAML(path)) {
       auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("r"));
       if (fp == nullptr) {
@@ -625,85 +528,88 @@ struct SpecMP1 : SpecBase {
       yaml_parser_set_input_file(reader.getParser(), fp.get());
 
       urde::SObjectTag resTag;
-      if (reader.ClassTypeOperation([&](const char* className) -> bool {
-            if (!strcmp(className, DNAParticle::GPSM<UniqueID32>::DNAType())) {
+      if (reader.ClassTypeOperation([&](std::string_view className) {
+            if (className == DNAParticle::GPSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('PART');
               return true;
             }
-            if (!strcmp(className, DNAParticle::SWSH<UniqueID32>::DNAType())) {
+            if (className == DNAParticle::SWSH<UniqueID32>::DNAType()) {
               resTag.type = SBIG('SWHC');
               return true;
             }
-            if (!strcmp(className, DNAParticle::ELSM<UniqueID32>::DNAType())) {
+            if (className == DNAParticle::ELSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('ELSC');
               return true;
             }
-            if (!strcmp(className, DNAParticle::WPSM<UniqueID32>::DNAType())) {
+            if (className == DNAParticle::WPSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('WPSC');
               return true;
             }
-            if (!strcmp(className, DNAParticle::CRSM<UniqueID32>::DNAType())) {
+            if (className == DNAParticle::CRSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('CRSC');
               return true;
             }
-            if (!strcmp(className, DNAParticle::DPSM<UniqueID32>::DNAType())) {
+            if (className == DNAParticle::DPSM<UniqueID32>::DNAType()) {
               resTag.type = SBIG('DPSC');
               return true;
-            } else if (!strcmp(className, DNAFont::FONT<UniqueID32>::DNAType())) {
+            } else if (className == DNAFont::FONT<UniqueID32>::DNAType()) {
               resTag.type = SBIG('FONT');
               return true;
-            } else if (!strcmp(className, DNAMP1::EVNT::DNAType())) {
+            } else if (className == DNAMP1::EVNT::DNAType()) {
               resTag.type = SBIG('EVNT');
               return true;
-            } else if (!strcmp(className, DNADGRP::DGRP<UniqueID32>::DNAType())) {
+            } else if (className == DNADGRP::DGRP<UniqueID32>::DNAType()) {
               resTag.type = SBIG('DGRP');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::STRG::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::STRG::DNAType()) {
               resTag.type = SBIG('STRG');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::SCAN::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::SCAN::DNAType()) {
               resTag.type = SBIG('SCAN');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::CTweakPlayerRes::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakGunRes::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakSlideShow::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakPlayer::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakCameraBob::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakGame::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakTargeting::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakAutoMapper::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakGui::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakPlayerControl::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakBall::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakParticle::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakGuiColors::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::CTweakPlayerGun::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::CTweakPlayerRes::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakGunRes::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakSlideShow::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakPlayer::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakCameraBob::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakGame::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakTargeting::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakAutoMapper::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakGui::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakPlayerControl::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakBall::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakParticle::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakGuiColors::DNAType() ||
+                       className == DataSpec::DNAMP1::CTweakPlayerGun::DNAType()) {
               resTag.type = SBIG('CTWK');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::MazeSeeds::DNAType()) ||
-                       !strcmp(className, DataSpec::DNAMP1::SnowForces::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::MazeSeeds::DNAType() ||
+                       className == DataSpec::DNAMP1::SnowForces::DNAType()) {
               resTag.type = SBIG('DUMB');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::HINT::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::HINT::DNAType()) {
               resTag.type = SBIG('HINT');
               return true;
-            } else if (!strcmp(className, "ATBL")) {
+            } else if (className == "ATBL") {
               resTag.type = SBIG('ATBL');
               return true;
-            } else if (!strcmp(className, DataSpec::DNAMP1::AFSM::DNAType())) {
+            } else if (className == DataSpec::DNAMP1::AFSM::DNAType()) {
               resTag.type = SBIG('AFSM');
               return true;
-            } else if (!strcmp(className, "MP1OriginalIDs")) {
-              resTag.type = SBIG('OIDS');
-              return true;
-            } else if (!strcmp(className, "MP1TextureCache")) {
+            } else if (className == "MP1TextureCache") {
               resTag.type = SBIG('TMET');
+              return true;
+            } else if (className == "DataSpec::DNAMP1::SAVW") {
+              resTag.type = SBIG('SAVW');
+              return true;
+            } else if (className == "DataSpec::DNAMP1::MAPW") {
+              resTag.type = SBIG('MAPW');
               return true;
             }
 
             return false;
           })) {
-        resTag.id = path.hash().val32();
+        resTag.id = path.parsedHash32();
         fp.reset();
         return resTag;
       }
@@ -739,6 +645,13 @@ struct SpecMP1 : SpecBase {
     DNAMP1::DCLN::Cook(out, mesh);
   }
 
+  void cookArmature(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
+                    hecl::blender::Token& btok, FCookProgress progress) override {
+    Armature armature = ds.compileArmature();
+    ds.close();
+    DNAMP1::CINF::Cook(out, in, armature);
+  }
+
   void cookPathMesh(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                     hecl::blender::Token& btok, FCookProgress progress) override {
     PathMesh mesh = ds.compilePathMesh();
@@ -748,10 +661,7 @@ struct SpecMP1 : SpecBase {
 
   void cookActor(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                  hecl::blender::Token& btok, FCookProgress progress) override {
-    if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR(".CINF"))) {
-      Actor actor = ds.compileActorCharacterOnly();
-      DNAMP1::ANCS::CookCINF(out, in, actor);
-    } else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR(".CSKR"))) {
+    if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR(".CSKR"))) {
       Actor actor = ds.compileActorCharacterOnly();
       ds.close();
       if (m_pc) {
@@ -783,14 +693,21 @@ struct SpecMP1 : SpecBase {
         hecl::ProjectPath pakPath(m_workPath, ent.m_name);
         for (const auto& ent2 : pakPath.enumerateDir()) {
           if (ent2.m_isDir) {
-            hecl::ProjectPath wldPath(pakPath, ent2.m_name + _SYS_STR("/!world.blend"));
-            if (wldPath.isFile()) {
-              if (!conn.openBlend(wldPath))
-                continue;
-              hecl::blender::DataStream ds = conn.beginData();
-              hecl::blender::World world = ds.compileWorld();
-              for (const auto& area : world.areas)
-                m_mreaPathToXF[area.path.hash()] = area.transform;
+            hecl::ProjectPath wldDir(pakPath, ent2.m_name);
+            for (const auto& ent3 : wldDir.enumerateDir()) {
+              if (hecl::StringUtils::BeginsWith(ent3.m_name, _SYS_STR("!world_")) &&
+                  hecl::StringUtils::EndsWith(ent3.m_name, _SYS_STR(".blend"))) {
+                hecl::ProjectPath wldPath(wldDir, ent3.m_name);
+                if (wldPath.isFile()) {
+                  if (!conn.openBlend(wldPath))
+                    continue;
+                  hecl::blender::DataStream ds = conn.beginData();
+                  hecl::blender::World world = ds.compileWorld();
+                  for (const auto& area : world.areas)
+                    m_mreaPathToXF[area.path.hash()] = area.transform;
+                }
+                break;
+              }
             }
           }
         }
@@ -808,7 +725,7 @@ struct SpecMP1 : SpecBase {
 
     for (const std::string& mesh : meshes) {
       hecl::SystemStringConv meshSys(mesh);
-      if (!mesh.compare("CMESH")) {
+      if (mesh == "CMESH") {
         colMesh = ds.compileColMesh(mesh);
         progress(_SYS_STR("Collision Mesh"));
         continue;
@@ -836,19 +753,9 @@ struct SpecMP1 : SpecBase {
 
   void cookWorld(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds, bool fast,
                  hecl::blender::Token& btok, FCookProgress progress) override {
-    if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR("MAPW"))) {
-      hecl::blender::World world = ds.compileWorld();
-      ds.close();
-      DNAMP1::MLVL::CookMAPW(out, world);
-    } else if (hecl::StringUtils::EndsWith(in.getAuxInfo(), _SYS_STR("SAVW"))) {
-      hecl::blender::World world = ds.compileWorld();
-      ds.close();
-      DNAMP1::MLVL::CookSAVW(out, world);
-    } else {
-      hecl::blender::World world = ds.compileWorld();
-      ds.close();
-      DNAMP1::MLVL::Cook(out, in, world, btok);
-    }
+    hecl::blender::World world = ds.compileWorld();
+    ds.close();
+    DNAMP1::MLVL::Cook(out, in, world, btok);
   }
 
   void cookGuiFrame(const hecl::ProjectPath& out, const hecl::ProjectPath& in, BlendStream& ds,
@@ -862,133 +769,131 @@ struct SpecMP1 : SpecBase {
   }
 
   void cookYAML(const hecl::ProjectPath& out, const hecl::ProjectPath& in, athena::io::IStreamReader& fin,
-                FCookProgress progress) override {
+                hecl::blender::Token& btok, FCookProgress progress) override {
     athena::io::YAMLDocReader reader;
     if (reader.parse(&fin)) {
       std::string classStr = reader.readString("DNAType");
       if (classStr.empty())
         return;
 
-      if (!classStr.compare(DNAMP1::STRG::DNAType())) {
+      if (classStr == DNAMP1::STRG::DNAType()) {
         DNAMP1::STRG strg;
         strg.read(reader);
         DNAMP1::STRG::Cook(strg, out);
-      } else if (!classStr.compare(DNAMP1::SCAN::DNAType())) {
+      } else if (classStr == DNAMP1::SCAN::DNAType()) {
         DNAMP1::SCAN scan;
         scan.read(reader);
         DNAMP1::SCAN::Cook(scan, out);
-      } else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::GPSM<UniqueID32>::DNAType()) {
         DNAParticle::GPSM<UniqueID32> gpsm;
         gpsm.read(reader);
         DNAParticle::WriteGPSM(gpsm, out);
-      } else if (!classStr.compare(DNAParticle::SWSH<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::SWSH<UniqueID32>::DNAType()) {
         DNAParticle::SWSH<UniqueID32> swsh;
         swsh.read(reader);
         DNAParticle::WriteSWSH(swsh, out);
-      } else if (!classStr.compare(DNAParticle::ELSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::ELSM<UniqueID32>::DNAType()) {
         DNAParticle::ELSM<UniqueID32> elsm;
         elsm.read(reader);
         DNAParticle::WriteELSM(elsm, out);
-      } else if (!classStr.compare(DNAParticle::WPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::WPSM<UniqueID32>::DNAType()) {
         DNAParticle::WPSM<UniqueID32> wpsm;
         wpsm.read(reader);
         DNAParticle::WriteWPSM(wpsm, out);
-      } else if (!classStr.compare(DNAParticle::CRSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::CRSM<UniqueID32>::DNAType()) {
         DNAParticle::CRSM<UniqueID32> crsm;
         crsm.read(reader);
         DNAParticle::WriteCRSM(crsm, out);
-      } else if (!classStr.compare(DNAParticle::DPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::DPSM<UniqueID32>::DNAType()) {
         DNAParticle::DPSM<UniqueID32> dpsm;
         dpsm.read(reader);
         DNAParticle::WriteDPSM(dpsm, out);
-      } else if (!classStr.compare(DNADGRP::DGRP<UniqueID32>::DNAType())) {
+      } else if (classStr == DNADGRP::DGRP<UniqueID32>::DNAType()) {
         DNADGRP::DGRP<UniqueID32> dgrp;
         dgrp.read(reader);
         dgrp.validateDeps();
         DNADGRP::WriteDGRP(dgrp, out);
-      } else if (!classStr.compare(DNAFont::FONT<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAFont::FONT<UniqueID32>::DNAType()) {
         DNAFont::FONT<UniqueID32> font;
         font.read(reader);
         DNAFont::WriteFONT(font, out);
-      } else if (!classStr.compare(DNAMP1::CTweakPlayerRes::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakPlayerRes::DNAType()) {
         DNAMP1::CTweakPlayerRes playerRes;
         playerRes.read(reader);
         WriteTweak(playerRes, out);
-      } else if (!classStr.compare(DNAMP1::CTweakGunRes::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakGunRes::DNAType()) {
         DNAMP1::CTweakGunRes gunRes;
         gunRes.read(reader);
         WriteTweak(gunRes, out);
-      } else if (!classStr.compare(DNAMP1::CTweakSlideShow::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakSlideShow::DNAType()) {
         DNAMP1::CTweakSlideShow slideShow;
         slideShow.read(reader);
         WriteTweak(slideShow, out);
-      } else if (!classStr.compare(DNAMP1::CTweakPlayer::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakPlayer::DNAType()) {
         DNAMP1::CTweakPlayer player;
         player.read(reader);
         WriteTweak(player, out);
-      } else if (!classStr.compare(DNAMP1::CTweakCameraBob::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakCameraBob::DNAType()) {
         DNAMP1::CTweakCameraBob cBob;
         cBob.read(reader);
         WriteTweak(cBob, out);
-      } else if (!classStr.compare(DNAMP1::CTweakGame::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakGame::DNAType()) {
         DNAMP1::CTweakGame cGame;
         cGame.read(reader);
         WriteTweak(cGame, out);
-      } else if (!classStr.compare(DNAMP1::CTweakAutoMapper::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakAutoMapper::DNAType()) {
         DNAMP1::CTweakAutoMapper autoMapper;
         autoMapper.read(reader);
         WriteTweak(autoMapper, out);
-      } else if (!classStr.compare(DNAMP1::CTweakTargeting::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakTargeting::DNAType()) {
         DNAMP1::CTweakTargeting targeting;
         targeting.read(reader);
         WriteTweak(targeting, out);
-      } else if (!classStr.compare(DNAMP1::CTweakGui::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakGui::DNAType()) {
         DNAMP1::CTweakGui gui;
         gui.read(reader);
         WriteTweak(gui, out);
-      } else if (!classStr.compare(DNAMP1::CTweakPlayerControl::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakPlayerControl::DNAType()) {
         DNAMP1::CTweakPlayerControl pc;
         pc.read(reader);
         WriteTweak(pc, out);
-      } else if (!classStr.compare(DNAMP1::CTweakBall::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakBall::DNAType()) {
         DNAMP1::CTweakBall ball;
         ball.read(reader);
         WriteTweak(ball, out);
-      } else if (!classStr.compare(DNAMP1::CTweakParticle::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakParticle::DNAType()) {
         DNAMP1::CTweakParticle part;
         part.read(reader);
         WriteTweak(part, out);
-      } else if (!classStr.compare(DNAMP1::CTweakGuiColors::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakGuiColors::DNAType()) {
         DNAMP1::CTweakGuiColors gColors;
         gColors.read(reader);
         WriteTweak(gColors, out);
-      } else if (!classStr.compare(DNAMP1::CTweakPlayerGun::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakPlayerGun::DNAType()) {
         DNAMP1::CTweakPlayerGun pGun;
         pGun.read(reader);
         WriteTweak(pGun, out);
-      } else if (!classStr.compare(DNAMP1::CTweakPlayerControl::DNAType())) {
+      } else if (classStr == DNAMP1::CTweakPlayerControl::DNAType()) {
         DNAMP1::CTweakPlayerControl pControl;
         pControl.read(reader);
         WriteTweak(pControl, out);
-      } else if (!classStr.compare(DNAMP1::MazeSeeds::DNAType())) {
+      } else if (classStr == DNAMP1::MazeSeeds::DNAType()) {
         DNAMP1::MazeSeeds mSeeds;
         mSeeds.read(reader);
         WriteTweak(mSeeds, out);
-      } else if (!classStr.compare(DNAMP1::SnowForces::DNAType())) {
+      } else if (classStr == DNAMP1::SnowForces::DNAType()) {
         DNAMP1::SnowForces sForces;
         sForces.read(reader);
         WriteTweak(sForces, out);
-      } else if (!classStr.compare(DNAMP1::HINT::DNAType())) {
+      } else if (classStr == DNAMP1::HINT::DNAType()) {
         DNAMP1::HINT::Cook(in, out);
-      } else if (!classStr.compare(DNAMP1::EVNT::DNAType())) {
+      } else if (classStr == DNAMP1::EVNT::DNAType()) {
         DNAMP1::EVNT::Cook(in, out);
-      } else if (!classStr.compare("ATBL")) {
+      } else if (classStr == "ATBL") {
         DNAAudio::ATBL::Cook(in, out);
-      } else if (!classStr.compare(DNAMP1::AFSM::DNAType())) {
+      } else if (classStr == DNAMP1::AFSM::DNAType()) {
         DNAMP1::AFSM::Cook(in, out);
-      } else if (!classStr.compare("MP1OriginalIDs")) {
-        OriginalIDs::Cook(in, out);
-      } else if (!classStr.compare("MP1TextureCache")) {
+      } else if (classStr == "MP1TextureCache") {
         TextureCache::Cook(in, out);
       }
     }
@@ -998,48 +903,48 @@ struct SpecMP1 : SpecBase {
   void flattenDependenciesYAML(athena::io::IStreamReader& fin, std::vector<hecl::ProjectPath>& pathsOut) override {
     athena::io::YAMLDocReader reader;
     if (reader.parse(&fin)) {
-      std::string classStr = reader.readString("DNAType");
+      std::string classStr = reader.readString("DNAType"sv);
       if (classStr.empty())
         return;
 
-      if (!classStr.compare(DNAMP1::STRG::DNAType())) {
+      if (classStr == DNAMP1::STRG::DNAType()) {
         DNAMP1::STRG strg;
         strg.read(reader);
         strg.gatherDependencies(pathsOut);
       }
-      if (!classStr.compare(DNAMP1::SCAN::DNAType())) {
+      if (classStr == DNAMP1::SCAN::DNAType()) {
         DNAMP1::SCAN scan;
         scan.read(reader);
         scan.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::GPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::GPSM<UniqueID32>::DNAType()) {
         DNAParticle::GPSM<UniqueID32> gpsm;
         gpsm.read(reader);
         gpsm.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::SWSH<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::SWSH<UniqueID32>::DNAType()) {
         DNAParticle::SWSH<UniqueID32> swsh;
         swsh.read(reader);
         swsh.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::ELSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::ELSM<UniqueID32>::DNAType()) {
         DNAParticle::ELSM<UniqueID32> elsm;
         elsm.read(reader);
         elsm.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::WPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::WPSM<UniqueID32>::DNAType()) {
         DNAParticle::WPSM<UniqueID32> wpsm;
         wpsm.read(reader);
         wpsm.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::CRSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::CRSM<UniqueID32>::DNAType()) {
         DNAParticle::CRSM<UniqueID32> crsm;
         crsm.read(reader);
         crsm.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAParticle::DPSM<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAParticle::DPSM<UniqueID32>::DNAType()) {
         DNAParticle::DPSM<UniqueID32> dpsm;
         dpsm.read(reader);
         dpsm.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAFont::FONT<UniqueID32>::DNAType())) {
+      } else if (classStr == DNAFont::FONT<UniqueID32>::DNAType()) {
         DNAFont::FONT<UniqueID32> font;
         font.read(reader);
         font.gatherDependencies(pathsOut);
-      } else if (!classStr.compare(DNAMP1::EVNT::DNAType())) {
+      } else if (classStr == DNAMP1::EVNT::DNAType()) {
         DNAMP1::EVNT evnt;
         evnt.read(reader);
         evnt.gatherDependencies(pathsOut);
@@ -1052,26 +957,12 @@ struct SpecMP1 : SpecBase {
     athena::io::YAMLDocReader reader;
     if (reader.parse(&fin)) {
       std::string classStr = reader.readString("DNAType");
-      if (!classStr.compare(DNAMP1::ANCS::DNAType())) {
+      if (classStr == DNAMP1::ANCS::DNAType()) {
         DNAMP1::ANCS ancs;
         ancs.read(reader);
         ancs.gatherDependencies(pathsOut, charIdx);
       }
     }
-  }
-
-  UniqueID32 newToOriginal(urde::CAssetId id) const {
-    UniqueID32 origId = m_idRestorer.newToOriginal({uint32_t(id.Value()), true});
-    if (origId.isValid())
-      return {origId.toUint32(), true};
-    return {uint32_t(id.Value()), true};
-  }
-
-  urde::CAssetId originalToNew(UniqueID32 id) const {
-    UniqueID32 newId = m_idRestorer.originalToNew(id);
-    if (newId.isValid())
-      return newId.toUint32();
-    return id.toUint32();
   }
 
   void buildWorldPakList(const hecl::ProjectPath& worldPath, const hecl::ProjectPath& worldPathCooked,
@@ -1108,24 +999,24 @@ struct SpecMP1 : SpecBase {
     DNAMP1::PAK::NameEntry nameEnt;
     hecl::ProjectPath parentDir = worldPath.getParentPath();
     nameEnt.type = worldTag.type;
-    nameEnt.id = newToOriginal(worldTag.id);
+    nameEnt.id = worldTag.id.Value();
     nameEnt.nameLen = atUint32(parentDir.getLastComponent().size());
     nameEnt.name = parentDir.getLastComponentUTF8();
     nameEnt.write(w);
 
     std::unordered_set<urde::CAssetId> addedTags;
     for (auto& area : mlvl.areas) {
-      urde::SObjectTag areaTag(FOURCC('MREA'), originalToNew(area.areaMREAId));
+      urde::SObjectTag areaTag(FOURCC('MREA'), area.areaMREAId.toUint64());
 
       bool dupeRes = false;
       if (hecl::ProjectPath areaDir = pathFromTag(areaTag).getParentPath())
         dupeRes = hecl::ProjectPath(areaDir, _SYS_STR("!duperes")).isFile();
 
-      urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(area.areaNameId));
+      urde::SObjectTag nameTag(FOURCC('STRG'), area.areaNameId.toUint64());
       if (nameTag)
         listOut.push_back(nameTag);
       for (const auto& dep : area.deps) {
-        urde::CAssetId newId = originalToNew(dep.id);
+        urde::CAssetId newId = dep.id.toUint64();
         if (dupeRes || addedTags.find(newId) == addedTags.end()) {
           listOut.push_back({dep.type, newId});
           addedTags.insert(newId);
@@ -1160,18 +1051,18 @@ struct SpecMP1 : SpecBase {
       area.depLayers = std::move(strippedDepLayers);
     }
 
-    urde::SObjectTag nameTag(FOURCC('STRG'), originalToNew(mlvl.worldNameId));
+    urde::SObjectTag nameTag(FOURCC('STRG'), mlvl.worldNameId.toUint64());
     if (nameTag)
       listOut.push_back(nameTag);
 
-    urde::SObjectTag savwTag(FOURCC('SAVW'), originalToNew(mlvl.saveWorldId));
+    urde::SObjectTag savwTag(FOURCC('SAVW'), mlvl.saveWorldId.toUint64());
     if (savwTag) {
       if (hecl::ProjectPath savwPath = pathFromTag(savwTag))
         m_project.cookPath(savwPath, {}, false, true);
       listOut.push_back(savwTag);
     }
 
-    urde::SObjectTag mapTag(FOURCC('MAPW'), originalToNew(mlvl.worldMap));
+    urde::SObjectTag mapTag(FOURCC('MAPW'), mlvl.worldMap.toUint64());
     if (mapTag) {
       if (hecl::ProjectPath mapPath = pathFromTag(mapTag)) {
         m_project.cookPath(mapPath, {}, false, true);
@@ -1187,14 +1078,14 @@ struct SpecMP1 : SpecBase {
           for (atUint32 i = 0; i < mapaCount; ++i) {
             UniqueID32 id;
             id.read(r);
-            listOut.push_back({FOURCC('MAPA'), originalToNew(id)});
+            listOut.push_back({FOURCC('MAPA'), id.toUint64()});
           }
         }
       }
       listOut.push_back(mapTag);
     }
 
-    urde::SObjectTag skyboxTag(FOURCC('CMDL'), originalToNew(mlvl.worldSkyboxId));
+    urde::SObjectTag skyboxTag(FOURCC('CMDL'), mlvl.worldSkyboxId.toUint64());
     if (skyboxTag) {
       listOut.push_back(skyboxTag);
       hecl::ProjectPath skyboxPath = pathFromTag(skyboxTag);
@@ -1218,7 +1109,7 @@ struct SpecMP1 : SpecBase {
       DNAMP1::PAK::Entry ent;
       ent.compressed = 0;
       ent.type = item.type;
-      ent.id = newToOriginal(item.id.Value());
+      ent.id = item.id.Value();
       ent.size = 0;
       ent.offset = 0;
       ent.write(w);
@@ -1229,8 +1120,8 @@ struct SpecMP1 : SpecBase {
       size_t mlvlSize = 0;
       mlvl.binarySize(mlvlSize);
       mlvlOut.resize(mlvlSize);
-      athena::io::MemoryWriter w(&mlvlOut[0], mlvlSize);
-      mlvl.write(w);
+      athena::io::MemoryWriter mw(&mlvlOut[0], mlvlSize);
+      mlvl.write(mw);
     }
   }
 
@@ -1243,7 +1134,7 @@ struct SpecMP1 : SpecBase {
     for (const auto& item : nameList) {
       DNAMP1::PAK::NameEntry nameEnt;
       nameEnt.type = item.first.type;
-      nameEnt.id = newToOriginal(item.first.id);
+      nameEnt.id = item.first.id.Value();
       nameEnt.nameLen = atUint32(item.second.size());
       nameEnt.name = item.second;
       nameEnt.write(w);
@@ -1255,7 +1146,7 @@ struct SpecMP1 : SpecBase {
       DNAMP1::PAK::Entry ent;
       ent.compressed = 0;
       ent.type = item.type;
-      ent.id = newToOriginal(item.id);
+      ent.id = item.id.Value();
       ent.size = 0;
       ent.offset = 0;
       ent.write(w);
@@ -1272,7 +1163,7 @@ struct SpecMP1 : SpecBase {
       DNAMP1::PAK::Entry ent;
       ent.compressed = atUint32(std::get<2>(item));
       ent.type = tag.type;
-      ent.id = newToOriginal(tag.id);
+      ent.id = tag.id.Value();
       ent.size = atUint32(std::get<1>(item));
       ent.offset = atUint32(std::get<0>(item));
       ent.write(w);

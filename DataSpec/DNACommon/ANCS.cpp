@@ -23,8 +23,7 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
   ancs.getCharacterResInfo(chResInfo);
   for (const auto& info : chResInfo) {
     const nod::Node* node;
-    const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true, false);
-    if (cmdlE) {
+    if (const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, &node, true, false)) {
       hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
       if (force || cmdlPath.isNone()) {
         cmdlPath.makeDirChain(false);
@@ -39,8 +38,9 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
         pakRouter.lookupAndReadDNA(info.cskr, cskr);
         typename ANCSDNA::CINFType cinf;
         pakRouter.lookupAndReadDNA(info.cinf, cinf);
-        using RigPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
-        RigPair rigPair(&cskr, &cinf);
+        using RigPair = std::pair<std::pair<typename PAKRouter::IDType, typename ANCSDNA::CSKRType*>,
+                                  std::pair<typename PAKRouter::IDType, typename ANCSDNA::CINFType*>>;
+        RigPair rigPair({info.cskr, &cskr}, {info.cinf, &cinf});
 
         PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
         DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RigPair, SurfaceHeader, CMDLVersion>(
@@ -54,11 +54,10 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
   /* Extract attachment CMDL/CSKRs first */
   auto attRange = pakRouter.lookupCharacterAttachmentRigs(entry.id);
   for (auto it = attRange.first; it != attRange.second; ++it) {
-    auto cmdlid = it->second.first.second;
+    auto cmdlid = it->second.first.cmdl;
 
     const nod::Node* node;
-    const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(cmdlid, &node, true, false);
-    if (cmdlE) {
+    if (const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(cmdlid, &node, true, false)) {
       hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
       if (force || cmdlPath.isNone()) {
         cmdlPath.makeDirChain(false);
@@ -71,11 +70,12 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
         const auto* rp = pakRouter.lookupCMDLRigPair(cmdlid);
         typename ANCSDNA::CSKRType cskr;
-        pakRouter.lookupAndReadDNA(rp->first, cskr);
+        pakRouter.lookupAndReadDNA(rp->cskr, cskr);
         typename ANCSDNA::CINFType cinf;
-        pakRouter.lookupAndReadDNA(rp->second, cinf);
-        using RigPair = std::pair<typename ANCSDNA::CSKRType*, typename ANCSDNA::CINFType*>;
-        RigPair rigPair(&cskr, &cinf);
+        pakRouter.lookupAndReadDNA(rp->cinf, cinf);
+        using RigPair = std::pair<std::pair<typename PAKRouter::IDType, typename ANCSDNA::CSKRType*>,
+                                  std::pair<typename PAKRouter::IDType, typename ANCSDNA::CINFType*>>;
+        RigPair rigPair({rp->cskr, &cskr}, {rp->cinf, &cinf});
 
         PAKEntryReadStream rs = cmdlE->beginReadStream(*node);
         DNACMDL::ReadCMDLToBlender<PAKRouter, MaterialSet, RigPair, SurfaceHeader, CMDLVersion>(
@@ -123,23 +123,25 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
 
       /* Build CINF if needed */
       if (cinfsDone.find(info.cinf) == cinfsDone.end()) {
-        typename ANCSDNA::CINFType cinf;
-        pakRouter.lookupAndReadDNA(info.cinf, cinf);
-        cinf.sendCINFToBlender(os, info.cinf);
+        if (const typename PAKRouter::EntryType* cinfE = pakRouter.lookupEntry(info.cinf, nullptr, true, false)) {
+          hecl::ProjectPath cinfPath = pakRouter.getWorking(cinfE);
+          os.linkArmature(cinfPath.getAbsolutePathUTF8(), fmt::format(fmt("CINF_{}"), info.cinf));
+          os << "if obj.name not in bpy.context.scene.objects:\n"
+                "    bpy.context.scene.collection.objects.link(obj)\n";
+        }
         if (cinfsDone.empty()) {
           firstName = ANCSDNA::CINFType::GetCINFArmatureName(info.cinf);
-          firstCinf = cinf;
+          pakRouter.lookupAndReadDNA(info.cinf, firstCinf);
         }
         cinfsDone.insert(info.cinf);
-      } else
-        os.format(fmt("arm_obj = bpy.data.objects['CINF_{}']\n"), info.cinf);
+      }
+      os.format(fmt("arm_obj = bpy.data.objects['CINF_{}']\n"), info.cinf);
       os << "actor_subtype.linked_armature = arm_obj.name\n";
 
       /* Link CMDL */
-      const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true, false);
-      if (cmdlE) {
+      if (const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(info.cmdl, nullptr, true, false)) {
         hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-        os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(), pakRouter.getBestEntryName(*cmdlE).data(), true);
+        os.linkMesh(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
         /* Attach CMDL to CINF */
         os << "if obj.name not in bpy.context.scene.objects:\n"
@@ -155,10 +157,10 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
         os.format(fmt("overlay.name = '{}'\n"), overlay.first);
 
         /* Link CMDL */
-        const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(overlay.second.first, nullptr, true, false);
-        if (cmdlE) {
+        if (const typename PAKRouter::EntryType* cmdlE =
+            pakRouter.lookupEntry(overlay.second.first, nullptr, true, false)) {
           hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-          os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(), pakRouter.getBestEntryName(*cmdlE).data(), true);
+          os.linkMesh(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
           /* Attach CMDL to CINF */
           os << "if obj.name not in bpy.context.scene.objects:\n"
@@ -175,30 +177,32 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
       os << "attachment = actor_data.attachments.add()\n";
       os.format(fmt("attachment.name = '{}'\n"), it->second.second);
 
-      auto cinfid = it->second.first.first;
-      auto cmdlid = it->second.first.second;
+      auto cinfid = it->second.first.cinf;
+      auto cmdlid = it->second.first.cmdl;
 
       if (cinfid.isValid()) {
         /* Build CINF if needed */
         if (cinfsDone.find(cinfid) == cinfsDone.end()) {
-          typename ANCSDNA::CINFType cinf;
-          pakRouter.lookupAndReadDNA(cinfid, cinf);
-          cinf.sendCINFToBlender(os, cinfid);
+          if (const typename PAKRouter::EntryType* cinfE = pakRouter.lookupEntry(cinfid, nullptr, true, false)) {
+            hecl::ProjectPath cinfPath = pakRouter.getWorking(cinfE);
+            os.linkArmature(cinfPath.getAbsolutePathUTF8(), fmt::format(fmt("CINF_{}"), cinfid));
+            os << "if obj.name not in bpy.context.scene.objects:\n"
+                  "    bpy.context.scene.collection.objects.link(obj)\n";
+          }
           if (cinfsDone.empty()) {
             firstName = ANCSDNA::CINFType::GetCINFArmatureName(cinfid);
-            firstCinf = cinf;
+            pakRouter.lookupAndReadDNA(cinfid, firstCinf);
           }
           cinfsDone.insert(cinfid);
-        } else
-          os.format(fmt("arm_obj = bpy.data.objects['CINF_{}']\n"), cinfid);
+        }
+        os.format(fmt("arm_obj = bpy.data.objects['CINF_{}']\n"), cinfid);
         os << "attachment.linked_armature = arm_obj.name\n";
       }
 
       /* Link CMDL */
-      const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(cmdlid, nullptr, true, false);
-      if (cmdlE) {
+      if (const typename PAKRouter::EntryType* cmdlE = pakRouter.lookupEntry(cmdlid, nullptr, true, false)) {
         hecl::ProjectPath cmdlPath = pakRouter.getWorking(cmdlE);
-        os.linkBlend(cmdlPath.getAbsolutePathUTF8().data(), pakRouter.getBestEntryName(*cmdlE).data(), true);
+        os.linkMesh(cmdlPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
         /* Attach CMDL to CINF */
         os << "if obj.name not in bpy.context.scene.objects:\n"
@@ -228,8 +232,9 @@ bool ReadANCSToBlender(hecl::blender::Connection& conn, const ANCSDNA& ancs, con
       if (pakRouter.lookupAndReadDNA(id.second.animId, anim, true)) {
         os.format(fmt(
             "act = bpy.data.actions.new('{}')\n"
-            "act.use_fake_user = True\n"),
-            id.second.name);
+            "act.use_fake_user = True\n"
+            "act.anim_id = '{}'\n"),
+            id.second.name, id.second.animId);
         anim.sendANIMToBlender(os, inverter, id.second.additive);
       }
 

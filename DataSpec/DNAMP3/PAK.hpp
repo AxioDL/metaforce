@@ -57,7 +57,7 @@ struct PAK : BigDNA {
 
   const Entry* lookupEntry(const UniqueID64& id) const;
   const Entry* lookupEntry(std::string_view name) const;
-  std::string bestEntryName(const nod::Node& pakNode, const Entry& entry, bool& named) const;
+  std::string bestEntryName(const nod::Node& pakNode, const Entry& entry, std::string& catalogueName) const;
 
   bool mreaHasDupeResources(const UniqueID64& id) const { return m_dupeMREAs.find(id) != m_dupeMREAs.cend(); }
 

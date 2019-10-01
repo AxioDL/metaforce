@@ -1899,7 +1899,7 @@ void CTweakPlayer::FixupValues() {
   x29c_fallCameraPitchDownAngle = zeus::degToRad(x29c_fallCameraPitchDownAngle);
 }
 
-const char* CTweakPlayer::DNAType() { return "DataSpec::DNAMP1::CTweakPlayer"; }
+std::string_view CTweakPlayer::DNAType() { return "DataSpec::DNAMP1::CTweakPlayer"sv; }
 
 template <>
 void CTweakPlayer::Enumerate<BigDNA::BinarySize>(size_t& __isz) {

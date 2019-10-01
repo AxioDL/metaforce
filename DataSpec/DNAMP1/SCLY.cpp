@@ -91,7 +91,7 @@ void SCLY::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& docout) {
   docout.enumerate("layers", layers);
 }
 
-const char* SCLY::DNAType() { return "urde::DNAMP1::SCLY"; }
+std::string_view SCLY::DNAType() { return "urde::DNAMP1::SCLY"sv; }
 
 template <>
 void SCLY::ScriptLayer::Enumerate<BigDNA::Read>(athena::io::IStreamReader& rs) {
@@ -133,7 +133,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& r
     objectCount = objCount;
     objects.reserve(objCount);
     for (atUint32 i = 0; i < objectCount; i++) {
-      if (auto rec = rs.enterSubRecord(nullptr)) {
+      if (auto rec = rs.enterSubRecord()) {
         atUint8 type = rs.readUByte("type");
         auto iter = std::find_if(SCRIPT_OBJECT_DB.begin(), SCRIPT_OBJECT_DB.end(),
                                  [&type](const ScriptObjectSpec* obj) -> bool { return obj->type == type; });
@@ -182,7 +182,7 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& 
   ws.writeUByte("unknown", unknown);
   if (auto v = ws.enterSubVector("objects")) {
     for (const std::unique_ptr<IScriptObject>& obj : objects) {
-      if (auto rec = ws.enterSubRecord(nullptr)) {
+      if (auto rec = ws.enterSubRecord()) {
         ws.writeUByte("type", obj->type);
         obj->write(ws);
       }
@@ -190,6 +190,6 @@ void SCLY::ScriptLayer::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& 
   }
 }
 
-const char* SCLY::ScriptLayer::DNAType() { return "urde::DNAMP1::SCLY::ScriptLayer"; }
+std::string_view SCLY::ScriptLayer::DNAType() { return "urde::DNAMP1::SCLY::ScriptLayer"sv; }
 
 } // namespace DataSpec::DNAMP1

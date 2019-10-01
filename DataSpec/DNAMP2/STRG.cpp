@@ -152,7 +152,7 @@ void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   /* Validate Pass */
   if (root->m_type == YAML_MAPPING_NODE) {
     for (const auto& lang : root->m_mapChildren) {
-      if (!lang.first.compare("names"))
+      if (lang.first == "names")
         continue;
       if (lang.first.size() != 4) {
         Log.report(logvisor::Warning, fmt("STRG language string '{}' must be exactly 4 characters; skipping"), lang.first);
@@ -198,18 +198,18 @@ void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
 template <>
 void STRG::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer) {
   for (const auto& lang : langs) {
-    if (auto v = writer.enterSubVector(lang.first.toString().c_str()))
+    if (auto v = writer.enterSubVector(lang.first.toString()))
       for (const std::u16string& str : lang.second)
-        writer.writeU16String(nullptr, str);
+        writer.writeU16String(str);
   }
   if (names.size()) {
     if (auto rec = writer.enterSubRecord("names"))
       for (const auto& name : names)
-        if (auto rec = writer.enterSubRecord(name.first.c_str()))
-          writer.writeInt32(nullptr, name.second);
+        if (auto rec = writer.enterSubRecord(name.first))
+          writer.writeInt32(name.second);
   }
 }
 
-const char* STRG::DNAType() { return "urde::DNAMP2::STRG"; }
+std::string_view STRG::DNAType() { return "urde::DNAMP2::STRG"sv; }
 
 } // namespace DataSpec::DNAMP2

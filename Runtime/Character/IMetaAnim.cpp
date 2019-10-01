@@ -37,7 +37,7 @@ CCharAnimTime IMetaAnim::GetTime(const CPreAdvanceIndicator& ind, const IAnimRea
   const char* cmpStr = ind.GetString();
   for (u32 i = 0; i < count; ++i) {
     CBoolPOINode& node = nodes[i];
-    if (node.GetString().compare(cmpStr) || !node.GetValue())
+    if (node.GetString() != cmpStr || !node.GetValue())
       continue;
     return node.GetTime();
   }

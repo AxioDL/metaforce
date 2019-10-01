@@ -132,7 +132,7 @@ void FONT<IDType>::_read(athena::io::YAMLDocReader& __dna_docin) {
       else
         glyphs.emplace_back(new GlyphMP2);
 
-      if (auto rec = __dna_docin.enterSubRecord(nullptr))
+      if (auto rec = __dna_docin.enterSubRecord())
         glyphs.back()->read(__dna_docin);
     }
   }
@@ -171,7 +171,7 @@ void FONT<IDType>::_write(athena::io::YAMLDocWriter& __dna_docout) const {
   /* glyphs */
   if (auto v = __dna_docout.enterSubVector("glyphs"))
     for (const std::unique_ptr<IGlyph>& glyph : glyphs)
-      if (auto rec = __dna_docout.enterSubRecord(nullptr))
+      if (auto rec = __dna_docout.enterSubRecord())
         glyph->write(__dna_docout);
   /* kerningInfoCount squelched */
   /* kerningInfo */
@@ -179,13 +179,13 @@ void FONT<IDType>::_write(athena::io::YAMLDocWriter& __dna_docout) const {
 }
 
 template <>
-const char* FONT<UniqueID32>::DNAType() {
-  return "FONT<UniqueID32>";
+std::string_view FONT<UniqueID32>::DNAType() {
+  return "FONT<UniqueID32>"sv;
 }
 
 template <>
-const char* FONT<UniqueID64>::DNAType() {
-  return "FONT<UniqueID64>";
+std::string_view FONT<UniqueID64>::DNAType() {
+  return "FONT<UniqueID64>"sv;
 }
 
 template <class IDType>

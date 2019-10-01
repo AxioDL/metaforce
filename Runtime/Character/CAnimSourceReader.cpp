@@ -165,21 +165,21 @@ u32 CAnimSourceReaderBase::VGetSoundPOIList(const CCharAnimTime& time, CSoundPOI
 
 bool CAnimSourceReaderBase::VGetBoolPOIState(const char* name) const {
   for (const auto& node : x24_boolStates)
-    if (!node.first.compare(name))
+    if (node.first == name)
       return node.second;
   return false;
 }
 
 s32 CAnimSourceReaderBase::VGetInt32POIState(const char* name) const {
   for (const auto& node : x34_int32States)
-    if (!node.first.compare(name))
+    if (node.first == name)
       return node.second;
   return 0;
 }
 
 CParticleData::EParentedMode CAnimSourceReaderBase::VGetParticlePOIState(const char* name) const {
   for (const auto& node : x44_particleStates)
-    if (!node.first.compare(name))
+    if (node.first == name)
       return node.second;
   return CParticleData::EParentedMode::Initial;
 }

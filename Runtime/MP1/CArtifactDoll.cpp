@@ -49,9 +49,8 @@ CArtifactDoll::CArtifactDoll() {
 }
 
 int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId) {
-  CAssetId orig = g_ResFactory->TranslateNewToOriginal(scanId);
   for (int i = 0; i < 12; ++i)
-    if (ArtifactHeadScans[i] == orig)
+    if (ArtifactHeadScans[i] == scanId)
       return i;
   return -1;
 }
@@ -59,15 +58,15 @@ int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId) {
 CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item) {
   if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn)
     return -1;
-  return g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[int(item) - 29]);
+  return ArtifactHeadScans[int(item) - 29];
 }
 
 void CArtifactDoll::UpdateArtifactHeadScan(const CStateManager& mgr, float delta) {
   CPlayerState& playerState = *mgr.GetPlayerState();
   for (int i = 0; i < 12; ++i) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType(i + 29))) {
-      CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
-      playerState.SetScanTime(newId, std::min(playerState.GetScanTime(newId) + delta, 1.f));
+      CAssetId id = ArtifactHeadScans[i];
+      playerState.SetScanTime(id, std::min(playerState.GetScanTime(id) + delta, 1.f));
     }
   }
 }
@@ -94,8 +93,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
     zeus::CColor color = ArtifactPreColor;
     if (playerState.HasPowerUp(CPlayerState::EItemType(i + 29))) {
       if (ArtifactHeadScans[i].IsValid()) {
-        CAssetId newId = g_ResFactory->TranslateOriginalToNew(ArtifactHeadScans[i]);
-        float interp = (playerState.GetScanTime(newId) - 0.5f) * 2.f;
+        float interp = (playerState.GetScanTime(ArtifactHeadScans[i]) - 0.5f) * 2.f;
         if (interp < 0.5f)
           color = zeus::CColor::lerp(ArtifactPreColor, zeus::skWhite, 2.f * interp);
         else

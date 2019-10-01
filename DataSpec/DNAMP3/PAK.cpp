@@ -215,17 +215,16 @@ const PAK::Entry* PAK::lookupEntry(std::string_view name) const {
   return nullptr;
 }
 
-std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, bool& named) const {
+std::string PAK::bestEntryName(const nod::Node& pakNode, const Entry& entry, std::string& catalogueName) const {
   /* Prefer named entries first */
   for (const NameEntry& nentry : m_nameEntries)
     if (nentry.id == entry.id) {
-      named = true;
-      return nentry.name;
+      catalogueName = nentry.name;
+      return fmt::format(fmt("{}_{}"), nentry.name, entry.id);
     }
 
   /* Otherwise return ID format string */
-  named = false;
-  return entry.type.toString() + '_' + entry.id.toString();
+  return fmt::format(fmt("{}_{}"), entry.type, entry.id);
 }
 
 } // namespace DataSpec::DNAMP3

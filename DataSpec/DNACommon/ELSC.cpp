@@ -400,13 +400,13 @@ AT_SUBSPECIALIZE_DNA_YAML(ELSM<UniqueID32>)
 AT_SUBSPECIALIZE_DNA_YAML(ELSM<UniqueID64>)
 
 template <>
-const char* ELSM<UniqueID32>::DNAType() {
-  return "urde::ELSM<UniqueID32>";
+std::string_view ELSM<UniqueID32>::DNAType() {
+  return "urde::ELSM<UniqueID32>"sv;
 }
 
 template <>
-const char* ELSM<UniqueID64>::DNAType() {
-  return "urde::ELSM<UniqueID64>";
+std::string_view ELSM<UniqueID64>::DNAType() {
+  return "urde::ELSM<UniqueID64>"sv;
 }
 
 template <class IDType>

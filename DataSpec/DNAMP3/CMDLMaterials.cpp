@@ -88,6 +88,7 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       "new_material.use_transparent_shadows = True\n"
       "new_material.diffuse_color = (1.0,1.0,1.0)\n"
       "new_material.use_nodes = True\n"
+      "new_material.blend_method = 'BLEND'\n"
       "new_nodetree = new_material.node_tree\n"
       "material_node = new_nodetree.nodes['Material']\n"
       "final_node = new_nodetree.nodes['Output']\n"
@@ -116,10 +117,17 @@ void MaterialSet::ConstructMaterial(Stream& out, const PAKRouter<PAKBridge>& pak
       material.header.flags.shadowOccluderMesh() ? "0" : "1");
 
   /* Blend factors */
+  out << "blend_node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+         "blend_node.name = 'Blend'\n"
+         "gridder.place_node(blend_node, 2)\n";
   if (material.header.flags.alphaBlending())
-    out << "new_material.blend_method = 'BLEND'\n";
+    out << "blend_node.node_tree = bpy.data.node_groups['HECLBlendOutput']\n";
   else if (material.header.flags.additiveBlending())
-    out << "new_material.blend_method = 'ADD'\n";
+    out << "blend_node.node_tree = bpy.data.node_groups['HECLAdditiveOutput']\n";
+  else {
+    out << "blend_node.node_tree = bpy.data.node_groups['HECLOpaqueOutput']\n"
+           "new_material.blend_method = 'OPAQUE'\n";
+  }
 
   /* Texmap list */
   out << "tex_maps = []\n"

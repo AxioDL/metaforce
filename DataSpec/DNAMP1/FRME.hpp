@@ -46,19 +46,19 @@ struct FRME : BigDNA {
 
     struct BWIGInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::BWIG"; }
+      std::string_view DNATypeV() const override { return "FRME::BWIG"sv; }
       FourCC fourcc() const override { return FOURCC('BWIG'); }
     };
 
     struct HWIGInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::HWIG"; }
+      std::string_view DNATypeV() const override { return "FRME::HWIG"sv; }
       FourCC fourcc() const override { return FOURCC('HWIG'); }
     };
 
     struct CAMRInfo : IWidgetInfo {
       AT_DECL_EXPLICIT_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::CAMR"; }
+      std::string_view DNATypeV() const override { return "FRME::CAMR"sv; }
       enum class ProjectionType { Perspective, Orthographic };
 
       Value<ProjectionType> projectionType;
@@ -94,7 +94,7 @@ struct FRME : BigDNA {
 
     struct MODLInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::MODL"; }
+      std::string_view DNATypeV() const override { return "FRME::MODL"sv; }
       UniqueID32 model;
       enum class BlendMode { Unknown0, Unknown1, Unknown2, Additive };
 
@@ -106,7 +106,7 @@ struct FRME : BigDNA {
 
     struct LITEInfo : IWidgetInfo {
       AT_DECL_EXPLICIT_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::LITE"; }
+      std::string_view DNATypeV() const override { return "FRME::LITE"sv; }
       enum class ELightType : atUint32 {
         Spot = 0,
         Point = 1,
@@ -130,7 +130,7 @@ struct FRME : BigDNA {
 
     struct ENRGInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::ENRG"; }
+      std::string_view DNATypeV() const override { return "FRME::ENRG"sv; }
       UniqueID32 texture;
 
       FourCC fourcc() const override { return FOURCC('ENRG'); }
@@ -138,7 +138,7 @@ struct FRME : BigDNA {
 
     struct METRInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::METR"; }
+      std::string_view DNATypeV() const override { return "FRME::METR"sv; }
       Value<bool> unk1;
       Value<bool> noRoundUp;
       Value<atUint32> maxCapacity;
@@ -149,7 +149,7 @@ struct FRME : BigDNA {
 
     struct GRUPInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::GRUP"; }
+      std::string_view DNATypeV() const override { return "FRME::GRUP"sv; }
       Value<atInt16> defaultWorker;
       Value<bool> unk3;
 
@@ -158,7 +158,7 @@ struct FRME : BigDNA {
 
     struct TBGPInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::TBGP"; }
+      std::string_view DNATypeV() const override { return "FRME::TBGP"sv; }
       Value<atUint16> elementCount;
       Value<atUint16> unk2;
       Value<atUint32> unkEnum;
@@ -180,7 +180,7 @@ struct FRME : BigDNA {
 
     struct SLGPInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::SLGP"; }
+      std::string_view DNATypeV() const override { return "FRME::SLGP"sv; }
       Value<float> min;
       Value<float> max;
       Value<float> cur;
@@ -191,7 +191,7 @@ struct FRME : BigDNA {
 
     struct PANEInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::PANE"; }
+      std::string_view DNATypeV() const override { return "FRME::PANE"sv; }
       Value<float> xDim;
       Value<float> zDim;
       Value<atVec3f> scaleCenter;
@@ -200,7 +200,7 @@ struct FRME : BigDNA {
     };
 
     struct TXPNInfo : IWidgetInfo {
-      const char* DNATypeV() const override { return "FRME::TXPN"; }
+      std::string_view DNATypeV() const override { return "FRME::TXPN"sv; }
       enum class Justification : atUint32 {
         Left = 0,
         Center,
@@ -252,7 +252,7 @@ struct FRME : BigDNA {
 
     struct IMGPInfo : IWidgetInfo {
       AT_DECL_DNAV_NO_TYPE
-      const char* DNATypeV() const override { return "FRME::IMGP"; }
+      std::string_view DNATypeV() const override { return "FRME::IMGP"sv; }
       UniqueID32 texture;
       Value<atUint32> unk1;
       Value<atUint32> unk2;

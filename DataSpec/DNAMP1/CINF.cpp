@@ -156,4 +156,44 @@ CINF::CINF(const Armature& armature, std::unordered_map<std::string, atInt32>& i
     boneIds.push_back(it->id);
 }
 
+bool CINF::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
+                   PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
+                   std::function<void(const hecl::SystemChar*)> fileChanged) {
+  if (!force && outPath.isFile())
+    return true;
+
+  auto& conn = btok.getBlenderConnection();
+  if (!conn.createBlend(outPath, hecl::blender::BlendType::Armature))
+    return false;
+  auto os = conn.beginPythonOut(true);
+
+  os.format(fmt("import bpy\n"
+                "from mathutils import Vector\n"
+                "bpy.context.scene.name = 'CINF_{}'\n"
+                "bpy.context.scene.hecl_arm_obj = bpy.context.scene.name\n"
+                "\n"
+                "# Clear Scene\n"
+                "if len(bpy.data.collections):\n"
+                "    bpy.data.collections.remove(bpy.data.collections[0])\n"
+                "\n"), entry.id);
+
+  CINF cinf;
+  cinf.read(rs);
+  cinf.sendCINFToBlender(os, entry.id);
+  os.centerView();
+  os.close();
+  return conn.saveBlend();
+}
+
+bool CINF::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath,
+                const hecl::blender::Armature& armature) {
+  std::unordered_map<std::string, atInt32> boneIdMap;
+  CINF cinf(armature, boneIdMap);
+
+  /* Write out CINF resource */
+  athena::io::TransactionalFileWriter w(outPath.getAbsolutePath());
+  cinf.write(w);
+  return true;
+}
+
 } // namespace DataSpec::DNAMP1

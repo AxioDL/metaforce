@@ -33,7 +33,6 @@ public:
   EnumerateNamedResources(const std::function<bool(std::string_view, const SObjectTag&)>& lambda) const = 0;
   virtual CResLoader* GetResLoader() { return nullptr; }
   virtual CFactoryMgr* GetFactoryMgr() { return nullptr; }
-  virtual void LoadOriginalIDs(CSimplePool& sp) {}
   virtual void AsyncIdle() {}
 
   /* Non-factory versions, replaces CResLoader */
@@ -44,9 +43,6 @@ public:
   virtual std::unique_ptr<u8[]> LoadResourceSync(const urde::SObjectTag& tag) = 0;
   virtual std::unique_ptr<u8[]> LoadNewResourcePartSync(const urde::SObjectTag& tag, u32 off, u32 size) = 0;
   virtual void GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {}
-
-  virtual CAssetId TranslateOriginalToNew(CAssetId id) const { return {}; }
-  virtual CAssetId TranslateNewToOriginal(CAssetId id) const { return {}; }
 };
 
 } // namespace urde

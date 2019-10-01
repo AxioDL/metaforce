@@ -57,12 +57,10 @@ struct OmegaPirate : IScriptObject {
     actorParameters1.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     actorParameters2.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
     if (cmdlPhazonVeins.isValid() && cskrPhazonVeins.isValid() && cinfPhazonVeins.isValid()) {
-      charAssoc.m_cmdlRigs[cmdlPhazonVeins] = std::make_pair(cskrPhazonVeins, cinfPhazonVeins);
-      charAssoc.m_cskrCinfToCharacter[cskrPhazonVeins] =
-          std::make_pair(patternedInfo.animationParameters.animationCharacterSet, "ATTACH.VEINS.CSKR");
-      charAssoc.m_cskrCinfToCharacter[cinfPhazonVeins] =
+      charAssoc.m_cmdlRigs[cmdlPhazonVeins] = {cskrPhazonVeins, cinfPhazonVeins};
+      charAssoc.m_cskrToCharacter[cskrPhazonVeins] =
           std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
-                         fmt::format(fmt("CINF_{}.CINF"), cinfPhazonVeins));
+                         fmt::format(fmt("ATTACH.VEINS_{}.CSKR"), cskrPhazonVeins));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, cinfPhazonVeins,
                                  cmdlPhazonVeins, "VEINS");
     }

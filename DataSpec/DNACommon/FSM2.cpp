@@ -38,13 +38,13 @@ AT_SPECIALIZE_DNA(FSM2<UniqueID32>)
 AT_SPECIALIZE_DNA(FSM2<UniqueID64>)
 
 template <>
-const char* FSM2<UniqueID32>::DNAType() {
-  return "urde::FSM2<UniqueID32>";
+std::string_view FSM2<UniqueID32>::DNAType() {
+  return "urde::FSM2<UniqueID32>"sv;
 }
 
 template <>
-const char* FSM2<UniqueID64>::DNAType() {
-  return "urde::FSM2<UniqueID64>";
+std::string_view FSM2<UniqueID64>::DNAType() {
+  return "urde::FSM2<UniqueID64>"sv;
 }
 
 template struct FSM2<UniqueID32>;

@@ -153,7 +153,7 @@ public:
                   "orig_vert = bm.verts[{}]\n"
                   "vert = bm.verts.new(orig_vert.co)\n"),
                   ev.first + baseVert);
-              rp.first->weightVertex(os, *rp.second, se.first);
+              rp.first.second->weightVertex(os, *rp.second.second, se.first);
               ++nextVert;
               ++addedVerts;
             }
@@ -585,7 +585,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         "\n"
         "lightmap_tri_tracker = {}\n";
 
-  if (rp.first)
+  if (rp.first.second)
     os << "dvert_lay = bm.verts.layers.deform.verify()\n";
 
   /* Pre-read pass to determine maximum used vert indices */
@@ -611,7 +611,7 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
       switch (s - matSecCount) {
       case 0: {
         /* Positions */
-        if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+        if (SurfaceHeader::UseMatrixSkinning() && rp.first.second)
           skinIndices.assign(secSizes[s] / 12, -1);
         break;
       }
@@ -655,13 +655,13 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         SurfaceHeader sHead;
         sHead.read(reader);
         const atInt16* bankIn = nullptr;
-        if (SurfaceHeader::UseMatrixSkinning() && rp.first)
-          bankIn = rp.first->getMatrixBank(sHead.skinMatrixBankIdx());
+        if (SurfaceHeader::UseMatrixSkinning() && rp.first.second)
+          bankIn = rp.first.second->getMatrixBank(sHead.skinMatrixBankIdx());
 
         /* Do max index pre-read */
         atUint32 realDlSize = secSizes[s] - (reader.position() - secStart);
         DLReader dl(vertAttribs[sHead.matIdx], reader.readUBytes(realDlSize), realDlSize, extraTracker, bankIn);
-        if (SurfaceHeader::UseMatrixSkinning() && rp.first)
+        if (SurfaceHeader::UseMatrixSkinning() && rp.first.second)
           dl.preReadMaxIdxs(maxIdxs, skinIndices);
         else
           dl.preReadMaxIdxs(maxIdxs);
@@ -698,27 +698,27 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
           positions.push_back(reader.readVec3fBig());
           const atVec3f& pos = positions.back();
           os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
-          if (rp.first) {
+          if (rp.first.second) {
             if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
-              rp.first->weightVertex(os, *rp.second, skinIndices[i]);
+              rp.first.second->weightVertex(os, *rp.second.second, skinIndices[i]);
             else if (!SurfaceHeader::UseMatrixSkinning())
-              rp.first->weightVertex(os, *rp.second, i);
+              rp.first.second->weightVertex(os, *rp.second.second, i);
           }
         }
-        if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
+        if (rp.first.second && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
           vertCount += extraTracker.sendAdditionalVertsToBlender(os, rp, 0);
         os.format(fmt("two_face_vert = {}\n"), vertCount);
         for (size_t i = 0; i <= maxIdxs.pos; ++i) {
           const atVec3f& pos = positions[i];
           os.format(fmt("vert = bm.verts.new(({},{},{}))\n"), pos.simd[0], pos.simd[1], pos.simd[2]);
-          if (rp.first) {
+          if (rp.first.second) {
             if (SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
-              rp.first->weightVertex(os, *rp.second, skinIndices[i]);
+              rp.first.second->weightVertex(os, *rp.second.second, skinIndices[i]);
             else if (!SurfaceHeader::UseMatrixSkinning())
-              rp.first->weightVertex(os, *rp.second, i);
+              rp.first.second->weightVertex(os, *rp.second.second, i);
           }
         }
-        if (rp.first && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
+        if (rp.first.second && SurfaceHeader::UseMatrixSkinning() && !skinIndices.empty())
           extraTracker.sendAdditionalVertsToBlender(os, rp, vertCount);
         break;
       }
@@ -792,8 +792,8 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
         unsigned matUVCount = curVA.uvCount;
         bool matShortUVs = curVA.shortUVs;
         const atInt16* bankIn = nullptr;
-        if (SurfaceHeader::UseMatrixSkinning() && rp.first)
-          bankIn = rp.first->getMatrixBank(sHead.skinMatrixBankIdx());
+        if (SurfaceHeader::UseMatrixSkinning() && rp.first.second)
+          bankIn = rp.first.second->getMatrixBank(sHead.skinMatrixBankIdx());
 
         os.format(fmt("materials[{}].pass_index = {}\n"), sHead.matIdx, surfIdx++);
         if (matUVCount > createdUVLayers) {
@@ -996,8 +996,10 @@ atUint32 ReadGeomSectionsToBlender(hecl::blender::PyOutStream& os, athena::io::I
   /* Finish Mesh */
   FinishBlenderMesh(os, matSetCount, meshIdx);
 
-  if (rp.first)
-    rp.second->sendVertexGroupsToBlender(os);
+  if (rp.first.second) {
+    os.format(fmt("mesh.cskr_id = '{}'\n"), rp.first.first);
+    rp.second.second->sendVertexGroupsToBlender(os);
+  }
 
   return lastDlSec;
 }
@@ -1043,28 +1045,28 @@ bool ReadCMDLToBlender(hecl::blender::Connection& conn, athena::io::IStreamReade
 }
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP1::PAKBridge>, DNAMP1::MaterialSet,
-                                std::pair<DNAMP1::CSKR*, DNAMP1::CINF*>, DNACMDL::SurfaceHeader_1, 2>(
+    std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>, DNACMDL::SurfaceHeader_1, 2>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP1::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP1::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
-    const std::pair<DNAMP1::CSKR*, DNAMP1::CINF*>& rp);
+    const std::pair<std::pair<UniqueID32, DNAMP1::CSKR*>, std::pair<UniqueID32, DNAMP1::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP2::PAKBridge>, DNAMP2::MaterialSet,
-                                std::pair<DNAMP2::CSKR*, DNAMP2::CINF*>, DNACMDL::SurfaceHeader_2, 4>(
+    std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>, DNACMDL::SurfaceHeader_2, 4>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP2::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP2::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
-    const std::pair<DNAMP2::CSKR*, DNAMP2::CINF*>& rp);
+    const std::pair<std::pair<UniqueID32, DNAMP2::CSKR*>, std::pair<UniqueID32, DNAMP2::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
-                                std::pair<DNAMP3::CSKR*, DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 4>(
+    std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>, DNACMDL::SurfaceHeader_3, 4>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
-    const std::pair<DNAMP3::CSKR*, DNAMP3::CINF*>& rp);
+    const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp);
 
 template bool ReadCMDLToBlender<PAKRouter<DNAMP3::PAKBridge>, DNAMP3::MaterialSet,
-                                std::pair<DNAMP3::CSKR*, DNAMP3::CINF*>, DNACMDL::SurfaceHeader_3, 5>(
+    std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>, DNACMDL::SurfaceHeader_3, 5>(
     hecl::blender::Connection& conn, athena::io::IStreamReader& reader, PAKRouter<DNAMP3::PAKBridge>& pakRouter,
     const PAKRouter<DNAMP3::PAKBridge>::EntryType& entry, const SpecBase& dataspec,
-    const std::pair<DNAMP3::CSKR*, DNAMP3::CINF*>& rp);
+    const std::pair<std::pair<UniqueID64, DNAMP3::CSKR*>, std::pair<UniqueID64, DNAMP3::CINF*>>& rp);
 
 template <class PAKRouter, class MaterialSet>
 void NameCMDL(athena::io::IStreamReader& reader, PAKRouter& pakRouter, typename PAKRouter::EntryType& entry,

@@ -151,7 +151,7 @@ void ANIM::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
   m_anim->binarySize(s);
 }
 
-const char* ANIM::ANIM0::DNAType() { return "ANIM0"; }
+std::string_view ANIM::ANIM0::DNAType() { return "ANIM0"sv; }
 
 template <>
 void ANIM::ANIM0::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {
@@ -398,7 +398,7 @@ void ANIM::ANIM0::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s)
   }
 }
 
-const char* ANIM::ANIM2::DNAType() { return "ANIM2"; }
+std::string_view ANIM::ANIM2::DNAType() { return "ANIM2"sv; }
 
 template <>
 void ANIM::ANIM2::Enumerate<BigDNA::Read>(typename Read::StreamT& reader) {

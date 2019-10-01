@@ -131,6 +131,10 @@ struct MLVL : BigDNA {
                       PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                       std::function<void(const hecl::SystemChar*)> fileChanged);
 
+  static bool ExtractMAPW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
+
+  static bool ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath);
+
   using World = hecl::blender::World;
 
   static bool Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPath, const World& wld,

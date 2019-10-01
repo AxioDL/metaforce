@@ -13,8 +13,8 @@ bool BuildMasterShader(const hecl::ProjectPath& path) {
     return false;
   {
     hecl::blender::PyOutStream os = conn.beginPythonOut(true);
-    os << RETRO_MASTER_SHADER;
-    os << "make_master_shader_library()\n";
+    os << std::string_view((char*)RETRO_MASTER_SHADER, RETRO_MASTER_SHADER_SZ);
+    os << "make_master_shader_library()\n"sv;
   }
   return conn.saveBlend();
 }

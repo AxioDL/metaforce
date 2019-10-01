@@ -145,8 +145,8 @@ void MREA::StreamReader::writeDecompInfos(athena::io::IStreamWriter& writer) con
 bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const DNAMP2::PAK::Entry& entry, bool force,
                    hecl::blender::Token& btok, std::function<void(const hecl::SystemChar*)>) {
-  using RigPair = std::pair<CSKR*, CINF*>;
-  RigPair dummy(nullptr, nullptr);
+  using RigPair = std::pair<std::pair<UniqueID32, CSKR*>, std::pair<UniqueID32, CINF*>>;
+  RigPair dummy = {};
 
   if (!force && outPath.isFile())
     return true;

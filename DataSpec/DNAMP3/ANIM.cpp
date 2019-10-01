@@ -155,7 +155,7 @@ void ANIM::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {
   m_anim->binarySize(s);
 }
 
-const char* ANIM::ANIM0::DNAType() { return "ANIM0"; }
+std::string_view ANIM::ANIM0::DNAType() { return "ANIM0"sv; }
 
 template <>
 void ANIM::ANIM0::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {
@@ -435,7 +435,7 @@ static float ComputeFrames(const std::vector<float>& keyTimes, std::vector<atUin
   return mainInterval;
 }
 
-const char* ANIM::ANIM1::DNAType() { return "ANIM1"; }
+std::string_view ANIM::ANIM1::DNAType() { return "ANIM1"sv; }
 
 template <>
 void ANIM::ANIM1::Enumerate<BigDNA::Read>(athena::io::IStreamReader& reader) {

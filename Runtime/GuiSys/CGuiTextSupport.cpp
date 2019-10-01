@@ -222,7 +222,7 @@ void CGuiTextSupport::AddText(std::u16string_view str) {
 }
 
 void CGuiTextSupport::SetText(std::u16string_view str, bool multipage) {
-  if (x0_string.compare(str)) {
+  if (x0_string != str) {
     x40_primStartTimes.clear();
     x3c_curTime = 0.f;
     x0_string = str;

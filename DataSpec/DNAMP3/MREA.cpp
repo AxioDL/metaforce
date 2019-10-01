@@ -59,8 +59,8 @@ void MREA::ReadBabeDeadToBlender_3(hecl::blender::PyOutStream& os, athena::io::I
 bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>) {
-  using RigPair = std::pair<CSKR*, CINF*>;
-  RigPair dummy(nullptr, nullptr);
+  using RigPair = std::pair<std::pair<UniqueID64, CSKR*>, std::pair<UniqueID64, CINF*>>;
+  RigPair dummy = {};
 
   if (!force && outPath.isFile())
     return true;

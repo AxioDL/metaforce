@@ -11,24 +11,24 @@ void UniqueResult::checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRID
   UniqueResult::Type resultType = UniqueResult::Type::NotFound;
   bool foundOneLayer = false;
   const hecl::SystemString* levelName = nullptr;
-  typename PAKBRIDGE::PAKType::IDType levelId;
-  typename PAKBRIDGE::PAKType::IDType areaId;
-  unsigned layerIdx;
-  for (const auto& lpair : pakBridge.m_levelDeps) {
-    if (entry.id == lpair.first) {
-      levelName = &lpair.second.name;
+  typename PAKBRIDGE::PAKType::IDType useLevelId;
+  typename PAKBRIDGE::PAKType::IDType useAreaId;
+  unsigned layerIdx = 0;
+  for (const auto& [levelId, level] : pakBridge.m_levelDeps) {
+    if (entry.id == levelId || level.resources.find(entry.id) != level.resources.end()) {
+      levelName = &level.name;
       resultType = UniqueResult::Type::Level;
       break;
     }
 
-    for (const auto& pair : lpair.second.areas) {
+    for (const auto& [areaId, area] : level.areas) {
       unsigned l = 0;
-      for (const auto& layer : pair.second.layers) {
+      for (const auto& layer : area.layers) {
         if (layer.resources.find(entry.id) != layer.resources.end()) {
           if (foundOneLayer) {
-            if (areaId == pair.first) {
+            if (useAreaId == areaId) {
               resultType = UniqueResult::Type::Area;
-            } else if (levelId == lpair.first) {
+            } else if (useLevelId == levelId) {
               resultType = UniqueResult::Type::Level;
               break;
             } else {
@@ -38,19 +38,19 @@ void UniqueResult::checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRID
             continue;
           } else
             resultType = UniqueResult::Type::Layer;
-          levelName = &lpair.second.name;
-          levelId = lpair.first;
-          areaId = pair.first;
+          levelName = &level.name;
+          useLevelId = levelId;
+          useAreaId = areaId;
           layerIdx = l;
           foundOneLayer = true;
         }
         ++l;
       }
-      if (pair.second.resources.find(entry.id) != pair.second.resources.end()) {
+      if (area.resources.find(entry.id) != area.resources.end()) {
         if (foundOneLayer) {
-          if (areaId == pair.first) {
+          if (useAreaId == areaId) {
             resultType = UniqueResult::Type::Area;
-          } else if (levelId == lpair.first) {
+          } else if (useLevelId == levelId) {
             resultType = UniqueResult::Type::Level;
             break;
           } else {
@@ -60,9 +60,9 @@ void UniqueResult::checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRID
           continue;
         } else
           resultType = UniqueResult::Type::Area;
-        levelName = &lpair.second.name;
-        levelId = lpair.first;
-        areaId = pair.first;
+        levelName = &level.name;
+        useLevelId = levelId;
+        useAreaId = areaId;
         foundOneLayer = true;
       }
     }
@@ -70,7 +70,7 @@ void UniqueResult::checkEntry(const PAKBRIDGE& pakBridge, const typename PAKBRID
   m_type = resultType;
   m_levelName = levelName;
   if (resultType == UniqueResult::Type::Layer || resultType == UniqueResult::Type::Area) {
-    const typename PAKBRIDGE::Level::Area& area = pakBridge.m_levelDeps.at(levelId).areas.at(areaId);
+    const typename PAKBRIDGE::Level::Area& area = pakBridge.m_levelDeps.at(useLevelId).areas.at(useAreaId);
     m_areaName = &area.name;
     if (resultType == UniqueResult::Type::Layer) {
       const typename PAKBRIDGE::Level::Area::Layer& layer = area.layers[layerIdx];
@@ -160,7 +160,7 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
 
   /* Add named resources to catalog YAML files */
   for (BRIDGETYPE& bridge : bridges) {
-    athena::io::YAMLDocWriter catalogWriter(nullptr);
+    athena::io::YAMLDocWriter catalogWriter;
 
     enterPAKBridge(bridge);
 
@@ -171,15 +171,15 @@ void PAKRouter<BRIDGETYPE>::build(std::vector<BRIDGETYPE>& bridges, std::functio
     for (const auto& namedEntry : pak.m_nameEntries) {
       if (namedEntry.name == "holo_cinf")
         continue; /* Problematic corner case */
-      if (auto rec = catalogWriter.enterSubRecord(namedEntry.name.c_str())) {
+      if (auto rec = catalogWriter.enterSubRecord(namedEntry.name)) {
         hecl::ProjectPath working = getWorking(namedEntry.id);
         if (working.getAuxInfoUTF8().size()) {
-          if (auto v = catalogWriter.enterSubVector(nullptr)) {
-            catalogWriter.writeString(nullptr, working.getRelativePathUTF8());
-            catalogWriter.writeString(nullptr, working.getAuxInfoUTF8());
+          if (auto v = catalogWriter.enterSubVector()) {
+            catalogWriter.writeString(working.getRelativePathUTF8());
+            catalogWriter.writeString(working.getAuxInfoUTF8());
           }
         } else
-          catalogWriter.writeString(nullptr, working.getRelativePathUTF8());
+          catalogWriter.writeString(working.getRelativePathUTF8());
       }
     }
 
@@ -212,8 +212,8 @@ void PAKRouter<BRIDGETYPE>::enterPAKBridge(const BRIDGETYPE& pakBridge) {
 
 template <class BRIDGETYPE>
 hecl::ProjectPath PAKRouter<BRIDGETYPE>::getCharacterWorking(const EntryType* entry) const {
-  auto characterSearch = m_charAssoc.m_cskrCinfToCharacter.find(entry->id);
-  if (characterSearch != m_charAssoc.m_cskrCinfToCharacter.cend()) {
+  auto characterSearch = m_charAssoc.m_cskrToCharacter.find(entry->id);
+  if (characterSearch != m_charAssoc.m_cskrToCharacter.cend()) {
     hecl::ProjectPath characterPath = getWorking(characterSearch->second.first);
     if (entry->type == FOURCC('EVNT')) {
       hecl::SystemStringConv wideStr(characterSearch->second.second);
@@ -240,11 +240,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
     const EntryType* singleSearch = pak->lookupEntry(entry->id);
     if (singleSearch) {
       const hecl::ProjectPath& pakPath = m_bridgePaths[curBridgeIdx].first;
-#if HECL_UCS2
-      hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
-#else
-      hecl::SystemString entName = getBestEntryName(*entry);
-#endif
+      hecl::SystemString entName = hecl::UTF8StringToSysString(getBestEntryName(*entry));
       hecl::SystemString auxInfo;
       if (extractor.fileExts[0] && !extractor.fileExts[1])
         entName += extractor.fileExts[0];
@@ -260,11 +256,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
   if (uniqueSearch != m_uniqueEntries.end()) {
     const BRIDGETYPE& bridge = m_bridges->at(uniqueSearch->second.first);
     const hecl::ProjectPath& pakPath = m_bridgePaths[uniqueSearch->second.first].first;
-#if HECL_UCS2
-    hecl::SystemString entName = hecl::UTF8ToWide(getBestEntryName(*entry));
-#else
-    hecl::SystemString entName = getBestEntryName(*entry);
-#endif
+    hecl::SystemString entName = hecl::UTF8StringToSysString(getBestEntryName(*entry));
     hecl::SystemString auxInfo;
     if (extractor.fileExts[0] && !extractor.fileExts[1])
       entName += extractor.fileExts[0];
@@ -282,11 +274,7 @@ hecl::ProjectPath PAKRouter<BRIDGETYPE>::getWorking(const EntryType* entry,
 
   auto sharedSearch = m_sharedEntries.find(entry->id);
   if (sharedSearch != m_sharedEntries.end()) {
-#if HECL_UCS2
-    hecl::SystemString entBase = hecl::UTF8ToWide(getBestEntryName(*entry));
-#else
-    hecl::SystemString entBase = getBestEntryName(*entry);
-#endif
+    hecl::SystemString entBase = hecl::UTF8StringToSysString(getBestEntryName(*entry));
     hecl::SystemString auxInfo;
     hecl::SystemString entName = entBase;
     if (extractor.fileExts[0] && !extractor.fileExts[1])
@@ -389,18 +377,22 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const EntryType& entry, bool
 
     if (stdOverride && !pak.m_noShare) {
       if (entry.type == FOURCC('MLVL'))
-        return "!world";
+        return fmt::format(fmt("!world_{}"), entry.id);
       else if (entry.type == FOURCC('MREA'))
-        return "!area";
+        return fmt::format(fmt("!area_{}"), entry.id);
       else if (entry.type == FOURCC('MAPA'))
-        return "!map";
+        return fmt::format(fmt("!map_{}"), entry.id);
       else if (entry.type == FOURCC('PATH'))
-        return "!path";
+        return fmt::format(fmt("!path_{}"), entry.id);
+      else if (entry.type == FOURCC('MAPW'))
+        return fmt::format(fmt("!mapw_{}"), entry.id);
+      else if (entry.type == FOURCC('SAVW'))
+        return fmt::format(fmt("!savw_{}"), entry.id);
     }
 
-    bool named;
-    name = pak.bestEntryName(bridge.getNode(), entry, named);
-    if (named)
+    std::string catalogueName;
+    name = pak.bestEntryName(bridge.getNode(), entry, catalogueName);
+    if (!catalogueName.empty())
       return name;
   }
   return name;
@@ -417,18 +409,22 @@ std::string PAKRouter<BRIDGETYPE>::getBestEntryName(const IDType& entry, bool st
 
     if (stdOverride && !pak.m_noShare) {
       if (e->type == FOURCC('MLVL'))
-        return "!world";
+        return fmt::format(fmt("!world_{}"), e->id);
       else if (e->type == FOURCC('MREA'))
-        return "!area";
+        return fmt::format(fmt("!area_{}"), e->id);
       else if (e->type == FOURCC('MAPA'))
-        return "!map";
+        return fmt::format(fmt("!map_{}"), e->id);
       else if (e->type == FOURCC('PATH'))
-        return "!path";
+        return fmt::format(fmt("!path_{}"), e->id);
+      else if (e->type == FOURCC('MAPW'))
+        return fmt::format(fmt("!mapw_{}"), e->id);
+      else if (e->type == FOURCC('SAVW'))
+        return fmt::format(fmt("!savw_{}"), e->id);
     }
 
-    bool named;
-    name = pak.bestEntryName(bridge.getNode(), *e, named);
-    if (named)
+    std::string catalogueName;
+    name = pak.bestEntryName(bridge.getNode(), *e, catalogueName);
+    if (!catalogueName.empty())
       return name;
   }
   return name;

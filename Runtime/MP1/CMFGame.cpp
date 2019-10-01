@@ -259,8 +259,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
     if (g_MemoryCardSys->HasSaveWorldMemory(mlvlId)) {
       const CSaveWorldMemory& savwMem = g_MemoryCardSys->GetSaveWorldMemory(mlvlId);
       if (savwMem.GetWorldNameId().IsValid()) {
-        CAssetId wtMgrFont = g_ResFactory->TranslateOriginalToNew(0xB7BBD0B4);
-        g_GameState->GetWorldTransitionManager()->EnableTransition(wtMgrFont, savwMem.GetWorldNameId(), 1, false, 0.1f,
+        g_GameState->GetWorldTransitionManager()->EnableTransition(0xB7BBD0B4, savwMem.GetWorldNameId(), 1, false, 0.1f,
                                                                    16.f, 1.f);
       }
     }
@@ -270,7 +269,7 @@ CMFGameLoader::CMFGameLoader() : CMFGameLoaderBase("CMFGameLoader") {
     break;
   }
 
-  if (g_GameState->CurrentWorldAssetId() == g_ResFactory->TranslateOriginalToNew(0x158EFE17) &&
+  if (g_GameState->CurrentWorldAssetId() == 0x158EFE17 &&
       g_GameState->CurrentWorldState().GetCurrentAreaId() == 0) {
     const SObjectTag* strgTag = g_ResFactory->GetResourceIdByName("STRG_IntroLevelLoad");
     if (strgTag)

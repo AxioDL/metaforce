@@ -7,13 +7,13 @@
 namespace DataSpec::DNAParticle {
 
 template <>
-const char* SWSH<UniqueID32>::DNAType() {
-  return "SWSH<UniqueID32>";
+std::string_view SWSH<UniqueID32>::DNAType() {
+  return "SWSH<UniqueID32>"sv;
 }
 
 template <>
-const char* SWSH<UniqueID64>::DNAType() {
-  return "SWSH<UniqueID64>";
+std::string_view SWSH<UniqueID64>::DNAType() {
+  return "SWSH<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -78,37 +78,37 @@ void SWSH<IDType>::_read(typename BigDNA::ReadYaml::StreamT& r) {
         x40_TSPN.read(r);
         break;
       case SBIG('LLRD'):
-        x44_24_LLRD = r.readBool(nullptr);
+        x44_24_LLRD = r.readBool();
         break;
       case SBIG('CROS'):
-        x44_25_CROS = r.readBool(nullptr);
+        x44_25_CROS = r.readBool();
         break;
       case SBIG('VLS1'):
-        x44_26_VLS1 = r.readBool(nullptr);
+        x44_26_VLS1 = r.readBool();
         break;
       case SBIG('VLS2'):
-        x44_27_VLS2 = r.readBool(nullptr);
+        x44_27_VLS2 = r.readBool();
         break;
       case SBIG('SROT'):
-        x44_28_SROT = r.readBool(nullptr);
+        x44_28_SROT = r.readBool();
         break;
       case SBIG('WIRE'):
-        x44_29_WIRE = r.readBool(nullptr);
+        x44_29_WIRE = r.readBool();
         break;
       case SBIG('TEXW'):
-        x44_30_TEXW = r.readBool(nullptr);
+        x44_30_TEXW = r.readBool();
         break;
       case SBIG('AALP'):
-        x44_31_AALP = r.readBool(nullptr);
+        x44_31_AALP = r.readBool();
         break;
       case SBIG('ZBUF'):
-        x45_24_ZBUF = r.readBool(nullptr);
+        x45_24_ZBUF = r.readBool();
         break;
       case SBIG('ORNT'):
-        x45_25_ORNT = r.readBool(nullptr);
+        x45_25_ORNT = r.readBool();
         break;
       case SBIG('CRND'):
-        x45_26_CRND = r.readBool(nullptr);
+        x45_26_CRND = r.readBool();
         break;
       default:
         break;

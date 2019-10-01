@@ -79,7 +79,7 @@ void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   /* Validate Pass */
   if (root->m_type == YAML_MAPPING_NODE) {
     for (const auto& lang : root->m_mapChildren) {
-      if (!lang.first.compare("names"))
+      if (lang.first == "names")
         continue;
       if (lang.first.size() != 4) {
         Log.report(logvisor::Warning, fmt("STRG language string '{}' must be exactly 4 characters; skipping"), lang.first);
@@ -111,7 +111,7 @@ void STRG::Enumerate<BigDNA::ReadYaml>(athena::io::YAMLDocReader& reader) {
   langs.clear();
   langs.reserve(root->m_mapChildren.size());
   for (const auto& item : root->m_mapChildren) {
-    if (!item.first.compare("names") || item.first.size() != 4 || item.second->m_type != YAML_SEQUENCE_NODE)
+    if (item.first == "names" || item.first.size() != 4 || item.second->m_type != YAML_SEQUENCE_NODE)
       continue;
 
     std::vector<std::string> strs;
@@ -207,19 +207,19 @@ void STRG::Enumerate<BigDNA::BinarySize>(size_t& __isz) {
 template <>
 void STRG::Enumerate<BigDNA::WriteYaml>(athena::io::YAMLDocWriter& writer) {
   for (const auto& item : langs) {
-    if (auto v = writer.enterSubVector(item.first.toString().c_str()))
+    if (auto v = writer.enterSubVector(item.first.toString()))
       for (const std::string& str : item.second)
-        writer.writeString(nullptr, str);
+        writer.writeString(str);
   }
 
   if (names.size()) {
     if (auto rec = writer.enterSubRecord("names"))
       for (const auto& item : names)
-        if (auto rec = writer.enterSubRecord(item.first.c_str()))
-          writer.writeInt32(nullptr, item.second);
+        if (auto rec = writer.enterSubRecord(item.first))
+          writer.writeInt32(item.second);
   }
 }
 
-const char* STRG::DNAType() { return "urde::DNAMP3::STRG"; }
+std::string_view STRG::DNAType() { return "urde::DNAMP3::STRG"sv; }
 
 } // namespace DataSpec::DNAMP3

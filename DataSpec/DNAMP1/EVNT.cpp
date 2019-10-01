@@ -23,6 +23,6 @@ void EVNT::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA_YAML(EVNT)
 
-const char* EVNT::DNAType() { return "urde::DNAMP1::EVNT"; }
+std::string_view EVNT::DNAType() { return "urde::DNAMP1::EVNT"sv; }
 
 } // namespace DataSpec::DNAMP1

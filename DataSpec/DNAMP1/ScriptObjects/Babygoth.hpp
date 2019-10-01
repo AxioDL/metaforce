@@ -46,9 +46,10 @@ struct Babygoth : IScriptObject {
     actorParameters.addCMDLRigPairs(pakRouter, charAssoc, patternedInfo.animationParameters);
 
     if (noShellModel.isValid() && noShellSkin.isValid()) {
-      charAssoc.m_cmdlRigs[noShellModel] = std::make_pair(noShellSkin, cinf);
-      charAssoc.m_cskrCinfToCharacter[noShellSkin] =
-          std::make_pair(patternedInfo.animationParameters.animationCharacterSet, "ATTACH.SHELLESS.CSKR");
+      charAssoc.m_cmdlRigs[noShellModel] = {noShellSkin, cinf};
+      charAssoc.m_cskrToCharacter[noShellSkin] =
+          std::make_pair(patternedInfo.animationParameters.animationCharacterSet,
+                         fmt::format(fmt("ATTACH.SHELLESS_{}.CSKR"), noShellSkin));
       charAssoc.addAttachmentRig(patternedInfo.animationParameters.animationCharacterSet, {}, noShellModel, "SHELLESS");
     }
   }

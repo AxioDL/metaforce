@@ -5,9 +5,9 @@
 #include <utility>
 #include <vector>
 
-#include <athena/Types.hpp>
-#include <hecl/Blender/Connection.hpp>
-#include <hecl/SystemChar.hpp>
+#include "athena/Types.hpp"
+#include "hecl/Blender/Connection.hpp"
+#include "hecl/SystemChar.hpp"
 
 namespace DataSpec {
 struct SpecBase;
@@ -20,7 +20,7 @@ class ProjectPath;
 namespace DataSpec::DNAANCS {
 
 using Actor = hecl::blender::Actor;
-using Armature = hecl::blender::Armature;
+using Armature = Actor::ActorArmature;
 using Action = hecl::blender::Action;
 
 template <typename IDTYPE>

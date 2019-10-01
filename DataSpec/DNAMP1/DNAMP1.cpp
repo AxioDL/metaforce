@@ -64,9 +64,9 @@ PAKBridge::PAKBridge(const nod::Node& node, bool doExtract)
   m_pak.read(rs);
 
   /* Append Level String */
-  for (auto& ent : m_pak.m_entries) {
-    PAK::Entry& entry = ent.second;
+  for (auto& [id, entry] : m_pak.m_entries) {
     if (entry.type == FOURCC('MLVL')) {
+      m_levelId = entry.id;
       PAKEntryReadStream rs = entry.beginReadStream(m_node);
       MLVL mlvl;
       mlvl.read(rs);
@@ -94,8 +94,7 @@ static hecl::SystemString LayerName(std::string_view name) {
 
 void PAKBridge::build() {
   /* First pass: build per-area/per-layer dependency map */
-  for (const auto& ent : m_pak.m_entries) {
-    const PAK::Entry& entry = ent.second;
+  for (const auto& [id, entry] : m_pak.m_entries) {
     if (entry.type == FOURCC('MLVL')) {
       Level& level = m_levelDeps[entry.id];
 
@@ -104,8 +103,8 @@ void PAKBridge::build() {
         PAKEntryReadStream rs = entry.beginReadStream(m_node);
         mlvl.read(rs);
       }
-      bool named;
-      std::string bestName = m_pak.bestEntryName(m_node, entry, named);
+      std::string catalogueName;
+      std::string bestName = m_pak.bestEntryName(m_node, entry, catalogueName);
       level.name = hecl::SystemStringConv(bestName).sys_str();
       level.areas.reserve(mlvl.areaCount);
       unsigned layerIdx = 0;
@@ -121,15 +120,20 @@ void PAKBridge::build() {
         mapw.reserve(areaCount);
         for (atUint32 i = 0; i < areaCount; ++i)
           mapw.emplace_back(rs);
+        level.resources.insert(mlvl.worldMap);
       }
 
       PAK::Entry* savwEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.saveWorldId);
-      if (savwEnt)
+      if (savwEnt) {
         savwEnt->name = entry.name + "_savw";
+        level.resources.insert(mlvl.saveWorldId);
+      }
 
       PAK::Entry* skyEnt = (PAK::Entry*)m_pak.lookupEntry(mlvl.worldSkyboxId);
-      if (skyEnt)
+      if (skyEnt) {
         skyEnt->name = entry.name + "_skybox";
+        level.resources.insert(mlvl.worldSkyboxId);
+      }
 
       /* Index areas */
       unsigned ai = 0;
@@ -193,55 +197,52 @@ void PAKBridge::build() {
   }
 
   /* Second pass: cross-compare uniqueness */
-  for (auto& entry : m_pak.m_entries) {
-    entry.second.unique.checkEntry(*this, entry.second);
-  }
+  for (auto& [id, entry] : m_pak.m_entries)
+    entry.unique.checkEntry(*this, entry);
 }
 
 void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssociations<UniqueID32>& charAssoc) const {
-  for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries) {
-    if (entry.second.type == FOURCC('ANCS')) {
-      PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
+  for (const auto& [id, entry] : m_pak.m_entries) {
+    if (entry.type == FOURCC('ANCS')) {
+      PAKEntryReadStream rs = entry.beginReadStream(m_node);
       ANCS ancs;
       ancs.read(rs);
       for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters) {
-        charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-        charAssoc.m_cskrCinfToCharacter[ci.cskr] =
-            std::make_pair(entry.second.id, fmt::format(fmt("{}.CSKR"), ci.name));
-        charAssoc.m_cskrCinfToCharacter[ci.cinf] =
-            std::make_pair(entry.second.id, fmt::format(fmt("CINF_{}.CINF"), ci.cinf));
+        charAssoc.m_cmdlRigs[ci.cmdl] = {ci.cskr, ci.cinf};
+        charAssoc.m_cskrToCharacter[ci.cskr] =
+            std::make_pair(entry.id, fmt::format(fmt("{}_{}.CSKR"), ci.name, ci.cskr));
         PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdl);
         PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskr);
         PAK::Entry* cinfEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cinf);
-        cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_model"), entry.first, ci.name);
-        cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_skin"), entry.first, ci.name);
-        cinfEnt->name = fmt::format(fmt("ANCS_{}_{}_skel"), entry.first, ci.name);
+        cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_model"), id, ci.name);
+        cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_skin"), id, ci.name);
+        cinfEnt->name = fmt::format(fmt("ANCS_{}_{}_skel"), id, ci.name);
         if (ci.cmdlIce.isValid() && ci.cskrIce.isValid()) {
-          charAssoc.m_cmdlRigs[ci.cmdlIce] = std::make_pair(ci.cskrIce, ci.cinf);
-          charAssoc.m_cskrCinfToCharacter[ci.cskrIce] =
-              std::make_pair(entry.second.id, fmt::format(fmt("{}.ICE.CSKR"), ci.name));
+          charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
+          charAssoc.m_cskrToCharacter[ci.cskrIce] =
+              std::make_pair(entry.id, fmt::format(fmt("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
           PAK::Entry* cmdlEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cmdlIce);
           PAK::Entry* cskrEnt = (PAK::Entry*)m_pak.lookupEntry(ci.cskrIce);
-          cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_icemodel"), entry.first, ci.name);
-          cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_iceskin"), entry.first, ci.name);
+          cmdlEnt->name = fmt::format(fmt("ANCS_{}_{}_icemodel"), id, ci.name);
+          cskrEnt->name = fmt::format(fmt("ANCS_{}_{}_iceskin"), id, ci.name);
         }
       }
       std::map<atUint32, DNAANCS::AnimationResInfo<UniqueID32>> animInfo;
       ancs.getAnimationResInfo(&pakRouter, animInfo);
-      for (auto& ae : animInfo) {
-        PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.animId);
-        animEnt->name = fmt::format(fmt("ANCS_{}_{}"), entry.first, ae.second.name);
-        charAssoc.m_cskrCinfToCharacter[ae.second.animId] =
-            std::make_pair(entry.second.id, fmt::format(fmt("{}.ANIM"), ae.second.name));
-        if (ae.second.evntId.isValid()) {
-          PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(ae.second.evntId);
-          evntEnt->name = fmt::format(fmt("ANCS_{}_{}_evnt"), entry.first, ae.second.name);
-          charAssoc.m_cskrCinfToCharacter[ae.second.evntId] =
-              std::make_pair(entry.second.id, fmt::format(fmt("{}.evnt.yaml"), ae.second.name));
+      for (auto& [animIdx, animResInfo] : animInfo) {
+        PAK::Entry* animEnt = (PAK::Entry*)m_pak.lookupEntry(animResInfo.animId);
+        animEnt->name = fmt::format(fmt("ANCS_{}_{}"), id, animResInfo.name);
+        charAssoc.m_cskrToCharacter[animResInfo.animId] =
+            std::make_pair(entry.id, fmt::format(fmt("{}_{}.ANIM"), animResInfo.name, animResInfo.animId));
+        if (animResInfo.evntId.isValid()) {
+          PAK::Entry* evntEnt = (PAK::Entry*)m_pak.lookupEntry(animResInfo.evntId);
+          evntEnt->name = fmt::format(fmt("ANCS_{}_{}_evnt"), id, animResInfo.name);
+          charAssoc.m_cskrToCharacter[animResInfo.evntId] =
+              std::make_pair(entry.id, fmt::format(fmt("{}_{}.evnt.yaml"), animResInfo.name, animResInfo.evntId));
         }
       }
-    } else if (entry.second.type == FOURCC('MREA')) {
-      PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
+    } else if (entry.type == FOURCC('MREA')) {
+      PAKEntryReadStream rs = entry.beginReadStream(m_node);
       MREA::AddCMDLRigPairs(rs, pakRouter, charAssoc);
     }
   }
@@ -249,12 +250,12 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
 
 void PAKBridge::addPATHToMREA(PAKRouter<PAKBridge>& pakRouter,
                               std::unordered_map<UniqueID32, UniqueID32>& pathToMrea) const {
-  for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries) {
-    if (entry.second.type == FOURCC('MREA')) {
-      PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
+  for (const auto& [id, entry] : m_pak.m_entries) {
+    if (entry.type == FOURCC('MREA')) {
+      PAKEntryReadStream rs = entry.beginReadStream(m_node);
       UniqueID32 pathID = MREA::GetPATHId(rs);
       if (pathID.isValid())
-        pathToMrea[pathID] = entry.first;
+        pathToMrea[pathID] = id;
     }
   }
 }
@@ -264,17 +265,18 @@ static const atVec4f BottomRow = {{0.f, 0.f, 0.f, 1.f}};
 void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
                                   std::unordered_map<UniqueID32, zeus::CMatrix4f>& addTo,
                                   std::unordered_map<UniqueID32, hecl::ProjectPath>& pathOverrides) const {
-  for (const std::pair<UniqueID32, PAK::Entry>& entry : m_pak.m_entries) {
-    if (entry.second.type == FOURCC('MLVL')) {
+  for (const auto& [id, entry] : m_pak.m_entries) {
+    if (entry.type == FOURCC('MLVL')) {
       MLVL mlvl;
       {
-        PAKEntryReadStream rs = entry.second.beginReadStream(m_node);
+        PAKEntryReadStream rs = entry.beginReadStream(m_node);
         mlvl.read(rs);
       }
-      hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
+      hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry).getParentPath();
 
       if (mlvl.worldNameId.isValid())
-        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _SYS_STR("!name.yaml"));
+        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
+            fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         {
@@ -290,7 +292,8 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
 
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
-          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _SYS_STR("!name.yaml"));
+          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
+              fmt::format(fmt(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {
@@ -331,6 +334,8 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {AFSM::Extract, {_SYS_STR(".yaml")}};
   case SBIG('FRME'):
     return {FRME::Extract, {_SYS_STR(".blend")}, 2};
+  case SBIG('CINF'):
+    return {CINF::Extract, {_SYS_STR(".blend")}, 1};
   case SBIG('CMDL'):
     return {CMDL::Extract, {_SYS_STR(".blend")}, 1, CMDL::Name};
   case SBIG('DCLN'):
@@ -339,10 +344,14 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {ANCS::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 2};
   case SBIG('MLVL'):
     return {MLVL::Extract, {_SYS_STR(".yaml"), _SYS_STR(".blend")}, 3};
+  case SBIG('SAVW'):
+    return {MLVL::ExtractSAVW, {_SYS_STR(".yaml")}, 3};
   case SBIG('MREA'):
     return {MREA::Extract, {_SYS_STR(".blend")}, 4, MREA::Name};
   case SBIG('MAPA'):
     return {MAPA::Extract, {_SYS_STR(".blend")}, 4};
+  case SBIG('MAPW'):
+    return {MLVL::ExtractMAPW, {_SYS_STR(".yaml")}, 4};
   case SBIG('MAPU'):
     return {MAPU::Extract, {_SYS_STR(".blend")}, 5};
   case SBIG('PATH'):
@@ -371,40 +380,40 @@ ResExtractor<PAKBridge> PAKBridge::LookupExtractor(const nod::Node& pakNode, con
     return {DNAAudio::ATBL::Extract, {_SYS_STR(".yaml")}};
   case SBIG('CTWK'):
   case SBIG('DUMB'): {
-    bool named;
-    std::string name = pak.bestEntryName(pakNode, entry, named);
-    if (named) {
-      if (!name.compare("PlayerRes"))
+    std::string catalogueName;
+    std::string name = pak.bestEntryName(pakNode, entry, catalogueName);
+    if (!catalogueName.empty()) {
+      if (catalogueName == "PlayerRes"sv)
         return {ExtractTweak<CTweakPlayerRes>, {_SYS_STR(".yaml")}};
-      if (!name.compare("GunRes"))
+      if (catalogueName == "GunRes"sv)
         return {ExtractTweak<CTweakGunRes>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Player"))
+      if (catalogueName == "Player"sv)
         return {ExtractTweak<CTweakPlayer>, {_SYS_STR(".yaml")}};
-      if (!name.compare("CameraBob"))
+      if (catalogueName == "CameraBob"sv)
         return {ExtractTweak<CTweakCameraBob>, {_SYS_STR(".yaml")}};
-      if (!name.compare("SlideShow"))
+      if (catalogueName == "SlideShow"sv)
         return {ExtractTweak<CTweakSlideShow>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Game"))
+      if (catalogueName == "Game"sv)
         return {ExtractTweak<CTweakGame>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Targeting"))
+      if (catalogueName == "Targeting"sv)
         return {ExtractTweak<CTweakTargeting>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Gui"))
+      if (catalogueName == "Gui"sv)
         return {ExtractTweak<CTweakGui>, {_SYS_STR(".yaml")}};
-      if (!name.compare("AutoMapper"))
+      if (catalogueName == "AutoMapper"sv)
         return {ExtractTweak<CTweakAutoMapper>, {_SYS_STR(".yaml")}};
-      if (!name.compare("PlayerControls") || !name.compare("PlayerControls2"))
+      if (catalogueName == "PlayerControls"sv || catalogueName == "PlayerControls2"sv)
         return {ExtractTweak<CTweakPlayerControl>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Ball"))
+      if (catalogueName == "Ball"sv)
         return {ExtractTweak<CTweakBall>, {_SYS_STR(".yaml")}};
-      if (!name.compare("Particle"))
+      if (catalogueName == "Particle"sv)
         return {ExtractTweak<CTweakParticle>, {_SYS_STR(".yaml")}};
-      if (!name.compare("GuiColors"))
+      if (catalogueName == "GuiColors"sv)
         return {ExtractTweak<CTweakGuiColors>, {_SYS_STR(".yaml")}};
-      if (!name.compare("PlayerGun"))
+      if (catalogueName == "PlayerGun"sv)
         return {ExtractTweak<CTweakPlayerGun>, {_SYS_STR(".yaml")}};
-      if (!name.compare("DUMB_MazeSeeds"))
+      if (catalogueName == "DUMB_MazeSeeds"sv)
         return {ExtractTweak<MazeSeeds>, {_SYS_STR(".yaml")}};
-      if (!name.compare("DUMB_SnowForces"))
+      if (catalogueName == "DUMB_SnowForces"sv)
         return {ExtractTweak<SnowForces>, {_SYS_STR(".yaml")}};
     }
     break;

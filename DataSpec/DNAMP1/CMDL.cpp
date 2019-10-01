@@ -7,40 +7,40 @@ bool CMDL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged) {
   /* Check for RigPair */
-  const typename CharacterAssociations<UniqueID32>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id);
   CINF cinf;
   CSKR cskr;
-  std::pair<CSKR*, CINF*> loadRp(nullptr, nullptr);
-  if (rp) {
-    pakRouter.lookupAndReadDNA(rp->first, cskr);
-    pakRouter.lookupAndReadDNA(rp->second, cinf);
-    loadRp.first = &cskr;
-    loadRp.second = &cinf;
+  using RigPair = std::pair<std::pair<UniqueID32, CSKR*>, std::pair<UniqueID32, CINF*>>;
+  RigPair loadRp = {};
+  if (const typename CharacterAssociations<UniqueID32>::RigPair* rp = pakRouter.lookupCMDLRigPair(entry.id)) {
+    pakRouter.lookupAndReadDNA(rp->cskr, cskr);
+    pakRouter.lookupAndReadDNA(rp->cinf, cinf);
+    loadRp.first = {rp->cskr, &cskr};
+    loadRp.second = {rp->cinf, &cinf};
   }
 
   /* Do extract */
   hecl::blender::Connection& conn = btok.getBlenderConnection();
   if (!conn.createBlend(outPath, hecl::blender::BlendType::Mesh))
     return false;
-  DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*, CINF*>, DNACMDL::SurfaceHeader_1, 2>(
+  DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, RigPair, DNACMDL::SurfaceHeader_1, 2>(
       conn, rs, pakRouter, entry, dataSpec, loadRp);
   conn.saveBlend();
 
 #if 0
-    /* Cook and re-extract test */
-        hecl::ProjectPath tempOut = outPath.getWithExtension(_SYS_STR(".recook"), true);
-        hecl::blender::Connection::DataStream ds = conn.beginData();
-        DNACMDL::Mesh mesh = ds.compileMesh(hecl::TopologyTriStrips, -1);
-        ds.close();
-        DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
+  /* Cook and re-extract test */
+  hecl::ProjectPath tempOut = outPath.getWithExtension(_SYS_STR(".recook"), true);
+  hecl::blender::Connection::DataStream ds = conn.beginData();
+  DNACMDL::Mesh mesh = ds.compileMesh(hecl::TopologyTriStrips, -1);
+  ds.close();
+  DNACMDL::WriteCMDL<MaterialSet, DNACMDL::SurfaceHeader_1_2, 2>(tempOut, outPath, mesh);
 
-        athena::io::FileReader reader(tempOut.getAbsolutePath());
-        hecl::ProjectPath tempBlend = outPath.getWithExtension(_SYS_STR(".recook.blend"), true);
-        if (!conn.createBlend(tempBlend, hecl::blender::Connection::TypeMesh))
-            return false;
-        DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
-                (conn, reader, pakRouter, entry, dataSpec, loadRp);
-        return conn.saveBlend();
+  athena::io::FileReader reader(tempOut.getAbsolutePath());
+  hecl::ProjectPath tempBlend = outPath.getWithExtension(_SYS_STR(".recook.blend"), true);
+  if (!conn.createBlend(tempBlend, hecl::blender::Connection::TypeMesh))
+      return false;
+  DNACMDL::ReadCMDLToBlender<PAKRouter<PAKBridge>, MaterialSet, std::pair<CSKR*,CINF*>, DNACMDL::SurfaceHeader_1_2, 2>
+          (conn, reader, pakRouter, entry, dataSpec, loadRp);
+  return conn.saveBlend();
 #elif 0
   /* HMDL cook test */
   hecl::ProjectPath tempOut = outPath.getWithExtension(_SYS_STR(".recook"), true);

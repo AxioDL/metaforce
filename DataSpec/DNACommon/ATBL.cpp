@@ -24,7 +24,7 @@ bool ATBL::Extract(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
     uint16_t idx = rs.readUint16Big();
     if (idx == 0xffff)
       continue;
-    w.writeUint16(fmt::format(fmt("0x{:04X}"), i).c_str(), idx);
+    w.writeUint16(fmt::format(fmt("0x{:04X}"), i), idx);
   }
 
   athena::io::FileWriter fw(outPath.getAbsolutePath());

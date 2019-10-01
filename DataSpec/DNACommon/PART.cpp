@@ -5,13 +5,13 @@
 namespace DataSpec::DNAParticle {
 
 template <>
-const char* GPSM<UniqueID32>::DNAType() {
-  return "GPSM<UniqueID32>";
+std::string_view GPSM<UniqueID32>::DNAType() {
+  return "GPSM<UniqueID32>"sv;
 }
 
 template <>
-const char* GPSM<UniqueID64>::DNAType() {
-  return "GPSM<UniqueID64>";
+std::string_view GPSM<UniqueID64>::DNAType() {
+  return "GPSM<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -40,10 +40,10 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x30_COLR.read(r);
         break;
       case SBIG('CIND'):
-        x45_30_CIND = r.readBool(nullptr);
+        x45_30_CIND = r.readBool();
         break;
       case SBIG('AAPH'):
-        x44_26_AAPH = r.readBool(nullptr);
+        x44_26_AAPH = r.readBool();
         break;
       case SBIG('CSSD'):
         xa0_CSSD.read(r);
@@ -52,7 +52,7 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x2c_GRTE.read(r);
         break;
       case SBIG('FXLL'):
-        x44_25_FXLL = r.readBool(nullptr);
+        x44_25_FXLL = r.readBool();
         break;
       case SBIG('ICTS'):
         x8c_ICTS.read(r);
@@ -88,13 +88,13 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x108_LINT.read(r);
         break;
       case SBIG('LINE'):
-        x44_24_LINE = r.readBool(nullptr);
+        x44_24_LINE = r.readBool();
         break;
       case SBIG('LFOT'):
         x114_LFOT.read(r);
         break;
       case SBIG('LIT_'):
-        x44_29_LIT_ = r.readBool(nullptr);
+        x44_29_LIT_ = r.readBool();
         break;
       case SBIG('LTME'):
         x34_LTME.read(r);
@@ -112,7 +112,7 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x48_MBSP.read(r);
         break;
       case SBIG('MBLR'):
-        x44_30_MBLR = r.readBool(nullptr);
+        x44_30_MBLR = r.readBool();
         break;
       case SBIG('NCSY'):
         x9c_NCSY.read(r);
@@ -121,10 +121,10 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         xc8_PISY.read(r);
         break;
       case SBIG('OPTS'):
-        x45_31_OPTS = r.readBool(nullptr);
+        x45_31_OPTS = r.readBool();
         break;
       case SBIG('PMAB'):
-        x44_31_PMAB = r.readBool(nullptr);
+        x44_31_PMAB = r.readBool();
         break;
       case SBIG('SESD'):
         xf8_SESD.read(r);
@@ -151,7 +151,7 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x18_POFS.read(r);
         break;
       case SBIG('PMUS'):
-        x45_24_PMUS = r.readBool(nullptr);
+        x45_24_PMUS = r.readBool();
         break;
       case SBIG('PSIV'):
         x0_PSIV.read(r);
@@ -178,13 +178,13 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x1c_SEED.read(r);
         break;
       case SBIG('PMOO'):
-        x45_25_PMOO = r.readBool(nullptr);
+        x45_25_PMOO = r.readBool();
         break;
       case SBIG('SSSD'):
         xe4_SSSD.read(r);
         break;
       case SBIG('SORT'):
-        x44_28_SORT = r.readBool(nullptr);
+        x44_28_SORT = r.readBool();
         break;
       case SBIG('SIZE'):
         x4c_SIZE.read(r);
@@ -205,16 +205,16 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x58_TIND.read(r);
         break;
       case SBIG('VMD4'):
-        x45_29_VMD4 = r.readBool(nullptr);
+        x45_29_VMD4 = r.readBool();
         break;
       case SBIG('VMD3'):
-        x45_28_VMD3 = r.readBool(nullptr);
+        x45_28_VMD3 = r.readBool();
         break;
       case SBIG('VMD2'):
-        x45_27_VMD2 = r.readBool(nullptr);
+        x45_27_VMD2 = r.readBool();
         break;
       case SBIG('VMD1'):
-        x45_26_VMD1 = r.readBool(nullptr);
+        x45_26_VMD1 = r.readBool();
         break;
       case SBIG('VEL4'):
         x88_VEL4.read(r);
@@ -229,16 +229,16 @@ void GPSM<IDType>::_read(typename ReadYaml::StreamT& r) {
         x7c_VEL1.read(r);
         break;
       case SBIG('ZBUF'):
-        x44_27_ZBUF = r.readBool(nullptr);
+        x44_27_ZBUF = r.readBool();
         break;
       case SBIG('WIDT'):
         x24_WIDT.read(r);
         break;
       case SBIG('ORNT'):
-        x30_30_ORNT = r.readBool(nullptr);
+        x30_30_ORNT = r.readBool();
         break;
       case SBIG('RSOP'):
-        x30_31_RSOP = r.readBool(nullptr);
+        x30_31_RSOP = r.readBool();
         break;
       case SBIG('ADV1'):
         x10c_ADV1.read(r);

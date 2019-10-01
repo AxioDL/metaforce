@@ -122,15 +122,7 @@
 namespace urde {
 static logvisor::Module Log("urde::ScriptLoader");
 
-static SObjectTag MorphballDoorANCS = {};
-
-static const SObjectTag& GetMorphballDoorACS() {
-  if (!MorphballDoorANCS) {
-    MorphballDoorANCS.type = FOURCC('ANCS');
-    MorphballDoorANCS.id = g_ResFactory->TranslateOriginalToNew(0x1F9DA858);
-  }
-  return MorphballDoorANCS;
-}
+constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858};
 
 static bool EnsurePropertyCount(int count, int expected, const char* structName) {
   if (count < expected) {
@@ -504,7 +496,7 @@ CEntity* ScriptLoader::LoadDoor(CStateManager& mgr, CInputStream& in, int propCo
 
   bool isMorphballDoor = false;
   if (propCount == 13) {
-    if (aParms.GetACSFile() == GetMorphballDoorACS().id)
+    if (aParms.GetACSFile() == MorphballDoorANCS.id)
       isMorphballDoor = true;
   } else if (propCount == 14)
     isMorphballDoor = in.readBool();

@@ -180,8 +180,8 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, athena::io::IStream
 bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)>) {
-  using RigPair = std::pair<CSKR*, CINF*>;
-  RigPair dummy(nullptr, nullptr);
+  using RigPair = std::pair<std::pair<UniqueID32, CSKR*>, std::pair<UniqueID32, CINF*>>;
+  RigPair dummy = {};
 
   if (!force && outPath.isFile())
     return true;
@@ -298,7 +298,7 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       rs.seek(8, athena::Current);
       for (uint32_t i = 0; i < entityCount; ++i) {
         uint32_t entityId = rs.readUint32Big();
-        visiWriter.writeUint32(nullptr, entityId);
+        visiWriter.writeUint32(entityId);
       }
     }
     hecl::ProjectPath visiMetadataPath(outPath.getParentPath(), _SYS_STR("!visi.yaml"));
@@ -314,7 +314,8 @@ bool MREA::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
         "bpy.context.view_layer.layer_collection.children['Collision'].hide_viewport = True\n";
 
   /* Link MLVL scene as background */
-  os.linkBackground("//../!world.blend", "World");
+  os.linkBackground(fmt::format(fmt("//../!world_{}.blend"),
+      pakRouter.getCurrentBridge().getLevelId()), "World"sv);
 
   os.centerView();
   os.close();
@@ -357,21 +358,21 @@ void MREA::Name(const SpecBase& dataSpec, PAKEntryReadStream& rs, PAKRouter<PAKB
 
 void MREA::MeshHeader::VisorFlags::setFromBlenderProps(const std::unordered_map<std::string, std::string>& props) {
   auto search = props.find("retro_disable_enviro_visor");
-  if (search != props.cend() && !search->second.compare("True"))
+  if (search != props.cend() && search->second == "True")
     setDisableEnviro(true);
   search = props.find("retro_disable_thermal_visor");
-  if (search != props.cend() && !search->second.compare("True"))
+  if (search != props.cend() && search->second == "True")
     setDisableThermal(true);
   search = props.find("retro_disable_xray_visor");
-  if (search != props.cend() && !search->second.compare("True"))
+  if (search != props.cend() && search->second == "True")
     setDisableXray(true);
   search = props.find("retro_thermal_level");
   if (search != props.cend()) {
-    if (!search->second.compare("COOL"))
+    if (search->second == "COOL")
       setThermalLevel(ThermalLevel::Cool);
-    else if (!search->second.compare("HOT"))
+    else if (search->second == "HOT")
       setThermalLevel(ThermalLevel::Hot);
-    else if (!search->second.compare("WARM"))
+    else if (search->second == "WARM")
       setThermalLevel(ThermalLevel::Warm);
   }
 }
@@ -614,7 +615,7 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
       if (auto __vec = r.enterSubVector("entities", entityCount)) {
         entities.reserve(entityCount);
         for (size_t i = 0; i < entityCount; ++i) {
-          uint32_t entityId = r.readUint32(nullptr);
+          uint32_t entityId = r.readUint32();
           for (const SCLY::ScriptLayer& layer : sclyData.layers) {
             for (const std::unique_ptr<IScriptObject>& obj : layer.objects) {
               if ((obj->id & ~0x03FF0000) == entityId) {
@@ -730,8 +731,10 @@ bool MREA::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
 
   /* PATH */
   {
-    hecl::ProjectPath pathPath(inPath.getParentPath(), _SYS_STR("!path.blend"));
-    UniqueID32 pathId = pathPath;
+    const hecl::ProjectPath pathPath = GetPathBeginsWith(inPath.getParentPath(), _SYS_STR("!path_"));
+    UniqueID32 pathId;
+    if (pathPath.isFile())
+      pathId = pathPath;
     secs.emplace_back(4, 0);
     athena::io::MemoryWriter w(secs.back().data(), secs.back().size());
     pathId.write(w);

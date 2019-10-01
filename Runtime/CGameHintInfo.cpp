@@ -33,7 +33,7 @@ CGameHintInfo::SHintLocation::SHintLocation(CInputStream& in, s32)
 int CGameHintInfo::FindHintIndex(const char* str) {
   const std::vector<CGameHint>& gameHints = g_MemoryCardSys->GetHints();
   const auto& it = std::find_if(gameHints.begin(), gameHints.end(),
-                                [&str](const CGameHint& gh) -> bool { return !gh.GetName().compare(str); });
+                                [&str](const CGameHint& gh) -> bool { return gh.GetName() == str; });
 
   return (it != gameHints.end() ? it - gameHints.begin() : -1);
 }

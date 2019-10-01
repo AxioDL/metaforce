@@ -110,28 +110,4 @@ void CResFactory::LoadPersistentResources(CSimplePool& sp) {
   }
 }
 
-void CResFactory::LoadOriginalIDs(CSimplePool& sp) {
-#if RUNTIME_ORIGINAL_IDS
-  m_origIds = sp.GetObj("MP1OriginalIDs");
-#endif
-}
-
-CAssetId CResFactory::TranslateOriginalToNew(CAssetId id) const {
-#if RUNTIME_ORIGINAL_IDS
-  return m_origIds->TranslateOriginalToNew(id);
-#else
-  /* The packager will have restored these ahead of time */
-  return id;
-#endif
-}
-
-CAssetId CResFactory::TranslateNewToOriginal(CAssetId id) const {
-#if RUNTIME_ORIGINAL_IDS
-  return m_origIds->TranslateNewToOriginal(id);
-#else
-  /* The packager will have restored these ahead of time */
-  return id;
-#endif
-}
-
 } // namespace urde

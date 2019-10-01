@@ -336,10 +336,6 @@ const std::array<std::pair<CAssetId, CAssetId>, 5> CStickOutlineToDPadRemap{{
     {0x409AA72E, 0x8ADA8184},
 }};
 
-static std::pair<CAssetId, CAssetId> TranslatePairToNew(const std::pair<CAssetId, CAssetId>& p) {
-  return {g_ResFactory->TranslateOriginalToNew(p.first), g_ResFactory->TranslateOriginalToNew(p.second)};
-}
-
 void CGameOptions::ResetControllerAssets(int controls) {
   if (controls != 1) {
     x6c_controlTxtrMap.clear();
@@ -347,12 +343,12 @@ void CGameOptions::ResetControllerAssets(int controls) {
     x6c_controlTxtrMap.reserve(15);
 
     for (const auto& entry : CStickToDPadRemap) {
-      const auto& emplaced = x6c_controlTxtrMap.emplace_back(TranslatePairToNew(entry));
+      const auto& emplaced = x6c_controlTxtrMap.emplace_back(entry);
       x6c_controlTxtrMap.emplace_back(emplaced.second, emplaced.first);
     }
 
     for (const auto& entry : CStickOutlineToDPadRemap)
-      x6c_controlTxtrMap.emplace_back(TranslatePairToNew(entry));
+      x6c_controlTxtrMap.emplace_back(entry);
 
     std::sort(x6c_controlTxtrMap.begin(), x6c_controlTxtrMap.end(),
               [](const std::pair<CAssetId, CAssetId>& a, const std::pair<CAssetId, CAssetId>& b) {

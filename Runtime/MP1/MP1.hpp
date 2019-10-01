@@ -96,7 +96,6 @@ public:
 
   void PostInitialize() {
     AddPaksAndFactories();
-    x4_resFactory->LoadOriginalIDs(*xcc_simplePool);
     LoadStringTable();
     m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
     CEnvFxManager::Initialize();

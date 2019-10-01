@@ -1594,8 +1594,8 @@ void DataSpec::TXTR::PaletteMeta::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::PaletteMeta)
 
-const char* DataSpec::TXTR::PaletteMeta::DNAType() {
-  return "DataSpec::TXTR::PaletteMeta";
+std::string_view DataSpec::TXTR::PaletteMeta::DNAType() {
+  return "DataSpec::TXTR::PaletteMeta"sv;
 }
 
 template <class Op>
@@ -1612,8 +1612,8 @@ void DataSpec::TXTR::Meta::Enumerate(typename Op::StreamT& s) {
 
 AT_SPECIALIZE_DNA_YAML(DataSpec::TXTR::Meta)
 
-const char* DataSpec::TXTR::Meta::DNAType() {
-  return "DataSpec::TXTR::Meta";
+std::string_view DataSpec::TXTR::Meta::DNAType() {
+  return "DataSpec::TXTR::Meta"sv;
 }
 
 static const atInt32 RetroToDol[11] {

@@ -56,66 +56,6 @@ static const hecl::SystemString regP = _SYS_STR("PAL");
 
 void SpecBase::setThreadProject() { UniqueIDBridge::SetThreadProject(m_project); }
 
-template <typename IDType>
-IDRestorer<IDType>::IDRestorer(const hecl::ProjectPath& yamlPath, const hecl::Database::Project& project) {
-  using ValType = typename IDType::value_type;
-  if (!yamlPath.isFile())
-    return;
-
-  athena::io::YAMLDocReader r;
-  athena::io::FileReader fr(yamlPath.getAbsolutePath());
-  if (!fr.isOpen() || !r.parse(&fr))
-    return;
-
-  m_newToOrig.reserve(r.getRootNode()->m_mapChildren.size());
-  m_origToNew.reserve(r.getRootNode()->m_mapChildren.size());
-  for (const auto& node : r.getRootNode()->m_mapChildren) {
-    char* end = const_cast<char*>(node.first.c_str());
-    ValType id = strtoull(end, &end, 16);
-    if (end != node.first.c_str() + sizeof(ValType) * 2)
-      continue;
-
-    hecl::ProjectPath path(project.getProjectWorkingPath(), node.second->m_scalarString.c_str());
-    m_newToOrig.push_back(std::make_pair(IDType{path.hash().valT<ValType>(), true}, IDType{id, true}));
-    m_origToNew.push_back(std::make_pair(IDType{id, true}, IDType{path.hash().valT<ValType>(), true}));
-  }
-
-  std::sort(m_newToOrig.begin(), m_newToOrig.end(),
-            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b)
-            { return a.first.toUint64() < b.first.toUint64(); });
-  std::sort(m_origToNew.begin(), m_origToNew.end(),
-            [](const std::pair<IDType, IDType>& a, const std::pair<IDType, IDType>& b)
-            { return a.first.toUint64() < b.first.toUint64(); });
-
-  Log.report(logvisor::Info, fmt(_SYS_STR("Loaded Original IDs '{}'")), yamlPath.getRelativePath());
-}
-
-template <typename IDType>
-IDType IDRestorer<IDType>::newToOriginal(IDType id) const {
-  if (!id.isValid())
-    return {};
-  auto search =
-      rstl::binary_find(m_newToOrig.cbegin(), m_newToOrig.cend(), id, [](const auto& id) { return id.first; });
-  if (search == m_newToOrig.cend())
-    return {};
-  return search->second;
-}
-
-template <typename IDType>
-IDType IDRestorer<IDType>::originalToNew(IDType id) const {
-  if (!id.isValid())
-    return {};
-  auto search =
-      rstl::binary_find(m_origToNew.cbegin(), m_origToNew.cend(), id, [](const auto& id) { return id.first; });
-  if (search == m_origToNew.cend())
-    return {};
-  return search->second;
-}
-
-template class IDRestorer<UniqueID32>;
-template class IDRestorer<UniqueID64>;
-template class IDRestorer<UniqueID128>;
-
 bool SpecBase::canExtract(const ExtractPassInfo& info, std::vector<ExtractReport>& reps) {
   m_disc = nod::OpenDiscFromImage(info.srcpath, m_isWii);
   if (!m_disc)
@@ -186,12 +126,11 @@ bool IsPathAudioGroup(const hecl::ProjectPath& path) {
 }
 
 static bool IsPathSong(const hecl::ProjectPath& path) {
-  if (path.getPathType() != hecl::ProjectPath::Type::Glob || !path.getWithExtension(_SYS_STR(".mid"), true).isFile() ||
+  if (path.getPathType() != hecl::ProjectPath::Type::Glob ||
+      !path.getWithExtension(_SYS_STR(".mid"), true).isFile() ||
       !path.getWithExtension(_SYS_STR(".yaml"), true).isFile()) {
-    if (path.isFile() && !hecl::StrCmp(_SYS_STR("mid"), path.getLastComponentExt().data()) &&
-        path.getWithExtension(_SYS_STR(".yaml"), true).isFile())
-      return true;
-    return false;
+    return path.isFile() && path.getLastComponentExt() == _SYS_STR("mid") &&
+           path.getWithExtension(_SYS_STR(".yaml"), true).isFile();
   }
   return true;
 }
@@ -280,6 +219,11 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
       cookColMesh(cookedPath, path, ds, fast, btok, progress);
       break;
     }
+    case hecl::blender::BlendType::Armature: {
+      hecl::blender::DataStream ds = conn.beginData();
+      cookArmature(cookedPath, path, ds, fast, btok, progress);
+      break;
+    }
     case hecl::blender::BlendType::PathMesh: {
       hecl::blender::DataStream ds = conn.beginData();
       cookPathMesh(cookedPath, path, ds, fast, btok, progress);
@@ -325,7 +269,7 @@ void SpecBase::doCook(const hecl::ProjectPath& path, const hecl::ProjectPath& co
       TXTR::Cook(path, cookedPath);
   } else if (hecl::IsPathYAML(path)) {
     athena::io::FileReader reader(path.getAbsolutePath());
-    cookYAML(cookedPath, path, reader, progress);
+    cookYAML(cookedPath, path, reader, btok, progress);
   } else if (IsPathAudioGroup(path)) {
     cookAudioGroup(cookedPath, path, progress);
   } else if (IsPathSong(path)) {
@@ -348,6 +292,8 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
   }
   case hecl::blender::BlendType::Actor: {
     hecl::ProjectPath asGlob = in.getWithExtension(_SYS_STR(".*"), true);
+    hecl::ProjectPath parentPath = asGlob.getParentPath();
+    hecl::DirectoryEnumerator dEnum(parentPath.getAbsolutePath());
     hecl::blender::DataStream ds = conn.beginData();
     hecl::blender::Actor actor = ds.compileActorCharacterOnly();
     auto actNames = ds.getActionNames();
@@ -361,19 +307,20 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         }
 
         hecl::SystemStringConv chSysName(sub.name);
-        pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR(".CSKR")));
+        pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, sub.cskrId)));
 
         const auto& arm = actor.armatures[sub.armature];
-        hecl::SystemStringConv armSysName(arm.name);
-        pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _SYS_STR(".CINF")));
+        if (hecl::IsPathBlend(arm.path))
+          pathsOut.push_back(arm.path);
+
         for (const auto& overlay : sub.overlayMeshes) {
-          hecl::SystemStringConv ovelaySys(overlay.first);
-          if (hecl::IsPathBlend(overlay.second)) {
-            flattenDependenciesBlend(overlay.second, pathsOut, btok);
-            pathsOut.push_back(overlay.second);
+          hecl::SystemStringConv overlaySys(overlay.name);
+          if (hecl::IsPathBlend(overlay.mesh)) {
+            flattenDependenciesBlend(overlay.mesh, pathsOut, btok);
+            pathsOut.push_back(overlay.mesh);
           }
-          pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(chSysName.sys_str()) + _SYS_STR('.') +
-                                                  ovelaySys.c_str() + _SYS_STR(".CSKR")));
+          pathsOut.push_back(asGlob.ensureAuxInfo(
+              fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, overlay.cskrId)));
         }
       }
     };
@@ -391,21 +338,29 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
 
       hecl::SystemStringConv chSysName(att.name);
       pathsOut.push_back(
-          asGlob.ensureAuxInfo(hecl::SystemString(_SYS_STR("ATTACH.")) + chSysName.c_str() + _SYS_STR(".CSKR")));
+          asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("ATTACH.{}_{}.CSKR")), chSysName, att.cskrId)));
 
       if (att.armature >= 0) {
         const auto& arm = actor.armatures[att.armature];
-        hecl::SystemStringConv armSysName(arm.name);
-        pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(armSysName.sys_str()) + _SYS_STR(".CINF")));
+        if (hecl::IsPathBlend(arm.path))
+          pathsOut.push_back(arm.path);
       }
     }
 
     for (const auto& act : actNames) {
-      hecl::SystemStringConv actSysName(act);
-      pathsOut.push_back(asGlob.ensureAuxInfo(hecl::SystemString(actSysName.sys_str()) + _SYS_STR(".ANIM")));
-      hecl::ProjectPath evntPath =
-          asGlob.ensureAuxInfo(hecl::SystemStringView{})
-              .getWithExtension(fmt::format(fmt(_SYS_STR(".{}.evnt.yaml")), actSysName).c_str(), true);
+      hecl::SystemStringConv actSysName(act.first);
+      hecl::SystemStringConv actAnimId(act.second);
+      pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), actSysName, actAnimId)));
+      hecl::SystemString searchPrefix(asGlob.getWithExtension(
+          fmt::format(fmt(_SYS_STR(".{}_")), actSysName).c_str(), true).getLastComponent());
+      hecl::ProjectPath evntPath;
+      for (const auto& ent : dEnum) {
+        if (hecl::StringUtils::BeginsWith(ent.m_name, searchPrefix.c_str()) &&
+            hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".evnt.yaml"))) {
+          evntPath = hecl::ProjectPath(parentPath, ent.m_name);
+          break;
+        }
+      }
       if (evntPath.isFile())
         pathsOut.push_back(evntPath);
     }
@@ -518,19 +473,18 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     hecl::SystemString str = fmt::format(fmt(_SYS_STR("Copying {}")), tag);
     progress.print(str.c_str(), nullptr, ++loadIdx / float(buildList.size()));
 
-    fileIndex.emplace_back();
-    auto& thisIdx = fileIndex.back();
+    auto& [positionOut, sizeOut, compressedOut] = fileIndex.emplace_back();
 
     if (tag.type == FOURCC('MLVL')) {
       auto search = mlvlData.find(tag.id);
       if (search == mlvlData.end())
         Log.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find MLVL {}")), tag.id);
 
-      std::get<0>(thisIdx) = pakOut.position();
-      std::get<1>(thisIdx) = ROUND_UP_32(search->second.size());
-      std::get<2>(thisIdx) = false;
+      positionOut = pakOut.position();
+      sizeOut = ROUND_UP_32(search->second.size());
+      compressedOut = false;
       pakOut.writeUBytes(search->second.data(), search->second.size());
-      for (atUint64 i = search->second.size(); i < std::get<1>(thisIdx); ++i)
+      for (atUint64 i = search->second.size(); i < sizeOut; ++i)
         pakOut.writeUByte(0xff);
 
       continue;
@@ -545,23 +499,32 @@ void SpecBase::copyBuildListData(std::vector<std::tuple<size_t, size_t, bool>>& 
     auto data = r.readUBytes(size);
     auto compData = compressPakData(tag, data.get(), size);
     if (compData.first) {
-      std::get<0>(thisIdx) = pakOut.position();
-      std::get<1>(thisIdx) = ROUND_UP_32(compData.second + 4);
-      std::get<2>(thisIdx) = true;
+      positionOut = pakOut.position();
+      sizeOut = ROUND_UP_32(compData.second + 4);
+      compressedOut = true;
       pakOut.writeUint32Big(atUint32(size));
       pakOut.writeUBytes(compData.first.get(), compData.second);
-      for (atUint64 i = compData.second + 4; i < std::get<1>(thisIdx); ++i)
+      for (atUint64 i = compData.second + 4; i < sizeOut; ++i)
         pakOut.writeUByte(0xff);
     } else {
-      std::get<0>(thisIdx) = pakOut.position();
-      std::get<1>(thisIdx) = ROUND_UP_32(size);
-      std::get<2>(thisIdx) = false;
+      positionOut = pakOut.position();
+      sizeOut = ROUND_UP_32(size);
+      compressedOut = false;
       pakOut.writeUBytes(data.get(), size);
-      for (atUint64 i = size; i < std::get<1>(thisIdx); ++i)
+      for (atUint64 i = size; i < sizeOut; ++i)
         pakOut.writeUByte(0xff);
     }
   }
   progress.startNewLine();
+}
+
+static bool IsWorldBlend(const hecl::ProjectPath& path) {
+  if (path.isFile()) {
+    auto lastComp = path.getLastComponent();
+    return hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world_")) &&
+           hecl::StringUtils::EndsWith(lastComp, _SYS_STR(".blend"));
+  }
+  return false;
 }
 
 void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::DataSpecEntry* entry, bool fast,
@@ -590,8 +553,7 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
   atUint64 resTableOffset = 0;
   std::unordered_map<urde::CAssetId, std::vector<uint8_t>> mlvlData;
 
-  if (path.getPathType() == hecl::ProjectPath::Type::File &&
-      !hecl::StrCmp(path.getLastComponent().data(), _SYS_STR("!world.blend"))) /* World PAK */
+  if (IsWorldBlend(path)) /* World PAK */
   {
     /* Force-cook MLVL and write resource list structure */
     m_project.cookPath(path, progress, false, true, fast, entry, cp);
@@ -699,6 +661,25 @@ void SpecBase::doPackage(const hecl::ProjectPath& path, const hecl::Database::Da
 }
 
 void SpecBase::interruptCook() { cancelBackgroundIndex(); }
+
+std::optional<hecl::blender::World> SpecBase::compileWorldFromDir(const hecl::ProjectPath& dir,
+                                                                  hecl::blender::Token& btok) const {
+  hecl::ProjectPath asBlend;
+  for (const auto& ent : hecl::DirectoryEnumerator(dir.getAbsolutePath())) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_"))) {
+      asBlend = hecl::ProjectPath(dir, ent.m_name).getWithExtension(_SYS_STR(".blend"), true);
+      break;
+    }
+  }
+  if (hecl::IsPathBlend(asBlend)) {
+    hecl::blender::Connection& conn = btok.getBlenderConnection();
+    if (!conn.openBlend(asBlend))
+      return {};
+    hecl::blender::DataStream ds = conn.beginData();
+    return {ds.compileWorld()};
+  }
+  return {};
+}
 
 hecl::ProjectPath SpecBase::getCookedPath(const hecl::ProjectPath& working, bool pcTarget) const {
   const hecl::Database::DataSpecEntry* spec = &getOriginalSpec();
@@ -872,11 +853,12 @@ void SpecBase::enumerateNamedResources(
 
 static void WriteTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& pathTag,
                      const hecl::ProjectPath& path) {
-  if (auto v = cacheWriter.enterSubVector(fmt::format(fmt("{}"), pathTag.id).c_str())) {
-    cacheWriter.writeString(nullptr, pathTag.type.toString().c_str());
-    cacheWriter.writeString(nullptr, path.getAuxInfo().size() ? (std::string(path.getRelativePathUTF8()) + '|' +
-                                                                 path.getAuxInfoUTF8().data())
-                                                              : path.getRelativePathUTF8());
+  auto key = fmt::format(fmt("{}"), pathTag.id);
+  if (auto* existing = cacheWriter.getCurNode()->findMapChild(key)) {
+    existing->m_seqChildren.emplace_back(athena::io::ValToNode(path.getEncodableStringUTF8()));
+  } else if (auto v = cacheWriter.enterSubVector(key)) {
+    cacheWriter.writeString(pathTag.type.toString());
+    cacheWriter.writeString(path.getEncodableStringUTF8());
   }
 }
 
@@ -947,7 +929,7 @@ void SpecBase::backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir, at
         continue;
 
       /* Read catalog.yaml for .pak directory if exists */
-      if (level == 1 && !ent.m_name.compare(_SYS_STR("!catalog.yaml"))) {
+      if (level == 1 && ent.m_name == _SYS_STR("!catalog.yaml")) {
         readCatalog(path, nameWriter);
         continue;
       }
@@ -959,11 +941,27 @@ void SpecBase::backgroundIndexRecursiveCatalogs(const hecl::ProjectPath& dir, at
   }
 }
 
-#if DUMP_CACHE_FILL
-static void DumpCacheAdd(const urde::SObjectTag& pathTag, const hecl::ProjectPath& path) {
-  fmt::print(stderr, fmt("{} {}\n"), pathTag, path.getRelativePathUTF8());
-}
+void SpecBase::insertPathTag(athena::io::YAMLDocWriter& cacheWriter, const urde::SObjectTag& tag,
+                             const hecl::ProjectPath& path, bool dump) {
+#if 0
+  auto search = m_tagToPath.find(tag);
+  /* ANCS subresources are allowed to be weak-linked */
+  if (search != m_tagToPath.end() && search->second != path &&
+      tag.type != FOURCC('CINF') && tag.type != FOURCC('CSKR') &&
+      tag.type != FOURCC('ANIM') && tag.type != FOURCC('EVNT')) {
+    Log.report(logvisor::Fatal, fmt(_SYS_STR("'{}|{}' already exists for tag {} as '{}|{}'")),
+               path.getRelativePath(), path.getAuxInfo(), tag,
+               search->second.getRelativePath(), search->second.getAuxInfo());
+  }
 #endif
+  m_tagToPath.insert(std::make_pair(tag, path));
+  m_pathToTag[path.hash()] = tag;
+  WriteTag(cacheWriter, tag, path);
+#if DUMP_CACHE_FILL
+  if (dump)
+    fmt::print(stderr, fmt("{} {}\n"), tag, path.getRelativePathUTF8());
+#endif
+}
 
 bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDocWriter& cacheWriter) {
   /* Avoid redundant filesystem access for re-caches */
@@ -988,109 +986,49 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
         return false;
 
       /* Transform tag to glob */
-      pathTag = {SBIG('ANCS'), asGlob.hash().val32()};
+      pathTag = {SBIG('ANCS'), asGlob.parsedHash32()};
       useGlob = true;
 
       hecl::blender::DataStream ds = conn.beginData();
-      std::vector<std::string> armatureNames = ds.getArmatureNames();
-      std::vector<std::string> subtypeNames = ds.getSubtypeNames();
-      std::vector<std::string> actionNames = ds.getActionNames();
+      std::vector<std::pair<std::string, std::string>> subtypeNames = ds.getSubtypeNames();
+      std::vector<std::pair<std::string, std::string>> actionNames = ds.getActionNames();
 
-      for (const std::string& arm : armatureNames) {
-        hecl::SystemStringConv sysStr(arm);
-        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".CINF"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath);
-        m_tagToPath[pathTag] = subPath;
-        m_pathToTag[subPath.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, subPath);
-#endif
-      }
+      for (const auto& sub : subtypeNames) {
+        hecl::SystemStringConv subName(sub.first);
+        hecl::SystemStringConv cskrId(sub.second);
+        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), subName, cskrId));
+        insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
 
-      for (const std::string& sub : subtypeNames) {
-        hecl::SystemStringConv sysStr(sub);
-        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".CSKR"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath);
-        m_tagToPath[pathTag] = subPath;
-        m_pathToTag[subPath.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, subPath);
-#endif
-
-        std::vector<std::string> overlayNames = ds.getSubtypeOverlayNames(sub);
+        std::vector<std::pair<std::string, std::string>> overlayNames = ds.getSubtypeOverlayNames(sub.first);
         for (const auto& overlay : overlayNames) {
-          hecl::SystemStringConv overlaySys(overlay);
-          hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR('.') +
-                                                           overlaySys.c_str() + _SYS_STR(".CSKR"));
-          urde::SObjectTag pathTag = buildTagFromPath(subPath);
-          m_tagToPath[pathTag] = subPath;
-          m_pathToTag[subPath.hash()] = pathTag;
-          WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-          DumpCacheAdd(pathTag, subPath);
-#endif
+          hecl::SystemStringConv overlaySys(overlay.first);
+          hecl::SystemStringConv overlayCskrId(overlay.second);
+          hecl::ProjectPath subPath = asGlob.ensureAuxInfo(
+              fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
+          insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
         }
       }
 
-      std::vector<std::string> attachmentNames = ds.getAttachmentNames();
+      std::vector<std::pair<std::string, std::string>> attachmentNames = ds.getAttachmentNames();
       for (const auto& attachment : attachmentNames) {
-        hecl::SystemStringConv attachmentSys(attachment);
+        hecl::SystemStringConv attachmentSys(attachment.first);
+        hecl::SystemStringConv attachmentCskrId(attachment.second);
         hecl::ProjectPath subPath =
-            asGlob.ensureAuxInfo(hecl::SystemString(_SYS_STR("ATTACH.")) + attachmentSys.c_str() + _SYS_STR(".CSKR"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath);
-        m_tagToPath[pathTag] = subPath;
-        m_pathToTag[subPath.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, subPath);
-#endif
+            asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
+        insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
 
-      for (const std::string& act : actionNames) {
-        hecl::SystemStringConv sysStr(act);
-        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(hecl::SystemString(sysStr.sys_str()) + _SYS_STR(".ANIM"));
-        urde::SObjectTag pathTag = buildTagFromPath(subPath);
-        m_tagToPath[pathTag] = subPath;
-        m_pathToTag[subPath.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-        DumpCacheAdd(pathTag, subPath);
-#endif
+      for (const auto& act : actionNames) {
+        hecl::SystemStringConv sysStr(act.first);
+        hecl::SystemStringConv animId(act.second);
+        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, animId));
+        insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
-    } else if (pathTag.type == SBIG('MLVL')) {
-      /* Transform tag to glob */
-      pathTag = {SBIG('MLVL'), asGlob.hash().val32()};
-      useGlob = true;
-
-      hecl::ProjectPath subPath = asGlob.ensureAuxInfo(_SYS_STR("MAPW"));
-      urde::SObjectTag pathTag = buildTagFromPath(subPath);
-      m_tagToPath[pathTag] = subPath;
-      m_pathToTag[subPath.hash()] = pathTag;
-      WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-      DumpCacheAdd(pathTag, subPath);
-#endif
-
-      subPath = asGlob.ensureAuxInfo(_SYS_STR("SAVW"));
-      pathTag = buildTagFromPath(subPath);
-      m_tagToPath[pathTag] = subPath;
-      m_pathToTag[subPath.hash()] = pathTag;
-      WriteTag(cacheWriter, pathTag, subPath);
-#if DUMP_CACHE_FILL
-      DumpCacheAdd(pathTag, subPath);
-#endif
     }
 
     /* Cache in-memory */
     const hecl::ProjectPath& usePath = useGlob ? asGlob : path;
-    m_tagToPath[pathTag] = usePath;
-    m_pathToTag[usePath.hash()] = pathTag;
-    WriteTag(cacheWriter, pathTag, usePath);
-#if DUMP_CACHE_FILL
-    DumpCacheAdd(pathTag, usePath);
-#endif
+    insertPathTag(cacheWriter, pathTag, usePath);
   }
 
   return true;
@@ -1111,10 +1049,11 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir, athena
     if (ent.m_isDir) {
       /* Index AGSC here */
       if (hecl::ProjectPath(path, "!project.yaml").isFile() && hecl::ProjectPath(path, "!pool.yaml").isFile()) {
-        urde::SObjectTag pathTag(SBIG('AGSC'), path.hash().val32());
-        m_tagToPath[pathTag] = path;
-        m_pathToTag[path.hash()] = pathTag;
-        WriteTag(cacheWriter, pathTag, path);
+        /* Avoid redundant filesystem access for re-caches */
+        if (m_pathToTag.find(path.hash()) == m_pathToTag.cend()) {
+          urde::SObjectTag pathTag(SBIG('AGSC'), path.parsedHash32());
+          insertPathTag(cacheWriter, pathTag, path);
+        }
       } else {
         backgroundIndexRecursiveProc(path, cacheWriter, nameWriter, level + 1);
       }
@@ -1123,7 +1062,7 @@ void SpecBase::backgroundIndexRecursiveProc(const hecl::ProjectPath& dir, athena
         continue;
 
       /* Read catalog.yaml for .pak directory if exists */
-      if (level == 1 && !ent.m_name.compare(_SYS_STR("!catalog.yaml"))) {
+      if (level == 1 && ent.m_name == _SYS_STR("!catalog.yaml")) {
         readCatalog(path, nameWriter);
         continue;
       }
@@ -1142,8 +1081,8 @@ void SpecBase::backgroundIndexProc() {
   hecl::ProjectPath specRoot(m_project.getProjectWorkingPath(), getOriginalSpec().m_name);
 
   /* Cache will be overwritten with validated entries afterwards */
-  athena::io::YAMLDocWriter cacheWriter(nullptr);
-  athena::io::YAMLDocWriter nameWriter(nullptr);
+  athena::io::YAMLDocWriter cacheWriter;
+  athena::io::YAMLDocWriter nameWriter;
 
   /* Read in tag cache */
   if (tagCachePath.isFile()) {
@@ -1162,15 +1101,15 @@ void SpecBase::backgroundIndexProc() {
             return;
 
           const athena::io::YAMLNode& node = *child.second;
-          unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
-          hecl::FourCC type(node.m_seqChildren.at(0)->m_scalarString.c_str());
-          hecl::ProjectPath path(m_project.getProjectWorkingPath(), node.m_seqChildren.at(1)->m_scalarString);
-
-          if (path.isFileOrGlob()) {
+          if (node.m_seqChildren.size() >= 2) {
+            unsigned long id = strtoul(child.first.c_str(), nullptr, 16);
+            hecl::FourCC type(node.m_seqChildren[0]->m_scalarString.c_str());
             urde::SObjectTag pathTag(type, id);
-            m_tagToPath[pathTag] = path;
-            m_pathToTag[path.hash()] = pathTag;
-            WriteTag(cacheWriter, pathTag, path);
+            for (auto I = node.m_seqChildren.begin() + 1, E = node.m_seqChildren.end(); I != E; ++I) {
+              hecl::ProjectPath path(m_project.getProjectWorkingPath(), (*I)->m_scalarString);
+              if (!path.isNone())
+                insertPathTag(cacheWriter, pathTag, path, false);
+            }
           }
 
           ++loadIdx;
@@ -1207,14 +1146,6 @@ void SpecBase::backgroundIndexProc() {
                    m_catalogNameToTag.size());
       }
     }
-  }
-
-  /* Add special original IDs resource if exists (not name-cached to disk) */
-  hecl::ProjectPath oidsPath(specRoot, "!original_ids.yaml");
-  urde::SObjectTag oidsTag = buildTagFromPath(oidsPath);
-  if (oidsTag) {
-    m_catalogNameToTag["mp1originalids"] = oidsTag;
-    m_catalogTagToNames[oidsTag].insert("MP1OriginalIDs");
   }
 
   Log.report(logvisor::Info, fmt(_SYS_STR("Background index of '{}' started")), getOriginalSpec().m_name);

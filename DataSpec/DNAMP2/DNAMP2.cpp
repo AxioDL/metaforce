@@ -75,8 +75,8 @@ void PAKBridge::build() {
         PAKEntryReadStream rs = e.beginReadStream(m_node);
         mlvl.read(rs);
       }
-      bool named;
-      std::string bestName = m_pak.bestEntryName(m_node, e, named);
+      std::string catalogueName;
+      std::string bestName = m_pak.bestEntryName(m_node, e, catalogueName);
       level.name = hecl::SystemStringConv(bestName).sys_str();
       level.areas.reserve(mlvl.areaCount);
       unsigned layerIdx = 0;
@@ -157,15 +157,13 @@ void PAKBridge::addCMDLRigPairs(PAKRouter<PAKBridge>& pakRouter, CharacterAssoci
       ANCS ancs;
       ancs.read(rs);
       for (const ANCS::CharacterSet::CharacterInfo& ci : ancs.characterSet.characters) {
-        charAssoc.m_cmdlRigs[ci.cmdl] = std::make_pair(ci.cskr, ci.cinf);
-        charAssoc.m_cskrCinfToCharacter[ci.cskr] =
-            std::make_pair(entry.second.id, fmt::format(fmt("{}.CSKR"), ci.name));
-        charAssoc.m_cskrCinfToCharacter[ci.cinf] =
-            std::make_pair(entry.second.id, fmt::format(fmt("CINF_{}.CINF"), ci.cinf));
+        charAssoc.m_cmdlRigs[ci.cmdl] = {ci.cskr, ci.cinf};
+        charAssoc.m_cskrToCharacter[ci.cskr] =
+            std::make_pair(entry.second.id, fmt::format(fmt("{}_{}.CSKR"), ci.name, ci.cskr));
         if (ci.cmdlIce.isValid()) {
-          charAssoc.m_cmdlRigs[ci.cmdlIce] = std::make_pair(ci.cskrIce, ci.cinf);
-          charAssoc.m_cskrCinfToCharacter[ci.cskrIce] =
-              std::make_pair(entry.second.id, fmt::format(fmt("{}.ICE.CSKR"), ci.name));
+          charAssoc.m_cmdlRigs[ci.cmdlIce] = {ci.cskrIce, ci.cinf};
+          charAssoc.m_cskrToCharacter[ci.cskrIce] =
+              std::make_pair(entry.second.id, fmt::format(fmt("{}.ICE_{}.CSKR"), ci.name, ci.cskrIce));
         }
       }
     }
@@ -187,12 +185,14 @@ void PAKBridge::addMAPATransforms(PAKRouter<PAKBridge>& pakRouter,
       hecl::ProjectPath mlvlDirPath = pakRouter.getWorking(&entry.second).getParentPath();
 
       if (mlvl.worldNameId.isValid())
-        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath, _SYS_STR("!name.yaml"));
+        pathOverrides[mlvl.worldNameId] = hecl::ProjectPath(mlvlDirPath,
+            fmt::format(fmt(_SYS_STR("!name_{}.yaml")), mlvl.worldNameId));
 
       for (const MLVL::Area& area : mlvl.areas) {
         hecl::ProjectPath areaDirPath = pakRouter.getWorking(area.areaMREAId).getParentPath();
         if (area.areaNameId.isValid())
-          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath, _SYS_STR("!name.yaml"));
+          pathOverrides[area.areaNameId] = hecl::ProjectPath(areaDirPath,
+              fmt::format(fmt(_SYS_STR("!name_{}.yaml")), area.areaNameId));
       }
 
       if (mlvl.worldMap.isValid()) {

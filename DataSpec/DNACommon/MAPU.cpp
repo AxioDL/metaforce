@@ -33,7 +33,7 @@ bool ReadMAPUToBlender(hecl::blender::Connection& conn, const MAPU& mapu, const 
         "\n";
 
   hecl::ProjectPath hexPath = pakRouter.getWorking(mapu.hexMapa);
-  os.linkBlend(hexPath.getAbsolutePathUTF8().data(), pakRouter.getBestEntryName(mapu.hexMapa).data());
+  os.linkMesh(hexPath.getAbsolutePathUTF8(), "MAP");
   os << "hexMesh = bpy.data.objects['MAP'].data\n";
 
   for (const MAPU::World& wld : mapu.worlds) {
@@ -114,7 +114,13 @@ bool MAPU::Cook(const hecl::blender::MapUniverse& mapuIn, const hecl::ProjectPat
     mapu.worlds.emplace_back();
     MAPU::World& wldOut = mapu.worlds.back();
     wldOut.name = wld.name;
-    wldOut.mlvl = hecl::ProjectPath(wld.worldPath, _SYS_STR("!world.*"));
+    for (const auto& ent : wld.worldPath.enumerateDir()) {
+      if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!world_")) &&
+          hecl::StringUtils::EndsWith(ent.m_name, _SYS_STR(".blend"))) {
+        wldOut.mlvl = hecl::ProjectPath(wld.worldPath, ent.m_name);
+        break;
+      }
+    }
     wldOut.transform.xf[0] = wld.xf.val[0];
     wldOut.transform.xf[1] = wld.xf.val[1];
     wldOut.transform.xf[2] = wld.xf.val[2];

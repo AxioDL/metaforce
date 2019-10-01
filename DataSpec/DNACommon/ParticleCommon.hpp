@@ -13,8 +13,8 @@ extern logvisor::Module LogModule;
 struct IElement : BigDNAVYaml {
   Delete _d;
   ~IElement() override = default;
-  virtual const char* ClassID() const = 0;
-  const char* DNATypeV() const override { return ClassID(); }
+  virtual std::string_view ClassID() const = 0;
+  std::string_view DNATypeV() const override { return ClassID(); }
 };
 
 struct IRealElement : IElement {
@@ -84,20 +84,20 @@ struct BoolHelper : IElement {
     value = val;
     return *this;
   }
-  const char* ClassID() const override { return "BoolHelper"; }
+  std::string_view ClassID() const override { return "BoolHelper"sv; }
 };
 
 struct RELifetimeTween : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "LFTW"; }
+  std::string_view ClassID() const override { return "LFTW"sv; }
 };
 
 struct REConstant : IRealElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   Value<float> val;
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 };
 
 struct RETimeChain : IRealElement {
@@ -105,14 +105,14 @@ struct RETimeChain : IRealElement {
   RealElementFactory a;
   RealElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "CHAN"; }
+  std::string_view ClassID() const override { return "CHAN"sv; }
 };
 
 struct REAdd : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "ADD_"; }
+  std::string_view ClassID() const override { return "ADD_"sv; }
 };
 
 struct REClamp : IRealElement {
@@ -120,7 +120,7 @@ struct REClamp : IRealElement {
   RealElementFactory min;
   RealElementFactory max;
   RealElementFactory val;
-  const char* ClassID() const override { return "CLMP"; }
+  std::string_view ClassID() const override { return "CLMP"sv; }
 };
 
 struct REKeyframeEmitter : IRealElement {
@@ -133,28 +133,28 @@ struct REKeyframeEmitter : IRealElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<float, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
+  std::string_view ClassID() const override { return percentageTween ? "KEYP"sv : "KEYE"sv; }
 };
 
 struct REInitialRandom : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "IRND"; }
+  std::string_view ClassID() const override { return "IRND"sv; }
 };
 
 struct RERandom : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "RAND"; }
+  std::string_view ClassID() const override { return "RAND"sv; }
 };
 
 struct REMultiply : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "MULT"; }
+  std::string_view ClassID() const override { return "MULT"sv; }
 };
 
 struct REPulse : IRealElement {
@@ -163,19 +163,19 @@ struct REPulse : IRealElement {
   IntElementFactory bDuration;
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "PULS"; }
+  std::string_view ClassID() const override { return "PULS"sv; }
 };
 
 struct RETimeScale : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory dv;
-  const char* ClassID() const override { return "SCAL"; }
+  std::string_view ClassID() const override { return "SCAL"sv; }
 };
 
 struct RELifetimePercent : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory percent;
-  const char* ClassID() const override { return "RLPT"; }
+  std::string_view ClassID() const override { return "RLPT"sv; }
 };
 
 struct RESineWave : IRealElement {
@@ -183,14 +183,14 @@ struct RESineWave : IRealElement {
   RealElementFactory frequency;
   RealElementFactory amplitude;
   RealElementFactory phase;
-  const char* ClassID() const override { return "SINE"; }
+  std::string_view ClassID() const override { return "SINE"sv; }
 };
 
 struct REInitialSwitch : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "ISWT"; }
+  std::string_view ClassID() const override { return "ISWT"sv; }
 };
 
 struct RECompareLessThan : IRealElement {
@@ -199,7 +199,7 @@ struct RECompareLessThan : IRealElement {
   RealElementFactory cb;
   RealElementFactory pass;
   RealElementFactory fail;
-  const char* ClassID() const override { return "CLTN"; }
+  std::string_view ClassID() const override { return "CLTN"sv; }
 };
 
 struct RECompareEquals : IRealElement {
@@ -208,101 +208,101 @@ struct RECompareEquals : IRealElement {
   RealElementFactory cb;
   RealElementFactory pass;
   RealElementFactory fail;
-  const char* ClassID() const override { return "CEQL"; }
+  std::string_view ClassID() const override { return "CEQL"sv; }
 };
 
 struct REParticleAdvanceParam1 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP1"; }
+  std::string_view ClassID() const override { return "PAP1"sv; }
 };
 
 struct REParticleAdvanceParam2 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP2"; }
+  std::string_view ClassID() const override { return "PAP2"sv; }
 };
 
 struct REParticleAdvanceParam3 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP3"; }
+  std::string_view ClassID() const override { return "PAP3"sv; }
 };
 
 struct REParticleAdvanceParam4 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP4"; }
+  std::string_view ClassID() const override { return "PAP4"sv; }
 };
 
 struct REParticleAdvanceParam5 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP5"; }
+  std::string_view ClassID() const override { return "PAP5"sv; }
 };
 
 struct REParticleAdvanceParam6 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP6"; }
+  std::string_view ClassID() const override { return "PAP6"sv; }
 };
 
 struct REParticleAdvanceParam7 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP7"; }
+  std::string_view ClassID() const override { return "PAP7"sv; }
 };
 
 struct REParticleAdvanceParam8 : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PAP8"; }
+  std::string_view ClassID() const override { return "PAP8"sv; }
 };
 
 struct REParticleSizeOrLineLength : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PSLL"; }
+  std::string_view ClassID() const override { return "PSLL"sv; }
 };
 
 struct REParticleRotationOrLineWidth : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PRLW"; }
+  std::string_view ClassID() const override { return "PRLW"sv; }
 };
 
 struct RESubtract : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "SUB_"; }
+  std::string_view ClassID() const override { return "SUB_"sv; }
 };
 
 struct REVectorMagnitude : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory vec;
-  const char* ClassID() const override { return "VMAG"; }
+  std::string_view ClassID() const override { return "VMAG"sv; }
 };
 
 struct REVectorXToReal : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory vec;
-  const char* ClassID() const override { return "VXTR"; }
+  std::string_view ClassID() const override { return "VXTR"sv; }
 };
 
 struct REVectorYToReal : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory vec;
-  const char* ClassID() const override { return "VYTR"; }
+  std::string_view ClassID() const override { return "VYTR"sv; }
 };
 
 struct REVectorZToReal : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory vec;
-  const char* ClassID() const override { return "VZTR"; }
+  std::string_view ClassID() const override { return "VZTR"sv; }
 };
 
 struct RECEXT : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory index;
-  const char* ClassID() const override { return "CEXT"; }
+  std::string_view ClassID() const override { return "CEXT"sv; }
 };
 
 struct REIntTimesReal : IRealElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "ITRL"; }
+  std::string_view ClassID() const override { return "ITRL"sv; }
 };
 
 struct IEKeyframeEmitter : IIntElement {
@@ -315,14 +315,14 @@ struct IEKeyframeEmitter : IIntElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atUint32, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
+  std::string_view ClassID() const override { return percentageTween ? "KEYP"sv : "KEYE"sv; }
 };
 
 struct IEDeath : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory passthrough;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "DETH"; }
+  std::string_view ClassID() const override { return "DETH"sv; }
 };
 
 struct IEClamp : IIntElement {
@@ -330,7 +330,7 @@ struct IEClamp : IIntElement {
   IntElementFactory min;
   IntElementFactory max;
   IntElementFactory val;
-  const char* ClassID() const override { return "CLMP"; }
+  std::string_view ClassID() const override { return "CLMP"sv; }
 };
 
 struct IETimeChain : IIntElement {
@@ -338,39 +338,39 @@ struct IETimeChain : IIntElement {
   IntElementFactory a;
   IntElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "CHAN"; }
+  std::string_view ClassID() const override { return "CHAN"sv; }
 };
 
 struct IEAdd : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "ADD_"; }
+  std::string_view ClassID() const override { return "ADD_"sv; }
 };
 
 struct IEConstant : IIntElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   Value<atUint32> val;
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 };
 
 struct IEImpulse : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory val;
-  const char* ClassID() const override { return "IMPL"; }
+  std::string_view ClassID() const override { return "IMPL"sv; }
 };
 
 struct IELifetimePercent : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory percent;
-  const char* ClassID() const override { return "ILPT"; }
+  std::string_view ClassID() const override { return "ILPT"sv; }
 };
 
 struct IEInitialRandom : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "IRND"; }
+  std::string_view ClassID() const override { return "IRND"sv; }
 };
 
 struct IEPulse : IIntElement {
@@ -379,14 +379,14 @@ struct IEPulse : IIntElement {
   IntElementFactory bDuration;
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "PULS"; }
+  std::string_view ClassID() const override { return "PULS"sv; }
 };
 
 struct IEMultiply : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "MULT"; }
+  std::string_view ClassID() const override { return "MULT"sv; }
 };
 
 struct IESampleAndHold : IIntElement {
@@ -394,46 +394,46 @@ struct IESampleAndHold : IIntElement {
   IntElementFactory val;
   IntElementFactory waitMin;
   IntElementFactory waitMax;
-  const char* ClassID() const override { return "SPAH"; }
+  std::string_view ClassID() const override { return "SPAH"sv; }
 };
 
 struct IERandom : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "RAND"; }
+  std::string_view ClassID() const override { return "RAND"sv; }
 };
 
 struct IETimeScale : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory dv;
-  const char* ClassID() const override { return "TSCL"; }
+  std::string_view ClassID() const override { return "TSCL"sv; }
 };
 
 struct IEGTCP : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "GTCP"; }
+  std::string_view ClassID() const override { return "GTCP"sv; }
 };
 
 struct IEModulo : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory a;
   IntElementFactory b;
-  const char* ClassID() const override { return "MODU"; }
+  std::string_view ClassID() const override { return "MODU"sv; }
 };
 
 struct IESubtract : IIntElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   IntElementFactory direction;
   IntElementFactory baseRadius;
-  const char* ClassID() const override { return "SUB_"; }
+  std::string_view ClassID() const override { return "SUB_"sv; }
 };
 
 struct VECone : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory a;
   RealElementFactory b;
-  const char* ClassID() const override { return "CONE"; }
+  std::string_view ClassID() const override { return "CONE"sv; }
 };
 
 struct VETimeChain : IVectorElement {
@@ -441,7 +441,7 @@ struct VETimeChain : IVectorElement {
   VectorElementFactory a;
   VectorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "CHAN"; }
+  std::string_view ClassID() const override { return "CHAN"sv; }
 };
 
 struct VEAngleCone : IVectorElement {
@@ -451,14 +451,14 @@ struct VEAngleCone : IVectorElement {
   RealElementFactory angleXRange;
   RealElementFactory angleYRange;
   RealElementFactory magnitude;
-  const char* ClassID() const override { return "ANGC"; }
+  std::string_view ClassID() const override { return "ANGC"sv; }
 };
 
 struct VEAdd : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const override { return "ADD_"; }
+  std::string_view ClassID() const override { return "ADD_"sv; }
 };
 
 struct VECircleCluster : IVectorElement {
@@ -467,13 +467,13 @@ struct VECircleCluster : IVectorElement {
   VectorElementFactory circleNormal;
   IntElementFactory cycleFrames;
   RealElementFactory randomFactor;
-  const char* ClassID() const override { return "CCLU"; }
+  std::string_view ClassID() const override { return "CCLU"sv; }
 };
 
 struct VEConstant : IVectorElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   RealElementFactory comps[3];
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 };
 
 struct VECircle : IVectorElement {
@@ -483,7 +483,7 @@ struct VECircle : IVectorElement {
   RealElementFactory angleConstant;
   RealElementFactory angleLinear;
   RealElementFactory circleRadius;
-  const char* ClassID() const override { return "CIRC"; }
+  std::string_view ClassID() const override { return "CIRC"sv; }
 };
 
 struct VEKeyframeEmitter : IVectorElement {
@@ -496,20 +496,20 @@ struct VEKeyframeEmitter : IVectorElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atVec3f, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
+  std::string_view ClassID() const override { return percentageTween ? "KEYP"sv : "KEYE"sv; }
 };
 
 struct VEMultiply : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const override { return "MULT"; }
+  std::string_view ClassID() const override { return "MULT"sv; }
 };
 
 struct VERealToVector : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory a;
-  const char* ClassID() const override { return "RTOV"; }
+  std::string_view ClassID() const override { return "RTOV"sv; }
 };
 
 struct VEPulse : IVectorElement {
@@ -518,38 +518,38 @@ struct VEPulse : IVectorElement {
   IntElementFactory bDuration;
   VectorElementFactory a;
   VectorElementFactory b;
-  const char* ClassID() const override { return "PULS"; }
+  std::string_view ClassID() const override { return "PULS"sv; }
 };
 
 struct VEParticleVelocity : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PVEL"; }
+  std::string_view ClassID() const override { return "PVEL"sv; }
 };
 
 struct VESPOS : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory a;
-  const char* ClassID() const override { return "SPOS"; }
+  std::string_view ClassID() const override { return "SPOS"sv; }
 };
 
 struct VEPLCO : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PLCO"; }
+  std::string_view ClassID() const override { return "PLCO"sv; }
 };
 
 struct VEPLOC : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PLOC"; }
+  std::string_view ClassID() const override { return "PLOC"sv; }
 };
 
 struct VEPSOR : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PSOR"; }
+  std::string_view ClassID() const override { return "PSOR"sv; }
 };
 
 struct VEPSOF : IVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "PSOF"; }
+  std::string_view ClassID() const override { return "PSOF"sv; }
 };
 
 struct CEKeyframeEmitter : IColorElement {
@@ -562,13 +562,13 @@ struct CEKeyframeEmitter : IColorElement {
   Value<atUint32> loopStart;
   Value<atUint32> count;
   Vector<atVec4f, AT_DNA_COUNT(count)> keys;
-  const char* ClassID() const override { return percentageTween ? "KEYP" : "KEYE"; }
+  std::string_view ClassID() const override { return percentageTween ? "KEYP"sv : "KEYE"sv; }
 };
 
 struct CEConstant : IColorElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   RealElementFactory comps[4];
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 };
 
 struct CETimeChain : IColorElement {
@@ -576,7 +576,7 @@ struct CETimeChain : IColorElement {
   ColorElementFactory a;
   ColorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "CHAN"; }
+  std::string_view ClassID() const override { return "CHAN"sv; }
 };
 
 struct CEFadeEnd : IColorElement {
@@ -585,7 +585,7 @@ struct CEFadeEnd : IColorElement {
   ColorElementFactory b;
   RealElementFactory startFrame;
   RealElementFactory endFrame;
-  const char* ClassID() const override { return "CFDE"; }
+  std::string_view ClassID() const override { return "CFDE"sv; }
 };
 
 struct CEFade : IColorElement {
@@ -593,7 +593,7 @@ struct CEFade : IColorElement {
   ColorElementFactory a;
   ColorElementFactory b;
   RealElementFactory endFrame;
-  const char* ClassID() const override { return "FADE"; }
+  std::string_view ClassID() const override { return "FADE"sv; }
 };
 
 struct CEPulse : IColorElement {
@@ -602,7 +602,7 @@ struct CEPulse : IColorElement {
   IntElementFactory bDuration;
   ColorElementFactory a;
   ColorElementFactory b;
-  const char* ClassID() const override { return "PULS"; }
+  std::string_view ClassID() const override { return "PULS"sv; }
 };
 
 struct MVEImplosion : IModVectorElement {
@@ -612,7 +612,7 @@ struct MVEImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const override { return "IMPL"; }
+  std::string_view ClassID() const override { return "IMPL"sv; }
 };
 
 struct MVEExponentialImplosion : IModVectorElement {
@@ -622,7 +622,7 @@ struct MVEExponentialImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const override { return "EMPL"; }
+  std::string_view ClassID() const override { return "EMPL"sv; }
 };
 
 struct MVETimeChain : IModVectorElement {
@@ -630,7 +630,7 @@ struct MVETimeChain : IModVectorElement {
   ModVectorElementFactory a;
   ModVectorElementFactory b;
   IntElementFactory thresholdFrame;
-  const char* ClassID() const override { return "CHAN"; }
+  std::string_view ClassID() const override { return "CHAN"sv; }
 };
 
 struct MVEBounce : IModVectorElement {
@@ -640,32 +640,32 @@ struct MVEBounce : IModVectorElement {
   RealElementFactory friction;
   RealElementFactory restitution;
   BoolHelper dieOnPenetrate;
-  const char* ClassID() const override { return "BNCE"; }
+  std::string_view ClassID() const override { return "BNCE"sv; }
 };
 
 struct MVEConstant : IModVectorElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   RealElementFactory comps[3];
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 };
 
 struct MVEGravity : IModVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory acceleration;
-  const char* ClassID() const override { return "GRAV"; }
+  std::string_view ClassID() const override { return "GRAV"sv; }
 };
 
 struct MVEExplode : IModVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   RealElementFactory impulseMagnitude;
   RealElementFactory falloffFactor;
-  const char* ClassID() const override { return "EXPL"; }
+  std::string_view ClassID() const override { return "EXPL"sv; }
 };
 
 struct MVESetPosition : IModVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory position;
-  const char* ClassID() const override { return "SPOS"; }
+  std::string_view ClassID() const override { return "SPOS"sv; }
 };
 
 struct MVELinearImplosion : IModVectorElement {
@@ -675,7 +675,7 @@ struct MVELinearImplosion : IModVectorElement {
   RealElementFactory maxRadius;
   RealElementFactory minRadius;
   BoolHelper enableMinRadius;
-  const char* ClassID() const override { return "LMPL"; }
+  std::string_view ClassID() const override { return "LMPL"sv; }
 };
 
 struct MVEPulse : IModVectorElement {
@@ -684,14 +684,14 @@ struct MVEPulse : IModVectorElement {
   IntElementFactory bDuration;
   ModVectorElementFactory a;
   ModVectorElementFactory b;
-  const char* ClassID() const override { return "PULS"; }
+  std::string_view ClassID() const override { return "PULS"sv; }
 };
 
 struct MVEWind : IModVectorElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory windVelocity;
   RealElementFactory factor;
-  const char* ClassID() const override { return "WIND"; }
+  std::string_view ClassID() const override { return "WIND"sv; }
 };
 
 struct MVESwirl : IModVectorElement {
@@ -700,14 +700,14 @@ struct MVESwirl : IModVectorElement {
   VectorElementFactory curveBinormal;
   RealElementFactory filterGain;
   RealElementFactory tangentialVelocity;
-  const char* ClassID() const override { return "SWRL"; }
+  std::string_view ClassID() const override { return "SWRL"sv; }
 };
 
 struct EESimpleEmitter : IEmitterElement {
   AT_DECL_DNA_YAMLV_NO_TYPE
   VectorElementFactory position;
   VectorElementFactory velocity;
-  const char* ClassID() const override { return "SEMR"; }
+  std::string_view ClassID() const override { return "SEMR"sv; }
 };
 
 struct VESphere : IEmitterElement {
@@ -715,7 +715,7 @@ struct VESphere : IEmitterElement {
   VectorElementFactory sphereOrigin;
   RealElementFactory sphereRadius;
   RealElementFactory magnitude;
-  const char* ClassID() const override { return "SPHE"; }
+  std::string_view ClassID() const override { return "SPHE"sv; }
 };
 
 struct VEAngleSphere : IEmitterElement {
@@ -727,12 +727,12 @@ struct VEAngleSphere : IEmitterElement {
   RealElementFactory angleYBias;
   RealElementFactory angleXRange;
   RealElementFactory angleYRange;
-  const char* ClassID() const override { return "ASPH"; }
+  std::string_view ClassID() const override { return "ASPH"sv; }
 };
 
 struct EESimpleEmitterTR : EESimpleEmitter {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
-  const char* ClassID() const override { return "SETR"; }
+  std::string_view ClassID() const override { return "SETR"sv; }
 };
 
 template <class IDType>
@@ -740,7 +740,7 @@ struct UVEConstant : IUVElement {
   AT_DECL_EXPLICIT_DNA_YAMLV_NO_TYPE
   AT_SUBDECL_DNA
   CastIDToZero<IDType> tex;
-  const char* ClassID() const override { return "CNST"; }
+  std::string_view ClassID() const override { return "CNST"sv; }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const override {
     g_curSpec->flattenDependencies(tex, pathsOut);
@@ -758,7 +758,7 @@ struct UVEAnimTexture : IUVElement {
   IntElementFactory strideH;
   IntElementFactory cycleFrames;
   Value<bool> loop = false;
-  const char* ClassID() const override { return "ATEX"; }
+  std::string_view ClassID() const override { return "ATEX"sv; }
 
   void gatherDependencies(std::vector<hecl::ProjectPath>& pathsOut) const override {
     g_curSpec->flattenDependencies(tex, pathsOut);

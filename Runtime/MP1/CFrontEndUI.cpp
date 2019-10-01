@@ -1721,7 +1721,7 @@ CFrontEndUI::CFrontEndUI() : CIOWin("FrontEndUI") {
   xdc_saveUI = std::make_unique<CSaveGameScreen>(ESaveContext::FrontEnd, g_GameState->GetCardSerial());
 
   m->ResetGameState();
-  g_GameState->SetCurrentWorldId(g_ResFactory->TranslateOriginalToNew(g_DefaultWorldTag.id));
+  g_GameState->SetCurrentWorldId(g_DefaultWorldTag.id);
   g_GameState->GameOptions().ResetToDefaults();
   g_GameState->WriteBackupBuf();
 

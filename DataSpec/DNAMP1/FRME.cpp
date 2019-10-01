@@ -274,16 +274,13 @@ AT_SPECIALIZE_DNA(FRME::Widget::TXPNInfo)
 bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
                    std::function<void(const hecl::SystemChar*)> fileChanged) {
+  if (!force && outPath.isFile())
+    return true;
+
   FRME frme;
   frme.read(rs);
 
   hecl::blender::Connection& conn = btok.getBlenderConnection();
-
-#if 0
-    if (!force && outPath.isFile())
-        return true;
-#endif
-
   if (!conn.createBlend(outPath, hecl::blender::BlendType::Frame))
     return false;
 
@@ -501,7 +498,7 @@ bool FRME::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
       hecl::ProjectPath modelPath = pakRouter.getWorking(info->model);
       const PAKRouter<PAKBridge>::EntryType* cmdlE = pakRouter.lookupEntry(info->model, nullptr, true, true);
 
-      os.linkBlend(modelPath.getAbsolutePathUTF8().data(), pakRouter.getBestEntryName(*cmdlE).c_str(), true);
+      os.linkMesh(modelPath.getAbsolutePathUTF8(), pakRouter.getBestEntryName(*cmdlE));
 
       os.format(fmt("frme_obj.retro_model_light_mask = {}\n"), info->lightMask);
       os << "print(obj.name)\n"

@@ -448,11 +448,11 @@ void STRG::Enumerate<BigDNA::ReadYaml>(typename ReadYaml::StreamT& reader) {
 template <>
 void STRG::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& writer) {
   for (const auto& lang : langs) {
-    if (auto v = writer.enterSubVector(lang.first.toString().c_str()))
+    if (auto v = writer.enterSubVector(lang.first.toString()))
       for (const std::u16string& str : lang.second)
-        writer.writeU16String(nullptr, str);
+        writer.writeU16String(str);
   }
 }
 
-const char* STRG::DNAType() { return "urde::DNAMP1::STRG"; }
+std::string_view STRG::DNAType() { return "urde::DNAMP1::STRG"sv; }
 } // namespace DataSpec::DNAMP1

@@ -62,7 +62,7 @@ void SCAN::Texture::Enumerate<BigDNA::WriteYaml>(typename WriteYaml::StreamT& w)
   w.writeFloat("fadeDuration", fadeDuration);
 }
 
-const char* SCAN::Texture::DNAType() { return "urde::DNAMP1::SCAN::Texture"; }
+std::string_view SCAN::Texture::DNAType() { return "urde::DNAMP1::SCAN::Texture"sv; }
 
 template <>
 void SCAN::Texture::Enumerate<BigDNA::BinarySize>(typename BinarySize::StreamT& s) {

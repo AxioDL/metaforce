@@ -8,13 +8,13 @@
 namespace DataSpec::DNAParticle {
 
 template <>
-const char* DPSM<UniqueID32>::DNAType() {
-  return "DPSM<UniqueID32>";
+std::string_view DPSM<UniqueID32>::DNAType() {
+  return "DPSM<UniqueID32>"sv;
 }
 
 template <>
-const char* DPSM<UniqueID64>::DNAType() {
-  return "DPSM<UniqueID64>";
+std::string_view DPSM<UniqueID64>::DNAType() {
+  return "DPSM<UniqueID64>"sv;
 }
 
 template <class IDType>
@@ -69,10 +69,10 @@ void DPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
         x58_DMCL.read(r);
         break;
       case SBIG('DMAB'):
-        x5c_24_DMAB = r.readBool(nullptr);
+        x5c_24_DMAB = r.readBool();
         break;
       case SBIG('DMOO'):
-        x5c_25_DMOO = r.readBool(nullptr);
+        x5c_25_DMOO = r.readBool();
         break;
       }
     }

@@ -137,6 +137,7 @@ struct Level {
     std::unordered_set<IDType> resources;
   };
   std::unordered_map<IDType, Area> areas;
+  std::unordered_set<IDType> resources;
 };
 
 /** PAKRouter (for detecting shared entry locations) */
@@ -176,6 +177,7 @@ public:
   void build(std::vector<BRIDGETYPE>& bridges, std::function<void(float)> progress);
 
   void enterPAKBridge(const BRIDGETYPE& pakBridge);
+  const BRIDGETYPE& getCurrentBridge() const { return (*m_bridges)[reinterpret_cast<intptr_t>(m_curBridgeIdx.get())]; }
 
   using PAKRouterBase::getWorking;
   hecl::ProjectPath getWorking(const EntryType* entry, const ResExtractor<BRIDGETYPE>& extractor) const;

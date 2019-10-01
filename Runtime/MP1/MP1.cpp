@@ -56,7 +56,6 @@
 #include "Audio/CSfxManager.hpp"
 #include "Audio/CMidiManager.hpp"
 #include "CDependencyGroup.hpp"
-#include "MP1OriginalIDs.hpp"
 #include "CStateManager.hpp"
 #include "World/CPlayer.hpp"
 #include "CStopwatch.hpp"
@@ -295,7 +294,6 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     fmgr->AddFactory(FOURCC('HINT'), FFactoryFunc(FHintFactory));
     fmgr->AddFactory(FOURCC('SAVW'), FFactoryFunc(FSaveWorldFactory));
     fmgr->AddFactory(FOURCC('MAPW'), FFactoryFunc(FMapWorldFactory));
-    fmgr->AddFactory(FOURCC('OIDS'), FFactoryFunc(FMP1OriginalIDsFactory));
     fmgr->AddFactory(FOURCC('SCAN'), FFactoryFunc(FScannableObjectInfoFactory));
     fmgr->AddFactory(FOURCC('CRSC'), FFactoryFunc(FCollisionResponseDataFactory));
     fmgr->AddFactory(FOURCC('SWHC'), FFactoryFunc(FParticleSwooshDataFactory));

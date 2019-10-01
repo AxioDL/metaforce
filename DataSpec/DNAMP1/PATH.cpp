@@ -24,7 +24,8 @@ static void OutputOctreeNode(hecl::blender::PyOutStream& os, int idx, const zeus
 }
 #endif
 
-void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf) {
+void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entryName, const zeus::CMatrix4f* xf,
+                         const std::string& areaPath) {
   /* Open Py Stream and read sections */
   hecl::blender::PyOutStream os = conn.beginPythonOut(true);
   os <<
@@ -173,7 +174,7 @@ void PATH::sendToBlender(hecl::blender::Connection& conn, std::string_view entry
   }
 #endif
 
-  os.linkBackground("//!area.blend");
+  os.linkBackground(fmt::format(fmt("//{}"), areaPath));
   os.centerView();
   os.close();
 }
@@ -187,8 +188,16 @@ bool PATH::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   if (!conn.createBlend(outPath, hecl::blender::BlendType::PathMesh))
     return false;
 
+  std::string areaPath;
+  for (const auto& ent : hecl::DirectoryEnumerator(outPath.getParentPath().getAbsolutePath())) {
+    if (hecl::StringUtils::BeginsWith(ent.m_name, _SYS_STR("!area_"))) {
+      areaPath = hecl::SystemUTF8Conv(ent.m_name).str();
+      break;
+    }
+  }
+
   const zeus::CMatrix4f* xf = pakRouter.lookupMAPATransform(entry.id);
-  path.sendToBlender(conn, pakRouter.getBestEntryName(entry, false), xf);
+  path.sendToBlender(conn, pakRouter.getBestEntryName(entry, false), xf, areaPath);
   return conn.saveBlend();
 }
 

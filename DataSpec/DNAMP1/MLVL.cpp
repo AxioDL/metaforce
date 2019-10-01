@@ -9,7 +9,10 @@
 #include "Runtime/World/ScriptObjectSupport.hpp"
 #include "hecl/Blender/Connection.hpp"
 
-namespace DataSpec::DNAMP1 {
+namespace DataSpec {
+extern hecl::Database::DataSpecEntry SpecEntMP1;
+
+namespace DNAMP1 {
 
 bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl::ProjectPath& outPath,
                    PAKRouter<PAKBridge>& pakRouter, const PAK::Entry& entry, bool force, hecl::blender::Token& btok,
@@ -29,13 +32,13 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
     hecl::ProjectPath areaDir = pakRouter.getWorking(area.areaMREAId).getParentPath();
     {
       athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _SYS_STR("!memoryid.yaml")).getAbsolutePath());
-      athena::io::YAMLDocWriter w(nullptr);
+      athena::io::YAMLDocWriter w;
       w.writeUint32("memoryid", area.areaId);
       w.finish(&fw);
     }
     {
       athena::io::FileWriter fw(hecl::ProjectPath(areaDir, _SYS_STR("!memoryrelays.yaml")).getAbsolutePath());
-      athena::io::YAMLDocWriter w(nullptr);
+      athena::io::YAMLDocWriter w;
 
       std::vector<atUint32> relayIds;
       for (const atUint32& relay : savw.relays) {
@@ -57,6 +60,20 @@ bool MLVL::Extract(const SpecBase& dataSpec, PAKEntryReadStream& rs, const hecl:
   athena::io::ToYAMLStream(mlvl, writer, &MLVL::writeMeta);
   hecl::blender::Connection& conn = btok.getBlenderConnection();
   return DNAMLVL::ReadMLVLToBlender(conn, mlvl, outPath, pakRouter, entry, force, fileChanged);
+}
+
+bool MLVL::ExtractMAPW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
+  /* Empty placeholder file for dependency management */
+  athena::io::FileWriter writer(outPath.getAbsolutePath());
+  athena::io::YAMLDocWriter dw("DataSpec::DNAMP1::MAPW");
+  return dw.finish(&writer);
+}
+
+bool MLVL::ExtractSAVW(PAKEntryReadStream& rs, const hecl::ProjectPath& outPath) {
+  /* Empty placeholder file for dependency management */
+  athena::io::FileWriter writer(outPath.getAbsolutePath());
+  athena::io::YAMLDocWriter dw("DataSpec::DNAMP1::SAVW");
+  return dw.finish(&writer);
 }
 
 struct LayerResources {
@@ -90,16 +107,24 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   athena::io::FileReader reader(inPath.getWithExtension(_SYS_STR(".yaml"), true).getAbsolutePath());
   athena::io::FromYAMLStream(mlvl, reader, &MLVL::readMeta);
 
+  const hecl::ProjectPath parentPath = inPath.getParentPath();
+  const hecl::DirectoryEnumerator dEnum(parentPath.getAbsolutePath());
+
   mlvl.magic = 0xDEAFBABE;
   mlvl.version = 0x11;
-  hecl::ProjectPath namePath(inPath.getParentPath(), _SYS_STR("!name.yaml"));
+  hecl::ProjectPath namePath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!name_"));
   if (namePath.isFile())
     mlvl.worldNameId = namePath;
-  hecl::ProjectPath globPath = inPath.getWithExtension(_SYS_STR(".*"), true);
-  hecl::ProjectPath savwPath = globPath.ensureAuxInfo(_SYS_STR("SAVW"));
-  mlvl.saveWorldId = savwPath;
-  hecl::ProjectPath mapwPath = globPath.ensureAuxInfo(_SYS_STR("MAPW"));
-  mlvl.worldMap = mapwPath;
+  hecl::ProjectPath savwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!savw_"));
+  if (savwPath.isFile()) {
+    CookSAVW(savwPath.getCookedPath(SpecEntMP1), wld);
+    mlvl.saveWorldId = savwPath;
+  }
+  hecl::ProjectPath mapwPath = GetPathBeginsWith(dEnum, parentPath, _SYS_STR("!mapw_"));
+  if (mapwPath.isFile()) {
+    CookMAPW(mapwPath.getCookedPath(SpecEntMP1), wld);
+    mlvl.worldMap = mapwPath;
+  }
 
   size_t areaIdx = 0;
   size_t nameOffset = 0;
@@ -107,7 +132,8 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
       continue;
 
-    hecl::ProjectPath areaPath(area.path, _SYS_STR("!area.blend"));
+    const hecl::DirectoryEnumerator areaDEnum(area.path.getAbsolutePath());
+    const hecl::ProjectPath areaPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!area_"));
     if (!areaPath.isFile())
       continue;
 
@@ -128,12 +154,11 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     /* Bare minimum we'll need exactly the same number of links as relays */
     memRelayLinks.reserve(memRelays.size());
 
-    hecl::DirectoryEnumerator dEnum(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted);
     bool areaInit = false;
-
     size_t layerIdx = 0;
     LayerResources layerResources;
-    for (const hecl::DirectoryEnumerator::Entry& e : dEnum) {
+    for (const hecl::DirectoryEnumerator::Entry& e :
+         hecl::DirectoryEnumerator(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted)) {
       hecl::SystemString layerName;
       hecl::SystemChar* endCh = nullptr;
       hecl::StrToUl(e.m_name.c_str(), &endCh, 0);
@@ -175,7 +200,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         mlvl.areas.emplace_back();
         MLVL::Area& areaOut = mlvl.areas.back();
 
-        hecl::ProjectPath namePath(area.path, _SYS_STR("!name.yaml"));
+        hecl::ProjectPath namePath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!name_"));
         if (namePath.isFile())
           areaOut.areaNameId = namePath;
 
@@ -258,7 +283,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
                 memRelayLinks.push_back(linkOut);
                 memRelays.push_back(memRelay.id);
               } else {
-                  memRelayLinks.push_back(linkOut);
+                memRelayLinks.push_back(linkOut);
               }
             }
           }
@@ -333,7 +358,7 @@ bool MLVL::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
         }
       }
 
-      hecl::ProjectPath pathPath(areaPath.getParentPath(), _SYS_STR("!path.blend"));
+      hecl::ProjectPath pathPath = GetPathBeginsWith(areaDEnum, area.path, _SYS_STR("!path_"));
       urde::SObjectTag pathTag = g_curSpec->buildTagFromPath(pathPath);
       if (pathTag.id.IsValid()) {
         areaOut.deps.emplace_back(pathTag.id.Value(), pathTag.type);
@@ -375,7 +400,7 @@ bool MLVL::CookMAPW(const hecl::ProjectPath& outPath, const World& wld) {
       continue;
 
     /* Area map */
-    hecl::ProjectPath mapPath(area.path, _SYS_STR("/!map.blend"));
+    hecl::ProjectPath mapPath = GetPathBeginsWith(area.path, _SYS_STR("!map_"));
     if (mapPath.isFile())
       mapaTags.push_back(g_curSpec->buildTagFromPath(mapPath));
   }
@@ -407,7 +432,7 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
     if (area.path.getPathType() != hecl::ProjectPath::Type::Directory)
       continue;
 
-    hecl::ProjectPath areaPath(area.path, _SYS_STR("/!area.blend"));
+    hecl::ProjectPath areaPath = GetPathBeginsWith(area.path, _SYS_STR("!area_"));
     if (!areaPath.isFile())
       continue;
 
@@ -421,9 +446,8 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
     }
     savw.relays.insert(savw.relays.end(), memRelays.begin(), memRelays.end());
 
-    hecl::DirectoryEnumerator dEnum(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted);
-
-    for (const hecl::DirectoryEnumerator::Entry& e : dEnum) {
+    for (const hecl::DirectoryEnumerator::Entry& e :
+         hecl::DirectoryEnumerator(area.path.getAbsolutePath(), hecl::DirectoryEnumerator::Mode::DirsSorted)) {
       hecl::SystemString layerName;
       hecl::SystemChar* endCh = nullptr;
       hecl::StrToUl(e.m_name.c_str(), &endCh, 0);
@@ -518,4 +542,5 @@ bool MLVL::CookSAVW(const hecl::ProjectPath& outPath, const World& wld) {
   return true;
 }
 
-} // namespace DataSpec::DNAMP1
+} // namespace DNAMP1
+} // namespace DataSpec

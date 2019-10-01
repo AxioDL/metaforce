@@ -438,7 +438,8 @@ static void _GenerateRootShader(Stream& out, const char* type, Targs... args) {
   out << "node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
          "node.name = 'Output'\n"
          "node.node_tree = bpy.data.node_groups['" << type << "']\n"
-         "gridder.place_node(node, 1)\n";
+         "gridder.place_node(node, 1)\n"
+         "new_nodetree.links.new(node.outputs['Surface'], blend_node.inputs['Surface'])\n";
   _GenerateRootShader(out, 0, args...);
 }
 
@@ -455,6 +456,7 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   out << "new_material.use_fake_user = True\n"
          "new_material.use_nodes = True\n"
          "new_material.use_backface_culling = True\n"
+         "new_material.blend_method = 'BLEND'\n"
          "new_nodetree = new_material.node_tree\n"
          "for n in new_nodetree.nodes:\n"
          "    new_nodetree.nodes.remove(n)\n"
@@ -498,12 +500,18 @@ static void _ConstructMaterial(Stream& out, const MAT& material, unsigned groupI
   }
 
   /* Blend factors */
+  out << "blend_node = new_nodetree.nodes.new('ShaderNodeGroup')\n"
+         "blend_node.name = 'Blend'\n"
+         "gridder.place_node(blend_node, 2)\n";
   using BlendFactor = Material::BlendFactor;
   if (material.blendDstFac != BlendFactor::BL_ZERO) {
     if (material.blendDstFac == BlendFactor::BL_ONE)
-      out << "new_material.blend_method = 'ADD'\n";
+      out << "blend_node.node_tree = bpy.data.node_groups['HECLAdditiveOutput']\n";
     else
-      out << "new_material.blend_method = 'BLEND'\n";
+      out << "blend_node.node_tree = bpy.data.node_groups['HECLBlendOutput']\n";
+  } else {
+    out << "blend_node.node_tree = bpy.data.node_groups['HECLOpaqueOutput']\n"
+           "new_material.blend_method = 'OPAQUE'\n";
   }
 
   /* Add texture maps/tcgs */
@@ -994,11 +1002,11 @@ HMDLMaterialSet::Material::Material(const hecl::blender::Material& mat) {
 }
 
 MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction, const std::vector<atVec4f>& gameArgs) {
-  if (!gameFunction.compare("RetroUVMode0NodeN"))
+  if (gameFunction == "RetroUVMode0NodeN")
     mode = Mode::MvInvNoTranslation;
-  else if (!gameFunction.compare("RetroUVMode1NodeN"))
+  else if (gameFunction == "RetroUVMode1NodeN")
     mode = Mode::MvInv;
-  else if (!gameFunction.compare("RetroUVMode2Node")) {
+  else if (gameFunction == "RetroUVMode2Node") {
     mode = Mode::Scroll;
     if (gameArgs.size() < 2)
       Log.report(logvisor::Fatal, fmt("Mode2 UV anim requires 2 vector arguments"));
@@ -1006,13 +1014,13 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     vals[1] = gameArgs[0].simd[1];
     vals[2] = gameArgs[1].simd[0];
     vals[3] = gameArgs[1].simd[1];
-  } else if (!gameFunction.compare("RetroUVMode3Node")) {
+  } else if (gameFunction == "RetroUVMode3Node") {
     mode = Mode::Rotation;
     if (gameArgs.size() < 2)
       Log.report(logvisor::Fatal, fmt("Mode3 UV anim requires 2 arguments"));
     vals[0] = gameArgs[0].simd[0];
     vals[1] = gameArgs[1].simd[0];
-  } else if (!gameFunction.compare("RetroUVMode4Node")) {
+  } else if (gameFunction == "RetroUVMode4Node") {
     mode = Mode::HStrip;
     if (gameArgs.size() < 4)
       Log.report(logvisor::Fatal, fmt("Mode4 UV anim requires 4 arguments"));
@@ -1020,7 +1028,7 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     vals[1] = gameArgs[1].simd[0];
     vals[2] = gameArgs[2].simd[0];
     vals[3] = gameArgs[3].simd[0];
-  } else if (!gameFunction.compare("RetroUVMode5Node")) {
+  } else if (gameFunction == "RetroUVMode5Node") {
     mode = Mode::VStrip;
     if (gameArgs.size() < 4)
       Log.report(logvisor::Fatal, fmt("Mode5 UV anim requires 4 arguments"));
@@ -1028,9 +1036,9 @@ MaterialSet::Material::UVAnimation::UVAnimation(const std::string& gameFunction,
     vals[1] = gameArgs[1].simd[0];
     vals[2] = gameArgs[2].simd[0];
     vals[3] = gameArgs[3].simd[0];
-  } else if (!gameFunction.compare("RetroUVMode6NodeN"))
+  } else if (gameFunction == "RetroUVMode6NodeN")
     mode = Mode::Model;
-  else if (!gameFunction.compare("RetroUVMode7NodeN")) {
+  else if (gameFunction == "RetroUVMode7NodeN") {
     mode = Mode::CylinderEnvironment;
     if (gameArgs.size() < 2)
       Log.report(logvisor::Fatal, fmt("Mode7 UV anim requires 2 arguments"));
@@ -1083,8 +1091,8 @@ void HMDLMaterialSet::Material::PASS::Enumerate(typename Op::StreamT& s) {
 AT_SPECIALIZE_DNA(HMDLMaterialSet::Material::PASS)
 
 
-const char* HMDLMaterialSet::Material::PASS::DNAType() {
-  return "DataSpec::DNAMP1::HMDLMaterialSet::Material::PASS";
+std::string_view HMDLMaterialSet::Material::PASS::DNAType() {
+  return "DataSpec::DNAMP1::HMDLMaterialSet::Material::PASS"sv;
 }
 
 } // namespace DataSpec::DNAMP1

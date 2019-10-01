@@ -100,7 +100,7 @@ CGameState::GameFileStateInfo CGameState::LoadGameFileState(const u8* data) {
   ret.x20_hardMode = stream.ReadEncoded(1);
   stream.ReadEncoded(1);
   CAssetId origMLVL = u32(stream.ReadEncoded(32));
-  ret.x8_mlvlId = g_ResFactory->TranslateOriginalToNew(origMLVL);
+  ret.x8_mlvlId = origMLVL;
 
   BitsToDouble conv;
   conv.low = stream.ReadEncoded(32);
@@ -146,7 +146,7 @@ CGameState::CGameState(CBitStreamReader& stream, u32 saveIdx) : x20c_saveFileIdx
 
   x228_24_hardMode = stream.ReadEncoded(1);
   x228_25_initPowerupsAtFirstSpawn = stream.ReadEncoded(1);
-  x84_mlvlId = g_ResFactory->TranslateOriginalToNew(u32(stream.ReadEncoded(32)));
+  x84_mlvlId = u32(stream.ReadEncoded(32));
   MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 
   BitsToDouble conv;
@@ -209,7 +209,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const {
   writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
   writer.WriteEncoded(x228_24_hardMode, 1);
   writer.WriteEncoded(x228_25_initPowerupsAtFirstSpawn, 1);
-  writer.WriteEncoded(g_ResFactory->TranslateNewToOriginal(x84_mlvlId).Value(), 32);
+  writer.WriteEncoded(x84_mlvlId.Value(), 32);
 
   BitsToDouble conv;
   conv.doub = xa0_playTime;

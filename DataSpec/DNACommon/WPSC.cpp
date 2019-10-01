@@ -101,7 +101,7 @@ void WPSM<IDType>::_read(athena::io::YAMLDocReader& r) {
         xa6_SWTR.read(r);
         break;
       case SBIG('PJFX'):
-        xa8_PJFX = r.readUint32(nullptr);
+        xa8_PJFX = r.readUint32();
         break;
       case SBIG('RNGE'):
         xac_RNGE.read(r);
@@ -642,13 +642,13 @@ AT_SUBSPECIALIZE_DNA_YAML(WPSM<UniqueID32>)
 AT_SUBSPECIALIZE_DNA_YAML(WPSM<UniqueID64>)
 
 template <>
-const char* WPSM<UniqueID32>::DNAType() {
-  return "WPSM<UniqueID32>";
+std::string_view WPSM<UniqueID32>::DNAType() {
+  return "WPSM<UniqueID32>"sv;
 }
 
 template <>
-const char* WPSM<UniqueID64>::DNAType() {
-  return "WPSM<UniqueID64>";
+std::string_view WPSM<UniqueID64>::DNAType() {
+  return "WPSM<UniqueID64>"sv;
 }
 
 template <class IDType>
