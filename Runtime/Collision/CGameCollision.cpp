@@ -1,18 +1,21 @@
-#include "CGameCollision.hpp"
-#include "CCollidableOBBTreeGroup.hpp"
-#include "CMaterialFilter.hpp"
-#include "CMaterialList.hpp"
-#include "World/CActor.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CGroundMovement.hpp"
+#include "Runtime/Collision/CAABoxFilter.hpp"
+#include "Runtime/Collision/CBallFilter.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CCollidableSphere.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Collision/CMetroidAreaCollider.hpp"
+#include "Runtime/Collision/CollisionUtil.hpp"
+#include "Runtime/World/CActor.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CWorld.hpp"
-#include "CAABoxFilter.hpp"
-#include "CBallFilter.hpp"
-#include "CMetroidAreaCollider.hpp"
-#include "CollisionUtil.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "CCollidableSphere.hpp"
-#include "Character/CGroundMovement.hpp"
 
 namespace urde {
 

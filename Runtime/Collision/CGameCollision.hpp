@@ -16,11 +16,11 @@ namespace urde {
 class CActor;
 class CCollisionInfo;
 class CCollisionInfoList;
-class CMaterialList;
-class CStateManager;
-class CPhysicsActor;
-class CMaterialFilter;
 class CGameArea;
+class CMaterialFilter;
+class CMaterialList;
+class CPhysicsActor;
+class CStateManager;
 class ICollisionFilter;
 
 class CGameCollision {

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Runtime/Collision/CCollisionInfoList.hpp"
-
 namespace urde {
 class CActor;
+class CCollisionInfoList;
 
 class ICollisionFilter {
   CActor& x4_actor;
