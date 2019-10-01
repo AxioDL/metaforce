@@ -181,7 +181,7 @@ void CVarManager::serialize() {
     filename += _SYS_STR(".yaml");
 
     athena::io::FileReader r(filename);
-    athena::io::YAMLDocWriter docWriter(nullptr, r.isOpen() ? &r : nullptr);
+    athena::io::YAMLDocWriter docWriter(r.isOpen() ? &r : nullptr);
     r.close();
 
     docWriter.setStyle(athena::io::YAMLNodeStyle::Block);

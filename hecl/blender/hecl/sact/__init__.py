@@ -1,4 +1,5 @@
 from . import SACTSubtype, SACTAction, ANIM
+from .. import armature
 
 import bpy
 import bpy.path
@@ -207,21 +208,14 @@ def _out_armatures(sact_data, writebuf):
         writebuf(struct.pack('I', len(arm.name)))
         writebuf(arm.name.encode())
 
-        writebuf(struct.pack('I', len(arm.bones)))
-        for bone in arm.bones:
-            writebuf(struct.pack('I', len(bone.name)))
-            writebuf(bone.name.encode())
+        if arm.library:
+            arm_path = bpy.path.abspath(arm.library.filepath)
+            writebuf(struct.pack('I', len(arm_path)))
+            writebuf(arm_path.encode())
+        else:
+            writebuf(struct.pack('I', 0))
 
-            writebuf(struct.pack('fff', bone.head_local[0], bone.head_local[1], bone.head_local[2]))
-
-            if bone.parent:
-                writebuf(struct.pack('i', arm.bones.find(bone.parent.name)))
-            else:
-                writebuf(struct.pack('i', -1))
-
-            writebuf(struct.pack('I', len(bone.children)))
-            for child in bone.children:
-                writebuf(struct.pack('i', arm.bones.find(child.name)))
+        armature.cook(writebuf, arm)
 
 def _out_subtypes(sact_data, writebuf):
     writebuf(struct.pack('I', len(sact_data.subtypes)))
@@ -232,9 +226,14 @@ def _out_subtypes(sact_data, writebuf):
         mesh = None
         if subtype.linked_mesh in bpy.data.objects:
             mesh = bpy.data.objects[subtype.linked_mesh]
+            cskr_id = mesh.data.cskr_id
+            writebuf(struct.pack('I', len(cskr_id)))
+            writebuf(cskr_id.encode())
+        else:
+            writebuf(struct.pack('I', 0))
 
-        if mesh and mesh.library:
-            mesh_path = bpy.path.abspath(mesh.library.filepath)
+        if mesh and mesh.data.library:
+            mesh_path = bpy.path.abspath(mesh.data.library.filepath)
             writebuf(struct.pack('I', len(mesh_path)))
             writebuf(mesh_path.encode())
         else:
@@ -257,9 +256,14 @@ def _out_subtypes(sact_data, writebuf):
             mesh = None
             if overlay.linked_mesh in bpy.data.objects:
                 mesh = bpy.data.objects[overlay.linked_mesh]
+                cskr_id = mesh.data.cskr_id
+                writebuf(struct.pack('I', len(cskr_id)))
+                writebuf(cskr_id.encode())
+            else:
+                writebuf(struct.pack('I', 0))
 
-            if mesh and mesh.library:
-                mesh_path = bpy.path.abspath(mesh.library.filepath)
+            if mesh and mesh.data.library:
+                mesh_path = bpy.path.abspath(mesh.data.library.filepath)
                 writebuf(struct.pack('I', len(mesh_path)))
                 writebuf(mesh_path.encode())
             else:
@@ -274,9 +278,14 @@ def _out_attachments(sact_data, writebuf):
         mesh = None
         if attachment.linked_mesh in bpy.data.objects:
             mesh = bpy.data.objects[attachment.linked_mesh]
+            cskr_id = mesh.data.cskr_id
+            writebuf(struct.pack('I', len(cskr_id)))
+            writebuf(cskr_id.encode())
+        else:
+            writebuf(struct.pack('I', 0))
 
-        if mesh and mesh.library:
-            mesh_path = bpy.path.abspath(mesh.library.filepath)
+        if mesh and mesh.data.library:
+            mesh_path = bpy.path.abspath(mesh.data.library.filepath)
             writebuf(struct.pack('I', len(mesh_path)))
             writebuf(mesh_path.encode())
         else:
@@ -302,6 +311,9 @@ def _out_actions(sact_data, writebuf):
         bact = None
         if action.name in bpy.data.actions:
             bact = bpy.data.actions[action.name]
+            anim_id = bact.anim_id
+            writebuf(struct.pack('I', len(anim_id)))
+            writebuf(anim_id.encode())
         if not bact:
             raise RuntimeError('action %s not found' % action.name)
 
@@ -334,6 +346,9 @@ def _out_action_no_subtypes(sact_data, writebuf, action_name):
             bact = None
             if action.name in bpy.data.actions:
                 bact = bpy.data.actions[action.name]
+                anim_id = bact.anim_id
+                writebuf(struct.pack('I', len(anim_id)))
+                writebuf(anim_id.encode())
             if not bact:
                 raise RuntimeError('action %s not found' % action.name)
 
@@ -386,14 +401,6 @@ def cook_action_channels_only(writebuf, action_name):
     # Output action without AABBs
     _out_action_no_subtypes(sact_data, writebuf, action_name)
 
-
-# Access actor's contained armature names
-def get_armature_names(writebuf):
-    writebuf(struct.pack('I', len(bpy.data.armatures)))
-    for arm in bpy.data.armatures:
-        writebuf(struct.pack('I', len(arm.name)))
-        writebuf(arm.name.encode())
-
 # Access actor's contained subtype names
 def get_subtype_names(writebuf):
     sact_data = bpy.context.scene.hecl_sact_data
@@ -402,6 +409,10 @@ def get_subtype_names(writebuf):
         subtype = sact_data.subtypes[sub_idx]
         writebuf(struct.pack('I', len(subtype.name)))
         writebuf(subtype.name.encode())
+        obj = bpy.data.objects[subtype.linked_mesh]
+        cskr_id = obj.data.cskr_id
+        writebuf(struct.pack('I', len(cskr_id)))
+        writebuf(cskr_id.encode())
 
 # Access subtype's contained overlay names
 def get_subtype_overlay_names(writebuf, subtypeName):
@@ -413,6 +424,10 @@ def get_subtype_overlay_names(writebuf, subtypeName):
             for overlay in subtype.overlays:
                 writebuf(struct.pack('I', len(overlay.name)))
                 writebuf(overlay.name.encode())
+                obj = bpy.data.objects[overlay.linked_mesh]
+                cskr_id = obj.data.cskr_id
+                writebuf(struct.pack('I', len(cskr_id)))
+                writebuf(cskr_id.encode())
             return
     writebuf(struct.pack('I', 0))
 
@@ -424,6 +439,10 @@ def get_attachment_names(writebuf):
         attachment = sact_data.attachments[att_idx]
         writebuf(struct.pack('I', len(attachment.name)))
         writebuf(attachment.name.encode())
+        obj = bpy.data.objects[attachment.linked_mesh]
+        cskr_id = obj.data.cskr_id
+        writebuf(struct.pack('I', len(cskr_id)))
+        writebuf(cskr_id.encode())
 
 # Access actor's contained action names
 def get_action_names(writebuf):
@@ -433,6 +452,9 @@ def get_action_names(writebuf):
         action = sact_data.actions[action_idx]
         writebuf(struct.pack('I', len(action.name)))
         writebuf(action.name.encode())
+        anim_id = bpy.data.actions[action.name].anim_id
+        writebuf(struct.pack('I', len(anim_id)))
+        writebuf(anim_id.encode())
 
 # Panel draw
 def draw(layout, context):
@@ -452,6 +474,7 @@ def register():
     SACTAction.register()
     bpy.utils.register_class(SACTData)
     bpy.types.Scene.hecl_sact_data = bpy.props.PointerProperty(type=SACTData)
+    bpy.types.Action.anim_id = bpy.props.StringProperty(name='Original ANIM ID')
     bpy.types.Action.hecl_fps = bpy.props.IntProperty(name='HECL Action FPS', default=30)
     bpy.types.Action.hecl_additive = bpy.props.BoolProperty(name='HECL Additive Action', default=False)
     bpy.types.Action.hecl_looping = bpy.props.BoolProperty(name='HECL Looping Action', default=False)

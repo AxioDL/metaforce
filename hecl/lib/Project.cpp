@@ -91,7 +91,7 @@ void Project::ConfigFile::removeLine(std::string_view refLine) {
   }
 
   for (auto it = m_lines.begin(); it != m_lines.end();) {
-    if (!(*it).compare(refLine)) {
+    if (*it == refLine) {
       it = m_lines.erase(it);
       continue;
     }
@@ -106,7 +106,7 @@ bool Project::ConfigFile::checkForLine(std::string_view refLine) {
   }
 
   for (const std::string& line : m_lines)
-    if (!line.compare(refLine))
+    if (line == refLine)
       return true;
   return false;
 }

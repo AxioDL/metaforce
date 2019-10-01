@@ -26,6 +26,8 @@
 #if _WIN32
 #include <io.h>
 #include <fcntl.h>
+#else
+#include <sys/wait.h>
 #endif
 
 #undef min
@@ -52,7 +54,7 @@ Token SharedBlenderToken;
 #ifdef __APPLE__
 #define DEFAULT_BLENDER_BIN "/Applications/Blender.app/Contents/MacOS/blender"
 #else
-#define DEFAULT_BLENDER_BIN "blender-2.8"
+#define DEFAULT_BLENDER_BIN "blender"
 #endif
 
 extern "C" uint8_t HECL_BLENDERSHELL[];
@@ -217,6 +219,17 @@ size_t Connection::_writeBuf(const void* buf, size_t len) {
   } while (len != 0);
 
   return writeLen;
+}
+
+ProjectPath Connection::_readPath() {
+  std::string path = _readStdString();
+  if (!path.empty()) {
+    SystemStringConv pathAbs(path);
+    SystemString meshPathRel =
+        getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(pathAbs.sys_str());
+    return ProjectPath(getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
+  }
+  return {};
 }
 
 void Connection::_closePipe() {
@@ -488,13 +501,12 @@ Connection::Connection(int verbosityLevel) {
     hecl::Unlink(m_errPath.c_str());
 
     /* Handle first response */
-    char lineBuf[256];
-    _readStr(lineBuf, sizeof(lineBuf));
+    std::string lineStr = _readStdString();
 
-    if (!strncmp(lineBuf, "NOLAUNCH", 8)) {
+    if (!lineStr.compare(0, 8, "NOLAUNCH")) {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, fmt("Unable to launch blender: {}"), lineBuf + 9);
-    } else if (!strncmp(lineBuf, "NOBLENDER", 9)) {
+      BlenderLog.report(logvisor::Fatal, fmt("Unable to launch blender: {}"), lineStr.c_str() + 9);
+    } else if (!lineStr.compare(0, 9, "NOBLENDER")) {
       _closePipe();
 #if _WIN32
       BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), blenderBin);
@@ -505,10 +517,10 @@ Connection::Connection(int verbosityLevel) {
       else
         BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
 #endif
-    } else if (!strcmp(lineBuf, "NOT280")) {
+    } else if (lineStr == "NOT280") {
       _closePipe();
       BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Installed blender version must be >= 2.80")));
-    } else if (!strcmp(lineBuf, "NOADDON")) {
+    } else if (lineStr == "NOADDON") {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
         InstallAddon(blenderAddonPath.c_str());
@@ -516,14 +528,20 @@ Connection::Connection(int verbosityLevel) {
       if (installAttempt >= 2)
         BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("unable to install blender addon using '{}'")),
                           blenderAddonPath.c_str());
+#ifndef _WIN32
+      waitpid(pid, nullptr, 0);
+#endif
       continue;
-    } else if (!strcmp(lineBuf, "ADDONINSTALLED")) {
+    } else if (lineStr == "ADDONINSTALLED") {
       _closePipe();
       blenderAddonPath = _SYS_STR("SKIPINSTALL");
+#ifndef _WIN32
+      waitpid(pid, nullptr, 0);
+#endif
       continue;
-    } else if (strcmp(lineBuf, "READY")) {
+    } else if (lineStr != "READY") {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, fmt("read '{}' from blender; expected 'READY'"), lineBuf);
+      BlenderLog.report(logvisor::Fatal, fmt("read '{}' from blender; expected 'READY'"), lineStr);
     }
     _writeStr("ACK");
 
@@ -544,28 +562,48 @@ void Index::read(Connection& conn) { conn._readBuf(&val, 4); }
 void Float::read(Connection& conn) { conn._readBuf(&val, 4); }
 void Boolean::read(Connection& conn) { conn._readBuf(&val, 1); }
 
-std::streambuf::int_type PyOutStream::StreamBuf::overflow(int_type ch) {
-  if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
-    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream writing"));
-  if (ch != traits_type::eof() && ch != '\n' && ch != '\0') {
-    m_lineBuf += char_type(ch);
-    return ch;
-  }
-  // printf("FLUSHING %s\n", m_lineBuf.c_str());
-  m_parent.m_parent->_writeStr(m_lineBuf);
-  char readBuf[16];
-  m_parent.m_parent->_readStr(readBuf, 16);
-  if (strcmp(readBuf, "OK")) {
+bool PyOutStream::StreamBuf::sendLine(std::string_view line) {
+  m_parent.m_parent->_writeStr(line);
+  if (!m_parent.m_parent->_isOk()) {
     if (m_deleteOnError)
       m_parent.m_parent->deleteBlend();
     m_parent.m_parent->_blenderDied();
+    return false;
   }
-  m_lineBuf.clear();
-  return ch;
+  return true;
 }
 
-constexpr std::array<const char*, 11> BlendTypeStrs{
-    "NONE", "MESH", "CMESH", "ACTOR", "AREA", "WORLD", "MAPAREA", "MAPUNIVERSE", "FRAME", "PATH", nullptr,
+std::streamsize PyOutStream::StreamBuf::xsputn(const char_type* __first, std::streamsize __n) {
+  if (!m_parent.m_parent || !m_parent.m_parent->m_lock)
+    BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream writing"));
+  const char_type* __last = __first + __n;
+  const char_type* __s = __first;
+  for (const char_type* __e = __first; __e != __last; ++__e) {
+    if (*__e == '\n' || *__e == traits_type::eof()) {
+      std::string_view line(__s, __e - __s);
+      bool result;
+      if (!m_lineBuf.empty()) {
+        /* Complete line with incomplete line from previous call */
+        m_lineBuf += line;
+        result = sendLine(m_lineBuf);
+        m_lineBuf.clear();
+      } else {
+        /* Complete line (optimal case) */
+        result = sendLine(line);
+      }
+      if (!result || *__e == traits_type::eof())
+        return __e - __first; /* Error or eof, end now */
+      __s += line.size() + 1;
+    }
+  }
+  if (__s != __last) /* String ended with incomplete line (ideally this shouldn't happen for zero buffer overhead) */
+    m_lineBuf += std::string_view(__s, __last - __s);
+  return __n;
+}
+
+constexpr std::array<std::string_view, 12> BlendTypeStrs{
+    "NONE"sv, "MESH"sv, "CMESH"sv, "ARMATURE"sv, "ACTOR"sv, "AREA"sv,
+    "WORLD"sv, "MAPAREA"sv, "MAPUNIVERSE"sv, "FRAME"sv, "PATH"sv
 };
 
 bool Connection::createBlend(const ProjectPath& path, BlendType type) {
@@ -574,9 +612,7 @@ bool Connection::createBlend(const ProjectPath& path, BlendType type) {
     return false;
   }
   _writeStr(fmt::format(fmt("CREATE \"{}\" {}"), path.getAbsolutePathUTF8(), BlendTypeStrs[int(type)]));
-  char lineBuf[256];
-  _readStr(lineBuf, sizeof(lineBuf));
-  if (!strcmp(lineBuf, "FINISHED")) {
+  if (_isFinished()) {
     /* Delete immediately in case save doesn't occur */
     hecl::Unlink(path.getAbsolutePath().data());
     m_loadedBlend = path;
@@ -594,16 +630,14 @@ bool Connection::openBlend(const ProjectPath& path, bool force) {
   if (!force && path == m_loadedBlend)
     return true;
   _writeStr(fmt::format(fmt("OPEN \"{}\""), path.getAbsolutePathUTF8()));
-  char lineBuf[256];
-  _readStr(lineBuf, sizeof(lineBuf));
-  if (!strcmp(lineBuf, "FINISHED")) {
+  if (_isFinished()) {
     m_loadedBlend = path;
     _writeStr("GETTYPE");
-    _readStr(lineBuf, sizeof(lineBuf));
+    std::string typeStr = _readStdString();
     m_loadedType = BlendType::None;
     unsigned idx = 0;
-    while (BlendTypeStrs[idx]) {
-      if (!strcmp(BlendTypeStrs[idx], lineBuf)) {
+    for (const auto& type : BlendTypeStrs) {
+      if (type == typeStr) {
         m_loadedType = BlendType(idx);
         break;
       }
@@ -612,8 +646,7 @@ bool Connection::openBlend(const ProjectPath& path, bool force) {
     m_loadedRigged = false;
     if (m_loadedType == BlendType::Mesh) {
       _writeStr("GETMESHRIGGED");
-      _readStr(lineBuf, sizeof(lineBuf));
-      if (!strcmp("TRUE", lineBuf))
+      if (_isTrue())
         m_loadedRigged = true;
     }
     return true;
@@ -627,11 +660,7 @@ bool Connection::saveBlend() {
     return false;
   }
   _writeStr("SAVE");
-  char lineBuf[256];
-  _readStr(lineBuf, sizeof(lineBuf));
-  if (!strcmp(lineBuf, "FINISHED"))
-    return true;
-  return false;
+  return _isFinished();
 }
 
 void Connection::deleteBlend() {
@@ -646,25 +675,19 @@ PyOutStream::PyOutStream(Connection* parent, bool deleteOnError)
 : std::ostream(&m_sbuf), m_parent(parent), m_sbuf(*this, deleteOnError) {
   m_parent->m_pyStreamActive = true;
   m_parent->_writeStr("PYBEGIN");
-  char readBuf[16];
-  m_parent->_readStr(readBuf, 16);
-  if (strcmp(readBuf, "READY"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to open PyOutStream with blender"));
+  m_parent->_checkReady("unable to open PyOutStream with blender"sv);
 }
 
 void PyOutStream::close() {
   if (m_parent && m_parent->m_lock) {
     m_parent->_writeStr("PYEND");
-    char readBuf[16];
-    m_parent->_readStr(readBuf, 16);
-    if (strcmp(readBuf, "DONE"))
-      BlenderLog.report(logvisor::Fatal, fmt("unable to close PyOutStream with blender"));
+    m_parent->_checkDone("unable to close PyOutStream with blender"sv);
     m_parent->m_pyStreamActive = false;
     m_parent->m_lock = false;
   }
 }
 
-void PyOutStream::linkBlend(const char* target, const char* objName, bool link) {
+void PyOutStream::linkBlend(std::string_view target, std::string_view objName, bool link) {
   format(fmt("if '{}' not in bpy.data.scenes:\n"
              "    with bpy.data.libraries.load('''{}''', link={}, relative=True) as (data_from, data_to):\n"
              "        data_to.scenes = data_from.scenes\n"
@@ -685,8 +708,34 @@ void PyOutStream::linkBlend(const char* target, const char* objName, bool link) 
          objName, target, link ? "True" : "False", objName, objName, target, objName);
 }
 
-void PyOutStream::linkBackground(const char* target, const char* sceneName) {
-  if (!sceneName) {
+void PyOutStream::linkArmature(std::string_view target, std::string_view armName) {
+  format(fmt("target_arm_name = '{}'\n"
+             "if target_arm_name not in bpy.data.armatures:\n"
+             "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+             "        if target_arm_name not in data_from.armatures:\n"
+             "            raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+             "        data_to.armatures.append(target_arm_name)\n"
+             "    obj = bpy.data.objects.new(target_arm_name, bpy.data.armatures[target_arm_name])\n"
+             "else:\n"
+             "    obj = bpy.data.objects[target_arm_name]\n"
+             "\n"),
+         armName, target, armName, target);
+}
+
+void PyOutStream::linkMesh(std::string_view target, std::string_view meshName) {
+  format(fmt("target_mesh_name = '{}'\n"
+             "if target_mesh_name not in bpy.data.objects:\n"
+             "    with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
+             "        if target_mesh_name not in data_from.objects:\n"
+             "            raise RuntimeError('''unable to find {} in {}. try deleting it and restart the extract.''')\n"
+             "        data_to.objects.append(target_mesh_name)\n"
+             "obj = bpy.data.objects[target_mesh_name]\n"
+             "\n"),
+         meshName, target, meshName, target);
+}
+
+void PyOutStream::linkBackground(std::string_view target, std::string_view sceneName) {
+  if (sceneName.empty()) {
     format(fmt("with bpy.data.libraries.load('''{}''', link=True, relative=True) as (data_from, data_to):\n"
                "    data_to.scenes = data_from.scenes\n"
                "obj_scene = None\n"
@@ -770,19 +819,13 @@ void PyOutStream::centerView() {
 
 ANIMOutStream::ANIMOutStream(Connection* parent) : m_parent(parent) {
   m_parent->_writeStr("PYANIM");
-  char readBuf[16];
-  m_parent->_readStr(readBuf, 16);
-  if (strcmp(readBuf, "ANIMREADY"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to open ANIMOutStream"));
+  m_parent->_checkAnimReady("unable to open ANIMOutStream"sv);
 }
 
 ANIMOutStream::~ANIMOutStream() {
   char tp = -1;
   m_parent->_writeBuf(&tp, 1);
-  char readBuf[16];
-  m_parent->_readStr(readBuf, 16);
-  if (strcmp(readBuf, "ANIMDONE"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to close ANIMOutStream"));
+  m_parent->_checkAnimDone("unable to close ANIMOutStream"sv);
 }
 
 void ANIMOutStream::changeCurve(CurveType type, unsigned crvIdx, unsigned keyCount) {
@@ -815,8 +858,8 @@ void ANIMOutStream::write(unsigned frame, float val) {
 }
 
 Mesh::SkinBind::SkinBind(Connection& conn) {
-  vg_idx = Index(conn).val;
-  weight = Float(conn).val;
+  conn._readValue(vg_idx);
+  conn._readValue(weight);
 }
 
 void Mesh::normalizeSkinBinds() {
@@ -835,44 +878,26 @@ void Mesh::normalizeSkinBinds() {
 
 Mesh::Mesh(Connection& conn, HMDLTopology topologyIn, int skinSlotCount, bool useLuvs)
 : topology(topologyIn), sceneXf(conn), aabbMin(conn), aabbMax(conn) {
-  Index matSetCount(conn);
-  materialSets.reserve(matSetCount.val);
-  for (uint32_t i = 0; i < matSetCount.val; ++i) {
-    std::vector<Material>& materials = materialSets.emplace_back();
-    Index matCount(conn);
-    materials.reserve(matCount.val);
-    for (uint32_t j = 0; j < matCount.val; ++j)
-      materials.emplace_back(conn);
-  }
+  conn._readVectorFunc(materialSets, [&]() {
+    conn._readVector(materialSets.emplace_back());
+  });
 
   MeshOptimizer opt(conn, materialSets[0], useLuvs);
   opt.optimize(*this, skinSlotCount);
 
-  Index count(conn);
-  boneNames.reserve(count.val);
-  for (uint32_t i = 0; i < count; ++i) {
-    char name[128];
-    conn._readStr(name, 128);
-    boneNames.emplace_back(name);
-  }
-
+  conn._readVector(boneNames);
   if (boneNames.size())
     for (Surface& s : surfaces)
       s.skinBankIdx = skinBanks.addSurface(*this, s, skinSlotCount);
 
   /* Custom properties */
-  Index propCount(conn);
+  uint32_t propCount;
+  conn._readValue(propCount);
   std::string keyBuf;
   std::string valBuf;
-  for (uint32_t i = 0; i < propCount.val; ++i) {
-    Index kLen(conn);
-    keyBuf.assign(kLen.val, '\0');
-    conn._readBuf(&keyBuf[0], kLen.val);
-
-    Index vLen(conn);
-    valBuf.assign(vLen.val, '\0');
-    conn._readBuf(&valBuf[0], vLen.val);
-
+  for (uint32_t i = 0; i < propCount; ++i) {
+    keyBuf = conn._readStdString();
+    valBuf = conn._readStdString();
     customProps[keyBuf] = valBuf;
   }
 
@@ -936,68 +961,48 @@ static T SwapFourCC(T fcc) {
 }
 
 Material::PASS::PASS(Connection& conn) {
-  conn._readBuf(&type, 4);
+  conn._readValue(type);
   type = SwapFourCC(type);
+  tex = conn._readPath();
 
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  std::string readStr(bufSz, ' ');
-  conn._readBuf(&readStr[0], bufSz);
-  SystemStringConv absolute(readStr);
-
-  SystemString relative =
-      conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
-  tex.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), relative);
-
-  conn._readBuf(&source, 1);
-  conn._readBuf(&uvAnimType, 1);
+  conn._readValue(source);
+  conn._readValue(uvAnimType);
   uint32_t argCount;
-  conn._readBuf(&argCount, 4);
+  conn._readValue(argCount);
   for (uint32_t i = 0; i < argCount; ++i)
-    conn._readBuf(&uvAnimParms[i], 4);
-  conn._readBuf(&alpha, 1);
+    conn._readValue(uvAnimParms[i]);
+  conn._readValue(alpha);
 }
 
 Material::CLR::CLR(Connection& conn) {
-  conn._readBuf(&type, 4);
+  conn._readValue(type);
   type = SwapFourCC(type);
   color.read(conn);
 }
 
 Material::Material(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
+  name = conn._readStdString();
 
-  conn._readBuf(&passIndex, 4);
-  conn._readBuf(&shaderType, 4);
+  conn._readValue(passIndex);
+  conn._readValue(shaderType);
   shaderType = SwapFourCC(shaderType);
 
-  uint32_t chunkCount;
-  conn._readBuf(&chunkCount, 4);
-  chunks.reserve(chunkCount);
-  for (uint32_t i = 0; i < chunkCount; ++i) {
+  conn._readVectorFunc(chunks, [&]() {
     ChunkType type;
-    conn._readBuf(&type, 4);
+    conn._readValue(type);
     type = SwapFourCC(type);
     chunks.push_back(Chunk::Build(type, conn));
-  }
+  });
 
   uint32_t iPropCount;
-  conn._readBuf(&iPropCount, 4);
+  conn._readValue(iPropCount);
   iprops.reserve(iPropCount);
   for (uint32_t i = 0; i < iPropCount; ++i) {
-    conn._readBuf(&bufSz, 4);
-    std::string readStr(bufSz, ' ');
-    conn._readBuf(&readStr[0], bufSz);
-
-    int32_t val;
-    conn._readBuf(&val, 4);
-    iprops[readStr] = val;
+    std::string readStr = conn._readStdString();
+    conn._readValue(iprops[readStr]);
   }
 
-  conn._readBuf(&blendMode, 4);
+  conn._readValue(blendMode);
 }
 
 bool Mesh::Surface::Vert::operator==(const Vert& other) const {
@@ -1076,36 +1081,14 @@ uint32_t Mesh::SkinBanks::addSurface(const Mesh& mesh, const Surface& surf, int 
 }
 
 ColMesh::ColMesh(Connection& conn) {
-  uint32_t matCount;
-  conn._readBuf(&matCount, 4);
-  materials.reserve(matCount);
-  for (uint32_t i = 0; i < matCount; ++i)
-    materials.emplace_back(conn);
-
-  uint32_t count;
-  conn._readBuf(&count, 4);
-  verts.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    verts.emplace_back(conn);
-
-  conn._readBuf(&count, 4);
-  edges.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    edges.emplace_back(conn);
-
-  conn._readBuf(&count, 4);
-  trianges.reserve(count);
-  for (uint32_t i = 0; i < count; ++i)
-    trianges.emplace_back(conn);
+  conn._readVector(materials);
+  conn._readVector(verts);
+  conn._readVector(edges);
+  conn._readVector(trianges);
 }
 
 ColMesh::Material::Material(Connection& conn) {
-  uint32_t nameLen;
-  conn._readBuf(&nameLen, 4);
-  if (nameLen) {
-    name.assign(nameLen, '\0');
-    conn._readBuf(&name[0], nameLen);
-  }
+  name = conn._readStdString();
   conn._readBuf(&unknown, 42);
 }
 
@@ -1123,57 +1106,29 @@ World::Area::Dock::Dock(Connection& conn) {
 }
 
 World::Area::Area(Connection& conn) {
-  std::string name;
-  uint32_t nameLen;
-  conn._readBuf(&nameLen, 4);
-  if (nameLen) {
-    name.assign(nameLen, '\0');
-    conn._readBuf(&name[0], nameLen);
-  }
+  std::string name = conn._readStdString();
 
   path.assign(conn.getBlendPath().getParentPath(), name);
   aabb[0].read(conn);
   aabb[1].read(conn);
   transform.read(conn);
-
-  uint32_t dockCount;
-  conn._readBuf(&dockCount, 4);
-  docks.reserve(dockCount);
-  for (uint32_t i = 0; i < dockCount; ++i)
-    docks.emplace_back(conn);
+  conn._readVector(docks);
 }
 
 World::World(Connection& conn) {
-  uint32_t areaCount;
-  conn._readBuf(&areaCount, 4);
-  areas.reserve(areaCount);
-  for (uint32_t i = 0; i < areaCount; ++i)
-    areas.emplace_back(conn);
+  conn._readVector(areas);
 }
 
 Light::Light(Connection& conn) : sceneXf(conn), color(conn) {
   conn._readBuf(&layer, 29);
-
-  uint32_t nameLen;
-  conn._readBuf(&nameLen, 4);
-  if (nameLen) {
-    name.assign(nameLen, '\0');
-    conn._readBuf(&name[0], nameLen);
-  }
+  name = conn._readStdString();
 }
 
 MapArea::Surface::Surface(Connection& conn) {
   centerOfMass.read(conn);
   normal.read(conn);
   conn._readBuf(&start, 8);
-
-  uint32_t borderCount;
-  conn._readBuf(&borderCount, 4);
-  borders.reserve(borderCount);
-  for (uint32_t i = 0; i < borderCount; ++i) {
-    std::pair<Index, Index>& idx = borders.emplace_back();
-    conn._readBuf(&idx, 8);
-  }
+  conn._readVectorFunc(borders, [&]() { conn._readBuf(&borders.emplace_back(), 8); });
 }
 
 MapArea::POI::POI(Connection& conn) {
@@ -1182,121 +1137,51 @@ MapArea::POI::POI(Connection& conn) {
 }
 
 MapArea::MapArea(Connection& conn) {
-  visType.read(conn);
-
-  uint32_t vertCount;
-  conn._readBuf(&vertCount, 4);
-  verts.reserve(vertCount);
-  for (uint32_t i = 0; i < vertCount; ++i)
-    verts.emplace_back(conn);
+  conn._readValue(visType);
+  conn._readVector(verts);
 
   uint8_t isIdx;
-  conn._readBuf(&isIdx, 1);
+  conn._readValue(isIdx);
   while (isIdx) {
-    indices.emplace_back(conn);
-    conn._readBuf(&isIdx, 1);
+    conn._readValue(indices.emplace_back());
+    conn._readValue(isIdx);
   }
 
-  uint32_t surfCount;
-  conn._readBuf(&surfCount, 4);
-  surfaces.reserve(surfCount);
-  for (uint32_t i = 0; i < surfCount; ++i)
-    surfaces.emplace_back(conn);
-
-  uint32_t poiCount;
-  conn._readBuf(&poiCount, 4);
-  pois.reserve(poiCount);
-  for (uint32_t i = 0; i < poiCount; ++i)
-    pois.emplace_back(conn);
+  conn._readVector(surfaces);
+  conn._readVector(pois);
 }
 
 MapUniverse::World::World(Connection& conn) {
-  uint32_t nameLen;
-  conn._readBuf(&nameLen, 4);
-  if (nameLen) {
-    name.assign(nameLen, '\0');
-    conn._readBuf(&name[0], nameLen);
-  }
-
+  name = conn._readStdString();
   xf.read(conn);
-
-  uint32_t hexCount;
-  conn._readBuf(&hexCount, 4);
-  hexagons.reserve(hexCount);
-  for (uint32_t i = 0; i < hexCount; ++i)
-    hexagons.emplace_back(conn);
-
+  conn._readVector(hexagons);
   color.read(conn);
-
-  uint32_t pathLen;
-  conn._readBuf(&pathLen, 4);
-  if (pathLen) {
-    std::string path;
-    path.assign(pathLen, '\0');
-    conn._readBuf(&path[0], pathLen);
-
+  std::string path = conn._readStdString();
+  if (!path.empty()) {
     hecl::SystemStringConv sysPath(path);
     worldPath.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), sysPath.sys_str());
   }
 }
 
 MapUniverse::MapUniverse(Connection& conn) {
-  uint32_t pathLen;
-  conn._readBuf(&pathLen, 4);
-  if (pathLen) {
-    std::string path;
-    path.assign(pathLen, '\0');
-    conn._readBuf(&path[0], pathLen);
-
-    hecl::SystemStringConv sysPath(path);
-    SystemString pathRel =
-        conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(sysPath.sys_str());
-    hexagonPath.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), pathRel);
-  }
-
-  uint32_t worldCount;
-  conn._readBuf(&worldCount, 4);
-  worlds.reserve(worldCount);
-  for (uint32_t i = 0; i < worldCount; ++i)
-    worlds.emplace_back(conn);
+  hexagonPath = conn._readPath();
+  conn._readVector(worlds);
 }
 
 Actor::Actor(Connection& conn) {
-  uint32_t armCount;
-  conn._readBuf(&armCount, 4);
-  armatures.reserve(armCount);
-  for (uint32_t i = 0; i < armCount; ++i)
-    armatures.emplace_back(conn);
-
-  uint32_t subtypeCount;
-  conn._readBuf(&subtypeCount, 4);
-  subtypes.reserve(subtypeCount);
-  for (uint32_t i = 0; i < subtypeCount; ++i)
-    subtypes.emplace_back(conn);
-
-  uint32_t attachmentCount;
-  conn._readBuf(&attachmentCount, 4);
-  attachments.reserve(attachmentCount);
-  for (uint32_t i = 0; i < attachmentCount; ++i)
-    attachments.emplace_back(conn);
-
-  uint32_t actionCount;
-  conn._readBuf(&actionCount, 4);
-  actions.reserve(actionCount);
-  for (uint32_t i = 0; i < actionCount; ++i)
-    actions.emplace_back(conn);
+  conn._readVector(armatures);
+  conn._readVector(subtypes);
+  conn._readVector(attachments);
+  conn._readVector(actions);
 }
 
 PathMesh::PathMesh(Connection& conn) {
-  uint32_t dataSize;
-  conn._readBuf(&dataSize, 4);
-  data.resize(dataSize);
-  conn._readBuf(data.data(), dataSize);
+  conn._readVector(data);
 }
 
 const Bone* Armature::lookupBone(const char* name) const {
   for (const Bone& b : bones)
-    if (!b.name.compare(name))
+    if (b.name == name)
       return &b;
   return nullptr;
 }
@@ -1324,149 +1209,62 @@ const Bone* Armature::getRoot() const {
 }
 
 Armature::Armature(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
-
-  uint32_t boneCount;
-  conn._readBuf(&boneCount, 4);
-  bones.reserve(boneCount);
-  for (uint32_t i = 0; i < boneCount; ++i)
-    bones.emplace_back(conn);
+  conn._readVector(bones);
 }
 
 Bone::Bone(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
-
+  name = conn._readStdString();
   origin.read(conn);
+  conn._readValue(parent);
+  conn._readVector(children);
+}
 
-  conn._readBuf(&parent, 4);
+Actor::ActorArmature::ActorArmature(Connection& conn) {
+  name = conn._readStdString();
+  path = conn._readPath();
+  armature.emplace(conn);
+}
 
-  uint32_t childCount;
-  conn._readBuf(&childCount, 4);
-  children.reserve(childCount);
-  for (uint32_t i = 0; i < childCount; ++i) {
-    children.emplace_back(0);
-    conn._readBuf(&children.back(), 4);
-  }
+Actor::Subtype::OverlayMesh::OverlayMesh(Connection& conn) {
+  name = conn._readStdString();
+  cskrId = conn._readStdString();
+  mesh = conn._readPath();
 }
 
 Actor::Subtype::Subtype(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
-
-  conn._readBuf(&bufSz, 4);
-  if (bufSz != 0) {
-    std::string meshPath(bufSz, ' ');
-    conn._readBuf(meshPath.data(), meshPath.size());
-    const SystemStringConv meshPathAbs(meshPath);
-
-    const SystemString meshPathRel =
-        conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
-    mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
-  }
-
-  conn._readBuf(&armature, 4);
-
-  uint32_t overlayCount;
-  conn._readBuf(&overlayCount, 4);
-  overlayMeshes.reserve(overlayCount);
-  for (uint32_t i = 0; i < overlayCount; ++i) {
-    std::string overlayName;
-    conn._readBuf(&bufSz, 4);
-    overlayName.assign(bufSz, ' ');
-    conn._readBuf(&overlayName[0], bufSz);
-
-    conn._readBuf(&bufSz, 4);
-    if (bufSz != 0) {
-      std::string meshPath(bufSz, ' ');
-      conn._readBuf(meshPath.data(), meshPath.size());
-      const SystemStringConv meshPathAbs(meshPath);
-
-      const SystemString meshPathRel =
-          conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
-      overlayMeshes.emplace_back(std::move(overlayName),
-                                 ProjectPath(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel));
-    }
-  }
+  name = conn._readStdString();
+  cskrId = conn._readStdString();
+  mesh = conn._readPath();
+  conn._readValue(armature);
+  conn._readVector(overlayMeshes);
 }
 
 Actor::Attachment::Attachment(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
-
-  std::string meshPath;
-  conn._readBuf(&bufSz, 4);
-  if (bufSz) {
-    meshPath.assign(bufSz, ' ');
-    conn._readBuf(&meshPath[0], bufSz);
-    SystemStringConv meshPathAbs(meshPath);
-
-    SystemString meshPathRel =
-        conn.getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(meshPathAbs.sys_str());
-    mesh.assign(conn.getBlendPath().getProject().getProjectWorkingPath(), meshPathRel);
-  }
-
-  conn._readBuf(&armature, 4);
+  name = conn._readStdString();
+  cskrId = conn._readStdString();
+  mesh = conn._readPath();
+  conn._readValue(armature);
 }
 
 Action::Action(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  name.assign(bufSz, ' ');
-  conn._readBuf(&name[0], bufSz);
-
-  conn._readBuf(&interval, 4);
-  conn._readBuf(&additive, 1);
-  conn._readBuf(&looping, 1);
-
-  uint32_t frameCount;
-  conn._readBuf(&frameCount, 4);
-  frames.reserve(frameCount);
-  for (uint32_t i = 0; i < frameCount; ++i) {
-    frames.emplace_back();
-    conn._readBuf(&frames.back(), 4);
-  }
-
-  uint32_t chanCount;
-  conn._readBuf(&chanCount, 4);
-  channels.reserve(chanCount);
-  for (uint32_t i = 0; i < chanCount; ++i)
-    channels.emplace_back(conn);
-
-  uint32_t aabbCount;
-  conn._readBuf(&aabbCount, 4);
-  subtypeAABBs.reserve(aabbCount);
-  for (uint32_t i = 0; i < aabbCount; ++i) {
-    subtypeAABBs.emplace_back(conn, conn);
-    // printf("AABB %s %d (%f %f %f) (%f %f %f)\n", name.c_str(), i,
-    //    float(subtypeAABBs.back().first.val.simd[0]), float(subtypeAABBs.back().first.val.simd[1]),
-    //    float(subtypeAABBs.back().first.val.simd[2]), float(subtypeAABBs.back().second.val.simd[0]),
-    //    float(subtypeAABBs.back().second.val.simd[1]), float(subtypeAABBs.back().second.val.simd[2]));
-  }
+  name = conn._readStdString();
+  animId = conn._readStdString();
+  conn._readValue(interval);
+  conn._readValue(additive);
+  conn._readValue(looping);
+  conn._readVector(frames);
+  conn._readVector(channels);
+  conn._readVectorFunc(subtypeAABBs, [&]() {
+    auto& p = subtypeAABBs.emplace_back();
+    p.first.read(conn);
+    p.second.read(conn);
+  });
 }
 
 Action::Channel::Channel(Connection& conn) {
-  uint32_t bufSz;
-  conn._readBuf(&bufSz, 4);
-  boneName.assign(bufSz, ' ');
-  conn._readBuf(&boneName[0], bufSz);
-
-  conn._readBuf(&attrMask, 4);
-
-  uint32_t keyCount;
-  conn._readBuf(&keyCount, 4);
-  keys.reserve(keyCount);
-  for (uint32_t i = 0; i < keyCount; ++i)
-    keys.emplace_back(conn, attrMask);
+  boneName = conn._readStdString();
+  conn._readValue(attrMask);
+  conn._readVector(keys, attrMask);
 }
 
 Action::Channel::Key::Key(Connection& conn, uint32_t attrMask) {
@@ -1483,19 +1281,13 @@ Action::Channel::Key::Key(Connection& conn, uint32_t attrMask) {
 DataStream::DataStream(Connection* parent) : m_parent(parent) {
   m_parent->m_dataStreamActive = true;
   m_parent->_writeStr("DATABEGIN");
-  char readBuf[16];
-  m_parent->_readStr(readBuf, 16);
-  if (strcmp(readBuf, "READY"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to open DataStream with blender"));
+  m_parent->_checkReady("unable to open DataStream with blender"sv);
 }
 
 void DataStream::close() {
   if (m_parent && m_parent->m_lock) {
     m_parent->_writeStr("DATAEND");
-    char readBuf[16];
-    m_parent->_readStr(readBuf, 16);
-    if (strcmp(readBuf, "DONE"))
-      BlenderLog.report(logvisor::Fatal, fmt("unable to close DataStream with blender"));
+    m_parent->_checkDone("unable to close DataStream with blender"sv);
     m_parent->m_dataStreamActive = false;
     m_parent->m_lock = false;
   }
@@ -1503,29 +1295,15 @@ void DataStream::close() {
 
 std::vector<std::string> DataStream::getMeshList() {
   m_parent->_writeStr("MESHLIST");
-  uint32_t count;
-  m_parent->_readBuf(&count, 4);
   std::vector<std::string> retval;
-  retval.reserve(count);
-  for (uint32_t i = 0; i < count; ++i) {
-    char name[128];
-    m_parent->_readStr(name, 128);
-    retval.push_back(name);
-  }
+  m_parent->_readVector(retval);
   return retval;
 }
 
 std::vector<std::string> DataStream::getLightList() {
   m_parent->_writeStr("LIGHTLIST");
-  uint32_t count;
-  m_parent->_readBuf(&count, 4);
   std::vector<std::string> retval;
-  retval.reserve(count);
-  for (uint32_t i = 0; i < count; ++i) {
-    char name[128];
-    m_parent->_readStr(name, 128);
-    retval.push_back(name);
-  }
+  m_parent->_readVector(retval);
   return retval;
 }
 
@@ -1535,10 +1313,7 @@ std::pair<atVec3f, atVec3f> DataStream::getMeshAABB() {
                       m_parent->m_loadedBlend.getAbsolutePath());
 
   m_parent->_writeStr("MESHAABB");
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable get AABB: {}"), readBuf);
+  m_parent->_checkOk("unable get AABB"sv);
 
   Vector3f minPt(*m_parent);
   Vector3f maxPt(*m_parent);
@@ -1556,11 +1331,7 @@ Mesh DataStream::compileMesh(HMDLTopology topology, int skinSlotCount) {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILE");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to cook mesh: {}"), readBuf);
+  m_parent->_checkOk("unable to cook mesh"sv);
 
   return Mesh(*m_parent, topology, skinSlotCount);
 }
@@ -1571,11 +1342,7 @@ Mesh DataStream::compileMesh(std::string_view name, HMDLTopology topology, int s
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("MESHCOMPILENAME {} {}"), name, int(useLuv)));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to cook mesh '{}': {}"), name, readBuf);
+  m_parent->_checkOk("unable to cook mesh"sv);
 
   return Mesh(*m_parent, topology, skinSlotCount, useLuv);
 }
@@ -1586,11 +1353,7 @@ ColMesh DataStream::compileColMesh(std::string_view name) {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("MESHCOMPILENAMECOLLISION {}"), name));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to cook collision mesh '{}': {}"), name, readBuf);
+  m_parent->_checkOk("unable to cook collision mesh"sv);
 
   return ColMesh(*m_parent);
 }
@@ -1601,21 +1364,10 @@ std::vector<ColMesh> DataStream::compileColMeshes() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILECOLLISIONALL");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to cook collision meshes: {}"), readBuf);
-
-  uint32_t meshCount;
-  m_parent->_readBuf(&meshCount, 4);
+  m_parent->_checkOk("unable to cook collision meshes"sv);
 
   std::vector<ColMesh> ret;
-  ret.reserve(meshCount);
-
-  for (uint32_t i = 0; i < meshCount; ++i)
-    ret.emplace_back(*m_parent);
-
+  m_parent->_readVector(ret);
   return ret;
 }
 
@@ -1625,21 +1377,10 @@ std::vector<Light> DataStream::compileLights() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("LIGHTCOMPILEALL");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to gather all lights: {}"), readBuf);
-
-  uint32_t lightCount;
-  m_parent->_readBuf(&lightCount, 4);
+  m_parent->_checkOk("unable to gather all lights"sv);
 
   std::vector<Light> ret;
-  ret.reserve(lightCount);
-
-  for (uint32_t i = 0; i < lightCount; ++i)
-    ret.emplace_back(*m_parent);
-
+  m_parent->_readVector(ret);
   return ret;
 }
 
@@ -1649,34 +1390,24 @@ PathMesh DataStream::compilePathMesh() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MESHCOMPILEPATH");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to path collision mesh: {}"), readBuf);
+  m_parent->_checkOk("unable to compile path mesh"sv);
 
   return PathMesh(*m_parent);
 }
 
 std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
-  std::vector<uint8_t> ret;
   if (m_parent->getBlendType() != BlendType::Frame)
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not a FRAME blend")),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("FRAMECOMPILE {}"), version));
-
-  char readBuf[1024];
-  m_parent->_readStr(readBuf, 1024);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile frame: {}"), readBuf);
+  m_parent->_checkOk("unable to compile frame"sv);
 
   while (true) {
-    m_parent->_readStr(readBuf, 1024);
-    if (!strcmp(readBuf, "FRAMEDONE"))
+    std::string readStr = m_parent->_readStdString();
+    if (readStr == "FRAMEDONE")
       break;
 
-    std::string readStr(readBuf);
     SystemStringConv absolute(readStr);
     auto& proj = m_parent->getBlendPath().getProject();
     SystemString relative;
@@ -1686,39 +1417,22 @@ std::vector<uint8_t> DataStream::compileGuiFrame(int version) {
       relative = proj.getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
     hecl::ProjectPath path(proj.getProjectWorkingPath(), relative);
 
-    m_parent->_writeStr(fmt::format(fmt("{:016X}"), path.hash().val64()));
+    m_parent->_writeStr(fmt::format(fmt("{:08X}"), path.parsedHash32()));
   }
 
-  uint32_t len;
-  m_parent->_readBuf(&len, 4);
-  ret.resize(len);
-  m_parent->_readBuf(&ret[0], len);
+  std::vector<uint8_t> ret;
+  m_parent->_readVector(ret);
   return ret;
 }
 
 std::vector<ProjectPath> DataStream::getTextures() {
   m_parent->_writeStr("GETTEXTURES");
+  m_parent->_checkOk("unable to get textures"sv);
 
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get textures: {}"), readBuf);
-
-  uint32_t texCount;
-  m_parent->_readBuf(&texCount, 4);
   std::vector<ProjectPath> texs;
-  texs.reserve(texCount);
-  for (uint32_t i = 0; i < texCount; ++i) {
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    std::string readStr(bufSz, ' ');
-    m_parent->_readBuf(&readStr[0], bufSz);
-    SystemStringConv absolute(readStr);
-
-    SystemString relative =
-        m_parent->getBlendPath().getProject().getProjectRootPath().getProjectRelativeFromAbsolute(absolute.sys_str());
-    texs.emplace_back(m_parent->getBlendPath().getProject().getProjectWorkingPath(), relative);
-  }
+  m_parent->_readVectorFunc(texs, [&]() {
+    texs.push_back(m_parent->_readPath());
+  });
 
   return texs;
 }
@@ -1729,11 +1443,7 @@ Actor DataStream::compileActor() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILE");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile actor: {}"), readBuf);
+  m_parent->_checkOk("unable to compile actor"sv);
 
   return Actor(*m_parent);
 }
@@ -1744,13 +1454,20 @@ Actor DataStream::compileActorCharacterOnly() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("ACTORCOMPILECHARACTERONLY");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile actor: {}"), readBuf);
+  m_parent->_checkOk("unable to compile actor"sv);
 
   return Actor(*m_parent);
+}
+
+Armature DataStream::compileArmature() {
+  if (m_parent->getBlendType() != BlendType::Armature)
+    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ARMATURE blend")),
+                      m_parent->getBlendPath().getAbsolutePath());
+
+  m_parent->_writeStr("ARMATURECOMPILE");
+  m_parent->_checkOk("unable to compile armature"sv);
+
+  return Armature(*m_parent);
 }
 
 Action DataStream::compileActionChannelsOnly(std::string_view name) {
@@ -1759,11 +1476,7 @@ Action DataStream::compileActionChannelsOnly(std::string_view name) {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("ACTIONCOMPILECHANNELSONLY {}"), name));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile action: {}"), readBuf);
+  m_parent->_checkOk("unable to compile action"sv);
 
   return Action(*m_parent);
 }
@@ -1774,151 +1487,79 @@ World DataStream::compileWorld() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("WORLDCOMPILE");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile world: {}"), readBuf);
+  m_parent->_checkOk("unable to compile world"sv);
 
   return World(*m_parent);
 }
 
-std::vector<std::string> DataStream::getArmatureNames() {
-  if (m_parent->getBlendType() != BlendType::Actor)
-    BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
-                      m_parent->getBlendPath().getAbsolutePath());
-
-  m_parent->_writeStr("GETARMATURENAMES");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get armatures of actor: {}"), readBuf);
-
-  std::vector<std::string> ret;
-
-  uint32_t armCount;
-  m_parent->_readBuf(&armCount, 4);
-  ret.reserve(armCount);
-  for (uint32_t i = 0; i < armCount; ++i) {
-    std::string& name = ret.emplace_back();
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(name.data(), name.size());
-  }
-
-  return ret;
-}
-
-std::vector<std::string> DataStream::getSubtypeNames() {
+std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETSUBTYPENAMES");
+  m_parent->_checkOk("unable to get subtypes of actor"sv);
 
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get subtypes of actor: {}"), readBuf);
-
-  std::vector<std::string> ret;
-
-  uint32_t subCount;
-  m_parent->_readBuf(&subCount, 4);
-  ret.reserve(subCount);
-  for (uint32_t i = 0; i < subCount; ++i) {
-    std::string& name = ret.emplace_back();
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(name.data(), name.size());
-  }
+  std::vector<std::pair<std::string, std::string>> ret;
+  m_parent->_readVectorFunc(ret, [&]() {
+    auto& [name, cskrId] = ret.emplace_back();
+    name = m_parent->_readStdString();
+    cskrId = m_parent->_readStdString();
+  });
 
   return ret;
 }
 
-std::vector<std::string> DataStream::getActionNames() {
+std::vector<std::pair<std::string, std::string>> DataStream::getActionNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETACTIONNAMES");
+  m_parent->_checkOk("unable to get actions of actor"sv);
 
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get actions of actor: {}"), readBuf);
-
-  std::vector<std::string> ret;
-
-  uint32_t actCount;
-  m_parent->_readBuf(&actCount, 4);
-  ret.reserve(actCount);
-  for (uint32_t i = 0; i < actCount; ++i) {
-    std::string& name = ret.emplace_back();
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(name.data(), name.size());
-  }
+  std::vector<std::pair<std::string, std::string>> ret;
+  m_parent->_readVectorFunc(ret, [&]() {
+    auto& [name, animId] = ret.emplace_back();
+    name = m_parent->_readStdString();
+    animId = m_parent->_readStdString();
+  });
 
   return ret;
 }
 
-std::vector<std::string> DataStream::getSubtypeOverlayNames(std::string_view name) {
+std::vector<std::pair<std::string, std::string>> DataStream::getSubtypeOverlayNames(std::string_view name) {
   if (m_parent->getBlendType() != BlendType::Actor)
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("GETSUBTYPEOVERLAYNAMES {}"), name));
+  m_parent->_checkOk("unable to get subtype overlays of actor"sv);
 
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get subtype overlays of actor: {}"), readBuf);
-
-  std::vector<std::string> ret;
-
-  uint32_t subCount;
-  m_parent->_readBuf(&subCount, 4);
-  ret.reserve(subCount);
-  for (uint32_t i = 0; i < subCount; ++i) {
-    std::string& subtypeName = ret.emplace_back();
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    subtypeName.assign(bufSz, ' ');
-    m_parent->_readBuf(subtypeName.data(), subtypeName.size());
-  }
+  std::vector<std::pair<std::string, std::string>> ret;
+  m_parent->_readVectorFunc(ret, [&]() {
+    auto& [subtypeName, cskrId] = ret.emplace_back();
+    subtypeName = m_parent->_readStdString();
+    cskrId = m_parent->_readStdString();
+  });
 
   return ret;
 }
 
-std::vector<std::string> DataStream::getAttachmentNames() {
+std::vector<std::pair<std::string, std::string>> DataStream::getAttachmentNames() {
   if (m_parent->getBlendType() != BlendType::Actor)
     BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("{} is not an ACTOR blend")),
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("GETATTACHMENTNAMES");
+  m_parent->_checkOk("unable to get attachments of actor"sv);
 
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get attachments of actor: {}"), readBuf);
-
-  std::vector<std::string> ret;
-
-  uint32_t attCount;
-  m_parent->_readBuf(&attCount, 4);
-  ret.reserve(attCount);
-  for (uint32_t i = 0; i < attCount; ++i) {
-    std::string& name = ret.emplace_back();
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    name.assign(bufSz, ' ');
-    m_parent->_readBuf(name.data(), name.size());
-  }
+  std::vector<std::pair<std::string, std::string>> ret;
+  m_parent->_readVectorFunc(ret, [&]() {
+    auto& [name, cskrId] = ret.emplace_back();
+    name = m_parent->_readStdString();
+    cskrId = m_parent->_readStdString();
+  });
 
   return ret;
 }
@@ -1932,31 +1573,24 @@ std::unordered_map<std::string, Matrix3f> DataStream::getBoneMatrices(std::strin
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("GETBONEMATRICES {}"), name));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to get matrices of armature: {}"), readBuf);
+  m_parent->_checkOk("unable to get matrices of armature"sv);
 
   std::unordered_map<std::string, Matrix3f> ret;
 
   uint32_t boneCount;
-  m_parent->_readBuf(&boneCount, 4);
+  m_parent->_readValue(boneCount);
   ret.reserve(boneCount);
   for (uint32_t i = 0; i < boneCount; ++i) {
-    uint32_t bufSz;
-    m_parent->_readBuf(&bufSz, 4);
-    std::string mat_name(bufSz, ' ');
-    m_parent->_readBuf(mat_name.data(), bufSz);
+    std::string mat_name = m_parent->_readStdString();
 
     Matrix3f matOut;
     for (int mat_i = 0; mat_i < 3; ++mat_i) {
       for (int mat_j = 0; mat_j < 3; ++mat_j) {
         float val;
-        m_parent->_readBuf(&val, 4);
+        m_parent->_readValue(val);
         matOut[mat_i].simd[mat_j] = val;
       }
-      reinterpret_cast<atVec4f&>(matOut[mat_i]).simd[3] = 0.f;
+      matOut[mat_i].simd[3] = 0.f;
     }
 
     ret.emplace(std::move(mat_name), std::move(matOut));
@@ -1975,12 +1609,7 @@ bool DataStream::renderPvs(std::string_view path, const atVec3f& location) {
 
   athena::simd_floats f(location.simd);
   m_parent->_writeStr(fmt::format(fmt("RENDERPVS {} {} {} {}"), path, f[0], f[1], f[2]));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to render PVS for: {}; {}"),
-                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
+  m_parent->_checkOk("unable to render PVS"sv);
 
   return true;
 }
@@ -1994,12 +1623,7 @@ bool DataStream::renderPvsLight(std::string_view path, std::string_view lightNam
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr(fmt::format(fmt("RENDERPVSLIGHT {} {}"), path, lightName));
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to render PVS light {} for: {}; {}"), lightName,
-                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
+  m_parent->_checkOk("unable to render PVS light"sv);
 
   return true;
 }
@@ -2010,12 +1634,7 @@ MapArea DataStream::compileMapArea() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPAREACOMPILE");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile map area: {}; {}"),
-                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
+  m_parent->_checkOk("unable to compile map area"sv);
 
   return {*m_parent};
 }
@@ -2026,12 +1645,7 @@ MapUniverse DataStream::compileMapUniverse() {
                       m_parent->getBlendPath().getAbsolutePath());
 
   m_parent->_writeStr("MAPUNIVERSECOMPILE");
-
-  char readBuf[256];
-  m_parent->_readStr(readBuf, 256);
-  if (strcmp(readBuf, "OK"))
-    BlenderLog.report(logvisor::Fatal, fmt("unable to compile map universe: {}; {}"),
-                      m_parent->getBlendPath().getAbsolutePathUTF8(), readBuf);
+  m_parent->_checkOk("unable to compile map universe"sv);
 
   return {*m_parent};
 }
@@ -2052,6 +1666,9 @@ void Connection::quitBlender() {
   }
   _writeStr("QUIT");
   _readStr(lineBuf, sizeof(lineBuf));
+#ifndef _WIN32
+  waitpid(m_blenderProc, nullptr, 0);
+#endif
 }
 
 Connection& Connection::SharedConnection() { return SharedBlenderToken.getBlenderConnection(); }

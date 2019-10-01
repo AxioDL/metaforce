@@ -72,12 +72,12 @@ inline void DNAFourCC::Enumerate<BigDNA::Write>(Write::StreamT& w) {
 }
 template <>
 inline void DNAFourCC::Enumerate<BigDNA::ReadYaml>(ReadYaml::StreamT& r) {
-  const std::string rs = r.readString(nullptr);
+  const std::string rs = r.readString();
   rs.copy(fcc, std::size(fcc));
 }
 template <>
 inline void DNAFourCC::Enumerate<BigDNA::WriteYaml>(WriteYaml::StreamT& w) {
-  w.writeString(nullptr, std::string_view{fcc, std::size(fcc)});
+  w.writeString(std::string_view{fcc, std::size(fcc)});
 }
 template <>
 inline void DNAFourCC::Enumerate<BigDNA::BinarySize>(BinarySize::StreamT& s) {

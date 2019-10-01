@@ -81,7 +81,8 @@ class PyOutStream : public std::ostream {
     StreamBuf(PyOutStream& parent, bool deleteOnError) : m_parent(parent), m_deleteOnError(deleteOnError) {}
     StreamBuf(const StreamBuf& other) = delete;
     StreamBuf(StreamBuf&& other) = default;
-    int_type overflow(int_type ch) override;
+    bool sendLine(std::string_view line);
+    std::streamsize xsputn(const char_type* __s, std::streamsize __n) override;
   } m_sbuf;
   PyOutStream(Connection* parent, bool deleteOnError);
 
@@ -94,8 +95,10 @@ public:
   void close();
   template <typename S, typename... Args, typename Char = fmt::char_t<S>>
   void format(const S& format, Args&&... args);
-  void linkBlend(const char* target, const char* objName, bool link = true);
-  void linkBackground(const char* target, const char* sceneName = nullptr);
+  void linkBlend(std::string_view target, std::string_view objName, bool link = true);
+  void linkArmature(std::string_view target, std::string_view armName);
+  void linkMesh(std::string_view target, std::string_view meshName);
+  void linkBackground(std::string_view target, std::string_view sceneName = {});
   void AABBToBMesh(const atVec3f& min, const atVec3f& max);
   void centerView();
 
@@ -498,15 +501,15 @@ struct Light {
 
 /** Intermediate MapArea representation */
 struct MapArea {
-  Index visType;
+  uint32_t visType;
   std::vector<Vector3f> verts;
-  std::vector<Index> indices;
+  std::vector<uint32_t> indices;
   struct Surface {
     Vector3f normal;
     Vector3f centerOfMass;
-    Index start;
-    Index count;
-    std::vector<std::pair<Index, Index>> borders;
+    uint32_t start;
+    uint32_t count;
+    std::vector<std::pair<uint32_t, uint32_t>> borders;
     Surface(Connection& conn);
   };
   std::vector<Surface> surfaces;
@@ -547,7 +550,6 @@ struct Bone {
 
 /** Intermediate armature representation used in Actor */
 struct Armature {
-  std::string name;
   std::vector<Bone> bones;
   const Bone* lookupBone(const char* name) const;
   const Bone* getParent(const Bone* bone) const;
@@ -559,6 +561,7 @@ struct Armature {
 /** Intermediate action representation used in Actor */
 struct Action {
   std::string name;
+  std::string animId;
   float interval;
   bool additive;
   bool looping;
@@ -582,18 +585,32 @@ struct Action {
 
 /** Intermediate actor representation prepared by blender from a single HECL actor blend */
 struct Actor {
-  std::vector<Armature> armatures;
+  struct ActorArmature {
+    std::string name;
+    ProjectPath path;
+    std::optional<Armature> armature;
+    ActorArmature(Connection& conn);
+  };
+  std::vector<ActorArmature> armatures;
 
   struct Subtype {
     std::string name;
+    std::string cskrId;
     ProjectPath mesh;
     int32_t armature = -1;
-    std::vector<std::pair<std::string, ProjectPath>> overlayMeshes;
+    struct OverlayMesh {
+      std::string name;
+      std::string cskrId;
+      ProjectPath mesh;
+      OverlayMesh(Connection& conn);
+    };
+    std::vector<OverlayMesh> overlayMeshes;
     Subtype(Connection& conn);
   };
   std::vector<Subtype> subtypes;
   struct Attachment {
     std::string name;
+    std::string cskrId;
     ProjectPath mesh;
     int32_t armature = -1;
     Attachment(Connection& conn);
@@ -654,12 +671,12 @@ public:
 
   Actor compileActor();
   Actor compileActorCharacterOnly();
+  Armature compileArmature();
   Action compileActionChannelsOnly(std::string_view name);
-  std::vector<std::string> getArmatureNames();
-  std::vector<std::string> getSubtypeNames();
-  std::vector<std::string> getActionNames();
-  std::vector<std::string> getSubtypeOverlayNames(std::string_view name);
-  std::vector<std::string> getAttachmentNames();
+  std::vector<std::pair<std::string, std::string>> getSubtypeNames();
+  std::vector<std::pair<std::string, std::string>> getActionNames();
+  std::vector<std::pair<std::string, std::string>> getSubtypeOverlayNames(std::string_view name);
+  std::vector<std::pair<std::string, std::string>> getAttachmentNames();
 
   std::unordered_map<std::string, Matrix3f> getBoneMatrices(std::string_view name);
 
@@ -695,6 +712,7 @@ class Connection {
   friend struct Vector3f;
   friend struct Vector4f;
   friend struct World;
+  friend class MeshOptimizer;
 
   std::atomic_bool m_lock = {false};
   bool m_pyStreamActive = false;
@@ -718,6 +736,80 @@ class Connection {
   uint32_t _writeStr(std::string_view view) { return _writeStr(view.data(), view.size()); }
   size_t _readBuf(void* buf, size_t len);
   size_t _writeBuf(const void* buf, size_t len);
+  std::string _readStdString() {
+    uint32_t bufSz;
+    _readBuf(&bufSz, 4);
+    std::string ret(bufSz, ' ');
+    _readBuf(&ret[0], bufSz);
+    return ret;
+  }
+  template<typename T, std::enable_if_t<std::disjunction_v<std::is_arithmetic<T>, std::is_enum<T>>, int> = 0>
+  void _readValue(T& v) { _readBuf(&v, sizeof(T)); }
+  template<typename T>
+  void _readItems(T enumerator) {
+    uint32_t nItems;
+    _readBuf(&nItems, 4);
+    for (uint32_t i = 0; i < nItems; ++i)
+      enumerator(*this);
+  }
+  template<typename T, typename... Args, std::enable_if_t<
+      !std::disjunction_v<std::is_arithmetic<T>, std::is_enum<T>, std::is_same<T, std::string>>, int> = 0>
+  void _readVector(std::vector<T>& container, Args&&... args) {
+    uint32_t nItems;
+    _readBuf(&nItems, 4);
+    container.clear();
+    container.reserve(nItems);
+    for (uint32_t i = 0; i < nItems; ++i)
+      container.emplace_back(*this, std::forward<Args>(args)...);
+  }
+  template<typename T, std::enable_if_t<std::disjunction_v<std::is_arithmetic<T>, std::is_enum<T>>, int> = 0>
+  void _readVector(std::vector<T>& container) {
+    uint32_t nItems;
+    _readBuf(&nItems, 4);
+    container.clear();
+    container.resize(nItems);
+    _readBuf(&container[0], sizeof(T) * nItems);
+  }
+  void _readVector(std::vector<std::string>& container) {
+    uint32_t nItems;
+    _readBuf(&nItems, 4);
+    container.clear();
+    container.reserve(nItems);
+    for (uint32_t i = 0; i < nItems; ++i) {
+      uint32_t strSize;
+      _readBuf(&strSize, 4);
+      _readBuf(&container.emplace_back(strSize, ' ')[0], strSize);
+    }
+  }
+  template<typename T, typename F>
+  void _readVectorFunc(std::vector<T>& container, F func) {
+    uint32_t nItems;
+    _readBuf(&nItems, 4);
+    container.clear();
+    container.reserve(nItems);
+    for (uint32_t i = 0; i < nItems; ++i)
+      func();
+  }
+  ProjectPath _readPath();
+  bool _isStatus(const char* status) {
+    char readBuf[16];
+    _readStr(readBuf, 16);
+    return std::strcmp(readBuf, status) == 0;
+  }
+  bool _isOk() { return _isStatus("OK"); }
+  bool _isFinished() { return _isStatus("FINISHED"); }
+  bool _isTrue() { return _isStatus("TRUE"); }
+  void _checkStatus(std::string_view action, std::string_view status) {
+    char readBuf[16];
+    _readStr(readBuf, 16);
+    if (status != readBuf)
+      BlenderLog.report(logvisor::Fatal, fmt("{}: {}: {}"), m_loadedBlend.getRelativePathUTF8(), action, readBuf);
+  }
+  void _checkReady(std::string_view action) { _checkStatus(action, "READY"sv); }
+  void _checkDone(std::string_view action) { _checkStatus(action, "DONE"sv); }
+  void _checkOk(std::string_view action) { _checkStatus(action, "OK"sv); }
+  void _checkAnimReady(std::string_view action) { _checkStatus(action, "ANIMREADY"sv); }
+  void _checkAnimDone(std::string_view action) { _checkStatus(action, "ANIMDONE"sv); }
   void _closePipe();
   void _blenderDied();
 
@@ -764,8 +856,7 @@ public:
 };
 
 template <typename S, typename... Args, typename Char>
-void PyOutStream::format(const S& format, Args&&... args)
-{
+void PyOutStream::format(const S& format, Args&&... args) {
   if (!m_parent || !m_parent->m_lock)
     BlenderLog.report(logvisor::Fatal, fmt("lock not held for PyOutStream::format()"));
   fmt::print(*this, format, std::forward<Args>(args)...);

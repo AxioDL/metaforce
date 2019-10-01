@@ -26,7 +26,7 @@ public:
       for (const hecl::SystemString& arg : info.args) {
         if (arg.empty())
           continue;
-        else if (!arg.compare(_SYS_STR("--fast"))) {
+        else if (arg == _SYS_STR("--fast")) {
           m_fast = true;
           continue;
         } else if (arg.size() >= 8 && !arg.compare(0, 7, _SYS_STR("--spec="))) {

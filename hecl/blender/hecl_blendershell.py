@@ -55,17 +55,7 @@ class PathHasher:
     def hashpath32(self, path):
         writepipestr(path.encode())
         read_str = readpipestr()
-        if len(read_str) >= 16:
-            hash = int(read_str[0:16], 16)
-            return (hash & 0xffffffff) ^ ((hash >> 32) & 0xffffffff)
-        return 0
-
-    def hashpath64(self, path):
-        writepipestr(path.encode())
-        read_str = readpipestr()
-        if len(read_str) >= 16:
-            return int(read_str[0:16], 16)
-        return 0
+        return int(read_str[0:8], 16)
 
 # Ensure Blender 2.8 is being used
 if bpy.app.version < (2, 80, 0):
@@ -226,21 +216,21 @@ def dataout_loop():
         elif cmdargs[0] == 'MESHLIST':
             meshCount = 0
             for meshobj in bpy.data.objects:
-                if meshobj.type == 'MESH' and not meshobj.library:
+                if meshobj.type == 'MESH' and not meshobj.data.library:
                     meshCount += 1
             writepipebuf(struct.pack('I', meshCount))
             for meshobj in bpy.data.objects:
-                if meshobj.type == 'MESH' and not meshobj.library:
+                if meshobj.type == 'MESH' and not meshobj.data.library:
                     writepipestr(meshobj.name.encode())
 
         elif cmdargs[0] == 'LIGHTLIST':
             lightCount = 0
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LIGHT' and not obj.library:
+                if obj.type == 'LIGHT' and not obj.data.library:
                     lightCount += 1
             writepipebuf(struct.pack('I', lightCount))
             for obj in bpy.context.scene.objects:
-                if obj.type == 'LIGHT' and not obj.library:
+                if obj.type == 'LIGHT' and not obj.data.library:
                     writepipestr(obj.name.encode())
 
         elif cmdargs[0] == 'MESHAABB':
@@ -255,6 +245,15 @@ def dataout_loop():
 
             writepipestr(b'OK')
             hecl.hmdl.cook(writepipebuf, bpy.data.objects[meshName])
+
+        elif cmdargs[0] == 'ARMATURECOMPILE':
+            armName = bpy.context.scene.hecl_arm_obj
+            if armName not in bpy.data.objects:
+                writepipestr(('armature %s not found' % armName).encode())
+                continue
+
+            writepipestr(b'OK')
+            hecl.armature.cook(writepipebuf, bpy.data.objects[armName].data)
 
         elif cmdargs[0] == 'MESHCOMPILENAME':
             meshName = cmdargs[1]
@@ -281,13 +280,13 @@ def dataout_loop():
             writepipestr(b'OK')
             colCount = 0
             for obj in bpy.context.scene.objects:
-                if obj.type == 'MESH' and not obj.library:
+                if obj.type == 'MESH' and not obj.data.library:
                     colCount += 1
 
             writepipebuf(struct.pack('I', colCount))
 
             for obj in bpy.context.scene.objects:
-                if obj.type == 'MESH' and not obj.library:
+                if obj.type == 'MESH' and not obj.data.library:
                     hecl.hmdl.cookcol(writepipebuf, obj)
 
         elif cmdargs[0] == 'MESHCOMPILEPATH':
@@ -383,10 +382,6 @@ def dataout_loop():
             actionName = cmdargs[1]
             writepipestr(b'OK')
             hecl.sact.cook_action_channels_only(writepipebuf, actionName)
-
-        elif cmdargs[0] == 'GETARMATURENAMES':
-            writepipestr(b'OK')
-            hecl.sact.get_armature_names(writepipebuf)
 
         elif cmdargs[0] == 'GETSUBTYPENAMES':
             writepipestr(b'OK')

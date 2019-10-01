@@ -19,9 +19,9 @@ public:
     hecl::SystemString firstArg = info.args.front();
     hecl::ToLower(firstArg);
 
-    if (!firstArg.compare(_SYS_STR("enable")))
+    if (firstArg == _SYS_STR("enable"))
       mode = MENABLE;
-    else if (!firstArg.compare(_SYS_STR("disable")))
+    else if (firstArg == _SYS_STR("disable"))
       mode = MDISABLE;
     else
       return;
@@ -112,7 +112,7 @@ public:
       for (auto& spec : specs) {
         hecl::SystemString compName(spec.spec.m_name);
         hecl::ToLower(compName);
-        if (!itName.compare(compName)) {
+        if (itName == compName) {
           opSpecs.emplace_back(spec.spec.m_name);
           break;
         }

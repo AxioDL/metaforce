@@ -1,6 +1,12 @@
 import struct, bpy, bmesh
 from . import HMDLShader, HMDLMesh
 
+BLEND_TYPES = {
+    'HECLAdditiveOutput': 2,
+    'HECLBlendOutput': 1,
+    'HECLOpaqueOutput': 0,
+}
+
 def write_out_material(writebuf, mat, mesh_obj):
     writebuf(struct.pack('I', len(mat.name)))
     writebuf(mat.name.encode())
@@ -20,12 +26,10 @@ def write_out_material(writebuf, mat, mesh_obj):
             writebuf(prop[0].encode())
             writebuf(struct.pack('i', prop[1]))
 
-    blend = 0
-    if mat.blend_method == 'BLEND':
-        blend = 1
-    elif mat.blend_method == 'ADD':
-        blend = 2
-    writebuf(struct.pack('I', blend))
+    blend_node = mat.node_tree.nodes['Blend']
+    if blend_node.node_tree.name not in BLEND_TYPES:
+        raise RuntimeError("HMDL *requires* one of the HMDL*Output group nodes for the 'Blend' node")
+    writebuf(struct.pack('I', BLEND_TYPES[blend_node.node_tree.name]))
 
 # Takes a Blender 'Mesh' object (not the datablock)
 # and performs a one-shot conversion process to HMDL
@@ -256,6 +260,7 @@ def draw(layout, context):
         obj = context.scene.objects[context.scene.hecl_mesh_obj]
         if obj.type != 'MESH':
             layout.label(text="'"+context.scene.hecl_mesh_obj+"' not a 'MESH'", icon='ERROR')
+        layout.prop(obj.data, 'cskr_id')
         layout.prop(obj.data, 'hecl_active_material')
         layout.prop(obj.data, 'hecl_material_count')
 
@@ -297,6 +302,7 @@ def register():
     bpy.types.Scene.hecl_actor_obj = bpy.props.StringProperty(
         name='HECL Actor Object',
         description='Blender Empty Object to export during HECL\'s cook process')
+    bpy.types.Mesh.cskr_id = bpy.props.StringProperty(name='Original CSKR ID')
     bpy.types.Mesh.hecl_material_count = bpy.props.IntProperty(name='HECL Material Count', default=0, min=0)
     bpy.types.Mesh.hecl_active_material = bpy.props.IntProperty(name='HECL Active Material', default=0, min=0, update=material_update)
     bpy.utils.register_class(hecl_mesh_operator)

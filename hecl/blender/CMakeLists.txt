@@ -10,6 +10,7 @@ list(APPEND PY_SOURCES
      hecl/sact/SACTSubtype.py
      hecl/srea/__init__.py
      hecl/swld/__init__.py
+     hecl/armature.py
      hecl/mapa.py
      hecl/mapu.py
      hecl/frme.py

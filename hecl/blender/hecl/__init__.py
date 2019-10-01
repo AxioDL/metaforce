@@ -9,7 +9,7 @@ bl_info = {
     "category": "System"}
 
 # Package import
-from . import hmdl, sact, srea, swld, mapa, mapu, frme, path, Nodegrid, Patching
+from . import hmdl, sact, srea, swld, armature, mapa, mapu, frme, path, Nodegrid, Patching
 Nodegrid = Nodegrid.Nodegrid
 parent_armature = sact.SACTSubtype.parent_armature
 import bpy, os, sys, struct, math
@@ -20,6 +20,7 @@ hecl_typeS = [
 ('NONE', "None", "Active scene not using HECL", None),
 ('MESH', "Mesh", "Active scene represents an HMDL Mesh", hmdl.draw),
 ('CMESH', "Collision Mesh", "Active scene represents a Collision Mesh", None),
+('ARMATURE', "Armature", "Active scene represents an Armature", armature.draw),
 ('ACTOR', "Actor", "Active scene represents a HECL Actor", sact.draw),
 ('AREA', "Area", "Active scene represents a HECL Area", srea.draw),
 ('WORLD', "World", "Active scene represents a HECL World", swld.draw),
@@ -141,9 +142,10 @@ from bpy.app.handlers import persistent
 @persistent
 def scene_loaded(dummy):
     # Hide everything from an external library
-    for o in bpy.context.scene.objects:
-        if o.library:
-            o.hide_set(True)
+    if bpy.context.scene.hecl_type != 'FRAME':
+        for o in bpy.context.scene.objects:
+            if o.library or (o.data and o.data.library):
+                o.hide_set(True)
 
     # Show PATH library objects as wireframes
     if bpy.context.scene.hecl_type == 'PATH':
@@ -208,6 +210,7 @@ def register():
     mapa.register()
     mapu.register()
     path.register()
+    armature.register()
     bpy.utils.register_class(hecl_scene_panel)
     bpy.utils.register_class(hecl_light_panel)
     bpy.types.Scene.hecl_auto_select = bpy.props.BoolProperty(name='HECL Auto Select', default=True)

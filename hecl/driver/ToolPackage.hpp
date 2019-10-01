@@ -20,15 +20,10 @@ class ToolPackage final : public ToolBase {
   }
 
   void CheckFile(const hecl::ProjectPath& path) {
-    if (!hecl::StrCmp(path.getLastComponent().data(), _SYS_STR("!world.blend")))
+    auto lastComp = path.getLastComponent();
+    if (hecl::StringUtils::BeginsWith(lastComp, _SYS_STR("!world_")) &&
+        hecl::StringUtils::EndsWith(lastComp, _SYS_STR(".blend")))
       AddSelectedItem(path);
-#if RUNTIME_ORIGINAL_IDS
-    else if (!hecl::StrCmp(path.getLastComponent().data(), _SYS_STR("!original_ids.yaml"))) {
-      auto pathComps = path.getPathComponents();
-      if (pathComps.size() == 2 && pathComps[0] != _SYS_STR("out"))
-        AddSelectedItem(path);
-    }
-#endif
   }
 
   void FindSelectedItems(const hecl::ProjectPath& path, bool checkGeneral) {
@@ -70,7 +65,7 @@ public:
       for (const hecl::SystemString& arg : info.args) {
         if (arg.empty())
           continue;
-        else if (!arg.compare(_SYS_STR("--fast"))) {
+        else if (arg == _SYS_STR("--fast")) {
           m_fast = true;
           continue;
         } else if (arg.size() >= 8 && !arg.compare(0, 7, _SYS_STR("--spec="))) {

@@ -29,7 +29,7 @@ const SDNABlock::SDNAStruct::SDNAField* SDNABlock::SDNAStruct::lookupField(const
     if (bracket != std::string::npos) {
       if (!name.compare(0, bracket, n))
         return &field;
-    } else if (!name.compare(n))
+    } else if (name == n)
       return &field;
   }
   return nullptr;
@@ -39,7 +39,7 @@ const SDNABlock::SDNAStruct* SDNABlock::lookupStruct(const char* n, atUint32& id
   idx = 0;
   for (const SDNAStruct& strc : strcs) {
     const auto& name = types[strc.type];
-    if (!name.compare(n))
+    if (name == n)
       return &strc;
     ++idx;
   }

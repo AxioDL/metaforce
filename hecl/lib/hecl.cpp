@@ -30,11 +30,13 @@
 
 #include <logvisor/logvisor.hpp>
 
+using namespace std::literals;
+
 namespace hecl {
 unsigned VerbosityLevel = 0;
 bool GuiMode = false;
 logvisor::Module LogModule("hecl");
-constexpr std::string_view Illegals{"<>?\""};
+constexpr std::string_view Illegals = "<>?\""sv;
 
 void SanitizePath(std::string& path) {
   if (path.empty())
@@ -64,7 +66,7 @@ void SanitizePath(std::string& path) {
     path.pop_back();
 }
 
-constexpr std::wstring_view WIllegals{L"<>?\""};
+constexpr std::wstring_view WIllegals = L"<>?\""sv;
 
 void SanitizePath(std::wstring& path) {
   if (path.empty())
@@ -174,9 +176,8 @@ bool IsPathPNG(const hecl::ProjectPath& path) {
 
 bool IsPathBlend(const hecl::ProjectPath& path) {
   const auto lastCompExt = path.getLastComponentExt();
-  if (lastCompExt.empty() || hecl::StrCmp(lastCompExt.data(), _SYS_STR("blend"))) {
+  if (lastCompExt.empty() || lastCompExt != _SYS_STR("blend"))
     return false;
-  }
 
   const auto fp = hecl::FopenUnique(path.getAbsolutePath().data(), _SYS_STR("rb"));
   if (fp == nullptr) {
@@ -193,14 +194,15 @@ bool IsPathBlend(const hecl::ProjectPath& path) {
 }
 
 bool IsPathYAML(const hecl::ProjectPath& path) {
-  if (!hecl::StrCmp(path.getLastComponent().data(), _SYS_STR("!catalog.yaml")))
-    return false; /* !catalog.yaml is exempt from general use */
+  auto lastComp = path.getLastComponent();
+  if (lastComp == _SYS_STR("!catalog.yaml") ||
+      lastComp == _SYS_STR("!memoryid.yaml") ||
+      lastComp == _SYS_STR("!memoryrelays.yaml"))
+    return false; /* !catalog.yaml, !memoryid.yaml, !memoryrelays.yaml are exempt from general use */
   auto lastCompExt = path.getLastComponentExt();
   if (lastCompExt.empty())
     return false;
-  if (!hecl::StrCmp(lastCompExt.data(), _SYS_STR("yaml")) || !hecl::StrCmp(lastCompExt.data(), _SYS_STR("yml")))
-    return true;
-  return false;
+  return lastCompExt == _SYS_STR("yaml") || lastCompExt == _SYS_STR("yml");
 }
 
 hecl::DirectoryEnumerator::DirectoryEnumerator(SystemStringView path, Mode mode, bool sizeSort, bool reverse,

@@ -43,10 +43,11 @@ static bool material_is_lightmapped(const Material& mat) {
 
 MeshOptimizer::Vertex::Vertex(Connection& conn) {
   co.read(conn);
-  Index skin_count(conn);
-  if (skin_count.val > MaxSkinEntries)
-    Log.report(logvisor::Fatal, fmt("Skin entry overflow {}/{}"), skin_count.val, MaxSkinEntries);
-  for (uint32_t i = 0; i < skin_count.val; ++i)
+  uint32_t skin_count;
+  conn._readValue(skin_count);
+  if (skin_count > MaxSkinEntries)
+    Log.report(logvisor::Fatal, fmt("Skin entry overflow {}/{}"), skin_count, MaxSkinEntries);
+  for (uint32_t i = 0; i < skin_count; ++i)
     skin_ents[i] = Mesh::SkinBind(conn);
 }
 
@@ -56,32 +57,33 @@ MeshOptimizer::Loop::Loop(Connection& conn, uint32_t color_count, uint32_t uv_co
     colors[i].read(conn);
   for (uint32_t i = 0; i < uv_count; ++i)
     uvs[i].read(conn);
-  vert = Index(conn).val;
-  edge = Index(conn).val;
-  face = Index(conn).val;
-  link_loop_next = Index(conn).val;
-  link_loop_prev = Index(conn).val;
-  link_loop_radial_next = Index(conn).val;
-  link_loop_radial_prev = Index(conn).val;
+  conn._readValue(vert);
+  conn._readValue(edge);
+  conn._readValue(face);
+  conn._readValue(link_loop_next);
+  conn._readValue(link_loop_prev);
+  conn._readValue(link_loop_radial_next);
+  conn._readValue(link_loop_radial_prev);
 }
 
 MeshOptimizer::Edge::Edge(Connection& conn) {
   for (uint32_t i = 0; i < 2; ++i)
-    verts[i] = Index(conn).val;
-  Index face_count(conn);
+    conn._readValue(verts[i]);
+  uint32_t face_count;
+  conn._readValue(face_count);
   if (face_count > MaxLinkFaces)
-    Log.report(logvisor::Fatal, fmt("Face overflow {}/{}"), face_count.val, MaxLinkFaces);
-  for (uint32_t i = 0; i < face_count.val; ++i)
-    link_faces[i] = Index(conn).val;
-  is_contiguous = Boolean(conn).val;
+    Log.report(logvisor::Fatal, fmt("Face overflow {}/{}"), face_count, MaxLinkFaces);
+  for (uint32_t i = 0; i < face_count; ++i)
+    conn._readValue(link_faces[i]);
+  conn._readValue(is_contiguous);
 }
 
 MeshOptimizer::Face::Face(Connection& conn) {
   normal.read(conn);
   centroid.read(conn);
-  material_index = Index(conn).val;
+  conn._readValue(material_index);
   for (uint32_t i = 0; i < 3; ++i)
-    loops[i] = Index(conn).val;
+    conn._readValue(loops[i]);
 }
 
 uint32_t MeshOptimizer::get_pos_idx(const Vertex& v) const {
@@ -376,36 +378,38 @@ void MeshOptimizer::optimize(Mesh& mesh, int max_skin_banks) const {
 
 MeshOptimizer::MeshOptimizer(Connection& conn, const std::vector<Material>& materials, bool use_luvs)
 : materials(materials), use_luvs(use_luvs) {
-  color_count = Index(conn).val;
+  conn._readValue(color_count);
   if (color_count > MaxColorLayers)
     Log.report(logvisor::Fatal, fmt("Color layer overflow {}/{}"), color_count, MaxColorLayers);
-  uv_count = Index(conn).val;
+  conn._readValue(uv_count);
   if (uv_count > MaxUVLayers)
     Log.report(logvisor::Fatal, fmt("UV layer overflow {}/{}"), uv_count, MaxUVLayers);
 
   /* Simultaneously load topology objects and build unique mapping indices */
 
-  Index vert_count(conn);
-  verts.reserve(vert_count.val);
-  b_pos.reserve(vert_count.val);
-  b_skin.reserve(vert_count.val * 4);
-  for (uint32_t i = 0; i < vert_count.val; ++i) {
+  uint32_t vert_count;
+  conn._readValue(vert_count);
+  verts.reserve(vert_count);
+  b_pos.reserve(vert_count);
+  b_skin.reserve(vert_count * 4);
+  for (uint32_t i = 0; i < vert_count; ++i) {
     verts.emplace_back(conn);
     insert_unique_attr(b_pos, verts.back().co);
     if (verts.back().skin_ents[0].valid())
       insert_unique_attr(b_skin, verts.back().skin_ents);
   }
 
-  Index loop_count(conn);
-  loops.reserve(loop_count.val);
-  b_norm.reserve(loop_count.val);
+  uint32_t loop_count;
+  conn._readValue(loop_count);
+  loops.reserve(loop_count);
+  b_norm.reserve(loop_count);
   if (use_luvs) {
-    b_uv.reserve(std::max(int(loop_count.val) - 1, 0) * uv_count);
-    b_luv.reserve(loop_count.val);
+    b_uv.reserve(std::max(int(loop_count) - 1, 0) * uv_count);
+    b_luv.reserve(loop_count);
   } else {
-    b_uv.reserve(loop_count.val * uv_count);
+    b_uv.reserve(loop_count * uv_count);
   }
-  for (uint32_t i = 0; i < loop_count.val; ++i) {
+  for (uint32_t i = 0; i < loop_count; ++i) {
     loops.emplace_back(conn, color_count, uv_count);
     insert_unique_attr(b_norm, loops.back().normal);
     for (const auto& c : loops.back().colors)
@@ -420,15 +424,8 @@ MeshOptimizer::MeshOptimizer(Connection& conn, const std::vector<Material>& mate
     }
   }
 
-  Index edge_count(conn);
-  edges.reserve(edge_count.val);
-  for (uint32_t i = 0; i < edge_count.val; ++i)
-    edges.emplace_back(conn);
-
-  Index face_count(conn);
-  faces.reserve(face_count.val);
-  for (uint32_t i = 0; i < face_count.val; ++i)
-    faces.emplace_back(conn);
+  conn._readVector(edges);
+  conn._readVector(faces);
 
   /* Cache edges that should block tristrip traversal */
   for (auto& e : edges)

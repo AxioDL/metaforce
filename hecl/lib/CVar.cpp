@@ -165,11 +165,11 @@ bool CVar::toBoolean(bool* isValid) const {
   std::string tmp = m_value;
   athena::utility::tolower(tmp);
 
-  if (!tmp.compare("yes") || !tmp.compare("true") || !tmp.compare("1")) {
+  if (tmp == "yes" || tmp == "true" || tmp == "1") {
     if (isValid)
       *isValid = true;
     return true;
-  } else if (!tmp.compare("no") || !tmp.compare("false") || !tmp.compare("0")) {
+  } else if (tmp == "no" || tmp == "false" || tmp == "0") {
     if (isValid)
       *isValid = true;
     return false;

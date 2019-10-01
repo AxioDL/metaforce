@@ -60,7 +60,8 @@ struct DataSpecEntry;
 } // namespace Database
 
 namespace blender {
-enum class BlendType { None, Mesh, ColMesh, Actor, Area, World, MapArea, MapUniverse, Frame, PathMesh };
+enum class BlendType { None, Mesh, ColMesh, Armature, Actor, Area,
+                       World, MapArea, MapUniverse, Frame, PathMesh };
 
 class Connection;
 class Token;
@@ -137,6 +138,8 @@ public:
     return std::wstring(lhs).append(rhs.m_sys);
   }
 };
+
+inline hecl::SystemString UTF8StringToSysString(std::string_view src) { return UTF8ToWide(src); }
 #else
 class SystemUTF8Conv {
   std::string_view m_utf8;
@@ -171,6 +174,8 @@ public:
     return std::string(lhs).append(rhs.m_sys);
   }
 };
+
+inline hecl::SystemString UTF8StringToSysString(std::string src) { return src; }
 #endif
 
 void SanitizePath(std::string& path);
@@ -423,7 +428,9 @@ class MultiProgressPrinter;
 class ProjectRootPath;
 
 using SystemRegex = std::basic_regex<SystemChar>;
+using SystemRegexIterator = std::regex_iterator<SystemString::const_iterator>;
 using SystemRegexMatch = std::match_results<SystemString::const_iterator>;
+using SystemViewRegexMatch = std::match_results<SystemStringView::const_iterator>;
 using SystemRegexTokenIterator = std::regex_token_iterator<SystemString::const_iterator>;
 
 /**
@@ -929,6 +936,36 @@ public:
   }
 #endif
 
+  template<typename StringT>
+  class EncodableString {
+    friend class ProjectPath;
+    using EncStringView = std::basic_string_view<typename StringT::value_type>;
+    StringT m_ownedString;
+    EncStringView m_stringView;
+    EncodableString(StringT s) : m_ownedString(std::move(s)), m_stringView(m_ownedString) {}
+    EncodableString(EncStringView sv) : m_stringView(sv) {}
+    EncodableString(const EncodableString&) = delete;
+    EncodableString& operator=(const EncodableString&) = delete;
+    EncodableString(EncodableString&&) = delete;
+    EncodableString& operator=(EncodableString&&) = delete;
+  public:
+    operator EncStringView() const { return m_stringView; }
+  };
+
+  EncodableString<SystemString> getEncodableString() const {
+    if (!getAuxInfo().empty())
+      return {SystemString(getRelativePath()) + _SYS_STR('|') + getAuxInfo().data()};
+    else
+      return {getRelativePath()};
+  }
+
+  EncodableString<std::string> getEncodableStringUTF8() const {
+    if (!getAuxInfo().empty())
+      return {std::string(getRelativePathUTF8()) + '|' + getAuxInfoUTF8().data()};
+    else
+      return {getRelativePathUTF8()};
+  }
+
   /**
    * @brief Type of path
    */
@@ -1053,6 +1090,8 @@ public:
   Hash hash() const noexcept { return m_hash; }
   bool operator==(const ProjectPath& other) const noexcept { return m_hash == other.m_hash; }
   bool operator!=(const ProjectPath& other) const noexcept { return !operator==(other); }
+
+  uint32_t parsedHash32() const;
 };
 
 /**
@@ -1293,6 +1332,50 @@ constexpr void hash_combine_impl(SizeT& seed, SizeT value) noexcept {
 }
 
 } // namespace hecl
+
+#define CHAINED_SIGNAL_HANDLER(name, signal) \
+class ChainedSignalHandler_##name { \
+  typedef void(*sighandler_t)(int); \
+  typedef void(*sigaction_t)(int, siginfo_t*, void*); \
+  static std::atomic_bool m_isSetup; \
+  static sighandler_t m_nextsh; \
+  static sigaction_t m_nextsa; \
+  static void my_sig_action(int sig, siginfo_t* si, void* ctx); \
+  static void sig_action(int sig, siginfo_t* si, void* ctx) { \
+    my_sig_action(sig, si, ctx); \
+    if (m_nextsa) \
+      m_nextsa(sig, si, ctx); \
+    else if (m_nextsh) \
+      m_nextsh(sig); \
+  } \
+public: \
+  static void setup() { \
+    if (ChainedSignalHandler_##name::m_isSetup.exchange(true) == true) \
+      return; \
+    { \
+      struct sigaction sold; \
+      if (sigaction(signal, nullptr, &sold) == 0) { \
+        if (sold.sa_flags & SA_SIGINFO) \
+          m_nextsa = sold.sa_sigaction; \
+        else \
+          m_nextsh = sold.sa_handler; \
+      } \
+    } \
+    { \
+      struct sigaction snew = {}; \
+      snew.sa_sigaction = sig_action; \
+      snew.sa_flags = SA_RESTART | SA_NOCLDSTOP | SA_SIGINFO; \
+      sigaction(signal, &snew, nullptr); \
+    } \
+  } \
+}; \
+std::atomic_bool ChainedSignalHandler_##name::m_isSetup = {false}; \
+ChainedSignalHandler_##name::sighandler_t ChainedSignalHandler_##name::m_nextsh = {}; \
+ChainedSignalHandler_##name::sigaction_t ChainedSignalHandler_##name::m_nextsa = {}; \
+inline void ChainedSignalHandler_##name::my_sig_action
+
+#define SETUP_CHAINED_SIGNAL_HANDLER(name) \
+ChainedSignalHandler_##name::setup()
 
 namespace std {
 template <>

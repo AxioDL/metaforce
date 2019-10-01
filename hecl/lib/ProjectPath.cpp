@@ -14,9 +14,9 @@ static SystemString CanonRelPath(SystemStringView path) {
   SanitizePath(in);
   for (; std::regex_search(in, matches, regPATHCOMP); in = matches.suffix().str()) {
     hecl::SystemRegexMatch::const_reference match = matches[1];
-    if (!match.compare(_SYS_STR(".")))
+    if (match == _SYS_STR("."))
       continue;
-    else if (!match.compare(_SYS_STR(".."))) {
+    else if (match == _SYS_STR("..")) {
       if (comps.empty()) {
         /* Unable to resolve outside project */
         LogModule.report(logvisor::Fatal, fmt(_SYS_STR("Unable to resolve outside project root in {}")), path);
@@ -140,6 +140,8 @@ ProjectPath ProjectPath::getCookedPath(const Database::DataSpecEntry& spec) cons
 }
 
 ProjectPath::Type ProjectPath::getPathType() const {
+  if (m_absPath.empty())
+    return Type::None;
   if (m_absPath.find(_SYS_STR('*')) != SystemString::npos)
     return Type::Glob;
   Sstat theStat;
@@ -244,6 +246,43 @@ hecl::DirectoryEnumerator ProjectPath::enumerateDir() const {
 void ProjectPath::getGlobResults(std::vector<ProjectPath>& outPaths) const {
   auto rootPath = m_proj->getProjectRootPath().getAbsolutePath();
   _recursiveGlob(*m_proj, outPaths, m_relPath, rootPath.data(), rootPath.back() != _SYS_STR('/'));
+}
+
+template <typename T>
+static bool RegexSearchLast(const T& str, std::match_results<typename T::const_iterator>& m,
+                            const std::basic_regex<typename T::value_type>& reg) {
+  using Iterator = std::regex_iterator<typename T::const_iterator>;
+  Iterator begin = Iterator(str.begin(), str.end(), reg);
+  Iterator end = Iterator();
+  if (begin == end)
+    return false;
+  Iterator last_it;
+  for (auto it = begin; it != end; ++it)
+    last_it = it;
+  m = *last_it;
+  return true;
+}
+
+static const hecl::SystemRegex regParsedHash32(_SYS_STR(R"(_([0-9a-fA-F]{8}))"),
+                                               std::regex::ECMAScript | std::regex::optimize);
+uint32_t ProjectPath::parsedHash32() const {
+  {
+    hecl::SystemRegexMatch match;
+    if (RegexSearchLast(m_auxInfo, match, regParsedHash32)) {
+      auto hexStr = match[1].str();
+      if (auto val = hecl::StrToUl(hexStr.c_str(), nullptr, 16))
+        return val;
+    }
+  }
+  {
+    hecl::SystemViewRegexMatch match;
+    if (RegexSearchLast(getLastComponent(), match, regParsedHash32)) {
+      auto hexStr = match[1].str();
+      if (auto val = hecl::StrToUl(hexStr.c_str(), nullptr, 16))
+        return val;
+    }
+  }
+  return hash().val32();
 }
 
 ProjectRootPath SearchForProject(SystemStringView path) {

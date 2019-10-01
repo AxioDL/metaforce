@@ -52,6 +52,7 @@ def draw(layout, context):
             else:
                 #layout.prop(linked_action, 'hecl_index', text="Index")
                 #layout.prop(linked_action, 'hecl_anim_props', text="Props")
+                layout.prop(linked_action, 'anim_id', text="ANIM ID")
                 layout.prop(linked_action, 'hecl_fps', text="Frame Rate")
                 row = layout.row()
                 row.prop(context.scene, 'hecl_auto_remap', text="60-fps Remap")
