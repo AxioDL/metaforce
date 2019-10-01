@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -66,7 +65,7 @@ public:
   }
 };
 
-using FCharFilter = std::pair<std::string, std::function<bool(uint32_t)>>;
+using FCharFilter = std::pair<std::string_view, bool (*)(uint32_t)>;
 
 class FontAtlas {
   FT_Face m_face;
@@ -99,13 +98,13 @@ private:
   std::vector<Glyph> m_glyphs;
   std::unordered_map<atUint16, std::vector<std::pair<atUint16, atInt16>>> m_kernAdjs;
 
-  struct TT_KernHead : athena::io::DNA<athena::Big> {
+  struct TT_KernHead : athena::io::DNA<athena::Endian::Big> {
     AT_DECL_DNA
     Value<atUint32> length;
     Value<atUint16> coverage;
   };
 
-  struct TT_KernSubHead : athena::io::DNA<athena::Big> {
+  struct TT_KernSubHead : athena::io::DNA<athena::Endian::Big> {
     AT_DECL_DNA
     Value<atUint16> nPairs;
     Value<atUint16> searchRange;
@@ -113,7 +112,7 @@ private:
     Value<atUint16> rangeShift;
   };
 
-  struct TT_KernPair : athena::io::DNA<athena::Big> {
+  struct TT_KernPair : athena::io::DNA<athena::Endian::Big> {
     AT_DECL_DNA
     Value<atUint16> left;
     Value<atUint16> right;
@@ -176,6 +175,8 @@ class FontCache {
 
 public:
   FontCache(const hecl::Runtime::FileStoreManager& fileMgr);
+  ~FontCache();
+
   FontCache(const FontCache& other) = delete;
   FontCache& operator=(const FontCache& other) = delete;
 

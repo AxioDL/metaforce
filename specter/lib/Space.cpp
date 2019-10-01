@@ -4,11 +4,9 @@
 #include "specter/RootView.hpp"
 #include "specter/ViewResources.hpp"
 
-#include <logvisor/logvisor.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::Space");
-
 #define TRIANGLE_DIM 12
 #define TRIANGLE_DIM1 10
 #define TRIANGLE_DIM2 8
@@ -43,10 +41,12 @@ Space::Space(ViewResources& res, View& parentView, ISpaceController& controller,
     return true;
   });
   setBackground(res.themeData().spaceBackground());
-  if (controller.spaceSplitAllowed())
-    m_cornerView.m_view.reset(new CornerView(res, *this, TriColor));
-  if (tbPos != Toolbar::Position::None)
-    m_toolbar.m_view.reset(new Toolbar(res, *this, tbPos, tbUnits));
+  if (controller.spaceSplitAllowed()) {
+    m_cornerView.m_view = std::make_unique<CornerView>(res, *this, TriColor);
+  }
+  if (tbPos != Toolbar::Position::None) {
+    m_toolbar.m_view = std::make_unique<Toolbar>(res, *this, tbPos, tbUnits);
+  }
 }
 
 Space::~Space() = default;

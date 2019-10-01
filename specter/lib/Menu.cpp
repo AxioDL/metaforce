@@ -6,6 +6,8 @@
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 #define ROW_HEIGHT 18
 #define ITEM_MARGIN 1
 
@@ -17,9 +19,9 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode) : View(res
     m_vertsBinding.init(ctx, res, 8, m_viewVertBlockBuf);
     return true;
   });
-  m_headText.reset(new TextView(res, *this, res.m_mainFont));
-  m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
-  m_content.reset(new ContentView(res, *this));
+  m_headText = std::make_unique<TextView>(res, *this, res.m_mainFont);
+  m_scroll.m_view = std::make_unique<ScrollView>(res, *this, ScrollView::Style::ThinIndicator);
+  m_content = std::make_unique<ContentView>(res, *this);
   m_scroll.m_view->setContentView(m_content.get());
   reset(rootNode);
 }
@@ -53,12 +55,10 @@ void Menu::reset(IMenuNode* rootNode) {
     for (size_t i = 0; i < subCount; ++i) {
       IMenuNode* node = rootNode->subNode(i);
       const std::string* nodeText = node->text();
+      ViewChild<std::unique_ptr<ItemView>>& item = m_items.emplace_back();
 
-      m_items.emplace_back();
-      ViewChild<std::unique_ptr<ItemView>>& item = m_items.back();
-
-      if (nodeText) {
-        item.m_view.reset(new ItemView(res, *this, *nodeText, i, node));
+      if (nodeText != nullptr) {
+        item.m_view = std::make_unique<ItemView>(res, *this, *nodeText, i, node);
         m_cWidth = std::max(m_cWidth, int(item.m_view->m_textView->nominalWidth() + 10 * pf));
       }
 
@@ -74,9 +74,9 @@ Menu::Menu(ViewResources& res, View& parentView, IMenuNode* rootNode, IMenuNode*
     m_vertsBinding.init(ctx, res, 8, m_viewVertBlockBuf);
     return true;
   });
-  m_headText.reset(new TextView(res, *this, res.m_mainFont));
-  m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
-  m_content.reset(new ContentView(res, *this));
+  m_headText = std::make_unique<TextView>(res, *this, res.m_mainFont);
+  m_scroll.m_view = std::make_unique<ScrollView>(res, *this, ScrollView::Style::ThinIndicator);
+  m_content = std::make_unique<ContentView>(res, *this);
   m_scroll.m_view->setContentView(m_content.get());
 }
 
@@ -99,7 +99,7 @@ Menu::ItemView::ItemView(ViewResources& res, Menu& menu, std::string_view text, 
     buildResources(ctx, res);
     return true;
   });
-  m_textView.reset(new specter::TextView(res, *this, res.m_mainFont));
+  m_textView = std::make_unique<TextView>(res, *this, res.m_mainFont);
   m_textView->typesetGlyphs(text, res.themeData().uiText());
 }
 

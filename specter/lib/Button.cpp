@@ -5,6 +5,7 @@
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 #include <logvisor/logvisor.hpp>
 
 namespace specter {
@@ -67,8 +68,8 @@ Button::Button(ViewResources& res, View& parentView, IButtonBinding* controlBind
     return true;
   });
 
-  m_buttonTarget.m_view.reset(new ButtonTarget(res, *this));
-  m_menuTarget.m_view.reset(new MenuTarget(res, *this));
+  m_buttonTarget.m_view = std::make_unique<ButtonTarget>(res, *this);
+  m_menuTarget.m_view = std::make_unique<MenuTarget>(res, *this);
 
   if (style == Style::Block) {
     zeus::CColor c1 = res.themeData().button1Inactive() * bgColor;
@@ -96,13 +97,15 @@ Button::Button(ViewResources& res, View& parentView, IButtonBinding* controlBind
     m_verts[i].m_color = m_textColor;
   _loadVerts();
 
-  if (controlBinding)
+  if (controlBinding != nullptr) {
     m_menuStyle = controlBinding->menuStyle(this);
+  }
 
-  if (icon)
-    m_icon.reset(new IconView(res, *this, *icon));
+  if (icon != nullptr) {
+    m_icon = std::make_unique<IconView>(res, *this, *icon);
+  }
 
-  m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Center));
+  m_text = std::make_unique<TextView>(res, *this, res.m_mainFont, TextView::Alignment::Center);
   setText(m_textStr);
 }
 
@@ -226,10 +229,12 @@ void Button::setText(std::string_view text, const zeus::CColor& textColor) {
 }
 
 void Button::setIcon(Icon* icon) {
-  if (icon)
-    m_icon.reset(new IconView(rootView().viewRes(), *this, *icon));
-  else
+  if (icon != nullptr) {
+    m_icon = std::make_unique<IconView>(rootView().viewRes(), *this, *icon);
+  } else {
     m_icon.reset();
+  }
+
   setText(m_textStr);
   updateSize();
 }

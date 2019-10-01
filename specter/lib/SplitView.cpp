@@ -1,8 +1,11 @@
-#include "logvisor/logvisor.hpp"
 #include "specter/SplitView.hpp"
+
+#include "specter/Space.hpp"
 #include "specter/RootView.hpp"
 #include "specter/ViewResources.hpp"
-#include "specter/Space.hpp"
+
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+#include <logvisor/logvisor.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::SplitView");

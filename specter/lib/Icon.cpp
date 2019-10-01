@@ -1,6 +1,8 @@
 #include "specter/Icon.hpp"
 #include "specter/RootView.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 
 IconView::IconView(ViewResources& res, View& parentView, Icon& icon) : View(res, parentView) {

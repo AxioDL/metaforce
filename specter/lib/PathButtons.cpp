@@ -4,6 +4,8 @@
 #include "specter/RootView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 struct PathButtons::PathButton final : IButtonBinding {
   PathButtons& m_pb;
@@ -11,7 +13,7 @@ struct PathButtons::PathButton final : IButtonBinding {
   ViewChild<std::unique_ptr<Button>> m_button;
 
   PathButton(PathButtons& pb, ViewResources& res, size_t idx, const hecl::SystemString& str) : m_pb(pb), m_idx(idx) {
-    m_button.m_view.reset(new Button(res, pb, this, hecl::SystemUTF8Conv(str).str()));
+    m_button.m_view = std::make_unique<Button>(res, pb, this, hecl::SystemUTF8Conv(str).str());
   }
 
   std::string_view name(const Control* control) const override { return m_button.m_view->getText(); }
@@ -93,7 +95,7 @@ struct PathButtons::ContentView : public View {
 
 PathButtons::PathButtons(ViewResources& res, View& parentView, IPathButtonsBinding& binding, bool fillContainer)
 : ScrollView(res, parentView, ScrollView::Style::SideButtons), m_binding(binding), m_fillContainer(fillContainer) {
-  m_contentView.m_view.reset(new ContentView(res, *this));
+  m_contentView.m_view = std::make_unique<ContentView>(res, *this);
   setContentView(m_contentView.m_view.get());
 }
 

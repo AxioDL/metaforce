@@ -7,11 +7,8 @@
 #include "specter/TextField.hpp"
 
 #include <hecl/hecl.hpp>
-#include <logvisor/logvisor.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::FileBrowser");
-
 #define BROWSER_MARGIN 8
 #define BROWSER_MIN_WIDTH 600
 #define BROWSER_MIN_HEIGHT 300
@@ -44,6 +41,10 @@ std::vector<hecl::SystemString> FileBrowser::PathComponents(hecl::SystemStringVi
 }
 
 FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
+                         std::function<void(bool, hecl::SystemStringView)> returnFunc)
+: FileBrowser(res, parentView, title, type, hecl::GetcwdStr(), std::move(returnFunc)) {}
+
+FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view title, Type type,
                          hecl::SystemStringView initialPath,
                          std::function<void(bool, hecl::SystemStringView)> returnFunc)
 : ModalWindow(res, parentView,
@@ -59,23 +60,21 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view 
 , m_systemBookmarkBind(*this)
 , m_projectBookmarkBind(*this)
 , m_recentBookmarkBind(*this)
-, m_returnFunc(returnFunc) {
+, m_returnFunc(std::move(returnFunc)) {
   setBackground({0, 0, 0, 0.5});
 
   IViewManager& vm = rootView().viewManager();
-  m_pathButtons.m_view.reset(new PathButtons(res, *this, *this));
-  m_fileField.m_view.reset(new TextField(res, *this, &m_fileFieldBind));
-  m_fileListing.m_view.reset(new Table(res, *this, &m_fileListingBind, &m_fileListingBind, 3));
-  m_systemBookmarks.m_view.reset(new Table(res, *this, &m_systemBookmarkBind, &m_systemBookmarkBind, 1));
-  m_systemBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-  m_systemBookmarksLabel->typesetGlyphs(vm.translate<locale::system_locations>(),
-                                        res.themeData().uiText());
-  m_projectBookmarks.m_view.reset(new Table(res, *this, &m_projectBookmarkBind, &m_projectBookmarkBind, 1));
-  m_projectBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
-  m_projectBookmarksLabel->typesetGlyphs(vm.translate<locale::recent_projects>(),
-                                         res.themeData().uiText());
-  m_recentBookmarks.m_view.reset(new Table(res, *this, &m_recentBookmarkBind, &m_recentBookmarkBind, 1));
-  m_recentBookmarksLabel.reset(new TextView(res, *this, res.m_mainFont));
+  m_pathButtons.m_view = std::make_unique<PathButtons>(res, *this, *this);
+  m_fileField.m_view = std::make_unique<TextField>(res, *this, &m_fileFieldBind);
+  m_fileListing.m_view = std::make_unique<Table>(res, *this, &m_fileListingBind, &m_fileListingBind, 3);
+  m_systemBookmarks.m_view = std::make_unique<Table>(res, *this, &m_systemBookmarkBind, &m_systemBookmarkBind, 1);
+  m_systemBookmarksLabel = std::make_unique<TextView>(res, *this, res.m_mainFont);
+  m_systemBookmarksLabel->typesetGlyphs(vm.translate<locale::system_locations>(), res.themeData().uiText());
+  m_projectBookmarks.m_view = std::make_unique<Table>(res, *this, &m_projectBookmarkBind, &m_projectBookmarkBind, 1);
+  m_projectBookmarksLabel = std::make_unique<TextView>(res, *this, res.m_mainFont);
+  m_projectBookmarksLabel->typesetGlyphs(vm.translate<locale::recent_projects>(), res.themeData().uiText());
+  m_recentBookmarks.m_view = std::make_unique<Table>(res, *this, &m_recentBookmarkBind, &m_recentBookmarkBind, 1);
+  m_recentBookmarksLabel = std::make_unique<TextView>(res, *this, res.m_mainFont);
   m_recentBookmarksLabel->typesetGlyphs(vm.translate<locale::recent_files>(), res.themeData().uiText());
 
   /* Populate system bookmarks */
@@ -98,8 +97,8 @@ FileBrowser::FileBrowser(ViewResources& res, View& parentView, std::string_view 
 
   navigateToPath(initialPath);
 
-  m_split.m_view.reset(new SplitView(res, *this, nullptr, SplitView::Axis::Vertical, 0.2, 200 * res.pixelFactor(),
-                                     400 * res.pixelFactor()));
+  m_split.m_view = std::make_unique<SplitView>(res, *this, nullptr, SplitView::Axis::Vertical, 0.2,
+                                               200 * res.pixelFactor(), 400 * res.pixelFactor());
   m_split.m_view->setContentView(0, &m_left);
   m_split.m_view->setContentView(1, &m_right);
 
@@ -207,17 +206,16 @@ void FileBrowser::okActivated(bool viaButton) {
       return;
     }
     if (!err && !S_ISDIR(theStat.st_mode)) {
-      m_confirmWindow.reset(
-          new MessageWindow(rootView().viewRes(), *this, MessageWindow::Type::ConfirmOkCancel,
-                            vm.translate<locale::overwrite_confirm>(hecl::SystemUTF8Conv(path)),
-                            [&, path](bool ok) {
-                              if (ok) {
-                                m_returnFunc(true, path);
-                                m_confirmWindow->close();
-                                close();
-                              } else
-                                m_confirmWindow->close();
-                            }));
+      m_confirmWindow = std::make_unique<MessageWindow>(
+          rootView().viewRes(), *this, MessageWindow::Type::ConfirmOkCancel,
+          vm.translate<locale::overwrite_confirm>(hecl::SystemUTF8Conv(path)), [&, path](bool ok) {
+            if (ok) {
+              m_returnFunc(true, path);
+              m_confirmWindow->close();
+              close();
+            } else
+              m_confirmWindow->close();
+          });
       updateSize();
       return;
     }
@@ -334,8 +332,7 @@ void FileBrowser::FileListingDataBind::updateListing(const hecl::DirectoryEnumer
   m_entries.reserve(dEnum.size());
 
   for (const hecl::DirectoryEnumerator::Entry& d : dEnum) {
-    m_entries.emplace_back();
-    Entry& ent = m_entries.back();
+    Entry& ent = m_entries.emplace_back();
     ent.m_path = d.m_path;
     hecl::SystemUTF8Conv nameUtf8(d.m_name);
     ent.m_name = nameUtf8.str();
@@ -587,16 +584,16 @@ void FileBrowser::RightSide::draw(boo::IGraphicsCommandQueue* gfxQ) {
 }
 
 FileBrowser::OKButton::OKButton(FileBrowser& fb, ViewResources& res, std::string_view text) : m_fb(fb), m_text(text) {
-  m_button.m_view.reset(
-      new Button(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
-                 RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum)));
+  m_button.m_view =
+      std::make_unique<Button>(res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
+                               RectangleConstraint(100 * res.pixelFactor(), -1, RectangleConstraint::Test::Minimum));
 }
 
 FileBrowser::CancelButton::CancelButton(FileBrowser& fb, ViewResources& res, std::string_view text)
 : m_fb(fb), m_text(text) {
-  m_button.m_view.reset(new Button(
+  m_button.m_view = std::make_unique<Button>(
       res, fb, this, text, nullptr, Button::Style::Block, zeus::skWhite,
-      RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum)));
+      RectangleConstraint(m_fb.m_ok.m_button.m_view->nominalWidth(), -1, RectangleConstraint::Test::Minimum));
 }
 
 } // namespace specter

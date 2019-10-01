@@ -11,6 +11,7 @@
 #include "specter/View.hpp"
 
 #include <boo/BooObject.hpp>
+#include <boo/DeferredWindowEvents.hpp>
 #include <boo/IWindow.hpp>
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 #include <hecl/UniformBufferPool.hpp>

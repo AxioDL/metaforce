@@ -4,6 +4,8 @@
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
 
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
+
 namespace specter {
 
 TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBind)
@@ -19,9 +21,10 @@ TextField::TextField(ViewResources& res, View& parentView, IStringBinding* strBi
   setInactive();
   m_vertsBinding.load<decltype(m_verts)>(m_verts);
 
-  m_text.reset(new TextView(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024));
-  if (strBind)
+  m_text = std::make_unique<TextView>(res, *this, res.m_mainFont, TextView::Alignment::Left, 1024);
+  if (strBind != nullptr) {
     setText(strBind->getDefault(this));
+  }
 }
 
 TextField::~TextField() = default;
@@ -603,7 +606,7 @@ void TextField::setErrorState(std::string_view message) {
     clearSelectionRange();
   refreshBg();
 
-  m_errText.reset(new TextView(rootView().viewRes(), *this, rootView().viewRes().m_mainFont));
+  m_errText = std::make_unique<TextView>(rootView().viewRes(), *this, rootView().viewRes().m_mainFont);
   m_errText->typesetGlyphs(message, rootView().themeData().uiText());
 
   updateSize();

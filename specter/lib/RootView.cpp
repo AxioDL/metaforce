@@ -8,10 +8,9 @@
 #include "specter/Tooltip.hpp"
 #include "specter/ViewResources.hpp"
 
-#include <logvisor/logvisor.hpp>
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 
 namespace specter {
-static logvisor::Module Log("specter::RootView");
 
 RootView::RootView(IViewManager& viewMan, ViewResources& res, boo::IWindow* window)
 : View(res), m_window(window), m_viewMan(viewMan), m_viewRes(&res), m_events(*this) {
@@ -507,13 +506,13 @@ void RootView::modKeyUp(boo::EModifierKey mod) {
 boo::ITextInputCallback* RootView::getTextInputCallback() { return m_activeTextView; }
 
 void RootView::resetTooltip(ViewResources& res) {
-  m_tooltip.reset(
-      new Tooltip(res, *this, "Test",
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi hendrerit nisl quis lobortis mattis. "
-                  "Mauris efficitur, est a vestibulum iaculis, leo orci pellentesque nunc, non rutrum ipsum lectus "
-                  "eget nisl. Aliquam accumsan vestibulum turpis. Duis id lacus ac lectus sollicitudin posuere vel sit "
-                  "amet metus. Aenean nec tortor id enim efficitur accumsan vitae eu ante. Lorem ipsum dolor sit amet, "
-                  "consectetur adipiscing elit. Fusce magna eros, lacinia a leo eget, volutpat rhoncus urna."));
+  m_tooltip = std::make_unique<Tooltip>(
+      res, *this, "Test",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi hendrerit nisl quis lobortis mattis. "
+      "Mauris efficitur, est a vestibulum iaculis, leo orci pellentesque nunc, non rutrum ipsum lectus "
+      "eget nisl. Aliquam accumsan vestibulum turpis. Duis id lacus ac lectus sollicitudin posuere vel sit "
+      "amet metus. Aenean nec tortor id enim efficitur accumsan vitae eu ante. Lorem ipsum dolor sit amet, "
+      "consectetur adipiscing elit. Fusce magna eros, lacinia a leo eget, volutpat rhoncus urna.");
 }
 
 void RootView::displayTooltip(std::string_view name, std::string_view help) {}

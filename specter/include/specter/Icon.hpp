@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 
 #include "specter/View.hpp"
@@ -15,9 +16,9 @@ class ViewResources;
 
 struct Icon {
   boo::ObjToken<boo::ITexture> m_tex;
-  zeus::CVector2f m_uvCoords[4];
+  std::array<zeus::CVector2f, 4> m_uvCoords;
   Icon() = default;
-  Icon(const boo::ObjToken<boo::ITexture>& tex, float rect[4]) : m_tex(tex) {
+  Icon(boo::ObjToken<boo::ITexture> tex, const std::array<float, 4>& rect) : m_tex(std::move(tex)) {
     m_uvCoords[0][0] = rect[0];
     m_uvCoords[0][1] = -rect[3];
 
@@ -35,19 +36,23 @@ struct Icon {
 template <size_t COLS, size_t ROWS>
 class IconAtlas {
   boo::ObjToken<boo::ITextureS> m_tex;
-  Icon m_icons[COLS][ROWS];
+  std::array<std::array<Icon, ROWS>, COLS> m_icons;
 
-  Icon MakeIcon(float x, float y) {
-    float rect[] = {x / float(COLS), y / float(ROWS), x / float(COLS) + 1.f / float(COLS),
-                    y / float(ROWS) + 1.f / float(ROWS)};
+  Icon MakeIcon(float x, float y) const {
+    const std::array<float, 4> rect{
+        x / float(COLS),
+        y / float(ROWS),
+        x / float(COLS) + 1.f / float(COLS),
+        y / float(ROWS) + 1.f / float(ROWS),
+    };
     return Icon(m_tex.get(), rect);
   }
 
 public:
   IconAtlas() = default;
   operator bool() const { return m_tex.operator bool(); }
-  void initializeAtlas(const boo::ObjToken<boo::ITextureS>& tex) {
-    m_tex = tex;
+  void initializeAtlas(boo::ObjToken<boo::ITextureS> tex) {
+    m_tex = std::move(tex);
     for (size_t c = 0; c < COLS; ++c)
       for (size_t r = 0; r < ROWS; ++r)
         m_icons[c][r] = MakeIcon(c, r);

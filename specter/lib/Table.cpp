@@ -2,8 +2,11 @@
 
 #include "specter/RootView.hpp"
 #include "specter/ScrollView.hpp"
+
 #include "specter/TextView.hpp"
 #include "specter/ViewResources.hpp"
+
+#include <boo/graphicsdev/IGraphicsCommandQueue.hpp>
 
 namespace specter {
 static logvisor::Module Log("specter::Table");
@@ -40,12 +43,13 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
 , m_data(data)
 , m_state(state)
 , m_maxColumns(maxColumns)
-, m_hVerts(new SolidShaderVert[maxColumns * 6])
+, m_hVerts(std::make_unique<SolidShaderVert[]>(maxColumns * 6))
 , m_rowsView(*this, res) {
-  if (!maxColumns)
+  if (maxColumns == 0) {
     Log.report(logvisor::Fatal, fmt("0-column tables not supported"));
+  }
 
-  m_scroll.m_view.reset(new ScrollView(res, *this, ScrollView::Style::ThinIndicator));
+  m_scroll.m_view = std::make_unique<ScrollView>(res, *this, ScrollView::Style::ThinIndicator);
 
   commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
     buildResources(ctx, res);
@@ -60,7 +64,7 @@ Table::Table(ViewResources& res, View& parentView, ITableDataBinding* data, ITab
 Table::~Table() = default;
 
 Table::RowsView::RowsView(Table& t, ViewResources& res)
-: View(res, t), m_t(t), m_verts(new SolidShaderVert[SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6]) {
+: View(res, t), m_t(t), m_verts(std::make_unique<SolidShaderVert[]>(SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6)) {
   commitResources(res, [&](boo::IGraphicsDataFactory::Context& ctx) -> bool {
     buildResources(ctx, res);
     m_vertsBinding.init(ctx, res, SPECTER_TABLE_MAX_ROWS * t.m_maxColumns * 6, m_viewVertBlockBuf);
@@ -69,7 +73,7 @@ Table::RowsView::RowsView(Table& t, ViewResources& res)
 }
 
 Table::CellView::CellView(Table& t, ViewResources& res)
-: View(res, t), m_t(t), m_text(new TextView(res, *this, res.m_mainFont)) {}
+: View(res, t), m_t(t), m_text(std::make_unique<TextView>(res, *this, res.m_mainFont)) {}
 
 void Table::_setHeaderVerts(const boo::SWindowRect& sub) {
   ;
@@ -522,27 +526,30 @@ bool Table::CellView::reset(size_t c, size_t r) {
 
 std::vector<Table::ColumnPool>& Table::ensureCellPools(size_t rows, size_t cols, ViewResources& res) {
   if (m_cellPools.size() < cols) {
-    m_cellPools.reserve(cols);
-    for (size_t i = m_cellPools.size(); i < cols; ++i)
-      m_cellPools.emplace_back();
+    m_cellPools.resize(cols);
     m_ensuredRows = 0;
   }
   if (m_ensuredRows < rows) {
     for (size_t i = 0; i < cols; ++i) {
       ColumnPool& cp = m_cellPools[i];
       if (rows > SPECTER_TABLE_MAX_ROWS) {
-        for (int p = 0; p < 2; ++p)
-          for (ViewChild<std::unique_ptr<CellView>>& cv : cp[p])
-            if (!cv.m_view)
-              cv.m_view.reset(new CellView(*this, res));
+        for (int p = 0; p < 2; ++p) {
+          for (ViewChild<std::unique_ptr<CellView>>& cv : cp[p]) {
+            if (cv.m_view == nullptr) {
+              cv.m_view = std::make_unique<CellView>(*this, res);
+            }
+          }
+        }
       } else {
         size_t r = 0;
         for (ViewChild<std::unique_ptr<CellView>>& cv : cp[0]) {
-          if (!cv.m_view)
-            cv.m_view.reset(new CellView(*this, res));
+          if (cv.m_view == nullptr) {
+            cv.m_view = std::make_unique<CellView>(*this, res);
+          }
           ++r;
-          if (r >= rows)
+          if (r >= rows) {
             break;
+          }
         }
       }
     }
@@ -566,9 +573,7 @@ void Table::_updateData() {
   if (newViewChildren) {
     m_headerViews.clear();
     m_cellPools.clear();
-    m_headerViews.reserve(m_columns);
-    for (size_t c = 0; c < m_columns; ++c)
-      m_headerViews.emplace_back();
+    m_headerViews.resize(m_columns);
     m_ensuredRows = 0;
   }
   ensureCellPools(m_rows, m_columns, res);
@@ -580,10 +585,12 @@ void Table::_updateData() {
 
   for (size_t c = 0; c < m_columns; ++c) {
     std::unique_ptr<CellView>& cv = m_headerViews[c].m_view;
-    if (!cv)
-      cv.reset(new CellView(*this, res));
-    if (cv->reset(c))
+    if (cv == nullptr) {
+      cv = std::make_unique<CellView>(*this, res);
+    }
+    if (cv->reset(c)) {
       m_header = true;
+    }
 
     ColumnPool& col = m_cellPools[c];
 
