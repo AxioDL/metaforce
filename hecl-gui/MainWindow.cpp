@@ -320,7 +320,7 @@ void MainWindow::enableOperations() {
   m_ui->launchBtn->setText(tr("Launch"));
 
   m_ui->extractBtn->setEnabled(true);
-  if (QFile::exists(m_path + QStringLiteral("/MP1/!original_ids.yaml"))) {
+  if (QFile::exists(m_path + QStringLiteral("/MP1/.done"))) {
     m_ui->packageBtn->setEnabled(true);
     if (isPackageComplete())
       m_ui->launchBtn->setEnabled(true);
@@ -339,9 +339,6 @@ void MainWindow::enableOperations() {
 
 bool MainWindow::isPackageComplete() const {
   return
-#if RUNTIME_ORIGINAL_IDS
-      QFile::exists(m_path + QStringLiteral("/out/files/!original_ids.upak")) &&
-#endif
       QFile::exists(m_path + QStringLiteral("/out/files/AudioGrp.upak")) &&
       QFile::exists(m_path + QStringLiteral("/out/files/GGuiSys.upak")) &&
       QFile::exists(m_path + QStringLiteral("/out/files/Metroid1.upak")) &&
