@@ -1434,14 +1434,15 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                                 CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) +
                                     mgr.GetPlayer().GetTranslation());
       CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
-      float alpha;
-      if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
-        alpha = 1.f;
-      else
-        alpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
-      alpha *= mapAlpha;
+      float colorAlpha;
+      if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
+        colorAlpha = 1.f;
+      } else {
+        colorAlpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
+      }
+      colorAlpha *= mapAlpha;
       zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
-      modColor.a() *= alpha;
+      modColor.a() *= colorAlpha;
       CModelFlags flags(5, 0, 8 | 1, modColor); /* Depth GEqual */
       flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
       x30_miniMapSamus->Draw(flags);
@@ -1480,14 +1481,14 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
               {{4.f, -8.f, 8.f}, {1.f, 1.f}},
               {{4.f, -8.f, 0.f}, {1.f, 0.f}},
           }};
-          float alpha = beaconAlpha;
+          float colorAlpha = beaconAlpha;
           if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
           } else {
-            alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
+            colorAlpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
           }
-          alpha *= mapAlpha;
+          colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
-          color.a() = alpha;
+          color.a() = colorAlpha;
           filter.drawVerts(color, verts.data());
         }
       }
