@@ -22,27 +22,26 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
                                                                SAutoMapperRenderState& out,
                                                                const SAutoMapperRenderState& b, float t) {
   t = zeus::clamp(0.f, t, 1.f);
-  float easeIn = zeus::clamp(0.f, t * t * t, 1.f);
-  float omt = 1.f - t;
-  float easeOut = zeus::clamp(0.f, 1.f - omt * omt * omt, 1.f);
+  const float easeIn = zeus::clamp(0.f, t * t * t, 1.f);
+  const float omt = 1.f - t;
+  const float easeOut = zeus::clamp(0.f, 1.f - omt * omt * omt, 1.f);
 
   float easeInOut;
-  if (t >= 0.5f)
+  if (t >= 0.5f) {
     easeInOut = zeus::clamp(0.f, 0.5f * std::sqrt(2.f * t - 1.f) + 0.5f, 1.f);
-  else
+  } else {
     easeInOut = zeus::clamp(0.f, 1.f - (0.5f * std::sqrt(2.f * omt - 1.f) + 0.5f), 1.f);
+  }
 
-  float eases[5] = {};
-  eases[1] = t;
-  eases[2] = easeOut;
-  eases[3] = easeIn;
-  eases[4] = easeInOut;
+  const std::array<float, 5> eases{
+      0.0f, t, easeOut, easeIn, easeInOut,
+  };
 
   if (b.x44_viewportEase != Ease::None) {
-    float easeB = eases[int(b.x44_viewportEase)];
-    float easeA = 1.f - easeB;
-    zeus::CVector2i vpA = a.GetViewportSize();
-    zeus::CVector2i vpB = b.GetViewportSize();
+    const float easeB = eases[size_t(b.x44_viewportEase)];
+    const float easeA = 1.f - easeB;
+    const zeus::CVector2i vpA = a.GetViewportSize();
+    const zeus::CVector2i vpB = b.GetViewportSize();
     out.x0_viewportSize = zeus::CVector2i(vpB.x * easeB + vpA.x * easeA, vpB.y * easeB + vpA.y * easeA);
   }
   if (t == 1.f)
@@ -51,34 +50,34 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
     out.m_getViewportSize = nullptr;
 
   if (b.x48_camEase != Ease::None) {
-    float easeB = eases[int(b.x48_camEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x48_camEase)];
+    const float easeA = 1.f - easeB;
     out.x8_camOrientation = zeus::CQuaternion::slerp(a.x8_camOrientation, b.x8_camOrientation, easeB);
     out.x18_camDist = b.x18_camDist * easeB + a.x18_camDist * easeA;
     out.x1c_camAngle = b.x1c_camAngle * easeB + a.x1c_camAngle * easeA;
   }
 
   if (b.x4c_pointEase != Ease::None) {
-    float easeB = eases[int(b.x4c_pointEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x4c_pointEase)];
+    const float easeA = 1.f - easeB;
     out.x20_areaPoint = b.x20_areaPoint * easeB + a.x20_areaPoint * easeA;
   }
 
   if (b.x50_depth1Ease != Ease::None) {
-    float easeB = eases[int(b.x50_depth1Ease)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x50_depth1Ease)];
+    const float easeA = 1.f - easeB;
     out.x2c_drawDepth1 = b.x2c_drawDepth1 * easeB + a.x2c_drawDepth1 * easeA;
   }
 
   if (b.x54_depth2Ease != Ease::None) {
-    float easeB = eases[int(b.x54_depth2Ease)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x54_depth2Ease)];
+    const float easeA = 1.f - easeB;
     out.x30_drawDepth2 = b.x30_drawDepth2 * easeB + a.x30_drawDepth2 * easeA;
   }
 
   if (b.x58_alphaEase != Ease::None) {
-    float easeB = eases[int(b.x58_alphaEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x58_alphaEase)];
+    const float easeA = 1.f - easeB;
     out.x34_alphaSurfaceVisited = b.x34_alphaSurfaceVisited * easeB + a.x34_alphaSurfaceVisited * easeA;
     out.x38_alphaOutlineVisited = b.x38_alphaOutlineVisited * easeB + a.x38_alphaOutlineVisited * easeA;
     out.x3c_alphaSurfaceUnvisited = b.x3c_alphaSurfaceUnvisited * easeB + a.x3c_alphaSurfaceUnvisited * easeA;
@@ -481,12 +480,12 @@ float CAutoMapper::GetFinalMapScreenCameraMoveSpeed() const {
 }
 
 void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateManager& mgr) {
-  float up = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
-  float down = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
-  float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
-  float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
+  const float up = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
+  const float down = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
+  const float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
+  const float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
 
-  float dirs[4] = {};
+  std::array<float, 4> dirs{};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
     if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
@@ -503,7 +502,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   }
 
   float maxMag = up;
-  int dirSlot = 0;
+  size_t dirSlot = 0;
   if (down > up) {
     maxMag = down;
     dirSlot = 1;
@@ -1471,21 +1470,25 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             mapXf * zeus::CTransform::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
             zeus::CTransform::Translate(mapa->GetAreaCenterPoint()) * zeus::CTransform::Scale(objectScale) * camRot);
         float beaconAlpha = 0.f;
-        if (loc.x0_showBeacon == 1)
+        if (loc.x0_showBeacon == 1) {
           beaconAlpha = loc.x4_beaconAlpha;
+        }
         if (beaconAlpha > 0.f) {
-          CTexturedQuadFilter::Vert verts[4] = {{{-4.f, -8.f, 8.f}, {0.f, 1.f}},
-                                                {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
-                                                {{4.f, -8.f, 8.f}, {1.f, 1.f}},
-                                                {{4.f, -8.f, 0.f}, {1.f, 0.f}}};
+          const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
+              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
+              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
+              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
+          }};
           float alpha = beaconAlpha;
           if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
-          } else
+          } else {
             alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
+          }
           alpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
           color.a() = alpha;
-          filter.drawVerts(color, verts);
+          filter.drawVerts(color, verts.data());
         }
       }
     }
