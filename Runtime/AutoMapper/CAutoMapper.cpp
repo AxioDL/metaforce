@@ -1,17 +1,20 @@
-#include "CAutoMapper.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "AutoMapper/CMapUniverse.hpp"
-#include "AutoMapper/CMapArea.hpp"
-#include "zeus/CEulerAngles.hpp"
-#include "World/CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "MP1/MP1.hpp"
-#include "Input/ControlMapper.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/AutoMapper/CAutoMapper.hpp"
+
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/MP1/MP1.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
+#include <zeus/CEulerAngles.hpp>
 
 namespace urde {
 

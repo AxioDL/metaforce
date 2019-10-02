@@ -5,7 +5,6 @@
 #include <optional>
 #include <vector>
 
-#include "Runtime/CInGameTweakManagerBase.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
