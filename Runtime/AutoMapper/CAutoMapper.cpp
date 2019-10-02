@@ -1573,7 +1573,7 @@ void CAutoMapper::SetupHintNavigation() {
     }
   }
 
-  for (u32 i = 0; i < hintOpts.GetHintStates().size(); ++i) {
+  for (size_t i = 0; i < hintOpts.GetHintStates().size(); ++i) {
     const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
     if (navigating && hintOpts.GetNextHintIdx() == i)
       continue;
@@ -1587,7 +1587,7 @@ void CAutoMapper::SetupHintNavigation() {
 
 CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
   const CHintOptions& hintOpts = g_GameState->HintOptions();
-  for (u32 i = 0; i < hintOpts.GetHintStates().size(); ++i) {
+  for (size_t i = 0; i < hintOpts.GetHintStates().size(); ++i) {
     const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
     if (state.x0_state != CHintOptions::EHintState::Displaying)
       continue;
