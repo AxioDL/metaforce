@@ -95,23 +95,23 @@ CAutoMapper::CAutoMapper(CStateManager& stateMgr) : x24_world(stateMgr.GetWorld(
   xa8_renderStates[0] = xa8_renderStates[1] = xa8_renderStates[2] =
       BuildMiniMapWorldRenderState(stateMgr, camRot, xa0_curAreaId);
 
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4_saveStationIcon}));
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x8_missileStationIcon}));
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->xc_elevatorIcon}));
-  x48_mapIcons.push_back(
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4_saveStationIcon}));
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x8_missileStationIcon}));
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->xc_elevatorIcon}));
+  x48_mapIcons.emplace_back(
       g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x10_minesBreakFirstTopIcon}));
-  x48_mapIcons.push_back(
+  x48_mapIcons.emplace_back(
       g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x14_minesBreakFirstBottomIcon}));
 
   for (u32 i = 0; i < 9; ++i) {
-    x210_lstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x24_lStick[i]}));
-    x25c_cstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4c_cStick[i]}));
+    x210_lstick.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x24_lStick[i]}));
+    x25c_cstick.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4c_cStick[i]}));
   }
 
   for (u32 i = 0; i < 2; ++i) {
-    x2a8_ltrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x74_lTrigger[i]}));
-    x2bc_rtrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x80_rTrigger[i]}));
-    x2d0_abutton.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x98_aButton[i]}));
+    x2a8_ltrigger.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x74_lTrigger[i]}));
+    x2bc_rtrigger.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x80_rTrigger[i]}));
+    x2d0_abutton.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x98_aButton[i]}));
   }
 }
 
@@ -1555,20 +1555,20 @@ void CAutoMapper::SetupHintNavigation() {
   bool navigating = false;
   if (curHint && curHint->CanContinue()) {
     navigating = true;
-    x1e0_hintSteps.push_back({SAutoMapperHintStep::ShowBeacon{}, 0.75f});
+    x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ShowBeacon{}, 0.75f);
     const CGameHintInfo::CGameHint& nextHint = g_MemoryCardSys->GetHints()[hintOpts.GetNextHintIdx()];
     CAssetId curMlvl = x24_world->IGetWorldAssetId();
     for (const CGameHintInfo::SHintLocation& loc : nextHint.GetLocations()) {
       if (loc.x0_mlvlId != curMlvl) {
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::SwitchToUniverse{}});
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::PanToWorld{}, curMlvl});
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::SwitchToWorld{}, curMlvl});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToUniverse{});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, curMlvl);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, curMlvl);
       } else {
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::ZoomOut{}});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomOut{});
       }
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::PanToArea{}, loc.x8_areaId});
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::ZoomIn{}});
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::ShowBeacon{}, 1.f});
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToArea{}, loc.x8_areaId);
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomIn{});
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ShowBeacon{}, 1.f);
       x1f8_hintLocations.push_back({0, 0.f, loc.x0_mlvlId, loc.x8_areaId});
     }
   }
