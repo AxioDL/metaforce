@@ -15,7 +15,7 @@ class CAtomicAlpha : public CPatterned {
     pas::ELocomotionType x10_locomotionType;
     float x14_scaleTime = FLT_MAX;
     SBomb(const std::string_view locator, pas::ELocomotionType locomotionType)
-    : x0_locatorName(locator.data()), x10_locomotionType(locomotionType) {}
+    : x0_locatorName(locator), x10_locomotionType(locomotionType) {}
   };
   bool x568_24_inRange : 1;
   bool x568_25_invisible : 1;
