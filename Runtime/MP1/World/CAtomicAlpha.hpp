@@ -9,7 +9,6 @@
 
 namespace urde::MP1 {
 class CAtomicAlpha : public CPatterned {
-  static const std::string_view skBombLocators[4];
   static constexpr u32 skBombCount = 4;
   struct SBomb {
     std::string x0_locatorName;

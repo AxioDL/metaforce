@@ -1,5 +1,7 @@
 #include "Runtime/MP1/World/CAtomicAlpha.hpp"
 
+#include <array>
+
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Weapon/CPlayerGun.hpp"
 #include "Runtime/World/CGameArea.hpp"
@@ -8,8 +10,12 @@
 #include "Runtime/World/CWorld.hpp"
 
 namespace urde::MP1 {
-const std::string_view CAtomicAlpha::skBombLocators[4] = {"bomb1_LCTR"sv, "bomb2_LCTR"sv, "bomb3_LCTR"sv,
-                                                          "bomb4_LCTR"sv};
+constexpr std::array skBombLocators{
+    "bomb1_LCTR"sv,
+    "bomb2_LCTR"sv,
+    "bomb3_LCTR"sv,
+    "bomb4_LCTR"sv,
+};
 
 CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
