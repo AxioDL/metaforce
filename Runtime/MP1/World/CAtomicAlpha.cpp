@@ -1,11 +1,12 @@
-#include "CAtomicAlpha.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "Weapon/CPlayerGun.hpp"
+#include "Runtime/MP1/World/CAtomicAlpha.hpp"
 
-#include "CStateManager.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 namespace urde::MP1 {
 const std::string_view CAtomicAlpha::skBombLocators[4] = {"bomb1_LCTR"sv, "bomb2_LCTR"sv, "bomb3_LCTR"sv,
                                                           "bomb4_LCTR"sv};
