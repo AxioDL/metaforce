@@ -1,14 +1,21 @@
-#include "CAtomicAlpha.hpp"
-#include "World/CWorld.hpp"
-#include "World/CGameArea.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CPatternedInfo.hpp"
-#include "Weapon/CPlayerGun.hpp"
+#include "Runtime/MP1/World/CAtomicAlpha.hpp"
 
-#include "CStateManager.hpp"
+#include <array>
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/World/CGameArea.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 namespace urde::MP1 {
-const std::string_view CAtomicAlpha::skBombLocators[4] = {"bomb1_LCTR"sv, "bomb2_LCTR"sv, "bomb3_LCTR"sv,
-                                                          "bomb4_LCTR"sv};
+constexpr std::array skBombLocators{
+    "bomb1_LCTR"sv,
+    "bomb2_LCTR"sv,
+    "bomb3_LCTR"sv,
+    "bomb4_LCTR"sv,
+};
 
 CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
@@ -27,8 +34,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
 , x690_bombModel(CStaticRes(cmdl, GetModelData()->GetScale())) {
   x668_bombProjectile.Token().Lock();
   for (u32 i = 0; i < skBombCount; ++i) {
-    x6dc_bombLocators.push_back(
-        SBomb(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i)));
+    x6dc_bombLocators.emplace_back(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i));
   }
 }
 

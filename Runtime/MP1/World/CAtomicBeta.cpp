@@ -1,14 +1,21 @@
-#include "CAtomicBeta.hpp"
-#include "Particle/CWeaponDescription.hpp"
-#include "Weapon/CPlayerGun.hpp"
-#include "Weapon/CElectricBeamProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/MP1/World/CAtomicBeta.hpp"
+
+#include <array>
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Weapon/CElectricBeamProjectile.hpp"
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde::MP1 {
-const std::string_view CAtomicBeta::skBombLocators[3] = {"bomb2_LCTR"sv, "bomb3_LCTR"sv, "bomb4_LCTR"sv};
+constexpr std::array skBombLocators{
+    "bomb2_LCTR"sv,
+    "bomb3_LCTR"sv,
+    "bomb4_LCTR"sv,
+};
 
 CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                          CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
@@ -42,7 +49,7 @@ CAtomicBeta::CAtomicBeta(TUniqueId uid, std::string_view name, const CEntityInfo
 void CAtomicBeta::CreateBeams(CStateManager& mgr) {
   const SElectricBeamInfo beamInfo{x600_electricWeapon, 50.f, x634_beamRadius, 10.f, x62c_beamParticle, x630_, x638_};
 
-  for (u32 i = 0; i < kBombCount; ++i) {
+  for (size_t i = 0; i < kBombCount; ++i) {
     x568_projectileIds.push_back(mgr.AllocateUniqueId());
     mgr.AddObject(new CElectricBeamProjectile(x608_, EWeaponType::AI, beamInfo, {}, EMaterialTypes::Character,
                                               x610_projectileDamage, x568_projectileIds[i], GetAreaIdAlways(),
@@ -51,17 +58,19 @@ void CAtomicBeta::CreateBeams(CStateManager& mgr) {
 }
 
 void CAtomicBeta::UpdateBeams(CStateManager& mgr, bool fireBeam) {
-  if (x574_beamFired == fireBeam)
+  if (x574_beamFired == fireBeam) {
     return;
+  }
 
-  for (u32 i = 0; i < kBombCount; ++i) {
+  for (size_t i = 0; i < kBombCount; ++i) {
     //zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
     //zeus::CTransform newXf = zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp);
-    if (CElectricBeamProjectile* proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
-      if (fireBeam)
+    if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
+      if (fireBeam) {
         proj->Fire(GetTransform() * GetScaledLocatorTransform(skBombLocators[i]), mgr, false);
-      else
+      } else {
         proj->ResetBeam(mgr, false);
+      }
     }
   }
   x574_beamFired = fireBeam;
@@ -126,11 +135,13 @@ void CAtomicBeta::Think(float dt, CStateManager& mgr) {
     UpdateOrCreateEmitter(x64c_, x644_, GetTranslation(), 96 / 127.f);
   }
 
-  for (u32 i = 0; i < kBombCount; ++i) {
-    if (CElectricBeamProjectile* proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
-      if (!proj->GetActive())
+  for (size_t i = 0; i < kBombCount; ++i) {
+    if (auto* const proj = static_cast<CElectricBeamProjectile*>(mgr.ObjectById(x568_projectileIds[i]))) {
+      if (!proj->GetActive()) {
         continue;
-      zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
+      }
+
+      const zeus::CTransform xf = GetTransform() * GetScaledLocatorTransform(skBombLocators[i]);
       proj->UpdateFx(zeus::lookAt(xf.origin, xf.origin + xf.basis[1], zeus::skUp), dt, mgr);
     }
   }
