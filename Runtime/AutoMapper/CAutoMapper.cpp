@@ -1,17 +1,20 @@
-#include "CAutoMapper.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "AutoMapper/CMapUniverse.hpp"
-#include "AutoMapper/CMapArea.hpp"
-#include "zeus/CEulerAngles.hpp"
-#include "World/CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "MP1/MP1.hpp"
-#include "Input/ControlMapper.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/AutoMapper/CAutoMapper.hpp"
+
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+#include "Runtime/MP1/MP1.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
+#include <zeus/CEulerAngles.hpp>
 
 namespace urde {
 
@@ -19,27 +22,26 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
                                                                SAutoMapperRenderState& out,
                                                                const SAutoMapperRenderState& b, float t) {
   t = zeus::clamp(0.f, t, 1.f);
-  float easeIn = zeus::clamp(0.f, t * t * t, 1.f);
-  float omt = 1.f - t;
-  float easeOut = zeus::clamp(0.f, 1.f - omt * omt * omt, 1.f);
+  const float easeIn = zeus::clamp(0.f, t * t * t, 1.f);
+  const float omt = 1.f - t;
+  const float easeOut = zeus::clamp(0.f, 1.f - omt * omt * omt, 1.f);
 
   float easeInOut;
-  if (t >= 0.5f)
+  if (t >= 0.5f) {
     easeInOut = zeus::clamp(0.f, 0.5f * std::sqrt(2.f * t - 1.f) + 0.5f, 1.f);
-  else
+  } else {
     easeInOut = zeus::clamp(0.f, 1.f - (0.5f * std::sqrt(2.f * omt - 1.f) + 0.5f), 1.f);
+  }
 
-  float eases[5] = {};
-  eases[1] = t;
-  eases[2] = easeOut;
-  eases[3] = easeIn;
-  eases[4] = easeInOut;
+  const std::array<float, 5> eases{
+      0.0f, t, easeOut, easeIn, easeInOut,
+  };
 
   if (b.x44_viewportEase != Ease::None) {
-    float easeB = eases[int(b.x44_viewportEase)];
-    float easeA = 1.f - easeB;
-    zeus::CVector2i vpA = a.GetViewportSize();
-    zeus::CVector2i vpB = b.GetViewportSize();
+    const float easeB = eases[size_t(b.x44_viewportEase)];
+    const float easeA = 1.f - easeB;
+    const zeus::CVector2i vpA = a.GetViewportSize();
+    const zeus::CVector2i vpB = b.GetViewportSize();
     out.x0_viewportSize = zeus::CVector2i(vpB.x * easeB + vpA.x * easeA, vpB.y * easeB + vpA.y * easeA);
   }
   if (t == 1.f)
@@ -48,34 +50,34 @@ void CAutoMapper::SAutoMapperRenderState::InterpolateWithClamp(const SAutoMapper
     out.m_getViewportSize = nullptr;
 
   if (b.x48_camEase != Ease::None) {
-    float easeB = eases[int(b.x48_camEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x48_camEase)];
+    const float easeA = 1.f - easeB;
     out.x8_camOrientation = zeus::CQuaternion::slerp(a.x8_camOrientation, b.x8_camOrientation, easeB);
     out.x18_camDist = b.x18_camDist * easeB + a.x18_camDist * easeA;
     out.x1c_camAngle = b.x1c_camAngle * easeB + a.x1c_camAngle * easeA;
   }
 
   if (b.x4c_pointEase != Ease::None) {
-    float easeB = eases[int(b.x4c_pointEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x4c_pointEase)];
+    const float easeA = 1.f - easeB;
     out.x20_areaPoint = b.x20_areaPoint * easeB + a.x20_areaPoint * easeA;
   }
 
   if (b.x50_depth1Ease != Ease::None) {
-    float easeB = eases[int(b.x50_depth1Ease)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x50_depth1Ease)];
+    const float easeA = 1.f - easeB;
     out.x2c_drawDepth1 = b.x2c_drawDepth1 * easeB + a.x2c_drawDepth1 * easeA;
   }
 
   if (b.x54_depth2Ease != Ease::None) {
-    float easeB = eases[int(b.x54_depth2Ease)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x54_depth2Ease)];
+    const float easeA = 1.f - easeB;
     out.x30_drawDepth2 = b.x30_drawDepth2 * easeB + a.x30_drawDepth2 * easeA;
   }
 
   if (b.x58_alphaEase != Ease::None) {
-    float easeB = eases[int(b.x58_alphaEase)];
-    float easeA = 1.f - easeB;
+    const float easeB = eases[size_t(b.x58_alphaEase)];
+    const float easeA = 1.f - easeB;
     out.x34_alphaSurfaceVisited = b.x34_alphaSurfaceVisited * easeB + a.x34_alphaSurfaceVisited * easeA;
     out.x38_alphaOutlineVisited = b.x38_alphaOutlineVisited * easeB + a.x38_alphaOutlineVisited * easeA;
     out.x3c_alphaSurfaceUnvisited = b.x3c_alphaSurfaceUnvisited * easeB + a.x3c_alphaSurfaceUnvisited * easeA;
@@ -93,23 +95,23 @@ CAutoMapper::CAutoMapper(CStateManager& stateMgr) : x24_world(stateMgr.GetWorld(
   xa8_renderStates[0] = xa8_renderStates[1] = xa8_renderStates[2] =
       BuildMiniMapWorldRenderState(stateMgr, camRot, xa0_curAreaId);
 
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4_saveStationIcon}));
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x8_missileStationIcon}));
-  x48_mapIcons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->xc_elevatorIcon}));
-  x48_mapIcons.push_back(
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4_saveStationIcon}));
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x8_missileStationIcon}));
+  x48_mapIcons.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->xc_elevatorIcon}));
+  x48_mapIcons.emplace_back(
       g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x10_minesBreakFirstTopIcon}));
-  x48_mapIcons.push_back(
+  x48_mapIcons.emplace_back(
       g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x14_minesBreakFirstBottomIcon}));
 
   for (u32 i = 0; i < 9; ++i) {
-    x210_lstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x24_lStick[i]}));
-    x25c_cstick.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4c_cStick[i]}));
+    x210_lstick.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x24_lStick[i]}));
+    x25c_cstick.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x4c_cStick[i]}));
   }
 
   for (u32 i = 0; i < 2; ++i) {
-    x2a8_ltrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x74_lTrigger[i]}));
-    x2bc_rtrigger.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x80_rTrigger[i]}));
-    x2d0_abutton.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x98_aButton[i]}));
+    x2a8_ltrigger.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x74_lTrigger[i]}));
+    x2bc_rtrigger.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x80_rTrigger[i]}));
+    x2d0_abutton.emplace_back(g_SimplePool->GetObj(SObjectTag{FOURCC('TXTR'), g_tweakPlayerRes->x98_aButton[i]}));
   }
 }
 
@@ -478,12 +480,12 @@ float CAutoMapper::GetFinalMapScreenCameraMoveSpeed() const {
 }
 
 void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateManager& mgr) {
-  float up = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
-  float down = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
-  float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
-  float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
+  const float up = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleUp, input);
+  const float down = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleDown, input);
+  const float left = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleLeft, input);
+  const float right = ControlMapper::GetAnalogInput(ControlMapper::ECommands::MapCircleRight, input);
 
-  float dirs[4] = {};
+  std::array<float, 4> dirs{};
   bool mouseHeld = false;
   if (const auto& kbm = input.GetKBM()) {
     if (kbm->m_mouseButtons[size_t(boo::EMouseButton::Primary)]) {
@@ -500,7 +502,7 @@ void CAutoMapper::ProcessMapRotateInput(const CFinalInput& input, const CStateMa
   }
 
   float maxMag = up;
-  int dirSlot = 0;
+  size_t dirSlot = 0;
   if (down > up) {
     maxMag = down;
     dirSlot = 1;
@@ -1432,14 +1434,15 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
                                 CMapArea::GetAreaPostTranslate(*x24_world, mgr.GetNextAreaId()) +
                                     mgr.GetPlayer().GetTranslation());
       CGraphics::SetModelMatrix(mapXf * playerXf * zeus::CTransform::Scale(scale * (0.25f * func + 0.75f)));
-      float alpha;
-      if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap)
-        alpha = 1.f;
-      else
-        alpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
-      alpha *= mapAlpha;
+      float colorAlpha;
+      if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
+        colorAlpha = 1.f;
+      } else {
+        colorAlpha = xa8_renderStates[0].x34_alphaSurfaceVisited;
+      }
+      colorAlpha *= mapAlpha;
       zeus::CColor modColor = g_tweakAutoMapper->GetMiniMapSamusModColor();
-      modColor.a() *= alpha;
+      modColor.a() *= colorAlpha;
       CModelFlags flags(5, 0, 8 | 1, modColor); /* Depth GEqual */
       flags.m_extendedShader = EExtendedShader::DepthGEqualNoZWrite;
       x30_miniMapSamus->Draw(flags);
@@ -1468,21 +1471,25 @@ void CAutoMapper::Draw(const CStateManager& mgr, const zeus::CTransform& xf, flo
             mapXf * zeus::CTransform::Translate(mapa->GetAreaPostTransform(*x24_world, loc.xc_areaId).origin) *
             zeus::CTransform::Translate(mapa->GetAreaCenterPoint()) * zeus::CTransform::Scale(objectScale) * camRot);
         float beaconAlpha = 0.f;
-        if (loc.x0_showBeacon == 1)
+        if (loc.x0_showBeacon == 1) {
           beaconAlpha = loc.x4_beaconAlpha;
+        }
         if (beaconAlpha > 0.f) {
-          CTexturedQuadFilter::Vert verts[4] = {{{-4.f, -8.f, 8.f}, {0.f, 1.f}},
-                                                {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
-                                                {{4.f, -8.f, 8.f}, {1.f, 1.f}},
-                                                {{4.f, -8.f, 0.f}, {1.f, 0.f}}};
-          float alpha = beaconAlpha;
+          const std::array<CTexturedQuadFilter::Vert, 4> verts{{
+              {{-4.f, -8.f, 8.f}, {0.f, 1.f}},
+              {{-4.f, -8.f, 0.f}, {0.f, 0.f}},
+              {{4.f, -8.f, 8.f}, {1.f, 1.f}},
+              {{4.f, -8.f, 0.f}, {1.f, 0.f}},
+          }};
+          float colorAlpha = beaconAlpha;
           if (x1bc_state != EAutoMapperState::MiniMap && x1c0_nextState != EAutoMapperState::MiniMap) {
-          } else
-            alpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
-          alpha *= mapAlpha;
+          } else {
+            colorAlpha *= xa8_renderStates[0].x34_alphaSurfaceVisited;
+          }
+          colorAlpha *= mapAlpha;
           zeus::CColor color = zeus::skWhite;
-          color.a() = alpha;
-          filter.drawVerts(color, verts);
+          color.a() = colorAlpha;
+          filter.drawVerts(color, verts.data());
         }
       }
     }
@@ -1549,25 +1556,25 @@ void CAutoMapper::SetupHintNavigation() {
   bool navigating = false;
   if (curHint && curHint->CanContinue()) {
     navigating = true;
-    x1e0_hintSteps.push_back({SAutoMapperHintStep::ShowBeacon{}, 0.75f});
+    x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ShowBeacon{}, 0.75f);
     const CGameHintInfo::CGameHint& nextHint = g_MemoryCardSys->GetHints()[hintOpts.GetNextHintIdx()];
     CAssetId curMlvl = x24_world->IGetWorldAssetId();
     for (const CGameHintInfo::SHintLocation& loc : nextHint.GetLocations()) {
       if (loc.x0_mlvlId != curMlvl) {
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::SwitchToUniverse{}});
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::PanToWorld{}, curMlvl});
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::SwitchToWorld{}, curMlvl});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToUniverse{});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToWorld{}, curMlvl);
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::SwitchToWorld{}, curMlvl);
       } else {
-        x1e0_hintSteps.push_back({SAutoMapperHintStep::ZoomOut{}});
+        x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomOut{});
       }
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::PanToArea{}, loc.x8_areaId});
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::ZoomIn{}});
-      x1e0_hintSteps.push_back({SAutoMapperHintStep::ShowBeacon{}, 1.f});
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::PanToArea{}, loc.x8_areaId);
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ZoomIn{});
+      x1e0_hintSteps.emplace_back(SAutoMapperHintStep::ShowBeacon{}, 1.f);
       x1f8_hintLocations.push_back({0, 0.f, loc.x0_mlvlId, loc.x8_areaId});
     }
   }
 
-  for (u32 i = 0; i < hintOpts.GetHintStates().size(); ++i) {
+  for (size_t i = 0; i < hintOpts.GetHintStates().size(); ++i) {
     const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
     if (navigating && hintOpts.GetNextHintIdx() == i)
       continue;
@@ -1581,7 +1588,7 @@ void CAutoMapper::SetupHintNavigation() {
 
 CAssetId CAutoMapper::GetAreaHintDescriptionString(CAssetId mreaId) {
   const CHintOptions& hintOpts = g_GameState->HintOptions();
-  for (u32 i = 0; i < hintOpts.GetHintStates().size(); ++i) {
+  for (size_t i = 0; i < hintOpts.GetHintStates().size(); ++i) {
     const CHintOptions::SHintState& state = hintOpts.GetHintStates()[i];
     if (state.x0_state != CHintOptions::EHintState::Displaying)
       continue;

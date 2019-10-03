@@ -1,11 +1,11 @@
 #pragma once
 
+#include <array>
 #include <list>
 #include <memory>
 #include <optional>
 #include <vector>
 
-#include "Runtime/CInGameTweakManagerBase.hpp"
 #include "Runtime/rstl.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/MP1/CInGameGuiManager.hpp"
@@ -145,7 +145,7 @@ private:
   u32 x9c_worldIdx = 0;
   TAreaId xa0_curAreaId;
   TAreaId xa4_otherAreaId;
-  SAutoMapperRenderState xa8_renderStates[3]; // xa8, x104, x160; current, next, prev
+  std::array<SAutoMapperRenderState, 3> xa8_renderStates; // xa8, x104, x160; current, next, prev
   EAutoMapperState x1bc_state = EAutoMapperState::MiniMap;
   EAutoMapperState x1c0_nextState = EAutoMapperState::MiniMap;
   float x1c4_interpDur = 0.f;
