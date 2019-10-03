@@ -34,8 +34,7 @@ CAtomicAlpha::CAtomicAlpha(TUniqueId uid, std::string_view name, const CEntityIn
 , x690_bombModel(CStaticRes(cmdl, GetModelData()->GetScale())) {
   x668_bombProjectile.Token().Lock();
   for (u32 i = 0; i < skBombCount; ++i) {
-    x6dc_bombLocators.push_back(
-        SBomb(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i)));
+    x6dc_bombLocators.emplace_back(skBombLocators[i], pas::ELocomotionType(u32(pas::ELocomotionType::Internal10) + i));
   }
 }
 
