@@ -1,11 +1,12 @@
-#include "CAtomicBeta.hpp"
-#include "Particle/CWeaponDescription.hpp"
-#include "Weapon/CPlayerGun.hpp"
-#include "Weapon/CElectricBeamProjectile.hpp"
-#include "World/CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/MP1/World/CAtomicBeta.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Weapon/CElectricBeamProjectile.hpp"
+#include "Runtime/Weapon/CPlayerGun.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde::MP1 {
 const std::string_view CAtomicBeta::skBombLocators[3] = {"bomb2_LCTR"sv, "bomb3_LCTR"sv, "bomb4_LCTR"sv};
