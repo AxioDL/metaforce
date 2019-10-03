@@ -1753,7 +1753,7 @@ void CElementGen::SetTranslation(const zeus::CVector3f& translation) {
 
   for (const std::unique_ptr<CParticleGen>& ch : x290_activePartChildren) {
     switch (ch->Get4CharId().toUint32()) {
-    case SBIG('SELC'):
+    case SBIG('ELSC'):
       ch->SetTranslation(translation + x2c0_SEPO);
       break;
     case SBIG('SWHC'):
