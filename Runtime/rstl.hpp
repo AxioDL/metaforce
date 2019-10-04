@@ -1,11 +1,14 @@
 #pragma once
 
-#include <vector>
 #include <algorithm>
-#include <type_traits>
 #include <cstdlib>
 #include <optional>
-#include "logvisor/logvisor.hpp"
+#include <type_traits>
+#include <vector>
+
+#ifndef NDEBUG
+#include <logvisor/logvisor.hpp>
+#endif
 
 namespace rstl {
 
