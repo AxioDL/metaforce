@@ -81,14 +81,17 @@ bool CIEClamp::GetValue(int frame, int& valOut) const {
 }
 
 int CIEClamp::GetMaxValue() const {
-  int a, b, valOut;
-  a = x4_min->GetMaxValue();
-  b = x8_max->GetMaxValue();
-  valOut = xc_val->GetMaxValue();
-  if (valOut > b)
+  const int a = x4_min->GetMaxValue();
+  const int b = x8_max->GetMaxValue();
+  int valOut = xc_val->GetMaxValue();
+
+  if (valOut > b) {
     valOut = b;
-  if (valOut < a)
+  }
+  if (valOut < a) {
     valOut = a;
+  }
+
   return valOut;
 }
 
@@ -112,9 +115,8 @@ bool CIEAdd::GetValue(int frame, int& valOut) const {
 }
 
 int CIEAdd::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
   return a + b;
 }
 
@@ -144,10 +146,10 @@ bool CIELifetimePercent::GetValue(int frame, int& valOut) const {
 }
 
 int CIELifetimePercent::GetMaxValue() const {
-  int a;
-  a = x4_percentVal->GetMaxValue();
-  a = std::max(0, a);
-  return (a / 100.0f) * 10000 + 0.5f; /* Assume 10000 frames max (not ideal estimate) */
+  const int a = std::max(0, x4_percentVal->GetMaxValue());
+
+  // Assume 10000 frames max (not ideal estimate)
+  return int((float(a) / 100.0f) * 10000 + 0.5f);
 }
 
 bool CIEInitialRandom::GetValue(int frame, int& valOut) const {
@@ -268,13 +270,14 @@ bool CIEModulo::GetValue(int frame, int& valOut) const {
 }
 
 int CIEModulo::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
-  if (b != 0)
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
+
+  if (b != 0) {
     return b - 1;
-  else
-    return a;
+  }
+
+  return a;
 }
 
 bool CIESubtract::GetValue(int frame, int& valOut) const {
@@ -286,9 +289,8 @@ bool CIESubtract::GetValue(int frame, int& valOut) const {
 }
 
 int CIESubtract::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
   return a - b;
 }
 
