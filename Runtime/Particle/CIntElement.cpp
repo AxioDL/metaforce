@@ -1,5 +1,7 @@
 #include "Runtime/Particle/CIntElement.hpp"
 
+#include <algorithm>
+
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/Particle/CElementGen.hpp"
 #include "Runtime/Particle/CGenDescription.hpp"
@@ -52,11 +54,7 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const {
 }
 
 int CIEKeyframeEmitter::GetMaxValue() const {
-  int maxVal = INT_MIN;
-  for (int k : x18_keys)
-    if (k > maxVal)
-      maxVal = k;
-  return maxVal;
+  return *std::max_element(x18_keys.cbegin(), x18_keys.cend());
 }
 
 bool CIEDeath::GetValue(int frame, int& valOut) const {
