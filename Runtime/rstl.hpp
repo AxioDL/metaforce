@@ -271,10 +271,10 @@ private:
   }
 
 public:
-  reserved_vector() : x0_size(0) {}
+  reserved_vector() noexcept(std::is_nothrow_constructible_v<T>) : x0_size(0) {}
 
   template <size_t LN>
-  reserved_vector(const T(&l)[LN])
+  reserved_vector(const T (&l)[LN]) noexcept(std::is_nothrow_copy_constructible_v<T>)
   : x0_size(LN) {
     static_assert(LN <= N, "initializer array too large for reserved_vector");
     for (size_t i = 0; i < LN; ++i) {
@@ -282,13 +282,14 @@ public:
     }
   }
 
-  reserved_vector(const reserved_vector& other) : x0_size(other.x0_size) {
+  reserved_vector(const reserved_vector& other) noexcept(std::is_nothrow_copy_constructible_v<T>)
+  : x0_size(other.x0_size) {
     for (size_t i = 0; i < x0_size; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
     }
   }
 
-  reserved_vector& operator=(const reserved_vector& other) {
+  reserved_vector& operator=(const reserved_vector& other) noexcept(std::is_nothrow_copy_assignable_v<T>) {
     size_t i = 0;
     if (other.x0_size > x0_size) {
       for (; i < x0_size; ++i) {
@@ -317,13 +318,14 @@ public:
     return *this;
   }
 
-  reserved_vector(reserved_vector&& other) : x0_size(other.x0_size) {
+  reserved_vector(reserved_vector&& other) noexcept(std::is_nothrow_move_constructible_v<T>) : x0_size(other.x0_size) {
     for (size_t i = 0; i < x0_size; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
     }
   }
 
-  reserved_vector& operator=(reserved_vector&& other) {
+  reserved_vector& operator=(reserved_vector&& other) noexcept(
+      std::is_nothrow_move_assignable_v<T>&& std::is_nothrow_move_constructible_v<T>) {
     size_t i = 0;
     if (other.x0_size > x0_size) {
       for (; i < x0_size; ++i) {
