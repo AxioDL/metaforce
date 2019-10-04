@@ -72,26 +72,17 @@ bool CIEClamp::GetValue(int frame, int& valOut) const {
   x4_min->GetValue(frame, a);
   x8_max->GetValue(frame, b);
   xc_val->GetValue(frame, valOut);
-  if (valOut > b)
-    valOut = b;
-  if (valOut < a)
-    valOut = a;
+
+  valOut = std::clamp(valOut, a, b);
   return false;
 }
 
 int CIEClamp::GetMaxValue() const {
   const int a = x4_min->GetMaxValue();
   const int b = x8_max->GetMaxValue();
-  int valOut = xc_val->GetMaxValue();
+  const int valOut = xc_val->GetMaxValue();
 
-  if (valOut > b) {
-    valOut = b;
-  }
-  if (valOut < a) {
-    valOut = a;
-  }
-
-  return valOut;
+  return std::clamp(valOut, a, b);
 }
 
 bool CIETimeChain::GetValue(int frame, int& valOut) const {
