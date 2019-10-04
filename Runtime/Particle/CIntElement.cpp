@@ -1,8 +1,9 @@
-#include "CIntElement.hpp"
-#include "CParticleGlobals.hpp"
-#include "CRandom16.hpp"
-#include "CElementGen.hpp"
-#include "CGenDescription.hpp"
+#include "Runtime/Particle/CIntElement.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
 
