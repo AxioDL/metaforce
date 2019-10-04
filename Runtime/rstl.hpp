@@ -242,12 +242,12 @@ class reserved_vector : public _reserved_vector_base<T> {
   const T& _value(std::ptrdiff_t idx) const { return x4_data[idx]._value; }
   template <typename Tp>
   static void
-  destroy(Tp& t, std::enable_if_t<std::is_destructible<Tp>::value && !std::is_trivially_destructible<Tp>::value>* = 0) {
+  destroy(Tp& t, std::enable_if_t<std::is_destructible_v<Tp> && !std::is_trivially_destructible_v<Tp>>* = nullptr) {
     t.Tp::~Tp();
   }
   template <typename Tp>
   static void
-  destroy(Tp& t, std::enable_if_t<!std::is_destructible<Tp>::value || std::is_trivially_destructible<Tp>::value>* = 0) {
+  destroy(Tp& t, std::enable_if_t<!std::is_destructible_v<Tp> || std::is_trivially_destructible_v<Tp>>* = nullptr) {
   }
 
 public:
@@ -262,82 +262,107 @@ public:
   reserved_vector(const T(&l)[LN])
   : x0_size(LN) {
     static_assert(LN <= N, "initializer array too large for reserved_vector");
-    for (size_t i = 0; i < LN; ++i)
+    for (size_t i = 0; i < LN; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(l[i]);
+    }
   }
 
   reserved_vector(const reserved_vector& other) : x0_size(other.x0_size) {
-    for (size_t i = 0; i < x0_size; ++i)
+    for (size_t i = 0; i < x0_size; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+    }
   }
 
   reserved_vector& operator=(const reserved_vector& other) {
     size_t i = 0;
     if (other.x0_size > x0_size) {
-      for (; i < x0_size; ++i)
+      for (; i < x0_size; ++i) {
         _value(i) = other._value(i);
-      for (; i < other.x0_size; ++i)
+      }
+      for (; i < other.x0_size; ++i) {
         ::new (static_cast<void*>(std::addressof(_value(i)))) T(other._value(i));
+      }
     } else if (other.x0_size < x0_size) {
-      for (; i < other.x0_size; ++i)
+      for (; i < other.x0_size; ++i) {
         _value(i) = other._value(i);
-      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-        for (; i < x0_size; ++i)
+      }
+
+      if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+        for (; i < x0_size; ++i) {
           destroy(_value(i));
+        }
+      }
     } else {
-      for (; i < other.x0_size; ++i)
+      for (; i < other.x0_size; ++i) {
         _value(i) = other._value(i);
+      }
     }
+
     x0_size = other.x0_size;
     return *this;
   }
 
   reserved_vector(reserved_vector&& other) : x0_size(other.x0_size) {
-    for (size_t i = 0; i < x0_size; ++i)
+    for (size_t i = 0; i < x0_size; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+    }
   }
 
   reserved_vector& operator=(reserved_vector&& other) {
     size_t i = 0;
     if (other.x0_size > x0_size) {
-      for (; i < x0_size; ++i)
+      for (; i < x0_size; ++i) {
         _value(i) = std::forward<T>(other._value(i));
-      for (; i < other.x0_size; ++i)
+      }
+      for (; i < other.x0_size; ++i) {
         ::new (static_cast<void*>(std::addressof(_value(i)))) T(std::forward<T>(other._value(i)));
+      }
     } else if (other.x0_size < x0_size) {
-      for (; i < other.x0_size; ++i)
+      for (; i < other.x0_size; ++i) {
         _value(i) = std::forward<T>(other._value(i));
-      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-        for (; i < x0_size; ++i)
+      }
+
+      if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+        for (; i < x0_size; ++i) {
           destroy(_value(i));
+        }
+      }
     } else {
-      for (; i < other.x0_size; ++i)
+      for (; i < other.x0_size; ++i) {
         _value(i) = std::forward<T>(other._value(i));
+      }
     }
+
     x0_size = other.x0_size;
     return *this;
   }
 
   ~reserved_vector() {
-    if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-      for (size_t i = 0; i < x0_size; ++i)
+    if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+      for (size_t i = 0; i < x0_size; ++i) {
         destroy(_value(i));
+      }
+    }
   }
 
   void push_back(const T& d) {
 #ifndef NDEBUG
-    if (x0_size == N)
+    if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("push_back() called on full rstl::reserved_vector."));
+    }
 #endif
+
     ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(d);
     ++x0_size;
   }
 
   void push_back(T&& d) {
 #ifndef NDEBUG
-    if (x0_size == N)
+    if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("push_back() called on full rstl::reserved_vector."));
+    }
 #endif
+
     ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(d));
     ++x0_size;
   }
@@ -345,34 +370,41 @@ public:
   template <class... _Args>
   void emplace_back(_Args&&... args) {
 #ifndef NDEBUG
-    if (x0_size == N)
+    if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("emplace_back() called on full rstl::reserved_vector."));
+    }
 #endif
+
     ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
     ++x0_size;
   }
 
   void pop_back() {
 #ifndef NDEBUG
-    if (x0_size == 0)
+    if (x0_size == 0) {
       Log.report(logvisor::Fatal, fmt("pop_back() called on empty rstl::reserved_vector."));
+    }
 #endif
+
     --x0_size;
     destroy(_value(x0_size));
   }
 
   iterator insert(const_iterator pos, const T& value) {
 #ifndef NDEBUG
-    if (x0_size == N)
+    if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("insert() called on full rstl::reserved_vector."));
+    }
 #endif
+
     auto target_it = base::_const_cast_iterator(pos);
     if (pos == cend()) {
       ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(value);
     } else {
       ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(_value(x0_size - 1)));
-      for (auto it = end() - 1; it != target_it; --it)
+      for (auto it = end() - 1; it != target_it; --it) {
         *it = std::forward<T>(*(it - 1));
+      }
       *target_it = value;
     }
     ++x0_size;
@@ -389,8 +421,9 @@ public:
       ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(value));
     } else {
       ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<T>(_value(x0_size - 1)));
-      for (auto it = end() - 1; it != target_it; --it)
+      for (auto it = end() - 1; it != target_it; --it) {
         *it = std::forward<T>(*(it - 1));
+      }
       *target_it = std::forward<T>(value);
     }
     ++x0_size;
@@ -399,59 +432,75 @@ public:
 
   void resize(size_t size) {
 #ifndef NDEBUG
-    if (size > N)
+    if (size > N) {
       Log.report(logvisor::Fatal, fmt("resize() call overflows rstl::reserved_vector."));
+    }
 #endif
+
     if (size > x0_size) {
-      for (size_t i = x0_size; i < size; ++i)
+      for (size_t i = x0_size; i < size; ++i) {
         ::new (static_cast<void*>(std::addressof(_value(i)))) T();
+      }
       x0_size = size;
     } else if (size < x0_size) {
-      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-        for (size_t i = size; i < x0_size; ++i)
+      if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+        for (size_t i = size; i < x0_size; ++i) {
           destroy(_value(i));
+        }
+      }
       x0_size = size;
     }
   }
 
   void resize(size_t size, const T& value) {
 #ifndef NDEBUG
-    if (size > N)
+    if (size > N) {
       Log.report(logvisor::Fatal, fmt("resize() call overflows rstl::reserved_vector."));
+    }
 #endif
+
     if (size > x0_size) {
-      for (size_t i = x0_size; i < size; ++i)
+      for (size_t i = x0_size; i < size; ++i) {
         ::new (static_cast<void*>(std::addressof(_value(i)))) T(value);
+      }
       x0_size = size;
     } else if (size < x0_size) {
-      if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-        for (size_t i = size; i < x0_size; ++i)
+      if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+        for (size_t i = size; i < x0_size; ++i) {
           destroy(_value(i));
+        }
+      }
       x0_size = size;
     }
   }
 
   iterator erase(const_iterator pos) {
 #ifndef NDEBUG
-    if (x0_size == 0)
+    if (x0_size == 0) {
       Log.report(logvisor::Fatal, fmt("erase() called on empty rstl::reserved_vector."));
+    }
 #endif
-    for (auto it = base::_const_cast_iterator(pos) + 1; it != end(); ++it)
+
+    for (auto it = base::_const_cast_iterator(pos) + 1; it != end(); ++it) {
       *(it - 1) = std::forward<T>(*it);
+    }
     --x0_size;
     destroy(_value(x0_size));
     return base::_const_cast_iterator(pos);
   }
 
   void pop_front() {
-    if (x0_size != 0)
+    if (x0_size != 0) {
       erase(begin());
+    }
   }
 
   void clear() {
-    if (std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value)
-      for (auto it = begin(); it != end(); ++it)
+    if constexpr (std::is_destructible_v<T> && !std::is_trivially_destructible_v<T>) {
+      for (auto it = begin(); it != end(); ++it) {
         destroy(*it);
+      }
+    }
     x0_size = 0;
   }
 
@@ -482,15 +531,17 @@ public:
 
   T& operator[](size_t idx) {
 #ifndef NDEBUG
-    if (idx >= x0_size)
+    if (idx >= x0_size) {
       Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
+    }
 #endif
     return _value(idx);
   }
   const T& operator[](size_t idx) const {
 #ifndef NDEBUG
-    if (idx >= x0_size)
+    if (idx >= x0_size) {
       Log.report(logvisor::Fatal, fmt("out of bounds access on reserved_vector."));
+    }
 #endif
     return _value(idx);
   }
