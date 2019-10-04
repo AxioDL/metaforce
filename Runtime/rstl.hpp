@@ -229,6 +229,26 @@ protected:
  */
 template <class T, size_t N>
 class reserved_vector : public _reserved_vector_base<T> {
+  using base = _reserved_vector_base<T>;
+
+public:
+  using value_type = T;
+
+  using pointer = value_type*;
+  using const_pointer = const value_type*;
+
+  using reference = value_type&;
+  using const_reference = const value_type&;
+
+  using difference_type = std::ptrdiff_t;
+  using size_type = std::size_t;
+
+  using iterator = typename base::iterator;
+  using const_iterator = typename base::const_iterator;
+  using reverse_iterator = typename base::reverse_iterator;
+  using const_reverse_iterator = typename base::const_reverse_iterator;
+
+private:
   union alignas(T) storage_t {
     struct {
     } _dummy;
@@ -251,11 +271,6 @@ class reserved_vector : public _reserved_vector_base<T> {
   }
 
 public:
-  using base = _reserved_vector_base<T>;
-  using iterator = typename base::iterator;
-  using const_iterator = typename base::const_iterator;
-  using reverse_iterator = typename base::reverse_iterator;
-  using const_reverse_iterator = typename base::const_reverse_iterator;
   reserved_vector() : x0_size(0) {}
 
   template <size_t LN>
