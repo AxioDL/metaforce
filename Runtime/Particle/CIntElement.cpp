@@ -1,8 +1,11 @@
-#include "CIntElement.hpp"
-#include "CParticleGlobals.hpp"
-#include "CRandom16.hpp"
-#include "CElementGen.hpp"
-#include "CGenDescription.hpp"
+#include "Runtime/Particle/CIntElement.hpp"
+
+#include <algorithm>
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
 
 /* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
 
@@ -51,11 +54,7 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const {
 }
 
 int CIEKeyframeEmitter::GetMaxValue() const {
-  int maxVal = INT_MIN;
-  for (int k : x18_keys)
-    if (k > maxVal)
-      maxVal = k;
-  return maxVal;
+  return *std::max_element(x18_keys.cbegin(), x18_keys.cend());
 }
 
 bool CIEDeath::GetValue(int frame, int& valOut) const {
@@ -73,23 +72,17 @@ bool CIEClamp::GetValue(int frame, int& valOut) const {
   x4_min->GetValue(frame, a);
   x8_max->GetValue(frame, b);
   xc_val->GetValue(frame, valOut);
-  if (valOut > b)
-    valOut = b;
-  if (valOut < a)
-    valOut = a;
+
+  valOut = std::clamp(valOut, a, b);
   return false;
 }
 
 int CIEClamp::GetMaxValue() const {
-  int a, b, valOut;
-  a = x4_min->GetMaxValue();
-  b = x8_max->GetMaxValue();
-  valOut = xc_val->GetMaxValue();
-  if (valOut > b)
-    valOut = b;
-  if (valOut < a)
-    valOut = a;
-  return valOut;
+  const int a = x4_min->GetMaxValue();
+  const int b = x8_max->GetMaxValue();
+  const int valOut = xc_val->GetMaxValue();
+
+  return std::clamp(valOut, a, b);
 }
 
 bool CIETimeChain::GetValue(int frame, int& valOut) const {
@@ -112,9 +105,8 @@ bool CIEAdd::GetValue(int frame, int& valOut) const {
 }
 
 int CIEAdd::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
   return a + b;
 }
 
@@ -144,10 +136,10 @@ bool CIELifetimePercent::GetValue(int frame, int& valOut) const {
 }
 
 int CIELifetimePercent::GetMaxValue() const {
-  int a;
-  a = x4_percentVal->GetMaxValue();
-  a = std::max(0, a);
-  return (a / 100.0f) * 10000 + 0.5f; /* Assume 10000 frames max (not ideal estimate) */
+  const int a = std::max(0, x4_percentVal->GetMaxValue());
+
+  // Assume 10000 frames max (not ideal estimate)
+  return int((float(a) / 100.0f) * 10000 + 0.5f);
 }
 
 bool CIEInitialRandom::GetValue(int frame, int& valOut) const {
@@ -268,13 +260,14 @@ bool CIEModulo::GetValue(int frame, int& valOut) const {
 }
 
 int CIEModulo::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
-  if (b != 0)
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
+
+  if (b != 0) {
     return b - 1;
-  else
-    return a;
+  }
+
+  return a;
 }
 
 bool CIESubtract::GetValue(int frame, int& valOut) const {
@@ -286,9 +279,8 @@ bool CIESubtract::GetValue(int frame, int& valOut) const {
 }
 
 int CIESubtract::GetMaxValue() const {
-  int a, b;
-  a = x4_a->GetMaxValue();
-  b = x8_b->GetMaxValue();
+  const int a = x4_a->GetMaxValue();
+  const int b = x8_b->GetMaxValue();
   return a - b;
 }
 
