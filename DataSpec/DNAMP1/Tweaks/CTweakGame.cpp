@@ -9,9 +9,9 @@ hecl::CVar* tw_fov = nullptr;
 hecl::CVar* tw_hardmodeDMult = nullptr;
 hecl::CVar* tw_hardmodeWMult = nullptr;
 namespace {
-constexpr std::string_view skFov = "tweaks.game.FieldOfView"sv;
-constexpr std::string_view skHardModeDamageMultName = "tweaks.game.HardModeDamageMult"sv;
-constexpr std::string_view skHardModeWeaponMultName = "tweaks.game.HardModeWeaponMult"sv;
+constexpr std::string_view skFov = "tweak.game.FieldOfView"sv;
+constexpr std::string_view skHardModeDamageMultName = "tweak.game.HardModeDamageMult"sv;
+constexpr std::string_view skHardModeWeaponMultName = "tweak.game.HardModeWeaponMult"sv;
 } // anonymous namespace
 
 void CTweakGame::_tweakGameListener(hecl::CVar* cv) {
@@ -29,7 +29,7 @@ void CTweakGame::initCVars(hecl::CVarManager* mgr) {
     hecl::CVar* cv = mgr->findOrMakeCVar(name, desc, v, flags);
     // Check if the CVar was deserialized, this avoid an unnecessary conversion
     if (cv->wasDeserialized())
-      v = cv->toReal();
+      v = static_cast<float>(cv->toReal());
     cv->addListener([this](hecl::CVar* cv) { _tweakGameListener(cv); });
     return cv;
   };

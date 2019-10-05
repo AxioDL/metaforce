@@ -387,7 +387,8 @@ bool CMain::LoadAudio() {
 
 void CMain::EnsureWorldPaksReady() {}
 
-void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */ }
+void CMain::EnsureWorldPakReady(CAssetId mlvl) { /* TODO: Schedule resource list load for World Pak containing mlvl */
+}
 
 void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
@@ -404,6 +405,8 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
                          CPlayerState::GetPowerUpMaxValue(CPlayerState::EItemType(item)));
     }
     pState->IncrPickup(CPlayerState::EItemType::HealthRefill, 99999);
+  } else if (type == "map") {
+    g_GameState->CurrentWorldState().MapWorldInfo()->SetMapStationUsed(true);
   } else {
     CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
     if (eType == CPlayerState::EItemType::Invalid) {
@@ -444,7 +447,7 @@ void CMain::Give(hecl::Console* console, const std::vector<std::string>& args) {
   if (g_StateManager)
     g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
   console->report(hecl::Console::Level::Info, fmt("Cheater....., Greatly increasing Metroid encounters, have fun!"));
-}
+} // namespace MP1
 
 void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
   if (args.size() < 1 || (!g_GameState || !g_GameState->GetPlayerState()))
@@ -453,11 +456,17 @@ void CMain::Remove(hecl::Console*, const std::vector<std::string>& args) {
   std::string type = args[0];
   athena::utility::tolower(type);
   std::shared_ptr<CPlayerState> pState = g_GameState->GetPlayerState();
-  CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
-  if (eType != CPlayerState::EItemType::Invalid) {
-    pState->ReInitalizePowerUp(eType, 0);
-    if (g_StateManager)
-      g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+  if (type == "all") {
+
+  } else if (type == "map") {
+    g_GameState->CurrentWorldState().MapWorldInfo()->SetMapStationUsed(false);
+  } else {
+    CPlayerState::EItemType eType = CPlayerState::ItemNameToType(type);
+    if (eType != CPlayerState::EItemType::Invalid) {
+      pState->ReInitalizePowerUp(eType, 0);
+      if (g_StateManager)
+        g_StateManager->Player()->AsyncLoadSuit(*g_StateManager);
+    }
   }
 }
 

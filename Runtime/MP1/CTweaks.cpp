@@ -82,7 +82,7 @@ void CTweaks::RegisterTweaks(hecl::CVarManager* cvarMgr) {
   strm.emplace(g_ResFactory->LoadResourceSync(*tag).release(), g_ResFactory->ResourceSize(*tag), true);
   g_tweakAutoMapper = new DataSpec::DNAMP1::CTweakAutoMapper(*strm);
   CMappableObject::ReadAutoMapperTweaks(*g_tweakAutoMapper);
-  g_tweakPlayerGun->initCVars(cvarMgr);
+  g_tweakAutoMapper->initCVars(cvarMgr);
 
   /* Gui */
   tag = g_ResFactory->GetResourceIdByName("Gui");
