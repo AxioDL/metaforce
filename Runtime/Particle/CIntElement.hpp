@@ -206,4 +206,16 @@ public:
   int GetMaxValue() const override;
 };
 
+class CIERealToInt final : public CIntElement {
+  std::unique_ptr<CRealElement> x4_a;
+  std::unique_ptr<CRealElement> x8_b;
+
+public:
+  explicit CIERealToInt(std::unique_ptr<CRealElement>&& a, std::unique_ptr<CRealElement>&& b)
+  : x4_a{std::move(a)}, x8_b{std::move(b)} {}
+
+  bool GetValue(int frame, int& valOut) const override;
+  int GetMaxValue() const override;
+};
+
 } // namespace urde

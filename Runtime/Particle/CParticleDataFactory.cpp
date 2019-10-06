@@ -666,6 +666,11 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
     auto b = GetIntElement(in);
     return std::make_unique<CIERandom>(std::move(a), std::move(b));
   }
+  case SBIG('RTOI'): {
+    auto a = GetRealElement(in);
+    auto b = GetRealElement(in);
+    return std::make_unique<CIERealToInt>(std::move(a), std::move(b));
+  }
   case SBIG('TSCL'): {
     auto a = GetRealElement(in);
     return std::make_unique<CIETimeScale>(std::move(a));
