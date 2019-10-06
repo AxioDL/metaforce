@@ -284,4 +284,20 @@ int CIESubtract::GetMaxValue() const {
   return a - b;
 }
 
+bool CIERealToInt::GetValue(int frame, int& valOut) const {
+  float a = 0.0f;
+  float b = 1.0f;
+
+  x8_b->GetValue(frame, b);
+  x4_a->GetValue(frame, a);
+
+  valOut = static_cast<int>(a * b);
+  return false;
+}
+
+int CIERealToInt::GetMaxValue() const {
+  // TODO: Implement
+  return 1;
+}
+
 } // namespace urde
