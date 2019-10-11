@@ -700,21 +700,23 @@ std::unique_ptr<CIntElement> CParticleDataFactory::GetIntElement(CInputStream& i
   return nullptr;
 }
 
-CGenDescription* CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
+std::unique_ptr<CGenDescription> CParticleDataFactory::GetGeneratorDesc(CInputStream& in, CSimplePool* resPool) {
   std::vector<CAssetId> tracker;
   tracker.reserve(8);
   return CreateGeneratorDescription(in, tracker, 0, resPool);
 }
 
-CGenDescription* CParticleDataFactory::CreateGeneratorDescription(CInputStream& in, std::vector<CAssetId>& tracker,
-                                                                  CAssetId resId, CSimplePool* resPool) {
+std::unique_ptr<CGenDescription> CParticleDataFactory::CreateGeneratorDescription(CInputStream& in,
+                                                                                  std::vector<CAssetId>& tracker,
+                                                                                  CAssetId resId,
+                                                                                  CSimplePool* resPool) {
   if (std::count(tracker.cbegin(), tracker.cend(), resId) == 0) {
     tracker.push_back(resId);
     FourCC cid = GetClassID(in);
     if (cid == FOURCC('GPSM')) {
-      CGenDescription* ret = new CGenDescription;
-      CreateGPSM(ret, in, tracker, resPool);
-      LoadGPSMTokens(ret);
+      auto ret = std::make_unique<CGenDescription>();
+      CreateGPSM(ret.get(), in, tracker, resPool);
+      LoadGPSMTokens(ret.get());
       return ret;
     }
   }
@@ -1027,9 +1029,8 @@ void CParticleDataFactory::LoadGPSMTokens(CGenDescription* desc) {
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
                                   CObjectReference* selfRef) {
-  CSimplePool* sp = vparms.GetOwnedObj<CSimplePool*>();
-  return TToken<CGenDescription>::GetIObjObjectFor(
-      std::unique_ptr<CGenDescription>(CParticleDataFactory::GetGeneratorDesc(in, sp)));
+  auto* const sp = vparms.GetOwnedObj<CSimplePool*>();
+  return TToken<CGenDescription>::GetIObjObjectFor(CParticleDataFactory::GetGeneratorDesc(in, sp));
 }
 
 } // namespace urde

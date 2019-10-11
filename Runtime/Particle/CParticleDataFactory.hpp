@@ -86,14 +86,14 @@ class CParticleDataFactory {
   static s32 GetInt(CInputStream& in);
   static bool GetBool(CInputStream& in);
   static FourCC GetClassID(CInputStream& in);
-  static CGenDescription* CreateGeneratorDescription(CInputStream& in, std::vector<CAssetId>& tracker, CAssetId resId,
-                                                     CSimplePool* resPool);
+  static std::unique_ptr<CGenDescription> CreateGeneratorDescription(CInputStream& in, std::vector<CAssetId>& tracker,
+                                                                     CAssetId resId, CSimplePool* resPool);
   static bool CreateGPSM(CGenDescription* fillDesc, CInputStream& in, std::vector<CAssetId>& tracker,
                          CSimplePool* resPool);
   static void LoadGPSMTokens(CGenDescription* desc);
 
 public:
-  static CGenDescription* GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
+  static std::unique_ptr<CGenDescription> GetGeneratorDesc(CInputStream& in, CSimplePool* resPool);
 };
 
 CFactoryFnReturn FParticleFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
