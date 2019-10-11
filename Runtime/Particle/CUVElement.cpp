@@ -42,7 +42,7 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntEle
 }
 
 void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const {
-  int cv;
+  int cv = 1;
   x28_cycleFrames->GetValue(frame, cv);
   float cvf = float(cv) / float(x20_tiles);
   cvf = float(frame) / cvf;
