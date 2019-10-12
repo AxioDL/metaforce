@@ -44,11 +44,12 @@ class COBBTree;
 class CCollisionInfo;
 class CCollisionInfoList;
 class CInternalRayCastStructure;
-typedef bool (*ComparisonFunc)(const CInternalCollisionStructure&, CCollisionInfoList&);
-typedef bool (*MovingComparisonFunc)(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
-                                     CCollisionInfo&);
-typedef bool (*BooleanComparisonFunc)(const CInternalCollisionStructure&);
-typedef void (*PrimitiveSetter)(u32);
+
+using BooleanComparisonFunc = bool (*)(const CInternalCollisionStructure&);
+using ComparisonFunc = bool (*)(const CInternalCollisionStructure&, CCollisionInfoList&);
+using MovingComparisonFunc = bool (*)(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                      CCollisionInfo&);
+using PrimitiveSetter = void (*)(u32);
 
 class CCollisionPrimitive {
 public:
