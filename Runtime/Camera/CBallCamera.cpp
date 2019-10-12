@@ -1750,7 +1750,8 @@ bool CBallCamera::DetectCollision(const zeus::CVector3f& from, const zeus::CVect
   zeus::CVector3f delta = to - from;
   float deltaMag = delta.magnitude();
   zeus::CVector3f deltaNorm = delta * (1.f / deltaMag);
-  float clear = true;
+  bool clear = true;
+
   if (deltaMag > 0.000001f) {
     float margin = 2.f * radius;
     zeus::CAABox aabb;
