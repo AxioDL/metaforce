@@ -44,11 +44,12 @@ class COBBTree;
 class CCollisionInfo;
 class CCollisionInfoList;
 class CInternalRayCastStructure;
-typedef bool (*ComparisonFunc)(const CInternalCollisionStructure&, CCollisionInfoList&);
-typedef bool (*MovingComparisonFunc)(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
-                                     CCollisionInfo&);
-typedef bool (*BooleanComparisonFunc)(const CInternalCollisionStructure&);
-typedef void (*PrimitiveSetter)(u32);
+
+using BooleanComparisonFunc = bool (*)(const CInternalCollisionStructure&);
+using ComparisonFunc = bool (*)(const CInternalCollisionStructure&, CCollisionInfoList&);
+using MovingComparisonFunc = bool (*)(const CInternalCollisionStructure&, const zeus::CVector3f&, double&,
+                                      CCollisionInfo&);
+using PrimitiveSetter = void (*)(u32);
 
 class CCollisionPrimitive {
 public:
@@ -136,7 +137,7 @@ public:
   virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const = 0;
   virtual zeus::CAABox CalculateLocalAABox() const = 0;
   virtual FourCC GetPrimType() const = 0;
-  virtual ~CCollisionPrimitive() {}
+  virtual ~CCollisionPrimitive() = default;
   virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const = 0;
   CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                          const CMaterialFilter& filter, const zeus::CTransform& xf) const;
