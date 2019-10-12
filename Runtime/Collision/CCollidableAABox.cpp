@@ -8,7 +8,7 @@ namespace urde {
 const CCollisionPrimitive::Type CCollidableAABox::sType(CCollidableAABox::SetStaticTableIndex, "CCollidableAABox");
 u32 CCollidableAABox::sTableIndex = -1;
 
-CCollidableAABox::CCollidableAABox() {}
+CCollidableAABox::CCollidableAABox() = default;
 
 CCollidableAABox::CCollidableAABox(const zeus::CAABox& aabox, const CMaterialList& list)
 : CCollisionPrimitive(list), x10_aabox(aabox) {}
