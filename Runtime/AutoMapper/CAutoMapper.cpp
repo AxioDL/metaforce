@@ -615,31 +615,25 @@ void CAutoMapper::ProcessMapZoomInput(const CFinalInput& input, const CStateMana
     }
   }
 
-  EZoomState nextZoomState = EZoomState::None;
-  switch (x324_zoomState) {
-  case EZoomState::None:
-    if (in)
-      nextZoomState = EZoomState::In;
-    else if (out)
-      nextZoomState = EZoomState::Out;
-    break;
-  case EZoomState::In:
-    if (in)
-      nextZoomState = EZoomState::In;
-    else if (out)
-      nextZoomState = EZoomState::Out;
-    break;
-  case EZoomState::Out:
-    if (in)
-      nextZoomState = EZoomState::In;
-    else if (out)
-      nextZoomState = EZoomState::Out;
-    break;
-  default:
-    break;
-  }
+  const EZoomState nextZoomState = [this, in, out] {
+        switch (x324_zoomState) {
+        case EZoomState::None:
+        case EZoomState::In:
+        case EZoomState::Out:
+          if (in) {
+            return EZoomState::In;
+          }
+          if (out) {
+            return EZoomState::Out;
+          }
+          return EZoomState::None;
 
+        default:
+          return EZoomState::None;
+        }
+  }();
   x324_zoomState = nextZoomState;
+
   float delta = input.DeltaTime() * 60.f * (x1bc_state == EAutoMapperState::MapScreen ? 1.f : 4.f) *
                 g_tweakAutoMapper->GetCamZoomUnitsPerFrame() * zoomSpeed;
   float oldDist = xa8_renderStates[0].x18_camDist;
