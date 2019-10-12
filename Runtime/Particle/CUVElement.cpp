@@ -14,38 +14,48 @@ CUVEAnimTexture::CUVEAnimTexture(TToken<CTexture>&& tex, std::unique_ptr<CIntEle
   strideW->GetValue(0, x18_strideW);
   strideH->GetValue(0, x1c_strideH);
 
-  int width = x4_tex.GetObj()->GetWidth();
-  int height = x4_tex.GetObj()->GetHeight();
-  float widthF = width;
-  float heightF = height;
-  int xTiles = std::max(1, width / x18_strideW);
-  int yTiles = std::max(1, height / x1c_strideH);
+  const int width = int(x4_tex.GetObj()->GetWidth());
+  const int height = int(x4_tex.GetObj()->GetHeight());
+  const float widthF = float(width);
+  const float heightF = float(height);
+  const int xTiles = std::max(1, width / x18_strideW);
+  const int yTiles = std::max(1, height / x1c_strideH);
+
   x20_tiles = xTiles * yTiles;
   x2c_uvElems.reserve(x20_tiles);
+
   for (int y = yTiles - 1; y >= 0; --y) {
     for (int x = 0; x < xTiles; ++x) {
-      int px = x18_strideW * x;
-      int px2 = px + x10_tileW;
-      int py = x1c_strideH * y;
-      int py2 = py + x14_tileH;
-      x2c_uvElems.push_back({px / widthF, py / heightF, px2 / widthF, py2 / heightF});
+      const int px = x18_strideW * x;
+      const int px2 = px + x10_tileW;
+      const int py = x1c_strideH * y;
+      const int py2 = py + x14_tileH;
+
+      x2c_uvElems.push_back({
+          float(px) / widthF,
+          float(py) / heightF,
+          float(px2) / widthF,
+          float(py2) / heightF,
+      });
     }
   }
 }
 
 void CUVEAnimTexture::GetValueUV(int frame, SUVElementSet& valOut) const {
-  int cv;
+  int cv = 1;
   x28_cycleFrames->GetValue(frame, cv);
-  float cvf = cv / float(x20_tiles);
-  cvf = frame / cvf;
+  float cvf = float(cv) / float(x20_tiles);
+  cvf = float(frame) / cvf;
 
-  int tile = cvf;
+  int tile = int(cvf);
   if (x24_loop) {
-    if (cvf >= x20_tiles)
+    if (cvf >= float(x20_tiles)) {
       tile = int(cvf) % x20_tiles;
+    }
   } else {
-    if (cvf >= x20_tiles)
+    if (cvf >= float(x20_tiles)) {
       tile = x20_tiles - 1;
+    }
   }
 
   valOut = x2c_uvElems[tile];
