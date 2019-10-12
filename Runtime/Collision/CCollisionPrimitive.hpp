@@ -137,7 +137,7 @@ public:
   virtual zeus::CAABox CalculateAABox(const zeus::CTransform&) const = 0;
   virtual zeus::CAABox CalculateLocalAABox() const = 0;
   virtual FourCC GetPrimType() const = 0;
-  virtual ~CCollisionPrimitive() {}
+  virtual ~CCollisionPrimitive() = default;
   virtual CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const = 0;
   CRayCastResult CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                          const CMaterialFilter& filter, const zeus::CTransform& xf) const;
