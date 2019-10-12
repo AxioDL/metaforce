@@ -123,6 +123,10 @@ private:
   static BooleanComparisonFunc sNullBooleanCollider;
   static MovingComparisonFunc sNullMovingCollider;
 
+  // Attempts to locate an entry within the collision type list that matches the supplied name.
+  // Returns the end iterator in the event of no matches.
+  static std::vector<Type>::const_iterator FindCollisionType(const char* name);
+
   static bool InternalCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list);
   static bool InternalCollideBoolean(const CInternalCollisionStructure& collision);
   static bool InternalCollideMoving(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,

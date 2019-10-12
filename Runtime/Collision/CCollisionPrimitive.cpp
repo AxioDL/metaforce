@@ -1,8 +1,14 @@
-#include "CCollisionPrimitive.hpp"
-#include "CInternalRayCastStructure.hpp"
-#include "CMaterialFilter.hpp"
-#include "InternalColliders.hpp"
-#include "CCollisionInfoList.hpp"
+#include "Runtime/Collision/CCollisionPrimitive.hpp"
+
+#include <algorithm>
+#include <climits>
+#include <cstring>
+#include <iterator>
+
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Collision/CInternalRayCastStructure.hpp"
+#include "Runtime/Collision/CMaterialFilter.hpp"
+#include "Runtime/Collision/InternalColliders.hpp"
 
 namespace urde {
 s32 CCollisionPrimitive::sNumTypes = 0;
@@ -27,6 +33,11 @@ const CMaterialList& CCollisionPrimitive::GetMaterial() const { return x8_materi
 CRayCastResult CCollisionPrimitive::CastRay(const zeus::CVector3f& start, const zeus::CVector3f& dir, float length,
                                             const CMaterialFilter& filter, const zeus::CTransform& xf) const {
   return CastRayInternal(CInternalRayCastStructure(start, dir, length, xf, filter));
+}
+
+std::vector<CCollisionPrimitive::Type>::const_iterator CCollisionPrimitive::FindCollisionType(const char* name) {
+  return std::find_if(sCollisionTypeList->cbegin(), sCollisionTypeList->cend(),
+                      [name](const auto& type) { return std::strcmp(name, type.GetInfo()) == 0; });
 }
 
 bool CCollisionPrimitive::InternalCollide(const CInternalCollisionStructure& collision, CCollisionInfoList& list) {
@@ -176,28 +187,19 @@ void CCollisionPrimitive::InitBeginColliders() {
   InternalColliders::AddColliders();
 }
 
-void CCollisionPrimitive::InitAddBooleanCollider(const CCollisionPrimitive::BooleanComparison& cmp) {
-  int idx0 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType1(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx0 = i;
-      break;
-    }
-  }
+void CCollisionPrimitive::InitAddBooleanCollider(const BooleanComparison& cmp) {
+  const auto iter1 = FindCollisionType(cmp.GetType1());
+  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
+  const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
+  const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();
 
-  int idx1 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType2(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx1 = i;
-      break;
-    }
-  }
-
-  if (idx0 < 0 || idx1 < 0 || idx0 >= sNumTypes || idx1 >= sNumTypes)
+  if (index1 >= sNumTypes || index2 >= sNumTypes || hasReachedEnd) {
     return;
+  }
 
   BooleanComparisonFunc& funcOut =
-      (idx0 == -1 || idx1 == -1) ? sNullBooleanCollider : (*sTableOfBooleanCollidables)[idx1 * sNumTypes + idx0];
+      hasReachedEnd ? sNullBooleanCollider : (*sTableOfBooleanCollidables)[index2 * sNumTypes + index1];
   funcOut = cmp.GetCollider();
 }
 
@@ -205,28 +207,19 @@ void CCollisionPrimitive::InitAddBooleanCollider(BooleanComparisonFunc cmp, cons
   InitAddBooleanCollider({cmp, a, b});
 }
 
-void CCollisionPrimitive::InitAddMovingCollider(const CCollisionPrimitive::MovingComparison& cmp) {
-  int idx0 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType1(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx0 = i;
-      break;
-    }
-  }
+void CCollisionPrimitive::InitAddMovingCollider(const MovingComparison& cmp) {
+  const auto iter1 = FindCollisionType(cmp.GetType1());
+  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
+  const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
+  const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();
 
-  int idx1 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType2(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx1 = i;
-      break;
-    }
-  }
-
-  if (idx0 < 0 || idx1 < 0 || idx0 >= sNumTypes || idx1 >= sNumTypes)
+  if (index1 >= sNumTypes || index2 >= sNumTypes || hasReachedEnd) {
     return;
+  }
 
   MovingComparisonFunc& funcOut =
-      (idx0 == -1 || idx1 == -1) ? sNullMovingCollider : (*sTableOfMovingCollidables)[idx1 * sNumTypes + idx0];
+      hasReachedEnd ? sNullMovingCollider : (*sTableOfMovingCollidables)[index2 * sNumTypes + index1];
   funcOut = cmp.GetCollider();
 }
 
@@ -234,28 +227,18 @@ void CCollisionPrimitive::InitAddMovingCollider(MovingComparisonFunc cmp, const 
   InitAddMovingCollider({cmp, a, b});
 }
 
-void CCollisionPrimitive::InitAddCollider(const CCollisionPrimitive::Comparison& cmp) {
-  int idx0 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType1(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx0 = i;
-      break;
-    }
-  }
+void CCollisionPrimitive::InitAddCollider(const Comparison& cmp) {
+  const auto iter1 = FindCollisionType(cmp.GetType1());
+  const auto iter2 = FindCollisionType(cmp.GetType2());
+  const auto index1 = std::distance(sCollisionTypeList->cbegin(), iter1);
+  const auto index2 = std::distance(sCollisionTypeList->cbegin(), iter2);
+  const bool hasReachedEnd = iter1 == sCollisionTypeList->cend() || iter2 == sCollisionTypeList->cend();
 
-  int idx1 = -1;
-  for (int i = 0; i < sCollisionTypeList->size(); ++i) {
-    if (!strcmp(cmp.GetType2(), (*sCollisionTypeList)[i].GetInfo())) {
-      idx1 = i;
-      break;
-    }
-  }
-
-  if (idx0 < 0 || idx1 < 0 || idx0 >= sNumTypes || idx1 >= sNumTypes)
+  if (index1 >= sNumTypes || index2 >= sNumTypes || hasReachedEnd) {
     return;
+  }
 
-  ComparisonFunc& funcOut =
-      (idx0 == -1 || idx1 == -1) ? sNullCollider : (*sTableOfCollidables)[idx1 * sNumTypes + idx0];
+  ComparisonFunc& funcOut = hasReachedEnd ? sNullCollider : (*sTableOfCollidables)[index2 * sNumTypes + index1];
   funcOut = cmp.GetCollider();
 }
 
