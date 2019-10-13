@@ -46,6 +46,7 @@ public:
   constexpr bool operator!=(uint32_t other) const noexcept { return !operator==(other); }
 
   std::string toString() const { return std::string(std::begin(fcc), std::end(fcc)); }
+  constexpr std::string_view toStringView() const { return std::string_view(fcc, std::size(fcc)); }
   constexpr uint32_t toUint32() const noexcept { return num; }
   constexpr const char* getChars() const noexcept { return fcc; }
   constexpr char* getChars() noexcept { return fcc; }
@@ -58,10 +59,10 @@ using BigDNA = athena::io::DNA<athena::Endian::Big>;
 /** FourCC with DNA read/write */
 class DNAFourCC final : public BigDNA, public FourCC {
 public:
-  DNAFourCC() : FourCC() {}
-  DNAFourCC(const FourCC& other) : FourCC() { num = other.toUint32(); }
-  DNAFourCC(const char* name) : FourCC(name) {}
-  DNAFourCC(uint32_t n) : FourCC(n) {}
+  constexpr DNAFourCC() : FourCC() {}
+  constexpr DNAFourCC(const FourCC& other) : FourCC() { num = other.toUint32(); }
+  constexpr DNAFourCC(const char* name) : FourCC(name) {}
+  constexpr DNAFourCC(uint32_t n) : FourCC(n) {}
   AT_DECL_EXPLICIT_DNA_YAML
 };
 template <>

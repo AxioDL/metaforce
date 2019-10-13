@@ -45,10 +45,10 @@ class HMDLBuffers;
 extern logvisor::Module BlenderLog;
 
 struct PoolSkinIndex {
-  size_t m_poolSz = 0;
+  std::size_t m_poolSz = 0;
   std::unique_ptr<uint32_t[]> m_poolToSkinIndex;
 
-  void allocate(size_t poolSz) {
+  void allocate(std::size_t poolSz) {
     m_poolSz = poolSz;
     if (poolSz)
       m_poolToSkinIndex.reset(new uint32_t[poolSz]);
@@ -145,15 +145,15 @@ struct Vector4f {
 };
 struct Matrix3f {
   std::array<atVec3f, 3> m;
-  atVec3f& operator[](size_t idx) { return m[idx]; }
-  const atVec3f& operator[](size_t idx) const { return m[idx]; }
+  atVec3f& operator[](std::size_t idx) { return m[idx]; }
+  const atVec3f& operator[](std::size_t idx) const { return m[idx]; }
 };
 struct Matrix4f {
   std::array<atVec4f, 4> val;
   Matrix4f() = default;
   Matrix4f(Connection& conn) { read(conn); }
   void read(Connection& conn);
-  const atVec4f& operator[](size_t idx) const { return val[idx]; }
+  const atVec4f& operator[](std::size_t idx) const { return val[idx]; }
 };
 struct Index {
   uint32_t val;
@@ -289,9 +289,9 @@ struct Material {
 
 /** Intermediate mesh representation prepared by blender from a single mesh object */
 struct Mesh {
-  static constexpr size_t MaxColorLayers = 4;
-  static constexpr size_t MaxUVLayers = 8;
-  static constexpr size_t MaxSkinEntries = 16;
+  static constexpr std::size_t MaxColorLayers = 4;
+  static constexpr std::size_t MaxUVLayers = 8;
+  static constexpr std::size_t MaxSkinEntries = 16;
 
   HMDLTopology topology;
 
@@ -325,10 +325,10 @@ struct Mesh {
     bool operator==(const SkinBind& other) const { return vg_idx == other.vg_idx && weight == other.weight; }
   };
   std::vector<std::array<SkinBind, MaxSkinEntries>> skins;
-  std::vector<size_t> contiguousSkinVertCounts;
+  std::vector<std::size_t> contiguousSkinVertCounts;
 
-  static size_t countSkinBinds(const std::array<SkinBind, MaxSkinEntries>& arr) {
-    size_t ret = 0;
+  static std::size_t countSkinBinds(const std::array<SkinBind, MaxSkinEntries>& arr) {
+    std::size_t ret = 0;
     for (const auto& b : arr)
       if (b.valid())
         ++ret;
@@ -553,7 +553,7 @@ struct Armature {
   std::vector<Bone> bones;
   const Bone* lookupBone(const char* name) const;
   const Bone* getParent(const Bone* bone) const;
-  const Bone* getChild(const Bone* bone, size_t child) const;
+  const Bone* getChild(const Bone* bone, std::size_t child) const;
   const Bone* getRoot() const;
   Armature(Connection& conn);
 };
@@ -734,8 +734,8 @@ class Connection {
   uint32_t _writeStr(const char* str, uint32_t len, int wpipe);
   uint32_t _writeStr(const char* str, uint32_t len) { return _writeStr(str, len, m_writepipe[1]); }
   uint32_t _writeStr(std::string_view view) { return _writeStr(view.data(), view.size()); }
-  size_t _readBuf(void* buf, size_t len);
-  size_t _writeBuf(const void* buf, size_t len);
+  std::size_t _readBuf(void* buf, std::size_t len);
+  std::size_t _writeBuf(const void* buf, std::size_t len);
   std::string _readStdString() {
     uint32_t bufSz;
     _readBuf(&bufSz, 4);
@@ -868,14 +868,14 @@ public:
 
 private:
   friend struct Mesh;
-  HMDLBuffers(HMDLMeta&& meta, size_t vboSz, const std::vector<atUint32>& iboData, std::vector<Surface>&& surfaces,
+  HMDLBuffers(HMDLMeta&& meta, std::size_t vboSz, const std::vector<atUint32>& iboData, std::vector<Surface>&& surfaces,
               const Mesh::SkinBanks& skinBanks);
 
 public:
   HMDLMeta m_meta;
-  size_t m_vboSz;
+  std::size_t m_vboSz;
   std::unique_ptr<uint8_t[]> m_vboData;
-  size_t m_iboSz;
+  std::size_t m_iboSz;
   std::unique_ptr<uint8_t[]> m_iboData;
 
   struct Surface {
@@ -895,16 +895,16 @@ public:
 namespace std {
 template <>
 struct hash<hecl::blender::Vector2f> {
-  size_t operator()(const hecl::blender::Vector2f& val) const noexcept {
-    size_t h = std::hash<float>()(val.val.simd[0]);
+  std::size_t operator()(const hecl::blender::Vector2f& val) const noexcept {
+    std::size_t h = std::hash<float>()(val.val.simd[0]);
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
     return h;
   }
 };
 template <>
 struct hash<hecl::blender::Vector3f> {
-  size_t operator()(const hecl::blender::Vector3f& val) const noexcept {
-    size_t h = std::hash<float>()(val.val.simd[0]);
+  std::size_t operator()(const hecl::blender::Vector3f& val) const noexcept {
+    std::size_t h = std::hash<float>()(val.val.simd[0]);
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[2]));
     return h;
@@ -912,8 +912,8 @@ struct hash<hecl::blender::Vector3f> {
 };
 template <>
 struct hash<hecl::blender::Vector4f> {
-  size_t operator()(const hecl::blender::Vector4f& val) const noexcept {
-    size_t h = std::hash<float>()(val.val.simd[0]);
+  std::size_t operator()(const hecl::blender::Vector4f& val) const noexcept {
+    std::size_t h = std::hash<float>()(val.val.simd[0]);
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[1]));
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[2]));
     hecl::hash_combine_impl(h, std::hash<float>()(val.val.simd[3]));
@@ -922,8 +922,8 @@ struct hash<hecl::blender::Vector4f> {
 };
 template <>
 struct hash<array<hecl::blender::Mesh::SkinBind, 16>> {
-  size_t operator()(const array<hecl::blender::Mesh::SkinBind, 16>& val) const noexcept {
-    size_t h = 0;
+  std::size_t operator()(const array<hecl::blender::Mesh::SkinBind, 16>& val) const noexcept {
+    std::size_t h = 0;
     for (const auto& bind : val) {
       if (!bind.valid())
         break;

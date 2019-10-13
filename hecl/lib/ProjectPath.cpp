@@ -269,15 +269,14 @@ static bool RegexSearchLast(const T& str, std::match_results<typename T::const_i
 static const hecl::SystemRegex regParsedHash32(_SYS_STR(R"(_([0-9a-fA-F]{8}))"),
                                                std::regex::ECMAScript | std::regex::optimize);
 uint32_t ProjectPath::parsedHash32() const {
-  {
+  if (!m_auxInfo.empty()) {
     hecl::SystemRegexMatch match;
     if (RegexSearchLast(m_auxInfo, match, regParsedHash32)) {
       auto hexStr = match[1].str();
       if (auto val = hecl::StrToUl(hexStr.c_str(), nullptr, 16))
         return val;
     }
-  }
-  {
+  } else {
     hecl::SystemViewRegexMatch match;
     if (RegexSearchLast(getLastComponent(), match, regParsedHash32)) {
       auto hexStr = match[1].str();

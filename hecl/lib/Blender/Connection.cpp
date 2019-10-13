@@ -36,7 +36,7 @@
 namespace std {
 template <>
 struct hash<std::pair<uint32_t, uint32_t>> {
-  size_t operator()(const std::pair<uint32_t, uint32_t>& val) const noexcept {
+  std::size_t operator()(const std::pair<uint32_t, uint32_t>& val) const noexcept {
     /* this will potentially truncate the second value if 32-bit size_t,
      * however, its application here is intended to operate in 16-bit indices */
     return val.first | (val.second << 16);
@@ -86,7 +86,7 @@ static void InstallAddon(const SystemChar* path) {
   std::fwrite(HECL_ADDON, 1, HECL_ADDON_SZ, fp.get());
 }
 
-static int Read(int fd, void* buf, size_t size) {
+static int Read(int fd, void* buf, std::size_t size) {
   int intrCount = 0;
   do {
     auto ret = read(fd, buf, size);
@@ -101,7 +101,7 @@ static int Read(int fd, void* buf, size_t size) {
   return -1;
 }
 
-static int Write(int fd, const void* buf, size_t size) {
+static int Write(int fd, const void* buf, std::size_t size) {
   int intrCount = 0;
   do {
     auto ret = write(fd, buf, size);
@@ -114,6 +114,14 @@ static int Write(int fd, const void* buf, size_t size) {
       return ret;
   } while (intrCount < 1000);
   return -1;
+}
+
+static std::size_t BoundedStrLen(const char* buf, std::size_t maxLen) {
+  std::size_t ret;
+  for (ret = 0; ret < maxLen; ++ret)
+    if (buf[ret] == '\0')
+      break;
+  return ret;
 }
 
 uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
@@ -138,8 +146,9 @@ uint32_t Connection::_readStr(char* buf, uint32_t bufSz) {
   }
 
   constexpr std::string_view exception_str{"EXCEPTION"};
-  if (readLen >= exception_str.size()) {
-    if (exception_str.compare(0, exception_str.size(), buf) == 0) {
+  const std::size_t readStrLen = BoundedStrLen(buf, readLen);
+  if (readStrLen >= exception_str.size()) {
+    if (exception_str.compare(0, exception_str.size(), std::string_view(buf, readStrLen)) == 0) {
       _blenderDied();
       return 0;
     }
@@ -168,14 +177,14 @@ uint32_t Connection::_writeStr(const char* buf, uint32_t len, int wpipe) {
   return static_cast<uint32_t>(ret);
 }
 
-size_t Connection::_readBuf(void* buf, size_t len) {
+std::size_t Connection::_readBuf(void* buf, std::size_t len) {
   const auto error = [this] {
     _blenderDied();
     return 0U;
   };
 
   auto* cBuf = static_cast<uint8_t*>(buf);
-  size_t readLen = 0;
+  std::size_t readLen = 0;
 
   do {
     const int ret = Read(m_readpipe[0], cBuf, len);
@@ -184,8 +193,9 @@ size_t Connection::_readBuf(void* buf, size_t len) {
     }
 
     constexpr std::string_view exception_str{"EXCEPTION"};
-    if (len >= exception_str.size()) {
-      if (exception_str.compare(0, exception_str.size(), static_cast<char*>(buf)) == 0) {
+    const std::size_t readStrLen = BoundedStrLen(static_cast<char*>(buf), len);
+    if (readStrLen >= exception_str.size()) {
+      if (exception_str.compare(0, exception_str.size(), std::string_view(static_cast<char*>(buf), readStrLen)) == 0) {
         _blenderDied();
       }
     }
@@ -198,14 +208,14 @@ size_t Connection::_readBuf(void* buf, size_t len) {
   return readLen;
 }
 
-size_t Connection::_writeBuf(const void* buf, size_t len) {
+std::size_t Connection::_writeBuf(const void* buf, std::size_t len) {
   const auto error = [this] {
     _blenderDied();
     return 0U;
   };
 
   const auto* cBuf = static_cast<const uint8_t*>(buf);
-  size_t writeLen = 0;
+  std::size_t writeLen = 0;
 
   do {
     const int ret = Write(m_writepipe[1], cBuf, len);
@@ -925,9 +935,9 @@ Mesh Mesh::getContiguousSkinningVersion() const {
   newMesh.norm.clear();
   newMesh.contiguousSkinVertCounts.clear();
   newMesh.contiguousSkinVertCounts.reserve(skins.size());
-  for (size_t i = 0; i < skins.size(); ++i) {
+  for (std::size_t i = 0; i < skins.size(); ++i) {
     std::unordered_map<std::pair<uint32_t, uint32_t>, uint32_t> contigMap;
-    size_t vertCount = 0;
+    std::size_t vertCount = 0;
     for (Surface& surf : newMesh.surfaces) {
       for (Surface::Vert& vert : surf.verts) {
         if (vert.iPos == 0xffffffff)
@@ -1057,7 +1067,7 @@ uint32_t Mesh::SkinBanks::addSurface(const Mesh& mesh, const Surface& surf, int 
           continue;
         if (!VertInBank(bank.m_skinIdxs, v.iSkin) && !VertInBank(toAdd, v.iSkin)) {
           toAdd.push_back(v.iSkin);
-          if (skinSlotCount > 0 && bank.m_skinIdxs.size() + toAdd.size() > size_t(skinSlotCount)) {
+          if (skinSlotCount > 0 && bank.m_skinIdxs.size() + toAdd.size() > std::size_t(skinSlotCount)) {
             toAdd.clear();
             done = false;
             break;
@@ -1192,7 +1202,7 @@ const Bone* Armature::getParent(const Bone* bone) const {
   return &bones[bone->parent];
 }
 
-const Bone* Armature::getChild(const Bone* bone, size_t child) const {
+const Bone* Armature::getChild(const Bone* bone, std::size_t child) const {
   if (child >= bone->children.size())
     return nullptr;
   int32_t cIdx = bone->children[child];
@@ -1692,7 +1702,7 @@ void Token::shutdown() {
 
 Token::~Token() { shutdown(); }
 
-HMDLBuffers::HMDLBuffers(HMDLMeta&& meta, size_t vboSz, const std::vector<atUint32>& iboData,
+HMDLBuffers::HMDLBuffers(HMDLMeta&& meta, std::size_t vboSz, const std::vector<atUint32>& iboData,
                          std::vector<Surface>&& surfaces, const Mesh::SkinBanks& skinBanks)
 : m_meta(std::move(meta))
 , m_vboSz(vboSz)
