@@ -307,7 +307,7 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         }
 
         hecl::SystemStringConv chSysName(sub.name);
-        if (sub.cskrId != "") {
+        if (!sub.cskrId.empty()) {
           hecl::SystemStringConv cskrSysName(sub.cskrId);
           pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName)));
         } else {
