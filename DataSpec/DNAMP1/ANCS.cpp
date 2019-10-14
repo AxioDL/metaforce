@@ -1018,7 +1018,12 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     for (const DNAANCS::Actor::Subtype& sub : actor.subtypes) {
       if (sub.name == ch.name) {
         hecl::SystemStringConv chSysName(ch.name);
-        ch.cskr = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, sub.cskrId));
+        if (!sub.cskrId.empty()) {
+          hecl::SystemStringConv cskrSysName(sub.cskrId);
+          ch.cskr = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName));
+        } else {
+          ch.cskr = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.CSKR")), chSysName));
+        }
 
         /* Add subtype AABBs */
         ch.animAABBs.reserve(actor.actions.size());
@@ -1040,8 +1045,14 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
           if (search != sub.overlayMeshes.cend()) {
             hecl::SystemStringConv overlaySys(search->name);
             ch.cmdlIce = search->mesh;
-            ch.cskrIce = inPath.ensureAuxInfo(
-                fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, search->cskrId));
+            if (!search->cskrId.empty()) {
+              hecl::SystemStringConv cskrSys(search->cskrId);
+              ch.cskrIce = inPath.ensureAuxInfo(
+                  fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), chSysName, overlaySys, cskrSys));
+            } else {
+              ch.cskrIce = inPath.ensureAuxInfo(
+                  fmt::format(fmt(_SYS_STR("{}.{}.CSKR")), chSysName, overlaySys));
+            }
           }
         }
 
@@ -1060,7 +1071,13 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
     hecl::SystemStringConv sysStr(prim.animName);
     for (const DNAANCS::Action& act : actor.actions) {
       if (act.name == prim.animName) {
-        hecl::ProjectPath pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, act.animId));
+        hecl::ProjectPath pathOut;
+        if (!act.animId.empty()) {
+          hecl::SystemStringConv idSys(act.animId);
+          pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, idSys));
+        } else {
+          inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.ANIM")), sysStr));
+        }
         prim.animId = pathOut;
         break;
       }
@@ -1073,7 +1090,13 @@ bool ANCS::Cook(const hecl::ProjectPath& outPath, const hecl::ProjectPath& inPat
   ancs.animationSet.animResources.reserve(actor.actions.size());
   for (const DNAANCS::Action& act : actor.actions) {
     hecl::SystemStringConv sysStr(act.name);
-    hecl::ProjectPath pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, act.animId));
+    hecl::ProjectPath pathOut;
+    if (!act.animId.empty()) {
+      hecl::SystemStringConv animIdSys(act.animId);
+      pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, animIdSys));
+    } else {
+      pathOut = inPath.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.ANIM")), sysStr));
+    }
 
     ancs.animationSet.animResources.emplace_back();
     ancs.animationSet.animResources.back().animId = pathOut;

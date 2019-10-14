@@ -307,7 +307,12 @@ void SpecBase::flattenDependenciesBlend(const hecl::ProjectPath& in, std::vector
         }
 
         hecl::SystemStringConv chSysName(sub.name);
-        pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, sub.cskrId)));
+        if (sub.cskrId != "") {
+          hecl::SystemStringConv cskrSysName(sub.cskrId);
+          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), chSysName, cskrSysName)));
+        } else {
+          pathsOut.push_back(asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.CSKR")), chSysName)));
+        }
 
         const auto& arm = actor.armatures[sub.armature];
         if (hecl::IsPathBlend(arm.path))
@@ -995,16 +1000,26 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
 
       for (const auto& sub : subtypeNames) {
         hecl::SystemStringConv subName(sub.first);
-        hecl::SystemStringConv cskrId(sub.second);
-        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), subName, cskrId));
+        hecl::ProjectPath subPath;
+        if (!sub.second.empty()) {
+          hecl::SystemStringConv cskrId(sub.second);
+          subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.CSKR")), subName, cskrId));
+        } else {
+          subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.CSKR")), subName));
+        }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
 
         std::vector<std::pair<std::string, std::string>> overlayNames = ds.getSubtypeOverlayNames(sub.first);
         for (const auto& overlay : overlayNames) {
           hecl::SystemStringConv overlaySys(overlay.first);
           hecl::SystemStringConv overlayCskrId(overlay.second);
-          hecl::ProjectPath subPath = asGlob.ensureAuxInfo(
-              fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
+          if (!overlay.second.empty()) {
+            subPath =
+                asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.{}_{}.CSKR")), subName, overlaySys, overlayCskrId));
+          } else {
+            subPath =
+                asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.{}.CSKR")), subName, overlaySys));
+          }
           insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
         }
       }
@@ -1013,15 +1028,26 @@ bool SpecBase::addFileToIndex(const hecl::ProjectPath& path, athena::io::YAMLDoc
       for (const auto& attachment : attachmentNames) {
         hecl::SystemStringConv attachmentSys(attachment.first);
         hecl::SystemStringConv attachmentCskrId(attachment.second);
-        hecl::ProjectPath subPath =
-            asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
+        hecl::ProjectPath subPath;
+        if (!attachment.second.empty()) {
+          subPath =
+              asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("ATTACH.{}_{}.CSKR")), attachmentSys, attachmentCskrId));
+        } else {
+          subPath =
+              asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("ATTACH.{}.CSKR")), attachmentSys));
+        }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
 
       for (const auto& act : actionNames) {
         hecl::SystemStringConv sysStr(act.first);
         hecl::SystemStringConv animId(act.second);
-        hecl::ProjectPath subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, animId));
+        hecl::ProjectPath subPath;
+        if (!act.second.empty()) {
+          subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}_{}.ANIM")), sysStr, animId));
+        } else {
+          subPath = asGlob.ensureAuxInfo(fmt::format(fmt(_SYS_STR("{}.ANIM")), sysStr));
+        }
         insertPathTag(cacheWriter, buildTagFromPath(subPath), subPath);
       }
     }
