@@ -34,7 +34,7 @@ bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId
 }
 
 void CLogBookScreen::InitializeLogBook() {
-  for (int i = 0; i < 5; ++i) {
+  for (size_t i = 0; i < x19c_scanCompletes.size(); ++i) {
     x19c_scanCompletes[i].reserve(g_MemoryCardSys->GetScanCategoryCount(CSaveWorld::EScanCategory(i + 1)));
   }
 
@@ -345,7 +345,7 @@ void CLogBookScreen::Draw(float transInterp, float totalAlpha, float yOff) {
 bool CLogBookScreen::VReady() const { return true; }
 
 void CLogBookScreen::VActivate() {
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < int(xa8_textpane_categories.size()); ++i) {
     if (IsScanCategoryReady(CSaveWorld::EScanCategory(i + 1))) {
       xa8_textpane_categories[i]->TextSupport().SetText(xc_pauseStrg.GetString(i + 1));
     } else {
