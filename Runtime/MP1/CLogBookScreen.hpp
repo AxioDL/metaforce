@@ -4,12 +4,19 @@
 #include <utility>
 #include <vector>
 
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
-#include "Runtime/MP1/CArtifactDoll.hpp"
-#include "Runtime/MP1/CInGameGuiManager.hpp"
 #include "Runtime/MP1/CPauseScreenBase.hpp"
 
+namespace urde {
+class CPlayerState;
+class CScannableObjectInfo;
+class CStringTable;
+}
+
 namespace urde::MP1 {
+class CArtifactDoll;
 
 class CLogBookScreen : public CPauseScreenBase {
   rstl::reserved_vector<std::vector<std::pair<CAssetId, bool>>, 5> x19c_scanCompletes;

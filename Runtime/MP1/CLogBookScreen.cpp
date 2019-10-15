@@ -2,10 +2,13 @@
 
 #include <algorithm>
 
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/CStateManager.hpp"
 #include "Runtime/GuiSys/CAuiImagePane.hpp"
 #include "Runtime/GuiSys/CGuiModel.hpp"
 #include "Runtime/GuiSys/CGuiTableGroup.hpp"
 #include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/MP1/CArtifactDoll.hpp"
 #include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
