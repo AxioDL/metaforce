@@ -187,9 +187,10 @@ void CLogBookScreen::UpdateBodyText() {
     }
 
     if (IsArtifactCategorySelected()) {
-      int headIdx = GetSelectedArtifactHeadScanIndex();
-      if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29)))
-        accumStr = std::u16string(u"\n\n\n\n\n\n") + g_MainStringTable->GetString(105);
+      const int headIdx = GetSelectedArtifactHeadScanIndex();
+      if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29))) {
+        accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
+      }
     }
 
     x174_textpane_body->TextSupport().SetText(accumStr, true);
