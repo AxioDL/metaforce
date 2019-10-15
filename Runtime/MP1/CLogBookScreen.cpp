@@ -159,15 +159,18 @@ void CLogBookScreen::PumpArticleLoad() {
 }
 
 bool CLogBookScreen::IsScanCategoryReady(CSaveWorld::EScanCategory category) const {
-  CPlayerState& playerState = *x4_mgr.GetPlayerState();
-  for (const std::pair<CAssetId, CSaveWorld::EScanCategory>& scanState : g_MemoryCardSys->GetScanStates()) {
-    if (scanState.second != category)
-      continue;
-    if (IsScanComplete(scanState.second, scanState.first, playerState))
-      return true;
-  }
-  return false;
+  const CPlayerState& playerState = *x4_mgr.GetPlayerState();
+  const auto& scanState = g_MemoryCardSys->GetScanStates();
+
+  return std::any_of(scanState.cbegin(), scanState.cend(), [category, &playerState](const auto& state) {
+    if (state.second != category) {
+      return false;
+    }
+
+    return IsScanComplete(state.second, state.first, playerState);
+  });
 }
+
 
 void CLogBookScreen::UpdateBodyText() {
   if (x10_mode != EMode::TextScroll) {
