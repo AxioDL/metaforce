@@ -34,15 +34,18 @@ bool CLogBookScreen::IsScanComplete(CSaveWorld::EScanCategory category, CAssetId
 }
 
 void CLogBookScreen::InitializeLogBook() {
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < 5; ++i) {
     x19c_scanCompletes[i].reserve(g_MemoryCardSys->GetScanCategoryCount(CSaveWorld::EScanCategory(i + 1)));
+  }
 
   CPlayerState& playerState = *x4_mgr.GetPlayerState();
-  for (const std::pair<CAssetId, CSaveWorld::EScanCategory>& scanState : g_MemoryCardSys->GetScanStates()) {
-    if (scanState.second == CSaveWorld::EScanCategory::None)
+  for (const auto& [scanId, scanCategory] : g_MemoryCardSys->GetScanStates()) {
+    if (scanCategory == CSaveWorld::EScanCategory::None) {
       continue;
-    bool complete = IsScanComplete(scanState.second, scanState.first, playerState);
-    x19c_scanCompletes[int(scanState.second) - 1].push_back(std::make_pair(scanState.first, complete));
+    }
+
+    const bool complete = IsScanComplete(scanCategory, scanId, playerState);
+    x19c_scanCompletes[int(scanCategory) - 1].emplace_back(scanId, complete);
   }
 
   std::sort(x19c_scanCompletes[4].begin(), x19c_scanCompletes[4].end(),
@@ -52,13 +55,14 @@ void CLogBookScreen::InitializeLogBook() {
             });
 
   auto viewIt = x200_viewScans.begin();
-  for (std::vector<std::pair<CAssetId, bool>>& category : x19c_scanCompletes) {
-    std::vector<std::pair<TLockedToken<CScannableObjectInfo>, TLockedToken<CStringTable>>>& viewScans = *viewIt++;
-    size_t viewScanCount = std::min(category.size(), size_t(5));
+  for (const std::vector<std::pair<CAssetId, bool>>& category : x19c_scanCompletes) {
+    const size_t viewScanCount = std::min(category.size(), size_t(5));
+    auto& viewScans = *viewIt++;
     viewScans.reserve(viewScanCount);
-    for (size_t i = 0; i < viewScanCount; ++i)
-      viewScans.push_back(
-          std::make_pair(g_SimplePool->GetObj({FOURCC('SCAN'), category[i].first}), TLockedToken<CStringTable>{}));
+
+    for (size_t i = 0; i < viewScanCount; ++i) {
+      viewScans.emplace_back(g_SimplePool->GetObj({FOURCC('SCAN'), category[i].first}), TLockedToken<CStringTable>{});
+    }
   }
 }
 
@@ -379,9 +383,9 @@ void CLogBookScreen::UpdateRightTable() {
   x1f0_curViewScans.clear();
   std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
   x1f0_curViewScans.reserve(category.size());
-  for (std::pair<CAssetId, bool>& scan : category)
-    x1f0_curViewScans.push_back(
-        std::make_pair(g_SimplePool->GetObj({FOURCC('SCAN'), scan.first}), TLockedToken<CStringTable>{}));
+  for (const std::pair<CAssetId, bool>& scan : category) {
+    x1f0_curViewScans.emplace_back(g_SimplePool->GetObj({FOURCC('SCAN'), scan.first}), TLockedToken<CStringTable>{});
+  }
 
   PumpArticleLoad();
   UpdateRightTitles();
