@@ -67,33 +67,38 @@ void CLogBookScreen::InitializeLogBook() {
 }
 
 void CLogBookScreen::UpdateRightTitles() {
-  std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
+  const std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
   for (size_t i = 0; i < xd8_textpane_titles.size(); ++i) {
     std::u16string string;
-    size_t scanIndex = x18_firstViewRightSel + i;
+    const auto scanIndex = size_t(x18_firstViewRightSel) + i;
+
     if (scanIndex < x1f0_curViewScans.size()) {
-      std::pair<TCachedToken<CScannableObjectInfo>, TCachedToken<CStringTable>>& scan = x1f0_curViewScans[scanIndex];
+      const auto& scan = x1f0_curViewScans[scanIndex];
+
       if (scan.second && scan.second.IsLoaded()) {
         if (category[scanIndex].second) {
-          if (scan.second->GetStringCount() > 1)
+          if (scan.second->GetStringCount() > 1) {
             string = scan.second->GetString(1);
-          else
+          } else {
             string = u"No Title!";
+          }
         } else {
           string = u"??????";
         }
       }
 
-      if (string.empty())
+      if (string.empty()) {
         string = u"........";
+      }
     }
+
     xd8_textpane_titles[i]->TextSupport().SetText(string);
   }
 
-  int rightSelMod = x18_firstViewRightSel % 5;
-  int rightSelRem = 5 - rightSelMod;
+  const int rightSelMod = x18_firstViewRightSel % 5;
+  const int rightSelRem = 5 - rightSelMod;
   for (size_t i = 0; i < x144_model_titles.size(); ++i) {
-    float zOff = ((i >= rightSelMod) ? rightSelRem - 5 : rightSelRem) * x38_highlightPitch;
+    const float zOff = float(((int(i) >= rightSelMod) ? rightSelRem - 5 : rightSelRem)) * x38_highlightPitch;
     x144_model_titles[i]->SetLocalTransform(zeus::CTransform::Translate(0.f, 0.f, zOff) *
                                             x144_model_titles[i]->GetTransform());
   }
@@ -212,36 +217,48 @@ void CLogBookScreen::UpdateBodyImagesAndText() {
 
 int CLogBookScreen::NextSurroundingArticleIndex(int cur) const {
   if (cur < x18_firstViewRightSel) {
-    int tmp = x18_firstViewRightSel + (x18_firstViewRightSel - cur + 6);
-    if (tmp >= x1f0_curViewScans.size())
+    const int tmp = x18_firstViewRightSel + (x18_firstViewRightSel - cur + 6);
+
+    if (tmp >= int(x1f0_curViewScans.size())) {
       return cur - 1;
-    else
-      return tmp;
+    }
+
+    return tmp;
   }
 
   if (cur < x18_firstViewRightSel + 6) {
-    if (cur + 1 < x1f0_curViewScans.size())
+    if (cur + 1 < int(x1f0_curViewScans.size())) {
       return cur + 1;
-    if (x18_firstViewRightSel == 0)
+    }
+
+    if (x18_firstViewRightSel == 0) {
       return -1;
+    }
+
     return x18_firstViewRightSel - 1;
   }
 
-  int tmp = x18_firstViewRightSel - (cur - (x18_firstViewRightSel + 5));
-  if (tmp >= 0)
+  const int tmp = x18_firstViewRightSel - (cur - (x18_firstViewRightSel + 5));
+  if (tmp >= 0) {
     return tmp;
+  }
 
-  if (cur >= x1f0_curViewScans.size() - 1)
+  if (cur >= int(x1f0_curViewScans.size()) - 1) {
     return -1;
+  }
+
   return cur + 1;
 }
 
 bool CLogBookScreen::IsArtifactCategorySelected() const { return x70_tablegroup_leftlog->GetUserSelection() == 4; }
 
 int CLogBookScreen::GetSelectedArtifactHeadScanIndex() const {
-  auto& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
-  if (x1c_rightSel < category.size())
+  const auto& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
+
+  if (x1c_rightSel < int(category.size())) {
     return CArtifactDoll::GetArtifactHeadScanIndex(category[x1c_rightSel].first);
+  }
+
   return -1;
 }
 
