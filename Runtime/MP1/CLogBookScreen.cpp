@@ -178,23 +178,25 @@ void CLogBookScreen::UpdateBodyText() {
     return;
   }
 
-  TCachedToken<CStringTable>& str = x1f0_curViewScans[x1c_rightSel].second;
-  if (str && str.IsLoaded()) {
-    std::u16string accumStr = str->GetString(0);
-    if (str->GetStringCount() > 2) {
-      accumStr += u"\n\n";
-      accumStr += str->GetString(2);
-    }
-
-    if (IsArtifactCategorySelected()) {
-      const int headIdx = GetSelectedArtifactHeadScanIndex();
-      if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29))) {
-        accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
-      }
-    }
-
-    x174_textpane_body->TextSupport().SetText(accumStr, true);
+  const TCachedToken<CStringTable>& str = x1f0_curViewScans[x1c_rightSel].second;
+  if (!str || !str.IsLoaded()) {
+    return;
   }
+
+  std::u16string accumStr = str->GetString(0);
+  if (str->GetStringCount() > 2) {
+    accumStr += u"\n\n";
+    accumStr += str->GetString(2);
+  }
+
+  if (IsArtifactCategorySelected()) {
+    const int headIdx = GetSelectedArtifactHeadScanIndex();
+    if (headIdx >= 0 && g_GameState->GetPlayerState()->HasPowerUp(CPlayerState::EItemType(headIdx + 29))) {
+      accumStr = std::u16string(u"\n\n\n\n\n\n").append(g_MainStringTable->GetString(105));
+    }
+  }
+
+  x174_textpane_body->TextSupport().SetText(accumStr, true);
 }
 
 void CLogBookScreen::UpdateBodyImagesAndText() {
