@@ -106,12 +106,11 @@ void CLogBookScreen::UpdateRightTitles() {
 
 void CLogBookScreen::PumpArticleLoad() {
   x260_24_loaded = true;
-  for (std::vector<std::pair<TLockedToken<CScannableObjectInfo>, TLockedToken<CStringTable>>>& category :
-       x200_viewScans) {
-    for (std::pair<TLockedToken<CScannableObjectInfo>, TLockedToken<CStringTable>>& scan : category) {
-      if (scan.first.IsLoaded()) {
-        if (!scan.second) {
-          scan.second = g_SimplePool->GetObj({FOURCC('STRG'), scan.first->GetStringTableId()});
+  for (auto& category : x200_viewScans) {
+    for (auto& [scanInfo, stringTable] : category) {
+      if (scanInfo.IsLoaded()) {
+        if (!stringTable) {
+          stringTable = g_SimplePool->GetObj({FOURCC('STRG'), scanInfo->GetStringTableId()});
           x260_24_loaded = false;
         }
       } else {
@@ -121,14 +120,14 @@ void CLogBookScreen::PumpArticleLoad() {
   }
 
   int rem = 6;
-  for (std::pair<TCachedToken<CScannableObjectInfo>, TCachedToken<CStringTable>>& scan : x1f0_curViewScans) {
-    if (scan.first.IsLoaded()) {
-      if (!scan.second) {
-        scan.second = g_SimplePool->GetObj({FOURCC('STRG'), scan.first->GetStringTableId()});
-        scan.second.Lock();
+  for (auto& [scanInfo, stringTable] : x1f0_curViewScans) {
+    if (scanInfo.IsLoaded()) {
+      if (!stringTable) {
+        stringTable = g_SimplePool->GetObj({FOURCC('STRG'), scanInfo->GetStringTableId()});
+        stringTable.Lock();
         --rem;
       }
-    } else if (scan.first.IsLocked()) {
+    } else if (scanInfo.IsLocked()) {
       --rem;
     }
     if (rem == 0)
@@ -146,13 +145,16 @@ void CLogBookScreen::PumpArticleLoad() {
     }
   }
 
-  for (std::pair<TCachedToken<CScannableObjectInfo>, TCachedToken<CStringTable>>& scan : x1f0_curViewScans) {
-    if (scan.first.IsLoaded()) {
-      if (scan.second && scan.second.IsLoaded()) {
-        UpdateRightTitles();
-        UpdateBodyText();
-      }
+  for (const auto& [scanInfo, stringTable] : x1f0_curViewScans) {
+    if (!scanInfo.IsLoaded()) {
+      continue;
     }
+    if (!stringTable || !stringTable.IsLoaded()) {
+      continue;
+    }
+
+    UpdateRightTitles();
+    UpdateBodyText();
   }
 }
 
@@ -397,8 +399,9 @@ void CLogBookScreen::ChangedMode(EMode oldMode) {
 
 void CLogBookScreen::UpdateRightTable() {
   CPauseScreenBase::UpdateRightTable();
+
+  const auto& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
   x1f0_curViewScans.clear();
-  std::vector<std::pair<CAssetId, bool>>& category = x19c_scanCompletes[x70_tablegroup_leftlog->GetUserSelection()];
   x1f0_curViewScans.reserve(category.size());
   for (const std::pair<CAssetId, bool>& scan : category) {
     x1f0_curViewScans.emplace_back(g_SimplePool->GetObj({FOURCC('SCAN'), scan.first}), TLockedToken<CStringTable>{});
@@ -415,9 +418,8 @@ bool CLogBookScreen::ShouldLeftTableAdvance() const {
 }
 
 bool CLogBookScreen::ShouldRightTableAdvance() const {
-  const std::pair<TLockedToken<CScannableObjectInfo>, TLockedToken<CStringTable>>& scan =
-      x1f0_curViewScans[x1c_rightSel];
-  return scan.first.IsLoaded() && scan.second.IsLoaded();
+  const auto& [info, stringTable] = x1f0_curViewScans[x1c_rightSel];
+  return info.IsLoaded() && stringTable.IsLoaded();
 }
 
 u32 CLogBookScreen::GetRightTableCount() const { return x1f0_curViewScans.size(); }
