@@ -1,9 +1,12 @@
-#include "CLogBookScreen.hpp"
-#include "GuiSys/CGuiModel.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CAuiImagePane.hpp"
-#include "MP1.hpp"
+#include "Runtime/MP1/CLogBookScreen.hpp"
+
+#include <algorithm>
+
+#include "Runtime/GuiSys/CAuiImagePane.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
 namespace urde::MP1 {
 
