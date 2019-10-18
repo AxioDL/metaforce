@@ -125,7 +125,7 @@ public:
 
 for tp in CENTITY_TYPES:
     if type(tp) == tuple:
-        headerf.write('  void Visit(%s* p);\n' % getqualified(tp))
+        headerf.write('  void Visit(%s* p) override;\n' % getqualified(tp))
 
 headerf.write('''
   T* GetPtr() const { return ptr; }
