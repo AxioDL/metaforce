@@ -1,5 +1,6 @@
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
+#include <algorithm>
 #include <array>
 
 #include "Runtime/CDependencyGroup.hpp"
@@ -339,10 +340,7 @@ void CGunWeapon::LoadAnimations() {
 }
 
 bool CGunWeapon::IsAnimsLoaded() const {
-  for (const CToken& tok : x10c_anims)
-    if (!tok.IsLoaded())
-      return false;
-  return true;
+  return std::all_of(x10c_anims.cbegin(), x10c_anims.cend(), [](const auto& anim) { return anim.IsLoaded(); });
 }
 
 void CGunWeapon::LoadMuzzleFx(float dt) {
@@ -380,42 +378,44 @@ void CGunWeapon::LoadProjectileData(CStateManager& mgr) {
 }
 
 void CGunWeapon::LoadFxIdle(float dt, CStateManager& mgr) {
-  if (NWeaponTypes::are_tokens_ready(x12c_deps)) {
-    if ((x210_loadFlags & 0x2) != 0 && (x210_loadFlags & 0x4) != 0 && (x210_loadFlags & 0x10) != 0)
-      return;
-    bool loaded = true;
-    for (int i = 0; i < 2; ++i) {
-      if (!x16c_muzzleEffects[i].IsLoaded()) {
-        loaded = false;
-        break;
-      }
-      if (!x144_weapons[i].IsLoaded()) {
-        loaded = false;
-        break;
-      }
-    }
+  if (!NWeaponTypes::are_tokens_ready(x12c_deps)) {
+    return;
+  }
 
-    for (int i = 0; i < 2; ++i) {
-      if (!x188_frozenEffects[i].IsLoaded()) {
-        loaded = false;
-        break;
-      }
-    }
+  if ((x210_loadFlags & 0x2) != 0 && (x210_loadFlags & 0x4) != 0 && (x210_loadFlags & 0x10) != 0) {
+    return;
+  }
 
-    if (!x160_xferEffect.IsLoaded())
-      loaded = false;
+  const bool muzzlesLoaded = std::all_of(x16c_muzzleEffects.cbegin(), x16c_muzzleEffects.cend(),
+                                         [](const auto& muzzle) { return muzzle.IsLoaded(); });
+  if (!muzzlesLoaded) {
+    return;
+  }
 
-    if (loaded) {
-      if ((x210_loadFlags & 0x2) != 0x2) {
-        LoadMuzzleFx(dt);
-        x210_loadFlags |= 0x2;
-      }
-      x210_loadFlags |= 0x10;
-      if ((x210_loadFlags & 0x4) != 0x4) {
-        LoadProjectileData(mgr);
-        x210_loadFlags |= 0x4;
-      }
-    }
+  const bool weaponsLoaded =
+      std::all_of(x144_weapons.cbegin(), x144_weapons.cend(), [](const auto& weapon) { return weapon.IsLoaded(); });
+  if (!weaponsLoaded) {
+    return;
+  }
+
+  const bool frozenLoaded = std::all_of(x188_frozenEffects.cbegin(), x188_frozenEffects.cend(),
+                                        [](const auto& effect) { return effect.IsLoaded(); });
+  if (!frozenLoaded) {
+    return;
+  }
+
+  if (!x160_xferEffect.IsLoaded()) {
+    return;
+  }
+
+  if ((x210_loadFlags & 0x2) != 0x2) {
+    LoadMuzzleFx(dt);
+    x210_loadFlags |= 0x2;
+  }
+  x210_loadFlags |= 0x10;
+  if ((x210_loadFlags & 0x4) != 0x4) {
+    LoadProjectileData(mgr);
+    x210_loadFlags |= 0x4;
   }
 }
 
