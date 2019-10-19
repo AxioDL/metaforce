@@ -385,15 +385,18 @@ public:
   }
 
   template <class... _Args>
-  void emplace_back(_Args&&... args) {
+  T& emplace_back(_Args&&... args) {
 #ifndef NDEBUG
     if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("emplace_back() called on full rstl::reserved_vector."));
     }
 #endif
 
-    ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
+    T& element = _value(x0_size);
+    ::new (static_cast<void*>(std::addressof(element))) T(std::forward<_Args>(args)...);
+
     ++x0_size;
+    return element;
   }
 
   void pop_back() {
