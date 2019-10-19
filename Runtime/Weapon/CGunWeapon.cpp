@@ -1,12 +1,13 @@
-#include "CGunWeapon.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CDependencyGroup.hpp"
-#include "CGameState.hpp"
-#include "CWeapon.hpp"
-#include "CEnergyProjectile.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Weapon/CGunWeapon.hpp"
+
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
 
 namespace urde {
 static const char* skBeamXferNames[] = {"PowerXfer", "IceXfer", "WaveXfer", "PlasmaXfer", "PhazonXfer"};
