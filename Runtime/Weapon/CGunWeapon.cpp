@@ -1,5 +1,7 @@
 #include "Runtime/Weapon/CGunWeapon.hpp"
 
+#include <array>
+
 #include "Runtime/CDependencyGroup.hpp"
 #include "Runtime/CGameState.hpp"
 #include "Runtime/CSimplePool.hpp"
@@ -10,22 +12,36 @@
 #include "Runtime/Weapon/CWeapon.hpp"
 
 namespace urde {
-static const char* skBeamXferNames[] = {"PowerXfer", "IceXfer", "WaveXfer", "PlasmaXfer", "PhazonXfer"};
+namespace {
+constexpr std::array skBeamXferNames{
+    "PowerXfer", "IceXfer", "WaveXfer", "PlasmaXfer", "PhazonXfer",
+};
 
-static const char* skSuitArmNames[] = {
+constexpr std::array skSuitArmNames{
     "PowerArm", "GravityArm", "VariaArm", "PhazonArm", "FusionArm", "FusionArmG", "FusionArmV", "FusionArmP",
 };
 
-static const char* skMuzzleNames[] = {"PowerMuzzle", "PowerCharge",  "IceMuzzle",    "IceCharge",    "PowerMuzzle",
-                                      "WaveCharge",  "PlasmaMuzzle", "PlasmaCharge", "PhazonMuzzle", "EmptyMuzzle"};
+constexpr std::array skMuzzleNames{
+    "PowerMuzzle", "PowerCharge",  "IceMuzzle",    "IceCharge",    "PowerMuzzle",
+    "WaveCharge",  "PlasmaMuzzle", "PlasmaCharge", "PhazonMuzzle", "EmptyMuzzle",
+};
 
-static const char* skFrozenNames[] = {"powerFrozen", "Ice2nd_2",     "iceFrozen", "Ice2nd_2",  "waveFrozen",
-                                      "Ice2nd_2",    "plasmaFrozen", "Ice2nd_2",  "iceFrozen", "Ice2nd_2"};
+constexpr std::array skFrozenNames{
+    "powerFrozen", "Ice2nd_2",     "iceFrozen", "Ice2nd_2",  "waveFrozen",
+    "Ice2nd_2",    "plasmaFrozen", "Ice2nd_2",  "iceFrozen", "Ice2nd_2",
+};
 
-static const char* skDependencyNames[] = {"Power_DGRP", "Ice_DGRP", "Wave_DGRP", "Plasma_DGRP", "Phazon_DGRP"};
+constexpr std::array skDependencyNames{
+    "Power_DGRP", "Ice_DGRP", "Wave_DGRP", "Plasma_DGRP", "Phazon_DGRP",
+};
 
-static const char* skAnimDependencyNames[] = {"Power_Anim_DGRP", "Ice_Anim_DGRP", "Wave_Anim_DGRP", "Plasma_Anim_DGRP",
-                                              "Phazon_Anim_DGRP"};
+constexpr std::array skAnimDependencyNames{
+    "Power_Anim_DGRP", "Ice_Anim_DGRP", "Wave_Anim_DGRP", "Plasma_Anim_DGRP", "Phazon_Anim_DGRP",
+};
+
+constexpr std::array skAnimTypeList{
+    0, 4, 1, 2, 3, 5, 6, 7, 8, 9, 10,
+};
 
 CPlayerState::EBeamId GetWeaponIndex(EWeaponType type) {
   if (type == EWeaponType::Power)
@@ -40,13 +56,14 @@ CPlayerState::EBeamId GetWeaponIndex(EWeaponType type) {
     return CPlayerState::EBeamId::Phazon;
   return CPlayerState::EBeamId::Power;
 }
+} // Anonymous namespace
 
 CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
                        const zeus::CVector3f& scale)
 : x4_scale(scale)
 , x104_gunCharacter(g_SimplePool->GetObj(SObjectTag{FOURCC('ANCS'), ancsId}))
 , x13c_armCharacter(g_SimplePool->GetObj(skSuitArmNames[0]))
-, x160_xferEffect(g_SimplePool->GetObj(skBeamXferNames[int(GetWeaponIndex(type))]))
+, x160_xferEffect(g_SimplePool->GetObj(skBeamXferNames[size_t(GetWeaponIndex(type))]))
 , x1c0_weaponType(type)
 , x1c4_playerId(playerId)
 , x1c8_playerMaterial(playerMaterial)
@@ -58,10 +75,11 @@ CGunWeapon::CGunWeapon(CAssetId ancsId, EWeaponType type, TUniqueId playerId, EM
 }
 
 void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam) {
-  const CAssetId* wPair = g_tweakGunRes->GetWeaponPair(beam);
-  const char** muzzleNames = &skMuzzleNames[int(beam) * 2];
-  const char** frozenNames = &skFrozenNames[int(beam) * 2];
-  for (int i = 0; i < 2; ++i) {
+  const CAssetId* const wPair = g_tweakGunRes->GetWeaponPair(beam);
+  const char* const* muzzleNames = &skMuzzleNames[size_t(beam) * 2];
+  const char* const* frozenNames = &skFrozenNames[size_t(beam) * 2];
+
+  for (size_t i = 0; i < x16c_muzzleEffects.capacity(); ++i) {
     x16c_muzzleEffects.push_back(g_SimplePool->GetObj(muzzleNames[i]));
     x144_weapons.push_back(g_SimplePool->GetObj(SObjectTag{FOURCC('WPSC'), wPair[i]}));
     x188_frozenEffects.push_back(g_SimplePool->GetObj(frozenNames[i]));
@@ -70,11 +88,13 @@ void CGunWeapon::AllocResPools(CPlayerState::EBeamId beam) {
 
 void CGunWeapon::FreeResPools() {
   x160_xferEffect.Unlock();
-  for (int i = 0; i < 2; ++i) {
+
+  for (size_t i = 0; i < x16c_muzzleEffects.size(); ++i) {
     x16c_muzzleEffects[i].Unlock();
     x144_weapons[i].Unlock();
     x188_frozenEffects[i].Unlock();
   }
+
   x10c_anims.clear();
   x1a4_muzzleGenerators.clear();
   x1d0_velInfo.Clear();
@@ -86,8 +106,8 @@ void CGunWeapon::FillTokenVector(const std::vector<SObjectTag>& tags, std::vecto
 }
 
 void CGunWeapon::BuildDependencyList(CPlayerState::EBeamId beam) {
-  TLockedToken<CDependencyGroup> deps = g_SimplePool->GetObj(skDependencyNames[int(beam)]);
-  TLockedToken<CDependencyGroup> animDeps = g_SimplePool->GetObj(skAnimDependencyNames[int(beam)]);
+  TLockedToken<CDependencyGroup> deps = g_SimplePool->GetObj(skDependencyNames[size_t(beam)]);
+  TLockedToken<CDependencyGroup> animDeps = g_SimplePool->GetObj(skAnimDependencyNames[size_t(beam)]);
   x12c_deps.reserve(deps->GetObjectTagVector().size() + animDeps->GetObjectTagVector().size());
   FillTokenVector(deps->GetObjectTagVector(), x12c_deps);
   FillTokenVector(animDeps->GetObjectTagVector(), x12c_deps);
@@ -96,7 +116,7 @@ void CGunWeapon::BuildDependencyList(CPlayerState::EBeamId beam) {
 void CGunWeapon::AsyncLoadSuitArm(CStateManager& mgr) {
 
   xb0_suitArmModelData = std::nullopt;
-  x13c_armCharacter = g_SimplePool->GetObj(skSuitArmNames[int(NWeaponTypes::get_current_suit(mgr))]);
+  x13c_armCharacter = g_SimplePool->GetObj(skSuitArmNames[size_t(NWeaponTypes::get_current_suit(mgr))]);
   x13c_armCharacter.Lock();
   x218_28_suitArmLocked = true;
 }
@@ -112,15 +132,14 @@ void CGunWeapon::Reset(CStateManager& mgr) {
     x100_gunController->Reset();
 }
 
-static const s32 skAnimTypeList[] = {0, 4, 1, 2, 3, 5, 6, 7, 8, 9, 10};
-
 void CGunWeapon::PlayAnim(NWeaponTypes::EGunAnimType type, bool loop) {
-  if (x218_26_loaded && type >= NWeaponTypes::EGunAnimType::BasePosition &&
-      type <= NWeaponTypes::EGunAnimType::ToBeam) {
-    x10_solidModelData->GetAnimationData()->EnableLooping(loop);
-    CAnimPlaybackParms parms(skAnimTypeList[int(type)], -1, 1.f, true);
-    x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
+  if (!x218_26_loaded || type < NWeaponTypes::EGunAnimType::BasePosition || type > NWeaponTypes::EGunAnimType::ToBeam) {
+    return;
   }
+
+  x10_solidModelData->GetAnimationData()->EnableLooping(loop);
+  const CAnimPlaybackParms parms(skAnimTypeList[size_t(type)], -1, 1.f, true);
+  x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
 }
 
 void CGunWeapon::PreRenderGunFx(const CStateManager& mgr, const zeus::CTransform& xf) {
@@ -150,7 +169,7 @@ void CGunWeapon::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr,
   }
 }
 
-const s32 CGunWeapon::skShootAnim[2] = {4, 3};
+const std::array<s32, 2> CGunWeapon::skShootAnim{4, 3};
 
 void CGunWeapon::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                       CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
@@ -291,13 +310,16 @@ void CGunWeapon::DrawMuzzleFx(const CStateManager& mgr) const {
 }
 
 void CGunWeapon::LoadSuitArm(CStateManager& mgr) {
-  if (x13c_armCharacter.IsLoaded()) {
-    CAssetId armId = NWeaponTypes::get_asset_id_from_name(skSuitArmNames[int(NWeaponTypes::get_current_suit(mgr))]);
-    xb0_suitArmModelData.emplace(CStaticRes(armId, x4_scale));
-    xb0_suitArmModelData->SetSortThermal(true);
-    x218_28_suitArmLocked = false;
-    x13c_armCharacter.Unlock();
+  if (!x13c_armCharacter.IsLoaded()) {
+    return;
   }
+
+  const CAssetId armId =
+      NWeaponTypes::get_asset_id_from_name(skSuitArmNames[size_t(NWeaponTypes::get_current_suit(mgr))]);
+  xb0_suitArmModelData.emplace(CStaticRes(armId, x4_scale));
+  xb0_suitArmModelData->SetSortThermal(true);
+  x218_28_suitArmLocked = false;
+  x13c_armCharacter.Unlock();
 }
 
 void CGunWeapon::LoadGunModels(CStateManager& mgr) {
@@ -324,8 +346,8 @@ bool CGunWeapon::IsAnimsLoaded() const {
 }
 
 void CGunWeapon::LoadMuzzleFx(float dt) {
-  for (int i = 0; i < 2; ++i) {
-    x1a4_muzzleGenerators.push_back(std::make_unique<CElementGen>(x16c_muzzleEffects[i]));
+  for (const auto& muzzleEffect : x16c_muzzleEffects) {
+    x1a4_muzzleGenerators.push_back(std::make_unique<CElementGen>(muzzleEffect));
     x1a4_muzzleGenerators.back()->SetParticleEmission(false);
     x1a4_muzzleGenerators.back()->Update(dt);
   }
@@ -334,20 +356,26 @@ void CGunWeapon::LoadMuzzleFx(float dt) {
 void CGunWeapon::LoadProjectileData(CStateManager& mgr) {
   CRandom16 random(mgr.GetUpdateFrameIndex());
   CGlobalRandom grand(random);
-  for (int i = 0; i < 2; ++i) {
+
+  for (const auto& weapon : x144_weapons) {
     zeus::CVector3f weaponVel;
-    if (const CVectorElement* ivec = x144_weapons[i]->x4_IVEC.get())
+    if (const CVectorElement* ivec = weapon->x4_IVEC.get()) {
       ivec->GetValue(0, weaponVel);
+    }
+
     x1d0_velInfo.x0_vel.push_back(weaponVel);
     float tratVal = 0.f;
-    if (const CRealElement* trat = x144_weapons[i]->x30_TRAT.get())
+    if (const CRealElement* trat = weapon->x30_TRAT.get()) {
       trat->GetValue(0, tratVal);
+    }
+
     x1d0_velInfo.x24_trat.push_back(tratVal);
-    x1d0_velInfo.x1c_targetHoming.push_back(x144_weapons[i]->x29_HOMG);
-    if (weaponVel.y() > 0.f)
+    x1d0_velInfo.x1c_targetHoming.push_back(weapon->x29_HOMG);
+    if (weaponVel.y() > 0.f) {
       x1d0_velInfo.x0_vel.back() *= zeus::CVector3f(60.f);
-    else
+    } else {
       x1d0_velInfo.x0_vel.back() = zeus::skForward;
+    }
   }
 }
 
@@ -440,12 +468,15 @@ void CGunWeapon::Load(CStateManager& mgr, bool subtypeBasePose) {
   x1b8_frozenGenerator.reset();
   x104_gunCharacter.Lock();
   x160_xferEffect.Lock();
-  for (int i = 0; i < 2; ++i) {
+
+  for (size_t i = 0; i < x16c_muzzleEffects.size(); ++i) {
     x16c_muzzleEffects[i].Lock();
     x144_weapons[i].Lock();
   }
-  for (int i = 0; i < 2; ++i)
-    x188_frozenEffects[i].Lock();
+
+  for (auto& frozenEffect : x188_frozenEffects) {
+    frozenEffect.Lock();
+  }
 }
 
 void CGunWeapon::Unload(CStateManager& mgr) {
