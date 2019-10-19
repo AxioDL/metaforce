@@ -298,14 +298,14 @@ void CGunWeapon::Draw(bool drawSuitArm, const CStateManager& mgr, const zeus::CT
 }
 
 void CGunWeapon::DrawMuzzleFx(const CStateManager& mgr) const {
-  if (const CElementGen* effect = x1a4_muzzleGenerators[x208_muzzleEffectIdx].get()) {
+  if (CElementGen* const effect = x1a4_muzzleGenerators[x208_muzzleEffectIdx].get()) {
     if (x200_beamId != CPlayerState::EBeamId::Ice &&
         mgr.GetPlayerState()->GetActiveVisor(mgr) == CPlayerState::EPlayerVisor::XRay) {
       CElementGen::SetSubtractBlend(true);
-      const_cast<CElementGen*>(effect)->Render();
+      effect->Render();
       CElementGen::SetSubtractBlend(false);
     } else {
-      const_cast<CElementGen*>(effect)->Render();
+      effect->Render();
     }
   }
 }
