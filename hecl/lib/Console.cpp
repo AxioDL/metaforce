@@ -100,10 +100,11 @@ void Console::executeString(const std::string& str) {
           isInLiteral = false;
           curLiteral.clear();
         }
-      } else if (isInLiteral)
+      } else if (isInLiteral) {
         curLiteral += arg;
-      else
-        args.push_back(arg);
+      } else {
+        args.push_back(std::move(arg));
+      }
     }
 
     if (isInLiteral) {
@@ -111,7 +112,7 @@ void Console::executeString(const std::string& str) {
         report(Level::Warning, fmt("Unterminated string literal"));
         return;
       }
-      args.push_back(curLiteral);
+      args.push_back(std::move(curLiteral));
     }
 
     std::string commandName = args[0];
@@ -119,8 +120,8 @@ void Console::executeString(const std::string& str) {
 
     std::string lowComName = commandName;
     athena::utility::tolower(lowComName);
-    if (m_commands.find(lowComName) != m_commands.end()) {
-      const SConsoleCommand& cmd = m_commands[lowComName];
+    if (const auto iter = m_commands.find(lowComName); iter != m_commands.end()) {
+      const SConsoleCommand& cmd = iter->second;
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean()) {
         report(Level::Error, fmt("This command can only be executed in developer mode"), commandName);
         return;
@@ -130,15 +131,16 @@ void Console::executeString(const std::string& str) {
         report(Level::Error, fmt("This command can only be executed with cheats enabled"), commandName);
         return;
       }
-      m_commands[lowComName].m_func(this, args);
+      cmd.m_func(this, args);
     } else if (const CVar* cv = m_cvarMgr->findCVar(commandName)) {
-      args.insert(args.begin(), commandName);
+      args.insert(args.begin(), std::move(commandName));
       if (args.size() > 1)
         m_cvarMgr->setCVar(this, args);
       else
         m_cvarMgr->getCVar(this, args);
-    } else
+    } else {
       report(Level::Error, fmt("Command '{}' is not valid!"), commandName);
+    }
   }
 }
 
