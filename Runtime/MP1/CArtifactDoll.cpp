@@ -164,12 +164,15 @@ void CArtifactDoll::Touch() {
 }
 
 bool CArtifactDoll::CheckLoadComplete() {
-  if (IsLoaded())
+  if (IsLoaded()) {
     return true;
+  }
 
-  for (TLockedToken<CModel>& model : x0_models)
-    if (!model.IsLoaded())
-      return false;
+  const bool allLoaded =
+      std::all_of(x0_models.cbegin(), x0_models.cend(), [](const auto& model) { return model.IsLoaded(); });
+  if (!allLoaded) {
+    return false;
+  }
 
   x28_24_loaded = true;
   return true;
