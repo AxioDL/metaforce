@@ -267,15 +267,13 @@ private:
   }
   template <typename Tp>
   static void
-  destroy(Tp& t, std::enable_if_t<!std::is_destructible_v<Tp> || std::is_trivially_destructible_v<Tp>>* = nullptr) {
-  }
+  destroy(Tp& t, std::enable_if_t<!std::is_destructible_v<Tp> || std::is_trivially_destructible_v<Tp>>* = nullptr) {}
 
 public:
   reserved_vector() noexcept(std::is_nothrow_constructible_v<T>) : x0_size(0) {}
 
   template <size_t LN>
-  reserved_vector(const T (&l)[LN]) noexcept(std::is_nothrow_copy_constructible_v<T>)
-  : x0_size(LN) {
+  reserved_vector(const T (&l)[LN]) noexcept(std::is_nothrow_copy_constructible_v<T>) : x0_size(LN) {
     static_assert(LN <= N, "initializer array too large for reserved_vector");
     for (size_t i = 0; i < LN; ++i) {
       ::new (static_cast<void*>(std::addressof(_value(i)))) T(l[i]);
@@ -385,15 +383,18 @@ public:
   }
 
   template <class... _Args>
-  void emplace_back(_Args&&... args) {
+  T& emplace_back(_Args&&... args) {
 #ifndef NDEBUG
     if (x0_size == N) {
       Log.report(logvisor::Fatal, fmt("emplace_back() called on full rstl::reserved_vector."));
     }
 #endif
 
-    ::new (static_cast<void*>(std::addressof(_value(x0_size)))) T(std::forward<_Args>(args)...);
+    T& element = _value(x0_size);
+    ::new (static_cast<void*>(std::addressof(element))) T(std::forward<_Args>(args)...);
+
     ++x0_size;
+    return element;
   }
 
   void pop_back() {
