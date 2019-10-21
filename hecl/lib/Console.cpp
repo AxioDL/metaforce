@@ -19,15 +19,17 @@ Console* Console::m_instance = nullptr;
 Console::Console(CVarManager* cvarMgr) : m_cvarMgr(cvarMgr), m_overwrite(false), m_cursorAtEnd(false) {
   m_instance = this;
   registerCommand("help", "Prints information about a given function", "<command>",
-                  std::bind(&Console::help, this, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { help(console, args); });
   registerCommand("listCommands", "Prints a list of all available Commands", "",
-                  std::bind(&Console::listCommands, this, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { listCommands(console, args); });
   registerCommand("listCVars", "Lists all available CVars", "",
-                  std::bind(&CVarManager::list, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-  registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>",
-                  std::bind(&CVarManager::setCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-  registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>",
-                  std::bind(&CVarManager::getCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->list(console, args); });
+  registerCommand(
+      "setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>",
+      [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->setCVar(console, args); });
+  registerCommand(
+      "getCVar", "Prints the value stored in the specified Console Variable", "<cvar>",
+      [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->getCVar(console, args); });
   m_conSpeed = cvarMgr->findOrMakeCVar("con_speed",
                                        "Speed at which the console opens and closes, calculated as pixels per second",
                                        1.f, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
