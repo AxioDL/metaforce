@@ -40,12 +40,17 @@ Console::Console(CVarManager* cvarMgr) : m_cvarMgr(cvarMgr), m_overwrite(false),
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage,
-                              const std::function<void(Console*, const std::vector<std::string>&)>&& func,
+                              std::function<void(Console*, const std::vector<std::string>&)>&& func,
                               SConsoleCommand::ECommandFlags cmdFlags) {
-  std::string lowName = name.data();
+  std::string lowName{name};
   athena::utility::tolower(lowName);
-  if (m_commands.find(lowName) == m_commands.end())
-    m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func), cmdFlags};
+
+  if (m_commands.find(lowName) != m_commands.end()) {
+    return;
+  }
+
+  m_commands.emplace(std::move(lowName), SConsoleCommand{std::string{name}, std::string{helpText}, std::string{usage},
+                                                         std::move(func), cmdFlags});
 }
 
 void Console::unregisterCommand(std::string_view name) {
