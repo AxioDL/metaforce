@@ -89,7 +89,7 @@ public:
 
   void help(Console* con, const std::vector<std::string>& args);
   void listCommands(Console* con, const std::vector<std::string>& args);
-  bool commandExists(std::string_view cmd);
+  bool commandExists(std::string_view cmd) const;
 
   void vreport(Level level, fmt::string_view format, fmt::format_args args);
   template <typename S, typename... Args, typename Char = fmt::char_t<S>>

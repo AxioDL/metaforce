@@ -167,7 +167,7 @@ void Console::listCommands(Console* /*con*/, const std::vector<std::string>& /*a
     report(Level::Info, fmt("'{}': {}"), comPair.second.m_displayName, comPair.second.m_helpString);
 }
 
-bool Console::commandExists(std::string_view cmd) {
+bool Console::commandExists(std::string_view cmd) const {
   std::string cmdName{cmd};
   athena::utility::tolower(cmdName);
 
