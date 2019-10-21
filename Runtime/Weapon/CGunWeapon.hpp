@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -54,7 +55,7 @@ public:
   enum class EFrozenFxType { None, Frozen, Thawed };
 
 protected:
-  static const s32 skShootAnim[2];
+  static const std::array<s32, 2> skShootAnim;
   zeus::CVector3f x4_scale;
   std::optional<CModelData> x10_solidModelData;
   std::optional<CModelData> x60_holoModelData;

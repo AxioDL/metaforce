@@ -1,9 +1,20 @@
-#include "CWaveBeam.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CEnergyProjectile.hpp"
+#include "Runtime/Weapon/CWaveBeam.hpp"
+
+#include <array>
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Weapon/CEnergyProjectile.hpp"
 
 namespace urde {
+namespace {
+constexpr float skShotAnglePitch = 120.f;
+
+constexpr std::array<u16, 2> kSoundId{
+    SFXwpn_fire_wave_normal,
+    SFXwpn_fire_wave_charged,
+};
+} // Anonymous namespace
 
 CWaveBeam::CWaveBeam(CAssetId characterId, EWeaponType type, TUniqueId playerId, EMaterialTypes playerMaterial,
                      const zeus::CVector3f& scale)
@@ -50,9 +61,6 @@ void CWaveBeam::UpdateGunFx(bool shotSmoke, float dt, const CStateManager& mgr, 
   CGunWeapon::UpdateGunFx(shotSmoke, dt, mgr, xf);
 }
 
-static const float skShotAnglePitch = 120.f;
-static const u16 kSoundId[] = {SFXwpn_fire_wave_normal, SFXwpn_fire_wave_charged};
-
 void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const zeus::CTransform& xf,
                      CStateManager& mgr, TUniqueId homingTarget, float chargeFactor1, float chargeFactor2) {
   if (chargeState == EChargeState::Charged) {
@@ -74,8 +82,8 @@ void CWaveBeam::Fire(bool underwater, float dt, EChargeState chargeState, const 
   if (chargeState == EChargeState::Charged)
     x218_25_enableCharge = true;
 
-  NWeaponTypes::play_sfx(kSoundId[int(chargeState)], underwater, false, 0.165f);
-  CAnimPlaybackParms parms(skShootAnim[int(chargeState)], -1, 1.f, true);
+  NWeaponTypes::play_sfx(kSoundId[size_t(chargeState)], underwater, false, 0.165f);
+  const CAnimPlaybackParms parms(skShootAnim[size_t(chargeState)], -1, 1.f, true);
   x10_solidModelData->GetAnimationData()->EnableLooping(false);
   x10_solidModelData->GetAnimationData()->SetAnimation(parms, false);
 }
