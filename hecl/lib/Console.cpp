@@ -168,7 +168,7 @@ void Console::listCommands(Console* /*con*/, const std::vector<std::string>& /*a
 }
 
 bool Console::commandExists(std::string_view cmd) {
-  std::string cmdName = cmd.data();
+  std::string cmdName{cmd};
   athena::utility::tolower(cmdName);
 
   return m_commands.find(cmdName) != m_commands.end();
