@@ -242,8 +242,9 @@ void Console::handleCharCode(unsigned long chr, boo::EModifierKey /*mod*/, bool 
 }
 
 void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool /*repeat*/) {
-  if (m_state != Opened)
+  if (m_state != State::Opened) {
     return;
+  }
 
   switch (sp) {
   case boo::ESpecialKey::Insert:

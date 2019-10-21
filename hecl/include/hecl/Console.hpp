@@ -55,7 +55,7 @@ public:
     Fatal    /**< Non-recoverable error message (Kept for compatibility with logvisor) */
   };
 
-  enum State { Closed, Closing, Opened, Opening };
+  enum class State { Closed, Closing, Opened, Opening };
 
 private:
   CVarManager* m_cvarMgr = nullptr;
