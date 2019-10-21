@@ -177,8 +177,9 @@ bool Console::commandExists(std::string_view cmd) const {
 void Console::vreport(Level level, fmt::string_view fmt, fmt::format_args args) {
   std::string tmp = fmt::vformat(fmt, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
-  for (const std::string& line : lines)
-    m_log.emplace_back(line, level);
+  for (std::string& line : lines) {
+    m_log.emplace_back(std::move(line), level);
+  }
   fmt::print(fmt("{}\n"), tmp);
 }
 
