@@ -54,10 +54,15 @@ void Console::registerCommand(std::string_view name, std::string_view helpText, 
 }
 
 void Console::unregisterCommand(std::string_view name) {
-  std::string lowName = name.data();
+  std::string lowName{name};
   athena::utility::tolower(lowName);
-  if (m_commands.find(lowName) != m_commands.end())
-    m_commands.erase(m_commands.find(lowName));
+
+  const auto iter = m_commands.find(lowName);
+  if (iter == m_commands.end()) {
+    return;
+  }
+
+  m_commands.erase(iter);
 }
 
 void Console::executeString(const std::string& str) {
