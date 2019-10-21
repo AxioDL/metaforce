@@ -13,8 +13,8 @@
 #include <zeus/CTransform.hpp>
 
 namespace urde::MP1 {
-
-static const char* ArtifactPieceModels[] = {
+namespace {
+constexpr const char* ArtifactPieceModels[] = {
     "CMDL_Piece1",  // Truth
     "CMDL_Piece2",  // Strength
     "CMDL_Piece3",  // Elder
@@ -29,7 +29,7 @@ static const char* ArtifactPieceModels[] = {
     "CMDL_Piece12"  // Newborn
 };
 
-static const CAssetId ArtifactHeadScans[] = {
+constexpr CAssetId ArtifactHeadScans[] = {
     0x32C9DDCE, // Truth
     0xB45DAF60, // Strength
     0x7F017CC5, // Elder
@@ -44,8 +44,9 @@ static const CAssetId ArtifactHeadScans[] = {
     0xB6763C91  // Newborn
 };
 
-static const zeus::CColor ArtifactPreColor = {0.4f, 0.68f, 0.88f, 0.8f};
-static const zeus::CColor ArtifactPostColor = {1.f, 0.63f, 0.02f, 1.f};
+constexpr zeus::CColor ArtifactPreColor{0.4f, 0.68f, 0.88f, 0.8f};
+constexpr zeus::CColor ArtifactPostColor{1.f, 0.63f, 0.02f, 1.f};
+} // Anonymous namespace
 
 CArtifactDoll::CArtifactDoll() {
   x10_lights.resize(2, CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
