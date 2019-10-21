@@ -1,6 +1,7 @@
 #include "Runtime/MP1/CArtifactDoll.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 #include "Runtime/CSimplePool.hpp"
@@ -14,7 +15,7 @@
 
 namespace urde::MP1 {
 namespace {
-constexpr const char* ArtifactPieceModels[] = {
+constexpr std::array ArtifactPieceModels{
     "CMDL_Piece1",  // Truth
     "CMDL_Piece2",  // Strength
     "CMDL_Piece3",  // Elder
@@ -29,7 +30,7 @@ constexpr const char* ArtifactPieceModels[] = {
     "CMDL_Piece12"  // Newborn
 };
 
-constexpr CAssetId ArtifactHeadScans[] = {
+constexpr std::array<CAssetId, 12> ArtifactHeadScans{
     0x32C9DDCE, // Truth
     0xB45DAF60, // Strength
     0x7F017CC5, // Elder
@@ -52,29 +53,35 @@ CArtifactDoll::CArtifactDoll() {
   x10_lights.resize(2, CLight::BuildDirectional(zeus::skForward, zeus::skWhite));
   x20_actorLights = std::make_unique<CActorLights>(8, zeus::skZero3f, 4, 4, false, false, false, 0.1f);
   x28_24_loaded = false;
-  x0_models.reserve(12);
-  for (int i = 0; i < 12; ++i)
-    x0_models.push_back(g_SimplePool->GetObj(ArtifactPieceModels[i]));
+  x0_models.reserve(ArtifactPieceModels.size());
+  for (const char* const model : ArtifactPieceModels) {
+    x0_models.emplace_back(g_SimplePool->GetObj(model));
+  }
 }
 
 int CArtifactDoll::GetArtifactHeadScanIndex(CAssetId scanId) {
-  for (int i = 0; i < 12; ++i)
-    if (ArtifactHeadScans[i] == scanId)
-      return i;
+  for (size_t i = 0; i < ArtifactHeadScans.size(); ++i) {
+    if (ArtifactHeadScans[i] == scanId) {
+      return int(i);
+    }
+  }
+
   return -1;
 }
 
 CAssetId CArtifactDoll::GetArtifactHeadScanFromItemType(CPlayerState::EItemType item) {
-  if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn)
+  if (item < CPlayerState::EItemType::Truth || item > CPlayerState::EItemType::Newborn) {
     return -1;
-  return ArtifactHeadScans[int(item) - 29];
+  }
+
+  return ArtifactHeadScans[size_t(item) - 29];
 }
 
 void CArtifactDoll::UpdateArtifactHeadScan(const CStateManager& mgr, float delta) {
   CPlayerState& playerState = *mgr.GetPlayerState();
-  for (int i = 0; i < 12; ++i) {
+  for (size_t i = 0; i < ArtifactHeadScans.size(); ++i) {
     if (mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType(i + 29))) {
-      CAssetId id = ArtifactHeadScans[i];
+      const CAssetId id = ArtifactHeadScans[i];
       playerState.SetScanTime(id, std::min(playerState.GetScanTime(id) + delta, 1.f));
     }
   }
@@ -112,7 +119,7 @@ void CArtifactDoll::Draw(float alpha, const CStateManager& mgr, bool inArtifactC
       }
     }
 
-    if (inArtifactCategory && i == selectedArtifact) {
+    if (inArtifactCategory && i == size_t(selectedArtifact)) {
       float interp = (std::sin(CGraphics::GetSecondsMod900() * 2.f * M_PIF) + 1.f) * 0.5f;
       color = zeus::CColor::lerp(zeus::skWhite, color, interp);
       color.a() *= zeus::clamp(0.f, 1.25f - interp, 1.f);
