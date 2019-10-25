@@ -250,7 +250,7 @@ std::shared_ptr<CAnimationManager> CAnimData::GetAnimationManager() { return x10
 void CAnimData::SetPhase(float ph) { x1f8_animRoot->VSetPhase(ph); }
 
 void CAnimData::Touch(const CSkinnedModel& model, int shadIdx) const {
-  const_cast<CBooModel&>(*model.GetModelInst()).Touch(shadIdx);
+  model.GetModelInst()->Touch(shadIdx);
 }
 
 SAdvancementDeltas CAnimData::GetAdvancementDeltas(const CCharAnimTime& a, const CCharAnimTime& b) const {
