@@ -141,6 +141,7 @@ void Console::executeString(const std::string& str) {
     } else {
       report(Level::Error, fmt("'{}' is not a valid command or variable!"), commandName);
     }
+  }
 }
 
 void Console::help(Console* /*con*/, const std::vector<std::string>& args) {
