@@ -10,8 +10,8 @@ CPFAreaOctree::CPFAreaOctree(CMemoryInStream& in) {
   x0_isLeaf = in.readUint32Big();
   x4_aabb.readBoundingBoxBig(in);
   x1c_center.readBig(in);
-  for (int i = 0; i < 8; ++i)
-    x28_children[i] = reinterpret_cast<CPFAreaOctree*>(in.readUint32Big());
+  for (auto& ptr : x28_children)
+    ptr = reinterpret_cast<CPFAreaOctree*>(in.readUint32Big());
   x48_regions.set_size(in.readUint32Big());
   x48_regions.set_data(reinterpret_cast<CPFRegion**>(in.readUint32Big()));
 }
@@ -25,22 +25,22 @@ void CPFAreaOctree::Fixup(CPFArea& area) {
     return;
   }
 
-  for (int i = 0; i < 8; ++i) {
-    if ((reinterpret_cast<uintptr_t>(x28_children[i]) & 0x80000000) == 0)
-      x28_children[i] = &area.x158_octree[reinterpret_cast<uintptr_t>(x28_children[i])];
+  for (auto & ptr : x28_children) {
+    if ((reinterpret_cast<uintptr_t>(ptr) & 0x80000000) == 0)
+      ptr = &area.x158_octree[reinterpret_cast<uintptr_t>(ptr)];
     else
-      x28_children[i] = nullptr;
+      ptr = nullptr;
   }
 }
 
-int CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const {
-  int idx = 0x0;
+u32 CPFAreaOctree::GetChildIndex(const zeus::CVector3f& point) const {
+  u32 idx = 0x0u;
   if (point.x() > x1c_center.x())
-    idx = 0x1;
+    idx = 0x1u;
   if (point.y() > x1c_center.y())
-    idx |= 0x2;
+    idx |= 0x2u;
   if (point.z() > x1c_center.z())
-    idx |= 0x4;
+    idx |= 0x4u;
   return idx;
 }
 
@@ -60,8 +60,7 @@ void CPFAreaOctree::GetRegionListList(rstl::reserved_vector<rstl::prereserved_ve
     return;
   }
 
-  for (int i = 0; i < 8; ++i) {
-    CPFAreaOctree* ch = x28_children[i];
+  for (CPFAreaOctree* ch : x28_children) {
     if (ch->IsPointInsidePaddedAABox(point, padding))
       ch->GetRegionListList(listOut, point, padding);
   }
@@ -184,10 +183,10 @@ rstl::prereserved_vector<CPFRegion*>* CPFArea::GetOctreeRegionList(const zeus::C
 
 u32 CPFArea::FindRegions(rstl::reserved_vector<CPFRegion*, 4>& regions, const zeus::CVector3f& point, u32 flags,
                          u32 indexMask) {
-  bool isFlyer = (flags & 0x2) != 0;
-  bool isSwimmer = (flags & 0x4) != 0;
+  bool isFlyer = (flags & 0x2u) != 0;
+  bool isSwimmer = (flags & 0x4u) != 0;
   for (CPFRegion* region : *GetOctreeRegionList(point)) {
-    if (region->GetFlags() & 0xff & flags && (region->GetFlags() >> 16) & 0xff & indexMask &&
+    if (region->GetFlags() & 0xffu & flags && (region->GetFlags() >> 16u) & 0xffu & indexMask &&
         region->IsPointInside(point) && (isFlyer || isSwimmer || region->PointHeight(point) < 3.f)) {
       regions.push_back(region);
       if (regions.size() == regions.capacity())
@@ -200,12 +199,12 @@ u32 CPFArea::FindRegions(rstl::reserved_vector<CPFRegion*, 4>& regions, const ze
 CPFRegion* CPFArea::FindClosestRegion(const zeus::CVector3f& point, u32 flags, u32 indexMask, float padding) {
   rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32> regionListList;
   x158_octree.back().GetRegionListList(regionListList, point, padding);
-  bool isFlyer = (flags & 0x2) != 0;
+  bool isFlyer = (flags & 0x2u) != 0;
   CPFRegion* ret = nullptr;
   for (rstl::prereserved_vector<CPFRegion*>* list : regionListList) {
     for (CPFRegion* region : *list) {
       if (region->Data()->GetCookie() != x34_regionFindCookie) {
-        if (region->GetFlags() & 0xff & flags && (region->GetFlags() >> 16) & 0xff & indexMask &&
+        if (region->GetFlags() & 0xffu & flags && (region->GetFlags() >> 16u) & 0xffu & indexMask &&
             region->IsPointInsidePaddedAABox(point, padding) && (isFlyer || region->PointHeight(point) < 3.f)) {
           if (region->FindBestPoint(x10_tmpPolyPoints, point, flags, padding * padding)) {
             ret = region;
@@ -228,7 +227,7 @@ zeus::CVector3f CPFArea::FindClosestReachablePoint(rstl::reserved_vector<CPFRegi
   zeus::CVector3f ret;
   float closestDistSq = FLT_MAX;
   for (CPFRegion& reg : x150_regions) {
-    if (reg.GetFlags() & 0xff & flags && (reg.GetFlags() >> 16) & 0xff & indexMask) {
+    if (reg.GetFlags() & 0xffu & flags && (reg.GetFlags() >> 16u) & 0xffu & indexMask) {
       for (CPFRegion* oreg : regs) {
         if (PathExists(oreg, &reg, flags)) {
           float distSq = (reg.GetCentroid() - point).magSquared();
@@ -245,7 +244,7 @@ zeus::CVector3f CPFArea::FindClosestReachablePoint(rstl::reserved_vector<CPFRegi
 }
 
 bool CPFArea::PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) const {
-  if (r1 == r2 || (flags & 0x4) != 0)
+  if (r1 == r2 || (flags & 0x4u) != 0)
     return true;
 
   u32 i1 = r1->GetIndex();
@@ -259,14 +258,14 @@ bool CPFArea::PathExists(const CPFRegion* r1, const CPFRegion* r2, u32 flags) co
   u32 bit = totalConnections - remConnections + i2 - (i1 + 1);
 
   auto d = std::div(bit, 32);
-  if ((flags & 0x2) != 0)
-    return ((x170_connectionsFlyers[d.quot] >> d.rem) & 0x1) != 0;
+  if ((flags & 0x2u) != 0)
+    return ((x170_connectionsFlyers[d.quot] >> u32(d.rem)) & 0x1u) != 0;
   else
-    return ((x168_connectionsGround[d.quot] >> d.rem) & 0x1) != 0;
+    return ((x168_connectionsGround[d.quot] >> u32(d.rem)) & 0x1u) != 0;
 }
 
 CFactoryFnReturn FPathFindAreaFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
-                                      const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
+                                      const urde::CVParamTransfer& vparms, CObjectReference*) {
   return TToken<CPFArea>::GetIObjObjectFor(std::make_unique<CPFArea>(std::move(in), len));
 }
 } // namespace urde

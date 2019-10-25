@@ -33,13 +33,13 @@ class CPFAreaOctree {
   u32 x0_isLeaf;
   zeus::CAABox x4_aabb;
   zeus::CVector3f x1c_center;
-  CPFAreaOctree* x28_children[8];
+  std::array<CPFAreaOctree*, 8> x28_children {};
   rstl::prereserved_vector<CPFRegion*> x48_regions;
 
 public:
-  CPFAreaOctree(CMemoryInStream& in);
+  explicit CPFAreaOctree(CMemoryInStream& in);
   void Fixup(CPFArea& area);
-  int GetChildIndex(const zeus::CVector3f& point) const;
+  u32 GetChildIndex(const zeus::CVector3f& point) const;
   rstl::prereserved_vector<CPFRegion*>* GetRegionList(const zeus::CVector3f& point);
   void GetRegionListList(rstl::reserved_vector<rstl::prereserved_vector<CPFRegion*>*, 32>& listOut,
                          const zeus::CVector3f& point, float padding);
