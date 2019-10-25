@@ -55,7 +55,7 @@ public:
     Fatal    /**< Non-recoverable error message (Kept for compatibility with logvisor) */
   };
 
-  enum State { Closed, Closing, Opened, Opening };
+  enum class State { Closed, Closing, Opened, Opening };
 
 private:
   CVarManager* m_cvarMgr = nullptr;
@@ -81,7 +81,7 @@ private:
 public:
   Console(CVarManager*);
   void registerCommand(std::string_view name, std::string_view helpText, std::string_view usage,
-                       const std::function<void(Console*, const std::vector<std::string>&)>&& func,
+                       std::function<void(Console*, const std::vector<std::string>&)>&& func,
                        SConsoleCommand::ECommandFlags cmdFlags = SConsoleCommand::ECommandFlags::Normal);
   void unregisterCommand(std::string_view name);
 
@@ -89,7 +89,7 @@ public:
 
   void help(Console* con, const std::vector<std::string>& args);
   void listCommands(Console* con, const std::vector<std::string>& args);
-  bool commandExists(std::string_view cmd);
+  bool commandExists(std::string_view cmd) const;
 
   void vreport(Level level, fmt::string_view format, fmt::format_args args);
   template <typename S, typename... Args, typename Char = fmt::char_t<S>>
@@ -108,6 +108,6 @@ public:
   void dumpLog();
   static Console* instance();
   static void RegisterLogger(Console* con);
-  bool isOpen() { return m_state == State::Opened; }
+  bool isOpen() const { return m_state == State::Opened; }
 };
 } // namespace hecl

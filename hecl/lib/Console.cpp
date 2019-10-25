@@ -19,15 +19,17 @@ Console* Console::m_instance = nullptr;
 Console::Console(CVarManager* cvarMgr) : m_cvarMgr(cvarMgr), m_overwrite(false), m_cursorAtEnd(false) {
   m_instance = this;
   registerCommand("help", "Prints information about a given function", "<command>",
-                  std::bind(&Console::help, this, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { help(console, args); });
   registerCommand("listCommands", "Prints a list of all available Commands", "",
-                  std::bind(&Console::listCommands, this, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { listCommands(console, args); });
   registerCommand("listCVars", "Lists all available CVars", "",
-                  std::bind(&CVarManager::list, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-  registerCommand("setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>",
-                  std::bind(&CVarManager::setCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
-  registerCommand("getCVar", "Prints the value stored in the specified Console Variable", "<cvar>",
-                  std::bind(&CVarManager::getCVar, m_cvarMgr, std::placeholders::_1, std::placeholders::_2));
+                  [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->list(console, args); });
+  registerCommand(
+      "setCVar", "Sets a given Console Variable to the specified value", "<cvar> <value>",
+      [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->setCVar(console, args); });
+  registerCommand(
+      "getCVar", "Prints the value stored in the specified Console Variable", "<cvar>",
+      [this](Console* console, const std::vector<std::string>& args) { m_cvarMgr->getCVar(console, args); });
   m_conSpeed = cvarMgr->findOrMakeCVar("con_speed",
                                        "Speed at which the console opens and closes, calculated as pixels per second",
                                        1.f, hecl::CVar::EFlags::System | hecl::CVar::EFlags::Archive);
@@ -38,19 +40,29 @@ Console::Console(CVarManager* cvarMgr) : m_cvarMgr(cvarMgr), m_overwrite(false),
 }
 
 void Console::registerCommand(std::string_view name, std::string_view helpText, std::string_view usage,
-                              const std::function<void(Console*, const std::vector<std::string>&)>&& func,
+                              std::function<void(Console*, const std::vector<std::string>&)>&& func,
                               SConsoleCommand::ECommandFlags cmdFlags) {
-  std::string lowName = name.data();
+  std::string lowName{name};
   athena::utility::tolower(lowName);
-  if (m_commands.find(lowName) == m_commands.end())
-    m_commands[lowName] = SConsoleCommand{name.data(), helpText.data(), usage.data(), std::move(func), cmdFlags};
+
+  if (m_commands.find(lowName) != m_commands.end()) {
+    return;
+  }
+
+  m_commands.emplace(std::move(lowName), SConsoleCommand{std::string{name}, std::string{helpText}, std::string{usage},
+                                                         std::move(func), cmdFlags});
 }
 
 void Console::unregisterCommand(std::string_view name) {
-  std::string lowName = name.data();
+  std::string lowName{name};
   athena::utility::tolower(lowName);
-  if (m_commands.find(lowName) != m_commands.end())
-    m_commands.erase(m_commands.find(lowName));
+
+  const auto iter = m_commands.find(lowName);
+  if (iter == m_commands.end()) {
+    return;
+  }
+
+  m_commands.erase(iter);
 }
 
 void Console::executeString(const std::string& str) {
@@ -88,10 +100,11 @@ void Console::executeString(const std::string& str) {
           isInLiteral = false;
           curLiteral.clear();
         }
-      } else if (isInLiteral)
+      } else if (isInLiteral) {
         curLiteral += arg;
-      else
-        args.push_back(arg);
+      } else {
+        args.push_back(std::move(arg));
+      }
     }
 
     if (isInLiteral) {
@@ -99,7 +112,7 @@ void Console::executeString(const std::string& str) {
         report(Level::Warning, fmt("Unterminated string literal"));
         return;
       }
-      args.push_back(curLiteral);
+      args.push_back(std::move(curLiteral));
     }
 
     std::string commandName = args[0];
@@ -107,8 +120,8 @@ void Console::executeString(const std::string& str) {
 
     std::string lowComName = commandName;
     athena::utility::tolower(lowComName);
-    if (m_commands.find(lowComName) != m_commands.end()) {
-      const SConsoleCommand& cmd = m_commands[lowComName];
+    if (const auto iter = m_commands.find(lowComName); iter != m_commands.end()) {
+      const SConsoleCommand& cmd = iter->second;
       if (bool(cmd.m_flags & SConsoleCommand::ECommandFlags::Developer) && !com_developer->toBoolean()) {
         report(Level::Error, fmt("This command can only be executed in developer mode"), commandName);
         return;
@@ -118,15 +131,16 @@ void Console::executeString(const std::string& str) {
         report(Level::Error, fmt("This command can only be executed with cheats enabled"), commandName);
         return;
       }
-      m_commands[lowComName].m_func(this, args);
+      cmd.m_func(this, args);
     } else if (const CVar* cv = m_cvarMgr->findCVar(commandName)) {
-      args.insert(args.begin(), commandName);
+      args.insert(args.begin(), std::move(commandName));
       if (args.size() > 1)
         m_cvarMgr->setCVar(this, args);
       else
         m_cvarMgr->getCVar(this, args);
-    } else
+    } else {
       report(Level::Error, fmt("Command '{}' is not valid!"), commandName);
+    }
   }
 }
 
@@ -153,8 +167,8 @@ void Console::listCommands(Console* /*con*/, const std::vector<std::string>& /*a
     report(Level::Info, fmt("'{}': {}"), comPair.second.m_displayName, comPair.second.m_helpString);
 }
 
-bool Console::commandExists(std::string_view cmd) {
-  std::string cmdName = cmd.data();
+bool Console::commandExists(std::string_view cmd) const {
+  std::string cmdName{cmd};
   athena::utility::tolower(cmdName);
 
   return m_commands.find(cmdName) != m_commands.end();
@@ -163,8 +177,9 @@ bool Console::commandExists(std::string_view cmd) {
 void Console::vreport(Level level, fmt::string_view fmt, fmt::format_args args) {
   std::string tmp = fmt::vformat(fmt, args);
   std::vector<std::string> lines = athena::utility::split(tmp, '\n');
-  for (const std::string& line : lines)
-    m_log.emplace_back(line, level);
+  for (std::string& line : lines) {
+    m_log.emplace_back(std::move(line), level);
+  }
   fmt::print(fmt("{}\n"), tmp);
 }
 
@@ -174,11 +189,11 @@ void Console::init(boo::IWindow* window) {
 
 void Console::proc() {
   if (m_conHeight->isModified()) {
-    m_cachedConHeight = m_conHeight->toReal();
+    m_cachedConHeight = float(m_conHeight->toReal());
   }
 
   if (m_conSpeed->isModified()) {
-    m_cachedConSpeed = m_conSpeed->toReal();
+    m_cachedConSpeed = float(m_conSpeed->toReal());
   }
 
   if (m_state == State::Opened) {
@@ -227,8 +242,9 @@ void Console::handleCharCode(unsigned long chr, boo::EModifierKey /*mod*/, bool 
 }
 
 void Console::handleSpecialKeyDown(boo::ESpecialKey sp, boo::EModifierKey mod, bool /*repeat*/) {
-  if (m_state != Opened)
+  if (m_state != State::Opened) {
     return;
+  }
 
   switch (sp) {
   case boo::ESpecialKey::Insert:
