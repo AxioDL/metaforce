@@ -139,9 +139,8 @@ void Console::executeString(const std::string& str) {
       else
         m_cvarMgr->getCVar(this, args);
     } else {
-      report(Level::Error, fmt("Command '{}' is not valid!"), commandName);
+      report(Level::Error, fmt("'{}' is not a valid command or variable!"), commandName);
     }
-  }
 }
 
 void Console::help(Console* /*con*/, const std::vector<std::string>& args) {
