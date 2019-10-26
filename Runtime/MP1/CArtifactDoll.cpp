@@ -1,8 +1,16 @@
-#include "CArtifactDoll.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/MP1/CArtifactDoll.hpp"
+
+#include <algorithm>
+#include <cmath>
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <zeus/CColor.hpp>
+#include <zeus/CTransform.hpp>
 
 namespace urde::MP1 {
 
