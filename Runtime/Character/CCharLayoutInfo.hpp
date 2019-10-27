@@ -28,7 +28,7 @@ private:
   TSegIdMap<Bone> x0_boneMap;
 
 public:
-  CCharLayoutNode(CInputStream& in);
+  explicit CCharLayoutNode(CInputStream& in);
   const TSegIdMap<Bone>& GetBoneMap() const { return x0_boneMap; }
 };
 
@@ -38,7 +38,7 @@ class CCharLayoutInfo {
   std::map<std::string, CSegId, std::less<>> x18_segIdMap;
 
 public:
-  CCharLayoutInfo(CInputStream& in);
+  explicit CCharLayoutInfo(CInputStream& in);
   const std::shared_ptr<CCharLayoutNode>& GetRootNode() const { return x0_node; }
   const CSegIdList& GetSegIdList() const { return x8_segIdList; }
   zeus::CVector3f GetFromParentUnrotated(const CSegId& id) const;
