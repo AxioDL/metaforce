@@ -92,8 +92,8 @@ void CParticleDatabase::UpdateParticleGenDB(float dt, const CPoseAsTransforms& p
     CParticleGenInfo& info = *it->second;
     if (info.GetIsActive()) {
       if (info.GetType() == EParticleGenType::Normal) {
-        CSegId segId = charInfo.GetSegIdFromString(info.GetLocatorName());
-        if (segId == 0xff) {
+        const CSegId segId = charInfo.GetSegIdFromString(info.GetLocatorName());
+        if (segId.IsInvalid()) {
           ++it;
           continue;
         }

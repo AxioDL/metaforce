@@ -1498,15 +1498,17 @@ void CSpacePirate::Deactivate(CStateManager& mgr, EStateMsg msg, float dt) {
 }
 
 void CSpacePirate::CheckBlade(CStateManager& mgr) {
-  if (!x638_25_appliedBladeDamage && x7b9_swooshSeg != 0xff) {
-    if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x7c0_targetId)) {
-      zeus::CVector3f extent = x64_modelData->GetScale() * 0.5f;
-      zeus::CVector3f swooshPos = GetLctrTransform(x7b9_swooshSeg).origin;
-      if (zeus::CAABox(swooshPos - extent, swooshPos + extent).intersects(act->GetBoundingBox())) {
-        mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x568_pirateData.x4c_BladeDamage,
-                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
-        x638_25_appliedBladeDamage = true;
-      }
+  if (x638_25_appliedBladeDamage || x7b9_swooshSeg.IsInvalid()) {
+    return;
+  }
+
+  if (TCastToPtr<CPhysicsActor> act = mgr.ObjectById(x7c0_targetId)) {
+    zeus::CVector3f extent = x64_modelData->GetScale() * 0.5f;
+    zeus::CVector3f swooshPos = GetLctrTransform(x7b9_swooshSeg).origin;
+    if (zeus::CAABox(swooshPos - extent, swooshPos + extent).intersects(act->GetBoundingBox())) {
+      mgr.ApplyDamage(GetUniqueId(), act->GetUniqueId(), GetUniqueId(), x568_pirateData.x4c_BladeDamage,
+                      CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), zeus::skZero3f);
+      x638_25_appliedBladeDamage = true;
     }
   }
 }

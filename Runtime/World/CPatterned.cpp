@@ -393,19 +393,21 @@ bool CPatterned::CanRenderUnsorted(const urde::CStateManager& mgr) const {
 
 zeus::CVector3f CPatterned::GetAimPosition(const urde::CStateManager& mgr, float dt) const {
   zeus::CVector3f offset;
-  if (dt > 0.f)
+  if (dt > 0.f) {
     offset = PredictMotion(dt).x0_translation;
+  }
 
-  CSegId segId = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
-  if (segId != 0xFF) {
-    zeus::CTransform xf = GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
-    zeus::CVector3f scaledOrigin = GetModelData()->GetScale() * xf.origin;
-    if (auto tb = GetTouchBounds())
+  const CSegId segId = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
+  if (segId.IsValid()) {
+    const zeus::CTransform xf = GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
+    const zeus::CVector3f scaledOrigin = GetModelData()->GetScale() * xf.origin;
+
+    if (const auto tb = GetTouchBounds()) {
       return offset + tb->clampToBox(x34_transform * scaledOrigin);
+    }
 
-    zeus::CAABox aabox = GetBaseBoundingBox();
-
-    zeus::CAABox primBox(aabox.min + GetPrimitiveOffset(), aabox.max + GetPrimitiveOffset());
+    const zeus::CAABox aabox = GetBaseBoundingBox();
+    const zeus::CAABox primBox(aabox.min + GetPrimitiveOffset(), aabox.max + GetPrimitiveOffset());
 
     return offset + (x34_transform * primBox.clampToBox(scaledOrigin));
   }

@@ -443,26 +443,34 @@ void CFlaahgra::GetMirrorWaypoints(CStateManager& mgr) {
 void CFlaahgra::AddCollisionList(const SJointInfo* joints, int count,
                                  std::vector<CJointCollisionDescription>& outJoints) {
   const CAnimData* animData = GetModelData()->GetAnimationData();
-  for (u32 i = 0; i < count; ++i) {
-    CSegId from = animData->GetLocatorSegId(joints[i].from);
-    CSegId to = animData->GetLocatorSegId(joints[i].to);
 
-    if (to != 0xFF && from != 0xFF) {
-      outJoints.push_back(CJointCollisionDescription::SphereSubdivideCollision(
-          to, from, joints[i].radius, joints[i].separation, CJointCollisionDescription::EOrientationType::One,
-          joints[i].from, 10.f));
+  for (s32 i = 0; i < count; ++i) {
+    const auto& joint = joints[i];
+    const CSegId from = animData->GetLocatorSegId(joint.from);
+    const CSegId to = animData->GetLocatorSegId(joint.to);
+
+    if (to.IsInvalid() || from.IsInvalid()) {
+      continue;
     }
+
+    outJoints.push_back(CJointCollisionDescription::SphereSubdivideCollision(
+        to, from, joint.radius, joint.separation, CJointCollisionDescription::EOrientationType::One, joint.from, 10.f));
   }
 }
 
 void CFlaahgra::AddSphereCollisionList(const SSphereJointInfo* joints, int count,
                                        std::vector<CJointCollisionDescription>& outJoints) {
   const CAnimData* animData = GetModelData()->GetAnimationData();
-  for (u32 i = 0; i < count; ++i) {
-    CSegId seg = animData->GetLocatorSegId(joints[i].name);
-    if (seg != 0xFF) {
-      outJoints.push_back(CJointCollisionDescription::SphereCollision(seg, joints[i].radius, joints[i].name, 10.f));
+
+  for (s32 i = 0; i < count; ++i) {
+    const auto& joint = joints[i];
+    const CSegId seg = animData->GetLocatorSegId(joint.name);
+
+    if (seg.IsInvalid()) {
+      continue;
     }
+
+    outJoints.push_back(CJointCollisionDescription::SphereCollision(seg, joint.radius, joint.name, 10.f));
   }
 }
 

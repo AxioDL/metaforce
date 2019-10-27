@@ -260,13 +260,15 @@ void CMetroidBeta::CreateCollisionActorManager(CStateManager& mgr) {
 void CMetroidBeta::AddSphereJoints(SSphereJointInfo* sphereJoints, s32 count,
     std::vector<CJointCollisionDescription>& joints) {
 
-  for (u32 i = 0; i < count; ++i) {
-    CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJoints[i].name);
-    if (id == 0xFF)
-      continue;
+  for (s32 i = 0; i < count; ++i) {
+    const auto& sphereJoint = sphereJoints[i];
+    const CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId(sphereJoint.name);
 
-    joints.push_back(
-        CJointCollisionDescription::SphereCollision(id, sphereJoints[i].radius, sphereJoints[i].name, 1000.0f));
+    if (id.IsInvalid()) {
+      continue;
+    }
+
+    joints.push_back(CJointCollisionDescription::SphereCollision(id, sphereJoint.radius, sphereJoint.name, 1000.0f));
   }
 }
 void CMetroidBeta::SetCollisionActorHealthAndVulnerability(CStateManager& mgr) {
