@@ -48,10 +48,11 @@ CCharLayoutNode::CCharLayoutNode(CInputStream& in) : x0_boneMap(in.readUint32Big
 }
 
 CCharLayoutInfo::CCharLayoutInfo(CInputStream& in) : x0_node(std::make_shared<CCharLayoutNode>(in)), x8_segIdList(in) {
-  atUint32 mapCount = in.readUint32Big();
+  const atUint32 mapCount = in.readUint32Big();
+
   for (atUint32 i = 0; i < mapCount; ++i) {
     std::string key = in.readString();
-    x18_segIdMap.emplace(key, in);
+    x18_segIdMap.emplace(std::move(key), in);
   }
 }
 
