@@ -5,11 +5,12 @@ namespace urde {
 
 zeus::CVector3f CCharLayoutInfo::GetFromParentUnrotated(const CSegId& id) const {
   const CCharLayoutNode::Bone& bone = x0_node->GetBoneMap()[id];
-  if (!x0_node->GetBoneMap().HasElement(bone.x0_parentId))
+
+  if (x0_node->GetBoneMap().HasElement(bone.x0_parentId)) {
+    const CCharLayoutNode::Bone& parent = x0_node->GetBoneMap()[bone.x0_parentId];
+    return bone.x4_origin - parent.x4_origin;
+  } else {
     return bone.x4_origin;
-  else {
-    const CCharLayoutNode::Bone& pBone = x0_node->GetBoneMap()[bone.x0_parentId];
-    return bone.x4_origin - pBone.x4_origin;
   }
 }
 
