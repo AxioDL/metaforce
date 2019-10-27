@@ -44,7 +44,7 @@ public:
   virtual void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) = 0;
   virtual void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) = 0;
   virtual void SetGlobalScale(const zeus::CVector3f& scale) = 0;
-  virtual void SetParticleEmission(bool, CStateManager& stateMgr) = 0;
+  virtual void SetParticleEmission(bool isActive, CStateManager& stateMgr) = 0;
   virtual bool IsSystemDeletable() const = 0;
   virtual std::optional<zeus::CAABox> GetBounds() const = 0;
   virtual bool HasActiveParticles() const = 0;
@@ -97,7 +97,7 @@ public:
   void SetGlobalOrientation(const zeus::CTransform& xf, CStateManager& stateMgr) override;
   void SetGlobalTranslation(const zeus::CVector3f& trans, CStateManager& stateMgr) override;
   void SetGlobalScale(const zeus::CVector3f& scale) override;
-  void SetParticleEmission(bool, CStateManager& stateMgr) override;
+  void SetParticleEmission(bool isActive, CStateManager& stateMgr) override;
   bool IsSystemDeletable() const override;
   std::optional<zeus::CAABox> GetBounds() const override;
   bool HasActiveParticles() const override;
