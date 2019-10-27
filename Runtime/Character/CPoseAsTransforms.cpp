@@ -7,7 +7,7 @@ CPoseAsTransforms::CPoseAsTransforms(u8 boneCount) : x1_count(boneCount), xd0_tr
 
 bool CPoseAsTransforms::ContainsDataFor(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
-  return link.first != 0xff || link.second != 0xff;
+  return link.first.IsValid() || link.second.IsValid();
 }
 
 void CPoseAsTransforms::Clear() {
@@ -23,25 +23,25 @@ void CPoseAsTransforms::AccumulateScaledTransform(const CSegId& id, zeus::CMatri
 
 const zeus::CTransform& CPoseAsTransforms::GetTransform(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
-  assert(link.second != 0xff);
+  assert(link.second.IsValid());
   return xd0_transformArr[link.second].m_originToAccum;
 }
 
 const zeus::CTransform& CPoseAsTransforms::GetRestToAccumTransform(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
-  assert(link.second != 0xff);
+  assert(link.second.IsValid());
   return xd0_transformArr[link.second].m_restPoseToAccum;
 }
 
 const zeus::CVector3f& CPoseAsTransforms::GetOffset(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
-  assert(link.second != 0xff);
+  assert(link.second.IsValid());
   return xd0_transformArr[link.second].m_originToAccum.origin;
 }
 
 const zeus::CMatrix3f& CPoseAsTransforms::GetRotation(const CSegId& id) const {
   const std::pair<CSegId, CSegId>& link = x8_links[id];
-  assert(link.second != 0xff);
+  assert(link.second.IsValid());
   return xd0_transformArr[link.second].m_originToAccum.basis;
 }
 

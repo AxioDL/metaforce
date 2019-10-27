@@ -434,8 +434,9 @@ void CAnimData::CalcPlaybackAlignmentParms(const CAnimPlaybackParms& parms,
 }
 
 zeus::CTransform CAnimData::GetLocatorTransform(CSegId id, const CCharAnimTime* time) const {
-  if (id == 0xFF)
+  if (id.IsInvalid()) {
     return {};
+  }
 
   zeus::CTransform ret;
   if (time || !x220_31_poseCached) {

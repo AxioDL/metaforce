@@ -36,10 +36,10 @@ CSpankWeed::CSpankWeed(TUniqueId uid, std::string_view name, const CEntityInfo& 
   list.Add(EMaterialTypes::Player);
   SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(GetMaterialFilter().GetIncludeList(), list));
 
-  CSegId segId = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
-  if (segId != 0xFF) {
-    zeus::CTransform locatorXf = GetTransform() * zeus::CTransform::Scale(GetModelData()->GetScale()) *
-                                 GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
+  const CSegId segId = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
+  if (segId.IsValid()) {
+    const zeus::CTransform locatorXf = GetTransform() * zeus::CTransform::Scale(GetModelData()->GetScale()) *
+                                       GetModelData()->GetAnimationData()->GetLocatorTransform(segId, nullptr);
     x5a8_lockonTarget = locatorXf.origin;
     x59c_lockonOffset = locatorXf.origin - GetTranslation();
   }
@@ -71,9 +71,10 @@ void CSpankWeed::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CState
     joints.reserve(12);
 
     for (const SSphereJointInfo& joint : kArmCollision) {
-      CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId(joint.name);
-      if (id != 0xFF)
+      const CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId(joint.name);
+      if (id.IsValid()) {
         joints.push_back(CJointCollisionDescription::SphereCollision(id, joint.radius, joint.name, 0.001f));
+      }
     }
 
     x594_collisionMgr =
@@ -140,9 +141,9 @@ zeus::CVector3f CSpankWeed::GetOrbitPosition(const CStateManager& mgr) const {
 zeus::CVector3f CSpankWeed::GetAimPosition(const CStateManager&, float dt) const {
   zeus::CVector3f pos = (dt > 0.f ? PredictMotion(dt).x0_translation : zeus::skZero3f);
 
-  CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
-  if (id != 0xFF) {
-    zeus::CVector3f lockonOff = GetModelData()->GetAnimationData()->GetLocatorTransform(id, nullptr).origin;
+  const CSegId id = GetModelData()->GetAnimationData()->GetLocatorSegId("lockon_target_LCTR"sv);
+  if (id.IsValid()) {
+    const zeus::CVector3f lockonOff = GetModelData()->GetAnimationData()->GetLocatorTransform(id, nullptr).origin;
     return pos + (GetTransform() * (GetModelData()->GetScale() * lockonOff));
   }
 

@@ -19,43 +19,55 @@ class TSegIdMap {
 
 public:
   TSegIdMap(const CSegId& capacity) : x1_capacity(capacity), xd0_bones(new T[capacity]) {}
+
   T& operator[](const CSegId& id) { return SetElement(id); }
   const T& operator[](const CSegId& id) const { return xd0_bones[x8_indirectionMap[id].second]; }
+
   T& SetElement(const CSegId& id, T&& obj) {
     size_t idx;
-    if (x8_indirectionMap[id].first == 0xff) {
-      x8_indirectionMap[id].first = xd4_curPrevBone;
-      x8_indirectionMap[id].second = x0_boneCount;
+
+    if (HasElement(id)) {
+      idx = x8_indirectionMap[id].second;
+    } else {
+      x8_indirectionMap[id] = std::make_pair(xd4_curPrevBone, x0_boneCount);
       xd4_curPrevBone = id;
       idx = x0_boneCount;
       ++x0_boneCount;
-    } else
-      idx = x8_indirectionMap[id].second;
+    }
+
     xd0_bones[idx] = std::move(obj);
     return xd0_bones[idx];
   }
+
   T& SetElement(const CSegId& id) {
     size_t idx;
-    if (x8_indirectionMap[id].first == 0xff) {
-      x8_indirectionMap[id].first = xd4_curPrevBone;
-      x8_indirectionMap[id].second = x0_boneCount;
+
+    if (HasElement(id)) {
+      idx = x8_indirectionMap[id].second;
+    } else {
+      x8_indirectionMap[id] = std::make_pair(xd4_curPrevBone, x0_boneCount);
       xd4_curPrevBone = id;
       idx = x0_boneCount;
       ++x0_boneCount;
-    } else
-      idx = x8_indirectionMap[id].second;
+    }
+
     return xd0_bones[idx];
   }
+
   void DelElement(const CSegId& id) {
-    if (x8_indirectionMap[id].first != 0xff) {
-      if (id == xd4_curPrevBone)
-        xd4_curPrevBone = x8_indirectionMap[id].first;
-      x8_indirectionMap[id].first = 0xff;
-      x8_indirectionMap[id].second = 0xff;
-      --x0_boneCount;
+    if (!HasElement(id)) {
+      return;
     }
+
+    if (id == xd4_curPrevBone) {
+      xd4_curPrevBone = x8_indirectionMap[id].first;
+    }
+
+    x8_indirectionMap[id] = {};
+    --x0_boneCount;
   }
-  bool HasElement(const CSegId& id) const { return x8_indirectionMap[id].first != 0xff; }
+
+  bool HasElement(const CSegId& id) const { return x8_indirectionMap[id].first.IsValid(); }
 
   u32 GetCapacity() const { return x1_capacity; }
 };

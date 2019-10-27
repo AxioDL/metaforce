@@ -90,7 +90,7 @@ void CFlaahgraTentacle::AddSphereCollisionList(const SSphereJointInfo* sphereJoi
     const SSphereJointInfo& sphereJoint = sphereJoints[i];
     const CSegId segId = animData->GetLocatorSegId(sphereJoint.name);
 
-    if (segId == 0xFF) {
+    if (segId.IsInvalid()) {
       continue;
     }
 

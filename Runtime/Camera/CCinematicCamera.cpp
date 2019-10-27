@@ -250,9 +250,9 @@ void CCinematicCamera::CalculateMoveOutofIntoEyePosition(bool outOfEye, CStateMa
         if (const CModelData* mData = act->GetModelData()) {
           if (const CAnimData* aData = mData->GetAnimationData()) {
             if (const CAnimTreeNode* root = aData->GetRootAnimationTree().get()) {
-              CSegId lEye = aData->GetLocatorSegId("L_eye"sv);
-              CSegId rEye = aData->GetLocatorSegId("R_eye"sv);
-              if (lEye != 0xff && rEye != 0xff) {
+              const CSegId lEye = aData->GetLocatorSegId("L_eye"sv);
+              const CSegId rEye = aData->GetLocatorSegId("R_eye"sv);
+              if (lEye.IsValid() && rEye.IsValid()) {
                 CCharAnimTime time = outOfEye ? CCharAnimTime(0.f) : root->VGetSteadyStateAnimInfo().GetDuration();
                 CCharAnimTime* pTime = outOfEye ? nullptr : &time;
                 eyePos = ((act->GetTransform() * mData->GetScaledLocatorTransformDynamic("L_eye"sv, pTime)).origin +

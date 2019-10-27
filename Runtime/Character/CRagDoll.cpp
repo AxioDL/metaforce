@@ -307,12 +307,15 @@ void CRagDoll::Prime(CStateManager& mgr, const zeus::CTransform& xf, CModelData&
   zeus::CVector3f scale = mData.GetScale();
   CAnimData* aData = mData.GetAnimationData();
   aData->BuildPose();
-  for (auto& particle : x4_particles)
-    if (particle.x0_id != 0xff)
+  for (auto& particle : x4_particles) {
+    if (particle.x0_id.IsValid()) {
       particle.x4_curPos = xf * (aData->GetPose().GetOffset(particle.x0_id) * scale);
+    }
+  }
   SatisfyWorldConstraints(mgr, 2);
-  for (auto& particle : x4_particles)
+  for (auto& particle : x4_particles) {
     particle.x3c_24_impactPending = false;
+  }
   x68_26_primed = true;
 }
 

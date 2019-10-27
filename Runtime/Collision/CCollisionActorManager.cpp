@@ -20,7 +20,7 @@ CCollisionActorManager::CCollisionActorManager(CStateManager& mgr, TUniqueId own
       CJointCollisionDescription modDesc = desc;
       modDesc.ScaleAllBounds(scale);
       zeus::CTransform locXf = GetWRLocatorTransform(*animData, modDesc.GetPivotId(), xf, scaleXf);
-      if (modDesc.GetNextId() != 0xff) {
+      if (modDesc.GetNextId().IsValid()) {
         zeus::CTransform locXf2 = GetWRLocatorTransform(*animData, modDesc.GetNextId(), xf, scaleXf);
         float dist = (locXf2.origin - locXf.origin).magnitude();
         if (modDesc.GetType() == CJointCollisionDescription::ECollisionType::OBBAutoSize) {
