@@ -54,12 +54,12 @@ public:
   virtual void DeleteLight(CStateManager& stateMgr) = 0;
   virtual void SetModulationColor(const zeus::CColor& color) = 0;
 
-  void SetFlags(s32 f) { x2c_flags = f; }
+  void SetFlags(s32 flags) { x2c_flags = flags; }
   s32 GetFlags() const { return x2c_flags; }
-  void SetIsGrabInitialData(bool g) { x40_grabInitialData = g; }
+  void SetIsGrabInitialData(bool grabInitialData) { x40_grabInitialData = grabInitialData; }
   bool GetIsGrabInitialData() const { return x40_grabInitialData; }
   bool GetIsActive() const { return x24_active; }
-  void SetIsActive(bool a) { x24_active = a; }
+  void SetIsActive(bool isActive) { x24_active = isActive; }
   void OffsetTime(float dt) { x20_curTime += dt; }
   const zeus::CVector3f& GetCurOffset() const { return x74_offset; }
   void SetCurOffset(const zeus::CVector3f& offset) { x74_offset = offset; }
@@ -67,12 +67,12 @@ public:
   void SetCurTransform(const zeus::CTransform& xf) { x44_transform = xf; }
   const zeus::CVector3f& GetCurScale() const { return x30_particleScale; }
   void SetCurScale(const zeus::CVector3f& scale) { x30_particleScale = scale; }
-  void SetInactiveStartTime(float s) { xc_seconds = s; }
+  void SetInactiveStartTime(float seconds) { xc_seconds = seconds; }
   float GetInactiveStartTime() const { return xc_seconds; }
   void MarkFinishTime() { x3c_finishTime = x20_curTime; }
   float GetFinishTime() const { return x3c_finishTime; }
   float GetCurrentTime() const { return x20_curTime; }
-  void SetCurrentTime(float t) { x20_curTime = t; }
+  void SetCurrentTime(float time) { x20_curTime = time; }
   EParticleGenType GetType() const { return x80_type; }
 
   CParticleData::EParentedMode GetParentedMode() const { return x28_parentMode; }
@@ -86,7 +86,7 @@ class CParticleGenInfoGeneric : public CParticleGenInfo {
 public:
   CParticleGenInfoGeneric(const SObjectTag& part, const std::weak_ptr<CParticleGen>& system, int frames,
                           std::string_view boneName, const zeus::CVector3f& scale,
-                          CParticleData::EParentedMode parentMode, int flags, CStateManager& stateMgr, TAreaId,
+                          CParticleData::EParentedMode parentMode, int flags, CStateManager& stateMgr, TAreaId areaId,
                           int lightId, EParticleGenType state);
 
   void AddToRenderer() override;
