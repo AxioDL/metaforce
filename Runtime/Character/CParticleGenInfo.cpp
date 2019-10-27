@@ -102,13 +102,14 @@ void CParticleGenInfoGeneric::SetGlobalTranslation(const zeus::CVector3f& trans,
 
 void CParticleGenInfoGeneric::SetGlobalScale(const zeus::CVector3f& scale) { x84_system->SetGlobalScale(scale); }
 
-void CParticleGenInfoGeneric::SetParticleEmission(bool emission, CStateManager& stateMgr) {
-  x84_system->SetParticleEmission(emission);
+void CParticleGenInfoGeneric::SetParticleEmission(bool isActive, CStateManager& stateMgr) {
+  x84_system->SetParticleEmission(isActive);
 
   TCastToPtr<CGameLight> gl(stateMgr.ObjectById(x88_lightId));
 
-  if (gl)
-    gl->SetActive(emission);
+  if (gl) {
+    gl->SetActive(isActive);
+  }
 }
 
 bool CParticleGenInfoGeneric::IsSystemDeletable() const { return x84_system->IsSystemDeletable(); }
