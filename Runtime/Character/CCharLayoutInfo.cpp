@@ -32,16 +32,18 @@ void CCharLayoutNode::Bone::read(CInputStream& in) {
   x0_parentId = CSegId(in);
   x4_origin.readBig(in);
 
-  u32 chCount = in.readUint32Big();
+  const u32 chCount = in.readUint32Big();
   x10_children.reserve(chCount);
-  for (u32 i = 0; i < chCount; ++i)
+  for (u32 i = 0; i < chCount; ++i) {
     x10_children.emplace_back(in);
+  }
 }
 
 CCharLayoutNode::CCharLayoutNode(CInputStream& in) : x0_boneMap(in.readUint32Big()) {
-  u32 cap = x0_boneMap.GetCapacity();
+  const u32 cap = x0_boneMap.GetCapacity();
+
   for (u32 i = 0; i < cap; ++i) {
-    u32 thisId = in.readUint32Big();
+    const u32 thisId = in.readUint32Big();
     Bone& bone = x0_boneMap[thisId];
     bone.read(in);
   }
