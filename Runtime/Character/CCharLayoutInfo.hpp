@@ -35,7 +35,7 @@ public:
 class CCharLayoutInfo {
   std::shared_ptr<CCharLayoutNode> x0_node;
   CSegIdList x8_segIdList;
-  std::map<std::string, CSegId> x18_segIdMap;
+  std::map<std::string, CSegId, std::less<>> x18_segIdMap;
 
 public:
   CCharLayoutInfo(CInputStream& in);

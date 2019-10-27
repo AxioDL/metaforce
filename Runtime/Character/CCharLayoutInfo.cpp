@@ -19,9 +19,11 @@ zeus::CVector3f CCharLayoutInfo::GetFromRootUnrotated(const CSegId& id) const {
 }
 
 CSegId CCharLayoutInfo::GetSegIdFromString(std::string_view name) const {
-  auto it = x18_segIdMap.find(name.data());
-  if (it == x18_segIdMap.end())
+  const auto it = x18_segIdMap.find(name);
+
+  if (it == x18_segIdMap.cend()) {
     return {};
+  }
 
   return it->second;
 }
