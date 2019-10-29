@@ -5,7 +5,7 @@
 #include "CInternalRayCastStructure.hpp"
 
 namespace urde {
-const CCollisionPrimitive::Type CCollidableAABox::sType(CCollidableAABox::SetStaticTableIndex, "CCollidableAABox");
+constexpr CCollisionPrimitive::Type sType(CCollidableAABox::SetStaticTableIndex, "CCollidableAABox");
 u32 CCollidableAABox::sTableIndex = -1;
 
 CCollidableAABox::CCollidableAABox() = default;

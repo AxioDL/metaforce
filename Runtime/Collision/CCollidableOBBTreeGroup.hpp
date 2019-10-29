@@ -24,7 +24,6 @@ public:
 };
 
 class CCollidableOBBTreeGroup : public CCollisionPrimitive {
-  static const Type sType;
   static u32 sTableIndex;
   const CCollidableOBBTreeGroupContainer* x10_container;
 
