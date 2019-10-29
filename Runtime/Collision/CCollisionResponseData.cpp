@@ -1,12 +1,13 @@
-#include "CCollisionResponseData.hpp"
-#include "Particle/CParticleDataFactory.hpp"
-#include "Particle/CDecalDescription.hpp"
-#include "Particle/CSwooshDescription.hpp"
-#include "Particle/CElectricDescription.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Graphics/CModel.hpp"
-#include "CSimplePool.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/Collision/CCollisionResponseData.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CDecalDescription.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
 
 namespace urde {
 const EWeaponCollisionResponseTypes CCollisionResponseData::skWorldMaterialTable[32] = {
