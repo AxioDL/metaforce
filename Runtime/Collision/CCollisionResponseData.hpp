@@ -113,8 +113,6 @@ enum class EWeaponCollisionResponseTypes {
 };
 
 class CCollisionResponseData {
-  static const EWeaponCollisionResponseTypes skWorldMaterialTable[32];
-  static const s32 kInvalidSFX;
   std::vector<std::optional<TLockedToken<CGenDescription>>> x0_generators;
   std::vector<s32> x10_sfx;
   std::vector<std::optional<TLockedToken<CDecalDescription>>> x20_decals;
