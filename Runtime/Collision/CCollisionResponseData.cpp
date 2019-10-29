@@ -155,13 +155,7 @@ bool CCollisionResponseData::CheckAndAddResourceToResponse(FourCC clsId, CInputS
 }
 
 CCollisionResponseData::CCollisionResponseData(CInputStream& in, CSimplePool* resPool)
-: x30_RNGE(50.f), x34_FOFF(0.2f) {
-  x0_generators.resize(94);
-  x10_sfx.resize(94);
-  x20_decals.resize(94);
-  for (s32& id : x10_sfx)
-    id = kInvalidSFX;
-
+: x0_generators(94), x10_sfx(94, kInvalidSFX), x20_decals(94), x30_RNGE(50.f), x34_FOFF(0.2f) {
   FourCC clsId = CPF::GetClassID(in);
   if (clsId == UncookedResType()) {
     CRandom16 rand;
