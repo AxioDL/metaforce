@@ -116,8 +116,8 @@ class CCollisionResponseData {
   std::vector<std::optional<TLockedToken<CGenDescription>>> x0_generators;
   std::vector<s32> x10_sfx;
   std::vector<std::optional<TLockedToken<CDecalDescription>>> x20_decals;
-  float x30_RNGE;
-  float x34_FOFF;
+  float x30_RNGE = 50.0f;
+  float x34_FOFF = 0.2f;
 
   void AddParticleSystemToResponse(EWeaponCollisionResponseTypes type, CInputStream& in, CSimplePool* resPool);
   bool CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool);
