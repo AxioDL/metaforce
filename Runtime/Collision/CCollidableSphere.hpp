@@ -12,8 +12,8 @@ bool Sphere_AABox_Bool(const CInternalCollisionStructure&);
 bool Sphere_Sphere(const CInternalCollisionStructure&, CCollisionInfoList&);
 bool Sphere_Sphere_Bool(const CInternalCollisionStructure&);
 } // namespace Collide
+
 class CCollidableSphere : public CCollisionPrimitive {
-  static const Type sType;
   static u32 sTableIndex;
 
   zeus::CSphere x10_sphere;
@@ -31,7 +31,7 @@ public:
   FourCC GetPrimType() const override;
   CRayCastResult CastRayInternal(const CInternalRayCastStructure&) const override;
 
-  static const Type& GetType() { return sType; }
+  static const Type& GetType();
   static void SetStaticTableIndex(u32 index) { sTableIndex = index; }
   static bool CollideMovingAABox(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);
   static bool CollideMovingSphere(const CInternalCollisionStructure&, const zeus::CVector3f&, double&, CCollisionInfo&);

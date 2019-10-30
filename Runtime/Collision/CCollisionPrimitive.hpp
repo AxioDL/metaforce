@@ -54,15 +54,15 @@ using PrimitiveSetter = void (*)(u32);
 class CCollisionPrimitive {
 public:
   class Type {
-    PrimitiveSetter x0_setter;
-    const char* x4_info;
+    PrimitiveSetter x0_setter = nullptr;
+    const char* x4_info = nullptr;
 
   public:
-    Type() = default;
-    Type(PrimitiveSetter setter, const char* info) : x0_setter(setter), x4_info(info) {}
+    constexpr Type() noexcept = default;
+    constexpr Type(PrimitiveSetter setter, const char* info) noexcept : x0_setter(setter), x4_info(info) {}
 
-    const char* GetInfo() const { return x4_info; }
-    PrimitiveSetter GetSetter() const { return x0_setter; }
+    constexpr const char* GetInfo() const noexcept { return x4_info; }
+    constexpr PrimitiveSetter GetSetter() const noexcept { return x0_setter; }
   };
 
   class Comparison {
@@ -71,12 +71,12 @@ public:
     const char* x8_type2;
 
   public:
-    Comparison(ComparisonFunc collider, const char* type1, const char* type2)
+    constexpr Comparison(ComparisonFunc collider, const char* type1, const char* type2) noexcept
     : x0_collider(collider), x4_type1(type1), x8_type2(type2) {}
 
-    ComparisonFunc GetCollider() const { return x0_collider; }
-    const char* GetType1() const { return x4_type1; }
-    const char* GetType2() const { return x8_type2; }
+    constexpr ComparisonFunc GetCollider() const noexcept { return x0_collider; }
+    constexpr const char* GetType1() const noexcept { return x4_type1; }
+    constexpr const char* GetType2() const noexcept { return x8_type2; }
   };
 
   class MovingComparison {
@@ -85,12 +85,12 @@ public:
     const char* x8_type2;
 
   public:
-    MovingComparison(MovingComparisonFunc collider, const char* type1, const char* type2)
+    constexpr MovingComparison(MovingComparisonFunc collider, const char* type1, const char* type2) noexcept
     : x0_collider(collider), x4_type1(type1), x8_type2(type2) {}
 
-    MovingComparisonFunc GetCollider() const { return x0_collider; }
-    const char* GetType1() const { return x4_type1; }
-    const char* GetType2() const { return x8_type2; }
+    constexpr MovingComparisonFunc GetCollider() const noexcept { return x0_collider; }
+    constexpr const char* GetType1() const noexcept { return x4_type1; }
+    constexpr const char* GetType2() const noexcept { return x8_type2; }
   };
 
   class BooleanComparison {
@@ -99,12 +99,12 @@ public:
     const char* x8_type2;
 
   public:
-    BooleanComparison(BooleanComparisonFunc collider, const char* type1, const char* type2)
+    constexpr BooleanComparison(BooleanComparisonFunc collider, const char* type1, const char* type2) noexcept
     : x0_collider(collider), x4_type1(type1), x8_type2(type2) {}
 
-    BooleanComparisonFunc GetCollider() const { return x0_collider; }
-    const char* GetType1() const { return x4_type1; }
-    const char* GetType2() const { return x8_type2; }
+    constexpr BooleanComparisonFunc GetCollider() const noexcept { return x0_collider; }
+    constexpr const char* GetType1() const noexcept { return x4_type1; }
+    constexpr const char* GetType2() const noexcept { return x8_type2; }
   };
 
 private:

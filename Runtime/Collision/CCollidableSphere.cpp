@@ -5,7 +5,7 @@
 #include "CInternalRayCastStructure.hpp"
 
 namespace urde {
-const CCollisionPrimitive::Type CCollidableSphere::sType(CCollidableSphere::SetStaticTableIndex, "CCollidableSphere");
+constexpr CCollisionPrimitive::Type sType(CCollidableSphere::SetStaticTableIndex, "CCollidableSphere");
 u32 CCollidableSphere::sTableIndex = -1;
 
 namespace Collide {
@@ -223,6 +223,8 @@ CRayCastResult CCollidableSphere::CastRayInternal(const CInternalRayCastStructur
 
   return {};
 }
+
+const CCollisionPrimitive::Type& CCollidableSphere::GetType() { return sType; }
 
 bool CCollidableSphere::CollideMovingAABox(const CInternalCollisionStructure& collision, const zeus::CVector3f& dir,
                                            double& dOut, CCollisionInfo& infoOut) {
