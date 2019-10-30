@@ -113,13 +113,11 @@ enum class EWeaponCollisionResponseTypes {
 };
 
 class CCollisionResponseData {
-  static const EWeaponCollisionResponseTypes skWorldMaterialTable[32];
-  static const s32 kInvalidSFX;
   std::vector<std::optional<TLockedToken<CGenDescription>>> x0_generators;
   std::vector<s32> x10_sfx;
   std::vector<std::optional<TLockedToken<CDecalDescription>>> x20_decals;
-  float x30_RNGE;
-  float x34_FOFF;
+  float x30_RNGE = 50.0f;
+  float x34_FOFF = 0.2f;
 
   void AddParticleSystemToResponse(EWeaponCollisionResponseTypes type, CInputStream& in, CSimplePool* resPool);
   bool CheckAndAddDecalToResponse(FourCC clsId, CInputStream& in, CSimplePool* resPool);
@@ -129,20 +127,18 @@ class CCollisionResponseData {
 
 public:
   CCollisionResponseData(CInputStream& in, CSimplePool* resPool);
-  const std::optional<TLockedToken<CGenDescription>>&
-      GetParticleDescription(EWeaponCollisionResponseTypes) const;
-  const std::optional<TLockedToken<CDecalDescription>>&
-  GetDecalDescription(EWeaponCollisionResponseTypes type) const;
-  s32 GetSoundEffectId(EWeaponCollisionResponseTypes) const;
-  static EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32);
-  static bool ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes);
-  static bool ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes);
-  static bool ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes);
+  const std::optional<TLockedToken<CGenDescription>>& GetParticleDescription(EWeaponCollisionResponseTypes type) const;
+  const std::optional<TLockedToken<CDecalDescription>>& GetDecalDescription(EWeaponCollisionResponseTypes type) const;
+  s32 GetSoundEffectId(EWeaponCollisionResponseTypes type) const;
+  static EWeaponCollisionResponseTypes GetWorldCollisionResponseType(s32 id);
+  static bool ResponseTypeIsEnemyShielded(EWeaponCollisionResponseTypes type);
+  static bool ResponseTypeIsEnemyNormal(EWeaponCollisionResponseTypes type);
+  static bool ResponseTypeIsEnemySpecial(EWeaponCollisionResponseTypes type);
   float GetAudibleRange() const { return x30_RNGE; }
   float GetAudibleFallOff() const { return x34_FOFF; }
   static FourCC UncookedResType();
 };
 
 CFactoryFnReturn FCollisionResponseDataFactory(const SObjectTag& tag, CInputStream& in, const CVParamTransfer& vparms,
-                                               CObjectReference*);
+                                               CObjectReference* selfRef);
 } // namespace urde
