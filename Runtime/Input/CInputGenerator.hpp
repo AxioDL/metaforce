@@ -38,8 +38,10 @@ public:
   : boo::DeviceFinder({dev_typeid(DolphinSmashAdapter)}), m_leftDiv(leftDiv), m_rightDiv(rightDiv) {}
 
   ~CInputGenerator() override {
-    if (smashAdapter)
+    if (smashAdapter) {
       smashAdapter->setCallback(nullptr);
+      smashAdapter->closeDevice();
+    }
   }
 
   /* Keyboard and mouse events are delivered on the main game

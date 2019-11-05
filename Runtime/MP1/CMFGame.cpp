@@ -332,8 +332,10 @@ CIOWin::EMessageReturn CMFGameLoader::OnMessage(const CArchitectureMessage& msg,
       return EMessageReturn::Exit;
     }
 
-    if (!x18_guiMgr)
+    if (!x18_guiMgr) {
+      g_GameState->CurrentWorldState().SetDesiredAreaAssetId(CAssetId());
       x18_guiMgr = std::make_shared<CInGameGuiManager>(*x14_stateMgr, queue);
+    }
     if (!x18_guiMgr->CheckLoadComplete(*x14_stateMgr))
       return EMessageReturn::Exit;
 

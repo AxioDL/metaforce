@@ -83,7 +83,7 @@ CWorldState::CWorldState(CBitStreamReader& reader, CAssetId mlvlId, const CSaveW
 
 void CWorldState::PutTo(CBitStreamWriter& writer, const CSaveWorld& savw) const {
   writer.WriteEncoded(x4_areaId, 32);
-  writer.WriteEncoded(x10_desiredAreaAssetId.Value(), 32);
+  writer.WriteEncoded(u32(x10_desiredAreaAssetId.Value()), 32);
   x8_relayTracker->PutTo(writer, savw);
   xc_mapWorldInfo->PutTo(writer, savw, x0_mlvlId);
   x14_layerState->PutTo(writer);
@@ -209,7 +209,7 @@ void CGameState::PutTo(CBitStreamWriter& writer) const {
   writer.WriteEncoded(CBasics::ToWiiTime(std::chrono::system_clock::now()) / CBasics::TICKS_PER_SECOND, 32);
   writer.WriteEncoded(x228_24_hardMode, 1);
   writer.WriteEncoded(x228_25_initPowerupsAtFirstSpawn, 1);
-  writer.WriteEncoded(x84_mlvlId.Value(), 32);
+  writer.WriteEncoded(u32(x84_mlvlId.Value()), 32);
 
   BitsToDouble conv;
   conv.doub = xa0_playTime;

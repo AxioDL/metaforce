@@ -179,18 +179,18 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
         x148_25_camSubmerged = true;
         if (True(x12c_flags & ETriggerFlags::DetectCamera)) {
           InhabitantAdded(*cam, mgr);
-          SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::Activate);
+          SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
         }
       }
     }
   }
 
   if (sendInside) {
-    SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::Activate);
+    SendScriptMsgs(EScriptObjectState::Inside, mgr, EScriptObjectMessage::None);
   }
 
   if (sendExited) {
-    SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::Activate);
+    SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
     if (x148_27_deactivateOnExited) {
       mgr.SendScriptMsg(GetUniqueId(), mgr.GetEditorIdForUniqueId(GetUniqueId()), EScriptObjectMessage::Deactivate,
                         EScriptObjectState::Exited);
