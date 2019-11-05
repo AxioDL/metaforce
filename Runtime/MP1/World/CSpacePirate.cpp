@@ -341,7 +341,8 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
 , x568_pirateData(in, propCount)
 , x660_pathFindSearch(nullptr, 0x1, pInfo.GetPathfindingIndex(), 1.f, 1.f)
 , x750_initialHP(pInfo.GetHealthInfo().GetHP())
-, x764_boneTracking(*x64_modelData->GetAnimationData(), "Head_1"sv, 1.22173f, 3.14159f, EBoneTrackingFlags::None)
+, x764_boneTracking(*x64_modelData->GetAnimationData(), "Head_1"sv, zeus::degToRad(70.f), zeus::degToRad(180.f),
+                    EBoneTrackingFlags::None)
 , x7c4_burstFire(skBursts, x568_pirateData.xac_firstBurstCount)
 , x8b8_minCloakAlpha(x568_pirateData.xb0_CloakOpacity)
 , x8bc_maxCloakAlpha(x568_pirateData.xb4_MaxCloakOpacity)
@@ -364,6 +365,36 @@ CSpacePirate::CSpacePirate(TUniqueId uid, std::string_view name, const CEntityIn
   x635_30_floatingCorpse = bool(x568_pirateData.x18_flags & 0x10000);
   x635_31_ragdollNoAiCollision = bool(x568_pirateData.x18_flags & 0x20000);
   x636_24_trooper = bool(x568_pirateData.x18_flags & 0x40000);
+  x636_25_hearNoise = false;
+  x636_26_enableMeleeAttack = false;
+  x636_27_ = false;
+  x636_28_ = false;
+  x636_29_enableRetreat = false;
+  x636_30_shuffleClose = false;
+  x636_31_inAttackState = false;
+  x637_24_enablePatrol = false;
+  x637_25_enableAim = false;
+  x637_26_hearPlayerFire = false;
+  x637_28_noPlayerLos = false;
+  x637_29_inWallHang = false;
+  x637_30_jumpVelSet = false;
+  x637_31_prevInCineCam = false;
+  x638_24_pendingFrenzyChance = false;
+  x638_25_appliedBladeDamage = false;
+  x638_26_alwaysAggressive = false;
+  x638_27_coverCheck = false;
+  x638_28_enableDodge = false;
+  x638_29_noPlayerDodge = false;
+  x638_30_ragdollOver = false;
+  x638_31_mayStartAttack = false;
+  x639_24_ = false;
+  x639_25_useJumpBackJump = false;
+  x639_26_started = false;
+  x639_27_inRange = false;
+  x639_28_satUp = false;
+  x639_29_enableBreakDodge = false;
+  x639_30_closeMelee = false;
+  x639_31_sentAttackMsg = false;
 
   x758_headSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("Head_1"sv);
   x7b6_gunSeg = x64_modelData->GetAnimationData()->GetLocatorSegId("R_gun_LCTR"sv);
@@ -489,8 +520,8 @@ bool CSpacePirate::ShouldFrenzy(CStateManager& mgr) {
 }
 
 void CSpacePirate::SquadReset(CStateManager& mgr) {
-  CTeamAiMgr::ResetTeamAiRole(!x634_27_melee ? CTeamAiMgr::EAttackType::Ranged : CTeamAiMgr::EAttackType::Melee,
-                              mgr, x8c8_teamAiMgrId, GetUniqueId(), true);
+  CTeamAiMgr::ResetTeamAiRole(!x634_27_melee ? CTeamAiMgr::EAttackType::Ranged : CTeamAiMgr::EAttackType::Melee, mgr,
+                              x8c8_teamAiMgrId, GetUniqueId(), true);
 }
 
 void CSpacePirate::SquadAdd(CStateManager& mgr) {
@@ -498,8 +529,7 @@ void CSpacePirate::SquadAdd(CStateManager& mgr) {
     x8c8_teamAiMgrId = CTeamAiMgr::GetTeamAiMgr(*this, mgr);
   if (x8c8_teamAiMgrId != kInvalidUniqueId) {
     if (TCastToPtr<CTeamAiMgr> aimgr = mgr.ObjectById(x8c8_teamAiMgrId)) {
-      aimgr->AssignTeamAiRole(*this,
-                              x634_27_melee ? CTeamAiRole::ETeamAiRole::Melee : CTeamAiRole::ETeamAiRole::Ranged,
+      aimgr->AssignTeamAiRole(*this, x634_27_melee ? CTeamAiRole::ETeamAiRole::Melee : CTeamAiRole::ETeamAiRole::Ranged,
                               CTeamAiRole::ETeamAiRole::Unknown, CTeamAiRole::ETeamAiRole::Invalid);
     }
   }
@@ -549,8 +579,8 @@ bool CSpacePirate::FireProjectile(float dt, CStateManager& mgr) {
                                                                             *mgr.GetActiveRandom(), -1);
     if (bestAnim.first > 0.f)
       x64_modelData->GetAnimationData()->AddAdditiveAnimation(bestAnim.second, 1.f, false, true);
-    CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::skZero3f, true,
-                            false, 0x7f, kInvalidAreaId);
+    CSfxManager::AddEmitter(x568_pirateData.x48_Sound_Projectile, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
+                            kInvalidAreaId);
   }
   return ret;
 }
@@ -848,13 +878,15 @@ void CSpacePirate::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId sender, C
     }
   }
   switch (msg) {
-  case EScriptObjectMessage::OnNormalSurface:
+  case EScriptObjectMessage::Alert:
   case EScriptObjectMessage::Activate:
     if (GetActive()) {
+
       if (x634_29_onlyAttackInRange)
         x638_31_mayStartAttack = true;
       else
         x400_24_hitByPlayerProjectile = true;
+
       SquadAdd(mgr);
     } else if (x634_25_ceilingAmbush) {
       RemoveMaterial(EMaterialTypes::GroundCollider, mgr);
@@ -1109,15 +1141,15 @@ void CSpacePirate::KnockBack(const zeus::CVector3f& backVec, CStateManager& mgr,
     if (x400_25_alive) {
       if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled) {
         x330_stateMachineState.SetState(mgr, *this, GetStateMachine(), "GetUpNow"sv);
-        CSfxManager::AddEmitter(x568_pirateData.xc0_Sound_Hurled, GetTranslation(), zeus::skZero3f, 1.f, true,
-                                false, 0x7f, kInvalidAreaId);
+        CSfxManager::AddEmitter(x568_pirateData.xc0_Sound_Hurled, GetTranslation(), zeus::skZero3f, 1.f, true, false,
+                                0x7f, kInvalidAreaId);
       }
     } else {
       if (x460_knockBackController.GetActiveParms().x0_animState == EKnockBackAnimationState::Hurled &&
           x460_knockBackController.GetActiveParms().x4_animFollowup != EKnockBackAnimationFollowUp::LaggedBurnDeath &&
           x460_knockBackController.GetActiveParms().x4_animFollowup != EKnockBackAnimationFollowUp::BurnDeath) {
-        CSfxManager::AddEmitter(x568_pirateData.xc2_Sound_Death, GetTranslation(), zeus::skZero3f, 1.f, true,
-                                false, 0x7f, kInvalidAreaId);
+        CSfxManager::AddEmitter(x568_pirateData.xc2_Sound_Death, GetTranslation(), zeus::skZero3f, 1.f, true, false,
+                                0x7f, kInvalidAreaId);
       }
     }
   }
@@ -1344,8 +1376,7 @@ void CSpacePirate::PathFind(CStateManager& mgr, EStateMsg msg, float dt) {
           x824_jumpHeight = bestJp->GetJumpApex();
           if (TCastToConstPtr<CScriptWaypoint> wp = mgr.GetObjectById(bestJp->GetJumpPoint())) {
             x828_patrolDestPos = wp->GetTranslation();
-            x450_bodyController->GetCommandMgr().DeliverCmd(
-                CBCLocomotionCmd(x2e0_destPos, zeus::skZero3f, 1.f));
+            x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(x2e0_destPos, zeus::skZero3f, 1.f));
             x30c_behaviourOrient = EBehaviourOrient::MoveDir;
           }
         }
@@ -1828,8 +1859,8 @@ void CSpacePirate::Taunt(CStateManager& mgr, EStateMsg msg, float dt) {
       }
       x32c_animState = EAnimState::Ready;
     }
-    CSfxManager::AddEmitter(x568_pirateData.xa4_Sound_Alert, GetTranslation(), zeus::skZero3f, true, false,
-                            0x7f, kInvalidAreaId);
+    CSfxManager::AddEmitter(x568_pirateData.xa4_Sound_Alert, GetTranslation(), zeus::skZero3f, true, false, 0x7f,
+                            kInvalidAreaId);
     break;
   case EStateMsg::Update:
     TryCommand(mgr, pas::EAnimationState::Taunt, &CPatterned::TryTaunt, int(x760_taunt));
@@ -2460,11 +2491,9 @@ bool CSpacePirate::BounceFind(CStateManager& mgr, float arg) {
                 GetSearchPath()->PathExists(GetTranslation(), jp->GetTranslation()) ==
                     CPathFindSearch::EResult::Success) {
               bool good = false;
-              bool fail =
-                  GetSearchPath()->PathExists(wp->GetTranslation(), x2e0_destPos) != CPathFindSearch::EResult::Success;
-              if (fail)
+              if (GetSearchPath()->PathExists(wp->GetTranslation(), x2e0_destPos) != CPathFindSearch::EResult::Success)
                 distSq += 1000.f;
-              if (!fail)
+              else
                 good = true;
               if (distSq < minDistSq) {
                 minDistSq = distSq;
