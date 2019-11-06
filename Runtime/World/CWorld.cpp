@@ -294,7 +294,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     if (version >= 12) {
       CAssetId skyboxId = r.readUint32Big();
       if (skyboxId.IsValid() && mgr)
-        x94_skyboxWorld.emplace(g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId}));
+        x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
     }
     if (version >= 17)
       x2c_relays = CWorld::CRelay::ReadMemoryRelays(r);
@@ -373,7 +373,6 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     x70_27_skyboxVisible = false;
 
     if (x94_skyboxWorld) {
-
       CModel* skybox = x94_skyboxWorld->GetObj();
       if (!skybox)
         return false;
@@ -592,17 +591,17 @@ void CWorld::Update(float dt) {
   if (overrideSkyId.IsValid() && needsSky) {
     x70_26_skyboxActive = true;
     x70_27_skyboxVisible = skyVisible;
-    xb4_skyboxOverride = {g_SimplePool->GetObj({SBIG('CMDL'), overrideSkyId})};
-    xa4_skyboxWorldLoaded = TLockedToken<CModel>();
+    xb4_skyboxOverride = g_SimplePool->GetObj({SBIG('CMDL'), overrideSkyId});
+    xa4_skyboxWorldLoaded.reset();
     if (x94_skyboxWorld)
       x94_skyboxWorld->Unlock();
   } else {
-    xb4_skyboxOverride = TLockedToken<CModel>();
+    xb4_skyboxOverride.reset();
     if (!x94_skyboxWorld) {
       x70_26_skyboxActive = false;
       x70_27_skyboxVisible = false;
     } else if (!needsSky) {
-      xa4_skyboxWorldLoaded = TLockedToken<CModel>();
+      xa4_skyboxWorldLoaded.reset();
       x94_skyboxWorld->Unlock();
       x70_26_skyboxActive = false;
       x70_27_skyboxVisible = false;
