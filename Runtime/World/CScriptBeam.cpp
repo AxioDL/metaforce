@@ -19,8 +19,7 @@ CScriptBeam::CScriptBeam(TUniqueId uid, std::string_view name, const CEntityInfo
 void CScriptBeam::Accept(IVisitor& visitor) { visitor.Visit(this); }
 
 void CScriptBeam::Think(float dt, CStateManager& mgr) {
-  CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId));
-  if (proj) {
+  if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId))) {
     if (proj->GetActive())
       proj->UpdateFx(x34_transform, dt, mgr);
   } else
@@ -29,7 +28,16 @@ void CScriptBeam::Think(float dt, CStateManager& mgr) {
 
 void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CStateManager& mgr) {
   if (msg == EScriptObjectMessage::Increment) {
+    if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId))) {
+      proj->ResetBeam(mgr, true);
+      proj->Fire(GetTransform(), mgr, false);
+    }
   } else if (msg == EScriptObjectMessage::Decrement) {
+    if (CPlasmaProjectile* proj = static_cast<CPlasmaProjectile*>(mgr.ObjectById(x154_projectileId))) {
+      if (proj->GetActive()) {
+        proj->ResetBeam(mgr, false);
+      }
+    }
   } else if (msg == EScriptObjectMessage::Registered) {
     x154_projectileId = mgr.AllocateUniqueId();
     mgr.AddObject(new CPlasmaProjectile(xe8_weaponDescription, x10_name + "-Projectile",
@@ -37,6 +45,7 @@ void CScriptBeam::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId objId, CSt
                                         EMaterialTypes::Projectile, x138_damageInfo, x8_uid, x4_areaId,
                                         x154_projectileId, {}, false, EProjectileAttrib::PlasmaProjectile));
   } else if (msg == EScriptObjectMessage::Deleted) {
+    mgr.FreeScriptObject(x154_projectileId);
   }
 
   CActor::AcceptScriptMsg(msg, objId, mgr);

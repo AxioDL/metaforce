@@ -1336,8 +1336,10 @@ std::pair<TEditorId, TUniqueId> CStateManager::LoadScriptObject(TAreaId aid, ESc
   if (error || ent == nullptr) {
     LogModule.report(logvisor::Error, fmt("Script load error while loading {}"), ScriptObjectTypeToStr(type));
     return {kInvalidEditorId, kInvalidUniqueId};
-  } else
+  } else {
+    LogModule.report(logvisor::Info, fmt("Loaded {} in area {}"), ent->GetName(), ent->GetAreaIdAlways());
     return {id, ent->GetUniqueId()};
+  }
 }
 
 std::pair<TEditorId, TUniqueId> CStateManager::GenerateObject(TEditorId eid) {

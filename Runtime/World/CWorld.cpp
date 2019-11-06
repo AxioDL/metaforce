@@ -294,7 +294,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     if (version >= 12) {
       CAssetId skyboxId = r.readUint32Big();
       if (skyboxId.IsValid() && mgr)
-        x94_skyboxWorld = g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId});
+        x94_skyboxWorld.emplace(g_SimplePool->GetObj(SObjectTag{FOURCC('CMDL'), skyboxId}));
     }
     if (version >= 17)
       x2c_relays = CWorld::CRelay::ReadMemoryRelays(r);
@@ -372,18 +372,18 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
     x70_26_skyboxActive = true;
     x70_27_skyboxVisible = false;
 
-    if (!x94_skyboxWorld.IsLoaded())
-      return false;
+    if (x94_skyboxWorld) {
 
-    CModel* skybox = x94_skyboxWorld.GetObj();
-    if (!skybox)
-      return false;
+      CModel* skybox = x94_skyboxWorld->GetObj();
+      if (!skybox)
+        return false;
 
-    skybox->GetInstance().Touch(0);
-    if (!skybox->IsLoaded(0))
-      return false;
+      skybox->GetInstance().Touch(0);
+      if (!skybox->IsLoaded(0))
+        return false;
 
-    xa4_skyboxWorldLoaded = x94_skyboxWorld;
+      xa4_skyboxWorldLoaded = x94_skyboxWorld;
+    }
 
     for (CSoundGroupData& group : x74_soundGroupData)
       group.x1c_groupData.Lock();
@@ -592,10 +592,10 @@ void CWorld::Update(float dt) {
   if (overrideSkyId.IsValid() && needsSky) {
     x70_26_skyboxActive = true;
     x70_27_skyboxVisible = skyVisible;
-    xb4_skyboxOverride = g_SimplePool->GetObj({SBIG('CMDL'), overrideSkyId});
+    xb4_skyboxOverride = {g_SimplePool->GetObj({SBIG('CMDL'), overrideSkyId})};
     xa4_skyboxWorldLoaded = TLockedToken<CModel>();
     if (x94_skyboxWorld)
-      x94_skyboxWorld.Unlock();
+      x94_skyboxWorld->Unlock();
   } else {
     xb4_skyboxOverride = TLockedToken<CModel>();
     if (!x94_skyboxWorld) {
@@ -603,15 +603,15 @@ void CWorld::Update(float dt) {
       x70_27_skyboxVisible = false;
     } else if (!needsSky) {
       xa4_skyboxWorldLoaded = TLockedToken<CModel>();
-      x94_skyboxWorld.Unlock();
+      x94_skyboxWorld->Unlock();
       x70_26_skyboxActive = false;
       x70_27_skyboxVisible = false;
     } else {
       if (!xa4_skyboxWorldLoaded) {
-        x94_skyboxWorld.Lock();
-        if (x94_skyboxWorld.IsLoaded()) {
-          x94_skyboxWorld->Touch(0);
-          if (x94_skyboxWorld->IsLoaded(0))
+        x94_skyboxWorld->Lock();
+        if (x94_skyboxWorld->IsLoaded()) {
+          x94_skyboxWorld.value()->Touch(0);
+          if (x94_skyboxWorld.value()->IsLoaded(0))
             xa4_skyboxWorldLoaded = x94_skyboxWorld;
         }
       }
@@ -628,18 +628,18 @@ void CWorld::PreRender() {
 }
 
 void CWorld::TouchSky() {
-  if (xa4_skyboxWorldLoaded.IsLoaded())
-    xa4_skyboxWorldLoaded->Touch(0);
-  if (xb4_skyboxOverride.IsLoaded())
-    xb4_skyboxOverride->Touch(0);
+  if (xa4_skyboxWorldLoaded && xa4_skyboxWorldLoaded->IsLoaded())
+    xa4_skyboxWorldLoaded.value()->Touch(0);
+  if (xb4_skyboxOverride && xb4_skyboxOverride->IsLoaded())
+    xb4_skyboxOverride.value()->Touch(0);
 }
 
 void CWorld::DrawSky(const zeus::CTransform& xf) const {
   const CModel* model;
   if (xa4_skyboxWorldLoaded)
-    model = xa4_skyboxWorldLoaded.GetObj();
+    model = xa4_skyboxWorldLoaded->GetObj();
   else if (xb4_skyboxOverride)
-    model = xb4_skyboxOverride.GetObj();
+    model = xb4_skyboxOverride->GetObj();
   else
     return;
 
@@ -684,13 +684,11 @@ void CWorld::AddGlobalSound(const CSfxHandle& hnd) {
 bool CWorld::AreSkyNeedsMet() const {
   if (!x70_26_skyboxActive)
     return true;
-  if (xb4_skyboxOverride && xb4_skyboxOverride->IsLoaded(0))
+  if (xb4_skyboxOverride && xb4_skyboxOverride.value()->IsLoaded(0))
     return true;
-  if (xa4_skyboxWorldLoaded && xa4_skyboxWorldLoaded->IsLoaded(0))
+  if (xa4_skyboxWorldLoaded && xa4_skyboxWorldLoaded.value()->IsLoaded(0))
     return true;
-  if (x94_skyboxWorld && x94_skyboxWorld->IsLoaded(0))
-    return true;
-  return false;
+  return x94_skyboxWorld && x94_skyboxWorld.value()->IsLoaded(0);
 }
 
 TAreaId CWorld::GetAreaIdForSaveId(s32 saveId) const {

@@ -39,7 +39,6 @@ CScriptPlatform::CScriptPlatform(
   x34c_maxRainSplashes = maxRainSplashes;
   x350_rainGenRate = rainGenRate;
   x356_24_dead = false;
-  ;
   x356_25_controlledAnimation = false;
   x356_26_detectCollision = detectCollision;
   x356_27_squishedRider = false;

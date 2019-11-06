@@ -143,9 +143,9 @@ private:
   };
   std::vector<CSoundGroupData> x74_soundGroupData;
   std::string x84_defAudioTrack;
-  TLockedToken<CModel> x94_skyboxWorld;
-  TLockedToken<CModel> xa4_skyboxWorldLoaded;
-  TLockedToken<CModel> xb4_skyboxOverride;
+  std::optional<TLockedToken<CModel>> x94_skyboxWorld;
+  std::optional<TLockedToken<CModel>> xa4_skyboxWorldLoaded;
+  std::optional<TLockedToken<CModel>> xb4_skyboxOverride;
   EEnvFxType xc4_neededFx = EEnvFxType::None;
   rstl::reserved_vector<CSfxHandle, 10> xc8_globalSfxHandles;
 
