@@ -7,7 +7,7 @@ namespace urde {
 
 #if DUMP_BITS
 static void PrintBinary(u32 val, u32 count) {
-  for (int i = 0; i < count; ++i) {
+  for (u32 i = 0; i < count; ++i) {
     fmt::print(fmt("{}"), (val >> (count - i - 1)) & 0x1);
   }
 }
@@ -21,8 +21,8 @@ static void PrintBinary(u32 val, u32 count) {
  */
 s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 #if DUMP_BITS
-  auto pos = position();
-  auto boff = x20_bitOffset;
+  const auto pos = position();
+  const auto boff = x20_bitOffset;
 #endif
 
   u32 ret = 0;
@@ -55,9 +55,9 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
   }
 
 #if DUMP_BITS
-  printf("READ ");
+  std::fputs("READ ", stdout);
   PrintBinary(ret, bitCount);
-  printf(" %d %d\n", int(pos), int(boff));
+  fmt::print(fmt(" {} {}\n"), pos, boff);
 #endif
 
   return ret;
@@ -65,9 +65,9 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 
 void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 #if DUMP_BITS
-  printf("WRITE ");
+  std::fputs("WRITE ", stdout);
   PrintBinary(val, bitCount);
-  printf(" %d %d\n", int(position()), int(x18_bitOffset));
+  fmt::print(fmt(" {} {}\n"), position(), x18_bitOffset);
 #endif
 
   s32 shiftAmt = x18_bitOffset - s32(bitCount);
