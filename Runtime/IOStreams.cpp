@@ -78,7 +78,7 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 
     /* Write out 32-bits */
     x14_val = hecl::SBig(x14_val);
-    writeUBytes(reinterpret_cast<u8*>(&x14_val), 4);
+    writeBytes(&x14_val, sizeof(x14_val));
 
     /* Cache remaining bits */
     x18_bitOffset = 0x20 + shiftAmt;
@@ -94,15 +94,19 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 }
 
 void CBitStreamWriter::Flush() {
-  if (x18_bitOffset < 0x20) {
-    auto pos = std::div(0x20 - x18_bitOffset, 8);
-    if (pos.rem)
-      ++pos.quot;
-    x14_val = hecl::SBig(x14_val);
-    writeUBytes(reinterpret_cast<u8*>(&x14_val), pos.quot);
-    x18_bitOffset = 0x20;
-    x14_val = 0;
+  if (x18_bitOffset >= 0x20) {
+    return;
   }
+
+  auto pos = std::div(0x20 - s32(x18_bitOffset), 8);
+  if (pos.rem != 0) {
+    ++pos.quot;
+  }
+
+  x14_val = hecl::SBig(x14_val);
+  writeBytes(&x14_val, pos.quot);
+  x18_bitOffset = 0x20;
+  x14_val = 0;
 }
 
 class CZipSupport {
@@ -123,7 +127,7 @@ CZipInputStream::CZipInputStream(std::unique_ptr<CInputStream>&& strm)
 CZipInputStream::~CZipInputStream() { inflateEnd(&x30_zstrm); }
 
 atUint64 CZipInputStream::readUBytesToBuf(void* buf, atUint64 len) {
-  x30_zstrm.next_out = (Bytef*)buf;
+  x30_zstrm.next_out = static_cast<Bytef*>(buf);
   x30_zstrm.avail_out = len;
   x30_zstrm.total_out = 0;
   while (x30_zstrm.avail_out != 0) {
