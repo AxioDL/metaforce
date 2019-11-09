@@ -421,13 +421,13 @@ void CActor::AddMaterial(EMaterialTypes type, CStateManager& mgr) {
 
 void CActor::AddMaterial(const CMaterialList& l) { x68_material.Add(l); }
 
-void CActor::CreateShadow(bool b) {
-  if (b) {
+void CActor::CreateShadow(bool enabled) {
+  if (enabled) {
     _CreateShadow();
     if (!xe5_24_shadowEnabled && x94_simpleShadow)
       xe5_25_shadowDirty = true;
   }
-  xe5_24_shadowEnabled = b;
+  xe5_24_shadowEnabled = enabled;
 }
 
 void CActor::_CreateShadow() {

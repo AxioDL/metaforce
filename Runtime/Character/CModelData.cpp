@@ -71,6 +71,16 @@ bool CModelData::IsLoaded(int shaderIdx) const {
   return true;
 }
 
+u32 CModelData::GetNumMaterialSets() const {
+    if (x10_animData)
+      return x10_animData->GetModelData()->GetModel()->GetNumMaterialSets();
+
+    if (x1c_normalModel)
+      return x1c_normalModel->GetNumMaterialSets();
+
+    return 1;
+}
+
 CModelData::EWhichModel CModelData::GetRenderingModel(const CStateManager& stateMgr) {
   switch (stateMgr.GetPlayerState()->GetActiveVisor(stateMgr)) {
   case CPlayerState::EPlayerVisor::XRay:

@@ -142,6 +142,7 @@ public:
   const TLockedToken<CModel>& GetXRayModel() const { return x2c_xrayModel; }
   const TLockedToken<CModel>& GetThermalModel() const { return x3c_infraModel; }
   bool IsNull() const { return !x10_animData && !x1c_normalModel; }
+  u32 GetNumMaterialSets() const;
 
   const zeus::CVector3f& GetScale() const { return x0_scale; }
   void SetScale(const zeus::CVector3f& scale) { x0_scale = scale; }

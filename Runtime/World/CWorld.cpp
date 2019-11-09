@@ -411,7 +411,7 @@ bool CWorld::CheckWorldComplete(CStateManager* mgr, TAreaId id, CAssetId mreaId)
   case Phase::Done:
     return true;
   default:
-    return false;
+    break;
   }
 
   return false;

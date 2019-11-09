@@ -20,6 +20,12 @@ struct SOBBJointInfo {
   zeus::CVector3f bounds;
 };
 
+struct SOBBRadiiJointInfo {
+  const char* from;
+  const char* to;
+  float radius;
+};
+
 struct SSphereJointInfo {
   const char* name;
   float radius;

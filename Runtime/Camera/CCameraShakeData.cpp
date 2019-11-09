@@ -45,6 +45,7 @@ CCameraShakeData::CCameraShakeData(CInputStream& in) {
   in.readFloatBig();
   in.readFloatBig();
   in.readFloatBig();
+  in.readFloatBig();
   in.readBool();
   BuildProjectileCameraShake(0.5f, 0.75f);
 }

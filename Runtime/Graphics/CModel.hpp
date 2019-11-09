@@ -295,6 +295,7 @@ public:
   const CBooModel& GetInstance() const { return *x28_modelInst; }
   std::unique_ptr<CBooModel> MakeNewInstance(int shaderIdx, int subInsts, bool lockParent = true);
   void UpdateLastFrame() const { const_cast<CModel&>(*this).x38_lastFrame = CGraphics::GetFrameCounter(); }
+  u32 GetNumMaterialSets() const { return x18_matSets.size(); }
 
   size_t GetPoolVertexOffset(size_t idx) const;
   zeus::CVector3f GetPoolVertex(size_t idx) const;

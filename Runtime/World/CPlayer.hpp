@@ -570,8 +570,11 @@ public:
   bool IsNewScanScanning() const { return x9c6_30_newScanScanning; }
   float GetThreatOverride() const { return xa1c_threatOverride; }
   bool IsOverrideRadarRadius() const { return x9c6_31_overrideRadarRadius; }
+  void SetIsOverrideRadarRadius(bool override) { x9c6_31_overrideRadarRadius = override; }
   float GetRadarXYRadiusOverride() const { return xa20_radarXYRadiusOverride; }
+  void SetRadarXYRadiusOverride(float xyOverride) { xa20_radarXYRadiusOverride = xyOverride; }
   float GetRadarZRadiusOverride() const { return xa24_radarZRadiusOverride; }
+  void SetRadarZRadiusOverride(float zOverride) { xa24_radarZRadiusOverride = zOverride; }
   bool ObjectInScanningRange(TUniqueId id, const CStateManager& mgr) const;
   float GetMorphTime() const { return x574_morphTime; }
   float GetMorphDuration() const { return x578_morphDuration; }
