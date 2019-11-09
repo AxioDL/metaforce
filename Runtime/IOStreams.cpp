@@ -109,18 +109,12 @@ void CBitStreamWriter::Flush() {
   x14_val = 0;
 }
 
-class CZipSupport {
-public:
-  static void* Alloc(void*, u32 c, u32 n) { return new u8[c * n]; }
-  static void Free(void*, void* buf) { delete[] static_cast<u8*>(buf); }
-};
-
 CZipInputStream::CZipInputStream(std::unique_ptr<CInputStream>&& strm)
 : x24_compBuf(new u8[4096]), x28_strm(std::move(strm)) {
   x30_zstrm.next_in = x24_compBuf.get();
   x30_zstrm.avail_in = 0;
-  x30_zstrm.zalloc = CZipSupport::Alloc;
-  x30_zstrm.zfree = CZipSupport::Free;
+  x30_zstrm.zalloc = [](void*, u32 c, u32 n) -> void* { return new u8[size_t{c} * size_t{n}]; };
+  x30_zstrm.zfree = [](void*, void* buf) { delete[] static_cast<u8*>(buf); };
   inflateInit(&x30_zstrm);
 }
 
