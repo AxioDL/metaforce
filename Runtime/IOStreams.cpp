@@ -26,10 +26,10 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 #endif
 
   u32 ret = 0;
-  s32 shiftAmt = x20_bitOffset - s32(bitCount);
+  const s32 shiftAmt = x20_bitOffset - s32(bitCount);
   if (shiftAmt < 0) {
     /* OR in remaining bits of cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     ret |= (x1c_val << u32(-shiftAmt)) & mask;
 
     /* Load in exact number of bytes remaining */
@@ -43,11 +43,11 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
     x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
 
     /* OR in next bits */
-    mask = (1 << u32(-shiftAmt)) - 1;
+    mask = (1U << u32(-shiftAmt)) - 1;
     ret |= (x1c_val >> x20_bitOffset) & mask;
   } else {
     /* OR in bits of cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     ret |= (x1c_val >> u32(shiftAmt)) & mask;
 
     /* New bit offset */
@@ -70,10 +70,10 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
   fmt::print(fmt(" {} {}\n"), position(), x18_bitOffset);
 #endif
 
-  s32 shiftAmt = x18_bitOffset - s32(bitCount);
+  const s32 shiftAmt = x18_bitOffset - s32(bitCount);
   if (shiftAmt < 0) {
     /* OR remaining bits to cached value */
-    u32 mask = (1 << x18_bitOffset) - 1;
+    const u32 mask = (1U << x18_bitOffset) - 1;
     x14_val |= (val >> u32(-shiftAmt)) & mask;
 
     /* Write out 32-bits */
@@ -85,7 +85,7 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
     x14_val = val << x18_bitOffset;
   } else {
     /* OR bits to cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     x14_val |= (val & mask) << u32(shiftAmt);
 
     /* New bit offset */
