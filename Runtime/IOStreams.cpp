@@ -1,5 +1,5 @@
-#include "IOStreams.hpp"
-#include "hecl/hecl.hpp"
+#include "Runtime/IOStreams.hpp"
+#include <hecl/hecl.hpp>
 
 namespace urde {
 
@@ -7,7 +7,7 @@ namespace urde {
 
 #if DUMP_BITS
 static void PrintBinary(u32 val, u32 count) {
-  for (int i = 0; i < count; ++i) {
+  for (u32 i = 0; i < count; ++i) {
     fmt::print(fmt("{}"), (val >> (count - i - 1)) & 0x1);
   }
 }
@@ -21,15 +21,15 @@ static void PrintBinary(u32 val, u32 count) {
  */
 s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 #if DUMP_BITS
-  auto pos = position();
-  auto boff = x20_bitOffset;
+  const auto pos = position();
+  const auto boff = x20_bitOffset;
 #endif
 
   u32 ret = 0;
-  s32 shiftAmt = x20_bitOffset - s32(bitCount);
+  const s32 shiftAmt = x20_bitOffset - s32(bitCount);
   if (shiftAmt < 0) {
     /* OR in remaining bits of cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     ret |= (x1c_val << u32(-shiftAmt)) & mask;
 
     /* Load in exact number of bytes remaining */
@@ -43,11 +43,11 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
     x20_bitOffset = loadDiv.quot * 8 + shiftAmt;
 
     /* OR in next bits */
-    mask = (1 << u32(-shiftAmt)) - 1;
+    mask = (1U << u32(-shiftAmt)) - 1;
     ret |= (x1c_val >> x20_bitOffset) & mask;
   } else {
     /* OR in bits of cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     ret |= (x1c_val >> u32(shiftAmt)) & mask;
 
     /* New bit offset */
@@ -55,9 +55,9 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
   }
 
 #if DUMP_BITS
-  printf("READ ");
+  std::fputs("READ ", stdout);
   PrintBinary(ret, bitCount);
-  printf(" %d %d\n", int(pos), int(boff));
+  fmt::print(fmt(" {} {}\n"), pos, boff);
 #endif
 
   return ret;
@@ -65,27 +65,27 @@ s32 CBitStreamReader::ReadEncoded(u32 bitCount) {
 
 void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 #if DUMP_BITS
-  printf("WRITE ");
+  std::fputs("WRITE ", stdout);
   PrintBinary(val, bitCount);
-  printf(" %d %d\n", int(position()), int(x18_bitOffset));
+  fmt::print(fmt(" {} {}\n"), position(), x18_bitOffset);
 #endif
 
-  s32 shiftAmt = x18_bitOffset - s32(bitCount);
+  const s32 shiftAmt = x18_bitOffset - s32(bitCount);
   if (shiftAmt < 0) {
     /* OR remaining bits to cached value */
-    u32 mask = (1 << x18_bitOffset) - 1;
+    const u32 mask = (1U << x18_bitOffset) - 1;
     x14_val |= (val >> u32(-shiftAmt)) & mask;
 
     /* Write out 32-bits */
     x14_val = hecl::SBig(x14_val);
-    writeUBytes(reinterpret_cast<u8*>(&x14_val), 4);
+    writeBytes(&x14_val, sizeof(x14_val));
 
     /* Cache remaining bits */
     x18_bitOffset = 0x20 + shiftAmt;
     x14_val = val << x18_bitOffset;
   } else {
     /* OR bits to cached value */
-    u32 mask = bitCount == 32 ? 0xffffffff : ((1 << bitCount) - 1);
+    const u32 mask = bitCount == 32 ? UINT32_MAX : ((1U << bitCount) - 1);
     x14_val |= (val & mask) << u32(shiftAmt);
 
     /* New bit offset */
@@ -94,36 +94,34 @@ void CBitStreamWriter::WriteEncoded(u32 val, u32 bitCount) {
 }
 
 void CBitStreamWriter::Flush() {
-  if (x18_bitOffset < 0x20) {
-    auto pos = std::div(0x20 - x18_bitOffset, 8);
-    if (pos.rem)
-      ++pos.quot;
-    x14_val = hecl::SBig(x14_val);
-    writeUBytes(reinterpret_cast<u8*>(&x14_val), pos.quot);
-    x18_bitOffset = 0x20;
-    x14_val = 0;
+  if (x18_bitOffset >= 0x20) {
+    return;
   }
-}
 
-class CZipSupport {
-public:
-  static void* Alloc(void*, u32 c, u32 n) { return new u8[c * n]; }
-  static void Free(void*, void* buf) { delete[] static_cast<u8*>(buf); }
-};
+  auto pos = std::div(0x20 - s32(x18_bitOffset), 8);
+  if (pos.rem != 0) {
+    ++pos.quot;
+  }
+
+  x14_val = hecl::SBig(x14_val);
+  writeBytes(&x14_val, pos.quot);
+  x18_bitOffset = 0x20;
+  x14_val = 0;
+}
 
 CZipInputStream::CZipInputStream(std::unique_ptr<CInputStream>&& strm)
 : x24_compBuf(new u8[4096]), x28_strm(std::move(strm)) {
   x30_zstrm.next_in = x24_compBuf.get();
   x30_zstrm.avail_in = 0;
-  x30_zstrm.zalloc = CZipSupport::Alloc;
-  x30_zstrm.zfree = CZipSupport::Free;
+  x30_zstrm.zalloc = [](void*, u32 c, u32 n) -> void* { return new u8[size_t{c} * size_t{n}]; };
+  x30_zstrm.zfree = [](void*, void* buf) { delete[] static_cast<u8*>(buf); };
   inflateInit(&x30_zstrm);
 }
 
 CZipInputStream::~CZipInputStream() { inflateEnd(&x30_zstrm); }
 
 atUint64 CZipInputStream::readUBytesToBuf(void* buf, atUint64 len) {
-  x30_zstrm.next_out = (Bytef*)buf;
+  x30_zstrm.next_out = static_cast<Bytef*>(buf);
   x30_zstrm.avail_out = len;
   x30_zstrm.total_out = 0;
   while (x30_zstrm.avail_out != 0) {
