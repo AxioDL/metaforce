@@ -1,9 +1,9 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/RetroTypes.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CModelShaders.hpp"
 #include "Runtime/World/CFluidPlaneManager.hpp"
@@ -12,7 +12,6 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-#include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
 #include <zeus/CVector3f.hpp>
@@ -41,15 +40,15 @@ public:
 
   struct PatchVertex {
     zeus::CVector4f m_pos;
-    float m_outerLevels[4] = {};
-    float m_innerLevels[4] = {};
+    std::array<float, 4> m_outerLevels{};
+    std::array<float, 4> m_innerLevels{};
   };
 
   struct RenderSetupInfo {
-    zeus::CMatrix4f texMtxs[6];
+    std::array<zeus::CMatrix4f, 6> texMtxs;
     zeus::CMatrix4f normMtx;
     float indScale = 1.f;
-    zeus::CColor kColors[4];
+    std::array<zeus::CColor, 4> kColors;
     std::vector<CLight> lights;
   };
 
@@ -69,8 +68,8 @@ private:
   };
 
   class Cache {
-    ShaderPair m_cache[1024] = {};
-    ShaderPair m_doorCache[8] = {};
+    std::array<ShaderPair, 1024> m_cache{};
+    std::array<ShaderPair, 8> m_doorCache{};
     ShaderPair& CacheSlot(const SFluidPlaneShaderInfo& info, int i) { return m_cache[i]; }
     ShaderPair& CacheSlot(const SFluidPlaneDoorShaderInfo& info, int i) { return m_doorCache[i]; }
     static u16 MakeCacheKey(const SFluidPlaneShaderInfo& info);
@@ -92,10 +91,10 @@ private:
     zeus::CMatrix4f m_mv;
     zeus::CMatrix4f m_mvNorm;
     zeus::CMatrix4f m_proj;
-    zeus::CMatrix4f m_texMtxs[6];
-    Ripple m_ripple[20];
+    std::array<zeus::CMatrix4f, 6> m_texMtxs;
+    std::array<Ripple, 20> m_ripple;
     zeus::CVector4f m_colorMul;
-    zeus::CVector4f m_pad[3]; // rippleNormResolution, Pad out to 1280 bytes
+    std::array<zeus::CVector4f, 3> m_pad; // rippleNormResolution, Pad out to 1280 bytes
     CModelShaders::LightingUniform m_lighting;
     zeus::CVector3f m_pad2; // Pad out to 768 bytes, also holds ind scale
   };

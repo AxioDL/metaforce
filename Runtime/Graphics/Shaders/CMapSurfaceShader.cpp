@@ -1,6 +1,10 @@
-#include "CMapSurfaceShader.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
+
+#include <array>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
@@ -15,10 +19,10 @@ CMapSurfaceShader::CMapSurfaceShader(boo::IGraphicsDataFactory::Context& ctx,
                                      const boo::ObjToken<boo::IGraphicsBufferS>& ibo)
 : m_vbo(vbo), m_ibo(ibo) {
   m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-  boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-  boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-  m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, m_ibo.get(), 1, bufs, stages, nullptr,
-                                        nullptr, 0, nullptr, nullptr, nullptr);
+  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+  constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+  m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, m_ibo.get(), bufs.size(), bufs.data(),
+                                        stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
 }
 
 void CMapSurfaceShader::draw(const zeus::CColor& color, u32 start, u32 count) {

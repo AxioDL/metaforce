@@ -52,19 +52,19 @@ void CFluidPlaneGPU::RenderStripWithRipples(float curY, const CFluidPlaneRender:
           break;
       }
 
-      std::fill(std::begin(pv.m_outerLevels), std::end(pv.m_outerLevels), subdivF);
-      std::fill(std::begin(pv.m_innerLevels), std::end(pv.m_innerLevels), subdivF);
+      pv.m_outerLevels.fill(subdivF);
+      pv.m_innerLevels.fill(subdivF);
     } else {
-      bool r19 = (flags[yTile + 1][xTile] & 0x2) != 0; // North
-      bool r16 = (flags[yTile][xTile - 1] & 0x8) != 0; // West
-      bool r18 = (flags[yTile][xTile + 1] & 0x4) != 0; // East
-      bool r17 = (flags[yTile - 1][xTile] & 0x1) != 0; // South
+      const bool north = (flags[yTile + 1][xTile] & 0x2) != 0;
+      const bool west = (flags[yTile][xTile - 1] & 0x8) != 0;
+      const bool east = (flags[yTile][xTile + 1] & 0x4) != 0;
+      const bool south = (flags[yTile - 1][xTile] & 0x1) != 0;
 
-      pv.m_outerLevels[0] = r16 ? subdivF : 1.f;
-      pv.m_outerLevels[1] = r17 ? subdivF : 1.f;
-      pv.m_outerLevels[2] = r18 ? subdivF : 1.f;
-      pv.m_outerLevels[3] = r19 ? subdivF : 1.f;
-      std::fill(std::begin(pv.m_innerLevels), std::end(pv.m_innerLevels), subdivF);
+      pv.m_outerLevels[0] = west ? subdivF : 1.f;
+      pv.m_outerLevels[1] = south ? subdivF : 1.f;
+      pv.m_outerLevels[2] = east ? subdivF : 1.f;
+      pv.m_outerLevels[3] = north ? subdivF : 1.f;
+      pv.m_innerLevels.fill(subdivF);
     }
 
     float curTileY = yMin;

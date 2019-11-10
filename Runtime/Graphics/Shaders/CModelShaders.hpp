@@ -1,14 +1,12 @@
 #pragma once
 
 #include <array>
-#include <optional>
+#include <cstdint>
+#include <memory>
 
 #include "DataSpec/DNAMP1/CMDLMaterials.hpp"
 
 #include "Runtime/Graphics/CGraphics.hpp"
-
-#include <hecl/Backend.hpp>
-#include <hecl/Runtime.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CVector3f.hpp>
@@ -16,7 +14,12 @@
 
 #define URDE_MAX_LIGHTS 8
 
+namespace hecl::Backend {
+class ShaderTag;
+}
+
 namespace urde {
+class CLight;
 
 enum EExtendedShader : uint8_t {
   Flat,
@@ -56,14 +59,14 @@ public:
     zeus::CVector3f pos;
     zeus::CVector3f dir;
     zeus::CColor color = zeus::skClear;
-    float linAtt[4] = {1.f, 0.f, 0.f};
-    float angAtt[4] = {1.f, 0.f, 0.f};
+    std::array<float, 4> linAtt{1.f, 0.f, 0.f};
+    std::array<float, 4> angAtt{1.f, 0.f, 0.f};
   };
 
   struct LightingUniform {
-    Light lights[URDE_MAX_LIGHTS];
+    std::array<Light, URDE_MAX_LIGHTS> lights;
     zeus::CColor ambient;
-    zeus::CColor colorRegs[3];
+    std::array<zeus::CColor, 3> colorRegs;
     zeus::CColor mulColor;
     zeus::CColor addColor;
     CGraphics::CFogState fog;

@@ -1,8 +1,11 @@
-#include "CXRayBlurFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "Graphics/CTexture.hpp"
-#include "GameGlobalObjects.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CVector2f.hpp>
 
 namespace urde {
 
@@ -17,19 +20,24 @@ CXRayBlurFilter::CXRayBlurFilter(TLockedToken<CTexture>& tex) : m_paletteTex(tex
     struct Vert {
       zeus::CVector2f m_pos;
       zeus::CVector2f m_uv;
-    } verts[4] = {
+    };
+    const std::array<Vert, 4> verts{{
         {{-1.f, -1.f}, {0.f, 0.f}},
         {{-1.f, 1.f}, {0.f, 1.f}},
         {{1.f, -1.f}, {1.f, 0.f}},
         {{1.f, 1.f}, {1.f, 1.f}},
-    };
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 32, 4);
+    }};
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 32, verts.size());
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    boo::ObjToken<boo::ITexture> texs[] = {CGraphics::g_SpareTexture.get(), m_booTex};
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
-                                          2, texs, nullptr, nullptr);
+
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    const std::array<boo::ObjToken<boo::ITexture>, 2> texs{
+        CGraphics::g_SpareTexture.get(),
+        m_booTex,
+    };
+    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, texs.size(), texs.data(), nullptr, nullptr);
     return true;
   } BooTrace);
 }
@@ -39,13 +47,13 @@ void CXRayBlurFilter::draw(float amount) {
 
   CGraphics::ResolveSpareTexture(CGraphics::g_CroppedViewport);
 
-  float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
-  float blurQ = amount * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
+  const float blurL = amount * g_tweakGui->GetXrayBlurScaleLinear() * 0.25f;
+  const float blurQ = amount * g_tweakGui->GetXrayBlurScaleQuadratic() * 0.25f;
 
-  for (int i = 0; i < 8; ++i) {
-    float iflt = i / 2.f;
-    float uvScale = (1.f - (blurL * iflt + blurQ * iflt * iflt));
-    float uvOffset = uvScale * -0.5f + 0.5f;
+  for (size_t i = 0; i < m_uniform.m_uv.size(); ++i) {
+    const float iflt = float(i) / 2.f;
+    const float uvScale = (1.f - (blurL * iflt + blurQ * iflt * iflt));
+    const float uvOffset = uvScale * -0.5f + 0.5f;
     m_uniform.m_uv[i][0][0] = uvScale;
     m_uniform.m_uv[i][1][1] = uvScale;
     m_uniform.m_uv[i][3][0] = uvOffset;

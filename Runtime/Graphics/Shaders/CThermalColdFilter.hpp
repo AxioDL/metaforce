@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/RetroTypes.hpp"
+#include <array>
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
@@ -12,7 +12,7 @@ namespace urde {
 class CThermalColdFilter {
   struct Uniform {
     zeus::CMatrix4f m_indMtx;
-    zeus::CColor m_colorRegs[3];
+    std::array<zeus::CColor, 3> m_colorRegs;
     float m_randOff = 0.f;
   };
   boo::ObjToken<boo::IGraphicsBufferS> m_vbo;

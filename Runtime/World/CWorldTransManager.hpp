@@ -6,6 +6,7 @@
 #include "Runtime/CRandom16.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Character/CModelData.hpp"
 #include "Runtime/Graphics/CLight.hpp"
 #include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"

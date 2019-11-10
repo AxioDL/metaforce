@@ -1,6 +1,12 @@
-#include "CWorldShadowShader.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
+
+#include <array>
+
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
 
@@ -21,12 +27,14 @@ CWorldShadowShader::CWorldShadowShader(u32 w, u32 h) : m_w(w), m_h(h) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, 16, 4);
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr, nullptr,
-                                          0, nullptr, nullptr, nullptr);
-    m_zDataBind = ctx.newShaderDataBinding(s_ZPipeline, m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr,
-                                           nullptr, 0, nullptr, nullptr, nullptr);
+
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    m_dataBind = ctx.newShaderDataBinding(s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
+    m_zDataBind = ctx.newShaderDataBinding(s_ZPipeline, m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                           stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
+
     m_tex = ctx.newRenderTexture(m_w, m_h, boo::TextureClampMode::ClampToWhite, 1, 0);
     return true;
   } BooTrace);
@@ -37,9 +45,13 @@ void CWorldShadowShader::bindRenderTarget() { CGraphics::g_BooMainCommandQueue->
 void CWorldShadowShader::drawBase(float extent) {
   SCOPED_GRAPHICS_DEBUG_GROUP("CWorldShadowShader::drawBase", zeus::skMagenta);
 
-  zeus::CVector3f verts[] = {
-      {-extent, 0.f, extent}, {extent, 0.f, extent}, {-extent, 0.f, -extent}, {extent, 0.f, -extent}};
-  m_vbo->load(verts, sizeof(zeus::CVector3f) * 4);
+  const std::array<zeus::CVector3f, 4> verts{{
+      {-extent, 0.f, extent},
+      {extent, 0.f, extent},
+      {-extent, 0.f, -extent},
+      {extent, 0.f, -extent},
+  }};
+  m_vbo->load(verts.data(), sizeof(verts));
 
   m_uniform.m_matrix = CGraphics::GetPerspectiveProjectionMatrix(true) * CGraphics::g_GXModelView.toMatrix4f();
   m_uniform.m_color = zeus::skWhite;

@@ -1,10 +1,12 @@
-#include "CFogVolumePlaneShader.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CFogVolumePlaneShader.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
-static boo::ObjToken<boo::IShaderPipeline> s_Pipelines[4];
+static std::array<boo::ObjToken<boo::IShaderPipeline>, 4> s_Pipelines;
 
 void CFogVolumePlaneShader::Initialize() {
   s_Pipelines[0] = hecl::conv->convert(Shader_CFogVolumePlaneShader0{});
@@ -24,9 +26,10 @@ void CFogVolumePlaneShader::CommitResources(size_t capacity) {
   m_vertCapacity = capacity;
   CGraphics::CommitResources([this, capacity](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector4f), capacity);
-    for (int i = 0; i < 4; ++i)
+    for (size_t i = 0; i < m_dataBinds.size(); ++i) {
       m_dataBinds[i] = ctx.newShaderDataBinding(s_Pipelines[i], m_vbo.get(), nullptr, nullptr, 0, nullptr, nullptr,
                                                 nullptr, nullptr, 0, nullptr, nullptr, nullptr);
+    }
     return true;
   } BooTrace);
 }

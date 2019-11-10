@@ -1,9 +1,11 @@
-#include "CMappableObject.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMapWorldInfo.hpp"
-#include "CSimplePool.hpp"
-#include "CToken.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/AutoMapper/CMappableObject.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/AutoMapper/CMapWorldInfo.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
 
 namespace urde {
 zeus::CVector3f CMappableObject::skDoorVerts[8] = {};

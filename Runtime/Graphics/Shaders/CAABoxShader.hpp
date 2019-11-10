@@ -2,9 +2,12 @@
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
-#include <zeus/CAABox.hpp>
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
+
+namespace zeus {
+class CAABox;
+}
 
 namespace urde {
 

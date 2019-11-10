@@ -1,20 +1,22 @@
 #pragma once
 
+#include <array>
 #include <vector>
 
-#include "Runtime/Camera/CCameraFilter.hpp"
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CRectangle.hpp>
+#include <zeus/CVector2f.hpp>
+#include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CTexture;
 
 class CRadarPaintShader {
 public:
   struct Instance {
-    zeus::CVector3f pos[4];
-    zeus::CVector2f uv[4];
+    std::array<zeus::CVector3f, 4> pos;
+    std::array<zeus::CVector2f, 4> uv;
     zeus::CColor color;
   };
 

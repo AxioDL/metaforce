@@ -1,8 +1,12 @@
-#include "CRandomStaticFilter.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+
+#include <array>
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
@@ -43,20 +47,22 @@ CRandomStaticFilter::CRandomStaticFilter(EFilterType type, bool cookieCutter) : 
     struct Vert {
       zeus::CVector2f m_pos;
       zeus::CVector2f m_uv;
-    } verts[4] = {
+    };
+    const std::array<Vert, 4> verts{{
         {{-1.f, -1.f}, {0.f, 0.f}},
         {{-1.f, 1.f}, {0.f, 448.f}},
         {{1.f, -1.f}, {640.f, 0.f}},
         {{1.f, 1.f}, {640.f, 448.f}},
-    };
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, sizeof(Vert), 4);
+    }};
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), sizeof(Vert), verts.size());
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    boo::ObjToken<boo::ITexture> texs[] = {g_Renderer->GetRandomStaticEntropyTex()};
-    m_dataBind =
-        ctx.newShaderDataBinding(m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type), m_vbo.get(), nullptr,
-                                 nullptr, 1, bufs, stages, nullptr, nullptr, 1, texs, nullptr, nullptr);
+
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    const std::array<boo::ObjToken<boo::ITexture>, 1> texs{g_Renderer->GetRandomStaticEntropyTex()};
+    m_dataBind = ctx.newShaderDataBinding(m_cookieCutter ? s_CookieCutterPipeline : SelectPipeline(type), m_vbo.get(),
+                                          nullptr, nullptr, bufs.size(), bufs.data(), stages.data(), nullptr, nullptr,
+                                          texs.size(), texs.data(), nullptr, nullptr);
     return true;
   } BooTrace);
 }

@@ -6,6 +6,7 @@
 
 #include "Runtime/CToken.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
 #include "Runtime/GuiSys/CHudBallInterface.hpp"
 #include "Runtime/GuiSys/CHudBossEnergyInterface.hpp"

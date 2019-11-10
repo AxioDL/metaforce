@@ -1,7 +1,10 @@
 #pragma once
 
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
-#include <zeus/CColor.hpp>
+
+namespace zeus {
+class CColor;
+}
 
 namespace urde {
 class CTexture;

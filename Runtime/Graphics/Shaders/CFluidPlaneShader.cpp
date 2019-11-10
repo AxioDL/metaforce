@@ -1,7 +1,9 @@
-#include "CFluidPlaneShader.hpp"
-#include "World/CRipple.hpp"
-#include "World/CRippleManager.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
+
+#include "Runtime/World/CRipple.hpp"
+#include "Runtime/World/CRippleManager.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
@@ -122,38 +124,64 @@ void CFluidPlaneShader::Cache::Clear() {
 void CFluidPlaneShader::PrepareBinding(u32 maxVertCount) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(Vertex), maxVertCount);
-    if (m_pipelines.m_tessellation)
+    if (m_pipelines.m_tessellation) {
       m_pvbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(PatchVertex), maxVertCount);
+    }
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
 
-    boo::ObjToken<boo::IGraphicsBuffer> ubufs[] = {m_uniBuf.get(), m_uniBuf.get(), m_uniBuf.get()};
-    boo::PipelineStage ubufStages[] = {boo::PipelineStage::Vertex, boo::PipelineStage::Vertex,
-                                       boo::PipelineStage::Fragment};
-    size_t ubufOffs[] = {0, 0, 1280};
-    size_t ubufSizes[] = {1280, 1280, sizeof(CModelShaders::LightingUniform)};
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 3> ubufs{{
+        m_uniBuf.get(),
+        m_uniBuf.get(),
+        m_uniBuf.get(),
+    }};
+    constexpr std::array<boo::PipelineStage, 3> ubufStages{
+        boo::PipelineStage::Vertex,
+        boo::PipelineStage::Vertex,
+        boo::PipelineStage::Fragment,
+    };
+    constexpr std::array<size_t, 3> ubufOffs{
+        0,
+        0,
+        1280,
+    };
+    constexpr std::array<size_t, 3> ubufSizes{
+        1280,
+        1280,
+        sizeof(CModelShaders::LightingUniform),
+    };
+
     size_t texCount = 0;
-    boo::ObjToken<boo::ITexture> texs[8];
-    if (m_patternTex1)
+    std::array<boo::ObjToken<boo::ITexture>, 8> texs;
+    if (m_patternTex1) {
       texs[texCount++] = m_patternTex1->GetBooTexture();
-    if (m_patternTex2)
+    }
+    if (m_patternTex2) {
       texs[texCount++] = m_patternTex2->GetBooTexture();
-    if (m_colorTex)
+    }
+    if (m_colorTex) {
       texs[texCount++] = m_colorTex->GetBooTexture();
-    if (m_bumpMap)
+    }
+    if (m_bumpMap) {
       texs[texCount++] = m_bumpMap->GetBooTexture();
-    if (m_envMap)
+    }
+    if (m_envMap) {
       texs[texCount++] = m_envMap->GetBooTexture();
-    if (m_envBumpMap)
+    }
+    if (m_envBumpMap) {
       texs[texCount++] = m_envBumpMap->GetBooTexture();
-    if (m_lightmap)
+    }
+    if (m_lightmap) {
       texs[texCount++] = m_lightmap->GetBooTexture();
-    auto regular = ctx.newShaderDataBinding(m_pipelines.m_regular, m_vbo.get(), nullptr, nullptr, 3, ubufs, ubufStages,
-                                            ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+    }
+    auto regular = ctx.newShaderDataBinding(m_pipelines.m_regular, m_vbo.get(), nullptr, nullptr, ubufs.size(),
+                                            ubufs.data(), ubufStages.data(), ubufOffs.data(), ubufSizes.data(),
+                                            texCount, texs.data(), nullptr, nullptr);
     boo::ObjToken<boo::IShaderDataBinding> tessellation;
     if (m_pipelines.m_tessellation) {
       texs[texCount++] = m_rippleMap.get();
-      tessellation = ctx.newShaderDataBinding(m_pipelines.m_tessellation, m_pvbo.get(), nullptr, nullptr, 3, ubufs,
-                                              ubufStages, ubufOffs, ubufSizes, texCount, texs, nullptr, nullptr);
+      tessellation = ctx.newShaderDataBinding(m_pipelines.m_tessellation, m_pvbo.get(), nullptr, nullptr, ubufs.size(),
+                                              ubufs.data(), ubufStages.data(), ubufOffs.data(), ubufSizes.data(),
+                                              texCount, texs.data(), nullptr, nullptr);
     }
     m_dataBind = {regular, tessellation};
     return true;
@@ -199,11 +227,11 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info) {
   uni.m_mv = CGraphics::g_GXModelView.toMatrix4f();
   uni.m_mvNorm = info.normMtx;
   uni.m_proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-  for (int i = 0; i < 6; ++i)
-    uni.m_texMtxs[i] = info.texMtxs[i];
+  uni.m_texMtxs = info.texMtxs;
   uni.m_lighting.ActivateLights(info.lights);
-  for (int i = 0; i < 3; ++i)
+  for (size_t i = 0; i < uni.m_lighting.colorRegs.size(); ++i) {
     uni.m_lighting.colorRegs[i] = info.kColors[i];
+  }
   uni.m_lighting.mulColor = info.kColors[3];
   uni.m_lighting.fog = CGraphics::g_Fog;
   uni.m_pad2.x() = info.indScale;
@@ -217,11 +245,11 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info, const zeus::CVe
   uni.m_mv = CGraphics::g_GXModelView.toMatrix4f();
   uni.m_mvNorm = info.normMtx;
   uni.m_proj = CGraphics::GetPerspectiveProjectionMatrix(true);
-  for (int i = 0; i < 6; ++i)
-    uni.m_texMtxs[i] = info.texMtxs[i];
-  int i = 0;
+  uni.m_texMtxs = info.texMtxs;
+
+  size_t i = 0;
   for (const CRipple& ripple : rippleManager.GetRipples()) {
-    assert(i < 20 && "Too many ripples");
+    assert(i < uni.m_ripple.size() && "Too many ripples");
     Ripple& rOut = uni.m_ripple[i++];
     if (ripple.GetTime() >= ripple.GetTimeFalloff()) {
       rOut.center.zeroOut();
@@ -241,8 +269,9 @@ void CFluidPlaneShader::prepareDraw(const RenderSetupInfo& info, const zeus::CVe
   uni.m_colorMul = colorMul;
   uni.m_pad[0].x() = rippleNormResolution;
   uni.m_lighting.ActivateLights(info.lights);
-  for (i = 0; i < 3; ++i)
+  for (i = 0; i < uni.m_lighting.colorRegs.size(); ++i) {
     uni.m_lighting.colorRegs[i] = info.kColors[i];
+  }
   uni.m_lighting.mulColor = info.kColors[3];
   uni.m_lighting.fog = CGraphics::g_Fog;
   uni.m_pad2.x() = info.indScale;

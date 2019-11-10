@@ -1,10 +1,16 @@
 #pragma once
 
-#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
+#include <boo/BooObject.hpp>
 
-#include <zeus/CColor.hpp>
-#include <zeus/CMatrix4f.hpp>
-#include <zeus/CRectangle.hpp>
+namespace boo {
+struct IGraphicsBufferD;
+struct IGraphicsBufferS;
+struct IShaderDataBinding;
+} // namespace boo
+
+namespace zeus {
+class CColor;
+}
 
 namespace urde {
 

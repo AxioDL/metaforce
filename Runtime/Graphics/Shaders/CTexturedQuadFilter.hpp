@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Runtime/CToken.hpp"
-#include "Runtime/Camera/CCameraFilter.hpp"
+
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 #include <zeus/CColor.hpp>
 #include <zeus/CMatrix4f.hpp>
@@ -10,6 +11,10 @@
 #include <zeus/CVector3f.hpp>
 
 namespace urde {
+class CTexture;
+
+enum class EFilterShape;
+enum class EFilterType;
 
 class CTexturedQuadFilter {
 public:

@@ -1,6 +1,11 @@
-#include "CColoredQuadFilter.hpp"
-#include "Graphics/CGraphics.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+
+#include <array>
+
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
@@ -37,18 +42,22 @@ CColoredQuadFilter::CColoredQuadFilter(EFilterType type) {
   CGraphics::CommitResources([this, type](boo::IGraphicsDataFactory::Context& ctx) {
     struct Vert {
       zeus::CVector2f m_pos;
-    } verts[4] = {
+    };
+
+    const std::array<Vert, 4> verts{{
         {{0.0, 0.0}},
         {{0.0, 1.0}},
         {{1.0, 0.0}},
         {{1.0, 1.0}},
-    };
-    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts, 16, 4);
+    }};
+
+    m_vbo = ctx.newStaticBuffer(boo::BufferUse::Vertex, verts.data(), 16, verts.size());
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), m_vbo.get(), nullptr, nullptr, 1, bufs, stages, nullptr,
-                                          nullptr, 0, nullptr, nullptr, nullptr);
+
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    m_dataBind = ctx.newShaderDataBinding(SelectPipeline(type), m_vbo.get(), nullptr, nullptr, bufs.size(), bufs.data(),
+                                          stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     return true;
   } BooTrace);
 }

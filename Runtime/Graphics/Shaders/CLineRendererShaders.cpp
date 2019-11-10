@@ -1,6 +1,10 @@
-#include "CLineRendererShaders.hpp"
-#include "Graphics/CLineRenderer.hpp"
-#include "hecl/Pipeline.hpp"
+#include "Runtime/Graphics/Shaders/CLineRendererShaders.hpp"
+
+#include <utility>
+
+#include "Runtime/Graphics/CLineRenderer.hpp"
+
+#include <hecl/Pipeline.hpp>
 
 namespace urde {
 
@@ -87,8 +91,8 @@ void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Con
     }
   }
 
-  int texCount = 0;
-  boo::ObjToken<boo::ITexture> textures[1];
+  size_t texCount = 0;
+  std::array<boo::ObjToken<boo::ITexture>, 1> textures;
 
   std::pair<boo::ObjToken<boo::IGraphicsBufferD>, hecl::VertexBufferPool<CLineRenderer::SDrawVertTex>::IndexTp>
       vbufInfo;
@@ -102,15 +106,16 @@ void CLineRendererShaders::BuildShaderDataBinding(boo::IGraphicsDataFactory::Con
     vbufInfo = renderer.m_vertBufNoTex.getBufferInfo();
   }
 
-  boo::ObjToken<boo::IGraphicsBuffer> uniforms[] = {ubufInfo.first.get()};
-  boo::PipelineStage stages[] = {boo::PipelineStage::Fragment};
-  size_t ubufOffs[] = {size_t(ubufInfo.second)};
-  size_t ubufSizes[] = {sizeof(CLineRenderer::SDrawUniform)};
+  const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> uniforms{ubufInfo.first.get()};
+  constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Fragment};
+  const std::array<size_t, 1> ubufOffs{size_t(ubufInfo.second)};
+  const std::array<size_t, 1> ubufSizes{sizeof(CLineRenderer::SDrawUniform)};
 
-  for (int i = 0; i < 2; ++i)
-    renderer.m_shaderBind[i] =
-      ctx.newShaderDataBinding((*pipeline)[i], vbufInfo.first.get(), nullptr, nullptr, 1, uniforms, stages, ubufOffs,
-                               ubufSizes, texCount, textures, nullptr, nullptr, vbufInfo.second);
+  for (size_t i = 0; i < std::size(renderer.m_shaderBind); ++i) {
+    renderer.m_shaderBind[i] = ctx.newShaderDataBinding(
+        (*pipeline)[i], vbufInfo.first.get(), nullptr, nullptr, uniforms.size(), uniforms.data(), stages.data(),
+        ubufOffs.data(), ubufSizes.data(), texCount, textures.data(), nullptr, nullptr, vbufInfo.second);
+  }
 }
 
 } // namespace urde

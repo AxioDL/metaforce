@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Runtime/Graphics/CGraphics.hpp"
+#include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace urde {
 struct CQuadDecal;

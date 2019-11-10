@@ -2,8 +2,6 @@
 
 #include <array>
 
-#include "Runtime/Graphics/CGraphics.hpp"
-
 #include <boo/graphicsdev/IGraphicsDataFactory.hpp>
 
 namespace urde {

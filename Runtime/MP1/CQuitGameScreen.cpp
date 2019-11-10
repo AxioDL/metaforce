@@ -1,14 +1,16 @@
-#include "CQuitGameScreen.hpp"
-#include "Input/CFinalInput.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CGuiTableGroup.hpp"
-#include "GuiSys/CGuiTextPane.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "GuiSys/CGuiWidgetDrawParms.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/MP1/CQuitGameScreen.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiTableGroup.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 namespace urde::MP1 {
 

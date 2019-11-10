@@ -1,7 +1,9 @@
-#include "CAuiImagePane.hpp"
-#include "CSimplePool.hpp"
-#include "Graphics/CTexture.hpp"
-#include "CGuiWidgetDrawParms.hpp"
+#include "Runtime/GuiSys/CAuiImagePane.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CGuiWidgetDrawParms.hpp"
 
 namespace urde {
 

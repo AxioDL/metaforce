@@ -6,6 +6,7 @@
 #include "Runtime/CScannableObjectInfo.hpp"
 #include "Runtime/RetroTypes.hpp"
 #include "Runtime/rstl.hpp"
+#include "Runtime/Camera/CCameraFilter.hpp"
 #include "Runtime/Graphics/CTexture.hpp"
 #include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
 

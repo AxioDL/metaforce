@@ -1,6 +1,11 @@
-#include "CAABoxShader.hpp"
-#include "hecl/Pipeline.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
+
+#include <array>
+
+#include "Runtime/Graphics/CGraphics.hpp"
+
+#include <hecl/Pipeline.hpp>
+#include <zeus/CAABox.hpp>
 
 namespace urde {
 
@@ -21,16 +26,17 @@ CAABoxShader::CAABoxShader(bool zOnly) {
   CGraphics::CommitResources([this, zOnly](boo::IGraphicsDataFactory::Context& ctx) {
     m_vbo = ctx.newDynamicBuffer(boo::BufferUse::Vertex, sizeof(zeus::CVector3f), 34);
     m_uniBuf = ctx.newDynamicBuffer(boo::BufferUse::Uniform, sizeof(Uniform), 1);
-    boo::ObjToken<boo::IGraphicsBuffer> bufs[] = {m_uniBuf.get()};
-    boo::PipelineStage stages[] = {boo::PipelineStage::Vertex};
-    m_dataBind = ctx.newShaderDataBinding(zOnly ? s_zOnlyPipeline : s_Pipeline, m_vbo.get(), nullptr, nullptr, 1, bufs,
-                                          stages, nullptr, nullptr, 0, nullptr, nullptr, nullptr);
+    const std::array<boo::ObjToken<boo::IGraphicsBuffer>, 1> bufs{m_uniBuf.get()};
+    constexpr std::array<boo::PipelineStage, 1> stages{boo::PipelineStage::Vertex};
+    m_dataBind =
+        ctx.newShaderDataBinding(zOnly ? s_zOnlyPipeline : s_Pipeline, m_vbo.get(), nullptr, nullptr, bufs.size(),
+                                 bufs.data(), stages.data(), nullptr, nullptr, 0, nullptr, nullptr, nullptr);
     return true;
   } BooTrace);
 }
 
 void CAABoxShader::setAABB(const zeus::CAABox& aabb) {
-  zeus::CVector3f vboData[] = {
+  const std::array<zeus::CVector3f, 34> vboData{{
       {aabb.max.x(), aabb.max.y(), aabb.min.z()}, {aabb.max.x(), aabb.min.y(), aabb.min.z()},
       {aabb.max.x(), aabb.max.y(), aabb.max.z()}, {aabb.max.x(), aabb.min.y(), aabb.max.z()},
       {aabb.max.x(), aabb.min.y(), aabb.max.z()},
@@ -54,9 +60,9 @@ void CAABoxShader::setAABB(const zeus::CAABox& aabb) {
       {aabb.min.x(), aabb.min.y(), aabb.min.z()}, {aabb.min.x(), aabb.min.y(), aabb.min.z()},
       {aabb.max.x(), aabb.min.y(), aabb.min.z()}, {aabb.min.x(), aabb.max.y(), aabb.min.z()},
       {aabb.max.x(), aabb.max.y(), aabb.min.z()},
-  };
+  }};
 
-  m_vbo->load(vboData, sizeof(zeus::CVector3f) * 34);
+  m_vbo->load(vboData.data(), sizeof(vboData));
 }
 
 void CAABoxShader::draw(const zeus::CColor& color) {
