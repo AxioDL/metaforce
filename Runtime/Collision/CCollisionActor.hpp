@@ -60,6 +60,7 @@ public:
   TUniqueId GetLastTouchedObject() const { return x2fc_lastTouched; }
   zeus::CVector3f GetScanObjectIndicatorPosition(const CStateManager&) const override;
   void SetExtendedTouchBounds(const zeus::CVector3f& boundExt) { x304_extendedTouchBounds = boundExt; }
+  void SetSphereRadius(float radius);
   float GetSphereRadius() const { return x288_sphereRadius; }
 };
 } // namespace urde

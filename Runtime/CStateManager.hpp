@@ -49,7 +49,6 @@ class CProjectedShadow;
 class CRelayTracker;
 class CRumbleManager;
 class CSortedListManager;
-class CTeamAiTypes;
 class CTexture;
 class CWorld;
 class CWorldLayerState;

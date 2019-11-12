@@ -23,6 +23,7 @@ public:
 
   const zeus::CSphere& GetSphere() const { return x10_sphere; }
   void SetSphereCenter(const zeus::CVector3f& center) { x10_sphere.position = center; }
+  void SetSphereRadius(float radius) { x10_sphere.radius = radius; }
   zeus::CSphere Transform(const zeus::CTransform& xf) const;
 
   u32 GetTableIndex() const override;

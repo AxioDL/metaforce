@@ -26,5 +26,7 @@ public:
   void Render(const CStateManager& mgr);
   void RenderShadowBuffer(const CStateManager&, const CModelData&, const zeus::CTransform&, s32, const zeus::CVector3f&,
                           float, float);
+
+  void Unset_X80() { x80_ = false; }
 };
 } // namespace urde

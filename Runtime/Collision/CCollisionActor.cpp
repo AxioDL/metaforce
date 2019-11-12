@@ -169,4 +169,12 @@ void CCollisionActor::Touch(CActor& actor, CStateManager& mgr) {
 }
 
 zeus::CVector3f CCollisionActor::GetOrbitPosition(const CStateManager&) const { return GetTouchBounds()->center(); }
+
+void CCollisionActor::SetSphereRadius(float radius) {
+  if (x258_primitiveType != EPrimitiveType::Sphere)
+    return;
+
+  x288_sphereRadius = radius;
+  x284_spherePrimitive->SetSphereRadius(radius);
+}
 } // namespace urde

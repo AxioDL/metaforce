@@ -23,6 +23,7 @@ public:
                                       const CPlayer& player, bool gravity, float dt) const;
 
   const CDamageInfo& GetDamage() const { return xc_damageInfo; }
+  void SetDamage(const CDamageInfo& damageInfo) { xc_damageInfo = damageInfo; }
   TToken<CWeaponDescription>& Token() { return x0_weaponDescription; }
 };
 } // namespace urde

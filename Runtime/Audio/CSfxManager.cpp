@@ -1,5 +1,6 @@
-#include "CSfxManager.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+
+#include "Runtime/CSimplePool.hpp"
 
 namespace urde {
 static TLockedToken<std::vector<u16>> mpSfxTranslationTableTok;

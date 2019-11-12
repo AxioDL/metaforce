@@ -216,10 +216,10 @@ protected:
   zeus::CColor x430_damageColor = skDamageColor;
   zeus::CVector3f x434_posDelta;
   zeus::CQuaternion x440_rotDelta;
-  CSteeringBehaviors x45c_steeringBehaviors;
   std::unique_ptr<CBodyController> x450_bodyController;
   u16 x454_deathSfx;
   u16 x458_iceShatterSfx;
+  CSteeringBehaviors x45c_steeringBehaviors;
 
   CKnockBackController x460_knockBackController;
   zeus::CVector3f x4e4_latestPredictedTranslation;

@@ -65,11 +65,11 @@ public:
 
 class CRidley : public CPatterned {
   CRidleyData x568_data;
-  std::unique_ptr<CCollisionActorManager> x980_;
-  std::unique_ptr<CCollisionActorManager> x984_;
+  std::unique_ptr<CCollisionActorManager> x980_tailCollision;
+  std::unique_ptr<CCollisionActorManager> x984_bodyCollision;
   TUniqueId x988_headId = kInvalidUniqueId;
   TUniqueId x98a_breastPlateId = kInvalidUniqueId;
-  TToken<CGenDescription> x98c_;
+  TLockedToken<CGenDescription> x98c_;
   CModelData x998_;
   CModelData x9e4_;
   CSegId xa30_breastPlateSegId;
@@ -85,7 +85,7 @@ class CRidley : public CPatterned {
   bool xa32_25_ : 1;
   bool xa32_26_ : 1;
   bool xa32_27_ : 1;
-  bool xa32_28_ : 1;
+  bool xa32_28_shotAt : 1;
   bool xa32_29_ : 1;
   bool xa32_30_ : 1;
   bool xa32_31_ : 1;
@@ -94,7 +94,7 @@ class CRidley : public CPatterned {
   bool xa33_26_ : 1;
   bool xa33_27_ : 1;
   bool xa33_28_ : 1;
-  bool xa33_29_ : 1;
+  bool xa33_29_doStrafe : 1;
   bool xa33_30_ : 1;
   bool xa33_31_ : 1;
   bool xa34_24_ : 1;
@@ -113,7 +113,7 @@ class CRidley : public CPatterned {
   float xae8_;
   zeus::CVector3f xaec_;
   zeus::CVector3f xaf8_;
-  u32 xb04_ = 2;
+  s32 xb04_ = 2;
   u32 xb08_;
   u32 xb0c_ = 0;
   float xb10_ = 0.f;
@@ -124,7 +124,7 @@ class CRidley : public CPatterned {
   float xb24_ = 0.f;
   CSegId xb28_;
   CBoneTracking xb2c_;
-  TUniqueId xb64_ = kInvalidUniqueId;
+  TUniqueId xb64_plasmaProjectile = kInvalidUniqueId;
   CProjectileInfo xb68_;
   CSegId xb90_headSegId;
   CSegId xb91_mouthSegId;
@@ -133,10 +133,11 @@ class CRidley : public CPatterned {
   zeus::CTransform xb94_;
   zeus::CVector3f xbc4_;
   zeus::CVector3f xbd0_;
-  u32 xbdc_;
-  u32 xbe0_;
+  float xbdc_;
+  float xbe0_;
   zeus::CVector3f xbe4_;
   zeus::CVector3f xbf0_ = zeus::skForward;
+  zeus::CVector3f xbfc_;
   float xc08_ = 0.f;
   float xc0c_ = 0.f;
   float xc10_ = 120.f;
@@ -151,8 +152,8 @@ class CRidley : public CPatterned {
   u32 xc84_;
   u32 xc88_ = 4;
   CDamageInfo xc8c_;
-  u32 xca8_ = 0;
-  u32 xcac_ = 0;
+  CSfxHandle xca8_;
+  CSfxHandle xcac_ = 0;
   u32 xcb0_ = 0;
   u32 xcb4_ = 0;
   float xcb8_ = 0.f;
@@ -160,10 +161,10 @@ class CRidley : public CPatterned {
   u32 xcc0_ = 1;
   u32 xcc4_ = 1;
   float xcc8_ = 0.f;
+  float xccc_;
   TLockedToken<CElectricDescription> xcd0_;
-  bool xcdc_;
   std::unique_ptr<CParticleElectric> xce0_;
-  std::vector<CSegId> xce4_; // was rstl::reserved_vector<CSegId, 30>
+  std::vector<CSegId> xce4_wingBoneIds; // was rstl::reserved_vector<CSegId, 30>
   float xd08_;
   CSfxHandle xd0c_;
   std::unique_ptr<CProjectedShadow> xd10_;
@@ -178,6 +179,19 @@ class CRidley : public CPatterned {
   void sub802563a8(float dt);
   void sub80256b14(float dt, CStateManager& mgr);
   void sub80256624(float dt, CStateManager& mgr);
+  void ResetPlasmaProjectile(CStateManager& mgr, bool b1);
+  void sub80255fe8(float f1, float f2, const zeus::CVector3f& vec);
+  void sub80255e5c(CStateManager& mgr);
+  void sub8025784c(CStateManager& mgr);
+  void sub80255d58(CStateManager& mgr);
+  void sub80257744(CStateManager& mgr);
+  void FirePlasma(CStateManager& mgr);
+  void FacePlayer(float arg, CStateManager& mgr);
+  void SetSphereCollisionRadius(float f1, CStateManager& mgr);
+  void sub80256580() {
+    if (!xa31_24_)
+      x3b4_speed = 1.2f;
+  }
 
 public:
   DEFINE_PATTERNED(Ridley)
@@ -194,7 +208,7 @@ public:
   }
 
   zeus::CVector3f GetAimPosition(const CStateManager& mgr, float dt) const override {
-    return GetLctrTransform((xc64_aiStage == 3 && !xa32_28_) ? xb90_headSegId : xa30_breastPlateSegId).origin;
+    return GetLctrTransform((xc64_aiStage == 3 && !xa32_28_shotAt) ? xb90_headSegId : xa30_breastPlateSegId).origin;
   }
 
   float GetGravityConstant() const override { return 50.f; }
@@ -203,6 +217,7 @@ public:
     return EWeaponCollisionResponseTypes::EnemyNormal;
   }
 
+  void DoUserAnimEvent(CStateManager& mgr, const CInt32POINode& node, EUserEventType type, float dt) override;
   void Patrol(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Dead(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
@@ -211,9 +226,11 @@ public:
   void JumpBack(CStateManager& mgr, EStateMsg msg, float arg) override;
   void DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) override;
   void CoverAttack(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Crouch(CStateManager& mgr, EStateMsg msg, float arg) override;
   void FadeOut(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Taunt(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Flee(CStateManager& mgr, EStateMsg msg, float arg) override;
+  void Lurk(CStateManager& mgr, EStateMsg msg, float arg) override;
   void ProjectileAttack(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Flinch(CStateManager& mgr, EStateMsg msg, float arg) override;
   void Hurled(CStateManager& mgr, EStateMsg msg, float arg) override;
