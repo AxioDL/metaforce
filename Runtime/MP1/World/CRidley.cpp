@@ -62,11 +62,11 @@ std::array<std::array<SSomeRidleyStruct2, 12>, 5> skSomeRidleyStruct{{
         {5, 100.f, -1},
         {1, 100.f, -1},
         {1, 100.f, -1},
-        {1, 50.f, -1},
+        {1, 100.f, -1},
         {1, 100.f, -1},
         {-1, 100.f, -1},
         {-1, 100.f, -1},
-        {-1, 50.f, -1},
+        {-1, 100.f, -1},
         {-1, 100.f, -1},
         {-1, 100.f, -1},
         {-1, 100.f, -1},
@@ -77,7 +77,7 @@ std::array<std::array<SSomeRidleyStruct2, 12>, 5> skSomeRidleyStruct{{
         {0, 100.f, -1},
         {0, 50.f, 4},
         {2, 100.f, -1},
-        {3, 50.f, 5},
+        {3, 50.f, 4},
         {2, 100.f, -1},
         {3, 50.f, 4},
         {0, 100.f, -1},
@@ -115,6 +115,7 @@ std::array<std::array<SSomeRidleyStruct2, 12>, 5> skSomeRidleyStruct{{
         {-1, 100.f, -1},
     }},
 }};
+
 std::array<SSomeRidleyStruct, 5> skSomeStruct{{{4, 6, 50.f, 50.f, 0.f, 33.f, 0.f, 1, 0, 0, 0, 0},
                                                {4, 6, 20.f, 20.f, 60.f, 50.f, 0.f, 2, 0, 0, 0, 0},
                                                {4, 6, 40.f, 40.f, 20.f, 50.f, 50.f, 2, 1, 0, 0, 0},
@@ -1230,7 +1231,7 @@ void CRidley::Lurk(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
     SetDestPos(destPos);
     zeus::CVector3f vec = GetTransform().basis[1].toVec2f().normalized();
     zeus::CTransform xf(vec.cross(zeus::skUp), vec, zeus::skUp, GetTranslation());
-    // SetTransform(xf);
+    SetTransform(xf);
     xa33_27_ = false;
     xa34_26_ = false;
   } else if (msg == EStateMsg::Update) {
