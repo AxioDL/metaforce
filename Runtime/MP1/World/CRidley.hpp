@@ -193,6 +193,11 @@ class CRidley : public CPatterned {
       x3b4_speed = 1.2f;
   }
 
+  void sub80253710(CStateManager& mgr);
+  bool sub80253960() {
+    return (GetTranslation()  + (1.75f * GetTransform().basis[1]) - xa84_.origin).magnitude() < 1.75f * (xab4_ + xabc_);
+  }
+
 public:
   DEFINE_PATTERNED(Ridley)
   CRidley(TUniqueId, std::string_view, const CEntityInfo&, const zeus::CTransform&, CModelData&&, const CPatternedInfo&,
@@ -256,6 +261,7 @@ public:
   bool ShouldDodge(CStateManager& mgr, float arg) override;
   bool ShouldRetreat(CStateManager& mgr, float arg) override;
   bool ShouldCrouch(CStateManager& mgr, float arg) override;
+  bool ShouldMove(CStateManager& mgr, float arg) override;
   bool ShotAt(CStateManager& mgr, float arg) override;
   bool SetAIStage(CStateManager& mgr, float arg) override;
   bool AIStage(CStateManager& mgr, float arg) override;

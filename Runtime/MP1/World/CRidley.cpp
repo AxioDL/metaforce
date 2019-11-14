@@ -172,6 +172,22 @@ std::array<SSphereJointInfo, 10> skSphereJoints{{{"Skeleton_Root", 0.6f},
                                                  {"R_ankle", 0.6f},
                                                  {"L_pinky_1", 0.4f},
                                                  {"R_pinky_1", 0.4f}}};
+
+struct SSomeRidleyStruct3 {
+  float x0_;
+  float x4_;
+  float x8_;
+  float xc_;
+  float x10_;
+  float x14_;
+};
+
+std::array<SSomeRidleyStruct3, 6> skFloats{{{0.0, 20.0, 40.0, 0.0, 0.0, 40.0},
+                                            {0.0, 0.0, 70.0, 0.0, 0.0, 30.0},
+                                            {0.0, 60.0, 0.0, 0.0, 0.0, 40.0},
+                                            {0.0, 40.0, 30.0, 0.0, 0.0, 30.0},
+                                            {0.0, 0.0, 50.0, 0.0, 0.0, 50.0},
+                                            {0.0, 40.0, 60.0, 0.0, 0.0, 0.0}}};
 } // namespace
 CRidleyData::CRidleyData(CInputStream& in, u32 propCount)
 : x0_(in)
@@ -1128,7 +1144,48 @@ void CRidley::SetSphereCollisionRadius(float f1, CStateManager& mgr) {
   }
 }
 
-void CRidley::JumpBack(CStateManager& mgr, EStateMsg msg, float arg) { CAi::JumpBack(mgr, msg, arg); }
+void CRidley::JumpBack(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x32c_animState = EAnimState::Ready;
+    SetMomentumWR(zeus::skZero3f);
+    x328_25_verticalMovement = true;
+    SetDestPos(xa84_.origin + (xabc_ * xa84_.basis[1]) + zeus::CVector3f(0.f, 0.f, xac0_));
+    RemoveMaterial(EMaterialTypes::Solid, mgr);
+    CMaterialList include = GetMaterialFilter().GetIncludeList();
+    CMaterialList exclude = GetMaterialFilter().GetExcludeList();
+    include.Remove(EMaterialTypes::Solid);
+    exclude.Add(EMaterialTypes::Solid);
+    SetMaterialFilter(CMaterialFilter::MakeIncludeExclude(include, exclude));
+    xc7c_ =
+        zeus::CVector2f::getAngleDiff((x2e0_destPos - GetTranslation()).toVec2f(), GetTransform().basis[1].toVec2f());
+
+    if (GetTransform().basis[0].dot(x2e0_destPos - GetTranslation()) > 0.f)
+      xc7c_ = -xc7c_;
+    xc78_ = 0.f;
+    CCharAnimTime ikLock =
+        GetModelData()->GetAnimationData()->GetTimeOfUserEvent(EUserEventType::IkLock, CCharAnimTime::Infinity());
+    CCharAnimTime ikRelease =
+        GetModelData()->GetAnimationData()->GetTimeOfUserEvent(EUserEventType::IkRelease, CCharAnimTime::Infinity());
+    if (ikLock != CCharAnimTime::Infinity() && ikRelease != CCharAnimTime::Infinity()) {
+      xc78_ = ikRelease.GetSeconds() - ikLock.GetSeconds();
+    }
+
+    if (xa32_26_) {
+      zeus::CQuaternion q;
+      q.rotateZ((xc7c_ * arg) / xc78_);
+      RotateInOneFrameOR(q, arg);
+    }
+  } else if (msg == EStateMsg::Update) {
+    TryCommand(mgr, pas::EAnimationState::Generate, &CPatterned::TryGenerate, 4);
+
+    if (x32c_animState == EAnimState::Repeat) {
+      x450_bodyController->SetLocomotionType(pas::ELocomotionType::Relaxed);
+      if (xc78_ == 0.f) {}
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x32c_animState = EAnimState::NotReady;
+  }
+}
 void CRidley::DoubleSnap(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     x32c_animState = EAnimState::Ready;
@@ -1164,9 +1221,12 @@ void CRidley::Crouch(urde::CStateManager& mgr, urde::EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
     SetMomentumWR(GetGravityConstant() * zeus::skDown);
     if (xc64_aiStage == 3) {
-      // sub80253710(mgr);
+      sub80253710(mgr);
     }
   } else if (msg == EStateMsg::Update) {
+    zeus::CVector3f vec = mgr.GetPlayer().GetTranslation() - GetTranslation().normalized();
+    if (vec.dot(GetTransform().basis[1]) < 0.9f)
+      x450_bodyController->GetCommandMgr().DeliverCmd(CBCLocomotionCmd(zeus::skZero3f, vec, 1.f));
   }
 }
 void CRidley::FadeOut(CStateManager& mgr, EStateMsg msg, float arg) {
@@ -1347,7 +1407,11 @@ void CRidley::Retreat(CStateManager& mgr, EStateMsg msg, float arg) {
 }
 void CRidley::Approach(CStateManager& mgr, EStateMsg msg, float arg) {
   if (msg == EStateMsg::Activate) {
-    SetDestPos(xab4_ * (GetTranslation() - xa84_.origin).normalized());
+    zeus::CVector3f direction = (GetTranslation() - xa84_.origin).normalized();
+    zeus::CVector3f destPos(xa84_.origin.x() + xab4_ * direction.x(), xa84_.origin.y() + xab4_ * direction.y(),
+                            (xae8_ + xa84_.origin.z()) - 1.f);
+    SetDestPos(destPos);
+    xa33_26_ = false;
     if (xc64_aiStage == 3 && !xa34_24_) {
       xa34_24_ = true;
       SendScriptMsgs(EScriptObjectState::CameraPath, mgr, EScriptObjectMessage::None);
@@ -1486,6 +1550,22 @@ bool CRidley::ShouldCrouch(CStateManager& mgr, float arg) {
 
   return xb04_ == 1;
 }
+bool CRidley::ShouldMove(urde::CStateManager& mgr, float arg) {
+  if (xb0c_ == 5) {
+    xa34_25_ = true;
+    return true;
+  }
+
+  zeus::CVector3f diffVec = mgr.GetPlayer().GetTranslation() - GetTranslation();
+  float mag = diffVec.magnitude();
+  if (x300_maxAttackRange < mag && 0.8f * mag < diffVec.dot(GetTransform().basis[1]) && sub80253960()) {
+    xa34_25_ = true;
+    xb0c_ = 5;
+    return true;
+  }
+
+  return false;
+}
 bool CRidley::ShotAt(CStateManager& mgr, float arg) {
   fmt::print(fmt("ShotAt\n"));
   return xa32_28_shotAt;
@@ -1508,10 +1588,12 @@ bool CRidley::IsDizzy(CStateManager& mgr, float arg) {
   if (xb0c_ == 3)
     return true;
 
-  zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
-  if (diff.magnitude() < x300_maxAttackRange && diff.dot(GetTransform().basis[1]) < 0.f) {
-    xb0c_ = 3;
-    return true;
+  if (xb08_ != 3) {
+    zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
+    if (diff.magnitude() < x300_maxAttackRange && diff.dot(GetTransform().basis[1]) < 0.f) {
+      xb0c_ = 3;
+      return true;
+    }
   }
 
   return false;
@@ -1533,6 +1615,54 @@ void CRidley::sub80255e5c(CStateManager& mgr) {
 }
 void CRidley::FacePlayer(float arg, CStateManager& mgr) {
   x450_bodyController->FaceDirection((mgr.GetPlayer().GetTranslation() - GetTranslation()).normalized(), arg);
+}
+
+void CRidley::sub80253710(urde::CStateManager& mgr) {
+  xb08_ = xb0c_;
+  float fVar1 = 100.f * mgr.GetActiveRandom()->Float();
+  float fVar6 = 0.f + skFloats[xb08_].x0_;
+  if (fVar6 <= fVar1) {
+    fVar6 += skFloats[xb08_].x4_;
+    if (fVar6 <= fVar1) {
+      fVar6 += skFloats[xb08_].x8_;
+      if (fVar6 <= fVar1) {
+        fVar6 += skFloats[xb08_].xc_;
+        if (fVar6 <= fVar1) {
+          fVar6 += skFloats[xb08_].x10_;
+          if (fVar6 <= fVar1) {
+            if (fVar1 < skFloats[xb08_].x14_) {
+              xb0c_ = 5;
+            }
+          } else {
+            xb0c_ = 4;
+          }
+        } else {
+          xb0c_ = 3;
+        }
+      } else {
+        xb0c_ = 2;
+      }
+    } else {
+      xb0c_ = 1;
+    }
+  } else {
+    xb0c_ = 0;
+  }
+
+  if (xb0c_ == 5 && !sub80253960()) {
+    xb0c_ = 2;
+  }
+
+  zeus::CVector3f diff = mgr.GetPlayer().GetTranslation() - GetTranslation();
+  float diffMag = diff.magnitude();
+  float frontMag = (diff * (1.f / diffMag)).dot(GetTransform().basis[1]);
+  if ((xb0c_ == 2 && frontMag < 0.5f) || (xb0c_ == 5 && frontMag < 0.8f))
+    xb0c_ = 0;
+
+  if (frontMag < 0.f && diffMag < x300_maxAttackRange && xb08_ != 3)
+    xb0c_ = 3;
+  if (frontMag > 0.f && diffMag < x2fc_minAttackRange && xb08_ != 4)
+    xb0c_ = 4;
 }
 } // namespace MP1
 } // namespace urde
