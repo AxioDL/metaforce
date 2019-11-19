@@ -64,7 +64,7 @@ enum class EHurledState {
   Seven
 };
 
-enum class EFallState { Invalid = -1, Zero, One };
+enum class EFallState { Invalid = -1, Zero, One , Two};
 
 enum class EReactionType { Invalid = -1, Zero, One, Two, Three };
 

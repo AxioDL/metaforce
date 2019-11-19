@@ -284,11 +284,11 @@ public:
   bool GetValue(int frame, float& valOut) const override;
 };
 
-class CRECEXT : public CRealElement {
+class CREExternalVar : public CRealElement {
   std::unique_ptr<CIntElement> x4_a;
 
 public:
-  CRECEXT(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
+  CREExternalVar(std::unique_ptr<CIntElement>&& a) : x4_a(std::move(a)) {}
   bool GetValue(int frame, float& valOut) const override;
 };
 

@@ -27,6 +27,7 @@ class CStaticRes {
   zeus::CVector3f x4_scale;
 
 public:
+  constexpr  CStaticRes()=default;
   CStaticRes(CAssetId id, const zeus::CVector3f& scale) : x0_cmdlId(id), x4_scale(scale) {}
 
   CAssetId GetId() const { return x0_cmdlId; }

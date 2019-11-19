@@ -1189,6 +1189,7 @@ void CBooRenderer::PrepareDynamicLights(const std::vector<CLight>& lights) {
 void CBooRenderer::SetGXRegister1Color(const zeus::CColor& color) { CGraphics::g_ColorRegs[1] = color; }
 
 void CBooRenderer::SetWorldLightFadeLevel(float level) { x2fc_tevReg1Color = zeus::CColor(level, level, level, 1.f); }
+void CBooRenderer::SetWorldLightMultiplyColor(const zeus::CColor& color) { CGraphics::g_ColorRegs[2] = color;}
 
 void CBooRenderer::ReallyDrawPhazonSuitIndirectEffect(const zeus::CColor& vertColor, /*const CTexture& maskTex,*/
                                                       const CTexture& indTex, const zeus::CColor& modColor, float scale,

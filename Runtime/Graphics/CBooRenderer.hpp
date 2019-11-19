@@ -284,6 +284,7 @@ public:
   void PrepareDynamicLights(const std::vector<CLight>& lights) override;
   void SetGXRegister1Color(const zeus::CColor& color) override;
   void SetWorldLightFadeLevel(float level) override;
+  void SetWorldLightMultiplyColor(const zeus::CColor& col) override;
   void DrawPhazonSuitIndirectEffect(const zeus::CColor& nonIndirectMod, const TLockedToken<CTexture>& indTex,
                                     const zeus::CColor& indirectMod, float blurRadius, float indScale, float indOffX,
                                     float indOffY);

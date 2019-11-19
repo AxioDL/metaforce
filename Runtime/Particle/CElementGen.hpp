@@ -68,7 +68,7 @@ private:
   int m_maxMAXP = 256;
   u16 x94_randomSeed = g_GlobalSeed;
   float x98_generatorRate = 1.f;
-  float x9c_cextValues[16] = {};
+  float x9c_externalVars[16] = {};
 
   zeus::CVector3f xdc_translation;
   zeus::CVector3f xe8_globalTranslation;
@@ -186,8 +186,8 @@ public:
   u32 GetParticleCountAll() const { return x264_recursiveParticleCount; }
   void EndLifetime();
   void ForceParticleCreation(int amount);
-  float GetCEXTValue(int i) const { return x9c_cextValues[i]; }
-  void SetCEXTValue(int i, float v) { x9c_cextValues[i] = v; }
+  float GetExternalVar(int i) const { return x9c_externalVars[i]; }
+  void SetCEXTValue(int i, float v) { x9c_externalVars[i] = v; }
 
   bool InternalUpdate(double);
   void RenderModels(const CActorLights* actLights);

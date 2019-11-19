@@ -99,6 +99,7 @@
 #include "MP1/World/CAtomicBeta.hpp"
 #include "CSimplePool.hpp"
 #include "CStateManager.hpp"
+#include "Runtime/MP1/World/CThardus.hpp"
 #include "CWallCrawlerSwarm.hpp"
 #include "CWorld.hpp"
 #include "Camera/CCinematicCamera.hpp"
@@ -126,7 +127,8 @@ constexpr SObjectTag MorphballDoorANCS = {FOURCC('ANCS'), 0x1F9DA858};
 
 static bool EnsurePropertyCount(int count, int expected, const char* structName) {
   if (count < expected) {
-    Log.report(logvisor::Warning, fmt("Insufficient number of props ({}/{}) for {} entity"), count, expected, structName);
+    Log.report(logvisor::Warning, fmt("Insufficient number of props ({}/{}) for {} entity"), count, expected,
+               structName);
     return false;
   }
   return true;
@@ -1340,8 +1342,8 @@ CEntity* ScriptLoader::LoadSpacePirate(CStateManager& mgr, CInputStream& in, int
     return nullptr;
 
   if (animParms.GetCharacter() == 0) {
-    Log.report(logvisor::Warning, fmt("SpacePirate <{}> has AnimationInformation property with invalid character selected"),
-               head.x0_name);
+    Log.report(logvisor::Warning,
+               fmt("SpacePirate <{}> has AnimationInformation property with invalid character selected"), head.x0_name);
     animParms.SetCharacter(2);
   }
 
@@ -1420,7 +1422,7 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
 
   return nullptr;
-  //return new MP1::CMetroidBeta(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, actParms, metData);
+  // return new MP1::CMetroidBeta(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, actParms, metData);
 }
 
 CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -2003,7 +2005,8 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
   return nullptr;
-  //return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms, metData,
+  // return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
+  // metData,
   //                        kInvalidUniqueId);
 }
 
@@ -2502,7 +2505,70 @@ CEntity* ScriptLoader::LoadPlayerStateChange(CStateManager& mgr, CInputStream& i
 }
 
 CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
-  return nullptr;
+
+  if (!EnsurePropertyCount(propCount, 43, "Thardus")) {
+    return nullptr;
+  }
+
+  SScaledActorHead actHead = LoadScaledActorHead(in, mgr);
+  const auto [isValid, patternedCount] = CPatternedInfo::HasCorrectParameterCount(in);
+  if (!isValid)
+    return nullptr;
+
+  CPatternedInfo pInfo(in, patternedCount);
+  CActorParameters actParms = LoadActorParameters(in);
+  in.readBool();
+  in.readBool();
+  const CAnimationParameters& animParms = pInfo.GetAnimationParameters();
+  if (!animParms.GetACSFile().IsValid())
+    return nullptr;
+  CStaticRes staticRes[2][7];
+  staticRes[0][6] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][5] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][4] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][3] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][2] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][1] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[0][0] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][6] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][5] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][4] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][3] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][2] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][1] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  staticRes[1][0] = CStaticRes(CAssetId(in), zeus::skOne3f);
+  CAssetId particle1(in);
+  CAssetId particle2(in);
+  CAssetId particle3(in);
+  CAssetId stateMachine(in);
+  CAssetId particle4(in);
+  CAssetId particle5(in);
+  CAssetId particle6(in);
+  CAssetId particle7(in);
+  CAssetId particle8(in);
+  CAssetId particle9(in);
+  float f1 = in.readFloatBig();
+  float f2 = in.readFloatBig();
+  float f3 = in.readFloatBig();
+  float f4 = in.readFloatBig();
+  float f5 = in.readFloatBig();
+  float f6 = in.readFloatBig();
+  CAssetId texture(in);
+  int sfxID1 = in.readUint32Big();
+  CAssetId particle10 = (propCount < 44) ? CAssetId() : CAssetId(in);
+  int sfxID2 = in.readUint32Big();
+  int sfxID3 = in.readUint32Big();
+  int sfxID4 = in.readUint32Big();
+  std::vector<CModelData> mData1(7);
+  std::vector<CModelData> mData2(7);
+  mData1.assign(std::rbegin(staticRes[1]), std::rend(staticRes[1]));
+  mData2.assign(std::rbegin(staticRes[0]), std::rend(staticRes[0]));
+
+  CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actHead.x40_scale, animParms.GetInitialAnimation(), true));
+  return new MP1::CThardus(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
+                           actParms, pInfo, std::move(mData2), std::move(mData1), particle1, particle2, particle3, f1,
+                           f2, f3, f4, f5, f6, stateMachine, particle4, particle5, particle6, particle7, particle8,
+                           particle9, texture, sfxID1, particle10, sfxID2, sfxID3, sfxID4);
 }
 
 CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in, int propCount,
@@ -3599,7 +3665,8 @@ CEntity* ScriptLoader::LoadEnergyBall(CStateManager& mgr, CInputStream& in, int 
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), actorHead.x40_scale,
                             animParms.GetInitialAnimation(), true));
-  return new MP1::CEnergyBall(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform, std::move(mData),
-                              actParms, pInfo, w1, f1, dInfo1, f2, a1, sfxId1, a2, a3, sfxId2, f3, f4, a4, dInfo2, f5);
+  return new MP1::CEnergyBall(mgr.AllocateUniqueId(), actorHead.x0_name, info, actorHead.x10_transform,
+                              std::move(mData), actParms, pInfo, w1, f1, dInfo1, f2, a1, sfxId1, a2, a3, sfxId2, f3, f4,
+                              a4, dInfo2, f5);
 }
 } // namespace urde

@@ -560,7 +560,7 @@ std::unique_ptr<CRealElement> CParticleDataFactory::GetRealElement(CInputStream&
   }
   case SBIG('CEXT'): {
     auto a = GetIntElement(in);
-    return std::make_unique<CRECEXT>(std::move(a));
+    return std::make_unique<CREExternalVar>(std::move(a));
   }
   case SBIG('ITRL'): {
     auto a = GetIntElement(in);

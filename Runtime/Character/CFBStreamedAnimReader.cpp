@@ -298,7 +298,7 @@ CSegIdToIndexConverter::CSegIdToIndexConverter(const CFBStreamedAnimReaderTotals
   std::fill(std::begin(x0_indices), std::end(x0_indices), -1);
   for (u32 b = 0; b < totals.x24_boneChanCount; ++b) {
     u16 segId = totals.xc_segIds2[b];
-    if (segId >= 96)
+    if (segId >= 100)
       continue;
     x0_indices[segId] = b;
   }

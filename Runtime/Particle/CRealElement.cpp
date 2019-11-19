@@ -289,11 +289,11 @@ bool CREVectorZToReal::GetValue(int frame, float& valOut) const {
   return false;
 }
 
-bool CRECEXT::GetValue(int frame, float& valOut) const {
+bool CREExternalVar::GetValue(int frame, float& valOut) const {
   int a;
   x4_a->GetValue(frame, a);
   int cv = std::max(0, a);
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetCEXTValue(cv & 0xf);
+  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetExternalVar(cv & 0xf);
   return false;
 }
 

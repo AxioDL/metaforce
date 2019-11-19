@@ -209,7 +209,7 @@ private:
   float x3f0_vertFreeLookAngleVel = 0.f;
   TUniqueId x3f4_aimTarget = kInvalidUniqueId;
   zeus::CVector3f x3f8_targetAimPosition = zeus::skZero3f;
-  TReservedAverage<zeus::CVector3f, 20> x404_aimTargetAverage;
+  TReservedAverage<zeus::CVector3f, 10> x404_aimTargetAverage;
   zeus::CVector3f x480_assistedTargetAim = zeus::skZero3f;
   float x48c_aimTargetTimer = 0.f;
   std::unique_ptr<CPlayerGun> x490_gun;

@@ -299,5 +299,8 @@ int main(int argc, const char** argv) {
   if (clientThread.joinable())
     clientThread.join();
 
+  glXDestroyWindow(xDisp, glxWindow);
+  XDestroyWindow(xDisp, windowId);
+  XCloseDisplay(xDisp);
   return renderer.ReturnVal();
 }
