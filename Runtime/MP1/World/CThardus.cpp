@@ -84,9 +84,10 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   }
   case EScriptObjectMessage::SetToMax: {
     for (size_t i = x648_; i < x610_.size() - 1; ++i) {
-      if (CEntity* ent = mgr.ObjectById(x610_[i]))
+      if (CEntity* ent = mgr.ObjectById(x610_[i])) {
         ent->SetActive(false);
-        ++x648_;
+      }
+      ++x648_;
     }
     break;
   }
@@ -100,6 +101,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     break;
   }
   case EScriptObjectMessage::Touched: {
+#if 0
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       if (TCastToPtr<CPlayer> pl = mgr.ObjectById(colAct->GetLastTouchedObject())) {
 
@@ -116,6 +118,7 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
         }
       }
     }
+#endif
     break;
   }
   case EScriptObjectMessage::Registered: {
@@ -132,12 +135,12 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     AddMaterial(EMaterialTypes::CameraPassthrough, mgr);
     RemoveMaterial(EMaterialTypes::Orbit, mgr);
     RemoveMaterial(EMaterialTypes::Target, mgr);
-    //sub801ddbe4(mgr);
+    // sub801ddbe4(mgr);
     x450_bodyController->SetFallState(pas::EFallState::Two);
     x450_bodyController->Activate(mgr);
     x450_bodyController->BodyStateInfo().SetLocoAnimChangeAtEndOfAnimOnly(true);
-    //sub801db560(0, mgr);
-    //sub801dec80();
+    // sub801db560(0, mgr);
+    // sub801dec80();
     AddMaterial(EMaterialTypes::RadarObject, mgr);
     break;
   }
