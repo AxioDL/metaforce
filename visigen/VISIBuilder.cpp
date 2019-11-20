@@ -265,7 +265,6 @@ std::vector<uint8_t> VISIBuilder::build(const zeus::CAABox& fullAabb, size_t mod
 
   Progress prog(updatePercent);
 #ifndef _WIN32
-  parentPid = getppid();
   auto terminate = [this, parentPid]() {
     return renderCache.m_renderer.m_terminate || (parentPid ? kill(parentPid, 0) : false);
   };
