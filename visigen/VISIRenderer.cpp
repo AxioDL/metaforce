@@ -439,9 +439,9 @@ void VISIRenderer::Run(FPercent updatePercent) {
   ProcessType parentPid = 0;
   if (m_argc > 4)
 #ifdef _WIN32
-    parentPid = ProcessType(wcstoull(m_argv[4], nullptr, 16));
+    parentPid = ProcessType(wcstoull(m_argv[4], nullptr, 10));
 #else
-    parentPid = ProcessType(strtoull(m_argv[4], nullptr, 16));
+    parentPid = ProcessType(strtoull(m_argv[4], nullptr, 10));
 #endif
 
   uint32_t layer2LightCount = 0;
