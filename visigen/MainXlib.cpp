@@ -254,6 +254,7 @@ int main(int argc, const char** argv) {
       Log.report(logvisor::Fatal, fmt("unable to make GLX context current"));
     XUnlockDisplay(xDisp);
 
+    UpdatePercent(0);
     renderer.Run(UpdatePercent);
 
     XLockDisplay(xDisp);
@@ -295,7 +296,6 @@ int main(int argc, const char** argv) {
   }
 
   renderer.Terminate();
-  pthread_cancel(clientThread.native_handle());
   if (clientThread.joinable())
     clientThread.join();
 
