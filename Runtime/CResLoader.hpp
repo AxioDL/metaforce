@@ -19,17 +19,20 @@ class CResLoader {
   // std::list<std::unique_ptr<CPakFile>> x0_aramList;
   std::list<std::unique_ptr<CPakFile>> x18_pakLoadedList;
   std::list<std::unique_ptr<CPakFile>> x30_pakLoadingList;
+  std::list<std::unique_ptr<CPakFile>> m_overridePakList; // URDE Addition, Trilogy has a similar mechanism, need to verify behavior against it
   u32 x44_pakLoadingCount = 0;
   std::list<std::unique_ptr<CPakFile>>::iterator x48_curPak;
   mutable CAssetId x4c_cachedResId;
   mutable const CPakFile::SResInfo* x50_cachedResInfo = nullptr;
   bool x54_forwardSeek = false;
 
+  bool _GetTagListForFile(std::vector<SObjectTag>& out, const std::string& path,
+                          const std::unique_ptr<CPakFile>& file) const;
 public:
   CResLoader();
   const std::vector<CAssetId>* GetTagListForFile(std::string_view name) const;
-  void AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak);
-  void AddPakFile(std::string_view name, bool samusPak, bool worldPak);
+  void AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak, bool override=false);
+  void AddPakFile(std::string_view name, bool samusPak, bool worldPak, bool override=false);
   void WaitForPakFileLoadingComplete();
   std::unique_ptr<CInputStream> LoadNewResourcePartSync(const SObjectTag& tag, u32 length, u32 offset, void* extBuf);
   void LoadMemResourceSync(const SObjectTag& tag, std::unique_ptr<u8[]>& bufOut, int* sizeOut);

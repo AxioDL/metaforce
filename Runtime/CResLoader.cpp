@@ -16,16 +16,16 @@ const std::vector<CAssetId>* CResLoader::GetTagListForFile(std::string_view name
   return nullptr;
 }
 
-void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak) {
+void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool worldPak, bool override) {
   const std::string namePak = std::string(name).append(".upak");
   if (CDvdFile::FileExists(namePak)) {
-    x30_pakLoadingList.emplace_back(std::make_unique<CPakFile>(namePak, buildDepList, worldPak));
+    x30_pakLoadingList.emplace_back(std::make_unique<CPakFile>(namePak, buildDepList, worldPak, override));
     ++x44_pakLoadingCount;
   }
 }
 
-void CResLoader::AddPakFile(std::string_view name, bool samusPak, bool worldPak) {
-  AddPakFileAsync(name, samusPak, worldPak);
+void CResLoader::AddPakFile(std::string_view name, bool samusPak, bool worldPak, bool override) {
+  AddPakFileAsync(name, samusPak, worldPak, override);
   WaitForPakFileLoadingComplete();
 }
 
@@ -116,17 +116,30 @@ std::unique_ptr<u8[]> CResLoader::LoadNewResourcePartSync(const urde::SObjectTag
 
 void CResLoader::GetTagListForFile(const char* pakName, std::vector<SObjectTag>& out) const {
   std::string path = std::string(pakName) + ".upak";
-  for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList) {
-    if (CStringExtras::CompareCaseInsensitive(file->GetPath(), path)) {
-      auto& depList = file->GetDepList();
-      out.reserve(depList.size());
-      for (const auto& dep : depList) {
-        auto resInfo = file->GetResInfo(dep);
-        out.emplace_back(resInfo->GetType(), dep);
-      }
+
+  for (const std::unique_ptr<CPakFile>& file : m_overridePakList) {
+    if (_GetTagListForFile(out, path, file))
       return;
-    }
   }
+
+  for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList) {
+    if (_GetTagListForFile(out, path, file))
+      return;
+  }
+}
+
+bool CResLoader::_GetTagListForFile(std::vector<SObjectTag>& out, const std::string& path,
+                                    const std::unique_ptr<CPakFile>& file) const {
+  if (CStringExtras::CompareCaseInsensitive(file->GetPath(), path)) {
+    auto& depList = file->GetDepList();
+    out.reserve(depList.size());
+    for (const auto& dep : depList) {
+      auto resInfo = file->GetResInfo(dep);
+      out.emplace_back(resInfo->GetType(), dep);
+    }
+    return true;
+  }
+  return false;
 }
 
 bool CResLoader::GetResourceCompression(const SObjectTag& tag) const {
@@ -150,6 +163,10 @@ FourCC CResLoader::GetResourceTypeById(CAssetId id) const {
 }
 
 const SObjectTag* CResLoader::GetResourceIdByName(std::string_view name) const {
+  for (const std::unique_ptr<CPakFile>& file : m_overridePakList)
+    if (const SObjectTag* id = file->GetResIdByName(name))
+      return id;
+
   for (const std::unique_ptr<CPakFile>& file : x18_pakLoadedList)
     if (const SObjectTag* id = file->GetResIdByName(name))
       return id;
@@ -175,6 +192,12 @@ bool CResLoader::FindResource(CAssetId id) const {
   if (x4c_cachedResId == id)
     return true;
 
+  for (auto it = m_overridePakList.begin(); it != m_overridePakList.end(); ++it) {
+    if (CacheFromPak(**it, id)) {
+      return true;
+    }
+  }
+
   if (x48_curPak != x18_pakLoadedList.end())
     if (CacheFromPak(**x48_curPak, id))
       return true;
@@ -191,6 +214,12 @@ bool CResLoader::FindResource(CAssetId id) const {
 }
 
 CPakFile* CResLoader::FindResourceForLoad(CAssetId id) {
+  for (auto it = m_overridePakList.begin(); it != m_overridePakList.end(); ++it) {
+    if (CacheFromPakForLoad(**it, id)) {
+      return &**it;
+    }
+  }
+
   if (x48_curPak != x18_pakLoadedList.end())
     if (CacheFromPakForLoad(**x48_curPak, id))
       return &**x48_curPak;
@@ -237,7 +266,10 @@ bool CResLoader::CacheFromPak(const CPakFile& file, CAssetId id) const {
 }
 
 void CResLoader::MoveToCorrectLoadedList(std::unique_ptr<CPakFile>&& file) {
-  x18_pakLoadedList.push_back(std::move(file));
+  if (file->IsOverridePak())
+    m_overridePakList.push_back(std::move(file));
+  else
+    x18_pakLoadedList.push_back(std::move(file));
 }
 
 std::vector<std::pair<std::string, SObjectTag>> CResLoader::GetResourceIdToNameList() const {
@@ -249,6 +281,13 @@ std::vector<std::pair<std::string, SObjectTag>> CResLoader::GetResourceIdToNameL
 }
 
 void CResLoader::EnumerateResources(const std::function<bool(const SObjectTag&)>& lambda) const {
+  for (auto it = m_overridePakList.begin(); it != m_overridePakList.end(); ++it) {
+    for (const CAssetId& id : (*it)->GetDepList()) {
+      SObjectTag fcc(GetResourceTypeById(id), id);
+      if (!lambda(fcc))
+        return;
+    }
+  }
   for (auto it = x18_pakLoadedList.begin(); it != x18_pakLoadedList.end(); ++it) {
     for (const CAssetId& id : (*it)->GetDepList()) {
       SObjectTag fcc(GetResourceTypeById(id), id);

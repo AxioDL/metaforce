@@ -102,6 +102,7 @@ public:
     CScriptMazeNode::LoadMazeSeeds();
   }
 
+
   void ResetGameState() {
     x134_gameState = std::make_unique<CGameState>();
     g_GameState = x134_gameState.get();
@@ -256,6 +257,7 @@ public:
         boo::IGraphicsCommandQueue* cmdQ, const boo::ObjToken<boo::ITextureR>& spareTex);
   void RegisterResourceTweaks();
   void AddWorldPaks();
+  void AddOverridePaks();
   void ResetGameState();
   void StreamNewGameState(CBitStreamReader&, u32 idx);
   void RefreshGameState();

@@ -3,13 +3,14 @@
 namespace urde {
 static logvisor::Module Log("urde::CPakFile");
 
-CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak) : CDvdFile(filename) {
+CPakFile::CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override) : CDvdFile(filename) {
   if (!CDvdFile::operator bool())
     Log.report(logvisor::Fatal, fmt("{}: Unable to open"), GetPath());
   x28_24_buildDepList = buildDepList;
   //x28_24_buildDepList = true; // Always do this so URDE can rapidly pre-warm shaders
   x28_26_worldPak = worldPak;
   x28_27_stashedInARAM = false;
+  m_override = override;
 }
 
 CPakFile::~CPakFile() {

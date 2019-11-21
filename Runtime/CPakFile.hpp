@@ -38,10 +38,11 @@ public:
 private:
   union {
     struct {
-      bool x28_24_buildDepList;
-      bool x28_25_aramFile;
-      bool x28_26_worldPak;
-      bool x28_27_stashedInARAM;
+      bool x28_24_buildDepList : 1;
+      bool x28_25_aramFile : 1;
+      bool x28_26_worldPak : 1;
+      bool x28_27_stashedInARAM : 1;
+      bool m_override : 1;
     };
     u32 _dummy = 0;
   };
@@ -67,7 +68,7 @@ private:
   void Warmup();
 
 public:
-  CPakFile(std::string_view filename, bool buildDepList, bool worldPak);
+  CPakFile(std::string_view filename, bool buildDepList, bool worldPak, bool override=false);
   ~CPakFile();
   const std::vector<std::pair<std::string, SObjectTag>>& GetNameList() const { return x54_nameList; }
   const std::vector<CAssetId>& GetDepList() const { return x64_depList; }
@@ -76,6 +77,7 @@ public:
   const SResInfo* GetResInfoForLoadDirectionless(CAssetId id) const;
   const SResInfo* GetResInfo(CAssetId id) const;
   bool IsWorldPak() const { return x28_26_worldPak; }
+  bool IsOverridePak() const { return m_override; }
   u32 GetFakeStaticSize() const { return 0; }
   void AsyncIdle();
   CAssetId GetMLVLId() const { return m_mlvlId; }

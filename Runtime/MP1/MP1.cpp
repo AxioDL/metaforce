@@ -337,6 +337,13 @@ void CMain::AddWorldPaks() {
   loader->WaitForPakFileLoadingComplete();
 }
 
+void CMain::AddOverridePaks() {
+  if (CResLoader* loader = g_ResFactory->GetResLoader()) {
+    loader->AddPakFileAsync("URDE", false, false, true);
+    loader->WaitForPakFileLoadingComplete();
+  }
+}
+
 void CMain::ResetGameState() {
   CPersistentOptions sysOpts = g_GameState->SystemOptions();
   CGameOptions gameOpts = g_GameState->GameOptions();
@@ -687,6 +694,7 @@ void CMain::Init(const hecl::Runtime::FileStoreManager& storeMgr, hecl::CVarMana
       hecl::SConsoleCommand::ECommandFlags::Normal);
 
   InitializeSubsystems();
+  AddOverridePaks();
   x128_globalObjects.PostInitialize();
   x70_tweaks.RegisterTweaks(m_cvarMgr);
   x70_tweaks.RegisterResourceTweaks(m_cvarMgr);
