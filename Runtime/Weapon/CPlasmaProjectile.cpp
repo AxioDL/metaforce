@@ -270,7 +270,7 @@ void CPlasmaProjectile::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId send
     mgr.RemoveWeaponId(xec_ownerId, xf0_weaponType);
     DeletePlasmaLights(mgr);
     if (x548_29_activePlayerPhazon) {
-      mgr.GetPlayer().DecrementPhazon();
+      mgr.GetPlayer().DecrementEnvironmentDamage();
       x548_29_activePlayerPhazon = false;
     }
     break;
@@ -298,7 +298,7 @@ void CPlasmaProjectile::UpdatePlayerEffects(float dt, CStateManager& mgr) {
     if ((x478_beamAttributes & 0x8) && !x548_29_activePlayerPhazon) {
       x548_29_activePlayerPhazon = true;
       x4e4_playerDamageTimer = 0.f;
-      mgr.GetPlayer().IncrementPhazon();
+      mgr.GetPlayer().IncrementEnvironmentDamage();
     }
     switch (xf0_weaponType) {
     case EWeaponType::Ice:
@@ -329,7 +329,7 @@ void CPlasmaProjectile::UpdatePlayerEffects(float dt, CStateManager& mgr) {
                     zeus::skZero3f);
     x4e4_playerDamageTimer += dt;
     if (x4e4_playerDamageTimer >= x4e0_playerDamageDuration) {
-      mgr.GetPlayer().DecrementPhazon();
+      mgr.GetPlayer().DecrementEnvironmentDamage();
       x4e4_playerDamageTimer = 0.f;
       x548_29_activePlayerPhazon = false;
     }

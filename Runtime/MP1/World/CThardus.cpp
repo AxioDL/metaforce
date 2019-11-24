@@ -3,6 +3,8 @@
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/Collision/CCollisionActor.hpp"
 #include "Runtime/Collision/CCollisionActorManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CDestroyableRock.hpp"
 #include "Runtime/World/CPatternedInfo.hpp"
 #include "Runtime/World/CPlayer.hpp"
 
@@ -11,7 +13,7 @@
 namespace urde::MP1 {
 CThardus::CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
                    CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
-                   std::vector<CModelData> mData1, std::vector<CModelData> mData2, CAssetId particle1,
+                   const std::vector<CStaticRes>& mData1, const std::vector<CStaticRes>& mData2, CAssetId particle1,
                    CAssetId particle2, CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6,
                    CAssetId stateMachine, CAssetId particle4, CAssetId particle5, CAssetId particle6,
                    CAssetId particle7, CAssetId particle8, CAssetId particle9, CAssetId texture, u32 sfxId1,
@@ -101,24 +103,36 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     break;
   }
   case EScriptObjectMessage::Touched: {
-#if 0
     if (TCastToPtr<CCollisionActor> colAct = mgr.ObjectById(uid)) {
       if (TCastToPtr<CPlayer> pl = mgr.ObjectById(colAct->GetLastTouchedObject())) {
-
-      } else if (TCastToConstPtr<CBomb> bomb = mgr.GetObjectById(colAct->GetLastTouchedObject())) {
+        if (x420_curDamageRemTime > 0.f)
+          break;
         u32 rand = mgr.GetActiveRandom()->Next();
-        float f = 1.f;
-        zeus::CVector3f vec;
+        float damageMult = 1.f;
+        zeus::CVector3f knockBack = zeus::skForward;
         if (x644_ == 1) {
-          f = 2.f;
-          if ((rand & (1 ^ rand) >> 0x1f) == rand >> 31) {
-            vec = zeus::skRight;
-          } else
-            vec = zeus::skLeft;
+          damageMult = 2.f;
+          knockBack = (rand % 2) ? zeus::skRight : zeus::skLeft;
         }
+
+        if (mgr.GetPlayer().GetFrozenState())
+          mgr.GetPlayer().UnFreeze(mgr);
+
+        knockBack = GetTransform().buildMatrix3f() * knockBack;
+        CDamageInfo dInfo = GetContactDamage();
+        dInfo.SetDamage(damageMult * dInfo.GetDamage());
+        mgr.ApplyDamage(GetUniqueId(), pl->GetUniqueId(), GetUniqueId(), dInfo,
+                        CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}),
+                        x644_ == 1 ? knockBack : zeus::skZero3f);
+        x420_curDamageRemTime = x424_damageWaitTime;
+      } else if (TCastToConstPtr<CBomb>(mgr.GetObjectById(colAct->GetLastTouchedObject()))) {
+#if 0
+        if (x644_ == 1 && x93c_)
+          sub801dae2c(mgr, x648_);
+#endif
       }
     }
-#endif
+
     break;
   }
   case EScriptObjectMessage::Registered: {
@@ -126,10 +140,27 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
     x6b0_.reserve(x5cc_.size());
     x6c0_.reserve(x5cc_.size());
     x90c_.reserve(x5cc_.size());
-    /*
-    for (const auto& mData : x5cc_) {
-
-    }*/
+    for (size_t i = 0; i < x5cc_.size(); ++i) {
+      float dVar24 = (i == x5cc_.size() - 1) ? 2.f * x6a8_ : x6a8_;
+      TUniqueId rockId = mgr.AllocateUniqueId();
+      CModelData mData1(x5cc_[i]);
+      CModelData mData2(x5dc_[i]);
+      mgr.AddObject(new CDestroyableRock(
+          rockId, true, "", CEntityInfo(GetAreaIdAlways(), NullConnectionList), {}, std::move(mData1), 0.f,
+          CHealthInfo(dVar24, 0.f),
+          CDamageVulnerability(
+              EVulnerability::Normal, EVulnerability::Deflect, EVulnerability::Normal, EVulnerability::Normal,
+              EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Normal, EVulnerability::Deflect,
+              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect,
+              EVulnerability::Deflect, EVulnerability::Deflect, EVulnerability::Deflect, EDeflectType::One),
+          GetMaterialList(), x630_,
+          CActorParameters(CLightParameters(false, 0.f, CLightParameters::EShadowTesselation::Invalid, 0.f, 0.f,
+                                            zeus::skWhite, false, CLightParameters::EWorldLightingOptions::NoShadowCast,
+                                            CLightParameters::ELightRecalculationOptions::LargeFrameCount,
+                                            zeus::skZero3f, -1, -1, 0, 0),
+                           {}, {}, {}, {}, true, true, false, false, 0.f, 0.f, 1.f),
+          std::move(mData2), 0));
+    }
 
     AddMaterial(EMaterialTypes::ScanPassthrough, mgr);
     AddMaterial(EMaterialTypes::CameraPassthrough, mgr);
@@ -147,5 +178,27 @@ void CThardus::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateMa
   default:
     break;
   }
+}
+void CThardus::Generate(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg == EStateMsg::Activate) {
+    x5ec_ = 0;
+  } else if (msg == EStateMsg::Update) {
+    if (x5ec_ == 0) {
+      if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Getup) {
+        x5ec_ = 2;
+      } else {
+        x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType::Zero));
+      }
+    } else if (x5ec_ == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Getup) {
+      x5ec_ = 3;
+    }
+  } else if (msg == EStateMsg::Deactivate) {
+    x93d_ = false;
+  }
+}
+void CThardus::GetUp(CStateManager& mgr, EStateMsg msg, float arg) {
+  if (msg != EStateMsg::Activate)
+    return;
+  RemoveMaterial(EMaterialTypes::RadarObject, mgr);
 }
 }

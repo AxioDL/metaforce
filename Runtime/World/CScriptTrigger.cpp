@@ -45,7 +45,7 @@ void CScriptTrigger::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CS
     if (x148_28_playerTriggerProc) {
       x148_28_playerTriggerProc = false;
       if (x148_29_didPhazonDamage) {
-        mgr.Player()->DecrementPhazon();
+        mgr.Player()->DecrementEnvironmentDamage();
         x148_29_didPhazonDamage = false;
       }
 
@@ -89,7 +89,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
           if (x148_28_playerTriggerProc) {
             x148_28_playerTriggerProc = false;
             if (x148_29_didPhazonDamage) {
-              mgr.GetPlayer().DecrementPhazon();
+              mgr.GetPlayer().DecrementEnvironmentDamage();
               x148_29_didPhazonDamage = false;
             }
 
@@ -132,7 +132,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
         if (mgr.GetPlayer().GetUniqueId() == tmpId && x148_28_playerTriggerProc) {
           x148_28_playerTriggerProc = false;
           if (x148_29_didPhazonDamage) {
-            mgr.Player()->DecrementPhazon();
+            mgr.Player()->DecrementEnvironmentDamage();
             x148_29_didPhazonDamage = false;
           }
 
@@ -148,7 +148,7 @@ void CScriptTrigger::UpdateInhabitants(float dt, CStateManager& mgr) {
       if (mgr.GetPlayer().GetUniqueId() == tmpId && x148_28_playerTriggerProc) {
         x148_28_playerTriggerProc = false;
         if (x148_29_didPhazonDamage) {
-          mgr.Player()->DecrementPhazon();
+          mgr.Player()->DecrementEnvironmentDamage();
           x148_29_didPhazonDamage = false;
         }
 
@@ -246,14 +246,14 @@ void CScriptTrigger::Touch(CActor& act, CStateManager& mgr) {
         if (!x148_28_playerTriggerProc) {
           x148_28_playerTriggerProc = true;
           if (x148_29_didPhazonDamage) {
-            mgr.Player()->DecrementPhazon();
+            mgr.Player()->DecrementEnvironmentDamage();
             x148_29_didPhazonDamage = false;
           } else if (x100_damageInfo.GetDamage() > 0.f) {
             const CDamageVulnerability* dVuln = mgr.Player()->GetDamageVulnerability();
             if (dVuln->WeaponHurts(x100_damageInfo.GetWeaponMode(), 0) &&
                 x100_damageInfo.GetWeaponMode().GetType() == EWeaponType::Phazon &&
                 !mgr.GetPlayerState()->HasPowerUp(CPlayerState::EItemType::PhazonSuit)) {
-              pl->IncrementPhazon();
+              pl->IncrementEnvironmentDamage();
               x148_29_didPhazonDamage = true;
             }
           }

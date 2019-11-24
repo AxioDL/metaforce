@@ -60,12 +60,7 @@ public:
     One,
   };
 
-  enum class ERingState {
-    Scramble,
-    Rotate,
-    Stopped,
-    Breakup
-  };
+  enum class ERingState { Scramble, Rotate, Stopped, Breakup };
 
   struct SRingController {
     TUniqueId x0_id;
@@ -94,7 +89,7 @@ private:
   CSfxHandle x178_sfxHandle;
   u32 x17c_;
   float x180_ = 0.f;
-  TReservedAverage<float, 6> x184_;
+  std::vector<float> x184_;
   float x194_ = 0.f;
   std::vector<SRingController> x198_ringControllers;
   ERingState x1a8_ringState = ERingState::Stopped;
@@ -103,7 +98,7 @@ private:
   s32 x1bc_areaSaveId;
   s32 x1c0_layerIdx;
   CPlayerState::EItemType x1c4_item;
-  std::optional<zeus::CAABox> x1c8_;
+  std::optional<zeus::CAABox> x1c8_touchBounds;
   union {
     struct {
       bool x1e4_24_ : 1;
@@ -113,7 +108,7 @@ private:
       bool x1e4_28_frustumEntered : 1;
       bool x1e4_29_frustumExited : 1;
       bool x1e4_30_ : 1;
-      bool x1e4_31_ : 1;
+      bool x1e4_31_inAreaDamage : 1;
       bool x1e5_24_doSave : 1;
       bool x1e5_25_playerInArea : 1;
       bool x1e5_26_displayBillboard : 1;
@@ -132,6 +127,7 @@ public:
   void PreRender(CStateManager&, const zeus::CFrustum&) override;
   void AddToRenderer(const zeus::CFrustum&, const CStateManager&) const override;
   void Render(const CStateManager&) const override;
+  std::optional<zeus::CAABox> GetTouchBounds() const override { return x1c8_touchBounds; }
 
   void SkipCinematic(CStateManager&);
   void RingScramble(CStateManager&);

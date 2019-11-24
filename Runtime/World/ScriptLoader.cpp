@@ -2559,14 +2559,14 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
   int sfxID2 = in.readUint32Big();
   int sfxID3 = in.readUint32Big();
   int sfxID4 = in.readUint32Big();
-  std::vector<CModelData> mData1(7);
-  std::vector<CModelData> mData2(7);
-  mData1.assign(std::rbegin(staticRes[1]), std::rend(staticRes[1]));
-  mData2.assign(std::rbegin(staticRes[0]), std::rend(staticRes[0]));
+  std::vector<CStaticRes> mData1(7);
+  std::vector<CStaticRes> mData2(7);
+  mData1.assign(std::rbegin(staticRes[0]), std::rend(staticRes[0]));
+  mData2.assign(std::rbegin(staticRes[1]), std::rend(staticRes[1]));
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actHead.x40_scale, animParms.GetInitialAnimation(), true));
   return new MP1::CThardus(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
-                           actParms, pInfo, std::move(mData2), std::move(mData1), particle1, particle2, particle3, f1,
+                           actParms, pInfo, mData1, mData2, particle2, particle2, particle3, f1,
                            f2, f3, f4, f5, f6, stateMachine, particle4, particle5, particle6, particle7, particle8,
                            particle9, texture, sfxID1, particle10, sfxID2, sfxID3, sfxID4);
 }

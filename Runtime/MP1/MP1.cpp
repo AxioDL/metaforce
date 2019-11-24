@@ -327,21 +327,25 @@ void CMain::AddWorldPaks() {
     if (i != 0)
       path += '0' + i;
 
-    std::string lowerPath(path);
-    athena::utility::tolower(lowerPath);
     if (CDvdFile::FileExists((path + ".upak").c_str()))
       loader->AddPakFileAsync(path, false, true);
-    else if (CDvdFile::FileExists((lowerPath + ".upak").c_str()))
-      loader->AddPakFileAsync(lowerPath, false, true);
   }
   loader->WaitForPakFileLoadingComplete();
 }
 
 void CMain::AddOverridePaks() {
-  if (CResLoader* loader = g_ResFactory->GetResLoader()) {
-    loader->AddPakFileAsync("URDE", false, false, true);
-    loader->WaitForPakFileLoadingComplete();
+  CResLoader* loader = g_ResFactory->GetResLoader();
+  if (!loader)
+    return;
+
+  for (size_t i = 999; i > 0; --i) {
+    std::string path = fmt::format(fmt("Override{}"), i);
+    if (CDvdFile::FileExists((path + ".upak").c_str()))
+      loader->AddPakFileAsync(path, false, false, true);
   }
+
+  if (CDvdFile::FileExists("URDE.upak"))
+    loader->AddPakFile("URDE", false, false, true);
 }
 
 void CMain::ResetGameState() {

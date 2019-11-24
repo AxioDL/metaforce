@@ -2068,14 +2068,14 @@ void CPlayer::UpdateWaterSurfaceCameraBias(CStateManager& mgr) {
   }
 }
 
-void CPlayer::UpdatePhazonCameraShake(float dt, CStateManager& mgr) {
+void CPlayer::UpdateEnvironmentDamageCameraShake(float dt, CStateManager& mgr) {
   xa2c_damageLoopSfxDelayTicks = std::min(2, xa2c_damageLoopSfxDelayTicks + 1);
-  if (xa10_phazonCounter != 0) {
-    if (xa14_phazonCameraShakeTimer == 0.f)
+  if (xa10_envDmgCounter != 0) {
+    if (xa14_envDmgCameraShakeTimer == 0.f)
       mgr.GetCameraManager()->AddCameraShaker(CCameraShakeData::BuildPhazonCameraShakeData(1.f, 0.075f), false);
-    xa14_phazonCameraShakeTimer += dt;
-    if (xa14_phazonCameraShakeTimer > 2.f)
-      xa14_phazonCameraShakeTimer = 0.f;
+    xa14_envDmgCameraShakeTimer += dt;
+    if (xa14_envDmgCameraShakeTimer > 2.f)
+      xa14_envDmgCameraShakeTimer = 0.f;
   }
 }
 
@@ -2380,7 +2380,7 @@ void CPlayer::UpdatePlayerControlDirection(float dt, CStateManager& mgr) {
 void CPlayer::Think(float dt, CStateManager& mgr) {
   UpdateStepCameraZBias(dt);
   UpdateWaterSurfaceCameraBias(mgr);
-  UpdatePhazonCameraShake(dt, mgr);
+  UpdateEnvironmentDamageCameraShake(dt, mgr);
   UpdatePhazonDamage(dt, mgr);
   UpdateFreeLook(dt);
   UpdatePlayerHints(mgr);
@@ -5681,18 +5681,18 @@ void CPlayer::SetSpawnedMorphBallState(EPlayerMorphBallState state, CStateManage
   }
 }
 
-void CPlayer::DecrementPhazon() {
-  if (xa10_phazonCounter == 0)
+void CPlayer::DecrementEnvironmentDamage() {
+  if (xa10_envDmgCounter == 0)
     return;
 
-  xa10_phazonCounter--;
+  xa10_envDmgCounter--;
 }
 
-void CPlayer::IncrementPhazon() {
-  if (xa10_phazonCounter != 0)
-    xa10_phazonCounter++;
+void CPlayer::IncrementEnvironmentDamage() {
+  if (xa10_envDmgCounter != 0)
+    xa10_envDmgCounter++;
   else
-    xa14_phazonCameraShakeTimer = 0.f;
+    xa14_envDmgCameraShakeTimer = 0.f;
 }
 
 bool CPlayer::CheckSubmerged() const {

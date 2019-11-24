@@ -231,6 +231,7 @@ public:
   void DrawStaticGeometry(int areaIdx, int mask, int targetMask) override;
   void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) override;
   void PostRenderFogs() override;
+  void SetModelMatrix(const zeus::CTransform& xf) override;
   void AddParticleGen(const CParticleGen&) override;
   void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&) override;
   void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int) override;

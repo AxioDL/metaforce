@@ -935,6 +935,9 @@ void CBooRenderer::PostRenderFogs() {
   x2ac_fogVolumes.clear();
 }
 
+void CBooRenderer::SetModelMatrix(const zeus::CTransform& xf) {
+  CGraphics::SetModelMatrix(xf);
+}
 void CBooRenderer::AddParticleGen(const CParticleGen& gen) {
   if (auto bounds = gen.GetBounds()) {
     zeus::CVector3f pt = bounds.value().closestPointAlongVector(xb0_viewPlane.normal());

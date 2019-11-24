@@ -332,8 +332,8 @@ private:
   float xa04_preThinkDt = 0.f;
   CAssetId xa08_steamTextureId;
   CAssetId xa0c_iceTextureId;
-  u32 xa10_phazonCounter = 0;
-  float xa14_phazonCameraShakeTimer = 0.f;
+  u32 xa10_envDmgCounter = 0;
+  float xa14_envDmgCameraShakeTimer = 0.f;
   float xa18_phazonDamageLag = 0.f;
   float xa1c_threatOverride = 0.f;
   float xa20_radarXYRadiusOverride = 1.f;
@@ -421,7 +421,7 @@ public:
   void UpdateFrozenState(const CFinalInput& input, CStateManager& mgr);
   void UpdateStepCameraZBias(float dt);
   void UpdateWaterSurfaceCameraBias(CStateManager& mgr);
-  void UpdatePhazonCameraShake(float dt, CStateManager& mgr);
+  void UpdateEnvironmentDamageCameraShake(float dt, CStateManager& mgr);
   void UpdatePhazonDamage(float dt, CStateManager& mgr);
   void ResetPlayerHintState();
   bool SetAreaPlayerHint(const CScriptPlayerHint& hint, CStateManager& mgr);
@@ -604,8 +604,8 @@ public:
   ESurfaceRestraints GetSurfaceRestraint() const {
     return x2b0_outOfWaterTicks == 2 ? GetCurrentSurfaceRestraint() : ESurfaceRestraints::Water;
   }
-  void DecrementPhazon();
-  void IncrementPhazon();
+  void DecrementEnvironmentDamage();
+  void IncrementEnvironmentDamage();
   void ApplySubmergedPitchBend(CSfxHandle& sfx);
   void DetachActorFromPlayer();
   bool AttachActorToPlayer(TUniqueId id, bool disableGun);

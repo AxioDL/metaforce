@@ -14,7 +14,7 @@ class CLightParameters {
   friend class CActor;
 
 public:
-  enum class EShadowTesselation { Zero };
+  enum class EShadowTesselation { Invalid=-1, Zero };
 
   enum class EWorldLightingOptions { Zero, NormalWorld, NoShadowCast, DisableWorld };
 

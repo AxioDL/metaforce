@@ -22,8 +22,10 @@ class CThardus : public CPatterned {
   u32 x578_ = 0;
   u32 x5c4_ = 1;
   bool x5c8_ = false;
-  std::vector<CModelData> x5cc_;
-  std::vector<CModelData> x5dc_;
+  /* NOTE(phil) These two vectors used to vectors of CModelData, They have been converted to vectors of CStaticRes due to
+   * the use of move semantics to prevent deep copies */
+  std::vector<CStaticRes> x5cc_;
+  std::vector<CStaticRes> x5dc_;
   s32 x5ec_ = -1;
   std::unique_ptr<CCollisionActorManager> x5f4_;
   std::unique_ptr<CCollisionActorManager> x5f8_;
@@ -119,36 +121,17 @@ public:
   DEFINE_PATTERNED(Thardus)
   CThardus(TUniqueId uid, std::string_view name, const CEntityInfo& info, const zeus::CTransform& xf,
            CModelData&& mData, const CActorParameters& actParms, const CPatternedInfo& pInfo,
-           std::vector<CModelData> mData1, std::vector<CModelData> mData2, CAssetId particle1, CAssetId particle2,
-           CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6, CAssetId stateMachine,
-           CAssetId particle4, CAssetId particle5, CAssetId particle6, CAssetId particle7, CAssetId particle8,
-           CAssetId particle9, CAssetId texture, u32 sfxId1, CAssetId particle10, u32 sfxId2, u32 sfxId3, u32 sfxId4);
+           const std::vector<CStaticRes>& mData1, const std::vector<CStaticRes>& mData2, CAssetId particle1,
+           CAssetId particle2, CAssetId particle3, float f1, float f2, float f3, float f4, float f5, float f6,
+           CAssetId stateMachine, CAssetId particle4, CAssetId particle5, CAssetId particle6, CAssetId particle7,
+           CAssetId particle8, CAssetId particle9, CAssetId texture, u32 sfxId1, CAssetId particle10, u32 sfxId2,
+           u32 sfxId3, u32 sfxId4);
 
   void AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId uid, CStateManager& mgr) override;
 
-  void Generate(CStateManager& mgr, EStateMsg msg, float arg) override {
-    if (msg == EStateMsg::Activate) {
-      x5ec_ = 0;
-    } else if (msg == EStateMsg::Update) {
-      if (x5ec_ == 0) {
-        if (x450_bodyController->GetCurrentStateId() == pas::EAnimationState::Getup) {
-          x5ec_ = 2;
-        } else {
-          x450_bodyController->GetCommandMgr().DeliverCmd(CBCGetupCmd(pas::EGetupType::Zero));
-        }
-      } else if (x5ec_ == 2 && x450_bodyController->GetCurrentStateId() != pas::EAnimationState::Getup) {
-        x5ec_ = 3;
-      }
-    } else if (msg == EStateMsg::Deactivate) {
-      x93d_ = false;
-    }
-  }
+  void Generate(CStateManager& mgr, EStateMsg msg, float arg) override;
 
-  void GetUp(CStateManager& mgr, EStateMsg msg, float arg) override {
-    if (msg != EStateMsg::Activate)
-      return;
-    RemoveMaterial(EMaterialTypes::RadarObject, mgr);
-  }
+  void GetUp(CStateManager& mgr, EStateMsg msg, float arg) override;
 };
 } // namespace MP1
 } // namespace urde

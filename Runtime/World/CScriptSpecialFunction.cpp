@@ -2,6 +2,7 @@
 #include "Audio/CSfxManager.hpp"
 #include "Camera/CCameraManager.hpp"
 #include "Character/CModelData.hpp"
+#include "Graphics/CBooRenderer.hpp"
 #include "Graphics/CTexture.hpp"
 #include "World/CActorParameters.hpp"
 #include "World/CPlayer.hpp"
@@ -39,13 +40,13 @@ CScriptSpecialFunction::CScriptSpecialFunction(TUniqueId uid, std::string_view n
 , x170_sfx1(CSfxManager::TranslateSFXID(sId1))
 , x172_sfx2(CSfxManager::TranslateSFXID(sId2))
 , x174_sfx3(CSfxManager::TranslateSFXID(sId3))
-, x184_(0.f)
+, x184_(6, 0.f)
 , x1bc_areaSaveId(aId1)
 , x1c0_layerIdx(aId2)
 , x1c4_item(itemType) {
   x1e4_26_sfx2Played = true;
   if (xe8_function == ESpecialFunction::HUDTarget)
-    x1c8_ = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
+    x1c8_touchBounds = {{zeus::CVector3f(-1.f), zeus::CVector3f(1.f)}};
 }
 
 void CScriptSpecialFunction::Accept(IVisitor& visitor) { visitor.Visit(this); }
@@ -375,9 +376,9 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
       break;
     }
     case ESpecialFunction::AreaDamage: {
-      if ((msg == EScriptObjectMessage::Deleted || msg == EScriptObjectMessage::Deactivate) && x1e4_31_) {
-        x1e4_31_ = false;
-        mgr.GetPlayer().DecrementPhazon();
+      if ((msg == EScriptObjectMessage::Deleted || msg == EScriptObjectMessage::Deactivate) && x1e4_31_inAreaDamage) {
+        x1e4_31_inAreaDamage = false;
+        mgr.GetPlayer().DecrementEnvironmentDamage();
         mgr.SetIsFullThreat(false);
       }
       break;
@@ -456,11 +457,50 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
   }
 }
 
-void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum&) {}
+void CScriptSpecialFunction::PreRender(CStateManager&, const zeus::CFrustum& frustum) {
+  if (xe8_function != ESpecialFunction::FogVolume && xe8_function != ESpecialFunction::ViewFrustumTester)
+    return;
+  if (!GetActive())
+    return;
 
-void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, const CStateManager&) const {}
+  bool val;
+  if (xe8_function == ESpecialFunction::FogVolume) {
+    val = frustum.aabbFrustumTest(zeus::CAABox(GetTranslation() - x10c_vector3f, GetTranslation() + x10c_vector3f));
+  } else {
+    val = frustum.pointFrustumTest(GetTranslation());
+  }
 
-void CScriptSpecialFunction::Render(const CStateManager&) const {}
+  if (x1e4_30_ == val)
+    return;
+  if (!val)
+    x1e4_29_frustumExited = true;
+  else
+    x1e4_28_frustumEntered = true;
+}
+
+void CScriptSpecialFunction::AddToRenderer(const zeus::CFrustum&, const CStateManager& mgr) const {
+  if (!GetActive())
+    return;
+
+  if (xe8_function == ESpecialFunction::FogVolume && x1e4_30_)
+    EnsureRendered(mgr);
+}
+
+void CScriptSpecialFunction::Render(const CStateManager& mgr) const {
+  if (xe8_function == ESpecialFunction::FogVolume) {
+    float z = mgr.IntegrateVisorFog(xfc_float1 * std::sin(CGraphics::GetSecondsMod900()));
+    if (z > 0.f) {
+      zeus::CVector3f max = GetTranslation() + x10c_vector3f;
+      max.z() += z;
+      zeus::CAABox box(GetTranslation() - x10c_vector3f, max);
+      zeus::CTransform modelMtx = zeus::CTransform::Translate(box.center()) * zeus::CTransform::Scale(box.extents());
+      g_Renderer->SetModelMatrix(modelMtx);
+      g_Renderer->RenderFogVolume(x118_color, zeus::CAABox(-1.f, 1.f), nullptr, nullptr);
+    }
+
+  } else
+    CActor::Render(mgr);
+}
 
 void CScriptSpecialFunction::SkipCinematic(CStateManager& stateMgr) {
   SendScriptMsgs(EScriptObjectState::Zero, stateMgr, EScriptObjectMessage::None);
@@ -511,8 +551,8 @@ void CScriptSpecialFunction::ThinkIntroBossRingController(float dt, CStateManage
   }
   case ERingState::Rotate: {
     x1ac_ringRotateTarget =
-      zeus::CQuaternion::fromAxisAngle(zeus::skUp,
-        zeus::degToRad(xfc_float1 * (x1b8_ringReverse ? 1.f : -1.f) * dt)).transform(x1ac_ringRotateTarget);
+        zeus::CQuaternion::fromAxisAngle(zeus::skUp, zeus::degToRad(xfc_float1 * (x1b8_ringReverse ? 1.f : -1.f) * dt))
+            .transform(x1ac_ringRotateTarget);
     bool allReachedTarget = true;
     for (auto& rc : x198_ringControllers) {
       if (TCastToPtr<CActor> act = mgr.ObjectById(rc.x0_id)) {
@@ -595,8 +635,8 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               if (angVel.canBeNormalized())
                 mag = angVel.magnitude();
 
-              float spinImpulse = (pl.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 0.025f * mag
-                                                                                                       : 0.f);
+              float spinImpulse =
+                  (pl.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed ? 0.025f * mag : 0.f);
               if (spinImpulse > x180_)
                 SendScriptMsgs(EScriptObjectState::Play, mgr, EScriptObjectMessage::None);
 
@@ -657,10 +697,6 @@ void CScriptSpecialFunction::ThinkSpinnerController(float dt, CStateManager& mgr
               x1e4_26_sfx2Played = false;
             (void)r23;
           }
-
-          auto average = x184_.GetAverage();
-          (void)average;
-          /* TODO Finish */
         }
       }
     }
@@ -671,8 +707,8 @@ void CScriptSpecialFunction::ThinkObjectFollowLocator(float, CStateManager& mgr)
   TUniqueId followerAct = kInvalidUniqueId;
   TUniqueId followedAct = kInvalidUniqueId;
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::Play || (conn.x4_msg != EScriptObjectMessage::Activate &&
-                                                      conn.x4_msg != EScriptObjectMessage::Deactivate))
+    if (conn.x0_state != EScriptObjectState::Play ||
+        (conn.x4_msg != EScriptObjectMessage::Activate && conn.x4_msg != EScriptObjectMessage::Deactivate))
       continue;
 
     auto search = mgr.GetIdListForScript(conn.x8_objId);
@@ -700,8 +736,8 @@ void CScriptSpecialFunction::ThinkObjectFollowObject(float, CStateManager& mgr) 
   TUniqueId followerAct = kInvalidUniqueId;
   TUniqueId followedAct = kInvalidUniqueId;
   for (const SConnection& conn : x20_conns) {
-    if (conn.x0_state != EScriptObjectState::Play || (conn.x4_msg != EScriptObjectMessage::Activate &&
-                                                      conn.x4_msg != EScriptObjectMessage::Deactivate))
+    if (conn.x0_state != EScriptObjectState::Play ||
+        (conn.x4_msg != EScriptObjectMessage::Activate && conn.x4_msg != EScriptObjectMessage::Deactivate))
       continue;
 
     auto search = mgr.GetIdListForScript(conn.x8_objId);
@@ -795,10 +831,43 @@ void CScriptSpecialFunction::ThinkRainSimulator(float, CStateManager& mgr) {
     SendScriptMsgs(EScriptObjectState::Zero, mgr, EScriptObjectMessage::None);
 }
 
-void CScriptSpecialFunction::ThinkAreaDamage(float, CStateManager& mgr) {
+void CScriptSpecialFunction::ThinkAreaDamage(float dt, CStateManager& mgr) {
   const auto& playerState = mgr.GetPlayerState();
-  const CPlayer& player = mgr.GetPlayer();
+  CPlayer& player = mgr.GetPlayer();
+  /* The following check is a URDE addition */
+  if (!playerState->CanTakeDamage()) {
+    /* Make sure we're not currently set to take damage, if so reset our state to be as if we're not */
+    if (x1e4_31_inAreaDamage) {
+      x1e4_31_inAreaDamage = false;
+      player.DecrementEnvironmentDamage();
+      SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
+      mgr.SetIsFullThreat(false);
+    }
+    return;
+  }
+  /* End URDE Addition */
 
+  if (!x1e4_31_inAreaDamage) {
+    if (mgr.GetPlayer().GetAreaIdAlways() != GetAreaIdAlways() ||
+        playerState->GetCurrentSuitRaw() != CPlayerState::EPlayerSuit::Power)
+      return;
+    x1e4_31_inAreaDamage = true;
+    player.IncrementEnvironmentDamage();
+    SendScriptMsgs(EScriptObjectState::Entered, mgr, EScriptObjectMessage::None);
+    mgr.SetIsFullThreat(true);
+  } else if (mgr.GetPlayer().GetAreaIdAlways() != GetAreaIdAlways() ||
+             playerState->GetCurrentSuitRaw() != CPlayerState::EPlayerSuit::Power) {
+    x1e4_31_inAreaDamage = false;
+    player.DecrementEnvironmentDamage();
+    SendScriptMsgs(EScriptObjectState::Exited, mgr, EScriptObjectMessage::None);
+    mgr.SetIsFullThreat(false);
+    return;
+  }
+
+  CDamageInfo dInfo(CWeaponMode(EWeaponType::Heat), xfc_float1 * dt, 0.f, 0.f);
+  dInfo.SetNoImmunity(true);
+  mgr.ApplyDamage(GetUniqueId(), player.GetUniqueId(), GetUniqueId(), dInfo,
+                  CMaterialFilter::MakeIncludeExclude({EMaterialTypes::Solid}, {}), {});
 }
 
 void CScriptSpecialFunction::ThinkPlayerInArea(float dt, CStateManager& mgr) {

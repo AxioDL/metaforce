@@ -46,6 +46,7 @@ public:
   virtual void DrawStaticGeometry(int areaIdx, int mask, int targetMask) = 0;
   virtual void DrawModelFlat(const CModel& model, const CModelFlags& flags, bool unsortedOnly) = 0;
   virtual void PostRenderFogs() = 0;
+  virtual void SetModelMatrix(const zeus::CTransform& xf) = 0;
   virtual void AddParticleGen(const CParticleGen&) = 0;
   virtual void AddParticleGen(const CParticleGen&, const zeus::CVector3f&, const zeus::CAABox&) = 0;
   virtual void AddPlaneObject(const void*, const zeus::CAABox&, const zeus::CPlane&, int) = 0;
