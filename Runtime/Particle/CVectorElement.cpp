@@ -5,7 +5,7 @@
 #include "zeus/Math.hpp"
 #include "CGenDescription.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Vector_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Vector_Elements */
 
 namespace urde {
 
@@ -25,7 +25,7 @@ CVEKeyframeEmitter::CVEKeyframeEmitter(CInputStream& in) {
 
 bool CVEKeyframeEmitter::GetValue(int frame, zeus::CVector3f& valOut) const {
   if (!x4_percent) {
-    int emitterTime = CParticleGlobals::g_EmitterTime;
+    int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
     if (xc_loop) {
       if (emitterTime >= x10_loopEnd) {
@@ -41,8 +41,8 @@ bool CVEKeyframeEmitter::GetValue(int frame, zeus::CVector3f& valOut) const {
     }
     valOut = x18_keys[calcKey];
   } else {
-    int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
-    float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
+    int ltPerc = CParticleGlobals::instance()->m_ParticleLifetimePercentage;
+    float ltPercRem = CParticleGlobals::instance()->m_ParticleLifetimePercentageRemainder;
     if (ltPerc == 100)
       valOut = x18_keys[100];
     else
@@ -255,27 +255,27 @@ bool CVEParticleLocation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const
 
 bool CVEParticleSystemOrientationFront::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
   zeus::CMatrix4f trans =
-      CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
+      CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
   valOut.assign(trans.m[0].y(), trans.m[1].y(), trans.m[2].y());
   return false;
 }
 
 bool CVEParticleSystemOrientationUp::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
   zeus::CMatrix4f trans =
-      CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
+      CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
   valOut.assign(trans.m[0].z(), trans.m[1].z(), trans.m[2].z());
   return false;
 }
 
 bool CVEParticleSystemOrientationRight::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
   zeus::CMatrix4f trans =
-      CParticleGlobals::g_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
+      CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetOrientation().toMatrix4f().transposed();
   valOut.assign(trans.m[0].x(), trans.m[1].x(), trans.m[2].x());
   return false;
 }
 
 bool CVEParticleSystemTranslation::GetValue(int /*frame*/, zeus::CVector3f& valOut) const {
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetTranslation();
+  valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetTranslation();
   return false;
 }
 

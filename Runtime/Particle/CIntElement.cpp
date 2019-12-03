@@ -7,7 +7,7 @@
 #include "Runtime/Particle/CGenDescription.hpp"
 #include "Runtime/Particle/CParticleGlobals.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Int_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Int_Elements */
 
 namespace urde {
 
@@ -27,7 +27,7 @@ CIEKeyframeEmitter::CIEKeyframeEmitter(CInputStream& in) {
 
 bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const {
   if (!x4_percent) {
-    int emitterTime = CParticleGlobals::g_EmitterTime;
+    int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
     if (xc_loop) {
       if (emitterTime >= x10_loopEnd) {
@@ -43,8 +43,8 @@ bool CIEKeyframeEmitter::GetValue(int frame, int& valOut) const {
     }
     valOut = x18_keys[calcKey];
   } else {
-    int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
-    float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
+    int ltPerc = CParticleGlobals::instance()->m_ParticleLifetimePercentage;
+    float ltPercRem = CParticleGlobals::instance()->m_ParticleLifetimePercentageRemainder;
     if (ltPerc == 100)
       valOut = x18_keys[100];
     else
@@ -131,7 +131,7 @@ bool CIELifetimePercent::GetValue(int frame, int& valOut) const {
   int a;
   x4_percentVal->GetValue(frame, a);
   a = std::max(0, a);
-  valOut = (a / 100.0f) * CParticleGlobals::g_ParticleLifetimeReal + 0.5f;
+  valOut = (a / 100.0f) * CParticleGlobals::instance()->m_ParticleLifetimeReal + 0.5f;
   return false;
 }
 
@@ -228,21 +228,21 @@ bool CIETimeScale::GetValue(int frame, int& valOut) const {
 int CIETimeScale::GetMaxValue() const { return 10000; /* Assume 10000 frames max (not ideal estimate) */ }
 
 bool CIEGetCumulativeParticleCount::GetValue(int frame, int& valOut) const {
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetCumulativeParticleCount();
+  valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetCumulativeParticleCount();
   return false;
 }
 
 int CIEGetCumulativeParticleCount::GetMaxValue() const { return 256; }
 
 bool CIEGetActiveParticleCount::GetValue(int frame, int& valOut) const {
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetParticleCount();
+  valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetParticleCount();
   return false;
 }
 
 int CIEGetActiveParticleCount::GetMaxValue() const { return 256; }
 
 bool CIEGetEmitterTime::GetValue(int frame, int& valOut) const {
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetEmitterTime();
+  valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetEmitterTime();
   return false;
 }
 

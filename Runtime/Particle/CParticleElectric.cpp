@@ -163,9 +163,9 @@ void CParticleElectric::UpdateElectricalEffects() {
       continue;
     }
 
-    CParticleGlobals::SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
+    CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
     int frame = x28_currentFrame - elec.x8_startFrame;
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(frame);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(frame);
 
     if (x450_27_haveSSWH) {
       CParticleSwoosh& swoosh = *x1e0_swooshGenerators[elec.x0_idx];
@@ -333,9 +333,9 @@ void CParticleElectric::CreateNewParticles(int count) {
 
         x3e8_electricManagers.push_back(CParticleElectricManager(allocIdx, lifetime, x28_currentFrame));
         CParticleElectricManager& elec = x3e8_electricManagers.back();
-        CParticleGlobals::SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
+        CParticleGlobals::instance()->SetParticleLifetime(elec.xc_endFrame - elec.x8_startFrame);
         int frame = x28_currentFrame - elec.x8_startFrame;
-        CParticleGlobals::UpdateParticleLifetimeTweenValues(frame);
+        CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(frame);
         CalculatePoints();
 
         if (x450_27_haveSSWH) {
@@ -515,7 +515,7 @@ bool CParticleElectric::Update(double dt) {
   }
 
   while (evalTime < x30_curTime) {
-    CParticleGlobals::SetEmitterTime(x28_currentFrame);
+    CParticleGlobals::instance()->SetEmitterTime(x28_currentFrame);
     UpdateElectricalEffects();
     if (emitting)
       AddElectricalEffects();

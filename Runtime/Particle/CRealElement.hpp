@@ -6,7 +6,7 @@
 #include "Runtime/GCNTypes.hpp"
 #include "Runtime/Particle/IElement.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Real_Elements */
 
 namespace urde {
 

@@ -229,9 +229,9 @@ CElementGen::~CElementGen() {
 }
 
 bool CElementGen::Update(double t) {
-  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
-  CParticleGlobals::g_currentParticleSystem = &thisSystem;
+  CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
   CGenDescription* desc = x1c_genDesc.GetObj();
   CIntElement* pswtElem = desc->x10_x4_PSWT.get();
   if (pswtElem && !x26d_25_warmedUp) {
@@ -242,7 +242,7 @@ bool CElementGen::Update(double t) {
     x26d_25_warmedUp = true;
   }
   bool ret = InternalUpdate(t);
-  CParticleGlobals::g_currentParticleSystem = prevSystem;
+  CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
   return ret;
 }
 
@@ -254,7 +254,7 @@ bool CElementGen::InternalUpdate(double dt) {
   if (std::fabs(dt - 1.0 / 60.0) >= 1.0 / 60000.0)
     dt1 = dt;
   double t = x74_curFrame / 60.0;
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
 
   if (CRealElement* pstsElem = desc->x14_x8_PSTS.get()) {
     float psts;
@@ -276,9 +276,9 @@ bool CElementGen::InternalUpdate(double dt) {
     x2d4_aabbMin.splat(FLT_MAX);
     x2e0_aabbMax.splat(-FLT_MAX);
     x2ec_maxSize = 0.f;
-    CParticleGlobals::SetEmitterTime(x74_curFrame);
+    CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
     UpdateExistingParticles();
-    CParticleGlobals::SetParticleLifetime(x268_PSLT);
+    CParticleGlobals::instance()->SetParticleLifetime(x268_PSLT);
 
     if (x74_curFrame < x268_PSLT && x88_particleEmission) {
       float grte = 0.f;
@@ -338,14 +338,14 @@ void CElementGen::AccumulateBounds(const zeus::CVector3f& pos, float size) {
 
 void CElementGen::UpdateAdvanceAccessParameters(u32 activeParticleCount, u32 particleFrame) {
   if (activeParticleCount >= x60_advValues.size()) {
-    CParticleGlobals::g_particleAccessParameters = nullptr;
+    CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
     return;
   }
 
   CGenDescription* desc = x1c_genDesc.GetObj();
 
   std::array<float, 8>& arr = x60_advValues[activeParticleCount];
-  CParticleGlobals::g_particleAccessParameters = &arr;
+  CParticleGlobals::instance()->m_particleAccessParameters = &arr;
 
   if (CRealElement* adv1 = desc->x10c_ADV1.get())
     adv1->GetValue(particleFrame, arr[0]);
@@ -389,11 +389,11 @@ void CElementGen::UpdateExistingParticles() {
   CGenDescription* desc = x1c_genDesc.GetObj();
 
   x25c_activeParticleCount = 0;
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
   if (x25c_activeParticleCount < x60_advValues.size())
-    CParticleGlobals::g_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
+    CParticleGlobals::instance()->m_particleAccessParameters = &x60_advValues[x25c_activeParticleCount];
   else
-    CParticleGlobals::g_particleAccessParameters = nullptr;
+    CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
   for (auto it = x30_particles.begin(); it != x30_particles.end();) {
     CParticle& particle = *it;
@@ -423,9 +423,9 @@ void CElementGen::UpdateExistingParticles() {
 
     g_currentParticle = &particle;
 
-    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+    CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
     int particleFrame = x74_curFrame - particle.x28_startFrame;
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(particleFrame);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(particleFrame);
 
     if (x26d_28_enableADV)
       UpdateAdvanceAccessParameters(x25c_activeParticleCount, particleFrame);
@@ -484,7 +484,7 @@ void CElementGen::CreateNewParticles(int count) {
   if (x26d_28_enableADV && x60_advValues.empty())
     x60_advValues.resize(m_maxMAXP);
 
-  CParticleGlobals::g_particleAccessParameters = nullptr;
+  CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
 
   for (int i = 0; i < count; ++i) {
     x30_particles.emplace_back();
@@ -498,8 +498,8 @@ void CElementGen::CreateNewParticles(int count) {
     particle.x28_startFrame = x74_curFrame;
     if (CIntElement* ltme = desc->x34_x28_LTME.get())
       ltme->GetValue(0, particle.x0_endFrame);
-    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame);
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
+    CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(0);
     g_currentParticle = &particle;
     if (x26d_28_enableADV)
       UpdateAdvanceAccessParameters(x30_particles.size() - 1, 0);
@@ -744,12 +744,12 @@ void CElementGen::EndLifetime() {
 }
 
 void CElementGen::ForceParticleCreation(int amount) {
-  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
-  CParticleGlobals::g_currentParticleSystem = &thisSystem;
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
+  CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
   CreateNewParticles(amount);
-  CParticleGlobals::g_currentParticleSystem = prevSystem;
+  CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 }
 
 void CElementGen::BuildParticleSystemBounds() {
@@ -803,9 +803,9 @@ void CElementGen::Render(const CActorLights* actorLights) {
   for (std::unique_ptr<CParticleGen>& child : x290_activePartChildren)
     child->Render(actorLights);
 
-  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::g_currentParticleSystem;
+  CParticleGlobals::SParticleSystem* prevSystem = CParticleGlobals::instance()->m_currentParticleSystem;
   CParticleGlobals::SParticleSystem thisSystem{FOURCC('PART'), this};
-  CParticleGlobals::g_currentParticleSystem = &thisSystem;
+  CParticleGlobals::instance()->m_currentParticleSystem = &thisSystem;
 
   if (x30_particles.size()) {
     SParticleModel& pmdl = desc->x5c_x48_PMDL;
@@ -818,7 +818,7 @@ void CElementGen::Render(const CActorLights* actorLights) {
       RenderParticles();
   }
 
-  CParticleGlobals::g_currentParticleSystem = prevSystem;
+  CParticleGlobals::instance()->m_currentParticleSystem = prevSystem;
 }
 
 void CElementGen::RenderModels(const CActorLights* actorLights) {
@@ -913,7 +913,7 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
   }
   rot = orient * rot;
 
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
   zeus::CColor col = {1.f, 1.f, 1.f, 1.f};
 
   zeus::CVector3f pmopVec;
@@ -927,13 +927,13 @@ void CElementGen::RenderModels(const CActorLights* actorLights) {
         ++matrixIt;
       continue;
     }
-    CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+    CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
     int partFrame = x74_curFrame - particle.x28_startFrame - 1;
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
     if (i < x60_advValues.size())
-      CParticleGlobals::g_particleAccessParameters = &x60_advValues[i];
+      CParticleGlobals::instance()->m_particleAccessParameters = &x60_advValues[i];
     else
-      CParticleGlobals::g_particleAccessParameters = nullptr;
+      CParticleGlobals::instance()->m_particleAccessParameters = nullptr;
     CVectorElement* pmop = desc->x6c_x58_PMOP.get();
     if (pmop)
       pmop->GetValue(partFrame, pmopVec);
@@ -1251,7 +1251,7 @@ void CElementGen::RenderParticles() {
 
   int mbspVal = std::max(1, x270_MBSP);
 
-  CParticleGlobals::SetEmitterTime(x74_curFrame);
+  CParticleGlobals::instance()->SetEmitterTime(x74_curFrame);
   if (!x26c_30_MBLR) {
 #if 0
         if (!desc->x44_28_x30_28_SORT && constUVs && !x26c_29_ORNT)
@@ -1310,8 +1310,8 @@ void CElementGen::RenderParticles() {
                       ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
 
         if (!constUVs) {
-          CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-          CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+          CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+          CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
           texr->GetValueUV(partFrame, uvs);
         }
 
@@ -1422,8 +1422,8 @@ void CElementGen::RenderParticles() {
         }
 
         if (!constUVs) {
-          CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-          CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+          CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+          CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
           texr->GetValueUV(partFrame, uvs);
         }
 
@@ -1497,8 +1497,8 @@ void CElementGen::RenderParticles() {
       int partFrame = x74_curFrame - particle.x28_startFrame - 1;
 
       if (!constUVs) {
-        CParticleGlobals::SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
-        CParticleGlobals::UpdateParticleLifetimeTweenValues(partFrame);
+        CParticleGlobals::instance()->SetParticleLifetime(particle.x0_endFrame - particle.x28_startFrame);
+        CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(partFrame);
         texr->GetValueUV(partFrame, uvs);
       }
 
@@ -1669,7 +1669,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     CParticle& particle = x30_particles[partIdx];
     g_currentParticle = &particle;
 
-    int partFrame = x74_curFrame - particle.x28_startFrame;
+    int thisPartFrame = x74_curFrame - particle.x28_startFrame;
     zeus::CVector3f viewPoint;
     if (desc->x44_28_x30_28_SORT)
       viewPoint = sortItems[i].x4_viewPoint;
@@ -1678,7 +1678,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
           systemCameraMatrix * ((particle.x4_pos - particle.x10_prevPos) * x80_timeDeltaScale + particle.x10_prevPos);
 
     if (!constTexr) {
-      CTexture* tex = texr->GetValueTexture(partFrame).GetObj();
+      CTexture* tex = texr->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedTex) {
         tex->Load(0, CTexture::EClampMode::One);
         cachedTex = tex;
@@ -1686,7 +1686,7 @@ void CElementGen::RenderParticlesIndirectTexture() {
     }
 
     if (!constIndTexr) {
-      CTexture* tex = tind->GetValueTexture(partFrame).GetObj();
+      CTexture* tex = tind->GetValueTexture(thisPartFrame).GetObj();
       if (tex != cachedIndTex) {
         tex->Load(2, CTexture::EClampMode::One);
         cachedIndTex = tex;
@@ -1694,10 +1694,10 @@ void CElementGen::RenderParticlesIndirectTexture() {
     }
 
     if (!constUVs)
-      texr->GetValueUV(partFrame, uvs);
+      texr->GetValueUV(thisPartFrame, uvs);
 
     if (!constIndUVs)
-      tind->GetValueUV(partFrame, uvsInd);
+      tind->GetValueUV(thisPartFrame, uvsInd);
 
     float size = 0.5f * particle.x2c_lineLengthOrSize;
     zeus::CVector3f p1 = {viewPoint.x() - size, viewPoint.y(), viewPoint.z() - size};

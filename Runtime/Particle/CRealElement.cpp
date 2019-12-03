@@ -6,7 +6,7 @@
 #include "zeus/Math.hpp"
 #include "CGenDescription.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Real_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Real_Elements */
 
 namespace urde {
 
@@ -26,7 +26,7 @@ CREKeyframeEmitter::CREKeyframeEmitter(CInputStream& in) {
 
 bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const {
   if (!x4_percent) {
-    int emitterTime = CParticleGlobals::g_EmitterTime;
+    int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
     if (xc_loop) {
       if (emitterTime >= x10_loopEnd) {
@@ -42,8 +42,8 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const {
     }
     valOut = x18_keys[calcKey];
   } else {
-    int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
-    float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
+    int ltPerc = CParticleGlobals::instance()->m_ParticleLifetimePercentage;
+    float ltPercRem = CParticleGlobals::instance()->m_ParticleLifetimePercentageRemainder;
     if (ltPerc == 100)
       valOut = x18_keys[100];
     else
@@ -53,7 +53,7 @@ bool CREKeyframeEmitter::GetValue(int frame, float& valOut) const {
 }
 
 bool CRELifetimeTween::GetValue(int frame, float& valOut) const {
-  float ltFac = frame / CParticleGlobals::g_ParticleLifetimeReal;
+  float ltFac = frame / CParticleGlobals::instance()->instance()->m_ParticleLifetimeReal;
   float a, b;
   x4_a->GetValue(frame, a);
   x8_b->GetValue(frame, b);
@@ -160,7 +160,7 @@ bool CRELifetimePercent::GetValue(int frame, float& valOut) const {
   float a;
   x4_percentVal->GetValue(frame, a);
   a = std::max(0.0f, a);
-  valOut = (a / 100.0f) * CParticleGlobals::g_ParticleLifetimeReal;
+  valOut = (a / 100.0f) * CParticleGlobals::instance()->m_ParticleLifetimeReal;
   return false;
 }
 
@@ -204,42 +204,42 @@ bool CRECompareEquals::GetValue(int frame, float& valOut) const {
 }
 
 bool CREParticleAccessParam1::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[0];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[0];
   return false;
 }
 
 bool CREParticleAccessParam2::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[1];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[1];
   return false;
 }
 
 bool CREParticleAccessParam3::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[2];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[2];
   return false;
 }
 
 bool CREParticleAccessParam4::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[3];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[3];
   return false;
 }
 
 bool CREParticleAccessParam5::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[4];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[4];
   return false;
 }
 
 bool CREParticleAccessParam6::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[5];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[5];
   return false;
 }
 
 bool CREParticleAccessParam7::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[6];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[6];
   return false;
 }
 
 bool CREParticleAccessParam8::GetValue(int /*frame*/, float& valOut) const {
-  valOut = (*CParticleGlobals::g_particleAccessParameters)[7];
+  valOut = (*CParticleGlobals::instance()->m_particleAccessParameters)[7];
   return false;
 }
 
@@ -293,7 +293,7 @@ bool CREExternalVar::GetValue(int frame, float& valOut) const {
   int a;
   x4_a->GetValue(frame, a);
   int cv = std::max(0, a);
-  valOut = CParticleGlobals::g_currentParticleSystem->x4_system->GetExternalVar(cv & 0xf);
+  valOut = CParticleGlobals::instance()->m_currentParticleSystem->x4_system->GetExternalVar(cv & 0xf);
   return false;
 }
 

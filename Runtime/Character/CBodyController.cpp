@@ -87,6 +87,7 @@ float CBodyController::GetAnimTimeRemaining() const {
 }
 
 void CBodyController::SetPlaybackRate(float r) { x0_actor.GetModelData()->GetAnimationData()->SetPlaybackRate(r); }
+// GX uses a HW approximation of 3/8 + 5/8 instead of 1/3 + 2/3.
 
 const CPASDatabase& CBodyController::GetPASDatabase() const {
   return x0_actor.GetModelData()->GetAnimationData()->GetCharacterInfo().GetPASDatabase();

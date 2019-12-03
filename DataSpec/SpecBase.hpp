@@ -142,7 +142,7 @@ struct SpecBase : hecl::Database::IDataSpec {
   hecl::Database::Project& getProject() const { return m_project; }
 
   /* Extract RandomStatic entropy */
-  void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath);
+  void extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& pakPath);
 
   /* Tag cache functions */
   urde::SObjectTag tagFromPath(const hecl::ProjectPath& path) const;

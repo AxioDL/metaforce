@@ -13,40 +13,49 @@
 namespace urde {
 class CElementGen;
 class CParticleGlobals {
+  CParticleGlobals()=default;
+  static std::unique_ptr<CParticleGlobals> g_ParticleGlobals;
 public:
-  static int g_EmitterTime;
-  static float g_EmitterTimeReal;
-  static void SetEmitterTime(int frame) {
-    g_EmitterTime = frame;
-    g_EmitterTimeReal = frame;
+  int m_EmitterTime = 0;
+  float m_EmitterTimeReal = 0.f;
+  void SetEmitterTime(int frame) {
+    m_EmitterTime = frame;
+    m_EmitterTimeReal = frame;
   }
 
-  static int g_ParticleLifetime;
-  static float g_ParticleLifetimeReal;
-  static void SetParticleLifetime(int frame) {
-    g_ParticleLifetime = frame;
-    g_ParticleLifetimeReal = frame;
+  int m_ParticleLifetime = 0;
+  float m_ParticleLifetimeReal = 0.f;
+  void SetParticleLifetime(int frame) {
+    m_ParticleLifetime = frame;
+    m_ParticleLifetimeReal = frame;
   }
 
-  static int g_ParticleLifetimePercentage;
-  static float g_ParticleLifetimePercentageReal;
-  static float g_ParticleLifetimePercentageRemainder;
-  static void UpdateParticleLifetimeTweenValues(int frame) {
-    float lt = g_ParticleLifetime != 0.0f ? g_ParticleLifetime : 1.0f;
-    g_ParticleLifetimePercentageReal = 100.0f * frame / lt;
-    g_ParticleLifetimePercentage = int(g_ParticleLifetimePercentageReal);
-    g_ParticleLifetimePercentageRemainder = g_ParticleLifetimePercentageReal - g_ParticleLifetimePercentage;
-    g_ParticleLifetimePercentage = zeus::clamp(0, g_ParticleLifetimePercentage, 100);
+   int m_ParticleLifetimePercentage = 0;
+   float m_ParticleLifetimePercentageReal = 0.f;
+   float m_ParticleLifetimePercentageRemainder = 0.f;
+   void UpdateParticleLifetimeTweenValues(int frame) {
+    float lt = m_ParticleLifetime != 0.0f ? m_ParticleLifetime : 1.0f;
+    m_ParticleLifetimePercentageReal = 100.0f * frame / lt;
+    m_ParticleLifetimePercentage = int(m_ParticleLifetimePercentageReal);
+    m_ParticleLifetimePercentageRemainder = m_ParticleLifetimePercentageReal - m_ParticleLifetimePercentage;
+    m_ParticleLifetimePercentage = zeus::clamp(0, m_ParticleLifetimePercentage, 100);
   }
 
-  static const std::array<float, 8>* g_particleAccessParameters;
+  const std::array<float, 8>* m_particleAccessParameters = nullptr;
 
   struct SParticleSystem {
     FourCC x0_type;
     CElementGen* x4_system;
   };
 
-  static SParticleSystem* g_currentParticleSystem;
+  SParticleSystem* m_currentParticleSystem;
+
+  static CParticleGlobals* instance() {
+    if (!g_ParticleGlobals)
+      g_ParticleGlobals.reset(new CParticleGlobals());
+
+    return g_ParticleGlobals.get();
+  }
 };
 
 struct SParticleInstanceTex {

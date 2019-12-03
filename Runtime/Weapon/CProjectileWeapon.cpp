@@ -408,9 +408,9 @@ void CProjectileWeapon::Update(float dt) {
 
   while (actualTime < xd0_curTime && !zeus::close_enough(actualTime, xd0_curTime)) {
     if (xf4_curFrame < xe8_lifetime) {
-      CParticleGlobals::SetEmitterTime(xf4_curFrame);
-      CParticleGlobals::SetParticleLifetime(xe8_lifetime);
-      CParticleGlobals::UpdateParticleLifetimeTweenValues(xf4_curFrame);
+      CParticleGlobals::instance()->SetEmitterTime(xf4_curFrame);
+      CParticleGlobals::instance()->SetParticleLifetime(xe8_lifetime);
+      CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(xf4_curFrame);
       UpdatePSTranslationAndOrientation();
     }
     actualTime += (1.0 / 60.0);

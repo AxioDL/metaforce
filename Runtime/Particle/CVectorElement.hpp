@@ -8,7 +8,7 @@
 
 #include <zeus/CVector3f.hpp>
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Vector_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Vector_Elements */
 
 namespace urde {
 

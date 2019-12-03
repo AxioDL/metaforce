@@ -110,8 +110,8 @@ void CParticleSwoosh::UpdateTranslationAndOrientation() {
   x208_maxRadius = 0.f;
   x1f0_aabbMin = zeus::CVector3f(FLT_MAX);
   x1fc_aabbMax = zeus::CVector3f(-FLT_MAX);
-  CParticleGlobals::SetParticleLifetime(x1b4_LENG);
-  CParticleGlobals::SetEmitterTime(x28_curFrame);
+  CParticleGlobals::instance()->SetParticleLifetime(x1b4_LENG);
+  CParticleGlobals::instance()->SetEmitterTime(x28_curFrame);
 
   for (int i = 0; i < x15c_swooshes.size(); ++i) {
     SSwooshData& swoosh = x15c_swooshes[i];
@@ -119,7 +119,7 @@ void CParticleSwoosh::UpdateTranslationAndOrientation() {
       continue;
 
     swoosh.x68_frame = x28_curFrame - swoosh.x70_startFrame;
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(swoosh.x68_frame);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(swoosh.x68_frame);
     if (x1c_desc->x44_28_SROT) {
       if (CRealElement* irot = x1c_desc->x1c_IROT.get())
         irot->GetValue(x28_curFrame, swoosh.x30_irot);
@@ -187,9 +187,9 @@ bool CParticleSwoosh::Update(double dt) {
   if (!IsValid())
     return false;
 
-  CParticleGlobals::SetParticleLifetime(x1b4_LENG);
-  CParticleGlobals::SetEmitterTime(x28_curFrame);
-  CParticleGlobals::UpdateParticleLifetimeTweenValues(0);
+  CParticleGlobals::instance()->SetParticleLifetime(x1b4_LENG);
+  CParticleGlobals::instance()->SetEmitterTime(x28_curFrame);
+  CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(0);
   CGlobalRandom gr(x1c0_rand);
 
   double evalTime = x28_curFrame / 60.0;
@@ -393,7 +393,7 @@ void CParticleSwoosh::RenderNSidedSpline() {
           otherK = 0;
         zeus::CColor color = refSwoosh.x6c_color * x20c_moduColor;
         if (cros) {
-          int otherK = k + x1b8_SIDE / 2;
+          otherK = k + x1b8_SIDE / 2;
           zeus::CVector3f v0 = GetSplinePoint(x16c_p0[k], x17c_p1[k], x18c_p2[k], x19c_p3[k], t0);
           zeus::CVector3f v1 = GetSplinePoint(x16c_p0[otherK], x17c_p1[otherK], x18c_p2[otherK], x19c_p3[otherK], t0);
           zeus::CVector3f v2 = GetSplinePoint(x16c_p0[otherK], x17c_p1[otherK], x18c_p2[otherK], x19c_p3[otherK], t1);
@@ -877,7 +877,7 @@ void CParticleSwoosh::Render(const CActorLights*) {
   if (m_dataBind[0])
     CGraphics::SetShaderDataBinding(m_dataBind[g_Renderer->IsThermalVisorHotPass()]);
 
-  CParticleGlobals::SetParticleLifetime(x1b4_LENG);
+  CParticleGlobals::instance()->SetParticleLifetime(x1b4_LENG);
   CGlobalRandom gr(x1c0_rand);
   CGraphics::DisableAllLights();
   // Z-test, Z-update if x45_24_ZBUF
@@ -985,10 +985,7 @@ bool CParticleSwoosh::IsSystemDeletable() const {
   if (x1d0_24_emitting && x28_curFrame < x2c_PSLT)
     return false;
 
-  if (GetParticleCount() >= 2)
-    return false;
-
-  return true;
+  return GetParticleCount() < 2;
 }
 
 std::optional<zeus::CAABox> CParticleSwoosh::GetBounds() const {

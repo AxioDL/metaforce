@@ -3,7 +3,7 @@
 #include "CRandom16.hpp"
 #include "zeus/Math.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Mod_Vector_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Mod_Vector_Elements */
 
 namespace urde {
 

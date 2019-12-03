@@ -1,6 +1,6 @@
 #include "CUVElement.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#UV_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#UV_Elements */
 
 namespace urde {
 

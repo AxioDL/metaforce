@@ -12,7 +12,7 @@
 #include "Runtime/Particle/CUVElement.hpp"
 #include "Runtime/Particle/CVectorElement.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/PART_(File_Format) */
+/* Documentation at: https://wiki.axiodl.com/w/PART_(File_Format) */
 
 namespace urde {
 

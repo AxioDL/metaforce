@@ -704,9 +704,10 @@ constexpr uint8_t Convert4To8(uint8_t v) {
   return (v << 4) | v;
 }
 
-void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& noAramPath) {
-  hecl::ProjectPath entropyPath(noAramPath, _SYS_STR("RandomStaticEntropy.png"));
-  hecl::ProjectPath catalogPath(noAramPath, _SYS_STR("!catalog.yaml"));
+void SpecBase::extractRandomStaticEntropy(const uint8_t* buf, const hecl::ProjectPath& pakPath) {
+  hecl::ProjectPath entropyPath(pakPath, _SYS_STR("RandomStaticEntropy.png"));
+  hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+  entropyPath.makeDirChain(false);
 
   if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
     fmt::print(fp.get(), fmt("RandomStaticEntropy: {}\n"), entropyPath.getRelativePathUTF8());

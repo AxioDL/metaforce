@@ -708,7 +708,7 @@ ROOT_SHADER_GROUPS = (
 )
 
 # UV animation nodes:
-# http://www.metroid2002.com/retromodding/wiki/Materials_(Metroid_Prime)#UV_Animations
+# https://wiki.axiodl.com/w/Materials_(Metroid_Prime)#UV_Animations
 
 # 0 - Modelview Inverse (zero translation)
 def make_uva0():
@@ -1179,7 +1179,7 @@ UV_ANIMATION_GROUPS = (
 )
 
 # MP3 / DKCR Material Passes:
-# http://www.metroid2002.com/retromodding/wiki/Materials_(Metroid_Prime_3)
+# https://wiki.axiodl.com/w/Materials_(Metroid_Prime_3)
 
 # Lightmap
 def make_pass_diff():

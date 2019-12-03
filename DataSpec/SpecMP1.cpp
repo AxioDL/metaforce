@@ -63,7 +63,14 @@ extern hecl::Database::DataSpecEntry SpecEntMP1PC;
 extern hecl::Database::DataSpecEntry SpecEntMP1ORIG;
 
 struct TextureCache {
-  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project) {
+  static void Generate(PAKRouter<DNAMP1::PAKBridge>& pakRouter, hecl::Database::Project& project, const hecl::ProjectPath& pakPath) {
+    hecl::ProjectPath texturePath(pakPath, _SYS_STR("texture_cache.yaml"));
+    hecl::ProjectPath catalogPath(pakPath, _SYS_STR("!catalog.yaml"));
+
+    if (const auto fp = hecl::FopenUnique(catalogPath.getAbsolutePath().data(), _SYS_STR("a"))) {
+      fmt::print(fp.get(), fmt("TextureCache: {}\n"), texturePath.getRelativePathUTF8());
+    }
+
     Log.report(logvisor::Level::Info, fmt("Gathering Texture metadata (this can take up to 10 seconds)..."));
     std::unordered_map<UniqueID32, TXTR::Meta> metaMap;
 
@@ -82,9 +89,7 @@ struct TextureCache {
       pair.second.write(yamlW);
     }
 
-    hecl::ProjectPath path(project.getProjectWorkingPath(), "MP1/!texture_cache.yaml");
-    path.makeDirChain(false);
-    athena::io::FileWriter fileW(path.getAbsolutePath());
+    athena::io::FileWriter fileW(texturePath.getAbsolutePath());
     yamlW.finish(&fileW);
     Log.report(logvisor::Level::Info, fmt("Done..."));
   }
@@ -367,11 +372,11 @@ struct SpecMP1 : SpecBase {
     process.waitUntilComplete();
 
     /* Extract part of .dol for RandomStatic entropy */
-    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP1/NoARAM"));
+    hecl::ProjectPath noAramPath(m_project.getProjectWorkingPath(), _SYS_STR("MP1/URDE"));
     extractRandomStaticEntropy(m_dolBuf.get() + 0x4f60, noAramPath);
 
     /* Generate Texture Cache containing meta data for every texture file */
-    TextureCache::Generate(m_pakRouter, m_project);
+    TextureCache::Generate(m_pakRouter, m_project, noAramPath);
 
     return true;
   }

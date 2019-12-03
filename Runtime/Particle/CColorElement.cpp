@@ -5,7 +5,7 @@
 #include "zeus/Math.hpp"
 #include "CGenDescription.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Color_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Color_Elements */
 
 namespace urde {
 
@@ -25,7 +25,7 @@ CCEKeyframeEmitter::CCEKeyframeEmitter(CInputStream& in) {
 
 bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const {
   if (!x4_percent) {
-    int emitterTime = CParticleGlobals::g_EmitterTime;
+    int emitterTime = CParticleGlobals::instance()->m_EmitterTime;
     int calcKey = emitterTime;
     if (xc_loop) {
       if (emitterTime >= x10_loopEnd) {
@@ -41,8 +41,8 @@ bool CCEKeyframeEmitter::GetValue(int frame, zeus::CColor& valOut) const {
     }
     valOut = x18_keys[calcKey];
   } else {
-    int ltPerc = CParticleGlobals::g_ParticleLifetimePercentage;
-    float ltPercRem = CParticleGlobals::g_ParticleLifetimePercentageRemainder;
+    int ltPerc = CParticleGlobals::instance()->m_ParticleLifetimePercentage;
+    float ltPercRem = CParticleGlobals::instance()->m_ParticleLifetimePercentageRemainder;
     if (ltPerc == 100)
       valOut = x18_keys[100];
     else

@@ -1,7 +1,7 @@
 #include "CEmitterElement.hpp"
 #include "CRandom16.hpp"
 
-/* Documentation at: http://www.metroid2002.com/retromodding/wiki/Particle_Script#Emitter_Elements */
+/* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Emitter_Elements */
 
 namespace urde {
 

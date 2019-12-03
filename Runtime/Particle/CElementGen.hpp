@@ -187,7 +187,7 @@ public:
   void EndLifetime();
   void ForceParticleCreation(int amount);
   float GetExternalVar(int i) const { return x9c_externalVars[i]; }
-  void SetCEXTValue(int i, float v) { x9c_externalVars[i] = v; }
+  void SetExternalVar(int i, float v) { x9c_externalVars[i] = v; }
 
   bool InternalUpdate(double);
   void RenderModels(const CActorLights* actLights);

@@ -239,22 +239,22 @@ void CDecal::Render() const {
     return;
 
   CGraphics::DisableAllLights();
-  CParticleGlobals::SetEmitterTime(x58_frameIdx);
+  CParticleGlobals::instance()->SetEmitterTime(x58_frameIdx);
 
   const CDecalDescription& desc = *x0_description;
   if (desc.x0_Quads[0].x14_TEX && !x5c_31_quad1Invalid) {
-    CParticleGlobals::SetParticleLifetime(x3c_decalQuads[0].x4_lifetime);
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(x58_frameIdx);
+    CParticleGlobals::instance()->SetParticleLifetime(x3c_decalQuads[0].x4_lifetime);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(x58_frameIdx);
     RenderQuad(const_cast<CQuadDecal&>(x3c_decalQuads[0]), desc.x0_Quads[0]);
   }
   if (desc.x0_Quads[1].x14_TEX && !x5c_30_quad2Invalid) {
-    CParticleGlobals::SetParticleLifetime(x3c_decalQuads[1].x4_lifetime);
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(x58_frameIdx);
+    CParticleGlobals::instance()->SetParticleLifetime(x3c_decalQuads[1].x4_lifetime);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(x58_frameIdx);
     RenderQuad(const_cast<CQuadDecal&>(x3c_decalQuads[1]), desc.x0_Quads[1]);
   }
   if (desc.x38_DMDL && !x5c_29_modelInvalid) {
-    CParticleGlobals::SetParticleLifetime(x54_modelLifetime);
-    CParticleGlobals::UpdateParticleLifetimeTweenValues(x58_frameIdx);
+    CParticleGlobals::instance()->SetParticleLifetime(x54_modelLifetime);
+    CParticleGlobals::instance()->UpdateParticleLifetimeTweenValues(x58_frameIdx);
     RenderMdl();
   }
 }
