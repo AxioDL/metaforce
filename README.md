@@ -41,8 +41,13 @@ cd urde-build
 
 ```sh
 cmake -DCMAKE_BUILD_TYPE=Debug ../urde
-make
+make -j$(nproc)
 ```
+
+CMake options:
+- Build release optimized (better runtime performance): `-DCMAKE_BUILD_TYPE=Release`
+- Use clang+lld (faster linking): `-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++`
+- Optimize for current CPU (resulting binaries are not portable): `-DURDE_VECTOR_ISA=native`
 
 #### Qt Creator
 *(main development / debugging IDE)*
