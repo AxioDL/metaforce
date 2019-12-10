@@ -716,11 +716,11 @@ def make_uva0():
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-100, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (1000, 0)
@@ -736,11 +736,9 @@ def make_uva0():
     uv_scale = new_grp.nodes.new('ShaderNodeMapping')
     uv_scale.location = (400, -400)
     uv_scale.vector_type = 'TEXTURE'
-    uv_scale.scale[0] = 2.0
-    uv_scale.scale[1] = 2.0
-    uv_scale.translation[0] = 1.0
-    uv_scale.translation[1] = 1.0
-    
+    uv_scale.inputs['Scale'].default_value = (2.0, 2.0, 0.0)
+    uv_scale.inputs['Location'].default_value = (1.0, 1.0, 0.0)
+
     # Links
     new_grp.links.new(grp_in.outputs[0], vec_xf.inputs[0])
     new_grp.links.new(vec_xf.outputs[0], uv_scale.inputs[0])
@@ -760,7 +758,7 @@ def make_uva1():
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (500, 0)
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
 
@@ -772,11 +770,11 @@ def make_uva2():
     new_grp.inputs.new('NodeSocketVector', 'Scale')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-457, 22)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (500, 0)
@@ -784,20 +782,19 @@ def make_uva2():
     # Mapping
     mapping = new_grp.nodes.new('ShaderNodeMapping')
     mapping.location = (-235, 125)
-    drvs = mapping.driver_add('scale')
-    for drv in drvs:
+    for drv in mapping.inputs['Scale'].driver_add('default_value'):
         drv.driver.expression = 'frame/60'
-    
+
     # Adder1
     adder1 = new_grp.nodes.new('ShaderNodeVectorMath')
     adder1.operation = 'ADD'
     adder1.location = (100, 0)
-    
+
     # Adder2
     adder2 = new_grp.nodes.new('ShaderNodeVectorMath')
     adder2.operation = 'ADD'
     adder2.location = (100, 200)
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], adder2.inputs[0])
     new_grp.links.new(grp_in.outputs[1], adder1.inputs[0])
@@ -814,15 +811,15 @@ def make_uva3():
     new_grp.inputs.new('NodeSocketFloat', 'Scale')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-100, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (700, 0)
-    
+
     # Adder1
     add1 = new_grp.nodes.new('ShaderNodeMath')
     add1.operation = 'ADD'
@@ -834,7 +831,7 @@ def make_uva3():
     mult.location = (230, -112)
     drv = mult.inputs[1].driver_add('default_value')
     drv.driver.expression = 'frame/60'
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], grp_out.inputs[0])
     new_grp.links.new(grp_in.outputs[1], add1.inputs[0])
@@ -851,46 +848,46 @@ def make_uva4():
     new_grp.inputs.new('NodeSocketFloat', 'Offset')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-1000, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (800, 0)
-    
+
     # Multiply1
     mult1 = new_grp.nodes.new('ShaderNodeMath')
     mult1.operation = 'MULTIPLY'
     mult1.location = (-800, 0)
-    
+
     # Multiply2
     mult2 = new_grp.nodes.new('ShaderNodeMath')
     mult2.operation = 'MULTIPLY'
     mult2.location = (-600, 0)
-    
+
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
     mod1.inputs[1].default_value = 1.0
     mod1.location = (-400, 0)
-    
+
     # Multiply3
     mult3 = new_grp.nodes.new('ShaderNodeMath')
     mult3.operation = 'MULTIPLY'
     mult3.location = (-200, 0)
-    
+
     # Multiply4
     mult4 = new_grp.nodes.new('ShaderNodeMath')
     mult4.operation = 'MULTIPLY'
     mult4.location = (0, 0)
-    
+
     # Mapping
     map1 = new_grp.nodes.new('ShaderNodeMapping')
-    map1.scale = (1.0, 0.0, 0.0)
+    map1.inputs['Scale'].default_value = (1.0, 0.0, 0.0)
     map1.location = (200, 0)
-    
+
     # Add
     add1 = new_grp.nodes.new('ShaderNodeVectorMath')
     add1.operation = 'ADD'
@@ -908,7 +905,7 @@ def make_uva4():
     floor.operation = 'FLOOR'
     floor.location = (-204, -180)
     floor.inputs[1].default_value = 0.0
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
     new_grp.links.new(grp_in.outputs[1], mult1.inputs[1])
@@ -936,46 +933,46 @@ def make_uva5():
     new_grp.inputs.new('NodeSocketFloat', 'Offset')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-1000, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (800, 0)
-    
+
     # Multiply1
     mult1 = new_grp.nodes.new('ShaderNodeMath')
     mult1.operation = 'MULTIPLY'
     mult1.location = (-800, 0)
-    
+
     # Multiply2
     mult2 = new_grp.nodes.new('ShaderNodeMath')
     mult2.operation = 'MULTIPLY'
     mult2.location = (-600, 0)
-    
+
     # Modulo
     mod1 = new_grp.nodes.new('ShaderNodeMath')
     mod1.operation = 'MODULO'
     mod1.inputs[1].default_value = 1.0
     mod1.location = (-400, 0)
-    
+
     # Multiply3
     mult3 = new_grp.nodes.new('ShaderNodeMath')
     mult3.operation = 'MULTIPLY'
     mult3.location = (-200, 0)
-    
+
     # Multiply4
     mult4 = new_grp.nodes.new('ShaderNodeMath')
     mult4.operation = 'MULTIPLY'
     mult4.location = (0, 0)
-    
+
     # Mapping
     map1 = new_grp.nodes.new('ShaderNodeMapping')
-    map1.scale = (0.0, 1.0, 0.0)
+    map1.inputs['Scale'].default_value = (0.0, 1.0, 0.0)
     map1.location = (200, 0)
-    
+
     # Add
     add1 = new_grp.nodes.new('ShaderNodeVectorMath')
     add1.operation = 'ADD'
@@ -993,7 +990,7 @@ def make_uva5():
     floor.operation = 'FLOOR'
     floor.location = (-204, -180)
     floor.inputs[1].default_value = 0.0
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], add1.inputs[1])
     new_grp.links.new(grp_in.outputs[1], mult1.inputs[1])
@@ -1017,24 +1014,24 @@ def make_uva6():
     new_grp.inputs.new('NodeSocketVector', 'UV In')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-100, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (300, 0)
-    
+
     # Geometry input
     geom_in = new_grp.nodes.new('ShaderNodeTexCoord')
     geom_in.location = (-300, 0)
-    
+
     # Adder1
     adder1 = new_grp.nodes.new('ShaderNodeVectorMath')
     adder1.operation = 'ADD'
     adder1.location = (100, 0)
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], adder1.inputs[0])
     new_grp.links.new(geom_in.outputs['Object'], adder1.inputs[1])
@@ -1048,24 +1045,24 @@ def make_uva7():
     new_grp.inputs.new('NodeSocketFloat', 'ParamB')
     new_grp.outputs.new('NodeSocketVector', 'UV Out')
     new_grp.use_fake_user = True
-    
+
     # Group inputs
     grp_in = new_grp.nodes.new('NodeGroupInput')
     grp_in.location = (-800, 0)
-    
+
     # Group outputs
     grp_out = new_grp.nodes.new('NodeGroupOutput')
     grp_out.location = (0, 0)
-    
+
     # Geometry input
     geom_in = new_grp.nodes.new('ShaderNodeTexCoord')
     geom_in.location = (-1000, 0)
-    
+
     # View flip
     view_flip = new_grp.nodes.new('ShaderNodeMapping')
     view_flip.location = (-800, -150)
     view_flip.vector_type = 'TEXTURE'
-    view_flip.scale = (-1.0, -1.0, 1.0)
+    view_flip.inputs['Scale'].default_value = (-1.0, -1.0, 1.0)
 
     # Separate
     sep1 = new_grp.nodes.new('ShaderNodeSeparateRGB')
@@ -1116,7 +1113,7 @@ def make_uva7():
     add2 = new_grp.nodes.new('ShaderNodeVectorMath')
     add2.operation = 'ADD'
     add2.location = (-200, 0)
-    
+
     # Links
     new_grp.links.new(grp_in.outputs[0], add2.inputs[0])
     new_grp.links.new(geom_in.outputs['Window'], view_flip.inputs[0])
