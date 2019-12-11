@@ -32,7 +32,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
   u32 txtrId = (version == 5 ? in.readUint64Big() : in.readUint32Big());
   x30_fontInfo = CFontInfo(tmp1, tmp2, tmp3, tmp4, name.c_str());
   x80_texture = store.GetObj({FOURCC('TXTR'), txtrId});
-  x2c_mode = EColorType(in.readUint32Big());
+  x2c_mode = CTexture::EFontType(in.readUint32Big());
 
   u32 glyphCount = in.readUint32Big();
   xc_glyphs.reserve(glyphCount);
@@ -79,7 +79,7 @@ CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {
     x1c_kerning.emplace_back(first, second, howMuch);
   }
 
-  if (magic == SBIG('FONT') && version <= 2)
+  if (magic == SBIG('FONT') && version <= 4)
     x0_initialized = true;
 }
 

@@ -103,7 +103,7 @@ class CRasterFont {
   s32 x8_monoHeight = 16;
   std::vector<std::pair<char16_t, CGlyph>> xc_glyphs;
   std::vector<CKernPair> x1c_kerning;
-  EColorType x2c_mode = EColorType::Main;
+  CTexture::EFontType x2c_mode = CTexture::EFontType::OneLayer;
   CFontInfo x30_fontInfo;
   TLockedToken<CTexture> x80_texture;
   s32 x8c_baseline;
@@ -125,7 +125,20 @@ public:
 
   s32 GetMonoWidth() const { return x4_monoWidth; }
   s32 GetMonoHeight() const { return x8_monoHeight; }
-  EColorType GetMode() const { return x2c_mode; }
+  EColorType GetMode() const {
+    switch(x2c_mode) {
+    case CTexture::EFontType::OneLayer:
+    case CTexture::EFontType::TwoLayers:
+    case CTexture::EFontType::FourLayers:
+      return EColorType::Main;
+    case CTexture::EFontType::OneLayerOutline:
+    case CTexture::EFontType::TwoLayersOutlines:
+    case CTexture::EFontType::TwoLayersOutlines2:
+      return EColorType::Outline;
+    default:
+      return EColorType::Main;
+    }
+  }
   s32 GetLineMargin() const { return x90_lineMargin; }
   s32 GetCarriageAdvance() const { return GetLineMargin() + GetMonoHeight(); }
 
@@ -148,7 +161,7 @@ public:
   const CGlyph* GetGlyph(char16_t chr) const { return InternalGetGlyph(chr); }
   void GetSize(const CDrawStringOptions& opts, int& width, int& height, const char16_t* str, int len) const;
   const boo::ObjToken<boo::ITexture>& GetTexture() {
-    return x80_texture->GetFontTexture(CTexture::EFontType(x2c_mode));
+    return x80_texture->GetFontTexture(x2c_mode);
   }
 
   bool IsFinishedLoading() const;

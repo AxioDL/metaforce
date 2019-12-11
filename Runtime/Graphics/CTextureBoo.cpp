@@ -867,7 +867,9 @@ const boo::ObjToken<boo::ITexture>& CTexture::GetFontTexture(EFontType tp) {
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                  const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
   u32 u32Owned = vparms.GetOwnedObj<u32>();
-  const CTextureInfo* inf = g_TextureCache->GetTextureInfo(tag.id);
+  const CTextureInfo* inf = nullptr;
+  if (g_TextureCache)
+     inf = g_TextureCache->GetTextureInfo(tag.id);
   return TToken<CTexture>::GetIObjObjectFor(
       std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf));
 }

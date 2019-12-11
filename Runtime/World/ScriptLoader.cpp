@@ -2352,7 +2352,7 @@ CEntity* ScriptLoader::LoadVisorFlare(CStateManager& mgr, CInputStream& in, int 
 
 CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in, int propCount,
                                            const CEntityInfo& info) {
-  if (propCount < 4 || propCount > 21) {
+  if (propCount < 4 || propCount > 26) {
     Log.report(logvisor::Warning, fmt("Incorrect number of props for WorldTeleporter"));
     return nullptr;
   }
@@ -2383,6 +2383,11 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
   float charFadeInTime = (propCount < 19 ? 0.1f : in.readFloatBig());
   float charsPerSecond = (propCount < 20 ? 16.f : in.readFloatBig());
   float showDelay = (propCount < 21 ? 0.f : in.readFloatBig());
+  std::string str1 = (propCount < 22 ? "" : in.readString());
+  std::string str2 = (propCount < 23 ? "" : in.readString());
+  /*float f1 =*/ (propCount < 24 ? 0.f : in.readFloatBig());
+  /*float f2 =*/ (propCount < 25 ? 0.f : in.readFloatBig());
+  /*float f3 =*/(propCount < 26 ? 0.f : in.readFloatBig());
 
   if (showText)
     return new CScriptWorldTeleporter(mgr.AllocateUniqueId(), name, info, active, worldId, areaId, elevatorSound,
