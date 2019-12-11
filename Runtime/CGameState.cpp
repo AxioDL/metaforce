@@ -235,7 +235,7 @@ void CGameState::SetCurrentWorldId(CAssetId id) {
   MP1::CMain::EnsureWorldPakReady(x84_mlvlId);
 }
 
-void CGameState::SetTotalPlayTime(float time) { xa0_playTime = zeus::clamp<double>(0.0, time, 359999.0); }
+void CGameState::SetTotalPlayTime(double time) { xa0_playTime = zeus::clamp(0.0, time, 359999.0); }
 
 CWorldState& CGameState::StateForWorld(CAssetId mlvlId) {
   auto it = x88_worldStates.begin();

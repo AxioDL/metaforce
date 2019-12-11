@@ -6,7 +6,7 @@
  */
 
 
-#define GRPgroup0028 40
+#define GRPui 40
 
 
 #define SFXui_map_rotate 1375

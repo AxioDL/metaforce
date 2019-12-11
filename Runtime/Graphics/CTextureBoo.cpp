@@ -2,6 +2,7 @@
 #include "CSimplePool.hpp"
 #include "CToken.hpp"
 #include "Graphics/CGraphics.hpp"
+#include "Runtime/CTextureCache.hpp"
 
 namespace urde {
 static logvisor::Module Log("urde::CTextureBoo");

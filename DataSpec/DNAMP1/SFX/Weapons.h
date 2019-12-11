@@ -6,7 +6,7 @@
  */
 
 
-#define GRPgroup002B 43
+#define GRPweapons 43
 
 
 #define SFXwpn_bomb_drop 1756

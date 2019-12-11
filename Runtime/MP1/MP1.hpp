@@ -61,10 +61,15 @@ class CGameGlobalObjects {
   TLockedToken<CStringTable> x13c_mainStringTable;
   CInGameTweakManager x150_tweakManager;
   std::unique_ptr<IRenderer> m_renderer;
+  TLockedToken<CTextureCache> m_textureCache;
 
   void LoadStringTable() {
     x13c_mainStringTable = g_SimplePool->GetObj("STRG_Main");
     g_MainStringTable = x13c_mainStringTable.GetObj();
+  }
+  void LoadTextureCache() {
+    m_textureCache = g_SimplePool->GetObj("TextureCache"sv);
+    g_TextureCache = m_textureCache.GetObj();
   }
   void AddPaksAndFactories();
   static IRenderer* AllocateRenderer(IObjectStore& store, IFactory& resFactory) {
@@ -96,6 +101,7 @@ public:
 
   void PostInitialize() {
     AddPaksAndFactories();
+    LoadTextureCache();
     LoadStringTable();
     m_renderer.reset(AllocateRenderer(*xcc_simplePool, *x4_resFactory));
     CEnvFxManager::Initialize();

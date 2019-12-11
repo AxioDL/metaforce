@@ -95,7 +95,8 @@ public:
   void SetCurrentWorldId(CAssetId id);
   std::shared_ptr<CPlayerState> GetPlayerState() const { return x98_playerState; }
   std::shared_ptr<CWorldTransManager> GetWorldTransitionManager() const { return x9c_transManager; }
-  void SetTotalPlayTime(float time);
+  void SetTotalPlayTime(double time);
+  double GetTotalPlayTime() const { return xa0_playTime; }
   CPersistentOptions& SystemOptions() { return xa8_systemOptions; }
   CGameOptions& GameOptions() { return x17c_gameOptions; }
   CHintOptions& HintOptions() { return x1f8_hintOptions; }

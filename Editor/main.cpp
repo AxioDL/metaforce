@@ -125,6 +125,8 @@ struct Application : boo::IApplicationCallback {
         false, hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_cvarManager.findOrMakeCVar("debugOverlay.showFrameCounter"sv, "Displays the current frame index"sv, false,
                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_cvarManager.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
+                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
   }
 };
 

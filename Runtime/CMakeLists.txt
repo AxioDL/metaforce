@@ -117,6 +117,7 @@ set(RUNTIME_SOURCES_B
     MkCastTo.py
     TCastTo.hpp TCastTo.cpp
     GCNTypes.hpp
+    CTextureCache.hpp CTextureCache.cpp
     ${PLAT_SRCS})
 
 function(add_runtime_common_library name)

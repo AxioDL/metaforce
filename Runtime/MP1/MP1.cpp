@@ -1,64 +1,69 @@
-#include "MP1.hpp"
-#include "Graphics/Shaders/CModelShaders.hpp"
-#include "Graphics/Shaders/CThermalColdFilter.hpp"
-#include "Graphics/Shaders/CThermalHotFilter.hpp"
-#include "Graphics/Shaders/CSpaceWarpFilter.hpp"
-#include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Graphics/Shaders/CColoredStripShader.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
-#include "Graphics/Shaders/CCameraBlurFilter.hpp"
-#include "Graphics/Shaders/CXRayBlurFilter.hpp"
-#include "Graphics/Shaders/CTextSupportShader.hpp"
-#include "Graphics/Shaders/CEnergyBarShader.hpp"
-#include "Graphics/Shaders/CRadarPaintShader.hpp"
-#include "Graphics/Shaders/CMapSurfaceShader.hpp"
-#include "Graphics/Shaders/CPhazonSuitFilter.hpp"
-#include "Graphics/Shaders/CScanLinesFilter.hpp"
-#include "Graphics/Shaders/CRandomStaticFilter.hpp"
-#include "Graphics/Shaders/CFluidPlaneShader.hpp"
-#include "Graphics/Shaders/CAABoxShader.hpp"
-#include "Graphics/Shaders/CWorldShadowShader.hpp"
-#include "Graphics/Shaders/CParticleSwooshShaders.hpp"
-#include "Graphics/Shaders/CEnvFxShaders.hpp"
-#include "NESEmulator/CNESShader.hpp"
-#include "Audio/CStreamAudioManager.hpp"
-#include "CGBASupport.hpp"
+#include "Runtime/MP1/MP1.hpp"
 
-#include "CGameHintInfo.hpp"
-#include "Particle/CParticleDataFactory.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "Particle/CElectricDescription.hpp"
-#include "Particle/CSwooshDescription.hpp"
-#include "Particle/CParticleElectricDataFactory.hpp"
-#include "Particle/CParticleSwooshDataFactory.hpp"
-#include "Particle/CWeaponDescription.hpp"
-#include "Particle/CProjectileWeaponDataFactory.hpp"
-#include "Particle/CDecalDataFactory.hpp"
-#include "GuiSys/CGuiFrame.hpp"
-#include "GuiSys/CRasterFont.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "Graphics/CModel.hpp"
-#include "Graphics/CTexture.hpp"
-#include "Character/CCharLayoutInfo.hpp"
-#include "Character/CSkinRules.hpp"
-#include "Character/CAnimCharacterSet.hpp"
-#include "Character/CAllFormatsAnimSource.hpp"
-#include "Character/CAnimPOIData.hpp"
-#include "Collision/CCollidableOBBTreeGroup.hpp"
-#include "Collision/CCollisionResponseData.hpp"
-#include "CSaveWorld.hpp"
-#include "AutoMapper/CMapWorld.hpp"
-#include "AutoMapper/CMapArea.hpp"
-#include "AutoMapper/CMapUniverse.hpp"
-#include "World/CStateMachine.hpp"
-#include "CScannableObjectInfo.hpp"
-#include "Audio/CAudioGroupSet.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Audio/CMidiManager.hpp"
-#include "CDependencyGroup.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "CStopwatch.hpp"
+#include "Runtime/Graphics/Shaders/CModelShaders.hpp"
+#include "Runtime/Graphics/Shaders/CThermalColdFilter.hpp"
+#include "Runtime/Graphics/Shaders/CThermalHotFilter.hpp"
+#include "Runtime/Graphics/Shaders/CSpaceWarpFilter.hpp"
+#include "Runtime/Graphics/Shaders/CColoredQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CColoredStripShader.hpp"
+#include "Runtime/Graphics/Shaders/CTexturedQuadFilter.hpp"
+#include "Runtime/Graphics/Shaders/CCameraBlurFilter.hpp"
+#include "Runtime/Graphics/Shaders/CXRayBlurFilter.hpp"
+#include "Runtime/Graphics/Shaders/CTextSupportShader.hpp"
+#include "Runtime/Graphics/Shaders/CEnergyBarShader.hpp"
+#include "Runtime/Graphics/Shaders/CRadarPaintShader.hpp"
+#include "Runtime/Graphics/Shaders/CMapSurfaceShader.hpp"
+#include "Runtime/Graphics/Shaders/CPhazonSuitFilter.hpp"
+#include "Runtime/Graphics/Shaders/CScanLinesFilter.hpp"
+#include "Runtime/Graphics/Shaders/CRandomStaticFilter.hpp"
+#include "Runtime/Graphics/Shaders/CFluidPlaneShader.hpp"
+#include "Runtime/Graphics/Shaders/CAABoxShader.hpp"
+#include "Runtime/Graphics/Shaders/CWorldShadowShader.hpp"
+#include "Runtime/Graphics/Shaders/CParticleSwooshShaders.hpp"
+#include "Runtime/Graphics/Shaders/CEnvFxShaders.hpp"
+#include "NESEmulator/CNESShader.hpp"
+#include "Runtime/Audio/CStreamAudioManager.hpp"
+#include "Runtime/MP1/CGBASupport.hpp"
+
+#include "Runtime/CGameHintInfo.hpp"
+#include "Runtime/Particle/CParticleDataFactory.hpp"
+#include "Runtime/Particle/CParticleElectricDataFactory.hpp"
+#include "Runtime/Particle/CParticleSwooshDataFactory.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Particle/CProjectileWeaponDataFactory.hpp"
+#include "Runtime/Particle/CDecalDataFactory.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CSkinRules.hpp"
+#include "Runtime/Character/CAnimCharacterSet.hpp"
+#include "Runtime/Character/CAllFormatsAnimSource.hpp"
+#include "Runtime/Character/CAnimPOIData.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CCollisionResponseData.hpp"
+#include "Runtime/CTextureCache.hpp"
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/AutoMapper/CMapWorld.hpp"
+#include "Runtime/AutoMapper/CMapArea.hpp"
+#include "Runtime/AutoMapper/CMapUniverse.hpp"
+#include "Runtime/World/CStateMachine.hpp"
+#include "Runtime/CScannableObjectInfo.hpp"
+#include "Runtime/Audio/CAudioGroupSet.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Audio/CMidiManager.hpp"
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/CStopwatch.hpp"
+
+#include <DataSpec/DNAMP1/SFX/Misc.h>
+#include <DataSpec/DNAMP1/SFX/MiscSamus.h>
+#include <DataSpec/DNAMP1/SFX/UI.h>
+#include <DataSpec/DNAMP1/SFX/Weapons.h>
+#include <DataSpec/DNAMP1/SFX/ZZZ.h>
 #include <discord_rpc.h>
 
 namespace hecl {
@@ -126,8 +131,11 @@ struct AudioGroupInfo {
   u32 id;
 };
 
-static const AudioGroupInfo StaticAudioGroups[] = {
-    {"Misc_AGSC", 39}, {"MiscSamus_AGSC", 41}, {"UI_AGSC", 40}, {"Weapons_AGSC", 43}, {"ZZZ_AGSC", 65}};
+static const AudioGroupInfo StaticAudioGroups[] = {{"Misc_AGSC", GRPmisc},
+                                                   {"MiscSamus_AGSC", GRPmiscSamus},
+                                                   {"UI_AGSC", GRPui},
+                                                   {"Weapons_AGSC", GRPweapons},
+                                                   {"ZZZ_AGSC", GRPzzz}};
 
 bool CGameArchitectureSupport::LoadAudio() {
   if (x88_audioLoadStatus == EAudioLoadStatus::Loaded)
@@ -270,7 +278,6 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     loader->AddPakFileAsync("SamGunFx", true, false);
     loader->AddPakFileAsync("MidiData", false, false);
     loader->AddPakFileAsync("GGuiSys", false, false);
-    loader->AddPakFileAsync("!original_ids", false, false);
     loader->WaitForPakFileLoadingComplete();
   }
 
@@ -304,6 +311,7 @@ void CGameGlobalObjects::AddPaksAndFactories() {
     fmgr->AddFactory(FOURCC('MAPU'), FFactoryFunc(FMapUniverseFactory));
     fmgr->AddFactory(FOURCC('AFSM'), FFactoryFunc(FAiFiniteStateMachineFactory));
     fmgr->AddFactory(FOURCC('PATH'), FMemFactoryFunc(FPathFindAreaFactory));
+    fmgr->AddFactory(FOURCC('TMET'), FFactoryFunc(FTextureCacheFactory));
   }
 }
 
@@ -338,12 +346,20 @@ void CMain::AddOverridePaks() {
   if (!loader)
     return;
 
+  /* Inversely load each pak starting at 999, to ensure proper priority order
+   * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.
+   */
   for (size_t i = 999; i > 0; --i) {
     std::string path = fmt::format(fmt("Override{}"), i);
     if (CDvdFile::FileExists((path + ".upak").c_str()))
       loader->AddPakFileAsync(path, false, false, true);
   }
+  /* Make sure all Override paks are ready before attempting to load URDE.upak */
+  loader->WaitForPakFileLoadingComplete();
 
+  /* Attempt to load URDE.upak
+   * NOTE(phil): Should we fatal here if it's not found?
+   */
   if (CDvdFile::FileExists("URDE.upak"))
     loader->AddPakFile("URDE", false, false, true);
 }

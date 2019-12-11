@@ -6,7 +6,7 @@
  */
 
 
-#define GRPgroup0029 41
+#define GRPmiscSamus 41
 
 
 #define SFXsam_wlkstone_00 1465

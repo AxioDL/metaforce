@@ -13,6 +13,7 @@
 
 namespace urde {
 class CVParamTransfer;
+class CTextureInfo;
 
 class CTexture {
 public:
@@ -35,7 +36,7 @@ private:
   boo::ObjToken<boo::ITexture> m_paletteTex;
   std::unique_ptr<u8[]> m_otex;
   EFontType m_ftype = EFontType::None;
-  std::string m_dolphinName;
+  const CTextureInfo* m_textureInfo;
 
   size_t ComputeMippedTexelCount() const;
   size_t ComputeMippedBlockCountDXT1() const;
@@ -73,8 +74,7 @@ public:
   std::unique_ptr<u8[]> BuildMemoryCardTex(u32& sizeOut, ETexelFormat& fmtOut, std::unique_ptr<u8[]>& paletteOut) const;
   const boo::ObjToken<boo::ITexture>& GetFontTexture(EFontType tp);
 
-  std::string_view GetDolphinName() const { return m_dolphinName; }
-  bool HasDolphinName() const { return !m_dolphinName.empty(); }
+  const CTextureInfo* GetTextureInfo() const { return m_textureInfo; }
 };
 
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,

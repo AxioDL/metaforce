@@ -50,7 +50,7 @@ void CJellyZap::Think(float dt, CStateManager& mgr) {
   if (!GetActive())
     return;
   if (x5b8_24_)
-    x450_bodyController->FaceDirection(GetTranslation() - mgr.GetPlayer().GetTranslation(), dt);
+    x450_bodyController->FaceDirection(mgr.GetPlayer().GetTranslation() - GetTranslation(), dt);
 
   float fv = (x5b8_25_ && x450_bodyController->GetPercentageFrozen() == 0.f ? x50c_baseDamageMag + (dt / 0.3f)
                                                                             : x50c_baseDamageMag - (dt / 0.75f));
@@ -96,9 +96,21 @@ void CJellyZap::Suck(CStateManager& mgr, EStateMsg msg, float arg) {
     x32c_animState = EAnimState::Ready;
     RemoveAllAttractors(mgr);
   } else if (msg == EStateMsg::Update) {
-
+    TryCommand(mgr, pas::EAnimationState::LoopReaction, &CPatterned::TryLoopReaction, 0);
+    x450_bodyController->GetCommandMgr().SetTargetVector(
+        (mgr.GetPlayer().GetTranslation() + zeus::CVector3f(0.f, 0.f, 1.f)) - GetTranslation());
+    zeus::CVector3f diff = (mgr.GetPlayer().GetTranslation() - GetTranslation());
+    float f1 = diff.magnitude();
+    float f3 = 5.f;
+    float f2 = x58c_;
+    if (mgr.GetPlayer().GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Morphed)
+      f2 = x594_;
+    else if (mgr.GetPlayerState()->GetCurrentSuitRaw() == CPlayerState::EPlayerSuit::Gravity)
+      f2 = x590_;
+    float f4 = f3 * f2;
+    float f5 = 1.f / f1;
+    
   } else if (msg == EStateMsg::Deactivate) {
-
   }
 }
 
@@ -110,7 +122,7 @@ void CJellyZap::Active(CStateManager& mgr, EStateMsg msg, float arg) {
     x330_stateMachineState.SetDelay(x3d0_playerLeashTime);
   } else if (msg == EStateMsg::Update) {
     zeus::CVector3f targetVector =
-      GetTranslation() - (zeus::CVector3f(0.f, 0.f, 1.f) + mgr.GetPlayer().GetTranslation());
+        GetTranslation() - (zeus::CVector3f(0.f, 0.f, 1.f) + mgr.GetPlayer().GetTranslation());
     x450_bodyController->GetCommandMgr().SetTargetVector(targetVector);
     if (x5b8_26_) {
       zeus::CVector3f moveToImpulse =

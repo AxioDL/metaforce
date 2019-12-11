@@ -1859,7 +1859,7 @@ void CStateManager::Update(float dt) {
 
   if (x904_gameState == EGameState::Running) {
     if (!TCastToPtr<CCinematicCamera>(x870_cameraManager->GetCurrentCamera(*this))) {
-      g_GameState->SetTotalPlayTime(g_GameState->xa0_playTime + dt);
+      g_GameState->SetTotalPlayTime(g_GameState->GetTotalPlayTime() + dt);
       UpdateHintState(dt);
     }
 

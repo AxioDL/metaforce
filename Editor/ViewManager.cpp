@@ -1,5 +1,4 @@
 #include "ViewManager.hpp"
-#include "specter/Control.hpp"
 #include "specter/Space.hpp"
 #include "specter/Menu.hpp"
 #include "SplashScreen.hpp"
@@ -7,16 +6,12 @@
 #include "ResourceBrowser.hpp"
 #include "icons/icons.hpp"
 #include "badging/Badging.hpp"
-#include "Runtime/Particle/CGenDescription.hpp"
-#include "Runtime/Particle/CElectricDescription.hpp"
-#include "Runtime/Particle/CSwooshDescription.hpp"
 #include "Runtime/Graphics/CModel.hpp"
 #include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/Character/CSkinRules.hpp"
 #include "Graphics/CMetroidModelInstance.hpp"
 #include "World/CWorldTransManager.hpp"
 #include "Graphics/Shaders/CColoredQuadFilter.hpp"
-#include "Graphics/Shaders/CTexturedQuadFilter.hpp"
 #include "Audio/CStreamAudioManager.hpp"
 #include "Runtime/CStateManager.hpp"
 #include "Runtime/World/CPlayer.hpp"
@@ -71,27 +66,34 @@ void ViewManager::TestGameView::think() {
     const hecl::CVar* playerInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.playerInfo");
     const hecl::CVar* worldInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.worldInfo");
     const hecl::CVar* areaInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.areaInfo");
+    const hecl::CVar* showInGameTime = hecl::CVarManager::instance()->findCVar("debugOverlay.showInGameTime");
     if (showFrameIdx && showFrameIdx->toBoolean())
       overlayText += fmt::format(fmt("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
+    if (showInGameTime && showInGameTime->toBoolean()) {
+      double igt = g_GameState->GetTotalPlayTime();
+      u32 ms = u64(igt * 1000) % 1000;
+      auto pt = std::div(igt, 3600);
+      overlayText += fmt::format(fmt("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60,
+                                 ms);
+    }
     if (g_StateManager->Player() && playerInfo && playerInfo->toBoolean()) {
       const CPlayer& pl = g_StateManager->GetPlayer();
       const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
       const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
       const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
-      overlayText += fmt::format(fmt(
-          "Player Position: x {}, y {}, z {}\n"
-          "       Roll: {}, Pitch: {}, Yaw: {}\n"
-          "       Momentum: x {}, y: {}, z: {}\n"
-          "       Velocity: x {}, y: {}, z: {}\n"
-          "Camera Position: x {}, y {}, z {}\n"
-          "       Roll: {}, Pitch: {}, Yaw: {}\n"),
-          pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
-          zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
-          pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(),
-          pl.GetVelocity().x(), pl.GetVelocity().y(), pl.GetVelocity().z(),
-          camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
-          zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
+      overlayText +=
+          fmt::format(fmt("Player Position: x {}, y {}, z {}\n"
+                          "       Roll: {}, Pitch: {}, Yaw: {}\n"
+                          "       Momentum: x {}, y: {}, z: {}\n"
+                          "       Velocity: x {}, y: {}, z: {}\n"
+                          "Camera Position: x {}, y {}, z {}\n"
+                          "       Roll: {}, Pitch: {}, Yaw: {}\n"),
+                      pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
+                      zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
+                      pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(), pl.GetVelocity().x(),
+                      pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
+                      zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
     }
     if (worldInfo && worldInfo->toBoolean()) {
       TLockedToken<CStringTable> tbl =
@@ -114,11 +116,10 @@ void ViewManager::TestGameView::think() {
         } else
           layerBits += "0";
       }
-      overlayText += fmt::format(fmt(
-          "Area AssetId: 0x{}, Total Objects: {}\n"
-          "Active Layer bits: {}\n"),
-          g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
-          g_StateManager->GetAllObjectList().size(), layerBits);
+      overlayText += fmt::format(fmt("Area AssetId: 0x{}, Total Objects: {}\n"
+                                     "Active Layer bits: {}\n"),
+                                 g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
+                                 g_StateManager->GetAllObjectList().size(), layerBits);
     }
 
     if (!overlayText.empty())
@@ -297,8 +298,8 @@ void ViewManager::init(boo::IApplication* app) {
 
   if (m_deferedProject.empty()) {
     /* Default behavior - search upwards for packaged project containing the program */
-    if (hecl::ProjectRootPath root = hecl::SearchForProject(ExeDir)) {
-      hecl::SystemString rootPath(root.getAbsolutePath());
+    if (hecl::ProjectRootPath projRoot = hecl::SearchForProject(ExeDir)) {
+      hecl::SystemString rootPath(projRoot.getAbsolutePath());
       hecl::Sstat theStat;
       if (!hecl::Stat((rootPath + _SYS_STR("/out/files/Metroid1.upak")).c_str(), &theStat) && S_ISREG(theStat.st_mode))
         m_deferedProject = rootPath + _SYS_STR("/out");

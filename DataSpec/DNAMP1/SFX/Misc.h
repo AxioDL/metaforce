@@ -6,7 +6,7 @@
  */
 
 
-#define GRPgroup0027 39
+#define GRPmisc 39
 
 
 #define SFXdor_x_close_00 1128

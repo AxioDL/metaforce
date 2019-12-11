@@ -6,7 +6,7 @@
  */
 
 
-#define GRPgroup0041 65
+#define GRPzzz 65
 
 
 #define SFXsfx0C16 3094
