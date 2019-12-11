@@ -59,7 +59,7 @@ private:
 
 public:
   CTexture(ETexelFormat, s16, s16, s32);
-  CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex);
+  CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf);
   enum class EClampMode { None, One };
   ETexelFormat GetTexelFormat() const { return x0_fmt; }
   ETexelFormat GetMemoryCardTexelFormat() const {

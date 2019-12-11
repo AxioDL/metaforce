@@ -1,8 +1,10 @@
-#include "CTexture.hpp"
-#include "CSimplePool.hpp"
-#include "CToken.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 #include "Runtime/CTextureCache.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 static logvisor::Module Log("urde::CTextureBoo");
@@ -691,7 +693,7 @@ void CTexture::BuildDXT3(const void* data, size_t length) {
   CGraphics::CommitResources([&](boo::IGraphicsDataFactory::Context& ctx) {
     m_booTex =
         ctx.newStaticTexture(x4_w, x6_h, x8_mips, boo::TextureFormat::DXT3, boo::TextureClampMode::Repeat, data, length)
-          .get();
+            .get();
     return true;
   } BooTrace);
 }
@@ -704,7 +706,8 @@ CTexture::CTexture(ETexelFormat fmt, s16 w, s16 h, s32 mips) : x0_fmt(fmt), x4_w
   */
 }
 
-CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex) {
+CTexture::CTexture(std::unique_ptr<u8[]>&& in, u32 length, bool otex, const CTextureInfo* inf) {
+  m_textureInfo = inf;
   std::unique_ptr<u8[]> owned = std::move(in);
   athena::io::MemoryReader r(owned.get(), length);
   x0_fmt = ETexelFormat(r.readUint32Big());
@@ -864,7 +867,9 @@ const boo::ObjToken<boo::ITexture>& CTexture::GetFontTexture(EFontType tp) {
 CFactoryFnReturn FTextureFactory(const urde::SObjectTag& tag, std::unique_ptr<u8[]>&& in, u32 len,
                                  const urde::CVParamTransfer& vparms, CObjectReference* selfRef) {
   u32 u32Owned = vparms.GetOwnedObj<u32>();
-  return TToken<CTexture>::GetIObjObjectFor(std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX')));
+  const CTextureInfo* inf = g_TextureCache->GetTextureInfo(tag.id);
+  return TToken<CTexture>::GetIObjObjectFor(
+      std::make_unique<CTexture>(std::move(in), len, u32Owned == SBIG('OTEX'), inf));
 }
 
 } // namespace urde
