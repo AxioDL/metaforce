@@ -99,11 +99,6 @@ if(MSVC)
   endif()
 
 else()
-  if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
-    # For libstdc++ shipped with GCC 9.1, this is required to summarize std::string
-    #add_compile_definitions(_GLIBCXX_DEBUG=1)
-  endif()
-
   if(${URDE_VECTOR_ISA} STREQUAL "native")
     add_compile_options(-march=native)
     message(STATUS "Building with native ISA")
@@ -161,6 +156,10 @@ endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+      # This is required to summarize std::string
+      add_compile_options(-fno-limit-debug-info)
+    endif()
     option(USE_LD_LLD "Link with LLD" ON)
   elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     option(USE_LD_GOLD "Link with GNU Gold" ON)
