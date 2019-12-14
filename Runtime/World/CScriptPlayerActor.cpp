@@ -376,7 +376,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
   CBooModel::SetReflectionCube(m_reflectionCube);
 
   bool phazonSuit = x2e8_suitRes.GetCharacterNodeId() == 3;
-  if (phazonSuit) {
+  if (phazonSuit && false) {
     // Draw into alpha buffer
     CModelFlags flags = xb4_drawFlags;
     flags.x4_color = zeus::skWhite;
@@ -397,7 +397,7 @@ void CScriptPlayerActor::Render(const CStateManager& mgr) const {
     x314_beamModelData->Render(mgr, modelXf, x90_actorLights.get(), flags);
   }
 
-  if (phazonSuit) {
+  if (phazonSuit && false) {
     zeus::CVector3f vecFromCam =
         GetBoundingBox().center() - mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTranslation();
     float radius = zeus::clamp(0.25f, (6.f - vecFromCam.magnitude()) / 6.f, 2.f);

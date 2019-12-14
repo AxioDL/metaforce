@@ -2576,7 +2576,7 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actHead.x40_scale, animParms.GetInitialAnimation(), true));
   return new MP1::CThardus(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
-                           actParms, pInfo, mData1, mData2, particle2, particle2, particle3, f1, f2, f3, f4, f5, f6,
+                           actParms, pInfo, mData1, mData2, particle1, particle2, particle3, f1, f2, f3, f4, f5, f6,
                            stateMachine, particle4, particle5, particle6, particle7, particle8, particle9, texture,
                            sfxID1, particle10, sfxID2, sfxID3, sfxID4);
 }

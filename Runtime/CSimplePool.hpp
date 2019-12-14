@@ -32,6 +32,7 @@ public:
   void Flush() override;
   void ObjectUnreferenced(const SObjectTag&) override;
   std::vector<SObjectTag> GetReferencedTags() const;
+  size_t GetLiveObjects() const { return x8_resources.size(); }
 };
 
 } // namespace urde

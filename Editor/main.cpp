@@ -9,8 +9,8 @@
 #include "hecl/Console.hpp"
 
 static logvisor::Module AthenaLog("Athena");
-static void AthenaExc(athena::error::Level level, const char* file, const char*, int line,
-                      fmt::string_view fmt, fmt::format_args args) {
+static void AthenaExc(athena::error::Level level, const char* file, const char*, int line, fmt::string_view fmt,
+                      fmt::format_args args) {
   AthenaLog.vreport(logvisor::Level(level), fmt, args);
 }
 
@@ -55,8 +55,11 @@ struct Application : boo::IApplicationCallback {
 
   std::atomic_bool m_running = {true};
 
-  Application() : m_fileMgr(_SYS_STR("urde")), m_cvarManager(m_fileMgr), m_cvarCommons(m_cvarManager),
-                  m_viewManager(std::make_unique<ViewManager>(m_fileMgr, m_cvarManager)) {}
+  Application()
+  : m_fileMgr(_SYS_STR("urde"))
+  , m_cvarManager(m_fileMgr)
+  , m_cvarCommons(m_cvarManager)
+  , m_viewManager(std::make_unique<ViewManager>(m_fileMgr, m_cvarManager)) {}
 
   virtual ~Application() = default;
 
@@ -127,6 +130,9 @@ struct Application : boo::IApplicationCallback {
                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
     m_cvarManager.findOrMakeCVar("debugOverlay.showInGameTime"sv, "Displays the current in game time"sv, false,
                                  hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
+    m_cvarManager.findOrMakeCVar("debugOverlay.showResourceStats"sv,
+                                 "Displays the current live resource object and token counts"sv, false,
+                                 hecl::CVar::EFlags::Game | hecl::CVar::EFlags::Archive | hecl::CVar::EFlags::ReadOnly);
   }
 };
 
@@ -139,9 +145,8 @@ static void SetupBasics(bool logging) {
   auto result = zeus::validateCPU();
   if (!result.first) {
 #if _WIN32 && !WINDOWS_STORE
-    std::wstring msg = fmt::format(
-          fmt(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
-          urde::CPUFeatureString(result.second));
+    std::wstring msg = fmt::format(fmt(L"ERROR: This build of URDE requires the following CPU features:\n{}\n"),
+                                   urde::CPUFeatureString(result.second));
     MessageBoxW(nullptr, msg.c_str(), L"CPU error", MB_OK | MB_ICONERROR);
 #else
     fmt::print(stderr, fmt("ERROR: This build of URDE requires the following CPU features:\n{}\n"),

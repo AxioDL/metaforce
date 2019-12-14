@@ -14,6 +14,12 @@ struct SJointInfo {
   float radius;
   float separation;
 };
+
+struct SAABoxJointInfo {
+  const char* name;
+  zeus::CVector3f extents;
+};
+
 struct SOBBJointInfo {
   const char* from;
   const char* to;

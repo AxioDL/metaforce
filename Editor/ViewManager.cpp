@@ -48,7 +48,7 @@ void ViewManager::TestGameView::resized(const boo::SWindowRect& root, const boo:
 
 void ViewManager::TestGameView::draw(boo::IGraphicsCommandQueue* gfxQ) {
   m_vm.m_projManager.mainDraw();
-  if (m_debugText && g_StateManager && g_StateManager->Player())
+  if (m_debugText)
     m_debugText->draw(gfxQ);
 }
 
@@ -60,67 +60,74 @@ void ViewManager::TestGameView::think() {
     m_debugText->resized(rootView().subRect(), sub);
   }
 
-  if (m_debugText && g_StateManager) {
+  if (m_debugText) {
     std::string overlayText;
     const hecl::CVar* showFrameIdx = hecl::CVarManager::instance()->findCVar("debugOverlay.showFrameCounter");
     const hecl::CVar* playerInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.playerInfo");
     const hecl::CVar* worldInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.worldInfo");
     const hecl::CVar* areaInfo = hecl::CVarManager::instance()->findCVar("debugOverlay.areaInfo");
     const hecl::CVar* showInGameTime = hecl::CVarManager::instance()->findCVar("debugOverlay.showInGameTime");
-    if (showFrameIdx && showFrameIdx->toBoolean())
-      overlayText += fmt::format(fmt("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
+    const hecl::CVar* showResourceStats = hecl::CVarManager::instance()->findCVar("debugOverlay.showResourceStats");
+    if (g_StateManager) {
+      if (showFrameIdx && showFrameIdx->toBoolean())
+        overlayText += fmt::format(fmt("Frame: {}\n"), g_StateManager->GetUpdateFrameIndex());
 
-    if (showInGameTime && showInGameTime->toBoolean()) {
-      double igt = g_GameState->GetTotalPlayTime();
-      u32 ms = u64(igt * 1000) % 1000;
-      auto pt = std::div(igt, 3600);
-      overlayText += fmt::format(fmt("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60,
-                                 ms);
-    }
-    if (g_StateManager->Player() && playerInfo && playerInfo->toBoolean()) {
-      const CPlayer& pl = g_StateManager->GetPlayer();
-      const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
-      const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
-      const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
-      overlayText +=
-          fmt::format(fmt("Player Position: x {}, y {}, z {}\n"
-                          "       Roll: {}, Pitch: {}, Yaw: {}\n"
-                          "       Momentum: x {}, y: {}, z: {}\n"
-                          "       Velocity: x {}, y: {}, z: {}\n"
-                          "Camera Position: x {}, y {}, z {}\n"
-                          "       Roll: {}, Pitch: {}, Yaw: {}\n"),
-                      pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
-                      zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
-                      pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(), pl.GetVelocity().x(),
-                      pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(), camXf.origin.y(), camXf.origin.z(),
-                      zeus::radToDeg(camQ.roll()), zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
-    }
-    if (worldInfo && worldInfo->toBoolean()) {
-      TLockedToken<CStringTable> tbl =
-          g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
-      const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-      overlayText += fmt::format(fmt("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
-                                 (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId);
-    }
-
-    const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
-    if (areaInfo && areaInfo->toBoolean() && g_StateManager->GetWorld() &&
-        g_StateManager->GetWorld()->DoesAreaExist(aId)) {
-      const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
-      std::string layerBits;
-      u32 totalActive = 0;
-      for (u32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
-        if (layerStates->IsLayerActive(aId, i)) {
-          ++totalActive;
-          layerBits += "1";
-        } else
-          layerBits += "0";
+      if (showInGameTime && showInGameTime->toBoolean()) {
+        double igt = g_GameState->GetTotalPlayTime();
+        u32 ms = u64(igt * 1000) % 1000;
+        auto pt = std::div(igt, 3600);
+        overlayText +=
+            fmt::format(fmt("PlayTime: {:02d}:{:02d}:{:02d}.{:03d}\n"), pt.quot, pt.rem / 60, pt.rem % 60, ms);
       }
-      overlayText += fmt::format(fmt("Area AssetId: 0x{}, Total Objects: {}\n"
-                                     "Active Layer bits: {}\n"),
-                                 g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
-                                 g_StateManager->GetAllObjectList().size(), layerBits);
+
+      if (g_StateManager->Player() && playerInfo && playerInfo->toBoolean()) {
+        const CPlayer& pl = g_StateManager->GetPlayer();
+        const zeus::CQuaternion plQ = zeus::CQuaternion(pl.GetTransform().getRotation().buildMatrix3f());
+        const zeus::CTransform camXf = g_StateManager->GetCameraManager()->GetCurrentCameraTransform(*g_StateManager);
+        const zeus::CQuaternion camQ = zeus::CQuaternion(camXf.getRotation().buildMatrix3f());
+        overlayText += fmt::format(fmt("Player Position: x {}, y {}, z {}\n"
+                                       "       Roll: {}, Pitch: {}, Yaw: {}\n"
+                                       "       Momentum: x {}, y: {}, z: {}\n"
+                                       "       Velocity: x {}, y: {}, z: {}\n"
+                                       "Camera Position: x {}, y {}, z {}\n"
+                                       "       Roll: {}, Pitch: {}, Yaw: {}\n"),
+                                   pl.GetTranslation().x(), pl.GetTranslation().y(), pl.GetTranslation().z(),
+                                   zeus::radToDeg(plQ.roll()), zeus::radToDeg(plQ.pitch()), zeus::radToDeg(plQ.yaw()),
+                                   pl.GetMomentum().x(), pl.GetMomentum().y(), pl.GetMomentum().z(),
+                                   pl.GetVelocity().x(), pl.GetVelocity().y(), pl.GetVelocity().z(), camXf.origin.x(),
+                                   camXf.origin.y(), camXf.origin.z(), zeus::radToDeg(camQ.roll()),
+                                   zeus::radToDeg(camQ.pitch()), zeus::radToDeg(camQ.yaw()));
+      }
+      if (worldInfo && worldInfo->toBoolean()) {
+        TLockedToken<CStringTable> tbl =
+            g_SimplePool->GetObj({FOURCC('STRG'), g_StateManager->GetWorld()->IGetStringTableAssetId()});
+        const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+        overlayText += fmt::format(fmt("World: 0x{}{}, Area: {}\n"), g_GameState->CurrentWorldAssetId(),
+                                   (tbl.IsLoaded() ? (" " + hecl::Char16ToUTF8(tbl->GetString(0))).c_str() : ""), aId);
+      }
+
+      const urde::TAreaId aId = g_GameState->CurrentWorldState().GetCurrentAreaId();
+      if (areaInfo && areaInfo->toBoolean() && g_StateManager->GetWorld() &&
+          g_StateManager->GetWorld()->DoesAreaExist(aId)) {
+        const auto& layerStates = g_GameState->CurrentWorldState().GetLayerState();
+        std::string layerBits;
+        u32 totalActive = 0;
+        for (u32 i = 0; i < layerStates->GetAreaLayerCount(aId); ++i) {
+          if (layerStates->IsLayerActive(aId, i)) {
+            ++totalActive;
+            layerBits += "1";
+          } else
+            layerBits += "0";
+        }
+        overlayText += fmt::format(fmt("Area AssetId: 0x{}, Total Objects: {}\n"
+                                       "Active Layer bits: {}\n"),
+                                   g_StateManager->GetWorld()->GetArea(aId)->GetAreaAssetId(),
+                                   g_StateManager->GetAllObjectList().size(), layerBits);
+      }
     }
+
+    if (showResourceStats && showResourceStats->toBoolean())
+      overlayText += fmt::format(fmt("Resource Objects: {}\n"), g_SimplePool->GetLiveObjects());
 
     if (!overlayText.empty())
       m_debugText->typesetGlyphs(overlayText);
