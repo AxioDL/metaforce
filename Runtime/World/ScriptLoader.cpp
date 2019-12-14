@@ -1404,6 +1404,7 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
   if (!EnsurePropertyCount(propCount, 23, "MetroidBeta"))
     return nullptr;
 
+#if 0
   std::string name = mgr.HashInstanceName(in);
   zeus::CTransform xf = LoadEditorTransform(in);
   zeus::CVector3f scale = zeus::CVector3f::ReadBig(in);
@@ -1421,8 +1422,10 @@ CEntity* ScriptLoader::LoadMetroidBeta(CStateManager& mgr, CInputStream& in, int
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
 
+  return new MP1::CMetroidBeta(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, actParms, metData);
+#else
   return nullptr;
-  // return new MP1::CMetroidBeta(mgr.AllocateUniqueId(), name, info, xf, std::move(mData), pInfo, actParms, metData);
+#endif
 }
 
 CEntity* ScriptLoader::LoadChozoGhost(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
@@ -1986,7 +1989,7 @@ CEntity* ScriptLoader::LoadDrone(CStateManager& mgr, CInputStream& in, int propC
 CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int propCount, const CEntityInfo& info) {
   if (!EnsurePropertyCount(propCount, MP1::CMetroidData::GetNumProperties(), "Metroid"))
     return nullptr;
-
+#if 0
   std::string name = mgr.HashInstanceName(in);
   CPatterned::EFlavorType flavor = CPatterned::EFlavorType(in.readUint32Big());
   zeus::CTransform xf = LoadEditorTransform(in);
@@ -2004,10 +2007,12 @@ CEntity* ScriptLoader::LoadMetroid(CStateManager& mgr, CInputStream& in, int pro
 
   CModelData mData(
       CAnimRes(animParms.GetACSFile(), animParms.GetCharacter(), scale, animParms.GetInitialAnimation(), true));
+   return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
+   metData,
+                          kInvalidUniqueId);
+#else
   return nullptr;
-  // return new MP1::CMetroid(mgr.AllocateUniqueId(), name, flavor, info, xf, std::move(mData), pInfo, actParms,
-  // metData,
-  //                        kInvalidUniqueId);
+#endif
 }
 
 CEntity* ScriptLoader::LoadDebrisExtended(CStateManager& mgr, CInputStream& in, int propCount,
@@ -2385,8 +2390,8 @@ CEntity* ScriptLoader::LoadWorldTeleporter(CStateManager& mgr, CInputStream& in,
   float showDelay = (propCount < 21 ? 0.f : in.readFloatBig());
   std::string str1 = (propCount < 22 ? "" : in.readString());
   std::string str2 = (propCount < 23 ? "" : in.readString());
-  /*float f1 =*/ (propCount < 24 ? 0.f : in.readFloatBig());
-  /*float f2 =*/ (propCount < 25 ? 0.f : in.readFloatBig());
+  /*float f1 =*/(propCount < 24 ? 0.f : in.readFloatBig());
+  /*float f2 =*/(propCount < 25 ? 0.f : in.readFloatBig());
   /*float f3 =*/(propCount < 26 ? 0.f : in.readFloatBig());
 
   if (showText)
@@ -2571,9 +2576,9 @@ CEntity* ScriptLoader::LoadThardus(CStateManager& mgr, CInputStream& in, int pro
 
   CModelData mData(CAnimRes(animParms.GetACSFile(), 0, actHead.x40_scale, animParms.GetInitialAnimation(), true));
   return new MP1::CThardus(mgr.AllocateUniqueId(), actHead.x0_name, info, actHead.x10_transform, std::move(mData),
-                           actParms, pInfo, mData1, mData2, particle2, particle2, particle3, f1,
-                           f2, f3, f4, f5, f6, stateMachine, particle4, particle5, particle6, particle7, particle8,
-                           particle9, texture, sfxID1, particle10, sfxID2, sfxID3, sfxID4);
+                           actParms, pInfo, mData1, mData2, particle2, particle2, particle3, f1, f2, f3, f4, f5, f6,
+                           stateMachine, particle4, particle5, particle6, particle7, particle8, particle9, texture,
+                           sfxID1, particle10, sfxID2, sfxID3, sfxID4);
 }
 
 CEntity* ScriptLoader::LoadWallCrawlerSwarm(CStateManager& mgr, CInputStream& in, int propCount,
