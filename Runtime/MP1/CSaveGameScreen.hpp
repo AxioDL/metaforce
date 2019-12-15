@@ -20,7 +20,7 @@ struct CFinalInput;
 
 namespace MP1 {
 
-enum class ESaveContext { FrontEnd, InGame };
+enum class ESaveContext { FrontEnd, InGame, AutoSave };
 
 class CSaveGameScreen {
 public:

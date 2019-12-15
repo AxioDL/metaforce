@@ -577,7 +577,7 @@ CSaveGameScreen::CSaveGameScreen(ESaveContext saveCtx, u64 serial)
 
   x6c_cardDriver = ConstructCardDriver(x0_saveCtx == ESaveContext::FrontEnd);
 
-  if (saveCtx == ESaveContext::InGame) {
+  if (saveCtx != ESaveContext::FrontEnd) {
     x84_navConfirmSfx = SFXui_advance;
     x88_navMoveSfx = SFXui_table_selection_change;
     x8c_navBackSfx = SFXui_table_change_mode;

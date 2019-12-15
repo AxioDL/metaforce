@@ -142,7 +142,7 @@ CIOWin::EMessageReturn CMFGame::OnMessage(const CArchitectureMessage& msg, CArch
       x14_stateManager->ProcessInput(input);
       x14_stateManager->ClearActiveRandom();
     }
-    x18_guiManager->ProcessControllerInput(*x14_stateManager, input, queue);
+    x18_guiManager->ProcessControllerInput(*x14_stateManager, input);
     break;
   }
   case EArchMsgType::FrameEnd: {

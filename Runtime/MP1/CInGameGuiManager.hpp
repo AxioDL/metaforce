@@ -129,7 +129,7 @@ public:
   CInGameGuiManager(CStateManager& stateMgr, CArchitectureQueue& archQueue);
   bool CheckLoadComplete(CStateManager& stateMgr);
   void Update(CStateManager& stateMgr, float dt, CArchitectureQueue& archQueue, bool useHud);
-  void ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input, CArchitectureQueue& archQueue);
+  void ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input);
   void PreDraw(CStateManager& stateMgr, bool cameraActive);
   void Draw(CStateManager& stateMgr);
   void ShowPauseGameHudMessage(CStateManager& stateMgr, CAssetId pauseMsg, float time);

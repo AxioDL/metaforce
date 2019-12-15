@@ -146,6 +146,16 @@ bool CProjectileWeaponDataFactory::CreateWPSM(CWeaponDescription* desc, CInputSt
     case SBIG('FOFF'):
       desc->xb0_FOFF = CPF::GetRealElement(in);
       break;
+    // PAL/RS5
+    case SBIG('SPS1'):
+      desc->x28_SPS1 = CPF::GetBool(in);
+      break;
+    case SBIG('SPS2'):
+      desc->x29_SPS2 = CPF::GetBool(in);
+      break;
+    case SBIG('FC60'):
+      desc->x29_FC60 = CPF::GetBool(in);
+      break;
     default: {
       Log.report(logvisor::Fatal, fmt("Unknown WPSM class {} @{}"), clsId, in.position());
       return false;

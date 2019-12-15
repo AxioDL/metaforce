@@ -411,6 +411,7 @@ void CScriptSpecialFunction::AcceptScriptMsg(EScriptObjectMessage msg, TUniqueId
 
         mgr.SetPendingOnScreenTex(assetId, {int(x104_float3), int(x108_float4)}, {int(xfc_float1), int(x100_float2)});
         if (objectTag) {
+          //const SObjectTag* deface = g_ResFactory->GetResourceIdByName("FONT_Deface18O");
           x1e8_ = g_SimplePool->GetObj(*objectTag);
           x1e5_26_displayBillboard = true;
         }

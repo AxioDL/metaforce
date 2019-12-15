@@ -16,6 +16,9 @@ struct CTweakPlayerRes final : ITweakPlayerRes {
   String<-1> m_minesBreakSecondTopIcon;
   String<-1> m_minesBreakSecondBottomIcon;
 
+  String<-1> m_mapArrowUp;
+  String<-1> m_mapArrowDown;
+
   String<-1> m_lStickN;
   String<-1> m_lStickU;
   String<-1> m_lStickUL;

@@ -423,8 +423,7 @@ bool CInGameGuiManager::IsInPausedStateNotTransitioning() const {
           x1c0_nextState >= EInGameGuiState::MapScreen && x1c0_nextState <= EInGameGuiState::PauseHUDMessage);
 }
 
-void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input,
-                                               CArchitectureQueue& archQueue) {
+void CInGameGuiManager::ProcessControllerInput(CStateManager& stateMgr, const CFinalInput& input) {
   if (input.ControllerIdx() == 0) {
     if (!IsInGameStateNotTransitioning()) {
       if (IsInPausedStateNotTransitioning()) {

@@ -25,8 +25,8 @@ void CResLoader::AddPakFileAsync(std::string_view name, bool buildDepList, bool 
   }
 }
 
-void CResLoader::AddPakFile(std::string_view name, bool samusPak, bool worldPak, bool override) {
-  AddPakFileAsync(name, samusPak, worldPak, override);
+void CResLoader::AddPakFile(std::string_view name, bool buildDepList, bool worldPak, bool override) {
+  AddPakFileAsync(name, buildDepList, worldPak, override);
   WaitForPakFileLoadingComplete();
 }
 

@@ -151,7 +151,7 @@ private:
   ESurfaceRestraints x2ac_surfaceRestraint = ESurfaceRestraints::Normal;
   u32 x2b0_outOfWaterTicks = 2;
   rstl::reserved_vector<float, 6> x2b4_accelerationTable;
-  u32 x2d0_curAcceleration = 3;
+  u32 x2d0_curAcceleration = 1;
   float x2d4_accelerationChangeTimer = 0.f;
   zeus::CAABox x2d8_fpBounds;
   float x2f0_ballTransHeight = 0.f;
@@ -353,6 +353,29 @@ private:
   float CalculateOrbitMinDistance(EPlayerOrbitType type) const;
 
 public:
+  // RS5
+  // CUnknownPlayerState1
+  // CUnknownPlayerState2
+  float x1180_ = 0.f;
+  float x1184_ = 0.f;
+  union {
+    struct {
+      bool x1188_ : 1;
+    };
+    u32 _dummy2 = 0;
+  };
+  float x118c_ = 2.f;
+  float x1190_ = 2.f;
+  u8 x1194_ = 0;
+  TUniqueId x1196_ = kInvalidUniqueId;
+  // * x1198_
+  float x119c_ = 0.f;
+  float x11a4_ = 0.f;
+  u32 x11ac_ = 0;
+  u32 x11b0_ = 0;
+  u32 x11b4_ = 0;
+  u32 x11b8_ = 0;
+
   CPlayer(TUniqueId uid, const zeus::CTransform& xf, const zeus::CAABox& aabb, CAssetId resId,
           const zeus::CVector3f& playerScale, float mass, float stepUp, float stepDown, float ballRadius,
           const CMaterialList& ml);
