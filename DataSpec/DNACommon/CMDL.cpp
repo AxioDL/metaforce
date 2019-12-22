@@ -562,7 +562,7 @@ void FinishBlenderMesh(hecl::blender::PyOutStream& os, unsigned matSetCount, int
         "    present_mats.add(poly.material_index)\n"
         "for mat_idx in reversed(range(len(mesh.materials))):\n"
         "    if mat_idx not in present_mats:\n"
-        "        mesh.materials.pop(index=mat_idx, update_data=True)\n"
+        "        mesh.materials.pop(index=mat_idx)\n"
         "\n"
         "mesh.update()\n"
         "\n";
