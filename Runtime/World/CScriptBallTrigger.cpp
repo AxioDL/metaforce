@@ -1,9 +1,12 @@
-#include "CScriptBallTrigger.hpp"
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
-#include "CMorphBall.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/World/CScriptBallTrigger.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/World/CMorphBall.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "DNAMP1/Tweaks/CTweakPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

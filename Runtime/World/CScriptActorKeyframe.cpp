@@ -1,8 +1,10 @@
-#include "CScriptActorKeyframe.hpp"
-#include "CStateManager.hpp"
-#include "World/CScriptActor.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "World/CPatterned.hpp"
+#include "Runtime/World/CScriptActorKeyframe.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CScriptActor.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

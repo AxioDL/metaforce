@@ -1,12 +1,14 @@
-#include "CScriptWater.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CFluidPlaneGPU.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CWorld.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CFluidPlaneGPU.hpp"
 
 namespace urde {
 

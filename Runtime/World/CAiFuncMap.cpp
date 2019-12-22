@@ -1,6 +1,7 @@
-#include "CAiFuncMap.hpp"
-#include "CAi.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CAiFuncMap.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CAi.hpp"
 
 namespace urde {
 CAiFuncMap::CAiFuncMap() {

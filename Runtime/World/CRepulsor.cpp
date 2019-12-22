@@ -1,5 +1,7 @@
-#include "CRepulsor.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CRepulsor.hpp"
+
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

@@ -1,6 +1,8 @@
-#include "CScriptColorModulate.hpp"
-#include "Graphics/CModel.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptColorModulate.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

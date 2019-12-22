@@ -1,6 +1,7 @@
-#include "CWaveBuster.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Weapon/CWaveBuster.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

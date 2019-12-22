@@ -1,11 +1,13 @@
-#include "CScriptDebris.hpp"
-#include "Collision/CCollisionInfoList.hpp"
-#include "Particle/CElementGen.hpp"
+#include "Runtime/World/CScriptDebris.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Collision/CCollisionInfoList.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
 
 namespace urde {
 

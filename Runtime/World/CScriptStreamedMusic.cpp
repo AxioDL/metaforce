@@ -1,11 +1,13 @@
-#include "CScriptStreamedMusic.hpp"
-#include "CStringExtras.hpp"
+#include "Runtime/World/CScriptStreamedMusic.hpp"
+
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/CStringExtras.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CStreamAudioManager.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
-#include "CInGameTweakManagerBase.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Audio/CStreamAudioManager.hpp"
 
 namespace urde {
 

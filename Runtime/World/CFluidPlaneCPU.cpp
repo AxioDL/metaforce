@@ -1,12 +1,14 @@
-#include "CFluidPlaneCPU.hpp"
-#include "CSimplePool.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CFluidPlaneManager.hpp"
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
-#include "World/CScriptWater.hpp"
+#include "Runtime/World/CFluidPlaneCPU.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/World/CFluidPlaneManager.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Camera/CGameCamera.hpp"
 
 #define kTableSize 2048
 

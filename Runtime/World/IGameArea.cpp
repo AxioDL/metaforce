@@ -1,4 +1,4 @@
-#include "IGameArea.hpp"
+#include "Runtime/World/IGameArea.hpp"
 
 namespace urde {
 IGameArea::Dock::Dock(urde::CInputStream& in, const zeus::CTransform& xf) {

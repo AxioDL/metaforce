@@ -1,12 +1,14 @@
-#include "CScriptDock.hpp"
-#include "CActorParameters.hpp"
-#include "Character/CModelData.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "CWorld.hpp"
-#include "CStateManager.hpp"
-#include "CScriptDoor.hpp"
-#include "CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/World/CScriptDock.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

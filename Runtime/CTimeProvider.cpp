@@ -1,5 +1,6 @@
-#include "CTimeProvider.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/CTimeProvider.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde {
 CTimeProvider* CTimeProvider::g_currentTimeProvider = nullptr;

@@ -1,6 +1,8 @@
-#include "CScriptRipple.hpp"
-#include "CStateManager.hpp"
-#include "CScriptWater.hpp"
+#include "Runtime/World/CScriptRipple.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CScriptWater.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

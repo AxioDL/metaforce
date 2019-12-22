@@ -1,11 +1,12 @@
-#include "CHudVisorBeamMenu.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGameState.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiModel.hpp"
-#include "CGuiTextPane.hpp"
-#include "CStringTable.hpp"
-#include "Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CHudVisorBeamMenu.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 namespace urde {
 

@@ -1,7 +1,8 @@
-#include "CGSComboFire.hpp"
-#include "Character/CAnimData.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CGSComboFire.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
 
 namespace urde {
 

@@ -1,10 +1,11 @@
-#include "CParticleSwooshDataFactory.hpp"
-#include "CSwooshDescription.hpp"
-#include "CElectricDescription.hpp"
-#include "CGenDescription.hpp"
-#include "Graphics/CModel.hpp"
-#include "CRandom16.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Particle/CParticleSwooshDataFactory.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CModel.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
 
 namespace urde {
 static logvisor::Module Log("urde::CParticleSwooshDataFactory");

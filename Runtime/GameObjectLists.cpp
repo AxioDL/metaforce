@@ -1,11 +1,13 @@
-#include "GameObjectLists.hpp"
-#include "World/CGameLight.hpp"
-#include "World/CScriptDoor.hpp"
-#include "World/CScriptPlatform.hpp"
-#include "World/CScriptCoverPoint.hpp"
-#include "World/CScriptAiJumpPoint.hpp"
-#include "World/CPatterned.hpp"
-#include "Camera/CGameCamera.hpp"
+#include "Runtime/GameObjectLists.hpp"
+
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CScriptAiJumpPoint.hpp"
+#include "Runtime/World/CScriptCoverPoint.hpp"
+#include "Runtime/World/CScriptDoor.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

@@ -1,6 +1,7 @@
-#include "CPowerBeam.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Weapon/CPowerBeam.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

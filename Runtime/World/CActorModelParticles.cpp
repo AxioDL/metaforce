@@ -1,19 +1,19 @@
-#include "CActorModelParticles.hpp"
+#include "Runtime/World/CActorModelParticles.hpp"
 
 #include <array>
 
-#include "CStateManager.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CDependencyGroup.hpp"
-#include "Particle/CElementGen.hpp"
-#include "Particle/CParticleElectric.hpp"
-#include "Particle/CGenDescription.hpp"
-#include "World/CWorld.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "World/CScriptPlayerActor.hpp"
-#include "CPatterned.hpp"
+#include "Runtime/CDependencyGroup.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+#include "Runtime/World/CPatterned.hpp"
+#include "Runtime/World/CScriptPlayerActor.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

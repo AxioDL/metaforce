@@ -1,8 +1,10 @@
-#include "CParticleSwoosh.hpp"
-#include "CSwooshDescription.hpp"
-#include "CParticleGlobals.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CParticleSwoosh.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
+#include "Runtime/Particle/CSwooshDescription.hpp"
+
 #include <chrono>
 
 namespace urde {

@@ -1,7 +1,8 @@
-#include "CGameHintInfo.hpp"
-#include "CToken.hpp"
-#include "CMemoryCardSys.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/CGameHintInfo.hpp"
+
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CToken.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 

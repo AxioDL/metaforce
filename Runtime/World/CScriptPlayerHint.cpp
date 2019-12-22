@@ -1,9 +1,11 @@
-#include "CScriptPlayerHint.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CScriptPlayerHint.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/MP1/World/CMetroidPrimeRelay.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
-#include "MP1/World/CMetroidPrimeRelay.hpp"
 
 namespace urde {
 

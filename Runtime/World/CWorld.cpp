@@ -1,14 +1,15 @@
-#include "CWorld.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "CInGameTweakManagerBase.hpp"
-#include "Audio/CAudioGroupSet.hpp"
-#include "CGameState.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CScriptAreaAttributes.hpp"
-#include "IMain.hpp"
-#include "Audio/CStreamAudioManager.hpp"
-#include "CScriptRoomAcoustics.hpp"
+#include "Runtime/World/CWorld.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CInGameTweakManagerBase.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/IMain.hpp"
+#include "Runtime/Audio/CAudioGroupSet.hpp"
+#include "Runtime/Audio/CStreamAudioManager.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CScriptAreaAttributes.hpp"
+#include "Runtime/World/CScriptRoomAcoustics.hpp"
 
 namespace urde {
 

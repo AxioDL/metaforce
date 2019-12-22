@@ -1,10 +1,12 @@
-#include "CRealElement.hpp"
-#include "CParticleGlobals.hpp"
-#include "CRandom16.hpp"
-#include "CElementGen.hpp"
-#include "Graphics/CTexture.hpp"
-#include "zeus/Math.hpp"
-#include "CGenDescription.hpp"
+#include "Runtime/Particle/CRealElement.hpp"
+
+#include "Runtime/CRandom16.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/Particle/CParticleGlobals.hpp"
+
+#include <zeus/Math.hpp>
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Real_Elements */
 

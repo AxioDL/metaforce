@@ -1,7 +1,9 @@
-#include "CScriptControllerAction.hpp"
+#include "Runtime/World/CScriptControllerAction.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Input/ControlMapper.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "Input/ControlMapper.hpp"
 
 namespace urde {
 

@@ -1,5 +1,7 @@
-#include "CScriptRelay.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptRelay.hpp"
+
+#include "Runtime/CStateManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

@@ -1,19 +1,22 @@
-#include "CActor.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "Audio/CSfxManager.hpp"
+#include "Runtime/World/CActor.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/CTimeProvider.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Character/CActorLights.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Character/IAnimReader.hpp"
-#include "Character/CActorLights.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CWorld.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CTimeProvider.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "hecl/CVarManager.hpp"
+
+#include <hecl/CVarManager.hpp>
 
 namespace urde {
 static CMaterialList MakeActorMaterialList(const CMaterialList& materialList, const CActorParameters& params) {

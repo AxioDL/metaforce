@@ -1,6 +1,7 @@
-#include "CInputGenerator.hpp"
-#include "../CArchitectureMessage.hpp"
-#include "../CArchitectureQueue.hpp"
+#include "Runtime/Input/CInputGenerator.hpp"
+
+#include "Runtime/CArchitectureMessage.hpp"
+#include "Runtime/CArchitectureQueue.hpp"
 
 namespace urde {
 

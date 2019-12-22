@@ -1,6 +1,8 @@
-#include "CTargetableProjectile.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/Weapon/CTargetableProjectile.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

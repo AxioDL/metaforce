@@ -1,10 +1,11 @@
-#include "CDecalManager.hpp"
-#include "CDecalDescription.hpp"
-#include "CDecal.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/Shaders/CDecalShaders.hpp"
+#include "Runtime/Particle/CDecalManager.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/Shaders/CDecalShaders.hpp"
+#include "Runtime/Particle/CDecal.hpp"
+#include "Runtime/Particle/CDecalDescription.hpp"
 
 namespace urde {
 bool CDecalManager::m_PoolInitialized = false;

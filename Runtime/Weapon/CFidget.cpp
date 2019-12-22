@@ -1,6 +1,7 @@
-#include "CFidget.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
+#include "Runtime/Weapon/CFidget.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde {
 

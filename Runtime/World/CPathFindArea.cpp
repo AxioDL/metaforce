@@ -1,6 +1,7 @@
-#include "CPathFindArea.hpp"
-#include "IVParamObj.hpp"
-#include "CToken.hpp"
+#include "Runtime/World/CPathFindArea.hpp"
+
+#include "Runtime/CToken.hpp"
+#include "Runtime/IVParamObj.hpp"
 
 namespace urde {
 

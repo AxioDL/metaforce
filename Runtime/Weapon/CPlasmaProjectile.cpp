@@ -1,12 +1,14 @@
-#include "CPlasmaProjectile.hpp"
+#include "Runtime/Weapon/CPlasmaProjectile.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CHUDBillboardEffect.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "World/CGameLight.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CHUDBillboardEffect.hpp"
 
 namespace urde {
 

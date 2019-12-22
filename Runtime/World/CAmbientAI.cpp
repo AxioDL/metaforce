@@ -1,6 +1,8 @@
-#include "CAmbientAI.hpp"
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
+#include "Runtime/World/CAmbientAI.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

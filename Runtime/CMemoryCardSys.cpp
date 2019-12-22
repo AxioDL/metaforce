@@ -1,10 +1,11 @@
-#include "CMemoryCardSys.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CGameState.hpp"
-#include "GuiSys/CStringTable.hpp"
-#include "CCRC32.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
+
+#include "Runtime/CCRC32.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 namespace urde {
 

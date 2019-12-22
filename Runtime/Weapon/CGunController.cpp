@@ -1,7 +1,8 @@
-#include "CGunController.hpp"
-#include "Character/CCharLayoutInfo.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CGunController.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CCharLayoutInfo.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
 
 namespace urde {
 

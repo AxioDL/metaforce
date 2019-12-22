@@ -1,10 +1,12 @@
-#include "CWallWalker.hpp"
-#include "CPatternedInfo.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CWallWalker.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CMetroidAreaCollider.hpp"
+#include "Runtime/World/CPatternedInfo.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CScriptWaypoint.hpp"
-#include "Collision/CMetroidAreaCollider.hpp"
-#include "Collision/CGameCollision.hpp"
 
 namespace urde {
 CWallWalker::CWallWalker(ECharacter chr, TUniqueId uid, std::string_view name, EFlavorType flavType,

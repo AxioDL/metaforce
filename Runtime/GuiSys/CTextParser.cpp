@@ -1,6 +1,7 @@
-#include "CTextParser.hpp"
-#include "CFontImageDef.hpp"
-#include "CTextExecuteBuffer.hpp"
+#include "Runtime/GuiSys/CTextParser.hpp"
+
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
 
 namespace urde {
 

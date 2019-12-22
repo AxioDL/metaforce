@@ -1,8 +1,10 @@
-#include "CScriptPickupGenerator.hpp"
+#include "Runtime/World/CScriptPickupGenerator.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CScriptPickup.hpp"
+#include "Runtime/World/CWallCrawlerSwarm.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "CScriptPickup.hpp"
-#include "CWallCrawlerSwarm.hpp"
 
 namespace urde {
 

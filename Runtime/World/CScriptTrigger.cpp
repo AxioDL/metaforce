@@ -1,10 +1,12 @@
-#include "CScriptTrigger.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Weapon/CGameProjectile.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "World/CPlayer.hpp"
-#include "Weapon/CGameProjectile.hpp"
-#include "Camera/CGameCamera.hpp"
 
 namespace urde {
 

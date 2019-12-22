@@ -1,17 +1,18 @@
-#include "CGameOptions.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CMemoryCardSys.hpp"
-#include "CSimplePool.hpp"
-#include "CSaveWorld.hpp"
-#include "CGameHintInfo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGameState.hpp"
-#include "Input/CFinalInput.hpp"
-#include "Audio/CSfxManager.hpp"
-#include "Audio/CStreamAudioManager.hpp"
-#include "Graphics/CMoviePlayer.hpp"
-#include "CStateManager.hpp"
-#include "hecl/CVarManager.hpp"
+#include "Runtime/CGameOptions.hpp"
+
+#include "Runtime/CGameHintInfo.hpp"
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CMemoryCardSys.hpp"
+#include "Runtime/CSaveWorld.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Audio/CSfxManager.hpp"
+#include "Runtime/Audio/CStreamAudioManager.hpp"
+#include "Runtime/Graphics/CMoviePlayer.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+
+#include <hecl/CVarManager.hpp>
 
 namespace urde {
 

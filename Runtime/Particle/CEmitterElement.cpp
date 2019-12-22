@@ -1,5 +1,6 @@
-#include "CEmitterElement.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/Particle/CEmitterElement.hpp"
+
+#include "Runtime/CRandom16.hpp"
 
 /* Documentation at: https://wiki.axiodl.com/w/Particle_Script#Emitter_Elements */
 

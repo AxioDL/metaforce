@@ -1,10 +1,11 @@
-#include "CHudBallInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CGuiGroup.hpp"
-#include "CGuiCamera.hpp"
-#include "CGuiTextPane.hpp"
-#include "CGuiModel.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CHudBallInterface.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CGuiCamera.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiGroup.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
 
 namespace urde {
 

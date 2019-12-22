@@ -1,8 +1,10 @@
-#include "CScriptBeam.hpp"
-#include "CActorParameters.hpp"
-#include "Particle/CWeaponDescription.hpp"
-#include "Weapon/CPlasmaProjectile.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptBeam.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Particle/CWeaponDescription.hpp"
+#include "Runtime/Weapon/CPlasmaProjectile.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

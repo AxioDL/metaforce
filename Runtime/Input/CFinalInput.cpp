@@ -1,5 +1,6 @@
-#include "zeus/Math.hpp"
-#include "CFinalInput.hpp"
+#include "Runtime/Input/CFinalInput.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 

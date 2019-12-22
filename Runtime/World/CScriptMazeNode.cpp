@@ -1,7 +1,9 @@
-#include "CScriptMazeNode.hpp"
-#include "Character/CModelData.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CScriptMazeNode.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CModelData.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

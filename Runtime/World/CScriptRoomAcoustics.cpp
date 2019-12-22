@@ -1,6 +1,8 @@
-#include "CScriptRoomAcoustics.hpp"
+#include "Runtime/World/CScriptRoomAcoustics.hpp"
+
+#include "Runtime/Audio/CSfxManager.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Audio/CSfxManager.hpp"
 
 namespace urde {
 

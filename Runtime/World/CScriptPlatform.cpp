@@ -1,14 +1,16 @@
-#include "CScriptPlatform.hpp"
-#include "Collision/CMaterialList.hpp"
-#include "Collision/CCollidableOBBTreeGroup.hpp"
-#include "Collision/CGameCollision.hpp"
-#include "World/CScriptWaypoint.hpp"
-#include "World/CScriptColorModulate.hpp"
-#include "World/CWorld.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptTrigger.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Collision/CCollidableOBBTreeGroup.hpp"
+#include "Runtime/Collision/CGameCollision.hpp"
+#include "Runtime/Collision/CMaterialList.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptColorModulate.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+#include "Runtime/World/CScriptWaypoint.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

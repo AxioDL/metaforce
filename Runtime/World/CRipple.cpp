@@ -1,5 +1,6 @@
-#include "CRipple.hpp"
-#include "CRandom16.hpp"
+#include "Runtime/World/CRipple.hpp"
+
+#include "Runtime/CRandom16.hpp"
 
 namespace urde {
 static CRandom16 sRippleRandom(0xABBA);

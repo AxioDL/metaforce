@@ -1,9 +1,10 @@
-#include "CRumbleManager.hpp"
-#include "CStateManager.hpp"
-#include "World/CPlayer.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CGameState.hpp"
-#include "RumbleFxTable.hpp"
+#include "Runtime/Input/CRumbleManager.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Input/RumbleFxTable.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde {
 

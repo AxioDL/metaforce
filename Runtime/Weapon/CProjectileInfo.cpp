@@ -1,10 +1,11 @@
-#include "CProjectileInfo.hpp"
-#include "World/CDamageInfo.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CProjectileWeapon.hpp"
-#include "World/CPlayer.hpp"
-#include "Character/CSteeringBehaviors.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/Weapon/CProjectileInfo.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Character/CSteeringBehaviors.hpp"
+#include "Runtime/Weapon/CProjectileWeapon.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+#include "Runtime/World/CPlayer.hpp"
 
 namespace urde {
 

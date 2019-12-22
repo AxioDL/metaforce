@@ -1,15 +1,17 @@
-#include "CFishCloud.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CFishCloud.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Graphics/CSkinnedModel.hpp"
+#include "Runtime/Graphics/CVertexMorphEffect.hpp"
+#include "Runtime/Weapon/CWeapon.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "Weapon/CWeapon.hpp"
-#include "CStateManager.hpp"
-#include "World/CWorld.hpp"
-#include "World/CPlayer.hpp"
-#include "Graphics/CVertexMorphEffect.hpp"
-#include "Graphics/CSkinnedModel.hpp"
-#include "Graphics/CBooRenderer.hpp"
 
 namespace urde {
 

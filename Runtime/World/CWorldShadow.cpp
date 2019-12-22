@@ -1,7 +1,8 @@
-#include "CWorldShadow.hpp"
-#include "CWorld.hpp"
-#include "CStateManager.hpp"
-#include "Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CWorldShadow.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CWorld.hpp"
 
 namespace urde {
 

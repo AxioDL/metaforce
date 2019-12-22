@@ -1,9 +1,11 @@
-#include "CExplosion.hpp"
-#include "CStateManager.hpp"
-#include "CGameLight.hpp"
+#include "Runtime/World/CExplosion.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CGameLight.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "Graphics/CBooRenderer.hpp"
-#include "GameGlobalObjects.hpp"
 
 namespace urde {
 

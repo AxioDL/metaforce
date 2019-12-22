@@ -1,6 +1,8 @@
-#include "CScriptDockAreaChange.hpp"
-#include "CStateManager.hpp"
-#include "World/CScriptDock.hpp"
+#include "Runtime/World/CScriptDockAreaChange.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CScriptDock.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

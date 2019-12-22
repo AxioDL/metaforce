@@ -1,5 +1,6 @@
-#include "CScannableObjectInfo.hpp"
-#include "GameGlobalObjects.hpp"
+#include "Runtime/CScannableObjectInfo.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 CScannableObjectInfo::CScannableObjectInfo(CInputStream& in, CAssetId resId) : x0_scannableObjectId(resId) {

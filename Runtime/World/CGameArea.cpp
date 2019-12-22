@@ -1,11 +1,14 @@
-#include "CGameArea.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
-#include "World/CScriptAreaAttributes.hpp"
-#include "CGameState.hpp"
+#include "Runtime/World/CGameArea.hpp"
+
+#include "Runtime/CGameState.hpp"
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/World/CScriptAreaAttributes.hpp"
+
 #include "DataSpec/DNAMP1/MREA.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

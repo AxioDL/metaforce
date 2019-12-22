@@ -1,7 +1,9 @@
-#include "CScriptCameraShaker.hpp"
+#include "Runtime/World/CScriptCameraShaker.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
 
 namespace urde {
 

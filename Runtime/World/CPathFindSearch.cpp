@@ -1,5 +1,6 @@
-#include "CPathFindSearch.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/World/CPathFindSearch.hpp"
+
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde {
 

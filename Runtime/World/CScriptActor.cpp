@@ -1,15 +1,18 @@
-#include "CScriptActor.hpp"
-#include "CStateManager.hpp"
-#include "CScriptTrigger.hpp"
-#include "Camera/CGameCamera.hpp"
-#include "CDamageVulnerability.hpp"
-#include "CPlayerState.hpp"
-#include "CScriptColorModulate.hpp"
-#include "Character/IAnimReader.hpp"
+#include "Runtime/World/CScriptActor.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/CPlayerState.hpp"
+#include "Runtime/Camera/CGameCamera.hpp"
+#include "Runtime/Character/IAnimReader.hpp"
+#include "Runtime/MP1/World/CActorContraption.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CDamageVulnerability.hpp"
+#include "Runtime/World/CScriptColorModulate.hpp"
+#include "Runtime/World/CScriptTrigger.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CActorParameters.hpp"
-#include "MP1/World/CActorContraption.hpp"
-#include "zeus/CEulerAngles.hpp"
+
+#include <zeus/CEulerAngles.hpp>
 
 namespace urde {
 

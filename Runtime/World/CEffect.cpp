@@ -1,5 +1,6 @@
-#include "CEffect.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CEffect.hpp"
+
+#include "Runtime/World/CActorParameters.hpp"
 
 namespace urde {
 

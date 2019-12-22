@@ -1,6 +1,8 @@
-#include "CScriptCoverPoint.hpp"
-#include "CActorParameters.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptCoverPoint.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

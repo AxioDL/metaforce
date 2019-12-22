@@ -1,6 +1,7 @@
-#include "CGSFreeLook.hpp"
-#include "CStateManager.hpp"
-#include "Character/CPASAnimParmData.hpp"
+#include "Runtime/Weapon/CGSFreeLook.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
 
 namespace urde {
 

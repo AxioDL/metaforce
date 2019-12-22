@@ -1,9 +1,11 @@
-#include "CScriptVisorFlare.hpp"
-#include "CActorParameters.hpp"
+#include "Runtime/World/CScriptVisorFlare.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
-#include "CStateManager.hpp"
-#include "CPlayer.hpp"
-#include "Particle/CGenDescription.hpp"
 
 namespace urde {
 

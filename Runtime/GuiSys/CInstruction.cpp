@@ -1,8 +1,9 @@
-#include "CInstruction.hpp"
-#include "CFontRenderState.hpp"
-#include "CTextRenderBuffer.hpp"
-#include "CRasterFont.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CInstruction.hpp"
+
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CFontRenderState.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
 namespace urde {
 

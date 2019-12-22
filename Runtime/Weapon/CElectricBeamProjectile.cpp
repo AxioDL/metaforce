@@ -1,11 +1,13 @@
-#include "CElectricBeamProjectile.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "Particle/CElectricDescription.hpp"
-#include "Particle/CParticleElectric.hpp"
-#include "Particle/CElementGen.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CSimplePool.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CElectricBeamProjectile.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElectricDescription.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/Particle/CParticleElectric.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

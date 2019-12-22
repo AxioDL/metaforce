@@ -1,8 +1,9 @@
-#include "CGSFidget.hpp"
-#include "WeaponCommon.hpp"
-#include "Character/CPASAnimParmData.hpp"
-#include "Character/CAnimData.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/Weapon/CGSFidget.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/Character/CAnimData.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
 
 namespace urde {
 bool CGSFidget::Update(CAnimData& data, float dt, CStateManager& mgr) {

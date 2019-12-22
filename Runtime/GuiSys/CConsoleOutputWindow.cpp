@@ -1,5 +1,5 @@
-#include "CConsoleOutputWindow.hpp"
-#include "Graphics/CGraphics.hpp"
+#include "Runtime/GuiSys/CConsoleOutputWindow.hpp"
+#include "Runtime/Graphics/CGraphics.hpp"
 
 namespace urde {
 

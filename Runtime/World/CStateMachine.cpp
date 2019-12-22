@@ -1,6 +1,7 @@
-#include "CStateMachine.hpp"
-#include "CAi.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CStateMachine.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CAi.hpp"
 
 namespace urde {
 CStateMachine::CStateMachine(CInputStream& in) {

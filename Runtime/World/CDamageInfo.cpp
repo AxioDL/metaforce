@@ -1,5 +1,7 @@
-#include "CDamageInfo.hpp"
-#include "CDamageVulnerability.hpp"
+#include "Runtime/World/CDamageInfo.hpp"
+
+#include "Runtime/World/CDamageVulnerability.hpp"
+
 #include "DataSpec/DNACommon/Tweaks/ITweakPlayerGun.hpp"
 
 namespace urde {

@@ -1,11 +1,12 @@
-#include "CHudMissileInterface.hpp"
-#include "CGuiFrame.hpp"
-#include "CAuiEnergyBarT01.hpp"
-#include "CGuiTextPane.hpp"
-#include "GameGlobalObjects.hpp"
-#include "CStateManager.hpp"
-#include "CGuiModel.hpp"
-#include "CStringTable.hpp"
+#include "Runtime/GuiSys/CHudMissileInterface.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/GuiSys/CAuiEnergyBarT01.hpp"
+#include "Runtime/GuiSys/CGuiFrame.hpp"
+#include "Runtime/GuiSys/CGuiModel.hpp"
+#include "Runtime/GuiSys/CGuiTextPane.hpp"
+#include "Runtime/GuiSys/CStringTable.hpp"
 
 namespace urde {
 

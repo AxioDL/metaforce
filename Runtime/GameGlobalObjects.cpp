@@ -1,4 +1,4 @@
-#include "GameGlobalObjects.hpp"
+#include "Runtime/GameGlobalObjects.hpp"
 
 namespace urde {
 namespace MP1 {

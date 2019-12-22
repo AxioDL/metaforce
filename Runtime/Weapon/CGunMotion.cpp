@@ -1,7 +1,8 @@
-#include "CGunMotion.hpp"
-#include "WeaponCommon.hpp"
-#include "CStateManager.hpp"
-#include "Character/CPASAnimParmData.hpp"
+#include "Runtime/Weapon/CGunMotion.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Character/CPASAnimParmData.hpp"
+#include "Runtime/Weapon/WeaponCommon.hpp"
 
 namespace urde {
 

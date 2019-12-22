@@ -1,9 +1,11 @@
-#include "CPlayerCameraBob.hpp"
-#include "World/CPlayer.hpp"
-#include "CStateManager.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "zeus/Math.hpp"
-#include "Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayerCameraBob.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/Particle/CGenDescription.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
+#include <zeus/Math.hpp>
 
 namespace urde {
 float CPlayerCameraBob::kCameraBobExtentX = 0.071f;

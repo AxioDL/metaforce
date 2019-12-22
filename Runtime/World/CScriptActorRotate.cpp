@@ -1,7 +1,9 @@
-#include "CScriptActorRotate.hpp"
-#include "CStateManager.hpp"
-#include "CScriptPlatform.hpp"
-#include "CScriptSpiderBallWaypoint.hpp"
+#include "Runtime/World/CScriptActorRotate.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CScriptPlatform.hpp"
+#include "Runtime/World/CScriptSpiderBallWaypoint.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

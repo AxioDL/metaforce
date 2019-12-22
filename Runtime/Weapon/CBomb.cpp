@@ -1,12 +1,15 @@
-#include "CBomb.hpp"
-#include "Particle/CElementGen.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CMorphBall.hpp"
-#include "GameGlobalObjects.hpp"
-#include "Graphics/CBooRenderer.hpp"
-#include "World/CGameLight.hpp"
-#include "TCastTo.hpp" // Generated file, do not modify include path
+#include "Runtime/Weapon/CBomb.hpp"
+
+#include "Runtime/GameGlobalObjects.hpp"
+#include "Runtime/Graphics/CBooRenderer.hpp"
+#include "Runtime/Particle/CElementGen.hpp"
+#include "Runtime/World/CGameLight.hpp"
+#include "Runtime/World/CMorphBall.hpp"
+#include "Runtime/World/CPlayer.hpp"
+
 #include "DataSpec/DNAMP1/SFX/Weapons.h"
+
+#include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
 

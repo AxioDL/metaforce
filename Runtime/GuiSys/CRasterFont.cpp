@@ -1,8 +1,9 @@
-#include "GuiSys/CRasterFont.hpp"
-#include "CDrawStringOptions.hpp"
-#include "CTextRenderBuffer.hpp"
-#include "Graphics/CTexture.hpp"
-#include "CSimplePool.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
+
+#include "Runtime/CSimplePool.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CDrawStringOptions.hpp"
+#include "Runtime/GuiSys/CTextRenderBuffer.hpp"
 
 namespace urde {
 CRasterFont::CRasterFont(urde::CInputStream& in, urde::IObjectStore& store) {

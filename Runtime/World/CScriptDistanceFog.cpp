@@ -1,6 +1,8 @@
-#include "CScriptDistanceFog.hpp"
-#include "CStateManager.hpp"
-#include "CWorld.hpp"
+#include "Runtime/World/CScriptDistanceFog.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CWorld.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

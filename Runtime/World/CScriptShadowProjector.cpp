@@ -1,7 +1,9 @@
-#include "World/CScriptShadowProjector.hpp"
-#include "World/CActorParameters.hpp"
-#include "World/CProjectedShadow.hpp"
-#include "CStateManager.hpp"
+#include "Runtime/World/CScriptShadowProjector.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CActorParameters.hpp"
+#include "Runtime/World/CProjectedShadow.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

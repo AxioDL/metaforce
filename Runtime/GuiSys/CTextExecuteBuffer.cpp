@@ -1,12 +1,13 @@
-#include "CTextExecuteBuffer.hpp"
-#include "CTextRenderBuffer.hpp"
-#include "CFontRenderState.hpp"
-#include "CFontImageDef.hpp"
-#include "CInstruction.hpp"
-#include "CRasterFont.hpp"
-#include "CWordBreakTables.hpp"
-#include "Graphics/CGraphicsPalette.hpp"
-#include "Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CTextExecuteBuffer.hpp"
+
+#include "Runtime/Graphics/CGraphicsPalette.hpp"
+#include "Runtime/Graphics/CTexture.hpp"
+#include "Runtime/GuiSys/CFontImageDef.hpp"
+#include "Runtime/GuiSys/CFontRenderState.hpp"
+#include "Runtime/GuiSys/CInstruction.hpp"
+#include "Runtime/GuiSys/CRasterFont.hpp"
+#include "Runtime/GuiSys/CTextRenderBuffer.hpp"
+#include "Runtime/GuiSys/CWordBreakTables.hpp"
 
 namespace urde {
 

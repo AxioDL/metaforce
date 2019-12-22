@@ -1,10 +1,12 @@
-#include "CScriptSpindleCamera.hpp"
-#include "Camera/CCameraManager.hpp"
-#include "CStateManager.hpp"
-#include "ScriptLoader.hpp"
-#include "Camera/CBallCamera.hpp"
-#include "World/CPlayer.hpp"
-#include "World/CScriptCameraHint.hpp"
+#include "Runtime/World/CScriptSpindleCamera.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/Camera/CBallCamera.hpp"
+#include "Runtime/Camera/CCameraManager.hpp"
+#include "Runtime/World/CPlayer.hpp"
+#include "Runtime/World/CScriptCameraHint.hpp"
+#include "Runtime/World/ScriptLoader.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {

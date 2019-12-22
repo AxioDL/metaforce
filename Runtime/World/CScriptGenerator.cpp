@@ -1,6 +1,8 @@
-#include "CScriptGenerator.hpp"
-#include "CStateManager.hpp"
-#include "CWallCrawlerSwarm.hpp"
+#include "Runtime/World/CScriptGenerator.hpp"
+
+#include "Runtime/CStateManager.hpp"
+#include "Runtime/World/CWallCrawlerSwarm.hpp"
+
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
