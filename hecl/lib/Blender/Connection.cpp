@@ -527,9 +527,9 @@ Connection::Connection(int verbosityLevel) {
       else
         BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Unable to find blender at '{}'")), DEFAULT_BLENDER_BIN);
 #endif
-    } else if (lineStr == "NOT280") {
+    } else if (lineStr == "NOT281") {
       _closePipe();
-      BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Installed blender version must be >= 2.80")));
+      BlenderLog.report(logvisor::Fatal, fmt(_SYS_STR("Installed blender version must be >= 2.81")));
     } else if (lineStr == "NOADDON") {
       _closePipe();
       if (blenderAddonPath != _SYS_STR("SKIPINSTALL"))
