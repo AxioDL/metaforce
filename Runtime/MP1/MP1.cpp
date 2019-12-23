@@ -352,7 +352,7 @@ void CMain::AddOverridePaks() {
   // Trilogy override pak
   // TODO check how it's actually loaded
   if (CDvdFile::FileExists("RS5.upak"))
-    loader->AddPakFileAsync("RS5", false, false, true);
+    loader->AddPakFile("RS5", false, false, true);
 
   /* Inversely load each pak starting at 999, to ensure proper priority order
    * the higher the number the higer the priority, e.g: Override0 has less priority than Override1 etc.

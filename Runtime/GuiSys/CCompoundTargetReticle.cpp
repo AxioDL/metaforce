@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include "CTimeProvider.hpp"
 #include "Runtime/GameGlobalObjects.hpp"
 #include "Runtime/CSimplePool.hpp"
 #include "Runtime/CStateManager.hpp"
@@ -9,7 +10,6 @@
 #include "Runtime/World/CPlayer.hpp"
 #include "Runtime/World/CScriptGrapplePoint.hpp"
 #include "Runtime/World/CWorld.hpp"
-
 #include "TCastTo.hpp" // Generated file, do not modify include path
 
 namespace urde {
@@ -47,8 +47,8 @@ float offshoot_func(float f1, float f2, float f3) { return (f1 * 0.5f) + std::si
 float calculate_premultiplied_overshoot_offset(float f1) { return 2.f * (M_PIF - std::asin(1.f / f1)); }
 } // Anonymous namespace
 
-const CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f,
-                                                                             zeus::skZero3f, 0.f, 1.f, true);
+const CTargetReticleRenderState CTargetReticleRenderState::skZeroRenderState(kInvalidUniqueId, 1.f, zeus::skZero3f, 0.f,
+                                                                             1.f, true);
 
 CCompoundTargetReticle::SOuterItemInfo::SOuterItemInfo(std::string_view res) : x0_model(g_SimplePool->GetObj(res)) {}
 
@@ -88,6 +88,7 @@ CCompoundTargetReticle::CCompoundTargetReticle(const CStateManager& mgr)
   for (u32 i = 0; i < 9; ++i)
     xe0_outerBeamIconSquares.emplace_back(fmt::format(fmt("{}{}"), skOuterBeamIconSquareNameBase, i));
   x34_crosshairs.Lock();
+  std::fill(std::begin(x444_), std::end(x444_), kInvalidUniqueId);
 }
 
 CCompoundTargetReticle::SScanReticuleRenderer::SScanReticuleRenderer() {
@@ -126,10 +127,12 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
       t == 1.f ? x0_leadingOrientation : zeus::CQuaternion::slerp(x10_laggingOrientation, x0_leadingOrientation, t);
   xf4_targetPos = CalculateOrbitZoneReticlePosition(mgr, false);
   x100_laggingTargetPos = CalculateOrbitZoneReticlePosition(mgr, true);
-  // TODO more
-  UpdateNewGroup1(dt, mgr);
-  UpdateNewGroup2(dt, mgr);
-  // TODO more
+  UpdateNewGroup4(dt, mgr);
+  UpdateNewGroup5(dt, mgr);
+  UpdateNewGroup6(dt, mgr);
+  UpdateNextLockOnGroupRS5(dt, mgr);
+  UpdateCurrLockOnGroupRS5(dt, mgr);
+  UpdateNewGroup3(dt, mgr);
   UpdateCurrLockOnGroup(dt, mgr);
   UpdateNextLockOnGroup(dt, mgr);
   UpdateOrbitZoneGroup(dt, mgr);
@@ -300,9 +303,9 @@ void CCompoundTargetReticle::Update(float dt, const CStateManager& mgr) {
       x1de_grapplePoint1 = kInvalidUniqueId;
   }
   x1f0_xrayRetAngle =
-    zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle).asRel();
-  x1ec_seekerAngle = zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle).
-    asRel();
+      zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetXRayRetAngleSpeed() * dt) + x1f0_xrayRetAngle).asRel();
+  x1ec_seekerAngle =
+      zeus::CRelAngle(zeus::degToRad(g_tweakTargeting->GetSeekerAngleSpeed() * dt) + x1ec_seekerAngle).asRel();
 }
 
 void CTargetReticleRenderState::InterpolateWithClamp(const CTargetReticleRenderState& a, CTargetReticleRenderState& out,
@@ -335,125 +338,101 @@ static bool IsDamageOrbit(CPlayer::EPlayerOrbitRequest req) {
   }
 }
 
-void CCompoundTargetReticle::UpdateNewGroup1(float dt, const class CStateManager& mgr) {
+void CCompoundTargetReticle::UpdateNextLockOnGroupRS5(float dt, const class CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   TUniqueId nextTargetId = player.GetOrbitNextTargetId();
 
-  x2a4_ = g_tweakTargeting->x2e0_;
-  x290_ = zeus::CVector3f(g_tweakTargeting->x2cc_);
+  x2a4_uiPositionOffset = g_tweakTargeting->x2e0_uiPositionOffset;
+  x290_uiScale = zeus::CVector3f(g_tweakTargeting->x2cc_uiScale);
   if (nextTargetId != kInvalidUniqueId)
-    x29c_ = g_tweakTargeting->x2d0_;
+    x29c_nextTargetOrbitLockColor = g_tweakTargeting->x2d0_orbitLockArmColor;
 
   if (auto act = TCastToConstPtr<CActor>(mgr.GetObjectById(nextTargetId)))
-    x2b4_ = act->GetOrbitPosition(mgr);
+    x2b4_nextTargetOrbitPosition = act->GetOrbitPosition(mgr);
   else
-    x2b4_ = x2c0_;
+    x2b4_nextTargetOrbitPosition = x2c0_orbitLockArmNextOrigin;
 
-  const CGameCamera* camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-  const zeus::CTransform cameraTransform = camera->GetTransform();
-  const zeus::CVector3f vec1 = cameraTransform.frontVector().normalized();
-  const zeus::CVector3f cameraOrigin = vec1 - cameraTransform.origin;
-  const zeus::CVector3f normalizedCamOrigin = cameraOrigin.normalized();
-  const float dot = 1.25f / vec1.dot(normalizedCamOrigin);
-  const zeus::CVector3f final = cameraTransform.origin + (normalizedCamOrigin * dot);
-  x2d8_ = final;
+  const zeus::CTransform cameraTransform = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform();
+  const zeus::CVector3f cameraOrigin = cameraTransform.origin;
+  const zeus::CVector3f cameraFrontVector = cameraTransform.frontVector().normalized();
+  const zeus::CVector3f nextTargetCameraOffset = (x2b4_nextTargetOrbitPosition - cameraOrigin).normalized();
+  const float dot = 1.25f / cameraFrontVector.dot(nextTargetCameraOffset);
+  const zeus::CVector3f final = cameraOrigin + (nextTargetCameraOffset * dot);
+  x2d8_orbitLockArm1Origin = final;
 
-  if (nextTargetId != kInvalidUniqueId && x27c_ != nextTargetId) {
-    if (x2a0_ == 0.f) {
-      x2e4_ = final;
+  if (nextTargetId != kInvalidUniqueId && x27c_nextTargetId != nextTargetId) {
+    if (x2a0_nextTargetOrbitLockAlpha == 0.f) {
+      x2e4_orbitLockArmFadeOrigin = final;
     } else {
-      x2e4_ = x2c0_;
-      x2cc_ = true;
-      x2d0_ = g_tweakTargeting->x2f0_;
-      x2d4_ = 0.f;
+      x2e4_orbitLockArmFadeOrigin = x2c0_orbitLockArmNextOrigin;
+      x2cc_orbitLockArmFading = true;
+      x2d0_orbitLockArmFadeAmt = g_tweakTargeting->x2f0_;
+      x2d4_orbitLockArmFadeDt = 0.f;
     }
   }
 
-  float dVar19 = g_tweakTargeting->x2d4_;
-  float dVar18 = dt * (dVar19 / g_tweakTargeting->x2ec_);
+  float alphaMax = g_tweakTargeting->x2d4_;
+  float alphaChg = dt * (alphaMax / g_tweakTargeting->x2ec_);
   if (nextTargetId == kInvalidUniqueId) {
-    float dVar16 = x2a0_ - dVar18;
-    float check1 = 0.f;
-    if ((0.f - dVar16) <= 0.f) {
-      check1 = dVar16;
-    }
-    if (dVar19 <= 0.f) {
-      dVar19 = check1;
-    }
-    x2a0_ = dVar19;
+    x2a0_nextTargetOrbitLockAlpha = std::clamp(x2a0_nextTargetOrbitLockAlpha - alphaChg, 0.f, alphaMax);
   } else {
-    float dVar16 = x2a0_ + dVar18;
-    float check1 = 0.f;
-    if ((0.f - dVar16) <= 0.f) {
-      check1 = dVar16;
-    }
-    if (dVar19 <= 0.f) {
-      dVar19 = check1;
-    }
-    x2a0_ = dVar19;
+    x2a0_nextTargetOrbitLockAlpha = std::clamp(x2a0_nextTargetOrbitLockAlpha + alphaChg, 0.f, alphaMax);
   }
 
-  if (!x2cc_ || x2d0_ <= 0.f) {
-    x280_ = x2d8_;
-    x2c0_ = x2b4_;
+  if (!x2cc_orbitLockArmFading || x2d0_orbitLockArmFadeAmt <= 0.f) {
+    x280_nextTargetOrbitLockOrigin = x2d8_orbitLockArm1Origin;
+    x2c0_orbitLockArmNextOrigin = x2b4_nextTargetOrbitPosition;
   } else {
-    float f1 = x2d4_ + dt;
-    float result = 0.f;
-    if ((0.f - f1) <= 0.f) {
-      result = f1;
-    }
-    f1 = x2d0_;
-    if (f1 <= 0.f) {
-      f1 = result;
-    }
-    x2d4_ = f1;
-    if (x2d0_ <= f1) {
-      x2cc_ = false;
-      x280_ = x2d8_;
-      x2c0_ = x2b4_;
+    float f3 = x2d0_orbitLockArmFadeAmt;
+    float pt = std::max(0.f, x2d4_orbitLockArmFadeDt + dt);
+    float f0 = (pt - f3) >= 0.f ? f3 : pt;
+    x2d4_orbitLockArmFadeDt = f0;
+    if (x2d0_orbitLockArmFadeAmt <= f0) {
+      x2cc_orbitLockArmFading = false;
+      x280_nextTargetOrbitLockOrigin = x2d8_orbitLockArm1Origin;
+      x2c0_orbitLockArmNextOrigin = x2b4_nextTargetOrbitPosition;
     } else {
-      const zeus::CVector3f origin = (x2e4_ - cameraTransform.origin).normalized();
-      float dot2 = 1.25f / origin.dot(vec1);
-      const zeus::CVector3f vec = (origin * dot2) + cameraOrigin;
+      const zeus::CVector3f origin = (x2e4_orbitLockArmFadeOrigin - cameraOrigin).normalized();
+      float dot2 = 1.25f / origin.dot(cameraFrontVector);
+      const zeus::CVector3f vec = cameraOrigin + (origin * dot2);
 
-      float div = x2d4_ / x2d0_;
+      float div = x2d4_orbitLockArmFadeDt / x2d0_orbitLockArmFadeAmt;
       float oneMinusDiv = 1.f - div;
-      const zeus::CVector3f vec2 = (vec * oneMinusDiv) + (x2d8_ * div);
-      x280_ = vec2;
+      const zeus::CVector3f vec2 = (vec * oneMinusDiv) + (x2d8_orbitLockArm1Origin * div);
+      x280_nextTargetOrbitLockOrigin = vec2;
 
       const zeus::CVector3f vec3 = (vec2 - cameraOrigin).normalized();
-      float mag = (x2b4_ - cameraOrigin).magnitude();
-      x2c0_ = cameraOrigin + (vec3 * mag);
+      float mag = (x2b4_nextTargetOrbitPosition - cameraOrigin).magnitude();
+      x2c0_orbitLockArmNextOrigin = cameraOrigin + (vec3 * mag);
     }
   }
 
-  x27c_ = nextTargetId;
-  x28c_ = x28c_ + zeus::degToRad(dt * g_tweakTargeting->x2f4_);
+  x27c_nextTargetId = nextTargetId;
+  x28c_orbitLockArmRotation += zeus::degToRad(dt * g_tweakTargeting->x2f4_orbitLockArmRotSpeed);
 }
 
-void CCompoundTargetReticle::UpdateNewGroup2(float dt, const class CStateManager& mgr) {
+void CCompoundTargetReticle::UpdateCurrLockOnGroupRS5(float dt, const class CStateManager& mgr) {
   CPlayer& player = mgr.GetPlayer();
   TUniqueId targetId = player.GetOrbitTargetId();
   bool bVar1 = false;
   if (targetId != kInvalidUniqueId) {
-    TCastToConstPtr<CScriptGrapplePoint> prevPoint = mgr.GetObjectById(x27c_);
+    TCastToConstPtr<CScriptGrapplePoint> prevPoint = mgr.GetObjectById(x27c_nextTargetId);
     TCastToConstPtr<CScriptGrapplePoint> currPoint = mgr.GetObjectById(targetId);
     bVar1 = currPoint.operator bool();
     if (!prevPoint) {
-      x27c_ = kInvalidUniqueId;
-      x2a0_ = 0.f;
+      x27c_nextTargetId = kInvalidUniqueId;
+      x2a0_nextTargetOrbitLockAlpha = 0.f;
     }
   }
 
-  const CGameCamera* camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
-  zeus::CTransform cameraTransform = camera->GetTransform();
-  zeus::CQuaternion quat_304 = cameraTransform.getRotation().buildMatrix3f();
-  zeus::CVector3f vec3f_17c = quat_304.transform(zeus::CVector3f(0.f, 1.25f, 0.f));
-  x2f2_ = cameraTransform.origin + vec3f_17c;
+  zeus::CTransform cameraTransform = mgr.GetCameraManager()->GetCurrentCamera(mgr)->GetTransform();
+  zeus::CQuaternion cameraRotation = cameraTransform.getRotation().buildMatrix3f();
+  zeus::CVector3f translate = cameraRotation.transform(zeus::CVector3f(0.f, 1.25f, 0.f));
+  x2f2_orbitLockOrigin = cameraTransform.origin + translate;
 
   bool bVar11 = false;
   auto uVar14 = ((u32)kInvalidUniqueId.id) - ((u32)targetId.id) | ((u32)targetId.id) - ((u32)kInvalidUniqueId.id);
-  if (((s32) uVar14) > -1 && player.x1188_) { // < 0
+  if (((s32)uVar14) > -1 && player.x1188_) { // < 0
     bVar11 = true;
   }
 
@@ -462,7 +441,7 @@ void CCompoundTargetReticle::UpdateNewGroup2(float dt, const class CStateManager
       if (bVar11) {
         TCastToConstPtr<CScriptGrapplePoint> point = mgr.GetObjectById(x2f0_);
         if (x20_prevState == EReticleState::Combat && !point.operator bool()) {
-          x350_ = 1.f;
+          x350_nextGrappleOrbitLockAlpha = 1.f;
         }
       }
     } else {
@@ -472,110 +451,75 @@ void CCompoundTargetReticle::UpdateNewGroup2(float dt, const class CStateManager
     x324_ += dt;
   }
 
-  x300_ = g_tweakTargeting->x2d8_;
+  x300_orbitLockArmColor = g_tweakTargeting->x2d8_;
   zeus::CColor _1d4 = g_tweakTargeting->x304_;
   if (IsGrappleTarget(targetId, mgr)) {
-    x300_ = g_tweakTargeting->x320_;
+    x300_orbitLockArmColor = g_tweakTargeting->x320_;
     _1d4 = g_tweakTargeting->x320_;
   }
 
-  if (((s32) uVar14) < 0) {
+  if (((s32)uVar14) < 0 || !bVar11) {
     x37c_ = std::max(0.f, g_tweakTargeting->x318_);
     x380_ = std::max(0.f, g_tweakTargeting->x31c_);
   } else {
-    if (bVar11) {
-      x380_ = std::max(0.f, g_tweakTargeting->x318_);
-      x37c_ = std::max(0.f, g_tweakTargeting->x31c_);
-    } else {
-      x37c_ = std::max(0.f, g_tweakTargeting->x318_);
-      x380_ = std::max(0.f, g_tweakTargeting->x31c_);
-    }
+    x380_ = std::max(0.f, g_tweakTargeting->x318_);
+    x37c_ = std::max(0.f, g_tweakTargeting->x31c_);
   }
 
-  float fVar2 = g_tweakTargeting->x354_;
-  float fVar3 = 0.f;
-  if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
-    fVar3 = g_tweakTargeting->x358_;
-  }
   float fVar4 = 1.f;
-  if (fVar3 > 0.f) {
-    fVar4 = dt * (fVar2 / fVar3);
+  if (player.GetMorphballTransitionState() == CPlayer::EPlayerMorphBallState::Unmorphed) {
+    fVar4 = dt * (g_tweakTargeting->x354_nextGrappleOrbitLockAlphaMax / g_tweakTargeting->x358_);
   }
-  fVar4 = x350_ - fVar4;
-  fVar3 = 0.f;
-  if (0.f - fVar4 <= 0.f) {
-    fVar3 = fVar4;
-  }
-  if (fVar2 <= 0.f) {
-    fVar2 = fVar3;
-  }
-  x350_ = fVar2;
+  x350_nextGrappleOrbitLockAlpha =
+      std::clamp(x350_nextGrappleOrbitLockAlpha - fVar4, 0.f, g_tweakTargeting->x354_nextGrappleOrbitLockAlphaMax);
 
   float dVar31 = x37c_ / g_tweakTargeting->x318_;
   float dVar30 = x380_ / g_tweakTargeting->x31c_;
   x36c_lerped_color_ = zeus::CColor::lerp(g_tweakTargeting->x30c_, _1d4, dVar31);
+
   x378_ = dVar30;
-
   x370_ = ((1.f - dVar31) * g_tweakTargeting->x310_) + (dVar31 * g_tweakTargeting->x308_);
-  x374_ = ((1.f - dVar30) * 0.f) + (dVar30 * g_tweakTargeting->x314_);
+  x374_ = /*((1.f - dVar30) * 0.f) +*/ (dVar30 * g_tweakTargeting->x314_);
 
-  float local_140 = g_tweakTargeting->x338_;
-  x328_ = x290_ + local_140;
-
+  float clamp = std::clamp((x324_ - g_tweakTargeting->x330_) / g_tweakTargeting->x334_, 0.f, 1.f);
+  float negativeClamp = g_tweakTargeting->x338_ * (1.f - clamp);
+  x328_orbitLockBaseScale = (x290_uiScale * clamp) + negativeClamp;
   x308_orbitLockBaseColor = g_tweakTargeting->x328_;
   x30c_orbitLockBaseAlpha = g_tweakTargeting->x32c_;
 
-  dVar30 = (x324_ - g_tweakTargeting->x33c_) / g_tweakTargeting->x340_;
-  float dVar27 = 0.f;
-  if ((float)(0.f - dVar30) <= 0.00000000) {
-    dVar27 = dVar30;
-  }
-  dVar30 = 1.f;
-  if ((float)(dVar27 - 1.f) <= 0.00000000) {
-    dVar30 = dVar27;
-  }
-  x334_ = ((1.f - dVar30) * 0.f) + (dVar30 * g_tweakTargeting->x32c_);
+  float f31 = std::clamp((x324_ - g_tweakTargeting->x33c_) / g_tweakTargeting->x340_, 0.f, 1.f);
+  x334_ = f31 * g_tweakTargeting->x32c_;
 
-  zeus::CVector3f _14c(player.GetTransform().basis.m[1][0], player.GetTransform().basis.m[1][1], 0.f); // params probably not right
-  _14c.normalize();
-  float fVar27 = zeus::CVector3f::getAngleDiff(_14c, zeus::skForward);
-  float fVar2_ = 360.f * (0.15915494f /*1/(2*PI)*/ * fVar27);
+  const zeus::CVector3f& playerRotation = player.GetTransform().frontVector().normalized();
+  float f = 1.f / (2.f * M_PI);
+  float degrees = 360.f * (f * zeus::CVector3f::getAngleDiff(playerRotation, zeus::skForward));
+  float radians = zeus::degToRad(playerRotation.x() > 0.f ? 360.f - degrees : degrees);
+  float playerAngle = radians - std::trunc(radians * f) * M_2_PI;
+  if (playerAngle < 0.f)
+    playerAngle += M_2_PI;
 
-  float out;
-  if (0.f <= _14c.x()) { // local_1b0 = local_14c.x * local_158.y - local_158.x * local_14c.y;
-    float rad = zeus::degToRad(fVar2_);
-    float d = rad - (((int) (rad * M_PI_2)) * M_2_PI);
-    if (d < 0.f)
-      d += M_2_PI;
-    out = d;
+  if (f31 < 1.f) {
+    x338_orbitLockBracketsRotation = 0.f;
   } else {
-    float rad = zeus::degToRad(360.f - fVar2_);
-    float d = rad - (((int) (rad * M_PI_2)) * M_2_PI);
-    if (d < 0.f)
-      d += M_2_PI;
-    out = d;
+    x338_orbitLockBracketsRotation = x338_orbitLockBracketsRotation + (playerAngle - x33c_prevPlayerAngle);
   }
+  x33c_prevPlayerAngle = playerAngle;
 
-  if (dVar30 < 1.f) {
-    x338_ = 0.f;
+  float f32 = ((x324_ - 0.f) / g_tweakTargeting->x348_) * 0.5f;
+  x340_orbitLockTechScrollTime = std::clamp(f32, 0.f, 0.496f);
+  if (f32 < 1.f) {
+    x344_orbitLockTechRotation = 0.f;
   } else {
-    x338_ = x338_ + (out - x33c_angle_);
+    x344_orbitLockTechRotation += zeus::degToRad(g_tweakTargeting->x34c_ * dt);
   }
-  x33c_angle_ = out;
-  x340_ = 0.496f;
-  if ((x324_ - g_tweakTargeting->x344_) / g_tweakTargeting->x348_ < 1.f) {
-    x344_ = 0.f;
-  } else {
-    x344_ += zeus::degToRad(g_tweakTargeting->x34c_ * dt);
-  }
-  x348_inverse_angle_ = out;
+  x348_playerAngle = playerAngle;
 
   if (x20_prevState != EReticleState::Combat && x20_prevState != EReticleState::Unspecified) {
     bVar1 = true;
     x374_ = 0.f;
   }
   if (bVar1) {
-    x304_ = 0.f;
+    x304_orbitLockArmAlpha = 0.f;
   } else {
     float g = g_tweakTargeting->x2dc_;
     float f3 = 1.f;
@@ -583,20 +527,128 @@ void CCompoundTargetReticle::UpdateNewGroup2(float dt, const class CStateManager
       f3 = (dt * (g / g_tweakTargeting->x2fc_));
     }
     if (x324_ < g_tweakTargeting->x2f8_) {
-      x304_ = g;
+      x304_orbitLockArmAlpha = g;
     } else {
       float f4 = g_tweakTargeting->x300_;
       if (f4 <= 0.f) {
-        f4 = x304_ - f3;
+        f4 = x304_orbitLockArmAlpha - f3;
       }
       if (g <= 0.f) {
         g = f4;
       }
-      x304_ = g;
+      x304_orbitLockArmAlpha = g;
     }
   }
   x34c_ = bVar11;
   x2f0_ = targetId;
+}
+
+void CCompoundTargetReticle::UpdateNewGroup3(float dt, const CStateManager& mgr) {
+  bool bVar5;
+  CPlayer& player = mgr.GetPlayer();
+  std::shared_ptr<CPlayerState> playerState = mgr.GetPlayerState();
+  if (playerState->GetCurrentVisor() == CPlayerState::EPlayerVisor::Scan) {
+    TUniqueId id = kInvalidUniqueId;
+    if (x440_ != 0) {
+      id = *x444_.begin();
+    }
+    TCastToConstPtr<CActor> checkActor = mgr.GetObjectById(id);
+    zeus::CVector3f vec = player.GetUnknownPlayerState2().Getx7c();
+    zeus::CVector3f vec2 = zeus::skZero3f;
+
+    if (checkActor.operator bool()) {
+      bool bVar10 = false;
+      zeus::CAABox total;
+
+      auto iter = x444_.begin();
+      // TODO x440_ tracks count?
+      while (iter != x444_.end()) {
+        TCastToConstPtr<CActor> actor = mgr.GetObjectById(*iter);
+        if (actor.operator bool()) {
+          const CModelData* modelData = actor->GetModelData();
+          bool bVar6 = false;
+          if (modelData != nullptr) {
+            bVar5 = false;
+            if (!modelData->HasAnimData() && !modelData->GetNormalModel().IsLocked()) { // Locked??
+              bVar5 = true;
+            }
+            if (!bVar5) {
+              bVar6 = true;
+            }
+          }
+          if (bVar6) {
+            bVar6 = false;
+            if (!modelData->HasAnimData() && !modelData->GetNormalModel().IsLocked()) {
+              bVar6 = true;
+            }
+            if (!bVar6) {
+              if (!modelData->HasAnimData()) {
+                const zeus::CAABox box = modelData->GetBounds();
+                const zeus::CVector3f center = box.center();
+                const zeus::CVector3f mul = box.extents() * modelData->GetScale();
+                total.accumulateBounds(zeus::CAABox(center - mul, center + mul));
+                bVar10 = true;
+              } else {
+                const zeus::CAABox box = modelData->GetAnimationData()->GetBoundingBox();
+                zeus::CTransform transform = player.GetTransform();
+                const zeus::CVector3f min = transform * (box.min * modelData->GetScale());
+                const zeus::CVector3f max = transform * (box.max * modelData->GetScale());
+                total.accumulateBounds(zeus::CAABox(min, max));
+                bVar10 = true;
+              }
+            }
+          }
+        }
+      }
+      if (bVar10) {
+        const zeus::CVector3f _1b8 = total.center();
+        vec = _1b8;
+        const CGameCamera* camera = mgr.GetCameraManager()->GetCurrentCamera(mgr);
+        const zeus::CAABox transformed = total.getTransformedAABox(camera->GetTransform());
+        const zeus::CVector3f _1c4 = transformed.max - transformed.min;
+        vec2 = _1c4;
+        const zeus::CVector3f _320 = camera->ConvertToScreenSpace(_1b8);
+        if (_320.z() > 1.f) {
+          vec = player.GetUnknownPlayerState2().Getx7c();
+          vec2 = zeus::skOne3f;
+        }
+      }
+    }
+
+    x41c_ = vec;
+    x434_ = vec2;
+  }
+}
+
+void CCompoundTargetReticle::UpdateNewGroup4(float dt, const CStateManager& mgr) {
+  CPlayer& player = mgr.GetPlayer();
+  x228_ = player.GetUnknownPlayerState2().Getx7c();
+
+  TUniqueId targetId = mgr.GetPlayer().GetOrbitTargetId();
+  TCastToConstPtr<CActor> actor = mgr.GetObjectById(targetId);
+  float d = dt / 1.f;
+  if (actor.operator bool()) {
+    x21c_ = std::min(1.f, x21c_ + d);
+    x234_ = CalculatePositionWorld(*actor, mgr);
+  } else {
+    x21c_ = std::max(0.f, x21c_ - d);
+  }
+
+  x224_ = std::max(0.f, x224_ - d);
+}
+
+void CCompoundTargetReticle::UpdateNewGroup5(float dt, const CStateManager& mgr) {
+  const CPlayer& player = mgr.GetPlayer();
+  x240_ = player.GetUnknownPlayerState2().Getx7c();
+  x250_ = g_tweakTargeting->x220_scanTargetClampMax;
+  x268_ = g_tweakTargeting->x23c_;
+
+  const zeus::CVector3f v1 = player.GetUnknownPlayerState2().Getx7c() - player.GetTransform().origin;
+  float mag = v1.magnitude();
+}
+
+void CCompoundTargetReticle::UpdateNewGroup6(float dt, const CStateManager& mgr) {
+
 }
 
 void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager& mgr) {
@@ -655,12 +707,11 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
                         1.f - x204_chargeGaugeOvershootTimer / g_tweakTargeting->GetChargeGaugeOvershootDuration());
       for (int i = 0; i < 9; ++i) {
         SOuterItemInfo& item = xe0_outerBeamIconSquares[i];
-        item.x10_rotAng = zeus::CRelAngle(item.x18_offshootAngleDelta * offshoot + item.xc_offshootBaseAngle).
-          asRel();
+        item.x10_rotAng = zeus::CRelAngle(item.x18_offshootAngleDelta * offshoot + item.xc_offshootBaseAngle).asRel();
       }
       xc4_chargeGauge.x10_rotAng =
-        zeus::CRelAngle(xc4_chargeGauge.x18_offshootAngleDelta * offshoot + xc4_chargeGauge.xc_offshootBaseAngle).
-          asRel();
+          zeus::CRelAngle(xc4_chargeGauge.x18_offshootAngleDelta * offshoot + xc4_chargeGauge.xc_offshootBaseAngle)
+              .asRel();
     }
   }
   if (x208_lockonTimer > 0.f && x208_lockonTimer < g_tweakTargeting->GetLockonDuration())
@@ -670,13 +721,13 @@ void CCompoundTargetReticle::UpdateCurrLockOnGroup(float dt, const CStateManager
   if (x1fc_missileBracketScaleTimer > 0.f)
     x1fc_missileBracketScaleTimer = std::max(0.f, x1fc_missileBracketScaleTimer - dt);
   if (x20_prevState == EReticleState::Scan && x456_ != kInvalidUniqueId)
-    x404_ = std::min(1.f, x404_ + (dt / g_tweakTargeting->x360_));
+    x404_ = std::min(1.f, x404_ + dt / g_tweakTargeting->x360_);
   else
-    x404_ = std::max(0.f, x404_ - (dt / g_tweakTargeting->x360_));
+    x404_ = std::max(0.f, x404_ - dt / g_tweakTargeting->x360_);
   if (mgr.GetPlayer().GetScanningObjectId() == kInvalidUniqueId)
-    x214_ = std::min(1.f, x214_ + (dt * 4.f));
+    x214_ = std::min(1.f, x214_ + dt * 4.f);
   else
-    x214_ = std::max(0.f, x214_ - (dt * 4.f));
+    x214_ = std::max(0.f, x214_ - dt * 4.f);
 }
 
 void CCompoundTargetReticle::UpdateNextLockOnGroup(float dt, const CStateManager& mgr) {
@@ -734,101 +785,98 @@ void CCompoundTargetReticle::Draw(const CStateManager& mgr, bool hideLockon) con
     SCOPED_GRAPHICS_DEBUG_GROUP("CCompoundTargetReticle::Draw", zeus::skCyan);
     zeus::CTransform camXf = mgr.GetCameraManager()->GetCurrentCameraTransform(mgr);
     CGraphics::SetViewPointMatrix(camXf);
+    CGraphics::SetCullMode(ERglCullMode::None);
     if (!hideLockon) {
-      DrawNewGroup1(camXf.basis, mgr);
-      DrawNewGroup2(camXf.basis, mgr);
-//      DrawCurrLockOnGroup(camXf.basis, mgr);
-//      DrawNextLockOnGroup(camXf.basis, mgr);
+      DrawNextLockOnGroupRS5(camXf.basis, mgr);
+      DrawCurrLockOnGroupRS5(camXf.basis, mgr);
+      //      DrawCurrLockOnGroup(camXf.basis, mgr);
+      //      DrawNextLockOnGroup(camXf.basis, mgr);
       DrawOrbitZoneGroup(camXf.basis, mgr);
     }
     DrawGrappleGroup(camXf.basis, mgr, hideLockon);
+    CGraphics::SetCullMode(ERglCullMode::Front);
   }
   if (x28_noDrawTicks > 0)
     --x28_noDrawTicks;
 }
 
-void CCompoundTargetReticle::DrawNewGroup1(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
-  if (x2a0_ > 0) {
+void CCompoundTargetReticle::DrawNextLockOnGroupRS5(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
+  if (x2a0_nextTargetOrbitLockAlpha > 0) {
     for (int i = 0; i < 3; i++) {
-      zeus::CTransform transform_184(zeus::CMatrix3f(), x2a4_);
-      zeus::CMatrix3f mat3f_220 = zeus::CMatrix3f::RotateY(x28c_ + zeus::degToRad(120.f * i));
-      zeus::CMatrix3f mat3f_704 = mat3f_220 * zeus::CMatrix3f(x290_);
-      zeus::CTransform transform_304(mat3f_704 /*, zeus::skZero3f*/);
-      zeus::CTransform transform_352(rot, x280_);
-      zeus::CTransform transform_752 = transform_352 * transform_304;
-      zeus::CTransform transform_400 = transform_752 * transform_184;
-      CGraphics::SetModelMatrix(transform_400);
+      const zeus::CTransform origin = zeus::CTransform(rot, x280_nextTargetOrbitLockOrigin);
+      const zeus::CTransform transform =
+          zeus::CMatrix3f::RotateY(x28c_orbitLockArmRotation + zeus::degToRad(120.f * i)) *
+          zeus::CMatrix3f(x290_uiScale);
+      CGraphics::SetModelMatrix(origin * transform * zeus::CTransform::Translate(x2a4_uiPositionOffset));
 
-      zeus::CColor color = x29c_;
-      color.a() = x2a0_;
+      zeus::CColor color = x29c_nextTargetOrbitLockColor;
+      color.a() *= std::max(0.25f, x2a0_nextTargetOrbitLockAlpha);
       CModelFlags flags(5, 0, 0, color);
       x3a4_orbitLockArm->Draw(flags);
     }
   }
 
-  if (x350_ > 0) {
+  if (x350_nextGrappleOrbitLockAlpha > 0) {
     for (int i = 0; i < 3; i++) {
-      zeus::CTransform transform_184(zeus::CMatrix3f(), x2a4_);
-      zeus::CMatrix3f mat3f_220 = zeus::CMatrix3f::RotateY(x28c_ + zeus::degToRad(120.f * i));
-      zeus::CMatrix3f mat3f_704 = mat3f_220 * zeus::CMatrix3f(x290_);
-      zeus::CTransform transform_304(mat3f_704 /*, zeus::skZero3f*/);
-      zeus::CTransform transform_352(rot, x2f2_);
-      zeus::CTransform transform_752 = transform_352 * transform_304;
-      zeus::CTransform transform_400 = transform_752 * transform_184;
-      CGraphics::SetModelMatrix(transform_400);
+      const zeus::CTransform origin = zeus::CTransform(rot, x2f2_orbitLockOrigin);
+      const zeus::CTransform transform =
+          zeus::CMatrix3f::RotateY(x28c_orbitLockArmRotation + zeus::degToRad(120.f * i)) *
+          zeus::CMatrix3f(x290_uiScale);
+      CGraphics::SetModelMatrix(origin * transform * zeus::CTransform::Translate(x2a4_uiPositionOffset));
 
-      zeus::CColor color = g_tweakTargeting->x2d0_;
-      color.a() = x350_;
+      zeus::CColor color = g_tweakTargeting->x2d0_orbitLockArmColor;
+      color.a() *= std::max(0.25f, x350_nextGrappleOrbitLockAlpha);
       CModelFlags flags(5, 0, 0, color);
       x3a4_orbitLockArm->Draw(flags);
     }
   }
 }
 
-void CCompoundTargetReticle::DrawNewGroup2(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
-  if (x2f0_ != kInvalidUniqueId && x304_ > 0) {
+void CCompoundTargetReticle::DrawCurrLockOnGroupRS5(const zeus::CMatrix3f& rot, const CStateManager& mgr) const {
+  if (x2f0_ != kInvalidUniqueId && x304_orbitLockArmAlpha > 0) {
     for (int i = 0; i < 3; i++) {
-      zeus::CTransform transform_192(zeus::CMatrix3f(), x2a4_);
-      zeus::CMatrix3f mat3f_228 = zeus::CMatrix3f::RotateY(zeus::degToRad(120.f * i));
-      zeus::CMatrix3f mat3f_1016 = mat3f_228 * zeus::CMatrix3f(x290_);
-      zeus::CTransform transform_360(rot, x2f2_);
-      zeus::CTransform transform_1064 = transform_360 * mat3f_1016;
-      zeus::CTransform transform_408 = transform_1064 * transform_192;
-      CGraphics::SetModelMatrix(transform_408);
+      const zeus::CTransform origin(rot, x2f2_orbitLockOrigin);
+      const zeus::CMatrix3f rotation = zeus::CMatrix3f::RotateY(zeus::degToRad(120.f * i));
+      const zeus::CTransform transform(rotation * zeus::CMatrix3f(x290_uiScale));
+      CGraphics::SetModelMatrix(origin * transform * zeus::CTransform::Translate(x2a4_uiPositionOffset));
 
-      zeus::CColor color = x300_;
-      color.a() = x304_;
+      zeus::CColor color = x300_orbitLockArmColor;
+      color.a() *= x304_orbitLockArmAlpha;
       CModelFlags flags(5, 0, 0, color);
       x3a4_orbitLockArm->Draw(flags);
 
-      zeus::CTransform transform_496(mat3f_228 * zeus::CMatrix3f(x328_));
-      zeus::CTransform transform_544 = transform_360 * transform_496;
-      CGraphics::SetModelMatrix(transform_544);
+      const zeus::CTransform baseTransform(rotation * zeus::CMatrix3f(x328_orbitLockBaseScale));
+      CGraphics::SetModelMatrix(origin * baseTransform);
 
       zeus::CColor baseColor = x308_orbitLockBaseColor;
-      baseColor.a() = x30c_orbitLockBaseAlpha;
+      baseColor.a() *= std::max(0.25f, x30c_orbitLockBaseAlpha);
       CModelFlags baseFlags(5, 0, 0, baseColor);
       x3c8_orbitLockBase->Draw(baseFlags);
     }
 
-    zeus::CTransform transform_644(zeus::CMatrix3f::RotateY(x338_) * zeus::CMatrix3f(x290_));
-    zeus::CTransform transform_712(rot, x2f2_);
-    CGraphics::SetModelMatrix(transform_712 * transform_644);
-    // thunk_FUN_802fe1e0(7,0,0,7,0); ??
+    {
+      const zeus::CTransform origin(rot, x2f2_orbitLockOrigin);
+      const zeus::CTransform transform(zeus::CMatrix3f::RotateY(x338_orbitLockBracketsRotation) *
+                                       zeus::CMatrix3f(x290_uiScale));
+      CGraphics::SetModelMatrix(origin * transform);
+      CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
-    zeus::CColor bracketsColor = x308_orbitLockBaseColor;
-    bracketsColor.a() = x334_;
-    CModelFlags bracketsFlags(5, 0, 0, bracketsColor);
-    x3bc_orbitLockBrackets->Draw(bracketsFlags);
+      zeus::CColor bracketsColor = x308_orbitLockBaseColor;
+      bracketsColor.a() *= std::max(0.25f, x334_);
+      CModelFlags bracketsFlags(5, 0, 0, bracketsColor);
+      x3bc_orbitLockBrackets->Draw(bracketsFlags);
+    }
 
-    if (x340_ > 0) {
-      zeus::CTransform transform_880(zeus::CMatrix3f::RotateY(x334_) * zeus::CMatrix3f(x290_));
-      zeus::CTransform transform_928(rot, x2f2_);
-      CGraphics::SetModelMatrix(transform_928 * transform_880);
-      // thunk_FUN_802fe1e0(7,0,0,7,0); ??
+    if (x340_orbitLockTechScrollTime > 0) {
+      const zeus::CTransform origin(rot, x2f2_orbitLockOrigin);
+      const zeus::CTransform transform(zeus::CMatrix3f::RotateY(x344_orbitLockTechRotation) *
+                                       zeus::CMatrix3f(x290_uiScale));
+      CTimeProvider prov(x340_orbitLockTechScrollTime);
+      CGraphics::SetModelMatrix(origin * transform);
+      CGraphics::SetAlphaCompare(ERglAlphaFunc::Always, 0, ERglAlphaOp::And, ERglAlphaFunc::Always, 0);
 
       zeus::CColor techColor = x308_orbitLockBaseColor;
-      techColor.a() = x30c_orbitLockBaseAlpha;
+      techColor.a() *= std::max(0.25f, x30c_orbitLockBaseAlpha);
       CModelFlags techFlags(5, 0, 0, techColor);
       x3b0_orbitLockTech->Draw(techFlags);
     }
@@ -1348,20 +1396,6 @@ void CCompoundTargetReticle::Touch() {
     xb8_thermalReticle->Touch(0);
   if (xc4_chargeGauge.x0_model.IsLoaded())
     xc4_chargeGauge.x0_model->Touch(0);
-  if (x38c_combatAimingCenter.IsLoaded())
-    x38c_combatAimingCenter->Touch(0);
-  if (x398_combatAimingArm.IsLoaded())
-    x398_combatAimingArm->Touch(0);
-  if (x3a4_orbitLockArm.IsLoaded())
-    x3a4_orbitLockArm->Touch(0);
-  if (x3b0_orbitLockTech.IsLoaded())
-    x3b0_orbitLockTech->Touch(0);
-  if (x3bc_orbitLockBrackets.IsLoaded())
-    x3bc_orbitLockBrackets->Touch(0);
-  if (x3c8_orbitLockBase.IsLoaded())
-    x3c8_orbitLockBase->Touch(0);
-  if (x3d4_offScreen.IsLoaded())
-    x3d4_offScreen->Touch(0);
   if (x3e0_scanReticleRing.IsLoaded())
     x3e0_scanReticleRing->Touch(0);
   if (x3ec_scanReticleBracket.IsLoaded())

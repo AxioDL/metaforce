@@ -4,6 +4,8 @@
 #include <optional>
 #include <vector>
 
+#include "Runtime/CUnknownPlayerState1.hpp"
+#include "Runtime/CUnknownPlayerState2.hpp"
 #include "Runtime/Weapon/CPlayerGun.hpp"
 #include "Runtime/Weapon/CWeaponMgr.hpp"
 #include "Runtime/World/CMorphBall.hpp"
@@ -34,6 +36,8 @@ class CPlayer : public CPhysicsActor {
   friend class CMorphBall;
   friend class CPlayerCameraBob;
   friend class CStateManager;
+  friend class CUnknownPlayerState1;
+  friend class CUnknownPlayerState2;
 
 public:
   enum class EPlayerScanState { NotScanning, Scanning, ScanComplete };
@@ -352,10 +356,12 @@ private:
   float GetAcceleration() const;
   float CalculateOrbitMinDistance(EPlayerOrbitType type) const;
 
+  // RS5
+  CUnknownPlayerState1 xa40_unkPlayerState1 = CUnknownPlayerState1(0.175f);
+  CUnknownPlayerState2 xeb8_unkPlayerState2 = CUnknownPlayerState2(0, 0);
+
 public:
   // RS5
-  // CUnknownPlayerState1
-  // CUnknownPlayerState2
   float x1180_ = 0.f;
   float x1184_ = 0.f;
   union {
@@ -648,5 +654,7 @@ public:
   const zeus::CVector3f& GetOrbitPoint() const { return x314_orbitPoint; }
   float GetAverageSpeed() const;
   bool IsInWaterMovement() const { return x9c4_31_inWaterMovement; }
+  const CUnknownPlayerState1& GetUnknownPlayerState1() const { return xa40_unkPlayerState1; }
+  const CUnknownPlayerState2& GetUnknownPlayerState2() const { return xeb8_unkPlayerState2; }
 };
 } // namespace urde

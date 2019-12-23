@@ -118,6 +118,8 @@ set(RUNTIME_SOURCES_B
     TCastTo.hpp TCastTo.cpp
     GCNTypes.hpp
     CTextureCache.hpp CTextureCache.cpp
+    CUnknownPlayerState1.hpp CUnknownPlayerState1.cpp
+    CUnknownPlayerState2.hpp CUnknownPlayerState2.cpp
     ${PLAT_SRCS})
 
 function(add_runtime_common_library name)
